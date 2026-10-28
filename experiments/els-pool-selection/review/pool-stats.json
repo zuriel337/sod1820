@@ -1,0 +1,516 @@
+{
+ "windows": [
+  {
+   "id": "real",
+   "items": 298,
+   "relations": 3283,
+   "PP": 75,
+   "PPA": 34,
+   "PXA": 34,
+   "collinear": 4,
+   "tight_pairs_or_more": 16,
+   "compact_groups": 10,
+   "largest_group": 5,
+   "top_pair_els": {
+    "a": "F195",
+    "b": "F218",
+    "type": "continuation",
+    "letters": 11,
+    "E": 0.012959253459958658,
+    "priority": 0
+   }
+  },
+  {
+   "id": "real-d1",
+   "items": 304,
+   "relations": 3335,
+   "PP": 78,
+   "PPA": 34,
+   "PXA": 34,
+   "collinear": 5,
+   "tight_pairs_or_more": 17,
+   "compact_groups": 11,
+   "largest_group": 5,
+   "top_pair_els": {
+    "a": "F117",
+    "b": "F118",
+    "type": "continuation",
+    "letters": 13,
+    "E": 0.00006968343474822123,
+    "priority": 0
+   }
+  },
+  {
+   "id": "t01",
+   "items": 297,
+   "relations": 3878,
+   "PP": 94,
+   "PPA": 42,
+   "PXA": 42,
+   "collinear": 4,
+   "tight_pairs_or_more": 17,
+   "compact_groups": 11,
+   "largest_group": 6,
+   "top_pair_els": {
+    "a": "F057",
+    "b": "F086",
+    "type": "continuation",
+    "letters": 11,
+    "E": 0.05143294811142807,
+    "priority": 0
+   }
+  },
+  {
+   "id": "t02",
+   "items": 298,
+   "relations": 3568,
+   "PP": 96,
+   "PPA": 46,
+   "PXA": 46,
+   "collinear": 2,
+   "tight_pairs_or_more": 14,
+   "compact_groups": 8,
+   "largest_group": 5,
+   "top_pair_els": {
+    "a": "F158",
+    "b": "F243",
+    "type": "continuation",
+    "letters": 12,
+    "E": 0.01586919681964761,
+    "priority": 0
+   }
+  },
+  {
+   "id": "t03",
+   "items": 300,
+   "relations": 3538,
+   "PP": 100,
+   "PPA": 48,
+   "PXA": 48,
+   "collinear": 6,
+   "tight_pairs_or_more": 17,
+   "compact_groups": 7,
+   "largest_group": 6,
+   "top_pair_els": {
+    "a": "F165",
+    "b": "F282",
+    "type": "continuation",
+    "letters": 10,
+    "E": 0.5655822351689755,
+    "priority": 0
+   }
+  },
+  {
+   "id": "t04",
+   "items": 300,
+   "relations": 3431,
+   "PP": 88,
+   "PPA": 41,
+   "PXA": 41,
+   "collinear": 3,
+   "tight_pairs_or_more": 17,
+   "compact_groups": 7,
+   "largest_group": 10,
+   "top_pair_els": {
+    "a": "F209",
+    "b": "F253",
+    "type": "continuation",
+    "letters": 10,
+    "E": 0.059704159479281024,
+    "priority": 0
+   }
+  },
+  {
+   "id": "t05",
+   "items": 300,
+   "relations": 3335,
+   "PP": 73,
+   "PPA": 30,
+   "PXA": 30,
+   "collinear": 8,
+   "tight_pairs_or_more": 15,
+   "compact_groups": 10,
+   "largest_group": 6,
+   "top_pair_els": {
+    "a": "F078",
+    "b": "F107",
+    "type": "continuation",
+    "letters": 10,
+    "E": 0.20033995647415023,
+    "priority": 0
+   }
+  },
+  {
+   "id": "t06",
+   "items": 295,
+   "relations": 3257,
+   "PP": 105,
+   "PPA": 67,
+   "PXA": 67,
+   "collinear": 8,
+   "tight_pairs_or_more": 9,
+   "compact_groups": 7,
+   "largest_group": 11,
+   "top_pair_els": {
+    "a": "F019",
+    "b": "F026",
+    "type": "continuation",
+    "letters": 11,
+    "E": 0.5065490116131992,
+    "priority": 0
+   }
+  },
+  {
+   "id": "t07",
+   "items": 300,
+   "relations": 3598,
+   "PP": 84,
+   "PPA": 41,
+   "PXA": 41,
+   "collinear": 5,
+   "tight_pairs_or_more": 13,
+   "compact_groups": 7,
+   "largest_group": 6,
+   "top_pair_els": {
+    "a": "F120",
+    "b": "F143",
+    "type": "continuation",
+    "letters": 12,
+    "E": 0.007831069924167834,
+    "priority": 0
+   }
+  },
+  {
+   "id": "t08",
+   "items": 298,
+   "relations": 3720,
+   "PP": 107,
+   "PPA": 62,
+   "PXA": 62,
+   "collinear": 3,
+   "tight_pairs_or_more": 14,
+   "compact_groups": 10,
+   "largest_group": 8,
+   "top_pair_els": {
+    "a": "F003",
+    "b": "F123",
+    "type": "continuation",
+    "letters": 10,
+    "E": 0.007554205953285395,
+    "priority": 0
+   }
+  },
+  {
+   "id": "t09",
+   "items": 300,
+   "relations": 3793,
+   "PP": 87,
+   "PPA": 39,
+   "PXA": 39,
+   "collinear": 2,
+   "tight_pairs_or_more": 14,
+   "compact_groups": 7,
+   "largest_group": 8,
+   "top_pair_els": {
+    "a": "F014",
+    "b": "F201",
+    "type": "continuation",
+    "letters": 10,
+    "E": 0.03336543222448337,
+    "priority": 0
+   }
+  },
+  {
+   "id": "t10",
+   "items": 295,
+   "relations": 3381,
+   "PP": 81,
+   "PPA": 39,
+   "PXA": 39,
+   "collinear": 2,
+   "tight_pairs_or_more": 14,
+   "compact_groups": 9,
+   "largest_group": 6,
+   "top_pair_els": {
+    "a": "F110",
+    "b": "F196",
+    "type": "continuation",
+    "letters": 10,
+    "E": 0.1603501971185571,
+    "priority": 0
+   }
+  },
+  {
+   "id": "t11",
+   "items": 300,
+   "relations": 3050,
+   "PP": 72,
+   "PPA": 35,
+   "PXA": 35,
+   "collinear": 6,
+   "tight_pairs_or_more": 13,
+   "compact_groups": 7,
+   "largest_group": 7,
+   "top_pair_els": {
+    "a": "F241",
+    "b": "F296",
+    "type": "continuation",
+    "letters": 10,
+    "E": 0.029677386037467893,
+    "priority": 0
+   }
+  },
+  {
+   "id": "t12",
+   "items": 269,
+   "relations": 2723,
+   "PP": 41,
+   "PPA": 15,
+   "PXA": 15,
+   "collinear": 5,
+   "tight_pairs_or_more": 9,
+   "compact_groups": 2,
+   "largest_group": 7,
+   "top_pair_els": {
+    "a": "F199",
+    "b": "F222",
+    "type": "continuation",
+    "letters": 11,
+    "E": 0.033098840584166234,
+    "priority": 0
+   }
+  }
+ ],
+ "pair": {
+  "ids": {
+   "iran": "F068",
+   "usa": "F174",
+   "danger": "F224",
+   "usaK": "F117",
+   "long": "F118"
+  },
+  "relation_iran_usa": {
+   "id": "R0110",
+   "a": "F068",
+   "b": "F174",
+   "type": "same_line",
+   "gap": 2,
+   "shared": 0
+  },
+  "relation_usa_danger": {
+   "id": "R0992",
+   "a": "F174",
+   "b": "F224",
+   "type": "parallel",
+   "offset": 1,
+   "overlap": 3,
+   "same_direction": false,
+   "shared": 0
+  },
+  "relation_usa_usaK": {
+   "id": "R0546",
+   "a": "F117",
+   "b": "F174",
+   "type": "crossing",
+   "shared": 1,
+   "families": "C×K1"
+  },
+  "relation_usaK_long": {
+   "id": "R0038",
+   "a": "F117",
+   "b": "F118",
+   "type": "continuation",
+   "overlap": 4,
+   "gap": 0,
+   "shared": 4
+  },
+  "rank_registered_score": {
+   "iran_usa": null,
+   "usa_danger_all": 1566,
+   "usa_danger_els": 515,
+   "pairs_scored_all": 1609,
+   "pairs_scored_els": 558
+  },
+  "compact_group_with_known": [
+   {
+    "ids": [
+     "F068",
+     "F174",
+     "F224"
+    ],
+    "size": 3,
+    "rows": [
+     9,
+     19
+    ],
+    "cols": [
+     64,
+     65
+    ]
+   }
+  ]
+ },
+ "controls_summary": {
+  "PP": {
+   "min": 41,
+   "median": 88,
+   "max": 107,
+   "values": [
+    94,
+    96,
+    100,
+    88,
+    73,
+    105,
+    84,
+    107,
+    87,
+    81,
+    72,
+    41
+   ]
+  },
+  "PPA": {
+   "min": 15,
+   "median": 41,
+   "max": 67,
+   "values": [
+    42,
+    46,
+    48,
+    41,
+    30,
+    67,
+    41,
+    62,
+    39,
+    39,
+    35,
+    15
+   ]
+  },
+  "PXA": {
+   "min": 15,
+   "median": 41,
+   "max": 67,
+   "values": [
+    42,
+    46,
+    48,
+    41,
+    30,
+    67,
+    41,
+    62,
+    39,
+    39,
+    35,
+    15
+   ]
+  },
+  "collinear": {
+   "min": 2,
+   "median": 5,
+   "max": 8,
+   "values": [
+    4,
+    2,
+    6,
+    3,
+    8,
+    8,
+    5,
+    3,
+    2,
+    2,
+    6,
+    5
+   ]
+  },
+  "tight_pairs_or_more": {
+   "min": 9,
+   "median": 14,
+   "max": 17,
+   "values": [
+    17,
+    14,
+    17,
+    17,
+    15,
+    9,
+    13,
+    14,
+    14,
+    14,
+    13,
+    9
+   ]
+  },
+  "compact_groups": {
+   "min": 2,
+   "median": 7,
+   "max": 11,
+   "values": [
+    11,
+    8,
+    7,
+    7,
+    10,
+    7,
+    7,
+    10,
+    7,
+    9,
+    7,
+    2
+   ]
+  },
+  "largest_group": {
+   "min": 5,
+   "median": 7,
+   "max": 11,
+   "values": [
+    6,
+    5,
+    6,
+    10,
+    6,
+    11,
+    6,
+    8,
+    8,
+    6,
+    7,
+    7
+   ]
+  }
+ },
+ "controls_with_group_at_least_as_large_as_known": [
+  "t01",
+  "t02",
+  "t03",
+  "t04",
+  "t05",
+  "t06",
+  "t07",
+  "t08",
+  "t09",
+  "t10",
+  "t11",
+  "t12"
+ ],
+ "controls_with_any_collinear_pair_of_els_4plus": [
+  "t01",
+  "t02",
+  "t03",
+  "t04",
+  "t05",
+  "t06",
+  "t07",
+  "t08",
+  "t09",
+  "t10",
+  "t11",
+  "t12"
+ ]
+}

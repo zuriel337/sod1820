@@ -120,3 +120,16 @@ Sizes of the exploratory run settle three details that section 2-6 left open:
   (parallels farther than 3 cells, near pairs with a 4-letter member) is a stated limit.
 * **Generator check** (`review/generator-vs-engine.json`, 600 engine calls, 60 seeded words, 10 ELS families): the generator and the engine returned exactly the same occurrences inside the real window (28 = 28) and inside a
   second window (33 = 33); no occurrence only on one side. Read-only; no saved record or target was used.
+
+## Amendment 2 (28.10.2026, after the pools were committed at 172344dc0 and the saved record was read; before any call)
+What reading the saved record changed, stated before any model result exists:
+* **The record stores words and colors only** (`positions.findings` = `[{t, color}]`): no skip, direction or start. Section 5 expected `skip_dir_start` entries; there are none. The occurrences of the saved words were
+  therefore **located by an exhaustive search in the region** (`evaluation/locate-saved.mjs`: every occurrence along the registered families, both readings, whatever the word list says) and **all** are reported; none was
+  chosen. A second search along steps outside the registered families (|dr|, |dc| <= 4) is reported only as a limit of the families (it found two more occurrences of one word).
+* **D1 (pool-forced)** is built generically (`evaluation/build-d1.mjs`): the real pool plus every located occurrence of a saved word that the pool lacks **because the word is not in the word list** (6 items; the saved
+  word that is in the list keeps whatever the shortlist gave it). The added items have exactly the fields of every other item, are engine-confirmed through the same function, and the ids of the whole pool are re-assigned by
+  position. Which ids were added is kept in `evaluation/d1-forced-ids.json`, outside the pool file the prompt builder reads. D1 is a diagnostic arm; it never counts as blind success.
+* **The relation of the known pair is not "parallel"** (computed, section 4 definitions): see `results/offline-q1-q2.md`. The registered score (continuation / crossing / parallel) therefore does not rank it, and the
+  registered PP/PPA/PXA counts do not describe it. Two **post-hoc** measures are added and are labelled post-hoc wherever they appear: *collinear pairs* (same line, gap <= 2, both ELS, >= 4 letters) and *tight groups*
+  (connected groups of ELS items >= 4 letters under same-line gap <= 2 or parallel offset <= 1 with overlap >= 3; crossings and nesting are left out because they chain a whole pool into one component). They are
+  descriptive and were chosen after the pair was seen; they carry no test statistic.

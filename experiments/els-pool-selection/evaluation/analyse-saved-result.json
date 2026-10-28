@@ -1,0 +1,364 @@
+{
+ "relations": [
+  {
+   "a": "אירנ#1",
+   "b": "ארהב#1",
+   "aWhere": "C+ (9,64)→(12,64)",
+   "bWhere": "C+ (15,64)→(18,64)",
+   "type": "same_line",
+   "gap": 2,
+   "shared": 0,
+   "same_direction": true
+  },
+  {
+   "a": "אירנ#2",
+   "b": "ישראל#3",
+   "aWhere": "C+ (9,86)→(12,86)",
+   "bWhere": "R+ (11,84)→(11,88)",
+   "type": "crossing",
+   "shared": 1,
+   "families": "C×R",
+   "same_direction": true
+  },
+  {
+   "a": "ארהב#1",
+   "b": "סיכנ#1",
+   "aWhere": "C+ (15,64)→(18,64)",
+   "bWhere": "C- (19,65)→(16,65)",
+   "type": "parallel",
+   "offset": 1,
+   "overlap": 3,
+   "same_direction": false,
+   "shared": 0
+  },
+  {
+   "a": "ארהב#1",
+   "b": "ישראל#5",
+   "aWhere": "C+ (15,64)→(18,64)",
+   "bWhere": "R+ (15,61)→(15,65)",
+   "type": "crossing",
+   "shared": 1,
+   "families": "C×R",
+   "same_direction": true
+  },
+  {
+   "a": "ארהב#1",
+   "b": "ישראל#8",
+   "aWhere": "C+ (15,64)→(18,64)",
+   "bWhere": "R+ (18,65)→(18,69)",
+   "type": "near",
+   "distance": 1,
+   "shared": 0,
+   "same_direction": true
+  },
+  {
+   "a": "ארהב#1",
+   "b": "ארהבאששבת#1",
+   "aWhere": "C+ (15,64)→(18,64)",
+   "bWhere": "K1+ (12,61)→(28,69)",
+   "type": "crossing",
+   "shared": 1,
+   "families": "C×K1",
+   "same_direction": true
+  },
+  {
+   "a": "ארהב#2",
+   "b": "סיכנ#1",
+   "aWhere": "K1+ (12,61)→(18,64)",
+   "bWhere": "C- (19,65)→(16,65)",
+   "type": "near",
+   "distance": 1,
+   "shared": 0,
+   "same_direction": false
+  },
+  {
+   "a": "ארהב#2",
+   "b": "ישראל#5",
+   "aWhere": "K1+ (12,61)→(18,64)",
+   "bWhere": "R+ (15,61)→(15,65)",
+   "type": "near",
+   "distance": 1,
+   "shared": 0,
+   "same_direction": true
+  },
+  {
+   "a": "ארהב#2",
+   "b": "ישראל#8",
+   "aWhere": "K1+ (12,61)→(18,64)",
+   "bWhere": "R+ (18,65)→(18,69)",
+   "type": "near",
+   "distance": 1,
+   "shared": 0,
+   "same_direction": true
+  },
+  {
+   "a": "ארהב#2",
+   "b": "ארהבאששבת#1",
+   "aWhere": "K1+ (12,61)→(18,64)",
+   "bWhere": "K1+ (12,61)→(28,69)",
+   "type": "continuation",
+   "overlap": 4,
+   "gap": 0,
+   "shared": 4,
+   "same_direction": true
+  },
+  {
+   "a": "סיכנ#1",
+   "b": "ישראל#5",
+   "aWhere": "C- (19,65)→(16,65)",
+   "bWhere": "R+ (15,61)→(15,65)",
+   "type": "near",
+   "distance": 1,
+   "shared": 0,
+   "same_direction": false
+  },
+  {
+   "a": "סיכנ#1",
+   "b": "ישראל#8",
+   "aWhere": "C- (19,65)→(16,65)",
+   "bWhere": "R+ (18,65)→(18,69)",
+   "type": "crossing",
+   "shared": 1,
+   "families": "C×R",
+   "same_direction": false
+  },
+  {
+   "a": "סיכנ#1",
+   "b": "ארהבאששבת#1",
+   "aWhere": "C- (19,65)→(16,65)",
+   "bWhere": "K1+ (12,61)→(28,69)",
+   "type": "near",
+   "distance": 1,
+   "shared": 0,
+   "same_direction": false
+  },
+  {
+   "a": "ישראל#5",
+   "b": "ארהבאששבת#1",
+   "aWhere": "R+ (15,61)→(15,65)",
+   "bWhere": "K1+ (12,61)→(28,69)",
+   "type": "near",
+   "distance": 1,
+   "shared": 0,
+   "same_direction": true
+  },
+  {
+   "a": "ישראל#8",
+   "b": "ארהבאששבת#1",
+   "aWhere": "R+ (18,65)→(18,69)",
+   "bWhere": "K1+ (12,61)→(28,69)",
+   "type": "near",
+   "distance": 1,
+   "shared": 0,
+   "same_direction": true
+  }
+ ],
+ "sameLineLetters": [
+  {
+   "first": "אירנ#1",
+   "second": "ארהב#1",
+   "step": 10101,
+   "gap": 2,
+   "between": [
+    {
+     "pos": 121437,
+     "cell": [
+      13,
+      64
+     ],
+     "letter": "ו"
+    },
+    {
+     "pos": 131538,
+     "cell": [
+      14,
+      64
+     ],
+     "letter": "י"
+    }
+   ],
+   "whole_ascending": "אירנויארהב"
+  }
+ ],
+ "cluster": {
+  "members": [
+   "אירנ#1",
+   "ארהב#1",
+   "אירנ#2",
+   "ישראל#3",
+   "סיכנ#1",
+   "ישראל#5",
+   "ישראל#8",
+   "ארהבאששבת#1",
+   "ארהב#2"
+  ],
+  "edges": [
+   {
+    "a": "אירנ#1",
+    "b": "ארהב#1",
+    "type": "same_line",
+    "gap": 2,
+    "shared": 0,
+    "same_direction": true
+   },
+   {
+    "a": "אירנ#2",
+    "b": "ישראל#3",
+    "type": "crossing",
+    "shared": 1,
+    "same_direction": true
+   },
+   {
+    "a": "ארהב#1",
+    "b": "סיכנ#1",
+    "type": "parallel",
+    "offset": 1,
+    "overlap": 3,
+    "shared": 0,
+    "same_direction": false
+   },
+   {
+    "a": "ארהב#1",
+    "b": "ישראל#5",
+    "type": "crossing",
+    "shared": 1,
+    "same_direction": true
+   },
+   {
+    "a": "ארהב#1",
+    "b": "ישראל#8",
+    "type": "near",
+    "shared": 0,
+    "distance": 1,
+    "same_direction": true
+   },
+   {
+    "a": "ארהב#1",
+    "b": "ארהבאששבת#1",
+    "type": "crossing",
+    "shared": 1,
+    "same_direction": true
+   },
+   {
+    "a": "ארהב#2",
+    "b": "סיכנ#1",
+    "type": "near",
+    "shared": 0,
+    "distance": 1,
+    "same_direction": false
+   },
+   {
+    "a": "ארהב#2",
+    "b": "ישראל#5",
+    "type": "near",
+    "shared": 0,
+    "distance": 1,
+    "same_direction": true
+   },
+   {
+    "a": "ארהב#2",
+    "b": "ישראל#8",
+    "type": "near",
+    "shared": 0,
+    "distance": 1,
+    "same_direction": true
+   },
+   {
+    "a": "ארהב#2",
+    "b": "ארהבאששבת#1",
+    "type": "continuation",
+    "overlap": 4,
+    "gap": 0,
+    "shared": 4,
+    "same_direction": true
+   },
+   {
+    "a": "סיכנ#1",
+    "b": "ישראל#5",
+    "type": "near",
+    "shared": 0,
+    "distance": 1,
+    "same_direction": false
+   },
+   {
+    "a": "סיכנ#1",
+    "b": "ישראל#8",
+    "type": "crossing",
+    "shared": 1,
+    "same_direction": false
+   },
+   {
+    "a": "סיכנ#1",
+    "b": "ארהבאששבת#1",
+    "type": "near",
+    "shared": 0,
+    "distance": 1,
+    "same_direction": false
+   },
+   {
+    "a": "ישראל#5",
+    "b": "ארהבאששבת#1",
+    "type": "near",
+    "shared": 0,
+    "distance": 1,
+    "same_direction": true
+   },
+   {
+    "a": "ישראל#8",
+    "b": "ארהבאששבת#1",
+    "type": "near",
+    "shared": 0,
+    "distance": 1,
+    "same_direction": true
+   }
+  ],
+  "plain_text_members": [
+   "ישראל#3",
+   "ישראל#5",
+   "ישראל#8"
+  ],
+  "note": "relations to the plain-text row are weak evidence for a common word: the Torah text itself contains it many times"
+ },
+ "loss": [
+  {
+   "word": "אירנ",
+   "in_word_list": false,
+   "occurrences": 2,
+   "candidates": 0,
+   "in_pool": 0,
+   "lost_at": "word list (the word is in neither source: single-word rows of gematria_words or Tanakh forms, length 4-9)"
+  },
+  {
+   "word": "ארהב",
+   "in_word_list": false,
+   "occurrences": 2,
+   "candidates": 0,
+   "in_pool": 0,
+   "lost_at": "word list (the word is in neither source: single-word rows of gematria_words or Tanakh forms, length 4-9)"
+  },
+  {
+   "word": "סיכנ",
+   "in_word_list": false,
+   "occurrences": 1,
+   "candidates": 0,
+   "in_pool": 0,
+   "lost_at": "word list (the word is in neither source: single-word rows of gematria_words or Tanakh forms, length 4-9)"
+  },
+  {
+   "word": "ישראל",
+   "in_word_list": true,
+   "occurrences": 16,
+   "candidates": 4,
+   "in_pool": 1,
+   "lost_at": "maximal-per-reading rule dropped 12 of 16 occurrences (contained in a longer word-list word on the same reading); shortlist cut 3 of 4 candidates"
+  },
+  {
+   "word": "ארהבאששבת",
+   "in_word_list": false,
+   "occurrences": 1,
+   "candidates": 0,
+   "in_pool": 0,
+   "lost_at": "word list (the word is in neither source: single-word rows of gematria_words or Tanakh forms, length 4-9)"
+  }
+ ]
+}

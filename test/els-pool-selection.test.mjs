@@ -280,3 +280,71 @@ test("independence: the experiment code never imports or reads the saved compari
     for (const w of words) if (w !== poolOf("real").axis.term) assert.equal(prose.includes(w), false, `the instruction prose contains the saved word ${w}`);
   }
 });
+
+// ---- metrics and the offline evaluation of the saved cipher (no model) ----
+import { collinearPairs, compactGroups, rankOfPair, rankedPairs, similarGroups } from "../experiments/els-pool-selection/lib/metrics.mjs";
+
+const miniPool = () => {
+  const items = [
+    { id: "F001", text: "אבגד", family: "C", dir: 1, skip: W, cells: col(5, 1, 4), E: 10, tier: "A", axis: { type: "crossing" } },
+    { id: "F002", text: "הוזח", family: "C", dir: 1, skip: W, cells: col(5, 7, 4), E: 10, tier: "A", axis: { type: "crossing" } },
+    { id: "F003", text: "טיכל", family: "C", dir: -1, skip: W, cells: col(6, 8, 4).reverse(), E: 5, tier: "B", axis: { type: "none" } },
+    { id: "F004", text: "מנסעפצ", family: "R", dir: 1, skip: 1, cells: row(2, 3, 6), E: null, tier: "C", axis: { type: "none" } },
+  ];
+  return { id: "mini", items, relations: relationsAmong(items).map((r, k) => ({ id: `R${k + 1}`, ...r })) };
+};
+
+test("metrics: tight groups need same-line gap <= 2 or parallel offset <= 1 with overlap >= 3; crossings do not chain a pool together", () => {
+  const pool = miniPool();
+  const groups = compactGroups(pool, { minSize: 2 });
+  assert.equal(groups.length, 1);
+  assert.deepEqual(groups[0].ids, ["F001", "F002", "F003"]);
+  assert.equal(collinearPairs(pool).length, 1, "F001-F002 are on one column with 2 empty cells between them");
+  assert.equal(collinearPairs(pool)[0].gap, 2);
+  assert.deepEqual(compactGroups(pool, { minSize: 4 }), []);
+});
+
+test("metrics: registered pair score orders by relation priority, then letters, then E; a relation outside the scored types has no rank", () => {
+  const pool = miniPool();
+  const all = rankedPairs(pool);
+  const priority = { continuation: 0, crossing: 1, parallel: 2 };
+  for (let k = 1; k < all.length; k += 1) assert.ok(priority[all[k - 1].type] <= priority[all[k].type]);
+  assert.equal(rankOfPair(pool, "F001", "F002"), null, "same_line is not a scored type");
+  assert.equal(rankedPairs(pool, { elsOnly: true }).every((p) => p.a !== "F004" && p.b !== "F004"), true, "plain-text rows are not ELS pairs");
+  assert.deepEqual(similarGroups(pool), { PP: 1, PPA: 0, PXA: 0 }, "F003 parallel to F002 at offset 1 (PP); neither is tier A on both sides");
+});
+
+test("diagnostic pool D1: the real pool plus the forced items, nothing else changed in format; forced ids stay outside the pool file", () => {
+  const real = poolOf("real"), d1 = poolOf("real-d1");
+  const forced = JSON.parse(readFileSync(`${DIR}evaluation/d1-forced-ids.json`, "utf8")).forced;
+  assert.equal(d1.items.length, real.items.length + forced.length);
+  assert.equal(d1.diagnostic, true);
+  const keys = (it) => Object.keys(it).sort().join(",");
+  assert.equal(new Set([...real.items, ...d1.items].map(keys)).size, 1, "every item has the same fields");
+  assert.equal(JSON.stringify(d1).includes("forced"), false, "the pool file never says which items were added");
+  const realKeys = new Set(real.items.map((i) => `${i.text}|${i.start}|${i.skip}|${i.dir}`));
+  const d1Keys = new Map(d1.items.map((i) => [`${i.text}|${i.start}|${i.skip}|${i.dir}`, i]));
+  for (const k of realKeys) assert.ok(d1Keys.has(k), "every item of the real pool is in D1");
+  for (const f of forced) assert.equal(d1.items.find((i) => i.id === f.id).text, f.text);
+  for (const it of d1.items) assert.ok(["MATCH", "PLAIN_TEXT_ROW"].includes(it.verify));
+  const blindPacket = buildPacket({ pool: d1, arm: { named: true, hint: null } });
+  assert.equal(blindPacket.user.split("\n").filter((l) => /^F\d{3}\|/.test(l)).length, d1.items.length);
+  assert.equal(/diagnostic|forced|saved/.test(blindPacket.user), false);
+});
+
+test("saved-cipher evaluation: every located occurrence spells its word in the canonical stream, and the pair lies on one arithmetic line of the stream", () => {
+  const located = JSON.parse(readFileSync(`${DIR}evaluation/locate-saved-result.json`, "utf8"));
+  const analysis = JSON.parse(readFileSync(`${DIR}evaluation/analyse-saved-result.json`, "utf8"));
+  const win = makeWindow({ width: W, ...poolOf("real").window });
+  for (const w of located.words) for (const o of w.occurrences) {
+    const positions = o.cells.map(([i, j]) => positionAt(win, i, j));
+    assert.equal(positions.map((p) => letters[p]).join(""), w.text, `${w.text} at ${o.first}`);
+    assert.equal(Math.abs(positions[1] - positions[0]), o.skip);
+  }
+  assert.equal(analysis.sameLineLetters.length, 1);
+  const line = analysis.sameLineLetters[0];
+  assert.equal(line.gap, 2);
+  assert.equal(line.whole_ascending.length, 10);
+  const firstStart = located.words.find((w) => w.text === line.first.split("#")[0]).occurrences[Number(line.first.split("#")[1]) - 1].start;
+  assert.equal([...line.whole_ascending].every((ch, k) => letters[firstStart + k * line.step] === ch), true, "ten letters in one arithmetic progression of the canonical stream");
+});

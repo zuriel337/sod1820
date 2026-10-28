@@ -1,0 +1,16 @@
+{
+  "note": "Read ONLY after the candidate pools were built, engine-confirmed and committed (commit 172344dc0, 2026-10-28), so the pools and the word list cannot have been shaped by it. Copied verbatim from public.els_records id 16711767-f136-4a49-9354-6e0b3860e606 (search_term אורניום, scope torah, skip_distance 10101, direction 'down', start_index NULL, status published, visibility public, description empty). The record stores the words and their colors only: NO skip, direction or start for any finding. Where each word lies in the window is therefore not a saved fact; evaluation/locate-saved.mjs finds every occurrence in the window and reports all of them. Letters as stored (final forms folded). The record's own 'quality' object is stored but not used.",
+  "run": "U1",
+  "record_id": "16711767-f136-4a49-9354-6e0b3860e606",
+  "title": "אורניום",
+  "search_term": "אורניום",
+  "description": "",
+  "quality": { "score": 43, "stars": 3, "words": 5, "rarity": 2, "trials": 400, "axisLen": 7, "axisOcc": 314, "verified": true, "percentile": 42, "rarityCapped": false },
+  "findings": [
+    { "t": "אירנ", "color": "#2f9e5a" },
+    { "t": "ארהב", "color": "#3b82d6" },
+    { "t": "סיכנ", "color": "#8b5cf6" },
+    { "t": "ישראל", "color": "#e0851b" },
+    { "t": "ארהבאששבת", "color": "#d6336c" }
+  ]
+}

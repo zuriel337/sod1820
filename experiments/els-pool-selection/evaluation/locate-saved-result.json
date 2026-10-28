@@ -1,0 +1,1168 @@
+{
+ "lexiconSame": true,
+ "window": {
+  "width": 10101,
+  "r0": 0,
+  "r1": 30,
+  "c0": 162,
+  "c1": 262,
+  "nRows": 31,
+  "nCols": 101
+ },
+ "words": [
+  {
+   "saved": "אירנ",
+   "text": "אירנ",
+   "length": 4,
+   "in_word_list": false,
+   "in_any_source_without_length_limit": false,
+   "list_entry": null,
+   "occurrences": [
+    {
+     "family": "C",
+     "dir": 1,
+     "skip": 10101,
+     "start": 81033,
+     "cells": [
+      [
+       9,
+       64
+      ],
+      [
+       10,
+       64
+      ],
+      [
+       11,
+       64
+      ],
+      [
+       12,
+       64
+      ]
+     ],
+     "first": [
+      9,
+      64
+     ],
+     "last": [
+      12,
+      64
+     ],
+     "E": 13.894210223531203,
+     "candidate": false,
+     "in_pool": false,
+     "pool_id": null,
+     "tier": null
+    },
+    {
+     "family": "C",
+     "dir": 1,
+     "skip": 10101,
+     "start": 81055,
+     "cells": [
+      [
+       9,
+       86
+      ],
+      [
+       10,
+       86
+      ],
+      [
+       11,
+       86
+      ],
+      [
+       12,
+       86
+      ]
+     ],
+     "first": [
+      9,
+      86
+     ],
+     "last": [
+      12,
+      86
+     ],
+     "E": 13.894210223531203,
+     "candidate": false,
+     "in_pool": false,
+     "pool_id": null,
+     "tier": null
+    }
+   ],
+   "occurrences_in_window": 2
+  },
+  {
+   "saved": "ארהב",
+   "text": "ארהב",
+   "length": 4,
+   "in_word_list": false,
+   "in_any_source_without_length_limit": false,
+   "list_entry": null,
+   "occurrences": [
+    {
+     "family": "C",
+     "dir": 1,
+     "skip": 10101,
+     "start": 141639,
+     "cells": [
+      [
+       15,
+       64
+      ],
+      [
+       16,
+       64
+      ],
+      [
+       17,
+       64
+      ],
+      [
+       18,
+       64
+      ]
+     ],
+     "first": [
+      15,
+      64
+     ],
+     "last": [
+      18,
+      64
+     ],
+     "E": 14.304991264331886,
+     "candidate": false,
+     "in_pool": false,
+     "pool_id": null,
+     "tier": null
+    },
+    {
+     "family": "K1",
+     "dir": 1,
+     "skip": 20203,
+     "start": 111333,
+     "cells": [
+      [
+       12,
+       61
+      ],
+      [
+       14,
+       62
+      ],
+      [
+       16,
+       63
+      ],
+      [
+       18,
+       64
+      ]
+     ],
+     "first": [
+      12,
+      61
+     ],
+     "last": [
+      18,
+      64
+     ],
+     "E": 12.725669200168992,
+     "candidate": false,
+     "in_pool": false,
+     "pool_id": null,
+     "tier": null
+    }
+   ],
+   "occurrences_in_window": 2
+  },
+  {
+   "saved": "סיכנ",
+   "text": "סיכנ",
+   "length": 4,
+   "in_word_list": false,
+   "in_any_source_without_length_limit": false,
+   "list_entry": null,
+   "occurrences": [
+    {
+     "family": "C",
+     "dir": -1,
+     "skip": 10101,
+     "start": 182044,
+     "cells": [
+      [
+       19,
+       65
+      ],
+      [
+       18,
+       65
+      ],
+      [
+       17,
+       65
+      ],
+      [
+       16,
+       65
+      ]
+     ],
+     "first": [
+      19,
+      65
+     ],
+     "last": [
+      16,
+      65
+     ],
+     "E": 0.6214814254560894,
+     "candidate": false,
+     "in_pool": false,
+     "pool_id": null,
+     "tier": null
+    }
+   ],
+   "occurrences_in_window": 1
+  },
+  {
+   "saved": "ישראל",
+   "text": "ישראל",
+   "length": 5,
+   "in_word_list": true,
+   "in_any_source_without_length_limit": true,
+   "list_entry": {
+    "g": true,
+    "t": 2105
+   },
+   "occurrences": [
+    {
+     "family": "R",
+     "dir": 1,
+     "skip": 1,
+     "start": 81002,
+     "cells": [
+      [
+       9,
+       33
+      ],
+      [
+       9,
+       34
+      ],
+      [
+       9,
+       35
+      ],
+      [
+       9,
+       36
+      ],
+      [
+       9,
+       37
+      ]
+     ],
+     "first": [
+      9,
+      33
+     ],
+     "last": [
+      9,
+      37
+     ],
+     "E": null,
+     "candidate": false,
+     "in_pool": false,
+     "pool_id": null,
+     "tier": null
+    },
+    {
+     "family": "R",
+     "dir": 1,
+     "skip": 1,
+     "start": 101220,
+     "cells": [
+      [
+       11,
+       49
+      ],
+      [
+       11,
+       50
+      ],
+      [
+       11,
+       51
+      ],
+      [
+       11,
+       52
+      ],
+      [
+       11,
+       53
+      ]
+     ],
+     "first": [
+      11,
+      49
+     ],
+     "last": [
+      11,
+      53
+     ],
+     "E": null,
+     "candidate": false,
+     "in_pool": false,
+     "pool_id": null,
+     "tier": null
+    },
+    {
+     "family": "R",
+     "dir": 1,
+     "skip": 1,
+     "start": 101255,
+     "cells": [
+      [
+       11,
+       84
+      ],
+      [
+       11,
+       85
+      ],
+      [
+       11,
+       86
+      ],
+      [
+       11,
+       87
+      ],
+      [
+       11,
+       88
+      ]
+     ],
+     "first": [
+      11,
+      84
+     ],
+     "last": [
+      11,
+      88
+     ],
+     "E": null,
+     "candidate": false,
+     "in_pool": false,
+     "pool_id": null,
+     "tier": null
+    },
+    {
+     "family": "R",
+     "dir": 1,
+     "skip": 1,
+     "start": 141579,
+     "cells": [
+      [
+       15,
+       4
+      ],
+      [
+       15,
+       5
+      ],
+      [
+       15,
+       6
+      ],
+      [
+       15,
+       7
+      ],
+      [
+       15,
+       8
+      ]
+     ],
+     "first": [
+      15,
+      4
+     ],
+     "last": [
+      15,
+      8
+     ],
+     "E": null,
+     "candidate": true,
+     "in_pool": false,
+     "pool_id": null,
+     "tier": null
+    },
+    {
+     "family": "R",
+     "dir": 1,
+     "skip": 1,
+     "start": 141636,
+     "cells": [
+      [
+       15,
+       61
+      ],
+      [
+       15,
+       62
+      ],
+      [
+       15,
+       63
+      ],
+      [
+       15,
+       64
+      ],
+      [
+       15,
+       65
+      ]
+     ],
+     "first": [
+      15,
+      61
+     ],
+     "last": [
+      15,
+      65
+     ],
+     "E": null,
+     "candidate": false,
+     "in_pool": false,
+     "pool_id": null,
+     "tier": null
+    },
+    {
+     "family": "R",
+     "dir": 1,
+     "skip": 1,
+     "start": 171909,
+     "cells": [
+      [
+       18,
+       31
+      ],
+      [
+       18,
+       32
+      ],
+      [
+       18,
+       33
+      ],
+      [
+       18,
+       34
+      ],
+      [
+       18,
+       35
+      ]
+     ],
+     "first": [
+      18,
+      31
+     ],
+     "last": [
+      18,
+      35
+     ],
+     "E": null,
+     "candidate": false,
+     "in_pool": false,
+     "pool_id": null,
+     "tier": null
+    },
+    {
+     "family": "R",
+     "dir": 1,
+     "skip": 1,
+     "start": 171928,
+     "cells": [
+      [
+       18,
+       50
+      ],
+      [
+       18,
+       51
+      ],
+      [
+       18,
+       52
+      ],
+      [
+       18,
+       53
+      ],
+      [
+       18,
+       54
+      ]
+     ],
+     "first": [
+      18,
+      50
+     ],
+     "last": [
+      18,
+      54
+     ],
+     "E": null,
+     "candidate": false,
+     "in_pool": false,
+     "pool_id": null,
+     "tier": null
+    },
+    {
+     "family": "R",
+     "dir": 1,
+     "skip": 1,
+     "start": 171943,
+     "cells": [
+      [
+       18,
+       65
+      ],
+      [
+       18,
+       66
+      ],
+      [
+       18,
+       67
+      ],
+      [
+       18,
+       68
+      ],
+      [
+       18,
+       69
+      ]
+     ],
+     "first": [
+      18,
+      65
+     ],
+     "last": [
+      18,
+      69
+     ],
+     "E": null,
+     "candidate": false,
+     "in_pool": false,
+     "pool_id": null,
+     "tier": null
+    },
+    {
+     "family": "R",
+     "dir": 1,
+     "skip": 1,
+     "start": 192102,
+     "cells": [
+      [
+       20,
+       22
+      ],
+      [
+       20,
+       23
+      ],
+      [
+       20,
+       24
+      ],
+      [
+       20,
+       25
+      ],
+      [
+       20,
+       26
+      ]
+     ],
+     "first": [
+      20,
+      22
+     ],
+     "last": [
+      20,
+      26
+     ],
+     "E": null,
+     "candidate": false,
+     "in_pool": false,
+     "pool_id": null,
+     "tier": null
+    },
+    {
+     "family": "R",
+     "dir": 1,
+     "skip": 1,
+     "start": 192164,
+     "cells": [
+      [
+       20,
+       84
+      ],
+      [
+       20,
+       85
+      ],
+      [
+       20,
+       86
+      ],
+      [
+       20,
+       87
+      ],
+      [
+       20,
+       88
+      ]
+     ],
+     "first": [
+      20,
+      84
+     ],
+     "last": [
+      20,
+      88
+     ],
+     "E": null,
+     "candidate": false,
+     "in_pool": false,
+     "pool_id": null,
+     "tier": null
+    },
+    {
+     "family": "R",
+     "dir": 1,
+     "skip": 1,
+     "start": 212342,
+     "cells": [
+      [
+       22,
+       60
+      ],
+      [
+       22,
+       61
+      ],
+      [
+       22,
+       62
+      ],
+      [
+       22,
+       63
+      ],
+      [
+       22,
+       64
+      ]
+     ],
+     "first": [
+      22,
+      60
+     ],
+     "last": [
+      22,
+      64
+     ],
+     "E": null,
+     "candidate": false,
+     "in_pool": false,
+     "pool_id": null,
+     "tier": null
+    },
+    {
+     "family": "R",
+     "dir": 1,
+     "skip": 1,
+     "start": 242635,
+     "cells": [
+      [
+       25,
+       50
+      ],
+      [
+       25,
+       51
+      ],
+      [
+       25,
+       52
+      ],
+      [
+       25,
+       53
+      ],
+      [
+       25,
+       54
+      ]
+     ],
+     "first": [
+      25,
+      50
+     ],
+     "last": [
+      25,
+      54
+     ],
+     "E": null,
+     "candidate": false,
+     "in_pool": false,
+     "pool_id": null,
+     "tier": null
+    },
+    {
+     "family": "R",
+     "dir": 1,
+     "skip": 1,
+     "start": 283036,
+     "cells": [
+      [
+       29,
+       47
+      ],
+      [
+       29,
+       48
+      ],
+      [
+       29,
+       49
+      ],
+      [
+       29,
+       50
+      ],
+      [
+       29,
+       51
+      ]
+     ],
+     "first": [
+      29,
+      47
+     ],
+     "last": [
+      29,
+      51
+     ],
+     "E": null,
+     "candidate": true,
+     "in_pool": false,
+     "pool_id": null,
+     "tier": null
+    },
+    {
+     "family": "R",
+     "dir": 1,
+     "skip": 1,
+     "start": 283070,
+     "cells": [
+      [
+       29,
+       81
+      ],
+      [
+       29,
+       82
+      ],
+      [
+       29,
+       83
+      ],
+      [
+       29,
+       84
+      ],
+      [
+       29,
+       85
+      ]
+     ],
+     "first": [
+      29,
+      81
+     ],
+     "last": [
+      29,
+      85
+     ],
+     "E": null,
+     "candidate": true,
+     "in_pool": false,
+     "pool_id": null,
+     "tier": null
+    },
+    {
+     "family": "R",
+     "dir": 1,
+     "skip": 1,
+     "start": 303263,
+     "cells": [
+      [
+       31,
+       72
+      ],
+      [
+       31,
+       73
+      ],
+      [
+       31,
+       74
+      ],
+      [
+       31,
+       75
+      ],
+      [
+       31,
+       76
+      ]
+     ],
+     "first": [
+      31,
+      72
+     ],
+     "last": [
+      31,
+      76
+     ],
+     "E": null,
+     "candidate": false,
+     "in_pool": false,
+     "pool_id": null,
+     "tier": null
+    },
+    {
+     "family": "C2",
+     "dir": 1,
+     "skip": 20202,
+     "start": 81019,
+     "cells": [
+      [
+       9,
+       50
+      ],
+      [
+       11,
+       50
+      ],
+      [
+       13,
+       50
+      ],
+      [
+       15,
+       50
+      ],
+      [
+       17,
+       50
+      ]
+     ],
+     "first": [
+      9,
+      50
+     ],
+     "last": [
+      17,
+      50
+     ],
+     "E": 0.885777796623108,
+     "candidate": true,
+     "in_pool": true,
+     "pool_id": "F062",
+     "tier": "B"
+    }
+   ],
+   "occurrences_in_window": 16
+  },
+  {
+   "saved": "ארהבאששבת",
+   "text": "ארהבאששבת",
+   "length": 9,
+   "in_word_list": false,
+   "in_any_source_without_length_limit": false,
+   "list_entry": null,
+   "occurrences": [
+    {
+     "family": "K1",
+     "dir": 1,
+     "skip": 20203,
+     "start": 111333,
+     "cells": [
+      [
+       12,
+       61
+      ],
+      [
+       14,
+       62
+      ],
+      [
+       16,
+       63
+      ],
+      [
+       18,
+       64
+      ],
+      [
+       20,
+       65
+      ],
+      [
+       22,
+       66
+      ],
+      [
+       24,
+       67
+      ],
+      [
+       26,
+       68
+      ],
+      [
+       28,
+       69
+      ]
+     ],
+     "first": [
+      12,
+      61
+     ],
+     "last": [
+      28,
+      69
+     ],
+     "E": 0.0000054758169218555406,
+     "candidate": false,
+     "in_pool": false,
+     "pool_id": null,
+     "tier": null
+    }
+   ],
+   "occurrences_in_window": 1
+  }
+ ],
+ "extended_steps": [
+  {
+   "text": "ארהב",
+   "step": [
+    1,
+    -4
+   ],
+   "reversed": true,
+   "first": [
+    8,
+    64
+   ],
+   "last": [
+    11,
+    52
+   ]
+  },
+  {
+   "text": "ארהב",
+   "step": [
+    4,
+    1
+   ],
+   "reversed": false,
+   "first": [
+    9,
+    14
+   ],
+   "last": [
+    21,
+    17
+   ]
+  }
+ ],
+ "pair": {
+  "words": [
+   "אירנ",
+   "ארהב"
+  ],
+  "relations": [
+   {
+    "a": {
+     "text": "אירנ",
+     "family": "C",
+     "dir": 1,
+     "first": [
+      9,
+      64
+     ],
+     "last": [
+      12,
+      64
+     ],
+     "pool_id": null
+    },
+    "b": {
+     "text": "ארהב",
+     "family": "C",
+     "dir": 1,
+     "first": [
+      15,
+      64
+     ],
+     "last": [
+      18,
+      64
+     ],
+     "pool_id": null
+    },
+    "computed": {
+     "type": "same_line",
+     "gap": 2,
+     "shared": 0
+    },
+    "independent": {
+     "stepA": 10101,
+     "stepB": 10101,
+     "sameSkipStep": true,
+     "letters_a": "אירנ",
+     "letters_b": "ארהב"
+    }
+   },
+   {
+    "a": {
+     "text": "אירנ",
+     "family": "C",
+     "dir": 1,
+     "first": [
+      9,
+      64
+     ],
+     "last": [
+      12,
+      64
+     ],
+     "pool_id": null
+    },
+    "b": {
+     "text": "ארהב",
+     "family": "K1",
+     "dir": 1,
+     "first": [
+      12,
+      61
+     ],
+     "last": [
+      18,
+      64
+     ],
+     "pool_id": null
+    },
+    "computed": null,
+    "independent": {
+     "stepA": 10101,
+     "stepB": 20203,
+     "sameSkipStep": false,
+     "letters_a": "אירנ",
+     "letters_b": "ארהב"
+    }
+   },
+   {
+    "a": {
+     "text": "אירנ",
+     "family": "C",
+     "dir": 1,
+     "first": [
+      9,
+      86
+     ],
+     "last": [
+      12,
+      86
+     ],
+     "pool_id": null
+    },
+    "b": {
+     "text": "ארהב",
+     "family": "C",
+     "dir": 1,
+     "first": [
+      15,
+      64
+     ],
+     "last": [
+      18,
+      64
+     ],
+     "pool_id": null
+    },
+    "computed": null,
+    "independent": {
+     "stepA": 10101,
+     "stepB": 10101,
+     "sameSkipStep": true,
+     "letters_a": "אירנ",
+     "letters_b": "ארהב"
+    }
+   },
+   {
+    "a": {
+     "text": "אירנ",
+     "family": "C",
+     "dir": 1,
+     "first": [
+      9,
+      86
+     ],
+     "last": [
+      12,
+      86
+     ],
+     "pool_id": null
+    },
+    "b": {
+     "text": "ארהב",
+     "family": "K1",
+     "dir": 1,
+     "first": [
+      12,
+      61
+     ],
+     "last": [
+      18,
+      64
+     ],
+     "pool_id": null
+    },
+    "computed": null,
+    "independent": {
+     "stepA": 10101,
+     "stepB": 20203,
+     "sameSkipStep": false,
+     "letters_a": "אירנ",
+     "letters_b": "ארהב"
+    }
+   }
+  ]
+ }
+}

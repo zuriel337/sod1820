@@ -1,0 +1,96 @@
+{
+ "note": "ids of the items added to the real pool for the diagnostic arm D1 (kept outside the pool file the prompt builder reads)",
+ "pool": "real-d1",
+ "forced": [
+  {
+   "id": "F068",
+   "text": "אירנ",
+   "family": "C",
+   "dir": 1,
+   "skip": 10101,
+   "first": [
+    9,
+    64
+   ],
+   "last": [
+    12,
+    64
+   ]
+  },
+  {
+   "id": "F072",
+   "text": "אירנ",
+   "family": "C",
+   "dir": 1,
+   "skip": 10101,
+   "first": [
+    9,
+    86
+   ],
+   "last": [
+    12,
+    86
+   ]
+  },
+  {
+   "id": "F117",
+   "text": "ארהב",
+   "family": "K1",
+   "dir": 1,
+   "skip": 20203,
+   "first": [
+    12,
+    61
+   ],
+   "last": [
+    18,
+    64
+   ]
+  },
+  {
+   "id": "F118",
+   "text": "ארהבאששבת",
+   "family": "K1",
+   "dir": 1,
+   "skip": 20203,
+   "first": [
+    12,
+    61
+   ],
+   "last": [
+    28,
+    69
+   ]
+  },
+  {
+   "id": "F174",
+   "text": "ארהב",
+   "family": "C",
+   "dir": 1,
+   "skip": 10101,
+   "first": [
+    15,
+    64
+   ],
+   "last": [
+    18,
+    64
+   ]
+  },
+  {
+   "id": "F224",
+   "text": "סיכנ",
+   "family": "C",
+   "dir": -1,
+   "skip": 10101,
+   "first": [
+    19,
+    65
+   ],
+   "last": [
+    16,
+    65
+   ]
+  }
+ ]
+}
