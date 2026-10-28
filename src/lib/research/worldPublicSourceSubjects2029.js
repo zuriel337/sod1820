@@ -4,6 +4,8 @@
 // or research publication authority is created here.
 import { fetchTopicCardList } from "./topicConvergence.js";
 import { fetchCorpusPage, WORLD_SOURCE_CORPORA } from "./worldSourceCorpus.js";
+import { buildPublicWorldContentProjectionV1 } from "./publicWorldContentProjectionV1.js";
+import { adaptLegacyTopicsV1, adaptPublicSourceRowsV1 } from "./publicWorldContentAdaptersV1.js";
 
 const ZVI_CREATOR = "צבי (OPOC)";
 const HASHMAL = WORLD_SOURCE_CORPORA.find((item) => item.key === "sod-hashmal");
@@ -88,6 +90,40 @@ async function readHashmalSources(reader) {
   return { rows, total: total ?? rows.length, incomplete: hasMore };
 }
 
+function legacySourceSubjectContentProjection({ zviTopics = [], hashmalPosts = [], zviAvailable = false, hashmalAvailable = false } = {}) {
+  // The old lens has two different historical inputs. Keep that fact visible:
+  // Zvi Topic cards are compatibility-only; Hashmal posts are source rows.
+  // This bridge does not claim it is the eventual full all-writer corpus reader.
+  const legacyTopics = adaptLegacyTopicsV1(zviTopics.map((row) => ({
+    topicRef: row?.id ? `topic_cards:${row.id}` : null,
+    slug: row?.slug,
+    href: row?.slug ? `/topic/${encodeURIComponent(row.slug)}` : null,
+    title: row?.title,
+  })));
+  const sourceRows = adaptPublicSourceRowsV1(hashmalPosts.map((row) => ({
+    sourceRef: row?.id == null ? null : `posts:${row.id}`,
+    occurrenceRef: row?.id == null ? null : `legacy-source-subject:posts:${row.id}`,
+    title: row?.title,
+    sourceHref: row?.slug ? `/post/${encodeURIComponent(row.slug)}` : null,
+    occurrenceHref: row?.slug ? `/post/${encodeURIComponent(row.slug)}` : null,
+    publisher: { key: "sod-hashmal", label: "סוד החשמל" },
+    times: { occurredAt: null, publishedAt: row?.date || null, updatedAt: row?.modified || null },
+  })));
+  return buildPublicWorldContentProjectionV1({
+    ...sourceRows,
+    compatibility: { legacyTopics },
+    coverage: {
+      sources: { available: hashmalAvailable },
+      occurrences: { available: hashmalAvailable },
+      clusters: { available: false },
+      seriesCategories: { available: false },
+      findings: { available: false },
+      treeRelations: { available: false },
+      legacyTopics: { available: zviAvailable },
+    },
+  });
+}
+
 export async function fetchPublicSourceSubjectIndex({
   topicReader = fetchTopicCardList,
   corpusReader = fetchCorpusPage,
@@ -101,6 +137,12 @@ export async function fetchPublicSourceSubjectIndex({
   }
   const zvi = topicResult.status === "fulfilled" ? topicResult.value : null;
   const hashmal = corpusResult.status === "fulfilled" ? corpusResult.value : null;
+  const contentProjection = legacySourceSubjectContentProjection({
+    zviTopics: zvi?.rows || [],
+    hashmalPosts: hashmal?.rows || [],
+    zviAvailable: Boolean(zvi),
+    hashmalAvailable: Boolean(hashmal),
+  });
   return {
     cards: canonicalSourceSubjectCards({
       zviTopics: zvi?.rows || [],
@@ -117,5 +159,8 @@ export async function fetchPublicSourceSubjectIndex({
       hashmal: Boolean(hashmal),
     },
     incomplete: Boolean(zvi?.incomplete || hashmal?.incomplete),
+    // Additive migration field. Existing cards/totals keep their historical
+    // behavior while consumers can adopt the shared public content contract.
+    contentProjection,
   };
 }
