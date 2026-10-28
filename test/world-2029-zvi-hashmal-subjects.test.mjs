@@ -88,6 +88,7 @@ test("the single public World layout uses one category-free subject reader and k
   const ui = readFileSync(new URL("../src/components/research/WorldPublicSourceSubjects2029.jsx", import.meta.url), "utf8");
   assert.doesNotMatch(ui, /קטגוריות סוד החשמל|publicSourceSubjectCategories|category ===/);
   assert.match(ui, /מפת החומר הציבורי/);
+  assert.match(ui, /id="world-public-content-map"/);
   assert.match(ui, /אנשים ציבוריים/);
   assert.match(ui, /מקורות שנטענו בעדשה זו/);
   assert.match(ui, /נושאים קיימים בעץ/);
