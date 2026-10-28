@@ -28,3 +28,6 @@ test('Gra doubles retain all seven independent assignments and direct five-crown
 test('stones/houses display the six printed counts without generating or verifying permutations',()=>{
  const m=bindSourceModel(bundle,'stones-houses');assert.deepEqual(m.components.map(c=>[c.source_stones,c.source_houses]),[[2,2],[3,6],[4,24],[5,120],[6,720],[7,5040]]);assert.equal(modelGeometry(m).points.length,6);assert.equal(modelGeometry(m).edges.length,0);assert.equal(m.spec.engine_verification,'not_tested');for(const c of m.components){assert.equal(c.source.pdf_page,111);assert.equal(c.permutations,undefined);}
 });
+test('three kings use only the synoptic component claims while other witnesses remain unit-level context',()=>{
+ const m=bindSourceModel(bundle,'three-kings');assert.deepEqual(m.components.map(c=>c.simile),['מלך על כסאו','מלך במדינה','מלך במלחמה']);assert.deepEqual(m.components.map(c=>c.source.pdf_page),[122,122,122]);assert.deepEqual(m.contextUnits.map(c=>c.source.pdf_page),[151,192]);assert.equal(m.relations.length,0);assert.equal(modelGeometry(m).edges.length,0);assert.ok(m.contextUnits[0].unit.source_content.summary);assert.notEqual(m.contextUnits[0].unit.id,m.components[0].source.unit_id);
+});
