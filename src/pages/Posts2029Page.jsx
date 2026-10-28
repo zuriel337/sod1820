@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import Sod2029Shell, { FrameState } from "../components/experience2029/Sod2029Shell.jsx";
-import { getPostsFromSupabase } from "../lib/supabase.js";
+import { getPostBySlug, getPostsFromSupabase } from "../lib/supabase.js";
+import { isApproved2029OnlyPost } from "../lib/research/post2029Publication.js";
 import { applySeo } from "../lib/seo.js";
 import { stripHtml } from "../lib/format.js";
 import { bilingualDateLabel } from "../lib/relativeTime2029.js";
@@ -66,6 +67,15 @@ export default function Posts2029Page() {
   const requestedPage = Number(searchParams.get("page") || 1);
   const page = Number.isSafeInteger(requestedPage) && requestedPage > 0 && requestedPage <= 10000 ? requestedPage : 1;
   const [state, setState] = useState({ page, loading: true, posts: [], total: 0, error: null });
+  const [approved2029Post, setApproved2029Post] = useState(null);
+
+  useEffect(() => {
+    let live = true;
+    getPostBySlug("bennett-melach-631-78")
+      .then((post) => { if (live) setApproved2029Post(isApproved2029OnlyPost(post) ? post : null); })
+      .catch(() => { if (live) setApproved2029Post(null); });
+    return () => { live = false; };
+  }, []);
 
   useEffect(() => {
     applySeo({
@@ -133,6 +143,10 @@ export default function Posts2029Page() {
           {page > 1 ? <button type="button" onClick={() => goToPage(1)}>חזרה לפוסטים האחרונים</button> : "אין כרגע מקורות זמינים להצגה."}
         </FrameState>
         : null}
+
+      {page === 1 && approved2029Post ? <section className="sod29-posts-index-stage" aria-label="פוסט בנט והמלח">
+        <div className="sod29-posts-index-grid"><PostIndexCard post={approved2029Post} index={0} /></div>
+      </section> : null}
 
       {posts.length ? <section id="posts-catalog" className="sod29-posts-index-stage" aria-label="פוסטים" data-posts-page={page}>
         <div className="sod29-posts-index-stage-head">

@@ -92,7 +92,7 @@ function PostReadingBody() {
       description: projection.excerpt,
       path: `/post/${projection.post.slug}`,
       type: "article",
-      noindex: projection.draft || projection.privateStage || projection.previewSnapshot,
+      noindex: projection.draft || projection.privateStage || projection.previewSnapshot || projection.public2029Only,
     });
   }, [state.projection]);
 
