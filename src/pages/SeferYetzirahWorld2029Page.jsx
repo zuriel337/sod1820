@@ -115,12 +115,15 @@ function SceneLegend({ mode, activeNode, onSelect }) {
 function SpatialStage({ mode, onMode, activeNode, onNode }) {
   const meta = SEFER_YETZIRAH_SCENE_MODES.find(item => item.id === mode);
   const [opened, setOpened] = useState(false);
+  const startRef = useRef(null);
+  useEffect(() => { const close = () => setOpened(false); document.addEventListener("yetzirah-model-explicit-activation", close); return () => document.removeEventListener("yetzirah-model-explicit-activation", close); }, []);
+  const toggle = () => { if (opened) { setOpened(false); startRef.current?.focus(); } else { document.dispatchEvent(new CustomEvent("yetzirah-model-explicit-activation", { detail: "existing-sefer-stage" })); setOpened(true); } };
   return <section className="yetzirah29-spatial" aria-labelledby="yetzirah29-spatial-title">
     <header>
       <div><span>הספר נעשה מרחב</span><h2 id="yetzirah29-spatial-title">{meta.label}</h2><p>{meta.description}</p></div>
       <nav aria-label="בחירת מבנה תלת־ממדי">{SEFER_YETZIRAH_SCENE_MODES.map(item => <button type="button" key={item.id} className={mode === item.id ? "is-active" : ""} aria-pressed={mode === item.id} onClick={() => onMode(item.id)}><b>{item.short}</b><span>{item.label}</span></button>)}</nav>
     </header>
-    <button type="button" aria-expanded={opened} onClick={() => setOpened(value => !value)}>{opened ? "סגור את המבנה התלת־ממדי" : "פתח את המבנה התלת־ממדי"}</button>
+    <button ref={startRef} type="button" aria-expanded={opened} onClick={toggle}>{opened ? "סגור את המבנה התלת־ממדי" : "פתח את המבנה התלת־ממדי"}</button>
     <p>ייצוג של מבנה הספר: המיקום, הצבעים והתאורה הם בחירות המחשה. {mode === "sefirot" ? "כל קו מחבר זוג עומקים המופיע ברשימה; רק רום ותחת, מזרח ומערב, צפון ודרום הם כיווני מרחב." : "הקווים והצורות הם בחירות המחשה."} בחירת רכיב פותחת את המקור המתאים.</p>
     {opened ? <div className="yetzirah29-stage">
       <SpatialErrorBoundary>
@@ -225,7 +228,7 @@ export default function SeferYetzirahWorld2029Page() {
     if (component) next.searchParams.set("component", component); else next.searchParams.delete("component");
     window.history.replaceState({}, "", `${next.pathname}${next.search}${next.hash}`);
   };
-  const chooseStructure = (id, sourcePage) => { setStructureId(id); setComponentId(""); updateStructureUrl(id, ""); if (sourcePage) openPage(sourcePage); };
+  const chooseStructure = (id, first) => { const component = first?.stable_id || ""; setStructureId(id); setComponentId(component); updateStructureUrl(id, component); if (first?.source?.pdf_page) openPage(first.source.pdf_page); };
   const chooseComponent = id => { setComponentId(id); updateStructureUrl(structureId, id); };
   const openStructureSource = payload => {
     openPage(payload.source.pdf_page);
@@ -287,7 +290,7 @@ export default function SeferYetzirahWorld2029Page() {
           <LetterLaboratory onPage={openPage} onSpatial={letter => { setMode("gates"); setActiveNode(letter); }} />
           <VolumeMap onPage={openPage} />
         </div>
-        <SourcePanel page={page} onPage={openPage} hasStructure={Boolean(structureId)} onReturn={() => { const target = document.getElementById("yetzirah29-structure-learning"); target?.scrollIntoView({ behavior: "auto", block: "start" }); target?.focus(); }} />
+        <SourcePanel page={page} onPage={openPage} hasStructure={Boolean(structureId)} onReturn={async () => { if (document.fullscreenElement) await document.exitFullscreen(); const target = document.getElementById("yetzirah29-structure-learning"); target?.scrollIntoView({ behavior: "auto", block: "start" }); target?.focus(); }} />
       </div>
     </main>
   </Sod2029Shell>;
