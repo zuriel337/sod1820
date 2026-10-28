@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {
   buildPublicWorldContentProjectionV1,
+  composePublicWorldContentProjectionPagesV1,
   PUBLIC_WORLD_CONTENT_PROJECTION_CONTRACT_VERSION,
 } from "../src/lib/research/publicWorldContentProjectionV1.js";
 
@@ -87,4 +88,47 @@ test("the 78 legacy Zvi Topics remain addressable without becoming 78 corpus sou
   assert.equal(projection.metrics.legacyTopics, 78);
   assert.equal(projection.metrics.corpusSources, 2);
   assert.equal(projection.coverage.legacyTopics.available, true);
+});
+
+test("page composition deduplicates source identities across supplied public pages", () => {
+  const zviPage = buildPublicWorldContentProjectionV1({
+    sources: [source("channel_updates:zvi-a"), source("posts:shared")],
+    occurrences: [{ occurrenceRef: "occ:zvi-a", sourceRef: "channel_updates:zvi-a" }],
+    compatibility: { legacyTopics: [{ topicRef: "topic:zvi" }] },
+  });
+  const writerPage = buildPublicWorldContentProjectionV1({
+    sources: [source("posts:shared"), source("els_records:writer-a")],
+    occurrences: [{ occurrenceRef: "occ:writer-a", sourceRef: "els_records:writer-a" }],
+  });
+  const projection = composePublicWorldContentProjectionPagesV1([zviPage, writerPage]);
+
+  assert.equal(projection.sources.length, 3);
+  assert.equal(projection.metrics.corpusSources, 3);
+  assert.equal(projection.metrics.occurrences, 2);
+  assert.equal(projection.metrics.legacyTopics, 1);
+  assert.deepEqual(projection.sources.map((item) => item.sourceRef), [
+    "channel_updates:zvi-a", "posts:shared", "els_records:writer-a",
+  ]);
+});
+
+test("page composition fails coverage closed when any supplied public page is unavailable", () => {
+  const availablePage = buildPublicWorldContentProjectionV1({
+    sources: [source("posts:available")],
+  });
+  const unavailablePage = buildPublicWorldContentProjectionV1({
+    sources: [source("posts:deferred")],
+    coverage: { sources: { available: false }, findings: { available: false } },
+  });
+  const projection = composePublicWorldContentProjectionPagesV1([availablePage, unavailablePage]);
+
+  assert.deepEqual(projection.coverage.sources, { available: false, total: null });
+  assert.equal(projection.metrics.corpusSources, null);
+  assert.deepEqual(projection.coverage.findings, { available: false, total: null });
+  assert.equal(projection.metrics.findings, null);
+});
+
+test("empty page composition reports unknown coverage rather than a fabricated empty corpus", () => {
+  const projection = composePublicWorldContentProjectionPagesV1([]);
+  assert.deepEqual(projection.coverage.sources, { available: false, total: null });
+  assert.equal(projection.metrics.corpusSources, null);
 });

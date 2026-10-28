@@ -207,3 +207,30 @@ export function buildPublicWorldContentProjectionV1(input = {}) {
     }),
   });
 }
+
+/**
+ * Combines already-built public content pages without fetching anything.
+ *
+ * It is deliberately an envelope composer rather than a second reader: the
+ * caller decides which public pages were requested and retains the original
+ * reader's access boundary. A metric is available only when every supplied
+ * page made that dimension available. Therefore a failed/deferred page can
+ * never turn into an apparently complete zero or partial corpus total.
+ */
+export function composePublicWorldContentProjectionPagesV1(pages = []) {
+  const supplied = list(pages).filter((page) => page && page.contractVersion === PUBLIC_WORLD_CONTENT_PROJECTION_CONTRACT_VERSION);
+  const fields = ["sources", "occurrences", "clusters", "seriesCategories", "findings", "treeRelations", "legacyTopics"];
+  const coverage = Object.fromEntries(fields.map((field) => [field, {
+    available: supplied.length > 0 && supplied.every((page) => page.coverage?.[field]?.available === true),
+  }]));
+  return buildPublicWorldContentProjectionV1({
+    sources: supplied.flatMap((page) => list(page.sources)),
+    occurrences: supplied.flatMap((page) => list(page.occurrences)),
+    clusters: supplied.flatMap((page) => list(page.clusters)),
+    seriesCategories: supplied.flatMap((page) => list(page.seriesCategories)),
+    findings: supplied.flatMap((page) => list(page.findings)),
+    treeRelations: supplied.flatMap((page) => list(page.treeRelations)),
+    compatibility: { legacyTopics: supplied.flatMap((page) => list(page.compatibility?.legacyTopics)) },
+    coverage,
+  });
+}
