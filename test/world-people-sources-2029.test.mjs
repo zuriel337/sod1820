@@ -214,4 +214,5 @@ test("a source can offer exact documented tree edges only through its promoted n
   assert.deepEqual(result.treeFindingTargets, [{ findingRef: "uf:1", nodeId: "node-1", sourceRefs: ["channel_updates:one"], label: "ממצא" }]);
   assert.match(worldPeopleSurface, /fetchCanonicalGraphEntityFindings/);
   assert.match(worldPeopleSurface, /identity\?\.relationRef\?\.startsWith\("edge:"\)/);
+  assert.match(worldPeopleSurface, /חלון הקשרים שנבדק/);
 });

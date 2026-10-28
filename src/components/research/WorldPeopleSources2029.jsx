@@ -61,7 +61,7 @@ function DocumentedTreeRelations({ target }) {
     {state.error ? <small role="status">קשרי העץ אינם זמינים כרגע.</small> : null}
     {state.rows ? (state.rows.length ? <ul>{state.rows.map((relation) => <li key={relation.edgeRef}>
       {relation.from} · {relation.relationType} · {relation.to} <code dir="ltr">{relation.edgeRef}</code>
-    </li>)}</ul> : <small>אין חיבור עץ מתועד לצומת הזה.</small>) : null}
+    </li>)}</ul> : <small>לא נמצאו קשרים בחלון הקשרים שנבדק; אין להסיק מכך שאין קשרים נוספים בעץ.</small>) : null}
   </div>;
 }
 

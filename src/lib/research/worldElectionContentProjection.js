@@ -122,11 +122,14 @@ export function buildElectionWorldContentProjection({
     occurrences.push({
       occurrenceRef: `elections-israel-21-26:${source.id}`,
       sourceRef,
-      locator: source.id,
+      // A branch/seed id is traceability metadata, not an anchor inside the
+      // public source. A feed item without a verified anchor stays unanchored.
+      locator: clean(source?.canonicalRef) || null,
       href: sourceHref(source, galleryById, postById),
       times: {
         occurredAt: null,
-        publishedAt: source?.attributes?.article_metadata_published_at || source?.capturedAt || null,
+        // Capture time never substitutes for a source publication timestamp.
+        publishedAt: source?.attributes?.article_metadata_published_at || null,
         updatedAt: null,
       },
     });
