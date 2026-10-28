@@ -56,6 +56,9 @@ import { researchSourceOccurrenceKey } from "../lib/research/sourceBundleProject
 import { canonicalMediaPublicLabel, canonicalResearchPublicLabel, formatTanakhRef, formatVerseGematriaSuffix } from "../lib/presentation/canonicalPresentation.js";
 import { fetchWorldPublicPeopleIndex } from "../lib/research/worldPublicPeopleIndex.js";
 import { fetchWorldPublicFindingById } from "../lib/research/worldPublicFindingReader.js";
+import { worldFindingPublicShare, worldFindingFollowTarget } from "../lib/research/worldFindingShare.js";
+import ShareActions from "../components/ShareActions.jsx";
+import WatchButton from "../components/WatchButton.jsx";
 import { numberExpressionFocusHref } from "../lib/research/numberExpressionFocus.js";
 import { humanContentTitle } from "../lib/presentation/contentTitle.js";
 import { applySeo } from "../lib/seo.js";
@@ -570,6 +573,8 @@ function PublicWorldFindingFocus({ finding, context, shell }) {
     ? finding.contributors
     : [finding?.contributor]).filter(Boolean).join(" · ") || "ייחוס לא צוין";
   const linkedTopic = finding?.linkedTopicRating || null;
+  const publicShare = worldFindingPublicShare(finding);
+  const linkedFollow = worldFindingFollowTarget(finding);
   const returnHref = String(context?.returnTo?.href || "");
   const canReturnToBeitMidrash = /^\/beit-midrash(?:[/?#]|$)/.test(returnHref);
   const findingAnchor = `finding-${encodeURIComponent(String(finding.sourceId))}`;
@@ -605,10 +610,21 @@ function PublicWorldFindingFocus({ finding, context, shell }) {
       {finding.contextLine ? <p className="sod29-world-all-research-secondary">{finding.contextLine}</p> : null}
 
       <div className="sod29-world-all-research-meta">
-        <span>ייחוס · {contributor}</span>
+        <span>ייחוס · {finding.attributionLabel || contributor}</span>
         <span>מקור · {finding.sourceLabel || "מקור מחקר"}</span>
         {finding.createdAt ? <span>נוסף למחקר · {bilingualDateLabel(finding.createdAt)}</span> : null}
       </div>
+
+      {publicShare ? <div className="sod29-actions" aria-label="שיתוף הממצא הציבורי" style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 12 }}>
+        <ShareActions type="finding" url={publicShare.url} title={publicShare.title} image={publicShare.image}
+          entityId={publicShare.sourceId} sourceSurface="world" locale="he" compact force channels={["native", "copy"]} />
+        {linkedFollow ? <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 8 }}>
+          <WatchButton topic={linkedFollow.topic} source="world:linked_topic" label={"עקוב אחר הנושא: " + linkedFollow.title}
+            explainer="שמירת הנושא במרכז המעקבים. אין הבטחה להתראות עד שמסלול עדכונים וערוץ משלוח יאומתו."
+            noPush compact ghost />
+          <small>מעקב בנושא נפרד משיתוף הממצא; לא מובטח משלוח התראות.</small>
+        </div> : null}
+      </div> : null}
 
       {linkedTopic ? <div className="sod29-world-all-research-cluster">
         <strong>יעד מדויק בעץ · {linkedTopic.title}</strong>
