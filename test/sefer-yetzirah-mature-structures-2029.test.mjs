@@ -1,0 +1,11 @@
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import test from 'node:test';
+import {bindSourceModel,modelGeometry} from '../src/components/books2029/yetzirahModels/sourceModels.js';
+import {catalogFields} from '../src/components/books2029/yetzirahModels/catalogModels.js';
+const read=name=>JSON.parse(readFileSync(new URL(`../public/book-data/sefer-yetzirah.${name}.json`,import.meta.url)));
+const bundle={structures:read('structures'),units:read('units'),readings:read('source-readings')};
+test('families preserve three source groups, 3/7/12 counts, all 22 letters, and no inferred adjacency',()=>{
+ const m=bindSourceModel(bundle,'letter-families');assert.deepEqual(m.components.map(c=>c.source_count),[3,7,12]);assert.equal(new Set(m.components.flatMap(c=>c.letters)).size,22);assert.equal(m.relations.length,0);assert.equal(modelGeometry(m).edges.length,0);assert.equal(modelGeometry(m).points.length,3);
+ for(const c of m.components){assert.equal(c.source.pdf_page,65);for(const f of catalogFields(m,c)){assert.equal(f.source,c.source);assert.equal(f.value,c[f.key]);}}
+});

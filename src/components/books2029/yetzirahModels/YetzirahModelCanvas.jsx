@@ -37,7 +37,7 @@ export default function YetzirahModelCanvas(props){
       const p=latest.current.palette,lightInk=p.mode==='light'?p.card:p.ink;scene.add(new THREE.HemisphereLight(lightInk,p.cardSoft,2.2));const light=new THREE.DirectionalLight(lightInk,3);light.userData.role='key';light.position.set(4,7,6);scene.add(light);const rim=new THREE.DirectionalLight(p.accentSecondary,1.8);rim.userData.role='rim';rim.position.set(-5,1,-4);scene.add(rim);
       const geometry=modelGeometry(props.model);
       for(const point of geometry.points){
-        const mesh=new THREE.Mesh(point.shape==='ring'?new THREE.TorusGeometry(.48,.065,16,64):new THREE.SphereGeometry(.29,28,20),new THREE.MeshStandardMaterial({color:p.warmAccent,metalness:.48,roughness:.28,emissive:p.accentDiscovery,emissiveIntensity:0}));
+        const mesh=new THREE.Mesh(point.shape==='tile'?new THREE.BoxGeometry(1.2,.16,1):point.shape==='ring'?new THREE.TorusGeometry(.48,.065,16,64):new THREE.SphereGeometry(.29,28,20),new THREE.MeshStandardMaterial({color:p.warmAccent,metalness:.48,roughness:.28,emissive:p.accentDiscovery,emissiveIntensity:0}));
         mesh.position.set(...point.position);mesh.userData.componentId=point.id;scene.add(mesh);nodes.push({mesh,point});hits.push(mesh);
         if(point.showLabel!==false){const label=labelSprite(point);scene.add(label.sprite);labels.push(label);hits.push(label.sprite);}
       }
