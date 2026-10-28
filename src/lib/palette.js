@@ -128,6 +128,26 @@ const MATRIX_HIGHLIGHTS = Object.freeze({
   ].map(Object.freeze)),
 });
 
+
+const NUMBER_RESEARCH_NIGHT_V2 = Object.freeze({
+  pageBg: "#0A1728",
+  card: "#10243B",
+  cardSoft: "#142B46",
+  cardGrad: "linear-gradient(145deg,#142B46,#10243B)",
+  border: "rgba(138,176,228,0.24)",
+  borderStrong: "rgba(138,176,228,0.42)",
+  ink: "#EEF5FF",
+  inkSoft: "#B9CBE1",
+  accent: "#729FEC",
+  accentText: "#B6D3FF",
+  onAccent: "#081321",
+  heroNum: "#A8C7FF",
+  focusRing: "#A8C7FF",
+  glow: "rgba(83,139,238,0.16)",
+});
+// Number Night tokens are scoped via the existing Frame to Number page/inspector only.
+// Books, ELS, Heichal and the host chrome keep the normal preset.
+
 // Royal projection: same semantic roles in Day, Parchment and Night.
 export const DESIGN_V2_PALETTES = Object.freeze({
   light: Object.freeze({
@@ -203,19 +223,20 @@ export const DESIGN_V2_PALETTES = Object.freeze({
     ink: "#F5F5F0",
     inkSoft: "#C6C6C1",
     accent: "#D4AF37",
-    accentText: "#F1D99C",
-    accentSecondary: "#D3B88E",
-    accentDiscovery: "#E3B77D",
+    accentText: "#A8C7FF",
+    accentSecondary: "#C2A8FA",
+    accentDiscovery: "#69DED7",
     accentDim: "#BCA57F",
     heroNum: "#F6E27A",
-    accentBtn: "linear-gradient(135deg, #D4AF37, #E8C840)",
-    onAccent: "#1A0E00",
+    accentBtn: "#315DD5",
+    onAccent: "#FFFFFF",
     glow: "rgba(212,175,55,0.18)",
-    focusRing: "#F1D99C",
+    focusRing: "#69DED7",
     warmAccent: "#DEBD77",
     brandSapphire: "#1957D9",
     brandGold: "#F9BA3F",
     brandGlow: "rgba(212,175,55,0.18)",
+    numberResearch: NUMBER_RESEARCH_NIGHT_V2,
   }),
 });
 

@@ -129,6 +129,17 @@ An environment must never force a fourth theme or silently override the user pre
 - **Scope per session:** Number session owns Number page and its existing contextual Number projection; Home/Post/Calculator/Community/other sessions polish only their assigned surfaces against the unchanged three presets. No changes to research truth, calculations, access, content or Brand assets are authorized by this visual approval.
 - **Proof before merge/release:** Each session returns its precise branch/commit, working Preview URL and actual mobile/desktop screenshots in **Day, Parchment and Night**, including a Number page and a Number opened within a black-brown Night host where relevant. Compare 320/390px and desktop, keyboard/focus, text contrast, no horizontal overflow, preserved reading/return and reduced-motion as in §12. A static mockup or passing build alone is not visual acceptance. Human review and existing CI/release gates still control deployment.
 
+### 6.3 Hybrid precision review · ZURIEL · 13.10.2026
+
+Approved direction, **preview evidence pending**: combine the thin geometry with the depth of the thick concept. Ordinary shared surfaces use 1px edges and 10–12px restrained corners, not padded floating-card stacks. Keep 44px targets and minimum text sizes from §5.
+
+- **Night:** warm black-brown shell and restrained Crown gold; ordinary primary-action fill is the approved royal blue (`#315DD5`), not gold. Gold remains in number values, branding and meaningful ornament. This reconciles the previous V2 contract vs. implementation mismatch.
+- **Night Number:** deep research navy scoped to the existing Number page and contextual Number inspector via `palette.js` and Frame tokens; unrelated Books/ELS/Heichal Research Lab surfaces do not turn blue. The black-brown host stays intact.
+- **Link and focus roles:** Night action text is sapphire-blue, secondary/spatial focus violet and discovery (ordinary source links and compact editorial kickers) cyan. Their previous Night gold-mapped runtime roles were a Design V2 mismatch and are corrected in this Preview. Preserve source-authored meaning and status colors.
+- **Depth:** use meaningful bounded visual depth for Number ring, Raziel and Journey; ordinary cards and controls remain restrained. No continuous animation everywhere, no color implying research proof.
+- **Single bottom bar:** Claude's five short labels (חיפוש / עכשיו / אזורים / רזיאל / מסלול) are a **review candidate**, NOT authorization to create another bar or change the canonical navigation tree. PR 1044 owns the one Command Island. Reconcile labels with current actions, Now, Page Map, existing navigation/Research Path, and prove 14px labels plus ≥44px targets at 320/390px. The preview branch only reduces Raziel's visual prominence, not the dock's information architecture.
+- **Approval gate:** Show actual 320/390/desktop browser screenshots of Home, World, Calculator, Number 1820, and contextual Number in Day/Parchment/Night. Verify RTL, contrast, keyboard, source return and reduced motion. PR 1044, 1076, 1077 and 1083 require reconciliation before merge. No automatic production cutover.
+
 ## 7. Brand boundary
 The approved canonical Crown + Hebrew wordmark remain protected artwork under Brand Core. Their blue-sapphire + gold identity is preserved.
 
