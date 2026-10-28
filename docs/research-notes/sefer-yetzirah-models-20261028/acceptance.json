@@ -1,0 +1,1075 @@
+{
+  "task": "SEFER_YETZIRAH_SOURCE_BOUND_SPATIAL_MODELS",
+  "actor": "GPT",
+  "handoff_to": "ZURIEL",
+  "base": "fa66867dfa1c3239f5bf454f8a110eb2777ec42b",
+  "branch": "codex/sefer-yetzirah-source-bound-models-20261028",
+  "status": "IMPLEMENTED_TESTED_BRANCH_ONLY_WITH_BASELINE_BOOKS_GATE_FAILURE",
+  "models": [
+    {
+      "key": "six-seals-synoptic",
+      "structure_id": "sy-structure:six-seals-synoptic",
+      "source_page": 73,
+      "implemented": true,
+      "source_callback_bound": true,
+      "browser_contexts_passed": 9,
+      "product_reader_integrated": false,
+      "integration_status": "awaiting_existing_reader_integration",
+      "engine_verification": "not_tested",
+      "components": [
+        {
+          "stable_id": "sy-structure:six-seals-synoptic:component:up",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch1:six-seals",
+            "pdf_page": 73,
+            "source_ref": "book:sefer-yetzirah-9perushim#p73:synoptic_body:text:synoptic:ch1:six-seals",
+            "page_region": "body",
+            "source_anchor": "#page=73&view=FitH"
+          }
+        },
+        {
+          "stable_id": "sy-structure:six-seals-synoptic:component:down",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch1:six-seals",
+            "pdf_page": 73,
+            "source_ref": "book:sefer-yetzirah-9perushim#p73:synoptic_body:text:synoptic:ch1:six-seals",
+            "page_region": "body",
+            "source_anchor": "#page=73&view=FitH"
+          }
+        },
+        {
+          "stable_id": "sy-structure:six-seals-synoptic:component:east",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch1:six-seals",
+            "pdf_page": 73,
+            "source_ref": "book:sefer-yetzirah-9perushim#p73:synoptic_body:text:synoptic:ch1:six-seals",
+            "page_region": "body",
+            "source_anchor": "#page=73&view=FitH"
+          }
+        },
+        {
+          "stable_id": "sy-structure:six-seals-synoptic:component:west",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch1:six-seals",
+            "pdf_page": 73,
+            "source_ref": "book:sefer-yetzirah-9perushim#p73:synoptic_body:text:synoptic:ch1:six-seals",
+            "page_region": "body",
+            "source_anchor": "#page=73&view=FitH"
+          }
+        },
+        {
+          "stable_id": "sy-structure:six-seals-synoptic:component:south",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch1:six-seals",
+            "pdf_page": 73,
+            "source_ref": "book:sefer-yetzirah-9perushim#p73:synoptic_body:text:synoptic:ch1:six-seals",
+            "page_region": "body",
+            "source_anchor": "#page=73&view=FitH"
+          }
+        },
+        {
+          "stable_id": "sy-structure:six-seals-synoptic:component:north",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch1:six-seals",
+            "pdf_page": 73,
+            "source_ref": "book:sefer-yetzirah-9perushim#p73:synoptic_body:text:synoptic:ch1:six-seals",
+            "page_region": "body",
+            "source_anchor": "#page=73&view=FitH"
+          }
+        }
+      ],
+      "relations": [
+        {
+          "stable_id": "sy-structure:six-seals-synoptic:relation:up:opposite_direction:down",
+          "from_id": "up",
+          "to_id": "down",
+          "type": "opposite_direction",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch1:six-seals",
+            "pdf_page": 73,
+            "source_ref": "book:sefer-yetzirah-9perushim#p73:synoptic_body:text:synoptic:ch1:six-seals",
+            "page_region": "body",
+            "source_anchor": "#page=73&view=FitH"
+          }
+        },
+        {
+          "stable_id": "sy-structure:six-seals-synoptic:relation:east:opposite_direction:west",
+          "from_id": "east",
+          "to_id": "west",
+          "type": "opposite_direction",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch1:six-seals",
+            "pdf_page": 73,
+            "source_ref": "book:sefer-yetzirah-9perushim#p73:synoptic_body:text:synoptic:ch1:six-seals",
+            "page_region": "body",
+            "source_anchor": "#page=73&view=FitH"
+          }
+        },
+        {
+          "stable_id": "sy-structure:six-seals-synoptic:relation:south:opposite_direction:north",
+          "from_id": "south",
+          "to_id": "north",
+          "type": "opposite_direction",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch1:six-seals",
+            "pdf_page": 73,
+            "source_ref": "book:sefer-yetzirah-9perushim#p73:synoptic_body:text:synoptic:ch1:six-seals",
+            "page_region": "body",
+            "source_anchor": "#page=73&view=FitH"
+          }
+        }
+      ]
+    },
+    {
+      "key": "six-seals-gra-edition",
+      "structure_id": "sy-structure:six-seals-gra-edition",
+      "source_page": 175,
+      "implemented": true,
+      "source_callback_bound": true,
+      "browser_contexts_passed": 9,
+      "product_reader_integrated": false,
+      "integration_status": "awaiting_existing_reader_integration",
+      "engine_verification": "not_tested",
+      "components": [
+        {
+          "stable_id": "sy-structure:six-seals-gra-edition:component:up",
+          "source": {
+            "unit_id": "sy:gra-edition:text:ch1:six-seals",
+            "pdf_page": 175,
+            "source_ref": "book:sefer-yetzirah-9perushim#p175:gra_commentary:text:gra-edition:ch1:six-seals",
+            "page_region": "body",
+            "source_anchor": "#page=175&view=FitH"
+          }
+        },
+        {
+          "stable_id": "sy-structure:six-seals-gra-edition:component:down",
+          "source": {
+            "unit_id": "sy:gra-edition:text:ch1:six-seals",
+            "pdf_page": 175,
+            "source_ref": "book:sefer-yetzirah-9perushim#p175:gra_commentary:text:gra-edition:ch1:six-seals",
+            "page_region": "body",
+            "source_anchor": "#page=175&view=FitH"
+          }
+        },
+        {
+          "stable_id": "sy-structure:six-seals-gra-edition:component:east",
+          "source": {
+            "unit_id": "sy:gra-edition:text:ch1:six-seals",
+            "pdf_page": 175,
+            "source_ref": "book:sefer-yetzirah-9perushim#p175:gra_commentary:text:gra-edition:ch1:six-seals",
+            "page_region": "body",
+            "source_anchor": "#page=175&view=FitH"
+          }
+        },
+        {
+          "stable_id": "sy-structure:six-seals-gra-edition:component:west",
+          "source": {
+            "unit_id": "sy:gra-edition:text:ch1:six-seals",
+            "pdf_page": 175,
+            "source_ref": "book:sefer-yetzirah-9perushim#p175:gra_commentary:text:gra-edition:ch1:six-seals",
+            "page_region": "body",
+            "source_anchor": "#page=175&view=FitH"
+          }
+        },
+        {
+          "stable_id": "sy-structure:six-seals-gra-edition:component:south",
+          "source": {
+            "unit_id": "sy:gra-edition:text:ch1:six-seals",
+            "pdf_page": 175,
+            "source_ref": "book:sefer-yetzirah-9perushim#p175:gra_commentary:text:gra-edition:ch1:six-seals",
+            "page_region": "body",
+            "source_anchor": "#page=175&view=FitH"
+          }
+        },
+        {
+          "stable_id": "sy-structure:six-seals-gra-edition:component:north",
+          "source": {
+            "unit_id": "sy:gra-edition:text:ch1:six-seals",
+            "pdf_page": 175,
+            "source_ref": "book:sefer-yetzirah-9perushim#p175:gra_commentary:text:gra-edition:ch1:six-seals",
+            "page_region": "body",
+            "source_anchor": "#page=175&view=FitH"
+          }
+        }
+      ],
+      "relations": [
+        {
+          "stable_id": "sy-structure:six-seals-gra-edition:relation:up:opposite_direction:down",
+          "from_id": "up",
+          "to_id": "down",
+          "type": "opposite_direction",
+          "source": {
+            "unit_id": "sy:gra-edition:text:ch1:six-seals",
+            "pdf_page": 175,
+            "source_ref": "book:sefer-yetzirah-9perushim#p175:gra_commentary:text:gra-edition:ch1:six-seals",
+            "page_region": "body",
+            "source_anchor": "#page=175&view=FitH"
+          }
+        },
+        {
+          "stable_id": "sy-structure:six-seals-gra-edition:relation:east:opposite_direction:west",
+          "from_id": "east",
+          "to_id": "west",
+          "type": "opposite_direction",
+          "source": {
+            "unit_id": "sy:gra-edition:text:ch1:six-seals",
+            "pdf_page": 175,
+            "source_ref": "book:sefer-yetzirah-9perushim#p175:gra_commentary:text:gra-edition:ch1:six-seals",
+            "page_region": "body",
+            "source_anchor": "#page=175&view=FitH"
+          }
+        },
+        {
+          "stable_id": "sy-structure:six-seals-gra-edition:relation:south:opposite_direction:north",
+          "from_id": "south",
+          "to_id": "north",
+          "type": "opposite_direction",
+          "source": {
+            "unit_id": "sy:gra-edition:text:ch1:six-seals",
+            "pdf_page": 175,
+            "source_ref": "book:sefer-yetzirah-9perushim#p175:gra_commentary:text:gra-edition:ch1:six-seals",
+            "page_region": "body",
+            "source_anchor": "#page=175&view=FitH"
+          }
+        }
+      ]
+    },
+    {
+      "key": "twelve-boundaries-gra",
+      "structure_id": "sy-structure:twelve-boundaries-gra",
+      "source_page": 187,
+      "implemented": true,
+      "source_callback_bound": true,
+      "browser_contexts_passed": 9,
+      "product_reader_integrated": false,
+      "integration_status": "awaiting_existing_reader_integration",
+      "engine_verification": "not_tested",
+      "components": [
+        {
+          "stable_id": "sy-structure:twelve-boundaries-gra:component:east-up",
+          "source": {
+            "unit_id": "sy:gra-edition:text:ch5:boundaries",
+            "pdf_page": 187,
+            "source_ref": "book:sefer-yetzirah-9perushim#p187:gra_commentary:text:gra-edition:ch5:boundaries",
+            "page_region": "body",
+            "source_anchor": "#page=187&view=FitH"
+          }
+        },
+        {
+          "stable_id": "sy-structure:twelve-boundaries-gra:component:east-north",
+          "source": {
+            "unit_id": "sy:gra-edition:text:ch5:boundaries",
+            "pdf_page": 187,
+            "source_ref": "book:sefer-yetzirah-9perushim#p187:gra_commentary:text:gra-edition:ch5:boundaries",
+            "page_region": "body",
+            "source_anchor": "#page=187&view=FitH"
+          }
+        },
+        {
+          "stable_id": "sy-structure:twelve-boundaries-gra:component:east-down",
+          "source": {
+            "unit_id": "sy:gra-edition:text:ch5:boundaries",
+            "pdf_page": 187,
+            "source_ref": "book:sefer-yetzirah-9perushim#p187:gra_commentary:text:gra-edition:ch5:boundaries",
+            "page_region": "body",
+            "source_anchor": "#page=187&view=FitH"
+          }
+        },
+        {
+          "stable_id": "sy-structure:twelve-boundaries-gra:component:south-up",
+          "source": {
+            "unit_id": "sy:gra-edition:text:ch5:boundaries",
+            "pdf_page": 187,
+            "source_ref": "book:sefer-yetzirah-9perushim#p187:gra_commentary:text:gra-edition:ch5:boundaries",
+            "page_region": "body",
+            "source_anchor": "#page=187&view=FitH"
+          }
+        },
+        {
+          "stable_id": "sy-structure:twelve-boundaries-gra:component:south-east",
+          "source": {
+            "unit_id": "sy:gra-edition:text:ch5:boundaries",
+            "pdf_page": 187,
+            "source_ref": "book:sefer-yetzirah-9perushim#p187:gra_commentary:text:gra-edition:ch5:boundaries",
+            "page_region": "body",
+            "source_anchor": "#page=187&view=FitH"
+          }
+        },
+        {
+          "stable_id": "sy-structure:twelve-boundaries-gra:component:south-down",
+          "source": {
+            "unit_id": "sy:gra-edition:text:ch5:boundaries",
+            "pdf_page": 187,
+            "source_ref": "book:sefer-yetzirah-9perushim#p187:gra_commentary:text:gra-edition:ch5:boundaries",
+            "page_region": "body",
+            "source_anchor": "#page=187&view=FitH"
+          }
+        },
+        {
+          "stable_id": "sy-structure:twelve-boundaries-gra:component:west-up",
+          "source": {
+            "unit_id": "sy:gra-edition:text:ch5:boundaries",
+            "pdf_page": 187,
+            "source_ref": "book:sefer-yetzirah-9perushim#p187:gra_commentary:text:gra-edition:ch5:boundaries",
+            "page_region": "body",
+            "source_anchor": "#page=187&view=FitH"
+          }
+        },
+        {
+          "stable_id": "sy-structure:twelve-boundaries-gra:component:west-south",
+          "source": {
+            "unit_id": "sy:gra-edition:text:ch5:boundaries",
+            "pdf_page": 187,
+            "source_ref": "book:sefer-yetzirah-9perushim#p187:gra_commentary:text:gra-edition:ch5:boundaries",
+            "page_region": "body",
+            "source_anchor": "#page=187&view=FitH"
+          }
+        },
+        {
+          "stable_id": "sy-structure:twelve-boundaries-gra:component:west-down",
+          "source": {
+            "unit_id": "sy:gra-edition:text:ch5:boundaries",
+            "pdf_page": 187,
+            "source_ref": "book:sefer-yetzirah-9perushim#p187:gra_commentary:text:gra-edition:ch5:boundaries",
+            "page_region": "body",
+            "source_anchor": "#page=187&view=FitH"
+          }
+        },
+        {
+          "stable_id": "sy-structure:twelve-boundaries-gra:component:north-up",
+          "source": {
+            "unit_id": "sy:gra-edition:text:ch5:boundaries",
+            "pdf_page": 187,
+            "source_ref": "book:sefer-yetzirah-9perushim#p187:gra_commentary:text:gra-edition:ch5:boundaries",
+            "page_region": "body",
+            "source_anchor": "#page=187&view=FitH"
+          }
+        },
+        {
+          "stable_id": "sy-structure:twelve-boundaries-gra:component:north-west",
+          "source": {
+            "unit_id": "sy:gra-edition:text:ch5:boundaries",
+            "pdf_page": 187,
+            "source_ref": "book:sefer-yetzirah-9perushim#p187:gra_commentary:text:gra-edition:ch5:boundaries",
+            "page_region": "body",
+            "source_anchor": "#page=187&view=FitH"
+          }
+        },
+        {
+          "stable_id": "sy-structure:twelve-boundaries-gra:component:north-down",
+          "source": {
+            "unit_id": "sy:gra-edition:text:ch5:boundaries",
+            "pdf_page": 187,
+            "source_ref": "book:sefer-yetzirah-9perushim#p187:gra_commentary:text:gra-edition:ch5:boundaries",
+            "page_region": "body",
+            "source_anchor": "#page=187&view=FitH"
+          }
+        }
+      ],
+      "relations": []
+    },
+    {
+      "key": "five-against-five",
+      "structure_id": "sy-structure:five-against-five",
+      "source_page": 45,
+      "implemented": true,
+      "source_callback_bound": true,
+      "browser_contexts_passed": 9,
+      "product_reader_integrated": false,
+      "integration_status": "awaiting_existing_reader_integration",
+      "engine_verification": "not_tested",
+      "components": [
+        {
+          "stable_id": "sy-structure:five-against-five:component:five-a",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch1:fingers",
+            "pdf_page": 45,
+            "source_ref": "book:sefer-yetzirah-9perushim#p45:synoptic_body:text:synoptic:ch1:fingers",
+            "page_region": "body",
+            "source_anchor": "#page=45&view=FitH"
+          }
+        },
+        {
+          "stable_id": "sy-structure:five-against-five:component:five-b",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch1:fingers",
+            "pdf_page": 45,
+            "source_ref": "book:sefer-yetzirah-9perushim#p45:synoptic_body:text:synoptic:ch1:fingers",
+            "page_region": "body",
+            "source_anchor": "#page=45&view=FitH"
+          }
+        },
+        {
+          "stable_id": "sy-structure:five-against-five:component:covenant",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch1:fingers",
+            "pdf_page": 45,
+            "source_ref": "book:sefer-yetzirah-9perushim#p45:synoptic_body:text:synoptic:ch1:fingers",
+            "page_region": "body",
+            "source_anchor": "#page=45&view=FitH"
+          }
+        }
+      ],
+      "relations": [
+        {
+          "stable_id": "sy-structure:five-against-five:relation:five-a:opposed_to:five-b",
+          "from_id": "five-a",
+          "to_id": "five-b",
+          "type": "opposed_to",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch1:fingers",
+            "pdf_page": 45,
+            "source_ref": "book:sefer-yetzirah-9perushim#p45:synoptic_body:text:synoptic:ch1:fingers",
+            "page_region": "body",
+            "source_anchor": "#page=45&view=FitH"
+          }
+        },
+        {
+          "stable_id": "sy-structure:five-against-five:relation:covenant:between:five-a",
+          "from_id": "covenant",
+          "to_id": "five-a",
+          "type": "between",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch1:fingers",
+            "pdf_page": 45,
+            "source_ref": "book:sefer-yetzirah-9perushim#p45:synoptic_body:text:synoptic:ch1:fingers",
+            "page_region": "body",
+            "source_anchor": "#page=45&view=FitH"
+          }
+        },
+        {
+          "stable_id": "sy-structure:five-against-five:relation:covenant:between:five-b",
+          "from_id": "covenant",
+          "to_id": "five-b",
+          "type": "between",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch1:fingers",
+            "pdf_page": 45,
+            "source_ref": "book:sefer-yetzirah-9perushim#p45:synoptic_body:text:synoptic:ch1:fingers",
+            "page_region": "body",
+            "source_anchor": "#page=45&view=FitH"
+          }
+        }
+      ]
+    },
+    {
+      "key": "ten-depths",
+      "structure_id": "sy-structure:ten-depths",
+      "source_page": 53,
+      "implemented": true,
+      "source_callback_bound": true,
+      "browser_contexts_passed": 9,
+      "product_reader_integrated": false,
+      "integration_status": "awaiting_existing_reader_integration",
+      "engine_verification": "not_tested",
+      "components": [
+        {
+          "stable_id": "sy-structure:ten-depths:component:beginning",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch1:depths",
+            "pdf_page": 53,
+            "source_ref": "book:sefer-yetzirah-9perushim#p53:synoptic_body:text:synoptic:ch1:depths",
+            "page_region": "body",
+            "source_anchor": "#page=53&view=FitH"
+          }
+        },
+        {
+          "stable_id": "sy-structure:ten-depths:component:end",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch1:depths",
+            "pdf_page": 53,
+            "source_ref": "book:sefer-yetzirah-9perushim#p53:synoptic_body:text:synoptic:ch1:depths",
+            "page_region": "body",
+            "source_anchor": "#page=53&view=FitH"
+          }
+        },
+        {
+          "stable_id": "sy-structure:ten-depths:component:good",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch1:depths",
+            "pdf_page": 53,
+            "source_ref": "book:sefer-yetzirah-9perushim#p53:synoptic_body:text:synoptic:ch1:depths",
+            "page_region": "body",
+            "source_anchor": "#page=53&view=FitH"
+          }
+        },
+        {
+          "stable_id": "sy-structure:ten-depths:component:evil",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch1:depths",
+            "pdf_page": 53,
+            "source_ref": "book:sefer-yetzirah-9perushim#p53:synoptic_body:text:synoptic:ch1:depths",
+            "page_region": "body",
+            "source_anchor": "#page=53&view=FitH"
+          }
+        },
+        {
+          "stable_id": "sy-structure:ten-depths:component:up",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch1:depths",
+            "pdf_page": 53,
+            "source_ref": "book:sefer-yetzirah-9perushim#p53:synoptic_body:text:synoptic:ch1:depths",
+            "page_region": "body",
+            "source_anchor": "#page=53&view=FitH"
+          }
+        },
+        {
+          "stable_id": "sy-structure:ten-depths:component:down",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch1:depths",
+            "pdf_page": 53,
+            "source_ref": "book:sefer-yetzirah-9perushim#p53:synoptic_body:text:synoptic:ch1:depths",
+            "page_region": "body",
+            "source_anchor": "#page=53&view=FitH"
+          }
+        },
+        {
+          "stable_id": "sy-structure:ten-depths:component:east",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch1:depths",
+            "pdf_page": 53,
+            "source_ref": "book:sefer-yetzirah-9perushim#p53:synoptic_body:text:synoptic:ch1:depths",
+            "page_region": "body",
+            "source_anchor": "#page=53&view=FitH"
+          }
+        },
+        {
+          "stable_id": "sy-structure:ten-depths:component:west",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch1:depths",
+            "pdf_page": 53,
+            "source_ref": "book:sefer-yetzirah-9perushim#p53:synoptic_body:text:synoptic:ch1:depths",
+            "page_region": "body",
+            "source_anchor": "#page=53&view=FitH"
+          }
+        },
+        {
+          "stable_id": "sy-structure:ten-depths:component:north",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch1:depths",
+            "pdf_page": 53,
+            "source_ref": "book:sefer-yetzirah-9perushim#p53:synoptic_body:text:synoptic:ch1:depths",
+            "page_region": "body",
+            "source_anchor": "#page=53&view=FitH"
+          }
+        },
+        {
+          "stable_id": "sy-structure:ten-depths:component:south",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch1:depths",
+            "pdf_page": 53,
+            "source_ref": "book:sefer-yetzirah-9perushim#p53:synoptic_body:text:synoptic:ch1:depths",
+            "page_region": "body",
+            "source_anchor": "#page=53&view=FitH"
+          }
+        }
+      ],
+      "relations": [
+        {
+          "stable_id": "sy-structure:ten-depths:relation:beginning:paired_in_list:end",
+          "from_id": "beginning",
+          "to_id": "end",
+          "type": "paired_in_list",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch1:depths",
+            "pdf_page": 53,
+            "source_ref": "book:sefer-yetzirah-9perushim#p53:synoptic_body:text:synoptic:ch1:depths",
+            "page_region": "body",
+            "source_anchor": "#page=53&view=FitH"
+          }
+        },
+        {
+          "stable_id": "sy-structure:ten-depths:relation:good:paired_in_list:evil",
+          "from_id": "good",
+          "to_id": "evil",
+          "type": "paired_in_list",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch1:depths",
+            "pdf_page": 53,
+            "source_ref": "book:sefer-yetzirah-9perushim#p53:synoptic_body:text:synoptic:ch1:depths",
+            "page_region": "body",
+            "source_anchor": "#page=53&view=FitH"
+          }
+        },
+        {
+          "stable_id": "sy-structure:ten-depths:relation:up:paired_in_list:down",
+          "from_id": "up",
+          "to_id": "down",
+          "type": "paired_in_list",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch1:depths",
+            "pdf_page": 53,
+            "source_ref": "book:sefer-yetzirah-9perushim#p53:synoptic_body:text:synoptic:ch1:depths",
+            "page_region": "body",
+            "source_anchor": "#page=53&view=FitH"
+          }
+        },
+        {
+          "stable_id": "sy-structure:ten-depths:relation:east:paired_in_list:west",
+          "from_id": "east",
+          "to_id": "west",
+          "type": "paired_in_list",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch1:depths",
+            "pdf_page": 53,
+            "source_ref": "book:sefer-yetzirah-9perushim#p53:synoptic_body:text:synoptic:ch1:depths",
+            "page_region": "body",
+            "source_anchor": "#page=53&view=FitH"
+          }
+        },
+        {
+          "stable_id": "sy-structure:ten-depths:relation:north:paired_in_list:south",
+          "from_id": "north",
+          "to_id": "south",
+          "type": "paired_in_list",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch1:depths",
+            "pdf_page": 53,
+            "source_ref": "book:sefer-yetzirah-9perushim#p53:synoptic_body:text:synoptic:ch1:depths",
+            "page_region": "body",
+            "source_anchor": "#page=53&view=FitH"
+          }
+        }
+      ]
+    }
+  ],
+  "source_assets": {
+    "public/book-data/sefer-yetzirah.structures.json": {
+      "sha256": "852e9d6a7d4d0810cb999563083fddfcabfb4259bb87cd03a5e0e08a0b7415f1",
+      "byte_identical_to_base": true
+    },
+    "public/book-data/sefer-yetzirah.source-readings.json": {
+      "sha256": "a3bd40326119d9484d6c75f1d170bcf432efcaa5f6146db1c313f626d3e00373",
+      "byte_identical_to_base": true
+    },
+    "public/book-data/sefer-yetzirah.units.json": {
+      "sha256": "8dbe743cebd22e2a25e8c0b05d8b460f7c041e63537b42dc8bc11cb9f422c312",
+      "byte_identical_to_base": true
+    }
+  },
+  "source_pdf": {
+    "sha256": "2cc0710667dde3db94745b4f652d4b2e3eb8ea9c64424ab52f1f2ce44281c13a",
+    "pages": 220
+  },
+  "code_under_acceptance": [
+    {
+      "path": "src/components/books2029/yetzirahModels/FiveAgainstFiveModel2029.jsx",
+      "sha256": "4074d732e68509ccb3be285255b77ea46f4e124fb0ada9293aac7a154e67c9ba"
+    },
+    {
+      "path": "src/components/books2029/yetzirahModels/GraSealsModel2029.jsx",
+      "sha256": "d678553be2de23e8dc2df42b6c7fd8c408ec1972d49adca21b9dd9581daf8751"
+    },
+    {
+      "path": "src/components/books2029/yetzirahModels/README.md",
+      "sha256": "e87e275c5f19d28b10a67d005d1aec0d3630d81b282c45aa6c0407cdfd5e4214"
+    },
+    {
+      "path": "src/components/books2029/yetzirahModels/SynopticSealsModel2029.jsx",
+      "sha256": "eefefc9783b1c196fbf667a3b40f057f22da5d2e67d2a68345fc6104509ae923"
+    },
+    {
+      "path": "src/components/books2029/yetzirahModels/TenDepthsModel2029.jsx",
+      "sha256": "46d3d8cf81fc842c026cd351e75cd84a1745eaa20965281d5ce7c8cfdd86c086"
+    },
+    {
+      "path": "src/components/books2029/yetzirahModels/TwelveBoundariesModel2029.jsx",
+      "sha256": "984187379a98b1810533859bf5c14502b96bd512894cc1d80ff987174e159cf9"
+    },
+    {
+      "path": "src/components/books2029/yetzirahModels/YetzirahModelCanvas.jsx",
+      "sha256": "4daeee46a39b05f9849ed4334db25d2f9a792c3b425aae2229f672416d0c8eea"
+    },
+    {
+      "path": "src/components/books2029/yetzirahModels/YetzirahModelCard.jsx",
+      "sha256": "56e6fc360675b51b986d97533501675d7684204e3116dc28e9613126956c34c5"
+    },
+    {
+      "path": "src/components/books2029/yetzirahModels/sourceModels.js",
+      "sha256": "5bb9cdc18bf33a483dcb4fb381b8b46d53846d9de1f37a84926fc7b0fe841b8e"
+    },
+    {
+      "path": "src/components/books2029/yetzirahModels/useSourceModel.js",
+      "sha256": "ee48b6913ba3a2e30e2cac61cd1f03b805a17ec9d25d7295d10a9cfa1b6297d0"
+    },
+    {
+      "path": "src/components/books2029/yetzirahModels/yetzirahModels.css",
+      "sha256": "a1f59cb233181bdcf27457a88651c757c90873a03164b90178733747b81c1754"
+    },
+    {
+      "path": "test/fixtures/yetzirah-models/index.html",
+      "sha256": "a2e9853224b14fed9bc1ad30bf8e1e376074513a61d0f3bfe50000c871b8a37d"
+    },
+    {
+      "path": "test/fixtures/yetzirah-models/main.jsx",
+      "sha256": "f169873cb9208bda009599302cd940dfbdaf0dadf5f4d6dc617997f377ee3129"
+    },
+    {
+      "path": "test/sefer-yetzirah-source-bound-models-2029.browser.test.mjs",
+      "sha256": "98c905de5643261136fe683a753ecd146861871eff5f62c8d579f4b00d542153"
+    },
+    {
+      "path": "test/sefer-yetzirah-source-bound-models-2029.test.mjs",
+      "sha256": "a424bf02cf1f1e6cc39f02ef30373dc1c3652c5ffc73fc3c7db478f18a3a86e3"
+    }
+  ],
+  "files": [
+    "docs/research-notes/SEFER_YETZIRAH_SOURCE_BOUND_MODELS_20261028.md",
+    "docs/research-notes/sefer-yetzirah-models-20261028/acceptance.json",
+    "docs/research-notes/sefer-yetzirah-models-20261028/baseline-gate-failure.json",
+    "docs/research-notes/sefer-yetzirah-models-20261028/browser-matrix.json",
+    "docs/research-notes/sefer-yetzirah-models-20261028/five-against-five-1440-dark.png",
+    "docs/research-notes/sefer-yetzirah-models-20261028/five-against-five-390-light.png",
+    "docs/research-notes/sefer-yetzirah-models-20261028/six-seals-gra-edition-1440-dark.png",
+    "docs/research-notes/sefer-yetzirah-models-20261028/six-seals-gra-edition-390-parchment.png",
+    "docs/research-notes/sefer-yetzirah-models-20261028/six-seals-synoptic-1440-dark.png",
+    "docs/research-notes/sefer-yetzirah-models-20261028/six-seals-synoptic-320-light.png",
+    "docs/research-notes/sefer-yetzirah-models-20261028/ten-depths-1440-dark.png",
+    "docs/research-notes/sefer-yetzirah-models-20261028/ten-depths-320-dark.png",
+    "docs/research-notes/sefer-yetzirah-models-20261028/twelve-boundaries-gra-1440-dark.png",
+    "docs/research-notes/sefer-yetzirah-models-20261028/twelve-boundaries-gra-320-parchment.png",
+    "src/components/books2029/yetzirahModels/FiveAgainstFiveModel2029.jsx",
+    "src/components/books2029/yetzirahModels/GraSealsModel2029.jsx",
+    "src/components/books2029/yetzirahModels/README.md",
+    "src/components/books2029/yetzirahModels/SynopticSealsModel2029.jsx",
+    "src/components/books2029/yetzirahModels/TenDepthsModel2029.jsx",
+    "src/components/books2029/yetzirahModels/TwelveBoundariesModel2029.jsx",
+    "src/components/books2029/yetzirahModels/YetzirahModelCanvas.jsx",
+    "src/components/books2029/yetzirahModels/YetzirahModelCard.jsx",
+    "src/components/books2029/yetzirahModels/sourceModels.js",
+    "src/components/books2029/yetzirahModels/useSourceModel.js",
+    "src/components/books2029/yetzirahModels/yetzirahModels.css",
+    "test/fixtures/yetzirah-models/index.html",
+    "test/fixtures/yetzirah-models/main.jsx",
+    "test/sefer-yetzirah-source-bound-models-2029.browser.test.mjs",
+    "test/sefer-yetzirah-source-bound-models-2029.test.mjs"
+  ],
+  "test_results": {
+    "models_browser": {
+      "log_sha256": "a36aed977310090f45a7e49666bb2316fb84549c25244c73b6a25a8d61fc21e2",
+      "summary": [
+        "Yetzirah model checked: ten-depths 320/parchment",
+        "11:33:57 AM [vite] (client) [console.error] THREE.WebGLRenderer: THREE.WebGLRenderer: Error creating WebGL context.",
+        "11:33:57 AM [vite] (client) [console.error] THREE.WebGLRenderer: THREE.WebGLRenderer: Error creating WebGL context.",
+        "Yetzirah model checked: ten-depths 320/dark",
+        "11:34:04 AM [vite] (client) [console.error] THREE.WebGLRenderer: THREE.WebGLRenderer: Error creating WebGL context.",
+        "11:34:04 AM [vite] (client) [console.error] THREE.WebGLRenderer: THREE.WebGLRenderer: Error creating WebGL context.",
+        "Yetzirah model checked: ten-depths 390/light",
+        "11:34:10 AM [vite] (client) [console.error] THREE.WebGLRenderer: THREE.WebGLRenderer: Error creating WebGL context.",
+        "11:34:10 AM [vite] (client) [console.error] THREE.WebGLRenderer: THREE.WebGLRenderer: Error creating WebGL context.",
+        "Yetzirah model checked: ten-depths 390/parchment",
+        "11:34:17 AM [vite] (client) [console.error] THREE.WebGLRenderer: THREE.WebGLRenderer: Error creating WebGL context.",
+        "11:34:17 AM [vite] (client) [console.error] THREE.WebGLRenderer: THREE.WebGLRenderer: Error creating WebGL context.",
+        "Yetzirah model checked: ten-depths 390/dark",
+        "11:34:25 AM [vite] (client) [console.error] THREE.WebGLRenderer: THREE.WebGLRenderer: Error creating WebGL context.",
+        "11:34:25 AM [vite] (client) [console.error] THREE.WebGLRenderer: THREE.WebGLRenderer: Error creating WebGL context.",
+        "Yetzirah model checked: ten-depths 1440/light",
+        "11:34:34 AM [vite] (client) [console.error] THREE.WebGLRenderer: THREE.WebGLRenderer: Error creating WebGL context.",
+        "11:34:34 AM [vite] (client) [console.error] THREE.WebGLRenderer: THREE.WebGLRenderer: Error creating WebGL context.",
+        "Yetzirah model checked: ten-depths 1440/parchment",
+        "11:34:43 AM [vite] (client) [console.error] THREE.WebGLRenderer: THREE.WebGLRenderer: Error creating WebGL context.",
+        "11:34:43 AM [vite] (client) [console.error] THREE.WebGLRenderer: THREE.WebGLRenderer: Error creating WebGL context.",
+        "Yetzirah model checked: ten-depths 1440/dark",
+        "✔ source-bound models: explicit GPU, selection/source, close/reopen and failure preserve reading identity (274949.723729ms)",
+        "✔ host contracts: foreign identity, one GPU owner, narrow container, live theme and bad-source retry (4099.722578ms)",
+        "ℹ tests 3",
+        "ℹ suites 0",
+        "ℹ pass 3",
+        "ℹ fail 0",
+        "ℹ cancelled 0",
+        "ℹ skipped 0",
+        "ℹ todo 0",
+        "ℹ duration_ms 279676.732481"
+      ]
+    },
+    "books_full": {
+      "log_sha256": "6e920dab5b7d5623182433f03d9fb5dedb787c1a1646c8ad270dfaa7d27a06fa",
+      "summary": [
+        "✔ Sefer Yetzirah world is an unlinked noindex Preview surface (0.980375ms)",
+        "✔ the complete reading architecture stays anchored to the 220-page source (0.408913ms)",
+        "✔ the spatial grammar includes real 3D modes for sefirot, letters, gates, OSN and commentaries (0.719319ms)",
+        "✔ the commentary atlas covers the full volume and all nine printed voices (0.339723ms)",
+        "✔ the letter laboratory exposes all letters, standard values and exactly 231 unordered gates (0.485066ms)",
+        "✔ the new reader is local-only and responsive (0.492585ms)",
+        "ℹ tests 346",
+        "ℹ suites 0",
+        "ℹ pass 345",
+        "ℹ fail 1",
+        "ℹ cancelled 0",
+        "ℹ skipped 0",
+        "ℹ todo 0",
+        "ℹ duration_ms 573941.339174",
+        "",
+        "✖ failing tests:",
+        "",
+        "test at test/ahavat-torah-spatial-tables-2029.browser.test.mjs:23:1",
+        "✖ Ahavat Torah spatial tables keep source, data and 3D usable at 320/390/1440 (119421.146547ms)",
+        "  AssertionError [ERR_ASSERTION]: PDF overlaps the letter reader on desktop",
+        "      at TestContext.<anonymous> (file:///workspace/sefer-yetzirah-models/test/ahavat-torah-spatial-tables-2029.browser.test.mjs:168:16)",
+        "      at runNextTicks (node:internal/process/task_queues:65:5)",
+        "      at process.processImmediate (node:internal/timers:502:9)",
+        "      at async Test.run (node:internal/test_runner/test:1389:7)",
+        "      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {",
+        "    generatedMessage: false,",
+        "    code: 'ERR_ASSERTION',",
+        "    actual: false,",
+        "    expected: true,",
+        "    operator: '==',",
+        "    diff: 'simple'",
+        "  }"
+      ]
+    },
+    "existing_layout_retry": {
+      "log_sha256": "590d1c35f8518a18c184f4654a611288ba2bf8e5ebbc2b8e2f1ae97fb7c10677",
+      "summary": [
+        "Ahavat Torah browser: starting 320px",
+        "Ahavat Torah browser: preceding source/3D/CSV flows passed at 320px",
+        "Ahavat Torah browser: completed 320px",
+        "Ahavat Torah browser: starting 390px",
+        "Ahavat Torah browser: preceding source/3D/CSV flows passed at 390px",
+        "Ahavat Torah browser: completed 390px",
+        "Ahavat Torah browser: starting 1440px",
+        "✖ Ahavat Torah spatial tables keep source, data and 3D usable at 320/390/1440 (112144.60166ms)",
+        "ℹ tests 1",
+        "ℹ suites 0",
+        "ℹ pass 0",
+        "ℹ fail 1",
+        "ℹ cancelled 0",
+        "ℹ skipped 0",
+        "ℹ todo 0",
+        "ℹ duration_ms 112710.689561",
+        "",
+        "✖ failing tests:",
+        "",
+        "test at test/ahavat-torah-spatial-tables-2029.browser.test.mjs:23:1",
+        "✖ Ahavat Torah spatial tables keep source, data and 3D usable at 320/390/1440 (112144.60166ms)",
+        "  AssertionError [ERR_ASSERTION]: PDF overlaps the letter reader on desktop",
+        "      at TestContext.<anonymous> (file:///workspace/sefer-yetzirah-models/test/ahavat-torah-spatial-tables-2029.browser.test.mjs:168:16)",
+        "      at async Test.run (node:internal/test_runner/test:1389:7)",
+        "      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {",
+        "    generatedMessage: false,",
+        "    code: 'ERR_ASSERTION',",
+        "    actual: false,",
+        "    expected: true,",
+        "    operator: '==',",
+        "    diff: 'simple'",
+        "  }"
+      ]
+    },
+    "base_layout_reproduction": {
+      "log_sha256": "4a463e9b4b71d0ce4eec1eb5cc4f8c0d5d6eeb6a95a87e0bea5fffec06847bc7",
+      "summary": [
+        "11:47:31 AM [vite] (client) [optimizer] bundling dependencies...",
+        "Ahavat Torah browser: preceding source/3D/CSV flows passed at 320px",
+        "Ahavat Torah browser: completed 320px",
+        "Ahavat Torah browser: starting 390px",
+        "Ahavat Torah browser: preceding source/3D/CSV flows passed at 390px",
+        "Ahavat Torah browser: completed 390px",
+        "Ahavat Torah browser: starting 1440px",
+        "✖ Ahavat Torah spatial tables keep source, data and 3D usable at 320/390/1440 (120972.867176ms)",
+        "ℹ tests 1",
+        "ℹ suites 0",
+        "ℹ pass 0",
+        "ℹ fail 1",
+        "ℹ cancelled 0",
+        "ℹ skipped 0",
+        "ℹ todo 0",
+        "ℹ duration_ms 121628.084803",
+        "",
+        "✖ failing tests:",
+        "",
+        "test at test/ahavat-torah-spatial-tables-2029.browser.test.mjs:23:1",
+        "✖ Ahavat Torah spatial tables keep source, data and 3D usable at 320/390/1440 (120972.867176ms)",
+        "  AssertionError [ERR_ASSERTION]: PDF overlaps the letter reader on desktop",
+        "      at TestContext.<anonymous> (file:///workspace/sefer-yetzirah-models-base-audit/test/ahavat-torah-spatial-tables-2029.browser.test.mjs:168:16)",
+        "      at async Test.run (node:internal/test_runner/test:1389:7)",
+        "      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {",
+        "    generatedMessage: false,",
+        "    code: 'ERR_ASSERTION',",
+        "    actual: false,",
+        "    expected: true,",
+        "    operator: '==',",
+        "    diff: 'simple'",
+        "  }"
+      ]
+    },
+    "native_pdf": {
+      "log_sha256": "b972892a5854249a65ca29a098d7b04cff27af7f163c5c14cb8fa0a709e3c45f",
+      "summary": [
+        "✔ requested Sefer Yetzirah acceptance has genuine browser and source-byte fixtures (0.854558ms)",
+        "11:49:31 AM [vite] (client) Re-optimizing dependencies because vite config has changed",
+        "Sefer Yetzirah acceptance: 320/light source reading checked",
+        "Sefer Yetzirah acceptance: 320/parchment source reading checked",
+        "Sefer Yetzirah acceptance: 320/dark source reading checked",
+        "Sefer Yetzirah acceptance: 390/light source reading checked",
+        "Sefer Yetzirah acceptance: 390/parchment source reading checked",
+        "Sefer Yetzirah acceptance: 390/dark source reading checked",
+        "Sefer Yetzirah acceptance: 1440/light source reading checked",
+        "Sefer Yetzirah acceptance: 1440/parchment source reading checked",
+        "Sefer Yetzirah acceptance: 1440/dark source reading checked",
+        "✔ Sefer Yetzirah source/native-PDF/return/fallback audit across nine viewport presets (194118.181492ms)",
+        "ℹ tests 2",
+        "ℹ suites 0",
+        "ℹ pass 2",
+        "ℹ fail 0",
+        "ℹ cancelled 0",
+        "ℹ skipped 0",
+        "ℹ todo 0",
+        "ℹ duration_ms 194780.684684"
+      ]
+    },
+    "language": {
+      "log_sha256": "93357c20a69ace8202498d971ce5d001aab165d9c05f7407a3ae9bad199997dd",
+      "summary": [
+        "",
+        "> sod1820@1.0.0 test:public-2029-language",
+        "> node --test scripts/test-public-2029-language.mjs",
+        "",
+        "✔ public 2029 copy has no forbidden internal labels (16.540066ms)",
+        "✔ command label is gated: public says חיפוש, Heichal keeps פקודה (9.527113ms)",
+        "✔ Heichal page copy is untouched (0.350447ms)",
+        "ℹ tests 3",
+        "ℹ suites 0",
+        "ℹ pass 3",
+        "ℹ fail 0",
+        "ℹ cancelled 0",
+        "ℹ skipped 0",
+        "ℹ todo 0",
+        "ℹ duration_ms 181.595838"
+      ]
+    },
+    "auth": {
+      "log_sha256": "fe2e44a0b1dc293f47a8bd98c53d90852d83597c16dcb97c6135e4f171097a24",
+      "summary": [
+        "✔ existing accounts can sign in, refresh, read identity and sign out locally (67.354418ms)",
+        "✔ signup, global logout, account mutation, other grants and origins stay blocked (22.089558ms)",
+        "✔ profile/product/storage/model writes remain blocked; governed readers still work (16.748701ms)",
+        "✔ Books publication review is preview-only and has no write RPC in the guard (0.383623ms)",
+        "ℹ tests 4",
+        "ℹ suites 0",
+        "ℹ pass 4",
+        "ℹ fail 0",
+        "ℹ cancelled 0",
+        "ℹ skipped 0",
+        "ℹ todo 0",
+        "ℹ duration_ms 299.192874"
+      ]
+    },
+    "build": {
+      "log_sha256": "899cb69d740055d0d88bca4f5f6ee8d12ca6965000f4ca95854a2a41bffea389",
+      "summary": [
+        "dist/assets/SpatialMethodStage2029-DXE0KD1p.js               43.62 kB │ gzip:  12.84 kB",
+        "dist/assets/LifeJourney2029Page-D7kjiz3h.js                  44.08 kB │ gzip:  13.32 kB",
+        "dist/assets/SeferYetzirahWorld2029Page-BS8OZCbS.js           45.50 kB │ gzip:  13.14 kB",
+        "dist/assets/WriterPersonal2029Page-BME3UdCo.js               47.81 kB │ gzip:  14.56 kB",
+        "dist/assets/CommunityLive2029-BodrwUMF.js                    51.31 kB │ gzip:  16.55 kB",
+        "dist/assets/WorldSourceStory-U0ODyuy0.js                     52.63 kB │ gzip:  16.39 kB",
+        "dist/assets/Books2029Page-DpcFWvrz.js                        61.57 kB │ gzip:  17.91 kB",
+        "dist/assets/BeitMidrash2029Page-GhCx5rNb.js                  62.57 kB │ gzip:  18.38 kB",
+        "dist/assets/Number2029Page-D6zQfgy8.js                       83.19 kB │ gzip:  25.09 kB",
+        "dist/assets/BentovFindingsProduct2029Page-Csx2XVuN.js        89.46 kB │ gzip:  21.88 kB",
+        "dist/assets/PublicContributor2029Page-kQOtsGbf.js           101.06 kB │ gzip:  30.55 kB",
+        "dist/assets/Els2029Page-DZGoQCQm.js                         142.89 kB │ gzip:  42.50 kB",
+        "dist/assets/World2029Page-Cj9A3Nr3.js                       144.80 kB │ gzip:  38.62 kB",
+        "dist/assets/post2029ReadingProjection-8Vhlt8zF.js           175.45 kB │ gzip:  51.10 kB",
+        "dist/assets/AhavatTorahSystem2029Page-BFZdh_cu.js           183.10 kB │ gzip:  50.87 kB",
+        "dist/assets/supabase-CTavVret.js                            236.89 kB │ gzip:  62.67 kB",
+        "dist/assets/DaatTevunotTree2029Page-BD4JAJBL.js             453.64 kB │ gzip: 112.91 kB",
+        "dist/assets/OrbitControls-C7iAPDoE.js                       927.27 kB │ gzip: 244.39 kB",
+        "dist/assets/2029-C8Ngfgah.js                                971.71 kB │ gzip: 307.75 kB",
+        "",
+        "[plugin builtin:vite-reporter] ",
+        "(!) Some chunks are larger than 500 kB after minification. Consider:",
+        "- Using dynamic import() to code-split the application",
+        "- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting",
+        "- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.",
+        "\u001b[33m[INEFFECTIVE_DYNAMIC_IMPORT] \u001b[0msrc/lib/auth.js is dynamically imported by src/lib/AuthContext.jsx but also statically imported by src/components/EmailVerify.jsx, src/components/ProfileSettings.jsx, src/components/community2029/CommunitySignIn.jsx, src/components/experience2029/SystemFrame2029.jsx, src/lib/AuthContext.jsx, ..., dynamic import will not move module into another chunk.",
+        "",
+        "\u001b[33m[INEFFECTIVE_DYNAMIC_IMPORT] \u001b[0msrc/components/experience2029/Sod2029Shell.jsx is dynamically imported by src/App2029.jsx but also statically imported by src/components/beitMidrash2029/BeitMidrashGuided.jsx, src/components/beitMidrash2029/BeitMidrashMethods.jsx, src/components/beitMidrash2029/BeitMidrashParticipate.jsx, src/components/community2029/CommunityLive2029.jsx, src/components/contributor2029/ContributorActionsController2029.jsx, ..., dynamic import will not move module into another chunk.",
+        "",
+        "\u001b[33m[INEFFECTIVE_DYNAMIC_IMPORT] \u001b[0msrc/lib/research/numberCoreProjection.js is dynamically imported by src/lib/research/numberExpressionFocus.js but also statically imported by src/components/gematria2029/CalculatorCompare2029.jsx, src/components/number2029/NumberDrawer2029.jsx, src/lib/research/gematriaOpeningOperation.js, src/lib/research/useCalculatorRow.js, src/pages/BeitMidrash2029Page.jsx, ..., dynamic import will not move module into another chunk.",
+        "",
+        "✓ built in 2.50s"
+      ]
+    },
+    "graph": {
+      "log_sha256": "b9f52a8d723141b8cd0571bf59fe06b2325a0898f709e3f9ce0c644d66e0ade8",
+      "summary": [
+        "2029 built dependency graph: PASS",
+        "reachable manifest records: 122",
+        "eager manifest records: 7",
+        "eager JS gzip: 380335 bytes (78407 recovered)",
+        "Raziel submit adapter/resolver: lazy (assets/razielSessionRequest2029-BRWkLRSq.js)",
+        "Raziel Research Plan: lazy (assets/researchPlanV2-dkZzUPLQ.js)"
+      ]
+    },
+    "legacy": {
+      "log_sha256": "f780b8fbf20d94c81a7b95644968363bc87ca5d1314b01d72e9ec058a86a1a7e",
+      "summary": [
+        "Legacy Production lock: PASS"
+      ]
+    },
+    "isolation": {
+      "log_sha256": "c05dd8e70256a610814537f6d785d54ce79346dddff648389f23bec6ddf0ee39",
+      "summary": [
+        "2029 hard-isolation source regression: PASS"
+      ]
+    },
+    "hardening": {
+      "log_sha256": "dcea07e9cec77646d08f6b132c155f093476c38a2ccebbf8c4eb2f8630138054",
+      "summary": [
+        "2029 cheap route/test/least-privilege hardening: PASS"
+      ]
+    },
+    "fixture_build": {
+      "log_sha256": "3dcb030fe37604062696cbc0165a8fcfd667c46bfdd7ed80babb3f7e164db3b7",
+      "summary": [
+        "vite v8.3.0 building client environment for production...",
+        "transforming...",
+        "✓ 39 modules transformed.",
+        "rendering chunks...",
+        "computing gzip size...",
+        "../scratch/yetzirah-models/fixture-build/test/fixtures/yetzirah-models/index.html    0.36 kB │ gzip:   0.28 kB",
+        "../scratch/yetzirah-models/fixture-build/.vite/manifest.json                         0.69 kB │ gzip:   0.26 kB",
+        "../scratch/yetzirah-models/fixture-build/assets/index-BVM91yve.css                   5.16 kB │ gzip:   1.53 kB",
+        "../scratch/yetzirah-models/fixture-build/assets/index-Dc4SpsHS.js                  245.33 kB │ gzip:  77.82 kB",
+        "../scratch/yetzirah-models/fixture-build/assets/YetzirahModelCanvas-DBzWznNQ.js    571.73 kB │ gzip: 142.88 kB",
+        "",
+        "[plugin builtin:vite-reporter] ",
+        "(!) Some chunks are larger than 500 kB after minification. Consider:",
+        "- Using dynamic import() to code-split the application",
+        "- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting",
+        "- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.",
+        "✓ built in 482ms"
+      ]
+    }
+  },
+  "fixture_chunks": [
+    {
+      "key": "src/components/books2029/yetzirahModels/YetzirahModelCanvas.jsx",
+      "bytes": 571737,
+      "gzip_bytes": 140530,
+      "dynamic": true
+    },
+    {
+      "key": "test/fixtures/yetzirah-models/index.html",
+      "bytes": 245330,
+      "gzip_bytes": 76753,
+      "dynamic": false
+    }
+  ],
+  "source_and_visualization_boundary": "Coordinates, cube, material, camera, spacing and light are editorial; original source IDs/locators and witness orders remain separate. No numeric canonical engine was invoked.",
+  "known_gaps": [
+    "Full Books suite is 345/346: unchanged Ahavat Torah desktop PDF-position assertion fails at line 168; reproduced on the unchanged approved base. The gate remains failing and was not edited or bypassed.",
+    "Existing product reader is deliberately not edited; all five wrappers await host integration and native source/return/focus acceptance in that host.",
+    "Chromium 154 SwiftShader and emulated touch/reduced motion were tested; physical mobile devices and native hardware GPU diversity were not tested.",
+    "The remaining 28 structure specifications remain outside this implementation.",
+    "Original source maps and their historical renderer_binding acceptance fields are preserved; this separate report records the five new components, not canonical product availability."
+  ],
+  "coordination": {
+    "local_scope_released": true,
+    "live_after_written": false,
+    "live_release_written": false,
+    "reason": "Verified dedicated read-only connector; local passive handoff only."
+  }
+}

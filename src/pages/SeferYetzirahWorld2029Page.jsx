@@ -1,7 +1,7 @@
 import React, { Suspense, lazy, useEffect, useRef, useState } from "react";
 import BookFullscreenButton2029 from "../components/books2029/BookFullscreenButton2029.jsx";
 import BookReadingLayout2029 from "../components/books2029/BookReadingLayout2029.jsx";
-import StructureCatalog from "../components/books2029/SeferYetzirahStructureCatalog2029.jsx";
+import StructureCatalog, { isSupportedStructure } from "../components/books2029/SeferYetzirahStructureCatalog2029.jsx";
 import Sod2029Shell from "../components/experience2029/Sod2029Shell.jsx";
 import {
   SEFER_YETZIRAH_COMMENTATORS,
@@ -59,7 +59,7 @@ function defaultNodeForMode(mode, commentatorId = "chachmoni") {
   return "";
 }
 
-function SourcePanel({ page, onPage }) {
+function SourcePanel({ page, onPage, onReturn, hasStructure }) {
   const fullscreenRef = useRef(null);
   const [draft, setDraft] = useState(String(page));
   const pdfUrl = `${SEFER_YETZIRAH_SOURCE.pdfUrl}#page=${page}&view=FitH`;
@@ -68,13 +68,14 @@ function SourcePanel({ page, onPage }) {
 
   const submit = event => {
     event.preventDefault();
-    onPage(Math.min(SEFER_YETZIRAH_SOURCE.pdfPages, Math.max(1, Number(draft) || 1)));
+    const number = Number(draft);
+    onPage(Math.min(SEFER_YETZIRAH_SOURCE.pdfPages, Math.max(1, Number.isFinite(number) ? Math.trunc(number) || 1 : 1)));
   };
 
-  return <aside ref={fullscreenRef} id="yetzirah29-source" className="yetzirah29-source book-fullscreen29-target" aria-labelledby="yetzirah29-source-title">
+  return <aside ref={fullscreenRef} tabIndex={-1} id="yetzirah29-source" className="yetzirah29-source book-fullscreen29-target" aria-labelledby="yetzirah29-source-title">
     <header>
       <div><span>הספר פתוח תמיד</span><h2 id="yetzirah29-source-title">עמוד PDF {page}</h2></div>
-      <BookFullscreenButton2029 targetRef={fullscreenRef} fallbackHref={pdfUrl} controls="yetzirah29-source" />
+      {hasStructure && <button className="yetzirah29-return" type="button" onClick={onReturn}>חזרה למבנה הנבחר</button>}<BookFullscreenButton2029 targetRef={fullscreenRef} fallbackHref={pdfUrl} controls="yetzirah29-source" />
     </header>
     <div className="yetzirah29-pdf" data-book-pdf-frame><iframe key={page} src={pdfUrl} title={`${SEFER_YETZIRAH_SOURCE.title}, עמוד ${page}`} loading="eager" /></div>
     <form className="yetzirah29-page-nav" onSubmit={submit} aria-label="מעבר בין 220 עמודי הספר">
@@ -115,12 +116,15 @@ function SceneLegend({ mode, activeNode, onSelect }) {
 function SpatialStage({ mode, onMode, activeNode, onNode }) {
   const meta = SEFER_YETZIRAH_SCENE_MODES.find(item => item.id === mode);
   const [opened, setOpened] = useState(false);
+  const startRef = useRef(null);
+  useEffect(() => { const close = () => setOpened(false); document.addEventListener("yetzirah-model-explicit-activation", close); return () => document.removeEventListener("yetzirah-model-explicit-activation", close); }, []);
+  const toggle = () => { if (opened) { setOpened(false); startRef.current?.focus(); } else { document.dispatchEvent(new CustomEvent("yetzirah-model-explicit-activation", { detail: "existing-sefer-stage" })); setOpened(true); } };
   return <section className="yetzirah29-spatial" aria-labelledby="yetzirah29-spatial-title">
     <header>
       <div><span>הספר נעשה מרחב</span><h2 id="yetzirah29-spatial-title">{meta.label}</h2><p>{meta.description}</p></div>
       <nav aria-label="בחירת מבנה תלת־ממדי">{SEFER_YETZIRAH_SCENE_MODES.map(item => <button type="button" key={item.id} className={mode === item.id ? "is-active" : ""} aria-pressed={mode === item.id} onClick={() => onMode(item.id)}><b>{item.short}</b><span>{item.label}</span></button>)}</nav>
     </header>
-    <button type="button" aria-expanded={opened} onClick={() => setOpened(value => !value)}>{opened ? "סגור את המבנה התלת־ממדי" : "פתח את המבנה התלת־ממדי"}</button>
+    <button ref={startRef} type="button" aria-expanded={opened} onClick={toggle}>{opened ? "סגור את המבנה התלת־ממדי" : "פתח את המבנה התלת־ממדי"}</button>
     <p>ייצוג של מבנה הספר: המיקום, הצבעים והתאורה הם בחירות המחשה. {mode === "sefirot" ? "כל קו מחבר זוג עומקים המופיע ברשימה; רק רום ותחת, מזרח ומערב, צפון ודרום הם כיווני מרחב." : "הקווים והצורות הם בחירות המחשה."} בחירת רכיב פותחת את המקור המתאים.</p>
     {opened ? <div className="yetzirah29-stage">
       <SpatialErrorBoundary>
@@ -206,6 +210,26 @@ function VolumeMap({ onPage }) {
 
 export default function SeferYetzirahWorld2029Page() {
   const [page, setPage] = useState(requestedPage);
+  const scrollTimer = useRef(null);
+  const scrollEpoch = useRef(0);
+  const scrollTarget = useRef("");
+  useEffect(() => {
+    const cancel = () => { scrollEpoch.current += 1; clearTimeout(scrollTimer.current); };
+    const onFocus = event => { if (event.target?.id !== scrollTarget.current) cancel(); };
+    document.addEventListener("pointerdown", cancel, true);
+    document.addEventListener("keydown", cancel, true);
+    document.addEventListener("wheel", cancel, { capture: true, passive: true });
+    document.addEventListener("focusin", onFocus, true);
+    return () => { cancel(); document.removeEventListener("pointerdown", cancel, true); document.removeEventListener("keydown", cancel, true); document.removeEventListener("wheel", cancel, true); document.removeEventListener("focusin", onFocus, true); };
+  }, []);
+  const moveTo = id => {
+    clearTimeout(scrollTimer.current); scrollTarget.current = id; const epoch = ++scrollEpoch.current; let attempts = 0;
+    const settle = () => { if (epoch !== scrollEpoch.current) return; const target = document.getElementById(id); if (!target) return; const rect = target.getBoundingClientRect(); if (attempts === 0 || rect.top < 0 || rect.top > window.innerHeight / 3) target.scrollIntoView({ behavior: "auto", block: "start" }); if (attempts++ === 0) target.focus({ preventScroll: true }); if (attempts < 8) scrollTimer.current = setTimeout(settle, 100); };
+    requestAnimationFrame(settle);
+  };
+  const [structureId, setStructureId] = useState(() => typeof window === "undefined" ? "" : new URLSearchParams(window.location.search).get("structure") || "");
+  const [componentId, setComponentId] = useState(() => typeof window === "undefined" ? "" : new URLSearchParams(window.location.search).get("component") || "");
+  const [relationId, setRelationId] = useState(() => typeof window === "undefined" ? "" : new URLSearchParams(window.location.search).get("relation") || "");
   const [readingLayout, setReadingLayout] = useState("balanced");
   const [activeGateId, setActiveGateId] = useState(requestedGate);
   const activeGate = SEFER_YETZIRAH_READING_GATES.find(gate => gate.id === activeGateId) || SEFER_YETZIRAH_READING_GATES[0];
@@ -217,7 +241,21 @@ export default function SeferYetzirahWorld2029Page() {
     applySeo({ title: `ספר יצירה · ${activeGate.title}`, description: "ספר יצירה כמרחב תלת־ממדי: עשר ספירות, כ״ב אותיות, רל״א שערים, מקור מלא ופירוש עברי.", path: "/2029/control", noindex: true });
   }, [activeGate.title]);
 
+  const updateStructureUrl = (structure, component) => {
+    const next = new URL(window.location.href);
+    if (structure) next.searchParams.set("structure", structure); else next.searchParams.delete("structure");
+    if (component) next.searchParams.set("component", component); else next.searchParams.delete("component");
+    window.history.replaceState({}, "", `${next.pathname}${next.search}${next.hash}`);
+  };
+  const chooseRelation = id => { setRelationId(id || ""); const next = new URL(window.location.href); if (id) next.searchParams.set("relation", id); else next.searchParams.delete("relation"); window.history.replaceState({}, "", `${next.pathname}${next.search}${next.hash}`); };
+  const chooseStructure = (id, first) => { const component = first?.stable_id || ""; setStructureId(id); setComponentId(component); chooseRelation(null); updateStructureUrl(id, component); if (first?.source?.pdf_page) openPage(first.source.pdf_page); moveTo("yetzirah29-structure-learning"); };
+  const chooseComponent = id => { setComponentId(id); updateStructureUrl(structureId, id); };
+  const openStructureSource = payload => {
+    openPage(payload.source.pdf_page);
+    moveTo("yetzirah29-source");
+  };
   const openPage = nextPage => {
+    if (!Number.isInteger(nextPage) || nextPage < 1 || nextPage > SEFER_YETZIRAH_SOURCE.pdfPages) return;
     setPage(nextPage);
     replaceReadingUrl(nextPage, activeGateId);
   };
@@ -262,7 +300,7 @@ export default function SeferYetzirahWorld2029Page() {
       </section>
 
       <SpatialStage mode={mode} onMode={nextMode => { setMode(nextMode); setActiveNode(defaultNodeForMode(nextMode, activeCommentatorId)); }} activeNode={activeNode} onNode={chooseSceneNode} />
-      <StructureCatalog onPage={openPage} />
+      <StructureCatalog onPage={openPage} structureId={structureId} componentId={componentId} relationId={relationId} onStructure={chooseStructure} onComponent={chooseComponent} onRelation={chooseRelation} onOpenSource={openStructureSource} />
 
       <BookReadingLayout2029 mode={readingLayout} onMode={setReadingLayout} />
       <div className="yetzirah29-layout books29-reading-layout" data-reading-layout={readingLayout}>
@@ -273,7 +311,7 @@ export default function SeferYetzirahWorld2029Page() {
           <LetterLaboratory onPage={openPage} onSpatial={letter => { setMode("gates"); setActiveNode(letter); }} />
           <VolumeMap onPage={openPage} />
         </div>
-        <SourcePanel page={page} onPage={openPage} />
+        <SourcePanel page={page} onPage={openPage} hasStructure={isSupportedStructure(structureId)} onReturn={async () => { const fullscreen = document.fullscreenElement || document.webkitFullscreenElement; const exit = document.exitFullscreen || document.webkitExitFullscreen; if (fullscreen && exit) await exit.call(document); moveTo("yetzirah29-structure-learning"); }} />
       </div>
     </main>
   </Sod2029Shell>;

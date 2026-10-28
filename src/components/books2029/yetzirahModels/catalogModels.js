@@ -1,0 +1,38 @@
+// Book-specific views of delivered source fields. Layout coordinates never create source relations.
+export const CATALOG_KEYS = Object.freeze({kings:'three-kings',stones:'stones-houses',graDoubles:'doubles-gra-distinction',synopticDoubles:'doubles-synoptic',mothers:'mothers-world-year-soul',mouth:'five-mouth-groups',families:'letter-families'});
+export const CATALOG_DEFINITIONS = {
+  'letter-families':{
+    pages:[65],count:3,kind:'catalog',title:'כ״ב האותיות · שלוש משפחות',
+    visualLabels:{mothers:'אמות',doubles:'כפולות',simples:'פשוטות'},
+    fields:[['letters','אותיות המשפחה'],['source_count','המניין שבמקור']],
+    editorial:'שלוש משפחות האותיות נזכרות במקור. סדר הכרטיסים והעמדתם במרחב הם אמצעי בחירה; אין טבעת או קשר בין אותיות רק מפני שהן באותה משפחה.',
+    companion:'המשפחה נבחרת כקבוצה שלמה. המניין מוצג מן המפרט שנקרא, ואינו תוצאת חישוב מנוע.',
+  },
+  "five-mouth-groups": {"pages": [80], "count": 5, "kind": "catalog", "title": "מוצאות הפה · חמש קבוצות אותיות", "fields": [["letters", "אותיות הקבוצה"]], "editorial": "החלוקה לחמש קבוצות והרכב האותיות שייכים לנוסח שבעמוד 80. מיקום הכרטיסים הוא בחירת המחשה ואינו תרשים אנטומי. אין מיקום תלת־ממדי לכל אות במקור זה.", "companion": "כל בחירה שומרת את סדר האותיות של הקבוצה במפרט המקור. הערת מנטובה היא עדות נפרדת; פרטי הגייה שלא נסגרו אינם מועתקים אל הנוסח הנבחר."},
+  "mothers-world-year-soul": {"pages": [94, 95, 97, 98, 99], "count": 3, "kind": "catalog", "title": "אמ״ש · עולם, שנה ונפש", "fields": [["element", "יסוד"], ["world", "בעולם"], ["year", "בשנה"], ["soul", "בנפש"]], "editorial": "עולם, שנה ונפש הם תחומי הקבלה ולא שלושה צירי חלל. מיקום הכרטיסים והמרחקים הם בחירת המחשה. שני הקשרים מציגים רק את ההכרעה המפורשת בין אש ומים, בעוגן נפרד בעמוד 94; אין קשרים הנוצרים מקרבה גיאומטרית.", "companion": "קוראים כל אם מול ההקבלות שלה. הצבע אינו צבע של יסוד מן המקור, והעמדת האל״ף באמצע היא המחשה ליחס ההכרעה. עמודי ההמלכות ועמודי ההקשר הכללי נשמרים בנפרד."},
+  "doubles-synoptic": {"pages": [105, 106, 107, 108, 109, 110], "count": 7, "kind": "catalog", "title": "שבע הכפולות · הגוף המשולב", "fields": [["world_planet", "כוכב בעולם"], ["week_day", "יום בשבוע"], ["soul_gate", "שער בנפש"]], "editorial": "ההקבלות שייכות לגוף המשולב בלבד. הכרטיסים אינם מסלולי כוכבים, לוח זמנים או תרשים אנטומי. אין מן הרשימה מקור לקשרים בין שבע האותיות או למרחקים ביניהן.", "companion": "כל אות נקראת מתוך תיבת ההמלכה שלה. בי״ת מקושרת כאן לשבתאי; אין להחליפה בלבנה מנוסח הגר״א. רי״ש ותי״ו נשענות על הקריאה הישירה בעמוד 110, ולא על מילוי מן הנוסח האחר."},
+  "doubles-gra-distinction": {"pages": [184, 185], "count": 7, "kind": "catalog", "title": "שבע הכפולות · נוסח הגר״א", "fields": [["quality", "המידה בנוסח זה"], ["world_planet", "כוכב בעולם"], ["week_day", "יום בשבוע"], ["soul_gate", "שער בנפש"]], "editorial": "שבע המלכות הגר״א נפרדות מן הגוף המשולב. פריסת הכרטיסים אינה טבעת כוכבים או מפת גוף. אין התאמה גיאומטרית חדשה בין השדות, ואין מיזוג של שתי העדויות.", "companion": "בי״ת משויכת כאן ללבנה ולחכמה, וגימ״ל למאדים ולעושר. אלה שדות העד הזה בלבד. חמש ההמלכות הנותרות נשענות על הקריאות הישירות בתיבות שבעמוד 185; אפשר להשוות בלי להשלים נוסח אחד מן האחר."},
+  "stones-houses": {"pages": [111], "count": 6, "kind": "catalog", "title": "אבנים ובתים · מנייני הסידורים שבמקור", "fields": [["source_stones", "אבנים במקור"], ["source_houses", "בתים במקור"]], "editorial": "המספרים הם המניינים המודפסים במקור, לא תוצאת מנוע. כל כרטיס מייצג שורת מקור אחת; מספר הכרטיסים, גודלם או המרחק ביניהם אינם מספר הבתים. אין כאן יצירה של כל בתי המניין בצורות גיאומטריות.", "companion": "בוחרים מניין אבנים וקוראים מולו את מניין הבתים שנמסר במשנה. אין כאן הפקת תמורות, שחזור אותיות שלא ניתנו או ערבוב עם מניין זוגות רל״א; תוצאת מנוע לא נבדקה."},
+  "three-kings": {"pages": [122, 151, 192], "count": 3, "kind": "catalog", "title": "תלי, גלגל ולב · שלושה משלי הנהגה", "fields": [["simile", "משל המלכות במקור"]], "editorial": "שלושת הכרטיסים מציגים את תלי בעולם, גלגל בשנה ולב בנפש בגוף המשולב. אין מקור למרחקים ביניהם או לקשר סיבתי גיאומטרי. אין כאן גוף אנטומי, מסלול אסטרונומי או מדרג חדש.", "companion": "משל המלך על כסאו, במדינה ובמלחמה נקרא בהקשרו. חכמוני בעמוד 151 ונוסח הגר״א בעמוד 192 מוצגים כיחידות מקור נפרדות; אין מהם מילוי אוטומטי של רכיבי הגוף המשולב בעמוד 122."},
+};
+export function catalogFields(model,component){return model.fields.map(([key,label])=>({key,label,value:component[key]??null,id:`${component.stable_id}:field:${key}`,source:model.readings?.find(r=>r.id===component.source_reading_id)?.source||component.source}));}
+export function catalogGeometry(model){
+  const points=model.components.map((c,i)=>({id:c.stable_id,localId:c.id,label:model.visualLabels?.[c.id]||c.label_he,position:[(i%3-1)*2.25,(Math.ceil(model.components.length/3)-1)*.9-Math.floor(i/3)*1.8,0],shape:'tile'}));
+  if(model.key==='mothers-world-year-soul')points.forEach(p=>{p.position=({alef:[0,0,0],mem:[-2.25,0,0],shin:[2.25,0,0]})[p.localId];});
+  return {kind:'catalog',points,edges:model.relations.map(r=>({id:r.stable_id,from:points.find(p=>p.localId===r.from_id).position,to:points.find(p=>p.localId===r.to_id).position})),orientationCenter:false};
+}
+// Exact existing unit/page identities supported by these projections; never borrow another same-edition row.
+export function assertCatalogLocus(key,c){
+  const syn='sy:synoptic:text:',gra='sy:gra-edition:text:';
+  let unit,page;
+  switch(key){
+    case 'letter-families':unit=syn+'ch1:letter-partition';page=65;break;
+    case 'five-mouth-groups':unit=syn+'ch2:articulation';page=80;break;
+    case 'mothers-world-year-soul':unit=syn+'ch3:'+c.id;page=({alef:97,mem:98,shin:99})[c.id];break;
+    case 'doubles-synoptic':unit=syn+'ch4:'+c.id;page=({bet:106,gimel:107,dalet:108,khaf:109,pe:109,resh:110,tav:110})[c.id];break;
+    case 'doubles-gra-distinction':{const first=['bet','gimel'].includes(c.id);unit=gra+'ch4:'+(first?'bet-gimel':'dalet-khaf-pe-resh-tav');page=first?184:185;break;}
+    case 'stones-houses':unit=syn+'ch4:stones-houses';page=111;break;
+    case 'three-kings':unit=syn+'ch6:kings-good-evil';page=122;break;
+  }
+  if(!page||c.source.unit_id!==unit||c.source.pdf_page!==page)throw new Error('SOURCE_COMPONENT_LOCUS_MISMATCH');
+}
