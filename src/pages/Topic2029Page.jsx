@@ -7,7 +7,10 @@ import SurfaceSectionNav2029 from "../components/experience2029/SurfaceSectionNa
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { fetchCanonicalTopicConvergenceFinding } from "../lib/research/topicConvergence.js";
 import { buildTopic2029Projection } from "../lib/research/topic2029Projection.js";
-import { fetchEntityHubProjection } from "../lib/research/entityHubProjection.js";
+import { fetchEntityHubProjection, fetchGallerySourceContext, fetchTopicSourceContext as readTopicSourceContext } from "../lib/research/entityHubProjection.js";
+import { fetchNumberMethodProfile } from "../lib/research/numberCoreProjection.js";
+import { getImagesByGallery } from "../lib/supabase.js";
+import { createCanonicalRelationOpener } from "../lib/research/worldGraphRelationOpener2029.js";
 import { fetchWorldProminenceInputs } from "../lib/research/worldProminenceInputs.js";
 import { buildWorldContextualProminence } from "../lib/research/worldContextualProminence.js";
 import { buildTopicGoldenProjection } from "../lib/research/topicGoldenProjection.js";
@@ -22,6 +25,15 @@ import ConvergenceRatings2029 from "../components/experience2029/ConvergenceRati
 const clean = (value) => value == null ? "" : String(value).trim();
 const textOf = (row) => clean(row?.text || row?.title || row?.phrase || row?.note);
 const sourceDiscoveryEnabled = import.meta.env.DEV || import.meta.env.VITE_INTEGRATED_PREVIEW === "true";
+// Preview-only gate for topic:1237. It consumes existing readers only (see revelation1237Gate2029.js).
+const Revelation1237Gate2029 = React.lazy(() => import("../components/research/Revelation1237Gate2029.jsx"));
+const REVELATION_GATE_READERS = Object.freeze({
+  fetchMethodProfile: fetchNumberMethodProfile,
+  listGalleryImages: getImagesByGallery,
+  fetchGallerySourceContext,
+  fetchTopicSourceContext: readTopicSourceContext,
+  openRelations: createCanonicalRelationOpener(),
+});
 
 function TopicMapNav({ items = [] }) {
   if (!items.length) return null;
@@ -548,6 +560,22 @@ function TopicBody() {
     '424-mashiach-ben-david': 'מן השעה המצולמת בכותל אל דונלד טראמפ ואל הביטוי ״משיח בן דוד״. אפשר לפתוח את המקור ואת השיטה, ואז להבין את החיבור לאירועים אחרים.',
     trump: 'אדם אחד, כמה אירועים: המועמדות הרפובליקנית, הביקור בכותל ותיעוד מאוחר יותר. כל מעבר שומר את שנתו, את תפקיד המספר ואת המקור שלו.',
   })[projection.slug];
+
+  const revelationGate = sourceDiscoveryEnabled && projection.slug === "1237" && !projection.withheld;
+  if (revelationGate) {
+    return <article className="sod29-topic2029 sod29-topic-gate-1237" data-entity-type="convergence" data-canonical-slug={projection.slug}>
+      <React.Suspense fallback={<FrameState kind="loading" title="פותח את השער">טוען את 1,237 — התגלות.</FrameState>}>
+        <Revelation1237Gate2029 readers={REVELATION_GATE_READERS} relatedPosts={projection.relatedPosts || []} />
+      </React.Suspense>
+      {projection.phrases.length || hasFindings ? <section className="sod29-section" aria-label="העמקה בציר">
+        <div className="sod29-section-head"><div><div className="sod29-kicker">העמקה</div><h2>המשך הציר כפי שנשמר</h2></div></div>
+      </section> : null}
+      <TopicPhrases rows={projection.phrases} onOpenExpression={openExpressionFocus} openingExpression={expressionOpenState.expression} />
+      <TopicFindings projection={projection} onOpenExpression={openExpressionFocus} />
+      <TopicAuthoredConnections projection={projection} />
+      <TopicCaveats projection={projection} />
+    </article>;
+  }
 
   return <article className={`sod29-topic2029 is-${golden?.density || "medium"}`} data-entity-type="convergence" data-canonical-slug={projection.slug} data-topic-density={golden?.density || "medium"}>
     <header className="sod29-topic-hero">
