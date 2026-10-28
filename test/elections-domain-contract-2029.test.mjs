@@ -42,10 +42,10 @@ test("source, fact, engine, system derivation and interpretation lanes remain se
   const bundle = ELECTIONS_ISRAEL_21_26_BUNDLE;
   assert.equal(bundle.sources.length > 0, true);
   assert.equal(bundle.evidence[ELECTIONS_EVIDENCE_LANE.SOURCE_PROVENANCE], bundle.sources);
-  assert.equal(bundle.evidence[ELECTIONS_EVIDENCE_LANE.SOURCE_FACT].length, 18);
-  assert.equal(bundle.evidence[ELECTIONS_EVIDENCE_LANE.ENGINE_CALCULATION].length, 15);
+  assert.equal(bundle.evidence[ELECTIONS_EVIDENCE_LANE.SOURCE_FACT].length, 19);
+  assert.equal(bundle.evidence[ELECTIONS_EVIDENCE_LANE.ENGINE_CALCULATION].length, 16);
   assert.equal(bundle.evidence[ELECTIONS_EVIDENCE_LANE.DERIVATION].length, 2);
-  assert.equal(bundle.evidence[ELECTIONS_EVIDENCE_LANE.INTERPRETATION].length, 8);
+  assert.equal(bundle.evidence[ELECTIONS_EVIDENCE_LANE.INTERPRETATION].length, 9);
 
   const findingById = Object.fromEntries(bundle.resultBundle.findings.map(row => [row.id, row]));
   assert.equal(findingById["elections:derived-gap-1454"].stage, "evidence");
@@ -158,6 +158,18 @@ test("the 1456 news milestone stays raw while governed rules derive 456 and 1400
   assert.equal(bundle.invariants.published_snapshot_is_not_final_truth, true);
 });
 
+test("650 remains an independent reported snapshot and 1000 retains exact spelling", () => {
+  const bundle = ELECTIONS_ISRAEL_21_26_BUNDLE;
+  const records = Object.fromEntries(bundle.branchContract.evidenceRecords.map(row => [row.id, row]));
+  assert.equal(records["news-pirates-650-at-70pct"].value, 650);
+  assert.equal(records["news-pirates-650-at-70pct"].attributes.news_publication_marker.scope.counted_percent, 70);
+  assert.equal(records["news-sharshar-1456-at-70pct"].value, 1456);
+  assert.equal(records["engine-two-messiahs-1000"].expression, "משיח בן דויד משיח בן יוסף");
+  assert.equal(records["engine-two-messiahs-1000"].value, 1000);
+  assert.deepEqual(records["sharshar-two-messiahs"].dependsOn, ["engine-sharshar-1000", "engine-two-messiahs-1000"]);
+  assert.equal(bundle.relationCandidates.find(row => row.id === "pirates-650-snapshot").status, "proposed_relation_candidate");
+});
+
 test("threshold and gap stay deterministic derivations over official inputs", () => {
   const bundle = ELECTIONS_ISRAEL_21_26_BUNDLE;
   const factIds = new Set(bundle.evidence.source_fact.map(row => row.id));
@@ -202,10 +214,10 @@ test("Raziel receives an attributed context pack but no promotion or publishing 
   assert.equal(projection.razielContext.requiredAttribution, true);
   assert.equal(projection.razielContext.mayPromoteToCanonical, false);
   assert.equal(projection.razielContext.mayPublish, false);
-  assert.equal(projection.evidenceIdsByLane.engine_calculation.length, 15);
+  assert.equal(projection.evidenceIdsByLane.engine_calculation.length, 16);
   assert.equal(projection.evidenceIdsByLane.derivation.length, 2);
-  assert.equal(projection.evidenceIdsByLane.interpretation.length, 8);
-  assert.equal(projection.evidenceIdsByLane.source_fact.length, 18);
+  assert.equal(projection.evidenceIdsByLane.interpretation.length, 9);
+  assert.equal(projection.evidenceIdsByLane.source_fact.length, 19);
   assert.equal(projection.evidenceIdsByLane.source_provenance.length, 16);
   assert.deepEqual(projection.evidenceIdsByLane.observation, []);
   assert.deepEqual(projection.evidenceIdsByLane.authored_claim, []);
