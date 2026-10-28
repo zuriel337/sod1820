@@ -13,7 +13,7 @@ function labelSprite(point){
   const canvas=document.createElement('canvas');canvas.width=512;canvas.height=256;
   const texture=new THREE.CanvasTexture(canvas);texture.colorSpace=THREE.SRGBColorSpace;
   const sprite=new THREE.Sprite(new THREE.SpriteMaterial({map:texture,depthTest:false,transparent:true}));
-  sprite.position.set(point.position[0],point.position[1]+.65,point.position[2]);sprite.scale.set(2.05,1.025,1);sprite.userData.componentId=point.id;
+  sprite.position.set(...(point.labelPosition||[point.position[0],point.position[1]+.65,point.position[2]]));sprite.scale.set(...(point.labelScale||[2.05,1.025,1]));sprite.userData.componentId=point.id;
   return {sprite,canvas,texture,point};
 }
 function paintLabel(label,palette,selected){
@@ -36,9 +36,9 @@ export default function YetzirahModelCanvas(props){
       const p=latest.current.palette;scene.add(new THREE.HemisphereLight(p.ink,p.cardSoft,2.2));const light=new THREE.DirectionalLight(p.ink,3);light.position.set(4,7,6);scene.add(light);const rim=new THREE.DirectionalLight(p.accentSecondary,1.8);rim.position.set(-5,1,-4);scene.add(rim);
       const geometry=modelGeometry(props.model);
       for(const point of geometry.points){
-        const mesh=new THREE.Mesh(new THREE.SphereGeometry(.29,28,20),new THREE.MeshStandardMaterial({color:p.warmAccent,metalness:.48,roughness:.28,emissive:p.accentDiscovery,emissiveIntensity:0}));
+        const mesh=new THREE.Mesh(point.shape==='ring'?new THREE.TorusGeometry(.48,.065,16,64):new THREE.SphereGeometry(.29,28,20),new THREE.MeshStandardMaterial({color:p.warmAccent,metalness:.48,roughness:.28,emissive:p.accentDiscovery,emissiveIntensity:0}));
         mesh.position.set(...point.position);mesh.userData.componentId=point.id;scene.add(mesh);nodes.push({mesh,point});hits.push(mesh);
-        const label=labelSprite(point);scene.add(label.sprite);labels.push(label);hits.push(label.sprite);
+        if(point.showLabel!==false){const label=labelSprite(point);scene.add(label.sprite);labels.push(label);hits.push(label.sprite);}
       }
       for(const segment of geometry.segments||[]){const mesh=cylinder(segment.from,segment.to,.045,new THREE.MeshStandardMaterial({color:p.warmAccent,metalness:.48,roughness:.3}));mesh.userData.componentId=segment.id;scene.add(mesh);nodes.push({mesh,point:segment,segment:true});hits.push(mesh);const label=labelSprite(segment);scene.add(label.sprite);labels.push(label);hits.push(label.sprite);}
       if(geometry.cubeRadius){const r=geometry.cubeRadius;for(const [direction,v]of Object.entries(DIRECTION_VECTORS)){const face=new THREE.Mesh(new THREE.PlaneGeometry(2*r,2*r),new THREE.MeshBasicMaterial({color:p.accentDiscovery,transparent:true,opacity:.09,side:THREE.DoubleSide,depthWrite:false}));face.position.set(...v.map(n=>n*r));if(v[0])face.rotation.y=Math.PI/2;if(v[1])face.rotation.x=Math.PI/2;scene.add(face);faces.push({mesh:face,direction});const annotation=labelSprite({label:DIRECTION_LABELS[direction],position:v.map(n=>n*(r+.75)),id:null});annotation.sprite.scale.set(1.25,.625,1);scene.add(annotation.sprite);directionLabels.push({...annotation,direction});}}
@@ -53,6 +53,7 @@ export default function YetzirahModelCanvas(props){
         labels.forEach(label=>{label.sprite.visible=(geometry.kind!=='boundaries'||label.point.id===selectedId)&&(!isolated||!selectedId||label.point.id===selectedId);paintLabel(label,palette,label.point.id===selectedId);});
         const selected=geometry.segments?.find(s=>s.id===selectedId);faces.forEach(f=>{f.mesh.visible=Boolean(selected?.directions.includes(f.direction));f.mesh.material.color.set(palette.accentDiscovery);});directionLabels.forEach(l=>paintLabel(l,palette,Boolean(selected?.directions.includes(l.direction))));
         edges.forEach(({mesh,edge})=>{mesh.material.color.set(palette.inkSoft);mesh.visible=!isolated||!selectedId||nodes.some(n=>n.point.id===selectedId&&(n.point.position===edge.from||n.point.position===edge.to));});
+        canvas.dataset.visibleComponents=JSON.stringify([...new Set(nodes.filter(n=>n.mesh.visible).map(n=>n.point.id))]);
         request();
       };
       const fit=()=>{const {width,height}=container.getBoundingClientRect();if(width&&height){camera.aspect=width/height;camera.fov=viewportFov(width,height);camera.updateProjectionMatrix();renderer.setSize(width,height,false);request();}};

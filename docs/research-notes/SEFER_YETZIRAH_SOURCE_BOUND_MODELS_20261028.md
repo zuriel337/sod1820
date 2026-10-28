@@ -25,3 +25,7 @@ IMPLEMENTED: `GraSealsModel2029`, six Gra source components/three relations at P
 ## Checkpoint 3 · twelve boundaries
 
 IMPLEMENTED: `TwelveBoundariesModel2029`, all twelve ordered source direction pairs at PDF 187. Cube edges are an explicitly editorial realization; no letter/vertex/measure attribution or extra source relation is generated. Selecting an edge highlights exactly its two named face directions; isolation retains that boundary. Dedicated source tests 4/4 and actual Chromium smoke 2/2 at 1440/Night passed, including every boundary/source action and an actual edge ray selection. Desktop screenshot reviewed. Full nine-context acceptance remains pending.
+
+## Checkpoint 4 · five against five
+
+IMPLEMENTED: `FiveAgainstFiveModel2029`, three original source identities at PDF 45: two five-member groups and covenant. Ten illustrative markers share their respective group identity; no individual finger/sefirah names are invented. The selectable central torus has the covenant's existing identity and is explicitly excluded from the sefirah count. All three source relations remain independently readable/source-linked; visual group placement introduces no extra graph links. Source tests 5/5 and actual Chromium smoke 2/2 at 1440/Night passed after spacing the group captions away from the central focal point. Full matrix remains pending.

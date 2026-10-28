@@ -30,3 +30,9 @@ test('twelve boundaries preserve the printed direction pairs and use cube edges 
  for(const c of m.components){assert.equal(c.source.pdf_page,187);assert.equal(c.letters,undefined);const line=g.segments.find(s=>s.id===c.stable_id);assert.deepEqual(line.directions,c.directions);assert.equal(line.from.filter((v,i)=>v!==line.to[i]).length,1);assert.equal(line.letter,undefined);}
  assert.deepEqual(m.components.slice(0,3).map(c=>c.directions),[['east','up'],['east','north'],['east','down']]);
 });
+test('five against five has ten illustration markers, two source groups and an uncounted covenant ring',()=>{
+ const m=bindSourceModel(bundle,'five-against-five'),g=modelGeometry(m);assert.deepEqual(m.components.map(c=>c.id),['five-a','five-b','covenant']);assert.equal(m.relations.length,3);
+ for(const id of ['five-a','five-b'])assert.equal(g.points.filter(p=>p.localId===id).length,5);
+ assert.equal(g.points.filter(p=>p.illustrationMarker!==undefined).length,10);const ring=g.points.find(p=>p.localId==='covenant');assert.equal(ring.shape,'ring');assert.equal(ring.counted,false);assert.equal(new Set(g.points.map(p=>p.id)).size,3);assert.equal(g.edges.length,0);
+ for(const c of m.components)assert.equal(sourcePayload(m,c).source.pdf_page,45);
+});
