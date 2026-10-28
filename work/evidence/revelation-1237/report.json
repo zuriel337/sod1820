@@ -1,0 +1,72 @@
+{
+  "cases": [
+    {
+      "name": "two methods confirmed by the engine",
+      "detail": "התגלות·מסתתר=1,237 · וראית את אחרי·רגיל=1,237"
+    },
+    {
+      "name": "galleries 29 and 81 read through the public gate",
+      "detail": "לילה כיום יאיר: 6 shown · 2137-318-1237: 6 shown"
+    },
+    {
+      "name": "connections are typed by evidence",
+      "detail": "{\"דוד ו־14\":\"source_statement\",\"גאולה ו־45\":\"candidate\",\"מירון\":\"candidate\",\"דונלד טראמפ\":\"candidate\",\"הציר ההודי\":\"shared_source\"}"
+    },
+    {
+      "name": "report time, event time, archive time and result are separate; no migration tag as credit",
+      "detail": ""
+    },
+    {
+      "name": "elections: Trump threshold in three separate layers; Israel only as an interpretation",
+      "detail": ""
+    },
+    {
+      "name": "explicit relation open",
+      "detail": "ok; 4 edgeRef rows"
+    },
+    {
+      "name": "contrast light",
+      "detail": "value 5.8 · link 12.5 · note 5.5 · kicker 5.4 · muted 5.9 · lede 12.4"
+    },
+    {
+      "name": "no overflow, one h1, 44px targets: light @ 320/390/desktop",
+      "detail": ""
+    },
+    {
+      "name": "contrast parchment",
+      "detail": "value 5.6 · link 11.0 · note 5.1 · kicker 5.0 · muted 5.6 · lede 12.4"
+    },
+    {
+      "name": "no overflow, one h1, 44px targets: parchment @ 320/390/desktop",
+      "detail": ""
+    },
+    {
+      "name": "contrast dark",
+      "detail": "value 10.3 · link 15.7 · note 11.6 · kicker 11.0 · muted 10.8 · lede 12.4"
+    },
+    {
+      "name": "no overflow, one h1, 44px targets: dark @ 320/390/desktop",
+      "detail": ""
+    },
+    {
+      "name": "chapter anchors work by keyboard; reduced motion disables the animation",
+      "detail": ""
+    }
+  ],
+  "writesAttempted": [],
+  "blockedTelemetry": [
+    "/rest/v1/rpc/link_identity",
+    "/rest/v1/rpc/track_visit",
+    "/rest/v1/rpc/ingest_event"
+  ],
+  "errors": [],
+  "explicitOpen": {
+    "status": "ok",
+    "edges": [
+      "edge:39b238ae-5ec4-4581-8ae0-cf8fee15d3cd",
+      "edge:37ad9556-34dc-4d62-993f-4a7e986b6de8",
+      "edge:643f22c8-3405-42bb-9495-3fb96aa138d2",
+      "edge:bbbbc186-978a-49f7-8189-026414829e8f"
+    ]
+  }
+}
