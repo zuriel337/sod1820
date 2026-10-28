@@ -12,6 +12,7 @@ test("bulk Zvi calculation batches are bounded and fail closed", () => {
     ["20261028212710_zvi_calculation_tree_batch_v1.sql", "100", "9b762de8bc5cd88f05ca1625fe2ea214"],
     ["20261028213004_zvi_calculation_tree_batch_v2.sql", "200", "639fc144a5b650ee08a3cc25ca7506b2"],
     ["20261028213134_zvi_calculation_tree_batch_v3.sql", "487", "9ee199b28275a52efe95961b35828fe0"],
+    ["20261028220000_zvi_verified_suffix_sources_tree_batch.sql", "28", "c8061f08fa6d9322f608410cd67b727b"],
   ];
   for (const [name, limit, digest] of batches) {
     const sql = migration(name);
@@ -28,6 +29,16 @@ test("bulk Zvi calculation batches are bounded and fail closed", () => {
     assert.doesNotMatch(sql, /DELETE\s+FROM\s+public\./iu);
     assert.doesNotMatch(sql, /INSERT\s+INTO\s+public\.(?:nodes|edges)/iu);
   }
+});
+
+test("suffix-source batch preserves the precise occurrence while admitting only exact targets", () => {
+  const sql = migration("20261028220000_zvi_verified_suffix_sources_tree_batch.sql");
+  assert.match(sql, /split_part\(replace\(ro\.source_ref/u);
+  assert.match(sql, /IN \('match', 'match_numeric_only'\)/u);
+  assert.match(sql, /node\.label = c\.value::text/u);
+  assert.match(sql, /duplicate_occurrences_preserved/u);
+  assert.doesNotMatch(sql, /INSERT\s+INTO\s+public\.(?:nodes|edges)/iu);
+  assert.doesNotMatch(sql, /DELETE\s+FROM\s+public\./iu);
 });
 
 test("later batches exclude source-value groups that already have a canonical representative", () => {
