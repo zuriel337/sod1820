@@ -19,6 +19,7 @@ import { applySeo } from "../lib/seo.js";
 import "./seferYetzirahWorld2029.css";
 
 const SeferYetzirahScene2029 = lazy(() => import("../components/books2029/SeferYetzirahScene2029.jsx"));
+const DepthsLearningWorkspace2029 = lazy(() => import("../components/books2029/DepthsLearningWorkspace2029.jsx"));
 
 class SpatialErrorBoundary extends React.Component {
   constructor(props) {
@@ -35,7 +36,7 @@ class SpatialErrorBoundary extends React.Component {
 function requestedPage() {
   if (typeof window === "undefined") return 155;
   const page = Number(new URLSearchParams(window.location.search).get("page"));
-  return Number.isInteger(page) && page >= 1 && page <= SEFER_YETZIRAH_SOURCE.pdfPages ? page : 155;
+  return Number.isInteger(page) && page >= 1 && page <= SEFER_YETZIRAH_SOURCE.pdfPages ? page : new URLSearchParams(window.location.search).get("experience") === "depths" ? 53 : 155;
 }
 
 function requestedGate() {
@@ -59,7 +60,7 @@ function defaultNodeForMode(mode, commentatorId = "chachmoni") {
   return "";
 }
 
-function SourcePanel({ page, onPage, onReturn, hasStructure }) {
+function SourcePanel({ page, onPage, onReturn, hasStructure, compact = false, onExpand, mobileSource = false, sourceRevision = 0 }) {
   const fullscreenRef = useRef(null);
   const [draft, setDraft] = useState(String(page));
   const pdfUrl = `${SEFER_YETZIRAH_SOURCE.pdfUrl}#page=${page}&view=FitH`;
@@ -72,12 +73,14 @@ function SourcePanel({ page, onPage, onReturn, hasStructure }) {
     onPage(Math.min(SEFER_YETZIRAH_SOURCE.pdfPages, Math.max(1, Number.isFinite(number) ? Math.trunc(number) || 1 : 1)));
   };
 
-  return <aside ref={fullscreenRef} tabIndex={-1} id="yetzirah29-source" className="yetzirah29-source book-fullscreen29-target" aria-labelledby="yetzirah29-source-title">
+  if (compact && page === 53) return <aside id="yetzirah29-source" className="dw-source-preview" aria-label="תצוגה מקדימה של עמוד המקור 53"><button type="button" onClick={onExpand}><img src="/book-data/sefer-yetzirah-page53-preview.webp" alt="צילום עמוד 53 בספר יצירה, מתוך קובץ המקור" width="637" height="900" /><span>עמוד 53 בספר המקורי<strong>פתח לקריאה ב־PDF ↗</strong></span></button></aside>;
+
+  return <aside ref={fullscreenRef} tabIndex={-1} id="yetzirah29-source" className="yetzirah29-source book-fullscreen29-target" data-source-image={mobileSource && page === 53 ? "true" : undefined} aria-labelledby="yetzirah29-source-title">
     <header>
       <div><span>הספר פתוח תמיד</span><h2 id="yetzirah29-source-title">עמוד PDF {page}</h2></div>
       {hasStructure && <button className="yetzirah29-return" type="button" onClick={onReturn}>חזרה למבנה הנבחר</button>}<BookFullscreenButton2029 targetRef={fullscreenRef} fallbackHref={pdfUrl} controls="yetzirah29-source" />
     </header>
-    <div className="yetzirah29-pdf" data-book-pdf-frame><iframe key={page} src={pdfUrl} title={`${SEFER_YETZIRAH_SOURCE.title}, עמוד ${page}`} loading="eager" /></div>
+    <div className="yetzirah29-pdf" data-book-pdf-frame>{mobileSource && page === 53 && <img className="dw-full-source-image" src="/book-data/sefer-yetzirah-page53-preview.webp" alt="צילום מלא של עמוד המקור 53 בספר יצירה" width="637" height="900" />}<iframe key={`${page}:${sourceRevision}`} src={pdfUrl} title={`${SEFER_YETZIRAH_SOURCE.title}, עמוד ${page}`} loading="eager" /></div>
     <form className="yetzirah29-page-nav" onSubmit={submit} aria-label="מעבר בין 220 עמודי הספר">
       <button type="button" disabled={page <= 1} onClick={() => onPage(page - 1)}>הקודם</button>
       <label><span>עמוד</span><input value={draft} min="1" max="220" inputMode="numeric" onChange={event => setDraft(event.target.value)} /></label>
@@ -209,7 +212,9 @@ function VolumeMap({ onPage }) {
 }
 
 export default function SeferYetzirahWorld2029Page() {
+  const liveDepths = typeof window !== "undefined" && new URLSearchParams(window.location.search).get("experience") === "depths";
   const [page, setPage] = useState(requestedPage);
+  const [sourceRevision, setSourceRevision] = useState(0);
   const scrollTimer = useRef(null);
   const scrollEpoch = useRef(0);
   const scrollTarget = useRef("");
@@ -227,8 +232,8 @@ export default function SeferYetzirahWorld2029Page() {
     const settle = () => { if (epoch !== scrollEpoch.current) return; const target = document.getElementById(id); if (!target) return; const rect = target.getBoundingClientRect(); if (attempts === 0 || rect.top < 0 || rect.top > window.innerHeight / 3) target.scrollIntoView({ behavior: "auto", block: "start" }); if (attempts++ === 0) target.focus({ preventScroll: true }); if (attempts < 8) scrollTimer.current = setTimeout(settle, 100); };
     requestAnimationFrame(settle);
   };
-  const [structureId, setStructureId] = useState(() => typeof window === "undefined" ? "" : new URLSearchParams(window.location.search).get("structure") || "");
-  const [componentId, setComponentId] = useState(() => typeof window === "undefined" ? "" : new URLSearchParams(window.location.search).get("component") || "");
+  const [structureId, setStructureId] = useState(() => liveDepths ? "sy-structure:ten-depths" : typeof window === "undefined" ? "" : new URLSearchParams(window.location.search).get("structure") || "");
+  const [componentId, setComponentId] = useState(() => typeof window === "undefined" ? "" : new URLSearchParams(window.location.search).get("component") || (liveDepths ? "sy-structure:ten-depths:component:up" : ""));
   const [relationId, setRelationId] = useState(() => typeof window === "undefined" ? "" : new URLSearchParams(window.location.search).get("relation") || "");
   const [readingLayout, setReadingLayout] = useState("balanced");
   const [activeGateId, setActiveGateId] = useState(requestedGate);
@@ -287,6 +292,8 @@ export default function SeferYetzirahWorld2029Page() {
     else if (mode === "gates") openPage(203);
     else if (mode === "osn") openPage(190);
   };
+
+  if (liveDepths) return <Sod2029Shell wide introVariant="none" surface="books" symbol="✦" eyebrow="ספר יצירה · עשרת העומקים" title="ספר יצירה" description="מרחב לימוד, הסבר ומקור באותה בחירה."><Suspense fallback={<p role="status">פותחים את מרחב הלימוד…</p>}><DepthsLearningWorkspace2029 selectedId={componentId} onSelect={chooseComponent} onRelation={chooseRelation} onSource={(payload, reanchor) => { openPage(payload.source.pdf_page); if (reanchor) setSourceRevision(value => value + 1); }} page={page} renderSource={(onReturn, compact, onExpand, mobile) => <SourcePanel page={page} onPage={openPage} hasStructure onReturn={onReturn} compact={compact} onExpand={onExpand} mobileSource={mobile} sourceRevision={sourceRevision} />} /></Suspense></Sod2029Shell>;
 
   return <Sod2029Shell wide surface="books" symbol="✦" eyebrow="ספר יצירה · עולם קריאה" title="ספר יצירה" description="המקור, הפירושים והמבנים המרחביים בתוך קורא אחד.">
     <main className="yetzirah29" dir="rtl">
