@@ -138,6 +138,9 @@ export const ELECTIONS_ISRAEL_21_26_INPUT = {
     publicEntity("sharshar", "party:sharshar", "party", "שרשר לאהבה ואחדות העם", {
       cycleRefs: ["election:il:knesset-26"],
     }),
+    publicEntity("pirates", "party:pirates", "party", "הפיראטים", {
+      cycleRefs: ["election:il:knesset-26"],
+    }),
     publicEntity("likud", "party:likud", "party", "הליכוד", {
       cycleRefs: ["election:il:knesset-26"],
     }),
@@ -174,7 +177,7 @@ export const ELECTIONS_ISRAEL_21_26_INPUT = {
     }),
 
     ...[
-      14, 21, 26, 45, 52, 54, 66, 77, 140, 271, 450, 454, 456, 631, 789, 1000, 1111,
+      14, 21, 26, 45, 52, 54, 66, 77, 140, 271, 450, 454, 456, 631, 650, 789, 1000, 1111,
       1234, 1237, 1400, 1454, 1456, 1789, 1820, 2021, 2701, 2710, 4500, 14000,
       138598, 140052, 450000, 4500000, 4309270,
     ].map(numberEntity),
@@ -446,6 +449,20 @@ export const ELECTIONS_ISRAEL_21_26_INPUT = {
         snapshot_note: "הערך נשמר כפי שפורסם באותו רגע; הוא אינו תוצאה סופית.",
       },
     },
+    {
+      id: "news-pirates-650-at-70pct",
+      subjectRef: "party:pirates",
+      value: 650,
+      sourceIds: ["ynet-sharshar-1456-snapshot"],
+      assertionScope: ELECTIONS_ASSERTION_SCOPE.PUBLISHED_SNAPSHOT,
+      entityRefs: ["election:il:knesset-26", "number:650"],
+      publishedAt: "2026-10-28T11:31:00+02:00",
+      snapshotState: ONE_TREE_NEWS_MARKER_STATE.REPORTED_SNAPSHOT,
+      scope: {
+        counted_percent: 70,
+        snapshot_note: "מספר הפיראטים מתוך אותו דיווח; אינו תוצאה סופית ואינו מחליף את נקודת שרשר.",
+      },
+    },
   ],
 
   engineCalculations: [
@@ -478,6 +495,7 @@ export const ELECTIONS_ISRAEL_21_26_INPUT = {
     calculation("engine-king-israel-631", "מלך ישראל", "hebrew_standard", 631, ["number:631"]),
     calculation("engine-nes-netanyahu-631", "נס נתניהו", "hebrew_standard", 631, ["person:benjamin-netanyahu", "number:631"]),
     calculation("engine-sharshar-1000", "שרשר", "hebrew_standard", 1000, ["party:sharshar", "number:1000"]),
+    calculation("engine-two-messiahs-1000", "משיח בן דויד משיח בן יוסף", "hebrew_standard", 1000, ["number:1000"]),
   ],
 
   systemMethodApplications: [
@@ -567,6 +585,13 @@ export const ELECTIONS_ISRAEL_21_26_INPUT = {
       ["person:tamar-shvili", "number:450", "number:4500"],
       [450, 4500],
     ),
+    interpretation(
+      "sharshar-two-messiahs",
+      "שרשר ומשיח בן דויד משיח בן יוסף מתכנסים ל־1,000 בגימטרייה רגילה; הקריאה כרמז לשני המשיחים נותרת פרשנות מיוחסת.",
+      ["engine-sharshar-1000", "engine-two-messiahs-1000"],
+      ["party:sharshar", "number:1000"],
+      [1000],
+    ),
   ],
 
   relationCandidates: [
@@ -583,6 +608,7 @@ export const ELECTIONS_ISRAEL_21_26_INPUT = {
     relation("tami-450", "engine_value", "person:tamar-shvili", "number:450", ["engine-tami-450"]),
     relation("sharshar-1000", "engine_value", "party:sharshar", "number:1000", ["engine-sharshar-1000"]),
     relation("sharshar-1456-snapshot", "published_vote_snapshot", "party:sharshar", "number:1456", ["news-sharshar-1456-at-70pct"]),
+    relation("pirates-650-snapshot", "published_vote_snapshot", "party:pirates", "number:650", ["news-pirates-650-at-70pct"]),
     relation("system-1456-456", "converges_by_system_method", "number:1456", "number:456", ["system-one-1456-456"]),
     relation("system-1400-14", "converges_by_system_method", "number:1400", "number:14", ["system-zero-scale-1400-14"]),
     relation("elections-631", "engine_value", "node:2bb53dbf-816a-4033-aff2-874c4981cd39", "number:631", ["engine-elections-631"]),
