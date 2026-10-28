@@ -9,6 +9,7 @@ import { fetchExplorerFacetPage } from "../../lib/research/explorerFacets.js";
 import { WORLD_KNOWLEDGE_KIND } from "../../lib/research/worldLandingNavigation.js";
 import { buildPublicCipherContentProjection, buildPublicLanguageContentProjection, buildPublicMediaContentProjection } from "../../lib/research/worldKnowledgeContentProjection.js";
 import { fetchWorldLanguageTriageProjection } from "../../lib/research/worldLanguageTriageProjection.js";
+import { fetchWorldPublicBookContent } from "../../lib/research/worldBookContentProjection.js";
 
 export const WORLD_KNOWLEDGE_OPTIONS = Object.freeze([
   { key: WORLD_KNOWLEDGE_KIND.NUMBERS, label: "מספרים ומילים", description: "מספרים, מילים וביטויים" },
@@ -85,6 +86,13 @@ async function fetchKind(kind) {
     const page = await fetchPublicWorldMediaPage({ limit: 12 });
     const media = page.items || [];
     return { sections: [], ciphers: [], media, contentProjection: buildPublicMediaContentProjection(media), hasMore: Boolean(page.hasMore), access: page.access };
+  }
+  if (kind === WORLD_KNOWLEDGE_KIND.BOOKS) {
+    const books = await fetchWorldPublicBookContent({ limit: 12 });
+    return {
+      sections: [{ key: "book", label: "ספרים ומקורות", description: "ספר נשאר זהות בעץ; רק מקור מתועד נספר כמקור.", cards: books.cards, hasMore: false }],
+      ciphers: [], media: [], contentProjection: books.contentProjection, hasMore: false,
+    };
   }
   const specs = FACETS[kind] || FACETS[WORLD_KNOWLEDGE_KIND.NUMBERS];
   const [pages, curationCatalog, multiValue, language] = await Promise.all([
