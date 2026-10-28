@@ -27,6 +27,7 @@ import { AHAVAT_PARASHA_COUNT_FORMS, AHAVAT_PARASHA_COUNT_READINGS } from "../da
 import { AhavatTorahPeopleReader2029, AhavatTorahRootsReader2029, AhavatTorahMegillotReader2029, AhavatTorahPrintedNotes2029 } from "../components/books2029/AhavatTorahSourceTables2029.jsx";
 import { ahavatReaderUnit, ahavatReaderUnitDomId, ahavatReaderUnitHref } from "../data/ahavatTorahReaderUnits2029.js";
 import "./ahavatTorahSystem2029.css";
+import "../components/books2029/ahavatBookPresentation2029.css";
 
 const AhavatTorahSpatialScene2029 = lazy(() => import("../components/books2029/AhavatTorahSpatialScene2029.jsx"));
 
@@ -65,6 +66,7 @@ function scrollToReaderUnit(element) {
 function SourcePanel({ page, contextLabel, onPage, readerUnit, onReturnToUnit }) {
   const pdfUrl = `${AHAVAT_TORAH_SOURCE.pdfUrl}#page=${page}&view=FitH`;
   const [pageDraft, setPageDraft] = useState(String(page));
+  const [bookPresentation, setBookPresentation] = useState(true);
   const fullscreenRef = useRef(null);
 
   useEffect(() => setPageDraft(String(page)), [page]);
@@ -78,9 +80,10 @@ function SourcePanel({ page, contextLabel, onPage, readerUnit, onReturnToUnit })
   return <aside ref={fullscreenRef} id="ahavat29-source" className="ahavat29-source book-fullscreen29-target" aria-labelledby="ahavat29-source-title">
     <header>
       <div><span>המקור נשאר פתוח</span><h2 id="ahavat29-source-title">עמוד PDF {page}</h2></div>
-      <div className="ahavat29-source-actions"><b>{contextLabel}</b><BookFullscreenButton2029 targetRef={fullscreenRef} fallbackHref={pdfUrl} controls="ahavat29-source" />{readerUnit ? <a className="book-fullscreen29-button" title={readerUnit.title} href={ahavatReaderUnitHref(readerUnit.id, window.location.href)} onClick={onReturnToUnit}>חזור ליחידת הקריאה</a> : null}</div>
+      <div className="ahavat29-source-actions"><b>{contextLabel}</b><button type="button" className="ahavat29-book-view-toggle" aria-pressed={bookPresentation} aria-controls="ahavat29-pdf-frame" onClick={() => setBookPresentation(value => !value)} title="הצג את המקור במסגרת ספר או בתצוגה ישרה">תצוגת ספר</button><BookFullscreenButton2029 targetRef={fullscreenRef} fallbackHref={pdfUrl} controls="ahavat29-source" /><a className="book-fullscreen29-button" href={pdfUrl} target="_blank" rel="noreferrer" data-book-reader-secondary>קרא את ה־PDF · עמוד {page} ↗</a>{readerUnit ? <a className="book-fullscreen29-button" title={readerUnit.title} href={ahavatReaderUnitHref(readerUnit.id, window.location.href)} onClick={onReturnToUnit}>חזור ליחידת הקריאה</a> : null}</div>
     </header>
-    <div className="ahavat29-pdf-frame" data-book-pdf-frame>
+    <div id="ahavat29-pdf-frame" className="ahavat29-pdf-frame" data-book-pdf-frame data-book-presentation={bookPresentation ? "book" : "straight"}>
+      <span className="ahavat29-book-page-edges" aria-hidden="true" />
       <iframe key={page} src={pdfUrl} title={`${AHAVAT_TORAH_SOURCE.title}, עמוד PDF ${page}`} loading="eager" />
     </div>
     <form className="ahavat29-page-nav" onSubmit={submitPage} aria-label="ניווט בכל 99 עמודי המקור">
@@ -90,17 +93,19 @@ function SourcePanel({ page, contextLabel, onPage, readerUnit, onReturnToUnit })
       <button type="submit">עבור</button>
       <button type="button" disabled={page >= AHAVAT_TORAH_SOURCE.pdfPages} onClick={() => onPage(page + 1)} aria-label="לעמוד הבא">הבא</button>
     </form>
-    <dl data-book-reader-secondary>
+    <details className="ahavat29-source-provenance" data-book-reader-secondary>
+      <summary>פרטי המקור וקישורים</summary>
+    <dl>
       <div><dt>זהות מקור</dt><dd>{AHAVAT_TORAH_SOURCE.identity}</dd></div>
       <div><dt>מחבר</dt><dd>{AHAVAT_TORAH_SOURCE.author}</dd></div>
       <div><dt>דפוס</dt><dd>{AHAVAT_TORAH_SOURCE.imprint}</dd></div>
       <div><dt>מעמד</dt><dd>עד מקור · לא פרסום ממצא</dd></div>
     </dl>
-    <nav aria-label="קישורי מקור" data-book-reader-secondary>
-      <a href={pdfUrl} target="_blank" rel="noreferrer">קרא את ה־PDF · עמוד {page} ↗</a>
+    <nav aria-label="קישורי מקור">
       <a href={AHAVAT_TORAH_SOURCE.catalogUrl} target="_blank" rel="noreferrer">רשומת HebrewBooks ↗</a>
     </nav>
-    <p data-book-reader-secondary>המקור קודם לכל שכבת הסבר; מספר העמוד נשמר כמראה־המקום הקבוע.</p>
+    <p>המקור קודם לכל שכבת הסבר; מספר העמוד נשמר כמראה־המקום הקבוע.</p>
+    </details>
   </aside>;
 }
 

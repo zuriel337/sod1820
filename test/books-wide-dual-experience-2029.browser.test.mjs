@@ -51,6 +51,25 @@ test("both book experiences preserve the source while widening desktop reading",
         await page.waitForFunction(value => document.documentElement.getAttribute("data-theme-preset") === value, theme);
         assert.match(await source.locator("iframe").getAttribute("src"), new RegExp(`#page=${book.page}&`));
         assert.equal(await page.locator("canvas").count(), 0, "3D remains opt-in");
+        if (book.surface === "ahavat-torah-system") {
+          const frame = source.locator("[data-book-pdf-frame]");
+          const toggle = source.getByRole("button", { name: "תצוגת ספר", exact: true });
+          assert.equal(await frame.getAttribute("data-book-presentation"), "book");
+          await frame.locator("iframe").evaluate(element => { window.bookPresentationSource = element; });
+          await toggle.focus(); await page.keyboard.press("Enter");
+          assert.equal(await toggle.getAttribute("aria-pressed"), "false");
+          assert.equal(await frame.getAttribute("data-book-presentation"), "straight");
+          assert.equal(await frame.locator("iframe").evaluate(element => element === window.bookPresentationSource), true, "presentation does not reload or replace the source");
+          await toggle.click();
+          assert.equal(await toggle.getAttribute("aria-pressed"), "true");
+          assert.equal(await frame.locator(".ahavat29-book-page-edges").getAttribute("aria-hidden"), "true");
+          assert.equal(await frame.locator("iframe").evaluate(element => getComputedStyle(element).transform), "none", "source text is never perspective-distorted");
+          const sourceBox = await frame.boundingBox(), pdfBox = await frame.locator("iframe").boundingBox();
+          assert.ok(pdfBox.x > sourceBox.x && pdfBox.width > sourceBox.width * .85, "book depth is visible but leaves at least 85% of source width readable");
+          assert.match(await frame.locator("iframe").getAttribute("src"), new RegExp(`#page=${book.page}&`));
+          await source.scrollIntoViewIfNeeded();
+          await page.screenshot({ path: `${out}/ahavat-book-${width}-${theme}.png` });
+        }
         if (width === 1440) {
           const nav = page.getByRole("navigation", { name: "רוחב הקריאה במחשב" });
           const balancedWidth = (await source.boundingBox()).width;
@@ -115,8 +134,15 @@ test("native PDFs remain readable in the wider desktop layout", { skip: !availab
       await page.goto(`${origin}/2029/control?surface=${book.surface}&page=6`, { waitUntil: "domcontentloaded" });
       const source = page.locator(book.source);
       await source.waitFor();
+      await source.scrollIntoViewIfNeeded();
+      await page.waitForTimeout(1200);
+      await page.screenshot({ path: `/tmp/books-wide-dual-experience-20261028/${book.surface}-native-before-fullscreen-1440.png` });
       await source.getByRole("button", { name: "מסך מלא", exact: true }).click();
       await page.waitForFunction(() => Boolean(document.fullscreenElement));
+      if (book.surface === "ahavat-torah-system") {
+        assert.equal(await source.locator(".ahavat29-book-page-edges").isVisible(), false);
+        assert.equal(await source.locator("[data-book-pdf-frame]").evaluate(element => getComputedStyle(element).padding), "0px");
+      }
       let nativePages = null;
       for (let attempt = 0; attempt < 100 && nativePages !== book.pages; attempt++) {
         for (const frame of page.frames()) {
@@ -126,8 +152,13 @@ test("native PDFs remain readable in the wider desktop layout", { skip: !availab
       }
       assert.equal(nativePages, book.pages, "actual Chromium PDF viewer exposes all source pages");
       await source.getByRole("button", { name: "יציאה ממסך מלא", exact: true }).click();
+      if (book.surface === "ahavat-torah-system") {
+        await page.waitForFunction(() => !document.fullscreenElement);
+        assert.equal(await source.locator(".ahavat29-book-page-edges").isVisible(), true);
+      }
       assert.match(await source.locator("iframe").getAttribute("src"), /#page=6&/);
       await source.scrollIntoViewIfNeeded();
+      await page.waitForTimeout(1200);
       await page.screenshot({ path: `/tmp/books-wide-dual-experience-20261028/${book.surface}-native-pdf-1440.png` });
       await context.close();
     }

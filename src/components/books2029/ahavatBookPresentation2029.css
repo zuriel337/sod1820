@@ -1,0 +1,23 @@
+/* Experience Governance v10 / Design V2: S2 depth around the source, never on its text. */
+.ahavat29-source.book-fullscreen29-target{height:calc(100dvh - 100px);max-height:none;grid-template-rows:auto minmax(360px,1fr) auto auto}
+.ahavat29-source>header{display:grid;grid-template-columns:minmax(0,1fr)}
+.ahavat29-source .ahavat29-source-actions{justify-content:flex-start}
+.ahavat29-source-provenance{min-width:0;border-top:1px solid var(--s29-line-strong);color:var(--s29-muted);font:400 var(--s29-type-small)/1.6 var(--s29-font-body)}
+.ahavat29-source-provenance summary{min-height:44px;display:flex;align-items:center;cursor:pointer;color:var(--s29-text);font:500 var(--s29-type-ui)/1.4 var(--s29-font-ui)}
+.ahavat29-source-provenance nav{margin-top:10px}
+.ahavat29-source.book-fullscreen29-target:has(.ahavat29-source-provenance[open]){height:auto}
+.ahavat29-source .ahavat29-source-actions{flex-wrap:wrap}
+.ahavat29-source .ahavat29-book-view-toggle{min-height:44px;padding:9px 13px;border:1px solid var(--s29-line-strong);border-radius:999px;background:var(--s29-panel);color:var(--s29-text);cursor:pointer;font:500 var(--s29-type-ui)/1.4 var(--s29-font-ui)}
+.ahavat29-source .ahavat29-book-view-toggle[aria-pressed="true"]{border-color:var(--s29-brand-gold);background:color-mix(in srgb,var(--s29-brand-gold) 12%,var(--s29-panel))}
+.ahavat29-source .ahavat29-book-view-toggle:focus-visible{outline:3px solid var(--s29-focus-ring);outline-offset:3px}
+.ahavat29-pdf-frame[data-book-presentation="book"]{position:relative;isolation:isolate;min-width:0;padding:12px 12px 20px 28px;border:0;border-radius:6px 18px 18px 6px;background:transparent;overflow:visible}
+.ahavat29-pdf-frame[data-book-presentation="book"]::before{content:"";position:absolute;z-index:-1;inset:1px 0 0;border:1px solid var(--s29-line-strong);border-radius:6px 18px 18px 6px;background:linear-gradient(90deg,var(--s29-panel) 0%,var(--s29-brand-gold) 2%,var(--s29-panel) 5%,var(--s29-surface-soft,var(--s29-panel)) 96%,var(--s29-brand-gold) 100%);box-shadow:0 12px 20px color-mix(in srgb,var(--s29-text) 16%,transparent)}
+.ahavat29-pdf-frame[data-book-presentation="book"]::after{content:"";position:absolute;inset:13px auto 18px 9px;width:13px;border-inline-end:1px solid var(--s29-line-strong);border-radius:50% 0 0 50%;background:linear-gradient(90deg,color-mix(in srgb,var(--s29-text) 12%,var(--s29-panel)),var(--s29-panel));pointer-events:none}
+.ahavat29-pdf-frame[data-book-presentation="book"] iframe{position:relative;display:block;min-width:0;border:1px solid var(--s29-line-strong);border-radius:2px 7px 7px 2px;box-shadow:-3px 1px 6px color-mix(in srgb,var(--s29-text) 15%,transparent)}
+.ahavat29-book-page-edges{display:none;pointer-events:none}
+.ahavat29-pdf-frame[data-book-presentation="book"] .ahavat29-book-page-edges{display:block;position:absolute;inset:auto 13px 8px 29px;height:10px;border:1px solid var(--s29-line-strong);border-radius:0 0 6px 2px;background:repeating-linear-gradient(0deg,var(--s29-panel) 0 2px,var(--s29-line-strong) 2px 3px)}
+.ahavat29-source:fullscreen .ahavat29-pdf-frame[data-book-presentation],.ahavat29-source:-webkit-full-screen .ahavat29-pdf-frame[data-book-presentation]{padding:0;border:1px solid var(--s29-line-strong);border-radius:0;overflow:hidden}
+.ahavat29-source:fullscreen .ahavat29-pdf-frame::before,.ahavat29-source:fullscreen .ahavat29-pdf-frame::after,.ahavat29-source:fullscreen .ahavat29-book-page-edges,.ahavat29-source:-webkit-full-screen .ahavat29-pdf-frame::before,.ahavat29-source:-webkit-full-screen .ahavat29-pdf-frame::after,.ahavat29-source:-webkit-full-screen .ahavat29-book-page-edges{display:none}
+.ahavat29-source:fullscreen .ahavat29-pdf-frame iframe,.ahavat29-source:-webkit-full-screen .ahavat29-pdf-frame iframe{border:0;border-radius:0;box-shadow:none}
+@media(max-width:900px){.ahavat29-source.book-fullscreen29-target{height:auto;grid-template-rows:auto minmax(520px,72dvh) auto auto}}
+@media(max-width:650px){.ahavat29-pdf-frame[data-book-presentation="book"]{padding:7px 6px 15px 16px}.ahavat29-pdf-frame[data-book-presentation="book"]::after{inset:8px auto 13px 4px;width:8px}.ahavat29-pdf-frame[data-book-presentation="book"] .ahavat29-book-page-edges{inset:auto 7px 5px 17px;height:8px}}
