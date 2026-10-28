@@ -14,6 +14,7 @@ import {
 } from "../src/lib/research/worldPublicPeopleIndex.js";
 
 const source = readFileSync(new URL("../src/lib/research/worldPublicPeopleIndex.js", import.meta.url), "utf8");
+const worldPeopleSurface = readFileSync(new URL("../src/components/research/WorldPeopleSources2029.jsx", import.meta.url), "utf8");
 const publicPerson = (index, extra = {}) => ({
   id: `id-${index}`,
   slug: `writer-${index}`,
@@ -190,4 +191,12 @@ test("search and filters cover people, titles and numbers with stable pagination
   assert.deepEqual(filterWorldPeopleAndSources(data, { query: "227", filter: "people" }).people.map((row) => row.slug), ["tzvi-opoc"]);
   assert.deepEqual(filterWorldPeopleAndSources(data, { query: "1820", filter: "writings" }).items.map((row) => row.id), ["a"]);
   assert.deepEqual(filterWorldPeopleAndSources(data, { query: "תעודה", filter: "topics" }).items.map((row) => row.id), ["b"]);
+});
+
+test("World presents canonical source identities, exact occurrences and only verified source links", () => {
+  assert.match(worldPeopleSurface, /זהויות מקור נפרדות/);
+  assert.match(worldPeopleSurface, /הופעות מדויקות/);
+  assert.match(worldPeopleSurface, /sourceByRef\.get\(row\.sourceRef\)\?\.sourceHref \|\| row\.href/);
+  assert.match(worldPeopleSurface, /loading="lazy"/);
+  assert.doesNotMatch(worldPeopleSurface, /localStorage/);
 });

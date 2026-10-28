@@ -77,6 +77,17 @@ export default function WorldPeopleSources2029({ index, loading = false, error =
   const selectedMaterial = material.slug === selected?.slug
     ? material
     : { slug: selected?.slug || null, loading: Boolean(selected), data: null, error: null };
+  const publicContent = selectedMaterial.data?.contentProjection || null;
+  const sourceByRef = useMemo(() => new Map((publicContent?.sources || []).map((row) => [row.sourceRef, row])), [publicContent]);
+  const occurrenceBySourceRef = useMemo(() => {
+    const rows = new Map();
+    for (const occurrence of publicContent?.occurrences || []) {
+      const existing = rows.get(occurrence.sourceRef) || [];
+      existing.push(occurrence);
+      rows.set(occurrence.sourceRef, existing);
+    }
+    return rows;
+  }, [publicContent]);
   const filtered = filterWorldPeopleAndSources({
     people: index?.people || [],
     items: selectedMaterial.data?.items || [],
@@ -164,6 +175,10 @@ export default function WorldPeopleSources2029({ index, loading = false, error =
           ? "לא ניתן לאמת את המקור שבקישור מתוך המידע שנטען."
           : "המקור שבקישור אינו זמין בתצוגה הציבורית."}</p> : null}
         <p className="sod29-world-source-count">מוצגים {shownItems.length} מתוך {orderedItems.length} פריטים במסנן · {selectedMaterial.data.total} פריטים ציבוריים נגישים בסך הכול</p>
+        {publicContent?.coverage?.sources?.available ? <p className="sod29-muted">
+          {publicContent.metrics.corpusSources} זהויות מקור נפרדות · {publicContent.metrics.occurrences} הופעות מדויקות.
+          ממצא, נושא או אשכול אינם נספרים כמקור נוסף.
+        </p> : <p className="sod29-muted">זהויות המקור אינן זמינות כרגע; לא מוצג מספר חלופי.</p>}
         {!orderedItems.length ? <p role="status">אין חומר ציבורי במסנן הזה.</p> : null}
         <div className="sod29-world-public-material-grid">
           {shownItems.map((row) => <article key={row.sourceRef} data-source-ref={row.sourceRef}
@@ -171,12 +186,14 @@ export default function WorldPeopleSources2029({ index, loading = false, error =
             tabIndex={focusedSourceRef === row.sourceRef ? -1 : undefined}
             id={focusedSourceRef === row.sourceRef ? `source-occurrence-${row.sourceRef.split(":").pop()}` : undefined}>
             <div><span>{row.label || materialLabel(row.type)}</span>{row.date ? <time dateTime={row.date}>{materialDatePrefix(row)}{bilingualDateLabel(row.date)}</time> : <time>אין נתון</time>}</div>
+            {row.mediaUrl ? <img loading="lazy" src={row.mediaUrl} alt="" /> : null}
             <h3>{row.title}</h3>
             {row.summary ? <p>{row.summary}</p> : null}
             {row.number != null ? <strong className="sod29-world-material-number">{row.number}</strong> : null}
             <code dir="ltr">{row.sourceRef}</code>
-            {row.meta?.sourceRecordCount > 1 ? <small>{row.meta.sourceRecordCount} הופעות מקור נשמרו ללא כפילות מקור.</small> : null}
-            <MaterialLink href={row.href}>{row.href ? `${CANONICAL_PUBLIC_UI_COPY.action.source} ←` : "אין קישור ציבורי מאומת"}</MaterialLink>
+            {occurrenceBySourceRef.get(row.sourceRef)?.length > 1 ? <small>{occurrenceBySourceRef.get(row.sourceRef).length} הופעות מדויקות של אותה זהות מקור.</small> : null}
+            {row.meta?.sourceRecordCount > 1 ? <small>{row.meta.sourceRecordCount} רשומות מקור נשמרו ללא כפילות מקור.</small> : null}
+            <MaterialLink href={sourceByRef.get(row.sourceRef)?.sourceHref || row.href}>{(sourceByRef.get(row.sourceRef)?.sourceHref || row.href) ? `${CANONICAL_PUBLIC_UI_COPY.action.source} ←` : "אין קישור ציבורי מאומת"}</MaterialLink>
           </article>)}
         </div>
         {materialWindow.hasMore ? <button className="sod29-action" type="button"
