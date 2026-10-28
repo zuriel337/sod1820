@@ -49,12 +49,112 @@ PDF83 (the synoptic wheel passage) and PDF203 (the Gra table) remain distinct so
 
 ## Acceptance evidence
 
-Results are populated only after completed runs. Local browser tests use Chromium/SwiftShader, actual source assets and the SHA-verified 220-page PDF; Supabase auth/read services are bounded fixtures and Edge transport is blocked. The generic model matrix intentionally aborts PDF frames and is reported separately from actual-PDF acceptance. Hosted Preview smoke uses real network/source responses with no mocked book/services. Neither constitutes physical-device, Safari, hardware-GPU or canonical-engine certification.
+Local browser tests use Chromium/SwiftShader, actual source assets and the SHA-verified 220-page PDF. Non-PDF Supabase requests are stubbed, remote fonts are blocked, and Edge transport is blocked. These fixtures do not certify shared-frame/brand rendering. The generic model matrix intentionally aborts PDF frames and is reported separately from actual-PDF acceptance. Hosted Preview smoke uses real network/source responses with no mocked book/services. Neither constitutes physical-device, Safari, hardware-GPU or canonical-engine certification.
 
-One initial browser run used a stale `blockquote` selector while the corrected excerpt had moved to semantic `q`; the selector was corrected and a clean final run is required. Early in-progress/HMR observations are not substituted for the final immutable-code acceptance. A native-PDF regression invoked without its required environment selector is explicitly not acceptance; it is rerun with the verified PDF path.
+One initial browser run used a stale `blockquote` selector while the corrected excerpt had moved to semantic `q`; the corrected source flow and final targeted pair runs are recorded below. Exploratory per-model regression logs span runtime checkpoints `020fd9fa` and `daeaea5a`, and some contain HMR notices during reader-only repairs; they are not represented as a single identical-final-SHA rerun of every historical observation. The final source/pair repair flows and release gates check the frozen runtime. A native-PDF regression invoked without its required environment selector is explicitly not acceptance; the verified-PDF run is separate.
+
+### Completed local acceptance
+
+| Check | Actual result / boundary |
+|---|---|
+| Complete relevant Books Node inventory | **375/375 PASS**, zero skips; includes Maamar Esther, all eight reader manifests, source/translation/content, private/public projections and new negative-source checks |
+| Source-model browser matrix | **108/108 completed viewport/preset observations**: 12 models × 320/390/1440 × light/parchment/dark. Actual original PDF frames are aborted here; source URLs and source-return selection, refresh, keyboard/touch, explicit GPU, context loss/no-WebGL, reduced motion, focus and context release are checked |
+| Resumption proof | Environment restart interrupted two model drivers after eight completed observations each. Their missing 1440/dark observations were rerun to completion. `model-matrix.json` validates nine unique observations per model; interrupted drivers are not claimed as completed suites |
+| Ten imported guide layouts | **90/90 contexts PASS**, 10 routes × nine viewport/preset combinations; plus separate Gra/stones reading-interaction regressions |
+| Dedicated Ten Depths reading | **2/2 PASS**, nine real-PDF contexts plus failure/retry/source-mismatch checks; four voices, ten component explanations, two textual reading diagrams, source return and refresh. This remains distinct from the generic model matrix |
+| Family fields / Gra correction | All **nine** viewport/preset source contexts passed: real PDF65/91/100/113/175, field-specific selection and return; the inactive table-row field was additionally checked in 390/parchment |
+| Rich-depth entry / return | Passed in 320/390/1440; existing catalog → richer existing Ten Depths experience → printed readings → same integrated book |
+| Final pair flow | **9/9 contexts PASS**, targeted after opening the intentionally collapsed catalog correctly: 21/all-231 view, both letter orders, keyboard choice, actual PDF83/203, same-page native reanchor/fullscreen, exact return, refresh, scene ↔ table single-letter/pair synchronization, explicit GPU start/close, and laboratory → catalog return-target reset |
+| Clean ten-route native PDF regression | **1/1 PASS**, zero skips, all ten source routes at actual PDF73/175/187/97/106/184/111/80/45/122, 220 native pages and exact selection return |
+| Language / Auth Guard | **3/3 + 4/4 PASS** |
+| Normal Build2029 / graph | PASS, seven eager records, **379,579 bytes** eager gzip JS |
+| Books Preview Build2029 / graph | PASS, seven eager records, **376,895 bytes** eager gzip JS; unchanged budget |
+| Legacy Production Lock / isolation / cheap hardening | PASS; guards were not weakened |
+
+The 108 matrix is for the twelve delivered source-model components. The separate selected-pair overview flow is an enhancement of the existing overview renderer, not a thirteenth universally accepted source model. The final pair test runs one bounded viewport per Node test while retaining all three themes and the same timeout/assertions. Its default invocation still covers all nine combinations; no timeout or weight budget was raised.
+
+### Test-harness repairs and rejected runs
+
+The initial combined actual-PDF run exceeded its whole-test timeout while repeatedly transferring the 50 MB witness through the browser fixture. It was partitioned by viewport with the same assertions and timeout. A trial redirect-based binary fixture did **not** satisfy actual native-PDF acceptance and was removed; final tests use the verified original PDF bytes directly. No product URL or renderer was altered to accommodate that trial.
+
+The standalone pair scenario originally tried to select a catalog item without opening the collapsed catalog. Its repair opens the existing control, then retains the catalog-selection/return assertions; all nine final pair contexts passed. The separate ten-route native-PDF run initially completed nine routes and encountered an automated-scroll/fixed-frame interception on the last route. The source control is now keyboard-focused and legitimately centered before an ordinary pointer click, without force-clicking, removing overlays or weakening PDF assertions. The isolated last-route rerun passed at physical PDF122; the subsequent **clean full ten-route run passed 1/1 with no skips**.
+
+## Delivery boundaries and local AFTER
+
+Runtime checkpoint `daeaea5ae15248663e7c8cd587b0e84d37758d10` follows `020fd9fa6b8ae4e80ae77740ab766f7f6f000434` and the true merge. The final continuation commit adds only test organization/stable automation, generated acceptance evidence and this handoff. Both original delivery heads remain ancestors. Original units/structures/source-readings and the shared twelve-model renderer are byte-unchanged from base. No source material was removed.
+
+Actor GPT · task `YETZIRAH_UNIFIED_LEARNING_COMPLETION_20261029` · handoff only to ZURIEL. Release advice **BUNDLE_WITH(site-central-books-integration)**: the isolated Books Preview is the current delivery, not authority to merge main, cut over Production, activate a DB rule or publish governed material. Main and both source branch heads are rechecked independently at delivery. No live journal BEFORE/AFTER/release is claimed: the dedicated connector is read-only. Local writing ownership ends after exact remote/clean verification and the protected Preview check.
 
 ## Retained limits
 
 This slice closes the three reported product gaps at the documented boundaries; it is not full transcription of the volume, its commentary columns or the complete Gra grid, nor implementation of all 33 content specifications. No model is newly certified as universally contract-complete from these tests alone. Adopted styles/controls are reused, with no shared palette/frame/contract redesign or invented visual approval. Broader visual-lane and physical-device acceptance remain distinct.
 
 No change to original units/structures/source-readings assets, DB/RLS, grants, publication, main, Legacy or Production. The shared `YetzirahModelCanvas` for the twelve source-bound models remains unchanged; only the existing overview letter scene gains pair-selection input. No elevated weight budget, weakened guard or disabled source assertion.
+
+## Complete file inventory
+
+61 changed paths from base through this delivery; includes the imported source-session paths and generated evidence. This inventory is git-derived, not a claim that every path was authored again here.
+
+```text
+docs/research-notes/SEFER_YETZIRAH_DEEP_STRUCTURES_LEARNING_20261028.md
+docs/research-notes/YETZIRAH_UNIFIED_LEARNING_COMPLETION_20261029.md
+docs/research-notes/sefer-yetzirah-deep-learning-20261028/mothers-reader-390-parchment.png
+docs/research-notes/yetzirah-unified-learning-completion-20261029/acceptance.json
+docs/research-notes/yetzirah-unified-learning-completion-20261029/families-1440.png
+docs/research-notes/yetzirah-unified-learning-completion-20261029/families-320.png
+docs/research-notes/yetzirah-unified-learning-completion-20261029/families-390.png
+docs/research-notes/yetzirah-unified-learning-completion-20261029/model-matrix.json
+docs/research-notes/yetzirah-unified-learning-completion-20261029/native-pdf-175.png
+docs/research-notes/yetzirah-unified-learning-completion-20261029/pairs-1440.png
+docs/research-notes/yetzirah-unified-learning-completion-20261029/pairs-320.png
+docs/research-notes/yetzirah-unified-learning-completion-20261029/pairs-390.png
+docs/research-notes/yetzirah-unified-learning-completion-20261029/pairs-spatial-1440.png
+src/components/books2029/LetterGateExploration2029.jsx
+src/components/books2029/SeferYetzirahScene2029.jsx
+src/components/books2029/letterGateExploration2029.js
+src/components/books2029/yetzirahModels/FiveAgainstFiveLearning2029.jsx
+src/components/books2029/yetzirahModels/FiveAgainstFiveModel2029.jsx
+src/components/books2029/yetzirahModels/GraDoublesLearning2029.jsx
+src/components/books2029/yetzirahModels/GraDoublesModel2029.jsx
+src/components/books2029/yetzirahModels/GraSealsLearning2029.jsx
+src/components/books2029/yetzirahModels/GraSealsModel2029.jsx
+src/components/books2029/yetzirahModels/LetterFamiliesLearning2029.jsx
+src/components/books2029/yetzirahModels/LetterFamiliesModel2029.jsx
+src/components/books2029/yetzirahModels/MothersCorrespondencesModel2029.jsx
+src/components/books2029/yetzirahModels/MothersLearning2029.jsx
+src/components/books2029/yetzirahModels/MouthGroupsLearning2029.jsx
+src/components/books2029/yetzirahModels/PhoneticGroupsModel2029.jsx
+src/components/books2029/yetzirahModels/SourceCatalog2029.jsx
+src/components/books2029/yetzirahModels/StonesHousesLearning2029.jsx
+src/components/books2029/yetzirahModels/StonesHousesModel2029.jsx
+src/components/books2029/yetzirahModels/SynopticDoublesLearning2029.jsx
+src/components/books2029/yetzirahModels/SynopticDoublesModel2029.jsx
+src/components/books2029/yetzirahModels/SynopticSealsLearning2029.jsx
+src/components/books2029/yetzirahModels/SynopticSealsModel2029.jsx
+src/components/books2029/yetzirahModels/TenDepthsModel2029.jsx
+src/components/books2029/yetzirahModels/ThreeKingsLearning2029.jsx
+src/components/books2029/yetzirahModels/ThreeKingsModel2029.jsx
+src/components/books2029/yetzirahModels/TwelveBoundariesLearning2029.jsx
+src/components/books2029/yetzirahModels/TwelveBoundariesModel2029.jsx
+src/components/books2029/yetzirahModels/YetzirahModelCard.jsx
+src/components/books2029/yetzirahModels/catalogModels.js
+src/components/books2029/yetzirahModels/sourceCorrections2029.js
+src/components/books2029/yetzirahModels/sourceModels.js
+src/components/books2029/yetzirahModels/synopticSealsLearning2029.css
+src/pages/SeferYetzirahWorld2029Page.jsx
+test/sefer-yetzirah-boundaries-learning-2029.browser.test.mjs
+test/sefer-yetzirah-deep-learning-layout-2029.browser.test.mjs
+test/sefer-yetzirah-deep-learning-real-pdf-2029.browser.test.mjs
+test/sefer-yetzirah-five-learning-2029.browser.test.mjs
+test/sefer-yetzirah-gra-doubles-learning-2029.browser.test.mjs
+test/sefer-yetzirah-gra-seals-learning-2029.browser.test.mjs
+test/sefer-yetzirah-kings-learning-2029.browser.test.mjs
+test/sefer-yetzirah-mature-structures-2029.test.mjs
+test/sefer-yetzirah-mothers-learning-2029.browser.test.mjs
+test/sefer-yetzirah-mouth-learning-2029.browser.test.mjs
+test/sefer-yetzirah-stones-learning-2029.browser.test.mjs
+test/sefer-yetzirah-synoptic-doubles-learning-2029.browser.test.mjs
+test/sefer-yetzirah-synoptic-seals-learning-2029.browser.test.mjs
+test/sefer-yetzirah-unified-completion-2029.browser.test.mjs
+test/sefer-yetzirah-unified-completion-2029.test.mjs
+```

@@ -37,9 +37,10 @@ async function accessibility(page,scope){
  const measures=await scope.locator('button').evaluateAll(elements=>elements.filter(e=>e.getClientRects().length).map(e=>({w:e.getBoundingClientRect().width,h:e.getBoundingClientRect().height,size:parseFloat(getComputedStyle(e).fontSize)})));
  assert.ok(measures.every(m=>m.w>=44&&m.h>=44&&m.size>=16),JSON.stringify(measures));assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);assert.equal(await page.locator('canvas').count(),0);
 }
-test('family source fields, printed correction and shared depth entry work with actual PDF in nine viewport/preset contexts',{timeout:480000},async()=>{
+for(const testWidth of widths){
+test(`family source fields, printed correction and shared depth entry work with actual PDF (${testWidth}px)`,{timeout:480000},async()=>{
  const {server,origin,browser}=await fixture();mkdirSync(screens,{recursive:true});
- try{for(const width of widths)for(const theme of ['light','parchment','dark']){
+ try{for(const width of [testWidth])for(const theme of ['light','parchment','dark']){
   const context=await contextFor(browser,origin,width,theme),page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
   await page.goto(`${origin}/2029/control?surface=sefer-yetzirah-world&structure=sy-structure:letter-families&component=sy-structure:letter-families:component:mothers&page=65`,{waitUntil:'domcontentloaded'});
   const guide=page.locator('.ssl-guide'),card=page.locator('[data-yetzirah-model="letter-families"]');await guide.waitFor();
@@ -60,16 +61,16 @@ test('family source fields, printed correction and shared depth entry work with 
   assert.deepEqual(errors,[]);console.log(`family field locators / Gra correction ${width}/${theme}: original PDF65,91,100,113,175 passed`);await context.close();
  }}finally{await browser.close();await server.close();}
 });
-test('the integrated catalog reaches the rich Ten Depths reading and returns to the same unified book',{timeout:120000},async()=>{
- const {server,origin,browser}=await fixture();try{const context=await contextFor(browser,origin,widths[0],'parchment'),page=await context.newPage();
+test(`the integrated catalog reaches the rich Ten Depths reading and returns to the same unified book (${testWidth}px)`,{timeout:120000},async()=>{
+ const {server,origin,browser}=await fixture();try{const context=await contextFor(browser,origin,testWidth,'parchment'),page=await context.newPage();
  await page.goto(`${origin}/2029/control?surface=sefer-yetzirah-world&structure=sy-structure:ten-depths&page=53`,{waitUntil:'domcontentloaded'});
  await page.getByRole('link',{name:'פתחו את מסלול עשרת העומקים וקריאת הפירושים'}).click();await page.locator('.depths-workspace').waitFor();await page.getByRole('button',{name:'קריאת עומק ופירושים',exact:true}).click();await page.locator('.dw-reading-voices').waitFor();assert.equal(await page.locator('.dw-reading-voices button').count(),4);
  await page.getByRole('link',{name:'לכל מבני הספר',exact:true}).click();await page.locator('[data-yetzirah-model="ten-depths"]').waitFor();assert.equal(await page.locator('canvas').count(),0);await context.close();
  }finally{await browser.close();await server.close();}
 });
-test('pair exploration is lazy, keyboard-readable, complete, refreshable and returns from both actual source witnesses',{timeout:480000},async()=>{
+test(`pair exploration is lazy, keyboard-readable, complete, refreshable and returns from both actual source witnesses (${testWidth}px)`,{timeout:480000},async()=>{
  const {server,origin,browser}=await fixture();mkdirSync(screens,{recursive:true});
- try{for(const width of widths)for(const theme of ['light','parchment','dark']){
+ try{for(const width of [testWidth])for(const theme of ['light','parchment','dark']){
   const context=await contextFor(browser,origin,width,theme),page=await context.newPage(),errors=[],modules=[];page.on('pageerror',e=>errors.push(e.message));page.on('request',r=>{if(r.url().includes('LetterGateExploration2029.jsx'))modules.push(r.url());});
   await page.goto(`${origin}/2029/control?surface=sefer-yetzirah-world&page=203`,{waitUntil:'domcontentloaded'});
   const lab=page.locator('#yetzirah29-letter-lab');await lab.waitFor();assert.equal(modules.length,0);
@@ -87,7 +88,9 @@ test('pair exploration is lazy, keyboard-readable, complete, refreshable and ret
   await page.reload({waitUntil:'domcontentloaded'});await explorer.waitFor();assert.equal(await page.locator('canvas').count(),0);assert.equal(await page.locator('.yetzirah29-spatial .yetzirah29-letter-picker').getByRole('button',{name:'מ',exact:true}).getAttribute('aria-pressed'),'true');await click(page.getByRole('button',{name:'פתח את המבנה התלת־ממדי',exact:true}));await scene.locator('canvas').waitFor();assert.equal(await scene.getAttribute('data-active-pair'),'מ');
   await click(explorer.getByRole('button',{name:'בחרו את הזוג מת',exact:true}));assert.equal(await scene.getAttribute('data-active-pair'),'מת');if(width===1440&&theme==='parchment'){await page.locator('.yetzirah29-stage').scrollIntoViewIfNeeded();await page.waitForTimeout(200);await page.screenshot({path:`${screens}/pairs-spatial-1440.png`});}
   await click(page.getByRole('button',{name:'סגור את המבנה התלת־ממדי',exact:true}));assert.equal(await page.locator('canvas').count(),0);
+  const openCatalog=page.getByRole('button',{name:'פתח את קטלוג המבנים',exact:true});if(await openCatalog.count())await click(openCatalog);
   await click(page.getByRole('button',{name:/למדו את המבנה.*משפחות/}));await page.locator('[data-yetzirah-model="letter-families"]').waitFor();assert.equal(new URL(page.url()).searchParams.has('sourceReturn'),false);assert.equal(new URL(page.url()).searchParams.get('structure'),'sy-structure:letter-families');await returnTo(page,'yetzirah29-structure-learning');
   assert.deepEqual(errors,[]);console.log(`pair exploration ${width}/${theme}: 21/231, selected 3D endpoints/edge, keyboard, original PDF83/203, refresh and focused return passed`);await context.close();
  }}finally{await browser.close();await server.close();}
 });
+}
