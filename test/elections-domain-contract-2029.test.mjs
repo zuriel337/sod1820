@@ -42,8 +42,8 @@ test("source, fact, engine, system derivation and interpretation lanes remain se
   const bundle = ELECTIONS_ISRAEL_21_26_BUNDLE;
   assert.equal(bundle.sources.length > 0, true);
   assert.equal(bundle.evidence[ELECTIONS_EVIDENCE_LANE.SOURCE_PROVENANCE], bundle.sources);
-  assert.equal(bundle.evidence[ELECTIONS_EVIDENCE_LANE.SOURCE_FACT].length, 19);
-  assert.equal(bundle.evidence[ELECTIONS_EVIDENCE_LANE.ENGINE_CALCULATION].length, 16);
+  assert.equal(bundle.evidence[ELECTIONS_EVIDENCE_LANE.SOURCE_FACT].length, 21);
+  assert.equal(bundle.evidence[ELECTIONS_EVIDENCE_LANE.ENGINE_CALCULATION].length, 17);
   assert.equal(bundle.evidence[ELECTIONS_EVIDENCE_LANE.DERIVATION].length, 2);
   assert.equal(bundle.evidence[ELECTIONS_EVIDENCE_LANE.INTERPRETATION].length, 9);
 
@@ -170,6 +170,23 @@ test("650 remains an independent reported snapshot and 1000 retains exact spelli
   assert.equal(bundle.relationCandidates.find(row => row.id === "pirates-650-snapshot").status, "proposed_relation_candidate");
 });
 
+test("Meron, Bennett and number Topics connect as source-based candidates, not graph promotion", () => {
+  const bundle = ELECTIONS_ISRAEL_21_26_BUNDLE;
+  const entities = Object.fromEntries(bundle.entities.map(row => [row.ref, row]));
+  const records = Object.fromEntries(bundle.branchContract.evidenceRecords.map(row => [row.id, row]));
+  assert.equal(entities["topic:1237"].attributes.graph_node_active_at_observation, false);
+  assert.ok(entities["topic:meron"] && entities["topic:45-frequency"] && entities["topic:gapfill-1234"]);
+  assert.equal(records["engine-bennett-key-1234"].value, 1234);
+  assert.deepEqual(records["meron-news-45-14"].value, [45, 14]);
+  assert.equal(records["meron-news-45-14"].attributes.preliminary_count_not_final, true);
+  assert.deepEqual(records["meron-medical-14-45"].value, [14, 45]);
+  assert.equal(records["meron-medical-14-45"].attributes.topic_membership_refs.length, 2);
+  for (const id of ["bennett-gallery-1234-topic", "bennett-gallery-1237-topic", "meron-source-45-topic", "meron-medical-source-topic"]) {
+    assert.equal(bundle.relationCandidates.find(row => row.id === id)?.status, "proposed_relation_candidate");
+  }
+  assert.equal(bundle.invariants.no_auto_canonicalization, true);
+});
+
 test("threshold and gap stay deterministic derivations over official inputs", () => {
   const bundle = ELECTIONS_ISRAEL_21_26_BUNDLE;
   const factIds = new Set(bundle.evidence.source_fact.map(row => row.id));
@@ -214,11 +231,11 @@ test("Raziel receives an attributed context pack but no promotion or publishing 
   assert.equal(projection.razielContext.requiredAttribution, true);
   assert.equal(projection.razielContext.mayPromoteToCanonical, false);
   assert.equal(projection.razielContext.mayPublish, false);
-  assert.equal(projection.evidenceIdsByLane.engine_calculation.length, 16);
+  assert.equal(projection.evidenceIdsByLane.engine_calculation.length, 17);
   assert.equal(projection.evidenceIdsByLane.derivation.length, 2);
   assert.equal(projection.evidenceIdsByLane.interpretation.length, 9);
-  assert.equal(projection.evidenceIdsByLane.source_fact.length, 19);
-  assert.equal(projection.evidenceIdsByLane.source_provenance.length, 16);
+  assert.equal(projection.evidenceIdsByLane.source_fact.length, 21);
+  assert.equal(projection.evidenceIdsByLane.source_provenance.length, 18);
   assert.deepEqual(projection.evidenceIdsByLane.observation, []);
   assert.deepEqual(projection.evidenceIdsByLane.authored_claim, []);
 });
