@@ -29,3 +29,7 @@ Implemented `SynopticDoublesModel2029`, seven primary identities and 21 printed 
 ## Checkpoint 5 · Gra doubles and comparison
 
 Implemented `GraDoublesModel2029`, seven identities/28 correspondence fields at PDF184/185, including the existing five direct crown-box readings. Two complete independently bound witness tables preserve source order, differing planets/body gates and Gra-only quality fields; no filling from the other witness. All fourteen comparison-row source callbacks preserve the active Gra return selection and carry their own witness/page. Source tests 5/5 and actual Chromium smoke 2/2 at 1440/Night passed. Reading IDs must also match the component-specific suffix, preventing substitution of another same-page crown box. Wide comparison tables use full available width; final matrix remains pending.
+
+## Checkpoint 6 · stones and houses
+
+Implemented `StonesHousesModel2029`, six original source rows at PDF111, preserving the printed pairs 2/2, 3/6, 4/24, 5/120, 6/720, 7/5040. Equal editorial selection tiles are rows, not house counts or computed permutations. Native numeric fields use an isolated numeric font run while Hebrew remains UI/body. No factorial/permutation engine or verification badge. Source tests 6/6 and actual Chromium smoke 2/2 at 1440/Night passed, including every primary/field source action and GPU lifecycle/fallback. Final matrix remains pending.

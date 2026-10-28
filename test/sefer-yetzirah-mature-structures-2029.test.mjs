@@ -25,3 +25,6 @@ test('Gra doubles retain all seven independent assignments and direct five-crown
  const variant=structuredClone(bundle);variant.structures.structures.find(s=>s.id===gra.id).components[0].world_planet='ערך ניסוי';assert.equal(bindSourceModel(variant,'doubles-synoptic').components[0].world_planet,'שבתאי');assert.equal(bindSourceModel(variant,'doubles-gra-distinction').components[0].world_planet,'ערך ניסוי');
  const swapped=structuredClone(bundle);swapped.structures.structures.find(s=>s.id===gra.id).components[2].source_reading_id='sy-structure:doubles-gra-distinction:reading:khaf';assert.throws(()=>bindSourceModel(swapped,'doubles-gra-distinction'),/SOURCE_READING_MISMATCH/);
 });
+test('stones/houses display the six printed counts without generating or verifying permutations',()=>{
+ const m=bindSourceModel(bundle,'stones-houses');assert.deepEqual(m.components.map(c=>[c.source_stones,c.source_houses]),[[2,2],[3,6],[4,24],[5,120],[6,720],[7,5040]]);assert.equal(modelGeometry(m).points.length,6);assert.equal(modelGeometry(m).edges.length,0);assert.equal(m.spec.engine_verification,'not_tested');for(const c of m.components){assert.equal(c.source.pdf_page,111);assert.equal(c.permutations,undefined);}
+});
