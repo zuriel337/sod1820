@@ -13,3 +13,7 @@ Acceptance pending: full Books non-browser selection, focused reader and existin
 ## Checkpoint 1 · PDF 46–50
 
 Embedded source text read and all five hash-matched page renders inspected. Added 15 selected companion units: repentance/letter-life sequence/moral choice; Cain/mortality/Flood water; Babel/Abraham's departure/slavery reckoning; Sarah/truth/ambiguous speech/marriage motifs; Rebecca's extra effort/prompt oaths/Isaac's maturity. Each page retains its identity and anchor. The numeric readings, quoted source blocks and original 15-page research coverage are unchanged. Three focused content/preservation checks and the existing companion suite pass before this checkpoint. Content is not yet connected to the UI as expanded units; that integration follows after the page batches.
+
+## Checkpoint 2 · PDF 51–55
+
+Read the embedded source and visually inspected all five source pages. Added 15 units covering Isaac's family/letter omissions/five senses; the well/sticks/Issachar; family witness/tithe/dual messengers; Bet El/paragraph breaks/language; and Joseph's dreams/future cosmology/ethics of the dotted את. Astronomical and linguistic proposals remain attributed companion explanations of the author's reasoning, not present-day scientific findings or newly certified quotations. Total: 10 expanded pages / 30 selected units. The same content and preservation tests pass; no new numeric reading or engine result.
