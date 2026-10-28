@@ -231,11 +231,13 @@ export default function WorldPeopleSources2029({ index, loading = false, error =
         {materialWindow.focusState === "unavailable" ? <p role="status">{selectedMaterial.data.partial
           ? "לא ניתן לאמת את המקור שבקישור מתוך המידע שנטען."
           : "המקור שבקישור אינו זמין בתצוגה הציבורית."}</p> : null}
-        <p className="sod29-world-source-count">מוצגים {shownItems.length} מתוך {orderedItems.length} פריטים במסנן · {selectedMaterial.data.total} פריטים ציבוריים נגישים בסך הכול</p>
-        {publicContent?.coverage?.sources?.available ? <p className="sod29-muted">
+        <p className="sod29-world-source-count">{selectedMaterial.data.researchLoading
+          ? `מוצגים ${shownItems.length} פריטים · החומר עדיין נטען`
+          : `מוצגים ${shownItems.length} מתוך ${orderedItems.length} פריטים במסנן · ${selectedMaterial.data.total} פריטים ציבוריים נגישים בסך הכול`}</p>
+        {!selectedMaterial.data.researchLoading && publicContent?.coverage?.sources?.available ? <p className="sod29-muted">
           {publicContent.metrics.corpusSources} זהויות מקור נפרדות · {publicContent.metrics.occurrences} הופעות מדויקות.
           ממצא, נושא או אשכול אינם נספרים כמקור נוסף.
-        </p> : <p className="sod29-muted">זהויות המקור אינן זמינות כרגע; לא מוצג מספר חלופי.</p>}
+        </p> : !selectedMaterial.data.researchLoading ? <p className="sod29-muted">זהויות המקור אינן זמינות כרגע; לא מוצג מספר חלופי.</p> : null}
         {!orderedItems.length ? <p role="status">אין חומר ציבורי במסנן הזה.</p> : null}
         <div className="sod29-world-public-material-grid">
           {shownItems.map((row) => <article key={row.sourceRef} data-source-ref={row.sourceRef}

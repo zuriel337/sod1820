@@ -313,6 +313,35 @@ test("failed promoted research leaves source readable and reports unavailable", 
   assert.equal(final.availability.research, "unavailable");
 });
 
+test("stable source and unbound alias reads run concurrently without losing identities", async () => {
+  const calls = [], pending = [];
+  const client = fakeClient("anon", { contributors: { data: CONTRIBUTOR }, research_objects: { data: [], count: 0 },
+    research_contributions: { data: [], count: 0 } }, calls);
+  const originalFrom = client.from.bind(client);
+  client.from = (table) => {
+    const builder = originalFrom(table);
+    if (table === "channel_updates") {
+      const call = calls.at(-1);
+      builder.range = () => new Promise((resolve) => pending.push({ call, resolve }));
+    }
+    return builder;
+  };
+  const promise = fetchContributorFindingsProjection("yaniv", { publicClient: () => client, topicsReader: noTopics,
+    loadProfile: CONTRIBUTOR_LOAD_PROFILE.SOURCE_LIBRARY });
+  await new Promise((resolve) => setImmediate(resolve));
+  assert.equal(pending.length, 3);
+  const stable = pending.find(({ call }) => call.filters.some((x) => x[0] === "eq" && x[1] === "contributor_id"));
+  const fallback = pending.filter(({ call }) => call.filters.some((x) => x[0] === "is" && x[1] === "contributor_id"));
+  assert.ok(stable);
+  assert.equal(fallback.length, 2);
+  stable.resolve({ data: [{ ...SOURCE, contributor_id: "c1" }], count: 1 });
+  fallback[0].resolve({ data: [{ ...SOURCE, id: 12, contributor_id: null }], count: 1 });
+  fallback[1].resolve({ data: [], count: 0 });
+  const result = await promise;
+  assert.equal(result.counts.sourceRecords, 2);
+  assert.deepEqual(new Set(result.sourceGroups.map((group) => group.sourceRef)), new Set(["channel_updates:11", "channel_updates:12"]));
+});
+
 test("an exact occurrence overrides source-first deferral and loads only its research slice", async () => {
   const calls = [];
   const occurrenceId = "a6805e30-21e0-4315-8f35-70b1bfdb0d14";

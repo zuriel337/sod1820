@@ -697,24 +697,24 @@ async function fetchSourceMessages(client, contributor, aliases, sourceRef = nul
 
   // Stable identity is authoritative. Registered aliases are a legacy fallback only when the row
   // has not yet been bound to any contributor; an alias can never override another stable identity.
-  const canonical = await paged((start, end, first) => client
+  const canonicalPromise = paged((start, end, first) => client
     .from("channel_updates")
     .select(fields, first ? { count: "exact" } : undefined)
     .eq("contributor_id", contributor.id)
     .order("created_at", { ascending: false })
     .range(start, end), { concurrency: 3 });
-  truncated = canonical.truncated;
-  for (const row of canonical.rows) byId.set(String(row.id), row);
-
-  for (const column of ["credit", "speaker"]) {
-    const result = await paged((start, end, first) => client
+  const aliasPromises = ["credit", "speaker"].map((column) => paged((start, end, first) => client
       .from("channel_updates")
       .select(fields, first ? { count: "exact" } : undefined)
       .in(column, aliases)
       .is("contributor_id", null)
       .order("created_at", { ascending: false })
       .range(start, end)
-    );
+    ));
+  const [canonical, ...aliasResults] = await Promise.all([canonicalPromise, ...aliasPromises]);
+  truncated = canonical.truncated;
+  for (const row of canonical.rows) byId.set(String(row.id), row);
+  for (const result of aliasResults) {
     truncated = truncated || result.truncated;
     for (const row of result.rows) byId.set(String(row.id), row);
   }
