@@ -111,12 +111,18 @@ function legacySourceSubjectContentProjection({ zviTopics = [], hashmalPosts = [
   })));
   return buildPublicWorldContentProjectionV1({
     ...sourceRows,
+    seriesCategories: [{
+      key: "sod-hashmal-publications",
+      kind: "series",
+      label: "פרסומי סוד החשמל",
+      sourceRefs: sourceRows.sources.map((row) => row.sourceRef),
+    }],
     compatibility: { legacyTopics },
     coverage: {
       sources: { available: hashmalAvailable },
       occurrences: { available: hashmalAvailable },
       clusters: { available: false },
-      seriesCategories: { available: false },
+      seriesCategories: { available: hashmalAvailable },
       findings: { available: false },
       treeRelations: { available: false },
       legacyTopics: { available: zviAvailable },

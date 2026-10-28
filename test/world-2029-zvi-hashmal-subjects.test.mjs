@@ -53,6 +53,11 @@ test("the 78 approved Zvi Topics stay a ranked subset of 205 Topics; 132 source 
   assert.equal(out.contentProjection.metrics.legacyTopics, 78);
   assert.equal(out.contentProjection.metrics.findings, null);
   assert.equal(out.contentProjection.sources[0].sourceRef, "posts:p-0-0");
+  assert.deepEqual(out.contentProjection.seriesCategories, [{
+    key: "sod-hashmal-publications", kind: "series", label: "פרסומי סוד החשמל",
+    sourceRefs: out.contentProjection.sources.map((item) => item.sourceRef),
+  }]);
+  assert.equal(out.contentProjection.metrics.seriesCategories, 1);
   assert.equal(calls.filter(([type]) => type === "topic").length, 3);
   assert.equal(calls.filter(([type]) => type === "source").length, 6);
 });
