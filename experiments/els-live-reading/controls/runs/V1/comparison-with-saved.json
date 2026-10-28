@@ -1,0 +1,154 @@
+{
+  "run": "V1",
+  "record": "48e30e6d-c6bf-45a0-85bf-9814f4891796",
+  "region": {
+    "r0": 22,
+    "r1": 54,
+    "c0": 3555,
+    "c1": 3595,
+    "width": 5541
+  },
+  "saved_items": [
+    {
+      "saved": "ביומהשביעי",
+      "sh": "1_1_125459",
+      "kind": "plain text",
+      "lettersMatchTorah": true,
+      "inWindow": "whole",
+      "cells": "R1C3 R1C4 R1C5 R1C6 R1C7 R1C8 R1C9 R1C10 R1C11 R1C12",
+      "best": {
+        "match": "none"
+      }
+    },
+    {
+      "saved": "ביומהשביעי",
+      "sh": "1_1_236295",
+      "kind": "plain text",
+      "lettersMatchTorah": true,
+      "inWindow": "whole",
+      "cells": "R21C19 R21C20 R21C21 R21C22 R21C23 R21C24 R21C25 R21C26 R21C27 R21C28",
+      "best": {
+        "match": "exact",
+        "proposal": "r2.f01",
+        "modelId": "F61",
+        "round": 2,
+        "text": "ביומהשביעי",
+        "line": "R21+",
+        "tier": "A",
+        "kind": "crossing",
+        "from_finding": "F1",
+        "verified": true,
+        "plain_text": true
+      }
+    },
+    {
+      "saved": "בריתי",
+      "sh": "1_1_230754",
+      "kind": "plain text",
+      "lettersMatchTorah": true,
+      "inWindow": "whole",
+      "cells": "R20C19 R20C20 R20C21 R20C22 R20C23",
+      "best": {
+        "match": "none"
+      }
+    },
+    {
+      "saved": "וישבת",
+      "sh": "(none stored)",
+      "status": "no stored position",
+      "best": null
+    },
+    {
+      "saved": "ביומ",
+      "sh": "5539_1_186426",
+      "kind": "skip 5539",
+      "lettersMatchTorah": true,
+      "inWindow": "whole",
+      "cells": "R12C19 R13C17 R14C15 R15C13",
+      "best": {
+        "match": "none"
+      }
+    },
+    {
+      "saved": "ביומ",
+      "sh": "5542_-1_208592",
+      "kind": "skip 5542 (back)",
+      "lettersMatchTorah": true,
+      "inWindow": "whole",
+      "cells": "R16C21 R15C20 R14C19 R13C18",
+      "best": {
+        "match": "none"
+      }
+    },
+    {
+      "saved": "ביומ",
+      "sh": "11082_1_142130",
+      "kind": "skip 11082",
+      "lettersMatchTorah": true,
+      "inWindow": "outside",
+      "cells": "R4C51 R6C51 R8C51 R10C51"
+    },
+    {
+      "saved": "ביומ",
+      "sh": "11081_1_203075",
+      "kind": "skip 11081",
+      "lettersMatchTorah": true,
+      "inWindow": "outside",
+      "cells": "R15C45 R17C44 R19C43 R21C42"
+    },
+    {
+      "saved": "ההוא",
+      "sh": "1_1_197506",
+      "kind": "plain text",
+      "lettersMatchTorah": true,
+      "inWindow": "whole",
+      "cells": "R14C17 R14C18 R14C19 R14C20",
+      "best": {
+        "match": "contains",
+        "proposal": "r2.f02",
+        "modelId": "F62",
+        "round": 2,
+        "text": "ביומההוא",
+        "line": "R14+",
+        "tier": "A",
+        "kind": "crossing",
+        "from_finding": "F1",
+        "verified": true,
+        "plain_text": true
+      }
+    },
+    {
+      "saved": "ההוא",
+      "sh": "5540_1_203057",
+      "kind": "skip 5540",
+      "lettersMatchTorah": true,
+      "inWindow": "whole",
+      "cells": "R15C27 R16C26 R17C25 R18C24",
+      "best": {
+        "match": "none"
+      }
+    },
+    {
+      "saved": "ביומההוא",
+      "sh": "1_1_197502",
+      "kind": "plain text",
+      "lettersMatchTorah": true,
+      "inWindow": "whole",
+      "cells": "R14C13 R14C14 R14C15 R14C16 R14C17 R14C18 R14C19 R14C20",
+      "best": {
+        "match": "exact",
+        "proposal": "r2.f02",
+        "modelId": "F62",
+        "round": 2,
+        "text": "ביומההוא",
+        "line": "R14+",
+        "tier": "A",
+        "kind": "crossing",
+        "from_finding": "F1",
+        "verified": true,
+        "plain_text": true
+      }
+    }
+  ],
+  "proposals_verified_occurrences": 90
+}

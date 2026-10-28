@@ -1,0 +1,17 @@
+{
+  "note": "Read ONLY by the comparison stage, after the model's answers (both rounds) for the run were saved and committed (commit 1b2fc6055, 2026-10-28T14:03Z). Copied verbatim from public.els_records id 48e30e6d-c6bf-45a0-85bf-9814f4891796 (search_term וישבתביום, scope torah, skip_distance 5541, direction 'down', start_index NULL, status published); the second saved record of the phrase (id 097d556f-19c5-40ca-a075-834b5c904aed, skip 13513) is outside the window and is only described below. Each 'sh' entry is skip_direction_start with a zero-based start in reading order (skip 1 = plain text); the comparison checks that interpretation against the Torah letters before it uses it.",
+  "run": "V1",
+  "record_id": "48e30e6d-c6bf-45a0-85bf-9814f4891796",
+  "title": "וישבתביום",
+  "description": "הביטוי\" וישבת ביום\"\nשההמשך בפסוק זה \", ביום השביעי\"\nוגם כאן הדילוג וישבת ביום\nוחוצה אותו המשפט ביום השביעי",
+  "quality": { "score": 78, "stars": 4, "words": 6, "rarity": 17, "trials": 400, "axisLen": 9, "axisOcc": 3, "verified": true, "percentile": 94 },
+  "findings": [
+    { "t": "ביומהשביעי", "sh": ["1_1_125459", "1_1_236295"] },
+    { "t": "בריתי", "sh": ["1_1_230754"] },
+    { "t": "וישבת", "sh": [] },
+    { "t": "ביומ", "sh": ["5539_1_186426", "5542_-1_208592", "11082_1_142130", "11081_1_203075"] },
+    { "t": "ההוא", "sh": ["1_1_197506", "5540_1_203057"] },
+    { "t": "ביומההוא", "sh": ["1_1_197502"] }
+  ],
+  "other_record": { "id": "097d556f-19c5-40ca-a075-834b5c904aed", "skip": 13513, "description": "יש בתורה 2 דילוגים בלבד של הביטוי \" וישבת ביום\"\nובשתי הדילוגים חוצה אותם הביטוי\" ביום השביעי\"\nשזה למעשה המשך המשפט של וישבת ביום", "findings": [{ "t": "ביומהשביעי", "sh": ["1_1_221204", "1_1_221239"] }] }
+}
