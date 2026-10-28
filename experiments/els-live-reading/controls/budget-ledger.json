@@ -254,13 +254,26 @@
       "id": "V1 round1"
     },
     {
-      "id": "V1 round2",
-      "usd": 1.9642,
-      "at": "2026-10-28T13:46:56.073Z",
+      "usd": 0.188731,
+      "kind": "batch",
+      "batch": "msgbatch_01EiNY3eys6dAunudK3dFjCJ",
+      "model": "claude-fable-5-1",
+      "stop_reason": "end_turn",
+      "input_tokens": 4,
+      "cache_write_tokens": 0,
+      "output_tokens": 7254,
+      "thinking_tokens": 4107,
+      "at": "2026-10-28T13:51:05.362Z",
+      "id": "V1 round2"
+    },
+    {
+      "id": "U1 round1",
+      "usd": 1.72745,
+      "at": "2026-10-28T13:51:12.936Z",
       "note": "worst case reserved before the call",
       "reserved": true
     }
   ],
-  "spent_usd": 25.789809,
-  "remaining_usd": 14.210191
+  "spent_usd": 25.74179,
+  "remaining_usd": 14.25821
 }

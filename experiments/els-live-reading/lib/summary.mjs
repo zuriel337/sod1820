@@ -34,16 +34,24 @@ export function renderSummary({ runs, reference, ledger, targets, priorUsd = 2.4
   out.push("");
 
   const nostory = blind.filter((r) => r.run.group === "nostory");
+  const saved = blind.filter((r) => r.run.group === "saved");
+  const noiseTable = (rows) => table(["ריצה", "הצעות", "אומתו", "ELS", "קצר 3–4", "5–6", "7+", "בלתי סביר במקרה (E<1)", "צפוי במקרה (E≥1) = רעש", "טקסט רגיל", "אחרי ‘המשך’ (from_finding)", "קבוצה ראשונה A", "A: ELS/רגיל", "A: 5+/E<1", "A: סוגי קו", "מחוץ ל-A: ‘מעניין’ (5+ ו-E<1)", "סוגי קו (ELS)"], rows.map((r) => [r.run.id, r.m.proposals, r.m.verified, r.m.els.n, r.m.els.len3to4, r.m.els.len5to6, r.m.els.len7plus, r.m.els.unlikely, r.m.noise.likelyByChance, r.m.byVerdict.plainText, r.m.continuation.fromFinding, r.m.firstGroup.n, `${r.m.firstGroup.els}/${r.m.firstGroup.plain}`, `${r.m.firstGroup.long}/${r.m.firstGroup.unlikely}`, kinds(r.m.firstGroup.kinds), r.m.outsideFirstGroup.interesting, kinds(r.m.els.kinds)]));
   out.push("## 2. חיפוש ללא סיפור וללא נושא (עיוור)");
   out.push("רעש = הצעות ELS שכמה מופעים שלהן צפויים במקרה בכל התורה באותו דילוג (E ≥ 1, לפי שכיחות האותיות בתורה עצמה), וקטעי טקסט רגיל מהשורות (אינם מוסתרים). ‘בלתי סביר במקרה’ = E < 1. E הוא אומדן מקרי בלבד, לא סינון: כל ההצעות מוצגות.");
-  out.push(table(["ריצה", "הצעות", "אומתו", "ELS", "קצר 3–4", "5–6", "7+", "בלתי סביר במקרה (E<1)", "צפוי במקרה (E≥1) = רעש", "טקסט רגיל", "אחרי ‘המשך’ (from_finding)", "קבוצת ראשונה A", "A: ELS/רגיל", "A: 5+/E<1", "A: סוגי קו", "מחוץ ל-A: ‘מעניין’ (5+ ו-E<1)", "סוגי קו (ELS)"], nostory.map((r) => [r.run.id, r.m.proposals, r.m.verified, r.m.els.n, r.m.els.len3to4, r.m.els.len5to6, r.m.els.len7plus, r.m.els.unlikely, r.m.noise.likelyByChance, r.m.byVerdict.plainText, r.m.continuation.fromFinding, r.m.firstGroup.n, `${r.m.firstGroup.els}/${r.m.firstGroup.plain}`, `${r.m.firstGroup.long}/${r.m.firstGroup.unlikely}`, kinds(r.m.firstGroup.kinds), r.m.outsideFirstGroup.interesting, kinds(r.m.els.kinds)])));
+  out.push(noiseTable(nostory));
   out.push("", "קבוצה ראשונה (tier A) היא סדר הצגה בלבד: כל ההצעות נשמרו ונבדקו. העמודה ‘מחוץ ל-A: מעניין’ מראה כמה הצעות ארוכות ונדירות נשארו מחוץ לקבוצה הראשונה, כלומר מה היה אובד אילו הוצגה רק היא.");
   out.push("");
+  if (saved.length) {
+    out.push("## 2ו. צפנים שמורים (עיוורים: ניתן רק אזור המטריצה והביטוי של הציר; בלי תיאור ובלי נושא)");
+    out.push("אותן מדידות כמו בסעיף 2, בנפרד: ריצות אלה אינן מצטרפות לבקרות. ההשוואה לתיאור הצופן השמור נעשית רק אחרי ששתי התשובות נשמרו, ונמסרת בדוח ולא כאן.");
+    out.push(noiseTable(saved));
+    out.push("");
+  }
 
   const listing = (r, rows) => table(["id", "טקסט", "קו", "סוג", "אומת ע\"י", "E", "מופעים במנוע", "קשור לסיפור", "tier"], rows.map((x) => [x.id, x.text, x.reading ?? "—", x.kind ?? "—", x.verdict === "verified_by_engine" ? "מנוע" : x.verdict === "verified_plain_text_only" ? "טקסט רגיל" : x.verdict === "verified_synthetic" ? "אזור נטוע" : "לא אומת", x.expected === null ? "—" : x.expected.toExponential(1), x.hits === null ? "—" : `${x.hits}${x.truncated ? "+" : ""}`, x.storyRelated ? "כן" : "לא", x.tier ?? "—"]));
   out.push("## 2א. מה המודל מצא ואימת — הקבוצה הראשונה (tier A) בכל ריצה עיוורת");
   out.push("סדר ההצגה הוא של המודל עצמו (אותה קריאה). כל ההצעות נשמרות בקבצי `controls/runs/<id>/classified-round1.json`; כאן רק A, ומתחתיה מה שלא נכנס אליה אך הוא ארוך ובלתי סביר במקרה.");
-  for (const r of [...story, ...nostory]) {
+  for (const r of [...story, ...nostory, ...saved]) {
     const a = r.rows.filter((x) => x.tier === "A");
     const lost = r.rows.filter((x) => x.tier !== "A" && x.isEls && x.long && x.unlikely);
     out.push("", `#### ${r.run.id} — ${r.run.note}`);

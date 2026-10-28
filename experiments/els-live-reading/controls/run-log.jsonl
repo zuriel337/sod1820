@@ -136,3 +136,9 @@
 {"at":"2026-10-28T13:46:42.540Z","event":"call_done","run":"V1","round":1,"batch":"msgbatch_01EJ1MixFJKkwnpqDXEB7z4Z","usd":0.88241,"stop_reason":"end_turn","output_tokens":30998,"ms":903402}
 {"at":"2026-10-28T13:46:55.303Z","event":"verified","run":"V1","round":1,"proposals":60,"verified":59,"items":59}
 {"at":"2026-10-28T13:46:56.789Z","event":"batch_created","run":"V1","round":2,"batch":"msgbatch_01EiNY3eys6dAunudK3dFjCJ"}
+{"at":"2026-10-28T13:51:05.363Z","event":"call_done","run":"V1","round":2,"batch":"msgbatch_01EiNY3eys6dAunudK3dFjCJ","usd":0.188731,"stop_reason":"end_turn","output_tokens":7254,"ms":228726}
+{"at":"2026-10-28T13:51:12.296Z","event":"verified","run":"V1","round":2,"proposals":31,"verified":31,"items":31}
+{"at":"2026-10-28T13:51:12.296Z","event":"run_finished","run":"V1","series":"blind","failed":null,"rounds":[{"round":1,"stop_reason":"end_turn","usd":0.88241,"usable":true},{"round":2,"stop_reason":"end_turn","usd":0.188731,"usable":true}]}
+{"at":"2026-10-28T13:51:12.297Z","event":"group_done","priority":2.5,"spent":24.01434,"settled":22.28539}
+{"at":"2026-10-28T13:51:12.297Z","event":"group_start","priority":2.6,"runs":["U1"]}
+{"at":"2026-10-28T13:51:13.568Z","event":"batch_created","run":"U1","round":1,"batch":"msgbatch_014pop6eRK84rGUzpdxaxiHx"}
