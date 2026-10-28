@@ -27,6 +27,20 @@ test("spatial projection keeps truth axes separate and never invents a zero scor
   assert.equal(ZVI_SPATIAL_WORLD.rules.independentSourcesAreNotInferredFromOccurrences, true);
 });
 
+test("spatial showcase emits the shared public DTO without promoting legacy labels to sources", () => {
+  const projection = ZVI_SPATIAL_WORLD.contentProjection;
+  assert.equal(projection.contractVersion, "public-world-content-projection/v1");
+  assert.equal(projection.seriesCategories[0].key, "spatial-structures");
+  assert.equal(projection.compatibility.legacyTopics.length, 0);
+  assert.equal(projection.findings.length, 0);
+  assert.equal(projection.treeRelations.length, 0);
+  assert.equal(projection.coverage.sources.available, false,
+    "one legacy-only model reference means the curated showcase is not a complete source corpus");
+  assert.equal(projection.metrics.corpusSources, null);
+  assert.ok(projection.sources.every((source) => source.sourceRef.startsWith("channel_updates:")));
+  assert.ok(projection.occurrences.every((occurrence) => occurrence.sourceRef.startsWith("channel_updates:")));
+});
+
 test("3060 remains one model with five independent paths and all source occurrences", () => {
   const card = ZVI_SPATIAL_WORLD.cards.find((item) => item.slug === "yesharim-cube-3060");
   assert.equal(card.pathCount, 5);

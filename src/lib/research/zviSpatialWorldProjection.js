@@ -1,5 +1,6 @@
 import { SPATIAL_MODELS } from "../spatialModels.js";
 import { getPublicResearchClient } from "./researchViewMode.js";
+import { buildPublicWorldContentProjectionV1 } from "./publicWorldContentProjectionV1.js";
 import {
   contributorSourceLibraryHref,
   contributorSourceLocator,
@@ -7,6 +8,58 @@ import {
 
 const ZVI_SOURCE_SLUG = "tzvi-opoc";
 const ZVI_SOURCE_HREF = contributorSourceLibraryHref(ZVI_SOURCE_SLUG);
+
+function publicSpatialSourceRef(value) {
+  const ref = String(value || "").trim();
+  // Only a concrete public channel occurrence can become a source identity in
+  // the unified DTO. Legacy model labels stay visible in the spatial card but
+  // never become invented public source records.
+  return /^channel_updates:[0-9a-f-]{36}$/i.test(ref) ? ref : null;
+}
+
+export function buildZviSpatialContentProjection(models = SPATIAL_MODELS) {
+  const cards = Array.isArray(models) ? models : [];
+  const knownRefs = [...new Set(cards.flatMap(cleanSourceRefs).map(publicSpatialSourceRef).filter(Boolean))];
+  const allRefs = cards.flatMap(cleanSourceRefs);
+  const hasUnresolvedSourceIdentity = allRefs.some((ref) => !publicSpatialSourceRef(ref));
+  const occurrences = [];
+  for (const model of cards) {
+    for (const sourceRef of cleanSourceRefs(model)) {
+      if (!publicSpatialSourceRef(sourceRef)) continue;
+      occurrences.push({
+        occurrenceRef: `spatial:${model.slug}:${sourceRef}`,
+        sourceRef,
+        locator: `spatial-model:${model.slug}`,
+        href: contributorSourceLocator(sourceRef, { slug: ZVI_SOURCE_SLUG }).href,
+      });
+    }
+  }
+  return buildPublicWorldContentProjectionV1({
+    sources: knownRefs.map((sourceRef) => ({
+      sourceRef,
+      contributor: { slug: ZVI_SOURCE_SLUG, label: "צבי", href: ZVI_SOURCE_HREF },
+      sourceHref: contributorSourceLocator(sourceRef, { slug: ZVI_SOURCE_SLUG }).href,
+    })),
+    occurrences,
+    seriesCategories: [{
+      key: "spatial-structures",
+      kind: "category",
+      label: "מבנים מרחביים",
+      sourceRefs: knownRefs,
+    }],
+    coverage: {
+      // The showcase still contains one legacy-only model reference. Its
+      // existence makes the all-spatial source total unknown, never 11/12.
+      sources: { available: !hasUnresolvedSourceIdentity },
+      occurrences: { available: !hasUnresolvedSourceIdentity },
+      clusters: { available: false },
+      seriesCategories: { available: true },
+      findings: { available: false },
+      treeRelations: { available: false },
+      legacyTopics: { available: false },
+    },
+  });
+}
 
 function cleanSourceRefs(model) {
   const refs = Array.isArray(model?.spatial?.provenance?.refs)
@@ -82,6 +135,9 @@ export function buildZviSpatialWorldProjection(models = SPATIAL_MODELS) {
       missingStrengthLabel: "טרם דורג",
       independentSourcesAreNotInferredFromOccurrences: true,
     },
+    // Additive unified representation. The existing curated cards retain
+    // their presentation shape while World/News can consume the same DTO.
+    contentProjection: buildZviSpatialContentProjection(models),
   };
 }
 
