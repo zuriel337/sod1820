@@ -1,4 +1,6 @@
 import { AHAVAT_CONTENT_SOURCE } from "./ahavatTorahContentDepth2029.js";
+import { AHAVAT_ROOT_SECTIONS, AHAVAT_ROOT_COLUMNS } from "./ahavatTorahRoots2029.js";
+import { ahavatSourceSearch } from "./ahavatTorahPeople2029.js";
 
 // Local source-glyph readings, not modernization, lexical normalization or a
 // claim that a whole column has been proofread. The original OCR is never edited.
@@ -31,6 +33,7 @@ export function ahavatPartiallyReviewedRoots(bundle) {
   const ids = new Set(bundle.fragments.map(fragment => fragment.id));
   if (bundle.fragments.length !== 10 || ids.size !== 10 || AHAVAT_ROOT_GLYPH_READINGS.some(reading => !ids.has(reading.fragmentId))) throw new Error("Incomplete roots source");
   return bundle.fragments.map(fragment => {
+    if (!AHAVAT_ROOT_COLUMNS.some(column => column.id === fragment.id && column.page === fragment.pdf_page && column.column === fragment.column)) throw new Error("Foreign roots column");
     const changes = AHAVAT_ROOT_GLYPH_READINGS.filter(item => item.fragmentId === fragment.id);
     let text = fragment.text;
     for (const change of changes) {
@@ -44,4 +47,18 @@ export function ahavatPartiallyReviewedRoots(bundle) {
       remainingReview: "שאר הטור עדיין מחייב הגהה מול הצילום; לא נקבע מספר ערכים ולא הוחל כלל שורש מודרני.",
     });
   });
+}
+
+// Search both reading layers without changing the source-native column identity.
+export function ahavatReviewedRootFragments(bundle, query = "") {
+  if (!bundle) return [];
+  const needle = ahavatSourceSearch(query);
+  return ahavatPartiallyReviewedRoots(bundle).map(fragment => ({
+    id: fragment.id, pdf_page: fragment.pdfPage, column: fragment.column,
+    text: fragment.partiallyReviewedText, originalOcr: fragment.originalOcr,
+    appliedReadings: fragment.appliedReadings, reviewStatus: fragment.status,
+  })).filter(fragment => !needle || ahavatSourceSearch([
+    fragment.text, fragment.originalOcr,
+    AHAVAT_ROOT_SECTIONS.find(section => section.page === fragment.pdf_page)?.title,
+  ].join(" ")).includes(needle));
 }
