@@ -4,6 +4,7 @@ import {
   fetchPublicSourceSubjectIndex,
   filterPublicSourceSubjects,
 } from "../../lib/research/worldPublicSourceSubjects2029.js";
+import { fetchElectionWorldContentProjection } from "../../lib/research/worldElectionContentProjection.js";
 import { buildWorldUnifiedPublicContentLanding } from "../../lib/research/worldUnifiedPublicContentLanding.js";
 import { CANONICAL_PUBLIC_UI_COPY } from "../../lib/presentation/canonicalPresentation.js";
 import "./worldPublicSourceSubjects2029.css";
@@ -13,6 +14,7 @@ import "./worldPublicSourceSubjects2029.css";
 const CHUNK = 18;
 const EMPTY = { loading: true, cards: [], totals: { allTopics: null, zvi: null, hashmal: null },
   available: { allTopics: false, zvi: false, hashmal: false }, error: false, incomplete: false };
+const ELECTION_EMPTY = { loading: true, contentProjection: null, summary: null, error: false };
 
 export default function WorldPublicSourceSubjects2029({ peopleIndex = null }) {
   const anchor = useRef(null);
@@ -20,6 +22,7 @@ export default function WorldPublicSourceSubjects2029({ peopleIndex = null }) {
   const [armed, setArmed] = useState(false);
   const [version, setVersion] = useState(0);
   const [state, setState] = useState(EMPTY);
+  const [election, setElection] = useState(ELECTION_EMPTY);
   const [origin, setOrigin] = useState("all");
   const [query, setQuery] = useState("");
   const [visibleTopics, setVisibleTopics] = useState(CHUNK);
@@ -54,11 +57,21 @@ export default function WorldPublicSourceSubjects2029({ peopleIndex = null }) {
     return () => { alive = false; };
   }, [armed, version]);
 
+  useEffect(() => {
+    if (!armed) return;
+    let alive = true;
+    setElection((previous) => ({ ...previous, loading: true, error: false }));
+    fetchElectionWorldContentProjection()
+      .then((next) => { if (alive) setElection({ loading: false, error: false, ...next }); })
+      .catch(() => { if (alive) setElection({ loading: false, error: true, contentProjection: null, summary: null }); });
+    return () => { alive = false; };
+  }, [armed, version]);
+
   const results = useMemo(() => filterPublicSourceSubjects(state.cards, { origin, query }), [state.cards, origin, query]);
   const landing = useMemo(() => buildWorldUnifiedPublicContentLanding({
     peopleIndex,
-    contentPages: state.contentProjection ? [state.contentProjection] : [],
-  }), [peopleIndex, state.contentProjection]);
+    contentPages: [state.contentProjection, election.contentProjection].filter(Boolean),
+  }), [peopleIndex, state.contentProjection, election.contentProjection]);
   const landingSection = (key) => landing.sections.find((section) => section.key === key) || null;
   const topics = results.filter((item) => item.type === "approved_topic");
   const sources = results.filter((item) => item.type === "source_work");
@@ -139,6 +152,15 @@ export default function WorldPublicSourceSubjects2029({ peopleIndex = null }) {
       {sources.length > visibleSources ? <button type="button" className="sod29-world-source-subject-more"
         onClick={() => setVisibleSources((n) => n + CHUNK)}>עוד מקורות ({sources.length - visibleSources})</button> : null}
     </section> : null}
+    {!election.loading && !election.error && election.summary ? <section className="sod29-world-source-subject-group" id="world-elections-content" aria-label="חתך בחירות בישראל">
+      <h4>חתך עץ · בחירות בישראל</h4>
+      <p>שני מחזורי הבחירות ממופים לאותו חוזה ציבורי: מקור, הופעה, חישוב מנוע, נגזרת מערכת ופרשנות נשארים שכבות נפרדות. זהו מיפוי בבדיקה אנושית, לא החלטת עץ חדשה.</p>
+      <div className="sod29-world-source-subject-meta">{election.summary.cycles.join(" · ")}</div>
+      <div className="sod29-world-source-subject-meta">{election.summary.sources} מקורות · {election.summary.sourceFacts} עובדות מקור · {election.summary.engineCalculations} חישובי מנוע · {election.summary.systemDerivations} נגזרות מערכת · {election.summary.interpretations} פרשנויות</div>
+      <p className="sod29-world-source-subject-desc">נקודת החדשות 1,456 נשמרת כתמונת דיווח של 70% ספירה; הנגזרת ל־456 נשארת יישום מתועד של שיטת האחד והאפס, ואינה תוצאת בחירות או שוויון עצמאי.</p>
+      <p className="sod29-world-source-subject-desc">{election.summary.galleryPublicCount} תמונות גלריה עברו דרך הקורא הציבורי הקיים. קשרים מוצעים אינם מוצגים כקשרי עץ עד לאסמכתת edge או החלטה ממשלית מתועדת.</p>
+    </section> : null}
+    {election.error ? <p role="status">חתך הבחירות אינו זמין כרגע; מפת המקורות האחרת נשארת זמינה.</p> : null}
     {!state.loading && !state.error ? <p className="sod29-world-source-subject-footer">
       מוצגים {Math.min(visibleTopics, topics.length) + Math.min(visibleSources, sources.length)} מתוך {results.length} פריטים בחיפוש.
     </p> : null}
