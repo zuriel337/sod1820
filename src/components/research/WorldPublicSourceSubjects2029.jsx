@@ -80,7 +80,7 @@ export default function WorldPublicSourceSubjects2029({ peopleIndex = null }) {
   };
   const card = (item) => <Link key={item.id} className="sod29-world-source-subject-item" to={item.href}>
     <span className="sod29-world-source-subject-kind">
-      {item.type === "approved_topic" ? "נושא מאושר · צבי" : "מקור לקריאה · סוד החשמל"}
+      {item.type === "approved_topic" ? (item.origin === "zvi" ? "נושא קיים · צבי" : "נושא קיים") : "מקור לקריאה · סוד החשמל"}
     </span>
     <strong>{item.title}</strong>
     {item.description ? <span className="sod29-world-source-subject-desc">{item.description}</span> : null}
@@ -111,7 +111,7 @@ export default function WorldPublicSourceSubjects2029({ peopleIndex = null }) {
       78 נושאי צבי נשארים תת־קבוצה של הנושאים הקיימים לצורך תאימות. פרסומי סוד החשמל נשארים מקורות בסדרה, ואינם נספרים כנושאים. חומר של כותב נבחר נטען רק לאחר הבחירה מעל.
     </p> : null}
     <div className="sod29-world-source-subject-filters" role="group" aria-label="בחירה לפי מקור">
-      {[["all", "הכול"], ["zvi", "צבי"], ["hashmal", "סוד החשמל"]].map(([key, label]) =>
+      {[["all", "הכול"], ["zvi", "צבי"], ["topic", "נושאים אחרים"], ["hashmal", "סוד החשמל"]].map(([key, label]) =>
         <button key={key} type="button" aria-pressed={origin === key}
           onClick={() => selectOrigin(key)}>{label}</button>)}
     </div>
@@ -135,9 +135,9 @@ export default function WorldPublicSourceSubjects2029({ peopleIndex = null }) {
       ? <p role="status">ספריית סוד החשמל אינה זמינה כרגע.</p> : null}
     {state.incomplete && !state.loading ? <p role="status">חלק מהחומר אינו כלול בחלון הנוכחי. ספריית המקור נשארת זמינה.</p> : null}
 
-    {origin !== "hashmal" && (state.available.zvi || topics.length > 0) ? <section className="sod29-world-source-subject-group" aria-label="נושאים מאושרים">
-      <h4>נושאים קיימים בתאימות · {state.totals.zvi ?? "—"} נושאי צבי מתוך {state.totals.allTopics ?? "—"}</h4>
-      <p>אלה אותן זהויות נושא של העץ הכללי, מסודרות לפי חוזק התצוגה. הן אינן מדד לקורפוס המקורות; המד מסביר סדר בלבד ואינו ציון אמת.</p>
+    {origin !== "hashmal" && (state.available.allTopics || topics.length > 0) ? <section className="sod29-world-source-subject-group" aria-label="נושאים מאושרים">
+      <h4>נושאים קיימים בתאימות · {state.totals.allTopics ?? "—"} נושאים, מהם {state.totals.zvi ?? "—"} של צבי</h4>
+      <p>אלה אותן זהויות נושא של העץ הכללי, מסודרות לפי חוזק התצוגה. צבי הוא מסנן משנה, לא עץ נפרד. הנושאים אינם מדד לקורפוס המקורות; המד מסביר סדר בלבד ואינו ציון אמת.</p>
       <div className="sod29-world-source-subject-list">{topics.slice(0, visibleTopics).map(card)}</div>
       {!state.loading && !topics.length ? <p>לא נמצאו נושאים במסנן הזה.</p> : null}
       {topics.length > visibleTopics ? <button type="button" className="sod29-world-source-subject-more"
