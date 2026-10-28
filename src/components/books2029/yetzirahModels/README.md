@@ -1,6 +1,6 @@
 # ספר יצירה — רכיבים לחיבור עתידי
 
-Five source-bound React components; these files do **not** add a product route or integrate a reader. Import the required wrapper directly:
+Five source-bound React components. The existing Sefer Yetzirah reader now consumes these wrappers through its existing catalog; no separate product route or reader is added. Product acceptance is recorded in the reader integration handoff. Import the required wrapper directly:
 
 ```jsx
 import SynopticSealsModel2029 from './SynopticSealsModel2029.jsx';
@@ -21,7 +21,7 @@ GPU code and Three load only after the reader presses “פתח המחשה בת�
 
 Source order/letters/identities are projected from the delivered specifications; no map is rewritten. The cube, camera, distances, light, material and positions are explicit illustration decisions. Five-against-five has two source groups and a covenant identity, not eleven sefirot. Ten depths retain all ten names/five source pairs; only six directions/three pairs get spatial coordinates. No source-based length, letter-to-edge or finger-to-sefirah identity is invented. All verification values remain `not_tested`: rendering and interaction tests are not canonical engine verification.
 
-The test-only fixture is `test/fixtures/yetzirah-models/index.html?model=<structure-key>`. It is neither a product reader nor a new reading surface. Browser acceptance checks source callbacks; final integration must additionally validate those callbacks against the existing host reader and its return/focus flow.
+The test-only fixture is `test/fixtures/yetzirah-models/index.html?model=<structure-key>`. It is neither a product reader nor a new reading surface. This fixture checks source callbacks independently; product-reader acceptance is tracked separately in the reader integration handoff.
 
 ## Seven additional mature sections
 
@@ -41,6 +41,6 @@ For the doubles, a supplied bundle must also contain `readings` from `sefer-yetz
 
 Field-specific source callbacks add `fieldId` and `fieldKey` while keeping the original `componentId`. The deterministic `:field:<key>` suffix is a UI field address, not a new book entity. Context-unit callbacks have `componentId:null` and the original unit locator: they do not claim that a unit-level summary establishes a component mapping in another witness. `returnTo` always carries the active model and its current selection. Rows, comparison witnesses, context units and fields all open the host's existing source flow; none creates another reader or source iframe.
 
-All seven are components awaiting integration, not currently navigable product pages. All engine verification values remain `not_tested`; the printed stones/houses counts are never presented as a newly executed permutation engine result. The source maps' historical acceptance statuses remain unchanged; the continuation handoff records current component/browser evidence separately.
+All seven are connected through the existing book reader; product-reader acceptance is tracked separately in the reader integration handoff. All engine verification values remain `not_tested`; the printed stones/houses counts are never presented as a newly executed permutation engine result. The source maps' historical acceptance statuses remain unchanged; the continuation handoff records current component/browser evidence separately.
 
 For a host that persists relationship selection, wrappers additionally accept `selectedRelationId` and `onSelectRelation`. The original relation stable ID is selected when its source action is used; the host can retain it with the component and source page in the same reading URL.

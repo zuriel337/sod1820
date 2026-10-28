@@ -17,7 +17,7 @@ const MODELS = {
   "sy-structure:three-kings": lazy(() => import("./yetzirahModels/ThreeKingsModel2029.jsx")),
 };
 
-export const isSupportedStructure = id => Boolean(MODELS[id]);
+export const isSupportedStructure = id => Object.hasOwn(MODELS, id);
 
 export default function StructureCatalog({ onPage, structureId, componentId, relationId, onStructure, onComponent, onRelation, onOpenSource }) {
   const [expanded, setExpanded] = useState(Boolean(structureId));
@@ -41,7 +41,7 @@ export default function StructureCatalog({ onPage, structureId, componentId, rel
     return () => controller.abort();
   }, [expanded, structures, attempt]);
   const selected = structures?.find(item => item.id === selectedId);
-  const Model = MODELS[selectedId];
+  const Model = isSupportedStructure(selectedId) ? MODELS[selectedId] : null;
   const additional = structures?.find(item => item.id === additionalId && !MODELS[item.id]);
   const topics = [["all", "כל הנושאים"], ["letters", "אותיות"], ["space", "כיוונים ועומקים"], ["other", "משלים ומניינים"]];
   const witness = item => item.id === "sy-structure:three-kings" ? "הגוף המשולב; חכמוני והגר״א לעיון נפרד" : item.id.includes("gra") ? "נוסח הגר״א" : "הגוף המשולב";

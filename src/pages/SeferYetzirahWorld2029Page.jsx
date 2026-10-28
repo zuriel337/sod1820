@@ -311,7 +311,7 @@ export default function SeferYetzirahWorld2029Page() {
           <LetterLaboratory onPage={openPage} onSpatial={letter => { setMode("gates"); setActiveNode(letter); }} />
           <VolumeMap onPage={openPage} />
         </div>
-        <SourcePanel page={page} onPage={openPage} hasStructure={isSupportedStructure(structureId)} onReturn={async () => { if (document.fullscreenElement) await document.exitFullscreen(); moveTo("yetzirah29-structure-learning"); }} />
+        <SourcePanel page={page} onPage={openPage} hasStructure={isSupportedStructure(structureId)} onReturn={async () => { const fullscreen = document.fullscreenElement || document.webkitFullscreenElement; const exit = document.exitFullscreen || document.webkitExitFullscreen; if (fullscreen && exit) await exit.call(document); moveTo("yetzirah29-structure-learning"); }} />
       </div>
     </main>
   </Sod2029Shell>;

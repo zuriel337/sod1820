@@ -12,4 +12,25 @@ Planned: integrate via existing catalog, URL state, source panel and book-scoped
 
 Implemented the existing catalog's 12-model selection, Hebrew topic/query filtering, source metadata, responsive cards, exact component and relation URL identities, model/relationship source callbacks, and focus-return through the existing PDF panel. The 21 additional source maps remain accessible inside the existing catalog as source-only entries. The original reader/source controls and full screen remain in place. Book-specific selection tables were added for the five existing non-catalog models; the seven catalog models reuse their source tables. Optional 3D stays explicit and lazily loaded; the older general book stage and source-bound model stage coordinate activation so only one opens at a time. No new reader, product route, shared reader/style/contract, source asset or engine is introduced.
 
-The existing catalog browser regression passed unchanged on 320/390/1440, including a single structures asset request. A source-cache primer reuses the catalog's already fetched structure data. A real 220-page, hash-matched PDF opened in Chrome's native viewer at physical page 53 and was visually inspected in the product reader; source scrolling required a bounded post-layout correction, cancellable by user input, and a source-return focus action. Normal Books entry passed. A focused 390/Parchment product run passed every depth, every relation, URL/refresh, full-screen, context loss and unsupported-GPU fallback; final matrix and full regression are still running. No full acceptance or green full-Books claim is made here.
+The existing catalog browser regression passed unchanged on 320/390/1440, including a single structures asset request. A source-cache primer reuses the catalog's already fetched structure data. A real 220-page, hash-matched PDF opened in Chrome's native viewer at physical page 53 in the product reader; the native viewer reported successful loading and physical page 53 (a fresh visual screenshot is pending); source scrolling required a bounded post-layout correction, cancellable by user input, and a source-return focus action. Normal Books entry passed. A focused 390/Parchment product run passed every depth, every relation, URL/refresh, full-screen, context loss and unsupported-GPU fallback; final matrix and full regression are still running. No full acceptance or green full-Books claim is made here.
+
+## Product inventory
+
+Source assets are unchanged. Implemented and connected denotes a source-bound component in the existing reader, not integration into the central branch. The PDF column preserves all recorded witness pages. Acceptance remains pending the full Books gate. Counts represent source components and source relations, not engine results.
+
+| Stable ID | מבנה | PDF | רכיבים / קשרים | מומש | מחובר | מקור | טבלה | המחשה | קבלה מלאה |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| sy-structure:ten-depths | עשרה עומקים בנוסח הגוף המשולב | 53 | 10 / 5 | כן | כן | כן | כן | כן | ממתינה |
+| sy-structure:five-against-five | חמש כנגד חמש וברית באמצע | 45 | 3 / 3 | כן | כן | כן | כן | כן | ממתינה |
+| sy-structure:letter-families | שלוש משפחות כ״ב האותיות | 65 | 3 / 0 | כן | כן | כן | כן | כן | ממתינה |
+| sy-structure:five-mouth-groups | חמש קבוצות מוצא | 80 | 5 / 0 | כן | כן | כן | כן | כן | ממתינה |
+| sy-structure:six-seals-synoptic | שש חותמות · גוף משולב | 73 | 6 / 3 | כן | כן | כן | כן | כן | ממתינה |
+| sy-structure:six-seals-gra-edition | שש חותמות · נוסח הגר״א | 175 | 6 / 3 | כן | כן | כן | כן | כן | ממתינה |
+| sy-structure:mothers-world-year-soul | אמ״ש והקבלות עולם שנה ונפש | 94, 95, 97, 98, 99 | 3 / 2 | כן | כן | כן | כן | כן | ממתינה |
+| sy-structure:doubles-synoptic | הקבלות שבע הכפולות בגוף המשולב | 105, 106, 107, 108, 109, 110 | 7 / 0 | כן | כן | כן | כן | כן | ממתינה |
+| sy-structure:doubles-gra-distinction | הקבלות בי״ת וגימ״ל בנוסח הגר״א | 184, 185 | 7 / 0 | כן | כן | כן | כן | כן | ממתינה |
+| sy-structure:stones-houses | אבנים ובתים — מניין סידורים | 111 | 6 / 0 | כן | כן | כן | כן | כן | ממתינה |
+| sy-structure:twelve-boundaries-gra | י״ב גבולי אלכסון בנוסח הגר״א | 187 | 12 / 0 | כן | כן | כן | כן | כן | ממתינה |
+| sy-structure:three-kings | תלי, גלגל ולב | 122, 151, 192 | 3 / 0 | כן | כן | כן | כן | כן | ממתינה |
+
+The illustrations are explicitly activated and the canonical calculation engine has not been used to verify any numerical result. Missing source values remain missing. The older general spatial overview remains in the book; activation is mutually exclusive with the source-bound model, so concurrent GPU scenes do not accumulate.
