@@ -62,6 +62,29 @@ function itemTimes(row) {
   return { occurredAt: time, publishedAt: null, updatedAt: null };
 }
 
+const MATERIAL_SERIES = Object.freeze({
+  writings: { key: "writings-and-posts", label: "כתבים ופוסטים" },
+  ciphers: { key: "public-ciphers", label: "צפנים ציבוריים" },
+  sources: { key: "sources-and-updates", label: "מקורות ועדכונים" },
+});
+
+function materialSeriesCategories(rows) {
+  const sourceRefsByKey = new Map();
+  for (const row of Array.isArray(rows) ? rows : []) {
+    // An approved Topic is retained only in the compatibility layer. It is
+    // neither a corpus source nor a series membership inferred from a title.
+    const spec = MATERIAL_SERIES[row?.type];
+    if (!spec || !clean(row?.sourceRef)) continue;
+    const refs = sourceRefsByKey.get(spec.key) || [];
+    if (!refs.includes(row.sourceRef)) refs.push(row.sourceRef);
+    sourceRefsByKey.set(spec.key, refs);
+  }
+  return Object.values(MATERIAL_SERIES).flatMap((spec) => {
+    const sourceRefs = sourceRefsByKey.get(spec.key) || [];
+    return sourceRefs.length ? [{ ...spec, kind: "category", sourceRefs }] : [];
+  });
+}
+
 // This is an additive bridge: the existing public readers above remain the
 // source/access authority. Topic cards deliberately enter compatibility only.
 function publicContentProjectionForMaterial(identity, rows, { findingsAvailable = false } = {}) {
@@ -84,6 +107,7 @@ function publicContentProjectionForMaterial(identity, rows, { findingsAvailable 
   const adapted = adaptPublicSourceRowsV1(publicRows);
   return buildPublicWorldContentProjectionV1({
     ...adapted,
+    seriesCategories: materialSeriesCategories(material),
     compatibility: { legacyTopics },
     coverage: {
       sources: { available: true },

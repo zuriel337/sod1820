@@ -95,6 +95,13 @@ test("material keeps findings attached to source_ref, deduplicates source-native
   assert.equal(new Set(result.items.map((row) => row.sourceRef)).size, result.items.length);
   assert.equal(result.contentProjection.metrics.corpusSources, 6, "the approved Topic stays outside the corpus source count");
   assert.equal(result.contentProjection.metrics.legacyTopics, 1);
+  assert.deepEqual(result.contentProjection.seriesCategories.map((item) => [item.key, item.kind, item.sourceRefs.length]), [
+    ["writings-and-posts", "category", 2],
+    ["public-ciphers", "category", 1],
+    ["sources-and-updates", "category", 3],
+  ]);
+  assert.equal(result.contentProjection.seriesCategories.some((item) => item.sourceRefs.includes("topic_cards:topic")), false,
+    "a Topic remains compatibility-only and cannot become a system category member");
   assert.equal(result.contentProjection.findings.length, 0, "a deferred Findings reader must not fabricate a zero-grade Finding");
   assert.equal(result.contentProjection.metrics.findings, null, "deferred is unavailable, not an empty Findings collection");
   assert.equal(result.contentProjection.sources.find((row) => row.sourceRef === "posts:p1").contributor.slug, "writer");
