@@ -24,9 +24,39 @@ const BATCH_ID = /^msgbatch_[A-Za-z0-9]{8,64}$/;
 const MODEL_ID = /^[a-z0-9][a-z0-9.-]{2,60}$/;
 const CUSTOM_ID = /^els-live-[a-z0-9-]{1,32}$/;
 
-/** cfg = { apiKey, tokenSha256, approved: Set of lock hashes, models: string[], maxBody }. `upstream(url, init)` is fetch. */
+const CARD_HEADER = /^### r1\.f\d+:/gm;
+
+/**
+ * Continuation rule. A round-2 request is the approved round-1 request plus the model's own answer plus one user message of cards. It is accepted only if (1) everything except
+ * messages[1..2] and cache_control equals an approved round-1 request that is marked for continuation (its "base"), (2) cache_control is exactly ephemeral, (3) messages[1] is an
+ * assistant turn made only of thinking / text blocks and not larger than the limit, (4) messages[2] is a user string that starts with the fixed round-2 text, is not larger than the
+ * limit and holds between 1 and `round2MaxCards` card headers. Anything else is refused. The content of the cards themselves cannot be checked here (the function has no letters).
+ */
+async function round2Verdict(params, cfg) {
+  const notApproved = { ok: false, error: "request_not_approved" };
+  if (!cfg.round2Bases || !cfg.round2Bases.size || !params || !Array.isArray(params.messages) || params.messages.length !== 3) return notApproved;
+  const { messages, cache_control: cacheControl, ...rest } = params;
+  if (canonicalJson(cacheControl) !== '{"type":"ephemeral"}') return notApproved;
+  if (!cfg.round2Bases.has(await sha256Hex(canonicalJson({ ...rest, messages: [messages[0]] })))) return notApproved;
+  const bad = (why) => ({ ok: false, error: `round2_rule:${why}` });
+  const [, assistant, user] = messages;
+  if (!assistant || assistant.role !== "assistant" || !Array.isArray(assistant.content) || !assistant.content.length) return bad("assistant_turn");
+  if (!assistant.content.every((block) => block && (block.type === "thinking" || block.type === "text"))) return bad("assistant_blocks");
+  if (JSON.stringify(assistant.content).length > cfg.round2MaxAssistant) return bad("assistant_size");
+  if (!user || user.role !== "user" || typeof user.content !== "string" || !user.content.startsWith(cfg.round2Prefix)) return bad("user_prefix");
+  if (user.content.length > cfg.round2MaxUser) return bad("user_size");
+  const cards = (user.content.slice(cfg.round2Prefix.length).match(CARD_HEADER) || []).length;
+  if (cards < 1 || cards > cfg.round2MaxCards) return bad("cards");
+  return { ok: true };
+}
+
+/**
+ * cfg = { apiKey, tokenSha256, approved: Set of lock hashes (round-1 requests), models: string[], maxBody, expiresAt (epoch ms), now (optional clock),
+ *         round2Bases: Set of the approved hashes that may be continued, round2Prefix, round2MaxCards, round2MaxAssistant, round2MaxUser }. `upstream(url, init)` is fetch.
+ */
 export async function handle(req, cfg, upstream) {
   if (!cfg.apiKey) return refuse(503, "not_configured");
+  if (cfg.expiresAt && (cfg.now ? cfg.now() : Date.now()) > cfg.expiresAt) return refuse(410, "expired");
   const supplied = req.headers.get("x-els-token") || "";
   if (!supplied || !same(await sha256Hex(supplied), cfg.tokenSha256)) return refuse(403, "forbidden");
   const url = new URL(req.url);
@@ -59,7 +89,10 @@ export async function handle(req, cfg, upstream) {
       const [only] = parsed.requests;
       if (!only || Object.keys(only).sort().join() !== "custom_id,params" || !CUSTOM_ID.test(String(only.custom_id))) return refuse(400, "bad_request_shape");
       if (!cfg.models.includes(only.params?.model)) return refuse(403, "model_not_allowed");
-      if (!cfg.approved.has(await sha256Hex(canonicalJson(only.params)))) return refuse(403, "request_not_approved");
+      if (!cfg.approved.has(await sha256Hex(canonicalJson(only.params)))) {
+        const verdict = await round2Verdict(only.params, cfg);
+        if (!verdict.ok) return refuse(403, verdict.error);
+      }
     }
     target = `https://api.anthropic.com${path}`;
     body = text;

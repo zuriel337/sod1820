@@ -137,6 +137,15 @@ export function buildCard({ region, lines, byReading, findingId, text, readingId
   return rows.join("\n");
 }
 
+/** The fixed text that every round-2 message starts with; the request-locked function accepts a continuation only if the message begins with exactly this and holds at most the allowed number of cards. */
+export const ROUND2_PREFIX = `${[
+  "## סבב המשך: כרטיסי שכונה",
+  "להלן כרטיסים שהוכנו מהמנוע עבור הצעות שלך שהאותיות שלהן אומתו בקו שציינת. בכל כרטיס: האותיות לפני ואחרי ההצעה באותו קו, הקווים האחרים שחותכים כל תא שלה, והסביבה הקרובה.",
+  "המשך מכל הצעה: בדוק הארכות (מילה או ביטוי שמכילים אותה), חיתוכים (מילים שעוברות דרך אחד מתאיה) ושכנות. הצע רק מה שהאותיות שבכרטיסים ובקטע המקורי מאפשרות, לפי אותן כללים: line עם כיוון, text בדיוק כפי שבקו, בלי להוסיף, להשמיט או להחליף אותיות, ובלי להגביל את עצמך לנושא התיאור.",
+  "כתוב ב-from_finding את ה-id של ההצעה שממנה המשכת. אל תחזור על הצעות שכבר הצעת. השב באותה סכמת JSON.",
+  "",
+].join("\n")}\n`;
+
 export function buildRound2Message({ cards }) {
   return [
     "## סבב המשך: כרטיסי שכונה",

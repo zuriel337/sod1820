@@ -8,7 +8,8 @@ import { COLUMBIA, MATRIX_WIDTH, WINDOW_COLS, WINDOW_ROWS, mulberry32, sampleWin
 import { WINDOW_COUNT, WINDOW_SEED_LABEL, buildWindow, pageLetters } from "../experiments/els-live-reading/build-windows.mjs";
 import { PLANTED_WORDS, distanceClass, plantedFile } from "../experiments/els-live-reading/lib/plant.mjs";
 import { FINDINGS_SCHEMA_V2, FIRST_GROUP_SIZE, HINTS, STORIES, STORY_WRONG, buildRound1V2 } from "../experiments/els-live-reading/lib/prompt2.mjs";
-import { STORY } from "../experiments/els-live-reading/lib/prompt.mjs";
+import { ROUND2_PREFIX, STORY, buildRound2Message } from "../experiments/els-live-reading/lib/prompt.mjs";
+import * as edge from "../experiments/els-live-reading/edge/handler.mjs";
 import { RUNS, SERIES, runById } from "../experiments/els-live-reading/lib/plan.mjs";
 import { BUDGET, appendEntry, guardSpend, loadLedger, spentOf } from "../experiments/els-live-reading/lib/ledger.mjs";
 import { classify, locateFinding, syntheticRows, verificationItems } from "../experiments/els-live-reading/lib/validate.mjs";
@@ -259,4 +260,206 @@ test("EXP-16 chance model: built from the Torah stream only (its md5 equals the 
   assert.equal(tiny.N, 4);
   assert.equal(expectedChance(tiny, "אב", 1), 2 * 3 * (2 / 4) * (2 / 4), "2 directions x 3 starts x f(א) x f(ב)");
   assert.equal(expectedChance(tiny, "אבאבאב", 1), 0, "a run longer than the stream cannot occur");
+});
+
+test("EXP-16 pass-through: only the approved round-1 requests, and a continuation only by the fixed rule (approved base, fixed text, at most 6 cards, assistant thinking/text only), with an expiry", async () => {
+  const TOKEN = "unit-test-token-not-a-secret";
+  const n1 = RUNS.find((r) => r.id === "N1");
+  const s2 = RUNS.find((r) => r.id === "S2");
+  const requestOf = (run) => (run.prompt === "v2" ? round1RequestV2(ctxOf(run), run) : round1Request(ctxOf(run))).request;
+  const n1Request = requestOf(n1);
+  const s2Request = requestOf(s2);
+  const cfgBase = { apiKey: "unit-test-upstream-key", tokenSha256: await edge.sha256Hex(TOKEN), approved: new Set([lockSha256(n1Request), lockSha256(s2Request)]), models: ["claude-fable-5-1"], maxBody: 400_000, expiresAt: 2_000_000, now: () => 1_000_000, round2Bases: new Set([lockSha256(n1Request)]), round2Prefix: ROUND2_PREFIX, round2MaxCards: 6, round2MaxAssistant: 150_000, round2MaxUser: 20_000 };
+  const forwarded = [];
+  const upstream = async (url, init) => { forwarded.push({ url, init }); return new Response(JSON.stringify({ ok: true }), { status: 200, headers: { "content-type": "application/json" } }); };
+  const post = (cfg, params, customId = "els-live-1") => edge.handle(new Request("https://x.supabase.co/functions/v1/els-live-reading/v1/messages/batches", { method: "POST", body: JSON.stringify({ requests: [{ custom_id: customId, params }] }), headers: { "x-els-token": TOKEN } }), cfg, upstream);
+  const assistant = { role: "assistant", content: [{ type: "thinking", thinking: "t", signature: "sig" }, { type: "text", text: "{\"findings\":[],\"observations\":\"\"}" }] };
+  const card = (k) => `### r1.f${String(k).padStart(2, "0")}: אבגד (R01+, R01C01 עד R01C04)\nבאותו קו: …`;
+  const round2 = (base, cards = 3, user = null) => ({ ...base, cache_control: { type: "ephemeral" }, messages: [...base.messages, assistant, { role: "user", content: user ?? buildRound2Message({ cards: Array.from({ length: cards }, (_, k) => card(k + 1)) }) }] });
+  assert.equal((await post(cfgBase, n1Request)).status, 200, "an approved round-1 request passes");
+  assert.equal((await post(cfgBase, s2Request)).status, 200);
+  assert.equal(forwarded.length, 2);
+  assert.equal((await post(cfgBase, round2(n1Request))).status, 200, "a continuation of an approved, continuable request passes");
+  assert.equal(forwarded.length, 3);
+  const refused = async (params, error) => { const r = await post(cfgBase, params); assert.equal(r.status, 403); assert.equal((await r.json()).error, error); };
+  await refused(round2(s2Request), "request_not_approved"); // S2 is approved but not continuable
+  await refused({ ...n1Request, max_tokens: 63_999 }, "request_not_approved");
+  await refused({ ...round2(n1Request), tools: [] }, "request_not_approved");
+  await refused({ ...round2(n1Request), cache_control: { type: "ephemeral", ttl: "1h" } }, "request_not_approved");
+  await refused(round2(n1Request, 7), "round2_rule:cards");
+  await refused(round2(n1Request, 0, ROUND2_PREFIX), "round2_rule:cards");
+  await refused(round2(n1Request, 3, `${ROUND2_PREFIX.slice(0, -5)}x\n\n${card(1)}`), "round2_rule:user_prefix");
+  await refused({ ...round2(n1Request), messages: [...n1Request.messages, { role: "assistant", content: [{ type: "tool_use", id: "t", name: "x", input: {} }] }, { role: "user", content: buildRound2Message({ cards: [card(1)] }) }] }, "round2_rule:assistant_blocks");
+  await refused({ ...round2(n1Request), messages: [...n1Request.messages, { role: "assistant", content: "plain" }, { role: "user", content: buildRound2Message({ cards: [card(1)] }) }] }, "round2_rule:assistant_turn");
+  await refused(round2(n1Request, 3, `${ROUND2_PREFIX}${card(1)}${"x".repeat(25_000)}`), "round2_rule:user_size");
+  assert.equal(forwarded.length, 3, "nothing refused was forwarded");
+  const wrongToken = await edge.handle(new Request("https://x.supabase.co/functions/v1/els-live-reading/v1/models", { method: "GET", headers: { "x-els-token": "nope" } }), cfgBase, upstream);
+  assert.equal(wrongToken.status, 403);
+  const expired = await edge.handle(new Request("https://x.supabase.co/functions/v1/els-live-reading/v1/models", { method: "GET", headers: { "x-els-token": TOKEN } }), { ...cfgBase, now: () => 3_000_000 }, upstream);
+  assert.equal(expired.status, 410);
+  assert.equal((await expired.json()).error, "expired");
+  assert.ok(ROUND2_PREFIX.endsWith("\n\n") && buildRound2Message({ cards: ["### r1.f01: x"] }).startsWith(ROUND2_PREFIX), "the prefix is exactly what the harness writes before the cards");
+});
+
+// ---------------------------------------------------------------- the unattended pipeline, with fakes (no network, no money)
+import { mkdtempSync, copyFileSync, writeFileSync as writeFileSync2 } from "node:fs";
+import { tmpdir } from "node:os";
+import { BudgetStop, buildContinuation, callOnce, pipeline } from "../experiments/els-live-reading/lib/orchestrate.mjs";
+import { EngineUnavailableError, makeRpc, verifyItem, verifyItems } from "../experiments/els-live-reading/lib/verify-rest.mjs";
+import { reserve, settle, settledOf } from "../experiments/els-live-reading/lib/ledger.mjs";
+import { TORAH_LENGTH as TORAH_N } from "../experiments/els-live-reading/lib/metrics.mjs";
+
+const TORAH = pageLetters(PAGE).slice(0, TORAH_N);
+/** A local stand-in for the engine contract: scans the real Torah letters for the term at one skip, in both directions, ordered by start, with keyset continuation. */
+const localEngine = ({ log = [] } = {}) => async ({ term, skip, pageSize, afterStart = null }) => {
+  log.push({ term, skip, pageSize, afterStart });
+  const L = term.length;
+  const hits = [];
+  for (let s = 0; s < TORAH.length; s += 1) {
+    if (afterStart !== null && s <= afterStart) continue;
+    if (s + (L - 1) * skip < TORAH.length) { let ok = true; for (let j = 0; j < L && ok; j += 1) ok = TORAH[s + j * skip] === term[j]; if (ok) hits.push({ start: s, dir: 1, skip }); }
+    if (s - (L - 1) * skip >= 0) { let ok = true; for (let j = 0; j < L && ok; j += 1) ok = TORAH[s - j * skip] === term[j]; if (ok) hits.push({ start: s, dir: -1, skip }); }
+  }
+  const page = hits.slice(0, pageSize);
+  return { status: "OK", hits: page, completion: { executed: true, has_more: hits.length > pageSize, truncated: hits.length > pageSize, returned_hits: page.length } };
+};
+
+function fakeWorld({ answers, creates = [], ledgerSpent = 0 }) {
+  const dir = mkdtempSync(`${tmpdir()}/exp16-`);
+  const ledgerPath = `${dir}/ledger.json`;
+  copyFileSync(`${DIR}controls/budget-ledger.json`, ledgerPath);
+  if (ledgerSpent) { const l = JSON.parse(readFileSync(ledgerPath, "utf8")); l.entries.push({ id: "filler", usd: ledgerSpent }); writeFileSync2(ledgerPath, JSON.stringify(l)); }
+  const events = [];
+  let call = 0;
+  const messageFor = (answer) => ({ content: [{ type: "thinking", thinking: "t", signature: "s" }, { type: "text", text: JSON.stringify(answer.body) }], stop_reason: answer.stop ?? "end_turn", model: "claude-fable-5-1", id: "msg_fake", usage: { input_tokens: 20_000, output_tokens: answer.out ?? 30_000, cache_creation_input_tokens: answer.cacheWrite ?? 0, output_tokens_details: { thinking_tokens: 25_000 } } });
+  const deps = {
+    ledgerPath, now: () => "2026-10-28T12:00:00.000Z", log: (event, data) => events.push({ event, ...data }), torah: TORAH, rpc: localEngine(), engineConcurrency: 2, round2Cap: 6, pollMs: 1, maxWaitMs: 5_000, diagnosticsMaxSpent: 26, sleep: async () => {},
+    runDir: (id) => `${dir}/runs/${id}`,
+    preflight: async (_c, request) => ({ ok: true, upper_bound_usd: 3.5, request_sha256: requestSha256(request), lock_sha256: lockSha256(request) }),
+    client: { messages: { batches: {
+      create: async (body, options) => { assert.equal(options.maxRetries, 0, "a batch creation is never retried by the SDK"); assert.equal(body.requests.length, 1); creates.push(body); call += 1; if (answers[call - 1]?.createError) throw new Error(answers[call - 1].createError); return { id: `msgbatch_fake${call}`, created_at: "2026-10-28T12:00:00.000Z" }; },
+      retrieve: async (id) => ({ id, processing_status: "ended", created_at: "2026-10-28T12:00:00.000Z", ended_at: "2026-10-28T12:03:00.000Z", request_counts: { succeeded: 1 } }),
+    } } },
+    fetchResults: async (id) => { const answer = answers[Number(id.replace("msgbatch_fake", "")) - 1]; if (answer.resultType) return [{ custom_id: "els-live-1", result: { type: answer.resultType } }]; return [{ custom_id: "els-live-1", result: { type: "succeeded", message: messageFor(answer) } }]; },
+  };
+  return { dir, deps, events, ledgerPath, creates };
+}
+
+const planEntryOf = (request) => ({ request_sha256: requestSha256(request), lock_sha256: lockSha256(request) });
+
+test("EXP-16 pipeline (fakes): one batch per call, worst case reserved then replaced by the actual cost, proposals verified against the (local) engine, continuation built by the rule, resume never creates a batch again", async () => {
+  const run = RUNS.find((r) => r.id === "N2a");
+  const ctx = ctxOf(run);
+  const { request } = round1RequestV2(ctx, run);
+  const col = ctx.byReading.get("C10+");
+  const row = ctx.byReading.get("R05+");
+  const answer1 = { body: { findings: [
+    { id: "F1", line: "C10+", text: col.letters.slice(4, 9), parts: [], kind: "word", story_related: false, continue_from: true, from_finding: "", tier: "A", note: "n" },
+    { id: "F2", line: "R05+", text: row.letters.slice(3, 11), parts: [], kind: "word", story_related: false, continue_from: true, from_finding: "", tier: "A", note: "n" },
+    { id: "F3", line: "R05+", text: "תתתתתתתת", parts: [], kind: "word", story_related: false, continue_from: false, from_finding: "", tier: "C", note: "invented" },
+  ], observations: "o" }, out: 30_000 };
+  const answer2 = { body: { findings: [{ id: "G1", line: "C10+", text: col.letters.slice(2, 8), parts: [], kind: "extension", story_related: false, continue_from: false, from_finding: "r1.f01", tier: "A", note: "n" }], observations: "" }, out: 8_000, cacheWrite: 50_000 };
+  const world = fakeWorld({ answers: [answer1, answer2] });
+  const outcome = await pipeline({ run, ctx, request, planEntry: planEntryOf(request), deps: world.deps });
+  assert.equal(outcome.failed, undefined);
+  assert.equal(world.creates.length, 2, "one batch for round 1 and one for the continuation");
+  assert.equal(outcome.cards, 2);
+  const dir = world.deps.runDir("N2a");
+  const classified1 = JSON.parse(readFileSync(`${dir}/classified-round1.json`, "utf8"));
+  assert.deepEqual(classified1.map((f) => f.verdict), ["verified_by_engine", "verified_plain_text_only", "not_verified"]);
+  const classified2 = JSON.parse(readFileSync(`${dir}/classified-round2.json`, "utf8"));
+  assert.equal(classified2.length, 1);
+  assert.equal(classified2[0].id, "r2.f01");
+  const ledger = JSON.parse(readFileSync(world.ledgerPath, "utf8"));
+  assert.ok(ledger.entries.every((e) => !e.reserved), "every reservation was replaced by the actual cost");
+  const mine = ledger.entries.filter((e) => String(e.id).startsWith("N2a"));
+  assert.equal(mine.length, 2);
+  assert.equal(mine[0].usd, 0.5 * (20_000 * 10 + 30_000 * 50) / 1e6, "batch price from the usage object");
+  assert.ok(mine[1].usd > mine[0].usd * 0.4, "the continuation is costed with its cache write");
+  const r2 = JSON.parse(readFileSync(`${dir}/request-round2.json`, "utf8"));
+  assert.equal(r2.cache_control.type, "ephemeral");
+  assert.equal(r2.messages.length, 3);
+  assert.ok(r2.messages[2].content.startsWith(ROUND2_PREFIX));
+  assert.equal((r2.messages[2].content.match(/^### r1\.f\d+:/gm) ?? []).length, 2, "cards only for verified proposals that asked to continue");
+  assert.ok(!r2.messages[2].content.includes("תתתתתתתת"), "an invented run gets no card");
+  // resume: nothing new is created, nothing new is reserved
+  const again = await pipeline({ run, ctx, request, planEntry: planEntryOf(request), deps: world.deps });
+  assert.equal(again.failed, undefined);
+  assert.equal(world.creates.length, 2, "a restart never creates a batch again");
+  assert.equal(JSON.parse(readFileSync(world.ledgerPath, "utf8")).entries.length, ledger.entries.length);
+  assert.ok(world.events.some((e) => e.event === "call_done"));
+  // a plan mismatch is refused before anything is sent
+  const changed = { ...request, max_tokens: request.max_tokens - 1 };
+  await assert.rejects(() => pipeline({ run, ctx, request: changed, planEntry: planEntryOf(request), deps: fakeWorld({ answers: [] }).deps }), /differs from the reviewed plan/);
+});
+
+test("EXP-16 pipeline (fakes): a failed batch, an answer cut at max_tokens, a create that throws and the budget guard are recorded and never retried", async () => {
+  const run = RUNS.find((r) => r.id === "S4a");
+  const ctx = ctxOf(run);
+  const { request } = round1RequestV2(ctx, run);
+  // errored batch: no cost, recorded, no retry
+  let w = fakeWorld({ answers: [{ resultType: "errored" }] });
+  let out = await pipeline({ run, ctx, request, planEntry: planEntryOf(request), deps: w.deps });
+  assert.match(out.failed, /errored/);
+  assert.equal(w.creates.length, 1);
+  assert.equal(settledOf(JSON.parse(readFileSync(w.ledgerPath, "utf8"))), 2.481606);
+  out = await pipeline({ run, ctx, request, planEntry: planEntryOf(request), deps: w.deps });
+  assert.match(out.failed, /errored/);
+  assert.equal(w.creates.length, 1, "not retried after a restart either");
+  // max_tokens: the cost is counted, the run is not usable, nothing is verified
+  w = fakeWorld({ answers: [{ body: { findings: [], observations: "" }, stop: "max_tokens", out: 64_000 }] });
+  out = await pipeline({ run, ctx, request, planEntry: planEntryOf(request), deps: w.deps });
+  assert.match(out.failed, /no usable answer/);
+  assert.equal(settledOf(JSON.parse(readFileSync(w.ledgerPath, "utf8"))), Number((2.481606 + 0.5 * (20_000 * 10 + 64_000 * 50) / 1e6).toFixed(6)));
+  assert.equal(existsSync(`${w.deps.runDir("S4a")}/classified-round1.json`), false);
+  // a create that throws: the worst case stays as the spend (outcome unknown), no retry
+  w = fakeWorld({ answers: [{ createError: "socket hang up" }] });
+  out = await pipeline({ run, ctx, request, planEntry: planEntryOf(request), deps: w.deps });
+  assert.match(out.failed, /batch create failed/);
+  assert.ok(settledOf(JSON.parse(readFileSync(w.ledgerPath, "utf8"))) > 2.481606 + 1, "the unknown outcome is counted at its worst case");
+  // budget: a worst case that would pass the hard guard is refused before anything is reserved or sent
+  w = fakeWorld({ answers: [], ledgerSpent: 34.5 });
+  await assert.rejects(() => pipeline({ run, ctx, request, planEntry: planEntryOf(request), deps: w.deps }), BudgetStop);
+  assert.equal(w.creates.length, 0);
+  assert.ok(JSON.parse(readFileSync(w.ledgerPath, "utf8")).entries.every((e) => !e.reserved));
+  // diagnostics only while the settled spend is small
+  const diag = RUNS.find((r) => r.id === "D2");
+  const dctx = ctxOf(diag);
+  const { request: dreq } = round1RequestV2(dctx, diag);
+  w = fakeWorld({ answers: [], ledgerSpent: 24 });
+  await assert.rejects(() => pipeline({ run: diag, ctx: dctx, request: dreq, planEntry: planEntryOf(dreq), deps: w.deps }), /diagnostics only while spent/);
+  assert.equal(w.creates.length, 0);
+});
+
+test("EXP-16 verifier (fakes): letters from the certified Torah text, plain rows, the engine contract with its keyset continuation, and an unavailable engine is an error, not 'not verified'", async () => {
+  const rpc = localEngine();
+  const col = ctxOf({ region: "w01" }).byReading.get("C10+");
+  const item = (term, start, skip, dir = 1) => ({ key: "k", term, start, skip, dir });
+  const real = ctxOf({ region: "w01" });
+  const cells = col.cells.slice(4, 9);
+  const params = { start: real.region.position(...cells[0]), skip: 4545, dir: 1 };
+  const ok = await verifyItem(item(col.letters.slice(4, 9), params.start, 4545), { torah: TORAH, rpc });
+  assert.equal(ok.letters_match, true);
+  assert.equal(ok.engine.found, true);
+  const shifted = await verifyItem(item(col.letters.slice(4, 9), params.start + 1, 4545), { torah: TORAH, rpc });
+  assert.equal(shifted.letters_match, false);
+  assert.equal((await verifyItem(item("אבגד", 10, 1), { torah: TORAH, rpc })).engine.status, "plain_text_row_not_els");
+  // a three-letter term at skip 4545 has far more than 100 hits: the claimed start is past the first page, the continuation finds it
+  const log = [];
+  const rpc2 = localEngine({ log });
+  const term = "הוי";
+  let startLate = -1;
+  for (let s = TORAH.length - 4545 * 3; s > 0; s -= 1) if (TORAH[s] === "ה" && TORAH[s + 4545] === "ו" && TORAH[s + 9090] === "י") { startLate = s; break; }
+  assert.ok(startLate > 0);
+  const late = await verifyItem(item(term, startLate, 4545), { torah: TORAH, rpc: rpc2 });
+  assert.equal(late.engine.found, true);
+  assert.ok(late.engine.followup, "found by the keyset continuation");
+  assert.equal(late.engine.first_page_found, false);
+  assert.equal(log.length, 2);
+  assert.equal(log[1].afterStart, startLate - 1);
+  // engine down: an error that stops the verification, never a silent 'not verified'
+  const down = makeRpc({ anonKey: "k", fetchImpl: async () => new Response("boom", { status: 503 }), retries: 1, sleep: async () => {} });
+  await assert.rejects(() => verifyItems([item("אבגד", 10, 4545)], { torah: TORAH, rpc: down }), EngineUnavailableError);
+  assert.throws(() => makeRpc({ anonKey: "" }), EngineUnavailableError);
+  assert.ok(typeof reserve === "function" && typeof settle === "function" && typeof buildContinuation === "function" && typeof callOnce === "function");
 });

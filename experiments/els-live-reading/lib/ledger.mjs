@@ -31,3 +31,28 @@ export function appendEntry(path, entry) {
   writeFileSync(path, `${JSON.stringify(ledger, null, 2)}\n`);
   return ledger;
 }
+
+/** Reservation of the worst case of a call that is in flight, so that calls can run in parallel and the guard still counts what they might cost. */
+export function reserve(path, entry) {
+  const ledger = loadLedger(path);
+  ledger.entries.push({ ...entry, reserved: true });
+  ledger.spent_usd = spentOf(ledger);
+  ledger.remaining_usd = Number((ledger.cap_usd - ledger.spent_usd).toFixed(6));
+  writeFileSync(path, `${JSON.stringify(ledger, null, 2)}\n`);
+  return ledger;
+}
+
+/** Replaces the reservation `id` by the settled entry (the actual cost from the usage object). */
+export function settle(path, id, entry) {
+  const ledger = loadLedger(path);
+  const at = ledger.entries.findIndex((item) => item.id === id && item.reserved);
+  if (at < 0) throw new Error(`ledger: no reservation ${id}`);
+  ledger.entries[at] = { ...entry, id };
+  ledger.spent_usd = spentOf(ledger);
+  ledger.remaining_usd = Number((ledger.cap_usd - ledger.spent_usd).toFixed(6));
+  writeFileSync(path, `${JSON.stringify(ledger, null, 2)}\n`);
+  return ledger;
+}
+
+/** The amount spent in settled calls only (reservations are worst cases, not spend). */
+export const settledOf = (ledger) => Number(ledger.entries.filter((entry) => !entry.reserved).reduce((sum, entry) => sum + (entry.usd ?? 0), 0).toFixed(6));

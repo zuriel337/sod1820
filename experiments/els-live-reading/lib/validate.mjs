@@ -72,7 +72,7 @@ export function classify(located, rows) {
     else if (verifiedChecks.some((c) => c.synthetic)) verdict = "verified_synthetic";
     else verdict = verifiedChecks.some((c) => !c.plain_text) ? "verified_by_engine" : "verified_plain_text_only";
     const reasons = finding.reasons.slice();
-    if (verdict === "not_verified" && !reasons.length) reasons.push(checks.some((c) => c.letters_match === false) ? "letters at the claimed position differ in the stream" : "the canonical engine returned no matching occurrence");
+    if (verdict === "not_verified" && !reasons.length) reasons.push(checks.some((c) => c.letters_match === false) ? "letters at the claimed position differ in the stream" : checks.some((c) => c.engine_status && !["OK", "plain_text_row_not_els", "synthetic_region"].includes(c.engine_status)) ? `the engine answered with status ${checks.find((c) => c.engine_status && !["OK", "plain_text_row_not_els", "synthetic_region"].includes(c.engine_status)).engine_status}` : "the canonical engine returned no matching occurrence");
     return { ...finding, checks, verdict, verifiedOccurrences: verifiedChecks.length, reasons };
   });
 }
