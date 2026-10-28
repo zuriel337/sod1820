@@ -61,16 +61,23 @@ export function classify(located, rows) {
       const row = byKey.get(`${finding.id}.${k}`);
       if (!row) return { occurrence: occ.reading, status: "not_checked" };
       const plain = row.engine?.status === "plain_text_row_not_els";
-      return { occurrence: occ.reading, from: occ.from, letters_match: row.letters_match === true, plain_text: plain, engine_found: plain ? null : row.engine?.found === true, engine_status: row.engine?.status ?? null, engine_followup: Boolean(row.engine?.followup), params: occ.params };
+      const synthetic = row.engine?.status === "synthetic_region";
+      return { occurrence: occ.reading, from: occ.from, letters_match: row.letters_match === true, plain_text: plain, synthetic, engine_found: plain || synthetic ? null : row.engine?.found === true, engine_status: row.engine?.status ?? null, engine_followup: Boolean(row.engine?.followup), engine_hits: row.engine?.hits ?? null, engine_truncated: row.engine?.completion?.truncated === true, params: occ.params };
     });
-    const ok = (c) => c.letters_match === true && (c.plain_text || c.engine_found === true);
+    const ok = (c) => c.letters_match === true && (c.plain_text || c.synthetic || c.engine_found === true);
     const verifiedChecks = checks.filter(ok);
     let verdict;
     if (finding.status === "not_in_region" || finding.status === "invalid_text") verdict = "not_verified";
     else if (!verifiedChecks.length) verdict = "not_verified";
+    else if (verifiedChecks.some((c) => c.synthetic)) verdict = "verified_synthetic";
     else verdict = verifiedChecks.some((c) => !c.plain_text) ? "verified_by_engine" : "verified_plain_text_only";
     const reasons = finding.reasons.slice();
     if (verdict === "not_verified" && !reasons.length) reasons.push(checks.some((c) => c.letters_match === false) ? "letters at the claimed position differ in the stream" : "the canonical engine returned no matching occurrence");
     return { ...finding, checks, verdict, verifiedOccurrences: verifiedChecks.length, reasons };
   });
+}
+
+/** Rows for a synthetic (planted) window: the letters were found in the window's own lines by construction; there is no stream or engine to ask. */
+export function syntheticRows(located) {
+  return verificationItems(located).map((item) => ({ key: item.key, term: item.term, letters_match: true, engine: { status: "synthetic_region" } }));
 }

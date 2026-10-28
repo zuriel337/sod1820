@@ -1,0 +1,13 @@
+{
+  "source": "result of review/window-md5.sql executed read-only against public.torah_stream (project linswmnnkjxvweumprav) on 2026-10-28; compared with the md5 of the same window computed from the text embedded in the page",
+  "windows": [
+    {"id":"w01","md5_window":"fe752989c747831cd19cd16bbd9c7501"},
+    {"id":"w02","md5_window":"06b90d9132d153167a9a381082937f48"},
+    {"id":"w03","md5_window":"59e00ee1571d9755efcdd13c2466da5b"},
+    {"id":"w04","md5_window":"f3150aeec23e1fa3037f5fa643974333"},
+    {"id":"w05","md5_window":"7b48b9dac9e5f8054d22fc071e399669"},
+    {"id":"w06","md5_window":"e5a2655b5dd2fa9dd07b1694a11c1607"},
+    {"id":"w07","md5_window":"8960c233ebdebf47a43646bdca142a8d"},
+    {"id":"w08","md5_window":"42c3264d1749acc9d15f8bfc5e0aa077"}
+  ]
+}

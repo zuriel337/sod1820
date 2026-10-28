@@ -34,10 +34,17 @@ export function loadRegion(path) {
     if (/[ךםןףץ]/.test(row.s)) throw new Error(`region: row ${row.r} holds final letters (the stream is folded)`);
   });
   const rows = data.grid.map((row) => [...row.s]);
-  const region = { ...data, r0, r1, c0, c1, nRows, nCols, W: data.width, rows };
+  // A synthetic window (EXP-16 planted words) keeps the untouched letters of the stream next to the planted ones; the page cross-check compares the untouched copy.
+  let baseRows = null;
+  if (data.base_grid) {
+    if (data.base_grid.length !== nRows) throw new Error("region: base_grid has the wrong number of rows");
+    data.base_grid.forEach((row, index) => { if (md5(row.s) !== row.md5 || [...row.s].length !== nCols || row.r !== r0 + index) throw new Error(`region: base row ${row.r} is inconsistent`); });
+    baseRows = data.base_grid.map((row) => [...row.s]);
+  }
+  const region = { ...data, r0, r1, c0, c1, nRows, nCols, W: data.width, rows, baseRows, synthetic: Boolean(data.synthetic) };
   region.letterAt = (i, j) => (i >= 1 && i <= nRows && j >= 1 && j <= nCols ? rows[i - 1][j - 1] : undefined);
   region.position = (i, j) => (r0 + i - 1) * region.W + (c0 + j - 1); // 0-based position in the stream
-  region.axisCells = Array.from({ length: data.axis.length }, (_, k) => data.axis.start + k * data.axis.skip * data.axis.dir).map((p) => [Math.floor(p / region.W) - r0 + 1, (p % region.W) - c0 + 1]);
+  region.axisCells = data.axis ? Array.from({ length: data.axis.length }, (_, k) => data.axis.start + k * data.axis.skip * data.axis.dir).map((p) => [Math.floor(p / region.W) - r0 + 1, (p % region.W) - c0 + 1]) : [];
   return region;
 }
 
@@ -49,7 +56,13 @@ export function crossCheckAgainstPage(region, htmlPath) {
   const letters = gunzipSync(Buffer.from(data[1].trim(), "base64")).toString("utf8");
   const mismatches = [];
   let checked = 0;
-  for (let i = 1; i <= region.nRows; i += 1) for (let j = 1; j <= region.nCols; j += 1) { checked += 1; if (letters[region.position(i, j)] !== region.letterAt(i, j)) mismatches.push([i, j]); }
+  // For a synthetic window the untouched copy is what must equal the page; the planted letters are checked to be the only cells that differ from it.
+  const reference = region.baseRows ?? region.rows;
+  for (let i = 1; i <= region.nRows; i += 1) for (let j = 1; j <= region.nCols; j += 1) { checked += 1; if (letters[region.position(i, j)] !== reference[i - 1][j - 1]) mismatches.push([i, j]); }
+  if (region.baseRows) {
+    const planted = new Set((region.planted ?? []).flatMap((word) => word.cells.map(([i, j]) => `${i},${j}`)));
+    for (let i = 1; i <= region.nRows; i += 1) for (let j = 1; j <= region.nCols; j += 1) if (region.rows[i - 1][j - 1] !== region.baseRows[i - 1][j - 1] && !planted.has(`${i},${j}`)) mismatches.push([i, j, "changed-but-not-planted"]);
+  }
   return { checked, mismatches, pageLetters: letters.length };
 }
 

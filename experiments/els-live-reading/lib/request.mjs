@@ -28,11 +28,11 @@ export const THINKING_MODES = Object.freeze({
   none: undefined,
 });
 
-export function buildRequest({ model, system, messages, effort = "high", maxTokens = 32_000, cache = false, thinkingMode = "adaptive" }) {
+export function buildRequest({ model, system, messages, effort = "high", maxTokens = 32_000, cache = false, thinkingMode = "adaptive", schema = FINDINGS_SCHEMA }) {
   if (!(thinkingMode in THINKING_MODES)) throw new Error(`unknown thinking mode: ${thinkingMode}`);
   const request = { model, max_tokens: maxTokens, system, messages };
   if (THINKING_MODES[thinkingMode]) request.thinking = THINKING_MODES[thinkingMode];
-  request.output_config = { effort, format: { type: "json_schema", schema: FINDINGS_SCHEMA } };
+  request.output_config = { effort, format: { type: "json_schema", schema } };
   if (cache) request.cache_control = { type: "ephemeral" };
   return request;
 }

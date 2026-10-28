@@ -1,0 +1,13 @@
+{
+  "cap_usd": 40,
+  "hard_guard_usd": 36,
+  "stop_new_usd": 30,
+  "basis": "usage x live list prices checked 2026-10-28 (claude-fable-5-1: input 10, output 50, 5-minute cache write 12.50, cache read 0.25 USD per MTok; Message Batches 50% on input and output, stacking with cache multipliers). Not an invoice.",
+  "entries": [
+    { "id": "EXP-15 attempt 1", "kind": "batch", "batch": "msgbatch_01Uv6HjDxqoT6qwmUA46MeGK", "usd": 0.90674, "note": "effort high, 32,000 max_tokens; no answer (max_tokens, all thinking)" },
+    { "id": "EXP-15 attempt 2", "kind": "batch", "batch": "msgbatch_01WZtmazvmyAar5mpKh3kyaj", "usd": 0.927165, "note": "effort medium, 64,000 max_tokens; 60 proposals" },
+    { "id": "EXP-15 round 2", "kind": "batch", "batch": "msgbatch_01QRzstBPQmViUL7HZG1egrR", "usd": 0.647701, "note": "continue from 6 verified words; 43 proposals" }
+  ],
+  "spent_usd": 2.481606,
+  "remaining_usd": 37.518394
+}

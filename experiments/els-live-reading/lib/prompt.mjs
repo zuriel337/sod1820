@@ -46,8 +46,8 @@ const groups = (letters) => [...letters].reduce((acc, ch, index) => acc + (index
 const digits = (n, width) => String(n).padStart(width, " ");
 
 /** The grid with column numbers on top; rows that hold a cell of the selected occurrence are marked. */
-export function renderGrid(region) {
-  const axisRows = new Set(region.axisCells.map(([i]) => i));
+export function renderGrid(region, { marked = true } = {}) {
+  const axisRows = new Set(marked ? region.axisCells.map(([i]) => i) : []);
   const header1 = ["    "];
   const header2 = ["    "];
   for (let j = 1; j <= region.nCols; j += 1) { header1.push(j >= 10 ? String(Math.floor(j / 10)) : " "); header2.push(String(j % 10)); }
@@ -59,6 +59,7 @@ export function renderGrid(region) {
 export function renderLines(lines) {
   const sections = [];
   for (const kind of ["R", "C", "D", "A"]) {
+    if (!lines.some((l) => l.kind === kind)) continue; // a probe that shows only some line types prints no empty section
     const rows = [];
     for (const line of lines.filter((l) => l.kind === kind)) {
       rows.push(`${line.id}+  ${groups(line.letters)}`);
