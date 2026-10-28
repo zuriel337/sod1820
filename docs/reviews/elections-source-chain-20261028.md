@@ -19,14 +19,18 @@ The two main cycles in scope are Israel Knesset 21 (2019) and Knesset 26 (2026).
 
 The live `בחירות` entity had three directly observed `related` edges: Israel, kingship and
 Netanyahu. The branch seed's additional relations are proposed candidates, not live graph edges.
-Gallery records inspected were marked `space=lab`; `published=1` alone does not establish public
-availability. Post 5101 remains a hidden draft. This list is scoped, not an exhaustive corpus audit.
+Gallery records inspected were marked `space=lab`; this alone does not determine availability.
+An anonymous check on 28 October confirmed that all six meet the 2029 media reader's explicit
+`published=1`, `min_tier=0`, non-hidden and image-URL criteria. Post 5101 remains a hidden draft.
+This list is scoped, not an exhaustive corpus audit.
 
 ## Source-by-source review — 28 October 2026
 
 Six gallery image files were retrieved and visually inspected against the current gallery records.
 The displayed text, the gallery description and the image's original news source are separate
-evidence layers. The following is a bounded mapping, not a full-corpus search.
+evidence layers. The following is a bounded mapping, not a full-corpus search. The access labels in
+the table record the initial inspection; the later anonymous 2029-reader check below resolves them
+for all six exact rows.
 
 | Gallery image | What is actually visible | Attribution and date | Existing graph state / access |
 |---|---|---|---|
@@ -86,10 +90,14 @@ its earlier snapshot remains meaningful even if later totals differ.
 - A 2026 election-day event node exists (`5e036b45-ec02-4c4b-9e5e-36e847838ef2`) with explicit
   contributor attribution to ציון סיבוני. Its presence does not establish an unchecked edge to
   the election root.
-- **Access gap:** the branch seed currently assigns public access to gallery entities and source
-  records, while the live rows inspected say `space=lab`. Treat that as unresolved and block
-  adoption/public projection of these gallery records until the canonical access reader resolves
-  it. The fact that the storage URL was directly retrievable does not grant site publication.
+- **Access reconciliation, 28 October:** the six exact gallery rows were independently queried
+  with the anonymous client using the existing 2029 media reader's `published=1`, `min_tier=0`
+  and non-hidden filters. All six returned with image URLs. The reader does not exclude `lab`
+  solely on the basis of `space`. This resolves the earlier public-reader eligibility concern
+  for these six exact images, not their automatic inclusion in a specific World/Topic: relevant
+  source identity, documented relation and bounded reader requirements still apply. No database
+  flags were changed. Other hidden, restricted or different-publication-state rows were not
+  opened by this check.
 - **Version gap:** seed calculations carry `canonical-gematria-live-shape`, not an actual recorded
   engine/method version receipt. The live checks above corroborate values at this moment, but the
   seed must not be promoted as a complete replayable engine attestation until version provenance
