@@ -17,6 +17,7 @@ import {
 } from "../data/seferYetzirahWorld2029.js";
 import { applySeo } from "../lib/seo.js";
 import "./seferYetzirahWorld2029.css";
+import { DEPTHS_SOURCE_LOCUS } from "../components/books2029/depthsLearningGuide2029.js";
 
 const SeferYetzirahScene2029 = lazy(() => import("../components/books2029/SeferYetzirahScene2029.jsx"));
 const DepthsLearningWorkspace2029 = lazy(() => import("../components/books2029/DepthsLearningWorkspace2029.jsx"));
@@ -60,9 +61,18 @@ function defaultNodeForMode(mode, commentatorId = "chachmoni") {
   return "";
 }
 
-function SourcePanel({ page, onPage, onReturn, hasStructure, compact = false, onExpand, mobileSource = false, sourceRevision = 0 }) {
+function SourcePanel({ page, onPage, onReturn, hasStructure, compact = false, onExpand, mobileSource = false, sourceRevision = 0, learningSource = false }) {
   const fullscreenRef = useRef(null);
   const [draft, setDraft] = useState(String(page));
+  const [sourceFocus, setSourceFocus] = useState(false), [sourceZoom, setSourceZoom] = useState(false);
+  const [nativeRevision, setNativeRevision] = useState(0);
+  const scannedSource = (mobileSource || learningSource) && page === 53;
+  useEffect(() => {
+    if (!learningSource) return;
+    const sync = () => { if ((document.fullscreenElement || document.webkitFullscreenElement) === fullscreenRef.current) setNativeRevision(value => value + 1); };
+    document.addEventListener('fullscreenchange', sync); document.addEventListener('webkitfullscreenchange', sync);
+    return () => { document.removeEventListener('fullscreenchange', sync); document.removeEventListener('webkitfullscreenchange', sync); };
+  }, [learningSource]);
   const pdfUrl = `${SEFER_YETZIRAH_SOURCE.pdfUrl}#page=${page}&view=FitH`;
 
   useEffect(() => setDraft(String(page)), [page]);
@@ -75,12 +85,25 @@ function SourcePanel({ page, onPage, onReturn, hasStructure, compact = false, on
 
   if (compact && page === 53) return <aside id="yetzirah29-source" className="dw-source-preview" aria-label="תצוגה מקדימה של עמוד המקור 53"><button type="button" onClick={onExpand}><img src="/book-data/sefer-yetzirah-page53-preview.webp" alt="צילום עמוד 53 בספר יצירה, מתוך קובץ המקור" width="637" height="900" /><span>עמוד 53 בספר המקורי<strong>פתח לקריאה ב־PDF ↗</strong></span></button></aside>;
 
-  return <aside ref={fullscreenRef} tabIndex={-1} id="yetzirah29-source" className="yetzirah29-source book-fullscreen29-target" data-source-image={mobileSource && page === 53 ? "true" : undefined} aria-labelledby="yetzirah29-source-title">
+  return <aside ref={fullscreenRef} tabIndex={-1} id="yetzirah29-source" className="yetzirah29-source book-fullscreen29-target" data-source-image={scannedSource ? "true" : undefined} aria-labelledby="yetzirah29-source-title">
     <header>
       <div><span>הספר פתוח תמיד</span><h2 id="yetzirah29-source-title">עמוד PDF {page}</h2></div>
       {hasStructure && <button className="yetzirah29-return" type="button" onClick={onReturn}>חזרה למבנה הנבחר</button>}<BookFullscreenButton2029 targetRef={fullscreenRef} fallbackHref={pdfUrl} controls="yetzirah29-source" />
     </header>
-    <div className="yetzirah29-pdf" data-book-pdf-frame>{mobileSource && page === 53 && <img className="dw-full-source-image" src="/book-data/sefer-yetzirah-page53-preview.webp" alt="צילום מלא של עמוד המקור 53 בספר יצירה" width="637" height="900" />}<iframe key={`${page}:${sourceRevision}`} src={pdfUrl} title={`${SEFER_YETZIRAH_SOURCE.title}, עמוד ${page}`} loading="eager" /></div>
+    {learningSource && page === 53 && <div className="dw-source-actions"><button type="button" aria-pressed={sourceFocus} onClick={()=>setSourceFocus(value=>!value)}>{sourceFocus ? 'הצג את העמוד המלא' : 'התמקד בפסקת העומקים'}</button><button type="button" aria-pressed={sourceZoom} onClick={()=>setSourceZoom(value=>!value)}>{sourceZoom ? 'התאם לרוחב' : 'הגדל את המקור'}</button><span>דברי הספר · צילום המקור</span></div>}
+    <div className="yetzirah29-pdf" data-book-pdf-frame>
+      {scannedSource && <div className="dw-source-scan" tabIndex={0} role="region" aria-label="צילום המקור, גלילה במקלדת או במגע" data-source-focus={sourceFocus} data-source-zoom={sourceZoom}>
+        <div className="dw-source-page-photo" style={{width:sourceZoom?'175%':'100%'}}>
+          {sourceFocus ? <svg className="dw-source-crop" viewBox={`${DEPTHS_SOURCE_LOCUS.x} ${DEPTHS_SOURCE_LOCUS.y} ${DEPTHS_SOURCE_LOCUS.width} ${DEPTHS_SOURCE_LOCUS.height}`} role="img" aria-label={DEPTHS_SOURCE_LOCUS.label}>
+            <image href={DEPTHS_SOURCE_LOCUS.image} width={DEPTHS_SOURCE_LOCUS.imageWidth} height={DEPTHS_SOURCE_LOCUS.imageHeight} />
+          </svg> : <>
+            <img className="dw-full-source-image" src={sourceZoom?DEPTHS_SOURCE_LOCUS.image:'/book-data/sefer-yetzirah-page53-preview.webp'} alt="צילום מלא של עמוד המקור 53 בספר יצירה" width="637" height="900" />
+            {learningSource && <span className="dw-source-locus-mark" aria-hidden="true" style={{left:`${100*DEPTHS_SOURCE_LOCUS.x/DEPTHS_SOURCE_LOCUS.imageWidth}%`,top:`${100*DEPTHS_SOURCE_LOCUS.y/DEPTHS_SOURCE_LOCUS.imageHeight}%`,width:`${100*DEPTHS_SOURCE_LOCUS.width/DEPTHS_SOURCE_LOCUS.imageWidth}%`,height:`${100*DEPTHS_SOURCE_LOCUS.height/DEPTHS_SOURCE_LOCUS.imageHeight}%`}} />}
+          </>}
+        </div>
+      </div>}
+      <iframe key={`${page}:${sourceRevision}:${nativeRevision}`} src={pdfUrl} title={`${SEFER_YETZIRAH_SOURCE.title}, עמוד ${page}`} loading={scannedSource?'lazy':'eager'} />
+    </div>
     <form className="yetzirah29-page-nav" onSubmit={submit} aria-label="מעבר בין 220 עמודי הספר">
       <button type="button" disabled={page <= 1} onClick={() => onPage(page - 1)}>הקודם</button>
       <label><span>עמוד</span><input value={draft} min="1" max="220" inputMode="numeric" onChange={event => setDraft(event.target.value)} /></label>
@@ -293,7 +316,7 @@ export default function SeferYetzirahWorld2029Page() {
     else if (mode === "osn") openPage(190);
   };
 
-  if (liveDepths) return <Sod2029Shell wide introVariant="none" surface="books" symbol="✦" eyebrow="ספר יצירה · עשרת העומקים" title="ספר יצירה" description="מרחב לימוד, הסבר ומקור באותה בחירה."><Suspense fallback={<p role="status">פותחים את מרחב הלימוד…</p>}><DepthsLearningWorkspace2029 selectedId={componentId} onSelect={chooseComponent} onRelation={chooseRelation} onSource={(payload, reanchor) => { openPage(payload.source.pdf_page); if (reanchor) setSourceRevision(value => value + 1); }} page={page} renderSource={(onReturn, compact, onExpand, mobile) => <SourcePanel page={page} onPage={openPage} hasStructure onReturn={onReturn} compact={compact} onExpand={onExpand} mobileSource={mobile} sourceRevision={sourceRevision} />} /></Suspense></Sod2029Shell>;
+  if (liveDepths) return <Sod2029Shell wide introVariant="none" surface="books" symbol="✦" eyebrow="ספר יצירה · עשרת העומקים" title="ספר יצירה" description="מרחב לימוד, הסבר ומקור באותה בחירה."><Suspense fallback={<p role="status">פותחים את מרחב הלימוד…</p>}><DepthsLearningWorkspace2029 selectedId={componentId} onSelect={chooseComponent} onRelation={chooseRelation} onSource={(payload, reanchor) => { openPage(payload.source.pdf_page); if (reanchor) setSourceRevision(value => value + 1); }} page={page} renderSource={(onReturn, compact, onExpand, mobile) => <SourcePanel page={page} onPage={openPage} hasStructure onReturn={onReturn} compact={compact} onExpand={onExpand} mobileSource={mobile} sourceRevision={sourceRevision} learningSource />} /></Suspense></Sod2029Shell>;
 
   return <Sod2029Shell wide surface="books" symbol="✦" eyebrow="ספר יצירה · עולם קריאה" title="ספר יצירה" description="המקור, הפירושים והמבנים המרחביים בתוך קורא אחד.">
     <main className="yetzirah29" dir="rtl">

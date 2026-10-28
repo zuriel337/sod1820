@@ -33,13 +33,13 @@ async function routes(context,origin,realPdf=false) {
   });
 }
 const click = async locator => { await locator.evaluate(e=>e.scrollIntoView({block:'center',behavior:'instant'})); await locator.click(); };
-async function sourceLoaded(page) {
+async function sourceLoaded(page, expectedPage = 53) {
   let lastState;
   for(let attempt=0;attempt<80;attempt++){
-    for(const frame of page.frames()) { try { const state=await frame.evaluate(()=>{const viewer=document.querySelector('pdf-viewer');if(!viewer)return null;const roots=[document];let currentPage;for(let i=0;i<roots.length;i++)for(const element of roots[i].querySelectorAll('*')){if(element.shadowRoot)roots.push(element.shadowRoot);if(element.id==='pageSelector')currentPage=element.value;}return {pages:viewer.documentDimensions?.pageDimensions?.length,loaded:viewer.initialLoadComplete_===true&&viewer.loadState_==='success',currentPage};});if(state)lastState=state;if(state?.pages===220&&state.loaded&&state.currentPage==='53'){await page.waitForTimeout(600);return;} } catch { /* PDF extension frame is still loading. */ } }
+    for(const frame of page.frames()) { try { const state=await frame.evaluate(()=>{const viewer=document.querySelector('pdf-viewer');if(!viewer)return null;const roots=[document];let currentPage;for(let i=0;i<roots.length;i++)for(const element of roots[i].querySelectorAll('*')){if(element.shadowRoot)roots.push(element.shadowRoot);if(element.id==='pageSelector')currentPage=element.value;}return {pages:viewer.documentDimensions?.pageDimensions?.length,loaded:viewer.initialLoadComplete_===true&&viewer.loadState_==='success',currentPage};});if(state)lastState=state;if(state?.pages===220&&state.loaded&&state.currentPage===String(expectedPage)){await page.waitForTimeout(600);return;} } catch { /* PDF extension frame is still loading. */ } }
     await page.waitForTimeout(200);
   }
-  assert.fail(`the original 220-page PDF must load at physical page 53 in the native viewer: ${JSON.stringify(lastState)}`);
+  assert.fail(`the original 220-page PDF must load at physical page ${expectedPage} in the native viewer: ${JSON.stringify(lastState)}`);
 }
 
 test('depth workbench adapts to phones, tablets and wide desktops while selection drives source and explanation',{timeout:480000},async()=>{
@@ -50,7 +50,7 @@ test('depth workbench adapts to phones, tablets and wide desktops while selectio
   try {for(const [width,theme] of cases.filter(([width])=>!process.env.YETZIRAH_DEPTHS_WIDTH||width===Number(process.env.YETZIRAH_DEPTHS_WIDTH))){
     const context=await browser.newContext({viewport:{width,height:1000},reducedMotion:'reduce'});
     await context.addInitScript(t=>{if(location.hostname==='127.0.0.1')localStorage.setItem('sod-theme',t);},theme);
-    const realPdf=theme==='parchment'&&[390,1440].includes(width);
+    const realPdf=[320,390,1440].includes(width);
     await routes(context,origin,realPdf);
     const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
     await page.goto(`${origin}/2029/control?surface=sefer-yetzirah-world&experience=depths`,{waitUntil:'domcontentloaded'});
@@ -71,9 +71,11 @@ test('depth workbench adapts to phones, tablets and wide desktops while selectio
     await page.waitForFunction(()=>JSON.parse(document.querySelector('.dw-stage canvas')?.dataset.visibleComponents||'[]').length===2);
     await click(workspace.getByRole('button',{name:'מבט התחלתי',exact:true}));
     await page.waitForFunction(()=>JSON.parse(document.querySelector('.dw-stage canvas')?.dataset.visibleComponents||'[]').length===6);
-    // Full-page capture resizes the native PDF plugin and can reset its internal page.
-    // Capture the real desktop source in its actual viewport instead.
-    if(realPdf){if(width>1000)await sourceLoaded(page);await workspace.locator('.dw-stage').evaluate(e=>e.scrollIntoView({block:'center',behavior:'instant'}));await page.screenshot({path:`${screenDir}/${width}-${theme}-model.png`,fullPage:width<=1000});}
+    if(theme==='parchment'&&[390,1440].includes(width)){await workspace.locator('.dw-stage').evaluate(e=>e.scrollIntoView({block:'center',behavior:'instant'}));await page.screenshot({path:`${screenDir}/${width}-${theme}-model.png`,fullPage:width<=1000});}
+    await click(workspace.getByRole('button',{name:'התקרב למבנה',exact:true}));
+    await page.waitForFunction(()=>document.querySelector('.dw-stage canvas')?.dataset.viewZoom==='1');
+    await click(workspace.getByRole('button',{name:'התרחק מהמבנה',exact:true}));
+    await page.waitForFunction(()=>document.querySelector('.dw-stage canvas')?.dataset.viewZoom==='0');
     await click(workspace.getByRole('navigation',{name:'חמשת זוגות העומקים'}).getByRole('button',{name:/ראשית ואחרית/}));
     assert.equal(await workspace.locator('.dw-stage').getAttribute('data-pair-kind'),'reading');
     assert.match(await workspace.locator('.dw-concept-pair').textContent(),/ללא ציר פיזי/);
@@ -86,17 +88,48 @@ test('depth workbench adapts to phones, tablets and wide desktops while selectio
       assert.equal(await workspace.locator('canvas').count(),0);
     }
     await click(workspace.getByRole('button',{name:'קרא את המקור · PDF 53',exact:true}));
-    if(width<=1000){const scan=source.getByRole('img',{name:'צילום מלא של עמוד המקור 53 בספר יצירה',exact:true});await scan.waitFor();await page.waitForFunction(()=>{const image=document.querySelector('#yetzirah29-source .dw-full-source-image');return image?.complete&&image.naturalWidth===637;});if(width===390&&realPdf)await page.screenshot({path:`${screenDir}/390-parchment-source.png`,fullPage:true});await source.getByRole('button',{name:'מסך מלא',exact:true}).click();await page.waitForFunction(()=>Boolean(document.fullscreenElement));}
+    const scan=source.getByRole('img',{name:'צילום מלא של עמוד המקור 53 בספר יצירה',exact:true});await scan.waitFor();await page.waitForFunction(()=>{const image=document.querySelector('#yetzirah29-source .dw-full-source-image');return image?.complete&&image.naturalWidth===637;});
+    await click(source.getByRole('button',{name:'התמקד בפסקת העומקים',exact:true}));
+    const crop=source.getByRole('img',{name:'פסקת עשרת העומקים · עמוד PDF 53',exact:true});await crop.waitFor();assert.equal(await crop.getAttribute('viewBox'),'610 400 555 235');
+    if(theme==='parchment'&&[390,1440].includes(width))await page.screenshot({path:`${screenDir}/${width}-parchment-locus.png`,fullPage:true});
+    await click(source.getByRole('button',{name:'הצג את העמוד המלא',exact:true}));
+    await click(source.getByRole('button',{name:'הגדל את המקור',exact:true}));
+    await page.waitForFunction(()=>document.querySelector('.dw-full-source-image')?.naturalWidth===1591);
+    await click(source.getByRole('button',{name:'התאם לרוחב',exact:true}));
+    if(width===390&&theme==='parchment')await page.screenshot({path:`${screenDir}/390-parchment-source.png`,fullPage:true});
+    await source.getByRole('button',{name:'מסך מלא',exact:true}).click();await page.waitForFunction(()=>Boolean(document.fullscreenElement));
     if(realPdf){await sourceLoaded(page);if(width===390)await page.screenshot({path:`${screenDir}/390-parchment-native-fullscreen.png`});}
     await source.getByRole('button',{name:'הבא',exact:true}).click();
     assert.match(await source.locator('iframe').getAttribute('src'),/#page=54&/);
+    if(realPdf)await sourceLoaded(page,54);
+    await source.getByRole('button',{name:'הקודם',exact:true}).click();
+    if(realPdf)await sourceLoaded(page,53);
+    await source.getByRole('textbox',{name:'עמוד',exact:true}).fill('52');
+    await source.getByRole('button',{name:'עבור',exact:true}).click();
+    assert.match(await source.locator('iframe').getAttribute('src'),/#page=52&/);
+    if(realPdf)await sourceLoaded(page,52);
     await click(source.getByRole('button',{name:'חזרה למבנה הנבחר',exact:true}));
+    await page.waitForFunction(()=>document.querySelector('#yetzirah29-source iframe')?.getAttribute('src')?.includes('#page=53&')||Boolean(document.querySelector('#yetzirah29-source.dw-source-preview')));
     if(width<=1000){await source.getByRole('img',{name:'צילום עמוד 53 בספר יצירה, מתוך קובץ המקור',exact:true}).waitFor();assert.equal(await source.locator('img').count(),1);}
     else assert.match(await source.locator('iframe').getAttribute('src'),/#page=53&/);
     assert.equal(await workspace.locator('[data-depth-id=south]').getAttribute('aria-pressed'),'true');
     if(realPdf){await click(workspace.getByRole('button',{name:'הרחב מקור',exact:true}));await source.getByRole('button',{name:'מסך מלא',exact:true}).click();await page.waitForFunction(()=>Boolean(document.fullscreenElement));await source.getByRole('button',{name:'יציאה ממסך מלא',exact:true}).click();await click(source.getByRole('button',{name:'חזרה למבנה הנבחר',exact:true}));}
     await page.reload({waitUntil:'domcontentloaded'});await workspace.locator('[data-depth-id=south][aria-pressed=true]').waitFor();
     assert.equal(await workspace.locator('canvas').count(),0,'refresh does not start GPU');
+    await click(workspace.getByRole('button',{name:'התחל מסלול מודרך',exact:true}));
+    assert.equal(await workspace.locator('.dw-stage').getAttribute('data-pair-kind'),'reading');
+    assert.equal(await workspace.locator('canvas').count(),0);
+    const next=workspace.getByRole('button',{name:'לתחנה הבאה',exact:true});
+    await click(next);assert.match(await workspace.locator('.dw-guide-card').textContent(),/להבחין בערך/);
+    await click(next);await click(workspace.getByRole('button',{name:'פתח את המרחב בתלת־ממד',exact:true}));
+    await workspace.locator('canvas[data-render-state=ready]').waitFor();
+    await page.waitForFunction(()=>JSON.parse(document.querySelector('.dw-stage canvas')?.dataset.visibleComponents||'[]').length===2);
+    await click(next);await page.waitForFunction(()=>JSON.parse(document.querySelector('.dw-stage canvas')?.dataset.visibleComponents||'[]').length===4);
+    await click(next);await page.waitForFunction(()=>JSON.parse(document.querySelector('.dw-stage canvas')?.dataset.visibleComponents||'[]').length===6);
+    assert.equal(await next.isDisabled(),true);
+    await click(workspace.getByRole('button',{name:'חקירה חופשית',exact:true}));
+    await click(workspace.getByRole('button',{name:'סגור תלת־ממד',exact:true}));
+    assert.equal(await workspace.locator('canvas').count(),0);
     assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true,`horizontal overflow at ${width}/${theme}`);
     assert.deepEqual(errors,[]);
     await context.close();console.log(`depth workbench ${width}/${theme} passed`);
@@ -131,8 +164,13 @@ test('depth workbench observes motion changes and retains its selection after co
     await page.locator('.sod29-root').evaluate(e=>e.setAttribute('data-frame-reduced-motion','false'));
     const rotation=workspace.getByRole('button',{name:'סיבוב עדין',exact:true});await page.waitForFunction(()=>[...document.querySelectorAll('.dw-tools button')].some(e=>e.textContent==='סיבוב עדין'&&!e.disabled));
     await click(rotation);await page.waitForFunction(()=>document.querySelector('.dw-stage canvas')?.dataset.rotation==='running');
+    await click(rotation);
+    await click(workspace.getByRole('navigation',{name:'חמשת זוגות העומקים'}).getByRole('button',{name:/מזרח ומערב/}));
+    await page.waitForFunction(()=>document.querySelector('.dw-stage canvas')?.dataset.cameraMotion==='moving');
     await page.emulateMedia({reducedMotion:'reduce'});await page.waitForFunction(()=>document.querySelector('.dw-stage canvas')?.dataset.rotation==='off');
+    await page.waitForFunction(()=>document.querySelector('.dw-stage canvas')?.dataset.cameraMotion==='settled');
     assert.equal(await rotation.isDisabled(),true);
+    await click(workspace.getByRole('navigation',{name:'חמשת זוגות העומקים'}).getByRole('button',{name:/רום ותחת/}));
     await click(workspace.locator('[data-depth-id=down]'));
     await canvas.evaluate(e=>e.getContext('webgl2').getExtension('WEBGL_lose_context').loseContext());
     await workspace.getByRole('status').filter({hasText:'התלת־ממד אינו זמין'}).waitFor();
