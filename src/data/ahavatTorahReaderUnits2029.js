@@ -11,9 +11,9 @@ export const AHAVAT_READER_UNITS = Object.freeze([
   ...AHAVAT_MEGILLOT.flatMap(item => ["letters", "words"].map(kind => ({ id: `scrolls-total:${item.id}:${kind}`, page: item.totalPage, title: `${item.title} · סיכום ${kind === "words" ? "תיבות" : "אותיות"}`, datasetId: kind === "words" ? "DS-10" : "DS-09", sectionId: "ahavat29-scrolls", megillahId: item.id, kind }))),
 ].map(unit => Object.freeze(unit)));
 
-// Lightweight URL projection of the delivered companion's 25 × 3 units.
+// Lightweight URL projection of the delivered companion's 35 × 3 units.
 // Keep it separate from the 287 source-native rows; no prose or OCR is eager.
-const companionUnits = Object.freeze(Array.from({ length: 75 }, (_, index) => {
+const companionUnits = Object.freeze(Array.from({ length: 105 }, (_, index) => {
   const page = 46 + Math.floor(index / 3), position = index % 3 + 1;
   return Object.freeze({
     id: `ahavat-novellae-p${String(page).padStart(3, "0")}-${String(position).padStart(2, "0")}`,

@@ -43,7 +43,7 @@ async function fixture() {
   return { origin, browser, server };
 }
 
-test("all 75 companion units retain their exact source, expanded reading, reload and return in nine display combinations", { skip: !available, timeout: 300_000 }, async () => {
+test("all 105 companion units retain their exact source, expanded reading, reload and return in nine display combinations", { skip: !available, timeout: 300_000 }, async () => {
   const { origin, browser, server } = await fixture();
   const out = "/tmp/ahavat-novellae-depth-browser-20261028";
   mkdirSync(out, { recursive: true });
@@ -79,7 +79,7 @@ test("all 75 companion units retain their exact source, expanded reading, reload
       await assertExactEntry();
       const nav = page.getByRole("navigation", { name: "עמודים עם הסבר מורחב", exact: true });
       const selection = nav.getByRole("combobox", { name: "בחר עמוד ללימוד מורחב", exact: true });
-      assert.equal(await selection.locator("option:not([disabled])").count(), 25);
+      assert.equal(await selection.locator("option:not([disabled])").count(), 35);
       for (const record of companion.pages.filter(item => item.companion_units)) {
         await selection.selectOption(String(record.pdf_page));
         const units = page.getByRole("region", { name: `הסבר מורחב לעמוד ${record.pdf_page}`, exact: true });
@@ -103,7 +103,7 @@ test("all 75 companion units retain their exact source, expanded reading, reload
       assert.deepEqual(errors, []);
       await page.screenshot({ path: `${out}/companion-${width}-${theme}.png` });
       await context.close();
-      console.log(`75 companion units ${width}/${theme}: passed`);
+      console.log(`105 companion units ${width}/${theme}: passed`);
     }
   } finally { await browser.close(); await server.close(); }
 });

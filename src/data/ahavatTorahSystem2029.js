@@ -250,7 +250,7 @@ export function ahavatCompanionReadingUnits(bundle, page) {
   const guide = ahavatCompanionPage(bundle, page);
   const units = guide?.companion_units;
   if (bundle?.source_pdf_sha256 !== "895e9a720d984adf8ea453b644e3f6d0864e101238f348f418aa5fafa20e9c8b"
-    || page < 46 || page > 70 || !Array.isArray(units) || units.length !== 3) return [];
+    || page < 46 || page > 80 || !Array.isArray(units) || units.length !== 3) return [];
   const valid = units.every((unit, index) => unit
     && unit.id === `ahavat-novellae-p${String(page).padStart(3, "0")}-${String(index + 1).padStart(2, "0")}`
     && unit.pdf_page === page && unit.source_anchor === guide.source_anchor
