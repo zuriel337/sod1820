@@ -150,7 +150,8 @@ export default async function handler(req) {
   //   דפי-מספר (n) ודף-השם (sig=gem) → וו-גימטריה («מה מסתתר בשם שלך?»).
   const sig = (searchParams.get('sig') || '').trim();
   const sigGem = sig === 'gem' || (sig !== 'els' && heroIsNumber);
-  const signature = sigGem ? 'מה מסתתר בשם שלך?' : 'חפש את שמך בתורה';
+  // A public World finding is a cited research unit, not a gematria/ELS teaser.
+  const signature = sig === 'finding' ? 'ממצא · מקור · מחקר' : sigGem ? 'מה מסתתר בשם שלך?' : 'חפש את שמך בתורה';
 
   const font = await loadFont();
 
