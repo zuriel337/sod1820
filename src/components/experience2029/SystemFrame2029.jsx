@@ -129,7 +129,7 @@ const HOME_NAV = [
 ];
 
 const DIRECT_NAV = [
-  { to: "/2029/number/1820", label: "דף המספר", icon: "123" },
+  { action: "number-search", label: "דף המספר", icon: "123" },
   { to: "/books", label: "ספרים ומקורות", icon: "▤" },
   { to: "/els", label: "ELS · הצופן התנ״כי", icon: "✦" },
 ];
@@ -146,7 +146,7 @@ const CORE_HOME_NAV = [
 const CORE_DIRECT_NAV = [
   { to: "/code", label: "ELS · הצופן התנ״כי", icon: "✦" },
   { to: "/2029/gematria", label: "מחשבון גימטריה", icon: "123" },
-  { to: "/2029/number/1820", label: "דף המספר", icon: "123" },
+  { action: "number-search", label: "דף המספר", icon: "123" },
   { to: "/books", label: "ספרים ומקורות", icon: "▤" },
 ];
 
@@ -1630,7 +1630,7 @@ function SystemFrame2029Body({
   const numberLocked = numberFeature.loading || numberFeature.blocked;
   const worldLocked = worldFeature.loading || worldFeature.blocked;
   const homeNav = (corePublicViewer ? CORE_HOME_NAV : HOME_NAV).map((item) => item.to === "/heichal" ? { ...item, locked: heichalLocked } : item.label === "העולם" ? { ...item, locked: worldLocked } : item);
-  const directNav = (corePublicViewer ? CORE_DIRECT_NAV : DIRECT_NAV).map((item) => item.to === "/books" ? { ...item, locked: booksLocked } : item.to.startsWith("/2029/number/") ? { ...item, locked: numberLocked } : item);
+  const directNav = (corePublicViewer ? CORE_DIRECT_NAV : DIRECT_NAV).map((item) => item.to === "/books" ? { ...item, locked: booksLocked } : item.action === "number-search" || item.to?.startsWith("/2029/number/") ? { ...item, locked: numberLocked } : item);
   const [navOpen, setNavOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
     try { return localStorage.getItem("sod-global-rail") !== "expanded"; } catch { return true; }
@@ -1641,6 +1641,12 @@ function SystemFrame2029Body({
   const [companionPref, setCompanionPref] = useState(() => { try { return window.localStorage.getItem("sod-companion"); } catch (_) { return null; } });
   const [companionPeek, setCompanionPeek] = useState(false);
   const [companionTab, setCompanionTab] = useState("feed");
+  const companionTabChoice = useRef({ principal: user?.id || null, tab: null });
+  const chooseCompanionTab = useCallback((tab) => {
+    if (!["feed", "ctx", "seq"].includes(tab)) return;
+    companionTabChoice.current = { principal: user?.id || null, tab };
+    setCompanionTab(tab);
+  }, [user?.id]);
   const [razielCompanionView, setRazielCompanionView] = useState(readRazielCompanionView);
   const companionTimer = useRef(null);
   useEffect(() => {
@@ -1809,6 +1815,31 @@ function SystemFrame2029Body({
     navigate(to, { state: { sodEntryArrival: "internal", ...(state || {}) } });
   }, [navigate, preserveReturnFor, completeSurfaceEntry]);
 
+  useEffect(() => {
+    // The Companion's existing public source shortcuts can arrive before the
+    // lazy World source section mounts. Finish that same anchor navigation once.
+    if (surface !== "world" || location.hash !== "#world-public-content-map") return undefined;
+    let frame;
+    let observer;
+    const revealSourceSection = () => {
+      const section = document.getElementById("world-public-content-map");
+      if (!section || !section.getClientRects().length) return false;
+      observer?.disconnect();
+      frame = window.requestAnimationFrame(() => section.scrollIntoView({ block: "start", behavior: "instant" }));
+      return true;
+    };
+    if (!revealSourceSection()) {
+      observer = new MutationObserver(revealSourceSection);
+      observer.observe(document.body, { childList: true, subtree: true });
+    }
+    const timeout = window.setTimeout(() => observer?.disconnect(), 5000);
+    return () => {
+      observer?.disconnect();
+      window.clearTimeout(timeout);
+      if (frame != null) window.cancelAnimationFrame(frame);
+    };
+  }, [surface, location.hash, location.key]);
+
   const returnExact = useCallback(() => {
     setTransient(null);
     const target = context?.returnTo || null;
@@ -1847,7 +1878,8 @@ function SystemFrame2029Body({
   const openCommand = useCallback(() => openTransient(TRANSIENT.COMMAND), [openTransient]);
   const handleGlobalNavAction = useCallback((action) => {
     if (action === "workspace") openTransient(TRANSIENT.WORKSPACE);
-  }, [openTransient]);
+    if (action === "number-search") openCommand();
+  }, [openTransient, openCommand]);
 
   const openAction = useCallback((subject = null) => openTransient(TRANSIENT.ACTION, { subject: normalizeTarget(subject) }), [openTransient]);
   const openCapability = useCallback((capability, subject = null, payload = {}) => {
@@ -2171,10 +2203,18 @@ function SystemFrame2029Body({
   const companionMode = !companionActive ? null : companionPinned ? "pinned" : companionPeek || razielCompanionView !== "quiet" ? "peek" : "slim";
   const contextSubjectKey = context?.subject ? `${context.subject.type}:${context.subject.id}` : "";
   useEffect(() => {
-    if (!companionHasContext) { setCompanionTab("feed"); return; }
-    setCompanionTab("ctx");
-    if (contextSubjectKey) setCompanionPeek(true);
-  }, [contextSubjectKey, companionHasContext]);
+    const principal = user?.id || null;
+    if (companionTabChoice.current.principal !== principal) {
+      companionTabChoice.current = { principal, tab: null };
+    }
+    const manualTab = companionTabChoice.current.tab;
+    // A new subject can supply initial context, but cannot override the user's
+    // Updates/Context choice. An unavailable tab falls back without losing it.
+    const available = manualTab === "feed" || (manualTab === "ctx" && companionHasContext)
+      || (manualTab === "seq" && companionHasSequence);
+    setCompanionTab(manualTab ? available ? manualTab : "feed" : companionHasContext ? "ctx" : "feed");
+    if (!manualTab && companionHasContext && contextSubjectKey) setCompanionPeek(true);
+  }, [contextSubjectKey, companionHasContext, companionHasSequence, user?.id]);
   const focusCompanionRaziel = () => {
     if (razielLocked) return;
     chooseRazielCompanionView("open");
@@ -2393,8 +2433,8 @@ function SystemFrame2029Body({
         {ephemeralSelection ? <button className="sod29-selection-cue" type="button" onClick={() => openAction(ephemeralSelection)}><small>בחרת</small><strong>{ephemeralSelection.label}</strong><span>פעולה</span></button> : null}
 
         {companionActive ? <CompanionPanel2029
-          feed={feed} mode={companionMode} tab={companionTab === "seq" && companionHasSequence ? "seq" : companionHasContext && companionTab !== "seq" ? companionTab : "feed"} onTab={setCompanionTab}
-          onOpenPanel={(tab) => { setCompanionTab(tab); setCompanionPeek(true); }}
+          feed={feed} mode={companionMode} tab={companionTab === "seq" && companionHasSequence ? "seq" : companionHasContext && companionTab !== "seq" ? companionTab : "feed"} onTab={chooseCompanionTab}
+          onOpenPanel={(tab) => { chooseCompanionTab(tab); setCompanionPeek(true); }}
           pinned={companionPinned} onTogglePin={() => toggleCompanionPin(companionPinned)}
           hasContext={companionHasContext}
           hasSequence={companionHasSequence}

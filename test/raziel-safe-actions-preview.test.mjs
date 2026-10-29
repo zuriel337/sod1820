@@ -103,6 +103,7 @@ test("mock Preview selection admits only the exact reviewed branches", () => {
     "gpt/2029-central-raziel-safe-actions-integration-20261026",
     "gpt/2029-central-raziel-personal-navigation-integration-20261026",
     "gpt/2029-central-unified-workspace-20261029",
+    "gpt/2029-central-shell-alignment-20261029",
   ]) {
     assert.equal(selectMockPreviewBranch({
       VERCEL_ENV: "preview",

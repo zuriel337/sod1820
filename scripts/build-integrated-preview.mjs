@@ -20,7 +20,7 @@ const allow = ["gematria_api", "fn_method_value", "fn_method_profile", "gematria
 // remains blocked below. The approved owner's Person exists before this disposable build.
 const existingPersonAccess = "fn_get_or_create_my_person";
 // The unified working preview must not create Person records or record ELS traces.
-const unifiedReadOnly = typeof process !== "undefined" && process.env.VERCEL_GIT_COMMIT_REF === "gpt/2029-central-unified-workspace-20261029";
+const unifiedReadOnly = typeof process !== "undefined" && ["gpt/2029-central-unified-workspace-20261029", "gpt/2029-central-shell-alignment-20261029"].includes(process.env.VERCEL_GIT_COMMIT_REF);
 const worker = `const reads = new Set(${JSON.stringify(allow)});
 const existingPersonAccess=${JSON.stringify(existingPersonAccess)};
 const unifiedReadOnly=${JSON.stringify(unifiedReadOnly)};
@@ -64,7 +64,8 @@ await writeFile(resolve(output, "sw.js"), worker);
 const legacyMockBranch = "gpt/2029-central-raziel-safe-actions-integration-20261026";
 const personalNavigationMockBranch = "gpt/2029-central-raziel-personal-navigation-integration-20261026";
 const unifiedWorkspaceMockBranch = "gpt/2029-central-unified-workspace-20261029";
-const allowedMockBranches = new Set([legacyMockBranch, personalNavigationMockBranch, unifiedWorkspaceMockBranch]);
+const centralShellMockBranch = "gpt/2029-central-shell-alignment-20261029";
+const allowedMockBranches = new Set([legacyMockBranch, personalNavigationMockBranch, unifiedWorkspaceMockBranch, centralShellMockBranch]);
 const selectMockPreviewBranch = env => {
   const branch = typeof env.VERCEL_GIT_COMMIT_REF === "string" ? env.VERCEL_GIT_COMMIT_REF : "";
   const explicitMock = env.SOD_RAZIEL_SAFE_ACTIONS_PREVIEW === "true";

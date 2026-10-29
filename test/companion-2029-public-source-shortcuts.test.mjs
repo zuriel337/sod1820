@@ -1,14 +1,17 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+import { resolveWorldLandingView, WORLD_LANDING_VIEW } from "../src/lib/research/worldLandingNavigation.js";
 
 const read = (file) => readFileSync(new URL(`../${file}`, import.meta.url), "utf8");
 
 test("2029 Companion exposes the three EXISTING public source destinations", () => {
   const companion = read("src/components/experience2029/CompanionPanel2029.jsx");
   assert.match(companion, /OrGeulaStoryColumn variant="shortcut"/);
-  assert.match(companion, /world\?subjectSource=zvi#world-all-convergences/);
-  assert.match(companion, /world\?subjectSource=hashmal#world-all-convergences/);
+  assert.equal((companion.match(/world\?subjectSource=zvi#world-public-content-map/g) || []).length, 2);
+  assert.equal((companion.match(/world\?subjectSource=hashmal#world-public-content-map/g) || []).length, 2);
+  const sourceMap = read("src/components/research/WorldPublicSourceSubjects2029.jsx");
+  assert.match(sourceMap, /id="world-public-content-map"/);
   assert.match(companion, /sod29-companion-source-quick is-slim/);
   assert.match(companion, /sod29-companion-source-quick is-expanded/);
 });
@@ -23,13 +26,17 @@ test("Or Geula shortcut reuses the canonical source reader and viewer", () => {
 
 test("World source selector changes view only, never source authorizations", () => {
   const world = read("src/pages/World2029Page.jsx");
-  assert.match(world, /const params = new URLSearchParams\(location\.search\)/);
-  assert.match(world, /const source = params\.get\("source"\)/);
-  assert.match(world, /const subjectSource = params\.get\("subjectSource"\)/);
-  assert.match(world, /source === "tzvi-opoc"/);
-  assert.match(world, /source === "sod-hashmal"/);
-  assert.match(world, /setCorpusKey\("sod-hashmal"\)/);
-  assert.match(world, /setWriterFilter\("tzvi-opoc"\)/);
+  const sourceMap = read("src/components/research/WorldPublicSourceSubjects2029.jsx");
+  for (const source of ["zvi", "hashmal"]) {
+    assert.equal(resolveWorldLandingView({ search: `?subjectSource=${source}`, hash: "#world-public-content-map" }), WORLD_LANDING_VIEW.SOURCES);
+  }
+  assert.match(world, /activeView === WORLD_LANDING_VIEW\.SOURCES/);
+  assert.match(world, /<WorldPublicSourceSubjects2029/);
+  assert.match(sourceMap, /new URLSearchParams\(location\.search\)\.get\("subjectSource"\)/);
+  assert.match(sourceMap, /requested === "zvi" \|\| requested === "hashmal"/);
+  assert.match(sourceMap, /setOrigin\(requested\)/);
+  assert.match(sourceMap, /source=tzvi-opoc#world-contributor-material/);
+  assert.match(sourceMap, /source=sod-hashmal#world-corpus-sod-hashmal/);
   const css = read("src/components/experience2029/companionPanel2029.css");
   assert.match(css, /min-block-size: 44px/);
   assert.match(css, /sod29-or-geula-shortcut\.is-new/);
