@@ -1,0 +1,1687 @@
+[
+  {
+    "id": "r1.f01",
+    "line": "C21+",
+    "text": "קולומביה",
+    "rawText": "קולומביה",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "C21+",
+        "from": 10,
+        "to": 17,
+        "cells": [
+          [
+            11,
+            21
+          ],
+          [
+            12,
+            21
+          ],
+          [
+            13,
+            21
+          ],
+          [
+            14,
+            21
+          ],
+          [
+            15,
+            21
+          ],
+          [
+            16,
+            21
+          ],
+          [
+            17,
+            21
+          ],
+          [
+            18,
+            21
+          ]
+        ],
+        "params": {
+          "start": 248765,
+          "skip": 4545,
+          "dir": 1,
+          "length": 8,
+          "step": 4545
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true,
+    "checks": [
+      {
+        "occurrence": "C21+",
+        "from": 10,
+        "letters_match": true,
+        "plain_text": false,
+        "synthetic": false,
+        "engine_found": true,
+        "engine_status": "OK",
+        "engine_followup": false,
+        "engine_hits": 1,
+        "engine_truncated": false,
+        "params": {
+          "start": 248765,
+          "skip": 4545,
+          "dir": 1,
+          "length": 8,
+          "step": 4545
+        }
+      }
+    ],
+    "verdict": "verified_by_engine",
+    "verifiedOccurrences": 1
+  },
+  {
+    "id": "r1.f02",
+    "line": "C21-",
+    "text": "נמל",
+    "rawText": "נמל",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "C21-",
+        "from": 20,
+        "to": 22,
+        "cells": [
+          [
+            3,
+            21
+          ],
+          [
+            2,
+            21
+          ],
+          [
+            1,
+            21
+          ]
+        ],
+        "params": {
+          "start": 212405,
+          "skip": 4545,
+          "dir": -1,
+          "length": 3,
+          "step": -4545
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true,
+    "checks": [
+      {
+        "occurrence": "C21-",
+        "from": 20,
+        "letters_match": true,
+        "plain_text": false,
+        "synthetic": false,
+        "engine_found": true,
+        "engine_status": "OK",
+        "engine_followup": true,
+        "engine_hits": 100,
+        "engine_truncated": true,
+        "params": {
+          "start": 212405,
+          "skip": 4545,
+          "dir": -1,
+          "length": 3,
+          "step": -4545
+        }
+      }
+    ],
+    "verdict": "verified_by_engine",
+    "verifiedOccurrences": 1
+  },
+  {
+    "id": "r1.f03",
+    "line": "C04+",
+    "text": "ונתיבהליל",
+    "rawText": "ונתיבהליל",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "C04+",
+        "from": 14,
+        "to": 22,
+        "cells": [
+          [
+            15,
+            4
+          ],
+          [
+            16,
+            4
+          ],
+          [
+            17,
+            4
+          ],
+          [
+            18,
+            4
+          ],
+          [
+            19,
+            4
+          ],
+          [
+            20,
+            4
+          ],
+          [
+            21,
+            4
+          ],
+          [
+            22,
+            4
+          ],
+          [
+            23,
+            4
+          ]
+        ],
+        "params": {
+          "start": 266928,
+          "skip": 4545,
+          "dir": 1,
+          "length": 9,
+          "step": 4545
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true,
+    "checks": [
+      {
+        "occurrence": "C04+",
+        "from": 14,
+        "letters_match": true,
+        "plain_text": false,
+        "synthetic": false,
+        "engine_found": true,
+        "engine_status": "OK",
+        "engine_followup": false,
+        "engine_hits": 1,
+        "engine_truncated": false,
+        "params": {
+          "start": 266928,
+          "skip": 4545,
+          "dir": 1,
+          "length": 9,
+          "step": 4545
+        }
+      }
+    ],
+    "verdict": "verified_by_engine",
+    "verifiedOccurrences": 1
+  },
+  {
+    "id": "r1.f04",
+    "line": "C04-",
+    "text": "לילהבית",
+    "rawText": "לילהבית",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "C04-",
+        "from": 0,
+        "to": 6,
+        "cells": [
+          [
+            23,
+            4
+          ],
+          [
+            22,
+            4
+          ],
+          [
+            21,
+            4
+          ],
+          [
+            20,
+            4
+          ],
+          [
+            19,
+            4
+          ],
+          [
+            18,
+            4
+          ],
+          [
+            17,
+            4
+          ]
+        ],
+        "params": {
+          "start": 303288,
+          "skip": 4545,
+          "dir": -1,
+          "length": 7,
+          "step": -4545
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true,
+    "checks": [
+      {
+        "occurrence": "C04-",
+        "from": 0,
+        "letters_match": true,
+        "plain_text": false,
+        "synthetic": false,
+        "engine_found": true,
+        "engine_status": "OK",
+        "engine_followup": false,
+        "engine_hits": 1,
+        "engine_truncated": false,
+        "params": {
+          "start": 303288,
+          "skip": 4545,
+          "dir": -1,
+          "length": 7,
+          "step": -4545
+        }
+      }
+    ],
+    "verdict": "verified_by_engine",
+    "verifiedOccurrences": 1
+  },
+  {
+    "id": "r1.f05",
+    "line": "C07+",
+    "text": "כעסתי",
+    "rawText": "כעסתי",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "C07+",
+        "from": 15,
+        "to": 19,
+        "cells": [
+          [
+            16,
+            7
+          ],
+          [
+            17,
+            7
+          ],
+          [
+            18,
+            7
+          ],
+          [
+            19,
+            7
+          ],
+          [
+            20,
+            7
+          ]
+        ],
+        "params": {
+          "start": 271476,
+          "skip": 4545,
+          "dir": 1,
+          "length": 5,
+          "step": 4545
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true,
+    "checks": [
+      {
+        "occurrence": "C07+",
+        "from": 15,
+        "letters_match": true,
+        "plain_text": false,
+        "synthetic": false,
+        "engine_found": true,
+        "engine_status": "OK",
+        "engine_followup": false,
+        "engine_hits": 1,
+        "engine_truncated": false,
+        "params": {
+          "start": 271476,
+          "skip": 4545,
+          "dir": 1,
+          "length": 5,
+          "step": 4545
+        }
+      }
+    ],
+    "verdict": "verified_by_engine",
+    "verifiedOccurrences": 1
+  },
+  {
+    "id": "r1.f06",
+    "line": "C08+",
+    "text": "ונשוב",
+    "rawText": "ונשוב",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "C08+",
+        "from": 0,
+        "to": 4,
+        "cells": [
+          [
+            1,
+            8
+          ],
+          [
+            2,
+            8
+          ],
+          [
+            3,
+            8
+          ],
+          [
+            4,
+            8
+          ],
+          [
+            5,
+            8
+          ]
+        ],
+        "params": {
+          "start": 203302,
+          "skip": 4545,
+          "dir": 1,
+          "length": 5,
+          "step": 4545
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true,
+    "checks": [
+      {
+        "occurrence": "C08+",
+        "from": 0,
+        "letters_match": true,
+        "plain_text": false,
+        "synthetic": false,
+        "engine_found": true,
+        "engine_status": "OK",
+        "engine_followup": false,
+        "engine_hits": 2,
+        "engine_truncated": false,
+        "params": {
+          "start": 203302,
+          "skip": 4545,
+          "dir": 1,
+          "length": 5,
+          "step": 4545
+        }
+      }
+    ],
+    "verdict": "verified_by_engine",
+    "verifiedOccurrences": 1
+  },
+  {
+    "id": "r1.f07",
+    "line": "C10-",
+    "text": "אהבה",
+    "rawText": "אהבה",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "C10-",
+        "from": 5,
+        "to": 8,
+        "cells": [
+          [
+            18,
+            10
+          ],
+          [
+            17,
+            10
+          ],
+          [
+            16,
+            10
+          ],
+          [
+            15,
+            10
+          ]
+        ],
+        "params": {
+          "start": 280569,
+          "skip": 4545,
+          "dir": -1,
+          "length": 4,
+          "step": -4545
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true,
+    "checks": [
+      {
+        "occurrence": "C10-",
+        "from": 5,
+        "letters_match": true,
+        "plain_text": false,
+        "synthetic": false,
+        "engine_found": true,
+        "engine_status": "OK",
+        "engine_followup": false,
+        "engine_hits": 33,
+        "engine_truncated": false,
+        "params": {
+          "start": 280569,
+          "skip": 4545,
+          "dir": -1,
+          "length": 4,
+          "step": -4545
+        }
+      }
+    ],
+    "verdict": "verified_by_engine",
+    "verifiedOccurrences": 1
+  },
+  {
+    "id": "r1.f08",
+    "line": "C11+",
+    "text": "ומבקר",
+    "rawText": "ומבקר",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "C11+",
+        "from": 0,
+        "to": 4,
+        "cells": [
+          [
+            1,
+            11
+          ],
+          [
+            2,
+            11
+          ],
+          [
+            3,
+            11
+          ],
+          [
+            4,
+            11
+          ],
+          [
+            5,
+            11
+          ]
+        ],
+        "params": {
+          "start": 203305,
+          "skip": 4545,
+          "dir": 1,
+          "length": 5,
+          "step": 4545
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true,
+    "checks": [
+      {
+        "occurrence": "C11+",
+        "from": 0,
+        "letters_match": true,
+        "plain_text": false,
+        "synthetic": false,
+        "engine_found": true,
+        "engine_status": "OK",
+        "engine_followup": false,
+        "engine_hits": 1,
+        "engine_truncated": false,
+        "params": {
+          "start": 203305,
+          "skip": 4545,
+          "dir": 1,
+          "length": 5,
+          "step": 4545
+        }
+      }
+    ],
+    "verdict": "verified_by_engine",
+    "verifiedOccurrences": 1
+  },
+  {
+    "id": "r1.f09",
+    "line": "C17+",
+    "text": "שיזהב",
+    "rawText": "שיזהב",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "C17+",
+        "from": 0,
+        "to": 4,
+        "cells": [
+          [
+            1,
+            17
+          ],
+          [
+            2,
+            17
+          ],
+          [
+            3,
+            17
+          ],
+          [
+            4,
+            17
+          ],
+          [
+            5,
+            17
+          ]
+        ],
+        "params": {
+          "start": 203311,
+          "skip": 4545,
+          "dir": 1,
+          "length": 5,
+          "step": 4545
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true,
+    "checks": [
+      {
+        "occurrence": "C17+",
+        "from": 0,
+        "letters_match": true,
+        "plain_text": false,
+        "synthetic": false,
+        "engine_found": true,
+        "engine_status": "OK",
+        "engine_followup": false,
+        "engine_hits": 1,
+        "engine_truncated": false,
+        "params": {
+          "start": 203311,
+          "skip": 4545,
+          "dir": 1,
+          "length": 5,
+          "step": 4545
+        }
+      }
+    ],
+    "verdict": "verified_by_engine",
+    "verifiedOccurrences": 1
+  },
+  {
+    "id": "r1.f10",
+    "line": "C17+",
+    "text": "כוח",
+    "rawText": "כוח",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "C17+",
+        "from": 20,
+        "to": 22,
+        "cells": [
+          [
+            21,
+            17
+          ],
+          [
+            22,
+            17
+          ],
+          [
+            23,
+            17
+          ]
+        ],
+        "params": {
+          "start": 294211,
+          "skip": 4545,
+          "dir": 1,
+          "length": 3,
+          "step": 4545
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true,
+    "checks": [
+      {
+        "occurrence": "C17+",
+        "from": 20,
+        "letters_match": true,
+        "plain_text": false,
+        "synthetic": false,
+        "engine_found": true,
+        "engine_status": "OK",
+        "engine_followup": false,
+        "engine_hits": 49,
+        "engine_truncated": false,
+        "params": {
+          "start": 294211,
+          "skip": 4545,
+          "dir": 1,
+          "length": 3,
+          "step": 4545
+        }
+      }
+    ],
+    "verdict": "verified_by_engine",
+    "verifiedOccurrences": 1
+  },
+  {
+    "id": "r1.f11",
+    "line": "C20-",
+    "text": "זהסיר",
+    "rawText": "זהסיר",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "C20-",
+        "from": 15,
+        "to": 19,
+        "cells": [
+          [
+            8,
+            20
+          ],
+          [
+            7,
+            20
+          ],
+          [
+            6,
+            20
+          ],
+          [
+            5,
+            20
+          ],
+          [
+            4,
+            20
+          ]
+        ],
+        "params": {
+          "start": 235129,
+          "skip": 4545,
+          "dir": -1,
+          "length": 5,
+          "step": -4545
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true,
+    "checks": [
+      {
+        "occurrence": "C20-",
+        "from": 15,
+        "letters_match": true,
+        "plain_text": false,
+        "synthetic": false,
+        "engine_found": true,
+        "engine_status": "OK",
+        "engine_followup": false,
+        "engine_hits": 1,
+        "engine_truncated": false,
+        "params": {
+          "start": 235129,
+          "skip": 4545,
+          "dir": -1,
+          "length": 5,
+          "step": -4545
+        }
+      }
+    ],
+    "verdict": "verified_by_engine",
+    "verifiedOccurrences": 1
+  },
+  {
+    "id": "r1.f12",
+    "line": "C24-",
+    "text": "אישה",
+    "rawText": "אישה",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "C24-",
+        "from": 10,
+        "to": 13,
+        "cells": [
+          [
+            13,
+            24
+          ],
+          [
+            12,
+            24
+          ],
+          [
+            11,
+            24
+          ],
+          [
+            10,
+            24
+          ]
+        ],
+        "params": {
+          "start": 257858,
+          "skip": 4545,
+          "dir": -1,
+          "length": 4,
+          "step": -4545
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true,
+    "checks": [
+      {
+        "occurrence": "C24-",
+        "from": 10,
+        "letters_match": true,
+        "plain_text": false,
+        "synthetic": false,
+        "engine_found": true,
+        "engine_status": "OK",
+        "engine_followup": false,
+        "engine_hits": 26,
+        "engine_truncated": false,
+        "params": {
+          "start": 257858,
+          "skip": 4545,
+          "dir": -1,
+          "length": 4,
+          "step": -4545
+        }
+      }
+    ],
+    "verdict": "verified_by_engine",
+    "verifiedOccurrences": 1
+  },
+  {
+    "id": "r1.f13",
+    "line": "C32+",
+    "text": "כתבה",
+    "rawText": "כתבה",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "C32+",
+        "from": 10,
+        "to": 13,
+        "cells": [
+          [
+            11,
+            32
+          ],
+          [
+            12,
+            32
+          ],
+          [
+            13,
+            32
+          ],
+          [
+            14,
+            32
+          ]
+        ],
+        "params": {
+          "start": 248776,
+          "skip": 4545,
+          "dir": 1,
+          "length": 4,
+          "step": 4545
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true,
+    "checks": [
+      {
+        "occurrence": "C32+",
+        "from": 10,
+        "letters_match": true,
+        "plain_text": false,
+        "synthetic": false,
+        "engine_found": true,
+        "engine_status": "OK",
+        "engine_followup": false,
+        "engine_hits": 5,
+        "engine_truncated": false,
+        "params": {
+          "start": 248776,
+          "skip": 4545,
+          "dir": 1,
+          "length": 4,
+          "step": 4545
+        }
+      }
+    ],
+    "verdict": "verified_by_engine",
+    "verifiedOccurrences": 1
+  },
+  {
+    "id": "r1.f14",
+    "line": "C37-",
+    "text": "בהמה",
+    "rawText": "בהמה",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "C37-",
+        "from": 10,
+        "to": 13,
+        "cells": [
+          [
+            13,
+            37
+          ],
+          [
+            12,
+            37
+          ],
+          [
+            11,
+            37
+          ],
+          [
+            10,
+            37
+          ]
+        ],
+        "params": {
+          "start": 257871,
+          "skip": 4545,
+          "dir": -1,
+          "length": 4,
+          "step": -4545
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true,
+    "checks": [
+      {
+        "occurrence": "C37-",
+        "from": 10,
+        "letters_match": true,
+        "plain_text": false,
+        "synthetic": false,
+        "engine_found": true,
+        "engine_status": "OK",
+        "engine_followup": false,
+        "engine_hits": 17,
+        "engine_truncated": false,
+        "params": {
+          "start": 257871,
+          "skip": 4545,
+          "dir": -1,
+          "length": 4,
+          "step": -4545
+        }
+      }
+    ],
+    "verdict": "verified_by_engine",
+    "verifiedOccurrences": 1
+  },
+  {
+    "id": "r1.f15",
+    "line": "C31-",
+    "text": "משמח",
+    "rawText": "משמח",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "C31-",
+        "from": 16,
+        "to": 19,
+        "cells": [
+          [
+            7,
+            31
+          ],
+          [
+            6,
+            31
+          ],
+          [
+            5,
+            31
+          ],
+          [
+            4,
+            31
+          ]
+        ],
+        "params": {
+          "start": 230595,
+          "skip": 4545,
+          "dir": -1,
+          "length": 4,
+          "step": -4545
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true,
+    "checks": [
+      {
+        "occurrence": "C31-",
+        "from": 16,
+        "letters_match": true,
+        "plain_text": false,
+        "synthetic": false,
+        "engine_found": true,
+        "engine_status": "OK",
+        "engine_followup": false,
+        "engine_hits": 4,
+        "engine_truncated": false,
+        "params": {
+          "start": 230595,
+          "skip": 4545,
+          "dir": -1,
+          "length": 4,
+          "step": -4545
+        }
+      }
+    ],
+    "verdict": "verified_by_engine",
+    "verifiedOccurrences": 1
+  },
+  {
+    "id": "r1.f16",
+    "line": "D06-",
+    "text": "לאהבת",
+    "rawText": "לאהבת",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "D06-",
+        "from": 15,
+        "to": 19,
+        "cells": [
+          [
+            8,
+            13
+          ],
+          [
+            7,
+            12
+          ],
+          [
+            6,
+            11
+          ],
+          [
+            5,
+            10
+          ],
+          [
+            4,
+            9
+          ]
+        ],
+        "params": {
+          "start": 235122,
+          "skip": 4546,
+          "dir": -1,
+          "length": 5,
+          "step": -4546
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true,
+    "checks": [
+      {
+        "occurrence": "D06-",
+        "from": 15,
+        "letters_match": true,
+        "plain_text": false,
+        "synthetic": false,
+        "engine_found": true,
+        "engine_status": "OK",
+        "engine_followup": false,
+        "engine_hits": 3,
+        "engine_truncated": false,
+        "params": {
+          "start": 235122,
+          "skip": 4546,
+          "dir": -1,
+          "length": 5,
+          "step": -4546
+        }
+      }
+    ],
+    "verdict": "verified_by_engine",
+    "verifiedOccurrences": 1
+  },
+  {
+    "id": "r1.f17",
+    "line": "D32-",
+    "text": "סוס",
+    "rawText": "סוס",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "D32-",
+        "from": 0,
+        "to": 2,
+        "cells": [
+          [
+            10,
+            41
+          ],
+          [
+            9,
+            40
+          ],
+          [
+            8,
+            39
+          ]
+        ],
+        "params": {
+          "start": 244240,
+          "skip": 4546,
+          "dir": -1,
+          "length": 3,
+          "step": -4546
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true,
+    "checks": [
+      {
+        "occurrence": "D32-",
+        "from": 0,
+        "letters_match": true,
+        "plain_text": false,
+        "synthetic": false,
+        "engine_found": true,
+        "engine_status": "OK",
+        "engine_followup": false,
+        "engine_hits": 2,
+        "engine_truncated": false,
+        "params": {
+          "start": 244240,
+          "skip": 4546,
+          "dir": -1,
+          "length": 3,
+          "step": -4546
+        }
+      }
+    ],
+    "verdict": "verified_by_engine",
+    "verifiedOccurrences": 1
+  },
+  {
+    "id": "r1.f18",
+    "line": "D43-",
+    "text": "רמאי",
+    "rawText": "רמאי",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "D43-",
+        "from": 16,
+        "to": 19,
+        "cells": [
+          [
+            7,
+            5
+          ],
+          [
+            6,
+            4
+          ],
+          [
+            5,
+            3
+          ],
+          [
+            4,
+            2
+          ]
+        ],
+        "params": {
+          "start": 230569,
+          "skip": 4546,
+          "dir": -1,
+          "length": 4,
+          "step": -4546
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true,
+    "checks": [
+      {
+        "occurrence": "D43-",
+        "from": 16,
+        "letters_match": true,
+        "plain_text": false,
+        "synthetic": false,
+        "engine_found": true,
+        "engine_status": "OK",
+        "engine_followup": false,
+        "engine_hits": 25,
+        "engine_truncated": false,
+        "params": {
+          "start": 230569,
+          "skip": 4546,
+          "dir": -1,
+          "length": 4,
+          "step": -4546
+        }
+      }
+    ],
+    "verdict": "verified_by_engine",
+    "verifiedOccurrences": 1
+  },
+  {
+    "id": "r1.f19",
+    "line": "D44-",
+    "text": "שומר",
+    "rawText": "שומר",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "D44-",
+        "from": 16,
+        "to": 19,
+        "cells": [
+          [
+            7,
+            4
+          ],
+          [
+            6,
+            3
+          ],
+          [
+            5,
+            2
+          ],
+          [
+            4,
+            1
+          ]
+        ],
+        "params": {
+          "start": 230568,
+          "skip": 4546,
+          "dir": -1,
+          "length": 4,
+          "step": -4546
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true,
+    "checks": [
+      {
+        "occurrence": "D44-",
+        "from": 16,
+        "letters_match": true,
+        "plain_text": false,
+        "synthetic": false,
+        "engine_found": true,
+        "engine_status": "OK",
+        "engine_followup": false,
+        "engine_hits": 11,
+        "engine_truncated": false,
+        "params": {
+          "start": 230568,
+          "skip": 4546,
+          "dir": -1,
+          "length": 4,
+          "step": -4546
+        }
+      }
+    ],
+    "verdict": "verified_by_engine",
+    "verifiedOccurrences": 1
+  },
+  {
+    "id": "r1.f20",
+    "line": "D50+",
+    "text": "צרח",
+    "rawText": "צרח",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "D50+",
+        "from": 0,
+        "to": 2,
+        "cells": [
+          [
+            10,
+            1
+          ],
+          [
+            11,
+            2
+          ],
+          [
+            12,
+            3
+          ]
+        ],
+        "params": {
+          "start": 244200,
+          "skip": 4546,
+          "dir": 1,
+          "length": 3,
+          "step": 4546
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true,
+    "checks": [
+      {
+        "occurrence": "D50+",
+        "from": 0,
+        "letters_match": true,
+        "plain_text": false,
+        "synthetic": false,
+        "engine_found": true,
+        "engine_status": "OK",
+        "engine_followup": false,
+        "engine_hits": 13,
+        "engine_truncated": false,
+        "params": {
+          "start": 244200,
+          "skip": 4546,
+          "dir": 1,
+          "length": 3,
+          "step": 4546
+        }
+      }
+    ],
+    "verdict": "verified_by_engine",
+    "verifiedOccurrences": 1
+  },
+  {
+    "id": "r1.f21",
+    "line": "A05-",
+    "text": "לירות",
+    "rawText": "לירות",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "A05-",
+        "from": 5,
+        "to": 9,
+        "cells": [
+          [
+            18,
+            20
+          ],
+          [
+            17,
+            21
+          ],
+          [
+            16,
+            22
+          ],
+          [
+            15,
+            23
+          ],
+          [
+            14,
+            24
+          ]
+        ],
+        "params": {
+          "start": 280579,
+          "skip": 4544,
+          "dir": -1,
+          "length": 5,
+          "step": -4544
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true,
+    "checks": [
+      {
+        "occurrence": "A05-",
+        "from": 5,
+        "letters_match": true,
+        "plain_text": false,
+        "synthetic": false,
+        "engine_found": true,
+        "engine_status": "OK",
+        "engine_followup": false,
+        "engine_hits": 2,
+        "engine_truncated": false,
+        "params": {
+          "start": 280579,
+          "skip": 4544,
+          "dir": -1,
+          "length": 5,
+          "step": -4544
+        }
+      }
+    ],
+    "verdict": "verified_by_engine",
+    "verifiedOccurrences": 1
+  },
+  {
+    "id": "r1.f22",
+    "line": "A07-",
+    "text": "הרגש",
+    "rawText": "הרגש",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "A07-",
+        "from": 19,
+        "to": 22,
+        "cells": [
+          [
+            4,
+            32
+          ],
+          [
+            3,
+            33
+          ],
+          [
+            2,
+            34
+          ],
+          [
+            1,
+            35
+          ]
+        ],
+        "params": {
+          "start": 216961,
+          "skip": 4544,
+          "dir": -1,
+          "length": 4,
+          "step": -4544
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true,
+    "checks": [
+      {
+        "occurrence": "A07-",
+        "from": 19,
+        "letters_match": true,
+        "plain_text": false,
+        "synthetic": false,
+        "engine_found": true,
+        "engine_status": "OK",
+        "engine_followup": false,
+        "engine_hits": 2,
+        "engine_truncated": false,
+        "params": {
+          "start": 216961,
+          "skip": 4544,
+          "dir": -1,
+          "length": 4,
+          "step": -4544
+        }
+      }
+    ],
+    "verdict": "verified_by_engine",
+    "verifiedOccurrences": 1
+  },
+  {
+    "id": "r1.f23",
+    "line": "A15-",
+    "text": "זועמ",
+    "rawText": "זועמ",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "A15-",
+        "from": 15,
+        "to": 18,
+        "cells": [
+          [
+            8,
+            20
+          ],
+          [
+            7,
+            21
+          ],
+          [
+            6,
+            22
+          ],
+          [
+            5,
+            23
+          ]
+        ],
+        "params": {
+          "start": 235129,
+          "skip": 4544,
+          "dir": -1,
+          "length": 4,
+          "step": -4544
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true,
+    "checks": [
+      {
+        "occurrence": "A15-",
+        "from": 15,
+        "letters_match": true,
+        "plain_text": false,
+        "synthetic": false,
+        "engine_found": true,
+        "engine_status": "OK",
+        "engine_followup": false,
+        "engine_hits": 2,
+        "engine_truncated": false,
+        "params": {
+          "start": 235129,
+          "skip": 4544,
+          "dir": -1,
+          "length": 4,
+          "step": -4544
+        }
+      }
+    ],
+    "verdict": "verified_by_engine",
+    "verifiedOccurrences": 1
+  },
+  {
+    "id": "r1.f24",
+    "line": "A26+",
+    "text": "זהוב",
+    "rawText": "זהוב",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "A26+",
+        "from": 10,
+        "to": 13,
+        "cells": [
+          [
+            11,
+            6
+          ],
+          [
+            12,
+            5
+          ],
+          [
+            13,
+            4
+          ],
+          [
+            14,
+            3
+          ]
+        ],
+        "params": {
+          "start": 248750,
+          "skip": 4544,
+          "dir": 1,
+          "length": 4,
+          "step": 4544
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true,
+    "checks": [
+      {
+        "occurrence": "A26+",
+        "from": 10,
+        "letters_match": true,
+        "plain_text": false,
+        "synthetic": false,
+        "engine_found": true,
+        "engine_status": "OK",
+        "engine_followup": false,
+        "engine_hits": 5,
+        "engine_truncated": false,
+        "params": {
+          "start": 248750,
+          "skip": 4544,
+          "dir": 1,
+          "length": 4,
+          "step": 4544
+        }
+      }
+    ],
+    "verdict": "verified_by_engine",
+    "verifiedOccurrences": 1
+  },
+  {
+    "id": "r1.f25",
+    "line": "A51+",
+    "text": "תמיר",
+    "rawText": "תמיר",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "A51+",
+        "from": 0,
+        "to": 3,
+        "cells": [
+          [
+            11,
+            41
+          ],
+          [
+            12,
+            40
+          ],
+          [
+            13,
+            39
+          ],
+          [
+            14,
+            38
+          ]
+        ],
+        "params": {
+          "start": 248785,
+          "skip": 4544,
+          "dir": 1,
+          "length": 4,
+          "step": 4544
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true,
+    "checks": [
+      {
+        "occurrence": "A51+",
+        "from": 0,
+        "letters_match": true,
+        "plain_text": false,
+        "synthetic": false,
+        "engine_found": true,
+        "engine_status": "OK",
+        "engine_followup": false,
+        "engine_hits": 17,
+        "engine_truncated": false,
+        "params": {
+          "start": 248785,
+          "skip": 4544,
+          "dir": 1,
+          "length": 4,
+          "step": 4544
+        }
+      }
+    ],
+    "verdict": "verified_by_engine",
+    "verifiedOccurrences": 1
+  }
+]

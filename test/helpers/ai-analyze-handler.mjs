@@ -24,6 +24,8 @@ import {
   normalizeElsRazielPlanningAction,
   normalizeElsRazielSearchPlan,
 } from "../../src/lib/research/elsRazielPlanning.js";
+import { runElsMatrixReadingOperation, razielReadingAnswer, READING_CAPABILITY, READING_OWNER_REF, PROVIDER_LIVE } from "../../supabase/functions/_shared/elsMatrixReading.js";
+import { normalizeElsMatrixReadingAction } from "../../supabase/functions/_shared/elsMatrixReadingAction.js";
 
 export const UID = "11111111-2222-4333-8444-555555555555";
 export const OTHER_UID = "aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee";
@@ -65,6 +67,7 @@ export async function runAiAnalyze({
   researchBundleByExpression = {},
   elsVerifyStatus = null,
   researchRunFailure = null, legacyContext = null, genericProviderText = null,
+  role = "user", extraRoute = null, envOverrides = {},
   source = readFileSync(new URL("../../supabase/functions/ai-analyze/index.ts", import.meta.url), "utf8"),
 } = {}) {
   const calls = [], models = [], unexpected = [];
@@ -75,6 +78,7 @@ export async function runAiAnalyze({
     const payload = init.body ? JSON.parse(init.body) : null;
     const call = { name, url: url.href, method: init.method || "GET", headers: Object.fromEntries(new Headers(init.headers)), payload };
     calls.push(call);
+    if (extraRoute) { const extra = await extraRoute({ url, init, payload }); if (extra) return extra; }
     if (url.origin === "https://api.anthropic.com" && genericProviderText != null) {
       return response({
         content: [{ type: "text", text: String(genericProviderText) }],
@@ -97,7 +101,7 @@ export async function runAiAnalyze({
           : response({ status: "error", error: "research_fixture_missing" }, 200);
       }
       if (url.pathname === "/auth/v1/user") return response(verifiedUid ? { id: verifiedUid } : {}, verifiedUid ? 200 : 401);
-      if (url.pathname === "/rest/v1/users") return response([{ role: "user" }]);
+      if (url.pathname === "/rest/v1/users") return response([{ role }]);
       if (url.pathname === "/rest/v1/ai_token_log") return response([{ id: 1 }]);
       if (url.pathname.startsWith("/rest/v1/rpc/")) {
         if (traceFailure?.rpc === name) {
@@ -150,9 +154,10 @@ export async function runAiAnalyze({
   const env = {
     SUPABASE_URL: "https://fixture.invalid", SUPABASE_SERVICE_ROLE_KEY: SERVICE_KEY,
     SUPABASE_ANON_KEY: "synthetic-anon-key", ANTHROPIC_API_KEY: "synthetic-model-key",
+    ...envOverrides,
   };
   const imports = [...source.matchAll(/^import .*;$/gm)].map(([line]) => line);
-  assert.equal(imports.length, 8, "review any new handler dependency before mocking it");
+  assert.equal(imports.length, 10, "review any new handler dependency before mocking it");
   assert.ok(imports[0].includes('import { callClaudeReliable }'));
   assert.ok(imports[1].includes('import { selectRazielIntelligence, RAZIEL_LEVELS }'));
   assert.ok(imports[2].includes('import { whatsappSurfaceProfileText, continuationHrefFromSurface }'));
@@ -167,6 +172,8 @@ export async function runAiAnalyze({
   assert.ok(imports[6].includes('validateRazielSemanticIntent'));
   assert.ok(imports[7].includes('ELS_RAZIEL_PLANNING_ACTION'));
   assert.ok(imports[7].includes('normalizeElsRazielSearchPlan'));
+  assert.ok(imports[8].includes('runElsMatrixReadingOperation') && imports[8].includes('PROVIDER_LIVE'));
+  assert.ok(imports[9].includes('normalizeElsMatrixReadingAction'));
   let handler;
   runInNewContext(stripTypeScriptTypes(source.replace(/^import .*;\n/gm, "")), {
     Deno: { env: { get: (key) => env[key] }, serve: (fn) => { handler = fn; } },
@@ -189,6 +196,7 @@ export async function runAiAnalyze({
     elsPlanningPrompt,
     normalizeElsRazielPlanningAction,
     normalizeElsRazielSearchPlan,
+    runElsMatrixReadingOperation, razielReadingAnswer, READING_CAPABILITY, READING_OWNER_REF, PROVIDER_LIVE, normalizeElsMatrixReadingAction,
     callClaudeReliable: async (options) => {
       models.push(options);
       const sequence = Array.isArray(modelResults) ? modelResults : null;
