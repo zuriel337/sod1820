@@ -14,6 +14,10 @@ Planned checkpoints: source projection/idempotent selection; explicit atlas with
 
 ## AFTER
 
+### Bounded visual follow-up BEFORE
+
+At receipt HEAD `04e50f1d017b9ceab0fe552a5939cbb7ee7f2d5f`, final screenshot inspection exposed a real readability defect: three-digit atlas numerals wrapped inside narrow desktop cards. The live bounded ownership query still shows only non-overlapping contract-document claims. Reopen only the atlas numeric-cell CSS, a browser geometry assertion and corresponding evidence. Preserve source bytes, values, labels and all other runtime behavior; no font reduction, wider page budget, guard/test weakening or new surface. Re-run the atlas matrix and relevant regressions before Preview. The earlier runtime is not represented as this follow-up's final runtime.
+
 Implementation frozen at `1cff3152190e8cc889b9bd754ca2419ce606dcd3`. Final per-case local acceptance passed. QA-only HEAD `d7e704b58b2630522c55c948e3f5c77930a09817` changes the existing guided browser harness, not the runtime. No integration, complete-book, canonical engine or visual-adoption claim. The final receipt commit contains documentation/evidence only; its exact SHA and remote/Preview verification are recorded in the external final handoff.
 
 ### Delivered capabilities

@@ -71,6 +71,7 @@ test("parasha atlas preserves 28 source forms, exact PDF, export, selection and 
         const card=atlas.locator(`article[data-letter-form="${form.form}"]`);
         assert.equal(await card.locator("dd").first().textContent(),row.printed==="?"?"לא נקרא":row.printed);
         assert.equal(await card.locator("dd").last().textContent(),row.count===null?"לא נקרא":ahavatLetterNumber(row.count));
+        assert.equal(await card.locator("dd").last().evaluate(element=>{const value=element.querySelector("bdi")||element,range=document.createRange();range.selectNodeContents(value);const lines=[...range.getClientRects()],box=element.closest("article").getBoundingClientRect();return lines.length===1&&lines.every(rect=>rect.left>=box.left&&rect.right<=box.right);}),true,"source numeral must remain one readable line inside its card");
         assert.equal(await card.getByRole("button",{name:`מקור ${form.name} בפרשת צו · PDF ${row.page}`,exact:true}).count(),1);
       }
       assert.equal(await page.locator("canvas").count(),0);assert.equal(modelRequests.length,0);

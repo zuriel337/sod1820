@@ -14,7 +14,7 @@
 .ahavat29-parasha-letter-atlas .ahavat29-parasha-atlas-grid dl{grid-template-columns:minmax(0,1fr);gap:6px;margin:10px 0}
 .ahavat29-parasha-letter-atlas .ahavat29-parasha-atlas-grid dl>div{display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding:6px;background:transparent;border:0}
 .ahavat29-parasha-atlas-grid dt{font:400 var(--s29-type-ui)/1.6 var(--s29-font-body)}
-.ahavat29-parasha-letter-atlas .ahavat29-parasha-atlas-grid dd{margin:0}
+.ahavat29-parasha-letter-atlas .ahavat29-parasha-atlas-grid dd{margin:0;flex-shrink:0;white-space:nowrap}
 .ahavat29-parasha-atlas-grid>article>button:last-child{width:100%}
 .ahavat29-parasha-letter-atlas>footer{display:flex;align-items:center;flex-wrap:wrap;gap:12px;border-top:1px solid var(--s29-line);padding-block-start:14px}
 .ahavat29-parasha-letter-atlas>footer p{flex:1;min-width:min(100%,220px);margin:0;font:400 var(--s29-type-body)/1.7 var(--s29-font-body)}
