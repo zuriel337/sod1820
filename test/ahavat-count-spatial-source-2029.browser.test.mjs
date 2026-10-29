@@ -13,6 +13,14 @@ try { playwright = require("playwright"); vite = await import(pathToFileURL(requ
 const available = Boolean(playwright && vite && react && existsSync("/usr/bin/chromium"));
 const sourcePath = "/tmp/books-wide-ahavat-source-20261028.pdf";
 
+async function pointerClick(locator) {
+  await locator.evaluate(element => element.focus({ preventScroll: true }));
+  await locator.evaluate(element => element.scrollIntoView({ block: "center", behavior: "instant" }));
+  await locator.page().evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+  assert.equal(await locator.evaluate(element => { const rect = element.getBoundingClientRect(), top = document.elementFromPoint(rect.x + rect.width / 2, rect.y + rect.height / 2); return Boolean(top && element.contains(top)); }), true, "trusted count-source pointer target must be uncovered");
+  await locator.click();
+}
+
 async function fixture() {
   process.env.SOD_BUILD_TARGET = "2029"; process.env.VITE_BOOK_PUBLICATION_REVIEW_PREVIEW = "true"; process.env.VITE_INTEGRATED_PREVIEW = "true";
   const server = await vite.createServer({ root, configFile: false, plugins: [react()], appType: "spa", server: { host: "127.0.0.1", port: 0 } });
@@ -76,13 +84,12 @@ test("count model retains exact source, search and selection across nine display
       await close.focus(); await page.keyboard.press("Enter"); await toggle.waitFor();
       assert.equal(await toggle.evaluate(element => document.activeElement === element), true);
       await page.waitForFunction(() => window.__countContext?.isContextLost(), null, { timeout: 10_000 });
-      await search.fill("מקץ");
+      await pointerClick(search); await page.keyboard.press("ControlOrMeta+A"); await page.keyboard.insertText("מקץ");
       const missing = reader.locator(`[data-reader-unit="${ahavatCountUnitId("letters", "bereshit", "מקץ")}"]`);
       assert.match(await missing.textContent(), /לא הוכרע/);
       assert.equal(await reader.locator(".ahavat29-letter-bars").getByRole("button", { name: /מקץ/ }).count(), 0);
       const missingSource = missing.getByRole("button", { name: "PDF 42", exact: true });
-      await missingSource.evaluate(element => element.scrollIntoView({ block: "center", behavior: "instant" }));
-      await missingSource.click();
+      await pointerClick(missingSource);
       assert.equal(new URL(page.url()).searchParams.get("readerUnit"), ahavatCountUnitId("letters", "bereshit", "מקץ"));
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1 && document.body.scrollWidth <= innerWidth + 1), true);
       await context.close(); console.log(`count spatial ${width}/${theme}: passed`);
