@@ -21,3 +21,29 @@ Total requested companion: 162 selected units across PDF46–99, not exhaustive 
 Checkpoint acceptance: 381/381 complete relevant non-browser Books tests pass, no skips. Final-page reader story passes 1/1 at 320/390/1440 with exact PDF99 fragment, deep link, source return and refresh. PDF requests in that navigation story are aborted; it is not native-PDF evidence. The full companion matrix is partitioned by width with the same assertions and 300-second budget per test; its final run follows the second content checkpoint. No assertion or weight budget is weakened. The existing final-page title regression initially found the missing word תיקונים; the product title was corrected and the unchanged regression passes.
 
 Continuation now advances to physical PDF16–24; build/graph/language/auth/Legacy, full browser acceptance and hosted exact-SHA Preview remain pending until the combined cut is frozen.
+
+## Checkpoint 2 · physical PDF 16–24
+
+Reviewed all nine actual page scans and their embedded text. Added 27 selected explanations with `ahavat-migdal-pNNN-NN` identities; existing `ahavat-novellae-pNNN-NN` identities remain unchanged. The existing companion validator and reader URL projection share one bounded ID helper; new pages are not given false source-native dataset ownership. No expanded prose is imported into eager JavaScript.
+
+| Physical PDF | Selected reading units |
+|---|---|
+| 16 | Haazinu written/read layers; soul/body/time; Sotah and reversal of curse |
+| 17 | Round/square shekels in the author's assumption; Vayekhulu beginning/middle/end; historical water description as a unity metaphor |
+| 18 | Eight passage boundaries and count alternatives; seven-stage Shekhinah return and overlapping lifetimes; Menashe/Shimon and censuses |
+| 19 | First/last speech; occurrence/prefix/permutation distinction; letter-family/calendar comparison without invented one-to-one mapping |
+| 20 | Cumulative Echad Mi Yodea; Holy of Holies dimensions and subtraction without invented ark dimensions; offering inclusions/exclusions |
+| 21 | Sabbath psalm order/repetition; boundary letters of Torah/Mishnah/Talmud; Shema/Barukh Shem representation choices |
+| 22 | Cumulative counting boundaries; proposed sayings/sefirot/calendar sequence; already-written permutations and explicit exclusions |
+| 23 | Emet / Ana Bekhoach positions; milui intermediate results and additions; two census subsets and their continuation |
+| 24 | Conditional Menashe spelling in the author's argument; author's root-list unit criterion; local written/read/exclusion rules |
+
+The source's arithmetic/geometric assumptions remain the author's, never silently repaired or certified. In particular PDF18's Levite sub-count/sum disagreement remains in original data, PDF17 is not promoted to modern chemistry or a validated circle/square model, and PDF20 does not acquire missing ark dimensions. Cross-page continuations (17→18, 19→20, 23→24 and 97→98→99) are explained without moving the unit's physical PDF anchor or asserting new quotations. No 3D model or scene changed in this content-only cut.
+
+Combined requested companion now carries 189 selected units on 63 pages (16–24 and 46–99). The first-pass guide still covers all 99 pages. These are **distinct coverage axes**: historical `deep_research_pages=15` remains unchanged; the new units are selected companion explanations, not exhaustive transcription, full root proofreading or canonical-engine results. Protected pages outside both authorized ranges retain pinned hash `d7c7a5eab4fe3a3f26a66f1230b6c48a020920df1832b947781d5f8fad2909eb`; the completed closing checkpoint retains `e73fabf341440c6024ec0585aaf85b7ee3eab91fddef4dd16d9d60aee1503dd6`.
+
+Combined static release gates passed: 384/384 Books, zero skips; Language 3/3, Auth Guard 4/4, normal and two-flag Preview Build2029, graph/weight, Legacy Production Lock, isolation, cheap hardening and whitespace. Eager JS gzip: 379,579 normal / 376,893 Preview, same budgets. Existing Vite large-chunk/ineffective-dynamic-import warnings are retained as warnings, not declared absent. Browser and hosted results follow only after actual completion.
+
+### Attribution repair in the existing reader
+
+The shared expanded-unit heading said מהלך המחבר even for explanations of printed editor notes. After a fresh bounded live ownership query found no overlapping writer for Ahavat page/data scope, the two book-specific copy strings were corrected to neutral מהלך הקריאה. No layout, style, shared frame, model or visual primitive changed. A static guard and the full browser matrix check that printed editor notes cannot inherit the misleading heading. The first matrix run had completed the three 320 contexts before this discovery; it was explicitly interrupted and is **not** counted as final acceptance. The entire corrected matrix is restarted from scratch with every assertion and timeout retained.

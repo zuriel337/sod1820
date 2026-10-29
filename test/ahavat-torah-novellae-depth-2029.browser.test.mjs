@@ -43,7 +43,7 @@ async function fixture() {
   return { origin, browser, server };
 }
 
-for (const width of [320, 390, 1440]) test(`all 162 companion units retain source, reading and return at ${width} in three display combinations`, { skip: !available, timeout: 300_000 }, async () => {
+for (const width of [320, 390, 1440]) test(`all 189 companion units retain source, reading and return at ${width} in three display combinations`, { skip: !available, timeout: 300_000 }, async () => {
   const { origin, browser, server } = await fixture();
   const out = "/tmp/ahavat-novellae-depth-browser-20261028";
   mkdirSync(out, { recursive: true });
@@ -79,7 +79,7 @@ for (const width of [320, 390, 1440]) test(`all 162 companion units retain sourc
       await assertExactEntry();
       const nav = page.getByRole("navigation", { name: "עמודים עם הסבר מורחב", exact: true });
       const selection = nav.getByRole("combobox", { name: "בחר עמוד ללימוד מורחב", exact: true });
-      assert.equal(await selection.locator("option:not([disabled])").count(), 54);
+      assert.equal(await selection.locator("option:not([disabled])").count(), 63);
       for (const record of companion.pages.filter(item => item.companion_units)) {
         await selection.selectOption(String(record.pdf_page));
         const units = page.getByRole("region", { name: `הסבר מורחב לעמוד ${record.pdf_page}`, exact: true });
@@ -96,6 +96,8 @@ for (const width of [320, 390, 1440]) test(`all 162 companion units retain sourc
             return { text: element.textContent, bodySize: parseFloat(getComputedStyle(body).fontSize), summarySize: parseFloat(getComputedStyle(summary).fontSize), summaryHeight: summary.getBoundingClientRect().height, linkText: link.textContent.trim(), href: link.getAttribute("href") };
           });
           assert.match(rendered.text, new RegExp(unit.title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+          assert.match(rendered.text, /מהלך הקריאה:/);
+          assert.doesNotMatch(rendered.text, /מהלך המחבר:/);
           assert.match(await source.locator("iframe").getAttribute("src"), new RegExp(`#page=${unit.pdf_page}&view=FitH$`));
           assert.equal(new URL(page.url()).searchParams.get("dataset"), null);
           assert.ok(rendered.bodySize >= 18);
@@ -111,7 +113,7 @@ for (const width of [320, 390, 1440]) test(`all 162 companion units retain sourc
       assert.deepEqual(errors, []);
       await page.screenshot({ path: `${out}/companion-${width}-${theme}.png` });
       await context.close();
-      console.log(`162 companion units ${width}/${theme}: passed`);
+      console.log(`189 companion units ${width}/${theme}: passed`);
     }));
   } finally { await browser.close(); await server.close(); }
 });
@@ -138,11 +140,10 @@ test("unavailable or mismatched companion data never hides the exact PDF or inve
   } finally { await browser.close(); await server.close(); }
 });
 
-test("new final-page companion deep links survive PDF return and refresh", { skip: !available, timeout: 90_000 }, async () => {
+test("both new sections and preceding final-page deep links survive PDF return and refresh", { skip: !available, timeout: 90_000 }, async () => {
   const { origin, browser, server } = await fixture();
-  const id = "ahavat-novellae-p099-03";
   try {
-    for (const width of [320, 390, 1440]) {
+    for (const width of [320, 390, 1440]) for (const [id, physical] of [["ahavat-migdal-p016-01",16],["ahavat-novellae-p092-03",92],["ahavat-novellae-p099-03",99]]) {
       const context = await browser.newContext({ viewport: { width, height: 1000 }, reducedMotion: "reduce" });
       await routeContext(context, origin);
       const page = await context.newPage();
@@ -151,14 +152,15 @@ test("new final-page companion deep links survive PDF return and refresh", { ski
       await unit.waitFor();
       assert.equal(await unit.evaluate(element => element.open), true);
       const source = page.locator("#ahavat29-source");
-      assert.match(await source.locator("iframe").getAttribute("src"), /#page=99&view=FitH$/);
-      await unit.getByRole("button", { name: "פתח מקור היחידה · PDF 99", exact: true }).click();
+      assert.match(await source.locator("iframe").getAttribute("src"), new RegExp(`#page=${physical}&view=FitH$`));
+      const open=unit.getByRole("button", { name: `פתח מקור היחידה · PDF ${physical}`, exact: true });
+      await open.focus();await open.evaluate(e=>e.scrollIntoView({block:'center',behavior:'instant'}));await open.click();
       await source.getByRole("link", { name: "חזור ליחידת הקריאה", exact: true }).click();
       assert.equal(new URL(page.url()).searchParams.get("readerUnit"), id);
       await page.reload({ waitUntil: "domcontentloaded" });
       await unit.waitFor();
       assert.equal(await unit.evaluate(element => element.open), true);
-      assert.match(await source.locator("iframe").getAttribute("src"), /#page=99&view=FitH$/);
+      assert.match(await source.locator("iframe").getAttribute("src"), new RegExp(`#page=${physical}&view=FitH$`));
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), true);
       await context.close();
     }

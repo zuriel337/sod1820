@@ -5,6 +5,7 @@ import { AHAVAT_ROOT_COLUMNS } from "./ahavatTorahRoots2029.js";
 import { AHAVAT_MEGILLOT, ahavatMegillahRows } from "./ahavatTorahMegillot2029.js";
 import { AHAVAT_LETTER_FORMS, AHAVAT_LETTER_READINGS, ahavatSourceCountRows } from "./ahavatTorahLetters2029.js";
 import { AHAVAT_PARASHA_COUNT_FORMS, AHAVAT_PARASHA_COUNT_READINGS } from "./ahavatTorahParashaCounts2029.js";
+import { ahavatCompanionUnitId } from "./ahavatTorahSystem2029.js";
 
 export const AHAVAT_READER_UNITS = Object.freeze([
   ...AHAVAT_PEOPLE_BOOKS.flatMap(book => book.rows.map(row => ({ id: `people:${row.id}`, rowId: row.id, page: row.page, title: `${row.book} · ${row.entity}`, datasetId: "DS-05", sectionId: "ahavat29-people", bookId: book.id }))),
@@ -13,16 +14,19 @@ export const AHAVAT_READER_UNITS = Object.freeze([
   ...AHAVAT_MEGILLOT.flatMap(item => ["letters", "words"].map(kind => ({ id: `scrolls-total:${item.id}:${kind}`, page: item.totalPage, title: `${item.title} · סיכום ${kind === "words" ? "תיבות" : "אותיות"}`, datasetId: kind === "words" ? "DS-10" : "DS-09", sectionId: "ahavat29-scrolls", megillahId: item.id, kind }))),
 ].map(unit => Object.freeze(unit)));
 
-// Lightweight URL projection of the delivered companion's 54 × 3 units.
+// Lightweight URL projection of 9 Migdal + 54 novellae pages, three units each.
 // Keep it separate from the 287 source-native rows; no prose or OCR is eager.
-const companionUnits = Object.freeze(Array.from({ length: 162 }, (_, index) => {
-  const page = 46 + Math.floor(index / 3), position = index % 3 + 1;
+const companionUnits = Object.freeze([
+  ...Array.from({ length: 9 }, (_, i) => 16 + i),
+  ...Array.from({ length: 54 }, (_, i) => 46 + i),
+].flatMap(page => Array.from({ length: 3 }, (_, index) => {
+  const position = index + 1;
   return Object.freeze({
-    id: `ahavat-novellae-p${String(page).padStart(3, "0")}-${String(position).padStart(2, "0")}`,
+    id: ahavatCompanionUnitId(page, position),
     page, title: `הסבר נלווה · עמוד ${page} · יחידה ${position}`,
     layer: "companion", datasetId: "", sectionId: "ahavat29-full-reader",
   });
-}));
+})));
 
 export function ahavatLetterUnitId(form, bookId = "all", rowId = "") {
   const source = AHAVAT_LETTER_FORMS.find(item => item.form === form);

@@ -651,7 +651,7 @@ function FullBookReader({ page, bundle, bundleState, pageTextBundle, pageTextSta
   return <section id="ahavat29-full-reader" className="ahavat29-depth" aria-labelledby="ahavat29-depth-title">
     <header>
       <div><span>הספר מתחילתו ועד סופו</span><h2 id="ahavat29-depth-title">99 עמודים · קורא מלא וחיפוש</h2></div>
-      <p>לכל עמוד יש מקור PDF והסבר עברי. {extractedPages || "כל"} עמודים זמינים גם כתעתיק לחיפוש.{expandedPages.length ? ` ב־${expandedPages.length} עמודים נוספו ${expandedPages.length * 3} יחידות לימוד נבחרות: הקושיה, מהלך המחבר והרעיון המרכזי.` : ""}</p>
+      <p>לכל עמוד יש מקור PDF והסבר עברי. {extractedPages || "כל"} עמודים זמינים גם כתעתיק לחיפוש.{expandedPages.length ? ` ב־${expandedPages.length} עמודים נוספו ${expandedPages.length * 3} יחידות לימוד נבחרות: הקושיה, מהלך הקריאה והרעיון המרכזי.` : ""}</p>
     </header>
     <div className="ahavat29-search">
       <label htmlFor="ahavat29-search-input"><span>חיפוש בכל הספר</span><input id="ahavat29-search-input" type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder="לדוגמה: אברהם, אותיות, אלף תת״ך" /></label>
@@ -689,7 +689,7 @@ function FullBookReader({ page, bundle, bundleState, pageTextBundle, pageTextSta
           <summary>{unit.title}</summary>
           <span>הסבר נלווה · PDF {unit.pdf_page}</span>
           <p><b>הקושיה:</b> {unit.question}</p>
-          <p><b>מהלך המחבר:</b> {unit.explanation}</p>
+          <p><b>מהלך הקריאה:</b> {unit.explanation}</p>
           <p><b>הרעיון המרכזי:</b> {unit.takeaway}</p>
           <div className="ahavat29-ds01-controls"><button type="button" onClick={() => onPage(unit.pdf_page, "", unit.id)}>פתח מקור היחידה · PDF {unit.pdf_page}</button><a href={`${AHAVAT_TORAH_SOURCE.pdfUrl}${unit.source_anchor}`} target="_blank" rel="noreferrer">דברי הספר · עמוד {unit.pdf_page} ↗</a></div>
         </details>)}
