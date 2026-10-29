@@ -23,7 +23,7 @@ const existingPersonAccess = "fn_get_or_create_my_person";
 // columns are deliberately excluded. Replies/counts await chain-visibility acceptance.
 const communityFields = "id,parent_id,author_name,author_user_id,author_contributor_id,title,body,reactions,origin,created_at,edited_at,is_deleted,total_count";
 // The unified working preview must not create Person records or record ELS traces.
-const unifiedReadOnly = typeof process !== "undefined" && ["gpt/2029-central-unified-workspace-20261029", "gpt/2029-central-shell-alignment-20261029", "gpt/2029-central-topbar-menu-completion-20261029", "gpt/2029-central-ui-carry-restoration-20261029", "gpt/2029-central-community-filter-tiles-20261029", "gpt/2029-central-community-small-filters-20261029", "gpt/2029-central-single-command-bar-20261029", "gpt/2029-central-public-context-labels-20261029", "gpt/2029-central-zvi-public-material-20261029"].includes(process.env.VERCEL_GIT_COMMIT_REF);
+const unifiedReadOnly = typeof process !== "undefined" && ["gpt/2029-central-unified-workspace-20261029", "gpt/2029-central-shell-alignment-20261029", "gpt/2029-central-topbar-menu-completion-20261029", "gpt/2029-central-ui-carry-restoration-20261029", "gpt/2029-central-community-filter-tiles-20261029", "gpt/2029-central-community-small-filters-20261029", "gpt/2029-central-single-command-bar-20261029", "gpt/2029-central-public-context-labels-20261029", "gpt/2029-central-zvi-public-material-20261029", "gpt/2029-central-zvi-research-experience-20261029"].includes(process.env.VERCEL_GIT_COMMIT_REF);
 const worker = `const reads = new Set(${JSON.stringify(allow)});
 const existingPersonAccess=${JSON.stringify(existingPersonAccess)};
 const unifiedReadOnly=${JSON.stringify(unifiedReadOnly)};
@@ -84,7 +84,8 @@ const communitySmallFiltersMockBranch = "gpt/2029-central-community-small-filter
 const singleCommandBarMockBranch = "gpt/2029-central-single-command-bar-20261029";
 const publicContextLabelsMockBranch = "gpt/2029-central-public-context-labels-20261029";
 const zviPublicMaterialMockBranch = "gpt/2029-central-zvi-public-material-20261029";
-const allowedMockBranches = new Set([legacyMockBranch, personalNavigationMockBranch, unifiedWorkspaceMockBranch, centralShellMockBranch, topbarMenuMockBranch, carryRestorationMockBranch, communityFilterTilesMockBranch, communitySmallFiltersMockBranch, singleCommandBarMockBranch, publicContextLabelsMockBranch, zviPublicMaterialMockBranch]);
+const zviResearchExperienceMockBranch = "gpt/2029-central-zvi-research-experience-20261029";
+const allowedMockBranches = new Set([legacyMockBranch, personalNavigationMockBranch, unifiedWorkspaceMockBranch, centralShellMockBranch, topbarMenuMockBranch, carryRestorationMockBranch, communityFilterTilesMockBranch, communitySmallFiltersMockBranch, singleCommandBarMockBranch, publicContextLabelsMockBranch, zviPublicMaterialMockBranch, zviResearchExperienceMockBranch]);
 const selectMockPreviewBranch = env => {
   const branch = typeof env.VERCEL_GIT_COMMIT_REF === "string" ? env.VERCEL_GIT_COMMIT_REF : "";
   const explicitMock = env.SOD_RAZIEL_SAFE_ACTIONS_PREVIEW === "true";
@@ -107,7 +108,7 @@ if (razielSafeActionsMock) {
   const { execFileSync } = await import("node:child_process");
   const sha = process.env.VERCEL_GIT_COMMIT_SHA || execFileSync("git", ["rev-parse", "HEAD"], { cwd: root, encoding: "utf8" }).trim();
   await writeFile(resolve(output, "preview-identity.json"), JSON.stringify({ sha, branch: expectedBranch, transport: "mock-only", product_writes: false, edge_deploy: false }));
-  if ([carryRestorationMockBranch, communityFilterTilesMockBranch, communitySmallFiltersMockBranch, singleCommandBarMockBranch, publicContextLabelsMockBranch, zviPublicMaterialMockBranch].includes(expectedBranch)) {
+  if ([carryRestorationMockBranch, communityFilterTilesMockBranch, communitySmallFiltersMockBranch, singleCommandBarMockBranch, publicContextLabelsMockBranch, zviPublicMaterialMockBranch, zviResearchExperienceMockBranch].includes(expectedBranch)) {
     const audit = JSON.parse(await readFile(resolve(root, "docs/reviews/ui-carry-receipt-20261029.json"), "utf8"));
     // Publish only build identity and a coverage marker. Source handoffs and
     // internal planning evidence stay in the repository/canonical planning row.
