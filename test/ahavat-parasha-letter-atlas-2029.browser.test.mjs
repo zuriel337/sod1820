@@ -27,8 +27,14 @@ async function native(page, physical) {
   assert.fail(`Physical PDF ${physical} did not reach its native page anchor`);
 }
 async function click(locator) {
-  await locator.focus();
+  // Avoid a native focus-scroll followed by a second competing center-scroll.
+  // Keep a real pointer click and prove its hit target; never force through chrome.
+  await locator.focus({ preventScroll: true });
   await locator.evaluate(element => element.scrollIntoView({ block: "center", behavior: "instant" }));
+  await settle(locator.page());
+  const hit = await locator.evaluate(element => { const rect = element.getBoundingClientRect(), top = document.elementFromPoint(rect.x + rect.width / 2, rect.y + rect.height / 2); return { name: element.getAttribute("aria-label") || element.textContent, y: rect.y, height: rect.height, viewport: innerHeight, top: top?.outerHTML.slice(0, 200), uncovered: !!top && element.contains(top) }; });
+  if (!hit.uncovered) { await locator.page().screenshot({ path: `${out}/atlas-click-failure.png` }); console.log(JSON.stringify({ atlasPointerFailure: hit })); }
+  assert.equal(hit.uncovered, true, `real atlas control must be uncovered: ${JSON.stringify(hit)}`);
   await locator.click();
 }
 test("parasha atlas preserves 28 source forms, exact PDF, export, selection and lazy model in nine contexts", { timeout: 480_000 }, async () => {
