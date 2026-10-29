@@ -25,7 +25,7 @@ export default function AhavatParashaLetterAtlas2029({ parasha, selectedForm, on
     document.body.append(anchor); anchor.click(); anchor.remove();
     window.setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
-  return <details className="ahavat29-parasha-letter-atlas" open={open} onToggle={event => { if (event.currentTarget.open !== open) changeOpen(event.currentTarget.open); }}>
+  return <details id="ahavat29-parasha-letter-atlas" className="ahavat29-parasha-letter-atlas" open={open} onToggle={event => { if (event.currentTarget.open !== open) changeOpen(event.currentTarget.open); }}>
     <summary ref={summary}>כל האותיות בפרשת {parasha}</summary>
     {open ? <>
       <header><span>דברי הספר · פרשה אחת דרך צורות האותיות</span><h5>פרשת {parasha} באותיות הספר</h5></header>

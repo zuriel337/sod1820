@@ -73,7 +73,10 @@ test("parasha atlas preserves 28 source forms, exact PDF, export, selection and 
       await click(atlas.getByRole("button",{name:"הורד את טבלת הפרשה",exact:true}));
       const download=await downloadPromise;
       assert.equal(readFileSync(await download.path(),"utf8"),ahavatParashaLettersCsv(entries,"https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_5635.pdf"));
+      await page.evaluate(()=>{const url=new URL(location.href);url.hash="ahavat29-parasha-letter-atlas";history.replaceState(history.state,"",url);});
       await page.reload({waitUntil:"domcontentloaded"});await atlas.locator(".ahavat29-parasha-atlas-grid article").first().waitFor();
+      await page.waitForFunction(()=>!!document.activeElement?.closest("#ahavat29-parasha-letter-atlas"));
+      assert.ok((await atlas.boundingBox()).y>=80,"direct atlas entry must clear the fixed frame");
       assert.equal(await search.inputValue(),"כף");assert.equal(await atlas.locator(".ahavat29-parasha-atlas-grid article").count(),2);
       async function selected(form,parasha="צו"){
         const record=ahavatRetainedLetterRow(AHAVAT_LETTER_READINGS,form,parasha),id=ahavatLetterUnitId(form,record.bookId,parasha);

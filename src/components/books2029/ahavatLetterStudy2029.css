@@ -1,5 +1,5 @@
 /* Scoped projection. All colors/fonts come from the active Design V2 owner. */
-.ahavat29-parasha-letter-atlas{margin-block:22px 8px;border:1px solid var(--s29-line-strong);border-radius:12px;background:var(--s29-panel)}
+.ahavat29-parasha-letter-atlas{margin-block:22px 8px;border:1px solid var(--s29-line-strong);border-radius:12px;background:var(--s29-panel);scroll-margin-top:84px}
 .ahavat29-parasha-letter-atlas>summary{min-height:44px;padding:12px;color:var(--s29-accent-text);font:500 var(--s29-type-ui)/1.6 var(--s29-font-ui);cursor:pointer;scroll-margin-top:84px}
 .ahavat29-parasha-letter-atlas>header,.ahavat29-parasha-letter-atlas>p,.ahavat29-parasha-letter-atlas>footer,.ahavat29-parasha-atlas-tools{margin:14px}
 .ahavat29-parasha-letter-atlas>header>span{font:500 var(--s29-type-ui)/1.6 var(--s29-font-ui);color:var(--s29-accent-text)}

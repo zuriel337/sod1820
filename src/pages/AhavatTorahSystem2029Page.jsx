@@ -875,7 +875,7 @@ export default function AhavatTorahSystem2029Page() {
     try { id = decodeURIComponent(window.location.hash.slice(1)); } catch { return; }
     const unit = ahavatReaderUnit(new URLSearchParams(window.location.search).get("readerUnit"));
     const unitTarget = unit && id === ahavatReaderUnitDomId(unit.id);
-    if (!unitTarget && !["ahavat29-people", "ahavat29-roots", "ahavat29-scrolls", "ahavat29-counts", "ahavat29-letters", "ahavat29-letter-overview"].includes(id)) return;
+    if (!unitTarget && !["ahavat29-people", "ahavat29-roots", "ahavat29-scrolls", "ahavat29-counts", "ahavat29-letters", "ahavat29-parasha-letter-atlas", "ahavat29-letter-overview"].includes(id)) return;
     let cancelled = false;
     let frame;
     let observer;
@@ -895,7 +895,7 @@ export default function AhavatTorahSystem2029Page() {
         frame = window.requestAnimationFrame(() => {
           if (cancelled) return;
           if (unitTarget) scrollToReaderUnit(element);
-          else if (id === "ahavat29-letter-overview") scrollToReaderUnit(element);
+          else if (id === "ahavat29-letter-overview" || id === "ahavat29-parasha-letter-atlas") scrollToReaderUnit(element);
           else element.scrollIntoView({ block: "start", behavior: "instant" });
         });
       };
