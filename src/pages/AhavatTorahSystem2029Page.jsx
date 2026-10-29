@@ -895,6 +895,7 @@ export default function AhavatTorahSystem2029Page() {
         frame = window.requestAnimationFrame(() => {
           if (cancelled) return;
           if (unitTarget) scrollToReaderUnit(element);
+          else if (id === "ahavat29-letter-overview") scrollToReaderUnit(element);
           else element.scrollIntoView({ block: "start", behavior: "instant" });
         });
       };
