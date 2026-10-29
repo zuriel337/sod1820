@@ -29,7 +29,7 @@ async function native(page, physical) {
 async function click(locator) {
   // Avoid a native focus-scroll followed by a second competing center-scroll.
   // Keep a real pointer click and prove its hit target; never force through chrome.
-  await locator.focus({ preventScroll: true });
+  await locator.evaluate(element => element.focus({ preventScroll: true }));
   await locator.evaluate(element => element.scrollIntoView({ block: "center", behavior: "instant" }));
   await settle(locator.page());
   const hit = await locator.evaluate(element => { const rect = element.getBoundingClientRect(), top = document.elementFromPoint(rect.x + rect.width / 2, rect.y + rect.height / 2); return { name: element.getAttribute("aria-label") || element.textContent, y: rect.y, height: rect.height, viewport: innerHeight, top: top?.outerHTML.slice(0, 200), uncovered: !!top && element.contains(top) }; });
