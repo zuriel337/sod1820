@@ -63,7 +63,7 @@ test('profile/product/storage/model writes remain blocked; governed readers stil
 });
 
 test('unified working preview blocks Person creation and trace-producing ELS bridge', async () => {
-  for (const branch of ['gpt/2029-central-unified-workspace-20261029', 'gpt/2029-central-shell-alignment-20261029', 'gpt/2029-central-topbar-menu-completion-20261029', 'gpt/2029-central-ui-carry-restoration-20261029']) {
+  for (const branch of ['gpt/2029-central-unified-workspace-20261029', 'gpt/2029-central-shell-alignment-20261029', 'gpt/2029-central-topbar-menu-completion-20261029', 'gpt/2029-central-ui-carry-restoration-20261029', 'gpt/2029-central-community-filter-tiles-20261029']) {
     const workerSource = vm.runInNewContext(`${source}\nworker;`, {
       process: { env: { VERCEL_GIT_COMMIT_REF: branch } },
     });
@@ -73,6 +73,9 @@ test('unified working preview blocks Person creation and trace-producing ELS bri
       ['/rest/v1/rpc/add_contribution', { p_origin: 'community_2029', p_body: 'synthetic' }],
       ['/rest/v1/rpc/edit_contribution', { p_id: 'synthetic', p_body: 'synthetic' }],
       ['/rest/v1/rpc/remove_contribution', { p_id: 'synthetic' }],
+      ['/rest/v1/rpc/community_message_actions_v1', { p_ids: ['synthetic'] }],
+      ['/rest/v1/rpc/community_edit_message', { p_id: 'synthetic', p_body: 'synthetic' }],
+      ['/rest/v1/rpc/community_delete_message', { p_id: 'synthetic' }],
     ]) assert.deepEqual(await request(path, { body, workerSource }), { status: 403, forwarded: 0, blocked: 'true' }, path);
     assert.equal((await request('/rest/v1/rpc/fn_number_lookup', { workerSource })).status, 200);
   }

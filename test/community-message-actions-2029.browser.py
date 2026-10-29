@@ -19,6 +19,7 @@ OUT.mkdir(parents=True, exist_ok=True)
 HTML = (ROOT / "dist/2029.html").read_text()
 ACTOR = "02a0d207-0136-4beb-a34d-8ff57d10cd85"
 OTHER = "b6ce542a-2b07-4749-8aba-532c886f6de7"
+ADMIN = "a21a1a11-2b07-4749-8aba-532c886f6de7"
 SOURCE = "4cd9c034-0464-4600-a35d-7156f0584d9b"
 KEY = "sb-linswmnnkjxvweumprav-auth-token"
 OLD = "10000000-0000-4000-8000-000000000001"
@@ -26,6 +27,7 @@ NATIVE = "10000000-0000-4000-8000-000000000002"
 CHILD = "10000000-0000-4000-8000-000000000003"
 FOREIGN = "10000000-0000-4000-8000-000000000004"
 PROTECTED = "10000000-0000-4000-8000-000000000005"
+ADMIN_OWN = "10000000-0000-4000-8000-000000000006"
 FEED = "/2029?preview=community&data=live"
 AUTHOR = FEED + "&member=" + SOURCE
 
@@ -43,7 +45,8 @@ def rows():
                 "is_deleted": False, "contributor": None}
     return {OLD: row(OLD, "ההודעה הישנה שלי", contributor=SOURCE), NATIVE: row(NATIVE, "ההודעה החדשה שלי", user=ACTOR),
             CHILD: row(CHILD, "תגובה של חבר נשארת בשרשור", user=OTHER, parent=OLD),
-            FOREIGN: row(FOREIGN, "הודעה של חשבון אחר", user=OTHER), PROTECTED: row(PROTECTED, "מקור שמשמש מחקר", contributor=SOURCE)}
+            FOREIGN: row(FOREIGN, "הודעה של חשבון אחר", user=OTHER), PROTECTED: row(PROTECTED, "מקור שמשמש מחקר", contributor=SOURCE),
+            ADMIN_OWN: row(ADMIN_OWN, "הודעה של המנהל", user=ADMIN)}
 
 class Files(SimpleHTTPRequestHandler):
     def log_message(self, *_args): pass
@@ -59,7 +62,7 @@ TELEMETRY = {"link_identity", "track_visit", "ingest_event", "claim_research_lea
 
 def install(page):
     state = {"rows": rows(), "calls": [], "mutations": [], "cap_error": False, "fail_edit": False, "fail_delete": False,
-             "hold_edit": False, "held": None, "telemetry": 0}
+             "hold_edit": False, "hold_delete": False, "held": None, "telemetry": 0}
     page.on("pageerror", lambda error: REPORT["errors"].append(str(error)))
     def route(handler):
         req = handler.request
@@ -91,21 +94,27 @@ def install(page):
         visible = [row for row in state["rows"].values() if not row["is_deleted"] or any(child["parent_id"] == row["id"] and not child["is_deleted"] for child in state["rows"].values())]
         if url.path == "/auth/v1/user": data = session(actor)["user"] if actor else None
         elif name == "users":
-            data = [{"id": actor, "display_name": "חשבון שני" if actor == OTHER else "חשבון בדיקה", "username": "fixture", "role": "member", "avatar_url": None}] if actor else []
+            data = [{"id": actor, "display_name": "חשבון שני" if actor == OTHER else "חשבון בדיקה", "username": "fixture", "role": "admin" if actor == ADMIN else "member", "avatar_url": None}] if actor else []
             if "vnd.pgrst.object" in req.headers.get("accept", ""): data = data[0] if data else None
         elif name == "community_message_actions_v1":
             if state["cap_error"]: return handler.fulfill(status=404, json={"code": "PGRST202", "message": "not installed"})
             for id in args.get("p_ids", []):
                 row = state["rows"].get(id)
                 if not row: continue
-                own = row["author_user_id"] == actor or actor == ACTOR and row["author_contributor_id"] == SOURCE
-                allowed = own and id != PROTECTED and not row["is_deleted"]
-                data.append({"id": id, "can_edit": bool(allowed), "can_delete": bool(allowed), "reason": "source_requires_review" if own and id == PROTECTED else "allowed" if allowed else "not_owner"})
+                own = bool(actor) and (row["author_user_id"] == actor or actor == ACTOR and row["author_contributor_id"] == SOURCE)
+                administrator = actor == ADMIN
+                available = id != PROTECTED and not row["is_deleted"] and row["status"] in ("approved", "pending")
+                editable = own and available and row["status"] == "approved"
+                deletable = (own or administrator) and available
+                reason = ("not_owner" if not (own or administrator) else "source_requires_review" if id == PROTECTED
+                          else "message_unavailable" if not available else "allowed")
+                data.append({"id": id, "can_edit": bool(editable), "can_delete": bool(deletable), "reason": reason})
         elif name in {"community_edit_message", "community_delete_message"}:
             state["mutations"].append((name, args))
             row = state["rows"].get(args.get("p_id"))
-            own = row and (row["author_user_id"] == actor or actor == ACTOR and row["author_contributor_id"] == SOURCE)
-            if not own: return handler.fulfill(status=403, json={"code": "42501", "message": "denied"})
+            own = bool(actor) and row and (row["author_user_id"] == actor or actor == ACTOR and row["author_contributor_id"] == SOURCE)
+            if not row or not (own or name == "community_delete_message" and actor == ADMIN):
+                return handler.fulfill(status=403, json={"code": "42501", "message": "denied"})
             if row["id"] == PROTECTED: return handler.fulfill(status=409, json={"code": "55000", "message": "source_requires_review"})
             if name == "community_edit_message":
                 if state["fail_edit"]: return handler.fulfill(status=503, json={"message": "fixture failure"})
@@ -114,6 +123,7 @@ def install(page):
                 data = row["edited_at"]
             else:
                 if state["fail_delete"]: return handler.fulfill(status=503, json={"message": "fixture failure"})
+                if state["hold_delete"]: state["held"] = handler; return
                 row.update(is_deleted=True, body=None, author_name=None, author_user_id=None, author_contributor_id=None, reactions={})
                 data = "deleted"
         elif name == "community_feed_page": data = [row for row in visible if row["parent_id"] is None]
@@ -141,10 +151,10 @@ def install(page):
     page.route("**/*", route)
     return state
 
-def context(browser, width=390, theme="dark", guest=False):
+def context(browser, width=390, theme="dark", guest=False, actor=ACTOR):
     result = browser.new_context(viewport={"width": width, "height": 1000}, reduced_motion="reduce", is_mobile=width <= 390, has_touch=width <= 390)
     result.add_init_script("localStorage.setItem('sod-theme'," + json.dumps(theme) + ")")
-    if not guest: result.add_init_script("if(!localStorage.getItem(" + json.dumps(KEY) + "))localStorage.setItem(" + json.dumps(KEY) + "," + json.dumps(json.dumps(session(ACTOR))) + ")")
+    if not guest: result.add_init_script("if(!localStorage.getItem(" + json.dumps(KEY) + "))localStorage.setItem(" + json.dumps(KEY) + "," + json.dumps(json.dumps(session(actor))) + ")")
     return result
 
 def article(page, id=OLD): return page.locator(f"#message-{id}")
@@ -212,6 +222,7 @@ try:
             page.goto(BASE+FEED);root=article(page);expect(root.get_by_text("ההודעה הישנה שלי",exact=True)).to_be_visible()
             if mode in ["guest","unavailable"]:
                 expect(root.get_by_role("button",name="עריכה",exact=True)).to_have_count(0)
+                expect(article(page, FOREIGN).get_by_role("button",name="מחיקה",exact=True)).to_have_count(0)
                 if mode=="unavailable": expect(page.get_by_text("אפשרויות העריכה אינן זמינות כרגע.",exact=False)).to_be_visible()
                 assert not state["mutations"]
             elif mode=="failed-delete":
@@ -233,6 +244,59 @@ try:
                     expect(root.get_by_text("ההודעה הישנה שלי",exact=True)).to_be_visible()
                     assert "טיוטה של החשבון הראשון" not in page.locator("body").inner_text()
             REPORT["cases"].append({"mode":mode,"no_fake_success":True});ctx.close()
+        # The RPC fixture follows the candidate migration: administrative removal
+        # is separate from author-only edits, and cannot bypass source review.
+        for width in [320, 390, 1440]:
+            for theme in ["light", "parchment", "dark"]:
+                ctx = context(browser, width, theme, actor=ADMIN); page = ctx.new_page(); state = install(page)
+                page.goto(BASE + FEED)
+                foreign = article(page, FOREIGN)
+                expect(foreign.get_by_text("הודעה של חשבון אחר", exact=True)).to_be_visible()
+                expect(foreign.get_by_role("button", name="מחיקה", exact=True)).to_be_visible()
+                expect(foreign.get_by_role("button", name="עריכה", exact=True)).to_have_count(0)
+                protected = article(page, PROTECTED)
+                expect(protected.get_by_text("עדכון המקור דורש בדיקה.", exact=True)).to_be_visible()
+                expect(protected.get_by_role("button", name="מחיקה", exact=True)).to_have_count(0)
+                expect(protected.get_by_role("button", name="עריכה", exact=True)).to_have_count(0)
+                own = article(page, ADMIN_OWN)
+                own.get_by_role("button", name="עריכה", exact=True).click()
+                own.get_by_label("עריכת ההודעה", exact=True).fill("הודעת מנהל מתוקנת")
+                own.get_by_role("button", name="שמירה", exact=True).click()
+                expect(own.get_by_text("הודעת מנהל מתוקנת", exact=True)).to_be_visible()
+                foreign.get_by_role("button", name="מחיקה", exact=True).click()
+                foreign.get_by_role("alertdialog").get_by_role("button", name="מחיקה", exact=True).click()
+                expect(foreign.get_by_text("ההודעה נמחקה", exact=True)).to_be_visible()
+                assert [name for name, _ in state["mutations"]] == ["community_edit_message", "community_delete_message"]
+                page.reload()
+                expect(article(page, ADMIN_OWN).get_by_text("הודעת מנהל מתוקנת", exact=True)).to_be_visible()
+                expect(article(page, FOREIGN)).to_have_count(0)
+                assert page.evaluate("document.documentElement.scrollWidth<=innerWidth")
+                REPORT["cases"].append({"mode": "admin", "width": width, "theme": theme,
+                    "foreign_delete": True, "foreign_edit_denied": True, "own_edit": True, "protected_denied": True})
+                ctx.close()
+        # A failed moderation removal is never shown as successful.
+        ctx = context(browser, actor=ADMIN); page = ctx.new_page(); state = install(page); state["fail_delete"] = True
+        page.goto(BASE + FEED); foreign = article(page, FOREIGN)
+        foreign.get_by_role("button", name="מחיקה", exact=True).click()
+        foreign.get_by_role("alertdialog").get_by_role("button", name="מחיקה", exact=True).click()
+        expect(foreign.get_by_role("alert")).to_be_visible()
+        expect(foreign.get_by_text("הודעה של חשבון אחר", exact=True)).to_be_visible()
+        expect(foreign.get_by_text("ההודעה נמחקה", exact=True)).to_have_count(0)
+        REPORT["cases"].append({"mode": "admin-failed-delete", "no_fake_success": True}); ctx.close()
+        # A delayed admin acknowledgment cannot paint a tombstone into the next account.
+        ctx = context(browser, actor=ADMIN); page = ctx.new_page(); state = install(page); state["hold_delete"] = True
+        page.goto(BASE + FEED); foreign = article(page, FOREIGN)
+        foreign.get_by_role("button", name="מחיקה", exact=True).click()
+        foreign.get_by_role("alertdialog").get_by_role("button", name="מחיקה", exact=True).click()
+        deadline = time.monotonic() + 10
+        while state["held"] is None and time.monotonic() < deadline: page.wait_for_timeout(20)
+        assert state["held"] is not None
+        page.evaluate("""s=>{const key='sb-linswmnnkjxvweumprav-auth-token';localStorage.setItem(key,JSON.stringify(s));const c=new BroadcastChannel(key);c.postMessage({event:'SIGNED_IN',session:s});setTimeout(()=>c.close(),100)}""", session(OTHER))
+        expect(foreign.get_by_role("alertdialog")).to_have_count(0)
+        state["held"].fulfill(json="deleted")
+        expect(foreign.get_by_text("הודעה של חשבון אחר", exact=True)).to_be_visible()
+        expect(foreign.get_by_text("ההודעה נמחקה", exact=True)).to_have_count(0)
+        REPORT["cases"].append({"mode": "admin-pending-account-switch", "no_stale_tombstone": True}); ctx.close()
         browser.close()
 finally:
     server.shutdown();server.server_close()

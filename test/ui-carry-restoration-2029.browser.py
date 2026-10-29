@@ -170,7 +170,37 @@ def theme_case(page, width, initial):
     report["themes"].append({"width":width, "initial":initial, "mobile":mobile, "status":"passed"})
 
 
-def community_case(page, width, suffix=""):
+def verify_filter_tiles(page, feed, width, theme):
+    group = feed.get_by_role("group", name="סינון שיחות")
+    expect(group).to_be_visible()
+    expect(group).to_have_attribute("tabindex", "0")
+    buttons = group.locator("button")
+    expect(buttons).to_have_count(6)
+    expect(group.get_by_role("button", name="הכול", exact=True)).to_have_attribute("aria-pressed", "true")
+    dimensions = buttons.evaluate_all("""nodes => nodes.map(e=>{const r=e.getBoundingClientRect();return {width:r.width,height:r.height,top:r.top,font:parseFloat(getComputedStyle(e).fontSize),disabled:e.disabled}})""")
+    assert all(abs(d["width"]-64)<1 and abs(d["height"]-64)<1 and d["font"]>=14 for d in dimensions), dimensions
+    assert max(d["top"] for d in dimensions)-min(d["top"] for d in dimensions)<1, dimensions
+    assert sum(d["disabled"] for d in dimensions)==5, dimensions
+    if width <= 390:
+        assert group.evaluate("e=>e.scrollWidth>e.clientWidth"), "tiles must scroll inside their group on mobile"
+        group.scroll_into_view_if_needed()
+        group.focus(); expect(group).to_be_focused()
+        before = group.evaluate("e=>e.scrollLeft")
+        for _ in range(10): page.keyboard.press("ArrowLeft")
+        page.wait_for_timeout(200)
+        scrolled = group.evaluate("e=>e.scrollLeft")
+        assert scrolled < before, {"before":before,"after_left":scrolled}
+        assert buttons.last.evaluate("e=>{const a=e.getBoundingClientRect(), b=e.parentElement.getBoundingClientRect();return a.left>=b.left-1 && a.right<=b.right+1}")
+        page.screenshot(path=str(OUT / f"community-tiles-{width}-{theme}.png"))
+        for _ in range(10): page.keyboard.press("ArrowRight")
+        page.wait_for_timeout(200)
+        assert group.evaluate("e=>e.scrollLeft") > scrolled
+        assert buttons.first.evaluate("e=>{const a=e.getBoundingClientRect(), b=e.parentElement.getBoundingClientRect();return a.left>=b.left-1 && a.right<=b.right+1}")
+        expect(group).to_be_focused()
+    no_overflow(page)
+
+
+def community_case(page, width, suffix="", theme="dark"):
     page.goto(BASE + "/community/chat" + suffix)
     feed = page.locator('[data-community-mode="connected-preview"]')
     legacy = page.locator('[data-community-chat="legacy"]')
@@ -187,6 +217,7 @@ def community_case(page, width, suffix=""):
     expect(feed.get_by_text("הודעת זית", exact=True)).to_be_visible()
     expect(feed.get_by_text("הודעת דקל", exact=True)).to_be_visible()
     controls = feed.locator('[aria-label="סידור וסינון השיחות"]')
+    verify_filter_tiles(page, feed, width, theme)
     expect(controls.get_by_role("button", name="חיפוש בכל הארכיון")).to_be_disabled()
     for label in ("ללא מענה", "עם קבצים", "ההודעות שלי", "מהקהילה החדשה", "מהצ׳אט הוותיק"):
         expect(controls.get_by_role("button", name=label, exact=True)).to_be_disabled()
@@ -210,8 +241,8 @@ def community_case(page, width, suffix=""):
     expect(legacy.locator("[data-spotim-module]")).to_have_count(0)
     assert not report["external_chat"], report["external_chat"]
     no_overflow(page)
-    page.screenshot(path=str(OUT / f"community-{width}{'-hash' if suffix else ''}.png"))
-    report["community"].append({"width":width, "initial_hash":bool(suffix), "status":"passed"})
+    page.screenshot(path=str(OUT / f"community-{width}-{theme}{'-hash' if suffix else ''}.png"))
+    report["community"].append({"width":width, "theme":theme, "initial_hash":bool(suffix), "status":"passed"})
 
 
 try:
@@ -228,13 +259,14 @@ try:
                     page.screenshot(path=str(OUT / f"failure-theme-{width}-{initial}.png"), full_page=True)
                 context.close()
         for width in (320, 390, 1440):
-            for suffix in ("", "#legacy-chat"):
+            for theme, suffix in [(theme, "") for theme in ("light", "parchment", "dark")] + [("dark", "#legacy-chat")]:
                 context = browser.new_context(viewport={"width":width, "height":1000}, reduced_motion="reduce")
+                context.add_init_script("localStorage.setItem('sod-theme'," + json.dumps(theme) + ")")
                 page = context.new_page(); page.set_default_timeout(8000); wire(page, delayed_feed=bool(suffix))
-                try: community_case(page, width, suffix)
+                try: community_case(page, width, suffix, theme)
                 except Exception as error:
-                    report["failures"].append({"case":"community", "width":width, "hash":bool(suffix), "error":str(error)})
-                    page.screenshot(path=str(OUT / f"failure-community-{width}{'-hash' if suffix else ''}.png"), full_page=True)
+                    report["failures"].append({"case":"community", "width":width, "theme":theme, "hash":bool(suffix), "error":str(error)})
+                    page.screenshot(path=str(OUT / f"failure-community-{width}-{theme}{'-hash' if suffix else ''}.png"), full_page=True)
                 context.close()
         browser.close()
 finally:

@@ -493,7 +493,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
               </select></label>
               <button type="button" className="sod29-community-text-action sod29-community-archive-search" disabled>חיפוש בכל הארכיון</button>
             </div>
-            <div className="sod29-community-feed-filter-chips" role="group" aria-label="סינון שיחות">
+            <div className="sod29-community-feed-filter-chips" role="group" aria-label="סינון שיחות" aria-describedby="community-advanced-unavailable" tabIndex={0}>
               <button type="button" aria-pressed="true">הכול</button>
               {["ללא מענה", "עם קבצים", "ההודעות שלי", "מהקהילה החדשה", "מהצ׳אט הוותיק"].map((label) => <button type="button" disabled key={label}>{label}</button>)}
             </div>
