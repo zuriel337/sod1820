@@ -1,0 +1,495 @@
+[
+  {
+    "verification": [
+      {
+        "key": "r1.f01.0",
+        "term": "קולומביה",
+        "start": 248765,
+        "skip": 4545,
+        "dir": 1,
+        "db_text": "קולומביה",
+        "letters_match": true,
+        "engine": {
+          "status": "OK",
+          "hits": 1,
+          "found": true,
+          "completion": {
+            "executed": true,
+            "has_more": false,
+            "truncated": false,
+            "continuation": null,
+            "returned_hits": 1
+          }
+        }
+      },
+      {
+        "key": "r1.f02.0",
+        "term": "ואתהאשהאלקבתהותעצרהמגפהמעלבניישראל",
+        "start": 230572,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "ואתהאשהאלקבתהותעצרהמגפהמעלבניישראל",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f03.0",
+        "term": "ברכיהוהחילוופעלידיותרצה",
+        "start": 303294,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "ברכיהוהחילוופעלידיותרצה",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f04.0",
+        "term": "ולעיניכלישראלחזקואמצ",
+        "start": 298740,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "ולעיניכלישראלחזקואמצ",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f05.0",
+        "term": "ינוסאלאחתהערימהאלהוחי",
+        "start": 280563,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "ינוסאלאחתהערימהאלהוחי",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f06.0",
+        "term": "הייתמעמיהוהמיומדעתיאתכמ",
+        "start": 266934,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "הייתמעמיהוהמיומדעתיאתכמ",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f07.0",
+        "term": "כברכתיהוהאלהיכאשרנתנלכ",
+        "start": 271489,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "כברכתיהוהאלהיכאשרנתנלכ",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f08.0",
+        "term": "וגמידיהוההיתהבמ",
+        "start": 253310,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "וגמידיהוההיתהבמ",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f09.0",
+        "term": "אלהיכאשאכלההואאלקנא",
+        "start": 257840,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "אלהיכאשאכלההואאלקנא",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f10.0",
+        "term": "זכרתכיעבדהייתבארצמצרימויפדכיהוהאלהיכ",
+        "start": 276015,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "זכרתכיעבדהייתבארצמצרימויפדכיהוהאלהיכ",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f11.0",
+        "term": "יצאנוממצרימ",
+        "start": 207844,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "יצאנוממצרימ",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f12.0",
+        "term": "ובערתהרעמישראל",
+        "start": 285107,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "ובערתהרעמישראל",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f13.0",
+        "term": "ותפתחהארצאתפיה",
+        "start": 216956,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "ותפתחהארצאתפיה",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f14.0",
+        "term": "ויספעודבלקשלחשרימ",
+        "start": 226037,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "ויספעודבלקשלחשרימ",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f15.0",
+        "term": "ויהרגוכלזכר",
+        "start": 239683,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "ויהרגוכלזכר",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f16.0",
+        "term": "עלפייהוה",
+        "start": 244212,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "עלפייהוה",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f17.0",
+        "term": "והיואלהלכמלחקתמשפטלדרתיכמבכלמושבת",
+        "start": 248753,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "והיואלהלכמלחקתמשפטלדרתיכמבכלמושבת",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f18.0",
+        "term": "וצויתיאתברכתילכמ",
+        "start": 180578,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "וצויתיאתברכתילכמ",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f19.0",
+        "term": "ולאתזנההארצ",
+        "start": 171504,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "ולאתזנההארצ",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f20.0",
+        "term": "ושמרתממצותיו",
+        "start": 176031,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "ושמרתממצותיו",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f21.0",
+        "term": "יהוהלעשותאתכלהחקימהאלה",
+        "start": 262393,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "יהוהלעשותאתכלהחקימהאלה",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f22.0",
+        "term": "ולפניכלהעדה",
+        "start": 235135,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "ולפניכלהעדה",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f23.0",
+        "term": "במדברהזה",
+        "start": 212413,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "במדברהזה",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f24.0",
+        "term": "חנכתהמזבח",
+        "start": 198774,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "חנכתהמזבח",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f25.0",
+        "term": "ובעדביתו",
+        "start": 166962,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "ובעדביתו",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f26.0",
+        "term": "והגראשרבקרבכ",
+        "start": 289657,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "והגראשרבקרבכ",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f27.0",
+        "term": "פריבטנכבשרבניכובנתיכ",
+        "start": 294205,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "פריבטנכבשרבניכובנתיכ",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f28.0",
+        "term": "פתחאהלמועד",
+        "start": 157860,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "פתחאהלמועד",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f29.0",
+        "term": "יהיהקדש",
+        "start": 185145,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "יהיהקדש",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f30.0",
+        "term": "ושלשימאלפומאתימ",
+        "start": 189666,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "ושלשימאלפומאתימ",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f31.0",
+        "term": "עבדתבניישראל",
+        "start": 203321,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "עבדתבניישראל",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f32.0",
+        "term": "ששמאותאלפרגלי",
+        "start": 207863,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "ששמאותאלפרגלי",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f33.0",
+        "term": "כיתולידבנימובניבנ",
+        "start": 257859,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "כיתולידבנימובניבנ",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f34.0",
+        "term": "בנימררי",
+        "start": 194208,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "בנימררי",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f35.0",
+        "term": "שבעתימימ",
+        "start": 221490,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "שבעתימימ",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f36.0",
+        "term": "וכפרעליו",
+        "start": 162412,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "וכפרעליו",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f37.0",
+        "term": "ואתנפללפנ",
+        "start": 266957,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "ואתנפללפנ",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f38.0",
+        "term": "גאלהדמ",
+        "start": 280590,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "גאלהדמ",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f39.0",
+        "term": "כיתכלהלעשראתכלמעשר",
+        "start": 289669,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "כיתכלהלעשראתכלמעשר",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f40.0",
+        "term": "בניישראל",
+        "start": 230598,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "בניישראל",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      }
+    ]
+  }
+]

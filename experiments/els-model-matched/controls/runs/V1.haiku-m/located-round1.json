@@ -1,0 +1,370 @@
+[
+  {
+    "id": "r1.f01",
+    "line": "R01+",
+    "text": "שבת",
+    "rawText": "שבת",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "R01+",
+        "from": 12,
+        "to": 14,
+        "cells": [
+          [
+            1,
+            13
+          ],
+          [
+            1,
+            14
+          ],
+          [
+            1,
+            15
+          ]
+        ],
+        "params": {
+          "start": 125469,
+          "skip": 1,
+          "dir": 1,
+          "length": 3,
+          "step": 1
+        }
+      },
+      {
+        "reading": "R01+",
+        "from": 15,
+        "to": 17,
+        "cells": [
+          [
+            1,
+            16
+          ],
+          [
+            1,
+            17
+          ],
+          [
+            1,
+            18
+          ]
+        ],
+        "params": {
+          "start": 125472,
+          "skip": 1,
+          "dir": 1,
+          "length": 3,
+          "step": 1
+        }
+      }
+    ],
+    "totalOccurrences": 2,
+    "segmentationOk": true
+  },
+  {
+    "id": "r1.f02",
+    "line": "R13+",
+    "text": "משמרת",
+    "rawText": "משמרת",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "R13+",
+        "from": 18,
+        "to": 22,
+        "cells": [
+          [
+            13,
+            19
+          ],
+          [
+            13,
+            20
+          ],
+          [
+            13,
+            21
+          ],
+          [
+            13,
+            22
+          ],
+          [
+            13,
+            23
+          ]
+        ],
+        "params": {
+          "start": 191967,
+          "skip": 1,
+          "dir": 1,
+          "length": 5,
+          "step": 1
+        }
+      },
+      {
+        "reading": "R13+",
+        "from": 29,
+        "to": 33,
+        "cells": [
+          [
+            13,
+            30
+          ],
+          [
+            13,
+            31
+          ],
+          [
+            13,
+            32
+          ],
+          [
+            13,
+            33
+          ],
+          [
+            13,
+            34
+          ]
+        ],
+        "params": {
+          "start": 191978,
+          "skip": 1,
+          "dir": 1,
+          "length": 5,
+          "step": 1
+        }
+      }
+    ],
+    "totalOccurrences": 2,
+    "segmentationOk": true
+  },
+  {
+    "id": "r1.f03",
+    "line": "R10+",
+    "text": "כיאניייהוה",
+    "rawText": "כיאניייהוה",
+    "reasons": [
+      "parts do not concatenate to text",
+      "these letters do not appear as a contiguous run in any line of the region"
+    ],
+    "status": "not_in_region",
+    "occurrences": [],
+    "totalOccurrences": 0,
+    "segmentationOk": false
+  },
+  {
+    "id": "r1.f04",
+    "line": "R19+",
+    "text": "מועד",
+    "rawText": "מועד",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "R19+",
+        "from": 11,
+        "to": 14,
+        "cells": [
+          [
+            19,
+            12
+          ],
+          [
+            19,
+            13
+          ],
+          [
+            19,
+            14
+          ],
+          [
+            19,
+            15
+          ]
+        ],
+        "params": {
+          "start": 225206,
+          "skip": 1,
+          "dir": 1,
+          "length": 4,
+          "step": 1
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true
+  },
+  {
+    "id": "r1.f05",
+    "line": "R09+",
+    "text": "זכר",
+    "rawText": "זכר",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "R09+",
+        "from": 22,
+        "to": 24,
+        "cells": [
+          [
+            9,
+            23
+          ],
+          [
+            9,
+            24
+          ],
+          [
+            9,
+            25
+          ]
+        ],
+        "params": {
+          "start": 169807,
+          "skip": 1,
+          "dir": 1,
+          "length": 3,
+          "step": 1
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true
+  },
+  {
+    "id": "r1.f06",
+    "line": "R01+",
+    "text": "מלאכה",
+    "rawText": "מלאכה",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "R01+",
+        "from": 34,
+        "to": 38,
+        "cells": [
+          [
+            1,
+            35
+          ],
+          [
+            1,
+            36
+          ],
+          [
+            1,
+            37
+          ],
+          [
+            1,
+            38
+          ],
+          [
+            1,
+            39
+          ]
+        ],
+        "params": {
+          "start": 125491,
+          "skip": 1,
+          "dir": 1,
+          "length": 5,
+          "step": 1
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true
+  },
+  {
+    "id": "r1.f07",
+    "line": "R01+",
+    "text": "קדש",
+    "rawText": "קדש",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "R01+",
+        "from": 20,
+        "to": 22,
+        "cells": [
+          [
+            1,
+            21
+          ],
+          [
+            1,
+            22
+          ],
+          [
+            1,
+            23
+          ]
+        ],
+        "params": {
+          "start": 125477,
+          "skip": 1,
+          "dir": 1,
+          "length": 3,
+          "step": 1
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true
+  },
+  {
+    "id": "r1.f08",
+    "line": "R14+",
+    "text": "ליהוה",
+    "rawText": "ליהוה",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "R14+",
+        "from": 25,
+        "to": 29,
+        "cells": [
+          [
+            14,
+            26
+          ],
+          [
+            14,
+            27
+          ],
+          [
+            14,
+            28
+          ],
+          [
+            14,
+            29
+          ],
+          [
+            14,
+            30
+          ]
+        ],
+        "params": {
+          "start": 197515,
+          "skip": 1,
+          "dir": 1,
+          "length": 5,
+          "step": 1
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true
+  }
+]

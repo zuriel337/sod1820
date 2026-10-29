@@ -1,0 +1,204 @@
+{
+  "finished_at": "2026-10-29T01:17:59.959Z",
+  "halted": null,
+  "spent_usd": 32.278199,
+  "experiment_spent_usd": 0.72965,
+  "remaining_usd": 7.721801,
+  "outcomes": [
+    {
+      "id": "S4a.haiku-m",
+      "series": "blind",
+      "rounds": [
+        {
+          "round": 1,
+          "stop_reason": "end_turn",
+          "usd": 0.003833,
+          "usable": true
+        }
+      ]
+    },
+    {
+      "id": "S2.haiku-m",
+      "series": "blind",
+      "rounds": [
+        {
+          "round": 1,
+          "stop_reason": "end_turn",
+          "usd": 0.002714,
+          "usable": true
+        }
+      ]
+    },
+    {
+      "id": "S4b.haiku-m",
+      "series": "blind",
+      "rounds": [
+        {
+          "round": 1,
+          "stop_reason": "end_turn",
+          "usd": 0.007957,
+          "usable": true
+        }
+      ]
+    },
+    {
+      "id": "S4a.haiku-h",
+      "series": "blind",
+      "rounds": [
+        {
+          "round": 1,
+          "stop_reason": "end_turn",
+          "usd": 0.008017,
+          "usable": true
+        }
+      ]
+    },
+    {
+      "id": "S2.haiku-h",
+      "series": "blind",
+      "rounds": [
+        {
+          "round": 1,
+          "stop_reason": "max_tokens",
+          "usd": 0.013068,
+          "usable": false
+        }
+      ],
+      "failed": "no usable answer (stop_reason max_tokens); cost counted, not retried"
+    },
+    {
+      "id": "V1.haiku-m",
+      "series": "blind",
+      "rounds": [
+        {
+          "round": 1,
+          "stop_reason": "end_turn",
+          "usd": 0.002301,
+          "usable": true
+        }
+      ]
+    },
+    {
+      "id": "S4b.haiku-h",
+      "series": "blind",
+      "rounds": [
+        {
+          "round": 1,
+          "stop_reason": "max_tokens",
+          "usd": 0.013064,
+          "usable": false
+        }
+      ],
+      "failed": "no usable answer (stop_reason max_tokens); cost counted, not retried"
+    },
+    {
+      "id": "V1.haiku-h",
+      "series": "blind",
+      "rounds": [
+        {
+          "round": 1,
+          "stop_reason": "max_tokens",
+          "usd": 0.013075,
+          "usable": false
+        }
+      ],
+      "failed": "no usable answer (stop_reason max_tokens); cost counted, not retried"
+    },
+    {
+      "id": "S4b.sonnet-m",
+      "series": "blind",
+      "rounds": [
+        {
+          "round": 1,
+          "stop_reason": "end_turn",
+          "usd": 0.027726,
+          "usable": true
+        }
+      ]
+    },
+    {
+      "id": "S4a.sonnet-m",
+      "series": "blind",
+      "rounds": [
+        {
+          "round": 1,
+          "stop_reason": "end_turn",
+          "usd": 0.030124,
+          "usable": true
+        }
+      ]
+    },
+    {
+      "id": "S2.sonnet-m",
+      "series": "blind",
+      "rounds": [
+        {
+          "round": 1,
+          "stop_reason": "end_turn",
+          "usd": 0.03123,
+          "usable": true
+        }
+      ]
+    },
+    {
+      "id": "V1.sonnet-m",
+      "series": "blind",
+      "rounds": [
+        {
+          "round": 1,
+          "stop_reason": "end_turn",
+          "usd": 0.026977,
+          "usable": true
+        }
+      ]
+    },
+    {
+      "id": "S2.sonnet-h",
+      "series": "blind",
+      "rounds": [
+        {
+          "round": 1,
+          "stop_reason": "end_turn",
+          "usd": 0.093835,
+          "usable": true
+        }
+      ]
+    },
+    {
+      "id": "S4b.sonnet-h",
+      "series": "blind",
+      "rounds": [
+        {
+          "round": 1,
+          "stop_reason": "end_turn",
+          "usd": 0.105801,
+          "usable": true
+        }
+      ]
+    },
+    {
+      "id": "V1.sonnet-h",
+      "series": "blind",
+      "rounds": [
+        {
+          "round": 1,
+          "stop_reason": "end_turn",
+          "usd": 0.129792,
+          "usable": true
+        }
+      ]
+    },
+    {
+      "id": "S4a.sonnet-h",
+      "series": "blind",
+      "rounds": [
+        {
+          "round": 1,
+          "stop_reason": "end_turn",
+          "usd": 0.220134,
+          "usable": true
+        }
+      ]
+    }
+  ]
+}

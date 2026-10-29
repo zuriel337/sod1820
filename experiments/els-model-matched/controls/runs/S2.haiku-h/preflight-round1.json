@@ -1,0 +1,19 @@
+{
+  "ok": true,
+  "model": "claude-haiku-5-5",
+  "display_name": "Claude Haiku 5.5",
+  "listed": true,
+  "max_input_tokens": 1000000,
+  "max_tokens_limit": 128000,
+  "checks": {
+    "structured_outputs": true,
+    "thinking_setting": true,
+    "effort_level": true,
+    "max_tokens_within_model_limit": true
+  },
+  "input_tokens_counted": 20731,
+  "note": "count excludes the structured-output schema, which the API adds; the real input is slightly larger",
+  "upper_bound_usd": 0.0266,
+  "request_sha256": "ae33d703d2126a197369817348323add155ed21ddb0ffedac6407f46ade5196b",
+  "lock_sha256": "658bb80b931a83794c6ba645c155a0aa68c48ac5921fa686093414e14253b072"
+}

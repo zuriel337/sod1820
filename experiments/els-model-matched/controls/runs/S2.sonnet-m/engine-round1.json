@@ -1,0 +1,246 @@
+[
+  {
+    "verification": [
+      {
+        "key": "r1.f01.0",
+        "term": "אלהכהנו",
+        "start": 157870,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "אלהכהנו",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f02.0",
+        "term": "למועד",
+        "start": 157865,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "למועד",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f03.0",
+        "term": "המזבח",
+        "start": 162406,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "המזבח",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f05.0",
+        "term": "אתחלל",
+        "start": 176060,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "אתחלל",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f06.0",
+        "term": "יהיהקדש",
+        "start": 185145,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "יהיהקדש",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f07.0",
+        "term": "בניישראל",
+        "start": 203307,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "בניישראל",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f07.1",
+        "term": "בניישראל",
+        "start": 203325,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "בניישראל",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f08.0",
+        "term": "ויאמרמשה",
+        "start": 207855,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "ויאמרמשה",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f09.0",
+        "term": "במדברהזה",
+        "start": 212413,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "במדברהזה",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f10.0",
+        "term": "ותבקעהאדמה",
+        "start": 216937,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "ותבקעהאדמה",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f11.0",
+        "term": "פתחהארצ",
+        "start": 216958,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "פתחהארצ",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f12.0",
+        "term": "ותעצרהמגפה",
+        "start": 230585,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "ותעצרהמגפה",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f13.0",
+        "term": "יהושעויעמד",
+        "start": 235110,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "יהושעויעמד",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f14.0",
+        "term": "כלהעדה",
+        "start": 235140,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "כלהעדה",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f15.0",
+        "term": "יהוהה",
+        "start": 253315,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "יהוהה",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f16.0",
+        "term": "אכלתבשר",
+        "start": 271482,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "אכלתבשר",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f17.0",
+        "term": "בארצמצרימ",
+        "start": 276028,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "בארצמצרימ",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f18.0",
+        "term": "זבחכברכיהוה",
+        "start": 303290,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "זבחכברכיהוה",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f19.0",
+        "term": "תבואא",
+        "start": 298765,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "תבואא",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f20.0",
+        "term": "לעשרא",
+        "start": 289675,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "לעשרא",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      }
+    ]
+  }
+]

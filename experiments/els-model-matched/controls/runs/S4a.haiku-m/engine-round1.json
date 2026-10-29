@@ -1,0 +1,300 @@
+[
+  {
+    "verification": [
+      {
+        "key": "r1.f01.0",
+        "term": "ויאמר",
+        "start": 18683,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "ויאמר",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f02.0",
+        "term": "אברהמ",
+        "start": 27743,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "אברהמ",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f03.0",
+        "term": "משהאל",
+        "start": 105008,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "משהאל",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f04.0",
+        "term": "בתכלת",
+        "start": 118678,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "בתכלת",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f05.0",
+        "term": "כבודיהוהמ",
+        "start": 141394,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "כבודיהוהמ",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f06.0",
+        "term": "קטרת",
+        "start": 132298,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "קטרת",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f07.0",
+        "term": "ושבת",
+        "start": 109559,
+        "skip": 4545,
+        "dir": 1,
+        "db_text": "ושבת",
+        "letters_match": true,
+        "engine": {
+          "status": "OK",
+          "hits": 9,
+          "found": true,
+          "completion": {
+            "executed": true,
+            "has_more": false,
+            "truncated": false,
+            "continuation": null,
+            "returned_hits": 9
+          }
+        }
+      },
+      {
+        "key": "r1.f08.0",
+        "term": "הארצלפרעה",
+        "start": 73193,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "הארצלפרעה",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f09.0",
+        "term": "ולפניפרעה",
+        "start": 86840,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "ולפניפרעה",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f10.0",
+        "term": "לאדניוהנער",
+        "start": 68678,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "לאדניוהנער",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f11.0",
+        "term": "ישמעו",
+        "start": 82298,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "ישמעו",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f12.0",
+        "term": "ויקחו",
+        "start": 36833,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "ויקחו",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f13.0",
+        "term": "פחד",
+        "start": 100473,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "פחד",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f14.0",
+        "term": "אליהוה",
+        "start": 91396,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "אליהוה",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f15.0",
+        "term": "כספ",
+        "start": 109565,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "כספ",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f16.0",
+        "term": "ואכהנ",
+        "start": 132284,
+        "skip": 4545,
+        "dir": 1,
+        "db_text": "ואכהנ",
+        "letters_match": true,
+        "engine": {
+          "status": "OK",
+          "hits": 2,
+          "found": true,
+          "completion": {
+            "executed": true,
+            "has_more": false,
+            "truncated": false,
+            "continuation": null,
+            "returned_hits": 2
+          }
+        }
+      },
+      {
+        "key": "r1.f17.0",
+        "term": "הזכרת",
+        "start": 59558,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "הזכרת",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f18.0",
+        "term": "ובאחדמקצה",
+        "start": 114108,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "ובאחדמקצה",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f18.1",
+        "term": "ובאחדמקצה",
+        "start": 114123,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "ובאחדמקצה",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f19.0",
+        "term": "ואדניהמשלש",
+        "start": 136828,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "ואדניהמשלש",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f20.0",
+        "term": "למועד",
+        "start": 141388,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "למועד",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f21.0",
+        "term": "המראה",
+        "start": 159573,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "המראה",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f22.0",
+        "term": "הצליח",
+        "start": 32308,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "הצליח",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      }
+    ]
+  }
+]

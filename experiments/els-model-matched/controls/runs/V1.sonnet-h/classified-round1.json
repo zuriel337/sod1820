@@ -1,0 +1,4708 @@
+[
+  {
+    "id": "r1.f01",
+    "line": "C21-",
+    "text": "וישבתביומ",
+    "rawText": "וישבתביומ",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "C21-",
+        "from": 12,
+        "to": 20,
+        "cells": [
+          [
+            21,
+            21
+          ],
+          [
+            20,
+            21
+          ],
+          [
+            19,
+            21
+          ],
+          [
+            18,
+            21
+          ],
+          [
+            17,
+            21
+          ],
+          [
+            16,
+            21
+          ],
+          [
+            15,
+            21
+          ],
+          [
+            14,
+            21
+          ],
+          [
+            13,
+            21
+          ]
+        ],
+        "params": {
+          "start": 236297,
+          "skip": 5541,
+          "dir": -1,
+          "length": 9,
+          "step": -5541
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true,
+    "checks": [
+      {
+        "occurrence": "C21-",
+        "from": 12,
+        "letters_match": true,
+        "plain_text": false,
+        "synthetic": false,
+        "engine_found": true,
+        "engine_status": "OK",
+        "engine_followup": false,
+        "engine_hits": 1,
+        "engine_truncated": false,
+        "params": {
+          "start": 236297,
+          "skip": 5541,
+          "dir": -1,
+          "length": 9,
+          "step": -5541
+        }
+      }
+    ],
+    "verdict": "verified_by_engine",
+    "verifiedOccurrences": 1
+  },
+  {
+    "id": "r1.f02",
+    "line": "R01+",
+    "text": "ביומהשביעי",
+    "rawText": "ביומהשביעי",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "R01+",
+        "from": 2,
+        "to": 11,
+        "cells": [
+          [
+            1,
+            3
+          ],
+          [
+            1,
+            4
+          ],
+          [
+            1,
+            5
+          ],
+          [
+            1,
+            6
+          ],
+          [
+            1,
+            7
+          ],
+          [
+            1,
+            8
+          ],
+          [
+            1,
+            9
+          ],
+          [
+            1,
+            10
+          ],
+          [
+            1,
+            11
+          ],
+          [
+            1,
+            12
+          ]
+        ],
+        "params": {
+          "start": 125459,
+          "skip": 1,
+          "dir": 1,
+          "length": 10,
+          "step": 1
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true,
+    "checks": [
+      {
+        "occurrence": "R01+",
+        "from": 2,
+        "letters_match": true,
+        "plain_text": true,
+        "synthetic": false,
+        "engine_found": null,
+        "engine_status": "plain_text_row_not_els",
+        "engine_followup": false,
+        "engine_hits": null,
+        "engine_truncated": false,
+        "params": {
+          "start": 125459,
+          "skip": 1,
+          "dir": 1,
+          "length": 10,
+          "step": 1
+        }
+      }
+    ],
+    "verdict": "verified_plain_text_only",
+    "verifiedOccurrences": 1
+  },
+  {
+    "id": "r1.f03",
+    "line": "R01+",
+    "text": "שבתשבתונקדשליהוה",
+    "rawText": "שבתשבתונקדשליהוה",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "R01+",
+        "from": 12,
+        "to": 27,
+        "cells": [
+          [
+            1,
+            13
+          ],
+          [
+            1,
+            14
+          ],
+          [
+            1,
+            15
+          ],
+          [
+            1,
+            16
+          ],
+          [
+            1,
+            17
+          ],
+          [
+            1,
+            18
+          ],
+          [
+            1,
+            19
+          ],
+          [
+            1,
+            20
+          ],
+          [
+            1,
+            21
+          ],
+          [
+            1,
+            22
+          ],
+          [
+            1,
+            23
+          ],
+          [
+            1,
+            24
+          ],
+          [
+            1,
+            25
+          ],
+          [
+            1,
+            26
+          ],
+          [
+            1,
+            27
+          ],
+          [
+            1,
+            28
+          ]
+        ],
+        "params": {
+          "start": 125469,
+          "skip": 1,
+          "dir": 1,
+          "length": 16,
+          "step": 1
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true,
+    "checks": [
+      {
+        "occurrence": "R01+",
+        "from": 12,
+        "letters_match": true,
+        "plain_text": true,
+        "synthetic": false,
+        "engine_found": null,
+        "engine_status": "plain_text_row_not_els",
+        "engine_followup": false,
+        "engine_hits": null,
+        "engine_truncated": false,
+        "params": {
+          "start": 125469,
+          "skip": 1,
+          "dir": 1,
+          "length": 16,
+          "step": 1
+        }
+      }
+    ],
+    "verdict": "verified_plain_text_only",
+    "verifiedOccurrences": 1
+  },
+  {
+    "id": "r1.f04",
+    "line": "R13+",
+    "text": "משהואהרנובניושמרימממשמרתהמקדשלמשמרתבניישראל",
+    "rawText": "משהואהרנובניושמרימממשמרתהמקדשלמשמרתבניישראל",
+    "reasons": [
+      "parts do not concatenate to text",
+      "these letters do not appear as a contiguous run in any line of the region"
+    ],
+    "status": "not_in_region",
+    "occurrences": [],
+    "totalOccurrences": 0,
+    "segmentationOk": false,
+    "checks": [],
+    "verdict": "not_verified",
+    "verifiedOccurrences": 0
+  },
+  {
+    "id": "r1.f05",
+    "line": "R14+",
+    "text": "וקדשאתראשוביומההוא",
+    "rawText": "וקדשאתראשוביומההוא",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "R14+",
+        "from": 2,
+        "to": 19,
+        "cells": [
+          [
+            14,
+            3
+          ],
+          [
+            14,
+            4
+          ],
+          [
+            14,
+            5
+          ],
+          [
+            14,
+            6
+          ],
+          [
+            14,
+            7
+          ],
+          [
+            14,
+            8
+          ],
+          [
+            14,
+            9
+          ],
+          [
+            14,
+            10
+          ],
+          [
+            14,
+            11
+          ],
+          [
+            14,
+            12
+          ],
+          [
+            14,
+            13
+          ],
+          [
+            14,
+            14
+          ],
+          [
+            14,
+            15
+          ],
+          [
+            14,
+            16
+          ],
+          [
+            14,
+            17
+          ],
+          [
+            14,
+            18
+          ],
+          [
+            14,
+            19
+          ],
+          [
+            14,
+            20
+          ]
+        ],
+        "params": {
+          "start": 197492,
+          "skip": 1,
+          "dir": 1,
+          "length": 18,
+          "step": 1
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true,
+    "checks": [
+      {
+        "occurrence": "R14+",
+        "from": 2,
+        "letters_match": true,
+        "plain_text": true,
+        "synthetic": false,
+        "engine_found": null,
+        "engine_status": "plain_text_row_not_els",
+        "engine_followup": false,
+        "engine_hits": null,
+        "engine_truncated": false,
+        "params": {
+          "start": 197492,
+          "skip": 1,
+          "dir": 1,
+          "length": 18,
+          "step": 1
+        }
+      }
+    ],
+    "verdict": "verified_plain_text_only",
+    "verifiedOccurrences": 1
+  },
+  {
+    "id": "r1.f06",
+    "line": "R08+",
+    "text": "להורתביומהטמאוביומהטהרזאתתורתהצר",
+    "rawText": "להורתביומהטמאוביומהטהרזאתתורתהצר",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "R08+",
+        "from": 9,
+        "to": 40,
+        "cells": [
+          [
+            8,
+            10
+          ],
+          [
+            8,
+            11
+          ],
+          [
+            8,
+            12
+          ],
+          [
+            8,
+            13
+          ],
+          [
+            8,
+            14
+          ],
+          [
+            8,
+            15
+          ],
+          [
+            8,
+            16
+          ],
+          [
+            8,
+            17
+          ],
+          [
+            8,
+            18
+          ],
+          [
+            8,
+            19
+          ],
+          [
+            8,
+            20
+          ],
+          [
+            8,
+            21
+          ],
+          [
+            8,
+            22
+          ],
+          [
+            8,
+            23
+          ],
+          [
+            8,
+            24
+          ],
+          [
+            8,
+            25
+          ],
+          [
+            8,
+            26
+          ],
+          [
+            8,
+            27
+          ],
+          [
+            8,
+            28
+          ],
+          [
+            8,
+            29
+          ],
+          [
+            8,
+            30
+          ],
+          [
+            8,
+            31
+          ],
+          [
+            8,
+            32
+          ],
+          [
+            8,
+            33
+          ],
+          [
+            8,
+            34
+          ],
+          [
+            8,
+            35
+          ],
+          [
+            8,
+            36
+          ],
+          [
+            8,
+            37
+          ],
+          [
+            8,
+            38
+          ],
+          [
+            8,
+            39
+          ],
+          [
+            8,
+            40
+          ],
+          [
+            8,
+            41
+          ]
+        ],
+        "params": {
+          "start": 164253,
+          "skip": 1,
+          "dir": 1,
+          "length": 32,
+          "step": 1
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true,
+    "checks": [
+      {
+        "occurrence": "R08+",
+        "from": 9,
+        "letters_match": true,
+        "plain_text": true,
+        "synthetic": false,
+        "engine_found": null,
+        "engine_status": "plain_text_row_not_els",
+        "engine_followup": false,
+        "engine_hits": null,
+        "engine_truncated": false,
+        "params": {
+          "start": 164253,
+          "skip": 1,
+          "dir": 1,
+          "length": 32,
+          "step": 1
+        }
+      }
+    ],
+    "verdict": "verified_plain_text_only",
+    "verifiedOccurrences": 1
+  },
+  {
+    "id": "r1.f07",
+    "line": "R20+",
+    "text": "לכנאמרהננינתנלואתבריתישלומ",
+    "rawText": "לכנאמרהננינתנלואתבריתישלומ",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "R20+",
+        "from": 1,
+        "to": 26,
+        "cells": [
+          [
+            20,
+            2
+          ],
+          [
+            20,
+            3
+          ],
+          [
+            20,
+            4
+          ],
+          [
+            20,
+            5
+          ],
+          [
+            20,
+            6
+          ],
+          [
+            20,
+            7
+          ],
+          [
+            20,
+            8
+          ],
+          [
+            20,
+            9
+          ],
+          [
+            20,
+            10
+          ],
+          [
+            20,
+            11
+          ],
+          [
+            20,
+            12
+          ],
+          [
+            20,
+            13
+          ],
+          [
+            20,
+            14
+          ],
+          [
+            20,
+            15
+          ],
+          [
+            20,
+            16
+          ],
+          [
+            20,
+            17
+          ],
+          [
+            20,
+            18
+          ],
+          [
+            20,
+            19
+          ],
+          [
+            20,
+            20
+          ],
+          [
+            20,
+            21
+          ],
+          [
+            20,
+            22
+          ],
+          [
+            20,
+            23
+          ],
+          [
+            20,
+            24
+          ],
+          [
+            20,
+            25
+          ],
+          [
+            20,
+            26
+          ],
+          [
+            20,
+            27
+          ]
+        ],
+        "params": {
+          "start": 230737,
+          "skip": 1,
+          "dir": 1,
+          "length": 26,
+          "step": 1
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true,
+    "checks": [
+      {
+        "occurrence": "R20+",
+        "from": 1,
+        "letters_match": true,
+        "plain_text": true,
+        "synthetic": false,
+        "engine_found": null,
+        "engine_status": "plain_text_row_not_els",
+        "engine_followup": false,
+        "engine_hits": null,
+        "engine_truncated": false,
+        "params": {
+          "start": 230737,
+          "skip": 1,
+          "dir": 1,
+          "length": 26,
+          "step": 1
+        }
+      }
+    ],
+    "verdict": "verified_plain_text_only",
+    "verifiedOccurrences": 1
+  },
+  {
+    "id": "r1.f08",
+    "line": "R20+",
+    "text": "והיתהלוולזרעו",
+    "rawText": "והיתהלוולזרעו",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "R20+",
+        "from": 27,
+        "to": 39,
+        "cells": [
+          [
+            20,
+            28
+          ],
+          [
+            20,
+            29
+          ],
+          [
+            20,
+            30
+          ],
+          [
+            20,
+            31
+          ],
+          [
+            20,
+            32
+          ],
+          [
+            20,
+            33
+          ],
+          [
+            20,
+            34
+          ],
+          [
+            20,
+            35
+          ],
+          [
+            20,
+            36
+          ],
+          [
+            20,
+            37
+          ],
+          [
+            20,
+            38
+          ],
+          [
+            20,
+            39
+          ],
+          [
+            20,
+            40
+          ]
+        ],
+        "params": {
+          "start": 230763,
+          "skip": 1,
+          "dir": 1,
+          "length": 13,
+          "step": 1
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true,
+    "checks": [
+      {
+        "occurrence": "R20+",
+        "from": 27,
+        "letters_match": true,
+        "plain_text": true,
+        "synthetic": false,
+        "engine_found": null,
+        "engine_status": "plain_text_row_not_els",
+        "engine_followup": false,
+        "engine_hits": null,
+        "engine_truncated": false,
+        "params": {
+          "start": 230763,
+          "skip": 1,
+          "dir": 1,
+          "length": 13,
+          "step": 1
+        }
+      }
+    ],
+    "verdict": "verified_plain_text_only",
+    "verifiedOccurrences": 1
+  },
+  {
+    "id": "r1.f09",
+    "line": "R25+",
+    "text": "קולאלהימממדברמתוכהאשכאשרשמעתאתהויחי",
+    "rawText": "קולאלהימממדברמתוכהאשכאשרשמעתאתהויחי",
+    "reasons": [
+      "parts do not concatenate to text",
+      "these letters do not appear as a contiguous run in any line of the region"
+    ],
+    "status": "not_in_region",
+    "occurrences": [],
+    "totalOccurrences": 0,
+    "segmentationOk": false,
+    "checks": [],
+    "verdict": "not_verified",
+    "verifiedOccurrences": 0
+  },
+  {
+    "id": "r1.f10",
+    "line": "R22+",
+    "text": "תרומהאשרהרימוליהוהששהעשראלפשבעמאותוחמשי",
+    "rawText": "תרומהאשרהרימוליהוהששהעשראלפשבעמאותוחמשי",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "R22+",
+        "from": 2,
+        "to": 40,
+        "cells": [
+          [
+            22,
+            3
+          ],
+          [
+            22,
+            4
+          ],
+          [
+            22,
+            5
+          ],
+          [
+            22,
+            6
+          ],
+          [
+            22,
+            7
+          ],
+          [
+            22,
+            8
+          ],
+          [
+            22,
+            9
+          ],
+          [
+            22,
+            10
+          ],
+          [
+            22,
+            11
+          ],
+          [
+            22,
+            12
+          ],
+          [
+            22,
+            13
+          ],
+          [
+            22,
+            14
+          ],
+          [
+            22,
+            15
+          ],
+          [
+            22,
+            16
+          ],
+          [
+            22,
+            17
+          ],
+          [
+            22,
+            18
+          ],
+          [
+            22,
+            19
+          ],
+          [
+            22,
+            20
+          ],
+          [
+            22,
+            21
+          ],
+          [
+            22,
+            22
+          ],
+          [
+            22,
+            23
+          ],
+          [
+            22,
+            24
+          ],
+          [
+            22,
+            25
+          ],
+          [
+            22,
+            26
+          ],
+          [
+            22,
+            27
+          ],
+          [
+            22,
+            28
+          ],
+          [
+            22,
+            29
+          ],
+          [
+            22,
+            30
+          ],
+          [
+            22,
+            31
+          ],
+          [
+            22,
+            32
+          ],
+          [
+            22,
+            33
+          ],
+          [
+            22,
+            34
+          ],
+          [
+            22,
+            35
+          ],
+          [
+            22,
+            36
+          ],
+          [
+            22,
+            37
+          ],
+          [
+            22,
+            38
+          ],
+          [
+            22,
+            39
+          ],
+          [
+            22,
+            40
+          ],
+          [
+            22,
+            41
+          ]
+        ],
+        "params": {
+          "start": 241820,
+          "skip": 1,
+          "dir": 1,
+          "length": 39,
+          "step": 1
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true,
+    "checks": [
+      {
+        "occurrence": "R22+",
+        "from": 2,
+        "letters_match": true,
+        "plain_text": true,
+        "synthetic": false,
+        "engine_found": null,
+        "engine_status": "plain_text_row_not_els",
+        "engine_followup": false,
+        "engine_hits": null,
+        "engine_truncated": false,
+        "params": {
+          "start": 241820,
+          "skip": 1,
+          "dir": 1,
+          "length": 39,
+          "step": 1
+        }
+      }
+    ],
+    "verdict": "verified_plain_text_only",
+    "verifiedOccurrences": 1
+  },
+  {
+    "id": "r1.f11",
+    "line": "R19+",
+    "text": "בלתיהשאירלושריד",
+    "rawText": "בלתיהשאירלושריד",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "R19+",
+        "from": 15,
+        "to": 29,
+        "cells": [
+          [
+            19,
+            16
+          ],
+          [
+            19,
+            17
+          ],
+          [
+            19,
+            18
+          ],
+          [
+            19,
+            19
+          ],
+          [
+            19,
+            20
+          ],
+          [
+            19,
+            21
+          ],
+          [
+            19,
+            22
+          ],
+          [
+            19,
+            23
+          ],
+          [
+            19,
+            24
+          ],
+          [
+            19,
+            25
+          ],
+          [
+            19,
+            26
+          ],
+          [
+            19,
+            27
+          ],
+          [
+            19,
+            28
+          ],
+          [
+            19,
+            29
+          ],
+          [
+            19,
+            30
+          ]
+        ],
+        "params": {
+          "start": 225210,
+          "skip": 1,
+          "dir": 1,
+          "length": 15,
+          "step": 1
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true,
+    "checks": [
+      {
+        "occurrence": "R19+",
+        "from": 15,
+        "letters_match": true,
+        "plain_text": true,
+        "synthetic": false,
+        "engine_found": null,
+        "engine_status": "plain_text_row_not_els",
+        "engine_followup": false,
+        "engine_hits": null,
+        "engine_truncated": false,
+        "params": {
+          "start": 225210,
+          "skip": 1,
+          "dir": 1,
+          "length": 15,
+          "step": 1
+        }
+      }
+    ],
+    "verdict": "verified_plain_text_only",
+    "verifiedOccurrences": 1
+  },
+  {
+    "id": "r1.f12",
+    "line": "R32+",
+    "text": "אתשבותכורחמכושבוקבצכמכלהעמימאשרהפיצכ",
+    "rawText": "אתשבותכורחמכושבוקבצכמכלהעמימאשרהפיצכ",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "R32+",
+        "from": 2,
+        "to": 37,
+        "cells": [
+          [
+            32,
+            3
+          ],
+          [
+            32,
+            4
+          ],
+          [
+            32,
+            5
+          ],
+          [
+            32,
+            6
+          ],
+          [
+            32,
+            7
+          ],
+          [
+            32,
+            8
+          ],
+          [
+            32,
+            9
+          ],
+          [
+            32,
+            10
+          ],
+          [
+            32,
+            11
+          ],
+          [
+            32,
+            12
+          ],
+          [
+            32,
+            13
+          ],
+          [
+            32,
+            14
+          ],
+          [
+            32,
+            15
+          ],
+          [
+            32,
+            16
+          ],
+          [
+            32,
+            17
+          ],
+          [
+            32,
+            18
+          ],
+          [
+            32,
+            19
+          ],
+          [
+            32,
+            20
+          ],
+          [
+            32,
+            21
+          ],
+          [
+            32,
+            22
+          ],
+          [
+            32,
+            23
+          ],
+          [
+            32,
+            24
+          ],
+          [
+            32,
+            25
+          ],
+          [
+            32,
+            26
+          ],
+          [
+            32,
+            27
+          ],
+          [
+            32,
+            28
+          ],
+          [
+            32,
+            29
+          ],
+          [
+            32,
+            30
+          ],
+          [
+            32,
+            31
+          ],
+          [
+            32,
+            32
+          ],
+          [
+            32,
+            33
+          ],
+          [
+            32,
+            34
+          ],
+          [
+            32,
+            35
+          ],
+          [
+            32,
+            36
+          ],
+          [
+            32,
+            37
+          ],
+          [
+            32,
+            38
+          ]
+        ],
+        "params": {
+          "start": 297230,
+          "skip": 1,
+          "dir": 1,
+          "length": 36,
+          "step": 1
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true,
+    "checks": [
+      {
+        "occurrence": "R32+",
+        "from": 2,
+        "letters_match": true,
+        "plain_text": true,
+        "synthetic": false,
+        "engine_found": null,
+        "engine_status": "plain_text_row_not_els",
+        "engine_followup": false,
+        "engine_hits": null,
+        "engine_truncated": false,
+        "params": {
+          "start": 297230,
+          "skip": 1,
+          "dir": 1,
+          "length": 36,
+          "step": 1
+        }
+      }
+    ],
+    "verdict": "verified_plain_text_only",
+    "verifiedOccurrences": 1
+  },
+  {
+    "id": "r1.f13",
+    "line": "R31+",
+    "text": "ברוכאתהבבאכוברוכאתהבצאתכ",
+    "rawText": "ברוכאתהבבאכוברוכאתהבצאתכ",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "R31+",
+        "from": 13,
+        "to": 36,
+        "cells": [
+          [
+            31,
+            14
+          ],
+          [
+            31,
+            15
+          ],
+          [
+            31,
+            16
+          ],
+          [
+            31,
+            17
+          ],
+          [
+            31,
+            18
+          ],
+          [
+            31,
+            19
+          ],
+          [
+            31,
+            20
+          ],
+          [
+            31,
+            21
+          ],
+          [
+            31,
+            22
+          ],
+          [
+            31,
+            23
+          ],
+          [
+            31,
+            24
+          ],
+          [
+            31,
+            25
+          ],
+          [
+            31,
+            26
+          ],
+          [
+            31,
+            27
+          ],
+          [
+            31,
+            28
+          ],
+          [
+            31,
+            29
+          ],
+          [
+            31,
+            30
+          ],
+          [
+            31,
+            31
+          ],
+          [
+            31,
+            32
+          ],
+          [
+            31,
+            33
+          ],
+          [
+            31,
+            34
+          ],
+          [
+            31,
+            35
+          ],
+          [
+            31,
+            36
+          ],
+          [
+            31,
+            37
+          ]
+        ],
+        "params": {
+          "start": 291700,
+          "skip": 1,
+          "dir": 1,
+          "length": 24,
+          "step": 1
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true,
+    "checks": [
+      {
+        "occurrence": "R31+",
+        "from": 13,
+        "letters_match": true,
+        "plain_text": true,
+        "synthetic": false,
+        "engine_found": null,
+        "engine_status": "plain_text_row_not_els",
+        "engine_followup": false,
+        "engine_hits": null,
+        "engine_truncated": false,
+        "params": {
+          "start": 291700,
+          "skip": 1,
+          "dir": 1,
+          "length": 24,
+          "step": 1
+        }
+      }
+    ],
+    "verdict": "verified_plain_text_only",
+    "verifiedOccurrences": 1
+  },
+  {
+    "id": "r1.f14",
+    "line": "R24+",
+    "text": "מאילתומעצינגברונפנונעברדרכמדברמואב",
+    "rawText": "מאילתומעצינגברונפנונעברדרכמדברמואב",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "R24+",
+        "from": 5,
+        "to": 38,
+        "cells": [
+          [
+            24,
+            6
+          ],
+          [
+            24,
+            7
+          ],
+          [
+            24,
+            8
+          ],
+          [
+            24,
+            9
+          ],
+          [
+            24,
+            10
+          ],
+          [
+            24,
+            11
+          ],
+          [
+            24,
+            12
+          ],
+          [
+            24,
+            13
+          ],
+          [
+            24,
+            14
+          ],
+          [
+            24,
+            15
+          ],
+          [
+            24,
+            16
+          ],
+          [
+            24,
+            17
+          ],
+          [
+            24,
+            18
+          ],
+          [
+            24,
+            19
+          ],
+          [
+            24,
+            20
+          ],
+          [
+            24,
+            21
+          ],
+          [
+            24,
+            22
+          ],
+          [
+            24,
+            23
+          ],
+          [
+            24,
+            24
+          ],
+          [
+            24,
+            25
+          ],
+          [
+            24,
+            26
+          ],
+          [
+            24,
+            27
+          ],
+          [
+            24,
+            28
+          ],
+          [
+            24,
+            29
+          ],
+          [
+            24,
+            30
+          ],
+          [
+            24,
+            31
+          ],
+          [
+            24,
+            32
+          ],
+          [
+            24,
+            33
+          ],
+          [
+            24,
+            34
+          ],
+          [
+            24,
+            35
+          ],
+          [
+            24,
+            36
+          ],
+          [
+            24,
+            37
+          ],
+          [
+            24,
+            38
+          ],
+          [
+            24,
+            39
+          ]
+        ],
+        "params": {
+          "start": 252905,
+          "skip": 1,
+          "dir": 1,
+          "length": 34,
+          "step": 1
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true,
+    "checks": [
+      {
+        "occurrence": "R24+",
+        "from": 5,
+        "letters_match": true,
+        "plain_text": true,
+        "synthetic": false,
+        "engine_found": null,
+        "engine_status": "plain_text_row_not_els",
+        "engine_followup": false,
+        "engine_hits": null,
+        "engine_truncated": false,
+        "params": {
+          "start": 252905,
+          "skip": 1,
+          "dir": 1,
+          "length": 34,
+          "step": 1
+        }
+      }
+    ],
+    "verdict": "verified_plain_text_only",
+    "verifiedOccurrences": 1
+  },
+  {
+    "id": "r1.f15",
+    "line": "R26+",
+    "text": "והאבדתאתשממממתחתהשמימלאיתיצבאישבפניכעדהשמד",
+    "rawText": "והאבדתאתשממממתחתהשמימלאיתיצבאישבפניכעדהשמד",
+    "reasons": [
+      "parts do not concatenate to text",
+      "these letters do not appear as a contiguous run in any line of the region"
+    ],
+    "status": "not_in_region",
+    "occurrences": [],
+    "totalOccurrences": 0,
+    "segmentationOk": false,
+    "checks": [],
+    "verdict": "not_verified",
+    "verifiedOccurrences": 0
+  },
+  {
+    "id": "r1.f16",
+    "line": "R12+",
+    "text": "באחדלחדשהשניבשנההשניתלצאתממארצמצרימ",
+    "rawText": "באחדלחדשהשניבשנההשניתלצאתממארצמצרימ",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "R12+",
+        "from": 6,
+        "to": 40,
+        "cells": [
+          [
+            12,
+            7
+          ],
+          [
+            12,
+            8
+          ],
+          [
+            12,
+            9
+          ],
+          [
+            12,
+            10
+          ],
+          [
+            12,
+            11
+          ],
+          [
+            12,
+            12
+          ],
+          [
+            12,
+            13
+          ],
+          [
+            12,
+            14
+          ],
+          [
+            12,
+            15
+          ],
+          [
+            12,
+            16
+          ],
+          [
+            12,
+            17
+          ],
+          [
+            12,
+            18
+          ],
+          [
+            12,
+            19
+          ],
+          [
+            12,
+            20
+          ],
+          [
+            12,
+            21
+          ],
+          [
+            12,
+            22
+          ],
+          [
+            12,
+            23
+          ],
+          [
+            12,
+            24
+          ],
+          [
+            12,
+            25
+          ],
+          [
+            12,
+            26
+          ],
+          [
+            12,
+            27
+          ],
+          [
+            12,
+            28
+          ],
+          [
+            12,
+            29
+          ],
+          [
+            12,
+            30
+          ],
+          [
+            12,
+            31
+          ],
+          [
+            12,
+            32
+          ],
+          [
+            12,
+            33
+          ],
+          [
+            12,
+            34
+          ],
+          [
+            12,
+            35
+          ],
+          [
+            12,
+            36
+          ],
+          [
+            12,
+            37
+          ],
+          [
+            12,
+            38
+          ],
+          [
+            12,
+            39
+          ],
+          [
+            12,
+            40
+          ],
+          [
+            12,
+            41
+          ]
+        ],
+        "params": {
+          "start": 186414,
+          "skip": 1,
+          "dir": 1,
+          "length": 35,
+          "step": 1
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true,
+    "checks": [
+      {
+        "occurrence": "R12+",
+        "from": 6,
+        "letters_match": true,
+        "plain_text": true,
+        "synthetic": false,
+        "engine_found": null,
+        "engine_status": "plain_text_row_not_els",
+        "engine_followup": false,
+        "engine_hits": null,
+        "engine_truncated": false,
+        "params": {
+          "start": 186414,
+          "skip": 1,
+          "dir": 1,
+          "length": 35,
+          "step": 1
+        }
+      }
+    ],
+    "verdict": "verified_plain_text_only",
+    "verifiedOccurrences": 1
+  },
+  {
+    "id": "r1.f17",
+    "line": "R06+",
+    "text": "ויעמדולפנייהוהויאמרמשהזההדבראשרצוהיהוה",
+    "rawText": "ויעמדולפנייהוהויאמרמשהזההדבראשרצוהיהוה",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "R06+",
+        "from": 2,
+        "to": 39,
+        "cells": [
+          [
+            6,
+            3
+          ],
+          [
+            6,
+            4
+          ],
+          [
+            6,
+            5
+          ],
+          [
+            6,
+            6
+          ],
+          [
+            6,
+            7
+          ],
+          [
+            6,
+            8
+          ],
+          [
+            6,
+            9
+          ],
+          [
+            6,
+            10
+          ],
+          [
+            6,
+            11
+          ],
+          [
+            6,
+            12
+          ],
+          [
+            6,
+            13
+          ],
+          [
+            6,
+            14
+          ],
+          [
+            6,
+            15
+          ],
+          [
+            6,
+            16
+          ],
+          [
+            6,
+            17
+          ],
+          [
+            6,
+            18
+          ],
+          [
+            6,
+            19
+          ],
+          [
+            6,
+            20
+          ],
+          [
+            6,
+            21
+          ],
+          [
+            6,
+            22
+          ],
+          [
+            6,
+            23
+          ],
+          [
+            6,
+            24
+          ],
+          [
+            6,
+            25
+          ],
+          [
+            6,
+            26
+          ],
+          [
+            6,
+            27
+          ],
+          [
+            6,
+            28
+          ],
+          [
+            6,
+            29
+          ],
+          [
+            6,
+            30
+          ],
+          [
+            6,
+            31
+          ],
+          [
+            6,
+            32
+          ],
+          [
+            6,
+            33
+          ],
+          [
+            6,
+            34
+          ],
+          [
+            6,
+            35
+          ],
+          [
+            6,
+            36
+          ],
+          [
+            6,
+            37
+          ],
+          [
+            6,
+            38
+          ],
+          [
+            6,
+            39
+          ],
+          [
+            6,
+            40
+          ]
+        ],
+        "params": {
+          "start": 153164,
+          "skip": 1,
+          "dir": 1,
+          "length": 38,
+          "step": 1
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true,
+    "checks": [
+      {
+        "occurrence": "R06+",
+        "from": 2,
+        "letters_match": true,
+        "plain_text": true,
+        "synthetic": false,
+        "engine_found": null,
+        "engine_status": "plain_text_row_not_els",
+        "engine_followup": false,
+        "engine_hits": null,
+        "engine_truncated": false,
+        "params": {
+          "start": 153164,
+          "skip": 1,
+          "dir": 1,
+          "length": 38,
+          "step": 1
+        }
+      }
+    ],
+    "verdict": "verified_plain_text_only",
+    "verifiedOccurrences": 1
+  },
+  {
+    "id": "r1.f18",
+    "line": "R02+",
+    "text": "ויאמראלהמאלההדברימאשרצוהיהוהלעשת",
+    "rawText": "ויאמראלהמאלההדבריםאשרצוהיהוהלעשת",
+    "reasons": [
+      "formatting normalised (spaces or final letters)"
+    ],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "R02+",
+        "from": 5,
+        "to": 36,
+        "cells": [
+          [
+            2,
+            6
+          ],
+          [
+            2,
+            7
+          ],
+          [
+            2,
+            8
+          ],
+          [
+            2,
+            9
+          ],
+          [
+            2,
+            10
+          ],
+          [
+            2,
+            11
+          ],
+          [
+            2,
+            12
+          ],
+          [
+            2,
+            13
+          ],
+          [
+            2,
+            14
+          ],
+          [
+            2,
+            15
+          ],
+          [
+            2,
+            16
+          ],
+          [
+            2,
+            17
+          ],
+          [
+            2,
+            18
+          ],
+          [
+            2,
+            19
+          ],
+          [
+            2,
+            20
+          ],
+          [
+            2,
+            21
+          ],
+          [
+            2,
+            22
+          ],
+          [
+            2,
+            23
+          ],
+          [
+            2,
+            24
+          ],
+          [
+            2,
+            25
+          ],
+          [
+            2,
+            26
+          ],
+          [
+            2,
+            27
+          ],
+          [
+            2,
+            28
+          ],
+          [
+            2,
+            29
+          ],
+          [
+            2,
+            30
+          ],
+          [
+            2,
+            31
+          ],
+          [
+            2,
+            32
+          ],
+          [
+            2,
+            33
+          ],
+          [
+            2,
+            34
+          ],
+          [
+            2,
+            35
+          ],
+          [
+            2,
+            36
+          ],
+          [
+            2,
+            37
+          ]
+        ],
+        "params": {
+          "start": 131003,
+          "skip": 1,
+          "dir": 1,
+          "length": 32,
+          "step": 1
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true,
+    "checks": [
+      {
+        "occurrence": "R02+",
+        "from": 5,
+        "letters_match": true,
+        "plain_text": true,
+        "synthetic": false,
+        "engine_found": null,
+        "engine_status": "plain_text_row_not_els",
+        "engine_followup": false,
+        "engine_hits": null,
+        "engine_truncated": false,
+        "params": {
+          "start": 131003,
+          "skip": 1,
+          "dir": 1,
+          "length": 32,
+          "step": 1
+        }
+      }
+    ],
+    "verdict": "verified_plain_text_only",
+    "verifiedOccurrences": 1
+  },
+  {
+    "id": "r1.f19",
+    "line": "R15+",
+    "text": "והבדלתאתהלוימ",
+    "rawText": "והבדלתאתהלוימ",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "R15+",
+        "from": 0,
+        "to": 12,
+        "cells": [
+          [
+            15,
+            1
+          ],
+          [
+            15,
+            2
+          ],
+          [
+            15,
+            3
+          ],
+          [
+            15,
+            4
+          ],
+          [
+            15,
+            5
+          ],
+          [
+            15,
+            6
+          ],
+          [
+            15,
+            7
+          ],
+          [
+            15,
+            8
+          ],
+          [
+            15,
+            9
+          ],
+          [
+            15,
+            10
+          ],
+          [
+            15,
+            11
+          ],
+          [
+            15,
+            12
+          ],
+          [
+            15,
+            13
+          ]
+        ],
+        "params": {
+          "start": 203031,
+          "skip": 1,
+          "dir": 1,
+          "length": 13,
+          "step": 1
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true,
+    "checks": [
+      {
+        "occurrence": "R15+",
+        "from": 0,
+        "letters_match": true,
+        "plain_text": true,
+        "synthetic": false,
+        "engine_found": null,
+        "engine_status": "plain_text_row_not_els",
+        "engine_followup": false,
+        "engine_hits": null,
+        "engine_truncated": false,
+        "params": {
+          "start": 203031,
+          "skip": 1,
+          "dir": 1,
+          "length": 13,
+          "step": 1
+        }
+      }
+    ],
+    "verdict": "verified_plain_text_only",
+    "verifiedOccurrences": 1
+  },
+  {
+    "id": "r1.f20",
+    "line": "R15+",
+    "text": "והיוליהלוימ",
+    "rawText": "והיוליהלוימ",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "R15+",
+        "from": 25,
+        "to": 35,
+        "cells": [
+          [
+            15,
+            26
+          ],
+          [
+            15,
+            27
+          ],
+          [
+            15,
+            28
+          ],
+          [
+            15,
+            29
+          ],
+          [
+            15,
+            30
+          ],
+          [
+            15,
+            31
+          ],
+          [
+            15,
+            32
+          ],
+          [
+            15,
+            33
+          ],
+          [
+            15,
+            34
+          ],
+          [
+            15,
+            35
+          ],
+          [
+            15,
+            36
+          ]
+        ],
+        "params": {
+          "start": 203056,
+          "skip": 1,
+          "dir": 1,
+          "length": 11,
+          "step": 1
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true,
+    "checks": [
+      {
+        "occurrence": "R15+",
+        "from": 25,
+        "letters_match": true,
+        "plain_text": true,
+        "synthetic": false,
+        "engine_found": null,
+        "engine_status": "plain_text_row_not_els",
+        "engine_followup": false,
+        "engine_hits": null,
+        "engine_truncated": false,
+        "params": {
+          "start": 203056,
+          "skip": 1,
+          "dir": 1,
+          "length": 11,
+          "step": 1
+        }
+      }
+    ],
+    "verdict": "verified_plain_text_only",
+    "verifiedOccurrences": 1
+  },
+  {
+    "id": "r1.f21",
+    "line": "R17+",
+    "text": "ליהוהראשיתערסתכמחלה",
+    "rawText": "ליהוהראשיתערסתכמחלה",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "R17+",
+        "from": 1,
+        "to": 19,
+        "cells": [
+          [
+            17,
+            2
+          ],
+          [
+            17,
+            3
+          ],
+          [
+            17,
+            4
+          ],
+          [
+            17,
+            5
+          ],
+          [
+            17,
+            6
+          ],
+          [
+            17,
+            7
+          ],
+          [
+            17,
+            8
+          ],
+          [
+            17,
+            9
+          ],
+          [
+            17,
+            10
+          ],
+          [
+            17,
+            11
+          ],
+          [
+            17,
+            12
+          ],
+          [
+            17,
+            13
+          ],
+          [
+            17,
+            14
+          ],
+          [
+            17,
+            15
+          ],
+          [
+            17,
+            16
+          ],
+          [
+            17,
+            17
+          ],
+          [
+            17,
+            18
+          ],
+          [
+            17,
+            19
+          ],
+          [
+            17,
+            20
+          ]
+        ],
+        "params": {
+          "start": 214114,
+          "skip": 1,
+          "dir": 1,
+          "length": 19,
+          "step": 1
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true,
+    "checks": [
+      {
+        "occurrence": "R17+",
+        "from": 1,
+        "letters_match": true,
+        "plain_text": true,
+        "synthetic": false,
+        "engine_found": null,
+        "engine_status": "plain_text_row_not_els",
+        "engine_followup": false,
+        "engine_hits": null,
+        "engine_truncated": false,
+        "params": {
+          "start": 214114,
+          "skip": 1,
+          "dir": 1,
+          "length": 19,
+          "step": 1
+        }
+      }
+    ],
+    "verdict": "verified_plain_text_only",
+    "verifiedOccurrences": 1
+  },
+  {
+    "id": "r1.f22",
+    "line": "R17+",
+    "text": "תרימותרומהכתרומתגרנכנ",
+    "rawText": "תרימותרומהכתרומתגרנכנ",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "R17+",
+        "from": 20,
+        "to": 40,
+        "cells": [
+          [
+            17,
+            21
+          ],
+          [
+            17,
+            22
+          ],
+          [
+            17,
+            23
+          ],
+          [
+            17,
+            24
+          ],
+          [
+            17,
+            25
+          ],
+          [
+            17,
+            26
+          ],
+          [
+            17,
+            27
+          ],
+          [
+            17,
+            28
+          ],
+          [
+            17,
+            29
+          ],
+          [
+            17,
+            30
+          ],
+          [
+            17,
+            31
+          ],
+          [
+            17,
+            32
+          ],
+          [
+            17,
+            33
+          ],
+          [
+            17,
+            34
+          ],
+          [
+            17,
+            35
+          ],
+          [
+            17,
+            36
+          ],
+          [
+            17,
+            37
+          ],
+          [
+            17,
+            38
+          ],
+          [
+            17,
+            39
+          ],
+          [
+            17,
+            40
+          ],
+          [
+            17,
+            41
+          ]
+        ],
+        "params": {
+          "start": 214133,
+          "skip": 1,
+          "dir": 1,
+          "length": 21,
+          "step": 1
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true,
+    "checks": [
+      {
+        "occurrence": "R17+",
+        "from": 20,
+        "letters_match": true,
+        "plain_text": true,
+        "synthetic": false,
+        "engine_found": null,
+        "engine_status": "plain_text_row_not_els",
+        "engine_followup": false,
+        "engine_hits": null,
+        "engine_truncated": false,
+        "params": {
+          "start": 214133,
+          "skip": 1,
+          "dir": 1,
+          "length": 21,
+          "step": 1
+        }
+      }
+    ],
+    "verdict": "verified_plain_text_only",
+    "verifiedOccurrences": 1
+  },
+  {
+    "id": "r1.f23",
+    "line": "R21+",
+    "text": "וביומהשביעימקראקדשיהיה",
+    "rawText": "וביומהשביעימקראקדשיהיה",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "R21+",
+        "from": 17,
+        "to": 38,
+        "cells": [
+          [
+            21,
+            18
+          ],
+          [
+            21,
+            19
+          ],
+          [
+            21,
+            20
+          ],
+          [
+            21,
+            21
+          ],
+          [
+            21,
+            22
+          ],
+          [
+            21,
+            23
+          ],
+          [
+            21,
+            24
+          ],
+          [
+            21,
+            25
+          ],
+          [
+            21,
+            26
+          ],
+          [
+            21,
+            27
+          ],
+          [
+            21,
+            28
+          ],
+          [
+            21,
+            29
+          ],
+          [
+            21,
+            30
+          ],
+          [
+            21,
+            31
+          ],
+          [
+            21,
+            32
+          ],
+          [
+            21,
+            33
+          ],
+          [
+            21,
+            34
+          ],
+          [
+            21,
+            35
+          ],
+          [
+            21,
+            36
+          ],
+          [
+            21,
+            37
+          ],
+          [
+            21,
+            38
+          ],
+          [
+            21,
+            39
+          ]
+        ],
+        "params": {
+          "start": 236294,
+          "skip": 1,
+          "dir": 1,
+          "length": 22,
+          "step": 1
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true,
+    "checks": [
+      {
+        "occurrence": "R21+",
+        "from": 17,
+        "letters_match": true,
+        "plain_text": true,
+        "synthetic": false,
+        "engine_found": null,
+        "engine_status": "plain_text_row_not_els",
+        "engine_followup": false,
+        "engine_hits": null,
+        "engine_truncated": false,
+        "params": {
+          "start": 236294,
+          "skip": 1,
+          "dir": 1,
+          "length": 22,
+          "step": 1
+        }
+      }
+    ],
+    "verdict": "verified_plain_text_only",
+    "verifiedOccurrences": 1
+  },
+  {
+    "id": "r1.f24",
+    "line": "R21+",
+    "text": "התמידיעשה",
+    "rawText": "התמידיעשה",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "R21+",
+        "from": 3,
+        "to": 11,
+        "cells": [
+          [
+            21,
+            4
+          ],
+          [
+            21,
+            5
+          ],
+          [
+            21,
+            6
+          ],
+          [
+            21,
+            7
+          ],
+          [
+            21,
+            8
+          ],
+          [
+            21,
+            9
+          ],
+          [
+            21,
+            10
+          ],
+          [
+            21,
+            11
+          ],
+          [
+            21,
+            12
+          ]
+        ],
+        "params": {
+          "start": 236280,
+          "skip": 1,
+          "dir": 1,
+          "length": 9,
+          "step": 1
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true,
+    "checks": [
+      {
+        "occurrence": "R21+",
+        "from": 3,
+        "letters_match": true,
+        "plain_text": true,
+        "synthetic": false,
+        "engine_found": null,
+        "engine_status": "plain_text_row_not_els",
+        "engine_followup": false,
+        "engine_hits": null,
+        "engine_truncated": false,
+        "params": {
+          "start": 236280,
+          "skip": 1,
+          "dir": 1,
+          "length": 9,
+          "step": 1
+        }
+      }
+    ],
+    "verdict": "verified_plain_text_only",
+    "verifiedOccurrences": 1
+  },
+  {
+    "id": "r1.f25",
+    "line": "R19+",
+    "text": "ויירשואתארצ",
+    "rawText": "ויירשואתארצ",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "R19+",
+        "from": 30,
+        "to": 40,
+        "cells": [
+          [
+            19,
+            31
+          ],
+          [
+            19,
+            32
+          ],
+          [
+            19,
+            33
+          ],
+          [
+            19,
+            34
+          ],
+          [
+            19,
+            35
+          ],
+          [
+            19,
+            36
+          ],
+          [
+            19,
+            37
+          ],
+          [
+            19,
+            38
+          ],
+          [
+            19,
+            39
+          ],
+          [
+            19,
+            40
+          ],
+          [
+            19,
+            41
+          ]
+        ],
+        "params": {
+          "start": 225225,
+          "skip": 1,
+          "dir": 1,
+          "length": 11,
+          "step": 1
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true,
+    "checks": [
+      {
+        "occurrence": "R19+",
+        "from": 30,
+        "letters_match": true,
+        "plain_text": true,
+        "synthetic": false,
+        "engine_found": null,
+        "engine_status": "plain_text_row_not_els",
+        "engine_followup": false,
+        "engine_hits": null,
+        "engine_truncated": false,
+        "params": {
+          "start": 225225,
+          "skip": 1,
+          "dir": 1,
+          "length": 11,
+          "step": 1
+        }
+      }
+    ],
+    "verdict": "verified_plain_text_only",
+    "verifiedOccurrences": 1
+  },
+  {
+    "id": "r1.f26",
+    "line": "R19+",
+    "text": "בניוואתכלעמו",
+    "rawText": "בניוואתכלעמו",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "R19+",
+        "from": 1,
+        "to": 12,
+        "cells": [
+          [
+            19,
+            2
+          ],
+          [
+            19,
+            3
+          ],
+          [
+            19,
+            4
+          ],
+          [
+            19,
+            5
+          ],
+          [
+            19,
+            6
+          ],
+          [
+            19,
+            7
+          ],
+          [
+            19,
+            8
+          ],
+          [
+            19,
+            9
+          ],
+          [
+            19,
+            10
+          ],
+          [
+            19,
+            11
+          ],
+          [
+            19,
+            12
+          ],
+          [
+            19,
+            13
+          ]
+        ],
+        "params": {
+          "start": 225196,
+          "skip": 1,
+          "dir": 1,
+          "length": 12,
+          "step": 1
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true,
+    "checks": [
+      {
+        "occurrence": "R19+",
+        "from": 1,
+        "letters_match": true,
+        "plain_text": true,
+        "synthetic": false,
+        "engine_found": null,
+        "engine_status": "plain_text_row_not_els",
+        "engine_followup": false,
+        "engine_hits": null,
+        "engine_truncated": false,
+        "params": {
+          "start": 225196,
+          "skip": 1,
+          "dir": 1,
+          "length": 12,
+          "step": 1
+        }
+      }
+    ],
+    "verdict": "verified_plain_text_only",
+    "verifiedOccurrences": 1
+  },
+  {
+    "id": "r1.f27",
+    "line": "R10+",
+    "text": "עונאשמהבאכלמאתקדשיהמ",
+    "rawText": "עונאשמהבאכלמאתקדשיהמ",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "R10+",
+        "from": 0,
+        "to": 19,
+        "cells": [
+          [
+            10,
+            1
+          ],
+          [
+            10,
+            2
+          ],
+          [
+            10,
+            3
+          ],
+          [
+            10,
+            4
+          ],
+          [
+            10,
+            5
+          ],
+          [
+            10,
+            6
+          ],
+          [
+            10,
+            7
+          ],
+          [
+            10,
+            8
+          ],
+          [
+            10,
+            9
+          ],
+          [
+            10,
+            10
+          ],
+          [
+            10,
+            11
+          ],
+          [
+            10,
+            12
+          ],
+          [
+            10,
+            13
+          ],
+          [
+            10,
+            14
+          ],
+          [
+            10,
+            15
+          ],
+          [
+            10,
+            16
+          ],
+          [
+            10,
+            17
+          ],
+          [
+            10,
+            18
+          ],
+          [
+            10,
+            19
+          ],
+          [
+            10,
+            20
+          ]
+        ],
+        "params": {
+          "start": 175326,
+          "skip": 1,
+          "dir": 1,
+          "length": 20,
+          "step": 1
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true,
+    "checks": [
+      {
+        "occurrence": "R10+",
+        "from": 0,
+        "letters_match": true,
+        "plain_text": true,
+        "synthetic": false,
+        "engine_found": null,
+        "engine_status": "plain_text_row_not_els",
+        "engine_followup": false,
+        "engine_hits": null,
+        "engine_truncated": false,
+        "params": {
+          "start": 175326,
+          "skip": 1,
+          "dir": 1,
+          "length": 20,
+          "step": 1
+        }
+      }
+    ],
+    "verdict": "verified_plain_text_only",
+    "verifiedOccurrences": 1
+  },
+  {
+    "id": "r1.f28",
+    "line": "R10+",
+    "text": "כיאנייהוהמקדשמ",
+    "rawText": "כיאנייהוהמקדשמ",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "R10+",
+        "from": 20,
+        "to": 33,
+        "cells": [
+          [
+            10,
+            21
+          ],
+          [
+            10,
+            22
+          ],
+          [
+            10,
+            23
+          ],
+          [
+            10,
+            24
+          ],
+          [
+            10,
+            25
+          ],
+          [
+            10,
+            26
+          ],
+          [
+            10,
+            27
+          ],
+          [
+            10,
+            28
+          ],
+          [
+            10,
+            29
+          ],
+          [
+            10,
+            30
+          ],
+          [
+            10,
+            31
+          ],
+          [
+            10,
+            32
+          ],
+          [
+            10,
+            33
+          ],
+          [
+            10,
+            34
+          ]
+        ],
+        "params": {
+          "start": 175346,
+          "skip": 1,
+          "dir": 1,
+          "length": 14,
+          "step": 1
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true,
+    "checks": [
+      {
+        "occurrence": "R10+",
+        "from": 20,
+        "letters_match": true,
+        "plain_text": true,
+        "synthetic": false,
+        "engine_found": null,
+        "engine_status": "plain_text_row_not_els",
+        "engine_followup": false,
+        "engine_hits": null,
+        "engine_truncated": false,
+        "params": {
+          "start": 175346,
+          "skip": 1,
+          "dir": 1,
+          "length": 14,
+          "step": 1
+        }
+      }
+    ],
+    "verdict": "verified_plain_text_only",
+    "verifiedOccurrences": 1
+  },
+  {
+    "id": "r1.f29",
+    "line": "R03+",
+    "text": "ויעשאתהחצרלפאתנגבתימנה",
+    "rawText": "ויעשאתהחצרלפאתנגבתימנה",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "R03+",
+        "from": 17,
+        "to": 38,
+        "cells": [
+          [
+            3,
+            18
+          ],
+          [
+            3,
+            19
+          ],
+          [
+            3,
+            20
+          ],
+          [
+            3,
+            21
+          ],
+          [
+            3,
+            22
+          ],
+          [
+            3,
+            23
+          ],
+          [
+            3,
+            24
+          ],
+          [
+            3,
+            25
+          ],
+          [
+            3,
+            26
+          ],
+          [
+            3,
+            27
+          ],
+          [
+            3,
+            28
+          ],
+          [
+            3,
+            29
+          ],
+          [
+            3,
+            30
+          ],
+          [
+            3,
+            31
+          ],
+          [
+            3,
+            32
+          ],
+          [
+            3,
+            33
+          ],
+          [
+            3,
+            34
+          ],
+          [
+            3,
+            35
+          ],
+          [
+            3,
+            36
+          ],
+          [
+            3,
+            37
+          ],
+          [
+            3,
+            38
+          ],
+          [
+            3,
+            39
+          ]
+        ],
+        "params": {
+          "start": 136556,
+          "skip": 1,
+          "dir": 1,
+          "length": 22,
+          "step": 1
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true,
+    "checks": [
+      {
+        "occurrence": "R03+",
+        "from": 17,
+        "letters_match": true,
+        "plain_text": true,
+        "synthetic": false,
+        "engine_found": null,
+        "engine_status": "plain_text_row_not_els",
+        "engine_followup": false,
+        "engine_hits": null,
+        "engine_truncated": false,
+        "params": {
+          "start": 136556,
+          "skip": 1,
+          "dir": 1,
+          "length": 22,
+          "step": 1
+        }
+      }
+    ],
+    "verdict": "verified_plain_text_only",
+    "verifiedOccurrences": 1
+  },
+  {
+    "id": "r1.f30",
+    "line": "R03+",
+    "text": "אשרצבאופתחאהלמועד",
+    "rawText": "אשרצבאופתחאהלמועד",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "R03+",
+        "from": 0,
+        "to": 16,
+        "cells": [
+          [
+            3,
+            1
+          ],
+          [
+            3,
+            2
+          ],
+          [
+            3,
+            3
+          ],
+          [
+            3,
+            4
+          ],
+          [
+            3,
+            5
+          ],
+          [
+            3,
+            6
+          ],
+          [
+            3,
+            7
+          ],
+          [
+            3,
+            8
+          ],
+          [
+            3,
+            9
+          ],
+          [
+            3,
+            10
+          ],
+          [
+            3,
+            11
+          ],
+          [
+            3,
+            12
+          ],
+          [
+            3,
+            13
+          ],
+          [
+            3,
+            14
+          ],
+          [
+            3,
+            15
+          ],
+          [
+            3,
+            16
+          ],
+          [
+            3,
+            17
+          ]
+        ],
+        "params": {
+          "start": 136539,
+          "skip": 1,
+          "dir": 1,
+          "length": 17,
+          "step": 1
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true,
+    "checks": [
+      {
+        "occurrence": "R03+",
+        "from": 0,
+        "letters_match": true,
+        "plain_text": true,
+        "synthetic": false,
+        "engine_found": null,
+        "engine_status": "plain_text_row_not_els",
+        "engine_followup": false,
+        "engine_hits": null,
+        "engine_truncated": false,
+        "params": {
+          "start": 136539,
+          "skip": 1,
+          "dir": 1,
+          "length": 17,
+          "step": 1
+        }
+      }
+    ],
+    "verdict": "verified_plain_text_only",
+    "verifiedOccurrences": 1
+  },
+  {
+    "id": "r1.f31",
+    "line": "R04+",
+    "text": "מנהעזימלעלהזכרתמימיקריבנוושחטאת",
+    "rawText": "מנהעזימלעלהזכרתמימיקריבנוושחטאת",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "R04+",
+        "from": 10,
+        "to": 40,
+        "cells": [
+          [
+            4,
+            11
+          ],
+          [
+            4,
+            12
+          ],
+          [
+            4,
+            13
+          ],
+          [
+            4,
+            14
+          ],
+          [
+            4,
+            15
+          ],
+          [
+            4,
+            16
+          ],
+          [
+            4,
+            17
+          ],
+          [
+            4,
+            18
+          ],
+          [
+            4,
+            19
+          ],
+          [
+            4,
+            20
+          ],
+          [
+            4,
+            21
+          ],
+          [
+            4,
+            22
+          ],
+          [
+            4,
+            23
+          ],
+          [
+            4,
+            24
+          ],
+          [
+            4,
+            25
+          ],
+          [
+            4,
+            26
+          ],
+          [
+            4,
+            27
+          ],
+          [
+            4,
+            28
+          ],
+          [
+            4,
+            29
+          ],
+          [
+            4,
+            30
+          ],
+          [
+            4,
+            31
+          ],
+          [
+            4,
+            32
+          ],
+          [
+            4,
+            33
+          ],
+          [
+            4,
+            34
+          ],
+          [
+            4,
+            35
+          ],
+          [
+            4,
+            36
+          ],
+          [
+            4,
+            37
+          ],
+          [
+            4,
+            38
+          ],
+          [
+            4,
+            39
+          ],
+          [
+            4,
+            40
+          ],
+          [
+            4,
+            41
+          ]
+        ],
+        "params": {
+          "start": 142090,
+          "skip": 1,
+          "dir": 1,
+          "length": 31,
+          "step": 1
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true,
+    "checks": [
+      {
+        "occurrence": "R04+",
+        "from": 10,
+        "letters_match": true,
+        "plain_text": true,
+        "synthetic": false,
+        "engine_found": null,
+        "engine_status": "plain_text_row_not_els",
+        "engine_followup": false,
+        "engine_hits": null,
+        "engine_truncated": false,
+        "params": {
+          "start": 142090,
+          "skip": 1,
+          "dir": 1,
+          "length": 31,
+          "step": 1
+        }
+      }
+    ],
+    "verdict": "verified_plain_text_only",
+    "verifiedOccurrences": 1
+  },
+  {
+    "id": "r1.f32",
+    "line": "R05+",
+    "text": "אשרהפקדאתואואתהאבדהאשרמצאאו",
+    "rawText": "אשרהפקדאתואואתהאבדהאשרמצאאו",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "R05+",
+        "from": 7,
+        "to": 33,
+        "cells": [
+          [
+            5,
+            8
+          ],
+          [
+            5,
+            9
+          ],
+          [
+            5,
+            10
+          ],
+          [
+            5,
+            11
+          ],
+          [
+            5,
+            12
+          ],
+          [
+            5,
+            13
+          ],
+          [
+            5,
+            14
+          ],
+          [
+            5,
+            15
+          ],
+          [
+            5,
+            16
+          ],
+          [
+            5,
+            17
+          ],
+          [
+            5,
+            18
+          ],
+          [
+            5,
+            19
+          ],
+          [
+            5,
+            20
+          ],
+          [
+            5,
+            21
+          ],
+          [
+            5,
+            22
+          ],
+          [
+            5,
+            23
+          ],
+          [
+            5,
+            24
+          ],
+          [
+            5,
+            25
+          ],
+          [
+            5,
+            26
+          ],
+          [
+            5,
+            27
+          ],
+          [
+            5,
+            28
+          ],
+          [
+            5,
+            29
+          ],
+          [
+            5,
+            30
+          ],
+          [
+            5,
+            31
+          ],
+          [
+            5,
+            32
+          ],
+          [
+            5,
+            33
+          ],
+          [
+            5,
+            34
+          ]
+        ],
+        "params": {
+          "start": 147628,
+          "skip": 1,
+          "dir": 1,
+          "length": 27,
+          "step": 1
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true,
+    "checks": [
+      {
+        "occurrence": "R05+",
+        "from": 7,
+        "letters_match": true,
+        "plain_text": true,
+        "synthetic": false,
+        "engine_found": null,
+        "engine_status": "plain_text_row_not_els",
+        "engine_followup": false,
+        "engine_hits": null,
+        "engine_truncated": false,
+        "params": {
+          "start": 147628,
+          "skip": 1,
+          "dir": 1,
+          "length": 27,
+          "step": 1
+        }
+      }
+    ],
+    "verdict": "verified_plain_text_only",
+    "verifiedOccurrences": 1
+  },
+  {
+    "id": "r1.f33",
+    "line": "R07+",
+    "text": "ולכלמראהעיניהכהנוראההכהנוהנהכסתההצרעתאתכל",
+    "rawText": "ולכלמראהעיניהכהנוראההכהנוהנהכסתההצרעתאתכל",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "R07+",
+        "from": 0,
+        "to": 40,
+        "cells": [
+          [
+            7,
+            1
+          ],
+          [
+            7,
+            2
+          ],
+          [
+            7,
+            3
+          ],
+          [
+            7,
+            4
+          ],
+          [
+            7,
+            5
+          ],
+          [
+            7,
+            6
+          ],
+          [
+            7,
+            7
+          ],
+          [
+            7,
+            8
+          ],
+          [
+            7,
+            9
+          ],
+          [
+            7,
+            10
+          ],
+          [
+            7,
+            11
+          ],
+          [
+            7,
+            12
+          ],
+          [
+            7,
+            13
+          ],
+          [
+            7,
+            14
+          ],
+          [
+            7,
+            15
+          ],
+          [
+            7,
+            16
+          ],
+          [
+            7,
+            17
+          ],
+          [
+            7,
+            18
+          ],
+          [
+            7,
+            19
+          ],
+          [
+            7,
+            20
+          ],
+          [
+            7,
+            21
+          ],
+          [
+            7,
+            22
+          ],
+          [
+            7,
+            23
+          ],
+          [
+            7,
+            24
+          ],
+          [
+            7,
+            25
+          ],
+          [
+            7,
+            26
+          ],
+          [
+            7,
+            27
+          ],
+          [
+            7,
+            28
+          ],
+          [
+            7,
+            29
+          ],
+          [
+            7,
+            30
+          ],
+          [
+            7,
+            31
+          ],
+          [
+            7,
+            32
+          ],
+          [
+            7,
+            33
+          ],
+          [
+            7,
+            34
+          ],
+          [
+            7,
+            35
+          ],
+          [
+            7,
+            36
+          ],
+          [
+            7,
+            37
+          ],
+          [
+            7,
+            38
+          ],
+          [
+            7,
+            39
+          ],
+          [
+            7,
+            40
+          ],
+          [
+            7,
+            41
+          ]
+        ],
+        "params": {
+          "start": 158703,
+          "skip": 1,
+          "dir": 1,
+          "length": 41,
+          "step": 1
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true,
+    "checks": [
+      {
+        "occurrence": "R07+",
+        "from": 0,
+        "letters_match": true,
+        "plain_text": true,
+        "synthetic": false,
+        "engine_found": null,
+        "engine_status": "plain_text_row_not_els",
+        "engine_followup": false,
+        "engine_hits": null,
+        "engine_truncated": false,
+        "params": {
+          "start": 158703,
+          "skip": 1,
+          "dir": 1,
+          "length": 41,
+          "step": 1
+        }
+      }
+    ],
+    "verdict": "verified_plain_text_only",
+    "verifiedOccurrences": 1
+  },
+  {
+    "id": "r1.f34",
+    "line": "R27+",
+    "text": "אתהשמימולאיהיהמטרוהאדמהלאתתנאתיבולהואבדת",
+    "rawText": "אתהשמימולאיהיהמטרוהאדמהלאתתנאתיבולהואבדת",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "R27+",
+        "from": 1,
+        "to": 40,
+        "cells": [
+          [
+            27,
+            2
+          ],
+          [
+            27,
+            3
+          ],
+          [
+            27,
+            4
+          ],
+          [
+            27,
+            5
+          ],
+          [
+            27,
+            6
+          ],
+          [
+            27,
+            7
+          ],
+          [
+            27,
+            8
+          ],
+          [
+            27,
+            9
+          ],
+          [
+            27,
+            10
+          ],
+          [
+            27,
+            11
+          ],
+          [
+            27,
+            12
+          ],
+          [
+            27,
+            13
+          ],
+          [
+            27,
+            14
+          ],
+          [
+            27,
+            15
+          ],
+          [
+            27,
+            16
+          ],
+          [
+            27,
+            17
+          ],
+          [
+            27,
+            18
+          ],
+          [
+            27,
+            19
+          ],
+          [
+            27,
+            20
+          ],
+          [
+            27,
+            21
+          ],
+          [
+            27,
+            22
+          ],
+          [
+            27,
+            23
+          ],
+          [
+            27,
+            24
+          ],
+          [
+            27,
+            25
+          ],
+          [
+            27,
+            26
+          ],
+          [
+            27,
+            27
+          ],
+          [
+            27,
+            28
+          ],
+          [
+            27,
+            29
+          ],
+          [
+            27,
+            30
+          ],
+          [
+            27,
+            31
+          ],
+          [
+            27,
+            32
+          ],
+          [
+            27,
+            33
+          ],
+          [
+            27,
+            34
+          ],
+          [
+            27,
+            35
+          ],
+          [
+            27,
+            36
+          ],
+          [
+            27,
+            37
+          ],
+          [
+            27,
+            38
+          ],
+          [
+            27,
+            39
+          ],
+          [
+            27,
+            40
+          ],
+          [
+            27,
+            41
+          ]
+        ],
+        "params": {
+          "start": 269524,
+          "skip": 1,
+          "dir": 1,
+          "length": 40,
+          "step": 1
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true,
+    "checks": [
+      {
+        "occurrence": "R27+",
+        "from": 1,
+        "letters_match": true,
+        "plain_text": true,
+        "synthetic": false,
+        "engine_found": null,
+        "engine_status": "plain_text_row_not_els",
+        "engine_followup": false,
+        "engine_hits": null,
+        "engine_truncated": false,
+        "params": {
+          "start": 269524,
+          "skip": 1,
+          "dir": 1,
+          "length": 40,
+          "step": 1
+        }
+      }
+    ],
+    "verdict": "verified_plain_text_only",
+    "verifiedOccurrences": 1
+  },
+  {
+    "id": "r1.f35",
+    "line": "R28+",
+    "text": "ובאהלויכיאינלו",
+    "rawText": "ובאהלויכיאינלו",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "R28+",
+        "from": 27,
+        "to": 40,
+        "cells": [
+          [
+            28,
+            28
+          ],
+          [
+            28,
+            29
+          ],
+          [
+            28,
+            30
+          ],
+          [
+            28,
+            31
+          ],
+          [
+            28,
+            32
+          ],
+          [
+            28,
+            33
+          ],
+          [
+            28,
+            34
+          ],
+          [
+            28,
+            35
+          ],
+          [
+            28,
+            36
+          ],
+          [
+            28,
+            37
+          ],
+          [
+            28,
+            38
+          ],
+          [
+            28,
+            39
+          ],
+          [
+            28,
+            40
+          ],
+          [
+            28,
+            41
+          ]
+        ],
+        "params": {
+          "start": 275091,
+          "skip": 1,
+          "dir": 1,
+          "length": 14,
+          "step": 1
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true,
+    "checks": [
+      {
+        "occurrence": "R28+",
+        "from": 27,
+        "letters_match": true,
+        "plain_text": true,
+        "synthetic": false,
+        "engine_found": null,
+        "engine_status": "plain_text_row_not_els",
+        "engine_followup": false,
+        "engine_hits": null,
+        "engine_truncated": false,
+        "params": {
+          "start": 275091,
+          "skip": 1,
+          "dir": 1,
+          "length": 14,
+          "step": 1
+        }
+      }
+    ],
+    "verdict": "verified_plain_text_only",
+    "verifiedOccurrences": 1
+  },
+  {
+    "id": "r1.f36",
+    "line": "R33+",
+    "text": "נגדתראהאתהארצושמהלאתבואאלהארצאשראנינתנ",
+    "rawText": "נגדתראהאתהארצושמהלאתבואאלהארצאשראנינתנ",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "R33+",
+        "from": 0,
+        "to": 37,
+        "cells": [
+          [
+            33,
+            1
+          ],
+          [
+            33,
+            2
+          ],
+          [
+            33,
+            3
+          ],
+          [
+            33,
+            4
+          ],
+          [
+            33,
+            5
+          ],
+          [
+            33,
+            6
+          ],
+          [
+            33,
+            7
+          ],
+          [
+            33,
+            8
+          ],
+          [
+            33,
+            9
+          ],
+          [
+            33,
+            10
+          ],
+          [
+            33,
+            11
+          ],
+          [
+            33,
+            12
+          ],
+          [
+            33,
+            13
+          ],
+          [
+            33,
+            14
+          ],
+          [
+            33,
+            15
+          ],
+          [
+            33,
+            16
+          ],
+          [
+            33,
+            17
+          ],
+          [
+            33,
+            18
+          ],
+          [
+            33,
+            19
+          ],
+          [
+            33,
+            20
+          ],
+          [
+            33,
+            21
+          ],
+          [
+            33,
+            22
+          ],
+          [
+            33,
+            23
+          ],
+          [
+            33,
+            24
+          ],
+          [
+            33,
+            25
+          ],
+          [
+            33,
+            26
+          ],
+          [
+            33,
+            27
+          ],
+          [
+            33,
+            28
+          ],
+          [
+            33,
+            29
+          ],
+          [
+            33,
+            30
+          ],
+          [
+            33,
+            31
+          ],
+          [
+            33,
+            32
+          ],
+          [
+            33,
+            33
+          ],
+          [
+            33,
+            34
+          ],
+          [
+            33,
+            35
+          ],
+          [
+            33,
+            36
+          ],
+          [
+            33,
+            37
+          ],
+          [
+            33,
+            38
+          ]
+        ],
+        "params": {
+          "start": 302769,
+          "skip": 1,
+          "dir": 1,
+          "length": 38,
+          "step": 1
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true,
+    "checks": [
+      {
+        "occurrence": "R33+",
+        "from": 0,
+        "letters_match": true,
+        "plain_text": true,
+        "synthetic": false,
+        "engine_found": null,
+        "engine_status": "plain_text_row_not_els",
+        "engine_followup": false,
+        "engine_hits": null,
+        "engine_truncated": false,
+        "params": {
+          "start": 302769,
+          "skip": 1,
+          "dir": 1,
+          "length": 38,
+          "step": 1
+        }
+      }
+    ],
+    "verdict": "verified_plain_text_only",
+    "verifiedOccurrences": 1
+  }
+]

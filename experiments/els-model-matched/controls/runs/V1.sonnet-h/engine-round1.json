@@ -1,0 +1,411 @@
+[
+  {
+    "verification": [
+      {
+        "key": "r1.f01.0",
+        "term": "וישבתביומ",
+        "start": 236297,
+        "skip": 5541,
+        "dir": -1,
+        "db_text": "וישבתביומ",
+        "letters_match": true,
+        "engine": {
+          "status": "OK",
+          "hits": 1,
+          "found": true,
+          "completion": {
+            "executed": true,
+            "has_more": false,
+            "truncated": false,
+            "continuation": null,
+            "returned_hits": 1
+          }
+        }
+      },
+      {
+        "key": "r1.f02.0",
+        "term": "ביומהשביעי",
+        "start": 125459,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "ביומהשביעי",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f03.0",
+        "term": "שבתשבתונקדשליהוה",
+        "start": 125469,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "שבתשבתונקדשליהוה",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f05.0",
+        "term": "וקדשאתראשוביומההוא",
+        "start": 197492,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "וקדשאתראשוביומההוא",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f06.0",
+        "term": "להורתביומהטמאוביומהטהרזאתתורתהצר",
+        "start": 164253,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "להורתביומהטמאוביומהטהרזאתתורתהצר",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f07.0",
+        "term": "לכנאמרהננינתנלואתבריתישלומ",
+        "start": 230737,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "לכנאמרהננינתנלואתבריתישלומ",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f08.0",
+        "term": "והיתהלוולזרעו",
+        "start": 230763,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "והיתהלוולזרעו",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f10.0",
+        "term": "תרומהאשרהרימוליהוהששהעשראלפשבעמאותוחמשי",
+        "start": 241820,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "תרומהאשרהרימוליהוהששהעשראלפשבעמאותוחמשי",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f11.0",
+        "term": "בלתיהשאירלושריד",
+        "start": 225210,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "בלתיהשאירלושריד",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f12.0",
+        "term": "אתשבותכורחמכושבוקבצכמכלהעמימאשרהפיצכ",
+        "start": 297230,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "אתשבותכורחמכושבוקבצכמכלהעמימאשרהפיצכ",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f13.0",
+        "term": "ברוכאתהבבאכוברוכאתהבצאתכ",
+        "start": 291700,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "ברוכאתהבבאכוברוכאתהבצאתכ",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f14.0",
+        "term": "מאילתומעצינגברונפנונעברדרכמדברמואב",
+        "start": 252905,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "מאילתומעצינגברונפנונעברדרכמדברמואב",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f16.0",
+        "term": "באחדלחדשהשניבשנההשניתלצאתממארצמצרימ",
+        "start": 186414,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "באחדלחדשהשניבשנההשניתלצאתממארצמצרימ",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f17.0",
+        "term": "ויעמדולפנייהוהויאמרמשהזההדבראשרצוהיהוה",
+        "start": 153164,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "ויעמדולפנייהוהויאמרמשהזההדבראשרצוהיהוה",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f18.0",
+        "term": "ויאמראלהמאלההדברימאשרצוהיהוהלעשת",
+        "start": 131003,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "ויאמראלהמאלההדברימאשרצוהיהוהלעשת",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f19.0",
+        "term": "והבדלתאתהלוימ",
+        "start": 203031,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "והבדלתאתהלוימ",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f20.0",
+        "term": "והיוליהלוימ",
+        "start": 203056,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "והיוליהלוימ",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f21.0",
+        "term": "ליהוהראשיתערסתכמחלה",
+        "start": 214114,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "ליהוהראשיתערסתכמחלה",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f22.0",
+        "term": "תרימותרומהכתרומתגרנכנ",
+        "start": 214133,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "תרימותרומהכתרומתגרנכנ",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f23.0",
+        "term": "וביומהשביעימקראקדשיהיה",
+        "start": 236294,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "וביומהשביעימקראקדשיהיה",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f24.0",
+        "term": "התמידיעשה",
+        "start": 236280,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "התמידיעשה",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f25.0",
+        "term": "ויירשואתארצ",
+        "start": 225225,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "ויירשואתארצ",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f26.0",
+        "term": "בניוואתכלעמו",
+        "start": 225196,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "בניוואתכלעמו",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f27.0",
+        "term": "עונאשמהבאכלמאתקדשיהמ",
+        "start": 175326,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "עונאשמהבאכלמאתקדשיהמ",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f28.0",
+        "term": "כיאנייהוהמקדשמ",
+        "start": 175346,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "כיאנייהוהמקדשמ",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f29.0",
+        "term": "ויעשאתהחצרלפאתנגבתימנה",
+        "start": 136556,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "ויעשאתהחצרלפאתנגבתימנה",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f30.0",
+        "term": "אשרצבאופתחאהלמועד",
+        "start": 136539,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "אשרצבאופתחאהלמועד",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f31.0",
+        "term": "מנהעזימלעלהזכרתמימיקריבנוושחטאת",
+        "start": 142090,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "מנהעזימלעלהזכרתמימיקריבנוושחטאת",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f32.0",
+        "term": "אשרהפקדאתואואתהאבדהאשרמצאאו",
+        "start": 147628,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "אשרהפקדאתואואתהאבדהאשרמצאאו",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f33.0",
+        "term": "ולכלמראהעיניהכהנוראההכהנוהנהכסתההצרעתאתכל",
+        "start": 158703,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "ולכלמראהעיניהכהנוראההכהנוהנהכסתההצרעתאתכל",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f34.0",
+        "term": "אתהשמימולאיהיהמטרוהאדמהלאתתנאתיבולהואבדת",
+        "start": 269524,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "אתהשמימולאיהיהמטרוהאדמהלאתתנאתיבולהואבדת",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f35.0",
+        "term": "ובאהלויכיאינלו",
+        "start": 275091,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "ובאהלויכיאינלו",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f36.0",
+        "term": "נגדתראהאתהארצושמהלאתבואאלהארצאשראנינתנ",
+        "start": 302769,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "נגדתראהאתהארצושמהלאתבואאלהארצאשראנינתנ",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      }
+    ]
+  }
+]

@@ -1,0 +1,114 @@
+[
+  {
+    "verification": [
+      {
+        "key": "r1.f02.0",
+        "term": "שבתשבתונ",
+        "start": 125469,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "שבתשבתונ",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f03.0",
+        "term": "ביומ",
+        "start": 125459,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "ביומ",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f04.0",
+        "term": "וביומהשביעי",
+        "start": 236294,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "וביומהשביעי",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f05.0",
+        "term": "משמרתהמקדש",
+        "start": 191967,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "משמרתהמקדש",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f06.0",
+        "term": "והזירליהוה",
+        "start": 197510,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "והזירליהוה",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f07.0",
+        "term": "מקראקדש",
+        "start": 236305,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "מקראקדש",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f08.0",
+        "term": "תרומהכתרומ",
+        "start": 214138,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "תרומהכתרומ",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f09.0",
+        "term": "ושריד",
+        "start": 225220,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "ושריד",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f10.0",
+        "term": "ביומההוא",
+        "start": 197502,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "ביומההוא",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      }
+    ]
+  }
+]

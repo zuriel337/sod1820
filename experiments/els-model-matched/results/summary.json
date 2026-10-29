@@ -1,0 +1,2185 @@
+{
+  "rule": [
+    {
+      "arm": "haiku-m",
+      "usable": 4,
+      "atLeastHalfOfFable": 0
+    },
+    {
+      "arm": "haiku-h",
+      "usable": 1,
+      "atLeastHalfOfFable": 0
+    },
+    {
+      "arm": "sonnet-m",
+      "usable": 4,
+      "atLeastHalfOfFable": 0
+    },
+    {
+      "arm": "sonnet-h",
+      "usable": 4,
+      "atLeastHalfOfFable": 0
+    }
+  ],
+  "cells": [
+    {
+      "base": "S2",
+      "arm": "fable (saved)",
+      "model": "claude-fable-5-1",
+      "stop_reason": "end_turn",
+      "usd": 1.560425,
+      "seconds": 593,
+      "input_tokens": 21355,
+      "output_tokens": 58146,
+      "thinking_tokens": 52452,
+      "usable": true,
+      "evaluation": [
+        {
+          "target": "ספינת",
+          "placementsInRegion": [
+            "A45+"
+          ],
+          "best": "exact_verified",
+          "hits": {
+            "exact_verified": [
+              "r1.f04"
+            ],
+            "exact_unverified": [],
+            "inside_longer_verified": [],
+            "inside_longer_unverified": [],
+            "overlap_same_line_verified": [],
+            "overlap_same_line_unverified": []
+          }
+        },
+        {
+          "target": "יכלאש",
+          "placementsInRegion": [
+            "D45+"
+          ],
+          "best": "none",
+          "hits": {
+            "exact_verified": [],
+            "exact_unverified": [],
+            "inside_longer_verified": [],
+            "inside_longer_unverified": [],
+            "overlap_same_line_verified": [],
+            "overlap_same_line_unverified": []
+          }
+        }
+      ],
+      "proposals": 60,
+      "els_n": 57,
+      "interesting_n": 11,
+      "metrics": {
+        "proposals": 60,
+        "verified": 60,
+        "notVerified": 0,
+        "byVerdict": {
+          "engine": 57,
+          "plainText": 3,
+          "synthetic": 0
+        },
+        "els": {
+          "n": 57,
+          "len3to4": 40,
+          "len5to6": 13,
+          "len7plus": 4,
+          "long": 17,
+          "longStoryRelated": 12,
+          "storyRelated": 38,
+          "rare": 23,
+          "unlikely": 12,
+          "unlikelier": 6,
+          "medianExpected": 5.943741241766829,
+          "medianHits": 4,
+          "truncatedPages": 7,
+          "kinds": {
+            "R": 0,
+            "C": 16,
+            "D": 18,
+            "A": 23
+          }
+        },
+        "noise": {
+          "likelyByChance": 45,
+          "likelyByChanceShare": 0.7894736842105263,
+          "shortEls": 40,
+          "shortElsShare": 0.7017543859649122,
+          "nonRareElsShare": 0.5964912280701754,
+          "plainTextShare": 0.05
+        },
+        "tiers": {
+          "A": 8,
+          "B": 30,
+          "C": 22,
+          "missing": 0
+        },
+        "firstGroup": {
+          "n": 8,
+          "els": 8,
+          "plain": 0,
+          "long": 5,
+          "rare": 5,
+          "unlikely": 4,
+          "interesting": 4,
+          "kinds": {
+            "R": 0,
+            "C": 4,
+            "D": 2,
+            "A": 2
+          },
+          "storyRelated": 8
+        },
+        "outsideFirstGroup": {
+          "n": 52,
+          "interesting": 7,
+          "longEls": 12,
+          "kinds": {
+            "R": 3,
+            "C": 12,
+            "D": 16,
+            "A": 21
+          }
+        },
+        "continuation": {
+          "fromFinding": 10,
+          "extension": 2,
+          "crossing": 3,
+          "phrases": 7
+        }
+      }
+    },
+    {
+      "base": "S2",
+      "arm": "haiku-m",
+      "model": "claude-haiku-5-5",
+      "stop_reason": "end_turn",
+      "usd": 0.002714,
+      "seconds": 145,
+      "input_tokens": 21355,
+      "output_tokens": 6587,
+      "thinking_tokens": 5236,
+      "usable": true,
+      "evaluation": [
+        {
+          "target": "ספינת",
+          "placementsInRegion": [
+            "A45+"
+          ],
+          "best": "none",
+          "hits": {
+            "exact_verified": [],
+            "exact_unverified": [],
+            "inside_longer_verified": [],
+            "inside_longer_unverified": [],
+            "overlap_same_line_verified": [],
+            "overlap_same_line_unverified": []
+          }
+        },
+        {
+          "target": "יכלאש",
+          "placementsInRegion": [
+            "D45+"
+          ],
+          "best": "none",
+          "hits": {
+            "exact_verified": [],
+            "exact_unverified": [],
+            "inside_longer_verified": [],
+            "inside_longer_unverified": [],
+            "overlap_same_line_verified": [],
+            "overlap_same_line_unverified": []
+          }
+        }
+      ],
+      "proposals": 9,
+      "shared_els_with_fable": 1,
+      "shared_interesting_with_fable": 1,
+      "share_of_fable_els": 0.03508771929824561,
+      "els_n": 2,
+      "interesting_n": 2,
+      "metrics": {
+        "proposals": 9,
+        "verified": 9,
+        "notVerified": 0,
+        "byVerdict": {
+          "engine": 2,
+          "plainText": 7,
+          "synthetic": 0
+        },
+        "els": {
+          "n": 2,
+          "len3to4": 0,
+          "len5to6": 1,
+          "len7plus": 1,
+          "long": 2,
+          "longStoryRelated": 1,
+          "storyRelated": 1,
+          "rare": 2,
+          "unlikely": 2,
+          "unlikelier": 1,
+          "medianExpected": 0.3996682303736291,
+          "medianHits": 1.5,
+          "truncatedPages": 0,
+          "kinds": {
+            "R": 0,
+            "C": 2,
+            "D": 0,
+            "A": 0
+          }
+        },
+        "noise": {
+          "likelyByChance": 0,
+          "likelyByChanceShare": 0,
+          "shortEls": 0,
+          "shortElsShare": 0,
+          "nonRareElsShare": 0,
+          "plainTextShare": 0.7777777777777778
+        },
+        "tiers": {
+          "A": 6,
+          "B": 2,
+          "C": 1,
+          "missing": 0
+        },
+        "firstGroup": {
+          "n": 6,
+          "els": 1,
+          "plain": 5,
+          "long": 6,
+          "rare": 1,
+          "unlikely": 1,
+          "interesting": 1,
+          "kinds": {
+            "R": 5,
+            "C": 1,
+            "D": 0,
+            "A": 0
+          },
+          "storyRelated": 3
+        },
+        "outsideFirstGroup": {
+          "n": 3,
+          "interesting": 1,
+          "longEls": 1,
+          "kinds": {
+            "R": 2,
+            "C": 1,
+            "D": 0,
+            "A": 0
+          }
+        },
+        "continuation": {
+          "fromFinding": 0,
+          "extension": 0,
+          "crossing": 0,
+          "phrases": 4
+        }
+      }
+    },
+    {
+      "base": "S2",
+      "arm": "haiku-h",
+      "model": "claude-haiku-5-5",
+      "stop_reason": "max_tokens",
+      "usd": 0.013068,
+      "seconds": 470,
+      "input_tokens": 21355,
+      "output_tokens": 48000,
+      "thinking_tokens": 47988,
+      "usable": false,
+      "els_n": null,
+      "interesting_n": null,
+      "metrics": null
+    },
+    {
+      "base": "S2",
+      "arm": "sonnet-m",
+      "model": "claude-sonnet-5-5",
+      "stop_reason": "end_turn",
+      "usd": 0.03123,
+      "seconds": 127,
+      "input_tokens": 21355,
+      "output_tokens": 1975,
+      "thinking_tokens": 0,
+      "usable": true,
+      "evaluation": [
+        {
+          "target": "ספינת",
+          "placementsInRegion": [
+            "A45+"
+          ],
+          "best": "none",
+          "hits": {
+            "exact_verified": [],
+            "exact_unverified": [],
+            "inside_longer_verified": [],
+            "inside_longer_unverified": [],
+            "overlap_same_line_verified": [],
+            "overlap_same_line_unverified": []
+          }
+        },
+        {
+          "target": "יכלאש",
+          "placementsInRegion": [
+            "D45+"
+          ],
+          "best": "none",
+          "hits": {
+            "exact_verified": [],
+            "exact_unverified": [],
+            "inside_longer_verified": [],
+            "inside_longer_unverified": [],
+            "overlap_same_line_verified": [],
+            "overlap_same_line_unverified": []
+          }
+        }
+      ],
+      "proposals": 20,
+      "shared_els_with_fable": 0,
+      "shared_interesting_with_fable": 0,
+      "share_of_fable_els": 0,
+      "els_n": 0,
+      "interesting_n": 0,
+      "metrics": {
+        "proposals": 20,
+        "verified": 19,
+        "notVerified": 1,
+        "byVerdict": {
+          "engine": 0,
+          "plainText": 19,
+          "synthetic": 0
+        },
+        "els": {
+          "n": 0,
+          "len3to4": 0,
+          "len5to6": 0,
+          "len7plus": 0,
+          "long": 0,
+          "longStoryRelated": 0,
+          "storyRelated": 0,
+          "rare": 0,
+          "unlikely": 0,
+          "unlikelier": 0,
+          "medianExpected": null,
+          "medianHits": null,
+          "truncatedPages": 0,
+          "kinds": {
+            "R": 0,
+            "C": 0,
+            "D": 0,
+            "A": 0
+          }
+        },
+        "noise": {
+          "likelyByChance": 0,
+          "likelyByChanceShare": null,
+          "shortEls": 0,
+          "shortElsShare": null,
+          "nonRareElsShare": null,
+          "plainTextShare": 0.95
+        },
+        "tiers": {
+          "A": 5,
+          "B": 7,
+          "C": 8,
+          "missing": 0
+        },
+        "firstGroup": {
+          "n": 5,
+          "els": 0,
+          "plain": 5,
+          "long": 5,
+          "rare": 0,
+          "unlikely": 0,
+          "interesting": 0,
+          "kinds": {
+            "R": 5,
+            "C": 0,
+            "D": 0,
+            "A": 0
+          },
+          "storyRelated": 2
+        },
+        "outsideFirstGroup": {
+          "n": 15,
+          "interesting": 0,
+          "longEls": 0,
+          "kinds": {
+            "R": 14,
+            "C": 0,
+            "D": 0,
+            "A": 0
+          }
+        },
+        "continuation": {
+          "fromFinding": 0,
+          "extension": 0,
+          "crossing": 0,
+          "phrases": 16
+        }
+      }
+    },
+    {
+      "base": "S2",
+      "arm": "sonnet-h",
+      "model": "claude-sonnet-5-5",
+      "stop_reason": "end_turn",
+      "usd": 0.093835,
+      "seconds": 239,
+      "input_tokens": 21355,
+      "output_tokens": 14496,
+      "thinking_tokens": 9658,
+      "usable": true,
+      "evaluation": [
+        {
+          "target": "ספינת",
+          "placementsInRegion": [
+            "A45+"
+          ],
+          "best": "none",
+          "hits": {
+            "exact_verified": [],
+            "exact_unverified": [],
+            "inside_longer_verified": [],
+            "inside_longer_unverified": [],
+            "overlap_same_line_verified": [],
+            "overlap_same_line_unverified": []
+          }
+        },
+        {
+          "target": "יכלאש",
+          "placementsInRegion": [
+            "D45+"
+          ],
+          "best": "none",
+          "hits": {
+            "exact_verified": [],
+            "exact_unverified": [],
+            "inside_longer_verified": [],
+            "inside_longer_unverified": [],
+            "overlap_same_line_verified": [],
+            "overlap_same_line_unverified": []
+          }
+        }
+      ],
+      "proposals": 40,
+      "shared_els_with_fable": 1,
+      "shared_interesting_with_fable": 1,
+      "share_of_fable_els": 0.017543859649122806,
+      "els_n": 1,
+      "interesting_n": 1,
+      "metrics": {
+        "proposals": 40,
+        "verified": 40,
+        "notVerified": 0,
+        "byVerdict": {
+          "engine": 1,
+          "plainText": 39,
+          "synthetic": 0
+        },
+        "els": {
+          "n": 1,
+          "len3to4": 0,
+          "len5to6": 0,
+          "len7plus": 1,
+          "long": 1,
+          "longStoryRelated": 1,
+          "storyRelated": 1,
+          "rare": 1,
+          "unlikely": 1,
+          "unlikelier": 1,
+          "medianExpected": 0.0002506713400492617,
+          "medianHits": 1,
+          "truncatedPages": 0,
+          "kinds": {
+            "R": 0,
+            "C": 1,
+            "D": 0,
+            "A": 0
+          }
+        },
+        "noise": {
+          "likelyByChance": 0,
+          "likelyByChanceShare": 0,
+          "shortEls": 0,
+          "shortElsShare": 0,
+          "nonRareElsShare": 0,
+          "plainTextShare": 0.975
+        },
+        "tiers": {
+          "A": 10,
+          "B": 6,
+          "C": 24,
+          "missing": 0
+        },
+        "firstGroup": {
+          "n": 10,
+          "els": 1,
+          "plain": 9,
+          "long": 10,
+          "rare": 1,
+          "unlikely": 1,
+          "interesting": 1,
+          "kinds": {
+            "R": 9,
+            "C": 1,
+            "D": 0,
+            "A": 0
+          },
+          "storyRelated": 2
+        },
+        "outsideFirstGroup": {
+          "n": 30,
+          "interesting": 0,
+          "longEls": 0,
+          "kinds": {
+            "R": 30,
+            "C": 0,
+            "D": 0,
+            "A": 0
+          }
+        },
+        "continuation": {
+          "fromFinding": 4,
+          "extension": 2,
+          "crossing": 0,
+          "phrases": 39
+        }
+      }
+    },
+    {
+      "base": "S4a",
+      "arm": "fable (saved)",
+      "model": "claude-fable-5-1",
+      "stop_reason": "end_turn",
+      "usd": 1.25432,
+      "seconds": 923,
+      "input_tokens": 21334,
+      "output_tokens": 45906,
+      "thinking_tokens": 40613,
+      "usable": true,
+      "evaluation": [
+        {
+          "target": "ספינת",
+          "placementsInRegion": [],
+          "best": "none",
+          "hits": {
+            "exact_verified": [],
+            "exact_unverified": [],
+            "inside_longer_verified": [],
+            "inside_longer_unverified": [],
+            "overlap_same_line_verified": [],
+            "overlap_same_line_unverified": []
+          }
+        },
+        {
+          "target": "יכלאש",
+          "placementsInRegion": [],
+          "best": "none",
+          "hits": {
+            "exact_verified": [],
+            "exact_unverified": [],
+            "inside_longer_verified": [],
+            "inside_longer_unverified": [],
+            "overlap_same_line_verified": [],
+            "overlap_same_line_unverified": []
+          }
+        }
+      ],
+      "proposals": 60,
+      "els_n": 60,
+      "interesting_n": 20,
+      "metrics": {
+        "proposals": 60,
+        "verified": 60,
+        "notVerified": 0,
+        "byVerdict": {
+          "engine": 60,
+          "plainText": 0,
+          "synthetic": 0
+        },
+        "els": {
+          "n": 60,
+          "len3to4": 29,
+          "len5to6": 31,
+          "len7plus": 0,
+          "long": 31,
+          "longStoryRelated": 7,
+          "storyRelated": 20,
+          "rare": 32,
+          "unlikely": 21,
+          "unlikelier": 2,
+          "medianExpected": 1.7309062463687335,
+          "medianHits": 3,
+          "truncatedPages": 3,
+          "kinds": {
+            "R": 0,
+            "C": 25,
+            "D": 18,
+            "A": 17
+          }
+        },
+        "noise": {
+          "likelyByChance": 39,
+          "likelyByChanceShare": 0.65,
+          "shortEls": 29,
+          "shortElsShare": 0.48333333333333334,
+          "nonRareElsShare": 0.4666666666666667,
+          "plainTextShare": 0
+        },
+        "tiers": {
+          "A": 12,
+          "B": 19,
+          "C": 29,
+          "missing": 0
+        },
+        "firstGroup": {
+          "n": 12,
+          "els": 12,
+          "plain": 0,
+          "long": 4,
+          "rare": 6,
+          "unlikely": 2,
+          "interesting": 1,
+          "kinds": {
+            "R": 0,
+            "C": 4,
+            "D": 2,
+            "A": 6
+          },
+          "storyRelated": 11
+        },
+        "outsideFirstGroup": {
+          "n": 48,
+          "interesting": 19,
+          "longEls": 27,
+          "kinds": {
+            "R": 0,
+            "C": 21,
+            "D": 16,
+            "A": 11
+          }
+        },
+        "continuation": {
+          "fromFinding": 0,
+          "extension": 0,
+          "crossing": 0,
+          "phrases": 21
+        }
+      }
+    },
+    {
+      "base": "S4a",
+      "arm": "haiku-m",
+      "model": "claude-haiku-5-5",
+      "stop_reason": "end_turn",
+      "usd": 0.003833,
+      "seconds": 133,
+      "input_tokens": 21334,
+      "output_tokens": 11064,
+      "thinking_tokens": 8571,
+      "usable": true,
+      "evaluation": [
+        {
+          "target": "ספינת",
+          "placementsInRegion": [],
+          "best": "none",
+          "hits": {
+            "exact_verified": [],
+            "exact_unverified": [],
+            "inside_longer_verified": [],
+            "inside_longer_unverified": [],
+            "overlap_same_line_verified": [],
+            "overlap_same_line_unverified": []
+          }
+        },
+        {
+          "target": "יכלאש",
+          "placementsInRegion": [],
+          "best": "none",
+          "hits": {
+            "exact_verified": [],
+            "exact_unverified": [],
+            "inside_longer_verified": [],
+            "inside_longer_unverified": [],
+            "overlap_same_line_verified": [],
+            "overlap_same_line_unverified": []
+          }
+        }
+      ],
+      "proposals": 22,
+      "shared_els_with_fable": 0,
+      "shared_interesting_with_fable": 0,
+      "share_of_fable_els": 0.03333333333333333,
+      "els_n": 2,
+      "interesting_n": 1,
+      "metrics": {
+        "proposals": 22,
+        "verified": 22,
+        "notVerified": 0,
+        "byVerdict": {
+          "engine": 2,
+          "plainText": 20,
+          "synthetic": 0
+        },
+        "els": {
+          "n": 2,
+          "len3to4": 1,
+          "len5to6": 1,
+          "len7plus": 0,
+          "long": 1,
+          "longStoryRelated": 0,
+          "storyRelated": 0,
+          "rare": 1,
+          "unlikely": 1,
+          "unlikelier": 0,
+          "medianExpected": 5.136179248077638,
+          "medianHits": 5.5,
+          "truncatedPages": 0,
+          "kinds": {
+            "R": 0,
+            "C": 2,
+            "D": 0,
+            "A": 0
+          }
+        },
+        "noise": {
+          "likelyByChance": 1,
+          "likelyByChanceShare": 0.5,
+          "shortEls": 1,
+          "shortElsShare": 0.5,
+          "nonRareElsShare": 0.5,
+          "plainTextShare": 0.9090909090909091
+        },
+        "tiers": {
+          "A": 8,
+          "B": 8,
+          "C": 6,
+          "missing": 0
+        },
+        "firstGroup": {
+          "n": 8,
+          "els": 1,
+          "plain": 7,
+          "long": 6,
+          "rare": 0,
+          "unlikely": 0,
+          "interesting": 0,
+          "kinds": {
+            "R": 7,
+            "C": 1,
+            "D": 0,
+            "A": 0
+          },
+          "storyRelated": 0
+        },
+        "outsideFirstGroup": {
+          "n": 14,
+          "interesting": 1,
+          "longEls": 1,
+          "kinds": {
+            "R": 13,
+            "C": 1,
+            "D": 0,
+            "A": 0
+          }
+        },
+        "continuation": {
+          "fromFinding": 0,
+          "extension": 0,
+          "crossing": 0,
+          "phrases": 10
+        }
+      }
+    },
+    {
+      "base": "S4a",
+      "arm": "haiku-h",
+      "model": "claude-haiku-5-5",
+      "stop_reason": "end_turn",
+      "usd": 0.008017,
+      "seconds": 202,
+      "input_tokens": 21334,
+      "output_tokens": 27801,
+      "thinking_tokens": 24457,
+      "usable": true,
+      "evaluation": [
+        {
+          "target": "ספינת",
+          "placementsInRegion": [],
+          "best": "none",
+          "hits": {
+            "exact_verified": [],
+            "exact_unverified": [],
+            "inside_longer_verified": [],
+            "inside_longer_unverified": [],
+            "overlap_same_line_verified": [],
+            "overlap_same_line_unverified": []
+          }
+        },
+        {
+          "target": "יכלאש",
+          "placementsInRegion": [],
+          "best": "none",
+          "hits": {
+            "exact_verified": [],
+            "exact_unverified": [],
+            "inside_longer_verified": [],
+            "inside_longer_unverified": [],
+            "overlap_same_line_verified": [],
+            "overlap_same_line_unverified": []
+          }
+        }
+      ],
+      "proposals": 31,
+      "shared_els_with_fable": 2,
+      "shared_interesting_with_fable": 1,
+      "share_of_fable_els": 0.06666666666666667,
+      "els_n": 4,
+      "interesting_n": 2,
+      "metrics": {
+        "proposals": 31,
+        "verified": 31,
+        "notVerified": 0,
+        "byVerdict": {
+          "engine": 4,
+          "plainText": 27,
+          "synthetic": 0
+        },
+        "els": {
+          "n": 4,
+          "len3to4": 2,
+          "len5to6": 2,
+          "len7plus": 0,
+          "long": 2,
+          "longStoryRelated": 0,
+          "storyRelated": 1,
+          "rare": 2,
+          "unlikely": 2,
+          "unlikelier": 0,
+          "medianExpected": 15.582349468826052,
+          "medianHits": 1,
+          "truncatedPages": 1,
+          "kinds": {
+            "R": 0,
+            "C": 0,
+            "D": 2,
+            "A": 2
+          }
+        },
+        "noise": {
+          "likelyByChance": 2,
+          "likelyByChanceShare": 0.5,
+          "shortEls": 2,
+          "shortElsShare": 0.5,
+          "nonRareElsShare": 0.5,
+          "plainTextShare": 0.8709677419354839
+        },
+        "tiers": {
+          "A": 8,
+          "B": 9,
+          "C": 14,
+          "missing": 0
+        },
+        "firstGroup": {
+          "n": 8,
+          "els": 0,
+          "plain": 8,
+          "long": 8,
+          "rare": 0,
+          "unlikely": 0,
+          "interesting": 0,
+          "kinds": {
+            "R": 8,
+            "C": 0,
+            "D": 0,
+            "A": 0
+          },
+          "storyRelated": 0
+        },
+        "outsideFirstGroup": {
+          "n": 23,
+          "interesting": 2,
+          "longEls": 2,
+          "kinds": {
+            "R": 19,
+            "C": 0,
+            "D": 2,
+            "A": 2
+          }
+        },
+        "continuation": {
+          "fromFinding": 0,
+          "extension": 0,
+          "crossing": 0,
+          "phrases": 19
+        }
+      }
+    },
+    {
+      "base": "S4a",
+      "arm": "sonnet-m",
+      "model": "claude-sonnet-5-5",
+      "stop_reason": "end_turn",
+      "usd": 0.030124,
+      "seconds": 127,
+      "input_tokens": 21334,
+      "output_tokens": 1758,
+      "thinking_tokens": 0,
+      "usable": true,
+      "evaluation": [
+        {
+          "target": "ספינת",
+          "placementsInRegion": [],
+          "best": "none",
+          "hits": {
+            "exact_verified": [],
+            "exact_unverified": [],
+            "inside_longer_verified": [],
+            "inside_longer_unverified": [],
+            "overlap_same_line_verified": [],
+            "overlap_same_line_unverified": []
+          }
+        },
+        {
+          "target": "יכלאש",
+          "placementsInRegion": [],
+          "best": "none",
+          "hits": {
+            "exact_verified": [],
+            "exact_unverified": [],
+            "inside_longer_verified": [],
+            "inside_longer_unverified": [],
+            "overlap_same_line_verified": [],
+            "overlap_same_line_unverified": []
+          }
+        }
+      ],
+      "proposals": 18,
+      "shared_els_with_fable": 0,
+      "shared_interesting_with_fable": 0,
+      "share_of_fable_els": 0,
+      "els_n": 0,
+      "interesting_n": 0,
+      "metrics": {
+        "proposals": 18,
+        "verified": 18,
+        "notVerified": 0,
+        "byVerdict": {
+          "engine": 0,
+          "plainText": 18,
+          "synthetic": 0
+        },
+        "els": {
+          "n": 0,
+          "len3to4": 0,
+          "len5to6": 0,
+          "len7plus": 0,
+          "long": 0,
+          "longStoryRelated": 0,
+          "storyRelated": 0,
+          "rare": 0,
+          "unlikely": 0,
+          "unlikelier": 0,
+          "medianExpected": null,
+          "medianHits": null,
+          "truncatedPages": 0,
+          "kinds": {
+            "R": 0,
+            "C": 0,
+            "D": 0,
+            "A": 0
+          }
+        },
+        "noise": {
+          "likelyByChance": 0,
+          "likelyByChanceShare": null,
+          "shortEls": 0,
+          "shortElsShare": null,
+          "nonRareElsShare": null,
+          "plainTextShare": 1
+        },
+        "tiers": {
+          "A": 6,
+          "B": 6,
+          "C": 6,
+          "missing": 0
+        },
+        "firstGroup": {
+          "n": 6,
+          "els": 0,
+          "plain": 6,
+          "long": 6,
+          "rare": 0,
+          "unlikely": 0,
+          "interesting": 0,
+          "kinds": {
+            "R": 6,
+            "C": 0,
+            "D": 0,
+            "A": 0
+          },
+          "storyRelated": 2
+        },
+        "outsideFirstGroup": {
+          "n": 12,
+          "interesting": 0,
+          "longEls": 0,
+          "kinds": {
+            "R": 12,
+            "C": 0,
+            "D": 0,
+            "A": 0
+          }
+        },
+        "continuation": {
+          "fromFinding": 0,
+          "extension": 0,
+          "crossing": 0,
+          "phrases": 9
+        }
+      }
+    },
+    {
+      "base": "S4a",
+      "arm": "sonnet-h",
+      "model": "claude-sonnet-5-5",
+      "stop_reason": "end_turn",
+      "usd": 0.220134,
+      "seconds": 448,
+      "input_tokens": 21334,
+      "output_tokens": 39760,
+      "thinking_tokens": 33311,
+      "usable": true,
+      "evaluation": [
+        {
+          "target": "ספינת",
+          "placementsInRegion": [],
+          "best": "none",
+          "hits": {
+            "exact_verified": [],
+            "exact_unverified": [],
+            "inside_longer_verified": [],
+            "inside_longer_unverified": [],
+            "overlap_same_line_verified": [],
+            "overlap_same_line_unverified": []
+          }
+        },
+        {
+          "target": "יכלאש",
+          "placementsInRegion": [],
+          "best": "none",
+          "hits": {
+            "exact_verified": [],
+            "exact_unverified": [],
+            "inside_longer_verified": [],
+            "inside_longer_unverified": [],
+            "overlap_same_line_verified": [],
+            "overlap_same_line_unverified": []
+          }
+        }
+      ],
+      "proposals": 37,
+      "shared_els_with_fable": 1,
+      "shared_interesting_with_fable": 1,
+      "share_of_fable_els": 0.06666666666666667,
+      "els_n": 4,
+      "interesting_n": 1,
+      "metrics": {
+        "proposals": 37,
+        "verified": 36,
+        "notVerified": 1,
+        "byVerdict": {
+          "engine": 4,
+          "plainText": 32,
+          "synthetic": 0
+        },
+        "els": {
+          "n": 4,
+          "len3to4": 2,
+          "len5to6": 2,
+          "len7plus": 0,
+          "long": 2,
+          "longStoryRelated": 0,
+          "storyRelated": 0,
+          "rare": 2,
+          "unlikely": 1,
+          "unlikelier": 0,
+          "medianExpected": 162.5099559532938,
+          "medianHits": 2,
+          "truncatedPages": 2,
+          "kinds": {
+            "R": 0,
+            "C": 1,
+            "D": 2,
+            "A": 1
+          }
+        },
+        "noise": {
+          "likelyByChance": 3,
+          "likelyByChanceShare": 0.75,
+          "shortEls": 2,
+          "shortElsShare": 0.5,
+          "nonRareElsShare": 0.5,
+          "plainTextShare": 0.8648648648648649
+        },
+        "tiers": {
+          "A": 12,
+          "B": 11,
+          "C": 14,
+          "missing": 0
+        },
+        "firstGroup": {
+          "n": 12,
+          "els": 0,
+          "plain": 12,
+          "long": 12,
+          "rare": 0,
+          "unlikely": 0,
+          "interesting": 0,
+          "kinds": {
+            "R": 12,
+            "C": 0,
+            "D": 0,
+            "A": 0
+          },
+          "storyRelated": 0
+        },
+        "outsideFirstGroup": {
+          "n": 25,
+          "interesting": 1,
+          "longEls": 2,
+          "kinds": {
+            "R": 20,
+            "C": 1,
+            "D": 2,
+            "A": 1
+          }
+        },
+        "continuation": {
+          "fromFinding": 0,
+          "extension": 0,
+          "crossing": 0,
+          "phrases": 34
+        }
+      }
+    },
+    {
+      "base": "S4b",
+      "arm": "fable (saved)",
+      "model": "claude-fable-5-1",
+      "stop_reason": "end_turn",
+      "usd": 1.00383,
+      "seconds": 360,
+      "input_tokens": 21286,
+      "output_tokens": 35896,
+      "thinking_tokens": 29908,
+      "usable": true,
+      "evaluation": [
+        {
+          "target": "ספינת",
+          "placementsInRegion": [],
+          "best": "none",
+          "hits": {
+            "exact_verified": [],
+            "exact_unverified": [],
+            "inside_longer_verified": [],
+            "inside_longer_unverified": [],
+            "overlap_same_line_verified": [],
+            "overlap_same_line_unverified": []
+          }
+        },
+        {
+          "target": "יכלאש",
+          "placementsInRegion": [],
+          "best": "none",
+          "hits": {
+            "exact_verified": [],
+            "exact_unverified": [],
+            "inside_longer_verified": [],
+            "inside_longer_unverified": [],
+            "overlap_same_line_verified": [],
+            "overlap_same_line_unverified": []
+          }
+        }
+      ],
+      "proposals": 60,
+      "els_n": 58,
+      "interesting_n": 22,
+      "metrics": {
+        "proposals": 60,
+        "verified": 59,
+        "notVerified": 1,
+        "byVerdict": {
+          "engine": 58,
+          "plainText": 1,
+          "synthetic": 0
+        },
+        "els": {
+          "n": 58,
+          "len3to4": 26,
+          "len5to6": 27,
+          "len7plus": 5,
+          "long": 32,
+          "longStoryRelated": 7,
+          "storyRelated": 14,
+          "rare": 33,
+          "unlikely": 24,
+          "unlikelier": 9,
+          "medianExpected": 1.368195587728186,
+          "medianHits": 2,
+          "truncatedPages": 1,
+          "kinds": {
+            "R": 0,
+            "C": 18,
+            "D": 23,
+            "A": 17
+          }
+        },
+        "noise": {
+          "likelyByChance": 34,
+          "likelyByChanceShare": 0.5862068965517241,
+          "shortEls": 26,
+          "shortElsShare": 0.4482758620689655,
+          "nonRareElsShare": 0.43103448275862066,
+          "plainTextShare": 0.016666666666666666
+        },
+        "tiers": {
+          "A": 12,
+          "B": 30,
+          "C": 18,
+          "missing": 0
+        },
+        "firstGroup": {
+          "n": 12,
+          "els": 12,
+          "plain": 0,
+          "long": 11,
+          "rare": 12,
+          "unlikely": 10,
+          "interesting": 9,
+          "kinds": {
+            "R": 0,
+            "C": 3,
+            "D": 4,
+            "A": 5
+          },
+          "storyRelated": 3
+        },
+        "outsideFirstGroup": {
+          "n": 48,
+          "interesting": 13,
+          "longEls": 21,
+          "kinds": {
+            "R": 1,
+            "C": 15,
+            "D": 19,
+            "A": 12
+          }
+        },
+        "continuation": {
+          "fromFinding": 7,
+          "extension": 6,
+          "crossing": 0,
+          "phrases": 8
+        }
+      }
+    },
+    {
+      "base": "S4b",
+      "arm": "haiku-m",
+      "model": "claude-haiku-5-5",
+      "stop_reason": "end_turn",
+      "usd": 0.007957,
+      "seconds": 178,
+      "input_tokens": 21286,
+      "output_tokens": 27571,
+      "thinking_tokens": 23597,
+      "usable": true,
+      "evaluation": [
+        {
+          "target": "ספינת",
+          "placementsInRegion": [],
+          "best": "none",
+          "hits": {
+            "exact_verified": [],
+            "exact_unverified": [],
+            "inside_longer_verified": [],
+            "inside_longer_unverified": [],
+            "overlap_same_line_verified": [],
+            "overlap_same_line_unverified": []
+          }
+        },
+        {
+          "target": "יכלאש",
+          "placementsInRegion": [],
+          "best": "none",
+          "hits": {
+            "exact_verified": [],
+            "exact_unverified": [],
+            "inside_longer_verified": [],
+            "inside_longer_unverified": [],
+            "overlap_same_line_verified": [],
+            "overlap_same_line_unverified": []
+          }
+        }
+      ],
+      "proposals": 35,
+      "shared_els_with_fable": 0,
+      "shared_interesting_with_fable": 0,
+      "share_of_fable_els": 0.017241379310344827,
+      "els_n": 1,
+      "interesting_n": 0,
+      "metrics": {
+        "proposals": 35,
+        "verified": 34,
+        "notVerified": 1,
+        "byVerdict": {
+          "engine": 1,
+          "plainText": 33,
+          "synthetic": 0
+        },
+        "els": {
+          "n": 1,
+          "len3to4": 1,
+          "len5to6": 0,
+          "len7plus": 0,
+          "long": 0,
+          "longStoryRelated": 0,
+          "storyRelated": 1,
+          "rare": 0,
+          "unlikely": 0,
+          "unlikelier": 0,
+          "medianExpected": 6.33121812162148,
+          "medianHits": 5,
+          "truncatedPages": 0,
+          "kinds": {
+            "R": 0,
+            "C": 0,
+            "D": 0,
+            "A": 1
+          }
+        },
+        "noise": {
+          "likelyByChance": 1,
+          "likelyByChanceShare": 1,
+          "shortEls": 1,
+          "shortElsShare": 1,
+          "nonRareElsShare": 1,
+          "plainTextShare": 0.9428571428571428
+        },
+        "tiers": {
+          "A": 10,
+          "B": 13,
+          "C": 12,
+          "missing": 0
+        },
+        "firstGroup": {
+          "n": 10,
+          "els": 1,
+          "plain": 9,
+          "long": 9,
+          "rare": 0,
+          "unlikely": 0,
+          "interesting": 0,
+          "kinds": {
+            "R": 9,
+            "C": 0,
+            "D": 0,
+            "A": 1
+          },
+          "storyRelated": 2
+        },
+        "outsideFirstGroup": {
+          "n": 25,
+          "interesting": 0,
+          "longEls": 0,
+          "kinds": {
+            "R": 24,
+            "C": 0,
+            "D": 0,
+            "A": 0
+          }
+        },
+        "continuation": {
+          "fromFinding": 0,
+          "extension": 0,
+          "crossing": 0,
+          "phrases": 26
+        }
+      }
+    },
+    {
+      "base": "S4b",
+      "arm": "haiku-h",
+      "model": "claude-haiku-5-5",
+      "stop_reason": "max_tokens",
+      "usd": 0.013064,
+      "seconds": 254,
+      "input_tokens": 21286,
+      "output_tokens": 48000,
+      "thinking_tokens": 47992,
+      "usable": false,
+      "els_n": null,
+      "interesting_n": null,
+      "metrics": null
+    },
+    {
+      "base": "S4b",
+      "arm": "sonnet-m",
+      "model": "claude-sonnet-5-5",
+      "stop_reason": "end_turn",
+      "usd": 0.027726,
+      "seconds": 116,
+      "input_tokens": 21286,
+      "output_tokens": 1288,
+      "thinking_tokens": 0,
+      "usable": true,
+      "evaluation": [
+        {
+          "target": "ספינת",
+          "placementsInRegion": [],
+          "best": "none",
+          "hits": {
+            "exact_verified": [],
+            "exact_unverified": [],
+            "inside_longer_verified": [],
+            "inside_longer_unverified": [],
+            "overlap_same_line_verified": [],
+            "overlap_same_line_unverified": []
+          }
+        },
+        {
+          "target": "יכלאש",
+          "placementsInRegion": [],
+          "best": "none",
+          "hits": {
+            "exact_verified": [],
+            "exact_unverified": [],
+            "inside_longer_verified": [],
+            "inside_longer_unverified": [],
+            "overlap_same_line_verified": [],
+            "overlap_same_line_unverified": []
+          }
+        }
+      ],
+      "proposals": 11,
+      "shared_els_with_fable": 0,
+      "shared_interesting_with_fable": 0,
+      "share_of_fable_els": 0,
+      "els_n": 0,
+      "interesting_n": 0,
+      "metrics": {
+        "proposals": 11,
+        "verified": 9,
+        "notVerified": 2,
+        "byVerdict": {
+          "engine": 0,
+          "plainText": 9,
+          "synthetic": 0
+        },
+        "els": {
+          "n": 0,
+          "len3to4": 0,
+          "len5to6": 0,
+          "len7plus": 0,
+          "long": 0,
+          "longStoryRelated": 0,
+          "storyRelated": 0,
+          "rare": 0,
+          "unlikely": 0,
+          "unlikelier": 0,
+          "medianExpected": null,
+          "medianHits": null,
+          "truncatedPages": 0,
+          "kinds": {
+            "R": 0,
+            "C": 0,
+            "D": 0,
+            "A": 0
+          }
+        },
+        "noise": {
+          "likelyByChance": 0,
+          "likelyByChanceShare": null,
+          "shortEls": 0,
+          "shortElsShare": null,
+          "nonRareElsShare": null,
+          "plainTextShare": 0.8181818181818182
+        },
+        "tiers": {
+          "A": 6,
+          "B": 2,
+          "C": 3,
+          "missing": 0
+        },
+        "firstGroup": {
+          "n": 6,
+          "els": 0,
+          "plain": 5,
+          "long": 6,
+          "rare": 0,
+          "unlikely": 0,
+          "interesting": 0,
+          "kinds": {
+            "R": 5,
+            "C": 0,
+            "D": 0,
+            "A": 0
+          },
+          "storyRelated": 0
+        },
+        "outsideFirstGroup": {
+          "n": 5,
+          "interesting": 0,
+          "longEls": 0,
+          "kinds": {
+            "R": 4,
+            "C": 0,
+            "D": 0,
+            "A": 0
+          }
+        },
+        "continuation": {
+          "fromFinding": 0,
+          "extension": 0,
+          "crossing": 0,
+          "phrases": 10
+        }
+      }
+    },
+    {
+      "base": "S4b",
+      "arm": "sonnet-h",
+      "model": "claude-sonnet-5-5",
+      "stop_reason": "end_turn",
+      "usd": 0.105801,
+      "seconds": 304,
+      "input_tokens": 21286,
+      "output_tokens": 16903,
+      "thinking_tokens": 11758,
+      "usable": true,
+      "evaluation": [
+        {
+          "target": "ספינת",
+          "placementsInRegion": [],
+          "best": "none",
+          "hits": {
+            "exact_verified": [],
+            "exact_unverified": [],
+            "inside_longer_verified": [],
+            "inside_longer_unverified": [],
+            "overlap_same_line_verified": [],
+            "overlap_same_line_unverified": []
+          }
+        },
+        {
+          "target": "יכלאש",
+          "placementsInRegion": [],
+          "best": "none",
+          "hits": {
+            "exact_verified": [],
+            "exact_unverified": [],
+            "inside_longer_verified": [],
+            "inside_longer_unverified": [],
+            "overlap_same_line_verified": [],
+            "overlap_same_line_unverified": []
+          }
+        }
+      ],
+      "proposals": 39,
+      "shared_els_with_fable": 0,
+      "shared_interesting_with_fable": 0,
+      "share_of_fable_els": 0,
+      "els_n": 0,
+      "interesting_n": 0,
+      "metrics": {
+        "proposals": 39,
+        "verified": 39,
+        "notVerified": 0,
+        "byVerdict": {
+          "engine": 0,
+          "plainText": 39,
+          "synthetic": 0
+        },
+        "els": {
+          "n": 0,
+          "len3to4": 0,
+          "len5to6": 0,
+          "len7plus": 0,
+          "long": 0,
+          "longStoryRelated": 0,
+          "storyRelated": 0,
+          "rare": 0,
+          "unlikely": 0,
+          "unlikelier": 0,
+          "medianExpected": null,
+          "medianHits": null,
+          "truncatedPages": 0,
+          "kinds": {
+            "R": 0,
+            "C": 0,
+            "D": 0,
+            "A": 0
+          }
+        },
+        "noise": {
+          "likelyByChance": 0,
+          "likelyByChanceShare": null,
+          "shortEls": 0,
+          "shortElsShare": null,
+          "nonRareElsShare": null,
+          "plainTextShare": 1
+        },
+        "tiers": {
+          "A": 12,
+          "B": 12,
+          "C": 15,
+          "missing": 0
+        },
+        "firstGroup": {
+          "n": 12,
+          "els": 0,
+          "plain": 12,
+          "long": 12,
+          "rare": 0,
+          "unlikely": 0,
+          "interesting": 0,
+          "kinds": {
+            "R": 12,
+            "C": 0,
+            "D": 0,
+            "A": 0
+          },
+          "storyRelated": 1
+        },
+        "outsideFirstGroup": {
+          "n": 27,
+          "interesting": 0,
+          "longEls": 0,
+          "kinds": {
+            "R": 27,
+            "C": 0,
+            "D": 0,
+            "A": 0
+          }
+        },
+        "continuation": {
+          "fromFinding": 5,
+          "extension": 0,
+          "crossing": 0,
+          "phrases": 37
+        }
+      }
+    },
+    {
+      "base": "V1",
+      "arm": "fable (saved)",
+      "model": "claude-fable-5-1",
+      "stop_reason": "end_turn",
+      "usd": 0.88241,
+      "seconds": 903,
+      "input_tokens": 21492,
+      "output_tokens": 30998,
+      "thinking_tokens": 25408,
+      "usable": true,
+      "evaluation": [
+        {
+          "target": "ספינת",
+          "placementsInRegion": [],
+          "best": "none",
+          "hits": {
+            "exact_verified": [],
+            "exact_unverified": [],
+            "inside_longer_verified": [],
+            "inside_longer_unverified": [],
+            "overlap_same_line_verified": [],
+            "overlap_same_line_unverified": []
+          }
+        },
+        {
+          "target": "יכלאש",
+          "placementsInRegion": [],
+          "best": "none",
+          "hits": {
+            "exact_verified": [],
+            "exact_unverified": [],
+            "inside_longer_verified": [],
+            "inside_longer_unverified": [],
+            "overlap_same_line_verified": [],
+            "overlap_same_line_unverified": []
+          }
+        }
+      ],
+      "proposals": 60,
+      "els_n": 58,
+      "interesting_n": 35,
+      "metrics": {
+        "proposals": 60,
+        "verified": 59,
+        "notVerified": 1,
+        "byVerdict": {
+          "engine": 58,
+          "plainText": 1,
+          "synthetic": 0
+        },
+        "els": {
+          "n": 58,
+          "len3to4": 12,
+          "len5to6": 38,
+          "len7plus": 8,
+          "long": 46,
+          "longStoryRelated": 3,
+          "storyRelated": 3,
+          "rare": 45,
+          "unlikely": 35,
+          "unlikelier": 10,
+          "medianExpected": 0.6500863508715549,
+          "medianHits": 1,
+          "truncatedPages": 1,
+          "kinds": {
+            "R": 0,
+            "C": 16,
+            "D": 26,
+            "A": 16
+          }
+        },
+        "noise": {
+          "likelyByChance": 23,
+          "likelyByChanceShare": 0.39655172413793105,
+          "shortEls": 12,
+          "shortElsShare": 0.20689655172413793,
+          "nonRareElsShare": 0.22413793103448276,
+          "plainTextShare": 0.016666666666666666
+        },
+        "tiers": {
+          "A": 12,
+          "B": 28,
+          "C": 20,
+          "missing": 0
+        },
+        "firstGroup": {
+          "n": 12,
+          "els": 12,
+          "plain": 0,
+          "long": 12,
+          "rare": 12,
+          "unlikely": 12,
+          "interesting": 12,
+          "kinds": {
+            "R": 0,
+            "C": 8,
+            "D": 3,
+            "A": 1
+          },
+          "storyRelated": 1
+        },
+        "outsideFirstGroup": {
+          "n": 48,
+          "interesting": 23,
+          "longEls": 34,
+          "kinds": {
+            "R": 1,
+            "C": 8,
+            "D": 23,
+            "A": 15
+          }
+        },
+        "continuation": {
+          "fromFinding": 5,
+          "extension": 1,
+          "crossing": 1,
+          "phrases": 11
+        }
+      }
+    },
+    {
+      "base": "V1",
+      "arm": "haiku-m",
+      "model": "claude-haiku-5-5",
+      "stop_reason": "end_turn",
+      "usd": 0.002301,
+      "seconds": 122,
+      "input_tokens": 21492,
+      "output_tokens": 4906,
+      "thinking_tokens": 3751,
+      "usable": true,
+      "evaluation": [
+        {
+          "target": "ספינת",
+          "placementsInRegion": [],
+          "best": "none",
+          "hits": {
+            "exact_verified": [],
+            "exact_unverified": [],
+            "inside_longer_verified": [],
+            "inside_longer_unverified": [],
+            "overlap_same_line_verified": [],
+            "overlap_same_line_unverified": []
+          }
+        },
+        {
+          "target": "יכלאש",
+          "placementsInRegion": [],
+          "best": "none",
+          "hits": {
+            "exact_verified": [],
+            "exact_unverified": [],
+            "inside_longer_verified": [],
+            "inside_longer_unverified": [],
+            "overlap_same_line_verified": [],
+            "overlap_same_line_unverified": []
+          }
+        }
+      ],
+      "proposals": 8,
+      "shared_els_with_fable": 0,
+      "shared_interesting_with_fable": 0,
+      "share_of_fable_els": 0,
+      "els_n": 0,
+      "interesting_n": 0,
+      "metrics": {
+        "proposals": 8,
+        "verified": 7,
+        "notVerified": 1,
+        "byVerdict": {
+          "engine": 0,
+          "plainText": 7,
+          "synthetic": 0
+        },
+        "els": {
+          "n": 0,
+          "len3to4": 0,
+          "len5to6": 0,
+          "len7plus": 0,
+          "long": 0,
+          "longStoryRelated": 0,
+          "storyRelated": 0,
+          "rare": 0,
+          "unlikely": 0,
+          "unlikelier": 0,
+          "medianExpected": null,
+          "medianHits": null,
+          "truncatedPages": 0,
+          "kinds": {
+            "R": 0,
+            "C": 0,
+            "D": 0,
+            "A": 0
+          }
+        },
+        "noise": {
+          "likelyByChance": 0,
+          "likelyByChanceShare": null,
+          "shortEls": 0,
+          "shortElsShare": null,
+          "nonRareElsShare": null,
+          "plainTextShare": 0.875
+        },
+        "tiers": {
+          "A": 4,
+          "B": 3,
+          "C": 1,
+          "missing": 0
+        },
+        "firstGroup": {
+          "n": 4,
+          "els": 0,
+          "plain": 3,
+          "long": 3,
+          "rare": 0,
+          "unlikely": 0,
+          "interesting": 0,
+          "kinds": {
+            "R": 3,
+            "C": 0,
+            "D": 0,
+            "A": 0
+          },
+          "storyRelated": 4
+        },
+        "outsideFirstGroup": {
+          "n": 4,
+          "interesting": 0,
+          "longEls": 0,
+          "kinds": {
+            "R": 4,
+            "C": 0,
+            "D": 0,
+            "A": 0
+          }
+        },
+        "continuation": {
+          "fromFinding": 0,
+          "extension": 0,
+          "crossing": 0,
+          "phrases": 1
+        }
+      }
+    },
+    {
+      "base": "V1",
+      "arm": "haiku-h",
+      "model": "claude-haiku-5-5",
+      "stop_reason": "max_tokens",
+      "usd": 0.013075,
+      "seconds": 297,
+      "input_tokens": 21492,
+      "output_tokens": 48000,
+      "thinking_tokens": 48000,
+      "usable": false,
+      "els_n": null,
+      "interesting_n": null,
+      "metrics": null
+    },
+    {
+      "base": "V1",
+      "arm": "sonnet-m",
+      "model": "claude-sonnet-5-5",
+      "stop_reason": "end_turn",
+      "usd": 0.026977,
+      "seconds": 145,
+      "input_tokens": 21492,
+      "output_tokens": 1097,
+      "thinking_tokens": 0,
+      "usable": true,
+      "evaluation": [
+        {
+          "target": "ספינת",
+          "placementsInRegion": [],
+          "best": "none",
+          "hits": {
+            "exact_verified": [],
+            "exact_unverified": [],
+            "inside_longer_verified": [],
+            "inside_longer_unverified": [],
+            "overlap_same_line_verified": [],
+            "overlap_same_line_unverified": []
+          }
+        },
+        {
+          "target": "יכלאש",
+          "placementsInRegion": [],
+          "best": "none",
+          "hits": {
+            "exact_verified": [],
+            "exact_unverified": [],
+            "inside_longer_verified": [],
+            "inside_longer_unverified": [],
+            "overlap_same_line_verified": [],
+            "overlap_same_line_unverified": []
+          }
+        }
+      ],
+      "proposals": 10,
+      "shared_els_with_fable": 0,
+      "shared_interesting_with_fable": 0,
+      "share_of_fable_els": 0,
+      "els_n": 0,
+      "interesting_n": 0,
+      "metrics": {
+        "proposals": 10,
+        "verified": 9,
+        "notVerified": 1,
+        "byVerdict": {
+          "engine": 0,
+          "plainText": 9,
+          "synthetic": 0
+        },
+        "els": {
+          "n": 0,
+          "len3to4": 0,
+          "len5to6": 0,
+          "len7plus": 0,
+          "long": 0,
+          "longStoryRelated": 0,
+          "storyRelated": 0,
+          "rare": 0,
+          "unlikely": 0,
+          "unlikelier": 0,
+          "medianExpected": null,
+          "medianHits": null,
+          "truncatedPages": 0,
+          "kinds": {
+            "R": 0,
+            "C": 0,
+            "D": 0,
+            "A": 0
+          }
+        },
+        "noise": {
+          "likelyByChance": 0,
+          "likelyByChanceShare": null,
+          "shortEls": 0,
+          "shortElsShare": null,
+          "nonRareElsShare": null,
+          "plainTextShare": 0.9
+        },
+        "tiers": {
+          "A": 5,
+          "B": 3,
+          "C": 2,
+          "missing": 0
+        },
+        "firstGroup": {
+          "n": 5,
+          "els": 0,
+          "plain": 4,
+          "long": 5,
+          "rare": 0,
+          "unlikely": 0,
+          "interesting": 0,
+          "kinds": {
+            "R": 4,
+            "C": 0,
+            "D": 0,
+            "A": 0
+          },
+          "storyRelated": 4
+        },
+        "outsideFirstGroup": {
+          "n": 5,
+          "interesting": 0,
+          "longEls": 0,
+          "kinds": {
+            "R": 5,
+            "C": 0,
+            "D": 0,
+            "A": 0
+          }
+        },
+        "continuation": {
+          "fromFinding": 0,
+          "extension": 0,
+          "crossing": 0,
+          "phrases": 7
+        }
+      }
+    },
+    {
+      "base": "V1",
+      "arm": "sonnet-h",
+      "model": "claude-sonnet-5-5",
+      "stop_reason": "end_turn",
+      "usd": 0.129792,
+      "seconds": 180,
+      "input_tokens": 21492,
+      "output_tokens": 21660,
+      "thinking_tokens": 16143,
+      "usable": true,
+      "evaluation": [
+        {
+          "target": "ספינת",
+          "placementsInRegion": [],
+          "best": "none",
+          "hits": {
+            "exact_verified": [],
+            "exact_unverified": [],
+            "inside_longer_verified": [],
+            "inside_longer_unverified": [],
+            "overlap_same_line_verified": [],
+            "overlap_same_line_unverified": []
+          }
+        },
+        {
+          "target": "יכלאש",
+          "placementsInRegion": [],
+          "best": "none",
+          "hits": {
+            "exact_verified": [],
+            "exact_unverified": [],
+            "inside_longer_verified": [],
+            "inside_longer_unverified": [],
+            "overlap_same_line_verified": [],
+            "overlap_same_line_unverified": []
+          }
+        }
+      ],
+      "proposals": 36,
+      "shared_els_with_fable": 1,
+      "shared_interesting_with_fable": 1,
+      "share_of_fable_els": 0.017241379310344827,
+      "els_n": 1,
+      "interesting_n": 1,
+      "metrics": {
+        "proposals": 36,
+        "verified": 33,
+        "notVerified": 3,
+        "byVerdict": {
+          "engine": 1,
+          "plainText": 32,
+          "synthetic": 0
+        },
+        "els": {
+          "n": 1,
+          "len3to4": 0,
+          "len5to6": 0,
+          "len7plus": 1,
+          "long": 1,
+          "longStoryRelated": 1,
+          "storyRelated": 1,
+          "rare": 1,
+          "unlikely": 1,
+          "unlikelier": 1,
+          "medianExpected": 0.00003984430405007998,
+          "medianHits": 1,
+          "truncatedPages": 0,
+          "kinds": {
+            "R": 0,
+            "C": 1,
+            "D": 0,
+            "A": 0
+          }
+        },
+        "noise": {
+          "likelyByChance": 0,
+          "likelyByChanceShare": 0,
+          "shortEls": 0,
+          "shortElsShare": 0,
+          "nonRareElsShare": 0,
+          "plainTextShare": 0.8888888888888888
+        },
+        "tiers": {
+          "A": 11,
+          "B": 14,
+          "C": 11,
+          "missing": 0
+        },
+        "firstGroup": {
+          "n": 11,
+          "els": 1,
+          "plain": 8,
+          "long": 11,
+          "rare": 1,
+          "unlikely": 1,
+          "interesting": 1,
+          "kinds": {
+            "R": 8,
+            "C": 1,
+            "D": 0,
+            "A": 0
+          },
+          "storyRelated": 6
+        },
+        "outsideFirstGroup": {
+          "n": 25,
+          "interesting": 0,
+          "longEls": 0,
+          "kinds": {
+            "R": 24,
+            "C": 0,
+            "D": 0,
+            "A": 0
+          }
+        },
+        "continuation": {
+          "fromFinding": 3,
+          "extension": 1,
+          "crossing": 0,
+          "phrases": 36
+        }
+      }
+    }
+  ]
+}

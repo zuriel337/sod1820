@@ -1,0 +1,138 @@
+[
+  {
+    "verification": [
+      {
+        "key": "r1.f01.0",
+        "term": "דברמשה",
+        "start": 127329,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "דברמשה",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f02.0",
+        "term": "וידבריהוהאלמשה",
+        "start": 186383,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "וידבריהוהאלמשה",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f04.0",
+        "term": "כאשרצוהיהוהאתמשה",
+        "start": 240932,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "כאשרצוהיהוהאתמשה",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f05.0",
+        "term": "לפנייהוה",
+        "start": 140946,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "לפנייהוה",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f06.0",
+        "term": "וזאתהתורה",
+        "start": 259130,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "וזאתהתורה",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f07.0",
+        "term": "אהלמועד",
+        "start": 131873,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "אהלמועד",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f07.1",
+        "term": "אהלמועד",
+        "start": 154571,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "אהלמועד",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f07.2",
+        "term": "אהלמועד",
+        "start": 186407,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "אהלמועד",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f08.0",
+        "term": "ארבעימאלפ",
+        "start": 231833,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "ארבעימאלפ",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f09.0",
+        "term": "עבדיבמשה",
+        "start": 209115,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "עבדיבמשה",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f10.0",
+        "term": "עשולימקדשו",
+        "start": 113659,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "עשולימקדשו",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      }
+    ]
+  }
+]

@@ -1,0 +1,78 @@
+{
+  "request_sha256": "b9bac8cedd2079ea667a824a37aed5b90abbc287eed9f855c5d2281795bcdd7d",
+  "lock_sha256": "e054fe3afe075c33b4da4e1cf5d22e1b79d216ba2b029d89c9492b642d4600d0",
+  "transport": "proxy",
+  "batch": {
+    "id": "msgbatch_016HDg28Z1nDmUKNcVN33dbG",
+    "created_at": "2026-10-29T01:05:40.801137+00:00",
+    "ended_at": "2026-10-29T01:07:47.840413+00:00",
+    "request_counts": {
+      "processing": 0,
+      "succeeded": 1,
+      "errored": 0,
+      "canceled": 0,
+      "expired": 0
+    }
+  },
+  "preflight": {
+    "ok": true,
+    "model": "claude-sonnet-5-5",
+    "display_name": "Claude Sonnet 5.5",
+    "listed": true,
+    "max_input_tokens": 1000000,
+    "max_tokens_limit": 128000,
+    "checks": {
+      "structured_outputs": true,
+      "thinking_setting": true,
+      "effort_level": true,
+      "max_tokens_within_model_limit": true
+    },
+    "input_tokens_counted": 20710,
+    "note": "count excludes the structured-output schema, which the API adds; the real input is slightly larger",
+    "upper_bound_usd": 0.3718,
+    "request_sha256": "b9bac8cedd2079ea667a824a37aed5b90abbc287eed9f855c5d2281795bcdd7d",
+    "lock_sha256": "e054fe3afe075c33b4da4e1cf5d22e1b79d216ba2b029d89c9492b642d4600d0"
+  },
+  "ms": 127039,
+  "cost": {
+    "usd": 0.030124,
+    "parts": {
+      "input": 0.042668,
+      "cacheWrite": 0,
+      "cacheRead": 0,
+      "output": 0.01758
+    },
+    "basis": "list prices, claude-api model table cached 2026-10-06; cache writes at 1.25x input; Message Batches at 50% of list"
+  },
+  "summary": {
+    "text": "{\"findings\":[{\"id\":\"F1\",\"line\":\"R01+\",\"text\":\"ויאמר\",\"parts\":[\"ויאמר\"],\"kind\":\"word\",\"story_related\":false,\"continue_from\":true,\"from_finding\":\"\",\"tier\":\"A\",\"note\":\"פועל מקראי שכיח, מופיע ברצף בשורה הראשונה.\"},{\"id\":\"F2\",\"line\":\"R08+\",\"text\":\"ויקחו\",\"parts\":[\"ויקחו\"],\"kind\":\"inflected_form\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"B\",\"note\":\"צורת פועל בעתיד הפוך, \\\"ויקחו\\\".\"},{\"id\":\"F3\",\"line\":\"R05+\",\"text\":\"ויקחו\",\"parts\":[\"ויקחו\"],\"kind\":\"inflected_form\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"C\",\"note\":\"צורת פועל בתחילת שורה 5.\"},{\"id\":\"F4\",\"line\":\"R33+\",\"text\":\"חיימו\",\"parts\":[\"חיימ\",\"ו\"],\"kind\":\"word\",\"story_related\":true,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"A\",\"note\":\"חיים, עם ו' בסוף, בהקשר של מוות וחיים.\"},{\"id\":\"F5\",\"line\":\"R33+\",\"text\":\"במימה\",\"parts\":[\"במימ\",\"ה\"],\"kind\":\"word\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"C\",\"note\":\"במים בתוספת ה'.\"},{\"id\":\"F6\",\"line\":\"R28+\",\"text\":\"יהוהמ\",\"parts\":[\"יהוה\",\"מ\"],\"kind\":\"name\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"C\",\"note\":\"שם האל ואות נוספת.\"},{\"id\":\"F7\",\"line\":\"R28+\",\"text\":\"וכבוד\",\"parts\":[\"וכבוד\"],\"kind\":\"word\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"B\",\"note\":\"וכבוד בשורה 28.\"},{\"id\":\"F8\",\"line\":\"R28+\",\"text\":\"למועד\",\"parts\":[\"למועד\"],\"kind\":\"word\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"B\",\"note\":\"למועד, מילה מקראית.\"},{\"id\":\"F9\",\"line\":\"R31+\",\"text\":\"בניישראל\",\"parts\":[\"בני\",\"ישראל\"],\"kind\":\"construct_or_phrase\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"C\",\"note\":\"הרצף בקו הוא ניישר אל, לא ברור; לא בדוק.\"},{\"id\":\"F10\",\"line\":\"R20+\",\"text\":\"משהאל\",\"parts\":[\"משה\",\"אל\"],\"kind\":\"construct_or_phrase\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"A\",\"note\":\"משה אל, תחילת שורה 20.\"},{\"id\":\"F11\",\"line\":\"R07+\",\"text\":\"ואתהו\",\"parts\":[\"ואת\",\"הו\"],\"kind\":\"other\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"C\",\"note\":\"קטע קצר.\"},{\"id\":\"F12\",\"line\":\"R23+\",\"text\":\"עליוכ\",\"parts\":[\"עליו\",\"כ\"],\"kind\":\"word\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"C\",\"note\":\"עליו ואות נוספת.\"},{\"id\":\"F13\",\"line\":\"R23+\",\"text\":\"מעשהו\",\"parts\":[\"מעשהו\"],\"kind\":\"word\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"B\",\"note\":\"מעשהו, צורת שייכות.\"},{\"id\":\"F14\",\"line\":\"R27+\",\"text\":\"הולכת\",\"parts\":[\"הולכת\"],\"kind\":\"word\",\"story_related\":true,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"B\",\"note\":\"צורת פועל, אולי הליכה חזרה.\"},{\"id\":\"F15\",\"line\":\"R18+\",\"text\":\"מצרימ\",\"parts\":[\"מצרימ\"],\"kind\":\"name\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"B\",\"note\":\"שם מקום בשורה 18 (זקמצרימ).\"},{\"id\":\"F16\",\"line\":\"R13+\",\"text\":\"למצרימ\",\"parts\":[\"למצרימ\"],\"kind\":\"name\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"A\",\"note\":\"למצרים בסוף שורה 13.\"},{\"id\":\"F17\",\"line\":\"R13+\",\"text\":\"הארצל\",\"parts\":[\"הארצ\",\"ל\"],\"kind\":\"word\",\"story_related\":true,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"A\",\"note\":\"הארץ, קשור לכדור הארץ.\"},{\"id\":\"F18\",\"line\":\"R25+\",\"text\":\"ארצמצרימ\",\"parts\":[\"ארצ\",\"מצרימ\"],\"kind\":\"construct_or_phrase\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"A\",\"note\":\"ארץ מצרים, סמיכות.\"}],\"observations\":\"עברתי בעיקר על שורות, ללא סריקה יסודית של אלכסונים וטורים. חלק מההצעות נבדקו חלקית מול הקווים.\"}",
+    "thinking": [],
+    "stop_reason": "end_turn",
+    "stop_details": null,
+    "model": "claude-sonnet-5-5",
+    "usage": {
+      "input_tokens": 21334,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 1758,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "batch",
+      "inference_geo": "global",
+      "speed": "standard"
+    },
+    "id": "msg_011CgVdZzYH2bWf9ivDx4Qgi"
+  },
+  "content": [
+    {
+      "type": "text",
+      "text": "{\"findings\":[{\"id\":\"F1\",\"line\":\"R01+\",\"text\":\"ויאמר\",\"parts\":[\"ויאמר\"],\"kind\":\"word\",\"story_related\":false,\"continue_from\":true,\"from_finding\":\"\",\"tier\":\"A\",\"note\":\"פועל מקראי שכיח, מופיע ברצף בשורה הראשונה.\"},{\"id\":\"F2\",\"line\":\"R08+\",\"text\":\"ויקחו\",\"parts\":[\"ויקחו\"],\"kind\":\"inflected_form\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"B\",\"note\":\"צורת פועל בעתיד הפוך, \\\"ויקחו\\\".\"},{\"id\":\"F3\",\"line\":\"R05+\",\"text\":\"ויקחו\",\"parts\":[\"ויקחו\"],\"kind\":\"inflected_form\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"C\",\"note\":\"צורת פועל בתחילת שורה 5.\"},{\"id\":\"F4\",\"line\":\"R33+\",\"text\":\"חיימו\",\"parts\":[\"חיימ\",\"ו\"],\"kind\":\"word\",\"story_related\":true,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"A\",\"note\":\"חיים, עם ו' בסוף, בהקשר של מוות וחיים.\"},{\"id\":\"F5\",\"line\":\"R33+\",\"text\":\"במימה\",\"parts\":[\"במימ\",\"ה\"],\"kind\":\"word\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"C\",\"note\":\"במים בתוספת ה'.\"},{\"id\":\"F6\",\"line\":\"R28+\",\"text\":\"יהוהמ\",\"parts\":[\"יהוה\",\"מ\"],\"kind\":\"name\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"C\",\"note\":\"שם האל ואות נוספת.\"},{\"id\":\"F7\",\"line\":\"R28+\",\"text\":\"וכבוד\",\"parts\":[\"וכבוד\"],\"kind\":\"word\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"B\",\"note\":\"וכבוד בשורה 28.\"},{\"id\":\"F8\",\"line\":\"R28+\",\"text\":\"למועד\",\"parts\":[\"למועד\"],\"kind\":\"word\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"B\",\"note\":\"למועד, מילה מקראית.\"},{\"id\":\"F9\",\"line\":\"R31+\",\"text\":\"בניישראל\",\"parts\":[\"בני\",\"ישראל\"],\"kind\":\"construct_or_phrase\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"C\",\"note\":\"הרצף בקו הוא ניישר אל, לא ברור; לא בדוק.\"},{\"id\":\"F10\",\"line\":\"R20+\",\"text\":\"משהאל\",\"parts\":[\"משה\",\"אל\"],\"kind\":\"construct_or_phrase\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"A\",\"note\":\"משה אל, תחילת שורה 20.\"},{\"id\":\"F11\",\"line\":\"R07+\",\"text\":\"ואתהו\",\"parts\":[\"ואת\",\"הו\"],\"kind\":\"other\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"C\",\"note\":\"קטע קצר.\"},{\"id\":\"F12\",\"line\":\"R23+\",\"text\":\"עליוכ\",\"parts\":[\"עליו\",\"כ\"],\"kind\":\"word\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"C\",\"note\":\"עליו ואות נוספת.\"},{\"id\":\"F13\",\"line\":\"R23+\",\"text\":\"מעשהו\",\"parts\":[\"מעשהו\"],\"kind\":\"word\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"B\",\"note\":\"מעשהו, צורת שייכות.\"},{\"id\":\"F14\",\"line\":\"R27+\",\"text\":\"הולכת\",\"parts\":[\"הולכת\"],\"kind\":\"word\",\"story_related\":true,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"B\",\"note\":\"צורת פועל, אולי הליכה חזרה.\"},{\"id\":\"F15\",\"line\":\"R18+\",\"text\":\"מצרימ\",\"parts\":[\"מצרימ\"],\"kind\":\"name\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"B\",\"note\":\"שם מקום בשורה 18 (זקמצרימ).\"},{\"id\":\"F16\",\"line\":\"R13+\",\"text\":\"למצרימ\",\"parts\":[\"למצרימ\"],\"kind\":\"name\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"A\",\"note\":\"למצרים בסוף שורה 13.\"},{\"id\":\"F17\",\"line\":\"R13+\",\"text\":\"הארצל\",\"parts\":[\"הארצ\",\"ל\"],\"kind\":\"word\",\"story_related\":true,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"A\",\"note\":\"הארץ, קשור לכדור הארץ.\"},{\"id\":\"F18\",\"line\":\"R25+\",\"text\":\"ארצמצרימ\",\"parts\":[\"ארצ\",\"מצרימ\"],\"kind\":\"construct_or_phrase\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"A\",\"note\":\"ארץ מצרים, סמיכות.\"}],\"observations\":\"עברתי בעיקר על שורות, ללא סריקה יסודית של אלכסונים וטורים. חלק מההצעות נבדקו חלקית מול הקווים.\"}"
+    }
+  ],
+  "run": "S4a.sonnet-m"
+}

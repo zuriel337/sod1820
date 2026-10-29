@@ -1,0 +1,751 @@
+[
+  {
+    "id": "r1.f01",
+    "line": "R01+",
+    "text": "ושבתונ",
+    "rawText": "ושבתונ",
+    "reasons": [
+      "these letters do not appear as a contiguous run in any line of the region"
+    ],
+    "status": "not_in_region",
+    "occurrences": [],
+    "totalOccurrences": 0,
+    "segmentationOk": true,
+    "checks": [],
+    "verdict": "not_verified",
+    "verifiedOccurrences": 0
+  },
+  {
+    "id": "r1.f02",
+    "line": "R01+",
+    "text": "שבתשבתונ",
+    "rawText": "שבתשבתונ",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "R01+",
+        "from": 12,
+        "to": 19,
+        "cells": [
+          [
+            1,
+            13
+          ],
+          [
+            1,
+            14
+          ],
+          [
+            1,
+            15
+          ],
+          [
+            1,
+            16
+          ],
+          [
+            1,
+            17
+          ],
+          [
+            1,
+            18
+          ],
+          [
+            1,
+            19
+          ],
+          [
+            1,
+            20
+          ]
+        ],
+        "params": {
+          "start": 125469,
+          "skip": 1,
+          "dir": 1,
+          "length": 8,
+          "step": 1
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true,
+    "checks": [
+      {
+        "occurrence": "R01+",
+        "from": 12,
+        "letters_match": true,
+        "plain_text": true,
+        "synthetic": false,
+        "engine_found": null,
+        "engine_status": "plain_text_row_not_els",
+        "engine_followup": false,
+        "engine_hits": null,
+        "engine_truncated": false,
+        "params": {
+          "start": 125469,
+          "skip": 1,
+          "dir": 1,
+          "length": 8,
+          "step": 1
+        }
+      }
+    ],
+    "verdict": "verified_plain_text_only",
+    "verifiedOccurrences": 1
+  },
+  {
+    "id": "r1.f03",
+    "line": "R01+",
+    "text": "ביומ",
+    "rawText": "ביומ",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "R01+",
+        "from": 2,
+        "to": 5,
+        "cells": [
+          [
+            1,
+            3
+          ],
+          [
+            1,
+            4
+          ],
+          [
+            1,
+            5
+          ],
+          [
+            1,
+            6
+          ]
+        ],
+        "params": {
+          "start": 125459,
+          "skip": 1,
+          "dir": 1,
+          "length": 4,
+          "step": 1
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true,
+    "checks": [
+      {
+        "occurrence": "R01+",
+        "from": 2,
+        "letters_match": true,
+        "plain_text": true,
+        "synthetic": false,
+        "engine_found": null,
+        "engine_status": "plain_text_row_not_els",
+        "engine_followup": false,
+        "engine_hits": null,
+        "engine_truncated": false,
+        "params": {
+          "start": 125459,
+          "skip": 1,
+          "dir": 1,
+          "length": 4,
+          "step": 1
+        }
+      }
+    ],
+    "verdict": "verified_plain_text_only",
+    "verifiedOccurrences": 1
+  },
+  {
+    "id": "r1.f04",
+    "line": "R21+",
+    "text": "וביומהשביעי",
+    "rawText": "וביומהשביעי",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "R21+",
+        "from": 17,
+        "to": 27,
+        "cells": [
+          [
+            21,
+            18
+          ],
+          [
+            21,
+            19
+          ],
+          [
+            21,
+            20
+          ],
+          [
+            21,
+            21
+          ],
+          [
+            21,
+            22
+          ],
+          [
+            21,
+            23
+          ],
+          [
+            21,
+            24
+          ],
+          [
+            21,
+            25
+          ],
+          [
+            21,
+            26
+          ],
+          [
+            21,
+            27
+          ],
+          [
+            21,
+            28
+          ]
+        ],
+        "params": {
+          "start": 236294,
+          "skip": 1,
+          "dir": 1,
+          "length": 11,
+          "step": 1
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true,
+    "checks": [
+      {
+        "occurrence": "R21+",
+        "from": 17,
+        "letters_match": true,
+        "plain_text": true,
+        "synthetic": false,
+        "engine_found": null,
+        "engine_status": "plain_text_row_not_els",
+        "engine_followup": false,
+        "engine_hits": null,
+        "engine_truncated": false,
+        "params": {
+          "start": 236294,
+          "skip": 1,
+          "dir": 1,
+          "length": 11,
+          "step": 1
+        }
+      }
+    ],
+    "verdict": "verified_plain_text_only",
+    "verifiedOccurrences": 1
+  },
+  {
+    "id": "r1.f05",
+    "line": "R13+",
+    "text": "משמרתהמקדש",
+    "rawText": "משמרתהמקדש",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "R13+",
+        "from": 18,
+        "to": 27,
+        "cells": [
+          [
+            13,
+            19
+          ],
+          [
+            13,
+            20
+          ],
+          [
+            13,
+            21
+          ],
+          [
+            13,
+            22
+          ],
+          [
+            13,
+            23
+          ],
+          [
+            13,
+            24
+          ],
+          [
+            13,
+            25
+          ],
+          [
+            13,
+            26
+          ],
+          [
+            13,
+            27
+          ],
+          [
+            13,
+            28
+          ]
+        ],
+        "params": {
+          "start": 191967,
+          "skip": 1,
+          "dir": 1,
+          "length": 10,
+          "step": 1
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true,
+    "checks": [
+      {
+        "occurrence": "R13+",
+        "from": 18,
+        "letters_match": true,
+        "plain_text": true,
+        "synthetic": false,
+        "engine_found": null,
+        "engine_status": "plain_text_row_not_els",
+        "engine_followup": false,
+        "engine_hits": null,
+        "engine_truncated": false,
+        "params": {
+          "start": 191967,
+          "skip": 1,
+          "dir": 1,
+          "length": 10,
+          "step": 1
+        }
+      }
+    ],
+    "verdict": "verified_plain_text_only",
+    "verifiedOccurrences": 1
+  },
+  {
+    "id": "r1.f06",
+    "line": "R14+",
+    "text": "והזירליהוה",
+    "rawText": "והזירליהוה",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "R14+",
+        "from": 20,
+        "to": 29,
+        "cells": [
+          [
+            14,
+            21
+          ],
+          [
+            14,
+            22
+          ],
+          [
+            14,
+            23
+          ],
+          [
+            14,
+            24
+          ],
+          [
+            14,
+            25
+          ],
+          [
+            14,
+            26
+          ],
+          [
+            14,
+            27
+          ],
+          [
+            14,
+            28
+          ],
+          [
+            14,
+            29
+          ],
+          [
+            14,
+            30
+          ]
+        ],
+        "params": {
+          "start": 197510,
+          "skip": 1,
+          "dir": 1,
+          "length": 10,
+          "step": 1
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true,
+    "checks": [
+      {
+        "occurrence": "R14+",
+        "from": 20,
+        "letters_match": true,
+        "plain_text": true,
+        "synthetic": false,
+        "engine_found": null,
+        "engine_status": "plain_text_row_not_els",
+        "engine_followup": false,
+        "engine_hits": null,
+        "engine_truncated": false,
+        "params": {
+          "start": 197510,
+          "skip": 1,
+          "dir": 1,
+          "length": 10,
+          "step": 1
+        }
+      }
+    ],
+    "verdict": "verified_plain_text_only",
+    "verifiedOccurrences": 1
+  },
+  {
+    "id": "r1.f07",
+    "line": "R21+",
+    "text": "מקראקדש",
+    "rawText": "מקראקדש",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "R21+",
+        "from": 28,
+        "to": 34,
+        "cells": [
+          [
+            21,
+            29
+          ],
+          [
+            21,
+            30
+          ],
+          [
+            21,
+            31
+          ],
+          [
+            21,
+            32
+          ],
+          [
+            21,
+            33
+          ],
+          [
+            21,
+            34
+          ],
+          [
+            21,
+            35
+          ]
+        ],
+        "params": {
+          "start": 236305,
+          "skip": 1,
+          "dir": 1,
+          "length": 7,
+          "step": 1
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true,
+    "checks": [
+      {
+        "occurrence": "R21+",
+        "from": 28,
+        "letters_match": true,
+        "plain_text": true,
+        "synthetic": false,
+        "engine_found": null,
+        "engine_status": "plain_text_row_not_els",
+        "engine_followup": false,
+        "engine_hits": null,
+        "engine_truncated": false,
+        "params": {
+          "start": 236305,
+          "skip": 1,
+          "dir": 1,
+          "length": 7,
+          "step": 1
+        }
+      }
+    ],
+    "verdict": "verified_plain_text_only",
+    "verifiedOccurrences": 1
+  },
+  {
+    "id": "r1.f08",
+    "line": "R17+",
+    "text": "תרומהכתרומ",
+    "rawText": "תרומהכתרומ",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "R17+",
+        "from": 25,
+        "to": 34,
+        "cells": [
+          [
+            17,
+            26
+          ],
+          [
+            17,
+            27
+          ],
+          [
+            17,
+            28
+          ],
+          [
+            17,
+            29
+          ],
+          [
+            17,
+            30
+          ],
+          [
+            17,
+            31
+          ],
+          [
+            17,
+            32
+          ],
+          [
+            17,
+            33
+          ],
+          [
+            17,
+            34
+          ],
+          [
+            17,
+            35
+          ]
+        ],
+        "params": {
+          "start": 214138,
+          "skip": 1,
+          "dir": 1,
+          "length": 10,
+          "step": 1
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true,
+    "checks": [
+      {
+        "occurrence": "R17+",
+        "from": 25,
+        "letters_match": true,
+        "plain_text": true,
+        "synthetic": false,
+        "engine_found": null,
+        "engine_status": "plain_text_row_not_els",
+        "engine_followup": false,
+        "engine_hits": null,
+        "engine_truncated": false,
+        "params": {
+          "start": 214138,
+          "skip": 1,
+          "dir": 1,
+          "length": 10,
+          "step": 1
+        }
+      }
+    ],
+    "verdict": "verified_plain_text_only",
+    "verifiedOccurrences": 1
+  },
+  {
+    "id": "r1.f09",
+    "line": "R19+",
+    "text": "ושריד",
+    "rawText": "ושריד",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "R19+",
+        "from": 25,
+        "to": 29,
+        "cells": [
+          [
+            19,
+            26
+          ],
+          [
+            19,
+            27
+          ],
+          [
+            19,
+            28
+          ],
+          [
+            19,
+            29
+          ],
+          [
+            19,
+            30
+          ]
+        ],
+        "params": {
+          "start": 225220,
+          "skip": 1,
+          "dir": 1,
+          "length": 5,
+          "step": 1
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true,
+    "checks": [
+      {
+        "occurrence": "R19+",
+        "from": 25,
+        "letters_match": true,
+        "plain_text": true,
+        "synthetic": false,
+        "engine_found": null,
+        "engine_status": "plain_text_row_not_els",
+        "engine_followup": false,
+        "engine_hits": null,
+        "engine_truncated": false,
+        "params": {
+          "start": 225220,
+          "skip": 1,
+          "dir": 1,
+          "length": 5,
+          "step": 1
+        }
+      }
+    ],
+    "verdict": "verified_plain_text_only",
+    "verifiedOccurrences": 1
+  },
+  {
+    "id": "r1.f10",
+    "line": "R14+",
+    "text": "ביומההוא",
+    "rawText": "ביומההוא",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "R14+",
+        "from": 12,
+        "to": 19,
+        "cells": [
+          [
+            14,
+            13
+          ],
+          [
+            14,
+            14
+          ],
+          [
+            14,
+            15
+          ],
+          [
+            14,
+            16
+          ],
+          [
+            14,
+            17
+          ],
+          [
+            14,
+            18
+          ],
+          [
+            14,
+            19
+          ],
+          [
+            14,
+            20
+          ]
+        ],
+        "params": {
+          "start": 197502,
+          "skip": 1,
+          "dir": 1,
+          "length": 8,
+          "step": 1
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true,
+    "checks": [
+      {
+        "occurrence": "R14+",
+        "from": 12,
+        "letters_match": true,
+        "plain_text": true,
+        "synthetic": false,
+        "engine_found": null,
+        "engine_status": "plain_text_row_not_els",
+        "engine_followup": false,
+        "engine_hits": null,
+        "engine_truncated": false,
+        "params": {
+          "start": 197502,
+          "skip": 1,
+          "dir": 1,
+          "length": 8,
+          "step": 1
+        }
+      }
+    ],
+    "verdict": "verified_plain_text_only",
+    "verifiedOccurrences": 1
+  }
+]

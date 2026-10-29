@@ -1,0 +1,132 @@
+[
+  {
+    "verification": [
+      {
+        "key": "r1.f01.0",
+        "term": "קולומביה",
+        "start": 248765,
+        "skip": 4545,
+        "dir": 1,
+        "db_text": "קולומביה",
+        "letters_match": true,
+        "engine": {
+          "status": "OK",
+          "hits": 1,
+          "found": true,
+          "completion": {
+            "executed": true,
+            "has_more": false,
+            "truncated": false,
+            "continuation": null,
+            "returned_hits": 1
+          }
+        }
+      },
+      {
+        "key": "r1.f02.0",
+        "term": "המגפה",
+        "start": 230590,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "המגפה",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f03.0",
+        "term": "אהלמועד",
+        "start": 157863,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "אהלמועד",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f04.0",
+        "term": "המנחההמזבח",
+        "start": 162401,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "המנחההמזבח",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f05.0",
+        "term": "ויקריב",
+        "start": 198759,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "ויקריב",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f06.0",
+        "term": "ולאתחללו",
+        "start": 176058,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "ולאתחללו",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f07.0",
+        "term": "יהושע",
+        "start": 235110,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "יהושע",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f08.0",
+        "term": "לפניאלעזר",
+        "start": 235122,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "לפניאלעזר",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f09.0",
+        "term": "ויוצי",
+        "start": 226022,
+        "skip": 4545,
+        "dir": 1,
+        "db_text": "ויוצי",
+        "letters_match": true,
+        "engine": {
+          "status": "OK",
+          "hits": 2,
+          "found": true,
+          "completion": {
+            "executed": true,
+            "has_more": false,
+            "truncated": false,
+            "continuation": null,
+            "returned_hits": 2
+          }
+        }
+      }
+    ]
+  }
+]

@@ -1,0 +1,114 @@
+[
+  {
+    "verification": [
+      {
+        "key": "r1.f01.0",
+        "term": "שבת",
+        "start": 125469,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "שבת",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f01.1",
+        "term": "שבת",
+        "start": 125472,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "שבת",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f02.0",
+        "term": "משמרת",
+        "start": 191967,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "משמרת",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f02.1",
+        "term": "משמרת",
+        "start": 191978,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "משמרת",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f04.0",
+        "term": "מועד",
+        "start": 225206,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "מועד",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f05.0",
+        "term": "זכר",
+        "start": 169807,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "זכר",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f06.0",
+        "term": "מלאכה",
+        "start": 125491,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "מלאכה",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f07.0",
+        "term": "קדש",
+        "start": 125477,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "קדש",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f08.0",
+        "term": "ליהוה",
+        "start": 197515,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "ליהוה",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      }
+    ]
+  }
+]

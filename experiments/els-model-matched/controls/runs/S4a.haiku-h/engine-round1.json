@@ -1,0 +1,435 @@
+[
+  {
+    "verification": [
+      {
+        "key": "r1.f01.0",
+        "term": "ויאמר",
+        "start": 18683,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "ויאמר",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f02.0",
+        "term": "אברהמ",
+        "start": 27743,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "אברהמ",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f03.0",
+        "term": "ויאמרואישאלאחיוהנה",
+        "start": 55030,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "ויאמרואישאלאחיוהנה",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f04.0",
+        "term": "תחתהנערעבדלאדניוהנער",
+        "start": 68668,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "תחתהנערעבדלאדניוהנער",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f05.0",
+        "term": "גבולמצרימ",
+        "start": 73225,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "גבולמצרימ",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f06.0",
+        "term": "וכלזכר",
+        "start": 50468,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "וכלזכר",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f07.0",
+        "term": "הצרהו",
+        "start": 18653,
+        "skip": 4546,
+        "dir": 1,
+        "db_text": "הצרהו",
+        "letters_match": true,
+        "engine": {
+          "status": "OK",
+          "hits": 1,
+          "found": true,
+          "completion": {
+            "executed": true,
+            "has_more": false,
+            "truncated": false,
+            "continuation": null,
+            "returned_hits": 1
+          }
+        }
+      },
+      {
+        "key": "r1.f08.0",
+        "term": "עשהכרובאחדמקצהמזהוכרובאחדמקצהמזה",
+        "start": 114103,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "עשהכרובאחדמקצהמזהוכרובאחדמקצהמזה",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f09.0",
+        "term": "ישפכאליסודהמזבח",
+        "start": 145920,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "ישפכאליסודהמזבח",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f10.0",
+        "term": "הזכרת",
+        "start": 59558,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "הזכרת",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f11.0",
+        "term": "ויהוההצליח",
+        "start": 32303,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "ויהוההצליח",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f12.0",
+        "term": "ולקחתממימיהיארו",
+        "start": 82308,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "ולקחתממימיהיארו",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f13.0",
+        "term": "יפרשכפיואל",
+        "start": 91388,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "יפרשכפיואל",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f14.0",
+        "term": "משהאליו",
+        "start": 105008,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "משהאליו",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f15.0",
+        "term": "פרעהו",
+        "start": 73198,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "פרעהו",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f16.0",
+        "term": "המלאכה",
+        "start": 141370,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "המלאכה",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f17.0",
+        "term": "החלב",
+        "start": 150495,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "החלב",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f18.0",
+        "term": "העלאש",
+        "start": 155033,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "העלאש",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f19.0",
+        "term": "אש",
+        "start": 132313,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "אש",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f19.1",
+        "term": "אש",
+        "start": 132316,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "אש",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f20.0",
+        "term": "נפל",
+        "start": 86843,
+        "skip": 4546,
+        "dir": 1,
+        "db_text": "נפל",
+        "letters_match": true,
+        "engine": {
+          "status": "OK",
+          "hits": 36,
+          "found": true,
+          "completion": {
+            "executed": true,
+            "has_more": false,
+            "truncated": false,
+            "continuation": null,
+            "returned_hits": 36
+          }
+        }
+      },
+      {
+        "key": "r1.f21.0",
+        "term": "כספו",
+        "start": 109565,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "כספו",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f22.0",
+        "term": "כפרתו",
+        "start": 114098,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "כפרתו",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f23.0",
+        "term": "תכלת",
+        "start": 118679,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "תכלת",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f24.0",
+        "term": "אביו",
+        "start": 36865,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "אביו",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f25.0",
+        "term": "כאשר",
+        "start": 36858,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "כאשר",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f26.0",
+        "term": "לכהנ",
+        "start": 45938,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "לכהנ",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f27.0",
+        "term": "צפורו",
+        "start": 164103,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "צפורו",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f28.0",
+        "term": "חלב",
+        "start": 145940,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "חלב",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f29.0",
+        "term": "שוק",
+        "start": 155015,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "שוק",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f30.0",
+        "term": "אלבשר",
+        "start": 18685,
+        "skip": 4544,
+        "dir": 1,
+        "db_text": "אלבשר",
+        "letters_match": true,
+        "engine": {
+          "status": "OK",
+          "hits": 1,
+          "found": true,
+          "completion": {
+            "executed": true,
+            "has_more": false,
+            "truncated": false,
+            "continuation": null,
+            "returned_hits": 1
+          }
+        }
+      },
+      {
+        "key": "r1.f31.0",
+        "term": "משא",
+        "start": 155005,
+        "skip": 4544,
+        "dir": 1,
+        "db_text": "משא",
+        "letters_match": true,
+        "engine": {
+          "status": "OK",
+          "hits": 100,
+          "found": true,
+          "completion": {
+            "executed": true,
+            "has_more": true,
+            "truncated": true,
+            "continuation": {
+              "kind": "els_keyset_v1",
+              "after": {
+                "dir": -1,
+                "skip": 4544,
+                "start": 144552
+              }
+            },
+            "returned_hits": 100
+          },
+          "first_page_found": false,
+          "followup": "first page of 100 hits was truncated before start 155005; the same engine contract was asked for the keyset continuation after (skip 4544, start 155004, dir -1) and returned this occurrence"
+        }
+      }
+    ]
+  }
+]
