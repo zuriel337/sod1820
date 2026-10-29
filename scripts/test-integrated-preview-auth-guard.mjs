@@ -83,6 +83,26 @@ test('Books publication review is preview-only and has no write RPC in the guard
   assert.doesNotMatch(builder, /admin_research_review|admin_research_set_publication_v1/);
 });
 
+test('Community Preview reads use the existing closed public projection for GET and POST', async () => {
+  const fields = 'id,parent_id,author_name,author_user_id,author_contributor_id,title,body,reactions,origin,created_at,edited_at,is_deleted,total_count';
+  for (const method of ['GET', 'POST']) {
+    for (const rpc of ['community_feed_page', 'community_message_context']) {
+      const path = `/rest/v1/rpc/${rpc}`;
+      assert.equal((await request(`${path}?select=${encodeURIComponent(fields)}`, { method })).status, 200);
+      for (const query of ['', '?select=*', '?select=contributor_user_id', `?select=${encodeURIComponent(fields)}&select=*`, '?select=id,private:contributor_avatar_url']) {
+        assert.deepEqual(await request(path + query, { method }), { status: 403, forwarded: 0, blocked: 'true' }, `${method} ${rpc} ${query}`);
+      }
+    }
+    for (const rpc of ['community_replies_page', 'community_reply_counts']) {
+      assert.deepEqual(await request(`/rest/v1/rpc/${rpc}`, { method }), { status: 403, forwarded: 0, blocked: 'true' });
+    }
+    for (const path of ['/rest/v1/rpc/%63ommunity_feed_page', '/rest/v1/rpc/%63ommunity_message_context', '/rest/v1/rpc/%63ommunity_replies_page', '/rest/v1/rpc/%63ommunity_reply_counts', '/rest/v1/rpc/community_feed_page%2fextra', '/rest/v1/rpc/COMMUNITY_FEED_PAGE', '/rest/v1/RPC/community_feed_page', '/rest/v1/rpc/community_feed_page/', '/rest/v1/rpc/community_%ZZ']) {
+      assert.deepEqual(await request(path + '?select=*', { method }), { status: 403, forwarded: 0, blocked: 'true' }, `${method} ${path}`);
+    }
+  }
+  assert.equal((await request('/storage/v1/object/public/example/%D7%90.jpg', { method: 'GET' })).status, 200, 'encoded source-media names remain readable');
+});
+
 test('Life Journey Preview overrides the public catch-all with private no-store headers', () => {
   const catchAllIndex = vercelConfig.headers.findIndex(({ source }) => source === '/(.*)');
   const journeyIndex = vercelConfig.headers.findLastIndex(({ source }) => source === '/2029/journey');

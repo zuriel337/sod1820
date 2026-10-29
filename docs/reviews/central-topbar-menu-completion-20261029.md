@@ -48,9 +48,19 @@ to; the existing app can offer a guest composer, so this is not a claim that the
 product is guest read-only. Identity/analytics/visit attempts are intercepted
 and recorded separately from reads; no external write or model request is sent.
 
-24 focused Companion/Preview/auth/preference cases and 656 broad Raziel cases
+25 focused Companion/Preview/auth/preference cases and 656 broad Raziel cases
 pass. The Preview worker specifically blocks Community add/edit/remove RPCs on
-all reviewed central branches. Legacy/2029 builds, built graph/lazy submit adapter
+all reviewed central branches. Hosted verification identified a missing feed-read
+seam, so the existing public feed/context readers are admitted only with the
+caller's exact 13-field projection, excluding joined contributor fields. GET and
+POST both reject missing, duplicated, wildcard or aliased projections. The live
+functions were reviewed read-only and independently challenged; replies/counts
+remain held because parent-chain visibility was not accepted. This is a partial
+community reading preview, not full Community acceptance or an RLS replacement.
+The existing "show replies" action consequently cannot complete in this Preview;
+no count is invented. Encoded/ambiguous API endpoints are rejected before the
+general read path; encoded Storage filenames remain readable.
+No DB function or permission was changed. Legacy/2029 builds, built graph/lazy submit adapter
 and Research Plan, isolation, System Frame, cheap hardening, Legacy lock and diff
 check pass. Synthetic local tests do not prove authenticated private flows.
 

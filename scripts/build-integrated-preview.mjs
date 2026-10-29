@@ -19,18 +19,30 @@ const allow = ["gematria_api", "fn_method_value", "fn_method_profile", "gematria
 // already-linked account can recover its canonical Person ref; every Person/Family upsert
 // remains blocked below. The approved owner's Person exists before this disposable build.
 const existingPersonAccess = "fn_get_or_create_my_person";
+// Match the existing public reader's closed projection. Joined contributor
+// columns are deliberately excluded. Replies/counts await chain-visibility acceptance.
+const communityFields = "id,parent_id,author_name,author_user_id,author_contributor_id,title,body,reactions,origin,created_at,edited_at,is_deleted,total_count";
 // The unified working preview must not create Person records or record ELS traces.
 const unifiedReadOnly = typeof process !== "undefined" && ["gpt/2029-central-unified-workspace-20261029", "gpt/2029-central-shell-alignment-20261029", "gpt/2029-central-topbar-menu-completion-20261029"].includes(process.env.VERCEL_GIT_COMMIT_REF);
 const worker = `const reads = new Set(${JSON.stringify(allow)});
 const existingPersonAccess=${JSON.stringify(existingPersonAccess)};
 const unifiedReadOnly=${JSON.stringify(unifiedReadOnly)};
+const communityFields=${JSON.stringify(communityFields)};
+const communityReads=new Set(['community_feed_page','community_message_context']);
 const authOrigin='https://linswmnnkjxvweumprav.supabase.co';
 self.addEventListener('install',()=>self.skipWaiting());
 self.addEventListener('activate',event=>event.waitUntil(self.clients.claim()));
 self.addEventListener('fetch',event=>{
  const req=event.request,u=new URL(req.url),rpc=u.pathname.match(/^\\/rest\\/v1\\/rpc\\/(.+)$/)?.[1];
+ const communityRead=u.origin===authOrigin&&communityReads.has(rpc);
+ const communityProjection=communityRead&&u.searchParams.getAll('select').length===1&&u.searchParams.get('select')===communityFields;
+ const ambiguousPath=(u.pathname.includes('%')&&!u.pathname.startsWith('/storage/v1/'))
+  ||(u.pathname.toLowerCase().includes('/rest/v1/rpc/')&&(!u.pathname.startsWith('/rest/v1/rpc/')||!rpc||!/^[a-z_][a-z0-9_]*$/.test(rpc)));
+ if(req.method!=='OPTIONS'&&u.origin===authOrigin&&(ambiguousPath||(communityRead&&!communityProjection)||['community_replies_page','community_reply_counts'].includes(rpc))){
+  event.respondWith(Promise.resolve(new Response(JSON.stringify({error:'preview_read_only'}),{status:403,headers:{'Content-Type':'application/json','X-Preview-Write-Blocked':'true'}})));return;
+ }
  const safe=(!u.pathname.startsWith('/auth/v1/')&&['GET','HEAD','OPTIONS'].includes(req.method))
-  ||(u.origin===authOrigin&&req.method==='POST'&&(reads.has(rpc)||(!unifiedReadOnly&&rpc===existingPersonAccess)));
+  ||(u.origin===authOrigin&&req.method==='POST'&&(reads.has(rpc)||communityProjection||(!unifiedReadOnly&&rpc===existingPersonAccess)));
  if(safe)return;
  event.respondWith((async()=>{
   // Existing-account access only. No signup, account mutation or product writes.
