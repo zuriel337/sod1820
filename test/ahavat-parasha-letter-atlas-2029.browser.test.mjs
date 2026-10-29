@@ -75,7 +75,8 @@ test("parasha atlas preserves 28 source forms, exact PDF, export, selection and 
       }
       assert.equal(await page.locator("canvas").count(),0);assert.equal(modelRequests.length,0);
       const search=atlas.getByRole("searchbox",{name:"סינון אותיות בפרשה"});
-      await search.fill("כף");assert.equal(await atlas.locator(".ahavat29-parasha-atlas-grid article").count(),2);
+      async function filter(value) { await click(search); await page.keyboard.press("ControlOrMeta+A"); await page.keyboard.insertText(value); }
+      await filter("כף");assert.equal(await atlas.locator(".ahavat29-parasha-atlas-grid article").count(),2);
       const downloadPromise=page.waitForEvent("download");
       await click(atlas.getByRole("button",{name:"הורד את טבלת הפרשה",exact:true}));
       const download=await downloadPromise;
@@ -132,8 +133,8 @@ test("parasha atlas preserves 28 source forms, exact PDF, export, selection and 
         await atlas.locator(".ahavat29-parasha-atlas-grid article").first().waitFor();await selected("ז","האזינו");
         assert.equal(await atlas.locator('article[data-letter-form="ז"] dd').last().textContent(),"לא נקרא");
         await click(toggle);await reader.getByRole("status").filter({hasText:"לא ניתן לפתוח את המבנה במכשיר הזה"}).waitFor();
-        await search.fill("סופית");assert.equal(await atlas.locator(".ahavat29-parasha-atlas-grid article").count(),5);
-        await search.fill("not-a-form");assert.equal(await atlas.locator(".ahavat29-parasha-atlas-grid article").count(),0);
+        await filter("סופית");assert.equal(await atlas.locator(".ahavat29-parasha-atlas-grid article").count(),5);
+        await filter("not-a-form");assert.equal(await atlas.locator(".ahavat29-parasha-atlas-grid article").count(),0);
         assert.match(await atlas.getByRole("status").textContent(),/לא נמצאה/);
         await click(atlas.getByRole("button",{name:"נקה סינון אותיות",exact:true}));
         await click(reader.getByRole("button",{name:"סגור מבנה האות בתלת־ממד",exact:true}));
