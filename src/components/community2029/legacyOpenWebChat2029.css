@@ -1,7 +1,7 @@
 .sod29-legacy-chat{width:min(1280px,calc(100% - 40px));margin:24px auto 40px;padding:20px;border:1px solid var(--s29-line);border-radius:18px;background:var(--s29-panel);color:var(--s29-ink);direction:rtl}
 .sod29-legacy-chat-header{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:16px}
-.sod29-legacy-chat-header h1{margin:0;font-size:clamp(22px,3vw,30px);line-height:1.3}
+.sod29-legacy-chat-header h2{margin:0;font-size:clamp(22px,3vw,30px);line-height:1.3}
 .sod29-legacy-chat-header a{display:inline-flex;align-items:center;min-height:44px;color:var(--s29-accent-text);text-decoration:underline;text-underline-offset:4px}
 .sod29-legacy-chat-conversation{max-height:850px;max-height:min(80svh,850px);overflow:auto;scrollbar-width:thin}
-#community-new-chat{scroll-margin-top:96px}
+#community-new-chat,#legacy-chat{scroll-margin-top:96px}
 @media(max-width:600px){.sod29-legacy-chat{width:calc(100% - 24px);margin-top:16px;padding:14px}}

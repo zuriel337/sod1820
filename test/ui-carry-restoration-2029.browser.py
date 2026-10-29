@@ -1,0 +1,245 @@
+"""Built 2029 UI against the actual mock-preview notice and synthetic public feed.
+
+Every external request is intercepted; this exercises no hosted deployment or live
+service worker.  Run after build:2029. Evidence is written outside the checkout.
+"""
+import functools
+import json
+import os
+import re
+import subprocess
+import threading
+import time
+from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
+from pathlib import Path
+from urllib.parse import urlparse
+
+from playwright.sync_api import expect, sync_playwright
+
+ROOT = Path(__file__).resolve().parents[1]
+OUT = Path(os.environ.get("UI_CARRY_EVIDENCE", "/tmp/ui-carry-restoration-2029"))
+OUT.mkdir(parents=True, exist_ok=True)
+source = (ROOT / "scripts/build-integrated-preview.mjs").read_text()
+match = re.search(r"\bconst\s+notice\s*=\s*([\s\S]*?);\s*(?=html\s*=)", source)
+if not match: raise RuntimeError("actual builder notice not found")
+notice = subprocess.check_output(["node", "--input-type=module", "-e", "import vm from 'node:vm';process.stdout.write(vm.runInNewContext(process.argv[1]));", match.group(1)], cwd=ROOT, text=True)
+assert 'data-raziel-preview-transport="mock-only"' in notice
+HTML = (ROOT / "dist/2029.html").read_text().replace("</body>", notice + "</body>")
+FLAGS = ["lock_world", "lock_heichal", "lock_raziel_site", "lock_life_journey", "lock_books", "lock_number"]
+READ_RPCS = {"world_group_source_arrivals_v2", "rd_is_admin", "fn_method_profile", "fn_method_value", "writer_public_contributions_page_v1", "community_reply_counts", "notification_prefs_guest_get_v1", "notification_prefs_get_v1"}
+BLOCKED_TELEMETRY = {"link_identity", "ingest_event", "track_visit"}
+ROWS = [
+    {"id":"11111111-1111-4111-8111-111111111111", "author_name":"אלף בדיקה", "body":"הודעת זית", "origin":"community_2029", "created_at":"2026-10-28T12:00:00Z", "total_count":2},
+    {"id":"22222222-2222-4222-8222-222222222222", "author_name":"בית בדיקה", "body":"הודעת דקל", "origin":"openweb", "created_at":"2026-10-27T12:00:00Z", "total_count":2},
+]
+report = {"themes": [], "community": [], "failures": [], "page_errors": [], "model_calls": [], "blocked_writes": [], "blocked_telemetry": [], "external_chat": [], "feed_sorts": []}
+
+
+class Files(SimpleHTTPRequestHandler):
+    def log_message(self, *_args): pass
+
+
+server = ThreadingHTTPServer(("127.0.0.1", 0), functools.partial(Files, directory=str(ROOT / "dist")))
+threading.Thread(target=server.serve_forever, daemon=True).start()
+BASE = f"http://127.0.0.1:{server.server_port}"
+
+
+def wire(page, delayed_feed=False):
+    first_feed = True
+    page.on("pageerror", lambda error: report["page_errors"].append(str(error)))
+    def route(handler):
+        nonlocal first_feed
+        req = handler.request; url = urlparse(req.url)
+        if url.hostname == "127.0.0.1":
+            if req.is_navigation_request() and req.resource_type == "document": return handler.fulfill(content_type="text/html", body=HTML)
+            if url.path.startswith("/api/"):
+                if req.method != "GET": report["blocked_writes"].append(url.path)
+                return handler.fulfill(status=503, content_type="application/json", body='{"state":"unavailable"}')
+            return handler.continue_()
+        if any(key in req.url.lower() for key in ("spot.im", "spotim", "openweb", "/sso")):
+            report["external_chat"].append(req.url); return handler.abort()
+        if url.path.endswith(("/ai-analyze", "/research-run", "/raziel-submit")) or any(x in (url.hostname or "") for x in ("openai", "anthropic", "generativelanguage")):
+            report["model_calls"].append(req.url); return handler.abort()
+        name = url.path.rsplit("/", 1)[-1]
+        if req.method == "POST" and url.path.startswith("/rest/v1/rpc/") and name == "community_feed_page":
+            if delayed_feed and first_feed: time.sleep(0.8)
+            first_feed = False
+            sort = (req.post_data_json or {}).get("p_sort", "newest")
+            report["feed_sorts"].append(sort)
+            return handler.fulfill(content_type="application/json", headers={"access-control-allow-origin": "*"}, body=json.dumps(ROWS[::-1] if sort == "oldest" else ROWS))
+        if req.method == "POST" and url.path.startswith("/rest/v1/rpc/") and name in READ_RPCS:
+            return handler.fulfill(content_type="application/json", headers={"access-control-allow-origin": "*"}, body="[]")
+        if req.method == "POST" and url.path.startswith("/rest/v1/rpc/") and name in BLOCKED_TELEMETRY:
+            report["blocked_telemetry"].append(url.path); return handler.abort()
+        if req.method not in ("GET", "HEAD", "OPTIONS"):
+            report["blocked_writes"].append(url.path); return handler.abort()
+        rows = [{"key":key, "enabled":False, "mode":"all"} for key in FLAGS] if url.path.endswith("/site_flags") else []
+        return handler.fulfill(content_type="application/json", headers={"access-control-allow-origin":"*", "content-range":"0-0/0"}, body=json.dumps(rows))
+    page.route("**/*", route)
+
+
+def no_overflow(page):
+    assert page.evaluate("document.documentElement.scrollWidth <= innerWidth + 1")
+
+
+def size44(button):
+    expect(button).to_be_visible()
+    box = button.bounding_box()
+    assert box and box["width"] >= 44 and box["height"] >= 44, box
+
+
+def no_cover(button):
+    assert button.evaluate('''e => {const r=e.getBoundingClientRect();const h=document.elementFromPoint(r.x+r.width/2,r.y+r.height/2);return h===e || e.contains(h)}'''), "button covered"
+
+
+def header_geometry(page):
+    issues = page.evaluate('''() => {
+      const selectors=['.sod29-mobile-menu-trigger','.sod29-header-search','.sod29-theme-trigger','.sod29-header-workspace'];
+      const nodes=selectors.map(s=>document.querySelector('.sod29-header '+s));
+      const rects=nodes.map(e=>e?.getBoundingClientRect());
+      const issues=[];
+      for(let i=0;i<rects.length;i++) for(let j=i+1;j<rects.length;j++) {
+        const a=rects[i], b=rects[j];
+        if(!a?.width||!b?.width) continue;
+        if(Math.min(a.right,b.right)-Math.max(a.left,b.left)>1 && Math.min(a.bottom,b.bottom)-Math.max(a.top,b.top)>1)
+          issues.push({issue:'overlap',a:selectors[i],b:selectors[j],aRect:a.toJSON(),bRect:b.toJSON()});
+      }
+      const parent=nodes[0]?.getBoundingClientRect(), child=nodes[0]?.querySelector('.sod29-discovery-gate')?.getBoundingClientRect();
+      if(!parent || !child || child.left<parent.left-1 || child.top<parent.top-1 || child.right>parent.right+1 || child.bottom>parent.bottom+1)
+        issues.push({issue:'menu-child-outside-button',parent:parent?.toJSON(),child:child?.toJSON()});
+      return issues;
+    }''')
+    assert not issues, issues
+
+
+def theme_case(page, width, initial):
+    page.goto(BASE + "/2029")
+    expect(page.locator(".sod29-root")).to_be_visible()
+    expect(page.locator("html")).to_have_attribute("data-theme-preset", initial)
+    trigger = page.locator(".sod29-header .sod29-theme-trigger")
+    mobile = width <= 980
+    if mobile:
+        expect(trigger).to_be_visible(); size44(trigger); no_cover(trigger)
+        header_geometry(page)
+        trigger.click()
+        expect(trigger).to_have_attribute("aria-expanded", "true")
+        options = page.locator(".sod29-header .sod29-theme-options")
+        expect(options).to_be_visible()
+        for label in ("יום", "קלף", "לילה"):
+            button = options.get_by_role("button", name=label, exact=True)
+            size44(button); no_cover(button)
+        page.screenshot(path=str(OUT / f"themes-open-{width}-{initial}.png"))
+        for index in range(3):
+            page.keyboard.press("Tab")
+            expect(options.locator("button").nth(index)).to_be_focused()
+            expect(trigger).to_have_attribute("aria-expanded", "true")
+        page.keyboard.press("Tab")
+        expect(trigger).to_have_attribute("aria-expanded", "false")
+        assert not trigger.evaluate("e => e.closest('.sod29-theme-presets').contains(document.activeElement)")
+        trigger.focus(); page.keyboard.press("Enter")
+        expect(trigger).to_have_attribute("aria-expanded", "true")
+        page.keyboard.press("Escape")
+        expect(trigger).to_have_attribute("aria-expanded", "false")
+        expect(trigger).to_be_focused()
+        trigger.click()
+        page.mouse.click(width / 2, 500)
+        expect(trigger).to_have_attribute("aria-expanded", "false")
+        page.keyboard.press("Escape")
+        expect(trigger).to_have_attribute("aria-expanded", "false")
+        trigger.click()
+        target, label = ("dark", "לילה") if initial != "dark" else ("light", "יום")
+        options.get_by_role("button", name=label, exact=True).click()
+        expect(trigger).to_have_attribute("aria-expanded", "false")
+        expect(trigger).to_be_focused()
+        expect(page.locator("html")).to_have_attribute("data-theme-preset", target)
+        page.reload()
+        expect(page.locator("html")).to_have_attribute("data-theme-preset", target)
+        page.locator(".sod29-mobile-menu-trigger").click()
+        drawer = page.locator("#sod29-mobile-navigation")
+        expect(drawer).to_be_visible()
+        buttons = drawer.locator(".sod29-theme-options")
+        for text in ("יום", "קלף", "לילה"): size44(buttons.get_by_role("button", name=text, exact=True))
+        buttons.get_by_role("button", name="קלף", exact=True).click()
+        expect(page.locator("html")).to_have_attribute("data-theme-preset", "parchment")
+    else:
+        expect(trigger).to_be_hidden()
+        options = page.locator(".sod29-header .sod29-theme-options")
+        expect(options).to_be_visible()
+        for label in ("יום", "קלף", "לילה"): size44(options.get_by_role("button", name=label, exact=True))
+    no_overflow(page)
+    report["themes"].append({"width":width, "initial":initial, "mobile":mobile, "status":"passed"})
+
+
+def community_case(page, width, suffix=""):
+    page.goto(BASE + "/community/chat" + suffix)
+    feed = page.locator('[data-community-mode="connected-preview"]')
+    legacy = page.locator('[data-community-chat="legacy"]')
+    expect(feed).to_be_visible(); expect(legacy).to_be_visible()
+    if suffix:
+        # This is a cold direct-entry hash; assert before interacting with or
+        # manually scrolling the page, after the delayed feed has settled.
+        expect(legacy).to_be_in_viewport()
+        assert legacy.evaluate("e => { const r=e.getBoundingClientRect(); return r.top < innerHeight && r.bottom > 0; }")
+    assert feed.evaluate("e=>e.getBoundingClientRect().top + scrollY") < legacy.evaluate("e=>e.getBoundingClientRect().top + scrollY")
+    expect(legacy).to_have_attribute("data-openweb-loaded", "false")
+    expect(legacy.locator("[data-spotim-module]")).to_have_count(0)
+    assert legacy.get_by_role("link", name="פתיחת הצ׳אט המקורי").get_attribute("href") == "https://sod1820.co.il/community/chat"
+    expect(feed.get_by_text("הודעת זית", exact=True)).to_be_visible()
+    expect(feed.get_by_text("הודעת דקל", exact=True)).to_be_visible()
+    controls = feed.locator('[aria-label="סידור וסינון השיחות"]')
+    expect(controls.get_by_role("button", name="חיפוש בכל הארכיון")).to_be_disabled()
+    for label in ("ללא מענה", "עם קבצים", "ההודעות שלי", "מהקהילה החדשה", "מהצ׳אט הוותיק"):
+        expect(controls.get_by_role("button", name=label, exact=True)).to_be_disabled()
+    expect(controls).to_contain_text("אינם זמינים כרגע")
+    select = controls.locator("select")
+    for value in ("active", "discussed", "liked"):
+        assert select.locator(f'option[value="{value}"]').evaluate("e => e.disabled")
+    select.select_option("oldest")
+    page.wait_for_function("""() => {const s=document.querySelector('.sod29-community-feed')?.innerText || '';return s.includes('הודעת דקל') && s.includes('הודעת זית') && s.indexOf('הודעת דקל') < s.indexOf('הודעת זית')}""")
+    assert report["feed_sorts"] and report["feed_sorts"][-1] == "oldest"
+    feed_text = feed.locator(".sod29-community-feed").first.inner_text()
+    assert feed_text.index("הודעת דקל") < feed_text.index("הודעת זית")
+    search = feed.get_by_placeholder("חיפוש בשיחות שבדף")
+    search.fill("זית")
+    expect(feed.get_by_text("הודעת זית", exact=True)).to_be_visible()
+    expect(feed.get_by_text("הודעת דקל", exact=True)).to_have_count(0)
+    page.evaluate("location.hash='#legacy-chat'")
+    legacy.scroll_into_view_if_needed()
+    page.wait_for_timeout(400)
+    expect(legacy).to_have_attribute("data-openweb-loaded", "false")
+    expect(legacy.locator("[data-spotim-module]")).to_have_count(0)
+    assert not report["external_chat"], report["external_chat"]
+    no_overflow(page)
+    page.screenshot(path=str(OUT / f"community-{width}{'-hash' if suffix else ''}.png"))
+    report["community"].append({"width":width, "initial_hash":bool(suffix), "status":"passed"})
+
+
+try:
+    with sync_playwright() as p:
+        browser = p.chromium.launch(executable_path="/usr/bin/chromium", headless=True, args=["--no-sandbox", "--disable-dev-shm-usage"])
+        for width in (() if os.environ.get("UI_CARRY_COMMUNITY_ONLY") else (320, 390, 980, 981, 1100, 1440)):
+            for initial in ("light", "parchment", "dark"):
+                context = browser.new_context(viewport={"width":width, "height":1000}, reduced_motion="reduce")
+                context.add_init_script("if(!sessionStorage.getItem('seed')){localStorage.setItem('sod-theme'," + json.dumps(initial) + ");sessionStorage.setItem('seed','1')}")
+                page = context.new_page(); page.set_default_timeout(8000); wire(page)
+                try: theme_case(page, width, initial)
+                except Exception as error:
+                    report["failures"].append({"case":"theme", "width":width, "theme":initial, "error":str(error)})
+                    page.screenshot(path=str(OUT / f"failure-theme-{width}-{initial}.png"), full_page=True)
+                context.close()
+        for width in (320, 390, 1440):
+            for suffix in ("", "#legacy-chat"):
+                context = browser.new_context(viewport={"width":width, "height":1000}, reduced_motion="reduce")
+                page = context.new_page(); page.set_default_timeout(8000); wire(page, delayed_feed=bool(suffix))
+                try: community_case(page, width, suffix)
+                except Exception as error:
+                    report["failures"].append({"case":"community", "width":width, "hash":bool(suffix), "error":str(error)})
+                    page.screenshot(path=str(OUT / f"failure-community-{width}{'-hash' if suffix else ''}.png"), full_page=True)
+                context.close()
+        browser.close()
+finally:
+    server.shutdown(); server.server_close()
+    (OUT / "report.json").write_text(json.dumps(report, ensure_ascii=False, indent=2))
+
+print(json.dumps(report, ensure_ascii=False, indent=2))
+if any(report[k] for k in ("failures", "page_errors", "model_calls", "blocked_writes", "external_chat")): raise SystemExit(1)

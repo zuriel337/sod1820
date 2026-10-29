@@ -185,7 +185,7 @@ export function PublicCommunityActivity2029({ rows = [], count = null, loading =
   </div>;
 }
 
-export default function CommunityLive2029({ leadingContent = null, canonicalPath = "/2029?preview=community&data=live" }) {
+export default function CommunityLive2029({ leadingContent = null, trailingContent = null, canonicalPath = "/2029?preview=community&data=live" }) {
   const palette = use2029Palette();
   const { user, profile } = useAuth();
   const [params, setParams] = useSearchParams();
@@ -203,6 +203,7 @@ export default function CommunityLive2029({ leadingContent = null, canonicalPath
   const [nextOffset, setNextOffset] = useState(0);
   const [total, setTotal] = useState(COMMUNITY_ARCHIVE_TOTAL);
   const [loading, setLoading] = useState(true);
+  const [feedSettled, setFeedSettled] = useState(false);
   const [error, setError] = useState("");
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState("newest");
@@ -262,9 +263,17 @@ export default function CommunityLive2029({ leadingContent = null, canonicalPath
       setError("לא הצלחנו לטעון את השיחות כרגע.");
     } finally {
       if (feedReadRef.current === read) feedReadRef.current = null;
-      if (request === streamRequestRef.current) setLoading(false);
+      if (request === streamRequestRef.current) { setLoading(false); setFeedSettled(true); }
     }
   }, [sort]);
+
+  useEffect(() => {
+    if (!feedSettled || window.location.hash !== "#legacy-chat") return undefined;
+    // The source is mounted immediately; when the first feed completes, its
+    // height can move the source below the initial hash position.
+    const frame = requestAnimationFrame(() => document.getElementById("legacy-chat")?.scrollIntoView({ block: "start", behavior: "auto" }));
+    return () => cancelAnimationFrame(frame);
+  }, [feedSettled]);
 
   useEffect(() => {
     if (memberId || claimId || threadFocus || loadedFeedSort.current === sort) return;
@@ -477,7 +486,19 @@ export default function CommunityLive2029({ leadingContent = null, canonicalPath
           {focusedThread ? <LiveThread key={focusedThread.id} row={focusedThread} accountProfiles={accountProfiles} onReply={startReply} replyCounts={replyCounts} onRepliesLoaded={onRepliesLoaded} refreshToken={threadRefresh} focusPath={threadFocus.path} messageActions={messageActions} /> : null}
         </section> : <>
           <label className="sod29-community-search"><span className="sod29-community-sr-only">חיפוש בשיחות שבדף</span><input type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="חיפוש בשיחות שבדף" /></label>
-          <label className="sod29-community-sort sod29-community-stream-sort">סדר לפי <select value={sort} onChange={(event) => setSort(event.target.value)}><option value="newest">החדש ביותר</option><option value="oldest">הישן ביותר</option></select></label>
+          <section className="sod29-community-feed-controls" aria-label="סידור וסינון השיחות" aria-describedby="community-advanced-unavailable">
+            <div className="sod29-community-feed-controls-top">
+              <label className="sod29-community-sort sod29-community-stream-sort">סדר לפי <select value={sort} onChange={(event) => setSort(event.target.value)}>
+                <option value="newest">החדש ביותר</option><option value="active" disabled>פעיל לאחרונה</option><option value="discussed" disabled>הכי מדובר</option><option value="liked" disabled>הכי אהוב</option><option value="oldest">הישן ביותר</option>
+              </select></label>
+              <button type="button" className="sod29-community-text-action sod29-community-archive-search" disabled>חיפוש בכל הארכיון</button>
+            </div>
+            <div className="sod29-community-feed-filter-chips" role="group" aria-label="סינון שיחות">
+              <button type="button" aria-pressed="true">הכול</button>
+              {["ללא מענה", "עם קבצים", "ההודעות שלי", "מהקהילה החדשה", "מהצ׳אט הוותיק"].map((label) => <button type="button" disabled key={label}>{label}</button>)}
+            </div>
+            <p id="community-advanced-unavailable" className="sod29-community-feed-controls-note">המיון והסינון המורחבים והחיפוש בכל הארכיון אינם זמינים כרגע. אפשר לחפש בשיחות שנטענו ולמיין לפי תאריך.</p>
+          </section>
           {error ? <FrameState kind="error" title="טעינת השיחות נכשלה"><p>{error}</p><button type="button" className="sod29-community-secondary" onClick={() => loadPage(0, true)}>ניסיון נוסף</button></FrameState> : null}
           {!error && !loading && !filtered.length ? <FrameState kind="empty" title="לא נמצאו הודעות"><p>אפשר לחפש מילה אחרת.</p></FrameState> : null}
           <div className="sod29-community-feed">{filtered.map((row) => <LiveThread key={row.id} row={row} accountProfiles={accountProfiles} onReply={startReply} replyCounts={replyCounts} onRepliesLoaded={onRepliesLoaded} refreshToken={threadRefresh} messageActions={messageActions} />)}</div>
@@ -499,5 +520,6 @@ export default function CommunityLive2029({ leadingContent = null, canonicalPath
         </section>
       </div> : null}
     </main>
+    {!memberId && !claimId && !threadFocus ? trailingContent : null}
   </Sod2029Shell>;
 }

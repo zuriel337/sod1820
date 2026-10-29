@@ -5,6 +5,7 @@ import React, {
   useCallback,
   useContext,
   useEffect,
+  useId,
   useMemo,
   useRef,
   useState,
@@ -269,23 +270,47 @@ const THEME_PRESET_OPTIONS = Object.freeze([
   { id: "dark", label: "לילה", icon: "☾" },
 ]);
 
-function ThemePresetControl2029({ compact = false }) {
+function ThemePresetControl2029({ compact = false, header = false }) {
   const preset = useThemePreset();
+  const [chooserOpen, setChooserOpen] = useState(false);
+  const controlRef = useRef(null);
+  const triggerRef = useRef(null);
+  const optionsId = useId();
+  const active = THEME_PRESET_OPTIONS.find((item) => item.id === preset) || THEME_PRESET_OPTIONS[2];
+  useEffect(() => {
+    if (!header || !chooserOpen) return undefined;
+    const closeOutside = (event) => {
+      if (!controlRef.current?.contains(event.target)) setChooserOpen(false);
+    };
+    document.addEventListener("pointerdown", closeOutside);
+    return () => document.removeEventListener("pointerdown", closeOutside);
+  }, [header, chooserOpen]);
   return (
-    <div className={`sod29-theme-presets${compact ? " is-compact" : ""}`} role="group" aria-label="ערכת צבעים">
+    <div ref={controlRef} className={`sod29-theme-presets${compact ? " is-compact" : ""}${header ? " is-header-control" : ""}${chooserOpen ? " is-open" : ""}`} role="group" aria-label="ערכת צבעים" onBlur={(event) => {
+      if (header && !event.currentTarget.contains(event.relatedTarget)) setChooserOpen(false);
+    }} onKeyDown={(event) => {
+      if (header && chooserOpen && event.key === "Escape") {
+        event.preventDefault(); event.stopPropagation(); setChooserOpen(false); triggerRef.current?.focus();
+      }
+    }}>
+      {header ? <button ref={triggerRef} className="sod29-theme-trigger" type="button" onClick={() => setChooserOpen((value) => !value)} aria-expanded={chooserOpen} aria-controls={optionsId} aria-label={`מראה: ${active.label}. בחר יום, קלף או לילה`} title={`מראה: ${active.label}`}>
+        <span aria-hidden="true">{active.icon}</span><b>{active.label}</b>
+      </button> : null}
+      <div id={optionsId} className="sod29-theme-options">
       {THEME_PRESET_OPTIONS.map((item) => (
         <button
           key={item.id}
           type="button"
           aria-pressed={preset === item.id}
           className={preset === item.id ? "is-active" : ""}
-          onClick={() => setThemePreset(item.id)}
+          onClick={() => { setThemePreset(item.id); setChooserOpen(false); if (header && chooserOpen) triggerRef.current?.focus(); }}
           title={item.label}
         >
           <span aria-hidden="true">{item.icon}</span>
           <b>{item.label}</b>
         </button>
       ))}
+      </div>
     </div>
   );
 }
@@ -2356,7 +2381,7 @@ function SystemFrame2029Body({
             <div className="sod29-header-actions">
               <button className="sod29-header-return" type="button" onClick={returnExact} disabled={!context?.returnTo?.href} aria-label="חזרה מדויקת" title={context?.returnTo?.label || "אין יעד חזרה שמור"}><span aria-hidden="true"><NavigationIcon2029 name="back" /></span><span className="return-label"> חזרה מדויקת</span></button>
               <button type="button" className="sod29-header-issue" onClick={openIssueReport} aria-label="דווח על בעיה"><span aria-hidden="true"><NavigationIcon2029 name="issue" /></span><span className="issue-label"> דווח על בעיה</span></button>
-              <ThemePresetControl2029 compact />
+              <ThemePresetControl2029 compact header />
               <button type="button" className={`sod29-header-workspace${user ? "" : " is-signed-out"}`} onClick={openWorkspace} aria-label={user ? "האזור האישי שלי" : "התחברות לאזור האישי"} title={user ? "האזור האישי שלי" : "התחברות או הרשמה"}><UserAvatar2029 user={user} profile={profile} size="header" /><span className="workspace-label">{user ? accountShortName(user, profile) : "התחברות"}</span></button>
             </div>
           </header>

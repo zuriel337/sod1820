@@ -23,7 +23,7 @@ const existingPersonAccess = "fn_get_or_create_my_person";
 // columns are deliberately excluded. Replies/counts await chain-visibility acceptance.
 const communityFields = "id,parent_id,author_name,author_user_id,author_contributor_id,title,body,reactions,origin,created_at,edited_at,is_deleted,total_count";
 // The unified working preview must not create Person records or record ELS traces.
-const unifiedReadOnly = typeof process !== "undefined" && ["gpt/2029-central-unified-workspace-20261029", "gpt/2029-central-shell-alignment-20261029", "gpt/2029-central-topbar-menu-completion-20261029"].includes(process.env.VERCEL_GIT_COMMIT_REF);
+const unifiedReadOnly = typeof process !== "undefined" && ["gpt/2029-central-unified-workspace-20261029", "gpt/2029-central-shell-alignment-20261029", "gpt/2029-central-topbar-menu-completion-20261029", "gpt/2029-central-ui-carry-restoration-20261029"].includes(process.env.VERCEL_GIT_COMMIT_REF);
 const worker = `const reads = new Set(${JSON.stringify(allow)});
 const existingPersonAccess=${JSON.stringify(existingPersonAccess)};
 const unifiedReadOnly=${JSON.stringify(unifiedReadOnly)};
@@ -78,7 +78,8 @@ const personalNavigationMockBranch = "gpt/2029-central-raziel-personal-navigatio
 const unifiedWorkspaceMockBranch = "gpt/2029-central-unified-workspace-20261029";
 const centralShellMockBranch = "gpt/2029-central-shell-alignment-20261029";
 const topbarMenuMockBranch = "gpt/2029-central-topbar-menu-completion-20261029";
-const allowedMockBranches = new Set([legacyMockBranch, personalNavigationMockBranch, unifiedWorkspaceMockBranch, centralShellMockBranch, topbarMenuMockBranch]);
+const carryRestorationMockBranch = "gpt/2029-central-ui-carry-restoration-20261029";
+const allowedMockBranches = new Set([legacyMockBranch, personalNavigationMockBranch, unifiedWorkspaceMockBranch, centralShellMockBranch, topbarMenuMockBranch, carryRestorationMockBranch]);
 const selectMockPreviewBranch = env => {
   const branch = typeof env.VERCEL_GIT_COMMIT_REF === "string" ? env.VERCEL_GIT_COMMIT_REF : "";
   const explicitMock = env.SOD_RAZIEL_SAFE_ACTIONS_PREVIEW === "true";
@@ -101,6 +102,16 @@ if (razielSafeActionsMock) {
   const { execFileSync } = await import("node:child_process");
   const sha = process.env.VERCEL_GIT_COMMIT_SHA || execFileSync("git", ["rev-parse", "HEAD"], { cwd: root, encoding: "utf8" }).trim();
   await writeFile(resolve(output, "preview-identity.json"), JSON.stringify({ sha, branch: expectedBranch, transport: "mock-only", product_writes: false, edge_deploy: false }));
+  if (expectedBranch === carryRestorationMockBranch) {
+    const audit = JSON.parse(await readFile(resolve(root, "docs/reviews/ui-carry-receipt-20261029.json"), "utf8"));
+    // Publish only build identity and a coverage marker. Source handoffs and
+    // internal planning evidence stay in the repository/canonical planning row.
+    await writeFile(resolve(output, "preview-carry-receipt.json"), JSON.stringify({
+      sha, branch: expectedBranch, audit_date_utc: audit.audit_date_utc,
+      surface_count: audit.surfaces.length, verification: "partial",
+      product_writes: false, edge_deploy: false,
+    }, null, 2));
+  }
 }
 const bootstrap = `<script type="module">if(!('serviceWorker' in navigator)){document.body.textContent='פריוויו זה דורש דפדפן התומך בתצוגה לקריאה בלבד.';}else{await navigator.serviceWorker.register('/preview-readonly-sw.js',{scope:'/'});await navigator.serviceWorker.ready;if(!navigator.serviceWorker.controller)await new Promise(r=>navigator.serviceWorker.addEventListener('controllerchange',r,{once:true}));await import('__ENTRY__');}</script>`;
 let html = await readFile(resolve(output, "2029.html"), "utf8");
