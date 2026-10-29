@@ -67,6 +67,8 @@ try:
        panel=page.locator('.sod29-frame-panel');expect(panel.locator('section[aria-label="פעולות על הבחירה"]')).to_be_visible();expect(panel.locator('section[aria-label="כלי מחקר וחיפוש"]')).to_be_visible()
        panel.get_by_role('button',name='חיפוש',exact=True).click();expect(page.locator('.sod29-frame-command input')).to_be_visible();close(page);expect(more).to_be_focused()
        dock.get_by_role('button',name=__import__('re').compile('^עכשיו')).click();expect(page.locator('.sod29-frame-panel .sod29-now button')).to_have_count(3)
+       for label in page.locator('.sod29-frame-panel .sod29-now-label').all():
+        expect(label).to_be_visible();assert label.evaluate('e=>parseFloat(getComputedStyle(e).fontSize)')>=14
        page.locator('.sod29-frame-panel .sod29-now').get_by_role('button',name='עכשיו · בשבילי',exact=True).click();expect(page.locator('.sod29-frame-panel')).to_contain_text('המרחב האישי שלי');close(page);expect(dock.get_by_role('button',name=__import__('re').compile('^עכשיו'))).to_be_focused()
        if surface in ['post','topic']:
         dock.get_by_role('button',name='מספר · פתח חלונית מספר').click();expect(page.locator('.sod29-frame-panel')).to_be_visible();close(page)
