@@ -1,4 +1,25 @@
 /* Scoped projection. All colors/fonts come from the active Design V2 owner. */
+.ahavat29-parasha-letter-atlas{margin-block:22px 8px;border:1px solid var(--s29-line-strong);border-radius:12px;background:var(--s29-panel)}
+.ahavat29-parasha-letter-atlas>summary{min-height:44px;padding:12px;color:var(--s29-accent-text);font:500 var(--s29-type-ui)/1.6 var(--s29-font-ui);cursor:pointer}
+.ahavat29-parasha-letter-atlas>header,.ahavat29-parasha-letter-atlas>p,.ahavat29-parasha-letter-atlas>footer,.ahavat29-parasha-atlas-tools{margin:14px}
+.ahavat29-parasha-letter-atlas>header>span{font:500 var(--s29-type-ui)/1.6 var(--s29-font-ui);color:var(--s29-accent-text)}
+.ahavat29-parasha-letter-atlas>header h5{margin:8px 0;font:600 var(--s29-type-title)/1.4 var(--s29-font-display)}
+.ahavat29-parasha-atlas-tools{display:flex;align-items:end;flex-wrap:wrap;gap:12px;font:500 var(--s29-type-ui)/1.6 var(--s29-font-ui)}
+.ahavat29-parasha-atlas-tools label{flex:1;min-width:0}
+.ahavat29-parasha-atlas-tools input{min-width:0;width:100%;min-height:44px;padding:9px;border:1px solid var(--s29-line-strong);border-radius:8px;background:var(--s29-panel);color:var(--s29-text);font:inherit}
+.ahavat29-parasha-atlas-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr));gap:10px;padding:14px}
+.ahavat29-parasha-atlas-grid>article{min-width:0;padding:10px;border:1px solid var(--s29-line);border-radius:10px;background:var(--s29-panel-soft)}
+.ahavat29-parasha-atlas-grid .ahavat29-parasha-atlas-choice{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;font:500 var(--s29-type-ui)/1.5 var(--s29-font-ui)}
+.ahavat29-parasha-atlas-choice>b{font:500 32px/1.3 var(--s29-font-display)}
+.ahavat29-parasha-letter-atlas .ahavat29-parasha-atlas-grid dl{grid-template-columns:minmax(0,1fr);gap:6px;margin:10px 0}
+.ahavat29-parasha-letter-atlas .ahavat29-parasha-atlas-grid dl>div{display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding:6px;background:transparent;border:0}
+.ahavat29-parasha-atlas-grid dt{font:400 var(--s29-type-ui)/1.6 var(--s29-font-body)}
+.ahavat29-parasha-letter-atlas .ahavat29-parasha-atlas-grid dd{margin:0}
+.ahavat29-parasha-atlas-grid>article>button:last-child{width:100%}
+.ahavat29-parasha-letter-atlas>footer{display:flex;align-items:center;flex-wrap:wrap;gap:12px;border-top:1px solid var(--s29-line);padding-block-start:14px}
+.ahavat29-parasha-letter-atlas>footer p{flex:1;min-width:min(100%,220px);margin:0;font:400 var(--s29-type-body)/1.7 var(--s29-font-body)}
+.ahavat29-parasha-letter-atlas :is(summary,input):focus-visible{outline:3px solid var(--s29-focus-ring);outline-offset:3px}
+.ahavat29-parasha-letter-atlas bdi{unicode-bidi:isolate}
 .ahavat29-letter-study{display:grid;grid-template-columns:minmax(150px,.6fr) minmax(0,1.6fr);border:1px solid var(--s29-line-strong);border-radius:20px;overflow:hidden;background:var(--s29-panel);margin-block:24px}
 .ahavat29-letter-stepper{grid-column:1/-1;display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:8px;align-items:center;padding:10px;border-bottom:1px solid var(--s29-line);font:500 var(--s29-type-ui)/1.5 var(--s29-font-ui);color:var(--s29-text)}
 .ahavat29-letter-stepper>span{text-align:center;white-space:nowrap}

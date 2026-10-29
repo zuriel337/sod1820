@@ -1,9 +1,10 @@
 import React from "react";
 import { ahavatLetterNumber } from "../../data/ahavatTorahLetters2029.js";
 import { ahavatReaderUnitDomId } from "../../data/ahavatTorahReaderUnits2029.js";
+import AhavatParashaLetterAtlas2029 from "./AhavatParashaLetterAtlas2029.jsx";
 
 // Selected-source explanation over existing rows; no new reading or numeric result.
-export default function AhavatLetterParasha2029({ source, rows, selectedParasha, unitId, ownsSourceAnchor, onSelect, onSource, journeyScope = "book", onJourney, hasBook, onNavigate }) {
+export default function AhavatLetterParasha2029({ source, rows, selectedParasha, unitId, ownsSourceAnchor, onSelect, onSource, journeyScope = "book", onJourney, hasBook, onNavigate, onLetter }) {
   const position = rows.findIndex(row => row.parasha === selectedParasha);
   const selected = rows[position];
   return <section className="ahavat29-letter-parasha" id={selected && ownsSourceAnchor ? ahavatReaderUnitDomId(unitId) : "ahavat29-letter-parasha"} data-reader-unit={selected && ownsSourceAnchor ? unitId : undefined} aria-labelledby="ahavat29-letter-parasha-title">
@@ -18,5 +19,6 @@ export default function AhavatLetterParasha2029({ source, rows, selectedParasha,
       <p><b>הסבר נלווה:</b> זו שורת פרשת {selected.parasha} במניין האות {source.name}. המחבר מונה לפי פרשות, ואחריהן ממשיך בסיכום המצטבר של החומש. {selected.count === null ? "הקריאה המספרית של השורה עדיין חסרה; אפשר לקרוא את הדפוס עצמו בעמוד המקור." : "המספר כאן הוא קריאת המניין המודפס, והמקור נשאר זמין להשוואה."} {/[ךםןףץ]/.test(source.form) ? "זוהי צורה סופית עם סעיף נפרד בספר; אין לצרף אותה אוטומטית לצורה הרגילה." : source.form === "שׁ" || source.form === "שׂ" ? "בספר יש מניינים נפרדים לשׁין ולשׂין." : ""}</p>
       <nav aria-label={journeyScope === "torah" ? "מעבר בין פרשות התורה" : "מעבר בין פרשות החומש"}><button type="button" disabled={position <= 0} onClick={() => onSelect(rows[position - 1])}>הפרשה הקודמת</button><span><bdi>{position + 1}</bdi> מתוך <bdi>{rows.length}</bdi></span><button type="button" disabled={position >= rows.length - 1} onClick={() => onSelect(rows[position + 1])}>הפרשה הבאה</button></nav>
     </article> : <p>בחר פרשה כדי לקרוא את המניין שלה ולהמשיך בין השורות לפי סדר הספר. אפשר לפתוח את המקור גם בלי להפעיל תלת־ממד.</p>}
+    {ownsSourceAnchor && selected ? <AhavatParashaLetterAtlas2029 parasha={selected.parasha} selectedForm={source.form} onChoose={onLetter} /> : null}
   </section>;
 }
