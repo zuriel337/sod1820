@@ -62,9 +62,9 @@ test('profile/product/storage/model writes remain blocked; governed readers stil
   assert.equal((await request('/functions/v1/els-search-bridge', { body: { op: 'page' } })).forwarded, 1);
 });
 
-test('unified working preview blocks Person creation and trace-producing ELS bridge', async () => {
+for (const branch of ['gpt/2029-central-unified-workspace-20261029', 'gpt/unified-revelation-preview-20261029']) test(`unified preview ${branch} blocks Person creation and trace-producing ELS bridge`, async () => {
   const workerSource = vm.runInNewContext(`${source}\nworker;`, {
-    process: { env: { VERCEL_GIT_COMMIT_REF: 'gpt/2029-central-unified-workspace-20261029' } },
+    process: { env: { VERCEL_GIT_COMMIT_REF: branch } },
   });
   for (const [path, body] of [
     ['/rest/v1/rpc/fn_get_or_create_my_person', {}],
