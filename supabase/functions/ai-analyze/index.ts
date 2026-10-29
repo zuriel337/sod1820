@@ -6,6 +6,7 @@ import { buildRazielResultBundleConsumer } from "../../../src/lib/research/razie
 import { buildRazielGroundedSourceComposer, razielMethodLayerNumbers } from "../../../src/lib/research/razielGroundedSourceComposer.js";
 import { RAZIEL_SEMANTIC_INTENT_VERSION, isRazielCurrentSurfaceQuestion, resolveRazielCanonicalRequest, resolveRazielConversationalAct, resolveRazielDeterministicGuidance, validateRazielSemanticIntent } from "../../../src/lib/research/razielSemanticIntentGate.js";
 import { ELS_RAZIEL_PLANNING_ACTION, ELS_RAZIEL_PLANNING_SUBJECT, deriveLockedElsSearchPlan, elsPlanningPrompt, normalizeElsRazielPlanningAction, normalizeElsRazielSearchPlan } from "../../../src/lib/research/elsRazielPlanning.js";
+import { handleElsMatrixReading } from "../_shared/elsMatrixReading.js";
 // ai-analyze — ניתוח AI גנרי. fast=true → Haiku (מהיר, לכלים אינטראקטיביים); אחרת Sonnet (עומק).
 // יושר: מפרש רק עובדות שסופקו, לא מחשב גימטריה, מפריד עובדה מפרשנות, בלי נבואות.
 //
@@ -2577,6 +2578,31 @@ Deno.serve(async (req: Request) => {
     const engine = String(body?.engine || "claude").toLowerCase() === "gemini" ? "gemini" : "claude";
     if (engine === "claude" && !ANTHROPIC_KEY) return json({ analysis: null, engine, error: "not_configured" });
     if (engine === "gemini" && !GEMINI_KEY) return json({ analysis: null, engine, error: "not_configured" });
+
+    // 🔬 ELS matrix reading (experimental, admin-only, default OFF) — same route, same canonical ELS engine for verification.
+    //    Additive early branch: it runs only when the body carries `els_matrix_reading`; every other request takes the paths below unchanged.
+    //    Disabled unless ELS_MATRIX_READING_ENABLED is set; no credits are charged; the model run is an Anthropic Message Batch (see _shared/elsMatrixReading.js).
+    if (body?.els_matrix_reading && typeof body.els_matrix_reading === "object") {
+      return await handleElsMatrixReading({
+        body,
+        deps: {
+          json,
+          fetchImpl: fetch,
+          now: () => Date.now(),
+          resolveIdentity: () => resolveIdentity(req, body),
+          restHeaders: (extra?: Record<string, string>) => supabaseServiceHeaders(SB_SVC, extra),
+          env: {
+            enabled: Deno.env.get("ELS_MATRIX_READING_ENABLED") || "",
+            anthropicKey: ANTHROPIC_KEY,
+            supabaseUrl: SB_URL,
+            serviceKey: SB_SVC,
+            jobSecret: Deno.env.get("ELS_MATRIX_READING_JOB_SECRET") || "",
+            model: Deno.env.get("ELS_MATRIX_READING_MODEL") || "",
+            fxIlsPerUsd: Deno.env.get("ELS_MATRIX_READING_FX_ILS_PER_USD") || "",
+          },
+        },
+      });
+    }
 
     const kind = String(body?.kind || "").slice(0, 40);
     const subject = String(body?.subject || "").slice(0, 300);

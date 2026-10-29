@@ -24,6 +24,7 @@ import {
   normalizeElsRazielPlanningAction,
   normalizeElsRazielSearchPlan,
 } from "../../src/lib/research/elsRazielPlanning.js";
+import { handleElsMatrixReading } from "../../supabase/functions/_shared/elsMatrixReading.js";
 
 export const UID = "11111111-2222-4333-8444-555555555555";
 export const OTHER_UID = "aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee";
@@ -152,7 +153,7 @@ export async function runAiAnalyze({
     SUPABASE_ANON_KEY: "synthetic-anon-key", ANTHROPIC_API_KEY: "synthetic-model-key",
   };
   const imports = [...source.matchAll(/^import .*;$/gm)].map(([line]) => line);
-  assert.equal(imports.length, 8, "review any new handler dependency before mocking it");
+  assert.equal(imports.length, 9, "review any new handler dependency before mocking it");
   assert.ok(imports[0].includes('import { callClaudeReliable }'));
   assert.ok(imports[1].includes('import { selectRazielIntelligence, RAZIEL_LEVELS }'));
   assert.ok(imports[2].includes('import { whatsappSurfaceProfileText, continuationHrefFromSurface }'));
@@ -167,6 +168,7 @@ export async function runAiAnalyze({
   assert.ok(imports[6].includes('validateRazielSemanticIntent'));
   assert.ok(imports[7].includes('ELS_RAZIEL_PLANNING_ACTION'));
   assert.ok(imports[7].includes('normalizeElsRazielSearchPlan'));
+  assert.ok(imports[8].includes('import { handleElsMatrixReading }'));
   let handler;
   runInNewContext(stripTypeScriptTypes(source.replace(/^import .*;\n/gm, "")), {
     Deno: { env: { get: (key) => env[key] }, serve: (fn) => { handler = fn; } },
@@ -174,6 +176,7 @@ export async function runAiAnalyze({
     crypto: { randomUUID }, selectRazielIntelligence, RAZIEL_LEVELS,
     whatsappSurfaceProfileText, continuationHrefFromSurface,
     supabaseServiceHeaders,
+    handleElsMatrixReading,
     buildRazielResultBundleConsumer,
     buildRazielGroundedSourceComposer,
     razielMethodLayerNumbers,

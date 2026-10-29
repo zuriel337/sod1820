@@ -1,0 +1,14 @@
+{
+  "_fixture": {
+    "name": "error-admin-only",
+    "is_test_fixture": true,
+    "source": "recorded EXP-18 run C3 (window, model answer, engine replays) served through fakes; not a live reading",
+    "note": "a real response has is_test_fixture:false"
+  },
+  "response": {
+    "contract": "els_matrix_reading_v1",
+    "ok": false,
+    "error": "admin_only",
+    "is_test_fixture": true
+  }
+}

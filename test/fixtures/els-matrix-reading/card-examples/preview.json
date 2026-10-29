@@ -1,0 +1,193 @@
+{
+  "_fixture": {
+    "name": "preview",
+    "is_test_fixture": true,
+    "source": "recorded EXP-18 run C3 (window, model answer, engine replays) served through fakes; not a live reading",
+    "note": "a real response has is_test_fixture:false"
+  },
+  "response": {
+    "contract": "els_matrix_reading_v1",
+    "ok": true,
+    "experimental": {
+      "admin_only": true,
+      "credits_charged": false,
+      "note": "starting values (33x41, cap 60) are an experimental starting point, not fixed rules"
+    },
+    "model": {
+      "id": "claude-fable-5-1",
+      "verified_available": true,
+      "check": {
+        "ok": true,
+        "model": "claude-fable-5-1",
+        "display_name": "Claude Fable 5.1",
+        "max_input_tokens": 1000000,
+        "max_tokens_limit": 128000,
+        "checks": {
+          "id_matches": true,
+          "structured_outputs": true,
+          "adaptive_thinking": true,
+          "effort_level": true,
+          "max_tokens_within_model_limit": true
+        }
+      },
+      "verified_at": "2026-10-29T10:00:30.000Z"
+    },
+    "axis": {
+      "term": "קולומביה",
+      "scope": "torah",
+      "skip": 4545,
+      "dir": 1,
+      "start": 248765,
+      "verification_state": "MATCH",
+      "occurrence_id": "els:0b022e8eef6f9c16:קולומביה:4545:1:248765",
+      "corpus_id": "0b022e8eef6f9c16"
+    },
+    "request": {
+      "instruction": "general_v2_axis_marked_unnamed",
+      "cap": 25,
+      "effort": "medium",
+      "max_tokens": 64000,
+      "input_tokens": 16858,
+      "sha256": "bf11fd473c12d23a396c4510f9dc10acc2a79e947e4c50c2e86e9dd05557ee34",
+      "lock_sha256": "2c67e34a2df753512cd7a33772ddbeac9fcbd24726d62fef479ecf2b45d307fa",
+      "window_sha256": "b188c130a813c3b7df8190f62eea35f08f153ac20efeb3e321adf380134e60e8"
+    },
+    "coverage": {
+      "scope": "torah",
+      "matrix_width": 4545,
+      "torah_complete_rows": 67,
+      "rows": {
+        "from": 44,
+        "to": 66,
+        "count": 23,
+        "requested": 23
+      },
+      "cols": {
+        "from": 3315,
+        "to": 3355,
+        "count": 41,
+        "requested": 41
+      },
+      "cells": 943,
+      "axis": {
+        "column": 3335,
+        "rows": [
+          54,
+          61
+        ],
+        "cells": 8
+      },
+      "margin": {
+        "above": 10,
+        "below": 5,
+        "left": 20,
+        "right": 20
+      },
+      "shifted_to_stay_inside_torah": {
+        "rows": true,
+        "cols": false
+      },
+      "touches_matrix_edge": {
+        "top": false,
+        "bottom": true,
+        "left": false,
+        "right": false
+      },
+      "lines_shown": {
+        "total": 182,
+        "by_kind": {
+          "R": 23,
+          "C": 41,
+          "D": 59,
+          "A": 59
+        },
+        "readings": 364
+      },
+      "lines_omitted_shorter_than_3": {
+        "total": 8,
+        "by_kind": {
+          "R": 0,
+          "C": 0,
+          "D": 4,
+          "A": 4
+        }
+      },
+      "what_is_not_covered": "everything outside this window; lines are cut at the window boundary; the rest of the Torah and every other matrix width"
+    },
+    "estimate": {
+      "upper_bound_usd": 1.7054,
+      "upper_bound_ils": {
+        "amount": 6.31,
+        "currency": "ILS",
+        "status": "ESTIMATED",
+        "fx": {
+          "ils_per_usd": 3.7,
+          "basis": "ASSUMPTION_NOT_VERIFIED",
+          "effective_at": null
+        }
+      },
+      "expected_usd": {
+        "low": 0.3998,
+        "high": 0.4927
+      },
+      "expected_ils": {
+        "low": 1.4793,
+        "high": 1.823,
+        "status": "ESTIMATED"
+      },
+      "expected_output_tokens": {
+        "low": 12622,
+        "high": 16335
+      },
+      "basis": "Message Batches at 50% of list prices; expected = interpolation of four measured readings (evidence below), not a promise; a reading can end at the output allowance with no usable answer (then it is INCOMPLETE and the cost is still incurred)",
+      "evidence": [
+        {
+          "cap": 25,
+          "output_tokens": 12622,
+          "usd": 0.39984,
+          "stop_reason": "end_turn",
+          "source": "EXP-18 C3 (23x41, general instruction)"
+        },
+        {
+          "cap": 25,
+          "output_tokens": 16335,
+          "usd": 0.492825,
+          "stop_reason": "end_turn",
+          "source": "EXP-18 C1 (23x41, focused instruction)"
+        },
+        {
+          "cap": 60,
+          "output_tokens": 58146,
+          "usd": 1.560425,
+          "stop_reason": "end_turn",
+          "source": "EXP-16 S2 (33x41)"
+        },
+        {
+          "cap": 60,
+          "output_tokens": 64000,
+          "usd": 1.68429,
+          "stop_reason": "max_tokens",
+          "source": "EXP-18 C2 (23x41): ended without an answer"
+        }
+      ],
+      "cost_exposure": {
+        "charged_to_user": false,
+        "credits": "NOT_CHARGED",
+        "refund": "NOT_PROMISED"
+      }
+    },
+    "notes": [
+      "verification = the letters at the claimed positions and (for skip >= 2) a replay in the canonical ELS engine; it is not meaning, and random windows give findings of the same kind",
+      "the model's notes and readings are UNVERIFIED_INTERPRETATION; AI does not canonicalize or publish",
+      "the cap on proposals is an output cap, not proof that nothing else exists in the window",
+      "experimental, admin only; no credits charged; no refund promised"
+    ],
+    "state": "PREVIEW",
+    "spent": {
+      "usd": 0,
+      "ai_calls": 0,
+      "note": "preview reads the stream and the engine and counts tokens; it starts no model run"
+    },
+    "is_test_fixture": true
+  }
+}
