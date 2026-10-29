@@ -246,9 +246,21 @@ export function ahavatCompanionPage(bundle, page) {
   return item?.source_anchor === `#page=${page}&view=FitH` && typeof item.companion_explanation === "string" && item.companion_explanation.trim() ? item : null;
 }
 
+// Lightweight availability only; no commentary/OCR is imported into the eager
+// URL projection. Counts reflect actually authored units, not a depth score.
+export const AHAVAT_COMPANION_PAGE_COUNTS = Object.freeze(Object.fromEntries([
+  ...Array.from({ length: 5 }, (_, i) => [i + 1, i < 3 ? 1 : 3]),
+  ...Array.from({ length: 19 }, (_, i) => [6 + i, 3]),
+  ...Array.from({ length: 54 }, (_, i) => [46 + i, 3]),
+]));
+
+export function ahavatCompanionUnitCount(page) {
+  return Number.isInteger(page) ? AHAVAT_COMPANION_PAGE_COUNTS[page] || 0 : 0;
+}
+
 export function ahavatCompanionUnitId(page, position) {
-  if (!Number.isInteger(page) || !Number.isInteger(position) || position < 1 || position > 3) return "";
-  const section = page >= 16 && page <= 24 ? "migdal" : page >= 46 && page <= 99 ? "novellae" : "";
+  if (!Number.isInteger(page) || !Number.isInteger(position) || position < 1 || position > ahavatCompanionUnitCount(page)) return "";
+  const section = page >= 1 && page <= 5 ? "front" : page >= 6 && page <= 24 ? "migdal" : page >= 25 && page <= 43 ? "tables" : page === 44 ? "transition" : page >= 46 && page <= 99 ? "novellae" : "";
   return section ? `ahavat-${section}-p${String(page).padStart(3, "0")}-${String(position).padStart(2, "0")}` : "";
 }
 
@@ -256,7 +268,7 @@ export function ahavatCompanionReadingUnits(bundle, page) {
   const guide = ahavatCompanionPage(bundle, page);
   const units = guide?.companion_units;
   if (bundle?.source_pdf_sha256 !== "895e9a720d984adf8ea453b644e3f6d0864e101238f348f418aa5fafa20e9c8b"
-    || !ahavatCompanionUnitId(page, 1) || !Array.isArray(units) || units.length !== 3) return [];
+    || !ahavatCompanionUnitId(page, 1) || !Array.isArray(units) || units.length !== ahavatCompanionUnitCount(page)) return [];
   const valid = units.every((unit, index) => unit
     && unit.id === ahavatCompanionUnitId(page, index + 1)
     && unit.pdf_page === page && unit.source_anchor === guide.source_anchor

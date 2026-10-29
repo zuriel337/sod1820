@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {createHash} from 'node:crypto';
+import {ahavatBeforeBookCompletion} from './fixtures/ahavat-book-completion-baseline-2029.mjs';
 import {ahavatCompanionReadingUnits,ahavatCompanionUnitId} from '../src/data/ahavatTorahSystem2029.js';
 import {AHAVAT_READER_UNITS,ahavatReaderUnit,ahavatReaderUnitHref} from '../src/data/ahavatTorahReaderUnits2029.js';
 
@@ -57,7 +58,7 @@ test('wrong closing-page source, mistaken layer, duplicate identities and empty 
 
 test('nine Migdal pages add 27 distinct identities while all unrelated page records stay byte-equivalent',()=>{
  const migdal=bundle.pages.filter(p=>p.pdf_page>=16&&p.pdf_page<=24);
- assert.equal(digest(bundle.pages.filter(p=>p.pdf_page<93&&(p.pdf_page<16||p.pdf_page>24))),'d7c7a5eab4fe3a3f26a66f1230b6c48a020920df1832b947781d5f8fad2909eb');
+ assert.equal(digest(bundle.pages.filter(p=>p.pdf_page<93&&(p.pdf_page<16||p.pdf_page>24)).map(ahavatBeforeBookCompletion)),'d7c7a5eab4fe3a3f26a66f1230b6c48a020920df1832b947781d5f8fad2909eb');
  const checkpoint=structuredClone(closing);
  assert.equal(checkpoint.at(-1).title,'לוח ההשמטות והתיקונים','the adopted cross-reader heading remains compatible');
  checkpoint.at(-1).title='חתימת ההשמטות ותיקונים · הערות ר׳ יהושע ברי״צ ליימן';
@@ -79,7 +80,7 @@ test('nine Migdal pages add 27 distinct identities while all unrelated page reco
   }
  }
  assert.equal(new Set(ids).size,27);
- const expanded=bundle.pages.filter(p=>p.companion_units);assert.equal(expanded.length,63);
+ const expanded=bundle.pages.filter(p=>p.companion_units&&(p.pdf_page>=16&&p.pdf_page<=24||p.pdf_page>=46));assert.equal(expanded.length,63);
  assert.equal(expanded.flatMap(p=>p.companion_units).length,189);
  assert.equal(new Set(expanded.flatMap(p=>p.companion_units.map(u=>u.id))).size,189);
  assert.equal(bundle.coverage.deep_research_pages,15,'historical exact-source coverage is not overwritten by companion page coverage');
@@ -100,7 +101,7 @@ test('Migdal explanations retain source-specific operations and do not invent cr
 
 test('Migdal page namespaces and source mismatches fail closed, with old novellae identities unchanged',()=>{
  for(const id of ['ahavat-novellae-p016-01','ahavat-migdal-p046-01','ahavat-migdal-p025-01','ahavat-migdal-p016-04','ahavat-migdal-p16-01'])assert.equal(ahavatReaderUnit(id),null);
- for(const [page,position] of [[15,1],[25,1],[45,1],[100,1],[16,0],[16,4],['16',1],[16,'1']])assert.equal(ahavatCompanionUnitId(page,position),'');
+ for(const [page,position] of [[0,1],[25,1],[45,1],[100,1],[16,0],[16,4],['16',1],[16,'1']])assert.equal(ahavatCompanionUnitId(page,position),'');
  for(const mutate of [b=>b.pages[15].companion_units[0].id='ahavat-novellae-p016-01',b=>b.pages[15].companion_units[0].pdf_page=17,b=>b.pages[15].companion_units[0].source_anchor='#page=17&view=FitH',b=>b.pages[15].companion_units[0].display_label='דברי הספר']){
   const bad=structuredClone(bundle);mutate(bad);assert.deepEqual(ahavatCompanionReadingUnits(bad,16),[]);
  }

@@ -5,7 +5,7 @@ import { AHAVAT_ROOT_COLUMNS } from "./ahavatTorahRoots2029.js";
 import { AHAVAT_MEGILLOT, ahavatMegillahRows } from "./ahavatTorahMegillot2029.js";
 import { AHAVAT_LETTER_FORMS, AHAVAT_LETTER_READINGS, ahavatSourceCountRows } from "./ahavatTorahLetters2029.js";
 import { AHAVAT_PARASHA_COUNT_FORMS, AHAVAT_PARASHA_COUNT_READINGS } from "./ahavatTorahParashaCounts2029.js";
-import { ahavatCompanionUnitId } from "./ahavatTorahSystem2029.js";
+import { AHAVAT_COMPANION_PAGE_COUNTS, ahavatCompanionUnitId } from "./ahavatTorahSystem2029.js";
 
 export const AHAVAT_READER_UNITS = Object.freeze([
   ...AHAVAT_PEOPLE_BOOKS.flatMap(book => book.rows.map(row => ({ id: `people:${row.id}`, rowId: row.id, page: row.page, title: `${row.book} · ${row.entity}`, datasetId: "DS-05", sectionId: "ahavat29-people", bookId: book.id }))),
@@ -14,12 +14,10 @@ export const AHAVAT_READER_UNITS = Object.freeze([
   ...AHAVAT_MEGILLOT.flatMap(item => ["letters", "words"].map(kind => ({ id: `scrolls-total:${item.id}:${kind}`, page: item.totalPage, title: `${item.title} · סיכום ${kind === "words" ? "תיבות" : "אותיות"}`, datasetId: kind === "words" ? "DS-10" : "DS-09", sectionId: "ahavat29-scrolls", megillahId: item.id, kind }))),
 ].map(unit => Object.freeze(unit)));
 
-// Lightweight URL projection of 9 Migdal + 54 novellae pages, three units each.
+// Lightweight URL projection of the actually authored companion units.
 // Keep it separate from the 287 source-native rows; no prose or OCR is eager.
-const companionUnits = Object.freeze([
-  ...Array.from({ length: 9 }, (_, i) => 16 + i),
-  ...Array.from({ length: 54 }, (_, i) => 46 + i),
-].flatMap(page => Array.from({ length: 3 }, (_, index) => {
+const companionUnits = Object.freeze(Object.entries(AHAVAT_COMPANION_PAGE_COUNTS).flatMap(([pageKey, count]) => Array.from({ length: count }, (_, index) => {
+  const page = Number(pageKey);
   const position = index + 1;
   return Object.freeze({
     id: ahavatCompanionUnitId(page, position),
