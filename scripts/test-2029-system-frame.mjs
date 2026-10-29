@@ -240,10 +240,12 @@ for (const preferredPublicCopy of [
 // Adaptive Command Island is an action surface, not a fixed global-navigation bar.
 assert.match(frame, /sod29-command-island/);
 assert.match(frame, /role="toolbar"/);
-assert.ok(frame.includes(`surface === "heichal" ? "פקודה" : "חיפוש"`));
-assert.match(frame, /<small>פעולה<\/small>/);
-assert.match(frame, /<small>כלים<\/small>/);
-assert.equal(frame.includes("<small>מספר</small>"), false, "Number must be a capability projection, not a permanent command-island owner");
+assert.match(frame, /aria-label="כלי מחקר וחיפוש"/);
+assert.match(frame, /<ActionProjection surface=\{surface\} target=\{inspectTarget\}/);
+assert.match(frame, /<ToolsProjection surface=\{surface\} target=\{inspectTarget\}/);
+// ZURIEL 29.10 approved the five-entry shared launcher; Number still uses the existing capability.
+assert.match(frame, /מספר · פתח חלונית מספר/);
+assert.match(frame, /openNumber\(value != null/);
 assert.equal(frame.includes("<small>בדיקה</small>"), false, "Inspect must route through contextual Action rather than a permanent island slot");
 // Typed Now (approved Home bottom-bar structure): world / for-me / Raziel, each opening an existing frame surface.
 assert.match(frame, /function NowTabs2029\(/);
