@@ -1,18 +1,20 @@
 import React from "react";
 import { AHAVAT_LETTER_FORMS, ahavatLetterNumber } from "../../data/ahavatTorahLetters2029.js";
+import { ahavatReaderUnitDomId } from "../../data/ahavatTorahReaderUnits2029.js";
 import "./ahavatLetterStudy2029.css";
 
 // Presentation of the existing printed checkpoints, not another count/identity owner.
-export default function AhavatLetterStudy2029({ source, books, bookId, onBook, onSource, onLetter }) {
+export default function AhavatLetterStudy2029({ source, books, bookId, onBook, onSource, onLetter, retainedParasha, returnUnitId, onNavigate }) {
   const maximum = Math.max(1, ...books.filter(book => book.count !== null).map(book => book.count));
   const selected = books.find(book => book.id === bookId);
   const position = AHAVAT_LETTER_FORMS.findIndex(item => item.form === source.form);
-  return <div className="ahavat29-letter-study" aria-label={`מבט על האות ${source.name}`}>
+  return <div className="ahavat29-letter-study" id="ahavat29-letter-overview" aria-label={`מבט על האות ${source.name}`}>
     <nav className="ahavat29-letter-stepper" aria-label="מעבר בין צורות האותיות">
       <button type="button" disabled={position <= 0} onClick={() => onLetter(AHAVAT_LETTER_FORMS[position - 1].form)}>האות הקודמת</button>
       <span><bdi>{position + 1}</bdi> מתוך <bdi>{AHAVAT_LETTER_FORMS.length}</bdi></span>
       <button type="button" disabled={position >= AHAVAT_LETTER_FORMS.length - 1} onClick={() => onLetter(AHAVAT_LETTER_FORMS[position + 1].form)}>האות הבאה</button>
     </nav>
+    {retainedParasha && returnUnitId ? <div className="ahavat29-letter-continuity" aria-live="polite"><span>פרשת {retainedParasha} נשמרת בהחלפת אות</span><a href={`#${ahavatReaderUnitDomId(returnUnitId)}`} onClick={event => onNavigate(event, ahavatReaderUnitDomId(returnUnitId))}>חזור לפרשה הנבחרת</a></div> : null}
     <div className="ahavat29-letter-identity">
       <span>אות אחת · חמשת החומשים</span>
       <b className="ahavat29-letter-glyph" aria-hidden="true">{source.form}</b>

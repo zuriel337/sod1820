@@ -19,6 +19,14 @@ test("continuous selection reuses all 1512 actual row objects and their canonica
   assert.equal(ahavatRetainedLetterRow(AHAVAT_LETTER_READINGS, "unknown", "צו"), null);
   assert.equal(ahavatRetainedLetterRow(AHAVAT_LETTER_READINGS, "א", "unknown"), null);
 });
+test("overview/detail links keep the canonical row identity and skip disabled focus targets", () => {
+  const page = read("src/pages/AhavatTorahSystem2029Page.jsx");
+  assert.match(page, /querySelector\("button:not\(:disabled\)"\)/);
+  assert.match(page, /"ahavat29-letter-overview"\]\.includes\(id\)/);
+  const study = read("src/components/books2029/AhavatLetterStudy2029.jsx");
+  assert.match(study, /ahavatReaderUnitDomId\(returnUnitId\)/);
+  assert.match(study, /פרשת \{retainedParasha\} נשמרת בהחלפת אות/);
+});
 test("the Torah study order crosses all four existing book boundaries without invented rows", () => {
   const rows = ahavatSourceCountRows(AHAVAT_LETTER_READINGS["א"], "all", "");
   assert.equal(rows.length, 54);

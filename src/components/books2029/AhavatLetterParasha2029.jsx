@@ -3,11 +3,12 @@ import { ahavatLetterNumber } from "../../data/ahavatTorahLetters2029.js";
 import { ahavatReaderUnitDomId } from "../../data/ahavatTorahReaderUnits2029.js";
 
 // Selected-source explanation over existing rows; no new reading or numeric result.
-export default function AhavatLetterParasha2029({ source, rows, selectedParasha, unitId, ownsSourceAnchor, onSelect, onSource, journeyScope = "book", onJourney, hasBook }) {
+export default function AhavatLetterParasha2029({ source, rows, selectedParasha, unitId, ownsSourceAnchor, onSelect, onSource, journeyScope = "book", onJourney, hasBook, onNavigate }) {
   const position = rows.findIndex(row => row.parasha === selectedParasha);
   const selected = rows[position];
   return <section className="ahavat29-letter-parasha" id={selected && ownsSourceAnchor ? ahavatReaderUnitDomId(unitId) : "ahavat29-letter-parasha"} data-reader-unit={selected && ownsSourceAnchor ? unitId : undefined} aria-labelledby="ahavat29-letter-parasha-title">
     <header><span>מהחומש אל הפרשה</span><h4 id="ahavat29-letter-parasha-title">פרשה אחר פרשה</h4></header>
+    {ownsSourceAnchor && selected ? <a className="ahavat29-letter-overview-link" href="#ahavat29-letter-overview" onClick={event => onNavigate(event, "ahavat29-letter-overview")}>החלף אות ושמור את הפרשה</a> : null}
     {ownsSourceAnchor ? <nav className="ahavat29-letter-journey" aria-label="מסלול לימוד הפרשות"><button type="button" aria-pressed={journeyScope === "book"} disabled={!hasBook} onClick={() => onJourney("book")}>החומש הנבחר</button><button type="button" aria-pressed={journeyScope === "torah"} onClick={() => onJourney("torah")}>כל פרשות התורה</button></nav> : null}
     {ownsSourceAnchor && journeyScope === "torah" ? <p className="ahavat29-letter-journey-guide">מסלול רציף לפי סדר הפרשות בספר, גם מחומש לחומש. המודל והמקור עוקבים אחר הפרשה הנבחרת.</p> : null}
     <label>בחר פרשה ללימוד<select value={selected?.parasha || ""} onChange={event => { const row = rows.find(item => item.parasha === event.target.value); if (row) onSelect(row); }}><option value="">בחירת פרשה…</option>{rows.map(row => <option key={row.parasha} value={row.parasha}>{row.book} · {row.parasha}</option>)}</select></label>
