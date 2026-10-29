@@ -137,14 +137,12 @@ test("the provider only exposes the reading as an explicit call: nothing renders
   assert.equal((supabase.match(/runElsMatrixReadingTurn/g) || []).length, 2, "one import, one call in askRaziel");
 });
 
-test("a saved conversation keeps the answer text of a reading and never its structured result or any job token", () => {
+test("a malformed reading cannot report a successful save that silently loses its structured result", () => {
   const saved = buildRazielSavedSessionEntity({ busy: false, contextSnapshot: null, thread: [
     { role: "user", text: ELS_MATRIX_READING_SUBJECT, turnId: "t" },
     { role: "raziel", text: "קריאת מטריצה הושלמה", turnId: "t", elsMatrixReading: { contract: "els_matrix_reading_v1", state: "COMPLETE", job: { token: TOKEN }, findings: [{ id: "x" }] } },
   ] }, { now: () => "2026-10-29T10:00:00.000Z", createId: () => "s1" });
-  assert.equal(saved.ok, true);
-  const text = JSON.stringify(saved.entity);
-  assert.match(text, /קריאת מטריצה הושלמה/);
-  assert.equal(text.includes("els_matrix_reading"), false);
-  assert.equal(text.includes(TOKEN), false);
+  assert.equal(saved.ok, false, "COMPLETE without occurrence context and receipts is not saveable");
+  assert.equal(saved.entity, undefined);
+  assert.equal(JSON.stringify(saved).includes(TOKEN), false);
 });

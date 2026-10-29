@@ -6,6 +6,7 @@ import {
   ELS_MATRIX_READING_ACK_UPPER_BOUND_USD,
   ELS_MATRIX_READING_ACTION,
   ELS_MATRIX_READING_SUBJECT,
+  normalizeElsMatrixReadingAction,
 } from "../../../supabase/functions/_shared/elsMatrixReadingAction.js";
 
 /**
@@ -22,7 +23,11 @@ export function buildElsMatrixReadingSubmission({
   jobToken = null,
 } = {}) {
   if (!context?.axis) return { ok: false, error: "matrix_context_required" };
-  const action = jobToken
+  if (!["preview", "start", "status", "cancel"].includes(op)) return { ok: false, error: "reading_action_invalid" };
+  // Losing a job token must NEVER silently change a status/cancel request into a paid start.
+  if ((op === "status" || op === "cancel") && !jobToken) return { ok: false, error: "reading_job_token_required" };
+  if (jobToken != null && op === "preview") return { ok: false, error: "reading_action_invalid" };
+  const action = normalizeElsMatrixReadingAction(jobToken != null
     ? { id: ELS_MATRIX_READING_ACTION, op: op === "cancel" ? "cancel" : "status", job_token: jobToken }
     : {
       id: ELS_MATRIX_READING_ACTION,
@@ -31,7 +36,8 @@ export function buildElsMatrixReadingSubmission({
       cap,
       story,
       ...(op === "preview" ? {} : { ack_upper_bound_usd: ackUpperBoundUsd }),
-    };
+    });
+  if (!action) return { ok: false, error: "reading_action_invalid" };
   return {
     ok: true,
     submission: {
