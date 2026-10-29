@@ -57,7 +57,7 @@ import { BUILD_TRACKS, stagePercent } from "../lib/knowledgeMap.js";
 
 const HERO_IMG = "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/heichal-1820-banner.webp";
 // 🖼️ רקע-השער החי — הכרזה הציבורית העדכנית של Legacy. רק תיבת-חיפוש + שני שערי-הכניסה מתחתיה, בלי טקסט נוסף.
-const HOME_HERO_BG = "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/agent/2026/10/24/min-habriya-el-habechira-27-10-2026-95b164f9.jpg";
+const HOME_HERO_BG = "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/site/israel-541-zion-156-shechina-385-20261029.png";
 // 🏗️ מפת-הבנייה הציבורית נגזרת ממקור-אמת אחד: lib/knowledgeMap.js — ללא אחוז-על שרירותי.
 const PUBLIC_BUILD_TRACKS = BUILD_TRACKS;
 // 🔠 «עדכונים אחרונים» מציג צפני-מערכת מ«יום משיח בא» (21.7.2026 12:56) ואילך — עוגן קבוע, לא חלון-זמן.
@@ -519,8 +519,8 @@ export default function HomeNewPage() {
       <section className="hn-livegate">
         {/* כותרת נסתרת ל-SEO/נגישות. */}
         <h1 style={{ position: "absolute", width: 1, height: 1, padding: 0, margin: -1, overflow: "hidden", clip: "rect(0 0 0 0)", whiteSpace: "nowrap", border: 0 }}>כי לה' המלוכה — סוד 1820</h1>
-        {/* FIT_WHOLE_IMAGE — כל הבאנר 2172×724 נראה, בלי חיתוך בצדדים. */}
-        <img className="hn-livegate-img" src={HOME_HERO_BG} alt="" fetchPriority="high" />
+        {/* FIT_WHOLE_IMAGE — כל התמונה והכיתוב נראים ללא חיתוך, בנייד ובמחשב. */}
+        <img className="hn-livegate-img" src={HOME_HERO_BG} alt="מגן דוד צורני: ישראל 541, ציון 156, שכינה 385; נקודת המרכז 832 = ארץ ישראל" fetchPriority="high" />
       </section>
       <section className="hn-hero-actions-wrap" aria-label="חיפוש ושערי כניסה">
         <div className="hn-hero-actions">
