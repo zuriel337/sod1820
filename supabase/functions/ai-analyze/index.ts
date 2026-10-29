@@ -6,6 +6,8 @@ import { buildRazielResultBundleConsumer } from "../../../src/lib/research/razie
 import { buildRazielGroundedSourceComposer, razielMethodLayerNumbers } from "../../../src/lib/research/razielGroundedSourceComposer.js";
 import { RAZIEL_SEMANTIC_INTENT_VERSION, isRazielCurrentSurfaceQuestion, resolveRazielCanonicalRequest, resolveRazielConversationalAct, resolveRazielDeterministicGuidance, validateRazielSemanticIntent } from "../../../src/lib/research/razielSemanticIntentGate.js";
 import { ELS_RAZIEL_PLANNING_ACTION, ELS_RAZIEL_PLANNING_SUBJECT, deriveLockedElsSearchPlan, elsPlanningPrompt, normalizeElsRazielPlanningAction, normalizeElsRazielSearchPlan } from "../../../src/lib/research/elsRazielPlanning.js";
+import { runElsMatrixReadingOperation, razielReadingAnswer, READING_CAPABILITY, READING_OWNER_REF, PROVIDER_LIVE } from "../_shared/elsMatrixReading.js";
+import { normalizeElsMatrixReadingAction } from "../_shared/elsMatrixReadingAction.js";
 // ai-analyze — ניתוח AI גנרי. fast=true → Haiku (מהיר, לכלים אינטראקטיביים); אחרת Sonnet (עומק).
 // יושר: מפרש רק עובדות שסופקו, לא מחשב גימטריה, מפריד עובדה מפרשנות, בלי נבואות.
 //
@@ -2752,6 +2754,13 @@ Deno.serve(async (req: Request) => {
       if (rMatrixRequested && (!rMatrix || rPersonalAreaCompanionRequested || rElsPlanningRequested || rFacts)) {
         return rzJson({ analysis: null, error: "invalid_els_matrix_context" }, 400);
       }
+      // ELS matrix reading: ONE explicit action of this same Raziel turn (admin-only, default OFF, experimental). Only a validated matrix context can carry it,
+      // and nothing else may ride along with it. The reading itself is _shared/elsMatrixReading.js; this branch only gates it and shapes the Raziel answer.
+      const rMatrixReadingRequested = body?.els_matrix_reading_action != null;
+      const rMatrixReading = rMatrixReadingRequested && rCanonicalResearchOptIn && rMatrix ? normalizeElsMatrixReadingAction(body.els_matrix_reading_action) : null;
+      if (rMatrixReadingRequested && (!rMatrixReading || rPersonalAreaCompanionRequested || rElsPlanningRequested)) {
+        return rzJson({ analysis: null, error: "invalid_els_matrix_reading_action" }, 400);
+      }
       if (
         rPersonalAreaCompanionRequested
         && (!rPersonalAreaCompanion || !razielPersonalAreaEnvelopeSafe(body, rPersonalAreaCompanion))
@@ -2784,8 +2793,58 @@ Deno.serve(async (req: Request) => {
           return rzJson({ analysis: null, error: "availability", message: availability?.availability?.message || "רזיאל באתר נמצא בהכנה." });
         }
       }
-      if (rMatrix && !(await verifyElsMatrixAxis(req, rMatrix))) {
+      // A status/cancel of a job already started is bound to its signed job token (axis, window and identity are inside it), so the bridge replay is not repeated on every poll.
+      const rMatrixReadingJobOp = rMatrixReading?.op === "status" || rMatrixReading?.op === "cancel";
+      if (rMatrix && !rMatrixReadingJobOp && !(await verifyElsMatrixAxis(req, rMatrix))) {
         return rzJson({ analysis: null, error: "els_matrix_axis_unverified" }, 422);
+      }
+      if (rMatrixReading) {
+        // Exits before the ordinary Raziel planner, tools, memory, Metatron, quota and research-run: no ordinary model call is made on this path.
+        // The operational trace is opened lazily, only when a span worth recording exists (a start, a collection, a cancel), never for a poll that is still running.
+        const readingTrace: { current: OperationalTraceHandle | null } = { current: null };
+        const readingOp = await runElsMatrixReadingOperation({
+          action: rMatrixReading,
+          axis: rMatrix.axis,
+          identity,
+          tier,
+          deps: {
+            fetchImpl: fetch,
+            now: () => Date.now(),
+            restHeaders: (extra?: Record<string, string>) => supabaseServiceHeaders(SB_SVC, extra),
+            providerKind: PROVIDER_LIVE,
+            trace: {
+              record: async (span: any) => {
+                if (!readingTrace.current) {
+                  readingTrace.current = await beginOperationalTrace({ body, identityClass: tier, capability: READING_CAPABILITY, surface: "els", ownerRef: READING_OWNER_REF, subject: "" });
+                }
+                if (!readingTrace.current) return null;
+                const spanId = crypto.randomUUID();
+                await recordOperationalSpan(readingTrace.current, { spanId, kind: span.kind, name: span.name, startedAt: span.startedAt, endedAt: span.endedAt, outcome: span.outcome, detail: span.detail });
+                return { traceId: readingTrace.current.traceId, spanId };
+              },
+            },
+            env: {
+              enabled: Deno.env.get("ELS_MATRIX_READING_ENABLED") || "",
+              anthropicKey: ANTHROPIC_KEY,
+              supabaseUrl: SB_URL,
+              serviceKey: SB_SVC,
+              jobSecret: Deno.env.get("ELS_MATRIX_READING_JOB_SECRET") || "",
+              model: Deno.env.get("ELS_MATRIX_READING_MODEL") || "",
+              fxIlsPerUsd: Deno.env.get("ELS_MATRIX_READING_FX_ILS_PER_USD") || "",
+            },
+          },
+        });
+        const reading = readingOp.payload;
+        if (readingTrace.current) await finishOperationalTrace(readingTrace.current, readingOp.outcome || "success", readingOp.outcome && readingOp.outcome !== "success" ? String(reading.reason || reading.error || readingOp.outcome).slice(0, 80) : null);
+        return rzJson({
+          raziel: { v: 1, agent: "raziel", context: null, greeting: null, answer: razielReadingAnswer(reading), facts: [], suggested_paths: [], follow_up_question: null, continue_wa: true },
+          els_matrix_reading: reading,
+          engine: "claude",
+          model: reading.model?.id ?? null,
+          intelligence_level: "deep",
+          ...(reading.output && (reading.output.input_tokens != null || reading.output.output_tokens != null) ? { usage: { input_tokens: reading.output.input_tokens, output_tokens: reading.output.output_tokens } } : {}),
+          trace_id: readingTrace.current?.traceId || null,
+        });
       }
       // One explicit Guided-ELS planning turn. It reuses this ai-analyze transport and quota,
       // but exits before the ordinary Raziel planner, tools, memory, Metatron and research-run.

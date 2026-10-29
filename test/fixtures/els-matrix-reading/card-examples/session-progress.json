@@ -1,0 +1,69 @@
+{
+  "_fixture": {
+    "name": "session-progress",
+    "is_test_fixture": true,
+    "note": "what the session keeps in currentTurn.progress while a reading runs (a batch gives no partial output: only time and the provider's status)"
+  },
+  "progress_examples": [
+    {
+      "kind": "els_matrix_reading",
+      "phase": "starting",
+      "elapsedMs": 0,
+      "polls": 0,
+      "expectedMinutes": {
+        "min": 3,
+        "max": 13
+      }
+    },
+    {
+      "kind": "els_matrix_reading",
+      "phase": "running",
+      "elapsedMs": 90000,
+      "polls": 4,
+      "expectedMinutes": {
+        "min": 3,
+        "max": 13
+      },
+      "providerStatus": "in_progress",
+      "batchId": "msgbatch_test01",
+      "jobToken": "eyJ2IjoxLCJiIjoibXNnYmF0Y2hfdGVzdDAxIiwiaSI6InU6YWRtaW4tMSIsInQiOjE3OTMyNjgwMDAwMDAsIngiOjE3OTQ0Nzc2MDAwMDAsIm0iOiJjbGF1ZGUtZmFibGUtNS0xIiwidmYiOjE3OTMyNjgwMzAwMDAsInJzIjoiYmYxMWZkNDczYzEyZDIzYTM5NmM0NTEwZjlkYzEwYWNjMmE3OWU5NDdlNGM1MGMyZTg2ZTlkZDA1NTU3ZWUzNCIsImxzIjoiMmM2N2UzNGEyZGY3NTM1MTJjZDdhMzM3NzJkZGJlYWM5ZmNiZDI0NzI2ZDYyZmVmNDc5ZWNmMmI0NWQzMDdmYSIsIndzIjoiYjE4OGMxMzBhODEzYzNiN2RmODE5MGY2MmVlYTM1ZjA4ZjE1M2FjMjBlZmViM2UzMjFhZGYzODAxMzRlNjBlOCIsImlucyI6ImdlbmVyYWxfdjJfYXhpc19tYXJrZWRfdW5uYW1lZCIsImF4Ijp7InRlcm0iOiLXp9eV15zXldee15HXmdeUIiwic2tpcCI6NDU0NSwiZGlyIjoxLCJzdGFydCI6MjQ4NzY1fSwidyI6eyJyMCI6NDQsImMwIjozMzE1LCJyb3dzIjoyMywiY29scyI6NDEsInJlcXVlc3RlZCI6eyJyb3dzIjoyMywiY29scyI6NDF9fSwiY2FwIjoyNSwiZXN0Ijp7InVwcGVyX2JvdW5kX3VzZCI6MS43MDU0LCJleHBlY3RlZF91c2QiOnsibG93IjowLjM5OTgsImhpZ2giOjAuNDkyN30sImlucHV0X3Rva2VucyI6MTY4NTh9fQ.zn1voJE2Vm50k2CrD3TEyrl15hQUX8Vj8peIh2P2Sa0",
+      "pollSeconds": 20
+    },
+    {
+      "kind": "els_matrix_reading",
+      "phase": "cancelling",
+      "elapsedMs": 150000,
+      "polls": 7,
+      "expectedMinutes": {
+        "min": 3,
+        "max": 13
+      },
+      "providerStatus": "canceling",
+      "batchId": "msgbatch_test01",
+      "jobToken": "eyJ2IjoxLCJiIjoibXNnYmF0Y2hfdGVzdDAxIiwiaSI6InU6YWRtaW4tMSIsInQiOjE3OTMyNjgwMDAwMDAsIngiOjE3OTQ0Nzc2MDAwMDAsIm0iOiJjbGF1ZGUtZmFibGUtNS0xIiwidmYiOjE3OTMyNjgwMzAwMDAsInJzIjoiYmYxMWZkNDczYzEyZDIzYTM5NmM0NTEwZjlkYzEwYWNjMmE3OWU5NDdlNGM1MGMyZTg2ZTlkZDA1NTU3ZWUzNCIsImxzIjoiMmM2N2UzNGEyZGY3NTM1MTJjZDdhMzM3NzJkZGJlYWM5ZmNiZDI0NzI2ZDYyZmVmNDc5ZWNmMmI0NWQzMDdmYSIsIndzIjoiYjE4OGMxMzBhODEzYzNiN2RmODE5MGY2MmVlYTM1ZjA4ZjE1M2FjMjBlZmViM2UzMjFhZGYzODAxMzRlNjBlOCIsImlucyI6ImdlbmVyYWxfdjJfYXhpc19tYXJrZWRfdW5uYW1lZCIsImF4Ijp7InRlcm0iOiLXp9eV15zXldee15HXmdeUIiwic2tpcCI6NDU0NSwiZGlyIjoxLCJzdGFydCI6MjQ4NzY1fSwidyI6eyJyMCI6NDQsImMwIjozMzE1LCJyb3dzIjoyMywiY29scyI6NDEsInJlcXVlc3RlZCI6eyJyb3dzIjoyMywiY29scyI6NDF9fSwiY2FwIjoyNSwiZXN0Ijp7InVwcGVyX2JvdW5kX3VzZCI6MS43MDU0LCJleHBlY3RlZF91c2QiOnsibG93IjowLjM5OTgsImhpZ2giOjAuNDkyN30sImlucHV0X3Rva2VucyI6MTY4NTh9fQ.zn1voJE2Vm50k2CrD3TEyrl15hQUX8Vj8peIh2P2Sa0",
+      "pollSeconds": 20,
+      "cancelling": true
+    }
+  ],
+  "current_turn_after_turn_progress": {
+    "id": "example-turn",
+    "status": "running",
+    "kind": "els_matrix_reading",
+    "readingOp": "start",
+    "progress": {
+      "kind": "els_matrix_reading",
+      "phase": "running",
+      "elapsedMs": 90000,
+      "polls": 4,
+      "expectedMinutes": {
+        "min": 3,
+        "max": 13
+      },
+      "providerStatus": "in_progress",
+      "batchId": "msgbatch_test01",
+      "jobToken": "eyJ2IjoxLCJiIjoibXNnYmF0Y2hfdGVzdDAxIiwiaSI6InU6YWRtaW4tMSIsInQiOjE3OTMyNjgwMDAwMDAsIngiOjE3OTQ0Nzc2MDAwMDAsIm0iOiJjbGF1ZGUtZmFibGUtNS0xIiwidmYiOjE3OTMyNjgwMzAwMDAsInJzIjoiYmYxMWZkNDczYzEyZDIzYTM5NmM0NTEwZjlkYzEwYWNjMmE3OWU5NDdlNGM1MGMyZTg2ZTlkZDA1NTU3ZWUzNCIsImxzIjoiMmM2N2UzNGEyZGY3NTM1MTJjZDdhMzM3NzJkZGJlYWM5ZmNiZDI0NzI2ZDYyZmVmNDc5ZWNmMmI0NWQzMDdmYSIsIndzIjoiYjE4OGMxMzBhODEzYzNiN2RmODE5MGY2MmVlYTM1ZjA4ZjE1M2FjMjBlZmViM2UzMjFhZGYzODAxMzRlNjBlOCIsImlucyI6ImdlbmVyYWxfdjJfYXhpc19tYXJrZWRfdW5uYW1lZCIsImF4Ijp7InRlcm0iOiLXp9eV15zXldee15HXmdeUIiwic2tpcCI6NDU0NSwiZGlyIjoxLCJzdGFydCI6MjQ4NzY1fSwidyI6eyJyMCI6NDQsImMwIjozMzE1LCJyb3dzIjoyMywiY29scyI6NDEsInJlcXVlc3RlZCI6eyJyb3dzIjoyMywiY29scyI6NDF9fSwiY2FwIjoyNSwiZXN0Ijp7InVwcGVyX2JvdW5kX3VzZCI6MS43MDU0LCJleHBlY3RlZF91c2QiOnsibG93IjowLjM5OTgsImhpZ2giOjAuNDkyN30sImlucHV0X3Rva2VucyI6MTY4NTh9fQ.zn1voJE2Vm50k2CrD3TEyrl15hQUX8Vj8peIh2P2Sa0",
+      "pollSeconds": 20
+    }
+  },
+  "announcement": "קריאת המטריצה רצה אצל הספק (חלפו 1 דקות)…"
+}

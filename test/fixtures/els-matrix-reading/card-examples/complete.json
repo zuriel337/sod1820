@@ -1,0 +1,1804 @@
+{
+  "_fixture": {
+    "name": "complete",
+    "is_test_fixture": true,
+    "source": "recorded EXP-18 run C3 (window, model answer, engine replays) served through fakes; the provider is a test double, not Fable",
+    "note": "a real reading has is_test_fixture:false and provider.live_model_call:true"
+  },
+  "response": {
+    "contract": "els_matrix_reading_v1",
+    "ok": true,
+    "model": {
+      "id": "claude-fable-5-1",
+      "verified_available": true,
+      "verified_at": "2026-10-29T10:00:30.000Z",
+      "source": "checked before the batch was created"
+    },
+    "job": {
+      "batch_id": "msgbatch_test01",
+      "created_at": "2026-10-29T10:00:00.000Z",
+      "expires_at": "2026-11-12T10:00:00.000Z"
+    },
+    "request": {
+      "instruction": "general_v2_axis_marked_unnamed",
+      "sha256": "bf11fd473c12d23a396c4510f9dc10acc2a79e947e4c50c2e86e9dd05557ee34",
+      "lock_sha256": "2c67e34a2df753512cd7a33772ddbeac9fcbd24726d62fef479ecf2b45d307fa",
+      "window_sha256": "b188c130a813c3b7df8190f62eea35f08f153ac20efeb3e321adf380134e60e8",
+      "cap": 25
+    },
+    "axis": {
+      "term": "קולומביה",
+      "scope": "torah",
+      "skip": 4545,
+      "dir": 1,
+      "start": 248765
+    },
+    "estimate": {
+      "upper_bound_usd": 1.7054,
+      "expected_usd": {
+        "low": 0.3998,
+        "high": 0.4927
+      },
+      "input_tokens": 16858
+    },
+    "notes": [
+      "verification = the letters at the claimed positions and (for skip >= 2) a replay in the canonical ELS engine; it is not meaning, and random windows give findings of the same kind",
+      "the model's notes and readings are UNVERIFIED_INTERPRETATION; AI does not canonicalize or publish",
+      "the cap on proposals is an output cap, not proof that nothing else exists in the window",
+      "experimental, admin only; no credits charged; no refund promised"
+    ],
+    "timing": {
+      "created_at": "2026-10-29T10:00:00.000Z",
+      "ended_at": "2026-10-29T10:03:09.000Z",
+      "elapsed_ms": 189000
+    },
+    "cost": {
+      "usd": 0.39984,
+      "ils": {
+        "amount": 1.2035,
+        "currency": "ILS",
+        "status": "ESTIMATED",
+        "fx": {
+          "ils_per_usd": 3.01,
+          "basis": "API_PRICING_RECORDED_NOT_VERIFIED_CURRENT",
+          "effective_at": "2026-09-01",
+          "source_ref": "api_pricing:pricing-row-1"
+        }
+      },
+      "list_price_parts_usd": {
+        "input": 0.16858,
+        "cacheWrite": 0,
+        "cacheRead": 0,
+        "output": 0.6311
+      },
+      "batch_factor": 0.5,
+      "provider_currency": "USD",
+      "basis": "list prices, Message Batches at 50%; from the usage object; not an invoice",
+      "certainty": "ESTIMATED_FROM_USAGE_AND_LIST_PRICES",
+      "logged": true,
+      "ai_token_log_ref": "msgbatch_test01"
+    },
+    "output": {
+      "stop_reason": "end_turn",
+      "output_tokens": 12622,
+      "thinking_tokens": 10168,
+      "input_tokens": 16858
+    },
+    "state": "COMPLETE",
+    "findings": [
+      {
+        "id": "r1.f01",
+        "text": "קולומביה",
+        "parts": [
+          "קולומביה"
+        ],
+        "line": "C21+",
+        "verification": {
+          "state": "ENGINE_VERIFIED",
+          "reasons": [],
+          "letters_match": true,
+          "occurrences_verified": 1,
+          "engine": {
+            "verification_state": "MATCH",
+            "contract": "els_occurrence_replay_v1",
+            "occurrence_id": "els:0b022e8eef6f9c16:קולומביה:4545:1:248765",
+            "corpus_id": "0b022e8eef6f9c16"
+          }
+        },
+        "occurrence": {
+          "reading": "C21+",
+          "skip": 4545,
+          "dir": 1,
+          "start": 248765,
+          "length": 8,
+          "cells": [
+            [
+              11,
+              21
+            ],
+            [
+              12,
+              21
+            ],
+            [
+              13,
+              21
+            ],
+            [
+              14,
+              21
+            ],
+            [
+              15,
+              21
+            ],
+            [
+              16,
+              21
+            ],
+            [
+              17,
+              21
+            ],
+            [
+              18,
+              21
+            ]
+          ]
+        },
+        "chance": {
+          "expected_occurrences": 0.0002507,
+          "unlikely_by_chance": true,
+          "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+        },
+        "relation_to_axis": {
+          "distance": 0,
+          "relation": "crosses"
+        },
+        "model_claims": {
+          "kind": "name",
+          "tier": "A",
+          "continue_from": true,
+          "note": "המופע הנבחר עצמו: שם המדינה/האוניברסיטה קולומביה בטור C21 שורות R11–R18.",
+          "status": "UNVERIFIED_INTERPRETATION"
+        }
+      },
+      {
+        "id": "r1.f02",
+        "text": "נמל",
+        "parts": [
+          "נמל"
+        ],
+        "line": "C21-",
+        "verification": {
+          "state": "ENGINE_VERIFIED",
+          "reasons": [],
+          "letters_match": true,
+          "occurrences_verified": 1,
+          "engine": {
+            "verification_state": "MATCH",
+            "contract": "els_occurrence_replay_v1",
+            "occurrence_id": "els:0b022e8eef6f9c16:נמל:4545:-1:212405",
+            "corpus_id": "0b022e8eef6f9c16"
+          }
+        },
+        "occurrence": {
+          "reading": "C21-",
+          "skip": 4545,
+          "dir": -1,
+          "start": 212405,
+          "length": 3,
+          "cells": [
+            [
+              3,
+              21
+            ],
+            [
+              2,
+              21
+            ],
+            [
+              1,
+              21
+            ]
+          ]
+        },
+        "chance": {
+          "expected_occurrences": 159.7,
+          "unlikely_by_chance": false,
+          "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+        },
+        "relation_to_axis": {
+          "distance": 8,
+          "relation": "far"
+        },
+        "model_claims": {
+          "kind": "word",
+          "tier": "B",
+          "continue_from": false,
+          "note": "באותו טור בכיוון ההפוך, בקצה העליון: 'נמל'.",
+          "status": "UNVERIFIED_INTERPRETATION"
+        }
+      },
+      {
+        "id": "r1.f03",
+        "text": "ונתיבהליל",
+        "parts": [
+          "ונתיבה",
+          "ליל"
+        ],
+        "line": "C04+",
+        "verification": {
+          "state": "ENGINE_VERIFIED",
+          "reasons": [],
+          "letters_match": true,
+          "occurrences_verified": 1,
+          "engine": {
+            "verification_state": "MATCH",
+            "contract": "els_occurrence_replay_v1",
+            "occurrence_id": "els:0b022e8eef6f9c16:ונתיבהליל:4545:1:266928",
+            "corpus_id": "0b022e8eef6f9c16"
+          }
+        },
+        "occurrence": {
+          "reading": "C04+",
+          "skip": 4545,
+          "dir": 1,
+          "start": 266928,
+          "length": 9,
+          "cells": [
+            [
+              15,
+              4
+            ],
+            [
+              16,
+              4
+            ],
+            [
+              17,
+              4
+            ],
+            [
+              18,
+              4
+            ],
+            [
+              19,
+              4
+            ],
+            [
+              20,
+              4
+            ],
+            [
+              21,
+              4
+            ],
+            [
+              22,
+              4
+            ],
+            [
+              23,
+              4
+            ]
+          ]
+        },
+        "chance": {
+          "expected_occurrences": 0.0000388,
+          "unlikely_by_chance": true,
+          "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+        },
+        "relation_to_axis": {
+          "distance": 17,
+          "relation": "far"
+        },
+        "model_claims": {
+          "kind": "construct_or_phrase",
+          "tier": "A",
+          "continue_from": true,
+          "note": "צירוף 'ונתיבה ליל' בתחתית טור C04.",
+          "status": "UNVERIFIED_INTERPRETATION"
+        }
+      },
+      {
+        "id": "r1.f04",
+        "text": "לילהבית",
+        "parts": [
+          "לילה",
+          "בית"
+        ],
+        "line": "C04-",
+        "verification": {
+          "state": "ENGINE_VERIFIED",
+          "reasons": [],
+          "letters_match": true,
+          "occurrences_verified": 1,
+          "engine": {
+            "verification_state": "MATCH",
+            "contract": "els_occurrence_replay_v1",
+            "occurrence_id": "els:0b022e8eef6f9c16:לילהבית:4545:-1:303288",
+            "corpus_id": "0b022e8eef6f9c16"
+          }
+        },
+        "occurrence": {
+          "reading": "C04-",
+          "skip": 4545,
+          "dir": -1,
+          "start": 303288,
+          "length": 7,
+          "cells": [
+            [
+              23,
+              4
+            ],
+            [
+              22,
+              4
+            ],
+            [
+              21,
+              4
+            ],
+            [
+              20,
+              4
+            ],
+            [
+              19,
+              4
+            ],
+            [
+              18,
+              4
+            ],
+            [
+              17,
+              4
+            ]
+          ]
+        },
+        "chance": {
+          "expected_occurrences": 0.008647,
+          "unlikely_by_chance": true,
+          "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+        },
+        "relation_to_axis": {
+          "distance": 17,
+          "relation": "far"
+        },
+        "model_claims": {
+          "kind": "construct_or_phrase",
+          "tier": "A",
+          "continue_from": false,
+          "note": "אותו אזור בכיוון ההפוך קורא 'לילה בית'.",
+          "status": "UNVERIFIED_INTERPRETATION"
+        }
+      },
+      {
+        "id": "r1.f05",
+        "text": "כעסתי",
+        "parts": [
+          "כעסתי"
+        ],
+        "line": "C07+",
+        "verification": {
+          "state": "ENGINE_VERIFIED",
+          "reasons": [],
+          "letters_match": true,
+          "occurrences_verified": 1,
+          "engine": {
+            "verification_state": "MATCH",
+            "contract": "els_occurrence_replay_v1",
+            "occurrence_id": "els:0b022e8eef6f9c16:כעסתי:4545:1:271476",
+            "corpus_id": "0b022e8eef6f9c16"
+          }
+        },
+        "occurrence": {
+          "reading": "C07+",
+          "skip": 4545,
+          "dir": 1,
+          "start": 271476,
+          "length": 5,
+          "cells": [
+            [
+              16,
+              7
+            ],
+            [
+              17,
+              7
+            ],
+            [
+              18,
+              7
+            ],
+            [
+              19,
+              7
+            ],
+            [
+              20,
+              7
+            ]
+          ]
+        },
+        "chance": {
+          "expected_occurrences": 0.03043,
+          "unlikely_by_chance": true,
+          "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+        },
+        "relation_to_axis": {
+          "distance": 14,
+          "relation": "far"
+        },
+        "model_claims": {
+          "kind": "inflected_form",
+          "tier": "A",
+          "continue_from": false,
+          "note": "פועל בגוף ראשון 'כעסתי'.",
+          "status": "UNVERIFIED_INTERPRETATION"
+        }
+      },
+      {
+        "id": "r1.f06",
+        "text": "ונשוב",
+        "parts": [
+          "ונשוב"
+        ],
+        "line": "C08+",
+        "verification": {
+          "state": "ENGINE_VERIFIED",
+          "reasons": [],
+          "letters_match": true,
+          "occurrences_verified": 1,
+          "engine": {
+            "verification_state": "MATCH",
+            "contract": "els_occurrence_replay_v1",
+            "occurrence_id": "els:0b022e8eef6f9c16:ונשוב:4545:1:203302",
+            "corpus_id": "0b022e8eef6f9c16"
+          }
+        },
+        "occurrence": {
+          "reading": "C08+",
+          "skip": 4545,
+          "dir": 1,
+          "start": 203302,
+          "length": 5,
+          "cells": [
+            [
+              1,
+              8
+            ],
+            [
+              2,
+              8
+            ],
+            [
+              3,
+              8
+            ],
+            [
+              4,
+              8
+            ],
+            [
+              5,
+              8
+            ]
+          ]
+        },
+        "chance": {
+          "expected_occurrences": 0.7305,
+          "unlikely_by_chance": true,
+          "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+        },
+        "relation_to_axis": {
+          "distance": 13,
+          "relation": "far"
+        },
+        "model_claims": {
+          "kind": "inflected_form",
+          "tier": "B",
+          "continue_from": false,
+          "note": "'ונשוב' בראש טור C08.",
+          "status": "UNVERIFIED_INTERPRETATION"
+        }
+      },
+      {
+        "id": "r1.f07",
+        "text": "אהבה",
+        "parts": [
+          "אהבה"
+        ],
+        "line": "C10-",
+        "verification": {
+          "state": "ENGINE_VERIFIED",
+          "reasons": [],
+          "letters_match": true,
+          "occurrences_verified": 1,
+          "engine": {
+            "verification_state": "MATCH",
+            "contract": "els_occurrence_replay_v1",
+            "occurrence_id": "els:0b022e8eef6f9c16:אהבה:4545:-1:280569",
+            "corpus_id": "0b022e8eef6f9c16"
+          }
+        },
+        "occurrence": {
+          "reading": "C10-",
+          "skip": 4545,
+          "dir": -1,
+          "start": 280569,
+          "length": 4,
+          "cells": [
+            [
+              18,
+              10
+            ],
+            [
+              17,
+              10
+            ],
+            [
+              16,
+              10
+            ],
+            [
+              15,
+              10
+            ]
+          ]
+        },
+        "chance": {
+          "expected_occurrences": 23.49,
+          "unlikely_by_chance": false,
+          "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+        },
+        "relation_to_axis": {
+          "distance": 11,
+          "relation": "far"
+        },
+        "model_claims": {
+          "kind": "word",
+          "tier": "A",
+          "continue_from": false,
+          "note": "'אהבה' בטור C10 בכיוון עולה.",
+          "status": "UNVERIFIED_INTERPRETATION"
+        }
+      },
+      {
+        "id": "r1.f08",
+        "text": "ומבקר",
+        "parts": [
+          "ומבקר"
+        ],
+        "line": "C11+",
+        "verification": {
+          "state": "ENGINE_VERIFIED",
+          "reasons": [],
+          "letters_match": true,
+          "occurrences_verified": 1,
+          "engine": {
+            "verification_state": "MATCH",
+            "contract": "els_occurrence_replay_v1",
+            "occurrence_id": "els:0b022e8eef6f9c16:ומבקר:4545:1:203305",
+            "corpus_id": "0b022e8eef6f9c16"
+          }
+        },
+        "occurrence": {
+          "reading": "C11+",
+          "skip": 4545,
+          "dir": 1,
+          "start": 203305,
+          "length": 5,
+          "cells": [
+            [
+              1,
+              11
+            ],
+            [
+              2,
+              11
+            ],
+            [
+              3,
+              11
+            ],
+            [
+              4,
+              11
+            ],
+            [
+              5,
+              11
+            ]
+          ]
+        },
+        "chance": {
+          "expected_occurrences": 0.232,
+          "unlikely_by_chance": true,
+          "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+        },
+        "relation_to_axis": {
+          "distance": 10,
+          "relation": "far"
+        },
+        "model_claims": {
+          "kind": "word",
+          "tier": "B",
+          "continue_from": false,
+          "note": "'ומבקר' בראש טור C11.",
+          "status": "UNVERIFIED_INTERPRETATION"
+        }
+      },
+      {
+        "id": "r1.f09",
+        "text": "שיזהב",
+        "parts": [
+          "שי",
+          "זהב"
+        ],
+        "line": "C17+",
+        "verification": {
+          "state": "ENGINE_VERIFIED",
+          "reasons": [],
+          "letters_match": true,
+          "occurrences_verified": 1,
+          "engine": {
+            "verification_state": "MATCH",
+            "contract": "els_occurrence_replay_v1",
+            "occurrence_id": "els:0b022e8eef6f9c16:שיזהב:4545:1:203311",
+            "corpus_id": "0b022e8eef6f9c16"
+          }
+        },
+        "occurrence": {
+          "reading": "C17+",
+          "skip": 4545,
+          "dir": 1,
+          "start": 203311,
+          "length": 5,
+          "cells": [
+            [
+              1,
+              17
+            ],
+            [
+              2,
+              17
+            ],
+            [
+              3,
+              17
+            ],
+            [
+              4,
+              17
+            ],
+            [
+              5,
+              17
+            ]
+          ]
+        },
+        "chance": {
+          "expected_occurrences": 0.108,
+          "unlikely_by_chance": true,
+          "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+        },
+        "relation_to_axis": {
+          "distance": 6,
+          "relation": "far"
+        },
+        "model_claims": {
+          "kind": "construct_or_phrase",
+          "tier": "A",
+          "continue_from": false,
+          "note": "'שי זהב' בראש טור C17.",
+          "status": "UNVERIFIED_INTERPRETATION"
+        }
+      },
+      {
+        "id": "r1.f10",
+        "text": "כוח",
+        "parts": [
+          "כוח"
+        ],
+        "line": "C17+",
+        "verification": {
+          "state": "ENGINE_VERIFIED",
+          "reasons": [],
+          "letters_match": true,
+          "occurrences_verified": 1,
+          "engine": {
+            "verification_state": "MATCH",
+            "contract": "els_occurrence_replay_v1",
+            "occurrence_id": "els:0b022e8eef6f9c16:כוח:4545:1:294211",
+            "corpus_id": "0b022e8eef6f9c16"
+          }
+        },
+        "occurrence": {
+          "reading": "C17+",
+          "skip": 4545,
+          "dir": 1,
+          "start": 294211,
+          "length": 3,
+          "cells": [
+            [
+              21,
+              17
+            ],
+            [
+              22,
+              17
+            ],
+            [
+              23,
+              17
+            ]
+          ]
+        },
+        "chance": {
+          "expected_occurrences": 54.83,
+          "unlikely_by_chance": false,
+          "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+        },
+        "relation_to_axis": {
+          "distance": 4,
+          "relation": "far"
+        },
+        "model_claims": {
+          "kind": "word",
+          "tier": "B",
+          "continue_from": false,
+          "note": "אותו טור מסתיים ב'כוח'.",
+          "status": "UNVERIFIED_INTERPRETATION"
+        }
+      },
+      {
+        "id": "r1.f11",
+        "text": "זהסיר",
+        "parts": [
+          "זה",
+          "סיר"
+        ],
+        "line": "C20-",
+        "verification": {
+          "state": "ENGINE_VERIFIED",
+          "reasons": [],
+          "letters_match": true,
+          "occurrences_verified": 1,
+          "engine": {
+            "verification_state": "MATCH",
+            "contract": "els_occurrence_replay_v1",
+            "occurrence_id": "els:0b022e8eef6f9c16:זהסיר:4545:-1:235129",
+            "corpus_id": "0b022e8eef6f9c16"
+          }
+        },
+        "occurrence": {
+          "reading": "C20-",
+          "skip": 4545,
+          "dir": -1,
+          "start": 235129,
+          "length": 5,
+          "cells": [
+            [
+              8,
+              20
+            ],
+            [
+              7,
+              20
+            ],
+            [
+              6,
+              20
+            ],
+            [
+              5,
+              20
+            ],
+            [
+              4,
+              20
+            ]
+          ]
+        },
+        "chance": {
+          "expected_occurrences": 0.01408,
+          "unlikely_by_chance": true,
+          "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+        },
+        "relation_to_axis": {
+          "distance": 3,
+          "relation": "far"
+        },
+        "model_claims": {
+          "kind": "construct_or_phrase",
+          "tier": "C",
+          "continue_from": false,
+          "note": "קריאה משעשעת 'זה סיר'.",
+          "status": "UNVERIFIED_INTERPRETATION"
+        }
+      },
+      {
+        "id": "r1.f12",
+        "text": "אישה",
+        "parts": [
+          "אישה"
+        ],
+        "line": "C24-",
+        "verification": {
+          "state": "ENGINE_VERIFIED",
+          "reasons": [],
+          "letters_match": true,
+          "occurrences_verified": 1,
+          "engine": {
+            "verification_state": "MATCH",
+            "contract": "els_occurrence_replay_v1",
+            "occurrence_id": "els:0b022e8eef6f9c16:אישה:4545:-1:257858",
+            "corpus_id": "0b022e8eef6f9c16"
+          }
+        },
+        "occurrence": {
+          "reading": "C24-",
+          "skip": 4545,
+          "dir": -1,
+          "start": 257858,
+          "length": 4,
+          "cells": [
+            [
+              13,
+              24
+            ],
+            [
+              12,
+              24
+            ],
+            [
+              11,
+              24
+            ],
+            [
+              10,
+              24
+            ]
+          ]
+        },
+        "chance": {
+          "expected_occurrences": 25.19,
+          "unlikely_by_chance": false,
+          "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+        },
+        "relation_to_axis": {
+          "distance": 3,
+          "relation": "far"
+        },
+        "model_claims": {
+          "kind": "word",
+          "tier": "B",
+          "continue_from": false,
+          "note": "'אישה' בטור C24 בכיוון עולה.",
+          "status": "UNVERIFIED_INTERPRETATION"
+        }
+      },
+      {
+        "id": "r1.f13",
+        "text": "כתבה",
+        "parts": [
+          "כתבה"
+        ],
+        "line": "C32+",
+        "verification": {
+          "state": "ENGINE_VERIFIED",
+          "reasons": [],
+          "letters_match": true,
+          "occurrences_verified": 1,
+          "engine": {
+            "verification_state": "MATCH",
+            "contract": "els_occurrence_replay_v1",
+            "occurrence_id": "els:0b022e8eef6f9c16:כתבה:4545:1:248776",
+            "corpus_id": "0b022e8eef6f9c16"
+          }
+        },
+        "occurrence": {
+          "reading": "C32+",
+          "skip": 4545,
+          "dir": 1,
+          "start": 248776,
+          "length": 4,
+          "cells": [
+            [
+              11,
+              32
+            ],
+            [
+              12,
+              32
+            ],
+            [
+              13,
+              32
+            ],
+            [
+              14,
+              32
+            ]
+          ]
+        },
+        "chance": {
+          "expected_occurrences": 6.646,
+          "unlikely_by_chance": false,
+          "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+        },
+        "relation_to_axis": {
+          "distance": 11,
+          "relation": "far"
+        },
+        "model_claims": {
+          "kind": "word",
+          "tier": "B",
+          "continue_from": false,
+          "note": "'כתבה' (שם עצם או פועל) בטור C32.",
+          "status": "UNVERIFIED_INTERPRETATION"
+        }
+      },
+      {
+        "id": "r1.f14",
+        "text": "בהמה",
+        "parts": [
+          "בהמה"
+        ],
+        "line": "C37-",
+        "verification": {
+          "state": "ENGINE_VERIFIED",
+          "reasons": [],
+          "letters_match": true,
+          "occurrences_verified": 1,
+          "engine": {
+            "verification_state": "MATCH",
+            "contract": "els_occurrence_replay_v1",
+            "occurrence_id": "els:0b022e8eef6f9c16:בהמה:4545:-1:257871",
+            "corpus_id": "0b022e8eef6f9c16"
+          }
+        },
+        "occurrence": {
+          "reading": "C37-",
+          "skip": 4545,
+          "dir": -1,
+          "start": 257871,
+          "length": 4,
+          "cells": [
+            [
+              13,
+              37
+            ],
+            [
+              12,
+              37
+            ],
+            [
+              11,
+              37
+            ],
+            [
+              10,
+              37
+            ]
+          ]
+        },
+        "chance": {
+          "expected_occurrences": 21.78,
+          "unlikely_by_chance": false,
+          "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+        },
+        "relation_to_axis": {
+          "distance": 16,
+          "relation": "far"
+        },
+        "model_claims": {
+          "kind": "word",
+          "tier": "B",
+          "continue_from": false,
+          "note": "'בהמה' בטור C37 בכיוון עולה.",
+          "status": "UNVERIFIED_INTERPRETATION"
+        }
+      },
+      {
+        "id": "r1.f15",
+        "text": "משמח",
+        "parts": [
+          "משמח"
+        ],
+        "line": "C31-",
+        "verification": {
+          "state": "ENGINE_VERIFIED",
+          "reasons": [],
+          "letters_match": true,
+          "occurrences_verified": 1,
+          "engine": {
+            "verification_state": "MATCH",
+            "contract": "els_occurrence_replay_v1",
+            "occurrence_id": "els:0b022e8eef6f9c16:משמח:4545:-1:230595",
+            "corpus_id": "0b022e8eef6f9c16"
+          }
+        },
+        "occurrence": {
+          "reading": "C31-",
+          "skip": 4545,
+          "dir": -1,
+          "start": 230595,
+          "length": 4,
+          "cells": [
+            [
+              7,
+              31
+            ],
+            [
+              6,
+              31
+            ],
+            [
+              5,
+              31
+            ],
+            [
+              4,
+              31
+            ]
+          ]
+        },
+        "chance": {
+          "expected_occurrences": 4.761,
+          "unlikely_by_chance": false,
+          "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+        },
+        "relation_to_axis": {
+          "distance": 10,
+          "relation": "far"
+        },
+        "model_claims": {
+          "kind": "word",
+          "tier": "B",
+          "continue_from": false,
+          "note": "'משמח' בטור C31.",
+          "status": "UNVERIFIED_INTERPRETATION"
+        }
+      },
+      {
+        "id": "r1.f16",
+        "text": "לאהבת",
+        "parts": [
+          "לאהבת"
+        ],
+        "line": "D06-",
+        "verification": {
+          "state": "ENGINE_VERIFIED",
+          "reasons": [],
+          "letters_match": true,
+          "occurrences_verified": 1,
+          "engine": {
+            "verification_state": "MATCH",
+            "contract": "els_occurrence_replay_v1",
+            "occurrence_id": "els:0b022e8eef6f9c16:לאהבת:4546:-1:235122",
+            "corpus_id": "0b022e8eef6f9c16"
+          }
+        },
+        "occurrence": {
+          "reading": "D06-",
+          "skip": 4546,
+          "dir": -1,
+          "start": 235122,
+          "length": 5,
+          "cells": [
+            [
+              8,
+              13
+            ],
+            [
+              7,
+              12
+            ],
+            [
+              6,
+              11
+            ],
+            [
+              5,
+              10
+            ],
+            [
+              4,
+              9
+            ]
+          ]
+        },
+        "chance": {
+          "expected_occurrences": 1.047,
+          "unlikely_by_chance": false,
+          "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+        },
+        "relation_to_axis": {
+          "distance": 8,
+          "relation": "far"
+        },
+        "model_claims": {
+          "kind": "inflected_form",
+          "tier": "B",
+          "continue_from": false,
+          "note": "'לאהבת' (נסמך עם למד) באלכסון D06.",
+          "status": "UNVERIFIED_INTERPRETATION"
+        }
+      },
+      {
+        "id": "r1.f17",
+        "text": "סוס",
+        "parts": [
+          "סוס"
+        ],
+        "line": "D32-",
+        "verification": {
+          "state": "ENGINE_VERIFIED",
+          "reasons": [],
+          "letters_match": true,
+          "occurrences_verified": 1,
+          "engine": {
+            "verification_state": "MATCH",
+            "contract": "els_occurrence_replay_v1",
+            "occurrence_id": "els:0b022e8eef6f9c16:סוס:4546:-1:244240",
+            "corpus_id": "0b022e8eef6f9c16"
+          }
+        },
+        "occurrence": {
+          "reading": "D32-",
+          "skip": 4546,
+          "dir": -1,
+          "start": 244240,
+          "length": 3,
+          "cells": [
+            [
+              10,
+              41
+            ],
+            [
+              9,
+              40
+            ],
+            [
+              8,
+              39
+            ]
+          ]
+        },
+        "chance": {
+          "expected_occurrences": 2.141,
+          "unlikely_by_chance": false,
+          "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+        },
+        "relation_to_axis": {
+          "distance": 18,
+          "relation": "far"
+        },
+        "model_claims": {
+          "kind": "word",
+          "tier": "B",
+          "continue_from": false,
+          "note": "'סוס' בראש האלכסון הקצר D32.",
+          "status": "UNVERIFIED_INTERPRETATION"
+        }
+      },
+      {
+        "id": "r1.f18",
+        "text": "רמאי",
+        "parts": [
+          "רמאי"
+        ],
+        "line": "D43-",
+        "verification": {
+          "state": "ENGINE_VERIFIED",
+          "reasons": [],
+          "letters_match": true,
+          "occurrences_verified": 1,
+          "engine": {
+            "verification_state": "MATCH",
+            "contract": "els_occurrence_replay_v1",
+            "occurrence_id": "els:0b022e8eef6f9c16:רמאי:4546:-1:230569",
+            "corpus_id": "0b022e8eef6f9c16"
+          }
+        },
+        "occurrence": {
+          "reading": "D43-",
+          "skip": 4546,
+          "dir": -1,
+          "start": 230569,
+          "length": 4,
+          "cells": [
+            [
+              7,
+              5
+            ],
+            [
+              6,
+              4
+            ],
+            [
+              5,
+              3
+            ],
+            [
+              4,
+              2
+            ]
+          ]
+        },
+        "chance": {
+          "expected_occurrences": 26.18,
+          "unlikely_by_chance": false,
+          "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+        },
+        "relation_to_axis": {
+          "distance": 16,
+          "relation": "far"
+        },
+        "model_claims": {
+          "kind": "word",
+          "tier": "A",
+          "continue_from": false,
+          "note": "'רמאי' באלכסון D43.",
+          "status": "UNVERIFIED_INTERPRETATION"
+        }
+      },
+      {
+        "id": "r1.f19",
+        "text": "שומר",
+        "parts": [
+          "שומר"
+        ],
+        "line": "D44-",
+        "verification": {
+          "state": "ENGINE_VERIFIED",
+          "reasons": [],
+          "letters_match": true,
+          "occurrences_verified": 1,
+          "engine": {
+            "verification_state": "MATCH",
+            "contract": "els_occurrence_replay_v1",
+            "occurrence_id": "els:0b022e8eef6f9c16:שומר:4546:-1:230568",
+            "corpus_id": "0b022e8eef6f9c16"
+          }
+        },
+        "occurrence": {
+          "reading": "D44-",
+          "skip": 4546,
+          "dir": -1,
+          "start": 230568,
+          "length": 4,
+          "cells": [
+            [
+              7,
+              4
+            ],
+            [
+              6,
+              3
+            ],
+            [
+              5,
+              2
+            ],
+            [
+              4,
+              1
+            ]
+          ]
+        },
+        "chance": {
+          "expected_occurrences": 14.6,
+          "unlikely_by_chance": false,
+          "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+        },
+        "relation_to_axis": {
+          "distance": 17,
+          "relation": "far"
+        },
+        "model_claims": {
+          "kind": "word",
+          "tier": "A",
+          "continue_from": false,
+          "note": "'שומר' בסוף האלכסון D44.",
+          "status": "UNVERIFIED_INTERPRETATION"
+        }
+      },
+      {
+        "id": "r1.f20",
+        "text": "צרח",
+        "parts": [
+          "צרח"
+        ],
+        "line": "D50+",
+        "verification": {
+          "state": "ENGINE_VERIFIED",
+          "reasons": [],
+          "letters_match": true,
+          "occurrences_verified": 1,
+          "engine": {
+            "verification_state": "MATCH",
+            "contract": "els_occurrence_replay_v1",
+            "occurrence_id": "els:0b022e8eef6f9c16:צרח:4546:1:244200",
+            "corpus_id": "0b022e8eef6f9c16"
+          }
+        },
+        "occurrence": {
+          "reading": "D50+",
+          "skip": 4546,
+          "dir": 1,
+          "start": 244200,
+          "length": 3,
+          "cells": [
+            [
+              10,
+              1
+            ],
+            [
+              11,
+              2
+            ],
+            [
+              12,
+              3
+            ]
+          ]
+        },
+        "chance": {
+          "expected_occurrences": 10.78,
+          "unlikely_by_chance": false,
+          "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+        },
+        "relation_to_axis": {
+          "distance": 18,
+          "relation": "far"
+        },
+        "model_claims": {
+          "kind": "word",
+          "tier": "C",
+          "continue_from": false,
+          "note": "'צרח' בראש D50.",
+          "status": "UNVERIFIED_INTERPRETATION"
+        }
+      },
+      {
+        "id": "r1.f21",
+        "text": "לירות",
+        "parts": [
+          "לירות"
+        ],
+        "line": "A05-",
+        "verification": {
+          "state": "ENGINE_VERIFIED",
+          "reasons": [],
+          "letters_match": true,
+          "occurrences_verified": 1,
+          "engine": {
+            "verification_state": "MATCH",
+            "contract": "els_occurrence_replay_v1",
+            "occurrence_id": "els:0b022e8eef6f9c16:לירות:4544:-1:280579",
+            "corpus_id": "0b022e8eef6f9c16"
+          }
+        },
+        "occurrence": {
+          "reading": "A05-",
+          "skip": 4544,
+          "dir": -1,
+          "start": 280579,
+          "length": 5,
+          "cells": [
+            [
+              18,
+              20
+            ],
+            [
+              17,
+              21
+            ],
+            [
+              16,
+              22
+            ],
+            [
+              15,
+              23
+            ],
+            [
+              14,
+              24
+            ]
+          ]
+        },
+        "chance": {
+          "expected_occurrences": 1.471,
+          "unlikely_by_chance": false,
+          "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+        },
+        "relation_to_axis": {
+          "distance": 0,
+          "relation": "crosses"
+        },
+        "model_claims": {
+          "kind": "word",
+          "tier": "A",
+          "continue_from": false,
+          "note": "'לירות' (שם פועל או מטבע) באלכסון A05.",
+          "status": "UNVERIFIED_INTERPRETATION"
+        }
+      },
+      {
+        "id": "r1.f22",
+        "text": "הרגש",
+        "parts": [
+          "הרגש"
+        ],
+        "line": "A07-",
+        "verification": {
+          "state": "ENGINE_VERIFIED",
+          "reasons": [],
+          "letters_match": true,
+          "occurrences_verified": 1,
+          "engine": {
+            "verification_state": "MATCH",
+            "contract": "els_occurrence_replay_v1",
+            "occurrence_id": "els:0b022e8eef6f9c16:הרגש:4544:-1:216961",
+            "corpus_id": "0b022e8eef6f9c16"
+          }
+        },
+        "occurrence": {
+          "reading": "A07-",
+          "skip": 4544,
+          "dir": -1,
+          "start": 216961,
+          "length": 4,
+          "cells": [
+            [
+              4,
+              32
+            ],
+            [
+              3,
+              33
+            ],
+            [
+              2,
+              34
+            ],
+            [
+              1,
+              35
+            ]
+          ]
+        },
+        "chance": {
+          "expected_occurrences": 1.128,
+          "unlikely_by_chance": false,
+          "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+        },
+        "relation_to_axis": {
+          "distance": 11,
+          "relation": "far"
+        },
+        "model_claims": {
+          "kind": "word",
+          "tier": "A",
+          "continue_from": false,
+          "note": "'הרגש' בסוף האלכסון A07.",
+          "status": "UNVERIFIED_INTERPRETATION"
+        }
+      },
+      {
+        "id": "r1.f23",
+        "text": "זועמ",
+        "parts": [
+          "זועמ"
+        ],
+        "line": "A15-",
+        "verification": {
+          "state": "ENGINE_VERIFIED",
+          "reasons": [],
+          "letters_match": true,
+          "occurrences_verified": 1,
+          "engine": {
+            "verification_state": "MATCH",
+            "contract": "els_occurrence_replay_v1",
+            "occurrence_id": "els:0b022e8eef6f9c16:זועמ:4544:-1:235129",
+            "corpus_id": "0b022e8eef6f9c16"
+          }
+        },
+        "occurrence": {
+          "reading": "A15-",
+          "skip": 4544,
+          "dir": -1,
+          "start": 235129,
+          "length": 4,
+          "cells": [
+            [
+              8,
+              20
+            ],
+            [
+              7,
+              21
+            ],
+            [
+              6,
+              22
+            ],
+            [
+              5,
+              23
+            ]
+          ]
+        },
+        "chance": {
+          "expected_occurrences": 1.277,
+          "unlikely_by_chance": false,
+          "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+        },
+        "relation_to_axis": {
+          "distance": 3,
+          "relation": "far"
+        },
+        "model_claims": {
+          "kind": "word",
+          "tier": "B",
+          "continue_from": false,
+          "note": "'זועם' באלכסון A15.",
+          "status": "UNVERIFIED_INTERPRETATION"
+        }
+      },
+      {
+        "id": "r1.f24",
+        "text": "זהוב",
+        "parts": [
+          "זהוב"
+        ],
+        "line": "A26+",
+        "verification": {
+          "state": "ENGINE_VERIFIED",
+          "reasons": [],
+          "letters_match": true,
+          "occurrences_verified": 1,
+          "engine": {
+            "verification_state": "MATCH",
+            "contract": "els_occurrence_replay_v1",
+            "occurrence_id": "els:0b022e8eef6f9c16:זהוב:4544:1:248750",
+            "corpus_id": "0b022e8eef6f9c16"
+          }
+        },
+        "occurrence": {
+          "reading": "A26+",
+          "skip": 4544,
+          "dir": 1,
+          "start": 248750,
+          "length": 4,
+          "cells": [
+            [
+              11,
+              6
+            ],
+            [
+              12,
+              5
+            ],
+            [
+              13,
+              4
+            ],
+            [
+              14,
+              3
+            ]
+          ]
+        },
+        "chance": {
+          "expected_occurrences": 2.075,
+          "unlikely_by_chance": false,
+          "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+        },
+        "relation_to_axis": {
+          "distance": 15,
+          "relation": "far"
+        },
+        "model_claims": {
+          "kind": "word",
+          "tier": "B",
+          "continue_from": false,
+          "note": "'זהוב' באלכסון A26.",
+          "status": "UNVERIFIED_INTERPRETATION"
+        }
+      },
+      {
+        "id": "r1.f25",
+        "text": "תמיר",
+        "parts": [
+          "תמיר"
+        ],
+        "line": "A51+",
+        "verification": {
+          "state": "ENGINE_VERIFIED",
+          "reasons": [],
+          "letters_match": true,
+          "occurrences_verified": 1,
+          "engine": {
+            "verification_state": "MATCH",
+            "contract": "els_occurrence_replay_v1",
+            "occurrence_id": "els:0b022e8eef6f9c16:תמיר:4544:1:248785",
+            "corpus_id": "0b022e8eef6f9c16"
+          }
+        },
+        "occurrence": {
+          "reading": "A51+",
+          "skip": 4544,
+          "dir": 1,
+          "start": 248785,
+          "length": 4,
+          "cells": [
+            [
+              11,
+              41
+            ],
+            [
+              12,
+              40
+            ],
+            [
+              13,
+              39
+            ],
+            [
+              14,
+              38
+            ]
+          ]
+        },
+        "chance": {
+          "expected_occurrences": 17.36,
+          "unlikely_by_chance": false,
+          "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+        },
+        "relation_to_axis": {
+          "distance": 17,
+          "relation": "far"
+        },
+        "model_claims": {
+          "kind": "name",
+          "tier": "C",
+          "continue_from": false,
+          "note": "שם פרטי 'תמיר' בראש A51.",
+          "status": "UNVERIFIED_INTERPRETATION"
+        }
+      }
+    ],
+    "summary": {
+      "proposals": 25,
+      "engine_verified": 25,
+      "plain_text_only": 0,
+      "not_verified": 0,
+      "engine_verified_long": 10,
+      "engine_verified_short": 15,
+      "unlikely_by_chance": 8,
+      "expected_by_chance": 17,
+      "by_relation": {
+        "crosses": 2,
+        "touches": 0,
+        "far": 23
+      }
+    },
+    "cap": {
+      "requested": 25,
+      "proposals": 25,
+      "reached": true,
+      "meaning": "an output cap, not proof that nothing else exists"
+    },
+    "coverage": {
+      "scope": "torah",
+      "matrix_width": 4545,
+      "torah_complete_rows": 67,
+      "rows": {
+        "from": 44,
+        "to": 66,
+        "count": 23,
+        "requested": 23
+      },
+      "cols": {
+        "from": 3315,
+        "to": 3355,
+        "count": 41,
+        "requested": 41
+      },
+      "cells": 943,
+      "axis": {
+        "column": 3335,
+        "rows": [
+          54,
+          61
+        ],
+        "cells": 8
+      },
+      "margin": {
+        "above": 10,
+        "below": 5,
+        "left": 20,
+        "right": 20
+      },
+      "shifted_to_stay_inside_torah": {
+        "rows": true,
+        "cols": false
+      },
+      "touches_matrix_edge": {
+        "top": false,
+        "bottom": true,
+        "left": false,
+        "right": false
+      },
+      "lines_shown": {
+        "total": 182,
+        "by_kind": {
+          "R": 23,
+          "C": 41,
+          "D": 59,
+          "A": 59
+        },
+        "readings": 364
+      },
+      "lines_omitted_shorter_than_3": {
+        "total": 8,
+        "by_kind": {
+          "R": 0,
+          "C": 0,
+          "D": 4,
+          "A": 4
+        }
+      },
+      "what_is_not_covered": "everything outside this window; lines are cut at the window boundary; the rest of the Torah and every other matrix width"
+    },
+    "observations": {
+      "text": "השורות הן טקסט מקראי רציף ולכן לא הוצעו מהן מילים. בדקתי פחות לעומק את האלכסונים הקצרים בפינות ואת טורים C38–C41.",
+      "status": "UNVERIFIED_INTERPRETATION"
+    },
+    "data_class": "ENGINE_VERIFIED_AND_PLAIN_TEXT_FINDINGS",
+    "experimental": {
+      "admin_only": true,
+      "credits_charged": false,
+      "note": "experimental starting values (33x41, cap 60) are not fixed rules"
+    },
+    "provider": {
+      "name": "anthropic",
+      "route": "ai-analyze (the existing Raziel route)",
+      "kind": "test_double",
+      "live_model_call": false
+    },
+    "is_test_fixture": true
+  },
+  "raziel_answer": "קריאת מטריצה (Fable) הושלמה ב־3:09 דקות. עלות בפועל: $0.40 (≈ ₪1.20, הערכה; לא חשבונית). לא חויבו קרדיטים; החזר אוטומטי לא נבדק ואינו מובטח.\nהציר: קולומביה · דילוג 4545 · קדימה · התחלה 248765 (אומת במנוע הקנוני).\nאזור הקריאה: שורות 44–66 (23) ועמודות 3315–3355 (41) מתוך מטריצה ברוחב 4545; 943 תאים, 182 קווים בשני כיוונים. מה שמחוץ לאזור לא נקרא.\nהצעות המודל: 25. אומתו במנוע ה־ELS הקנוני: 25 (8 בלתי סבירות במקרה, 17 צפויות במקרה). רצף רגיל בלבד (לא ELS): 0. לא אומתו: 0 (לא מוצגות).\n\n• ונתיבהליל — דילוג 4545 קדימה, התחלה 266928 · רחוק מהציר · מספר צפוי במקרה 0.000039 (בלתי סביר)\n• קולומביה — דילוג 4545 קדימה, התחלה 248765 · חותך את הציר · מספר צפוי במקרה 0.00025 (בלתי סביר)\n• לילהבית — דילוג 4545 אחורה, התחלה 303288 · רחוק מהציר · מספר צפוי במקרה 0.0086 (בלתי סביר)\n• כעסתי — דילוג 4545 קדימה, התחלה 271476 · רחוק מהציר · מספר צפוי במקרה 0.030 (בלתי סביר)\n• ונשוב — דילוג 4545 קדימה, התחלה 203302 · רחוק מהציר · מספר צפוי במקרה 0.73 (בלתי סביר)\n• ומבקר — דילוג 4545 קדימה, התחלה 203305 · רחוק מהציר · מספר צפוי במקרה 0.23 (בלתי סביר)\n• שיזהב — דילוג 4545 קדימה, התחלה 203311 · רחוק מהציר · מספר צפוי במקרה 0.11 (בלתי סביר)\n• זהסיר — דילוג 4545 אחורה, התחלה 235129 · רחוק מהציר · מספר צפוי במקרה 0.014 (בלתי סביר)\n• לאהבת — דילוג 4546 אחורה, התחלה 235122 · רחוק מהציר · מספר צפוי במקרה 1.0\n• לירות — דילוג 4544 אחורה, התחלה 280579 · חותך את הציר · מספר צפוי במקרה 1.5\n• אהבה — דילוג 4545 אחורה, התחלה 280569 · רחוק מהציר · מספר צפוי במקרה 23\n• אישה — דילוג 4545 אחורה, התחלה 257858 · רחוק מהציר · מספר צפוי במקרה 25\n• כתבה — דילוג 4545 קדימה, התחלה 248776 · רחוק מהציר · מספר צפוי במקרה 6.6\n• בהמה — דילוג 4545 אחורה, התחלה 257871 · רחוק מהציר · מספר צפוי במקרה 22\n• משמח — דילוג 4545 אחורה, התחלה 230595 · רחוק מהציר · מספר צפוי במקרה 4.8\n• רמאי — דילוג 4546 אחורה, התחלה 230569 · רחוק מהציר · מספר צפוי במקרה 26\n• שומר — דילוג 4546 אחורה, התחלה 230568 · רחוק מהציר · מספר צפוי במקרה 15\n• הרגש — דילוג 4544 אחורה, התחלה 216961 · רחוק מהציר · מספר צפוי במקרה 1.1\n• זועמ — דילוג 4544 אחורה, התחלה 235129 · רחוק מהציר · מספר צפוי במקרה 1.3\n• זהוב — דילוג 4544 קדימה, התחלה 248750 · רחוק מהציר · מספר צפוי במקרה 2.1\n• תמיר — דילוג 4544 קדימה, התחלה 248785 · רחוק מהציר · מספר צפוי במקרה 17\n• נמל — דילוג 4545 אחורה, התחלה 212405 · רחוק מהציר · מספר צפוי במקרה 1.6e+2\n• כוח — דילוג 4545 קדימה, התחלה 294211 · רחוק מהציר · מספר צפוי במקרה 55\n• סוס — דילוג 4546 אחורה, התחלה 244240 · רחוק מהציר · מספר צפוי במקרה 2.1\n• צרח — דילוג 4546 קדימה, התחלה 244200 · רחוק מהציר · מספר צפוי במקרה 11\n\nההצעות הגיעו לתקרה (25): זו תקרת פלט ולא הוכחה שאין עוד ממצאים.\nאימות הוא של האותיות והמיקומים בלבד — לא של משמעות; בחלונות אקראיים מתקבלים ממצאים מאותו סוג. הערות המודל אינן מאומתות.",
+  "thread_message": {
+    "role": "raziel",
+    "text": "קריאת מטריצה (Fable) הושלמה ב־3:09 דקות. עלות בפועל: $0.40 (≈ ₪1.20, הערכה; לא חשבונית). לא חויבו קרדיטים; החזר אוטומטי לא נבדק ואינו מובטח.\nהציר: קולומביה · דילוג 4545 · קדימה · התחלה 248765 (אומת במנוע הקנוני).\nאזור הקריאה: שורות 44–66 (23) ועמודות 3315–3355 (41) מתוך מטריצה ברוחב 4545; 943 תאים, 182 קווים בשני כיוונים. מה שמחוץ לאזור לא נקרא.\nהצעות המודל: 25. אומתו במנוע ה־ELS הקנוני: 25 (8 בלתי סבירות במקרה, 17 צפויות במקרה). רצף רגיל בלבד (לא ELS): 0. לא אומתו: 0 (לא מוצגות).\n\n• ונתיבהליל — דילוג 4545 קדימה, התחלה 266928 · רחוק מהציר · מספר צפוי במקרה 0.000039 (בלתי סביר)\n• קולומביה — דילוג 4545 קדימה, התחלה 248765 · חותך את הציר · מספר צפוי במקרה 0.00025 (בלתי סביר)\n• לילהבית — דילוג 4545 אחורה, התחלה 303288 · רחוק מהציר · מספר צפוי במקרה 0.0086 (בלתי סביר)\n• כעסתי — דילוג 4545 קדימה, התחלה 271476 · רחוק מהציר · מספר צפוי במקרה 0.030 (בלתי סביר)\n• ונשוב — דילוג 4545 קדימה, התחלה 203302 · רחוק מהציר · מספר צפוי במקרה 0.73 (בלתי סביר)\n• ומבקר — דילוג 4545 קדימה, התחלה 203305 · רחוק מהציר · מספר צפוי במקרה 0.23 (בלתי סביר)\n• שיזהב — דילוג 4545 קדימה, התחלה 203311 · רחוק מהציר · מספר צפוי במקרה 0.11 (בלתי סביר)\n• זהסיר — דילוג 4545 אחורה, התחלה 235129 · רחוק מהציר · מספר צפוי במקרה 0.014 (בלתי סביר)\n• לאהבת — דילוג 4546 אחורה, התחלה 235122 · רחוק מהציר · מספר צפוי במקרה 1.0\n• לירות — דילוג 4544 אחורה, התחלה 280579 · חותך את הציר · מספר צפוי במקרה 1.5\n• אהבה — דילוג 4545 אחורה, התחלה 280569 · רחוק מהציר · מספר צפוי במקרה 23\n• אישה — דילוג 4545 אחורה, התחלה 257858 · רחוק מהציר · מספר צפוי במקרה 25\n• כתבה — דילוג 4545 קדימה, התחלה 248776 · רחוק מהציר · מספר צפוי במקרה 6.6\n• בהמה — דילוג 4545 אחורה, התחלה 257871 · רחוק מהציר · מספר צפוי במקרה 22\n• משמח — דילוג 4545 אחורה, התחלה 230595 · רחוק מהציר · מספר צפוי במקרה 4.8\n• רמאי — דילוג 4546 אחורה, התחלה 230569 · רחוק מהציר · מספר צפוי במקרה 26\n• שומר — דילוג 4546 אחורה, התחלה 230568 · רחוק מהציר · מספר צפוי במקרה 15\n• הרגש — דילוג 4544 אחורה, התחלה 216961 · רחוק מהציר · מספר צפוי במקרה 1.1\n• זועמ — דילוג 4544 אחורה, התחלה 235129 · רחוק מהציר · מספר צפוי במקרה 1.3\n• זהוב — דילוג 4544 קדימה, התחלה 248750 · רחוק מהציר · מספר צפוי במקרה 2.1\n• תמיר — דילוג 4544 קדימה, התחלה 248785 · רחוק מהציר · מספר צפוי במקרה 17\n• נמל — דילוג 4545 אחורה, התחלה 212405 · רחוק מהציר · מספר צפוי במקרה 1.6e+2\n• כוח — דילוג 4545 קדימה, התחלה 294211 · רחוק מהציר · מספר צפוי במקרה 55\n• סוס — דילוג 4546 אחורה, התחלה 244240 · רחוק מהציר · מספר צפוי במקרה 2.1\n• צרח — דילוג 4546 קדימה, התחלה 244200 · רחוק מהציר · מספר צפוי במקרה 11\n\nההצעות הגיעו לתקרה (25): זו תקרת פלט ולא הוכחה שאין עוד ממצאים.\nאימות הוא של האותיות והמיקומים בלבד — לא של משמעות; בחלונות אקראיים מתקבלים ממצאים מאותו סוג. הערות המודל אינן מאומתות.",
+    "level": "deep",
+    "question": "קרא את המטריצה סביב המופע שבחרתי",
+    "turnId": "example-turn",
+    "continuation": null,
+    "sourceNames": [],
+    "grounding": "interpretation",
+    "elsMatrixReading": "(the bounded copy of `response` that the session keeps on the message: same keys, strings cut at 700 characters, at most 120 findings)"
+  },
+  "thread_message_keys": [
+    "role",
+    "text",
+    "level",
+    "question",
+    "turnId",
+    "continuation",
+    "sourceNames",
+    "grounding",
+    "elsMatrixReading"
+  ],
+  "thread_message_reading_state": "COMPLETE"
+}

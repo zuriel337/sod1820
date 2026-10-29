@@ -128,3 +128,31 @@ test("the matrix request is the explicit, deep, session-routed shape the gate ex
   assert.ok(handler > 0);
   assert.equal(cmp.split("onRazielMatrix(").length - 1, 1);
 });
+
+// ELS matrix reading (claude/els-matrix-fable-reading-20261029): the reading is one more field on the SAME matrix Raziel turn, so the existing gate admits it unchanged
+// (start, preview, status and cancel are all deep Raziel research turns with the matrix context) and still blocks everything it blocked before.
+test("the matrix reading actions are the same admitted request shape: no change to the Preview worker is needed", async () => {
+  const token = "T".repeat(80);
+  for (const action of [
+    { id: "els_matrix_reading_v1", op: "start", ack_upper_bound_usd: 2 },
+    { id: "els_matrix_reading_v1", op: "preview" },
+    { id: "els_matrix_reading_v1", op: "status", job_token: token },
+    { id: "els_matrix_reading_v1", op: "cancel", job_token: token },
+  ]) {
+    const { forwarded } = await call(open, "/functions/v1/ai-analyze", { body: matrixBody({ els_matrix_reading_action: action }) });
+    assert.equal(forwarded, 1, action.op);
+  }
+  for (const body of [
+    matrixBody({ els_matrix_reading_action: { id: "els_matrix_reading_v1", op: "start" }, companion_action: { type: "save" } }),
+    matrixBody({ els_matrix_reading_action: { id: "els_matrix_reading_v1", op: "start" }, els_planning_action: { type: "plan" } }),
+    matrixBody({ els_matrix_reading_action: { id: "els_matrix_reading_v1", op: "start" }, intelligence_level: "fast" }),
+    matrixBody({ els_matrix_reading_action: { id: "els_matrix_reading_v1", op: "start" }, persona: "other" }),
+    (() => { const body = matrixBody({ els_matrix_reading_action: { id: "els_matrix_reading_v1", op: "start" } }); delete body.els_matrix_context; return body; })(),
+  ]) {
+    const { response, forwarded } = await call(open, "/functions/v1/ai-analyze", { body });
+    assert.equal(response.status, 403, JSON.stringify(body).slice(0, 100));
+    assert.equal(forwarded, 0);
+  }
+  assert.equal(MATRIX_RAZIEL_PREVIEW_BRANCHES.size, 1, "this branch does not extend the Preview allow-list: trying it in a Preview is a separate, named decision");
+  assert.equal(MATRIX_RAZIEL_PREVIEW_BRANCHES.has("claude/els-matrix-fable-reading-20261029"), false);
+});
