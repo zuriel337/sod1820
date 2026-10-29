@@ -1,0 +1,15 @@
+{
+  "cap_usd": 40,
+  "hard_guard_usd": 35.278199,
+  "stop_new_usd": 34.778199,
+  "experiment_cap_usd": 3,
+  "basis": "usage x list prices of the claude-api model table (Message Batches at 50%); not an invoice. First entry: the actual spend before EXP-18 (EXP-15, EXP-16, EXP-12 pilot, EXP-17).",
+  "entries": [
+    {
+      "id": "prior EXP-15 + EXP-16 + EXP-12 + EXP-17",
+      "kind": "prior",
+      "usd": 32.278199,
+      "note": "actual spend before EXP-18"
+    }
+  ]
+}

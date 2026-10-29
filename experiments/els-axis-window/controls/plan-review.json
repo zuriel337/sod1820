@@ -1,0 +1,90 @@
+{
+  "created_for": "EXP-18",
+  "experiment_cap_usd": 3,
+  "prior_spend_usd": 32.278199,
+  "total_cap_usd": 40,
+  "remaining_before_usd": 7.7218,
+  "budget": {
+    "cap_usd": 40,
+    "hard_guard_usd": 35.278199,
+    "stop_new_usd": 34.778199
+  },
+  "model": {
+    "id": "claude-fable-5-1",
+    "effort": "medium",
+    "maxTokens": 64000,
+    "thinkingMode": "adaptive"
+  },
+  "models": [
+    "claude-fable-5-1"
+  ],
+  "runs": [
+    {
+      "id": "C1",
+      "group": "near-axis",
+      "model": "claude-fable-5-1",
+      "effort": "medium",
+      "max_tokens": 64000,
+      "rows": 23,
+      "cols": 41,
+      "cells": 943,
+      "lines": 182,
+      "est_input_tokens": 16469,
+      "expected_usd": 0.832,
+      "worst_case_usd": 1.703,
+      "request_sha256": "51707c499a276a55b5097aa2618415594a538c2aad5975bd0d270a309f4e923e",
+      "lock_sha256": "e9e5f54640bdcc690a99968891242f1f053b9312dae568edde7cd466dafc0285"
+    },
+    {
+      "id": "K1",
+      "group": "control",
+      "model": "claude-fable-5-1",
+      "effort": "medium",
+      "max_tokens": 64000,
+      "rows": 28,
+      "cols": 41,
+      "cells": 1148,
+      "lines": 197,
+      "est_input_tokens": 18725,
+      "expected_usd": 0.844,
+      "worst_case_usd": 1.717,
+      "request_sha256": "607a1672d18ef28e30dd523f651136cf1253cc8cfd0170c9c8925588f3c39360",
+      "lock_sha256": "5357fa1ff994471ecd6d1e4e00c70679eb2b86ca575e57b9a6a62bfcb75ea84c"
+    },
+    {
+      "id": "V1X",
+      "group": "near-axis",
+      "model": "claude-fable-5-1",
+      "effort": "medium",
+      "max_tokens": 64000,
+      "rows": 29,
+      "cols": 41,
+      "cells": 1189,
+      "lines": 200,
+      "est_input_tokens": 19183,
+      "expected_usd": 0.846,
+      "worst_case_usd": 1.72,
+      "request_sha256": "85c4a36f5e9e183cad3cfd1528302721dc5dc79c7ee29268ac1949c01653a3c8",
+      "lock_sha256": "badd9fbf1e2de6b6284fed0c6002f0032d95b081676c92971cd0fbd4a7edc19a"
+    }
+  ],
+  "totals": {
+    "runs": 3,
+    "expected_usd": 2.522,
+    "worst_case_if_every_run_used_max_tokens_usd": 5.14,
+    "note": "expected assumes 30,000 output tokens per run (an assumption from EXP-16); the guard reserves each run's worst case before it is sent and stops launching when the experiment cap would be passed"
+  },
+  "function": {
+    "models": [
+      "claude-fable-5-1"
+    ],
+    "approved_lock_sha256": [
+      "e9e5f54640bdcc690a99968891242f1f053b9312dae568edde7cd466dafc0285",
+      "5357fa1ff994471ecd6d1e4e00c70679eb2b86ca575e57b9a6a62bfcb75ea84c",
+      "badd9fbf1e2de6b6284fed0c6002f0032d95b081676c92971cd0fbd4a7edc19a"
+    ],
+    "batch_only": true,
+    "count_tokens_allowed": true,
+    "round2": "none"
+  }
+}
