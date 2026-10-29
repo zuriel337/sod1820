@@ -9,8 +9,9 @@ export const libraryDatabase = `
 export const SUPABASE_URL=location.origin;export const SUPABASE_ANON='fixture';
 window.__libraryRows=[];window.__libraryCalls=[];window.__libraryViewer='owner-a';
 window.__advancedCalls=[];
-export const supabase={functions:{async invoke(name,{body}){
+export const supabase={functions:{async invoke(name,{body,signal}){
  window.__advancedCalls.push({name,body});
+ if(signal)signal.addEventListener('abort',()=>{window.__advancedAborted=(window.__advancedAborted||0)+1;},{once:true});
  if(body.op==='page'&&window.__advancedHoldTerm===body.term)await new Promise(resolve=>{window.__releaseAdvanced=resolve;});
  if(body.op==='page'&&window.__advancedFailTerm===body.term)return {data:{error:'backend_error'},error:{message:'Edge Function returned a non-2xx status code',context:{status:503}}};
  if(body.op==='page'&&body.term==='דפדוף'){

@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { supabase } from "../../lib/supabase.js";
 import { verifyEls2029Selection } from "../../lib/research/els2029ReplayClient.js";
 import { buildElsAdvancedLoadItem, buildElsAdvancedPageRequest, buildElsAdvancedSelection, buildElsExactSkipProbe, elsSearchSpelling, projectElsAdvancedPage } from "../../lib/research/elsAdvancedPage.js";
@@ -24,7 +24,24 @@ export default function ElsAdvancedSearch2029({ onLoad, onExactSkip, deriveCanon
   const [notice, setNotice] = useState("");
   const revision = useRef(0);
   const exactRequestId = useRef(0);
+  const abortRef = useRef(null);
+  const beginRequest = () => {
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+    return controller;
+  };
+  const finishRequest = controller => { if (abortRef.current === controller) abortRef.current = null; };
+  const stopSearch = () => {
+    revision.current += 1;
+    abortRef.current?.abort();
+    abortRef.current = null;
+    setBusy(false); setSelecting(null); setActiveVariant(null);
+    setNotice("הסריקה הופסקה. תוצאות שהושלמו נשמרו; שאר הבדיקות לא הושלמו.");
+  };
+  useEffect(() => () => abortRef.current?.abort(), []);
   const edit = (field, value) => {
+    abortRef.current?.abort(); abortRef.current = null;
     revision.current += 1;
     setForm(current => ({ ...current, [field]: value }));
     setQuery(null); setPages([]); setCursor(null); setAutomaticPlan(null); setAutomaticSlices([]); setAutomaticPages({}); setLiveRows({}); setActiveVariant(null); onPlanSummary?.(null); setNotice(""); setBusy(false); setSelecting(null);
@@ -34,10 +51,11 @@ export default function ElsAdvancedSearch2029({ onLoad, onExactSkip, deriveCanon
     const built = buildElsAdvancedPageRequest(source, more ? cursor : null);
     if (built.error) { setNotice(built.error); return; }
     const seq = ++revision.current;
+    const controller = beginRequest();
     setBusy(true); setNotice("");
     if (!more) { setQuery({ ...form }); setPages([]); setCursor(null); setAutomaticPlan(null); setAutomaticSlices([]); setAutomaticPages({}); onPlanSummary?.(null); }
     try {
-      const response = await supabase.functions.invoke("els-search-bridge", { body: built.request });
+      const response = await supabase.functions.invoke("els-search-bridge", { body: built.request, signal: controller.signal });
       if (seq !== revision.current) return;
       if (response.error && built.request.skip_max > 500) {
         setNotice("החיפוש בטווח הגבוה לא הושלם. ייתכן שהבקשה הייתה כבדה מדי או שהשירות אינו זמין כרגע. אפשר לנסות טווח קטן יותר או דילוג מדויק.");
@@ -58,22 +76,23 @@ export default function ElsAdvancedSearch2029({ onLoad, onExactSkip, deriveCanon
       setCursor(page.cursor);
       if (!page.projection.occurrences.length && !more) setNotice("לא נמצאו מופעים בטווח המבוקש. אפשר להרחיב את טווח הדילוגים ולחפש שוב.");
     } catch (error) {
-      if (seq === revision.current) setNotice(`החיפוש לא הושלם: ${error?.message || "שגיאת תקשורת"}`);
+      if (seq === revision.current && !controller.signal.aborted) setNotice(`החיפוש לא הושלם: ${error?.message || "שגיאת תקשורת"}`);
     } finally {
       if (seq === revision.current) setBusy(false);
+      finishRequest(controller);
     }
   };
-  const scanAutomaticPlan = async (plan, seq, existing = []) => {
+  const scanAutomaticPlan = async (plan, seq, existing = [], signal) => {
     const slices = [...existing];
     let offset = slices.at(-1)?.nextOffset ?? 0;
-    while (offset < plan.candidates.length && seq === revision.current) {
+    while (offset < plan.candidates.length && seq === revision.current && !signal?.aborted) {
       const result = await runElsAutomaticResearchSlice({ plan, offset, onProgress: progress => {
         if (seq !== revision.current) return;
         setActiveVariant(progress.phase === "searching" ? progress.term : null);
         if (progress.row) setLiveRows(current => ({ ...current, [progress.term]: progress.row }));
       }, invokePage: async request => {
-        if (seq !== revision.current) throw new Error("cancelled");
-        return supabase.functions.invoke("els-search-bridge", { body: request });
+        if (seq !== revision.current || signal?.aborted) throw new Error("cancelled");
+        return supabase.functions.invoke("els-search-bridge", { body: request, signal });
       } });
       if (seq !== revision.current) return;
       if (result.error) { setNotice(result.error); return; }
@@ -96,6 +115,7 @@ export default function ElsAdvancedSearch2029({ onLoad, onExactSkip, deriveCanon
       skipMin: form.skipMin, skipMax: form.skipMax, pageSize: form.pageSize });
     if (preflight.error) { setNotice(preflight.error); return; }
     const seq = ++revision.current;
+    const controller = beginRequest();
     setBusy(true); setNotice(""); setAutomaticPlan(null); setAutomaticSlices([]); setAutomaticPages({}); setLiveRows({}); setActiveVariant(null); setPages([]); setCursor(null); setQuery({ ...form });
     try {
       let canonicalForms = [];
@@ -107,24 +127,27 @@ export default function ElsAdvancedSearch2029({ onLoad, onExactSkip, deriveCanon
       if (plan.error) { setNotice(plan.error); return; }
       setAutomaticPlan(plan);
       onPlanSummary?.(summarizeElsAutomaticPlan(plan));
-      await scanAutomaticPlan(plan, seq);
+      await scanAutomaticPlan(plan, seq, [], controller.signal);
     } catch (error) {
       if (seq === revision.current) setNotice(`תוכנית המחקר לא הושלמה: ${error?.message || "שגיאת תקשורת"}`);
     } finally {
       if (seq === revision.current) { setBusy(false); setActiveVariant(null); }
+      finishRequest(controller);
     }
   };
   const continueAutomatic = async () => {
     const offset = automaticSlices.at(-1)?.nextOffset ?? 0;
     if (!automaticPlan || offset >= automaticPlan.candidates.length) return;
     const seq = ++revision.current;
+    const controller = beginRequest();
     setBusy(true); setNotice("");
     try {
-      await scanAutomaticPlan(automaticPlan, seq, automaticSlices);
+      await scanAutomaticPlan(automaticPlan, seq, automaticSlices, controller.signal);
     } catch (error) {
       if (seq === revision.current) setNotice(`המשך התוכנית לא הושלם: ${error?.message || "שגיאת תקשורת"}`);
     } finally {
       if (seq === revision.current) { setBusy(false); setActiveVariant(null); }
+      finishRequest(controller);
     }
   };
   const continueVariant = async row => {
@@ -132,12 +155,13 @@ export default function ElsAdvancedSearch2029({ onLoad, onExactSkip, deriveCanon
     const cursorForTerm = prior ? prior.cursor : row.cursor;
     if (!cursorForTerm || !automaticPlan) return;
     const seq = ++revision.current;
+    const controller = beginRequest();
     setBusy(true); setNotice("");
     try {
       const built = buildElsAdvancedPageRequest({ term: row.term, scope: automaticPlan.scope,
         skipMin: automaticPlan.skipMin, skipMax: automaticPlan.skipMax, pageSize: automaticPlan.pageSize }, cursorForTerm);
       if (built.error) { setNotice(built.error); return; }
-      const response = await supabase.functions.invoke("els-search-bridge", { body: built.request });
+      const response = await supabase.functions.invoke("els-search-bridge", { body: built.request, signal: controller.signal });
       if (seq !== revision.current) return;
       const page = projectElsAdvancedPage(response);
       if (page.error) { setNotice(`המשך הצורה לא הושלם: ${page.error}`); return; }
@@ -155,6 +179,7 @@ export default function ElsAdvancedSearch2029({ onLoad, onExactSkip, deriveCanon
       if (seq === revision.current) setNotice(`המשך הצורה לא הושלם: ${error?.message || "שגיאת תקשורת"}`);
     } finally {
       if (seq === revision.current) setBusy(false);
+      finishRequest(controller);
     }
   };
   const searchExactSkip = () => {
@@ -201,6 +226,7 @@ export default function ElsAdvancedSearch2029({ onLoad, onExactSkip, deriveCanon
       <button type="button" className="sod29-action" disabled={busy || !!selecting} onClick={searchExactSkip}>פתח דילוג מדויק</button>
       <label>מונחים משניים למחקר, אחד בשורה או מופרדים בפסיק
         <textarea aria-label="מילות המשך למחקר" value={related} onChange={event => {
+          abortRef.current?.abort(); abortRef.current = null;
           revision.current += 1; setRelated(event.target.value); setAutomaticPlan(null); setAutomaticSlices([]); setAutomaticPages({}); setLiveRows({}); setActiveVariant(null); onPlanSummary?.(null); setNotice(""); setBusy(false); setSelecting(null);
         }} rows={3} placeholder="אמת, חסד" />
       </label>
@@ -214,7 +240,7 @@ export default function ElsAdvancedSearch2029({ onLoad, onExactSkip, deriveCanon
       : exactStatus === "verified" ? <p role="status">המופע אומת ונשלח למטריצה.</p>
         : exactStatus === "probing" ? <p role="status">מחפש ומאמת מופע במנוע הקנוני…</p> : null}
     {busy ? <p role="status">{activeVariant ? <>סורק עכשיו: <bdi>{activeVariant}</bdi></> : "מכין את מחקר הצורות או מחפש מופעים…"}</p> : null}
-    {busy && automaticPlan ? <button type="button" className="sod29-action" onClick={() => { revision.current += 1; setBusy(false); setActiveVariant(null); setNotice("הסריקה הופסקה. תוצאות שהושלמו נשמרו; שאר הצורות עדיין לא נבדקו."); }}>עצור סריקה</button> : null}
+    {busy ? <button type="button" className="sod29-action" onClick={stopSearch}>עצור סריקה</button> : null}
     {pages.length ? <div aria-label="מופעי החיפוש המתקדם"><p>{count} מופעים נטענו ב־{pages.length} דפים{cursor ? " · יש תוצאות נוספות" : " · סוף התוצאות בטווח"}</p>
       <ol>{pages.flatMap(page => page.projection.occurrences.map(hit => <li key={hit.occurrenceId}>
         <button type="button" className="sod29-action" disabled={busy || !!selecting} onClick={() => select(hit, page.projection)}>

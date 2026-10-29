@@ -142,6 +142,16 @@ test("Guided starts explicitly in one window; advanced page still verifies befor
     await page.getByText(/צורות שונות · .* הושלמו/).waitFor();
     await page.waitForFunction(index => window.__advancedCalls.slice(index).some(call => call.body.term === 'משיח'), beforeSecondary);
     assert.ok(!(await page.evaluate(index => window.__advancedCalls.slice(index).some(call => call.body.term === 'חשפד'), beforeSecondary)));
+    await page.getByLabel("צורת כתיבה לחיפוש").selectOption("regular");
+    await page.getByLabel("מונח לחיפוש מתקדם").fill("בדיקה");
+    await page.evaluate(() => { window.__advancedHoldTerm = 'בדיקה'; window.__advancedAborted = 0; });
+    await page.getByRole("button", { name: "חפש בטווח" }).click();
+    await page.waitForFunction(() => typeof window.__releaseAdvanced === 'function' && window.__advancedCalls.at(-1)?.body?.term === 'בדיקה');
+    await page.getByRole("button", { name: "עצור סריקה" }).click();
+    assert.equal(await page.evaluate(() => window.__advancedAborted), 1, "stop aborts the active engine request");
+    await page.evaluate(() => { window.__advancedHoldTerm = null; window.__releaseAdvanced(); });
+    await page.getByText(/הסריקה הופסקה/).waitFor();
+    await page.getByLabel("מונח לחיפוש מתקדם").fill("חשפד");
     await page.getByLabel("מונחים למחקר הצורות").selectOption("primary");
     await page.evaluate(() => { window.__advancedFailTerm = 'חשפד'; });
     await page.getByRole("button", { name: "חקור את כל הצורות אוטומטית" }).click();
