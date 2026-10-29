@@ -1,12 +1,18 @@
 import React from "react";
-import { ahavatLetterNumber } from "../../data/ahavatTorahLetters2029.js";
+import { AHAVAT_LETTER_FORMS, ahavatLetterNumber } from "../../data/ahavatTorahLetters2029.js";
 import "./ahavatLetterStudy2029.css";
 
 // Presentation of the existing printed checkpoints, not another count/identity owner.
-export default function AhavatLetterStudy2029({ source, books, bookId, onBook, onSource }) {
+export default function AhavatLetterStudy2029({ source, books, bookId, onBook, onSource, onLetter }) {
   const maximum = Math.max(1, ...books.filter(book => book.count !== null).map(book => book.count));
   const selected = books.find(book => book.id === bookId);
+  const position = AHAVAT_LETTER_FORMS.findIndex(item => item.form === source.form);
   return <div className="ahavat29-letter-study" aria-label={`מבט על האות ${source.name}`}>
+    <nav className="ahavat29-letter-stepper" aria-label="מעבר בין צורות האותיות">
+      <button type="button" disabled={position <= 0} onClick={() => onLetter(AHAVAT_LETTER_FORMS[position - 1].form)}>האות הקודמת</button>
+      <span><bdi>{position + 1}</bdi> מתוך <bdi>{AHAVAT_LETTER_FORMS.length}</bdi></span>
+      <button type="button" disabled={position >= AHAVAT_LETTER_FORMS.length - 1} onClick={() => onLetter(AHAVAT_LETTER_FORMS[position + 1].form)}>האות הבאה</button>
+    </nav>
     <div className="ahavat29-letter-identity">
       <span>אות אחת · חמשת החומשים</span>
       <b className="ahavat29-letter-glyph" aria-hidden="true">{source.form}</b>

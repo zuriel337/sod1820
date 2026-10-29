@@ -1,5 +1,10 @@
 /* Scoped projection. All colors/fonts come from the active Design V2 owner. */
 .ahavat29-letter-study{display:grid;grid-template-columns:minmax(150px,.6fr) minmax(0,1.6fr);border:1px solid var(--s29-line-strong);border-radius:20px;overflow:hidden;background:var(--s29-panel);margin-block:24px}
+.ahavat29-letter-stepper{grid-column:1/-1;display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:8px;align-items:center;padding:10px;border-bottom:1px solid var(--s29-line);font:500 var(--s29-type-ui)/1.5 var(--s29-font-ui);color:var(--s29-text)}
+.ahavat29-letter-stepper>span{text-align:center;white-space:nowrap}
+.ahavat29-letter-stepper bdi{font-family:var(--s29-font-numeric)}
+.ahavat29-letter-stepper button{min-width:44px;min-height:44px;padding:9px 8px;border:1px solid var(--s29-line-strong);border-radius:10px;background:var(--s29-panel);color:var(--s29-accent-text);font:inherit;cursor:pointer}
+.ahavat29-letter-stepper button:disabled{opacity:.45;cursor:default}
 .ahavat29-letter-identity{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:24px 14px;border-inline-end:1px solid var(--s29-line);background:radial-gradient(ellipse at center,color-mix(in srgb,var(--s29-accent-secondary) 12%,transparent),transparent 74%)}
 .ahavat29-letter-identity>span,.ahavat29-letter-landscape-heading>span{font:500 15px/1.5 var(--s29-font-ui);color:var(--s29-muted);text-align:center}
 .ahavat29-letter-glyph{font:500 clamp(88px,10vw,132px)/1.2 var(--s29-font-display);color:var(--s29-accent-text);text-shadow:0 5px 0 color-mix(in srgb,var(--s29-accent-secondary) 12%,transparent)}
