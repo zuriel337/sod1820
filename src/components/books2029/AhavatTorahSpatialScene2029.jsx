@@ -125,16 +125,17 @@ function SceneControls({ reducedMotion }) {
   return null;
 }
 
-function LetterCountBars({ bars, activeId, onSelect }) {
+function LetterCountBars({ bars, activeId, onSelect, theme }) {
   const maximum = Math.max(1, ...bars.map(bar => bar.count));
   const spacing = Math.min(1.35, 8 / Math.max(bars.length, 1));
   return <group>{bars.map((bar, index) => {
     const height = bar.count / maximum * 4;
-    return <mesh key={bar.id} position={[(index - (bars.length - 1) / 2) * spacing, height / 2, 0]} onClick={event => { event.stopPropagation(); onSelect?.(bar.id); }}>
+    const color = theme ? (activeId === bar.id ? theme.depth : theme.accent) : STATUS_COLORS.closed;
+    return <mesh key={bar.id} position={[(theme ? -1 : 1) * (index - (bars.length - 1) / 2) * spacing, height / 2, 0]} onClick={event => { event.stopPropagation(); onSelect?.(bar.id); }}>
       <boxGeometry args={[spacing * .68, height, .72]} />
-      <meshStandardMaterial color={STATUS_COLORS.closed} emissive={STATUS_COLORS.closed} emissiveIntensity={activeId === bar.id ? .6 : .12} metalness={.2} roughness={.34} />
+      <meshStandardMaterial color={color} emissive={color} emissiveIntensity={activeId === bar.id ? .25 : .04} metalness={.25} roughness={.3} />
     </mesh>;
-  })}<gridHelper args={[9, 18, "#5c5140", "#27241f"]} /></group>;
+  })}<gridHelper args={[9, 18, theme?.line || "#5c5140", theme?.line || "#27241f"]} /></group>;
 }
 
 export default function AhavatTorahSpatialScene2029({ datasets = [], bars = [], letterLabel = "", activeId = "", onSelect, mode = "datasets" }) {
@@ -142,6 +143,19 @@ export default function AhavatTorahSpatialScene2029({ datasets = [], bars = [], 
   const root = useRef(null);
   const [lost, setLost] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(true);
+  const [letterTheme, setLetterTheme] = useState(null);
+  useEffect(() => {
+    if (mode !== "letter") return;
+    const update = () => {
+      const style = getComputedStyle(root.current);
+      setLetterTheme({ background: style.getPropertyValue("--s29-panel").trim(), accent: style.getPropertyValue("--s29-accent").trim(), depth: style.getPropertyValue("--s29-accent-secondary").trim(), line: style.getPropertyValue("--s29-line-strong").trim() });
+    };
+    const frame = root.current.closest("[data-frame-theme-mode]");
+    const observer = new MutationObserver(update);
+    if (frame) observer.observe(frame, { attributes: true, attributeFilter: ["data-frame-theme-mode", "data-frame-theme-preset", "style"] });
+    update();
+    return () => observer.disconnect();
+  }, [mode]);
   useEffect(() => {
     const media = window.matchMedia("(prefers-reduced-motion: reduce)");
     const update = () => setReducedMotion(media.matches || Boolean(root.current?.closest('[data-frame-reduced-motion="true"]')));
@@ -153,13 +167,13 @@ export default function AhavatTorahSpatialScene2029({ datasets = [], bars = [], 
   const unavailable = <p role="status">לא ניתן לפתוח את המבנה במכשיר הזה. הטבלה ועמוד המקור זמינים בהמשך.</p>;
   const label = mode === "source-count" ? `ייצוג של מבנה הספר: גובה כל עמודה הוא מניין ${letterLabel} בשורת המקור; הנתונים מופיעים גם בטבלה ובכפתורים` : mode === "letter" || mode === "parasha-count" ? `ייצוג של מבנה הספר: גובה כל עמודה הוא מניין ${mode === "letter" ? "האות " : ""}${letterLabel} בחומש או בפרשה; הנתונים מופיעים גם בטבלה ובכפתורים` : mode === "ds01" ? "חמשת חומשי התורה לפי מניין המופעים המודפס בעמוד 6" : "מצפה תלת־ממדי של שלושה עשר מאגרי אהבת תורה; גובה כל מגדל מייצג את מספר עמודי המקור שלו";
   return <div ref={root} data-reduced-motion={reducedMotion} className="ahavat29-spatial-canvas">
-    <SpatialErrorBoundary onFailure={() => setLost(true)}>{lost ? unavailable : <Canvas role="img" aria-label={label} fallback={unavailable} camera={{ position: [7.4, 6.2, 9.6], fov: 44 }} dpr={[1, 1.5]} gl={{ antialias: true, powerPreference: "high-performance" }}>
-      <color attach="background" args={["#0d0b09"]} />
-      <fog attach="fog" args={["#0d0b09", 10, 19]} />
+    <SpatialErrorBoundary onFailure={() => setLost(true)}>{lost ? unavailable : mode === "letter" && !letterTheme ? <p role="status">טוען את תצוגת האות…</p> : <Canvas role="img" aria-label={label} fallback={unavailable} camera={{ position: [7.4, 6.2, 9.6], fov: 44 }} dpr={[1, 1.5]} gl={{ antialias: true, powerPreference: "high-performance" }}>
+      <color attach="background" args={[mode === "letter" ? letterTheme.background : "#0d0b09"]} />
+      <fog attach="fog" args={[mode === "letter" ? letterTheme.background : "#0d0b09", 10, 19]} />
       <ambientLight intensity={1.2} />
-      <directionalLight position={[4, 8, 5]} intensity={2.25} color="#f3d68f" />
-      <pointLight position={[-5, 3, -3]} intensity={19} distance={14} color="#668ec4" />
-      {mode === "letter" || mode === "parasha-count" || mode === "source-count" ? <LetterCountBars bars={bars} activeId={activeId} onSelect={onSelect} /> : mode === "ds01" ? <SourceBookTowers activeId={activeId} onSelect={onSelect} /> : <DatasetTowers datasets={stableDatasets} activeId={activeId} onSelect={onSelect} reducedMotion={reducedMotion} />}
+      <directionalLight position={[4, 8, 5]} intensity={2.25} color={mode === "letter" ? letterTheme.background : "#f3d68f"} />
+      <pointLight position={[-5, 3, -3]} intensity={19} distance={14} color={mode === "letter" ? letterTheme.depth : "#668ec4"} />
+      {mode === "letter" || mode === "parasha-count" || mode === "source-count" ? <LetterCountBars bars={bars} activeId={activeId} onSelect={onSelect} theme={mode === "letter" ? letterTheme : null} /> : mode === "ds01" ? <SourceBookTowers activeId={activeId} onSelect={onSelect} /> : <DatasetTowers datasets={stableDatasets} activeId={activeId} onSelect={onSelect} reducedMotion={reducedMotion} />}
       <SceneControls reducedMotion={reducedMotion} />
       <ContextLossGuard onLost={() => setLost(true)} />
     </Canvas>}</SpatialErrorBoundary>

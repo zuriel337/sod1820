@@ -1,6 +1,7 @@
 import React, { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import BookFullscreenButton2029 from "../components/books2029/BookFullscreenButton2029.jsx";
 import BookReadingLayout2029 from "../components/books2029/BookReadingLayout2029.jsx";
+import AhavatLetterStudy2029 from "../components/books2029/AhavatLetterStudy2029.jsx";
 import NavigationIcon2029 from "../components/experience2029/NavigationIcon2029.jsx";
 import Sod2029Shell from "../components/experience2029/Sod2029Shell.jsx";
 import {
@@ -536,8 +537,9 @@ function LetterSourceReader({ onPage, countMode = false, selectedDatasetId, acti
 
   return <section className="ahavat29-letters" id={readerId} aria-labelledby={`${readerId}-title`}>
     <header><div><span>{countMode ? "תיבות ואותיות לפי פרשה" : "סופר ומונה אותיות התורה"} · דברי הספר</span><h3 id={`${readerId}-title`}>{countMode ? "מנייני הפרשות והחומשים" : "נכנסים אל האותיות"}</h3></div><strong>{countMode ? "54" : "28"}<small>{countMode ? "פרשות · שני מניינים" : "צורות בדפוס"}</small></strong></header>
+    {!countMode && books ? <AhavatLetterStudy2029 source={source} books={books} bookId={bookId} onBook={id => select(form, id)} onSource={page => openSourcePage(page, `letter-page:${form}:${page}`)} /> : null}
     <p className="ahavat29-ds01-guide"><b>הסבר נלווה:</b> {countMode ? source.explanation : "המחבר עובר אות אחר אות, ומונה אותה בכל פרשה. כ״ב האותיות מתפרטות כאן גם לחמש אותיות סופיות ולשׁין ושׂין בנפרד. בחירת צורה פותחת את מקומה המדויק בספר."}</p>
-    <nav className={countMode ? "ahavat29-letter-books" : "ahavat29-letter-alphabet"} aria-label={countMode ? "בחירת מניין הפרשות" : "צורות האותיות בדפוס"}>{forms.map(item => <button type="button" key={item.form} id={ahavatReaderUnitDomId(unitId(item.form))} data-reader-unit={unitId(item.form)} aria-label={item.name} aria-pressed={item.form === form} onClick={() => select(item.form)}>{countMode ? item.name : <><b>{item.form}</b><small>{item.name}</small></>}</button>)}</nav>
+    <nav id={countMode ? undefined : "ahavat29-letter-alphabet"} className={countMode ? "ahavat29-letter-books" : "ahavat29-letter-alphabet"} aria-label={countMode ? "בחירת מניין הפרשות" : "צורות האותיות בדפוס"}>{forms.map(item => <button type="button" key={item.form} id={ahavatReaderUnitDomId(unitId(item.form))} data-reader-unit={unitId(item.form)} aria-label={item.name} aria-pressed={item.form === form} onClick={() => select(item.form)}>{countMode ? item.name : <><b>{item.form}</b><small>{item.name}</small></>}</button>)}</nav>
     <div className="ahavat29-letter-location" aria-live="polite"><div><strong>{countMode ? source.unit : source.form}</strong><span>{source.name} · {source.pages.length === 1 ? "עמוד מקור אחד" : "הסעיף נמשך לעמוד הבא"}</span></div><div>{source.pages.map(page => <button type="button" key={page} id={ahavatReaderUnitDomId(`${unitLayer}-page:${form}:${page}`)} data-reader-unit={`${unitLayer}-page:${form}:${page}`} onClick={() => openSourcePage(page, `${unitLayer}-page:${form}:${page}`)}>פתח PDF {page}</button>)}</div></div>
     {books ? <>
       <p className="ahavat29-ds01-guide">{countMode ? `במניין ${source.unit}` : `לאות ${form}׳`} מוצגת כאן קריאה של פרשות הספר: <b>{ahavatLetterNumber(books.at(-1).cumulative)}</b> בסיכום הספר. המספר של כל חומש הוא חלקו לפי הסיכומים המודפסים; השורה שמתחתיו מראה עד היכן הגיע הסכום המצטבר.</p>
@@ -545,7 +547,7 @@ function LetterSourceReader({ onPage, countMode = false, selectedDatasetId, acti
       <nav className="ahavat29-letter-books" aria-label={`בחירת חומש ${countMode ? "במניין" : "באות"} ${source.name}`}><button type="button" aria-pressed={bookId === "all"} onClick={() => select(form, "all")}>כל התורה</button>{books.map(book => <button type="button" key={book.id} aria-pressed={bookId === book.id} onClick={() => select(form, book.id)}>{book.title}</button>)}</nav>
       <div className="ahavat29-table-tools"><label><span>{countMode ? "חיפוש במנייני הפרשות" : "חיפוש בפרשות האות"}</span><input type="search" value={query} onChange={event => setLetterQuery(event.target.value)} placeholder="פרשה, חומש, מספר או אותיות המניין" /></label><strong aria-live="polite">{rows.length} פרשות</strong></div>
       <div className="ahavat29-ds01-controls"><button type="button" aria-expanded={showScene} onClick={() => onScene(showScene ? "" : sceneId)}>{showScene ? `סגור מבנה ${countMode ? "המניינים" : "האות"} בתלת־ממד` : `פתח מבנה ${countMode ? "המניינים" : "האות"} בתלת־ממד`}</button>{readingPages.map(page => <button type="button" key={page} onClick={() => openSourcePage(page, `${unitLayer}-page:${form}:${page}`)}>המקור המלא · PDF {page}</button>)}<button type="button" disabled={!rows.length} onClick={downloadRows}>הורד טבלה למחקר · {rows.length} שורות</button></div>
-      {showScene ? <div className="ahavat29-letter-scene"><Suspense fallback={<p role="status">טוען את מבנה המניין…</p>}><AhavatTorahSpatialScene2029 mode={countMode ? "parasha-count" : "letter"} letterLabel={source.name} bars={bars} activeId={selectedBar || bookId} onSelect={selectBar} /></Suspense><p>ייצוג של מבנה הספר · גובה = {countMode ? `מניין ${source.unit}` : `מספר מופעי ${form}׳`} {activeBook ? "בכל פרשה" : "בכל חומש"} · לחיצה פותחת את המקור</p><p>העמודה הגבוהה מייצגת את הערך הגדול בתצוגה זו: {ahavatLetterNumber(Math.max(0, ...bars.map(bar => bar.count)))}. גובה היתר יחסי אליה, ולכן קנה המידה משתנה בין בחירות. סדר העמודות הוא סדר הספר; הצבע הזהוב, זווית המבט והתאורה הם בחירות תצוגה, וההדגשה מסמנת בחירה. ערך שלא נקרא אינו מוצג כעמודה. ניתן לבחור גם בכפתורים שמתחת לתרשים או בטבלה.</p></div> : null}
+      {showScene ? <div className="ahavat29-letter-scene"><Suspense fallback={<p role="status">טוען את מבנה המניין…</p>}><AhavatTorahSpatialScene2029 mode={countMode ? "parasha-count" : "letter"} letterLabel={source.name} bars={bars} activeId={selectedBar || bookId} onSelect={selectBar} /></Suspense><p>ייצוג של מבנה הספר · גובה = {countMode ? `מניין ${source.unit}` : `מספר מופעי ${form}׳`} {activeBook ? "בכל פרשה" : "בכל חומש"} · לחיצה פותחת את המקור</p><p>העמודה הגבוהה מייצגת את הערך הגדול בתצוגה זו: {ahavatLetterNumber(Math.max(0, ...bars.map(bar => bar.count)))}. גובה היתר יחסי אליה, ולכן קנה המידה משתנה בין בחירות. סדר העמודות הוא סדר הספר; {countMode ? "הצבע הזהוב" : "הכחול והסגול"}, זווית המבט והתאורה הם בחירות תצוגה, וההדגשה מסמנת בחירה. ערך שלא נקרא אינו מוצג כעמודה. ניתן לבחור גם בכפתורים שמתחת לתרשים או בטבלה.</p></div> : null}
       <div className="ahavat29-letter-bars" aria-label={`מופעי ${source.name} ${activeBook ? "בפרשות החומש" : "בחומשים"}`}>{bars.map(bar => <button type="button" key={bar.id} aria-pressed={selectedBar === bar.id} onClick={() => selectBar(bar.id)}><span>{bar.label}</span><i style={{ "--letter-share": `${bar.count / Math.max(1, ...bars.map(item => item.count)) * 100}%` }} /><b>{ahavatLetterNumber(bar.count)}</b></button>)}</div>
       {rows.length ? <div className="ahavat29-data-table-wrap"><table className="ahavat29-data-table"><caption>{subject} · {activeBook?.title || "כל התורה"} · קריאת דברי הספר</caption><thead><tr><th>פרשה</th><th>חומש</th><th>המניין בדפוס</th><th>מספר</th><th>מקור</th></tr></thead><tbody>{rows.map(row => { const owner = books.find(book => book.rows.some(item => item.parasha === row.parasha)); const rowUnitId = owner ? unitId(form, owner.id, row.parasha) : ""; return <tr key={row.parasha} id={rowUnitId ? ahavatReaderUnitDomId(rowUnitId) : undefined} data-reader-unit={rowUnitId || undefined}><td>{row.parasha}</td><td>{row.book}</td><td>{row.printed === "?" ? "לא הוכרע" : row.printed}</td><td><b>{ahavatLetterNumber(row.count)}</b></td><td><button type="button" onClick={() => selectRow(row)}>PDF {row.page}</button></td></tr>; })}</tbody></table></div> : <p role="status">לא נמצאה פרשה מתאימה לחיפוש.</p>}
       <details className="ahavat29-source-details"><summary>פרטי המקור והקריאה</summary><p>PDF {source.pages.join(" · ")}, {countMode ? source.location : AHAVAT_LETTER_READING_LOCATIONS[form]}. השורות נבדקו מול צילום הסעיף. {unresolvedRows || unresolvedCheckpoints ? `${unresolvedRows} תאי פרשות טרם הוכרעו; ערך לא מוכרע אינו אפס ואינו מוצג כעמודה בגרף. סיכום הכולל תא כזה נשאר פתוח.` : "כל 54 תאי הפרשות פוענחו מספרית."} {hasReadingGap ? "נותרו פערים בין קריאת השורות לבין חלק מסיכומי הדפוס; שתי הקריאות נשמרות להכרעה בלי לשנות מספר כדי להתאים לסכום." : !unresolvedRows && !unresolvedCheckpoints ? "חמשת סיכומי הפרשות נסגרים לסיכומים המצטברים המודפסים." : ""} חלקו של חומש מתקבל בהפרש בין שני סיכומים עוקבים. עמודות החומשים מייצגות את סיכומי הספר; עמודות הפרשות מייצגות את קריאת השורות. זו קריאת המניין של המחבר; לא בוצעה ספירת קורפוס עצמאית במנוע.</p><ul>{books.map(book => {
@@ -556,9 +558,12 @@ function LetterSourceReader({ onPage, countMode = false, selectedDatasetId, acti
   </section>;
 }
 
-function SpatialTables({ bundle, bundleState, selectedId, onSelect, onPage }) {
+function SpatialTables({ bundle, bundleState, selectedId, onSelect, onPage, focusedLetters }) {
   const [tab, setTab] = useState("datasets");
   const [activeScene, setActiveScene] = useState("");
+  useEffect(() => {
+    if (focusedLetters) setActiveScene(current => current === "letter" ? current : "");
+  }, [focusedLetters]);
   const showScene = activeScene === "datasets";
   const selected = AHAVAT_TORAH_DATASETS.find(dataset => dataset.id === selectedId) || AHAVAT_TORAH_DATASETS[0];
   const occurrenceTables = bundle?.occurrence_tables || [];
@@ -757,6 +762,17 @@ function ExtractionLayers({ onPage }) {
 export default function AhavatTorahSystem2029Page() {
   const [page, setPage] = useState(requestedPage);
   const [readingLayout, setReadingLayout] = useState("balanced");
+  const [letterFocus, setLetterFocus] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    const unit = ahavatReaderUnit(params.get("readerUnit"));
+    return params.get("study") === "letters" && (!unit || unit.layer === "letter" || unit.layer === "letter-page");
+  });
+  const setStudyFocus = focus => {
+    setLetterFocus(focus);
+    const url = new URL(window.location.href);
+    if (focus) url.searchParams.set("study", "letters"); else url.searchParams.delete("study");
+    window.history.replaceState(window.history.state, "", `${url.pathname}${url.search}${url.hash}`);
+  };
   const initialFinding = typeof window === "undefined" ? "" : new URLSearchParams(window.location.search).get("finding") || "";
   const initialDataset = typeof window === "undefined" ? "" : new URLSearchParams(window.location.search).get("dataset") || "";
   const [findingId, setFindingId] = useState(initialFinding);
@@ -948,11 +964,11 @@ export default function AhavatTorahSystem2029Page() {
     introVariant="none"
     wide
   >
-    <main className="ahavat29" data-preview-only="true" data-publication-effect="none" data-source-identity={AHAVAT_TORAH_SOURCE.identity}>
+    <main className="ahavat29" data-study-focus={letterFocus ? "letters" : "book"} data-preview-only="true" data-publication-effect="none" data-source-identity={AHAVAT_TORAH_SOURCE.identity}>
       <section className="ahavat29-intro" aria-labelledby="ahavat29-title">
         <div>
           <span>ר׳ פנחס זלמן הורוויץ · תרס״ה</span>
-          <h1 id="ahavat29-title">ספר עתיק הופך<br /><em>למרחב מחקר חי</em></h1>
+          <h1 id="ahavat29-title">{letterFocus ? <>אהבת תורה <em>· מסע באותיות</em></> : <>ספר עתיק הופך<br /><em>למרחב מחקר חי</em></>}</h1>
           <p>המקור הוא המרכז: PDF מלא, מפה של הספר, הסבר עברי וממצאים שנפתחים בדיוק בעמוד שבו נכתבו.</p>
           <nav className="books29-entry-actions" aria-label="דרכי קריאה באהבת תורה"><a href="#ahavat29-source">קרא את הספר</a><a href="#ahavat29-full-reader">למד עם ההסברים</a><a href="#ahavat29-spatial-title">גלה את המבנים</a></nav>
         </div>
@@ -967,6 +983,7 @@ export default function AhavatTorahSystem2029Page() {
         <article className="is-locked"><strong>0</strong><span>ממצאים ציבוריים</span><small>Preview בלבד</small></article>
       </section>
 
+      <nav className="ahavat29-study-mode" aria-label="מיקוד הלימוד"><span>אהבת תורה</span><button type="button" aria-pressed={!letterFocus} onClick={() => setStudyFocus(false)}>כל הספר</button><button type="button" aria-pressed={letterFocus} onClick={() => setStudyFocus(true)}>לימוד אותיות</button></nav>
       <BookReadingLayout2029 mode={readingLayout} onMode={setReadingLayout} />
       <div className="ahavat29-layout books29-reading-layout" data-reading-layout={readingLayout}>
         <div className="ahavat29-story">
@@ -987,7 +1004,7 @@ export default function AhavatTorahSystem2029Page() {
 
           <DatasetCatalog selectedId={datasetId} onSelect={selectDataset} />
 
-          <SpatialTables bundle={bundle} bundleState={bundleState} selectedId={datasetId} onSelect={selectDataset} onPage={openPage} />
+          <SpatialTables bundle={bundle} bundleState={bundleState} selectedId={datasetId} onSelect={selectDataset} onPage={openPage} focusedLetters={letterFocus} />
 
           <ExtractionLayers onPage={openPage} />
 
