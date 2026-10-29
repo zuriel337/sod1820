@@ -7,7 +7,8 @@
   "checkpoints": [
     "dad9e87e",
     "d699d55d",
-    "1229261f"
+    "1229261f",
+    "0c250059"
   ],
   "source_identity": "book:hebrewbooks:5635",
   "source_pdf_sha256": "895e9a720d984adf8ea453b644e3f6d0864e101238f348f418aa5fafa20e9c8b",
@@ -76,7 +77,7 @@
     "passed": 1,
     "contexts": 9,
     "timeout_ms": 180000,
-    "elapsed_ms": 148417,
+    "elapsed_ms": 150216,
     "fetch_observation": "two attempts; first aborted without response; second fulfilled OK and validated source column rendered; no initial eager roots"
   },
   "other_completed_regression_stories": {
@@ -105,7 +106,7 @@
   "build_2029": "pass",
   "build_books_preview": "pass",
   "normal_eager_gzip_bytes": 379579,
-  "preview_eager_gzip_bytes": 376909,
+  "preview_eager_gzip_bytes": 376898,
   "weight_budget_changed": false,
   "language": {
     "passed": 3
@@ -119,7 +120,24 @@
   "browser": "Chromium; SwiftShader for existing 3D regression",
   "physical_device_or_safari_certification": false,
   "local_fixture": "PDF frames aborted in navigation matrices; original SHA-matched bytes served in the separate native test; other Supabase/font requests stubbed where documented",
-  "hosted_acceptance": "recorded outside Git after exact-SHA protected deployment; not claimed by local fixture",
+  "native_focus_followup": {
+    "rejected_preview_sha": "0c25005907422f84ddc3ee049ed98a9a2c5db877",
+    "observed_failure": "correct readerUnit URL but native PDF iframe steals focus after fullscreen exit",
+    "book_only_fix": "existing return focus after two animation frames; no shared fullscreen/source/model change",
+    "actual_native_pdf_test_passed": 1,
+    "contexts_passed": 6,
+    "widths": [390, 1440],
+    "themes": ["light", "parchment", "dark"],
+    "physical_pages": [99, 16],
+    "stable_focus_after_transition": true,
+    "native_fixture_skipped": 0,
+    "witness_path_override": "AHAVAT_SOURCE_PDF; full acceptance requires verified PDF and zero skips",
+    "reader_nine_context_rerun": "pass",
+    "companion_deep_return_nine_context_rerun": "pass",
+    "all_static_build_graph_language_auth_legacy_isolation_hardening_rerun": "pass",
+    "earlier_full_content_matrix_not_relabelled_as_final_focus_sha": true
+  },
+  "hosted_acceptance": "initial 0c250059 preview rejected for native focus; replacement exact-SHA protected deployment checked and recorded outside Git after completion; not claimed by local fixture",
   "new_dependencies": [],
   "main_changed": false,
   "legacy_changed": false,

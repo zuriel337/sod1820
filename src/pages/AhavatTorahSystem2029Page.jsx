@@ -906,7 +906,11 @@ export default function AhavatTorahSystem2029Page() {
     setFindingId("");
     setDatasetId(readerUnit.datasetId);
     window.history.replaceState(window.history.state, "", href);
-    window.requestAnimationFrame(() => scrollToReaderUnit(target));
+    // Native PDF restores its own focus while leaving fullscreen. Let that
+    // browser transition settle before restoring focus to the requested unit.
+    window.requestAnimationFrame(() => window.requestAnimationFrame(() => {
+      if (target.isConnected) scrollToReaderUnit(target);
+    }));
   };
 
   const selectCompanion = (companionUnit, scroll = true) => {

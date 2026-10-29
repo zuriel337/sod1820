@@ -78,9 +78,21 @@ Release advice **BUNDLE_WITH(site-central-books-integration)**. Local writing ow
 
 Remaining: additional paragraphs beyond the selected three per expanded page; complete ten-column root proofreading and the author's lexical-unit rule; numeric row transcriptions/ambiguous values and sum differences; source locators still open in DS-07/08 and the first printed editor note; acceptance of other spatial models against the full binding contract; physical-device/Safari checks and later site integration. The source remains readable without engine verification. No statement of whole-book 100% completion or universal spatial-contract conformity is made by this cut.
 
+## Native PDF focus follow-up after the first hosted Preview
+
+The protected Preview at `0c25005907422f84ddc3ee049ed98a9a2c5db877` / `dpl_5RNuAwpvV2288sGbiAhpeHXf3LVG` matched the final commentary and original PDF hashes, and loaded actual PDF99 in fullscreen. It was **rejected before user delivery**: after exit and source return the URL kept `ahavat-novellae-p099-03` correctly, but Chromium's native PDF restored focus to its iframe. Waiting for `document.fullscreenElement` to clear in the hosted driver did not remove the issue, confirming it was not just a missing automation wait. No all-48-unit hosted pass is claimed for that deployment.
+
+Fresh live ownership rescan found no overlapping Ahavat writer. A bounded book-specific fix schedules the existing return scroll/focus after two animation frames, after native PDF focus restoration settles, and checks the target is still connected. No shared fullscreen button, source iframe, layout, model or other book changed. A new native-source-return regression uses the original hash-matched 99-page bytes, actual Chromium PDF, both new sections at PDF99/16, fullscreen enter/exit, exact source return and focus that remains stable after the transition. **All six width/theme contexts passed** (390/1440 × light/parchment/dark), 1/1 test, zero skips, 37,075 ms. This is local genuine-PDF evidence, not yet a hosted replacement result.
+
+The post-focus full static Books rerun passes 384/384, no skips. Reader nine-context and companion deep-return regressions plus both builds/graph and release guards are rerun after this follow-up; exact results are recorded on actual completion. The earlier 1,701 content-reading observations remain earlier content-matrix evidence, not an invented final-focus-SHA rerun of every historical case. Hosted rejection and final hosted receipt are kept outside Git to avoid embedding a temporary access credential or a self-referential final SHA.
+
+Post-focus acceptance completed: native PDF **1/1**, all six contexts / zero skips (clean repeat 36,801 ms); source-reader **1/1**, all nine contexts / zero skips (150,216 ms, original 180,000 ms budget); companion deep-return **1/1**, PDF16/92/99 in all widths / zero skips (35,175 ms). The native fixture accepts `AHAVAT_SOURCE_PDF` for a verified witness on other machines; missing witness cannot establish native acceptance and is explicitly skipped only in lightweight checkouts, matching the existing two-book fixture. This accepted run had the original bytes and no skips.
+
+Both final Builds/graphs passed: normal eager gzip 379,579 / Preview 376,898 bytes. Language 3/3, Auth Guard 4/4, Legacy Production Lock, isolation, hardening and whitespace passed after the focus fix. Source asset hash remains `73d45722411c2e5de2d866ed0ad2aa71d090435107e06aab0bcb46c4cfdb0451`; no explanation, number or source anchor changed during this follow-up. The replacement hosted Preview must still be verified at its own exact final SHA before being handed to ZURIEL.
+
 ## Complete changed-file inventory
 
-Ten paths above base, including this report and acceptance receipt:
+Eleven paths above base, including this report and acceptance receipt:
 
 ```text
 docs/research-notes/AHAVAT_CLOSING_PAGES_AND_MIGDAL_DEPTH_20261029.md
@@ -90,6 +102,7 @@ src/data/ahavatTorahReaderUnits2029.js
 src/data/ahavatTorahSystem2029.js
 src/pages/AhavatTorahSystem2029Page.jsx
 test/ahavat-torah-closing-pages-and-migdal-depth-2029.test.mjs
+test/ahavat-torah-native-source-return-2029.browser.test.mjs
 test/ahavat-torah-novellae-depth-2029.browser.test.mjs
 test/ahavat-torah-novellae-depth-2029.test.mjs
 test/ahavat-torah-reader-units-2029.browser.test.mjs
