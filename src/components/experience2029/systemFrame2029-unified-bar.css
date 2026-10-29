@@ -13,6 +13,7 @@
   transform: none !important; width: auto !important; max-width: none !important;
   display: grid !important; grid-template-columns: repeat(5,minmax(44px,1fr)) !important;
   grid-template-rows: auto !important; gap: 4px !important; border-radius: 0 !important;
+  background: var(--s29-panel) !important; backdrop-filter: none !important;
   padding: 4px max(8px,env(safe-area-inset-right,0px)) calc(4px + env(safe-area-inset-bottom,0px)) !important;
 }
 .sod29-root.native-frame .is-single-command-bar > button:not(.sod29-raziel-orb) {
