@@ -107,6 +107,7 @@ test("mock Preview selection admits only the exact reviewed branches", () => {
     "gpt/2029-central-topbar-menu-completion-20261029",
     "gpt/2029-central-ui-carry-restoration-20261029",
     "gpt/2029-central-community-filter-tiles-20261029",
+    "gpt/2029-central-community-small-filters-20261029",
   ]) {
     assert.equal(selectMockPreviewBranch({
       VERCEL_ENV: "preview",

@@ -495,7 +495,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
             </div>
             <div className="sod29-community-feed-filter-chips" role="group" aria-label="סינון שיחות" aria-describedby="community-advanced-unavailable" tabIndex={0}>
               <button type="button" aria-pressed="true">הכול</button>
-              {["ללא מענה", "עם קבצים", "ההודעות שלי", "מהקהילה החדשה", "מהצ׳אט הוותיק"].map((label) => <button type="button" disabled key={label}>{label}</button>)}
+              {[["ללא מענה", "ללא מענה"], ["עם קבצים", "קבצים"], ["ההודעות שלי", "שלי"], ["מהקהילה החדשה", "חדשה"], ["מהצ׳אט הוותיק", "ותיקה"]].map(([label, shortLabel]) => <button type="button" disabled key={label} aria-label={label} title={label}>{shortLabel}</button>)}
             </div>
             <p id="community-advanced-unavailable" className="sod29-community-feed-controls-note">המיון והסינון המורחבים והחיפוש בכל הארכיון אינם זמינים כרגע. אפשר לחפש בשיחות שנטענו ולמיין לפי תאריך.</p>
           </section>

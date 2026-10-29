@@ -177,12 +177,14 @@ def verify_filter_tiles(page, feed, width, theme):
     buttons = group.locator("button")
     expect(buttons).to_have_count(6)
     expect(group.get_by_role("button", name="הכול", exact=True)).to_have_attribute("aria-pressed", "true")
-    dimensions = buttons.evaluate_all("""nodes => nodes.map(e=>{const r=e.getBoundingClientRect();return {width:r.width,height:r.height,top:r.top,font:parseFloat(getComputedStyle(e).fontSize),disabled:e.disabled}})""")
-    assert all(abs(d["width"]-64)<1 and abs(d["height"]-64)<1 and d["font"]>=14 for d in dimensions), dimensions
+    dimensions = buttons.evaluate_all("""nodes => nodes.map(e=>{const r=e.getBoundingClientRect();return {width:r.width,height:r.height,top:r.top,font:parseFloat(getComputedStyle(e).fontSize),disabled:e.disabled,text:e.innerText.trim(),clipped:e.scrollWidth>e.clientWidth+1||e.scrollHeight>e.clientHeight+1}})""")
+    assert all(abs(d["width"]-44)<1 and abs(d["height"]-44)<1 and d["width"]>=44 and d["height"]>=44 and d["font"]>=14 and not d["clipped"] for d in dimensions), dimensions
     assert max(d["top"] for d in dimensions)-min(d["top"] for d in dimensions)<1, dimensions
     assert sum(d["disabled"] for d in dimensions)==5, dimensions
-    if width <= 390:
-        assert group.evaluate("e=>e.scrollWidth>e.clientWidth"), "tiles must scroll inside their group on mobile"
+    assert [d["text"] for d in dimensions] == ["הכול", "ללא מענה", "קבצים", "שלי", "חדשה", "ותיקה"], dimensions
+    for accessible in ("ללא מענה", "עם קבצים", "ההודעות שלי", "מהקהילה החדשה", "מהצ׳אט הוותיק"):
+        expect(group.get_by_role("button", name=accessible, exact=True)).to_be_disabled()
+    if group.evaluate("e=>e.scrollWidth>e.clientWidth+1"):
         group.scroll_into_view_if_needed()
         group.focus(); expect(group).to_be_focused()
         before = group.evaluate("e=>e.scrollLeft")
@@ -197,6 +199,10 @@ def verify_filter_tiles(page, feed, width, theme):
         assert group.evaluate("e=>e.scrollLeft") > scrolled
         assert buttons.first.evaluate("e=>{const a=e.getBoundingClientRect(), b=e.parentElement.getBoundingClientRect();return a.left>=b.left-1 && a.right<=b.right+1}")
         expect(group).to_be_focused()
+    else:
+        assert buttons.evaluate_all("nodes=>nodes.every(e=>{const a=e.getBoundingClientRect(), b=e.parentElement.getBoundingClientRect();return a.left>=b.left-1 && a.right<=b.right+1})"), "all tiles should fit within the group"
+        group.scroll_into_view_if_needed()
+        page.screenshot(path=str(OUT / f"community-tiles-{width}-{theme}.png"))
     no_overflow(page)
 
 
