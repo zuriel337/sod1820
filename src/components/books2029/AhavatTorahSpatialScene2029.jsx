@@ -101,7 +101,7 @@ function SourceBookTowers({ activeId, onSelect }) {
   </group>;
 }
 
-function SceneControls({ reducedMotion }) {
+function SceneControls({ reducedMotion, command }) {
   const { camera, gl } = useThree();
   const controlsRef = useRef(null);
 
@@ -122,6 +122,28 @@ function SceneControls({ reducedMotion }) {
       controls.dispose();
     };
   }, [camera, gl, reducedMotion]);
+  useEffect(() => {
+    const controls = controlsRef.current;
+    if (!command || !controls) return;
+    // Flush drag inertia before an explicit keyboard/touch camera command.
+    const damping = controls.enableDamping;
+    controls.enableDamping = false;
+    controls.update();
+    if (command.action === "front") camera.position.set(0, 3, 14);
+    else if (command.action === "oblique" || command.action === "reset") camera.position.set(7.4, 6.2, 9.6);
+    else {
+      const direction = camera.position.clone().sub(controls.target);
+      const factor = command.action === "closer" ? .8 : 1.25;
+      direction.setLength(Math.max(controls.minDistance, Math.min(controls.maxDistance, direction.length() * factor)));
+      camera.position.copy(controls.target).add(direction);
+    }
+    controls.update();
+    controls.enableDamping = damping;
+    gl.domElement.dataset.ahavatCameraCommand = command.action;
+    gl.domElement.dataset.ahavatCameraCommandId = String(command.id);
+    gl.domElement.dataset.ahavatCameraPosition = JSON.stringify(camera.position.toArray());
+    gl.domElement.dataset.ahavatCameraDistance = String(camera.position.distanceTo(controls.target));
+  }, [command, camera, gl]);
   return null;
 }
 
@@ -144,6 +166,9 @@ export default function AhavatTorahSpatialScene2029({ datasets = [], bars = [], 
   const [lost, setLost] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(true);
   const [letterTheme, setLetterTheme] = useState(null);
+  const [cameraCommand, setCameraCommand] = useState(null);
+  const [ready, setReady] = useState(false);
+  const moveCamera = action => setCameraCommand(previous => ({ action, id: (previous?.id || 0) + 1 }));
   useEffect(() => {
     if (mode !== "letter") return;
     const update = () => {
@@ -166,16 +191,22 @@ export default function AhavatTorahSpatialScene2029({ datasets = [], bars = [], 
   }, []);
   const unavailable = <p role="status">לא ניתן לפתוח את המבנה במכשיר הזה. הטבלה ועמוד המקור זמינים בהמשך.</p>;
   const label = mode === "source-count" ? `ייצוג של מבנה הספר: גובה כל עמודה הוא מניין ${letterLabel} בשורת המקור; הנתונים מופיעים גם בטבלה ובכפתורים` : mode === "letter" || mode === "parasha-count" ? `ייצוג של מבנה הספר: גובה כל עמודה הוא מניין ${mode === "letter" ? "האות " : ""}${letterLabel} בחומש או בפרשה; הנתונים מופיעים גם בטבלה ובכפתורים` : mode === "ds01" ? "חמשת חומשי התורה לפי מניין המופעים המודפס בעמוד 6" : "מצפה תלת־ממדי של שלושה עשר מאגרי אהבת תורה; גובה כל מגדל מייצג את מספר עמודי המקור שלו";
-  return <div ref={root} data-reduced-motion={reducedMotion} className="ahavat29-spatial-canvas">
-    <SpatialErrorBoundary onFailure={() => setLost(true)}>{lost ? unavailable : mode === "letter" && !letterTheme ? <p role="status">טוען את תצוגת האות…</p> : <Canvas role="img" aria-label={label} fallback={unavailable} camera={{ position: [7.4, 6.2, 9.6], fov: 44 }} dpr={[1, 1.5]} gl={{ antialias: true, powerPreference: "high-performance" }}>
+  return <><div ref={root} data-reduced-motion={reducedMotion} className="ahavat29-spatial-canvas">
+    <SpatialErrorBoundary onFailure={() => setLost(true)}>{lost ? unavailable : mode === "letter" && !letterTheme ? <p role="status">טוען את תצוגת האות…</p> : <Canvas role="img" aria-label={label} fallback={unavailable} onCreated={mode === "letter" ? () => setReady(true) : undefined} camera={{ position: [7.4, 6.2, 9.6], fov: 44 }} dpr={[1, 1.5]} gl={{ antialias: true, powerPreference: "high-performance" }}>
       <color attach="background" args={[mode === "letter" ? letterTheme.background : "#0d0b09"]} />
       <fog attach="fog" args={[mode === "letter" ? letterTheme.background : "#0d0b09", 10, 19]} />
       <ambientLight intensity={1.2} />
       <directionalLight position={[4, 8, 5]} intensity={2.25} color={mode === "letter" ? letterTheme.background : "#f3d68f"} />
       <pointLight position={[-5, 3, -3]} intensity={19} distance={14} color={mode === "letter" ? letterTheme.depth : "#668ec4"} />
       {mode === "letter" || mode === "parasha-count" || mode === "source-count" ? <LetterCountBars bars={bars} activeId={activeId} onSelect={onSelect} theme={mode === "letter" ? letterTheme : null} /> : mode === "ds01" ? <SourceBookTowers activeId={activeId} onSelect={onSelect} /> : <DatasetTowers datasets={stableDatasets} activeId={activeId} onSelect={onSelect} reducedMotion={reducedMotion} />}
-      <SceneControls reducedMotion={reducedMotion} />
+      <SceneControls reducedMotion={reducedMotion} command={mode === "letter" ? cameraCommand : undefined} />
       <ContextLossGuard onLost={() => setLost(true)} />
     </Canvas>}</SpatialErrorBoundary>
-  </div>;
+  </div>{mode === "letter" ? <nav className="ahavat29-letter-camera" aria-label="מבט במודל האות">
+    <button type="button" disabled={!ready || lost} onClick={() => moveCamera("front")}>מבט קדמי</button>
+    <button type="button" disabled={!ready || lost} onClick={() => moveCamera("oblique")}>מבט אלכסוני</button>
+    <button type="button" disabled={!ready || lost} onClick={() => moveCamera("closer")}>התקרב</button>
+    <button type="button" disabled={!ready || lost} onClick={() => moveCamera("farther")}>התרחק</button>
+    <button type="button" disabled={!ready || lost} onClick={() => moveCamera("reset")}>אפס מבט</button>
+  </nav> : null}</>;
 }

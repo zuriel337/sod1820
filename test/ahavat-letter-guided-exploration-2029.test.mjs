@@ -14,6 +14,15 @@ test("letter stepping uses source order and preserves separate final/shin forms 
   assert.equal(forms[forms.indexOf("שׁ") + 1], "שׂ");
   assert.match(read("src/pages/AhavatTorahSystem2029Page.jsx"), /onLetter=\{next => select\(next, bookId, true\)\}/);
 });
+test("camera commands are an explicit letter-only enhancement of the existing disposable controls", () => {
+  const renderer = read("src/components/books2029/AhavatTorahSpatialScene2029.jsx");
+  assert.match(renderer, /command=\{mode === "letter" \? cameraCommand : undefined\}/);
+  assert.match(renderer, /controls\.dispose\(\)/);
+  assert.match(renderer, /controls\.minDistance, Math.min\(controls.maxDistance/);
+  assert.match(renderer, /disabled=\{!ready \|\| lost\}/);
+  assert.match(renderer, /mode === "letter" \? <nav/);
+  for (const action of ["front", "oblique", "closer", "farther", "reset"]) assert.ok(renderer.includes(`moveCamera("${action}")`));
+});
 test("parasha companion uses existing row values and a single existing unit anchor in focused study", () => {
   const component = read("src/components/books2029/AhavatLetterParasha2029.jsx");
   const page = read("src/pages/AhavatTorahSystem2029Page.jsx");

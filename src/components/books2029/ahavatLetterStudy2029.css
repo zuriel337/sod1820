@@ -23,6 +23,9 @@
 .ahavat29-letter-parasha p{font:400 var(--s29-type-body)/1.8 var(--s29-font-body);color:var(--s29-text)}
 .ahavat29-letter-parasha nav{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:8px;align-items:center;font:500 var(--s29-type-ui)/1.5 var(--s29-font-ui)}
 .ahavat29-letter-parasha nav>span{text-align:center;white-space:nowrap}
+.ahavat29-letter-camera{display:flex;flex-wrap:wrap;gap:8px;margin-block:12px}
+.ahavat29-letter-camera button{min-width:44px;min-height:44px;padding:9px 12px;border:1px solid var(--s29-line-strong);border-radius:10px;background:var(--s29-panel);color:var(--s29-accent-text);font:500 var(--s29-type-ui)/1.5 var(--s29-font-ui);cursor:pointer}
+.ahavat29-letter-camera button:disabled{opacity:.45;cursor:default}
 .ahavat29-letter-identity{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:24px 14px;border-inline-end:1px solid var(--s29-line);background:radial-gradient(ellipse at center,color-mix(in srgb,var(--s29-accent-secondary) 12%,transparent),transparent 74%)}
 .ahavat29-letter-identity>span,.ahavat29-letter-landscape-heading>span{font:500 15px/1.5 var(--s29-font-ui);color:var(--s29-muted);text-align:center}
 .ahavat29-letter-glyph{font:500 clamp(88px,10vw,132px)/1.2 var(--s29-font-display);color:var(--s29-accent-text);text-shadow:0 5px 0 color-mix(in srgb,var(--s29-accent-secondary) 12%,transparent)}
