@@ -14,3 +14,15 @@ test("letter stepping uses source order and preserves separate final/shin forms 
   assert.equal(forms[forms.indexOf("שׁ") + 1], "שׂ");
   assert.match(read("src/pages/AhavatTorahSystem2029Page.jsx"), /onLetter=\{next => select\(next, bookId, true\)\}/);
 });
+test("parasha companion uses existing row values and a single existing unit anchor in focused study", () => {
+  const component = read("src/components/books2029/AhavatLetterParasha2029.jsx");
+  const page = read("src/pages/AhavatTorahSystem2029Page.jsx");
+  assert.match(component, /selected\.count === null/);
+  assert.match(component, /selected\.printed === "\?"/);
+  assert.match(component, /הסבר נלווה/);
+  assert.match(component, /ahavatReaderUnitDomId\(unitId\)/);
+  assert.match(component, /onSource\(selected\)/);
+  assert.doesNotMatch(component, /מאומת במנוע|fetch\(|localStorage|Canvas|Math\.round/);
+  assert.match(page, /preserveSelectionPosition && row.parasha === selectedBar/);
+  assert.match(page, /preservePosition: !openSource/);
+});
