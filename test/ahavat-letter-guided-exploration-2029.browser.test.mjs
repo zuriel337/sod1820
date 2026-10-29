@@ -15,6 +15,13 @@ const pdf = readFileSync("/workspace/artifacts/ahavat-book-completion-20261029/s
 const out = "/workspace/artifacts/ahavat-letters-guided-20261029";
 mkdirSync(out, { recursive: true });
 const settle = page => page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+async function pointerClick(target) {
+  await target.evaluate(element => element.focus({ preventScroll: true }));
+  await target.evaluate(element => element.scrollIntoView({ block: "center", behavior: "instant" }));
+  await settle(target.page());
+  assert.equal(await target.evaluate(element => { const r = element.getBoundingClientRect(), top = document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2); return !!top && element.contains(top); }), true, "real source control must be uncovered");
+  await target.click();
+}
 async function native(page, physical) {
   for (let attempt = 0; attempt < 120; attempt++) {
     for (const frame of page.frames()) try {
@@ -55,18 +62,18 @@ test("guided letters preserve exact parasha/source, keyboard camera, step bounda
       assert.equal(await detail.getByRole("combobox", { name: "בחר פרשה ללימוד" }).inputValue(), "צו");
       assert.match(await detail.textContent(), /תיבות|פרשה אחר פרשה/);
       assert.equal(await page.locator("canvas").count(), 0); assert.equal(modelRequests.length, 0);
-      await detail.getByRole("button", { name: "הפרשה הבאה", exact: true }).click();
+      await pointerClick(detail.getByRole("button", { name: "הפרשה הבאה", exact: true }));
       assert.equal(await detail.getByRole("combobox").inputValue(), "שמיני");
-      await detail.getByRole("button", { name: "הפרשה הקודמת", exact: true }).click();
-      await detail.getByRole("button", { name: "פתח מקור הפרשה · PDF 36", exact: true }).click(); await native(page, 36);
-      await source.getByRole("button", { name: "לעמוד הבא", exact: true }).click(); await native(page, 37);
-      await source.getByRole("link", { name: "חזור ליחידת הקריאה", exact: true }).click(); await native(page, 36); await settle(page);
+      await pointerClick(detail.getByRole("button", { name: "הפרשה הקודמת", exact: true }));
+      await pointerClick(detail.getByRole("button", { name: "פתח מקור הפרשה · PDF 36", exact: true })); await native(page, 36);
+      await pointerClick(source.getByRole("button", { name: "לעמוד הבא", exact: true })); await native(page, 37);
+      await pointerClick(source.getByRole("link", { name: "חזור ליחידת הקריאה", exact: true })); await native(page, 36); await settle(page);
       await page.waitForFunction(unit => document.activeElement?.closest("[data-reader-unit]")?.dataset.readerUnit === unit, id);
       assert.equal(await detail.getByRole("combobox").inputValue(), "צו");
       await page.reload({ waitUntil: "domcontentloaded" }); await detail.waitFor(); await native(page, 36);
       assert.equal(await detail.getAttribute("data-reader-unit"), id);
       const toggle = reader.getByRole("button", { name: "פתח מבנה האות בתלת־ממד", exact: true });
-      await toggle.click(); const canvas = reader.locator('canvas[data-ahavat-context-guard="ready"]'); await canvas.waitFor();
+      await pointerClick(toggle); const canvas = reader.locator('canvas[data-ahavat-context-guard="ready"]'); await canvas.waitFor();
       await canvas.evaluate(element => { window.__guidedCanvas = element; window.__guidedContext = element.getContext("webgl2") || element.getContext("webgl"); });
       const camera = reader.getByRole("navigation", { name: "מבט במודל האות" });
       async function command(label, action) { const button = camera.getByRole("button", { name: label, exact: true }); await button.focus(); await page.keyboard.press("Enter"); await page.waitForFunction(value => document.querySelector("#ahavat29-letters canvas")?.dataset.ahavatCameraCommand === value, action); return Number(await canvas.getAttribute("data-ahavat-camera-distance")); }
@@ -76,18 +83,24 @@ test("guided letters preserve exact parasha/source, keyboard camera, step bounda
       const farther = await command("התרחק", "farther"); assert.ok(farther > closer && farther <= 14.001);
       await command("מבט אלכסוני", "oblique"); await command("אפס מבט", "reset");
       assert.ok(JSON.parse(await canvas.getAttribute("data-ahavat-camera-position"))[0] > 0);
-      await detail.getByRole("combobox").selectOption("ויקרא");
+      const chooser = detail.getByRole("combobox");
+      await chooser.evaluate(element => element.focus({ preventScroll: true }));
+      await chooser.evaluate(element => element.scrollIntoView({ block: "center", behavior: "instant" }));
+      await settle(page);
+      await chooser.selectOption("ויקרא");
+      assert.equal(await chooser.evaluate(element => document.activeElement === element), true);
       assert.equal(new URL(page.url()).searchParams.get("readerUnit"), ahavatLetterUnitId("ד", "vayikra", "ויקרא"));
       assert.equal(await canvas.evaluate(element => element === window.__guidedCanvas), true);
-      await detail.getByRole("button", { name: "פתח מקור הפרשה · PDF 35", exact: true }).click(); await native(page, 35);
-      await source.getByRole("button", { name: "מסך מלא", exact: true }).click(); await page.waitForFunction(() => !!document.fullscreenElement); await native(page, 35);
-      await source.getByRole("button", { name: "יציאה ממסך מלא", exact: true }).click(); await page.waitForFunction(() => !document.fullscreenElement); await settle(page);
-      await source.getByRole("link", { name: "חזור ליחידת הקריאה", exact: true }).click(); await settle(page);
+      await pointerClick(detail.getByRole("button", { name: "פתח מקור הפרשה · PDF 35", exact: true })); await native(page, 35);
+      await pointerClick(source.getByRole("button", { name: "מסך מלא", exact: true })); await page.waitForFunction(() => !!document.fullscreenElement); await native(page, 35);
+      await pointerClick(source.getByRole("button", { name: "יציאה ממסך מלא", exact: true })); await page.waitForFunction(() => !document.fullscreenElement); await settle(page);
+      await pointerClick(source.getByRole("link", { name: "חזור ליחידת הקריאה", exact: true }));
+      await page.waitForFunction(unit => document.activeElement?.closest("[data-reader-unit]")?.dataset.readerUnit === unit, ahavatLetterUnitId("ד", "vayikra", "ויקרא")); await settle(page);
       assert.equal(await detail.getByRole("combobox").inputValue(), "ויקרא");
       assert.equal(await canvas.evaluate(element => element === window.__guidedCanvas), true);
       await reader.locator(".ahavat29-letter-scene").scrollIntoViewIfNeeded(); await page.waitForTimeout(250);
       await page.screenshot({ path: `${out}/guided-model-${width}-${theme}.png` });
-      await reader.getByRole("button", { name: "סגור מבנה האות בתלת־ממד", exact: true }).click();
+      await pointerClick(reader.getByRole("button", { name: "סגור מבנה האות בתלת־ממד", exact: true }));
       assert.equal(await toggle.evaluate(element => document.activeElement === element), true);
       await page.waitForFunction(() => window.__guidedContext?.isContextLost());
       if (width === 390 && theme === "parchment") {
