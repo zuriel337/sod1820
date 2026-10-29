@@ -43,7 +43,7 @@ async function fixture() {
   return { origin, browser, server };
 }
 
-for (const width of [320, 390, 1440]) test(`all 39 opening companion units retain source, reading and return at ${width} in three display combinations`, { skip: !available, timeout: 300_000 }, async () => {
+for (const width of [320, 390, 1440]) test(`all 78 completion companion units retain source, reading and return at ${width} in three display combinations`, { skip: !available, timeout: 300_000 }, async () => {
   const { origin, browser, server } = await fixture();
   const out = "/tmp/ahavat-book-completion-browser-20261029";
   mkdirSync(out, { recursive: true });
@@ -80,7 +80,7 @@ for (const width of [320, 390, 1440]) test(`all 39 opening companion units retai
       const nav = page.getByRole("navigation", { name: "עמודים עם הסבר מורחב", exact: true });
       const selection = nav.getByRole("combobox", { name: "בחר עמוד ללימוד מורחב", exact: true });
       assert.equal(await selection.locator("option:not([disabled])").count(), companion.pages.filter(item => item.companion_units).length);
-      for (const record of companion.pages.filter(item => item.pdf_page <= 15)) {
+      for (const record of companion.pages.filter(item => item.pdf_page <= 15 || item.pdf_page >= 25 && item.pdf_page <= 44)) {
         await selection.selectOption(String(record.pdf_page));
         const units = page.getByRole("region", { name: `הסבר מורחב לעמוד ${record.pdf_page}`, exact: true });
         await units.waitFor();
@@ -113,7 +113,7 @@ for (const width of [320, 390, 1440]) test(`all 39 opening companion units retai
       assert.deepEqual(errors, []);
       await page.screenshot({ path: `${out}/companion-${width}-${theme}.png` });
       await context.close();
-      console.log(`39 opening companion units ${width}/${theme}: passed`);
+      console.log(`78 completion companion units ${width}/${theme}: passed`);
     }));
   } finally { await browser.close(); await server.close(); }
 });
@@ -140,10 +140,10 @@ test("unavailable or mismatched companion data never hides the exact PDF or inve
   } finally { await browser.close(); await server.close(); }
 });
 
-test("short front pages and Migdal opening deep links survive PDF return and refresh", { skip: !available, timeout: 90_000 }, async () => {
+test("front, Migdal, table and transition deep links survive PDF return and refresh", { skip: !available, timeout: 180_000 }, async () => {
   const { origin, browser, server } = await fixture();
   try {
-    for (const width of [320, 390, 1440]) for (const [id, physical] of [["ahavat-front-p001-01",1],["ahavat-front-p003-01",3],["ahavat-front-p005-03",5],["ahavat-migdal-p006-01",6],["ahavat-migdal-p015-03",15]]) {
+    for (const width of [320, 390, 1440]) for (const [id, physical] of [["ahavat-front-p001-01",1],["ahavat-front-p003-01",3],["ahavat-front-p005-03",5],["ahavat-migdal-p006-01",6],["ahavat-migdal-p015-03",15],["ahavat-tables-p025-01",25],["ahavat-tables-p031-02",31],["ahavat-tables-p042-01",42],["ahavat-tables-p043-02",43],["ahavat-transition-p044-01",44]]) {
       const context = await browser.newContext({ viewport: { width, height: 1000 }, reducedMotion: "reduce" });
       await routeContext(context, origin);
       const page = await context.newPage();

@@ -26,4 +26,22 @@ The existing companion validator/URL projection now accept source-defined variab
 
 Acceptance at this checkpoint: 399/399 non-browser books tests; new browser 5/5 without skips, including 351 unit visits (39 × 3 widths × 3 themes), exact source URLs, no horizontal overflow or automatic canvas, error/foreign-source handling, and fifteen direct-entry/return/refresh combinations. These use local Chromium and an intentionally aborted PDF request for UI checks; native PDF acceptance remains a separate final gate, not claimed by those mocks.
 
-Next sequential scope: physical 25–44, with source-specific table/roots explanation and one transition-page unit. Existing adopted page fields and all preceding units remain immutable. Local scope ownership remains active for this continuation; no live ownership claim/write is asserted.
+### Checkpoint 2 · all remaining table/roots/transition pages, physical 25–44
+
+Read embedded text and visually inspected every physical page in this range. Added 39 selected units: two each on 25–43 and one for the half-title on 44. Physical 45 remains blank with no fabricated unit. Coverage is now 267 selected explanations across all 98 nonblank pages, including 78 new units on the 35 previously uncovered pages. This closes **page access to expanded explanation**, not exhaustive phrase-by-phrase interpretation, source transcription, all numeric cells or universal spatial acceptance. The 99 first-pass guides and 98-page OCR search remain separate coverage axes.
+
+Units explain: the three-part attribution method and distinct occurrence/word measures; individual/joint speakers and summary boundaries; source-order root forms without imposing a modern dictionary; all letter-table transitions, final forms, shin/sin and cumulative checkpoints; separate Torah and Megillot word/letter populations; and the independent lunar-cycle paragraph on physical 43. No new quote, source number, dictionary identity or engine result is invented. No 3D geometry is authored by this content cut.
+
+Native acceptance first exposed an actual capability failure: selecting a source at 320/light/p1 positioned the source heading at y=0.234375, behind the fixed shell. The existing book page now waits for the source context commit and scrolls with the reader's already-adopted 84px clearance. No shell/CSS/layout ownership changed. The acceptance asserts the heading remains at y=70–110; actual PDF page success uses native plugin page geometry, never only an iframe URL or the central-page counter. Final rerun is tracked below.
+
+Source witnesses (original hash-checked PDF and all 35 rendered source pages) are retained outside Git at `/workspace/artifacts/ahavat-book-completion-20261029/source-witness/`. Authenticated read-only coordination rechecked during this chain: two returned active-looking contract/integration scopes explicitly exclude book runtime/source data. No overlapping book writer was found by the bounded query. Canonical credential remains `supabase_read_only_user`, transaction read-only `on`. No live BEFORE/AFTER is asserted.
+
+### Honest remaining completion axes
+
+- Expanded companion page access: 98/98 nonblank pages; physical blank 45 retained. The 267 units are selected passages, not a complete critical edition or interpretation of every printed sentence.
+- Exact original PDF access/search/return: existing source surfaces retained; current native, fullscreen, layout and reader regression acceptance must pass below before release.
+- Source research still open: ambiguous letter/Megillot/count cells and preserved sum differences; original ten-column roots proofreading/lexical-unit rule; DS-05 row transcription beyond summaries, remaining DS-06 source forms, DS-07/08 exact source locators, first editor-note target and DS-13 form/exclusion reconciliation. These do not block reading written source in Preview and cannot be closed by guessing or engine absence.
+- Spatial product: existing explicit lazy scenes retained. Earlier letters and DS-03/04 acceptance cover only those scopes. A new immersive visual composition for every book structure is not implemented by selected commentary units; mandatory Claude visual-writer ownership still requires an actual specialist assignment/handback. `SPECIALIST_DISPATCH_UNAVAILABLE` in the available canonical read-only channel; no fabricated dispatch/ACK.
+- Integration/publication: isolated Books Preview only. No site-main integration, canonical-publication transition or Production release is included.
+
+Local scope ownership remains active until the verified commit/push/Preview handoff below; no live ownership claim/write is asserted.

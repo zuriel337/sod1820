@@ -67,6 +67,15 @@ function scrollToReaderUnit(element) {
   (element.matches("button") ? element : element.querySelector("button"))?.focus({ preventScroll: true });
 }
 
+function scrollToBookSource(behavior) {
+  // Wait for the selected page and source context to commit. Reuse the reader's
+  // adopted 84px shell clearance, without changing shared styles or the shell.
+  window.requestAnimationFrame(() => {
+    const source = document.getElementById("ahavat29-source");
+    if (source) window.scrollTo({ top: window.scrollY + source.getBoundingClientRect().top - 84, behavior });
+  });
+}
+
 function SourcePanel({ page, contextLabel, onPage, readerUnit, onReturnToUnit }) {
   const pdfUrl = `${AHAVAT_TORAH_SOURCE.pdfUrl}#page=${page}&view=FitH`;
   const [pageDraft, setPageDraft] = useState(String(page));
@@ -876,7 +885,7 @@ export default function AhavatTorahSystem2029Page() {
     replaceSelectionInUrl(nextPage, "", dataset.id);
     if (dataset.pages.length) {
       const behavior = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth";
-      window.requestAnimationFrame(() => document.getElementById("ahavat29-source")?.scrollIntoView({ behavior, block: "start" }));
+      scrollToBookSource(behavior);
     }
   };
 
@@ -889,7 +898,7 @@ export default function AhavatTorahSystem2029Page() {
     setReaderUnit(unit ? { ...unit } : null);
     replaceSelectionInUrl(nextPage, "", context?.id || "", unitId);
     const behavior = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth";
-    document.getElementById("ahavat29-source")?.scrollIntoView({ behavior, block: "start" });
+    scrollToBookSource(behavior);
   };
 
   const returnToUnit = event => {

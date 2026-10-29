@@ -16,10 +16,10 @@ test('all adopted page records and 189 units remain byte-equivalent beneath addi
   assert.equal(bundle.pages[44].companion_units, undefined);
 });
 
-test('all fifteen opening pages have variable-sized source-bound explanation, not artificial three-unit title pages', () => {
+test('all thirty-five completion pages have source-bound explanations and all 98 readable pages are covered', () => {
   const ids = new Set();
   for (const physical of AHAVAT_BOOK_COMPLETION_PAGES) {
-    const expected = physical <= 3 ? 1 : 3;
+    const expected = physical <= 3 || physical === 44 ? 1 : physical < 25 ? 3 : 2;
     const units = bundle.pages[physical - 1].companion_units;
     assert.equal(units.length, expected);
     assert.equal(ahavatCompanionReadingUnits(bundle, physical).length, expected);
@@ -41,14 +41,15 @@ test('all fifteen opening pages have variable-sized source-bound explanation, no
       assert.ok(!ids.has(unit.id)); ids.add(unit.id);
     }
   }
-  assert.equal(ids.size, 39);
-  assert.equal(bundle.pages.filter(p => p.companion_units).length, 78);
-  assert.equal(bundle.pages.flatMap(p => p.companion_units || []).length, 228);
+  assert.equal(ids.size, 78);
+  assert.equal(bundle.pages.filter(p => p.companion_units).length, 98);
+  assert.equal(bundle.pages.flatMap(p => p.companion_units || []).length, 267);
+  assert.deepEqual(bundle.pages.filter(p => ahavatCompanionReadingUnits(bundle, p.pdf_page).length).map(p => p.pdf_page), Array.from({length:99},(_,i)=>i+1).filter(p=>p!==45));
 });
 
 test('new namespaces, variable lengths and source-layer constraints fail closed', () => {
   for (const id of ['ahavat-migdal-p001-01', 'ahavat-front-p006-01', 'ahavat-front-p001-02', 'ahavat-migdal-p006-04', 'ahavat-front-p01-01']) assert.equal(ahavatReaderUnit(id), null);
-  for (const physical of [1, 4, 6, 15]) for (const mutate of [
+  for (const physical of [1, 4, 6, 15, 25, 31, 35, 42, 43, 44]) for (const mutate of [
     b => b.pages[physical - 1].companion_units.push(b.pages[physical - 1].companion_units[0]),
     b => b.pages[physical - 1].companion_units[0].source_anchor = '#page=45&view=FitH',
     b => b.pages[physical - 1].companion_units[0].display_label = 'דברי הספר',
@@ -63,5 +64,8 @@ test('source-specific distinctions remain attributed and do not turn symbolic re
   assert.match(text(10), /לא להציג נפח אדריכלי מדוד/);
   assert.match(text(12), /מנהג אשכנז/); assert.match(text(13), /אין זו הוראה לדלג/);
   assert.match(text(15), /אין מנסכים יין מזוג/);
+  assert.match(text(25), /קרוב לשליש/); assert.match(text(31), /אוריין תליתאי/);
+  assert.match(text(35), /מצטבר/); assert.match(text(42), /304,812/);
+  assert.match(text(43), /מולד/); assert.match(text(44), /חלק ב׳/);
   assert.doesNotMatch(AHAVAT_BOOK_COMPLETION_PAGES.map(text).join(''), /מאומת במנוע/);
 });

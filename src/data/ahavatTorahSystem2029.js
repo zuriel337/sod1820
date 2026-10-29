@@ -251,6 +251,8 @@ export function ahavatCompanionPage(bundle, page) {
 export const AHAVAT_COMPANION_PAGE_COUNTS = Object.freeze(Object.fromEntries([
   ...Array.from({ length: 5 }, (_, i) => [i + 1, i < 3 ? 1 : 3]),
   ...Array.from({ length: 19 }, (_, i) => [6 + i, 3]),
+  ...Array.from({ length: 19 }, (_, i) => [25 + i, 2]),
+  [44, 1],
   ...Array.from({ length: 54 }, (_, i) => [46 + i, 3]),
 ]));
 

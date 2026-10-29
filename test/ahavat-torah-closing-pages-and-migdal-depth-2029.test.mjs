@@ -101,7 +101,7 @@ test('Migdal explanations retain source-specific operations and do not invent cr
 
 test('Migdal page namespaces and source mismatches fail closed, with old novellae identities unchanged',()=>{
  for(const id of ['ahavat-novellae-p016-01','ahavat-migdal-p046-01','ahavat-migdal-p025-01','ahavat-migdal-p016-04','ahavat-migdal-p16-01'])assert.equal(ahavatReaderUnit(id),null);
- for(const [page,position] of [[0,1],[25,1],[45,1],[100,1],[16,0],[16,4],['16',1],[16,'1']])assert.equal(ahavatCompanionUnitId(page,position),'');
+ for(const [page,position] of [[0,1],[25,3],[44,2],[45,1],[100,1],[16,0],[16,4],['16',1],[16,'1']])assert.equal(ahavatCompanionUnitId(page,position),'');
  for(const mutate of [b=>b.pages[15].companion_units[0].id='ahavat-novellae-p016-01',b=>b.pages[15].companion_units[0].pdf_page=17,b=>b.pages[15].companion_units[0].source_anchor='#page=17&view=FitH',b=>b.pages[15].companion_units[0].display_label='דברי הספר']){
   const bad=structuredClone(bundle);mutate(bad);assert.deepEqual(ahavatCompanionReadingUnits(bad,16),[]);
  }
