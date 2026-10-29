@@ -172,6 +172,7 @@ export function normalizeRazielTurnProgress(value) {
     providerStatus: cleanInline(value.providerStatus, 40),
     batchId: /^msgbatch_[A-Za-z0-9]{4,64}$/.test(String(value.batchId ?? "")) ? value.batchId : null,
     jobToken: /^[A-Za-z0-9._-]{40,6000}$/.test(String(value.jobToken ?? "")) ? value.jobToken : null,
+    jobId: /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(value.jobId ?? "")) ? value.jobId : null,
     pollSeconds: nonNegativeInteger(value.pollSeconds),
     cancelling: value.cancelling === true ? true : null,
   });

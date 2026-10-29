@@ -15,7 +15,8 @@ export function selectElsMatrixReading(session, axis) {
   const result = message?.elsMatrixReading;
   const resultAxis = result?.axis;
   const consistent = !resultAxis || (resultAxis.term === axis?.term && resultAxis.scope === axis?.scope
-    && resultAxis.start === axis?.start && resultAxis.skip === axis?.skip && resultAxis.dir === axis?.dir);
+    && resultAxis.start === axis?.start && resultAxis.skip === axis?.skip && resultAxis.dir === axis?.dir
+    && (!resultAxis.corpus_id || resultAxis.corpus_id === axis?.corpusId));
   return { active: Boolean(active), matching: Boolean(matching), progress: matching ? turn.progress : null,
     result: consistent ? result || null : null };
 }

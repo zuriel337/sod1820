@@ -49,7 +49,8 @@ test("the request adapter builds one request: matrix context, the closed action,
   assert.equal(request.subject, ELS_MATRIX_READING_SUBJECT);
   assert.deepEqual([request.facts, request.context, request.intelligenceLevel, request.again, request.conversationResolution], ["", null, "deep", false, null]);
   assert.deepEqual(request.elsMatrixContext, context);
-  assert.deepEqual(request.elsMatrixReadingAction, { id: ELS_MATRIX_READING_ACTION, op: "start", window: { rows: 21, cols: 31 }, cap: 25, story: "סיפור קצר", ack_upper_bound_usd: ELS_MATRIX_READING_ACK_UPPER_BOUND_USD });
+  assert.match(request.elsMatrixReadingAction.request_id, /^[a-f0-9-]{36}$/);
+  assert.deepEqual(request.elsMatrixReadingAction, { id: ELS_MATRIX_READING_ACTION, op: "start", window: { rows: 21, cols: 31 }, cap: 25, story: "סיפור קצר", ack_upper_bound_usd: ELS_MATRIX_READING_ACK_UPPER_BOUND_USD, request_id: request.elsMatrixReadingAction.request_id });
   assert.equal(request.researchContract, "public-number-research-run-v1");
   assert.deepEqual([turn.kind, turn.readingOp, turn.question], ["els_matrix_reading", "start", ELS_MATRIX_READING_SUBJECT]);
   assert.equal(prepared.navigation, undefined);

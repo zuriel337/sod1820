@@ -11,7 +11,7 @@ import {
 
 /**
  * context  the els_matrix_presentation_context_v1 the ELS screen already builds (only its axis is used by the server, which reads the window from the canonical stream)
- * op       "start" (default; spends, so the acknowledged upper bound is sent) | "preview" (no model, no spend); with jobToken: "status" (resume, default) | "cancel"
+ * op       start (explicit spend), preview (no model), status/cancel (jobId or registered legacy token), recover (selected occurrence only, no start).
  */
 export function buildElsMatrixReadingSubmission({
   context,
@@ -21,23 +21,27 @@ export function buildElsMatrixReadingSubmission({
   story = undefined,
   ackUpperBoundUsd = ELS_MATRIX_READING_ACK_UPPER_BOUND_USD,
   jobToken = null,
+  jobId = null,
+  requestId = null,
 } = {}) {
   if (!context?.axis) return { ok: false, error: "matrix_context_required" };
-  if (!["preview", "start", "status", "cancel"].includes(op)) return { ok: false, error: "reading_action_invalid" };
+  if (!["preview", "start", "status", "cancel", "recover"].includes(op)) return { ok: false, error: "reading_action_invalid" };
   // Losing a job token must NEVER silently change a status/cancel request into a paid start.
-  if ((op === "status" || op === "cancel") && !jobToken) return { ok: false, error: "reading_job_token_required" };
-  if (jobToken != null && op === "preview") return { ok: false, error: "reading_action_invalid" };
-  const action = normalizeElsMatrixReadingAction(jobToken != null
-    ? { id: ELS_MATRIX_READING_ACTION, op: op === "cancel" ? "cancel" : "status", job_token: jobToken }
+  if ((op === "status" || op === "cancel") && !jobToken && !jobId) return { ok: false, error: "reading_job_token_required" };
+  if ((jobToken != null || jobId != null) && ["preview", "recover"].includes(op)) return { ok: false, error: "reading_action_invalid" };
+  if (jobToken && jobId) return { ok: false, error: "reading_action_invalid" };
+  const action = normalizeElsMatrixReadingAction(op === "recover" ? { id: ELS_MATRIX_READING_ACTION, op }
+    : jobToken != null || jobId != null
+    ? { id: ELS_MATRIX_READING_ACTION, op: op === "cancel" ? "cancel" : "status", ...(jobId ? { job_id: jobId } : { job_token: jobToken }) }
     : {
       id: ELS_MATRIX_READING_ACTION,
       op: op === "preview" ? "preview" : "start",
       window: readingWindow,
       cap,
       story,
-      ...(op === "preview" ? {} : { ack_upper_bound_usd: ackUpperBoundUsd }),
+      ...(op === "preview" ? {} : { ack_upper_bound_usd: ackUpperBoundUsd, request_id: requestId ?? globalThis.crypto?.randomUUID?.() }),
     });
-  if (!action) return { ok: false, error: "reading_action_invalid" };
+  if (!action || (action.op === "start" && !action.request_id)) return { ok: false, error: "reading_action_invalid" };
   return {
     ok: true,
     submission: {

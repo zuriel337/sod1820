@@ -1,13 +1,15 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import * as M from "../supabase/functions/_shared/elsMatrixReading.js";
-import { AXIS, BATCH, SB, aiCalls, call, countCalls, message, req, savedAnswer, windowC1, world } from "./helpers/els-matrix-reading-world.mjs";
+import { AXIS, BATCH, SB, OWNER_ID, aiCalls, call, countCalls, message, req, savedAnswer, windowC1, world } from "./helpers/els-matrix-reading-world.mjs";
 
 const start = (extra = {}) => req("start", { ack_upper_bound_usd: 2, ...extra });
 async function startJob(w, options) {
   const started = await call(w, start(), options);
   assert.equal(started.body.state, "RUNNING", JSON.stringify(started.body).slice(0, 300));
-  return started.body.job.token;
+  assert.equal(started.body.job.token, undefined, "durable jobs expose no signed bearer material to the client");
+  // Exercise backward-compatible signed references ONLY to an already registered job.
+  return M.signJobToken(w.state.jobs[0].job_payload, "job-secret");
 }
 
 test("OFF unless a secret enables it; admin only; preview mode refuses everything but a preview: none of these touches the stream, the engine or the provider", async () => {
@@ -111,7 +113,7 @@ test("start needs the acknowledged upper bound; below it the answer is REFUSED w
   const created = w.calls.filter((c) => c.url.endsWith("/messages/batches") && c.method === "POST");
   assert.equal(created.length, 1);
   assert.equal(created[0].body.requests.length, 1);
-  assert.equal(created[0].body.requests[0].custom_id, M.BATCH_CUSTOM_ID);
+  assert.equal(created[0].body.requests[0].custom_id, `els_${ok.body.job.id}`);
   assert.equal(await M.requestSha256(created[0].body.requests[0].params), ok.body.request.sha256);
   assert.equal(created[0].body.requests[0].params.model, "claude-fable-5-1");
   assert.equal(created[0].body.requests[0].params.max_tokens, 64000);
@@ -190,8 +192,9 @@ test("status after the batch ended: COMPLETE with engine-verified findings, cove
   assert.equal(body.experimental.credits_charged, false);
   assert.equal(w.tokenLog.length, 1);
   const row = w.tokenLog[0];
-  assert.deepEqual([row.kind, row.ref, row.user_id, row.output_tokens, row.source], ["raziel_els_matrix_reading", BATCH, "admin-1", savedAnswer.summary.usage.output_tokens, "analyze"]);
-  assert.ok(row.trace_id && row.span_id, "the cost row is tied to the model span of the collection");
+  assert.deepEqual([row.kind, row.ref, row.user_id, row.output_tokens, row.source], ["raziel_els_matrix_reading", BATCH, OWNER_ID, savedAnswer.summary.usage.output_tokens, "analyze"]);
+  assert.equal(w.state.jobs[0].cost_log_id, row.id, "the durable job and cost receipt are bound atomically");
+  assert.ok(row.trace_id && row.span_id, "the cost receipt retains its existing operational trace link");
   assert.equal(first.outcome, "success");
   const modelSpan = first.spans.find((s) => s.kind === "model_call");
   assert.equal(modelSpan.detail.cost.certainty, "estimated");
@@ -246,20 +249,21 @@ test("cancel asks the provider to cancel, says that cost may still be incurred, 
   const during = await call(w, req("status", { job_token: token }));
   assert.equal(during.body.state, "CANCEL_REQUESTED");
   assert.deepEqual([w.tokenLog.length, during.spans.length], [0, 0]);
-  const other = await call(w, req("cancel", { job_token: token }), { identity: "u:admin-2" });
-  assert.equal(other.body.error, "job_belongs_to_another_identity");
+  const other = await call(w, req("cancel", { job_token: token }), { identity: "u:00000000-0000-4000-8000-000000000003" });
+  assert.equal(other.body.error, "reading_job_not_found");
 });
 
 test("the job token cannot be forged, borrowed by another identity, used after it expires, or replayed against a changed stream", async () => {
   const w = world({ batchState: "ended" });
   const token = await startJob(w);
   assert.equal((await call(w, req("status", { job_token: `${token}x` }))).body.error, "invalid_job_token");
-  const other = await call(w, req("status", { job_token: token }), { identity: "u:admin-2" });
-  assert.deepEqual([other.status, other.body.state, other.body.error], [403, "REFUSED", "job_belongs_to_another_identity"]);
+  const other = await call(w, req("status", { job_token: token }), { identity: "u:00000000-0000-4000-8000-000000000003" });
+  assert.deepEqual([other.status, other.body.state, other.body.error], [404, "REFUSED", "reading_job_not_found"]);
   const late = await call(w, req("status", { job_token: token }), { now: Date.parse("2026-10-29T10:00:00.000Z") + M.JOB_TTL_MS + 1000 });
   assert.deepEqual([late.status, late.body.error], [410, "job_token_expired"]);
-  const changed = world({ batchState: "ended", stream: windowC1.grid.map((r, k) => (k === 3 ? r.s.replace(/^./u, "ב") : r.s)) });
-  const t2 = await startJob(world({ batchState: "ended" })); // a token made against the real stream
+  const changed = world({ batchState: "ended" });
+  const t2 = await startJob(changed); // a durable job made against the real stream
+  changed.state.stream = windowC1.grid.map((r, k) => (k === 3 ? r.s.replace(/^./u, "ב") : r.s));
   const mismatch = await call(changed, req("status", { job_token: t2 }));
   assert.deepEqual([mismatch.body.reason, mismatch.body.state], ["stream_changed_since_the_request", "FAILED_WITH_REASON"]);
 });

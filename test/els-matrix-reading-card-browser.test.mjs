@@ -131,9 +131,28 @@ test("matrix reading card: one explicit session turn, cancellation, occurrence i
     await page.getByRole('button',{name:'המשך מעקב אחר הסריקה',exact:true}).waitFor();
     assert.equal(await start.isDisabled(),true,'interrupted in-memory job cannot start a duplicate');
     const savedInterrupted=await page.evaluate(()=>window.__session.saveCurrentSession());assert.equal(savedInterrupted.ok,true);
-    assert.equal(JSON.stringify(savedInterrupted.session).includes(samples['running-start'].job.token),false);
+    assert.equal(savedInterrupted.session.thread.at(-1).elsMatrixReading.job.id,samples['running-start'].job.id);
     await page.reload();await start.waitFor();
     await page.evaluate(id=>window.__session.restoreSavedSession(id),savedInterrupted.session.id);
+    assert.equal(await page.evaluate(()=>window.__requests.length),0,'restore is passive, even when a durable job exists');
+    await page.getByRole('button',{name:'המשך מעקב אחר הסריקה',exact:true}).click();
+    await page.waitForFunction(()=>window.__requests.length===1);
+    assert.deepEqual(await page.evaluate(()=>window.__requests[0].elsMatrixReadingAction),{id:'els_matrix_reading_v1',op:'status',job_id:samples['running-start'].job.id});
+    await page.evaluate(result=>window.__finish(result),samples.complete);await page.waitForFunction(()=>!window.__session.busy);
+    // Lost all in-memory/saved context: explicit lookup needs only the selected exact occurrence.
+    await page.reload();await start.waitFor();assert.equal(await page.evaluate(()=>window.__requests.length),0);
+    await page.getByRole('button',{name:'חזור לסריקה האחרונה של המופע',exact:true}).click();
+    await page.waitForFunction(()=>window.__requests.length===1);
+    assert.deepEqual(await page.evaluate(()=>window.__requests[0].elsMatrixReadingAction),{id:'els_matrix_reading_v1',op:'recover'});
+    await page.evaluate(result=>window.__finish({...result,recovered:true}),samples.complete);
+    await page.getByText('חזרנו לסריקה הקיימת. לא הופעלה קריאת מודל חדשה.',{exact:true}).waitFor();
+    // Legacy unregistered token snapshots remain unrecoverable and never allow duplicate start.
+    await start.click();await page.waitForFunction(()=>window.__requests.length===2);
+    await page.evaluate(result=>window.__finish({...result,job:{token:'T'.repeat(886)},poll_interrupted:{can_resume:true,why:'legacy'}}),samples['running-start']);
+    await page.waitForFunction(()=>!window.__session.busy);
+    const legacy=await page.evaluate(()=>window.__session.saveCurrentSession());assert.equal(legacy.ok,true);
+    assert.equal(JSON.stringify(legacy.session).includes('T'.repeat(886)),false);
+    await page.reload();await start.waitFor();await page.evaluate(id=>window.__session.restoreSavedSession(id),legacy.session.id);
     await page.getByRole('alert').filter({hasText:'לא ניתן לחדש את המעקב מהתיעוד הזה'}).waitFor();
     assert.equal(await start.isDisabled(),true,'saved uncollected job is not an invitation to pay again');
     assert.equal(await page.getByRole('button',{name:'המשך מעקב אחר הסריקה',exact:true}).count(),0);

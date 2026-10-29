@@ -2,7 +2,7 @@
 // A Fable batch takes minutes, so the first call only STARTS it; this module then asks the same route for the status until the reading is no longer running.
 // Nothing here is a chat, a Provider, a search engine or an AI route: every call is an ai-analyze Raziel turn built by askRaziel, `invoke(action)` hides which one.
 // It never starts a run by itself: it is reached only from a session turn that carries an explicit `elsMatrixReadingAction`.
-import { ELS_MATRIX_READING_EXPECTED_MINUTES, ELS_MATRIX_READING_POLL_SECONDS, elsMatrixReadingPhase } from "../../../supabase/functions/_shared/elsMatrixReadingAction.js";
+import { ELS_MATRIX_READING_EXPECTED_MINUTES, ELS_MATRIX_READING_POLL_SECONDS, elsMatrixReadingPhase, isElsReadingJobId } from "../../../supabase/functions/_shared/elsMatrixReadingAction.js";
 
 const ID = "els_matrix_reading_v1";
 export const ELS_MATRIX_READING_MAX_WAIT_MS = 40 * 60 * 1000;      // far above the 3-13 minutes measured; a bound, not an estimate
@@ -37,12 +37,12 @@ function interrupted(data, token, why) {
   return {
     ...next,
     raziel: next.raziel ? { ...next.raziel, answer: `${String(next.raziel.answer ?? "").trim()}\n\n${note}`.trim() } : next.raziel,
-    els_matrix_reading: { ...next.els_matrix_reading, poll_interrupted: { why, can_resume: Boolean(token) } },
+    els_matrix_reading: { ...next.els_matrix_reading, poll_interrupted: { why, can_resume: Boolean(token || isElsReadingJobId(result.job?.id)) } },
   };
 }
 
 /**
- * action: the normalised closed action (preview | start | status | cancel).
+ * action: the normalised closed action (preview | start | status | cancel | recover).
  * invoke(action) -> Promise<{ data, error }> : one ai-analyze Raziel turn carrying that action.
  * signal       aborts silently (unmount, principal change): polling stops, the job is NOT cancelled and keeps running at the provider.
  * cancelSignal the person pressed cancel: the provider is asked to cancel, then the end is awaited for a short grace period.
@@ -58,19 +58,22 @@ export async function runElsMatrixReadingTurn({
   const call = async (next) => {
     try { const { data, error } = await invoke(next); return error ? { ok: false } : { ok: true, data }; } catch { return { ok: false }; }
   };
-  if (action.op === "start" || action.op === "status") progress({ phase: "starting", elapsedMs: 0, polls: 0 });
+  if (["start", "status", "recover"].includes(action.op)) progress({ phase: "starting", elapsedMs: 0, polls: 0 });
   const first = await call(action);
   if (signal?.aborted || !first.ok || !first.data) return null;
   let data = first.data;
   if (action.op === "preview" || action.op === "cancel") return data;
   let token = reading(data)?.job?.token ?? action.job_token ?? null;
+  const jobId = reading(data)?.job?.id ?? action.job_id ?? null;
+  const reference = isElsReadingJobId(jobId) ? { job_id: jobId } : token ? { job_token: token } : null;
   let polls = 0, failures = 0, cancelSentAt = null;
   const jobOf = () => reading(data)?.job ?? {};
   for (;;) {
     const phase = stateOf(data);
     if (phase.done) return withToken(data, phase.phase === "complete" ? null : token);
     const elapsedMs = Math.max(0, Number(reading(data)?.progress?.elapsed_ms ?? reading(data)?.job?.elapsed_ms) || (now() - startedAt));
-    progress({ phase: cancelSentAt ? "cancelling" : "running", elapsedMs, polls, providerStatus: reading(data)?.progress?.provider_status ?? reading(data)?.job?.processing_status ?? null, batchId: jobOf().batch_id ?? null, jobToken: token, pollSeconds: phase.pollAfterSeconds ?? ELS_MATRIX_READING_POLL_SECONDS, cancelling: Boolean(cancelSentAt) });
+    if (!reference) return interrupted(data, null, "חסר מזהה מעקב; יש לחזור לסריקה דרך המופע שנבחר");
+    progress({ phase: cancelSentAt ? "cancelling" : "running", elapsedMs, polls, providerStatus: reading(data)?.progress?.provider_status ?? reading(data)?.job?.processing_status ?? null, batchId: jobOf().batch_id ?? null, jobToken: token, jobId, pollSeconds: phase.pollAfterSeconds ?? ELS_MATRIX_READING_POLL_SECONDS, cancelling: Boolean(cancelSentAt) });
     if (signal?.aborted) return null;
     const waited = now() - startedAt;
     if (!cancelSentAt && waited > maxWaitMs) return interrupted(data, token, "עבר זמן ההמתנה המרבי");
@@ -79,12 +82,12 @@ export async function runElsMatrixReadingTurn({
     if (signal?.aborted) return null;
     if (cancelSignal?.aborted && !cancelSentAt) {
       // the person asked to stop: ask the provider, then keep asking for the status so the end (and its cost) is reported honestly
-      const cancelled = await call({ id: ID, op: "cancel", job_token: token });
+      const cancelled = await call({ id: ID, op: "cancel", ...reference });
       cancelSentAt = now();
       if (cancelled.ok && cancelled.data && reading(cancelled.data)) data = cancelled.data;
       continue;
     }
-    const polled = await call({ id: ID, op: "status", job_token: token });
+    const polled = await call({ id: ID, op: "status", ...reference });
     polls += 1;
     if (!polled.ok || !polled.data || !reading(polled.data)) {
       failures += 1;

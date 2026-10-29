@@ -19,7 +19,8 @@
       "created_at": "2026-10-29T10:00:00.000Z",
       "expires_at": "2026-11-12T10:00:00.000Z",
       "processing_status": "canceling",
-      "poll_after_seconds": 20
+      "poll_after_seconds": 20,
+      "id": "00000000-0000-4000-9000-000000000001"
     },
     "request": {
       "instruction": "general_v2_axis_marked_unnamed",
@@ -33,7 +34,10 @@
       "scope": "torah",
       "skip": 4545,
       "dir": 1,
-      "start": 248765
+      "start": 248765,
+      "verification_state": "MATCH",
+      "occurrence_id": "els:0b022e8eef6f9c16:קולומביה:4545:1:248765",
+      "corpus_id": "0b022e8eef6f9c16"
     },
     "estimate": {
       "upper_bound_usd": 1.7054,

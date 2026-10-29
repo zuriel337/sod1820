@@ -3,8 +3,9 @@
 //   - The second block is new: window selection from the canonical stream, replay of every proposal in the canonical ELS engine (els_verify_occurrence_v1), coverage, cost and the state machine.
 // Owners: els_research_layer_law v9, els_single_engine_law v2 (one engine), ai_analyze_contract v2 (cost, completion, no max_tokens as COMPLETE), unified_credit_system (nothing is charged here).
 // No chat, no memory, no Provider, no search engine and no AI route of its own: the entry point is the `els_matrix_reading_action` of an explicit Raziel turn (ai-analyze, persona raziel).
-// Imports only its sibling action contract; Node (tests) and Deno (edge) run the same text.
+// Imports only sibling action/job adapters; Node (tests) and Deno (edge) run the same text.
 import { ELS_MATRIX_READING_EXPECTED_MINUTES, ELS_MATRIX_READING_LIMITS, ELS_MATRIX_READING_POLL_SECONDS, ELS_MATRIX_READING_START } from "./elsMatrixReadingAction.js";
+import { createElsReadingJobRepository, ElsReadingJobStorageError } from "./elsMatrixReadingJobs.js";
 
 export const MAX_FINDINGS = 60;
 
@@ -485,7 +486,7 @@ export function estimateCost({ model, inputTokens, maxTokens, cap, fxRate = FX_A
 const anthropicHeaders = (key) => ({ "x-api-key": key, "anthropic-version": API_VERSION, "content-type": "application/json" });
 async function anthropicJson(fetchImpl, key, path, init = {}, label) {
   let res;
-  try { res = await fetchImpl(`https://api.anthropic.com${path}`, { ...init, headers: { ...anthropicHeaders(key), ...(init.headers ?? {}) } }); } catch (error) { throw new ReadingError("anthropic_unreachable", `${label}: ${String(error?.message ?? error).slice(0, 120)}`); }
+  try { res = await fetchImpl(`https://api.anthropic.com${path}`, { ...init, redirect: "error", headers: { ...anthropicHeaders(key), ...(init.headers ?? {}) } }); } catch (error) { throw new ReadingError("anthropic_unreachable", `${label}: ${String(error?.message ?? error).slice(0, 120)}`); }
   const text = await res.text();
   if (!res.ok) throw new ReadingError(res.status === 404 ? "anthropic_not_found" : "anthropic_error", `${label}: HTTP ${res.status} ${text.slice(0, 160)}`);
   try { return JSON.parse(text); } catch { throw new ReadingError("anthropic_bad_json", label); }
@@ -509,16 +510,18 @@ export async function countInputTokens({ fetchImpl, key, request }) {
   if (!Number.isFinite(out.input_tokens)) throw new ReadingError("anthropic_bad_json", "count_tokens");
   return out.input_tokens;
 }
-export const createBatch = ({ fetchImpl, key, request }) => anthropicJson(fetchImpl, key, "/v1/messages/batches", { method: "POST", body: JSON.stringify({ requests: [{ custom_id: BATCH_CUSTOM_ID, params: request }] }) }, "batch_create");
+export const createBatch = ({ fetchImpl, key, request, customId = BATCH_CUSTOM_ID }) => anthropicJson(fetchImpl, key, "/v1/messages/batches", { method: "POST", body: JSON.stringify({ requests: [{ custom_id: customId, params: request }] }) }, "batch_create");
 export const cancelBatch = ({ fetchImpl, key, batchId }) => anthropicJson(fetchImpl, key, `/v1/messages/batches/${encodeURIComponent(batchId)}/cancel`, { method: "POST" }, "batch_cancel");
 export const retrieveBatch = ({ fetchImpl, key, batchId }) => anthropicJson(fetchImpl, key, `/v1/messages/batches/${encodeURIComponent(batchId)}`, { method: "GET" }, "batch_retrieve");
-export async function fetchBatchEntry({ fetchImpl, key, batch }) {
-  if (!batch.results_url) throw new ReadingError("anthropic_bad_json", "results_url missing");
+export async function fetchBatchEntry({ fetchImpl, key, batch, customId = BATCH_CUSTOM_ID }) {
+  if (!/^msgbatch_[A-Za-z0-9]{4,64}$/.test(batch.id || "")) throw new ReadingError("anthropic_bad_json", "invalid batch id");
+  const endpoint = `https://api.anthropic.com/v1/messages/batches/${batch.id}/results`;
+  if (batch.results_url !== endpoint) throw new ReadingError("anthropic_bad_json", "unexpected results endpoint");
   let res;
-  try { res = await fetchImpl(batch.results_url, { headers: anthropicHeaders(key) }); } catch (error) { throw new ReadingError("anthropic_unreachable", `results: ${String(error?.message ?? error).slice(0, 120)}`); }
+  try { res = await fetchImpl(endpoint, { headers: anthropicHeaders(key), redirect: "error" }); } catch { throw new ReadingError("anthropic_unreachable", "results unavailable"); }
   const text = await res.text();
   if (!res.ok) throw new ReadingError("anthropic_error", `results: HTTP ${res.status} ${text.slice(0, 160)}`);
-  const entry = text.split("\n").filter((line) => line.trim()).map((line) => JSON.parse(line)).find((e) => e.custom_id === BATCH_CUSTOM_ID);
+  const entry = text.split("\n").filter((line) => line.trim()).map((line) => JSON.parse(line)).find((e) => e.custom_id === customId);
   if (!entry) throw new ReadingError("anthropic_bad_json", "result entry missing");
   return entry;
 }
@@ -619,31 +622,6 @@ export async function resolveFx({ env, fetchImpl, restHeaders }) {
   return { fxRate: FX_ASSUMED_ILS_PER_USD, fxBasis: "ASSUMPTION_NOT_VERIFIED", fxEffectiveAt: null, fxRef: null };
 }
 
-// ---------- cost log (the existing ai_token_log; one row per collected batch, found again by the batch id in `ref`) ----------
-export const COST_LOG_KIND = "raziel_els_matrix_reading";
-export async function findLoggedCost({ batchId }, { fetchImpl, supabaseUrl, restHeaders }) {
-  try {
-    const found = await fetchImpl(`${supabaseUrl}/rest/v1/ai_token_log?select=id&ref=eq.${encodeURIComponent(batchId)}&kind=eq.${COST_LOG_KIND}&limit=1`, { headers: restHeaders() });
-    if (!found.ok) return null;
-    const rows = await found.json().catch(() => []);
-    return Array.isArray(rows) && rows.length ? { id: rows[0].id ?? null } : null;
-  } catch { return null; }
-}
-/** The trace/span columns are used only when the span already exists (foreign keys); if that insert is refused the legacy row is written without them, as ai-analyze's logTokens does. */
-export async function insertCostRow({ batchId, model, usage, identity, trace = null }, { fetchImpl, supabaseUrl, restHeaders }) {
-  try {
-    if (!usage || !batchId) return { logged: false, reason: "no_usage" };
-    const userId = identity?.startsWith("u:") ? identity.slice(2) : null;
-    const base = { source: "analyze", kind: COST_LOG_KIND, model, input_tokens: (usage.input_tokens ?? 0) + (usage.cache_creation_input_tokens ?? 0) + (usage.cache_read_input_tokens ?? 0), output_tokens: usage.output_tokens ?? 0, user_id: userId, ref: batchId, ref_name: `els_matrix_reading:${model}:batch` };
-    const send = (row) => fetchImpl(`${supabaseUrl}/rest/v1/ai_token_log?select=id`, { method: "POST", headers: restHeaders({ "Content-Type": "application/json", Prefer: "return=representation" }), body: JSON.stringify(row) });
-    let res = trace?.traceId && trace?.spanId ? await send({ ...base, trace_id: trace.traceId, span_id: trace.spanId }) : null;
-    if (!res || !res.ok) res = await send(base);
-    if (!res.ok) return { logged: false, reason: `HTTP ${res.status}` };
-    const rows = await res.json().catch(() => []);
-    return { logged: true, existed: false, id: Array.isArray(rows) ? rows[0]?.id ?? null : null };
-  } catch (error) { return { logged: false, reason: String(error?.message ?? error).slice(0, 100) }; }
-}
-
 // ---------- the operation (inside the Raziel turn of ai-analyze) ----------
 export const PROVIDER_LIVE = "anthropic_live";
 export const PROVIDER_TEST_DOUBLE = "test_double";
@@ -705,7 +683,7 @@ const progressOf = ({ startedMs, nowMs, batch = null }) => ({
 /**
  * ONE operation of the reading, called from the Raziel turn of ai-analyze after the site gates (availability, caller JWT, canonical research opt-in, axis replay by the bridge).
  *   action  the normalised closed action (elsMatrixReadingAction.js)
- *   axis    {term, scope, skip, dir, start} from the validated matrix context (preview/start only)
+ *   axis    {term, scope, corpusId, skip, dir, start} from the validated matrix context for every operation
  *   deps    { fetchImpl, now, restHeaders, providerKind, trace?, env: { enabled, anthropicKey, supabaseUrl, serviceKey, jobSecret, model, fxIlsPerUsd } }
  * Returns { status, payload, outcome }: `payload` is the els_matrix_reading_v1 result; `status` is an HTTP-like code (the route answers 200 for every handled outcome);
  * `outcome` is the operational-trace outcome of the request, or null when nothing worth a trace happened (a preview, a poll that is still running).
@@ -736,15 +714,18 @@ export async function runElsMatrixReadingOperation({ action, axis = null, identi
   const secret = env.jobSecret || (env.serviceKey ? `els-matrix-reading-v1:${env.serviceKey}` : "");
   try {
     const model = resolveModel(env);
-    const isJob = action.op === "status" || action.op === "cancel";
-    const checked = isJob ? null : normalizeAxis(axis);
-    if (checked && !checked.ok) return refuse(checked.error, 400);
+    const isJob = ["status", "cancel", "recover"].includes(action.op);
+    const checked = normalizeAxis(axis);
+    if (!checked.ok) return refuse(checked.error, 400);
     // The rate is read at most once per request and only when a cost is shown or computed (a poll that is still running needs none).
     let fxPromise = null;
     const getFx = () => (fxPromise ??= resolveFx({ env, fetchImpl, restHeaders: deps.restHeaders }));
-    if (isJob) return await jobOperation({ action, identity, secret, model, getFx, deps, seal, refuse, rest, now, record });
-    return await newReading({ action, axis: checked.axis, identity, secret, model, fx: await getFx(), deps, seal, refuse, rest, now, record });
+    const repository = action.op === "preview" ? null : createElsReadingJobRepository({ ...rest, identity });
+    if (isJob) return await durableJobOperation({ action, axis: { ...checked.axis, corpusId: axis?.corpusId }, identity, secret, model, getFx, deps, seal, refuse, rest, now, record, repository });
+    if (action.op === "start" && !action.request_id) return refuse("reading_request_id_required", 400);
+    return await newReading({ action, axis: checked.axis, identity, secret, model, fx: await getFx(), deps, seal, refuse, rest, now, record, repository });
   } catch (error) {
+    if (error instanceof ElsReadingJobStorageError) return refuse(error.code, 503);
     if (error instanceof ReadingError) {
       const status = ERROR_STATUS[error.code] ?? 502;
       if (REFUSAL_CODES.has(error.code)) return refuse(error.code, status, { detail: error.detail });
@@ -770,7 +751,67 @@ const spanDetail = ({ model, routing, outputUse, stopReason = null, resources = 
   ...extra,
 });
 
-async function newReading({ action, axis, identity, secret, model, fx, deps, seal, refuse, rest, now, record }) {
+async function readingScopeKey(axis) {
+  const corpus = axis?.corpus_id || axis?.corpusId;
+  if (typeof corpus !== "string" || !corpus) throw new ReadingError("reading_corpus_required");
+  return sha256Hex(canonicalJson({ corpus, term: axis.term, scope: axis.scope, start: axis.start, skip: axis.skip, dir: axis.dir }));
+}
+
+function recordedJobResponse(job, { seal, now, reused = false }) {
+  if (job.result && ["COMPLETE", "INCOMPLETE", "FAILED"].includes(job.state)) {
+    // Preserve the original provider/fixture provenance; fetching a record is not a new model call.
+    return { status: 200, outcome: null, payload: { ...job.result, job: { ...job.result.job, id: job.id }, recovered: true, reused } };
+  }
+  const unknown = job.state === "UNKNOWN" || (job.state === "STARTING" && now() - Date.parse(job.created_at) > 90_000);
+  return seal({ ...job.snapshot, ok: !unknown, state: unknown ? STATES.FAILED : STATES.RUNNING,
+    ...(unknown ? { error: "reading_start_outcome_unknown", reason: "reading_start_outcome_unknown", retryable: false } : {}),
+    restart_blocked: true, reused, job: { id: job.id, batch_id: job.batch_id || undefined, poll_after_seconds: ELS_MATRIX_READING_POLL_SECONDS },
+    spent: { usd: null, ai_calls: null }, progress: progressOf({ startedMs: Date.parse(job.created_at), nowMs: now() }),
+  });
+}
+
+async function durableJobOperation(args) {
+  const { action, axis, identity, secret, repository, seal, refuse, now, deps } = args;
+  let selector;
+  if (action.op === "recover") selector = { scopeKey: await readingScopeKey(axis) };
+  else if (action.job_id) selector = { id: action.job_id };
+  else {
+    const verified = await verifyJobToken(action.job_token, secret, { now: now() });
+    if (!verified.ok) return refuse(verified.error, verified.error === "job_token_expired" ? 410 : 400);
+    if (verified.payload.i !== identity) return refuse("reading_job_not_found", 404);
+    // Older token clients may locate a registered batch, but never bypass its durable accounting.
+    selector = { batchId: verified.payload.b };
+  }
+  const { job } = await repository.get(selector);
+  const selected = job?.snapshot?.axis;
+  if (!job || !selected || !["term", "scope", "start", "skip", "dir"].every(key => selected[key] === axis[key])
+    || selected.corpus_id !== axis.corpusId) return refuse("reading_job_not_found", 404);
+  if (job.result || !job.job_payload) {
+    if (!job.result && action.op === "cancel") return seal({ ...job.snapshot, ok: false, state: STATES.FAILED,
+      error: "reading_provider_handle_pending", retryable: true, restart_blocked: true, job: { id: job.id }, spent: { usd: null, ai_calls: null } });
+    return recordedJobResponse(job, { seal, now, reused: action.op === "recover" });
+  }
+  try {
+    const result = await jobOperation({ ...args, action: { ...action, op: action.op === "recover" ? "status" : action.op }, trustedJob: job.job_payload,
+      deps: { ...deps, recordDurableCost: ({ model, usage, trace }) => repository.cost({ id: job.id, model, usage, trace }) } });
+    result.payload.axis = job.snapshot.axis;
+    result.payload.job = { ...result.payload.job, id: job.id };
+    if (action.op === "recover") result.payload.recovered = true;
+    delete result.payload.job.token;
+    if ([STATES.COMPLETE, STATES.INCOMPLETE, STATES.FAILED].includes(result.payload.state) && !result.payload.retryable) {
+      const stored = await repository.finish({ id: job.id, result: result.payload });
+      if (!stored.job?.result) throw new ElsReadingJobStorageError();
+      return { ...result, payload: { ...stored.job.result, recovered: action.op === "recover" } };
+    }
+    return result;
+  } catch (error) {
+    // The provider job is durable. A failed poll/receipt/cache write cannot mean permission to pay again.
+    return seal({ ...job.snapshot, ok: false, state: STATES.FAILED, error: error?.code || "reading_collection_unavailable",
+      retryable: true, restart_blocked: true, job: { id: job.id }, spent: { usd: null, ai_calls: null } }, 503, "failed_with_reason");
+  }
+}
+
+async function newReading({ action, axis, identity, secret, model, fx, deps, seal, refuse, rest, now, record, repository }) {
   const { env, fetchImpl } = deps;
   const startedMs = now();
   const rowsWanted = action.window?.rows ?? DEFAULTS.rows, colsWanted = action.window?.cols ?? DEFAULTS.cols, cap = action.cap ?? DEFAULTS.cap, story = action.story ?? "";
@@ -806,18 +847,36 @@ async function newReading({ action, axis, identity, secret, model, fx, deps, sea
   }
   // start: the acknowledged upper bound must cover the bound of these exact parameters
   if (action.ack_upper_bound_usd + 1e-9 < estimate.upper_bound_usd) return seal({ ...common, ok: false, state: STATES.REFUSED, error: "ack_below_upper_bound", required_ack_upper_bound_usd: estimate.upper_bound_usd, spent: { usd: 0, ai_calls: 0 } }, 409);
+  const scopeKey = await readingScopeKey(common.axis);
+  const claimed = await repository.claim({ requestId: action.request_id, scopeKey, requestHash: lockSha, snapshot: common });
+  const durable = claimed.job;
+  if (!durable?.id) throw new ElsReadingJobStorageError();
+  if (claimed.created !== true) return recordedJobResponse(durable, { seal, now, reused: true });
+  // One claim permits one automatic provider POST. Ambiguous outcomes NEVER release this claim.
+  const customId = `els_${durable.id}`;
   let batch;
-  try { batch = await createBatch({ fetchImpl, key: env.anthropicKey, request: modelRequest }); } catch (error) {
-    return seal({ ...common, ok: false, state: STATES.FAILED, error: "batch_create_failed", reason: error instanceof ReadingError ? error.code : "unknown", detail: error?.detail ?? String(error?.message ?? error).slice(0, 160), spent: { usd: 0, ai_calls: 0 } }, 502, "provider_error");
+  try {
+    batch = await createBatch({ fetchImpl, key: env.anthropicKey, request: modelRequest, customId });
+    if (!/^msgbatch_[A-Za-z0-9]{4,64}$/.test(batch?.id || "")) throw new Error("invalid batch receipt");
+  } catch {
+    try { await repository.markUnknown(durable.id); } catch { /* STARTING itself remains excluded from a second dispatch. */ }
+    return recordedJobResponse({ ...durable, state: "UNKNOWN" }, { seal, now });
   }
   const createdMs = Date.parse(batch.created_at) || now();
   const payload = {
-    v: 1, b: batch.id, i: String(identity ?? ""), t: createdMs, x: createdMs + JOB_TTL_MS, m: model, vf: now(), rs: reqSha, ls: lockSha, ws: prepared.windowDigest, ins: instruction,
-    ax: { term: axis.term, skip: axis.skip, dir: axis.dir, start: axis.start },
+    v: 1, b: batch.id, bc: customId, i: String(identity ?? ""), t: createdMs, x: createdMs + JOB_TTL_MS, m: model, vf: now(), rs: reqSha, ls: lockSha, ws: prepared.windowDigest, ins: instruction,
+    ax: { term: axis.term, skip: axis.skip, dir: axis.dir, start: axis.start, corpus_id: common.axis.corpus_id },
     w: { r0: prepared.window.r0, c0: prepared.window.c0, rows: prepared.window.rows, cols: prepared.window.cols, requested: prepared.window.requested }, cap,
     est: { upper_bound_usd: estimate.upper_bound_usd, expected_usd: estimate.expected_usd, input_tokens: inputTokens },
   };
-  const jobToken = await signJobToken(payload, secret);
+  try {
+    const attached = await repository.attach({ id: durable.id, batchId: batch.id, payload });
+    if (attached.job?.batch_id !== batch.id || attached.job?.id !== durable.id) throw new ElsReadingJobStorageError();
+  } catch {
+    // The attach may have committed even when its response was lost. Recover reads the authoritative row.
+    return seal({ ...common, state: STATES.FAILED, error: "reading_tracking_write_uncertain", retryable: true,
+      restart_blocked: true, job: { id: durable.id }, spent: { usd: null, ai_calls: null } }, 503, "failed_with_reason");
+  }
   const endedMs = now();
   await record({ kind: "engine", name: "ai-analyze:raziel:els-matrix-reading:window-and-axis", startedAt: new Date(startedMs).toISOString(), endedAt: new Date(endedMs).toISOString(), outcome: "success",
     detail: spanDetail({ model, routing: "explicit_matrix_reading_click", outputUse: "used", resources: { rpc_calls: 1 + prepared.window.rows, latency_ms: endedMs - startedMs }, parametersRef: `contract:${READING_CONTRACT};op:start;window:${prepared.window.rows}x${prepared.window.cols};window_sha256:${prepared.windowDigest}`, extra: { engine_version: "els_occurrence_replay_v1" } }) });
@@ -825,15 +884,15 @@ async function newReading({ action, axis, identity, secret, model, fx, deps, sea
     detail: spanDetail({ model, routing: "explicit_matrix_reading_click", outputUse: "not_applicable", resources: { input_tokens: inputTokens, api_calls: 3, latency_ms: endedMs - startedMs }, cost: { certainty: "unknown", creditsCharged: 0 }, parametersRef: `contract:${READING_CONTRACT};cap:${cap};max_tokens:${DEFAULTS.maxTokens};effort:${DEFAULTS.effort};batch:true;request_sha256:${reqSha};instruction:${instruction}`, extra: { request_ref: batch.id } }) });
   return seal({
     ...common, state: STATES.RUNNING,
-    job: { token: jobToken, batch_id: batch.id, created_at: batch.created_at ?? new Date(createdMs).toISOString(), poll_after_seconds: ELS_MATRIX_READING_POLL_SECONDS, expires_at: new Date(payload.x).toISOString() },
+    job: { id: durable.id, batch_id: batch.id, created_at: batch.created_at ?? new Date(createdMs).toISOString(), poll_after_seconds: ELS_MATRIX_READING_POLL_SECONDS, expires_at: new Date(payload.x).toISOString() },
     progress: progressOf({ startedMs: createdMs, nowMs: now() }),
     spent: { usd: null, note: "incurred on the provider side once the batch runs; the actual cost is computed from the usage object when the result is collected" },
   }, 200, "success");
 }
 
-async function jobOperation({ action, identity, secret, model, getFx, deps, seal, refuse, rest, now, record }) {
+async function jobOperation({ action, identity, secret, model, getFx, deps, seal, refuse, rest, now, record, trustedJob = null }) {
   const { env, fetchImpl } = deps;
-  const verified = await verifyJobToken(action.job_token, secret, { now: now() });
+  const verified = trustedJob ? { ok: true, payload: trustedJob } : await verifyJobToken(action.job_token, secret, { now: now() });
   if (!verified.ok) return refuse(verified.error, verified.error === "job_token_expired" ? 410 : 400);
   const job = verified.payload;
   if (job.i !== String(identity ?? "")) return refuse("job_belongs_to_another_identity");
@@ -857,11 +916,13 @@ async function jobOperation({ action, identity, secret, model, getFx, deps, seal
       note: "the provider was asked to cancel; work already done may still be billed and is logged when the batch is collected; no refund is promised" }, 200, "cancelled");
   }
   const batch = await retrieveBatch({ fetchImpl, key: env.anthropicKey, batchId: job.b });
+  if (batch?.id !== job.b || !["in_progress", "canceling", "ended"].includes(batch.processing_status)) throw new ReadingError("anthropic_bad_json", "invalid batch status");
   if (batch.processing_status === "canceling") return seal({ ...base, state: STATES.CANCEL_REQUESTED, job: { ...base.job, processing_status: "canceling", poll_after_seconds: ELS_MATRIX_READING_POLL_SECONDS } });
   if (batch.processing_status !== "ended") {
     return seal({ ...base, state: STATES.RUNNING, job: { ...base.job, elapsed_ms: Math.max(0, now() - job.t), processing_status: batch.processing_status, poll_after_seconds: ELS_MATRIX_READING_POLL_SECONDS }, progress: progressOf({ startedMs: job.t, nowMs: now(), batch }) });
   }
-  const entry = await fetchBatchEntry({ fetchImpl, key: env.anthropicKey, batch });
+  const entry = await fetchBatchEntry({ fetchImpl, key: env.anthropicKey, batch, customId: job.bc || BATCH_CUSTOM_ID });
+  if (!["succeeded", "errored", "canceled", "expired"].includes(entry.result?.type)) throw new ReadingError("anthropic_bad_json", "invalid batch result");
   const timing = { created_at: batch.created_at ?? null, ended_at: batch.ended_at ?? null, elapsed_ms: Math.max(0, Date.parse(batch.ended_at) - Date.parse(batch.created_at)) || null };
   if (entry.result?.type !== "succeeded") {
     const reason = `batch_${entry.result?.type ?? "no_result"}`;
@@ -882,15 +943,22 @@ async function jobOperation({ action, identity, secret, model, getFx, deps, seal
   else { parsed = parseModelOutput(text); if (!parsed.ok) { state = STATES.INCOMPLETE; reason = "invalid_json"; note = parsed.error; } }
   const spanOutcome = state === STATES.COMPLETE ? "success" : reason === "max_tokens" ? "continuation_required" : "failed_with_reason";
   // the cost is incurred whatever the verification does next: log it once (found again by the batch id), tied to the model span of this collection
-  const already = await findLoggedCost({ batchId: job.b }, rest);
-  let logged = already ? { logged: true, existed: true, id: already.id } : null;
+  // The atomic receipt elects one collector before any paid-model trace is emitted.
+  // Tokens without a registered durable job never reach this path.
+  if (!deps.recordDurableCost) throw new ElsReadingJobStorageError();
+  const logged = await deps.recordDurableCost({ model: message.model ?? jobModel, usage });
+  if (!logged?.logged || !logged.id) throw new ElsReadingJobStorageError();
+  const already = logged.existed === true;
   if (!already) {
     const endedMs = now();
     const spanRef = await record({ kind: "model_call", name: "ai-analyze:raziel:els-matrix-reading:model", startedAt: batch.created_at ?? new Date(job.t).toISOString(), endedAt: batch.ended_at ?? new Date(endedMs).toISOString(), outcome: spanOutcome,
       detail: spanDetail({ model: message.model ?? jobModel, routing: "explicit_matrix_reading_click", outputUse: state === STATES.COMPLETE ? "used" : "rejected", stopReason: reason, resources: { input_tokens: output.input_tokens, output_tokens: output.output_tokens, api_calls: 1, latency_ms: timing.elapsed_ms },
         cost: cost.usd === null ? { certainty: "unknown", creditsCharged: 0 } : { providerNativeAmount: cost.usd, providerCurrency: "USD", fxRate: fx.fxRate, fxEffectiveAt: fx.fxEffectiveAt, costIls: cost.ils.amount, pricingRef: `list_price:${message.model ?? jobModel};batch_factor:${BATCH_FACTOR}`, certainty: "estimated", creditsCharged: 0 },
         parametersRef: `contract:${READING_CONTRACT};cap:${job.cap};max_tokens:${DEFAULTS.maxTokens};batch:true;request_sha256:${job.rs}`, extra: { request_ref: job.b } }) });
-    logged = await insertCostRow({ batchId: job.b, model: message.model ?? jobModel, usage, identity, trace: spanRef }, rest);
+    if (spanRef) {
+      try { await deps.recordDurableCost({ model: message.model ?? jobModel, usage, trace: spanRef }); }
+      catch { /* Receipt is already durable. A missing optional trace link cannot create another cost/model event. */ }
+    }
   }
   const common = { ...base, timing, cost: { ...cost, logged: logged.logged === true, ai_token_log_ref: job.b }, output };
   if (state === STATES.INCOMPLETE) return seal({ ...common, state, reason, continuation_required: reason === "max_tokens", findings: [], summary: null, note }, 200, spanOutcome);
@@ -944,6 +1012,8 @@ const REFUSALS = Object.freeze({
   job_token_expired: "הקריאה פגה (עברו יותר מ־14 יום).",
   job_belongs_to_another_identity: "הקריאה הזו שייכת למשתמש אחר.",
   invalid_job_token: "מזהה הקריאה אינו תקין.",
+  reading_job_not_found: "לא נמצאה סריקה קודמת שלך למופע המדויק הזה. לא הופעל מודל.",
+  reading_job_storage_unavailable: "לא ניתן לגשת לרישום הסריקות כרגע. לא נשלחה סריקה נוספת לספק.",
   input_too_large: "האזור שנבחר גדול מדי למודל; בחר אזור קטן יותר.",
 });
 
@@ -954,6 +1024,7 @@ export function razielReadingAnswer(result) {
   const coverageLine = (c) => c && `אזור הקריאה: שורות ${c.rows.from}–${c.rows.to} (${c.rows.count}) ועמודות ${c.cols.from}–${c.cols.to} (${c.cols.count}) מתוך מטריצה ברוחב ${c.matrix_width}; ${c.cells} תאים, ${c.lines_shown.total} קווים בשני כיוונים. מה שמחוץ לאזור לא נקרא.`;
   const axisLine = (a) => a && `הציר: ${a.term} · דילוג ${a.skip} · ${dirWord(a.dir)} · התחלה ${a.start} (אומת במנוע הקנוני).`;
   const noCredits = "לא חויבו קרדיטים; החזר אוטומטי לא נבדק ואינו מובטח.";
+  if (result.recovered || result.reused) lines.push("חזרה לסריקה קיימת — לא הופעל מודל מחדש.");
   switch (result.state) {
     case "PREVIEW": {
       const e = result.estimate;
@@ -975,7 +1046,10 @@ export function razielReadingAnswer(result) {
         result.continuation_required ? "המודל הגיע לתקרת הפלט שלו לפני שסיים; חלון או תקרת הצעות קטנים יותר עשויים להסתיים (בניסויים תקרה של 25 הצעות הסתיימה בלי קטיעה), אך אין הבטחה." : "", noCredits);
       break;
     case "FAILED_WITH_REASON":
-      lines.push(`הקריאה נכשלה: ${result.reason ?? result.error ?? "סיבה לא ידועה"}.`, result.retryable ? "אפשר לבדוק שוב את אותה קריאה; התשובה שמורה אצל הספק." : "", result.cost?.usd != null ? `עלות שנגרמה: ${money(result.cost)}.` : "", noCredits);
+      lines.push(result.error === "reading_start_outcome_unknown"
+        ? "לא ידוע אם הספק התחיל את הסריקה; העלות אינה ידועה. סריקה נוספת למופע הזה חסומה עד בירור כדי למנוע חיוב כפול."
+        : `הקריאה נכשלה: ${result.reason ?? result.error ?? "סיבה לא ידועה"}.`,
+        result.retryable ? "אפשר לבדוק שוב את אותה סריקה; לא נשלחת בקשה חדשה למודל." : "", result.cost?.usd != null ? `עלות שנגרמה: ${money(result.cost)}.` : "", noCredits);
       break;
     case "REFUSED":
       lines.push(REFUSALS[result.error] ?? `הקריאה לא התבצעה: ${result.error ?? "לא ידוע"}.`);

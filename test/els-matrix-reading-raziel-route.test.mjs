@@ -22,7 +22,7 @@ const options = (w, over = {}) => ({
   bearer: USER_JWT, verifiedUid: UID, role: "admin", allowed: true, elsVerifyStatus: "match",
   envOverrides: { ELS_MATRIX_READING_ENABLED: "1", ELS_MATRIX_READING_JOB_SECRET: "route-test-secret" },
   extraRoute: async ({ url, init }) => {
-    const handled = (url.origin === FIXTURE && /\/rest\/v1\/(torah_stream|api_pricing|ai_token_log|rpc\/els_verify_occurrence_v1)/.test(url.pathname)) || url.origin === "https://api.anthropic.com";
+    const handled = (url.origin === FIXTURE && /\/rest\/v1\/(torah_stream|api_pricing|ai_token_log|rpc\/(els_verify_occurrence_v1|els_matrix_reading_job_))/.test(url.pathname)) || url.origin === "https://api.anthropic.com";
     if (!handled) return null;
     const r = await w.fetchImpl(url.href, init);
     return new Response(await r.text(), { status: r.status });
@@ -53,13 +53,13 @@ test("a start through the real Raziel route: no ordinary model call, the batch i
 test("a poll that is still running leaves no trace; the collection logs the cost once with the batch id and tells the whole story in the Raziel answer", async () => {
   const w = fresh();
   const started = await runAiAnalyze({ ...options(w), body: body(req("start", { ack_upper_bound_usd: 2 })) });
-  const token = started.result.els_matrix_reading.job.token;
-  const running = await runAiAnalyze({ ...options(w), body: body(req("status", { job_token: token })) });
+  const jobId = started.result.els_matrix_reading.job.id;
+  const running = await runAiAnalyze({ ...options(w), body: body(req("status", { job_id: jobId })) });
   assert.equal(running.result.els_matrix_reading.state, "RUNNING");
   assert.equal(running.traces.length, 0, "no begin, no span, no finish for a poll that is still running");
   assert.equal(running.calls.filter((c) => c.name === "els-search-bridge").length, 0, "polls are bound to the signed job, not re-verified through the bridge");
   w.state.batchState = "ended";
-  const done = await runAiAnalyze({ ...options(w), body: body(req("status", { job_token: token })) });
+  const done = await runAiAnalyze({ ...options(w), body: body(req("status", { job_id: jobId })) });
   assert.equal(done.result.els_matrix_reading.state, "COMPLETE");
   assert.match(done.result.raziel.answer, /אומתו במנוע ה־ELS הקנוני: 25/);
   assert.deepEqual(done.result.usage, { input_tokens: savedAnswer.summary.usage.input_tokens, output_tokens: savedAnswer.summary.usage.output_tokens });
@@ -69,7 +69,7 @@ test("a poll that is still running leaves no trace; the collection logs the cost
   const costSpan = done.spans.find((s) => s.p_kind === "model_call");
   assert.equal(costSpan.p_detail.cost.certainty, "estimated");
   assert.equal(costSpan.p_detail.cost.creditsCharged, 0);
-  const again = await runAiAnalyze({ ...options(w), body: body(req("status", { job_token: token })) });
+  const again = await runAiAnalyze({ ...options(w), body: body(req("status", { job_id: jobId })) });
   assert.equal(again.result.els_matrix_reading.state, "COMPLETE");
   assert.deepEqual([w.tokenLog.length, again.traces.length], [1, 0]);
 });
@@ -118,7 +118,7 @@ test("a preview and a cancel go through the same door; the preview runs no model
   assert.equal(preview.traces.length, 0);
   assert.equal(w.calls.filter((c) => c.url.endsWith("/messages/batches") && c.method === "POST").length, 0);
   const started = await runAiAnalyze({ ...options(w), body: body(req("start", { ack_upper_bound_usd: 2 })) });
-  const cancel = await runAiAnalyze({ ...options(w), body: body({ id: ELS_MATRIX_READING_ACTION, op: "cancel", job_token: started.result.els_matrix_reading.job.token }) });
+  const cancel = await runAiAnalyze({ ...options(w), body: body({ id: ELS_MATRIX_READING_ACTION, op: "cancel", job_id: started.result.els_matrix_reading.job.id }) });
   assert.equal(cancel.result.els_matrix_reading.state, "CANCEL_REQUESTED");
   assert.equal(w.state.cancelled, true);
 });

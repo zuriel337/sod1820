@@ -155,11 +155,13 @@ test("relation to the selected occurrence: crossing, touching, far", () => {
   assert.deepEqual(M.relationToAxis(region, [[r - 1, c + 1]]), { distance: 1, relation: "touches" });
 });
 
-test("the modules are plain text for both runtimes: the only import is the sibling action contract; no Node or Deno API by name", () => {
-  for (const name of ["elsMatrixReading.js", "elsMatrixReadingAction.js"]) {
+test("the modules stay plain JS with only their explicit sibling action/job dependencies; no Node or Deno API by name", () => {
+  const allowed = { "elsMatrixReading.js": ["./elsMatrixReadingAction.js", "./elsMatrixReadingJobs.js"],
+    "elsMatrixReadingAction.js": [], "elsMatrixReadingJobs.js": ["./elsMatrixReadingAction.js"] };
+  for (const name of Object.keys(allowed)) {
     const source = readFileSync(new URL(`../supabase/functions/_shared/${name}`, import.meta.url), "utf8");
     const imports = source.match(/^import .*$/gm) ?? [];
-    assert.deepEqual(imports.map((line) => line.match(/from "([^"]+)"/)[1]), name === "elsMatrixReading.js" ? ["./elsMatrixReadingAction.js"] : [], name);
+    assert.deepEqual(imports.map((line) => line.match(/from "([^"]+)"/)[1]), allowed[name], name);
     assert.doesNotMatch(source, /Deno\.|node:|process\.env|require\(/, name);
   }
 });

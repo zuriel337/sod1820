@@ -1,6 +1,6 @@
 // A display-only projection inside the EXISTING saved Raziel conversation.
 // No storage, requests, tokens, automatic resume, ELS calculation or new truth owner.
-import { ELS_MATRIX_READING_RESULT_CONTRACT } from "../../../supabase/functions/_shared/elsMatrixReadingAction.js";
+import { ELS_MATRIX_READING_RESULT_CONTRACT, isElsReadingJobId } from "../../../supabase/functions/_shared/elsMatrixReadingAction.js";
 
 const object = value => value !== null && typeof value === "object" && !Array.isArray(value);
 const scalar = value => typeof value === "boolean" || value === null || (typeof value === "number" && Number.isFinite(value))
@@ -21,13 +21,13 @@ function project(value, schema) {
 const span = fields("from to count requested");
 const byKind = fields("R C D A");
 const schema = {
-  ...fields("contract ok state error reason continuation_required experimental is_test_fixture"),
+  ...fields("contract ok state error reason continuation_required experimental is_test_fixture retryable restart_blocked recovered"),
   model: fields("id verified_available verified_at source"),
   provider: fields("name route kind live_model_call"),
-  axis: fields("term scope skip dir start"),
+  axis: fields("term scope skip dir start corpus_id occurrence_id verification_state"),
   request: fields("instruction sha256 lock_sha256 window_sha256 cap"),
   // Only non-secret provenance. In particular job.token, request bodies, provider output and progress are not saved.
-  job: fields("batch_id created_at expires_at"),
+  job: { ...fields("batch_id created_at expires_at"), id: value => isElsReadingJobId(value) ? value : undefined },
   timing: fields("created_at ended_at elapsed_ms"),
   cost: {
     ...fields("usd batch_factor provider_currency basis certainty logged ai_token_log_ref"),
@@ -62,6 +62,7 @@ export function projectSavedElsMatrixReading(value, contextAxis) {
   const saved = project(value, schema);
   const axis = saved.axis;
   if (axis && (!contextAxis || !["term", "scope", "skip", "dir", "start"].every(key => axis[key] === contextAxis[key]))) return null;
+  if (axis?.corpus_id && axis.corpus_id !== contextAxis?.corpusId) return null;
   if (value.state === "COMPLETE" && (!axis || typeof axis.term !== "string" || !axis.term
     || !Number.isSafeInteger(axis.start) || axis.start < 0 || !Number.isSafeInteger(axis.skip) || axis.skip < 1
     || ![1, -1].includes(axis.dir) || typeof contextAxis?.corpusId !== "string" || !contextAxis.corpusId)) return null;
@@ -82,7 +83,7 @@ export function projectSavedElsMatrixReading(value, contextAxis) {
     if (verification.state === "PLAIN_TEXT_ONLY" && (!positioned || occurrence.skip !== 1 || verification.letters_match !== true)) verification.state = "NOT_VERIFIED";
   }
   saved.saved_snapshot = true; // Historical display, never a fresh replay or a live request.
-  saved.tracking_unavailable = value.tracking_unavailable === true || Boolean(value.poll_interrupted)
-    || ["RUNNING", "CANCEL_REQUESTED"].includes(value.state) || (value.retryable === true && Boolean(value.job?.token));
+  saved.tracking_unavailable = !isElsReadingJobId(saved.job?.id) && (value.tracking_unavailable === true || Boolean(value.poll_interrupted)
+    || ["RUNNING", "CANCEL_REQUESTED"].includes(value.state) || (value.retryable === true && Boolean(value.job?.token)));
   return saved;
 }

@@ -2793,8 +2793,9 @@ Deno.serve(async (req: Request) => {
           return rzJson({ analysis: null, error: "availability", message: availability?.availability?.message || "רזיאל באתר נמצא בהכנה." });
         }
       }
-      // A status/cancel of a job already started is bound to its signed job token (axis, window and identity are inside it), so the bridge replay is not repeated on every poll.
-      const rMatrixReadingJobOp = rMatrixReading?.op === "status" || rMatrixReading?.op === "cancel";
+      // Collection/recovery binds the server-verified identity and exact axis/corpus to its private durable job.
+      // No bridge replay or new model submission is needed to retrieve that same job.
+      const rMatrixReadingJobOp = ["status", "cancel", "recover"].includes(rMatrixReading?.op || "");
       if (rMatrix && !rMatrixReadingJobOp && !(await verifyElsMatrixAxis(req, rMatrix))) {
         return rzJson({ analysis: null, error: "els_matrix_axis_unverified" }, 422);
       }

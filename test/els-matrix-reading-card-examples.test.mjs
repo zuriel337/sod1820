@@ -35,7 +35,8 @@ test("the examples cover every state a card must draw, with the facts a card mus
   assert.ok(preview.estimate.upper_bound_usd > 0 && preview.estimate.upper_bound_ils.status === "ESTIMATED" && preview.coverage.cells > 0 && preview.model.verified_available === true);
   assert.ok(preview.estimate.truncation_evidence.length > 0);
   const start = committed("running-start.json").response;
-  assert.ok(start.job.token.length > 40 && start.job.poll_after_seconds === 20 && start.progress.expected_minutes.max === 13);
+  assert.ok(start.job.id.length === 36 && start.job.poll_after_seconds === 20 && start.progress.expected_minutes.max === 13);
+  assert.equal(start.job.token, undefined, "new jobs never expose bearer material to the client");
   assert.equal(committed("running-poll.json").response.job.token, undefined, "status answers do not echo the token: the transport keeps it");
   const complete = committed("complete.json");
   assert.ok(complete.response.cost.usd > 0 && complete.response.cost.ils.status === "ESTIMATED" && complete.response.timing.elapsed_ms > 0);
@@ -59,7 +60,7 @@ test("a cut-off answer shows no findings but keeps the incurred cost; a refusal 
 test("the session keeps progress as display state: phase, time, provider status and the references to resume with", () => {
   const { progress_examples: examples, current_turn_after_turn_progress: turn, announcement } = committed("session-progress.json");
   assert.deepEqual(examples.map((p) => p.phase), ["starting", "running", "cancelling"]);
-  assert.ok(examples[1].jobToken && examples[1].batchId && examples[1].providerStatus === "in_progress");
+  assert.ok(examples[1].jobId && !examples[1].jobToken && examples[1].batchId && examples[1].providerStatus === "in_progress");
   assert.equal(turn.progress.phase, "running");
   assert.match(announcement, /קריאת המטריצה רצה אצל הספק/);
 });

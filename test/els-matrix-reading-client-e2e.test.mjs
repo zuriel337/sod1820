@@ -22,7 +22,7 @@ function serverFor(w, { role = "admin", counter = { calls: 0, ops: [] }, onCall 
     bearer: USER_JWT, verifiedUid: UID, role, allowed: true, elsVerifyStatus: "match", body,
     envOverrides: { ELS_MATRIX_READING_ENABLED: "1", ELS_MATRIX_READING_JOB_SECRET: "e2e-secret" },
     extraRoute: async ({ url, init }) => {
-      const handled = (url.origin === FIXTURE && /\/rest\/v1\/(torah_stream|api_pricing|ai_token_log|rpc\/els_verify_occurrence_v1)/.test(url.pathname)) || url.origin === "https://api.anthropic.com";
+      const handled = (url.origin === FIXTURE && /\/rest\/v1\/(torah_stream|api_pricing|ai_token_log|rpc\/(els_verify_occurrence_v1|els_matrix_reading_job_))/.test(url.pathname)) || url.origin === "https://api.anthropic.com";
       if (!handled) return null;
       const r = await w.fetchImpl(url.href, init);
       return new Response(await r.text(), { status: r.status });
@@ -95,7 +95,7 @@ test("one click end to end: start, minutes of polling with progress, the batch e
   assert.equal(w.tokenLog.length, 1);
   assert.ok(t.session.progress.length >= 3, "progress reached the session while it waited");
   assert.deepEqual([t.session.progress[0].phase, t.session.progress.at(-1).phase], ["starting", "running"]);
-  assert.ok(t.session.progress.some((p) => p.batchId === BATCH && p.jobToken && p.providerStatus === "in_progress"));
+  assert.ok(t.session.progress.some((p) => p.batchId === BATCH && p.jobId && !p.jobToken && p.providerStatus === "in_progress"));
   assert.equal(done.provenance.model, "claude-fable-5-1");
   assert.deepEqual(done.provenance.usage, { inputTokens: savedAnswer.summary.usage.input_tokens, outputTokens: savedAnswer.summary.usage.output_tokens });
 }));

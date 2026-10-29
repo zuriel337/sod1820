@@ -6,7 +6,8 @@
 export const ELS_MATRIX_READING_ACTION = "els_matrix_reading_v1";
 export const ELS_MATRIX_READING_SUBJECT = "קרא את המטריצה סביב המופע שבחרתי";
 export const ELS_MATRIX_READING_RESULT_CONTRACT = "els_matrix_reading_v1";
-export const ELS_MATRIX_READING_OPS = Object.freeze(["preview", "start", "status", "cancel"]);
+export const ELS_MATRIX_READING_OPS = Object.freeze(["preview", "start", "status", "cancel", "recover"]);
+export const isElsReadingJobId = value => typeof value === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
 
 /** Bounds the server enforces. The values below the line are an experimental STARTING POINT (ZURIEL, 29.10.2026), not fixed rules. */
 export const ELS_MATRIX_READING_LIMITS = Object.freeze({
@@ -33,7 +34,7 @@ export const ELS_MATRIX_READING_POLL_SECONDS = 20;
 
 const isObject = (value) => Boolean(value) && typeof value === "object" && !Array.isArray(value);
 const isInt = (value) => Number.isSafeInteger(value);
-const KEYS = new Set(["id", "op", "window", "cap", "story", "ack_upper_bound_usd", "job_token"]);
+const KEYS = new Set(["id", "op", "window", "cap", "story", "ack_upper_bound_usd", "job_token", "job_id", "request_id"]);
 
 /** The story is background text from the person, shown to the model as data. Control characters, tags and the quote characters of the prompt frame are removed. */
 export function cleanElsMatrixReadingStory(value) {
@@ -49,23 +50,32 @@ export function cleanElsMatrixReadingStory(value) {
 /**
  * The closed action envelope. Returns null for anything outside the contract (unknown keys, wrong types, out-of-range values) so the caller can refuse the whole request.
  *   preview  window? cap? story?                         reads the stream and the engine, counts tokens, runs NO model
- *   start    window? cap? story? ack_upper_bound_usd      starts ONE run (explicit click); the acknowledged upper bound is required
- *   status   job_token                                    collects, verifies and reports; starts nothing
- *   cancel   job_token                                    asks the provider to cancel the batch
+ *   start    request_id window? cap? story? ack_upper_bound_usd  one explicit run; server requires idempotency UUID and acknowledged bound
+ *   status   job_id OR registered legacy job_token        collects, verifies and reports; starts nothing
+ *   cancel   job_id OR registered legacy job_token        asks the provider to cancel the batch
+ *   recover  no extra fields                             retrieves this owner's latest exact occurrence job; starts nothing
  */
 export function normalizeElsMatrixReadingAction(value) {
   if (!isObject(value) || value.id !== ELS_MATRIX_READING_ACTION) return null;
   if (Object.keys(value).some((key) => !KEYS.has(key))) return null;
   if (!ELS_MATRIX_READING_OPS.includes(value.op)) return null;
   const limits = ELS_MATRIX_READING_LIMITS;
+  if (value.op === "recover") return Object.keys(value).every(key => key === "id" || key === "op")
+    ? { id: ELS_MATRIX_READING_ACTION, op: "recover" } : null;
   if (value.op === "status" || value.op === "cancel") {
-    if (["window", "cap", "story", "ack_upper_bound_usd"].some((key) => value[key] != null)) return null;
+    if (["window", "cap", "story", "ack_upper_bound_usd", "request_id"].some((key) => value[key] != null)) return null;
+    if (value.job_id != null) return isElsReadingJobId(value.job_id) && value.job_token == null
+      ? { id: ELS_MATRIX_READING_ACTION, op: value.op, job_id: value.job_id.toLowerCase() } : null;
     const token = value.job_token;
     if (typeof token !== "string" || token.length < limits.tokenMin || token.length > limits.tokenMax || /[^A-Za-z0-9._-]/.test(token)) return null;
     return { id: ELS_MATRIX_READING_ACTION, op: value.op, job_token: token };
   }
-  if (value.job_token != null) return null;
+  if (value.job_token != null || value.job_id != null) return null;
   const out = { id: ELS_MATRIX_READING_ACTION, op: value.op };
+  if (value.request_id != null) {
+    if (value.op !== "start" || !isElsReadingJobId(value.request_id)) return null;
+    out.request_id = value.request_id.toLowerCase();
+  }
   if (value.window != null) {
     if (!isObject(value.window) || Object.keys(value.window).some((key) => key !== "rows" && key !== "cols")) return null;
     const { rows = ELS_MATRIX_READING_START.rows, cols = ELS_MATRIX_READING_START.cols } = value.window;
@@ -96,6 +106,7 @@ export function normalizeElsMatrixReadingAction(value) {
 const RESULT_KEYS = Object.freeze([
   "contract", "ok", "state", "error", "reason", "continuation_required", "retryable", "experimental", "model", "provider", "axis", "request", "coverage", "estimate",
   "job", "timing", "cost", "output", "findings", "summary", "cap", "observations", "data_class", "is_test_fixture", "notes", "story", "note", "progress", "spent", "poll_interrupted",
+  "restart_blocked", "recovered", "reused",
 ]);
 
 function bound(value, depth = 0) {

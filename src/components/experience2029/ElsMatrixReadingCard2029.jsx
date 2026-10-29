@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import { ELS_MATRIX_READING_ACK_UPPER_BOUND_USD, ELS_MATRIX_READING_START, isLiveFableReading } from "../../../supabase/functions/_shared/elsMatrixReadingAction.js";
+import { ELS_MATRIX_READING_ACK_UPPER_BOUND_USD, ELS_MATRIX_READING_START, isLiveFableReading, isElsReadingJobId } from "../../../supabase/functions/_shared/elsMatrixReadingAction.js";
 import { elsMatrixReadingMode, sameElsMatrixReadingAxis, selectElsMatrixReading } from "../../lib/research/elsMatrixReadingPresentation.js";
 
 const labels = { PREVIEW: "כיסוי ועלות לפני סריקה", RUNNING: "הסריקה עדיין מתבצעת", COMPLETE: "הסריקה הושלמה",
@@ -7,7 +7,11 @@ const labels = { PREVIEW: "כיסוי ועלות לפני סריקה", RUNNING: 
 const errors = { not_enabled: "הסריקה עדיין לא הופעלה בסביבה הזאת.", admin_only: "הסריקה הניסיונית זמינה למנהלים בלבד.",
   preview_mode_only: "כעת אפשר לבדוק כיסוי ועלות בלבד.", scope_not_supported: "הסריקה הזאת תומכת כרגע בתורה בלבד.",
   model_unavailable: "המודל אינו זמין כרגע.", replay_pending_or_changed: "המופע השתנה או ממתין לאימות. נסו לאחר האימות.",
-  turn_pending: "רזיאל עסוק. המתינו לסיום הפעולה הנוכחית.", reading_disabled: "הסריקה עדיין לא הופעלה בסביבה הזאת." };
+  turn_pending: "רזיאל עסוק. המתינו לסיום הפעולה הנוכחית.", reading_disabled: "הסריקה עדיין לא הופעלה בסביבה הזאת.",
+  reading_job_not_found: "לא נמצאה סריקה קודמת שלך למופע המדויק הזה.",
+  reading_start_outcome_unknown: "לא התקבל אישור אם הספק התחיל את הסריקה. העלות אינה ידועה; התחלה נוספת חסומה כדי למנוע חיוב כפול.",
+  reading_job_storage_unavailable: "רישום הסריקות אינו זמין. לא נשלח ניסיון נוסף לספק.",
+  reading_tracking_write_uncertain: "אישור המעקב לא התקבל. אפשר לחזור לסריקה הקיימת; לא תישלח סריקה חדשה." };
 const number = value => typeof value === "number" && Number.isFinite(value);
 const money = value => number(value) ? value.toFixed(2) : "לא ידוע";
 
@@ -23,6 +27,7 @@ function ReadingResult({ result }) {
   return <section className="els29-matrix-reading-result" aria-label="תוצאת סריקת המטריצה" data-reading-state={result.state}>
     <strong>{labels[result.state] || "מצב הסריקה אינו ידוע"}</strong>
     {result.saved_snapshot ? <p role="note">תוצאה שמורה — לפי האימות בסריקה המקורית. לא בוצעה סריקה או בדיקת מנוע חדשה בשחזור.</p> : null}
+    {result.recovered ? <p role="note">חזרנו לסריקה הקיימת. לא הופעלה קריאת מודל חדשה.</p> : null}
     {fixture ? <p role="note">דוגמת בדיקה — לא קריאת AI חיה</p> : live ? <p>קריאת Fable</p> : <p>לא התקבל אישור לקריאת Fable חיה.</p>}
     {result.error || result.reason ? <p>{errors[result.error] || (result.reason === "max_tokens" ? "הקריאה הגיעה לתקרת הפלט בלי תשובה מלאה." : "הפעולה לא הושלמה. הפרטים נשארים בשיחת רזיאל.")}</p> : null}
     {coverage ? <p>נבדק אזור של {coverage.rows?.count} שורות × {coverage.cols?.count} עמודות · {coverage.cells} תאים · {coverage.lines_shown?.total} קווים. האזור שמחוץ לחלון לא נסרק.</p> : null}
@@ -55,12 +60,13 @@ export default function ElsMatrixReadingCard2029({ context, reading = {}, onSubm
   const submitting = useRef(false);
   const axis = context?.axis;
   const available = mode !== "off" && reading.isAdmin === true && !reading.locked && axis?.scope === "torah" && axis.skip >= 15;
-  const resume = result?.job?.token && (result.poll_interrupted || ["RUNNING", "CANCEL_REQUESTED"].includes(result.state) || result.retryable);
-  const submit = async (jobToken = null) => {
-    if (!available || pending || session?.busy || submitting.current || result?.tracking_unavailable || typeof onSubmit !== "function") return;
+  const reference = isElsReadingJobId(result?.job?.id) ? { jobId: result.job.id } : result?.job?.token ? { jobToken: result.job.token } : null;
+  const resume = reference && (result.poll_interrupted || ["RUNNING", "CANCEL_REQUESTED"].includes(result.state) || result.retryable || result.restart_blocked);
+  const submit = async (operation = null) => {
+    if (!available || pending || session?.busy || submitting.current || (!operation && (result?.tracking_unavailable || result?.restart_blocked)) || typeof onSubmit !== "function") return;
     submitting.current = true; setLocal({ pending: true, error: null });
     try {
-      const outcome = await onSubmit(context, jobToken ? { jobToken, op: "status" } : {
+      const outcome = await onSubmit(context, operation || {
         op: mode === "preview" ? "preview" : "start", cap: 25,
         window: { rows: ELS_MATRIX_READING_START.rows, cols: ELS_MATRIX_READING_START.cols },
         ackUpperBoundUsd: ELS_MATRIX_READING_ACK_UPPER_BOUND_USD,
@@ -88,21 +94,22 @@ export default function ElsMatrixReadingCard2029({ context, reading = {}, onSubm
       {mode === "preview" ? <p>בדיקת כיסוי ועלות בלבד — ללא הפעלת מודל.</p> : <p>עד <bdi>$2</bdi> (כ־<bdi>₪7.40</bdi>, הערכה). ייתכן חיוב ספק גם ללא תשובה.</p>}
       <details><summary>אזור הסריקה וזמן ההמתנה</summary>
         <p>עד 33×41 תאים סביב המופע. בניסויים נמדדו 3–13 דקות. אין חיוב קרדיטים. אומדן השקל מבוסס על שער משוער של 3.70.</p>
-        <p>השאירו את הדף פתוח בזמן הקריאה. רענון מאבד את המעקב ואינו מבטל את עלות הספק. שיחת רזיאל תפוסה עד הסיום.</p>
+        <p>רענון אינו מבטל את הסריקה או את עלות הספק. לאחר החזרה בחרו אותו מופע ולחצו על חזרה לסריקה. שיחת רזיאל תפוסה בזמן המעקב.</p>
       </details>
       {!reading.isAdmin ? <p>השלב הניסיוני זמין למנהלים בלבד.</p> : reading.locked ? <p>רזיאל אינו זמין כרגע.</p> : axis && (axis.scope !== "torah" || axis.skip < 15) ? <p>הסריקה הזאת זמינה כרגע בתורה, במטריצה ברוחב 15 ומעלה.</p> : null}
     </>}
-    <button type="button" disabled={!available || pending || local.pending || local.saving || session?.busy || Boolean(resume) || result?.tracking_unavailable} onClick={() => submit()}>
+    <button type="button" disabled={!available || pending || local.pending || local.saving || session?.busy || Boolean(resume) || result?.tracking_unavailable || result?.restart_blocked} onClick={() => submit()}>
       {mode === "preview" ? "בדוק כיסוי ועלות" : "סרוק את המטריצה עם Fable"}
     </button>
     {active ? <div role="status">
       <p>{matching ? progress?.cancelling ? "ממתינים לאישור ביטול מהספק…" : "קריאת המטריצה מתבצעת…" : "רזיאל קורא כעת מופע אחר. התוצאה תישאר משויכת אליו."}
         {number(progress?.elapsedMs) ? ` חלפו ${Math.floor(progress.elapsedMs / 60000)} דקות.` : ""}</p>
-      <p>רזיאל עסוק עד סיום הקריאה. השאירו את הדף פתוח: רענון מאבד את המעקב ואינו מבטל את עלות הספק.</p>
+      <p>רזיאל עסוק בזמן המעקב. אפשר לחזור לסריקה לאחר רענון; רענון אינו מבטל את עלות הספק.</p>
       <button type="button" disabled={progress?.cancelling === true} onClick={() => reading.onCancel?.()}>בקש ביטול סריקה</button>
     </div> : local.pending ? <p role="status">הבקשה נשלחת…</p> : session?.busy ? <p role="status">רזיאל עסוק בפעולה אחרת.</p> : null}
     {local.error && sameElsMatrixReadingAxis(local.axis, axis) ? <p role="alert">{local.error}</p> : null}
-    {!active && resume ? <button type="button" disabled={!available || session?.busy || local.pending || local.saving} onClick={() => submit(result.job.token)}>המשך מעקב אחר הסריקה</button> : null}
+    {!active && resume ? <button type="button" disabled={!available || session?.busy || local.pending || local.saving} onClick={() => submit({ ...reference, op: "status" })}>המשך מעקב אחר הסריקה</button> : null}
+    {!active && mode === "on" ? <button type="button" disabled={!available || pending || session?.busy || local.pending || local.saving} onClick={() => submit({ op: "recover" })}>חזור לסריקה האחרונה של המופע</button> : null}
     {result && !matching ? <ReadingResult result={result} /> : null}
     {!session?.busy && result?.state === "COMPLETE" && session?.saveCurrentSession ? <button type="button" disabled={local.saving || local.pending} onClick={saveResult}>
       {local.saving ? "שומר…" : "שמור את השיחה והתוצאה"}
