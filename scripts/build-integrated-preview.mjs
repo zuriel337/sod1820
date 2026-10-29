@@ -3,16 +3,18 @@ import { build } from "vite";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { readFile, writeFile, copyFile, mkdir } from "node:fs/promises";
-import { selectMatrixRazielPreview, buildMatrixRazielPreviewWorker } from "./lib/matrix-raziel-preview.mjs";
+import { selectMatrixRazielPreview, buildMatrixRazielPreviewWorker, MATRIX_READING_PREVIEW_BRANCHES } from "./lib/matrix-raziel-preview.mjs";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 const output = resolve(root, "preview-deploy/dist");
+const matrixReadingPreview = process.env.VERCEL_ENV === "preview" && MATRIX_READING_PREVIEW_BRANCHES.has(process.env.VERCEL_GIT_COMMIT_REF);
 process.env.SOD_BUILD_TARGET = "2029";
 await build({ root, define: {
   "import.meta.env.VITE_INTEGRATED_PREVIEW": '"true"',
   "import.meta.env.VITE_KINGDOM_PREVIEW": '"true"',
   "import.meta.env.VITE_BOOK_PUBLICATION_REVIEW_PREVIEW": '"true"',
   "import.meta.env.VITE_UNLOCKED_2029_PREVIEW": '"true"',
+  ...(matrixReadingPreview ? { "import.meta.env.VITE_ELS_MATRIX_READING_MODE": JSON.stringify("on") } : {}),
 }, build: { outDir: output, emptyOutDir: true, manifest: true } });
 
 const allow = ["gematria_api", "fn_method_value", "fn_method_profile", "gematria_method_trace", "fn_zero_scale", "posts_by_number_strict", "fn_number_lookup", "fn_number_dossier", "fn_number_journey", "fn_verses_by_gematria", "lang_links_list", "number_neighbors", "fn_all_methods", "world_group_source_arrivals_v2", "rd_is_admin", "fn_list_family", "fn_name_protocol", "fn_cross_research"];
@@ -89,12 +91,12 @@ if (razielSafeActionsMock) {
 // The page still uses the existing global Raziel session and the existing ai-analyze route; nothing is deployed here.
 const selectedMatrixBranch = selectMatrixRazielPreview(process.env);
 if (selectedMatrixBranch) {
-  const matrixWorker = buildMatrixRazielPreviewWorker(worker);
+  const matrixWorker = buildMatrixRazielPreviewWorker(worker, { readingOnly: matrixReadingPreview });
   await writeFile(resolve(output, "preview-readonly-sw.js"), matrixWorker);
   await writeFile(resolve(output, "sw.js"), matrixWorker);
   const { execFileSync } = await import("node:child_process");
   const sha = process.env.VERCEL_GIT_COMMIT_SHA || execFileSync("git", ["rev-parse", "HEAD"], { cwd: root, encoding: "utf8" }).trim();
-  await writeFile(resolve(output, "preview-identity.json"), JSON.stringify({ sha, branch: selectedMatrixBranch, transport: "live-ai-analyze-matrix-request-only", product_writes: false, edge_deploy: false }));
+  await writeFile(resolve(output, "preview-identity.json"), JSON.stringify({ sha, branch: selectedMatrixBranch, transport: matrixReadingPreview ? "live-ai-analyze-matrix-reading-only" : "live-ai-analyze-matrix-request-only", product_writes: matrixReadingPreview, write_scope: matrixReadingPreview ? "private-reading-jobs-and-cost-log-only" : null, edge_deploy: false }));
 }
 const bootstrap = `<script type="module">if(!('serviceWorker' in navigator)){document.body.textContent='פריוויו זה דורש דפדפן התומך בתצוגה לקריאה בלבד.';}else{await navigator.serviceWorker.register('/preview-readonly-sw.js',{scope:'/'});await navigator.serviceWorker.ready;if(!navigator.serviceWorker.controller)await new Promise(r=>navigator.serviceWorker.addEventListener('controllerchange',r,{once:true}));await import('__ENTRY__');}</script>`;
 let html = await readFile(resolve(output, "2029.html"), "utf8");
@@ -107,7 +109,8 @@ if (razielSafeActionsMock) {
 }
 if (selectedMatrixBranch) {
   const notice = '<aside data-matrix-raziel-preview="live-explicit-request-only" role="note" dir="rtl" style="position:fixed;z-index:2147483000;inset-inline:8px;bottom:82px;padding:6px 10px;border:1px solid #98783e;border-radius:8px;background:#fff5de;color:#231b12;font:14px/1.4 Arial;text-align:center;pointer-events:none">פריוויו בדיקה · רזיאל נקרא רק בלחיצה מפורשת על „בקש מרזיאל לבדוק את המטריצה” · אין כתיבה למוצר.</aside>';
-  html = html.replace("</body>", notice + "</body>");
+  const readingNotice = notice.replace('פריוויו בדיקה · רזיאל נקרא רק בלחיצה מפורשת על „בקש מרזיאל לבדוק את המטריצה” · אין כתיבה למוצר.', 'פריוויו · סריקת Fable למנהל בלבד ובכפוף להפעלת השרת · עד $2 לסריקה · נשמרים מעקב ועלות.');
+  html = html.replace("</body>", (matrixReadingPreview ? readingNotice : notice) + "</body>");
 }
 await writeFile(resolve(output, "2029.html"), html);
 await writeFile(resolve(output, "index.html"), html);
