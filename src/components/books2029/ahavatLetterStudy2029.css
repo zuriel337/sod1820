@@ -1,4 +1,17 @@
 /* Scoped projection. All colors/fonts come from the active Design V2 owner. */
+.ahavat29-letter-comparison{margin-block:22px 8px;padding:14px;border:1px solid var(--s29-line-strong);border-radius:12px;background:var(--s29-panel);scroll-margin-top:84px}
+.ahavat29-letter-comparison>summary{min-height:44px;padding:8px;color:var(--s29-accent-text);font:500 var(--s29-type-ui)/1.6 var(--s29-font-ui);cursor:pointer}
+.ahavat29-letter-comparison>header>span{font:500 var(--s29-type-ui)/1.6 var(--s29-font-ui);color:var(--s29-accent-text)}
+.ahavat29-letter-comparison>header h5{font:600 var(--s29-type-title)/1.4 var(--s29-font-display)}
+.ahavat29-letter-comparison-choices,.ahavat29-letter-comparison-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:12px;margin-block:16px}
+.ahavat29-letter-comparison-grid>article{min-width:0;padding:12px;border:1px solid var(--s29-line);border-radius:10px;background:var(--s29-panel-soft)}
+.ahavat29-letter-comparison-grid h6{margin:0 0 12px;font:500 var(--s29-type-lead)/1.5 var(--s29-font-display)}
+.ahavat29-letter-parasha .ahavat29-letter-comparison-grid dl{grid-template-columns:minmax(0,1fr);gap:8px;margin:10px 0}
+.ahavat29-letter-parasha .ahavat29-letter-comparison-grid dl>div{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;padding:8px;background:transparent;border:0}
+.ahavat29-letter-parasha .ahavat29-letter-comparison-grid dd{margin:0;flex-shrink:0;white-space:nowrap}
+.ahavat29-letter-comparison-grid>article>button{width:100%;scroll-margin-top:84px}
+.ahavat29-letter-comparison-actions{display:flex;gap:12px;flex-wrap:wrap;margin-block:14px}
+.ahavat29-letter-comparison>summary:focus-visible{outline:3px solid var(--s29-focus-ring);outline-offset:3px}
 .ahavat29-parasha-letter-atlas{margin-block:22px 8px;border:1px solid var(--s29-line-strong);border-radius:12px;background:var(--s29-panel);scroll-margin-top:84px}
 .ahavat29-parasha-letter-atlas>summary{min-height:44px;padding:12px;color:var(--s29-accent-text);font:500 var(--s29-type-ui)/1.6 var(--s29-font-ui);cursor:pointer;scroll-margin-top:84px}
 .ahavat29-parasha-letter-atlas>header,.ahavat29-parasha-letter-atlas>p,.ahavat29-parasha-letter-atlas>footer,.ahavat29-parasha-atlas-tools{margin:14px}

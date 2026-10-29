@@ -3,7 +3,7 @@ import BookFullscreenButton2029 from "../components/books2029/BookFullscreenButt
 import BookReadingLayout2029 from "../components/books2029/BookReadingLayout2029.jsx";
 import AhavatLetterStudy2029 from "../components/books2029/AhavatLetterStudy2029.jsx";
 import AhavatLetterParasha2029 from "../components/books2029/AhavatLetterParasha2029.jsx";
-import { ahavatRetainedLetterRow } from "../components/books2029/ahavatLetterJourney2029.js";
+import { AHAVAT_LETTER_COMPARISON_ANCHOR, ahavatLetterComparisonTarget, ahavatLetterComparisonHref, ahavatRetainedLetterRow } from "../components/books2029/ahavatLetterJourney2029.js";
 import NavigationIcon2029 from "../components/experience2029/NavigationIcon2029.jsx";
 import Sod2029Shell from "../components/experience2029/Sod2029Shell.jsx";
 import {
@@ -53,7 +53,18 @@ function replaceSelectionInUrl(page, findingId, datasetId = "", unitId = "") {
     next.searchParams.set("readerUnit", unitId);
     next.hash = ahavatReaderUnitDomId(unitId);
   } else next.searchParams.delete("readerUnit");
+  if (next.searchParams.get("letterComparisonFocus") !== unitId) next.searchParams.delete("letterComparisonFocus");
+  if (ahavatLetterComparisonTarget(AHAVAT_LETTER_READINGS, AHAVAT_LETTER_FORMS, next.searchParams, unitId)) next.hash = AHAVAT_LETTER_COMPARISON_ANCHOR;
   window.history.replaceState(window.history.state, "", `${next.pathname}${next.search}${next.hash}`);
+}
+
+function sourceReturnHref(unitId) {
+  return ahavatLetterComparisonHref(AHAVAT_LETTER_READINGS, AHAVAT_LETTER_FORMS, unitId, window.location.href);
+}
+
+function comparisonSourceControl(unitId) {
+  if (!ahavatLetterComparisonTarget(AHAVAT_LETTER_READINGS, AHAVAT_LETTER_FORMS, new URLSearchParams(window.location.search), unitId)) return null;
+  return [...(document.getElementById(AHAVAT_LETTER_COMPARISON_ANCHOR)?.querySelectorAll("[data-ahavat-comparison-unit]") || [])].find(element => element.dataset.ahavatComparisonUnit === unitId) || null;
 }
 
 function StatusPill({ status }) {
@@ -68,10 +79,11 @@ function scrollToReaderUnit(element) {
     if (parent.matches("details")) parent.open = true;
   }
   if (element.matches("details")) element.open = true;
-  element.scrollIntoView({ block: "start", behavior: "instant" });
+  const readingPlace = element.matches("[data-ahavat-comparison-unit]") ? element.closest("[data-ahavat-comparison-card]") || element : element;
+  readingPlace.scrollIntoView({ block: "start", behavior: "instant" });
   // Source columns already have scroll-margin-top. Normalize the measured
   // position instead of subtracting the header twice on exact source return.
-  window.scrollBy({ top: element.getBoundingClientRect().top - 84, behavior: "instant" });
+  window.scrollBy({ top: readingPlace.getBoundingClientRect().top - 84, behavior: "instant" });
   (element.matches("button:not(:disabled)") ? element : element.querySelector("button:not(:disabled)"))?.focus({ preventScroll: true });
 }
 
@@ -101,7 +113,7 @@ function SourcePanel({ page, contextLabel, onPage, readerUnit, onReturnToUnit })
   return <aside ref={fullscreenRef} id="ahavat29-source" className="ahavat29-source book-fullscreen29-target" aria-labelledby="ahavat29-source-title">
     <header>
       <div><span>המקור נשאר פתוח</span><h2 id="ahavat29-source-title">עמוד PDF {page}</h2></div>
-      <div className="ahavat29-source-actions"><b>{contextLabel}</b><button type="button" className="ahavat29-book-view-toggle" aria-pressed={bookPresentation} aria-controls="ahavat29-pdf-frame" onClick={() => setBookPresentation(value => !value)} title="הצג את המקור במסגרת ספר או בתצוגה ישרה">תצוגת ספר</button><BookFullscreenButton2029 targetRef={fullscreenRef} fallbackHref={pdfUrl} controls="ahavat29-source" /><a className="book-fullscreen29-button" href={pdfUrl} target="_blank" rel="noreferrer" data-book-reader-secondary>קרא את ה־PDF · עמוד {page} ↗</a>{readerUnit ? <a className="book-fullscreen29-button" title={readerUnit.title} href={ahavatReaderUnitHref(readerUnit.id, window.location.href)} onClick={onReturnToUnit}>חזור ליחידת הקריאה</a> : null}</div>
+      <div className="ahavat29-source-actions"><b>{contextLabel}</b><button type="button" className="ahavat29-book-view-toggle" aria-pressed={bookPresentation} aria-controls="ahavat29-pdf-frame" onClick={() => setBookPresentation(value => !value)} title="הצג את המקור במסגרת ספר או בתצוגה ישרה">תצוגת ספר</button><BookFullscreenButton2029 targetRef={fullscreenRef} fallbackHref={pdfUrl} controls="ahavat29-source" /><a className="book-fullscreen29-button" href={pdfUrl} target="_blank" rel="noreferrer" data-book-reader-secondary>קרא את ה־PDF · עמוד {page} ↗</a>{readerUnit ? <a className="book-fullscreen29-button" title={readerUnit.title} href={sourceReturnHref(readerUnit.id)} onClick={onReturnToUnit}>חזור ליחידת הקריאה</a> : null}</div>
     </header>
     <div id="ahavat29-pdf-frame" className="ahavat29-pdf-frame" data-book-pdf-frame data-book-presentation={bookPresentation ? "book" : "straight"}>
       <span className="ahavat29-book-page-edges" aria-hidden="true" />
@@ -875,7 +887,7 @@ export default function AhavatTorahSystem2029Page() {
     try { id = decodeURIComponent(window.location.hash.slice(1)); } catch { return; }
     const unit = ahavatReaderUnit(new URLSearchParams(window.location.search).get("readerUnit"));
     const unitTarget = unit && id === ahavatReaderUnitDomId(unit.id);
-    if (!unitTarget && !["ahavat29-people", "ahavat29-roots", "ahavat29-scrolls", "ahavat29-counts", "ahavat29-letters", "ahavat29-parasha-letter-atlas", "ahavat29-letter-overview"].includes(id)) return;
+    if (!unitTarget && !["ahavat29-people", "ahavat29-roots", "ahavat29-scrolls", "ahavat29-counts", "ahavat29-letters", "ahavat29-parasha-letter-atlas", "ahavat29-letter-comparison", "ahavat29-letter-overview"].includes(id)) return;
     let cancelled = false;
     let frame;
     let observer;
@@ -895,6 +907,7 @@ export default function AhavatTorahSystem2029Page() {
         frame = window.requestAnimationFrame(() => {
           if (cancelled) return;
           if (unitTarget) scrollToReaderUnit(element);
+          else if (id === AHAVAT_LETTER_COMPARISON_ANCHOR) scrollToReaderUnit(comparisonSourceControl(unit?.id) || element);
           else if (id === "ahavat29-letter-overview" || id === "ahavat29-parasha-letter-atlas") scrollToReaderUnit(element);
           else element.scrollIntoView({ block: "start", behavior: "instant" });
         });
@@ -963,10 +976,10 @@ export default function AhavatTorahSystem2029Page() {
 
   const returnToUnit = event => {
     if (!readerUnit) return;
-    const href = ahavatReaderUnitHref(readerUnit.id, window.location.href);
+    const href = sourceReturnHref(readerUnit.id);
     event.currentTarget.setAttribute("href", href);
     if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-    const target = document.getElementById(ahavatReaderUnitDomId(readerUnit.id));
+    const target = comparisonSourceControl(readerUnit.id) || document.getElementById(ahavatReaderUnitDomId(readerUnit.id));
     // A changed filter may hide the old unit: native navigation reopens the
     // canonical unit link and restores its valid filter instead of guessing.
     if (!target) return;

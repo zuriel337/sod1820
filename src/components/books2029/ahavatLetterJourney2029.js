@@ -1,4 +1,35 @@
-import { ahavatLetterUnitId } from "../../data/ahavatTorahReaderUnits2029.js";
+import { ahavatLetterUnitId, ahavatReaderUnit, ahavatReaderUnitHref } from "../../data/ahavatTorahReaderUnits2029.js";
+
+export const AHAVAT_LETTER_COMPARISON_ANCHOR = "ahavat29-letter-comparison";
+
+// One letter across the existing source order; preserve actual source objects.
+export function ahavatLetterParashaEntries(readings, forms, form) {
+  const source = forms.find(item => item.form === form);
+  return source && Array.isArray(readings?.[form]) ? readings[form].flatMap(book => book.rows.map(row => ({ source, bookId: book.id, book: book.title, row }))) : [];
+}
+
+export function ahavatLetterComparisonRows(readings, forms, form, from, to) {
+  if (!from || !to || from === to) return [];
+  const rows = ahavatLetterParashaEntries(readings, forms, form);
+  const pair = [from, to].map(parasha => rows.find(entry => entry.row.parasha === parasha));
+  return pair.every(Boolean) ? pair : [];
+}
+
+// Presentation return only. Arbitrary query state never creates a source unit.
+export function ahavatLetterComparisonTarget(readings, forms, params, unitId) {
+  if (params.get("study") !== "letters" || params.get("letterComparison") !== "open" || params.get("letterComparisonFocus") !== unitId) return null;
+  const unit = ahavatReaderUnit(unitId);
+  if (unit?.layer !== "letter") return null;
+  const pair = ahavatLetterComparisonRows(readings, forms, unit.form, params.get("letterComparisonFrom"), params.get("letterComparisonTo"));
+  return pair.some(entry => ahavatLetterUnitId(entry.source.form, entry.bookId, entry.row.parasha) === unitId) ? unitId : null;
+}
+
+export function ahavatLetterComparisonHref(readings, forms, unitId, currentUrl) {
+  const href = ahavatReaderUnitHref(unitId, currentUrl);
+  if (!href) return href;
+  const params = new URL(currentUrl, "https://books.invalid").searchParams;
+  return ahavatLetterComparisonTarget(readings, forms, params, unitId) ? href.replace(/#.*$/, `#${AHAVAT_LETTER_COMPARISON_ANCHOR}`) : href;
+}
 
 // Presentation lookup only: retain the existing source row object and its locus.
 // No source value, identity, total or missing reading is created here.
