@@ -33,4 +33,5 @@ test("letters use semantic Design V2 roles and no per-book palette, font or perp
   assert.match(css, /min-height:44px/);
   assert.match(css, /data-value-missing=true.*font-family:var\(--s29-font-body\)/);
   assert.match(css, /grid-template-areas:"story" "source"/);
+  assert.match(css, /i\[data-missing=true\]\{display:none\}/);
 });

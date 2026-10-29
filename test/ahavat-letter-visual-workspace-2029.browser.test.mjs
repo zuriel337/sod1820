@@ -4,7 +4,7 @@ import { createHash } from "node:crypto";
 import { createRequire } from "node:module";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import test from "node:test";
-import { AHAVAT_LETTER_FORMS } from "../src/data/ahavatTorahLetters2029.js";
+import { AHAVAT_LETTER_FORMS, AHAVAT_LETTER_READINGS } from "../src/data/ahavatTorahLetters2029.js";
 import { ahavatNativePdfPageAtStart } from "./fixtures/ahavat-native-pdf-page-2029.mjs";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
@@ -69,6 +69,15 @@ test("focused letters workspace: real source, selection, reflow, source return a
       for (const form of AHAVAT_LETTER_FORMS) assert.equal(await reader.locator(".ahavat29-letter-alphabet").getByRole("button", { name: form.name, exact: true }).count(), 1);
       assert.equal(await reader.locator(".ahavat29-letter-pillars button").count(), 5);
       await page.screenshot({ path: `${artifacts}/letters-${width}-${theme}.png` });
+      if (width === 390 && theme === "parchment") {
+        const unresolvedForm = AHAVAT_LETTER_FORMS.find(item => AHAVAT_LETTER_READINGS[item.form].some(book => book.count === null));
+        assert.ok(unresolvedForm);
+        await reader.locator(".ahavat29-letter-alphabet").getByRole("button", { name: unresolvedForm.name, exact: true }).click();
+        const missing = reader.locator('.ahavat29-letter-pillars i[data-missing="true"]');
+        assert.ok(await missing.count() > 0);
+        assert.equal(await missing.evaluateAll(elements => elements.every(element => getComputedStyle(element).display === "none")), true, "an unavailable measurement must not look like a numeric column");
+        assert.match(await reader.locator(".ahavat29-letter-pillars").textContent(), /לא נקרא/);
+      }
       await reader.locator(".ahavat29-letter-alphabet").getByRole("button", { name: "דלת", exact: true }).click();
       const bookButton = reader.locator(".ahavat29-letter-pillars").getByRole("button").filter({ hasText: "ויקרא" });
       await bookButton.scrollIntoViewIfNeeded();
@@ -80,6 +89,10 @@ test("focused letters workspace: real source, selection, reflow, source return a
       // Resolve through the existing source-native identity, never a local guessed DOM ID.
       const exactRow = reader.locator("tbody tr").filter({ hasText: "צו" }).filter({ hasText: "109" });
       await exactRow.getByRole("button", { name: "PDF 36", exact: true }).click();
+      await nativePage(page, 36);
+      await source.getByRole("button", { name: "לעמוד הבא", exact: true }).click();
+      await nativePage(page, 37);
+      await source.getByRole("button", { name: "לעמוד הקודם", exact: true }).click();
       await nativePage(page, 36);
       await source.getByRole("button", { name: "מסך מלא", exact: true }).click();
       await page.waitForFunction(() => Boolean(document.fullscreenElement));
@@ -112,6 +125,12 @@ test("focused letters workspace: real source, selection, reflow, source return a
         assert.ok((await reader.locator("canvas").boundingBox()).width < 390);
         assert.match(await reader.locator(".ahavat29-letter-path").textContent(), /ויקרא/);
         await page.setViewportSize({ width, height: 1000 });
+      }
+      if (width === 390 && theme === "dark") {
+        await reader.locator("canvas").evaluate(canvas => canvas.dispatchEvent(new Event("webglcontextlost", { cancelable: true })));
+        await reader.getByRole("status").filter({ hasText: "לא ניתן לפתוח את המבנה במכשיר הזה" }).waitFor();
+        assert.equal(await reader.locator("tbody tr").count(), 10);
+        assert.match(await reader.locator(".ahavat29-letter-path").textContent(), /ויקרא/);
       }
       await reader.getByRole("button", { name: "סגור מבנה האות בתלת־ממד", exact: true }).click();
       assert.equal(await page.locator("canvas").count(), 0);

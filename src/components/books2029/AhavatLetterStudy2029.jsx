@@ -20,7 +20,7 @@ export default function AhavatLetterStudy2029({ source, books, bookId, onBook, o
       <div className="ahavat29-letter-landscape-heading"><span>מהאות אל החומש</span><p>בחר חומש כדי להיכנס לפרשות שלו.</p></div>
       <div className="ahavat29-letter-pillars" aria-label={`חמשת החומשים באות ${source.name}`}>
         {books.map((book, index) => <button type="button" key={book.id} aria-pressed={book.id === bookId} onClick={() => onBook(book.id)} style={{ "--pillar-height": book.count === null ? "0%" : `${book.count / maximum * 100}%` }}>
-          <span className="ahavat29-letter-pillar-number"><bdi data-value-missing={book.count === null}>{ahavatLetterNumber(book.count)}</bdi></span>
+          <span className="ahavat29-letter-pillar-number"><bdi data-value-missing={book.count === null}>{book.count === null ? "לא נקרא" : ahavatLetterNumber(book.count)}</bdi></span>
           <span className="ahavat29-letter-pillar-track" aria-hidden="true"><i data-missing={book.count === null} /></span>
           <span className="ahavat29-letter-pillar-label"><small aria-hidden="true">{String(index + 1).padStart(2, "0")}</small>{book.title}</span>
         </button>)}
