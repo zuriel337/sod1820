@@ -2,9 +2,12 @@ import React, { useEffect, useMemo, useRef } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { SEFER_YETZIRAH_COMMENTATORS, SEFER_YETZIRAH_DEPTHS, SEFER_YETZIRAH_LETTER_GROUPS } from "../../data/seferYetzirahWorld2029.js";
+import { viewportFov } from './yetzirahModels/sourceModels.js';
 
 const LETTERS = "אבגדהוזחטיכלמנסעפצקרשת".split("");
 const REDUCED_MOTION = typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+// Editorial framing only: fit the existing overview geometry, including selected markers.
+const OVERVIEW_FOV = 54;
 const DEPTH_POSITIONS = [
   [0, 3.15, 0], [0, -3.15, 0], [-2.8, 1.1, 0], [2.8, -1.1, 0],
   [0, 0, 3.25], [0, 0, -3.25], [3.25, 0, 0], [-3.25, 0, 0],
@@ -126,9 +129,25 @@ function SpatialObject({ mode, activeId, activePair, onSelect }) {
 }
 
 function SceneControls() {
-  const { camera, gl } = useThree();
+  const { camera, gl, size } = useThree();
   const controlsRef = useRef(null);
-  useFrame(() => controlsRef.current?.update());
+  useEffect(() => {
+    if (!size.width || !size.height) return;
+    camera.fov = viewportFov(size.width, size.height, OVERVIEW_FOV);
+    camera.aspect = size.width / size.height;
+    camera.updateProjectionMatrix();
+    gl.domElement.dataset.cameraFov = String(camera.fov);
+    gl.domElement.dataset.cameraAspect = String(camera.aspect);
+    gl.domElement.dataset.viewportFit = 'ready';
+  }, [camera, gl, size.width, size.height]);
+  useFrame(() => {
+    if (size.width && size.height) {
+      const fov = viewportFov(size.width, size.height, OVERVIEW_FOV), aspect = size.width / size.height;
+      if (camera.fov !== fov || camera.aspect !== aspect) { camera.fov = fov; camera.aspect = aspect; camera.updateProjectionMatrix(); }
+      if (gl.domElement.dataset.cameraFov !== String(camera.fov)) gl.domElement.dataset.cameraFov = String(camera.fov);
+    }
+    controlsRef.current?.update();
+  });
   useEffect(() => {
     const controls = new OrbitControls(camera, gl.domElement);
     controlsRef.current = controls;
@@ -145,7 +164,7 @@ function SceneControls() {
 
 export default function SeferYetzirahScene2029({ mode = "sefirot", activeId = "", activePair=[], onSelect }) {
   return <div className="yetzirah29-canvas" data-active-pair={mode==='gates'?activePair.join(''):''} role="img" aria-label="מודל תלת־ממדי אינטראקטיבי של מבני ספר יצירה">
-    <Canvas camera={{ position: [0, 1.1, 8.8], fov: 46 }} dpr={[1, 1.5]} gl={{ antialias: true, powerPreference: "high-performance" }}>
+    <Canvas camera={{ position: [0, 1.1, 8.8], fov: OVERVIEW_FOV }} dpr={[1, 1.5]} gl={{ antialias: true, powerPreference: "high-performance" }}>
       <color attach="background" args={["#090b14"]} />
       <fog attach="fog" args={["#090b14", 9, 17]} />
       <ambientLight intensity={1.25} />

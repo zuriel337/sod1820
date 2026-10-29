@@ -57,7 +57,7 @@ One initial browser run used a stale `blockquote` selector while the corrected e
 
 | Check | Actual result / boundary |
 |---|---|
-| Complete relevant Books Node inventory | **375/375 PASS**, zero skips; includes Maamar Esther, all eight reader manifests, source/translation/content, private/public projections and new negative-source checks |
+| Complete relevant Books Node inventory | **378/378 PASS**, zero skips; includes Maamar Esther, all eight reader manifests, source/translation/content, private/public projections, negative-source checks and three camera-framing checks |
 | Source-model browser matrix | **108/108 completed viewport/preset observations**: 12 models × 320/390/1440 × light/parchment/dark. Actual original PDF frames are aborted here; source URLs and source-return selection, refresh, keyboard/touch, explicit GPU, context loss/no-WebGL, reduced motion, focus and context release are checked |
 | Resumption proof | Environment restart interrupted two model drivers after eight completed observations each. Their missing 1440/dark observations were rerun to completion. `model-matrix.json` validates nine unique observations per model; interrupted drivers are not claimed as completed suites |
 | Ten imported guide layouts | **90/90 contexts PASS**, 10 routes × nine viewport/preset combinations; plus separate Gra/stones reading-interaction regressions |
@@ -68,7 +68,8 @@ One initial browser run used a stale `blockquote` selector while the corrected e
 | Clean ten-route native PDF regression | **1/1 PASS**, zero skips, all ten source routes at actual PDF73/175/187/97/106/184/111/80/45/122, 220 native pages and exact selection return |
 | Language / Auth Guard | **3/3 + 4/4 PASS** |
 | Normal Build2029 / graph | PASS, seven eager records, **379,579 bytes** eager gzip JS |
-| Books Preview Build2029 / graph | PASS, seven eager records, **376,895 bytes** eager gzip JS; unchanged budget |
+| Books Preview Build2029 / graph | PASS, seven eager records, **376,889 bytes** eager gzip JS; unchanged budget |
+| Overview camera follow-up | **9/9 viewport/preset contexts PASS**, all 22 node/selected-marker envelopes inside the initial camera frustum, explicit GPU only, selection and portrait/desktop resize, no horizontal overflow; source PDF intentionally aborted in this camera-only fixture |
 | Legacy Production Lock / isolation / cheap hardening | PASS; guards were not weakened |
 
 The 108 matrix is for the twelve delivered source-model components. The separate selected-pair overview flow is an enhancement of the existing overview renderer, not a thirteenth universally accepted source model. The final pair test runs one bounded viewport per Node test while retaining all three themes and the same timeout/assertions. Its default invocation still covers all nine combinations; no timeout or weight budget was raised.
@@ -81,7 +82,13 @@ The standalone pair scenario originally tried to select a catalog item without o
 
 ## Delivery boundaries and local AFTER
 
-Runtime checkpoint `daeaea5ae15248663e7c8cd587b0e84d37758d10` follows `020fd9fa6b8ae4e80ae77740ab766f7f6f000434` and the true merge. The final continuation commit adds only test organization/stable automation, generated acceptance evidence and this handoff. Both original delivery heads remain ancestors. Original units/structures/source-readings and the shared twelve-model renderer are byte-unchanged from base. No source material was removed.
+Runtime checkpoint `daeaea5ae15248663e7c8cd587b0e84d37758d10` follows `020fd9fa6b8ae4e80ae77740ab766f7f6f000434` and the true merge. Acceptance checkpoint `7a73dbf9cdda502d1463adfaa67fef242eb7465e` added stable automation and evidence. Both original delivery heads remain ancestors. Original units/structures/source-readings and the shared twelve-model renderer are byte-unchanged from base. No source material was removed.
+
+### Visual follow-up after the first hosted Preview
+
+The first hosted Preview at `7a73dbf9` passed source/reader flows at 390 and 1440, but visual inspection exposed portrait clipping in the pre-existing overview camera. It is **not** accepted as the responsive delivery. This follow-up reuses the existing viewport-FOV helper with an optional base FOV (54 for the overview) and updates projection on canvas resize/selection. The twelve source models keep the numerically identical default 34-degree behavior. No geometry, source correspondence, palette, CSS or shared source-model renderer changed.
+
+Three pure tests check identical default projection and all 22 selected-marker envelopes across fifteen size pairs, including reproduction of the old clipping. A clean browser run verifies all nine viewport/theme contexts plus selection and resize in both directions. Screens `framing-320.png`, `framing-390.png`, `framing-1440.png` show the repaired framing. The complete 378-test inventory, both builds, graph/weight, Language, Auth, isolation, hardening and Legacy gates were rerun after this repair. The 108 source-model observations remain the earlier matrix, not falsely presented as rerun after a numerically identical shared-helper default. Hosted final-SHA acceptance and the replacement protected URL are recorded separately after deployment, avoiding self-referential SHA or committing a share credential.
 
 Actor GPT · task `YETZIRAH_UNIFIED_LEARNING_COMPLETION_20261029` · handoff only to ZURIEL. Release advice **BUNDLE_WITH(site-central-books-integration)**: the isolated Books Preview is the current delivery, not authority to merge main, cut over Production, activate a DB rule or publish governed material. Main and both source branch heads are rechecked independently at delivery. No live journal BEFORE/AFTER/release is claimed: the dedicated connector is read-only. Local writing ownership ends after exact remote/clean verification and the protected Preview check.
 
@@ -89,11 +96,11 @@ Actor GPT · task `YETZIRAH_UNIFIED_LEARNING_COMPLETION_20261029` · handoff onl
 
 This slice closes the three reported product gaps at the documented boundaries; it is not full transcription of the volume, its commentary columns or the complete Gra grid, nor implementation of all 33 content specifications. No model is newly certified as universally contract-complete from these tests alone. Adopted styles/controls are reused, with no shared palette/frame/contract redesign or invented visual approval. Broader visual-lane and physical-device acceptance remain distinct.
 
-No change to original units/structures/source-readings assets, DB/RLS, grants, publication, main, Legacy or Production. The shared `YetzirahModelCanvas` for the twelve source-bound models remains unchanged; only the existing overview letter scene gains pair-selection input. No elevated weight budget, weakened guard or disabled source assertion.
+No change to original units/structures/source-readings assets, DB/RLS, grants, publication, main, Legacy or Production. The shared `YetzirahModelCanvas` for the twelve source-bound models remains unchanged; only the existing overview letter scene gains pair-selection input and responsive camera framing. No elevated weight budget, weakened guard or disabled source assertion.
 
 ## Complete file inventory
 
-61 changed paths from base through this delivery; includes the imported source-session paths and generated evidence. This inventory is git-derived, not a claim that every path was authored again here.
+67 changed paths from base through this delivery; includes the imported source-session paths and generated evidence. This inventory is git-derived, not a claim that every path was authored again here.
 
 ```text
 docs/research-notes/SEFER_YETZIRAH_DEEP_STRUCTURES_LEARNING_20261028.md
@@ -103,6 +110,9 @@ docs/research-notes/yetzirah-unified-learning-completion-20261029/acceptance.jso
 docs/research-notes/yetzirah-unified-learning-completion-20261029/families-1440.png
 docs/research-notes/yetzirah-unified-learning-completion-20261029/families-320.png
 docs/research-notes/yetzirah-unified-learning-completion-20261029/families-390.png
+docs/research-notes/yetzirah-unified-learning-completion-20261029/framing-1440.png
+docs/research-notes/yetzirah-unified-learning-completion-20261029/framing-320.png
+docs/research-notes/yetzirah-unified-learning-completion-20261029/framing-390.png
 docs/research-notes/yetzirah-unified-learning-completion-20261029/model-matrix.json
 docs/research-notes/yetzirah-unified-learning-completion-20261029/native-pdf-175.png
 docs/research-notes/yetzirah-unified-learning-completion-20261029/pairs-1440.png
@@ -142,6 +152,7 @@ src/components/books2029/yetzirahModels/sourceCorrections2029.js
 src/components/books2029/yetzirahModels/sourceModels.js
 src/components/books2029/yetzirahModels/synopticSealsLearning2029.css
 src/pages/SeferYetzirahWorld2029Page.jsx
+test/fixtures/yetzirah-overview-framing.mjs
 test/sefer-yetzirah-boundaries-learning-2029.browser.test.mjs
 test/sefer-yetzirah-deep-learning-layout-2029.browser.test.mjs
 test/sefer-yetzirah-deep-learning-real-pdf-2029.browser.test.mjs
@@ -157,4 +168,6 @@ test/sefer-yetzirah-synoptic-doubles-learning-2029.browser.test.mjs
 test/sefer-yetzirah-synoptic-seals-learning-2029.browser.test.mjs
 test/sefer-yetzirah-unified-completion-2029.browser.test.mjs
 test/sefer-yetzirah-unified-completion-2029.test.mjs
+test/yetzirah-overview-framing-2029.browser.test.mjs
+test/yetzirah-overview-framing-2029.test.mjs
 ```

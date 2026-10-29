@@ -6,7 +6,7 @@ export const MODEL_KEYS = Object.freeze({
   synoptic: 'six-seals-synoptic',gra: 'six-seals-gra-edition',boundaries:'twelve-boundaries-gra',five:'five-against-five',depths:'ten-depths',
 });
 export const CAMERA = Object.freeze({position:[7,5.5,8.5],fov:34,target:[0,0,0]});
-export function viewportFov(width,height){return 2*Math.atan(Math.tan(CAMERA.fov*Math.PI/360)/Math.min(1,width/height))*180/Math.PI;}
+export function viewportFov(width,height,baseFov=CAMERA.fov){return 2*Math.atan(Math.tan(baseFov*Math.PI/360)/Math.min(1,width/height))*180/Math.PI;}
 export const DIRECTION_LABELS = Object.freeze({up:'רום',down:'תחת',east:'מזרח',west:'מערב',north:'צפון',south:'דרום'});
 export const DIRECTION_VECTORS = Object.freeze({up:[0,1,0],down:[0,-1,0],east:[1,0,0],west:[-1,0,0],north:[0,0,-1],south:[0,0,1]});
 const EXPECTED = {'ten-depths':{page:53,count:10,kind:'depths',title:'עשרת העומקים · חמישה זוגות'},'five-against-five':{page:45,count:3,kind:'five',title:'חמש כנגד חמש · וברית באמצע'},'six-seals-synoptic':{page:73,count:6,kind:'seals',title:'שש החותמות · הגוף המשולב'},'six-seals-gra-edition':{page:175,count:6,kind:'seals',title:'שש החותמות · נוסח הגר״א'},'twelve-boundaries-gra':{page:187,count:12,kind:'boundaries',title:'שנים־עשר גבולי האלכסון · נוסח הגר״א'}};
