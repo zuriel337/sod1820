@@ -73,8 +73,8 @@ for (const width of [320, 390, 1440]) test(`all ten source proofreading columns 
         assert.ok((await unit.textContent()).includes(fragment.originalOcr));
         await click(unit.getByText(`השוואת תיקוני הקריאה למקור · ${fragment.readingDetails.length}`, { exact: true }));
         await unit.locator("[data-root-reading]").last().waitFor();
-        const actual = await unit.locator("[data-root-reading]").evaluateAll(rows => rows.map(row => ({ id: row.dataset.rootReading, before: row.querySelector("del").textContent, after: row.querySelector("ins").textContent, button: row.querySelector("button").textContent })));
-        assert.deepEqual(actual, fragment.readingDetails.map(detail => ({ id: detail.id, before: detail.before, after: detail.after, button: `מקור התיקון · PDF ${detail.pdfPage}` })));
+        const actual = await unit.locator("[data-root-reading]").evaluateAll(rows => rows.map(row => ({ id: row.dataset.rootReading, state: row.dataset.rootReadingState, before: row.querySelector("del").textContent, after: row.querySelector("ins").textContent, button: row.querySelector("button").textContent })));
+        assert.deepEqual(actual, fragment.readingDetails.map(detail => ({ id: detail.id, state: detail.supersededBy ? "withdrawn" : detail.restoresReadingId ? "restoration" : "current", before: detail.before, after: detail.after, button: `מקור התיקון · PDF ${detail.pdfPage}` })));
         for (const detail of [fragment.readingDetails[0], fragment.readingDetails.at(-1)]) {
           await click(unit.locator(`[data-root-reading="${detail.id}"]`).getByRole("button"));
           assert.match(await source.locator("iframe").getAttribute("src"), new RegExp(`#page=${fragment.pdf_page}&view=FitH$`));
@@ -83,7 +83,19 @@ for (const width of [320, 390, 1440]) test(`all ten source proofreading columns 
           await page.waitForFunction(id => document.activeElement?.closest("[data-reader-unit]")?.dataset.readerUnit === id, fragment.id);
         }
         await click(unit.getByText("מוקדים שנותרו להגהה", { exact: true }));
-        for (const open of fragment.openReadings) assert.ok((await unit.textContent()).includes(open.originalOcr));
+        for (const open of fragment.openReadings) assert.ok((await unit.textContent()).includes(open.reading ?? open.originalOcr));
+        await click(unit.getByText(`קריאה חוזרת במוקדים שנבדקו · ${fragment.windowReviews.length}`, { exact: true }));
+        await unit.locator("[data-root-window-review]").last().waitFor();
+        assert.deepEqual(await unit.locator("[data-root-window-review]").evaluateAll(rows => rows.map(row => row.dataset.rootWindowReview)), fragment.windowReviews.map(review => review.id));
+        for (const review of fragment.windowReviews) {
+          const row = unit.locator(`[data-root-window-review="${review.id}"]`);
+          assert.ok((await row.textContent()).includes(review.displayStatus));
+          assert.ok((await row.textContent()).includes(review.explanation));
+          await click(row.getByRole("button", { name: `מקור הקריאה החוזרת · PDF ${review.pdfPage}`, exact: true }));
+          assert.match(await source.locator("iframe").getAttribute("src"), new RegExp(`#page=${review.pdfPage}&view=FitH$`));
+          await click(source.getByRole("link", { name: "חזור ליחידת הקריאה", exact: true }));
+          await page.waitForFunction(id => document.activeElement?.closest("[data-reader-unit]")?.dataset.readerUnit === id, fragment.id);
+        }
         assert.equal(await page.locator("html").getAttribute("data-theme-preset"), theme);
         assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1 && document.body.scrollWidth <= innerWidth + 1), true, `${width}/${theme}/${fragment.id}: expanded overflow`);
         if (fragment.id === "roots:31:right" && theme === "parchment") await unit.screenshot({ path: `${screenshotDir}/review-${width}.png` });
@@ -95,7 +107,7 @@ for (const width of [320, 390, 1440]) test(`all ten source proofreading columns 
         assert.equal(await page.locator("canvas").count(), 0);
       }
       assert.deepEqual(errors, []);
-      console.log(JSON.stringify({ width, theme, columns: 10, comparedReadings: 274, sourceReturns: 20, reloads: 10, pdf: "fixture_aborted", status: "pass" }));
+      console.log(JSON.stringify({ width, theme, columns: 10, comparedReadings: 280, windowReviews: 12, sourceReturns: 32, reloads: 10, pdf: "fixture_aborted", status: "pass" }));
     } finally { await fixture.close(); }
   }
 });

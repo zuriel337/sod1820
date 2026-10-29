@@ -13,49 +13,55 @@ const digest = value => createHash("sha256").update(value).digest("hex");
 test("source proofreading is additive over the adopted fifteen readings and immutable OCR", () => {
   assert.equal(digest(raw), "c4dc52ea138c99ed33bee9de274e78b0c041fc69fa60b25e95f0224be28108f8");
   assert.equal(digest(JSON.stringify(readings.slice(0, 15))), "0357d557ef97ceda336650102b38d87ea59e821add321b37073c6131fc1f00e0");
-  assert.equal(readings.length - 15, 259);
-  assert.equal(new Set(readings.map(reading => reading.id)).size, 274);
+  assert.equal(readings.slice(15, 274).length, 259);
+  assert.equal(new Set(readings.map(reading => reading.id)).size, 280);
   assert.ok(Object.isFrozen(readings));
   const reviewed = ahavatPartiallyReviewedRoots(bundle);
   assert.deepEqual(reviewed.map(fragment => fragment.id), AHAVAT_ROOT_COLUMNS.map(column => column.id));
-  assert.deepEqual(reviewed.map(fragment => fragment.appliedReadings.length), [28,23,33,48,37,27,31,36,4,7]);
+  assert.deepEqual(reviewed.map(fragment => fragment.appliedReadings.length), [28,24,34,49,37,28,32,36,5,7]);
   assert.ok(reviewed.every(fragment => Object.isFrozen(fragment) && Object.isFrozen(fragment.readingDetails)));
 });
 
-test("all 274 before/after records retain exact unique OCR positions and their source page", () => {
+test("all before/after records retain exact unique OCR anchors and explicit source-bound restoration lineage", () => {
   for (const fragment of ahavatPartiallyReviewedRoots(bundle)) {
     assert.equal(fragment.readingDetails.length, fragment.appliedReadings.length);
     for (const reading of fragment.readingDetails) {
-      assert.equal(fragment.originalOcr.split(reading.before).length, 2, reading.id);
+      assert.equal(fragment.originalOcr.split(reading.originalOcrAnchor).length, 2, reading.id);
       assert.notEqual(reading.before, reading.after);
-      assert.equal(fragment.originalOcr.split("\n")[reading.originalOcrLine - 1].includes(reading.before), true, reading.id);
-      assert.equal(fragment.partiallyReviewedText.includes(reading.after), true, reading.id);
+      assert.equal(fragment.originalOcr.split("\n")[reading.originalOcrLine - 1].includes(reading.originalOcrAnchor), true, reading.id);
+      if (reading.supersededBy) {
+        const restoration = fragment.readingDetails.find(detail => detail.id === reading.supersededBy);
+        assert.equal(restoration.restoresReadingId, reading.id);
+        assert.equal(restoration.before, reading.after);
+        assert.equal(restoration.after, reading.before);
+        assert.equal(fragment.partiallyReviewedText.includes(reading.after), false, "withdrawn spelling is history, not active text");
+      } else assert.equal(fragment.partiallyReviewedText.includes(reading.after), true, reading.id);
       assert.equal(reading.pdfPage, fragment.pdfPage);
       assert.equal(reading.fragmentId, fragment.id);
       assert.match(reading.sourceUrl, new RegExp(`#page=${fragment.pdfPage}&view=FitH$`));
-      assert.equal(reading.basis, "direct_visual_source_comparison");
-      assert.equal(reading.status, "local_glyph_reading");
+      assert.equal(reading.basis, reading.restoresReadingId ? "original_ocr_restored_pending_source_glyph_decision" : "direct_visual_source_comparison");
+      assert.equal(reading.status, reading.restoresReadingId ? "restoration_pending_source_review" : "local_glyph_reading");
       assert.equal("engine_verified" in reading, false);
     }
   }
 });
 
-test("eleven bounded unresolved windows remain unchanged and never acquire guessed readings", () => {
-  assert.equal(openReadings.length, 11);
+test("original open-window provenance stays unchanged; partial readings do not become settled words", () => {
+  assert.equal(openReadings.length, 12);
+  assert.equal(digest(JSON.stringify(openReadings.slice(0, 11))), "1c071ec38c2dd1a6aa1de9f869372c49e4882eab10e4d95ae53bea31f218df06");
   assert.equal(new Set(openReadings.map(reading => reading.fragmentId)).size, 10);
   for (const fragment of ahavatPartiallyReviewedRoots(bundle)) {
-    assert.ok(fragment.openReadings.length > 0);
     for (const reading of fragment.openReadings) {
-      assert.equal(reading.status, "unresolved");
+      assert.ok(["unresolved", "partial_reading"].includes(reading.status));
       assert.equal(reading.proposedReading, null);
       assert.equal(reading.pdfPage, fragment.pdfPage);
       assert.ok(fragment.originalOcr.includes(reading.originalOcr));
-      assert.ok(fragment.partiallyReviewedText.includes(reading.originalOcr));
+      assert.ok(fragment.partiallyReviewedText.includes(reading.reading ?? reading.originalOcr));
     }
   }
   const source = ahavatReviewedRootFragments(bundle).find(fragment => fragment.id === "roots:33:left");
   assert.ok(source.text.includes("הרחים"), "source-correct OCR must not become a false correction to הרדים");
-  assert.ok(source.text.includes("ובאורח"), "unresolved source spelling must not be silently shortened");
+  assert.ok(source.text.includes("ובאזרח"), "new source reading must retain the whole printed word, not the earlier unadopted shortening");
 });
 
 test("search locates both reading layers for every correction without minting lexical identities", () => {
@@ -75,7 +81,8 @@ test("ambiguous or missing replacement windows fail closed rather than silently 
     assert.throws(() => ahavatPartiallyReviewedRoots(duplicate), /no longer applies/);
     const missing = structuredClone(bundle);
     const fragment = missing.fragments.find(item => item.id === reading.fragmentId);
-    fragment.text = fragment.text.replace(reading.before, "[changed]");
+    const anchor = ahavatPartiallyReviewedRoots(bundle).flatMap(item => item.readingDetails).find(item => item.id === reading.id).originalOcrAnchor;
+    fragment.text = fragment.text.replace(anchor, "[changed]");
     assert.throws(() => ahavatPartiallyReviewedRoots(missing), /no longer applies/);
   }
   const changed = structuredClone(bundle);

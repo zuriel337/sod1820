@@ -105,19 +105,28 @@ function RootColumnNavigation({ columnId, onSelect }) {
 
 function RootColumnSourceDetails({ fragment, onSource }) {
   const [showReadings, setShowReadings] = useState(false);
+  const [showWindowReviews, setShowWindowReviews] = useState(false);
   return <details className="ahavat29-source-details">
     <summary>תעתיק המכונה המקורי ופרטי ההגהה</summary>
-    <p>בטור זה הוחלו {fragment.appliedReadings.length} תיקוני קריאה נקודתיים בהשוואה לצילום. יתר הטור עדיין דורש הגהה; התעתיק אינו ציטוט מאומת.</p>
+    <p>בטור זה תועדו {fragment.appliedReadings.length} רשומות קריאה בהשוואה לצילום. קריאה שנמשכה מסומנת בהיסטוריה ואינה הנוסח הפעיל. יתר הטור עדיין דורש הגהה; התעתיק אינו ציטוט מאומת.</p>
     <p style={{ whiteSpace: "pre-wrap" }}>{fragment.originalOcr}</p>
     <details onToggle={event => { if (event.target === event.currentTarget) setShowReadings(event.currentTarget.open); }}>
       <summary>השוואת תיקוני הקריאה למקור · {fragment.readingDetails.length}</summary>
-      {showReadings ? <ol aria-label="תיקוני הקריאה בטור">{fragment.readingDetails.map(reading => <li key={reading.id} data-root-reading={reading.id}>
-        <p>תעתיק המכונה: <del>{reading.before}</del><br />קריאה לאחר השוואה לצילום: <ins>{reading.after}</ins></p>
+      {showReadings ? <ol aria-label="תיקוני הקריאה בטור">{fragment.readingDetails.map(reading => <li key={reading.id} data-root-reading={reading.id} data-root-reading-state={reading.supersededBy ? "withdrawn" : reading.restoresReadingId ? "restoration" : "current"}>
+        {reading.supersededBy ? <p><b>קריאה זו נמשכה בבדיקה חוזרת ואינה משמשת בתעתיק העזר הנוכחי.</b></p> : null}
+        <p>{reading.restoresReadingId ? "קריאה קודמת:" : "תעתיק המכונה:"} <del>{reading.before}</del><br />{reading.restoresReadingId ? "תעתיק העזר שהוחזר, עד להכרעה:" : "קריאה לאחר השוואה לצילום:"} <ins>{reading.after}</ins></p>
         <p>שורת תעתיק {reading.originalOcrLine} · מיקום בתעתיק העזר, לא מספר שורה בדפוס.</p>
         <div className="ahavat29-ds01-controls"><button type="button" onClick={onSource}>מקור התיקון · PDF {reading.pdfPage}</button></div>
       </li>)}</ol> : null}
     </details>
-    <details><summary>מוקדים שנותרו להגהה</summary><p>אלה מוקדים תחומים להמשך, לא רשימה ממצה של כל שגיאות הטור. לא הוצע להם נוסח חלופי.</p>{fragment.openReadings.map(reading => <p key={reading.id}><q>{reading.originalOcr}</q> · {reading.reason}</p>)}</details>
+    <details><summary>מוקדים שנותרו להגהה</summary><p>אלה מוקדים תחומים להמשך, לא רשימה ממצה של כל שגיאות הטור. קריאה חלקית אינה הכרעה של המילה כולה.</p>{fragment.openReadings.length ? fragment.openReadings.map(reading => <p key={reading.id}><q>{reading.reading ?? reading.originalOcr}</q> · {reading.explanation}</p>) : <p>לא נותר מוקד פתוח מרשימת המעקב התחומה בטור זה; אין בכך הכרזה שהטור כולו הוגה.</p>}</details>
+    <details onToggle={event => { if (event.target === event.currentTarget) setShowWindowReviews(event.currentTarget.open); }}>
+      <summary>קריאה חוזרת במוקדים שנבדקו · {fragment.windowReviews.length}</summary>
+      {showWindowReviews ? <ul aria-label="תוצאות הקריאה החוזרת">{fragment.windowReviews.map(review => <li key={review.id} data-root-window-review={review.id}>
+        <p><b>{review.displayStatus}</b> · בתעתיק המקורי: <q>{review.originalOcr}</q>{review.reading ? <> · בקריאה החוזרת: <q>{review.reading}</q></> : null}</p>
+        <p>{review.explanation}</p><div className="ahavat29-ds01-controls"><button type="button" onClick={onSource}>מקור הקריאה החוזרת · PDF {review.pdfPage}</button></div>
+      </li>)}</ul> : null}
+    </details>
   </details>;
 }
 

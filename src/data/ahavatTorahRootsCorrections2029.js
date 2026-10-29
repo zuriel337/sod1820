@@ -139,12 +139,21 @@ const readings = [
       ["עתירת", "עתידה"], ["רבאך", "דבאך"],
     ]],
   ].flatMap(([fragmentId, changes]) => changes.map(([before, after]) => [fragmentId, before, after])),
+  // Additive follow-up: partial readings keep the unadjudicated glyphs in place.
+  ["roots:31:left", "כררתין", "כדרתיו"],
+  ["roots:32:right", "אחורגיה", "אחורניה"],
+  ["roots:32:left", "ומרה במרמה", "ומדה במרמה"],
+  ["roots:33:left", "ובאורח", "ובאזרח"],
+  ["roots:34:right", "מוו מרי", "טוו מרי"],
+  // Do not silently delete the earlier unsupported dalet/resh adjudication.
+  ["roots:35:right", "לשדים", "לשרים", "roots:35:right:glyph-review:269"],
 ];
-export const AHAVAT_ROOT_GLYPH_READINGS = Object.freeze(readings.map(([fragmentId, before, after], ordinal) => Object.freeze({
+export const AHAVAT_ROOT_GLYPH_READINGS = Object.freeze(readings.map(([fragmentId, before, after, restoresReadingId], ordinal) => Object.freeze({
   id: `${fragmentId}:glyph-review:${ordinal + 1}`,
   fragmentId, pdfPage: Number(fragmentId.split(":")[1]), before, after,
   status: "local_glyph_reading", basis: "direct_visual_source_comparison",
   sourceUrl: `${AHAVAT_CONTENT_SOURCE.pdfUrl}#page=${fragmentId.split(":")[1]}&view=FitH`,
+  ...(restoresReadingId ? { restoresReadingId, basis: "original_ocr_restored_pending_source_glyph_decision", status: "restoration_pending_source_review" } : {}),
 })));
 
 // Bounded unresolved windows, not proposed replacements. A source-looking
@@ -161,10 +170,36 @@ export const AHAVAT_ROOT_OPEN_READINGS = Object.freeze([
   ["roots:34:left", "ובתרחור", "רצף האותיות בשורה התחתונה דורש הגהה נוספת."],
   ["roots:35:right", "בשית", "האות הפותחת אינה מוכרעת כאן; אין לתקן לפי נוסח זכור."],
   ["roots:35:left", "ומשרמות", "איות רצף זה נשאר פתוח לקריאה נוספת, בלי לאחדו אוטומטית עם נוסח מקראי."],
+  ["roots:35:right", "לשרים", "התיקון הקודם ל־לשדים נמשך: ההשוואה החוזרת אינה מבססת את הכרעת ד׳/ר׳. קריאת המכונה הוחזרה לעזר הקריאה, לא כציטוט מוכרע."],
 ].map(([fragmentId, originalOcr, reason], ordinal) => Object.freeze({
   id: `${fragmentId}:open-reading:${ordinal + 1}`, fragmentId,
   pdfPage: Number(fragmentId.split(":")[1]), originalOcr, reason,
   status: "unresolved", proposedReading: null,
+})));
+
+// The original eleven open records remain immutable provenance. These are
+// follow-up outcomes in the same reader, not a replacement source or registry.
+export const AHAVAT_ROOT_WINDOW_REVIEWS = Object.freeze([
+  ["unresolved", null, "הבחנת י׳/ו׳ לא הוכרעה בהגדלה. קריאת המכונה נשארה כפי שהייתה."],
+  ["partial_reading", "כדרתיו", "ד׳ במקום ר׳ באמצע הרצף ו־ו׳ במקום ן׳ בסופו נקראו מחדש. אות הפתיחה ב׳/כ׳ נשארה פתוחה; אין כאן קביעה של נוסח המילה כולה."],
+  ["partial_reading", "אחורניה", "האות שנקראה ג׳ נקראת נ׳. שאר הכתיב נשאר בתעתיק העזר ולא הושלם אוטומטית לצורה המקראית המוכרת."],
+  ["partial_reading", "ומדה במרמה", "האות האמצעית נקראה ד׳ במקום ר׳. האות שלפניה נשמרה בקריאת המכונה, והמילה כולה טרם הוכרעה."],
+  ["printed_reading_retained", "תאות", "רצף האותיות תאות נשמר כפי שנקרא בדפוס; לא נוסף לו ניקוד ולא הוחלף בכתיב מילוני אחר."],
+  ["unresolved", null, "הצורה שבתחילת השורה עדיין אינה מוכרעת. לא הוחל נוסח חלופי רק מפני שהרצף נראה חריג."],
+  ["source_reading", "ובאזרח", "בהגדלה נקראו ז׳ ו־ר׳ ברצף ובאזרח. זהו תיקון קריאת הצילום, ללא השלמת משפט או ערך מילוני."],
+  ["partial_reading", "טוו מרי", "במילה הראשונה נקראה ט׳ במקום מ׳. קריאת ד׳/ר׳ במילה השנייה עדיין פתוחה, ולכן מרי לא הוחלפה לפי נוסח זכור."],
+  ["unresolved", null, "רצף האותיות נשאר פתוח גם לאחר ההגדלה; לא נבחרה השלמה על סמך לשון פסוק מוכרת."],
+  ["unresolved", null, "אות הפתיחה ב׳/כ׳ עדיין אינה מוכרעת. לא הוחל כתיב חלופי."],
+  ["unresolved", null, "הבחנת ד׳/ר׳ והכתיב במרכז הרצף עדיין פתוחים; התעתיק לא נורמל לנוסח מקראי."],
+  ["unresolved", null, "קריאה קודמת ל־לשדים נמשכה, ועזר הקריאה חזר ל־לשרים. ההכרעה בד׳/ר׳ נשארה פתוחה ואינה מוצגת כציטוט מוכרע."],
+].map(([status, reading, explanation], index) => Object.freeze({
+  id: `${AHAVAT_ROOT_OPEN_READINGS[index].id}:followup:1`,
+  openReadingId: AHAVAT_ROOT_OPEN_READINGS[index].id,
+  fragmentId: AHAVAT_ROOT_OPEN_READINGS[index].fragmentId,
+  pdfPage: AHAVAT_ROOT_OPEN_READINGS[index].pdfPage,
+  status, reading, explanation,
+  displayStatus: ({ unresolved: "נשאר להגהה", partial_reading: "נקרא בחלקו", printed_reading_retained: "הקריאה בדפוס נשמרה", source_reading: "קריאה חוזרת בצילום" })[status],
+  sourceUrl: `${AHAVAT_CONTENT_SOURCE.pdfUrl}#page=${AHAVAT_ROOT_OPEN_READINGS[index].pdfPage}&view=FitH`,
 })));
 
 export function ahavatPartiallyReviewedRoots(bundle) {
@@ -177,21 +212,30 @@ export function ahavatPartiallyReviewedRoots(bundle) {
     let text = fragment.text;
     const readingDetails = [];
     for (const change of changes) {
-      if (typeof text !== "string" || fragment.text.split(change.before).length !== 2 || text.split(change.before).length !== 2 || change.before === change.after || fragment.pdf_page !== change.pdfPage) throw new Error(`Source review no longer applies: ${change.id}`);
-      readingDetails.push(Object.freeze({ ...change,
+      const previous = change.restoresReadingId ? readingDetails.find(reading => reading.id === change.restoresReadingId) : null;
+      const originalOcrAnchor = previous ? previous.before : change.before;
+      if (typeof text !== "string" || fragment.text.split(originalOcrAnchor).length !== 2 || text.split(change.before).length !== 2 || change.before === change.after || fragment.pdf_page !== change.pdfPage || (change.restoresReadingId && (!previous || previous.fragmentId !== change.fragmentId || previous.after !== change.before || previous.before !== change.after || previous.restoresReadingId))) throw new Error(`Source review no longer applies: ${change.id}`);
+      readingDetails.push({ ...change, originalOcrAnchor,
         // OCR line is a locator within this aid, never a printed line number.
-        originalOcrLine: fragment.text.slice(0, fragment.text.indexOf(change.before)).split("\n").length,
-      }));
+        originalOcrLine: fragment.text.slice(0, fragment.text.indexOf(originalOcrAnchor)).split("\n").length,
+      });
       text = text.replace(change.before, change.after);
     }
-    const openReadings = AHAVAT_ROOT_OPEN_READINGS.filter(item => item.fragmentId === fragment.id);
-    for (const item of openReadings) {
-      if (fragment.text.split(item.originalOcr).length !== 2 || !text.includes(item.originalOcr)) throw new Error(`Open source window no longer applies: ${item.id}`);
+    const windowReviews = AHAVAT_ROOT_OPEN_READINGS.filter(item => item.fragmentId === fragment.id).map(item => {
+      const review = AHAVAT_ROOT_WINDOW_REVIEWS.find(candidate => candidate.openReadingId === item.id);
+      if (!review || fragment.text.split(item.originalOcr).length !== 2 || !text.includes(review.reading ?? item.originalOcr)) throw new Error(`Open source window no longer applies: ${item.id}`);
+      return Object.freeze({ ...item, ...review, originalOpenReadingId: item.id });
+    });
+    const openReadings = windowReviews.filter(item => ["unresolved", "partial_reading"].includes(item.status));
+    for (const detail of readingDetails) {
+      detail.supersededBy = changes.find(candidate => candidate.restoresReadingId === detail.id)?.id || null;
+      Object.freeze(detail);
     }
     return Object.freeze({ id: fragment.id, pdfPage: fragment.pdf_page, column: fragment.column,
       originalOcr: fragment.text, partiallyReviewedText: text,
       appliedReadings: Object.freeze(changes.map(item => item.id)),
       readingDetails: Object.freeze(readingDetails), openReadings: Object.freeze(openReadings),
+      windowReviews: Object.freeze(windowReviews),
       status: "partial_proofreading_not_verified_quotation",
       remainingReview: "שאר הטור עדיין מחייב הגהה מול הצילום; לא נקבע מספר ערכים ולא הוחל כלל שורש מודרני.",
     });
@@ -207,8 +251,9 @@ export function ahavatReviewedRootFragments(bundle, query = "") {
     text: fragment.partiallyReviewedText, originalOcr: fragment.originalOcr,
     appliedReadings: fragment.appliedReadings, reviewStatus: fragment.status,
     readingDetails: fragment.readingDetails, openReadings: fragment.openReadings,
+    windowReviews: fragment.windowReviews,
   })).filter(fragment => !needle || ahavatSourceSearch([
-    fragment.text, fragment.originalOcr,
+    fragment.text, fragment.originalOcr, ...fragment.readingDetails.flatMap(reading => [reading.before, reading.after]),
     AHAVAT_ROOT_SECTIONS.find(section => section.page === fragment.pdf_page)?.title,
   ].join(" ")).includes(needle));
 }
