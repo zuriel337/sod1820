@@ -2,6 +2,7 @@ import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from "re
 import { use2029Palette } from "../../lib/palette.js";
 import { parseElsHitKey } from "../../lib/elsJourney.js";
 import { buildElsRazielMatrixContext } from "../../lib/research/elsRazielMatrixContext.js";
+import ElsMatrixReadingCard2029 from "./ElsMatrixReadingCard2029.jsx";
 import { findingColorChoices, nextFindingColor, projectFindingColor } from "./elsFindingColors2029.js";
 import NavigationIcon2029 from "./NavigationIcon2029.jsx";
 import ContextualInspector2029 from "./ContextualInspector2029.jsx";
@@ -768,7 +769,7 @@ function FindingsRail({ onHighlightVerse, verseHighlight, activeTool, state, sel
   </div>;
 }
 
-export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, active = true, researchProfile = false, guidedProfile = false, researchLoad = null, researchProbe = null, onResearchProbeResult, onResearchLoadError, onSearchStart, onSaved, onRazielMatrix, formsPreviewRequest = null, onFormsPreviewResult }) {
+export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, active = true, researchProfile = false, guidedProfile = false, researchLoad = null, researchProbe = null, onResearchProbeResult, onResearchLoadError, onSearchStart, onSaved, onRazielMatrix, matrixReading = null, formsPreviewRequest = null, onFormsPreviewResult }) {
   const palette = use2029Palette("research_lab");
   const { user } = useAuth();
   const [query, setQuery] = useState(clean(initialSeed));
@@ -1516,7 +1517,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
           </div>
           <small>מציג את הציר ואחריו את הממצאים, אחד אחרי השני. אפשר להקליט באמצעות כלי צילום המסך במכשיר.</small>
         </section> : null}
-        {typeof onRazielMatrix === "function" ? <section className="els29-native-workrail els29-matrix-ai-card" aria-label="רזיאל ומפת המטריצה">
+        {matrixReading ? <ElsMatrixReadingCard2029 context={buildElsRazielMatrixContext(engineState)} reading={matrixReading} pending={searchPending} onSubmit={onRazielMatrix} /> : typeof onRazielMatrix === "function" ? <section className="els29-native-workrail els29-matrix-ai-card" aria-label="רזיאל ומפת המטריצה">
           <strong>✦ נתח את המטריצה עם AI</strong>
           {engineState?.verification?.state === "MATCH" && engineState?.axis ? <p>המופע הנבחר: {engineState.termRaw || engineState.term} · דילוג {engineState.axis.skip} · {engineState.axis.direction === "back" ? "לאחור" : "קדימה"} · מיקום {engineState.axis.start}</p> : <p>בחרו מופע מאומת כדי להתחיל.</p>}
           <p>הסקירה הנוכחית שולחת לרזיאל אזור מוגבל. סריקת Fable המורחבת עדיין אינה מחוברת.</p>

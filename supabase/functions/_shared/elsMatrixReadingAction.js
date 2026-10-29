@@ -95,7 +95,7 @@ export function normalizeElsMatrixReadingAction(value) {
 // ---------- what the session keeps of a result ----------
 const RESULT_KEYS = Object.freeze([
   "contract", "ok", "state", "error", "reason", "continuation_required", "retryable", "experimental", "model", "provider", "axis", "request", "coverage", "estimate",
-  "job", "timing", "cost", "output", "findings", "summary", "cap", "observations", "data_class", "is_test_fixture", "notes", "story", "note", "progress", "spent",
+  "job", "timing", "cost", "output", "findings", "summary", "cap", "observations", "data_class", "is_test_fixture", "notes", "story", "note", "progress", "spent", "poll_interrupted",
 ]);
 
 function bound(value, depth = 0) {
@@ -117,6 +117,12 @@ export function normalizeElsMatrixReadingResult(value) {
   if (!isObject(value) || value.contract !== ELS_MATRIX_READING_RESULT_CONTRACT) return null;
   const out = {};
   for (const key of RESULT_KEYS) if (value[key] !== undefined) out[key] = bound(value[key]);
+  // A signed token is opaque: shortening it destroys its signature and makes resume/cancel fail.
+  if (isObject(out.job)) {
+    delete out.job.token;
+    const token = value.job?.token;
+    if (normalizeElsMatrixReadingAction({ id: ELS_MATRIX_READING_ACTION, op: "status", job_token: token })) out.job.token = token;
+  }
   if (out.findings != null && !Array.isArray(out.findings)) delete out.findings;
   return out;
 }
@@ -138,4 +144,5 @@ export function elsMatrixReadingPhase(result) {
 
 /** True only for a reading that came from the real provider route. A test double, a fixture or a demo never qualifies. */
 export const isLiveFableReading = (result) => isObject(result) && result.contract === ELS_MATRIX_READING_RESULT_CONTRACT
-  && result.is_test_fixture === false && result.provider?.live_model_call === true && result.model?.verified_available === true;
+  && result.is_test_fixture === false && result.provider?.kind === "anthropic_live"
+  && result.provider?.live_model_call === true && result.model?.verified_available === true;

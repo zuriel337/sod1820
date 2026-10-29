@@ -120,8 +120,10 @@ test("the matrix request is the explicit, deep, session-routed shape the gate ex
   const supabase = readFileSync(new URL("../src/lib/supabase.js", import.meta.url), "utf8");
   assert.match(supabase, /researchContract === 'public-number-research-run-v1' && elsMatrixContext && typeof elsMatrixContext === 'object' \? \{ els_matrix_context: elsMatrixContext \}/);
   const page = readFileSync(new URL("../src/pages/Els2029Page.jsx", import.meta.url), "utf8");
-  assert.match(page, /intelligenceLevel: "deep"/);
-  assert.match(page, /elsMatrixContext: context/);
+  assert.match(page, /razielSession\.submitElsMatrixReading\(\{ \.\.\.options, context \}\)/);
+  const submission = readFileSync(new URL("../src/lib/research/elsMatrixReadingSession.js", import.meta.url), "utf8");
+  assert.match(submission, /intelligenceLevel: "deep"/);
+  assert.match(submission, /elsMatrixContext: context/);
   const cmp = readFileSync(new URL("../src/components/experience2029/ElsNativeClassic2029.jsx", import.meta.url), "utf8");
   // the AI request exists only inside the button handler, never in an effect or on selection
   const handler = cmp.indexOf("await onRazielMatrix(context)");

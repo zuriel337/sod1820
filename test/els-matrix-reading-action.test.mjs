@@ -81,9 +81,9 @@ test("the phase names never upgrade a result", () => {
 });
 
 test("only a result from the live provider route is a live Fable reading; a test double, a fixture or a preview is not", () => {
-  const live = { contract: "els_matrix_reading_v1", is_test_fixture: false, provider: { live_model_call: true }, model: { verified_available: true } };
+  const live = { contract: "els_matrix_reading_v1", is_test_fixture: false, provider: { kind: "anthropic_live", live_model_call: true }, model: { verified_available: true } };
   assert.equal(isLiveFableReading(live), true);
-  for (const patch of [{ is_test_fixture: true }, { provider: { live_model_call: false } }, { provider: {} }, { model: { verified_available: false } }, { model: undefined }, { contract: "x" }])
+  for (const patch of [{ is_test_fixture: true }, { provider: { kind: "test_double", live_model_call: true } }, { provider: { live_model_call: true } }, { provider: { live_model_call: false } }, { provider: {} }, { model: { verified_available: false } }, { model: undefined }, { contract: "x" }])
     assert.equal(isLiveFableReading({ ...live, ...patch }), false, JSON.stringify(patch));
   assert.equal(isLiveFableReading(null), false);
 });

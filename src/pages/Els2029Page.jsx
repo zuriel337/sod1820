@@ -24,6 +24,7 @@ import FeatureClosedNotice from "../components/FeatureClosedNotice.jsx";
 import { useFeatureState } from "../components/MaintenanceLock.jsx";
 import { useElsJourneyReopen } from "../lib/research/useElsJourneyReopen.js";
 import { useOptionalRazielSession2029 } from "../components/experience2029/RazielSessionMount2029.jsx";
+import { elsMatrixReadingMode } from "../lib/research/elsMatrixReadingPresentation.js";
 
 const clean = (value) => String(value ?? "").trim();
 const ELS_DESCRIPTION = "חפשו דילוגי אותיות, קראו את המקור ושמרו ממצאים להמשך מחקר.";
@@ -87,18 +88,21 @@ function ElsResearchBarConnected({ researchContext, projection, layers, planSumm
 
 function ElsNativeWithRaziel({ razielSession, researchContext, projection, layers, planSummary, replayReady, ...props }) {
   const shell = use2029Shell();
-  const analyze = async context => {
-    if (!razielSession?.submit || shell.razielLocked) return { ok: false };
+  const { isAdmin } = useAuth();
+  const mode = elsMatrixReadingMode(import.meta.env.VITE_ELS_MATRIX_READING_MODE);
+  const analyze = async (context, options = {}) => {
+    if (mode === "off" || !isAdmin || !razielSession?.submitElsMatrixReading || shell.razielLocked) return { ok: false, error: "reading_disabled" };
+    if (mode === "preview" && options.op !== "preview") return { ok: false, error: "reading_disabled" };
     const selected = projection?.selectedOccurrence;
     const matching = replayReady && selected?.start === context.axis.start && selected?.skip === context.axis.skip && selected?.dir === context.axis.dir
       && (selected?.corpusId || projection?.corpusId) === context.axis.corpusId;
     const surfaceContext = matching ? buildElsRazielSurfaceContext({ researchContext, projection, layers, planSummary }) : null;
     if (!surfaceContext?.occurrence?.occurrenceRef) return { ok: false, error: "replay_pending_or_changed" };
     shell.openRaziel({ razielMicroIntent: "explain_els_occurrence", elsSurfaceContext: { ...surfaceContext, matrixAnalysisRequested: true } });
-    return razielSession.submit({ question: "בדוק את המטריצה שבחרתי והצע כיוון מחקרי", intelligenceLevel: "deep",
-      view: { surface: "els", elsFocus: { ...context.axis, occurrenceRef: context.axis.hitId }, elsMatrixContext: context } });
+    return razielSession.submitElsMatrixReading({ ...options, context });
   };
-  return <ElsNativeClassic2029 {...props} onRazielMatrix={analyze} />;
+  return <ElsNativeClassic2029 {...props} onRazielMatrix={analyze} matrixReading={{ mode, isAdmin, session: razielSession,
+    locked: shell.razielLocked, onCancel: razielSession?.cancelActiveTurn }} />;
 }
 
 export default function Els2029Page({ previewAdvanced = false }) {

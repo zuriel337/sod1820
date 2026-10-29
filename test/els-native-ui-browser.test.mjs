@@ -1895,6 +1895,8 @@ test('shared matrix AI card is available across profiles without automatic submi
    assert.equal(await card.isVisible(),true);
    assert.match(await card.innerText(),/סריקת Fable המורחבת עדיין אינה מחוברת/);
    assert.equal(await page.evaluate(()=>(window.__matrixSubmits||[]).length),0);
+   assert.equal(page.__elsDynamicLexiconRequests.length,0,'opening a profile with the AI card does not load the broad language asset');
+   assert.equal(page.__elsGuidedSnapshotRequests.length,0,'opening a profile does not load discovery results');
    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
   },{realHost:true,loadGolden:true,matrixAnalysis:true,...profile});
 });
