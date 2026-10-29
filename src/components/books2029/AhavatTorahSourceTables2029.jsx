@@ -79,15 +79,16 @@ export function AhavatTorahPeopleReader2029({ onPage, activeScene, onScene }) {
 }
 
 export function AhavatTorahPrintedNotes2029({ onPage }) {
-  return <section className="ahavat29-letters" aria-labelledby="ahavat29-printed-notes-title">
+  const [notesOpen, setNotesOpen] = useState(() => initialUnit()?.layer === "printed-note");
+  return <section id="ahavat29-printed-notes" className="ahavat29-letters" aria-labelledby="ahavat29-printed-notes-title">
     <header><div><span>הגהות מודפסות</span><h3 id="ahavat29-printed-notes-title">הערות לצד דברי הספר</h3></div><strong>9<small>הערות</small></strong></header>
     <p className="ahavat29-ds01-guide">ההערות נדפסו בסוף הספר. אפשר לקרוא כל הערה במקור ולפתוח את הקטע שהיא עוסקת בו כאשר הוא אותר.</p>
-    <details className="ahavat29-source-details"><summary>פתחו את ההערות והקטעים</summary>
-      {AHAVAT_ERRATA_LINKS.map(note => <article className="ahavat29-letter-reading" key={note.id}>
+    <details className="ahavat29-source-details" open={notesOpen} onToggle={event => setNotesOpen(event.currentTarget.open)}><summary>פתחו את ההערות והקטעים</summary>
+      {AHAVAT_ERRATA_LINKS.map(note => <article id={ahavatReaderUnitDomId(note.id)} data-reader-unit={note.id} className="ahavat29-letter-reading" key={note.id}>
         <h4>{note.printedWork} · {note.printedOpening}</h4>
         <p><b>הגהות מודפסות:</b> {note.readableExcerpt}</p>
         <p><b>הסבר נלווה:</b> {note.explanation}</p>
-        <div className="ahavat29-ds01-controls"><button type="button" onClick={() => onPage(note.sourcePdfPage, "DS-12")}>פתחו את ההערה · PDF {note.sourcePdfPage}</button>{note.targetPdfPage ? <button type="button" onClick={() => onPage(note.targetPdfPage, "DS-12")}>פתחו את הקטע · PDF {note.targetPdfPage}</button> : <span>עמוד הקטע טרם אותר</span>}{note.relatedPdfPages.filter(page => page !== note.targetPdfPage).map(page => <button type="button" key={page} onClick={() => onPage(page, "DS-12")}>תחילת הקטע · PDF {page}</button>)}</div>
+        <div className="ahavat29-ds01-controls"><button type="button" onClick={() => onPage(note.sourcePdfPage, "DS-12", note.id)}>פתחו את ההערה · PDF {note.sourcePdfPage}</button>{note.targetPdfPage ? <button type="button" onClick={() => onPage(note.targetPdfPage, "DS-12", note.id)}>פתחו את הקטע · PDF {note.targetPdfPage}</button> : <span>עמוד הקטע טרם אותר</span>}{note.relatedPdfPages.filter(page => page !== note.targetPdfPage).map(page => <button type="button" key={page} onClick={() => onPage(page, "DS-12", note.id)}>תחילת הקטע · PDF {page}</button>)}</div>
       </article>)}
     </details>
   </section>;

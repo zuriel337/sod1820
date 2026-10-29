@@ -170,9 +170,13 @@ test("people, roots and megillot retain their source through search/export/3D/re
       const notes = page.getByRole("region", { name: "הערות לצד דברי הספר" });
       await click(notes.getByText("פתחו את ההערות והקטעים", { exact: true }));
       assert.equal(await notes.locator("article").count(), 9);
-      const unresolvedNote = notes.locator("article").filter({ hasText: "מגדל עוז" });
-      assert.equal(await unresolvedNote.getByText("עמוד הקטע טרם אותר").count(), 1);
-      assert.equal(await unresolvedNote.getByRole("button").count(), 1);
+      const amorNote = notes.locator("article").filter({ hasText: "מגדל עוז" });
+      assert.equal(await amorNote.getByText("עמוד הקטע טרם אותר").count(), 0);
+      assert.equal(await amorNote.getByRole("button").count(), 2);
+      await click(amorNote.getByRole("button", { name: "פתחו את הקטע · PDF 14", exact: true }));
+      assert.match(await pdf.getAttribute("src"), /#page=14&view=FitH$/);
+      await click(page.locator('#ahavat29-source').getByRole('link', {name:'חזור ליחידת הקריאה',exact:true}));
+      await page.waitForFunction(()=>document.activeElement?.closest('[data-reader-unit]')?.dataset.readerUnit==='ds12:migdaloz-amor');
       const toldot = notes.locator("article").filter({ has: page.getByRole("heading", { name: "תולדות · מן ויהי", exact: true }) });
       await click(toldot.getByRole("button", { name: "פתחו את הקטע · PDF 51", exact: true }));
       assert.match(await pdf.getAttribute("src"), /#page=51&view=FitH$/);

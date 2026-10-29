@@ -27,7 +27,7 @@ export const AHAVAT_TORAH_TRUTH_STATES = Object.freeze({
 });
 
 export const AHAVAT_TORAH_READING_ARCS = Object.freeze([
-  Object.freeze({ range: [1, 5], title: "זהות הספר והקדמות", explanation: "עמודי השער, ההסכמות והקדמת המהדורה מגדירים את זהות החיבור, המחבר ותולדות ההדפסה. יש להבדיל בין דברי המחבר לבין חומר שנוסף במהדורות המאוחרות." }),
+  Object.freeze({ range: [1, 5], title: "זהות הספר והקדמות", explanation: "עמודי השער, הצהרת המחבר והקדמת המהדורה מגדירים את זהות החיבור, המחבר ותולדות ההדפסה. יש להבדיל בין דברי המחבר לבין חומר שנוסף במהדורות המאוחרות." }),
   Object.freeze({ range: [6, 15], title: "פתיחת מגדל עוז", explanation: "המחבר מציג את מניין 1,820 מופעי שם ה׳ ומפתח סביבו מערכות של פסוקים, מניינים וגימטריות. בעמודים אלה קיימת כבר שכבת קריאת עומק מפורטת לצד המקור." }),
   Object.freeze({ range: [16, 24], title: "המשך מגדל עוז", explanation: "הדיון ממשיך דרך ניסוך המים, מנייני אותיות ותיבות, שנות חיים, שבטים, מועדים ומבנים החוזרים אל משפחת המספר 1,820. ההסבר הוא מפת קריאה; כל חישוב דורש בדיקה מול השורה המקורית." }),
   Object.freeze({ range: [25, 31], title: "אוריין תליתאי", explanation: "יחידה טבלאית המונה דוברים, אנשים וקבוצות בתורה ומבחינה בין מספר הופעות לבין מספר התיבות המיוחסות להם. סכום המחבר 79,976 נשמר כטענת מקור עד להשלמת כל השורות." }),
@@ -50,7 +50,7 @@ export function readingArcForPage(page) {
 export const AHAVAT_TORAH_SECTIONS = Object.freeze([
   Object.freeze({
     id: "front-matter", index: "01", title: "שערים והקדמות", shortTitle: "הקדמות", range: [1, 5], page: 1, status: "structural_map", color: "var(--s29-warm-accent)",
-    description: "שערי המהדורה, הסכמות, דברי פתיחה ורקע להדפסה המחודשת.",
+    description: "שערי המהדורה, הצהרת המחבר, דברי פתיחה ורקע להדפסה המחודשת.",
     guide: "כאן מתחילה זהות הספר: מי חיבר, כיצד נדפס, ומה ביקשו עורכי המהדורה לשמר. ההסבר הוא מפתח קריאה, לא תחליף לעמודי המקור.",
   }),
   Object.freeze({
@@ -111,7 +111,7 @@ export const AHAVAT_TORAH_DATASETS = Object.freeze([
   Object.freeze({ id: "DS-09", title: "אותיות חמש המגילות", total: "140 תאי אותיות", pages: [42, 43], state: "partial", truthState: "source_located", summary: "28 צורות לכל מגילה, עם סיכומי המחבר, חיפוש, יצוא וקישורי PDF לכל שורה.", nextStep: "הכרעת שמונת התאים העמומים והצלבת קריאת השורות, בלי להשלים מתוך הסיכומים." }),
   Object.freeze({ id: "DS-10", title: "תיבות חמש המגילות", total: "חמש מגילות", pages: [43], state: "closed", truthState: "source_located", summary: "חמשת מנייני התיבות בדפוס, בנפרד ממנייני האותיות וללא דרישת מנוע לצפייה.", nextStep: "קריאה והשוואה בין המגילות לצד המקור; אין כאן תוצאת מנוע." }),
   Object.freeze({ id: "DS-11", title: "רשימת השרשים בתורה", total: "1,820", pages: [31, 32, 33, 34, 35], state: "partial", truthState: "source_located", summary: "עשרת טורי הרשימה בסדר הקריאה, עם תעתיק עזר, חיפוש והסבר לכל עמוד.", nextStep: "הגהת התעתיק והכרעת יחידת הרשימה של המחבר, בלי להחיל כללי שורש מודרניים." }),
-  Object.freeze({ id: "DS-12", title: "לוח השמטות ותיקונים", total: "רשימה איכותנית", pages: [99], state: "closed", truthState: "source_verified", summary: "תיקוני מהדורת תשמ״ג ושאלות עריכה; זהו מאגר טקסטואלי, לא מספרי.", nextStep: "קישור כל תיקון אל העמוד והנוסח שאליהם הוא מתייחס." }),
+  Object.freeze({ id: "DS-12", title: "לוח השמטות ותיקונים", total: "רשימה איכותנית", pages: [99], state: "closed", truthState: "source_verified", summary: "הגהות מודפסות בסוף המהדורה ושאלות עריכה; זהו מאגר טקסטואלי, לא מספרי.", nextStep: "השוואת נוסח ההערות לקטעים המקושרים, בלי להחיל את הצעות התיקון על גוף הספר." }),
   Object.freeze({ id: "DS-13", title: "מופעי הפועל ״עשה״ לפי פרשה", total: "248 · בדברי הספר", pages: [70], state: "partial", truthState: "source_located", summary: "חמש פרשות המשכן נקראו בעמוד 70, ולאחריהן דיון בצורות הפועל ובהשמטות. סיום המחבר הוא רמ״ח — 248; מנייני הפרשות מוצגים בנפרד.", nextStep: "תעתוק כל צורות הפועל וההשמטות וקישורן למנייני הפרשות, בלי לערבב בין שלבי הספירה." }),
 ]);
 
@@ -134,7 +134,7 @@ export function ahavatCurrentOccurrenceReading(table) {
 export const AHAVAT_TORAH_DEEP_PAGES = Object.freeze([
   { page: 1, printed: null, section: "שער הספר", blocks: 5, tables: 0, unresolved: 0, depth: "זהות ביבליוגרפית" },
   { page: 2, printed: null, section: "שער והקדמות", blocks: 3, tables: 0, unresolved: 0, depth: "זהות ביבליוגרפית" },
-  { page: 3, printed: null, section: "הסכמות", blocks: 3, tables: 0, unresolved: 0, depth: "זהות ביבליוגרפית" },
+  { page: 3, printed: null, section: "הצהרת המחבר ופרטי המהדורה", blocks: 3, tables: 0, unresolved: 0, depth: "זהות ביבליוגרפית" },
   { page: 4, printed: null, section: "הקדמות", blocks: 10, tables: 0, unresolved: 1, depth: "קריאה חלקית" },
   { page: 5, printed: null, section: "הקדמות", blocks: 8, tables: 0, unresolved: 1, depth: "קריאה חלקית" },
   { page: 6, printed: 1, section: "מגדל עוז", blocks: 4, tables: 1, unresolved: 1, depth: "פרפרזה נרחבת + נתונים" },

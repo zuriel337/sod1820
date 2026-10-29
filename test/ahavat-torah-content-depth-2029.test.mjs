@@ -20,12 +20,16 @@ test("44 printed attribution windows preserve 43 parashot and the single Devarim
   for (const id of ["vayetze", "mishpatim", "balak"]) assert.equal(windows.find(unit => unit.id === `ds05:${id}`).pdfPages.length, 2);
   assert.deepEqual(method.wholeTorahSummaryPages, [30, 31]);
 });
-test("nine printed editorial notes keep source and target distinct and the unresolved locator null", () => {
+test("nine printed editorial notes retain separate exact targets; the newly located Amor proposal never changes the original", () => {
   assert.equal(notes.length, 9);
   assert.equal(new Set(notes.map(note => note.id)).size, 9);
-  assert.equal(notes.filter(note => note.targetStatus === "source_passage_located").length, 8);
-  assert.equal(notes[0].targetPdfPage, null);
-  assert.equal(notes[0].targetUrl, null);
+  assert.equal(notes.filter(note => note.targetStatus === "source_passage_located").length, 9);
+  assert.equal(notes[0].targetPdfPage, 14);
+  assert.match(notes[0].targetUrl, /#page=14&view=FitH$/);
+  assert.equal(notes[0].targetReading.asPrinted, 'וט״ו');
+  assert.equal(notes[0].targetReading.editorialProposal, 'וה׳');
+  assert.equal(notes[0].targetReading.status, 'proposal_not_applied');
+  assert.equal(source.reprintColophon.yearPrinted, 'תשס״ג');
   assert.equal(notes.find(note => note.id === "ds12:toldot-final-mem").targetPdfPage, 51);
   assert.equal(notes.find(note => note.id === "ds12:vayeshev-mazalot").targetPdfPage, 55);
   assert.equal(notes.find(note => note.id === "ds12:shoftim-mizbeach").kind, "open_question");
@@ -33,7 +37,7 @@ test("nine printed editorial notes keep source and target distinct and the unres
   for (const note of notes) {
     assert.equal(note.sourcePdfPage, 99);
     assert.equal(note.sourceLayer, "הגהות מודפסות");
-    assert.ok(note.targetPdfPage === null || note.targetPdfPage > 45);
+    assert.ok(note.targetPdfPage === 14 || note.targetPdfPage > 45);
     if (note.targetPdfPage) assert.ok(note.targetUrl.endsWith(`#page=${note.targetPdfPage}&view=FitH`));
   }
 });

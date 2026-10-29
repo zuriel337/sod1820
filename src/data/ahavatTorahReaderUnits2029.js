@@ -6,6 +6,7 @@ import { AHAVAT_MEGILLOT, ahavatMegillahRows } from "./ahavatTorahMegillot2029.j
 import { AHAVAT_LETTER_FORMS, AHAVAT_LETTER_READINGS, ahavatSourceCountRows } from "./ahavatTorahLetters2029.js";
 import { AHAVAT_PARASHA_COUNT_FORMS, AHAVAT_PARASHA_COUNT_READINGS } from "./ahavatTorahParashaCounts2029.js";
 import { AHAVAT_COMPANION_PAGE_COUNTS, ahavatCompanionUnitId } from "./ahavatTorahSystem2029.js";
+import { AHAVAT_ERRATA_LINKS } from "./ahavatTorahContentDepth2029.js";
 
 export const AHAVAT_READER_UNITS = Object.freeze([
   ...AHAVAT_PEOPLE_BOOKS.flatMap(book => book.rows.map(row => ({ id: `people:${row.id}`, rowId: row.id, page: row.page, title: `${row.book} · ${row.entity}`, datasetId: "DS-05", sectionId: "ahavat29-people", bookId: book.id }))),
@@ -86,7 +87,9 @@ function countUnit(id) {
 }
 
 export function ahavatReaderUnit(id) {
-  return AHAVAT_READER_UNITS.find(unit => unit.id === id) || companionUnits.find(unit => unit.id === id) || letterUnit(id) || countUnit(id) || null;
+  const note = AHAVAT_ERRATA_LINKS.find(item => item.id === id);
+  return AHAVAT_READER_UNITS.find(unit => unit.id === id) || companionUnits.find(unit => unit.id === id) || letterUnit(id) || countUnit(id)
+    || (note ? { id: note.id, page: note.sourcePdfPage, title: `${note.printedWork} · ${note.printedOpening}`, layer: "printed-note", datasetId: "DS-12", sectionId: "ahavat29-printed-notes" } : null);
 }
 
 export function ahavatReaderUnitDomId(id) {
@@ -126,8 +129,9 @@ export function ahavatReaderUnitHref(id, currentUrl = "/2029/control") {
     else url.searchParams.delete("letterRow");
     const query = ahavatReaderQuery(url.searchParams, "letterQuery");
     if (unit.letterRow && query && !ahavatSourceCountRows(AHAVAT_LETTER_READINGS[unit.form], unit.letterBook, query).some(row => row.parasha === unit.letterRow)) url.searchParams.delete("letterQuery");
-  } else if (unit.layer === "companion") {
-    // A companion is not a scroll/table row, and gets no fabricated dataset.
+  } else if (unit.layer === "companion" || unit.layer === "printed-note") {
+    // Neither layer is a scroll/table row. Notes retain their existing DS-12
+    // source identity; companion explanations get no fabricated dataset.
   } else if (unit.bookId) {
     url.searchParams.set("peopleBook", unit.bookId);
     const query = ahavatReaderQuery(url.searchParams, "peopleQuery");

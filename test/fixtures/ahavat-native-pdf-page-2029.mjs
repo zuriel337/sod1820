@@ -11,3 +11,17 @@ export function ahavatNativePdfPageAtStart(snapshot, physical) {
   if (physical > 1 && (!previousRect || ![previousRect.y, previousRect.height].every(Number.isFinite) || previousRect.height <= 0 || previousRect.y + previousRect.height > 8)) return false;
   return true;
 }
+
+// At FitH the terminal page cannot always be scrolled to the top: Chromium
+// clamps at the document end when multiple short pages fit in the viewport.
+// Accept only the actual final page fully visible flush with that native end.
+// This is NOT a fallback for a nonterminal page, URL or central-page counter.
+export function ahavatNativePdfFinalPageAtEnd(snapshot) {
+  if (!snapshot || snapshot.loadState !== 'success' || snapshot.documentPages !== 99 || snapshot.pageIndex !== 98) return false;
+  const { requestedRect: rect, previousRect: previous, viewportHeight } = snapshot;
+  if (!rect || !previous || ![rect.x, rect.y, rect.width, rect.height, previous.y, previous.height, viewportHeight].every(Number.isFinite)) return false;
+  return rect.width > 0 && rect.height > 0 && previous.height > 0 && viewportHeight > 0
+    && rect.y >= 0 && rect.y < viewportHeight
+    && previous.y + previous.height <= rect.y
+    && Math.abs(rect.y + rect.height - viewportHeight) <= 8;
+}

@@ -59,6 +59,11 @@ function StatusPill({ status }) {
 }
 
 function scrollToReaderUnit(element) {
+  // A source return may target a row inside a disclosure closed by the reader.
+  // Reopen that same ancestry, not a different unit or a newly created surface.
+  for (let parent = element.parentElement; parent; parent = parent.parentElement) {
+    if (parent.matches("details")) parent.open = true;
+  }
   if (element.matches("details")) element.open = true;
   element.scrollIntoView({ block: "start", behavior: "instant" });
   // Source columns already have scroll-margin-top. Normalize the measured

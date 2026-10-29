@@ -4,16 +4,40 @@ import { readFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { AHAVAT_COMPANION_PAGE_COUNTS, ahavatCompanionReadingUnits, ahavatCompanionUnitId } from '../src/data/ahavatTorahSystem2029.js';
 import { AHAVAT_READER_UNITS, ahavatReaderUnit, ahavatReaderUnitHref } from '../src/data/ahavatTorahReaderUnits2029.js';
+import { AHAVAT_ERRATA_LINKS } from '../src/data/ahavatTorahContentDepth2029.js';
+import { ahavatNativePdfFinalPageAtEnd } from './fixtures/ahavat-native-pdf-page-2029.mjs';
 import { AHAVAT_BOOK_COMPLETION_PAGES, ahavatBeforeBookCompletion } from './fixtures/ahavat-book-completion-baseline-2029.mjs';
 const bundle = JSON.parse(readFileSync(new URL('../public/book-data/ahavat-torah.commentary.json', import.meta.url)));
 const digest = value => createHash('sha256').update(JSON.stringify(value)).digest('hex');
 
-test('all adopted page records and 189 units remain byte-equivalent beneath additive book completion', () => {
+test('terminal native PDF geometry accepts only the actual last page fully visible at the clamped document end', () => {
+  const actual={loadState:'success',documentPages:99,pageIndex:98,viewportHeight:640,requestedRect:{x:24,y:380.6379310344819,width:203.8448275862069,height:256.3448275862069},previousRect:{y:119.22413793103624,height:256.3448275862069}};
+  assert.equal(ahavatNativePdfFinalPageAtEnd(actual),true);
+  for(const change of [{loadState:'loading'},{documentPages:98},{pageIndex:97},{requestedRect:{...actual.requestedRect,y:-1}},{requestedRect:{...actual.requestedRect,y:250}},{requestedRect:{...actual.requestedRect,height:400}},{requestedRect:{...actual.requestedRect,width:0}},{previousRect:null},{previousRect:{y:380,height:20}}]) assert.equal(ahavatNativePdfFinalPageAtEnd({...actual,...change}),false);
+});
+
+test('historical page digest and 189 units remain pinned apart from the one explicit source-backed colophon correction', () => {
   assert.equal(digest(bundle.pages.map(ahavatBeforeBookCompletion)), '76beb9680f36af8fc3dc3ad91475ab6678f2c6c4c812a4f472056deb60071c70');
   assert.equal(AHAVAT_READER_UNITS.length, 287);
   assert.equal(bundle.coverage.deep_research_pages, 15);
   assert.deepEqual(bundle.coverage.visual_or_blank_pages, [45]);
   assert.equal(bundle.pages[44].companion_units, undefined);
+});
+
+test('nine existing editorial identities gain source return without replacing source rows or any of the other eight notes', () => {
+  assert.equal(digest(AHAVAT_ERRATA_LINKS.slice(1)), 'b6e388924333fff1ce90e0d957d8577ffa673796995d847c17c5231007f1e0c5');
+  for (const note of AHAVAT_ERRATA_LINKS) {
+    const unit = ahavatReaderUnit(note.id);
+    assert.equal(unit.page, 99); assert.equal(unit.layer, 'printed-note');
+    assert.equal(unit.datasetId, 'DS-12');
+    const url = new URL(ahavatReaderUnitHref(note.id), 'https://books.invalid');
+    assert.equal(url.searchParams.get('readerUnit'), note.id);
+    assert.equal(url.searchParams.get('page'), '99');
+    assert.equal(url.searchParams.get('scroll'), null);
+    assert.equal(url.searchParams.get('scrollKind'), null);
+  }
+  for (const id of ['ds12:unknown', 'ds12:migdaloz-amor:14', 'migdaloz-amor']) assert.equal(ahavatReaderUnit(id), null);
+  assert.equal(AHAVAT_READER_UNITS.length, 287);
 });
 
 test('all thirty-five completion pages have source-bound explanations and all 98 readable pages are covered', () => {
@@ -59,7 +83,9 @@ test('new namespaces, variable lengths and source-layer constraints fail closed'
 
 test('source-specific distinctions remain attributed and do not turn symbolic readings into measured geometry', () => {
   const text = n => JSON.stringify(bundle.pages[n - 1].companion_units);
-  assert.match(text(3), /תשס״ג/); assert.match(text(4), /המהדיר/); assert.match(text(5), /לא בדיקה עצמאית/);
+  assert.match(text(3), /תשס״ג/); assert.match(bundle.pages[2].companion_explanation, /מהדורת תשס״ג/);
+  assert.doesNotMatch(bundle.pages[2].companion_explanation, /תשמ״ג/);
+  assert.match(text(4), /המהדיר/); assert.match(text(5), /לא בדיקה עצמאית/);
   assert.match(text(7), /הנחת הדרשה/); assert.match(text(9), /הדיבור המשותף/);
   assert.match(text(10), /לא להציג נפח אדריכלי מדוד/);
   assert.match(text(12), /מנהג אשכנז/); assert.match(text(13), /אין זו הוראה לדלג/);

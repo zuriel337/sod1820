@@ -3,6 +3,7 @@ export const AHAVAT_CONTENT_SOURCE = Object.freeze({
   identity: "book:hebrewbooks:5635",
   pdfSha256: "895e9a720d984adf8ea453b644e3f6d0864e101238f348f418aa5fafa20e9c8b",
   pdfPages: 99,
+  reprintColophon: Object.freeze({ pdfPage: 3, placePrinted: "ברוקלין", yearPrinted: "תשס״ג", status: "source_colophon_read", historicalMetadataRetained: true }),
   pdfUrl: "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_5635.pdf",
 });
 const source = page => `${AHAVAT_CONTENT_SOURCE.pdfUrl}#page=${page}&view=FitH`;
@@ -73,7 +74,7 @@ export const AHAVAT_ATTRIBUTION_METHOD = Object.freeze({
 });
 
 const errata = [
-  ["migdaloz-amor", "מגדל עוז", "ה׳", "אמור", null, null, "reading_correction", "לכאורה צ״ל ה׳ במקום ט״ו", "ההערה מציעה החלפת קריאה בשורה האחרונה של הקטע. מראה־המקום טרם הוכרע: אין לקשר אוטומטית ל־PDF 10 רק מפני שמספרו המודפס מתאים."],
+  ["migdaloz-amor", "מגדל עוז", "ה׳", "אמור", 14, "וט״ו שנה מהם המה שבת", "reading_correction", "לכאורה צ״ל וה׳ במקום וט״ו", "ההערה ב־PDF 99 מפנה לשורה האחרונה של הקטע אמור, בטור השמאלי ב־PDF 14, לפני הכותרת השם האלף בתורה. בדפוס כתוב וט״ו; המהדיר מציע לכאורה וה׳. זהו איתור של הקטע ושל ההצעה, לא החלת התיקון על דברי המחבר ולא הכרעה עצמאית בחשבונו."],
   ["toldot-final-mem", "תולדות", "6", "מן ויהי", 51, "מן ויהי כי זקן יצחק", "counting_convention", "אם נחשיב המ״ם סתומה ל־600", "זהו שינוי אפשרי באופן חשבון האות הסופית, לא החלפת מספר במקור. הקטע במקור מקשר ציד בפיו עם חשבון מספרי; ההערה מפנה לשיטת חישוב אחרת."],
   ["vayeshev-mazalot", "וישב", "10", "ואביו", 55, "ואביו שמר את הדבר", "external_reference", "ואנו חושבים י״ב מזלות", "ההערה מפנה לילקוט ראובני לדיון במזלות. הפניה זו מתועדת כטענת המהדיר; המקור החיצוני עצמו לא הובא לכאן ולא הוצג כאילו נבדק."],
   ["reeh-vesamachta", "ראה", "42", "ובשבועות", 87, "בשבועות", "interpretive_extension", "כי אין הישראל יכול לאכול אם אין עניים בני ביתו", "ההערה מוסיפה קריאה למילים ושמחת ורומזת לאורחים. היא נשמרת כהסבר מודפס מאוחר לצד הקטע על הלוי והשמחה, ולא כנוסח חלופי של דברי המחבר."],
@@ -90,5 +91,6 @@ export const AHAVAT_ERRATA_LINKS = Object.freeze(errata.map(([id, work, printedP
   readableExcerpt: excerpt, displayLabel: "הסבר נלווה", explanation,
   targetPdfPage: page, targetUrl: page ? source(page) : null,
   targetOpening: witness, targetStatus: page ? "source_passage_located" : "unresolved",
+  ...(id === "migdaloz-amor" ? { targetReading: Object.freeze({ pdfPage: 14, column: "left", position: "last_line_before_hashem_haelef_heading", asPrinted: "וט״ו", editorialProposal: "וה׳", status: "proposal_not_applied", sourceNotePdfPage: 99 }) } : {}),
   relatedPdfPages: Object.freeze(id === "ki-tetze-lo-yehyeh" ? [88, 89] : []),
 })));
