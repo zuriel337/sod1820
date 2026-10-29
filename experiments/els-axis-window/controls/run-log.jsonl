@@ -5,3 +5,26 @@
 {"at":"2026-10-29T01:56:46.192Z","event":"ready","spent":32.278199,"settled":32.278199}
 {"at":"2026-10-29T01:56:46.193Z","event":"group_start","priority":1,"runs":["C1"]}
 {"at":"2026-10-29T01:56:47.306Z","event":"batch_created","run":"C1","round":1,"batch":"msgbatch_01Me86vLVqv9yWjxV72fTYYF"}
+{"at":"2026-10-29T02:02:12.899Z","event":"plan_verified","runs":3}
+{"at":"2026-10-29T02:02:14.591Z","event":"selftest","results":[{"name":"known model claude-fable-5-1 with the token","status":200,"ok":true},{"name":"no token","status":403,"ok":true},{"name":"wrong token","status":403,"ok":true},{"name":"an unapproved batch","status":403,"ok":true},{"name":"another model (Sonnet)","status":403,"ok":true},{"name":"another model (Opus)","status":403,"ok":true},{"name":"the messages route","status":404,"ok":true},{"name":"another API area","status":404,"ok":true},{"name":"a batch list","status":404,"ok":true}]}
+{"at":"2026-10-29T02:02:24.416Z","event":"plan_verified","runs":3}
+{"at":"2026-10-29T02:02:25.778Z","event":"selftest","results":[{"name":"known model claude-fable-5-1 with the token","status":200,"ok":true},{"name":"no token","status":403,"ok":true},{"name":"wrong token","status":403,"ok":true},{"name":"an unapproved batch","status":403,"ok":true},{"name":"another model (Sonnet)","status":403,"ok":true},{"name":"another model (Opus)","status":403,"ok":true},{"name":"the messages route","status":404,"ok":true},{"name":"another API area","status":404,"ok":true},{"name":"a batch list","status":404,"ok":true}]}
+{"at":"2026-10-29T02:02:26.692Z","event":"ready","spent":33.979849,"settled":32.278199}
+{"at":"2026-10-29T02:02:26.693Z","event":"group_start","priority":1,"runs":["C1"]}
+{"at":"2026-10-29T02:02:27.295Z","event":"call_done","run":"C1","round":1,"batch":"msgbatch_01Me86vLVqv9yWjxV72fTYYF","usd":0.492825,"stop_reason":"end_turn","output_tokens":16335,"ms":266206}
+{"at":"2026-10-29T02:02:36.811Z","event":"verified","run":"C1","round":1,"proposals":25,"verified":25,"items":29}
+{"at":"2026-10-29T02:02:36.811Z","event":"run_finished","run":"C1","group":"focused","failed":null,"usd":0.492825}
+{"at":"2026-10-29T02:02:36.811Z","event":"group_done","priority":1,"spent":32.771024,"settled":32.771024,"experiment_spent":0.49282}
+{"at":"2026-10-29T02:02:36.812Z","event":"group_start","priority":2,"runs":["C2"]}
+{"at":"2026-10-29T02:02:37.997Z","event":"batch_created","run":"C2","round":1,"batch":"msgbatch_014Xr89ybBcdvgR7o6PJnAsx"}
+{"at":"2026-10-29T02:15:38.571Z","event":"call_done","run":"C2","round":1,"batch":"msgbatch_014Xr89ybBcdvgR7o6PJnAsx","usd":1.68429,"stop_reason":"max_tokens","output_tokens":64000,"ms":773421}
+{"at":"2026-10-29T02:15:38.572Z","event":"unusable_answer","run":"C2","stop_reason":"max_tokens"}
+{"at":"2026-10-29T02:15:38.572Z","event":"run_finished","run":"C2","group":"general","failed":"no usable answer (stop_reason max_tokens); cost counted, not retried","usd":1.68429}
+{"at":"2026-10-29T02:15:38.572Z","event":"group_done","priority":2,"spent":34.455314,"settled":34.455314,"experiment_spent":2.17712}
+{"at":"2026-10-29T02:15:38.572Z","event":"group_start","priority":3,"runs":["C3"]}
+{"at":"2026-10-29T02:15:40.204Z","event":"batch_created","run":"C3","round":1,"batch":"msgbatch_0149v7KvvCXFwtzJdJiv2S9k"}
+{"at":"2026-10-29T02:19:03.815Z","event":"call_done","run":"C3","round":1,"batch":"msgbatch_0149v7KvvCXFwtzJdJiv2S9k","usd":0.39984,"stop_reason":"end_turn","output_tokens":12622,"ms":188900}
+{"at":"2026-10-29T02:19:09.651Z","event":"verified","run":"C3","round":1,"proposals":25,"verified":25,"items":25}
+{"at":"2026-10-29T02:19:09.651Z","event":"run_finished","run":"C3","group":"general","failed":null,"usd":0.39984}
+{"at":"2026-10-29T02:19:09.651Z","event":"group_done","priority":3,"spent":34.855154,"settled":34.855154,"experiment_spent":2.57695}
+{"at":"2026-10-29T02:19:09.652Z","event":"finished","halted":null,"spent":34.855154,"runs":3}

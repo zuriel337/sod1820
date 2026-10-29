@@ -1,0 +1,46 @@
+{
+  "finished_at": "2026-10-29T02:19:09.651Z",
+  "halted": null,
+  "spent_usd": 34.855154,
+  "experiment_spent_usd": 2.57695,
+  "remaining_usd": 5.144846,
+  "outcomes": [
+    {
+      "id": "C1",
+      "series": "blind",
+      "rounds": [
+        {
+          "round": 1,
+          "stop_reason": "end_turn",
+          "usd": 0.492825,
+          "usable": true
+        }
+      ]
+    },
+    {
+      "id": "C2",
+      "series": "blind",
+      "rounds": [
+        {
+          "round": 1,
+          "stop_reason": "max_tokens",
+          "usd": 1.68429,
+          "usable": false
+        }
+      ],
+      "failed": "no usable answer (stop_reason max_tokens); cost counted, not retried"
+    },
+    {
+      "id": "C3",
+      "series": "blind",
+      "rounds": [
+        {
+          "round": 1,
+          "stop_reason": "end_turn",
+          "usd": 0.39984,
+          "usable": true
+        }
+      ]
+    }
+  ]
+}

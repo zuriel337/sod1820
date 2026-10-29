@@ -1,0 +1,567 @@
+{
+  "baseline": {
+    "s2_els_total": 57,
+    "in_window": 44,
+    "long_unlikely_in_window": 6
+  },
+  "arms": [
+    {
+      "id": "C1",
+      "prompt": "v4",
+      "cap": 25,
+      "stop_reason": "end_turn",
+      "usd": 0.492825,
+      "seconds": 266,
+      "input_tokens": 16890,
+      "output_tokens": 16335,
+      "thinking_tokens": 13111,
+      "usable": true,
+      "findingsEls": [
+        {
+          "id": "r1.f01",
+          "text": "קולומביה",
+          "kind": "C",
+          "distance": 0,
+          "occurrences": 1
+        },
+        {
+          "id": "r1.f11",
+          "text": "חוק",
+          "kind": "D",
+          "distance": 0,
+          "occurrences": 1
+        },
+        {
+          "id": "r1.f12",
+          "text": "שמרו",
+          "kind": "D",
+          "distance": 0,
+          "occurrences": 1
+        },
+        {
+          "id": "r1.f13",
+          "text": "משאל",
+          "kind": "D",
+          "distance": 0,
+          "occurrences": 1
+        },
+        {
+          "id": "r1.f14",
+          "text": "ויכול",
+          "kind": "D",
+          "distance": 0,
+          "occurrences": 1
+        },
+        {
+          "id": "r1.f15",
+          "text": "אות",
+          "kind": "A",
+          "distance": 0,
+          "occurrences": 1
+        },
+        {
+          "id": "r1.f16",
+          "text": "מגל",
+          "kind": "A",
+          "distance": 0,
+          "occurrences": 2
+        },
+        {
+          "id": "r1.f17",
+          "text": "מקוה",
+          "kind": "A",
+          "distance": 0,
+          "occurrences": 1
+        },
+        {
+          "id": "r1.f18",
+          "text": "מתני",
+          "kind": "R",
+          "distance": 0,
+          "occurrences": 2
+        },
+        {
+          "id": "r1.f19",
+          "text": "ברא",
+          "kind": "C",
+          "distance": 0,
+          "occurrences": 2
+        },
+        {
+          "id": "r1.f20",
+          "text": "לירות",
+          "kind": "A",
+          "distance": 0,
+          "occurrences": 1
+        },
+        {
+          "id": "r1.f21",
+          "text": "אמת",
+          "kind": "D",
+          "distance": 1,
+          "occurrences": 1
+        },
+        {
+          "id": "r1.f22",
+          "text": "ובכה",
+          "kind": "A",
+          "distance": 1,
+          "occurrences": 2
+        },
+        {
+          "id": "r1.f23",
+          "text": "אשה",
+          "kind": "C",
+          "distance": 1,
+          "occurrences": 1
+        }
+      ],
+      "proposals": 25,
+      "relations": {
+        "crosses": 11,
+        "touches": 3,
+        "far": 0
+      },
+      "farKinds": {
+        "R": 0,
+        "C": 0,
+        "D": 0,
+        "A": 0
+      },
+      "remained": 4,
+      "notProposed": 40,
+      "newVsS2": 14,
+      "remainedLongUnlikely": 1,
+      "longUnlikelyOwn": 1,
+      "capHit": true,
+      "targetDetail": [
+        {
+          "target": "ספינת",
+          "best": "overlap_same_line_verified",
+          "texts": [
+            "מתני"
+          ]
+        },
+        {
+          "target": "יכלאש",
+          "best": "overlap_same_line_verified",
+          "texts": [
+            "משאל"
+          ]
+        }
+      ],
+      "metrics": {
+        "proposals": 25,
+        "verified": 25,
+        "notVerified": 0,
+        "byVerdict": {
+          "engine": 14,
+          "plainText": 11,
+          "synthetic": 0
+        },
+        "els": {
+          "n": 14,
+          "len3to4": 11,
+          "len5to6": 2,
+          "len7plus": 1,
+          "long": 3,
+          "longStoryRelated": 0,
+          "storyRelated": 0,
+          "rare": 3,
+          "unlikely": 1,
+          "unlikelier": 1,
+          "medianExpected": 15.003404347970914,
+          "medianHits": 13,
+          "truncatedPages": 4,
+          "kinds": {
+            "R": 1,
+            "C": 3,
+            "D": 5,
+            "A": 5
+          }
+        },
+        "noise": {
+          "likelyByChance": 13,
+          "likelyByChanceShare": 0.9285714285714286,
+          "shortEls": 11,
+          "shortElsShare": 0.7857142857142857,
+          "nonRareElsShare": 0.7857142857142857,
+          "plainTextShare": 0.44
+        },
+        "tiers": {
+          "A": 7,
+          "B": 13,
+          "C": 5,
+          "missing": 0
+        },
+        "firstGroup": {
+          "n": 7,
+          "els": 4,
+          "plain": 3,
+          "long": 4,
+          "rare": 1,
+          "unlikely": 1,
+          "interesting": 1,
+          "kinds": {
+            "R": 3,
+            "C": 1,
+            "D": 2,
+            "A": 1
+          },
+          "storyRelated": 0
+        },
+        "outsideFirstGroup": {
+          "n": 18,
+          "interesting": 0,
+          "longEls": 2,
+          "kinds": {
+            "R": 9,
+            "C": 2,
+            "D": 3,
+            "A": 4
+          }
+        },
+        "continuation": {
+          "fromFinding": 2,
+          "extension": 1,
+          "crossing": 0,
+          "phrases": 10
+        }
+      },
+      "els_n": 18,
+      "targets": [
+        {
+          "target": "ספינת",
+          "best": "overlap_same_line_verified"
+        },
+        {
+          "target": "יכלאש",
+          "best": "overlap_same_line_verified"
+        }
+      ]
+    },
+    {
+      "id": "C2",
+      "prompt": "v2-general",
+      "cap": 60,
+      "stop_reason": "max_tokens",
+      "usd": 1.68429,
+      "seconds": 773,
+      "input_tokens": 16858,
+      "output_tokens": 64000,
+      "thinking_tokens": 63994,
+      "usable": false,
+      "metrics": null,
+      "els_n": null,
+      "targets": null
+    },
+    {
+      "id": "C3",
+      "prompt": "v2-general",
+      "cap": 25,
+      "stop_reason": "end_turn",
+      "usd": 0.39984,
+      "seconds": 189,
+      "input_tokens": 16858,
+      "output_tokens": 12622,
+      "thinking_tokens": 10168,
+      "usable": true,
+      "findingsEls": [
+        {
+          "id": "r1.f01",
+          "text": "קולומביה",
+          "kind": "C",
+          "distance": 0,
+          "occurrences": 1
+        },
+        {
+          "id": "r1.f02",
+          "text": "נמל",
+          "kind": "C",
+          "distance": 8,
+          "occurrences": 1
+        },
+        {
+          "id": "r1.f03",
+          "text": "ונתיבהליל",
+          "kind": "C",
+          "distance": 17,
+          "occurrences": 1
+        },
+        {
+          "id": "r1.f04",
+          "text": "לילהבית",
+          "kind": "C",
+          "distance": 17,
+          "occurrences": 1
+        },
+        {
+          "id": "r1.f05",
+          "text": "כעסתי",
+          "kind": "C",
+          "distance": 14,
+          "occurrences": 1
+        },
+        {
+          "id": "r1.f06",
+          "text": "ונשוב",
+          "kind": "C",
+          "distance": 13,
+          "occurrences": 1
+        },
+        {
+          "id": "r1.f07",
+          "text": "אהבה",
+          "kind": "C",
+          "distance": 11,
+          "occurrences": 1
+        },
+        {
+          "id": "r1.f08",
+          "text": "ומבקר",
+          "kind": "C",
+          "distance": 10,
+          "occurrences": 1
+        },
+        {
+          "id": "r1.f09",
+          "text": "שיזהב",
+          "kind": "C",
+          "distance": 6,
+          "occurrences": 1
+        },
+        {
+          "id": "r1.f10",
+          "text": "כוח",
+          "kind": "C",
+          "distance": 4,
+          "occurrences": 1
+        },
+        {
+          "id": "r1.f11",
+          "text": "זהסיר",
+          "kind": "C",
+          "distance": 3,
+          "occurrences": 1
+        },
+        {
+          "id": "r1.f12",
+          "text": "אישה",
+          "kind": "C",
+          "distance": 3,
+          "occurrences": 1
+        },
+        {
+          "id": "r1.f13",
+          "text": "כתבה",
+          "kind": "C",
+          "distance": 11,
+          "occurrences": 1
+        },
+        {
+          "id": "r1.f14",
+          "text": "בהמה",
+          "kind": "C",
+          "distance": 16,
+          "occurrences": 1
+        },
+        {
+          "id": "r1.f15",
+          "text": "משמח",
+          "kind": "C",
+          "distance": 10,
+          "occurrences": 1
+        },
+        {
+          "id": "r1.f16",
+          "text": "לאהבת",
+          "kind": "D",
+          "distance": 8,
+          "occurrences": 1
+        },
+        {
+          "id": "r1.f17",
+          "text": "סוס",
+          "kind": "D",
+          "distance": 18,
+          "occurrences": 1
+        },
+        {
+          "id": "r1.f18",
+          "text": "רמאי",
+          "kind": "D",
+          "distance": 16,
+          "occurrences": 1
+        },
+        {
+          "id": "r1.f19",
+          "text": "שומר",
+          "kind": "D",
+          "distance": 17,
+          "occurrences": 1
+        },
+        {
+          "id": "r1.f20",
+          "text": "צרח",
+          "kind": "D",
+          "distance": 18,
+          "occurrences": 1
+        },
+        {
+          "id": "r1.f21",
+          "text": "לירות",
+          "kind": "A",
+          "distance": 0,
+          "occurrences": 1
+        },
+        {
+          "id": "r1.f22",
+          "text": "הרגש",
+          "kind": "A",
+          "distance": 11,
+          "occurrences": 1
+        },
+        {
+          "id": "r1.f23",
+          "text": "זועמ",
+          "kind": "A",
+          "distance": 3,
+          "occurrences": 1
+        },
+        {
+          "id": "r1.f24",
+          "text": "זהוב",
+          "kind": "A",
+          "distance": 15,
+          "occurrences": 1
+        },
+        {
+          "id": "r1.f25",
+          "text": "תמיר",
+          "kind": "A",
+          "distance": 17,
+          "occurrences": 1
+        }
+      ],
+      "proposals": 25,
+      "relations": {
+        "crosses": 2,
+        "touches": 0,
+        "far": 23
+      },
+      "farKinds": {
+        "R": 0,
+        "C": 14,
+        "D": 5,
+        "A": 4
+      },
+      "remained": 7,
+      "notProposed": 37,
+      "newVsS2": 18,
+      "remainedLongUnlikely": 2,
+      "longUnlikelyOwn": 8,
+      "capHit": true,
+      "targetDetail": [
+        {
+          "target": "ספינת",
+          "best": "none",
+          "texts": []
+        },
+        {
+          "target": "יכלאש",
+          "best": "none",
+          "texts": []
+        }
+      ],
+      "metrics": {
+        "proposals": 25,
+        "verified": 25,
+        "notVerified": 0,
+        "byVerdict": {
+          "engine": 25,
+          "plainText": 0,
+          "synthetic": 0
+        },
+        "els": {
+          "n": 25,
+          "len3to4": 15,
+          "len5to6": 7,
+          "len7plus": 3,
+          "long": 10,
+          "longStoryRelated": 0,
+          "storyRelated": 0,
+          "rare": 13,
+          "unlikely": 8,
+          "unlikelier": 5,
+          "medianExpected": 2.0749900771669756,
+          "medianHits": 2.5,
+          "truncatedPages": 1,
+          "kinds": {
+            "R": 0,
+            "C": 15,
+            "D": 5,
+            "A": 5
+          }
+        },
+        "noise": {
+          "likelyByChance": 17,
+          "likelyByChanceShare": 0.68,
+          "shortEls": 15,
+          "shortElsShare": 0.6,
+          "nonRareElsShare": 0.48,
+          "plainTextShare": 0
+        },
+        "tiers": {
+          "A": 10,
+          "B": 12,
+          "C": 3,
+          "missing": 0
+        },
+        "firstGroup": {
+          "n": 10,
+          "els": 10,
+          "plain": 0,
+          "long": 6,
+          "rare": 7,
+          "unlikely": 5,
+          "interesting": 5,
+          "kinds": {
+            "R": 0,
+            "C": 6,
+            "D": 2,
+            "A": 2
+          },
+          "storyRelated": 0
+        },
+        "outsideFirstGroup": {
+          "n": 15,
+          "interesting": 3,
+          "longEls": 4,
+          "kinds": {
+            "R": 0,
+            "C": 9,
+            "D": 3,
+            "A": 3
+          }
+        },
+        "continuation": {
+          "fromFinding": 3,
+          "extension": 0,
+          "crossing": 0,
+          "phrases": 4
+        }
+      },
+      "els_n": 25,
+      "targets": [
+        {
+          "target": "ספינת",
+          "best": "none"
+        },
+        {
+          "target": "יכלאש",
+          "best": "none"
+        }
+      ]
+    }
+  ]
+}
