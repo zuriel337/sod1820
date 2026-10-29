@@ -111,7 +111,12 @@ test("motion preference changes are observed while the scene is open", { skip: !
     await reader.getByRole("button", { name: "פתח מבנה האות בתלת־ממד", exact: true }).click();
     const scene = reader.locator(".ahavat29-spatial-canvas");
     await reader.locator('canvas[data-ahavat-context-guard="ready"]').waitFor();
+    // The frame owns this flag and commits OS changes through React state.
+    // Finish that owner transition before simulating an independent frame choice;
+    // otherwise its pending true→false commit can overwrite the manual true below.
+    await page.waitForFunction(() => document.querySelector(".sod29-root")?.dataset.frameReducedMotion === "true");
     await page.emulateMedia({ reducedMotion: "no-preference" });
+    await page.waitForFunction(() => document.querySelector(".sod29-root")?.dataset.frameReducedMotion === "false");
     await page.locator(".sod29-root").evaluate(root => root.setAttribute("data-frame-reduced-motion", "false"));
     await page.waitForFunction(() => document.querySelector("#ahavat29-letters .ahavat29-spatial-canvas")?.dataset.reducedMotion === "false");
     await page.locator(".sod29-root").evaluate(root => root.setAttribute("data-frame-reduced-motion", "true"));
