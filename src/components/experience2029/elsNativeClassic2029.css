@@ -128,6 +128,10 @@
 }
 .els29-native-stage{min-width:0;min-height:0;height:var(--els29-stage-height);overflow:hidden;display:grid;grid-template-rows:auto auto minmax(0,1fr);border-color:color-mix(in srgb,var(--els29-frame) 58%,var(--els29-canvas));box-shadow:0 0 0 3px color-mix(in srgb,var(--els29-frame) 7%,transparent),0 12px 32px color-mix(in srgb,var(--els29-frame) 5%,transparent)}
 .els29-native-stage-column{display:grid;grid-template-columns:minmax(0,1fr);gap:8px;min-width:0;min-height:0}
+.els29-matrix-ai-card{display:grid;gap:8px;min-width:0;margin-top:4px;padding:16px;border:1px solid var(--s29-line);border-radius:16px;background:var(--s29-panel);color:var(--s29-ink)}
+.els29-matrix-ai-card p{margin:0;line-height:1.5;overflow-wrap:anywhere}
+.els29-matrix-ai-card button{justify-self:start;min-height:44px;padding:10px 16px;border:1px solid var(--s29-accent);border-radius:12px;background:var(--s29-panel-soft);color:var(--s29-ink);font:inherit;cursor:pointer}
+.els29-matrix-ai-card button:disabled{opacity:.55;cursor:not-allowed}
 .els29-native-bottom-controls{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;min-width:0;padding:8px;border:1px solid var(--s29-line);border-radius:16px;background:var(--s29-panel-soft)}
 .els29-native-bottom-controls button{min-width:44px;min-height:44px;padding:8px 12px;border:1px solid var(--s29-line);border-radius:11px;background:var(--s29-panel);color:var(--s29-ink);font:inherit;font-size:var(--s29-type-small);font-weight:800;cursor:pointer}
 .els29-native-bottom-controls button:hover:not(:disabled){border-color:var(--s29-line-strong);background:color-mix(in srgb,var(--s29-accent) 8%,var(--s29-panel))}

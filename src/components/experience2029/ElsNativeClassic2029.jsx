@@ -1427,20 +1427,6 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     <SearchProgress operation={operations.search} onCancel={() => cancelOperation("search")} />
     {notice ? <div className="els29-native-notice" role="status">{notice}{accountRequired ? <> · <a href="/login">כניסה לחשבון</a></> : null}</div> : null}
 
-    {researchProfile && typeof onRazielMatrix === "function" ? <section className="els29-native-workrail" aria-label="רזיאל ומפת המטריצה">
-      <strong>רזיאל · מבט על המטריצה</strong>
-      {engineState?.verification?.state === "MATCH" && engineState?.axis ? <p>המופע הנבחר: {engineState.termRaw || engineState.term} · דילוג {engineState.axis.skip} · {engineState.axis.direction === "back" ? "לאחור" : "קדימה"} · מיקום {engineState.axis.start}</p> : <p>בחרו מופע מאומת כדי להתחיל.</p>}
-      <p>הציר ייבדק שוב במנוע. קריאות מהסביבה הן הצעות לבדיקה, לא ממצאים מאומתים.</p>
-      <button type="button" disabled={searchPending || !buildElsRazielMatrixContext(engineState)} onClick={async () => {
-        const context = buildElsRazielMatrixContext(engineStateRef.current);
-        if (!context) return;
-        const result = await onRazielMatrix(context);
-        if (!result?.ok) setNotice(result?.error === "replay_pending_or_changed"
-          ? "המופע עדיין לא אומת מחדש או שהבחירה השתנתה. המתינו לאימות ונסו שוב."
-          : "רזיאל לא הצליח לבדוק את המטריצה כעת. לא הוצג פענוח מאומת.");
-      }}>בקש מרזיאל לבדוק את המטריצה</button>
-    </section> : null}
-
     {guidedProfile ? <section className="els29-guided-result-overview" aria-label="מצב חבילת הגילוי">
       <div className="els29-guided-result-title">
         <small>חבילת הגילוי</small>
@@ -1529,6 +1515,19 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
             <button type="button" onClick={() => setPresentation(null)}>סיים הצגה</button>
           </div>
           <small>מציג את הציר ואחריו את הממצאים, אחד אחרי השני. אפשר להקליט באמצעות כלי צילום המסך במכשיר.</small>
+        </section> : null}
+        {typeof onRazielMatrix === "function" ? <section className="els29-native-workrail els29-matrix-ai-card" aria-label="רזיאל ומפת המטריצה">
+          <strong>✦ נתח את המטריצה עם AI</strong>
+          {engineState?.verification?.state === "MATCH" && engineState?.axis ? <p>המופע הנבחר: {engineState.termRaw || engineState.term} · דילוג {engineState.axis.skip} · {engineState.axis.direction === "back" ? "לאחור" : "קדימה"} · מיקום {engineState.axis.start}</p> : <p>בחרו מופע מאומת כדי להתחיל.</p>}
+          <p>הסקירה הנוכחית שולחת לרזיאל אזור מוגבל. סריקת Fable המורחבת עדיין אינה מחוברת.</p>
+          <button type="button" disabled={searchPending || !buildElsRazielMatrixContext(engineState)} onClick={async () => {
+            const context = buildElsRazielMatrixContext(engineStateRef.current);
+            if (!context) return;
+            const result = await onRazielMatrix(context);
+            if (!result?.ok) setNotice(result?.error === "replay_pending_or_changed"
+              ? "המופע עדיין לא אומת מחדש או שהבחירה השתנתה. המתינו לאימות ונסו שוב."
+              : "רזיאל לא הצליח לבדוק את המטריצה כעת. אפשר לנסות שוב.");
+          }}>בקש מרזיאל לבדוק את המטריצה</button>
         </section> : null}
         </div>
         <div className="els29-native-toolstrip" ref={toolRailRef} hidden={classicOpen} role="group" aria-label="כלי המטריצה">
