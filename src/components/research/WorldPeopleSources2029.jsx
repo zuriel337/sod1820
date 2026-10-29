@@ -15,6 +15,7 @@ import { CANONICAL_PUBLIC_UI_COPY } from "../../lib/presentation/canonicalPresen
 import { fetchCanonicalGraphEntityFindings } from "../../lib/research/entityGraphFinding.js";
 import WorldMapShell2029 from "./WorldMapShell2029.jsx";
 import { createCanonicalRelationOpener } from "../../lib/research/worldGraphRelationOpener2029.js";
+import WorldZviApprovedFindings2029 from "./WorldZviApprovedFindings2029.jsx";
 
 const TREE_RELATION_CACHE = new Map();
 const WORLD_MAP_RELATION_OPENER = createCanonicalRelationOpener();
@@ -222,6 +223,7 @@ export default function WorldPeopleSources2029({ index, loading = false, error =
       <header className="sod29-section-head"><div><div className="sod29-kicker">החומר הציבורי שנבחר</div>
         <h2>{selected.displayName}</h2><p>הקטלוג נטען רק לאחר הבחירה. ממצא מחקר נשאר מחובר ל־source_ref שלו ואינו נספר כמקור נוסף.</p></div>
         <Link className="sod29-action" to={writerHref}>{CANONICAL_PUBLIC_UI_COPY.action.writer}</Link></header>
+      {selected.slug === "tzvi-opoc" ? <WorldZviApprovedFindings2029 /> : null}
       {selectedMaterial.loading ? <p role="status">פותח כתבים, מקורות, צפנים ונושאים…</p> : null}
       {selectedMaterial.data?.researchLoading ? <p role="status">המקורות מוכנים; שאר החומר והקשרים לעץ עדיין נטענים…</p> : null}
       {selectedMaterial.error ? <div role="status"><strong>חלק מהחומר אינו זמין כרגע.</strong><p>לא מוצג 0 במקום נתון שלא התקבל.</p></div> : null}

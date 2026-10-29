@@ -53,6 +53,24 @@ test("source with zero Findings renders as a source group (no dummy Finding)", (
   assert.equal(p.topics.length, 0); // no Topic minted
 });
 
+test("missing research values stay missing and an explicitly authored zero remains zero", () => {
+  const sourceMessages = ["missing", "empty", "zero"].map((id) => ({ ...SOURCE, id }));
+  const researchObjects = [
+    { ...RESEARCH_ROW, id: "m", statement: "ללא מספר", value: null, source_ref: "channel_updates:missing" },
+    { ...RESEARCH_ROW, id: "e", statement: "שדה ריק", value: "", source_ref: "channel_updates:empty" },
+    { ...RESEARCH_ROW, id: "z", statement: "אפס מפורש", value: 0, source_ref: "channel_updates:zero" },
+  ];
+  const result = buildContributorFindingsProjection({ contributor: CONTRIBUTOR, sourceMessages, researchObjects });
+  for (const id of ["missing", "empty"]) {
+    const group = result.sourceGroups.find((row) => row.sourceRef === `channel_updates:${id}`);
+    assert.deepEqual(group.values, []);
+    assert.equal(group.facets.includes("number"), false);
+  }
+  const zero = result.sourceGroups.find((row) => row.sourceRef === "channel_updates:zero");
+  assert.deepEqual(zero.values, [0]);
+  assert.equal(zero.facets.includes("number"), true);
+});
+
 test("an explicit image reference links the adjacent image and full message without deleting either source", () => {
   const image = {
     id: "image-1", created_at: "2026-10-01T10:00:00Z", text: "📷 עדכון",

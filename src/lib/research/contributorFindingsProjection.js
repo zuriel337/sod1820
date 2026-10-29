@@ -19,6 +19,12 @@ const MAX_STRUCTURED_MEDIA_GAP_MS = 5 * 60 * 1000;
 const SOURCE_IMAGE_REFERENCE_RE = /\[Image\s+\d+\.(?:jpe?g|png|webp)\]/iu;
 
 const clean = (value) => value == null ? "" : String(value).trim();
+// Missing values are unknown, not the number zero. Preserve explicit zero.
+const finiteValue = (value) => {
+  if (value == null || typeof value === "boolean" || (typeof value === "string" && !value.trim())) return null;
+  const number = Number(value);
+  return Number.isFinite(number) ? number : null;
+};
 const uniq = (values) => [...new Set((Array.isArray(values) ? values : []).map(clean).filter(Boolean))];
 const placeholderSourceCopy = (value) => ["📷 עדכון", "עדכון", "מקור ללא טקסט"].includes(clean(value));
 const postgrestQuoted = (value) => `"${clean(value).replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`;
@@ -75,7 +81,7 @@ async function paged(loader, { pageSize = PAGE, max = MAX, concurrency = 1 } = {
 export function deriveContributorGroupFacets(rows = [], sourceRow = null, topicLinks = []) {
   const facets = new Set(["source"]);
   const safeRows = Array.isArray(rows) ? rows : [];
-  if (safeRows.some((row) => Number.isFinite(Number(row?.value)))) facets.add("number");
+  if (safeRows.some((row) => finiteValue(row?.value) !== null)) facets.add("number");
   if (safeRows.some((row) => Array.isArray(row?.terms) && row.terms.some(Boolean))) facets.add("phrase");
   if (safeRows.some((row) => clean(row?.kind) === "relation" || (Array.isArray(row?.relates) && row.relates.some(Boolean)))) facets.add("relation");
   const hasMedia = Boolean(
@@ -214,7 +220,7 @@ function rebuildContributorSourceGroup(group, rows) {
     byKind[key] = (byKind[key] || 0) + 1;
   }
   const terms = uniq(safeRows.flatMap((row) => Array.isArray(row.terms) ? row.terms : []));
-  const values = [...new Set(safeRows.map((row) => Number(row.value)).filter(Number.isFinite))].sort((a, b) => a - b);
+  const values = [...new Set(safeRows.map((row) => finiteValue(row.value)).filter((value) => value !== null))].sort((a, b) => a - b);
   const relates = uniq(safeRows.flatMap((row) => Array.isArray(row.relates) ? row.relates : []));
   const mediaRefs = uniq(safeRows.map((row) => row?.meta?.ext?.wa_channel_intake?.media_ref));
   const facets = new Set(["source"]);
@@ -505,7 +511,7 @@ export function buildContributorFindingsProjection({
     group.rows.sort((a, b) => clean(a.created_at).localeCompare(clean(b.created_at)));
     const source = sourceIndex[group.sourceRef] || null;
     const terms = uniq(group.rows.flatMap((row) => Array.isArray(row.terms) ? row.terms : []));
-    const values = [...new Set(group.rows.map((row) => Number(row.value)).filter(Number.isFinite))].sort((a, b) => a - b);
+    const values = [...new Set(group.rows.map((row) => finiteValue(row.value)).filter((value) => value !== null))].sort((a, b) => a - b);
     const relates = uniq(group.rows.flatMap((row) => Array.isArray(row.relates) ? row.relates : []));
     const lexical = lexicalForTerms(terms, lexicalIndex);
     const topicLinks = [];

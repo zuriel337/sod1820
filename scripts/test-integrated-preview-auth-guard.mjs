@@ -63,7 +63,7 @@ test('profile/product/storage/model writes remain blocked; governed readers stil
 });
 
 test('unified working preview blocks Person creation and trace-producing ELS bridge', async () => {
-  for (const branch of ['gpt/2029-central-unified-workspace-20261029', 'gpt/2029-central-shell-alignment-20261029', 'gpt/2029-central-topbar-menu-completion-20261029', 'gpt/2029-central-ui-carry-restoration-20261029', 'gpt/2029-central-community-filter-tiles-20261029', 'gpt/2029-central-community-small-filters-20261029', 'gpt/2029-central-single-command-bar-20261029', 'gpt/2029-central-public-context-labels-20261029']) {
+  for (const branch of ['gpt/2029-central-unified-workspace-20261029', 'gpt/2029-central-shell-alignment-20261029', 'gpt/2029-central-topbar-menu-completion-20261029', 'gpt/2029-central-ui-carry-restoration-20261029', 'gpt/2029-central-community-filter-tiles-20261029', 'gpt/2029-central-community-small-filters-20261029', 'gpt/2029-central-single-command-bar-20261029', 'gpt/2029-central-public-context-labels-20261029', 'gpt/2029-central-zvi-public-material-20261029']) {
     const workerSource = vm.runInNewContext(`${source}\nworker;`, {
       process: { env: { VERCEL_GIT_COMMIT_REF: branch } },
     });
