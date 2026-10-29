@@ -59,3 +59,57 @@ All nine existing `ds12:*` note identities now project to the existing reader's 
 Native acceptance discovered a **test-geometry boundary**, not a missing last page: on 320 the final PDF page is fully visible at y=380.6379, height=256.3448 in a 640px viewport; Chromium clamps its bottom at the end of the 99-page document. The top-page predicate remains unchanged for all nonterminal pages. Added a separately tested terminal-only predicate requiring successful 99-page load, index 98, a fully visible final page, preceding-page ordering and bottom alignment within 8px. No URL-only or central-counter success is accepted. Local browser evidence remains Chromium, not a physical handset/Safari claim.
 
 Checkpoint 2 acceptance completed before this extension: 10/10 expanded/legacy companion browser tests without skips, covering 702 new-unit visits and 1,701 adopted-unit visits, plus refresh/return and unavailable/foreign data. Native 1/1 without skips: all 35 new physical pages, 83 visits across nine display contexts and nine fullscreen/return checks. Final notes/full-reader regression results follow below.
+
+## Final local acceptance and stable handoff
+
+Branch: `codex/ahavat-torah-book-completion-20261029`.
+Base: `9fa5d21084b91d41a3b3f195c73c4407e4c41cd0`.
+Implementation HEAD: `5fde9f3b09b07f2c7261b4c9e228ee53c8c296f4` (three sequential implementation commits). The final documentation checkpoint adds no runtime/public-source changes. Full delivery range is Base..delivery HEAD; final exact HEAD, remote confirmation and protected deployment receipt are emitted after push/READY in `/workspace/artifacts/ahavat-book-completion-20261029/handoff.json`, not guessed or self-referentially embedded here. Share capability tokens are not stored in Git.
+
+Passed without skips:
+
+- Full non-browser Books: **401/401**.
+- Expanded and adopted companion browsers: **10/10**, including 2,403 unit visits across 320/390/1440 and light/parchment/dark; exact links, return, refresh and foreign/unavailable source handling.
+- Original-PDF completion: **1/1**, 35 new physical pages / 83 visits / nine contexts, including fullscreen/return. Exact original SHA-256 verified.
+- Printed editorial notes: **1/1**, all nine notes in each of nine contexts, **162 source/target/return transitions**, all nine independent deep links and refresh, **36 native PDF checks** of physical 99/14, nine fullscreen checks and stable focus after the plugin transition. An optimized single-reader traversal avoids reloading the application before every row without reducing note/source/return coverage; the original 360s test budget remains unchanged (244s final run).
+- Broad existing source/reader/unified/wide-layout regressions: **5/5** without skips, including all eight unified readers and actual Ahavat/Yetzirah PDFs.
+- Existing spatial regressions: **10/10** without skips: count model 5, letter model 4, general spatial tables 1. Covered nine display combinations, explicit scene lifecycle, source binding, keyboard/touch, motion preference, no WebGL, GPU context loss, switching, actual PDF and fullscreen. This is regression acceptance of those existing implementations, not universal acceptance of additional unimplemented structures.
+- Language **3/3**, integrated Preview Auth Guard **4/4**; Legacy Production Lock, isolation, cheap hardening and whitespace/diff checks passed. No gate/budget was weakened.
+- Normal Build 2029 / graph passed: **379,579 bytes** eager JS gzip, 7 eager / 109 reachable manifest records.
+- Two-flag Books Preview Build / graph passed: **376,907 bytes**, 7 eager / 144 reachable.
+- Actual integrated static Preview Build / graph passed: **377,244 bytes**, 8 eager / 151 reachable. Built at the immutable implementation HEAD in a detached acceptance-only worktree `/workspace/sod1820-ahavat-book-completion-build-20261029`, so generated HTML cannot reload the active browser fixture. Only temporary dependency symlinks were used; no dependency or source configuration changed. Existing chunk/dynamic-import warnings remain warnings, not altered budgets.
+
+All browser checks use Chromium/headless software graphics and viewport emulation, not physical-device or Safari certification. Local API/auth reads are stubbed in UI regressions; native PDF tests use the actual hash-checked bytes, not an empty iframe. The later hosted check explicitly uses real services/PDF, verified asset hashes and TLS, without local request stubs.
+
+### Changed files (18)
+
+Runtime/content (six):
+
+- `public/book-data/ahavat-torah.commentary.json`
+- `src/data/ahavatTorahSystem2029.js`
+- `src/data/ahavatTorahReaderUnits2029.js`
+- `src/data/ahavatTorahContentDepth2029.js`
+- `src/pages/AhavatTorahSystem2029Page.jsx`
+- `src/components/books2029/AhavatTorahSourceTables2029.jsx`
+
+Tests/fixtures (eleven):
+
+- `test/ahavat-torah-book-completion-2029.test.mjs`
+- `test/ahavat-torah-book-completion-2029.browser.test.mjs`
+- `test/ahavat-torah-book-completion-native-2029.browser.test.mjs`
+- `test/ahavat-torah-editorial-return-2029.browser.test.mjs`
+- `test/ahavat-torah-closing-pages-and-migdal-depth-2029.test.mjs`
+- `test/ahavat-torah-novellae-depth-2029.test.mjs`
+- `test/ahavat-torah-novellae-depth-2029.browser.test.mjs`
+- `test/ahavat-torah-content-depth-2029.test.mjs`
+- `test/ahavat-torah-source-tables-2029.browser.test.mjs`
+- `test/fixtures/ahavat-book-completion-baseline-2029.mjs`
+- `test/fixtures/ahavat-native-pdf-page-2029.mjs`
+
+Handoff documentation (one): this file.
+
+### AFTER and release boundaries
+
+Runtime/source writing ended at the implementation HEAD above; remaining actions are immutable Preview acceptance and delivery receipt only. Source witnesses, screenshots and final local logs are retained under `/workspace/artifacts/ahavat-book-completion-20261029/`. Local writing ownership is relinquished at the final push/receipt. No live BEFORE/AFTER or live-ledger release is claimed: the authorized connection is read-only. No specialist dispatch/ACK is fabricated. Residual research/visual axes above remain explicit; no whole-book 100% critical-edition, engine-verification or universal spatial-compliance claim.
+
+No main/central integration, Production, Legacy, World, Post, SystemFrame, DB/RLS, grants, subscriptions or canonical/publication state was changed. The protected Preview must be target=null and exact delivery HEAD, with existing SSO protection retained; final receipt confirms those checks plus unchanged Production deployment/aliases and remote main.
