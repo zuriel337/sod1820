@@ -6,15 +6,18 @@ import { ahavatCompanionReadingUnits } from "../src/data/ahavatTorahSystem2029.j
 import { AHAVAT_READER_UNITS, ahavatReaderUnit, ahavatReaderUnitHref, ahavatReaderUnitDomId } from "../src/data/ahavatTorahReaderUnits2029.js";
 
 const bundle = JSON.parse(readFileSync(new URL("../public/book-data/ahavat-torah.commentary.json", import.meta.url), "utf8"));
-const expanded = bundle.pages.filter(page => page.companion_units);
+// This regression pins the preceding 141-unit delivery; the continuation has its
+// own full coverage/preservation checks, not a replacement hash for old content.
+const expanded = bundle.pages.filter(page => page.companion_units && page.pdf_page >= 46 && page.pdf_page <= 92);
 
 test("selected novellae passages extend the existing companion without replacing any page or source identity", () => {
   assert.equal(bundle.source_pdf_sha256, "895e9a720d984adf8ea453b644e3f6d0864e101238f348f418aa5fafa20e9c8b");
   assert.deepEqual(bundle.pages.map(page => page.pdf_page), Array.from({ length: 99 }, (_, i) => i + 1));
   assert.equal(bundle.coverage.deep_research_pages, 15, "original source-research coverage is a separate axis");
   assert.deepEqual(bundle.coverage.visual_or_blank_pages, [45]);
-  const preserved = bundle.pages.filter(page => page.pdf_page < 71 || page.pdf_page > 92);
-  assert.equal(createHash("sha256").update(JSON.stringify(preserved)).digest("hex"), "549b8c6672a5da37222716f22952cae6f49e77a3cfe8d47a56ed79261c526f8c");
+  const preserved = bundle.pages.filter(page => page.pdf_page < 71 && (page.pdf_page < 16 || page.pdf_page > 24));
+  assert.equal(createHash("sha256").update(JSON.stringify(preserved)).digest("hex"), "ba6f8df693b70ec078ba29b37ff7acad67b679301f71447a696a18f923dd721a");
+  assert.equal(createHash("sha256").update(JSON.stringify(expanded)).digest("hex"), "10c1a39da457442dd5bb5519f0315ccc6a42e0cdb9e457ae2a84d1886d113f45");
   const firstContinuation = bundle.pages.filter(page => page.pdf_page >= 71 && page.pdf_page <= 80);
   assert.equal(createHash("sha256").update(JSON.stringify(firstContinuation)).digest("hex"), "ad73603936cd33d1329a7f10d8896b211369c25b677629038bf83b56abb30a90");
   for (const page of bundle.pages) {
@@ -73,7 +76,7 @@ test("all 141 companion links reuse exact return without inventing table ownersh
     assert.equal(url.hash, `#${ahavatReaderUnitDomId(unit.id)}`);
     assert.ok(!("engine_verified" in unit) && !("display_label" in unit), "only the fixed companion rendering fields leave validation");
   }
-  for (const id of ["ahavat-novellae-p045-01", "ahavat-novellae-p093-01", "ahavat-novellae-p046-04", "ahavat-novellae-p46-01"]) assert.equal(ahavatReaderUnit(id), null);
+  for (const id of ["ahavat-novellae-p045-01", "ahavat-novellae-p100-01", "ahavat-novellae-p046-04", "ahavat-novellae-p46-01"]) assert.equal(ahavatReaderUnit(id), null);
 });
 
 test("foreign, incomplete, mislabeled or wrong-page companion material cannot render as a valid expanded unit", () => {
