@@ -12,7 +12,7 @@ import { fileURLToPath } from "node:url";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
 const dist = join(root, "preview-deploy", "dist");
-const expectedBranch = "gpt/2029-central-raziel-personal-navigation-integration-20261026";
+const expectedBranch = process.env.RAZIEL_NAV_EXPECTED_BRANCH?.trim() || "gpt/2029-central-raziel-personal-navigation-integration-20261026";
 const hostedOriginValue = process.env.RAZIEL_NAV_PREVIEW_ORIGIN?.trim() || "";
 const expectedSha = (process.env.RAZIEL_NAV_EXPECTED_SHA?.trim()
   || (!hostedOriginValue

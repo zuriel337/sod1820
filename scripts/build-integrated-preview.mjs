@@ -63,7 +63,8 @@ await writeFile(resolve(output, "sw.js"), worker);
 // opt into a transport fixture that is intended only for reviewed Preview cuts.
 const legacyMockBranch = "gpt/2029-central-raziel-safe-actions-integration-20261026";
 const personalNavigationMockBranch = "gpt/2029-central-raziel-personal-navigation-integration-20261026";
-const allowedMockBranches = new Set([legacyMockBranch, personalNavigationMockBranch]);
+const unifiedWorkspaceMockBranch = "gpt/2029-central-unified-workspace-20261029";
+const allowedMockBranches = new Set([legacyMockBranch, personalNavigationMockBranch, unifiedWorkspaceMockBranch]);
 const selectMockPreviewBranch = env => {
   const branch = typeof env.VERCEL_GIT_COMMIT_REF === "string" ? env.VERCEL_GIT_COMMIT_REF : "";
   const explicitMock = env.SOD_RAZIEL_SAFE_ACTIONS_PREVIEW === "true";

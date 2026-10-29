@@ -98,10 +98,11 @@ test("mock configuration cannot admit real product writes, new Person creation o
   assert.equal(response.status, 403);
 });
 
-test("mock Preview selection admits only the two exact reviewed branches", () => {
+test("mock Preview selection admits only the exact reviewed branches", () => {
   for (const branch of [
     "gpt/2029-central-raziel-safe-actions-integration-20261026",
     "gpt/2029-central-raziel-personal-navigation-integration-20261026",
+    "gpt/2029-central-unified-workspace-20261029",
   ]) {
     assert.equal(selectMockPreviewBranch({
       VERCEL_ENV: "preview",
