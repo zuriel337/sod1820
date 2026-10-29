@@ -58,7 +58,10 @@ test('wrong closing-page source, mistaken layer, duplicate identities and empty 
 test('nine Migdal pages add 27 distinct identities while all unrelated page records stay byte-equivalent',()=>{
  const migdal=bundle.pages.filter(p=>p.pdf_page>=16&&p.pdf_page<=24);
  assert.equal(digest(bundle.pages.filter(p=>p.pdf_page<93&&(p.pdf_page<16||p.pdf_page>24))),'d7c7a5eab4fe3a3f26a66f1230b6c48a020920df1832b947781d5f8fad2909eb');
- assert.equal(digest(closing),'e73fabf341440c6024ec0585aaf85b7ee3eab91fddef4dd16d9d60aee1503dd6','the accepted closing-page checkpoint is preserved during Migdal continuation');
+ const checkpoint=structuredClone(closing);
+ assert.equal(checkpoint.at(-1).title,'לוח ההשמטות והתיקונים','the adopted cross-reader heading remains compatible');
+ checkpoint.at(-1).title='חתימת ההשמטות ותיקונים · הערות ר׳ יהושע ברי״צ ליימן';
+ assert.equal(digest(checkpoint),'e73fabf341440c6024ec0585aaf85b7ee3eab91fddef4dd16d9d60aee1503dd6','apart from the explicit restoration of the prior page-99 heading, the accepted closing checkpoint is preserved');
  assert.equal(migdal.length,9);const ids=[];
  for(const page of migdal){
   const units=ahavatCompanionReadingUnits(bundle,page.pdf_page);assert.equal(units.length,3);

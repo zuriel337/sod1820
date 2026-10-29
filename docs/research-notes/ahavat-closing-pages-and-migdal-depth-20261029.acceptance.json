@@ -1,0 +1,130 @@
+{
+  "task": "AHAVAT_CLOSING_PAGES_AND_MIGDAL_DEPTH_20261029",
+  "date": "2026-10-29",
+  "timezone": "Asia/Jerusalem",
+  "branch": "codex/ahavat-torah-closing-pages-and-migdal-depth-20261029",
+  "base": "4c02f6c4d9cb5d8e82c73d31fd9bb5b92a22d7f6",
+  "checkpoints": [
+    "dad9e87e",
+    "d699d55d",
+    "1229261f"
+  ],
+  "source_identity": "book:hebrewbooks:5635",
+  "source_pdf_sha256": "895e9a720d984adf8ea453b644e3f6d0864e101238f348f418aa5fafa20e9c8b",
+  "source_pdf_pages": 99,
+  "fresh_remote_pdf_hash_checked": true,
+  "first_pass_pages": 99,
+  "expanded_pages": 63,
+  "selected_companion_units": 189,
+  "new_units": 48,
+  "new_unit_pages": [
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    93,
+    94,
+    95,
+    96,
+    97,
+    98,
+    99
+  ],
+  "new_migdal_units": 27,
+  "new_closing_units": 21,
+  "earlier_141_units_unchanged": true,
+  "unchanged_source_native_units": 287,
+  "historical_deep_research_pages": 15,
+  "commentary_sha256": "73d45722411c2e5de2d866ed0ad2aa71d090435107e06aab0bcb46c4cfdb0451",
+  "commentary_bytes": 304088,
+  "commentary_gzip_bytes": 53844,
+  "books_node": {
+    "passed": 384,
+    "failed": 0,
+    "skipped": 0
+  },
+  "full_companion_browser": {
+    "passed": 5,
+    "failed": 0,
+    "skipped": 0,
+    "unit_visits": 1701,
+    "contexts": 9,
+    "widths": [
+      320,
+      390,
+      1440
+    ],
+    "themes": [
+      "light",
+      "parchment",
+      "dark"
+    ],
+    "pdf_frames_aborted": true
+  },
+  "heading_compatibility_followup": {
+    "only_json_delta_after_matrix": "pages[98].title restored to adopted base wording",
+    "all_189_units_and_other_metadata_identical": true,
+    "unchanged_eight_reader_test_passed": 1,
+    "companion_deep_return_test_passed": 1
+  },
+  "reader_source_regression": {
+    "passed": 1,
+    "contexts": 9,
+    "timeout_ms": 180000,
+    "elapsed_ms": 148417,
+    "fetch_observation": "two attempts; first aborted without response; second fulfilled OK and validated source column rendered; no initial eager roots"
+  },
+  "other_completed_regression_stories": {
+    "parasha_counts": 1,
+    "roots_journey": 1,
+    "people_roots_scrolls": 1,
+    "spatial_tables": 1,
+    "unified_eight_readers": 1,
+    "wide_two_book_layout": 1,
+    "native_pdf": 1
+  },
+  "wide_layout_contexts": 18,
+  "native_local_pdf_page_counts": [
+    99,
+    220
+  ],
+  "native_local_fullscreen": true,
+  "no_skipped_acceptance_cases": true,
+  "initial_failed_or_interrupted_runs_preserved": true,
+  "cancellation_test_repair_not_product_fetch_change": true,
+  "source_unit_scene_css_and_original_data_unchanged": true,
+  "new_3d_model": false,
+  "engine_verification": "not_tested",
+  "full_spatial_contract_compliance_claimed": false,
+  "full_book_transcription_claimed": false,
+  "build_2029": "pass",
+  "build_books_preview": "pass",
+  "normal_eager_gzip_bytes": 379579,
+  "preview_eager_gzip_bytes": 376909,
+  "weight_budget_changed": false,
+  "language": {
+    "passed": 3
+  },
+  "auth_guard": {
+    "passed": 4
+  },
+  "legacy_lock": "pass",
+  "isolation": "pass",
+  "cheap_hardening": "pass",
+  "browser": "Chromium; SwiftShader for existing 3D regression",
+  "physical_device_or_safari_certification": false,
+  "local_fixture": "PDF frames aborted in navigation matrices; original SHA-matched bytes served in the separate native test; other Supabase/font requests stubbed where documented",
+  "hosted_acceptance": "recorded outside Git after exact-SHA protected deployment; not claimed by local fixture",
+  "new_dependencies": [],
+  "main_changed": false,
+  "legacy_changed": false,
+  "production_changed": false,
+  "db_rls_permissions_changed": false,
+  "live_before_after_written": false,
+  "release_advice": "BUNDLE_WITH(site-central-books-integration)"
+}

@@ -14,7 +14,7 @@ No Legacy, main, Production, DB/RLS, permission or canonical-engine changes. No 
 
 ## Checkpoint 1 · physical PDF 93–99
 
-Actual page scans and embedded text reviewed on all seven pages. Added 21 selected companion units (three per page) and page-specific orientation in the existing requested asset. PDF94 is correctly described as a mixed boundary: the Esther discussion ends above the opening Hashmatot heading. PDF99 distinguishes the author's concluding four-portions reading from R. Yehoshua B. Yitzhak Leiman's separately headed notes; the stone-floor question remains a question. No transcription or numeric dataset was modified.
+Actual page scans and embedded text reviewed on all seven pages. Added 21 selected companion units (three per page) and page-specific orientation in the existing requested asset. PDF94 is correctly described as a mixed boundary: the Esther discussion ends above the opening Hashmatot heading. PDF99 distinguishes the author's concluding four-portions reading from the separately headed notes of ר׳ יהושע ברי״צ ליימן (the printed abbreviation is preserved, not expanded); the stone-floor question remains a question. No transcription or numeric dataset was modified.
 
 Total requested companion: 162 selected units across PDF46–99, not exhaustive paragraph commentary. The earlier 141-unit records have an unchanged pinned hash `10c1a39da457442dd5bb5519f0315ccc6a42e0cdb9e457ae2a84d1886d113f45`. Source-native reader units remain 287. Their separate identities were not repurposed as new commentary.
 
@@ -40,7 +40,7 @@ Reviewed all nine actual page scans and their embedded text. Added 27 selected e
 
 The source's arithmetic/geometric assumptions remain the author's, never silently repaired or certified. In particular PDF18's Levite sub-count/sum disagreement remains in original data, PDF17 is not promoted to modern chemistry or a validated circle/square model, and PDF20 does not acquire missing ark dimensions. Cross-page continuations (17→18, 19→20, 23→24 and 97→98→99) are explained without moving the unit's physical PDF anchor or asserting new quotations. No 3D model or scene changed in this content-only cut.
 
-Combined requested companion now carries 189 selected units on 63 pages (16–24 and 46–99). The first-pass guide still covers all 99 pages. These are **distinct coverage axes**: historical `deep_research_pages=15` remains unchanged; the new units are selected companion explanations, not exhaustive transcription, full root proofreading or canonical-engine results. Protected pages outside both authorized ranges retain pinned hash `d7c7a5eab4fe3a3f26a66f1230b6c48a020920df1832b947781d5f8fad2909eb`; the completed closing checkpoint retains `e73fabf341440c6024ec0585aaf85b7ee3eab91fddef4dd16d9d60aee1503dd6`.
+Combined requested companion now carries 189 selected units on 63 pages (16–24 and 46–99). The first-pass guide still covers all 99 pages. These are **distinct coverage axes**: historical `deep_research_pages=15` remains unchanged; the new units are selected companion explanations, not exhaustive transcription, full root proofreading or canonical-engine results. Protected pages outside both authorized ranges retain pinned hash `d7c7a5eab4fe3a3f26a66f1230b6c48a020920df1832b947781d5f8fad2909eb`. The closing checkpoint hash is `e73fabf341440c6024ec0585aaf85b7ee3eab91fddef4dd16d9d60aee1503dd6`; all that checkpoint's prose/bindings remain unchanged, with the sole adopted page99 title restoration described below and checked explicitly before reconstructing the historical digest in tests.
 
 Combined final runtime static release gates passed: 384/384 Books, zero skips; Language 3/3, Auth Guard 4/4, normal and two-flag Preview Build2029, graph/weight, Legacy Production Lock, isolation, cheap hardening and whitespace. Eager JS gzip: 379,579 normal / 376,909 Preview, same budgets. Existing Vite large-chunk/ineffective-dynamic-import warnings are retained as warnings, not declared absent. Browser and hosted results follow only after actual completion.
 
@@ -55,3 +55,42 @@ The first combined regression found `1 !== 2` at the old assertion requiring two
 The reader test now observes the exact effect boundary without delaying/retrying/replacing requests: exactly two fetch attempts, first signal aborted without a response, second fetch fulfilled with an OK response, validated source data rendered and only one or two requests at transport. The initial observer incorrectly expected the successful effect's signal to remain active: source code shows that setting `bundle` legitimately cleans up that effect after loading. This observer-only error was corrected to check successful response delivery rather than post-load signal state. Existing zero-eager-root, exact-source, search, focus, refresh, nine preset/viewport contexts and 180-second timeout remain. This repairs a layer-mismatched assertion and adds cancellation/success evidence; no production fetch effect, source payload, guard or timeout was altered. A clean isolated rerun is required before acceptance.
 
 The clean isolated reader rerun **passed 1/1, zero skips, all nine contexts**, in 148,417 ms within the unchanged 180,000 ms timeout. Full companion acceptance **passed 5/5, zero skips**: all 189 units × nine contexts (1,701 visits), missing/foreign-source cases, plus exact deep-link/refresh/source-return for PDF16/92/99 at all three widths. Original parasha-count, continuous-root and people/roots/megillot stories each completed and passed before the interrupted combined runner; their acceptance is individual, not a claim the interrupted runner passed. The remaining spatial-story, two-book width/native-PDF and eight-reader regressions are resumed serially after the corrected reader run, without test or timeout changes.
+
+### Adopted heading compatibility
+
+The eight-reader regression found its exact existing page99 heading `לוח ההשמטות והתיקונים` missing after this content cut renamed it. The product heading is restored to its adopted base wording; the more specific attribution stays in the new summary and units. The existing eight-reader test is **unchanged**. All 189 unit objects and their source anchors remain identical to the full five-test companion matrix; this single page-title restoration is separately covered by the full 384-test static rerun and fresh unified-reader/deep-return acceptance. It is not hidden as an identical-payload rerun of every prior observation.
+
+The existing spatial-tables story passed at 320/390/1440, and both wide-reading stories passed: 18 book/width/theme contexts and native hash-matched Ahavat/Yetzirah PDFs with 99/220 pages and fullscreen enter/exit. These are three completed passing stories within the resumed four-story runner; that runner also contains the above heading failure and is **not** claimed as all-pass. The unchanged eight-reader test and final companion deep-return test are rerun separately after the product heading repair.
+
+## Final local acceptance
+
+The **unchanged eight-reader test passed 1/1** after restoring the product heading: all eight manifests at 320/390/1440. The final companion deep-return test passed **1/1** after that same repair: Migdal PDF16, previous PDF92 and closing PDF99, all widths, exact source return and refresh. No cases skipped. All 189 expanded unit objects and all other JSON metadata are deep-equal to the completed five-test companion matrix after adjusting only `pages[98].title` to its adopted base wording. The exact final payload hash is below; prior matrix observations are not relabeled as a byte-identical final-payload run.
+
+Final 384/384 Books tests pass; normal/Preview Build2029 and graph/weight, Language 3/3, Auth Guard 4/4, Legacy lock, isolation, hardening and whitespace pass after heading restoration. These results are captured in `ahavat-closing-pages-and-migdal-depth-20261029.acceptance.json`. All eight relevant existing browser stories now have completed passing acceptance individually; historical failed/interrupted combined runners remain disclosed above, not summed into a falsely all-green single run.
+
+Final requested commentary: **304,088 bytes / 53,844 gzip**, SHA-256 `73d45722411c2e5de2d866ed0ad2aa71d090435107e06aab0bcb46c4cfdb0451`. It stays requested JSON, not eager JavaScript. Fresh HTTP download of the original PDF matched the source hash. Original OCR, source tables, roots/letter assets, Yetzirah assets/components and all source numbers are unchanged from base. No new package, server/API, engine, registry, model or reader was introduced.
+
+## Handoff and retained work · local AFTER
+
+Actor GPT · to ZURIEL · task as above · owner EXTEND_EXISTING Intake/Truth/Identity/Translation/Experience · IMPLEMENTED / TESTED / BRANCH_ONLY. Exact final HEAD, remote cleanliness and protected hosted result are reported after commit/push/deployment; no self-referential commit hash or share credential is embedded here. Hosted receipt is stored outside Git at `/workspace/artifacts/ahavat-closing-migdal-preview-20261029/hosted-verification.json` once checked. No hosted result is inferred from local mocked-navigation tests.
+
+Release advice **BUNDLE_WITH(site-central-books-integration)**. Local writing ownership ends after exact remote/clean and hosted checks; no live journal BEFORE/AFTER/release is claimed because the authorized connector is read-only. No assignment, automatic activation or GPT-directed message was sent. No main/Production/Legacy/DB/RLS/permission or canonical publication change.
+
+Remaining: additional paragraphs beyond the selected three per expanded page; complete ten-column root proofreading and the author's lexical-unit rule; numeric row transcriptions/ambiguous values and sum differences; source locators still open in DS-07/08 and the first printed editor note; acceptance of other spatial models against the full binding contract; physical-device/Safari checks and later site integration. The source remains readable without engine verification. No statement of whole-book 100% completion or universal spatial-contract conformity is made by this cut.
+
+## Complete changed-file inventory
+
+Ten paths above base, including this report and acceptance receipt:
+
+```text
+docs/research-notes/AHAVAT_CLOSING_PAGES_AND_MIGDAL_DEPTH_20261029.md
+docs/research-notes/ahavat-closing-pages-and-migdal-depth-20261029.acceptance.json
+public/book-data/ahavat-torah.commentary.json
+src/data/ahavatTorahReaderUnits2029.js
+src/data/ahavatTorahSystem2029.js
+src/pages/AhavatTorahSystem2029Page.jsx
+test/ahavat-torah-closing-pages-and-migdal-depth-2029.test.mjs
+test/ahavat-torah-novellae-depth-2029.browser.test.mjs
+test/ahavat-torah-novellae-depth-2029.test.mjs
+test/ahavat-torah-reader-units-2029.browser.test.mjs
+```
