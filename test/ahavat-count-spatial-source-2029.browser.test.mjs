@@ -15,9 +15,17 @@ const sourcePath = "/tmp/books-wide-ahavat-source-20261028.pdf";
 
 async function pointerClick(locator) {
   await locator.evaluate(element => element.focus({ preventScroll: true }));
-  await locator.evaluate(element => element.scrollIntoView({ block: "center", behavior: "instant" }));
-  await locator.page().evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
-  assert.equal(await locator.evaluate(element => { const rect = element.getBoundingClientRect(), top = document.elementFromPoint(rect.x + rect.width / 2, rect.y + rect.height / 2); return Boolean(top && element.contains(top)); }), true, "trusted count-source pointer target must be uncovered");
+  let hit;
+  // Native content-visibility can materialize preceding sections after the first
+  // scroll. Re-center through that layout, never click through fixed chrome.
+  for (let frame = 0; frame < 8; frame++) {
+    await locator.evaluate(element => element.scrollIntoView({ block: "center", behavior: "instant" }));
+    await locator.page().evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+    hit = await locator.evaluate(element => { const rect = element.getBoundingClientRect(), top = document.elementFromPoint(rect.x + rect.width / 2, rect.y + rect.height / 2); return { uncovered: Boolean(top && element.contains(top)), rect: {x:rect.x,y:rect.y,width:rect.width,height:rect.height}, top: top?.outerHTML.slice(0,250), active:document.activeElement?.outerHTML.slice(0,250), scrollY }; });
+    if (hit.uncovered) break;
+  }
+  if (!hit.uncovered) await locator.page().screenshot({path:"/workspace/artifacts/ahavat-parasha-atlas-20261029/count-click-failure.png"});
+  assert.equal(hit.uncovered, true, `trusted count-source pointer target must be uncovered: ${JSON.stringify(hit)}`);
   await locator.click();
 }
 
