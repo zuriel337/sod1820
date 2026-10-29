@@ -60,6 +60,7 @@ test("parasha atlas preserves 28 source forms, exact PDF, export, selection and 
       page.on("request", request => { if (request.url().includes("AhavatTorahSpatialScene2029")) modelRequests.push(request.url()); });
       await page.goto(`${origin}${ahavatReaderUnitHref(ahavatLetterUnitId("ד","vayikra","צו"),"/2029/control?study=letters")}`,{waitUntil:"domcontentloaded"});
       const reader=page.locator("#ahavat29-letters"),source=page.locator("#ahavat29-source"),detail=reader.locator(".ahavat29-letter-parasha"),atlas=detail.locator(".ahavat29-parasha-letter-atlas");
+      async function returnFocus() { const id=await detail.getAttribute("data-reader-unit"); await page.waitForFunction(unit=>document.activeElement?.closest("[data-reader-unit]")?.dataset.readerUnit===unit,id); await settle(page); }
       await detail.waitFor();await native(page,36);
       assert.equal(await atlas.locator(".ahavat29-parasha-atlas-grid article").count(),0);
       await click(atlas.locator("summary"));await atlas.locator(".ahavat29-parasha-atlas-grid article").first().waitFor();
@@ -98,7 +99,7 @@ test("parasha atlas preserves 28 source forms, exact PDF, export, selection and 
       await click(chooseKaf);await selected("כ");
       await click(atlas.getByRole("button",{name:"מקור כף בפרשת צו · PDF 37",exact:true}));await selected("כ");
       await click(source.getByRole("button",{name:"לעמוד הבא",exact:true}));await native(page,38);
-      await click(source.getByRole("link",{name:"חזור ליחידת הקריאה",exact:true}));await selected("כ");
+      await click(source.getByRole("link",{name:"חזור ליחידת הקריאה",exact:true}));await returnFocus();await selected("כ");
       assert.equal(await search.inputValue(),"כף");
       await click(atlas.getByRole("button",{name:"בחר כף סופית בפרשת צו",exact:true}));await selected("ך");
       await click(atlas.getByRole("button",{name:"נקה סינון אותיות",exact:true}));
@@ -114,7 +115,7 @@ test("parasha atlas preserves 28 source forms, exact PDF, export, selection and 
       await click(atlas.getByRole("button",{name:"מקור תו בפרשת צו · PDF 41",exact:true}));await native(page,41);
       await click(source.getByRole("button",{name:"מסך מלא",exact:true}));await page.waitForFunction(()=>!!document.fullscreenElement);await native(page,41);
       await click(source.getByRole("button",{name:"יציאה ממסך מלא",exact:true}));await page.waitForFunction(()=>!document.fullscreenElement);await settle(page);
-      await click(source.getByRole("link",{name:"חזור ליחידת הקריאה",exact:true}));await selected("ת");
+      await click(source.getByRole("link",{name:"חזור ליחידת הקריאה",exact:true}));await returnFocus();await selected("ת");
       assert.equal(await canvas.evaluate(element=>element===window.__atlasCanvas),true);
       await click(reader.getByRole("button",{name:"סגור מבנה האות בתלת־ממד",exact:true}));
       assert.equal(await toggle.evaluate(element=>document.activeElement===element),true);
@@ -122,7 +123,7 @@ test("parasha atlas preserves 28 source forms, exact PDF, export, selection and 
       if(width===390&&theme==="parchment"){
         for(const form of AHAVAT_LETTER_FORMS){
           await click(atlas.getByRole("button",{name:`מקור ${form.name} בפרשת צו · PDF ${entries.find(entry=>entry.source.form===form.form).row.page}`,exact:true}));
-          await selected(form.form);await click(source.getByRole("link",{name:"חזור ליחידת הקריאה",exact:true}));
+          await selected(form.form);await click(source.getByRole("link",{name:"חזור ליחידת הקריאה",exact:true}));await returnFocus();
         }
       }
       if(width===390&&theme==="dark"){
