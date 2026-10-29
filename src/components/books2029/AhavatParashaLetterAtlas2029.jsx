@@ -29,7 +29,7 @@ export default function AhavatParashaLetterAtlas2029({ parasha, selectedForm, on
     <summary ref={summary}>כל האותיות בפרשת {parasha}</summary>
     {open ? <>
       <header><span>דברי הספר · פרשה אחת דרך צורות האותיות</span><h5>פרשת {parasha} באותיות הספר</h5></header>
-      <p><b>הסבר נלווה:</b> כל כרטיס מציג את שורת הפרשה בסעיף של אותה אות. בחירת אות מחליפה את יחידת הקריאה ושומרת את הפרשה; כפתור המקור פותח את העמוד המדויק שלה. הצורות הסופיות ושׁין ושׂין נשארות נפרדות, לפי הדפוס. אין כאן חיבור של המניינים לסכום חדש.</p>
+      <p><b>הסבר נלווה:</b> כל כרטיס הוא מניין האות בפרשה. בחירת אות שומרת את הפרשה; כפתור המקור פותח את העמוד המדויק. סופיות ושׁין ושׂין נשארות נפרדות לפי הדפוס.</p>
       <div className="ahavat29-parasha-atlas-tools"><label>סינון אותיות בפרשה<input type="search" maxLength={80} value={query} onChange={event => changeQuery(event.target.value)} placeholder="למשל: כף או סופית" /></label><span aria-live="polite"><bdi>{visible.length}</bdi> מתוך <bdi>{rows.length}</bdi> צורות</span>{query ? <button type="button" onClick={() => changeQuery("")}>נקה סינון אותיות</button> : null}</div>
       <div className="ahavat29-parasha-atlas-grid">
         {visible.map(({ source, row }) => <article key={source.form} data-letter-form={source.form}>

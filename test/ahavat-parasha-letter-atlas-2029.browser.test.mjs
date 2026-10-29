@@ -95,6 +95,7 @@ test("parasha atlas preserves 28 source forms, exact PDF, export, selection and 
       await click(atlas.getByRole("button",{name:"נקה סינון אותיות",exact:true}));
       assert.equal(await atlas.locator(".ahavat29-parasha-atlas-grid article").count(),28);
       await atlas.locator("summary").evaluate(element=>element.scrollIntoView({block:"start",behavior:"instant"}));await settle(page);
+      assert.ok((await atlas.locator("summary").boundingBox()).y>=80,"atlas orientation must clear the fixed frame");
       await page.screenshot({path:`${out}/atlas-${width}-${theme}.png`});
       const toggle=reader.getByRole("button",{name:"פתח מבנה האות בתלת־ממד",exact:true});
       await click(toggle);const canvas=reader.locator('canvas[data-ahavat-context-guard="ready"]');await canvas.waitFor();
@@ -127,8 +128,9 @@ test("parasha atlas preserves 28 source forms, exact PDF, export, selection and 
         await click(atlas.getByRole("button",{name:"נקה סינון אותיות",exact:true}));
         await click(reader.getByRole("button",{name:"סגור מבנה האות בתלת־ממד",exact:true}));
       }
-      const metrics=await atlas.evaluate(element=>({overflow:document.documentElement.scrollWidth>innerWidth+1,controls:[...element.querySelectorAll("button,input,summary")].map(el=>el.getBoundingClientRect()).filter(r=>r.width&&r.height).every(r=>r.width>=43&&r.height>=43),body:parseFloat(getComputedStyle(element.querySelector("p")).fontSize),ui:parseFloat(getComputedStyle(element.querySelector("input")).fontSize)}));
+      const metrics=await atlas.evaluate(element=>({overflow:document.documentElement.scrollWidth>innerWidth+1,controls:[...element.querySelectorAll("button,input,summary")].map(el=>el.getBoundingClientRect()).filter(r=>r.width&&r.height).every(r=>r.width>=43&&r.height>=43),body:parseFloat(getComputedStyle(element.querySelector("p")).fontSize),ui:parseFloat(getComputedStyle(element.querySelector("input")).fontSize),searchWidth:element.querySelector("input").getBoundingClientRect().width,atlasWidth:element.getBoundingClientRect().width}));
       assert.equal(metrics.overflow,false);assert.equal(metrics.controls,true);assert.ok(metrics.body>=18);assert.ok(metrics.ui>=16);
+      if(width<=390)assert.ok(metrics.searchWidth>=metrics.atlasWidth*.75,"mobile search must not be squeezed beside its count");
       await click(atlas.getByRole("button",{name:"סגור את מפת הפרשה",exact:true}));
       assert.equal(await atlas.locator(".ahavat29-parasha-atlas-grid article").count(),0);
       assert.equal(await atlas.locator("summary").evaluate(element=>document.activeElement===element),true);

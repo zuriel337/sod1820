@@ -1,11 +1,11 @@
 /* Scoped projection. All colors/fonts come from the active Design V2 owner. */
 .ahavat29-parasha-letter-atlas{margin-block:22px 8px;border:1px solid var(--s29-line-strong);border-radius:12px;background:var(--s29-panel)}
-.ahavat29-parasha-letter-atlas>summary{min-height:44px;padding:12px;color:var(--s29-accent-text);font:500 var(--s29-type-ui)/1.6 var(--s29-font-ui);cursor:pointer}
+.ahavat29-parasha-letter-atlas>summary{min-height:44px;padding:12px;color:var(--s29-accent-text);font:500 var(--s29-type-ui)/1.6 var(--s29-font-ui);cursor:pointer;scroll-margin-top:84px}
 .ahavat29-parasha-letter-atlas>header,.ahavat29-parasha-letter-atlas>p,.ahavat29-parasha-letter-atlas>footer,.ahavat29-parasha-atlas-tools{margin:14px}
 .ahavat29-parasha-letter-atlas>header>span{font:500 var(--s29-type-ui)/1.6 var(--s29-font-ui);color:var(--s29-accent-text)}
 .ahavat29-parasha-letter-atlas>header h5{margin:8px 0;font:600 var(--s29-type-title)/1.4 var(--s29-font-display)}
 .ahavat29-parasha-atlas-tools{display:flex;align-items:end;flex-wrap:wrap;gap:12px;font:500 var(--s29-type-ui)/1.6 var(--s29-font-ui)}
-.ahavat29-parasha-atlas-tools label{flex:1;min-width:0}
+.ahavat29-parasha-atlas-tools label{flex:1 1 220px;min-width:0}
 .ahavat29-parasha-atlas-tools input{min-width:0;width:100%;min-height:44px;padding:9px;border:1px solid var(--s29-line-strong);border-radius:8px;background:var(--s29-panel);color:var(--s29-text);font:inherit}
 .ahavat29-parasha-atlas-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr));gap:10px;padding:14px}
 .ahavat29-parasha-atlas-grid>article{min-width:0;padding:10px;border:1px solid var(--s29-line);border-radius:10px;background:var(--s29-panel-soft)}
