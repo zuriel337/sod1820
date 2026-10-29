@@ -8,7 +8,7 @@ test("reviewed reading preserves all ten source identities and the untouched OCR
   const original = JSON.stringify(bundle);
   const fragments = ahavatReviewedRootFragments(bundle);
   assert.deepEqual(fragments.map(item => item.id), bundle.fragments.map(item => item.id));
-  assert.equal(fragments.reduce((total, item) => total + item.appliedReadings.length, 0), 15);
+  assert.equal(fragments.reduce((total, item) => total + item.appliedReadings.length, 0), 274);
   for (const fragment of fragments) {
     assert.equal(fragment.originalOcr, bundle.fragments.find(item => item.id === fragment.id).text);
     assert.equal(fragment.reviewStatus, "partial_proofreading_not_verified_quotation");

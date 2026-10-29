@@ -103,6 +103,24 @@ function RootColumnNavigation({ columnId, onSelect }) {
   </nav>;
 }
 
+function RootColumnSourceDetails({ fragment, onSource }) {
+  const [showReadings, setShowReadings] = useState(false);
+  return <details className="ahavat29-source-details">
+    <summary>תעתיק המכונה המקורי ופרטי ההגהה</summary>
+    <p>בטור זה הוחלו {fragment.appliedReadings.length} תיקוני קריאה נקודתיים בהשוואה לצילום. יתר הטור עדיין דורש הגהה; התעתיק אינו ציטוט מאומת.</p>
+    <p style={{ whiteSpace: "pre-wrap" }}>{fragment.originalOcr}</p>
+    <details onToggle={event => { if (event.target === event.currentTarget) setShowReadings(event.currentTarget.open); }}>
+      <summary>השוואת תיקוני הקריאה למקור · {fragment.readingDetails.length}</summary>
+      {showReadings ? <ol aria-label="תיקוני הקריאה בטור">{fragment.readingDetails.map(reading => <li key={reading.id} data-root-reading={reading.id}>
+        <p>תעתיק המכונה: <del>{reading.before}</del><br />קריאה לאחר השוואה לצילום: <ins>{reading.after}</ins></p>
+        <p>שורת תעתיק {reading.originalOcrLine} · מיקום בתעתיק העזר, לא מספר שורה בדפוס.</p>
+        <div className="ahavat29-ds01-controls"><button type="button" onClick={onSource}>מקור התיקון · PDF {reading.pdfPage}</button></div>
+      </li>)}</ol> : null}
+    </details>
+    <details><summary>מוקדים שנותרו להגהה</summary><p>אלה מוקדים תחומים להמשך, לא רשימה ממצה של כל שגיאות הטור. לא הוצע להם נוסח חלופי.</p>{fragment.openReadings.map(reading => <p key={reading.id}><q>{reading.originalOcr}</q> · {reading.reason}</p>)}</details>
+  </details>;
+}
+
 export function AhavatTorahRootsReader2029({ onPage }) {
   const [expanded, setExpanded] = useState(() => readerParams().get("rootsOpen") === "1" || initialUnit()?.datasetId === "DS-11");
   const [bundle, setBundle] = useState(null);
@@ -166,7 +184,7 @@ export function AhavatTorahRootsReader2029({ onPage }) {
     {expanded ? <>
       <div className="ahavat29-table-tools"><label><span>חיפוש ברשימת השרשים</span><input type="search" maxLength={200} value={query} onChange={event => setQuery(event.target.value)} placeholder="צורה כלשונה בספר או נושא העמוד" /></label><strong aria-live="polite">{fragments.length} טורים</strong></div>
       {loadState === "loading" ? <p role="status">טוען את תעתיק הרשימה…</p> : loadState === "error" ? <div role="status"><p>התעתיק לא נטען. הרשימה המלאה זמינה ב־PDF שלצדו.</p><button type="button" onClick={() => setRetry(value => value + 1)}>נסה לטעון שוב</button></div> : null}
-      {fragments.map(fragment => <article key={fragment.id} id={ahavatReaderUnitDomId(fragment.id)} data-reader-unit={fragment.id} className="ahavat29-letter-reading" tabIndex={-1} style={{ scrollMarginTop: 90 }}><h4>{AHAVAT_ROOT_SECTIONS.find(section => section.page === fragment.pdf_page).title} · טור {fragment.column === "right" ? "ימני" : "שמאלי"}</h4><p className="ahavat29-ds01-guide"><b>הסבר נלווה:</b> {AHAVAT_ROOT_COLUMNS.find(column => column.id === fragment.id).explanation}</p><div className="ahavat29-ds01-controls"><button type="button" onClick={() => openSource(fragment.pdf_page, fragment.id)}>מקור הרשימה · PDF {fragment.pdf_page}</button></div><div className="ahavat29-machine-text"><p>תעתיק עזר לקריאה · הגהה חלקית</p><pre>{fragment.text}</pre></div><details className="ahavat29-source-details"><summary>תעתיק המכונה המקורי ופרטי ההגהה</summary><p>בטור זה הוחלו {fragment.appliedReadings.length} תיקוני קריאה נקודתיים שהוכנו בהשוואה לצילום. יתר הטור עדיין דורש הגהה; התעתיק אינו ציטוט מאומת.</p><p style={{ whiteSpace: "pre-wrap" }}>{fragment.originalOcr}</p></details><RootColumnNavigation columnId={fragment.id} onSelect={continueColumn} /></article>)}
+      {fragments.map(fragment => <article key={fragment.id} id={ahavatReaderUnitDomId(fragment.id)} data-reader-unit={fragment.id} className="ahavat29-letter-reading" tabIndex={-1} style={{ scrollMarginTop: 90 }}><h4>{AHAVAT_ROOT_SECTIONS.find(section => section.page === fragment.pdf_page).title} · טור {fragment.column === "right" ? "ימני" : "שמאלי"}</h4><p className="ahavat29-ds01-guide"><b>הסבר נלווה:</b> {AHAVAT_ROOT_COLUMNS.find(column => column.id === fragment.id).explanation}</p><div className="ahavat29-ds01-controls"><button type="button" onClick={() => openSource(fragment.pdf_page, fragment.id)}>מקור הרשימה · PDF {fragment.pdf_page}</button></div><div className="ahavat29-machine-text"><p>תעתיק עזר לקריאה · הגהה חלקית</p><pre>{fragment.text}</pre></div><RootColumnSourceDetails fragment={fragment} onSource={() => openSource(fragment.pdf_page, fragment.id)} /><RootColumnNavigation columnId={fragment.id} onSelect={continueColumn} /></article>)}
       {loadState === "ready" && !fragments.length ? <p role="status">לא נמצאה צורה מתאימה בתעתיק. אפשר לבדוק את עמודי המקור המלאים.</p> : null}
     </> : null}
     <details className="ahavat29-source-details"><summary>פרטי המקור והקריאה</summary><p>הסעיף מתחיל באמצע PDF 31, לא ב־PDF 30, ומסתיים בחלקו העליון של PDF 35. עשרת הטורים חולצו בנפרד, בסדר הקריאה, בלי טבלת האנשים שקודמת להם ובלי טבלת האותיות שאחריהם. מילות שומר־דף הושמטו מגבולות החילוץ כדי לא להכפילן. התעתיק הוא כלי איתור בלבד ואינו ציטוט מאומת: זיהוי ד׳/ר׳, סימני דפוס ומילים רבות דורשים הגהה מול הצילום. המניין 1,820 נשמר כטענת מחבר מן המחקר הקודם, לא כמספר יחידות שתועתקו ואומתו כאן. לא הוחלו פיצול לשלשות, איחוד צורות או כללי שורש מודרניים; לא נוצרו משפחות דקדוקיות או ספירות תלת־ממדיות משוערות.</p></details>

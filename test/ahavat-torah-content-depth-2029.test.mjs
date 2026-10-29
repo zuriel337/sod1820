@@ -37,14 +37,14 @@ test("nine printed editorial notes keep source and target distinct and the unres
     if (note.targetPdfPage) assert.ok(note.targetUrl.endsWith(`#page=${note.targetPdfPage}&view=FitH`));
   }
 });
-test("all fifteen glyph readings apply exactly once while preserving all ten original OCR columns", async () => {
+test("all source-reviewed glyph readings apply exactly once while preserving all ten original OCR columns", async () => {
   const bundle = JSON.parse(await readFile(new URL("../public/book-data/ahavat-torah.roots.json", import.meta.url), "utf8"));
   const before = JSON.stringify(bundle);
   const reviewed = ahavatPartiallyReviewedRoots(bundle);
-  assert.equal(readings.length, 15);
+  assert.equal(readings.length, 274);
   assert.equal(reviewed.length, 10);
   assert.equal(new Set(readings.map(item => item.fragmentId)).size, 10);
-  assert.equal(reviewed.reduce((sum, item) => sum + item.appliedReadings.length, 0), 15);
+  assert.equal(reviewed.reduce((sum, item) => sum + item.appliedReadings.length, 0), 274);
   assert.equal(JSON.stringify(bundle), before);
   for (const fragment of reviewed) {
     assert.equal(fragment.status, "partial_proofreading_not_verified_quotation");
