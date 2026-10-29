@@ -16,8 +16,32 @@ Acceptance plan: source-reference/identity/null/negative tests; 320/390/1440 × 
 
 ## AFTER
 
-Implementation checkpoint: explicit two-source comparison, cross-book choices, swap and two-row CSV inside the existing focused parasha reader. Source return and valid direct-entry restoration use a validated presentation target over the same canonical unit, showing the whole selected comparison card and focusing its source action. Closed/invalid/mismatched context retains canonical return. No source values or identities changed.
+Implementation frozen at `86a931d0e56bf6e3da249c2c82ebbfb9d6f979d2`: explicit two-source comparison, cross-book choices, swap and two-row CSV inside the existing focused parasha reader. Source return and valid direct-entry restoration use a validated presentation target over the same canonical unit, showing the whole selected comparison card and focusing its source action. Closed/invalid/mismatched context retains canonical return. No source values or identities changed. The receipt commit changes documentation/evidence only.
 
-Initial non-browser Books: 423/423 passed, no skips. Dedicated tests cover all 80,136 distinct ordered two-parasha choices across 28 forms, all 1,512 original row references, 24 nulls, exact canonical pages, CSV and invalid/forged context negatives. First browser run was deliberately cancelled after discovering an erroneous hard-coded test expectation (zayin/Haazinu is physical PDF 36, not 38). The test now resolves that page from its canonical source row; no product/source change. The cancelled run is not accepted. Corrected nine-context browser matrix and broader gates remain in progress.
+Full non-browser Books: **423/423 passed**, no skips. Dedicated tests cover all **80,136 distinct ordered two-parasha choices** across 28 forms, all 1,512 original row references, 24 nulls, exact canonical pages, CSV and invalid/forged context negatives. These counts measure tested identity mappings, not numeric engine verification or 80,136 browser scenarios. First browser run was deliberately cancelled after discovering an erroneous hard-coded test expectation (zayin/Haazinu is physical PDF 36, not 38). The test now resolves that page from its canonical source row; no product/source change. The cancelled run is not accepted.
 
-This is an implementation checkpoint, not final acceptance, human visual adoption, integration, live publication or ownership release.
+The corrected new browser case passed **all nine contexts** (320/390/1440 × Day/Parchment/Night): explicit disclosure, both source readings, cross-book selection, full-screen/page navigation, exact selected-card/control return, pinned pair after reload, swap, same-parasha empty state, two-row CSV, one explicit model and disposal, and zayin/Haazinu null + no-WebGL fallback at 390/dark. Local application services were stubbed; the actual hash-checked 99-page original PDF was rendered natively. Chromium with SwiftShader, not physical devices/Safari.
+
+### Final local acceptance and retained failure
+
+**20 final per-case browser passes**, no final skips/cancellations, across twelve files. Partitions **1 + 17 + 1 + 1**, not one clean monolithic run. The dedicated new case passed; seventeen existing regression cases passed before the wide file. That file's first case passed all eighteen book/viewport/theme combinations; the final native-PDF case received `ECONNRESET` from the local Vite `2029.html` request before rendering. The original file remains FAILED in the raw status/log. The exact same unmodified native case then passed in isolation (both real PDFs). No timeout, assertion, budget, source or server configuration was changed. The local transport reset remains unexplained; passing isolation does not prove its elimination.
+
+All three builds (normal 2029, two Preview flags, actual integrated Preview), Language 3/3, Auth Guard 4/4, graph/weight, isolation, hardening and Legacy lock passed. Eager JS gzip bytes: normal **379,579**, two flags **376,873**, integrated **377,242**. No budget increase, dependency or lockfile change. Final exact-HEAD build/non-browser and protected hosted acceptance are recorded externally after this receipt; no hosted outcome is pre-claimed here.
+
+### Verification story
+
+| Boundary | Observation |
+|---|---|
+| UI trigger | Explicitly open the comparison and choose two original parashot; no automatic model |
+| Client/API | No new API/RPC/write path; local presentation preferences and existing canonical selection |
+| Data | Original row references, nulls, book IDs and one-based PDF pages preserved |
+| Source response | Native original PDF, exact source pages, full-screen and page movement |
+| Return/render | Same pinned pair and active source after cross-book return/reload; exact source-control focus; unchanged CSV readings |
+
+[Machine-readable acceptance](./ahavat-parasha-comparison-20261029/acceptance.json) contains the eleven changed paths, exact accepted logs/cases and source/runtime metadata. [Mobile cards](./ahavat-parasha-comparison-20261029/comparison-390-parchment.png) and [desktop cards](./ahavat-parasha-comparison-20261029/comparison-1440-parchment.png) capture the tested comparison interaction state, not a full-book-completion claim.
+
+### Gaps, release and ownership
+
+The 24 unread numeric source rows, two unresolved cumulative checkpoints, broader commentary and independent model-compliance gaps are unchanged. No canonical engine ran. The first atlas delivery's tentative source-reading candidate is not adopted by this work. Human visual adoption is unconfirmed. No other book, source file, shared reader/fullscreen/renderer, Legacy, World/Post/SystemFrame, DB/RLS/permissions, main or Production was changed or integrated.
+
+Local AFTER/release: writing of this bounded source-comparison cut is closed and locally released to ZURIEL at this documentation/evidence receipt. Only exact-HEAD build/push checks, protected Preview verification and the external final `handoff.json` remain. Live journal access is readonly: no live BEFORE/AFTER/release, dispatch or ACK is claimed. Branch, exact delivery HEAD, full range/files, final remote/clean state and any Preview result are recorded in that external handoff. No new product phase starts here.
