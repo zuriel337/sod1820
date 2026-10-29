@@ -133,7 +133,7 @@ function LetterCountBars({ bars, activeId, onSelect, theme }) {
     const color = theme ? (activeId === bar.id ? theme.depth : theme.accent) : STATUS_COLORS.closed;
     return <mesh key={bar.id} position={[(theme ? -1 : 1) * (index - (bars.length - 1) / 2) * spacing, height / 2, 0]} onClick={event => { event.stopPropagation(); onSelect?.(bar.id); }}>
       <boxGeometry args={[spacing * .68, height, .72]} />
-      <meshStandardMaterial color={color} emissive={color} emissiveIntensity={activeId === bar.id ? .25 : .04} metalness={.25} roughness={.3} />
+      <meshStandardMaterial color={color} emissive={color} emissiveIntensity={theme ? (activeId === bar.id ? .25 : .04) : (activeId === bar.id ? .6 : .12)} metalness={theme ? .25 : .2} roughness={theme ? .3 : .34} />
     </mesh>;
   })}<gridHelper args={[9, 18, theme?.line || "#5c5140", theme?.line || "#27241f"]} /></group>;
 }
