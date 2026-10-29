@@ -20,7 +20,7 @@ const allow = ["gematria_api", "fn_method_value", "fn_method_profile", "gematria
 // remains blocked below. The approved owner's Person exists before this disposable build.
 const existingPersonAccess = "fn_get_or_create_my_person";
 // The unified working preview must not create Person records or record ELS traces.
-const unifiedReadOnly = typeof process !== "undefined" && ["gpt/2029-central-unified-workspace-20261029", "gpt/2029-central-shell-alignment-20261029"].includes(process.env.VERCEL_GIT_COMMIT_REF);
+const unifiedReadOnly = typeof process !== "undefined" && ["gpt/2029-central-unified-workspace-20261029", "gpt/2029-central-shell-alignment-20261029", "gpt/2029-central-topbar-menu-completion-20261029"].includes(process.env.VERCEL_GIT_COMMIT_REF);
 const worker = `const reads = new Set(${JSON.stringify(allow)});
 const existingPersonAccess=${JSON.stringify(existingPersonAccess)};
 const unifiedReadOnly=${JSON.stringify(unifiedReadOnly)};
@@ -65,7 +65,8 @@ const legacyMockBranch = "gpt/2029-central-raziel-safe-actions-integration-20261
 const personalNavigationMockBranch = "gpt/2029-central-raziel-personal-navigation-integration-20261026";
 const unifiedWorkspaceMockBranch = "gpt/2029-central-unified-workspace-20261029";
 const centralShellMockBranch = "gpt/2029-central-shell-alignment-20261029";
-const allowedMockBranches = new Set([legacyMockBranch, personalNavigationMockBranch, unifiedWorkspaceMockBranch, centralShellMockBranch]);
+const topbarMenuMockBranch = "gpt/2029-central-topbar-menu-completion-20261029";
+const allowedMockBranches = new Set([legacyMockBranch, personalNavigationMockBranch, unifiedWorkspaceMockBranch, centralShellMockBranch, topbarMenuMockBranch]);
 const selectMockPreviewBranch = env => {
   const branch = typeof env.VERCEL_GIT_COMMIT_REF === "string" ? env.VERCEL_GIT_COMMIT_REF : "";
   const explicitMock = env.SOD_RAZIEL_SAFE_ACTIONS_PREVIEW === "true";
@@ -95,7 +96,7 @@ const entry = html.match(/<script\b[^>]*type="module"[^>]*src="([^"]+)"[^>]*><\/
 if (!entry) throw new Error("missing2029Entry");
 html = html.replace(entry[0], bootstrap.replace("__ENTRY__", entry[1]));
 if (razielSafeActionsMock) {
-  const notice = '<aside data-raziel-preview-transport="mock-only" role="note" dir="rtl" style="position:fixed;z-index:2147483000;inset-inline:8px;bottom:82px;padding:6px 10px;border:1px solid #98783e;border-radius:8px;background:#fff5de;color:#231b12;font:14px/1.4 Arial;text-align:center;pointer-events:none">פריוויו בדיקה · תשובות דמה בלבד · אין קריאות מודל או כתיבה חיה. אפשר לשאול על משיח, או לכתוב „שמור שיחה”.</aside>';
+  const notice = '<style>body:has(#sod29-mobile-navigation,.sod29-frame-panel,[data-raziel-companion-view="open"]) > [data-raziel-preview-transport="mock-only"]{display:none}[data-raziel-preview-disclosure="mock-only"]{margin:6px 12px;padding:6px 8px;border:1px solid var(--s29-line-strong);border-radius:8px;background:var(--s29-panel-soft);color:var(--s29-ink);font:14px/1.4 var(--s29-font-ui);overflow-wrap:anywhere}</style><aside data-raziel-preview-transport="mock-only" role="note" dir="rtl" style="position:fixed;z-index:2147483000;inset-inline:8px;bottom:82px;padding:6px 10px;border:1px solid #98783e;border-radius:8px;background:#fff5de;color:#231b12;font:14px/1.4 Arial;text-align:center;pointer-events:none">פריוויו בדיקה · תשובות דמה בלבד · אין קריאות מודל או כתיבה חיה. אפשר לשאול על משיח, או לכתוב „שמור שיחה”.</aside>';
   html = html.replace("</body>", notice + "</body>");
 }
 await writeFile(resolve(output, "2029.html"), html);

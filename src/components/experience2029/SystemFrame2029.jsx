@@ -124,8 +124,8 @@ const HOME_NAV = [
   { to: "/world", label: "העולם", icon: "◌" },
   { to: "/heichal", label: "היכל", icon: "◇" },
   { to: "/2029/posts", label: "פוסטים", icon: "↟" },
-  { label: "מסעות", icon: "↝", status: "בקרוב" },
-  { label: "אזור משתמשים", icon: "◎", action: "workspace" },
+  { to: "/2029/journey", label: "מסע החיים", icon: "↝" },
+  { to: "/community/chat", label: "קהילה", icon: "◉" },
 ];
 
 const DIRECT_NAV = [
@@ -137,10 +137,10 @@ const DIRECT_NAV = [
 const CORE_HOME_NAV = [
   { to: "/2029", label: "בית", icon: "⌂", exact: true },
   { to: "/2029/posts", label: "פוסטים", icon: "↟" },
-  { to: "/community/chat", label: "צ׳אט", icon: "◉" },
+  { to: "/community/chat", label: "קהילה", icon: "◉" },
   HOME_NAV[1],
   { to: "/heichal", label: "היכל", icon: "◇" },
-  { label: "אזור משתמשים", icon: "◎", action: "workspace" },
+  { to: "/2029/journey", label: "מסע החיים", icon: "↝" },
 ];
 
 const CORE_DIRECT_NAV = [
@@ -378,6 +378,13 @@ function RazielOrb({ compact = false, active = false, onClick, title = "פתח �
   );
 }
 
+function PreviewTransportDisclosure2029() {
+  // The static review builder owns the mock marker. Ordinary app documents do
+  // not contain it and never gain a Preview label from this projection.
+  if (typeof document === "undefined" || !document.querySelector('[data-raziel-preview-transport="mock-only"]')) return null;
+  return <p role="note" data-raziel-preview-disclosure="mock-only">תצוגת בדיקה · תשובות רזיאל הן תשובות דמה בלבד, ללא קריאת מודל או כתיבה חיה.</p>;
+}
+
 function PanelShell({ panelRef, icon, kicker, title, children, onClose, panelKind = null }) {
   return (
     <div className="sod29-frame-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
@@ -400,7 +407,7 @@ function PanelShell({ panelRef, icon, kicker, title, children, onClose, panelKin
           </div>
           <button type="button" onClick={onClose} aria-label="סגור">×</button>
         </header>
-        <div className="sod29-frame-panel-body">{children}</div>
+        <div className="sod29-frame-panel-body"><PreviewTransportDisclosure2029 />{children}</div>
       </aside>
     </div>
   );
@@ -773,6 +780,7 @@ function RazielNativeChat({ context, label, numberFocus, readingFocus, elsFocus 
   return (
     <section className="sod29-panel-context-card sod29-raziel-chat" data-raziel-native-chat="true" data-raziel-session="shared" data-raziel-projection={projection} aria-label="שיחה עם רזיאל">
       <b>✦ השיחה עם רזיאל</b><small data-raziel-state={busy ? "thinking" : status}>{stateLabel}</small>
+      {projection === "desktop" ? <PreviewTransportDisclosure2029 /> : null}
       <div className="sod29-raziel-context" data-raziel-context-strip="true" aria-label="מה רזיאל רואה עכשיו">
         <p>{contextParts.length ? contextParts.map((part, index) => <React.Fragment key={part.key}>{index ? <span aria-hidden="true"> · </span> : null}{part.prefix ? `${part.prefix}: ` : ""}<bdi>{part.label}</bdi></React.Fragment>) : "שאלה חופשית — או בחר מספר, ביטוי או קטע"}</p>
       </div>
@@ -946,7 +954,7 @@ function RazielProjection({ target, context, numberCoreFocus = null, microIntent
         <span>{numberFocus.expression || numberFocus.root}{numberFocus.method ? ` · ${numberFocus.method}` : ""}{numberFocus.resultValue != null ? ` → ${numberFocus.resultValue}` : ""}</span>
         {numberFocus.crossingPartner ? <small>הצלבה · {numberFocus.crossingPartner}</small> : null}
         {numberFocus.zeroScaleNext != null ? <small>Zero Scale · {numberFocus.root} → {numberFocus.zeroScaleNext}</small> : null}
-      </section> : !readingFocus && !elsFocus && !routeActionValid ? <FrameState title="Silence Gate">אין כרגע Focus מובנה שמצדיק synthesis. רזיאל לא ממציא pulse או מסלול.</FrameState> : null}
+      </section> : !readingFocus && !elsFocus && !routeActionValid ? <FrameState title="אפשר להתחיל בשאלה">אין כרגע מוקד מחקר נבחר. אפשר לבחור מספר, ביטוי או קטע, או לשאול שאלה חופשית.</FrameState> : null}
       {quickInsight ? <section className="sod29-panel-context-card sod29-raziel-quick-insight">
         <b>{quickInsight.title}</b>
         <span>{quickInsight.text}</span>
@@ -1629,7 +1637,7 @@ function SystemFrame2029Body({
   const booksLocked = booksFeature.loading || booksFeature.blocked;
   const numberLocked = numberFeature.loading || numberFeature.blocked;
   const worldLocked = worldFeature.loading || worldFeature.blocked;
-  const homeNav = (corePublicViewer ? CORE_HOME_NAV : HOME_NAV).map((item) => item.to === "/heichal" ? { ...item, locked: heichalLocked } : item.label === "העולם" ? { ...item, locked: worldLocked } : item);
+  const homeNav = (corePublicViewer ? CORE_HOME_NAV : HOME_NAV).map((item) => item.to === "/heichal" ? { ...item, locked: heichalLocked } : item.to === "/2029/journey" ? { ...item, locked: journeyLocked } : item.label === "העולם" ? { ...item, locked: worldLocked } : item);
   const directNav = (corePublicViewer ? CORE_DIRECT_NAV : DIRECT_NAV).map((item) => item.to === "/books" ? { ...item, locked: booksLocked } : item.action === "number-search" || item.to?.startsWith("/2029/number/") ? { ...item, locked: numberLocked } : item);
   const [navOpen, setNavOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
@@ -2416,6 +2424,7 @@ function SystemFrame2029Body({
                 <span aria-hidden="true">×</span>
               </button>
             </div>
+            <PreviewTransportDisclosure2029 />
             <NavGroup title="בתים מרכזיים" items={homeNav} preserveReturnFor={preserveReturnFor} onNavigate={() => closeMobileNav(false)} onAction={handleGlobalNavAction} />
             <NavGroup title="גילוי וכלים" items={directNav} preserveReturnFor={preserveReturnFor} onNavigate={() => closeMobileNav(false)} onAction={handleGlobalNavAction} />
             <section className="sod29-mobile-theme-section" aria-label="בחירת מראה">

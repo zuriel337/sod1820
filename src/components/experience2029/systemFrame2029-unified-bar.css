@@ -223,9 +223,9 @@
 /* The three modes sit at the left end of the top bar and stay inside its 56px capsule. */
 @media (min-width: 981px) {
   .sod29-root.closed-shell.native-frame .sod29-header-actions .sod29-theme-presets { display: flex; padding: 3px; gap: 3px; border-radius: 22px; }
-  .sod29-root.closed-shell.native-frame .sod29-header-actions .sod29-theme-presets button { min-height: 38px; block-size: 38px; display: inline-flex; align-items: center; gap: 6px; padding-inline: 12px; border-radius: 18px; }
+  .sod29-root.closed-shell.native-frame .sod29-header-actions .sod29-theme-presets button { min-inline-size: 44px; min-block-size: 44px; block-size: 44px; display: inline-flex; align-items: center; gap: 6px; padding-inline: 12px; border-radius: 18px; }
   .sod29-root.closed-shell.native-frame .sod29-header-actions .sod29-theme-presets button span { font-size: 15px; }
-  .sod29-root.closed-shell.native-frame .sod29-header-actions .sod29-theme-presets button b { font-size: 13px; }
+  .sod29-root.closed-shell.native-frame .sod29-header-actions .sod29-theme-presets button b { font-size: var(--s29-type-micro, 14px); }
   .sod29-root.closed-shell.native-frame .sod29-header-actions .sod29-theme-presets button:hover { transform: none; }
 }
 
