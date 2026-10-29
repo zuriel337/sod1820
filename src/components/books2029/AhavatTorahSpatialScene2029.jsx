@@ -166,6 +166,7 @@ export default function AhavatTorahSpatialScene2029({ datasets = [], bars = [], 
   const [lost, setLost] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(true);
   const [letterTheme, setLetterTheme] = useState(null);
+  const letterCameraOptions = useMemo(() => ({ position: [7.4, 6.2, 9.6], fov: 44 }), []);
   const [cameraCommand, setCameraCommand] = useState(null);
   const [ready, setReady] = useState(false);
   const moveCamera = action => setCameraCommand(previous => ({ action, id: (previous?.id || 0) + 1 }));
@@ -192,7 +193,7 @@ export default function AhavatTorahSpatialScene2029({ datasets = [], bars = [], 
   const unavailable = <p role="status">לא ניתן לפתוח את המבנה במכשיר הזה. הטבלה ועמוד המקור זמינים בהמשך.</p>;
   const label = mode === "source-count" ? `ייצוג של מבנה הספר: גובה כל עמודה הוא מניין ${letterLabel} בשורת המקור; הנתונים מופיעים גם בטבלה ובכפתורים` : mode === "letter" || mode === "parasha-count" ? `ייצוג של מבנה הספר: גובה כל עמודה הוא מניין ${mode === "letter" ? "האות " : ""}${letterLabel} בחומש או בפרשה; הנתונים מופיעים גם בטבלה ובכפתורים` : mode === "ds01" ? "חמשת חומשי התורה לפי מניין המופעים המודפס בעמוד 6" : "מצפה תלת־ממדי של שלושה עשר מאגרי אהבת תורה; גובה כל מגדל מייצג את מספר עמודי המקור שלו";
   return <><div ref={root} data-reduced-motion={reducedMotion} className="ahavat29-spatial-canvas">
-    <SpatialErrorBoundary onFailure={() => setLost(true)}>{lost ? unavailable : mode === "letter" && !letterTheme ? <p role="status">טוען את תצוגת האות…</p> : <Canvas role="img" aria-label={label} fallback={unavailable} onCreated={mode === "letter" ? () => setReady(true) : undefined} camera={{ position: [7.4, 6.2, 9.6], fov: 44 }} dpr={[1, 1.5]} gl={{ antialias: true, powerPreference: "high-performance" }}>
+    <SpatialErrorBoundary onFailure={() => setLost(true)}>{lost ? unavailable : mode === "letter" && !letterTheme ? <p role="status">טוען את תצוגת האות…</p> : <Canvas role="img" aria-label={label} fallback={unavailable} onCreated={mode === "letter" ? () => setReady(true) : undefined} camera={mode === "letter" ? letterCameraOptions : { position: [7.4, 6.2, 9.6], fov: 44 }} dpr={[1, 1.5]} gl={{ antialias: true, powerPreference: "high-performance" }}>
       <color attach="background" args={[mode === "letter" ? letterTheme.background : "#0d0b09"]} />
       <fog attach="fog" args={[mode === "letter" ? letterTheme.background : "#0d0b09", 10, 19]} />
       <ambientLight intensity={1.2} />
