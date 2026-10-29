@@ -30,7 +30,27 @@ test("Books entry and exact source-unit return survive search/reload in 320/390/
     for (const width of [320, 390, 1440]) await Promise.all(["light", "parchment", "dark"].map(async preset => {
       console.log(`Reader units ${width}/${preset}: start`);
       const context = await browser.newContext({ viewport: { width, height: 1000 }, reducedMotion: "reduce" });
-      await context.addInitScript(value => { if (location.protocol === "http:" && location.hostname === "127.0.0.1") localStorage.setItem("sod-theme", value); }, preset);
+      await context.addInitScript(value => {
+        if (location.protocol !== "http:" || location.hostname !== "127.0.0.1") return;
+        localStorage.setItem("sod-theme", value);
+        // Observe the effect boundary without delaying, replacing or retrying a
+        // request. A cancelled fetch may never reach Playwright's route layer.
+        window.__ahavatRootFetchAttempts = [];
+        const original = window.fetch;
+        window.fetch = function(input, init) {
+          const href = typeof input === 'string' ? input : input?.url || input?.href;
+          if (href && new URL(href, location.href).pathname === '/book-data/ahavat-torah.roots.json') {
+            const signal = init?.signal || input?.signal, attempt = {aborted: Boolean(signal?.aborted), fulfilled: false, responseOk: false};
+            window.__ahavatRootFetchAttempts.push(attempt);
+            signal?.addEventListener('abort', () => { attempt.aborted = true; }, {once: true});
+            return Reflect.apply(original, this, arguments).then(response => {
+              attempt.fulfilled = true; attempt.responseOk = response.ok;
+              return response;
+            });
+          }
+          return Reflect.apply(original, this, arguments);
+        };
+      }, preset);
       let rootRequests = 0;
       await context.route("**/*", async route => {
         const url = new URL(route.request().url());
@@ -106,7 +126,13 @@ test("Books entry and exact source-unit return survive search/reload in 320/390/
       // does not. The correct left-column target must wait for the asset.
       await page.goto(`${base}${ahavatReaderUnitHref("roots:35:left")}`, { waitUntil: "domcontentloaded" });
       const column = await assertUnitEntry("roots:35:left", 35);
-      assert.equal(rootRequests, 2, "development StrictMode cancels and repeats the initial expanded-reader effect");
+      const attempts = await page.evaluate(() => window.__ahavatRootFetchAttempts);
+      assert.equal(attempts.length, 2, "development StrictMode starts the exact two expanded-reader fetch attempts");
+      assert.equal(attempts[0].aborted, true, "StrictMode cleanup cancels the first effect");
+      assert.equal(attempts[0].fulfilled, false, "the cancelled first attempt never provided source data");
+      assert.equal(attempts[1].fulfilled, true, "the second fetch resolved before ready-state effect cleanup");
+      assert.equal(attempts[1].responseOk, true, "the successful source response is followed by the validated column rendered above");
+      assert.ok(rootRequests >= 1 && rootRequests <= 2, "only the cancelled request may be absent at the transport boundary");
       assert.match(await column.locator(".ahavat29-ds01-guide").textContent(), /הסבר נלווה:.*ברכת משה/);
       const rootsSearch = page.getByRole("searchbox", { name: "חיפוש ברשימת השרשים" });
       await rootsSearch.fill("שחקים");
