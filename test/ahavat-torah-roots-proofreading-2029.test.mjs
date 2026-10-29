@@ -4,6 +4,7 @@ import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { AHAVAT_ROOT_GLYPH_READINGS as readings, AHAVAT_ROOT_OPEN_READINGS as openReadings, ahavatPartiallyReviewedRoots, ahavatReviewedRootFragments } from "../src/data/ahavatTorahRootsCorrections2029.js";
 import { AHAVAT_ROOT_COLUMNS } from "../src/data/ahavatTorahRoots2029.js";
+import { ahavatNativePdfPageAtStart } from "./fixtures/ahavat-native-pdf-page-2029.mjs";
 
 const raw = await readFile(new URL("../public/book-data/ahavat-torah.roots.json", import.meta.url));
 const bundle = JSON.parse(raw);
@@ -88,4 +89,18 @@ test("the existing reader mounts comparison records only on explicit expansion",
   assert.match(reader, /showReadings \? <ol/);
   assert.match(reader, /data-root-reading=\{reading.id\}/);
   assert.match(reader, /originalOcrLine/);
+});
+
+test("native acceptance checks the requested physical page at the top, not Chromium's central page counter", () => {
+  const measured = { loadState: "success", documentPages: 99, pageIndex: 30, viewportHeight: 640, requestedRect: { x: 26.07, y: 0.78, width: 199.86, height: 255.98 }, previousRect: { y: -259.91, height: 255.62 }, centralPageCounter: "32" };
+  assert.equal(ahavatNativePdfPageAtStart(measured, 31), true);
+  assert.equal(ahavatNativePdfPageAtStart({ ...measured, pageIndex: 31, requestedRect: { ...measured.requestedRect, y: 261.83 }, centralPageCounter: "32" }, 32), false, "a visible central neighbouring page is not the requested top anchor");
+  for (const changed of [
+    { ...measured, loadState: "loading" }, { ...measured, documentPages: 98 },
+    { ...measured, pageIndex: 31 }, { ...measured, requestedRect: null },
+    { ...measured, requestedRect: { ...measured.requestedRect, y: -260 } },
+    { ...measured, requestedRect: { ...measured.requestedRect, width: 0 } },
+    { ...measured, previousRect: { y: 0, height: 256 } },
+  ]) assert.equal(ahavatNativePdfPageAtStart(changed, 31), false);
+  for (const page of [0, 100, "31", null, 31.5]) assert.equal(ahavatNativePdfPageAtStart(measured, page), false);
 });

@@ -7,6 +7,7 @@ import { fileURLToPath } from "node:url";
 import { createServer } from "vite";
 import react from "@vitejs/plugin-react";
 import { ahavatReviewedRootFragments } from "../src/data/ahavatTorahRootsCorrections2029.js";
+import { ahavatNativePdfPageAtStart } from "./fixtures/ahavat-native-pdf-page-2029.mjs";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
 const { chromium } = createRequire(import.meta.url)("playwright");
@@ -100,21 +101,22 @@ for (const width of [320, 390, 1440]) test(`all ten source proofreading columns 
 });
 
 async function nativePage(page, physical) {
+  let lastSnapshot = null;
   for (let attempt = 0; attempt < 100; attempt++) {
     for (const frame of page.frames()) try {
-      if (await frame.evaluate(expected => {
+      const snapshot = await frame.evaluate(expected => {
         const viewer = document.querySelector("pdf-viewer");
-        if (!viewer || viewer.loadState_ !== "success" || viewer.documentDimensions?.pageDimensions?.length !== 99) return false;
-        const roots = [document];
-        for (let index = 0; index < roots.length; index++) for (const element of roots[index].querySelectorAll("*")) {
-          if (element.shadowRoot) roots.push(element.shadowRoot);
-          if (element.id === "pageSelector" && element.value === String(expected)) return true;
-        }
-        return false;
-      }, physical)) return;
+        const viewport = viewer?.viewport_;
+        if (!viewer || !viewport?.getPageScreenRect || !viewer.documentDimensions) return null;
+        return { loadState: viewer.loadState_, documentPages: viewer.documentDimensions.pageDimensions?.length, pageIndex: expected - 1, viewportHeight: viewport.size.height, requestedRect: viewport.getPageScreenRect(expected - 1), previousRect: expected > 1 ? viewport.getPageScreenRect(expected - 2) : null };
+      }, physical);
+      if (snapshot) lastSnapshot = snapshot;
+      if (ahavatNativePdfPageAtStart(snapshot, physical)) return;
     } catch { /* The PDF's frame can be replaced during a page transition. */ }
     await page.waitForTimeout(100);
   }
+  console.log(JSON.stringify({ nativeFailure: true, physical, lastSnapshot }));
+  await page.screenshot({ path: `${screenshotDir}/native-failure.png` });
   assert.fail(`actual native PDF did not select physical page ${physical}`);
 }
 
