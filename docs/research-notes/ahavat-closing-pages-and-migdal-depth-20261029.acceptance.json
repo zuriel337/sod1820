@@ -122,7 +122,7 @@
   "local_fixture": "PDF frames aborted in navigation matrices; original SHA-matched bytes served in the separate native test; other Supabase/font requests stubbed where documented",
   "native_focus_followup": {
     "rejected_preview_sha": "0c25005907422f84ddc3ee049ed98a9a2c5db877",
-    "observed_failure": "correct readerUnit URL but native PDF iframe steals focus after fullscreen exit",
+    "observed_failure": "correct readerUnit URL but active element remains the native PDF iframe after exit/automated return; symptom alone does not establish click delivery or sole cause",
     "book_only_fix": "existing return focus after two animation frames; no shared fullscreen/source/model change",
     "actual_native_pdf_test_passed": 1,
     "contexts_passed": 6,
@@ -135,7 +135,10 @@
     "reader_nine_context_rerun": "pass",
     "companion_deep_return_nine_context_rerun": "pass",
     "all_static_build_graph_language_auth_legacy_isolation_hardening_rerun": "pass",
-    "earlier_full_content_matrix_not_relabelled_as_final_focus_sha": true
+    "earlier_full_content_matrix_not_relabelled_as_final_focus_sha": true,
+    "hosted_driver_exit_paint_sync": "await two paint frames after fullscreen state clears before real pointer action; observe delivered click; assert focus stability 250ms later",
+    "focused_hosted_390_pdf99_passed": true,
+    "focused_hosted_run_is_not_full_48_unit_acceptance": true
   },
   "hosted_acceptance": "initial 0c250059 preview rejected for native focus; replacement exact-SHA protected deployment checked and recorded outside Git after completion; not claimed by local fixture",
   "new_dependencies": [],
