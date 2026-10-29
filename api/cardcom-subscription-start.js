@@ -74,11 +74,11 @@ export default async function handler(req, res) {
       TerminalNumber: terminal,
       ApiName: apiName,
       ReturnValue: providerRef,
-      Amount: 2,
+      Amount: 4,
       Operation: "ChargeAndCreateToken",
       Language: "he",
       ISOCoinId: 1,
-      ProductName: "SOD1820 · מנוי בדיקה חודשי",
+      ProductName: "SOD1820 · מנוי ניסיון חודשי",
       SuccessRedirectUrl: `${origin}/2029/membership-pilot?payment=success&ref=${encodeURIComponent(providerRef)}`,
       FailedRedirectUrl: `${origin}/2029/membership-pilot?payment=failed&ref=${encodeURIComponent(providerRef)}`,
       WebHookUrl: `${origin}/api/cardcom-subscription-webhook`,
@@ -86,7 +86,7 @@ export default async function handler(req, res) {
         DocumentTypeToCreate: "Auto",
         Name: billingName,
         ...(email ? { Email: email, IsSendByEmail: true } : {}),
-        Products: [{ Description: "SOD1820 · מנוי בדיקה חודשי", Quantity: 1, UnitCost: 2 }],
+        Products: [{ Description: "SOD1820 · מנוי ניסיון חודשי", Quantity: 1, UnitCost: 4 }],
       },
     };
 

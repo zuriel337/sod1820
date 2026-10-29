@@ -93,7 +93,7 @@ export default async function handler(req, res) {
       ![0, "0"].includes(data?.ResponseCode) || ![0, "0"].includes(tx?.ResponseCode) ||
       returnedTerminal !== terminal || txTerminal !== terminal ||
       returnedLowProfile !== lowProfileId || returnedRef !== String(lookup.provider_ref || "") ||
-      operation !== "ChargeAndCreateToken" || amount !== 2 || coinId !== 1 || !exactTransactionId
+      operation !== "ChargeAndCreateToken" || amount !== 4 || coinId !== 1 || !exactTransactionId
     ) {
       console.warn("cardcom subscription verification mismatch");
       res.status(200).json({ ok: true, active: false, issue: true });

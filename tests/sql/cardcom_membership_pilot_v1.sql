@@ -122,7 +122,7 @@ select public.pilot_test_assert(
 -- Synthetic DB renewal simulation only. No Cardcom/network call occurs.
 update public.membership_subscription_pilots set next_charge_at=now()-interval '1 minute' where cardcom_low_profile_id='fixture-low-a';
 create temp table due_fixture as select public.membership_pilot_claim_due('synthetic-bridge-only') as data;
-select public.pilot_test_assert((select data->>'found'='true' and data->>'amount_ils'='2.00' from due_fixture),'due amount fixed to two');
+select public.pilot_test_assert((select data->>'found'='true' and data->>'amount_ils'='4.00' from due_fixture),'due amount fixed to four');
 update public.membership_subscription_pilots set updated_at=now()-interval '31 minutes' where cardcom_low_profile_id='fixture-low-a';
 select public.pilot_test_assert(public.membership_pilot_claim_due('synthetic-bridge-only')->>'external_uniq_tran_id'=(select data->>'external_uniq_tran_id' from due_fixture),'unknown-outcome retry retains exact idempotency ID');
 select public.pilot_test_throws(format('select public.membership_pilot_settle_renewal(%L,%L::uuid,%L,true,0,null,null)',

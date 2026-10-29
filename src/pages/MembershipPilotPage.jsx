@@ -175,15 +175,15 @@ export default function MembershipPilotPage() {
   </Sod2029Shell>;
 
   const active = ["active", "past_due"].includes(status?.status);
-  return <Sod2029Shell title="מנוי בדיקה · ₪2 לחודש" eyebrow="2029 · פיילוט מנהל סגור"
+  return <Sod2029Shell title="מנוי ניסיון · ₪4 לחודש" eyebrow="2029 · פיילוט מנהל סגור"
     description="בדיקת הצטרפות מאובטחת. אין שינוי במחירי המוצר או פתיחה לציבור."
-    surface="home" status="PREVIEW · CLOSED">
+    surface="home" status="ADMIN · CLOSED">
     <section className="sod29-section" data-membership-pilot="2029">
       <div className="sod29-card">
-        <h2>₪2 היום, ולאחר מכן ₪2 מדי חודש עד לביטול</h2>
+        <h2>₪4 היום, ולאחר מכן ₪4 מדי חודש עד לביטול</h2>
         <p>את פרטי הכרטיס מזינים רק בדף המאובטח של Cardcom. מספר הכרטיס וקוד האבטחה אינם נשמרים ב־SOD1820.</p>
         <p>יש להשתמש בכרטיס אשראי רגיל. Bit, Apple Pay ו־Google Pay אינם מסלולי הפיילוט.</p>
-        <p>זהו Preview סגור: חידושים אוטומטיים חסומים בו. הפעלתם מחייבת אישור נפרד; תאריך החיוב מוצג מתכנון התקופה בשרת.</p>
+        <p>זהו פיילוט מנהל סגור. החידוש החודשי פועל רק בפריסת Production שאושרה במפורש; בכל Preview הוא חסום. אפשר לבטל את החידוש הבא מהמסך הזה.</p>
         {!status ? <FrameState kind={loadFailed ? "error" : "loading"} title={loadFailed ? "הפיילוט עדיין אינו זמין" : "ממתינים לנתוני הפיילוט"}>פתיחת התשלום חסומה עד שהשרת יאשר את המצב.</FrameState> :
           <dl aria-label="מצב המנוי">
             <dt>מצב</dt><dd>{STATUS_LABELS[status.status] || "נדרשת בדיקה"}</dd>
@@ -193,7 +193,7 @@ export default function MembershipPilotPage() {
           </dl>}
         <div className="sod29-actions">
           {status?.status === "none" ? <button type="button" className="sod29-action" onClick={start} disabled={busy}>
-            {busy ? "פותחים דף מאובטח…" : "פתיחת מנוי בדיקה ב־₪2"}
+            {busy ? "פותחים דף מאובטח…" : "פתיחת מנוי ניסיון ב־₪4"}
           </button> : null}
           {active && !status?.cancel_at_period_end ? <button type="button" className="sod29-action" onClick={cancel} disabled={busy}>ביטול החידוש הבא</button> : null}
           <button type="button" className="sod29-action" onClick={refresh} disabled={busy}>בדיקת מצב ואימות עסקה</button>

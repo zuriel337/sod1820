@@ -57,7 +57,7 @@ try:
             def status():
                 if current['status'] == 'none':
                     return {'status': 'none'}
-                return {'status': current['status'], 'amount_ils': 2, 'provider_ref': REF,
+                return {'status': current['status'], 'amount_ils': 4, 'provider_ref': REF,
                         'low_profile_id': 'synthetic-low-profile' if current['status'] == 'pending' else None,
                         'current_period_end': '2026-11-26T12:00:00Z', 'next_charge_at': '2026-11-26T12:00:00Z',
                         'cancel_at_period_end': current.get('cancelled', False)}
@@ -132,7 +132,7 @@ try:
                     raise AssertionError({'errors': report['page_errors'], 'body': page.locator('body').inner_text()[:1400], 'calls': calls}) from error
                 if state == 'unavailable':
                     expect(panel).to_contain_text('הפיילוט עדיין אינו זמין')
-                    assert not panel.get_by_role('button', name='פתיחת מנוי בדיקה ב־₪2', exact=True).count()
+                    assert not panel.get_by_role('button', name='פתיחת מנוי ניסיון ב־₪4', exact=True).count()
                 elif action == 'return':
                     expect(panel).to_contain_text('העסקה אומתה והמנוי הופעל.')
                     assert calls['verify'] == 1 and calls['start'] == 0
@@ -143,7 +143,7 @@ try:
                     expect(panel).to_contain_text('הביטול נשמר. החידוש הבא לא יחויב.')
                     assert calls['cancel'] == 1 and calls['start'] == 0
                 elif action in ['closed-gate', 'unsafe-url', 'checkout']:
-                    panel.get_by_role('button', name='פתיחת מנוי בדיקה ב־₪2', exact=True).click()
+                    panel.get_by_role('button', name='פתיחת מנוי ניסיון ב־₪4', exact=True).click()
                     if action == 'closed-gate':
                         expect(panel).to_contain_text('הפיילוט סגור עד להשלמת אישור המסוף')
                     elif action == 'unsafe-url':
@@ -155,7 +155,7 @@ try:
                         assert calls['cardcom_nav'] == 1
                 else:
                     expect(panel).to_contain_text('אין מנוי פעיל')
-                    expect(panel.get_by_role('button', name='פתיחת מנוי בדיקה ב־₪2', exact=True)).to_be_visible()
+                    expect(panel.get_by_role('button', name='פתיחת מנוי ניסיון ב־₪4', exact=True)).to_be_visible()
             assert page.evaluate('document.documentElement.scrollWidth <= innerWidth'), (width, theme, role, state)
             assert not calls['extra_writes'], calls['extra_writes']
             assert not report['page_errors'], report['page_errors']

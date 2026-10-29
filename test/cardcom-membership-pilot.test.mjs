@@ -109,8 +109,8 @@ test("checkout ignores a client price and uses only the 2029 return route", asyn
   await start(request({ amount: 999, operation: "ChargeOnly" }), res);
   assert.equal(res.code, 200);
   const payload = calls.find(c => c.url.endsWith("/LowProfile/Create")).body;
-  assert.equal(payload.Amount, 2);
-  assert.equal(payload.Document.Products[0].UnitCost, 2);
+  assert.equal(payload.Amount, 4);
+  assert.equal(payload.Document.Products[0].UnitCost, 4);
   assert.equal(payload.Operation, "ChargeAndCreateToken");
   assert.match(payload.SuccessRedirectUrl, /^https:\/\/pilot\.test\.vercel\.app\/2029\/membership-pilot\?/);
   assert.match(payload.FailedRedirectUrl, /\/2029\/membership-pilot\?/);
@@ -143,7 +143,7 @@ test("unrelated Vercel host and malicious payment URLs are not accepted", async 
 function verifiedPayment(overrides = {}) {
   return { ResponseCode: 0, TerminalNumber: 1234, LowProfileId: fixtureLowProfile,
     ReturnValue: fixtureRef, Operation: "ChargeAndCreateToken",
-    TranzactionInfo: { ResponseCode: 0, TerminalNumber: 1234, Amount: 2, CoinId: 1, TranzactionId: "9007199254740993" },
+    TranzactionInfo: { ResponseCode: 0, TerminalNumber: 1234, Amount: 4, CoinId: 1, TranzactionId: "9007199254740993" },
     TokenInfo: { Token: "synthetic-provider-token", CardMonth: 6, CardYear: 2028 }, ...overrides };
 }
 
@@ -152,10 +152,10 @@ test("webhook trusts GetLpResult, not redirect/body amounts or success", async (
     { Amount: 999, TranzactionInfo: { ResponseCode: 0, TerminalNumber: 1234, Amount: 999, CoinId: 1 } },
     { Operation: "ChargeOnly" }, { TerminalNumber: 999 }, { ReturnValue: "wrong-ref" },
     { LowProfileId: "wrong-id" }, { TokenInfo: {} }, { ResponseCode: null },
-    { TranzactionInfo: { ResponseCode: null, TerminalNumber: 1234, Amount: 2, CoinId: 1 } },
+    { TranzactionInfo: { ResponseCode: null, TerminalNumber: 1234, Amount: 4, CoinId: 1 } },
   ]) await sandbox(async calls => {
     const res = response();
-    await webhook(request({ LowProfileId: fixtureLowProfile, success: true, Amount: 2, Token: "untrusted" }), res);
+    await webhook(request({ LowProfileId: fixtureLowProfile, success: true, Amount: 4, Token: "untrusted" }), res);
     assert.equal(res.code, 200);
     assert.notEqual(res.body.active, true);
     assert.ok(calls.some(c => c.url.endsWith("/LowProfile/GetLpResult")));
@@ -196,21 +196,60 @@ test("renewal requires CRON_SECRET and cannot run in Preview or without producti
   });
 });
 
-test("renewal helper refuses any amount other than 2 before provider I/O", async () => sandbox(async calls => {
-  await assert.rejects(chargeCardcomSubscription({ amount: 3, token: "synthetic", externalId: "M123" }), /amount_must_be_two/);
+test("approved Production renewal charges exactly ILS4 once and settles the same idempotency key", async () => {
+  let claims = 0;
+  await sandbox(async calls => {
+    process.env.VERCEL_ENV = "production";
+    process.env.CARDCOM_PILOT_RENEWALS_ENABLED = "true";
+    const res = response();
+    await renew({ method: "GET", headers: { authorization: "Bearer synthetic-cron" } }, res);
+    assert.equal(res.code, 200);
+    assert.deepEqual(res.body, { ok: true, processed: 1 });
+    const charge = calls.find(c => c.url.endsWith("/Transactions/Transaction"));
+    const settle = calls.find(c => c.url.endsWith("/membership_pilot_settle_renewal"));
+    assert.equal(charge.body.Amount, 4);
+    assert.equal(charge.body.ExternalUniqTranId, "M1234567890122601010000");
+    assert.equal(settle.body.p_external_uniq_tran_id, charge.body.ExternalUniqTranId);
+    assert.equal(settle.body.p_success, true);
+    assert.equal(settle.body.p_transaction_id, "9007199254740993");
+  }, call => {
+    if (call.url.endsWith("/membership_pilot_claim_due")) {
+      claims += 1;
+      if (claims > 1) return { found: false };
+      const token = encryptCardcomToken("synthetic-provider-token");
+      return {
+        found: true,
+        subscription_id: fixtureAdmin,
+        external_uniq_tran_id: "M1234567890122601010000",
+        amount_ils: 4,
+        token_ciphertext: token.ciphertext,
+        token_iv: token.iv,
+        token_tag: token.tag,
+        expiration_mmyy: "0628",
+        billing_name: "Synthetic member",
+        billing_email: "member@example.invalid",
+      };
+    }
+    if (call.url.endsWith("/Transactions/Transaction")) return { ResponseCode: 0, TranzactionId: "9007199254740993" };
+    if (call.url.endsWith("/membership_pilot_settle_renewal")) return { status: "active" };
+  });
+});
+
+test("renewal helper refuses any amount other than 4 before provider I/O", async () => sandbox(async calls => {
+  await assert.rejects(chargeCardcomSubscription({ amount: 3, token: "synthetic", externalId: "M123" }), /amount_must_be_four/);
   assert.equal(calls.length, 0);
 }));
 
-test("renewal retry uses the same ExternalUniqTranId and fixed ILS2", async () => sandbox(async calls => {
-  const args = { amount: 2, token: "synthetic-provider-token", expirationMMYY: "0628", externalId: "M1234567890122601010000" };
+test("renewal retry uses the same ExternalUniqTranId and fixed ILS4", async () => sandbox(async calls => {
+  const args = { amount: 4, token: "synthetic-provider-token", expirationMMYY: "0628", externalId: "M1234567890122601010000" };
   for (let i = 0; i < 2; i++) await chargeCardcomSubscription(args);
   assert.equal(calls.length, 2);
   assert.equal(calls[0].body.ExternalUniqTranId, calls[1].body.ExternalUniqTranId);
-  assert.equal(calls[0].body.Amount, 2);
+  assert.equal(calls[0].body.Amount, 4);
   assert.equal(calls[0].body.ExternalUniqTranIdResponse, true);
 }, () => ({ ResponseCode: 0, TranzactionId: "9007199254740993" })));
 
-test("2029-only routing, lazy loading, no scheduled renewals and Legacy lock stay intact", async () => {
+test("2029-only routing, lazy loading, guarded scheduled renewals and Legacy lock stay intact", async () => {
   const app = await readFile(new URL("../src/App.jsx", import.meta.url), "utf8");
   const app2029 = await readFile(new URL("../src/App2029.jsx", import.meta.url), "utf8");
   const page = await readFile(new URL("../src/pages/MembershipPilotPage.jsx", import.meta.url), "utf8");
@@ -221,7 +260,9 @@ test("2029-only routing, lazy loading, no scheduled renewals and Legacy lock sta
   assert.equal(config.rewrites.find(r => r.source === "/2029/membership-pilot").destination, "/2029.html");
   assert.ok(config.headers.find(r => r.source === "/2029/membership-pilot").headers.some(h => h.key === "X-Robots-Tag" && h.value.includes("noindex")));
   assert.ok(config.headers.findIndex(r => r.source === "/2029/membership-pilot") > config.headers.findIndex(r => r.source === "/(.*)"), "pilot no-store/no-referrer must override general headers");
-  assert.ok(!config.crons?.some(r => r.path === "/api/cardcom-subscription-renew"));
+  assert.deepEqual(config.crons?.find(r => r.path === "/api/cardcom-subscription-renew"), {
+    path: "/api/cardcom-subscription-renew", schedule: "15 6 * * *",
+  });
   assert.match(page, /loading: authLoading/);
   assert.match(page, /principal.current !== userId/);
   assert.match(page, /target.origin !== "https:\/\/secure.cardcom.solutions"/);
@@ -236,26 +277,29 @@ test("real PostgreSQL migration, RLS, negative, replay, cancellation and rollbac
   assert.equal(inspect.stdout.trim(), "none", "SQL tests must not target a networked/live database");
   const sql = await readFile(new URL("../tests/sql/cardcom_membership_pilot_v1.sql", import.meta.url), "utf8");
   const migration = await readFile(new URL("../supabase/migrations/20261026120150_cardcom_membership_pilot_v1.sql", import.meta.url), "utf8");
+  const upgrade = await readFile(new URL("../supabase/migrations/20261029154256_cardcom_membership_pilot_4ils_monthly_v1.sql", import.meta.url), "utf8");
   const hash = createHash("sha256").update("synthetic-bridge-only").digest("hex");
   const applied = migration.replaceAll("b9b2b927e7c1337b8cc9ef33693eb1d9f58da14cd9ac21bc8ab8ad70dc1264ea", hash);
   const run = spawnSync("docker", ["exec", "-i", container, "psql", "-X", "-U", "postgres", "-v", "ON_ERROR_STOP=1"], {
-    input: sql.replace("-- APPLY_PILOT_MIGRATION_HERE", () => applied), encoding: "utf8", maxBuffer: 1024 * 1024,
+    input: sql.replace("-- APPLY_PILOT_MIGRATION_HERE", () => applied + "\n" + upgrade.replaceAll("b9b2b927e7c1337b8cc9ef33693eb1d9f58da14cd9ac21bc8ab8ad70dc1264ea", hash)), encoding: "utf8", maxBuffer: 1024 * 1024,
   });
   assert.equal(run.status, 0, run.stderr + "\n" + run.stdout);
   assert.match(run.stdout, /CARDCom SQL ACCEPTANCE PASS/);
 });
 
-test("pilot is fixed to ILS 2, admin-only, token-based and idempotent", async () => {
+test("pilot is fixed to ILS 4, admin-only, token-based, scheduled and idempotent", async () => {
   const start = await readFile(new URL("../api/cardcom-subscription-start.js", import.meta.url), "utf8");
   const renew = await readFile(new URL("../server/cardcom-subscription.js", import.meta.url), "utf8");
   const migration = await readFile(new URL("../supabase/migrations/20261026120150_cardcom_membership_pilot_v1.sql", import.meta.url), "utf8");
+  const upgrade = await readFile(new URL("../supabase/migrations/20261029154256_cardcom_membership_pilot_4ils_monthly_v1.sql", import.meta.url), "utf8");
 
   assert.match(start, /Operation:\s*"ChargeAndCreateToken"/);
-  assert.match(start, /Amount:\s*2/);
+  assert.match(start, /Amount:\s*4/);
   assert.match(start, /verifySupabaseAdmin/);
   assert.match(renew, /ExternalUniqTranId:/);
   assert.match(renew, /ExternalUniqTranIdResponse:\s*true/);
-  assert.match(migration, /amount_ils\s*=\s*2\.00/);
+  assert.match(upgrade, /amount_ils\s*=\s*4\.00/);
+  assert.match(upgrade, /'renewal',\s*4\.00,\s*'pending'/);
   assert.match(migration, /role\s*=\s*'admin'/);
   assert.match(migration, /enable row level security/);
   assert.match(migration, /private\.cardcom_subscription_credentials/);
