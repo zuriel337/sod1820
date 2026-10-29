@@ -3,6 +3,7 @@ import BookFullscreenButton2029 from "../components/books2029/BookFullscreenButt
 import BookReadingLayout2029 from "../components/books2029/BookReadingLayout2029.jsx";
 import AhavatLetterStudy2029 from "../components/books2029/AhavatLetterStudy2029.jsx";
 import AhavatLetterParasha2029 from "../components/books2029/AhavatLetterParasha2029.jsx";
+import { ahavatRetainedLetterRow } from "../components/books2029/ahavatLetterJourney2029.js";
 import NavigationIcon2029 from "../components/experience2029/NavigationIcon2029.jsx";
 import Sod2029Shell from "../components/experience2029/Sod2029Shell.jsx";
 import {
@@ -451,7 +452,7 @@ function LetterSourceReader({ onPage, countMode = false, selectedDatasetId, acti
     const requested = new URLSearchParams(window.location.search).get("letterJourney");
     return !countMode && ["book", "torah"].includes(requested) ? requested : "auto";
   });
-  const journeyScope = !countMode && preserveSelectionPosition && journeyChoice !== "book" ? "torah" : "book";
+  const journeyScope = !countMode && preserveSelectionPosition && (journeyChoice !== "book" || bookId === "all") ? "torah" : "book";
   const chooseJourney = choice => {
     const next = choice === "book" ? "book" : "torah";
     setJourneyChoice(next);
@@ -504,17 +505,21 @@ function LetterSourceReader({ onPage, countMode = false, selectedDatasetId, acti
   const openSourcePage = (page, sourceUnitId = "") => onPage(page, countMode ? source.datasetId : "", sourceUnitId);
 
   const select = (nextForm, nextBook = bookId, preservePosition = preserveSelectionPosition) => {
+    const retained = !countMode && preserveSelectionPosition && nextForm !== form && nextBook === bookId
+      ? ahavatRetainedLetterRow(readings, nextForm, selectedBar) : null;
+    const targetBook = retained?.bookId || nextBook;
+    const targetRow = retained?.row;
     setForm(nextForm);
-    setBookId(nextBook);
-    setSelectedBar("");
+    setBookId(targetBook);
+    setSelectedBar(targetRow?.parasha || "");
     setLetterQuery("");
     const url = new URL(window.location.href);
     url.searchParams.set(formParam, nextForm);
-    url.searchParams.set(bookParam, nextBook);
-    url.searchParams.delete(rowParam);
+    url.searchParams.set(bookParam, targetBook);
+    if (targetRow) url.searchParams.set(rowParam, targetRow.parasha); else url.searchParams.delete(rowParam);
     window.history.replaceState({}, "", `${url.pathname}${url.search}${url.hash}`);
     const nextSource = forms.find(item => item.form === nextForm);
-    onPage(ahavatSourceCountPage(readings[nextForm], nextSource.pages, nextBook), countMode ? nextSource.datasetId : "", unitId(nextForm, nextBook), { preservePosition });
+    onPage(targetRow?.page ?? ahavatSourceCountPage(readings[nextForm], nextSource.pages, targetBook), countMode ? nextSource.datasetId : "", unitId(nextForm, targetBook, targetRow?.parasha || ""), { preservePosition });
   };
 
   const selectBar = id => {
