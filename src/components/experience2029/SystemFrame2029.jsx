@@ -47,7 +47,7 @@ import { workspaceResearchHref } from "../../lib/research/razielWorkspaceProject
 import { projectWorkspaceRazielPresence2029 } from "../../lib/research/workspaceRazielPresence2029.js";
 import RazielViewModeSelector2029 from "./RazielViewModeSelector2029.jsx";
 import RazielOneShotActions2029 from "./RazielOneShotActions2029.jsx";
-import { razielContextParts, razielNavigationButton, razielStatusLabel } from "./razielSessionSeam2029.js";
+import { publicContextLabel, contextDisplayTitle, contextDisplayPosition, entityTypeNounHe, razielContextParts, razielNavigationButton, razielStatusLabel } from "./razielSessionSeam2029.js";
 import { createRazielContextSnapshot, selectRazielDeepeningCandidate } from "../../lib/research/razielSession2029.js";
 import { razielViewModeLabel } from "../../lib/research/razielViewMode2029.js";
 import { readRazielCompanionView, writeRazielCompanionView } from "../../lib/research/razielCompanionPreference2029.js";
@@ -544,8 +544,8 @@ function InspectProjection({ target, context, surface = "system", onSetFocus, on
     <>
       <section className="sod29-inspect-identity">
         <div className="sod29-kicker">{target.source === "selection" ? "בחירה זמנית" : "מוקד נוכחי"}</div>
-        <strong>{target.label}</strong>
-        <span>{target.type}</span>
+        <strong>{publicContextLabel(target.label) || entityTypeNounHe(target.type)}</strong>
+        <span>{entityTypeNounHe(target.type)}</span>
       </section>
 
       {hasMethodContext ? <div className="sod29-surface-context-expression"><span>{target.expression}</span><small>{target.methodLabel || target.method}</small><b>{Number(target.resultValue)}</b></div> : null}
@@ -582,7 +582,7 @@ function InspectProjection({ target, context, surface = "system", onSetFocus, on
       <div className="sod29-canonical-share" data-share-owner="ShareActions">
         <ShareActions
           type={target.type || "page"}
-          title={`SOD1820 · ${target.label}`}
+          title={`SOD1820 · ${publicContextLabel(target.label) || entityTypeNounHe(target.type)}`}
           channels={["native", "copy"]}
           compact
           force
@@ -592,7 +592,7 @@ function InspectProjection({ target, context, surface = "system", onSetFocus, on
 
       <div className="sod29-panel-context-card">
         <b>ההקשר שלך</b>
-        <span>{context?.subject ? `${context.subject.type}:${context.subject.label || context.subject.id}` : "אין מוקד פעיל"}</span>
+        <span>{context?.subject ? contextDisplayTitle(context) || "ההקשר הנוכחי" : "אין מוקד פעיל"}</span>
         <small>בחירה זמנית אינה הופכת חיבור לעובדה.</small>
       </div>
     </>
@@ -640,13 +640,13 @@ function ActionProjection({
       </div>
       {target ? <div className="sod29-selection-summary">
         <span>{target.source === "selection" ? "בחירה" : "פוקוס"}</span>
-        <strong>{target.label}</strong>
-        <small>{target.type}</small>
+        <strong>{publicContextLabel(target.label) || entityTypeNounHe(target.type)}</strong>
+        <small>{entityTypeNounHe(target.type)}</small>
       </div> : null}
       <ContextualActionButtons actions={actions} target={target} onInspect={onInspect} onCapability={onCapability} onRaziel={onRaziel} razielLocked={razielLocked} go={go} />
       <div className="sod29-panel-context-card">
         <b>אותו הקשר</b>
-        <span>{context?.subject ? context.subject.label || "ההקשר הנוכחי" : "אין מוקד פעיל"}</span>
+        <span>{context?.subject ? contextDisplayTitle(context) || "ההקשר הנוכחי" : "אין מוקד פעיל"}</span>
         <small>מה שבחרת נשאר איתך כשנפתח כלי או עולם.</small>
       </div>
     </>
@@ -710,7 +710,7 @@ function ToolsProjection({ surface, target, go, onCapability }) {
         <h3>הכלים מגיעים למה שאתה רואה.</h3>
         <p>הכלים משתנים לפי המקום והדבר שבחרת. אין צורך לחפש אותם במסך אחר.</p>
       </div>
-      {target ? <div className="sod29-selection-summary"><span>פוקוס</span><strong>{target.label}</strong><small>{target.type}</small></div> : null}
+      {target ? <div className="sod29-selection-summary"><span>פוקוס</span><strong>{publicContextLabel(target.label) || entityTypeNounHe(target.type)}</strong><small>{entityTypeNounHe(target.type)}</small></div> : null}
       <ContextualActionButtons actions={tools} target={target} onCapability={onCapability} go={go} />
     </>
   );
@@ -874,7 +874,8 @@ function RazielNativeChat({ context, label, numberFocus, readingFocus, elsFocus 
 }
 
 function RazielProjection({ target, context, numberCoreFocus = null, microIntent: transientMicroIntent = null, readingFocus: transientReadingFocus = null, elsSurfaceContext = null, razielRouteAction = null, onSignup = null }) {
-  const label = target?.label || context?.subject?.label || context?.subject?.id || "מה שאתה רואה עכשיו";
+  const displayLabel = contextDisplayTitle(context, target);
+  const label = displayLabel || "ההקשר הנוכחי";
   const numberFocus = numberCoreFocus || context?.dimensions?.numberCoreFocus || null;
   const readingFocus = transientReadingFocus || context?.dimensions?.readingFocus || null;
   const routeActionValid = isRazielNextAction(razielRouteAction);
@@ -950,7 +951,7 @@ function RazielProjection({ target, context, numberCoreFocus = null, microIntent
         <RazielOrb />
         <div>
           <div className="sod29-kicker">רזיאל · איתך כאן</div>
-          <h3>{target || context?.subject ? `איתך על ${label}` : "מחכה למה שמסקרן אותך"}</h3>
+          <h3>{displayLabel ? `איתך בחקירת ${displayLabel}` : "מה תרצה לחקור?"}</h3>
           <p>זה אותו רזיאל בכל האתר. הוא יודע איפה אתה ומה פתחת, והעמקה לא מאבדת את ההקשר.</p>
         </div>
       </section>
@@ -987,8 +988,8 @@ function RazielProjection({ target, context, numberCoreFocus = null, microIntent
       </section> : null}
       <div className="sod29-panel-context-card">
         <b>מה רזיאל רואה עכשיו</b>
-        <span>{context?.subject ? `${context.subject.type}:${context.subject.label || context.subject.id}` : "אין מוקד פעיל"}</span>
-        {target?.source === "selection" ? <small>בחירה זמנית: {target.label}</small> : null}
+        <span>{context?.subject ? contextDisplayTitle(context) || "ההקשר הנוכחי" : "אין מוקד פעיל"}</span>
+        {target?.source === "selection" ? <small>בחירה זמנית: {publicContextLabel(target.label) || entityTypeNounHe(target.type)}</small> : null}
       </div>
       <div className="sod29-panel-actions-grid">
         {routeActionValid ? <button
@@ -1430,7 +1431,7 @@ function WorkspaceProjection({ context, go, onRaziel, onOpenPrivateHints, journe
   ];
 
   const razielPresence = projectWorkspaceRazielPresence2029({
-    subjectLabel: subject?.label,
+    subjectLabel: publicContextLabel(subject?.label),
     savedResearchCount: Array.isArray(research?.saved) ? research.saved.filter((item) => item?.type !== "raziel_session").length : null,
     activeResearchCount: Array.isArray(research?.cart) ? research.cart.length : null,
     savedConversationCount: Array.isArray(razielSession?.savedSessions) ? razielSession.savedSessions.length : null,
@@ -1552,7 +1553,7 @@ function WorkspaceProjection({ context, go, onRaziel, onOpenPrivateHints, journe
 
         {subject ? (
           <section className="sod29-workspace-resume-native">
-            <span>איפה אני עכשיו</span><strong>{subject.label}</strong><small>{subject.type}{context?.lens ? ` · ${context.lens}` : ""}</small>
+            <span>איפה אני עכשיו</span><strong>{contextDisplayTitle(context, subject) || "ההקשר הנוכחי"}</strong><small>{entityTypeNounHe(subject.type)}</small>
             <div className="sod29-actions">
               {subject.href ? <button className="sod29-action primary" type="button" onClick={() => go(subject.href, { preserve: false })}>המשך בדיוק</button> : null}
               <button className="sod29-action" type="button" onClick={savePath} disabled={pathResume?.loading}>שמור מסלול</button>
@@ -1609,11 +1610,11 @@ function WorkspaceProjection({ context, go, onRaziel, onOpenPrivateHints, journe
 // The visual comparison folds context independently from decorative intros.
 // Context data and navigation continue to come from the existing ResearchProvider.
 function IntroResearchContext2029({ context }) {
+  const title = contextDisplayTitle(context);
+  const position = contextDisplayPosition(context);
   const strip = <div className="sod29-context-strip" aria-label="ההקשר שלך פעיל">
-    {context.subject ? <span>מוקד · {context.subject.label || context.subject.id}</span> : null}
-    {context.lens ? <span>מבט · {context.lens}</span> : null}
-    {context.selection?.locator ? <span>מיקום · {context.selection.locator}</span> : null}
-    {context.journey?.position != null ? <span>מסע · {String(context.journey.position)}</span> : null}
+    {title ? <span>{title}</span> : <span>ההקשר הנוכחי</span>}
+    {position ? <span>קוראים עכשיו · {position}</span> : null}
   </div>;
   const review = import.meta.env.VITE_INTEGRATED_PREVIEW === "true";
   if (!review) return strip;
@@ -2266,15 +2267,15 @@ function SystemFrame2029Body({
     if (!transientKind) return null;
     const common = { panelRef, onClose: closeTransient };
     if (transientKind === TRANSIENT.COMMAND) return <PanelShell {...common} icon="⌘" kicker="חיפוש" title="חיפוש"><CommandProjection query={commandQuery} setQuery={setCommandQuery} onSubmit={submitCommand} onClose={closeTransient} /></PanelShell>;
-    if (transientKind === TRANSIENT.ACTION) return <PanelShell {...common} icon="◎" kicker="פעולות" title={`פעולה · ${inspectTarget?.label || context?.subject?.label || "ההקשר הנוכחי"}`}><ActionProjection surface={surface} target={inspectTarget} context={context} onInspect={openInspect} onCapability={openCapability} onRaziel={openRaziel} razielLocked={razielLocked} go={go} /></PanelShell>;
+    if (transientKind === TRANSIENT.ACTION) return <PanelShell {...common} icon="◎" kicker="פעולות" title={`פעולה · ${contextDisplayTitle(context, inspectTarget) || "ההקשר הנוכחי"}`}><ActionProjection surface={surface} target={inspectTarget} context={context} onInspect={openInspect} onCapability={openCapability} onRaziel={openRaziel} razielLocked={razielLocked} go={go} /></PanelShell>;
     if (transientKind === TRANSIENT.CAPABILITY) {
       const capability = transient?.payload?.capability || null;
       if (capability === "number" && numberLocked) return <PanelShell {...common} icon="123" kicker="מספר" title="כלי המספר"><FrameState kind="gated" title="כלי המספר נעול כרגע">המספר והמקור נשארים בעמוד; הכלי ייפתח כשיהיה זמין.</FrameState></PanelShell>;
       if (capability === "number") return <PanelShell {...common} icon="123" kicker="מספר / גימטריה" title="מספר / ביטוי"><React.Suspense fallback={<div role="status">טוען כלי מספרים…</div>}><NumberDrawer2029 target={inspectTarget} context={context} research={research} go={go} openRaziel={openRaziel} /></React.Suspense></PanelShell>;
       return <PanelShell {...common} icon="◇" kicker="כלי" title={capability || "יכולת"}><FrameState kind="unavailable" title="הכלי עדיין לא מחובר כאן">כשהחיבור יהיה מוכן הוא ייפתח באותה חלונית, בלי להעביר אותך למערכת אחרת.</FrameState></PanelShell>;
     }
-    if (transientKind === TRANSIENT.INSPECT) return <PanelShell {...common} icon={inspectTarget?.type === "number" ? "123" : "◎"} kicker="בדיקה" title={inspectTarget?.label || "בדיקה מהירה"}><InspectProjection target={inspectTarget} context={context} surface={surface} onSetFocus={setResearchFocus} onSave={saveToLibrary} onAddResearch={addToResearch} isSaved={Boolean(inspectTarget && (research.saved || []).some((e) => e.id === inspectTarget.id || e.id === `${inspectTarget.type}:${inspectTarget.id}`))} inResearch={Boolean(inspectTarget && (research.cart || []).some((e) => e.id === inspectTarget.id || e.id === `${inspectTarget.type}:${inspectTarget.id}`))} onOpenNumber={openNumber} onNeedHelp={openIssueReport} /></PanelShell>;
-    if (transientKind === TRANSIENT.CONTEXT) return <PanelShell {...common} icon="✦" kicker="הקשר" title="כאן · מפת העמוד וההקשר">{bottomTrail.length ? <nav className="sod29-sheet-trail" aria-label="מסלול המחקר הנוכחי">{bottomTrail.map((item, i) => <span key={item.id || i}>{i ? " ‹ " : ""}{item.label}</span>)}</nav> : null}<SurfaceContextRail2029
+    if (transientKind === TRANSIENT.INSPECT) return <PanelShell {...common} icon={inspectTarget?.type === "number" ? "123" : "◎"} kicker="בדיקה" title={contextDisplayTitle(context, inspectTarget) || "בדיקה מהירה"}><InspectProjection target={inspectTarget} context={context} surface={surface} onSetFocus={setResearchFocus} onSave={saveToLibrary} onAddResearch={addToResearch} isSaved={Boolean(inspectTarget && (research.saved || []).some((e) => e.id === inspectTarget.id || e.id === `${inspectTarget.type}:${inspectTarget.id}`))} inResearch={Boolean(inspectTarget && (research.cart || []).some((e) => e.id === inspectTarget.id || e.id === `${inspectTarget.type}:${inspectTarget.id}`))} onOpenNumber={openNumber} onNeedHelp={openIssueReport} /></PanelShell>;
+    if (transientKind === TRANSIENT.CONTEXT) return <PanelShell {...common} icon="✦" kicker="הקשר" title="כאן · מפת העמוד וההקשר">{bottomTrail.length ? <nav className="sod29-sheet-trail" aria-label="מסלול המחקר הנוכחי">{bottomTrail.filter(item => publicContextLabel(item.label)).map((item, i) => <span key={item.id || i}>{i ? " ‹ " : ""}{publicContextLabel(item.label)}</span>)}</nav> : null}<SurfaceContextRail2029
       sheet
       surface={surface}
       context={context}
@@ -2363,7 +2364,7 @@ function SystemFrame2029Body({
           <button className="sod29-rail-toggle" type="button" onClick={() => setSidebarCollapsed((value) => !value)} aria-expanded={!sidebarCollapsed} aria-controls="sod29-desktop-navigation" aria-label={sidebarCollapsed ? "הרחב את סרגל הניווט" : "צמצם את סרגל הניווט"} title={sidebarCollapsed ? "הרחב את סרגל הניווט" : "צמצם את סרגל הניווט"}>
             <span aria-hidden="true">{sidebarCollapsed ? "›" : "‹"}</span><b>{sidebarCollapsed ? "הרחב" : "צמצם"}</b>
           </button>
-          <div className="sod29-side-foot"><span className="sod29-live-dot" /> {status}<small>{experience.brand.identity} · {experience.experience.question} · הקשר אחד.</small></div>
+          <div className="sod29-side-foot"><span className="sod29-live-dot" /> {entityTypeNounHe(surface)}<small>{experience.brand.identity} · {experience.experience.question} · הקשר אחד.</small></div>
         </aside>
 
         <div className="sod29-main">
@@ -2374,7 +2375,7 @@ function SystemFrame2029Body({
               </button>
               <div className="sod29-orientation" aria-label="איפה אני" title={title || "2029"}>
                 <span>SOD1820</span><i>/</i><b>{title || "2029"}</b>
-                {context?.subject ? <span className="sod29-orientation-context"><i>/</i><span className="sod29-context-name">{context.subject.label || context.subject.id}</span></span> : null}
+                {context?.subject ? <span className="sod29-orientation-context"><i>/</i><span className="sod29-context-name">{contextDisplayTitle(context) || "ההקשר הנוכחי"}</span></span> : null}
               </div>
             </div>
             <button className="sod29-header-search" type="button" onClick={openCommand} aria-label="חיפוש">
@@ -2489,10 +2490,10 @@ function SystemFrame2029Body({
           /> : null}
           onOpenHref={(href) => go(href)}
           timeMode={recordTimeMode}
-          razielNode={razielLocked || surface === "post" || transientKind === TRANSIENT.RAZIEL ? null : <RazielNativeChat projection="desktop" context={context} label={activeTarget?.label || context?.subject?.label || context?.subject?.id || "מה שאתה רואה עכשיו"} numberFocus={context?.dimensions?.numberCoreFocus || null} readingFocus={context?.dimensions?.readingFocus || null} primary onSignup={openWorkspace} />}
+          razielNode={razielLocked || surface === "post" || transientKind === TRANSIENT.RAZIEL ? null : <RazielNativeChat projection="desktop" context={context} label={contextDisplayTitle(context, activeTarget) || "ההקשר הנוכחי"} numberFocus={context?.dimensions?.numberCoreFocus || null} readingFocus={context?.dimensions?.readingFocus || null} primary onSignup={openWorkspace} />}
           razielView={razielCompanionView}
           onRazielView={chooseRazielCompanionView}
-          razielHint={activeTarget?.label || context?.subject?.label || context?.subject?.id || "מה שמולך עכשיו"}
+          razielHint={contextDisplayTitle(context, activeTarget) || "ההקשר הנוכחי"}
           hoverProps={{ onMouseEnter: () => peekCompanion(true), onMouseLeave: () => peekCompanion(false), onFocus: () => peekCompanion(true), onBlur: (event) => { if (!event.currentTarget.contains(event.relatedTarget)) peekCompanion(false); } }}
         /> : null}
 

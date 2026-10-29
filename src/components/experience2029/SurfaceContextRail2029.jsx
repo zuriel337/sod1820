@@ -1,3 +1,4 @@
+import { publicContextLabel, contextDisplayTitle, entityTypeNounHe } from "./razielSessionSeam2029.js";
 import React, { useEffect, useState } from "react";
 import { useResearch } from "../../lib/research/ResearchProvider.jsx";
 import { researchContextNumber } from "../../lib/research/researchContext.js";
@@ -39,8 +40,8 @@ export default function SurfaceContextRail2029({
   const subject = focus || context?.dimensions?.surfaceFocus || context?.selection || context?.subject || null;
   const number = researchContextNumber(subject?.number ?? subject?.resultValue ?? (subject?.type === "number" ? subject?.id : null));
   const hasNumber = Number.isSafeInteger(number);
-  const title = String(subject?.primary || subject?.label || subject?.expression || subject?.id || "הקשר פעיל");
-  const subtitle = String(subject?.type === "verse" ? (subject?.reference || subject?.label || "פסוק") : (subject?.sectionLabel || subject?.subtitle || CONTEXT_TYPE_LABEL[subject?.type] || subject?.type || ""));
+  const title = publicContextLabel(subject?.primary || subject?.label || subject?.expression, 120) || contextDisplayTitle(context, subject) || "ההקשר הנוכחי";
+  const subtitle = String(subject?.type === "verse" ? (subject?.reference || subject?.label || "פסוק") : (subject?.sectionLabel || subject?.subtitle || CONTEXT_TYPE_LABEL[subject?.type] || entityTypeNounHe(subject?.type)));
   const signals = Array.isArray(subject?.signals) ? subject.signals.filter(Boolean).slice(0, 4) : [];
   const sections = Array.isArray(context?.dimensions?.surfaceSections) ? context.dimensions.surfaceSections : [];
   const activeSectionId = context?.dimensions?.activeSectionId || null;

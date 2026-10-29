@@ -23,13 +23,51 @@ export function entityTypeNounHe(type) {
 const clean = (value, limit = 80) => (value == null ? "" : String(value).replace(/\s+/g, " ").trim().slice(0, limit));
 // slug / key / camelCase identifiers (post-5107, surface_focus, sourceRef) — internal, never a visible label
 export const looksLikeInternalKey = (value) => {
-  const text = clean(value, 200);
-  return /^[a-z0-9]+(?:[_:\-./][a-z0-9]+)+$/i.test(text) || /^[a-z]+(?:[A-Z][a-z0-9]*)+$/.test(text);
+  const text = clean(value, 4000);
+  return /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i.test(text)
+    || /^[\/#]\S+$/.test(text) || /^https?:\/\//i.test(text)
+    || /^(?:topic|post|source|finding|surface|research|person|entity)[_:#/.-]\S+$/i.test(text)
+    || /^[a-z0-9]+(?:[_:\-./#][a-z0-9]+)+$/.test(text)
+    || /^[a-z]+(?:[A-Z][a-z0-9]*)+$/.test(text);
 };
-const visible = (value, limit) => {
-  const text = clean(value, limit);
-  return text && !looksLikeInternalKey(text) ? text : "";
+export const publicContextLabel = (value, limit = 80) => {
+  const text = clean(value, 4000);
+  return text && !looksLikeInternalKey(text) ? text.slice(0, limit) : "";
 };
+const visible = publicContextLabel;
+
+// Presentation only. An opaque selected item may borrow its subject title only
+// when both canonical identity and type match; never guess a person or source.
+export function contextDisplayTitle(context, target = null) {
+  const subject = context?.subject;
+  if (!target) return visible(subject?.label, 120);
+  const own = visible(target.label || target.title, 120);
+  if (own) return own;
+  const id = target.id ?? target.entityId;
+  const type = target.type ?? target.entityType;
+  return subject && clean(id) && clean(subject.id) && clean(type) && clean(subject.type)
+    && String(id) === String(subject.id) && String(type) === String(subject.type)
+    ? visible(subject.label, 120) : "";
+}
+
+export function contextDisplayPosition(context) {
+  const locator = context?.selection?.locator;
+  const dimensions = context?.dimensions || {};
+  if (!locator && (dimensions.activeSectionId == null || !String(dimensions.activeSectionId).trim())) return "";
+  if (locator) {
+    for (const focus of [dimensions.readingFocus, dimensions.surfaceFocus]) {
+      if (focus?.locator === locator) {
+        const label = visible(focus.sectionLabel || focus.label, 120);
+        if (label) return label;
+      }
+    }
+  }
+  const sections = Array.isArray(dimensions.surfaceSections) ? dimensions.surfaceSections : [];
+  const section = sections.find(item => locator
+    ? [item?.id, item?.targetId].filter(Boolean).some(id => String(id) === locator || `#${id}` === locator)
+    : item?.id === dimensions.activeSectionId);
+  return visible(section?.label, 120);
+}
 const HEBREW = /[֐-׿]/;
 
 export function razielSubjectLabel(subject) {
