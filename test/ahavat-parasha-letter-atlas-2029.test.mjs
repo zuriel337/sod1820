@@ -66,3 +66,7 @@ test("atlas is explicit DOM depth inside the same reader, URL-backed and free of
   const parasha = read("src/components/books2029/AhavatLetterParasha2029.jsx");
   assert.match(parasha, /ownsSourceAnchor && selected \? <AhavatParashaLetterAtlas2029/);
 });
+test("an underspecified atlas fragment keeps source access without observing a nonexistent DOM root", () => {
+  const page = read("src/pages/AhavatTorahSystem2029Page.jsx");
+  assert.match(page, /if \(observationRoot\) observer\.observe\(observationRoot,/);
+});

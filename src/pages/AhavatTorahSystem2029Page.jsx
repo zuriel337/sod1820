@@ -902,7 +902,8 @@ export default function AhavatTorahSystem2029Page() {
       // A column deep link explicitly requests the lazy OCR reader. Its target
       // appears only after that asset loads; do not fall back to a different row.
       observer = new MutationObserver(locate);
-      observer.observe(document.getElementById(unit?.sectionId || id), { childList: true, subtree: true });
+      const observationRoot = document.getElementById(unit?.sectionId || id);
+      if (observationRoot) observer.observe(observationRoot, { childList: true, subtree: true });
       timer = window.setTimeout(() => observer.disconnect(), 15000);
       locate();
     });

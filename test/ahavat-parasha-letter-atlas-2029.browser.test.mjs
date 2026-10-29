@@ -146,6 +146,12 @@ test("parasha atlas preserves 28 source forms, exact PDF, export, selection and 
       assert.equal(await atlas.locator(".ahavat29-parasha-atlas-grid article").count(),0);
       assert.equal(await atlas.locator("summary").evaluate(element=>document.activeElement===element),true);
       assert.equal(new URL(page.url()).searchParams.has("letterAtlas"),false);
+      if(width===390&&theme==="light"){
+        await page.goto(`${origin}/2029/control?surface=ahavat-torah-system&study=letters&page=35#ahavat29-parasha-letter-atlas`,{waitUntil:"domcontentloaded"});
+        await reader.locator(".ahavat29-letter-study").waitFor();await page.evaluate(()=>document.fonts.ready);await settle(page);await native(page,35);
+        assert.equal(await atlas.count(),0,"an atlas fragment without a canonical parasha must not invent one");
+        assert.equal(await reader.locator(".ahavat29-letter-alphabet button").count(),28);
+      }
       assert.deepEqual(errors,[]);await context.close();console.log(`parasha atlas source/export/focus ${width}/${theme}: PASS`);
     }
   }finally{await browser.close();await server.close();}
