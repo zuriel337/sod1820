@@ -161,7 +161,7 @@
 
 אף אחד מאלה לא בוצע.
 
-1. **פריסת `ai-analyze`** מהחבילה שנבנית ב‑`node scripts/package-ai-analyze.mjs` מ‑HEAD של הענף (אחרי שהקוד מוזג/אושר), `verify_jwt` נשאר `true`. **ההשפעה על Production מוגבלת:** בלי `ELS_MATRIX_READING_ENABLED` כל בקשה עם `els_matrix_reading` מקבלת 404, וכל שאר הבקשות עוברות באותם נתיבים כמו היום.
+1. **פריסת `ai-analyze`** מהחבילה שנבנית ב‑`node scripts/package-ai-analyze.mjs` מ‑HEAD של הענף (אחרי שהקוד מוזג/אושר), `verify_jwt` נשאר `true`. הוכחת האריזה (בלי פריסה): `scripts/package-ai-analyze.mjs` מ‑`6815b4179141723d96cb7ca8185a8f870a31c7a3` יצר חבילה של 535,487 בתים מ‑11 מקורות מחויבים, `bundle_sha256 = 06877c1fbf077b482689d7552183de841ad0fe95d3bb282148a95aa8aa4cdbd8` (גרסת ה‑live הנוכחית v88 נבנתה מ‑`b8cabb195`; פריסה מחייבת חישוב מחדש מה‑HEAD שיאושר, לא שימוש במספר זה). **ההשפעה על Production מוגבלת:** בלי `ELS_MATRIX_READING_ENABLED` כל בקשה עם `els_matrix_reading` מקבלת 404, וכל שאר הבקשות עוברות באותם נתיבים כמו היום.
 2. **סודות** (לא הוגדרו): `ELS_MATRIX_READING_ENABLED=1` (להפעלה), אופציונלי `ELS_MATRIX_READING_JOB_SECRET` (אחרת נגזר ממפתח השירות), `ELS_MATRIX_READING_MODEL` (חייב להתאים ל‑`claude-fable-*`; ברירת מחדל `claude-fable-5-1`), `ELS_MATRIX_READING_FX_ILS_PER_USD`.
 3. **ללא שינוי DB/RLS** באופציה A.
 4. אם תבחרו אופציה B או הבינונית — אישור נפרד לפי סעיף 6.
