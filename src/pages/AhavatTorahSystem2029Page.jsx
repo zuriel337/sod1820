@@ -447,6 +447,18 @@ function LetterSourceReader({ onPage, countMode = false, selectedDatasetId, acti
     return Object.values(readings).some(books => books.some(book => book.id === id)) ? id : "all";
   });
   const [query, setQuery] = useState(() => (new URLSearchParams(window.location.search).get(queryParam) || "").slice(0, 200));
+  const [journeyChoice, setJourneyChoice] = useState(() => {
+    const requested = new URLSearchParams(window.location.search).get("letterJourney");
+    return !countMode && ["book", "torah"].includes(requested) ? requested : "auto";
+  });
+  const journeyScope = !countMode && preserveSelectionPosition && journeyChoice !== "book" ? "torah" : "book";
+  const chooseJourney = choice => {
+    const next = choice === "book" ? "book" : "torah";
+    setJourneyChoice(next);
+    const url = new URL(window.location.href);
+    url.searchParams.set("letterJourney", next);
+    window.history.replaceState(window.history.state, "", `${url.pathname}${url.search}${url.hash}`);
+  };
   const sceneId = countMode ? "counts" : "letter";
   const showScene = activeScene === sceneId;
   const [selectedBar, setSelectedBar] = useState(() => initialUnit?.layer === unitLayer ? (countMode ? initialUnit.countRow : initialUnit.letterRow) : "");
@@ -479,7 +491,7 @@ function LetterSourceReader({ onPage, countMode = false, selectedDatasetId, acti
   const unresolvedCheckpoints = books?.some(book => book.count === null || book.cumulative === null);
   const rows = useMemo(() => ahavatSourceCountRows(books, bookId, query), [books, bookId, query]);
   const activeBook = books?.find(book => book.id === bookId);
-  const studyRows = useMemo(() => countMode ? [] : ahavatSourceCountRows(books, bookId, ""), [countMode, books, bookId]);
+  const studyRows = useMemo(() => countMode ? [] : ahavatSourceCountRows(books, journeyScope === "torah" ? "all" : bookId, ""), [countMode, books, bookId, journeyScope]);
   const selectedStudyRow = studyRows.find(row => row.parasha === selectedBar);
   const selectedStudyUnit = selectedStudyRow && activeBook ? unitId(form, activeBook.id, selectedStudyRow.parasha) : "";
   const readingPages = activeBook?.pages || source.pages;
@@ -554,7 +566,7 @@ function LetterSourceReader({ onPage, countMode = false, selectedDatasetId, acti
       <p className="ahavat29-ds01-guide">{countMode ? `במניין ${source.unit}` : `לאות ${form}׳`} מוצגת כאן קריאה של פרשות הספר: <b>{ahavatLetterNumber(books.at(-1).cumulative)}</b> בסיכום הספר. המספר של כל חומש הוא חלקו לפי הסיכומים המודפסים; השורה שמתחתיו מראה עד היכן הגיע הסכום המצטבר.</p>
       <div className="ahavat29-letter-checkpoints" aria-label={`מניין ${source.name} לפי חומש`}>{books.map(book => <button type="button" key={book.id} id={ahavatReaderUnitDomId(unitId(form, book.id))} data-reader-unit={unitId(form, book.id)} aria-pressed={bookId === book.id} onClick={() => select(form, book.id)}><span>{book.title}</span><strong>{ahavatLetterNumber(book.count)}</strong><small>מצטבר {ahavatLetterNumber(book.cumulative)}</small></button>)}</div>
       <nav className="ahavat29-letter-books" aria-label={`בחירת חומש ${countMode ? "במניין" : "באות"} ${source.name}`}><button type="button" aria-pressed={bookId === "all"} onClick={() => select(form, "all")}>כל התורה</button>{books.map(book => <button type="button" key={book.id} aria-pressed={bookId === book.id} onClick={() => select(form, book.id)}>{book.title}</button>)}</nav>
-      {!countMode ? <AhavatLetterParasha2029 source={source} rows={studyRows} selectedParasha={selectedBar} unitId={selectedStudyUnit} ownsSourceAnchor={preserveSelectionPosition} onSelect={row => selectRow(row, false)} onSource={row => selectRow(row)} /> : null}
+      {!countMode ? <AhavatLetterParasha2029 source={source} rows={studyRows} selectedParasha={selectedBar} unitId={selectedStudyUnit} ownsSourceAnchor={preserveSelectionPosition} journeyScope={journeyScope} onJourney={chooseJourney} hasBook={Boolean(activeBook)} onSelect={row => selectRow(row, false)} onSource={row => selectRow(row)} /> : null}
       <div className="ahavat29-table-tools"><label><span>{countMode ? "חיפוש במנייני הפרשות" : "חיפוש בפרשות האות"}</span><input type="search" value={query} onChange={event => setLetterQuery(event.target.value)} placeholder="פרשה, חומש, מספר או אותיות המניין" /></label><strong aria-live="polite">{rows.length} פרשות</strong></div>
       <div className="ahavat29-ds01-controls"><button type="button" aria-expanded={showScene} onClick={() => onScene(showScene ? "" : sceneId)}>{showScene ? `סגור מבנה ${countMode ? "המניינים" : "האות"} בתלת־ממד` : `פתח מבנה ${countMode ? "המניינים" : "האות"} בתלת־ממד`}</button>{readingPages.map(page => <button type="button" key={page} onClick={() => openSourcePage(page, `${unitLayer}-page:${form}:${page}`)}>המקור המלא · PDF {page}</button>)}<button type="button" disabled={!rows.length} onClick={downloadRows}>הורד טבלה למחקר · {rows.length} שורות</button></div>
       {showScene ? <div className="ahavat29-letter-scene"><Suspense fallback={<p role="status">טוען את מבנה המניין…</p>}><AhavatTorahSpatialScene2029 mode={countMode ? "parasha-count" : "letter"} letterLabel={source.name} bars={bars} activeId={selectedBar || bookId} onSelect={selectBar} /></Suspense><p>ייצוג של מבנה הספר · גובה = {countMode ? `מניין ${source.unit}` : `מספר מופעי ${form}׳`} {activeBook ? "בכל פרשה" : "בכל חומש"} · לחיצה פותחת את המקור</p><p>העמודה הגבוהה מייצגת את הערך הגדול בתצוגה זו: {ahavatLetterNumber(Math.max(0, ...bars.map(bar => bar.count)))}. גובה היתר יחסי אליה, ולכן קנה המידה משתנה בין בחירות. סדר העמודות הוא סדר הספר; {countMode ? "הצבע הזהוב" : "הכחול והסגול"}, זווית המבט והתאורה הם בחירות תצוגה, וההדגשה מסמנת בחירה. ערך שלא נקרא אינו מוצג כעמודה. ניתן לבחור גם בכפתורים שמתחת לתרשים או בטבלה.</p></div> : null}
