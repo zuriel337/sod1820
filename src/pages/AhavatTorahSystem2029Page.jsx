@@ -424,7 +424,7 @@ function LetterSectionTranscript({ source, onPage }) {
   </div>;
 }
 
-function LetterSourceReader({ onPage, countMode = false, selectedDatasetId, activeScene, onScene }) {
+function LetterSourceReader({ onPage, countMode = false, selectedDatasetId, activeScene, onScene, preserveSelectionPosition = false }) {
   const forms = countMode ? AHAVAT_PARASHA_COUNT_FORMS : AHAVAT_LETTER_FORMS;
   const readings = countMode ? AHAVAT_PARASHA_COUNT_READINGS : AHAVAT_LETTER_READINGS;
   const formParam = countMode ? "countKind" : "letter";
@@ -487,7 +487,7 @@ function LetterSourceReader({ onPage, countMode = false, selectedDatasetId, acti
   }, []);
   const openSourcePage = (page, sourceUnitId = "") => onPage(page, countMode ? source.datasetId : "", sourceUnitId);
 
-  const select = (nextForm, nextBook = bookId) => {
+  const select = (nextForm, nextBook = bookId, preservePosition = preserveSelectionPosition) => {
     setForm(nextForm);
     setBookId(nextBook);
     setSelectedBar("");
@@ -498,7 +498,7 @@ function LetterSourceReader({ onPage, countMode = false, selectedDatasetId, acti
     url.searchParams.delete(rowParam);
     window.history.replaceState({}, "", `${url.pathname}${url.search}${url.hash}`);
     const nextSource = forms.find(item => item.form === nextForm);
-    onPage(ahavatSourceCountPage(readings[nextForm], nextSource.pages, nextBook), countMode ? nextSource.datasetId : "", unitId(nextForm, nextBook));
+    onPage(ahavatSourceCountPage(readings[nextForm], nextSource.pages, nextBook), countMode ? nextSource.datasetId : "", unitId(nextForm, nextBook), { preservePosition });
   };
 
   const selectBar = id => {
@@ -537,7 +537,7 @@ function LetterSourceReader({ onPage, countMode = false, selectedDatasetId, acti
 
   return <section className="ahavat29-letters" id={readerId} aria-labelledby={`${readerId}-title`}>
     <header><div><span>{countMode ? "תיבות ואותיות לפי פרשה" : "סופר ומונה אותיות התורה"} · דברי הספר</span><h3 id={`${readerId}-title`}>{countMode ? "מנייני הפרשות והחומשים" : "נכנסים אל האותיות"}</h3></div><strong>{countMode ? "54" : "28"}<small>{countMode ? "פרשות · שני מניינים" : "צורות בדפוס"}</small></strong></header>
-    {!countMode && books ? <AhavatLetterStudy2029 source={source} books={books} bookId={bookId} onBook={id => select(form, id)} onSource={page => openSourcePage(page, `letter-page:${form}:${page}`)} /> : null}
+    {!countMode && books ? <AhavatLetterStudy2029 source={source} books={books} bookId={bookId} onBook={id => select(form, id, true)} onSource={page => openSourcePage(page, `letter-page:${form}:${page}`)} /> : null}
     <p className="ahavat29-ds01-guide"><b>הסבר נלווה:</b> {countMode ? source.explanation : "המחבר עובר אות אחר אות, ומונה אותה בכל פרשה. כ״ב האותיות מתפרטות כאן גם לחמש אותיות סופיות ולשׁין ושׂין בנפרד. בחירת צורה פותחת את מקומה המדויק בספר."}</p>
     <nav id={countMode ? undefined : "ahavat29-letter-alphabet"} className={countMode ? "ahavat29-letter-books" : "ahavat29-letter-alphabet"} aria-label={countMode ? "בחירת מניין הפרשות" : "צורות האותיות בדפוס"}>{forms.map(item => <button type="button" key={item.form} id={ahavatReaderUnitDomId(unitId(item.form))} data-reader-unit={unitId(item.form)} aria-label={item.name} aria-pressed={item.form === form} onClick={() => select(item.form)}>{countMode ? item.name : <><b>{item.form}</b><small>{item.name}</small></>}</button>)}</nav>
     <div className="ahavat29-letter-location" aria-live="polite"><div><strong>{countMode ? source.unit : source.form}</strong><span>{source.name} · {source.pages.length === 1 ? "עמוד מקור אחד" : "הסעיף נמשך לעמוד הבא"}</span></div><div>{source.pages.map(page => <button type="button" key={page} id={ahavatReaderUnitDomId(`${unitLayer}-page:${form}:${page}`)} data-reader-unit={`${unitLayer}-page:${form}:${page}`} onClick={() => openSourcePage(page, `${unitLayer}-page:${form}:${page}`)}>פתח PDF {page}</button>)}</div></div>
@@ -580,7 +580,7 @@ function SpatialTables({ bundle, bundleState, selectedId, onSelect, onPage, focu
     </header>
 
     <DivineNameSourceModel onPage={onPage} activeScene={activeScene} onScene={setActiveScene} />
-    <LetterSourceReader onPage={onPage} activeScene={activeScene} onScene={setActiveScene} />
+    <LetterSourceReader onPage={onPage} activeScene={activeScene} onScene={setActiveScene} preserveSelectionPosition={focusedLetters} />
     <LetterSourceReader countMode selectedDatasetId={selectedId} onPage={onPage} activeScene={activeScene} onScene={setActiveScene} />
     <AhavatTorahPeopleReader2029 onPage={onPage} activeScene={activeScene} onScene={setActiveScene} />
     <AhavatTorahRootsReader2029 onPage={onPage} />
@@ -910,7 +910,7 @@ export default function AhavatTorahSystem2029Page() {
     }
   };
 
-  const openPage = (nextPage, contextDatasetId = "", unitId = "") => {
+  const openPage = (nextPage, contextDatasetId = "", unitId = "", options = {}) => {
     const context = AHAVAT_TORAH_DATASETS.find(dataset => dataset.id === contextDatasetId && dataset.pages.includes(nextPage));
     setPage(nextPage);
     setFindingId("");
@@ -919,7 +919,7 @@ export default function AhavatTorahSystem2029Page() {
     setReaderUnit(unit ? { ...unit } : null);
     replaceSelectionInUrl(nextPage, "", context?.id || "", unitId);
     const behavior = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth";
-    scrollToBookSource(behavior);
+    if (!options.preservePosition) scrollToBookSource(behavior);
   };
 
   const returnToUnit = event => {

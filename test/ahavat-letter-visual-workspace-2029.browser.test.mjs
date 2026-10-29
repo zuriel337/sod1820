@@ -70,7 +70,12 @@ test("focused letters workspace: real source, selection, reflow, source return a
       assert.equal(await reader.locator(".ahavat29-letter-pillars button").count(), 5);
       await page.screenshot({ path: `${artifacts}/letters-${width}-${theme}.png` });
       await reader.locator(".ahavat29-letter-alphabet").getByRole("button", { name: "דלת", exact: true }).click();
-      await reader.locator(".ahavat29-letter-pillars").getByRole("button").filter({ hasText: "ויקרא" }).click();
+      const bookButton = reader.locator(".ahavat29-letter-pillars").getByRole("button").filter({ hasText: "ויקרא" });
+      await bookButton.scrollIntoViewIfNeeded();
+      const selectionScroll = await page.evaluate(() => scrollY);
+      await bookButton.click();
+      await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+      assert.ok(Math.abs((await page.evaluate(() => scrollY)) - selectionScroll) <= 2, "exploring a book must not scroll away to the PDF; its explicit source action does");
       assert.equal(await reader.locator(".ahavat29-letter-path").textContent(), "אות ד←ויקרא←10 פרשות");
       // Resolve through the existing source-native identity, never a local guessed DOM ID.
       const exactRow = reader.locator("tbody tr").filter({ hasText: "צו" }).filter({ hasText: "109" });

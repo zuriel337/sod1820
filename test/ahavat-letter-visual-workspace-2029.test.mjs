@@ -22,7 +22,8 @@ test("focused study remains a projection of the existing reader and closes hidde
   assert.match(page, /data-study-focus=\{letterFocus/);
   assert.match(page, /if \(focusedLetters\) setActiveScene\(current => current === "letter" \? current : ""\)/);
   assert.match(page, /focusedLetters=\{letterFocus\}/);
-  assert.match(page, /onBook=\{id => select\(form, id\)\}/);
+  assert.match(page, /onBook=\{id => select\(form, id, true\)\}/);
+  assert.match(page, /if \(!options.preservePosition\) scrollToBookSource\(behavior\)/);
   assert.doesNotMatch(component, /BookHubPage|createContext|createRoot|BrowserRouter/);
 });
 
