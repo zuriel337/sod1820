@@ -1,0 +1,25 @@
+{
+  "cap_usd": 40,
+  "hard_guard_usd": 37.478199,
+  "stop_new_usd": 36.278199,
+  "experiment_cap_usd": 5.2,
+  "basis": "usage x list prices of the claude-api model table (Message Batches at 50%); not an invoice. First entry: the actual spend before EXP-18 (EXP-15, EXP-16, EXP-12 pilot, EXP-17).",
+  "entries": [
+    {
+      "id": "prior EXP-15 + EXP-16 + EXP-12 + EXP-17",
+      "kind": "prior",
+      "usd": 32.278199,
+      "note": "actual spend before EXP-18"
+    },
+    {
+      "id": "C1 round1",
+      "usd": 1.70165,
+      "at": "2026-10-29T01:56:46.862Z",
+      "note": "worst case reserved before the call",
+      "reserved": true
+    }
+  ],
+  "spent_usd": 33.979849,
+  "remaining_usd": 6.020151,
+  "amendment": "Amendment 1 (29.10): cap raised from 3.0 to 5.2 inside the 7.72 that ZURIEL approved; the C1 reservation is the in-flight batch created before the amendment"
+}

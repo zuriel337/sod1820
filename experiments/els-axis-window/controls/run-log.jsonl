@@ -1,0 +1,7 @@
+{"at":"2026-10-29T01:56:31.666Z","event":"plan_verified","runs":3}
+{"at":"2026-10-29T01:56:33.306Z","event":"selftest","results":[{"name":"known model claude-fable-5-1 with the token","status":200,"ok":true},{"name":"no token","status":403,"ok":true},{"name":"wrong token","status":403,"ok":true},{"name":"an unapproved batch","status":403,"ok":true},{"name":"another model (Sonnet)","status":403,"ok":true},{"name":"another model (Opus)","status":403,"ok":true},{"name":"the messages route","status":404,"ok":true},{"name":"another API area","status":404,"ok":true},{"name":"a batch list","status":404,"ok":true}]}
+{"at":"2026-10-29T01:56:43.817Z","event":"plan_verified","runs":3}
+{"at":"2026-10-29T01:56:45.320Z","event":"selftest","results":[{"name":"known model claude-fable-5-1 with the token","status":200,"ok":true},{"name":"no token","status":403,"ok":true},{"name":"wrong token","status":403,"ok":true},{"name":"an unapproved batch","status":403,"ok":true},{"name":"another model (Sonnet)","status":403,"ok":true},{"name":"another model (Opus)","status":403,"ok":true},{"name":"the messages route","status":404,"ok":true},{"name":"another API area","status":404,"ok":true},{"name":"a batch list","status":404,"ok":true}]}
+{"at":"2026-10-29T01:56:46.192Z","event":"ready","spent":32.278199,"settled":32.278199}
+{"at":"2026-10-29T01:56:46.193Z","event":"group_start","priority":1,"runs":["C1"]}
+{"at":"2026-10-29T01:56:47.306Z","event":"batch_created","run":"C1","round":1,"batch":"msgbatch_01Me86vLVqv9yWjxV72fTYYF"}

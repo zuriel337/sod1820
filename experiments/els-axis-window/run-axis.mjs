@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // EXP-18 runner.  Stages:  plan | status | selftest | run
-//   plan      offline: rebuilds the 3 requests, writes controls/plan-review.{json,md} and the ledger seed. No network, no key.
+//   plan      offline: rebuilds the 3 requests (C1 focused, C2 previous instruction, C3 previous instruction with the focused run's cap), writes controls/plan-review.{json,md} and the ledger seed. No network, no key.
 //   status    prints the experiment ledger.
 //   selftest  (needs the temporary pass-through and ELS_PROXY_URL / ELS_PROXY_TOKEN / ELS_PROXY_JWT) probes that it is locked as designed: every probe must be refused.
 //   run       (needs ZURIEL's approval, which was given on 29.10.2026 for this plan and cap) sends the three runs one at a time in priority order with the budget guard; never retries a model call; no round 2.
@@ -41,8 +41,8 @@ export function planReview(prepared) {
 }
 
 export function planMarkdown(review) {
-  const lines = ["| run | group | window | cells | lines | est. input tokens | expected | worst case | request sha | lock sha |", "|---|---|---|---|---|---|---|---|---|---|"];
-  for (const r of review.runs) lines.push(`| ${r.id} | ${r.group} | ${r.rows}x${r.cols} | ${r.cells} | ${r.lines} | ${r.est_input_tokens} | $${r.expected_usd.toFixed(3)} | $${r.worst_case_usd.toFixed(3)} | ${r.request_sha256.slice(0, 12)} | ${r.lock_sha256.slice(0, 12)} |`);
+  const lines = ["| run | prompt | cap | window | cells | lines | est. input tokens | expected | worst case | request sha | lock sha |", "|---|---|---|---|---|---|---|---|---|---|---|---|"];
+  for (const r of review.runs) lines.push(`| ${r.id} | ${r.prompt} | ${r.cap} | ${r.rows}x${r.cols} | ${r.cells} | ${r.lines} | ${r.est_input_tokens} | $${r.expected_usd.toFixed(3)} | $${r.worst_case_usd.toFixed(3)} | ${r.request_sha256.slice(0, 12)} | ${r.lock_sha256.slice(0, 12)} |`);
   lines.push("", `Runs: ${review.totals.runs}. Expected total about $${review.totals.expected_usd} (assumption), worst case if every run used max_tokens $${review.totals.worst_case_if_every_run_used_max_tokens_usd}. Experiment cap $${review.experiment_cap_usd} (stop launching at $${(review.budget.stop_new_usd - PRIOR_SPEND_USD).toFixed(2)}); the guard reserves each run's worst case before sending it. Total cap $40, spent before $${review.prior_spend_usd}.`);
   return `${lines.join("\n")}\n`;
 }
