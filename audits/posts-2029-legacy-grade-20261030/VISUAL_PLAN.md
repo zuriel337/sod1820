@@ -32,3 +32,6 @@ Flow: clicking 506 in matrix-506 opens the shared calculation drawer; section-ma
 - Commit b2302df44f5295f70ed67b21a2f8bff199999648 is not reachable from this checkout or origin (fetch: "not our ref"): the metrics/transitions infrastructure was NOT compared or merged.
 - Exact-section return and "new finding appears without a manual list" were not proven here: matrix-506 has no mapped regions (return lands on the post top) and no new finding was injected (that needs a product write).
 - No work_log DB record written (no DB writes in this task).
+
+## Night backdrop (ZURIEL chose variant C)
+Posts-scope only (`.sod29-reading-post::before/::after`, night preset only): the legacy city photograph (`public/legacy-dark-bg-2026-09-30.png`) at 70% with a lighter centre veil, panels on lighter glass (60% + blur 6px). The shell's `sod29-ambient-field` is untouched; day/parchment unchanged. Not shown on the plain master posts' own surfaces beyond the shared backdrop. Screenshots: `final/`.

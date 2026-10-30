@@ -288,3 +288,27 @@
   .sod29-reading-post[data-post-character="matrix"] .sod29-post-opening{display:none}
   .sod29-post-research-chevron{transition:none}
 }
+
+/* ───────────── Night backdrop for Posts (the legacy city photograph) ─────────────
+   Posts scope only: a fixed layer behind the reading stage, drawn by the article, not by the shell.
+   Night preset only; day/parchment keep their own surfaces. The photograph is the legacy asset
+   (public/legacy-dark-bg-2026-09-30.png); the centre is veiled so reading stays legible and the city glows at the edges. */
+html[data-theme-preset="dark"] .sod29-reading-post::before,
+html[data-theme-preset="dark"] .sod29-reading-post::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none}
+html[data-theme-preset="dark"] .sod29-reading-post::before{
+  background:url(/legacy-dark-bg-2026-09-30.png) center/cover no-repeat;opacity:.7;
+}
+html[data-theme-preset="dark"] .sod29-reading-post::after{
+  background:
+    radial-gradient(ellipse at 50% -10%,rgba(122,19,32,.26) 0%,transparent 55%),
+    radial-gradient(ellipse at 50% 110%,rgba(61,31,92,.24) 0%,transparent 50%),
+    radial-gradient(ellipse 70% 80% at 50% 48%,rgba(7,5,14,.55) 0%,rgba(7,5,14,.35) 45%,rgba(7,5,14,.12) 75%,rgba(7,5,14,0) 100%);
+}
+/* Lighter glass so the photograph reads through the panels (blur keeps text sharp). */
+html[data-theme-preset="dark"] .sod29-reading-post[data-post-character]:not([data-post-character="plain"]) :is(.sod29-reading-source,.sod29-reading-cover,.sod29-post-research){
+  background:color-mix(in srgb,#06040c 60%,transparent);
+  -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
+}
+html[data-theme-preset="dark"] .sod29-reading-post[data-post-character]:not([data-post-character="plain"]):not([data-post-character="matrix"]) .sod29-reading-hero{
+  background:color-mix(in srgb,#06040c 60%,transparent);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
+}
