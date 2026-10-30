@@ -1093,7 +1093,7 @@ export default function AhavatTorahSystem2029Page() {
         <aside><strong>המקור לצד ההסבר</strong><p>הספר המלא זמין לדפדוף, חיפוש ומסך מלא. יחידות הלימוד מסבירות קטעים נבחרים; צילום העמוד נשאר נגיש לאורך הקריאה.</p></aside>
       </section>
 
-      <AhavatBookToc2029 page={page} onOpenPage={nextPage => openPage(nextPage)} onSelectDataset={selectDataset} />
+      {letterFocus ? null : <AhavatBookToc2029 page={page} onOpenPage={nextPage => openPage(nextPage)} onSelectDataset={selectDataset} />}
 
       <details className="ahavat29-source-details ahavat29-source-status">
         <summary>פרטי המקור ומצב ההשלמה</summary>
@@ -1110,7 +1110,7 @@ export default function AhavatTorahSystem2029Page() {
       <BookReadingLayout2029 mode={readingLayout} onMode={setReadingLayout} />
       <div className="ahavat29-layout books29-reading-layout" data-reading-layout={readingLayout}>
         <div className="ahavat29-story">
-          <AhavatSelectionPanel2029 page={page} datasetId={datasetId} onOpenPage={(nextPage, contextId, options) => openPage(nextPage, contextId || "", "", options)} />
+          {letterFocus ? null : <AhavatSelectionPanel2029 page={page} datasetId={datasetId} onOpenPage={(nextPage, contextId, options) => openPage(nextPage, contextId || "", "", options)} />}
           <OrbitMap selectedId={selectedSection.id} onSelect={selectSection} />
           <div id="ahavat29-reader"><SectionReader section={selectedSection} onPage={openPage} /></div>
 

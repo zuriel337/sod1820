@@ -104,6 +104,6 @@ test("in-page jumps wait for lazy layout and keep the header clearance", () => {
   assert.match(page, /new ResizeObserver\(align\)/);
   assert.match(page, /onClick=\{jumpOnClick\}>למד עם ההסברים/);
   const css = read("src/pages/ahavatTorahSystem2029.css");
-  assert.match(css, /content-visibility:auto;contain-intrinsic-size:auto 1400px/, "optimization kept, not disabled");
+  assert.match(css, /content-visibility:auto;contain-intrinsic-size:0 1400px/, "optimization kept, not disabled");
   assert.match(read("src/components/books2029/ahavatBookEntry2029.css"), /scroll-margin-top:var\(--ahavat29-jump-clearance,92px\)/);
 });
