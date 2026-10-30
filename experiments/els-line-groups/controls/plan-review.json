@@ -1,0 +1,555 @@
+{
+  "created_for": "EXP-23",
+  "window_sha256": "208cbe689b68f941daf995f07ff490d8974a5c13128f1724c8792471c02802fe",
+  "model": {
+    "id": "claude-fable-5-1",
+    "effort": "medium",
+    "maxTokens": 10000
+  },
+  "group_size": 8,
+  "cap_per_group": 12,
+  "experiment_cap_usd": 5,
+  "groups": [
+    {
+      "id": "G02",
+      "role": "saved_lines",
+      "control_of": null,
+      "first": "R09",
+      "last": "R16",
+      "lines": [
+        "R09",
+        "R10",
+        "R11",
+        "R12",
+        "R13",
+        "R14",
+        "R15",
+        "R16"
+      ]
+    },
+    {
+      "id": "G03",
+      "role": "control",
+      "control_of": "G02",
+      "first": "R17",
+      "last": "R24",
+      "lines": [
+        "R17",
+        "R18",
+        "R19",
+        "R20",
+        "R21",
+        "R22",
+        "R23",
+        "R24"
+      ]
+    },
+    {
+      "id": "G06",
+      "role": "saved_lines",
+      "control_of": null,
+      "first": "C08",
+      "last": "C15",
+      "lines": [
+        "C08",
+        "C09",
+        "C10",
+        "C11",
+        "C12",
+        "C13",
+        "C14",
+        "C15"
+      ]
+    },
+    {
+      "id": "G08",
+      "role": "control",
+      "control_of": "G06",
+      "first": "C24",
+      "last": "C31",
+      "lines": [
+        "C24",
+        "C25",
+        "C26",
+        "C27",
+        "C28",
+        "C29",
+        "C30",
+        "C31"
+      ]
+    },
+    {
+      "id": "G07",
+      "role": "saved_lines",
+      "control_of": null,
+      "first": "C16",
+      "last": "C23",
+      "lines": [
+        "C16",
+        "C17",
+        "C18",
+        "C19",
+        "C20",
+        "C21",
+        "C22",
+        "C23"
+      ]
+    },
+    {
+      "id": "G09",
+      "role": "control",
+      "control_of": "G07",
+      "first": "C32",
+      "last": "C39",
+      "lines": [
+        "C32",
+        "C33",
+        "C34",
+        "C35",
+        "C36",
+        "C37",
+        "C38",
+        "C39"
+      ]
+    },
+    {
+      "id": "G10",
+      "role": "saved_lines",
+      "control_of": null,
+      "first": "C40",
+      "last": "D06",
+      "lines": [
+        "C40",
+        "C41",
+        "D01",
+        "D02",
+        "D03",
+        "D04",
+        "D05",
+        "D06"
+      ]
+    },
+    {
+      "id": "G11",
+      "role": "control",
+      "control_of": "G10",
+      "first": "D07",
+      "last": "D14",
+      "lines": [
+        "D07",
+        "D08",
+        "D09",
+        "D10",
+        "D11",
+        "D12",
+        "D13",
+        "D14"
+      ]
+    }
+  ],
+  "runs": [
+    {
+      "id": "G02A",
+      "group": "G02",
+      "role": "saved_lines",
+      "control_of": null,
+      "arm": "A",
+      "lines": [
+        "R09",
+        "R10",
+        "R11",
+        "R12",
+        "R13",
+        "R14",
+        "R15",
+        "R16"
+      ],
+      "custom_id": "els-live-g02a",
+      "prompt_chars": 3341,
+      "est_input_tokens": 2673,
+      "worst_case_usd": 0.26671,
+      "request_sha256": "2b021b8f136743c1f23e9196271500de3fa841f92be3928a9a2e5246c963e17b",
+      "lock_sha256": "5f15111408cf2add61c23102e07b4d14eae86c941b4c2f2d4b1e90e0d8f6f510"
+    },
+    {
+      "id": "G02B",
+      "group": "G02",
+      "role": "saved_lines",
+      "control_of": null,
+      "arm": "B",
+      "lines": [
+        "R09",
+        "R10",
+        "R11",
+        "R12",
+        "R13",
+        "R14",
+        "R15",
+        "R16"
+      ],
+      "custom_id": "els-live-g02b",
+      "prompt_chars": 3794,
+      "est_input_tokens": 3035,
+      "worst_case_usd": 0.26897,
+      "request_sha256": "e013224e95401bcccb660c87836d2059aa3b03e95931543c38acf56a0e998f89",
+      "lock_sha256": "7fdff66057b3f8ab9892aa9bff8dc96fbe30e2761f8e189fefb8f7ae4a27f284"
+    },
+    {
+      "id": "G03A",
+      "group": "G03",
+      "role": "control",
+      "control_of": "G02",
+      "arm": "A",
+      "lines": [
+        "R17",
+        "R18",
+        "R19",
+        "R20",
+        "R21",
+        "R22",
+        "R23",
+        "R24"
+      ],
+      "custom_id": "els-live-g03a",
+      "prompt_chars": 3341,
+      "est_input_tokens": 2673,
+      "worst_case_usd": 0.26671,
+      "request_sha256": "3a9373e298461b53475a2c12c51fe2ee5b2b39c4c9ff4a7f638630b078500d98",
+      "lock_sha256": "71a9eed12fdb033e10900a881d5f30d2c43d5f77c619fc6c2fc0f3cf3ff0f3ac"
+    },
+    {
+      "id": "G03B",
+      "group": "G03",
+      "role": "control",
+      "control_of": "G02",
+      "arm": "B",
+      "lines": [
+        "R17",
+        "R18",
+        "R19",
+        "R20",
+        "R21",
+        "R22",
+        "R23",
+        "R24"
+      ],
+      "custom_id": "els-live-g03b",
+      "prompt_chars": 3794,
+      "est_input_tokens": 3035,
+      "worst_case_usd": 0.26897,
+      "request_sha256": "e362338db276560c665962b49dc42c6df416e30a5d00ad5883f9ee6821cd61ef",
+      "lock_sha256": "07fd3d41eb39a9079db93b00f7b367a4795bd08bf1a9080d93bf3153804472c3"
+    },
+    {
+      "id": "G06A",
+      "group": "G06",
+      "role": "saved_lines",
+      "control_of": null,
+      "arm": "A",
+      "lines": [
+        "C08",
+        "C09",
+        "C10",
+        "C11",
+        "C12",
+        "C13",
+        "C14",
+        "C15"
+      ],
+      "custom_id": "els-live-g06a",
+      "prompt_chars": 3180,
+      "est_input_tokens": 2544,
+      "worst_case_usd": 0.2659,
+      "request_sha256": "5d234cdf0365221ed711416f03d7a3abdae1751721825dfa04b0d363ab7ab482",
+      "lock_sha256": "4836dad952fcd36f07f310a3804261702fae0d2cc61aea9e3ef2909fafa029e3"
+    },
+    {
+      "id": "G06B",
+      "group": "G06",
+      "role": "saved_lines",
+      "control_of": null,
+      "arm": "B",
+      "lines": [
+        "C08",
+        "C09",
+        "C10",
+        "C11",
+        "C12",
+        "C13",
+        "C14",
+        "C15"
+      ],
+      "custom_id": "els-live-g06b",
+      "prompt_chars": 3633,
+      "est_input_tokens": 2906,
+      "worst_case_usd": 0.268165,
+      "request_sha256": "c6dcbba307ed1af266dcc118b51194a75d5473ffb1f6f9e32ab69afac7997de7",
+      "lock_sha256": "ecd5371767988d6091e7b855cc44af769832bc108db0e9adfb0e9e6e7ee2c75d"
+    },
+    {
+      "id": "G08A",
+      "group": "G08",
+      "role": "control",
+      "control_of": "G06",
+      "arm": "A",
+      "lines": [
+        "C24",
+        "C25",
+        "C26",
+        "C27",
+        "C28",
+        "C29",
+        "C30",
+        "C31"
+      ],
+      "custom_id": "els-live-g08a",
+      "prompt_chars": 3180,
+      "est_input_tokens": 2544,
+      "worst_case_usd": 0.2659,
+      "request_sha256": "f15005e78d7b24b87146815dfa03a84074e5482a31da3d85d838e9fe775480d0",
+      "lock_sha256": "d8c1e80762c3b3e07eaa78ad243f67661fac1108ae7672157bb59f7e4ff385d8"
+    },
+    {
+      "id": "G08B",
+      "group": "G08",
+      "role": "control",
+      "control_of": "G06",
+      "arm": "B",
+      "lines": [
+        "C24",
+        "C25",
+        "C26",
+        "C27",
+        "C28",
+        "C29",
+        "C30",
+        "C31"
+      ],
+      "custom_id": "els-live-g08b",
+      "prompt_chars": 3633,
+      "est_input_tokens": 2906,
+      "worst_case_usd": 0.268165,
+      "request_sha256": "15c325f2a0b45e001837456db26bd0f2e0af57dcfb858aef1f50c074c9433880",
+      "lock_sha256": "8d11dca38e762bbe9a32d2a36a864c992b499acf6be65df429dbf5afdb065775"
+    },
+    {
+      "id": "G07A",
+      "group": "G07",
+      "role": "saved_lines",
+      "control_of": null,
+      "arm": "A",
+      "lines": [
+        "C16",
+        "C17",
+        "C18",
+        "C19",
+        "C20",
+        "C21",
+        "C22",
+        "C23"
+      ],
+      "custom_id": "els-live-g07a",
+      "prompt_chars": 3180,
+      "est_input_tokens": 2544,
+      "worst_case_usd": 0.2659,
+      "request_sha256": "725451e80a3b7d506164e8f17a73260965b74af44684ec2db5325de7b31fd5f5",
+      "lock_sha256": "74537f02b337783cce2d7ae2291db6aae40f5ebf65e44e99497c1bad80685e7b"
+    },
+    {
+      "id": "G07B",
+      "group": "G07",
+      "role": "saved_lines",
+      "control_of": null,
+      "arm": "B",
+      "lines": [
+        "C16",
+        "C17",
+        "C18",
+        "C19",
+        "C20",
+        "C21",
+        "C22",
+        "C23"
+      ],
+      "custom_id": "els-live-g07b",
+      "prompt_chars": 3633,
+      "est_input_tokens": 2906,
+      "worst_case_usd": 0.268165,
+      "request_sha256": "561be5f519f6d015f12fe5a8a82bec708a05f7126eef27eea891cea12ed80e1e",
+      "lock_sha256": "e20e501d5566212e0e503f1df9c9a2e81534caa153cdf0dcb3639478c5acc1c7"
+    },
+    {
+      "id": "G09A",
+      "group": "G09",
+      "role": "control",
+      "control_of": "G07",
+      "arm": "A",
+      "lines": [
+        "C32",
+        "C33",
+        "C34",
+        "C35",
+        "C36",
+        "C37",
+        "C38",
+        "C39"
+      ],
+      "custom_id": "els-live-g09a",
+      "prompt_chars": 3180,
+      "est_input_tokens": 2544,
+      "worst_case_usd": 0.2659,
+      "request_sha256": "5d6d2ce7ed3b3fd840166e997f8fd9298ddc459094352fd27f1c93569f638c4a",
+      "lock_sha256": "10a39d6cc872120daf40626ae181b2ed395b926cd871b7d7042734e19c3f11f1"
+    },
+    {
+      "id": "G09B",
+      "group": "G09",
+      "role": "control",
+      "control_of": "G07",
+      "arm": "B",
+      "lines": [
+        "C32",
+        "C33",
+        "C34",
+        "C35",
+        "C36",
+        "C37",
+        "C38",
+        "C39"
+      ],
+      "custom_id": "els-live-g09b",
+      "prompt_chars": 3633,
+      "est_input_tokens": 2906,
+      "worst_case_usd": 0.268165,
+      "request_sha256": "fa50bff7cf612cc6e3159eed70c0d5aedecf4cc2ac95c7e10ac70d910913584e",
+      "lock_sha256": "74e7d240ca0e5d7ee7d0ec676b382f9958b1e55fff6bb9e7b1ab1fe879cf196a"
+    },
+    {
+      "id": "G10A",
+      "group": "G10",
+      "role": "saved_lines",
+      "control_of": null,
+      "arm": "A",
+      "lines": [
+        "C40",
+        "C41",
+        "D01",
+        "D02",
+        "D03",
+        "D04",
+        "D05",
+        "D06"
+      ],
+      "custom_id": "els-live-g10a",
+      "prompt_chars": 3237,
+      "est_input_tokens": 2590,
+      "worst_case_usd": 0.26619,
+      "request_sha256": "92bd94a1517895e20489baf8ada7724f4616408d557969a342d036c4285339ca",
+      "lock_sha256": "ab826071e03e3b6f727df16bfc1e19397ea91ec50c025131d3a2ab7b26f358ff"
+    },
+    {
+      "id": "G10B",
+      "group": "G10",
+      "role": "saved_lines",
+      "control_of": null,
+      "arm": "B",
+      "lines": [
+        "C40",
+        "C41",
+        "D01",
+        "D02",
+        "D03",
+        "D04",
+        "D05",
+        "D06"
+      ],
+      "custom_id": "els-live-g10b",
+      "prompt_chars": 3690,
+      "est_input_tokens": 2952,
+      "worst_case_usd": 0.26845,
+      "request_sha256": "abb2e61d1310d47ba96fc83956cd3f9ab5c97bf09f9dcae421a6657bb73d8b26",
+      "lock_sha256": "744a2ad71b7decd3162c7406fd1aa6aa52cbbbd93a3e50f44644ba84ba35fcfc"
+    },
+    {
+      "id": "G11A",
+      "group": "G11",
+      "role": "control",
+      "control_of": "G10",
+      "arm": "A",
+      "lines": [
+        "D07",
+        "D08",
+        "D09",
+        "D10",
+        "D11",
+        "D12",
+        "D13",
+        "D14"
+      ],
+      "custom_id": "els-live-g11a",
+      "prompt_chars": 3149,
+      "est_input_tokens": 2519,
+      "worst_case_usd": 0.265745,
+      "request_sha256": "96ead097f28bc589e449838e494927b3ed9d62cb1511f3e7c663bd7ee4b7d81a",
+      "lock_sha256": "fa2d9f8cd58ba4ff2d4ef02b12ff071acc6ff1ce60fb3c9f19cf84827eeaf034"
+    },
+    {
+      "id": "G11B",
+      "group": "G11",
+      "role": "control",
+      "control_of": "G10",
+      "arm": "B",
+      "lines": [
+        "D07",
+        "D08",
+        "D09",
+        "D10",
+        "D11",
+        "D12",
+        "D13",
+        "D14"
+      ],
+      "custom_id": "els-live-g11b",
+      "prompt_chars": 3602,
+      "est_input_tokens": 2882,
+      "worst_case_usd": 0.268015,
+      "request_sha256": "ae0a9282c3a276845d7646d30016d4459e365da4dc28d18b36b56d4e4ae6ac88",
+      "lock_sha256": "4592024360bc14354c2d3b5270cb970c64f108116b0acabe5c566f236d24d0f1"
+    }
+  ],
+  "budget": {
+    "requests": 16,
+    "sum_of_worst_cases_usd": 4.276,
+    "fits_cap": true,
+    "headroom_usd": 0.724,
+    "note": "the worst case of a request is the counted input x 1.25 plus the whole max_tokens allowance, at batch prices; the estimate uses 0.8 tokens per character and the preflight replaces it with the provider's exact count (free)"
+  },
+  "function": {
+    "slug": "els-live-reading",
+    "batch_only": true,
+    "count_tokens_allowed": true,
+    "models": [
+      "claude-fable-5-1"
+    ],
+    "approved_lock_sha256": [
+      "5f15111408cf2add61c23102e07b4d14eae86c941b4c2f2d4b1e90e0d8f6f510",
+      "7fdff66057b3f8ab9892aa9bff8dc96fbe30e2761f8e189fefb8f7ae4a27f284",
+      "71a9eed12fdb033e10900a881d5f30d2c43d5f77c619fc6c2fc0f3cf3ff0f3ac",
+      "07fd3d41eb39a9079db93b00f7b367a4795bd08bf1a9080d93bf3153804472c3",
+      "4836dad952fcd36f07f310a3804261702fae0d2cc61aea9e3ef2909fafa029e3",
+      "ecd5371767988d6091e7b855cc44af769832bc108db0e9adfb0e9e6e7ee2c75d",
+      "d8c1e80762c3b3e07eaa78ad243f67661fac1108ae7672157bb59f7e4ff385d8",
+      "8d11dca38e762bbe9a32d2a36a864c992b499acf6be65df429dbf5afdb065775",
+      "74537f02b337783cce2d7ae2291db6aae40f5ebf65e44e99497c1bad80685e7b",
+      "e20e501d5566212e0e503f1df9c9a2e81534caa153cdf0dcb3639478c5acc1c7",
+      "10a39d6cc872120daf40626ae181b2ed395b926cd871b7d7042734e19c3f11f1",
+      "74e7d240ca0e5d7ee7d0ec676b382f9958b1e55fff6bb9e7b1ab1fe879cf196a",
+      "ab826071e03e3b6f727df16bfc1e19397ea91ec50c025131d3a2ab7b26f358ff",
+      "744a2ad71b7decd3162c7406fd1aa6aa52cbbbd93a3e50f44644ba84ba35fcfc",
+      "fa2d9f8cd58ba4ff2d4ef02b12ff071acc6ff1ce60fb3c9f19cf84827eeaf034",
+      "4592024360bc14354c2d3b5270cb970c64f108116b0acabe5c566f236d24d0f1"
+    ],
+    "round2": "none",
+    "disabled_after": true
+  }
+}
