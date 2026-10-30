@@ -6,6 +6,9 @@ import { POST2029_PREVIEW_SNAPSHOT } from "./post2029PreviewSnapshot.js";
 import { formatBilingualDate } from "./timeline2029.js";
 import { buildPost2029ArchitectureWireframe, projectPost2029Experience } from "./post2029ExperienceProjection.js";
 import { isDocumentedIndiaCaptainPost } from "./topicSourceContext.js";
+import { hasSuppressedPublicPostTag } from "./publicPostBoundary.js";
+import { projectTopicCardContent } from "./topicConvergence.js";
+import { decodePublicEntities } from "../presentation/contentTitle.js";
 
 const clean = (value) => value == null ? "" : String(value).trim();
 
@@ -762,6 +765,7 @@ export async function fetchGoldenContextPackBySlug(slug) {
 
 export async function fetchPost2029ReadingProjection(slug) {
   const publicPost = await getPostBySlug(slug);
+  if (publicPost && !isPublicPostMeasureSource(publicPost)) return null;
   const privateStage = publicPost ? null : await fetchPrivateGoldenStage(slug);
   const previewSnapshot = !publicPost && !privateStage && slug === GOLDEN_SLUG ? POST2029_PREVIEW_SNAPSHOT : null;
   const post = publicPost || privateStage || previewSnapshot;
@@ -837,6 +841,9 @@ export async function fetchPost2029ReadingProjection(slug) {
   return {
     version: "post-2029-reading-v1",
     post: presentationPost,
+    // The unmodified, access-controlled source used for version revalidation.
+    // Render annotations never become historical source assertions.
+    sourcePost: post,
     identity: {
       type: "post",
       id: String(post.id),
@@ -872,6 +879,221 @@ export async function fetchPost2029ReadingProjection(slug) {
     experience,
     contextPack,
   };
+}
+
+// Post measures compose the existing public Post, Topic and canonical method
+// readers. No cache, graph edge, score or publication decision is created here.
+export function isPublicPostMeasureSource(post) {
+  return Boolean(post?.id != null && clean(post.slug) && post.home_hidden !== true
+    && !post._privateStage && !post._previewSnapshot && !hasSuppressedPublicPostTag(post)
+    && !["gpt-draft", "web"].includes(clean(post.source).toLowerCase()));
+}
+
+export async function revalidatePostMeasureSource(sourcePost, { client = supabase } = {}) {
+  if (!isPublicPostMeasureSource(sourcePost)) return { status: "source_unavailable" };
+  try {
+    const { data, error } = await client.from("posts")
+      .select("id,slug,content,tags,source,home_hidden,modified,date")
+      .eq("id", sourcePost.id).eq("slug", sourcePost.slug).limit(1);
+    if (error) return { status: "source_failed" };
+    const row = data?.[0];
+    if (!isPublicPostMeasureSource(row) || String(row.id) !== String(sourcePost.id)
+      || row.slug !== sourcePost.slug) return { status: "source_unavailable" };
+    if (clean(row.modified) !== clean(sourcePost.modified) || row.content !== sourcePost.content) {
+      return { status: "source_changed" };
+    }
+    return { status: "ready", source: row };
+  } catch { return { status: "source_failed" }; }
+}
+
+const exactPostValue = value => {
+  if (!["string", "number"].includes(typeof value) || !/^\d+$/.test(String(value).trim())) return null;
+  const n = Number(value);
+  return Number.isSafeInteger(n) ? n : null;
+};
+
+function sourceContainsPostCalculation(sourcePost, claim) {
+  if (!claim) return false;
+  // Attribute-level witness only, not semantic extraction from prose or OCR.
+  const html = String(sourcePost.content || "").replace(/<(script|style|pre|code|template)\b[^>]*>[\s\S]*?<\/\1>/gi, "");
+  for (const tag of html.matchAll(/<[a-z][^>]*\bdata-expression\s*=[^>]*>/gi)) {
+    const attrs = Object.fromEntries([...tag[0].matchAll(/\b(data-expression|data-method|data-result|data-method-version)\s*=\s*(["'])([\s\S]*?)\2/gi)]
+      .map(m => [m[1].toLowerCase(), decodePublicEntities(m[3], 1)]));
+    if (attrs["data-expression"] === claim.expression && clean(attrs["data-method"]) === claim.method
+      && exactPostValue(attrs["data-result"]) === claim.value
+      && (clean(attrs["data-method-version"]) || null) === claim.methodVersion) return true;
+  }
+  return false;
+}
+
+// This is an occurrence reader for explicit saved annotations, not an extractor
+// of number/phrase pairs from OCR, tags, typography or positional guesses.
+export function collectPostCalculationOccurrences2029(sourcePost, root, { sourceProjection = null } = {}) {
+  if (!isPublicPostMeasureSource(sourcePost) || !root?.ownerDocument) return [];
+  const template = root.ownerDocument.createElement("template");
+  template.innerHTML = String(sourcePost.content || "");
+  const authored = [...template.content.querySelectorAll("[data-expression]")]
+    .map(node => ({ node, binding: "saved_text_annotation" }));
+  const annotationKey = node => JSON.stringify(["data-expression", "data-method", "data-result", "data-method-version", "id", "data-region-id"]
+    .map(key => node.getAttribute(key)));
+  const savedAnnotations = new Set(authored.map(({ node }) => annotationKey(node)));
+  if (sourceProjection?.sourcePost === sourcePost && sourceProjection.golden === true) {
+    const projected = root.ownerDocument.createElement("template");
+    projected.innerHTML = String(sourceProjection.post.content || "");
+    authored.push(...[...projected.content.querySelectorAll("[data-contextual-number-focus='true'][data-expression]")]
+      .filter(node => !savedAnnotations.has(annotationKey(node)))
+      .map(node => ({ node, binding: "existing_reviewed_post_projection" })));
+  }
+  const locate = node => {
+    const nativeId = node.id || node.closest("[id]")?.id;
+    if (nativeId && [...root.querySelectorAll("[id]")].filter(el => el.id === nativeId).length === 1) {
+      return { locator: `#${nativeId}`, precision: node.id ? "occurrence" : "section" };
+    }
+    const regionId = node.getAttribute("data-region-id");
+    const region = regionId && [...root.querySelectorAll("[id]")].find(el => el.id === `source-region-${regionId}`);
+    return region ? { locator: `#${region.id}`, precision: "section" } : { locator: null, precision: "unlocated" };
+  };
+  const occurrences = new Map();
+  for (const { node, binding } of authored) {
+    if (node.closest("script,style,template,code,pre,[hidden],[aria-hidden='true']")) continue;
+    const expression = node.getAttribute("data-expression"); // preserve exact spelling/spacing
+    const method = clean(node.getAttribute("data-method")) || null;
+    const value = exactPostValue(node.getAttribute("data-result"));
+    const methodVersion = clean(node.getAttribute("data-method-version")) || null;
+    if (!expression?.trim()) continue;
+    const { locator, precision } = locate(node);
+    const sourceRef = `posts:${sourcePost.id}`;
+    const key = JSON.stringify([sourceRef, locator, expression, method, methodVersion, value]);
+    if (!occurrences.has(key)) occurrences.set(key, {
+      id: key, expression, lang: node.getAttribute("lang") || sourcePost.lang || null,
+      method, methodVersion, value, sourceRef, locator, locatorPrecision: precision,
+      sourceVersion: clean(sourcePost.modified) || null,
+      binding, sourceState: "source_claim_not_verified",
+      appearanceCount: 0,
+    });
+    occurrences.get(key).appearanceCount += 1;
+  }
+  return [...occurrences.values()];
+}
+
+export function collectPostSourcePlacements2029(sourcePost, root) {
+  if (!isPublicPostMeasureSource(sourcePost) || !root) return [];
+  const ref = `posts:${sourcePost.id}`;
+  const sources = [{ kind: "post_body", ref }, { kind: "tag", ref }];
+  for (const image of root.querySelectorAll("img[src]")) {
+    if (image.closest("[hidden],[aria-hidden='true']")) continue;
+    // Exact stored artifact ref/URL only. Similar-looking images are not merged.
+    const artifactRef = image.getAttribute("data-source-ref") || image.getAttribute("data-media-id") || image.getAttribute("src");
+    const locator = image.id || image.closest("[id]")?.id || null;
+    sources.push({ kind: "image", ref: artifactRef, artifactRef,
+      occurrence: { sourceRef: ref, locator: locator ? `#${locator}` : null } });
+  }
+  return sources;
+}
+
+const publicMeasureCard = (row, numbers) => {
+  if (row?.status !== "approved" || !clean(row.slug) || row.id == null
+    || projectTopicCardContent(row.findings).flags.doNotPublish) return null;
+  const shared = [...new Set((Array.isArray(row.numbers) ? row.numbers : [])
+    .map(exactPostValue).filter(n => n != null && numbers.includes(n)))];
+  if (!shared.length) return null;
+  return { id: String(row.id), slug: row.slug, label: stripTags(row.title || ""),
+    shared, quality: row.quality ?? null, meterScore: row.meter_score ?? null,
+    sourceRef: `topic_cards:${row.id}`, basis: "shared_number_indirect",
+    href: `/topic/${encodeURIComponent(row.slug)}`,
+  };
+};
+const POST_MEASURE_CARD_FIELDS = "id,slug,title,numbers,status,quality,meter_score,findings";
+export function postMeasureNumbers(sourcePost) {
+  return [...new Set((Array.isArray(sourcePost?.tags) ? sourcePost.tags : [])
+    .map(exactPostValue).filter(n => n != null))];
+}
+
+export async function readPostConvergencePage2029(sourcePost, {
+  client = supabase, offset = 0, pageSize = 8, selectedId = null,
+} = {}) {
+  const access = await revalidatePostMeasureSource(sourcePost, { client });
+  if (access.status !== "ready") return access;
+  const numbers = postMeasureNumbers(access.source);
+  if (!numbers.length) return { status: "not_tested", cards: [], hasMore: false, scope: "אין תגיות מספריות לאיתור במסלול הזה." };
+  const start = Math.max(0, Number.isSafeInteger(offset) ? offset : 0);
+  const size = Math.min(16, Math.max(1, Number.isSafeInteger(pageSize) ? pageSize : 8));
+  try {
+    let query = client.from("topic_cards_public").select(POST_MEASURE_CARD_FIELDS)
+      .overlaps("numbers", numbers).eq("status", "approved");
+    // Stable source ordering, never a maximum-score or popularity selection.
+    query = selectedId == null ? query.order("id", { ascending: true }).range(start, start + size)
+      : query.eq("id", selectedId).limit(1);
+    const { data, error } = await query;
+    if (error) return { status: "failed" };
+    const cards = (Array.isArray(data) ? data : []).map(row => publicMeasureCard(row, numbers)).filter(Boolean);
+    const after = await revalidatePostMeasureSource(sourcePost, { client });
+    if (after.status !== "ready") return after;
+    return { status: "ready", cards: cards.slice(0, size), hasMore: selectedId == null && cards.length > size,
+      nextOffset: start + size, numbers,
+      scope: `${selectedId == null ? `חלון של עד ${size} כרטיסים ציבוריים, החל מפריט ${start + 1}` : "הכרטיס שנבחר נבדק מחדש"}, דרך תגיות מספריות. אין כאן בדיקת קשר ישיר, עצמאות מקורות או כלל המאגר.` };
+  } catch { return { status: "failed" }; }
+}
+
+export async function checkPostCalculation2029(sourcePost, claim, {
+  client = supabase, profileReader = null, traceReader = null, checkSteps = false, sourceProjection = null,
+} = {}) {
+  const access = await revalidatePostMeasureSource(sourcePost, { client });
+  if (access.status !== "ready") return access;
+  const savedWitness = claim?.binding === "saved_text_annotation" && sourceContainsPostCalculation(access.source, claim);
+  // The pre-existing Golden adapters already locate/verify explicit authored
+  // equalities. Keep that route, with distinct provenance; it is not OCR or a tag.
+  const projectedWitness = claim?.binding === "existing_reviewed_post_projection"
+    && sourceProjection?.sourcePost === sourcePost && sourceProjection.golden === true
+    && sourceProjection.post.id === sourcePost.id
+    && sourceContainsPostCalculation(sourceProjection.post, claim);
+  if (claim?.sourceRef !== `posts:${sourcePost.id}` || (!savedWitness && !projectedWitness)
+    || !claim.locator || !claim.expression?.trim() || !claim.method || claim.value == null
+    || exactPostValue(claim.value) == null || claim.sourceVersion !== (clean(sourcePost.modified) || null)) {
+    return { status: "incomplete_claim", resultMatch: "not_tested", steps: "not_tested" };
+  }
+  try {
+    const { resolveExpressionFocus } = await import("./numberExpressionFocus.js");
+    const { fetchNumberMethodProfile } = await import("./numberCoreProjection.js");
+    const focus = await resolveExpressionFocus(claim.expression, {
+      preferredMethod: claim.method, expectedValue: claim.value,
+      profileReader: profileReader || (expression => fetchNumberMethodProfile(expression, { client })),
+    });
+    const profileAccess = await revalidatePostMeasureSource(sourcePost, { client });
+    if (profileAccess.status !== "ready") return profileAccess;
+    const selected = focus?.rows?.find(row => row.methodKey === focus.method);
+    if (!focus || selected?.lifecycleActive === false) return { status: "mismatch", resultMatch: "mismatch", steps: "not_tested" };
+    const version = selected?.definitionVersion ?? null;
+    if (version == null || (claim.methodVersion != null && String(claim.methodVersion) !== String(version))) {
+      return { status: "method_version_unavailable_or_changed", resultMatch: "not_tested", steps: "not_tested" };
+    }
+    let steps = "not_tested";
+    if (checkSteps) {
+      try {
+        const readTrace = traceReader || (async (method, expression) => {
+          const { data, error } = await client.rpc("gematria_method_trace", { p_method_key: method, p_phrase: expression });
+          if (error) throw error;
+          return data;
+        });
+        const trace = await readTrace(focus.method, claim.expression);
+        const { projectGematriaTrace } = await import("./gematriaTracePresentation.js");
+        const traceVersion = trace?.method_version ?? trace?.provenance?.method_version;
+        steps = !trace ? "unavailable" : String(traceVersion ?? "") !== String(version) ? "version_mismatch"
+          : projectGematriaTrace(trace, { expression: claim.expression, methodKey: focus.method, expectedValue: claim.value }).state === "ready"
+            ? "matched" : "unavailable_or_mismatch";
+      } catch { steps = "failed"; }
+    }
+    const after = await revalidatePostMeasureSource(sourcePost, { client });
+    if (after.status !== "ready") return after;
+    return { status: "ready", resultMatch: "matched", steps,
+      // The profile resolves identity, not the historical spelling or method version.
+      focus: { ...focus, expression: claim.expression }, methodVersion: String(version),
+      sourceMethodVersion: claim.methodVersion, claim,
+    };
+  } catch {
+    const after = await revalidatePostMeasureSource(sourcePost, { client });
+    return after.status !== "ready" ? after : { status: "failed", resultMatch: "failed", steps: "not_tested" };
+  }
 }
 
 export const post2029ReadingInternals = {

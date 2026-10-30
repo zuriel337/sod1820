@@ -4,7 +4,8 @@ import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience
 import SurfaceSectionNav2029 from "../components/experience2029/SurfaceSectionNav2029.jsx";
 import PostEvidenceMedia2029 from "../components/experience2029/PostEvidenceMedia2029.jsx";
 import PostTimeline2029 from "../components/experience2029/PostTimeline2029.jsx";
-import { fetchPost2029ReadingProjection, resolvePostReadingRegion } from "../lib/research/post2029ReadingProjection.js";
+import { fetchPost2029ReadingProjection, resolvePostReadingRegion, collectPostCalculationOccurrences2029, collectPostSourcePlacements2029, checkPostCalculation2029 } from "../lib/research/post2029ReadingProjection.js";
+import { useAuth } from "../lib/AuthContext.jsx";
 import { mergeContextPackWithConnections } from "../lib/research/goldenPostContextPacks.js";
 import { goldenPublicSurfaceFindings } from "../lib/research/goldenProjectorModes.js";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
@@ -51,6 +52,11 @@ function PostReadingBody() {
   const location = useLocation();
   const shell = use2029Shell();
   const research = useResearch();
+  const { user } = useAuth();
+  const [reloadTick, setReloadTick] = useState(0);
+  const [measureSource, setMeasureSource] = useState({ claims: [], placements: [] });
+  const [calculationNotice, setCalculationNotice] = useState(null);
+  const calculationRequest = useRef(0);
   const sourceRef = useRef(null);
   const connectionsHeadingRef = useRef(null);
   const explicitGematriaFocusRef = useRef(null);
@@ -64,6 +70,9 @@ function PostReadingBody() {
   useEffect(() => {
     let live = true;
     explicitGematriaFocusRef.current = null;
+    ++calculationRequest.current;
+    setMeasureSource({ claims: [], placements: [] });
+    setCalculationNotice(null);
     restoredRegionRef.current = null;
     setState({ loading: true, projection: null, error: null });
     fetchPost2029ReadingProjection(slug)
@@ -81,8 +90,8 @@ function PostReadingBody() {
       .catch((error) => {
         if (live) setState({ loading: false, projection: null, error: error?.message || "טעינת הפוסט נכשלה" });
       });
-    return () => { live = false; };
-  }, [slug]);
+    return () => { live = false; ++calculationRequest.current; };
+  }, [slug, user?.id, reloadTick]);
 
   useEffect(() => {
     if (!state.projection?.post) return;
@@ -196,7 +205,7 @@ function PostReadingBody() {
     if (!state.projection || !sourceRef.current || !regions.length) return undefined;
     // Existing authored gematria markings remain the actionable unit. Make
     // non-link legacy markings keyboard reachable without rewriting the source.
-    for (const node of sourceRef.current.querySelectorAll("[data-gem]")) {
+    for (const node of sourceRef.current.querySelectorAll("[data-gem],[data-expression]")) {
       if (/^\d[\d,]*$/.test(String(node.textContent || "").trim())) node.classList.add("sod-numlink");
       if (!node.matches("a,button") && !node.closest("a,button")) {
         node.setAttribute("role", "button");
@@ -224,7 +233,16 @@ function PostReadingBody() {
         : headings.find((node) => normalize(node.textContent) === normalize(region.heading));
       if (!heading) continue;
       heading.dataset.readingRegion = region.id;
-      heading.id = `source-region-${region.id}`;
+      const presentationId = `source-region-${region.id}`;
+      if (!heading.id) heading.id = presentationId;
+      else if (heading.id !== presentationId && ![...sourceRef.current.querySelectorAll("[id]")].some(node => node.id === presentationId)) {
+        // Preserve the author's native locator. Existing region navigation gets
+        // a presentation alias, never a replacement source identity.
+        const alias = document.createElement("span");
+        alias.id = presentationId; alias.setAttribute("aria-hidden", "true");
+        alias.dataset.postPresentationAnchor = "true";
+        heading.before(alias);
+      }
       mapped.push({ region, heading });
     }
     const requested = resolvePostReadingRegion(state.projection, entryRef.current?.context, location.hash);
@@ -393,11 +411,41 @@ function PostReadingBody() {
     });
   }, [activeRegionFocus?.id, state.projection?.post?.id, Boolean(state.projection?.contextPack)]);
 
+  useEffect(() => {
+    if (research.context?.subject?.type === "post" && research.context?.selection?.entityType === "post_occurrence") {
+      explicitGematriaFocusRef.current = null;
+    }
+  }, [research.context?.subject?.type, research.context?.selection?.entityType]);
+
+  useEffect(() => {
+    const sourcePost = state.projection?.sourcePost;
+    setMeasureSource({ claims: collectPostCalculationOccurrences2029(sourcePost, sourceRef.current, { sourceProjection: state.projection }),
+      placements: collectPostSourcePlacements2029(sourcePost, sourceRef.current) });
+  }, [state.projection]);
+
+  useEffect(() => {
+    // Existing source-native IDs (including future annotations) survive refresh,
+    // Back and Forward. Never synthesize a locator from scan position.
+    let id;
+    try { id = decodeURIComponent(location.hash.slice(1)); } catch { return; }
+    if (!id || !state.projection || !sourceRef.current) return;
+    const target = id === "post-measures" ? document.getElementById("post-measures")
+      : [...sourceRef.current.querySelectorAll("[id]")].find(node => node.id === id);
+    if (!target) return;
+    revealReadingAnchor(target);
+    const frame = requestAnimationFrame(() => {
+      target.scrollIntoView({ block: "start", behavior: "instant" });
+      if (!target.matches("button,a,input,summary")) target.setAttribute("tabindex", "-1");
+      target.focus({ preventScroll: true });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [state.projection, location.hash]);
+
   if (state.loading) {
     return <FrameState kind="loading" title="פותח את המקור">המילים נשארות במרכז; שכבת ההקשר נטענת מסביבן.</FrameState>;
   }
   if (state.error || !state.projection) {
-    return <FrameState kind="error" title="לא הצלחתי לפתוח את הפוסט">{state.error}</FrameState>;
+    return <FrameState kind="error" title="לא הצלחתי לפתוח את הפוסט">{state.error}<button type="button" onClick={() => setReloadTick(n => n + 1)}>ניסיון קריאה נוסף</button></FrameState>;
   }
 
   const { projection } = state;
@@ -448,6 +496,66 @@ function PostReadingBody() {
     journey: research.context?.journey || null,
   });
   const exactReturn = exactReturnForRegion(activeFocus);
+  const invalidatePostSource = status => {
+    ++calculationRequest.current;
+    explicitGematriaFocusRef.current = null;
+    setMeasureSource({ claims: [], placements: [] });
+    const dimensions = { ...(research.context?.dimensions || {}) };
+    for (const key of Object.keys(dimensions)) if (key.startsWith("postClaim") || key === "postMeasureSelectedCardId") dimensions[key] = null;
+    research.updateResearchContext?.({ subject: null, selection: null, returnTo: null, lens: null,
+      dimensions: { ...dimensions, surfaceFocus: null, readingFocus: null,
+        surfaceSections: [], surfaceFindings: [], bottomTrail: [], activeSectionId: null } });
+    if (status === "source_changed") {
+      setState({ loading: true, projection: null, error: null });
+      setReloadTick(n => n + 1); return;
+    }
+    setState({ loading: false, projection: null, error: status === "source_failed"
+      ? "קריאת המקור נכשלה; הנתונים הקודמים הוסתרו." : "המקור אינו זמין להצגה כעת." });
+  };
+  const openCheckedPostCalculation = result => {
+    const { claim, focus, methodVersion } = result;
+    const current = research.context || {};
+    const selection = { entityId: claim.id, entityType: "gematria_expression", sourceRef: claim.sourceRef,
+      locator: claim.locator, versionRef: claim.sourceVersion, expression: claim.expression,
+      method: focus.method, methodVersion, resultValue: focus.resultValue, focusKind: "expression" };
+    const subject = { id: String(focus.root), type: "number", label: String(focus.root), href: focus.href };
+    const surfaceFocus = { id: claim.id, type: "gematria_expression", label: claim.expression,
+      primary: claim.expression, expression: claim.expression, method: focus.method,
+      number: focus.resultValue, resultValue: focus.resultValue, locator: claim.locator, sourceLabel: projection.sourceLabel };
+    const bottomTrail = [{ id: "post", label: "פוסט" }, { id: "calculation", label: "טענת חישוב" }, { id: "number", label: String(focus.root), active: true }];
+    explicitGematriaFocusRef.current = { postId: String(post.id), subject, selection, surfaceFocus, bottomTrail };
+    const patch = { subject, selection, lens: "gematria", dimensions: { ...(current.dimensions || {}),
+      surfaceFocus, bottomTrail, postClaimBinding: claim.binding, postClaimResultMatch: result.resultMatch,
+      postClaimSourceRef: claim.sourceRef, postClaimSourceVersion: claim.sourceVersion,
+      postClaimLocator: claim.locator, postClaimMethodVersion: methodVersion,
+      postClaimSteps: result.steps, postClaimSourceMethodVersion: claim.methodVersion, postClaimLanguage: claim.lang },
+      returnTo: { ...exactReturnForRegion(activeFocus), href: `/post/${post.slug}${claim.locator}`,
+        selection: { ...selection, entityType: "post_occurrence" }, lens: "reading" } };
+    // Same existing activation seam as Topic: commit rich source/version context
+    // after the shared activation's generic selection, in the same React batch.
+    shell.openNumber?.({ id: claim.id, type: "phrase", label: claim.expression, expression: claim.expression,
+      method: focus.method, resultValue: focus.resultValue, number: focus.root,
+      href: `/post/${post.slug}${claim.locator}`, locator: claim.locator, sourceLabel: projection.sourceLabel, source: "post-exact-source-claim" });
+    research.updateResearchContext?.(patch);
+  };
+  const openPostSourceClaim = async claim => {
+    const ticket = ++calculationRequest.current;
+    setCalculationNotice("בודק את הביטוי, השיטה והמקור…");
+    const result = await checkPostCalculation2029(projection.sourcePost, claim, { sourceProjection: projection });
+    if (ticket !== calculationRequest.current) return;
+    if (result.status.startsWith("source_")) { invalidatePostSource(result.status); return; }
+    if (result.status !== "ready") { setCalculationNotice("לא ניתן לפתוח את הטענה בשיטה ובגרסה שנבחרו. אין מעבר לשיטה חלופית."); return; }
+    setCalculationNotice(null); openCheckedPostCalculation(result);
+  };
+  const openMeasureConnection = (event, href, card) => {
+    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    event.preventDefault();
+    research.updateResearchContext?.({ returnTo: { ...exactReturnForRegion(activeFocus),
+      href: `/post/${post.slug}#post-measures`, selection: { entityId: String(post.id), entityType: "post_region",
+        sourceRef: `posts:${post.id}`, locator: "#post-measures", versionRef: projection.sourcePost.modified || null },
+      dimensions: { ...(research.context?.dimensions || {}), postMeasureSelectedCardId: card?.id || null } } });
+    shell.go(href, { preserve: false });
+  };
   const openConnection = (event, href) => {
     if (!href || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     event.preventDefault();
@@ -553,100 +661,32 @@ function PostReadingBody() {
   };
 
   const openContextualNumberFocus = ({ expression, methodKey, resultValue, regionId } = {}) => {
-    const cleanExpression = String(expression || "").trim();
-    const cleanMethodKey = String(methodKey || "").trim();
+    const targetRegion = regions.find(region => region.id === regionId);
+    if (!targetRegion || !expression || !methodKey || resultValue == null || String(resultValue).trim() === "") return;
     const numericResult = Number(resultValue);
-    if (!cleanExpression || !cleanMethodKey || !Number.isSafeInteger(numericResult)) return;
-
-    const targetRegion = regions.find((region) => region.id === regionId)
-      || regions.find((region) => Number(region.number) === numericResult)
-      || activeFocus;
-    if (!targetRegion) return;
-
+    if (!Number.isSafeInteger(numericResult)) return;
     const locator = `#source-region-${targetRegion.id}`;
-    const explicitSubject = {
-      id: String(numericResult),
-      type: "number",
-      label: String(numericResult),
-      href: `/2029/number/${numericResult}`,
-    };
-    const explicitSelection = {
-      entityId: targetRegion.id,
-      entityType: "gematria_expression",
-      locator,
-      expression: cleanExpression,
-      method: cleanMethodKey,
-      resultValue: numericResult,
-    };
-    const explicitBottomTrail = [
-      { id: "post", label: "פוסט" },
-      { id: "gematria", label: "גימטריות" },
-      { id: "number", label: String(numericResult), active: true },
-    ];
-    const explicitSurfaceFocus = {
-      id: targetRegion.id,
-      type: "gematria_expression",
-      sectionLabel: "גימטריות",
-      label: cleanExpression,
-      primary: cleanExpression,
-      expression: cleanExpression,
-      method: cleanMethodKey,
-      resultValue: numericResult,
-      number: numericResult,
-      signals: targetRegion.signals || [],
-      sourceLabel: projection.sourceLabel,
-      locator,
-    };
-    explicitGematriaFocusRef.current = {
-      postId: String(post.id),
-      subject: explicitSubject,
-      selection: explicitSelection,
-      bottomTrail: explicitBottomTrail,
-      surfaceFocus: explicitSurfaceFocus,
-    };
-    setActiveRegionId(targetRegion.id);
-    research.updateResearchContext?.({
-      subject: explicitSubject,
-      selection: explicitSelection,
-      lens: "gematria",
-      dimensions: {
-        ...(research.context?.dimensions || {}),
-        bottomTrail: explicitBottomTrail,
-        surfaceFocus: explicitSurfaceFocus,
-        readingFocus: {
-          id: targetRegion.id,
-          label: targetRegion.label,
-          primary: targetRegion.primary,
-          signals: targetRegion.signals || [],
-          number: numericResult,
-          expression: cleanExpression,
-          method: cleanMethodKey,
-          resultValue: numericResult,
-          sourceLabel: projection.sourceLabel,
-          postId: String(post.id),
-          postSlug: post.slug,
-          locator,
-        },
-      },
-      returnTo: exactReturnForRegion(targetRegion),
-    });
-    shell.openNumber?.({
-      id: `post:${post.id}:${targetRegion.id}`,
-      type: "phrase",
-      label: cleanExpression,
-      href: `/post/${post.slug}${locator}`,
-      source: "post-contextual-focus",
-      expression: cleanExpression,
-      method: cleanMethodKey,
-      resultValue: numericResult,
-      number: numericResult,
-      locator,
-      sourceLabel: projection.sourceLabel,
-    });
+    // Existing reviewed Golden adapter, kept separate from saved annotations.
+    // Recheck the source and the exact registered method before the shared sheet.
+    void openPostSourceClaim({ id: `post:${post.id}:${targetRegion.id}:${expression}:${methodKey}`,
+      expression, method: methodKey, methodVersion: null, value: numericResult,
+      sourceRef: `posts:${post.id}`, sourceVersion: String(projection.sourcePost.modified || "").trim() || null,
+      locator, locatorPrecision: "section", binding: "existing_reviewed_post_projection", lang: null });
   };
 
   const handleSourceContextualFocus = (event) => {
     if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    const authored = event.target?.closest?.("[data-expression]");
+    if (authored && sourceRef.current?.contains(authored)) {
+      const rawValue = authored.getAttribute("data-result");
+      const value = rawValue != null && /^\d+$/.test(rawValue.trim()) ? Number(rawValue) : null;
+      const claim = measureSource.claims.find(row => row.expression === authored.getAttribute("data-expression")
+        && row.method === (authored.getAttribute("data-method")?.trim() || null) && row.value === value
+        && row.methodVersion === (authored.getAttribute("data-method-version")?.trim() || null)
+        && (row.locator === `#${authored.id}` || row.locator === `#${authored.closest("[id]")?.id}`
+          || row.locator === `#source-region-${authored.dataset.regionId}`));
+      if (claim) { event.preventDefault(); void openPostSourceClaim(claim); return; }
+    }
     const trigger = event.target?.closest?.("[data-contextual-number-focus='true']");
     if (trigger && sourceRef.current?.contains(trigger)) {
       event.preventDefault();
@@ -727,7 +767,7 @@ function PostReadingBody() {
       source: "post-master-hero",
       number: Number(number),
       locator: targetRegion ? `#source-region-${targetRegion.id}` : null,
-      sourceLabel: projection.sourceLabel,
+      sourceLabel: "מספר מתוך הפוסט · מעבר עקיף, ללא טענת חישוב",
     });
   };
 
@@ -823,7 +863,7 @@ function PostReadingBody() {
         aria-label="טקסט המקור"
         onClick={handleSourceContextualFocus}
         onKeyDown={(event) => {
-          if ((event.key === "Enter" || event.key === " ") && event.target?.matches?.('[data-gem][role="button"]')) {
+          if ((event.key === "Enter" || event.key === " ") && event.target?.matches?.('[data-gem][role="button"],[data-expression][role="button"]')) {
             event.preventDefault();
             handleSourceContextualFocus(event);
           }
@@ -834,7 +874,15 @@ function PostReadingBody() {
 
     </div>
 
-    <PostConvergenceMeasures2029 tags={post.tags} fallbackNumbers={heroNumbers} />
+    {calculationNotice ? <p role="status">{calculationNotice}</p> : null}
+    {!projection.draft && !projection.privateStage && !projection.previewSnapshot ? <div id="post-measures">
+      <PostConvergenceMeasures2029 key={`${post.id}:${post.modified || ""}:${user?.id || "public"}`}
+        sourcePost={projection.sourcePost} sourceProjection={projection} claims={measureSource.claims} placements={measureSource.placements}
+        initialCardId={research.context?.subject?.type === "post" && String(research.context.subject.id) === String(post.id)
+          ? research.context?.dimensions?.postMeasureSelectedCardId || null : null}
+        onOpenCalculation={openCheckedPostCalculation} onNavigate={openMeasureConnection}
+        onRefresh={() => invalidatePostSource("source_changed")} onSourceInvalid={invalidatePostSource} />
+    </div> : null}
 
     {contextualConnections.length ? <section id="post-connections" className="sod29-post-continuations" aria-labelledby="source-region-post-connections" data-experience-capability="post-connected-continuations">
       <header>

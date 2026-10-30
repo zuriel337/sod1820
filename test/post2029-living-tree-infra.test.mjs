@@ -266,13 +266,14 @@ test("Post Master Bennett fixture opens canonical contextual number focus withou
   assert.match(marked, /data-result="78"/);
 
   assert.match(page, /entityType: "gematria_expression"/);
-  assert.match(page, /expression: cleanExpression/);
-  assert.match(page, /method: cleanMethodKey/);
-  assert.match(page, /resultValue: numericResult/);
+  assert.match(page, /expression: claim.expression/);
+  assert.match(page, /method: focus.method/);
+  assert.match(page, /resultValue: focus.resultValue/);
   assert.match(page, /locator,/);
   assert.match(page, /type: "phrase"/);
-  assert.match(page, /source: "post-contextual-focus"/);
-  assert.match(page, /exactReturnForRegion\(targetRegion\)/);
+  assert.match(page, /source: "post-exact-source-claim"/);
+  assert.match(page, /checkPostCalculation2029\(projection.sourcePost, claim/);
+  assert.match(page, /href: `\/post\/\$\{post.slug\}\$\{claim.locator\}`/);
   assert.doesNotMatch(page, /SpatialMethodStage2029/);
   assert.doesNotMatch(page, /fetchGematriaMethodTrace/);
 });
