@@ -13,7 +13,7 @@ const { createServer } = await import(pathToFileURL(require.resolve("vite")));
 const react = (await import(pathToFileURL(require.resolve("@vitejs/plugin-react")))).default;
 const root = fileURLToPath(new URL("..", import.meta.url));
 const bundle = JSON.parse(readFileSync(new URL("../public/book-data/ahavat-torah.commentary.json", import.meta.url)));
-const out = "/workspace/artifacts/ahavat-native-source-fix-20261030-i85M6O/browser-output/ahavat-public-reading-2029";
+const out = "/workspace/artifacts/ahavat-reader-release-20261030-iJCdam/browser-output/ahavat-public-reading-2029";
 const settle = page => page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
 async function click(target) {
   await target.evaluate(element => element.scrollIntoView({ block: "center", behavior: "instant" }));
@@ -25,14 +25,17 @@ test("public book entry and all edited lessons preserve source, details and retu
   process.env.SOD_BUILD_TARGET = "2029";
   process.env.VITE_BOOK_PUBLICATION_REVIEW_PREVIEW = "true";
   process.env.VITE_INTEGRATED_PREVIEW = "true";
-  const server = await createServer({ root, configFile: false, cacheDir: `/workspace/artifacts/ahavat-native-source-fix-20261030-i85M6O/browser-output/ahavat-public-reading-2029${process.pid}`, plugins: [react()], appType: "spa", server: { host: "127.0.0.1", port: 0 } });
+  const server = await createServer({ root, configFile: false, cacheDir: `/workspace/artifacts/ahavat-reader-release-20261030-iJCdam/browser-output/ahavat-public-reading-2029${process.pid}`, plugins: [react()], appType: "spa", server: { host: "127.0.0.1", port: 0 } });
   await server.listen();
   const origin = `http://127.0.0.1:${server.httpServer.address().port}`;
-  const browser = await chromium.launch({ executablePath: "/usr/bin/chromium", headless: true, args: ["--no-sandbox"] });
+  let browser;
   const results = [];
   mkdirSync(out, { recursive: true });
   try {
     for (const width of [320, 390, 1440]) for (const theme of ["light", "parchment", "dark"]) {
+      // Isolate Chromium resources as well as cookies between the long lesson
+      // flows; retain real pointer/keyboard actions and the original deadline.
+      browser = await chromium.launch({ executablePath: "/usr/bin/chromium", headless: true, args: ["--no-sandbox"] });
       const context = await browser.newContext({ viewport: { width, height: 1000 }, reducedMotion: "reduce" });
       await context.addInitScript(value => { if (location.hostname === "127.0.0.1") localStorage.setItem("sod-theme", value); }, theme);
       // Copy/interaction matrix with exact source bytes; independent raster acceptance is separate.
@@ -52,7 +55,7 @@ test("public book entry and all edited lessons preserve source, details and retu
       await page.goto(`${origin}/2029/control?surface=ahavat-torah-system`, { waitUntil: "domcontentloaded" });
       const entry = page.getByRole("navigation", { name: "מאיפה מתחילים ללמוד", exact: true });
       await entry.waitFor();
-      assert.deepEqual(await page.locator(".ahavat29-metrics strong").allTextContents(), ["99", "98", "267", "98", "13"]);
+      assert.deepEqual(await page.locator(".ahavat29-metrics strong").allTextContents(), ["99", "98", "267", "98", "11"]);
       assert.equal(await page.locator(".ahavat29-pipeline").isVisible(), false);
       assert.doesNotMatch(await page.locator("main.ahavat29").innerText(), /מפת עבודה|המערכת שאנחנו בונים|השלב הבא למאגר הזה|arithmetic_verified|cross_validated/);
       assert.equal(await page.locator("canvas:not([data-book-pdf-canvas])").count(), 0);
@@ -104,10 +107,11 @@ test("public book entry and all edited lessons preserve source, details and retu
         await page.locator(".ahavat29-intro").waitFor();
         await page.screenshot({ path: `${out}/entry-${width}-${theme}.png` });
       }
-      results.push({ width, theme, status: "PASS", lessonEntry: true, editedLessons: 8, exactSourceReturn: true, noAutomaticGpu: true, noOverflow: true, servicesMocked: true, pdfAborted: false, physicalDevice: false });
+      results.push({ width, theme, status: "PASS", lessonEntry: true, editedLessons: 8, exactSourceReturn: true, noAutomaticGpu: true, noOverflow: true, servicesMocked: true, pdfAborted: true, physicalDevice: false });
       writeFileSync(`${out}/results.json`, JSON.stringify(results, null, 2) + "\n");
       console.log(`Public reading ${width}/${theme}: PASS`);
       await context.close();
+      await browser.close(); browser = null;
     }
-  } finally { await browser.close(); await server.close(); }
+  } finally { await browser?.close(); await server.close(); }
 });

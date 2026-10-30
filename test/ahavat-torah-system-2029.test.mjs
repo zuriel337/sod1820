@@ -3,6 +3,8 @@ import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import {
   AHAVAT_TORAH_DATASETS,
+  AHAVAT_LOCATED_DATASETS,
+  AHAVAT_UNLOCATED_DATASETS,
   AHAVAT_TORAH_DEEP_PAGES,
   AHAVAT_TORAH_AI_EXPLANATIONS_HE,
   AHAVAT_TORAH_EXTRACTION_LAYERS,
@@ -82,7 +84,8 @@ test("first findings remain typed and agree with the bounded source bundle", () 
   assert.equal(letterTotal.value, "304,812");
   assert.equal(letterTotal.page, 42);
   assert.match(letterTotal.formula, /ש״ד אלף תתי״ב/);
-  assert.match(letterTotal.sourceNote, /לא בוצעה ספירת קורפוס/);
+  assert.match(letterTotal.sourceNote, /סוף הטור השמאלי/);
+  assert.match(page, /לא בוצעה כאן ספירת קורפוס עצמאית/);
   assert.equal(AHAVAT_TORAH_DATASETS.find(dataset => dataset.id === "DS-04").state, "partial", "total reading does not complete all parasha cells");
   assert.match(byDataset.get("DS-04").total, /candidate/, "historical source dossier remains provenance");
   assert.equal(AHAVAT_TORAH_FINDINGS.find(finding => finding.dataset === "DS-09").status, "source_located");
@@ -101,7 +104,10 @@ test("all bounded datasets and deep-read pages are represented without upgrading
     assert.ok(dataset.nextStep.length > 25);
     assert.ok(dataset.pages.every(value => value >= 1 && value <= 99));
   }
-  assert.match(page, /13 נושאים לחקירה בספר/);
+  assert.equal(AHAVAT_LOCATED_DATASETS.length, 11);
+  assert.deepEqual(AHAVAT_UNLOCATED_DATASETS.map(item => item.id), ["DS-07", "DS-08"]);
+  assert.match(page, /AHAVAT_LOCATED_DATASETS.length\} נושאים לקריאה בספר/);
+  assert.match(page, /פרטי המקור ואיתורים נוספים/);
   assert.match(page, /99 עמודים · קורא מלא וחיפוש/);
   assert.match(page, /ahavatCompanionPage\(companion, page\)/);
   assert.doesNotMatch(page, /קריאת עומק בהמשך/);

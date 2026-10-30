@@ -69,7 +69,7 @@ test("unlocated transmission/Tochecha datasets never reuse disproved page estima
   assert.match(page, /מראה־המקום בבירור/);
   assert.match(page, /ה־PDF נשאר פתוח בעמוד הנוכחי/);
   assert.match(page, /dataset\.id === datasetId && dataset\.pages\.includes\(page\)/);
-  assert.match(page, /contextLabel=\{selectedFinding\?\.dataset \|\| locatedDataset\?\.id \|\| selectedSection\.shortTitle\}/);
+  assert.match(page, /contextLabel=\{selectedFinding\?\.title \|\| locatedDataset\?\.title \|\| selectedSection\.shortTitle\}/);
 });
 
 test("new occurrence readings fail closed for a foreign identity, hash, page, anchor or malformed row", () => {

@@ -80,5 +80,5 @@ test("entry offers real deep lessons through canonical source identities, not a 
   assert.doesNotMatch(page, /מפת עבודה|השלב הבא למאגר הזה|המערכת שאנחנו בונים|למערכת העתידית/);
   assert.match(page, /<summary>פרטי המקור ומצב המחקר<\/summary>/);
   assert.match(page, /<summary>פרטי המקור והמשך הבדיקה<\/summary>/);
-  assert.match(page, /<summary>פרטי המקור והבדיקה<\/summary><p>מעמד חישוב:/);
+  assert.match(page, /<summary>פרטי המקור והבדיקה<\/summary><p>מזהה נושא: \{selectedFinding.dataset\}<\/p><p>מעמד חישוב:/);
 });

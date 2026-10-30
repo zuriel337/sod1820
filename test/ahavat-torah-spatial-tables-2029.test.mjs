@@ -30,7 +30,9 @@ test("the table explorer exposes every bounded structured layer", () => {
   assert.equal(bundle.calculations.length, 7);
   assert.equal(bundle.number_families.length, 9);
   assert.equal(bundle.contradictions.length, 10);
-  for (const count of [13, 187, 10, 5, 7, 9, 10]) assert.match(page, new RegExp(`count: ${count}`));
+  assert.match(page, /id: "datasets", label: "נושאי הספר", count: AHAVAT_LOCATED_DATASETS.length/);
+  for (const count of [187, 10, 5, 7, 9, 10]) assert.match(page, new RegExp(`count: ${count}`));
+  assert.match(page, /AHAVAT_TORAH_DATASETS.map\(dataset => <button/);
   assert.match(page, /function OccurrenceTable/);
   assert.match(page, /function ResearchCards/);
   assert.match(page, /פרטי המקור/);

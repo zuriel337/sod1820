@@ -26,7 +26,7 @@ test("Ahavat Torah spatial tables keep source, data and 3D usable at 320/390/144
   process.env.VITE_BOOK_PUBLICATION_REVIEW_PREVIEW = "true";
   const server = await vite.createServer({
     root: ROOT,
-    configFile: false, cacheDir: `/workspace/artifacts/ahavat-native-source-fix-20261030-i85M6O/browser-output/ahavat-torah-spatial-tables-2029${process.pid}`,
+    configFile: false, cacheDir: `/workspace/artifacts/ahavat-reader-release-20261030-iJCdam/browser-output/ahavat-torah-spatial-tables-2029${process.pid}`,
     plugins: [reactPlugin()],
     appType: "spa",
     server: { host: "127.0.0.1", port: 0 },
@@ -63,7 +63,7 @@ test("Ahavat Torah spatial tables keep source, data and 3D usable at 320/390/144
       const errors = [];
       page.on("pageerror", error => errors.push(error.message));
       await page.goto(`${base}/2029/control?surface=ahavat-torah-system`, { waitUntil: "domcontentloaded" });
-      await page.getByRole("heading", { name: "טבלאות שאפשר להיכנס לתוכן", exact: true }).waitFor();
+      await page.getByRole("heading", { name: "מן המניין אל עמוד המקור", exact: true }).waitFor();
       await page.locator('#ahavat29-source :is(iframe,[data-book-pdf-renderer="controlled"])').waitFor();
 
       await click(page.locator(".ahavat29-ds01-equation button").filter({ hasText: "שמות" }));
@@ -87,6 +87,7 @@ test("Ahavat Torah spatial tables keep source, data and 3D usable at 320/390/144
         assert.ok(sourceBox && storyBox && sourceBox.y < storyBox.y, `PDF source is not first at ${width}px`);
       }
 
+      await click(page.getByText("מפת עמודי המקור ופרטי הקריאה", { exact: true }));
       await click(page.getByRole("button", { name: "פתח מצפה תלת־ממדי", exact: true }));
       await page.locator(".ahavat29-spatial-canvas canvas").waitFor();
       assert.equal(await page.locator(".ahavat29-spatial-canvas canvas").count(), 1);

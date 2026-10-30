@@ -7,7 +7,9 @@ test("DS-05 reads five separate book summaries, never claims full per-parasha tr
   assert.deepEqual(books.map(book => book.id), ["bereshit", "shemot", "vayikra", "bamidbar", "devarim"]);
   const rows = ahavatPeopleRows();
   assert.equal(rows.length, 122);
-  assert.equal(rows.flatMap(row => [row.times, row.words]).filter(cell => cell.value !== null).length, 242);
+  assert.equal(rows.flatMap(row => [row.times, row.words]).filter(cell => cell.value !== null).length, 243);
+  assert.deepEqual(rows.filter(row => row.words.value === null).map(row => row.id), ["bereshit:50"]);
+  assert.deepEqual(rows.find(row => row.id === "shemot:2").words, { printed: "ו׳ אלף תר״ח", value: 6608 });
   // Transcription consistency only: decode numeral glyphs, never count a corpus
   // or turn a source reading into a canonical engine result.
   const glyphs = Object.fromEntries([...["אבגדהוזחט", "יכלמנסעפצ", "קרשת"]].flatMap((group, index) => [...group].map((letter, ordinal) => [letter, (ordinal + 1) * 10 ** index])));

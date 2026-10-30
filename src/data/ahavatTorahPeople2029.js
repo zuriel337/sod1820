@@ -7,10 +7,15 @@ const reading = token => {
   if (!printed || value !== null && (!Number.isSafeInteger(value) || value < 0)) throw new Error("Invalid attribution reading");
   return Object.freeze({ printed, value });
 };
+export const AHAVAT_PEOPLE_REVIEWED_READINGS = Object.freeze([
+  Object.freeze({ id: "shemot:2", metric: "words", printed: "ו׳ אלף תר״ח", value: 6608, previousPrinted: "?", previousValue: null, page: 28, sourceIdentity: "book:hebrewbooks:5635", sourcePdfSha256: "895e9a720d984adf8ea453b644e3f6d0864e101238f348f418aa5fafa20e9c8b", sourceAnchor: "#page=28&view=FitH", region: "טור ימני, סיכום ספר שמות, שורת תורה", engineVerification: "not_tested" }),
+]);
 function summary(id, title, page, lines) {
   const rows = lines.trim().split("\n").map((line, ordinal) => {
     const [entity, times, words, sourcePage] = line.trim().split("|");
-    return Object.freeze({ id: `${id}:${ordinal + 1}`, entity, times: reading(times), words: reading(words), page: Number(sourcePage) || page, book: title, bookId: id, ordinal: ordinal + 1 });
+    const rowId = `${id}:${ordinal + 1}`;
+    const reviewed = AHAVAT_PEOPLE_REVIEWED_READINGS.find(item => item.id === rowId && item.metric === "words" && item.page === (Number(sourcePage) || page));
+    return Object.freeze({ id: rowId, entity, times: reading(times), words: reviewed ? Object.freeze({ printed: reviewed.printed, value: reviewed.value }) : reading(words), page: Number(sourcePage) || page, book: title, bookId: id, ordinal: ordinal + 1 });
   });
   return Object.freeze({ id, title, pages: Object.freeze([...new Set(rows.map(row => row.page))]), rows: Object.freeze(rows) });
 }

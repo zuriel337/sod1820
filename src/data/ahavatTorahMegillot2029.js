@@ -40,6 +40,15 @@ const source = [
   ["שׂ", 43, "קל״ז=137|ל״ד=34|נ״ו=56|נ״א=51|קט״ו=115"],
   ["ת", 43, "תש״ד=704|ש״ו=306|שע״ו=376|רצ״א=291|תקע״ג=573"],
 ];
+// Bounded, direct readings of the scan; retain the earlier uncertain tokens above.
+// Neither author totals nor row balances are used to recover a missing cell.
+export const AHAVAT_MEGILLOT_REVIEWED_READINGS = Object.freeze([
+  { id: "ruth:ו", printed: "תרצ״ג", count: 693, page: 42, region: "טור ימני, שורת ו״ו" },
+  { id: "kohelet:ם", printed: "תכ״ב", count: 422, page: 42, region: "טור שמאלי, שורת מ״ם סופית" },
+  { id: "shir:ע", printed: "קפ״ד", count: 184, page: 42, region: "טור שמאלי, שורת עי״ן" },
+  { id: "ruth:ף", printed: "ג׳", count: 3, page: 43, region: "ראש הטור הימני, שורת פ״א סופית" },
+  { id: "kohelet:ף", printed: "כ״ב", count: 22, page: 43, region: "ראש הטור הימני, שורת פ״א סופית" },
+].map(reading => Object.freeze({ ...reading, previousPrinted: "?", previousCount: null, sourceIdentity: "book:hebrewbooks:5635", sourcePdfSha256: "895e9a720d984adf8ea453b644e3f6d0864e101238f348f418aa5fafa20e9c8b", sourceAnchor: `#page=${reading.page}&view=FitH`, engineVerification: "not_tested" })));
 export const AHAVAT_MEGILLAH_LETTER_ROWS = Object.freeze(source.flatMap(([form, page, cells]) => {
   const readings = cells.split("|");
   if (readings.length !== 5) throw new Error("Incomplete megillah matrix row");
@@ -47,7 +56,9 @@ export const AHAVAT_MEGILLAH_LETTER_ROWS = Object.freeze(source.flatMap(([form, 
     const [printed, value] = readings[index].split("=");
     const count = value === "?" ? null : Number(value);
     if (!printed || count !== null && (!Number.isSafeInteger(count) || count < 0)) throw new Error("Invalid megillah reading");
-    return Object.freeze({ id: `${megillah.id}:${form}`, megillahId: megillah.id, megillah: megillah.title, form, printed, count, page, kind: "letters" });
+    const id = `${megillah.id}:${form}`;
+    const reviewed = AHAVAT_MEGILLOT_REVIEWED_READINGS.find(reading => reading.id === id && reading.page === page);
+    return Object.freeze({ id, megillahId: megillah.id, megillah: megillah.title, form, printed: reviewed?.printed ?? printed, count: reviewed?.count ?? count, page, kind: "letters" });
   });
 }));
 

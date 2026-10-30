@@ -30,8 +30,8 @@ test("all 287 existing source units retain unique stable identifiers and exact l
 });
 
 test("link projection preserves source rows, null cells and the unresolved Eicha balance", () => {
-  assert.equal(AHAVAT_PEOPLE_BOOKS.flatMap(book => book.rows).flatMap(row => [row.times, row.words]).filter(cell => cell.value === null).length, 2);
-  assert.equal(ahavatMegillahRows().filter(row => row.count === null).length, 8);
+  assert.equal(AHAVAT_PEOPLE_BOOKS.flatMap(book => book.rows).flatMap(row => [row.times, row.words]).filter(cell => cell.value === null).length, 1);
+  assert.deepEqual(ahavatMegillahRows().filter(row => row.count === null).map(row => row.id), ["kohelet:א", "esther:ב", "esther:ד"]);
   assert.deepEqual(ahavatMegillahBalance("eicha"), { rowTotal: 5784, delta: -190 });
   assert.equal(AHAVAT_MEGILLOT.find(item => item.id === "eicha").letters[1], 5974);
   for (const row of ahavatPeopleRows()) assert.equal(ahavatReaderUnit(`people:${row.id}`).page, row.page);
