@@ -3,6 +3,7 @@
 Task: `ELS_UNIFIED_RESEARCH_WORKSPACE_20261030`, actor GPT, handoff to ZURIEL.
 Base: `926c791e536d617daa439ddb564f400a81c03632` (remote verified).
 Branch: `gpt/els-unified-research-workspace-20261030`.
+Code commit: `7e1981439a0c5401aa9c71ffd3f09e8815040ebc`.
 Historical reference: `248c10ecaceb48c044833c86f9a46c4b7faf5581`.
 
 ## BEFORE / scope
@@ -116,11 +117,11 @@ explicitly **not complete**.
 | Focused ELS/grouping/exact return/vector/Raziel/Fable projection tests | 61/61 on final code |
 | New group-specific tests (included above) | 9/9; all families, scaled-vector Golden, reverse direction, false parallels, fragments, bounded corridor, atomic preparation, stale context and dense input |
 | Broad non-browser ELS run | 353 tests: 342 pass, 7 fail, 4 local-PostgreSQL skips; seven failures reproduced unchanged on clean base in the four affected source-contract files (18 pass / 7 fail) |
-| Actual Native UI full run | Pending |
+| Actual Native UI full run | 53/53, zero failures/skips, 473.9s on final runtime code; Classic/privacy/save/cross/Guided/Fable/Research and all presets |
 | Focused actual scan + group admission + individual admission + mobile/theme visual run | PASS; 320/390/1440 × light/parchment/dark, 18 screenshots; 320 Day and 1440 Night group views inspected |
 | Additional Advanced/Research controls/background/real global Raziel browser suites | 6/6; final built Raziel responsive suite also rerun, PASS |
 | Both Legacy and 2029 builds | PASS, real dependencies, no stub |
-| Built graph / lazy budget | PASS, eager gzip 419,460 bytes; Raziel adapters and research-plan chunk remain lazy |
+| Built graph / lazy budget | PASS, eager gzip 419,459 bytes; Raziel adapters and research-plan chunk remain lazy |
 | 2029 isolation, hardening, System Frame, Legacy Production lock, diff check | PASS |
 
 React guidance influenced lazy mounting and one response owner: no new global
@@ -137,5 +138,30 @@ The seven broad failures are pre-existing source-regex expectations in
 Their assertions were not weakened or removed. The four skips need isolated
 local PostgreSQL; no live database was substituted.
 
-Final branch handoff: pending full Native acceptance. No merge, main push,
-Preview, Edge, Production, AI call or product DB/RLS write performed in this cut.
+The existing experiment ledger is untouched. Later EXP-21..24 artifacts remain
+in their isolated experiment branches as recorded in the earlier restoration
+receipt; this UI cut does not claim that the product branch now contains the
+complete experimental journal.
+
+## Files / handoff boundary
+
+- UI: `ElsNativeClassic2029.jsx`, `ElsLexiconResearch2029.jsx`,
+  `ElsStructureResearch2029.jsx`, `elsLexiconResearch2029.css`.
+- Existing adapters: `elsStructureInspection.js`, `elsLexiconResearch.js`.
+- Tests: `els-native-ui-browser.test.mjs`, `els-unified-discovery.test.mjs`.
+- This review/capability inventory.
+
+Canonical template/public assets, vector owner, pages, shared Frame/Providers,
+server functions and experiment source branches are unchanged. All further
+historical restoration belongs inside this Research workspace, with parity
+acceptance before activation, not another top-level side panel.
+
+## AFTER / passive handoff to ZURIEL
+
+PLANNED / IMPLEMENTED / TESTED; branch-only delivery. Scope released after push.
+Full Native acceptance above is the final uninterrupted run; earlier development
+runs stopped for code review or environment restart are not counted as acceptance.
+No merge, main push, Preview, Edge, Production, AI call or product DB/RLS write
+performed in this cut. No live work-log row is claimed; this receipt is for the
+authorized coordinator. Open threads are the explicit inventory gaps, not another
+UI workspace. The prior protected Preview is unchanged and does not contain this cut.
