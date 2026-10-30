@@ -1,0 +1,1243 @@
+{
+  "experiment": "EXP-23",
+  "run": "G02B",
+  "group": "G02",
+  "role": "saved_lines",
+  "control_of": null,
+  "arm": "B",
+  "lines": [
+    "R09",
+    "R10",
+    "R11",
+    "R12",
+    "R13",
+    "R14",
+    "R15",
+    "R16"
+  ],
+  "request_sha256": "e013224e95401bcccb660c87836d2059aa3b03e95931543c38acf56a0e998f89",
+  "lock_sha256": "7fdff66057b3f8ab9892aa9bff8dc96fbe30e2761f8e189fefb8f7ae4a27f284",
+  "model": "claude-fable-5-1",
+  "cap": 12,
+  "window_sha256": "208cbe689b68f941daf995f07ff490d8974a5c13128f1724c8792471c02802fe",
+  "batch": {
+    "id": "msgbatch_01UDrr4E3vdEUxBoS2mRB2LW",
+    "created_at": "2026-10-30T03:28:27.187406+00:00",
+    "ended_at": "2026-10-30T03:30:52.352064+00:00",
+    "request_counts": {
+      "processing": 0,
+      "succeeded": 1,
+      "errored": 0,
+      "canceled": 0,
+      "expired": 0
+    }
+  },
+  "timing": {
+    "created_at": "2026-10-30T03:28:27.187406+00:00",
+    "ended_at": "2026-10-30T03:30:52.352064+00:00",
+    "batch_ms": 145165,
+    "wall_ms": 156828
+  },
+  "usage": {
+    "input_tokens": 3117,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "cache_creation": {
+      "ephemeral_5m_input_tokens": 0,
+      "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 4139,
+    "output_tokens_details": {
+      "thinking_tokens": 2764
+    },
+    "service_tier": "batch",
+    "inference_geo": "global",
+    "speed": "standard"
+  },
+  "cost": {
+    "usd": 0.11906,
+    "ils": {
+      "amount": 0.4405,
+      "currency": "ILS",
+      "status": "ESTIMATED",
+      "fx": {
+        "ils_per_usd": 3.7,
+        "basis": "ASSUMPTION_NOT_VERIFIED",
+        "effective_at": null,
+        "source_ref": null
+      }
+    },
+    "list_price_parts_usd": {
+      "input": 0.03117,
+      "cacheWrite": 0,
+      "cacheRead": 0,
+      "output": 0.20695
+    },
+    "batch_factor": 0.5,
+    "provider_currency": "USD",
+    "basis": "list prices, Message Batches at 50%; from the usage object; not an invoice",
+    "certainty": "ESTIMATED_FROM_USAGE_AND_LIST_PRICES"
+  },
+  "output": {
+    "stop_reason": "end_turn",
+    "input_tokens": 3117,
+    "output_tokens": 4139,
+    "thinking_tokens": 2764
+  },
+  "state": "COMPLETE",
+  "findings": [
+    {
+      "id": "G02B.f01",
+      "text": "מחלהונעהחגלהמלכהותרצה",
+      "parts": [],
+      "line": "R09+",
+      "verification": {
+        "state": "PLAIN_TEXT_ONLY",
+        "reasons": [],
+        "letters_match": true,
+        "occurrences_verified": 1,
+        "engine": null
+      },
+      "occurrence": {
+        "reading": "R09+",
+        "skip": 1,
+        "dir": 1,
+        "start": 232471,
+        "length": 21,
+        "cells": [
+          [
+            9,
+            8
+          ],
+          [
+            9,
+            9
+          ],
+          [
+            9,
+            10
+          ],
+          [
+            9,
+            11
+          ],
+          [
+            9,
+            12
+          ],
+          [
+            9,
+            13
+          ],
+          [
+            9,
+            14
+          ],
+          [
+            9,
+            15
+          ],
+          [
+            9,
+            16
+          ],
+          [
+            9,
+            17
+          ],
+          [
+            9,
+            18
+          ],
+          [
+            9,
+            19
+          ],
+          [
+            9,
+            20
+          ],
+          [
+            9,
+            21
+          ],
+          [
+            9,
+            22
+          ],
+          [
+            9,
+            23
+          ],
+          [
+            9,
+            24
+          ],
+          [
+            9,
+            25
+          ],
+          [
+            9,
+            26
+          ],
+          [
+            9,
+            27
+          ],
+          [
+            9,
+            28
+          ]
+        ]
+      },
+      "chance": null,
+      "relation_to_axis": {
+        "distance": 4,
+        "relation": "far"
+      },
+      "model_claims": {
+        "kind": null,
+        "tier": null,
+        "continue_from": false,
+        "note": "",
+        "status": "UNVERIFIED_INTERPRETATION"
+      },
+      "group_check": {
+        "model_line": "R09+",
+        "cited_line_in_group": true,
+        "duplicate": false,
+        "display": "מחלה ונעה חגלה מלכה ותרצה",
+        "classification": "name",
+        "explanation": "רצף של חמישה שמות פרטיים מחוברים בו' החיבור, מוכר כשמות בנות צלפחד.",
+        "split_preserves_letters": true
+      }
+    },
+    {
+      "id": "G02B.f02",
+      "text": "ושמבתאשרשרח",
+      "parts": [],
+      "line": "R10+",
+      "verification": {
+        "state": "PLAIN_TEXT_ONLY",
+        "reasons": [],
+        "letters_match": true,
+        "occurrences_verified": 1,
+        "engine": null
+      },
+      "occurrence": {
+        "reading": "R10+",
+        "skip": 1,
+        "dir": 1,
+        "start": 233061,
+        "length": 11,
+        "cells": [
+          [
+            10,
+            15
+          ],
+          [
+            10,
+            16
+          ],
+          [
+            10,
+            17
+          ],
+          [
+            10,
+            18
+          ],
+          [
+            10,
+            19
+          ],
+          [
+            10,
+            20
+          ],
+          [
+            10,
+            21
+          ],
+          [
+            10,
+            22
+          ],
+          [
+            10,
+            23
+          ],
+          [
+            10,
+            24
+          ],
+          [
+            10,
+            25
+          ]
+        ]
+      },
+      "chance": null,
+      "relation_to_axis": {
+        "distance": 3,
+        "relation": "far"
+      },
+      "model_claims": {
+        "kind": null,
+        "tier": null,
+        "continue_from": false,
+        "note": "",
+        "status": "UNVERIFIED_INTERPRETATION"
+      },
+      "group_check": {
+        "model_line": "R10+",
+        "cited_line_in_group": true,
+        "duplicate": false,
+        "display": "ושם בת אשר שרח",
+        "classification": "name",
+        "explanation": "צירוף סמיכות 'בת אשר' עם השם הפרטי שרח.",
+        "split_preserves_letters": true
+      }
+    },
+    {
+      "id": "G02B.f03",
+      "text": "משהואתמרימאחתמ",
+      "parts": [],
+      "line": "R11+",
+      "verification": {
+        "state": "PLAIN_TEXT_ONLY",
+        "reasons": [],
+        "letters_match": true,
+        "occurrences_verified": 1,
+        "engine": null
+      },
+      "occurrence": {
+        "reading": "R11+",
+        "skip": 1,
+        "dir": 1,
+        "start": 233635,
+        "length": 14,
+        "cells": [
+          [
+            11,
+            6
+          ],
+          [
+            11,
+            7
+          ],
+          [
+            11,
+            8
+          ],
+          [
+            11,
+            9
+          ],
+          [
+            11,
+            10
+          ],
+          [
+            11,
+            11
+          ],
+          [
+            11,
+            12
+          ],
+          [
+            11,
+            13
+          ],
+          [
+            11,
+            14
+          ],
+          [
+            11,
+            15
+          ],
+          [
+            11,
+            16
+          ],
+          [
+            11,
+            17
+          ],
+          [
+            11,
+            18
+          ],
+          [
+            11,
+            19
+          ]
+        ]
+      },
+      "chance": null,
+      "relation_to_axis": {
+        "distance": 2,
+        "relation": "far"
+      },
+      "model_claims": {
+        "kind": null,
+        "tier": null,
+        "continue_from": false,
+        "note": "",
+        "status": "UNVERIFIED_INTERPRETATION"
+      },
+      "group_check": {
+        "model_line": "R11+",
+        "cited_line_in_group": true,
+        "duplicate": false,
+        "display": "משה ואת מרים אחתם",
+        "classification": "name",
+        "explanation": "שמות פרטיים משה ומרים עם כינוי שייכות 'אחתם'.",
+        "split_preserves_letters": true
+      }
+    },
+    {
+      "id": "G02B.f04",
+      "text": "כיאינלובנתנהלנואחזה",
+      "parts": [],
+      "line": "R12+",
+      "verification": {
+        "state": "PLAIN_TEXT_ONLY",
+        "reasons": [],
+        "letters_match": true,
+        "occurrences_verified": 1,
+        "engine": null
+      },
+      "occurrence": {
+        "reading": "R12+",
+        "skip": 1,
+        "dir": 1,
+        "start": 234229,
+        "length": 19,
+        "cells": [
+          [
+            12,
+            17
+          ],
+          [
+            12,
+            18
+          ],
+          [
+            12,
+            19
+          ],
+          [
+            12,
+            20
+          ],
+          [
+            12,
+            21
+          ],
+          [
+            12,
+            22
+          ],
+          [
+            12,
+            23
+          ],
+          [
+            12,
+            24
+          ],
+          [
+            12,
+            25
+          ],
+          [
+            12,
+            26
+          ],
+          [
+            12,
+            27
+          ],
+          [
+            12,
+            28
+          ],
+          [
+            12,
+            29
+          ],
+          [
+            12,
+            30
+          ],
+          [
+            12,
+            31
+          ],
+          [
+            12,
+            32
+          ],
+          [
+            12,
+            33
+          ],
+          [
+            12,
+            34
+          ],
+          [
+            12,
+            35
+          ]
+        ]
+      },
+      "chance": null,
+      "relation_to_axis": {
+        "distance": 1,
+        "relation": "touches"
+      },
+      "model_claims": {
+        "kind": null,
+        "tier": null,
+        "continue_from": false,
+        "note": "",
+        "status": "UNVERIFIED_INTERPRETATION"
+      },
+      "group_check": {
+        "model_line": "R12+",
+        "cited_line_in_group": true,
+        "duplicate": false,
+        "display": "כי אין לו בן תנה לנו אחזה",
+        "classification": "clear_word_or_phrase",
+        "explanation": "משפט תקין עם מילית סיבה, שלילה, ציווי 'תנה' ושם עצם 'אחזה'.",
+        "split_preserves_letters": true
+      }
+    },
+    {
+      "id": "G02B.f05",
+      "text": "אשריוציאמואשריביאמ",
+      "parts": [],
+      "line": "R13+",
+      "verification": {
+        "state": "PLAIN_TEXT_ONLY",
+        "reasons": [],
+        "letters_match": true,
+        "occurrences_verified": 1,
+        "engine": null
+      },
+      "occurrence": {
+        "reading": "R13+",
+        "skip": 1,
+        "dir": 1,
+        "start": 234809,
+        "length": 18,
+        "cells": [
+          [
+            13,
+            14
+          ],
+          [
+            13,
+            15
+          ],
+          [
+            13,
+            16
+          ],
+          [
+            13,
+            17
+          ],
+          [
+            13,
+            18
+          ],
+          [
+            13,
+            19
+          ],
+          [
+            13,
+            20
+          ],
+          [
+            13,
+            21
+          ],
+          [
+            13,
+            22
+          ],
+          [
+            13,
+            23
+          ],
+          [
+            13,
+            24
+          ],
+          [
+            13,
+            25
+          ],
+          [
+            13,
+            26
+          ],
+          [
+            13,
+            27
+          ],
+          [
+            13,
+            28
+          ],
+          [
+            13,
+            29
+          ],
+          [
+            13,
+            30
+          ],
+          [
+            13,
+            31
+          ]
+        ]
+      },
+      "chance": null,
+      "relation_to_axis": {
+        "distance": 0,
+        "relation": "crosses"
+      },
+      "model_claims": {
+        "kind": null,
+        "tier": null,
+        "continue_from": false,
+        "note": "",
+        "status": "UNVERIFIED_INTERPRETATION"
+      },
+      "group_check": {
+        "model_line": "R13+",
+        "cited_line_in_group": true,
+        "duplicate": false,
+        "display": "אשר יוציאם ואשר יביאם",
+        "classification": "clear_word_or_phrase",
+        "explanation": "שני פעלים בעתיד עם כינוי מושא רבים, מקבילים בתבנית.",
+        "split_preserves_letters": true
+      }
+    },
+    {
+      "id": "G02B.f06",
+      "text": "עלתתמידהעשיה",
+      "parts": [],
+      "line": "R14+",
+      "verification": {
+        "state": "PLAIN_TEXT_ONLY",
+        "reasons": [],
+        "letters_match": true,
+        "occurrences_verified": 1,
+        "engine": null
+      },
+      "occurrence": {
+        "reading": "R14+",
+        "skip": 1,
+        "dir": 1,
+        "start": 235407,
+        "length": 12,
+        "cells": [
+          [
+            14,
+            29
+          ],
+          [
+            14,
+            30
+          ],
+          [
+            14,
+            31
+          ],
+          [
+            14,
+            32
+          ],
+          [
+            14,
+            33
+          ],
+          [
+            14,
+            34
+          ],
+          [
+            14,
+            35
+          ],
+          [
+            14,
+            36
+          ],
+          [
+            14,
+            37
+          ],
+          [
+            14,
+            38
+          ],
+          [
+            14,
+            39
+          ],
+          [
+            14,
+            40
+          ]
+        ]
+      },
+      "chance": null,
+      "relation_to_axis": {
+        "distance": 8,
+        "relation": "far"
+      },
+      "model_claims": {
+        "kind": null,
+        "tier": null,
+        "continue_from": false,
+        "note": "",
+        "status": "UNVERIFIED_INTERPRETATION"
+      },
+      "group_check": {
+        "model_line": "R14+",
+        "cited_line_in_group": true,
+        "duplicate": false,
+        "display": "עלת תמיד העשיה",
+        "classification": "clear_word_or_phrase",
+        "explanation": "סמיכות 'עלת תמיד' ואחריה בינוני מיודע בנקבה.",
+        "split_preserves_letters": true
+      }
+    },
+    {
+      "id": "G02B.f07",
+      "text": "חגשבעתימיממצותיאכל",
+      "parts": [],
+      "line": "R15+",
+      "verification": {
+        "state": "PLAIN_TEXT_ONLY",
+        "reasons": [],
+        "letters_match": true,
+        "occurrences_verified": 1,
+        "engine": null
+      },
+      "occurrence": {
+        "reading": "R15+",
+        "skip": 1,
+        "dir": 1,
+        "start": 235982,
+        "length": 18,
+        "cells": [
+          [
+            15,
+            21
+          ],
+          [
+            15,
+            22
+          ],
+          [
+            15,
+            23
+          ],
+          [
+            15,
+            24
+          ],
+          [
+            15,
+            25
+          ],
+          [
+            15,
+            26
+          ],
+          [
+            15,
+            27
+          ],
+          [
+            15,
+            28
+          ],
+          [
+            15,
+            29
+          ],
+          [
+            15,
+            30
+          ],
+          [
+            15,
+            31
+          ],
+          [
+            15,
+            32
+          ],
+          [
+            15,
+            33
+          ],
+          [
+            15,
+            34
+          ],
+          [
+            15,
+            35
+          ],
+          [
+            15,
+            36
+          ],
+          [
+            15,
+            37
+          ],
+          [
+            15,
+            38
+          ]
+        ]
+      },
+      "chance": null,
+      "relation_to_axis": {
+        "distance": 0,
+        "relation": "crosses"
+      },
+      "model_claims": {
+        "kind": null,
+        "tier": null,
+        "continue_from": false,
+        "note": "",
+        "status": "UNVERIFIED_INTERPRETATION"
+      },
+      "group_check": {
+        "model_line": "R15+",
+        "cited_line_in_group": true,
+        "duplicate": false,
+        "display": "חג שבעת ימים מצות יאכל",
+        "classification": "clear_word_or_phrase",
+        "explanation": "ביטוי זמן 'שבעת ימים' עם שם עצם ברבים ופועל סביל בעתיד.",
+        "split_preserves_letters": true
+      }
+    },
+    {
+      "id": "G02B.f08",
+      "text": "שעירעזימאחדלכפרעליכמ",
+      "parts": [],
+      "line": "R16+",
+      "verification": {
+        "state": "PLAIN_TEXT_ONLY",
+        "reasons": [],
+        "letters_match": true,
+        "occurrences_verified": 1,
+        "engine": null
+      },
+      "occurrence": {
+        "reading": "R16+",
+        "skip": 1,
+        "dir": 1,
+        "start": 236548,
+        "length": 20,
+        "cells": [
+          [
+            16,
+            4
+          ],
+          [
+            16,
+            5
+          ],
+          [
+            16,
+            6
+          ],
+          [
+            16,
+            7
+          ],
+          [
+            16,
+            8
+          ],
+          [
+            16,
+            9
+          ],
+          [
+            16,
+            10
+          ],
+          [
+            16,
+            11
+          ],
+          [
+            16,
+            12
+          ],
+          [
+            16,
+            13
+          ],
+          [
+            16,
+            14
+          ],
+          [
+            16,
+            15
+          ],
+          [
+            16,
+            16
+          ],
+          [
+            16,
+            17
+          ],
+          [
+            16,
+            18
+          ],
+          [
+            16,
+            19
+          ],
+          [
+            16,
+            20
+          ],
+          [
+            16,
+            21
+          ],
+          [
+            16,
+            22
+          ],
+          [
+            16,
+            23
+          ]
+        ]
+      },
+      "chance": null,
+      "relation_to_axis": {
+        "distance": 0,
+        "relation": "crosses"
+      },
+      "model_claims": {
+        "kind": null,
+        "tier": null,
+        "continue_from": false,
+        "note": "",
+        "status": "UNVERIFIED_INTERPRETATION"
+      },
+      "group_check": {
+        "model_line": "R16+",
+        "cited_line_in_group": true,
+        "duplicate": false,
+        "display": "שעיר עזים אחד לכפר עליכם",
+        "classification": "clear_word_or_phrase",
+        "explanation": "סמיכות 'שעיר עזים' עם מספר, מקור נטוי ומילת יחס עם כינוי.",
+        "split_preserves_letters": true
+      }
+    },
+    {
+      "id": "G02B.f09",
+      "text": "מודימ",
+      "parts": [],
+      "line": "R16-",
+      "verification": {
+        "state": "PLAIN_TEXT_ONLY",
+        "reasons": [],
+        "letters_match": true,
+        "occurrences_verified": 1,
+        "engine": null
+      },
+      "occurrence": {
+        "reading": "R16-",
+        "skip": 1,
+        "dir": -1,
+        "start": 236581,
+        "length": 5,
+        "cells": [
+          [
+            16,
+            37
+          ],
+          [
+            16,
+            36
+          ],
+          [
+            16,
+            35
+          ],
+          [
+            16,
+            34
+          ],
+          [
+            16,
+            33
+          ]
+        ]
+      },
+      "chance": null,
+      "relation_to_axis": {
+        "distance": 12,
+        "relation": "far"
+      },
+      "model_claims": {
+        "kind": null,
+        "tier": null,
+        "continue_from": false,
+        "note": "",
+        "status": "UNVERIFIED_INTERPRETATION"
+      },
+      "group_check": {
+        "model_line": "R16-",
+        "cited_line_in_group": true,
+        "duplicate": false,
+        "display": "מודים",
+        "classification": "clear_word_or_phrase",
+        "explanation": "בינוני רבים של הפועל הודה, מילה שלמה בכיוון ההפוך.",
+        "split_preserves_letters": true
+      }
+    },
+    {
+      "id": "G02B.f10",
+      "text": "רשעהשמח",
+      "parts": [],
+      "line": "R15-",
+      "verification": {
+        "state": "PLAIN_TEXT_ONLY",
+        "reasons": [],
+        "letters_match": true,
+        "occurrences_verified": 1,
+        "engine": null
+      },
+      "occurrence": {
+        "reading": "R15-",
+        "skip": 1,
+        "dir": -1,
+        "start": 235971,
+        "length": 7,
+        "cells": [
+          [
+            15,
+            10
+          ],
+          [
+            15,
+            9
+          ],
+          [
+            15,
+            8
+          ],
+          [
+            15,
+            7
+          ],
+          [
+            15,
+            6
+          ],
+          [
+            15,
+            5
+          ],
+          [
+            15,
+            4
+          ]
+        ]
+      },
+      "chance": null,
+      "relation_to_axis": {
+        "distance": 11,
+        "relation": "far"
+      },
+      "model_claims": {
+        "kind": null,
+        "tier": null,
+        "continue_from": false,
+        "note": "",
+        "status": "UNVERIFIED_INTERPRETATION"
+      },
+      "group_check": {
+        "model_line": "R15-",
+        "cited_line_in_group": true,
+        "duplicate": false,
+        "display": "רשעה שמח",
+        "classification": "unclear_split",
+        "explanation": "ניתן לחלק 'רשעה שמח' או 'ירשע השמח'; שתי המילים תקינות אך החלוקה אינה ודאית.",
+        "split_preserves_letters": true
+      }
+    },
+    {
+      "id": "G02B.f11",
+      "text": "הישע",
+      "parts": [],
+      "line": "R14-",
+      "verification": {
+        "state": "PLAIN_TEXT_ONLY",
+        "reasons": [],
+        "letters_match": true,
+        "occurrences_verified": 1,
+        "engine": null
+      },
+      "occurrence": {
+        "reading": "R14-",
+        "skip": 1,
+        "dir": -1,
+        "start": 235418,
+        "length": 4,
+        "cells": [
+          [
+            14,
+            40
+          ],
+          [
+            14,
+            39
+          ],
+          [
+            14,
+            38
+          ],
+          [
+            14,
+            37
+          ]
+        ]
+      },
+      "chance": null,
+      "relation_to_axis": {
+        "distance": 16,
+        "relation": "far"
+      },
+      "model_claims": {
+        "kind": null,
+        "tier": null,
+        "continue_from": false,
+        "note": "",
+        "status": "UNVERIFIED_INTERPRETATION"
+      },
+      "group_check": {
+        "model_line": "R14-",
+        "cited_line_in_group": true,
+        "duplicate": false,
+        "display": "הישע",
+        "classification": "clear_word_or_phrase",
+        "explanation": "שם עצם 'ישע' עם ה' הידיעה, בכיוון ההפוך של השורה.",
+        "split_preserves_letters": true
+      }
+    },
+    {
+      "id": "G02B.f12",
+      "text": "ותחפש",
+      "parts": [],
+      "line": "R12-",
+      "verification": {
+        "state": "PLAIN_TEXT_ONLY",
+        "reasons": [],
+        "letters_match": true,
+        "occurrences_verified": 1,
+        "engine": null
+      },
+      "occurrence": {
+        "reading": "R12-",
+        "skip": 1,
+        "dir": -1,
+        "start": 234228,
+        "length": 5,
+        "cells": [
+          [
+            12,
+            16
+          ],
+          [
+            12,
+            15
+          ],
+          [
+            12,
+            14
+          ],
+          [
+            12,
+            13
+          ],
+          [
+            12,
+            12
+          ]
+        ]
+      },
+      "chance": null,
+      "relation_to_axis": {
+        "distance": 5,
+        "relation": "far"
+      },
+      "model_claims": {
+        "kind": null,
+        "tier": null,
+        "continue_from": false,
+        "note": "",
+        "status": "UNVERIFIED_INTERPRETATION"
+      },
+      "group_check": {
+        "model_line": "R12-",
+        "cited_line_in_group": true,
+        "duplicate": false,
+        "display": "ותחפש",
+        "classification": "clear_word_or_phrase",
+        "explanation": "פועל בעתיד נוכח/נסתרת מהשורש חפש עם ו' החיבור, או 'ו' + 'תחפש'.",
+        "split_preserves_letters": true
+      }
+    }
+  ],
+  "summary": {
+    "proposals": 12,
+    "engine_verified": 0,
+    "source_rows": 12,
+    "not_verified": 0,
+    "duplicates": 0,
+    "cited_line_outside_group": 0,
+    "split_invalid": 0,
+    "classifications": {
+      "clear_word_or_phrase": 8,
+      "name": 3,
+      "abbreviation": 0,
+      "unclear_split": 1
+    }
+  },
+  "cap_info": {
+    "requested": 12,
+    "proposals": 12,
+    "reached": true
+  },
+  "observations": "קווי R+ הם טקסט המקור הרציף ולכן מלאים בביטויים ידועים; בכיווני המינוס מצאתי בעיקר מילים בודדות קצרות (למשל 'שרש' ב-R10-, 'אובד' ב-R11-) שלא נכללו."
+}

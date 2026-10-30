@@ -1,0 +1,87 @@
+{
+  "experiment": "EXP-23",
+  "run": "G07B",
+  "group": "G07",
+  "role": "saved_lines",
+  "control_of": null,
+  "arm": "B",
+  "lines": [
+    "C16",
+    "C17",
+    "C18",
+    "C19",
+    "C20",
+    "C21",
+    "C22",
+    "C23"
+  ],
+  "request_sha256": "561be5f519f6d015f12fe5a8a82bec708a05f7126eef27eea891cea12ed80e1e",
+  "lock_sha256": "e20e501d5566212e0e503f1df9c9a2e81534caa153cdf0dcb3639478c5acc1c7",
+  "model": "claude-fable-5-1",
+  "cap": 12,
+  "window_sha256": "208cbe689b68f941daf995f07ff490d8974a5c13128f1724c8792471c02802fe",
+  "batch": {
+    "id": "msgbatch_01BCzEKnnEcBPBN2E8eR1VnG",
+    "created_at": "2026-10-30T03:31:53.078440+00:00",
+    "ended_at": "2026-10-30T03:32:39.305434+00:00",
+    "request_counts": {
+      "processing": 0,
+      "succeeded": 1,
+      "errored": 0,
+      "canceled": 0,
+      "expired": 0
+    }
+  },
+  "timing": {
+    "created_at": "2026-10-30T03:31:53.078440+00:00",
+    "ended_at": "2026-10-30T03:32:39.305434+00:00",
+    "batch_ms": 46227,
+    "wall_ms": 61724
+  },
+  "usage": {
+    "input_tokens": 2987,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "cache_creation": {
+      "ephemeral_5m_input_tokens": 0,
+      "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 0,
+    "service_tier": "batch",
+    "inference_geo": "global",
+    "speed": "standard"
+  },
+  "cost": {
+    "usd": 0.014935,
+    "ils": {
+      "amount": 0.0553,
+      "currency": "ILS",
+      "status": "ESTIMATED",
+      "fx": {
+        "ils_per_usd": 3.7,
+        "basis": "ASSUMPTION_NOT_VERIFIED",
+        "effective_at": null,
+        "source_ref": null
+      }
+    },
+    "list_price_parts_usd": {
+      "input": 0.02987,
+      "cacheWrite": 0,
+      "cacheRead": 0,
+      "output": 0
+    },
+    "batch_factor": 0.5,
+    "provider_currency": "USD",
+    "basis": "list prices, Message Batches at 50%; from the usage object; not an invoice",
+    "certainty": "ESTIMATED_FROM_USAGE_AND_LIST_PRICES"
+  },
+  "output": {
+    "stop_reason": "refusal",
+    "input_tokens": 2987,
+    "output_tokens": 0,
+    "thinking_tokens": null
+  },
+  "state": "INCOMPLETE",
+  "reason": "refusal",
+  "note": "the answer was cut off; nothing from it is shown; the cost was incurred"
+}

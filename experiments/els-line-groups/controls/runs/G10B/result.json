@@ -1,0 +1,915 @@
+{
+  "experiment": "EXP-23",
+  "run": "G10B",
+  "group": "G10",
+  "role": "saved_lines",
+  "control_of": null,
+  "arm": "B",
+  "lines": [
+    "C40",
+    "C41",
+    "D01",
+    "D02",
+    "D03",
+    "D04",
+    "D05",
+    "D06"
+  ],
+  "request_sha256": "abb2e61d1310d47ba96fc83956cd3f9ab5c97bf09f9dcae421a6657bb73d8b26",
+  "lock_sha256": "744a2ad71b7decd3162c7406fd1aa6aa52cbbbd93a3e50f44644ba84ba35fcfc",
+  "model": "claude-fable-5-1",
+  "cap": 12,
+  "window_sha256": "208cbe689b68f941daf995f07ff490d8974a5c13128f1724c8792471c02802fe",
+  "batch": {
+    "id": "msgbatch_01GLqWtquen3fQtrtWn3KZhC",
+    "created_at": "2026-10-30T03:33:57.264743+00:00",
+    "ended_at": "2026-10-30T03:37:05.422405+00:00",
+    "request_counts": {
+      "processing": 0,
+      "succeeded": 1,
+      "errored": 0,
+      "canceled": 0,
+      "expired": 0
+    }
+  },
+  "timing": {
+    "created_at": "2026-10-30T03:33:57.264743+00:00",
+    "ended_at": "2026-10-30T03:37:05.422405+00:00",
+    "batch_ms": 188158,
+    "wall_ms": 203163
+  },
+  "usage": {
+    "input_tokens": 3009,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "cache_creation": {
+      "ephemeral_5m_input_tokens": 0,
+      "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 3673,
+    "output_tokens_details": {
+      "thinking_tokens": 2622
+    },
+    "service_tier": "batch",
+    "inference_geo": "global",
+    "speed": "standard"
+  },
+  "cost": {
+    "usd": 0.10687,
+    "ils": {
+      "amount": 0.3954,
+      "currency": "ILS",
+      "status": "ESTIMATED",
+      "fx": {
+        "ils_per_usd": 3.7,
+        "basis": "ASSUMPTION_NOT_VERIFIED",
+        "effective_at": null,
+        "source_ref": null
+      }
+    },
+    "list_price_parts_usd": {
+      "input": 0.03009,
+      "cacheWrite": 0,
+      "cacheRead": 0,
+      "output": 0.18365
+    },
+    "batch_factor": 0.5,
+    "provider_currency": "USD",
+    "basis": "list prices, Message Batches at 50%; from the usage object; not an invoice",
+    "certainty": "ESTIMATED_FROM_USAGE_AND_LIST_PRICES"
+  },
+  "output": {
+    "stop_reason": "end_turn",
+    "input_tokens": 3009,
+    "output_tokens": 3673,
+    "thinking_tokens": 2622
+  },
+  "state": "COMPLETE",
+  "findings": [
+    {
+      "id": "G10B.f01",
+      "text": "בחלמו",
+      "parts": [],
+      "line": "C40-",
+      "verification": {
+        "state": "ENGINE_VERIFIED",
+        "reasons": [],
+        "letters_match": true,
+        "occurrences_verified": 1,
+        "engine": {
+          "verification_state": "MATCH",
+          "contract": "els_occurrence_replay_v1",
+          "occurrence_id": "els:0b022e8eef6f9c16:בחלמו:583:-1:243580",
+          "corpus_id": "0b022e8eef6f9c16"
+        }
+      },
+      "occurrence": {
+        "reading": "C40-",
+        "skip": 583,
+        "dir": -1,
+        "start": 243580,
+        "length": 5,
+        "cells": [
+          [
+            28,
+            40
+          ],
+          [
+            27,
+            40
+          ],
+          [
+            26,
+            40
+          ],
+          [
+            25,
+            40
+          ],
+          [
+            24,
+            40
+          ]
+        ]
+      },
+      "chance": {
+        "expected_occurrences": 0.4462,
+        "unlikely_by_chance": true,
+        "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+      },
+      "relation_to_axis": {
+        "distance": 19,
+        "relation": "far"
+      },
+      "model_claims": {
+        "kind": null,
+        "tier": null,
+        "continue_from": false,
+        "note": "",
+        "status": "UNVERIFIED_INTERPRETATION"
+      },
+      "group_check": {
+        "model_line": "C40-",
+        "cited_line_in_group": true,
+        "duplicate": false,
+        "display": "בחלמו",
+        "classification": "clear_word_or_phrase",
+        "explanation": "ב+חלום+ו: 'בחלומו', צורה מקראית בכתיב חסר כמו בבראשית.",
+        "split_preserves_letters": true
+      }
+    },
+    {
+      "id": "G10B.f02",
+      "text": "ברוב",
+      "parts": [],
+      "line": "C40+",
+      "verification": {
+        "state": "ENGINE_VERIFIED",
+        "reasons": [],
+        "letters_match": true,
+        "occurrences_verified": 1,
+        "engine": {
+          "verification_state": "MATCH",
+          "contract": "els_occurrence_replay_v1",
+          "occurrence_id": "els:0b022e8eef6f9c16:ברוב:583:1:229005",
+          "corpus_id": "0b022e8eef6f9c16"
+        }
+      },
+      "occurrence": {
+        "reading": "C40+",
+        "skip": 583,
+        "dir": 1,
+        "start": 229005,
+        "length": 4,
+        "cells": [
+          [
+            3,
+            40
+          ],
+          [
+            4,
+            40
+          ],
+          [
+            5,
+            40
+          ],
+          [
+            6,
+            40
+          ]
+        ]
+      },
+      "chance": {
+        "expected_occurrences": 10.38,
+        "unlikely_by_chance": false,
+        "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+      },
+      "relation_to_axis": {
+        "distance": 19,
+        "relation": "far"
+      },
+      "model_claims": {
+        "kind": null,
+        "tier": null,
+        "continue_from": false,
+        "note": "",
+        "status": "UNVERIFIED_INTERPRETATION"
+      },
+      "group_check": {
+        "model_line": "C40+",
+        "cited_line_in_group": true,
+        "duplicate": false,
+        "display": "ברוב",
+        "classification": "clear_word_or_phrase",
+        "explanation": "ב+רוב: 'ברוב', מילה שלמה ושכיחה.",
+        "split_preserves_letters": true
+      }
+    },
+    {
+      "id": "G10B.f03",
+      "text": "עשו",
+      "parts": [],
+      "line": "C40+",
+      "verification": {
+        "state": "ENGINE_VERIFIED",
+        "reasons": [],
+        "letters_match": true,
+        "occurrences_verified": 1,
+        "engine": {
+          "verification_state": "MATCH",
+          "contract": "els_occurrence_replay_v1",
+          "occurrence_id": "els:0b022e8eef6f9c16:עשו:583:1:237750",
+          "corpus_id": "0b022e8eef6f9c16"
+        }
+      },
+      "occurrence": {
+        "reading": "C40+",
+        "skip": 583,
+        "dir": 1,
+        "start": 237750,
+        "length": 3,
+        "cells": [
+          [
+            18,
+            40
+          ],
+          [
+            19,
+            40
+          ],
+          [
+            20,
+            40
+          ]
+        ]
+      },
+      "chance": {
+        "expected_occurrences": 114.8,
+        "unlikely_by_chance": false,
+        "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+      },
+      "relation_to_axis": {
+        "distance": 19,
+        "relation": "far"
+      },
+      "model_claims": {
+        "kind": null,
+        "tier": null,
+        "continue_from": false,
+        "note": "",
+        "status": "UNVERIFIED_INTERPRETATION"
+      },
+      "group_check": {
+        "model_line": "C40+",
+        "cited_line_in_group": true,
+        "duplicate": false,
+        "display": "עשו",
+        "classification": "name",
+        "explanation": "שם פרטי מקראי (עשו) או צורת פועל 'עשו'.",
+        "split_preserves_letters": true
+      }
+    },
+    {
+      "id": "G10B.f04",
+      "text": "רצופ",
+      "parts": [],
+      "line": "C41+",
+      "verification": {
+        "state": "ENGINE_VERIFIED",
+        "reasons": [],
+        "letters_match": true,
+        "occurrences_verified": 1,
+        "engine": {
+          "verification_state": "MATCH",
+          "contract": "els_occurrence_replay_v1",
+          "occurrence_id": "els:0b022e8eef6f9c16:רצופ:583:1:231338",
+          "corpus_id": "0b022e8eef6f9c16"
+        }
+      },
+      "occurrence": {
+        "reading": "C41+",
+        "skip": 583,
+        "dir": 1,
+        "start": 231338,
+        "length": 4,
+        "cells": [
+          [
+            7,
+            41
+          ],
+          [
+            8,
+            41
+          ],
+          [
+            9,
+            41
+          ],
+          [
+            10,
+            41
+          ]
+        ]
+      },
+      "chance": {
+        "expected_occurrences": 0.7393,
+        "unlikely_by_chance": true,
+        "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+      },
+      "relation_to_axis": {
+        "distance": 20,
+        "relation": "far"
+      },
+      "model_claims": {
+        "kind": null,
+        "tier": null,
+        "continue_from": false,
+        "note": "",
+        "status": "UNVERIFIED_INTERPRETATION"
+      },
+      "group_check": {
+        "model_line": "C41+",
+        "cited_line_in_group": true,
+        "duplicate": false,
+        "display": "רצוף",
+        "classification": "clear_word_or_phrase",
+        "explanation": "'רצוף', תואר, האות הסופית מנורמלת.",
+        "split_preserves_letters": true
+      }
+    },
+    {
+      "id": "G10B.f05",
+      "text": "חלב",
+      "parts": [],
+      "line": "C41-",
+      "verification": {
+        "state": "ENGINE_VERIFIED",
+        "reasons": [],
+        "letters_match": true,
+        "occurrences_verified": 1,
+        "engine": {
+          "verification_state": "MATCH",
+          "contract": "els_occurrence_replay_v1",
+          "occurrence_id": "els:0b022e8eef6f9c16:חלב:583:-1:229006",
+          "corpus_id": "0b022e8eef6f9c16"
+        }
+      },
+      "occurrence": {
+        "reading": "C41-",
+        "skip": 583,
+        "dir": -1,
+        "start": 229006,
+        "length": 3,
+        "cells": [
+          [
+            3,
+            41
+          ],
+          [
+            2,
+            41
+          ],
+          [
+            1,
+            41
+          ]
+        ]
+      },
+      "chance": {
+        "expected_occurrences": 54.35,
+        "unlikely_by_chance": false,
+        "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+      },
+      "relation_to_axis": {
+        "distance": 20,
+        "relation": "far"
+      },
+      "model_claims": {
+        "kind": null,
+        "tier": null,
+        "continue_from": false,
+        "note": "",
+        "status": "UNVERIFIED_INTERPRETATION"
+      },
+      "group_check": {
+        "model_line": "C41-",
+        "cited_line_in_group": true,
+        "duplicate": false,
+        "display": "חלב",
+        "classification": "clear_word_or_phrase",
+        "explanation": "שם עצם 'חלב' בסוף הקו.",
+        "split_preserves_letters": true
+      }
+    },
+    {
+      "id": "G10B.f06",
+      "text": "צער",
+      "parts": [],
+      "line": "D01-",
+      "verification": {
+        "state": "ENGINE_VERIFIED",
+        "reasons": [],
+        "letters_match": true,
+        "occurrences_verified": 1,
+        "engine": {
+          "verification_state": "MATCH",
+          "contract": "els_occurrence_replay_v1",
+          "occurrence_id": "els:0b022e8eef6f9c16:צער:584:-1:245320",
+          "corpus_id": "0b022e8eef6f9c16"
+        }
+      },
+      "occurrence": {
+        "reading": "D01-",
+        "skip": 584,
+        "dir": -1,
+        "start": 245320,
+        "length": 3,
+        "cells": [
+          [
+            31,
+            31
+          ],
+          [
+            30,
+            30
+          ],
+          [
+            29,
+            29
+          ]
+        ]
+      },
+      "chance": {
+        "expected_occurrences": 17.32,
+        "unlikely_by_chance": false,
+        "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+      },
+      "relation_to_axis": {
+        "distance": 8,
+        "relation": "far"
+      },
+      "model_claims": {
+        "kind": null,
+        "tier": null,
+        "continue_from": false,
+        "note": "",
+        "status": "UNVERIFIED_INTERPRETATION"
+      },
+      "group_check": {
+        "model_line": "D01-",
+        "cited_line_in_group": true,
+        "duplicate": false,
+        "display": "צער",
+        "classification": "clear_word_or_phrase",
+        "explanation": "שם עצם 'צער', רצף בן שלוש אותיות.",
+        "split_preserves_letters": true
+      }
+    },
+    {
+      "id": "G10B.f07",
+      "text": "ביתו",
+      "parts": [],
+      "line": "D02+",
+      "verification": {
+        "state": "ENGINE_VERIFIED",
+        "reasons": [],
+        "letters_match": true,
+        "occurrences_verified": 1,
+        "engine": {
+          "verification_state": "MATCH",
+          "contract": "els_occurrence_replay_v1",
+          "occurrence_id": "els:0b022e8eef6f9c16:ביתו:584:1:237145",
+          "corpus_id": "0b022e8eef6f9c16"
+        }
+      },
+      "occurrence": {
+        "reading": "D02+",
+        "skip": 584,
+        "dir": 1,
+        "start": 237145,
+        "length": 4,
+        "cells": [
+          [
+            17,
+            18
+          ],
+          [
+            18,
+            19
+          ],
+          [
+            19,
+            20
+          ],
+          [
+            20,
+            21
+          ]
+        ]
+      },
+      "chance": {
+        "expected_occurrences": 19.82,
+        "unlikely_by_chance": false,
+        "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+      },
+      "relation_to_axis": {
+        "distance": 0,
+        "relation": "crosses"
+      },
+      "model_claims": {
+        "kind": null,
+        "tier": null,
+        "continue_from": false,
+        "note": "",
+        "status": "UNVERIFIED_INTERPRETATION"
+      },
+      "group_check": {
+        "model_line": "D02+",
+        "cited_line_in_group": true,
+        "duplicate": false,
+        "display": "ביתו",
+        "classification": "clear_word_or_phrase",
+        "explanation": "בית+סיומת שייכות: 'ביתו'.",
+        "split_preserves_letters": true
+      }
+    },
+    {
+      "id": "G10B.f08",
+      "text": "רחל",
+      "parts": [],
+      "line": "D03+",
+      "verification": {
+        "state": "ENGINE_VERIFIED",
+        "reasons": [],
+        "letters_match": true,
+        "occurrences_verified": 1,
+        "engine": {
+          "verification_state": "MATCH",
+          "contract": "els_occurrence_replay_v1",
+          "occurrence_id": "els:0b022e8eef6f9c16:רחל:584:1:236562",
+          "corpus_id": "0b022e8eef6f9c16"
+        }
+      },
+      "occurrence": {
+        "reading": "D03+",
+        "skip": 584,
+        "dir": 1,
+        "start": 236562,
+        "length": 3,
+        "cells": [
+          [
+            16,
+            18
+          ],
+          [
+            17,
+            19
+          ],
+          [
+            18,
+            20
+          ]
+        ]
+      },
+      "chance": {
+        "expected_occurrences": 60.27,
+        "unlikely_by_chance": false,
+        "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+      },
+      "relation_to_axis": {
+        "distance": 1,
+        "relation": "touches"
+      },
+      "model_claims": {
+        "kind": null,
+        "tier": null,
+        "continue_from": false,
+        "note": "",
+        "status": "UNVERIFIED_INTERPRETATION"
+      },
+      "group_check": {
+        "model_line": "D03+",
+        "cited_line_in_group": true,
+        "duplicate": false,
+        "display": "רחל",
+        "classification": "name",
+        "explanation": "שם פרטי מקראי 'רחל' (או שם עצם כבשה).",
+        "split_preserves_letters": true
+      }
+    },
+    {
+      "id": "G10B.f09",
+      "text": "אשבע",
+      "parts": [],
+      "line": "D03+",
+      "verification": {
+        "state": "ENGINE_VERIFIED",
+        "reasons": [],
+        "letters_match": true,
+        "occurrences_verified": 1,
+        "engine": {
+          "verification_state": "MATCH",
+          "contract": "els_occurrence_replay_v1",
+          "occurrence_id": "els:0b022e8eef6f9c16:אשבע:584:1:240650",
+          "corpus_id": "0b022e8eef6f9c16"
+        }
+      },
+      "occurrence": {
+        "reading": "D03+",
+        "skip": 584,
+        "dir": 1,
+        "start": 240650,
+        "length": 4,
+        "cells": [
+          [
+            23,
+            25
+          ],
+          [
+            24,
+            26
+          ],
+          [
+            25,
+            27
+          ],
+          [
+            26,
+            28
+          ]
+        ]
+      },
+      "chance": {
+        "expected_occurrences": 5.449,
+        "unlikely_by_chance": false,
+        "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+      },
+      "relation_to_axis": {
+        "distance": 4,
+        "relation": "far"
+      },
+      "model_claims": {
+        "kind": null,
+        "tier": null,
+        "continue_from": false,
+        "note": "",
+        "status": "UNVERIFIED_INTERPRETATION"
+      },
+      "group_check": {
+        "model_line": "D03+",
+        "cited_line_in_group": true,
+        "duplicate": false,
+        "display": "אשבע",
+        "classification": "clear_word_or_phrase",
+        "explanation": "פועל עתיד גוף ראשון 'אשבע'.",
+        "split_preserves_letters": true
+      }
+    },
+    {
+      "id": "G10B.f10",
+      "text": "תבל",
+      "parts": [],
+      "line": "D04-",
+      "verification": {
+        "state": "ENGINE_VERIFIED",
+        "reasons": [],
+        "letters_match": true,
+        "occurrences_verified": 1,
+        "engine": {
+          "verification_state": "MATCH",
+          "contract": "els_occurrence_replay_v1",
+          "occurrence_id": "els:0b022e8eef6f9c16:תבל:584:-1:243571",
+          "corpus_id": "0b022e8eef6f9c16"
+        }
+      },
+      "occurrence": {
+        "reading": "D04-",
+        "skip": 584,
+        "dir": -1,
+        "start": 243571,
+        "length": 3,
+        "cells": [
+          [
+            28,
+            31
+          ],
+          [
+            27,
+            30
+          ],
+          [
+            26,
+            29
+          ]
+        ]
+      },
+      "chance": {
+        "expected_occurrences": 135.7,
+        "unlikely_by_chance": false,
+        "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+      },
+      "relation_to_axis": {
+        "distance": 8,
+        "relation": "far"
+      },
+      "model_claims": {
+        "kind": null,
+        "tier": null,
+        "continue_from": false,
+        "note": "",
+        "status": "UNVERIFIED_INTERPRETATION"
+      },
+      "group_check": {
+        "model_line": "D04-",
+        "cited_line_in_group": true,
+        "duplicate": false,
+        "display": "תבל",
+        "classification": "clear_word_or_phrase",
+        "explanation": "שם עצם 'תבל' (עולם).",
+        "split_preserves_letters": true
+      }
+    },
+    {
+      "id": "G10B.f11",
+      "text": "שכרות",
+      "parts": [],
+      "line": "D05-",
+      "verification": {
+        "state": "ENGINE_VERIFIED",
+        "reasons": [],
+        "letters_match": true,
+        "occurrences_verified": 1,
+        "engine": {
+          "verification_state": "MATCH",
+          "contract": "els_occurrence_replay_v1",
+          "occurrence_id": "els:0b022e8eef6f9c16:שכרות:584:-1:244156",
+          "corpus_id": "0b022e8eef6f9c16"
+        }
+      },
+      "occurrence": {
+        "reading": "D05-",
+        "skip": 584,
+        "dir": -1,
+        "start": 244156,
+        "length": 5,
+        "cells": [
+          [
+            29,
+            33
+          ],
+          [
+            28,
+            32
+          ],
+          [
+            27,
+            31
+          ],
+          [
+            26,
+            30
+          ],
+          [
+            25,
+            29
+          ]
+        ]
+      },
+      "chance": {
+        "expected_occurrences": 0.426,
+        "unlikely_by_chance": true,
+        "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+      },
+      "relation_to_axis": {
+        "distance": 8,
+        "relation": "far"
+      },
+      "model_claims": {
+        "kind": null,
+        "tier": null,
+        "continue_from": false,
+        "note": "",
+        "status": "UNVERIFIED_INTERPRETATION"
+      },
+      "group_check": {
+        "model_line": "D05-",
+        "cited_line_in_group": true,
+        "duplicate": false,
+        "display": "שכרות",
+        "classification": "clear_word_or_phrase",
+        "explanation": "שם עצם 'שכרות'; גם 'שכר' ו'כרות' כלולים ברצף.",
+        "split_preserves_letters": true
+      }
+    },
+    {
+      "id": "G10B.f12",
+      "text": "לילה",
+      "parts": [],
+      "line": "D06+",
+      "verification": {
+        "state": "ENGINE_VERIFIED",
+        "reasons": [],
+        "letters_match": true,
+        "occurrences_verified": 1,
+        "engine": {
+          "verification_state": "MATCH",
+          "contract": "els_occurrence_replay_v1",
+          "occurrence_id": "els:0b022e8eef6f9c16:לילה:584:1:230141",
+          "corpus_id": "0b022e8eef6f9c16"
+        }
+      },
+      "occurrence": {
+        "reading": "D06+",
+        "skip": 584,
+        "dir": 1,
+        "start": 230141,
+        "length": 4,
+        "cells": [
+          [
+            5,
+            10
+          ],
+          [
+            6,
+            11
+          ],
+          [
+            7,
+            12
+          ],
+          [
+            8,
+            13
+          ]
+        ]
+      },
+      "chance": {
+        "expected_occurrences": 28.9,
+        "unlikely_by_chance": false,
+        "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+      },
+      "relation_to_axis": {
+        "distance": 8,
+        "relation": "far"
+      },
+      "model_claims": {
+        "kind": null,
+        "tier": null,
+        "continue_from": false,
+        "note": "",
+        "status": "UNVERIFIED_INTERPRETATION"
+      },
+      "group_check": {
+        "model_line": "D06+",
+        "cited_line_in_group": true,
+        "duplicate": false,
+        "display": "לילה",
+        "classification": "clear_word_or_phrase",
+        "explanation": "שם עצם 'לילה'; בהמשך הקו גם 'מרד' ו'הנס'.",
+        "split_preserves_letters": true
+      }
+    }
+  ],
+  "summary": {
+    "proposals": 12,
+    "engine_verified": 12,
+    "source_rows": 0,
+    "not_verified": 0,
+    "duplicates": 0,
+    "cited_line_outside_group": 0,
+    "split_invalid": 0,
+    "classifications": {
+      "clear_word_or_phrase": 10,
+      "name": 2,
+      "abbreviation": 0,
+      "unclear_split": 0
+    }
+  },
+  "cap_info": {
+    "requested": 12,
+    "proposals": 12,
+    "reached": true
+  },
+  "observations": "בקווים D02- ו-D04+ לא נמצאו רצפים ברורים מעבר ל'הלב' ו'יתר'. ב-D05- גם 'בעל', ב-D06- 'היה' ו'מאת', ב-D01+ 'ישי' ו'וירע' נשארו מחוץ לתקרה."
+}

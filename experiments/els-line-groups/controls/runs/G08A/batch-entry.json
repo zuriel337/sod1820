@@ -1,0 +1,66 @@
+{
+  "saved_as_received": true,
+  "batch": {
+    "id": "msgbatch_01MtpMyLraz5iAd9VgAwxnjA",
+    "created_at": "2026-10-30T03:30:48.716706+00:00",
+    "ended_at": "2026-10-30T03:32:44.561262+00:00",
+    "request_counts": {
+      "processing": 0,
+      "succeeded": 1,
+      "errored": 0,
+      "canceled": 0,
+      "expired": 0
+    },
+    "results_url": "https://api.anthropic.com/v1/messages/batches/msgbatch_01MtpMyLraz5iAd9VgAwxnjA/results"
+  },
+  "timing": {
+    "created_at": "2026-10-30T03:30:48.716706+00:00",
+    "ended_at": "2026-10-30T03:32:44.561262+00:00",
+    "batch_ms": 115845,
+    "wall_ms": 125067
+  },
+  "entry": {
+    "custom_id": "els-live-g08a",
+    "result": {
+      "type": "succeeded",
+      "message": {
+        "model": "claude-fable-5-1",
+        "id": "msg_011CgXiSZF9yVB8UyRfV5rN5",
+        "type": "message",
+        "role": "assistant",
+        "content": [
+          {
+            "type": "thinking",
+            "thinking": "I'm scanning the letter string for Hebrew words as exact contiguous sequences, checking candidates like \"משי\", \"בוא\", and \"איל\" against the letters. Some guesses, such as \"לחבת\", seem doubtful, so I'm testing each one.\n\nI'm now checking the second line for Hebrew words, looking at fragments like \"החש\", \"בחל\", and \"חלר\" as I go.\n\n",
+            "signature": "CAQStwkKEAgTGAI4AUIIdGhpbmtpbmcSDOoLEp4aSF/GDnnS8RoMZ0qf+bw1vCUW2DIOIjBpHPN++cIYp/HT7iF1EF1DWfqFQ/0jkLTJzpYilDe9WUbdJlFhdAj4esziiGN+Sekq1AgPQ1YIBz3k0ASxpcpWIfTPhxWWuwaeGQaZCrsUhqkVyFxPPYX2kFDorQm0Qb3T7OtQ6g14h7l+eoGIN7TFAGrrHVDJDHN3lXNsRIV2mN7yAgDU+dyhaQvOc9FMb4ptZthfPWxUzuDsF73EiQt99Mwdh8itla/5w2n4DdCSi9HipNzThaNMDPEDkjz4OSQf9/X9UfpzCgNSbeTYi3smgVGqranYm9vVL2OuUwirCd4uUr+h/yyZmUqRmTAAQe/WXoP8paByTFhAp4SM9iCrk0VnokXw9x356n53eWZzhHRk8gNKUnx9yoD9gkuSO81zxafqfqH7qfZIZDPzOYDn9bLfmMDwBhFQs8S/2Umz9iema1GlNcOs66YIrjoziPEenTck4UBX1hp4+hEMhsxf/aAKGiw6bhXKSL1AMoK7IjkuphajjMimZkjHvzbG6OjQmn6gEDDr98PH5rRDdTB9IgxqWHNb17n1Hic7058zilVk7NNzhLIpz5UwrtBhHDQr4XuVwmotN+imOUqE5u34UR9EjD6bZgkm9PyxUERcx0ELe7nJIg9CgPETM38rIJtEiq+dxvEYiO9gzV3ARNBUDxyov1rkbjmtcRsGvwaXnyXH21XAYqB5IYX/JicQiD8zLQolo8K3PuCdUF0asDsT4dEOkDk6BzgrBcXqGMqab7GVUOJ58DGVeTo0lgVeNbShToQTqrt5ri7bt4MuouK1UuU1iKvRDbBRfvfHRIXu+4ZwkbUBQtWPzgLXw3EhFEG+7l4EaDnIgSaEm6HOIMhI+Aw1k5AXSJ5eQdb06ckmwJo1d13TfuVK6HqPPWbILaGXso+Fq1syAosOPuaQ/ilnx7VVZJShMu9OIqwtisufRNBrHwZuVtvjfQFZHRI24+6YrSlbknB4fP4kUIO4dlXjCqRxJPwFTHj/d7XUge2x6jP1/79c50FhGVlxp6BlEZg0bMWxOhwnYoLL7AbC8wNqh6mYPlmAFS0OwYDsA/eS3/0B3jD9TTHEeAtfntpe2xuszZ8hrsoj7BpkvgU9GBPzT1/ZbKL2v0jZg5gkzvwMcag/I15Mds3PXugSZYhmzuN/tPUfK8kwX6MvxbivY/T1IjFI0LhHcWupSj+ECllzC6dNdYm7zgGOdYKQxO71bRSQe/WNCdhubHqYwxUXMd2jmlMqGZakSiyxKyi8wk20rGHRtub6En9WlzJLh/rQ207kIO1MAh7lQkvPYYUqve6E0FL+otnnwFhAF8BZbIl3Fbf+FBvjLSuZcNdb6yHZKC3bFALBXc1BCAgQOf3ktAjEwnjFjzmCdeV2yql9Tb4P/iiX7zhyCuuJ2eRCCj8ufrP+AOsr3B8fd4v90ZvAfedH0uqPCJLrL3PJ3Canm0Ygx5Uvf5CNaRDst4r6584/Yr8P1PsvNmk0Lx8/d+KxDR+6dTymRs/bN+GZiO73Tfwv6s7/yTOSd6YsDVROAkfzsJU0Jw+ADUQ7GAE="
+          }
+        ],
+        "container": null,
+        "stop_reason": "refusal",
+        "stop_sequence": null,
+        "stop_details": {
+          "type": "refusal",
+          "category": "cyber",
+          "explanation": "This request triggered restrictions on violative cyber content and was blocked under Anthropic's Usage Policy. To learn more, see https://platform.claude.com/docs/en/build-with-claude/refusals-and-fallback. API integrators: you can reduce refusals for your users by configuring a fallback model — see https://platform.claude.com/docs/en/build-with-claude/refusals-and-fallback"
+        },
+        "usage": {
+          "input_tokens": 2602,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 0
+          },
+          "output_tokens": 309,
+          "output_tokens_details": {
+            "thinking_tokens": 308
+          },
+          "service_tier": "batch",
+          "inference_geo": "global",
+          "speed": "standard"
+        },
+        "diagnostics": null
+      }
+    }
+  }
+}

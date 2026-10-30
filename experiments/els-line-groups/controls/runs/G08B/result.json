@@ -1,0 +1,915 @@
+{
+  "experiment": "EXP-23",
+  "run": "G08B",
+  "group": "G08",
+  "role": "control",
+  "control_of": "G06",
+  "arm": "B",
+  "lines": [
+    "C24",
+    "C25",
+    "C26",
+    "C27",
+    "C28",
+    "C29",
+    "C30",
+    "C31"
+  ],
+  "request_sha256": "15c325f2a0b45e001837456db26bd0f2e0af57dcfb858aef1f50c074c9433880",
+  "lock_sha256": "8d11dca38e762bbe9a32d2a36a864c992b499acf6be65df429dbf5afdb065775",
+  "model": "claude-fable-5-1",
+  "cap": 12,
+  "window_sha256": "208cbe689b68f941daf995f07ff490d8974a5c13128f1724c8792471c02802fe",
+  "batch": {
+    "id": "msgbatch_01GJwsXL356Rbs3J2YgdU65j",
+    "created_at": "2026-10-30T03:31:04.342125+00:00",
+    "ended_at": "2026-10-30T03:32:44.307142+00:00",
+    "request_counts": {
+      "processing": 0,
+      "succeeded": 1,
+      "errored": 0,
+      "canceled": 0,
+      "expired": 0
+    }
+  },
+  "timing": {
+    "created_at": "2026-10-30T03:31:04.342125+00:00",
+    "ended_at": "2026-10-30T03:32:44.307142+00:00",
+    "batch_ms": 99965,
+    "wall_ms": 109333
+  },
+  "usage": {
+    "input_tokens": 2989,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "cache_creation": {
+      "ephemeral_5m_input_tokens": 0,
+      "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 4896,
+    "output_tokens_details": {
+      "thinking_tokens": 3892
+    },
+    "service_tier": "batch",
+    "inference_geo": "global",
+    "speed": "standard"
+  },
+  "cost": {
+    "usd": 0.137345,
+    "ils": {
+      "amount": 0.5082,
+      "currency": "ILS",
+      "status": "ESTIMATED",
+      "fx": {
+        "ils_per_usd": 3.7,
+        "basis": "ASSUMPTION_NOT_VERIFIED",
+        "effective_at": null,
+        "source_ref": null
+      }
+    },
+    "list_price_parts_usd": {
+      "input": 0.02989,
+      "cacheWrite": 0,
+      "cacheRead": 0,
+      "output": 0.2448
+    },
+    "batch_factor": 0.5,
+    "provider_currency": "USD",
+    "basis": "list prices, Message Batches at 50%; from the usage object; not an invoice",
+    "certainty": "ESTIMATED_FROM_USAGE_AND_LIST_PRICES"
+  },
+  "output": {
+    "stop_reason": "end_turn",
+    "input_tokens": 2989,
+    "output_tokens": 4896,
+    "thinking_tokens": 3892
+  },
+  "state": "COMPLETE",
+  "findings": [
+    {
+      "id": "G08B.f01",
+      "text": "יאמר",
+      "parts": [],
+      "line": "C28+",
+      "verification": {
+        "state": "ENGINE_VERIFIED",
+        "reasons": [],
+        "letters_match": true,
+        "occurrences_verified": 1,
+        "engine": {
+          "verification_state": "MATCH",
+          "contract": "els_occurrence_replay_v1",
+          "occurrence_id": "els:0b022e8eef6f9c16:יאמר:583:1:228993",
+          "corpus_id": "0b022e8eef6f9c16"
+        }
+      },
+      "occurrence": {
+        "reading": "C28+",
+        "skip": 583,
+        "dir": 1,
+        "start": 228993,
+        "length": 4,
+        "cells": [
+          [
+            3,
+            28
+          ],
+          [
+            4,
+            28
+          ],
+          [
+            5,
+            28
+          ],
+          [
+            6,
+            28
+          ]
+        ]
+      },
+      "chance": {
+        "expected_occurrences": 27.25,
+        "unlikely_by_chance": false,
+        "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+      },
+      "relation_to_axis": {
+        "distance": 7,
+        "relation": "far"
+      },
+      "model_claims": {
+        "kind": null,
+        "tier": null,
+        "continue_from": false,
+        "note": "",
+        "status": "UNVERIFIED_INTERPRETATION"
+      },
+      "group_check": {
+        "model_line": "C28+",
+        "cited_line_in_group": true,
+        "duplicate": false,
+        "display": "יאמר",
+        "classification": "clear_word_or_phrase",
+        "explanation": "צורת עתיד של הפועל אמר, רצף רציף בתחילת הקו.",
+        "split_preserves_letters": true
+      }
+    },
+    {
+      "id": "G08B.f02",
+      "text": "מרימ",
+      "parts": [],
+      "line": "C28+",
+      "verification": {
+        "state": "ENGINE_VERIFIED",
+        "reasons": [],
+        "letters_match": true,
+        "occurrences_verified": 1,
+        "engine": {
+          "verification_state": "MATCH",
+          "contract": "els_occurrence_replay_v1",
+          "occurrence_id": "els:0b022e8eef6f9c16:מרימ:583:1:230159",
+          "corpus_id": "0b022e8eef6f9c16"
+        }
+      },
+      "occurrence": {
+        "reading": "C28+",
+        "skip": 583,
+        "dir": 1,
+        "start": 230159,
+        "length": 4,
+        "cells": [
+          [
+            5,
+            28
+          ],
+          [
+            6,
+            28
+          ],
+          [
+            7,
+            28
+          ],
+          [
+            8,
+            28
+          ]
+        ]
+      },
+      "chance": {
+        "expected_occurrences": 25.26,
+        "unlikely_by_chance": false,
+        "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+      },
+      "relation_to_axis": {
+        "distance": 7,
+        "relation": "far"
+      },
+      "model_claims": {
+        "kind": null,
+        "tier": null,
+        "continue_from": false,
+        "note": "",
+        "status": "UNVERIFIED_INTERPRETATION"
+      },
+      "group_check": {
+        "model_line": "C28+",
+        "cited_line_in_group": true,
+        "duplicate": false,
+        "display": "מרים",
+        "classification": "name",
+        "explanation": "שם פרטי מקראי, האות הסופית מנורמלת בקו כ-מ רגילה.",
+        "split_preserves_letters": true
+      }
+    },
+    {
+      "id": "G08B.f03",
+      "text": "ההרה",
+      "parts": [],
+      "line": "C28+",
+      "verification": {
+        "state": "ENGINE_VERIFIED",
+        "reasons": [],
+        "letters_match": true,
+        "occurrences_verified": 1,
+        "engine": {
+          "verification_state": "MATCH",
+          "contract": "els_occurrence_replay_v1",
+          "occurrence_id": "els:0b022e8eef6f9c16:ההרה:583:1:232491",
+          "corpus_id": "0b022e8eef6f9c16"
+        }
+      },
+      "occurrence": {
+        "reading": "C28+",
+        "skip": 583,
+        "dir": 1,
+        "start": 232491,
+        "length": 4,
+        "cells": [
+          [
+            9,
+            28
+          ],
+          [
+            10,
+            28
+          ],
+          [
+            11,
+            28
+          ],
+          [
+            12,
+            28
+          ]
+        ]
+      },
+      "chance": {
+        "expected_occurrences": 28.11,
+        "unlikely_by_chance": false,
+        "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+      },
+      "relation_to_axis": {
+        "distance": 7,
+        "relation": "far"
+      },
+      "model_claims": {
+        "kind": null,
+        "tier": null,
+        "continue_from": false,
+        "note": "",
+        "status": "UNVERIFIED_INTERPRETATION"
+      },
+      "group_check": {
+        "model_line": "C28+",
+        "cited_line_in_group": true,
+        "duplicate": false,
+        "display": "ההרה",
+        "classification": "clear_word_or_phrase",
+        "explanation": "ה הידיעה + הר + ה המגמה, כלומר אל ההר.",
+        "split_preserves_letters": true
+      }
+    },
+    {
+      "id": "G08B.f04",
+      "text": "ישימ",
+      "parts": [],
+      "line": "C28-",
+      "verification": {
+        "state": "ENGINE_VERIFIED",
+        "reasons": [],
+        "letters_match": true,
+        "occurrences_verified": 1,
+        "engine": {
+          "verification_state": "MATCH",
+          "contract": "els_occurrence_replay_v1",
+          "occurrence_id": "els:0b022e8eef6f9c16:ישימ:583:-1:244734",
+          "corpus_id": "0b022e8eef6f9c16"
+        }
+      },
+      "occurrence": {
+        "reading": "C28-",
+        "skip": 583,
+        "dir": -1,
+        "start": 244734,
+        "length": 4,
+        "cells": [
+          [
+            30,
+            28
+          ],
+          [
+            29,
+            28
+          ],
+          [
+            28,
+            28
+          ],
+          [
+            27,
+            28
+          ]
+        ]
+      },
+      "chance": {
+        "expected_occurrences": 27.32,
+        "unlikely_by_chance": false,
+        "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+      },
+      "relation_to_axis": {
+        "distance": 7,
+        "relation": "far"
+      },
+      "model_claims": {
+        "kind": null,
+        "tier": null,
+        "continue_from": false,
+        "note": "",
+        "status": "UNVERIFIED_INTERPRETATION"
+      },
+      "group_check": {
+        "model_line": "C28-",
+        "cited_line_in_group": true,
+        "duplicate": false,
+        "display": "ישים",
+        "classification": "clear_word_or_phrase",
+        "explanation": "צורת עתיד של הפועל שם.",
+        "split_preserves_letters": true
+      }
+    },
+    {
+      "id": "G08B.f05",
+      "text": "שמע",
+      "parts": [],
+      "line": "C29+",
+      "verification": {
+        "state": "ENGINE_VERIFIED",
+        "reasons": [],
+        "letters_match": true,
+        "occurrences_verified": 1,
+        "engine": {
+          "verification_state": "MATCH",
+          "contract": "els_occurrence_replay_v1",
+          "occurrence_id": "els:0b022e8eef6f9c16:שמע:583:1:227828",
+          "corpus_id": "0b022e8eef6f9c16"
+        }
+      },
+      "occurrence": {
+        "reading": "C29+",
+        "skip": 583,
+        "dir": 1,
+        "start": 227828,
+        "length": 3,
+        "cells": [
+          [
+            1,
+            29
+          ],
+          [
+            2,
+            29
+          ],
+          [
+            3,
+            29
+          ]
+        ]
+      },
+      "chance": {
+        "expected_occurrences": 94.4,
+        "unlikely_by_chance": false,
+        "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+      },
+      "relation_to_axis": {
+        "distance": 10,
+        "relation": "far"
+      },
+      "model_claims": {
+        "kind": null,
+        "tier": null,
+        "continue_from": false,
+        "note": "",
+        "status": "UNVERIFIED_INTERPRETATION"
+      },
+      "group_check": {
+        "model_line": "C29+",
+        "cited_line_in_group": true,
+        "duplicate": false,
+        "display": "שמע",
+        "classification": "clear_word_or_phrase",
+        "explanation": "פועל בציווי או עבר, רצף רציף בתחילת הקו.",
+        "split_preserves_letters": true
+      }
+    },
+    {
+      "id": "G08B.f06",
+      "text": "להב",
+      "parts": [],
+      "line": "C29-",
+      "verification": {
+        "state": "ENGINE_VERIFIED",
+        "reasons": [],
+        "letters_match": true,
+        "occurrences_verified": 1,
+        "engine": {
+          "verification_state": "MATCH",
+          "contract": "els_occurrence_replay_v1",
+          "occurrence_id": "els:0b022e8eef6f9c16:להב:583:-1:231326",
+          "corpus_id": "0b022e8eef6f9c16"
+        }
+      },
+      "occurrence": {
+        "reading": "C29-",
+        "skip": 583,
+        "dir": -1,
+        "start": 231326,
+        "length": 3,
+        "cells": [
+          [
+            7,
+            29
+          ],
+          [
+            6,
+            29
+          ],
+          [
+            5,
+            29
+          ]
+        ]
+      },
+      "chance": {
+        "expected_occurrences": 212.1,
+        "unlikely_by_chance": false,
+        "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+      },
+      "relation_to_axis": {
+        "distance": 8,
+        "relation": "far"
+      },
+      "model_claims": {
+        "kind": null,
+        "tier": null,
+        "continue_from": false,
+        "note": "",
+        "status": "UNVERIFIED_INTERPRETATION"
+      },
+      "group_check": {
+        "model_line": "C29-",
+        "cited_line_in_group": true,
+        "duplicate": false,
+        "display": "להב",
+        "classification": "clear_word_or_phrase",
+        "explanation": "שם עצם: להב של סכין או לשון אש.",
+        "split_preserves_letters": true
+      }
+    },
+    {
+      "id": "G08B.f07",
+      "text": "נכפל",
+      "parts": [],
+      "line": "C30+",
+      "verification": {
+        "state": "ENGINE_VERIFIED",
+        "reasons": [],
+        "letters_match": true,
+        "occurrences_verified": 1,
+        "engine": {
+          "verification_state": "MATCH",
+          "contract": "els_occurrence_replay_v1",
+          "occurrence_id": "els:0b022e8eef6f9c16:נכפל:583:1:230744",
+          "corpus_id": "0b022e8eef6f9c16"
+        }
+      },
+      "occurrence": {
+        "reading": "C30+",
+        "skip": 583,
+        "dir": 1,
+        "start": 230744,
+        "length": 4,
+        "cells": [
+          [
+            6,
+            30
+          ],
+          [
+            7,
+            30
+          ],
+          [
+            8,
+            30
+          ],
+          [
+            9,
+            30
+          ]
+        ]
+      },
+      "chance": {
+        "expected_occurrences": 1.23,
+        "unlikely_by_chance": false,
+        "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+      },
+      "relation_to_axis": {
+        "distance": 9,
+        "relation": "far"
+      },
+      "model_claims": {
+        "kind": null,
+        "tier": null,
+        "continue_from": false,
+        "note": "",
+        "status": "UNVERIFIED_INTERPRETATION"
+      },
+      "group_check": {
+        "model_line": "C30+",
+        "cited_line_in_group": true,
+        "duplicate": false,
+        "display": "נכפל",
+        "classification": "clear_word_or_phrase",
+        "explanation": "פועל בבניין נפעל משורש כפל.",
+        "split_preserves_letters": true
+      }
+    },
+    {
+      "id": "G08B.f08",
+      "text": "מרוב",
+      "parts": [],
+      "line": "C30+",
+      "verification": {
+        "state": "ENGINE_VERIFIED",
+        "reasons": [],
+        "letters_match": true,
+        "occurrences_verified": 1,
+        "engine": {
+          "verification_state": "MATCH",
+          "contract": "els_occurrence_replay_v1",
+          "occurrence_id": "els:0b022e8eef6f9c16:מרוב:583:1:241238",
+          "corpus_id": "0b022e8eef6f9c16"
+        }
+      },
+      "occurrence": {
+        "reading": "C30+",
+        "skip": 583,
+        "dir": 1,
+        "start": 241238,
+        "length": 4,
+        "cells": [
+          [
+            24,
+            30
+          ],
+          [
+            25,
+            30
+          ],
+          [
+            26,
+            30
+          ],
+          [
+            27,
+            30
+          ]
+        ]
+      },
+      "chance": {
+        "expected_occurrences": 15.93,
+        "unlikely_by_chance": false,
+        "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+      },
+      "relation_to_axis": {
+        "distance": 9,
+        "relation": "far"
+      },
+      "model_claims": {
+        "kind": null,
+        "tier": null,
+        "continue_from": false,
+        "note": "",
+        "status": "UNVERIFIED_INTERPRETATION"
+      },
+      "group_check": {
+        "model_line": "C30+",
+        "cited_line_in_group": true,
+        "duplicate": false,
+        "display": "מרוב",
+        "classification": "clear_word_or_phrase",
+        "explanation": "מ היחס + רוב, צירוף שגור.",
+        "split_preserves_letters": true
+      }
+    },
+    {
+      "id": "G08B.f09",
+      "text": "מלא",
+      "parts": [],
+      "line": "C30-",
+      "verification": {
+        "state": "ENGINE_VERIFIED",
+        "reasons": [],
+        "letters_match": true,
+        "occurrences_verified": 1,
+        "engine": {
+          "verification_state": "MATCH",
+          "contract": "els_occurrence_replay_v1",
+          "occurrence_id": "els:0b022e8eef6f9c16:מלא:583:-1:235991",
+          "corpus_id": "0b022e8eef6f9c16"
+        }
+      },
+      "occurrence": {
+        "reading": "C30-",
+        "skip": 583,
+        "dir": -1,
+        "start": 235991,
+        "length": 3,
+        "cells": [
+          [
+            15,
+            30
+          ],
+          [
+            14,
+            30
+          ],
+          [
+            13,
+            30
+          ]
+        ]
+      },
+      "chance": {
+        "expected_occurrences": 314,
+        "unlikely_by_chance": false,
+        "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+      },
+      "relation_to_axis": {
+        "distance": 9,
+        "relation": "far"
+      },
+      "model_claims": {
+        "kind": null,
+        "tier": null,
+        "continue_from": false,
+        "note": "",
+        "status": "UNVERIFIED_INTERPRETATION"
+      },
+      "group_check": {
+        "model_line": "C30-",
+        "cited_line_in_group": true,
+        "duplicate": false,
+        "display": "מלא",
+        "classification": "clear_word_or_phrase",
+        "explanation": "תואר או פועל במשמעות מלא.",
+        "split_preserves_letters": true
+      }
+    },
+    {
+      "id": "G08B.f10",
+      "text": "הדבר",
+      "parts": [],
+      "line": "C31+",
+      "verification": {
+        "state": "ENGINE_VERIFIED",
+        "reasons": [],
+        "letters_match": true,
+        "occurrences_verified": 1,
+        "engine": {
+          "verification_state": "MATCH",
+          "contract": "els_occurrence_replay_v1",
+          "occurrence_id": "els:0b022e8eef6f9c16:הדבר:583:1:236575",
+          "corpus_id": "0b022e8eef6f9c16"
+        }
+      },
+      "occurrence": {
+        "reading": "C31+",
+        "skip": 583,
+        "dir": 1,
+        "start": 236575,
+        "length": 4,
+        "cells": [
+          [
+            16,
+            31
+          ],
+          [
+            17,
+            31
+          ],
+          [
+            18,
+            31
+          ],
+          [
+            19,
+            31
+          ]
+        ]
+      },
+      "chance": {
+        "expected_occurrences": 4.104,
+        "unlikely_by_chance": false,
+        "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+      },
+      "relation_to_axis": {
+        "distance": 10,
+        "relation": "far"
+      },
+      "model_claims": {
+        "kind": null,
+        "tier": null,
+        "continue_from": false,
+        "note": "",
+        "status": "UNVERIFIED_INTERPRETATION"
+      },
+      "group_check": {
+        "model_line": "C31+",
+        "cited_line_in_group": true,
+        "duplicate": false,
+        "display": "הדבר",
+        "classification": "clear_word_or_phrase",
+        "explanation": "ה הידיעה + דבר, שם עצם מיודע.",
+        "split_preserves_letters": true
+      }
+    },
+    {
+      "id": "G08B.f11",
+      "text": "תמות",
+      "parts": [],
+      "line": "C31-",
+      "verification": {
+        "state": "ENGINE_VERIFIED",
+        "reasons": [],
+        "letters_match": true,
+        "occurrences_verified": 1,
+        "engine": {
+          "verification_state": "MATCH",
+          "contract": "els_occurrence_replay_v1",
+          "occurrence_id": "els:0b022e8eef6f9c16:תמות:583:-1:235409",
+          "corpus_id": "0b022e8eef6f9c16"
+        }
+      },
+      "occurrence": {
+        "reading": "C31-",
+        "skip": 583,
+        "dir": -1,
+        "start": 235409,
+        "length": 4,
+        "cells": [
+          [
+            14,
+            31
+          ],
+          [
+            13,
+            31
+          ],
+          [
+            12,
+            31
+          ],
+          [
+            11,
+            31
+          ]
+        ]
+      },
+      "chance": {
+        "expected_occurrences": 17.32,
+        "unlikely_by_chance": false,
+        "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+      },
+      "relation_to_axis": {
+        "distance": 10,
+        "relation": "far"
+      },
+      "model_claims": {
+        "kind": null,
+        "tier": null,
+        "continue_from": false,
+        "note": "",
+        "status": "UNVERIFIED_INTERPRETATION"
+      },
+      "group_check": {
+        "model_line": "C31-",
+        "cited_line_in_group": true,
+        "duplicate": false,
+        "display": "תמות",
+        "classification": "clear_word_or_phrase",
+        "explanation": "צורת עתיד נוכח או נסתרת של הפועל מות.",
+        "split_preserves_letters": true
+      }
+    },
+    {
+      "id": "G08B.f12",
+      "text": "תאבד",
+      "parts": [],
+      "line": "C24-",
+      "verification": {
+        "state": "ENGINE_VERIFIED",
+        "reasons": [],
+        "letters_match": true,
+        "occurrences_verified": 1,
+        "engine": {
+          "verification_state": "MATCH",
+          "contract": "els_occurrence_replay_v1",
+          "occurrence_id": "els:0b022e8eef6f9c16:תאבד:583:-1:235402",
+          "corpus_id": "0b022e8eef6f9c16"
+        }
+      },
+      "occurrence": {
+        "reading": "C24-",
+        "skip": 583,
+        "dir": -1,
+        "start": 235402,
+        "length": 4,
+        "cells": [
+          [
+            14,
+            24
+          ],
+          [
+            13,
+            24
+          ],
+          [
+            12,
+            24
+          ],
+          [
+            11,
+            24
+          ]
+        ]
+      },
+      "chance": {
+        "expected_occurrences": 3.92,
+        "unlikely_by_chance": false,
+        "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+      },
+      "relation_to_axis": {
+        "distance": 3,
+        "relation": "far"
+      },
+      "model_claims": {
+        "kind": null,
+        "tier": null,
+        "continue_from": false,
+        "note": "",
+        "status": "UNVERIFIED_INTERPRETATION"
+      },
+      "group_check": {
+        "model_line": "C24-",
+        "cited_line_in_group": true,
+        "duplicate": false,
+        "display": "תאבד",
+        "classification": "clear_word_or_phrase",
+        "explanation": "צורת עתיד של הפועל אבד.",
+        "split_preserves_letters": true
+      }
+    }
+  ],
+  "summary": {
+    "proposals": 12,
+    "engine_verified": 12,
+    "source_rows": 0,
+    "not_verified": 0,
+    "duplicates": 0,
+    "cited_line_outside_group": 0,
+    "split_invalid": 0,
+    "classifications": {
+      "clear_word_or_phrase": 11,
+      "name": 1,
+      "abbreviation": 0,
+      "unclear_split": 0
+    }
+  },
+  "cap_info": {
+    "requested": 12,
+    "proposals": 12,
+    "reached": true
+  },
+  "observations": "בקווים C25, C26 ו-C27 נמצאו רק רצפים קצרים (רשת, השב, תהר, דוב, הצל) שלא נכללו מפאת התקרה. קווי C24+ (אייל) ו-C30- (עשן, חתם, אשל, שלף) נבדקו פחות לעומק."
+}

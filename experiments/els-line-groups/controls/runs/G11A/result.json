@@ -1,0 +1,892 @@
+{
+  "experiment": "EXP-23",
+  "run": "G11A",
+  "group": "G11",
+  "role": "control",
+  "control_of": "G10",
+  "arm": "A",
+  "lines": [
+    "D07",
+    "D08",
+    "D09",
+    "D10",
+    "D11",
+    "D12",
+    "D13",
+    "D14"
+  ],
+  "request_sha256": "96ead097f28bc589e449838e494927b3ed9d62cb1511f3e7c663bd7ee4b7d81a",
+  "lock_sha256": "fa2d9f8cd58ba4ff2d4ef02b12ff071acc6ff1ce60fb3c9f19cf84827eeaf034",
+  "model": "claude-fable-5-1",
+  "cap": 12,
+  "window_sha256": "208cbe689b68f941daf995f07ff490d8974a5c13128f1724c8792471c02802fe",
+  "batch": {
+    "id": "msgbatch_01LXq5UwrfQYgun2feeEY3JV",
+    "created_at": "2026-10-30T03:34:46.141610+00:00",
+    "ended_at": "2026-10-30T03:35:50.248766+00:00",
+    "request_counts": {
+      "processing": 0,
+      "succeeded": 1,
+      "errored": 0,
+      "canceled": 0,
+      "expired": 0
+    }
+  },
+  "timing": {
+    "created_at": "2026-10-30T03:34:46.141610+00:00",
+    "ended_at": "2026-10-30T03:35:50.248766+00:00",
+    "batch_ms": 64107,
+    "wall_ms": 77733
+  },
+  "usage": {
+    "input_tokens": 2572,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "cache_creation": {
+      "ephemeral_5m_input_tokens": 0,
+      "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 3620,
+    "output_tokens_details": {
+      "thinking_tokens": 3207
+    },
+    "service_tier": "batch",
+    "inference_geo": "global",
+    "speed": "standard"
+  },
+  "cost": {
+    "usd": 0.10336,
+    "ils": {
+      "amount": 0.3824,
+      "currency": "ILS",
+      "status": "ESTIMATED",
+      "fx": {
+        "ils_per_usd": 3.7,
+        "basis": "ASSUMPTION_NOT_VERIFIED",
+        "effective_at": null,
+        "source_ref": null
+      }
+    },
+    "list_price_parts_usd": {
+      "input": 0.02572,
+      "cacheWrite": 0,
+      "cacheRead": 0,
+      "output": 0.181
+    },
+    "batch_factor": 0.5,
+    "provider_currency": "USD",
+    "basis": "list prices, Message Batches at 50%; from the usage object; not an invoice",
+    "certainty": "ESTIMATED_FROM_USAGE_AND_LIST_PRICES"
+  },
+  "output": {
+    "stop_reason": "end_turn",
+    "input_tokens": 2572,
+    "output_tokens": 3620,
+    "thinking_tokens": 3207
+  },
+  "state": "COMPLETE",
+  "findings": [
+    {
+      "id": "G11A.f01",
+      "text": "דיויד",
+      "parts": [],
+      "line": "D07+",
+      "verification": {
+        "state": "ENGINE_VERIFIED",
+        "reasons": [],
+        "letters_match": true,
+        "occurrences_verified": 1,
+        "engine": {
+          "verification_state": "MATCH",
+          "contract": "els_occurrence_replay_v1",
+          "occurrence_id": "els:0b022e8eef6f9c16:דיויד:584:1:242406",
+          "corpus_id": "0b022e8eef6f9c16"
+        }
+      },
+      "occurrence": {
+        "reading": "D07+",
+        "skip": 584,
+        "dir": 1,
+        "start": 242406,
+        "length": 5,
+        "cells": [
+          [
+            26,
+            32
+          ],
+          [
+            27,
+            33
+          ],
+          [
+            28,
+            34
+          ],
+          [
+            29,
+            35
+          ],
+          [
+            30,
+            36
+          ]
+        ]
+      },
+      "chance": {
+        "expected_occurrences": 0.3449,
+        "unlikely_by_chance": true,
+        "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+      },
+      "relation_to_axis": {
+        "distance": 11,
+        "relation": "far"
+      },
+      "model_claims": {
+        "kind": null,
+        "tier": null,
+        "continue_from": false,
+        "note": "",
+        "status": "UNVERIFIED_INTERPRETATION"
+      },
+      "group_check": {
+        "model_line": "D07+",
+        "cited_line_in_group": true,
+        "duplicate": false
+      }
+    },
+    {
+      "id": "G11A.f02",
+      "text": "משמימ",
+      "parts": [],
+      "line": "D08+",
+      "verification": {
+        "state": "ENGINE_VERIFIED",
+        "reasons": [],
+        "letters_match": true,
+        "occurrences_verified": 1,
+        "engine": {
+          "verification_state": "MATCH",
+          "contract": "els_occurrence_replay_v1",
+          "occurrence_id": "els:0b022e8eef6f9c16:משמימ:584:1:236567",
+          "corpus_id": "0b022e8eef6f9c16"
+        }
+      },
+      "occurrence": {
+        "reading": "D08+",
+        "skip": 584,
+        "dir": 1,
+        "start": 236567,
+        "length": 5,
+        "cells": [
+          [
+            16,
+            23
+          ],
+          [
+            17,
+            24
+          ],
+          [
+            18,
+            25
+          ],
+          [
+            19,
+            26
+          ],
+          [
+            20,
+            27
+          ]
+        ]
+      },
+      "chance": {
+        "expected_occurrences": 1.786,
+        "unlikely_by_chance": false,
+        "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+      },
+      "relation_to_axis": {
+        "distance": 2,
+        "relation": "far"
+      },
+      "model_claims": {
+        "kind": null,
+        "tier": null,
+        "continue_from": false,
+        "note": "",
+        "status": "UNVERIFIED_INTERPRETATION"
+      },
+      "group_check": {
+        "model_line": "D08+",
+        "cited_line_in_group": true,
+        "duplicate": false
+      }
+    },
+    {
+      "id": "G11A.f03",
+      "text": "מדוע",
+      "parts": [],
+      "line": "D08+",
+      "verification": {
+        "state": "ENGINE_VERIFIED",
+        "reasons": [],
+        "letters_match": true,
+        "occurrences_verified": 1,
+        "engine": {
+          "verification_state": "MATCH",
+          "contract": "els_occurrence_replay_v1",
+          "occurrence_id": "els:0b022e8eef6f9c16:מדוע:584:1:238903",
+          "corpus_id": "0b022e8eef6f9c16"
+        }
+      },
+      "occurrence": {
+        "reading": "D08+",
+        "skip": 584,
+        "dir": 1,
+        "start": 238903,
+        "length": 4,
+        "cells": [
+          [
+            20,
+            27
+          ],
+          [
+            21,
+            28
+          ],
+          [
+            22,
+            29
+          ],
+          [
+            23,
+            30
+          ]
+        ]
+      },
+      "chance": {
+        "expected_occurrences": 4.253,
+        "unlikely_by_chance": false,
+        "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+      },
+      "relation_to_axis": {
+        "distance": 6,
+        "relation": "far"
+      },
+      "model_claims": {
+        "kind": null,
+        "tier": null,
+        "continue_from": false,
+        "note": "",
+        "status": "UNVERIFIED_INTERPRETATION"
+      },
+      "group_check": {
+        "model_line": "D08+",
+        "cited_line_in_group": true,
+        "duplicate": false
+      }
+    },
+    {
+      "id": "G11A.f04",
+      "text": "הכרמ",
+      "parts": [],
+      "line": "D09-",
+      "verification": {
+        "state": "ENGINE_VERIFIED",
+        "reasons": [],
+        "letters_match": true,
+        "occurrences_verified": 1,
+        "engine": {
+          "verification_state": "MATCH",
+          "contract": "els_occurrence_replay_v1",
+          "occurrence_id": "els:0b022e8eef6f9c16:הכרמ:584:-1:238320",
+          "corpus_id": "0b022e8eef6f9c16"
+        }
+      },
+      "occurrence": {
+        "reading": "D09-",
+        "skip": 584,
+        "dir": -1,
+        "start": 238320,
+        "length": 4,
+        "cells": [
+          [
+            19,
+            27
+          ],
+          [
+            18,
+            26
+          ],
+          [
+            17,
+            25
+          ],
+          [
+            16,
+            24
+          ]
+        ]
+      },
+      "chance": {
+        "expected_occurrences": 10.72,
+        "unlikely_by_chance": false,
+        "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+      },
+      "relation_to_axis": {
+        "distance": 3,
+        "relation": "far"
+      },
+      "model_claims": {
+        "kind": null,
+        "tier": null,
+        "continue_from": false,
+        "note": "",
+        "status": "UNVERIFIED_INTERPRETATION"
+      },
+      "group_check": {
+        "model_line": "D09-",
+        "cited_line_in_group": true,
+        "duplicate": false
+      }
+    },
+    {
+      "id": "G11A.f05",
+      "text": "שיאימ",
+      "parts": [],
+      "line": "D09-",
+      "verification": {
+        "state": "ENGINE_VERIFIED",
+        "reasons": [],
+        "letters_match": true,
+        "occurrences_verified": 1,
+        "engine": {
+          "verification_state": "MATCH",
+          "contract": "els_occurrence_replay_v1",
+          "occurrence_id": "els:0b022e8eef6f9c16:שיאימ:584:-1:235984",
+          "corpus_id": "0b022e8eef6f9c16"
+        }
+      },
+      "occurrence": {
+        "reading": "D09-",
+        "skip": 584,
+        "dir": -1,
+        "start": 235984,
+        "length": 5,
+        "cells": [
+          [
+            15,
+            23
+          ],
+          [
+            14,
+            22
+          ],
+          [
+            13,
+            21
+          ],
+          [
+            12,
+            20
+          ],
+          [
+            11,
+            19
+          ]
+        ]
+      },
+      "chance": {
+        "expected_occurrences": 2.42,
+        "unlikely_by_chance": false,
+        "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+      },
+      "relation_to_axis": {
+        "distance": 0,
+        "relation": "crosses"
+      },
+      "model_claims": {
+        "kind": null,
+        "tier": null,
+        "continue_from": false,
+        "note": "",
+        "status": "UNVERIFIED_INTERPRETATION"
+      },
+      "group_check": {
+        "model_line": "D09-",
+        "cited_line_in_group": true,
+        "duplicate": false
+      }
+    },
+    {
+      "id": "G11A.f06",
+      "text": "אילות",
+      "parts": [],
+      "line": "D11+",
+      "verification": {
+        "state": "ENGINE_VERIFIED",
+        "reasons": [],
+        "letters_match": true,
+        "occurrences_verified": 1,
+        "engine": {
+          "verification_state": "MATCH",
+          "contract": "els_occurrence_replay_v1",
+          "occurrence_id": "els:0b022e8eef6f9c16:אילות:584:1:233066",
+          "corpus_id": "0b022e8eef6f9c16"
+        }
+      },
+      "occurrence": {
+        "reading": "D11+",
+        "skip": 584,
+        "dir": 1,
+        "start": 233066,
+        "length": 5,
+        "cells": [
+          [
+            10,
+            20
+          ],
+          [
+            11,
+            21
+          ],
+          [
+            12,
+            22
+          ],
+          [
+            13,
+            23
+          ],
+          [
+            14,
+            24
+          ]
+        ]
+      },
+      "chance": {
+        "expected_occurrences": 2.318,
+        "unlikely_by_chance": false,
+        "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+      },
+      "relation_to_axis": {
+        "distance": 1,
+        "relation": "touches"
+      },
+      "model_claims": {
+        "kind": null,
+        "tier": null,
+        "continue_from": false,
+        "note": "",
+        "status": "UNVERIFIED_INTERPRETATION"
+      },
+      "group_check": {
+        "model_line": "D11+",
+        "cited_line_in_group": true,
+        "duplicate": false
+      }
+    },
+    {
+      "id": "G11A.f07",
+      "text": "לשובע",
+      "parts": [],
+      "line": "D11-",
+      "verification": {
+        "state": "ENGINE_VERIFIED",
+        "reasons": [],
+        "letters_match": true,
+        "occurrences_verified": 1,
+        "engine": {
+          "verification_state": "MATCH",
+          "contract": "els_occurrence_replay_v1",
+          "occurrence_id": "els:0b022e8eef6f9c16:לשובע:584:-1:238322",
+          "corpus_id": "0b022e8eef6f9c16"
+        }
+      },
+      "occurrence": {
+        "reading": "D11-",
+        "skip": 584,
+        "dir": -1,
+        "start": 238322,
+        "length": 5,
+        "cells": [
+          [
+            19,
+            29
+          ],
+          [
+            18,
+            28
+          ],
+          [
+            17,
+            27
+          ],
+          [
+            16,
+            26
+          ],
+          [
+            15,
+            25
+          ]
+        ]
+      },
+      "chance": {
+        "expected_occurrences": 0.434,
+        "unlikely_by_chance": true,
+        "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+      },
+      "relation_to_axis": {
+        "distance": 4,
+        "relation": "far"
+      },
+      "model_claims": {
+        "kind": null,
+        "tier": null,
+        "continue_from": false,
+        "note": "",
+        "status": "UNVERIFIED_INTERPRETATION"
+      },
+      "group_check": {
+        "model_line": "D11-",
+        "cited_line_in_group": true,
+        "duplicate": false
+      }
+    },
+    {
+      "id": "G11A.f08",
+      "text": "הכבש",
+      "parts": [],
+      "line": "D12+",
+      "verification": {
+        "state": "ENGINE_VERIFIED",
+        "reasons": [],
+        "letters_match": true,
+        "occurrences_verified": 1,
+        "engine": {
+          "verification_state": "MATCH",
+          "contract": "els_occurrence_replay_v1",
+          "occurrence_id": "els:0b022e8eef6f9c16:הכבש:584:1:229563",
+          "corpus_id": "0b022e8eef6f9c16"
+        }
+      },
+      "occurrence": {
+        "reading": "D12+",
+        "skip": 584,
+        "dir": 1,
+        "start": 229563,
+        "length": 4,
+        "cells": [
+          [
+            4,
+            15
+          ],
+          [
+            5,
+            16
+          ],
+          [
+            6,
+            17
+          ],
+          [
+            7,
+            18
+          ]
+        ]
+      },
+      "chance": {
+        "expected_occurrences": 6.01,
+        "unlikely_by_chance": false,
+        "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+      },
+      "relation_to_axis": {
+        "distance": 6,
+        "relation": "far"
+      },
+      "model_claims": {
+        "kind": null,
+        "tier": null,
+        "continue_from": false,
+        "note": "",
+        "status": "UNVERIFIED_INTERPRETATION"
+      },
+      "group_check": {
+        "model_line": "D12+",
+        "cited_line_in_group": true,
+        "duplicate": false
+      }
+    },
+    {
+      "id": "G11A.f09",
+      "text": "ברכה",
+      "parts": [],
+      "line": "D13-",
+      "verification": {
+        "state": "ENGINE_VERIFIED",
+        "reasons": [],
+        "letters_match": true,
+        "occurrences_verified": 1,
+        "engine": {
+          "verification_state": "MATCH",
+          "contract": "els_occurrence_replay_v1",
+          "occurrence_id": "els:0b022e8eef6f9c16:ברכה:584:-1:243580",
+          "corpus_id": "0b022e8eef6f9c16"
+        }
+      },
+      "occurrence": {
+        "reading": "D13-",
+        "skip": 584,
+        "dir": -1,
+        "start": 243580,
+        "length": 4,
+        "cells": [
+          [
+            28,
+            40
+          ],
+          [
+            27,
+            39
+          ],
+          [
+            26,
+            38
+          ],
+          [
+            25,
+            37
+          ]
+        ]
+      },
+      "chance": {
+        "expected_occurrences": 6.985,
+        "unlikely_by_chance": false,
+        "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+      },
+      "relation_to_axis": {
+        "distance": 16,
+        "relation": "far"
+      },
+      "model_claims": {
+        "kind": null,
+        "tier": null,
+        "continue_from": false,
+        "note": "",
+        "status": "UNVERIFIED_INTERPRETATION"
+      },
+      "group_check": {
+        "model_line": "D13-",
+        "cited_line_in_group": true,
+        "duplicate": false
+      }
+    },
+    {
+      "id": "G11A.f10",
+      "text": "לקנא",
+      "parts": [],
+      "line": "D13-",
+      "verification": {
+        "state": "ENGINE_VERIFIED",
+        "reasons": [],
+        "letters_match": true,
+        "occurrences_verified": 1,
+        "engine": {
+          "verification_state": "MATCH",
+          "contract": "els_occurrence_replay_v1",
+          "occurrence_id": "els:0b022e8eef6f9c16:לקנא:584:-1:229564",
+          "corpus_id": "0b022e8eef6f9c16"
+        }
+      },
+      "occurrence": {
+        "reading": "D13-",
+        "skip": 584,
+        "dir": -1,
+        "start": 229564,
+        "length": 4,
+        "cells": [
+          [
+            4,
+            16
+          ],
+          [
+            3,
+            15
+          ],
+          [
+            2,
+            14
+          ],
+          [
+            1,
+            13
+          ]
+        ]
+      },
+      "chance": {
+        "expected_occurrences": 2.718,
+        "unlikely_by_chance": false,
+        "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+      },
+      "relation_to_axis": {
+        "distance": 9,
+        "relation": "far"
+      },
+      "model_claims": {
+        "kind": null,
+        "tier": null,
+        "continue_from": false,
+        "note": "",
+        "status": "UNVERIFIED_INTERPRETATION"
+      },
+      "group_check": {
+        "model_line": "D13-",
+        "cited_line_in_group": true,
+        "duplicate": false
+      }
+    },
+    {
+      "id": "G11A.f11",
+      "text": "בחלמי",
+      "parts": [],
+      "line": "D14-",
+      "verification": {
+        "state": "ENGINE_VERIFIED",
+        "reasons": [],
+        "letters_match": true,
+        "occurrences_verified": 1,
+        "engine": {
+          "verification_state": "MATCH",
+          "contract": "els_occurrence_replay_v1",
+          "occurrence_id": "els:0b022e8eef6f9c16:בחלמי:584:-1:237741",
+          "corpus_id": "0b022e8eef6f9c16"
+        }
+      },
+      "occurrence": {
+        "reading": "D14-",
+        "skip": 584,
+        "dir": -1,
+        "start": 237741,
+        "length": 5,
+        "cells": [
+          [
+            18,
+            31
+          ],
+          [
+            17,
+            30
+          ],
+          [
+            16,
+            29
+          ],
+          [
+            15,
+            28
+          ],
+          [
+            14,
+            27
+          ]
+        ]
+      },
+      "chance": {
+        "expected_occurrences": 0.461,
+        "unlikely_by_chance": true,
+        "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+      },
+      "relation_to_axis": {
+        "distance": 6,
+        "relation": "far"
+      },
+      "model_claims": {
+        "kind": null,
+        "tier": null,
+        "continue_from": false,
+        "note": "",
+        "status": "UNVERIFIED_INTERPRETATION"
+      },
+      "group_check": {
+        "model_line": "D14-",
+        "cited_line_in_group": true,
+        "duplicate": false
+      }
+    },
+    {
+      "id": "G11A.f12",
+      "text": "חבל",
+      "parts": [],
+      "line": "D14+",
+      "verification": {
+        "state": "ENGINE_VERIFIED",
+        "reasons": [],
+        "letters_match": true,
+        "occurrences_verified": 1,
+        "engine": {
+          "verification_state": "MATCH",
+          "contract": "els_occurrence_replay_v1",
+          "occurrence_id": "els:0b022e8eef6f9c16:חבל:584:1:237157",
+          "corpus_id": "0b022e8eef6f9c16"
+        }
+      },
+      "occurrence": {
+        "reading": "D14+",
+        "skip": 584,
+        "dir": 1,
+        "start": 237157,
+        "length": 3,
+        "cells": [
+          [
+            17,
+            30
+          ],
+          [
+            18,
+            31
+          ],
+          [
+            19,
+            32
+          ]
+        ]
+      },
+      "chance": {
+        "expected_occurrences": 54.35,
+        "unlikely_by_chance": false,
+        "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+      },
+      "relation_to_axis": {
+        "distance": 9,
+        "relation": "far"
+      },
+      "model_claims": {
+        "kind": null,
+        "tier": null,
+        "continue_from": false,
+        "note": "",
+        "status": "UNVERIFIED_INTERPRETATION"
+      },
+      "group_check": {
+        "model_line": "D14+",
+        "cited_line_in_group": true,
+        "duplicate": false
+      }
+    }
+  ],
+  "summary": {
+    "proposals": 12,
+    "engine_verified": 12,
+    "source_rows": 0,
+    "not_verified": 0,
+    "duplicates": 0,
+    "cited_line_outside_group": 0
+  },
+  "cap_info": {
+    "requested": 12,
+    "proposals": 12,
+    "reached": true
+  },
+  "observations": "D10 בשני הכיוונים נראה דל יחסית (עמנו, מנות, בלי בלבד). ב-D07- יש לבדי, ב-D09+ יעבור, ב-D12+ שמש וחרש, ב-D14+ מלח ורוח: לא נכללו בגלל התקרה."
+}

@@ -1,0 +1,13 @@
+{
+  "run": "G08A",
+  "input_tokens_counted": 2276,
+  "worst_case_usd": 0.264225,
+  "guard": {
+    "ok": true,
+    "reason": null,
+    "spent": 0.94286,
+    "worstCase": 1.207085
+  },
+  "request_sha256": "f15005e78d7b24b87146815dfa03a84074e5482a31da3d85d838e9fe775480d0",
+  "lock_sha256": "d8c1e80762c3b3e07eaa78ad243f67661fac1108ae7672157bb59f7e4ff385d8"
+}

@@ -1,0 +1,90 @@
+{
+  "experiment": "EXP-23",
+  "run": "G07A",
+  "group": "G07",
+  "role": "saved_lines",
+  "control_of": null,
+  "arm": "A",
+  "lines": [
+    "C16",
+    "C17",
+    "C18",
+    "C19",
+    "C20",
+    "C21",
+    "C22",
+    "C23"
+  ],
+  "request_sha256": "725451e80a3b7d506164e8f17a73260965b74af44684ec2db5325de7b31fd5f5",
+  "lock_sha256": "74537f02b337783cce2d7ae2291db6aae40f5ebf65e44e99497c1bad80685e7b",
+  "model": "claude-fable-5-1",
+  "cap": 12,
+  "window_sha256": "208cbe689b68f941daf995f07ff490d8974a5c13128f1724c8792471c02802fe",
+  "batch": {
+    "id": "msgbatch_01LczpFnfi3QqC1QzugNcSRn",
+    "created_at": "2026-10-30T03:31:51.859900+00:00",
+    "ended_at": "2026-10-30T03:33:46.757542+00:00",
+    "request_counts": {
+      "processing": 0,
+      "succeeded": 1,
+      "errored": 0,
+      "canceled": 0,
+      "expired": 0
+    }
+  },
+  "timing": {
+    "created_at": "2026-10-30T03:31:51.859900+00:00",
+    "ended_at": "2026-10-30T03:33:46.757542+00:00",
+    "batch_ms": 114898,
+    "wall_ms": 125238
+  },
+  "usage": {
+    "input_tokens": 2600,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "cache_creation": {
+      "ephemeral_5m_input_tokens": 0,
+      "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 1046,
+    "output_tokens_details": {
+      "thinking_tokens": 1046
+    },
+    "service_tier": "batch",
+    "inference_geo": "global",
+    "speed": "standard"
+  },
+  "cost": {
+    "usd": 0.03915,
+    "ils": {
+      "amount": 0.1449,
+      "currency": "ILS",
+      "status": "ESTIMATED",
+      "fx": {
+        "ils_per_usd": 3.7,
+        "basis": "ASSUMPTION_NOT_VERIFIED",
+        "effective_at": null,
+        "source_ref": null
+      }
+    },
+    "list_price_parts_usd": {
+      "input": 0.026,
+      "cacheWrite": 0,
+      "cacheRead": 0,
+      "output": 0.0523
+    },
+    "batch_factor": 0.5,
+    "provider_currency": "USD",
+    "basis": "list prices, Message Batches at 50%; from the usage object; not an invoice",
+    "certainty": "ESTIMATED_FROM_USAGE_AND_LIST_PRICES"
+  },
+  "output": {
+    "stop_reason": "refusal",
+    "input_tokens": 2600,
+    "output_tokens": 1046,
+    "thinking_tokens": 1046
+  },
+  "state": "INCOMPLETE",
+  "reason": "refusal",
+  "note": "the answer was cut off; nothing from it is shown; the cost was incurred"
+}

@@ -1,0 +1,1765 @@
+{
+ "Q001": {
+  "text": "וניבא",
+  "uses": [
+   {
+    "run": "G02A",
+    "arm": "A",
+    "group": "G02",
+    "role": "saved_lines",
+    "id": "G02A.f05",
+    "line": "R12-",
+    "state": "PLAIN_TEXT_ONLY"
+   }
+  ]
+ },
+ "Q002": {
+  "text": "תאבד",
+  "uses": [
+   {
+    "run": "G08B",
+    "arm": "B",
+    "group": "G08",
+    "role": "control",
+    "id": "G08B.f12",
+    "line": "C24-",
+    "state": "ENGINE_VERIFIED"
+   }
+  ]
+ },
+ "Q003": {
+  "text": "בחלמו",
+  "uses": [
+   {
+    "run": "G10A",
+    "arm": "A",
+    "group": "G10",
+    "role": "saved_lines",
+    "id": "G10A.f01",
+    "line": "C40-",
+    "state": "ENGINE_VERIFIED"
+   },
+   {
+    "run": "G10B",
+    "arm": "B",
+    "group": "G10",
+    "role": "saved_lines",
+    "id": "G10B.f01",
+    "line": "C40-",
+    "state": "ENGINE_VERIFIED"
+   }
+  ]
+ },
+ "Q004": {
+  "text": "מצב",
+  "uses": [
+   {
+    "run": "G10A",
+    "arm": "A",
+    "group": "G10",
+    "role": "saved_lines",
+    "id": "G10A.f14",
+    "line": "D02+",
+    "state": "ENGINE_VERIFIED"
+   }
+  ]
+ },
+ "Q005": {
+  "text": "ישימ",
+  "uses": [
+   {
+    "run": "G08B",
+    "arm": "B",
+    "group": "G08",
+    "role": "control",
+    "id": "G08B.f04",
+    "line": "C28-",
+    "state": "ENGINE_VERIFIED"
+   }
+  ]
+ },
+ "Q006": {
+  "text": "ושמבתאשרשרח",
+  "uses": [
+   {
+    "run": "G02B",
+    "arm": "B",
+    "group": "G02",
+    "role": "saved_lines",
+    "id": "G02B.f02",
+    "line": "R10+",
+    "state": "PLAIN_TEXT_ONLY"
+   }
+  ]
+ },
+ "Q007": {
+  "text": "איתנ",
+  "uses": [
+   {
+    "run": "G09A",
+    "arm": "A",
+    "group": "G09",
+    "role": "control",
+    "id": "G09A.f05",
+    "line": "C36-",
+    "state": "ENGINE_VERIFIED"
+   }
+  ]
+ },
+ "Q008": {
+  "text": "בלבבמ",
+  "uses": [
+   {
+    "run": "G06A",
+    "arm": "A",
+    "group": "G06",
+    "role": "saved_lines",
+    "id": "G06A.f02",
+    "line": "C09-",
+    "state": "ENGINE_VERIFIED"
+   }
+  ]
+ },
+ "Q009": {
+  "text": "משפחתמנשה",
+  "uses": [
+   {
+    "run": "G02A",
+    "arm": "A",
+    "group": "G02",
+    "role": "saved_lines",
+    "id": "G02A.f02",
+    "line": "R09+",
+    "state": "PLAIN_TEXT_ONLY"
+   }
+  ]
+ },
+ "Q010": {
+  "text": "לעד",
+  "uses": [
+   {
+    "run": "G02A",
+    "arm": "A",
+    "group": "G02",
+    "role": "saved_lines",
+    "id": "G02A.f08",
+    "line": "R16-",
+    "state": "PLAIN_TEXT_ONLY"
+   }
+  ]
+ },
+ "Q011": {
+  "text": "תמות",
+  "uses": [
+   {
+    "run": "G08B",
+    "arm": "B",
+    "group": "G08",
+    "role": "control",
+    "id": "G08B.f11",
+    "line": "C31-",
+    "state": "ENGINE_VERIFIED"
+   }
+  ]
+ },
+ "Q012": {
+  "text": "אשריוציאמואשריביאמ",
+  "uses": [
+   {
+    "run": "G02B",
+    "arm": "B",
+    "group": "G02",
+    "role": "saved_lines",
+    "id": "G02B.f05",
+    "line": "R13+",
+    "state": "PLAIN_TEXT_ONLY"
+   }
+  ]
+ },
+ "Q013": {
+  "text": "משמימ",
+  "uses": [
+   {
+    "run": "G11A",
+    "arm": "A",
+    "group": "G11",
+    "role": "control",
+    "id": "G11A.f02",
+    "line": "D08+",
+    "state": "ENGINE_VERIFIED"
+   },
+   {
+    "run": "G11B",
+    "arm": "B",
+    "group": "G11",
+    "role": "control",
+    "id": "G11B.f01",
+    "line": "D08+",
+    "state": "ENGINE_VERIFIED"
+   }
+  ]
+ },
+ "Q014": {
+  "text": "הקול",
+  "uses": [
+   {
+    "run": "G06A",
+    "arm": "A",
+    "group": "G06",
+    "role": "saved_lines",
+    "id": "G06A.f10",
+    "line": "C15-",
+    "state": "ENGINE_VERIFIED"
+   }
+  ]
+ },
+ "Q015": {
+  "text": "לילה",
+  "uses": [
+   {
+    "run": "G10A",
+    "arm": "A",
+    "group": "G10",
+    "role": "saved_lines",
+    "id": "G10A.f11",
+    "line": "D06+",
+    "state": "ENGINE_VERIFIED"
+   },
+   {
+    "run": "G10B",
+    "arm": "B",
+    "group": "G10",
+    "role": "saved_lines",
+    "id": "G10B.f12",
+    "line": "D06+",
+    "state": "ENGINE_VERIFIED"
+   }
+  ]
+ },
+ "Q016": {
+  "text": "דיויד",
+  "uses": [
+   {
+    "run": "G11A",
+    "arm": "A",
+    "group": "G11",
+    "role": "control",
+    "id": "G11A.f01",
+    "line": "D07+",
+    "state": "ENGINE_VERIFIED"
+   }
+  ]
+ },
+ "Q017": {
+  "text": "צער",
+  "uses": [
+   {
+    "run": "G10B",
+    "arm": "B",
+    "group": "G10",
+    "role": "saved_lines",
+    "id": "G10B.f06",
+    "line": "D01-",
+    "state": "ENGINE_VERIFIED"
+   }
+  ]
+ },
+ "Q018": {
+  "text": "תאוה",
+  "uses": [
+   {
+    "run": "G02A",
+    "arm": "A",
+    "group": "G02",
+    "role": "saved_lines",
+    "id": "G02A.f04",
+    "line": "R11-",
+    "state": "PLAIN_TEXT_ONLY"
+   }
+  ]
+ },
+ "Q019": {
+  "text": "שירת",
+  "uses": [
+   {
+    "run": "G06A",
+    "arm": "A",
+    "group": "G06",
+    "role": "saved_lines",
+    "id": "G06A.f06",
+    "line": "C14+",
+    "state": "ENGINE_VERIFIED"
+   }
+  ]
+ },
+ "Q020": {
+  "text": "ואבק",
+  "uses": [
+   {
+    "run": "G10A",
+    "arm": "A",
+    "group": "G10",
+    "role": "saved_lines",
+    "id": "G10A.f06",
+    "line": "D03+",
+    "state": "ENGINE_VERIFIED"
+   }
+  ]
+ },
+ "Q021": {
+  "text": "צלפחד",
+  "uses": [
+   {
+    "run": "G02A",
+    "arm": "A",
+    "group": "G02",
+    "role": "saved_lines",
+    "id": "G02A.f01",
+    "line": "R09+",
+    "state": "PLAIN_TEXT_ONLY"
+   }
+  ]
+ },
+ "Q022": {
+  "text": "לעני",
+  "uses": [
+   {
+    "run": "G02A",
+    "arm": "A",
+    "group": "G02",
+    "role": "saved_lines",
+    "id": "G02A.f07",
+    "line": "R14-",
+    "state": "PLAIN_TEXT_ONLY"
+   }
+  ]
+ },
+ "Q023": {
+  "text": "הפשר",
+  "uses": [
+   {
+    "run": "G09B",
+    "arm": "B",
+    "group": "G09",
+    "role": "control",
+    "id": "G09B.f08",
+    "line": "C39+",
+    "state": "ENGINE_VERIFIED"
+   }
+  ]
+ },
+ "Q024": {
+  "text": "חופ",
+  "uses": [
+   {
+    "run": "G03A",
+    "arm": "A",
+    "group": "G03",
+    "role": "control",
+    "id": "G03A.f11",
+    "line": "R24-",
+    "state": "PLAIN_TEXT_ONLY"
+   }
+  ]
+ },
+ "Q025": {
+  "text": "הענוה",
+  "uses": [
+   {
+    "run": "G02A",
+    "arm": "A",
+    "group": "G02",
+    "role": "saved_lines",
+    "id": "G02A.f03",
+    "line": "R09-",
+    "state": "PLAIN_TEXT_ONLY"
+   }
+  ]
+ },
+ "Q026": {
+  "text": "לשובע",
+  "uses": [
+   {
+    "run": "G11A",
+    "arm": "A",
+    "group": "G11",
+    "role": "control",
+    "id": "G11A.f07",
+    "line": "D11-",
+    "state": "ENGINE_VERIFIED"
+   }
+  ]
+ },
+ "Q027": {
+  "text": "בחלמי",
+  "uses": [
+   {
+    "run": "G11A",
+    "arm": "A",
+    "group": "G11",
+    "role": "control",
+    "id": "G11A.f11",
+    "line": "D14-",
+    "state": "ENGINE_VERIFIED"
+   }
+  ]
+ },
+ "Q028": {
+  "text": "ברוב",
+  "uses": [
+   {
+    "run": "G10B",
+    "arm": "B",
+    "group": "G10",
+    "role": "saved_lines",
+    "id": "G10B.f02",
+    "line": "C40+",
+    "state": "ENGINE_VERIFIED"
+   }
+  ]
+ },
+ "Q029": {
+  "text": "נכפל",
+  "uses": [
+   {
+    "run": "G08B",
+    "arm": "B",
+    "group": "G08",
+    "role": "control",
+    "id": "G08B.f07",
+    "line": "C30+",
+    "state": "ENGINE_VERIFIED"
+   }
+  ]
+ },
+ "Q030": {
+  "text": "חבל",
+  "uses": [
+   {
+    "run": "G10A",
+    "arm": "A",
+    "group": "G10",
+    "role": "saved_lines",
+    "id": "G10A.f07",
+    "line": "D05+",
+    "state": "ENGINE_VERIFIED"
+   },
+   {
+    "run": "G11A",
+    "arm": "A",
+    "group": "G11",
+    "role": "control",
+    "id": "G11A.f12",
+    "line": "D14+",
+    "state": "ENGINE_VERIFIED"
+   }
+  ]
+ },
+ "Q031": {
+  "text": "זכר",
+  "uses": [
+   {
+    "run": "G09A",
+    "arm": "A",
+    "group": "G09",
+    "role": "control",
+    "id": "G09A.f10",
+    "line": "C38-",
+    "state": "ENGINE_VERIFIED"
+   }
+  ]
+ },
+ "Q032": {
+  "text": "מנרה",
+  "uses": [
+   {
+    "run": "G06A",
+    "arm": "A",
+    "group": "G06",
+    "role": "saved_lines",
+    "id": "G06A.f03",
+    "line": "C11+",
+    "state": "ENGINE_VERIFIED"
+   }
+  ]
+ },
+ "Q033": {
+  "text": "ביתו",
+  "uses": [
+   {
+    "run": "G10A",
+    "arm": "A",
+    "group": "G10",
+    "role": "saved_lines",
+    "id": "G10A.f05",
+    "line": "D02+",
+    "state": "ENGINE_VERIFIED"
+   },
+   {
+    "run": "G10B",
+    "arm": "B",
+    "group": "G10",
+    "role": "saved_lines",
+    "id": "G10B.f07",
+    "line": "D02+",
+    "state": "ENGINE_VERIFIED"
+   }
+  ]
+ },
+ "Q034": {
+  "text": "מתמיה",
+  "uses": [
+   {
+    "run": "G09A",
+    "arm": "A",
+    "group": "G09",
+    "role": "control",
+    "id": "G09A.f08",
+    "line": "C32-",
+    "state": "ENGINE_VERIFIED"
+   }
+  ]
+ },
+ "Q035": {
+  "text": "נהיה",
+  "uses": [
+   {
+    "run": "G10A",
+    "arm": "A",
+    "group": "G10",
+    "role": "saved_lines",
+    "id": "G10A.f13",
+    "line": "D06-",
+    "state": "ENGINE_VERIFIED"
+   }
+  ]
+ },
+ "Q036": {
+  "text": "כיאינלובנתנהלנואחזה",
+  "uses": [
+   {
+    "run": "G02B",
+    "arm": "B",
+    "group": "G02",
+    "role": "saved_lines",
+    "id": "G02B.f04",
+    "line": "R12+",
+    "state": "PLAIN_TEXT_ONLY"
+   }
+  ]
+ },
+ "Q037": {
+  "text": "שבכה",
+  "uses": [
+   {
+    "run": "G11B",
+    "arm": "B",
+    "group": "G11",
+    "role": "control",
+    "id": "G11B.f09",
+    "line": "D12-",
+    "state": "ENGINE_VERIFIED"
+   }
+  ]
+ },
+ "Q038": {
+  "text": "יבשה",
+  "uses": [
+   {
+    "run": "G03A",
+    "arm": "A",
+    "group": "G03",
+    "role": "control",
+    "id": "G03A.f08",
+    "line": "R17-",
+    "state": "PLAIN_TEXT_ONLY"
+   }
+  ]
+ },
+ "Q039": {
+  "text": "ארמי",
+  "uses": [
+   {
+    "run": "G09B",
+    "arm": "B",
+    "group": "G09",
+    "role": "control",
+    "id": "G09B.f03",
+    "line": "C36-",
+    "state": "ENGINE_VERIFIED"
+   }
+  ]
+ },
+ "Q040": {
+  "text": "שופע",
+  "uses": [
+   {
+    "run": "G10A",
+    "arm": "A",
+    "group": "G10",
+    "role": "saved_lines",
+    "id": "G10A.f09",
+    "line": "D05-",
+    "state": "ENGINE_VERIFIED"
+   }
+  ]
+ },
+ "Q041": {
+  "text": "שישה",
+  "uses": [
+   {
+    "run": "G11B",
+    "arm": "B",
+    "group": "G11",
+    "role": "control",
+    "id": "G11B.f04",
+    "line": "D09-",
+    "state": "ENGINE_VERIFIED"
+   }
+  ]
+ },
+ "Q042": {
+  "text": "נקמתיהוה",
+  "uses": [
+   {
+    "run": "G03A",
+    "arm": "A",
+    "group": "G03",
+    "role": "control",
+    "id": "G03A.f01",
+    "line": "R21+",
+    "state": "PLAIN_TEXT_ONLY"
+   }
+  ]
+ },
+ "Q043": {
+  "text": "פלא",
+  "uses": [
+   {
+    "run": "G03A",
+    "arm": "A",
+    "group": "G03",
+    "role": "control",
+    "id": "G03A.f10",
+    "line": "R22-",
+    "state": "PLAIN_TEXT_ONLY"
+   }
+  ]
+ },
+ "Q044": {
+  "text": "אילות",
+  "uses": [
+   {
+    "run": "G11A",
+    "arm": "A",
+    "group": "G11",
+    "role": "control",
+    "id": "G11A.f06",
+    "line": "D11+",
+    "state": "ENGINE_VERIFIED"
+   },
+   {
+    "run": "G11B",
+    "arm": "B",
+    "group": "G11",
+    "role": "control",
+    "id": "G11B.f06",
+    "line": "D11+",
+    "state": "ENGINE_VERIFIED"
+   }
+  ]
+ },
+ "Q045": {
+  "text": "שעירעזימ",
+  "uses": [
+   {
+    "run": "G02A",
+    "arm": "A",
+    "group": "G02",
+    "role": "saved_lines",
+    "id": "G02A.f10",
+    "line": "R16+",
+    "state": "PLAIN_TEXT_ONLY"
+   }
+  ]
+ },
+ "Q046": {
+  "text": "תמוה",
+  "uses": [
+   {
+    "run": "G06A",
+    "arm": "A",
+    "group": "G06",
+    "role": "saved_lines",
+    "id": "G06A.f09",
+    "line": "C15-",
+    "state": "ENGINE_VERIFIED"
+   }
+  ]
+ },
+ "Q047": {
+  "text": "שמע",
+  "uses": [
+   {
+    "run": "G08B",
+    "arm": "B",
+    "group": "G08",
+    "role": "control",
+    "id": "G08B.f05",
+    "line": "C29+",
+    "state": "ENGINE_VERIFIED"
+   }
+  ]
+ },
+ "Q048": {
+  "text": "רצופ",
+  "uses": [
+   {
+    "run": "G10B",
+    "arm": "B",
+    "group": "G10",
+    "role": "saved_lines",
+    "id": "G10B.f04",
+    "line": "C41+",
+    "state": "ENGINE_VERIFIED"
+   }
+  ]
+ },
+ "Q049": {
+  "text": "חורש",
+  "uses": [
+   {
+    "run": "G11B",
+    "arm": "B",
+    "group": "G11",
+    "role": "control",
+    "id": "G11B.f12",
+    "line": "D14-",
+    "state": "ENGINE_VERIFIED"
+   }
+  ]
+ },
+ "Q050": {
+  "text": "כיעבור",
+  "uses": [
+   {
+    "run": "G11B",
+    "arm": "B",
+    "group": "G11",
+    "role": "control",
+    "id": "G11B.f03",
+    "line": "D09+",
+    "state": "ENGINE_VERIFIED"
+   }
+  ]
+ },
+ "Q051": {
+  "text": "רשמי",
+  "uses": [
+   {
+    "run": "G09A",
+    "arm": "A",
+    "group": "G09",
+    "role": "control",
+    "id": "G09A.f03",
+    "line": "C33-",
+    "state": "ENGINE_VERIFIED"
+   }
+  ]
+ },
+ "Q052": {
+  "text": "חלב",
+  "uses": [
+   {
+    "run": "G10A",
+    "arm": "A",
+    "group": "G10",
+    "role": "saved_lines",
+    "id": "G10A.f03",
+    "line": "C41-",
+    "state": "ENGINE_VERIFIED"
+   },
+   {
+    "run": "G10B",
+    "arm": "B",
+    "group": "G10",
+    "role": "saved_lines",
+    "id": "G10B.f05",
+    "line": "C41-",
+    "state": "ENGINE_VERIFIED"
+   }
+  ]
+ },
+ "Q053": {
+  "text": "מרד",
+  "uses": [
+   {
+    "run": "G10A",
+    "arm": "A",
+    "group": "G10",
+    "role": "saved_lines",
+    "id": "G10A.f12",
+    "line": "D06+",
+    "state": "ENGINE_VERIFIED"
+   }
+  ]
+ },
+ "Q054": {
+  "text": "שכרות",
+  "uses": [
+   {
+    "run": "G10A",
+    "arm": "A",
+    "group": "G10",
+    "role": "saved_lines",
+    "id": "G10A.f08",
+    "line": "D05-",
+    "state": "ENGINE_VERIFIED"
+   },
+   {
+    "run": "G10B",
+    "arm": "B",
+    "group": "G10",
+    "role": "saved_lines",
+    "id": "G10B.f11",
+    "line": "D05-",
+    "state": "ENGINE_VERIFIED"
+   }
+  ]
+ },
+ "Q055": {
+  "text": "הכרמ",
+  "uses": [
+   {
+    "run": "G11A",
+    "arm": "A",
+    "group": "G11",
+    "role": "control",
+    "id": "G11A.f04",
+    "line": "D09-",
+    "state": "ENGINE_VERIFIED"
+   },
+   {
+    "run": "G11B",
+    "arm": "B",
+    "group": "G11",
+    "role": "control",
+    "id": "G11B.f05",
+    "line": "D09-",
+    "state": "ENGINE_VERIFIED"
+   }
+  ]
+ },
+ "Q056": {
+  "text": "בושש",
+  "uses": [
+   {
+    "run": "G06A",
+    "arm": "A",
+    "group": "G06",
+    "role": "saved_lines",
+    "id": "G06A.f05",
+    "line": "C14+",
+    "state": "ENGINE_VERIFIED"
+   }
+  ]
+ },
+ "Q057": {
+  "text": "בולל",
+  "uses": [
+   {
+    "run": "G09A",
+    "arm": "A",
+    "group": "G09",
+    "role": "control",
+    "id": "G09A.f12",
+    "line": "C36+",
+    "state": "ENGINE_VERIFIED"
+   }
+  ]
+ },
+ "Q058": {
+  "text": "יומנו",
+  "uses": [
+   {
+    "run": "G09B",
+    "arm": "B",
+    "group": "G09",
+    "role": "control",
+    "id": "G09B.f04",
+    "line": "C36-",
+    "state": "ENGINE_VERIFIED"
+   }
+  ]
+ },
+ "Q059": {
+  "text": "זכרמ",
+  "uses": [
+   {
+    "run": "G09B",
+    "arm": "B",
+    "group": "G09",
+    "role": "control",
+    "id": "G09B.f11",
+    "line": "C38-",
+    "state": "ENGINE_VERIFIED"
+   }
+  ]
+ },
+ "Q060": {
+  "text": "ותחפש",
+  "uses": [
+   {
+    "run": "G02B",
+    "arm": "B",
+    "group": "G02",
+    "role": "saved_lines",
+    "id": "G02B.f12",
+    "line": "R12-",
+    "state": "PLAIN_TEXT_ONLY"
+   }
+  ]
+ },
+ "Q061": {
+  "text": "חגשבעתימיממצותיאכל",
+  "uses": [
+   {
+    "run": "G02B",
+    "arm": "B",
+    "group": "G02",
+    "role": "saved_lines",
+    "id": "G02B.f07",
+    "line": "R15+",
+    "state": "PLAIN_TEXT_ONLY"
+   }
+  ]
+ },
+ "Q062": {
+  "text": "הרשע",
+  "uses": [
+   {
+    "run": "G03A",
+    "arm": "A",
+    "group": "G03",
+    "role": "control",
+    "id": "G03A.f09",
+    "line": "R18-",
+    "state": "PLAIN_TEXT_ONLY"
+   }
+  ]
+ },
+ "Q063": {
+  "text": "משהואתמרימאחתמ",
+  "uses": [
+   {
+    "run": "G02B",
+    "arm": "B",
+    "group": "G02",
+    "role": "saved_lines",
+    "id": "G02B.f03",
+    "line": "R11+",
+    "state": "PLAIN_TEXT_ONLY"
+   }
+  ]
+ },
+ "Q064": {
+  "text": "שמח",
+  "uses": [
+   {
+    "run": "G03A",
+    "arm": "A",
+    "group": "G03",
+    "role": "control",
+    "id": "G03A.f12",
+    "line": "R24-",
+    "state": "PLAIN_TEXT_ONLY"
+   }
+  ]
+ },
+ "Q065": {
+  "text": "מרוב",
+  "uses": [
+   {
+    "run": "G08B",
+    "arm": "B",
+    "group": "G08",
+    "role": "control",
+    "id": "G08B.f08",
+    "line": "C30+",
+    "state": "ENGINE_VERIFIED"
+   }
+  ]
+ },
+ "Q066": {
+  "text": "ויקצפמשה",
+  "uses": [
+   {
+    "run": "G03A",
+    "arm": "A",
+    "group": "G03",
+    "role": "control",
+    "id": "G03A.f03",
+    "line": "R22+",
+    "state": "PLAIN_TEXT_ONLY"
+   }
+  ]
+ },
+ "Q067": {
+  "text": "משא",
+  "uses": [
+   {
+    "run": "G06A",
+    "arm": "A",
+    "group": "G06",
+    "role": "saved_lines",
+    "id": "G06A.f12",
+    "line": "C15+",
+    "state": "ENGINE_VERIFIED"
+   }
+  ]
+ },
+ "Q068": {
+  "text": "רשעהשמח",
+  "uses": [
+   {
+    "run": "G02B",
+    "arm": "B",
+    "group": "G02",
+    "role": "saved_lines",
+    "id": "G02B.f10",
+    "line": "R15-",
+    "state": "PLAIN_TEXT_ONLY"
+   }
+  ]
+ },
+ "Q069": {
+  "text": "כחמש",
+  "uses": [
+   {
+    "run": "G06A",
+    "arm": "A",
+    "group": "G06",
+    "role": "saved_lines",
+    "id": "G06A.f04",
+    "line": "C13-",
+    "state": "ENGINE_VERIFIED"
+   }
+  ]
+ },
+ "Q070": {
+  "text": "עכבר",
+  "uses": [
+   {
+    "run": "G09A",
+    "arm": "A",
+    "group": "G09",
+    "role": "control",
+    "id": "G09A.f06",
+    "line": "C39-",
+    "state": "ENGINE_VERIFIED"
+   },
+   {
+    "run": "G09B",
+    "arm": "B",
+    "group": "G09",
+    "role": "control",
+    "id": "G09B.f07",
+    "line": "C39-",
+    "state": "ENGINE_VERIFIED"
+   }
+  ]
+ },
+ "Q071": {
+  "text": "ישע",
+  "uses": [
+   {
+    "run": "G02A",
+    "arm": "A",
+    "group": "G02",
+    "role": "saved_lines",
+    "id": "G02A.f12",
+    "line": "R14-",
+    "state": "PLAIN_TEXT_ONLY"
+   }
+  ]
+ },
+ "Q072": {
+  "text": "היהנס",
+  "uses": [
+   {
+    "run": "G10A",
+    "arm": "A",
+    "group": "G10",
+    "role": "saved_lines",
+    "id": "G10A.f10",
+    "line": "D06+",
+    "state": "ENGINE_VERIFIED"
+   }
+  ]
+ },
+ "Q073": {
+  "text": "תבל",
+  "uses": [
+   {
+    "run": "G10B",
+    "arm": "B",
+    "group": "G10",
+    "role": "saved_lines",
+    "id": "G10B.f10",
+    "line": "D04-",
+    "state": "ENGINE_VERIFIED"
+   }
+  ]
+ },
+ "Q074": {
+  "text": "הדר",
+  "uses": [
+   {
+    "run": "G06A",
+    "arm": "A",
+    "group": "G06",
+    "role": "saved_lines",
+    "id": "G06A.f11",
+    "line": "C15-",
+    "state": "ENGINE_VERIFIED"
+   }
+  ]
+ },
+ "Q075": {
+  "text": "מרימ",
+  "uses": [
+   {
+    "run": "G08B",
+    "arm": "B",
+    "group": "G08",
+    "role": "control",
+    "id": "G08B.f02",
+    "line": "C28+",
+    "state": "ENGINE_VERIFIED"
+   }
+  ]
+ },
+ "Q076": {
+  "text": "ברכה",
+  "uses": [
+   {
+    "run": "G11A",
+    "arm": "A",
+    "group": "G11",
+    "role": "control",
+    "id": "G11A.f09",
+    "line": "D13-",
+    "state": "ENGINE_VERIFIED"
+   },
+   {
+    "run": "G11B",
+    "arm": "B",
+    "group": "G11",
+    "role": "control",
+    "id": "G11B.f10",
+    "line": "D13-",
+    "state": "ENGINE_VERIFIED"
+   }
+  ]
+ },
+ "Q077": {
+  "text": "אהבת",
+  "uses": [
+   {
+    "run": "G09B",
+    "arm": "B",
+    "group": "G09",
+    "role": "control",
+    "id": "G09B.f09",
+    "line": "C39+",
+    "state": "ENGINE_VERIFIED"
+   }
+  ]
+ },
+ "Q078": {
+  "text": "שובע",
+  "uses": [
+   {
+    "run": "G06A",
+    "arm": "A",
+    "group": "G06",
+    "role": "saved_lines",
+    "id": "G06A.f07",
+    "line": "C14-",
+    "state": "ENGINE_VERIFIED"
+   }
+  ]
+ },
+ "Q079": {
+  "text": "ארונ",
+  "uses": [
+   {
+    "run": "G03A",
+    "arm": "A",
+    "group": "G03",
+    "role": "control",
+    "id": "G03A.f07",
+    "line": "R23-",
+    "state": "PLAIN_TEXT_ONLY"
+   }
+  ]
+ },
+ "Q080": {
+  "text": "פשר",
+  "uses": [
+   {
+    "run": "G09A",
+    "arm": "A",
+    "group": "G09",
+    "role": "control",
+    "id": "G09A.f11",
+    "line": "C39+",
+    "state": "ENGINE_VERIFIED"
+   }
+  ]
+ },
+ "Q081": {
+  "text": "הכבש",
+  "uses": [
+   {
+    "run": "G11A",
+    "arm": "A",
+    "group": "G11",
+    "role": "control",
+    "id": "G11A.f08",
+    "line": "D12+",
+    "state": "ENGINE_VERIFIED"
+   },
+   {
+    "run": "G11B",
+    "arm": "B",
+    "group": "G11",
+    "role": "control",
+    "id": "G11B.f08",
+    "line": "D12+",
+    "state": "ENGINE_VERIFIED"
+   }
+  ]
+ },
+ "Q082": {
+  "text": "הישע",
+  "uses": [
+   {
+    "run": "G02B",
+    "arm": "B",
+    "group": "G02",
+    "role": "saved_lines",
+    "id": "G02B.f11",
+    "line": "R14-",
+    "state": "PLAIN_TEXT_ONLY"
+   }
+  ]
+ },
+ "Q083": {
+  "text": "מוצלח",
+  "uses": [
+   {
+    "run": "G03A",
+    "arm": "A",
+    "group": "G03",
+    "role": "control",
+    "id": "G03A.f06",
+    "line": "R21-",
+    "state": "PLAIN_TEXT_ONLY"
+   }
+  ]
+ },
+ "Q084": {
+  "text": "עלתתמידהעשיה",
+  "uses": [
+   {
+    "run": "G02B",
+    "arm": "B",
+    "group": "G02",
+    "role": "saved_lines",
+    "id": "G02B.f06",
+    "line": "R14+",
+    "state": "PLAIN_TEXT_ONLY"
+   }
+  ]
+ },
+ "Q085": {
+  "text": "מדוע",
+  "uses": [
+   {
+    "run": "G11A",
+    "arm": "A",
+    "group": "G11",
+    "role": "control",
+    "id": "G11A.f03",
+    "line": "D08+",
+    "state": "ENGINE_VERIFIED"
+   },
+   {
+    "run": "G11B",
+    "arm": "B",
+    "group": "G11",
+    "role": "control",
+    "id": "G11B.f02",
+    "line": "D08+",
+    "state": "ENGINE_VERIFIED"
+   }
+  ]
+ },
+ "Q086": {
+  "text": "החלצומאתכמאנשימלצבא",
+  "uses": [
+   {
+    "run": "G03A",
+    "arm": "A",
+    "group": "G03",
+    "role": "control",
+    "id": "G03A.f02",
+    "line": "R21+",
+    "state": "PLAIN_TEXT_ONLY"
+   }
+  ]
+ },
+ "Q087": {
+  "text": "הרכב",
+  "uses": [
+   {
+    "run": "G10A",
+    "arm": "A",
+    "group": "G10",
+    "role": "saved_lines",
+    "id": "G10A.f02",
+    "line": "C40-",
+    "state": "ENGINE_VERIFIED"
+   }
+  ]
+ },
+ "Q088": {
+  "text": "לקנא",
+  "uses": [
+   {
+    "run": "G11A",
+    "arm": "A",
+    "group": "G11",
+    "role": "control",
+    "id": "G11A.f10",
+    "line": "D13-",
+    "state": "ENGINE_VERIFIED"
+   },
+   {
+    "run": "G11B",
+    "arm": "B",
+    "group": "G11",
+    "role": "control",
+    "id": "G11B.f11",
+    "line": "D13-",
+    "state": "ENGINE_VERIFIED"
+   }
+  ]
+ },
+ "Q089": {
+  "text": "יאמר",
+  "uses": [
+   {
+    "run": "G08B",
+    "arm": "B",
+    "group": "G08",
+    "role": "control",
+    "id": "G08B.f01",
+    "line": "C28+",
+    "state": "ENGINE_VERIFIED"
+   }
+  ]
+ },
+ "Q090": {
+  "text": "רחל",
+  "uses": [
+   {
+    "run": "G10B",
+    "arm": "B",
+    "group": "G10",
+    "role": "saved_lines",
+    "id": "G10B.f08",
+    "line": "D03+",
+    "state": "ENGINE_VERIFIED"
+   }
+  ]
+ },
+ "Q091": {
+  "text": "מלא",
+  "uses": [
+   {
+    "run": "G08B",
+    "arm": "B",
+    "group": "G08",
+    "role": "control",
+    "id": "G08B.f09",
+    "line": "C30-",
+    "state": "ENGINE_VERIFIED"
+   }
+  ]
+ },
+ "Q092": {
+  "text": "נשלחנו",
+  "uses": [
+   {
+    "run": "G09A",
+    "arm": "A",
+    "group": "G09",
+    "role": "control",
+    "id": "G09A.f01",
+    "line": "C35+",
+    "state": "ENGINE_VERIFIED"
+   },
+   {
+    "run": "G09B",
+    "arm": "B",
+    "group": "G09",
+    "role": "control",
+    "id": "G09B.f01",
+    "line": "C35+",
+    "state": "ENGINE_VERIFIED"
+   }
+  ]
+ },
+ "Q093": {
+  "text": "שליח",
+  "uses": [
+   {
+    "run": "G03A",
+    "arm": "A",
+    "group": "G03",
+    "role": "control",
+    "id": "G03A.f05",
+    "line": "R22-",
+    "state": "PLAIN_TEXT_ONLY"
+   }
+  ]
+ },
+ "Q094": {
+  "text": "להב",
+  "uses": [
+   {
+    "run": "G08B",
+    "arm": "B",
+    "group": "G08",
+    "role": "control",
+    "id": "G08B.f06",
+    "line": "C29-",
+    "state": "ENGINE_VERIFIED"
+   }
+  ]
+ },
+ "Q095": {
+  "text": "חמשה",
+  "uses": [
+   {
+    "run": "G09A",
+    "arm": "A",
+    "group": "G09",
+    "role": "control",
+    "id": "G09A.f04",
+    "line": "C37-",
+    "state": "ENGINE_VERIFIED"
+   },
+   {
+    "run": "G09B",
+    "arm": "B",
+    "group": "G09",
+    "role": "control",
+    "id": "G09B.f06",
+    "line": "C37-",
+    "state": "ENGINE_VERIFIED"
+   }
+  ]
+ },
+ "Q096": {
+  "text": "להשמש",
+  "uses": [
+   {
+    "run": "G06A",
+    "arm": "A",
+    "group": "G06",
+    "role": "saved_lines",
+    "id": "G06A.f08",
+    "line": "C15+",
+    "state": "ENGINE_VERIFIED"
+   }
+  ]
+ },
+ "Q097": {
+  "text": "הדבר",
+  "uses": [
+   {
+    "run": "G08B",
+    "arm": "B",
+    "group": "G08",
+    "role": "control",
+    "id": "G08B.f10",
+    "line": "C31+",
+    "state": "ENGINE_VERIFIED"
+   }
+  ]
+ },
+ "Q098": {
+  "text": "הלולב",
+  "uses": [
+   {
+    "run": "G02A",
+    "arm": "A",
+    "group": "G02",
+    "role": "saved_lines",
+    "id": "G02A.f06",
+    "line": "R14-",
+    "state": "PLAIN_TEXT_ONLY"
+   }
+  ]
+ },
+ "Q099": {
+  "text": "אשבע",
+  "uses": [
+   {
+    "run": "G10B",
+    "arm": "B",
+    "group": "G10",
+    "role": "saved_lines",
+    "id": "G10B.f09",
+    "line": "D03+",
+    "state": "ENGINE_VERIFIED"
+   }
+  ]
+ },
+ "Q100": {
+  "text": "נשאו",
+  "uses": [
+   {
+    "run": "G09B",
+    "arm": "B",
+    "group": "G09",
+    "role": "control",
+    "id": "G09B.f10",
+    "line": "C38+",
+    "state": "ENGINE_VERIFIED"
+   }
+  ]
+ },
+ "Q101": {
+  "text": "עשו",
+  "uses": [
+   {
+    "run": "G10B",
+    "arm": "B",
+    "group": "G10",
+    "role": "saved_lines",
+    "id": "G10B.f03",
+    "line": "C40+",
+    "state": "ENGINE_VERIFIED"
+   }
+  ]
+ },
+ "Q102": {
+  "text": "מחלהונעהחגלהמלכהותרצה",
+  "uses": [
+   {
+    "run": "G02B",
+    "arm": "B",
+    "group": "G02",
+    "role": "saved_lines",
+    "id": "G02B.f01",
+    "line": "R09+",
+    "state": "PLAIN_TEXT_ONLY"
+   }
+  ]
+ },
+ "Q103": {
+  "text": "חמוש",
+  "uses": [
+   {
+    "run": "G10A",
+    "arm": "A",
+    "group": "G10",
+    "role": "saved_lines",
+    "id": "G10A.f04",
+    "line": "D01-",
+    "state": "ENGINE_VERIFIED"
+   }
+  ]
+ },
+ "Q104": {
+  "text": "שעירעזימאחדלכפרעליכמ",
+  "uses": [
+   {
+    "run": "G02B",
+    "arm": "B",
+    "group": "G02",
+    "role": "saved_lines",
+    "id": "G02B.f08",
+    "line": "R16+",
+    "state": "PLAIN_TEXT_ONLY"
+   }
+  ]
+ },
+ "Q105": {
+  "text": "אלעזרהכהנ",
+  "uses": [
+   {
+    "run": "G03A",
+    "arm": "A",
+    "group": "G03",
+    "role": "control",
+    "id": "G03A.f04",
+    "line": "R23+",
+    "state": "PLAIN_TEXT_ONLY"
+   }
+  ]
+ },
+ "Q106": {
+  "text": "ואנחמ",
+  "uses": [
+   {
+    "run": "G09B",
+    "arm": "B",
+    "group": "G09",
+    "role": "control",
+    "id": "G09B.f12",
+    "line": "C32-",
+    "state": "ENGINE_VERIFIED"
+   }
+  ]
+ },
+ "Q107": {
+  "text": "ההרה",
+  "uses": [
+   {
+    "run": "G08B",
+    "arm": "B",
+    "group": "G08",
+    "role": "control",
+    "id": "G08B.f03",
+    "line": "C28+",
+    "state": "ENGINE_VERIFIED"
+   }
+  ]
+ },
+ "Q108": {
+  "text": "מודימ",
+  "uses": [
+   {
+    "run": "G02B",
+    "arm": "B",
+    "group": "G02",
+    "role": "saved_lines",
+    "id": "G02B.f09",
+    "line": "R16-",
+    "state": "PLAIN_TEXT_ONLY"
+   }
+  ]
+ },
+ "Q109": {
+  "text": "מתכת",
+  "uses": [
+   {
+    "run": "G09A",
+    "arm": "A",
+    "group": "G09",
+    "role": "control",
+    "id": "G09A.f02",
+    "line": "C34-",
+    "state": "ENGINE_VERIFIED"
+   }
+  ]
+ },
+ "Q110": {
+  "text": "כלמה",
+  "uses": [
+   {
+    "run": "G02A",
+    "arm": "A",
+    "group": "G02",
+    "role": "saved_lines",
+    "id": "G02A.f11",
+    "line": "R10-",
+    "state": "PLAIN_TEXT_ONLY"
+   }
+  ]
+ },
+ "Q111": {
+  "text": "יברכ",
+  "uses": [
+   {
+    "run": "G06A",
+    "arm": "A",
+    "group": "G06",
+    "role": "saved_lines",
+    "id": "G06A.f01",
+    "line": "C09+",
+    "state": "ENGINE_VERIFIED"
+   }
+  ]
+ },
+ "Q112": {
+  "text": "לאעמכ",
+  "uses": [
+   {
+    "run": "G09B",
+    "arm": "B",
+    "group": "G09",
+    "role": "control",
+    "id": "G09B.f05",
+    "line": "C37-",
+    "state": "ENGINE_VERIFIED"
+   }
+  ]
+ },
+ "Q113": {
+  "text": "חגשבעתימימ",
+  "uses": [
+   {
+    "run": "G02A",
+    "arm": "A",
+    "group": "G02",
+    "role": "saved_lines",
+    "id": "G02A.f09",
+    "line": "R15+",
+    "state": "PLAIN_TEXT_ONLY"
+   }
+  ]
+ },
+ "Q114": {
+  "text": "נחלש",
+  "uses": [
+   {
+    "run": "G09A",
+    "arm": "A",
+    "group": "G09",
+    "role": "control",
+    "id": "G09A.f07",
+    "line": "C35-",
+    "state": "ENGINE_VERIFIED"
+   },
+   {
+    "run": "G09B",
+    "arm": "B",
+    "group": "G09",
+    "role": "control",
+    "id": "G09B.f02",
+    "line": "C35-",
+    "state": "ENGINE_VERIFIED"
+   }
+  ]
+ },
+ "Q115": {
+  "text": "שיאימ",
+  "uses": [
+   {
+    "run": "G11A",
+    "arm": "A",
+    "group": "G11",
+    "role": "control",
+    "id": "G11A.f05",
+    "line": "D09-",
+    "state": "ENGINE_VERIFIED"
+   }
+  ]
+ }
+}

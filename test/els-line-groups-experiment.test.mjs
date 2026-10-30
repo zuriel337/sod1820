@@ -204,3 +204,44 @@ test("an answer is located ONLY in the lines of its group, split and classificat
   assert.deepEqual([failed.state, failed.reason, failed.cost.usd], ["FAILED", "batch_errored", null]);
   assert.ok(worstCaseUsd(3_000) < 0.3);
 });
+
+// ---------- the recorded run (EXP-23, 30.10.2026): what happened is what was reviewed, each request was sent once, inside the USD 5 ----------
+test("the recorded run: each reviewed request was sent exactly once, the answers are saved as received (refusals included), inside the USD 5; the blinded rating input carries sequences only; the evaluation file is what the code computes", async () => {
+  const { evaluate, blindExport, loadResults } = await import("../experiments/els-line-groups/evaluate.mjs");
+  const plan = json(join(exp, "controls/plan-review.json"));
+  const log = readFileSync(join(exp, "controls/run-log.jsonl"), "utf8").split("\n").filter(Boolean).map((l) => JSON.parse(l));
+  assert.equal(log.filter((e) => e.event === "batch_created").length, 16, "one batch per request, never a retry");
+  assert.equal(log.filter((e) => e.event === "preflight").length, 16);
+  assert.equal(log.filter((e) => ["create_unknown", "budget_stop", "halted", "stop_duplicate", "error"].includes(e.event)).length, 0);
+  const states = {};
+  for (const r of plan.runs) {
+    assert.equal(log.filter((e) => e.event === "batch_created" && e.run === r.id).length, 1, r.id);
+    const entry = json(join(exp, `controls/runs/${r.id}/batch-entry.json`));
+    const result = json(join(exp, `controls/runs/${r.id}/result.json`));
+    assert.deepEqual([result.request_sha256, result.lock_sha256, result.window_sha256], [r.request_sha256, r.lock_sha256, plan.window_sha256], `${r.id}: what was sent is what was reviewed`);
+    assert.equal(entry.saved_as_received, true);
+    assert.equal(entry.entry.result.type, "succeeded");
+    assert.equal(result.cost.usd, M.costFromUsage(MODEL.id, entry.entry.result.message.usage, { batch: true }).usd);
+    assert.ok(entry.entry.result.message.usage.output_tokens <= MODEL.maxTokens);
+    states[result.state === "COMPLETE" ? "complete" : entry.entry.result.message.stop_reason] = (states[result.state === "COMPLETE" ? "complete" : entry.entry.result.message.stop_reason] ?? 0) + 1;
+    if (result.state === "INCOMPLETE") { assert.equal(result.reason, "refusal"); assert.equal(result.findings, undefined, "nothing is shown from a refused answer"); assert.ok(["cyber", "bio"].includes(entry.entry.result.message.stop_details.category)); }
+    else { assert.ok(result.findings.every((f) => f.group_check.cited_line_in_group), `${r.id}: only the group's lines were cited`); assert.equal(result.summary.duplicates, 0); }
+  }
+  assert.deepEqual(states, { complete: 11, refusal: 5 });
+  const ledger = loadLedger(join(exp, "controls/budget-ledger.json"));
+  assert.ok(ledger.entries.every((e) => !e.reserved && !e.unknown_outcome) && ledger.entries.length === 16);
+  assert.ok(ledger.spent_usd < 1.3 && ledger.spent_usd <= EXPERIMENT_CAP_USD);
+  const { runs } = await buildRuns();
+  const results = loadResults(runs);
+  const { items, key } = blindExport(results);
+  assert.ok(items.every((i) => Object.keys(i).sort().join() === "rid,text"), "the rater sees a sequence and an opaque id, nothing else");
+  assert.equal(items.length, 115);
+  assert.deepEqual(Object.keys(json(join(exp, "results/blind-ratings.json"))).sort(), items.map((i) => i.rid).sort(), "every sequence was rated");
+  assert.deepEqual(json(join(exp, "results/blind-key.json")), JSON.parse(JSON.stringify(key)), "the key decodes exactly the exported ids");
+  const fresh = await evaluate();
+  const saved = json(join(exp, "results/summary.json"));
+  delete fresh.generated_at; delete saved.generated_at;
+  assert.deepEqual(saved, JSON.parse(JSON.stringify(fresh)), "results/summary.json is stale: rerun evaluate");
+  assert.deepEqual(fresh.targets.map((t) => [t.line, t.group]), [["C17", "G07"], ["R16", "G02"], ["D03", "G10"], ["C13", "G06"], ["C21", "G07"], ["R09", "G02"]], "each saved finding belongs to the group of its own line");
+  assert.deepEqual([fresh.saved_exact.A, fresh.saved_exact.B], [0, 0]);
+});

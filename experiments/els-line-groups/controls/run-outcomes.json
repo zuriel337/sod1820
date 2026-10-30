@@ -1,0 +1,106 @@
+{
+  "finished_at": "2026-10-30T03:38:09.914Z",
+  "halted": null,
+  "spent_usd": 1.28954,
+  "settled_usd": 1.28954,
+  "cap_usd": 5,
+  "remaining_usd": 3.71046,
+  "outcomes": [
+    {
+      "id": "G03B",
+      "state": "INCOMPLETE",
+      "usd": 0.015525,
+      "batch": "msgbatch_01EVnv4WyU8D3GstQeMZuhf5"
+    },
+    {
+      "id": "G03A",
+      "state": "COMPLETE",
+      "usd": 0.069465,
+      "batch": "msgbatch_01WTWq47ZwG9qXLncaa2wHHc"
+    },
+    {
+      "id": "G02A",
+      "state": "COMPLETE",
+      "usd": 0.061225,
+      "batch": "msgbatch_018j413Eyf8gxy5oRoHnAZN3"
+    },
+    {
+      "id": "G02B",
+      "state": "COMPLETE",
+      "usd": 0.11906,
+      "batch": "msgbatch_01UDrr4E3vdEUxBoS2mRB2LW"
+    },
+    {
+      "id": "G06B",
+      "state": "INCOMPLETE",
+      "usd": 0.014875,
+      "batch": "msgbatch_01YQv1KYHEhaDb5TiiWFBTBU"
+    },
+    {
+      "id": "G06A",
+      "state": "COMPLETE",
+      "usd": 0.08184,
+      "batch": "msgbatch_017Bw6wX9fT24aMS7ebkYQR6"
+    },
+    {
+      "id": "G08A",
+      "state": "INCOMPLETE",
+      "usd": 0.020735,
+      "batch": "msgbatch_01MtpMyLraz5iAd9VgAwxnjA"
+    },
+    {
+      "id": "G07B",
+      "state": "INCOMPLETE",
+      "usd": 0.014935,
+      "batch": "msgbatch_01BCzEKnnEcBPBN2E8eR1VnG"
+    },
+    {
+      "id": "G08B",
+      "state": "COMPLETE",
+      "usd": 0.137345,
+      "batch": "msgbatch_01GJwsXL356Rbs3J2YgdU65j"
+    },
+    {
+      "id": "G07A",
+      "state": "INCOMPLETE",
+      "usd": 0.03915,
+      "batch": "msgbatch_01LczpFnfi3QqC1QzugNcSRn"
+    },
+    {
+      "id": "G10A",
+      "state": "COMPLETE",
+      "usd": 0.08946,
+      "batch": "msgbatch_014xPfwu9ntM9jSfHHNoCRwv"
+    },
+    {
+      "id": "G09A",
+      "state": "COMPLETE",
+      "usd": 0.122345,
+      "batch": "msgbatch_01LJf6q1ozFpo1bvZED6UXuv"
+    },
+    {
+      "id": "G09B",
+      "state": "COMPLETE",
+      "usd": 0.17778,
+      "batch": "msgbatch_01Sn5Ur4ZrhPrUEj5d4d1UWU"
+    },
+    {
+      "id": "G11A",
+      "state": "COMPLETE",
+      "usd": 0.10336,
+      "batch": "msgbatch_01LXq5UwrfQYgun2feeEY3JV"
+    },
+    {
+      "id": "G10B",
+      "state": "COMPLETE",
+      "usd": 0.10687,
+      "batch": "msgbatch_01GLqWtquen3fQtrtWn3KZhC"
+    },
+    {
+      "id": "G11B",
+      "state": "COMPLETE",
+      "usd": 0.11557,
+      "batch": "msgbatch_0111kUAFdYGtUsdSt3vCVrD4"
+    }
+  ]
+}

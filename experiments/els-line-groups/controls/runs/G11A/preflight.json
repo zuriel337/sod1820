@@ -1,0 +1,13 @@
+{
+  "run": "G11A",
+  "input_tokens_counted": 2246,
+  "worst_case_usd": 0.26404,
+  "guard": {
+    "ok": true,
+    "reason": null,
+    "spent": 1.45972,
+    "worstCase": 1.72376
+  },
+  "request_sha256": "96ead097f28bc589e449838e494927b3ed9d62cb1511f3e7c663bd7ee4b7d81a",
+  "lock_sha256": "fa2d9f8cd58ba4ff2d4ef02b12ff071acc6ff1ce60fb3c9f19cf84827eeaf034"
+}

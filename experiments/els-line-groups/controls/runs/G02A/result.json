@@ -1,0 +1,832 @@
+{
+  "experiment": "EXP-23",
+  "run": "G02A",
+  "group": "G02",
+  "role": "saved_lines",
+  "control_of": null,
+  "arm": "A",
+  "lines": [
+    "R09",
+    "R10",
+    "R11",
+    "R12",
+    "R13",
+    "R14",
+    "R15",
+    "R16"
+  ],
+  "request_sha256": "2b021b8f136743c1f23e9196271500de3fa841f92be3928a9a2e5246c963e17b",
+  "lock_sha256": "5f15111408cf2add61c23102e07b4d14eae86c941b4c2f2d4b1e90e0d8f6f510",
+  "model": "claude-fable-5-1",
+  "cap": 12,
+  "window_sha256": "208cbe689b68f941daf995f07ff490d8974a5c13128f1724c8792471c02802fe",
+  "batch": {
+    "id": "msgbatch_018j413Eyf8gxy5oRoHnAZN3",
+    "created_at": "2026-10-30T03:28:26.599177+00:00",
+    "ended_at": "2026-10-30T03:30:45.914632+00:00",
+    "request_counts": {
+      "processing": 0,
+      "succeeded": 1,
+      "errored": 0,
+      "canceled": 0,
+      "expired": 0
+    }
+  },
+  "timing": {
+    "created_at": "2026-10-30T03:28:26.599177+00:00",
+    "ended_at": "2026-10-30T03:30:45.914632+00:00",
+    "batch_ms": 139315,
+    "wall_ms": 141874
+  },
+  "usage": {
+    "input_tokens": 2730,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "cache_creation": {
+      "ephemeral_5m_input_tokens": 0,
+      "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 1903,
+    "output_tokens_details": {
+      "thinking_tokens": 1476
+    },
+    "service_tier": "batch",
+    "inference_geo": "global",
+    "speed": "standard"
+  },
+  "cost": {
+    "usd": 0.061225,
+    "ils": {
+      "amount": 0.2265,
+      "currency": "ILS",
+      "status": "ESTIMATED",
+      "fx": {
+        "ils_per_usd": 3.7,
+        "basis": "ASSUMPTION_NOT_VERIFIED",
+        "effective_at": null,
+        "source_ref": null
+      }
+    },
+    "list_price_parts_usd": {
+      "input": 0.0273,
+      "cacheWrite": 0,
+      "cacheRead": 0,
+      "output": 0.09515
+    },
+    "batch_factor": 0.5,
+    "provider_currency": "USD",
+    "basis": "list prices, Message Batches at 50%; from the usage object; not an invoice",
+    "certainty": "ESTIMATED_FROM_USAGE_AND_LIST_PRICES"
+  },
+  "output": {
+    "stop_reason": "end_turn",
+    "input_tokens": 2730,
+    "output_tokens": 1903,
+    "thinking_tokens": 1476
+  },
+  "state": "COMPLETE",
+  "findings": [
+    {
+      "id": "G02A.f01",
+      "text": "צלפחד",
+      "parts": [],
+      "line": "R09+",
+      "verification": {
+        "state": "PLAIN_TEXT_ONLY",
+        "reasons": [],
+        "letters_match": true,
+        "occurrences_verified": 1,
+        "engine": null
+      },
+      "occurrence": {
+        "reading": "R09+",
+        "skip": 1,
+        "dir": 1,
+        "start": 232466,
+        "length": 5,
+        "cells": [
+          [
+            9,
+            3
+          ],
+          [
+            9,
+            4
+          ],
+          [
+            9,
+            5
+          ],
+          [
+            9,
+            6
+          ],
+          [
+            9,
+            7
+          ]
+        ]
+      },
+      "chance": null,
+      "relation_to_axis": {
+        "distance": 14,
+        "relation": "far"
+      },
+      "model_claims": {
+        "kind": null,
+        "tier": null,
+        "continue_from": false,
+        "note": "",
+        "status": "UNVERIFIED_INTERPRETATION"
+      },
+      "group_check": {
+        "model_line": "R09+",
+        "cited_line_in_group": true,
+        "duplicate": false
+      }
+    },
+    {
+      "id": "G02A.f02",
+      "text": "משפחתמנשה",
+      "parts": [],
+      "line": "R09+",
+      "verification": {
+        "state": "PLAIN_TEXT_ONLY",
+        "reasons": [],
+        "letters_match": true,
+        "occurrences_verified": 1,
+        "engine": null
+      },
+      "occurrence": {
+        "reading": "R09+",
+        "skip": 1,
+        "dir": 1,
+        "start": 232495,
+        "length": 9,
+        "cells": [
+          [
+            9,
+            32
+          ],
+          [
+            9,
+            33
+          ],
+          [
+            9,
+            34
+          ],
+          [
+            9,
+            35
+          ],
+          [
+            9,
+            36
+          ],
+          [
+            9,
+            37
+          ],
+          [
+            9,
+            38
+          ],
+          [
+            9,
+            39
+          ],
+          [
+            9,
+            40
+          ]
+        ]
+      },
+      "chance": null,
+      "relation_to_axis": {
+        "distance": 11,
+        "relation": "far"
+      },
+      "model_claims": {
+        "kind": null,
+        "tier": null,
+        "continue_from": false,
+        "note": "",
+        "status": "UNVERIFIED_INTERPRETATION"
+      },
+      "group_check": {
+        "model_line": "R09+",
+        "cited_line_in_group": true,
+        "duplicate": false
+      }
+    },
+    {
+      "id": "G02A.f03",
+      "text": "הענוה",
+      "parts": [],
+      "line": "R09-",
+      "verification": {
+        "state": "PLAIN_TEXT_ONLY",
+        "reasons": [],
+        "letters_match": true,
+        "occurrences_verified": 1,
+        "engine": null
+      },
+      "occurrence": {
+        "reading": "R09-",
+        "skip": 1,
+        "dir": -1,
+        "start": 232478,
+        "length": 5,
+        "cells": [
+          [
+            9,
+            15
+          ],
+          [
+            9,
+            14
+          ],
+          [
+            9,
+            13
+          ],
+          [
+            9,
+            12
+          ],
+          [
+            9,
+            11
+          ]
+        ]
+      },
+      "chance": null,
+      "relation_to_axis": {
+        "distance": 6,
+        "relation": "far"
+      },
+      "model_claims": {
+        "kind": null,
+        "tier": null,
+        "continue_from": false,
+        "note": "",
+        "status": "UNVERIFIED_INTERPRETATION"
+      },
+      "group_check": {
+        "model_line": "R09-",
+        "cited_line_in_group": true,
+        "duplicate": false
+      }
+    },
+    {
+      "id": "G02A.f04",
+      "text": "תאוה",
+      "parts": [],
+      "line": "R11-",
+      "verification": {
+        "state": "PLAIN_TEXT_ONLY",
+        "reasons": [],
+        "letters_match": true,
+        "occurrences_verified": 1,
+        "engine": null
+      },
+      "occurrence": {
+        "reading": "R11-",
+        "skip": 1,
+        "dir": -1,
+        "start": 233640,
+        "length": 4,
+        "cells": [
+          [
+            11,
+            11
+          ],
+          [
+            11,
+            10
+          ],
+          [
+            11,
+            9
+          ],
+          [
+            11,
+            8
+          ]
+        ]
+      },
+      "chance": null,
+      "relation_to_axis": {
+        "distance": 10,
+        "relation": "far"
+      },
+      "model_claims": {
+        "kind": null,
+        "tier": null,
+        "continue_from": false,
+        "note": "",
+        "status": "UNVERIFIED_INTERPRETATION"
+      },
+      "group_check": {
+        "model_line": "R11-",
+        "cited_line_in_group": true,
+        "duplicate": false
+      }
+    },
+    {
+      "id": "G02A.f05",
+      "text": "וניבא",
+      "parts": [],
+      "line": "R12-",
+      "verification": {
+        "state": "PLAIN_TEXT_ONLY",
+        "reasons": [],
+        "letters_match": true,
+        "occurrences_verified": 1,
+        "engine": null
+      },
+      "occurrence": {
+        "reading": "R12-",
+        "skip": 1,
+        "dir": -1,
+        "start": 234218,
+        "length": 5,
+        "cells": [
+          [
+            12,
+            6
+          ],
+          [
+            12,
+            5
+          ],
+          [
+            12,
+            4
+          ],
+          [
+            12,
+            3
+          ],
+          [
+            12,
+            2
+          ]
+        ]
+      },
+      "chance": null,
+      "relation_to_axis": {
+        "distance": 15,
+        "relation": "far"
+      },
+      "model_claims": {
+        "kind": null,
+        "tier": null,
+        "continue_from": false,
+        "note": "",
+        "status": "UNVERIFIED_INTERPRETATION"
+      },
+      "group_check": {
+        "model_line": "R12-",
+        "cited_line_in_group": true,
+        "duplicate": false
+      }
+    },
+    {
+      "id": "G02A.f06",
+      "text": "הלולב",
+      "parts": [],
+      "line": "R14-",
+      "verification": {
+        "state": "PLAIN_TEXT_ONLY",
+        "reasons": [],
+        "letters_match": true,
+        "occurrences_verified": 1,
+        "engine": null
+      },
+      "occurrence": {
+        "reading": "R14-",
+        "skip": 1,
+        "dir": -1,
+        "start": 235389,
+        "length": 5,
+        "cells": [
+          [
+            14,
+            11
+          ],
+          [
+            14,
+            10
+          ],
+          [
+            14,
+            9
+          ],
+          [
+            14,
+            8
+          ],
+          [
+            14,
+            7
+          ]
+        ]
+      },
+      "chance": null,
+      "relation_to_axis": {
+        "distance": 10,
+        "relation": "far"
+      },
+      "model_claims": {
+        "kind": null,
+        "tier": null,
+        "continue_from": false,
+        "note": "",
+        "status": "UNVERIFIED_INTERPRETATION"
+      },
+      "group_check": {
+        "model_line": "R14-",
+        "cited_line_in_group": true,
+        "duplicate": false
+      }
+    },
+    {
+      "id": "G02A.f07",
+      "text": "לעני",
+      "parts": [],
+      "line": "R14-",
+      "verification": {
+        "state": "PLAIN_TEXT_ONLY",
+        "reasons": [],
+        "letters_match": true,
+        "occurrences_verified": 1,
+        "engine": null
+      },
+      "occurrence": {
+        "reading": "R14-",
+        "skip": 1,
+        "dir": -1,
+        "start": 235408,
+        "length": 4,
+        "cells": [
+          [
+            14,
+            30
+          ],
+          [
+            14,
+            29
+          ],
+          [
+            14,
+            28
+          ],
+          [
+            14,
+            27
+          ]
+        ]
+      },
+      "chance": null,
+      "relation_to_axis": {
+        "distance": 6,
+        "relation": "far"
+      },
+      "model_claims": {
+        "kind": null,
+        "tier": null,
+        "continue_from": false,
+        "note": "",
+        "status": "UNVERIFIED_INTERPRETATION"
+      },
+      "group_check": {
+        "model_line": "R14-",
+        "cited_line_in_group": true,
+        "duplicate": false
+      }
+    },
+    {
+      "id": "G02A.f08",
+      "text": "לעד",
+      "parts": [],
+      "line": "R16-",
+      "verification": {
+        "state": "PLAIN_TEXT_ONLY",
+        "reasons": [],
+        "letters_match": true,
+        "occurrences_verified": 1,
+        "engine": null
+      },
+      "occurrence": {
+        "reading": "R16-",
+        "skip": 1,
+        "dir": -1,
+        "start": 236573,
+        "length": 3,
+        "cells": [
+          [
+            16,
+            29
+          ],
+          [
+            16,
+            28
+          ],
+          [
+            16,
+            27
+          ]
+        ]
+      },
+      "chance": null,
+      "relation_to_axis": {
+        "distance": 6,
+        "relation": "far"
+      },
+      "model_claims": {
+        "kind": null,
+        "tier": null,
+        "continue_from": false,
+        "note": "",
+        "status": "UNVERIFIED_INTERPRETATION"
+      },
+      "group_check": {
+        "model_line": "R16-",
+        "cited_line_in_group": true,
+        "duplicate": false
+      }
+    },
+    {
+      "id": "G02A.f09",
+      "text": "חגשבעתימימ",
+      "parts": [],
+      "line": "R15+",
+      "verification": {
+        "state": "PLAIN_TEXT_ONLY",
+        "reasons": [],
+        "letters_match": true,
+        "occurrences_verified": 1,
+        "engine": null
+      },
+      "occurrence": {
+        "reading": "R15+",
+        "skip": 1,
+        "dir": 1,
+        "start": 235982,
+        "length": 10,
+        "cells": [
+          [
+            15,
+            21
+          ],
+          [
+            15,
+            22
+          ],
+          [
+            15,
+            23
+          ],
+          [
+            15,
+            24
+          ],
+          [
+            15,
+            25
+          ],
+          [
+            15,
+            26
+          ],
+          [
+            15,
+            27
+          ],
+          [
+            15,
+            28
+          ],
+          [
+            15,
+            29
+          ],
+          [
+            15,
+            30
+          ]
+        ]
+      },
+      "chance": null,
+      "relation_to_axis": {
+        "distance": 0,
+        "relation": "crosses"
+      },
+      "model_claims": {
+        "kind": null,
+        "tier": null,
+        "continue_from": false,
+        "note": "",
+        "status": "UNVERIFIED_INTERPRETATION"
+      },
+      "group_check": {
+        "model_line": "R15+",
+        "cited_line_in_group": true,
+        "duplicate": false
+      }
+    },
+    {
+      "id": "G02A.f10",
+      "text": "שעירעזימ",
+      "parts": [],
+      "line": "R16+",
+      "verification": {
+        "state": "PLAIN_TEXT_ONLY",
+        "reasons": [],
+        "letters_match": true,
+        "occurrences_verified": 1,
+        "engine": null
+      },
+      "occurrence": {
+        "reading": "R16+",
+        "skip": 1,
+        "dir": 1,
+        "start": 236548,
+        "length": 8,
+        "cells": [
+          [
+            16,
+            4
+          ],
+          [
+            16,
+            5
+          ],
+          [
+            16,
+            6
+          ],
+          [
+            16,
+            7
+          ],
+          [
+            16,
+            8
+          ],
+          [
+            16,
+            9
+          ],
+          [
+            16,
+            10
+          ],
+          [
+            16,
+            11
+          ]
+        ]
+      },
+      "chance": null,
+      "relation_to_axis": {
+        "distance": 10,
+        "relation": "far"
+      },
+      "model_claims": {
+        "kind": null,
+        "tier": null,
+        "continue_from": false,
+        "note": "",
+        "status": "UNVERIFIED_INTERPRETATION"
+      },
+      "group_check": {
+        "model_line": "R16+",
+        "cited_line_in_group": true,
+        "duplicate": false
+      }
+    },
+    {
+      "id": "G02A.f11",
+      "text": "כלמה",
+      "parts": [],
+      "line": "R10-",
+      "verification": {
+        "state": "PLAIN_TEXT_ONLY",
+        "reasons": [],
+        "letters_match": true,
+        "occurrences_verified": 1,
+        "engine": null
+      },
+      "occurrence": {
+        "reading": "R10-",
+        "skip": 1,
+        "dir": -1,
+        "start": 233056,
+        "length": 4,
+        "cells": [
+          [
+            10,
+            10
+          ],
+          [
+            10,
+            9
+          ],
+          [
+            10,
+            8
+          ],
+          [
+            10,
+            7
+          ]
+        ]
+      },
+      "chance": null,
+      "relation_to_axis": {
+        "distance": 11,
+        "relation": "far"
+      },
+      "model_claims": {
+        "kind": null,
+        "tier": null,
+        "continue_from": false,
+        "note": "",
+        "status": "UNVERIFIED_INTERPRETATION"
+      },
+      "group_check": {
+        "model_line": "R10-",
+        "cited_line_in_group": true,
+        "duplicate": false
+      }
+    },
+    {
+      "id": "G02A.f12",
+      "text": "ישע",
+      "parts": [],
+      "line": "R14-",
+      "verification": {
+        "state": "PLAIN_TEXT_ONLY",
+        "reasons": [],
+        "letters_match": true,
+        "occurrences_verified": 1,
+        "engine": null
+      },
+      "occurrence": {
+        "reading": "R14-",
+        "skip": 1,
+        "dir": -1,
+        "start": 235417,
+        "length": 3,
+        "cells": [
+          [
+            14,
+            39
+          ],
+          [
+            14,
+            38
+          ],
+          [
+            14,
+            37
+          ]
+        ]
+      },
+      "chance": null,
+      "relation_to_axis": {
+        "distance": 16,
+        "relation": "far"
+      },
+      "model_claims": {
+        "kind": null,
+        "tier": null,
+        "continue_from": false,
+        "note": "",
+        "status": "UNVERIFIED_INTERPRETATION"
+      },
+      "group_check": {
+        "model_line": "R14-",
+        "cited_line_in_group": true,
+        "duplicate": false
+      }
+    }
+  ],
+  "summary": {
+    "proposals": 12,
+    "engine_verified": 0,
+    "source_rows": 12,
+    "not_verified": 0,
+    "duplicates": 0,
+    "cited_line_outside_group": 0
+  },
+  "cap_info": {
+    "requested": 12,
+    "proposals": 12,
+    "reached": true
+  },
+  "observations": "כל הקווים כאן הם שורות מקור (R); הצעות הכיוון ההפוך (ענוה, תאוה, ניבא, לולב, לעד) הן הצירופים הלא-מקראיים המעניינים. R13 בשני הכיוונים לא הניב דבר מעבר לטקסט עצמו."
+}

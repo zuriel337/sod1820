@@ -1,0 +1,120 @@
+{
+  "cap_usd": 5,
+  "basis": "usage x list prices of the product module (Message Batches at 50%); not an invoice",
+  "entries": [
+    {
+      "usd": 0.061225,
+      "batch": "msgbatch_018j413Eyf8gxy5oRoHnAZN3",
+      "result_type": "succeeded",
+      "note": "settled from the usage object and list prices (not an invoice)",
+      "id": "G02A"
+    },
+    {
+      "usd": 0.015525,
+      "batch": "msgbatch_01EVnv4WyU8D3GstQeMZuhf5",
+      "result_type": "succeeded",
+      "note": "settled from the usage object and list prices (not an invoice)",
+      "id": "G03B"
+    },
+    {
+      "usd": 0.069465,
+      "batch": "msgbatch_01WTWq47ZwG9qXLncaa2wHHc",
+      "result_type": "succeeded",
+      "note": "settled from the usage object and list prices (not an invoice)",
+      "id": "G03A"
+    },
+    {
+      "usd": 0.11906,
+      "batch": "msgbatch_01UDrr4E3vdEUxBoS2mRB2LW",
+      "result_type": "succeeded",
+      "note": "settled from the usage object and list prices (not an invoice)",
+      "id": "G02B"
+    },
+    {
+      "usd": 0.08184,
+      "batch": "msgbatch_017Bw6wX9fT24aMS7ebkYQR6",
+      "result_type": "succeeded",
+      "note": "settled from the usage object and list prices (not an invoice)",
+      "id": "G06A"
+    },
+    {
+      "usd": 0.014875,
+      "batch": "msgbatch_01YQv1KYHEhaDb5TiiWFBTBU",
+      "result_type": "succeeded",
+      "note": "settled from the usage object and list prices (not an invoice)",
+      "id": "G06B"
+    },
+    {
+      "usd": 0.020735,
+      "batch": "msgbatch_01MtpMyLraz5iAd9VgAwxnjA",
+      "result_type": "succeeded",
+      "note": "settled from the usage object and list prices (not an invoice)",
+      "id": "G08A"
+    },
+    {
+      "usd": 0.137345,
+      "batch": "msgbatch_01GJwsXL356Rbs3J2YgdU65j",
+      "result_type": "succeeded",
+      "note": "settled from the usage object and list prices (not an invoice)",
+      "id": "G08B"
+    },
+    {
+      "usd": 0.03915,
+      "batch": "msgbatch_01LczpFnfi3QqC1QzugNcSRn",
+      "result_type": "succeeded",
+      "note": "settled from the usage object and list prices (not an invoice)",
+      "id": "G07A"
+    },
+    {
+      "usd": 0.014935,
+      "batch": "msgbatch_01BCzEKnnEcBPBN2E8eR1VnG",
+      "result_type": "succeeded",
+      "note": "settled from the usage object and list prices (not an invoice)",
+      "id": "G07B"
+    },
+    {
+      "usd": 0.122345,
+      "batch": "msgbatch_01LJf6q1ozFpo1bvZED6UXuv",
+      "result_type": "succeeded",
+      "note": "settled from the usage object and list prices (not an invoice)",
+      "id": "G09A"
+    },
+    {
+      "usd": 0.17778,
+      "batch": "msgbatch_01Sn5Ur4ZrhPrUEj5d4d1UWU",
+      "result_type": "succeeded",
+      "note": "settled from the usage object and list prices (not an invoice)",
+      "id": "G09B"
+    },
+    {
+      "usd": 0.08946,
+      "batch": "msgbatch_014xPfwu9ntM9jSfHHNoCRwv",
+      "result_type": "succeeded",
+      "note": "settled from the usage object and list prices (not an invoice)",
+      "id": "G10A"
+    },
+    {
+      "usd": 0.10687,
+      "batch": "msgbatch_01GLqWtquen3fQtrtWn3KZhC",
+      "result_type": "succeeded",
+      "note": "settled from the usage object and list prices (not an invoice)",
+      "id": "G10B"
+    },
+    {
+      "usd": 0.10336,
+      "batch": "msgbatch_01LXq5UwrfQYgun2feeEY3JV",
+      "result_type": "succeeded",
+      "note": "settled from the usage object and list prices (not an invoice)",
+      "id": "G11A"
+    },
+    {
+      "usd": 0.11557,
+      "batch": "msgbatch_0111kUAFdYGtUsdSt3vCVrD4",
+      "result_type": "succeeded",
+      "note": "settled from the usage object and list prices (not an invoice)",
+      "id": "G11B"
+    }
+  ],
+  "spent_usd": 1.28954,
+  "remaining_usd": 3.71046
+}

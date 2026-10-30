@@ -1,0 +1,13 @@
+{
+  "run": "G03B",
+  "input_tokens_counted": 2659,
+  "worst_case_usd": 0.26662,
+  "guard": {
+    "ok": true,
+    "reason": null,
+    "spent": 0.265025,
+    "worstCase": 0.531645
+  },
+  "request_sha256": "e362338db276560c665962b49dc42c6df416e30a5d00ad5883f9ee6821cd61ef",
+  "lock_sha256": "07fd3d41eb39a9079db93b00f7b367a4795bd08bf1a9080d93bf3153804472c3"
+}

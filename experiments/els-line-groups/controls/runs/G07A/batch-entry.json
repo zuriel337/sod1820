@@ -1,0 +1,66 @@
+{
+  "saved_as_received": true,
+  "batch": {
+    "id": "msgbatch_01LczpFnfi3QqC1QzugNcSRn",
+    "created_at": "2026-10-30T03:31:51.859900+00:00",
+    "ended_at": "2026-10-30T03:33:46.757542+00:00",
+    "request_counts": {
+      "processing": 0,
+      "succeeded": 1,
+      "errored": 0,
+      "canceled": 0,
+      "expired": 0
+    },
+    "results_url": "https://api.anthropic.com/v1/messages/batches/msgbatch_01LczpFnfi3QqC1QzugNcSRn/results"
+  },
+  "timing": {
+    "created_at": "2026-10-30T03:31:51.859900+00:00",
+    "ended_at": "2026-10-30T03:33:46.757542+00:00",
+    "batch_ms": 114898,
+    "wall_ms": 125238
+  },
+  "entry": {
+    "custom_id": "els-live-g07a",
+    "result": {
+      "type": "succeeded",
+      "message": {
+        "model": "claude-fable-5-1",
+        "id": "msg_011CgXiXewMDXZLh4osyF7WV",
+        "type": "message",
+        "role": "assistant",
+        "content": [
+          {
+            "type": "thinking",
+            "thinking": "I'm scanning the column line for Hebrew words, and so far I've picked out \"מרמה\" and \"הבערה\" as real matches while ruling out \"חשאור\".\n\nI'm going through the Hebrew letter strings line by line, confirming words like \"הבערה,\" \"הרעב,\" \"כנף,\" \"יצא,\" \"חצים,\" \"מבוא,\" \"יהיה,\" \"אחווה,\" and \"תבל,\" while ruling out ones like \"נלכל\" and \"אברהי\" that don't hold up.\n\nNow I'm checking the C19 lines for Hebrew words, and so far \"נמות\" and \"אמת\" look like real matches.\n\nNow I'm checking the last stretch of letters for more Hebrew words, and \"שווי\" looks like a possible match.\n\n",
+            "signature": "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"
+          }
+        ],
+        "container": null,
+        "stop_reason": "refusal",
+        "stop_sequence": null,
+        "stop_details": {
+          "type": "refusal",
+          "category": "bio",
+          "explanation": "API integrators: you can reduce refusals for your users by configuring a fallback model — see https://platform.claude.com/docs/en/build-with-claude/refusals-and-fallback"
+        },
+        "usage": {
+          "input_tokens": 2600,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 0
+          },
+          "output_tokens": 1046,
+          "output_tokens_details": {
+            "thinking_tokens": 1046
+          },
+          "service_tier": "batch",
+          "inference_geo": "global",
+          "speed": "standard"
+        },
+        "diagnostics": null
+      }
+    }
+  }
+}

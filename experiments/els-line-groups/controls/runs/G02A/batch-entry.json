@@ -1,0 +1,66 @@
+{
+  "saved_as_received": true,
+  "batch": {
+    "id": "msgbatch_018j413Eyf8gxy5oRoHnAZN3",
+    "created_at": "2026-10-30T03:28:26.599177+00:00",
+    "ended_at": "2026-10-30T03:30:45.914632+00:00",
+    "request_counts": {
+      "processing": 0,
+      "succeeded": 1,
+      "errored": 0,
+      "canceled": 0,
+      "expired": 0
+    },
+    "results_url": "https://api.anthropic.com/v1/messages/batches/msgbatch_018j413Eyf8gxy5oRoHnAZN3/results"
+  },
+  "timing": {
+    "created_at": "2026-10-30T03:28:26.599177+00:00",
+    "ended_at": "2026-10-30T03:30:45.914632+00:00",
+    "batch_ms": 139315,
+    "wall_ms": 141874
+  },
+  "entry": {
+    "custom_id": "els-live-g02a",
+    "result": {
+      "type": "succeeded",
+      "message": {
+        "model": "claude-fable-5-1",
+        "id": "msg_011CgXiGbkS8jkvrfyVGFKN1",
+        "type": "message",
+        "role": "assistant",
+        "content": [
+          {
+            "type": "thinking",
+            "thinking": "I'm scanning the given lines for interesting Hebrew words and phrases, and I'm pulling out names like \"צלפחד\" and \"משפחתמנשה\" from the run of letters in R09.\n\nI'm checking the next batch of lines for Hebrew words that run together, pulling out names like \"בניאשר\" and \"אביה\", along with a few phrases like \"לפניהמ\" and \"חגשבעתימימ\".\n\nI'm checking the reversed lines now, picking out short Hebrew runs like \"שר\", \"כלמה\", \"אובד\", and \"תאוה\" from the letters.\n\nI'm working through the reversed lines and spotting Hebrew runs like \"הענוה\" and \"כלמה,\" along with \"ניבא\" and \"הלולב\" in the last line.\n\nNow I'm scanning the reversed lines for shorter Hebrew runs, spotting \"כלימה\" and \"שורש\" in one line and \"אובד\" and \"תאוה\" in another, plus a few more fragments I'm still sorting through.\n\nI'm settling on a last pick from the reversed lines, and I've got \"לעד\" pulled out of the letters in R16.\n\n",
+            "signature": "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"
+          },
+          {
+            "type": "text",
+            "text": "{\"findings\":[{\"id\":\"F1\",\"line\":\"R09+\",\"text\":\"צלפחד\"},{\"id\":\"F2\",\"line\":\"R09+\",\"text\":\"משפחתמנשה\"},{\"id\":\"F3\",\"line\":\"R09-\",\"text\":\"הענוה\"},{\"id\":\"F4\",\"line\":\"R11-\",\"text\":\"תאוה\"},{\"id\":\"F5\",\"line\":\"R12-\",\"text\":\"וניבא\"},{\"id\":\"F6\",\"line\":\"R14-\",\"text\":\"הלולב\"},{\"id\":\"F7\",\"line\":\"R14-\",\"text\":\"לעני\"},{\"id\":\"F8\",\"line\":\"R16-\",\"text\":\"לעד\"},{\"id\":\"F9\",\"line\":\"R15+\",\"text\":\"חגשבעתימימ\"},{\"id\":\"F10\",\"line\":\"R16+\",\"text\":\"שעירעזימ\"},{\"id\":\"F11\",\"line\":\"R10-\",\"text\":\"כלמה\"},{\"id\":\"F12\",\"line\":\"R14-\",\"text\":\"ישע\"}],\"observations\":\"כל הקווים כאן הם שורות מקור (R); הצעות הכיוון ההפוך (ענוה, תאוה, ניבא, לולב, לעד) הן הצירופים הלא-מקראיים המעניינים. R13 בשני הכיוונים לא הניב דבר מעבר לטקסט עצמו.\"}"
+          }
+        ],
+        "container": null,
+        "stop_reason": "end_turn",
+        "stop_sequence": null,
+        "stop_details": null,
+        "usage": {
+          "input_tokens": 2730,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 0
+          },
+          "output_tokens": 1903,
+          "output_tokens_details": {
+            "thinking_tokens": 1476
+          },
+          "service_tier": "batch",
+          "inference_geo": "global",
+          "speed": "standard"
+        },
+        "diagnostics": null
+      }
+    }
+  }
+}
