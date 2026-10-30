@@ -94,4 +94,18 @@ Ownership recheck found the canonical AFTER rows `b93865ca-bedd-4c38-b85b-fba71f
 
 ## AFTER
 
-Pending final checks, commit/push and protected Preview verification. This entry is local and makes no live work-log, dispatch, ACK or Production claim.
+Runtime/content checkpoint: `2da80ef3`; same isolated branch above the stated base, no merge or imported commits. A documentation-only acceptance commit follows it. The full final HEAD/range, push confirmation, protected deployment and hosted results are recorded in the external passive handoff receipt under the artifact directory, so the receipt can name the exact tested commit without a self-referential commit hash.
+
+Local final acceptance, 30.10.2026:
+
+- Whole non-browser Books suite: **436/436**, no skips.
+- Four full browser suites: **4/4**, no skips: nine public-reading width/theme contexts, twelve full primary-copy/source-navigation contexts, three source-table contexts and three spatial-table contexts. Real pointer/keyboard interactions, existing lesson return/deep links, refresh, search, CSV and optional 3D remain asserted. A Chromium pointer dispatch timed out in an earlier shared-browser run; using a fresh browser per long lesson context retained the original assertions/deadline and the entire nine-context flow subsequently passed. No force-click or disabled fidelity assertion was used.
+- Real built Preview acceptance: 390/1440, no API/PDF/font interception; actual PDF worker, JBIG2, loaded Rubik, page identity, pixels, fullscreen, exact return, reload and centering passed. The PDF document reports 99 pages; this is not a claim that all 99 were raster-tested again in this cut. Physical pages 18/28/42/43 were additionally compared with independent retained Poppler witnesses (maximum normalized error approximately 0.033602, bound 0.08), as was page 36. Original source bytes/hash were checked.
+- Public Language **3/3**, integrated Auth Guard **4/4**, isolation, hardening and repository Legacy Production Lock: passed.
+- Normal 2029, Books/Integrated flags, and static integrated Preview builds: passed. Graph/weight gates passed in all three; eager gzip bytes **380,361 / 377,496 / 377,876**. No budget or dependency changed.
+- Hash replay tests preserve every original research/OCR/commentary byte and all dataset/finding semantic fields. Source IDs/anchors survive the reader-copy projection. Only the six explicitly witnessed numeric cells and CALC-03's current reading differ from earlier readings; old readings remain recoverable.
+- Permanent local source-page witnesses for this cut: `source-witness/page-18.png`, `page-28.png`, `page-42.png`, `page-43.png` under the artifact directory. Earlier temporary crops are supplementary, not the sole retained source evidence.
+
+The live alias baseline was `dpl_AiKPHaoo5pxo9T5PFTpcBRG7LfMA`, metadata SHA `8bc5980fe80fdee30652c8f2364608b5916180e3`, on all three Production aliases. It differs from the repository's old locked deployment marker. The repository gate passing does not mean those two deployments match. No alias/promotion/rollback or repair of that unrelated baseline is authorized or performed here; before/after checks are retained in the passive handoff.
+
+No main/central merge, Production, DB/RLS, permission, subscription, publication-state or other-book changes. No dependency was added; automation used the existing retained dependencies. The task-owned temporary node_modules symlink is removed after local acceptance, without changing its target. File-writing scope is released to ZURIEL at this checkpoint; any hosted acceptance failure must be reported before further changes. The journal remains read-only: no live BEFORE/AFTER, dispatch, ACK or live-release record is claimed. The source gaps above remain explicit; this is **not** a declaration of a complete critical transcription or paragraph-by-paragraph commentary.
