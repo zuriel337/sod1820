@@ -1,0 +1,85 @@
+{
+  "created_for": "EXP-22",
+  "window_sha256": "208cbe689b68f941daf995f07ff490d8974a5c13128f1724c8792471c02802fe",
+  "window": {
+    "width": 583,
+    "r0": 390,
+    "c0": 430,
+    "rows": 33,
+    "cols": 41
+  },
+  "window_matches_selectWindow": true,
+  "experiment_cap_usd": 4,
+  "model": {
+    "id": "claude-fable-5-1",
+    "effort": "medium",
+    "maxTokens": 64000
+  },
+  "runs": [
+    {
+      "id": "U",
+      "focus": "uniform",
+      "instruction": "general_v2_axis_marked_unnamed",
+      "custom_id": "els-live-axis-u",
+      "model": "claude-fable-5-1",
+      "effort": "medium",
+      "max_tokens": 64000,
+      "cap": 25,
+      "rows": 33,
+      "cols": 41,
+      "cells": 1353,
+      "lines": 212,
+      "prompt_chars": 26995,
+      "est_input_tokens": 21542,
+      "worst_case_usd": 1.73464,
+      "request_sha256": "27f467a7b46317dc26528023393eda1202f1492d1bd3d097db7c9cdbb8af8844",
+      "lock_sha256": "74137e81e92a2f03e9f37f84f0671151892f0cb30881c90663d6a5f585ba2f88"
+    },
+    {
+      "id": "A",
+      "focus": "axis_neighborhood",
+      "instruction": "general_v2_axis_marked_unnamed+axis_deepening_addendum_unmeasured",
+      "custom_id": "els-live-axis-a",
+      "model": "claude-fable-5-1",
+      "effort": "medium",
+      "max_tokens": 64000,
+      "cap": 25,
+      "rows": 33,
+      "cols": 41,
+      "cells": 1353,
+      "lines": 212,
+      "prompt_chars": 28956,
+      "est_input_tokens": 23107,
+      "worst_case_usd": 1.74442,
+      "request_sha256": "5dc874c7ee57306a68a055091e9f9ab693bd50ec89a9d7cd95a7fdb871f01207",
+      "lock_sha256": "b378dc29ec8c60ffec71086d2791c271c28075061afedec6cf0c3f91f75ffade"
+    }
+  ],
+  "u_equals_live_run_request": true,
+  "request_differences_u_to_a": [
+    ".messages[0].content",
+    ".output_config.format.schema.required[1]",
+    ".output_config.format.schema.required[2]",
+    ".output_config.format.schema.properties.review"
+  ],
+  "budget": {
+    "sum_of_worst_cases_usd": 3.4791,
+    "fits_cap": true,
+    "headroom_usd": 0.5209,
+    "note": "the estimate uses 0.798 tokens per character (calibrated on the live run); the preflight replaces it with the provider's exact count (free) and the guard reserves the run's worst case before sending it"
+  },
+  "function": {
+    "slug": "els-live-reading",
+    "batch_only": true,
+    "count_tokens_allowed": true,
+    "models": [
+      "claude-fable-5-1"
+    ],
+    "approved_lock_sha256": [
+      "74137e81e92a2f03e9f37f84f0671151892f0cb30881c90663d6a5f585ba2f88",
+      "b378dc29ec8c60ffec71086d2791c271c28075061afedec6cf0c3f91f75ffade"
+    ],
+    "round2": "none",
+    "disabled_after": true
+  }
+}
