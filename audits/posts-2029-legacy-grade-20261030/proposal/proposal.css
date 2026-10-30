@@ -1,0 +1,19 @@
+/* MOCKUP ONLY (not committed): fewer fixed layers, fewer frames, colour roles, 13px floor */
+.sod29-sidebar,.sod29-logo-toggle,.sod29-companion,.sod29-feed-chip,.sod29-surface-context-mobile-cue{display:none!important}
+.sod29-reading-hero,.sod29-reading-source,.sod29-reading-cover,.sod29-post-research,.sod29-reading-source .sod-gematria-box,.sod29-reading-source :is(blockquote,.sod-verse){border:0!important;box-shadow:none!important}
+.sod29-reading-hero{background:transparent!important;padding-inline:0!important}
+.sod29-reading-cover{background:transparent!important;padding:0!important}
+.sod29-reading-source{background:transparent!important;padding-inline:0!important}
+.sod29-reading-source :is(blockquote,.sod-verse){background:none!important;border-inline-start:3px solid var(--s29-accent)!important;border-radius:0!important;text-align:start!important;padding-inline:20px!important}
+.sod29-reading-source :is(blockquote,.sod-verse)::before{display:none!important}
+.sod29-reading-source .sod-gematria-box{background:color-mix(in srgb,var(--s29-accent) 7%,transparent)!important;border-radius:16px!important}
+.sod29-reading-source .sod-gematria-box::before{background:transparent!important;box-shadow:none!important}
+.sod29-reading-hero h1,.sod29-reading-source h3,.sod29-reading-source p{color:#f2eadb!important}
+.sod29-reading-source h3::before{background:var(--s29-accent)!important}
+.sod29-reading-source a{color:var(--s29-accent-text)!important}
+.sod29-reading-source small,.sod29-post-research-hint,.sod29-reading-footnote p,.sod29-reading-source [style*="font-size:12px"],.sod29-reading-source [style*="font-size:14px"]{font-size:13px!important;color:#bdb4a2!important;opacity:1!important}
+.sod29-reading-source>*{max-width:34rem!important}
+.sod29-reading-post{padding-top:30px}
+.sod29-main-stage{margin-inline:auto!important}
+.sod29-reading-source p{line-height:2.1!important}
+.sod29-reading-hero,.sod29-reading-layout,.sod29-reading-cover{margin-inline:auto!important}
