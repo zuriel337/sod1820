@@ -1,0 +1,14 @@
+.els29-structure-research{min-width:0;margin-block:16px;padding:clamp(12px,2vw,24px);border:1px solid var(--s29-line);border-radius:20px;background:var(--s29-panel);color:var(--s29-ink);font-family:var(--s29-font-ui);overflow-wrap:anywhere;text-align:start}
+.els29-structure-research[hidden]{display:none}
+.els29-structure-research h3{font-size:var(--s29-type-title);margin:0 0 12px}
+.els29-structure-research h4{font-size:var(--s29-type-lead);margin:12px 0}
+.els29-structure-research p{font-size:max(var(--s29-type-body),18px);line-height:1.65}
+.els29-structure-research button,.els29-structure-research summary{font:inherit;font-size:max(var(--s29-type-ui),16px);min-height:44px;min-width:44px;padding:10px 14px;white-space:normal;max-width:100%;cursor:pointer}
+.els29-structure-research button{color:var(--s29-ink);background:var(--s29-panel-soft);border:1px solid var(--s29-line);border-radius:12px}
+.els29-structure-research button:disabled{opacity:.55;cursor:default}
+.els29-structure-research button:focus-visible,.els29-structure-research summary:focus-visible{outline:2px solid var(--s29-focus-ring);outline-offset:2px}
+.els29-structure-actions{display:flex;flex-wrap:wrap;gap:10px}
+.els29-structure-research article{min-width:0;padding:12px;border:1px solid var(--s29-line);border-radius:12px;margin-block:10px}
+.els29-structure-research article>button{margin-block:4px;margin-inline-end:6px}
+.els29-structure-research details{margin-block:12px}
+.els29-structure-comparisons{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:12px}

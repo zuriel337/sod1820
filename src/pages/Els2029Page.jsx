@@ -411,6 +411,8 @@ export default function Els2029Page({ previewAdvanced = false }) {
           active={!library && (!guidedProfile || researchLoad?.guidedDiscovery === true || directSavedOpen)}
           researchProfile={researchProfile} guidedProfile={guidedProfile} researchLoad={researchLoad || (savedRecord.row ? null : findingJourneyLoad)} researchProbe={researchProbe} onResearchProbeResult={receiveExactSkip} onResearchLoadError={() => setExactStatus("failed")}
           formsPreviewRequest={formsPreviewRequest} onFormsPreviewResult={receiveFormsPreview}
+          onResearchRestore={item => { pendingProbeRef.current = null; setResearchProbe(null); setExactStatus("idle");
+            setResearchLoad({ ...item, researchNonce: crypto.randomUUID() }); }}
           onSearchStart={() => setSearchRevision(value => value + 1)} onSaved={row => {
             setSavedRevision(value => value + 1);
             if (row?.id === savedRecord.row?.id) setSavedRecord(current => ({ ...current, row }));

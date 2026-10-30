@@ -768,3 +768,5 @@
 .els29-reading-show-finding { border-inline-start: 5px solid var(--els29-reading-color, var(--s29-accent)) !important; white-space: normal; text-align: start; }
 .els29-matrix-reading-result li[data-selected="true"] { background: var(--s29-panel-soft); border-color: var(--s29-accent); }
 .els29-reading-map-controls { display: grid; gap: 8px; }
+.els29-native-structure-entry[hidden]{display:none!important}
+.els29-native-structure-entry>summary{min-height:44px;padding:12px;font-size:var(--s29-type-ui);cursor:pointer}

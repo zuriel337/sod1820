@@ -55,6 +55,49 @@ test('background return restores verified manual findings and view through the e
   },{realHost:true});
 });
 
+test('research structures are explicit, preserve Classic and compare exact snapshots without lexicon or AI',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
+  for(const width of [320,390,1440])await withNative({width,height:900},async page=>{
+    const heavy=[];page.on('request',req=>{if(/ai-analyze|els-dynamic-lexicon|tanakh-verses/.test(req.url()))heavy.push(req.url());});
+    await page.evaluate(()=>{window.__fixtureResearchProfile=false;window.__forceParentRender();});
+    assert.equal(await page.getByText('מבנים והשוואת מופעים · ללא AI',{exact:true}).isVisible(),false);
+    await page.evaluate(()=>{window.__fixtureResearchProfile=true;window.__forceParentRender();});
+    await addSecondary(page,'תורה');
+    const before=await page.evaluate(()=>window.__state);
+    await page.getByText('מבנים והשוואת מופעים · ללא AI',{exact:true}).click();
+    const panel=page.getByRole('region',{name:'מבנים והשוואת מופעים',exact:true});
+    await panel.waitFor();
+    assert.equal(await panel.getByLabel('תוצאת בדיקת המבנים').count(),0);
+    await panel.getByRole('button',{name:'בדוק מבנים בממצאים שנבחרו',exact:true}).click();
+    await panel.getByLabel('תוצאת בדיקת המבנים').waitFor();
+    await panel.getByRole('button',{name:'הוסף את המופע להשוואה',exact:true}).click();
+    await page.evaluate(item=>window.__loadResearch({...item,words:[],researchNonce:'structure-second'}),ELS_GOLDENS[2]);
+    await page.waitForFunction(()=>window.__state?.term==='אליהו'&&window.__state.status==='ok');
+    await panel.getByRole('button',{name:'הוסף את המופע להשוואה',exact:true}).click();
+    assert.equal(await panel.getByRole('button',{name:/פתח תמונת מצב/}).count(),2);
+    await page.evaluate(()=>{window.__fixtureResearchProfile=false;window.__forceParentRender();});
+    assert.equal(await panel.isVisible(),false);
+    await page.evaluate(()=>{window.__fixtureResearchProfile=true;window.__forceParentRender();});
+    await panel.getByRole('button',{name:'פתח תמונת מצב 1',exact:true}).click();
+    await page.waitForFunction(()=>window.__state?.term==='תורהקדשה'&&window.__state.status==='ok'&&window.__state.findings?.some(f=>f.t==='תורה'&&f.shown.length));
+    assert.deepEqual((await page.evaluate(()=>window.__state)).axis,before.axis);
+    for(const theme of ['light','parchment','dark']){
+      await page.evaluate(theme=>window.__setThemePreset(theme),theme);
+      const size=await page.evaluate(()=>({w:document.documentElement.clientWidth,s:document.documentElement.scrollWidth}));
+      assert.ok(size.s<=size.w+1,JSON.stringify({width,theme,size}));
+      const targets=await panel.locator('button:visible').evaluateAll(nodes=>nodes.map(n=>n.getBoundingClientRect().height));
+      assert.ok(targets.every(h=>h>=44));
+      assert.ok(await panel.locator('p').evaluateAll(nodes=>nodes.every(n=>parseFloat(getComputedStyle(n).fontSize)>=18)));
+      assert.ok(await panel.locator('button').evaluateAll(nodes=>nodes.every(n=>parseFloat(getComputedStyle(n).fontSize)>=16)));
+      if(process.env.ELS_STRUCTURE_SCREENSHOTS){await panel.scrollIntoViewIfNeeded();await page.screenshot({path:`${process.env.ELS_STRUCTURE_SCREENSHOTS}/structures-${width}-${theme}.png`});}
+    }
+    await page.evaluate(()=>{window.__fixtureTier='anon';window.__forceParentRender();});
+    await page.waitForFunction(()=>!document.querySelector('[aria-label="תוצאת בדיקת המבנים"]'));
+    assert.equal(await panel.getByRole('button',{name:/פתח תמונת מצב/}).count(),0,'principal change clears temporary comparisons');
+    assert.deepEqual(heavy,[]);
+  },{realHost:true});
+ });
+
 const host = `import React,{useRef,useEffect} from 'react';
 export default function Host(props){
  const frame=useRef(null),latest=useRef(props),ready=useRef(false);latest.current=props;
@@ -103,6 +146,7 @@ const [,forceRender]=React.useState(0);window.__forceParentRender=()=>flushSync(
 const [matrix,setMatrix]=React.useState(null);window.__openSavedMatrix=setMatrix;window.__fixtureMatrix=matrix;
 const [matrixReading,setMatrixReading]=React.useState(null);window.__setMatrixReading=setMatrixReading;
 const [researchLoad,setResearchLoad]=React.useState(null);window.__loadResearch=setResearchLoad;
+const restoreResearch=item=>setResearchLoad({...item,researchNonce:crypto.randomUUID()});
 const [researchProbe,setResearchProbe]=React.useState(null),pendingProbe=React.useRef(null);
 window.__probeResearch=request=>{pendingProbe.current=request?.requestId??null;setResearchProbe(request);};
 const palette=resolve2029Palette(useThemePreset(),'research_lab');
@@ -119,7 +163,7 @@ return React.createElement('div',{style,className:'sod29-root closed-shell nativ
   React.createElement('div',{className:'sod29-main-stage'},
    React.createElement('main',{className:'sod29-content wide'},
     React.createElement('section',{className:'sod29-focus-stage','data-els-2029-surface':'v1'},
-     React.createElement('section',{className:'sod29-section','data-els-classic-2029':'native-v1'},React.createElement(Native,{matrix,matrixReading,researchLoad,researchProbe,researchProfile:window.__fixtureResearchProfile!==false,guidedProfile:!!window.__fixtureGuided,onRazielMatrix:window.__fixtureMatrixAnalysis?async context=>{(window.__matrixSubmits||=[]).push(context);return {ok:true};}:undefined,onResearchProbeResult:result=>{(window.__probeHistory||=[]).push(result);if(result.requestId!==pendingProbe.current)return;pendingProbe.current=null;window.__probeResult=result;if(result.ok)setResearchLoad({term:result.term,scope:result.scope,skip:result.skip,dir:result.dir,start:result.start,hitId:result.hitId,corpusId:result.corpusId,words:[],researchNonce:result.requestId});}})))))),dock);
+     React.createElement('section',{className:'sod29-section','data-els-classic-2029':'native-v1'},React.createElement(Native,{matrix,matrixReading,researchLoad,researchProbe,onResearchRestore:restoreResearch,researchProfile:window.__fixtureResearchProfile!==false,guidedProfile:!!window.__fixtureGuided,onRazielMatrix:window.__fixtureMatrixAnalysis?async context=>{(window.__matrixSubmits||=[]).push(context);return {ok:true};}:undefined,onResearchProbeResult:result=>{(window.__probeHistory||=[]).push(result);if(result.requestId!==pendingProbe.current)return;pendingProbe.current=null;window.__probeResult=result;if(result.ok)setResearchLoad({term:result.term,scope:result.scope,skip:result.skip,dir:result.dir,start:result.start,hitId:result.hitId,corpusId:result.corpusId,words:[],researchNonce:result.requestId});}})))))),dock);
 }
 if(window.__fixtureFullFrame){
  const [{default:Frame},{BrowserRouter}]=await Promise.all([import('/src/components/experience2029/Sod2029Shell.jsx'),import('react-router-dom')]);
@@ -278,7 +322,7 @@ async function withNative(viewport, run, options = {}) {
       });
     },
   };
-  const server = await vite.createServer({ root, configFile: false, plugins: [fixture, react()], server: { host: '127.0.0.1', port: 0 } });
+  const server = await vite.createServer({ root, cacheDir: process.env.ELS_NATIVE_CACHE_DIR || undefined, configFile: false, plugins: [fixture, react()], server: { host: '127.0.0.1', port: 0 } });
   let browser;
   try {
     await server.listen();

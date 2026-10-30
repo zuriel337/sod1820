@@ -21,6 +21,7 @@ import {
 import "./elsNativeClassic2029.css";
 
 const ElsGuidedMatrixSnapshot2029 = React.lazy(() => import("./ElsGuidedMatrixSnapshot2029.jsx"));
+const ElsStructureResearch2029 = React.lazy(() => import("./ElsStructureResearch2029.jsx"));
 
 const clean = (value) => String(value ?? "").trim();
 const canonicalHebrew = (value) => clean(value).replace(/[^א-ת]/g, "").replace(/[ךםןףץ]/g, letter => ({ ך: "כ", ם: "מ", ן: "נ", ף: "פ", ץ: "צ" })[letter]);
@@ -795,7 +796,7 @@ function FindingsRail({ onHighlightVerse, verseHighlight, activeTool, state, sel
   </div>;
 }
 
-export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, active = true, researchProfile = false, guidedProfile = false, researchLoad = null, researchProbe = null, onResearchProbeResult, onResearchLoadError, onSearchStart, onSaved, onRazielMatrix, matrixReading = null, formsPreviewRequest = null, onFormsPreviewResult }) {
+export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, active = true, researchProfile = false, guidedProfile = false, researchLoad = null, researchProbe = null, onResearchProbeResult, onResearchLoadError, onResearchRestore, onSearchStart, onSaved, onRazielMatrix, matrixReading = null, formsPreviewRequest = null, onFormsPreviewResult }) {
   const palette = use2029Palette("research_lab");
   const { user } = useAuth();
   const [query, setQuery] = useState(clean(initialSeed));
@@ -825,6 +826,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   const cameraStageRef = useRef(null);
   const [cameraFullscreen, setCameraFullscreen] = useState(false);
   const [guidedMatrixOpen, setGuidedMatrixOpen] = useState(false);
+  const [structuresVisited, setStructuresVisited] = useState(false);
   useEffect(() => {
     const sync = () => setCameraFullscreen(document.fullscreenElement === cameraStageRef.current);
     document.addEventListener("fullscreenchange", sync);
@@ -1554,6 +1556,15 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
           </div>
           <small>מציג את הציר ואחריו את הממצאים, אחד אחרי השני. אפשר להקליט באמצעות כלי צילום המסך במכשיר.</small>
         </section> : null}
+        <details hidden={!researchProfile || guidedProfile} className="els29-native-structure-entry"
+          onToggle={event => { if (event.currentTarget.open) setStructuresVisited(true); }}>
+          <summary>מבנים והשוואת מופעים · ללא AI</summary>
+          {structuresVisited ? <React.Suspense fallback={<p role="status">טוען כלי בדיקה…</p>}>
+            <ElsStructureResearch2029 key={user?.id || "guest"} state={engineState}
+              visible={researchProfile && !guidedProfile} busy={searchPending || ["searching", "verifying"].includes(operations.findings?.status)}
+              onRestore={onResearchRestore} onFocus={selectFinding} />
+          </React.Suspense> : null}
+        </details>
         {matrixReading ? <ElsMatrixReadingCard2029 context={readingContext} reading={matrixReading} pending={searchPending} onSubmit={onRazielMatrix}
           projection={readingProjection} selectedKey={selectedReading?.key} overlayVisible={readingOverlayVisible}
           onToggleOverlay={() => setReadingDisplay({ result: readingResult, hidden: readingOverlayVisible })}
