@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
-  ELS_MATRIX_READING_ACK_UPPER_BOUND_USD, ELS_MATRIX_READING_ACTION, ELS_MATRIX_READING_LIMITS, ELS_MATRIX_READING_START, ELS_MATRIX_READING_SUBJECT,
+  ELS_MATRIX_READING_ACK_UPPER_BOUND_USD, ELS_MATRIX_READING_ACTION, ELS_MATRIX_READING_FOCUS_DEFAULT, ELS_MATRIX_READING_LIMITS, ELS_MATRIX_READING_NEIGHBORHOOD, ELS_MATRIX_READING_START, ELS_MATRIX_READING_SUBJECT,
   cleanElsMatrixReadingStory, elsMatrixReadingPhase, isLiveFableReading, normalizeElsMatrixReadingAction, normalizeElsMatrixReadingResult,
 } from "../supabase/functions/_shared/elsMatrixReadingAction.js";
 import { DEFAULTS, LIMITS, estimateCost } from "../supabase/functions/_shared/elsMatrixReading.js";
@@ -86,4 +86,15 @@ test("only a result from the live provider route is a live Fable reading; a test
   for (const patch of [{ is_test_fixture: true }, { provider: { kind: "test_double", live_model_call: true } }, { provider: { live_model_call: true } }, { provider: { live_model_call: false } }, { provider: {} }, { model: { verified_available: false } }, { model: undefined }, { contract: "x" }])
     assert.equal(isLiveFableReading({ ...live, ...patch }), false, JSON.stringify(patch));
   assert.equal(isLiveFableReading(null), false);
+});
+
+test("focus: axis_neighborhood (the default when absent) or uniform; anything else, or a focus on a job operation, refuses the whole action", () => {
+  const base = { id: "els_matrix_reading_v1", op: "preview" };
+  assert.equal(normalizeElsMatrixReadingAction(base).focus, undefined, "absent stays absent: the engine applies the default");
+  assert.equal(normalizeElsMatrixReadingAction({ ...base, focus: "uniform" }).focus, "uniform");
+  assert.equal(normalizeElsMatrixReadingAction({ ...base, focus: "axis_neighborhood" }).focus, "axis_neighborhood");
+  for (const bad of ["far", "", 1, true, "AXIS_NEIGHBORHOOD"]) assert.equal(normalizeElsMatrixReadingAction({ ...base, focus: bad }), null, String(bad));
+  const token = "T".repeat(80);
+  assert.equal(normalizeElsMatrixReadingAction({ id: "els_matrix_reading_v1", op: "status", job_token: token, focus: "uniform" }), null);
+  assert.deepEqual([ELS_MATRIX_READING_FOCUS_DEFAULT, ELS_MATRIX_READING_NEIGHBORHOOD.radius, ELS_MATRIX_READING_NEIGHBORHOOD.targetRatio], ["axis_neighborhood", 8, 2]);
 });

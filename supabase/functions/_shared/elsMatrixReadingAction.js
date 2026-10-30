@@ -32,9 +32,19 @@ export const ELS_MATRIX_READING_ACK_UPPER_BOUND_USD = 2;
 export const ELS_MATRIX_READING_EXPECTED_MINUTES = Object.freeze({ min: 3, max: 13 });
 export const ELS_MATRIX_READING_POLL_SECONDS = 20;
 
+/**
+ * Default depth of the search (ZURIEL, 30.10.2026): dig into the neighbourhood of the selected occurrence at least twice, and up to three times, as deep as at a distance;
+ * when the neighbourhood gives nothing the model may go farther. It is an instruction about WHERE to look harder, never a filter: every proposal, near or far, is kept and verified.
+ * The radius (cells, Chebyshev distance from any cell of the occurrence) is 8 because every word of the saved cipher "יום משיח בא 583" lies within 8 cells of its axis.
+ * An UNMEASURED instruction: "uniform" is the instruction measured in EXP-15..18 and stays selectable to compare against it.
+ */
+export const ELS_MATRIX_READING_FOCUS = Object.freeze({ AXIS_NEIGHBORHOOD: "axis_neighborhood", UNIFORM: "uniform" });
+export const ELS_MATRIX_READING_FOCUS_DEFAULT = ELS_MATRIX_READING_FOCUS.AXIS_NEIGHBORHOOD;
+export const ELS_MATRIX_READING_NEIGHBORHOOD = Object.freeze({ radius: 8, targetRatio: 2 });
+
 const isObject = (value) => Boolean(value) && typeof value === "object" && !Array.isArray(value);
 const isInt = (value) => Number.isSafeInteger(value);
-const KEYS = new Set(["id", "op", "window", "cap", "story", "ack_upper_bound_usd", "job_token", "job_id", "request_id"]);
+const KEYS = new Set(["id", "op", "window", "cap", "story", "focus", "ack_upper_bound_usd", "job_token", "job_id", "request_id"]);
 
 /** The story is background text from the person, shown to the model as data. Control characters, tags and the quote characters of the prompt frame are removed. */
 export function cleanElsMatrixReadingStory(value) {
@@ -49,8 +59,9 @@ export function cleanElsMatrixReadingStory(value) {
 
 /**
  * The closed action envelope. Returns null for anything outside the contract (unknown keys, wrong types, out-of-range values) so the caller can refuse the whole request.
- *   preview  window? cap? story?                         reads the stream and the engine, counts tokens, runs NO model
- *   start    request_id window? cap? story? ack_upper_bound_usd  one explicit run; server requires idempotency UUID and acknowledged bound
+ *   preview  window? cap? story? focus?                  reads the stream and the engine, counts tokens, runs NO model
+ *   start    request_id window? cap? story? focus? ack_upper_bound_usd  one explicit run; server requires idempotency UUID and acknowledged bound
+ *            focus: "axis_neighborhood" (the default when absent) | "uniform" (the instruction measured in EXP-15..18)
  *   status   job_id OR registered legacy job_token        collects, verifies and reports; starts nothing
  *   cancel   job_id OR registered legacy job_token        asks the provider to cancel the batch
  *   recover  no extra fields                             retrieves this owner's latest exact occurrence job; starts nothing
@@ -63,7 +74,7 @@ export function normalizeElsMatrixReadingAction(value) {
   if (value.op === "recover") return Object.keys(value).every(key => key === "id" || key === "op")
     ? { id: ELS_MATRIX_READING_ACTION, op: "recover" } : null;
   if (value.op === "status" || value.op === "cancel") {
-    if (["window", "cap", "story", "ack_upper_bound_usd", "request_id"].some((key) => value[key] != null)) return null;
+    if (["window", "cap", "story", "focus", "ack_upper_bound_usd", "request_id"].some((key) => value[key] != null)) return null;
     if (value.job_id != null) return isElsReadingJobId(value.job_id) && value.job_token == null
       ? { id: ELS_MATRIX_READING_ACTION, op: value.op, job_id: value.job_id.toLowerCase() } : null;
     const token = value.job_token;
@@ -91,6 +102,10 @@ export function normalizeElsMatrixReadingAction(value) {
     const story = cleanElsMatrixReadingStory(value.story);
     if (story.length > limits.storyMax) return null;
     if (story) out.story = story;
+  }
+  if (value.focus != null) {
+    if (!Object.values(ELS_MATRIX_READING_FOCUS).includes(value.focus)) return null;
+    out.focus = value.focus;
   }
   if (value.op === "start") {
     const ack = value.ack_upper_bound_usd;

@@ -4,7 +4,7 @@
 // Owners: els_research_layer_law v9, els_single_engine_law v2 (one engine), ai_analyze_contract v2 (cost, completion, no max_tokens as COMPLETE), unified_credit_system (nothing is charged here).
 // No chat, no memory, no Provider, no search engine and no AI route of its own: the entry point is the `els_matrix_reading_action` of an explicit Raziel turn (ai-analyze, persona raziel).
 // Imports only sibling action/job adapters; Node (tests) and Deno (edge) run the same text.
-import { ELS_MATRIX_READING_EXPECTED_MINUTES, ELS_MATRIX_READING_LIMITS, ELS_MATRIX_READING_POLL_SECONDS, ELS_MATRIX_READING_START } from "./elsMatrixReadingAction.js";
+import { ELS_MATRIX_READING_EXPECTED_MINUTES, ELS_MATRIX_READING_FOCUS, ELS_MATRIX_READING_FOCUS_DEFAULT, ELS_MATRIX_READING_LIMITS, ELS_MATRIX_READING_NEIGHBORHOOD, ELS_MATRIX_READING_POLL_SECONDS, ELS_MATRIX_READING_START } from "./elsMatrixReadingAction.js";
 import { createElsReadingJobRepository, ElsReadingJobStorageError } from "./elsMatrixReadingJobs.js";
 
 export const MAX_FINDINGS = 60;
@@ -227,11 +227,27 @@ export function classify(located, rows) {
 
 
 // The harness builder (lib/prompt2.mjs buildRound1V2), reduced to the one path the layer uses: the selected occurrence marked and unnamed, all lines; `cap` replaces the number of proposals.
-// Without a story the text is exactly the measured one. An optional story (the person's own background sentence) uses the measured EXP-16 frame
+// focus "uniform" without a story is exactly the measured text (EXP-15..18). An optional story (the person's own background sentence) uses the measured EXP-16 frame
 // („story” + "general description only, you are not bound to it") plus one added sentence that it is data and not an instruction; that wording is NOT measured.
+// focus "axis_neighborhood" (the default, ZURIEL 30.10.2026) adds ONE section that asks for 2-3 times the depth in the neighbourhood of the selected occurrence than at a distance,
+// and changes two sentences of the task that said the opposite (do not stay in the middle, do not rank by proximity). That text is NOT measured either.
 export const INSTRUCTION_NO_STORY = "general_v2_axis_marked_unnamed";
 export const INSTRUCTION_WITH_STORY = "general_v2_axis_marked_unnamed+user_story_unmeasured";
-export function buildReadingPrompt({ region, lines, cap = MAX_FINDINGS, story = "" }) {
+export const INSTRUCTION_NEIGHBORHOOD = "general_v2_axis_neighborhood_2to3x_unmeasured";
+export const NEIGHBORHOOD_RADIUS = ELS_MATRIX_READING_NEIGHBORHOOD.radius;
+export const NEIGHBORHOOD_TARGET_RATIO = ELS_MATRIX_READING_NEIGHBORHOOD.targetRatio;
+export const instructionLabel = ({ story = "", focus = ELS_MATRIX_READING_FOCUS_DEFAULT } = {}) =>
+  `${focus === ELS_MATRIX_READING_FOCUS.UNIFORM ? INSTRUCTION_NO_STORY : INSTRUCTION_NEIGHBORHOOD}${story ? "+user_story_unmeasured" : ""}`;
+
+/** The near box in region coordinates (1-based, inclusive): every cell within `radius` cells (Chebyshev) of some cell of the selected occurrence, clipped to the window. */
+export function neighborhoodBox(region, radius = NEIGHBORHOOD_RADIUS) {
+  const rs = region.axisCells.map(([i]) => i), cs = region.axisCells.map(([, j]) => j);
+  const rowFrom = Math.max(1, Math.min(...rs) - radius), rowTo = Math.min(region.nRows, Math.max(...rs) + radius);
+  const colFrom = Math.max(1, Math.min(...cs) - radius), colTo = Math.min(region.nCols, Math.max(...cs) + radius);
+  const cells = (rowTo - rowFrom + 1) * (colTo - colFrom + 1);
+  return { radius, rows: { from: rowFrom, to: rowTo }, cols: { from: colFrom, to: colTo }, cells, share_of_window: Number((cells / (region.nRows * region.nCols)).toFixed(3)) };
+}
+export function buildReadingPrompt({ region, lines, cap = MAX_FINDINGS, story = "", focus = ELS_MATRIX_READING_FOCUS_DEFAULT }) {
   if (!region.axisCells.length) throw new Error("this region has no selected occurrence to mark");
   const axis = axisSummary(region);
   const intro = story
@@ -244,19 +260,26 @@ export function buildReadingPrompt({ region, lines, cap = MAX_FINDINGS, story = 
     "גבולות הקטע: מכל ארבעת הצדדים הקטע נחתך (המטריצה ממשיכה או נגמרת מחוץ לגבולות, וזה לא מוצג ולא נכלל בשום קו).",
     "הקווים: שורות R, טורים C, אלכסונים D (יורדים ימינה ↘, כלומר מעמודה לעמודה עוקבת כשיורדים שורה) ואלכסונים A (יורדים שמאלה ↙). כל קו מוצג בשני כיווני קריאה. הכיוון `+` הוא: בשורות מעמודה 1 לעמודה האחרונה, בטורים מהשורה העליונה לתחתונה, ובאלכסונים (D ו-A) מלמעלה למטה. הכיוון `-` הוא ההפך. האותיות בכל שורת קו מסודרות לפי סדר הקריאה של אותו כיוון, בקבוצות של חמש לנוחות בלבד (ברצף אין רווחים). בכל שורת קו המזהה כולל את הכיוון, למשל D17+. קווים קצרים משלוש אותיות לא נכללו.",
   ].join("\n");
+  const near = focus === ELS_MATRIX_READING_FOCUS.AXIS_NEIGHBORHOOD ? neighborhoodBox(region) : null;
+  const neighbourhood = near ? [
+    "## סביבת הציר — ברירת המחדל לעומק החיפוש",
+    `המופע הנבחר הוא נקודת המוצא. הסביבה הקרובה היא כל תא שמרחקו מתא כלשהו של המופע הנבחר הוא עד ${near.radius} תאים (גם באלכסון): שורות R${pad(near.rows.from)}–R${pad(near.rows.to)} ועמודות C${pad(near.cols.from)}–C${pad(near.cols.to)} (תיבה של ${near.cells} תאים, כ-${Math.round(near.share_of_window * 100)}% מהקטע). הצעה נחשבת "בסביבה הקרובה" אם לפחות אחד מתאיה בתיבה הזו.`,
+    "ברירת המחדל: העמק בסביבה הקרובה פי שניים עד שלושה יותר מאשר ברחוק. כלומר: (1) עבור שיטתית על כל הקווים שחולפים בתיבה (שורות, טורים ואלכסונים, בשני הכיוונים) ובדוק כל קטע בהם, כולל ההמשכים, החיתוכים והשכנויות של כל מילה שמצאת; (2) לפחות שני שלישים מההצעות שלך, ועדיף שלושה רבעים, יהיו בסביבה הקרובה, כל עוד יש בה קריאות ראויות; (3) באזור הרחוק (מחוץ לתיבה) הצע רק מה שבולט בעיניך.",
+    "אם בסביבה הקרובה אין מספיק קריאות ראויות, התרחק; אל תמציא ואל תכפה קריאה רק כדי לעמוד ביחס. זו הנחיית עומק ולא סינון: כל הצעה, קרובה או רחוקה, תקפה ונבדקת.",
+  ].join("\n") : null;
   const task = [
     "## המשימה",
     "1. חפש בקטע מילים וביטויים בעברית תקינה שמופיעים כרצף רציף של אותיות באחד הקווים, בכל אחד משני הכיוונים. כלול צורות לשון: ריבוי, נסמך וסמיכות (ביטוי של שתי מילים או יותר), תחיליות (ו, ה, ב, כ, ל, מ, ש), סיומות שייכות, שמות פרטיים וצורות פעלים.",
     "2. מותר להציע גם חלוקה מעניינת של רצף ארוך למילים (השדה parts), אבל חיבור החלקים חייב לתת בדיוק את אותיות הרצף: בלי להוסיף, להשמיט, להחליף או לסדר מחדש אותיות. למשל הרצף \"ויאמרשלום\" מחולק ל-[\"ויאמר\",\"שלום\"].",
-    "3. אל תגביל את עצמך לנושא שבפסקת הרקע (אם ניתן נושא), ואל למילים שכיחות או למילים שנמצאות באמצע הקטע. הצע גם דברים שנראים לך מעניינים מסיבות אחרות (משמעות, ביטוי מוכר, שם, צירוף מפתיע) וסמן ב-story_related אם לדעתך הם קשורים לתיאור שבפסקת הרקע. אל תדלג על הצעה כי היא אינה \"ראויה\": הבדיקה והסינון נעשים אחר כך מחוץ לשיחה.",
+    `3. אל תגביל את עצמך לנושא שבפסקת הרקע (אם ניתן נושא), ואל למילים שכיחות${near ? "" : " או למילים שנמצאות באמצע הקטע"}. הצע גם דברים שנראים לך מעניינים מסיבות אחרות (משמעות, ביטוי מוכר, שם, צירוף מפתיע) וסמן ב-story_related אם לדעתך הם קשורים לתיאור שבפסקת הרקע. אל תדלג על הצעה כי היא אינה \"ראויה\": הבדיקה והסינון נעשים אחר כך מחוץ לשיחה.`,
     "4. המשך ממילה שמצאת: לכל הצעה שנראית לך מעניינת בדוק את האותיות שלפניה ואחריה באותו קו (הקו המלא לפניך), את הקווים האחרים שחותכים אותה (כל תא שלה שייך לעוד שלושה קווים) ואת הסביבה הקרובה בגריד. אם הארכה, חיתוך או שכנות מניבים מילה או ביטוי בעברית, הצע אותם כהצעה נפרדת: בשדה from_finding כתוב את ה-id של ההצעה שממנה המשכת, וב-kind בחר extension או crossing. סמן continue_from=true על הצעות שתרצה לקבל עליהן כרטיס שכונה מפורט מהמנוע, אם יתאפשר סבב נוסף.",
     `5. עד ${cap} הצעות. לכל הצעה: id קצר (F1, F2, ...), line (מזהה קו עם כיוון, למשל D17+), text (הרצף בדיוק כפי שהוא בקו, בלי רווחים), parts, kind, story_related, continue_from, from_finding (מחרוזת ריקה אם אין), tier, note (משפט קצר בעברית על הקריאה המוצעת; זו פרשנות שלך ולא עובדה).`,
-    `6. tier הוא סדר הצגה בלבד, לא סינון: A = עד ${FIRST_GROUP_SIZE} ההצעות שהיית מציג ראשונות למי שקורא רק כמה שורות; B = מעניינות אבל פחות; C = כל השאר. כל ההצעות נשמרות ונבדקות. אל תדרג לפי קרבה לאמצע הקטע או לפי סוג הקו: כל רמה יכולה להכיל שורות, טורים ואלכסונים מכל מקום בקטע.`,
-    "7. בשדה observations אפשר לכתוב עד שלוש שורות על אזורים או כיוונים שהקדשת להם פחות תשומת לב.",
+    `6. tier הוא סדר הצגה בלבד, לא סינון: A = עד ${FIRST_GROUP_SIZE} ההצעות שהיית מציג ראשונות למי שקורא רק כמה שורות; B = מעניינות אבל פחות; C = כל השאר. כל ההצעות נשמרות ונבדקות. ${near ? "tier אינו מבטא קרבה לציר: כל רמה יכולה להכיל שורות, טורים ואלכסונים, קרובים ורחוקים." : "אל תדרג לפי קרבה לאמצע הקטע או לפי סוג הקו: כל רמה יכולה להכיל שורות, טורים ואלכסונים מכל מקום בקטע."}`,
+    `7. בשדה observations אפשר לכתוב עד שלוש שורות על אזורים או כיוונים שהקדשת להם פחות תשומת לב${near ? ", ובמיוחד על קווים בסביבה הקרובה שלא עברת עליהם" : ""}.`,
   ].join("\n");
   const data = { grid: `## הגריד (אותו קטע, לעיון בחיתוכים ובשכנות)\n${renderGrid(region, { marked: true })}`, lines: `## הקווים\n${renderLines(lines)}` };
-  const user = [intro, spec, data.grid, data.lines, task].filter((part) => part !== null).join("\n\n");
-  return { system: SYSTEM, user, prose: { intro, spec, task }, data };
+  const user = [intro, spec, neighbourhood, data.grid, data.lines, task].filter((part) => part !== null).join("\n\n");
+  return { system: SYSTEM, user, prose: { intro, spec, neighbourhood, task }, data, focus, neighborhood: near };
 }
 
 // ===== The reading layer (new code) =====
@@ -289,19 +312,55 @@ export const PRICES = Object.freeze({ "claude-fable-5-1": { input: 10, output: 5
 export const BATCH_FACTOR = 0.5;
 export const FX_ASSUMED_ILS_PER_USD = 3.7; // ASSUMPTION, not a verified rate: every ILS figure is marked ESTIMATED (ai_analyze_contract v2, section A)
 
-/** Measured readings of the same kind (EXP-16, EXP-18; Message Batches, list prices): the evidence behind the estimate, never a promise. */
+/** Measured readings of the same kind (Message Batches, list prices): the evidence behind the estimate, never a promise. */
 export const COST_EVIDENCE = Object.freeze([
-  Object.freeze({ cap: 25, output_tokens: 12_622, usd: 0.39984, stop_reason: "end_turn", source: "EXP-18 C3 (23x41, general instruction)" }),
-  Object.freeze({ cap: 25, output_tokens: 16_335, usd: 0.492825, stop_reason: "end_turn", source: "EXP-18 C1 (23x41, focused instruction)" }),
-  Object.freeze({ cap: 60, output_tokens: 58_146, usd: 1.560425, stop_reason: "end_turn", source: "EXP-16 S2 (33x41)" }),
-  Object.freeze({ cap: 60, output_tokens: 64_000, usd: 1.68429, stop_reason: "max_tokens", source: "EXP-18 C2 (23x41): ended without an answer" }),
+  Object.freeze({ cap: 25, cells: 943, output_tokens: 12_622, usd: 0.39984, stop_reason: "end_turn", source: "EXP-18 C3 (23x41, general instruction)" }),
+  Object.freeze({ cap: 25, cells: 943, output_tokens: 16_335, usd: 0.492825, stop_reason: "end_turn", source: "EXP-18 C1 (23x41, focused instruction)" }),
+  Object.freeze({ cap: 60, cells: 1353, output_tokens: 58_146, usd: 1.560425, stop_reason: "end_turn", source: "EXP-16 S2 (33x41)" }),
+  Object.freeze({ cap: 60, cells: 943, output_tokens: 64_000, usd: 1.68429, stop_reason: "max_tokens", source: "EXP-18 C2 (23x41): ended without an answer" }),
+  Object.freeze({ cap: 25, cells: 1353, output_tokens: 48_322, usd: 1.315755, stop_reason: "end_turn", source: "LIVE 30.10.2026, job 5f5aa117 (33x41, uniform instruction): first run through the product" }),
 ]);
 
-/** Readings of this kind that ended at the output allowance (max_tokens) with NO usable answer, at cap 60 and 64,000 tokens: they are billed in full. A limit found, not a rate to rely on (n is small, windows and prompts differ). */
+/**
+ * Output tokens of every completed reading measured so far, by window size. The cost of a reading is dominated by the output (thinking is most of it: 45,485 of 48,322 in the live run),
+ * and at about 1,300 cells it did NOT follow the cap: cap 25 gave 48,322 tokens, above the median of the cap-60 readings. So the estimate is a range taken from the readings of the
+ * nearest window class, never an interpolation by the cap alone (the earlier one said $0.42-0.51 for the live run, which cost $1.32).
+ * Values of the large class are derived from the recorded cost and the counted input (+-0.5%), see experiments/els-live-reading/controls/run-outcomes.json and plan-review.json (EXP-15/16).
+ */
+export const OUTPUT_EVIDENCE = Object.freeze({
+  large: Object.freeze({
+    label: "about 1,300 cells (31-33 rows x 41 columns)", cells_from: 1150,
+    completed_output_tokens: Object.freeze([23_403, 26_158, 31_090, 35_031, 36_011, 40_125, 46_031, 48_322, 56_346, 56_722, 58_275, 60_085]),
+    ended_at_max_tokens: 6,
+  }),
+  small: Object.freeze({
+    label: "943 cells (23 rows x 41 columns)", cells_to: 1000,
+    completed_output_tokens_cap25: Object.freeze([12_622, 16_335]), ended_at_max_tokens_cap60: 1,
+  }),
+});
+const median = (list) => { const a = [...list].sort((x, y) => x - y); const m = a.length >> 1; return a.length % 2 ? a[m] : Math.round((a[m - 1] + a[m]) / 2); };
+
+/** The output range expected for a window and a cap, from the nearest measured class; `typical` is the median of that class, or null when nothing was measured for these parameters. */
+export function expectedOutputTokens({ cells, cap }) {
+  const { large, small } = OUTPUT_EVIDENCE;
+  const smallDone = small.completed_output_tokens_cap25;
+  if (Number.isFinite(cells) && cells >= large.cells_from) {
+    const v = large.completed_output_tokens;
+    return { class: "large", label: large.label, low: Math.min(...v), typical: median(v), high: Math.max(...v), n_completed: v.length, n_ended_at_max_tokens: large.ended_at_max_tokens, truncated_share: Number((large.ended_at_max_tokens / (v.length + large.ended_at_max_tokens)).toFixed(2)) };
+  }
+  if (Number.isFinite(cells) && cells <= small.cells_to) {
+    if (cap <= 25) return { class: "small_cap25", label: small.label, low: Math.min(...smallDone), typical: median(smallDone), high: Math.max(...smallDone), n_completed: smallDone.length, n_ended_at_max_tokens: 0, truncated_share: 0 };
+    return { class: "small_cap_above_25", label: `${small.label}, cap above 25: the only measured reading ended at the output allowance`, low: Math.max(...smallDone), typical: null, high: 64_000, n_completed: 0, n_ended_at_max_tokens: small.ended_at_max_tokens_cap60, truncated_share: null };
+  }
+  return { class: "between", label: "between the measured window sizes: the two classes together", low: Math.min(...smallDone), typical: null, high: Math.max(...large.completed_output_tokens), n_completed: 0, n_ended_at_max_tokens: 0, truncated_share: null };
+}
+
+/** Readings of this kind that ended at the output allowance (max_tokens) with NO usable answer at 64,000 tokens: they are billed in full. A limit found, not a rate to rely on (n is small, windows and prompts differ). */
 export const TRUNCATION_EVIDENCE = Object.freeze([
-  Object.freeze({ source: "EXP-16 (33x41 windows, cap 60, prompts v2 and v3)", ended_at_max_tokens: 6, of_readings: 18, cost_of_those_usd: 10.24 }),
-  Object.freeze({ source: "EXP-18 C2 (23x41, cap 60)", ended_at_max_tokens: 1, of_readings: 1, cost_of_those_usd: 1.68429 }),
-  Object.freeze({ source: "EXP-18 C1, C3 (23x41, cap 25)", ended_at_max_tokens: 0, of_readings: 2, cost_of_those_usd: 0 }),
+  Object.freeze({ source: "EXP-15/16 round 1 (31-33 x 41 windows, cap 60, prompts v1, v2, v3)", ended_at_max_tokens: 6, of_readings: 17, cost_of_those_usd: 10.24 }),
+  Object.freeze({ source: "LIVE 30.10.2026 (33 x 41, cap 25)", ended_at_max_tokens: 0, of_readings: 1, cost_of_those_usd: 0 }),
+  Object.freeze({ source: "EXP-18 C2 (23 x 41, cap 60)", ended_at_max_tokens: 1, of_readings: 1, cost_of_those_usd: 1.68429 }),
+  Object.freeze({ source: "EXP-18 C1, C3 (23 x 41, cap 25)", ended_at_max_tokens: 0, of_readings: 2, cost_of_those_usd: 0 }),
 ]);
 
 export class ReadingError extends Error {
@@ -406,15 +465,15 @@ export async function fetchWindowRows({ window, fetchImpl, supabaseUrl, restHead
 // ---------- request, coverage, cost ----------
 export const THINKING = Object.freeze({ type: "adaptive", display: "summarized" });
 /** The request exactly as the harness built it (key order included), so that the hashes of the experiments carry over. */
-export function buildReadingRequest({ model, region, lines, cap, story = "", effort = DEFAULTS.effort, maxTokens = DEFAULTS.maxTokens }) {
-  const prompt = buildReadingPrompt({ region, lines, cap, story });
+export function buildReadingRequest({ model, region, lines, cap, story = "", focus = ELS_MATRIX_READING_FOCUS_DEFAULT, effort = DEFAULTS.effort, maxTokens = DEFAULTS.maxTokens }) {
+  const prompt = buildReadingPrompt({ region, lines, cap, story, focus });
   const request = { model, max_tokens: maxTokens, system: prompt.system, messages: [{ role: "user", content: prompt.user }] };
   request.thinking = { ...THINKING };
   request.output_config = { effort, format: { type: "json_schema", schema: FINDINGS_SCHEMA_V2 } };
   return { request, prompt };
 }
 
-export function describeCoverage({ region, lines, window }) {
+export function describeCoverage({ region, lines, window, focus = null }) {
   const byKind = Object.fromEntries(["R", "C", "D", "A"].map((k) => [k, lines.filter((l) => l.kind === k).length]));
   const omittedByKind = Object.fromEntries(["R", "C", "D", "A"].map((k) => [k, (lines.omitted ?? []).filter((o) => o.kind === k).length]));
   return {
@@ -427,6 +486,7 @@ export function describeCoverage({ region, lines, window }) {
     lines_shown: { total: lines.length, by_kind: byKind, readings: lines.length * 2 },
     lines_omitted_shorter_than_3: { total: (lines.omitted ?? []).length, by_kind: omittedByKind },
     what_is_not_covered: "everything outside this window; lines are cut at the window boundary; the rest of the Torah and every other matrix width",
+    neighborhood: { ...neighborhoodBox(region), focus: focus ?? null, target_ratio: focus === ELS_MATRIX_READING_FOCUS.AXIS_NEIGHBORHOOD ? NEIGHBORHOOD_TARGET_RATIO : null },
   };
 }
 
@@ -462,20 +522,25 @@ export function costFromUsage(model, usage, { batch = true, fxRate = FX_ASSUMED_
   return { usd, ils: ilsOf(usd, fxRate, fxBasis, fxEffectiveAt, fxRef), list_price_parts_usd: parts, batch_factor: batch ? BATCH_FACTOR : 1, provider_currency: "USD", basis: `list prices${batch ? ", Message Batches at 50%" : ""}; from the usage object; not an invoice`, certainty: "ESTIMATED_FROM_USAGE_AND_LIST_PRICES" };
 }
 
-/** Estimate before a run. Upper bound: the input counted plus the whole output allowance. Expected: an interpolation of the measured readings of the same kind (COST_EVIDENCE), shown with its evidence. */
-export function estimateCost({ model, inputTokens, maxTokens, cap, fxRate = FX_ASSUMED_ILS_PER_USD, fxBasis = "ASSUMPTION_NOT_VERIFIED", fxEffectiveAt = null, fxRef = null }) {
+/**
+ * Estimate before a run. Upper bound: the input counted plus the whole output allowance (a ceiling that held in every measured reading, truncated ones included).
+ * Expected: a RANGE from the readings measured at the nearest window size (expectedOutputTokens), shown with its evidence and its truncation record; the input is counted by the
+ * provider without the output schema (~3% below what is billed), so a 3% margin is added. Neither is a promise.
+ */
+export function estimateCost({ model, inputTokens, maxTokens, cap, cells = null, fxRate = FX_ASSUMED_ILS_PER_USD, fxBasis = "ASSUMPTION_NOT_VERIFIED", fxEffectiveAt = null, fxRef = null }) {
   const price = PRICES[model];
   if (!price) return { usd: null, ils: ilsOf(null, fxRate, fxBasis, fxEffectiveAt, fxRef), basis: `no list price recorded for ${model}` };
   const upper = Number((BATCH_FACTOR * ((inputTokens * price.input * 1.25 + maxTokens * price.output) / 1e6)).toFixed(4));
-  const at = (lowCap, highCap, lowOut, highOut) => lowOut + ((Math.min(Math.max(cap, lowCap), highCap) - lowCap) / (highCap - lowCap)) * (highOut - lowOut);
-  const outLow = Math.round(at(25, 60, 12_622, 58_146)), outHigh = Math.round(at(25, 60, 16_335, 64_000));
-  const usdOf = (out) => Number((BATCH_FACTOR * ((inputTokens * price.input + out * price.output) / 1e6)).toFixed(4));
-  const expectedLow = usdOf(outLow), expectedHigh = Math.min(usdOf(outHigh), upper);
+  const out = expectedOutputTokens({ cells, cap });
+  const usdOf = (tokens) => Number(Math.min(upper, BATCH_FACTOR * ((inputTokens * 1.03 * price.input + tokens * price.output) / 1e6)).toFixed(4));
+  const expectedLow = usdOf(out.low), expectedHigh = usdOf(out.high), typical = out.typical == null ? null : usdOf(out.typical);
+  const ilsAmount = (usd) => (usd == null ? null : ilsOf(usd, fxRate, fxBasis, fxEffectiveAt, fxRef).amount);
   return {
     upper_bound_usd: upper, upper_bound_ils: ilsOf(upper, fxRate, fxBasis, fxEffectiveAt, fxRef),
-    expected_usd: { low: expectedLow, high: expectedHigh }, expected_ils: { low: ilsOf(expectedLow, fxRate, fxBasis, fxEffectiveAt, fxRef).amount, high: ilsOf(expectedHigh, fxRate, fxBasis, fxEffectiveAt, fxRef).amount, status: "ESTIMATED" },
-    expected_output_tokens: { low: outLow, high: outHigh },
-    basis: "Message Batches at 50% of list prices; expected = interpolation of four measured readings (evidence below), not a promise; a reading can end at the output allowance with no usable answer (then it is INCOMPLETE and the cost is still incurred)",
+    expected_usd: { low: expectedLow, high: expectedHigh, typical }, expected_ils: { low: ilsAmount(expectedLow), high: ilsAmount(expectedHigh), typical: ilsAmount(typical), status: "ESTIMATED" },
+    expected_output_tokens: { low: out.low, typical: out.typical, high: out.high },
+    evidence_class: { class: out.class, label: out.label, n_completed: out.n_completed, n_ended_at_max_tokens: out.n_ended_at_max_tokens, truncated_share: out.truncated_share },
+    basis: "Message Batches at 50% of list prices; expected = the range of the completed readings measured at the nearest window size (evidence below), not a promise: the cap does not bound the cost at large windows, and a reading can end at the output allowance with no usable answer (then it is INCOMPLETE and the cost is still incurred)",
     evidence: COST_EVIDENCE,
     truncation_evidence: TRUNCATION_EVIDENCE,
     cost_exposure: { charged_to_user: false, credits: "NOT_CHARGED", refund: "NOT_PROMISED" },
@@ -584,8 +649,21 @@ export function viewFindings({ classified, raw, region, rows }) {
   });
 }
 
-export function summarizeFindings(findings) {
+/**
+ * Counts what the engine verified. `zones` measures WHERE the proposals lie: near = at least one cell within `radius` cells of the selected occurrence (the same distance as
+ * relation_to_axis). When the neighbourhood-depth default was asked for (focus), `target` says whether the near:far ratio asked for was reached; it is a measurement of what the
+ * model did, never a filter: a proposal is kept and verified wherever it lies.
+ */
+export function summarizeFindings(findings, { radius = NEIGHBORHOOD_RADIUS, focus = null } = {}) {
   const els = findings.filter((f) => f.verification.state === "ENGINE_VERIFIED");
+  const placed = findings.filter((f) => f.relation_to_axis != null && f.verification.state !== "NOT_VERIFIED");
+  const zone = (inNear) => {
+    const list = placed.filter((f) => (f.relation_to_axis.distance <= radius) === inNear);
+    return { proposals: list.length, engine_verified: list.filter((f) => f.verification.state === "ENGINE_VERIFIED").length, plain_text_only: list.filter((f) => f.verification.state === "PLAIN_TEXT_ONLY").length };
+  };
+  const near = zone(true), far = zone(false);
+  const applies = focus === ELS_MATRIX_READING_FOCUS.AXIS_NEIGHBORHOOD;
+  const ratio = far.proposals === 0 ? null : Number((near.proposals / far.proposals).toFixed(2));
   return {
     proposals: findings.length,
     engine_verified: els.length,
@@ -596,6 +674,10 @@ export function summarizeFindings(findings) {
     unlikely_by_chance: els.filter((f) => f.chance?.unlikely_by_chance === true).length,
     expected_by_chance: els.filter((f) => f.chance && f.chance.unlikely_by_chance === false).length,
     by_relation: Object.fromEntries(["crosses", "touches", "far"].map((r) => [r, els.filter((f) => f.relation_to_axis?.relation === r).length])),
+    zones: {
+      radius, near, far, near_to_far: ratio,
+      target: { applies, ratio: applies ? NEIGHBORHOOD_TARGET_RATIO : null, met: applies ? (far.proposals === 0 ? near.proposals > 0 : near.proposals >= NEIGHBORHOOD_TARGET_RATIO * far.proposals) : null },
+    },
   };
 }
 
@@ -815,8 +897,9 @@ async function newReading({ action, axis, identity, secret, model, fx, deps, sea
   const { env, fetchImpl } = deps;
   const startedMs = now();
   const rowsWanted = action.window?.rows ?? DEFAULTS.rows, colsWanted = action.window?.cols ?? DEFAULTS.cols, cap = action.cap ?? DEFAULTS.cap, story = action.story ?? "";
+  const focus = action.focus ?? ELS_MATRIX_READING_FOCUS_DEFAULT;
   const prepared = await prepare({ deps, axis, rowsWanted, colsWanted });
-  const { request: modelRequest } = buildReadingRequest({ model, region: prepared.region, lines: prepared.lines, cap, story });
+  const { request: modelRequest } = buildReadingRequest({ model, region: prepared.region, lines: prepared.lines, cap, story, focus });
   let modelCheck, inputTokens;
   try {
     [modelCheck, inputTokens] = await Promise.all([
@@ -829,16 +912,16 @@ async function newReading({ action, axis, identity, secret, model, fx, deps, sea
   }
   if (!modelCheck.ok) return refuse("model_unavailable", 503, { model: { id: model, verified_available: false }, model_check: modelCheck });
   if (inputTokens >= MAX_INPUT_TOKENS_GUARD) return refuse("input_too_large", 413, { request: { input_tokens: inputTokens } });
-  const estimate = estimateCost({ model, inputTokens, maxTokens: DEFAULTS.maxTokens, cap, ...fx });
+  const estimate = estimateCost({ model, inputTokens, maxTokens: DEFAULTS.maxTokens, cap, cells: prepared.region.nRows * prepared.region.nCols, ...fx });
   const [reqSha, lockSha] = await Promise.all([requestSha256(modelRequest), lockSha256(modelRequest)]);
-  const instruction = story ? INSTRUCTION_WITH_STORY : INSTRUCTION_NO_STORY;
+  const instruction = instructionLabel({ story, focus });
   const common = {
     ok: true,
     model: { id: model, verified_available: true, check: modelCheck, verified_at: new Date(now()).toISOString() },
     axis: { term: axis.term, scope: "torah", skip: axis.skip, dir: axis.dir, start: axis.start, verification_state: "MATCH", occurrence_id: prepared.replayAxis?.occurrence?.occurrence_id ?? null, corpus_id: prepared.replayAxis?.corpus_id ?? null },
-    request: { instruction, cap, effort: DEFAULTS.effort, max_tokens: DEFAULTS.maxTokens, input_tokens: inputTokens, sha256: reqSha, lock_sha256: lockSha, window_sha256: prepared.windowDigest },
+    request: { instruction, focus, cap, effort: DEFAULTS.effort, max_tokens: DEFAULTS.maxTokens, input_tokens: inputTokens, sha256: reqSha, lock_sha256: lockSha, window_sha256: prepared.windowDigest },
     story: { provided: Boolean(story), chars: story.length, wording: story ? "measured EXP-16 frame plus one added sentence (data, not an instruction): NOT measured" : null },
-    coverage: describeCoverage({ region: prepared.region, lines: prepared.lines, window: prepared.window }),
+    coverage: describeCoverage({ region: prepared.region, lines: prepared.lines, window: prepared.window, focus }),
     estimate,
     notes: REPORTING_NOTES,
   };
@@ -864,7 +947,7 @@ async function newReading({ action, axis, identity, secret, model, fx, deps, sea
   }
   const createdMs = Date.parse(batch.created_at) || now();
   const payload = {
-    v: 1, b: batch.id, bc: customId, i: String(identity ?? ""), t: createdMs, x: createdMs + JOB_TTL_MS, m: model, vf: now(), rs: reqSha, ls: lockSha, ws: prepared.windowDigest, ins: instruction,
+    v: 1, b: batch.id, bc: customId, i: String(identity ?? ""), t: createdMs, x: createdMs + JOB_TTL_MS, m: model, vf: now(), rs: reqSha, ls: lockSha, ws: prepared.windowDigest, ins: instruction, fc: focus, nr: NEIGHBORHOOD_RADIUS,
     ax: { term: axis.term, skip: axis.skip, dir: axis.dir, start: axis.start, corpus_id: common.axis.corpus_id },
     w: { r0: prepared.window.r0, c0: prepared.window.c0, rows: prepared.window.rows, cols: prepared.window.cols, requested: prepared.window.requested }, cap,
     est: { upper_bound_usd: estimate.upper_bound_usd, expected_usd: estimate.expected_usd, input_tokens: inputTokens },
@@ -901,7 +984,7 @@ async function jobOperation({ action, identity, secret, model, getFx, deps, seal
     ok: true,
     model: { id: jobModel, verified_available: true, verified_at: new Date(job.vf ?? job.t).toISOString(), source: "checked before the batch was created" },
     job: { batch_id: job.b, created_at: new Date(job.t).toISOString(), expires_at: new Date(job.x).toISOString() },
-    request: { instruction: job.ins ?? null, sha256: job.rs, lock_sha256: job.ls, window_sha256: job.ws, cap: job.cap },
+    request: { instruction: job.ins ?? null, focus: job.fc ?? ELS_MATRIX_READING_FOCUS.UNIFORM, sha256: job.rs, lock_sha256: job.ls, window_sha256: job.ws, cap: job.cap },
     axis: { term: job.ax.term, scope: "torah", skip: job.ax.skip, dir: job.ax.dir, start: job.ax.start },
     estimate: job.est,
     notes: REPORTING_NOTES,
@@ -982,13 +1065,14 @@ async function jobOperation({ action, identity, secret, model, getFx, deps, seal
   const verifyEndedMs = now();
   const classified = classify(located, rows);
   const findings = viewFindings({ classified, raw: rawFindings, region, rows });
-  const summary = summarizeFindings(findings);
+  const jobFocus = job.fc ?? null; // a job started before the neighbourhood default has no focus: it was the uniform instruction
+  const summary = summarizeFindings(findings, { radius: job.nr ?? NEIGHBORHOOD_RADIUS, focus: jobFocus });
   if (!already) await record({ kind: "engine", name: "ai-analyze:raziel:els-matrix-reading:engine-verification", startedAt: new Date(verifyStartedMs).toISOString(), endedAt: new Date(verifyEndedMs).toISOString(), outcome: "success",
     detail: spanDetail({ model: jobModel, routing: "canonical_replay_of_every_proposal", outputUse: "used", resources: { rpc_calls: rows.filter((r) => r.skip >= 2).length, latency_ms: verifyEndedMs - verifyStartedMs }, parametersRef: `contract:${READING_CONTRACT};engine:els_verify_occurrence_v1;proposals:${rawFindings.length}`, extra: { engine_version: "els_occurrence_replay_v1" } }) });
   return seal({
     ...common, state: STATES.COMPLETE, findings, summary,
     cap: { requested: job.cap, proposals: rawFindings.length, reached: rawFindings.length >= job.cap, meaning: "an output cap, not proof that nothing else exists" },
-    coverage: describeCoverage({ region, lines, window }),
+    coverage: describeCoverage({ region, lines, window, focus: jobFocus }),
     observations: { text: String(parsed.value.observations ?? "").slice(0, 600), status: "UNVERIFIED_INTERPRETATION" },
     data_class: "ENGINE_VERIFIED_AND_PLAIN_TEXT_FINDINGS",
   }, 200, "success");
@@ -1030,8 +1114,10 @@ export function razielReadingAnswer(result) {
       const e = result.estimate;
       lines.push("תצוגה מקדימה של קריאת מטריצה — לא הופעל מודל ולא נוצרה עלות.", axisLine(result.axis), coverageLine(result.coverage),
         `מודל: ${result.model?.id} (נבדק שהוא זמין אצל הספק). תקרת הצעות: ${result.request?.cap}.`,
-        `עלות מרבית אפשרית: ${fmtUsd(e?.upper_bound_usd)} (≈ ${fmtIls(e?.upper_bound_ils?.amount)}, הערכה); לפי הניסויים כ־${fmtUsd(e?.expected_usd?.low)}–${fmtUsd(e?.expected_usd?.high)}. זמן לפי הניסויים: ${ELS_MATRIX_READING_EXPECTED_MINUTES.min}–${ELS_MATRIX_READING_EXPECTED_MINUTES.max} דקות.`,
-        "ריצה בתקרה 60 עלולה להסתיים ב־max_tokens בלי תשובה ועדיין להיגבות במלואה (התגלה בניסויים).", noCredits);
+        `עלות מרבית אפשרית: ${fmtUsd(e?.upper_bound_usd)} (≈ ${fmtIls(e?.upper_bound_ils?.amount)}, הערכה); לפי הניסויים בגודל חלון כזה כ־${fmtUsd(e?.expected_usd?.low)}–${fmtUsd(e?.expected_usd?.high)}${e?.expected_usd?.typical != null ? ` (טיפוסי ${fmtUsd(e.expected_usd.typical)})` : ""}. זמן לפי הניסויים: ${ELS_MATRIX_READING_EXPECTED_MINUTES.min}–${ELS_MATRIX_READING_EXPECTED_MINUTES.max} דקות.`,
+        e?.evidence_class?.n_ended_at_max_tokens > 0 && e.evidence_class.truncated_share != null ? `בגודל חלון כזה נקטעו ב־max_tokens ${e.evidence_class.n_ended_at_max_tokens} מתוך ${e.evidence_class.n_completed + e.evidence_class.n_ended_at_max_tokens} קריאות שנמדדו, בלי תשובה ועם חיוב מלא.` : "ריצה עלולה להסתיים ב־max_tokens בלי תשובה ועדיין להיגבות במלואה (התגלה בניסויים).",
+        result.request?.focus === ELS_MATRIX_READING_FOCUS.AXIS_NEIGHBORHOOD ? `ברירת המחדל: העמקה בסביבת הציר (עד ${result.coverage?.neighborhood?.radius ?? NEIGHBORHOOD_RADIUS} תאים) פי 2–3 מהרחוק; הנחיה שטרם נמדדה.` : "",
+        noCredits);
       break;
     }
     case "RUNNING":
@@ -1062,6 +1148,10 @@ export function razielReadingAnswer(result) {
       const order = verified.slice().sort((a, b) => (b.chance?.unlikely_by_chance === true) - (a.chance?.unlikely_by_chance === true) || [...b.text].length - [...a.text].length || a.id.localeCompare(b.id));
       lines.push(`קריאת מטריצה (Fable) הושלמה ב־${fmtDuration(result.timing?.elapsed_ms)}. עלות בפועל: ${money(result.cost)}. ${noCredits}`, axisLine(result.axis), coverageLine(result.coverage),
         `הצעות המודל: ${s.proposals}. אומתו במנוע ה־ELS הקנוני: ${s.engine_verified} (${s.unlikely_by_chance} בלתי סבירות במקרה, ${s.expected_by_chance} צפויות במקרה). רצף רגיל בלבד (לא ELS): ${s.plain_text_only}. לא אומתו: ${s.not_verified} (לא מוצגות).`, "");
+      const z = s.zones;
+      if (z) {
+        lines.push(`בסביבת הציר (עד ${z.radius} תאים): ${z.near.proposals} הצעות · רחוק יותר: ${z.far.proposals}${z.near_to_far != null ? ` · יחס ${z.near_to_far}:1` : ""}.${z.target?.applies ? (z.target.met ? ` יעד ברירת המחדל (לפחות ${z.target.ratio}:1 לטובת הסביבה) הושג.` : ` יעד ברירת המחדל (לפחות ${z.target.ratio}:1 לטובת הסביבה) לא הושג.`) : ""}`);
+      }
       for (const x of order.slice(0, 25)) {
         const o = x.occurrence;
         lines.push(`• ${x.text} — דילוג ${o.skip} ${dirWord(o.dir)}, התחלה ${o.start} · ${relWord[x.relation_to_axis?.relation] ?? ""}${x.chance ? ` · מספר צפוי במקרה ${Number(x.chance.expected_occurrences).toPrecision(2)}${x.chance.unlikely_by_chance ? " (בלתי סביר)" : ""}` : ""}`);

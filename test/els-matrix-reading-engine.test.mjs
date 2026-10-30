@@ -12,10 +12,10 @@ const axisSpec = { start: 248765, skip: 4545, dir: 1, length: 8 };
 const region = M.makeRegion({ width: windowC1.width, r0: windowC1.rows[0], c0: windowC1.cols[0], rows: windowC1.grid.map((row) => row.s), axis: axisSpec });
 const lines = M.buildLines(region);
 
-test("the request equals, byte for byte, the requests that were measured in EXP-18 (cap 60 and cap 25)", async () => {
+test("focus uniform: the request equals, byte for byte, the requests that were measured in EXP-18 (cap 60 and cap 25)", async () => {
   for (const [cap, file, hashes] of [[60, "request-c2-general-cap60.json", null], [25, "request-c3-general-cap25.json", fx("response-c3.json")]]) {
     const saved = fx(file);
-    const { request } = M.buildReadingRequest({ model: M.MODEL_DEFAULT, region, lines, cap });
+    const { request } = M.buildReadingRequest({ model: M.MODEL_DEFAULT, region, lines, cap, focus: "uniform" });
     assert.equal(JSON.stringify(request), JSON.stringify(saved), `cap ${cap}: same keys, same order, same text`);
     if (hashes) {
       assert.equal(await M.requestSha256(request), hashes.request_sha256);
@@ -112,12 +112,14 @@ test("cost: from the usage object and list prices (batch), ILS only as a flagged
   assert.equal(M.costFromUsage("claude-unknown-1", response.summary.usage).usd, null, "no list price, no invented number");
   const configured = M.costFromUsage("claude-fable-5-1", response.summary.usage, { fxRate: 3.5, fxBasis: "CONFIGURED_NOT_VERIFIED" });
   assert.equal(configured.ils.amount, Number((cost.usd * 3.5).toFixed(4)));
-  const e25 = M.estimateCost({ model: "claude-fable-5-1", inputTokens: 16_858, maxTokens: 64_000, cap: 25 });
-  const e60 = M.estimateCost({ model: "claude-fable-5-1", inputTokens: 16_858, maxTokens: 64_000, cap: 60 });
-  assert.ok(Math.abs(e25.upper_bound_usd - 1.7054) < 0.001, `upper bound ${e25.upper_bound_usd}`);
-  assert.ok(e25.expected_usd.low >= 0.3 && e25.expected_usd.high <= 0.6, "cap 25 reads like the measured 0.40-0.49");
-  assert.ok(e60.expected_usd.low >= 1.4 && e60.expected_usd.high <= e60.upper_bound_usd, "cap 60 reads like the measured 1.56-1.68");
-  assert.equal(e60.evidence.length, 4);
+  // calibrated from every measured reading (see the estimate tests below); here only the invariants of the shape
+  const counted = 16_858 / 1.03; // the billed input of the measured readings, as the provider counts it before the run
+  const e25 = M.estimateCost({ model: "claude-fable-5-1", inputTokens: counted, maxTokens: 64_000, cap: 25, cells: 943 });
+  const e60 = M.estimateCost({ model: "claude-fable-5-1", inputTokens: counted, maxTokens: 64_000, cap: 60, cells: 943 });
+  assert.ok(Math.abs(e25.upper_bound_usd - 1.7023) < 0.001, `upper bound ${e25.upper_bound_usd}`);
+  assert.ok(e25.expected_usd.low <= 0.3998 * 1.01 && e25.expected_usd.high >= 0.4928 - 0.0005, "cap 25 at 943 cells covers the two measured readings (0.40 and 0.49)");
+  assert.ok(e60.expected_usd.high <= e60.upper_bound_usd);
+  assert.equal(e60.evidence.length, 5);
   assert.deepEqual(e60.cost_exposure, { charged_to_user: false, credits: "NOT_CHARGED", refund: "NOT_PROMISED" });
 });
 
@@ -164,4 +166,117 @@ test("the modules stay plain JS with only their explicit sibling action/job depe
     assert.deepEqual(imports.map((line) => line.match(/from "([^"]+)"/)[1]), allowed[name], name);
     assert.doesNotMatch(source, /Deno\.|node:|process\.env|require\(/, name);
   }
+});
+
+// ---------- the neighbourhood-depth default (ZURIEL 30.10.2026) ----------
+const near = M.neighborhoodBox(region);
+const withoutSection = (text) => text.replace(/## סביבת הציר[^\n]*\n[\s\S]*?\n\n(?=## הגריד)/, "");
+
+test("neighbourhood box: every cell within 8 of the selected occurrence, clipped to the window", () => {
+  assert.equal(M.NEIGHBORHOOD_RADIUS, 8);
+  const axisRows = region.axisCells.map(([r]) => r), axisCol = region.axisCells[0][1];
+  assert.deepEqual(near.rows, { from: Math.max(1, Math.min(...axisRows) - 8), to: Math.min(region.nRows, Math.max(...axisRows) + 8) });
+  assert.deepEqual(near.cols, { from: Math.max(1, axisCol - 8), to: Math.min(region.nCols, axisCol + 8) });
+  assert.equal(near.radius, 8);
+  assert.equal(near.cells, (near.rows.to - near.rows.from + 1) * (near.cols.to - near.cols.from + 1));
+  assert.ok(near.share_of_window > 0 && near.share_of_window < 1);
+  const edge = M.neighborhoodBox({ ...region, axisCells: [[1, 1], [2, 1]] });
+  assert.deepEqual([edge.rows.from, edge.cols.from], [1, 1], "clipped at the top-left corner of the window");
+});
+
+test("the default prompt asks for 2-3x the depth near the axis, keeps the rest of the measured text, and never makes it a filter", () => {
+  const dflt = M.buildReadingPrompt({ region, lines, cap: 25 });
+  const uniform = M.buildReadingPrompt({ region, lines, cap: 25, focus: "uniform" });
+  assert.equal(dflt.focus, "axis_neighborhood");
+  assert.equal(uniform.neighborhood, null);
+  assert.match(dflt.user, /## סביבת הציר — ברירת המחדל לעומק החיפוש/);
+  assert.match(dflt.user, new RegExp(`עד ${near.radius} תאים`));
+  assert.match(dflt.user, new RegExp(`R${String(near.rows.from).padStart(2, "0")}–R${String(near.rows.to).padStart(2, "0")} ועמודות C${String(near.cols.from).padStart(2, "0")}–C${String(near.cols.to).padStart(2, "0")}`));
+  assert.match(dflt.user, /פי שניים עד שלושה יותר מאשר ברחוק/);
+  assert.match(dflt.user, /לפחות שני שלישים מההצעות שלך, ועדיף שלושה רבעים/);
+  assert.match(dflt.user, /התרחק; אל תמציא ואל תכפה קריאה/);
+  assert.match(dflt.user, /זו הנחיית עומק ולא סינון: כל הצעה, קרובה או רחוקה, תקפה ונבדקת/);
+  assert.doesNotMatch(uniform.user, /סביבת הציר/);
+  // the two sentences of the measured task that said the opposite are replaced, nothing else changes
+  assert.match(uniform.user, /אל תדרג לפי קרבה לאמצע הקטע/);
+  assert.doesNotMatch(dflt.user, /אל תדרג לפי קרבה לאמצע הקטע|שנמצאות באמצע הקטע/);
+  const restored = withoutSection(dflt.user)
+    .replace("ואל למילים שכיחות. הצע גם", "ואל למילים שכיחות או למילים שנמצאות באמצע הקטע. הצע גם")
+    .replace("tier אינו מבטא קרבה לציר: כל רמה יכולה להכיל שורות, טורים ואלכסונים, קרובים ורחוקים.", "אל תדרג לפי קרבה לאמצע הקטע או לפי סוג הקו: כל רמה יכולה להכיל שורות, טורים ואלכסונים מכל מקום בקטע.")
+    .replace(", ובמיוחד על קווים בסביבה הקרובה שלא עברת עליהם.", ".");
+  assert.equal(restored, uniform.user, "the default is the measured text plus one section and two replaced sentences");
+  const stories = M.buildReadingPrompt({ region, lines, cap: 25, story: "סיפור" });
+  assert.match(stories.user, /^## הרקע\n„סיפור”/);
+  assert.match(stories.user, /סביבת הציר/);
+});
+
+test("the labels say what was asked: uniform is the measured instruction, the default is unmeasured, a story adds its own flag", () => {
+  assert.equal(M.instructionLabel({ focus: "uniform" }), "general_v2_axis_marked_unnamed");
+  assert.equal(M.instructionLabel({ focus: "uniform", story: "x" }), "general_v2_axis_marked_unnamed+user_story_unmeasured");
+  assert.equal(M.instructionLabel({}), "general_v2_axis_neighborhood_2to3x_unmeasured");
+  assert.equal(M.instructionLabel({ story: "x" }), "general_v2_axis_neighborhood_2to3x_unmeasured+user_story_unmeasured");
+  const dflt = M.buildReadingRequest({ model: M.MODEL_DEFAULT, region, lines, cap: 25 }).request;
+  const uni = M.buildReadingRequest({ model: M.MODEL_DEFAULT, region, lines, cap: 25, focus: "uniform" }).request;
+  assert.notEqual(JSON.stringify(dflt), JSON.stringify(uni));
+  assert.deepEqual({ ...dflt, messages: null }, { ...uni, messages: null }, "same model, system, thinking, effort, schema and allowance");
+});
+
+test("the zones measure where the proposals lie (distance as relation_to_axis), the ratio, and whether the asked ratio was reached; never a filter", () => {
+  const mk = (id, distance, state = "ENGINE_VERIFIED") => ({ id, text: "אבג", verification: { state }, relation_to_axis: state === "NOT_VERIFIED" ? null : { distance, relation: distance === 0 ? "crosses" : distance === 1 ? "touches" : "far" }, chance: null });
+  const set = [mk("a", 0), mk("b", 3), mk("c", 8), mk("d", 9), mk("e", 20), mk("f", 5, "PLAIN_TEXT_ONLY"), mk("g", 99, "NOT_VERIFIED")];
+  const z = M.summarizeFindings(set, { focus: "axis_neighborhood" }).zones;
+  assert.deepEqual([z.radius, z.near.proposals, z.far.proposals, z.near_to_far], [8, 4, 2, 2]);
+  assert.deepEqual([z.near.engine_verified, z.near.plain_text_only, z.far.engine_verified], [3, 1, 2]);
+  assert.deepEqual(z.target, { applies: true, ratio: 2, met: true });
+  const miss = M.summarizeFindings([mk("a", 0), mk("b", 30), mk("c", 40)], { focus: "axis_neighborhood" }).zones;
+  assert.deepEqual([miss.near_to_far, miss.target.met], [0.5, false]);
+  const onlyNear = M.summarizeFindings([mk("a", 1)], { focus: "axis_neighborhood" }).zones;
+  assert.deepEqual([onlyNear.near_to_far, onlyNear.target.met], [null, true]);
+  const none = M.summarizeFindings([], { focus: "axis_neighborhood" }).zones;
+  assert.equal(none.target.met, false, "no proposal near the axis is not meeting a target of depth near the axis");
+  const uniformRun = M.summarizeFindings(set, { focus: "uniform" }).zones;
+  assert.deepEqual([uniformRun.target.applies, uniformRun.target.met, uniformRun.near.proposals], [false, null, 4], "measured, but no target applies to the uniform instruction");
+  assert.equal(M.summarizeFindings(set).zones.target.applies, false);
+  assert.equal(M.describeCoverage({ region, lines, window: M.selectWindow({ axis: AXIS, rows: 23, cols: 41 }), focus: "axis_neighborhood" }).neighborhood.target_ratio, 2);
+});
+
+// ---------- the calibrated cost estimate ----------
+const billedCost = (inputTokens, outputTokens) => Number((0.5 * (inputTokens * 10 + outputTokens * 50) / 1e6).toFixed(6));
+
+test("estimate: the live run (33x41, cap 25: $1.3158, 48,322 output tokens) sits inside the range; the earlier cap-only interpolation ($0.42-0.51) did not", () => {
+  const live = M.estimateCost({ model: "claude-fable-5-1", inputTokens: 20_917, maxTokens: 64_000, cap: 25, cells: 1353 });
+  assert.equal(live.evidence_class.class, "large");
+  assert.ok(live.expected_usd.low <= 1.315755 && 1.315755 <= live.expected_usd.high, JSON.stringify(live.expected_usd));
+  assert.ok(live.expected_usd.low > 0.6 && live.expected_usd.high < 1.7, "a real range, not the old $0.42-0.51");
+  assert.ok(live.expected_usd.low <= live.expected_usd.typical && live.expected_usd.typical <= live.expected_usd.high && live.expected_usd.high <= live.upper_bound_usd);
+  assert.equal(live.upper_bound_usd, 1.7307, "the ceiling is unchanged");
+  assert.deepEqual([live.evidence_class.n_completed, live.evidence_class.n_ended_at_max_tokens, live.evidence_class.truncated_share], [12, 6, 0.33]);
+  assert.equal(live.expected_ils.status, "ESTIMATED");
+});
+
+test("estimate: every completed reading measured so far lies inside the range of its own window class, and no measured cost exceeds the ceiling", () => {
+  const large = M.OUTPUT_EVIDENCE.large.completed_output_tokens;
+  const e = M.estimateCost({ model: "claude-fable-5-1", inputTokens: 20_700, maxTokens: 64_000, cap: 60, cells: 1353 });
+  for (const out of large) {
+    const usd = billedCost(20_700 * 1.03, out);
+    assert.ok(usd >= e.expected_usd.low - 0.002 && usd <= e.expected_usd.high + 0.002, `${out} tokens -> ${usd}`);
+    assert.ok(usd <= e.upper_bound_usd);
+  }
+  for (const truncated of [1.7058, 1.705665, 1.706725, 1.706525, 1.70674, 1.7063]) assert.ok(truncated <= e.upper_bound_usd, "the cost of a reading cut at the allowance stays under the ceiling");
+  const small = M.estimateCost({ model: "claude-fable-5-1", inputTokens: 16_858 / 1.03, maxTokens: 64_000, cap: 25, cells: 943 });
+  assert.equal(small.evidence_class.class, "small_cap25");
+  for (const usd of [0.39984, 0.492825]) assert.ok(usd >= small.expected_usd.low - 0.001 && usd <= small.expected_usd.high + 0.001, String(usd));
+});
+
+test("estimate: where nothing was measured the range is wide and says so (small window above cap 25, sizes in between, unknown size)", () => {
+  const above = M.estimateCost({ model: "claude-fable-5-1", inputTokens: 16_300, maxTokens: 64_000, cap: 60, cells: 943 });
+  assert.equal(above.evidence_class.class, "small_cap_above_25");
+  assert.equal(above.expected_usd.typical, null);
+  assert.ok(above.expected_usd.high >= 1.6, "the one measured reading at cap 60 ended at the allowance");
+  const between = M.estimateCost({ model: "claude-fable-5-1", inputTokens: 18_000, maxTokens: 64_000, cap: 25, cells: 1100 });
+  assert.equal(between.evidence_class.class, "between");
+  assert.equal(between.expected_usd.typical, null);
+  const unknown = M.estimateCost({ model: "claude-fable-5-1", inputTokens: 18_000, maxTokens: 64_000, cap: 25 });
+  assert.equal(unknown.evidence_class.class, "between", "an unknown size never gets the narrow range");
+  assert.match(unknown.basis, /cap does not bound the cost at large windows/);
 });

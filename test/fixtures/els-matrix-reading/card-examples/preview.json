@@ -38,13 +38,14 @@
       "corpus_id": "0b022e8eef6f9c16"
     },
     "request": {
-      "instruction": "general_v2_axis_marked_unnamed",
+      "instruction": "general_v2_axis_neighborhood_2to3x_unmeasured",
+      "focus": "axis_neighborhood",
       "cap": 25,
       "effort": "medium",
       "max_tokens": 64000,
       "input_tokens": 16858,
-      "sha256": "bf11fd473c12d23a396c4510f9dc10acc2a79e947e4c50c2e86e9dd05557ee34",
-      "lock_sha256": "2c67e34a2df753512cd7a33772ddbeac9fcbd24726d62fef479ecf2b45d307fa",
+      "sha256": "28f7a63e3ec0aa5ac59569aa34c90077f713ef737ea920d6fb5cbb56dfbe2cff",
+      "lock_sha256": "c5e9c3562876eecbe81d49370452be73e6b590a25dba8b6622e8e1b02a0b86cf",
       "window_sha256": "b188c130a813c3b7df8190f62eea35f08f153ac20efeb3e321adf380134e60e8"
     },
     "story": {
@@ -112,7 +113,22 @@
           "A": 4
         }
       },
-      "what_is_not_covered": "everything outside this window; lines are cut at the window boundary; the rest of the Torah and every other matrix width"
+      "what_is_not_covered": "everything outside this window; lines are cut at the window boundary; the rest of the Torah and every other matrix width",
+      "neighborhood": {
+        "radius": 8,
+        "rows": {
+          "from": 3,
+          "to": 23
+        },
+        "cols": {
+          "from": 13,
+          "to": 29
+        },
+        "cells": 357,
+        "share_of_window": 0.379,
+        "focus": "axis_neighborhood",
+        "target_ratio": 2
+      }
     },
     "estimate": {
       "upper_bound_usd": 1.7054,
@@ -128,22 +144,33 @@
         }
       },
       "expected_usd": {
-        "low": 0.3998,
-        "high": 0.4927
+        "low": 0.4024,
+        "high": 0.4952,
+        "typical": 0.4488
       },
       "expected_ils": {
-        "low": 1.2034,
-        "high": 1.483,
+        "low": 1.2112,
+        "high": 1.4906,
+        "typical": 1.3509,
         "status": "ESTIMATED"
       },
       "expected_output_tokens": {
         "low": 12622,
+        "typical": 14479,
         "high": 16335
       },
-      "basis": "Message Batches at 50% of list prices; expected = interpolation of four measured readings (evidence below), not a promise; a reading can end at the output allowance with no usable answer (then it is INCOMPLETE and the cost is still incurred)",
+      "evidence_class": {
+        "class": "small_cap25",
+        "label": "943 cells (23 rows x 41 columns)",
+        "n_completed": 2,
+        "n_ended_at_max_tokens": 0,
+        "truncated_share": 0
+      },
+      "basis": "Message Batches at 50% of list prices; expected = the range of the completed readings measured at the nearest window size (evidence below), not a promise: the cap does not bound the cost at large windows, and a reading can end at the output allowance with no usable answer (then it is INCOMPLETE and the cost is still incurred)",
       "evidence": [
         {
           "cap": 25,
+          "cells": 943,
           "output_tokens": 12622,
           "usd": 0.39984,
           "stop_reason": "end_turn",
@@ -151,6 +178,7 @@
         },
         {
           "cap": 25,
+          "cells": 943,
           "output_tokens": 16335,
           "usd": 0.492825,
           "stop_reason": "end_turn",
@@ -158,6 +186,7 @@
         },
         {
           "cap": 60,
+          "cells": 1353,
           "output_tokens": 58146,
           "usd": 1.560425,
           "stop_reason": "end_turn",
@@ -165,27 +194,42 @@
         },
         {
           "cap": 60,
+          "cells": 943,
           "output_tokens": 64000,
           "usd": 1.68429,
           "stop_reason": "max_tokens",
           "source": "EXP-18 C2 (23x41): ended without an answer"
+        },
+        {
+          "cap": 25,
+          "cells": 1353,
+          "output_tokens": 48322,
+          "usd": 1.315755,
+          "stop_reason": "end_turn",
+          "source": "LIVE 30.10.2026, job 5f5aa117 (33x41, uniform instruction): first run through the product"
         }
       ],
       "truncation_evidence": [
         {
-          "source": "EXP-16 (33x41 windows, cap 60, prompts v2 and v3)",
+          "source": "EXP-15/16 round 1 (31-33 x 41 windows, cap 60, prompts v1, v2, v3)",
           "ended_at_max_tokens": 6,
-          "of_readings": 18,
+          "of_readings": 17,
           "cost_of_those_usd": 10.24
         },
         {
-          "source": "EXP-18 C2 (23x41, cap 60)",
+          "source": "LIVE 30.10.2026 (33 x 41, cap 25)",
+          "ended_at_max_tokens": 0,
+          "of_readings": 1,
+          "cost_of_those_usd": 0
+        },
+        {
+          "source": "EXP-18 C2 (23 x 41, cap 60)",
           "ended_at_max_tokens": 1,
           "of_readings": 1,
           "cost_of_those_usd": 1.68429
         },
         {
-          "source": "EXP-18 C1, C3 (23x41, cap 25)",
+          "source": "EXP-18 C1, C3 (23 x 41, cap 25)",
           "ended_at_max_tokens": 0,
           "of_readings": 2,
           "cost_of_those_usd": 0
@@ -222,10 +266,10 @@
     },
     "is_test_fixture": true
   },
-  "raziel_answer": "תצוגה מקדימה של קריאת מטריצה — לא הופעל מודל ולא נוצרה עלות.\nהציר: קולומביה · דילוג 4545 · קדימה · התחלה 248765 (אומת במנוע הקנוני).\nאזור הקריאה: שורות 44–66 (23) ועמודות 3315–3355 (41) מתוך מטריצה ברוחב 4545; 943 תאים, 182 קווים בשני כיוונים. מה שמחוץ לאזור לא נקרא.\nמודל: claude-fable-5-1 (נבדק שהוא זמין אצל הספק). תקרת הצעות: 25.\nעלות מרבית אפשרית: $1.71 (≈ ₪5.13, הערכה); לפי הניסויים כ־$0.40–$0.49. זמן לפי הניסויים: 3–13 דקות.\nריצה בתקרה 60 עלולה להסתיים ב־max_tokens בלי תשובה ועדיין להיגבות במלואה (התגלה בניסויים).\nלא חויבו קרדיטים; החזר אוטומטי לא נבדק ואינו מובטח.",
+  "raziel_answer": "תצוגה מקדימה של קריאת מטריצה — לא הופעל מודל ולא נוצרה עלות.\nהציר: קולומביה · דילוג 4545 · קדימה · התחלה 248765 (אומת במנוע הקנוני).\nאזור הקריאה: שורות 44–66 (23) ועמודות 3315–3355 (41) מתוך מטריצה ברוחב 4545; 943 תאים, 182 קווים בשני כיוונים. מה שמחוץ לאזור לא נקרא.\nמודל: claude-fable-5-1 (נבדק שהוא זמין אצל הספק). תקרת הצעות: 25.\nעלות מרבית אפשרית: $1.71 (≈ ₪5.13, הערכה); לפי הניסויים בגודל חלון כזה כ־$0.40–$0.50 (טיפוסי $0.45). זמן לפי הניסויים: 3–13 דקות.\nריצה עלולה להסתיים ב־max_tokens בלי תשובה ועדיין להיגבות במלואה (התגלה בניסויים).\nברירת המחדל: העמקה בסביבת הציר (עד 8 תאים) פי 2–3 מהרחוק; הנחיה שטרם נמדדה.\nלא חויבו קרדיטים; החזר אוטומטי לא נבדק ואינו מובטח.",
   "thread_message": {
     "role": "raziel",
-    "text": "תצוגה מקדימה של קריאת מטריצה — לא הופעל מודל ולא נוצרה עלות.\nהציר: קולומביה · דילוג 4545 · קדימה · התחלה 248765 (אומת במנוע הקנוני).\nאזור הקריאה: שורות 44–66 (23) ועמודות 3315–3355 (41) מתוך מטריצה ברוחב 4545; 943 תאים, 182 קווים בשני כיוונים. מה שמחוץ לאזור לא נקרא.\nמודל: claude-fable-5-1 (נבדק שהוא זמין אצל הספק). תקרת הצעות: 25.\nעלות מרבית אפשרית: $1.71 (≈ ₪5.13, הערכה); לפי הניסויים כ־$0.40–$0.49. זמן לפי הניסויים: 3–13 דקות.\nריצה בתקרה 60 עלולה להסתיים ב־max_tokens בלי תשובה ועדיין להיגבות במלואה (התגלה בניסויים).\nלא חויבו קרדיטים; החזר אוטומטי לא נבדק ואינו מובטח.",
+    "text": "תצוגה מקדימה של קריאת מטריצה — לא הופעל מודל ולא נוצרה עלות.\nהציר: קולומביה · דילוג 4545 · קדימה · התחלה 248765 (אומת במנוע הקנוני).\nאזור הקריאה: שורות 44–66 (23) ועמודות 3315–3355 (41) מתוך מטריצה ברוחב 4545; 943 תאים, 182 קווים בשני כיוונים. מה שמחוץ לאזור לא נקרא.\nמודל: claude-fable-5-1 (נבדק שהוא זמין אצל הספק). תקרת הצעות: 25.\nעלות מרבית אפשרית: $1.71 (≈ ₪5.13, הערכה); לפי הניסויים בגודל חלון כזה כ־$0.40–$0.50 (טיפוסי $0.45). זמן לפי הניסויים: 3–13 דקות.\nריצה עלולה להסתיים ב־max_tokens בלי תשובה ועדיין להיגבות במלואה (התגלה בניסויים).\nברירת המחדל: העמקה בסביבת הציר (עד 8 תאים) פי 2–3 מהרחוק; הנחיה שטרם נמדדה.\nלא חויבו קרדיטים; החזר אוטומטי לא נבדק ואינו מובטח.",
     "level": "deep",
     "question": "קרא את המטריצה סביב המופע שבחרתי",
     "turnId": "example-turn",

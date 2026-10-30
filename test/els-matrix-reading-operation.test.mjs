@@ -41,9 +41,9 @@ test("a malformed action or a Tanakh axis is refused before any read", async () 
   assert.equal(w.calls.length, 0);
 });
 
-test("preview: coverage, request hashes equal to the measured request, cost with its evidence and the truncation limit; no model run, no spend, no trace", async () => {
+test("preview (focus uniform): coverage, request hashes equal to the measured request, cost with its evidence and the truncation limit; no model run, no spend, no trace", async () => {
   const w = world();
-  const { status, body, spans, outcome } = await call(w, req("preview"));
+  const { status, body, spans, outcome } = await call(w, req("preview", { focus: "uniform" }));
   assert.equal(status, 200);
   assert.equal(body.state, "PREVIEW");
   assert.equal(body.spent.usd, 0);
@@ -58,7 +58,7 @@ test("preview: coverage, request hashes equal to the measured request, cost with
   assert.deepEqual(body.estimate.cost_exposure, { charged_to_user: false, credits: "NOT_CHARGED", refund: "NOT_PROMISED" });
   assert.equal(body.experimental.credits_charged, false);
   assert.equal(body.estimate.expected_ils.status, "ESTIMATED");
-  assert.ok(body.estimate.truncation_evidence.some((e) => e.ended_at_max_tokens === 6 && e.of_readings === 18), "the cap-60 truncation found in EXP-16 travels with every estimate");
+  assert.ok(body.estimate.truncation_evidence.some((e) => e.ended_at_max_tokens === 6 && e.of_readings === 17), "the cap-60 truncation found in EXP-15/16 travels with every estimate");
   assert.ok(body.notes.some((n) => /output cap/.test(n)));
 });
 
@@ -139,8 +139,8 @@ test("an unknown model or an unverified axis stops everything before a batch exi
 });
 
 test("the optional story: without it the request is the measured one; with it the request changes, says so, and the story is data inside the measured frame", async () => {
-  const plain = (await call(world(), req("preview"))).body;
-  const storied = (await call(world(), req("preview", { story: "קונצרט ענק באצטדיון" }))).body;
+  const plain = (await call(world(), req("preview", { focus: "uniform" }))).body;
+  const storied = (await call(world(), req("preview", { focus: "uniform", story: "קונצרט ענק באצטדיון" }))).body;
   assert.notEqual(storied.request.sha256, plain.request.sha256);
   assert.equal(plain.request.instruction, "general_v2_axis_marked_unnamed");
   assert.equal(storied.request.instruction, "general_v2_axis_marked_unnamed+user_story_unmeasured");
@@ -291,4 +291,72 @@ test("the Raziel answer text is built from the verified payload only: facts, cov
   assert.match(incomplete, /עלות שנגרמה: \$0\.40/);
   assert.match(M.razielReadingAnswer((await call(world(), req("preview"), { tier: "user" })).body), /למנהלים בלבד/);
   assert.equal(M.razielReadingAnswer(null), "");
+});
+
+// ---------- the neighbourhood-depth default, measured ----------
+test("the default focus is the axis neighbourhood: labelled unmeasured, with its box in the coverage; uniform stays the measured instruction", async () => {
+  const dflt = (await call(world(), req("preview"))).body;
+  assert.deepEqual([dflt.request.focus, dflt.request.instruction], ["axis_neighborhood", "general_v2_axis_neighborhood_2to3x_unmeasured"]);
+  assert.notEqual(dflt.request.sha256, savedAnswer.request_sha256, "it is NOT the request that was measured");
+  const box = dflt.coverage.neighborhood;
+  assert.deepEqual([box.radius, box.focus, box.target_ratio], [8, "axis_neighborhood", 2]);
+  assert.ok(box.cells > 0 && box.cells < dflt.coverage.cells);
+  const uniform = (await call(world(), req("preview", { focus: "uniform" }))).body;
+  assert.deepEqual([uniform.request.focus, uniform.request.sha256, uniform.coverage.neighborhood.target_ratio], ["uniform", savedAnswer.request_sha256, null]);
+  const text = M.razielReadingAnswer(dflt);
+  assert.match(text, /ברירת המחדל: העמקה בסביבת הציר \(עד 8 תאים\) פי 2–3 מהרחוק; הנחיה שטרם נמדדה/);
+  assert.doesNotMatch(M.razielReadingAnswer(uniform), /העמקה בסביבת הציר/);
+});
+
+test("the run carries the focus into the durable job, the prompt that is sent, and the collected summary: near/far measured, target stated", async () => {
+  const w = world();
+  const token = await startJob(w);
+  const sent = w.calls.find((c) => c.url.endsWith("/messages/batches") && c.method === "POST").body.requests[0].params.messages[0].content;
+  assert.match(sent, /## סביבת הציר — ברירת המחדל לעומק החיפוש/);
+  assert.deepEqual([w.state.jobs[0].job_payload.fc, w.state.jobs[0].job_payload.nr], ["axis_neighborhood", 8]);
+  w.state.batchState = "ended";
+  const done = (await call(w, req("status", { job_token: token }))).body;
+  const near = done.findings.filter((f) => f.relation_to_axis.distance <= 8).length;
+  assert.deepEqual([done.summary.zones.near.proposals, done.summary.zones.far.proposals, done.summary.zones.radius], [near, 25 - near, 8]);
+  assert.equal(done.summary.zones.target.applies, true);
+  assert.equal(done.summary.zones.target.met, near >= 2 * (25 - near));
+  assert.equal(done.coverage.neighborhood.focus, "axis_neighborhood");
+  const text = M.razielReadingAnswer(done);
+  assert.match(text, new RegExp(`בסביבת הציר \\(עד 8 תאים\\): ${near} הצעות · רחוק יותר: ${25 - near}`));
+  assert.match(text, done.summary.zones.target.met ? /יעד ברירת המחדל \(לפחות 2:1 לטובת הסביבה\) הושג/ : /יעד ברירת המחדל \(לפחות 2:1 לטובת הסביבה\) לא הושג/);
+});
+
+test("a uniform run sends the measured text, says so in its job, and has no target to meet", async () => {
+  const w = world();
+  const started = await call(w, start({ focus: "uniform" }));
+  assert.equal(started.body.state, "RUNNING");
+  const sent = w.calls.find((c) => c.url.endsWith("/messages/batches") && c.method === "POST").body.requests[0].params;
+  assert.doesNotMatch(sent.messages[0].content, /סביבת הציר/);
+  assert.equal(started.body.request.sha256, savedAnswer.request_sha256);
+  assert.equal(w.state.jobs[0].job_payload.fc, "uniform");
+  w.state.batchState = "ended";
+  const done = (await call(w, req("status", { job_token: await M.signJobToken(w.state.jobs[0].job_payload, "job-secret") }))).body;
+  assert.deepEqual([done.summary.zones.target.applies, done.summary.zones.target.met], [false, null]);
+  assert.doesNotMatch(M.razielReadingAnswer(done), /יעד ברירת המחדל/);
+});
+
+test("a job that was started before the default existed (no focus in its record) is collected as the uniform instruction it was", async () => {
+  const w = world();
+  const token = await startJob(w);
+  delete w.state.jobs[0].job_payload.fc;
+  delete w.state.jobs[0].job_payload.nr;
+  w.state.jobs[0].job_payload.ins = "general_v2_axis_marked_unnamed";
+  w.state.batchState = "ended";
+  const done = (await call(w, req("status", { job_token: await M.signJobToken(w.state.jobs[0].job_payload, "job-secret") }))).body;
+  assert.equal(done.state, "COMPLETE");
+  assert.deepEqual([done.request.focus, done.summary.zones.target.applies, done.summary.zones.radius, done.coverage.neighborhood.focus], ["uniform", false, 8, null]);
+  assert.ok(token);
+});
+
+test("the preview words the calibrated range and the truncation record, not the old cap-only guess", async () => {
+  const preview = (await call(world(), req("preview", { cap: 25 }))).body;
+  const text = M.razielReadingAnswer(preview);
+  assert.match(text, /לפי הניסויים בגודל חלון כזה כ־\$0\.4\d–\$0\.5\d \(טיפוסי \$0\.4\d\)/);
+  assert.equal(preview.estimate.evidence_class.class, "small_cap25");
+  assert.ok(preview.estimate.expected_usd.low <= preview.estimate.expected_usd.high && preview.estimate.expected_usd.high <= preview.estimate.upper_bound_usd);
 });
