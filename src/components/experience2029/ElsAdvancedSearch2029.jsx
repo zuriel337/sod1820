@@ -6,6 +6,31 @@ import { prepareElsAutomaticResearchPlan, runElsAutomaticResearchSlice, summariz
 
 const initialForm = { term: "", scope: "torah", spelling: "regular", skipMin: "2", skipMax: "80", pageSize: "20" };
 
+function AdvancedLiveProgress({ activeVariant, rows, reduction, onReduce, onStop }) {
+  const [startedAt] = useState(() => Date.now());
+  const [elapsed, setElapsed] = useState(0);
+  useEffect(() => {
+    const timer = setInterval(() => setElapsed(Math.floor((Date.now() - startedAt) / 1000)), 1000);
+    return () => clearInterval(timer);
+  }, [startedAt]);
+  const completed = rows.filter(row => ["OK", "EXECUTED_EMPTY"].includes(row.state)).length;
+  const failed = rows.filter(row => row.state === "FAILED").length;
+  return <section className="els29-advanced-progress" aria-label="התקדמות מחקר הדילוגים">
+    <strong role="status">{activeVariant ? <>סורק עכשיו: <bdi>{activeVariant}</bdi></> : "מחפש מופעים או מכין צורות למחקר…"}</strong>
+    <span>זמן שחלף: <bdi>{elapsed}</bdi> שניות</span>
+    {activeVariant && rows.length ? <>
+      <progress max={rows.length} value={completed + failed} aria-label="צורות שהבדיקה שלהן הסתיימה" />
+      <span>{completed} צורות הושלמו · {failed} נכשלו · {rows.length - completed - failed} ממתינות או בסריקה</span>
+      <span>ההתקדמות מתייחסת לצורות, לא לכל המופעים. ייתכנו דפים נוספים.</span>
+    </> : <progress aria-label="ממתין לתשובת החיפוש" />}
+    <div>
+      <button type="button" className="sod29-action" onClick={onStop}>עצור סריקה</button>
+      {reduction ? <button type="button" className="sod29-action" onClick={onReduce}>{reduction.label}</button> : null}
+    </div>
+    <span>עצירה משאירה תוצאות שכבר הוצגו. צמצום מאפס את תוצאות החיפוש הזה ודורש לחיצה חדשה; המטריצה הפעילה נשמרת.</span>
+  </section>;
+}
+
 export default function ElsAdvancedSearch2029({ onLoad, onExactSkip, deriveCanonicalForms, onPlanSummary, exactStatus = "idle" }) {
   const [form, setForm] = useState(initialForm);
   const [query, setQuery] = useState(null);
@@ -32,12 +57,12 @@ export default function ElsAdvancedSearch2029({ onLoad, onExactSkip, deriveCanon
     return controller;
   };
   const finishRequest = controller => { if (abortRef.current === controller) abortRef.current = null; };
-  const stopSearch = () => {
+  const stopSearch = (message = "הסריקה הופסקה. תוצאות שהושלמו נשמרו; שאר הבדיקות לא הושלמו.") => {
     revision.current += 1;
     abortRef.current?.abort();
     abortRef.current = null;
     setBusy(false); setSelecting(null); setActiveVariant(null);
-    setNotice("הסריקה הופסקה. תוצאות שהושלמו נשמרו; שאר הבדיקות לא הושלמו.");
+    setNotice(message);
   };
   useEffect(() => () => abortRef.current?.abort(), []);
   const edit = (field, value) => {
@@ -185,7 +210,7 @@ export default function ElsAdvancedSearch2029({ onLoad, onExactSkip, deriveCanon
   const searchExactSkip = () => {
     const built = buildElsExactSkipProbe({ term: form.term, scope: form.scope, spelling: form.spelling, skip: exactSkip }, ++exactRequestId.current);
     if (built.error) { setNotice(built.error); return; }
-    revision.current += 1; setBusy(false); setSelecting(null); setNotice("");
+    stopSearch("");
     onExactSkip?.(built.request);
   };
   const select = async (occurrence, projection) => {
@@ -208,6 +233,15 @@ export default function ElsAdvancedSearch2029({ onLoad, onExactSkip, deriveCanon
   const spellingPreview = elsSearchSpelling(form.term, form.spelling);
   const completedRows = new Map(automaticSlices.flatMap(slice => slice.rows).map(row => [row.canonicalTerm, row]));
   const automaticRows = automaticPlan?.candidates.map(candidate => liveRows[candidate.term] || completedRows.get(candidate.canonicalTerm) || { ...candidate, state: "NOT_SCANNED", count: 0 }) || [];
+  const rangeMin = Number(form.skipMin), rangeMax = Number(form.skipMax);
+  const reduction = form.scope === "tanakh" ? { field: "scope", value: "torah", label: "עצור וצמצם לתורה" }
+    : Number.isSafeInteger(rangeMin) && Number.isSafeInteger(rangeMax) && rangeMax - rangeMin > 80
+      ? { field: "skipMax", value: String(rangeMin + Math.ceil((rangeMax - rangeMin) / 2)), label: "עצור והקטן את טווח הדילוגים" } : null;
+  const reduceSearch = () => {
+    if (!reduction) return;
+    edit(reduction.field, reduction.value);
+    setNotice("הסריקה נעצרה וההיקף צומצם. המטריצה הפעילה לא השתנתה. לחצו שוב כדי לחפש בהיקף החדש.");
+  };
   return <section className="sod29-section" aria-label="חיפוש דילוגים מתקדם" data-els-advanced-search="v1">
     <div className="sod29-section-head"><div><div className="sod29-kicker">מחקר דילוגים</div><h3>חיפוש אחד, כל המופעים</h3></div></div>
     <form onSubmit={event => { event.preventDefault(); search(false); }} className="els29-advanced-form">
@@ -222,7 +256,7 @@ export default function ElsAdvancedSearch2029({ onLoad, onExactSkip, deriveCanon
       <label>עד <input aria-label="דילוג מקסימלי" type="number" min="2" step="1" value={form.skipMax} onChange={event => edit("skipMax", event.target.value)} /></label>
       <label>תוצאות בדף <input aria-label="תוצאות בדף" type="number" min="1" max="100" value={form.pageSize} onChange={event => edit("pageSize", event.target.value)} /></label>
       <button className="sod29-action primary" type="submit" disabled={busy || !!selecting}>חפש בטווח</button>
-      <label>דילוג מדויק <input aria-label="דילוג מדויק ללא תקרת 500" type="number" min="2" step="1" value={exactSkip} onChange={event => setExactSkip(event.target.value)} /></label>
+      <label>דילוג מדויק <input aria-label="דילוג מדויק ללא תקרת 500" type="number" min="2" step="1" value={exactSkip} onChange={event => { stopSearch(""); setExactSkip(event.target.value); }} /></label>
       <button type="button" className="sod29-action" disabled={busy || !!selecting} onClick={searchExactSkip}>פתח דילוג מדויק</button>
       <label>מונחים משניים למחקר, אחד בשורה או מופרדים בפסיק
         <textarea aria-label="מילות המשך למחקר" value={related} onChange={event => {
@@ -230,7 +264,10 @@ export default function ElsAdvancedSearch2029({ onLoad, onExactSkip, deriveCanon
           revision.current += 1; setRelated(event.target.value); setAutomaticPlan(null); setAutomaticSlices([]); setAutomaticPages({}); setLiveRows({}); setActiveVariant(null); onPlanSummary?.(null); setNotice(""); setBusy(false); setSelecting(null);
         }} rows={3} placeholder="אמת, חסד" />
       </label>
-      <label>מה לחקור <select aria-label="מונחים למחקר הצורות" value={researchTarget} onChange={event => setResearchTarget(event.target.value)}>
+      <label>מה לחקור <select aria-label="מונחים למחקר הצורות" value={researchTarget} onChange={event => {
+        stopSearch(""); setResearchTarget(event.target.value);
+        setAutomaticPlan(null); setAutomaticSlices([]); setAutomaticPages({}); setLiveRows({}); onPlanSummary?.(null);
+      }}>
         <option value="all">ראשי ומשניים</option><option value="primary">המונח הראשי</option><option value="secondary">המונחים המשניים</option>
       </select></label>
       <button type="button" className="sod29-action" disabled={busy || !!selecting} onClick={searchAutomatic}>חקור את כל הצורות אוטומטית</button>
@@ -239,8 +276,8 @@ export default function ElsAdvancedSearch2029({ onLoad, onExactSkip, deriveCanon
     {exactStatus === "failed" ? <p role="alert">לא הצלחנו למצוא או לאמת מופע בדילוג המבוקש. המטריצה הקיימת נשמרה.</p>
       : exactStatus === "verified" ? <p role="status">המופע אומת ונשלח למטריצה.</p>
         : exactStatus === "probing" ? <p role="status">מחפש ומאמת מופע במנוע הקנוני…</p> : null}
-    {busy ? <p role="status">{activeVariant ? <>סורק עכשיו: <bdi>{activeVariant}</bdi></> : "מכין את מחקר הצורות או מחפש מופעים…"}</p> : null}
-    {busy ? <button type="button" className="sod29-action" onClick={stopSearch}>עצור סריקה</button> : null}
+    {busy ? <AdvancedLiveProgress key={revision.current} activeVariant={activeVariant} rows={automaticRows}
+      reduction={reduction} onReduce={reduceSearch} onStop={() => stopSearch()} /> : null}
     {pages.length ? <div aria-label="מופעי החיפוש המתקדם"><p>{count} מופעים נטענו ב־{pages.length} דפים{cursor ? " · יש תוצאות נוספות" : " · סוף התוצאות בטווח"}</p>
       <ol>{pages.flatMap(page => page.projection.occurrences.map(hit => <li key={hit.occurrenceId}>
         <button type="button" className="sod29-action" disabled={busy || !!selecting} onClick={() => select(hit, page.projection)}>
