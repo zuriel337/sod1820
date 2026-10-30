@@ -76,6 +76,7 @@ window.__findingColors={findingColorChoices,projectFindingColor,nextFindingColor
 function Fixture(){
 const [,forceRender]=React.useState(0);window.__forceParentRender=()=>flushSync(()=>forceRender(n=>n+1));
 const [matrix,setMatrix]=React.useState(null);window.__openSavedMatrix=setMatrix;window.__fixtureMatrix=matrix;
+const [matrixReading,setMatrixReading]=React.useState(null);window.__setMatrixReading=setMatrixReading;
 const [researchLoad,setResearchLoad]=React.useState(null);window.__loadResearch=setResearchLoad;
 const [researchProbe,setResearchProbe]=React.useState(null),pendingProbe=React.useRef(null);
 window.__probeResearch=request=>{pendingProbe.current=request?.requestId??null;setResearchProbe(request);};
@@ -93,7 +94,7 @@ return React.createElement('div',{style,className:'sod29-root closed-shell nativ
   React.createElement('div',{className:'sod29-main-stage'},
    React.createElement('main',{className:'sod29-content wide'},
     React.createElement('section',{className:'sod29-focus-stage','data-els-2029-surface':'v1'},
-     React.createElement('section',{className:'sod29-section','data-els-classic-2029':'native-v1'},React.createElement(Native,{matrix,researchLoad,researchProbe,researchProfile:window.__fixtureResearchProfile!==false,guidedProfile:!!window.__fixtureGuided,onRazielMatrix:window.__fixtureMatrixAnalysis?async context=>{(window.__matrixSubmits||=[]).push(context);return {ok:true};}:undefined,onResearchProbeResult:result=>{(window.__probeHistory||=[]).push(result);if(result.requestId!==pendingProbe.current)return;pendingProbe.current=null;window.__probeResult=result;if(result.ok)setResearchLoad({term:result.term,scope:result.scope,skip:result.skip,dir:result.dir,start:result.start,hitId:result.hitId,corpusId:result.corpusId,words:[],researchNonce:result.requestId});}})))))),dock);
+     React.createElement('section',{className:'sod29-section','data-els-classic-2029':'native-v1'},React.createElement(Native,{matrix,matrixReading,researchLoad,researchProbe,researchProfile:window.__fixtureResearchProfile!==false,guidedProfile:!!window.__fixtureGuided,onRazielMatrix:window.__fixtureMatrixAnalysis?async context=>{(window.__matrixSubmits||=[]).push(context);return {ok:true};}:undefined,onResearchProbeResult:result=>{(window.__probeHistory||=[]).push(result);if(result.requestId!==pendingProbe.current)return;pendingProbe.current=null;window.__probeResult=result;if(result.ok)setResearchLoad({term:result.term,scope:result.scope,skip:result.skip,dir:result.dir,start:result.start,hitId:result.hitId,corpusId:result.corpusId,words:[],researchNonce:result.requestId});}})))))),dock);
 }
 if(window.__fixtureFullFrame){
  const [{default:Frame},{BrowserRouter}]=await Promise.all([import('/src/components/experience2029/Sod2029Shell.jsx'),import('react-router-dom')]);
@@ -427,6 +428,52 @@ async function expectHeightControl(page) {
   assert.deepEqual(await identity(page), engine, 'height changes presentation only');
 }
 
+
+test('Fable existing results project exact letters without search, AI, manual-finding mutation or axis loss',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:120000},async()=>{
+  await withNative({width:1440,height:1000},async page=>{
+   const baseline=await identity(page);
+   const expected=await page.evaluate(()=>{
+    const s=window.__state,m=s.matrix,axis={term:s.term,scope:s.scope,start:s.axis.start,skip:s.axis.skip,dir:s.axis.direction==='back'?-1:1,corpusId:s.verification.corpus_id};
+    const make=(start,skip,dir,length)=>{
+     const positions=Array.from({length},(_,i)=>start+skip*dir*i);
+     const text=positions.map(p=>m.rows[Math.floor(p/m.S)-m.r0][p%m.S-m.c0]).join('');
+     const key='els:'+axis.corpusId+':'+text+':'+skip+':'+dir+':'+start;
+     return {id:key,text,parts:[text],occurrence:{start,skip,dir,length},verification:{state:'ENGINE_VERIFIED',letters_match:true,occurrences_verified:1,engine:{contract:'els_occurrence_replay_v1',verification_state:'MATCH',corpus_id:axis.corpusId,occurrence_id:key}}};
+    };
+    const findings=Array.from({length:24},(_,i)=>make((m.r0+3)*m.S+m.c0+i,m.S,1,5));
+    findings.push(make(axis.start+axis.dir*axis.skip,axis.skip,axis.dir,3));
+    const result={contract:'els_matrix_reading_v1',state:'COMPLETE',is_test_fixture:true,provider:{kind:'test_double'},axis:{...axis,corpus_id:axis.corpusId},findings};
+    const reading={mode:'on',isAdmin:true,session:{busy:false,thread:[{role:'raziel',elsMatrixReading:result,continuation:{contextSnapshot:{elsMatrixContext:{axis}}}}]}};
+    window.__readingFixture=reading;window.__setMatrixReading(reading);
+    return {selected:findings[0].verification.engine.occurrence_id,positions:Array.from({length:5},(_,i)=>findings[0].occurrence.start+i*m.S)};
+   });
+   await page.getByRole('heading',{name:'ממצאים שאומתו במנוע · 25',exact:true}).waitFor();
+   await page.getByText('חלק מהציר הראשי — לא הצלבה חדשה',{exact:true}).waitFor();
+   assert.equal(await page.locator('.els29-matrix-reading-result li').count(),25,'not limited to the 12 manual findings');
+   assert.ok(await page.locator('.els29-native-cell.is-ai-reading').count()>100);
+   const hostCount=await page.evaluate(()=>window.__hostLog.length);
+   for(const width of [320,390,1440])for(const theme of ['dark','light','parchment']){
+    await page.setViewportSize({width,height:900});await page.evaluate(preset=>window.__setThemePreset(preset),theme);
+    await page.locator('.els29-matrix-reading-result li').first().getByRole('button').click();
+    await page.waitForFunction(()=>document.querySelectorAll('.is-ai-reading-selected').length===5);
+    assert.deepEqual(await page.locator('.is-ai-reading-selected').evaluateAll(cells=>cells.map(c=>Number(c.dataset.elsIndex))),expected.positions);
+    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,`${width} ${theme}: no page overflow`);
+    assert.equal(await page.locator('.els29-native-cell.is-axis').count(),baseline.axis.length,'main axis preserved');
+    if(process.env.ELS_SCREENSHOT_DIR){mkdirSync(process.env.ELS_SCREENSHOT_DIR,{recursive:true});await page.screenshot({path:join(process.env.ELS_SCREENSHOT_DIR,`reading-matrix-${width}-${theme}.png`)});}
+   }
+   assert.deepEqual(await identity(page),baseline,'projection does not mutate canonical findings or geometry');
+   assert.equal(await page.evaluate(()=>window.__hostLog.length),hostCount,'selection and themes send no engine requests');
+   assert.equal(await page.evaluate(()=>window.__matrixSubmits?.length||0),0,'zero AI submits');
+   await page.getByRole('button',{name:'הסתר סימוני AI מהמטריצה',exact:true}).click();
+   assert.equal(await page.locator('.is-ai-reading').count(),0);assert.equal(await page.locator('.is-axis').count(),baseline.axis.length);
+   await page.getByRole('button',{name:'הצג ממצאי AI במטריצה',exact:true}).click();
+   await page.waitForFunction(()=>document.querySelector('.is-ai-reading'));
+   await page.evaluate(()=>{const changed=structuredClone(window.__readingFixture);changed.session.thread[0].continuation.contextSnapshot.elsMatrixContext.axis.start++;window.__setMatrixReading(changed);});
+   await page.waitForFunction(()=>!document.querySelector('.is-ai-reading'));
+   assert.equal(await page.getByRole('heading',{name:/ממצאים שאומתו במנוע/}).count(),0,'different occurrence cannot attach');
+  },{matrixAnalysis:true});
+ });
 
 test('Classic opens on unmarked Genesis letters, right aligned, with no sample cipher',
  {skip:!canRun,timeout:90000},async()=>{

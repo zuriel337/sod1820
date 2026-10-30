@@ -3,6 +3,8 @@ import { use2029Palette } from "../../lib/palette.js";
 import { parseElsHitKey } from "../../lib/elsJourney.js";
 import { buildElsRazielMatrixContext } from "../../lib/research/elsRazielMatrixContext.js";
 import ElsMatrixReadingCard2029 from "./ElsMatrixReadingCard2029.jsx";
+import { selectElsMatrixReading } from "../../lib/research/elsMatrixReadingPresentation.js";
+import { projectElsReadingFindings } from "../../lib/research/elsMatrixReadingProjection.js";
 import { findingColorChoices, nextFindingColor, projectFindingColor } from "./elsFindingColors2029.js";
 import NavigationIcon2029 from "./NavigationIcon2029.jsx";
 import ContextualInspector2029 from "./ContextualInspector2029.jsx";
@@ -40,7 +42,7 @@ const scopeLabel = (scope) => scope === "tanakh" ? "כל התנ״ך" : "תורה
 const directionLabel = (direction) => direction === "back" ? "אחורה" : direction === "fwd" ? "קדימה" : "—";
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 
-function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex, selectedFinding, visible, classicGlyphs, verseHighlight, presentation, presentationPlan, readingView, onZoomChange }) {
+function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex, selectedFinding, visible, classicGlyphs, verseHighlight, presentation, presentationPlan, readingView, onZoomChange, readingFindings = [], selectedReading, readingFocus }) {
   const palette = use2029Palette("research_lab");
   const matrix = state?.matrix;
   const geometry = state?.geometry;
@@ -48,6 +50,16 @@ function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex, selectedFin
   const dragRef = useRef({ active: false, pointerId: null, x: 0, y: 0, left: 0, top: 0, moved: false });
   const pinchRef = useRef(null), zoomChangeRef = useRef(onZoomChange);
   zoomChangeRef.current = onZoomChange;
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!visible || !el || !selectedReading?.visiblePositions.length) return;
+    const cells = selectedReading.visiblePositions.map(i => el.querySelector(`[data-els-index="${i}"]`)).filter(Boolean);
+    if (!cells.length) return;
+    const rects = cells.map(cell => cell.getBoundingClientRect()), viewport = el.getBoundingClientRect();
+    el.scrollLeft += (Math.min(...rects.map(r => r.left)) + Math.max(...rects.map(r => r.right))) / 2 - viewport.left - el.clientWidth / 2;
+    el.scrollTop += (Math.min(...rects.map(r => r.top)) + Math.max(...rects.map(r => r.bottom))) / 2 - viewport.top - el.clientHeight / 2;
+  }, [visible, selectedReading?.key, readingFocus]);
 
   useEffect(() => {
     const el = scrollRef.current;
@@ -114,6 +126,15 @@ function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex, selectedFin
     for (const mark of matrix?.marks || []) map.set(Number(mark.i), mark.type === "finding" ? { ...mark, color: projectFindingColor(mark.color, palette) } : mark);
     return map;
   }, [matrix?.marks, palette]);
+  const readingMarks = useMemo(() => {
+    const map = new Map();
+    // Selected occurrence wins only within this display overlay, never over the main axis.
+    for (const finding of [...readingFindings.filter(f => f.key !== selectedReading?.key), ...(selectedReading ? [selectedReading] : [])]) {
+      for (const i of finding.visiblePositions) map.set(i, { i, type: "finding", color: finding.color, readingKey: finding.key, start: i === finding.positions[0] });
+    }
+    return map;
+  }, [readingFindings, selectedReading]);
+  const readingSelection = useMemo(() => new Set(selectedReading?.visiblePositions || []), [selectedReading]);
   const sourceMap = useMemo(() => new Map((matrix?.sourceMarks || []).map((mark) => [Number(mark.i), {
     ...mark, type: "source", color: projectFindingColor(mark.color, palette),
   }])), [matrix?.sourceMarks, palette]);
@@ -232,7 +253,7 @@ function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex, selectedFin
     }}
   >
     <span id={summaryId} className="els29-native-sr-only">
-      {state?.status === "ready" ? "תחילת ספר בראשית ברצף אותיות, ללא צופן או ממצא נבחר." : `${state.termRaw || state.term || "מונח פעיל"} · דילוג ${state?.axis?.skip ?? "לא ידוע"} · כיוון ${directionLabel(state?.axis?.direction)} · ${markSummary.axis} אותיות ציר מסומנות · ${markSummary.findings} אותיות ממצאים מסומנות. אפשר להשתמש בכפתור מקור הממצא כדי לקרוא את הפסוקים במקלדת.`}
+      {state?.status === "ready" ? "תחילת ספר בראשית ברצף אותיות, ללא צופן או ממצא נבחר." : `${state.termRaw || state.term || "מונח פעיל"} · דילוג ${state?.axis?.skip ?? "לא ידוע"} · כיוון ${directionLabel(state?.axis?.direction)} · ${markSummary.axis} אותיות ציר מסומנות · ${markSummary.findings} אותיות ממצאים מסומנות · ${readingMarks.size} אותיות מתוצאות סריקת AI. אפשר להשתמש בכפתור מקור הממצא כדי לקרוא את הפסוקים במקלדת.`}
     </span>
     {readingView ? <p className="els29-native-reading-note" dir="rtl">
       רצף המקור בשורות רחבות · {state?.axis?.direction === "back" ? "קוראים את הסימון משמאל לימין, מלמטה למעלה" : "קוראים את הסימון מימין לשמאל, מלמעלה למטה"}
@@ -252,7 +273,8 @@ function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex, selectedFin
             const revealAt = presentationPlan.earliest.get(index);
             const concealed = presentation && revealAt != null && revealAt > presentation.index;
             const sourceMark = concealed ? null : sourceMap.get(index);
-            const mark = concealed ? null : markMap.get(index) || sourceMark;
+            const readingMark = !presentation ? readingMarks.get(index) : null;
+            const mark = concealed ? null : markMap.get(index) || readingMark || sourceMark;
             const verseParity = verseHighlight?.parity.get(index);
             const active = !!mark && activeFinding?.indices.has(index);
             const heat = mark ? 0 : heatMap.get(index) || 0;
@@ -264,6 +286,8 @@ function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex, selectedFin
               sourceMark ? "is-source-text" : "",
               mark?.start ? "is-start" : "",
               active ? "is-active-finding" : "",
+              readingMark ? "is-ai-reading" : "",
+              readingMark && readingSelection.has(index) ? "is-ai-reading-selected" : "",
               selectedLetterIndex === index ? "is-selected" : "",
               heat > 0 ? "is-heat" : "",
             ].filter(Boolean).join(" ");
@@ -271,6 +295,7 @@ function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex, selectedFin
               key={index}
               className={classes}
               data-els-index={index}
+              data-reading-finding={readingMark?.readingKey}
               data-verse-word={verseParity}
               data-present-concealed={concealed ? "true" : undefined}
               title={sourceMark ? `רצף מקור: ${sourceMark.term} · הצג פסוק` : "הצג מקור ופסוק"}
@@ -279,6 +304,7 @@ function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex, selectedFin
                 onLetterClick?.({ index, letter, mark });
               }}
               style={{
+                ...(readingMark ? { "--els29-reading-color": readingMark.color } : {}),
                 ...(verseParity != null ? { "--els29-verse-color": palette.matrix.findings[verseParity === 0 ? 1 : 4].color } : {}),
                 ...(["finding", "source"].includes(mark?.type) && mark?.color ? { "--els29-mark": mark.color } : {}),
                 ...(active ? { "--els29-active-mark": activeFinding.color, "--els29-mark": activeFinding.color } : {}),
@@ -621,7 +647,7 @@ function CrossResultsRail({ state, pending, outcome, visible, onSelect, onContin
   </div>;
 }
 
-function FindingsRail({ onHighlightVerse, verseHighlight, activeTool, state, selected, lensResult, lensPending, operation, searchPending, onCancel, onScan, onSource, onSelectTarget, onAxisControl, onAddLineFinding, onFindingsChange, onFindingControl }) {
+function FindingsRail({ onHighlightVerse, verseHighlight, activeTool, state, selected, lensResult, lensPending, operation, searchPending, onCancel, onScan, onSource, onSelectTarget, onAxisControl, onAddLineFinding, onFindingsChange, onFindingControl, readingCount = 0 }) {
   const palette = use2029Palette("research_lab");
   const colorChoices = findingColorChoices(palette);
   const findings = Array.isArray(state?.findings) ? state.findings : [];
@@ -692,7 +718,7 @@ function FindingsRail({ onHighlightVerse, verseHighlight, activeTool, state, sel
           {[0, 1, 2, 3, 5, 10, 15, 20, 30, 50, 100].map((value) => <option key={value} value={value}>{value === 0 ? "נוגע בציר · 0 תאים" : `עד ${value} תאים`}</option>)}
         </select>
       </label>
-      <div className="els29-native-rail-head"><strong>ממצאים במטריצה</strong><small>{findings.length}/12 משניים</small></div>
+      <div className="els29-native-rail-head"><strong>ממצאים במטריצה</strong><small>{findings.length}/12 {readingCount ? `ידניים · ${readingCount} מתוצאות AI` : "משניים"}</small></div>
       <div className="els29-native-findings">
         {verified ? <div className={`els29-native-finding-group is-primary${!selectionValid ? " is-selected" : ""}`} style={{ "--els29-mark": palette.matrix.axis }} data-experience-capability="els-axis-actions">
           <button type="button" className="els29-native-finding-select" aria-label={`בחר ציר לסריקה: ${state.termRaw || state.term}`}
@@ -777,6 +803,15 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   // so changing a term/scope never creates a second engine instance or remounts the canonical one.
   const [engineSeed] = useState(() => clean(initialSeed));
   const [engineState, setEngineState] = useState(null);
+  const readingContext = useMemo(() => buildElsRazielMatrixContext(engineState), [engineState]);
+  const { result: readingResult, matching: readingPending } = selectElsMatrixReading(matrixReading?.session, readingContext?.axis);
+  const readingProjection = useMemo(() => {
+    const projection = projectElsReadingFindings(readingPending ? null : readingResult, readingContext?.axis, engineState?.matrix);
+    return { ...projection, findings: projection.findings.map((finding, i) => ({ ...finding, color: palette.matrix.findings[i % palette.matrix.findings.length].color })) };
+  }, [readingResult, readingPending, readingContext, engineState?.matrix, palette]);
+  const [readingDisplay, setReadingDisplay] = useState(null);
+  const readingOverlayVisible = !!readingProjection.findings.length && !(readingDisplay?.result === readingResult && readingDisplay.hidden);
+  const selectedReading = readingOverlayVisible && readingDisplay?.result === readingResult ? readingProjection.findings.find(f => f.key === readingDisplay.key) : null;
   const engineStateRef = useRef(null);
   const [classicOpen, setClassicOpen] = useState(false);
   const [activeTool, setActiveTool] = useState(() => window.matchMedia("(min-width:981px)").matches ? "findings" : null);
@@ -1453,6 +1488,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
             <div>
               <small className="els29-native-matrix-status" role="status">{matrixStatus}</small>
               <h3>{engineState?.termRaw || engineState?.term || "הצופן הקלאסי"}</h3>
+              {readingOverlayVisible ? <p className="els29-reading-matrix-caption" role="status">תוצאות סריקת AI · {readingProjection.visibleCount} מלאות{readingProjection.partialCount ? ` · ${readingProjection.partialCount} חלקיות` : ""}{selectedReading ? ` · נבחר: ${selectedReading.label}` : ""}{activePresentation ? " · הסימונים מוסתרים בזמן מצב מצלמה" : ""}</p> : null}
             </div>
             <div className="els29-native-stage-status">
               <span>{scopeLabel(engineState?.scope)}</span>
@@ -1479,7 +1515,8 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
             </div>
           </div>
           <MatrixControls state={engineState} onControl={requestControl} onContext={requestContext} busy={searchPending || ["searching", "verifying"].includes(operations.findings?.status)} />
-          <MatrixSnapshot state={engineState} onZoomChange={zoom => requestControl("zoom-set", zoom)} onLetterClick={matrixActive ? handleLetterClick : null} selectedLetterIndex={selectedLetterIndex} selectedFinding={selectedFinding} visible={!classicOpen} classicGlyphs={classicGlyphs} verseHighlight={verseHighlight} presentation={activePresentation} presentationPlan={presentationPlan} readingView={readingView} />
+          <MatrixSnapshot state={engineState} onZoomChange={zoom => requestControl("zoom-set", zoom)} onLetterClick={matrixActive ? handleLetterClick : null} selectedLetterIndex={selectedLetterIndex} selectedFinding={selectedFinding} visible={!classicOpen} classicGlyphs={classicGlyphs} verseHighlight={verseHighlight} presentation={activePresentation} presentationPlan={presentationPlan} readingView={readingView}
+            readingFindings={readingOverlayVisible ? readingProjection.findings : []} selectedReading={selectedReading} readingFocus={readingDisplay?.focus} />
         </main>
         <footer className="els29-native-bottom-controls" role="group" aria-label="תצוגת המטריצה">
           <button type="button" aria-pressed={heightExpanded} onClick={() => setHeightExpanded((value) => !value)}>
@@ -1517,7 +1554,15 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
           </div>
           <small>מציג את הציר ואחריו את הממצאים, אחד אחרי השני. אפשר להקליט באמצעות כלי צילום המסך במכשיר.</small>
         </section> : null}
-        {matrixReading ? <ElsMatrixReadingCard2029 context={buildElsRazielMatrixContext(engineState)} reading={matrixReading} pending={searchPending} onSubmit={onRazielMatrix} /> : typeof onRazielMatrix === "function" ? <section className="els29-native-workrail els29-matrix-ai-card" aria-label="רזיאל ומפת המטריצה">
+        {matrixReading ? <ElsMatrixReadingCard2029 context={readingContext} reading={matrixReading} pending={searchPending} onSubmit={onRazielMatrix}
+          projection={readingProjection} selectedKey={selectedReading?.key} overlayVisible={readingOverlayVisible}
+          onToggleOverlay={() => setReadingDisplay({ result: readingResult, hidden: readingOverlayVisible })}
+          onSelectFinding={key => {
+            setPresentation(null);
+            setReadingDisplay(current => ({ result: readingResult, key, hidden: false, focus: (current?.focus || 0) + 1 }));
+            const region = cameraStageRef.current?.querySelector(".els29-native-matrix-scroll");
+            region?.focus({ preventScroll: true }); region?.scrollIntoView({ block: "center", behavior: "instant" });
+          }} /> : typeof onRazielMatrix === "function" ? <section className="els29-native-workrail els29-matrix-ai-card" aria-label="רזיאל ומפת המטריצה">
           <strong>✦ נתח את המטריצה עם AI</strong>
           {engineState?.verification?.state === "MATCH" && engineState?.axis ? <p>המופע הנבחר: {engineState.termRaw || engineState.term} · דילוג {engineState.axis.skip} · {engineState.axis.direction === "back" ? "לאחור" : "קדימה"} · מיקום {engineState.axis.start}</p> : <p>בחרו מופע מאומת כדי להתחיל.</p>}
           <p>הסקירה הנוכחית שולחת לרזיאל אזור מוגבל. סריקת Fable המורחבת עדיין אינה מחוברת.</p>
@@ -1560,6 +1605,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
           onSave={requestSave} onWorkspace={() => setWorkspaceRequest({ seq: ++actionSeqRef.current })}
           onAccount={() => { setAccountRequired(true);setNotice("שמירה פרטית זמינה לאחר התחברות לחשבון."); }} />
         <FindingsRail
+          readingCount={readingProjection.findings.length}
           onHighlightVerse={highlightVerse} verseHighlight={verseHighlight}
           selected={selectedFinding}
           onCancel={() => cancelOperation("findings")}

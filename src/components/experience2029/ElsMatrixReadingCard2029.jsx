@@ -1,6 +1,7 @@
 import React, { useRef, useState } from "react";
 import { ELS_MATRIX_READING_ACK_UPPER_BOUND_USD, ELS_MATRIX_READING_START, isLiveFableReading, isElsReadingJobId } from "../../../supabase/functions/_shared/elsMatrixReadingAction.js";
 import { elsMatrixReadingMode, sameElsMatrixReadingAxis, selectElsMatrixReading } from "../../lib/research/elsMatrixReadingPresentation.js";
+import { projectElsReadingFindings } from "../../lib/research/elsMatrixReadingProjection.js";
 
 const labels = { PREVIEW: "כיסוי ועלות לפני סריקה", RUNNING: "הסריקה עדיין מתבצעת", COMPLETE: "הסריקה הושלמה",
   INCOMPLETE: "הסריקה לא הושלמה", FAILED_WITH_REASON: "הסריקה לא הסתיימה בהצלחה", CANCEL_REQUESTED: "בקשת הביטול נשלחה", REFUSED: "הסריקה לא הופעלה" };
@@ -15,12 +16,13 @@ const errors = { not_enabled: "הסריקה עדיין לא הופעלה בסב�
 const number = value => typeof value === "number" && Number.isFinite(value);
 const money = value => number(value) ? value.toFixed(2) : "לא ידוע";
 
-function ReadingResult({ result }) {
+function ReadingResult({ result, axis, projection, onSelectFinding, selectedKey, overlayVisible, onToggleOverlay }) {
   const fixture = result.is_test_fixture === true || result.provider?.kind === "test_double";
   const live = isLiveFableReading(result);
   const complete = result.state === "COMPLETE";
   const findings = complete && (fixture || live) ? (result.findings || []) : [];
-  const verified = findings.filter(item => item.verification?.state === "ENGINE_VERIFIED");
+  const projected = projection || projectElsReadingFindings(result, axis);
+  const verified = projected.findings;
   const plain = findings.filter(item => item.verification?.state === "PLAIN_TEXT_ONLY");
   const unverified = findings.filter(item => item.verification?.state === "NOT_VERIFIED");
   const coverage = result.coverage;
@@ -36,12 +38,22 @@ function ReadingResult({ result }) {
     {result.state === "PREVIEW" && result.estimate ? <p>תקרת עלות מחושבת: <bdi>${money(result.estimate.upper_bound_usd)}</bdi> · <bdi>₪{money(result.estimate.upper_bound_ils?.amount)}</bdi> (הערכה)</p> : null}
     {complete && verified.length > 0 ? <>
       <h4>{result.saved_snapshot ? "ממצאים שאומתו בסריקה המקורית" : "ממצאים שאומתו במנוע"} · {verified.length}</h4>
-      <ul>{verified.map((item, index) => <li key={item.id || index}>
-        <p><strong>{item.text}</strong> · דילוג <bdi>{item.occurrence?.skip}</bdi> · מיקום <bdi>{item.occurrence?.start}</bdi></p>
-        <small>{({ crosses: "חוצה את הציר", touches: "צמוד לציר", far: "מרוחק מהציר" })[item.relation_to_axis?.relation] || ""}
+      {onToggleOverlay ? <div className="els29-reading-map-controls">
+        <button type="button" aria-pressed={overlayVisible} onClick={onToggleOverlay}>{overlayVisible ? "הסתר סימוני AI מהמטריצה" : "הצג ממצאי AI במטריצה"}</button>
+        <p>{projected.visibleCount} ממצאים בתוך חלון התצוגה{projected.partialCount ? ` · ${projected.partialCount} נראים בחלקם` : ""}{projected.outsideCount ? ` · ${projected.outsideCount} אינם מוצגים בחלון הנוכחי` : ""}. בחירת ממצא ממקדת את המטריצה; אין סריקה נוספת.</p>
+      </div> : null}
+      <ul>{verified.map(finding => { const item = finding.item; return <li key={finding.key} data-reading-finding={finding.key} data-selected={selectedKey === finding.key ? "true" : undefined}>
+        <p><strong>{finding.label}</strong> · דילוג <bdi>{item.occurrence?.skip}</bdi> · {item.occurrence?.dir === -1 ? "לאחור" : "קדימה"} · מיקום <bdi>{item.occurrence?.start}</bdi></p>
+        {finding.label !== item.text ? <small>רצף האותיות: <bdi>{item.text}</bdi></small> : null}
+        <small>{finding.axisPart ? "חלק מהציר הראשי — לא הצלבה חדשה" : ({ crosses: "חוצה את הציר", touches: "צמוד לציר", far: "מרוחק מהציר" })[item.relation_to_axis?.relation] || ""}
           {number(item.chance?.expected_occurrences) ? ` · E≈${item.chance.expected_occurrences.toPrecision(2)}` : ""}</small>
+        {onSelectFinding ? <button type="button" className="els29-reading-show-finding" style={{ "--els29-reading-color": finding.color }}
+          disabled={!finding.visiblePositions.length} aria-pressed={overlayVisible && selectedKey === finding.key} onClick={() => onSelectFinding(finding.key)}>
+          {finding.visibility === "mismatch" ? "אין התאמה לאותיות המוצגות" : finding.visibility === "outside" ? "מחוץ לחלון התצוגה" : `הצג במטריצה: ${finding.label}${finding.visibility === "partial" ? " (חלק מהממצא)" : ""}`}
+        </button> : null}
         {item.model_claims?.note ? <details><summary>קריאת המודל</summary><p>{item.model_claims.note}</p></details> : null}
-      </li>)}</ul>
+      </li>; })}</ul>
+      <p>הרווחים וחלוקת המילים הם קריאת המודל; רצף האותיות המקורי נשמר. הסימון אינו מוסיף ממצאים לחיפוש ואינו משנה את הציר.</p>
       <p>האימות מאשר אותיות ומיקומים. E הוא אומדן לפי שכיחות אותיות, לא מדד לחוזק הסיפור או מובהקות מתוקנת.</p>
     </> : null}
     {complete && plain.length > 0 ? <details><summary>רצפים בטקסט הרגיל · {plain.length}</summary><p>{plain.map(item => item.text).join(" · ")}</p></details> : null}
@@ -52,7 +64,7 @@ function ReadingResult({ result }) {
   </section>;
 }
 
-export default function ElsMatrixReadingCard2029({ context, reading = {}, onSubmit, pending = false }) {
+export default function ElsMatrixReadingCard2029({ context, reading = {}, onSubmit, pending = false, projection, onSelectFinding, selectedKey, overlayVisible, onToggleOverlay }) {
   const mode = elsMatrixReadingMode(reading.mode);
   const session = reading.session;
   const { active, matching, progress, result } = selectElsMatrixReading(session, context?.axis);
@@ -110,7 +122,7 @@ export default function ElsMatrixReadingCard2029({ context, reading = {}, onSubm
     {local.error && sameElsMatrixReadingAxis(local.axis, axis) ? <p role="alert">{local.error}</p> : null}
     {!active && resume ? <button type="button" disabled={!available || session?.busy || local.pending || local.saving} onClick={() => submit({ ...reference, op: "status" })}>המשך מעקב אחר הסריקה</button> : null}
     {!active && mode === "on" ? <button type="button" disabled={!available || pending || session?.busy || local.pending || local.saving} onClick={() => submit({ op: "recover" })}>חזור לסריקה האחרונה של המופע</button> : null}
-    {result && !matching ? <ReadingResult result={result} /> : null}
+    {result && !matching ? <ReadingResult result={result} axis={axis} projection={projection} onSelectFinding={onSelectFinding} selectedKey={selectedKey} overlayVisible={overlayVisible} onToggleOverlay={onToggleOverlay} /> : null}
     {!session?.busy && result?.state === "COMPLETE" && session?.saveCurrentSession ? <button type="button" disabled={local.saving || local.pending} onClick={saveResult}>
       {local.saving ? "שומר…" : "שמור את השיחה והתוצאה"}
     </button> : null}

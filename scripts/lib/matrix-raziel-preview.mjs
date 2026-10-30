@@ -10,6 +10,7 @@ export const MATRIX_RAZIEL_PREVIEW_BRANCHES = new Set([
 export const MATRIX_READING_PREVIEW_BRANCHES = new Set([
   "gpt/els-fable-preview-activation-20261029",
   "gpt/els-fable-admin-default-20261030",
+  "gpt/els-fable-findings-matrix-20261030",
 ]);
 
 const DENY_MARKER = "  return new Response(JSON.stringify({error:'preview_read_only'})";

@@ -762,3 +762,9 @@
  .els29-native-classic button:active:not(:disabled){opacity:1;transition:none!important}
 }
 .sod29-root[data-frame-reduced-motion="true"] .els29-native-classic button:active:not(:disabled){opacity:1;transition:none!important}
+.els29-native-cell.is-ai-reading { box-shadow: inset 0 -3px 0 var(--els29-reading-color); }
+.els29-native-cell.is-ai-reading-selected { outline: 2px solid var(--els29-reading-color); outline-offset: -2px; }
+.els29-reading-matrix-caption { margin: 8px 12px; font-size: 16px; line-height: 1.6; }
+.els29-reading-show-finding { border-inline-start: 5px solid var(--els29-reading-color, var(--s29-accent)) !important; white-space: normal; text-align: start; }
+.els29-matrix-reading-result li[data-selected="true"] { background: var(--s29-panel-soft); border-color: var(--s29-accent); }
+.els29-reading-map-controls { display: grid; gap: 8px; }
