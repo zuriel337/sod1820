@@ -1,0 +1,33 @@
+{
+  "source": "public/legacy-dark-bg-2026-09-30.png",
+  "sourceBytes": 1470880,
+  "sourceSha256": "0289d00c78b42051480a93bfae095142e8e0de1f254c86972339c4be0f6c4911",
+  "owner": "Existing Post background photograph; build-time assets only",
+  "reproduction": "node scripts/prepare-post-background-assets.mjs --check",
+  "cache": "Existing vercel.json image headers: max-age=604800; stale-while-revalidate=86400",
+  "integration": "Not wired into Post CSS here; visual writer retains the existing background layer",
+  "variants": [
+    {
+      "href": "/legacy-dark-bg-post-720-8f3a91ae32df.webp",
+      "width": 720,
+      "height": 405,
+      "bytes": 5720,
+      "maxBytes": 30000,
+      "sha256": "8f3a91ae32df23294b891549aaba89e678efbf2dd258c7d907956d4ccd761546",
+      "decodedRgbBytes": 874800,
+      "reductionPercent": 99.61,
+      "psnrDb": 40.86
+    },
+    {
+      "href": "/legacy-dark-bg-post-1280-6ca0167e2dda.webp",
+      "width": 1280,
+      "height": 720,
+      "bytes": 13846,
+      "maxBytes": 60000,
+      "sha256": "6ca0167e2ddab3e6b3640b43936bbbf90d283164e0d7e17bd5e8965ee2647db7",
+      "decodedRgbBytes": 2764800,
+      "reductionPercent": 99.06,
+      "psnrDb": 41.67
+    }
+  ]
+}

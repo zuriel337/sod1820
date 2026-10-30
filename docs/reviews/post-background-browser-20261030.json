@@ -1,0 +1,126 @@
+{
+  "scope": "Actual Claude background CSS in a minimal browser fixture, with a proposed URL-only responsive substitution. Not a full-site speed or frame-rate benchmark.",
+  "base": "6d55338a57d9e009ec99d1671a84e1970691f434",
+  "baseline": [
+    {
+      "path": "/legacy-dark-bg-2026-09-30.png",
+      "bytes": 1470880
+    }
+  ],
+  "results": [
+    {
+      "width": 320,
+      "deviceScaleFactor": 2,
+      "theme": "dark",
+      "requests": [
+        {
+          "path": "/legacy-dark-bg-post-720-8f3a91ae32df.webp",
+          "bytes": 5720
+        }
+      ],
+      "background": "url(\"http://127.0.0.1:35715/legacy-dark-bg-post-720-8f3a91ae32df.webp\")",
+      "warmImageRequests": 0,
+      "firstResources": [
+        {
+          "name": "http://127.0.0.1:35715/legacy-dark-bg-post-720-8f3a91ae32df.webp",
+          "transferSize": 6020,
+          "decodedBodySize": 5720
+        }
+      ]
+    },
+    {
+      "width": 320,
+      "deviceScaleFactor": 2,
+      "theme": "light",
+      "requests": [],
+      "background": "none",
+      "warmImageRequests": 0,
+      "firstResources": []
+    },
+    {
+      "width": 320,
+      "deviceScaleFactor": 2,
+      "theme": "parchment",
+      "requests": [],
+      "background": "none",
+      "warmImageRequests": 0,
+      "firstResources": []
+    },
+    {
+      "width": 390,
+      "deviceScaleFactor": 2,
+      "theme": "dark",
+      "requests": [
+        {
+          "path": "/legacy-dark-bg-post-720-8f3a91ae32df.webp",
+          "bytes": 5720
+        }
+      ],
+      "background": "url(\"http://127.0.0.1:35715/legacy-dark-bg-post-720-8f3a91ae32df.webp\")",
+      "warmImageRequests": 0,
+      "firstResources": [
+        {
+          "name": "http://127.0.0.1:35715/legacy-dark-bg-post-720-8f3a91ae32df.webp",
+          "transferSize": 6020,
+          "decodedBodySize": 5720
+        }
+      ]
+    },
+    {
+      "width": 390,
+      "deviceScaleFactor": 2,
+      "theme": "light",
+      "requests": [],
+      "background": "none",
+      "warmImageRequests": 0,
+      "firstResources": []
+    },
+    {
+      "width": 390,
+      "deviceScaleFactor": 2,
+      "theme": "parchment",
+      "requests": [],
+      "background": "none",
+      "warmImageRequests": 0,
+      "firstResources": []
+    },
+    {
+      "width": 1440,
+      "deviceScaleFactor": 2,
+      "theme": "dark",
+      "requests": [
+        {
+          "path": "/legacy-dark-bg-post-1280-6ca0167e2dda.webp",
+          "bytes": 13846
+        }
+      ],
+      "background": "url(\"http://127.0.0.1:35715/legacy-dark-bg-post-1280-6ca0167e2dda.webp\")",
+      "warmImageRequests": 0,
+      "firstResources": [
+        {
+          "name": "http://127.0.0.1:35715/legacy-dark-bg-post-1280-6ca0167e2dda.webp",
+          "transferSize": 14146,
+          "decodedBodySize": 13846
+        }
+      ]
+    },
+    {
+      "width": 1440,
+      "deviceScaleFactor": 2,
+      "theme": "light",
+      "requests": [],
+      "background": "none",
+      "warmImageRequests": 0,
+      "firstResources": []
+    },
+    {
+      "width": 1440,
+      "deviceScaleFactor": 2,
+      "theme": "parchment",
+      "requests": [],
+      "background": "none",
+      "warmImageRequests": 0,
+      "firstResources": []
+    }
+  ]
+}
