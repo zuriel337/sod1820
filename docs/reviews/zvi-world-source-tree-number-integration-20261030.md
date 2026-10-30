@@ -41,23 +41,31 @@ coordination AFTER rather than inferred from this document.
 
 ## Content and remaining work
 
-The individually reviewed identity manifest contains 229 exact fingerprints,
+The individually reviewed identity manifest contains 248 exact fingerprints,
 including five additions to the earlier 218 and six further independently
-reviewed source-complete findings. The six further findings were read through
-anon, their full statements exactly match live source messages, and no exact
+reviewed source-complete findings, followed by 19 additional source-complete
+findings screened individually for research content, privacy, source fidelity
+and exact duplicate statements. All 19 were independently rechecked through
+anon for identity, fingerprints and live source. The previous six findings
+were read through anon, their full statements exactly match live source messages, and no exact
 statement duplicate was found. Arithmetic was checked in two; their gematria
 and interpretations were not checked by the canonical engine.
-The five earlier additions have arithmetic rechecked against their source; only three also had their stated gematria
-operands checked against the canonical method. This is a bounded review of the
+The five earlier additions have arithmetic rechecked against their source;
+only three also had their stated gematria operands checked against the canonical method. This is a bounded review of the
 finding, not a claim that every part of each source was editorially or privacy
 reviewed, nor that every finding was verified by the engine. Changed content,
 unavailable sources and failed eligibility checks fail closed.
 
-The earlier bounded assessment covered 472 mixed records. Following the eleven
-additions, 198 still require review; 45 were excluded from research presentation as nonresearch or personal. No
-records were deleted. These counts describe that assessment, not a live total
+The earlier bounded assessment covered 472 mixed records. Following the thirty
+additions, 179 still require review; 45 were excluded from research
+presentation as nonresearch or personal. No records were deleted. These counts describe that assessment, not a live total
 or proof that all Zvi material is ready for display. Further associations to
 topics and tree nodes require evidence and the appropriate separate review.
+The pending group includes extracts that may be cut mid-sentence, OCR or
+source fidelity requiring inspection, ambiguous or personal material, and
+repeated text from distinct sources. Preserve every source occurrence; do not
+merge or delete duplicates. An OCR excerpt is not an exact verified quotation
+without comparison to its source.
 
 ## Validation status
 
