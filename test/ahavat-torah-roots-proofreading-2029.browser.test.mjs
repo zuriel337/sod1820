@@ -1,4 +1,4 @@
-import { AHAVAT_PDF_BYTES, AHAVAT_PDF_URL, assertAhavatSourcePage, ahavatSourceHref } from "./fixtures/ahavat-controlled-source-2029.mjs";
+import { AHAVAT_PDF_BYTES, AHAVAT_PDF_URL, assertAhavatSourcePage } from "./fixtures/ahavat-controlled-source-2029.mjs";
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync, existsSync, mkdirSync } from "node:fs";
@@ -35,7 +35,7 @@ async function setup(width, theme, pdf = false) {
   const context = await browser.newContext({ viewport: { width, height: 1000 }, reducedMotion: "reduce" });
   await context.addInitScript(value => { if (location.hostname === "127.0.0.1") localStorage.setItem("sod-theme", value); }, theme);
   await context.route("**/*", async route => {
-      if (route.request().url() === AHAVAT_PDF_URL) return route.fulfill({ contentType: "application/pdf", body: AHAVAT_PDF_BYTES });
+      if (pdf && route.request().url() === AHAVAT_PDF_URL) return route.fulfill({ contentType: "application/pdf", body: AHAVAT_PDF_BYTES });
     const url = new URL(route.request().url());
     if (url.origin === origin && route.request().isNavigationRequest() && url.pathname === "/2029/control") {
       const response = await context.request.get(`${origin}/2029.html`);
@@ -50,6 +50,19 @@ async function setup(width, theme, pdf = false) {
   const errors = [];
   page.on("pageerror", error => errors.push(error.message));
   return { page, origin, errors, close: async () => { await context.close(); await browser.close(); await server.close(); } };
+}
+
+// The original bulk UI case intentionally aborts PDF delivery. Preserve its
+// requested-source URL assertions; this is not a rendered-page acceptance.
+// The separate real-witness case below covers all five physical source pages
+// in nine contexts, in addition to the independent 99-page raster suite.
+async function requestedSourceHref(source) {
+  const href = await source.locator("a[data-book-reader-secondary]").getAttribute("href");
+  assert.ok(href.startsWith(`${AHAVAT_PDF_URL}#page=`));
+  const physical = Number(new URLSearchParams(new URL(href).hash.slice(1)).get("page"));
+  assert.equal(Number(await source.locator('[data-book-pdf-renderer="controlled"]').getAttribute("data-book-requested-page")), physical);
+  assert.equal(await source.locator('[data-book-pdf-painted="true"]').count(), 0, "an aborted source is never accepted as painted");
+  return href;
 }
 
 for (const width of [320, 390, 1440]) test(`all ten source proofreading columns preserve evidence/search/return in three themes at ${width}`, { timeout: 240_000 }, async () => {
@@ -79,7 +92,7 @@ for (const width of [320, 390, 1440]) test(`all ten source proofreading columns 
         assert.deepEqual(actual, fragment.readingDetails.map(detail => ({ id: detail.id, state: detail.supersededBy ? "withdrawn" : detail.restoresReadingId ? "restoration" : "current", before: detail.before, after: detail.after, button: `מקור התיקון · PDF ${detail.pdfPage}` })));
         for (const detail of [fragment.readingDetails[0], fragment.readingDetails.at(-1)]) {
           await click(unit.locator(`[data-root-reading="${detail.id}"]`).getByRole("button"));
-          assert.match(await ahavatSourceHref(source), new RegExp(`#page=${fragment.pdf_page}&view=FitH$`));
+          assert.match(await requestedSourceHref(source), new RegExp(`#page=${fragment.pdf_page}&view=FitH$`));
           assert.equal(new URL(page.url()).searchParams.get("readerUnit"), fragment.id);
           await click(source.getByRole("link", { name: "חזור ליחידת הקריאה", exact: true }));
           await page.waitForFunction(id => document.activeElement?.closest("[data-reader-unit]")?.dataset.readerUnit === id, fragment.id);
@@ -94,7 +107,7 @@ for (const width of [320, 390, 1440]) test(`all ten source proofreading columns 
           assert.ok((await row.textContent()).includes(review.displayStatus));
           assert.ok((await row.textContent()).includes(review.explanation));
           await click(row.getByRole("button", { name: `מקור הקריאה החוזרת · PDF ${review.pdfPage}`, exact: true }));
-          assert.match(await ahavatSourceHref(source), new RegExp(`#page=${review.pdfPage}&view=FitH$`));
+          assert.match(await requestedSourceHref(source), new RegExp(`#page=${review.pdfPage}&view=FitH$`));
           await click(source.getByRole("link", { name: "חזור ליחידת הקריאה", exact: true }));
           await page.waitForFunction(id => document.activeElement?.closest("[data-reader-unit]")?.dataset.readerUnit === id, fragment.id);
         }
@@ -105,7 +118,7 @@ for (const width of [320, 390, 1440]) test(`all ten source proofreading columns 
         await unit.locator("pre").waitFor();
         assert.equal(await search.inputValue(), reading.after);
         assert.equal(new URL(page.url()).searchParams.get("readerUnit"), fragment.id);
-        assert.match(await ahavatSourceHref(source), new RegExp(`#page=${fragment.pdf_page}&view=FitH$`));
+        assert.match(await requestedSourceHref(source), new RegExp(`#page=${fragment.pdf_page}&view=FitH$`));
         assert.equal(await page.locator("canvas:not([data-book-pdf-canvas])").count(), 0);
       }
       assert.deepEqual(errors, []);
