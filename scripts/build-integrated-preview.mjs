@@ -3,11 +3,12 @@ import { build } from "vite";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { readFile, writeFile, copyFile, mkdir } from "node:fs/promises";
-import { selectMatrixRazielPreview, buildMatrixRazielPreviewWorker, MATRIX_READING_PREVIEW_BRANCHES } from "./lib/matrix-raziel-preview.mjs";
+import { selectMatrixRazielPreview, buildMatrixRazielPreviewWorker, MATRIX_READING_PREVIEW_BRANCHES, RAZIEL_ACCOUNT_PREVIEW_BRANCH } from "./lib/matrix-raziel-preview.mjs";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 const output = resolve(root, "preview-deploy/dist");
 const matrixReadingPreview = process.env.VERCEL_ENV === "preview" && MATRIX_READING_PREVIEW_BRANCHES.has(process.env.VERCEL_GIT_COMMIT_REF);
+const razielAccountPreview = matrixReadingPreview && process.env.VERCEL_GIT_COMMIT_REF === RAZIEL_ACCOUNT_PREVIEW_BRANCH;
 process.env.SOD_BUILD_TARGET = "2029";
 await build({ root, define: {
   "import.meta.env.VITE_INTEGRATED_PREVIEW": '"true"',
@@ -91,12 +92,12 @@ if (razielSafeActionsMock) {
 // The page still uses the existing global Raziel session and the existing ai-analyze route; nothing is deployed here.
 const selectedMatrixBranch = selectMatrixRazielPreview(process.env);
 if (selectedMatrixBranch) {
-  const matrixWorker = buildMatrixRazielPreviewWorker(worker, { readingOnly: matrixReadingPreview });
+  const matrixWorker = buildMatrixRazielPreviewWorker(worker, { readingOnly: matrixReadingPreview, branch: selectedMatrixBranch });
   await writeFile(resolve(output, "preview-readonly-sw.js"), matrixWorker);
   await writeFile(resolve(output, "sw.js"), matrixWorker);
   const { execFileSync } = await import("node:child_process");
   const sha = process.env.VERCEL_GIT_COMMIT_SHA || execFileSync("git", ["rev-parse", "HEAD"], { cwd: root, encoding: "utf8" }).trim();
-  await writeFile(resolve(output, "preview-identity.json"), JSON.stringify({ sha, branch: selectedMatrixBranch, transport: matrixReadingPreview ? "live-ai-analyze-matrix-reading-only" : "live-ai-analyze-matrix-request-only", product_writes: matrixReadingPreview, write_scope: matrixReadingPreview ? "private-reading-jobs-and-cost-log-only" : null, edge_deploy: false }));
+  await writeFile(resolve(output, "preview-identity.json"), JSON.stringify({ sha, branch: selectedMatrixBranch, transport: razielAccountPreview ? "existing-raziel-submit-and-private-research-sync" : matrixReadingPreview ? "live-ai-analyze-matrix-reading-only" : "live-ai-analyze-matrix-request-only", product_writes: matrixReadingPreview, write_scope: razielAccountPreview ? "private-research-sync-reading-jobs-and-cost-log" : matrixReadingPreview ? "private-reading-jobs-and-cost-log-only" : null, edge_deploy: false }));
 }
 const bootstrap = `<script type="module">if(!('serviceWorker' in navigator)){document.body.textContent='פריוויו זה דורש דפדפן התומך בתצוגה לקריאה בלבד.';}else{await navigator.serviceWorker.register('/preview-readonly-sw.js',{scope:'/'});await navigator.serviceWorker.ready;if(!navigator.serviceWorker.controller)await new Promise(r=>navigator.serviceWorker.addEventListener('controllerchange',r,{once:true}));await import('__ENTRY__');}</script>`;
 let html = await readFile(resolve(output, "2029.html"), "utf8");
@@ -114,7 +115,8 @@ if (selectedMatrixBranch) {
   const readingNotice = notice
     .replace(/style="[^"]*"/, 'style="margin:12px;padding:10px;border:1px solid currentColor;border-radius:8px;font:inherit;font-size:16px;line-height:1.5;text-align:center;overflow-wrap:anywhere"')
     .replace('פריוויו בדיקה · רזיאל נקרא רק בלחיצה מפורשת על „בקש מרזיאל לבדוק את המטריצה” · אין כתיבה למוצר.', 'פריוויו · סריקת Fable למנהל בלבד ובכפוף להפעלת השרת · עד $2 לסריקה · נשמרים מעקב ועלות.');
-  html = html.replace("</body>", (matrixReadingPreview ? readingNotice : notice) + "</body>");
+  const accountNotice = readingNotice.replace('נשמרים מעקב ועלות.', 'שאלות נשלחות לרזיאל הקיים; המחקר הפרטי מסונכרן לחשבון. שיחה נשמרת רק בלחיצה. נשמרים מעקב ועלות.');
+  html = html.replace("</body>", (razielAccountPreview ? accountNotice : matrixReadingPreview ? readingNotice : notice) + "</body>");
 }
 await writeFile(resolve(output, "2029.html"), html);
 await writeFile(resolve(output, "index.html"), html);

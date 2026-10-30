@@ -18,6 +18,7 @@ import { resolveExperienceContext } from "../../lib/experienceContext.js";
 import { useResearch } from "../../lib/research/ResearchProvider.jsx";
 import { buildExactReturnPatch, researchContextNumber } from "../../lib/research/researchContext.js";
 import { useAuth } from "../../lib/AuthContext.jsx";
+import { razielSavedSyncCopy, canRetryRazielSync, RAZIEL_LOCAL_SAVE_NOTICE } from "../../lib/research/razielSavedSync2029.js";
 import { useFeatureState } from "../MaintenanceLock.jsx";
 import { CORE_PUBLIC_LAUNCH_2029 } from "../../lib/publicLaunch2029.js";
 import { requestEmailOtp, verifyEmailOtp, signInWithPassword, signInWithGoogle } from "../../lib/auth.js";
@@ -700,6 +701,7 @@ function savedRazielDate(value) {
 // One temporary Raziel conversation is shared by the desktop Companion and the mobile sheet.
 // Opening, navigating and changing view mode make no AI call; only an explicit submit crosses the transport.
 function RazielNativeChat({ context, label, numberFocus, readingFocus, elsFocus = null, primary = false, projection = "mobile", onSignup = null }) {
+  const researchSync = useResearch();
   const session = useOptionalRazielSession2029();
   const { user } = useAuth();
   const [text, setText] = useState("");
@@ -746,9 +748,7 @@ function RazielNativeChat({ context, label, numberFocus, readingFocus, elsFocus 
     setSavedNotice("");
     const result = await session.saveCurrentSession?.();
     setSavedNotice(result?.ok
-      ? (session.savedSessionsSyncStatus === "synced" ? "השיחה נשמרה באופן פרטי בחשבון."
-        : session.savedSessionsSyncStatus === "local_only" ? "השיחה נשמרה מקומית בדפדפן הזה. כניסה לחשבון תאפשר סנכרון פרטי."
-          : "השיחה נשמרה; הסנכרון הפרטי ממשיך דרך השיחות שלך.")
+      ? RAZIEL_LOCAL_SAVE_NOTICE
       : result?.error === "session_too_large" ? "השיחה ארוכה מדי לשמירה אחת. כדאי לפתוח שיחה חדשה ולשמור את החלק הבא בנפרד."
         : "לא הצלחנו לשמור את השיחה כרגע.");
   };
@@ -815,12 +815,14 @@ function RazielNativeChat({ context, label, numberFocus, readingFocus, elsFocus 
       </div> : null}
       <div className="sod29-raziel-session-actions" aria-label="שמירה והיסטוריה של שיחות רזיאל">
         <button className="sod29-action" type="button" disabled={busy || !lastRaziel} data-raziel-save-session="true" onClick={saveConversation}>♡ שמור שיחה</button>
-        <button className="sod29-action" type="button" disabled={busy || !session.savedSessions?.length} aria-expanded={savedOpen} data-raziel-saved-sessions="true" onClick={() => setSavedOpen((open) => !open)}>▤ השיחות שלי{session.savedSessions?.length ? ` · ${session.savedSessions.length}` : ""}</button>
+        <button className="sod29-action" type="button" aria-expanded={savedOpen} data-raziel-saved-sessions="true" onClick={() => setSavedOpen((open) => !open)}>▤ השיחות שלי{session.savedSessions?.length ? ` · ${session.savedSessions.length}` : ""}</button>
         <button className="sod29-action" type="button" disabled={busy || !thread.length} data-raziel-new-session="true" onClick={newConversation}>＋ שיחה חדשה</button>
       </div>
       {savedOpen ? <div className="sod29-raziel-saved-panel" data-raziel-saved-panel="true">
         <b>השיחות השמורות שלי</b>
-        <small>{session.savedSessionsSyncStatus === "synced" ? "פרטי ומסונכרן לחשבון" : session.savedSessionsSyncStatus === "local_only" ? "מקומי בדפדפן הזה" : "בסנכרון עם החשבון"}</small>
+        <small role="status" data-raziel-saved-sync={session.savedSessionsSyncStatus}>{razielSavedSyncCopy(session.savedSessionsSyncStatus)}</small>
+        {canRetryRazielSync(session.savedSessionsSyncStatus) ? <button className="sod29-action" type="button" onClick={() => researchSync.retryResearchSync?.()}>נסה לסנכרן שוב</button> : null}
+        {!session.savedSessions?.length ? <p>כאן יוצגו שיחות שנשמרו במפורש באמצעות „שמור שיחה”. שיחות שלא נשמרו אינן היסטוריה אוטומטית בחשבון.</p> : null}
         <ul>
           {session.savedSessions.map((saved) => <li key={saved.id}>
             <button type="button" className="sod29-raziel-saved-open" onClick={() => openConversation(saved)}>
@@ -832,6 +834,7 @@ function RazielNativeChat({ context, label, numberFocus, readingFocus, elsFocus 
         </ul>
       </div> : null}
       {savedNotice ? <small className="sod29-raziel-save-notice" role="status">{savedNotice}</small> : null}
+      {savedNotice && !savedOpen ? <small role="status" data-raziel-saved-sync={session.savedSessionsSyncStatus}>{razielSavedSyncCopy(session.savedSessionsSyncStatus)}</small> : null}
       {!user?.id && lastRaziel ? guestQuotaEnded ? <div className="sod29-raziel-deep-offer" data-raziel-quota-ended="guest" role="status">
         <p>שיחות הניסיון להיום הסתיימו. הרשמה חינמית תאפשר לך להמשיך לדבר עם רזיאל ולשמור את השיחות שלך.</p>
         {onSignup ? <button className="sod29-action primary" type="button" onClick={onSignup}>הרשמה בחינם</button> : null}
