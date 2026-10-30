@@ -61,3 +61,8 @@ test("the one additional attribution reading restores exactly to its previous so
   const previous = AHAVAT_PEOPLE_BOOKS.map(book => ({ ...book, rows: book.rows.map(row => row.id === reading.id ? { ...row, words: { printed: reading.previousPrinted, value: reading.previousValue } } : row) }));
   assert.equal(hash(JSON.stringify(previous)), "8efeaadcc725a1f91407b99d36867ffcc0363c9915d6716793d1843a56e17c42");
 });
+test("closing the source-map disclosure clears only its scene, using the existing unmount cleanup", () => {
+  const page = read("src/pages/AhavatTorahSystem2029Page.jsx").toString();
+  assert.match(page, /onToggle=\{event => \{ if \(!event.currentTarget.open\) setActiveScene\(current => current === "datasets" \? "" : current\); \}\}><summary>מפת עמודי המקור ופרטי הקריאה/);
+  assert.match(page, /showScene \? <div className="ahavat29-spatial-scene">/);
+});

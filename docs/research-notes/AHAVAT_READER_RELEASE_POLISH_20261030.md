@@ -94,6 +94,10 @@ Ownership recheck found the canonical AFTER rows `b93865ca-bedd-4c38-b85b-fba71f
 
 ## AFTER
 
+### BEFORE — nested source-map resource acceptance
+
+Follow-up within this same isolated book cut: code inspection after the first hosted acceptance identified that closing the newly introduced outer source-details disclosure could leave its explicitly opened datasets scene mounted. Reclaim only this page and its release acceptance test to dispose the nested scene on disclosure close, retaining any unrelated active book model. No new content/source/design/permission scope. Add real open→fold→unmount→reopen acceptance across all twelve contexts. The previous two-commit checkpoint remains recoverable; it is not the final handed-off Preview. This local continuation is not a live journal claim.
+
 Runtime/content checkpoint: `2da80ef3`; same isolated branch above the stated base, no merge or imported commits. A documentation-only acceptance commit follows it. The full final HEAD/range, push confirmation, protected deployment and hosted results are recorded in the external passive handoff receipt under the artifact directory, so the receipt can name the exact tested commit without a self-referential commit hash.
 
 Local final acceptance, 30.10.2026:
@@ -109,3 +113,11 @@ Local final acceptance, 30.10.2026:
 The live alias baseline was `dpl_AiKPHaoo5pxo9T5PFTpcBRG7LfMA`, metadata SHA `8bc5980fe80fdee30652c8f2364608b5916180e3`, on all three Production aliases. It differs from the repository's old locked deployment marker. The repository gate passing does not mean those two deployments match. No alias/promotion/rollback or repair of that unrelated baseline is authorized or performed here; before/after checks are retained in the passive handoff.
 
 No main/central merge, Production, DB/RLS, permission, subscription, publication-state or other-book changes. No dependency was added; automation used the existing retained dependencies. The task-owned temporary node_modules symlink is removed after local acceptance, without changing its target. File-writing scope is released to ZURIEL at this checkpoint; any hosted acceptance failure must be reported before further changes. The journal remains read-only: no live BEFORE/AFTER, dispatch, ACK or live-release record is claimed. The source gaps above remain explicit; this is **not** a declaration of a complete critical transcription or paragraph-by-paragraph commentary.
+
+### AFTER — source-map disclosure follow-up
+
+The added regression failed on the prior code after opening a real scene and folding its outer details: the canvas remained mounted. A page-local toggle now clears **only** the `datasets` active scene when its owning disclosure closes. This invokes the existing R3F/control unmount cleanup, without resetting another model or changing renderer/design/source data. Reopening the disclosure does not auto-start 3D.
+
+Final follow-up acceptance: whole non-browser Books **437/437**, no skips; full primary-copy/navigation matrix **12/12** width/theme contexts, now also asserting explicit 3D open → outer fold → canvas unmount → reopen without auto-start. Language/Auth **7/7**, all three builds/graph gates, isolation, hardening and repository Legacy lock passed again. Final eager gzip bytes: **380,361 / 377,497 / 377,870**. The earlier four broad browser suites/27 contexts and two real built-source contexts remain retained at the immediately preceding `3dfa0767` checkpoint; they are not mislabeled as reruns on this one-handler follow-up. A new exact-HEAD hosted acceptance receipt supersedes the previous protected deployment, which had independently passed 9/9 source contexts. No budgets, deadlines or fidelity checks were relaxed.
+
+This continuation ends with one additional scoped commit, push, a clean remote-matching tree and local file-writing ownership released to ZURIEL again. Temporary automation symlink removed again; no live journal release is claimed. The final hosted deployment/HEAD and before/after Production alias checks are in the passive receipt; the earlier Preview is not the link to hand off.

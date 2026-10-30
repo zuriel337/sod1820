@@ -84,12 +84,22 @@ test("all primary reading surfaces, seven accounts and preserved research detail
       assert.equal(await page.locator(".is-contradictions > article").count(), 10);
       await click(page.getByText("רישומי מחקר מוקדמים", { exact: true }));
       assert.equal(await page.locator(".ahavat29-spatial-legend").isVisible(), false);
+      const mapDetails = page.getByText("מפת עמודי המקור ופרטי הקריאה", { exact: true });
+      await click(mapDetails);
+      await click(page.getByRole("button", { name: "פתח מצפה תלת־ממדי", exact: true }));
+      await page.locator(".ahavat29-spatial-canvas canvas").waitFor();
+      await click(mapDetails);
+      await page.waitForFunction(() => document.querySelectorAll(".ahavat29-spatial-canvas canvas").length === 0, null, { timeout: 5000 });
+      await click(mapDetails);
+      assert.equal(await page.getByRole("button", { name: "פתח מצפה תלת־ממדי", exact: true }).getAttribute("aria-expanded"), "false");
+      assert.equal(await page.locator(".ahavat29-spatial-canvas canvas").count(), 0, "reopening source details must not automatically reallocate GPU resources");
+      await click(mapDetails);
       assert.equal(await page.locator("canvas:not([data-book-pdf-canvas])").count(), 0);
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1), false);
       await heading.scrollIntoViewIfNeeded();
       await page.screenshot({ path: `${out}/${width}-${theme}.png` });
       assert.deepEqual(errors, []);
-      results.push({ width, theme, locatedTopics: 11, accounts: 7, families: 9, historyRetained: 10, pdfDelivery: "intentionally_aborted_not_render_proof", errors });
+      results.push({ width, theme, locatedTopics: 11, accounts: 7, families: 9, historyRetained: 10, sourceMapUnmountsOnFold: true, sourceMapDoesNotAutostartOnReopen: true, pdfDelivery: "intentionally_aborted_not_render_proof", errors });
       await context.close();
     }
   } finally {

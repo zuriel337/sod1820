@@ -648,7 +648,7 @@ function SpatialTables({ bundle, bundleState, selectedId, onSelect, onPage, focu
     <AhavatTorahMegillotReader2029 onPage={onPage} selectedDatasetId={selectedId} activeScene={activeScene} onScene={setActiveScene} />
     <AhavatTorahPrintedNotes2029 onPage={onPage} />
 
-    <details className="ahavat29-source-details"><summary>מפת עמודי המקור ופרטי הקריאה</summary><p>מפת התמצאות לפי עמודים ורישומי קריאה. המגדלים והצבעים הם עזר לניווט, ולא מבנה תלת־ממדי ששרטט המחבר.</p>
+    <details className="ahavat29-source-details" onToggle={event => { if (!event.currentTarget.open) setActiveScene(current => current === "datasets" ? "" : current); }}><summary>מפת עמודי המקור ופרטי הקריאה</summary><p>מפת התמצאות לפי עמודים ורישומי קריאה. המגדלים והצבעים הם עזר לניווט, ולא מבנה תלת־ממדי ששרטט המחבר.</p>
     <div className="ahavat29-spatial-key" aria-label="מקרא המצפה">
       <span><i className="is-height" />גובה = מספר עמודי מקור</span>
       <span><i className="is-color" />צבע = מצב קריאה</span>
