@@ -176,3 +176,51 @@ and theme/typography acceptance are recorded below after completion.
 No App/config/Frame/Provider/reader/model/engine, blocked envelope, DB/RLS/privacy,
 publication, main, Edge, Production or domain changes. This changes the pilot's
 public presentation, not its evidence or admission rules and not all galleries.
+
+### Design revision verification and hosted boundary
+
+Runtime: `fd3124aa5b7fc70e3dc10d628cc64433f1081985`.
+Protected deployment `dpl_B5CidnpiJPUD45buwUnEw3xWeBoQ`, READY, target `null`,
+build about19 seconds; existing team/project and enabled SSO checked.
+
+- https://sod1820-2dft9uoho-sod1820-s-projects.vercel.app/world?view=gallery&gallery=29
+- https://sod1820-2dft9uoho-sod1820-s-projects.vercel.app/world?view=gallery&gallery=81
+
+Local live-anonymous acceptance passed at390/1440 for both galleries, shared
+1237 depth, exact source/method/Number return and all three existing presets.
+Measured caption18px, controls16px, supporting kind16px; Number uses the numeric
+face while Hebrew retains the UI face. Controls at least44px, one column on
+mobile/two on desktop, whole images and zero horizontal overflow. Zero page
+errors/model requests or blocked/escaped product writes. Local evidence:
+`/tmp/gallery-public-flow-final-local`.
+
+Important: the first full hosted regression passed the390 gallery checks and
+three presets, then timed out waiting for Topic1118's “ממצאים דרך המספר” region.
+The cause was not established; the public Topic view still returns its approved
+row, which does not prove browser availability. Do NOT claim the full hosted
+World/Zvi regression passed. App, Topic, readers, Frame and configuration are
+byte-unchanged by this design cut. The full test retains its strict assertions.
+An explicit `PREVIEW_GALLERY_REVIEW_ONLY=true` acceptance subset was added for
+the owned gallery design; its report explicitly excludes Topic1118/Zvi and is
+not a substitute for closing that open regression. No product fix was attempted
+outside the design scope.
+
+Independent hosted identity verified the exact runtime SHA/branch, mock-only
+transport, product_writes=false, edge_deploy=false, unifiedReadOnly worker,
+no-store/noindex and retained protection. Identity evidence:
+`/tmp/gallery-public-flow-hosted-identity.log`; credentials never printed/saved.
+The Preview-only transport notice is not part of this public content design.
+
+Targeted hosted design acceptance PASSED at390/1440 for the exact deployed
+runtime: both galleries, original images, exact source→canonical method Number
+→exact return, all three presets, measured type/touch targets and zero overflow.
+Zero page errors/model calls or blocked/escaped product writes. Screenshots of
+the final Night mobile/desktop design were visually inspected. Evidence:
+`/tmp/gallery-public-flow-hosted-review`; report explicitly identifies its subset.
+The separate Topic1118 full-regression timeout above remains OPEN, not hidden
+or reclassified as a passing test. The inherited Frame assertion also remains.
+
+Receipt/test-scope-only follow-up changes no src/runtime/build configuration
+relative to the deployed SHA. Status: IMPLEMENTED / GALLERY_TESTED /
+PROTECTED_DESIGN_PREVIEW_VERIFIED, NOT FULL_WORLD_REGRESSION_ACCEPTED.
+Layout remains ZURIEL's visual review, not aesthetic acceptance or Claude approval.

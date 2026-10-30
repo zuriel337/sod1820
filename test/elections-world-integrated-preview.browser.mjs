@@ -256,6 +256,11 @@ try {
     }
     report.nativeGalleries.push({width,galleries:[29,81],sourceRef:`gallery_images:${nativeId}`,
       expression:'התגלות',method:'קדמי',value:3137,exactReturn:true,wholeImage:true,galleryType,presets:['light','parchment','dark']});
+    // Explicit design-review subset, not a replacement for the full regression
+    // default. The unrelated Topic1118/World check remains strict below.
+    if(process.env.PREVIEW_GALLERY_REVIEW_ONLY==='true'){
+      report.widths.push(width);await context.close();continue;
+    }
     await page.goto(origin + "/topic/gapfill-1118#topic-number-research-1118");
     const through = page.getByRole("region", { name: "ממצאים דרך המספר", exact: true });
     await through.waitFor();
@@ -280,7 +285,9 @@ try {
   }
   assert.deepEqual(report.errors, [], "no page errors");
   assert.deepEqual(report.modelRequests, [], "no model request on navigation");
-  console.log(JSON.stringify({ ...report, blocked: [...new Set(report.blocked)], origin, productWrites: false, data: "live public anonymous", coverage: "1237 shared method depth; native galleries29/81, exact source -> canonical method Number -> exact return; Topic1118 -> World finding -> Back; World Zvi entry" }, null, 2));
+  console.log(JSON.stringify({ ...report, blocked: [...new Set(report.blocked)], origin, productWrites: false, data: "live public anonymous", coverage: process.env.PREVIEW_GALLERY_REVIEW_ONLY==='true'
+    ? "Explicit gallery-design subset:1237 shared depth and exact source; galleries29/81, source->method Number->exact return, three presets and typography; excludes Topic1118/Zvi regression"
+    : "1237 shared method depth; native galleries29/81, exact source -> canonical method Number -> exact return; Topic1118 -> World finding -> Back; World Zvi entry" }, null, 2));
 } finally {
   await browser?.close();
   if (server) await new Promise(done => server.close(done));
