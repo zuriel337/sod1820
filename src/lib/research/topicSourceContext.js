@@ -6,6 +6,57 @@ import { canonicalMediaPresentation, canonicalMediaPublicLabel } from "../presen
 export const TOPIC_SOURCE_LIMIT = 64;
 export const TOPIC_OCCURRENCE_LIMIT = 256;
 
+export function storedGalleryOrderIds(rows) {
+  return [...new Set((Array.isArray(rows) ? [...rows] : [])
+    .filter((row) => row?.id)
+    .sort((a, b) => (Number(a.ordering ?? Infinity) - Number(b.ordering ?? Infinity)) || String(a.id).localeCompare(String(b.id)))
+    .map((row) => String(row.id)))];
+}
+
+// Existing 1237 pager, shared here under its source-context owner. Readers remain
+// injected, unchanged, and re-admit the selected public rows on every window.
+export async function loadPublicGallerySourcePage({ wpGalleryId, listGalleryImages, fetchSourceContext, offset = 0, limit = 6 }) {
+  if (!Number.isSafeInteger(wpGalleryId) || wpGalleryId < 1 || !Number.isSafeInteger(offset) || offset < 0
+    || !Number.isSafeInteger(limit) || limit < 1 || limit > 12) throw new RangeError("Invalid bounded gallery window");
+  const candidates = storedGalleryOrderIds(await listGalleryImages(wpGalleryId));
+  const slice = candidates.slice(offset, offset + limit);
+  const { items = [], occurrencesTruncated = false } = slice.length ? await fetchSourceContext({ imageIds: slice }) : {};
+  const order = new Map(slice.map((id, index) => [id, index]));
+  const admitted = [...new Map(items.filter((item) => item?.galleryImageId && order.has(item.galleryImageId))
+    .map((item) => [item.galleryImageId, item])).values()]
+    .sort((a, b) => order.get(a.galleryImageId) - order.get(b.galleryImageId));
+  return { wpGalleryId, items: admitted, offset, limit, scannedIds: slice,
+    totalListed: candidates.length, hasMore: offset + limit < candidates.length,
+    nextOffset: Math.min(offset + limit, candidates.length), occurrencesTruncated,
+    withheld: slice.length - admitted.length };
+}
+
+// Resolve an occurrence, not merely a shared image object. No new route is
+// advertised: /archive currently reopens only the gallery, not an exact image.
+export function resolvePublicGallerySelection(page, galleryImageId) {
+  const empty = (status) => ({ status, item: null, occurrence: null, selection: null });
+  if (!page || !Number.isSafeInteger(page.wpGalleryId) || page.wpGalleryId < 1
+    || typeof galleryImageId !== "string" || !galleryImageId) return empty("unavailable");
+  if (!page.scannedIds?.includes(galleryImageId)) return empty("not_in_loaded_window");
+  const matches = [];
+  for (const item of page.items || []) {
+    if (item?.access?.scope !== "public" || item.access.available === false) continue;
+    for (const occurrence of item.occurrences || []) {
+      const p = occurrence.legacyPlacement;
+      if (p?.galleryImageId === galleryImageId && p.wpGalleryId === page.wpGalleryId
+        && occurrence.intrinsic?.galleryImageId === galleryImageId
+        && occurrence.mediaId === occurrence.intrinsic?.mediaId
+        && occurrence.intrinsic?.representation?.imageUrl === item.imageUrl
+        && occurrence.provenance?.sourceRef === `gallery_images:${galleryImageId}`) matches.push({ item, occurrence });
+    }
+  }
+  if (matches.length !== 1) return empty("unavailable");
+  const { item, occurrence } = matches[0], p = occurrence.legacyPlacement;
+  return { status: "ready", item, occurrence, selection: { galleryImageId, wpGalleryId: p.wpGalleryId,
+    galleryId: p.galleryId, ordering: p.ordering, sourceRef: occurrence.provenance.sourceRef,
+    mediaId: occurrence.mediaId, dateUse: "provenance_only" } };
+}
+
 // This is one source locator, NOT permission to read its research_object/public_candidate.
 // Re-read the public post and require the mapped figure + exact statement on every request.
 export const INDIA_CAPTAIN_SOURCE = Object.freeze({

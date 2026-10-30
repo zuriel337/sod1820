@@ -88,34 +88,9 @@ export function gateMethodFocus2029(card) {
 
 // ── galleries ─────────────────────────────────────────────────────────────────────────────
 // Stored gallery order only. Legacy "importance" is never a ranking signal here.
-export function storedOrderIds(rows) {
-  return [...new Set(list(rows)
-    .filter((row) => row?.id)
-    .sort((a, b) => (Number(a.ordering ?? Infinity) - Number(b.ordering ?? Infinity)) || String(a.id).localeCompare(String(b.id)))
-    .map((row) => String(row.id)))];
-}
-
-export async function loadGalleryPage({ wpGalleryId, listGalleryImages, fetchSourceContext, offset = 0, limit = GALLERY_PAGE_SIZE }) {
-  const candidates = storedOrderIds(await listGalleryImages(wpGalleryId));
-  const slice = candidates.slice(offset, offset + limit);
-  const { items = [], occurrencesTruncated = false } = slice.length ? await fetchSourceContext({ imageIds: slice }) : {};
-  // Fresh admission result is authoritative: keep only rows the public gate returned, in stored order.
-  const order = new Map(slice.map((id, index) => [id, index]));
-  const admitted = [...new Map(items
-    .filter((item) => item?.galleryImageId && order.has(item.galleryImageId))
-    .map((item) => [item.galleryImageId, item])).values()]
-    .sort((a, b) => order.get(a.galleryImageId) - order.get(b.galleryImageId));
-  return {
-    wpGalleryId, items: admitted, offset, limit,
-    totalListed: candidates.length,
-    hasMore: offset + limit < candidates.length,
-    // Advance over scanned positions, not the smaller set admitted for display.
-    nextOffset: Math.min(offset + limit, candidates.length),
-    occurrencesTruncated,
-    // A listed row that the gate withheld is not shown and not counted as shown.
-    withheld: slice.length - admitted.length,
-  };
-}
+// Compatibility names; the existing public source-context owner now supplies
+// this SAME pager to the pilot and future gallery consumers. No parallel reader.
+export { storedGalleryOrderIds as storedOrderIds, loadPublicGallerySourcePage as loadGalleryPage } from "./topicSourceContext.js";
 
 // ── time: report time is never the result and never the upload time ─────────────────────
 export function splitSourceTimes(item) {

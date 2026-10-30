@@ -1,7 +1,8 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
-import { buildTopicSourceContext, INDIA_CAPTAIN_SOURCE, topicSourceContextPatch, TOPIC_SOURCE_LIMIT } from "./topicSourceContext.js";
+import { buildTopicSourceContext, buildGallerySourceContext, loadPublicGallerySourcePage, resolvePublicGallerySelection,
+  INDIA_CAPTAIN_SOURCE, topicSourceContextPatch, TOPIC_SOURCE_LIMIT } from "./topicSourceContext.js";
 import { buildMediaEnvelope, dedupeMediaEnvelopes, mediaToLightboxImage } from "./galleryMediaEnvelope.js";
 import { fetchTopicSourceContext } from "./entityHubProjection.js";
 import { buildTopicGoldenProjection } from "./topicGoldenProjection.js";
@@ -12,6 +13,46 @@ const topicOf = (slug) => fixture.topics.find((topic) => topic.slug === slug);
 const project = (slug, changes = {}) => buildTopicSourceContext({ ...fixture, topic: topicOf(slug), occurrences: fixture.images, ...changes });
 const sharedImage = "5579cca1-ff12-4a9a-87ee-e32e89ca9af3";
 const railImage = "8940efb2-8423-4a27-a10a-d3fdd07cf595";
+
+test("gallery selection keeps the exact occurrence even when a public storage object is shared", () => {
+  const a = "10000000-0000-4000-8000-000000000001", b = "10000000-0000-4000-8000-000000000002";
+  const row = { id:a, image_url:"https://example.test/storage/v1/object/public/media/source.jpg", published:1,min_tier:0,
+    wp_gallery_id:29, ordering:4, description:"כיתוב ראשון",image_type:"gematria" };
+  const images=[row,{...row,id:b,wp_gallery_id:81,ordering:5,description:"כיתוב שני"}];
+  const items=buildGallerySourceContext({images});
+  assert.equal(items.length,1);
+  const page={wpGalleryId:81,scannedIds:[b],items};
+  const selected=resolvePublicGallerySelection(page,b);
+  assert.equal(selected.status,"ready");
+  assert.equal(selected.selection.galleryImageId,b);
+  assert.equal(selected.selection.sourceRef,`gallery_images:${b}`);
+  assert.equal(selected.selection.ordering,5);
+  assert.equal(selected.occurrence.legacyPlacement.originalCaption,"כיתוב שני");
+  assert.equal(selected.item,items[0],"no copied media or independent evidence identity");
+  assert.equal(resolvePublicGallerySelection(page,a).status,"not_in_loaded_window");
+  for(const bad of [{...page,wpGalleryId:29},{...page,items:[]},
+    {...page,items:[{...items[0],access:{scope:"private"}}]},
+    {...page,items:[items[0],items[0]]}]){
+    const rejected=resolvePublicGallerySelection(bad,b);
+    assert.equal(rejected.status,"unavailable");assert.equal(rejected.selection,null);
+  }
+  assert.equal(resolvePublicGallerySelection(null,b).status,"unavailable");
+});
+
+test("shared gallery pager is the same pilot implementation, bounded and advancing over withheld positions", async () => {
+  const {loadGalleryPage}=await import("./revelation1237Gate2029.js");
+  assert.equal(loadGalleryPage,loadPublicGallerySourcePage);
+  let calls=0;
+  const args={wpGalleryId:29,listGalleryImages:async()=>[{id:"b",ordering:2},{id:"a",ordering:1}],
+    fetchSourceContext:async()=>{calls++;return {items:[]};}};
+  const page=await loadPublicGallerySourcePage({...args,limit:1});
+  assert.deepEqual(page.scannedIds,["a"]);assert.equal(page.nextOffset,1);assert.equal(page.hasMore,true);
+  assert.equal(resolvePublicGallerySelection(page,"a").status,"unavailable");
+  assert.equal(resolvePublicGallerySelection(page,"b").status,"not_in_loaded_window");
+  for(const invalid of [{offset:-1},{limit:13},{limit:0},{wpGalleryId:"29"}])
+    await assert.rejects(loadPublicGallerySourcePage({...args,...invalid}),RangeError);
+  assert.equal(calls,1,"invalid windows do not reach any reader");
+});
 
 test("India pilot: all 13 public memberships + independently labelled public post figure; no graph inference", () => {
   const out = project("india-axis");

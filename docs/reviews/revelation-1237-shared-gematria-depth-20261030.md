@@ -215,3 +215,43 @@ DB/RLS/migration/Edge/main/Production/publication or canonical-law change.
 Status: IMPLEMENTED / TESTED / PROTECTED_PREVIEW_VERIFIED, limited to this pilot.
 Automatic gallery claim pairing and shared Lightbox/Archive compatibility remain
 separate work; neither was silently claimed complete. No merge or Production.
+
+## Next slice: shared gallery-navigation foundation (route integration blocked)
+
+Task `GALLERY_2029_SHARED_NAVIGATION_FOUNDATION_20261030`, BEFORE
+`c0bdd319-fbf2-4902-8c4d-e59c0fd0e15e`, base
+`6487c4b66ec63db880f58dcdb4279c04f95a48c9`, same isolated branch.
+
+The already-tested gallery pager is now exported from the existing
+`topicSourceContext.js` owner as `loadPublicGallerySourcePage`; the 1237 module
+re-exports the same function under its old name. No second reader or pager was
+created. Windows are bounded to the existing reader's twelve-ID maximum, advance
+over scanned rather than displayed positions, and retain exact scanned IDs.
+
+`resolvePublicGallerySelection` resolves only an admitted public occurrence
+within the requested gallery and scanned window. It preserves that occurrence's
+source ref, media identity, caption and stored position even when the same
+storage object has another gallery occurrence as its primary projection. Missing
+window coverage, unavailable source and ready selection remain separate states;
+ambiguous, wrong-gallery, mismatching or private entries cannot produce selection.
+No route or source association is inferred from a number or visual similarity.
+
+This is foundation work, NOT a completed gallery viewer. `GalleryPage.jsx`,
+`ArchivePage.jsx` and `MuseumGallery.jsx` are existing Legacy presentation
+references, not a 2029 viewer that can be mounted unchanged with its data/admin
+actions. They were read, not edited or newly imported. The requested visual
+reference is to be preserved when wiring the adopted 2029 gallery surface.
+
+Live latest-per-task ownership still contains `711f7dc9-49aa-4d77-ab95-611aa9438451`,
+`WRITER_PERSONAL_CHAIN_20261023`, claiming `src/App2029.jsx` lazy routes. That
+overlaps the required new gallery route. No release was invented; no router,
+Frame, Provider, Legacy, Lightbox, product DB/RLS, flags, blocked World envelopes,
+main or Production was modified. Exact route/image reopen is therefore not
+advertised as implemented. The previous protected Preview remains the working
+UI reference until route ownership is reconciled and the viewer is integrated.
+
+Verification: 39 focused source/pilot/navigation tests and the existing real
+Topic/Number browser test (320/1440) pass without skips. Both Legacy/2029 builds,
+built graph/lazy, hard isolation, Topic surface, Legacy lock and diff check pass.
+No new hosted Preview was created for this model-only slice. These checks do
+not claim the missing gallery route/viewer has been built or visually accepted.
