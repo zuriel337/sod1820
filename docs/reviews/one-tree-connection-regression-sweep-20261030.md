@@ -74,8 +74,58 @@ entry, responsive checks, and page/model/write monitoring. Live and hosted
 outcomes, exact source SHA and deployment are recorded on completion, not assumed
 from a READY state or a synthetic browser fixture.
 
+Final acceptance:
+
+- Runtime source: `1d7566e9e390719d67ba99672cdcc1ffe22f0141`.
+- Protected static 2029 Preview: `dpl_knyX5YKR4ZwreDBENgLG1QhxwrAp`, READY,
+  target `null`; build duration approximately 15 seconds.
+- https://sod1820-1dijhl50d-sod1820-s-projects.vercel.app/world
+- https://sod1820-1dijhl50d-sod1820-s-projects.vercel.app/topic/1237
+- Actual-build browser acceptance passed first locally, then on this exact
+  hosted deployment, against live anonymous public data at 390 and 1440.
+  The explicit graph window returned `ok`, four distinct existing `edge:` refs.
+  Topic 1118 → exact World finding → Back and public Zvi source entry passed.
+  Zero page errors, model requests or escaped product writes were observed.
+- Local evidence: `/tmp/one-tree-regression-local-live-20261030`; hosted evidence:
+  `/tmp/one-tree-regression-hosted-live-20261030`. Protected access uses a
+  temporary link in memory and the existing static identity bootstrap; no token
+  or browser authentication state is stored or committed. SSO stays enabled.
+- Protected identity/worker checks confirm exact SHA, mock-only transport and
+  `unifiedReadOnly=true`; no-store/noindex remain. Broad sweep: 532 passed,
+  one unchanged Frame-title assertion failed, zero skipped. Focused 49 and three
+  registered browser regressions passed; World surface now passes in full.
+- Later receipt-only commits do not change the tested runtime source. General
+  continuation `ae17201f` remains; this bounded fix scope is released in AFTER.
+
 No product DB/RLS/schema/migration, publication, Edge, main or Production change.
 The excluded `b30d0a4d` envelope files/tests/docs remain unchanged. The known `/`
 Preview root bootstrap issue and stale shared Frame test remain separate; no
 shell redesign or owner takeover is included. Worktrees and the untracked
 `node_modules` tooling link are preserved.
+
+## Parallel user screenshot review: Gematria gate is only partly integrated
+
+The user supplied the 1237 method-card screenshot during this sweep and asked
+whether it matches the contract. Read-only review confirmed a remaining gap in
+`Revelation1237Gate2029`'s local `MethodCard`: raw mathematical-family keys and
+`fn_method_profile` appear in the main view; a permanent verified badge is based
+on profile value matching, not a fetched/validated step trace; and these two hero
+method expressions have no existing Number-sheet/local-depth activation. The
+authored equations farther down the Topic do have that activation, so their
+completed integration must not be generalized to the hero method cards.
+
+The live canonical `reality_graph_law` / `project_codex.id=18` addendum §ה was
+read again and its md5 remained `854e53071f433c344349d841d10c0c44`: one existing
+Inspector, exact spelling/method/version/value/checked trace and exact return.
+Design V2's Number method-learning section also requires the same Number-page/
+drawer trace adapter, engine-supplied steps and honest unavailable fallback.
+The older branch-only G3 presentation document is supporting lineage, not a
+claim of an additional active law: S1 summary is legitimate; S2/S3 depth is
+progressive/on demand, not mandatory eager loading of all letter calculations.
+
+The recommended next integration reuses that existing Number/Method explanation
+path for the hero expressions, keeps technical metadata under deeper details,
+and distinguishes a returned result from checked trace parity. No new engine,
+presentation owner or parallel Gematria component is justified. This screenshot
+question did not trigger a new visual redesign, source edit or claim that this
+remaining gap has been fixed in the regression batch above.
