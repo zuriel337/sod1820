@@ -38,14 +38,14 @@
       "corpus_id": "0b022e8eef6f9c16"
     },
     "request": {
-      "instruction": "general_v2_axis_effort_allocation_unmeasured",
+      "instruction": "general_v2_axis_marked_unnamed+axis_deepening_addendum_unmeasured",
       "focus": "axis_neighborhood",
       "cap": 25,
       "effort": "medium",
       "max_tokens": 64000,
       "input_tokens": 16858,
-      "sha256": "536859ae78b3938ed8bbd86b50ba97f1e6a8512350c1516202de5d6de95c6117",
-      "lock_sha256": "3bdb6d98bfa15cb3d6d74cd1fff40e4b0c290bf50d64e3e9f92ae5edf17596a8",
+      "sha256": "6b57ded25042552324d7ceef42b6704bf13cae8a46fe0ba724e8e4e9cd8d9e9e",
+      "lock_sha256": "e55eb1df788eb8f7169c1f8d1ea8c549733970fccf3cdee1be978f924a2f7b34",
       "window_sha256": "b188c130a813c3b7df8190f62eea35f08f153ac20efeb3e321adf380134e60e8"
     },
     "story": {
@@ -127,9 +127,16 @@
         "cells": 357,
         "share_of_window": 0.379,
         "focus": "axis_neighborhood",
-        "target_ratio": 2,
-        "margin_share_min": 0.25,
         "margin_cells": 586,
+        "axis_lines": {
+          "total": 25,
+          "by_kind": {
+            "R": 8,
+            "C": 1,
+            "D": 8,
+            "A": 8
+          }
+        },
         "lines": {
           "near": 104,
           "margin": 165,

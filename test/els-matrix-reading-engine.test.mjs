@@ -170,7 +170,6 @@ test("the modules stay plain JS with only their explicit sibling action/job depe
 
 // ---------- the neighbourhood-depth default (ZURIEL 30.10.2026) ----------
 const near = M.neighborhoodBox(region);
-const withoutSection = (text) => text.replace(/## הקצאת מאמץ[^\n]*\n[\s\S]*?\n\n(?=## הגריד)/, "");
 
 test("neighbourhood box: every cell within 8 of the selected occurrence, clipped to the window", () => {
   assert.equal(M.NEIGHBORHOOD_RADIUS, 8);
@@ -184,108 +183,143 @@ test("neighbourhood box: every cell within 8 of the selected occurrence, clipped
   assert.deepEqual([edge.rows.from, edge.cols.from], [1, 1], "clipped at the top-left corner of the window");
 });
 
-test("the default prompt is an allocation of effort: 2-3x near the axis, a FIXED margin share, source rows asked for, the review apart; never a gate", () => {
+test("the default is the measured text with ONE section appended after it: nothing measured is replaced, shortened or reordered", () => {
   const dflt = M.buildReadingPrompt({ region, lines, cap: 25 });
   const uniform = M.buildReadingPrompt({ region, lines, cap: 25, focus: "uniform" });
-  const goals = M.allocationTargets(25);
-  assert.deepEqual(goals, { nearMin: 16, marginMin: 7 });
   assert.equal(dflt.focus, "axis_neighborhood");
   assert.equal(uniform.neighborhood, null);
-  assert.match(dflt.user, /## הקצאת מאמץ: סביבת הציר ושוליים/);
-  assert.match(dflt.user, new RegExp(`עד ${near.radius} תאים`));
-  assert.match(dflt.user, new RegExp(`R${String(near.rows.from).padStart(2, "0")}–R${String(near.rows.to).padStart(2, "0")} ועמודות C${String(near.cols.from).padStart(2, "0")}–C${String(near.cols.to).padStart(2, "0")}`));
-  assert.match(dflt.user, /זו הקצאת מאמץ ולא שער: אין אזור שאסור לבדוק, וכל הצעה, קרובה או רחוקה, תקפה ונבדקת/);
-  assert.match(dflt.user, /העמק פי שניים עד שלושה מאשר בשוליים/);
-  assert.match(dflt.user, new RegExp(`לפחות ${goals.nearMin} מתוך 25 ההצעות יהיו בסביבה הקרובה, ולא יותר משלושה רבעים`));
-  assert.match(dflt.user, new RegExp(`לשוליים שמור חלק קבוע: עבור גם על קווי השוליים, קו אחרי קו, בכרבע מהמאמץ, ושמור להם לפחות ${goals.marginMin} מתוך 25 ההצעות`));
-  assert.match(dflt.user, /אל תוותר על השוליים גם כשבסביבה הקרובה יש הרבה/);
-  assert.match(dflt.user, /אם בשוליים אין, אל תמציא ואל תכפה קריאה/);
-  assert.match(dflt.user, /שורות R הן הטקסט המקראי עצמו \(שורות מקור, דילוג 1\). אל תדלג עליהן/);
-  assert.match(dflt.user, /review[\s\S]*היא נפרדת ממספר ההצעות ואינה נבדקת/);
+  assert.equal(uniform.prose.addendum, null);
+  assert.equal(dflt.system, uniform.system);
+  assert.equal(dflt.user, `${uniform.user}\n\n${dflt.prose.addendum}`, "the measured prompt is an exact prefix: removing the addendum restores it byte for byte");
+  for (const kept of ["אל תדרג לפי קרבה לאמצע הקטע או לפי סוג הקו", "או למילים שנמצאות באמצע הקטע", "5. עד 25 הצעות.", "אזורים או כיוונים שהקדשת להם פחות תשומת לב."]) assert.ok(dflt.user.includes(kept), `still in the default: ${kept}`);
+  const a = dflt.prose.addendum;
+  assert.match(a, /^## תוספת: העמקה לאורך הציר ובסביבתו/);
+  assert.match(a, /זו תוספת בלבד, ואינה מחליפה את מה שלמעלה: כל ההוראות שלמעלה נשארות בתוקף/);
+  assert.match(a, new RegExp(`עד ${near.radius} תאים`));
+  assert.match(a, new RegExp(`R${String(near.rows.from).padStart(2, "0")}–R${String(near.rows.to).padStart(2, "0")} ועמודות C${String(near.cols.from).padStart(2, "0")}–C${String(near.cols.to).padStart(2, "0")}`));
+  const along = M.axisLines(region, lines);
+  assert.ok(along.length > 0 && along.every((l) => l.cells.some(([i, j]) => region.axisCells.some(([x, y]) => x === i && y === j))));
+  assert.ok(a.includes(`${along.length} קווים: ${along.map((l) => l.id).join(", ")}`), "the lines through the selected occurrence are named: where the depth along the axis starts");
+  assert.match(a, /בדיקת השוליים נשמרת תמיד: גם אם מצאת מילים ליד הציר, ואפילו הרבה, עבור על קווי השוליים עד הסוף/);
+  assert.match(a, /זו בדיקה ולא מכסה: אם אין בשוליים קריאה ראויה אל תציע/);
+  assert.match(a, /אל תמלא מכסה: עד 25 הצעות הוא תקרה בלבד/);
+  assert.match(a, /הצעה רחוקה מהציר אינה נדחקת מפני הצעה קרובה/);
+  assert.match(a, /שורות R הן הטקסט המקראי עצמו \(דילוג 1\). אל תדלג עליהן/);
+  assert.match(a, /ונספרות באותה תקרה כמו כל הצעה, בסביבה ובשוליים/);
+  assert.match(a, /review[\s\S]*היא נפרדת ממספר ההצעות, אינה נבדקת, ואינה דורשת למלא דבר/);
+  // no quota anywhere: the only number of proposals in the addendum is the ceiling, and it is said to be a ceiling
+  assert.deepEqual([...a.matchAll(/(\d+)\s+הצעות/g)].map((m) => m[0]), ["25 הצעות"]);
+  assert.doesNotMatch(a, /לפחות \d+|\d+ מתוך|שני שלישים|שלושה רבעים|רבע מההצעות|מינימום|חובה להציע/);
   assert.doesNotMatch(dflt.user, /הצע רק מה שבולט|רק מה שבולט/, "the margins are not left to 'only what stands out': that would be a gate");
-  assert.doesNotMatch(uniform.user, /הקצאת מאמץ|שורות מקור/);
-  // the two sentences of the measured task that said the opposite are replaced, nothing else changes
-  assert.match(uniform.user, /אל תדרג לפי קרבה לאמצע הקטע/);
-  assert.doesNotMatch(dflt.user, /אל תדרג לפי קרבה לאמצע הקטע|שנמצאות באמצע הקטע/);
-  const restored = withoutSection(dflt.user)
-    .replace("ואל למילים שכיחות. הצע גם", "ואל למילים שכיחות או למילים שנמצאות באמצע הקטע. הצע גם")
-    .replace("tier אינו מבטא קרבה לציר: כל רמה יכולה להכיל שורות, טורים ואלכסונים, קרובים ורחוקים.", "אל תדרג לפי קרבה לאמצע הקטע או לפי סוג הקו: כל רמה יכולה להכיל שורות, טורים ואלכסונים מכל מקום בקטע.")
-    .replace(", ובמיוחד על קווים בסביבה הקרובה שלא עברת עליהם.", ".");
-  assert.equal(restored, uniform.user, "the default is the measured text plus one section and two replaced sentences");
+  assert.doesNotMatch(uniform.user, /תוספת: העמקה|בדיקת השוליים נשמרת/);
   const stories = M.buildReadingPrompt({ region, lines, cap: 25, story: "סיפור" });
   assert.match(stories.user, /^## הרקע\n„סיפור”/);
-  assert.match(stories.user, /הקצאת מאמץ/);
+  assert.equal(stories.user, `${M.buildReadingPrompt({ region, lines, cap: 25, story: "סיפור", focus: "uniform" }).user}\n\n${stories.prose.addendum}`);
 });
 
-test("the fixed shares always fit in the cap: near at least two thirds, margins at least a quarter, for every cap the layer allows", () => {
-  for (let cap = M.LIMITS.minCap; cap <= M.LIMITS.maxCap; cap += 1) {
-    const g = M.allocationTargets(cap);
-    assert.ok(g.nearMin + g.marginMin <= cap, `cap ${cap}: ${g.nearMin} + ${g.marginMin}`);
-    assert.ok(g.nearMin >= Math.floor((cap * 2) / 3) && g.marginMin >= Math.ceil(cap / 4));
-    assert.ok(g.marginMin >= 1);
-  }
+test("no number of proposals is asked for, near or far, at any cap: the addendum differs between caps only in the sentence that names the ceiling", () => {
+  assert.equal(M.allocationTargets, undefined, "the quota helper is gone");
+  assert.equal(M.MARGIN_SHARE_MIN, undefined);
+  assert.equal(M.NEIGHBORHOOD_TARGET_RATIO, undefined);
+  const norm = (cap) => M.buildReadingPrompt({ region, lines, cap }).prose.addendum.replace(`עד ${cap} הצעות הוא תקרה בלבד`, "עד N הצעות הוא תקרה בלבד");
+  for (let cap = M.LIMITS.minCap; cap <= M.LIMITS.maxCap; cap += 1) assert.equal(norm(cap), norm(25), `cap ${cap}`);
 });
 
-test("the request: the allocation focus asks for the schema with the review, the uniform focus keeps the measured schema; nothing else differs but the text", () => {
-  const dflt = M.buildReadingRequest({ model: M.MODEL_DEFAULT, region, lines, cap: 25 }).request;
-  const uni = M.buildReadingRequest({ model: M.MODEL_DEFAULT, region, lines, cap: 25, focus: "uniform" }).request;
-  assert.deepEqual(dflt.output_config.format.schema.required, ["findings", "review", "observations"]);
-  assert.deepEqual(uni.output_config.format.schema.required, ["findings", "observations"]);
-  assert.deepEqual(dflt.output_config.format.schema.properties.review.required, ["near_lines", "margin_lines"]);
-  assert.deepEqual(uni.output_config.format.schema, fx("request-c3-general-cap25.json").output_config.format.schema, "the measured schema, byte for byte");
-  assert.deepEqual({ ...dflt, messages: null, output_config: null }, { ...uni, messages: null, output_config: null }, "same model, system, thinking and allowance");
+/** The paths at which two JSON values differ (arrays by index). */
+const diffPaths = (a, b, path = "") => {
+  if (JSON.stringify(a) === JSON.stringify(b)) return [];
+  if (a && b && typeof a === "object" && typeof b === "object") return [...new Set([...Object.keys(a), ...Object.keys(b)])].flatMap((k) => diffPaths(a[k], b[k], `${path}${Array.isArray(a) ? `[${k}]` : `.${k}`}`));
+  return [path];
+};
+
+test("the differences from the measured request are exactly these: the appended text and the schema that also carries the model's review", async () => {
+  const dflt = M.buildReadingRequest({ model: M.MODEL_DEFAULT, region, lines, cap: 25 });
+  const uni = M.buildReadingRequest({ model: M.MODEL_DEFAULT, region, lines, cap: 25, focus: "uniform" });
+  assert.deepEqual(diffPaths(uni.request, dflt.request), [".messages[0].content", ".output_config.format.schema.required[1]", ".output_config.format.schema.required[2]", ".output_config.format.schema.properties.review"]);
+  assert.equal(dflt.request.messages[0].content, `${uni.request.messages[0].content}\n\n${dflt.prompt.prose.addendum}`);
+  const saved = fx("request-c3-general-cap25.json");
+  assert.equal(JSON.stringify(uni.request), JSON.stringify(saved), "the measured route is untouched");
+  assert.deepEqual(dflt.request.output_config.format.schema.required, ["findings", "review", "observations"]);
+  assert.deepEqual(uni.request.output_config.format.schema.required, ["findings", "observations"]);
+  assert.deepEqual(dflt.request.output_config.format.schema.properties.review.required, ["near_lines", "margin_lines"]);
+  assert.deepEqual(dflt.request.output_config.format.schema.properties.findings, saved.output_config.format.schema.properties.findings, "the findings (and their cap of fields) are the measured ones");
+  assert.deepEqual(dflt.request.output_config.format.schema.properties.observations, saved.output_config.format.schema.properties.observations);
+  assert.deepEqual(M.FINDINGS_SCHEMA_V2, saved.output_config.format.schema, "the measured schema, byte for byte");
   assert.equal(M.instructionLabel({ focus: "uniform" }), "general_v2_axis_marked_unnamed");
   assert.equal(M.instructionLabel({ focus: "uniform", story: "x" }), "general_v2_axis_marked_unnamed+user_story_unmeasured");
-  assert.equal(M.instructionLabel({}), "general_v2_axis_effort_allocation_unmeasured");
-  assert.equal(M.instructionLabel({ story: "x" }), "general_v2_axis_effort_allocation_unmeasured+user_story_unmeasured");
+  assert.equal(M.instructionLabel({}), "general_v2_axis_marked_unnamed+axis_deepening_addendum_unmeasured");
+  assert.equal(M.instructionLabel({ story: "x" }), "general_v2_axis_marked_unnamed+axis_deepening_addendum_unmeasured+user_story_unmeasured");
+  assert.notEqual(await M.requestSha256(dflt.request), await M.requestSha256(uni.request), "the hash tells which route a reading took");
 });
 
 const mkF = (id, distance, state = "ENGINE_VERIFIED", extra = {}) => ({ id, text: "אבג", verification: { state }, relation_to_axis: state === "NOT_VERIFIED" ? null : { distance, relation: distance === 0 ? "crosses" : distance === 1 ? "touches" : "far" }, chance: null, ...extra });
 
-test("the zones measure where the proposals lie, the near:far ratio and the margin share; both asked-for targets are only measured, never enforced", () => {
+test("the zones only DESCRIBE where the proposals lie: no target, no quota, no pass or fail; source rows counted in the same zones", () => {
   const set = [mkF("a", 0), mkF("b", 3), mkF("c", 8), mkF("d", 9), mkF("e", 20), mkF("f", 5, "PLAIN_TEXT_ONLY"), mkF("g", 99, "NOT_VERIFIED")];
-  const z = M.summarizeFindings(set, { focus: "axis_neighborhood" }).zones;
-  assert.deepEqual([z.radius, z.near.proposals, z.far.proposals, z.near_to_far, z.margin_share], [8, 4, 2, 2, 0.33]);
+  const z = M.summarizeFindings(set).zones;
+  assert.deepEqual([z.basis, z.observed_only, z.radius, z.near.proposals, z.far.proposals, z.near_to_far, z.margin_share], ["PROPOSAL_POSITIONS", true, 8, 4, 2, 2, 0.33]);
   assert.deepEqual([z.near.engine_verified, z.near.source_rows, z.far.engine_verified, z.far.source_rows], [3, 1, 2, 0]);
-  assert.deepEqual(z.target, { applies: true, ratio_min: 2, margin_share_min: 0.25, ratio_met: true, margin_floor_met: true, met: true });
-  // near-heavy: the ratio is met but the margins are left empty: the fixed margin share is NOT met
-  const heavy = M.summarizeFindings([mkF("a", 0), mkF("b", 1), mkF("c", 2), mkF("d", 3)], { focus: "axis_neighborhood" }).zones;
-  assert.deepEqual([heavy.near_to_far, heavy.margin_share, heavy.target.ratio_met, heavy.target.margin_floor_met, heavy.target.met], [null, 0, true, false, false]);
-  // margin-heavy: the margin share is met, the ratio is not
-  const wide = M.summarizeFindings([mkF("a", 0), mkF("b", 30), mkF("c", 40)], { focus: "axis_neighborhood" }).zones;
-  assert.deepEqual([wide.near_to_far, wide.target.ratio_met, wide.target.margin_floor_met], [0.5, false, true]);
-  const exact = M.summarizeFindings([...Array.from({ length: 17 }, (_, i) => mkF(`n${i}`, 1)), ...Array.from({ length: 8 }, (_, i) => mkF(`f${i}`, 20))], { focus: "axis_neighborhood" }).zones;
-  assert.deepEqual([exact.near.proposals, exact.far.proposals, exact.target.met], [17, 8, true], "17 near and 8 far of 25: 2.1:1 with a quarter-and-more at the margins");
-  assert.equal(M.summarizeFindings([], { focus: "axis_neighborhood" }).zones.target.met, false);
-  const uniformRun = M.summarizeFindings(set, { focus: "uniform" }).zones;
-  assert.deepEqual([uniformRun.target.applies, uniformRun.target.met, uniformRun.near.proposals], [false, null, 4], "measured, but no target applies to the uniform instruction");
-  assert.equal(M.summarizeFindings(set).zones.target.applies, false);
+  assert.equal("target" in z, false, "nothing to meet");
+  assert.deepEqual(Object.keys(z).sort(), ["basis", "far", "margin_share", "near", "near_to_far", "observed_only", "radius"]);
+  const heavy = M.summarizeFindings([mkF("a", 0), mkF("b", 1), mkF("c", 2), mkF("d", 3)]).zones;
+  assert.deepEqual([heavy.near_to_far, heavy.margin_share, heavy.far.proposals], [null, 0, 0], "all near and nothing at the margin is a description, not a failure");
+  const farOnly = M.summarizeFindings([mkF("a", 30), mkF("b", 40)]).zones;
+  assert.deepEqual([farOnly.near.proposals, farOnly.far.proposals, farOnly.margin_share], [0, 2, 1], "far findings are kept and counted wherever they lie");
+  const none = M.summarizeFindings([]).zones;
+  assert.deepEqual([none.near.proposals, none.far.proposals, none.near_to_far, none.margin_share], [0, 0, null, null]);
+  assert.deepEqual(M.summarizeFindings(set, { focus: "axis_neighborhood" }).zones, M.summarizeFindings(set, { focus: "uniform" }).zones, "the same description whatever the instruction");
   assert.equal(M.summarizeFindings(set).source_rows, 1);
 });
 
-test("coverage is reported apart from the proposals, on three levels that are never mixed: shown (certain), touched by the proposals (verified), reviewed (the model's claim)", () => {
+test("three things are reported apart and never derived from one another: the count of proposals, the deterministic coverage, the model's own report", () => {
   const box = M.neighborhoodBox(region), zl = M.zoneLines(lines, box);
   assert.ok(zl.near.size > 0 && zl.margin.size > 0);
-  const coverage = M.describeCoverage({ region, lines, window: M.selectWindow({ axis: AXIS, rows: 23, cols: 41 }), focus: "axis_neighborhood" });
-  assert.deepEqual([coverage.neighborhood.lines.near, coverage.neighborhood.lines.margin, coverage.neighborhood.margin_cells, coverage.neighborhood.margin_share_min], [zl.near.size, zl.margin.size, region.nRows * region.nCols - box.cells, 0.25]);
-  // one proposal on the axis column (near), one on a row far from the axis (margin)
+  const win = M.selectWindow({ axis: AXIS, rows: 23, cols: 41 });
+  const coverage = M.describeCoverage({ region, lines, window: win, focus: "axis_neighborhood" });
+  const along = M.axisLines(region, lines);
+  assert.deepEqual([coverage.neighborhood.lines.near, coverage.neighborhood.lines.margin, coverage.neighborhood.margin_cells, coverage.neighborhood.axis_lines.total], [zl.near.size, zl.margin.size, region.nRows * region.nCols - box.cells, along.length]);
+  assert.equal("margin_share_min" in coverage.neighborhood || "target_ratio" in coverage.neighborhood, false, "no target in the coverage either");
+  // one proposal on the axis column (near), one on a row far from the axis (margin), one that did not verify
   const nearCells = region.axisCells.slice(0, 4);
   const farRow = region.nRows, farCells = [[farRow, 1], [farRow, 2], [farRow, 3]];
-  const found = [mkF("a", 0, "ENGINE_VERIFIED", { occurrence: { reading: `C${String(region.axisCells[0][1]).padStart(2, "0")}+`, cells: nearCells } }), mkF("b", 30, "PLAIN_TEXT_ONLY", { occurrence: { reading: `R${String(farRow).padStart(2, "0")}+`, cells: farCells } }), mkF("c", 0, "NOT_VERIFIED")];
   const nearLine = `C${String(region.axisCells[0][1]).padStart(2, "0")}`, farLine = `R${String(farRow).padStart(2, "0")}`;
-  const report = M.buildCoverageReport({ region, lines, window: M.selectWindow({ axis: AXIS, rows: 23, cols: 41 }), focus: "axis_neighborhood", findings: found,
-    review: { near_lines: [nearLine, `${nearLine}-`, "C99", farLine], margin_lines: [farLine, "R01", "ZZ"] } });
-  assert.match(report.note, /apart from the number of proposals/);
-  assert.equal(report.shown_to_model.status, "CERTAIN");
-  assert.equal(report.shown_to_model.near.lines + 0, zl.near.size);
-  assert.equal(report.proposal_footprint.status, "VERIFIED_LOWER_BOUND");
+  const found = [mkF("a", 0, "ENGINE_VERIFIED", { occurrence: { reading: `${nearLine}+`, cells: nearCells } }), mkF("b", 30, "PLAIN_TEXT_ONLY", { occurrence: { reading: `${farLine}+`, cells: farCells } }), mkF("c", 0, "NOT_VERIFIED")];
+  const review = { near_lines: [nearLine, `${nearLine}-`, "C99", farLine], margin_lines: [farLine, "R01", "ZZ"] };
+  const report = M.buildCoverageReport({ region, lines, window: win, focus: "axis_neighborhood", findings: found, review, cap: 25 });
+  assert.match(report.note, /three things, reported apart and never derived from one another/);
+  // 1. the count of proposals: an output ceiling, not coverage, not to be filled
+  assert.deepEqual([report.proposals.basis, report.proposals.count, report.proposals.cap, report.proposals.reached_cap], ["PROPOSAL_COUNT", 3, 25, false]);
+  assert.match(report.proposals.note, /tells the model not to fill|the model is told not to fill/);
+  assert.equal(M.buildCoverageReport({ region, lines, window: win, focus: "axis_neighborhood", findings: found, review, cap: 3 }).proposals.reached_cap, true);
+  // 2. deterministic
+  assert.deepEqual([report.shown_to_model.basis, report.shown_to_model.status, report.proposal_footprint.basis, report.proposal_footprint.status], ["DETERMINISTIC", "CERTAIN", "DETERMINISTIC_LOWER_BOUND", "VERIFIED_LOWER_BOUND"]);
+  assert.equal(report.shown_to_model.near.lines, zl.near.size);
+  assert.equal(report.shown_to_model.axis_lines.lines, along.length);
   assert.deepEqual([report.proposal_footprint.near.lines_with_proposals, report.proposal_footprint.near.cells_touched, report.proposal_footprint.margin.lines_with_proposals, report.proposal_footprint.margin.cells_touched], [zl.near.has(nearLine) ? 1 : 0, 4, zl.margin.has(farLine) ? 1 : 0, 3]);
-  assert.equal(report.model_review.status, "UNVERIFIED_MODEL_REPORT");
+  assert.equal(report.proposal_footprint.axis.lines_with_proposals, along.some((l) => l.id === nearLine) ? 1 : 0);
+  // 3. the model's own report
+  assert.deepEqual([report.model_review.basis, report.model_review.status], ["MODEL_REPORT", "UNVERIFIED_MODEL_REPORT"]);
   assert.deepEqual([report.model_review.near.reported, report.model_review.margin.reported], [zl.near.has(farLine) ? 2 : 1, zl.margin.has(farLine) ? (zl.margin.has("R01") ? 2 : 1) : 0], "the line is counted once whatever the direction, and only where it can be read");
   assert.ok(report.model_review.invalid_count >= 2 && report.model_review.invalid_ids.includes("near:C99") && report.model_review.invalid_ids.includes("margin:ZZ"), "ids that do not exist are dropped and counted");
   assert.match(report.model_review.note, /cannot check what a model went through/);
-  assert.equal(M.buildCoverageReport({ region, lines, window: M.selectWindow({ axis: AXIS, rows: 23, cols: 41 }), focus: "axis_neighborhood", findings: [], review: undefined }).model_review.status, "NOT_REPORTED");
-  assert.equal(M.buildCoverageReport({ region, lines, window: M.selectWindow({ axis: AXIS, rows: 23, cols: 41 }), focus: "uniform", findings: [], review: { near_lines: ["C01"] } }).model_review.status, "NOT_REQUESTED");
+  // independence: changing one of the three leaves the other two exactly as they were
+  const other = M.buildCoverageReport({ region, lines, window: win, focus: "axis_neighborhood", findings: [], review: { near_lines: [], margin_lines: [] }, cap: 60 });
+  assert.deepEqual(other.shown_to_model, report.shown_to_model, "what was shown does not depend on the proposals or on what the model says");
+  assert.deepEqual(M.buildCoverageReport({ region, lines, window: win, focus: "axis_neighborhood", findings: found, review: undefined, cap: 25 }).proposal_footprint, report.proposal_footprint, "the verified footprint does not depend on the model's statement");
+  assert.deepEqual(M.buildCoverageReport({ region, lines, window: win, focus: "axis_neighborhood", findings: [mkF("z", 0, "NOT_VERIFIED")], review, cap: 25 }).model_review, report.model_review, "the model's statement is not raised or lowered by the proposals");
+  assert.equal(other.proposals.count, 0);
+  assert.equal(other.model_review.margin.state, "NONE_REPORTED");
+  // the margin check is its own state, whatever was found near the axis
+  const marginAll = [...zl.margin];
+  const crowdedNear = Array.from({ length: 25 }, (_, i) => mkF(`n${i}`, 1, "ENGINE_VERIFIED", { occurrence: { reading: `${nearLine}+`, cells: nearCells } }));
+  const checkedAll = M.buildCoverageReport({ region, lines, window: win, focus: "axis_neighborhood", findings: crowdedNear, review: { near_lines: [...zl.near], margin_lines: marginAll }, cap: 25 });
+  assert.deepEqual([checkedAll.model_review.margin.state, checkedAll.model_review.margin.reported, checkedAll.proposal_footprint.margin.lines_with_proposals], ["ALL_REPORTED", zl.margin.size, 0], "a full margin check with nothing proposed at the margin is a fine result");
+  const skipped = M.buildCoverageReport({ region, lines, window: win, focus: "axis_neighborhood", findings: crowdedNear, review: { near_lines: [...zl.near], margin_lines: [] }, cap: 25 });
+  assert.equal(skipped.model_review.margin.state, "NONE_REPORTED", "many words near the axis and no margin check reported: said so");
+  assert.equal(skipped.model_review.margin.lines_not_reported.length, Math.min(40, zl.margin.size));
+  assert.equal(M.buildCoverageReport({ region, lines, window: win, focus: "axis_neighborhood", findings: [], review: { near_lines: [], margin_lines: marginAll.slice(0, 1) } }).model_review.margin.state, "PARTIAL_REPORTED");
+  assert.equal(M.buildCoverageReport({ region, lines, window: win, focus: "axis_neighborhood", findings: [], review: undefined }).model_review.status, "NOT_REPORTED");
+  assert.equal(M.buildCoverageReport({ region, lines, window: win, focus: "uniform", findings: [], review: { near_lines: ["C01"] } }).model_review.status, "NOT_REQUESTED");
 });
 
 // ---------- the calibrated cost estimate ----------

@@ -54,7 +54,7 @@ test("the six words and their parts are in no instruction, schema, default or re
   for (const focus of [ELS_MATRIX_READING_FOCUS.AXIS_NEIGHBORHOOD, ELS_MATRIX_READING_FOCUS.UNIFORM]) {
     for (const story of ["", "סיפור כללי"]) {
       const prompt = M.buildReadingPrompt({ region, lines, cap: 25, story, focus });
-      texts.set(`${focus}/${story ? "story" : "plain"} instruction`, [prompt.system, prompt.prose.intro, prompt.prose.spec, prompt.prose.neighbourhood ?? "", prompt.prose.task].join("\n"));
+      texts.set(`${focus}/${story ? "story" : "plain"} instruction`, [prompt.system, prompt.prose.intro, prompt.prose.spec, prompt.prose.addendum ?? "", prompt.prose.task].join("\n"));
       texts.set(`${focus} request schema`, JSON.stringify(M.buildReadingRequest({ model: M.MODEL_DEFAULT, region, lines, cap: 25, story, focus }).request.output_config));
     }
   }
@@ -132,7 +132,7 @@ test("REGRESSION BASELINE: the first live run (uniform instruction) hit none of 
   assert.deepEqual(hitsOfSavedCipher(asProposals.map((p) => ({ ...p, start: p.start + 1 }))), []);
 });
 
-test("REGRESSION BASELINE: the live uniform run lay near:far = 11:14 (0.79:1); the default asks for at least 2:1 AND a quarter at the margins, both measured only", () => {
+test("REGRESSION BASELINE: the live uniform run lay near:far = 11:14 (0.79:1); the position of the proposals is only described, never a target", () => {
   const box = M.neighborhoodBox(region);
   const distance = (p) => Math.min(...cellsOf(p.text, p).map(([i, j]) => Math.min(...region.axisCells.map(([a, b]) => Math.max(Math.abs(i - a), Math.abs(j - b))))));
   const near = BASE.proposals.filter((p) => distance(p) <= M.NEIGHBORHOOD_RADIUS).length;
@@ -140,7 +140,7 @@ test("REGRESSION BASELINE: the live uniform run lay near:far = 11:14 (0.79:1); t
   assert.ok(box.cells > 0);
 });
 
-test("REGRESSION through the whole operation on a SYNTHETIC answer (the pipeline can verify and report these; this is NOT a discovery and says so): source rows, zones, two targets, coverage apart", async () => {
+test("REGRESSION through the whole operation on a SYNTHETIC answer (the pipeline can verify and report these; this is NOT a discovery and says so): source rows, zones described, the three coverage levels apart", async () => {
   const synthetic = {
     findings: SAVED.findings.map((f, i) => ({ id: `F${i + 1}`, line: READING_OF[f.t], text: f.t, parts: [], kind: "word", story_related: false, continue_from: false, from_finding: "", tier: "A", note: "SYNTHETIC_NOT_DISCOVERY" })),
     review: { near_lines: ["C13", "C17", "C21", "D03", "R16", "R09", "C99"], margin_lines: ["C41"] },
@@ -159,12 +159,15 @@ test("REGRESSION through the whole operation on a SYNTHETIC answer (the pipeline
   assert.equal(done.state, "COMPLETE");
   assert.equal(done.is_test_fixture, true, "a test double: never presented as a reading");
   assert.deepEqual([done.summary.engine_verified, done.summary.source_rows, done.summary.not_verified], [4, 2, 0]);
+  assert.deepEqual([done.cap.requested, done.cap.proposals, done.cap.reached, done.summary.proposals], [25, 6, false, 6], "six proposals of a ceiling of 25: nothing is padded to fill the ceiling");
   const z = done.summary.zones;
   assert.deepEqual([z.near.proposals, z.far.proposals, z.near.source_rows, z.near.engine_verified], [6, 0, 2, 4]);
-  assert.deepEqual([z.target.ratio_met, z.target.margin_floor_met, z.target.met], [true, false, false], "all near and nothing at the margin: the ratio is met, the fixed margin share is not");
+  assert.equal("target" in z, false, "all near and nothing at the margin is described, not judged against a target");
+  assert.deepEqual([z.near_to_far, z.margin_share], [null, 0]);
   const cr = done.coverage_report;
   assert.equal(cr.model_review.status, "UNVERIFIED_MODEL_REPORT");
-  assert.deepEqual([cr.model_review.near.reported, cr.model_review.margin.reported], [6, 1]);
+  assert.deepEqual([cr.model_review.near.reported, cr.model_review.margin.reported, cr.model_review.margin.state], [6, 1, "PARTIAL_REPORTED"]);
+  assert.deepEqual([cr.proposals.basis, cr.proposals.count, cr.proposals.cap], ["PROPOSAL_COUNT", 6, 25], "the count of proposals is its own number");
   assert.ok(cr.model_review.invalid_ids.includes("near:C99"));
   assert.equal(cr.proposal_footprint.near.lines_with_proposals, 6);
   // the footprint is per CELL: הארחשכ starts two cells outside the box, so its line (D03) and those two cells count at the margin although the proposal itself is near
@@ -172,8 +175,10 @@ test("REGRESSION through the whole operation on a SYNTHETIC answer (the pipeline
   assert.notEqual(cr.proposal_footprint.near.lines_with_proposals, done.summary.proposals - 0 + 1, "coverage numbers are not the proposal count");
   const text = M.razielReadingAnswer(done);
   assert.match(text, /שורות מקור \(טקסט רגיל, לא ELS\): 2 \(2 בסביבה, 0 בשוליים\)/);
-  assert.match(text, /שוליים לפחות 25% לא הושג/);
-  assert.match(text, /המודל מצהיר שעבר על: בסביבה 6\/\d+ קווים, בשוליים 1\/\d+ קווים/);
+  assert.doesNotMatch(text, /יעדי ברירת המחדל|הושג|לא הושג/, "nothing is judged against a target");
+  assert.match(text, /דיווח המודל על מה שעבר \(הצהרה שלו, לא נבדקת; 1 מזהים לא תקפים הוסרו\): לאורך הציר \d+\/\d+ קווים, בסביבה 6\/\d+, בשוליים 1\/\d+\./);
+  assert.match(text, /בדיקת השוליים בוצעה חלקית לפי הצהרתו/);
+  assert.match(text, /כמות ההצעות: 6 מתוך תקרה של 25/);
   assert.equal(hitsOfSavedCipher(done.findings.map((f) => ({ text: f.text, ...f.occurrence }))).length, 6, "the synthetic answer contains them by construction");
   assert.doesNotMatch(text, /גילוי עיוור|נמצאו הצופן|מצא את הצופן/, "nothing in the answer claims a discovery");
 });

@@ -96,5 +96,5 @@ test("focus: axis_neighborhood (the default when absent) or uniform; anything el
   for (const bad of ["far", "", 1, true, "AXIS_NEIGHBORHOOD"]) assert.equal(normalizeElsMatrixReadingAction({ ...base, focus: bad }), null, String(bad));
   const token = "T".repeat(80);
   assert.equal(normalizeElsMatrixReadingAction({ id: "els_matrix_reading_v1", op: "status", job_token: token, focus: "uniform" }), null);
-  assert.deepEqual([ELS_MATRIX_READING_FOCUS_DEFAULT, ELS_MATRIX_READING_NEIGHBORHOOD.radius, ELS_MATRIX_READING_NEIGHBORHOOD.targetRatio], ["axis_neighborhood", 8, 2]);
+  assert.deepEqual([ELS_MATRIX_READING_FOCUS_DEFAULT, ELS_MATRIX_READING_NEIGHBORHOOD.radius, Object.keys(ELS_MATRIX_READING_NEIGHBORHOOD)], ["axis_neighborhood", 8, ["radius"]], "a radius and nothing else: no ratio, no share, no quota");
 });

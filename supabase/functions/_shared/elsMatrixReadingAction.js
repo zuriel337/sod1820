@@ -33,17 +33,18 @@ export const ELS_MATRIX_READING_EXPECTED_MINUTES = Object.freeze({ min: 3, max: 
 export const ELS_MATRIX_READING_POLL_SECONDS = 20;
 
 /**
- * Default depth of the search (ZURIEL, 30.10.2026): dig into the neighbourhood of the selected occurrence at least twice, and up to three times, as deep as at a distance;
- * when the neighbourhood gives nothing the model may go farther. It is an instruction about WHERE to look harder, never a filter: every proposal, near or far, is kept and verified.
- * REFINED (ZURIEL, 30.10.2026): this is an allocation of EFFORT, not a gate. A fixed share stays for the margins (at least a quarter of the proposals and of the effort), source rows
- * (plain-text rows) are asked for, and coverage is reported apart from the number of proposals. The near:far target is therefore a band, 2:1 to 3:1, and both ends are only measured.
+ * Default depth of the search (ZURIEL, 30.10.2026): an ADDITION to the existing reading, not a replacement and not a quota. The measured instruction stays whole and in force
+ * (focus "uniform" is exactly it); the default appends one section after it that asks for more depth along the axis and around it (about twice to three times the effort per line
+ * than at the margins), keeps a margin check whatever was found near the axis, asks for source rows (plain-text rows) and for the model's own statement of the lines it went through.
+ * It sets no number of proposals near or far, does not ask to fill the cap, and loses nothing: every proposal, near or far, is kept and verified. Where the proposals lay is only
+ * described; coverage is reported apart from the number of proposals (deterministic coverage, the model's report, the count).
  * The radius (cells, Chebyshev distance from any cell of the occurrence) is 8. It was first read off one saved cipher, which makes that cipher IN-SAMPLE for it; checked afterwards
  * against the other saved ciphers of the site (19 Torah ciphers, 108 saved findings): 66% lie within 4 cells of their axis, 81% within 8, 94% within 12, the farthest at 27.
- * An UNMEASURED instruction: "uniform" is the instruction measured in EXP-15..18 and stays selectable to compare against it.
+ * An UNMEASURED instruction: it must be compared with the measured one before any deployment.
  */
 export const ELS_MATRIX_READING_FOCUS = Object.freeze({ AXIS_NEIGHBORHOOD: "axis_neighborhood", UNIFORM: "uniform" });
 export const ELS_MATRIX_READING_FOCUS_DEFAULT = ELS_MATRIX_READING_FOCUS.AXIS_NEIGHBORHOOD;
-export const ELS_MATRIX_READING_NEIGHBORHOOD = Object.freeze({ radius: 8, targetRatio: 2, marginShareMin: 0.25 });
+export const ELS_MATRIX_READING_NEIGHBORHOOD = Object.freeze({ radius: 8 });
 
 const isObject = (value) => Boolean(value) && typeof value === "object" && !Array.isArray(value);
 const isInt = (value) => Number.isSafeInteger(value);
