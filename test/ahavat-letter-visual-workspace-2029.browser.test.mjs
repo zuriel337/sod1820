@@ -1,3 +1,4 @@
+import { AHAVAT_PDF_BYTES, AHAVAT_PDF_URL, assertAhavatSourcePage, ahavatSourceHref } from "./fixtures/ahavat-controlled-source-2029.mjs";
 import assert from "node:assert/strict";
 import { readFileSync, mkdirSync } from "node:fs";
 import { createHash } from "node:crypto";
@@ -17,20 +18,7 @@ const artifacts = "/workspace/artifacts/ahavat-letters-visual-20261029";
 mkdirSync(artifacts, { recursive: true });
 
 async function nativePage(page, physical) {
-  for (let attempt = 0; attempt < 120; attempt++) {
-    for (const frame of page.frames()) {
-      try {
-        const snapshot = await frame.evaluate(index => {
-          const viewer = document.querySelector("pdf-viewer"), viewport = viewer?.viewport_;
-          if (!viewport || !viewer.documentDimensions) return null;
-          return { loadState: viewer.loadState_, documentPages: viewer.documentDimensions.pageDimensions.length, pageIndex: index, requestedRect: viewport.getPageScreenRect(index), previousRect: index ? viewport.getPageScreenRect(index - 1) : null, viewportHeight: viewport.size.height };
-        }, physical - 1);
-        if (ahavatNativePdfPageAtStart(snapshot, physical)) return snapshot;
-      } catch { /* Viewer may be navigating between the real source pages. */ }
-    }
-    await page.waitForTimeout(250);
-  }
-  throw new Error(`Native PDF physical page ${physical} was not readable at its anchor`);
+  return assertAhavatSourcePage(page, physical);
 }
 
 test("focused letters workspace: real source, selection, reflow, source return and model in all nine presets/widths", { timeout: 480_000 }, async () => {
@@ -38,7 +26,7 @@ test("focused letters workspace: real source, selection, reflow, source return a
   process.env.SOD_BUILD_TARGET = "2029";
   process.env.VITE_BOOK_PUBLICATION_REVIEW_PREVIEW = "true";
   process.env.VITE_INTEGRATED_PREVIEW = "true";
-  const server = await createServer({ root, configFile: false, plugins: [react()], appType: "spa", server: { host: "127.0.0.1", port: 0 } });
+  const server = await createServer({ root, configFile: false, cacheDir: `/tmp/ahavat-source-vite-${process.pid}`, plugins: [react()], appType: "spa", server: { host: "127.0.0.1", port: 0 } });
   await server.listen();
   const origin = `http://127.0.0.1:${server.httpServer.address().port}`;
   const browser = await chromium.launch({ executablePath: "/usr/bin/chromium", headless: true, args: ["--no-sandbox", "--use-angle=swiftshader"] });
@@ -47,6 +35,7 @@ test("focused letters workspace: real source, selection, reflow, source return a
       const context = await browser.newContext({ viewport: { width, height: 1000 }, reducedMotion: "reduce" });
       await context.addInitScript(value => { if (location.hostname === "127.0.0.1") localStorage.setItem("sod-theme", value); }, theme);
       await context.route("**/*", async route => {
+      if (route.request().url() === AHAVAT_PDF_URL) return route.fulfill({ contentType: "application/pdf", body: AHAVAT_PDF_BYTES });
         const url = new URL(route.request().url());
         if (url.origin === origin && route.request().isNavigationRequest() && url.pathname === "/2029/control") {
           const response = await context.request.get(`${origin}/2029.html`);
@@ -64,7 +53,7 @@ test("focused letters workspace: real source, selection, reflow, source return a
       const reader = page.locator("#ahavat29-letters"), source = page.locator("#ahavat29-source");
       await reader.locator(".ahavat29-letter-study").waitFor();
       await nativePage(page, 35);
-      assert.equal(await page.locator("canvas").count(), 0);
+      assert.equal(await page.locator("canvas:not([data-book-pdf-canvas])").count(), 0);
       assert.equal(await reader.locator(".ahavat29-letter-alphabet button").count(), 28);
       for (const form of AHAVAT_LETTER_FORMS) assert.equal(await reader.locator(".ahavat29-letter-alphabet").getByRole("button", { name: form.name, exact: true }).count(), 1);
       assert.equal(await reader.locator(".ahavat29-letter-pillars button").count(), 5);
@@ -122,18 +111,18 @@ test("focused letters workspace: real source, selection, reflow, source return a
         await page.setViewportSize({ width: 390, height: 1000 });
         await page.waitForTimeout(250);
         assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), true);
-        assert.ok((await reader.locator("canvas").boundingBox()).width < 390);
+        assert.ok((await reader.locator("canvas:not([data-book-pdf-canvas])").boundingBox()).width < 390);
         assert.match(await reader.locator(".ahavat29-letter-path").textContent(), /ויקרא/);
         await page.setViewportSize({ width, height: 1000 });
       }
       if (width === 390 && theme === "dark") {
-        await reader.locator("canvas").evaluate(canvas => canvas.dispatchEvent(new Event("webglcontextlost", { cancelable: true })));
+        await reader.locator("canvas:not([data-book-pdf-canvas])").evaluate(canvas => canvas.dispatchEvent(new Event("webglcontextlost", { cancelable: true })));
         await reader.getByRole("status").filter({ hasText: "לא ניתן לפתוח את המבנה במכשיר הזה" }).waitFor();
         assert.equal(await reader.locator("tbody tr").count(), 10);
         assert.match(await reader.locator(".ahavat29-letter-path").textContent(), /ויקרא/);
       }
       await reader.getByRole("button", { name: "סגור מבנה האות בתלת־ממד", exact: true }).click();
-      assert.equal(await page.locator("canvas").count(), 0);
+      assert.equal(await page.locator("canvas:not([data-book-pdf-canvas])").count(), 0);
       assert.equal(await toggle.evaluate(el => document.activeElement === el), true);
       await page.getByRole("button", { name: "כל הספר", exact: true }).click();
       assert.equal(await page.locator("#ahavat29-counts").isVisible(), true);

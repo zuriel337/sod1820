@@ -1,3 +1,4 @@
+import { AHAVAT_PDF_BYTES, AHAVAT_PDF_URL, assertAhavatSourcePage, ahavatSourceHref } from "./fixtures/ahavat-controlled-source-2029.mjs";
 import assert from "node:assert/strict";
 import { existsSync, readFileSync, mkdirSync } from "node:fs";
 import { createRequire } from "node:module";
@@ -19,6 +20,7 @@ const companion = JSON.parse(readFileSync(new URL("../public/book-data/ahavat-to
 
 async function routeContext(context, origin, override) {
   await context.route("**/*", async route => {
+      if (route.request().url() === AHAVAT_PDF_URL) return route.fulfill({ contentType: "application/pdf", body: AHAVAT_PDF_BYTES });
     const url = new URL(route.request().url());
     if (url.origin === origin && route.request().isNavigationRequest() && url.pathname === "/2029/control") {
       const response = await context.request.get(`${origin}/2029.html`);
@@ -36,7 +38,7 @@ async function fixture() {
   process.env.SOD_BUILD_TARGET = "2029";
   process.env.VITE_BOOK_PUBLICATION_REVIEW_PREVIEW = "true";
   process.env.VITE_INTEGRATED_PREVIEW = "true";
-  const server = await vite.createServer({ root, configFile: false, plugins: [react()], appType: "spa", server: { host: "127.0.0.1", port: 0 } });
+  const server = await vite.createServer({ root, configFile: false, cacheDir: `/tmp/ahavat-source-vite-${process.pid}`, plugins: [react()], appType: "spa", server: { host: "127.0.0.1", port: 0 } });
   await server.listen();
   const origin = `http://127.0.0.1:${server.httpServer.address().port}`;
   const browser = await playwright.chromium.launch({ headless: true, executablePath, args: ["--no-sandbox"] });
@@ -65,7 +67,7 @@ for (const width of [320, 390, 1440]) test(`all 189 companion units retain sourc
       await initial.waitFor();
       await page.waitForFunction(value => document.documentElement.getAttribute("data-theme-preset") === value, theme);
       assert.equal(await initial.evaluate(element => element.open), true);
-      assert.match(await source.locator("iframe").getAttribute("src"), /#page=55&view=FitH$/);
+      assert.match(await ahavatSourceHref(source), /#page=55&view=FitH$/);
       const click = async target => { await target.evaluate(element => element.scrollIntoView({ block: "center", behavior: "instant" })); await target.click(); };
       await click(initial.getByRole("button", { name: "פתח מקור היחידה · PDF 55", exact: true }));
       await initial.evaluate(element => { element.open = false; });
@@ -98,7 +100,7 @@ for (const width of [320, 390, 1440]) test(`all 189 companion units retain sourc
           assert.match(rendered.text, new RegExp(unit.title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
           assert.match(rendered.text, /מהלך הקריאה:/);
           assert.doesNotMatch(rendered.text, /מהלך המחבר:/);
-          assert.match(await source.locator("iframe").getAttribute("src"), new RegExp(`#page=${unit.pdf_page}&view=FitH$`));
+          assert.match(await ahavatSourceHref(source), new RegExp(`#page=${unit.pdf_page}&view=FitH$`));
           assert.equal(new URL(page.url()).searchParams.get("dataset"), null);
           assert.ok(rendered.bodySize >= 18);
           assert.ok(rendered.summarySize >= 16);
@@ -108,7 +110,7 @@ for (const width of [320, 390, 1440]) test(`all 189 companion units retain sourc
           assert.match(rendered.href, new RegExp(`#page=${unit.pdf_page}&view=FitH$`));
         }
       }
-      assert.equal(await page.locator("canvas").count(), 0);
+      assert.equal(await page.locator("canvas:not([data-book-pdf-canvas])").count(), 0);
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1 && document.body.scrollWidth <= innerWidth + 1), true);
       assert.deepEqual(errors, []);
       await page.screenshot({ path: `${out}/companion-${width}-${theme}.png` });
@@ -133,7 +135,7 @@ test("unavailable or mismatched companion data never hides the exact PDF or inve
       await response;
       await page.waitForFunction(() => !document.getElementById("ahavat29-full-reader")?.textContent.includes("טוען את ההסבר לעמוד"));
       assert.equal(await page.locator(".ahavat29-companion-unit").count(), 0);
-      assert.match(await source.locator("iframe").getAttribute("src"), /#page=55&view=FitH$/);
+      assert.match(await ahavatSourceHref(source), /#page=55&view=FitH$/);
       assert.equal(await source.getByRole("link", { name: /קרא את ה־PDF/ }).isVisible(), true);
       await context.close();
     }
@@ -152,7 +154,7 @@ test("both new sections and preceding final-page deep links survive PDF return a
       await unit.waitFor();
       assert.equal(await unit.evaluate(element => element.open), true);
       const source = page.locator("#ahavat29-source");
-      assert.match(await source.locator("iframe").getAttribute("src"), new RegExp(`#page=${physical}&view=FitH$`));
+      assert.match(await ahavatSourceHref(source), new RegExp(`#page=${physical}&view=FitH$`));
       const open=unit.getByRole("button", { name: `פתח מקור היחידה · PDF ${physical}`, exact: true });
       await open.focus();await open.evaluate(e=>e.scrollIntoView({block:'center',behavior:'instant'}));await open.click();
       await source.getByRole("link", { name: "חזור ליחידת הקריאה", exact: true }).click();
@@ -160,7 +162,7 @@ test("both new sections and preceding final-page deep links survive PDF return a
       await page.reload({ waitUntil: "domcontentloaded" });
       await unit.waitFor();
       assert.equal(await unit.evaluate(element => element.open), true);
-      assert.match(await source.locator("iframe").getAttribute("src"), new RegExp(`#page=${physical}&view=FitH$`));
+      assert.match(await ahavatSourceHref(source), new RegExp(`#page=${physical}&view=FitH$`));
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), true);
       await context.close();
     }

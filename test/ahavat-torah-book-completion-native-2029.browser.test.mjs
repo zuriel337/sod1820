@@ -1,3 +1,4 @@
+import { AHAVAT_PDF_BYTES, AHAVAT_PDF_URL, assertAhavatSourcePage, ahavatSourceHref } from "./fixtures/ahavat-controlled-source-2029.mjs";
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, existsSync, mkdirSync } from 'node:fs';
@@ -18,25 +19,14 @@ const click = async target => { await target.focus(); await target.evaluate(e =>
 const settled = page => page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
 
 async function native(page, physical) {
-  for (let attempt = 0; attempt < 100; attempt++) {
-    for (const frame of page.frames()) try {
-      const snapshot = await frame.evaluate(expected => {
-        const viewer = document.querySelector('pdf-viewer'), viewport = viewer?.viewport_;
-        if (!viewport || viewer.loadState_ !== 'success' || !viewer.documentDimensions) return null;
-        return {loadState:viewer.loadState_,documentPages:viewer.documentDimensions.pageDimensions?.length,pageIndex:expected-1,viewportHeight:viewport.size.height,requestedRect:viewport.getPageScreenRect(expected-1),previousRect:expected>1?viewport.getPageScreenRect(expected-2):null};
-      }, physical);
-      if (ahavatNativePdfPageAtStart(snapshot, physical)) return snapshot;
-    } catch { /* The native plugin is still loading. */ }
-    await page.waitForTimeout(100);
-  }
-  assert.fail(`actual native PDF did not place physical ${physical} at the top`);
+  return assertAhavatSourcePage(page, physical);
 }
 
 test('all 35 new physical pages open the actual PDF; nine contexts retain fullscreen, exact source and return', {skip:!bytes,timeout:600_000}, async () => {
   assert.equal(createHash('sha256').update(bytes).digest('hex'), '895e9a720d984adf8ea453b644e3f6d0864e101238f348f418aa5fafa20e9c8b');
   process.env.SOD_BUILD_TARGET='2029'; process.env.VITE_BOOK_PUBLICATION_REVIEW_PREVIEW='true'; process.env.VITE_INTEGRATED_PREVIEW='true';
   const out='/tmp/ahavat-book-completion-native-20261029'; mkdirSync(out,{recursive:true});
-  const server=await createServer({root,configFile:false,plugins:[react()],appType:'spa',server:{host:'127.0.0.1',port:0}});
+  const server=await createServer({root,configFile: false, cacheDir: `/tmp/ahavat-source-vite-${process.pid}`,plugins:[react()],appType:'spa',server:{host:'127.0.0.1',port:0}});
   await server.listen(); const origin=`http://127.0.0.1:${server.httpServer.address().port}`;
   const browser=await chromium.launch({headless:true,executablePath:process.env.CHROMIUM_EXECUTABLE_PATH||'/usr/bin/chromium',args:['--no-sandbox']});
   const actualPages=new Set(); let visits=0;
@@ -45,6 +35,7 @@ test('all 35 new physical pages open the actual PDF; nine contexts retain fullsc
       const context=await browser.newContext({viewport:{width,height:1000},reducedMotion:'reduce'});
       await context.addInitScript(t=>{if(location.hostname==='127.0.0.1')localStorage.setItem('sod-theme',t);},theme);
       await context.route('**/*',async route=>{
+      if (route.request().url() === AHAVAT_PDF_URL) return route.fulfill({ contentType: "application/pdf", body: AHAVAT_PDF_BYTES });
         const u=new URL(route.request().url());
         if(u.origin===origin&&route.request().isNavigationRequest()&&u.pathname==='/2029/control'){const r=await context.request.get(`${origin}/2029.html`);return route.fulfill({status:r.status(),contentType:'text/html',body:await r.body()});}
         if(u.pathname.endsWith('Hebrewbooks_org_5635.pdf'))return route.fulfill({status:200,contentType:'application/pdf',body:bytes,headers:{'content-disposition':'inline','access-control-allow-origin':'*'}});
@@ -76,7 +67,7 @@ test('all 35 new physical pages open the actual PDF; nine contexts retain fullsc
         assert.equal(await page.evaluate(()=>document.activeElement?.closest('[data-reader-unit]')?.dataset.readerUnit),unit.id);
         assert.equal(await detail.evaluate(e=>e.open),true);
         assert.equal(new URL(page.url()).searchParams.get('readerUnit'),unit.id);
-        assert.equal(await page.locator('canvas').count(),0);
+        assert.equal(await page.locator("canvas:not([data-book-pdf-canvas])").count(),0);
       }
       assert.deepEqual(errors,[]); assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);
       await context.close(); console.log(JSON.stringify({width,theme,nativePhysicalPages:pages,actualPdf:true,fullscreenPage:42,stableReturn:true}));

@@ -8,7 +8,11 @@ const css = readFileSync(new URL("../src/components/books2029/ahavatBookPresenta
 test("book depth wraps the original exact-page source instead of replacing it with artwork", () => {
   assert.match(page, /\[bookPresentation, setBookPresentation\] = useState\(true\)/);
   assert.match(page, /data-book-presentation=\{bookPresentation \? "book" : "straight"\}/);
-  assert.match(page, /<iframe key=\{page\} src=\{pdfUrl\}/);
+  assert.match(page, /<BookPdfPage2029 manifest=\{ahavatPdfManifest\} page=\{page\}/);
+  const source = readFileSync(new URL("../src/components/books2029/BookPdfPage2029.jsx", import.meta.url), "utf8");
+  assert.match(source, /readBookPdfBytes2029\(manifest/);
+  assert.match(source, /getPage\(page\)/);
+  assert.match(source, /pdfPage\.render/);
   assert.match(page, /#page=\$\{page\}&view=FitH/);
   assert.match(page, /aria-controls="ahavat29-pdf-frame"/);
   assert.match(page, /ahavat29-book-page-edges" aria-hidden="true"/);

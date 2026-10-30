@@ -1,3 +1,4 @@
+import { AHAVAT_PDF_BYTES, AHAVAT_PDF_URL, assertAhavatSourcePage, ahavatSourceHref } from "./fixtures/ahavat-controlled-source-2029.mjs";
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync, existsSync, mkdirSync } from "node:fs";
@@ -27,13 +28,14 @@ async function setup(width, theme, pdf = false) {
   process.env.SOD_BUILD_TARGET = "2029";
   process.env.VITE_BOOK_PUBLICATION_REVIEW_PREVIEW = "true";
   process.env.VITE_INTEGRATED_PREVIEW = "true";
-  const server = await createServer({ root, configFile: false, plugins: [react()], appType: "spa", server: { host: "127.0.0.1", port: 0 } });
+  const server = await createServer({ root, configFile: false, cacheDir: `/tmp/ahavat-source-vite-${process.pid}`, plugins: [react()], appType: "spa", server: { host: "127.0.0.1", port: 0 } });
   await server.listen();
   const origin = `http://127.0.0.1:${server.httpServer.address().port}`;
   const browser = await chromium.launch({ headless: true, executablePath: process.env.CHROMIUM_EXECUTABLE_PATH || "/usr/bin/chromium", args: ["--no-sandbox"] });
   const context = await browser.newContext({ viewport: { width, height: 1000 }, reducedMotion: "reduce" });
   await context.addInitScript(value => { if (location.hostname === "127.0.0.1") localStorage.setItem("sod-theme", value); }, theme);
   await context.route("**/*", async route => {
+      if (route.request().url() === AHAVAT_PDF_URL) return route.fulfill({ contentType: "application/pdf", body: AHAVAT_PDF_BYTES });
     const url = new URL(route.request().url());
     if (url.origin === origin && route.request().isNavigationRequest() && url.pathname === "/2029/control") {
       const response = await context.request.get(`${origin}/2029.html`);
@@ -77,7 +79,7 @@ for (const width of [320, 390, 1440]) test(`all ten source proofreading columns 
         assert.deepEqual(actual, fragment.readingDetails.map(detail => ({ id: detail.id, state: detail.supersededBy ? "withdrawn" : detail.restoresReadingId ? "restoration" : "current", before: detail.before, after: detail.after, button: `מקור התיקון · PDF ${detail.pdfPage}` })));
         for (const detail of [fragment.readingDetails[0], fragment.readingDetails.at(-1)]) {
           await click(unit.locator(`[data-root-reading="${detail.id}"]`).getByRole("button"));
-          assert.match(await source.locator("iframe").getAttribute("src"), new RegExp(`#page=${fragment.pdf_page}&view=FitH$`));
+          assert.match(await ahavatSourceHref(source), new RegExp(`#page=${fragment.pdf_page}&view=FitH$`));
           assert.equal(new URL(page.url()).searchParams.get("readerUnit"), fragment.id);
           await click(source.getByRole("link", { name: "חזור ליחידת הקריאה", exact: true }));
           await page.waitForFunction(id => document.activeElement?.closest("[data-reader-unit]")?.dataset.readerUnit === id, fragment.id);
@@ -92,7 +94,7 @@ for (const width of [320, 390, 1440]) test(`all ten source proofreading columns 
           assert.ok((await row.textContent()).includes(review.displayStatus));
           assert.ok((await row.textContent()).includes(review.explanation));
           await click(row.getByRole("button", { name: `מקור הקריאה החוזרת · PDF ${review.pdfPage}`, exact: true }));
-          assert.match(await source.locator("iframe").getAttribute("src"), new RegExp(`#page=${review.pdfPage}&view=FitH$`));
+          assert.match(await ahavatSourceHref(source), new RegExp(`#page=${review.pdfPage}&view=FitH$`));
           await click(source.getByRole("link", { name: "חזור ליחידת הקריאה", exact: true }));
           await page.waitForFunction(id => document.activeElement?.closest("[data-reader-unit]")?.dataset.readerUnit === id, fragment.id);
         }
@@ -103,8 +105,8 @@ for (const width of [320, 390, 1440]) test(`all ten source proofreading columns 
         await unit.locator("pre").waitFor();
         assert.equal(await search.inputValue(), reading.after);
         assert.equal(new URL(page.url()).searchParams.get("readerUnit"), fragment.id);
-        assert.match(await source.locator("iframe").getAttribute("src"), new RegExp(`#page=${fragment.pdf_page}&view=FitH$`));
-        assert.equal(await page.locator("canvas").count(), 0);
+        assert.match(await ahavatSourceHref(source), new RegExp(`#page=${fragment.pdf_page}&view=FitH$`));
+        assert.equal(await page.locator("canvas:not([data-book-pdf-canvas])").count(), 0);
       }
       assert.deepEqual(errors, []);
       console.log(JSON.stringify({ width, theme, columns: 10, comparedReadings: 280, windowReviews: 12, sourceReturns: 32, reloads: 10, pdf: "fixture_aborted", status: "pass" }));
@@ -113,23 +115,7 @@ for (const width of [320, 390, 1440]) test(`all ten source proofreading columns 
 });
 
 async function nativePage(page, physical) {
-  let lastSnapshot = null;
-  for (let attempt = 0; attempt < 100; attempt++) {
-    for (const frame of page.frames()) try {
-      const snapshot = await frame.evaluate(expected => {
-        const viewer = document.querySelector("pdf-viewer");
-        const viewport = viewer?.viewport_;
-        if (!viewer || !viewport?.getPageScreenRect || !viewer.documentDimensions) return null;
-        return { loadState: viewer.loadState_, documentPages: viewer.documentDimensions.pageDimensions?.length, pageIndex: expected - 1, viewportHeight: viewport.size.height, requestedRect: viewport.getPageScreenRect(expected - 1), previousRect: expected > 1 ? viewport.getPageScreenRect(expected - 2) : null };
-      }, physical);
-      if (snapshot) lastSnapshot = snapshot;
-      if (ahavatNativePdfPageAtStart(snapshot, physical)) return;
-    } catch { /* The PDF's frame can be replaced during a page transition. */ }
-    await page.waitForTimeout(100);
-  }
-  console.log(JSON.stringify({ nativeFailure: true, physical, lastSnapshot }));
-  await page.screenshot({ path: `${screenshotDir}/native-failure.png` });
-  assert.fail(`actual native PDF did not select physical page ${physical}`);
+  return assertAhavatSourcePage(page, physical);
 }
 
 // No native acceptance is claimed in a lightweight environment without the
@@ -159,7 +145,7 @@ test("actual 99-page PDF opens all five roots pages and returns from fullscreen 
       await page.waitForTimeout(250);
       assert.equal(await page.evaluate(() => document.activeElement?.closest("[data-reader-unit]")?.dataset.readerUnit), last.id);
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), true);
-      assert.equal(await page.locator("canvas").count(), 0);
+      assert.equal(await page.locator("canvas:not([data-book-pdf-canvas])").count(), 0);
       assert.deepEqual(errors, []);
       if (theme === "parchment") await source.screenshot({ path: `${screenshotDir}/native-pdf-35-${width}.png` });
       console.log(JSON.stringify({ width, theme, nativePages: [31,32,33,34,35], nativePageCount: 99, fullscreen: true, stableReturn: true, status: "pass" }));

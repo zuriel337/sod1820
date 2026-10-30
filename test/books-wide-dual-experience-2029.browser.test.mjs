@@ -1,3 +1,4 @@
+import { AHAVAT_PDF_BYTES, AHAVAT_PDF_URL, assertAhavatSourcePage, ahavatSourceHref } from "./fixtures/ahavat-controlled-source-2029.mjs";
 import assert from "node:assert/strict";
 import { existsSync, mkdirSync, readFileSync } from "node:fs";
 import { createHash } from "node:crypto";
@@ -20,7 +21,7 @@ test("both book experiences preserve the source while widening desktop reading",
   process.env.SOD_BUILD_TARGET = "2029";
   process.env.VITE_BOOK_PUBLICATION_REVIEW_PREVIEW = "true";
   process.env.VITE_INTEGRATED_PREVIEW = "true";
-  const server = await vite.createServer({ root, configFile: false, plugins: [react()], appType: "spa", server: { host: "127.0.0.1", port: 0 } });
+  const server = await vite.createServer({ root, configFile: false, cacheDir: `/tmp/ahavat-source-vite-${process.pid}`, plugins: [react()], appType: "spa", server: { host: "127.0.0.1", port: 0 } });
   await server.listen();
   const origin = `http://127.0.0.1:${server.httpServer.address().port}`;
   const browser = await playwright.chromium.launch({ headless: true, executablePath, args: ["--no-sandbox", "--use-angle=swiftshader"] });
@@ -32,6 +33,7 @@ test("both book experiences preserve the source while widening desktop reading",
         const context = await browser.newContext({ viewport: { width, height: 1000 }, reducedMotion: "reduce" });
         await context.addInitScript(value => { if (location.hostname === "127.0.0.1") localStorage.setItem("sod-theme", value); }, theme);
         await context.route("**/*", async route => {
+      if (route.request().url() === AHAVAT_PDF_URL) return route.fulfill({ contentType: "application/pdf", body: AHAVAT_PDF_BYTES });
           const url = new URL(route.request().url());
           if (url.origin === origin && route.request().isNavigationRequest() && url.pathname === "/2029/control") {
             const response = await context.request.get(`${origin}/2029.html`);
@@ -49,24 +51,24 @@ test("both book experiences preserve the source while widening desktop reading",
         const source = page.locator(book.source);
         await source.waitFor();
         await page.waitForFunction(value => document.documentElement.getAttribute("data-theme-preset") === value, theme);
-        assert.match(await source.locator("iframe").getAttribute("src"), new RegExp(`#page=${book.page}&`));
-        assert.equal(await page.locator("canvas").count(), 0, "3D remains opt-in");
+        assert.match(await ahavatSourceHref(source), new RegExp(`#page=${book.page}&`));
+        assert.equal(await page.locator("canvas:not([data-book-pdf-canvas])").count(), 0, "3D remains opt-in");
         if (book.surface === "ahavat-torah-system") {
           const frame = source.locator("[data-book-pdf-frame]");
           const toggle = source.getByRole("button", { name: "תצוגת ספר", exact: true });
           assert.equal(await frame.getAttribute("data-book-presentation"), "book");
-          await frame.locator("iframe").evaluate(element => { window.bookPresentationSource = element; });
+          await frame.locator('iframe,[data-book-pdf-renderer="controlled"]').evaluate(element => { window.bookPresentationSource = element; });
           await toggle.focus(); await page.keyboard.press("Enter");
           assert.equal(await toggle.getAttribute("aria-pressed"), "false");
           assert.equal(await frame.getAttribute("data-book-presentation"), "straight");
-          assert.equal(await frame.locator("iframe").evaluate(element => element === window.bookPresentationSource), true, "presentation does not reload or replace the source");
+          assert.equal(await frame.locator('iframe,[data-book-pdf-renderer="controlled"]').evaluate(element => element === window.bookPresentationSource), true, "presentation does not reload or replace the source");
           await toggle.click();
           assert.equal(await toggle.getAttribute("aria-pressed"), "true");
           assert.equal(await frame.locator(".ahavat29-book-page-edges").getAttribute("aria-hidden"), "true");
-          assert.equal(await frame.locator("iframe").evaluate(element => getComputedStyle(element).transform), "none", "source text is never perspective-distorted");
-          const sourceBox = await frame.boundingBox(), pdfBox = await frame.locator("iframe").boundingBox();
+          assert.equal(await frame.locator('iframe,[data-book-pdf-renderer="controlled"]').evaluate(element => getComputedStyle(element).transform), "none", "source text is never perspective-distorted");
+          const sourceBox = await frame.boundingBox(), pdfBox = await frame.locator('iframe,[data-book-pdf-renderer="controlled"]').boundingBox();
           assert.ok(pdfBox.x > sourceBox.x && pdfBox.width > sourceBox.width * .85, "book depth is visible but leaves at least 85% of source width readable");
-          assert.match(await frame.locator("iframe").getAttribute("src"), new RegExp(`#page=${book.page}&`));
+          assert.match(await ahavatSourceHref(frame), new RegExp(`#page=${book.page}&`));
           await source.scrollIntoViewIfNeeded();
           await page.screenshot({ path: `${out}/ahavat-book-${width}-${theme}.png` });
         }
@@ -87,7 +89,7 @@ test("both book experiences preserve the source while widening desktop reading",
           await button.focus(); await page.keyboard.press("Enter");
           assert.equal(await button.getAttribute("aria-pressed"), "true");
           assert.ok((await source.boundingBox()).width > balancedWidth, "source-wide mode increases source width");
-          assert.match(await source.locator("iframe").getAttribute("src"), new RegExp(`#page=${book.page}&`));
+          assert.match(await ahavatSourceHref(source), new RegExp(`#page=${book.page}&`));
           await nav.getByRole("button", { name: "מקור והסבר" }).click();
           await source.scrollIntoViewIfNeeded();
           await page.screenshot({ path: `${out}/${book.surface}-${theme}-1440.png` });
@@ -110,7 +112,7 @@ test("native PDFs remain readable in the wider desktop layout", { skip: !availab
   process.env.SOD_BUILD_TARGET = "2029";
   process.env.VITE_BOOK_PUBLICATION_REVIEW_PREVIEW = "true";
   process.env.VITE_INTEGRATED_PREVIEW = "true";
-  const server = await vite.createServer({ root, configFile: false, plugins: [react()], appType: "spa", server: { host: "127.0.0.1", port: 0 } });
+  const server = await vite.createServer({ root, configFile: false, cacheDir: `/tmp/ahavat-source-vite-${process.pid}`, plugins: [react()], appType: "spa", server: { host: "127.0.0.1", port: 0 } });
   await server.listen();
   const origin = `http://127.0.0.1:${server.httpServer.address().port}`;
   const browser = await playwright.chromium.launch({ headless: true, executablePath, args: ["--no-sandbox"] });
@@ -120,6 +122,7 @@ test("native PDFs remain readable in the wider desktop layout", { skip: !availab
       assert.equal(createHash("sha256").update(bytes).digest("hex"), book.hash);
       const context = await browser.newContext({ viewport: { width: 1440, height: 1000 }, reducedMotion: "reduce" });
       await context.route("**/*", async route => {
+      if (route.request().url() === AHAVAT_PDF_URL) return route.fulfill({ contentType: "application/pdf", body: AHAVAT_PDF_BYTES });
         const url = new URL(route.request().url());
         if (url.origin === origin && route.request().isNavigationRequest() && url.pathname === "/2029/control") {
           const response = await context.request.get(`${origin}/2029.html`);
@@ -144,19 +147,20 @@ test("native PDFs remain readable in the wider desktop layout", { skip: !availab
         assert.equal(await source.locator("[data-book-pdf-frame]").evaluate(element => getComputedStyle(element).padding), "0px");
       }
       let nativePages = null;
+      if (book.surface === "ahavat-torah-system") nativePages = (await assertAhavatSourcePage(source, 6)).pages;
       for (let attempt = 0; attempt < 100 && nativePages !== book.pages; attempt++) {
         for (const frame of page.frames()) {
           try { nativePages = await frame.evaluate(() => document.querySelector("pdf-viewer")?.documentDimensions?.pageDimensions?.length || null) || nativePages; } catch { /* cross-origin frame */ }
         }
         if (nativePages !== book.pages) await page.waitForTimeout(250);
       }
-      assert.equal(nativePages, book.pages, "actual Chromium PDF viewer exposes all source pages");
+      assert.equal(nativePages, book.pages, "the actual PDF document exposes all original source pages");
       await source.getByRole("button", { name: "יציאה ממסך מלא", exact: true }).click();
       if (book.surface === "ahavat-torah-system") {
         await page.waitForFunction(() => !document.fullscreenElement);
         assert.equal(await source.locator(".ahavat29-book-page-edges").isVisible(), true);
       }
-      assert.match(await source.locator("iframe").getAttribute("src"), /#page=6&/);
+      assert.match(await ahavatSourceHref(source), /#page=6&/);
       await source.scrollIntoViewIfNeeded();
       await page.waitForTimeout(1200);
       await page.screenshot({ path: `/tmp/books-wide-dual-experience-20261028/${book.surface}-native-pdf-1440.png` });

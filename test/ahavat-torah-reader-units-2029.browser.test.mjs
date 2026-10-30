@@ -1,3 +1,4 @@
+import { AHAVAT_PDF_BYTES, AHAVAT_PDF_URL, assertAhavatSourcePage, ahavatSourceHref } from "./fixtures/ahavat-controlled-source-2029.mjs";
 import assert from "node:assert/strict";
 import { existsSync } from "node:fs";
 import { createRequire } from "node:module";
@@ -20,7 +21,7 @@ test("Books entry and exact source-unit return survive search/reload in 320/390/
   process.env.SOD_BUILD_TARGET = "2029";
   process.env.VITE_BOOK_PUBLICATION_REVIEW_PREVIEW = "true";
   process.env.VITE_INTEGRATED_PREVIEW = "true";
-  const server = await vite.createServer({ root: ROOT, configFile: false, plugins: [reactPlugin()], appType: "spa", server: { host: "127.0.0.1", port: 0 } });
+  const server = await vite.createServer({ root: ROOT, configFile: false, cacheDir: `/tmp/ahavat-source-vite-${process.pid}`, plugins: [reactPlugin()], appType: "spa", server: { host: "127.0.0.1", port: 0 } });
   await server.listen();
   const base = `http://127.0.0.1:${server.httpServer.address().port}`;
   const browser = await playwright.chromium.launch({ headless: true, executablePath, args: ["--no-sandbox", "--use-angle=swiftshader"] });
@@ -53,6 +54,7 @@ test("Books entry and exact source-unit return survive search/reload in 320/390/
       }, preset);
       let rootRequests = 0;
       await context.route("**/*", async route => {
+      if (route.request().url() === AHAVAT_PDF_URL) return route.fulfill({ contentType: "application/pdf", body: AHAVAT_PDF_BYTES });
         const url = new URL(route.request().url());
         if (url.origin === base && route.request().isNavigationRequest() && url.pathname === "/2029/control") {
           const response = await context.request.get(`${base}/2029.html`);
@@ -73,7 +75,7 @@ test("Books entry and exact source-unit return survive search/reload in 320/390/
       const assertFit = async () => {
         assert.equal(await page.locator("html").getAttribute("data-theme-preset"), preset);
         assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1 && document.body.scrollWidth <= innerWidth + 1), true, `${width}/${preset}: overflow`);
-        assert.equal(await page.locator("canvas").count(), 0, "3D is never enabled by refresh/deep links");
+        assert.equal(await page.locator("canvas:not([data-book-pdf-canvas])").count(), 0, "3D is never enabled by refresh/deep links");
       };
       const assertUnitEntry = async (id, sourcePage) => {
         const unit = page.locator(`[data-reader-unit="${id}"]`);
@@ -83,7 +85,7 @@ test("Books entry and exact source-unit return survive search/reload in 320/390/
           const top = target?.getBoundingClientRect().top;
           return top >= 70 && top <= 110;
         }, id);
-        assert.match(await page.locator("#ahavat29-source iframe").getAttribute("src"), new RegExp(`#page=${sourcePage}&view=FitH$`));
+        assert.match(await ahavatSourceHref(page.locator("#ahavat29-source")), new RegExp(`#page=${sourcePage}&view=FitH$`));
         assert.equal(new URL(page.url()).searchParams.get("readerUnit"), id);
         await assertFit();
         return unit;
@@ -111,7 +113,7 @@ test("Books entry and exact source-unit return survive search/reload in 320/390/
       assert.equal(new URL(page.url()).searchParams.get("peopleQuery"), "יעקב");
       assert.equal(new URL(page.url()).searchParams.get("peopleMetric"), "times");
       await click(source.getByRole("button", { name: "לעמוד הבא", exact: true }));
-      assert.match(await source.locator("iframe").getAttribute("src"), /#page=28&view=FitH$/);
+      assert.match(await ahavatSourceHref(source), /#page=28&view=FitH$/);
       assert.equal(new URL(await returnLink.getAttribute("href"), base).searchParams.get("page"), "27");
       await click(returnLink);
       await assertUnitEntry("people:bereshit:37", 27);

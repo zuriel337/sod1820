@@ -1,3 +1,4 @@
+import { AHAVAT_PDF_BYTES, AHAVAT_PDF_URL, assertAhavatSourcePage, ahavatSourceHref } from "./fixtures/ahavat-controlled-source-2029.mjs";
 import assert from "node:assert/strict";
 import { existsSync } from "node:fs";
 import { createRequire } from "node:module";
@@ -18,7 +19,7 @@ const available = Boolean(playwright && vite && reactPlugin && executablePath &&
 test("DS-03/04 source counts, PDF boundaries, CSV, 3D and reload work at 320/390/1440", { skip: !available, timeout: 180_000 }, async () => {
   process.env.SOD_BUILD_TARGET = "2029";
   process.env.VITE_BOOK_PUBLICATION_REVIEW_PREVIEW = "true";
-  const server = await vite.createServer({ root: ROOT, configFile: false, plugins: [reactPlugin()], appType: "spa", server: { host: "127.0.0.1", port: 0 } });
+  const server = await vite.createServer({ root: ROOT, configFile: false, cacheDir: `/tmp/ahavat-source-vite-${process.pid}`, plugins: [reactPlugin()], appType: "spa", server: { host: "127.0.0.1", port: 0 } });
   await server.listen();
   const base = `http://127.0.0.1:${server.httpServer.address().port}`;
   const browser = await playwright.chromium.launch({ headless: true, executablePath, args: ["--no-sandbox", "--use-angle=swiftshader"] });
@@ -26,6 +27,7 @@ test("DS-03/04 source counts, PDF boundaries, CSV, 3D and reload work at 320/390
     for (const width of [320, 390, 1440]) {
       const context = await browser.newContext({ viewport: { width, height: 1000 }, reducedMotion: "reduce" });
       await context.route("**/*", async route => {
+      if (route.request().url() === AHAVAT_PDF_URL) return route.fulfill({ contentType: "application/pdf", body: AHAVAT_PDF_BYTES });
         const url = new URL(route.request().url());
         if (url.origin === base && route.request().isNavigationRequest() && url.pathname === "/2029/control") {
           const response = await context.request.get(`${base}/2029.html`);
@@ -45,14 +47,14 @@ test("DS-03/04 source counts, PDF boundaries, CSV, 3D and reload work at 320/390
       page.on("pageerror", error => errors.push(error.message));
       await page.goto(`${base}/2029/control?surface=ahavat-torah-system&dataset=DS-03&countKind=words&countBook=all&page=41`, { waitUntil: "domcontentloaded" });
       const reader = page.locator("#ahavat29-counts");
-      const pdf = page.locator("#ahavat29-source iframe");
+      const pdf = page.locator('#ahavat29-source :is(iframe,[data-book-pdf-renderer="controlled"])');
       await reader.locator("tbody tr").first().waitFor();
       assert.equal(await reader.locator("tbody tr").count(), 54);
       assert.match(await reader.locator(".ahavat29-ds01-guide").last().textContent(), /79,976/);
       const chooseBook = title => reader.getByRole("navigation", { name: /בחירת חומש במניין/ }).getByRole("button", { name: title, exact: true });
       await click(chooseBook("שמות"));
       assert.equal(await reader.locator("tbody tr").count(), 11);
-      assert.match(await pdf.getAttribute("src"), /#page=41&view=FitH$/);
+      assert.match(await ahavatSourceHref(pdf), /#page=41&view=FitH$/);
       const search = reader.getByRole("searchbox", { name: "חיפוש במנייני הפרשות" });
       await search.fill("כי תשא");
       assert.equal(await reader.locator("tbody tr").count(), 1);
@@ -62,12 +64,12 @@ test("DS-03/04 source counts, PDF boundaries, CSV, 3D and reload work at 320/390
       assert.equal(new URL(page.url()).searchParams.get("dataset"), "DS-04");
       assert.equal(new URL(page.url()).searchParams.get("countKind"), "letters");
       assert.match(await reader.locator(".ahavat29-ds01-guide").last().textContent(), /304,812/);
-      assert.match(await pdf.getAttribute("src"), /#page=42&view=FitH$/);
+      assert.match(await ahavatSourceHref(pdf), /#page=42&view=FitH$/);
       await click(chooseBook("בראשית"));
       assert.equal(await reader.locator("tbody tr").count(), 12);
       for (const [parasha, pdfPage] of [["חיי שרה", 41], ["תולדות", 42]]) {
         await click(reader.locator("tbody tr").filter({ has: page.getByRole("cell", { name: parasha, exact: true }) }).getByRole("button", { name: `PDF ${pdfPage}`, exact: true }));
-        assert.match(await pdf.getAttribute("src"), new RegExp(`#page=${pdfPage}&view=FitH$`));
+        assert.match(await ahavatSourceHref(pdf), new RegExp(`#page=${pdfPage}&view=FitH$`));
       }
       assert.equal(await reader.locator(".ahavat29-letter-bars button").count(), 11);
       await search.fill("מקץ");
@@ -84,11 +86,11 @@ test("DS-03/04 source counts, PDF boundaries, CSV, 3D and reload work at 320/390
       await search.fill("");
       if (width === 1440) {
         await click(reader.getByRole("button", { name: "פתח מבנה המניינים בתלת־ממד", exact: true }));
-        await reader.locator("canvas").waitFor();
+        await reader.locator("canvas:not([data-book-pdf-canvas])").waitFor();
         assert.match(await reader.locator(".ahavat29-spatial-canvas").getByRole("img").getAttribute("aria-label"), /מניין אותיות התורה/);
         assert.doesNotMatch(await reader.locator(".ahavat29-spatial-canvas").getByRole("img").getAttribute("aria-label"), /מניין האות אותיות/);
         await click(reader.locator(".ahavat29-letter-bars").getByRole("button", { name: "בראשית 7,235", exact: true }));
-        assert.match(await pdf.getAttribute("src"), /#page=41&view=FitH$/);
+        assert.match(await ahavatSourceHref(pdf), /#page=41&view=FitH$/);
         await page.reload({ waitUntil: "domcontentloaded" });
         await reader.locator("tbody tr").first().waitFor();
         assert.equal(await reader.getByRole("button", { name: "אותיות התורה", exact: true }).getAttribute("aria-pressed"), "true");
@@ -99,7 +101,7 @@ test("DS-03/04 source counts, PDF boundaries, CSV, 3D and reload work at 320/390
       await externalDataset.evaluate(element => element.scrollIntoView({ block: "center", behavior: "instant" }));
       await click(externalDataset);
       await reader.getByRole("button", { name: "תיבות התורה", exact: true, pressed: true }).waitFor();
-      assert.match(await pdf.getAttribute("src"), /#page=41&view=FitH$/);
+      assert.match(await ahavatSourceHref(pdf), /#page=41&view=FitH$/);
       assert.equal(new URL(page.url()).searchParams.get("countKind"), "words");
       assert.equal(await page.locator("#ahavat29-letters .ahavat29-letter-alphabet button").count(), 28);
       assert.equal(await page.locator("#ahavat29-letters tbody tr").count(), 54);

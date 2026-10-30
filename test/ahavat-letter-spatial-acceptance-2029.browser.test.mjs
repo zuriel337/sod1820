@@ -1,3 +1,4 @@
+import { AHAVAT_PDF_BYTES, AHAVAT_PDF_URL, assertAhavatSourcePage, ahavatSourceHref } from "./fixtures/ahavat-controlled-source-2029.mjs";
 import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
 import { createHash } from "node:crypto";
@@ -15,7 +16,7 @@ const sourcePath = "/tmp/books-wide-ahavat-source-20261028.pdf";
 
 async function fixture() {
   process.env.SOD_BUILD_TARGET = "2029"; process.env.VITE_BOOK_PUBLICATION_REVIEW_PREVIEW = "true"; process.env.VITE_INTEGRATED_PREVIEW = "true";
-  const server = await vite.createServer({ root, configFile: false, plugins: [react()], appType: "spa", server: { host: "127.0.0.1", port: 0 } });
+  const server = await vite.createServer({ root, configFile: false, cacheDir: `/tmp/ahavat-source-vite-${process.pid}`, plugins: [react()], appType: "spa", server: { host: "127.0.0.1", port: 0 } });
   await server.listen();
   const origin = `http://127.0.0.1:${server.httpServer.address().port}`;
   const browser = await playwright.chromium.launch({ headless: true, executablePath: "/usr/bin/chromium", args: ["--no-sandbox", "--use-angle=swiftshader"] });
@@ -24,6 +25,7 @@ async function fixture() {
 
 async function routes(context, origin, pdf) {
   await context.route("**/*", async route => {
+      if (route.request().url() === AHAVAT_PDF_URL) return route.fulfill({ contentType: "application/pdf", body: AHAVAT_PDF_BYTES });
     const url = new URL(route.request().url());
     if (url.origin === origin && route.request().isNavigationRequest() && url.pathname === "/2029/control") {
       const response = await context.request.get(`${origin}/2029.html`);
@@ -51,23 +53,23 @@ test("letter selection, source return, scale, scene switching and context loss w
       const search = reader.getByRole("searchbox", { name: "חיפוש בפרשות האות" });
       assert.equal(await search.inputValue(), "109");
       assert.equal(await reader.locator("tbody tr").count(), 1);
-      assert.match(await source.locator("iframe").getAttribute("src"), /#page=36&view=FitH$/);
-      assert.equal(await page.locator("canvas").count(), 0, "a deep link must not start a GPU scene");
+      assert.match(await ahavatSourceHref(source), /#page=36&view=FitH$/);
+      assert.equal(await page.locator("canvas:not([data-book-pdf-canvas])").count(), 0, "a deep link must not start a GPU scene");
       await row.getByRole("button", { name: "PDF 36", exact: true }).click();
       await source.getByRole("button", { name: "לעמוד הבא", exact: true }).click();
       await source.getByRole("link", { name: "חזור ליחידת הקריאה", exact: true }).click();
-      assert.match(await source.locator("iframe").getAttribute("src"), /#page=36&view=FitH$/);
+      assert.match(await ahavatSourceHref(source), /#page=36&view=FitH$/);
       assert.equal(new URL(page.url()).searchParams.get("readerUnit"), id);
       assert.equal(await search.inputValue(), "109");
       await page.reload({ waitUntil: "domcontentloaded" }); await row.waitFor();
       assert.equal(await search.inputValue(), "109");
       const toggle = reader.getByRole("button", { name: "פתח מבנה האות בתלת־ממד", exact: true });
-      await toggle.click(); await reader.locator("canvas").waitFor();
-      assert.equal(await page.locator("canvas").count(), 1);
+      await toggle.click(); await reader.locator("canvas:not([data-book-pdf-canvas])").waitFor();
+      assert.equal(await page.locator("canvas:not([data-book-pdf-canvas])").count(), 1);
       assert.match(await reader.locator(".ahavat29-letter-scene").textContent(), /קנה המידה משתנה/);
       assert.equal(await reader.locator(".ahavat29-spatial-canvas").getAttribute("data-reduced-motion"), "true");
       await reader.locator('canvas[data-ahavat-context-guard="ready"]').waitFor();
-      await reader.locator("canvas").evaluate(canvas => { window.__letterContext = canvas.getContext("webgl2") || canvas.getContext("webgl"); });
+      await reader.locator("canvas:not([data-book-pdf-canvas])").evaluate(canvas => { window.__letterContext = canvas.getContext("webgl2") || canvas.getContext("webgl"); });
       const bar = reader.locator(".ahavat29-letter-bars").getByRole("button", { name: "צו 109", exact: true });
       assert.equal(await bar.getAttribute("aria-pressed"), "true");
       await bar.focus(); await page.keyboard.press("Enter");
@@ -77,23 +79,23 @@ test("letter selection, source return, scale, scene switching and context loss w
       await page.waitForFunction(unit => document.activeElement?.closest("[data-reader-unit]")?.getAttribute("data-reader-unit") === unit, id);
       const close = reader.getByRole("button", { name: "סגור מבנה האות בתלת־ממד", exact: true });
       await close.focus(); await page.keyboard.press("Enter");
-      assert.equal(await page.locator("canvas").count(), 0);
+      assert.equal(await page.locator("canvas:not([data-book-pdf-canvas])").count(), 0);
       await toggle.waitFor();
       assert.equal(await toggle.evaluate(element => document.activeElement === element), true, "closing the model must retain keyboard focus on its toggle");
       await page.waitForFunction(() => window.__letterContext?.isContextLost(), null, { timeout: 10_000 });
-      await toggle.click(); await reader.locator("canvas").waitFor();
+      await toggle.click(); await reader.locator("canvas:not([data-book-pdf-canvas])").waitFor();
       await page.getByRole("button", { name: "פתח מצפה תלת־ממדי", exact: true }).click();
       await page.locator(".ahavat29-spatial-stage canvas").waitFor();
-      assert.equal(await reader.locator("canvas").count(), 0);
-      assert.equal(await page.locator("canvas").count(), 1, "only the newly selected model remains active");
+      assert.equal(await reader.locator("canvas:not([data-book-pdf-canvas])").count(), 0);
+      assert.equal(await page.locator("canvas:not([data-book-pdf-canvas])").count(), 1, "only the newly selected model remains active");
       await page.getByRole("button", { name: "סגור מצפה תלת־ממדי", exact: true }).click();
-      await toggle.click(); await reader.locator("canvas").waitFor();
+      await toggle.click(); await reader.locator("canvas:not([data-book-pdf-canvas])").waitFor();
       await reader.locator('canvas[data-ahavat-context-guard="ready"]').waitFor();
-      await reader.locator("canvas").evaluate(canvas => canvas.dispatchEvent(new Event("webglcontextlost", { cancelable: true })));
+      await reader.locator("canvas:not([data-book-pdf-canvas])").evaluate(canvas => canvas.dispatchEvent(new Event("webglcontextlost", { cancelable: true })));
       await reader.getByRole("status").filter({ hasText: "לא ניתן לפתוח את המבנה במכשיר הזה" }).waitFor();
-      assert.equal(await reader.locator("canvas").count(), 0);
+      assert.equal(await reader.locator("canvas:not([data-book-pdf-canvas])").count(), 0);
       assert.equal(await reader.locator("tbody tr").count(), 1);
-      assert.match(await source.locator("iframe").getAttribute("src"), /#page=36&view=FitH$/);
+      assert.match(await ahavatSourceHref(source), /#page=36&view=FitH$/);
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1 && document.body.scrollWidth <= innerWidth + 1), true);
       await context.close(); console.log(`letter spatial ${width}/${theme}: passed`);
     }
@@ -124,7 +126,7 @@ test("motion preference changes are observed while the scene is open", { skip: !
     await page.locator(".sod29-root").evaluate(root => root.setAttribute("data-frame-reduced-motion", "false"));
     await page.emulateMedia({ reducedMotion: "reduce" });
     await page.waitForFunction(() => document.querySelector("#ahavat29-letters .ahavat29-spatial-canvas")?.dataset.reducedMotion === "true");
-    assert.equal(await scene.locator("canvas").count(), 1);
+    assert.equal(await scene.locator("canvas:not([data-book-pdf-canvas])").count(), 1);
     await context.close();
   } finally { await browser.close(); await server.close(); }
 });
@@ -143,7 +145,7 @@ test("a device without WebGL keeps the same letter table and exact source usable
     await reader.getByRole("status").filter({ hasText: "לא ניתן לפתוח את המבנה במכשיר הזה" }).waitFor();
     assert.ok(await reader.locator("tbody tr").count() > 0);
     await reader.locator(`[data-reader-unit="${id}"]`).getByRole("button", { name: "PDF 36", exact: true }).click();
-    assert.match(await source.locator("iframe").getAttribute("src"), /#page=36&view=FitH$/);
+    assert.match(await ahavatSourceHref(source), /#page=36&view=FitH$/);
     await context.close();
   } finally { await browser.close(); await server.close(); }
 });
@@ -159,7 +161,7 @@ test("the original 99-page PDF stays usable with the letter model and fullscreen
     await page.goto(`${origin}${ahavatReaderUnitHref(id)}`, { waitUntil: "domcontentloaded" });
     const reader = page.locator("#ahavat29-letters"), source = page.locator("#ahavat29-source");
     await reader.locator(`[data-reader-unit="${id}"]`).waitFor();
-    await reader.getByRole("button", { name: "פתח מבנה האות בתלת־ממד", exact: true }).click(); await reader.locator("canvas").waitFor();
+    await reader.getByRole("button", { name: "פתח מבנה האות בתלת־ממד", exact: true }).click(); await reader.locator("canvas:not([data-book-pdf-canvas])").waitFor();
     await source.getByRole("button", { name: "מסך מלא", exact: true }).click();
     await page.waitForFunction(() => Boolean(document.fullscreenElement));
     let total = null;
@@ -170,7 +172,7 @@ test("the original 99-page PDF stays usable with the letter model and fullscreen
     assert.equal(total, 99);
     await source.getByRole("button", { name: "יציאה ממסך מלא", exact: true }).click();
     await page.waitForFunction(() => !document.fullscreenElement);
-    assert.match(await source.locator("iframe").getAttribute("src"), /#page=36&view=FitH$/);
+    assert.match(await ahavatSourceHref(source), /#page=36&view=FitH$/);
     await source.getByRole("link", { name: "חזור ליחידת הקריאה", exact: true }).click();
     assert.equal(new URL(page.url()).searchParams.get("readerUnit"), id);
     await context.close();

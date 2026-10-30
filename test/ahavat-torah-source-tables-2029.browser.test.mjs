@@ -1,3 +1,4 @@
+import { AHAVAT_PDF_BYTES, AHAVAT_PDF_URL, assertAhavatSourcePage, ahavatSourceHref } from "./fixtures/ahavat-controlled-source-2029.mjs";
 import assert from "node:assert/strict";
 import { existsSync } from "node:fs";
 import { createRequire } from "node:module";
@@ -18,7 +19,7 @@ const available = Boolean(playwright && vite && reactPlugin && executablePath &&
 test("people, roots and megillot retain their source through search/export/3D/reload at 320/390/1440", { skip: !available, timeout: 240_000 }, async () => {
   process.env.SOD_BUILD_TARGET = "2029";
   process.env.VITE_BOOK_PUBLICATION_REVIEW_PREVIEW = "true";
-  const server = await vite.createServer({ root: ROOT, configFile: false, plugins: [reactPlugin()], appType: "spa", server: { host: "127.0.0.1", port: 0 } });
+  const server = await vite.createServer({ root: ROOT, configFile: false, cacheDir: `/tmp/ahavat-source-vite-${process.pid}`, plugins: [reactPlugin()], appType: "spa", server: { host: "127.0.0.1", port: 0 } });
   await server.listen();
   const base = `http://127.0.0.1:${server.httpServer.address().port}`;
   const browser = await playwright.chromium.launch({ headless: true, executablePath, args: ["--no-sandbox", "--use-angle=swiftshader"] });
@@ -28,6 +29,7 @@ test("people, roots and megillot retain their source through search/export/3D/re
       const context = await browser.newContext({ viewport: { width, height: 1000 }, reducedMotion: "reduce" });
       let rootRequests = 0;
       await context.route("**/*", async route => {
+      if (route.request().url() === AHAVAT_PDF_URL) return route.fulfill({ contentType: "application/pdf", body: AHAVAT_PDF_BYTES });
         const url = new URL(route.request().url());
         if (url.origin === base && route.request().isNavigationRequest() && url.pathname === "/2029/control") {
           const response = await context.request.get(`${base}/2029.html`);
@@ -47,7 +49,7 @@ test("people, roots and megillot retain their source through search/export/3D/re
       page.on("pageerror", error => errors.push(error.message));
       await page.goto(`${base}/2029/control?surface=ahavat-torah-system&dataset=DS-05&peopleBook=bereshit&page=26#ahavat29-people`, { waitUntil: "domcontentloaded" });
       const people = page.locator("#ahavat29-people");
-      const pdf = page.locator("#ahavat29-source iframe");
+      const pdf = page.locator('#ahavat29-source :is(iframe,[data-book-pdf-renderer="controlled"])');
       const roots = page.locator("#ahavat29-roots");
       const scrolls = page.locator("#ahavat29-scrolls");
       const click = async locator => {
@@ -74,17 +76,17 @@ test("people, roots and megillot retain their source through search/export/3D/re
       assert.equal(await jacob.locator("td:nth-child(3)").textContent(), "83");
       assert.equal(await jacob.locator("td:nth-child(5)").textContent(), "1,197");
       await click(jacob.getByRole("button", { name: "PDF 27", exact: true }));
-      assert.match(await pdf.getAttribute("src"), /#page=27&view=FitH$/);
+      assert.match(await ahavatSourceHref(pdf), /#page=27&view=FitH$/);
       assert.equal(new URL(page.url()).searchParams.get("dataset"), "DS-05");
       await click(people.getByRole("navigation", { name: "בחירת חומש בייחוסים" }).getByRole("button", { name: "ויקרא", exact: true }));
       await peopleSearch.fill("משה");
       assert.equal(await people.locator("tbody tr").count(), 1);
       await click(people.locator("tbody tr button"));
-      assert.match(await pdf.getAttribute("src"), /#page=29&view=FitH$/);
+      assert.match(await ahavatSourceHref(pdf), /#page=29&view=FitH$/);
       const peopleCsv = await downloadText(people.getByRole("button", { name: /הורד ייחוסים למחקר/ }));
       assert.match(peopleCsv.text, /"משה","ו׳","6","שי״ט","319","29"/);
       await click(people.getByRole("button", { name: "פתח מבנה ייחוסים בתלת־ממד", exact: true }));
-      await people.locator("canvas").waitFor();
+      await people.locator("canvas:not([data-book-pdf-canvas])").waitFor();
       assert.match(await people.locator(".ahavat29-spatial-canvas").getByRole("img").getAttribute("aria-label"), /תיבות מיוחסות/);
       await click(people.getByRole("button", { name: "פעמים", exact: true }));
       assert.match(await people.locator(".ahavat29-spatial-canvas").getByRole("img").getAttribute("aria-label"), /פעמים בדברי המחבר/);
@@ -109,7 +111,7 @@ test("people, roots and megillot retain their source through search/export/3D/re
       await rootsSearch.fill("על פני ההום");
       assert.equal(await roots.locator("article").count(), 1, "original OCR queries keep finding the corrected source column");
       await click(reviewed.getByRole("button", { name: "מקור הרשימה · PDF 31", exact: true }));
-      assert.match(await pdf.getAttribute("src"), /#page=31&view=FitH$/);
+      assert.match(await ahavatSourceHref(pdf), /#page=31&view=FitH$/);
       await page.reload({ waitUntil: "domcontentloaded" });
       await reviewed.waitFor();
       assert.equal(await rootsSearch.inputValue(), "על פני ההום");
@@ -117,7 +119,7 @@ test("people, roots and megillot retain their source through search/export/3D/re
       await rootsSearch.fill("שחקים");
       assert.equal(await roots.locator("article").count(), 1);
       await click(roots.locator("article").getByRole("button", { name: "מקור הרשימה · PDF 35", exact: true }));
-      assert.match(await pdf.getAttribute("src"), /#page=35&view=FitH$/);
+      assert.match(await ahavatSourceHref(pdf), /#page=35&view=FitH$/);
       assert.equal(new URL(page.url()).searchParams.get("dataset"), "DS-11");
       await rootsSearch.fill("לאנמצאבספראיזהטקסט");
       await roots.getByText("לא נמצאה צורה מתאימה בתעתיק. אפשר לבדוק את עמודי המקור המלאים.", { exact: true }).waitFor();
@@ -134,7 +136,7 @@ test("people, roots and megillot retain their source through search/export/3D/re
       await scrollSearch.fill("");
       for (const [form, sourcePage] of [["פ", 42], ["ף", 43]]) {
         await click(scrolls.locator("tbody tr").filter({ has: page.getByRole("cell", { name: form, exact: true }) }).getByRole("button", { name: `PDF ${sourcePage}`, exact: true }));
-        assert.match(await pdf.getAttribute("src"), new RegExp(`#page=${sourcePage}&view=FitH$`));
+        assert.match(await ahavatSourceHref(pdf), new RegExp(`#page=${sourcePage}&view=FitH$`));
       }
       const scrollCsv = await downloadText(scrolls.getByRole("button", { name: /הורד מגילות למחקר/ }));
       assert.match(scrollCsv.text, /"אסתר","ב","\?","","42"/);
@@ -145,12 +147,12 @@ test("people, roots and megillot retain their source through search/export/3D/re
       assert.equal(new URL(page.url()).searchParams.get("dataset"), "DS-10");
       await click(scrolls.getByRole("navigation", { name: "בחירת מגילה", exact: true }).getByRole("button", { name: "כל חמש המגילות", exact: true }));
       await click(scrolls.getByRole("button", { name: "פתח מבנה מגילות בתלת־ממד", exact: true }));
-      await scrolls.locator("canvas").waitFor();
+      await scrolls.locator("canvas:not([data-book-pdf-canvas])").waitFor();
       assert.equal(await scrolls.locator("[aria-label='נתוני מבנה המגילות'] button").count(), 5);
       assert.equal(await scrolls.locator(".ahavat29-letter-scene [aria-label='נתוני מבנה המגילות']").count(), 0, "accessible controls stay outside the fixed-height canvas container");
       await click(scrolls.locator("[aria-label='נתוני מבנה המגילות']").getByRole("button", { name: "רות · 1,214", exact: true }));
       assert.equal(await scrolls.locator("tbody tr").count(), 1);
-      assert.match(await pdf.getAttribute("src"), /#page=43&view=FitH$/);
+      assert.match(await ahavatSourceHref(pdf), /#page=43&view=FitH$/);
       await click(scrolls.getByRole("button", { name: "סגור מבנה מגילות בתלת־ממד", exact: true }));
       await page.reload({ waitUntil: "domcontentloaded" });
       await scrolls.locator("tbody tr").first().waitFor();
@@ -159,14 +161,14 @@ test("people, roots and megillot retain their source through search/export/3D/re
       await click(page.locator(".ahavat29-spatial-legend button").filter({ hasText: "DS-09" }));
       await scrolls.getByRole("button", { name: "מניין האותיות", exact: true, pressed: true }).waitFor();
       assert.equal(await scrolls.locator("tbody tr").count(), 28);
-      assert.match(await pdf.getAttribute("src"), /#page=42&view=FitH$/);
+      assert.match(await ahavatSourceHref(pdf), /#page=42&view=FitH$/);
       await click(people.getByRole("navigation", { name: "בחירת חומש בייחוסים" }).getByRole("button", { name: "בראשית", exact: true }));
       await click(people.getByText("קראו את הייחוסים לפי פרשה", { exact: true }));
       const divisionTable = people.getByRole("table", { name: "חלוקות בראשית כפי שנדפסו בספר" });
       await divisionTable.locator("tbody tr").first().waitFor();
       assert.equal(await divisionTable.locator("tbody tr").count(), 12);
       await click(divisionTable.getByRole("row").filter({ has: page.getByRole("cell", { name: "ויצא", exact: true }) }).getByRole("button", { name: "PDF 25", exact: true }));
-      assert.match(await pdf.getAttribute("src"), /#page=25&view=FitH$/);
+      assert.match(await ahavatSourceHref(pdf), /#page=25&view=FitH$/);
       const notes = page.getByRole("region", { name: "הערות לצד דברי הספר" });
       await click(notes.getByText("פתחו את ההערות והקטעים", { exact: true }));
       assert.equal(await notes.locator("article").count(), 9);
@@ -174,14 +176,14 @@ test("people, roots and megillot retain their source through search/export/3D/re
       assert.equal(await amorNote.getByText("עמוד הקטע טרם אותר").count(), 0);
       assert.equal(await amorNote.getByRole("button").count(), 2);
       await click(amorNote.getByRole("button", { name: "פתחו את הקטע · PDF 14", exact: true }));
-      assert.match(await pdf.getAttribute("src"), /#page=14&view=FitH$/);
+      assert.match(await ahavatSourceHref(pdf), /#page=14&view=FitH$/);
       await click(page.locator('#ahavat29-source').getByRole('link', {name:'חזור ליחידת הקריאה',exact:true}));
       await page.waitForFunction(()=>document.activeElement?.closest('[data-reader-unit]')?.dataset.readerUnit==='ds12:migdaloz-amor');
       const toldot = notes.locator("article").filter({ has: page.getByRole("heading", { name: "תולדות · מן ויהי", exact: true }) });
       await click(toldot.getByRole("button", { name: "פתחו את הקטע · PDF 51", exact: true }));
-      assert.match(await pdf.getAttribute("src"), /#page=51&view=FitH$/);
+      assert.match(await ahavatSourceHref(pdf), /#page=51&view=FitH$/);
       await click(toldot.getByRole("button", { name: "פתחו את ההערה · PDF 99", exact: true }));
-      assert.match(await pdf.getAttribute("src"), /#page=99&view=FitH$/);
+      assert.match(await ahavatSourceHref(pdf), /#page=99&view=FitH$/);
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), true, `overflow at ${width}`);
       assert.deepEqual(errors, []);
       await context.close();

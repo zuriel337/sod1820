@@ -1,3 +1,4 @@
+import { AHAVAT_PDF_BYTES, AHAVAT_PDF_URL, assertAhavatSourcePage, ahavatSourceHref } from "./fixtures/ahavat-controlled-source-2029.mjs";
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync, mkdirSync, writeFileSync } from "node:fs";
@@ -24,7 +25,7 @@ test("public book entry and all edited lessons preserve source, details and retu
   process.env.SOD_BUILD_TARGET = "2029";
   process.env.VITE_BOOK_PUBLICATION_REVIEW_PREVIEW = "true";
   process.env.VITE_INTEGRATED_PREVIEW = "true";
-  const server = await createServer({ root, configFile: false, plugins: [react()], appType: "spa", server: { host: "127.0.0.1", port: 0 } });
+  const server = await createServer({ root, configFile: false, cacheDir: `/tmp/ahavat-source-vite-${process.pid}`, plugins: [react()], appType: "spa", server: { host: "127.0.0.1", port: 0 } });
   await server.listen();
   const origin = `http://127.0.0.1:${server.httpServer.address().port}`;
   const browser = await chromium.launch({ executablePath: "/usr/bin/chromium", headless: true, args: ["--no-sandbox"] });
@@ -34,8 +35,9 @@ test("public book entry and all edited lessons preserve source, details and retu
     for (const width of [320, 390, 1440]) for (const theme of ["light", "parchment", "dark"]) {
       const context = await browser.newContext({ viewport: { width, height: 1000 }, reducedMotion: "reduce" });
       await context.addInitScript(value => { if (location.hostname === "127.0.0.1") localStorage.setItem("sod-theme", value); }, theme);
-      // Copy/interaction matrix only. Native original-PDF acceptance is separate.
+      // Copy/interaction matrix with exact source bytes; independent raster acceptance is separate.
       await context.route("**/*", async route => {
+      if (route.request().url() === AHAVAT_PDF_URL) return route.fulfill({ contentType: "application/pdf", body: AHAVAT_PDF_BYTES });
         const url = new URL(route.request().url());
         if (url.origin === origin && url.pathname === "/2029/control" && route.request().isNavigationRequest()) {
           const response = await context.request.get(`${origin}/2029.html`);
@@ -54,7 +56,7 @@ test("public book entry and all edited lessons preserve source, details and retu
       assert.deepEqual(await page.locator(".ahavat29-metrics strong").allTextContents(), ["99", "98", "267", "98", "13"]);
       assert.equal(await page.locator(".ahavat29-pipeline").isVisible(), false);
       assert.doesNotMatch(await page.locator("main.ahavat29").innerText(), /מפת עבודה|המערכת שאנחנו בונים|השלב הבא למאגר הזה|arithmetic_verified|cross_validated/);
-      assert.equal(await page.locator("canvas").count(), 0);
+      assert.equal(await page.locator("canvas:not([data-book-pdf-canvas])").count(), 0);
       assert.equal(await entry.locator("a").count(), 3);
       for (const [name, id] of [["להבין את מניין 1,820", "ahavat-migdal-p006-01"], ["אותיות ובניית בית", "ahavat-novellae-p046-02"], ["אסתר והאחריות לפעול", "ahavat-novellae-p093-03"]]) {
         assert.equal(await entry.getByRole("link", { name, exact: true }).getAttribute("href"), ahavatReaderUnitHref(id));
@@ -66,7 +68,7 @@ test("public book entry and all edited lessons preserve source, details and retu
       await lesson.waitFor();
       assert.equal(await lesson.evaluate(element => element.open), true);
       assert.match(await lesson.innerText(), /הקושיה:.*מה משיב מרדכי/s);
-      assert.match(await page.locator("#ahavat29-source iframe").getAttribute("src"), /#page=93&view=FitH$/);
+      assert.match(await ahavatSourceHref(page.locator("#ahavat29-source")), /#page=93&view=FitH$/);
       await page.reload({ waitUntil: "domcontentloaded" }); await lesson.waitFor();
       assert.equal(await lesson.evaluate(element => element.open), true);
 
@@ -80,11 +82,11 @@ test("public book entry and all edited lessons preserve source, details and retu
         assert.ok((await unit.innerText()).includes(expected.title));
         await click(unit.getByRole("button", { name: `פתח מקור היחידה · PDF ${edit.page}`, exact: true }));
         const source = page.locator("#ahavat29-source");
-        assert.match(await source.locator("iframe").getAttribute("src"), new RegExp(`#page=${edit.page}&view=FitH$`));
+        assert.match(await ahavatSourceHref(source), new RegExp(`#page=${edit.page}&view=FitH$`));
         await click(source.getByRole("link", { name: "חזור ליחידת הקריאה", exact: true }));
         await page.waitForFunction(id => document.activeElement?.closest("[data-reader-unit]")?.dataset.readerUnit === id, edit.id);
         assert.equal(new URL(page.url()).searchParams.get("readerUnit"), edit.id);
-        assert.equal(await page.locator("canvas").count(), 0);
+        assert.equal(await page.locator("canvas:not([data-book-pdf-canvas])").count(), 0);
         assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1), false);
       }
       await page.goto(`${origin}/2029/control?surface=ahavat-torah-system&finding=divine-name-1820&page=6`, { waitUntil: "domcontentloaded" });
@@ -103,7 +105,7 @@ test("public book entry and all edited lessons preserve source, details and retu
         await page.locator(".ahavat29-intro").waitFor();
         await page.screenshot({ path: `${out}/entry-${width}-${theme}.png` });
       }
-      results.push({ width, theme, status: "PASS", lessonEntry: true, editedLessons: 8, exactSourceReturn: true, noAutomaticGpu: true, noOverflow: true, servicesMocked: true, pdfAborted: true, physicalDevice: false });
+      results.push({ width, theme, status: "PASS", lessonEntry: true, editedLessons: 8, exactSourceReturn: true, noAutomaticGpu: true, noOverflow: true, servicesMocked: true, pdfAborted: false, physicalDevice: false });
       writeFileSync(`${out}/results.json`, JSON.stringify(results, null, 2) + "\n");
       console.log(`Public reading ${width}/${theme}: PASS`);
       await context.close();

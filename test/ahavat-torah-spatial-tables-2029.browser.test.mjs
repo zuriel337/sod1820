@@ -1,3 +1,4 @@
+import { AHAVAT_PDF_BYTES, AHAVAT_PDF_URL, assertAhavatSourcePage, ahavatSourceHref } from "./fixtures/ahavat-controlled-source-2029.mjs";
 import assert from "node:assert/strict";
 import { existsSync } from "node:fs";
 import { createRequire } from "node:module";
@@ -25,7 +26,7 @@ test("Ahavat Torah spatial tables keep source, data and 3D usable at 320/390/144
   process.env.VITE_BOOK_PUBLICATION_REVIEW_PREVIEW = "true";
   const server = await vite.createServer({
     root: ROOT,
-    configFile: false,
+    configFile: false, cacheDir: `/tmp/ahavat-source-vite-${process.pid}`,
     plugins: [reactPlugin()],
     appType: "spa",
     server: { host: "127.0.0.1", port: 0 },
@@ -40,6 +41,7 @@ test("Ahavat Torah spatial tables keep source, data and 3D usable at 320/390/144
       console.info(`Ahavat Torah browser: starting ${width}px`);
       const context = await browser.newContext({ viewport: { width, height: 1000 }, reducedMotion: "reduce" });
       await context.route("**/*", async route => {
+      if (route.request().url() === AHAVAT_PDF_URL) return route.fulfill({ contentType: "application/pdf", body: AHAVAT_PDF_BYTES });
         const url = new URL(route.request().url());
         if (url.origin === base && route.request().isNavigationRequest() && url.pathname === "/2029/control") {
           const response = await context.request.get(`${base}/2029.html`);
@@ -63,7 +65,7 @@ test("Ahavat Torah spatial tables keep source, data and 3D usable at 320/390/144
       page.on("pageerror", error => errors.push(error.message));
       await page.goto(`${base}/2029/control?surface=ahavat-torah-system`, { waitUntil: "domcontentloaded" });
       await page.getByRole("heading", { name: "טבלאות שאפשר להיכנס לתוכן", exact: true }).waitFor();
-      await page.locator("#ahavat29-source iframe").waitFor();
+      await page.locator('#ahavat29-source :is(iframe,[data-book-pdf-renderer="controlled"])').waitFor();
 
       await click(page.locator(".ahavat29-ds01-equation button").filter({ hasText: "שמות" }));
       assert.match(await page.locator(".ahavat29-ds01-detail p").textContent(), /398/);
@@ -72,7 +74,7 @@ test("Ahavat Torah spatial tables keep source, data and 3D usable at 320/390/144
       await click(page.locator(".ahavat29-ds01-equation button").filter({ hasText: "במדבר" }));
       assert.match(await page.locator(".ahavat29-ds01-detail p").textContent(), /396/);
       assert.equal(await page.locator(".ahavat29-ds01 .ahavat29-data-table tbody tr").filter({ hasText: "במדבר" }).locator("td:nth-child(2)").textContent(), "25");
-      assert.match(await page.locator("#ahavat29-source iframe").getAttribute("src"), /#page=6&view=FitH$/);
+      assert.match(await ahavatSourceHref(page.locator("#ahavat29-source")), /#page=6&view=FitH$/);
 
       assert.equal(await page.evaluate(() => (
         document.documentElement.scrollWidth <= window.innerWidth + 1
@@ -93,7 +95,7 @@ test("Ahavat Torah spatial tables keep source, data and 3D usable at 320/390/144
       for (const id of ["DS-07", "DS-08"]) {
         await click(page.locator(".ahavat29-spatial-legend button").filter({ hasText: id }));
         assert.equal(new URL(page.url()).searchParams.get("dataset"), id);
-        assert.match(await page.locator("#ahavat29-source iframe").getAttribute("src"), /#page=6&view=FitH$/);
+        assert.match(await ahavatSourceHref(page.locator("#ahavat29-source")), /#page=6&view=FitH$/);
         assert.match(await page.locator(".ahavat29-dataset-detail").textContent(), /מראה־המקום בבירור/);
         assert.equal(await page.locator(".ahavat29-dataset-detail").getByRole("button", { name: /פתח PDF/ }).count(), 0);
       }
@@ -103,7 +105,7 @@ test("Ahavat Torah spatial tables keep source, data and 3D usable at 320/390/144
       assert.equal(await occurrence.locator("tbody tr").filter({ hasText: "כי תשא" }).locator("td:nth-child(4)").textContent(), "49");
       assert.equal(await occurrence.locator("tbody tr").filter({ hasText: "ויקהל" }).locator("td:nth-child(4)").textContent(), "9");
       await click(occurrence.getByRole("button", { name: "פתח מקור הקריאה · PDF 70", exact: true }));
-      assert.match(await page.locator("#ahavat29-source iframe").getAttribute("src"), /#page=70&view=FitH$/);
+      assert.match(await ahavatSourceHref(page.locator("#ahavat29-source")), /#page=70&view=FitH$/);
       await click(occurrence.locator(":scope > details > summary"));
       await click(occurrence.getByText("תעתיק קודם · 37 שורות", { exact: true }));
       assert.match(await occurrence.locator("pre").textContent(), /כי תשא · מ"ם · 40/);
@@ -113,13 +115,13 @@ test("Ahavat Torah spatial tables keep source, data and 3D usable at 320/390/144
       assert.equal(await occurrence.locator("tbody tr").count(), 5);
       assert.equal(await occurrence.locator("tbody tr").filter({ hasText: "ויקהל" }).locator("td:nth-child(4)").textContent(), "84");
       await click(occurrence.getByRole("button", { name: "פתח מקור הקריאה · PDF 70", exact: true }));
-      assert.match(await page.locator("#ahavat29-source iframe").getAttribute("src"), /#page=70&view=FitH$/);
+      assert.match(await ahavatSourceHref(page.locator("#ahavat29-source")), /#page=70&view=FitH$/);
 
       const datasetButton = page.locator(".ahavat29-spatial-legend button").filter({ hasText: "DS-02" });
       await click(datasetButton);
       assert.equal(new URL(page.url()).searchParams.get("dataset"), "DS-02");
       assert.equal(new URL(page.url()).searchParams.get("page"), "35");
-      assert.match(await page.locator("#ahavat29-source iframe").getAttribute("src"), /#page=35&view=FitH$/);
+      assert.match(await ahavatSourceHref(page.locator("#ahavat29-source")), /#page=35&view=FitH$/);
 
       await click(page.locator(".ahavat29-table-tabs").getByRole("button", { name: /טבלת האותיות/ }));
       const search = page.getByRole("searchbox", { name: "חיפוש בתוך הטבלה" });
@@ -132,7 +134,7 @@ test("Ahavat Torah spatial tables keep source, data and 3D usable at 320/390/144
       for (const [name, form, pdfPage] of [["כף סופית", "ך", 37], ["מם סופית", "ם", 38], ["שין שמאלית", "שׂ", 41]]) {
         await click(letterReader.getByRole("button", { name, exact: true }));
         assert.equal(new URL(page.url()).searchParams.get("letter"), form);
-        assert.match(await page.locator("#ahavat29-source iframe").getAttribute("src"), new RegExp(`#page=${pdfPage}&view=FitH$`));
+        assert.match(await ahavatSourceHref(page.locator("#ahavat29-source")), new RegExp(`#page=${pdfPage}&view=FitH$`));
         assert.equal(await letterReader.locator("tbody tr").count(), 54);
         assert.equal(await letterReader.locator(".ahavat29-letter-transcript").count(), 0);
         if (form === "ם") {
@@ -142,13 +144,13 @@ test("Ahavat Torah spatial tables keep source, data and 3D usable at 320/390/144
           const unknownRow = letterReader.locator("tbody tr").filter({ has: page.getByRole("cell", { name: "ויצא", exact: true }) });
           assert.equal(await unknownRow.locator("td:nth-child(4)").textContent(), "—");
           await click(unknownRow.getByRole("button", { name: "PDF 38", exact: true }));
-          assert.match(await page.locator("#ahavat29-source iframe").getAttribute("src"), /#page=38&view=FitH$/);
+          assert.match(await ahavatSourceHref(page.locator("#ahavat29-source")), /#page=38&view=FitH$/);
           await click(letterReader.locator(".ahavat29-letter-books").getByRole("button", { name: "כל התורה", exact: true }));
         }
       }
       await click(letterReader.getByRole("button", { name: "נון סופית", exact: true }));
       await click(letterReader.locator("tbody tr").filter({ has: page.getByRole("cell", { name: "תזריע", exact: true }) }).getByRole("button", { name: "PDF 39", exact: true }));
-      assert.match(await page.locator("#ahavat29-source iframe").getAttribute("src"), /#page=39&view=FitH$/);
+      assert.match(await ahavatSourceHref(page.locator("#ahavat29-source")), /#page=39&view=FitH$/);
       await click(letterReader.getByRole("button", { name: "אלף", exact: true }));
       await click(letterReader.locator(".ahavat29-letter-books").getByRole("button", { name: "שמות", exact: true }));
       assert.equal(await letterReader.locator("tbody tr").count(), 11);
@@ -158,9 +160,9 @@ test("Ahavat Torah spatial tables keep source, data and 3D usable at 320/390/144
       assert.equal(await letterReader.locator("tbody tr").count(), 1);
       await letterSearch.fill("");
       await click(letterReader.getByRole("button", { name: "פתח מבנה האות בתלת־ממד", exact: true }));
-      await letterReader.locator("canvas").waitFor();
-      assert.equal(await letterReader.locator("canvas").count(), 1);
-      assert.match(await page.locator("#ahavat29-source iframe").getAttribute("src"), /#page=35&view=FitH$/);
+      await letterReader.locator("canvas:not([data-book-pdf-canvas])").waitFor();
+      assert.equal(await letterReader.locator("canvas:not([data-book-pdf-canvas])").count(), 1);
+      assert.match(await ahavatSourceHref(page.locator("#ahavat29-source")), /#page=35&view=FitH$/);
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1), true, `letter reader overflows at ${width}px`);
       if (width > 900) {
         const sourceBounds = await page.locator("#ahavat29-source").boundingBox();
@@ -192,7 +194,7 @@ test("Ahavat Torah spatial tables keep source, data and 3D usable at 320/390/144
       assert.equal(await letterReader.locator("tbody tr").count(), 1);
       assert.equal(await letterReader.locator("tbody tr td:nth-child(4)").textContent(), "26");
       await letterSearch.fill("");
-      assert.match(await page.locator("#ahavat29-source iframe").getAttribute("src"), /#page=35&view=FitH$/);
+      assert.match(await ahavatSourceHref(page.locator("#ahavat29-source")), /#page=35&view=FitH$/);
       const downloadPromise = page.waitForEvent("download");
       await click(letterReader.getByRole("button", { name: "הורד טבלה למחקר · 54 שורות", exact: true }));
       const download = await downloadPromise;
@@ -210,12 +212,12 @@ test("Ahavat Torah spatial tables keep source, data and 3D usable at 320/390/144
       assert.match(await letterReader.locator(".ahavat29-spatial-canvas").getByRole("img").getAttribute("aria-label"), /האות דלת/);
       await click(letterReader.locator(".ahavat29-letter-books").getByRole("button", { name: "ויקרא", exact: true }));
       assert.equal(await letterReader.locator("tbody tr").count(), 10);
-      assert.match(await page.locator("#ahavat29-source iframe").getAttribute("src"), /#page=36&view=FitH$/);
+      assert.match(await ahavatSourceHref(page.locator("#ahavat29-source")), /#page=36&view=FitH$/);
       for (const pdfPage of [35, 36]) assert.equal(await letterReader.getByRole("button", { name: `המקור המלא · PDF ${pdfPage}`, exact: true }).count(), 1);
       await click(letterReader.locator("tbody tr").filter({ has: page.getByRole("cell", { name: "ויקרא", exact: true }) }).getByRole("button", { name: "PDF 35", exact: true }));
-      assert.match(await page.locator("#ahavat29-source iframe").getAttribute("src"), /#page=35&view=FitH$/);
+      assert.match(await ahavatSourceHref(page.locator("#ahavat29-source")), /#page=35&view=FitH$/);
       await click(letterReader.locator(".ahavat29-letter-bars").getByRole("button", { name: "צו 109", exact: true }));
-      assert.match(await page.locator("#ahavat29-source iframe").getAttribute("src"), /#page=36&view=FitH$/);
+      assert.match(await ahavatSourceHref(page.locator("#ahavat29-source")), /#page=36&view=FitH$/);
       const daletDownloadPromise = page.waitForEvent("download");
       await click(letterReader.getByRole("button", { name: "הורד טבלה למחקר · 10 שורות", exact: true }));
       const daletDownload = await daletDownloadPromise;
@@ -233,9 +235,9 @@ test("Ahavat Torah spatial tables keep source, data and 3D usable at 320/390/144
         await letterReader.locator("tbody tr").first().waitFor();
         assert.equal(await letterReader.getByRole("button", { name: "דלת", exact: true }).getAttribute("aria-pressed"), "true");
         assert.equal(await letterReader.locator("tbody tr").count(), 10);
-        assert.match(await page.locator("#ahavat29-source iframe").getAttribute("src"), /#page=36&view=FitH$/);
+        assert.match(await ahavatSourceHref(page.locator("#ahavat29-source")), /#page=36&view=FitH$/);
         await click(letterReader.getByRole("button", { name: "פתח מבנה האות בתלת־ממד", exact: true }));
-        await letterReader.locator("canvas").waitFor();
+        await letterReader.locator("canvas:not([data-book-pdf-canvas])").waitFor();
       }
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), true, `split-page letter reader overflows at ${width}px`);
       for (const [name, total, ammor] of [["הא", "28,055", "575"], ["וו", "30,516", "605"]]) {
@@ -243,17 +245,17 @@ test("Ahavat Torah spatial tables keep source, data and 3D usable at 320/390/144
         assert.equal(await letterReader.locator("tbody tr").count(), 10);
         assert.equal(await letterReader.locator("tbody tr").filter({ has: page.getByRole("cell", { name: "אמור", exact: true }) }).locator("td:nth-child(4)").textContent(), ammor);
         assert.match(await letterReader.locator(".ahavat29-ds01-guide").last().textContent(), new RegExp(total));
-        assert.match(await page.locator("#ahavat29-source iframe").getAttribute("src"), /#page=36&view=FitH$/);
+        assert.match(await ahavatSourceHref(page.locator("#ahavat29-source")), /#page=36&view=FitH$/);
       }
       await click(letterReader.getByRole("button", { name: "חית", exact: true }));
       assert.match(await letterReader.locator(".ahavat29-ds01-guide").last().textContent(), /7,189/);
       await click(letterReader.locator(".ahavat29-letter-books").getByRole("button", { name: "במדבר", exact: true }));
       assert.equal(await letterReader.locator("tbody tr").count(), 10);
-      assert.match(await page.locator("#ahavat29-source iframe").getAttribute("src"), /#page=37&view=FitH$/);
+      assert.match(await ahavatSourceHref(page.locator("#ahavat29-source")), /#page=37&view=FitH$/);
       await click(letterReader.locator("tbody tr").first().getByRole("button", { name: "PDF 36", exact: true }));
-      assert.match(await page.locator("#ahavat29-source iframe").getAttribute("src"), /#page=36&view=FitH$/);
+      assert.match(await ahavatSourceHref(page.locator("#ahavat29-source")), /#page=36&view=FitH$/);
       await click(letterReader.locator(".ahavat29-letter-bars").getByRole("button", { name: "מסעי 173", exact: true }));
-      assert.match(await page.locator("#ahavat29-source iframe").getAttribute("src"), /#page=37&view=FitH$/);
+      assert.match(await ahavatSourceHref(page.locator("#ahavat29-source")), /#page=37&view=FitH$/);
       assert.match(await letterReader.locator(".ahavat29-spatial-canvas").getByRole("img").getAttribute("aria-label"), /האות חית/);
       await click(letterReader.getByRole("button", { name: "טית", exact: true }));
       await click(letterReader.locator(".ahavat29-letter-books").getByRole("button", { name: "ויקרא", exact: true }));
@@ -273,12 +275,12 @@ test("Ahavat Torah spatial tables keep source, data and 3D usable at 320/390/144
       assert.equal(await letterReader.locator("tbody tr").count(), 10);
       await click(letterReader.locator(".ahavat29-letter-books").getByRole("button", { name: "בראשית", exact: true }));
       assert.equal(await letterReader.locator("tbody tr").count(), 12);
-      assert.match(await page.locator("#ahavat29-source iframe").getAttribute("src"), /#page=38&view=FitH$/);
+      assert.match(await ahavatSourceHref(page.locator("#ahavat29-source")), /#page=38&view=FitH$/);
       for (const pdfPage of [37, 38]) assert.equal(await letterReader.getByRole("button", { name: `המקור המלא · PDF ${pdfPage}`, exact: true }).count(), 1);
       await click(letterReader.locator(".ahavat29-letter-bars").getByRole("button", { name: "ויצא 609", exact: true }));
-      assert.match(await page.locator("#ahavat29-source iframe").getAttribute("src"), /#page=37&view=FitH$/);
+      assert.match(await ahavatSourceHref(page.locator("#ahavat29-source")), /#page=37&view=FitH$/);
       await click(letterReader.locator("tbody tr").filter({ has: page.getByRole("cell", { name: "וישלח", exact: true }) }).getByRole("button", { name: "PDF 38", exact: true }));
-      assert.match(await page.locator("#ahavat29-source iframe").getAttribute("src"), /#page=38&view=FitH$/);
+      assert.match(await ahavatSourceHref(page.locator("#ahavat29-source")), /#page=38&view=FitH$/);
       assert.match(await letterReader.locator(".ahavat29-spatial-canvas").getByRole("img").getAttribute("aria-label"), /האות למד/);
       await click(letterReader.locator("details summary"));
       assert.match(await letterReader.locator("details").textContent(), /פער קריאה: -1/);
@@ -286,7 +288,7 @@ test("Ahavat Torah spatial tables keep source, data and 3D usable at 320/390/144
       await click(letterReader.getByRole("button", { name: "מם", exact: true }));
       assert.match(await letterReader.locator(".ahavat29-ds01-guide").last().textContent(), /14,465/);
       assert.equal(await letterReader.locator("tbody tr").filter({ has: page.getByRole("cell", { name: "וישב", exact: true }) }).locator("td:nth-child(4)").textContent(), "271");
-      assert.match(await page.locator("#ahavat29-source iframe").getAttribute("src"), /#page=38&view=FitH$/);
+      assert.match(await ahavatSourceHref(page.locator("#ahavat29-source")), /#page=38&view=FitH$/);
       assert.match(await letterReader.locator(".ahavat29-spatial-canvas").getByRole("img").getAttribute("aria-label"), /האות מם/);
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), true, `Lamed/Mem reader overflows at ${width}px`);
       console.info(`Ahavat Torah browser: preceding source/3D/CSV flows passed at ${width}px`);
@@ -313,7 +315,7 @@ test("Ahavat Torah spatial tables keep source, data and 3D usable at 320/390/144
         await click(fullReader.locator(".ahavat29-page-atlas").getByRole("button", { name: String(pdfPage), exact: true }));
         assert.equal(await fullReader.locator(".ahavat29-ai-guide>p").first().textContent(), companionPages[pdfPage - 1].companion_explanation);
         await click(fullReader.getByRole("button", { name: `פתח מקור ההסבר · PDF ${pdfPage}`, exact: true }));
-        assert.match(await page.locator("#ahavat29-source iframe").getAttribute("src"), new RegExp(`#page=${pdfPage}&view=FitH$`));
+        assert.match(await ahavatSourceHref(page.locator("#ahavat29-source")), new RegExp(`#page=${pdfPage}&view=FitH$`));
         if (pdfPage === 45) assert.match(await fullReader.locator(".ahavat29-machine-text").textContent(), /לא חולץ טקסט/);
       }
       if (process.env.BOOKS_SCREENSHOT_DIR) await letterReader.screenshot({ path: `${process.env.BOOKS_SCREENSHOT_DIR}/ahavat-letter-reader-${width}.png` });
@@ -327,7 +329,7 @@ test("Ahavat Torah spatial tables keep source, data and 3D usable at 320/390/144
         await page.reload({ waitUntil: "domcontentloaded" });
         await page.locator(".ahavat29-letter-alphabet").waitFor();
         assert.equal(await page.locator(".ahavat29-letter-alphabet").getByRole("button", { name: "כף סופית", exact: true }).getAttribute("aria-pressed"), "true");
-        assert.match(await page.locator("#ahavat29-source iframe").getAttribute("src"), /#page=37&view=FitH$/);
+        assert.match(await ahavatSourceHref(page.locator("#ahavat29-source")), /#page=37&view=FitH$/);
       }
       assert.deepEqual(errors, []);
       console.info(`Ahavat Torah browser: completed ${width}px`);

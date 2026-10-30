@@ -1,3 +1,4 @@
+import { AHAVAT_PDF_BYTES, AHAVAT_PDF_URL, assertAhavatSourcePage, ahavatSourceHref } from "./fixtures/ahavat-controlled-source-2029.mjs";
 import assert from "node:assert/strict";
 import { readFileSync, mkdirSync } from "node:fs";
 import { createHash } from "node:crypto";
@@ -17,14 +18,7 @@ const out = "/workspace/artifacts/ahavat-parasha-atlas-20261029";
 mkdirSync(out, { recursive: true });
 const settle = page => page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
 async function native(page, physical) {
-  for (let attempt = 0; attempt < 120; attempt++) {
-    for (const frame of page.frames()) try {
-      const snapshot = await frame.evaluate(n => { const viewer = document.querySelector("pdf-viewer"), viewport = viewer?.viewport_; if (!viewport || !viewer.documentDimensions) return null; return { loadState: viewer.loadState_, documentPages: viewer.documentDimensions.pageDimensions.length, pageIndex: n - 1, viewportHeight: viewport.size.height, requestedRect: viewport.getPageScreenRect(n - 1), previousRect: n > 1 ? viewport.getPageScreenRect(n - 2) : null }; }, physical);
-      if (ahavatNativePdfPageAtStart(snapshot, physical)) return;
-    } catch { /* Native viewer is navigating. */ }
-    await page.waitForTimeout(150);
-  }
-  assert.fail(`Physical PDF ${physical} did not reach its native page anchor`);
+  return assertAhavatSourcePage(page, physical);
 }
 async function click(locator) {
   // Avoid a native focus-scroll followed by a second competing center-scroll.
@@ -40,7 +34,7 @@ async function click(locator) {
 test("parasha atlas preserves 28 source forms, exact PDF, export, selection and lazy model in nine contexts", { timeout: 480_000 }, async () => {
   assert.equal(createHash("sha256").update(pdf).digest("hex"), "895e9a720d984adf8ea453b644e3f6d0864e101238f348f418aa5fafa20e9c8b");
   process.env.SOD_BUILD_TARGET = "2029"; process.env.VITE_BOOK_PUBLICATION_REVIEW_PREVIEW = "true"; process.env.VITE_INTEGRATED_PREVIEW = "true";
-  const server = await createServer({ root, configFile: false, plugins: [react()], appType: "spa", server: { host: "127.0.0.1", port: 0 } });
+  const server = await createServer({ root, configFile: false, cacheDir: `/tmp/ahavat-source-vite-${process.pid}`, plugins: [react()], appType: "spa", server: { host: "127.0.0.1", port: 0 } });
   await server.listen(); const origin = `http://127.0.0.1:${server.httpServer.address().port}`;
   const browser = await chromium.launch({ executablePath: "/usr/bin/chromium", headless: true, args: ["--no-sandbox", "--use-angle=swiftshader"] });
   try {
@@ -48,6 +42,7 @@ test("parasha atlas preserves 28 source forms, exact PDF, export, selection and 
       const context = await browser.newContext({ viewport: { width, height: 1000 }, reducedMotion: "reduce" });
       await context.addInitScript(value => { if (location.hostname === "127.0.0.1") localStorage.setItem("sod-theme", value); }, theme);
       await context.route("**/*", async route => {
+      if (route.request().url() === AHAVAT_PDF_URL) return route.fulfill({ contentType: "application/pdf", body: AHAVAT_PDF_BYTES });
         const url = new URL(route.request().url());
         if (url.origin === origin && route.request().isNavigationRequest() && url.pathname === "/2029/control") { const response = await context.request.get(`${origin}/2029.html`); return route.fulfill({ contentType: "text/html", body: await response.body() }); }
         if (url.pathname.endsWith(".pdf")) return route.fulfill({ contentType: "application/pdf", body: pdf, headers: { "content-disposition": "inline" } });
@@ -75,7 +70,7 @@ test("parasha atlas preserves 28 source forms, exact PDF, export, selection and 
         assert.equal(numeral.lines.length===1&&numeral.lines.every(rect=>rect.left>=numeral.card.left&&rect.right<=numeral.card.right),true,`source numeral must remain one readable line inside its card: ${JSON.stringify(numeral)}`);
         assert.equal(await card.getByRole("button",{name:`מקור ${form.name} בפרשת צו · PDF ${row.page}`,exact:true}).count(),1);
       }
-      assert.equal(await page.locator("canvas").count(),0);assert.equal(modelRequests.length,0);
+      assert.equal(await page.locator("canvas:not([data-book-pdf-canvas])").count(),0);assert.equal(modelRequests.length,0);
       const search=atlas.getByRole("searchbox",{name:"סינון אותיות בפרשה"});
       async function filter(value) { await click(search); await page.keyboard.press("ControlOrMeta+A"); await page.keyboard.insertText(value); }
       await filter("כף");assert.equal(await atlas.locator(".ahavat29-parasha-atlas-grid article").count(),2);

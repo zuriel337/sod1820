@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { AHAVAT_PDF_BYTES, AHAVAT_PDF_URL, assertAhavatSourcePage } from "./fixtures/ahavat-controlled-source-2029.mjs";
 import { existsSync } from "node:fs";
 import { createRequire } from "node:module";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -49,7 +50,7 @@ test("all eight unified readers remain source-first and fit 320/390/1440", { ski
 
   const server = await vite.createServer({
     root: ROOT,
-    configFile: false,
+    configFile: false, cacheDir: `/tmp/ahavat-source-vite-${process.pid}`,
     plugins: [reactPlugin()],
     appType: "spa",
     server: { host: "127.0.0.1", port: 0 },
@@ -63,6 +64,7 @@ test("all eight unified readers remain source-first and fit 320/390/1440", { ski
     for (const width of [320, 390, 1440]) {
       const context = await browser.newContext({ viewport: { width, height: 1000 }, reducedMotion: "reduce" });
       await context.route("**/*", async route => {
+        if (route.request().url() === AHAVAT_PDF_URL) return route.fulfill({ contentType: "application/pdf", body: AHAVAT_PDF_BYTES });
         const request = route.request();
         const url = new URL(request.url());
         if (url.origin === base && request.isNavigationRequest() && url.pathname === "/2029/control") {
@@ -103,7 +105,9 @@ test("all eight unified readers remain source-first and fit 320/390/1440", { ski
         assert.equal(await reader.getByText("דברי הספר · המקור פתוח תמיד", { exact: true }).count(), 1);
         assert.equal(await reader.getByText(/הסבר נלווה · PDF/).count() > 0, true);
         assert.equal(await reader.getByText("פרטי המקור", { exact: true }).count(), 1);
-        assert.equal(await page.locator("#book-reader29-source iframe").count(), 1);
+        await page.locator('#book-reader29-source :is(iframe,[data-book-pdf-renderer="controlled"])').waitFor();
+        assert.equal(await page.locator('#book-reader29-source :is(iframe,[data-book-pdf-renderer="controlled"])').count(), 1);
+        if (manifest.pdfRenderer === "controlled_page") await assertAhavatSourcePage(page, 1);
         assert.equal(await page.getByRole("button", { name: "מסך מלא", exact: true }).count(), 1);
         assert.equal(await page.evaluate(() => (
           document.documentElement.scrollWidth <= window.innerWidth + 1

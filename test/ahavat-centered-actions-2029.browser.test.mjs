@@ -1,3 +1,4 @@
+import { AHAVAT_PDF_BYTES, AHAVAT_PDF_URL, assertAhavatSourcePage, ahavatSourceHref } from "./fixtures/ahavat-controlled-source-2029.mjs";
 import test from "node:test";
 import assert from "node:assert/strict";
 import { mkdirSync, writeFileSync } from "node:fs";
@@ -64,7 +65,7 @@ async function centeredActions(page, expectedSelectors) {
   }
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1), false, "horizontal page overflow");
   assert.equal(await page.locator("main.ahavat29").evaluate(element => getComputedStyle(element).direction), "rtl");
-  assert.equal(await page.locator("canvas").count(), 0, "centering does not open a renderer");
+  assert.equal(await page.locator("canvas:not([data-book-pdf-canvas])").count(), 0, "centering does not open a renderer");
   return rows;
 }
 
@@ -72,7 +73,7 @@ test("Ahavat action rows and labels center without centering source prose, break
   process.env.SOD_BUILD_TARGET = "2029";
   process.env.VITE_BOOK_PUBLICATION_REVIEW_PREVIEW = "true";
   process.env.VITE_INTEGRATED_PREVIEW = "true";
-  const server = await createServer({ root, configFile: false, plugins: [react()], appType: "spa", server: { host: "127.0.0.1", port: 0 } });
+  const server = await createServer({ root, configFile: false, cacheDir: `/tmp/ahavat-source-vite-${process.pid}`, plugins: [react()], appType: "spa", server: { host: "127.0.0.1", port: 0 } });
   await server.listen();
   const origin = `http://127.0.0.1:${server.httpServer.address().port}`;
   const browser = await chromium.launch({ executablePath: "/usr/bin/chromium", headless: true, args: ["--no-sandbox"] });
@@ -82,9 +83,10 @@ test("Ahavat action rows and labels center without centering source prose, break
     for (const width of [320, 390, 1440]) for (const theme of ["light", "parchment", "dark"]) {
       const context = await browser.newContext({ viewport: { width, height: 1000 }, reducedMotion: "reduce" });
       await context.addInitScript(value => { if (location.hostname === "127.0.0.1") localStorage.setItem("sod-theme", value); }, theme);
-      // This geometry/interaction matrix mocks services and aborts PDF/fonts.
-      // Original native-PDF acceptance runs separately; an iframe URL is not a PDF-render assertion.
+      // This geometry/interaction matrix mocks services/UI fonts and renders the exact original PDF.
+      // Independent 99-page raster acceptance proves the physical source; an anchor alone is not acceptance.
       await context.route("**/*", async route => {
+      if (route.request().url() === AHAVAT_PDF_URL) return route.fulfill({ contentType: "application/pdf", body: AHAVAT_PDF_BYTES });
         const url = new URL(route.request().url());
         if (url.origin === origin && url.pathname === "/2029/control" && route.request().isNavigationRequest()) {
           const response = await context.request.get(`${origin}/2029.html`);
@@ -113,7 +115,7 @@ test("Ahavat action rows and labels center without centering source prose, break
       await centeredActions(page, [selectors[1], selectors[2]]);
       const openSource = lesson.getByRole("button", { name: "פתח מקור היחידה · PDF 46", exact: true });
       await click(openSource);
-      assert.match(await page.locator("#ahavat29-source iframe").getAttribute("src"), /#page=46&view=FitH$/);
+      assert.match(await ahavatSourceHref(page.locator("#ahavat29-source")), /#page=46&view=FitH$/);
       const returnLink = page.locator("#ahavat29-source").getByRole("link", { name: "חזור ליחידת הקריאה", exact: true });
       await centeredActions(page, [selectors[2]]);
       await returnLink.focus(); await page.keyboard.press("Enter");
@@ -134,7 +136,7 @@ test("Ahavat action rows and labels center without centering source prose, break
       await page.locator("#ahavat29-finding-detail").waitFor();
       await centeredActions(page, [selectors[4]]);
       assert.deepEqual(errors, []);
-      results.push({ width, theme, status: "PASS", entryRows: entryRows.length, letterRows: letterRows.length, exactSourceReturn: true, keyboardReturn: true, reload: true, servicesMocked: true, pdfAndFontsAborted: true, physicalDevice: false });
+      results.push({ width, theme, status: "PASS", entryRows: entryRows.length, letterRows: letterRows.length, exactSourceReturn: true, keyboardReturn: true, reload: true, servicesMocked: true, pdfAborted: false, uiFontsAborted: true, physicalDevice: false });
       writeFileSync(`${out}/results.json`, JSON.stringify(results, null, 2) + "\n");
       console.log(`Centered actions ${width}/${theme}: PASS`);
       await context.close();

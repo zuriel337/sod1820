@@ -1,3 +1,4 @@
+import { AHAVAT_PDF_BYTES, AHAVAT_PDF_URL, assertAhavatSourcePage, ahavatSourceHref } from "./fixtures/ahavat-controlled-source-2029.mjs";
 import assert from "node:assert/strict";
 import { existsSync } from "node:fs";
 import { createRequire } from "node:module";
@@ -20,7 +21,7 @@ test("roots read continuously through all ten columns with exact source, focus, 
   process.env.SOD_BUILD_TARGET = "2029";
   process.env.VITE_BOOK_PUBLICATION_REVIEW_PREVIEW = "true";
   process.env.VITE_INTEGRATED_PREVIEW = "true";
-  const server = await vite.createServer({ root, configFile: false, plugins: [react()], appType: "spa", server: { host: "127.0.0.1", port: 0 } });
+  const server = await vite.createServer({ root, configFile: false, cacheDir: `/tmp/ahavat-source-vite-${process.pid}`, plugins: [react()], appType: "spa", server: { host: "127.0.0.1", port: 0 } });
   await server.listen();
   const origin = `http://127.0.0.1:${server.httpServer.address().port}`;
   const browser = await playwright.chromium.launch({ headless: true, executablePath, args: ["--no-sandbox"] });
@@ -28,6 +29,7 @@ test("roots read continuously through all ten columns with exact source, focus, 
     for (const width of [320, 390, 1440]) {
       const context = await browser.newContext({ viewport: { width, height: 1000 }, reducedMotion: "reduce" });
       await context.route("**/*", async route => {
+      if (route.request().url() === AHAVAT_PDF_URL) return route.fulfill({ contentType: "application/pdf", body: AHAVAT_PDF_BYTES });
         const url = new URL(route.request().url());
         if (url.origin === origin && route.request().isNavigationRequest() && url.pathname === "/2029/control") {
           const response = await context.request.get(`${origin}/2029.html`);
@@ -56,7 +58,7 @@ test("roots read continuously through all ten columns with exact source, focus, 
         assert.equal(new URL(page.url()).searchParams.get("readerUnit"), next.id);
         assert.equal(new URL(page.url()).searchParams.get("page"), String(next.page));
         assert.equal(await search.inputValue(), "", "explicit continuation leaves the search filter");
-        assert.match(await source.locator("iframe").getAttribute("src"), new RegExp(`#page=${next.page}&view=FitH$`));
+        assert.match(await ahavatSourceHref(source), new RegExp(`#page=${next.page}&view=FitH$`));
         assert.equal(await source.locator("[data-book-pdf-frame]").getAttribute("data-book-presentation"), "straight", "reading navigation retains the chosen source presentation");
       }
       const last = column("roots:35:left");
@@ -69,7 +71,7 @@ test("roots read continuously through all ten columns with exact source, focus, 
       await source.getByRole("link", { name: "חזור ליחידת הקריאה", exact: true }).click();
       assert.equal(new URL(page.url()).searchParams.get("readerUnit"), "roots:35:right");
       assert.match(await source.getByRole("link", { name: /קרא את ה־PDF/ }).getAttribute("href"), /#page=35&view=FitH$/);
-      assert.equal(await page.locator("canvas").count(), 0);
+      assert.equal(await page.locator("canvas:not([data-book-pdf-canvas])").count(), 0);
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), true);
       assert.deepEqual(errors, []);
       await context.close();
