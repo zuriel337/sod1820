@@ -103,6 +103,14 @@ try {
     }
     assert.match(await page.locator("#rv-elections").innerText(), /סף צירי הוועידה, לא אלקטורים/);
     assert.equal(await page.locator('.rv-conn[data-status="tree"]').count(), 0);
+    await page.getByRole("button", { name: "פתיחת קשרי העץ של הציר", exact: true }).click();
+    await page.locator('[data-relation-status]:not([data-relation-status="loading"])').waitFor();
+    const graphStatus = await page.locator('[data-relation-status]').getAttribute("data-relation-status");
+    const graphRefs = await page.locator(".rv-edges code").allInnerTexts();
+    assert.ok(["ok", "partial", "unavailable"].includes(graphStatus), "live graph read succeeds or explicitly reports an unavailable anchor");
+    assert.ok(graphRefs.every(ref => /^edge:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(ref)));
+    assert.equal(new Set(graphRefs).size, graphRefs.length);
+    report.liveGraph = { status: graphStatus, edgeCount: graphRefs.length };
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
     assert.ok(overflow <= 0, `1237 overflow at ${width}: ${overflow}`);
     await page.screenshot({ path: resolve(output, `1237-${width}.png`) });

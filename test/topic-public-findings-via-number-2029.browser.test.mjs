@@ -137,6 +137,8 @@ test("Topic number lens preserves public gates, pagination, new findings and exa
       await load.waitFor(); assert.equal(await page.evaluate(() => window.__reads.length), 0);
       await load.click();
       await panel.getByRole("link", { name: "ממצא בדיקה 0", exact: true }).waitFor();
+      assert.equal(await section.locator("details.sod29-topic-depth-equations").count(), 8,
+        "opening a number must preserve the visitor's expanded number list");
       const text = await panel.innerText();
       for (const marker of ["PRIVATE_MARKER", "UNAVAILABLE_SOURCE_MARKER", "UNREVIEWED_MARKER", "WRONG_VALUE_MARKER", "ABSENT_VALUE_MARKER", "PERSON_ONLY_MARKER"]) assert.equal(text.includes(marker), false, marker);
       assert.match(await section.innerText(), /ולא קשר ישיר מתועד/);

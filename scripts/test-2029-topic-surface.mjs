@@ -136,10 +136,16 @@ const goldenFixture = buildTopicGoldenProjection({
   attribution: ["contribution:צבי (OPOC)", "ai"],
 }, {
   hub: {
-    identity: { nodeId: "topic-node" },
+    identity: { nodeId: "10000000-0000-4000-8000-000000000001" },
     graph: { relations: [{
       id: "edge-finding",
-      projection: { relations: [{ relationType: "related", from: { id: "topic-node", type: "convergence", label: "Topic" }, to: { id: "n-424", type: "number", label: "424" } }] },
+      kind: "graph-relation",
+      identity: { relationRef: "edge:30000000-0000-4000-8000-000000000001" },
+      source: { sourceRef: "edge:30000000-0000-4000-8000-000000000001" },
+      projection: { relations: [{ id: "30000000-0000-4000-8000-000000000001", relationType: "related",
+        fromNodeId: "10000000-0000-4000-8000-000000000001", toNodeId: "20000000-0000-4000-8000-000000000001",
+        from: { id: "10000000-0000-4000-8000-000000000001", type: "convergence", label: "Topic" },
+        to: { id: "20000000-0000-4000-8000-000000000001", type: "number", label: "424" } }] },
     }] },
     sources: [{ ref: "human:1", label: "ספר מקור" }, { ref: "technical:1", label: "work_log:abc" }],
     media: { items: [{ galleryImageId: "img-1", label: "מדיה", thumbUrl: "https://example.test/a.jpg" }] },

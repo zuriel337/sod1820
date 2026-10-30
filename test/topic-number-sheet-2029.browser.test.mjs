@@ -41,7 +41,13 @@ function fixturePlugin() {
   const modules = {
     noop: "export default function Noop(){return null;}",
     seo: "export const applySeo=()=>{},clearConvergenceJsonLd=()=>{},setConvergenceJsonLd=()=>{};",
-    hub: `export async function fetchEntityHubProjection(){return null;}
+    hub: `export async function fetchEntityHubProjection({nodeId}){
+        const slug=nodeId.endsWith('1')?'source-alpha':'source-beta';
+        if(window.__holdHubFor===slug)await new Promise(resolve=>{window.__releaseHub=resolve;});
+        return {identity:{nodeId},sources:[{ref:'book:'+slug,label:'SOURCE_'+slug}],
+          sourceContext:{topicSlug:slug,access:{scope:'public',available:true},items:[],
+            links:{topics:[{slug:'linked-'+slug,title:'ציר קשור '+slug}],posts:[]}}};
+      }
       export async function fetchTopicSourceContext(){return null;}
       export async function fetchGallerySourceContext({imageIds}){
         window.__galleryRequests.push(imageIds);
@@ -68,8 +74,9 @@ function fixturePlugin() {
       }
     `,
     backend: `
-      function card(slug){return {id:'fixture-'+slug,slug,title:'מחקר בחירות',status:'approved',node_id:null,
-        numbers:[878],highlight_numbers:[878],image_ids:[],created_by:'מקור הבדיקה',
+      function card(slug){return {id:'fixture-'+slug,slug,title:'מחקר בחירות',status:'approved',
+        node_id:slug.startsWith('source-')?'10000000-0000-4000-8000-00000000000'+(slug==='source-alpha'?1:2):null,
+        numbers:[878],highlight_numbers:[878],image_ids:[],created_by:slug.startsWith('source-')?'':'מקור הבדיקה',
         findings:slug==='hidden'?{_do_not_publish:true,phrases:['משיח']}:[
           {type:'gematria',phrase:'משיח',n:878,method:'מילוי'},
           {type:'gematria',phrase:'משיח',n:358,method:'רגיל'},
@@ -144,6 +151,7 @@ function fixturePlugin() {
       window.__reads=[];window.__sheetTargets=[];window.__galleryRequests=[];
       createRoot(document.getElementById('root')).render(<BrowserRouter><Provider>
         <Link to="/topic/other">טופיק אחר</Link>
+        <Link to="/topic/source-beta">מקור בטופיק שני</Link>
         <Routes><Route path="/topic/:slug" element={<Topic/>}/><Route path="*" element={<p>יעד המשך</p>}/></Routes>
       </Provider></BrowserRouter>);
     `,
@@ -280,6 +288,23 @@ test("Topic opens the existing Number sheet with method/value/source and exact r
       assert.equal(await page.locator(".sod29-topic-equation,.sod29-topic-phrase").count(), 0);
       await openTopic("missing");
       await page.getByText("הציר לא נמצא", { exact: true }).waitFor();
+      await openTopic("source-alpha");
+      await page.locator("#topic-sources").getByText("SOURCE_source-alpha", { exact: true }).waitFor();
+      await page.waitForFunction(()=>window.__researchContext.dimensions.surfaceSections.some(item=>item.id==='topic-sources'));
+      await page.waitForFunction(()=>window.__researchContext.dimensions.surfaceSections.some(item=>item.id==='topic-related'));
+      await page.evaluate(()=>{window.__holdHubFor='source-beta';window.__staleTopicFrames=[];
+        window.__topicObserver=new MutationObserver(()=>{
+          const topic=document.querySelector('[data-canonical-slug="source-beta"]');
+          if(topic?.textContent.includes('SOURCE_source-alpha'))window.__staleTopicFrames.push('alpha in beta');
+        });window.__topicObserver.observe(document.body,{childList:true,subtree:true});});
+      await page.getByRole("link", { name: "מקור בטופיק שני", exact: true }).click();
+      await page.locator('[data-canonical-slug="source-beta"]').waitFor();
+      await page.waitForFunction(()=>typeof window.__releaseHub==='function');
+      assert.equal(await page.getByText("SOURCE_source-alpha", { exact: true }).count(), 0);
+      await page.evaluate(()=>{window.__holdHubFor=null;window.__releaseHub();});
+      await page.locator("#topic-sources").getByText("SOURCE_source-beta", { exact: true }).waitFor();
+      assert.deepEqual(await page.evaluate(()=>window.__staleTopicFrames), []);
+      await page.evaluate(()=>window.__topicObserver.disconnect());
       assert.deepEqual(external, []); assert.deepEqual(errors, []);
       await context.close();
     }

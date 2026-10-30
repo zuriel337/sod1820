@@ -417,10 +417,15 @@ function TopicBody() {
     return () => { alive = false; };
   }, [slug]);
 
+  const goldenMatchesTopic = goldenState.requestedSlug === slug
+    && goldenState.entityRef === state.finding?.identity?.entityRef;
+  const currentHub = goldenMatchesTopic ? goldenState.hub : null;
+  const currentProminence = goldenMatchesTopic ? goldenState.prominence : null;
+
   // A new route must never render/redirect using the previous Topic's result.
   const projection = useMemo(() => state.requestedSlug === slug
-    ? buildTopic2029Projection(state.finding, { sourceContext: goldenState.hub?.sourceContext }) : null,
-  [slug, state.requestedSlug, state.finding, goldenState.hub?.sourceContext]);
+    ? buildTopic2029Projection(state.finding, { sourceContext: currentHub?.sourceContext }) : null,
+  [slug, state.requestedSlug, state.finding, currentHub?.sourceContext]);
 
   useEffect(() => {
     if (!projection?.canonicalPath || slug === projection.slug) return;
@@ -435,32 +440,35 @@ function TopicBody() {
     const nodeId = clean(projection.entityRef).replace(/^node:/, "");
     if (!nodeId) return undefined;
     let alive = true;
-    setGoldenState({ loading: true, hub: null, prominence: null, error: null });
+    const scope = { requestedSlug: slug, entityRef: projection.entityRef };
+    setGoldenState({ ...scope, loading: true, hub: null, prominence: null, error: null });
 
     fetchEntityHubProjection({ nodeId, relationLimit: 90, researchLimit: 48, topicLimit: 16, topicSourceSlug: projection.slug })
       .then(async (hub) => {
         if (!alive) return;
-        setGoldenState({ loading: false, hub: hub || null, prominence: null, error: null });
+        setGoldenState({ ...scope, loading: false, hub: hub || null, prominence: null, error: null });
         if (!hub) return;
         try {
           const inputs = await fetchWorldProminenceInputs(hub);
           const prominence = buildWorldContextualProminence(hub, inputs, { limit: 7, timeAware: true, attentionFirst: false });
-          if (alive) setGoldenState({ loading: false, hub, prominence, error: null });
+          if (alive) setGoldenState({ ...scope, loading: false, hub, prominence, error: null });
         } catch (error) {
-          if (alive) setGoldenState({ loading: false, hub, prominence: null, error });
+          if (alive) setGoldenState({ ...scope, loading: false, hub, prominence: null, error });
         }
       })
-      .catch((error) => { if (alive) setGoldenState({ loading: false, hub: null, prominence: null, error }); });
+      .catch((error) => { if (alive) setGoldenState({ ...scope, loading: false, hub: null, prominence: null, error }); });
     return () => { alive = false; };
   }, [projection?.slug, projection?.entityRef]);
 
   const golden = useMemo(
-    () => buildTopicGoldenProjection(projection, { hub: goldenState.hub, prominence: goldenState.prominence }),
-    [projection, goldenState.hub, goldenState.prominence],
+    () => buildTopicGoldenProjection(projection, { hub: currentHub, prominence: currentProminence }),
+    [projection, currentHub, currentProminence],
   );
   const hasFindings = Object.values(projection?.sections || {}).some((rows) => Array.isArray(rows) && rows.length);
   const revelationGate = sourceDiscoveryEnabled && projection?.slug === "1237" && !projection.withheld;
-  const navItems = projection ? revelationGate ? [
+  const navItems = !projection ? [] : projection.withheld ? [
+    { id: "topic-essential", label: "עיקר" },
+  ] : revelationGate ? [
     { id: "rv-center", label: "המרכז המספרי" },
     { id: "rv-galleries", label: "גלריות" },
     { id: "rv-news", label: "אירועים" },
@@ -481,7 +489,8 @@ function TopicBody() {
     ...(projection.relatedPosts.length ? [{ id: "topic-posts", label: "פוסטים" }] : []),
     ...((golden?.sources?.length || golden?.media?.length || golden?.people?.length) ? [{ id: "topic-sources", label: "מקורות" }] : []),
     ...(projection.relatedConvergences.length ? [{ id: "topic-related", label: "המשך" }] : []),
-  ] : [];
+  ];
+  const sectionMapSignature = JSON.stringify(navItems);
   const currentSection = navItems.find((item) => item.id === activeSectionId) || navItems[0];
   const currentSectionId = currentSection?.id || "topic-essential";
   const currentSectionLabel = currentSection?.label || "עיקר";
@@ -525,7 +534,7 @@ function TopicBody() {
     if (!research.context?.subject) research.setResearchContext?.({ subject, selection, lens: "topic", dimensions });
     else research.updateResearchContext?.({ subject, selection, lens: "topic", dimensions });
     return undefined;
-  }, [projection?.slug, currentSectionId]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [projection?.slug, currentSectionId, sectionMapSignature]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const openExpressionFocus = async (row, origin) => {
     if (!projection || projection.withheld) return;
@@ -702,7 +711,7 @@ function TopicBody() {
       <TopicAuthoredConnections projection={projection} />
       <TopicRelatedAxes projection={projection} />
       <TopicSourcesMedia golden={golden} projection={projection} />
-      <TopicProminence golden={golden} loading={goldenState.loading && !goldenState.hub} />
+      <TopicProminence golden={golden} loading={goldenMatchesTopic && goldenState.loading && !currentHub} />
       <TopicGraphConnections golden={golden} />
       <TopicCaveats projection={projection} />
     </>}

@@ -594,7 +594,12 @@ assert.match(worldConvergenceLensSource, /"\/2029\/number\/" \+ value/);
 assert.match(topicConvergenceContent, /\/2029\/number\/\$\{c\.value\}/);
 assert.match(topicConvergenceContent, /\/2029\/number\/\$\{r\.value\}/);
 assert.match(worldAllResearchComponent, /הממצאים המובילים/);
-assert.match(worldAllResearchComponent, /מד החיבור לעץ/);
+assert.match(worldAllResearchComponent, /aria-label="מדדי ממצא נפרדים"/,
+  "the adopted World review separates finding strength and evidence quality");
+assert.match(worldAllResearchComponent, /מד הנושא אינו מד הממצא או ציון אמת/,
+  "a target Topic rating must not be presented as finding verification or a truth score");
+assert.match(worldAllResearchComponent, /quality=\{rating\?\.quality \?\? null\}/);
+assert.match(worldAllResearchComponent, /meterScore=\{rating\?\.meterScore \?\? null\}/);
 assert.match(worldAllResearchComponent, /הכול · בלי הסתרה/);
 assert.match(worldAllResearchComponent, /פרטי · גלוי לך/);
 assert.match(worldAllResearchComponent, /נמצא ב־\{occurrences\.length\} הופעות/);

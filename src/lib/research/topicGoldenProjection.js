@@ -3,6 +3,8 @@
 // Pure presentation model over the existing Topic projection + EntityHub + World contextual
 // prominence. EXTEND_EXISTING only: no Topic store, rank engine, graph, truth or publication owner.
 
+import { normalizeOpenedRelations } from "./worldGraphRelationOpener2029.js";
+
 const clean = (value) => value == null ? "" : String(value).trim();
 const asArray = (value) => Array.isArray(value) ? value : [];
 
@@ -25,21 +27,23 @@ function targetHref(target) {
 
 function graphRows(hub) {
   const self = clean(hub?.identity?.nodeId);
-  return asArray(hub?.graph?.relations).flatMap((finding, index) => {
-    const relation = finding?.projection?.relations?.[0] || null;
-    if (!relation) return [];
-    const from = relation.from || null;
-    const to = relation.to || null;
-    const target = clean(from?.id) === self ? to : clean(to?.id) === self ? from : to || from;
-    const label = clean(target?.label) || clean(finding?.subject?.label);
+  if (!self) return [];
+  const findings = asArray(hub?.graph?.relations);
+  const admitted = normalizeOpenedRelations(findings, { anchorNodeId: self }).relations;
+  return admitted.flatMap((opened) => {
+    const finding = findings.find((row) => row?.identity?.relationRef === opened.edgeRef);
+    const relation = asArray(finding?.projection?.relations).find((row) => row?.id === opened.edgeRef.slice(5)
+      && row?.fromNodeId === opened.fromNodeId && row?.toNodeId === opened.toNodeId);
+    const target = opened.fromNodeId === self ? relation?.to : relation?.from;
+    const label = clean(target?.label) || (opened.fromNodeId === self ? opened.toLabel : opened.fromLabel);
     if (!label) return [];
     return [{
-      id: clean(finding?.id) || `graph-${index}`,
-      relationType: clean(relation.relationType || relation.relation_type) || "related",
+      id: clean(finding?.id) || opened.edgeRef,
+      relationType: opened.relationType,
       label,
       targetType: clean(target?.type) || null,
       href: targetHref(target),
-      sourceRef: clean(finding?.source?.sourceRef) || null,
+      sourceRef: opened.edgeRef,
     }];
   });
 }
@@ -84,6 +88,15 @@ export function topicDensity(authoredFactsCount = 0) {
 
 export function buildTopicGoldenProjection(projection, { hub = null, prominence = null } = {}) {
   if (!projection) return null;
+  // A late/previous Topic payload must not be relabelled as this Topic's content.
+  const expectedNode = clean(projection.entityRef).replace(/^node:/, "");
+  const wrongNode = expectedNode && clean(hub?.identity?.nodeId) !== expectedNode;
+  const wrongTopic = clean(projection.slug) && clean(hub?.sourceContext?.topicSlug)
+    && clean(hub.sourceContext.topicSlug) !== clean(projection.slug);
+  if (!hub || wrongNode || wrongTopic) {
+    hub = null;
+    prominence = null;
+  }
 
   const people = [...new Set([
     normalizedAttribution(projection.createdBy),

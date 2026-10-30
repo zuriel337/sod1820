@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useResearch } from "../../lib/research/ResearchProvider.jsx";
 
@@ -19,13 +19,17 @@ export default function TopicNumberResearch2029({ projection }) {
   const requested = /^#topic-number-research-(\d+)$/.exec(location.hash);
   const requestedValue = requested ? Number(requested[1]) : null;
   const initial = requestedValue != null && numbers.includes(requestedValue) ? requestedValue : null;
+  const requestedIndex = numbers.indexOf(initial);
   const [expanded, setExpanded] = useState(initial);
-  const [shown, setShown] = useState(Math.max(PAGE, numbers.indexOf(initial) + 1));
+  const [shown, setShown] = useState(Math.max(PAGE, requestedIndex + 1));
+  const topicRef = useRef(projection?.slug);
 
   useEffect(() => {
     setExpanded(initial);
-    setShown(Math.max(PAGE, numbers.indexOf(initial) + 1));
-  }, [projection?.slug, location.hash]); // eslint-disable-line react-hooks/exhaustive-deps
+    const changedTopic = topicRef.current !== projection?.slug;
+    topicRef.current = projection?.slug;
+    setShown((previous) => Math.max(changedTopic ? PAGE : previous, PAGE, requestedIndex + 1));
+  }, [projection?.slug, location.hash, requestedIndex]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!projection?.canonicalPath || projection.withheld || !numbers.length) return null;
 

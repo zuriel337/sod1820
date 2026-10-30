@@ -106,16 +106,21 @@ test("opened relations render as tree edges only with an edge: ref, and keep exi
 });
 
 test("canonical opener marks a full window partial and never queries by itself", async () => {
-  const edgeFinding = (id) => ({ kind: "graph-relation", identity: { relationRef: `edge:${id}` },
-    projection: { relations: [{ relationType: "r", fromNodeId: "a", toNodeId: String(id) }] } });
+  const anchor = "10000000-0000-4000-8000-000000000001";
+  const edgeFinding = (index) => {
+    const id = `30000000-0000-4000-8000-${String(index + 1).padStart(12, "0")}`;
+    return { kind: "graph-relation", identity: { relationRef: `edge:${id}` }, source: { sourceRef: `edge:${id}` },
+      projection: { relations: [{ id, relationType: "r", fromNodeId: anchor, toNodeId: "20000000-0000-4000-8000-000000000001" }] } };
+  };
   assert.equal(normalizeOpenedRelations([edgeFinding(1)], { relationLimit: 50 }).status, "ok");
   assert.equal(normalizeOpenedRelations(Array.from({ length: 50 }, (_, i) => edgeFinding(i)), { relationLimit: 50 }).status, "partial");
   const calls = [];
-  const open = createCanonicalRelationOpener({ fetcher: async (id) => { calls.push(id); return [edgeFinding(1)]; } });
+  const entity = { kind: "graph-entity", identity: { entityRef: `node:${anchor}`, sourceIdentity: { nodeId: anchor } }, source: { sourceRef: `node:${anchor}` } };
+  const open = createCanonicalRelationOpener({ fetcher: async (id) => { calls.push(id); return [entity, edgeFinding(1)]; } });
   assert.deepEqual(await open({ nodeId: "" }), { status: "unavailable", anchorNodeId: "", relations: [] });
   assert.equal(calls.length, 0);
-  assert.equal((await open({ nodeId: "a" })).anchorNodeId, "a");
-  assert.deepEqual(calls, ["a"]);
+  assert.equal((await open({ nodeId: anchor })).anchorNodeId, anchor);
+  assert.deepEqual(calls, [anchor]);
   await assert.rejects(createFixtureRelationOpener("failed")({ nodeId: "x" }));
 });
 
