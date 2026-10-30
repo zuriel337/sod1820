@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useLocation, useSearchParams } from "react-router-dom";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import Els2029Representation from "../components/experience2029/Els2029Representation.jsx";
 import ElsMatrixProfileSwitch from "../components/experience2029/ElsMatrixProfileSwitch.jsx";
@@ -25,6 +25,7 @@ import { useFeatureState } from "../components/MaintenanceLock.jsx";
 import { useElsJourneyReopen } from "../lib/research/useElsJourneyReopen.js";
 import { useOptionalRazielSession2029 } from "../components/experience2029/RazielSessionMount2029.jsx";
 import { elsMatrixReadingMode } from "../lib/research/elsMatrixReadingPresentation.js";
+import { elsMatrixReadingReturnLoad } from "../lib/research/elsMatrixReadingActivity.js";
 
 const clean = (value) => String(value ?? "").trim();
 const ELS_DESCRIPTION = "חפשו דילוגי אותיות, קראו את המקור ושמרו ממצאים להמשך מחקר.";
@@ -108,6 +109,7 @@ function ElsNativeWithRaziel({ razielSession, researchContext, projection, layer
 export default function Els2029Page({ previewAdvanced = false }) {
   const research = useResearch();
   const razielSession = useOptionalRazielSession2029();
+  const location = useLocation();
   const { user, loading: authLoading } = useAuth();
   const [params, setParams] = useSearchParams();
   const library = params.get("library");
@@ -206,6 +208,19 @@ export default function Els2029Page({ previewAdvanced = false }) {
     pending.resolve(Array.isArray(result.rows) ? result.rows : []);
   };
   useEffect(() => { setResearchLoad(null); setResearchProbe(null); setExactStatus("idle"); setAutomaticSummary(null); pendingProbeRef.current = null; }, [cipherSlug, recordId]);
+  // Explicit return from the global scan indicator. Only a current-session turn can resolve
+  // this pointer; a stale URL/Reload never starts an AI scan or substitutes another occurrence.
+  const readingReturnKey = useRef(null);
+  useEffect(() => {
+    const turnId = location.state?.elsReadingReturnTurnId;
+    if (!turnId || readingReturnKey.current === location.key) return;
+    readingReturnKey.current = location.key;
+    const item = elsMatrixReadingReturnLoad(razielSession, turnId);
+    if (!item) { setFindingNotice("הסריקה אינה בשיחה הנוכחית. פתחו את השיחה השמורה או בחרו את המופע המקורי."); return; }
+    pendingProbeRef.current = null;
+    setResearchProbe(null); setExactStatus("idle"); setResearchLoad({ ...item, researchNonce: `${turnId}:${location.key}` });
+    setMatrixProfile(ELS_MATRIX_PROFILE.CLASSIC); setWorkspaceVisited(true);
+  }, [location.key, location.state, razielSession]);
   const requestExactSkip = request => {
     pendingProbeRef.current = request.requestId;
     setExactStatus("probing");
@@ -378,7 +393,7 @@ export default function Els2029Page({ previewAdvanced = false }) {
             The same iframe instance remains mounted as an engine-only bridge and can be revealed
             as the parity fallback for capabilities that have not yet been ported to 2029. */}
         <ElsNativeWithRaziel razielSession={razielSession} researchContext={context} projection={replayProjection} layers={replayLayers} planSummary={automaticSummary} replayReady={replayMatched && layeredReady}
-          initialSeed={savedRecord.row || legacyMatrix ? "" : classicSeed} matrix={savedRecord.row || legacyMatrix}
+          initialSeed={savedRecord.row || legacyMatrix || location.state?.elsReadingReturnTurnId ? "" : classicSeed} matrix={savedRecord.row || legacyMatrix}
           active={!library && (!guidedProfile || researchLoad?.guidedDiscovery === true || directSavedOpen)}
           researchProfile={researchProfile} guidedProfile={guidedProfile} researchLoad={researchLoad || (savedRecord.row ? null : findingJourneyLoad)} researchProbe={researchProbe} onResearchProbeResult={receiveExactSkip} onResearchLoadError={() => setExactStatus("failed")}
           formsPreviewRequest={formsPreviewRequest} onFormsPreviewResult={receiveFormsPreview}

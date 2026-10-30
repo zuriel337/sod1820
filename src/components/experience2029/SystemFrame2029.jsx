@@ -46,6 +46,8 @@ import { workspaceResearchHref } from "../../lib/research/razielWorkspaceProject
 import { projectWorkspaceRazielPresence2029 } from "../../lib/research/workspaceRazielPresence2029.js";
 import RazielViewModeSelector2029 from "./RazielViewModeSelector2029.jsx";
 import RazielOneShotActions2029 from "./RazielOneShotActions2029.jsx";
+import ElsMatrixReadingActivity2029 from "./ElsMatrixReadingActivity2029.jsx";
+import { selectElsMatrixReadingActivity } from "../../lib/research/elsMatrixReadingActivity.js";
 import { razielContextParts, razielNavigationButton, razielStatusLabel } from "./razielSessionSeam2029.js";
 import { createRazielContextSnapshot, selectRazielDeepeningCandidate } from "../../lib/research/razielSession2029.js";
 import { razielViewModeLabel } from "../../lib/research/razielViewMode2029.js";
@@ -362,17 +364,22 @@ function NowTabs2029({ activeKind, onWorld, onMe, onRaziel, razielLocked = false
 }
 
 function RazielOrb({ compact = false, active = false, onClick, title = "פתח את רזיאל", locked = false }) {
+  const session = useOptionalRazielSession2029();
+  const reading = locked ? null : selectElsMatrixReadingActivity(session);
+  const readingTitle = reading ? `${reading.label} · ${reading.axis.term} · פתח את רזיאל` : title;
   return (
     <button
       type="button"
       className={`sod29-raziel-orb${compact ? " compact" : ""}${active ? " active" : ""}${locked ? " is-locked" : ""}`}
       onClick={onClick}
-      aria-label={locked ? "רזיאל · בבנייה" : title}
-      title={locked ? "רזיאל בבנייה" : title}
+      aria-label={locked ? "רזיאל · בבנייה" : readingTitle}
+      title={locked ? "רזיאל בבנייה" : readingTitle}
+      data-matrix-reading-status={reading?.phase}
       aria-pressed={active}
       disabled={locked}
     >
       <span className="sod29-raziel-orb-core" aria-hidden="true">{locked && compact ? "🚧" : null}</span>
+      {reading ? <span className="sod29-raziel-reading-badge" aria-hidden="true">{reading.active ? "סורק" : "סריקה"}</span> : null}
       {!compact ? <span className="sod29-raziel-orb-label">רזיאל</span> : null}
     </button>
   );
@@ -777,6 +784,7 @@ function RazielNativeChat({ context, label, numberFocus, readingFocus, elsFocus 
         <p>{contextParts.length ? contextParts.map((part, index) => <React.Fragment key={part.key}>{index ? <span aria-hidden="true"> · </span> : null}{part.prefix ? `${part.prefix}: ` : ""}<bdi>{part.label}</bdi></React.Fragment>) : "שאלה חופשית — או בחר מספר, ביטוי או קטע"}</p>
       </div>
       <RazielViewModeSelector2029 />
+      <ElsMatrixReadingActivity2029 />
       <div className="sod29-raziel-thread" role="log" aria-label="השיחה עם רזיאל">
         {thread.map((m, i) => (
           <div key={`${m.turnId || i}:${m.role}`} ref={i === thread.length - 1 ? lastTurnRef : undefined} className={m.role === "user" ? "sod29-raziel-chat-user" : "sod29-raziel-chat-raziel"}>
