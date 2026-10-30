@@ -20,10 +20,15 @@ async function click(target){
   assert.equal(hit,true,"real comparison control must be uncovered");await target.click();
 }
 async function native(page,physical){
+  let observations=[];
   for(let attempt=0;attempt<120;attempt++){
-    for(const frame of page.frames())try{const snapshot=await frame.evaluate(n=>{const v=document.querySelector("pdf-viewer"),p=v?.viewport_;if(!p||!v.documentDimensions)return null;return{loadState:v.loadState_,documentPages:v.documentDimensions.pageDimensions.length,pageIndex:n-1,viewportHeight:p.size.height,requestedRect:p.getPageScreenRect(n-1),previousRect:n>1?p.getPageScreenRect(n-2):null};},physical);if(ahavatNativePdfPageAtStart(snapshot,physical))return;}catch{}
+    observations=[];
+    for(const frame of page.frames())try{const snapshot=await frame.evaluate(n=>{const v=document.querySelector("pdf-viewer"),p=v?.viewport_;if(!p||!v.documentDimensions)return null;return{loadState:v.loadState_,documentPages:v.documentDimensions.pageDimensions.length,pageIndex:n-1,viewportHeight:p.size.height,requestedRect:p.getPageScreenRect(n-1),previousRect:n>1?p.getPageScreenRect(n-2):null};},physical);observations.push(snapshot);if(ahavatNativePdfPageAtStart(snapshot,physical))return;}catch(error){observations.push({error:error.message});}
     await page.waitForTimeout(150);
   }
+  const geometry=await page.locator("#ahavat29-source").evaluate(element=>({source:element.getBoundingClientRect().toJSON(),iframe:element.querySelector("iframe").getBoundingClientRect().toJSON(),actions:element.querySelector(".ahavat29-source-actions").getBoundingClientRect().toJSON()}));
+  writeFileSync(`${out}/native-failure-${physical}.json`,JSON.stringify({physical,viewport:page.viewportSize(),observations,geometry},null,2)+"\n");
+  await page.screenshot({path:`${out}/native-failure-${physical}.png`});
   assert.fail(`comparison native PDF ${physical} did not reach its exact physical anchor`);
 }
 test("same-letter comparison preserves both source readings, exact return, CSV and one explicit model in nine contexts",{timeout:480_000},async()=>{
