@@ -98,6 +98,66 @@ test('research structures are explicit, preserve Classic and compare exact snaps
   },{realHost:true});
  });
 
+test('explicit Research lexicon is lazy, exact, cancellable and responsive without AI',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
+  for(const width of [320,390,1440])await withNative({width,height:900},async page=>{
+    const ai=[];page.on('request',req=>{if(/ai-analyze/.test(req.url()))ai.push(req.url());});
+    assert.equal(page.__elsDynamicLexiconRequests.length,0);
+    await page.evaluate(()=>{window.__fixtureResearchProfile=true;window.__forceParentRender();});
+    await page.getByText('מילים במטריצה · ללא AI',{exact:true}).click();
+    const panel=page.getByRole('region',{name:'מילים במטריצה',exact:true});await panel.waitFor();
+    assert.equal(page.__elsDynamicLexiconRequests.length,0,'opening does not fetch lexicon');
+    const before=await page.evaluate(()=>window.__state);
+    await panel.getByRole('button',{name:'סרוק מילים בחלון המחקר',exact:true}).evaluate(button=>{button.click();button.click();});
+    await panel.getByLabel('תוצאות הסריקה המילונית').waitFor({timeout:30000});
+    const scan=await page.evaluate(()=>window.__lens);
+    assert.equal(scan.lens,'matrix-lexicon');assert.equal(scan.ok,true);assert.ok(scan.items.length>0);
+    assert.equal(scan.modelCalls,0);assert.equal(page.__elsDynamicLexiconRequests.length,1);
+    assert.deepEqual((await page.evaluate(()=>window.__state)).findings,before.findings,'scan does not add findings');
+    const first=scan.items.find(item=>item.kind==='els');assert.ok(first);
+    await panel.getByRole('button',{name:`בדוק והוסף ${first.label}`,exact:true}).first().click();
+    await page.waitForFunction(item=>window.__state?.status==='ok'&&window.__state.findings?.some(f=>f.t===item.term&&f.hits.some(h=>h.hitId===item.hitId&&h.selected&&h.verified)),first,{timeout:30000});
+    assert.deepEqual((await page.evaluate(()=>window.__state)).axis,before.axis);
+    for(const theme of ['light','parchment','dark']){
+      await page.evaluate(theme=>window.__setThemePreset(theme),theme);
+      const size=await page.evaluate(()=>({w:document.documentElement.clientWidth,s:document.documentElement.scrollWidth}));
+      assert.ok(size.s<=size.w+1,JSON.stringify({width,theme,size}));
+      assert.ok(await panel.locator('p:visible').evaluateAll(nodes=>nodes.every(n=>parseFloat(getComputedStyle(n).fontSize)>=18)));
+      assert.ok(await panel.locator('button:visible,select:visible').evaluateAll(nodes=>nodes.every(n=>n.getBoundingClientRect().height>=44)));
+      if(process.env.ELS_LEXICON_SCREENSHOTS){await panel.scrollIntoViewIfNeeded();await page.screenshot({path:`${process.env.ELS_LEXICON_SCREENSHOTS}/lexicon-${width}-${theme}.png`});}
+    }
+    await page.evaluate(()=>{window.__fixtureResearchProfile=false;window.__forceParentRender();});
+    assert.equal(await panel.isVisible(),false);
+    await page.evaluate(()=>{window.__fixtureResearchProfile=true;window.__forceParentRender();});
+    assert.equal(await panel.getByLabel('תוצאות הסריקה המילונית').isVisible(),true);
+    await page.evaluate(item=>window.__loadResearch({...item,words:[],researchNonce:'lexicon-second'}),ELS_GOLDENS[2]);
+    await page.waitForFunction(()=>window.__state?.term==='אליהו'&&window.__state.status==='ok');
+    assert.ok(await panel.getByRole('button',{name:/בדוק והוסף/}).first().isDisabled(),'old axis cannot be admitted');
+    await page.evaluate(()=>{window.__fixtureTier='anon';window.__forceParentRender();});
+    await page.waitForFunction(()=>!document.querySelector('[aria-label="תוצאות הסריקה המילונית"]'));
+    assert.deepEqual(ai,[]);
+  },{realHost:true});
+ });
+
+test('explicit lexicon cancellation discards late download and permits a fresh explicit run',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:90000},async()=>{
+  await withNative({width:390,height:900},async page=>{
+    let release,intercepted;
+    const held=new Promise(resolve=>{release=resolve;});const requested=new Promise(resolve=>{intercepted=resolve;});
+    await page.route('**/els-dynamic-lexicon-v1.gz64.txt*',async route=>{intercepted();await held;await route.continue();});
+    await page.evaluate(()=>{window.__fixtureResearchProfile=true;window.__forceParentRender();});
+    await page.getByText('מילים במטריצה · ללא AI',{exact:true}).click();
+    const panel=page.getByRole('region',{name:'מילים במטריצה',exact:true});
+    await panel.getByRole('button',{name:'סרוק מילים בחלון המחקר',exact:true}).click();await requested;
+    await panel.getByRole('button',{name:'בטל פעולה',exact:true}).click();release();
+    await page.waitForFunction(()=>window.__lens?.target?.cancel!==true);
+    assert.equal(await panel.getByLabel('תוצאות הסריקה המילונית').count(),0);
+    await panel.getByRole('button',{name:'סרוק מילים בחלון המחקר',exact:true}).click();
+    await panel.getByLabel('תוצאות הסריקה המילונית').waitFor({timeout:30000});
+    assert.equal(page.__elsDynamicLexiconRequests.length,1,'shared checked cache reused');
+  },{realHost:true});
+ });
+
 const host = `import React,{useRef,useEffect} from 'react';
 export default function Host(props){
  const frame=useRef(null),latest=useRef(props),ready=useRef(false);latest.current=props;
@@ -131,6 +191,7 @@ export default function Host(props){
 }`;
 
 const entry = `import React from 'react';import {flushSync} from 'react-dom';import {createRoot} from 'react-dom/client';
+import {MemoryRouter} from 'react-router-dom';
 import Native from '/src/components/experience2029/ElsNativeClassic2029.jsx';
 import {resolve2029Palette,usePalette} from '/src/lib/palette.js';
 import {useThemePreset,setThemePreset} from '/src/lib/themeMode.js';
@@ -174,7 +235,7 @@ if(window.__fixtureFullFrame){
    React.createElement('section',{'data-els-classic-2029':'native-v1',className:'sod29-section'},visible?React.createElement(Native,{researchProfile:true}):React.createElement('p',null,'Library fixture'))));
  }
  createRoot(document.getElementById('root')).render(React.createElement(FullFrameFixture));
-}else createRoot(document.getElementById('root')).render(React.createElement(Fixture));
+}else createRoot(document.getElementById('root')).render(React.createElement(MemoryRouter,null,React.createElement(Fixture)));
 `;
 
 function verify({ op, payload, denied }) {

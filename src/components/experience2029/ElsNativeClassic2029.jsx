@@ -22,6 +22,7 @@ import "./elsNativeClassic2029.css";
 
 const ElsGuidedMatrixSnapshot2029 = React.lazy(() => import("./ElsGuidedMatrixSnapshot2029.jsx"));
 const ElsStructureResearch2029 = React.lazy(() => import("./ElsStructureResearch2029.jsx"));
+const ElsLexiconResearch2029 = React.lazy(() => import("./ElsLexiconResearch2029.jsx"));
 
 const clean = (value) => String(value ?? "").trim();
 const canonicalHebrew = (value) => clean(value).replace(/[^א-ת]/g, "").replace(/[ךםןףץ]/g, letter => ({ ך: "כ", ם: "מ", ן: "נ", ף: "פ", ץ: "צ" })[letter]);
@@ -827,6 +828,8 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   const [cameraFullscreen, setCameraFullscreen] = useState(false);
   const [guidedMatrixOpen, setGuidedMatrixOpen] = useState(false);
   const [structuresVisited, setStructuresVisited] = useState(false);
+  const [lexiconVisited, setLexiconVisited] = useState(false);
+  const [lexiconResponse, setLexiconResponse] = useState(null);
   useEffect(() => {
     const sync = () => setCameraFullscreen(document.fullscreenElement === cameraStageRef.current);
     document.addEventListener("fullscreenchange", sync);
@@ -1187,6 +1190,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   };
 
   const handleLens = (result) => {
+    if (result?.lens === "matrix-lexicon") { setLexiconResponse(result); return; }
     if (result?.target?.guidedOccurrenceCoverage === true) {
       if (result.target.guidedSeq !== guidedLensSeqRef.current) return;
       if (guidedSourceActiveRef.current) { guidedDeferredInspectionRef.current = result;return; }
@@ -1556,6 +1560,16 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
           </div>
           <small>מציג את הציר ואחריו את הממצאים, אחד אחרי השני. אפשר להקליט באמצעות כלי צילום המסך במכשיר.</small>
         </section> : null}
+        <details hidden={!researchProfile || guidedProfile} className="els29-native-structure-entry"
+          onToggle={event => { if (event.currentTarget.open) setLexiconVisited(true); }}>
+          <summary>מילים במטריצה · ללא AI</summary>
+          {lexiconVisited ? <React.Suspense fallback={<p role="status">טוען כלי סריקה…</p>}>
+            <ElsLexiconResearch2029 key={user?.id || "guest"} state={engineState} visible={active && researchProfile && !guidedProfile}
+              busy={searchPending || ["searching", "verifying"].includes(operations.findings?.status)} response={lexiconResponse}
+              onRequest={target => setLensRequest({ lens: "matrix-lexicon", target })} onRestore={onResearchRestore}
+              color={nextFindingColor(engineState?.findings || [], palette)} />
+          </React.Suspense> : null}
+        </details>
         <details hidden={!researchProfile || guidedProfile} className="els29-native-structure-entry"
           onToggle={event => { if (event.currentTarget.open) setStructuresVisited(true); }}>
           <summary>מבנים והשוואת מופעים · ללא AI</summary>

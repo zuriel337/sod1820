@@ -2334,9 +2334,8 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
   // A bounded S2/S3 language map over canonical letters already present in the approved S1 box. It
   // does not expand geometry or call AI. A broad lexicon is used as a lazy direct index, never as a
   // term scan. Word divisions remain candidates; exact coordinates stay authoritative.
-  function guidedMatrixLanguageInspection(axis,box,hints,dynamicLexicon=null){
-    if(!box||!Array.isArray(axis?.positions)||!axis.positions.length||!(hints instanceof Map))return null;
-    const rayCap=24,maxLetters=24,maxCandidateWindows=9216,maxHintComparisons=8192,maxLexiconLookups=196608,readingCap=24,segmentationCap=24,relationReadingCap=384,perTraversalReadingCap=16,anchors=axis.positions.map(position=>[Math.floor(position/box.S),((position%box.S)+box.S)%box.S]),rays=[],priorities={vertical:0,"diagonal-left":1,"diagonal-right":2,horizontal:3},directions=[
+  function guidedMatrixRays(axis,box,maxLetters){
+    const anchors=axis.positions.map(position=>[Math.floor(position/box.S),((position%box.S)+box.S)%box.S]),rays=[],directions=[
       {name:"horizontal",dr:0,dc:1},{name:"vertical",dr:1,dc:0},{name:"diagonal-right",dr:1,dc:1},{name:"diagonal-left",dr:1,dc:-1}];
     for(const direction of directions)for(let row=box.r0;row<=box.r1;row++)for(let col=box.c0;col<=box.c1;col++){
       const priorRow=row-direction.dr,priorCol=col-direction.dc;if(priorRow>=box.r0&&priorRow<=box.r1&&priorCol>=box.c0&&priorCol<=box.c1)continue;
@@ -2345,6 +2344,11 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
       const sliceStart=Math.max(0,Math.min(Math.max(0,full.length-maxLetters),focus-Math.floor(maxLetters/2))),cells=full.slice(sliceStart,sliceStart+maxLetters),text=cells.map(cell=>T[cell.position]).join("");if(text.length<4)continue;
       const step=direction.dr*box.S+direction.dc,start=cells[0].position,focusOffset=Math.max(0,Math.min(text.length-1,focus-sliceStart));rays.push({id:`${direction.name}:${start}:${step}:${text.length}`,orientation:direction.name,text,reverseText:[...text].reverse().join(""),start,step,length:text.length,distance,intersectsAxis:distance===0,anchorIndex,focusOffset});
     }
+    return rays;
+  }
+  function guidedMatrixLanguageInspection(axis,box,hints,dynamicLexicon=null){
+    if(!box||!Array.isArray(axis?.positions)||!axis.positions.length||!(hints instanceof Map))return null;
+    const rayCap=24,maxLetters=24,maxCandidateWindows=9216,maxHintComparisons=8192,maxLexiconLookups=196608,readingCap=24,segmentationCap=24,relationReadingCap=384,perTraversalReadingCap=16,anchors=axis.positions.map(position=>[Math.floor(position/box.S),((position%box.S)+box.S)%box.S]),rays=guidedMatrixRays(axis,box,maxLetters),priorities={vertical:0,"diagonal-left":1,"diagonal-right":2,horizontal:3},directions=[{name:"horizontal"},{name:"vertical"},{name:"diagonal-right"},{name:"diagonal-left"}];
     // The matrix axis is vertical, so all bounded parallel rays are checked first for exact governed
     // hints. This makes a compact parallel pair stronger than a memorable skip without privileging
     // any word, cipher or number. The visible raw sample then remains balanced across all directions.
@@ -2455,6 +2459,66 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     }catch(_){if(!cancelled())postHost({type:"lens",lens:"matrix-discovery",ok:false,target,reason:"scan-failed"});}
   }
 
+  // Explicit Research S2: reuse the canonical ray builder and lazy lookup index. No term-by-corpus
+  // sweep, morphology, model or Finding mutation. Admission remains the existing verified load.
+  let _lexiconScanSeq=0,_lexiconScanRequest=null;
+  async function scanMatrixLexicon(axis,box,lexicon,cancelled,progress){
+    const started=performance.now(),maxWindows=100000,maxResults=300,maxWallMs=10000;
+    const rays=guidedMatrixRays(axis,box,Math.max(box.r1-box.r0+1,box.c1-box.c0+1))
+      .sort((a,b)=>a.distance-b.distance||a.id.localeCompare(b.id));
+    const items=[],seen=new Set(),axisCells=new Set(axis.positions);let windows=0,completedRays=0,axisFragments=0,stop="COMPLETE";
+    scan:for(const ray of rays){
+      if(cancelled())return null;
+      for(const traversal of [{text:ray.text,start:ray.start,step:ray.step},{text:ray.reverseText,start:ray.start+(ray.length-1)*ray.step,step:-ray.step}]){
+        for(let offset=0;offset<traversal.text.length;offset++)for(let length=5;length<=10&&offset+length<=traversal.text.length;length++){
+          if(windows>=maxWindows){stop="WINDOW_LIMIT";break scan;}
+          if(performance.now()-started>=maxWallMs){stop="TIME_LIMIT";break scan;}
+          windows++;const term=traversal.text.slice(offset,offset+length),hint=lexicon.words.get(term);if(!hint)continue;
+          const start=traversal.start+offset*traversal.step,skip=Math.abs(traversal.step),dir=traversal.step<0?-1:1,hitId=`${skip}_${dir}_${start}`,key=`${term}:${hitId}`;
+          if(seen.has(key))continue;seen.add(key);
+          const positions=Array.from({length},(_,i)=>start+i*traversal.step);
+          if(positions.every(p=>axisCells.has(p))){axisFragments++;continue;}
+          if(items.length>=maxResults){stop="RESULT_LIMIT";break scan;}
+          items.push({term,label:guidedMatrixDisplayTerm(term),hitId,start,skip,dir,positions,
+            kind:skip===1?"source":"els",status:"CANDIDATE",lexiconSources:[...hint.lexiconSources],
+            distance:guidedMatrixDistance(positions,axis,box),orientation:ray.orientation});
+        }
+      }
+      completedRays++;if(completedRays%4===0||completedRays===rays.length)progress({completedRays,totalRays:rays.length,windows});
+      // Yield between lines, so cancel/selection/navigation can invalidate this same operation.
+      if(completedRays%4===0)await new Promise(resolve=>setTimeout(resolve,0));
+    }
+    if(cancelled())return null;
+    items.sort((a,b)=>a.distance-b.distance||b.term.length-a.term.length||a.term.localeCompare(b.term,"he")||a.start-b.start);
+    return {items,coverage:{stop,complete:stop==="COMPLETE",completedRays,totalRays:rays.length,windows,axisFragments,
+      maxWindows,maxResults,maxWallMs,minLength:5,maxLength:10,directions:8,elapsedMs:Math.round(performance.now()-started)},
+      box,lexicon:lexicon.profile,selectionProtocol:"EXPLORATORY_DISCOVERY",modelCalls:0,findingMutation:false,truthPromotion:false};
+  }
+  async function matrixLexiconLens(target){
+    if(!target?.scanId||typeof target.scanId!=="string"||target.scanId.length>100)return;
+    if(target.cancel===true){if(_lexiconScanRequest===target.scanId)_lexiconScanSeq++;return;}
+    if(_lexiconScanRequest===target.scanId)return;
+    const seq=++_lexiconScanSeq,source=st.res,axis=source?.hits?.[st.occ],scope=st.scope;
+    const send=payload=>postHost({type:"lens",lens:"matrix-lexicon",target,...payload});
+    if(!hasGov(source)||!isGov(axis)||target.hitId!==hitKey(axis)||target.scope!==scope||searchUncommitted()){
+      send({ok:false,reason:"results-changed"});return;
+    }
+    const b=blockOf(),box={S:b.S,r0:b.r0,r1:b.r1,c0:b.c0,c1:b.c0+b.cw-1},cells=(box.r1-box.r0+1)*(box.c1-box.c0+1);
+    if(!Object.values(box).every(Number.isSafeInteger)||box.S<2||box.r0<0||box.r1<box.r0||box.c0<0||box.c1<box.c0||box.c1>=box.S||cells>8192||box.r1-box.r0+1>256||box.c1-box.c0+1>129){
+      send({ok:false,reason:"window-too-large"});return;
+    }
+    _lexiconScanRequest=target.scanId;
+    const cancelled=()=>seq!==_lexiconScanSeq||st.res!==source||st.scope!==scope||!isGov(axis)||occ()!==axis||searchUncommitted()||JSON.stringify(blockOf())!==JSON.stringify(b);
+    try{
+      send({ok:true,pending:true,phase:"lexicon",box});
+      const lexicon=await guidedLoadDynamicLexicon();if(cancelled())return;
+      if(!lexicon){send({ok:false,reason:"lexicon-unavailable"});return;}
+      const result=await scanMatrixLexicon(axis,box,lexicon,cancelled,coverage=>send({ok:true,pending:true,phase:"scan",coverage}));
+      if(!result||cancelled())return;
+      send({ok:true,pending:false,...result,origin:{term:norm(st.raw),corpus:scope,corpusId:CORPUS_ID[scope],skip:axis.skip,dir:axis.dir,start:axis.start}});
+    }catch(_){if(!cancelled())send({ok:false,reason:"scan-failed"});}
+  }
+
   const isAnon=()=>st.tier==="anon"&&!st.admin;   // מנהל (מקומי או מהאתר) לעולם לא נחשב אנונימי → אין שער
   // 🔀 הצלבה = «החיפוש המוצלח» → לרשומים בלבד. זו הצורה החזקה (שתי מילים קצרות שנפגשות),
   //    ולכן היא-היא מה שדורש רישום (החלטת צוריאל 21.7.2026: «לקרוא את ההסבר ולהירשם כדי לחפש מוצלח»).
@@ -2554,6 +2618,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
       else postHost({type:"lens",lens:"line-context",ok:false,target});
     }
     if(d.type==="request-lens"&&d.lens==="matrix-discovery")guidedMatrixDiscoveryLens(d.target||{});
+    if(d.type==="request-lens"&&d.lens==="matrix-lexicon")matrixLexiconLens(d.target||{});
     if(d.type==="request-lens"&&d.lens==="cross-third-axis")crossThirdAxisLens(d.target||{});
     if(d.type==="request-lens"&&d.lens==="letter-context"){letterContextLens(d.target||{});}   // 📍 תא-מטריצה → מקור/פסוק; קריאה בלבד
     if(d.type==="native-control"&&typeof d.action==="string"){
