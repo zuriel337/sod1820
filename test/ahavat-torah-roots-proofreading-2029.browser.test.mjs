@@ -15,7 +15,7 @@ const { chromium } = createRequire(import.meta.url)("playwright");
 const fragments = ahavatReviewedRootFragments(JSON.parse(readFileSync(new URL("../public/book-data/ahavat-torah.roots.json", import.meta.url))));
 const sourcePath = process.env.AHAVAT_SOURCE_PDF || "/tmp/books-wide-ahavat-source-20261028.pdf";
 const sourceBytes = existsSync(sourcePath) ? readFileSync(sourcePath) : null;
-const screenshotDir = "/tmp/ahavat-roots-proofreading-20261029";
+const screenshotDir = "/workspace/artifacts/ahavat-native-source-fix-20261030-i85M6O/browser-output/ahavat-torah-roots-proofreading-2029";
 mkdirSync(screenshotDir, { recursive: true });
 const click = async target => {
   await target.focus();
@@ -28,7 +28,7 @@ async function setup(width, theme, pdf = false) {
   process.env.SOD_BUILD_TARGET = "2029";
   process.env.VITE_BOOK_PUBLICATION_REVIEW_PREVIEW = "true";
   process.env.VITE_INTEGRATED_PREVIEW = "true";
-  const server = await createServer({ root, configFile: false, cacheDir: `/tmp/ahavat-source-vite-${process.pid}`, plugins: [react()], appType: "spa", server: { host: "127.0.0.1", port: 0 } });
+  const server = await createServer({ root, configFile: false, cacheDir: `/workspace/artifacts/ahavat-native-source-fix-20261030-i85M6O/browser-output/ahavat-torah-roots-proofreading-2029${process.pid}`, plugins: [react()], appType: "spa", server: { host: "127.0.0.1", port: 0 } });
   await server.listen();
   const origin = `http://127.0.0.1:${server.httpServer.address().port}`;
   const browser = await chromium.launch({ headless: true, executablePath: process.env.CHROMIUM_EXECUTABLE_PATH || "/usr/bin/chromium", args: ["--no-sandbox"] });

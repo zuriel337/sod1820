@@ -12,7 +12,7 @@ import {ahavatLetterUnitId,ahavatReaderUnitHref} from "../src/data/ahavatTorahRe
 import {ahavatLetterComparisonRows,ahavatParashaLettersCsv} from "../src/components/books2029/ahavatLetterJourney2029.js";
 import {ahavatNativePdfPageAtStart} from "./fixtures/ahavat-native-pdf-page-2029.mjs";
 const {chromium}=createRequire(import.meta.url)("playwright"),root=fileURLToPath(new URL("..",import.meta.url));
-const out="/workspace/artifacts/ahavat-parasha-comparison-20261029";mkdirSync(out,{recursive:true});
+const out="/workspace/artifacts/ahavat-native-source-fix-20261030-i85M6O/browser-output/ahavat-letter-source-comparison-2029";mkdirSync(out,{recursive:true});
 const pdf=readFileSync("/workspace/artifacts/ahavat-book-completion-20261029/source-witness/original.pdf");
 const settle=page=>page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
 async function click(target){
@@ -26,7 +26,7 @@ async function native(page, physical) {
 test("same-letter comparison preserves both source readings, exact return, CSV and one explicit model in nine contexts",{timeout:480_000},async()=>{
   assert.equal(createHash("sha256").update(pdf).digest("hex"),"895e9a720d984adf8ea453b644e3f6d0864e101238f348f418aa5fafa20e9c8b");
   process.env.SOD_BUILD_TARGET="2029";process.env.VITE_BOOK_PUBLICATION_REVIEW_PREVIEW="true";process.env.VITE_INTEGRATED_PREVIEW="true";
-  const server=await createServer({root,configFile: false, cacheDir: `/tmp/ahavat-source-vite-${process.pid}`,plugins:[react()],appType:"spa",server:{host:"127.0.0.1",port:0}});await server.listen();const origin=`http://127.0.0.1:${server.httpServer.address().port}`;
+  const server=await createServer({root,configFile: false, cacheDir: `/workspace/artifacts/ahavat-native-source-fix-20261030-i85M6O/browser-output/ahavat-letter-source-comparison-2029${process.pid}`,plugins:[react()],appType:"spa",server:{host:"127.0.0.1",port:0}});await server.listen();const origin=`http://127.0.0.1:${server.httpServer.address().port}`;
   const browser=await chromium.launch({executablePath:"/usr/bin/chromium",headless:true,args:["--no-sandbox","--use-angle=swiftshader"]}),results=[];
   try{for(const width of [320,390,1440])for(const theme of ["light","parchment","dark"]){
     const context=await browser.newContext({viewport:{width,height:1000},reducedMotion:"reduce"});

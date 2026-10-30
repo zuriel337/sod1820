@@ -13,7 +13,7 @@ const { createServer } = await import(pathToFileURL(require.resolve("vite")));
 const react = (await import(pathToFileURL(require.resolve("@vitejs/plugin-react")))).default;
 const root = fileURLToPath(new URL("..", import.meta.url));
 const bundle = JSON.parse(readFileSync(new URL("../public/book-data/ahavat-torah.commentary.json", import.meta.url)));
-const out = "/tmp/ahavat-public-reading-browser-20261030";
+const out = "/workspace/artifacts/ahavat-native-source-fix-20261030-i85M6O/browser-output/ahavat-public-reading-2029";
 const settle = page => page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
 async function click(target) {
   await target.evaluate(element => element.scrollIntoView({ block: "center", behavior: "instant" }));
@@ -25,7 +25,7 @@ test("public book entry and all edited lessons preserve source, details and retu
   process.env.SOD_BUILD_TARGET = "2029";
   process.env.VITE_BOOK_PUBLICATION_REVIEW_PREVIEW = "true";
   process.env.VITE_INTEGRATED_PREVIEW = "true";
-  const server = await createServer({ root, configFile: false, cacheDir: `/tmp/ahavat-source-vite-${process.pid}`, plugins: [react()], appType: "spa", server: { host: "127.0.0.1", port: 0 } });
+  const server = await createServer({ root, configFile: false, cacheDir: `/workspace/artifacts/ahavat-native-source-fix-20261030-i85M6O/browser-output/ahavat-public-reading-2029${process.pid}`, plugins: [react()], appType: "spa", server: { host: "127.0.0.1", port: 0 } });
   await server.listen();
   const origin = `http://127.0.0.1:${server.httpServer.address().port}`;
   const browser = await chromium.launch({ executablePath: "/usr/bin/chromium", headless: true, args: ["--no-sandbox"] });

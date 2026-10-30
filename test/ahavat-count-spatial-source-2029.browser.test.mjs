@@ -25,14 +25,14 @@ async function pointerClick(locator) {
     hit = await locator.evaluate(element => { const rect = element.getBoundingClientRect(), top = document.elementFromPoint(rect.x + rect.width / 2, rect.y + rect.height / 2); return { uncovered: Boolean(top && element.contains(top)), rect: {x:rect.x,y:rect.y,width:rect.width,height:rect.height}, top: top?.outerHTML.slice(0,250), active:document.activeElement?.outerHTML.slice(0,250), scrollY }; });
     if (hit.uncovered) break;
   }
-  if (!hit.uncovered) await locator.page().screenshot({path:"/workspace/artifacts/ahavat-parasha-atlas-20261029/count-click-failure.png"});
+  if (!hit.uncovered) await locator.page().screenshot({path:"/workspace/artifacts/ahavat-native-source-fix-20261030-i85M6O/browser-output/ahavat-count-spatial-source-2029/count-click-failure.png"});
   assert.equal(hit.uncovered, true, `trusted count-source pointer target must be uncovered: ${JSON.stringify(hit)}`);
   await locator.click();
 }
 
 async function fixture() {
   process.env.SOD_BUILD_TARGET = "2029"; process.env.VITE_BOOK_PUBLICATION_REVIEW_PREVIEW = "true"; process.env.VITE_INTEGRATED_PREVIEW = "true";
-  const server = await vite.createServer({ root, configFile: false, cacheDir: `/tmp/ahavat-source-vite-${process.pid}`, plugins: [react()], appType: "spa", server: { host: "127.0.0.1", port: 0 } });
+  const server = await vite.createServer({ root, configFile: false, cacheDir: `/workspace/artifacts/ahavat-native-source-fix-20261030-i85M6O/browser-output/ahavat-count-spatial-source-2029${process.pid}`, plugins: [react()], appType: "spa", server: { host: "127.0.0.1", port: 0 } });
   await server.listen();
   const origin = `http://127.0.0.1:${server.httpServer.address().port}`;
   const browser = await playwright.chromium.launch({ headless: true, executablePath: "/usr/bin/chromium", args: ["--no-sandbox", "--use-angle=swiftshader"] });

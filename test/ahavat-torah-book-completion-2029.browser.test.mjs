@@ -38,7 +38,7 @@ async function fixture() {
   process.env.SOD_BUILD_TARGET = "2029";
   process.env.VITE_BOOK_PUBLICATION_REVIEW_PREVIEW = "true";
   process.env.VITE_INTEGRATED_PREVIEW = "true";
-  const server = await vite.createServer({ root, configFile: false, cacheDir: `/tmp/ahavat-source-vite-${process.pid}`, plugins: [react()], appType: "spa", server: { host: "127.0.0.1", port: 0 } });
+  const server = await vite.createServer({ root, configFile: false, cacheDir: `/workspace/artifacts/ahavat-native-source-fix-20261030-i85M6O/browser-output/ahavat-torah-book-completion-2029${process.pid}`, plugins: [react()], appType: "spa", server: { host: "127.0.0.1", port: 0 } });
   await server.listen();
   const origin = `http://127.0.0.1:${server.httpServer.address().port}`;
   const browser = await playwright.chromium.launch({ headless: true, executablePath, args: ["--no-sandbox"] });
@@ -47,7 +47,7 @@ async function fixture() {
 
 for (const width of [320, 390, 1440]) test(`all 78 completion companion units retain source, reading and return at ${width} in three display combinations`, { skip: !available, timeout: 300_000 }, async () => {
   const { origin, browser, server } = await fixture();
-  const out = "/tmp/ahavat-book-completion-browser-20261029";
+  const out = "/workspace/artifacts/ahavat-native-source-fix-20261030-i85M6O/browser-output/ahavat-torah-book-completion-2029";
   mkdirSync(out, { recursive: true });
   try {
     await Promise.all(["light", "parchment", "dark"].map(async theme => {

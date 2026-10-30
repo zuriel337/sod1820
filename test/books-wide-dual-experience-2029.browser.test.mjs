@@ -21,11 +21,11 @@ test("both book experiences preserve the source while widening desktop reading",
   process.env.SOD_BUILD_TARGET = "2029";
   process.env.VITE_BOOK_PUBLICATION_REVIEW_PREVIEW = "true";
   process.env.VITE_INTEGRATED_PREVIEW = "true";
-  const server = await vite.createServer({ root, configFile: false, cacheDir: `/tmp/ahavat-source-vite-${process.pid}`, plugins: [react()], appType: "spa", server: { host: "127.0.0.1", port: 0 } });
+  const server = await vite.createServer({ root, configFile: false, cacheDir: `/workspace/artifacts/ahavat-native-source-fix-20261030-i85M6O/browser-output/books-wide-dual-experience-2029${process.pid}`, plugins: [react()], appType: "spa", server: { host: "127.0.0.1", port: 0 } });
   await server.listen();
   const origin = `http://127.0.0.1:${server.httpServer.address().port}`;
   const browser = await playwright.chromium.launch({ headless: true, executablePath, args: ["--no-sandbox", "--use-angle=swiftshader"] });
-  const out = "/tmp/books-wide-dual-experience-20261028";
+  const out = "/workspace/artifacts/ahavat-native-source-fix-20261030-i85M6O/browser-output/books-wide-dual-experience-2029";
   mkdirSync(out, { recursive: true });
   try {
     for (const book of [{ surface: "ahavat-torah-system", source: "#ahavat29-source", layout: ".ahavat29-layout", page: 6 }, { surface: "sefer-yetzirah-world", source: "#yetzirah29-source", layout: ".yetzirah29-layout", page: 53 }]) {
@@ -112,7 +112,7 @@ test("native PDFs remain readable in the wider desktop layout", { skip: !availab
   process.env.SOD_BUILD_TARGET = "2029";
   process.env.VITE_BOOK_PUBLICATION_REVIEW_PREVIEW = "true";
   process.env.VITE_INTEGRATED_PREVIEW = "true";
-  const server = await vite.createServer({ root, configFile: false, cacheDir: `/tmp/ahavat-source-vite-${process.pid}`, plugins: [react()], appType: "spa", server: { host: "127.0.0.1", port: 0 } });
+  const server = await vite.createServer({ root, configFile: false, cacheDir: `/workspace/artifacts/ahavat-native-source-fix-20261030-i85M6O/browser-output/books-wide-dual-experience-2029${process.pid}`, plugins: [react()], appType: "spa", server: { host: "127.0.0.1", port: 0 } });
   await server.listen();
   const origin = `http://127.0.0.1:${server.httpServer.address().port}`;
   const browser = await playwright.chromium.launch({ headless: true, executablePath, args: ["--no-sandbox"] });
@@ -139,7 +139,7 @@ test("native PDFs remain readable in the wider desktop layout", { skip: !availab
       await source.waitFor();
       await source.scrollIntoViewIfNeeded();
       await page.waitForTimeout(1200);
-      await page.screenshot({ path: `/tmp/books-wide-dual-experience-20261028/${book.surface}-native-before-fullscreen-1440.png` });
+      await page.screenshot({ path: `/workspace/artifacts/ahavat-native-source-fix-20261030-i85M6O/browser-output/books-wide-dual-experience-2029/${book.surface}-native-before-fullscreen-1440.png` });
       await source.getByRole("button", { name: "מסך מלא", exact: true }).click();
       await page.waitForFunction(() => Boolean(document.fullscreenElement));
       if (book.surface === "ahavat-torah-system") {
@@ -163,7 +163,7 @@ test("native PDFs remain readable in the wider desktop layout", { skip: !availab
       assert.match(await ahavatSourceHref(source), /#page=6&/);
       await source.scrollIntoViewIfNeeded();
       await page.waitForTimeout(1200);
-      await page.screenshot({ path: `/tmp/books-wide-dual-experience-20261028/${book.surface}-native-pdf-1440.png` });
+      await page.screenshot({ path: `/workspace/artifacts/ahavat-native-source-fix-20261030-i85M6O/browser-output/books-wide-dual-experience-2029/${book.surface}-native-pdf-1440.png` });
       await context.close();
     }
   } finally { await browser.close(); await server.close(); }

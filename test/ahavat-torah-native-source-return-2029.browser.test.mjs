@@ -19,8 +19,8 @@ async function native(page, physical) {
 // verified witness cannot claim native acceptance. Acceptance requires no skips.
 test('actual PDF fullscreen exit returns stable focus to both new source-bound sections in six display contexts',{skip:!bytes,timeout:180000},async()=>{
  assert.equal(createHash('sha256').update(bytes).digest('hex'),'895e9a720d984adf8ea453b644e3f6d0864e101238f348f418aa5fafa20e9c8b');
- process.env.SOD_BUILD_TARGET='2029';process.env.VITE_BOOK_PUBLICATION_REVIEW_PREVIEW='true';process.env.VITE_INTEGRATED_PREVIEW='true';mkdirSync('/tmp/ahavat-native-source-return-20261029',{recursive:true});
- const server=await createServer({root,configFile: false, cacheDir: `/tmp/ahavat-source-vite-${process.pid}`,plugins:[react()],appType:'spa',server:{host:'127.0.0.1',port:0}});await server.listen();const origin=`http://127.0.0.1:${server.httpServer.address().port}`;
+ process.env.SOD_BUILD_TARGET='2029';process.env.VITE_BOOK_PUBLICATION_REVIEW_PREVIEW='true';process.env.VITE_INTEGRATED_PREVIEW='true';mkdirSync('/workspace/artifacts/ahavat-native-source-fix-20261030-i85M6O/browser-output/ahavat-torah-native-source-return-2029',{recursive:true});
+ const server=await createServer({root,configFile: false, cacheDir: `/workspace/artifacts/ahavat-native-source-fix-20261030-i85M6O/browser-output/ahavat-torah-native-source-return-2029${process.pid}`,plugins:[react()],appType:'spa',server:{host:'127.0.0.1',port:0}});await server.listen();const origin=`http://127.0.0.1:${server.httpServer.address().port}`;
  const browser=await chromium.launch({headless:true,executablePath:'/usr/bin/chromium',args:['--no-sandbox']});
  try{for(const width of [390,1440])for(const theme of ['light','parchment','dark']){
   const context=await browser.newContext({viewport:{width,height:1000},reducedMotion:'reduce'});await context.addInitScript(t=>{if(location.hostname==='127.0.0.1')localStorage.setItem('sod-theme',t);},theme);
@@ -36,7 +36,7 @@ test('actual PDF fullscreen exit returns stable focus to both new source-bound s
    await page.waitForFunction(expected=>document.activeElement?.closest('[data-reader-unit]')?.dataset.readerUnit===expected,id,{timeout:10000});
    await page.waitForTimeout(250);assert.equal(await page.evaluate(()=>document.activeElement?.closest('[data-reader-unit]')?.dataset.readerUnit),id,'focus stays at the unit after the plugin transition');
    assert.equal(new URL(page.url()).searchParams.get('readerUnit'),id);assert.equal(await unit.evaluate(e=>e.open),true);assert.equal(await page.locator("canvas:not([data-book-pdf-canvas])").count(),0);
-   if(theme==='parchment')await page.screenshot({path:`/tmp/ahavat-native-source-return-20261029/p${physical}-${width}.png`});
+   if(theme==='parchment')await page.screenshot({path:`/workspace/artifacts/ahavat-native-source-fix-20261030-i85M6O/browser-output/ahavat-torah-native-source-return-2029${physical}-${width}.png`});
   }
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);assert.deepEqual(errors,[]);await context.close();console.log(JSON.stringify({width,theme,nativePages:[99,16],fullscreen:true,stableReturnFocus:true,status:'pass'}));
  }}finally{await browser.close();await server.close();}

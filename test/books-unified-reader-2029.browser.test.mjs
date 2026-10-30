@@ -50,7 +50,7 @@ test("all eight unified readers remain source-first and fit 320/390/1440", { ski
 
   const server = await vite.createServer({
     root: ROOT,
-    configFile: false, cacheDir: `/tmp/ahavat-source-vite-${process.pid}`,
+    configFile: false, cacheDir: `/workspace/artifacts/ahavat-native-source-fix-20261030-i85M6O/browser-output/books-unified-reader-2029${process.pid}`,
     plugins: [reactPlugin()],
     appType: "spa",
     server: { host: "127.0.0.1", port: 0 },

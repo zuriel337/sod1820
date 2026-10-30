@@ -26,7 +26,7 @@ test("Ahavat Torah spatial tables keep source, data and 3D usable at 320/390/144
   process.env.VITE_BOOK_PUBLICATION_REVIEW_PREVIEW = "true";
   const server = await vite.createServer({
     root: ROOT,
-    configFile: false, cacheDir: `/tmp/ahavat-source-vite-${process.pid}`,
+    configFile: false, cacheDir: `/workspace/artifacts/ahavat-native-source-fix-20261030-i85M6O/browser-output/ahavat-torah-spatial-tables-2029${process.pid}`,
     plugins: [reactPlugin()],
     appType: "spa",
     server: { host: "127.0.0.1", port: 0 },

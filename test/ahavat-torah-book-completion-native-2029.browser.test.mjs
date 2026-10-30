@@ -25,8 +25,8 @@ async function native(page, physical) {
 test('all 35 new physical pages open the actual PDF; nine contexts retain fullscreen, exact source and return', {skip:!bytes,timeout:600_000}, async () => {
   assert.equal(createHash('sha256').update(bytes).digest('hex'), '895e9a720d984adf8ea453b644e3f6d0864e101238f348f418aa5fafa20e9c8b');
   process.env.SOD_BUILD_TARGET='2029'; process.env.VITE_BOOK_PUBLICATION_REVIEW_PREVIEW='true'; process.env.VITE_INTEGRATED_PREVIEW='true';
-  const out='/tmp/ahavat-book-completion-native-20261029'; mkdirSync(out,{recursive:true});
-  const server=await createServer({root,configFile: false, cacheDir: `/tmp/ahavat-source-vite-${process.pid}`,plugins:[react()],appType:'spa',server:{host:'127.0.0.1',port:0}});
+  const out='/workspace/artifacts/ahavat-native-source-fix-20261030-i85M6O/browser-output/ahavat-torah-book-completion-native-2029'; mkdirSync(out,{recursive:true});
+  const server=await createServer({root,configFile: false, cacheDir: `/workspace/artifacts/ahavat-native-source-fix-20261030-i85M6O/browser-output/ahavat-torah-book-completion-native-2029${process.pid}`,plugins:[react()],appType:'spa',server:{host:'127.0.0.1',port:0}});
   await server.listen(); const origin=`http://127.0.0.1:${server.httpServer.address().port}`;
   const browser=await chromium.launch({headless:true,executablePath:process.env.CHROMIUM_EXECUTABLE_PATH||'/usr/bin/chromium',args:['--no-sandbox']});
   const actualPages=new Set(); let visits=0;

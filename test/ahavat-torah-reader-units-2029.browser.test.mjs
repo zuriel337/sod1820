@@ -21,7 +21,7 @@ test("Books entry and exact source-unit return survive search/reload in 320/390/
   process.env.SOD_BUILD_TARGET = "2029";
   process.env.VITE_BOOK_PUBLICATION_REVIEW_PREVIEW = "true";
   process.env.VITE_INTEGRATED_PREVIEW = "true";
-  const server = await vite.createServer({ root: ROOT, configFile: false, cacheDir: `/tmp/ahavat-source-vite-${process.pid}`, plugins: [reactPlugin()], appType: "spa", server: { host: "127.0.0.1", port: 0 } });
+  const server = await vite.createServer({ root: ROOT, configFile: false, cacheDir: `/workspace/artifacts/ahavat-native-source-fix-20261030-i85M6O/browser-output/ahavat-torah-reader-units-2029${process.pid}`, plugins: [reactPlugin()], appType: "spa", server: { host: "127.0.0.1", port: 0 } });
   await server.listen();
   const base = `http://127.0.0.1:${server.httpServer.address().port}`;
   const browser = await playwright.chromium.launch({ headless: true, executablePath, args: ["--no-sandbox", "--use-angle=swiftshader"] });
