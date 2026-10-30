@@ -18,13 +18,6 @@ export const AHAVAT_COVER_IMAGE = Object.freeze({
 export const AHAVAT_CARD_SUMMARY = "ספר מניינים וחידושים על התורה: כמה פעמים נזכר שם ה׳, איך מתחלקות האותיות בין הפרשות, ומה חידש המחבר בכל פרשה.";
 export const AHAVAT_CARD_TOPICS = Object.freeze(["מניין שם ה׳ · 1,820", "אותיות לפי פרשה", "חידושים על סדר הפרשות", "חמש המגילות"]);
 
-// The three existing starting points. They are not the table of contents.
-export const AHAVAT_RECOMMENDED_STARTS = Object.freeze([
-  Object.freeze({ id: "ahavat-migdal-p006-01", label: "להבין את מניין 1,820", hint: "איך המחבר סופר את שם ה׳ בחמשת החומשים" }),
-  Object.freeze({ id: "ahavat-novellae-p046-02", label: "אותיות ובניית בית", hint: "חידוש ראשון בסדר הפרשות" }),
-  Object.freeze({ id: "ahavat-novellae-p093-03", label: "אסתר והאחריות לפעול", hint: "הקטע על מגילת אסתר" }),
-]);
-
 const manifest = getBookReaderManifest(AHAVAT_BOOK_SLUG);
 
 export function ahavatNormalizeSearch(value = "") {

@@ -4,7 +4,7 @@ import { existsSync, readFileSync, statSync } from "node:fs";
 import { AHAVAT_LOCATED_DATASETS, AHAVAT_TORAH_SECTIONS, AHAVAT_TORAH_SOURCE } from "../src/data/ahavatTorahSystem2029.js";
 import { ahavatReaderUnit } from "../src/data/ahavatTorahReaderUnits2029.js";
 import { getBookReaderManifest } from "../src/data/bookReader2029.js";
-import { AHAVAT_CARD_TOPICS, AHAVAT_COVER_IMAGE, AHAVAT_RECOMMENDED_STARTS, ahavatDivisionForPage, ahavatNavigationHierarchy, ahavatNavigationSearch } from "../src/data/ahavatBookNavigation2029.js";
+import { AHAVAT_CARD_TOPICS, AHAVAT_COVER_IMAGE, ahavatDivisionForPage, ahavatNavigationHierarchy, ahavatNavigationSearch } from "../src/data/ahavatBookNavigation2029.js";
 
 const read = file => readFileSync(new URL(`../${file}`, import.meta.url), "utf8");
 const page = read("src/pages/AhavatTorahSystem2029Page.jsx");
@@ -53,12 +53,10 @@ test("topic search finds the divine-name count and never searches OCR", () => {
 });
 
 test("the three recommendations stay the existing reader units under their own visible heading", () => {
-  assert.equal(AHAVAT_RECOMMENDED_STARTS.length, 3);
-  for (const item of AHAVAT_RECOMMENDED_STARTS) assert.ok(ahavatReaderUnit(item.id), item.id);
-  assert.match(entry, /<h2 id="ahavat29-recommended-title">קטעים מומלצים להתחלה<\/h2>/);
-  assert.match(entry, /aria-label="מאיפה מתחילים ללמוד"/);
-  assert.match(page, /<AhavatBookToc2029 /);
-  assert.ok(page.indexOf("<AhavatBookToc2029") > page.indexOf("<AhavatRecommendedStarts2029"), "contents follow the recommendations and are a separate component");
+  for (const id of ["ahavat-migdal-p006-01", "ahavat-novellae-p046-02", "ahavat-novellae-p093-03"]) assert.ok(ahavatReaderUnit(id) && page.includes(`ahavatReaderUnitHref("${id}")`), id);
+  assert.match(page, /<h2 id="ahavat29-recommended-title">קטעים מומלצים להתחלה<\/h2>/);
+  assert.match(page, /aria-label="מאיפה מתחילים ללמוד"/);
+  assert.ok(page.indexOf("<AhavatBookToc2029") > page.indexOf('id="ahavat29-recommended-title"'), "contents follow the recommendations and are a separate component");
 });
 
 test("five coverage metrics moved into the source disclosure with their values intact", () => {

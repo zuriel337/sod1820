@@ -1,8 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { AHAVAT_BOOK_SLUG, AHAVAT_COVER_IMAGE, AHAVAT_RECOMMENDED_STARTS, ahavatDivisionForPage, ahavatNavigationHierarchy, ahavatNavigationSearch } from "../../data/ahavatBookNavigation2029.js";
+import { AHAVAT_BOOK_SLUG, AHAVAT_COVER_IMAGE, ahavatDivisionForPage, ahavatNavigationHierarchy, ahavatNavigationSearch } from "../../data/ahavatBookNavigation2029.js";
 import { AHAVAT_DS01_BOOKS, AHAVAT_DS01_SOURCE_PAGE, AHAVAT_DS01_TOTAL, ahavatDs01RowSum } from "../../data/ahavatTorahDs01Source2029.js";
 import { AHAVAT_TORAH_DATASETS, sectionForPage } from "../../data/ahavatTorahSystem2029.js";
-import { ahavatReaderUnitHref } from "../../data/ahavatTorahReaderUnits2029.js";
 import { useResearch } from "../../lib/research/ResearchProvider.jsx";
 import { bookToWorkspaceItem, fetchBookEntityBySlug } from "../../lib/research/bookResearchProjection.js";
 import { dossierSelectionSourceRef, selectionToWorkspaceItem } from "../../lib/research/bookSelectionAdapter.js";
@@ -15,16 +14,6 @@ export function AhavatBookFigure2029() {
     <img src={AHAVAT_COVER_IMAGE.src} width={AHAVAT_COVER_IMAGE.width} height={AHAVAT_COVER_IMAGE.height} alt={AHAVAT_COVER_IMAGE.alt} decoding="async" />
     <figcaption>{AHAVAT_COVER_IMAGE.caption}</figcaption>
   </figure>;
-}
-
-export function AhavatRecommendedStarts2029() {
-  return <div className="ahavat29-recommended">
-    <h2 id="ahavat29-recommended-title">קטעים מומלצים להתחלה</h2>
-    <nav className="books29-entry-actions" aria-label="מאיפה מתחילים ללמוד">
-      {AHAVAT_RECOMMENDED_STARTS.map(item => <a key={item.id} href={ahavatReaderUnitHref(item.id)}>{item.label}</a>)}
-    </nav>
-    <p>שלושה קטעים שנבחרו כנקודת כניסה. תוכן העניינים המלא נמצא מתחת.</p>
-  </div>;
 }
 
 export function AhavatBookToc2029({ page, onOpenPage, onSelectDataset }) {

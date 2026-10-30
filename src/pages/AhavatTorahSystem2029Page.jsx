@@ -37,7 +37,7 @@ import { AHAVAT_LETTER_FORMS, AHAVAT_LETTER_READINGS, AHAVAT_LETTER_READING_LOCA
 import { AHAVAT_PARASHA_COUNT_FORMS, AHAVAT_PARASHA_COUNT_READINGS } from "../data/ahavatTorahParashaCounts2029.js";
 import { AhavatTorahPeopleReader2029, AhavatTorahRootsReader2029, AhavatTorahMegillotReader2029, AhavatTorahPrintedNotes2029 } from "../components/books2029/AhavatTorahSourceTables2029.jsx";
 import { ahavatCountUnitId, ahavatLetterUnitId, ahavatReaderUnit, ahavatReaderUnitDomId, ahavatReaderUnitHref } from "../data/ahavatTorahReaderUnits2029.js";
-import { AhavatBookFigure2029, AhavatBookToc2029, AhavatRecommendedStarts2029, AhavatSelectionPanel2029 } from "../components/books2029/AhavatBookEntry2029.jsx";
+import { AhavatBookFigure2029, AhavatBookToc2029, AhavatSelectionPanel2029 } from "../components/books2029/AhavatBookEntry2029.jsx";
 import "./ahavatTorahSystem2029.css";
 import "../components/books2029/ahavatBookPresentation2029.css";
 
@@ -945,7 +945,7 @@ export default function AhavatTorahSystem2029Page() {
     try { id = decodeURIComponent(window.location.hash.slice(1)); } catch { return; }
     const unit = ahavatReaderUnit(new URLSearchParams(window.location.search).get("readerUnit"));
     const unitTarget = unit && id === ahavatReaderUnitDomId(unit.id);
-    if (!unitTarget && !["ahavat29-people", "ahavat29-roots", "ahavat29-scrolls", "ahavat29-counts", "ahavat29-letters", "ahavat29-parasha-letter-atlas", "ahavat29-letter-comparison", "ahavat29-letter-overview", ...JUMP_ANCHORS].includes(id)) return;
+    if (!unitTarget && !["ahavat29-people", "ahavat29-roots", "ahavat29-scrolls", "ahavat29-counts", "ahavat29-letters", "ahavat29-parasha-letter-atlas", "ahavat29-letter-comparison", "ahavat29-letter-overview"].includes(id) && !JUMP_ANCHORS.includes(id)) return;
     let cancelled = false;
     let frame;
     let observer;
@@ -1083,7 +1083,11 @@ export default function AhavatTorahSystem2029Page() {
           <p>מנייני התורה, אותיותיה וחידושי הפרשות — עם הסבר בהיר לצד צילום הספר. בוחרים קטע, מבינים את מהלכו וחוזרים אל המילים המקוריות.</p>
           <div className="ahavat29-intro-identity" role="group" aria-label="זהות הספר"><span>{AHAVAT_TORAH_SOURCE.author}</span><span>{AHAVAT_TORAH_SOURCE.imprint}</span><span>{AHAVAT_TORAH_SOURCE.pdfPages} עמודי מקור</span></div>
           <nav className="books29-entry-actions" aria-label="דרכי קריאה באהבת תורה"><a href="#ahavat29-source" onClick={jumpOnClick}>קרא את הספר</a><a href="#ahavat29-full-reader" onClick={jumpOnClick}>למד עם ההסברים</a><a href="#ahavat29-spatial-title" onClick={jumpOnClick}>גלה את המבנים</a></nav>
-          <AhavatRecommendedStarts2029 />
+          <div className="ahavat29-recommended">
+            <h2 id="ahavat29-recommended-title">קטעים מומלצים להתחלה</h2>
+            <nav className="books29-entry-actions" aria-label="מאיפה מתחילים ללמוד"><a href={ahavatReaderUnitHref("ahavat-migdal-p006-01")}>להבין את מניין 1,820</a><a href={ahavatReaderUnitHref("ahavat-novellae-p046-02")}>אותיות ובניית בית</a><a href={ahavatReaderUnitHref("ahavat-novellae-p093-03")}>אסתר והאחריות לפעול</a></nav>
+            <p>שלושה קטעים שנבחרו כנקודת כניסה. תוכן העניינים המלא נמצא מתחת.</p>
+          </div>
         </div>
         <AhavatBookFigure2029 />
         <aside><strong>המקור לצד ההסבר</strong><p>הספר המלא זמין לדפדוף, חיפוש ומסך מלא. יחידות הלימוד מסבירות קטעים נבחרים; צילום העמוד נשאר נגיש לאורך הקריאה.</p></aside>
