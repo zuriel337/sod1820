@@ -24,13 +24,21 @@ const clean = (value, limit = 80) => (value == null ? "" : String(value).replace
 // slug / key / camelCase identifiers (post-5107, surface_focus, sourceRef) — internal, never a visible label
 export const looksLikeInternalKey = (value) => {
   const text = clean(value, 200);
-  return /^[a-z0-9]+(?:[_:\-./][a-z0-9]+)+$/i.test(text) || /^[a-z]+(?:[A-Z][a-z0-9]*)+$/.test(text);
+  return /^(?:els|anon|phrase|post|source):/i.test(text)
+    || /^[a-f0-9]{16,}$/i.test(text)
+    || /^[a-z0-9]+(?:[_:\-./][a-z0-9]+)+$/i.test(text) || /^[a-z]+(?:[A-Z][a-z0-9]*)+$/.test(text);
 };
 const visible = (value, limit) => {
   const text = clean(value, limit);
   return text && !looksLikeInternalKey(text) ? text : "";
 };
 const HEBREW = /[֐-׿]/;
+
+// Display only. Never translate model prose, rewrite a search term or mutate a locator.
+export function razielPublicLabel(value, fallback = "ההקשר הנבחר") {
+  const text = visible(value, 160);
+  return TYPE_NOUN_HE[text.toLowerCase()] || text || fallback;
+}
 
 export function razielSubjectLabel(subject) {
   if (!subject || typeof subject !== "object") return "";

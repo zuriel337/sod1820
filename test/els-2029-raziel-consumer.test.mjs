@@ -28,7 +28,8 @@ test("canonical System Frame Raziel consumer accepts bounded ELS context without
   assert.match(frame, /result\?\.contract === "els_2029_projection_v1"/);
   assert.match(frame, /result\?\.status === "OK"/);
   assert.match(frame, /result\?\.presentationPolicy === "exact_replay_v1"/);
-  assert.match(frame, /Context בלבד · הצגה\/קרבה חזותית אינה חוזק ראיה/);
+  assert.match(frame, /האותיות והמיקומים אומתו במנוע\. קרבה חזותית אינה מדד לחוזק הממצא/);
+  assert.doesNotMatch(frame, /dependency ref ·| · skip | · dir |Context בלבד/);
   assert.equal((frame.match(/function RazielProjection\(/g) || []).length, 1);
   // The frame submits through the one shared session. Transport remains behind the lazy session request seam.
   assert.doesNotMatch(frame, /askRazielAdvanced|functions\.invoke\(['"]ai-analyze/);

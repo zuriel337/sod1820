@@ -48,7 +48,7 @@ import RazielViewModeSelector2029 from "./RazielViewModeSelector2029.jsx";
 import RazielOneShotActions2029 from "./RazielOneShotActions2029.jsx";
 import ElsMatrixReadingActivity2029 from "./ElsMatrixReadingActivity2029.jsx";
 import { selectElsMatrixReadingActivity } from "../../lib/research/elsMatrixReadingActivity.js";
-import { razielContextParts, razielNavigationButton, razielStatusLabel } from "./razielSessionSeam2029.js";
+import { razielContextParts, razielNavigationButton, razielStatusLabel, razielPublicLabel, razielSubjectLabel } from "./razielSessionSeam2029.js";
 import { createRazielContextSnapshot, selectRazielDeepeningCandidate } from "../../lib/research/razielSession2029.js";
 import { razielViewModeLabel } from "../../lib/research/razielViewMode2029.js";
 import { readRazielCompanionView, writeRazielCompanionView } from "../../lib/research/razielCompanionPreference2029.js";
@@ -849,7 +849,7 @@ function RazielNativeChat({ context, label, numberFocus, readingFocus, elsFocus 
 }
 
 function RazielProjection({ target, context, numberCoreFocus = null, microIntent: transientMicroIntent = null, readingFocus: transientReadingFocus = null, elsSurfaceContext = null, razielRouteAction = null, onSignup = null }) {
-  const label = target?.label || context?.subject?.label || context?.subject?.id || "מה שאתה רואה עכשיו";
+  const label = razielPublicLabel(target?.label, razielSubjectLabel(context?.subject) || "מה שאתה רואה עכשיו");
   const numberFocus = numberCoreFocus || context?.dimensions?.numberCoreFocus || null;
   const readingFocus = transientReadingFocus || context?.dimensions?.readingFocus || null;
   const routeActionValid = isRazielNextAction(razielRouteAction);
@@ -900,7 +900,7 @@ function RazielProjection({ target, context, numberCoreFocus = null, microIntent
     if (numberFocus.kind === "world") {
       return {
         title: `תגובה מהירה · ${numberFocus.world || "עולם"}`,
-        text: `העולם הזה מחובר כרגע ל־Root ${numberFocus.root} כהקשר עם ${numberFocus.count ?? 0} פריטים. הוא לא תוצאה של שיטת גימטריה. אפשר לפתוח את העולם המלא כדי לראות את הקשרים והמקורות סביב העוגן.`,
+        text: `העולם הזה מחובר כרגע למספר ${numberFocus.root} כהקשר עם ${numberFocus.count ?? 0} פריטים. הוא לא תוצאה של שיטת גימטריה. אפשר לפתוח את העולם המלא כדי לראות את הקשרים והמקורות סביב העוגן.`,
         boundary: "העולם מציג הקשר; הוא לא תוצאת חישוב.",
       };
     }
@@ -915,7 +915,7 @@ function RazielProjection({ target, context, numberCoreFocus = null, microIntent
     }
     return {
       title: `תגובה מהירה · ${intentLabel || "המספר"}`,
-      text: `רזיאל קיבל את ה־Root ${numberFocus.root}, הביטוי ${numberFocus.expression || numberFocus.root} והשיטה ${numberFocus.method || "הפעילה"}. אפשר להמשיך לחישוב, להשוואה או לעומק בלי לאבד את המקום.`,
+      text: `רזיאל קיבל את המספר ${numberFocus.root}, הביטוי ${numberFocus.expression || numberFocus.root} והשיטה ${numberFocus.method || "הפעילה"}. אפשר להמשיך לחישוב, להשוואה או לעומק בלי לאבד את המקום.`,
       boundary: "אותו הקשר, עומק שונה.",
     };
   })();
@@ -936,11 +936,11 @@ function RazielProjection({ target, context, numberCoreFocus = null, microIntent
         {readingFocus.signals?.length ? <small>{readingFocus.signals.slice(0, 3).join(" · ")}</small> : null}
       </section> : null}
       {elsFocus ? <section className="sod29-panel-context-card" data-raziel-els-context="true">
-        <b>{intentLabel || "ELS · occurrence context"}</b>
-        <span>מופע מאומת · {elsFocus.occurrence.corpusId || "corpus"} · skip {elsFocus.occurrence.skip ?? "—"} · dir {elsFocus.occurrence.dir ?? "—"}</span>
-        <small>start {elsFocus.occurrence.start ?? "—"} → end {elsFocus.occurrence.end ?? "—"} · {elsFocus.occurrence.positions?.length ?? 0} positions</small>
-        {elsFocus.occurrence.dependencyRef ? <small>dependency ref · {elsFocus.occurrence.dependencyRef}</small> : null}
-        <small>Context בלבד · הצגה/קרבה חזותית אינה חוזק ראיה.</small>
+        <b>{intentLabel || "המופע הנבחר"}</b>
+        <span><bdi>{elsFocus.text?.term || label}</bdi> · מופע מאומת</span>
+        <span>דילוג <bdi>{elsFocus.occurrence.skip ?? "—"}</bdi> · {elsFocus.occurrence.dir === -1 ? "לאחור" : elsFocus.occurrence.dir === 1 ? "קדימה" : "הכיוון לא צוין"}</span>
+        <small>מיקום התחלה <bdi>{elsFocus.occurrence.start ?? "—"}</bdi> · סיום <bdi>{elsFocus.occurrence.end ?? "—"}</bdi> · <bdi>{elsFocus.occurrence.positions?.length ?? 0}</bdi> אותיות</small>
+        <small>האותיות והמיקומים אומתו במנוע. קרבה חזותית אינה מדד לחוזק הממצא.</small>
       </section> : null}
       {elsGuide ? <section className="sod29-panel-context-card sod29-raziel-els-guide" data-raziel-els-guide={elsGuide.contract}>
         <b>{elsGuide.title}</b>
@@ -950,11 +950,11 @@ function RazielProjection({ target, context, numberCoreFocus = null, microIntent
         <span>{elsGuide.question}</span>
       </section> : null}
       {numberFocus ? <section className="sod29-panel-context-card">
-        <b>{intentLabel || "Number Core focus"}</b>
+        <b>{intentLabel || "המספר הנבחר"}</b>
         <span>{numberFocus.expression || numberFocus.root}{numberFocus.method ? ` · ${numberFocus.method}` : ""}{numberFocus.resultValue != null ? ` → ${numberFocus.resultValue}` : ""}</span>
         {numberFocus.crossingPartner ? <small>הצלבה · {numberFocus.crossingPartner}</small> : null}
-        {numberFocus.zeroScaleNext != null ? <small>Zero Scale · {numberFocus.root} → {numberFocus.zeroScaleNext}</small> : null}
-      </section> : !readingFocus && !elsFocus && !routeActionValid ? <FrameState title="Silence Gate">אין כרגע Focus מובנה שמצדיק synthesis. רזיאל לא ממציא pulse או מסלול.</FrameState> : null}
+        {numberFocus.zeroScaleNext != null ? <small>סולם האפס · <bdi>{numberFocus.root} → {numberFocus.zeroScaleNext}</bdi></small> : null}
+      </section> : !readingFocus && !elsFocus && !routeActionValid ? <FrameState title="אפשר להתחיל בשאלה">בחר מופע או שאל את רזיאל על מה שמעניין אותך.</FrameState> : null}
       {quickInsight ? <section className="sod29-panel-context-card sod29-raziel-quick-insight">
         <b>{quickInsight.title}</b>
         <span>{quickInsight.text}</span>
@@ -962,7 +962,7 @@ function RazielProjection({ target, context, numberCoreFocus = null, microIntent
       </section> : null}
       <div className="sod29-panel-context-card">
         <b>מה רזיאל רואה עכשיו</b>
-        <span>{context?.subject ? `${context.subject.type}:${context.subject.label || context.subject.id}` : "אין מוקד פעיל"}</span>
+        <span><bdi>{razielSubjectLabel(context?.subject) || "אין מוקד פעיל"}</bdi></span>
         {target?.source === "selection" ? <small>בחירה זמנית: {target.label}</small> : null}
       </div>
       <div className="sod29-panel-actions-grid">
@@ -1585,9 +1585,9 @@ function WorkspaceProjection({ context, go, onRaziel, onOpenPrivateHints, journe
 // Context data and navigation continue to come from the existing ResearchProvider.
 function IntroResearchContext2029({ context }) {
   const strip = <div className="sod29-context-strip" aria-label="ההקשר שלך פעיל">
-    {context.subject ? <span>מוקד · {context.subject.label || context.subject.id}</span> : null}
-    {context.lens ? <span>מבט · {context.lens}</span> : null}
-    {context.selection?.locator ? <span>מיקום · {context.selection.locator}</span> : null}
+    {context.subject ? <span>מוקד · <bdi>{razielSubjectLabel(context.subject)}</bdi></span> : null}
+    {context.lens ? <span>מבט · {razielPublicLabel(context.lens, "מחקר")}</span> : null}
+    {context.selection?.locator ? <span>המיקום הנבחר שמור לחזרה</span> : null}
     {context.journey?.position != null ? <span>מסע · {String(context.journey.position)}</span> : null}
   </div>;
   const review = import.meta.env.VITE_INTEGRATED_PREVIEW === "true";

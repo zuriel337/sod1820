@@ -109,6 +109,13 @@ test("the gate admits only the named branch or an explicit local flag, and never
   assert.throws(() => selectMatrixRazielPreview({ SOD_MATRIX_RAZIEL_PREVIEW: "true", SOD_RAZIEL_SAFE_ACTIONS_PREVIEW: "true" }), /conflict/);
 });
 
+test("responsive acceptance branch admits only the existing bounded reading Preview", () => {
+  const branch = "gpt/els-reading-responsive-preview-20261030";
+  assert.equal(selectMatrixRazielPreview({ VERCEL_ENV: "preview", VERCEL_GIT_COMMIT_REF: branch }), branch);
+  assert.equal(selectMatrixRazielPreview({ VERCEL_ENV: "production", VERCEL_GIT_COMMIT_REF: branch }), null);
+  assert.throws(() => selectMatrixRazielPreview({ SOD_MATRIX_RAZIEL_PREVIEW: "true", VERCEL_ENV: "production", VERCEL_GIT_COMMIT_REF: branch }), /never_production/);
+});
+
 test("the builder applies the gate only after the baseline worker and reports its identity", () => {
   assert.match(builder, /selectMatrixRazielPreview\(process\.env\)/);
   assert.match(builder, /live-ai-analyze-matrix-request-only/);
