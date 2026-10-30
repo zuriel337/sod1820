@@ -1,14 +1,16 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import CanonicalMediaFigure2029 from "../experience2029/CanonicalMediaFigure2029.jsx";
 import {
   GATE_GALLERIES, GATE_PHRASES, GALLERY_PAGE_SIZE, CONNECTION_STATUS, CONNECTION_TARGETS, REVELATION_1237,
   TRUMP_NOT_ELECTORS, TRUMP_THRESHOLD_LAYERS, buildGateProjection, classifyConnections, israelElectionsNote,
-  gateMethodFocus2029, loadGalleryPage, loadMethodCards, splitSourceTimes, verifyReviewedStatements,
+  gateMethodFocus2029, gatePublicMethodRows, gateSourcePresentation, gateSourceTextSelection,
+  loadGalleryPage, loadMethodCards, splitSourceTimes, verifyReviewedStatements,
 } from "../../lib/research/revelation1237Gate2029.js";
 import { ELECTIONS_ISRAEL_21_26_BUNDLE } from "../../lib/research/electionsIsrael21_26Seed2029.js";
 import { relationStatusCopy } from "../../lib/research/worldMapViewModel2029.js";
 import { bilingualDateLabel } from "../../lib/relativeTime2029.js";
+import { numberExpressionFocusHref } from "../../lib/research/numberExpressionFocus.js";
 import "./revelation1237Gate2029.css";
 
 const clean = (value) => value == null ? "" : String(value).trim();
@@ -99,28 +101,116 @@ function Center({ cards, ...focusProps }) {
 }
 
 // ── source card ──────────────────────────────────────────────────────────────────────────
-function SourceCard({ item, statements = [], compact = false }) {
+function SourceMethodResearch({ item, slotKey, sectionId, readProfile, onOpenExpression, openingKey, focusError, focusErrorKey }) {
+  const [selection, setSelection] = useState(null);
+  const [state, setState] = useState(null);
+  const [limit, setLimit] = useState(8);
+  const requestRef = useRef(0);
+  const text = item?.intrinsic?.extraction?.text || "";
+  useEffect(() => {
+    requestRef.current += 1; setSelection(null); setState(null); setLimit(8);
+    return () => { requestRef.current += 1; };
+  }, [item.galleryImageId, item.imageUrl, text]);
+  const select = (event) => {
+    const next = gateSourceTextSelection(item, { start: event.currentTarget.selectionStart,
+      end: event.currentTarget.selectionEnd, slotKey, sectionId });
+    if (next?.origin.selectionStart === selection?.origin.selectionStart
+      && next?.origin.selectionEnd === selection?.origin.selectionEnd) return;
+    requestRef.current += 1; setSelection(next); setState(null); setLimit(8);
+  };
+  const load = async () => {
+    if (!selection || !readProfile) return;
+    const request = ++requestRef.current;
+    setState({ status: "loading" });
+    try {
+      const rows = gatePublicMethodRows(await readProfile(selection.expression));
+      if (request === requestRef.current) setState({ status: "ready", rows });
+    } catch {
+      if (request === requestRef.current) setState({ status: "failed" });
+    }
+  };
+  const activate = async (row) => {
+    const request = requestRef.current;
+    const opened = await onOpenExpression?.({ text: selection.expression, method: row.methodKey, value: row.computedValue,
+      sourcePath: `${item.sourceRef}#stored-ocr:${selection.origin.selectionStart}-${selection.origin.selectionEnd}` },
+    { ...selection.origin, expectedMethodVersion: row.definitionVersion ?? null });
+    // A failed fresh check invalidates the displayed method choices as well.
+    if (opened === false && request === requestRef.current) setState(null);
+  };
+  return <details className="rv-source-research">
+    <summary>חקירת ביטוי ושיטות מהמקור</summary>
+    {text ? <>
+      <p>סמנו ביטוי בתוך הטקסט השמור, בעכבר או במקלדת, ואז פתחו את השיטות שלו.</p>
+      <p className="rv-muted">זהו טקסט OCR שמור, שעשוי להיות חלקי או שגוי. בחירת ביטוי לחקירה אינה אימות של מה שנכתב בתמונה.</p>
+      <textarea className="rv-source-text" aria-label="טקסט שמור לבחירת ביטוי" readOnly value={text}
+        disabled={openingKey === slotKey} rows={5} onSelect={select} onMouseUp={select} onKeyUp={select} />
+      {selection ? <p>הביטוי שנבחר: <strong>{selection.expression}</strong></p> : null}
+      <button type="button" className="rv-btn" disabled={!selection || !readProfile || state?.status === "loading"}
+        onClick={load}>{state?.status === "loading" ? "טוען שיטות…" : "פתיחת שיטות לביטוי שנבחר"}</button>
+      {state?.status === "failed" ? <p role="status">השיטות אינן זמינות כרגע. אפשר לנסות שוב; אין זו תוצאה ריקה.</p> : null}
+      {state?.status === "ready" ? <>
+        <h4>שיטות נוספות מהמנוע לבחירה</h4>
+        <p className="rv-muted">תוצאות המנוע לביטוי שבחרתם, לא קביעה שהערכים האלה מופיעים במקור. אלה השיטות הציבוריות הזמינות בקריאה הזו.</p>
+        {!state.rows.length ? <p role="status">לא התקבלו שיטות ציבוריות זמינות לבחירה הזו; אין להסיק שערך הביטוי אפס.</p> : null}
+        <div className="rv-source-methods">{state.rows.slice(0, limit).map((row) => <button type="button" className="rv-btn" key={row.methodKey}
+          disabled={!onOpenExpression || openingKey === slotKey}
+          aria-label={`פתח ${selection.expression} בשיטת ${row.displayLabel || row.methodKey}: ${row.computedValue}`}
+          onClick={() => activate(row)}>
+          {row.displayLabel || row.methodKey} · <bdi>{row.computedValue.toLocaleString("en-US")}</bdi>
+        </button>)}</div>
+        {state.rows.length > limit ? <button type="button" className="rv-btn" onClick={() => setLimit((count) => count + 8)}>עוד שיטות</button> : null}
+      </> : null}
+      {openingKey === slotKey ? <p role="status">בודק מחדש את המקור והחישוב…</p> : null}
+      {focusError && focusErrorKey === slotKey ? <p role="status">{focusError}</p> : null}
+    </> : <p>אין כרגע טקסט OCR שמור לבחירה. אפשר לפתוח את התמונה המקורית; התיוגים אינם תחליף לביטוי מדויק.</p>}
+  </details>;
+}
+
+function SourceCard({ item, statements = [], compact = false, slotKey, sectionId, onRememberSource, unavailableSourceIds = [], ...focusProps }) {
+  if (unavailableSourceIds.includes(item.galleryImageId)) return <article id={slotKey} className="rv-source">
+    <p role="status">המקור אינו זמין לתצוגה כרגע. תוכנו והנגזרות הקודמות הוסתרו; אפשר לרענן את הדף.</p>
+  </article>;
+  item = { ...item, occurrences: item.occurrences?.filter((entry) => !unavailableSourceIds.includes(entry.legacyPlacement?.galleryImageId)) };
   const times = splitSourceTimes(item);
+  const source = gateSourcePresentation(item);
   const placement = item.legacyPlacement || {};
   // `source` is storage provenance (e.g. a migration tag), not a credit to the creator.
   const credit = ["author", "publication"].map((key) => clean(placement.originalCredit?.[key])).filter(Boolean);
   const caption = clean(placement.originalCaption || item.description);
   const galleries = (item.occurrences || []).map((entry) => entry.legacyPlacement).filter((p) => p?.wpGalleryId != null);
-  return <article className="rv-source" data-gallery-image-id={item.galleryImageId || undefined}>
+  return <article id={slotKey} className="rv-source" data-source-kind={source.imageType || "unknown"} data-gallery-image-id={item.galleryImageId || undefined}>
     <CanonicalMediaFigure2029 item={item} alt={item.label} thumbnail className="rv-source-figure" />
     <div className="rv-source-body">
-      <p className="rv-kicker">מקור</p>
+      <p className="rv-kicker">{source.kindLabel}</p>
       <h3>{clean(placement.originalName) || item.label}</h3>
       {statements.map((statement) => <p key={statement.id} className="rv-statement"><span className="rv-chip" data-status="source_statement">נאמר במקור</span> הניסוח מצוטט בכיתוב המקור; אין זה קשר עץ.</p>)}
       {caption ? (compact || caption.length < 220
         ? <p className="rv-caption">{caption}</p>
         : <details className="rv-caption"><summary>{caption.slice(0, 200)}…</summary><p>{caption}</p></details>) : null}
-      <dl className="rv-times">
-        <div><dt>זמן האירוע</dt><dd>{times.occurredAt ? fmtDate(times.occurredAt) : "לא נקבע במקור"}</dd></div>
-        <div><dt>זמן הדיווח</dt><dd>כפי שנכתב בכותרת המקור (למעלה)</dd></div>
-        <div><dt>תוצאה סופית</dt><dd>לא נטענת כאן</dd></div>
-        <div><dt>נקלט בארכיון</dt><dd>{times.archivedAt ? fmtDate(times.archivedAt) : "—"} <span className="rv-muted">(אינו זמן האירוע)</span></dd></div>
-      </dl>
+      <details className="rv-source-history"><summary>היסטוריית המקור והתיארוך</summary>
+        <p className="rv-muted">אלה פרטי מקור ומיקום שמורים, לא תאריכי אירוע מאומתים.</p>
+        {source.history.map((p) => {
+          const stored = p.occurredAt, derived = p.dateProvenance?.occurredAt?.derivedFrom;
+          return <div key={p.galleryImageId}>
+            <p>{p.wpGalleryId != null ? `גלריה ${p.wpGalleryId}` : "מיקום מקור"}{p.ordering != null ? ` · מקום ${p.ordering}` : ""}</p>
+            {p.originalName ? <p>{p.originalName}</p> : null}
+            {p.originalCaption && p.galleryImageId !== item.galleryImageId ? <p>{p.originalCaption}</p> : null}
+            {stored ? <p>{derived === "path" && /^\d{4}-\d{2}/.test(stored)
+              ? <>תיקיית מקור: <bdi>{stored.slice(0, 7)}</bdi> · תיארוך לפי נתיב הקובץ; יום האירוע אינו ידוע.</>
+              : <>תאריך שמור: {fmtDate(stored)} · {derived === "name" ? "נגזר משם הפריט או מעדכון המקור, לא תאריך אירוע מאומת." : "מקור התיארוך לא אומת."}</>}</p> : null}
+            {p.createdAt ? <p>נקלט בארכיון: {fmtDate(p.createdAt)}</p> : null}
+          </div>;
+        })}
+        {!source.history.length && times.archivedAt ? <p>נקלט בארכיון: {fmtDate(times.archivedAt)}</p> : null}
+      </details>
+      {source.numbers.length ? <details><summary>מספרים שסומנו במקור ({source.numbers.length})</summary>
+        <p className="rv-muted">תיוגים שמורים לצורך ניווט, לא שיוך מאומת לביטוי או לשיטה. הקישורים מיועדים לדף המספר הכללי, בהתאם לזמינותו ולהרשאות.</p>
+        <div className="rv-source-methods">{source.numbers.map((value) => <Link className="rv-link" key={value} to={numberExpressionFocusHref(value)}
+          onClick={(event) => { if (!event.defaultPrevented && event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey)
+            onRememberSource?.(item, slotKey, sectionId); }}
+          state={{ returnTo: `/topic/1237#${slotKey}`, sourceRef: item.sourceRef }}><bdi>{value}</bdi> ←</Link>)}</div>
+      </details> : null}
+      <SourceMethodResearch item={item} slotKey={slotKey} sectionId={sectionId} {...focusProps} />
       {credit.length ? <p className="rv-credit">קרדיט: {credit.join(" · ")}</p> : null}
       {galleries.length ? <p className="rv-muted">מופיע ב־{galleries.length} {galleries.length === 1 ? "מיקום" : "מיקומים"}:{" "}
         {galleries.map((p, i) => <React.Fragment key={p.galleryImageId}>{i ? " · " : ""}<bdi>גלריה {p.wpGalleryId}{p.ordering != null ? `, מקום ${p.ordering}` : ""}</bdi></React.Fragment>)}</p> : null}
@@ -129,7 +219,7 @@ function SourceCard({ item, statements = [], compact = false }) {
 }
 
 // ── galleries ────────────────────────────────────────────────────────────────────────────
-function GalleryColumn({ spec, state, onMore }) {
+function GalleryColumn({ spec, state, onMore, ...focusProps }) {
   const items = state?.items || [];
   return <article className="rv-gallery" aria-labelledby={`rv-gal-${spec.wpGalleryId}`}>
     <header>
@@ -140,7 +230,8 @@ function GalleryColumn({ spec, state, onMore }) {
     {!state || (state.loading && !items.length) ? <p role="status">פותח את הגלריה…</p> : null}
     {state?.error ? <p role="status">הגלריה אינה זמינה כרגע. אין זה אומר שהיא ריקה.</p> : null}
     {state?.withheld ? <p className="rv-muted">{state.withheld} פריטים לא הוצגו כי אינם עומדים בתנאי הפרסום הציבורי הנוכחיים.</p> : null}
-    <div className="rv-gallery-list">{items.map((item) => <SourceCard key={item.galleryImageId} item={item} compact />)}</div>
+    <div className="rv-gallery-list">{items.map((item) => <SourceCard key={item.galleryImageId} item={item} compact
+      slotKey={`rv-source-gallery-${spec.wpGalleryId}-${item.galleryImageId}`} sectionId="rv-galleries" {...focusProps} />)}</div>
     {state?.hasMore || state?.error ? <button type="button" className="rv-btn" disabled={state.loading} aria-busy={state.loading || undefined} onClick={onMore}>{state.loading ? "טוען…" : state.error ? "נסה שוב את הגלריה" : "עוד מהגלריה"}</button> : null}
     <Link className="rv-link" to={`/archive?tab=galleries&gal=${spec.wpGalleryId}`}>פתיחת הגלריה בארכיון ←</Link>
   </article>;
@@ -185,7 +276,9 @@ function Connections({ connections, relationState, onOpen, canOpen }) {
  * @param {Array} props.relatedPosts  posts already admitted by the Topic projection
  */
 export default function Revelation1237Gate2029({ readers, relatedPosts = [], onProjection = null,
-  onOpenExpression = null, openingKey = null, focusError = null, focusErrorKey = null }) {
+  onOpenExpression = null, onRememberSource = null, unavailableSourceIds = [], openingKey = null, focusError = null, focusErrorKey = null }) {
+  const location = useLocation();
+  const restoredSourceRef = useRef(null);
   const [cards, setCards] = useState(null);
   const [galleries, setGalleries] = useState({});
   const [relationState, setRelationState] = useState(null);
@@ -202,6 +295,24 @@ export default function Revelation1237Gate2029({ readers, relatedPosts = [], onP
   }, [readers]);
   const sourceContext = topic.context;
   const topicNodeId = sourceContext?.topicNodeId || null;
+
+  // The source cards arrive asynchronously. Restore only an exact rendered card
+  // on navigation, once per location key; never infer a missing source or alter history.
+  useEffect(() => {
+    if (!/^#rv-source-[a-zA-Z0-9_-]+$/.test(location.hash)) return undefined;
+    const key = `${location.key}:${location.hash}`;
+    if (restoredSourceRef.current === key) return undefined;
+    // A gallery above the target can still change the page height. Wait for the
+    // bounded initial windows, not merely the target's first DOM appearance.
+    if (!cards || topic.status === "loading"
+      || GATE_GALLERIES.some((spec) => !galleries[spec.wpGalleryId] || galleries[spec.wpGalleryId].loading)) return undefined;
+    const target = document.getElementById(location.hash.slice(1));
+    if (!target) return undefined;
+    const frame = requestAnimationFrame(() => {
+      target.scrollIntoView({ block: "start" }); restoredSourceRef.current = key;
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [location.hash, location.key, galleries, sourceContext, cards, topic.status]);
 
   useEffect(() => {
     let alive = true;
@@ -261,6 +372,7 @@ export default function Revelation1237Gate2029({ readers, relatedPosts = [], onP
     }
   }, [topicNodeId, readers]);
 
+  const sourceFocusProps = { readProfile: readers.fetchMethodProfile, onOpenExpression, onRememberSource, unavailableSourceIds, openingKey, focusError, focusErrorKey };
   return <article className="rv" data-topic-slug={REVELATION_1237.topicSlug} data-entity-type="convergence">
     <GateHero />
     <Center cards={cards} onOpenExpression={onOpenExpression} openingKey={openingKey} focusError={focusError} focusErrorKey={focusErrorKey} />
@@ -270,7 +382,7 @@ export default function Revelation1237Gate2029({ readers, relatedPosts = [], onP
       <p className="rv-note">כל תמונה נקראת מחדש דרך הקורא הציבורי בכל פתיחה. תמונה שאינה עומדת בתנאי הפרסום לא תוצג. הכיתובים, המיקומים והקרדיטים נשמרים כלשונם.</p>
       <div className="rv-gallery-pair">
         {GATE_GALLERIES.map((spec) => <GalleryColumn key={spec.wpGalleryId} spec={spec} state={galleries[spec.wpGalleryId]}
-          onMore={() => openGallery(spec, galleries[spec.wpGalleryId]?.nextOffset || 0)} />)}
+          onMore={() => openGallery(spec, galleries[spec.wpGalleryId]?.nextOffset || 0)} {...sourceFocusProps} />)}
       </div>
     </section>
 
@@ -282,7 +394,8 @@ export default function Revelation1237Gate2029({ readers, relatedPosts = [], onP
       {topic.status === "unavailable" ? <p role="status">הטופיק אינו מאושר לתצוגה ציבורית כרגע, ולכן מקורותיו אינם מוצגים.</p> : null}
       {coronaItems.length ? <>
         <h3 className="rv-sub">קורונה</h3>
-        <div className="rv-source-grid">{coronaItems.map((item) => <SourceCard key={item.galleryImageId} item={item} statements={statementsFor(item)} />)}</div>
+        <div className="rv-source-grid">{coronaItems.map((item) => <SourceCard key={item.galleryImageId} item={item} statements={statementsFor(item)}
+          slotKey={`rv-source-news-${item.galleryImageId}`} sectionId="rv-news" {...sourceFocusProps} />)}</div>
       </> : null}
       {indiaLink ? <div className="rv-india">
         <h3 className="rv-sub">הודו</h3>
@@ -291,7 +404,8 @@ export default function Revelation1237Gate2029({ readers, relatedPosts = [], onP
       </div> : null}
       {otherItems.length ? <>
         <h3 className="rv-sub">מקורות נוספים בציר</h3>
-        <div className="rv-source-grid">{otherItems.map((item) => <SourceCard key={item.galleryImageId} item={item} statements={statementsFor(item)} />)}</div>
+        <div className="rv-source-grid">{otherItems.map((item) => <SourceCard key={item.galleryImageId} item={item} statements={statementsFor(item)}
+          slotKey={`rv-source-other-${item.galleryImageId}`} sectionId="rv-news" {...sourceFocusProps} />)}</div>
       </> : null}
     </section>
 

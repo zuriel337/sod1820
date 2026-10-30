@@ -4,7 +4,8 @@ import { readFileSync } from "node:fs";
 import {
   CONNECTION_STATUS, CONNECTION_TARGETS, GATE_GALLERIES, GATE_PHRASES, REVIEWED_STATEMENTS, TRUMP_NOT_ELECTORS,
   TRUMP_THRESHOLD_LAYERS, buildGateProjection, buildMethodCard, classifyConnections, israelElectionsNote,
-  gateMethodFocus2029, loadGalleryPage, loadMethodCards, splitSourceTimes, storedOrderIds, verifyReviewedStatements,
+  gateMethodFocus2029, gatePublicMethodRows, gateSourcePresentation, gateSourceTextSelection, gateSourceSelectionIsCurrent,
+  loadGalleryPage, loadMethodCards, splitSourceTimes, storedOrderIds, verifyReviewedStatements,
 } from "../src/lib/research/revelation1237Gate2029.js";
 import { ELECTIONS_ISRAEL_21_26_BUNDLE } from "../src/lib/research/electionsIsrael21_26Seed2029.js";
 
@@ -103,6 +104,56 @@ test("report time, event time, archive time and final result are separate fields
   assert.equal(times.archivedAt, "2026-06-12");
   assert.equal(times.reportLabel, "עדכון 4/10/2020");
   assert.equal(times.result, "not_asserted");
+});
+
+test("stored gallery dates stay provenance even for gematria and mixed hint sources", () => {
+  for (const imageType of ["gematria", "hint", null]) {
+    const item = { imageType, occurredAt: "2020-06-01", createdAt: "2026-06-12", dateUse: "provenance_only",
+      legacyPlacement: { galleryImageId: "id", imageType, occurredAt: "2020-06-01",
+        dateProvenance: { occurredAt: { derivedFrom: "path" } } },
+      storedNumbers: { primary: 1237, all: [1237, 3137, 0, "844", false], related: [3137, 1026] } };
+    const times = splitSourceTimes(item);
+    assert.equal(times.occurredAt, null);
+    assert.equal(times.storedDate, "2020-06-01");
+    assert.equal(times.derivedFrom, "path");
+    assert.equal(times.archivedAt, "2026-06-12");
+    const view = gateSourcePresentation(item);
+    assert.deepEqual(view.numbers, [1237, 3137, 0, 1026]);
+    assert.equal(view.history[0], item.legacyPlacement);
+    assert.match(view.kindLabel, imageType === "gematria" ? /גימטריה/ : imageType === "hint" ? /רמז/ : /מקור/);
+  }
+});
+
+test("an explicit stored OCR selection keeps its exact range and cannot be replayed against changed or private source", () => {
+  const item = { galleryImageId: "id", sourceRef: "gallery_images:id", imageUrl: "https://example.test/image.png",
+    access: { scope: "public" }, intrinsic: { extraction: { text: "טקסט: התגלות סוף" } } };
+  const selected = gateSourceTextSelection(item, { start: 5, end: 13, slotKey: "rv-source-gallery-id" });
+  assert.equal(selected.expression, "התגלות");
+  assert.equal(item.intrinsic.extraction.text.slice(selected.origin.selectionStart, selected.origin.selectionEnd), "התגלות");
+  assert.equal(gateSourceSelectionIsCurrent(item, selected.origin), true);
+  for (const changed of [{ ...item, access: { scope: "private" } }, { ...item, sourceRef: "other" },
+    { ...item, imageUrl: "https://example.test/replaced.png" }, { ...item, intrinsic: { extraction: { text: "שונה" } } }, null]) {
+    assert.equal(gateSourceSelectionIsCurrent(changed, selected.origin), false);
+  }
+  for (const range of [{ start: -1, end: 8 }, { start: 8, end: 8 }, { start: 0, end: 99 }, { start: 0.5, end: 5 }]) {
+    assert.equal(gateSourceTextSelection(item, { ...range, slotKey: "rv-source-gallery-id" }), null);
+  }
+});
+
+test("public method depth keeps canonical identity, equal-value methods and zero; conflicting or unavailable rows are withheld", () => {
+  const row = (key, value, extra = {}) => profile(key, value, { requiredEntitlement: "public", lifecycleActive: true, ...extra });
+  const rows = gatePublicMethodRows([row("רגיל", 844), row("גדול", 844), row("קדמי", 3137, { displayLabel: "משולש" }),
+    row("מסתתר", 0), row("פרטי", 999, { requiredEntitlement: "private" }), row("לא ידוע", 999, { requiredEntitlement: null }),
+    row("כבוי", 999, { lifecycleActive: false }), row("חסר", null), row("כפול", 1), row("כפול", 2)]);
+  assert.deepEqual(new Set(rows.map((r) => r.methodKey)), new Set(["רגיל", "גדול", "קדמי", "מסתתר"]));
+  assert.equal(rows.find((r) => r.methodKey === "קדמי").displayLabel, "משולש");
+  assert.equal(rows.find((r) => r.methodKey === "מסתתר").computedValue, 0);
+});
+
+test("gate source number links use the existing 2029 address helper, not the legacy document handoff", () => {
+  const source = readFileSync(new URL("../src/components/research/Revelation1237Gate2029.jsx", import.meta.url), "utf8");
+  assert.match(source, /to=\{numberExpressionFocusHref\(value\)\}/);
+  assert.doesNotMatch(source, /to=\{`\/number\//);
 });
 
 test("a reviewed statement counts only while the live caption still contains the exact text", () => {

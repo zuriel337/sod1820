@@ -99,3 +99,82 @@ are recorded after verification. READY alone is not browser acceptance.
 Status: IMPLEMENTED / TESTED / PROTECTED_PREVIEW_VERIFIED. Not merged or
 Production-live. The bounded task is released in passive AFTER; the broader
 World/elections continuation remains assigned to this session.
+
+## Follow-up: gallery provenance and explicit source-text method pilot
+
+Task: `REVELATION_1237_GALLERY_METHOD_PILOT_20261030`.
+BEFORE: `093acf68-1557-47f9-afb9-c3b3b91401f5`.
+Base: `2a0a977360e34a267ba1b7806d0b316cbd866e79`, same isolated branch.
+The preceding contract addition is canonical in `project_codex.id=18`, md5
+`05b73b416ab47804c9a0c807250b16f7`. This slice implements a bounded pilot,
+not automatic semantic parsing or a claim that every surface is connected.
+
+### What the source cards now do
+
+- Read the existing gematria/hint classification without treating either as a
+  proof of temporal meaning. Every admitted gallery date currently arrives as
+  provenance-only, so no card labels it as a verified event/report/final result.
+  Original per-occurrence names, captions, placement and dates remain in history.
+  Folder-derived dates display the stored year/month, not a fictional first-day
+  event. Other unverified dates retain their explicit basis warning. Archive
+  record times still use the existing bilingual formatter.
+- Preserve numeric tags as labelled generic Number navigation, not verified
+  expression/method associations. The existing `numberExpressionFocusHref`
+  helper supplies the **2029** route. A legacy `/number/...` link was reproduced
+  going through `LegacyDocumentHandoff` in this isolated Preview; the new card
+  links do not take that route. Shared Lightbox itself is untouched and retains
+  an out-of-scope compatibility point for its owner.
+- Offer an on-demand, explicit selection of a verbatim stored OCR span. No
+  new OCR/expression parser is built and no phrase is guessed from tags. The
+  existing canonical profile reader supplies public available methods; eight
+  are revealed initially, with More. Equal-result methods retain their distinct
+  canonical identities. Unknown/private/inactive/conflicting rows are withheld;
+  zero remains a real value, not an absent result.
+- A method choice rereads the admitted source, compares exact source/text/range
+  and image identity, then uses the existing expression resolver and Number
+  sheet/Inspector. Value/version/access changes fail closed. A known-withdrawn
+  source's card contents and derived controls are removed, including its known
+  historical occurrence in another rendered card; a failed fresh check also
+  clears stale method choices. No private counts or new graph evidence are made.
+- Context stores the source ref, selected OCR range, canonical method/version,
+  result and exact return. It explicitly states `sourceMethodPairing=not_asserted`:
+  choosing a phrase for research does not verify the source's intended method.
+  Existing Context accepts scalar dimensions, so the range uses bounded scalar
+  fields without modifying Context/Provider schemas.
+- Generic navigation records the source in both existing Research Context and
+  the previous browser-history entry. Returning to the asynchronously loaded
+  card waits for the initial bounded source/method windows before scrolling;
+  it does not invent a target if the source is absent.
+
+### Verification and limitations
+
+60 focused unit/contract/preview/date tests pass without skips. The strengthened
+Topic/Number browser test passes at 320 and 1440, including exact canonical
+`קדמי` selection behind the human label `משולש`, source/value/version/range,
+withdrawn/changed source and unavailable method, and removal of known-withdrawn
+source text and tag controls. The separate through-number public-finding browser
+regression also passed. Both builds and existing source/isolation/graph/Legacy
+gates are retained; final hosted receipt follows actual verification below.
+
+Actual-build/live-public acceptance passed at 390 and 1440 for source selection
+of התגלות → קדמי/משולש → 3137 and the existing triangle visualization, in
+addition to both original gate methods, exact sheet return, four graph edges,
+Topic 1118 ↔ World finding and Zvi entry. The extended generic full-Number route
+and async return are checked separately, not assumed from the working sheet.
+
+During this check, the test interceptor itself rejected `fn_zero_scale` although
+the unchanged Preview worker already admits it. The live definition was inspected:
+STABLE, security-invoker, anonymous EXECUTE, numeric calculation plus a bounded
+SELECT of verified core expressions, no writes. Only the test's read allow-list
+was corrected; no worker/access/flag policy was changed. `lock_number` remains
+enabled/all in the live flags; the existing isolated Preview compile-time bypass
+is pre-existing and does not open Production. READY/UNAVAILABLE/locked destination
+states are reported distinctly in the end-to-end result.
+
+Still pending: automatic Intake expression/method/value pairing for unstructured
+gallery OCR, source-specific Topic/Event suggestions beyond the existing graph
+and shared-number navigation, and cross-owner shared Lightbox route compatibility.
+No original tag, OCR, number, source or publication is changed by this pilot.
+Shared Frame/Providers/Number/Lightbox/engine/readers and blocked `b30d0a4d` paths
+remain unchanged; the separate Posts session's scope is untouched. No product
+DB/RLS/migration/Edge/main/Production/publication or canonical-law change.

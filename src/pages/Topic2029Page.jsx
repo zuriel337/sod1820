@@ -18,6 +18,7 @@ import { topicSourceAnchor, topicSourceContextPatch } from "../lib/research/topi
 import WorldSourceStory from '../components/research/WorldSourceStory.jsx';
 import { DISCOVERY_TOPIC_SLUGS } from '../lib/research/worldSourceConnections.js';
 import { resolveTopicExpressionFocus2029 } from "../lib/research/topicExpressionFocus2029.js";
+import { gatePublicMethodRows, gateSourceSelectionIsCurrent } from "../lib/research/revelation1237Gate2029.js";
 import { applySeo, clearConvergenceJsonLd, setConvergenceJsonLd } from "../lib/seo.js";
 import "./topic2029.css";
 import ConvergenceRatings2029 from "../components/experience2029/ConvergenceRatings2029.jsx";
@@ -39,6 +40,7 @@ const EXPRESSION_ERRORS = Object.freeze({
   method_unavailable_or_value_mismatch: "השיטה אינה זמינה או שהתוצאה אינה תואמת לערך במקור. פרטי המקור נשארו כאן.",
   profile_unavailable: "לא ניתן לטעון כרגע את החישוב. אפשר לנסות שוב; פרטי המקור נשארו כאן.",
   method_definition_changed: "הגדרת השיטה השתנתה מאז טעינת הכרטיס. רעננו את הדף כדי לפתוח פירוט מתאים.",
+  source_selection_changed: "המקור אינו זמין או שהטקסט השמור השתנה. רעננו את המקור ובחרו את הביטוי מחדש.",
 });
 // Preview-only gate for topic:1237. It consumes existing readers only (see revelation1237Gate2029.js).
 const Revelation1237Gate2029 = React.lazy(() => import("../components/research/Revelation1237Gate2029.jsx"));
@@ -390,6 +392,7 @@ function TopicCaveats({ projection }) {
 }
 
 function TopicBody() {
+  const location = useLocation();
   const { slug = "" } = useParams();
   const navigate = useNavigate();
   const shell = use2029Shell();
@@ -397,12 +400,14 @@ function TopicBody() {
   const [state, setState] = useState({ loading: true, finding: null, error: null });
   const [goldenState, setGoldenState] = useState({ loading: false, hub: null, prominence: null, error: null });
   const [expressionOpenState, setExpressionOpenState] = useState({ key: null, error: null });
+  const [unavailableSourceIds, setUnavailableSourceIds] = useState([]);
   const expressionRequestRef = useRef(0);
   const [activeSectionId, setActiveSectionId] = useState("topic-essential");
 
   useEffect(() => {
     expressionRequestRef.current += 1;
     setExpressionOpenState({ key: null, error: null });
+    setUnavailableSourceIds([]);
     return () => { expressionRequestRef.current += 1; };
   }, [slug]);
 
@@ -537,17 +542,50 @@ function TopicBody() {
     return undefined;
   }, [projection?.slug, currentSectionId, sectionMapSignature]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const rememberGallerySource = (item, slotKey, sectionId) => {
+    if (!projection || projection.withheld || item?.access?.scope !== "public") return;
+    const locator = `#${slotKey}`;
+    research.updateResearchContext?.({ returnTo: {
+      href: projection.canonicalPath + locator, label: projection.title,
+      subject: { id: projection.slug, type: "topic", label: projection.title, href: projection.canonicalPath },
+      selection: { entityId: item.galleryImageId, entityType: "image", sourceRef: item.sourceRef, locator },
+      lens: "topic", dimensions: { ...(research.context?.dimensions || {}), activeSectionId: sectionId,
+        galleryImageId: item.galleryImageId, galleryNumberPath: "stored_tag_not_verified_calculation" },
+      journey: research.context?.journey || null,
+    } });
+    // Preserve the exact card in the previous history entry as well, including
+    // when the destination's existing capability gate shows a maintenance page.
+    if (location.hash !== locator) navigate(projection.canonicalPath + locator, { replace: true });
+  };
+
   const openExpressionFocus = async (row, origin) => {
-    if (!projection || projection.withheld) return;
+    if (!projection || projection.withheld) return false;
     const request = ++expressionRequestRef.current;
     setExpressionOpenState({ key: origin.key, error: null });
     try {
+      const fromSource = origin.kind === "gallery_text_selection";
+      if (fromSource) {
+        const currentSource = await fetchGallerySourceContext({ imageIds: [origin.galleryImageId] });
+        if (request !== expressionRequestRef.current) return false;
+        const item = currentSource.items?.find((entry) => entry.galleryImageId === origin.galleryImageId);
+        if (!item) setUnavailableSourceIds((ids) => [...new Set([...ids, origin.galleryImageId])]);
+        if (!gateSourceSelectionIsCurrent(item, origin)
+          || row.text !== origin.sourceText.slice(origin.selectionStart, origin.selectionEnd)) {
+          setExpressionOpenState({ key: null, error: EXPRESSION_ERRORS.source_selection_changed, errorKey: origin.key });
+          return false;
+        }
+      }
       const resolved = await resolveTopicExpressionFocus2029(row);
-      if (request !== expressionRequestRef.current) return;
+      if (request !== expressionRequestRef.current) return false;
       const focus = resolved.focus;
       if (resolved.status !== "ready" || !focus?.method) {
         setExpressionOpenState({ key: null, error: EXPRESSION_ERRORS[resolved.status] || EXPRESSION_ERRORS.profile_unavailable, errorKey: origin.key });
-        return;
+        return false;
+      }
+      if (fromSource && !gatePublicMethodRows(focus.rows).some((entry) => entry.methodKey === focus.method
+        && entry.computedValue === focus.resultValue)) {
+        setExpressionOpenState({ key: null, error: EXPRESSION_ERRORS.method_unavailable_or_value_mismatch, errorKey: origin.key });
+        return false;
       }
 
       const topicSubject = {
@@ -556,21 +594,29 @@ function TopicBody() {
         label: projection.title,
         href: projection.canonicalPath,
       };
-      const topicSelection = { entityId: projection.slug, entityType: "topic", sourceRef: projection.sourceRef, locator: origin.locator };
+      const sourceRef = fromSource ? origin.sourceRef : projection.sourceRef;
+      const topicSelection = { entityId: fromSource ? origin.galleryImageId : projection.slug,
+        entityType: fromSource ? "image" : "topic", sourceRef, locator: origin.locator };
       const current = research.context || {};
       const focusId = `topic:${projection.slug}:${resolved.sourcePath || origin.key}`;
       const methodVersion = focus.rows.find((entry) => entry.methodKey === focus.method)?.definitionVersion;
       if (origin.expectedMethodVersion != null && String(methodVersion ?? "") !== String(origin.expectedMethodVersion)) {
         setExpressionOpenState({ key: null, error: EXPRESSION_ERRORS.method_definition_changed, errorKey: origin.key });
-        return;
+        return false;
       }
       const surfaceFocus = { id: focusId, type: "gematria_expression", label: focus.expression, primary: focus.expression,
         expression: focus.expression, method: focus.method, resultValue: focus.resultValue, number: focus.resultValue,
         locator: origin.locator, sourceLabel: projection.title, href: projection.canonicalPath + origin.locator };
       const returnDimensions = { ...(current.dimensions || {}), activeSectionId: origin.sectionId,
-        topicAuthoredSourcePath: origin.kind === "method_profile" ? null : resolved.sourcePath,
+        topicAuthoredSourcePath: origin.kind === "method_profile" || fromSource ? null : resolved.sourcePath,
         topicPresentationSlot: origin.kind === "method_profile" ? resolved.sourcePath : null,
-        topicExpressionOrigin: origin.kind === "method_profile" ? "method_profile" : "authored_expression" };
+        topicExpressionOrigin: fromSource ? "user_selected_stored_ocr" : origin.kind === "method_profile" ? "method_profile" : "authored_expression",
+        galleryImageId: fromSource ? origin.galleryImageId : null,
+        storedTextSelectionKind: fromSource ? "stored_ocr" : null,
+        storedTextSelectionStart: fromSource ? origin.selectionStart : null,
+        storedTextSelectionEnd: fromSource ? origin.selectionEnd : null,
+        storedTextSelectionSourceRef: fromSource ? sourceRef : null,
+        sourceMethodPairing: fromSource ? "not_asserted" : null };
 
       const expressionContext = {
         subject: {
@@ -582,7 +628,7 @@ function TopicBody() {
         selection: {
           entityId: focusId,
           entityType: "gematria_expression",
-          sourceRef: projection.sourceRef,
+          sourceRef,
           locator: origin.locator,
           expression: focus.expression,
           method: focus.method,
@@ -598,7 +644,7 @@ function TopicBody() {
           focusOrigin: "topic",
           topicSlug: projection.slug,
           topicSourceRef: projection.sourceRef,
-          topicClaimStatus: resolved.claimStatus,
+          topicClaimStatus: fromSource ? "selected_text_profile_match_not_source_method_claim" : resolved.claimStatus,
           surfaceFocus,
         },
         journey: current.journey || null,
@@ -615,11 +661,13 @@ function TopicBody() {
       // The existing activation API seeds a generic selection. Commit the richer
       // checked Topic context after it, within the same batch, so source/version
       // and exact return are not dropped by that generic activation.
-      shell.openNumber?.({ ...surfaceFocus, type: "phrase", source: origin.kind === "method_profile" ? "topic-method-profile" : "topic-authored-expression" });
+      shell.openNumber?.({ ...surfaceFocus, type: "phrase", source: fromSource ? "topic-gallery-text-selection" : origin.kind === "method_profile" ? "topic-method-profile" : "topic-authored-expression" });
       research.setResearchContext?.(expressionContext);
       setExpressionOpenState({ key: null, error: null });
+      return true;
     } catch {
       if (request === expressionRequestRef.current) setExpressionOpenState({ key: null, error: EXPRESSION_ERRORS.profile_unavailable, errorKey: origin.key });
+      return false;
     }
   };
 
@@ -660,14 +708,14 @@ function TopicBody() {
       }}>
       <React.Suspense fallback={<FrameState kind="loading" title="פותח את השער">טוען את 1,237 — התגלות.</FrameState>}>
         <Revelation1237Gate2029 readers={REVELATION_GATE_READERS} relatedPosts={projection.relatedPosts || []}
-          onOpenExpression={openExpressionFocus} openingKey={expressionOpenState.key}
+          onOpenExpression={openExpressionFocus} onRememberSource={rememberGallerySource} unavailableSourceIds={unavailableSourceIds} openingKey={expressionOpenState.key}
           focusError={expressionOpenState.error} focusErrorKey={expressionOpenState.errorKey} />
       </React.Suspense>
       {projection.phrases.length || hasFindings ? <section className="sod29-section" aria-label="העמקה בציר">
         <div className="sod29-section-head"><div><div className="sod29-kicker">העמקה</div><h2>המשך הציר כפי שנשמר</h2></div></div>
       </section> : null}
       <TopicPhrases rows={projection.phrases} onOpenExpression={openExpressionFocus} openingKey={expressionOpenState.key} />
-      {expressionOpenState.error && !expressionOpenState.errorKey?.startsWith("rv-method-") ? <div className="sod29-topic-focus-error" role="status">{expressionOpenState.error}</div> : null}
+      {expressionOpenState.error && !/^rv-(?:method|source)-/.test(expressionOpenState.errorKey || "") ? <div className="sod29-topic-focus-error" role="status">{expressionOpenState.error}</div> : null}
       <TopicFindings projection={projection} onOpenExpression={openExpressionFocus} openingKey={expressionOpenState.key} />
       <TopicNumberResearch2029 key={projection.slug} projection={projection} />
       <TopicAuthoredConnections projection={projection} />

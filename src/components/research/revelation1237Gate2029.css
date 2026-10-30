@@ -129,6 +129,10 @@
 .rv-source { display: grid; gap: 10px; min-width: 0; padding: 14px; border-radius: 16px; border: 1px solid var(--rv-line); background: var(--rv-panel); align-content: start; }
 .rv-source-figure { display: block; inline-size: 100%; block-size: 220px; padding: 0; border: 1px solid var(--rv-line); border-radius: 12px; background: var(--rv-soft); overflow: hidden; cursor: zoom-in; }
 .rv-source-body { display: grid; gap: 8px; min-width: 0; }
+.rv-source { scroll-margin-block-start: 100px; }
+.rv-source summary { min-block-size: 44px; cursor: pointer; padding-block: 8px; }
+.rv-source-text { display: block; box-sizing: border-box; inline-size: 100%; min-inline-size: 0; resize: vertical; color: var(--rv-ink); background: var(--rv-soft); border: 1px solid var(--rv-line); border-radius: 8px; padding: 10px; font: inherit; }
+.rv-source-methods { display: flex; flex-wrap: wrap; gap: 8px; margin-block: 8px; }
 .rv-source h3 { font: 700 17px/1.45 var(--rv-font); overflow-wrap: anywhere; }
 .rv-caption { color: var(--rv-ink); font-size: 15px; overflow-wrap: anywhere; white-space: pre-line; }
 .rv-caption summary { cursor: pointer; min-block-size: 44px; display: flex; align-items: center; }

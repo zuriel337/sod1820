@@ -16,9 +16,11 @@ const { chromium } = require("playwright");
 const root = fileURLToPath(new URL("..", import.meta.url));
 const output = process.env.PREVIEW_EVIDENCE_DIR || "/tmp/elections-world-preview-20261030";
 await mkdir(output, { recursive: true });
-const report = { widths: [], methodDepth: [], reads: {}, blocked: [], errors: [], modelRequests: [] };
+const report = { widths: [], methodDepth: [], galleryMethodDepth: [], reads: {}, blocked: [], errors: [], modelRequests: [] };
 const publicHost = "linswmnnkjxvweumprav.supabase.co";
-const readRpc = new Set(["fn_method_profile", "convergence_meter", "gematria_api", "world_group_source_arrivals_v2", "rd_is_admin", "fn_number_lookup", "fn_number_dossier", "fn_number_journey", "posts_by_number_strict", "fn_all_methods", "lang_links_list", "number_neighbors", "fn_verses_by_gematria", "gematria_method_trace"]);
+// fn_zero_scale is an existing anonymous STABLE/security-invoker read (live
+// definition inspected); the unchanged Preview worker already admits it.
+const readRpc = new Set(["fn_method_profile", "convergence_meter", "gematria_api", "world_group_source_arrivals_v2", "rd_is_admin", "fn_number_lookup", "fn_number_dossier", "fn_number_journey", "posts_by_number_strict", "fn_all_methods", "lang_links_list", "number_neighbors", "fn_verses_by_gematria", "gematria_method_trace", "fn_zero_scale"]);
 let server;
 let origin = process.env.PREVIEW_ORIGIN;
 if (!origin) {
@@ -141,6 +143,56 @@ try {
       assert.equal(await page.locator(`#rv-method-${slot}`).count(), 1);
       report.methodDepth.push({ width, phrase, method, root: 1237, exactReturn: `#rv-method-${slot}`, traceVisual: visual });
     }
+    const gallerySource = page.locator('#rv-source-gallery-81-288ee048-1e25-4b0e-9630-e3f59c5c3338');
+    await gallerySource.waitFor();
+    assert.match(await gallerySource.innerText(), /גימטריה · לפי הסיווג השמור/);
+    assert.doesNotMatch(await gallerySource.innerText(), /זמן האירוע|תוצאה סופית/);
+    await gallerySource.locator('.rv-source-history summary').click();
+    assert.match(await gallerySource.innerText(), /2022-08/);
+    assert.doesNotMatch(await gallerySource.innerText(), /01\.08\.2022/);
+    await gallerySource.locator('.rv-source-research summary').click();
+    await gallerySource.getByRole('textbox',{name:'טקסט שמור לבחירת ביטוי',exact:true}).evaluate(el=>{
+      el.focus();const start=el.value.lastIndexOf('התגלות');
+      if(start<0)throw Error('The live source no longer contains the exact expression');
+      el.setSelectionRange(start,start+'התגלות'.length);
+      document.dispatchEvent(new Event('selectionchange'));el.dispatchEvent(new MouseEvent('mouseup',{bubbles:true}));
+    });
+    await gallerySource.getByRole('button',{name:'פתיחת שיטות לביטוי שנבחר',exact:true}).click();
+    const triangular = gallerySource.getByRole('button',{name:'פתח התגלות בשיטת משולש: 3137',exact:true});
+    await triangular.waitFor();
+    await triangular.click();
+    const sourceDialog = page.getByRole('dialog',{name:'מספר / ביטוי',exact:true});
+    await sourceDialog.locator('[data-number-core-root="3137"]').waitFor();
+    await sourceDialog.locator('.sod29-number-v10-calculation-card').click();
+    const triangleVisual = sourceDialog.locator('[data-method-inspector="קדמי"] [data-method-visual="letter-potential-triangle"]');
+    await triangleVisual.waitFor();
+    await triangleVisual.scrollIntoViewIfNeeded();
+    await page.screenshot({path:resolve(output,`gallery-triangular-${width}.png`)});
+    await sourceDialog.getByRole('button',{name:'סגור',exact:true}).click();
+    if(width<768){
+      await page.getByRole('button',{name:'פתח ניווט',exact:true}).click();
+      await page.getByRole('dialog',{name:'ניווט SOD1820 2029',exact:true}).getByRole('button',{name:'חזרה מדויקת',exact:true}).click();
+    }else await page.locator('button[aria-label="חזרה מדויקת"]:visible').first().click();
+    await page.waitForURL(origin+'/topic/1237#rv-source-gallery-81-288ee048-1e25-4b0e-9630-e3f59c5c3338');
+    await gallerySource.locator('summary').filter({hasText:'מספרים שסומנו במקור'}).click();
+    assert.equal(await gallerySource.locator('a[href="/2029/number/3137"]').count(),1,'stored tag uses the existing 2029 route helper without inventing an expression focus');
+    await page.getByRole('navigation',{name:'פרקי השער',exact:true}).getByRole('link',{name:'גלריות',exact:true}).click();
+    await gallerySource.locator('a[href="/2029/number/3137"]').click();
+    await page.locator('.sod29-number-page[data-number-root="3137"],.mlock').waitFor();
+    let genericNumberRouteStatus='ready';
+    if(await page.locator('.mlock').count()){
+      assert.match(await page.locator('.mlock').innerText(),/דף המספר נמצא בהכנה וייפתח בהמשך/);
+      genericNumberRouteStatus='existing_capability_lock';
+    }else assert.equal(await page.locator('.sod29-number-focus-ribbon').count(),0,'a stored tag does not assert an expression/method focus');
+    await page.goBack();
+    await page.waitForURL(origin+'/topic/1237#rv-source-gallery-81-288ee048-1e25-4b0e-9630-e3f59c5c3338');
+    await gallerySource.waitFor();
+    await page.waitForFunction(()=>{
+      const rect=document.getElementById('rv-source-gallery-81-288ee048-1e25-4b0e-9630-e3f59c5c3338')?.getBoundingClientRect();
+      return rect&&rect.top>=40&&rect.top<200;
+    });
+    report.galleryMethodDepth.push({width,sourceRef:'gallery_images:288ee048-1e25-4b0e-9630-e3f59c5c3338',
+      expression:'התגלות',method:'קדמי',value:3137,exactReturn:true,sourceMethodPairing:'not_asserted',genericNumberRouteStatus});
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
     assert.ok(overflow <= 0, `1237 overflow at ${width}: ${overflow}`);
     await page.screenshot({ path: resolve(output, `1237-${width}.png`) });

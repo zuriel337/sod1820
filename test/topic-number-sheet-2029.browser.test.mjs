@@ -51,9 +51,14 @@ function fixturePlugin() {
       export async function fetchGallerySourceContext({imageIds}){
         window.__galleryRequests.push(imageIds);
         if(window.__failNextGallery){window.__failNextGallery=false;throw Error('gallery offline');}
-        return {items:imageIds.filter(id=>Number(id.split('-')[1])%2).map(galleryImageId=>({
+        return {items:imageIds.filter(id=>Number(id.split('-')[1])%2&&!window.__galleryWithdrawn).map(galleryImageId=>({
           galleryImageId,label:'מקור בדיקה '+galleryImageId,createdAt:'2026-10-28',
-          sourceIdentity:{ref:'gallery:'+galleryImageId},occurrences:[]
+          imageUrl:'https://example.test/'+galleryImageId+'.png',sourceRef:'gallery_images:'+galleryImageId,
+          access:{scope:'public'},sourceIdentity:{ref:'gallery:'+galleryImageId},occurrences:[],
+          legacyPlacement:{galleryImageId,imageType:'gematria',occurredAt:'2020-06-01',createdAt:'2026-10-28',
+            dateProvenance:{occurredAt:{derivedFrom:'path'}}},dateUse:'provenance_only',
+          storedNumbers:{primary:1237,all:[844,1237,3137]},
+          intrinsic:{extraction:{text:galleryImageId==='81-5'?(window.__sourceChanged?'טקסט השתנה':'טקסט שמור התגלות'):null}}
         }))};
       }`,
     prominence: "export async function fetchWorldProminenceInputs(){return {};}",
@@ -110,8 +115,11 @@ function fixturePlugin() {
           if(name!=='fn_method_profile')throw Error('Unexpected RPC '+name);
           if(window.__offline)return {data:null,error:{message:'offline'}};
           if(window.__holdProfile)await new Promise(resolve=>{window.__releaseProfile=resolve;});
-          if(args.p_phrase==='התגלות')return {error:null,data:[{method_key:'רגיל',computed_value:844,definition_version:1},
-            {method_key:'מסתתר',computed_value:window.__changedValue?1580:1237,definition_version:window.__changedVersion?2:1,mathematical_family:'adjacent_difference'}]};
+          if(args.p_phrase==='התגלות')return {error:null,data:[{method_key:'רגיל',computed_value:844,definition_version:1,required_entitlement:'public'},
+            {method_key:'מסתתר',computed_value:window.__changedValue?1580:1237,definition_version:window.__changedVersion?2:1,mathematical_family:'adjacent_difference',required_entitlement:'public'},
+            {method_key:'קדמי',display_label:'משולש',computed_value:3137,definition_version:1,required_entitlement:window.__methodPrivate?'private':'public'},
+            {method_key:'גדול',computed_value:844,definition_version:1,required_entitlement:'public'},
+            {method_key:'צניע',computed_value:999,definition_version:1,required_entitlement:'private'}]};
           if(args.p_phrase==='וראית את אחרי')return {error:null,data:[{method_key:'רגיל',computed_value:1237,definition_version:1,mathematical_family:'base_additive'}]};
           const value=args.p_phrase==='בן דוד'?66:args.p_phrase==='א'?1:358;
           return {error:null,data:[{method_key:'רגיל',computed_value:value,definition_version:1},
@@ -322,16 +330,53 @@ test("Topic opens the existing Number sheet with method/value/source and exact r
       const gallery = page.locator('.rv-gallery[aria-labelledby="rv-gal-29"]');
       await page.waitForFunction(()=>document.querySelectorAll('[aria-labelledby="rv-gal-29"] .rv-source').length===3);
       assert.match(await gallery.innerText(), /3 פריטים לא הוצגו/);
+      assert.doesNotMatch(await gallery.innerText(), /זמן האירוע|תוצאה סופית/);
+      await gallery.locator('.rv-source-history summary').first().click();
+      assert.match(await gallery.innerText(), /2020-06/);
+      assert.doesNotMatch(await gallery.innerText(), /01\.06\.2020/);
       assert.match(await gallery.innerText(), /28\.10\.2026/);
       assert.match(await gallery.innerText(), /חשוון/);
       await page.evaluate(()=>{window.__failNextGallery=true;});
       await gallery.getByRole("button", { name: "עוד מהגלריה", exact: true }).click();
       await gallery.getByRole("button", { name: "נסה שוב את הגלריה", exact: true }).click();
       await page.waitForFunction(()=>document.querySelectorAll('[aria-labelledby="rv-gal-29"] .rv-source').length===4);
-      assert.equal(await gallery.getByRole("button").count(), 0, "withheld rows do not cause an endless More loop");
+      assert.equal(await gallery.getByRole("button", { name: "עוד מהגלריה", exact: true }).count(), 0, "withheld rows do not cause an endless More loop");
       assert.deepEqual(await page.evaluate(()=>window.__galleryRequests.filter(ids=>ids[0]?.startsWith('29-'))), [
         ["29-0","29-1","29-2","29-3","29-4","29-5"],["29-6","29-7"],["29-6","29-7"]
       ]);
+      const source = page.locator('#rv-source-gallery-81-81-5');
+      await source.locator('.rv-source-research summary').click();
+      const sourceText = source.getByRole('textbox', {name:'טקסט שמור לבחירת ביטוי',exact:true});
+      const beforeSelection = await page.evaluate(()=>window.__reads.filter(r=>r.rpc==='fn_method_profile').length);
+      await sourceText.evaluate(el=>{el.focus();const start=el.value.indexOf('התגלות');el.setSelectionRange(start,start+'התגלות'.length);document.dispatchEvent(new Event('selectionchange'));el.dispatchEvent(new MouseEvent('mouseup',{bubbles:true}));});
+      await source.getByRole('button',{name:'פתיחת שיטות לביטוי שנבחר',exact:true}).click();
+      const triangular = source.getByRole('button',{name:'פתח התגלות בשיטת משולש: 3137',exact:true});
+      await triangular.waitFor();
+      assert.equal(await page.evaluate(()=>window.__reads.filter(r=>r.rpc==='fn_method_profile').length), beforeSelection+1);
+      assert.doesNotMatch(await source.innerText(), /צניע/);
+      await triangular.click();
+      await dialog.locator('[data-number-core-root="3137"]').waitFor();
+      const sourceFocus = await page.evaluate(()=>window.__researchContext);
+      assert.equal(sourceFocus.selection.method,'קדמי');
+      assert.equal(sourceFocus.selection.sourceRef,'gallery_images:81-5');
+      assert.equal(sourceFocus.dimensions.topicAuthoredSourcePath,null);
+      assert.equal(sourceFocus.dimensions.sourceMethodPairing,'not_asserted');
+      assert.equal(sourceFocus.dimensions.storedTextSelectionKind,'stored_ocr');
+      assert.equal(sourceFocus.dimensions.storedTextSelectionSourceRef,'gallery_images:81-5');
+      assert.equal(sourceFocus.returnTo.href,'/topic/1237#rv-source-gallery-81-81-5');
+      await dialog.getByRole('button',{name:'חזור למקור',exact:true}).click();
+      assert.equal(new URL(page.url()).hash,'#rv-source-gallery-81-81-5');
+      for(const flag of ['__methodPrivate','__sourceChanged','__galleryWithdrawn']){
+        await source.getByRole('button',{name:'פתיחת שיטות לביטוי שנבחר',exact:true}).click();
+        await triangular.waitFor();
+        await page.evaluate(name=>{window[name]=true;},flag);
+        await triangular.click();
+        await source.getByText(flag==='__methodPrivate'?/השיטה אינה זמינה/:/המקור אינו זמין/).waitFor();
+        assert.equal(await page.getByRole('dialog').count(),0);
+        await page.evaluate(name=>{window[name]=false;},flag);
+      }
+      assert.equal(await source.getByRole('textbox').count(),0,'known-withdrawn source text and derived choices are removed, not merely disabled');
+      assert.equal(await source.locator('a').count(),0,'known-withdrawn tags do not remain as navigation leaks');
       await milui.getByRole("button", { name: "משיח", exact: true }).click();
       await dialog.locator('[data-number-core-root="878"]').waitFor();
       assert.equal(new URL(page.url()).pathname, "/topic/1237");

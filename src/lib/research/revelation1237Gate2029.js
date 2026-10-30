@@ -119,16 +119,78 @@ export async function loadGalleryPage({ wpGalleryId, listGalleryImages, fetchSou
 
 // ── time: report time is never the result and never the upload time ─────────────────────
 export function splitSourceTimes(item) {
-  const occurredAt = clean(item?.occurredAt) || null;
+  const placement = item?.legacyPlacement || {};
+  const storedDate = clean(placement.occurredAt || item?.occurredAt) || null;
   return Object.freeze({
-    occurredAt,
-    occurredBasis: occurredAt ? "stored_occurred_at" : null,
+    // This gallery reader supplies provenance dates, not verified event times.
+    occurredAt: null,
+    occurredBasis: null,
+    storedDate,
+    derivedFrom: placement.dateProvenance?.occurredAt?.derivedFrom || null,
     // createdAt is when the file entered the archive, never an event or report date.
     archivedAt: clean(item?.createdAt) || null,
     // The report label is the source's own title, kept verbatim (it often carries its own date).
     reportLabel: clean(item?.label) || null,
     result: "not_asserted",
   });
+}
+
+export function gateSourcePresentation(item) {
+  const imageType = item?.legacyPlacement?.imageType || item?.imageType || null;
+  const placements = (item?.occurrences || []).map((entry) => entry.legacyPlacement).filter(Boolean);
+  if (!placements.length && item?.legacyPlacement) placements.push(item.legacyPlacement);
+  return {
+    imageType,
+    kindLabel: imageType === "gematria" ? "גימטריה · לפי הסיווג השמור" : imageType === "hint" ? "רמז · לפי הסיווג השמור" : "מקור",
+    // Every occurrence keeps its own caption/date; none is an independent source.
+    history: [...new Map(placements.map((p) => [p.galleryImageId, p])).values()],
+    numbers: [...new Set([item?.storedNumbers?.primary, ...(item?.storedNumbers?.all || []),
+      ...(item?.storedNumbers?.related || [])].filter((n) => Number.isSafeInteger(n) && n >= 0))],
+  };
+}
+
+// Explicit selection of a verbatim STORED OCR span, not an image parser, source
+// method/value association, or a new extraction engine. Resolution remains canonical.
+export function gateSourceTextSelection(item, { start, end, slotKey, sectionId = "rv-galleries" } = {}) {
+  const text = item?.intrinsic?.extraction?.text;
+  if (item?.access?.scope !== "public" || item.access.available === false
+    || !item.galleryImageId || item.sourceRef !== `gallery_images:${item.galleryImageId}`
+    || typeof item.imageUrl !== "string" || !/^https:\/\//.test(item.imageUrl)
+    || typeof text !== "string" || !Number.isSafeInteger(start) || !Number.isSafeInteger(end)
+    || start < 0 || end <= start || end > text.length || !/^rv-source-[a-zA-Z0-9_-]+$/.test(slotKey || "")) return null;
+  const raw = text.slice(start, end), expression = raw.trim();
+  if (!expression || expression.length > 160 || /[\r\n=←→]/u.test(expression)) return null;
+  const from = start + raw.indexOf(expression), to = from + expression.length;
+  return {
+    expression,
+    origin: { key: slotKey, locator: `#${slotKey}`, sectionId, kind: "gallery_text_selection",
+      sourceRef: item.sourceRef, galleryImageId: item.galleryImageId,
+      sourceText: text, sourceImageUrl: item.imageUrl, selectionStart: from, selectionEnd: to },
+  };
+}
+
+export function gateSourceSelectionIsCurrent(item, origin) {
+  if (origin?.kind !== "gallery_text_selection" || item?.imageUrl !== origin.sourceImageUrl) return false;
+  const selection = gateSourceTextSelection(item, { start: origin.selectionStart, end: origin.selectionEnd,
+    slotKey: origin.key, sectionId: origin.sectionId });
+  return Boolean(selection && item.galleryImageId === origin.galleryImageId
+    && item.sourceRef === origin.sourceRef && selection.origin.sourceText === origin.sourceText);
+}
+
+export function gatePublicMethodRows(rows) {
+  // Value is not an identity: distinct methods with the same result stay distinct.
+  const valid = list(rows).filter((row) => clean(row?.methodKey) && row.lifecycleActive !== false
+    && row.requiredEntitlement === "public" && Number.isSafeInteger(engineValue(row.computedValue))
+    && engineValue(row.computedValue) >= 0);
+  const groups = new Map();
+  for (const row of valid) {
+    const key = clean(row.methodKey), value = engineValue(row.computedValue);
+    if (!groups.has(key)) groups.set(key, { ...row, computedValue: value });
+    else if (groups.get(key)?.computedValue !== value
+      || groups.get(key)?.definitionVersion !== row.definitionVersion) groups.set(key, null);
+  }
+  return [...groups.values()].filter(Boolean).sort((a, b) =>
+    (a.sortOrder ?? Infinity) - (b.sortOrder ?? Infinity) || a.methodKey.localeCompare(b.methodKey, "he"));
 }
 
 // ── reviewed statements ───────────────────────────────────────────────────────────────────
