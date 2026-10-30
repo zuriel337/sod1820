@@ -107,4 +107,26 @@ Broad continuation `ae17201f` and all other owners remain unaffected.
   screenshots visually inspected. Partial migration and design limits above
   remain; no claim that every gallery or source surface has been migrated.
 
-Status: IMPLEMENTED / LOCAL_TESTED. Protected Preview identity follows.
+## Protected Preview accepted
+
+- Runtime SHA: `8a136fb188664a98dac71ed4ccc37c18d366d54b`.
+- Deployment: `dpl_7EaEDdkBKWPP623VvruCPrbJ4bB3`, READY, target `null`;
+  build about 15 seconds. Existing project/team and enabled SSO were verified;
+  no protection setting or Production alias changed.
+- https://sod1820-gd0jd0830-sod1820-s-projects.vercel.app/world?view=gallery&gallery=81
+- https://sod1820-gd0jd0830-sod1820-s-projects.vercel.app/world?view=gallery&gallery=29
+- Actual hosted browser acceptance passed at390/1440, including both galleries,
+  exact source→התגלות/קדמי/3137 Number→exact-image return, generic source tags,
+  1237 method visualization and existing World/Zvi/Topic1118 regressions. Four
+  existing graph edges remained documented. Zero page errors, model requests or
+  blocked/escaped product writes. Hosted screenshot was visually inspected.
+- Hosted identity matched runtime SHA and branch exactly, mock-only transport,
+  `product_writes=false`, `edge_deploy=false`. Worker `unifiedReadOnly=true`,
+  no-store and noindex verified independently. Access link stayed in memory and
+  stdin, never printed, committed or saved as browser authentication state.
+- Evidence: `/tmp/gallery-2029-native-hosted-live`;
+  identity/headers: `/tmp/gallery-2029-hosted-identity.log` (no credentials).
+- Receipt-only follow-up changes this document, not the tested/deployed runtime.
+
+Status: IMPLEMENTED / TESTED / PROTECTED_PREVIEW_VERIFIED.
+Not merged, not Production-live; not a full gallery migration.
