@@ -1,0 +1,427 @@
+{
+  "task": "AHAVAT_PUBLIC_READING_20261030",
+  "branch": "codex/ahavat-public-reading-20261030",
+  "base": "7c033c048ed0e66f133b93df665a20a26d6dac23",
+  "runtimeHead": "471ecf87b0b09930c3805df9be126af8fb3f0588",
+  "status": "IMPLEMENTED_TESTED_BRANCH_ONLY",
+  "coverage": {
+    "pdfPages": 99,
+    "selectedExplanations": 267,
+    "lessonPages": 98,
+    "originalResearchPages": 15,
+    "blankPage": 45,
+    "editedCompanionFields": 8,
+    "printedSourceChanged": false,
+    "canonicalEngineRun": false
+  },
+  "tests": {
+    "nonBrowser": 427,
+    "finalBrowserCases": 40,
+    "partitions": [
+      1,
+      39
+    ],
+    "oneCleanSingleNodeInvocation": false,
+    "cleanSequentialRegressionRun": true,
+    "regressionFiles": 20,
+    "skipped": 0,
+    "cancelled": 0,
+    "publicMatrix": [
+      {
+        "width": 320,
+        "theme": "light",
+        "status": "PASS",
+        "lessonEntry": true,
+        "editedLessons": 8,
+        "exactSourceReturn": true,
+        "noAutomaticGpu": true,
+        "noOverflow": true,
+        "servicesMocked": true,
+        "pdfAborted": true,
+        "physicalDevice": false
+      },
+      {
+        "width": 320,
+        "theme": "parchment",
+        "status": "PASS",
+        "lessonEntry": true,
+        "editedLessons": 8,
+        "exactSourceReturn": true,
+        "noAutomaticGpu": true,
+        "noOverflow": true,
+        "servicesMocked": true,
+        "pdfAborted": true,
+        "physicalDevice": false
+      },
+      {
+        "width": 320,
+        "theme": "dark",
+        "status": "PASS",
+        "lessonEntry": true,
+        "editedLessons": 8,
+        "exactSourceReturn": true,
+        "noAutomaticGpu": true,
+        "noOverflow": true,
+        "servicesMocked": true,
+        "pdfAborted": true,
+        "physicalDevice": false
+      },
+      {
+        "width": 390,
+        "theme": "light",
+        "status": "PASS",
+        "lessonEntry": true,
+        "editedLessons": 8,
+        "exactSourceReturn": true,
+        "noAutomaticGpu": true,
+        "noOverflow": true,
+        "servicesMocked": true,
+        "pdfAborted": true,
+        "physicalDevice": false
+      },
+      {
+        "width": 390,
+        "theme": "parchment",
+        "status": "PASS",
+        "lessonEntry": true,
+        "editedLessons": 8,
+        "exactSourceReturn": true,
+        "noAutomaticGpu": true,
+        "noOverflow": true,
+        "servicesMocked": true,
+        "pdfAborted": true,
+        "physicalDevice": false
+      },
+      {
+        "width": 390,
+        "theme": "dark",
+        "status": "PASS",
+        "lessonEntry": true,
+        "editedLessons": 8,
+        "exactSourceReturn": true,
+        "noAutomaticGpu": true,
+        "noOverflow": true,
+        "servicesMocked": true,
+        "pdfAborted": true,
+        "physicalDevice": false
+      },
+      {
+        "width": 1440,
+        "theme": "light",
+        "status": "PASS",
+        "lessonEntry": true,
+        "editedLessons": 8,
+        "exactSourceReturn": true,
+        "noAutomaticGpu": true,
+        "noOverflow": true,
+        "servicesMocked": true,
+        "pdfAborted": true,
+        "physicalDevice": false
+      },
+      {
+        "width": 1440,
+        "theme": "parchment",
+        "status": "PASS",
+        "lessonEntry": true,
+        "editedLessons": 8,
+        "exactSourceReturn": true,
+        "noAutomaticGpu": true,
+        "noOverflow": true,
+        "servicesMocked": true,
+        "pdfAborted": true,
+        "physicalDevice": false
+      },
+      {
+        "width": 1440,
+        "theme": "dark",
+        "status": "PASS",
+        "lessonEntry": true,
+        "editedLessons": 8,
+        "exactSourceReturn": true,
+        "noAutomaticGpu": true,
+        "noOverflow": true,
+        "servicesMocked": true,
+        "pdfAborted": true,
+        "physicalDevice": false
+      }
+    ],
+    "regression": [
+      {
+        "file": "test/ahavat-torah-book-completion-2029.browser.test.mjs",
+        "log": "/workspace/artifacts/ahavat-public-reading-20261030-TlBsKL/ahavat-torah-book-completion-2029.browser.test.mjs.log",
+        "exit": 0,
+        "signal": null,
+        "tests": 5,
+        "passed": 5,
+        "failed": 0,
+        "skipped": 0,
+        "cancelled": 0
+      },
+      {
+        "file": "test/ahavat-torah-novellae-depth-2029.browser.test.mjs",
+        "log": "/workspace/artifacts/ahavat-public-reading-20261030-TlBsKL/ahavat-torah-novellae-depth-2029.browser.test.mjs.log",
+        "exit": 0,
+        "signal": null,
+        "tests": 5,
+        "passed": 5,
+        "failed": 0,
+        "skipped": 0,
+        "cancelled": 0
+      },
+      {
+        "file": "test/ahavat-letter-source-comparison-2029.browser.test.mjs",
+        "log": "/workspace/artifacts/ahavat-public-reading-20261030-TlBsKL/ahavat-letter-source-comparison-2029.browser.test.mjs.log",
+        "exit": 0,
+        "signal": null,
+        "tests": 1,
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0,
+        "cancelled": 0
+      },
+      {
+        "file": "test/ahavat-parasha-letter-atlas-2029.browser.test.mjs",
+        "log": "/workspace/artifacts/ahavat-public-reading-20261030-TlBsKL/ahavat-parasha-letter-atlas-2029.browser.test.mjs.log",
+        "exit": 0,
+        "signal": null,
+        "tests": 1,
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0,
+        "cancelled": 0
+      },
+      {
+        "file": "test/ahavat-count-spatial-source-2029.browser.test.mjs",
+        "log": "/workspace/artifacts/ahavat-public-reading-20261030-TlBsKL/ahavat-count-spatial-source-2029.browser.test.mjs.log",
+        "exit": 0,
+        "signal": null,
+        "tests": 5,
+        "passed": 5,
+        "failed": 0,
+        "skipped": 0,
+        "cancelled": 0
+      },
+      {
+        "file": "test/ahavat-letter-continuous-study-2029.browser.test.mjs",
+        "log": "/workspace/artifacts/ahavat-public-reading-20261030-TlBsKL/ahavat-letter-continuous-study-2029.browser.test.mjs.log",
+        "exit": 0,
+        "signal": null,
+        "tests": 1,
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0,
+        "cancelled": 0
+      },
+      {
+        "file": "test/ahavat-letter-guided-exploration-2029.browser.test.mjs",
+        "log": "/workspace/artifacts/ahavat-public-reading-20261030-TlBsKL/ahavat-letter-guided-exploration-2029.browser.test.mjs.log",
+        "exit": 0,
+        "signal": null,
+        "tests": 1,
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0,
+        "cancelled": 0
+      },
+      {
+        "file": "test/ahavat-letter-spatial-acceptance-2029.browser.test.mjs",
+        "log": "/workspace/artifacts/ahavat-public-reading-20261030-TlBsKL/ahavat-letter-spatial-acceptance-2029.browser.test.mjs.log",
+        "exit": 0,
+        "signal": null,
+        "tests": 4,
+        "passed": 4,
+        "failed": 0,
+        "skipped": 0,
+        "cancelled": 0
+      },
+      {
+        "file": "test/ahavat-letter-visual-workspace-2029.browser.test.mjs",
+        "log": "/workspace/artifacts/ahavat-public-reading-20261030-TlBsKL/ahavat-letter-visual-workspace-2029.browser.test.mjs.log",
+        "exit": 0,
+        "signal": null,
+        "tests": 1,
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0,
+        "cancelled": 0
+      },
+      {
+        "file": "test/ahavat-torah-reader-units-2029.browser.test.mjs",
+        "log": "/workspace/artifacts/ahavat-public-reading-20261030-TlBsKL/ahavat-torah-reader-units-2029.browser.test.mjs.log",
+        "exit": 0,
+        "signal": null,
+        "tests": 1,
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0,
+        "cancelled": 0
+      },
+      {
+        "file": "test/ahavat-torah-source-tables-2029.browser.test.mjs",
+        "log": "/workspace/artifacts/ahavat-public-reading-20261030-TlBsKL/ahavat-torah-source-tables-2029.browser.test.mjs.log",
+        "exit": 0,
+        "signal": null,
+        "tests": 1,
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0,
+        "cancelled": 0
+      },
+      {
+        "file": "test/ahavat-torah-spatial-tables-2029.browser.test.mjs",
+        "log": "/workspace/artifacts/ahavat-public-reading-20261030-TlBsKL/ahavat-torah-spatial-tables-2029.browser.test.mjs.log",
+        "exit": 0,
+        "signal": null,
+        "tests": 1,
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0,
+        "cancelled": 0
+      },
+      {
+        "file": "test/ahavat-torah-roots-journey-2029.browser.test.mjs",
+        "log": "/workspace/artifacts/ahavat-public-reading-20261030-TlBsKL/ahavat-torah-roots-journey-2029.browser.test.mjs.log",
+        "exit": 0,
+        "signal": null,
+        "tests": 1,
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0,
+        "cancelled": 0
+      },
+      {
+        "file": "test/ahavat-torah-roots-proofreading-2029.browser.test.mjs",
+        "log": "/workspace/artifacts/ahavat-public-reading-20261030-TlBsKL/ahavat-torah-roots-proofreading-2029.browser.test.mjs.log",
+        "exit": 0,
+        "signal": null,
+        "tests": 4,
+        "passed": 4,
+        "failed": 0,
+        "skipped": 0,
+        "cancelled": 0
+      },
+      {
+        "file": "test/ahavat-torah-editorial-return-2029.browser.test.mjs",
+        "log": "/workspace/artifacts/ahavat-public-reading-20261030-TlBsKL/ahavat-torah-editorial-return-2029.browser.test.mjs.log",
+        "exit": 0,
+        "signal": null,
+        "tests": 1,
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0,
+        "cancelled": 0
+      },
+      {
+        "file": "test/ahavat-torah-parasha-counts-2029.browser.test.mjs",
+        "log": "/workspace/artifacts/ahavat-public-reading-20261030-TlBsKL/ahavat-torah-parasha-counts-2029.browser.test.mjs.log",
+        "exit": 0,
+        "signal": null,
+        "tests": 1,
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0,
+        "cancelled": 0
+      },
+      {
+        "file": "test/ahavat-torah-native-source-return-2029.browser.test.mjs",
+        "log": "/workspace/artifacts/ahavat-public-reading-20261030-TlBsKL/ahavat-torah-native-source-return-2029.browser.test.mjs.log",
+        "exit": 0,
+        "signal": null,
+        "tests": 1,
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0,
+        "cancelled": 0
+      },
+      {
+        "file": "test/ahavat-torah-book-completion-native-2029.browser.test.mjs",
+        "log": "/workspace/artifacts/ahavat-public-reading-20261030-TlBsKL/ahavat-torah-book-completion-native-2029.browser.test.mjs.log",
+        "exit": 0,
+        "signal": null,
+        "tests": 1,
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0,
+        "cancelled": 0
+      },
+      {
+        "file": "test/books-unified-reader-2029.browser.test.mjs",
+        "log": "/workspace/artifacts/ahavat-public-reading-20261030-TlBsKL/books-unified-reader-2029.browser.test.mjs.log",
+        "exit": 0,
+        "signal": null,
+        "tests": 1,
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0,
+        "cancelled": 0
+      },
+      {
+        "file": "test/books-wide-dual-experience-2029.browser.test.mjs",
+        "log": "/workspace/artifacts/ahavat-public-reading-20261030-TlBsKL/books-wide-dual-experience-2029.browser.test.mjs.log",
+        "exit": 0,
+        "signal": null,
+        "tests": 2,
+        "passed": 2,
+        "failed": 0,
+        "skipped": 0,
+        "cancelled": 0
+      }
+    ],
+    "language": 3,
+    "authGuard": 4,
+    "builds": [
+      "normal2029",
+      "twoPreviewFlags",
+      "integratedPreview"
+    ],
+    "graphEagerGzipBytes": {
+      "normal": 379579,
+      "flags": 376886,
+      "integrated": 377238
+    },
+    "budgetRaised": false,
+    "legacyCodeGuard": "PASS",
+    "isolation": "PASS",
+    "hardening": "PASS",
+    "nativeSources": "Original hash-checked PDF covered by native regression cases. Public-copy matrix aborts PDF frames; hosted no-mock acceptance is separate."
+  },
+  "retainedDraftFailures": {
+    "initialBooks": {
+      "passed": 424,
+      "failed": 3,
+      "exit": 123,
+      "log": "/workspace/artifacts/ahavat-public-reading-20261030-TlBsKL/books-initial.log",
+      "resolution": "Restored a decision-changing bibliographic qualification; replayed exact eight reviewed prose edits for old digests without replacing any historical digest constant; updated expected public headings."
+    },
+    "secondBooks": {
+      "passed": 426,
+      "failed": 1,
+      "exit": 123,
+      "log": "/workspace/artifacts/ahavat-public-reading-20261030-TlBsKL/books-after-review.log",
+      "resolution": "Updated the remaining old six-layers heading expectation to the new public six-gates heading; coverage/count assertions retained."
+    }
+  },
+  "release": {
+    "allowed": "Protected Preview only after local gates",
+    "main": "NOT_MERGED",
+    "production": "NO_ACTION",
+    "database": "NO_ACTION",
+    "publicationStatus": "UNCHANGED",
+    "hosted": "Not pre-claimed; exact final-HEAD hosted results belong to external handoff.json after deployment"
+  },
+  "gaps": [
+    "24 unread letter/parasha cells and two cumulative checkpoints unchanged",
+    "Selected commentary is not exhaustive for every paragraph",
+    "Human visual adoption, physical-device and Safari acceptance not claimed",
+    "No new-model or universal spatial-contract acceptance",
+    "Permanent public integration/release not performed",
+    "Live canonical domains resolve to a different Production ID from the declared lock; no remediation or runtime-cutover inference"
+  ],
+  "ownership": {
+    "recipient": "ZURIEL",
+    "liveJournal": "READ_ONLY",
+    "liveBeforeWritten": false,
+    "liveAfterWritten": false,
+    "finalLocalRelease": "Recorded in external final handoff after delivery"
+  }
+}
