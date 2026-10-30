@@ -90,12 +90,14 @@ main, Production domain/alias or live-content change is included.
 
 ## Hosted acceptance
 
-- Deployment: `dpl_53qKDRQcgABRz81y4d2w46M31sCS`, READY, target `null` (Preview).
-- Tested source: `ae563ecfa24c6fbc33a2fbf1e2c36277bdea4953` on the exact branch
-  above. This acceptance paragraph is a later documentation-only commit, not a
-  claim that the deployed source SHA changed.
-- World: https://sod1820-ooqrzpu9n-sod1820-s-projects.vercel.app/world
-- Claude gate: https://sod1820-ooqrzpu9n-sod1820-s-projects.vercel.app/topic/1237
+- Final deployment: `dpl_CwmweZtb5PWgxv9mzVD9NRcPfYta`, READY, target `null`
+  (Preview). It supersedes this stage's initial `dpl_53qKDRQcgABRz81y4d2w46M31sCS`
+  preview, which was not deleted or promoted.
+- Tested runtime source: `1b44d893c3328096eeb8200230068324c62222db` on the exact
+  branch above, including corrected gate-to-context navigation. Later receipt
+  and browser-harness-only changes do not change the deployed runtime source.
+- World: https://sod1820-hd661iglv-sod1820-s-projects.vercel.app/world
+- Claude gate: https://sod1820-hd661iglv-sod1820-s-projects.vercel.app/topic/1237
 - Vercel SSO protection remains enabled. Authenticated access used an existing
   account's temporary share link in memory; no link token or browser state was
   printed, committed or saved to an artifact. No protection setting changed.
@@ -104,10 +106,19 @@ main, Production domain/alias or live-content change is included.
   `unifiedReadOnly=true`, the write-blocking guard and mock-only model transport.
   Responses retain `no-store` and `noindex, nofollow, noarchive` headers.
 - The same actual-build live-public browser test passed again **on this hosted
-  deployment**, at 390 and 1440, for 1237, Topic 1118 → World finding → Back,
-  and the World Zvi source entry. Zero page errors, model requests or escaped
+  final deployment**, at 390 and 1440, for 1237, Topic 1118 → World finding → Back,
+  and the World Zvi source entry, including an assertion that the actual shared
+  Frame map points to real gate sections. Zero page errors, model requests or escaped
   product writes were observed. Screenshots remain local under
-  `/tmp/elections-world-hosted-preview-20261030`.
+  `/tmp/elections-world-final-hosted-preview-20261030`.
+- Two initial final-deployment browser runs stalled before App2029 mounted
+  after authenticating through `/`; only the Preview disclosure was present.
+  The local actual-build/live-data run passed. Establishing the same existing
+  protected cookie through `/preview-identity.json` instead of starting the
+  known root/worker bootstrap first made the complete hosted run pass. The
+  harness now uses that static authentication entry and reports bounded render
+  diagnostics on failure. No application guard or access policy was bypassed
+  or weakened, and the pre-existing root-route issue is not claimed fixed.
 - Both Legacy and 2029 builds passed, followed by the built graph/lazy boundary
   check (142 reachable / 15 eager manifest records) and the Legacy lock. The
   three strengthened synthetic browser tests passed again without skips.

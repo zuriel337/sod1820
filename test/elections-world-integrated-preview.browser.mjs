@@ -71,11 +71,23 @@ try {
     page.on("pageerror", error => report.errors.push(error.message));
     page.setDefaultTimeout(60000);
     if (accessUrl) {
-      try { await page.goto(accessUrl); }
+      // Establish the existing protected cookie on a static JSON resource first.
+      // Starting App2029 at / can race its known root reload and worker bootstrap
+      // against the subsequent Topic navigation. This changes no site auth rule.
+      const authenticationUrl = new URL(accessUrl);
+      authenticationUrl.pathname = "/preview-identity.json";
+      try { await page.goto(authenticationUrl.href); }
       catch { throw new Error("Protected Preview access failed; access URL withheld."); }
     }
     await page.goto(origin + "/topic/1237");
-    await page.locator(".rv [data-rv-hero]").waitFor();
+    try { await page.locator(".rv [data-rv-hero]").waitFor(); }
+    catch {
+      const current = new URL(page.url());
+      console.log(JSON.stringify({ boundary: "1237 gate render", width, host: current.host, path: current.pathname,
+        errors: report.errors, modelRequests: report.modelRequests,
+        text: current.origin === origin ? (await page.locator("body").innerText()).slice(0, 2000) : "outside deployment origin" }));
+      throw new Error("The hosted 1237 gate did not render; see the bounded boundary report.");
+    }
     await page.locator('.rv-method[data-status="confirmed"]').nth(1).waitFor();
     await page.locator(".rv-gallery .rv-source").first().waitFor();
     assert.equal(await page.locator(".sod29-topic-hero").count(), 0);
