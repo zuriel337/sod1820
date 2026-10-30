@@ -32,6 +32,31 @@ export function decodePublicEntities(value, passes = 4) {
   return text;
 }
 
+/** Readable media caption, never a replacement for stored provenance/OCR input.
+ * Decode WP-style quote escapes without deleting URL slashes, paths, numeric
+ * brackets, equations, line breaks or arbitrary runs of meaningful backslashes.
+ * The result is plain React text, NOT HTML to inject into a document.
+ */
+export function publicMediaCaption(value) {
+  return decodePublicEntities(value)
+    .replace(/\\+(["'])/g, "$1")
+    .replace(/<br\s*\/?\s*>|<\/(?:p|div|li|h[1-6])\s*>/gi, "\n")
+    .replace(/<\/?(?:p|div|span|strong|b|i|em|u|ul|ol|li|a|h[1-6])\b[^>]*>/gi, "")
+    .replace(/\r\n?/g, "\n")
+    .trim();
+}
+
+/** Historical gallery update notices are provenance, not image headlines.
+ * Unicode-aware boundaries are deliberate: JS \\b/\\w do not cover Hebrew.
+ */
+export function publicMediaTitle(value) {
+  const text = publicMediaCaption(value);
+  if (!text || text === "תמונה"
+    || /^עדכון(?=$|[\s:—־*\-])/u.test(text)
+    || /^נוספ(?:ה|ו)?\s+(?:\d+\s+)?(?:תמונ(?:ה|ות)|מסר(?:ים)?)(?=$|\s)/u.test(text)) return null;
+  return text;
+}
+
 function dropDisplayOnlyLegacySuffixes(value) {
   const parts = String(value || "")
     .split("|")

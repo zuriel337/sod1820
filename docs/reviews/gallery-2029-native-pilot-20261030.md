@@ -224,3 +224,48 @@ Receipt/test-scope-only follow-up changes no src/runtime/build configuration
 relative to the deployed SHA. Status: IMPLEMENTED / GALLERY_TESTED /
 PROTECTED_DESIGN_PREVIEW_VERIFIED, NOT FULL_WORLD_REGRESSION_ACCEPTED.
 Layout remains ZURIEL's visual review, not aesthetic acceptance or Claude approval.
+
+## Clean captions and editorial museum flow — next approved revision
+
+Task `GALLERY_2029_CLEAN_CAPTION_STORY_FLOW_20261030`;
+BEFORE `17abceb0-ef15-40bf-9656-44ff0ff0db64`;
+base `2f5f84c62517c064989f35834dafcae172b4fdc8`, same isolated branch.
+
+ZURIEL approved removing visible quote-escape artifacts and historical update
+headlines, retaining source history and making the gallery feel closer to the
+old museum style without importing Legacy UI or changing the original material.
+
+The existing `presentation/contentTitle.js` owner now exports additive
+`publicMediaCaption` and `publicMediaTitle`. Existing title exports/default
+behavior remain unchanged. The caption adapter removes one-or-many stored quote
+escapes, decodes existing supported entities and converts known formatting tags
+to plain text. URL/fraction slashes, numeric brackets, equations, ordinary path
+backslashes and line breaks remain; no blanket slash removal or innerHTML.
+Hebrew maintenance notices use explicit Unicode-aware boundaries rather than
+the old ASCII word-boundary assumptions. None becomes a public image headline.
+
+Gallery main text and reading-context labels use the readable projection. Source
+history retains readable historical text PLUS an explicit verbatim disclosure
+with the untouched stored name/caption. OCR, exact text ranges, method input,
+number tags, source identity, ordering and calculation/visibility gates are not
+normalized or rewritten. There is no product DB update or new OCR run.
+
+The six-image sequence now uses full-width editorial rows: a larger image beside
+its compact placard on desktop, stacked on mobile. Warm thin borders/shadows
+frame only the image; the large outer card cabinet is removed. The introduction
+and decorative space are reduced. Existing semantic themes/type, whole-image
+policy, public links, source selection and precise Number return remain.
+
+Verification so far: caption and existing title consumers12/12, source/model43/43,
+fixture browser2/2 at320/1440 including escaped captions, hidden maintenance
+headlines, accessible untouched originals, non-initial-card return and privacy.
+Both builds, graph/lazy, World/Topic surfaces, isolation, route hardening,
+Legacy lock and Preview guard7/7 pass. The browser measurement now checks display
+mode before counting grid columns (a block retains its unused grid declaration);
+no product assertion or security gate was relaxed.
+
+Final live-public/hosted design acceptance follows below. This is a bounded
+gallery acceptance slice, not closure of the previously documented hosted
+Topic1118 timeout or inherited Frame-language assertion. No other owner scope,
+App/config/Frame/provider/reader/model/engine/RLS/privacy/migration/publication/
+Edge/main/Production/domain change. Legacy helpers remain untouched.

@@ -233,6 +233,11 @@ try {
     await page.goto(origin+'/world?view=gallery&gallery=29');
     await page.locator('.g29-exhibit').first().waitFor();
     await page.waitForFunction(()=>{const img=document.querySelector('.g29-canvas img');return img?.complete&&img.naturalWidth>0;});
+    const historicalCard=page.locator('[data-gallery-image-id="d9842a5a-5313-4d32-8e58-5f07fa29b887"]');
+    await historicalCard.waitFor();
+    assert.doesNotMatch(await historicalCard.locator('.g29-caption').innerText(),/\\/);
+    assert.match(await historicalCard.locator('.g29-caption').innerText(),/"וראית את אחרי"/);
+    assert.equal(await historicalCard.locator('h3').count(),0,'historical update notice is not an image headline');
     await page.screenshot({path:resolve(output,`gallery-29-${width}.png`)});
     const galleryType=await page.locator('.g29-gallery').evaluate(root=>{
       const style=selector=>getComputedStyle(root.querySelector(selector));
@@ -240,11 +245,13 @@ try {
         control:parseFloat(style('.g29-number').fontSize),kind:parseFloat(style('.g29-kind').fontSize),
         numberFamily:style('.g29-number bdi').fontFamily,labelFamily:style('.g29-number-label').fontFamily,
         gridColumns:style('.g29-flow').gridTemplateColumns.split(' ').length,
+        cardColumns:style('.g29-exhibit').display==='grid'?style('.g29-exhibit').gridTemplateColumns.split(' ').length:1,
         controls:[...root.querySelectorAll('.g29-number,.g29-depth > summary')].map(el=>el.getBoundingClientRect().height)};
     });
     assert.ok(galleryType.caption>=18&&galleryType.control>=16&&galleryType.kind>=15);
     assert.ok(galleryType.controls.every(height=>height>=44));
-    assert.equal(galleryType.gridColumns,width<761?1:2);
+    assert.equal(galleryType.gridColumns,1);
+    assert.equal(galleryType.cardColumns,width<761?1:2);
     assert.notEqual(galleryType.numberFamily,galleryType.labelFamily,'Hebrew labels do not inherit the numeric typeface');
     for(const [preset,label] of [['light','יום'],['parchment','קלף'],['dark','לילה']]){
       const control=page.locator('.sod29-theme-presets.is-header-control');

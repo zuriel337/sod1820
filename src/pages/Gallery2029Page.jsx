@@ -12,20 +12,26 @@ import { numberExpressionFocusHref } from "../lib/research/numberExpressionFocus
 import { gatePublicMethodRows, gateSourcePresentation, gateSourceSelectionIsCurrent } from "../lib/research/revelation1237Gate2029.js";
 import { gallerySourceHref2029, galleryOccurrenceItem, loadPublicGallerySourceWindow, resolvePublicGallerySelection } from "../lib/research/topicSourceContext.js";
 import { bilingualDateLabel } from "../lib/relativeTime2029.js";
+import { publicMediaCaption, publicMediaTitle } from "../lib/presentation/contentTitle.js";
+import { canonicalMediaPublicLabel } from "../lib/presentation/canonicalPresentation.js";
 import "./gallery2029.css";
 
 const readWindow = (options) => loadPublicGallerySourceWindow({ ...options,
   listGalleryImages: getImagesByGallery, fetchSourceContext: fetchGallerySourceContext });
 const ordinaryClick = (event) => !event.defaultPrevented && event.button === 0
   && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey;
+const readingLabel = (item) => canonicalMediaPublicLabel({
+  title: publicMediaTitle(item?.legacyPlacement?.originalName),
+  description: publicMediaCaption(item?.legacyPlacement?.originalCaption),
+}, { fallback: "תמונה מהגלריה" });
 
 function GalleryImageCard({ item, index, selected, opening, error, onRemember, onOpenExpression, onSelect }) {
   const [captionExpanded, setCaptionExpanded] = useState(false);
   const p = item.legacyPlacement;
   const source = gateSourcePresentation(item);
   const slotKey = `gallery-source-${item.galleryImageId}`;
-  const title = p.originalName && p.originalName !== "תמונה" ? p.originalName : null;
-  const caption = p.originalCaption || "";
+  const title = publicMediaTitle(p.originalName);
+  const caption = publicMediaCaption(p.originalCaption);
   const kind = p.imageType === "gematria" ? "גימטריה" : p.imageType === "hint" ? "רמזים בתמונה"
     : p.imageType === "event" ? "מן החדשות" : "מהגלריה";
   const numberLink = (number) => <Link key={number} className="g29-number" to={numberExpressionFocusHref(number)}
@@ -57,8 +63,14 @@ function GalleryImageCard({ item, index, selected, opening, error, onRemember, o
             <p className="g29-note">כאן שמורים הכיתובים, הקרדיטים והמקומות שבהם התמונה הופיעה. הופעות חוזרות אינן מקורות עצמאיים.</p>
             {source.history.map((placement) => <section key={placement.galleryImageId} className="g29-history">
               <h4>{placement.galleryName || "מיקום נוסף בגלריה"}</h4>
-              {placement.originalName ? <p>{placement.originalName}</p> : null}
-              {placement.originalCaption ? <p className="g29-original-caption">{placement.originalCaption}</p> : null}
+              {placement.originalName ? <p>{publicMediaCaption(placement.originalName)}</p> : null}
+              {placement.originalCaption ? <p className="g29-original-caption">{publicMediaCaption(placement.originalCaption)}</p> : null}
+              {(publicMediaCaption(placement.originalName) !== (placement.originalName || "")
+                || publicMediaCaption(placement.originalCaption) !== (placement.originalCaption || "")) ? <details className="g29-verbatim">
+                  <summary>הנוסח השמור במקור</summary>
+                  {placement.originalName ? <pre>{placement.originalName}</pre> : null}
+                  {placement.originalCaption ? <pre>{placement.originalCaption}</pre> : null}
+                </details> : null}
               {[placement.originalCredit?.author, placement.originalCredit?.publication].filter(Boolean).length ? <p>קרדיט: {[placement.originalCredit.author, placement.originalCredit.publication].filter(Boolean).join(" · ")}</p> : null}
               {placement.occurredAt ? <p className="g29-note">{placement.dateProvenance?.occurredAt?.derivedFrom === "path" ? `תיקיית המקור: ${placement.occurredAt.slice(0, 7)}. זה אינו תאריך אירוע מאומת.`
                 : `תאריך שנשמר עם התמונה: ${bilingualDateLabel(placement.occurredAt)}. זה אינו תאריך אירוע מאומת.`}</p> : null}
@@ -115,7 +127,7 @@ function GalleryBody() {
       selection: { entityId: item.galleryImageId, entityType: "image", sourceRef: item.sourceRef, locator: `#${slotKey}` },
       lens: "gallery", dimensions: { ...(previous?.dimensions || {}), readingFocus: null, surfaceFindings: [],
         topicSlug: null, expressionFocusExplicit: false, galleryImageId: item.galleryImageId, wpGalleryId,
-        surfaceFocus: { id: item.mediaId, type: "image", label: item.label, primary: item.label,
+        surfaceFocus: { id: item.mediaId, type: "image", label: readingLabel(item), primary: readingLabel(item),
           reference: item.sourceIdentity?.ref, locator: `#${slotKey}`, href: exactHref, sourceLabel: title } } }));
   }, [routeKey, item?.galleryImageId]); // Existing Context only; no gallery store/provider.
 
@@ -200,7 +212,7 @@ function GalleryBody() {
     selection: { entityId: sourceItem.galleryImageId, entityType: "image", sourceRef: sourceItem.sourceRef,
       locator: `#gallery-source-${sourceItem.galleryImageId}` },
     dimensions: { galleryImageId: sourceItem.galleryImageId, surfaceFocus: { id: sourceItem.mediaId, type: "image",
-      label: sourceItem.label, primary: sourceItem.label, reference: sourceItem.sourceIdentity?.ref,
+      label: readingLabel(sourceItem), primary: readingLabel(sourceItem), reference: sourceItem.sourceIdentity?.ref,
       locator: `#gallery-source-${sourceItem.galleryImageId}`, href: gallerySourceHref2029(wpGalleryId, sourceItem.galleryImageId), sourceLabel: title } },
   });
   return <article id="gallery-top" className="g29-gallery" dir="rtl" data-gallery-id={wpGalleryId}>

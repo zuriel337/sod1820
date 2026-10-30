@@ -174,7 +174,8 @@ function fixturePlugin() {
       import '/src/components/experience2029/sod2029.css';
       window.__reads=[];window.__sheetTargets=[];window.__galleryRequests=[];window.__traceReads=[];
       window.__nativeGalleryRow=id=>({id,wp_gallery_id:Math.floor(Number(id.slice(-12))/100),ordering:Number(id.slice(-12))%100,
-        published:1,min_tier:0,image_type:'gematria',description:'כיתוב מדויק '+id,
+        published:1,min_tier:0,image_type:'gematria',name:'עדכון **** נוספו 6 תמונות חדשות',
+        description:'כיתוב מדויק '+id+' '+String.fromCharCode(92).repeat(3)+'"וראית את אחרי'+String.fromCharCode(92).repeat(3)+'" = 1237',
         image_url:'https://example.test/storage/v1/object/public/media/'+id+'.png',
         all_values:[844,1237,3137],ocr_text:window.__sourceChanged?'טקסט השתנה':'טקסט שמור התגלות'});
       function Target(){const research=useResearch(),navigate=useNavigate();return <><p>יעד המשך</p>
@@ -237,7 +238,13 @@ test("native gallery uses exact public occurrences and canonical method navigati
       const plain=await page.locator('.g29-gallery').innerText();
       assert.doesNotMatch(plain,/פיילוט|חלון|OCR|מיקום שמור|gallery_images:/,"reader-facing copy does not expose implementation vocabulary");
       const columns=await page.locator('.g29-flow').evaluate(el=>getComputedStyle(el).gridTemplateColumns.split(' ').length);
-      assert.equal(columns,width<761?1:2);
+      assert.equal(columns,1,'images flow sequentially rather than in boxed tiles');
+      const cardColumns=await exhibit.evaluate(el=>{const style=getComputedStyle(el);return style.display==='grid'?style.gridTemplateColumns.split(' ').length:1;});
+      assert.equal(cardColumns,width<761?1:2,'desktop pairs an image with its placard; mobile stacks them');
+      assert.match(await exhibit.locator('.g29-caption').innerText(),/"וראית את אחרי" = 1237/);
+      assert.doesNotMatch(await exhibit.locator('.g29-caption').innerText(),/\\/);
+      assert.doesNotMatch(await exhibit.innerText(),/עדכון \*\*\*\*/);
+      assert.equal(await exhibit.locator('h3').count(),0,'maintenance notices are not public image headlines');
       assert.ok(await exhibit.locator('.g29-depth').evaluate(el=>!el.open),"research stays behind an intentional action");
       assert.equal(await exhibit.locator(".g29-canvas img").getAttribute("data-media-fit"),"preserve-whole-image");
       await exhibit.locator('a[href="/2029/number/3137"]').click();
@@ -245,6 +252,12 @@ test("native gallery uses exact public occurrences and canonical method navigati
       assert.equal(await page.evaluate(()=>window.__researchContext.returnTo.selection.sourceRef),`gallery_images:${id}`);
       await page.goBack();await exhibit.waitFor();
       assert.equal(new URL(page.url()).hash,`#gallery-source-${id}`);
+      await exhibit.locator('.g29-depth > summary').click();
+      await exhibit.locator('.g29-source-details > summary').click();
+      await exhibit.locator('.g29-verbatim > summary').click();
+      assert.match(await exhibit.locator('.g29-verbatim').innerText(),/עדכון \*\*\*\*/);
+      assert.match(await exhibit.locator('.g29-verbatim pre').last().innerText(),/\\/,'verbatim source remains unchanged');
+      await exhibit.locator('.g29-depth > summary').click();
       const otherId="10000000-0000-4000-8000-000000008108";
       await page.locator(`[data-gallery-image-id="${otherId}"] a[href="/2029/number/3137"]`).click();
       await page.waitForURL(origin+"/2029/number/3137");
