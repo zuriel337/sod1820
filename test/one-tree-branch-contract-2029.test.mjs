@@ -459,6 +459,62 @@ test("all declared consumer families share the same branch identity contract", (
   }
 });
 
+test("the same candidate evidence retains one finding and source identity across World, Topic and Number", () => {
+  const bundle = compileOneTreeBranch(broadFixture());
+  const worlds = [ONE_TREE_CONSUMER.WORLD, ONE_TREE_CONSUMER.TOPIC, ONE_TREE_CONSUMER.NUMBER]
+    .map(consumer => projectOneTreeBranchForConsumer(bundle, consumer));
+  const identity = projection => {
+    const finding = projection.resultBundle.findings.find(item => item.id === "creation:fact-book-topic");
+    assert.ok(finding);
+    return { id: finding.id, sourceRef: finding.source.sourceRef, refs: finding.evidence.refs, status: finding.status };
+  };
+
+  assert.deepEqual(worlds.map(identity), [identity(worlds[0]), identity(worlds[0]), identity(worlds[0])]);
+  assert.equal(identity(worlds[0]).sourceRef, "source-book");
+  assert.equal(identity(worlds[0]).status, ONE_TREE_BRANCH_REVIEW_STATE.HUMAN_GATE_PENDING);
+  assert.equal(bundle.invariants.same_branch_finding_identity_for_all_consumers, true);
+  assert.equal(bundle.invariants.declared_subject_references_are_not_graph_edges, true);
+  assert.equal(bundle.invariants.relation_candidates_are_not_graph_edges, true);
+  for (const projection of worlds) {
+    assert.equal(projection.relationCandidateIds.includes("relation-book-topic"), true);
+    assert.equal(projection.resultBundle.findings.some(item => item.id === "creation:claim-private-note"), false);
+  }
+});
+
+test("a later input appears in projections only after recompiling the branch snapshot", () => {
+  const input = broadFixture();
+  const initial = compileOneTreeBranch(input);
+  input.evidenceRecords.push({
+    id: "future-source-fact",
+    lane: ONE_TREE_EVIDENCE_LANE.SOURCE_FACT,
+    findingKind: "book_fact",
+    subjectRefs: ["topic:creation", "number:1820"],
+    sourceIds: ["source-book"],
+    predicate: "statement_in_source",
+    value: "new source content",
+    verificationState: "not_tested",
+    semanticClass: "evidence",
+    governanceState: ONE_TREE_BRANCH_REVIEW_STATE.HUMAN_GATE_PENDING,
+    accessTier: "public",
+    tags: [],
+    attributes: {},
+  });
+
+  const hasNewFinding = bundle => projectOneTreeBranchForConsumer(bundle, ONE_TREE_CONSUMER.WORLD)
+    .resultBundle.findings.some(item => item.id === "creation:future-source-fact");
+  assert.equal(hasNewFinding(initial), false);
+  const next = compileOneTreeBranch(input);
+  assert.equal(hasNewFinding(next), true);
+  assert.equal(initial.invariants.compiled_input_is_snapshot_not_live_feed, true);
+  for (const consumer of [ONE_TREE_CONSUMER.TOPIC, ONE_TREE_CONSUMER.NUMBER]) {
+    const finding = projectOneTreeBranchForConsumer(next, consumer).resultBundle.findings
+      .find(item => item.id === "creation:future-source-fact");
+    assert.ok(finding);
+    assert.equal(finding.source.sourceRef, "source-book");
+    assert.equal(finding.status, ONE_TREE_BRANCH_REVIEW_STATE.HUMAN_GATE_PENDING);
+  }
+});
+
 test("dangling refs, dependency cycles, visual payload and canonical states fail closed", () => {
   const dangling = broadFixture();
   dangling.relationCandidates[0].toRef = "topic:missing";
