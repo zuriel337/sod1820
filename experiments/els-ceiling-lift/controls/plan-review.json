@@ -1,0 +1,200 @@
+{
+  "created_for": "EXP-24",
+  "window_sha256": "208cbe689b68f941daf995f07ff490d8974a5c13128f1724c8792471c02802fe",
+  "model": {
+    "id": "claude-fable-5-1",
+    "effort": "medium",
+    "maxTokens": 20000
+  },
+  "group_size": 8,
+  "cap_per_group": 40,
+  "previous_cap_per_group": 12,
+  "experiment_cap_usd": 2.5,
+  "groups": [
+    {
+      "id": "G02",
+      "role": "saved_lines",
+      "control_of": null,
+      "first": "R09",
+      "last": "R16",
+      "lines": [
+        "R09",
+        "R10",
+        "R11",
+        "R12",
+        "R13",
+        "R14",
+        "R15",
+        "R16"
+      ]
+    },
+    {
+      "id": "G06",
+      "role": "saved_lines",
+      "control_of": null,
+      "first": "C08",
+      "last": "C15",
+      "lines": [
+        "C08",
+        "C09",
+        "C10",
+        "C11",
+        "C12",
+        "C13",
+        "C14",
+        "C15"
+      ]
+    },
+    {
+      "id": "G07",
+      "role": "saved_lines",
+      "control_of": null,
+      "first": "C16",
+      "last": "C23",
+      "lines": [
+        "C16",
+        "C17",
+        "C18",
+        "C19",
+        "C20",
+        "C21",
+        "C22",
+        "C23"
+      ]
+    },
+    {
+      "id": "G10",
+      "role": "saved_lines",
+      "control_of": null,
+      "first": "C40",
+      "last": "D06",
+      "lines": [
+        "C40",
+        "C41",
+        "D01",
+        "D02",
+        "D03",
+        "D04",
+        "D05",
+        "D06"
+      ]
+    }
+  ],
+  "runs": [
+    {
+      "id": "G02A",
+      "group": "G02",
+      "role": "saved_lines",
+      "control_of": null,
+      "arm": "A",
+      "lines": [
+        "R09",
+        "R10",
+        "R11",
+        "R12",
+        "R13",
+        "R14",
+        "R15",
+        "R16"
+      ],
+      "custom_id": "els-live-l24-g02a",
+      "prompt_chars": 3341,
+      "est_input_tokens": 2673,
+      "worst_case_usd": 0.51671,
+      "request_sha256": "50f620efee5a7a7bd5cc2b8a88cc0a4302a67a8e32276fa027e49ed62dc5873c",
+      "lock_sha256": "3337246c28a2afec07c2c2a7a41376d952abafdcca3c3bae01cba2114f0d2051"
+    },
+    {
+      "id": "G06A",
+      "group": "G06",
+      "role": "saved_lines",
+      "control_of": null,
+      "arm": "A",
+      "lines": [
+        "C08",
+        "C09",
+        "C10",
+        "C11",
+        "C12",
+        "C13",
+        "C14",
+        "C15"
+      ],
+      "custom_id": "els-live-l24-g06a",
+      "prompt_chars": 3180,
+      "est_input_tokens": 2544,
+      "worst_case_usd": 0.5159,
+      "request_sha256": "819a42eb1992f44689298550529b148828e5068f2f8133295871c99afbc39902",
+      "lock_sha256": "4a32c137f4cbeb1d6f00b6e8b9508ea0019c7c9eb2b2fba78ac60d7a84c95918"
+    },
+    {
+      "id": "G07A",
+      "group": "G07",
+      "role": "saved_lines",
+      "control_of": null,
+      "arm": "A",
+      "lines": [
+        "C16",
+        "C17",
+        "C18",
+        "C19",
+        "C20",
+        "C21",
+        "C22",
+        "C23"
+      ],
+      "custom_id": "els-live-l24-g07a",
+      "prompt_chars": 3180,
+      "est_input_tokens": 2544,
+      "worst_case_usd": 0.5159,
+      "request_sha256": "e5718e029fed0fa4fdf0fc6737982154c3fc3a8d39e91a2917eecfae8be93c30",
+      "lock_sha256": "bf87dc1311b9ec1f8a0bbecd6b4b972d9654cb7a4c4cee16a9b96fb55b15620c"
+    },
+    {
+      "id": "G10A",
+      "group": "G10",
+      "role": "saved_lines",
+      "control_of": null,
+      "arm": "A",
+      "lines": [
+        "C40",
+        "C41",
+        "D01",
+        "D02",
+        "D03",
+        "D04",
+        "D05",
+        "D06"
+      ],
+      "custom_id": "els-live-l24-g10a",
+      "prompt_chars": 3237,
+      "est_input_tokens": 2590,
+      "worst_case_usd": 0.51619,
+      "request_sha256": "03c14282209981f782438c179e409140f13275de3e259c754f27856291353141",
+      "lock_sha256": "56a0397233d90bc1812be25cfbbe5a642236dba5c3db0d42473bb3f446fae00f"
+    }
+  ],
+  "budget": {
+    "requests": 4,
+    "sum_of_worst_cases_usd": 2.0647,
+    "fits_cap": true,
+    "headroom_usd": 0.4353,
+    "note": "the worst case of a request is the counted input x 1.25 plus the whole max_tokens allowance, at batch prices; the estimate uses 0.8 tokens per character and the preflight replaces it with the provider's exact count (free)"
+  },
+  "function": {
+    "slug": "els-live-reading",
+    "batch_only": true,
+    "count_tokens_allowed": true,
+    "models": [
+      "claude-fable-5-1"
+    ],
+    "approved_lock_sha256": [
+      "3337246c28a2afec07c2c2a7a41376d952abafdcca3c3bae01cba2114f0d2051",
+      "4a32c137f4cbeb1d6f00b6e8b9508ea0019c7c9eb2b2fba78ac60d7a84c95918",
+      "bf87dc1311b9ec1f8a0bbecd6b4b972d9654cb7a4c4cee16a9b96fb55b15620c",
+      "56a0397233d90bc1812be25cfbbe5a642236dba5c3db0d42473bb3f446fae00f"
+    ],
+    "round2": "none",
+    "disabled_after": true
+  }
+}
