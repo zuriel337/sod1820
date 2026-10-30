@@ -26,6 +26,7 @@ import { useElsJourneyReopen } from "../lib/research/useElsJourneyReopen.js";
 import { useOptionalRazielSession2029 } from "../components/experience2029/RazielSessionMount2029.jsx";
 import { elsMatrixReadingMode } from "../lib/research/elsMatrixReadingPresentation.js";
 import { elsMatrixReadingReturnLoad } from "../lib/research/elsMatrixReadingActivity.js";
+import { elsResearchReturnLoad } from "../lib/research/elsResearchReturnSnapshot.js";
 
 const clean = (value) => String(value ?? "").trim();
 const ELS_DESCRIPTION = "חפשו דילוגי אותיות, קראו את המקור ושמרו ממצאים להמשך מחקר.";
@@ -228,11 +229,8 @@ export default function Els2029Page({ previewAdvanced = false }) {
     researchReturnKey.current = location.key;
     const task = research.elsResearchOperation?.task;
     if (task?.id !== id) { setFindingNotice("המחקר אינו זמין בלשונית או בחשבון הנוכחי. לא הופעלה סריקה חדשה."); return; }
-    const origin = task.origin;
     pendingProbeRef.current = null; setResearchProbe(null); setExactStatus("idle");
-    setResearchLoad({ term: origin.term, scope: origin.corpus, corpusId: origin.corpusId,
-      start: origin.start, skip: origin.skip, dir: origin.dir,
-      hitId: `${origin.skip}_${origin.dir}_${origin.start}`, words: [], researchNonce: `${id}:${location.key}` });
+    setResearchLoad({ ...elsResearchReturnLoad(task), researchNonce: `${id}:${location.key}` });
     setMatrixProfile(ELS_MATRIX_PROFILE.RESEARCH); setWorkspaceVisited(true);
   }, [location.key, location.state, research.elsResearchOperation?.task]);
   const requestExactSkip = request => {

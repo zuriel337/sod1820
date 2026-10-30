@@ -15,6 +15,7 @@ const axis = { entityType: 'els', term: 'תורה', corpus: 'torah', skip: 50, d
 const mime = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.svg': 'image/svg+xml' };
 const iframe = `<!doctype html><html><body>Engine transport fixture<script>
 window.__loads=[];addEventListener('message',event=>{if(event.data?.type==='load-matrix')window.__loads.push(event.data.item);});
+window.__publish=state=>parent.postMessage({source:'tzofen',type:'state',...state},location.origin);
 parent.postMessage({source:'tzofen',type:'ready'},location.origin);</script></body></html>`;
 
 test('non-AI research survives route unmount, remains independent of Raziel, returns exactly and cancels', { timeout: 180000 }, async () => {
@@ -82,6 +83,10 @@ test('non-AI research survives route unmount, remains independent of Raziel, ret
       await page.getByLabel('מונח לחיפוש מתקדם').fill('אמת');
       await page.getByLabel('מילות המשך למחקר').fill('חסד');
       await page.getByLabel('דילוג מקסימלי').fill('200');
+      await page.locator('iframe').first().evaluate(el=>el.contentWindow.__publish({status:'ok',term:'תורה',termRaw:'תורה',scope:'torah',verification:{state:'MATCH',corpus_id:'fixture'},
+        axis:{hitId:'50_1_5',start:5,skip:50,direction:'fwd',length:4},geometry:{cw:40},
+        ui:{ctxR:1,windowSize:'small',windowRequested:'small',zoom:1.6,fit:false,heat:true,niqqud:false,showN:2,findingRadius:null},
+        findings:[{t:'אמת',color:'#112233',shown:['49_1_25'],sourceHits:[]}]}));
       const start = page.getByRole('button', { name: 'בדוק את המונחים ברקע · ללא AI', exact: true });
       try { await start.click(); } catch (error) { throw new Error(`${width}/${theme}: ${JSON.stringify({ calls, selection: cloud.context?.selection, errors, panel: await page.locator('[data-els-advanced-search]').innerText() })}`, { cause: error }); }
       await page.locator('[data-els-research-task="RUNNING"]').waitFor();
@@ -113,6 +118,9 @@ test('non-AI research survives route unmount, remains independent of Raziel, ret
       await page.waitForFunction(() => [...document.querySelectorAll('iframe')].some(f => f.contentWindow.__loads?.some(item => item.hitId === '50_1_5')));
       assert.equal(calls.filter(x => x.op === 'page').length, 2, 'return does not rerun the research');
       assert.equal(await page.locator('[data-els-research-task] details').count(), 2);
+      const restored = await page.locator('iframe').first().evaluate(el=>el.contentWindow.__loads.find(item=>item.hitId==='50_1_5'));
+      assert.equal(restored.view.zoom,1.6);
+      assert.deepEqual(restored.words,[{t:'אמת',color:'#112233',sh:['49_1_25'],sourceShown:[]}]);
       const resultActivity = page.locator('[data-els-research-task="COMPLETE"]');
       await resultActivity.scrollIntoViewIfNeeded();
       assert.equal(await resultActivity.evaluate(el => el.scrollWidth <= el.clientWidth + 1), true, 'activity fits its own panel');

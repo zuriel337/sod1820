@@ -3,12 +3,12 @@ import { build } from "vite";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { readFile, writeFile, copyFile, mkdir } from "node:fs/promises";
-import { selectMatrixRazielPreview, buildMatrixRazielPreviewWorker, MATRIX_READING_PREVIEW_BRANCHES, RAZIEL_ACCOUNT_PREVIEW_BRANCH } from "./lib/matrix-raziel-preview.mjs";
+import { selectMatrixRazielPreview, buildMatrixRazielPreviewWorker, MATRIX_READING_PREVIEW_BRANCHES, RAZIEL_ACCOUNT_PREVIEW_BRANCHES } from "./lib/matrix-raziel-preview.mjs";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 const output = resolve(root, "preview-deploy/dist");
 const matrixReadingPreview = process.env.VERCEL_ENV === "preview" && MATRIX_READING_PREVIEW_BRANCHES.has(process.env.VERCEL_GIT_COMMIT_REF);
-const razielAccountPreview = matrixReadingPreview && process.env.VERCEL_GIT_COMMIT_REF === RAZIEL_ACCOUNT_PREVIEW_BRANCH;
+const razielAccountPreview = matrixReadingPreview && RAZIEL_ACCOUNT_PREVIEW_BRANCHES.has(process.env.VERCEL_GIT_COMMIT_REF);
 process.env.SOD_BUILD_TARGET = "2029";
 await build({ root, define: {
   "import.meta.env.VITE_INTEGRATED_PREVIEW": '"true"',

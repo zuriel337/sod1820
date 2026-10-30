@@ -8,6 +8,7 @@ import { join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { ELS_GOLDENS, ELS_GOLDEN_CORPUS_ID } from './fixtures/els-runtime-goldens.mjs';
 import { libraryFixturePlugin } from './fixtures/els-library-browser-fixture.mjs';
+import { captureElsResearchReturn, elsResearchReturnLoad } from '../src/lib/research/elsResearchReturnSnapshot.js';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 const req = createRequire(import.meta.url);
@@ -28,6 +29,30 @@ test('CI: native UI browser regression must not be skipped when required', () =>
   if (process.env.ELS_REQUIRE_EXECUTABLE) {
     assert.ok(canRun, 'ELS_REQUIRE_EXECUTABLE=1 requires Playwright, Vite/plugin-react and Chromium');
   }
+});
+
+test('background return restores verified manual findings and view through the existing engine load',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:90000},async()=>{
+  await withNative({width:390,height:844},async page=>{
+    await addSecondary(page,'תורה');
+    for(const [action,value] of [['zoom-set',1.6],['heat-toggle'],['niqqud-toggle'],['axis-visibility']]){
+      await page.locator('iframe').evaluate((el,payload)=>el.contentWindow.postMessage({source:'sod-host',type:'native-control',action:payload[0],value:payload[1]},location.origin),[action,value]);
+    }
+    await page.waitForFunction(()=>window.__state?.ui?.zoom===1.6&&window.__state.ui.heat&&window.__state.ui.niqqud&&window.__state.ui.hideMain);
+    const before=await page.evaluate(()=>window.__state),snapshot=captureElsResearchReturn(before);
+    assert.ok(snapshot);
+    const origin={term:before.term,corpus:before.scope,corpusId:before.verification.corpus_id,start:before.axis.start,skip:before.axis.skip,dir:before.axis.direction==='back'?-1:1};
+    await page.evaluate(item=>window.__loadResearch({...item,words:[],researchNonce:'different'}),ELS_GOLDENS[2]);
+    await page.waitForFunction(()=>window.__state?.term==='אליהו'&&window.__state?.status==='ok');
+    const load=elsResearchReturnLoad({origin,returnSnapshot:snapshot});
+    await page.evaluate(item=>window.__loadResearch({...item,researchNonce:'restore'}),load);
+    await page.waitForFunction(()=>window.__state?.term==='תורהקדשה'&&window.__state?.status==='ok'&&window.__state.findings?.some(f=>f.t==='תורה'&&f.shown?.length));
+    const after=await page.evaluate(()=>window.__state);
+    assert.deepEqual(after.axis,before.axis);
+    for(const key of ['zoom','fit','heat','niqqud','hideMain','ctxR','showN','findingRadius'])assert.equal(after.ui[key],before.ui[key],key);
+    assert.deepEqual(after.geometry,before.geometry);
+    assert.deepEqual(after.findings.map(f=>({t:f.t,color:f.color,shown:f.shown})),before.findings.map(f=>({t:f.t,color:f.color,shown:f.shown})));
+  },{realHost:true});
 });
 
 const host = `import React,{useRef,useEffect} from 'react';

@@ -8,6 +8,7 @@ export const MATRIX_RAZIEL_PREVIEW_BRANCHES = new Set([
   "claude/els-matrix-discovery-raziel-preview-20261028",
 ]);
 export const MATRIX_READING_PREVIEW_BRANCHES = new Set([
+  "gpt/els-research-exact-return-preview-20261030",
   "gpt/raziel-account-sync-map-20261030",
   "gpt/els-reading-responsive-preview-20261030",
   "gpt/els-fable-preview-activation-20261029",
@@ -18,6 +19,10 @@ export const MATRIX_READING_PREVIEW_BRANCHES = new Set([
 // Only this reviewed cut enables the existing private Research sync and normal
 // authenticated Raziel submit. This is not a replacement for server authorization.
 export const RAZIEL_ACCOUNT_PREVIEW_BRANCH = "gpt/raziel-account-sync-map-20261030";
+export const RAZIEL_ACCOUNT_PREVIEW_BRANCHES = new Set([
+  RAZIEL_ACCOUNT_PREVIEW_BRANCH,
+  "gpt/els-research-exact-return-preview-20261030",
+]);
 
 const DENY_MARKER = "  return new Response(JSON.stringify({error:'preview_read_only'})";
 
@@ -56,7 +61,7 @@ export function buildMatrixRazielPreviewWorker(worker, { readingOnly = false, br
     if(['preview','start'].includes(a.op)&&(!a.window||a.window.rows!==33||a.window.cols!==41||a.cap!==25))throw new Error('reading_preview_bounds');
     if(a.op==='start'&&(!a.request_id||a.ack_upper_bound_usd!==2))throw new Error('reading_preview_cost_bound');`;
   const guard = readingOnly ? MATRIX_AI_GUARD.replace("const body=await req.clone().json(),m=body&&body.els_matrix_context;", `const body=await req.clone().json(),m=body&&body.els_matrix_context;${readingGuard}`) : MATRIX_AI_GUARD;
-  const accountGuard = readingOnly && branch === RAZIEL_ACCOUNT_PREVIEW_BRANCH ? `
+  const accountGuard = readingOnly && RAZIEL_ACCOUNT_PREVIEW_BRANCHES.has(branch) ? `
   // Existing per-user APIs only; forward original credentials unchanged. The
   // server validates JWT/auth.uid(), expected principal, revision and batch ID.
   if(req.method==='POST'&&u.origin===authOrigin&&/^Bearer [^ ]+$/i.test(req.headers.get('authorization')||'')){

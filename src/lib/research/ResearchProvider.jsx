@@ -448,7 +448,9 @@ function PrincipalResearchProvider({ children, userId, disabled }) {
       });
       if (!currentFrame) return;
       const d = event.data;
-      if (!d || d.source !== "tzofen" || d.type !== "state" || d.status !== "ok") return;
+      if (!d || d.source !== "tzofen" || d.type !== "state") return;
+      elsResearchOperation.observeElsState(d);
+      if (d.status !== "ok") return;
       const term = String(d?.axis?.term || d?.axis?.t || d?.term || d?.query || d?.raw || "").trim();
       if (!term) return;
       const scope = d?.provenance?.scope || d?.scope || "torah";
@@ -504,7 +506,7 @@ function PrincipalResearchProvider({ children, userId, disabled }) {
     };
     window.addEventListener("message", onElsState);
     return () => window.removeEventListener("message", onElsState);
-  }, [runtime, actions]);
+  }, [runtime, actions, elsResearchOperation.observeElsState]);
 
   const researchPathSteps = useMemo(() => {
     const journey = state.context?.journey;

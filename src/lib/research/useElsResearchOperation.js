@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { captureElsResearchReturn, elsResearchSnapshotMatches } from "./elsResearchReturnSnapshot.js";
 
 // One transient operation in the existing principal-scoped ResearchProvider.
 // No Provider, external store, persistence, engine or AI transport is created here.
@@ -6,14 +7,19 @@ export function useElsResearchOperation({ disabled, invoke }) {
   const [task, setTask] = useState(null);
   const active = useRef(false);
   const current = useRef(null);
+  const latestSnapshot = useRef(null);
+  const observeElsState = useCallback(state => {
+    if (active.current) latestSnapshot.current = captureElsResearchReturn(state);
+  }, []);
   useEffect(() => {
     active.current = !disabled;
-    return () => { active.current = false; current.current?.controller.abort(); current.current = null; };
+    return () => { active.current = false; current.current?.controller.abort(); current.current = null; latestSnapshot.current = null; };
   }, [disabled]);
   const start = useCallback(async (input, origin) => {
     if (!active.current || current.current) return { ok: false, error: "קיים מחקר במעקב. עצרו או נקו אותו לפני התחלת מחקר נוסף." };
     // Reserve synchronously, before import/validation, so a double click cannot start two jobs.
     const operation = { controller: new AbortController(), task: null };
+    const captured = latestSnapshot.current;
     current.current = operation;
     const owns = () => active.current && current.current === operation;
     const publish = patch => {
@@ -28,7 +34,9 @@ export function useElsResearchOperation({ disabled, invoke }) {
       const prepared = prepareElsBackgroundResearch(input, origin);
       if (prepared.error) { current.current = null; return { ok: false, error: prepared.error }; }
       publish({ id: crypto.randomUUID(), kind: "els_terms", status: "RUNNING", startedAt: Date.now(),
-        plan: prepared.plan, origin: prepared.origin, phase: "מכין מחקר מונחים", rows: [], result: null });
+        plan: prepared.plan, origin: prepared.origin,
+        returnSnapshot: elsResearchSnapshotMatches(captured, prepared.origin) ? captured : null,
+        phase: "מכין מחקר מונחים", rows: [], result: null });
       // The batch itself remains capped at 4 first pages / 15s between calls. This is the
       // outer request watchdog, not a promise that a server computation can be killed.
       timer = setTimeout(() => {
@@ -64,5 +72,5 @@ export function useElsResearchOperation({ disabled, invoke }) {
     if (current.current?.task?.status === "RUNNING") return false;
     current.current?.controller.abort(); current.current = null; setTask(null); return true;
   }, []);
-  return useMemo(() => ({ task, start, cancel, clear }), [task, start, cancel, clear]);
+  return useMemo(() => ({ task, start, cancel, clear, observeElsState }), [task, start, cancel, clear, observeElsState]);
 }

@@ -26,7 +26,9 @@ export default function ElsResearchActivity2029({ onOpenResult = null, selecting
         if (window.confirm("למחוק את תוצאת המחקר הזמנית מהמעקב? המטריצה והשיחות לא יימחקו.")) operation.clear();
       }}>נקה תוצאה זמנית</button> : null}
     </div>
-    <p>החזרה פותחת את מופע המוצא המדויק. היא אינה משחזרת זום או סימונים ידניים שלא נשמרו.</p>
+    <p>{task.returnSnapshot
+      ? "החזרה משחזרת את המופע, הממצאים והצבעים, הזום והגדרות התצוגה כפי שהיו בתחילת המחקר. המנוע מאמת אותם מחדש."
+      : "החזרה פותחת את מופע המוצא המדויק בלבד; לא נקלט צילום מצב של הסימונים והתצוגה."}</p>
     {onOpenResult ? task.rows.map((row, index) => <details key={`${task.id}:${index}`}>
       <summary><bdi>{row.term}</bdi> · {row.state === "FAILED" ? "הבדיקה לא הושלמה" : `${row.count} מופעים נטענו`}{row.truncated ? " · יש תוצאות נוספות שלא נטענו" : ""}</summary>
       {row.error ? <p>{row.error}</p> : null}

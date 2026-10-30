@@ -34,6 +34,17 @@ test('before/after: baseline and other branches deny private sync; only named Pr
     const r=await call(worker,'/rest/v1/rpc/'+rpc,body); assert.equal(r.response.status,200); assert.equal(r.forwarded,1);
   }
 });
+test('exact ELS return Preview retains existing account guard without a branch wildcard',async()=>{
+  const next='gpt/els-research-exact-return-preview-20261030';
+  assert.equal(selectMatrixRazielPreview({VERCEL_ENV:'preview',VERCEL_GIT_COMMIT_REF:next}),next);
+  assert.equal(selectMatrixRazielPreview({VERCEL_ENV:'preview',VERCEL_GIT_COMMIT_REF:next+'-other'}),null);
+  assert.equal(selectMatrixRazielPreview({VERCEL_ENV:'production',VERCEL_GIT_COMMIT_REF:next}),null);
+  const source=buildMatrixRazielPreviewWorker(base,{readingOnly:true,branch:next});
+  assert.equal(source,worker,'same bounded guard as the previously approved account Preview');
+  assert.equal((await call(source,'/rest/v1/rpc/research_state_snapshot_v1',read)).forwarded,1);
+  assert.equal((await call(source,'/rest/v1/rpc/research_state_snapshot_v1',read,{auth:false})).forwarded,0);
+  assert.equal((await call(source,'/rest/v1/els_records',{})).forwarded,0);
+});
 test('no auth, malformed batch, wrong origin/method, direct tables and unrelated writes remain denied',async()=>{
   for(const [path,body,opts] of [
     ['/rest/v1/rpc/research_state_snapshot_v1',read,{auth:false}],
