@@ -101,11 +101,11 @@ test("all bounded datasets and deep-read pages are represented without upgrading
     assert.ok(dataset.nextStep.length > 25);
     assert.ok(dataset.pages.every(value => value >= 1 && value <= 99));
   }
-  assert.match(page, /כל 13 מאגרי הבדיקה/);
+  assert.match(page, /13 נושאים לחקירה בספר/);
   assert.match(page, /99 עמודים · קורא מלא וחיפוש/);
   assert.match(page, /ahavatCompanionPage\(companion, page\)/);
   assert.doesNotMatch(page, /קריאת עומק בהמשך/);
-  assert.match(page, /עוד שש שכבות מתוך הספר/);
+  assert.match(page, /שישה שערים אל תוכן הספר/);
   for (const block of bundle.content_blocks.filter(item => !item.text_he)) {
     assert.ok(AHAVAT_TORAH_AI_EXPLANATIONS_HE[block.block_id], `missing Hebrew AI explanation for ${block.block_id}`);
   }

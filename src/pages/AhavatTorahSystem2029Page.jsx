@@ -16,6 +16,7 @@ import {
   AHAVAT_TORAH_SECTIONS,
   AHAVAT_TORAH_SOURCE,
   AHAVAT_TORAH_TRUTH_STATES,
+  AHAVAT_COMPANION_PAGE_COUNTS,
   ahavatCompanionPage,
   ahavatCompanionReadingUnits,
   ahavatCurrentOccurrenceReading,
@@ -213,8 +214,8 @@ function DatasetCatalog({ selectedId, onSelect }) {
 
   return <section className="ahavat29-datasets" aria-labelledby="ahavat29-datasets-title">
     <header>
-      <div><span>מפת המחקר המלאה בשכבה הקיימת</span><h2 id="ahavat29-datasets-title">כל 13 מאגרי הבדיקה</h2></div>
-      <p>מפת עבודה של החומר שכבר נקרא, חולץ וקושר לעמודיו.</p>
+      <div><span>מניינים, רשימות ותיקוני המהדורה</span><h2 id="ahavat29-datasets-title">13 נושאים לחקירה בספר</h2></div>
+      <p>בחרו נושא כדי לקרוא את מנייני המחבר ולפתוח את העמוד שבו הם מופיעים.</p>
     </header>
     <nav className="ahavat29-dataset-filters" aria-label="סינון מאגרי בדיקה">
       {DATASET_FILTERS.map(item => <button type="button" key={item.id} className={filter === item.id ? "is-active" : ""} aria-pressed={filter === item.id} onClick={() => setFilter(item.id)}>{item.label}<b>{item.id === "all" ? AHAVAT_TORAH_DATASETS.length : AHAVAT_TORAH_DATASETS.filter(dataset => dataset.state === item.id).length}</b></button>)}
@@ -230,7 +231,7 @@ function DatasetCatalog({ selectedId, onSelect }) {
     </div>
     {selected ? <article className="ahavat29-dataset-detail" aria-live="polite">
       <div><span>{selected.id} · {selected.pages.length ? `${selected.pages.length} עמודי מקור` : "מראה־המקום בבירור"}</span><h3>{selected.title}</h3><p>{selected.summary}</p></div>
-      <section><span>השלב הבא למאגר הזה</span><p>{selected.nextStep}</p></section>
+      <section><details className="ahavat29-source-details"><summary>פרטי המקור והמשך הבדיקה</summary><p>{selected.nextStep}</p></details></section>
       {selected.pages.length ? <button type="button" onClick={() => onSelect(selected)}>פתח PDF בעמוד {selected.pages[0]}</button> : <details className="ahavat29-source-details"><summary>פרטי המקור והאיתור</summary><p>{selected.locatorReview?.note}</p><p>ה־PDF נשאר פתוח בעמוד הנוכחי.</p></details>}
     </article> : null}
   </section>;
@@ -263,7 +264,7 @@ function sourceStateLabel(value = "") {
   if (/SUBSTANTIALLY RESOLVED/.test(value)) return "נפתר ברובו";
   if (/ARITHMETIC_VERIFIED/.test(value)) return "החשבון נבדק";
   if (/SOURCE CLAIM|AUTHOR_COUNT/.test(value)) return "דברי הספר";
-  return value || "לא צוין";
+  return value ? "מצב קריאה נוסף · ראו פרטי מקור" : "לא צוין";
 }
 
 function visibleBook(value = "") {
@@ -351,7 +352,7 @@ function OccurrenceTable({ table, kind, onPage }) {
     </div>
     {limit < filtered.length ? <button className="ahavat29-show-more" type="button" onClick={() => setLimit(value => value + 36)}>הצג עוד 36 שורות</button> : null}
     {!filtered.length ? <p className="ahavat29-table-empty">לא נמצאה התאמה בטבלה.</p> : null}
-    <details className="ahavat29-source-details"><summary>פרטי המקור</summary><p>{table?.title}</p><p>עמודי PDF: {(table?.pdf_pages || []).join(" · ")}</p><p>מצב השכבה: {sourceStateLabel(table?.status)}</p>
+    <details className="ahavat29-source-details"><summary>פרטי המקור</summary><p>{table?.title}</p><p>עמודי PDF: {(table?.pdf_pages || []).join(" · ")}</p><p>מצב השכבה: {sourceStateLabel(table?.status)}</p><p dir="auto">{table?.status}</p>
       {(currentReading?.source_note_he || table?.source_note_he) ? <p>{currentReading?.source_note_he || table.source_note_he}</p> : null}
       {currentReading?.book_totals ? <ul>{currentReading.book_totals.map(book => <li key={book.sefer}>{book.sefer}: {book.printed} = {book.decimal}</li>)}</ul> : null}
       {currentReading ? <details className="ahavat29-machine-text"><summary>תעתיק קודם · {table.rows.length} שורות</summary><p>קריאות מוקדמות נשמרות לתיעוד; אינן מחליפות את הקריאה המחודשת מול ה־PDF.</p><pre>{table.rows.map(row => `${row.sefer} · ${row.parasha} · ${row.printed || "לא מודפס"} · ${row.decimal}`).join("\n")}</pre></details> : null}
@@ -365,22 +366,25 @@ function ResearchCards({ kind, records = [], onPage }) {
       const pages = record.pdf_pages || [];
       const page = exactPage(pages[0]);
       if (kind === "calculations") return <article key={record.calculation_id}>
-        <header><span>{record.calculation_id}</span><b>{sourceStateLabel(record.confidence)}</b></header>
+        <header><span>חשבון {index + 1}</span><b>{sourceStateLabel(record.confidence)}</b></header>
         <strong>{record.output}</strong>
         <p>{(record.intermediate_values || []).join(" · ")}</p>
         <footer><small>{sourceStateLabel(record.truth_class)}</small><button type="button" onClick={() => onPage(page)}>פתח PDF {page}</button></footer>
+        <details className="ahavat29-source-details"><summary>פרטי המקור והבדיקה</summary><pre dir="auto" style={{ whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}>{JSON.stringify(record, null, 2)}</pre></details>
       </article>;
       if (kind === "families") return <article key={`family-${record.n}`}>
         <header><span>{String(record.n).padStart(2, "0")}</span><b>מבנה מתוך הספר</b></header>
         <strong>{record.construction}</strong>
         <p>{sourceStateLabel(record.truth_class)}</p>
         <footer><small>עמודי מקור {pages.join(" · ")}</small><button type="button" onClick={() => onPage(page)}>פתח PDF {page}</button></footer>
+        <details className="ahavat29-source-details"><summary>פרטי המקור והבדיקה</summary><p dir="auto">{record.truth_class}</p></details>
       </article>;
       return <article key={record.id || index}>
-        <header><span>{record.id}</span><b>{sourceStateLabel(record.status)}</b></header>
+        <header><span>שאלה {index + 1}</span><b>{sourceStateLabel(record.status)}</b></header>
         <strong>{record.conflict}</strong>
         <p>פער מתועד: {record.delta}</p>
         <footer><small>הפער נשמר כפי שנמצא ואינו מתוקן אוטומטית.</small><button type="button" onClick={() => onPage(page)}>פתח PDF {page}</button></footer>
+        <details className="ahavat29-source-details"><summary>פרטי המקור והבדיקה</summary><p dir="auto">{record.id} · {record.status}</p></details>
       </article>;
     })}
   </div>;
@@ -801,7 +805,7 @@ function FullBookReader({ page, bundle, bundleState, pageTextBundle, pageTextSta
 
 function ExtractionLayers({ onPage }) {
   return <section className="ahavat29-extraction" aria-labelledby="ahavat29-extraction-title">
-    <header><div><span>החומר הבא שאפשר לפתוח</span><h2 id="ahavat29-extraction-title">עוד שש שכבות מתוך הספר</h2></div><p>הסריקה המלאה כבר מאפשרת להפוך את החומר לאינדקסים, טבלאות וקשרים — תמיד עם חזרה לעמוד המקור.</p></header>
+    <header><div><span>דרכים נוספות לקרוא</span><h2 id="ahavat29-extraction-title">שישה שערים אל תוכן הספר</h2></div><p>אפשר לקרוא לפי נושא: אותיות, שורשים, דמויות, זמן ומקורות. כל שער פותח את העמוד המתאים בספר.</p></header>
     <div>{AHAVAT_TORAH_EXTRACTION_LAYERS.map((layer, index) => <article key={layer.id}>
       <span>{String(index + 1).padStart(2, "0")}</span><h3>{layer.title}</h3><p>{layer.detail}</p><footer><small>PDF {layer.pages}</small><button type="button" onClick={() => onPage(layer.openingPage)}>פתח במקור</button></footer>
     </article>)}</div>
@@ -1008,8 +1012,8 @@ export default function AhavatTorahSystem2029Page() {
 
   return <Sod2029Shell
     title="אהבת תורה"
-    eyebrow="ספרים ומקורות · מערכת מחקר"
-    description="המקור, מבנה הספר והממצאים נשארים מחוברים — בלי לערבב את מעמד האמת שלהם."
+    eyebrow="ספרים ומקורות · קריאה ולימוד"
+    description="לקרוא את המקור, להבין את המהלך ולחקור את מבני הספר."
     status="Preview מוגן · קריאה בלבד"
     surface="books"
     symbol={<NavigationIcon2029 name="books" />}
@@ -1020,19 +1024,20 @@ export default function AhavatTorahSystem2029Page() {
       <section className="ahavat29-intro" aria-labelledby="ahavat29-title">
         <div>
           <span>ר׳ פנחס זלמן הורוויץ · תרס״ה</span>
-          <h1 id="ahavat29-title">{letterFocus ? <>אהבת תורה <em>· מסע באותיות</em></> : <>ספר עתיק הופך<br /><em>למרחב מחקר חי</em></>}</h1>
-          <p>המקור הוא המרכז: PDF מלא, מפה של הספר, הסבר עברי וממצאים שנפתחים בדיוק בעמוד שבו נכתבו.</p>
+          <h1 id="ahavat29-title">{letterFocus ? <>אהבת תורה <em>· מסע באותיות</em></> : <>אהבת תורה<br /><em>לקרוא, להבין ולחקור</em></>}</h1>
+          <p>מנייני התורה, אותיותיה וחידושי הפרשות — עם הסבר בהיר לצד צילום הספר. בוחרים קטע, מבינים את מהלכו וחוזרים אל המילים המקוריות.</p>
           <nav className="books29-entry-actions" aria-label="דרכי קריאה באהבת תורה"><a href="#ahavat29-source">קרא את הספר</a><a href="#ahavat29-full-reader">למד עם ההסברים</a><a href="#ahavat29-spatial-title">גלה את המבנים</a></nav>
+          <nav className="books29-entry-actions" aria-label="מאיפה מתחילים ללמוד"><a href={ahavatReaderUnitHref("ahavat-migdal-p006-01")}>להבין את מניין 1,820</a><a href={ahavatReaderUnitHref("ahavat-novellae-p046-02")}>אותיות ובניית בית</a><a href={ahavatReaderUnitHref("ahavat-novellae-p093-03")}>אסתר והאחריות לפעול</a></nav>
         </div>
-        <aside><strong>קורא מלא · Preview</strong><p>כל הספר זמין לדפדוף, חיפוש ומסך מלא. נוסח הספר נשאר גלוי בכל רגע.</p></aside>
+        <aside><strong>המקור לצד ההסבר</strong><p>הספר המלא זמין לדפדוף, חיפוש ומסך מלא. יחידות הלימוד מסבירות קטעים נבחרים; צילום העמוד נשאר נגיש לאורך הקריאה.</p></aside>
       </section>
 
       <section className="ahavat29-metrics" aria-label="מצב מערכת אהבת תורה">
         <article><strong>99</strong><span>עמודי מקור</span><small>PDF אחד וזהות מקור אחת</small></article>
         <article><strong>98</strong><span>עמודי תעתיק</span><small>ועמוד ריק אחד מתועד</small></article>
-        <article><strong>15</strong><span>דפי עומק</span><small>תעתיק, פרפרזה ונתונים</small></article>
-        <article><strong>13</strong><span>מאגרי בדיקה</span><small>סגורים, חלקיים ופתוחים</small></article>
-        <article className="is-locked"><strong>0</strong><span>ממצאים ציבוריים</span><small>Preview בלבד</small></article>
+        <article><strong>{Object.values(AHAVAT_COMPANION_PAGE_COUNTS).reduce((total, count) => total + count, 0)}</strong><span>יחידות הסבר נבחרות</span><small>קושיה, מהלך ורעיון מרכזי</small></article>
+        <article><strong>{Object.keys(AHAVAT_COMPANION_PAGE_COUNTS).length}</strong><span>עמודים עם יחידות לימוד</span><small>לצד העמוד המקורי</small></article>
+        <article><strong>13</strong><span>נושאים לחקירה</span><small>מניינים, רשימות ותיקונים</small></article>
       </section>
 
       <nav className="ahavat29-study-mode" aria-label="מיקוד הלימוד"><span>אהבת תורה</span><button type="button" aria-pressed={!letterFocus} onClick={() => setStudyFocus(false)}>כל הספר</button><button type="button" aria-pressed={letterFocus} onClick={() => setStudyFocus(true)}>לימוד אותיות</button></nav>
@@ -1043,15 +1048,16 @@ export default function AhavatTorahSystem2029Page() {
           <div id="ahavat29-reader"><SectionReader section={selectedSection} onPage={openPage} /></div>
 
           <section className="ahavat29-findings" aria-labelledby="ahavat29-findings-title">
-            <header><div><span>חלונות ראשונים לחומר</span><h2 id="ahavat29-findings-title">ארבעה ממצאים · ארבעה מצבי בדיקה</h2></div><p>הכרטיס פותח את עמוד המקור. הצבע מתאר את מצב העדות, לא את מידת העניין.</p></header>
+            <header><div><span>ממנייני התורה אל חמש המגילות</span><h2 id="ahavat29-findings-title">ארבע נקודות מבט על מנייני הספר</h2></div><p>כל כרטיס פותח את עמוד המקור ואת ההסבר למניין.</p></header>
             <div>{AHAVAT_TORAH_FINDINGS.map(finding => <FindingCard key={finding.id} finding={finding} active={finding.id === findingId} onSelect={selectFinding} />)}</div>
           </section>
 
           {selectedFinding ? <article id="ahavat29-finding-detail" className="ahavat29-finding-detail" aria-labelledby="ahavat29-finding-detail-title">
             <header><div><span>{selectedFinding.dataset} · עמוד {selectedFinding.page}</span><h2 id="ahavat29-finding-detail-title">{selectedFinding.title}</h2></div><StatusPill status={selectedFinding.status} /></header>
             <div className="ahavat29-equation"><strong>{selectedFinding.value}</strong><span>{selectedFinding.formula}</span></div>
-            <section><span>מה אפשר לומר כרגע?</span><p>{selectedFinding.explanation}</p></section>
-            <footer><span>מעמד חישוב: {selectedFinding.calculation}</span><button type="button" onClick={() => openPage(selectedFinding.page)}>חזרה לעמוד המקור</button></footer>
+            <section><span>איך קוראים את המניין?</span><p>{selectedFinding.explanation}</p></section>
+            <details className="ahavat29-source-details"><summary>פרטי המקור והבדיקה</summary><p>מעמד חישוב: <bdi>{selectedFinding.calculation}</bdi></p></details>
+            <footer><button type="button" onClick={() => openPage(selectedFinding.page)}>חזרה לעמוד המקור</button></footer>
           </article> : null}
 
           <DatasetCatalog selectedId={datasetId} onSelect={selectDataset} />
@@ -1062,11 +1068,15 @@ export default function AhavatTorahSystem2029Page() {
 
           <FullBookReader page={page} bundle={bundle} bundleState={bundleState} pageTextBundle={pageTextBundle} pageTextState={pageTextState} onPage={openPage} selectedUnitId={readerUnit?.id} onSelectCompanion={selectCompanion} />
 
-          <section className="ahavat29-pipeline" aria-labelledby="ahavat29-pipeline-title">
-            <header><span>המערכת שאנחנו בונים</span><h2 id="ahavat29-pipeline-title">מהמקור ועד מוצר שאפשר לסמוך עליו</h2></header>
+          <details className="ahavat29-source-details">
+            <summary>פרטי המקור ומצב המחקר</summary>
+            <section className="ahavat29-pipeline" aria-labelledby="ahavat29-pipeline-title">
+            <header><span>המקור ושכבות הקריאה</span><h2 id="ahavat29-pipeline-title">כיסוי התוכן והבדיקות</h2></header>
             <ol>{AHAVAT_TORAH_PIPELINE.map(step => <li key={step.index} className={`is-${step.state}`}><span>{step.index}</span><strong>{step.title}</strong><b>{step.value}</b><small>{step.label}</small></li>)}</ol>
+            <p>{AHAVAT_TORAH_SOURCE.deepReadPages} עמודי קריאת המקור המקוריים הם מדד נפרד מיחידות ההסבר הנבחרות. ההסברים אינם פירוש מלא לכל פסקה. קריאה מספרית שלא הוכרעה נשארת חסרה; סטטוס הפרסום לא השתנה.</p>
             <p>המקור נשמר בשלמותו, וכל שכבה נוספת נבנית מעליו עם קישור לעמוד.</p>
-          </section>
+            </section>
+          </details>
 
           <footer className="ahavat29-legend" aria-label="מקרא מצבי אמת">
             {Object.entries(AHAVAT_TORAH_TRUTH_STATES).map(([key, state]) => <span key={key} className={`is-${state.tone}`} title={state.description}>{state.label}</span>)}

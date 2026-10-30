@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {createHash} from 'node:crypto';
 import {ahavatBeforeBookCompletion} from './fixtures/ahavat-book-completion-baseline-2029.mjs';
+import {ahavatBeforePublicReading} from './fixtures/ahavat-public-reading-baseline-2029.mjs';
 import {ahavatCompanionReadingUnits,ahavatCompanionUnitId} from '../src/data/ahavatTorahSystem2029.js';
 import {AHAVAT_READER_UNITS,ahavatReaderUnit,ahavatReaderUnitHref} from '../src/data/ahavatTorahReaderUnits2029.js';
 
@@ -12,7 +13,7 @@ const digest=value=>createHash('sha256').update(JSON.stringify(value)).digest('h
 
 test('all seven closing pages add 21 source-bound companion units without changing the preceding 141',()=>{
  assert.equal(bundle.pages.length,99);assert.equal(AHAVAT_READER_UNITS.length,287);
- assert.equal(digest(bundle.pages.filter(p=>p.pdf_page>=46&&p.pdf_page<=92)),'10c1a39da457442dd5bb5519f0315ccc6a42e0cdb9e457ae2a84d1886d113f45');
+ assert.equal(digest(bundle.pages.filter(p=>p.pdf_page>=46&&p.pdf_page<=92).map(ahavatBeforePublicReading)),'10c1a39da457442dd5bb5519f0315ccc6a42e0cdb9e457ae2a84d1886d113f45');
  assert.deepEqual(closing.map(p=>p.pdf_page),[93,94,95,96,97,98,99]);
  for(const page of closing){
   const units=ahavatCompanionReadingUnits(bundle,page.pdf_page);assert.equal(units.length,3);
@@ -59,7 +60,7 @@ test('wrong closing-page source, mistaken layer, duplicate identities and empty 
 test('nine Migdal pages add 27 distinct identities while all unrelated page records stay byte-equivalent',()=>{
  const migdal=bundle.pages.filter(p=>p.pdf_page>=16&&p.pdf_page<=24);
  assert.equal(digest(bundle.pages.filter(p=>p.pdf_page<93&&(p.pdf_page<16||p.pdf_page>24)).map(ahavatBeforeBookCompletion)),'d7c7a5eab4fe3a3f26a66f1230b6c48a020920df1832b947781d5f8fad2909eb');
- const checkpoint=structuredClone(closing);
+ const checkpoint=structuredClone(closing.map(ahavatBeforePublicReading));
  assert.equal(checkpoint.at(-1).title,'לוח ההשמטות והתיקונים','the adopted cross-reader heading remains compatible');
  checkpoint.at(-1).title='חתימת ההשמטות ותיקונים · הערות ר׳ יהושע ברי״צ ליימן';
  assert.equal(digest(checkpoint),'e73fabf341440c6024ec0585aaf85b7ee3eab91fddef4dd16d9d60aee1503dd6','apart from the explicit restoration of the prior page-99 heading, the accepted closing checkpoint is preserved');

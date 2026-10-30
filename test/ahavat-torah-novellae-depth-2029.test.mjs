@@ -3,6 +3,7 @@ import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 import { ahavatBeforeBookCompletion } from "./fixtures/ahavat-book-completion-baseline-2029.mjs";
+import { ahavatBeforePublicReading } from "./fixtures/ahavat-public-reading-baseline-2029.mjs";
 import { ahavatCompanionReadingUnits } from "../src/data/ahavatTorahSystem2029.js";
 import { AHAVAT_READER_UNITS, ahavatReaderUnit, ahavatReaderUnitHref, ahavatReaderUnitDomId } from "../src/data/ahavatTorahReaderUnits2029.js";
 
@@ -18,7 +19,7 @@ test("selected novellae passages extend the existing companion without replacing
   assert.deepEqual(bundle.coverage.visual_or_blank_pages, [45]);
   const preserved = bundle.pages.filter(page => page.pdf_page < 71 && (page.pdf_page < 16 || page.pdf_page > 24)).map(ahavatBeforeBookCompletion);
   assert.equal(createHash("sha256").update(JSON.stringify(preserved)).digest("hex"), "ba6f8df693b70ec078ba29b37ff7acad67b679301f71447a696a18f923dd721a");
-  assert.equal(createHash("sha256").update(JSON.stringify(expanded)).digest("hex"), "10c1a39da457442dd5bb5519f0315ccc6a42e0cdb9e457ae2a84d1886d113f45");
+  assert.equal(createHash("sha256").update(JSON.stringify(expanded.map(ahavatBeforePublicReading))).digest("hex"), "10c1a39da457442dd5bb5519f0315ccc6a42e0cdb9e457ae2a84d1886d113f45");
   const firstContinuation = bundle.pages.filter(page => page.pdf_page >= 71 && page.pdf_page <= 80);
   assert.equal(createHash("sha256").update(JSON.stringify(firstContinuation)).digest("hex"), "ad73603936cd33d1329a7f10d8896b211369c25b677629038bf83b56abb30a90");
   for (const page of bundle.pages) {
