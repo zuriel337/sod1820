@@ -21,7 +21,6 @@ import {
 import "./elsNativeClassic2029.css";
 
 const ElsGuidedMatrixSnapshot2029 = React.lazy(() => import("./ElsGuidedMatrixSnapshot2029.jsx"));
-const ElsStructureResearch2029 = React.lazy(() => import("./ElsStructureResearch2029.jsx"));
 const ElsLexiconResearch2029 = React.lazy(() => import("./ElsLexiconResearch2029.jsx"));
 
 const clean = (value) => String(value ?? "").trim();
@@ -832,7 +831,6 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   const cameraStageRef = useRef(null);
   const [cameraFullscreen, setCameraFullscreen] = useState(false);
   const [guidedMatrixOpen, setGuidedMatrixOpen] = useState(false);
-  const [structuresVisited, setStructuresVisited] = useState(false);
   const [lexiconVisited, setLexiconVisited] = useState(false);
   const lexiconDetailsRef = useRef(null);
   const [lexiconResponse, setLexiconResponse] = useState(null);
@@ -1568,29 +1566,13 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
         </section> : null}
         <details ref={lexiconDetailsRef} hidden={!researchProfile || guidedProfile} className="els29-native-structure-entry"
           onToggle={event => { if (event.currentTarget.open) setLexiconVisited(true); }}>
-          <summary>מילים במטריצה · ללא AI</summary>
+          <summary>גילוי וקשרים במטריצה · ללא AI</summary>
           {lexiconVisited ? <React.Suspense fallback={<p role="status">טוען כלי סריקה…</p>}>
             <ElsLexiconResearch2029 key={user?.id || "guest"} state={engineState} visible={active && researchProfile && !guidedProfile}
               busy={searchPending || ["searching", "verifying"].includes(operations.findings?.status)} response={lexiconResponse}
               onRequest={target => setLensRequest({ lens: "matrix-lexicon", target })} onRestore={onResearchRestore}
-              color={nextFindingColor(engineState?.findings || [], palette)} />
-          </React.Suspense> : null}
-        </details>
-        <details hidden={!researchProfile || guidedProfile} className="els29-native-structure-entry"
-          onToggle={event => { if (event.currentTarget.open) setStructuresVisited(true); }}>
-          <summary>מבנים והשוואת מופעים · ללא AI</summary>
-          {structuresVisited ? <React.Suspense fallback={<p role="status">טוען כלי בדיקה…</p>}>
-            <ElsStructureResearch2029 key={user?.id || "guest"} state={engineState}
-              visible={researchProfile && !guidedProfile} busy={searchPending || ["searching", "verifying"].includes(operations.findings?.status)}
-              onRestore={onResearchRestore} onFocus={selectFinding}
-              onFindWords={event => openTool("findings", event.currentTarget)}
-              onOpenLexicon={() => {
-                if (!lexiconDetailsRef.current) return;
-                lexiconDetailsRef.current.open = true;
-                setLexiconVisited(true);
-                lexiconDetailsRef.current.scrollIntoView({ block: "start", behavior: "instant" });
-                lexiconDetailsRef.current.querySelector("summary")?.focus({ preventScroll: true });
-              }} />
+              color={findings => nextFindingColor(findings, palette)} onFocus={selectFinding}
+              onFindWords={event => openTool("findings", event.currentTarget)} />
           </React.Suspense> : null}
         </details>
         {matrixReading ? <ElsMatrixReadingCard2029 context={readingContext} reading={matrixReading} pending={searchPending} onSubmit={onRazielMatrix}

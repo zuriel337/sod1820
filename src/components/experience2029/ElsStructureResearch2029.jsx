@@ -31,12 +31,12 @@ export default function ElsStructureResearch2029({ state, busy, visible, onResto
     <p>בדיקת הקשרים בין הציר לממצאים שבחרתם, ובין הממצאים עצמם. ללא AI וללא טעינת מילון. אינה מחפשת מילים חדשות.</p>
     <details><summary>איך מוצאים זוגות?</summary>
       <p>חיפוש הביטוי פותח את הציר הראשי. כדי לבדוק זוג צריך להוסיף ולסמן לפחות מופע אחד של מילה נוספת.</p>
-      <p>אם יודעים איזו מילה לחפש: פתחו את החיפוש המשני, חפשו אותה ובחרו מופע לסימון. לגילוי מילים בלי רשימה מראש: פתחו „מילים במטריצה”, הפעילו סריקה ובחרו „בדוק והוסף” במילים שמעניינות אתכם.</p>
+      <p>אם יודעים איזו מילה לחפש: פתחו את החיפוש המשני, חפשו אותה ובחרו מופע לסימון. לגילוי בלי רשימה מראש: הפעילו „גלה מילים ומבנים” כאן למעלה ובחרו קבוצה או מילה לסימון.</p>
       <p>לאחר ההוספה לחצו „בדוק מבנים בממצאים שנבחרו”. הבדיקה משווה כל זוג: קווים מקבילים, אותו קו ואותיות משותפות. היא אינה מחפשת את כל הזוגות האפשריים בטקסט.</p>
     </details>
     <div className="els29-structure-actions">
       {onFindWords ? <button type="button" disabled={busy || !ready} onClick={onFindWords}>חפש והוסף מילה למטריצה</button> : null}
-      {onOpenLexicon ? <button type="button" disabled={busy || !ready} onClick={onOpenLexicon}>פתח גילוי מילים ללא AI</button> : null}
+      {onOpenLexicon ? <button type="button" disabled={busy || !ready} onClick={onOpenLexicon}>חזור לגילוי מילים ומבנים</button> : null}
     </div>
     <div className="els29-structure-actions">
       <button type="button" disabled={busy || !ready} onClick={inspect}>בדוק מבנים בממצאים שנבחרו</button>
@@ -52,7 +52,7 @@ export default function ElsStructureResearch2029({ state, busy, visible, onResto
       <p>זו תמונת מצב מזמן הלחיצה, לא דירוג חוזק ולא כיסוי של כל המילים במטריצה. שינויים בסימונים דורשים בדיקה חדשה.</p>
       {!current ? <p role="status">המטריצה הפעילה שונה מתוצאת הבדיקה הזאת.</p> : null}
       {result.excluded ? <p>{result.excluded} מופעים עם זהות לא תקינה לא נבדקו.</p> : null}
-      {result.lines.length === 1 ? <p role="status">מסומן כרגע רק הציר הראשי — עדיין אין זוג לבדיקה. זו אינה תוצאת „לא נמצאו מילים”. הוסיפו מילה דרך החיפוש המשני או „מילים במטריצה”, סמנו מופע שלה ובדקו שוב.</p> : <>
+      {result.lines.length === 1 ? <p role="status">מסומן כרגע רק הציר הראשי — עדיין אין זוג לבדיקה. זו אינה תוצאת „לא נמצאו מילים”. הוסיפו קבוצה מהגילוי כאן למעלה או מילה דרך החיפוש המשני, ובדקו שוב.</p> : <>
       {!result.geometry.relations.length && !result.geometry.intersections.length ? <p role="status">נבדקו המופעים שסימנתם, ולא נמצאו ביניהם קווים מקבילים, קווים משותפים או אותיות משותפות. מילים שלא נוספו לא נבדקו.</p> : null}
       <details><summary>קווים מקבילים וקווים משותפים ({result.geometry.relations.length})</summary>
         <p>מוצגים עד 60 זוגות; הסיכום כולל את כל הזוגות שנבדקו.</p>

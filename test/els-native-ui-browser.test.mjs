@@ -9,6 +9,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { ELS_GOLDENS, ELS_GOLDEN_CORPUS_ID } from './fixtures/els-runtime-goldens.mjs';
 import { libraryFixturePlugin } from './fixtures/els-library-browser-fixture.mjs';
 import { captureElsResearchReturn, elsResearchReturnLoad } from '../src/lib/research/elsResearchReturnSnapshot.js';
+import { groupElsLexiconDiscoveries } from '../src/lib/research/elsStructureInspection.js';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 const req = createRequire(import.meta.url);
@@ -60,11 +61,12 @@ test('research structures are explicit, preserve Classic and compare exact snaps
   for(const width of [320,390,1440])await withNative({width,height:900},async page=>{
     const heavy=[];page.on('request',req=>{if(/ai-analyze|els-dynamic-lexicon|tanakh-verses/.test(req.url()))heavy.push(req.url());});
     await page.evaluate(()=>{window.__fixtureResearchProfile=false;window.__forceParentRender();});
-    assert.equal(await page.getByText('מבנים והשוואת מופעים · ללא AI',{exact:true}).isVisible(),false);
+    assert.equal(await page.getByText('גילוי וקשרים במטריצה · ללא AI',{exact:true}).isVisible(),false);
     await page.evaluate(()=>{window.__fixtureResearchProfile=true;window.__forceParentRender();});
     await addSecondary(page,'תורה');
     const before=await page.evaluate(()=>window.__state);
-    await page.getByText('מבנים והשוואת מופעים · ללא AI',{exact:true}).click();
+    await page.getByText('גילוי וקשרים במטריצה · ללא AI',{exact:true}).click();
+    await page.getByText('בדיקת הסימונים והשוואת מופעים',{exact:true}).click();
     const panel=page.getByRole('region',{name:'מבנים והשוואת מופעים',exact:true});
     await panel.waitFor();
     assert.equal(await panel.getByLabel('תוצאת בדיקת המבנים').count(),0);
@@ -104,17 +106,28 @@ test('explicit Research lexicon is lazy, exact, cancellable and responsive witho
     const ai=[];page.on('request',req=>{if(/ai-analyze/.test(req.url()))ai.push(req.url());});
     assert.equal(page.__elsDynamicLexiconRequests.length,0);
     await page.evaluate(()=>{window.__fixtureResearchProfile=true;window.__forceParentRender();});
-    await page.getByText('מילים במטריצה · ללא AI',{exact:true}).click();
-    const panel=page.getByRole('region',{name:'מילים במטריצה',exact:true});await panel.waitFor();
+    await page.getByText('גילוי וקשרים במטריצה · ללא AI',{exact:true}).click();
+    const panel=page.getByRole('region',{name:'גילוי וקשרים במטריצה',exact:true});await panel.waitFor();
     assert.equal(page.__elsDynamicLexiconRequests.length,0,'opening does not fetch lexicon');
     const before=await page.evaluate(()=>window.__state);
-    await panel.getByRole('button',{name:'סרוק מילים בחלון המחקר',exact:true}).evaluate(button=>{button.click();button.click();});
+    await panel.getByRole('button',{name:'גלה מילים ומבנים',exact:true}).evaluate(button=>{button.click();button.click();});
     await panel.getByLabel('תוצאות הסריקה המילונית').waitFor({timeout:30000});
     const scan=await page.evaluate(()=>window.__lens);
     assert.equal(scan.lens,'matrix-lexicon');assert.equal(scan.ok,true);assert.ok(scan.items.length>0);
     assert.equal(scan.modelCalls,0);assert.equal(page.__elsDynamicLexiconRequests.length,1);
     assert.deepEqual((await page.evaluate(()=>window.__state)).findings,before.findings,'scan does not add findings');
-    const first=scan.items.find(item=>item.kind==='els');assert.ok(first);
+    assert.equal(await page.locator('.els29-native-structure-entry').count(),1,'one research entry, no competing panels');
+    assert.equal(await panel.getByLabel('סוג התוצאות',{exact:true}).inputValue(),'groups');
+    assert.ok(await panel.getByRole('button',{name:'אמת והצג קבוצה',exact:true}).count()>0,'the same real scan discovers structures');
+    const expectedGroup=groupElsLexiconDiscoveries(before,scan).groups[0];assert.ok(expectedGroup);
+    // One group goes through the existing replay admission and selects real occurrences.
+    await panel.getByRole('button',{name:'אמת והצג קבוצה',exact:true}).first().click();
+    await page.waitForFunction(items=>window.__state?.status==='ok'&&items.every(item=>window.__state.findings?.some(f=>f.t===item.term&&[...(f.hits||[]),...(f.sourceHits||[])].some(h=>h.hitId===item.hitId&&h.selected&&(item.kind==='source'||h.verified)))),expectedGroup.items,{timeout:30000});
+    const grouped=await page.evaluate(()=>window.__state);
+    assert.deepEqual(grouped.axis,before.axis);assert.equal(grouped.verification.state,'MATCH');
+    assert.ok(grouped.findings.flatMap(f=>[...(f.hits||[]),...(f.sourceHits||[])]).filter(h=>h.selected).length>=1);
+    await panel.getByLabel('סוג התוצאות',{exact:true}).selectOption('els');
+    const first=scan.items.find(item=>item.kind==='els'&&!expectedGroup.items.some(member=>member.term===item.term&&member.hitId===item.hitId));assert.ok(first);
     await panel.getByRole('button',{name:`בדוק והוסף ${first.label}`,exact:true}).first().click();
     await page.waitForFunction(item=>window.__state?.status==='ok'&&window.__state.findings?.some(f=>f.t===item.term&&f.hits.some(h=>h.hitId===item.hitId&&h.selected&&h.verified)),first,{timeout:30000});
     assert.deepEqual((await page.evaluate(()=>window.__state)).axis,before.axis);
@@ -125,6 +138,12 @@ test('explicit Research lexicon is lazy, exact, cancellable and responsive witho
       assert.ok(await panel.locator('p:visible').evaluateAll(nodes=>nodes.every(n=>parseFloat(getComputedStyle(n).fontSize)>=18)));
       assert.ok(await panel.locator('button:visible,select:visible').evaluateAll(nodes=>nodes.every(n=>n.getBoundingClientRect().height>=44)));
       if(process.env.ELS_LEXICON_SCREENSHOTS){await panel.scrollIntoViewIfNeeded();await page.screenshot({path:`${process.env.ELS_LEXICON_SCREENSHOTS}/lexicon-${width}-${theme}.png`});}
+      await panel.getByLabel('סוג התוצאות',{exact:true}).selectOption('groups');
+      assert.ok(await panel.getByRole('button',{name:'אמת והצג קבוצה',exact:true}).count()>0);
+      const groupSize=await page.evaluate(()=>({w:document.documentElement.clientWidth,s:document.documentElement.scrollWidth}));
+      assert.ok(groupSize.s<=groupSize.w+1,JSON.stringify({width,theme,groupSize}));
+      if(process.env.ELS_LEXICON_SCREENSHOTS){await panel.locator('ol > li').first().scrollIntoViewIfNeeded();await page.screenshot({path:`${process.env.ELS_LEXICON_SCREENSHOTS}/groups-${width}-${theme}.png`});}
+      await panel.getByLabel('סוג התוצאות',{exact:true}).selectOption('els');
     }
     await page.evaluate(()=>{window.__fixtureResearchProfile=false;window.__forceParentRender();});
     assert.equal(await panel.isVisible(),false);
@@ -146,13 +165,13 @@ test('explicit lexicon cancellation discards late download and permits a fresh e
     const held=new Promise(resolve=>{release=resolve;});const requested=new Promise(resolve=>{intercepted=resolve;});
     await page.route('**/els-dynamic-lexicon-v1.gz64.txt*',async route=>{intercepted();await held;await route.continue();});
     await page.evaluate(()=>{window.__fixtureResearchProfile=true;window.__forceParentRender();});
-    await page.getByText('מילים במטריצה · ללא AI',{exact:true}).click();
-    const panel=page.getByRole('region',{name:'מילים במטריצה',exact:true});
-    await panel.getByRole('button',{name:'סרוק מילים בחלון המחקר',exact:true}).click();await requested;
+    await page.getByText('גילוי וקשרים במטריצה · ללא AI',{exact:true}).click();
+    const panel=page.getByRole('region',{name:'גילוי וקשרים במטריצה',exact:true});
+    await panel.getByRole('button',{name:'גלה מילים ומבנים',exact:true}).click();await requested;
     await panel.getByRole('button',{name:'בטל פעולה',exact:true}).click();release();
     await page.waitForFunction(()=>window.__lens?.target?.cancel!==true);
     assert.equal(await panel.getByLabel('תוצאות הסריקה המילונית').count(),0);
-    await panel.getByRole('button',{name:'סרוק מילים בחלון המחקר',exact:true}).click();
+    await panel.getByRole('button',{name:'גלה מילים ומבנים',exact:true}).click();
     await panel.getByLabel('תוצאות הסריקה המילונית').waitFor({timeout:30000});
     assert.equal(page.__elsDynamicLexiconRequests.length,1,'shared checked cache reused');
   },{realHost:true});
@@ -172,14 +191,15 @@ test('completed phrase has no redundant skip continuation in Classic or Research
       await page.evaluate(value=>{window.__fixtureResearchProfile=value;window.__forceParentRender();},research);
       assert.equal(await page.getByRole('button',{name:/המשך.*(?:סריקה|מופעים).*דילוג|נסה שוב סריקת דילוגים/}).count(),0);
     }
-    await page.getByText('מבנים והשוואת מופעים · ללא AI',{exact:true}).click();
+    await page.getByText('גילוי וקשרים במטריצה · ללא AI',{exact:true}).click();
+    await page.getByText('בדיקת הסימונים והשוואת מופעים',{exact:true}).click();
     const panel=page.getByRole('region',{name:'מבנים והשוואת מופעים',exact:true});await panel.waitFor();
     await panel.getByRole('button',{name:'בדוק מבנים בממצאים שנבחרו',exact:true}).click();
     assert.ok(await panel.getByText(/מסומן כרגע רק הציר הראשי — עדיין אין זוג לבדיקה/).isVisible());
     assert.equal(await panel.locator('summary').filter({hasText:'קווים מקבילים וקווים משותפים (0)'}).count(),0);
     assert.ok(await panel.getByText(/עדיין לא הוספתם תמונות מצב להשוואה/).isVisible());
-    await panel.getByRole('button',{name:'פתח גילוי מילים ללא AI',exact:true}).click();
-    await page.getByRole('region',{name:'מילים במטריצה',exact:true}).waitFor();
+    await panel.getByRole('button',{name:'חזור לגילוי מילים ומבנים',exact:true}).click();
+    await page.getByRole('region',{name:'גילוי וקשרים במטריצה',exact:true}).waitFor();
     assert.equal(page.__elsDynamicLexiconRequests.length,0);
     await panel.getByRole('button',{name:'חפש והוסף מילה למטריצה',exact:true}).click();
     await page.getByRole('textbox',{name:'חיפוש משני במטריצה',exact:true}).waitFor();

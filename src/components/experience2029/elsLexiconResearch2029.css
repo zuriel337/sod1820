@@ -10,3 +10,8 @@
 .els29-lexicon-research li{min-width:0;padding:12px;border:1px solid var(--s29-line);border-radius:12px;font-size:var(--s29-type-lead)}
 .els29-lexicon-research nav{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:10px}
 .els29-lexicon-research label{display:flex;flex-wrap:wrap;align-items:center;gap:10px;font-size:var(--s29-type-ui)}
+.els29-discovery-actions{display:flex;flex-wrap:wrap;gap:10px;margin-block:12px}
+.els29-discovery-inspection{border-block-start:1px solid var(--s29-line);margin-block-start:20px;padding-block-start:12px}
+.els29-discovery-inspection .els29-structure-research{border:0;padding:0;background:transparent}
+.els29-lexicon-research li strong{font-size:var(--s29-type-lead);font-weight:700}
+.els29-lexicon-research select{min-width:0;width:min(100%,26rem)}
