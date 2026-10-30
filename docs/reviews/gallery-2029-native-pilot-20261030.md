@@ -269,3 +269,33 @@ gallery acceptance slice, not closure of the previously documented hosted
 Topic1118 timeout or inherited Frame-language assertion. No other owner scope,
 App/config/Frame/provider/reader/model/engine/RLS/privacy/migration/publication/
 Edge/main/Production/domain change. Legacy helpers remain untouched.
+
+### Clean-caption revision — accepted protected Preview
+
+- Runtime SHA: `f8b611cfb5d49cd418be553266f75e4f64c7cdcd`.
+- Deployment: `dpl_G2J8kwRpL4u9RwhLsZnPeWWk3HuP`, READY, target `null`,
+  build about12 seconds, existing team/project and enabled SSO verified.
+- https://sod1820-8e6xwjysr-sod1820-s-projects.vercel.app/world?view=gallery&gallery=29
+- https://sod1820-8e6xwjysr-sod1820-s-projects.vercel.app/world?view=gallery&gallery=81
+- Local AND hosted gallery acceptance passed at390/1440, all three presets,
+  readable captions, 18px body/16px controls, 44px+ targets, full uncropped images,
+  no overflow, exact source→canonical method Number→source return. The actual
+  historical row `d9842a5a-5313-4d32-8e58-5f07fa29b887` displays readable
+  “וראית את אחרי” without stored backslashes and without the maintenance h3.
+- Enhanced fixture browser2/2 at320/1440 additionally checks original stored
+  notices/escaped captions remain available behind disclosure. Unit regressions
+  55/55 (new caption5 + existing title consumers7 + source/model43), Preview
+  guard7/7 and the build/boundary gates above passed. No failures/skips in these
+  bounded batches. Existing chunk warnings remain.
+- Zero page errors, model requests or blocked/escaped product writes in the
+  live gallery acceptance. This explicitly excludes the previously recorded
+  Topic1118/Zvi full-regression boundary; it does not close that open issue.
+- Identity matched exact SHA/branch, mock-only, product_writes=false and
+  edge_deploy=false. Read-only worker, no-store/noindex and protection verified.
+  Access link remained in memory/stdin, never in source, logs or auth-state files.
+- Evidence: `/tmp/gallery-caption-final-local`, `/tmp/gallery-caption-hosted`,
+  `/tmp/gallery-caption-hosted-identity.log`. Mobile and desktop screenshots
+  visually inspected. Follow-up receipt commit changes no runtime/build file.
+
+Status: IMPLEMENTED / GALLERY_TESTED / PROTECTED_PREVIEW_VERIFIED.
+Not merged or Production-live; visual acceptance still belongs to ZURIEL.
