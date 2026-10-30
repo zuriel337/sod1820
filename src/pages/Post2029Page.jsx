@@ -20,7 +20,11 @@ import PostCategories2029 from "../components/experience2029/PostCategories2029.
 import PostConvergenceMeasures2029 from "../components/experience2029/PostConvergenceMeasures2029.jsx";
 import PostComments2029 from "../components/experience2029/PostComments2029.jsx";
 import { publicPostCommentArchiveId } from "../components/experience2029/postComments2029.js";
+import MatrixRain from "../components/MatrixRain.jsx";
+import { postCharacterFor, matrixOpeningFor } from "../lib/postCharacters2029.js";
+import { postBackground2029 } from "../lib/research/postBackground2029.js";
 import "./post2029-reading.css";
+import "./post2029-legacy-grade.css";
 
 const normalize = (value) => String(value || "")
   .replace(/[״"']/g, "")
@@ -58,6 +62,8 @@ function PostReadingBody() {
   const [calculationNotice, setCalculationNotice] = useState(null);
   const calculationRequest = useRef(0);
   const sourceRef = useRef(null);
+  const researchRef = useRef(null);
+  const [researchOpen, setResearchOpen] = useState(false);
   const connectionsHeadingRef = useRef(null);
   const explicitGematriaFocusRef = useRef(null);
   const entryRef = useRef(null);
@@ -73,6 +79,7 @@ function PostReadingBody() {
     ++calculationRequest.current;
     setMeasureSource({ claims: [], placements: [] });
     setCalculationNotice(null);
+    setResearchOpen(false);
     restoredRegionRef.current = null;
     setState({ loading: true, projection: null, error: null });
     fetchPost2029ReadingProjection(slug)
@@ -141,6 +148,36 @@ function PostReadingBody() {
     ...(commentArchiveId != null ? [{ id: "post-comments", label: "תגובות", targetId: "post-comments" }] : []),
     { id: "post-next", label: "המשך", targetId: "post-next" },
   ], [regions, state.projection, commentArchiveId]);
+
+  useEffect(() => {
+    const root = sourceRef.current;
+    const cover = typeof state.projection?.post?.image_url === "string"
+      ? state.projection.post.image_url.trim().split("?")[0] : "";
+    if (!root || !cover) return;
+    const first = root.querySelector("img");
+    if (!first || (first.getAttribute("src") || "").trim().split("?")[0] !== cover) return;
+    const wrap = first.parentElement !== root && first.parentElement?.children.length === 1
+      && !first.parentElement.textContent.trim() ? first.parentElement : first;
+    wrap.setAttribute("data-duplicate-cover", "true");
+  }, [state.projection]);
+
+  useEffect(() => {
+    const reveal = targetId => {
+      const target = targetId ? document.getElementById(targetId) : null;
+      if (target && researchRef.current?.contains(target)) revealReadingAnchor(target);
+    };
+    const onMapClick = event => {
+      const button = event.target?.closest?.(".sod29-surface-tabs button");
+      if (!button) return;
+      const item = sectionItems.find(entry => entry.label === (button.textContent || "").trim());
+      if (item) reveal(item.targetId || item.id);
+    };
+    let targetId = "";
+    try { targetId = decodeURIComponent((location.hash || "").replace(/^#/, "")); } catch { /* A malformed URL fragment has no target. */ }
+    reveal(targetId);
+    document.addEventListener("click", onMapClick, true);
+    return () => document.removeEventListener("click", onMapClick, true);
+  }, [sectionItems, location.hash, state.projection]);
 
   useEffect(() => {
     setSourceUpdates(state.projection ? provenSourceUpdatesFor(state.projection.post?.id, sourceRef.current) : []);
@@ -451,6 +488,9 @@ function PostReadingBody() {
   const { projection } = state;
   const { post } = projection;
   const coverItem = postReadingCoverItem(post);
+  const character = postCharacterFor(post);
+  const matrixOpening = matrixOpeningFor(post);
+  const background = postBackground2029(projection.sourcePost);
   const experience = projection.experience || {};
   const isBennettMaster = post.slug === "bennett-melach-631-78";
   const isFz1073Master = post.slug === "flydubai-fz1073-363-14000-remzei-geula";
@@ -778,6 +818,13 @@ function PostReadingBody() {
     data-experience-capability="post-master-reading-stage"
     data-architecture-wireframe={experience.wireframe ? "true" : undefined}
     data-post-slug={post.slug}
+    data-post-character={character}
+    data-post-background={background.key}
+    style={{
+      "--post-background-desktop": `url("${background.desktop}")`,
+      "--post-background-mobile": `url("${background.mobile}")`,
+      ...(matrixOpening ? { "--post-fx-color": matrixOpening.color, "--post-fx-head": matrixOpening.headColor } : {}),
+    }}
   >
     {experience.wireframe ? <section className="sod29-architecture-wireframe-note" aria-label="מבנה בלבד">
       <b>מבנה בלבד</b>
@@ -785,6 +832,9 @@ function PostReadingBody() {
     </section> : null}
 
     <header id="post-story" className="sod29-reading-hero" data-experience-capability="post-master-hero">
+      {matrixOpening ? <div className="sod29-post-opening" aria-hidden="true">
+        <MatrixRain color={matrixOpening.color} headColor={matrixOpening.headColor} featured={matrixOpening.featured} />
+      </div> : null}
       <div className="sod29-reading-hero-grid">
         <div className="sod29-reading-hero-copy">
           <h1>{humanContentTitle(post.title, { max: 0 })}</h1>
@@ -875,13 +925,22 @@ function PostReadingBody() {
     </div>
 
     {calculationNotice ? <p role="status">{calculationNotice}</p> : null}
+    <details ref={researchRef} open={researchOpen} className="sod29-post-research" id="post-research"
+      data-experience-capability="post-sources-and-connections"
+      onToggle={event => { if (event.target === event.currentTarget) setResearchOpen(event.currentTarget.open); }}>
+      <summary>
+        <span className="sod29-post-research-title">מקורות וקשרים</span>
+        <span className="sod29-post-research-hint">מקור, חיבורים, ציר זמן ומדדים — בלי להעמיס על הקריאה</span>
+        <span className="sod29-post-research-chevron" aria-hidden="true">⌄</span>
+      </summary>
+      <div className="sod29-post-research-body">
     {!projection.draft && !projection.privateStage && !projection.previewSnapshot ? <div id="post-measures">
-      <PostConvergenceMeasures2029 key={`${post.id}:${post.modified || ""}:${user?.id || "public"}`}
+      {researchOpen ? <PostConvergenceMeasures2029 key={`${post.id}:${post.modified || ""}:${user?.id || "public"}`}
         sourcePost={projection.sourcePost} sourceProjection={projection} claims={measureSource.claims} placements={measureSource.placements}
         initialCardId={research.context?.subject?.type === "post" && String(research.context.subject.id) === String(post.id)
           ? research.context?.dimensions?.postMeasureSelectedCardId || null : null}
         onOpenCalculation={openCheckedPostCalculation} onNavigate={openMeasureConnection}
-        onRefresh={() => invalidatePostSource("source_changed")} onSourceInvalid={invalidatePostSource} />
+        onRefresh={() => invalidatePostSource("source_changed")} onSourceInvalid={invalidatePostSource} /> : null}
     </div> : null}
 
     {contextualConnections.length ? <section id="post-connections" className="sod29-post-continuations" aria-labelledby="source-region-post-connections" data-experience-capability="post-connected-continuations">
@@ -918,6 +977,8 @@ function PostReadingBody() {
       <strong>{projection.sourceLine}</strong>
       <p>{projection.caveat}</p>
     </footer>
+      </div>
+    </details>
     {commentArchiveId != null ? <PostComments2029 key={String(commentArchiveId)} postWpId={commentArchiveId} /> : null}
     <nav id="post-next" className="sod29-post-next" aria-label="להמשיך לגלות">
       <a href="/2029/posts" onClick={(event) => openConnection(event, "/2029/posts")}>לכל הפוסטים ←</a>

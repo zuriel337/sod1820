@@ -1,18 +1,25 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
-import { mkdtempSync, existsSync, readFileSync, mkdirSync, rmSync } from 'node:fs';
+import { mkdtempSync, existsSync, readFileSync, writeFileSync, mkdirSync, rmSync } from 'node:fs';
 import { createServer } from 'node:http';
 import { tmpdir } from 'node:os';
 import { join, resolve, extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { build, transformWithOxc } from 'vite';
 import react from '@vitejs/plugin-react';
+import {POST_BACKGROUND_ASSETS_2029} from '../src/lib/research/postBackground2029.js';
 
 const require=createRequire(import.meta.url);
 let playwright;try{playwright=require('playwright');}catch{}
 const executablePath=process.env.CHROMIUM_EXECUTABLE_PATH || '/usr/bin/chromium';
 const root=fileURLToPath(new URL('..',import.meta.url));
+
+async function openResearch(page){
+  const entry=page.locator('#post-research');
+  if(!await entry.evaluate(node=>node.open))await entry.locator(':scope > summary').click();
+  await page.getByRole('button',{name:'רשימת ההתכנסויות הרלוונטיות'}).waitFor();
+}
 
 function fixturePlugin(){
   const aliases=new Map([
@@ -70,6 +77,7 @@ function fixturePlugin(){
       export function FrameState({title,children}){return <section><h2>{title}</h2>{children}</section>;}
       export default function Shell({children}){const [target,setTarget]=useState(null);const research=useResearch(),navigate=useNavigate();
         const preset=new URLSearchParams(location.search).get('theme')||sessionStorage.getItem('fixture-theme')||'dark';sessionStorage.setItem('fixture-theme',preset);window.__fixturePreset=preset;
+        document.documentElement.dataset.themePreset=preset;
         const p=resolve2029Palette(preset);
         const go=href=>{setTarget(null);navigate(href);};
         const openNumber=value=>{window.__targets.push(value);research.updateResearchContext({subject:{id:String(value.resultValue),type:'number',label:String(value.resultValue)},selection:{entityId:value.id,entityType:'gematria_expression',expression:value.expression,method:value.method,resultValue:value.resultValue,locator:value.locator},lens:'gematria'});setTarget(value);};
@@ -85,6 +93,7 @@ function fixturePlugin(){
       window.__reads=[];window.__rpcs=[];window.__targets=[];
       window.__post={id:9001,slug:'future-source',title:'מקור בדיקה חי',source:'ai',home_hidden:false,date:'2026-10-20',modified:'2026-10-30T14:00:00Z',tags:['1237'],categories:[],
         content:'<h2 id="native-heading" data-source-heading="true">ממצא ראשון</h2><p>הטענה כפי שנשמרה במקור</p><button id="claim-one" type="button" data-expression="התגלות" data-method="מסתתר" data-method-version="1" data-result="1237">התגלות = 1237</button><p>הפרשנות נשארת נפרדת.</p>'};
+      Object.assign(window.__post,JSON.parse(sessionStorage.getItem('fixture-post-overrides')||'{}'));
       window.__cards=Array.from({length:10},(_,i)=>({id:String(i),slug:'card-'+i,title:'התכנסות '+i,numbers:[1237],status:'approved',quality:i===0?null:10,meter_score:i===0?10:99,findings:[]}));
       function NumberPage(){const research=useResearch(),navigate=useNavigate();return <main><h1>דף המספר</h1><button onClick={()=>{const back=research.context.returnTo;research.updateResearchContext(buildExactReturnPatch(research.context));navigate(back.href);}}>חזרה מדף המספר למקור</button></main>;}
       function TopicDestination(){const research=useResearch(),navigate=useNavigate();return <main><h1>כרטיס התכנסות</h1><button onClick={()=>{const back=research.context.returnTo;research.updateResearchContext(buildExactReturnPatch(research.context));navigate(back.href);}}>חזרה מההתכנסות לפוסט</button></main>;}
@@ -99,14 +108,25 @@ function fixturePlugin(){
   },async load(id){if(!id.startsWith('\0posts:'))return null;const code=modules[id.slice(7).replace(/\.jsx$/,'')];return code==null?null:transformWithOxc(code,'fixture.jsx',{lang:'jsx',jsx:{runtime:'automatic'}});}};
 }
 
-test('built Post → real shared NumberDrawer → exact source return; future data, states and privacy', {skip:!playwright||!existsSync(executablePath),timeout:120000},async()=>{
+test('built Post: adopted design, bounded backgrounds, lazy research, exact return and future findings', {skip:!playwright||!existsSync(executablePath),timeout:180000},async()=>{
   const output=mkdtempSync(join(tmpdir(),'post-one-tree-'));let server,browser;
   const artifacts=process.env.POST_MEASURES_ARTIFACT_DIR || '/workspace/scratch/post-one-tree-browser';mkdirSync(artifacts,{recursive:true});
   try{
     const result=await build({root,configFile:false,publicDir:false,logLevel:'error',plugins:[fixturePlugin(),react()],build:{outDir:output,emptyOutDir:true,rollupOptions:{input:'virtual:post-one-tree-entry.jsx'}}});
     const chunks=result.output,entry=chunks.find(chunk=>chunk.isEntry),css=chunks.filter(chunk=>chunk.fileName.endsWith('.css'));
     const html=`<!doctype html><html lang="he" dir="rtl"><head><meta name="viewport" content="width=device-width,initial-scale=1">${css.map(c=>`<link rel="stylesheet" href="/${c.fileName}">`).join('')}</head><body><div id="root"></div><script type="module" src="/${entry.fileName}"></script></body></html>`;
-    server=createServer((req,res)=>{const path=resolve(output,'.'+new URL(req.url,'http://test').pathname);if(path.startsWith(output+'/')&&existsSync(path)&&extname(path)){res.setHeader('Content-Type',path.endsWith('.js')?'text/javascript':path.endsWith('.css')?'text/css':'application/octet-stream');res.end(readFileSync(path));}else{res.setHeader('Content-Type','text/html; charset=utf-8');res.end(html);}});
+    const backgroundPaths=new Set(Object.values(POST_BACKGROUND_ASSETS_2029).flatMap(item=>[item.mobile,item.desktop]));
+    const backgroundRequests=[];let failBackground=false;
+    server=createServer((req,res)=>{
+      const pathname=new URL(req.url,'http://test').pathname;
+      if(backgroundPaths.has(pathname)){
+        const data=readFileSync(resolve(root,'public','.'+pathname));
+        backgroundRequests.push({path:pathname,bytes:failBackground?0:data.length,status:failBackground?404:200});
+        if(failBackground){res.writeHead(404);res.end();return;}
+        res.setHeader('Content-Type','image/webp');res.setHeader('Cache-Control','public, max-age=604800, stale-while-revalidate=86400');res.end(data);return;
+      }
+      const path=resolve(output,'.'+pathname);if(path.startsWith(output+'/')&&existsSync(path)&&extname(path)){res.setHeader('Content-Type',path.endsWith('.js')?'text/javascript':path.endsWith('.css')?'text/css':'application/octet-stream');res.end(readFileSync(path));}else{res.setHeader('Content-Type','text/html; charset=utf-8');res.end(html);}
+    });
     await new Promise(done=>server.listen(0,'127.0.0.1',done));const origin=`http://127.0.0.1:${server.address().port}`;
     browser=await playwright.chromium.launch({executablePath,headless:true,args:['--no-sandbox','--disable-dev-shm-usage']});
     for(const width of [320,390,1440])for(const theme of ['light','parchment','dark']){
@@ -114,7 +134,11 @@ test('built Post → real shared NumberDrawer → exact source return; future da
       const errors=[],external=[];page.on('pageerror',e=>errors.push(e.message));
       await page.route('**/*',route=>route.request().url().startsWith(origin+'/')?route.continue():(external.push(route.request().url()),route.abort()));
       await page.goto(origin+'/post/future-source?theme='+theme);
-      await page.getByRole('button',{name:'רשימת ההתכנסויות הרלוונטיות'}).waitFor();
+      await page.locator('#claim-one').waitFor();
+      assert.equal(await page.locator('#post-research').evaluate(node=>node.open),false);
+      assert.equal(await page.locator('[data-post-measures]').count(),0);
+      assert.equal(await page.evaluate(()=>window.__reads.filter(table=>table==='topic_cards_public').length),0);
+      await openResearch(page);
       assert.equal(await page.evaluate(()=>window.__fixturePreset),theme);
       assert.equal(await page.locator('[data-convergence-strength]').count(),0);
       await page.getByRole('button',{name:'רשימת ההתכנסויות הרלוונטיות'}).click();
@@ -134,7 +158,7 @@ test('built Post → real shared NumberDrawer → exact source return; future da
       await page.getByRole('button',{name:'סגירה וחזרה למקור'}).click();await page.waitForURL('**/post/future-source#claim-one');
       await page.waitForFunction(()=>document.activeElement?.id==='claim-one');
       await page.reload();await page.waitForFunction(()=>document.activeElement?.id==='claim-one');
-      await page.getByRole('button',{name:'רשימת ההתכנסויות הרלוונטיות'}).waitFor();
+      await openResearch(page);
       assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
       await page.screenshot({path:join(artifacts,`${width}-${theme}.png`),fullPage:true});
       if(width===390&&theme==='light'){
@@ -146,11 +170,13 @@ test('built Post → real shared NumberDrawer → exact source return; future da
         await page.getByRole('button',{name:'פתח דף מלא ↗',exact:true}).click();await page.getByRole('heading',{name:'דף המספר',exact:true}).waitFor();
         assert.equal((await page.evaluate(()=>window.__researchContext.returnTo.selection)).sourceRef,'posts:9001');
         await page.getByRole('button',{name:'חזרה מדף המספר למקור'}).click();await page.waitForFunction(()=>document.activeElement?.id==='claim-one');
+        await openResearch(page);
         // Data changes after this exact fixture was built: no source ID list or rebuild.
         await page.evaluate(()=>{window.__post.content+='<button id="claim-new" data-expression="בן דוד" data-method="רגיל" data-method-version="1" data-result="66">ממצא חדש בן דוד = 66</button>';window.__post.modified='2026-10-30T15:00:00Z';window.__cards.push({id:'future',slug:'future',title:'התכנסות עתידית',numbers:[1237],status:'approved',quality:null,meter_score:0,findings:[]});});
         await page.getByRole('button',{name:'רענון מהמקור'}).click();await page.locator('#claim-new').waitFor();
         await page.locator('#claim-new').click();await page.getByRole('dialog').waitFor();assert.equal(await page.evaluate(()=>window.__researchContext.selection.resultValue),66);
         await page.getByRole('button',{name:'סגירה וחזרה למקור'}).click();await page.waitForFunction(()=>document.activeElement?.id==='claim-new');
+        await openResearch(page);
         await page.getByRole('button',{name:'רשימת ההתכנסויות הרלוונטיות'}).click();await page.getByRole('button',{name:'לעמוד הבא'}).click();await page.getByRole('button',{name:'בחירה: התכנסות עתידית',exact:true}).waitFor();
         await page.evaluate(()=>{window.__holdProfile=true;});await page.locator('#claim-one').click();await page.waitForFunction(()=>typeof window.__releaseProfile==='function');
         const targetCount=await page.evaluate(()=>window.__targets.length);
@@ -159,12 +185,51 @@ test('built Post → real shared NumberDrawer → exact source return; future da
         // A source read is the final boundary after the held method profile.
         await page.waitForFunction(()=>window.__reads.at(-1)==='posts');
         assert.equal(await page.evaluate(()=>window.__targets.length),targetCount);
-        await page.evaluate(()=>window.__goFixture('/post/future-source'));await page.getByRole('button',{name:'רשימת ההתכנסויות הרלוונטיות'}).waitFor();
+        await page.evaluate(()=>window.__goFixture('/post/future-source'));await openResearch(page);
         await page.evaluate(()=>{window.__failTable='topic_cards_public';});await page.getByRole('button',{name:'רשימת ההתכנסויות הרלוונטיות'}).click();await page.getByText('קריאת ההתכנסויות נכשלה. לא מוצגים מדדים קודמים.',{exact:true}).waitFor();assert.equal(await page.locator('[data-convergence-strength]').count(),0);
         await page.evaluate(()=>{window.__failTable=null;window.__post.home_hidden=true;});await page.getByRole('button',{name:'רשימת ההתכנסויות הרלוונטיות'}).click();await page.getByRole('heading',{name:'לא הצלחתי לפתוח את הפוסט',exact:true}).waitFor();assert.match(await page.locator('body').innerText(),/המקור אינו זמין להצגה כעת/);assert.equal(await page.locator('[data-post-measures]').count(),0);assert.equal(await page.locator('#claim-new').count(),0);
       }
       assert.deepEqual(errors,[]);assert.deepEqual(external,[]);assert.ok((await page.evaluate(()=>window.__rpcs)).every(name=>['fn_method_profile','gematria_method_trace'].includes(name)));
       await context.close();
     }
+    const backgroundCases={
+      general:{categories:['כללי'],author:null},
+      'dimension-five':{categories:['מימד חמש'],author:'בדרך לנצח'},
+      'sod-hashmal':{categories:['סוד החשמל'],author:null},
+      'mah-kore-habora':{categories:[],tags:['1237','מה קורה הבורא'],author:'אלון לוי'},
+    };
+    const backgroundResults=[];
+    for(const width of [320,390,1440])for(const theme of ['light','parchment','dark'])for(const [key,source]of Object.entries(backgroundCases)){
+      const context=await browser.newContext({viewport:{width,height:900},deviceScaleFactor:2,reducedMotion:'reduce'});
+      await context.addInitScript(overrides=>sessionStorage.setItem('fixture-post-overrides',JSON.stringify(overrides)),source);
+      const page=await context.newPage();const errors=[],external=[];
+      page.on('pageerror',e=>errors.push(e.message));
+      page.on('request',req=>{if(!req.url().startsWith(origin+'/'))external.push(req.url());});
+      const before=backgroundRequests.length;
+      await page.goto(origin+'/post/future-source?theme='+theme,{waitUntil:'networkidle'});
+      assert.equal(await page.locator('article').getAttribute('data-post-background'),key);
+      assert.equal(await page.locator('#post-research').evaluate(node=>node.open),false);
+      assert.equal(await page.evaluate(()=>window.__reads.filter(table=>table==='topic_cards_public').length),0);
+      const requests=backgroundRequests.slice(before);
+      const expected=POST_BACKGROUND_ASSETS_2029[key][width<=760?'mobile':'desktop'];
+      assert.deepEqual(requests.map(row=>row.path),theme==='dark'?[expected]:[]);
+      assert.ok(requests.every(row=>row.bytes<=(width<=760?30_000:60_000)));
+      const warmStart=backgroundRequests.length;
+      await page.reload({waitUntil:'networkidle'});
+      assert.equal(backgroundRequests.length,warmStart,'Warm reload must reuse the single selected background');
+      assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
+      assert.deepEqual(errors,[]);assert.deepEqual(external,[]);
+      backgroundResults.push({width,deviceScaleFactor:2,theme,key,requests,warmRequests:0});
+      if(theme==='dark'&&width===390)await page.screenshot({path:join(artifacts,'background-'+key+'-mobile.png'),fullPage:true});
+      await context.close();
+    }
+    failBackground=true;
+    const fallbackContext=await browser.newContext({viewport:{width:390,height:900}}),fallbackPage=await fallbackContext.newPage();
+    await fallbackPage.goto(origin+'/post/future-source?theme=dark',{waitUntil:'networkidle'});
+    await fallbackPage.locator('#claim-one').waitFor();
+    assert.equal(await fallbackPage.locator('article').getAttribute('data-post-background'),'general');
+    await openResearch(fallbackPage);
+    await fallbackContext.close();
+    writeFileSync(join(artifacts,'background-network.json'),JSON.stringify({cases:backgroundResults,unavailableImageKeepsPostReadable:true},null,2));
   }finally{await browser?.close();if(server)await new Promise(done=>server.close(done));rmSync(output,{recursive:true,force:true});}
 });

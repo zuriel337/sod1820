@@ -1,0 +1,121 @@
+{
+  "status": "USER_APPROVED_NIGHT_ARTWORK_INTEGRATED_PREVIEW_ONLY",
+  "scope": "Four approved Night background artworks consumed by the existing Post surface; existing series identity owner unchanged; no global palette, typography, frame or product-data changes",
+  "budgets": {
+    "mobileMaxBytes": 30000,
+    "desktopMaxBytes": 60000
+  },
+  "runtimeRequirement": "Implemented: one selected responsive image, exact existing series membership, general fallback for absent/ambiguous membership; research reader mounts only on disclosure opening; existing image cache headers retained",
+  "artwork": [
+    {
+      "key": "general",
+      "label": "הרקע הכללי הקיים",
+      "origin": "Existing selected background; unchanged artwork",
+      "sourceFile": "public/legacy-dark-bg-2026-09-30.png",
+      "sourceBytes": 1470880,
+      "sourceSha256": "0289d00c78b42051480a93bfae095142e8e0de1f254c86972339c4be0f6c4911",
+      "variants": [
+        {
+          "filename": "legacy-dark-bg-post-720-8f3a91ae32df.webp",
+          "width": 720,
+          "height": 405,
+          "bytes": 5720,
+          "maxBytes": 30000,
+          "sha256": "8f3a91ae32df23294b891549aaba89e678efbf2dd258c7d907956d4ccd761546"
+        },
+        {
+          "filename": "legacy-dark-bg-post-1280-6ca0167e2dda.webp",
+          "width": 1280,
+          "height": 720,
+          "bytes": 13846,
+          "maxBytes": 60000,
+          "sha256": "6ca0167e2ddab3e6b3640b43936bbbf90d283164e0d7e17bd5e8965ee2647db7"
+        }
+      ]
+    },
+    {
+      "key": "dimension-five",
+      "label": "מימד חמש",
+      "origin": "AI-generated decorative artwork; not source evidence",
+      "sourceFile": "/workspace/generated_images/exec-7fd67e21-480c-4ee8-aeb5-a8a3e527908b.png",
+      "sourceBytes": 1916035,
+      "sourceSha256": "085be74a05a79a2459f343ea1e1402cd4f3e5bbc80368f505f817a0dae4a6808",
+      "variants": [
+        {
+          "filename": "dimension-five-night-720-a608fa1bd777.webp",
+          "width": 720,
+          "height": 405,
+          "bytes": 16068,
+          "maxBytes": 30000,
+          "encodingQuality": 68,
+          "sha256": "a608fa1bd777a3a2448b22f6e8ae80c3073269b199b4c1a09db9a6a09def3954"
+        },
+        {
+          "filename": "dimension-five-night-1280-fed0a0b53207.webp",
+          "width": 1280,
+          "height": 720,
+          "bytes": 42388,
+          "maxBytes": 60000,
+          "encodingQuality": 68,
+          "sha256": "fed0a0b5320750afae2e611568bf3e98c25b3de3385763c62177ef8ef54c1506"
+        }
+      ]
+    },
+    {
+      "key": "sod-hashmal",
+      "label": "סוד החשמל",
+      "origin": "AI-generated decorative artwork; not source evidence",
+      "sourceFile": "/workspace/generated_images/exec-e40bfa49-1dff-4b6d-96aa-655312a5fb83.png",
+      "sourceBytes": 2693040,
+      "sourceSha256": "7651be398587762fa1a5871b97cd0ad98637ddd904638d8e283f0bfd6f0e06df",
+      "variants": [
+        {
+          "filename": "sod-hashmal-night-720-90d9a95561e9.webp",
+          "width": 720,
+          "height": 405,
+          "bytes": 19206,
+          "maxBytes": 30000,
+          "encodingQuality": 68,
+          "sha256": "90d9a95561e990788a51a12027befb8e624afd3bdf256514bb22ebca5807e9bf"
+        },
+        {
+          "filename": "sod-hashmal-night-1280-42ded30738bd.webp",
+          "width": 1280,
+          "height": 720,
+          "bytes": 59162,
+          "maxBytes": 60000,
+          "encodingQuality": 64,
+          "sha256": "42ded30738bd35c966c66e71459119d9808bf223737aa8cab975aa6a66bfc036"
+        }
+      ]
+    },
+    {
+      "key": "mah-kore-habora",
+      "label": "מה קורה הבורא",
+      "origin": "AI-generated decorative artwork; not source evidence",
+      "sourceFile": "/workspace/generated_images/exec-7f574fe5-92f8-415d-892a-590d1d03c45f.png",
+      "sourceBytes": 2073434,
+      "sourceSha256": "b10b0fa5ab2ec512a84b70cb037e18d4b36c7360f645ed7e070da80a07452c85",
+      "variants": [
+        {
+          "filename": "mah-kore-habora-night-720-883ada3afb2f.webp",
+          "width": 720,
+          "height": 405,
+          "bytes": 22530,
+          "maxBytes": 30000,
+          "encodingQuality": 68,
+          "sha256": "883ada3afb2fed85a0cf2fdeab885b4dc17eec4e87e82c688508ec50ef10204b"
+        },
+        {
+          "filename": "mah-kore-habora-night-1280-8bce64abed3a.webp",
+          "width": 1280,
+          "height": 720,
+          "bytes": 58050,
+          "maxBytes": 60000,
+          "encodingQuality": 66,
+          "sha256": "8bce64abed3a789e6ea1ab39cb8e6d3663645885efd634f357b403cb9636350f"
+        }
+      ]
+    }
+  ]
+}

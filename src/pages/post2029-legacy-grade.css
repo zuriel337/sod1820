@@ -1,0 +1,318 @@
+/* Post reading — legacy-grade finish (presentation only, Posts scope).
+   Loaded after post2029-reading.css. Every colour is an approved 2029 token (--s29-*), so night / day / parchment
+   keep working and the site palette is untouched. The character of a post (quiet · lexicon · matrix) shows inside
+   the post and its illustrations only: data-post-character is derived from the post itself (see postCharacters2029.js).
+   Gold here is decoration, never a rating. Nothing in this file creates a verification mark: authored claim boxes are
+   labelled as the post's own claim. Motion is slow, opacity/transform only, and off under prefers-reduced-motion. */
+
+.sod29-reading-source [data-duplicate-cover="true"]{display:none}
+
+/* ───────────── Shared reading finish ───────────── */
+.sod29-reading-post[data-post-character="quiet"],
+.sod29-reading-post[data-post-character="lexicon"],
+.sod29-reading-post[data-post-character="matrix"]{
+  --pg-measure:40rem;
+  --pg-rule:color-mix(in srgb,var(--s29-brand-gold,var(--s29-accent)) 46%,transparent);
+  --pg-hair:color-mix(in srgb,var(--s29-accent) 22%,var(--s29-line));
+  --pg-lift:0 1px 0 color-mix(in srgb,var(--s29-ink) 5%,transparent),0 18px 46px color-mix(in srgb,var(--s29-page,#000) 34%,transparent);
+  --pg-frame-pad:7px;
+}
+:is([data-theme-preset="light"],[data-theme-preset="parchment"]) .sod29-reading-post[data-post-character]{
+  --pg-lift:0 1px 0 rgba(255,255,255,.7) inset,0 14px 38px color-mix(in srgb,var(--s29-ink) 12%,transparent);
+}
+
+/* Hero: title with a drawn rule, generous air, balanced wrap. */
+.sod29-reading-post[data-post-character]:not([data-post-character="plain"]) .sod29-reading-hero{margin-bottom:clamp(28px,4vw,52px)}
+.sod29-reading-post[data-post-character]:not([data-post-character="plain"]) .sod29-reading-hero h1{
+  font-family:var(--s29-font-display,inherit);
+  font-size:clamp(28px,3.9vw,50px);line-height:1.2;letter-spacing:-.02em;font-weight:800;
+  text-wrap:balance;max-width:26ch;
+  padding-bottom:.55em;
+  background:linear-gradient(to left,var(--pg-rule),transparent 62%) bottom/100% 1px no-repeat;
+}
+
+/* Cover: a whole image held in a precise inner frame — never cropped. */
+.sod29-reading-post[data-post-character]:not([data-post-character="plain"]) .sod29-reading-cover{
+  padding:var(--pg-frame-pad);border-radius:22px;
+  border:1px solid var(--pg-hair);
+  background:color-mix(in srgb,var(--s29-panel) 80%,transparent);
+  box-shadow:var(--pg-lift);
+}
+.sod29-reading-post[data-post-character]:not([data-post-character="plain"]) .sod29-reading-cover .sod29-canonical-media-figure{border-radius:16px;overflow:hidden}
+
+/* Reading column. */
+.sod29-reading-post[data-post-character]:not([data-post-character="plain"]) .sod29-reading-source{
+  border-radius:26px;border-color:var(--pg-hair);
+  padding:clamp(24px,4.2vw,56px) clamp(18px,4.4vw,64px) clamp(34px,4.4vw,56px);
+  background:
+    radial-gradient(120% 60% at 100% 0,color-mix(in srgb,var(--s29-accent) 6%,transparent),transparent 60%),
+    color-mix(in srgb,var(--s29-panel) 94%,transparent);
+  box-shadow:var(--pg-lift);
+}
+.sod29-reading-post[data-post-character]:not([data-post-character="plain"]) .sod29-reading-source>*{max-width:var(--pg-measure);margin-inline:auto}
+.sod29-reading-post[data-post-character]:not([data-post-character="plain"]) .sod29-reading-source p{
+  font-size:clamp(17px,.5vw + 15.5px,20px)!important;line-height:2.02!important;margin-block:0 1.15em;
+  hanging-punctuation:first;text-wrap:pretty;
+}
+.sod29-reading-post[data-post-character]:not([data-post-character="plain"]) .sod29-reading-source p[style*="text-align:center"]{max-width:34rem;font-size:clamp(17px,.5vw + 16px,21px)!important;color:var(--s29-ink)}
+.sod29-reading-post[data-post-character]:not([data-post-character="plain"]) .sod29-reading-source h3{
+  position:relative;margin:2.5em auto .8em;padding-top:1.05em;
+  font-family:var(--s29-font-display,inherit);
+  font-size:clamp(21px,1.1vw + 18px,29px)!important;line-height:1.3!important;font-weight:800;letter-spacing:-.01em;color:var(--s29-ink);
+  text-wrap:balance;
+}
+.sod29-reading-post[data-post-character]:not([data-post-character="plain"]) .sod29-reading-source h3::before{
+  content:"";position:absolute;inset-inline-start:0;top:0;width:44px;height:2px;border-radius:2px;
+  background:linear-gradient(to left,var(--s29-accent),transparent);
+}
+.sod29-reading-post[data-post-character]:not([data-post-character="plain"]) .sod29-reading-source a:not(.sod-post-cta):not(.sod-gemlink):not(.sod-numlink){
+  color:var(--s29-accent-text);text-decoration:underline;text-decoration-color:color-mix(in srgb,var(--s29-accent) 45%,transparent);text-underline-offset:.28em;text-decoration-thickness:1px;
+}
+
+/* Quotes: set apart as a pull-quote, not a bar. Distinct from body, calm. */
+.sod29-reading-post[data-post-character]:not([data-post-character="plain"]) .sod29-reading-source :is(blockquote,.sod-verse){
+  position:relative;margin:1.8em auto;padding:1.5em clamp(18px,3vw,34px) 1.25em;
+  border:0;border-radius:20px;
+  background:linear-gradient(160deg,color-mix(in srgb,var(--s29-accent) 9%,transparent),color-mix(in srgb,var(--s29-accent) 3%,transparent));
+  box-shadow:inset 0 0 0 1px var(--pg-hair);
+  font-family:var(--s29-font-display,inherit);
+  font-size:clamp(19px,.9vw + 16px,25px)!important;line-height:1.75!important;font-weight:600;text-align:center;color:var(--s29-ink)!important;
+  text-wrap:balance;
+}
+.sod29-reading-post[data-post-character]:not([data-post-character="plain"]) .sod29-reading-source :is(blockquote,.sod-verse)::before{
+  content:"";position:absolute;inset-inline-start:50%;top:-5px;width:9px;height:9px;transform:translateX(50%) rotate(45deg);
+  background:var(--s29-accent);box-shadow:0 0 0 5px var(--s29-panel),0 0 0 6px var(--pg-hair);pointer-events:none;
+}
+.sod29-reading-post[data-post-character]:not([data-post-character="plain"]) .sod29-reading-source :is(blockquote,.sod-verse) :is(span,b,strong)[style]{
+  display:block;margin-top:.55em;font-family:var(--s29-font-body,inherit);font-size:.62em!important;line-height:1.5;letter-spacing:.04em;font-weight:700!important;color:var(--s29-accent-text)!important;
+}
+
+/* Media: sharp, whole, precisely framed. */
+.sod29-reading-post[data-post-character]:not([data-post-character="plain"]) .sod29-reading-source :is(img,video){
+  border-radius:18px!important;
+  box-shadow:0 0 0 1px var(--pg-hair),0 16px 40px color-mix(in srgb,var(--s29-page,#000) 30%,transparent)!important;
+  background:color-mix(in srgb,var(--s29-panel-soft) 90%,transparent);
+}
+.sod29-reading-post[data-post-character]:not([data-post-character="plain"]) .sod29-reading-source div[style*="text-align:center"]>:is(div)[style*="font-size:12px"]{
+  font-size:12.5px!important;line-height:1.6;color:var(--s29-muted)!important;opacity:1!important;letter-spacing:.01em;
+}
+
+/* Authored claim box: shown as the post's own claim. The legacy caption stays as written; no verified mark is drawn. */
+.sod29-reading-post[data-post-character]:not([data-post-character="plain"]) .sod-gematria-box{
+  position:relative;margin:2em auto;padding:1.5em clamp(16px,3vw,28px) 1.2em;border-radius:20px;
+  border:0;box-shadow:inset 0 0 0 1px var(--pg-hair);
+  background:color-mix(in srgb,var(--s29-panel-soft) 86%,transparent);
+  text-align:start;
+}
+.sod29-reading-post[data-post-character]:not([data-post-character="plain"]) .sod-gematria-box::before{
+  content:"טענת הפוסט";position:absolute;inset-block-start:-.7em;inset-inline-start:18px;
+  padding:.15em .8em;border-radius:999px;font-size:11px;font-weight:800;letter-spacing:.06em;
+  background:var(--s29-panel);color:var(--s29-accent-text);box-shadow:inset 0 0 0 1px var(--pg-hair);
+}
+.sod29-reading-post[data-post-character]:not([data-post-character="plain"]) .sod-gematria-box .gb-title{font-size:13px;font-weight:800;letter-spacing:.03em;color:var(--s29-accent-text);margin-bottom:.9em}
+.sod29-reading-post[data-post-character]:not([data-post-character="plain"]) .sod-gematria-box .gb-rows{display:flex;flex-wrap:wrap;gap:10px}
+.sod29-reading-post[data-post-character]:not([data-post-character="plain"]) .sod-gematria-box .gb-rows>div{
+  display:inline-flex;align-items:baseline;gap:.5em;padding:.5em 1em;border-radius:14px;
+  background:color-mix(in srgb,var(--s29-accent) 8%,transparent);box-shadow:inset 0 0 0 1px var(--pg-hair);
+  font-size:clamp(16px,1vw + 13px,20px);font-weight:700;color:var(--s29-ink);
+}
+.sod29-reading-post[data-post-character]:not([data-post-character="plain"]) .sod-gematria-box .gb-rows b{font-family:var(--s29-font-numeric,inherit);font-size:1.25em;color:var(--s29-accent-text);font-variant-numeric:tabular-nums}
+.sod29-reading-post[data-post-character]:not([data-post-character="plain"]) .sod-gematria-box .gb-note{margin-top:1em;font-size:13.5px;line-height:1.85;color:var(--s29-muted)}
+.sod29-reading-post[data-post-character]:not([data-post-character="plain"]) .sod-gematria-box .gb-note b{color:var(--s29-ink)}
+
+/* End-of-post call to action. */
+.sod29-reading-post[data-post-character]:not([data-post-character="plain"]) .sod-post-cta{
+  display:inline-flex;align-items:center;min-height:44px;padding:0 1.5em;border-radius:999px;font-weight:800;text-decoration:none;
+  background:var(--s29-accent-btn,var(--s29-accent));color:var(--s29-on-accent,#1a0e00);
+  box-shadow:0 10px 26px color-mix(in srgb,var(--s29-accent) 28%,transparent);
+  transition:transform .25s ease,box-shadow .25s ease;
+}
+.sod29-reading-post[data-post-character]:not([data-post-character="plain"]) .sod-post-cta:hover{transform:translateY(-2px)}
+
+/* ───────────── quiet — Dimension Five: calm reading, quotes and media ───────────── */
+.sod29-reading-post[data-post-character="quiet"]{--pg-measure:36rem}
+.sod29-reading-post[data-post-character="quiet"] .sod29-reading-source p{line-height:2.1!important}
+.sod29-reading-post[data-post-character="quiet"] .sod29-reading-source>div:first-child img{border-radius:22px!important}
+.sod29-reading-post[data-post-character="quiet"] .sod29-reading-source p>span[style*="font-weight:800"]{color:var(--s29-ink)}
+.sod29-reading-post[data-post-character="quiet"] .sod29-reading-source :is(blockquote,.sod-verse){
+  background:radial-gradient(90% 120% at 50% 0,color-mix(in srgb,var(--s29-accent) 10%,transparent),transparent 70%);
+}
+
+/* ───────────── lexicon — letters, roots, equations (Hebrew + English) ───────────── */
+.sod29-reading-post[data-post-character="lexicon"]{--pg-measure:42rem}
+.sod29-reading-post[data-post-character="lexicon"] .sod29-reading-source a.sod-gemlink,
+.sod29-reading-post[data-post-character="lexicon"] .sod29-reading-source a.sod-numlink{
+  color:var(--s29-ink)!important;font-weight:800;text-decoration:underline dotted var(--s29-accent);text-underline-offset:.3em;text-decoration-thickness:1.5px;
+}
+/* Illustration panels authored with their own night-only palette: re-seated on the 2029 tokens (all three themes). */
+.sod29-reading-post[data-post-character="lexicon"] .sod29-reading-source .sgx{
+  max-width:var(--pg-measure);margin:2.2em auto;padding:clamp(22px,3.4vw,34px) clamp(14px,2.6vw,26px);border-radius:24px;
+  background:radial-gradient(90% 80% at 50% 0,color-mix(in srgb,var(--s29-accent) 11%,transparent),transparent 70%),color-mix(in srgb,var(--s29-panel-soft) 92%,transparent);
+  border:0;box-shadow:inset 0 0 0 1px var(--pg-hair),var(--pg-lift);
+}
+.sod29-reading-post[data-post-character="lexicon"] .sgx-step{
+  background:color-mix(in srgb,var(--s29-accent) 10%,transparent);border:0;box-shadow:inset 0 0 0 1px var(--pg-hair);
+  color:var(--s29-accent-text);font-size:12px;letter-spacing:.08em;padding:4px 16px;margin-bottom:18px;
+}
+.sod29-reading-post[data-post-character="lexicon"] .sgx-cap{color:var(--s29-muted);font-size:14.5px;line-height:1.95;margin-top:16px}
+.sod29-reading-post[data-post-character="lexicon"] .sgx-cap b{color:var(--s29-ink)}
+.sod29-reading-post[data-post-character="lexicon"] .sgx-big{
+  font-family:var(--s29-font-numeric,inherit);color:var(--s29-hero,var(--s29-accent-text));text-shadow:0 0 28px var(--s29-glow);
+  font-size:clamp(40px,9vw,64px);line-height:1.05;animation:pg-breathe 5.5s ease-in-out infinite;
+}
+.sod29-reading-post[data-post-character="lexicon"] .sgx-tile{
+  background:color-mix(in srgb,var(--s29-accent) 8%,transparent);border:0;box-shadow:inset 0 0 0 1px var(--pg-hair);color:var(--s29-ink);
+  min-width:2.6em;min-height:44px;font-family:var(--s29-font-numeric,inherit);
+}
+.sod29-reading-post[data-post-character="lexicon"] .sgx-tile.val{color:var(--s29-accent-text);background:color-mix(in srgb,var(--s29-accent) 15%,transparent)}
+.sod29-reading-post[data-post-character="lexicon"] .sgx-tile.blue{
+  color:var(--s29-brand-sapphire,var(--s29-accent-secondary,var(--s29-ink)));
+  background:color-mix(in srgb,var(--s29-brand-sapphire,var(--s29-accent-secondary,#326fe8)) 10%,transparent);
+  box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--s29-brand-sapphire,var(--s29-accent-secondary,#326fe8)) 42%,transparent);
+}
+.sod29-reading-post[data-post-character="lexicon"] .sgx-plus{color:var(--s29-muted)}
+.sod29-reading-post[data-post-character="lexicon"] .sgx-out i{
+  background:color-mix(in srgb,var(--s29-accent) 8%,transparent);border:0;box-shadow:inset 0 0 0 1px var(--pg-hair);
+  color:var(--s29-ink);animation:pg-letter 6s ease-in-out infinite;
+}
+.sod29-reading-post[data-post-character="lexicon"] .sgx-out i small{color:var(--s29-muted)}
+.sod29-reading-post[data-post-character="lexicon"] .sgx-out.en i{font-family:var(--s29-font-display,inherit)}
+.sod29-reading-post[data-post-character="lexicon"] .sgx-lang div{
+  background:color-mix(in srgb,var(--s29-accent) 6%,transparent);border:0;box-shadow:inset 0 0 0 1px var(--pg-hair);color:var(--s29-ink);border-radius:12px;padding:10px 16px;
+}
+.sod29-reading-post[data-post-character="lexicon"] .sgx-lang b{color:var(--s29-accent-text)}
+.sod29-reading-post[data-post-character="lexicon"] .sgx-lang span{color:var(--s29-muted)}
+@keyframes pg-breathe{0%,100%{opacity:.92;transform:none}50%{opacity:1;transform:scale(1.025)}}
+@keyframes pg-letter{0%,100%{transform:none}50%{transform:translateY(-3px)}}
+
+/* ───────────── matrix — present opening, green touches, elegant chapters ───────────── */
+.sod29-reading-post[data-post-character="matrix"]{
+  --pg-matrix:var(--post-fx-color,#23c768);--pg-matrix-soft:var(--post-fx-head,#bfffd6);--pg-measure:42rem;
+}
+:is([data-theme-preset="light"],[data-theme-preset="parchment"]) .sod29-reading-post[data-post-character="matrix"]{--pg-matrix:color-mix(in srgb,var(--post-fx-color,#23c768) 62%,#000);--pg-matrix-soft:color-mix(in srgb,var(--post-fx-color,#23c768) 40%,#000)}
+/* the opening stage stays dark in every theme, so its own copy keeps the bright tones */
+.sod29-reading-post[data-post-character="matrix"] .sod29-reading-hero{--pg-matrix:var(--post-fx-color,#23c768);--pg-matrix-soft:var(--post-fx-head,#bfffd6)}
+/* The opening: a contained stage behind the title (the rain is POST_FX's, drawn by MatrixRain). */
+.sod29-reading-post[data-post-character="matrix"] .sod29-reading-hero{
+  position:relative;isolation:isolate;width:min(1000px,100%);
+  padding:clamp(34px,6vw,72px) clamp(20px,4vw,52px) clamp(26px,4vw,44px);border-radius:28px;overflow:hidden;
+  background:linear-gradient(180deg,color-mix(in srgb,var(--pg-matrix) 5%,#000),color-mix(in srgb,var(--pg-matrix) 7%,#000) 70%,color-mix(in srgb,var(--pg-matrix) 7%,var(--s29-panel)));
+  box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--pg-matrix) 40%,transparent),0 24px 60px color-mix(in srgb,var(--pg-matrix) 14%,transparent);
+  color:color-mix(in srgb,var(--pg-matrix-soft) 28%,#fff);
+}
+.sod29-reading-post[data-post-character="matrix"] .sod29-reading-hero::before{display:none}
+.sod29-reading-post[data-post-character="matrix"] .sod29-post-opening{position:absolute;inset:0;z-index:-1;opacity:.9;
+  -webkit-mask-image:linear-gradient(to bottom,#000 55%,transparent);mask-image:linear-gradient(to bottom,#000 55%,transparent)}
+.sod29-reading-post[data-post-character="matrix"] .sod29-reading-hero h1{
+  color:color-mix(in srgb,var(--pg-matrix-soft) 12%,#fff);text-shadow:0 0 34px color-mix(in srgb,var(--pg-matrix) 55%,transparent);
+  background:linear-gradient(to left,color-mix(in srgb,var(--pg-matrix) 70%,transparent),transparent 62%) bottom/100% 1px no-repeat;
+  animation:pg-rise .9s cubic-bezier(.2,.7,.2,1) both;
+}
+.sod29-reading-post[data-post-character="matrix"] .sod29-reading-hero :is(.sod29-reading-source-badge,.sod29-post-details-label,.sod29-post-details>summary){color:var(--pg-matrix-soft)}
+.sod29-reading-post[data-post-character="matrix"] .sod29-reading-hero .sod29-reading-source-badge{background:color-mix(in srgb,var(--pg-matrix) 12%,transparent);border-color:color-mix(in srgb,var(--pg-matrix) 45%,transparent)}
+.sod29-reading-post[data-post-character="matrix"] .sod29-reading-hero .sod29-post-details-body{background:color-mix(in srgb,var(--pg-matrix) 5%,#000);color:color-mix(in srgb,var(--pg-matrix-soft) 28%,#fff);border-radius:14px;padding:12px 16px}
+.sod29-reading-post[data-post-character="matrix"] .sod29-reading-hero :is(.sod29-post-details-body p,.sod29-reading-source-line){color:color-mix(in srgb,var(--pg-matrix-soft) 20%,#fff)}
+.sod29-reading-post[data-post-character="matrix"] .sod29-reading-number-signal{
+  background:color-mix(in srgb,var(--pg-matrix) 10%,transparent);border-color:color-mix(in srgb,var(--pg-matrix) 50%,transparent);color:color-mix(in srgb,var(--pg-matrix-soft) 28%,#fff);
+}
+.sod29-reading-post[data-post-character="matrix"] .sod29-reading-number-stage-kicker,
+.sod29-reading-post[data-post-character="matrix"] .sod29-reading-number-stage p{color:var(--pg-matrix-soft)}
+@keyframes pg-rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+/* Chapters of the dossier: eyebrow + title, with a green hairline. */
+.sod29-reading-post[data-post-character="matrix"] .sod29-reading-source div[style*="font-size:21px"]{
+  position:relative;margin-top:2.6em!important;padding-top:1.1em;color:var(--s29-ink)!important;
+  font-family:var(--s29-font-display,inherit);font-size:clamp(22px,1.4vw + 18px,31px)!important;line-height:1.25!important;font-weight:800;
+}
+.sod29-reading-post[data-post-character="matrix"] .sod29-reading-source div[style*="font-size:21px"]::before{
+  content:"";position:absolute;top:0;inset-inline:0;margin-inline:auto;width:64px;height:2px;border-radius:2px;
+  background:linear-gradient(to left,transparent,var(--pg-matrix),transparent);
+}
+.sod29-reading-post[data-post-character="matrix"] .sod29-reading-source div[style*="letter-spacing:1px"]{color:var(--s29-muted)!important;font-size:12.5px!important;letter-spacing:.14em!important}
+/* Authored colour roles kept distinct (gold heading · cream body · muted note) on token colours, in every theme. */
+.sod29-reading-post[data-post-character="matrix"] .sod29-reading-source :is(div,p,span,strong,em)[style*="color:#f6e27a" i],
+.sod29-reading-post[data-post-character="matrix"] .sod29-reading-source :is(div,p,span,strong,em)[style*="color:#e8c840" i]{color:var(--s29-accent-text)!important}
+.sod29-reading-post[data-post-character="matrix"] .sod29-reading-source :is(div,p,span,strong,em)[style*="color:#f3e6c0" i],
+.sod29-reading-post[data-post-character="matrix"] .sod29-reading-source :is(div,p,span,strong,em)[style*="color:#ede4d3" i]{color:var(--s29-ink)!important}
+.sod29-reading-post[data-post-character="matrix"] .sod29-reading-source :is(div,p,span)[style*="color:#cdb15a" i],
+.sod29-reading-post[data-post-character="matrix"] .sod29-reading-source :is(div,p,span)[style*="color:#cbb25e" i]{color:var(--s29-muted)!important}
+.sod29-reading-post[data-post-character="matrix"] .sod29-reading-source strong[data-gem][style]{
+  color:var(--s29-ink)!important;border-bottom:1.5px dotted var(--pg-matrix)!important;
+}
+/* Authored panels (central cipher + layers): tokenised surface; green appears only on the central cipher. */
+.sod29-reading-post[data-post-character="matrix"] .sod29-reading-source>div[style*="border:1px solid"]{
+  border:0!important;border-radius:22px!important;padding:clamp(18px,3vw,28px) clamp(16px,3vw,30px)!important;
+  background:color-mix(in srgb,var(--s29-panel-soft) 88%,transparent)!important;box-shadow:inset 0 0 0 1px var(--pg-hair);
+}
+.sod29-reading-post[data-post-character="matrix"] .sod29-reading-source>div[style*="rgba(246,226,122"]{
+  background:linear-gradient(160deg,color-mix(in srgb,var(--pg-matrix) 11%,transparent),color-mix(in srgb,var(--s29-panel-soft) 90%,transparent))!important;
+  box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--pg-matrix) 48%,transparent),0 14px 36px color-mix(in srgb,var(--pg-matrix) 10%,transparent);
+}
+.sod29-reading-post[data-post-character="matrix"] .sod29-reading-source>div[style*="rgba(246,226,122"]{position:relative}
+.sod29-reading-post[data-post-character="matrix"] .sod29-reading-source>div[style*="rgba(246,226,122"]::after{
+  content:"טענת הפוסט";position:absolute;inset-block-start:-.7em;inset-inline-start:18px;padding:.15em .8em;border-radius:999px;
+  font-size:11px;font-weight:800;letter-spacing:.06em;background:var(--s29-panel);color:var(--s29-accent-text);box-shadow:inset 0 0 0 1px var(--pg-hair);
+}
+.sod29-reading-post[data-post-character="matrix"] .sod29-reading-source>div[style*="border:1px solid"]>div[style*="font-size:17px"]{font-family:var(--s29-font-display,inherit);letter-spacing:.01em}
+.sod29-reading-post[data-post-character="matrix"] .sod29-reading-source>div[style*="border:1px solid"] p{font-size:clamp(15.5px,.4vw + 14.5px,17.5px)!important;line-height:1.95!important;max-width:none;color:var(--s29-ink)}
+
+/* ───────────── Sources & connections: one closed entry, depth on request ───────────── */
+.sod29-post-research{
+  width:min(790px,100%);margin:clamp(30px,4vw,52px) auto 0;border-radius:22px;
+  border:1px solid var(--s29-line);background:color-mix(in srgb,var(--s29-panel) 90%,transparent);
+}
+.sod29-post-research>summary{
+  display:flex;flex-wrap:wrap;align-items:center;gap:4px 14px;min-height:56px;padding:12px 20px;cursor:pointer;list-style:none;border-radius:22px;
+}
+.sod29-post-research>summary::-webkit-details-marker{display:none}
+.sod29-post-research>summary:focus-visible{outline:2px solid var(--s29-focus-ring,var(--s29-accent));outline-offset:3px}
+.sod29-post-research-title{font-size:16px;font-weight:800;color:var(--s29-ink)}
+.sod29-post-research-hint{flex:1 1 220px;font-size:12.5px;color:var(--s29-muted);line-height:1.5}
+.sod29-post-research-chevron{margin-inline-start:auto;color:var(--s29-accent-text);transition:transform .25s ease}
+.sod29-post-research[open]>summary{border-bottom:1px solid var(--s29-line);border-bottom-left-radius:0;border-bottom-right-radius:0}
+.sod29-post-research[open] .sod29-post-research-chevron{transform:rotate(180deg)}
+.sod29-post-research-body{padding:6px clamp(14px,2.6vw,24px) 22px;display:grid;gap:6px}
+.sod29-post-research-body :is(.k29-pcm,.sod29-post-continuations,.sod29-post-timeline,.sod29-reading-footnote){width:100%;margin-inline:0;margin-top:18px}
+.sod29-post-research-body .sod29-reading-footnote{border-top:1px solid var(--s29-line)}
+.sod29-reading-post[data-post-slug] .sod29-post-research [data-reading-region]{scroll-margin-top:max(130px,18vh)}
+
+@media (max-width:640px){
+  .sod29-reading-post[data-post-character="matrix"] .sod29-reading-hero{border-radius:22px;padding-inline:16px}
+  .sod29-reading-post[data-post-character]:not([data-post-character="plain"]) .sod29-reading-source{border-radius:20px}
+  .sod29-reading-post[data-post-character]:not([data-post-character="plain"]) .sod29-reading-source :is(blockquote,.sod-verse){border-radius:16px}
+  .sod29-post-research-hint{flex-basis:100%}
+}
+@media (prefers-reduced-motion:reduce){
+  .sod29-reading-post[data-post-character] *,
+  .sod29-reading-post[data-post-character] *::before{animation:none!important;transition:none!important}
+  .sod29-reading-post[data-post-character="matrix"] .sod29-post-opening{display:none}
+  .sod29-post-research-chevron{transition:none}
+}
+
+/* ───────────── Night backdrop for Posts (the legacy city photograph) ─────────────
+   Posts scope only: a fixed layer behind the reading stage, drawn by the article, not by the shell.
+   Night preset only; day/parchment keep their own surfaces. The Post supplies one
+   approved series image (or the existing general photograph) in bounded WebP sizes.
+   The adopted composition and centre veil are retained. No original PNG is fetched. */
+html[data-theme-preset="dark"] .sod29-reading-post::before,
+html[data-theme-preset="dark"] .sod29-reading-post::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none}
+html[data-theme-preset="dark"] .sod29-reading-post::before{
+  background:var(--post-background-desktop) center/cover no-repeat;opacity:.7;
+}
+html[data-theme-preset="dark"] .sod29-reading-post::after{
+  background:
+    radial-gradient(ellipse at 50% -10%,rgba(122,19,32,.26) 0%,transparent 55%),
+    radial-gradient(ellipse at 50% 110%,rgba(61,31,92,.24) 0%,transparent 50%),
+    radial-gradient(ellipse 70% 80% at 50% 48%,rgba(7,5,14,.55) 0%,rgba(7,5,14,.35) 45%,rgba(7,5,14,.12) 75%,rgba(7,5,14,0) 100%);
+}
+/* Lighter glass so the photograph reads through the panels (blur keeps text sharp). */
+html[data-theme-preset="dark"] .sod29-reading-post[data-post-character]:not([data-post-character="plain"]) :is(.sod29-reading-source,.sod29-reading-cover,.sod29-post-research){
+  background:color-mix(in srgb,#06040c 60%,transparent);
+  -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
+}
+html[data-theme-preset="dark"] .sod29-reading-post[data-post-character]:not([data-post-character="plain"]):not([data-post-character="matrix"]) .sod29-reading-hero{
+  background:color-mix(in srgb,#06040c 60%,transparent);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
+}
+@media (max-width:760px){
+  html[data-theme-preset="dark"] .sod29-reading-post::before{background-image:var(--post-background-mobile)}
+}
