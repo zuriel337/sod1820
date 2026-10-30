@@ -41,17 +41,20 @@ coordination AFTER rather than inferred from this document.
 
 ## Content and remaining work
 
-The individually reviewed identity manifest contains 223 exact fingerprints,
-including five additions to the earlier 218. The five have arithmetic
-rechecked against their source; only three also had their stated gematria
+The individually reviewed identity manifest contains 229 exact fingerprints,
+including five additions to the earlier 218 and six further independently
+reviewed source-complete findings. The six further findings were read through
+anon, their full statements exactly match live source messages, and no exact
+statement duplicate was found. Arithmetic was checked in two; their gematria
+and interpretations were not checked by the canonical engine.
+The five earlier additions have arithmetic rechecked against their source; only three also had their stated gematria
 operands checked against the canonical method. This is a bounded review of the
 finding, not a claim that every part of each source was editorially or privacy
 reviewed, nor that every finding was verified by the engine. Changed content,
 unavailable sources and failed eligibility checks fail closed.
 
-The earlier bounded assessment covered 472 mixed records. Following the five
-additions, 204 still require review, including 154 not individually examined;
-45 were excluded from research presentation as nonresearch or personal. No
+The earlier bounded assessment covered 472 mixed records. Following the eleven
+additions, 198 still require review; 45 were excluded from research presentation as nonresearch or personal. No
 records were deleted. These counts describe that assessment, not a live total
 or proof that all Zvi material is ready for display. Further associations to
 topics and tree nodes require evidence and the appropriate separate review.
