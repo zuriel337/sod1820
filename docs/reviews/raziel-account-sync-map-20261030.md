@@ -109,3 +109,17 @@ Pending human check: sign in to the Preview with the existing account, explicitl
 save a conversation, wait for the synced label, reload and reopen from My Account.
 No passwords or tokens are requested in this handoff. Account/model test doubles
 must not be presented as that live acceptance step.
+
+## Protected Preview receipt
+
+- Runtime commit: `08b070ab053b03497e7b4b2a496770a93148c11f`.
+- Deployment: `dpl_6rXEcFtrcWnDZKtvFXPmF4E3saJN`, READY, target `staging`
+  (Vercel Preview), project `prj_43q7k7QFAcWnin1tcBjce5xOi7Cq`.
+- Host: `sod1820-3vfk90nt3-sod1820-s-projects.vercel.app`.
+  A seven-day share link was issued to ZURIEL; its access token is not committed.
+- Hosted `/code`: HTTP 200, exact runtime SHA/branch/transport identity checked,
+  320/390/1440 no horizontal page/chat overflow, no page errors, zero AI calls.
+  The empty saved panel opens for guests and truthfully reports local-only state.
+- All three canonical production aliases checked after deployment: unchanged
+  Legacy `dpl_AiKPHaoo5pxo9T5PFTpcBRG7LfMA`. No Edge function deployed.
+- This receipt-only follow-up does not change the deployed application code.
