@@ -69,6 +69,23 @@ export async function loadMethodCards({ fetchMethodProfile, phrases = GATE_PHRAS
   }));
 }
 
+// Rendered gate slot, not an invented gallery locator or authored Topic claim.
+// The existing Topic resolver re-reads the exact method/value before opening depth.
+export function gateMethodFocus2029(card) {
+  const spec = GATE_PHRASES.find((entry) => entry.id === card?.id);
+  const value = engineValue(card?.value);
+  if (!spec || card?.expression !== spec.expression || card?.methodKey !== spec.methodKey
+    || !["confirmed", "different_value"].includes(card?.status)
+    || !Number.isSafeInteger(value) || value < 0) return null;
+  const key = `rv-method-${spec.id}`;
+  return {
+    row: { text: spec.expression, method: spec.methodKey, value,
+      sourcePath: `revelation1237.gateMethods.${spec.id}` },
+    origin: { key, locator: `#${key}`, sectionId: "rv-center", kind: "method_profile",
+      expectedMethodVersion: card.definitionVersion ?? null },
+  };
+}
+
 // ── galleries ─────────────────────────────────────────────────────────────────────────────
 // Stored gallery order only. Legacy "importance" is never a ranking signal here.
 export function storedOrderIds(rows) {

@@ -28,20 +28,19 @@ function fixturePlugin() {
     ["/research/entityHubProjection.js", "hub"],
     ["/research/worldProminenceInputs.js", "prominence"],
     ["/research/worldSourceConnections.js", "discovery"],
-    ["/research/gematriaTrace.js", "trace"],
     ["/research/WorldSourceStory.jsx", "noop"],
     ["/experience2029/CanonicalMediaFigure2029.jsx", "noop"],
     ["/experience2029/ConvergenceRatings2029.jsx", "noop"],
     ["/components/ShareActions.jsx", "noop"],
     ["/number2029/NumberAiAnalysis2029.jsx", "noop"],
     ["/gematria2029/MethodLens2029.jsx", "noop"],
-    ["/gematria2029/SpatialMethodStage2029.jsx", "noop"],
     ["/lib/seo.js", "seo"],
   ]);
   const modules = {
     noop: "export default function Noop(){return null;}",
     seo: "export const applySeo=()=>{},clearConvergenceJsonLd=()=>{},setConvergenceJsonLd=()=>{};",
     hub: `export async function fetchEntityHubProjection({nodeId}){
+        if(!nodeId)return null;
         const slug=nodeId.endsWith('1')?'source-alpha':'source-beta';
         if(window.__holdHubFor===slug)await new Promise(resolve=>{window.__releaseHub=resolve;});
         return {identity:{nodeId},sources:[{ref:'book:'+slug,label:'SOURCE_'+slug}],
@@ -59,7 +58,6 @@ function fixturePlugin() {
       }`,
     prominence: "export async function fetchWorldProminenceInputs(){return {};}",
     discovery: "export const DISCOVERY_TOPIC_SLUGS=[];",
-    trace: "export async function fetchGematriaMethodTrace(){return null;}",
     context: `
       import React,{createContext,useContext,useState} from 'react';
       import {normalizeResearchContext,mergeResearchContext} from '/src/lib/research/researchContext.js';
@@ -74,6 +72,7 @@ function fixturePlugin() {
       }
     `,
     backend: `
+      import traceFixture from '/test/fixtures/spatial/mistater-1237-trace.json';
       function card(slug){return {id:'fixture-'+slug,slug,title:'מחקר בחירות',status:'approved',
         node_id:slug.startsWith('source-')?'10000000-0000-4000-8000-00000000000'+(slug==='source-alpha'?1:2):null,
         numbers:[878],highlight_numbers:[878],image_ids:[],created_by:slug.startsWith('source-')?'':'מקור הבדיקה',
@@ -101,11 +100,19 @@ function fixturePlugin() {
         },
         async rpc(name,args){
           window.__reads.push({rpc:name,args});
+          if(name==='gematria_method_trace'){
+            window.__traceReads.push(args);
+            if(window.__traceMode==='offline')throw Error('trace offline');
+            if(args.p_phrase==='התגלות'&&args.p_method_key==='מסתתר')return {error:null,
+              data:window.__traceMode==='wrong'?{...traceFixture,input:'ביטוי אחר'}:traceFixture};
+            return {error:null,data:null};
+          }
           if(name!=='fn_method_profile')throw Error('Unexpected RPC '+name);
           if(window.__offline)return {data:null,error:{message:'offline'}};
           if(window.__holdProfile)await new Promise(resolve=>{window.__releaseProfile=resolve;});
-          if(args.p_phrase==='התגלות')return {error:null,data:[{method_key:'רגיל',computed_value:844},{method_key:'מסתתר',computed_value:1237}]};
-          if(args.p_phrase==='וראית את אחרי')return {error:null,data:[{method_key:'רגיל',computed_value:1237}]};
+          if(args.p_phrase==='התגלות')return {error:null,data:[{method_key:'רגיל',computed_value:844,definition_version:1},
+            {method_key:'מסתתר',computed_value:window.__changedValue?1580:1237,definition_version:window.__changedVersion?2:1,mathematical_family:'adjacent_difference'}]};
+          if(args.p_phrase==='וראית את אחרי')return {error:null,data:[{method_key:'רגיל',computed_value:1237,definition_version:1,mathematical_family:'base_additive'}]};
           const value=args.p_phrase==='בן דוד'?66:args.p_phrase==='א'?1:358;
           return {error:null,data:[{method_key:'רגיל',computed_value:value,definition_version:1},
             {method_key:'מילוי',computed_value:878,definition_version:2},
@@ -148,7 +155,7 @@ function fixturePlugin() {
       import {Provider} from '/src/lib/research/ResearchProvider.jsx';
       import Topic from '/src/pages/Topic2029Page.jsx';
       import '/src/components/experience2029/sod2029.css';
-      window.__reads=[];window.__sheetTargets=[];window.__galleryRequests=[];
+      window.__reads=[];window.__sheetTargets=[];window.__galleryRequests=[];window.__traceReads=[];
       createRoot(document.getElementById('root')).render(<BrowserRouter><Provider>
         <Link to="/topic/other">טופיק אחר</Link>
         <Link to="/topic/source-beta">מקור בטופיק שני</Link>
@@ -259,6 +266,53 @@ test("Topic opens the existing Number sheet with method/value/source and exact r
       await page.locator(".rv [data-rv-hero]").waitFor();
       assert.equal(await page.locator(".sod29-topic-hero").count(), 0, "Claude gate replaces rather than duplicates the generic hero");
       await page.locator('.rv-method[data-status="confirmed"]').nth(1).waitFor();
+      const center = page.locator("#rv-center");
+      assert.doesNotMatch(await center.innerText(), /adjacent_difference|base_additive|fn_method_profile|אומת מול מנוע/);
+      assert.equal(await page.evaluate(()=>window.__traceReads.length), 0, "the gate does not eagerly load method traces");
+      const hitgalut = page.locator("#rv-method-hitgalut");
+      const openHitgalut = hitgalut.getByRole("button", { name: "פירוט החישוב של התגלות בשיטת מסתתר", exact: true });
+      await hitgalut.locator("summary").click();
+      assert.match(await hitgalut.innerText(), /adjacent_difference/);
+      await hitgalut.locator("summary").click();
+      await openHitgalut.click();
+      await dialog.locator('[data-number-core-root="1237"]').waitFor();
+      const methodFocus = await page.evaluate(()=>({target:window.__sheetTargets.at(-1),context:window.__researchContext}));
+      assert.equal(methodFocus.target.method, "מסתתר");
+      assert.equal(methodFocus.target.resultValue, 1237);
+      assert.equal(methodFocus.context.selection.methodVersion, "1");
+      assert.equal(methodFocus.context.dimensions.topicExpressionOrigin, "method_profile");
+      assert.equal(methodFocus.context.dimensions.topicAuthoredSourcePath, null);
+      assert.equal(methodFocus.context.returnTo.href, "/topic/1237#rv-method-hitgalut");
+      await dialog.locator(".sod29-number-v10-calculation-card").click();
+      await dialog.locator('[data-method-inspector="מסתתר"]').waitFor();
+      try { await dialog.locator('[data-method-visual="adjacent-letter-tension"]').waitFor(); }
+      catch (error) { throw new Error(`${error.message}\nDepth: ${await dialog.innerText()}\nTrace reads: ${JSON.stringify(await page.evaluate(()=>window.__traceReads))}\nErrors: ${JSON.stringify(errors)}`); }
+      await dialog.getByRole("tab", { name: "למד", exact: true }).click();
+      await dialog.getByRole("heading", { name: "מה השיטה עושה", exact: true }).waitFor();
+      assert.match(await dialog.innerText(), /ה \(5\) ↔ ת \(400\): הפרש 395/);
+      await dialog.getByRole("button", { name: "חזור למקור", exact: true }).click();
+      assert.equal(new URL(page.url()).hash, "#rv-method-hitgalut");
+      await page.locator("#rv-method-vraita").getByRole("button", { name: "פירוט התוצאה 1237 עבור וראית את אחרי בשיטת רגיל", exact: true }).click();
+      await dialog.locator('[data-number-core-root="1237"]').waitFor();
+      assert.equal(await page.evaluate(()=>window.__sheetTargets.at(-1).method), "רגיל");
+      await dialog.getByRole("button", { name: "חזור למקור", exact: true }).click();
+      assert.equal(new URL(page.url()).hash, "#rv-method-vraita");
+      for (const flag of ["__changedVersion", "__changedValue", "__offline"]) {
+        await page.evaluate(name=>{window[name]=true;}, flag);
+        await openHitgalut.click();
+        await hitgalut.locator('[role="status"]').waitFor();
+        assert.equal(await page.getByRole("dialog").count(), 0);
+        await page.evaluate(name=>{window[name]=false;}, flag);
+      }
+      await page.evaluate(()=>{window.__traceMode='wrong';});
+      await openHitgalut.click();
+      await dialog.locator('[data-number-core-root="1237"]').waitFor();
+      await dialog.locator(".sod29-number-v10-calculation-card").click();
+      await dialog.getByRole("tab", { name: "למד", exact: true }).click();
+      await dialog.getByText("פירוט מאומת אינו זמין כרגע.", { exact: false }).waitFor();
+      assert.equal(await dialog.locator('[data-method-visual="adjacent-letter-tension"]').count(), 0);
+      await dialog.getByRole("button", { name: "חזור למקור", exact: true }).click();
+      await page.evaluate(()=>{window.__traceMode=null;});
       const map = await page.evaluate(()=>window.__researchContext.dimensions.surfaceSections.map(item=>({id:item.id,exists:Boolean(document.getElementById(item.targetId))})));
       assert.ok(map.length >= 6 && map.every(item=>item.exists), "every shared context-map entry targets a real gate section");
       assert.equal(await page.evaluate(()=>window.__researchContext.dimensions.activeSectionId), "rv-center");

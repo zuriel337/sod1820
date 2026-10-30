@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import {
   CONNECTION_STATUS, CONNECTION_TARGETS, GATE_GALLERIES, GATE_PHRASES, REVIEWED_STATEMENTS, TRUMP_NOT_ELECTORS,
   TRUMP_THRESHOLD_LAYERS, buildGateProjection, buildMethodCard, classifyConnections, israelElectionsNote,
-  loadGalleryPage, loadMethodCards, splitSourceTimes, storedOrderIds, verifyReviewedStatements,
+  gateMethodFocus2029, loadGalleryPage, loadMethodCards, splitSourceTimes, storedOrderIds, verifyReviewedStatements,
 } from "../src/lib/research/revelation1237Gate2029.js";
 import { ELECTIONS_ISRAEL_21_26_BUNDLE } from "../src/lib/research/electionsIsrael21_26Seed2029.js";
 
@@ -37,6 +37,17 @@ test("a failing reader yields 'failed', never a zero or a confirmation", async (
   assert.equal(cards[0].status, "failed");
   assert.equal(cards[0].value, null);
   assert.equal(cards[1].status, "confirmed");
+});
+
+test("a gate profile opens exact shared depth using a rendered slot, not an invented authored source path", () => {
+  const card = buildMethodCard([profile("מסתתר", 1237)], hitgalut);
+  const focus = gateMethodFocus2029(card);
+  assert.deepEqual(focus.row, { text: "התגלות", method: "מסתתר", value: 1237, sourcePath: "revelation1237.gateMethods.hitgalut" });
+  assert.deepEqual(focus.origin, { key: "rv-method-hitgalut", locator: "#rv-method-hitgalut", sectionId: "rv-center", kind: "method_profile", expectedMethodVersion: 1 });
+  assert.equal(gateMethodFocus2029(buildMethodCard([profile("מסתתר", 1580)], hitgalut)).row.value, 1580);
+  assert.equal(gateMethodFocus2029(buildMethodCard([profile("רגיל", 0)], vraita)).row.value, 0);
+  for (const changed of [{ ...card, value: null }, { ...card, value: false }, { ...card, status: "failed" },
+    { ...card, methodKey: "רגיל" }, { ...card, expression: "ביטוי אחר" }, { ...card, id: "unknown" }]) assert.equal(gateMethodFocus2029(changed), null);
 });
 
 test("missing, blank or boolean method values are not coerced to zero; a real zero remains valid", () => {

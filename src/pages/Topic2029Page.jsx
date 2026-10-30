@@ -38,6 +38,7 @@ const EXPRESSION_ERRORS = Object.freeze({
   needs_exact_expression: "צריך לבחור ביטוי אחד וערך תקין כדי לפתוח חישוב מדויק.",
   method_unavailable_or_value_mismatch: "השיטה אינה זמינה או שהתוצאה אינה תואמת לערך במקור. פרטי המקור נשארו כאן.",
   profile_unavailable: "לא ניתן לטעון כרגע את החישוב. אפשר לנסות שוב; פרטי המקור נשארו כאן.",
+  method_definition_changed: "הגדרת השיטה השתנתה מאז טעינת הכרטיס. רעננו את הדף כדי לפתוח פירוט מתאים.",
 });
 // Preview-only gate for topic:1237. It consumes existing readers only (see revelation1237Gate2029.js).
 const Revelation1237Gate2029 = React.lazy(() => import("../components/research/Revelation1237Gate2029.jsx"));
@@ -545,7 +546,7 @@ function TopicBody() {
       if (request !== expressionRequestRef.current) return;
       const focus = resolved.focus;
       if (resolved.status !== "ready" || !focus?.method) {
-        setExpressionOpenState({ key: null, error: EXPRESSION_ERRORS[resolved.status] || EXPRESSION_ERRORS.profile_unavailable });
+        setExpressionOpenState({ key: null, error: EXPRESSION_ERRORS[resolved.status] || EXPRESSION_ERRORS.profile_unavailable, errorKey: origin.key });
         return;
       }
 
@@ -559,13 +560,19 @@ function TopicBody() {
       const current = research.context || {};
       const focusId = `topic:${projection.slug}:${resolved.sourcePath || origin.key}`;
       const methodVersion = focus.rows.find((entry) => entry.methodKey === focus.method)?.definitionVersion;
+      if (origin.expectedMethodVersion != null && String(methodVersion ?? "") !== String(origin.expectedMethodVersion)) {
+        setExpressionOpenState({ key: null, error: EXPRESSION_ERRORS.method_definition_changed, errorKey: origin.key });
+        return;
+      }
       const surfaceFocus = { id: focusId, type: "gematria_expression", label: focus.expression, primary: focus.expression,
         expression: focus.expression, method: focus.method, resultValue: focus.resultValue, number: focus.resultValue,
         locator: origin.locator, sourceLabel: projection.title, href: projection.canonicalPath + origin.locator };
       const returnDimensions = { ...(current.dimensions || {}), activeSectionId: origin.sectionId,
-        topicAuthoredSourcePath: resolved.sourcePath };
+        topicAuthoredSourcePath: origin.kind === "method_profile" ? null : resolved.sourcePath,
+        topicPresentationSlot: origin.kind === "method_profile" ? resolved.sourcePath : null,
+        topicExpressionOrigin: origin.kind === "method_profile" ? "method_profile" : "authored_expression" };
 
-      research.setResearchContext?.({
+      const expressionContext = {
         subject: {
           id: String(focus.root),
           type: "number",
@@ -604,11 +611,15 @@ function TopicBody() {
           dimensions: returnDimensions,
           journey: current.journey || null,
         },
-      });
+      };
+      // The existing activation API seeds a generic selection. Commit the richer
+      // checked Topic context after it, within the same batch, so source/version
+      // and exact return are not dropped by that generic activation.
+      shell.openNumber?.({ ...surfaceFocus, type: "phrase", source: origin.kind === "method_profile" ? "topic-method-profile" : "topic-authored-expression" });
+      research.setResearchContext?.(expressionContext);
       setExpressionOpenState({ key: null, error: null });
-      shell.openNumber?.({ ...surfaceFocus, type: "phrase", source: "topic-authored-expression" });
     } catch {
-      if (request === expressionRequestRef.current) setExpressionOpenState({ key: null, error: EXPRESSION_ERRORS.profile_unavailable });
+      if (request === expressionRequestRef.current) setExpressionOpenState({ key: null, error: EXPRESSION_ERRORS.profile_unavailable, errorKey: origin.key });
     }
   };
 
@@ -648,13 +659,15 @@ function TopicBody() {
         if (section) setActiveSectionId(section.id);
       }}>
       <React.Suspense fallback={<FrameState kind="loading" title="פותח את השער">טוען את 1,237 — התגלות.</FrameState>}>
-        <Revelation1237Gate2029 readers={REVELATION_GATE_READERS} relatedPosts={projection.relatedPosts || []} />
+        <Revelation1237Gate2029 readers={REVELATION_GATE_READERS} relatedPosts={projection.relatedPosts || []}
+          onOpenExpression={openExpressionFocus} openingKey={expressionOpenState.key}
+          focusError={expressionOpenState.error} focusErrorKey={expressionOpenState.errorKey} />
       </React.Suspense>
       {projection.phrases.length || hasFindings ? <section className="sod29-section" aria-label="העמקה בציר">
         <div className="sod29-section-head"><div><div className="sod29-kicker">העמקה</div><h2>המשך הציר כפי שנשמר</h2></div></div>
       </section> : null}
       <TopicPhrases rows={projection.phrases} onOpenExpression={openExpressionFocus} openingKey={expressionOpenState.key} />
-      {expressionOpenState.error ? <div className="sod29-topic-focus-error" role="status">{expressionOpenState.error}</div> : null}
+      {expressionOpenState.error && !expressionOpenState.errorKey?.startsWith("rv-method-") ? <div className="sod29-topic-focus-error" role="status">{expressionOpenState.error}</div> : null}
       <TopicFindings projection={projection} onOpenExpression={openExpressionFocus} openingKey={expressionOpenState.key} />
       <TopicNumberResearch2029 key={projection.slug} projection={projection} />
       <TopicAuthoredConnections projection={projection} />

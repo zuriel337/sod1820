@@ -16,7 +16,7 @@ const { chromium } = require("playwright");
 const root = fileURLToPath(new URL("..", import.meta.url));
 const output = process.env.PREVIEW_EVIDENCE_DIR || "/tmp/elections-world-preview-20261030";
 await mkdir(output, { recursive: true });
-const report = { widths: [], reads: {}, blocked: [], errors: [], modelRequests: [] };
+const report = { widths: [], methodDepth: [], reads: {}, blocked: [], errors: [], modelRequests: [] };
 const publicHost = "linswmnnkjxvweumprav.supabase.co";
 const readRpc = new Set(["fn_method_profile", "convergence_meter", "gematria_api", "world_group_source_arrivals_v2", "rd_is_admin", "fn_number_lookup", "fn_number_dossier", "fn_number_journey", "posts_by_number_strict", "fn_all_methods", "lang_links_list", "number_neighbors", "fn_verses_by_gematria", "gematria_method_trace"]);
 let server;
@@ -111,6 +111,36 @@ try {
     assert.ok(graphRefs.every(ref => /^edge:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(ref)));
     assert.equal(new Set(graphRefs).size, graphRefs.length);
     report.liveGraph = { status: graphStatus, edgeCount: graphRefs.length };
+    const center = page.locator("#rv-center");
+    assert.doesNotMatch(await center.innerText(), /adjacent_difference|base_additive|fn_method_profile|אומת מול מנוע/);
+    for (const [slot, phrase, method, visual] of [
+      ["hitgalut", "התגלות", "מסתתר", "adjacent-letter-tension"],
+      ["vraita", "וראית את אחרי", "רגיל", "visible-letter-body"],
+    ]) {
+      await page.locator(`#rv-method-${slot}`).getByRole("button", { name: `פירוט החישוב של ${phrase} בשיטת ${method}`, exact: true }).click();
+      const dialog = page.getByRole("dialog", { name: "מספר / ביטוי", exact: true });
+      await dialog.locator('[data-number-core-root="1237"]').waitFor();
+      assert.equal(new URL(page.url()).pathname, "/topic/1237");
+      await dialog.locator(".sod29-number-v10-calculation-card").click();
+      const inspector = dialog.locator(`[data-method-inspector="${method}"]`);
+      await inspector.waitFor();
+      await inspector.locator(`[data-method-visual="${visual}"]`).waitFor();
+      await inspector.getByRole("tab", { name: "למד", exact: true }).click();
+      await inspector.getByRole("heading", { name: "מה השיטה עושה", exact: true }).waitFor();
+      await inspector.locator(".sod29-method-trace-groups li").first().waitFor();
+      await page.screenshot({ path: resolve(output, `method-${slot}-${width}.png`) });
+      await dialog.getByRole("button", { name: "סגור", exact: true }).click();
+      if (width < 768) {
+        await page.getByRole("button", { name: "פתח ניווט", exact: true }).click();
+        await page.getByRole("dialog", { name: "ניווט SOD1820 2029", exact: true })
+          .getByRole("button", { name: "חזרה מדויקת", exact: true }).click();
+      } else {
+        await page.locator('button[aria-label="חזרה מדויקת"]:visible').first().click();
+      }
+      await page.waitForURL(origin + `/topic/1237#rv-method-${slot}`);
+      assert.equal(await page.locator(`#rv-method-${slot}`).count(), 1);
+      report.methodDepth.push({ width, phrase, method, root: 1237, exactReturn: `#rv-method-${slot}`, traceVisual: visual });
+    }
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
     assert.ok(overflow <= 0, `1237 overflow at ${width}: ${overflow}`);
     await page.screenshot({ path: resolve(output, `1237-${width}.png`) });
@@ -138,7 +168,7 @@ try {
   }
   assert.deepEqual(report.errors, [], "no page errors");
   assert.deepEqual(report.modelRequests, [], "no model request on navigation");
-  console.log(JSON.stringify({ ...report, blocked: [...new Set(report.blocked)], origin, productWrites: false, data: "live public anonymous", coverage: "1237, Topic 1118 to exact World finding and Back, World Zvi entry" }, null, 2));
+  console.log(JSON.stringify({ ...report, blocked: [...new Set(report.blocked)], origin, productWrites: false, data: "live public anonymous", coverage: "1237 shared method depth and exact return, Topic 1118 to exact World finding and Back, World Zvi entry" }, null, 2));
 } finally {
   await browser?.close();
   if (server) await new Promise(done => server.close(done));

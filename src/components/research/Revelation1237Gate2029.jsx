@@ -4,7 +4,7 @@ import CanonicalMediaFigure2029 from "../experience2029/CanonicalMediaFigure2029
 import {
   GATE_GALLERIES, GATE_PHRASES, GALLERY_PAGE_SIZE, CONNECTION_STATUS, CONNECTION_TARGETS, REVELATION_1237,
   TRUMP_NOT_ELECTORS, TRUMP_THRESHOLD_LAYERS, buildGateProjection, classifyConnections, israelElectionsNote,
-  loadGalleryPage, loadMethodCards, splitSourceTimes, verifyReviewedStatements,
+  gateMethodFocus2029, loadGalleryPage, loadMethodCards, splitSourceTimes, verifyReviewedStatements,
 } from "../../lib/research/revelation1237Gate2029.js";
 import { ELECTIONS_ISRAEL_21_26_BUNDLE } from "../../lib/research/electionsIsrael21_26Seed2029.js";
 import { relationStatusCopy } from "../../lib/research/worldMapViewModel2029.js";
@@ -55,31 +55,46 @@ function GateHero() {
 }
 
 // ── center: the two methods ───────────────────────────────────────────────────────────────
-function MethodCard({ card }) {
+function MethodCard({ card, onOpenExpression, openingKey, focusError, focusErrorKey }) {
   const unavailable = card.status === "unavailable" || card.status === "failed";
-  return <article className="rv-method" data-status={card.status} aria-label={`${card.expression} בשיטת ${card.methodKey}`}>
+  const focus = gateMethodFocus2029(card);
+  const key = `rv-method-${card.id}`;
+  const opening = openingKey === key;
+  const canOpen = Boolean(focus && onOpenExpression);
+  const activate = () => { if (canOpen && !opening) onOpenExpression(focus.row, focus.origin); };
+  const triggerProps = { type: "button", className: "rv-method-trigger", disabled: !canOpen || opening,
+    "aria-busy": opening || undefined, onClick: activate };
+  return <article id={key} className="rv-method" data-status={card.status} aria-label={`${card.expression} בשיטת ${card.methodKey}`}>
     <p className="rv-method-role">{card.role}</p>
-    <h3 className="rv-spelling" lang="he">„{card.expression}”</h3>
-    <p className="rv-method-name">שיטה: <strong>{card.methodKey}</strong>{card.family ? <span className="rv-muted"> · {card.family}</span> : null}</p>
+    <h3 className="rv-spelling" lang="he"><button {...triggerProps} aria-label={`פירוט החישוב של ${card.expression} בשיטת ${card.methodKey}`}>„{card.expression}”</button></h3>
+    <p className="rv-method-name">שיטה: <strong>{card.methodLabel || card.methodKey}</strong></p>
     {unavailable
       ? <p className="rv-value rv-value-missing" role="status">{card.status === "failed" ? "קריאת המנוע נכשלה — הערך אינו ידוע כרגע." : "המנוע לא החזיר ערך בשיטה הזו."}</p>
-      : <p className="rv-value"><span dir="ltr">{Number(card.value).toLocaleString("en-US")}</span>
-        {card.status === "confirmed" ? <small>אומת מול מנוע הגימטריה</small> : <small>ערך המנוע שונה מ־1,237</small>}</p>}
+      : <p className="rv-value"><button {...triggerProps} dir="ltr" aria-label={`פירוט התוצאה ${card.value} עבור ${card.expression} בשיטת ${card.methodKey}`}>{Number(card.value).toLocaleString("en-US")}</button>
+        {card.status === "different_value" ? <small>ערך המנוע שונה מ־1,237</small> : null}</p>}
     {card.sub ? <p className="rv-muted">{card.sub}</p> : null}
     {card.plainValue != null ? <p className="rv-muted">בשיטה הרגילה: <span dir="ltr">{card.plainValue.toLocaleString("en-US")}</span> — שני ערכים נפרדים, לא אותה שיטה.</p> : null}
+    {canOpen ? <p className="rv-muted">{opening ? "פותח את פירוט החישוב…" : "לחצו על הביטוי או התוצאה כדי לראות איך מחשבים."}</p> : null}
+    {focusError && focusErrorKey === key ? <p className="sod29-topic-focus-error" role="status">{focusError}</p> : null}
+    <details className="rv-method-details"><summary>פרטי השיטה והבדיקה</summary>
+      <p>{unavailable ? "אין כרגע תוצאה זמינה בשיטה הזו. אין להסיק מכך שערכה אפס." : "התוצאה נקראה ממנוע הגימטריה. התאמת צעדי החישוב מוצגת בחלונית רק כשהם זמינים ונבדקו; אין בכך אימות של פרשנות."}</p>
+      {card.definitionVersion != null ? <p>גרסת השיטה: {String(card.definitionVersion)}</p> : null}
+      {card.family ? <p>משפחת החישוב ברישום: <code dir="ltr">{card.family}</code></p> : null}
+      <p>קורא התוצאות: <code dir="ltr">fn_method_profile</code></p>
+    </details>
   </article>;
 }
 
-function Center({ cards }) {
+function Center({ cards, ...focusProps }) {
   return <section className="rv-section rv-center" id="rv-center" aria-labelledby="rv-center-h">
     <div className="rv-section-head"><p className="rv-kicker">מרכז מספרי</p><h2 id="rv-center-h">1,237 — שתי דרכים להגיע אליו</h2></div>
     <div className="rv-numberline">
       {cards ? cards.map((card, index) => <React.Fragment key={card.id}>
         {index ? <span className="rv-equals" aria-hidden="true">=</span> : null}
-        <MethodCard card={card} />
+        <MethodCard card={card} {...focusProps} />
       </React.Fragment>) : <p role="status">טוען מהמנוע…</p>}
     </div>
-    <p className="rv-note">הערכים מגיעים ממנוע הגימטריה הרשום (<code dir="ltr">fn_method_profile</code>) ולא מחושבים בדפדפן. האיות נבדק כפי שהוא כתוב כאן, כולל הרווחים.</p>
+    <p className="rv-note">כשהתוצאה זמינה, אפשר לפתוח את הביטוי בשיטה המוצגת לידו ולהעמיק בחישוב. האיות נשמר כפי שהוא כתוב כאן, כולל הרווחים.</p>
   </section>;
 }
 
@@ -169,7 +184,8 @@ function Connections({ connections, relationState, onOpen, canOpen }) {
  * them for an inactive Topic node).
  * @param {Array} props.relatedPosts  posts already admitted by the Topic projection
  */
-export default function Revelation1237Gate2029({ readers, relatedPosts = [], onProjection = null }) {
+export default function Revelation1237Gate2029({ readers, relatedPosts = [], onProjection = null,
+  onOpenExpression = null, openingKey = null, focusError = null, focusErrorKey = null }) {
   const [cards, setCards] = useState(null);
   const [galleries, setGalleries] = useState({});
   const [relationState, setRelationState] = useState(null);
@@ -247,7 +263,7 @@ export default function Revelation1237Gate2029({ readers, relatedPosts = [], onP
 
   return <article className="rv" data-topic-slug={REVELATION_1237.topicSlug} data-entity-type="convergence">
     <GateHero />
-    <Center cards={cards} />
+    <Center cards={cards} onOpenExpression={onOpenExpression} openingKey={openingKey} focusError={focusError} focusErrorKey={focusErrorKey} />
 
     <section className="rv-section" id="rv-galleries" aria-labelledby="rv-gal-h">
       <div className="rv-section-head"><p className="rv-kicker">גלריות המחקר</p><h2 id="rv-gal-h">המקורות המצולמים</h2></div>
