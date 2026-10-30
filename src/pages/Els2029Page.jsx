@@ -221,6 +221,20 @@ export default function Els2029Page({ previewAdvanced = false }) {
     setResearchProbe(null); setExactStatus("idle"); setResearchLoad({ ...item, researchNonce: `${turnId}:${location.key}` });
     setMatrixProfile(ELS_MATRIX_PROFILE.CLASSIC); setWorkspaceVisited(true);
   }, [location.key, location.state, razielSession]);
+  const researchReturnKey = useRef(null);
+  useEffect(() => {
+    const id = location.state?.elsResearchReturnTaskId;
+    if (!id || researchReturnKey.current === location.key) return;
+    researchReturnKey.current = location.key;
+    const task = research.elsResearchOperation?.task;
+    if (task?.id !== id) { setFindingNotice("המחקר אינו זמין בלשונית או בחשבון הנוכחי. לא הופעלה סריקה חדשה."); return; }
+    const origin = task.origin;
+    pendingProbeRef.current = null; setResearchProbe(null); setExactStatus("idle");
+    setResearchLoad({ term: origin.term, scope: origin.corpus, corpusId: origin.corpusId,
+      start: origin.start, skip: origin.skip, dir: origin.dir,
+      hitId: `${origin.skip}_${origin.dir}_${origin.start}`, words: [], researchNonce: `${id}:${location.key}` });
+    setMatrixProfile(ELS_MATRIX_PROFILE.RESEARCH); setWorkspaceVisited(true);
+  }, [location.key, location.state, research.elsResearchOperation?.task]);
   const requestExactSkip = request => {
     pendingProbeRef.current = request.requestId;
     setExactStatus("probing");
@@ -361,7 +375,9 @@ export default function Els2029Page({ previewAdvanced = false }) {
         <article><span>ג</span><div><strong>מקור ופסוקים</strong><small>פתיחה וחזרה לאותו ממצא בדיוק.</small></div></article>
       </aside>
     </div>
-    <div data-els-research-tools="brief-visible-v1" hidden={!advancedResearchProfile || directSavedOpen}><ElsAdvancedSearch2029 exactStatus={exactStatus} onExactSkip={requestExactSkip} deriveCanonicalForms={deriveCanonicalForms} onPlanSummary={setAutomaticSummary} onLoad={item => { pendingProbeRef.current = null; setResearchProbe(null); setExactStatus("idle"); setResearchLoad(item); }} /></div>
+    <div data-els-research-tools="brief-visible-v1" hidden={!advancedResearchProfile || directSavedOpen}><ElsAdvancedSearch2029
+      researchOrigin={replayMatched && layeredReady ? { ...context?.selection, corpusId: replayProjection?.corpusId } : null}
+      exactStatus={exactStatus} onExactSkip={requestExactSkip} deriveCanonicalForms={deriveCanonicalForms} onPlanSummary={setAutomaticSummary} onLoad={item => { pendingProbeRef.current = null; setResearchProbe(null); setExactStatus("idle"); setResearchLoad(item); }} /></div>
     <section className={`sod29-focus-stage${guidedProfile ? " els29-guided-result-stage" : ""}`} data-els-2029-surface="v1"
       hidden={guidedProfile && !directSavedOpen && researchLoad?.guidedDiscovery !== true}
       {...(researchProfile ? { "data-els-research-composition": "v1" } : {})}
@@ -393,7 +409,7 @@ export default function Els2029Page({ previewAdvanced = false }) {
             The same iframe instance remains mounted as an engine-only bridge and can be revealed
             as the parity fallback for capabilities that have not yet been ported to 2029. */}
         <ElsNativeWithRaziel razielSession={razielSession} researchContext={context} projection={replayProjection} layers={replayLayers} planSummary={automaticSummary} replayReady={replayMatched && layeredReady}
-          initialSeed={savedRecord.row || legacyMatrix || location.state?.elsReadingReturnTurnId ? "" : classicSeed} matrix={savedRecord.row || legacyMatrix}
+          initialSeed={savedRecord.row || legacyMatrix || location.state?.elsReadingReturnTurnId || location.state?.elsResearchReturnTaskId ? "" : classicSeed} matrix={savedRecord.row || legacyMatrix}
           active={!library && (!guidedProfile || researchLoad?.guidedDiscovery === true || directSavedOpen)}
           researchProfile={researchProfile} guidedProfile={guidedProfile} researchLoad={researchLoad || (savedRecord.row ? null : findingJourneyLoad)} researchProbe={researchProbe} onResearchProbeResult={receiveExactSkip} onResearchLoadError={() => setExactStatus("failed")}
           formsPreviewRequest={formsPreviewRequest} onFormsPreviewResult={receiveFormsPreview}

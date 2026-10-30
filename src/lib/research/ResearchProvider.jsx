@@ -3,7 +3,8 @@ import { useLocation } from "react-router-dom";
 import { useAuth } from "../AuthContext.jsx";
 import { applyCloudResearchOps, getCloudResearch } from "../auth.js";
 import { trackResearch } from "../tracking.js";
-import { signalAiBehavior } from "../supabase.js";
+import { signalAiBehavior, supabase } from "../supabase.js";
+import { useElsResearchOperation } from "./useElsResearchOperation.js";
 import { emit, EVENTS } from "./eventBus.js";
 import { normalizeResearchContext, mergeResearchContext } from "./researchContext.js";
 import { retainTopicSourceReturn, restoreJourneySourceViewport } from "./journeySourceReturn.js";
@@ -30,6 +31,7 @@ const Ctx = createContext(null);
 export const useResearch = () => useContext(Ctx) || {};
 function browserStorage(name) { try { return globalThis[name]; } catch { return null; } }
 const publishContext = (context) => emit(EVENTS.RESEARCH_CONTEXT_CHANGE, context);
+const invokeElsResearch = (body, signal) => supabase.functions.invoke("els-search-bridge", { body, signal });
 
 function numberRouteSelection(pathname, search = "") {
   const match = String(pathname || "").match(/^\/(2029\/)?number\/([^/?#]+)/);
@@ -77,6 +79,7 @@ export default function ResearchProvider({ children }) {
 }
 
 function PrincipalResearchProvider({ children, userId, disabled }) {
+  const elsResearchOperation = useElsResearchOperation({ disabled, invoke: invokeElsResearch });
   const { pathname, search, hash } = useLocation();
   const [runtime] = useState(() => createResearchSyncRuntime({
     userId, disabled,
@@ -520,7 +523,7 @@ function PrincipalResearchProvider({ children, userId, disabled }) {
     if (!actions.setResearchContext(next)) return { ok: false, error: "session_unavailable" };
     return { ok: true, context: next, href: next.subject.href };
   }, [runtime, actions, researchPathSteps]);
-  const value = useMemo(() => ({ ...state, pathResume, researchPathSteps, openResearchPathStep, saveCurrentResearchPath, resumeResearchPath, forkResearchPath, ...actions }),
-    [state, pathResume, researchPathSteps, openResearchPathStep, saveCurrentResearchPath, resumeResearchPath, forkResearchPath, actions]);
+  const value = useMemo(() => ({ ...state, elsResearchOperation, pathResume, researchPathSteps, openResearchPathStep, saveCurrentResearchPath, resumeResearchPath, forkResearchPath, ...actions }),
+    [state, elsResearchOperation, pathResume, researchPathSteps, openResearchPathStep, saveCurrentResearchPath, resumeResearchPath, forkResearchPath, actions]);
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

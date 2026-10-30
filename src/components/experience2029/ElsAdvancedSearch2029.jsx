@@ -3,6 +3,8 @@ import { supabase } from "../../lib/supabase.js";
 import { verifyEls2029Selection } from "../../lib/research/els2029ReplayClient.js";
 import { buildElsAdvancedLoadItem, buildElsAdvancedPageRequest, buildElsAdvancedSelection, buildElsExactSkipProbe, elsSearchSpelling, projectElsAdvancedPage } from "../../lib/research/elsAdvancedPage.js";
 import { prepareElsAutomaticResearchPlan, runElsAutomaticResearchSlice, summarizeElsAutomaticPlan } from "../../lib/research/elsAutomaticResearchPlan.js";
+import { useResearch } from "../../lib/research/ResearchProvider.jsx";
+import ElsResearchActivity2029 from "./ElsResearchActivity2029.jsx";
 
 const initialForm = { term: "", scope: "torah", spelling: "regular", skipMin: "2", skipMax: "80", pageSize: "20" };
 
@@ -31,7 +33,8 @@ function AdvancedLiveProgress({ activeVariant, rows, reduction, onReduce, onStop
   </section>;
 }
 
-export default function ElsAdvancedSearch2029({ onLoad, onExactSkip, deriveCanonicalForms, onPlanSummary, exactStatus = "idle" }) {
+export default function ElsAdvancedSearch2029({ onLoad, onExactSkip, deriveCanonicalForms, onPlanSummary, exactStatus = "idle", researchOrigin = null }) {
+  const { elsResearchOperation } = useResearch();
   const [form, setForm] = useState(initialForm);
   const [query, setQuery] = useState(null);
   const [pages, setPages] = useState([]);
@@ -213,8 +216,8 @@ export default function ElsAdvancedSearch2029({ onLoad, onExactSkip, deriveCanon
     stopSearch("");
     onExactSkip?.(built.request);
   };
-  const select = async (occurrence, projection) => {
-    const selection = buildElsAdvancedSelection(occurrence, projection, query?.scope);
+  const select = async (occurrence, projection, scope = query?.scope) => {
+    const selection = buildElsAdvancedSelection(occurrence, projection, scope);
     if (!selection) { setNotice("אי אפשר לבחור מופע בלי זהות מלאה."); return; }
     const seq = ++revision.current;
     setSelecting(occurrence.occurrenceId); setNotice("");
@@ -278,6 +281,16 @@ export default function ElsAdvancedSearch2029({ onLoad, onExactSkip, deriveCanon
         : exactStatus === "probing" ? <p role="status">מחפש ומאמת מופע במנוע הקנוני…</p> : null}
     {busy ? <AdvancedLiveProgress key={revision.current} activeVariant={activeVariant} rows={automaticRows}
       reduction={reduction} onReduce={reduceSearch} onStop={() => stopSearch()} /> : null}
+    {elsResearchOperation ? <div className="els29-advanced-note">
+      <button type="button" className="sod29-action" disabled={busy || !!selecting || !researchOrigin || !!elsResearchOperation.task}
+        onClick={async () => {
+          const result = await elsResearchOperation.start({ axis: form.term, related, spelling: form.spelling, scope: form.scope,
+            skipMin: form.skipMin, skipMax: form.skipMax, pageSize: form.pageSize }, researchOrigin);
+          if (!result?.ok && result?.error) setNotice(result.error);
+        }}>בדוק את המונחים ברקע · ללא AI</button>
+      <p>{researchOrigin ? "בחרו מונח ראשי ועוד 1–3 מונחים. המחקר משתמש בטווח שהגדרתם, וממשיך בין דפי האתר ללא טעינת מילון." : "למחקר ברקע, פתחו תחילה מופע מאומת במטריצה."}</p>
+      <ElsResearchActivity2029 onOpenResult={select} selecting={busy || !!selecting} />
+    </div> : null}
     {pages.length ? <div aria-label="מופעי החיפוש המתקדם"><p>{count} מופעים נטענו ב־{pages.length} דפים{cursor ? " · יש תוצאות נוספות" : " · סוף התוצאות בטווח"}</p>
       <ol>{pages.flatMap(page => page.projection.occurrences.map(hit => <li key={hit.occurrenceId}>
         <button type="button" className="sod29-action" disabled={busy || !!selecting} onClick={() => select(hit, page.projection)}>

@@ -48,6 +48,7 @@ import { projectWorkspaceRazielPresence2029 } from "../../lib/research/workspace
 import RazielViewModeSelector2029 from "./RazielViewModeSelector2029.jsx";
 import RazielOneShotActions2029 from "./RazielOneShotActions2029.jsx";
 import ElsMatrixReadingActivity2029 from "./ElsMatrixReadingActivity2029.jsx";
+import ElsResearchActivity2029 from "./ElsResearchActivity2029.jsx";
 import { selectElsMatrixReadingActivity } from "../../lib/research/elsMatrixReadingActivity.js";
 import { razielContextParts, razielNavigationButton, razielStatusLabel, razielPublicLabel, razielSubjectLabel } from "./razielSessionSeam2029.js";
 import { createRazielContextSnapshot, selectRazielDeepeningCandidate } from "../../lib/research/razielSession2029.js";
@@ -352,9 +353,10 @@ function NavGroup({ title, items, preserveReturnFor, onNavigate, onAction }) {
 // Typed "Now": what is happening in the world, for me, and what Raziel can continue.
 // Each tab opens an existing frame surface; no data is invented here.
 function NowTabs2029({ activeKind, onWorld, onMe, onRaziel, razielLocked = false }) {
+  const task = useResearch().elsResearchOperation?.task;
   const tabs = [
     { id: "world", label: "בעולם", hint: "מה חדש בעולם", on: onWorld, pressed: activeKind === TRANSIENT.ATTENTION },
-    { id: "me", label: "בשבילי", hint: "העדכונים והמסלול שלי", on: onMe, pressed: activeKind === TRANSIENT.WORKSPACE },
+    { id: "me", label: task ? task.status === "RUNNING" ? "סורק" : "תוצאות" : "בשבילי", hint: task ? `${task.phase} · ${task.origin.term}` : "העדכונים והמסלול שלי", on: onMe, pressed: activeKind === TRANSIENT.WORKSPACE },
     { id: "rz", label: razielLocked ? "רזיאל · נעול" : "רזיאל מציע", hint: razielLocked ? "רזיאל נעול זמנית" : "המשך עם רזיאל", on: onRaziel, pressed: activeKind === TRANSIENT.RAZIEL, disabled: razielLocked },
   ];
   return <div className="sod29-now" role="group" aria-label="עכשיו">
@@ -1005,6 +1007,7 @@ function ResearchStateSections({ research, go, onInspect, onOpenNumber, onOpenSa
   const saved = Array.isArray(research?.saved) ? research.saved : [];
   return (
     <div className="sod29-workspace-research-state" data-research-state-source="ResearchProvider" data-research-sync={syncStatus}>
+      <ElsResearchActivity2029 />
       <div className="sod29-workspace-pulse-stats" aria-label="המחקר שלי במספרים">
         {RESEARCH_SECTIONS.map((sec) => <span key={sec.key} data-count-for={sec.key}><b>{(research?.[sec.key] || []).length}</b><small>{sec.title}</small></span>)}
         <span data-count-for="collections"><b>{collections.length}</b><small>אוספים</small></span>
@@ -2474,7 +2477,7 @@ function SystemFrame2029Body({
           <div className="sod29-bar-zone is-actions">
             {toolMode ? <>
               <SystemToolDockActions2029 actions={activeToolDock.actions.slice(2, 4)} onInvoke={(action, trigger) => { setTransient(null); action.onSelect(trigger); }} />
-              <button type="button" onClick={() => { setTransient(null); setSystemDockMode(true); }} aria-label="פעולות המערכת"><NavigationIcon2029 name="tools" /><small>מערכת</small></button>
+              <button type="button" onClick={() => { if (research.elsResearchOperation?.task) openTransient(TRANSIENT.WORKSPACE); else { setTransient(null); setSystemDockMode(true); } }} aria-label={research.elsResearchOperation?.task ? "פתח מעקב מחקר" : "פעולות המערכת"}><NavigationIcon2029 name="tools" /><small>{research.elsResearchOperation?.task ? research.elsResearchOperation.task.status === "RUNNING" ? "סורק" : "תוצאות" : "מערכת"}</small></button>
             </> : <>
               {nowTabs}
               {activeToolDock ? <button type="button" onClick={() => { setTransient(null); setSystemDockMode(false); }} aria-label="חזור לכלי הצופן"><NavigationIcon2029 name="els" /><small>צופן</small></button> : null}
