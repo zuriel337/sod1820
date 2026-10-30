@@ -178,3 +178,40 @@ No original tag, OCR, number, source or publication is changed by this pilot.
 Shared Frame/Providers/Number/Lightbox/engine/readers and blocked `b30d0a4d` paths
 remain unchanged; the separate Posts session's scope is untouched. No product
 DB/RLS/migration/Edge/main/Production/publication or canonical-law change.
+
+### Completed gallery pilot Preview receipt
+
+- Runtime source: `b892794d30f8c0bcc5a11a61dee2136f8563b3b9`.
+- Protected Preview `dpl_8bzjMSArLQe972MpxMbALBQepCjm`, READY, target `null`,
+  build approximately 15 seconds; project/team and enabled SSO verified.
+- https://sod1820-m23eecojd-sod1820-s-projects.vercel.app/topic/1237#rv-source-gallery-81-288ee048-1e25-4b0e-9630-e3f59c5c3338
+- Hosted actual-build browser acceptance passed at 390 and 1440 against live
+  anonymous public data: the two gate methods; selected stored OCR expression
+  התגלות → canonical קדמי / displayed משולש → 3137 → existing triangle
+  visualization → exact card return; and the distinct generic 2029 Number route
+  → **ready full Number page** → browser Back to the exact source card.
+  The target is checked in the visible viewport, not only by URL equality.
+- The full-Number route succeeded after correcting the test interceptor's safe
+  read list; no capability flag, Preview worker or DB function changed. This
+  Preview result does not open the live locked Number route in Production.
+- Four existing graph edges, Topic 1118 → exact World finding → Back and public
+  Zvi entry also pass. Zero page errors/model requests/blocked requests or escaped
+  product writes were observed in the completed hosted run.
+- The final synthetic source browser rerun passed at 320/1440 with no skips;
+  60 focused unit/contract/date/guard checks pass. Both Legacy/2029 builds, built
+  graph/lazy, Topic/World surfaces, isolation, cheap hardening, Legacy lock and
+  diff check pass. Only known build-size/dynamic-import warnings remain in these
+  builds. The prior broad Frame-title assertion was not edited or rerun here.
+- Exact hosted identity confirms runtime SHA, mock-only transport and false
+  product-write/Edge-deploy flags. Worker `unifiedReadOnly=true`, write guard,
+  no-store/noindex and SSO retained. Auth access stayed in memory/stdin only.
+- Evidence: `/tmp/1237-gallery-method-pilot-hosted-live-20261030` (screenshots
+  visually inspected), `/tmp/1237-gallery-method-pilot-local-live-final-20261030`;
+  final synthetic log `/tmp/1237-gallery-method-pilot-final-source-browser-20261030.log`.
+- Later receipt-only commits change no runtime/test/build relative to the
+  deployed source SHA. The bounded pilot is released in passive AFTER; general
+  continuation `ae17201f` remains with this session.
+
+Status: IMPLEMENTED / TESTED / PROTECTED_PREVIEW_VERIFIED, limited to this pilot.
+Automatic gallery claim pairing and shared Lightbox/Archive compatibility remain
+separate work; neither was silently claimed complete. No merge or Production.
