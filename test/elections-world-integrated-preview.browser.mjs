@@ -205,10 +205,15 @@ try {
     await page.waitForFunction(()=>{const img=document.querySelector('.g29-canvas img');return img?.complete&&img.naturalWidth>0;});
     assert.equal(await exhibit.locator('.g29-canvas img').getAttribute('data-media-fit'),'preserve-whole-image');
     assert.doesNotMatch(await exhibit.innerText(),/זמן האירוע|תוצאה סופית/);
-    assert.ok(await page.locator('.g29-thumbnails a').count()<=6);
+    assert.ok(await page.locator('.g29-flow .g29-exhibit').count()>1,'the public gallery shows a sequence of full images');
+    assert.ok(await page.locator('.g29-flow .g29-exhibit').count()<=6);
+    assert.equal(await page.locator('.g29-thumbnails').count(),0);
+    assert.doesNotMatch(await page.locator('.g29-gallery').innerText(),/פיילוט|חלון|OCR|מיקום שמור|gallery_images:/);
+    await page.evaluate(()=>window.scrollTo(0,0));
     await page.screenshot({path:resolve(output,`gallery-81-${width}.png`)});
+    await exhibit.locator('.g29-depth > summary').click();
     await exhibit.locator('.rv-source-research summary').click();
-    await exhibit.getByRole('textbox',{name:'טקסט שמור לבחירת ביטוי',exact:true}).evaluate(el=>{
+    await exhibit.getByRole('textbox',{name:'טקסט מהתמונה לבחירת ביטוי',exact:true}).evaluate(el=>{
       const start=el.value.lastIndexOf('התגלות');if(start<0)throw Error('Missing exact source expression');
       el.focus();el.setSelectionRange(start,start+6);document.dispatchEvent(new Event('selectionchange'));
       el.dispatchEvent(new MouseEvent('mouseup',{bubbles:true}));
@@ -226,11 +231,31 @@ try {
     const nativeOverflow=await page.evaluate(()=>document.documentElement.scrollWidth-document.documentElement.clientWidth);
     assert.ok(nativeOverflow<=0,`Gallery overflow at ${width}: ${nativeOverflow}`);
     await page.goto(origin+'/world?view=gallery&gallery=29');
-    await page.locator('.g29-exhibit').waitFor();
+    await page.locator('.g29-exhibit').first().waitFor();
     await page.waitForFunction(()=>{const img=document.querySelector('.g29-canvas img');return img?.complete&&img.naturalWidth>0;});
     await page.screenshot({path:resolve(output,`gallery-29-${width}.png`)});
+    const galleryType=await page.locator('.g29-gallery').evaluate(root=>{
+      const style=selector=>getComputedStyle(root.querySelector(selector));
+      return {intro:parseFloat(style('.g29-intro').fontSize),caption:parseFloat(style('.g29-caption').fontSize),
+        control:parseFloat(style('.g29-number').fontSize),kind:parseFloat(style('.g29-kind').fontSize),
+        numberFamily:style('.g29-number bdi').fontFamily,labelFamily:style('.g29-number-label').fontFamily,
+        gridColumns:style('.g29-flow').gridTemplateColumns.split(' ').length,
+        controls:[...root.querySelectorAll('.g29-number,.g29-depth > summary')].map(el=>el.getBoundingClientRect().height)};
+    });
+    assert.ok(galleryType.caption>=18&&galleryType.control>=16&&galleryType.kind>=15);
+    assert.ok(galleryType.controls.every(height=>height>=44));
+    assert.equal(galleryType.gridColumns,width<761?1:2);
+    assert.notEqual(galleryType.numberFamily,galleryType.labelFamily,'Hebrew labels do not inherit the numeric typeface');
+    for(const [preset,label] of [['light','יום'],['parchment','קלף'],['dark','לילה']]){
+      const control=page.locator('.sod29-theme-presets.is-header-control');
+      const option=control.getByRole('button',{name:label,exact:true});
+      if(!await option.isVisible())await control.locator('.sod29-theme-trigger').click();
+      await option.click();await page.waitForFunction(value=>document.documentElement.dataset.themePreset===value,preset);
+      assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth-document.documentElement.clientWidth),0);
+      await page.screenshot({path:resolve(output,`gallery-29-${preset}-${width}.png`)});
+    }
     report.nativeGalleries.push({width,galleries:[29,81],sourceRef:`gallery_images:${nativeId}`,
-      expression:'התגלות',method:'קדמי',value:3137,exactReturn:true,wholeImage:true});
+      expression:'התגלות',method:'קדמי',value:3137,exactReturn:true,wholeImage:true,galleryType,presets:['light','parchment','dark']});
     await page.goto(origin + "/topic/gapfill-1118#topic-number-research-1118");
     const through = page.getByRole("region", { name: "ממצאים דרך המספר", exact: true });
     await through.waitFor();

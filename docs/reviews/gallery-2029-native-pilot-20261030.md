@@ -130,3 +130,49 @@ Broad continuation `ae17201f` and all other owners remain unaffected.
 
 Status: IMPLEMENTED / TESTED / PROTECTED_PREVIEW_VERIFIED.
 Not merged, not Production-live; not a full gallery migration.
+
+## Public flowing-gallery design revision — ZURIEL request
+
+Task `GALLERY_2029_PUBLIC_FLOW_DESIGN_20261030`;
+BEFORE `9c7e2c87-b9a4-4895-b675-507cda20c598`;
+base `346457309366deeceb2051ee74d85cea858ac907`, same isolated branch.
+
+The user rejected the selected-image-only research-tool presentation and asked
+GPT to attempt the public design before involving Claude. No specialist was
+activated. Legacy gallery code was read as a visual reference only.
+
+- Six complete, uncropped image cards in stored order per existing public window;
+  two columns on desktop, one continuous vertical sequence on mobile. No single
+  oversized selected hero or thumbnail-only alternative. Pagination is labelled
+  as previous/next images, not falsely advertised as appended infinite loading.
+- Restrained museum warmth using the existing Design V2 palette/type tokens,
+  original images, fine borders and a compact mobile introduction. Day, Parchment
+  and Night remain the same theme system. SVG affordances avoid missing arrow
+  glyphs in Hebrew fonts. No new asset, template purchase, dependency or font.
+- Public first-level copy contains no pilot/window/OCR/raw source identifier.
+  Original historical titles/captions are retained; long captions can expand.
+  Initial numeric links are saved tags for browsing, not a declared calculation
+  or graph edge. The fuller explanation remains under “לגלות עוד”.
+- Shared `SourceMethodResearch` has an additive `publicCopy` presentation option;
+  existing Topic default copy and ALL calculation/publication/range/version
+  checks remain unchanged. Each card invokes the existing controller with its
+  own source occurrence, rather than inheriting the first image's provenance.
+- Source dates, credits, history and technical reference remain available behind
+  explicit disclosure. No source/event/calculation/interpretation distinctions
+  were removed merely to simplify the first-level interface.
+- Exact gallery locators, method Number navigation and Browser Back are retained.
+  A changed image window returns to the gallery opening; an exact source return
+  aligns that image instead. Image enlargement opens the existing original
+  public image in a new tab, not a second calculator or Legacy Lightbox.
+
+Verification: source/model regressions43/43, enhanced fixture browser2/2 at
+320/1440, including non-initial-card source return, privacy and changed methods.
+Both builds, graph/lazy, isolation, World/Topic, route hardening, Legacy lock and
+Preview auth/write guard7/7 pass; existing chunk warnings remain. The inherited
+Frame language assertion remains unchanged and outside this content-only slice.
+Live-public screenshots of the public flow were inspected; final protected SHA
+and theme/typography acceptance are recorded below after completion.
+
+No App/config/Frame/Provider/reader/model/engine, blocked envelope, DB/RLS/privacy,
+publication, main, Edge, Production or domain changes. This changes the pilot's
+public presentation, not its evidence or admission rules and not all galleries.

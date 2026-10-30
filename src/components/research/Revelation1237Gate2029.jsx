@@ -102,7 +102,7 @@ function Center({ cards, ...focusProps }) {
 }
 
 // ── source card ──────────────────────────────────────────────────────────────────────────
-export function SourceMethodResearch({ item, slotKey, sectionId, readProfile, onOpenExpression, openingKey, focusError, focusErrorKey }) {
+export function SourceMethodResearch({ item, slotKey, sectionId, readProfile, onOpenExpression, openingKey, focusError, focusErrorKey, publicCopy = false }) {
   const [selection, setSelection] = useState(null);
   const [state, setState] = useState(null);
   const [limit, setLimit] = useState(8);
@@ -139,19 +139,19 @@ export function SourceMethodResearch({ item, slotKey, sectionId, readProfile, on
     if (opened === false && request === requestRef.current) setState(null);
   };
   return <details className="rv-source-research">
-    <summary>חקירת ביטוי ושיטות מהמקור</summary>
+    <summary>{publicCopy ? "המילים והחישובים בתמונה" : "חקירת ביטוי ושיטות מהמקור"}</summary>
     {text ? <>
-      <p>סמנו ביטוי בתוך הטקסט השמור, בעכבר או במקלדת, ואז פתחו את השיטות שלו.</p>
-      <p className="rv-muted">זהו טקסט OCR שמור, שעשוי להיות חלקי או שגוי. בחירת ביטוי לחקירה אינה אימות של מה שנכתב בתמונה.</p>
-      <textarea className="rv-source-text" aria-label="טקסט שמור לבחירת ביטוי" readOnly value={text}
+      <p>{publicCopy ? "סמנו מילה או ביטוי בטקסט, וגלו אילו ערכים יש להם בשיטות החישוב השונות." : "סמנו ביטוי בתוך הטקסט השמור, בעכבר או במקלדת, ואז פתחו את השיטות שלו."}</p>
+      <p className="rv-muted">{publicCopy ? "הטקסט זוהה אוטומטית ועשוי להכיל טעויות. כדאי להשוות אותו לתמונה לפני שממשיכים." : "זהו טקסט OCR שמור, שעשוי להיות חלקי או שגוי. בחירת ביטוי לחקירה אינה אימות של מה שנכתב בתמונה."}</p>
+      <textarea className="rv-source-text" aria-label={publicCopy ? "טקסט מהתמונה לבחירת ביטוי" : "טקסט שמור לבחירת ביטוי"} readOnly value={text}
         disabled={openingKey === slotKey} rows={5} onSelect={select} onMouseUp={select} onKeyUp={select} />
       {selection ? <p>הביטוי שנבחר: <strong>{selection.expression}</strong></p> : null}
       <button type="button" className="rv-btn" disabled={!selection || !readProfile || state?.status === "loading"}
         onClick={load}>{state?.status === "loading" ? "טוען שיטות…" : "פתיחת שיטות לביטוי שנבחר"}</button>
       {state?.status === "failed" ? <p role="status">השיטות אינן זמינות כרגע. אפשר לנסות שוב; אין זו תוצאה ריקה.</p> : null}
       {state?.status === "ready" ? <>
-        <h4>שיטות נוספות מהמנוע לבחירה</h4>
-        <p className="rv-muted">תוצאות המנוע לביטוי שבחרתם, לא קביעה שהערכים האלה מופיעים במקור. אלה השיטות הציבוריות הזמינות בקריאה הזו.</p>
+        <h4>{publicCopy ? "אותן מילים, דרכים נוספות לחשב" : "שיטות נוספות מהמנוע לבחירה"}</h4>
+        <p className="rv-muted">{publicCopy ? "אלה חישובים של הביטוי שבחרתם; לא בהכרח המספרים שנכתבו בתמונה. לחצו על שיטה כדי לראות את ההסבר שלה." : "תוצאות המנוע לביטוי שבחרתם, לא קביעה שהערכים האלה מופיעים במקור. אלה השיטות הציבוריות הזמינות בקריאה הזו."}</p>
         {!state.rows.length ? <p role="status">לא התקבלו שיטות ציבוריות זמינות לבחירה הזו; אין להסיק שערך הביטוי אפס.</p> : null}
         <div className="rv-source-methods">{state.rows.slice(0, limit).map((row) => <button type="button" className="rv-btn" key={row.methodKey}
           disabled={!onOpenExpression || openingKey === slotKey}
@@ -163,7 +163,7 @@ export function SourceMethodResearch({ item, slotKey, sectionId, readProfile, on
       </> : null}
       {openingKey === slotKey ? <p role="status">בודק מחדש את המקור והחישוב…</p> : null}
       {focusError && focusErrorKey === slotKey ? <p role="status">{focusError}</p> : null}
-    </> : <p>אין כרגע טקסט OCR שמור לבחירה. אפשר לפתוח את התמונה המקורית; התיוגים אינם תחליף לביטוי מדויק.</p>}
+    </> : <p>{publicCopy ? "עדיין אין לתמונה הזו טקסט שאפשר לבחור. אפשר להגדיל אותה ולעיין במה שכתוב בה." : "אין כרגע טקסט OCR שמור לבחירה. אפשר לפתוח את התמונה המקורית; התיוגים אינם תחליף לביטוי מדויק."}</p>}
   </details>;
 }
 

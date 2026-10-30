@@ -228,19 +228,33 @@ test("native gallery uses exact public occurrences and canonical method navigati
       const id="10000000-0000-4000-8000-000000008107";
       const href=`/world?view=gallery&gallery=81&image=${id}#gallery-source-${id}`;
       await page.goto(origin+href);
-      const exhibit=page.locator(`[data-gallery-selected="${id}"]`);await exhibit.waitFor();
+      const exhibit=page.locator(`[data-gallery-image-id="${id}"]`);await exhibit.waitFor();
       assert.match(await exhibit.innerText(),new RegExp("כיתוב מדויק "+id));
       const reads=await page.evaluate(()=>window.__galleryRequests);
       assert.equal(reads.length,1);assert.equal(reads[0].length,6);assert.equal(reads[0][0].endsWith("8106"),true);
-      assert.equal(await page.locator(".g29-thumbnails a").count(),6);
+      assert.equal(await page.locator(".g29-flow .g29-exhibit").count(),6,"several complete cards, not a selected-only image and thumbnails");
+      assert.equal(await page.locator(".g29-thumbnails").count(),0);
+      const plain=await page.locator('.g29-gallery').innerText();
+      assert.doesNotMatch(plain,/פיילוט|חלון|OCR|מיקום שמור|gallery_images:/,"reader-facing copy does not expose implementation vocabulary");
+      const columns=await page.locator('.g29-flow').evaluate(el=>getComputedStyle(el).gridTemplateColumns.split(' ').length);
+      assert.equal(columns,width<761?1:2);
+      assert.ok(await exhibit.locator('.g29-depth').evaluate(el=>!el.open),"research stays behind an intentional action");
       assert.equal(await exhibit.locator(".g29-canvas img").getAttribute("data-media-fit"),"preserve-whole-image");
-      await exhibit.getByText("מספרים שסומנו במקור · 3",{exact:true}).click();
       await exhibit.locator('a[href="/2029/number/3137"]').click();
       await page.waitForURL(origin+"/2029/number/3137");
       assert.equal(await page.evaluate(()=>window.__researchContext.returnTo.selection.sourceRef),`gallery_images:${id}`);
       await page.goBack();await exhibit.waitFor();
       assert.equal(new URL(page.url()).hash,`#gallery-source-${id}`);
+      const otherId="10000000-0000-4000-8000-000000008108";
+      await page.locator(`[data-gallery-image-id="${otherId}"] a[href="/2029/number/3137"]`).click();
+      await page.waitForURL(origin+"/2029/number/3137");
+      assert.equal(await page.evaluate(()=>window.__researchContext.returnTo.selection.sourceRef),`gallery_images:${otherId}`,
+        "each flowing card remembers its own source, not the initially selected image");
+      await page.goBack();assert.equal(new URL(page.url()).hash,`#gallery-source-${otherId}`);
+      await page.goto(origin+href);await exhibit.waitFor();
       const choose=async()=>{
+        const depth=exhibit.locator('.g29-depth');
+        if(await depth.getAttribute('open')===null)await depth.locator(':scope > summary').click();
         const research=exhibit.locator(".rv-source-research");
         if(await research.getAttribute("open")===null)await research.locator("summary").click();
         const text=research.getByRole("textbox");await text.evaluate(el=>{const start=el.value.indexOf('התגלות');el.focus();el.setSelectionRange(start,start+6);
@@ -257,19 +271,19 @@ test("native gallery uses exact public occurrences and canonical method navigati
       for(const flag of ["__methodPrivate","__sourceChanged"]){
         const method=await choose();await method.waitFor();
         await page.evaluate(name=>{window[name]=true;},flag);await method.click();
-        await exhibit.getByText(flag==="__methodPrivate"?/השיטה, הערך או גרסת החישוב/:/המקור אינו זמין/).waitFor();
+        await exhibit.getByText(flag==="__methodPrivate"?/החישוב השתנה או שהשיטה אינה זמינה/:/התמונה אינה זמינה או שהטקסט שלה השתנה/).waitFor();
         assert.equal(new URL(page.url()).searchParams.get("gallery"),"81");
         await page.evaluate(name=>{window[name]=false;},flag);
       }
       const method=await choose();await method.waitFor();
       await page.evaluate(()=>{window.__galleryWithdrawn=true;});await method.click();
       await page.getByText(/התמונה המבוקשת אינה זמינה כאן/).waitFor();
-      assert.equal(await page.locator(".g29-exhibit,.g29-thumbnails img").count(),0,"withdrawn source content is removed");
+      assert.equal(await page.locator(".g29-exhibit").count(),0,"withdrawn source content is removed");
       await page.evaluate(()=>{window.__galleryWithdrawn=false;});
       await page.getByRole("button",{name:"בדיקה מחדש",exact:true}).click();await exhibit.waitFor();
-      await page.getByRole("link",{name:"החלון הבא ←",exact:true}).click();
+      await page.getByRole("link",{name:"התמונות הבאות ←",exact:true}).click();
       await page.locator('[data-gallery-selected="10000000-0000-4000-8000-000000008112"]').waitFor();
-      assert.equal(await page.locator(".g29-thumbnails a").count(),2);
+      assert.equal(await page.locator(".g29-flow .g29-exhibit").count(),2);
       await page.goto(origin+"/world?view=gallery&gallery=81&image=10000000-0000-4000-8000-000000002901");
       await page.getByText(/התמונה המבוקשת אינה זמינה כאן/).waitFor();
       assert.equal(await page.locator(".g29-exhibit").count(),0,"wrong-gallery locator cannot select another gallery row");
