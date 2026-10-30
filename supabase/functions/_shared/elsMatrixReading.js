@@ -147,6 +147,22 @@ export const FINDINGS_SCHEMA_V2 = Object.freeze({
   },
 });
 
+/** The schema of the effort-allocation focus: the measured one plus the model's own statement of the lines it went through, apart from the proposals. */
+export const FINDINGS_SCHEMA_V3 = Object.freeze({
+  ...FINDINGS_SCHEMA_V2,
+  required: ["findings", "review", "observations"],
+  properties: {
+    findings: FINDINGS_SCHEMA_V2.properties.findings,
+    review: {
+      type: "object",
+      additionalProperties: false,
+      required: ["near_lines", "margin_lines"],
+      properties: { near_lines: { type: "array", items: { type: "string" } }, margin_lines: { type: "array", items: { type: "string" } } },
+    },
+    observations: FINDINGS_SCHEMA_V2.properties.observations,
+  },
+});
+
 // ===== Verbatim from the harness (lib/validate.mjs): locating, verification items and classification =====
 export const MAX_OCCURRENCES_VERIFIED = 6;
 export const MAX_ELSEWHERE_LINES = 8;
@@ -233,9 +249,12 @@ export function classify(located, rows) {
 // and changes two sentences of the task that said the opposite (do not stay in the middle, do not rank by proximity). That text is NOT measured either.
 export const INSTRUCTION_NO_STORY = "general_v2_axis_marked_unnamed";
 export const INSTRUCTION_WITH_STORY = "general_v2_axis_marked_unnamed+user_story_unmeasured";
-export const INSTRUCTION_NEIGHBORHOOD = "general_v2_axis_neighborhood_2to3x_unmeasured";
+export const INSTRUCTION_NEIGHBORHOOD = "general_v2_axis_effort_allocation_unmeasured";
 export const NEIGHBORHOOD_RADIUS = ELS_MATRIX_READING_NEIGHBORHOOD.radius;
 export const NEIGHBORHOOD_TARGET_RATIO = ELS_MATRIX_READING_NEIGHBORHOOD.targetRatio;
+export const MARGIN_SHARE_MIN = ELS_MATRIX_READING_NEIGHBORHOOD.marginShareMin;
+/** The proposals asked for near the axis (at least two thirds: 2:1) and kept for the margins (at least a quarter), for a cap. Both always fit in the cap. */
+export const allocationTargets = (cap) => ({ nearMin: Math.floor((cap * 2) / 3), marginMin: Math.ceil(cap * MARGIN_SHARE_MIN) });
 export const instructionLabel = ({ story = "", focus = ELS_MATRIX_READING_FOCUS_DEFAULT } = {}) =>
   `${focus === ELS_MATRIX_READING_FOCUS.UNIFORM ? INSTRUCTION_NO_STORY : INSTRUCTION_NEIGHBORHOOD}${story ? "+user_story_unmeasured" : ""}`;
 
@@ -247,6 +266,20 @@ export function neighborhoodBox(region, radius = NEIGHBORHOOD_RADIUS) {
   const cells = (rowTo - rowFrom + 1) * (colTo - colFrom + 1);
   return { radius, rows: { from: rowFrom, to: rowTo }, cols: { from: colFrom, to: colTo }, cells, share_of_window: Number((cells / (region.nRows * region.nCols)).toFixed(3)) };
 }
+
+const inBox = (box, [i, j]) => i >= box.rows.from && i <= box.rows.to && j >= box.cols.from && j <= box.cols.to;
+/** Which lines a zone can be read on. A line belongs to the near zone when at least MIN_LINE_LENGTH of its cells lie in the box, to the margin zone when at least that many lie outside it (a long line can belong to both). */
+export function zoneLines(lines, box) {
+  const near = new Set(), margin = new Set(), kindOf = new Map();
+  for (const line of lines) {
+    const inside = line.cells.filter((cell) => inBox(box, cell)).length;
+    kindOf.set(line.id, line.kind);
+    if (inside >= MIN_LINE_LENGTH) near.add(line.id);
+    if (line.cells.length - inside >= MIN_LINE_LENGTH) margin.add(line.id);
+  }
+  return { near, margin, kindOf };
+}
+const byKindCount = (ids, kindOf) => Object.fromEntries(["R", "C", "D", "A"].map((k) => [k, [...ids].filter((id) => kindOf.get(id) === k).length]));
 export function buildReadingPrompt({ region, lines, cap = MAX_FINDINGS, story = "", focus = ELS_MATRIX_READING_FOCUS_DEFAULT }) {
   if (!region.axisCells.length) throw new Error("this region has no selected occurrence to mark");
   const axis = axisSummary(region);
@@ -261,11 +294,16 @@ export function buildReadingPrompt({ region, lines, cap = MAX_FINDINGS, story = 
     "הקווים: שורות R, טורים C, אלכסונים D (יורדים ימינה ↘, כלומר מעמודה לעמודה עוקבת כשיורדים שורה) ואלכסונים A (יורדים שמאלה ↙). כל קו מוצג בשני כיווני קריאה. הכיוון `+` הוא: בשורות מעמודה 1 לעמודה האחרונה, בטורים מהשורה העליונה לתחתונה, ובאלכסונים (D ו-A) מלמעלה למטה. הכיוון `-` הוא ההפך. האותיות בכל שורת קו מסודרות לפי סדר הקריאה של אותו כיוון, בקבוצות של חמש לנוחות בלבד (ברצף אין רווחים). בכל שורת קו המזהה כולל את הכיוון, למשל D17+. קווים קצרים משלוש אותיות לא נכללו.",
   ].join("\n");
   const near = focus === ELS_MATRIX_READING_FOCUS.AXIS_NEIGHBORHOOD ? neighborhoodBox(region) : null;
+  const goals = allocationTargets(cap);
   const neighbourhood = near ? [
-    "## סביבת הציר — ברירת המחדל לעומק החיפוש",
-    `המופע הנבחר הוא נקודת המוצא. הסביבה הקרובה היא כל תא שמרחקו מתא כלשהו של המופע הנבחר הוא עד ${near.radius} תאים (גם באלכסון): שורות R${pad(near.rows.from)}–R${pad(near.rows.to)} ועמודות C${pad(near.cols.from)}–C${pad(near.cols.to)} (תיבה של ${near.cells} תאים, כ-${Math.round(near.share_of_window * 100)}% מהקטע). הצעה נחשבת "בסביבה הקרובה" אם לפחות אחד מתאיה בתיבה הזו.`,
-    "ברירת המחדל: העמק בסביבה הקרובה פי שניים עד שלושה יותר מאשר ברחוק. כלומר: (1) עבור שיטתית על כל הקווים שחולפים בתיבה (שורות, טורים ואלכסונים, בשני הכיוונים) ובדוק כל קטע בהם, כולל ההמשכים, החיתוכים והשכנויות של כל מילה שמצאת; (2) לפחות שני שלישים מההצעות שלך, ועדיף שלושה רבעים, יהיו בסביבה הקרובה, כל עוד יש בה קריאות ראויות; (3) באזור הרחוק (מחוץ לתיבה) הצע רק מה שבולט בעיניך.",
-    "אם בסביבה הקרובה אין מספיק קריאות ראויות, התרחק; אל תמציא ואל תכפה קריאה רק כדי לעמוד ביחס. זו הנחיית עומק ולא סינון: כל הצעה, קרובה או רחוקה, תקפה ונבדקת.",
+    "## הקצאת מאמץ: סביבת הציר ושוליים",
+    `המופע הנבחר הוא נקודת המוצא. הסביבה הקרובה היא כל תא שמרחקו מתא כלשהו של המופע הנבחר הוא עד ${near.radius} תאים (גם באלכסון): שורות R${pad(near.rows.from)}–R${pad(near.rows.to)} ועמודות C${pad(near.cols.from)}–C${pad(near.cols.to)} (תיבה של ${near.cells} תאים, כ-${Math.round(near.share_of_window * 100)}% מהקטע). השוליים הם כל שאר הקטע. הצעה נחשבת "בסביבה הקרובה" אם לפחות אחד מתאיה בתיבה, ו"בשוליים" אם אף אחד מתאיה אינו בתיבה.`,
+    "זו הקצאת מאמץ ולא שער: אין אזור שאסור לבדוק, וכל הצעה, קרובה או רחוקה, תקפה ונבדקת.",
+    `1. בסביבה הקרובה העמק פי שניים עד שלושה מאשר בשוליים: עבור שיטתית על כל הקווים שחולפים בתיבה (שורות, טורים ואלכסונים, בשני הכיוונים) ובדוק כל קטע בהם, כולל ההמשכים, החיתוכים והשכנויות של כל מילה שמצאת. לפחות ${goals.nearMin} מתוך ${cap} ההצעות יהיו בסביבה הקרובה, ולא יותר משלושה רבעים מהן.`,
+    `2. לשוליים שמור חלק קבוע: עבור גם על קווי השוליים, קו אחרי קו, בכרבע מהמאמץ, ושמור להם לפחות ${goals.marginMin} מתוך ${cap} ההצעות כל עוד יש בהם קריאות ראויות. אל תוותר על השוליים גם כשבסביבה הקרובה יש הרבה.`,
+    "3. אם בסביבה הקרובה אין מספיק קריאות ראויות, הוסף מהשוליים; אם בשוליים אין, אל תמציא ואל תכפה קריאה רק כדי לעמוד בחלוקה.",
+    "4. שורות R הן הטקסט המקראי עצמו (שורות מקור, דילוג 1). אל תדלג עליהן: הצע מהן את הביטויים והצירופים הבולטים כרצף רגיל. הן יסומנו ויוצגו בנפרד כשורות מקור (לא ELS), ונספרות באותה תקרה ובאותה חלוקה לסביבה ולשוליים.",
+    "5. בשדה review רשום את מזהי הקווים (בלי כיוון, למשל C21, D03, R16) שעברת עליהם בפועל: near_lines — קווים שעברת עליהם בתיבה הקרובה, margin_lines — קווים שעברת עליהם בשוליים. רשום רק קווים שבדקת באמת. זו הצהרה שלך על כיסוי: היא נפרדת ממספר ההצעות ואינה נבדקת.",
   ].join("\n") : null;
   const task = [
     "## המשימה",
@@ -469,7 +507,7 @@ export function buildReadingRequest({ model, region, lines, cap, story = "", foc
   const prompt = buildReadingPrompt({ region, lines, cap, story, focus });
   const request = { model, max_tokens: maxTokens, system: prompt.system, messages: [{ role: "user", content: prompt.user }] };
   request.thinking = { ...THINKING };
-  request.output_config = { effort, format: { type: "json_schema", schema: FINDINGS_SCHEMA_V2 } };
+  request.output_config = { effort, format: { type: "json_schema", schema: focus === ELS_MATRIX_READING_FOCUS.AXIS_NEIGHBORHOOD ? FINDINGS_SCHEMA_V3 : FINDINGS_SCHEMA_V2 } };
   return { request, prompt };
 }
 
@@ -486,7 +524,16 @@ export function describeCoverage({ region, lines, window, focus = null }) {
     lines_shown: { total: lines.length, by_kind: byKind, readings: lines.length * 2 },
     lines_omitted_shorter_than_3: { total: (lines.omitted ?? []).length, by_kind: omittedByKind },
     what_is_not_covered: "everything outside this window; lines are cut at the window boundary; the rest of the Torah and every other matrix width",
-    neighborhood: { ...neighborhoodBox(region), focus: focus ?? null, target_ratio: focus === ELS_MATRIX_READING_FOCUS.AXIS_NEIGHBORHOOD ? NEIGHBORHOOD_TARGET_RATIO : null },
+    neighborhood: (() => {
+      const box = neighborhoodBox(region), zl = zoneLines(lines, box);
+      return {
+        ...box, focus: focus ?? null,
+        target_ratio: focus === ELS_MATRIX_READING_FOCUS.AXIS_NEIGHBORHOOD ? NEIGHBORHOOD_TARGET_RATIO : null,
+        margin_share_min: focus === ELS_MATRIX_READING_FOCUS.AXIS_NEIGHBORHOOD ? MARGIN_SHARE_MIN : null,
+        margin_cells: region.nRows * region.nCols - box.cells,
+        lines: { near: zl.near.size, margin: zl.margin.size, near_by_kind: byKindCount(zl.near, zl.kindOf), margin_by_kind: byKindCount(zl.margin, zl.kindOf) },
+      };
+    })(),
   };
 }
 
@@ -651,23 +698,29 @@ export function viewFindings({ classified, raw, region, rows }) {
 
 /**
  * Counts what the engine verified. `zones` measures WHERE the proposals lie: near = at least one cell within `radius` cells of the selected occurrence (the same distance as
- * relation_to_axis). When the neighbourhood-depth default was asked for (focus), `target` says whether the near:far ratio asked for was reached; it is a measurement of what the
- * model did, never a filter: a proposal is kept and verified wherever it lies.
+ * relation_to_axis). When the effort-allocation default was asked for (focus), `target` says whether the two things asked for were reached: the near:far ratio of at least 2:1
+ * and a fixed margin share of at least a quarter. Both are measurements of what the model did, never a filter: a proposal is kept and verified wherever it lies.
+ * `source_rows` are the proposals read on the plain-text rows (skip 1): counted in the same zones and the same cap, reported apart from the ELS.
  */
 export function summarizeFindings(findings, { radius = NEIGHBORHOOD_RADIUS, focus = null } = {}) {
   const els = findings.filter((f) => f.verification.state === "ENGINE_VERIFIED");
   const placed = findings.filter((f) => f.relation_to_axis != null && f.verification.state !== "NOT_VERIFIED");
   const zone = (inNear) => {
     const list = placed.filter((f) => (f.relation_to_axis.distance <= radius) === inNear);
-    return { proposals: list.length, engine_verified: list.filter((f) => f.verification.state === "ENGINE_VERIFIED").length, plain_text_only: list.filter((f) => f.verification.state === "PLAIN_TEXT_ONLY").length };
+    return { proposals: list.length, engine_verified: list.filter((f) => f.verification.state === "ENGINE_VERIFIED").length, source_rows: list.filter((f) => f.verification.state === "PLAIN_TEXT_ONLY").length };
   };
   const near = zone(true), far = zone(false);
   const applies = focus === ELS_MATRIX_READING_FOCUS.AXIS_NEIGHBORHOOD;
+  const total = near.proposals + far.proposals;
   const ratio = far.proposals === 0 ? null : Number((near.proposals / far.proposals).toFixed(2));
+  const marginShare = total === 0 ? null : Number((far.proposals / total).toFixed(2));
+  const ratioMet = far.proposals === 0 ? near.proposals > 0 : near.proposals >= NEIGHBORHOOD_TARGET_RATIO * far.proposals;
+  const marginMet = total > 0 && far.proposals >= Math.ceil(MARGIN_SHARE_MIN * total);
   return {
     proposals: findings.length,
     engine_verified: els.length,
     plain_text_only: findings.filter((f) => f.verification.state === "PLAIN_TEXT_ONLY").length,
+    source_rows: findings.filter((f) => f.verification.state === "PLAIN_TEXT_ONLY").length,
     not_verified: findings.filter((f) => f.verification.state === "NOT_VERIFIED").length,
     engine_verified_long: els.filter((f) => [...f.text].length >= 5).length,
     engine_verified_short: els.filter((f) => [...f.text].length <= 4).length,
@@ -675,9 +728,57 @@ export function summarizeFindings(findings, { radius = NEIGHBORHOOD_RADIUS, focu
     expected_by_chance: els.filter((f) => f.chance && f.chance.unlikely_by_chance === false).length,
     by_relation: Object.fromEntries(["crosses", "touches", "far"].map((r) => [r, els.filter((f) => f.relation_to_axis?.relation === r).length])),
     zones: {
-      radius, near, far, near_to_far: ratio,
-      target: { applies, ratio: applies ? NEIGHBORHOOD_TARGET_RATIO : null, met: applies ? (far.proposals === 0 ? near.proposals > 0 : near.proposals >= NEIGHBORHOOD_TARGET_RATIO * far.proposals) : null },
+      radius, near, far, near_to_far: ratio, margin_share: marginShare,
+      target: { applies, ratio_min: applies ? NEIGHBORHOOD_TARGET_RATIO : null, margin_share_min: applies ? MARGIN_SHARE_MIN : null,
+        ratio_met: applies ? ratioMet : null, margin_floor_met: applies ? marginMet : null, met: applies ? ratioMet && marginMet : null },
     },
+  };
+}
+
+/**
+ * Coverage of the READING, apart from the number of proposals (which is capped and says nothing about how much was examined). Three levels, never mixed:
+ *  - shown_to_model   certain: what was put in front of the model, and how the near box and the margins divide it (cells, lines, readings)
+ *  - proposal_footprint  verified: the lines and cells that the engine-verified proposals actually lie on, per zone (a lower bound of what was examined)
+ *  - model_review     the model's own statement of the lines it went through (UNVERIFIED_MODEL_REPORT): ids outside the zone they were reported for are dropped and counted
+ */
+export function buildCoverageReport({ region, lines, window, focus, findings, review }) {
+  const box = neighborhoodBox(region), zl = zoneLines(lines, box);
+  const cells = region.nRows * region.nCols;
+  const placed = findings.filter((f) => f.occurrence && f.verification.state !== "NOT_VERIFIED");
+  const lineOf = (f) => String(f.occurrence.reading ?? "").replace(/[+-]$/, "");
+  const touched = { near: { lines: new Set(), cells: new Set() }, margin: { lines: new Set(), cells: new Set() } };
+  for (const f of placed) for (const c of f.occurrence.cells) {
+    const zoneKey = inBox(box, c) ? "near" : "margin";
+    touched[zoneKey].cells.add(`${c[0]},${c[1]}`);
+    const id = lineOf(f);
+    if ((zoneKey === "near" ? zl.near : zl.margin).has(id)) touched[zoneKey].lines.add(id);
+  }
+  const model = (() => {
+    if (focus !== ELS_MATRIX_READING_FOCUS.AXIS_NEIGHBORHOOD) return { status: "NOT_REQUESTED", note: "the instruction measured in EXP-15..18 does not ask the model to report the lines it went through" };
+    if (!review || typeof review !== "object") return { status: "NOT_REPORTED", note: "the model returned no review of the lines it went through" };
+    const norm = (list) => [...new Set((Array.isArray(list) ? list : []).map((x) => String(x).trim().toUpperCase().replace(/[+-]$/, "")).filter(Boolean))];
+    const nearIds = norm(review.near_lines), marginIds = norm(review.margin_lines);
+    const validNear = nearIds.filter((id) => zl.near.has(id)), validMargin = marginIds.filter((id) => zl.margin.has(id));
+    const invalid = [...nearIds.filter((id) => !zl.near.has(id)).map((id) => `near:${id}`), ...marginIds.filter((id) => !zl.margin.has(id)).map((id) => `margin:${id}`)];
+    return {
+      status: "UNVERIFIED_MODEL_REPORT",
+      near: { reported: validNear.length, of_lines: zl.near.size, share: zl.near.size ? Number((validNear.length / zl.near.size).toFixed(2)) : null },
+      margin: { reported: validMargin.length, of_lines: zl.margin.size, share: zl.margin.size ? Number((validMargin.length / zl.margin.size).toFixed(2)) : null },
+      invalid_ids: invalid.slice(0, 40), invalid_count: invalid.length,
+      near_lines_not_reported: [...zl.near].filter((id) => !validNear.includes(id)).slice(0, 40),
+      note: "the model's own statement; the engine cannot check what a model went through",
+    };
+  })();
+  return {
+    note: "coverage is reported apart from the number of proposals: the proposals are capped and are not a measure of how much was examined",
+    shown_to_model: { status: "CERTAIN", window_cells: cells, lines: lines.length, readings: lines.length * 2,
+      near: { cells: box.cells, lines: zl.near.size, by_kind: byKindCount(zl.near, zl.kindOf) },
+      margin: { cells: cells - box.cells, lines: zl.margin.size, by_kind: byKindCount(zl.margin, zl.kindOf) } },
+    proposal_footprint: { status: "VERIFIED_LOWER_BOUND",
+      near: { lines_with_proposals: touched.near.lines.size, of_lines: zl.near.size, cells_touched: touched.near.cells.size, of_cells: box.cells },
+      margin: { lines_with_proposals: touched.margin.lines.size, of_lines: zl.margin.size, cells_touched: touched.margin.cells.size, of_cells: cells - box.cells } },
+    model_review: model,
+    what_is_not_covered: describeCoverage({ region, lines, window, focus }).what_is_not_covered,
   };
 }
 
@@ -1073,6 +1174,7 @@ async function jobOperation({ action, identity, secret, model, getFx, deps, seal
     ...common, state: STATES.COMPLETE, findings, summary,
     cap: { requested: job.cap, proposals: rawFindings.length, reached: rawFindings.length >= job.cap, meaning: "an output cap, not proof that nothing else exists" },
     coverage: describeCoverage({ region, lines, window, focus: jobFocus }),
+    coverage_report: buildCoverageReport({ region, lines, window, focus: jobFocus, findings, review: parsed.value.review }),
     observations: { text: String(parsed.value.observations ?? "").slice(0, 600), status: "UNVERIFIED_INTERPRETATION" },
     data_class: "ENGINE_VERIFIED_AND_PLAIN_TEXT_FINDINGS",
   }, 200, "success");
@@ -1116,7 +1218,7 @@ export function razielReadingAnswer(result) {
         `מודל: ${result.model?.id} (נבדק שהוא זמין אצל הספק). תקרת הצעות: ${result.request?.cap}.`,
         `עלות מרבית אפשרית: ${fmtUsd(e?.upper_bound_usd)} (≈ ${fmtIls(e?.upper_bound_ils?.amount)}, הערכה); לפי הניסויים בגודל חלון כזה כ־${fmtUsd(e?.expected_usd?.low)}–${fmtUsd(e?.expected_usd?.high)}${e?.expected_usd?.typical != null ? ` (טיפוסי ${fmtUsd(e.expected_usd.typical)})` : ""}. זמן לפי הניסויים: ${ELS_MATRIX_READING_EXPECTED_MINUTES.min}–${ELS_MATRIX_READING_EXPECTED_MINUTES.max} דקות.`,
         e?.evidence_class?.n_ended_at_max_tokens > 0 && e.evidence_class.truncated_share != null ? `בגודל חלון כזה נקטעו ב־max_tokens ${e.evidence_class.n_ended_at_max_tokens} מתוך ${e.evidence_class.n_completed + e.evidence_class.n_ended_at_max_tokens} קריאות שנמדדו, בלי תשובה ועם חיוב מלא.` : "ריצה עלולה להסתיים ב־max_tokens בלי תשובה ועדיין להיגבות במלואה (התגלה בניסויים).",
-        result.request?.focus === ELS_MATRIX_READING_FOCUS.AXIS_NEIGHBORHOOD ? `ברירת המחדל: העמקה בסביבת הציר (עד ${result.coverage?.neighborhood?.radius ?? NEIGHBORHOOD_RADIUS} תאים) פי 2–3 מהרחוק; הנחיה שטרם נמדדה.` : "",
+        result.request?.focus === ELS_MATRIX_READING_FOCUS.AXIS_NEIGHBORHOOD ? `ברירת המחדל: הקצאת מאמץ — העמקה בסביבת הציר (עד ${result.coverage?.neighborhood?.radius ?? NEIGHBORHOOD_RADIUS} תאים) פי 2–3 מהשוליים, חלק קבוע לשוליים (לפחות רבע), ושורות מקור נכללות. זו אינה מגבלה על בדיקת הרחוק. ההנחיה שטרם נמדדה; הכיסוי ידווח בנפרד ממספר ההצעות.` : "",
         noCredits);
       break;
     }
@@ -1147,17 +1249,23 @@ export function razielReadingAnswer(result) {
       const s = result.summary ?? {};
       const order = verified.slice().sort((a, b) => (b.chance?.unlikely_by_chance === true) - (a.chance?.unlikely_by_chance === true) || [...b.text].length - [...a.text].length || a.id.localeCompare(b.id));
       lines.push(`קריאת מטריצה (Fable) הושלמה ב־${fmtDuration(result.timing?.elapsed_ms)}. עלות בפועל: ${money(result.cost)}. ${noCredits}`, axisLine(result.axis), coverageLine(result.coverage),
-        `הצעות המודל: ${s.proposals}. אומתו במנוע ה־ELS הקנוני: ${s.engine_verified} (${s.unlikely_by_chance} בלתי סבירות במקרה, ${s.expected_by_chance} צפויות במקרה). רצף רגיל בלבד (לא ELS): ${s.plain_text_only}. לא אומתו: ${s.not_verified} (לא מוצגות).`, "");
+        `הצעות המודל: ${s.proposals}. אומתו במנוע ה־ELS הקנוני: ${s.engine_verified} (${s.unlikely_by_chance} בלתי סבירות במקרה, ${s.expected_by_chance} צפויות במקרה). שורות מקור (טקסט רגיל, לא ELS): ${s.plain_text_only}. לא אומתו: ${s.not_verified} (לא מוצגות).`, "");
       const z = s.zones;
       if (z) {
-        lines.push(`בסביבת הציר (עד ${z.radius} תאים): ${z.near.proposals} הצעות · רחוק יותר: ${z.far.proposals}${z.near_to_far != null ? ` · יחס ${z.near_to_far}:1` : ""}.${z.target?.applies ? (z.target.met ? ` יעד ברירת המחדל (לפחות ${z.target.ratio}:1 לטובת הסביבה) הושג.` : ` יעד ברירת המחדל (לפחות ${z.target.ratio}:1 לטובת הסביבה) לא הושג.`) : ""}`);
+        const goal = z.target?.applies ? ` יעדי ברירת המחדל: יחס לפחות ${z.target.ratio_min}:1 ${z.target.ratio_met ? "הושג" : "לא הושג"}; שוליים לפחות ${Math.round(z.target.margin_share_min * 100)}% ${z.target.margin_floor_met ? "הושג" : "לא הושג"}.` : "";
+        lines.push(`בסביבת הציר (עד ${z.radius} תאים): ${z.near.proposals} הצעות · בשוליים: ${z.far.proposals}${z.margin_share != null ? ` (${Math.round(z.margin_share * 100)}%)` : ""}${z.near_to_far != null ? ` · יחס ${z.near_to_far}:1` : ""}.${goal} שורות מקור (טקסט רגיל, לא ELS): ${z.near.source_rows + z.far.source_rows} (${z.near.source_rows} בסביבה, ${z.far.source_rows} בשוליים).`);
+      }
+      const cr = result.coverage_report;
+      if (cr) {
+        const sh = cr.shown_to_model, fp = cr.proposal_footprint, mr = cr.model_review;
+        lines.push(`כיסוי (נפרד ממספר ההצעות, שהוא תקרת פלט ולא מדד כיסוי): הוצגו למודל ${sh.lines} קווים; בסביבה ${sh.near.lines} קווים (${sh.near.cells} תאים), בשוליים ${sh.margin.lines} קווים (${sh.margin.cells} תאים). נגעו בהצעות: בסביבה ${fp.near.lines_with_proposals}/${fp.near.of_lines} קווים ו־${fp.near.cells_touched}/${fp.near.of_cells} תאים, בשוליים ${fp.margin.lines_with_proposals}/${fp.margin.of_lines} קווים ו־${fp.margin.cells_touched}/${fp.margin.of_cells} תאים.${mr?.status === "UNVERIFIED_MODEL_REPORT" ? ` המודל מצהיר שעבר על: בסביבה ${mr.near.reported}/${mr.near.of_lines} קווים, בשוליים ${mr.margin.reported}/${mr.margin.of_lines} קווים (הצהרה שלו, לא נבדקת${mr.invalid_count ? `; ${mr.invalid_count} מזהים לא תקפים הוסרו` : ""}).` : mr?.status === "NOT_REPORTED" ? " המודל לא דיווח על הקווים שעבר עליהם." : ""}`);
       }
       for (const x of order.slice(0, 25)) {
         const o = x.occurrence;
         lines.push(`• ${x.text} — דילוג ${o.skip} ${dirWord(o.dir)}, התחלה ${o.start} · ${relWord[x.relation_to_axis?.relation] ?? ""}${x.chance ? ` · מספר צפוי במקרה ${Number(x.chance.expected_occurrences).toPrecision(2)}${x.chance.unlikely_by_chance ? " (בלתי סביר)" : ""}` : ""}`);
       }
       if (order.length > 25) lines.push(`ועוד ${order.length - 25} בנתונים המובנים של הקריאה.`);
-      if (plain.length) lines.push("", `רצפים רגילים מהשורות (לא ELS): ${plain.slice(0, 12).map((x) => x.text).join(" · ")}${plain.length > 12 ? " …" : ""}`);
+      if (plain.length) lines.push("", `שורות מקור (טקסט רגיל, לא ELS): ${plain.slice(0, 12).map((x) => x.text).join(" · ")}${plain.length > 12 ? " …" : ""}`);
       lines.push("", result.cap?.reached ? `ההצעות הגיעו לתקרה (${result.cap.requested}): זו תקרת פלט ולא הוכחה שאין עוד ממצאים.` : "", "אימות הוא של האותיות והמיקומים בלבד — לא של משמעות; בחלונות אקראיים מתקבלים ממצאים מאותו סוג. הערות המודל אינן מאומתות.");
       break;
     }

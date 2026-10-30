@@ -1,0 +1,53 @@
+{
+ "_fixture": {
+  "kind": "REGRESSION_ONLY",
+  "not_blind_discovery": true,
+  "rules": [
+   "these words are an EVALUATION TARGET: they are never written into any instruction, schema, default or production code",
+   "a run that proposes them is a regression result, never a blind discovery: the cipher is known, and the neighbourhood radius was first read off it (in-sample)",
+   "a miss is a measurement of the reading, not a failure of the engine"
+  ]
+ },
+ "source": {
+  "table": "els_records",
+  "ids": [
+   "f9ebda77-93db-46d3-9bbd-19abcf53ee04",
+   "f06c761f-bba0-4e0d-8e45-50213452c17b"
+  ],
+  "els_finds_id": "3f3e64b3-d73c-4526-b534-649e805528c0",
+  "title": "יום משיח בא",
+  "saved": "2026-07-21"
+ },
+ "findings": [
+  {
+   "t": "מחכיתשפו",
+   "key": "583_1_233063"
+  },
+  {
+   "t": "לכפרעליכמ",
+   "key": "1_1_236559"
+  },
+  {
+   "t": "הארחשכ",
+   "key": "584_1_232474"
+  },
+  {
+   "t": "שופר",
+   "key": "583_-1_235391"
+  },
+  {
+   "t": "ישלח",
+   "key": "583_-1_233650"
+  },
+  {
+   "t": "מלכ",
+   "key": "1_1_232483"
+  }
+ ],
+ "expected": {
+  "engine_verified": 4,
+  "source_rows": 2,
+  "within_radius_8": 6,
+  "max_distance": 8
+ }
+}

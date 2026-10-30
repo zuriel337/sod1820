@@ -35,12 +35,15 @@ export const ELS_MATRIX_READING_POLL_SECONDS = 20;
 /**
  * Default depth of the search (ZURIEL, 30.10.2026): dig into the neighbourhood of the selected occurrence at least twice, and up to three times, as deep as at a distance;
  * when the neighbourhood gives nothing the model may go farther. It is an instruction about WHERE to look harder, never a filter: every proposal, near or far, is kept and verified.
- * The radius (cells, Chebyshev distance from any cell of the occurrence) is 8 because every word of the saved cipher "יום משיח בא 583" lies within 8 cells of its axis.
+ * REFINED (ZURIEL, 30.10.2026): this is an allocation of EFFORT, not a gate. A fixed share stays for the margins (at least a quarter of the proposals and of the effort), source rows
+ * (plain-text rows) are asked for, and coverage is reported apart from the number of proposals. The near:far target is therefore a band, 2:1 to 3:1, and both ends are only measured.
+ * The radius (cells, Chebyshev distance from any cell of the occurrence) is 8. It was first read off one saved cipher, which makes that cipher IN-SAMPLE for it; checked afterwards
+ * against the other saved ciphers of the site (19 Torah ciphers, 108 saved findings): 66% lie within 4 cells of their axis, 81% within 8, 94% within 12, the farthest at 27.
  * An UNMEASURED instruction: "uniform" is the instruction measured in EXP-15..18 and stays selectable to compare against it.
  */
 export const ELS_MATRIX_READING_FOCUS = Object.freeze({ AXIS_NEIGHBORHOOD: "axis_neighborhood", UNIFORM: "uniform" });
 export const ELS_MATRIX_READING_FOCUS_DEFAULT = ELS_MATRIX_READING_FOCUS.AXIS_NEIGHBORHOOD;
-export const ELS_MATRIX_READING_NEIGHBORHOOD = Object.freeze({ radius: 8, targetRatio: 2 });
+export const ELS_MATRIX_READING_NEIGHBORHOOD = Object.freeze({ radius: 8, targetRatio: 2, marginShareMin: 0.25 });
 
 const isObject = (value) => Boolean(value) && typeof value === "object" && !Array.isArray(value);
 const isInt = (value) => Number.isSafeInteger(value);
@@ -121,7 +124,7 @@ export function normalizeElsMatrixReadingAction(value) {
 const RESULT_KEYS = Object.freeze([
   "contract", "ok", "state", "error", "reason", "continuation_required", "retryable", "experimental", "model", "provider", "axis", "request", "coverage", "estimate",
   "job", "timing", "cost", "output", "findings", "summary", "cap", "observations", "data_class", "is_test_fixture", "notes", "story", "note", "progress", "spent", "poll_interrupted",
-  "restart_blocked", "recovered", "reused",
+  "restart_blocked", "recovered", "reused", "coverage_report",
 ]);
 
 function bound(value, depth = 0) {

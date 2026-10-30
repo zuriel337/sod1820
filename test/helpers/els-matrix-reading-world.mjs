@@ -16,7 +16,7 @@ export const WINDOW23 = { rows: 23, cols: 41 }; // the saved window: rows 44-66 
 export const message = ({ stopReason = "end_turn", text = savedAnswer.summary.text, usage = savedAnswer.summary.usage } = {}) => ({ model: "claude-fable-5-1", stop_reason: stopReason, usage, content: [{ type: "thinking", thinking: "…" }, { type: "text", text }] });
 
 /** A world of fakes: the stream, the engine, the provider and the token log, with a record of every call. */
-export function world({ batchState = "in_progress", result = { type: "succeeded", message: message() }, engineDown = false, stream = windowC1.grid.map((r) => r.s), modelHttp = 200, sb = SB } = {}) {
+export function world({ batchState = "in_progress", result = { type: "succeeded", message: message() }, engineDown = false, stream = windowC1.grid.map((r) => r.s), modelHttp = 200, sb = SB, geometry = { width: 4545, r0: 44, c0: 3315 }, replays = recorded } = {}) {
   const calls = []; const tokenLog = [];
   const state = { batchState, result, engineDown, stream, modelHttp, pricing: [{ id: "pricing-row-1", usd_to_ils: "3.010", valid_from: "2026-09-01" }], cancelled: false, jobs: [], customId: M.BATCH_CUSTOM_ID };
   const reply = (body, status = 200) => ({ ok: status >= 200 && status < 300, status, json: async () => body, text: async () => (typeof body === "string" ? body : JSON.stringify(body)) });
@@ -64,13 +64,13 @@ export function world({ batchState = "in_progress", result = { type: "succeeded"
     if (u.startsWith(`${sb}/rest/v1/rpc/els_verify_occurrence_v1`)) {
       if (state.engineDown) return reply({ error: "down" }, 500);
       const b = JSON.parse(init.body);
-      const r = recorded.get(`${b.p_term}|${b.p_skip}|${b.p_dir}|${b.p_start}`);
+      const r = replays.get(`${b.p_term}|${b.p_skip}|${b.p_dir}|${b.p_start}`);
       return reply(r ? { verification_state: r.verification_state, status: r.status, contract: r.contract, corpus_id: r.corpus_id, occurrence: { occurrence_id: r.occurrence_id } } : { verification_state: "MISMATCH", status: "REPLAY_MISMATCH" });
     }
     if (u.startsWith(`${sb}/rest/v1/torah_stream`)) {
       const q = new URL(u).searchParams; const lo = Number(q.get("idx").replace("gte.", "")); const hi = Number(new URL(u).searchParams.getAll("idx")[1].replace("lte.", ""));
-      const row = Math.floor((lo - 1) / 4545); const c0 = (lo - 1) % 4545; const letters = state.stream[row - 44];
-      return reply(Array.from({ length: hi - lo + 1 }, (_, i) => ({ idx: lo + i, ch: [...letters][c0 - 3315 + i] })));
+      const row = Math.floor((lo - 1) / geometry.width); const c0 = (lo - 1) % geometry.width; const letters = state.stream[row - geometry.r0];
+      return reply(Array.from({ length: hi - lo + 1 }, (_, i) => ({ idx: lo + i, ch: [...letters][c0 - geometry.c0 + i] })));
     }
     if (u.startsWith(`${sb}/rest/v1/api_pricing`)) return reply(state.pricing);
     if (u.startsWith(`${sb}/rest/v1/ai_token_log`)) {

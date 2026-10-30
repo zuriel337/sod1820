@@ -1,0 +1,217 @@
+{
+ "_fixture": {
+  "kind": "REGRESSION_ONLY",
+  "note": "the 25 proposals of the first live run (job 5f5aa117, msgbatch_01MNofT8pwdHqhKfiQhKEHFe, uniform instruction, 33x41, cap 25, $1.3158, 565 s), as stored in els_matrix_reading_jobs.result; the baseline against which later instructions are compared"
+ },
+ "job": "5f5aa117-7bb0-4df0-aa6c-96e172b23d44",
+ "focus": "uniform",
+ "cap": 25,
+ "cost_usd": 1.315755,
+ "proposals": [
+  {
+   "id": "r1.f01",
+   "text": "משיחבא",
+   "line": "C21-",
+   "skip": 583,
+   "dir": -1,
+   "start": 237731
+  },
+  {
+   "id": "r1.f02",
+   "text": "אמרלונא",
+   "line": "C01-",
+   "skip": 583,
+   "dir": -1,
+   "start": 234796
+  },
+  {
+   "id": "r1.f03",
+   "text": "בלבבמ",
+   "line": "C09-",
+   "skip": 583,
+   "dir": -1,
+   "start": 231889
+  },
+  {
+   "id": "r1.f04",
+   "text": "המרימרד",
+   "line": "D06+",
+   "skip": 584,
+   "dir": 1,
+   "start": 242989
+  },
+  {
+   "id": "r1.f05",
+   "text": "משמימ",
+   "line": "D08+",
+   "skip": 584,
+   "dir": 1,
+   "start": 236567
+  },
+  {
+   "id": "r1.f06",
+   "text": "מחכה",
+   "line": "D24-",
+   "skip": 584,
+   "dir": -1,
+   "start": 232495
+  },
+  {
+   "id": "r1.f07",
+   "text": "אבנר",
+   "line": "D25+",
+   "skip": 584,
+   "dir": 1,
+   "start": 229576
+  },
+  {
+   "id": "r1.f08",
+   "text": "בחלמי",
+   "line": "D14-",
+   "skip": 584,
+   "dir": -1,
+   "start": 237741
+  },
+  {
+   "id": "r1.f09",
+   "text": "בחלמו",
+   "line": "C40-",
+   "skip": 583,
+   "dir": -1,
+   "start": 243580
+  },
+  {
+   "id": "r1.f10",
+   "text": "נשלחו",
+   "line": "A18+",
+   "skip": 582,
+   "dir": 1,
+   "start": 230733
+  },
+  {
+   "id": "r1.f11",
+   "text": "מורה",
+   "line": "A42-",
+   "skip": 582,
+   "dir": -1,
+   "start": 241227
+  },
+  {
+   "id": "r1.f12",
+   "text": "ברכה",
+   "line": "D13-",
+   "skip": 584,
+   "dir": -1,
+   "start": 243580
+  },
+  {
+   "id": "r1.f13",
+   "text": "עכבר",
+   "line": "C39-",
+   "skip": 583,
+   "dir": -1,
+   "start": 234834
+  },
+  {
+   "id": "r1.f14",
+   "text": "אבאאלי",
+   "line": "C20-",
+   "skip": 583,
+   "dir": -1,
+   "start": 230734
+  },
+  {
+   "id": "r1.f15",
+   "text": "הוליכ",
+   "line": "D34+",
+   "skip": 584,
+   "dir": 1,
+   "start": 227833
+  },
+  {
+   "id": "r1.f16",
+   "text": "אלהוא",
+   "line": "A11+",
+   "skip": 582,
+   "dir": 1,
+   "start": 239470
+  },
+  {
+   "id": "r1.f17",
+   "text": "נשיא",
+   "line": "A01-",
+   "skip": 582,
+   "dir": -1,
+   "start": 240644
+  },
+  {
+   "id": "r1.f18",
+   "text": "מתהאב",
+   "line": "A03-",
+   "skip": 582,
+   "dir": -1,
+   "start": 246462
+  },
+  {
+   "id": "r1.f19",
+   "text": "לאבא",
+   "line": "A23-",
+   "skip": 582,
+   "dir": -1,
+   "start": 229564
+  },
+  {
+   "id": "r1.f20",
+   "text": "נריה",
+   "line": "A20+",
+   "skip": 582,
+   "dir": 1,
+   "start": 237133
+  },
+  {
+   "id": "r1.f21",
+   "text": "מפיו",
+   "line": "A18-",
+   "skip": 582,
+   "dir": -1,
+   "start": 234807
+  },
+  {
+   "id": "r1.f22",
+   "text": "חציר",
+   "line": "A64+",
+   "skip": 582,
+   "dir": 1,
+   "start": 243577
+  },
+  {
+   "id": "r1.f23",
+   "text": "אבות",
+   "line": "A60-",
+   "skip": 582,
+   "dir": -1,
+   "start": 240663
+  },
+  {
+   "id": "r1.f24",
+   "text": "בבל",
+   "line": "A42-",
+   "skip": 582,
+   "dir": -1,
+   "start": 229587
+  },
+  {
+   "id": "r1.f25",
+   "text": "מעלתי",
+   "line": "C29-",
+   "skip": 583,
+   "dir": -1,
+   "start": 243569
+  }
+ ],
+ "baseline": {
+  "near_within_8": 11,
+  "far": 14,
+  "saved_cipher_hits": 0
+ }
+}

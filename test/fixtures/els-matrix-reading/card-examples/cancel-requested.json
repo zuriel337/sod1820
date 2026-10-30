@@ -23,10 +23,10 @@
       "id": "00000000-0000-4000-9000-000000000001"
     },
     "request": {
-      "instruction": "general_v2_axis_neighborhood_2to3x_unmeasured",
+      "instruction": "general_v2_axis_effort_allocation_unmeasured",
       "focus": "axis_neighborhood",
-      "sha256": "28f7a63e3ec0aa5ac59569aa34c90077f713ef737ea920d6fb5cbb56dfbe2cff",
-      "lock_sha256": "c5e9c3562876eecbe81d49370452be73e6b590a25dba8b6622e8e1b02a0b86cf",
+      "sha256": "536859ae78b3938ed8bbd86b50ba97f1e6a8512350c1516202de5d6de95c6117",
+      "lock_sha256": "3bdb6d98bfa15cb3d6d74cd1fff40e4b0c290bf50d64e3e9f92ae5edf17596a8",
       "window_sha256": "b188c130a813c3b7df8190f62eea35f08f153ac20efeb3e321adf380134e60e8",
       "cap": 25
     },

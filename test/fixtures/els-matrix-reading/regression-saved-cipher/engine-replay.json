@@ -1,0 +1,249 @@
+{
+ "_fixture": {
+  "kind": "REGRESSION_ONLY",
+  "note": "els_verify_occurrence_v1 answers recorded read-only on 30.10.2026 for the axis and the four saved ELS findings (the two plain-text rows are skip 1 and are not replayed)"
+ },
+ "rows": [
+  {
+   "term": "יוממשיחבא",
+   "skip": 583,
+   "dir": -1,
+   "start": 239480,
+   "result": {
+    "input": {
+     "raw": "יוממשיחבא",
+     "length": 9,
+     "normalized": "יוממשיחבא"
+    },
+    "scope": "torah",
+    "engine": {
+     "id": "els-sql-core",
+     "owner": "els_research_layer_law:v9",
+     "version": 2,
+     "function": "els_verify_occurrence_v1"
+    },
+    "status": "OK",
+    "contract": "els_occurrence_replay_v1",
+    "corpus_id": "0b022e8eef6f9c16",
+    "occurrence": {
+     "dir": -1,
+     "end": 234816,
+     "skip": 583,
+     "start": 239480,
+     "direction": "back",
+     "positions": [
+      239480,
+      238897,
+      238314,
+      237731,
+      237148,
+      236565,
+      235982,
+      235399,
+      234816
+     ],
+     "occurrence_id": "els:0b022e8eef6f9c16:יוממשיחבא:583:-1:239480",
+     "dependency_group": "da587443dd1d65bf41afd6427fd038510b3a0e94ec84519200e2b64651f6cb1c",
+     "coordinate_convention": "zero_based_character_index"
+    },
+    "provenance": {
+     "verifier": "els_verify_batch_core_v1",
+     "rule_version": "els_research_layer_law:v9",
+     "source_relation": "public.torah_stream",
+     "occurrence_generator": "els_torah_occurrences_internal_v1"
+    },
+    "verification_state": "MATCH"
+   }
+  },
+  {
+   "term": "שופר",
+   "skip": 583,
+   "dir": -1,
+   "start": 235391,
+   "result": {
+    "input": {
+     "raw": "שופר",
+     "length": 4,
+     "normalized": "שופר"
+    },
+    "scope": "torah",
+    "engine": {
+     "id": "els-sql-core",
+     "owner": "els_research_layer_law:v9",
+     "version": 2,
+     "function": "els_verify_occurrence_v1"
+    },
+    "status": "OK",
+    "contract": "els_occurrence_replay_v1",
+    "corpus_id": "0b022e8eef6f9c16",
+    "occurrence": {
+     "dir": -1,
+     "end": 233642,
+     "skip": 583,
+     "start": 235391,
+     "direction": "back",
+     "positions": [
+      235391,
+      234808,
+      234225,
+      233642
+     ],
+     "occurrence_id": "els:0b022e8eef6f9c16:שופר:583:-1:235391",
+     "dependency_group": "2bdcfb6ca6ceb9156de7da27fad5e0b943ca51c65e12b7c806d10967c1c6d479",
+     "coordinate_convention": "zero_based_character_index"
+    },
+    "provenance": {
+     "verifier": "els_verify_batch_core_v1",
+     "rule_version": "els_research_layer_law:v9",
+     "source_relation": "public.torah_stream",
+     "occurrence_generator": "els_torah_occurrences_internal_v1"
+    },
+    "verification_state": "MATCH"
+   }
+  },
+  {
+   "term": "ישלח",
+   "skip": 583,
+   "dir": -1,
+   "start": 233650,
+   "result": {
+    "input": {
+     "raw": "ישלח",
+     "length": 4,
+     "normalized": "ישלח"
+    },
+    "scope": "torah",
+    "engine": {
+     "id": "els-sql-core",
+     "owner": "els_research_layer_law:v9",
+     "version": 2,
+     "function": "els_verify_occurrence_v1"
+    },
+    "status": "OK",
+    "contract": "els_occurrence_replay_v1",
+    "corpus_id": "0b022e8eef6f9c16",
+    "occurrence": {
+     "dir": -1,
+     "end": 231901,
+     "skip": 583,
+     "start": 233650,
+     "direction": "back",
+     "positions": [
+      233650,
+      233067,
+      232484,
+      231901
+     ],
+     "occurrence_id": "els:0b022e8eef6f9c16:ישלח:583:-1:233650",
+     "dependency_group": "85f4c7080c693b1e9110360430b1b00d621869619fee557433c0f665bb5f51a0",
+     "coordinate_convention": "zero_based_character_index"
+    },
+    "provenance": {
+     "verifier": "els_verify_batch_core_v1",
+     "rule_version": "els_research_layer_law:v9",
+     "source_relation": "public.torah_stream",
+     "occurrence_generator": "els_torah_occurrences_internal_v1"
+    },
+    "verification_state": "MATCH"
+   }
+  },
+  {
+   "term": "מחכיתשפו",
+   "skip": 583,
+   "dir": 1,
+   "start": 233063,
+   "result": {
+    "input": {
+     "raw": "מחכיתשפו",
+     "length": 8,
+     "normalized": "מחכיתשפו"
+    },
+    "scope": "torah",
+    "engine": {
+     "id": "els-sql-core",
+     "owner": "els_research_layer_law:v9",
+     "version": 2,
+     "function": "els_verify_occurrence_v1"
+    },
+    "status": "OK",
+    "contract": "els_occurrence_replay_v1",
+    "corpus_id": "0b022e8eef6f9c16",
+    "occurrence": {
+     "dir": 1,
+     "end": 237144,
+     "skip": 583,
+     "start": 233063,
+     "direction": "fwd",
+     "positions": [
+      233063,
+      233646,
+      234229,
+      234812,
+      235395,
+      235978,
+      236561,
+      237144
+     ],
+     "occurrence_id": "els:0b022e8eef6f9c16:מחכיתשפו:583:1:233063",
+     "dependency_group": "621f2f8c5ff65dc34463f183d53290189a516bd92db87f963f304662acc4a406",
+     "coordinate_convention": "zero_based_character_index"
+    },
+    "provenance": {
+     "verifier": "els_verify_batch_core_v1",
+     "rule_version": "els_research_layer_law:v9",
+     "source_relation": "public.torah_stream",
+     "occurrence_generator": "els_torah_occurrences_internal_v1"
+    },
+    "verification_state": "MATCH"
+   }
+  },
+  {
+   "term": "הארחשכ",
+   "skip": 584,
+   "dir": 1,
+   "start": 232474,
+   "result": {
+    "input": {
+     "raw": "הארחשכ",
+     "length": 6,
+     "normalized": "הארחשכ"
+    },
+    "scope": "torah",
+    "engine": {
+     "id": "els-sql-core",
+     "owner": "els_research_layer_law:v9",
+     "version": 2,
+     "function": "els_verify_occurrence_v1"
+    },
+    "status": "OK",
+    "contract": "els_occurrence_replay_v1",
+    "corpus_id": "0b022e8eef6f9c16",
+    "occurrence": {
+     "dir": 1,
+     "end": 235394,
+     "skip": 584,
+     "start": 232474,
+     "direction": "fwd",
+     "positions": [
+      232474,
+      233058,
+      233642,
+      234226,
+      234810,
+      235394
+     ],
+     "occurrence_id": "els:0b022e8eef6f9c16:הארחשכ:584:1:232474",
+     "dependency_group": "271eabbb10d6d37ac117d3d4853d7dc0a64c142e36399cb83526c03a8019b5f8",
+     "coordinate_convention": "zero_based_character_index"
+    },
+    "provenance": {
+     "verifier": "els_verify_batch_core_v1",
+     "rule_version": "els_research_layer_law:v9",
+     "source_relation": "public.torah_stream",
+     "occurrence_generator": "els_torah_occurrences_internal_v1"
+    },
+    "verification_state": "MATCH"
+   }
+  }
+ ]
+}
