@@ -35,3 +35,14 @@ The isolated branch is added to the exact existing Preview allowlists. The gener
 ## Release boundary
 
 No main merge, Production change, Edge deployment, DB/RLS change or paid experiment. Pre-release read-only alias checks found all four existing public hostnames on `dpl_AiKPHaoo5pxo9T5PFTpcBRG7LfMA`; this historical difference from the older AGENTS pin is not repaired in this task. Preview creation omits a Production/staging target and must leave those mappings unchanged.
+
+## Release receipt
+
+- IMPLEMENTED / TESTED / PREVIEW LIVE; not merged and not Production.
+- Runtime commit `41e8fd8f97e20fca46517e3ba6c09bd93b8fe4ae`, pushed and verified against remote. Any following receipt-only commit does not change this deployment.
+- Deployment `dpl_FcsDSryQaULMZQ6kZ41cvvSTgkkb`, READY, target null (Preview), project `sod1820`, root `preview-deploy`.
+- Host `https://sod1820-9qg53efx2-sod1820-s-projects.vercel.app`; `/code?mode=research`. Protected share URL delivered privately in the user conversation, not stored in Git; expires 2026-10-31 14:04:51 UTC.
+- Hosted `/preview-identity.json` matches exact runtime SHA and branch, with existing authenticated Raziel/private-sync transport. No server deployment.
+- Actual protected hosted Chromium smoke: 320/390/1440 × light/parchment/dark, all nine renders pass, zero page errors or horizontal overflow. Screenshots at 320/light and 1440/dark inspected. All non-GET/HEAD/OPTIONS requests were blocked (seven); no account login, live search, AI call or product write was tested. Local intercepted acceptance supplies the functional route/return evidence, and real canonical-engine acceptance supplies replay evidence.
+- All four public alias mappings rechecked after deployment: unchanged on `dpl_AiKPHaoo5pxo9T5PFTpcBRG7LfMA`. Remote main unchanged at `2195c9784c5c9f0b1ec3cd3c1137fbd76045845b`.
+- Passive AFTER to ZURIEL: scope complete and available for handoff; no live work-log write claimed. Open threads: durable non-AI reload/cross-device jobs, selected deeper matrix-local scans, remaining view details listed above. These are not silently implemented by this Preview.
