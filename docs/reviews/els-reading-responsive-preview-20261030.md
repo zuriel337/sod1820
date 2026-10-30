@@ -25,6 +25,9 @@ model route or dictionary load. The previous global scan-presence cut is retaine
 - Hosted 320px acceptance caught the inherited floating Preview notice covering
   the Raziel sheet. The reading-only Preview notice now stays in document flow;
   the existing card still discloses administrator access and cost before Start.
+- Hosted focus geometry also caught an input ending at y=904 below the sheet's
+  y=892 edge. Scroll padding/margin correct focus scrolling: input ends at y=883
+  within the same sheet, without changing the chat state or input size.
 - Add only this exact branch to the existing bounded matrix-reading Preview
   allowlist. Preview status/start/cancel/recover permissions are unchanged.
 

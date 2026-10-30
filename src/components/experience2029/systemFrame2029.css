@@ -1346,6 +1346,8 @@
 .sod29-raziel-chat :is(button,a,input){font-size:var(--s29-type-ui);min-height:44px;min-width:44px;max-inline-size:100%;white-space:normal}
 .sod29-raziel-chat small,.sod29-matrix-reading-activity small{font-size:var(--s29-type-small)}
 .sod29-raziel-chat .sod29-raziel-composer{position:sticky;inset-block-end:0;z-index:1;padding-block:8px max(8px,env(safe-area-inset-bottom,0px));background:var(--s29-panel)}
+.sod29-frame-panel[data-panel-kind="raziel"]{scroll-padding-block:80px 24px}
+.sod29-raziel-composer input{scroll-margin-block-end:24px}
 .sod29-raziel-chat :is(.sod29-raziel-chat-user,.sod29-raziel-chat-raziel)>:is(span,details){font-family:var(--s29-font-body);font-size:var(--s29-type-body);white-space:pre-wrap;line-height:1.65;unicode-bidi:plaintext;text-align:start}
 .sod29-raziel-native-hero>div{min-inline-size:0;overflow-wrap:anywhere}
 [data-raziel-els-context]>:is(b,span){font-size:var(--s29-type-ui)}

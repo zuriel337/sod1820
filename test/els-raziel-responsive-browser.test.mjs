@@ -75,6 +75,10 @@ test('global Raziel: three presets, 320/390/768/1440, mixed text, touch, keyboar
         await page.setViewportSize({width,height:keyboardHeight}); await input.fill('טיוטה בלבד — no submit');
         await input.scrollIntoViewIfNeeded();
         const box=await input.boundingBox(); assert.ok(box.y>=0&&box.y+box.height<=keyboardHeight, 'composer reachable inside viewport');
+        if(width<1000){
+          const panel=await page.locator('.sod29-frame-panel').boundingBox();
+          assert.ok(box.y+box.height<=panel.y+panel.height-1,'focused input is not clipped by the sheet edge');
+        }
         await page.keyboard.press('Tab');
         assert.ok(await chat.getByRole('button',{name:'שלח',exact:true}).evaluate(n=>n===document.activeElement));
         await page.setViewportSize({width,height:900});
