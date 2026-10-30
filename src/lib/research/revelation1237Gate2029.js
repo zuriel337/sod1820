@@ -32,6 +32,10 @@ export const GALLERY_PAGE_SIZE = 6;
 
 const clean = (value) => value == null ? "" : String(value).trim();
 const list = (value) => Array.isArray(value) ? value : [];
+const engineValue = (value) => {
+  if ((typeof value !== "number" && typeof value !== "string") || (typeof value === "string" && !value.trim())) return null;
+  return Number.isFinite(Number(value)) ? Number(value) : null;
+};
 
 // ── methods ───────────────────────────────────────────────────────────────────────────────
 // Never computes a value. "confirmed" only when the canonical engine returned the target
@@ -40,10 +44,10 @@ export function buildMethodCard(rows, spec, target = REVELATION_1237.value) {
   const profile = list(rows);
   const row = profile.find((entry) => clean(entry?.methodKey) === spec.methodKey) || null;
   const plain = profile.find((entry) => clean(entry?.methodKey) === "רגיל") || null;
-  if (!row || !Number.isFinite(Number(row.computedValue))) {
+  const value = engineValue(row?.computedValue);
+  if (value == null) {
     return Object.freeze({ ...spec, status: "unavailable", value: null, plainValue: null });
   }
-  const value = Number(row.computedValue);
   return Object.freeze({
     ...spec,
     status: value === target ? "confirmed" : "different_value",
@@ -53,7 +57,7 @@ export function buildMethodCard(rows, spec, target = REVELATION_1237.value) {
     definitionVersion: row.definitionVersion ?? null,
     sub: clean(row.sub) || null,
     // The plain value is shown next to a non-plain method so the two are never conflated.
-    plainValue: spec.methodKey !== "רגיל" && plain && Number.isFinite(Number(plain.computedValue)) ? Number(plain.computedValue) : null,
+    plainValue: spec.methodKey !== "רגיל" ? engineValue(plain?.computedValue) : null,
     engine: "fn_method_profile",
   });
 }
@@ -68,10 +72,10 @@ export async function loadMethodCards({ fetchMethodProfile, phrases = GATE_PHRAS
 // ── galleries ─────────────────────────────────────────────────────────────────────────────
 // Stored gallery order only. Legacy "importance" is never a ranking signal here.
 export function storedOrderIds(rows) {
-  return list(rows)
+  return [...new Set(list(rows)
     .filter((row) => row?.id)
     .sort((a, b) => (Number(a.ordering ?? Infinity) - Number(b.ordering ?? Infinity)) || String(a.id).localeCompare(String(b.id)))
-    .map((row) => String(row.id));
+    .map((row) => String(row.id)))];
 }
 
 export async function loadGalleryPage({ wpGalleryId, listGalleryImages, fetchSourceContext, offset = 0, limit = GALLERY_PAGE_SIZE }) {
@@ -80,13 +84,16 @@ export async function loadGalleryPage({ wpGalleryId, listGalleryImages, fetchSou
   const { items = [], occurrencesTruncated = false } = slice.length ? await fetchSourceContext({ imageIds: slice }) : {};
   // Fresh admission result is authoritative: keep only rows the public gate returned, in stored order.
   const order = new Map(slice.map((id, index) => [id, index]));
-  const admitted = items
+  const admitted = [...new Map(items
     .filter((item) => item?.galleryImageId && order.has(item.galleryImageId))
+    .map((item) => [item.galleryImageId, item])).values()]
     .sort((a, b) => order.get(a.galleryImageId) - order.get(b.galleryImageId));
   return {
     wpGalleryId, items: admitted, offset, limit,
     totalListed: candidates.length,
     hasMore: offset + limit < candidates.length,
+    // Advance over scanned positions, not the smaller set admitted for display.
+    nextOffset: Math.min(offset + limit, candidates.length),
     occurrencesTruncated,
     // A listed row that the gate withheld is not shown and not counted as shown.
     withheld: slice.length - admitted.length,

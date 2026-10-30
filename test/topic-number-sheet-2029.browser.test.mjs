@@ -41,7 +41,16 @@ function fixturePlugin() {
   const modules = {
     noop: "export default function Noop(){return null;}",
     seo: "export const applySeo=()=>{},clearConvergenceJsonLd=()=>{},setConvergenceJsonLd=()=>{};",
-    hub: "export async function fetchEntityHubProjection(){return null;}",
+    hub: `export async function fetchEntityHubProjection(){return null;}
+      export async function fetchTopicSourceContext(){return null;}
+      export async function fetchGallerySourceContext({imageIds}){
+        window.__galleryRequests.push(imageIds);
+        if(window.__failNextGallery){window.__failNextGallery=false;throw Error('gallery offline');}
+        return {items:imageIds.filter(id=>Number(id.split('-')[1])%2).map(galleryImageId=>({
+          galleryImageId,label:'מקור בדיקה '+galleryImageId,createdAt:'2026-10-28',
+          sourceIdentity:{ref:'gallery:'+galleryImageId},occurrences:[]
+        }))};
+      }`,
     prominence: "export async function fetchWorldProminenceInputs(){return {};}",
     discovery: "export const DISCOVERY_TOPIC_SLUGS=[];",
     trace: "export async function fetchGematriaMethodTrace(){return null;}",
@@ -72,6 +81,7 @@ function fixturePlugin() {
           {type:'gematria',phrase:'ערך חסר',n:null,method:'רגיל'},
         ]};}
       export const getAllValuePhrases=async()=>[],langLinksList=async()=>[];
+      export const getImagesByGallery=async(id)=>Array.from({length:8},(_,ordering)=>({id:id+'-'+ordering,ordering}));
       export const supabase={
         from(table){
           let slugs=[];
@@ -87,6 +97,8 @@ function fixturePlugin() {
           if(name!=='fn_method_profile')throw Error('Unexpected RPC '+name);
           if(window.__offline)return {data:null,error:{message:'offline'}};
           if(window.__holdProfile)await new Promise(resolve=>{window.__releaseProfile=resolve;});
+          if(args.p_phrase==='התגלות')return {error:null,data:[{method_key:'רגיל',computed_value:844},{method_key:'מסתתר',computed_value:1237}]};
+          if(args.p_phrase==='וראית את אחרי')return {error:null,data:[{method_key:'רגיל',computed_value:1237}]};
           const value=args.p_phrase==='בן דוד'?66:args.p_phrase==='א'?1:358;
           return {error:null,data:[{method_key:'רגיל',computed_value:value,definition_version:1},
             {method_key:'מילוי',computed_value:878,definition_version:2},
@@ -129,7 +141,7 @@ function fixturePlugin() {
       import {Provider} from '/src/lib/research/ResearchProvider.jsx';
       import Topic from '/src/pages/Topic2029Page.jsx';
       import '/src/components/experience2029/sod2029.css';
-      window.__reads=[];window.__sheetTargets=[];
+      window.__reads=[];window.__sheetTargets=[];window.__galleryRequests=[];
       createRoot(document.getElementById('root')).render(<BrowserRouter><Provider>
         <Link to="/topic/other">טופיק אחר</Link>
         <Routes><Route path="/topic/:slug" element={<Topic/>}/><Route path="*" element={<p>יעד המשך</p>}/></Routes>
@@ -235,6 +247,29 @@ test("Topic opens the existing Number sheet with method/value/source and exact r
       await page.evaluate(() => { window.__holdProfile = false; window.__releaseProfile(); });
       await page.locator('.sod29-topic2029[data-canonical-slug="other"]').waitFor();
       assert.equal(await page.getByRole("dialog").count(), 0, "a late previous-topic result cannot open a sheet");
+      await openTopic("1237");
+      await page.locator(".rv [data-rv-hero]").waitFor();
+      assert.equal(await page.locator(".sod29-topic-hero").count(), 0, "Claude gate replaces rather than duplicates the generic hero");
+      await page.locator('.rv-method[data-status="confirmed"]').nth(1).waitFor();
+      await page.getByRole("region", { name: "ממצאים דרך המספר", exact: true }).waitFor();
+      const gallery = page.locator('.rv-gallery[aria-labelledby="rv-gal-29"]');
+      await page.waitForFunction(()=>document.querySelectorAll('[aria-labelledby="rv-gal-29"] .rv-source').length===3);
+      assert.match(await gallery.innerText(), /3 פריטים לא הוצגו/);
+      assert.match(await gallery.innerText(), /28\.10\.2026/);
+      assert.match(await gallery.innerText(), /חשוון/);
+      await page.evaluate(()=>{window.__failNextGallery=true;});
+      await gallery.getByRole("button", { name: "עוד מהגלריה", exact: true }).click();
+      await gallery.getByRole("button", { name: "נסה שוב את הגלריה", exact: true }).click();
+      await page.waitForFunction(()=>document.querySelectorAll('[aria-labelledby="rv-gal-29"] .rv-source').length===4);
+      assert.equal(await gallery.getByRole("button").count(), 0, "withheld rows do not cause an endless More loop");
+      assert.deepEqual(await page.evaluate(()=>window.__galleryRequests.filter(ids=>ids[0]?.startsWith('29-'))), [
+        ["29-0","29-1","29-2","29-3","29-4","29-5"],["29-6","29-7"],["29-6","29-7"]
+      ]);
+      await milui.getByRole("button", { name: "משיח", exact: true }).click();
+      await dialog.locator('[data-number-core-root="878"]').waitFor();
+      assert.equal(new URL(page.url()).pathname, "/topic/1237");
+      await dialog.getByRole("button", { name: "חזור למקור", exact: true }).click();
+      assert.equal(await page.evaluate(()=>Boolean(document.getElementById(decodeURIComponent(location.hash.slice(1))))), true);
       await openTopic("hidden");
       await page.getByText("גוף ההתכנסות אינו מוצג לציבור", { exact: true }).waitFor();
       assert.equal(await page.locator(".sod29-topic-equation,.sod29-topic-phrase").count(), 0);

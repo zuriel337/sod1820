@@ -39,6 +39,35 @@ test("a failing reader yields 'failed', never a zero or a confirmation", async (
   assert.equal(cards[1].status, "confirmed");
 });
 
+test("missing, blank or boolean method values are not coerced to zero; a real zero remains valid", () => {
+  for (const absent of [null, undefined, "", "  ", false, true]) {
+    assert.equal(buildMethodCard([profile("רגיל", absent)], vraita).status, "unavailable");
+    assert.equal(buildMethodCard([profile("מסתתר", 1237), profile("רגיל", absent)], hitgalut).plainValue, null);
+  }
+  assert.equal(buildMethodCard([profile("רגיל", 0)], vraita).value, 0);
+});
+
+test("pagination advances over withheld and duplicate source rows instead of displayed item count", async () => {
+  const rows = Array.from({ length: 8 }, (_, index) => ({ id: String(index), ordering: index }));
+  rows.push({ ...rows[0] });
+  const requests = [];
+  const readers = { wpGalleryId: 29, listGalleryImages: async () => rows,
+    fetchSourceContext: async ({ imageIds }) => {
+      requests.push(imageIds);
+      const admitted = imageIds.filter((id) => Number(id) % 2).map((galleryImageId) => ({ galleryImageId }));
+      return { items: [...admitted, ...admitted] };
+    } };
+  const first = await loadGalleryPage(readers);
+  assert.equal(first.totalListed, 8);
+  assert.equal(first.items.length, 3);
+  assert.equal(first.withheld, 3);
+  assert.equal(first.nextOffset, 6);
+  const second = await loadGalleryPage({ ...readers, offset: first.nextOffset });
+  assert.deepEqual(requests, [["0", "1", "2", "3", "4", "5"], ["6", "7"]]);
+  assert.equal(second.hasMore, false);
+  assert.equal(second.nextOffset, 8);
+});
+
 test("gallery pages use stored order (not importance) and keep only rows the public gate re-admitted", async () => {
   const rows = [{ id: "c", ordering: 3, importance: 99 }, { id: "a", ordering: 1, importance: 0 }, { id: "b", ordering: 2, importance: 50 }];
   assert.deepEqual(storedOrderIds(rows), ["a", "b", "c"]);

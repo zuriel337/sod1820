@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import CanonicalMediaFigure2029 from "../experience2029/CanonicalMediaFigure2029.jsx";
 import {
@@ -8,13 +8,11 @@ import {
 } from "../../lib/research/revelation1237Gate2029.js";
 import { ELECTIONS_ISRAEL_21_26_BUNDLE } from "../../lib/research/electionsIsrael21_26Seed2029.js";
 import { relationStatusCopy } from "../../lib/research/worldMapViewModel2029.js";
+import { bilingualDateLabel } from "../../lib/relativeTime2029.js";
 import "./revelation1237Gate2029.css";
 
 const clean = (value) => value == null ? "" : String(value).trim();
-const fmtDate = (value) => {
-  const text = clean(value);
-  return /^\d{4}-\d{2}-\d{2}/.test(text) ? text.slice(0, 10).split("-").reverse().join(".") : text;
-};
+const fmtDate = (value) => bilingualDateLabel(value, "תאריך לא זמין");
 const SPELLED = (text) => text.split("").join(" ");
 
 const NAV = Object.freeze([
@@ -124,11 +122,11 @@ function GalleryColumn({ spec, state, onMore }) {
       <h3 id={`rv-gal-${spec.wpGalleryId}`}>{spec.title}</h3>
       {state?.totalListed != null ? <p className="rv-muted">{state.totalListed} תמונות ברשימת הגלריה · מוצגות לפי הסדר השמור בגלריה, לא לפי ערך או חשיבות.</p> : null}
     </header>
-    {!state ? <p role="status">פותח את הגלריה…</p> : null}
+    {!state || (state.loading && !items.length) ? <p role="status">פותח את הגלריה…</p> : null}
     {state?.error ? <p role="status">הגלריה אינה זמינה כרגע. אין זה אומר שהיא ריקה.</p> : null}
     {state?.withheld ? <p className="rv-muted">{state.withheld} פריטים לא הוצגו כי אינם עומדים בתנאי הפרסום הציבורי הנוכחיים.</p> : null}
     <div className="rv-gallery-list">{items.map((item) => <SourceCard key={item.galleryImageId} item={item} compact />)}</div>
-    {state?.hasMore ? <button type="button" className="rv-btn" onClick={onMore}>עוד מהגלריה</button> : null}
+    {state?.hasMore || state?.error ? <button type="button" className="rv-btn" disabled={state.loading} aria-busy={state.loading || undefined} onClick={onMore}>{state.loading ? "טוען…" : state.error ? "נסה שוב את הגלריה" : "עוד מהגלריה"}</button> : null}
     <Link className="rv-link" to={`/archive?tab=galleries&gal=${spec.wpGalleryId}`}>פתיחת הגלריה בארכיון ←</Link>
   </article>;
 }
@@ -176,6 +174,8 @@ export default function Revelation1237Gate2029({ readers, relatedPosts = [], onP
   const [galleries, setGalleries] = useState({});
   const [relationState, setRelationState] = useState(null);
   const [topic, setTopic] = useState({ status: "loading", context: null });
+  const galleryEpoch = useRef(0);
+  const pendingGalleries = useRef(new Set());
 
   useEffect(() => {
     let alive = true;
@@ -193,17 +193,32 @@ export default function Revelation1237Gate2029({ readers, relatedPosts = [], onP
     return () => { alive = false; };
   }, [readers]);
 
-  const openGallery = useCallback(async (spec, offset = 0) => {
+  const openGallery = useCallback(async (spec, offset = 0, epoch = galleryEpoch.current) => {
+    const requestKey = `${epoch}:${spec.wpGalleryId}`;
+    if (pendingGalleries.current.has(requestKey)) return;
+    pendingGalleries.current.add(requestKey);
+    setGalleries((prev) => ({ ...prev, [spec.wpGalleryId]: { ...prev[spec.wpGalleryId], loading: true, error: false } }));
     try {
       const page = await loadGalleryPage({ wpGalleryId: spec.wpGalleryId, listGalleryImages: readers.listGalleryImages,
         fetchSourceContext: readers.fetchGallerySourceContext, offset, limit: GALLERY_PAGE_SIZE });
+      if (epoch !== galleryEpoch.current) return;
       setGalleries((prev) => ({ ...prev, [spec.wpGalleryId]: {
-        ...page, items: offset ? [...(prev[spec.wpGalleryId]?.items || []), ...page.items] : page.items } }));
+        ...page, loading: false, error: false,
+        withheld: (offset ? prev[spec.wpGalleryId]?.withheld || 0 : 0) + page.withheld,
+        items: [...new Map([...(offset ? prev[spec.wpGalleryId]?.items || [] : []), ...page.items]
+          .map((item) => [item.galleryImageId, item])).values()] } }));
     } catch {
-      setGalleries((prev) => ({ ...prev, [spec.wpGalleryId]: { ...(prev[spec.wpGalleryId] || {}), error: true } }));
+      if (epoch === galleryEpoch.current) setGalleries((prev) => ({ ...prev, [spec.wpGalleryId]: { ...(prev[spec.wpGalleryId] || {}), loading: false, error: true } }));
+    } finally {
+      pendingGalleries.current = new Set([...pendingGalleries.current].filter((key) => key !== requestKey));
     }
   }, [readers]);
-  useEffect(() => { GATE_GALLERIES.forEach((spec) => { openGallery(spec, 0); }); }, [openGallery]);
+  useEffect(() => {
+    const epoch = ++galleryEpoch.current;
+    setGalleries({});
+    GATE_GALLERIES.forEach((spec) => { openGallery(spec, 0, epoch); });
+    return () => { galleryEpoch.current += 1; };
+  }, [openGallery]);
 
   const items = sourceContext?.items || [];
   const statements = useMemo(() => verifyReviewedStatements(items), [items]);
@@ -239,7 +254,7 @@ export default function Revelation1237Gate2029({ readers, relatedPosts = [], onP
       <p className="rv-note">כל תמונה נקראת מחדש דרך הקורא הציבורי בכל פתיחה. תמונה שאינה עומדת בתנאי הפרסום לא תוצג. הכיתובים, המיקומים והקרדיטים נשמרים כלשונם.</p>
       <div className="rv-gallery-pair">
         {GATE_GALLERIES.map((spec) => <GalleryColumn key={spec.wpGalleryId} spec={spec} state={galleries[spec.wpGalleryId]}
-          onMore={() => openGallery(spec, galleries[spec.wpGalleryId]?.items?.length || 0)} />)}
+          onMore={() => openGallery(spec, galleries[spec.wpGalleryId]?.nextOffset || 0)} />)}
       </div>
     </section>
 
