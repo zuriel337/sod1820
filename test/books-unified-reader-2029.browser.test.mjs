@@ -160,6 +160,14 @@ test("all eight unified readers remain source-first and fit 320/390/1440", { ski
           await result.click();
           assert.equal(new URL(page.url()).searchParams.get("page"), "99");
           await page.getByRole("heading", { name: "לוח ההשמטות והתיקונים", exact: true }).waitFor();
+          const source = page.locator("#book-reader29-source");
+          await assertAhavatSourcePage(source, 99);
+          await source.getByRole("button", { name: "מסך מלא", exact: true }).click();
+          await page.waitForFunction(() => Boolean(document.fullscreenElement));
+          await assertAhavatSourcePage(source, 99);
+          await source.getByRole("button", { name: "יציאה ממסך מלא", exact: true }).click();
+          await page.waitForFunction(() => !document.fullscreenElement);
+          await assertAhavatSourcePage(source, 99);
         }
         if (manifest.slug === "daat-tevunot" && width === 390) {
           await page.getByText("פרטי המקור", { exact: true }).click();

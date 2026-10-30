@@ -164,12 +164,8 @@ test("the original 99-page PDF stays usable with the letter model and fullscreen
     await reader.getByRole("button", { name: "פתח מבנה האות בתלת־ממד", exact: true }).click(); await reader.locator("canvas:not([data-book-pdf-canvas])").waitFor();
     await source.getByRole("button", { name: "מסך מלא", exact: true }).click();
     await page.waitForFunction(() => Boolean(document.fullscreenElement));
-    let total = null;
-    for (let i = 0; i < 100 && total !== 99; i++) {
-      for (const frame of page.frames()) { try { total = await frame.evaluate(() => document.querySelector("pdf-viewer")?.documentDimensions?.pageDimensions?.length || null) || total; } catch { /* Native cross-origin frame. */ } }
-      if (total !== 99) await page.waitForTimeout(250);
-    }
-    assert.equal(total, 99);
+    const actualSource = await assertAhavatSourcePage(source, 36);
+    assert.equal(actualSource.pages, 99, "all original pages remain decoded with the actual physical source visible");
     await source.getByRole("button", { name: "יציאה ממסך מלא", exact: true }).click();
     await page.waitForFunction(() => !document.fullscreenElement);
     assert.match(await ahavatSourceHref(source), /#page=36&view=FitH$/);
