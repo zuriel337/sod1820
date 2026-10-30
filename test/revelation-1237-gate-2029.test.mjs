@@ -131,6 +131,10 @@ test("an explicit stored OCR selection keeps its exact range and cannot be repla
   assert.equal(selected.expression, "התגלות");
   assert.equal(item.intrinsic.extraction.text.slice(selected.origin.selectionStart, selected.origin.selectionEnd), "התגלות");
   assert.equal(gateSourceSelectionIsCurrent(item, selected.origin), true);
+  const gallery = gateSourceTextSelection(item, { start: 5, end: 13, slotKey: "gallery-source-id" });
+  assert.equal(gallery.expression, "התגלות");assert.equal(gallery.origin.locator, "#gallery-source-id");
+  assert.equal(gateSourceSelectionIsCurrent(item, gallery.origin), true);
+  assert.equal(gateSourceTextSelection(item, { start: 5, end: 13, slotKey: "unrendered-slot" }), null);
   for (const changed of [{ ...item, access: { scope: "private" } }, { ...item, sourceRef: "other" },
     { ...item, imageUrl: "https://example.test/replaced.png" }, { ...item, intrinsic: { extraction: { text: "שונה" } } }, null]) {
     assert.equal(gateSourceSelectionIsCurrent(changed, selected.origin), false);

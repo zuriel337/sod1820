@@ -132,7 +132,7 @@ export function gateSourceTextSelection(item, { start, end, slotKey, sectionId =
     || !item.galleryImageId || item.sourceRef !== `gallery_images:${item.galleryImageId}`
     || typeof item.imageUrl !== "string" || !/^https:\/\//.test(item.imageUrl)
     || typeof text !== "string" || !Number.isSafeInteger(start) || !Number.isSafeInteger(end)
-    || start < 0 || end <= start || end > text.length || !/^rv-source-[a-zA-Z0-9_-]+$/.test(slotKey || "")) return null;
+    || start < 0 || end <= start || end > text.length || !/^(?:rv-source|gallery-source)-[a-zA-Z0-9_-]+$/.test(slotKey || "")) return null;
   const raw = text.slice(start, end), expression = raw.trim();
   if (!expression || expression.length > 160 || /[\r\n=←→]/u.test(expression)) return null;
   const from = start + raw.indexOf(expression), to = from + expression.length;

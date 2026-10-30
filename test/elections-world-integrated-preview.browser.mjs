@@ -16,7 +16,7 @@ const { chromium } = require("playwright");
 const root = fileURLToPath(new URL("..", import.meta.url));
 const output = process.env.PREVIEW_EVIDENCE_DIR || "/tmp/elections-world-preview-20261030";
 await mkdir(output, { recursive: true });
-const report = { widths: [], methodDepth: [], galleryMethodDepth: [], reads: {}, blocked: [], errors: [], modelRequests: [] };
+const report = { widths: [], methodDepth: [], galleryMethodDepth: [], nativeGalleries: [], reads: {}, blocked: [], errors: [], modelRequests: [] };
 const publicHost = "linswmnnkjxvweumprav.supabase.co";
 // fn_zero_scale is an existing anonymous STABLE/security-invoker read (live
 // definition inspected); the unchanged Preview worker already admits it.
@@ -196,6 +196,41 @@ try {
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
     assert.ok(overflow <= 0, `1237 overflow at ${width}: ${overflow}`);
     await page.screenshot({ path: resolve(output, `1237-${width}.png`) });
+    const nativeId='288ee048-1e25-4b0e-9630-e3f59c5c3338';
+    const nativeHref=`/world?view=gallery&gallery=81&image=${nativeId}#gallery-source-${nativeId}`;
+    await gallerySource.locator(`a[href="${nativeHref}"]`).click();
+    await page.waitForURL(origin+nativeHref);
+    const exhibit=page.locator(`[data-gallery-selected="${nativeId}"]`);await exhibit.waitFor();
+    await exhibit.locator('.g29-canvas img').waitFor();
+    await page.waitForFunction(()=>{const img=document.querySelector('.g29-canvas img');return img?.complete&&img.naturalWidth>0;});
+    assert.equal(await exhibit.locator('.g29-canvas img').getAttribute('data-media-fit'),'preserve-whole-image');
+    assert.doesNotMatch(await exhibit.innerText(),/זמן האירוע|תוצאה סופית/);
+    assert.ok(await page.locator('.g29-thumbnails a').count()<=6);
+    await page.screenshot({path:resolve(output,`gallery-81-${width}.png`)});
+    await exhibit.locator('.rv-source-research summary').click();
+    await exhibit.getByRole('textbox',{name:'טקסט שמור לבחירת ביטוי',exact:true}).evaluate(el=>{
+      const start=el.value.lastIndexOf('התגלות');if(start<0)throw Error('Missing exact source expression');
+      el.focus();el.setSelectionRange(start,start+6);document.dispatchEvent(new Event('selectionchange'));
+      el.dispatchEvent(new MouseEvent('mouseup',{bubbles:true}));
+    });
+    await exhibit.getByRole('button',{name:'פתיחת שיטות לביטוי שנבחר',exact:true}).click();
+    await exhibit.getByRole('button',{name:'פתח התגלות בשיטת משולש: 3137',exact:true}).click();
+    await page.waitForURL(/\/2029\/number\/3137\?focus=/);
+    await page.locator('.sod29-number-page[data-number-root="3137"]').waitFor();
+    assert.match(await page.locator('.sod29-number-focus-ribbon').innerText(),/התגלות/);
+    if(width<768){
+      await page.getByRole('button',{name:'פתח ניווט',exact:true}).click();
+      await page.getByRole('dialog',{name:'ניווט SOD1820 2029',exact:true}).getByRole('button',{name:'חזרה מדויקת',exact:true}).click();
+    }else await page.locator('button[aria-label="חזרה מדויקת"]:visible').first().click();
+    await page.waitForURL(origin+nativeHref);await exhibit.waitFor();
+    const nativeOverflow=await page.evaluate(()=>document.documentElement.scrollWidth-document.documentElement.clientWidth);
+    assert.ok(nativeOverflow<=0,`Gallery overflow at ${width}: ${nativeOverflow}`);
+    await page.goto(origin+'/world?view=gallery&gallery=29');
+    await page.locator('.g29-exhibit').waitFor();
+    await page.waitForFunction(()=>{const img=document.querySelector('.g29-canvas img');return img?.complete&&img.naturalWidth>0;});
+    await page.screenshot({path:resolve(output,`gallery-29-${width}.png`)});
+    report.nativeGalleries.push({width,galleries:[29,81],sourceRef:`gallery_images:${nativeId}`,
+      expression:'התגלות',method:'קדמי',value:3137,exactReturn:true,wholeImage:true});
     await page.goto(origin + "/topic/gapfill-1118#topic-number-research-1118");
     const through = page.getByRole("region", { name: "ממצאים דרך המספר", exact: true });
     await through.waitFor();
@@ -220,7 +255,7 @@ try {
   }
   assert.deepEqual(report.errors, [], "no page errors");
   assert.deepEqual(report.modelRequests, [], "no model request on navigation");
-  console.log(JSON.stringify({ ...report, blocked: [...new Set(report.blocked)], origin, productWrites: false, data: "live public anonymous", coverage: "1237 shared method depth and exact return, Topic 1118 to exact World finding and Back, World Zvi entry" }, null, 2));
+  console.log(JSON.stringify({ ...report, blocked: [...new Set(report.blocked)], origin, productWrites: false, data: "live public anonymous", coverage: "1237 shared method depth; native galleries29/81, exact source -> canonical method Number -> exact return; Topic1118 -> World finding -> Back; World Zvi entry" }, null, 2));
 } finally {
   await browser?.close();
   if (server) await new Promise(done => server.close(done));

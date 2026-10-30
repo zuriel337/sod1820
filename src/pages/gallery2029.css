@@ -1,0 +1,16 @@
+/* Native 2029 exhibition: full-image canvas and museum placard. No Legacy UI. */
+.g29-gallery{max-width:1180px;margin:auto;padding:24px 12px 60px;color:var(--s29-ink);min-width:0}
+.g29-gallery p{line-height:1.8}.g29-heading{margin-bottom:28px}.g29-heading h2{font-size:clamp(26px,5vw,42px);margin:8px 0}
+.g29-gallery nav,.g29-tags{display:flex;flex-wrap:wrap;gap:10px}.g29-exhibit{scroll-margin-top:100px;border:1px solid var(--s29-line);border-radius:24px;overflow:hidden;background:var(--s29-panel);outline-offset:4px}
+.g29-canvas{display:grid;place-items:center;padding:18px;background:radial-gradient(ellipse at 50% 30%,#55401833,transparent 75%),var(--s29-panel-soft)}
+.g29-placard{padding:22px;min-width:0;border-top:1px solid var(--s29-line)}.g29-placard h3{font-size:clamp(22px,4vw,32px);line-height:1.4;margin:8px 0 14px;overflow-wrap:anywhere}
+.g29-caption{white-space:pre-wrap;overflow-wrap:anywhere}.g29-placard details{padding:14px 0;border-top:1px solid var(--s29-line)}
+.g29-gallery summary{cursor:pointer;min-height:44px;display:list-item;align-content:center;font-weight:600;line-height:1.6}
+.g29-history{padding:10px 0;border-top:1px solid var(--s29-line)}.g29-history bdi{overflow-wrap:anywhere}.g29-placard .rv-source-text{box-sizing:border-box;max-width:100%}
+.g29-browse{padding-top:20px}.g29-thumbnails{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px;margin:16px 0}
+.g29-thumbnails a{display:block;text-decoration:none;color:inherit;min-width:0;border:1px solid var(--s29-line);border-radius:12px;padding:6px;background:var(--s29-panel)}
+.g29-thumbnails a[aria-current=true]{outline:2px solid var(--s29-gold,#cba459);outline-offset:2px}.g29-thumbnails img{height:100px}
+.g29-thumbnails span{display:block;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;margin-top:6px;font-size:12px}
+.g29-gallery a:focus-visible,.g29-gallery button:focus-visible,.g29-gallery summary:focus-visible{outline:2px solid var(--s29-gold,#cba459);outline-offset:3px}
+@media(min-width:1000px){.g29-exhibit{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);direction:ltr;align-items:start}.g29-placard{direction:rtl;border-top:0;border-left:1px solid var(--s29-line)}.g29-canvas{position:sticky;top:100px;min-height:440px}}
+@media(max-width:600px){.g29-gallery{padding:12px 2px 36px}.g29-exhibit{border-radius:16px}.g29-canvas{padding:8px}.g29-placard{padding:16px}.g29-thumbnails{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.g29-thumbnails img{height:84px}}

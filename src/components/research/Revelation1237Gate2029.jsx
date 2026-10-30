@@ -11,6 +11,7 @@ import { ELECTIONS_ISRAEL_21_26_BUNDLE } from "../../lib/research/electionsIsrae
 import { relationStatusCopy } from "../../lib/research/worldMapViewModel2029.js";
 import { bilingualDateLabel } from "../../lib/relativeTime2029.js";
 import { numberExpressionFocusHref } from "../../lib/research/numberExpressionFocus.js";
+import { gallerySourceHref2029 } from "../../lib/research/topicSourceContext.js";
 import "./revelation1237Gate2029.css";
 
 const clean = (value) => value == null ? "" : String(value).trim();
@@ -101,7 +102,7 @@ function Center({ cards, ...focusProps }) {
 }
 
 // ── source card ──────────────────────────────────────────────────────────────────────────
-function SourceMethodResearch({ item, slotKey, sectionId, readProfile, onOpenExpression, openingKey, focusError, focusErrorKey }) {
+export function SourceMethodResearch({ item, slotKey, sectionId, readProfile, onOpenExpression, openingKey, focusError, focusErrorKey }) {
   const [selection, setSelection] = useState(null);
   const [state, setState] = useState(null);
   const [limit, setLimit] = useState(8);
@@ -214,6 +215,9 @@ function SourceCard({ item, statements = [], compact = false, slotKey, sectionId
       {credit.length ? <p className="rv-credit">קרדיט: {credit.join(" · ")}</p> : null}
       {galleries.length ? <p className="rv-muted">מופיע ב־{galleries.length} {galleries.length === 1 ? "מיקום" : "מיקומים"}:{" "}
         {galleries.map((p, i) => <React.Fragment key={p.galleryImageId}>{i ? " · " : ""}<bdi>גלריה {p.wpGalleryId}{p.ordering != null ? `, מקום ${p.ordering}` : ""}</bdi></React.Fragment>)}</p> : null}
+      {galleries.map((p) => { const href = gallerySourceHref2029(p.wpGalleryId, p.galleryImageId); return href ? <Link
+        key={p.galleryImageId} className="rv-link" to={href}
+        onClick={() => onRememberSource?.(item, slotKey, sectionId)}>לתמונה בגלריה {p.wpGalleryId} ←</Link> : null; })}
     </div>
   </article>;
 }
@@ -233,7 +237,7 @@ function GalleryColumn({ spec, state, onMore, ...focusProps }) {
     <div className="rv-gallery-list">{items.map((item) => <SourceCard key={item.galleryImageId} item={item} compact
       slotKey={`rv-source-gallery-${spec.wpGalleryId}-${item.galleryImageId}`} sectionId="rv-galleries" {...focusProps} />)}</div>
     {state?.hasMore || state?.error ? <button type="button" className="rv-btn" disabled={state.loading} aria-busy={state.loading || undefined} onClick={onMore}>{state.loading ? "טוען…" : state.error ? "נסה שוב את הגלריה" : "עוד מהגלריה"}</button> : null}
-    <Link className="rv-link" to={`/archive?tab=galleries&gal=${spec.wpGalleryId}`}>פתיחת הגלריה בארכיון ←</Link>
+    <Link className="rv-link" to={gallerySourceHref2029(spec.wpGalleryId)}>פתיחת הגלריה ב־2029 ←</Link>
   </article>;
 }
 

@@ -14,7 +14,7 @@ import { createCanonicalRelationOpener } from "../lib/research/worldGraphRelatio
 import { fetchWorldProminenceInputs } from "../lib/research/worldProminenceInputs.js";
 import { buildWorldContextualProminence } from "../lib/research/worldContextualProminence.js";
 import { buildTopicGoldenProjection } from "../lib/research/topicGoldenProjection.js";
-import { topicSourceAnchor, topicSourceContextPatch } from "../lib/research/topicSourceContext.js";
+import { gallerySourceHref2029, topicSourceAnchor, topicSourceContextPatch } from "../lib/research/topicSourceContext.js";
 import WorldSourceStory from '../components/research/WorldSourceStory.jsx';
 import { DISCOVERY_TOPIC_SLUGS } from '../lib/research/worldSourceConnections.js';
 import { resolveTopicExpressionFocus2029 } from "../lib/research/topicExpressionFocus2029.js";
@@ -304,7 +304,9 @@ function TopicSourcesMedia({ golden, projection }) {
                 {p.originalCredit.author || p.originalCredit.publication ? <p>קרדיט שמור: {[p.originalCredit.author, p.originalCredit.publication].filter(Boolean).join(" · ")}</p> : null}
                 <p className="sod29-topic-source-meta">מיקום שמור בגלריה: {p.ordering ?? "לא תועד"}</p>
                 {p.occurredAt ? <p className="sod29-topic-source-meta">תאריך שמור: {p.occurredAt}. {derived === "path" ? "נגזר מתיקייה" : derived === "name" ? "נגזר משם הפריט" : "מקור התיארוך לא אומת"}; אינו תאריך אירוע מאומת.</p> : null}
-                {target?.href ? <a href={target.href} onClick={() => rememberReturn(item)}>פתח את הגלריה המקורית בשלמותה</a> : null}
+                {gallerySourceHref2029(p.wpGalleryId, p.galleryImageId)
+                  ? <Link to={gallerySourceHref2029(p.wpGalleryId, p.galleryImageId)} onClick={() => rememberReturn(item)}>לתמונה המדויקת בגלריה ב־2029</Link>
+                  : target?.href ? <a href={target.href} onClick={() => rememberReturn(item)}>פתח את הגלריה המקורית בשלמותה</a> : null}
               </details>;
             })}
             {item.postPlacement ? <div className="sod29-topic-source-history">

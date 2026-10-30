@@ -22,17 +22,26 @@ export async function loadPublicGallerySourcePage({ wpGalleryId, listGalleryImag
   const slice = candidates.slice(offset, offset + limit);
   const { items = [], occurrencesTruncated = false } = slice.length ? await fetchSourceContext({ imageIds: slice }) : {};
   const order = new Map(slice.map((id, index) => [id, index]));
-  const admitted = [...new Map(items.filter((item) => item?.galleryImageId && order.has(item.galleryImageId))
+  const admitted = [...new Map(items.filter((item) => item?.galleryImageId && (order.has(item.galleryImageId)
+    || item.occurrences?.some((entry) => order.has(entry.legacyPlacement?.galleryImageId))))
     .map((item) => [item.galleryImageId, item])).values()]
-    .sort((a, b) => order.get(a.galleryImageId) - order.get(b.galleryImageId));
-  return { wpGalleryId, items: admitted, offset, limit, scannedIds: slice,
+    .sort((a, b) => firstPosition(a) - firstPosition(b));
+  function firstPosition(item) {
+    return Math.min(order.get(item.galleryImageId) ?? Infinity,
+      ...(item.occurrences || []).map((entry) => order.get(entry.legacyPlacement?.galleryImageId) ?? Infinity));
+  }
+  const page = { wpGalleryId, items: admitted, offset, limit, scannedIds: slice,
     totalListed: candidates.length, hasMore: offset + limit < candidates.length,
-    nextOffset: Math.min(offset + limit, candidates.length), occurrencesTruncated,
-    withheld: slice.length - admitted.length };
+    nextOffset: Math.min(offset + limit, candidates.length), occurrencesTruncated };
+  // Shared objects can have several selected occurrences. They are not withheld
+  // rows or independent sources merely because the reader grouped them together.
+  const readableIds = new Set(admitted.flatMap((item) => [item.galleryImageId,
+    ...(item.occurrences || []).filter((entry) => entry.legacyPlacement?.wpGalleryId === wpGalleryId)
+      .map((entry) => entry.legacyPlacement.galleryImageId)]));
+  return { ...page, withheld: slice.filter((id) => !readableIds.has(id)).length };
 }
 
-// Resolve an occurrence, not merely a shared image object. No new route is
-// advertised: /archive currently reopens only the gallery, not an exact image.
+// Resolve an occurrence, not merely a shared image object.
 export function resolvePublicGallerySelection(page, galleryImageId) {
   const empty = (status) => ({ status, item: null, occurrence: null, selection: null });
   if (!page || !Number.isSafeInteger(page.wpGalleryId) || page.wpGalleryId < 1
@@ -55,6 +64,48 @@ export function resolvePublicGallerySelection(page, galleryImageId) {
   return { status: "ready", item, occurrence, selection: { galleryImageId, wpGalleryId: p.wpGalleryId,
     galleryId: p.galleryId, ordering: p.ordering, sourceRef: occurrence.provenance.sourceRef,
     mediaId: occurrence.mediaId, dateUse: "provenance_only" } };
+}
+
+// Native pilot only; other galleries keep their existing destination. URLs are
+// locators, never permission to render the listed row without public re-admission.
+export function gallerySourceHref2029(wpGalleryId, galleryImageId = null) {
+  if (![29, 81].includes(wpGalleryId)) return null;
+  const base = `/world?view=gallery&gallery=${wpGalleryId}`;
+  if (galleryImageId == null) return base;
+  if (typeof galleryImageId !== "string" || !/^[a-f0-9]{8}-[a-f0-9]{4}-[1-5][a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i.test(galleryImageId)) return null;
+  return `${base}&image=${encodeURIComponent(galleryImageId)}#gallery-source-${galleryImageId}`;
+}
+
+export function galleryOccurrenceItem(selected) {
+  if (selected?.status !== "ready") return null;
+  const { item, occurrence } = selected;
+  // Same source object/identity and complete public history, exact occurrence's
+  // intrinsic text, tags and caption. Never replace one placement by its sibling.
+  return { ...item, ...occurrence, id: occurrence.mediaId,
+    label: occurrence.intrinsic.label, presentation: canonicalMediaPresentation(occurrence),
+    galleryImageId: selected.selection.galleryImageId, sourceRef: selected.selection.sourceRef,
+    imageUrl: occurrence.intrinsic.representation.imageUrl,
+    thumbUrl: occurrence.intrinsic.representation.thumbUrl,
+    storedNumbers: occurrence.legacyPlacement.storedNumbers,
+    imageType: occurrence.legacyPlacement.imageType, description: occurrence.legacyPlacement.originalCaption,
+    occurredAt: occurrence.legacyPlacement.occurredAt, createdAt: occurrence.legacyPlacement.createdAt,
+    sourceIdentity: item.sourceIdentity, occurrences: item.occurrences,
+    access: item.access, dateUse: "provenance_only" };
+}
+
+export async function loadPublicGallerySourceWindow({ imageId = null, offset = 0, ...options }) {
+  if (!gallerySourceHref2029(options.wpGalleryId)
+    || (imageId != null && !gallerySourceHref2029(options.wpGalleryId, imageId))) throw new RangeError("Invalid pilot gallery locator");
+  const rows = await options.listGalleryImages(options.wpGalleryId);
+  const ids = storedGalleryOrderIds(rows);
+  const index = imageId == null ? -1 : ids.indexOf(imageId);
+  const limit = options.limit ?? 6;
+  if (imageId != null && index === -1) return { status: "unavailable", page: null, selected: null };
+  const page = await loadPublicGallerySourcePage({ ...options, listGalleryImages: async () => rows,
+    offset: index < 0 ? offset : Math.floor(index / limit) * limit, limit });
+  const selected = imageId != null ? resolvePublicGallerySelection(page, imageId)
+    : page.scannedIds.map((id) => resolvePublicGallerySelection(page, id)).find((row) => row.status === "ready");
+  return { status: selected?.status || "empty_window", page, selected: selected || null };
 }
 
 // This is one source locator, NOT permission to read its research_object/public_candidate.

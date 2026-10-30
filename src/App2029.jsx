@@ -31,6 +31,7 @@ const PublicContributorFrame2029 = lazy(() => import("./components/experience202
 const Researcher2029Page = lazy(() => import("./pages/Researcher2029Page.jsx"));
 const Number2029Page = lazy(() => import("./pages/Number2029Page.jsx"));
 const Topic2029Page = lazy(() => import("./pages/Topic2029Page.jsx"));
+const Gallery2029Page = lazy(() => import("./pages/Gallery2029Page.jsx"));
 const Posts2029Page = lazy(() => import("./pages/Posts2029Page.jsx"));
 const LifeJourney2029Page = lazy(() => import("./pages/LifeJourney2029Page.jsx"));
 const Post2029Page = lazy(() => import("./pages/Post2029Page.jsx"));
@@ -42,6 +43,14 @@ const EarlyAccess2029Page = lazy(() => import("./pages/EarlyAccess2029Page.jsx")
 const Community2029Page = lazy(() => import("./pages/Community2029Page.jsx"));
 const CommunityChatTransition2029Page = lazy(() => import("./pages/CommunityChatTransition2029Page.jsx"));
 const AuthPage = lazy(() => import("./pages/AuthPage.jsx"));
+
+// Gallery pilot reuses the existing World document route and lock. No parallel
+// document rewrite, global navigation change or Legacy route is introduced.
+function WorldEntry2029() {
+  const { search } = useLocation();
+  return new URLSearchParams(search).get("view") === "gallery"
+    ? <Gallery2029Page /> : <World2029Page />;
+}
 
 // Design review on an existing document route; does not open public Community
 // navigation or require a competing edit to the deployment rewrite configuration.
@@ -209,7 +218,7 @@ export default function App2029() {
                 path="/beit-midrash/:method"
                 element={<BeitMidrash2029Page />}
               />
-              <Route path="/world" element={<Locked flag="lock_world" homeHref="/2029"><World2029Page /></Locked>} />
+              <Route path="/world" element={<Locked flag="lock_world" homeHref="/2029"><WorldEntry2029 /></Locked>} />
               <Route path="/topic/:slug" element={<Locked flag="lock_world" homeHref="/2029"><Topic2029Page /></Locked>} />
               <Route path="/2029/posts" element={<Posts2029Page />} />
               <Route path="/login" element={<AuthPage />} />

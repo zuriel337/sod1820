@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { gallerySourceHref2029 } from '../../lib/research/topicSourceContext.js';
 import CanonicalMediaFigure2029 from '../experience2029/CanonicalMediaFigure2029.jsx';
 import SpatialMethodStage2029 from '../gematria2029/SpatialMethodStage2029.jsx';
 import { WORLD_DISCOVERY_READINGS, REVIEWED_SOURCE_WITNESSES, DISCOVERY_TOPIC_SLUGS,
@@ -33,8 +34,10 @@ function SourceHistory({ item, remember }) {
         <p>{p.originalName}</p>
         <blockquote data-historical-caption>{p.originalCaption || 'לא נשמר כיתוב במקור.'}</blockquote>
         <p>{Object.values(p.originalCredit || {}).filter(Boolean).join(' · ')}</p>
-        <a className="sod29-action" href={route?.href} target="_blank" rel="noreferrer" onClick={remember}>לגלריה המקורית — בסדר השמור</a>
-        <p className="sod29-discovery-note">הארכיון פותח את הגלריה בשלמותה. המיקום המדויק נשמר כאן; תאריכי העלאה ותיקייה אינם תאריכי אירוע ודאיים.</p>
+        {gallerySourceHref2029(p.wpGalleryId, p.galleryImageId) ? <Link className="sod29-action"
+          to={gallerySourceHref2029(p.wpGalleryId, p.galleryImageId)} onClick={remember}>לתמונה בגלריה ב־2029</Link>
+          : <a className="sod29-action" href={route?.href} target="_blank" rel="noreferrer" onClick={remember}>לגלריה המקורית — בסדר השמור</a>}
+        <p className="sod29-discovery-note">בגלריות הפיילוט נפתח המיקום המדויק; בשאר הגלריות הארכיון נפתח בשלמותו. תאריכי העלאה ותיקייה אינם תאריכי אירוע ודאיים.</p>
       </section>;
     })}
   </details>;

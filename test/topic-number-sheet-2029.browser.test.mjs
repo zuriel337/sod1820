@@ -39,7 +39,8 @@ function fixturePlugin() {
   const modules = {
     noop: "export default function Noop(){return null;}",
     seo: "export const applySeo=()=>{},clearConvergenceJsonLd=()=>{},setConvergenceJsonLd=()=>{};",
-    hub: `export async function fetchEntityHubProjection({nodeId}){
+    hub: `import {buildGallerySourceContext} from '/src/lib/research/topicSourceContext.js';
+      export async function fetchEntityHubProjection({nodeId}){
         if(!nodeId)return null;
         const slug=nodeId.endsWith('1')?'source-alpha':'source-beta';
         if(window.__holdHubFor===slug)await new Promise(resolve=>{window.__releaseHub=resolve;});
@@ -51,6 +52,10 @@ function fixturePlugin() {
       export async function fetchGallerySourceContext({imageIds}){
         window.__galleryRequests.push(imageIds);
         if(window.__failNextGallery){window.__failNextGallery=false;throw Error('gallery offline');}
+        if(window.__nativeGallery){
+          const images=imageIds.filter(id=>!window.__galleryWithdrawn).map(id=>window.__nativeGalleryRow(id));
+          return {items:buildGallerySourceContext({images}),occurrencesTruncated:window.__partialGallery||false};
+        }
         return {items:imageIds.filter(id=>Number(id.split('-')[1])%2&&!window.__galleryWithdrawn).map(galleryImageId=>({
           galleryImageId,label:'מקור בדיקה '+galleryImageId,createdAt:'2026-10-28',
           imageUrl:'https://example.test/'+galleryImageId+'.png',sourceRef:'gallery_images:'+galleryImageId,
@@ -92,7 +97,8 @@ function fixturePlugin() {
           {type:'gematria',phrase:'ערך חסר',n:null,method:'רגיל'},
         ]};}
       export const getAllValuePhrases=async()=>[],langLinksList=async()=>[];
-      export const getImagesByGallery=async(id)=>Array.from({length:8},(_,ordering)=>({id:id+'-'+ordering,ordering}));
+      export const getImagesByGallery=async(id)=>Array.from({length:window.__nativeGallery?14:8},(_,ordering)=>({
+        id:window.__nativeGallery?'10000000-0000-4000-8000-'+String(id*100+ordering).padStart(12,'0'):id+'-'+ordering,ordering}));
       export const supabase={
         from(table){
           let slugs=[];
@@ -162,12 +168,21 @@ function fixturePlugin() {
       import {BrowserRouter,Routes,Route,Link} from 'react-router-dom';
       import {Provider} from '/src/lib/research/ResearchProvider.jsx';
       import Topic from '/src/pages/Topic2029Page.jsx';
+      import Gallery from '/src/pages/Gallery2029Page.jsx';
+      import {useResearch} from '/src/lib/research/ResearchProvider.jsx';
+      import {useNavigate} from 'react-router-dom';
       import '/src/components/experience2029/sod2029.css';
       window.__reads=[];window.__sheetTargets=[];window.__galleryRequests=[];window.__traceReads=[];
+      window.__nativeGalleryRow=id=>({id,wp_gallery_id:Math.floor(Number(id.slice(-12))/100),ordering:Number(id.slice(-12))%100,
+        published:1,min_tier:0,image_type:'gematria',description:'כיתוב מדויק '+id,
+        image_url:'https://example.test/storage/v1/object/public/media/'+id+'.png',
+        all_values:[844,1237,3137],ocr_text:window.__sourceChanged?'טקסט השתנה':'טקסט שמור התגלות'});
+      function Target(){const research=useResearch(),navigate=useNavigate();return <><p>יעד המשך</p>
+        <button onClick={()=>navigate(research.context.returnTo.href)}>חזרה לתמונה</button></>;}
       createRoot(document.getElementById('root')).render(<BrowserRouter><Provider>
         <Link to="/topic/other">טופיק אחר</Link>
         <Link to="/topic/source-beta">מקור בטופיק שני</Link>
-        <Routes><Route path="/topic/:slug" element={<Topic/>}/><Route path="*" element={<p>יעד המשך</p>}/></Routes>
+        <Routes><Route path="/topic/:slug" element={<Topic/>}/><Route path="/world" element={<Gallery/>}/><Route path="*" element={<Target/>}/></Routes>
       </Provider></BrowserRouter>);
     `,
   };
@@ -187,13 +202,81 @@ function fixturePlugin() {
     },
     configureServer(server) {
       server.middlewares.use(async (request, response, next) => {
-        if (!request.url?.startsWith("/topic/") && !request.url?.startsWith("/2029/number/")) return next();
+        if (!request.url?.startsWith("/topic/") && !request.url?.startsWith("/2029/number/") && !request.url?.startsWith("/world")) return next();
         response.setHeader("Content-Type", "text/html; charset=utf-8");
         response.end(await server.transformIndexHtml(request.url, '<!doctype html><html lang="he" dir="rtl"><head><meta name="viewport" content="width=device-width,initial-scale=1"></head><body><div id="root"></div><script type="module" src="/__topic-sheet-entry.jsx"></script></body></html>'));
       });
     },
   };
 }
+
+test("native gallery uses exact public occurrences and canonical method navigation with return", { skip: !available, timeout: 120000 }, async () => {
+  const cacheDir=mkdtempSync(join(tmpdir(),"gallery-native-"));
+  const server=await vite.createServer({root,configFile:false,cacheDir,plugins:[fixturePlugin(),reactPlugin()],
+    server:{host:"127.0.0.1",port:0},logLevel:"error"});
+  let browser;
+  try{
+    await server.listen();const origin=`http://127.0.0.1:${server.httpServer.address().port}`;
+    browser=await playwright.chromium.launch({headless:true,executablePath,args:["--no-sandbox","--disable-dev-shm-usage"]});
+    for(const width of [320,1440]){
+      const context=await browser.newContext({viewport:{width,height:900}});
+      await context.addInitScript(()=>{window.__nativeGallery=true;});
+      const errors=[];const page=await context.newPage();page.setDefaultTimeout(10000);
+      page.on("pageerror",error=>errors.push(error.message));
+      await page.route("https://example.test/**",route=>route.fulfill({contentType:"image/svg+xml",
+        body:'<svg xmlns="http://www.w3.org/2000/svg" width="240" height="120"><rect width="240" height="120" fill="gold"/></svg>'}));
+      const id="10000000-0000-4000-8000-000000008107";
+      const href=`/world?view=gallery&gallery=81&image=${id}#gallery-source-${id}`;
+      await page.goto(origin+href);
+      const exhibit=page.locator(`[data-gallery-selected="${id}"]`);await exhibit.waitFor();
+      assert.match(await exhibit.innerText(),new RegExp("כיתוב מדויק "+id));
+      const reads=await page.evaluate(()=>window.__galleryRequests);
+      assert.equal(reads.length,1);assert.equal(reads[0].length,6);assert.equal(reads[0][0].endsWith("8106"),true);
+      assert.equal(await page.locator(".g29-thumbnails a").count(),6);
+      assert.equal(await exhibit.locator(".g29-canvas img").getAttribute("data-media-fit"),"preserve-whole-image");
+      await exhibit.getByText("מספרים שסומנו במקור · 3",{exact:true}).click();
+      await exhibit.locator('a[href="/2029/number/3137"]').click();
+      await page.waitForURL(origin+"/2029/number/3137");
+      assert.equal(await page.evaluate(()=>window.__researchContext.returnTo.selection.sourceRef),`gallery_images:${id}`);
+      await page.goBack();await exhibit.waitFor();
+      assert.equal(new URL(page.url()).hash,`#gallery-source-${id}`);
+      const choose=async()=>{
+        const research=exhibit.locator(".rv-source-research");
+        if(await research.getAttribute("open")===null)await research.locator("summary").click();
+        const text=research.getByRole("textbox");await text.evaluate(el=>{const start=el.value.indexOf('התגלות');el.focus();el.setSelectionRange(start,start+6);
+          document.dispatchEvent(new Event('selectionchange'));el.dispatchEvent(new MouseEvent('mouseup',{bubbles:true}));});
+        await research.getByRole("button",{name:"פתיחת שיטות לביטוי שנבחר",exact:true}).click();
+        return research.getByRole("button",{name:"פתח התגלות בשיטת משולש: 3137",exact:true});
+      };
+      await (await choose()).click();await page.waitForURL(/\/2029\/number\/3137\?focus=/);
+      const selected=await page.evaluate(()=>window.__researchContext);
+      assert.equal(selected.selection.expression,"התגלות");assert.equal(selected.selection.method,"קדמי");
+      assert.equal(selected.selection.methodVersion,"1");assert.equal(selected.dimensions.sourceMethodPairing,"not_asserted");
+      assert.equal(selected.returnTo.href,href);
+      await page.getByRole("button",{name:"חזרה לתמונה",exact:true}).click();await exhibit.waitFor();
+      for(const flag of ["__methodPrivate","__sourceChanged"]){
+        const method=await choose();await method.waitFor();
+        await page.evaluate(name=>{window[name]=true;},flag);await method.click();
+        await exhibit.getByText(flag==="__methodPrivate"?/השיטה, הערך או גרסת החישוב/:/המקור אינו זמין/).waitFor();
+        assert.equal(new URL(page.url()).searchParams.get("gallery"),"81");
+        await page.evaluate(name=>{window[name]=false;},flag);
+      }
+      const method=await choose();await method.waitFor();
+      await page.evaluate(()=>{window.__galleryWithdrawn=true;});await method.click();
+      await page.getByText(/התמונה המבוקשת אינה זמינה כאן/).waitFor();
+      assert.equal(await page.locator(".g29-exhibit,.g29-thumbnails img").count(),0,"withdrawn source content is removed");
+      await page.evaluate(()=>{window.__galleryWithdrawn=false;});
+      await page.getByRole("button",{name:"בדיקה מחדש",exact:true}).click();await exhibit.waitFor();
+      await page.getByRole("link",{name:"החלון הבא ←",exact:true}).click();
+      await page.locator('[data-gallery-selected="10000000-0000-4000-8000-000000008112"]').waitFor();
+      assert.equal(await page.locator(".g29-thumbnails a").count(),2);
+      await page.goto(origin+"/world?view=gallery&gallery=81&image=10000000-0000-4000-8000-000000002901");
+      await page.getByText(/התמונה המבוקשת אינה זמינה כאן/).waitFor();
+      assert.equal(await page.locator(".g29-exhibit").count(),0,"wrong-gallery locator cannot select another gallery row");
+      assert.deepEqual(errors,[]);await context.close();
+    }
+  }finally{await browser?.close();await server.close();rmSync(cacheDir,{recursive:true,force:true});}
+});
 
 test("Topic opens the existing Number sheet with method/value/source and exact return", { skip: !available, timeout: 120000 }, async () => {
   const cacheDir = mkdtempSync(join(tmpdir(), "topic-sheet-"));
