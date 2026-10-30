@@ -1,0 +1,6275 @@
+{
+  "experiment": "EXP-22",
+  "generated_at": "2026-10-30T03:03:00.998Z",
+  "window_sha256": "208cbe689b68f941daf995f07ff490d8974a5c13128f1724c8792471c02802fe",
+  "near_radius": 8,
+  "note": "descriptive only: n=1 per arm, a stochastic model; the saved cipher is known and the radius was first read off it (in-sample), so a hit is a regression result, not a blind discovery",
+  "runs": {
+    "U": {
+      "id": "U",
+      "label": "uniform (הקריאה הקיימת)",
+      "state": "COMPLETE",
+      "reason": null,
+      "batch": "msgbatch_012bRQTGtAcf1JkcZhcWWoJH",
+      "usd": 0.62108,
+      "timing": {
+        "created_at": "2026-10-30T02:51:03.190714+00:00",
+        "ended_at": "2026-10-30T02:55:29.178465+00:00",
+        "batch_ms": 265988,
+        "wall_ms": 282431
+      },
+      "output": {
+        "stop_reason": "end_turn",
+        "input_tokens": 21541,
+        "output_tokens": 20535,
+        "thinking_tokens": 17879
+      },
+      "usage": {
+        "input_tokens": 21541,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 20535,
+        "output_tokens_details": {
+          "thinking_tokens": 17879
+        },
+        "service_tier": "batch",
+        "inference_geo": "global",
+        "speed": "standard"
+      },
+      "proposals": 25,
+      "reached_cap": true,
+      "summary": {
+        "proposals": 25,
+        "engine_verified": 25,
+        "plain_text_only": 0,
+        "source_rows": 0,
+        "not_verified": 0,
+        "engine_verified_long": 13,
+        "engine_verified_short": 12,
+        "unlikely_by_chance": 12,
+        "expected_by_chance": 13,
+        "by_relation": {
+          "crosses": 2,
+          "touches": 0,
+          "far": 23
+        },
+        "zones": {
+          "basis": "PROPOSAL_POSITIONS",
+          "observed_only": true,
+          "radius": 8,
+          "near": {
+            "proposals": 10,
+            "engine_verified": 10,
+            "source_rows": 0
+          },
+          "far": {
+            "proposals": 15,
+            "engine_verified": 15,
+            "source_rows": 0
+          },
+          "near_to_far": 0.67,
+          "margin_share": 0.6
+        }
+      },
+      "findings": [
+        {
+          "id": "r1.f01",
+          "text": "יוממשיחבא",
+          "line": "C21-",
+          "skip": 583,
+          "dir": -1,
+          "start": 239480,
+          "cells": [
+            [
+              21,
+              21
+            ],
+            [
+              20,
+              21
+            ],
+            [
+              19,
+              21
+            ],
+            [
+              18,
+              21
+            ],
+            [
+              17,
+              21
+            ],
+            [
+              16,
+              21
+            ],
+            [
+              15,
+              21
+            ],
+            [
+              14,
+              21
+            ],
+            [
+              13,
+              21
+            ]
+          ],
+          "signature": "יוממשיחבא|21,21;20,21;19,21;18,21;17,21;16,21;15,21;14,21;13,21",
+          "state": "ENGINE_VERIFIED",
+          "kind": "els",
+          "distance": 0,
+          "band": "crosses",
+          "chance": {
+            "expected_occurrences": 0.00002503,
+            "unlikely_by_chance": true,
+            "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+          },
+          "tier": "A",
+          "note": "המופע הנבחר עצמו נקרא מלמטה למעלה כמשפט שלם: יום משיח בא.",
+          "source": "U"
+        },
+        {
+          "id": "r1.f02",
+          "text": "בנתה",
+          "line": "C21-",
+          "skip": 583,
+          "dir": -1,
+          "start": 243561,
+          "cells": [
+            [
+              28,
+              21
+            ],
+            [
+              27,
+              21
+            ],
+            [
+              26,
+              21
+            ],
+            [
+              25,
+              21
+            ]
+          ],
+          "signature": "בנתה|28,21;27,21;26,21;25,21",
+          "state": "ENGINE_VERIFIED",
+          "kind": "els",
+          "distance": 4,
+          "band": "near",
+          "chance": {
+            "expected_occurrences": 8.165,
+            "unlikely_by_chance": false,
+            "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+          },
+          "tier": "C",
+          "note": "באותו טור, סמוך לפני המופע הנבחר, צורת פועל בנקבה: בנתה.",
+          "source": "U"
+        },
+        {
+          "id": "r1.f03",
+          "text": "מאתהשמימ",
+          "line": "C01+",
+          "skip": 583,
+          "dir": 1,
+          "start": 234213,
+          "cells": [
+            [
+              12,
+              1
+            ],
+            [
+              13,
+              1
+            ],
+            [
+              14,
+              1
+            ],
+            [
+              15,
+              1
+            ],
+            [
+              16,
+              1
+            ],
+            [
+              17,
+              1
+            ],
+            [
+              18,
+              1
+            ],
+            [
+              19,
+              1
+            ]
+          ],
+          "signature": "מאתהשמימ|12,1;13,1;14,1;15,1;16,1;17,1;18,1;19,1",
+          "state": "ENGINE_VERIFIED",
+          "kind": "els",
+          "distance": 20,
+          "band": "far",
+          "chance": {
+            "expected_occurrences": 0.0008544,
+            "unlikely_by_chance": true,
+            "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+          },
+          "tier": "A",
+          "note": "צירוף מוכר בטור הראשון: מאת השמים.",
+          "source": "U"
+        },
+        {
+          "id": "r1.f04",
+          "text": "זהשמו",
+          "line": "D57-",
+          "skip": 584,
+          "dir": -1,
+          "start": 243552,
+          "cells": [
+            [
+              28,
+              12
+            ],
+            [
+              27,
+              11
+            ],
+            [
+              26,
+              10
+            ],
+            [
+              25,
+              9
+            ],
+            [
+              24,
+              8
+            ]
+          ],
+          "signature": "זהשמו|28,12;27,11;26,10;25,9;24,8",
+          "state": "ENGINE_VERIFIED",
+          "kind": "els",
+          "distance": 9,
+          "band": "far",
+          "chance": {
+            "expected_occurrences": 0.1693,
+            "unlikely_by_chance": true,
+            "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+          },
+          "tier": "A",
+          "note": "ביטוי שלם באלכסון: זה שמו.",
+          "source": "U"
+        },
+        {
+          "id": "r1.f05",
+          "text": "משמימ",
+          "line": "D08+",
+          "skip": 584,
+          "dir": 1,
+          "start": 236567,
+          "cells": [
+            [
+              16,
+              23
+            ],
+            [
+              17,
+              24
+            ],
+            [
+              18,
+              25
+            ],
+            [
+              19,
+              26
+            ],
+            [
+              20,
+              27
+            ]
+          ],
+          "signature": "משמימ|16,23;17,24;18,25;19,26;20,27",
+          "state": "ENGINE_VERIFIED",
+          "kind": "els",
+          "distance": 2,
+          "band": "near",
+          "chance": {
+            "expected_occurrences": 1.786,
+            "unlikely_by_chance": false,
+            "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+          },
+          "tier": "A",
+          "note": "מילה עם תחילית מ: משמים.",
+          "source": "U"
+        },
+        {
+          "id": "r1.f06",
+          "text": "בלבבמ",
+          "line": "C09-",
+          "skip": 583,
+          "dir": -1,
+          "start": 231889,
+          "cells": [
+            [
+              8,
+              9
+            ],
+            [
+              7,
+              9
+            ],
+            [
+              6,
+              9
+            ],
+            [
+              5,
+              9
+            ],
+            [
+              4,
+              9
+            ]
+          ],
+          "signature": "בלבבמ|8,9;7,9;6,9;5,9;4,9",
+          "state": "ENGINE_VERIFIED",
+          "kind": "els",
+          "distance": 12,
+          "band": "far",
+          "chance": {
+            "expected_occurrences": 0.5434,
+            "unlikely_by_chance": true,
+            "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+          },
+          "tier": "A",
+          "note": "צורה עם סיומת שייכות: בלבבם.",
+          "source": "U"
+        },
+        {
+          "id": "r1.f07",
+          "text": "ברכה",
+          "line": "D13-",
+          "skip": 584,
+          "dir": -1,
+          "start": 243580,
+          "cells": [
+            [
+              28,
+              40
+            ],
+            [
+              27,
+              39
+            ],
+            [
+              26,
+              38
+            ],
+            [
+              25,
+              37
+            ]
+          ],
+          "signature": "ברכה|28,40;27,39;26,38;25,37",
+          "state": "ENGINE_VERIFIED",
+          "kind": "els",
+          "distance": 16,
+          "band": "far",
+          "chance": {
+            "expected_occurrences": 6.985,
+            "unlikely_by_chance": false,
+            "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+          },
+          "tier": "A",
+          "note": "מילה נקייה באלכסון: ברכה.",
+          "source": "U"
+        },
+        {
+          "id": "r1.f08",
+          "text": "בחלמי",
+          "line": "D14-",
+          "skip": 584,
+          "dir": -1,
+          "start": 237741,
+          "cells": [
+            [
+              18,
+              31
+            ],
+            [
+              17,
+              30
+            ],
+            [
+              16,
+              29
+            ],
+            [
+              15,
+              28
+            ],
+            [
+              14,
+              27
+            ]
+          ],
+          "signature": "בחלמי|18,31;17,30;16,29;15,28;14,27",
+          "state": "ENGINE_VERIFIED",
+          "kind": "els",
+          "distance": 6,
+          "band": "near",
+          "chance": {
+            "expected_occurrences": 0.461,
+            "unlikely_by_chance": true,
+            "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+          },
+          "tier": "A",
+          "note": "בחלומי, כתיב חסר; מעניין לצד F9 בחלומו.",
+          "source": "U"
+        },
+        {
+          "id": "r1.f09",
+          "text": "בחלמו",
+          "line": "C40-",
+          "skip": 583,
+          "dir": -1,
+          "start": 243580,
+          "cells": [
+            [
+              28,
+              40
+            ],
+            [
+              27,
+              40
+            ],
+            [
+              26,
+              40
+            ],
+            [
+              25,
+              40
+            ],
+            [
+              24,
+              40
+            ]
+          ],
+          "signature": "בחלמו|28,40;27,40;26,40;25,40;24,40",
+          "state": "ENGINE_VERIFIED",
+          "kind": "els",
+          "distance": 19,
+          "band": "far",
+          "chance": {
+            "expected_occurrences": 0.4462,
+            "unlikely_by_chance": true,
+            "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+          },
+          "tier": "A",
+          "note": "בחלומו בכתיב חסר, בטור 40.",
+          "source": "U"
+        },
+        {
+          "id": "r1.f10",
+          "text": "חומה",
+          "line": "D16-",
+          "skip": 584,
+          "dir": -1,
+          "start": 233071,
+          "cells": [
+            [
+              10,
+              25
+            ],
+            [
+              9,
+              24
+            ],
+            [
+              8,
+              23
+            ],
+            [
+              7,
+              22
+            ]
+          ],
+          "signature": "חומה|10,25;9,24;8,23;7,22",
+          "state": "ENGINE_VERIFIED",
+          "kind": "els",
+          "distance": 4,
+          "band": "near",
+          "chance": {
+            "expected_occurrences": 10.84,
+            "unlikely_by_chance": false,
+            "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+          },
+          "tier": "A",
+          "note": "מילה שלמה: חומה.",
+          "source": "U"
+        },
+        {
+          "id": "r1.f11",
+          "text": "כשופ",
+          "line": "D45+",
+          "skip": 584,
+          "dir": 1,
+          "start": 230716,
+          "cells": [
+            [
+              6,
+              2
+            ],
+            [
+              7,
+              3
+            ],
+            [
+              8,
+              4
+            ],
+            [
+              9,
+              5
+            ]
+          ],
+          "signature": "כשופ|6,2;7,3;8,4;9,5",
+          "state": "ENGINE_VERIFIED",
+          "kind": "els",
+          "distance": 16,
+          "band": "far",
+          "chance": {
+            "expected_occurrences": 1.922,
+            "unlikely_by_chance": false,
+            "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+          },
+          "tier": "A",
+          "note": "כישוף בכתיב חסר (או יכשוף עם האות שלפניה).",
+          "source": "U"
+        },
+        {
+          "id": "r1.f12",
+          "text": "לבבכ",
+          "line": "A42+",
+          "skip": 582,
+          "dir": 1,
+          "start": 228423,
+          "cells": [
+            [
+              2,
+              41
+            ],
+            [
+              3,
+              40
+            ],
+            [
+              4,
+              39
+            ],
+            [
+              5,
+              38
+            ]
+          ],
+          "signature": "לבבכ|2,41;3,40;4,39;5,38",
+          "state": "ENGINE_VERIFIED",
+          "kind": "els",
+          "distance": 17,
+          "band": "far",
+          "chance": {
+            "expected_occurrences": 4.843,
+            "unlikely_by_chance": false,
+            "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+          },
+          "tier": "A",
+          "note": "לבבך, בתחילת אלכסון A42; באותו קו גם ואעמד והאשה ברה.",
+          "source": "U"
+        },
+        {
+          "id": "r1.f13",
+          "text": "ואעמד",
+          "line": "A42+",
+          "skip": 582,
+          "dir": 1,
+          "start": 234243,
+          "cells": [
+            [
+              12,
+              31
+            ],
+            [
+              13,
+              30
+            ],
+            [
+              14,
+              29
+            ],
+            [
+              15,
+              28
+            ],
+            [
+              16,
+              27
+            ]
+          ],
+          "signature": "ואעמד|12,31;13,30;14,29;15,28;16,27",
+          "state": "ENGINE_VERIFIED",
+          "kind": "els",
+          "distance": 6,
+          "band": "near",
+          "chance": {
+            "expected_occurrences": 0.3768,
+            "unlikely_by_chance": true,
+            "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+          },
+          "tier": "A",
+          "note": "צורת פועל עתיד גוף ראשון באותו קו: ואעמוד.",
+          "source": "U"
+        },
+        {
+          "id": "r1.f14",
+          "text": "האשהברה",
+          "line": "A42+",
+          "skip": 582,
+          "dir": 1,
+          "start": 242973,
+          "cells": [
+            [
+              27,
+              16
+            ],
+            [
+              28,
+              15
+            ],
+            [
+              29,
+              14
+            ],
+            [
+              30,
+              13
+            ],
+            [
+              31,
+              12
+            ],
+            [
+              32,
+              11
+            ],
+            [
+              33,
+              10
+            ]
+          ],
+          "signature": "האשהברה|27,16;28,15;29,14;30,13;31,12;32,11;33,10",
+          "state": "ENGINE_VERIFIED",
+          "kind": "els",
+          "distance": 6,
+          "band": "near",
+          "chance": {
+            "expected_occurrences": 0.006807,
+            "unlikely_by_chance": true,
+            "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+          },
+          "tier": "B",
+          "note": "סוף אותו אלכסון: האשה ברה.",
+          "source": "U"
+        },
+        {
+          "id": "r1.f15",
+          "text": "מסמרו",
+          "line": "D46-",
+          "skip": 584,
+          "dir": -1,
+          "start": 237723,
+          "cells": [
+            [
+              18,
+              13
+            ],
+            [
+              17,
+              12
+            ],
+            [
+              16,
+              11
+            ],
+            [
+              15,
+              10
+            ],
+            [
+              14,
+              9
+            ]
+          ],
+          "signature": "מסמרו|18,13;17,12;16,11;15,10;14,9",
+          "state": "ENGINE_VERIFIED",
+          "kind": "els",
+          "distance": 8,
+          "band": "near",
+          "chance": {
+            "expected_occurrences": 0.1467,
+            "unlikely_by_chance": true,
+            "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+          },
+          "tier": "B",
+          "note": "מסמרו, שם עצם עם סיומת שייכות.",
+          "source": "U"
+        },
+        {
+          "id": "r1.f16",
+          "text": "משמח",
+          "line": "D52+",
+          "skip": 584,
+          "dir": 1,
+          "start": 234213,
+          "cells": [
+            [
+              12,
+              1
+            ],
+            [
+              13,
+              2
+            ],
+            [
+              14,
+              3
+            ],
+            [
+              15,
+              4
+            ]
+          ],
+          "signature": "משמח|12,1;13,2;14,3;15,4",
+          "state": "ENGINE_VERIFIED",
+          "kind": "els",
+          "distance": 17,
+          "band": "far",
+          "chance": {
+            "expected_occurrences": 4.956,
+            "unlikely_by_chance": false,
+            "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+          },
+          "tier": "B",
+          "note": "צורת בינוני: משמח.",
+          "source": "U"
+        },
+        {
+          "id": "r1.f17",
+          "text": "הסכל",
+          "line": "D53+",
+          "skip": 584,
+          "dir": 1,
+          "start": 238300,
+          "cells": [
+            [
+              19,
+              7
+            ],
+            [
+              20,
+              8
+            ],
+            [
+              21,
+              9
+            ],
+            [
+              22,
+              10
+            ]
+          ],
+          "signature": "הסכל|19,7;20,8;21,9;22,10",
+          "state": "ENGINE_VERIFIED",
+          "kind": "els",
+          "distance": 11,
+          "band": "far",
+          "chance": {
+            "expected_occurrences": 0.9322,
+            "unlikely_by_chance": true,
+            "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+          },
+          "tier": "B",
+          "note": "הסכל, מילה מקראית מוכרת.",
+          "source": "U"
+        },
+        {
+          "id": "r1.f18",
+          "text": "הרבה",
+          "line": "A42-",
+          "skip": 582,
+          "dir": -1,
+          "start": 246465,
+          "cells": [
+            [
+              33,
+              10
+            ],
+            [
+              32,
+              11
+            ],
+            [
+              31,
+              12
+            ],
+            [
+              30,
+              13
+            ]
+          ],
+          "signature": "הרבה|33,10;32,11;31,12;30,13",
+          "state": "ENGINE_VERIFIED",
+          "kind": "els",
+          "distance": 9,
+          "band": "far",
+          "chance": {
+            "expected_occurrences": 16.38,
+            "unlikely_by_chance": false,
+            "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+          },
+          "tier": "B",
+          "note": "הרבה, בתחילת הקריאה ההפוכה של A42.",
+          "source": "U"
+        },
+        {
+          "id": "r1.f19",
+          "text": "נשיא",
+          "line": "A01-",
+          "skip": 582,
+          "dir": -1,
+          "start": 240644,
+          "cells": [
+            [
+              23,
+              19
+            ],
+            [
+              22,
+              20
+            ],
+            [
+              21,
+              21
+            ],
+            [
+              20,
+              22
+            ]
+          ],
+          "signature": "נשיא|23,19;22,20;21,21;20,22",
+          "state": "ENGINE_VERIFIED",
+          "kind": "els",
+          "distance": 0,
+          "band": "crosses",
+          "chance": {
+            "expected_occurrences": 13.2,
+            "unlikely_by_chance": false,
+            "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+          },
+          "tier": "B",
+          "note": "נשיא, באלכסון הראשון.",
+          "source": "U"
+        },
+        {
+          "id": "r1.f20",
+          "text": "נשלחו",
+          "line": "A18+",
+          "skip": 582,
+          "dir": 1,
+          "start": 230733,
+          "cells": [
+            [
+              6,
+              19
+            ],
+            [
+              7,
+              18
+            ],
+            [
+              8,
+              17
+            ],
+            [
+              9,
+              16
+            ],
+            [
+              10,
+              15
+            ]
+          ],
+          "signature": "נשלחו|6,19;7,18;8,17;9,16;10,15",
+          "state": "ENGINE_VERIFIED",
+          "kind": "els",
+          "distance": 5,
+          "band": "near",
+          "chance": {
+            "expected_occurrences": 0.2397,
+            "unlikely_by_chance": true,
+            "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+          },
+          "tier": "B",
+          "note": "צורת פועל סביל ברבים: נשלחו.",
+          "source": "U"
+        },
+        {
+          "id": "r1.f21",
+          "text": "מהלל",
+          "line": "A24-",
+          "skip": 582,
+          "dir": -1,
+          "start": 234219,
+          "cells": [
+            [
+              12,
+              7
+            ],
+            [
+              11,
+              8
+            ],
+            [
+              10,
+              9
+            ],
+            [
+              9,
+              10
+            ]
+          ],
+          "signature": "מהלל|12,7;11,8;10,9;9,10",
+          "state": "ENGINE_VERIFIED",
+          "kind": "els",
+          "distance": 11,
+          "band": "far",
+          "chance": {
+            "expected_occurrences": 23,
+            "unlikely_by_chance": false,
+            "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+          },
+          "tier": "B",
+          "note": "מהלל, בינוני של הלל.",
+          "source": "U"
+        },
+        {
+          "id": "r1.f22",
+          "text": "ינחמ",
+          "line": "A25+",
+          "skip": 582,
+          "dir": 1,
+          "start": 231308,
+          "cells": [
+            [
+              7,
+              11
+            ],
+            [
+              8,
+              10
+            ],
+            [
+              9,
+              9
+            ],
+            [
+              10,
+              8
+            ]
+          ],
+          "signature": "ינחמ|7,11;8,10;9,9;10,8",
+          "state": "ENGINE_VERIFIED",
+          "kind": "els",
+          "distance": 10,
+          "band": "far",
+          "chance": {
+            "expected_occurrences": 5.642,
+            "unlikely_by_chance": false,
+            "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+          },
+          "tier": "B",
+          "note": "ינחם, צורת עתיד.",
+          "source": "U"
+        },
+        {
+          "id": "r1.f23",
+          "text": "ועשיו",
+          "line": "A33-",
+          "skip": 582,
+          "dir": -1,
+          "start": 232464,
+          "cells": [
+            [
+              9,
+              1
+            ],
+            [
+              8,
+              2
+            ],
+            [
+              7,
+              3
+            ],
+            [
+              6,
+              4
+            ],
+            [
+              5,
+              5
+            ]
+          ],
+          "signature": "ועשיו|9,1;8,2;7,3;6,4;5,5",
+          "state": "ENGINE_VERIFIED",
+          "kind": "els",
+          "distance": 16,
+          "band": "far",
+          "chance": {
+            "expected_occurrences": 1.184,
+            "unlikely_by_chance": false,
+            "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+          },
+          "tier": "B",
+          "note": "שם פרטי עם וו החיבור: ועשיו.",
+          "source": "U"
+        },
+        {
+          "id": "r1.f24",
+          "text": "ותמר",
+          "line": "A55+",
+          "skip": 582,
+          "dir": 1,
+          "start": 236002,
+          "cells": [
+            [
+              15,
+              41
+            ],
+            [
+              16,
+              40
+            ],
+            [
+              17,
+              39
+            ],
+            [
+              18,
+              38
+            ]
+          ],
+          "signature": "ותמר|15,41;16,40;17,39;18,38",
+          "state": "ENGINE_VERIFIED",
+          "kind": "els",
+          "distance": 17,
+          "band": "far",
+          "chance": {
+            "expected_occurrences": 17.49,
+            "unlikely_by_chance": false,
+            "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+          },
+          "tier": "B",
+          "note": "ותמר, שם פרטי (או עץ) עם וו; בהמשך הקו גם נקמ.",
+          "source": "U"
+        },
+        {
+          "id": "r1.f25",
+          "text": "השתרע",
+          "line": "A14-",
+          "skip": 582,
+          "dir": -1,
+          "start": 240631,
+          "cells": [
+            [
+              23,
+              6
+            ],
+            [
+              22,
+              7
+            ],
+            [
+              21,
+              8
+            ],
+            [
+              20,
+              9
+            ],
+            [
+              19,
+              10
+            ]
+          ],
+          "signature": "השתרע|23,6;22,7;21,8;20,9;19,10",
+          "state": "ENGINE_VERIFIED",
+          "kind": "els",
+          "distance": 11,
+          "band": "far",
+          "chance": {
+            "expected_occurrences": 0.3682,
+            "unlikely_by_chance": true,
+            "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+          },
+          "tier": "C",
+          "note": "פועל בבניין התפעל: השתרע.",
+          "source": "U"
+        }
+      ],
+      "not_verified": [],
+      "bands": {
+        "crosses": 2,
+        "touches": 0,
+        "near": 8,
+        "far": 15
+      },
+      "els": 25,
+      "source_rows": 0,
+      "unlikely_by_chance": 12,
+      "margin": [
+        {
+          "id": "r1.f03",
+          "text": "מאתהשמימ",
+          "line": "C01+",
+          "skip": 583,
+          "dir": 1,
+          "start": 234213,
+          "cells": [
+            [
+              12,
+              1
+            ],
+            [
+              13,
+              1
+            ],
+            [
+              14,
+              1
+            ],
+            [
+              15,
+              1
+            ],
+            [
+              16,
+              1
+            ],
+            [
+              17,
+              1
+            ],
+            [
+              18,
+              1
+            ],
+            [
+              19,
+              1
+            ]
+          ],
+          "signature": "מאתהשמימ|12,1;13,1;14,1;15,1;16,1;17,1;18,1;19,1",
+          "state": "ENGINE_VERIFIED",
+          "kind": "els",
+          "distance": 20,
+          "band": "far",
+          "chance": {
+            "expected_occurrences": 0.0008544,
+            "unlikely_by_chance": true,
+            "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+          },
+          "tier": "A",
+          "note": "צירוף מוכר בטור הראשון: מאת השמים.",
+          "source": "U"
+        },
+        {
+          "id": "r1.f04",
+          "text": "זהשמו",
+          "line": "D57-",
+          "skip": 584,
+          "dir": -1,
+          "start": 243552,
+          "cells": [
+            [
+              28,
+              12
+            ],
+            [
+              27,
+              11
+            ],
+            [
+              26,
+              10
+            ],
+            [
+              25,
+              9
+            ],
+            [
+              24,
+              8
+            ]
+          ],
+          "signature": "זהשמו|28,12;27,11;26,10;25,9;24,8",
+          "state": "ENGINE_VERIFIED",
+          "kind": "els",
+          "distance": 9,
+          "band": "far",
+          "chance": {
+            "expected_occurrences": 0.1693,
+            "unlikely_by_chance": true,
+            "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+          },
+          "tier": "A",
+          "note": "ביטוי שלם באלכסון: זה שמו.",
+          "source": "U"
+        },
+        {
+          "id": "r1.f06",
+          "text": "בלבבמ",
+          "line": "C09-",
+          "skip": 583,
+          "dir": -1,
+          "start": 231889,
+          "cells": [
+            [
+              8,
+              9
+            ],
+            [
+              7,
+              9
+            ],
+            [
+              6,
+              9
+            ],
+            [
+              5,
+              9
+            ],
+            [
+              4,
+              9
+            ]
+          ],
+          "signature": "בלבבמ|8,9;7,9;6,9;5,9;4,9",
+          "state": "ENGINE_VERIFIED",
+          "kind": "els",
+          "distance": 12,
+          "band": "far",
+          "chance": {
+            "expected_occurrences": 0.5434,
+            "unlikely_by_chance": true,
+            "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+          },
+          "tier": "A",
+          "note": "צורה עם סיומת שייכות: בלבבם.",
+          "source": "U"
+        },
+        {
+          "id": "r1.f07",
+          "text": "ברכה",
+          "line": "D13-",
+          "skip": 584,
+          "dir": -1,
+          "start": 243580,
+          "cells": [
+            [
+              28,
+              40
+            ],
+            [
+              27,
+              39
+            ],
+            [
+              26,
+              38
+            ],
+            [
+              25,
+              37
+            ]
+          ],
+          "signature": "ברכה|28,40;27,39;26,38;25,37",
+          "state": "ENGINE_VERIFIED",
+          "kind": "els",
+          "distance": 16,
+          "band": "far",
+          "chance": {
+            "expected_occurrences": 6.985,
+            "unlikely_by_chance": false,
+            "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+          },
+          "tier": "A",
+          "note": "מילה נקייה באלכסון: ברכה.",
+          "source": "U"
+        },
+        {
+          "id": "r1.f09",
+          "text": "בחלמו",
+          "line": "C40-",
+          "skip": 583,
+          "dir": -1,
+          "start": 243580,
+          "cells": [
+            [
+              28,
+              40
+            ],
+            [
+              27,
+              40
+            ],
+            [
+              26,
+              40
+            ],
+            [
+              25,
+              40
+            ],
+            [
+              24,
+              40
+            ]
+          ],
+          "signature": "בחלמו|28,40;27,40;26,40;25,40;24,40",
+          "state": "ENGINE_VERIFIED",
+          "kind": "els",
+          "distance": 19,
+          "band": "far",
+          "chance": {
+            "expected_occurrences": 0.4462,
+            "unlikely_by_chance": true,
+            "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+          },
+          "tier": "A",
+          "note": "בחלומו בכתיב חסר, בטור 40.",
+          "source": "U"
+        },
+        {
+          "id": "r1.f11",
+          "text": "כשופ",
+          "line": "D45+",
+          "skip": 584,
+          "dir": 1,
+          "start": 230716,
+          "cells": [
+            [
+              6,
+              2
+            ],
+            [
+              7,
+              3
+            ],
+            [
+              8,
+              4
+            ],
+            [
+              9,
+              5
+            ]
+          ],
+          "signature": "כשופ|6,2;7,3;8,4;9,5",
+          "state": "ENGINE_VERIFIED",
+          "kind": "els",
+          "distance": 16,
+          "band": "far",
+          "chance": {
+            "expected_occurrences": 1.922,
+            "unlikely_by_chance": false,
+            "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+          },
+          "tier": "A",
+          "note": "כישוף בכתיב חסר (או יכשוף עם האות שלפניה).",
+          "source": "U"
+        },
+        {
+          "id": "r1.f12",
+          "text": "לבבכ",
+          "line": "A42+",
+          "skip": 582,
+          "dir": 1,
+          "start": 228423,
+          "cells": [
+            [
+              2,
+              41
+            ],
+            [
+              3,
+              40
+            ],
+            [
+              4,
+              39
+            ],
+            [
+              5,
+              38
+            ]
+          ],
+          "signature": "לבבכ|2,41;3,40;4,39;5,38",
+          "state": "ENGINE_VERIFIED",
+          "kind": "els",
+          "distance": 17,
+          "band": "far",
+          "chance": {
+            "expected_occurrences": 4.843,
+            "unlikely_by_chance": false,
+            "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+          },
+          "tier": "A",
+          "note": "לבבך, בתחילת אלכסון A42; באותו קו גם ואעמד והאשה ברה.",
+          "source": "U"
+        },
+        {
+          "id": "r1.f16",
+          "text": "משמח",
+          "line": "D52+",
+          "skip": 584,
+          "dir": 1,
+          "start": 234213,
+          "cells": [
+            [
+              12,
+              1
+            ],
+            [
+              13,
+              2
+            ],
+            [
+              14,
+              3
+            ],
+            [
+              15,
+              4
+            ]
+          ],
+          "signature": "משמח|12,1;13,2;14,3;15,4",
+          "state": "ENGINE_VERIFIED",
+          "kind": "els",
+          "distance": 17,
+          "band": "far",
+          "chance": {
+            "expected_occurrences": 4.956,
+            "unlikely_by_chance": false,
+            "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+          },
+          "tier": "B",
+          "note": "צורת בינוני: משמח.",
+          "source": "U"
+        },
+        {
+          "id": "r1.f17",
+          "text": "הסכל",
+          "line": "D53+",
+          "skip": 584,
+          "dir": 1,
+          "start": 238300,
+          "cells": [
+            [
+              19,
+              7
+            ],
+            [
+              20,
+              8
+            ],
+            [
+              21,
+              9
+            ],
+            [
+              22,
+              10
+            ]
+          ],
+          "signature": "הסכל|19,7;20,8;21,9;22,10",
+          "state": "ENGINE_VERIFIED",
+          "kind": "els",
+          "distance": 11,
+          "band": "far",
+          "chance": {
+            "expected_occurrences": 0.9322,
+            "unlikely_by_chance": true,
+            "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+          },
+          "tier": "B",
+          "note": "הסכל, מילה מקראית מוכרת.",
+          "source": "U"
+        },
+        {
+          "id": "r1.f18",
+          "text": "הרבה",
+          "line": "A42-",
+          "skip": 582,
+          "dir": -1,
+          "start": 246465,
+          "cells": [
+            [
+              33,
+              10
+            ],
+            [
+              32,
+              11
+            ],
+            [
+              31,
+              12
+            ],
+            [
+              30,
+              13
+            ]
+          ],
+          "signature": "הרבה|33,10;32,11;31,12;30,13",
+          "state": "ENGINE_VERIFIED",
+          "kind": "els",
+          "distance": 9,
+          "band": "far",
+          "chance": {
+            "expected_occurrences": 16.38,
+            "unlikely_by_chance": false,
+            "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+          },
+          "tier": "B",
+          "note": "הרבה, בתחילת הקריאה ההפוכה של A42.",
+          "source": "U"
+        },
+        {
+          "id": "r1.f21",
+          "text": "מהלל",
+          "line": "A24-",
+          "skip": 582,
+          "dir": -1,
+          "start": 234219,
+          "cells": [
+            [
+              12,
+              7
+            ],
+            [
+              11,
+              8
+            ],
+            [
+              10,
+              9
+            ],
+            [
+              9,
+              10
+            ]
+          ],
+          "signature": "מהלל|12,7;11,8;10,9;9,10",
+          "state": "ENGINE_VERIFIED",
+          "kind": "els",
+          "distance": 11,
+          "band": "far",
+          "chance": {
+            "expected_occurrences": 23,
+            "unlikely_by_chance": false,
+            "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+          },
+          "tier": "B",
+          "note": "מהלל, בינוני של הלל.",
+          "source": "U"
+        },
+        {
+          "id": "r1.f22",
+          "text": "ינחמ",
+          "line": "A25+",
+          "skip": 582,
+          "dir": 1,
+          "start": 231308,
+          "cells": [
+            [
+              7,
+              11
+            ],
+            [
+              8,
+              10
+            ],
+            [
+              9,
+              9
+            ],
+            [
+              10,
+              8
+            ]
+          ],
+          "signature": "ינחמ|7,11;8,10;9,9;10,8",
+          "state": "ENGINE_VERIFIED",
+          "kind": "els",
+          "distance": 10,
+          "band": "far",
+          "chance": {
+            "expected_occurrences": 5.642,
+            "unlikely_by_chance": false,
+            "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+          },
+          "tier": "B",
+          "note": "ינחם, צורת עתיד.",
+          "source": "U"
+        },
+        {
+          "id": "r1.f23",
+          "text": "ועשיו",
+          "line": "A33-",
+          "skip": 582,
+          "dir": -1,
+          "start": 232464,
+          "cells": [
+            [
+              9,
+              1
+            ],
+            [
+              8,
+              2
+            ],
+            [
+              7,
+              3
+            ],
+            [
+              6,
+              4
+            ],
+            [
+              5,
+              5
+            ]
+          ],
+          "signature": "ועשיו|9,1;8,2;7,3;6,4;5,5",
+          "state": "ENGINE_VERIFIED",
+          "kind": "els",
+          "distance": 16,
+          "band": "far",
+          "chance": {
+            "expected_occurrences": 1.184,
+            "unlikely_by_chance": false,
+            "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+          },
+          "tier": "B",
+          "note": "שם פרטי עם וו החיבור: ועשיו.",
+          "source": "U"
+        },
+        {
+          "id": "r1.f24",
+          "text": "ותמר",
+          "line": "A55+",
+          "skip": 582,
+          "dir": 1,
+          "start": 236002,
+          "cells": [
+            [
+              15,
+              41
+            ],
+            [
+              16,
+              40
+            ],
+            [
+              17,
+              39
+            ],
+            [
+              18,
+              38
+            ]
+          ],
+          "signature": "ותמר|15,41;16,40;17,39;18,38",
+          "state": "ENGINE_VERIFIED",
+          "kind": "els",
+          "distance": 17,
+          "band": "far",
+          "chance": {
+            "expected_occurrences": 17.49,
+            "unlikely_by_chance": false,
+            "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+          },
+          "tier": "B",
+          "note": "ותמר, שם פרטי (או עץ) עם וו; בהמשך הקו גם נקמ.",
+          "source": "U"
+        },
+        {
+          "id": "r1.f25",
+          "text": "השתרע",
+          "line": "A14-",
+          "skip": 582,
+          "dir": -1,
+          "start": 240631,
+          "cells": [
+            [
+              23,
+              6
+            ],
+            [
+              22,
+              7
+            ],
+            [
+              21,
+              8
+            ],
+            [
+              20,
+              9
+            ],
+            [
+              19,
+              10
+            ]
+          ],
+          "signature": "השתרע|23,6;22,7;21,8;20,9;19,10",
+          "state": "ENGINE_VERIFIED",
+          "kind": "els",
+          "distance": 11,
+          "band": "far",
+          "chance": {
+            "expected_occurrences": 0.3682,
+            "unlikely_by_chance": true,
+            "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+          },
+          "tier": "C",
+          "note": "פועל בבניין התפעל: השתרע.",
+          "source": "U"
+        }
+      ],
+      "axis_context": [
+        {
+          "id": "r1.f01",
+          "text": "יוממשיחבא",
+          "line": "C21-",
+          "skip": 583,
+          "dir": -1,
+          "start": 239480,
+          "cells": [
+            [
+              21,
+              21
+            ],
+            [
+              20,
+              21
+            ],
+            [
+              19,
+              21
+            ],
+            [
+              18,
+              21
+            ],
+            [
+              17,
+              21
+            ],
+            [
+              16,
+              21
+            ],
+            [
+              15,
+              21
+            ],
+            [
+              14,
+              21
+            ],
+            [
+              13,
+              21
+            ]
+          ],
+          "signature": "יוממשיחבא|21,21;20,21;19,21;18,21;17,21;16,21;15,21;14,21;13,21",
+          "state": "ENGINE_VERIFIED",
+          "kind": "els",
+          "distance": 0,
+          "band": "crosses",
+          "chance": {
+            "expected_occurrences": 0.00002503,
+            "unlikely_by_chance": true,
+            "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+          },
+          "tier": "A",
+          "note": "המופע הנבחר עצמו נקרא מלמטה למעלה כמשפט שלם: יום משיח בא.",
+          "source": "U"
+        },
+        {
+          "id": "r1.f19",
+          "text": "נשיא",
+          "line": "A01-",
+          "skip": 582,
+          "dir": -1,
+          "start": 240644,
+          "cells": [
+            [
+              23,
+              19
+            ],
+            [
+              22,
+              20
+            ],
+            [
+              21,
+              21
+            ],
+            [
+              20,
+              22
+            ]
+          ],
+          "signature": "נשיא|23,19;22,20;21,21;20,22",
+          "state": "ENGINE_VERIFIED",
+          "kind": "els",
+          "distance": 0,
+          "band": "crosses",
+          "chance": {
+            "expected_occurrences": 13.2,
+            "unlikely_by_chance": false,
+            "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+          },
+          "tier": "B",
+          "note": "נשיא, באלכסון הראשון.",
+          "source": "U"
+        }
+      ],
+      "coverage_report": {
+        "note": "three things, reported apart and never derived from one another: how many proposals (an output ceiling, not coverage, not to be filled), what is deterministic (shown, and the verified footprint of the proposals), and what the model says it went through",
+        "proposals": {
+          "basis": "PROPOSAL_COUNT",
+          "count": 25,
+          "cap": 25,
+          "reached_cap": true,
+          "note": "an output ceiling the model is told not to fill; it says nothing about how much was examined"
+        },
+        "shown_to_model": {
+          "basis": "DETERMINISTIC",
+          "status": "CERTAIN",
+          "window_cells": 1353,
+          "lines": 212,
+          "readings": 424,
+          "axis_lines": {
+            "lines": 28,
+            "by_kind": {
+              "R": 9,
+              "C": 1,
+              "D": 9,
+              "A": 9
+            }
+          },
+          "near": {
+            "cells": 425,
+            "lines": 116,
+            "by_kind": {
+              "R": 25,
+              "C": 17,
+              "D": 37,
+              "A": 37
+            }
+          },
+          "margin": {
+            "cells": 928,
+            "lines": 212,
+            "by_kind": {
+              "R": 33,
+              "C": 41,
+              "D": 69,
+              "A": 69
+            }
+          }
+        },
+        "proposal_footprint": {
+          "basis": "DETERMINISTIC_LOWER_BOUND",
+          "status": "VERIFIED_LOWER_BOUND",
+          "axis": {
+            "lines_with_proposals": 3,
+            "of_lines": 28
+          },
+          "near": {
+            "lines_with_proposals": 8,
+            "of_lines": 116,
+            "cells_touched": 39,
+            "of_cells": 425
+          },
+          "margin": {
+            "lines_with_proposals": 16,
+            "of_lines": 212,
+            "cells_touched": 74,
+            "of_cells": 928
+          }
+        },
+        "model_review": {
+          "basis": "MODEL_REPORT",
+          "status": "NOT_REQUESTED",
+          "note": "the instruction measured in EXP-15..18 does not ask the model to report the lines it went through"
+        },
+        "what_is_not_covered": "everything outside this window; lines are cut at the window boundary; the rest of the Torah and every other matrix width"
+      },
+      "review": null,
+      "observations": "השורות הן טקסט רציף מבמדבר ולכן לא הוצעו מהן מילים. פחות תשומת לב ניתנה לאלכסונים הקצרים בפינות (D30 ומעלה, A28 ומעלה, D60+, A60+). מילים נוספות שנראו אך לא נכללו: עכבר (C39-), הוליכ (D34+), יבשת (D69+), אבות (A60-), מנרה (C11+), השמש (C15+)."
+    },
+    "A": {
+      "id": "A",
+      "label": "תוספת העמקה",
+      "state": "COMPLETE",
+      "reason": null,
+      "batch": "msgbatch_01E1FEpr2AQVKgTKZpmtJppG",
+      "usd": 0.340105,
+      "timing": {
+        "created_at": "2026-10-30T02:55:48.969975+00:00",
+        "ended_at": "2026-10-30T02:58:17.003597+00:00",
+        "batch_ms": 148034,
+        "wall_ms": 157108
+      },
+      "output": {
+        "stop_reason": "end_turn",
+        "input_tokens": 23036,
+        "output_tokens": 8997,
+        "thinking_tokens": 5849
+      },
+      "usage": {
+        "input_tokens": 23036,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 8997,
+        "output_tokens_details": {
+          "thinking_tokens": 5849
+        },
+        "service_tier": "batch",
+        "inference_geo": "global",
+        "speed": "standard"
+      },
+      "proposals": 25,
+      "reached_cap": true,
+      "summary": {
+        "proposals": 25,
+        "engine_verified": 22,
+        "plain_text_only": 3,
+        "source_rows": 3,
+        "not_verified": 0,
+        "engine_verified_long": 10,
+        "engine_verified_short": 12,
+        "unlikely_by_chance": 6,
+        "expected_by_chance": 16,
+        "by_relation": {
+          "crosses": 4,
+          "touches": 0,
+          "far": 18
+        },
+        "zones": {
+          "basis": "PROPOSAL_POSITIONS",
+          "observed_only": true,
+          "radius": 8,
+          "near": {
+            "proposals": 13,
+            "engine_verified": 12,
+            "source_rows": 1
+          },
+          "far": {
+            "proposals": 12,
+            "engine_verified": 10,
+            "source_rows": 2
+          },
+          "near_to_far": 1.08,
+          "margin_share": 0.48
+        }
+      },
+      "findings": [
+        {
+          "id": "r1.f01",
+          "text": "יוממשיחבא",
+          "line": "C21-",
+          "skip": 583,
+          "dir": -1,
+          "start": 239480,
+          "cells": [
+            [
+              21,
+              21
+            ],
+            [
+              20,
+              21
+            ],
+            [
+              19,
+              21
+            ],
+            [
+              18,
+              21
+            ],
+            [
+              17,
+              21
+            ],
+            [
+              16,
+              21
+            ],
+            [
+              15,
+              21
+            ],
+            [
+              14,
+              21
+            ],
+            [
+              13,
+              21
+            ]
+          ],
+          "signature": "יוממשיחבא|21,21;20,21;19,21;18,21;17,21;16,21;15,21;14,21;13,21",
+          "state": "ENGINE_VERIFIED",
+          "kind": "els",
+          "distance": 0,
+          "band": "crosses",
+          "chance": {
+            "expected_occurrences": 0.00002503,
+            "unlikely_by_chance": true,
+            "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+          },
+          "tier": "A",
+          "note": "המופע הנבחר בקריאה הפוכה: 'יום משיח בא' - חלוקה מפתיעה של תשע האותיות.",
+          "source": "A"
+        },
+        {
+          "id": "r1.f02",
+          "text": "משיחבא",
+          "line": "C21-",
+          "skip": 583,
+          "dir": -1,
+          "start": 237731,
+          "cells": [
+            [
+              18,
+              21
+            ],
+            [
+              17,
+              21
+            ],
+            [
+              16,
+              21
+            ],
+            [
+              15,
+              21
+            ],
+            [
+              14,
+              21
+            ],
+            [
+              13,
+              21
+            ]
+          ],
+          "signature": "משיחבא|18,21;17,21;16,21;15,21;14,21;13,21",
+          "state": "ENGINE_VERIFIED",
+          "kind": "els",
+          "distance": 0,
+          "band": "crosses",
+          "chance": {
+            "expected_occurrences": 0.02953,
+            "unlikely_by_chance": true,
+            "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+          },
+          "tier": "A",
+          "note": "ביטוי 'משיח בא' כרצף בטור הנבחר.",
+          "source": "A"
+        },
+        {
+          "id": "r1.f03",
+          "text": "משיח",
+          "line": "C21-",
+          "skip": 583,
+          "dir": -1,
+          "start": 237731,
+          "cells": [
+            [
+              18,
+              21
+            ],
+            [
+              17,
+              21
+            ],
+            [
+              16,
+              21
+            ],
+            [
+              15,
+              21
+            ]
+          ],
+          "signature": "משיח|18,21;17,21;16,21;15,21",
+          "state": "ENGINE_VERIFIED",
+          "kind": "els",
+          "distance": 0,
+          "band": "crosses",
+          "chance": {
+            "expected_occurrences": 6.228,
+            "unlikely_by_chance": false,
+            "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+          },
+          "tier": "A",
+          "note": "המילה משיח בלב המופע הנבחר.",
+          "source": "A"
+        },
+        {
+          "id": "r1.f04",
+          "text": "לתתנקמתיהוה",
+          "line": "R21+",
+          "skip": 1,
+          "dir": 1,
+          "start": 239490,
+          "cells": [
+            [
+              21,
+              31
+            ],
+            [
+              21,
+              32
+            ],
+            [
+              21,
+              33
+            ],
+            [
+              21,
+              34
+            ],
+            [
+              21,
+              35
+            ],
+            [
+              21,
+              36
+            ],
+            [
+              21,
+              37
+            ],
+            [
+              21,
+              38
+            ],
+            [
+              21,
+              39
+            ],
+            [
+              21,
+              40
+            ],
+            [
+              21,
+              41
+            ]
+          ],
+          "signature": "לתתנקמתיהוה|21,31;21,32;21,33;21,34;21,35;21,36;21,37;21,38;21,39;21,40;21,41",
+          "state": "PLAIN_TEXT_ONLY",
+          "kind": "source_row",
+          "distance": 10,
+          "band": "far",
+          "chance": null,
+          "tier": "A",
+          "note": "שורת מקור: 'לתת נקמת יהוה' (במדבר לא).",
+          "source": "A"
+        },
+        {
+          "id": "r1.f05",
+          "text": "אשריבאלפניהמ",
+          "line": "R13+",
+          "skip": 1,
+          "dir": 1,
+          "start": 234796,
+          "cells": [
+            [
+              13,
+              1
+            ],
+            [
+              13,
+              2
+            ],
+            [
+              13,
+              3
+            ],
+            [
+              13,
+              4
+            ],
+            [
+              13,
+              5
+            ],
+            [
+              13,
+              6
+            ],
+            [
+              13,
+              7
+            ],
+            [
+              13,
+              8
+            ],
+            [
+              13,
+              9
+            ],
+            [
+              13,
+              10
+            ],
+            [
+              13,
+              11
+            ],
+            [
+              13,
+              12
+            ]
+          ],
+          "signature": "אשריבאלפניהמ|13,1;13,2;13,3;13,4;13,5;13,6;13,7;13,8;13,9;13,10;13,11;13,12",
+          "state": "PLAIN_TEXT_ONLY",
+          "kind": "source_row",
+          "distance": 9,
+          "band": "far",
+          "chance": null,
+          "tier": "B",
+          "note": "שורת מקור: 'אשר יבא לפניהם' - שורה החותכת את ראש המופע הנבחר.",
+          "source": "A"
+        },
+        {
+          "id": "r1.f06",
+          "text": "משמימ",
+          "line": "D08+",
+          "skip": 584,
+          "dir": 1,
+          "start": 236567,
+          "cells": [
+            [
+              16,
+              23
+            ],
+            [
+              17,
+              24
+            ],
+            [
+              18,
+              25
+            ],
+            [
+              19,
+              26
+            ],
+            [
+              20,
+              27
+            ]
+          ],
+          "signature": "משמימ|16,23;17,24;18,25;19,26;20,27",
+          "state": "ENGINE_VERIFIED",
+          "kind": "els",
+          "distance": 2,
+          "band": "near",
+          "chance": {
+            "expected_occurrences": 1.786,
+            "unlikely_by_chance": false,
+            "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+          },
+          "tier": "A",
+          "note": "'משמים' באלכסון D08 העובר דרך אזור הציר.",
+          "source": "A"
+        },
+        {
+          "id": "r1.f07",
+          "text": "נשיא",
+          "line": "A01-",
+          "skip": 582,
+          "dir": -1,
+          "start": 240644,
+          "cells": [
+            [
+              23,
+              19
+            ],
+            [
+              22,
+              20
+            ],
+            [
+              21,
+              21
+            ],
+            [
+              20,
+              22
+            ]
+          ],
+          "signature": "נשיא|23,19;22,20;21,21;20,22",
+          "state": "ENGINE_VERIFIED",
+          "kind": "els",
+          "distance": 0,
+          "band": "crosses",
+          "chance": {
+            "expected_occurrences": 13.2,
+            "unlikely_by_chance": false,
+            "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+          },
+          "tier": "B",
+          "note": "'נשיא' באלכסון A01 שחולף בציר.",
+          "source": "A"
+        },
+        {
+          "id": "r1.f08",
+          "text": "אלבית",
+          "line": "A02+",
+          "skip": 582,
+          "dir": 1,
+          "start": 233659,
+          "cells": [
+            [
+              11,
+              30
+            ],
+            [
+              12,
+              29
+            ],
+            [
+              13,
+              28
+            ],
+            [
+              14,
+              27
+            ],
+            [
+              15,
+              26
+            ]
+          ],
+          "signature": "אלבית|11,30;12,29;13,28;14,27;15,26",
+          "state": "ENGINE_VERIFIED",
+          "kind": "els",
+          "distance": 5,
+          "band": "near",
+          "chance": {
+            "expected_occurrences": 1.242,
+            "unlikely_by_chance": false,
+            "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+          },
+          "tier": "B",
+          "note": "'אל בית' באלכסון A02.",
+          "source": "A"
+        },
+        {
+          "id": "r1.f09",
+          "text": "כרות",
+          "line": "D05-",
+          "skip": 584,
+          "dir": -1,
+          "start": 243572,
+          "cells": [
+            [
+              28,
+              32
+            ],
+            [
+              27,
+              31
+            ],
+            [
+              26,
+              30
+            ],
+            [
+              25,
+              29
+            ]
+          ],
+          "signature": "כרות|28,32;27,31;26,30;25,29",
+          "state": "ENGINE_VERIFIED",
+          "kind": "els",
+          "distance": 8,
+          "band": "near",
+          "chance": {
+            "expected_occurrences": 8.343,
+            "unlikely_by_chance": false,
+            "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+          },
+          "tier": "B",
+          "note": "'כרות' באלכסון D05 שחולף בציר.",
+          "source": "A"
+        },
+        {
+          "id": "r1.f10",
+          "text": "שכנה",
+          "line": "A06-",
+          "skip": 582,
+          "dir": -1,
+          "start": 231909,
+          "cells": [
+            [
+              8,
+              29
+            ],
+            [
+              7,
+              30
+            ],
+            [
+              6,
+              31
+            ],
+            [
+              5,
+              32
+            ]
+          ],
+          "signature": "שכנה|8,29;7,30;6,31;5,32",
+          "state": "ENGINE_VERIFIED",
+          "kind": "els",
+          "distance": 8,
+          "band": "near",
+          "chance": {
+            "expected_occurrences": 5.194,
+            "unlikely_by_chance": false,
+            "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+          },
+          "tier": "C",
+          "note": "'שכנה' באלכסון A06.",
+          "source": "A"
+        },
+        {
+          "id": "r1.f11",
+          "text": "מרד",
+          "line": "D06+",
+          "skip": 584,
+          "dir": 1,
+          "start": 245325,
+          "cells": [
+            [
+              31,
+              36
+            ],
+            [
+              32,
+              37
+            ],
+            [
+              33,
+              38
+            ]
+          ],
+          "signature": "מרד|31,36;32,37;33,38",
+          "state": "ENGINE_VERIFIED",
+          "kind": "els",
+          "distance": 15,
+          "band": "far",
+          "chance": {
+            "expected_occurrences": 68.58,
+            "unlikely_by_chance": false,
+            "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+          },
+          "tier": "C",
+          "note": "'מרד' בסוף אלכסון D06.",
+          "source": "A"
+        },
+        {
+          "id": "r1.f12",
+          "text": "בלבבמ",
+          "line": "C09-",
+          "skip": 583,
+          "dir": -1,
+          "start": 231889,
+          "cells": [
+            [
+              8,
+              9
+            ],
+            [
+              7,
+              9
+            ],
+            [
+              6,
+              9
+            ],
+            [
+              5,
+              9
+            ],
+            [
+              4,
+              9
+            ]
+          ],
+          "signature": "בלבבמ|8,9;7,9;6,9;5,9;4,9",
+          "state": "ENGINE_VERIFIED",
+          "kind": "els",
+          "distance": 12,
+          "band": "far",
+          "chance": {
+            "expected_occurrences": 0.5434,
+            "unlikely_by_chance": true,
+            "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+          },
+          "tier": "A",
+          "note": "'בלבבם' בטור C09 בקריאה הפוכה.",
+          "source": "A"
+        },
+        {
+          "id": "r1.f13",
+          "text": "קול",
+          "line": "C15-",
+          "skip": 583,
+          "dir": -1,
+          "start": 228980,
+          "cells": [
+            [
+              3,
+              15
+            ],
+            [
+              2,
+              15
+            ],
+            [
+              1,
+              15
+            ]
+          ],
+          "signature": "קול|3,15;2,15;1,15",
+          "state": "ENGINE_VERIFIED",
+          "kind": "els",
+          "distance": 10,
+          "band": "far",
+          "chance": {
+            "expected_occurrences": 66.27,
+            "unlikely_by_chance": false,
+            "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+          },
+          "tier": "C",
+          "note": "'קול' בסוף טור C15 הפוך.",
+          "source": "A"
+        },
+        {
+          "id": "r1.f14",
+          "text": "לוקהל",
+          "line": "C15+",
+          "skip": 583,
+          "dir": 1,
+          "start": 227814,
+          "cells": [
+            [
+              1,
+              15
+            ],
+            [
+              2,
+              15
+            ],
+            [
+              3,
+              15
+            ],
+            [
+              4,
+              15
+            ],
+            [
+              5,
+              15
+            ]
+          ],
+          "signature": "לוקהל|1,15;2,15;3,15;4,15;5,15",
+          "state": "ENGINE_VERIFIED",
+          "kind": "els",
+          "distance": 8,
+          "band": "near",
+          "chance": {
+            "expected_occurrences": 0.43,
+            "unlikely_by_chance": true,
+            "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+          },
+          "tier": "C",
+          "note": "אותו טור בכיוון הישר נקרא 'לו קהל'.",
+          "source": "A"
+        },
+        {
+          "id": "r1.f15",
+          "text": "אמרלו",
+          "line": "C01-",
+          "skip": 583,
+          "dir": -1,
+          "start": 234796,
+          "cells": [
+            [
+              13,
+              1
+            ],
+            [
+              12,
+              1
+            ],
+            [
+              11,
+              1
+            ],
+            [
+              10,
+              1
+            ],
+            [
+              9,
+              1
+            ]
+          ],
+          "signature": "אמרלו|13,1;12,1;11,1;10,1;9,1",
+          "state": "ENGINE_VERIFIED",
+          "kind": "els",
+          "distance": 20,
+          "band": "far",
+          "chance": {
+            "expected_occurrences": 1.862,
+            "unlikely_by_chance": false,
+            "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+          },
+          "tier": "C",
+          "note": "'אמר לו' בטור C01 הפוך; מיד אחריו 'שדה'.",
+          "source": "A"
+        },
+        {
+          "id": "r1.f16",
+          "text": "השמימ",
+          "line": "C01+",
+          "skip": 583,
+          "dir": 1,
+          "start": 235962,
+          "cells": [
+            [
+              15,
+              1
+            ],
+            [
+              16,
+              1
+            ],
+            [
+              17,
+              1
+            ],
+            [
+              18,
+              1
+            ],
+            [
+              19,
+              1
+            ]
+          ],
+          "signature": "השמימ|15,1;16,1;17,1;18,1;19,1",
+          "state": "ENGINE_VERIFIED",
+          "kind": "els",
+          "distance": 20,
+          "band": "far",
+          "chance": {
+            "expected_occurrences": 1.997,
+            "unlikely_by_chance": false,
+            "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+          },
+          "tier": "B",
+          "note": "'השמים' בטור C01.",
+          "source": "A"
+        },
+        {
+          "id": "r1.f17",
+          "text": "ייצור",
+          "line": "C03+",
+          "skip": 583,
+          "dir": 1,
+          "start": 242377,
+          "cells": [
+            [
+              26,
+              3
+            ],
+            [
+              27,
+              3
+            ],
+            [
+              28,
+              3
+            ],
+            [
+              29,
+              3
+            ],
+            [
+              30,
+              3
+            ]
+          ],
+          "signature": "ייצור|26,3;27,3;28,3;29,3;30,3",
+          "state": "ENGINE_VERIFIED",
+          "kind": "els",
+          "distance": 18,
+          "band": "far",
+          "chance": {
+            "expected_occurrences": 0.5009,
+            "unlikely_by_chance": true,
+            "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+          },
+          "tier": "B",
+          "note": "'ייצור' בטור C03.",
+          "source": "A"
+        },
+        {
+          "id": "r1.f18",
+          "text": "שמש",
+          "line": "D12+",
+          "skip": 584,
+          "dir": 1,
+          "start": 231899,
+          "cells": [
+            [
+              8,
+              19
+            ],
+            [
+              9,
+              20
+            ],
+            [
+              10,
+              21
+            ]
+          ],
+          "signature": "שמש|8,19;9,20;10,21",
+          "state": "ENGINE_VERIFIED",
+          "kind": "els",
+          "distance": 3,
+          "band": "near",
+          "chance": {
+            "expected_occurrences": 130.9,
+            "unlikely_by_chance": false,
+            "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+          },
+          "tier": "C",
+          "note": "'שמש' באלכסון D12.",
+          "source": "A"
+        },
+        {
+          "id": "r1.f19",
+          "text": "חריש",
+          "line": "D26+",
+          "skip": 584,
+          "dir": 1,
+          "start": 227825,
+          "cells": [
+            [
+              1,
+              26
+            ],
+            [
+              2,
+              27
+            ],
+            [
+              3,
+              28
+            ],
+            [
+              4,
+              29
+            ]
+          ],
+          "signature": "חריש|1,26;2,27;3,28;4,29",
+          "state": "ENGINE_VERIFIED",
+          "kind": "els",
+          "distance": 9,
+          "band": "far",
+          "chance": {
+            "expected_occurrences": 4.499,
+            "unlikely_by_chance": false,
+            "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+          },
+          "tier": "C",
+          "note": "'חריש' בראש אלכסון D26.",
+          "source": "A"
+        },
+        {
+          "id": "r1.f20",
+          "text": "יכשופ",
+          "line": "D45+",
+          "skip": 584,
+          "dir": 1,
+          "start": 230132,
+          "cells": [
+            [
+              5,
+              1
+            ],
+            [
+              6,
+              2
+            ],
+            [
+              7,
+              3
+            ],
+            [
+              8,
+              4
+            ],
+            [
+              9,
+              5
+            ]
+          ],
+          "signature": "יכשופ|5,1;6,2;7,3;8,4;9,5",
+          "state": "ENGINE_VERIFIED",
+          "kind": "els",
+          "distance": 16,
+          "band": "far",
+          "chance": {
+            "expected_occurrences": 0.1984,
+            "unlikely_by_chance": true,
+            "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+          },
+          "tier": "B",
+          "note": "'יכשוף' (יכשף) באלכסון D45.",
+          "source": "A"
+        },
+        {
+          "id": "r1.f21",
+          "text": "משמח",
+          "line": "D52+",
+          "skip": 584,
+          "dir": 1,
+          "start": 234213,
+          "cells": [
+            [
+              12,
+              1
+            ],
+            [
+              13,
+              2
+            ],
+            [
+              14,
+              3
+            ],
+            [
+              15,
+              4
+            ]
+          ],
+          "signature": "משמח|12,1;13,2;14,3;15,4",
+          "state": "ENGINE_VERIFIED",
+          "kind": "els",
+          "distance": 17,
+          "band": "far",
+          "chance": {
+            "expected_occurrences": 4.956,
+            "unlikely_by_chance": false,
+            "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+          },
+          "tier": "C",
+          "note": "'משמח' בראש אלכסון D52.",
+          "source": "A"
+        },
+        {
+          "id": "r1.f22",
+          "text": "ככבי",
+          "line": "A43+",
+          "skip": 582,
+          "dir": 1,
+          "start": 237736,
+          "cells": [
+            [
+              18,
+              26
+            ],
+            [
+              19,
+              25
+            ],
+            [
+              20,
+              24
+            ],
+            [
+              21,
+              23
+            ]
+          ],
+          "signature": "ככבי|18,26;19,25;20,24;21,23",
+          "state": "ENGINE_VERIFIED",
+          "kind": "els",
+          "distance": 2,
+          "band": "near",
+          "chance": {
+            "expected_occurrences": 5.184,
+            "unlikely_by_chance": false,
+            "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+          },
+          "tier": "B",
+          "note": "'ככבי' (כוכבי) באלכסון A43.",
+          "source": "A"
+        },
+        {
+          "id": "r1.f23",
+          "text": "תמוז",
+          "line": "A64+",
+          "skip": 582,
+          "dir": 1,
+          "start": 241249,
+          "cells": [
+            [
+              24,
+              41
+            ],
+            [
+              25,
+              40
+            ],
+            [
+              26,
+              39
+            ],
+            [
+              27,
+              38
+            ]
+          ],
+          "signature": "תמוז|24,41;25,40;26,39;27,38",
+          "state": "ENGINE_VERIFIED",
+          "kind": "els",
+          "distance": 17,
+          "band": "far",
+          "chance": {
+            "expected_occurrences": 2.121,
+            "unlikely_by_chance": false,
+            "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+          },
+          "tier": "B",
+          "note": "'תמוז' באלכסון A64 בשוליים התחתונים.",
+          "source": "A"
+        },
+        {
+          "id": "r1.f24",
+          "text": "אלהמסעיבניישראל",
+          "line": "R29+",
+          "skip": 1,
+          "dir": 1,
+          "start": 244140,
+          "cells": [
+            [
+              29,
+              17
+            ],
+            [
+              29,
+              18
+            ],
+            [
+              29,
+              19
+            ],
+            [
+              29,
+              20
+            ],
+            [
+              29,
+              21
+            ],
+            [
+              29,
+              22
+            ],
+            [
+              29,
+              23
+            ],
+            [
+              29,
+              24
+            ],
+            [
+              29,
+              25
+            ],
+            [
+              29,
+              26
+            ],
+            [
+              29,
+              27
+            ],
+            [
+              29,
+              28
+            ],
+            [
+              29,
+              29
+            ],
+            [
+              29,
+              30
+            ],
+            [
+              29,
+              31
+            ]
+          ],
+          "signature": "אלהמסעיבניישראל|29,17;29,18;29,19;29,20;29,21;29,22;29,23;29,24;29,25;29,26;29,27;29,28;29,29;29,30;29,31",
+          "state": "PLAIN_TEXT_ONLY",
+          "kind": "source_row",
+          "distance": 8,
+          "band": "near",
+          "chance": null,
+          "tier": "B",
+          "note": "שורת מקור: 'אלה מסעי בני ישראל'.",
+          "source": "A"
+        },
+        {
+          "id": "r1.f25",
+          "text": "נפש",
+          "line": "C19+",
+          "skip": 583,
+          "dir": 1,
+          "start": 230733,
+          "cells": [
+            [
+              6,
+              19
+            ],
+            [
+              7,
+              19
+            ],
+            [
+              8,
+              19
+            ]
+          ],
+          "signature": "נפש|6,19;7,19;8,19",
+          "state": "ENGINE_VERIFIED",
+          "kind": "els",
+          "distance": 5,
+          "band": "near",
+          "chance": {
+            "expected_occurrences": 22.7,
+            "unlikely_by_chance": false,
+            "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+          },
+          "tier": "C",
+          "note": "'נפש' בטור C19 סמוך לציר.",
+          "source": "A"
+        }
+      ],
+      "not_verified": [],
+      "bands": {
+        "crosses": 4,
+        "touches": 0,
+        "near": 9,
+        "far": 12
+      },
+      "els": 22,
+      "source_rows": 3,
+      "unlikely_by_chance": 6,
+      "margin": [
+        {
+          "id": "r1.f04",
+          "text": "לתתנקמתיהוה",
+          "line": "R21+",
+          "skip": 1,
+          "dir": 1,
+          "start": 239490,
+          "cells": [
+            [
+              21,
+              31
+            ],
+            [
+              21,
+              32
+            ],
+            [
+              21,
+              33
+            ],
+            [
+              21,
+              34
+            ],
+            [
+              21,
+              35
+            ],
+            [
+              21,
+              36
+            ],
+            [
+              21,
+              37
+            ],
+            [
+              21,
+              38
+            ],
+            [
+              21,
+              39
+            ],
+            [
+              21,
+              40
+            ],
+            [
+              21,
+              41
+            ]
+          ],
+          "signature": "לתתנקמתיהוה|21,31;21,32;21,33;21,34;21,35;21,36;21,37;21,38;21,39;21,40;21,41",
+          "state": "PLAIN_TEXT_ONLY",
+          "kind": "source_row",
+          "distance": 10,
+          "band": "far",
+          "chance": null,
+          "tier": "A",
+          "note": "שורת מקור: 'לתת נקמת יהוה' (במדבר לא).",
+          "source": "A"
+        },
+        {
+          "id": "r1.f05",
+          "text": "אשריבאלפניהמ",
+          "line": "R13+",
+          "skip": 1,
+          "dir": 1,
+          "start": 234796,
+          "cells": [
+            [
+              13,
+              1
+            ],
+            [
+              13,
+              2
+            ],
+            [
+              13,
+              3
+            ],
+            [
+              13,
+              4
+            ],
+            [
+              13,
+              5
+            ],
+            [
+              13,
+              6
+            ],
+            [
+              13,
+              7
+            ],
+            [
+              13,
+              8
+            ],
+            [
+              13,
+              9
+            ],
+            [
+              13,
+              10
+            ],
+            [
+              13,
+              11
+            ],
+            [
+              13,
+              12
+            ]
+          ],
+          "signature": "אשריבאלפניהמ|13,1;13,2;13,3;13,4;13,5;13,6;13,7;13,8;13,9;13,10;13,11;13,12",
+          "state": "PLAIN_TEXT_ONLY",
+          "kind": "source_row",
+          "distance": 9,
+          "band": "far",
+          "chance": null,
+          "tier": "B",
+          "note": "שורת מקור: 'אשר יבא לפניהם' - שורה החותכת את ראש המופע הנבחר.",
+          "source": "A"
+        },
+        {
+          "id": "r1.f11",
+          "text": "מרד",
+          "line": "D06+",
+          "skip": 584,
+          "dir": 1,
+          "start": 245325,
+          "cells": [
+            [
+              31,
+              36
+            ],
+            [
+              32,
+              37
+            ],
+            [
+              33,
+              38
+            ]
+          ],
+          "signature": "מרד|31,36;32,37;33,38",
+          "state": "ENGINE_VERIFIED",
+          "kind": "els",
+          "distance": 15,
+          "band": "far",
+          "chance": {
+            "expected_occurrences": 68.58,
+            "unlikely_by_chance": false,
+            "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+          },
+          "tier": "C",
+          "note": "'מרד' בסוף אלכסון D06.",
+          "source": "A"
+        },
+        {
+          "id": "r1.f12",
+          "text": "בלבבמ",
+          "line": "C09-",
+          "skip": 583,
+          "dir": -1,
+          "start": 231889,
+          "cells": [
+            [
+              8,
+              9
+            ],
+            [
+              7,
+              9
+            ],
+            [
+              6,
+              9
+            ],
+            [
+              5,
+              9
+            ],
+            [
+              4,
+              9
+            ]
+          ],
+          "signature": "בלבבמ|8,9;7,9;6,9;5,9;4,9",
+          "state": "ENGINE_VERIFIED",
+          "kind": "els",
+          "distance": 12,
+          "band": "far",
+          "chance": {
+            "expected_occurrences": 0.5434,
+            "unlikely_by_chance": true,
+            "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+          },
+          "tier": "A",
+          "note": "'בלבבם' בטור C09 בקריאה הפוכה.",
+          "source": "A"
+        },
+        {
+          "id": "r1.f13",
+          "text": "קול",
+          "line": "C15-",
+          "skip": 583,
+          "dir": -1,
+          "start": 228980,
+          "cells": [
+            [
+              3,
+              15
+            ],
+            [
+              2,
+              15
+            ],
+            [
+              1,
+              15
+            ]
+          ],
+          "signature": "קול|3,15;2,15;1,15",
+          "state": "ENGINE_VERIFIED",
+          "kind": "els",
+          "distance": 10,
+          "band": "far",
+          "chance": {
+            "expected_occurrences": 66.27,
+            "unlikely_by_chance": false,
+            "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+          },
+          "tier": "C",
+          "note": "'קול' בסוף טור C15 הפוך.",
+          "source": "A"
+        },
+        {
+          "id": "r1.f15",
+          "text": "אמרלו",
+          "line": "C01-",
+          "skip": 583,
+          "dir": -1,
+          "start": 234796,
+          "cells": [
+            [
+              13,
+              1
+            ],
+            [
+              12,
+              1
+            ],
+            [
+              11,
+              1
+            ],
+            [
+              10,
+              1
+            ],
+            [
+              9,
+              1
+            ]
+          ],
+          "signature": "אמרלו|13,1;12,1;11,1;10,1;9,1",
+          "state": "ENGINE_VERIFIED",
+          "kind": "els",
+          "distance": 20,
+          "band": "far",
+          "chance": {
+            "expected_occurrences": 1.862,
+            "unlikely_by_chance": false,
+            "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+          },
+          "tier": "C",
+          "note": "'אמר לו' בטור C01 הפוך; מיד אחריו 'שדה'.",
+          "source": "A"
+        },
+        {
+          "id": "r1.f16",
+          "text": "השמימ",
+          "line": "C01+",
+          "skip": 583,
+          "dir": 1,
+          "start": 235962,
+          "cells": [
+            [
+              15,
+              1
+            ],
+            [
+              16,
+              1
+            ],
+            [
+              17,
+              1
+            ],
+            [
+              18,
+              1
+            ],
+            [
+              19,
+              1
+            ]
+          ],
+          "signature": "השמימ|15,1;16,1;17,1;18,1;19,1",
+          "state": "ENGINE_VERIFIED",
+          "kind": "els",
+          "distance": 20,
+          "band": "far",
+          "chance": {
+            "expected_occurrences": 1.997,
+            "unlikely_by_chance": false,
+            "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+          },
+          "tier": "B",
+          "note": "'השמים' בטור C01.",
+          "source": "A"
+        },
+        {
+          "id": "r1.f17",
+          "text": "ייצור",
+          "line": "C03+",
+          "skip": 583,
+          "dir": 1,
+          "start": 242377,
+          "cells": [
+            [
+              26,
+              3
+            ],
+            [
+              27,
+              3
+            ],
+            [
+              28,
+              3
+            ],
+            [
+              29,
+              3
+            ],
+            [
+              30,
+              3
+            ]
+          ],
+          "signature": "ייצור|26,3;27,3;28,3;29,3;30,3",
+          "state": "ENGINE_VERIFIED",
+          "kind": "els",
+          "distance": 18,
+          "band": "far",
+          "chance": {
+            "expected_occurrences": 0.5009,
+            "unlikely_by_chance": true,
+            "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+          },
+          "tier": "B",
+          "note": "'ייצור' בטור C03.",
+          "source": "A"
+        },
+        {
+          "id": "r1.f19",
+          "text": "חריש",
+          "line": "D26+",
+          "skip": 584,
+          "dir": 1,
+          "start": 227825,
+          "cells": [
+            [
+              1,
+              26
+            ],
+            [
+              2,
+              27
+            ],
+            [
+              3,
+              28
+            ],
+            [
+              4,
+              29
+            ]
+          ],
+          "signature": "חריש|1,26;2,27;3,28;4,29",
+          "state": "ENGINE_VERIFIED",
+          "kind": "els",
+          "distance": 9,
+          "band": "far",
+          "chance": {
+            "expected_occurrences": 4.499,
+            "unlikely_by_chance": false,
+            "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+          },
+          "tier": "C",
+          "note": "'חריש' בראש אלכסון D26.",
+          "source": "A"
+        },
+        {
+          "id": "r1.f20",
+          "text": "יכשופ",
+          "line": "D45+",
+          "skip": 584,
+          "dir": 1,
+          "start": 230132,
+          "cells": [
+            [
+              5,
+              1
+            ],
+            [
+              6,
+              2
+            ],
+            [
+              7,
+              3
+            ],
+            [
+              8,
+              4
+            ],
+            [
+              9,
+              5
+            ]
+          ],
+          "signature": "יכשופ|5,1;6,2;7,3;8,4;9,5",
+          "state": "ENGINE_VERIFIED",
+          "kind": "els",
+          "distance": 16,
+          "band": "far",
+          "chance": {
+            "expected_occurrences": 0.1984,
+            "unlikely_by_chance": true,
+            "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+          },
+          "tier": "B",
+          "note": "'יכשוף' (יכשף) באלכסון D45.",
+          "source": "A"
+        },
+        {
+          "id": "r1.f21",
+          "text": "משמח",
+          "line": "D52+",
+          "skip": 584,
+          "dir": 1,
+          "start": 234213,
+          "cells": [
+            [
+              12,
+              1
+            ],
+            [
+              13,
+              2
+            ],
+            [
+              14,
+              3
+            ],
+            [
+              15,
+              4
+            ]
+          ],
+          "signature": "משמח|12,1;13,2;14,3;15,4",
+          "state": "ENGINE_VERIFIED",
+          "kind": "els",
+          "distance": 17,
+          "band": "far",
+          "chance": {
+            "expected_occurrences": 4.956,
+            "unlikely_by_chance": false,
+            "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+          },
+          "tier": "C",
+          "note": "'משמח' בראש אלכסון D52.",
+          "source": "A"
+        },
+        {
+          "id": "r1.f23",
+          "text": "תמוז",
+          "line": "A64+",
+          "skip": 582,
+          "dir": 1,
+          "start": 241249,
+          "cells": [
+            [
+              24,
+              41
+            ],
+            [
+              25,
+              40
+            ],
+            [
+              26,
+              39
+            ],
+            [
+              27,
+              38
+            ]
+          ],
+          "signature": "תמוז|24,41;25,40;26,39;27,38",
+          "state": "ENGINE_VERIFIED",
+          "kind": "els",
+          "distance": 17,
+          "band": "far",
+          "chance": {
+            "expected_occurrences": 2.121,
+            "unlikely_by_chance": false,
+            "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+          },
+          "tier": "B",
+          "note": "'תמוז' באלכסון A64 בשוליים התחתונים.",
+          "source": "A"
+        }
+      ],
+      "axis_context": [
+        {
+          "id": "r1.f01",
+          "text": "יוממשיחבא",
+          "line": "C21-",
+          "skip": 583,
+          "dir": -1,
+          "start": 239480,
+          "cells": [
+            [
+              21,
+              21
+            ],
+            [
+              20,
+              21
+            ],
+            [
+              19,
+              21
+            ],
+            [
+              18,
+              21
+            ],
+            [
+              17,
+              21
+            ],
+            [
+              16,
+              21
+            ],
+            [
+              15,
+              21
+            ],
+            [
+              14,
+              21
+            ],
+            [
+              13,
+              21
+            ]
+          ],
+          "signature": "יוממשיחבא|21,21;20,21;19,21;18,21;17,21;16,21;15,21;14,21;13,21",
+          "state": "ENGINE_VERIFIED",
+          "kind": "els",
+          "distance": 0,
+          "band": "crosses",
+          "chance": {
+            "expected_occurrences": 0.00002503,
+            "unlikely_by_chance": true,
+            "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+          },
+          "tier": "A",
+          "note": "המופע הנבחר בקריאה הפוכה: 'יום משיח בא' - חלוקה מפתיעה של תשע האותיות.",
+          "source": "A"
+        },
+        {
+          "id": "r1.f02",
+          "text": "משיחבא",
+          "line": "C21-",
+          "skip": 583,
+          "dir": -1,
+          "start": 237731,
+          "cells": [
+            [
+              18,
+              21
+            ],
+            [
+              17,
+              21
+            ],
+            [
+              16,
+              21
+            ],
+            [
+              15,
+              21
+            ],
+            [
+              14,
+              21
+            ],
+            [
+              13,
+              21
+            ]
+          ],
+          "signature": "משיחבא|18,21;17,21;16,21;15,21;14,21;13,21",
+          "state": "ENGINE_VERIFIED",
+          "kind": "els",
+          "distance": 0,
+          "band": "crosses",
+          "chance": {
+            "expected_occurrences": 0.02953,
+            "unlikely_by_chance": true,
+            "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+          },
+          "tier": "A",
+          "note": "ביטוי 'משיח בא' כרצף בטור הנבחר.",
+          "source": "A"
+        },
+        {
+          "id": "r1.f03",
+          "text": "משיח",
+          "line": "C21-",
+          "skip": 583,
+          "dir": -1,
+          "start": 237731,
+          "cells": [
+            [
+              18,
+              21
+            ],
+            [
+              17,
+              21
+            ],
+            [
+              16,
+              21
+            ],
+            [
+              15,
+              21
+            ]
+          ],
+          "signature": "משיח|18,21;17,21;16,21;15,21",
+          "state": "ENGINE_VERIFIED",
+          "kind": "els",
+          "distance": 0,
+          "band": "crosses",
+          "chance": {
+            "expected_occurrences": 6.228,
+            "unlikely_by_chance": false,
+            "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+          },
+          "tier": "A",
+          "note": "המילה משיח בלב המופע הנבחר.",
+          "source": "A"
+        },
+        {
+          "id": "r1.f07",
+          "text": "נשיא",
+          "line": "A01-",
+          "skip": 582,
+          "dir": -1,
+          "start": 240644,
+          "cells": [
+            [
+              23,
+              19
+            ],
+            [
+              22,
+              20
+            ],
+            [
+              21,
+              21
+            ],
+            [
+              20,
+              22
+            ]
+          ],
+          "signature": "נשיא|23,19;22,20;21,21;20,22",
+          "state": "ENGINE_VERIFIED",
+          "kind": "els",
+          "distance": 0,
+          "band": "crosses",
+          "chance": {
+            "expected_occurrences": 13.2,
+            "unlikely_by_chance": false,
+            "basis": "independent letters at the Torah's own frequencies, both directions, whole Torah at this skip"
+          },
+          "tier": "B",
+          "note": "'נשיא' באלכסון A01 שחולף בציר.",
+          "source": "A"
+        }
+      ],
+      "coverage_report": {
+        "note": "three things, reported apart and never derived from one another: how many proposals (an output ceiling, not coverage, not to be filled), what is deterministic (shown, and the verified footprint of the proposals), and what the model says it went through",
+        "proposals": {
+          "basis": "PROPOSAL_COUNT",
+          "count": 25,
+          "cap": 25,
+          "reached_cap": true,
+          "note": "an output ceiling the model is told not to fill; it says nothing about how much was examined"
+        },
+        "shown_to_model": {
+          "basis": "DETERMINISTIC",
+          "status": "CERTAIN",
+          "window_cells": 1353,
+          "lines": 212,
+          "readings": 424,
+          "axis_lines": {
+            "lines": 28,
+            "by_kind": {
+              "R": 9,
+              "C": 1,
+              "D": 9,
+              "A": 9
+            }
+          },
+          "near": {
+            "cells": 425,
+            "lines": 116,
+            "by_kind": {
+              "R": 25,
+              "C": 17,
+              "D": 37,
+              "A": 37
+            }
+          },
+          "margin": {
+            "cells": 928,
+            "lines": 212,
+            "by_kind": {
+              "R": 33,
+              "C": 41,
+              "D": 69,
+              "A": 69
+            }
+          }
+        },
+        "proposal_footprint": {
+          "basis": "DETERMINISTIC_LOWER_BOUND",
+          "status": "VERIFIED_LOWER_BOUND",
+          "axis": {
+            "lines_with_proposals": 9,
+            "of_lines": 28
+          },
+          "near": {
+            "lines_with_proposals": 11,
+            "of_lines": 116,
+            "cells_touched": 46,
+            "of_cells": 425
+          },
+          "margin": {
+            "lines_with_proposals": 15,
+            "of_lines": 212,
+            "cells_touched": 73,
+            "of_cells": 928
+          }
+        },
+        "model_review": {
+          "basis": "MODEL_REPORT",
+          "status": "UNVERIFIED_MODEL_REPORT",
+          "axis": {
+            "reported": 28,
+            "of_lines": 28,
+            "state": "ALL_REPORTED"
+          },
+          "near": {
+            "reported": 91,
+            "of_lines": 116,
+            "share": 0.78,
+            "state": "PARTIAL_REPORTED"
+          },
+          "margin": {
+            "reported": 73,
+            "of_lines": 212,
+            "share": 0.34,
+            "state": "PARTIAL_REPORTED",
+            "lines_not_reported": [
+              "R05",
+              "R06",
+              "R07",
+              "R08",
+              "R09",
+              "R10",
+              "R11",
+              "R12",
+              "R13",
+              "R14",
+              "R15",
+              "R16",
+              "R17",
+              "R18",
+              "R19",
+              "R20",
+              "R21",
+              "R22",
+              "R23",
+              "R24",
+              "R25",
+              "R26",
+              "R27",
+              "R28",
+              "R29",
+              "C13",
+              "C14",
+              "C15",
+              "C16",
+              "C17",
+              "C18",
+              "C19",
+              "C20",
+              "C21",
+              "C22",
+              "C23",
+              "C24",
+              "C25",
+              "C26",
+              "C27"
+            ]
+          },
+          "invalid_ids": [],
+          "invalid_count": 0,
+          "near_lines_not_reported": [
+            "D17",
+            "D18",
+            "D19",
+            "D20",
+            "D21",
+            "D22",
+            "D23",
+            "D54",
+            "D55",
+            "A10",
+            "A11",
+            "A12",
+            "A13",
+            "A14",
+            "A15",
+            "A16",
+            "A17",
+            "A18",
+            "A19",
+            "A20",
+            "A21",
+            "A22",
+            "A23",
+            "A54",
+            "A55"
+          ],
+          "note": "the model's own statement; the engine cannot check what a model went through"
+        },
+        "what_is_not_covered": "everything outside this window; lines are cut at the window boundary; the rest of the Torah and every other matrix width"
+      },
+      "review": {
+        "near_lines": [
+          "R13",
+          "R14",
+          "R15",
+          "R16",
+          "R17",
+          "R18",
+          "R19",
+          "R20",
+          "R21",
+          "C21",
+          "D01",
+          "D02",
+          "D03",
+          "D04",
+          "D05",
+          "D06",
+          "D07",
+          "D08",
+          "D09",
+          "A01",
+          "A02",
+          "A03",
+          "A04",
+          "A05",
+          "A06",
+          "A07",
+          "A08",
+          "A09",
+          "C13",
+          "C14",
+          "C15",
+          "C16",
+          "C17",
+          "C18",
+          "C19",
+          "C20",
+          "C22",
+          "C23",
+          "C24",
+          "C25",
+          "C26",
+          "C27",
+          "C28",
+          "C29",
+          "D10",
+          "D11",
+          "D12",
+          "D13",
+          "D14",
+          "D15",
+          "D16",
+          "D42",
+          "D43",
+          "D44",
+          "D45",
+          "D46",
+          "D47",
+          "D48",
+          "D49",
+          "D50",
+          "D51",
+          "D52",
+          "D53",
+          "A42",
+          "A43",
+          "A44",
+          "A45",
+          "A46",
+          "A47",
+          "A48",
+          "A49",
+          "A50",
+          "A51",
+          "A52",
+          "A53",
+          "R05",
+          "R06",
+          "R07",
+          "R08",
+          "R09",
+          "R10",
+          "R11",
+          "R12",
+          "R22",
+          "R23",
+          "R24",
+          "R25",
+          "R26",
+          "R27",
+          "R28",
+          "R29"
+        ],
+        "margin_lines": [
+          "C01",
+          "C02",
+          "C03",
+          "C04",
+          "C05",
+          "C06",
+          "C07",
+          "C08",
+          "C09",
+          "C10",
+          "C11",
+          "C12",
+          "C30",
+          "C31",
+          "C32",
+          "C33",
+          "C34",
+          "C35",
+          "C36",
+          "C37",
+          "C38",
+          "C39",
+          "C40",
+          "C41",
+          "D17",
+          "D18",
+          "D19",
+          "D20",
+          "D21",
+          "D22",
+          "D23",
+          "D24",
+          "D25",
+          "D26",
+          "D27",
+          "D28",
+          "D29",
+          "D30",
+          "D31",
+          "D54",
+          "D55",
+          "D56",
+          "D57",
+          "D58",
+          "D59",
+          "D60",
+          "D61",
+          "D62",
+          "D63",
+          "D64",
+          "D65",
+          "D66",
+          "A54",
+          "A55",
+          "A56",
+          "A57",
+          "A58",
+          "A59",
+          "A60",
+          "A61",
+          "A62",
+          "A63",
+          "A64",
+          "A65",
+          "A66",
+          "R01",
+          "R02",
+          "R03",
+          "R04",
+          "R30",
+          "R31",
+          "R32",
+          "R33"
+        ]
+      },
+      "observations": "האלכסונים הקצרים ביותר בפינות (D32–D39, D67–D71, A32–A39, A67–A71) נסקרו ברפרוף בלבד. הקריאה הבולטת ביותר היא היפוך הטור הנבחר 'יום משיח בא'. שורות המקור הוצעו רק בצירופים הבולטים."
+    },
+    "L": {
+      "id": "L",
+      "label": "ריצה חיה קודמת (uniform, job 5f5aa117) — ייחוס",
+      "state": "COMPLETE",
+      "usd": 1.315755,
+      "proposals": 25,
+      "findings": [
+        {
+          "id": "r1.f01",
+          "text": "משיחבא",
+          "line": "C21-",
+          "skip": 583,
+          "dir": -1,
+          "start": 237731,
+          "cells": [
+            [
+              18,
+              21
+            ],
+            [
+              17,
+              21
+            ],
+            [
+              16,
+              21
+            ],
+            [
+              15,
+              21
+            ],
+            [
+              14,
+              21
+            ],
+            [
+              13,
+              21
+            ]
+          ],
+          "signature": "משיחבא|18,21;17,21;16,21;15,21;14,21;13,21",
+          "kind": "els",
+          "distance": 0,
+          "band": "crosses",
+          "source": "L"
+        },
+        {
+          "id": "r1.f02",
+          "text": "אמרלונא",
+          "line": "C01-",
+          "skip": 583,
+          "dir": -1,
+          "start": 234796,
+          "cells": [
+            [
+              13,
+              1
+            ],
+            [
+              12,
+              1
+            ],
+            [
+              11,
+              1
+            ],
+            [
+              10,
+              1
+            ],
+            [
+              9,
+              1
+            ],
+            [
+              8,
+              1
+            ],
+            [
+              7,
+              1
+            ]
+          ],
+          "signature": "אמרלונא|13,1;12,1;11,1;10,1;9,1;8,1;7,1",
+          "kind": "els",
+          "distance": 20,
+          "band": "far",
+          "source": "L"
+        },
+        {
+          "id": "r1.f03",
+          "text": "בלבבמ",
+          "line": "C09-",
+          "skip": 583,
+          "dir": -1,
+          "start": 231889,
+          "cells": [
+            [
+              8,
+              9
+            ],
+            [
+              7,
+              9
+            ],
+            [
+              6,
+              9
+            ],
+            [
+              5,
+              9
+            ],
+            [
+              4,
+              9
+            ]
+          ],
+          "signature": "בלבבמ|8,9;7,9;6,9;5,9;4,9",
+          "kind": "els",
+          "distance": 12,
+          "band": "far",
+          "source": "L"
+        },
+        {
+          "id": "r1.f04",
+          "text": "המרימרד",
+          "line": "D06+",
+          "skip": 584,
+          "dir": 1,
+          "start": 242989,
+          "cells": [
+            [
+              27,
+              32
+            ],
+            [
+              28,
+              33
+            ],
+            [
+              29,
+              34
+            ],
+            [
+              30,
+              35
+            ],
+            [
+              31,
+              36
+            ],
+            [
+              32,
+              37
+            ],
+            [
+              33,
+              38
+            ]
+          ],
+          "signature": "המרימרד|27,32;28,33;29,34;30,35;31,36;32,37;33,38",
+          "kind": "els",
+          "distance": 11,
+          "band": "far",
+          "source": "L"
+        },
+        {
+          "id": "r1.f05",
+          "text": "משמימ",
+          "line": "D08+",
+          "skip": 584,
+          "dir": 1,
+          "start": 236567,
+          "cells": [
+            [
+              16,
+              23
+            ],
+            [
+              17,
+              24
+            ],
+            [
+              18,
+              25
+            ],
+            [
+              19,
+              26
+            ],
+            [
+              20,
+              27
+            ]
+          ],
+          "signature": "משמימ|16,23;17,24;18,25;19,26;20,27",
+          "kind": "els",
+          "distance": 2,
+          "band": "near",
+          "source": "L"
+        },
+        {
+          "id": "r1.f06",
+          "text": "מחכה",
+          "line": "D24-",
+          "skip": 584,
+          "dir": -1,
+          "start": 232495,
+          "cells": [
+            [
+              9,
+              32
+            ],
+            [
+              8,
+              31
+            ],
+            [
+              7,
+              30
+            ],
+            [
+              6,
+              29
+            ]
+          ],
+          "signature": "מחכה|9,32;8,31;7,30;6,29",
+          "kind": "els",
+          "distance": 8,
+          "band": "near",
+          "source": "L"
+        },
+        {
+          "id": "r1.f07",
+          "text": "אבנר",
+          "line": "D25+",
+          "skip": 584,
+          "dir": 1,
+          "start": 229576,
+          "cells": [
+            [
+              4,
+              28
+            ],
+            [
+              5,
+              29
+            ],
+            [
+              6,
+              30
+            ],
+            [
+              7,
+              31
+            ]
+          ],
+          "signature": "אבנר|4,28;5,29;6,30;7,31",
+          "kind": "els",
+          "distance": 8,
+          "band": "near",
+          "source": "L"
+        },
+        {
+          "id": "r1.f08",
+          "text": "בחלמי",
+          "line": "D14-",
+          "skip": 584,
+          "dir": -1,
+          "start": 237741,
+          "cells": [
+            [
+              18,
+              31
+            ],
+            [
+              17,
+              30
+            ],
+            [
+              16,
+              29
+            ],
+            [
+              15,
+              28
+            ],
+            [
+              14,
+              27
+            ]
+          ],
+          "signature": "בחלמי|18,31;17,30;16,29;15,28;14,27",
+          "kind": "els",
+          "distance": 6,
+          "band": "near",
+          "source": "L"
+        },
+        {
+          "id": "r1.f09",
+          "text": "בחלמו",
+          "line": "C40-",
+          "skip": 583,
+          "dir": -1,
+          "start": 243580,
+          "cells": [
+            [
+              28,
+              40
+            ],
+            [
+              27,
+              40
+            ],
+            [
+              26,
+              40
+            ],
+            [
+              25,
+              40
+            ],
+            [
+              24,
+              40
+            ]
+          ],
+          "signature": "בחלמו|28,40;27,40;26,40;25,40;24,40",
+          "kind": "els",
+          "distance": 19,
+          "band": "far",
+          "source": "L"
+        },
+        {
+          "id": "r1.f10",
+          "text": "נשלחו",
+          "line": "A18+",
+          "skip": 582,
+          "dir": 1,
+          "start": 230733,
+          "cells": [
+            [
+              6,
+              19
+            ],
+            [
+              7,
+              18
+            ],
+            [
+              8,
+              17
+            ],
+            [
+              9,
+              16
+            ],
+            [
+              10,
+              15
+            ]
+          ],
+          "signature": "נשלחו|6,19;7,18;8,17;9,16;10,15",
+          "kind": "els",
+          "distance": 5,
+          "band": "near",
+          "source": "L"
+        },
+        {
+          "id": "r1.f11",
+          "text": "מורה",
+          "line": "A42-",
+          "skip": 582,
+          "dir": -1,
+          "start": 241227,
+          "cells": [
+            [
+              24,
+              19
+            ],
+            [
+              23,
+              20
+            ],
+            [
+              22,
+              21
+            ],
+            [
+              21,
+              22
+            ]
+          ],
+          "signature": "מורה|24,19;23,20;22,21;21,22",
+          "kind": "els",
+          "distance": 1,
+          "band": "touches",
+          "source": "L"
+        },
+        {
+          "id": "r1.f12",
+          "text": "ברכה",
+          "line": "D13-",
+          "skip": 584,
+          "dir": -1,
+          "start": 243580,
+          "cells": [
+            [
+              28,
+              40
+            ],
+            [
+              27,
+              39
+            ],
+            [
+              26,
+              38
+            ],
+            [
+              25,
+              37
+            ]
+          ],
+          "signature": "ברכה|28,40;27,39;26,38;25,37",
+          "kind": "els",
+          "distance": 16,
+          "band": "far",
+          "source": "L"
+        },
+        {
+          "id": "r1.f13",
+          "text": "עכבר",
+          "line": "C39-",
+          "skip": 583,
+          "dir": -1,
+          "start": 234834,
+          "cells": [
+            [
+              13,
+              39
+            ],
+            [
+              12,
+              39
+            ],
+            [
+              11,
+              39
+            ],
+            [
+              10,
+              39
+            ]
+          ],
+          "signature": "עכבר|13,39;12,39;11,39;10,39",
+          "kind": "els",
+          "distance": 18,
+          "band": "far",
+          "source": "L"
+        },
+        {
+          "id": "r1.f14",
+          "text": "אבאאלי",
+          "line": "C20-",
+          "skip": 583,
+          "dir": -1,
+          "start": 230734,
+          "cells": [
+            [
+              6,
+              20
+            ],
+            [
+              5,
+              20
+            ],
+            [
+              4,
+              20
+            ],
+            [
+              3,
+              20
+            ],
+            [
+              2,
+              20
+            ],
+            [
+              1,
+              20
+            ]
+          ],
+          "signature": "אבאאלי|6,20;5,20;4,20;3,20;2,20;1,20",
+          "kind": "els",
+          "distance": 7,
+          "band": "near",
+          "source": "L"
+        },
+        {
+          "id": "r1.f15",
+          "text": "הוליכ",
+          "line": "D34+",
+          "skip": 584,
+          "dir": 1,
+          "start": 227833,
+          "cells": [
+            [
+              1,
+              34
+            ],
+            [
+              2,
+              35
+            ],
+            [
+              3,
+              36
+            ],
+            [
+              4,
+              37
+            ],
+            [
+              5,
+              38
+            ]
+          ],
+          "signature": "הוליכ|1,34;2,35;3,36;4,37;5,38",
+          "kind": "els",
+          "distance": 13,
+          "band": "far",
+          "source": "L"
+        },
+        {
+          "id": "r1.f16",
+          "text": "אלהוא",
+          "line": "A11+",
+          "skip": 582,
+          "dir": 1,
+          "start": 239470,
+          "cells": [
+            [
+              21,
+              11
+            ],
+            [
+              22,
+              10
+            ],
+            [
+              23,
+              9
+            ],
+            [
+              24,
+              8
+            ],
+            [
+              25,
+              7
+            ]
+          ],
+          "signature": "אלהוא|21,11;22,10;23,9;24,8;25,7",
+          "kind": "els",
+          "distance": 10,
+          "band": "far",
+          "source": "L"
+        },
+        {
+          "id": "r1.f17",
+          "text": "נשיא",
+          "line": "A01-",
+          "skip": 582,
+          "dir": -1,
+          "start": 240644,
+          "cells": [
+            [
+              23,
+              19
+            ],
+            [
+              22,
+              20
+            ],
+            [
+              21,
+              21
+            ],
+            [
+              20,
+              22
+            ]
+          ],
+          "signature": "נשיא|23,19;22,20;21,21;20,22",
+          "kind": "els",
+          "distance": 0,
+          "band": "crosses",
+          "source": "L"
+        },
+        {
+          "id": "r1.f18",
+          "text": "מתהאב",
+          "line": "A03-",
+          "skip": 582,
+          "dir": -1,
+          "start": 246462,
+          "cells": [
+            [
+              33,
+              7
+            ],
+            [
+              32,
+              8
+            ],
+            [
+              31,
+              9
+            ],
+            [
+              30,
+              10
+            ],
+            [
+              29,
+              11
+            ]
+          ],
+          "signature": "מתהאב|33,7;32,8;31,9;30,10;29,11",
+          "kind": "els",
+          "distance": 10,
+          "band": "far",
+          "source": "L"
+        },
+        {
+          "id": "r1.f19",
+          "text": "לאבא",
+          "line": "A23-",
+          "skip": 582,
+          "dir": -1,
+          "start": 229564,
+          "cells": [
+            [
+              4,
+              16
+            ],
+            [
+              3,
+              17
+            ],
+            [
+              2,
+              18
+            ],
+            [
+              1,
+              19
+            ]
+          ],
+          "signature": "לאבא|4,16;3,17;2,18;1,19",
+          "kind": "els",
+          "distance": 9,
+          "band": "far",
+          "source": "L"
+        },
+        {
+          "id": "r1.f20",
+          "text": "נריה",
+          "line": "A20+",
+          "skip": 582,
+          "dir": 1,
+          "start": 237133,
+          "cells": [
+            [
+              17,
+              6
+            ],
+            [
+              18,
+              5
+            ],
+            [
+              19,
+              4
+            ],
+            [
+              20,
+              3
+            ]
+          ],
+          "signature": "נריה|17,6;18,5;19,4;20,3",
+          "kind": "els",
+          "distance": 15,
+          "band": "far",
+          "source": "L"
+        },
+        {
+          "id": "r1.f21",
+          "text": "מפיו",
+          "line": "A18-",
+          "skip": 582,
+          "dir": -1,
+          "start": 234807,
+          "cells": [
+            [
+              13,
+              12
+            ],
+            [
+              12,
+              13
+            ],
+            [
+              11,
+              14
+            ],
+            [
+              10,
+              15
+            ]
+          ],
+          "signature": "מפיו|13,12;12,13;11,14;10,15",
+          "kind": "els",
+          "distance": 6,
+          "band": "near",
+          "source": "L"
+        },
+        {
+          "id": "r1.f22",
+          "text": "חציר",
+          "line": "A64+",
+          "skip": 582,
+          "dir": 1,
+          "start": 243577,
+          "cells": [
+            [
+              28,
+              37
+            ],
+            [
+              29,
+              36
+            ],
+            [
+              30,
+              35
+            ],
+            [
+              31,
+              34
+            ]
+          ],
+          "signature": "חציר|28,37;29,36;30,35;31,34",
+          "kind": "els",
+          "distance": 13,
+          "band": "far",
+          "source": "L"
+        },
+        {
+          "id": "r1.f23",
+          "text": "אבות",
+          "line": "A60-",
+          "skip": 582,
+          "dir": -1,
+          "start": 240663,
+          "cells": [
+            [
+              23,
+              38
+            ],
+            [
+              22,
+              39
+            ],
+            [
+              21,
+              40
+            ],
+            [
+              20,
+              41
+            ]
+          ],
+          "signature": "אבות|23,38;22,39;21,40;20,41",
+          "kind": "els",
+          "distance": 17,
+          "band": "far",
+          "source": "L"
+        },
+        {
+          "id": "r1.f24",
+          "text": "בבל",
+          "line": "A42-",
+          "skip": 582,
+          "dir": -1,
+          "start": 229587,
+          "cells": [
+            [
+              4,
+              39
+            ],
+            [
+              3,
+              40
+            ],
+            [
+              2,
+              41
+            ]
+          ],
+          "signature": "בבל|4,39;3,40;2,41",
+          "kind": "els",
+          "distance": 18,
+          "band": "far",
+          "source": "L"
+        },
+        {
+          "id": "r1.f25",
+          "text": "מעלתי",
+          "line": "C29-",
+          "skip": 583,
+          "dir": -1,
+          "start": 243569,
+          "cells": [
+            [
+              28,
+              29
+            ],
+            [
+              27,
+              29
+            ],
+            [
+              26,
+              29
+            ],
+            [
+              25,
+              29
+            ],
+            [
+              24,
+              29
+            ]
+          ],
+          "signature": "מעלתי|28,29;27,29;26,29;25,29;24,29",
+          "kind": "els",
+          "distance": 8,
+          "band": "near",
+          "source": "L"
+        }
+      ],
+      "els": 25,
+      "source_rows": 0,
+      "bands": {
+        "crosses": 2,
+        "touches": 1,
+        "near": 8,
+        "far": 14
+      },
+      "margin": [
+        {
+          "id": "r1.f02",
+          "text": "אמרלונא",
+          "line": "C01-",
+          "skip": 583,
+          "dir": -1,
+          "start": 234796,
+          "cells": [
+            [
+              13,
+              1
+            ],
+            [
+              12,
+              1
+            ],
+            [
+              11,
+              1
+            ],
+            [
+              10,
+              1
+            ],
+            [
+              9,
+              1
+            ],
+            [
+              8,
+              1
+            ],
+            [
+              7,
+              1
+            ]
+          ],
+          "signature": "אמרלונא|13,1;12,1;11,1;10,1;9,1;8,1;7,1",
+          "kind": "els",
+          "distance": 20,
+          "band": "far",
+          "source": "L"
+        },
+        {
+          "id": "r1.f03",
+          "text": "בלבבמ",
+          "line": "C09-",
+          "skip": 583,
+          "dir": -1,
+          "start": 231889,
+          "cells": [
+            [
+              8,
+              9
+            ],
+            [
+              7,
+              9
+            ],
+            [
+              6,
+              9
+            ],
+            [
+              5,
+              9
+            ],
+            [
+              4,
+              9
+            ]
+          ],
+          "signature": "בלבבמ|8,9;7,9;6,9;5,9;4,9",
+          "kind": "els",
+          "distance": 12,
+          "band": "far",
+          "source": "L"
+        },
+        {
+          "id": "r1.f04",
+          "text": "המרימרד",
+          "line": "D06+",
+          "skip": 584,
+          "dir": 1,
+          "start": 242989,
+          "cells": [
+            [
+              27,
+              32
+            ],
+            [
+              28,
+              33
+            ],
+            [
+              29,
+              34
+            ],
+            [
+              30,
+              35
+            ],
+            [
+              31,
+              36
+            ],
+            [
+              32,
+              37
+            ],
+            [
+              33,
+              38
+            ]
+          ],
+          "signature": "המרימרד|27,32;28,33;29,34;30,35;31,36;32,37;33,38",
+          "kind": "els",
+          "distance": 11,
+          "band": "far",
+          "source": "L"
+        },
+        {
+          "id": "r1.f09",
+          "text": "בחלמו",
+          "line": "C40-",
+          "skip": 583,
+          "dir": -1,
+          "start": 243580,
+          "cells": [
+            [
+              28,
+              40
+            ],
+            [
+              27,
+              40
+            ],
+            [
+              26,
+              40
+            ],
+            [
+              25,
+              40
+            ],
+            [
+              24,
+              40
+            ]
+          ],
+          "signature": "בחלמו|28,40;27,40;26,40;25,40;24,40",
+          "kind": "els",
+          "distance": 19,
+          "band": "far",
+          "source": "L"
+        },
+        {
+          "id": "r1.f12",
+          "text": "ברכה",
+          "line": "D13-",
+          "skip": 584,
+          "dir": -1,
+          "start": 243580,
+          "cells": [
+            [
+              28,
+              40
+            ],
+            [
+              27,
+              39
+            ],
+            [
+              26,
+              38
+            ],
+            [
+              25,
+              37
+            ]
+          ],
+          "signature": "ברכה|28,40;27,39;26,38;25,37",
+          "kind": "els",
+          "distance": 16,
+          "band": "far",
+          "source": "L"
+        },
+        {
+          "id": "r1.f13",
+          "text": "עכבר",
+          "line": "C39-",
+          "skip": 583,
+          "dir": -1,
+          "start": 234834,
+          "cells": [
+            [
+              13,
+              39
+            ],
+            [
+              12,
+              39
+            ],
+            [
+              11,
+              39
+            ],
+            [
+              10,
+              39
+            ]
+          ],
+          "signature": "עכבר|13,39;12,39;11,39;10,39",
+          "kind": "els",
+          "distance": 18,
+          "band": "far",
+          "source": "L"
+        },
+        {
+          "id": "r1.f15",
+          "text": "הוליכ",
+          "line": "D34+",
+          "skip": 584,
+          "dir": 1,
+          "start": 227833,
+          "cells": [
+            [
+              1,
+              34
+            ],
+            [
+              2,
+              35
+            ],
+            [
+              3,
+              36
+            ],
+            [
+              4,
+              37
+            ],
+            [
+              5,
+              38
+            ]
+          ],
+          "signature": "הוליכ|1,34;2,35;3,36;4,37;5,38",
+          "kind": "els",
+          "distance": 13,
+          "band": "far",
+          "source": "L"
+        },
+        {
+          "id": "r1.f16",
+          "text": "אלהוא",
+          "line": "A11+",
+          "skip": 582,
+          "dir": 1,
+          "start": 239470,
+          "cells": [
+            [
+              21,
+              11
+            ],
+            [
+              22,
+              10
+            ],
+            [
+              23,
+              9
+            ],
+            [
+              24,
+              8
+            ],
+            [
+              25,
+              7
+            ]
+          ],
+          "signature": "אלהוא|21,11;22,10;23,9;24,8;25,7",
+          "kind": "els",
+          "distance": 10,
+          "band": "far",
+          "source": "L"
+        },
+        {
+          "id": "r1.f18",
+          "text": "מתהאב",
+          "line": "A03-",
+          "skip": 582,
+          "dir": -1,
+          "start": 246462,
+          "cells": [
+            [
+              33,
+              7
+            ],
+            [
+              32,
+              8
+            ],
+            [
+              31,
+              9
+            ],
+            [
+              30,
+              10
+            ],
+            [
+              29,
+              11
+            ]
+          ],
+          "signature": "מתהאב|33,7;32,8;31,9;30,10;29,11",
+          "kind": "els",
+          "distance": 10,
+          "band": "far",
+          "source": "L"
+        },
+        {
+          "id": "r1.f19",
+          "text": "לאבא",
+          "line": "A23-",
+          "skip": 582,
+          "dir": -1,
+          "start": 229564,
+          "cells": [
+            [
+              4,
+              16
+            ],
+            [
+              3,
+              17
+            ],
+            [
+              2,
+              18
+            ],
+            [
+              1,
+              19
+            ]
+          ],
+          "signature": "לאבא|4,16;3,17;2,18;1,19",
+          "kind": "els",
+          "distance": 9,
+          "band": "far",
+          "source": "L"
+        },
+        {
+          "id": "r1.f20",
+          "text": "נריה",
+          "line": "A20+",
+          "skip": 582,
+          "dir": 1,
+          "start": 237133,
+          "cells": [
+            [
+              17,
+              6
+            ],
+            [
+              18,
+              5
+            ],
+            [
+              19,
+              4
+            ],
+            [
+              20,
+              3
+            ]
+          ],
+          "signature": "נריה|17,6;18,5;19,4;20,3",
+          "kind": "els",
+          "distance": 15,
+          "band": "far",
+          "source": "L"
+        },
+        {
+          "id": "r1.f22",
+          "text": "חציר",
+          "line": "A64+",
+          "skip": 582,
+          "dir": 1,
+          "start": 243577,
+          "cells": [
+            [
+              28,
+              37
+            ],
+            [
+              29,
+              36
+            ],
+            [
+              30,
+              35
+            ],
+            [
+              31,
+              34
+            ]
+          ],
+          "signature": "חציר|28,37;29,36;30,35;31,34",
+          "kind": "els",
+          "distance": 13,
+          "band": "far",
+          "source": "L"
+        },
+        {
+          "id": "r1.f23",
+          "text": "אבות",
+          "line": "A60-",
+          "skip": 582,
+          "dir": -1,
+          "start": 240663,
+          "cells": [
+            [
+              23,
+              38
+            ],
+            [
+              22,
+              39
+            ],
+            [
+              21,
+              40
+            ],
+            [
+              20,
+              41
+            ]
+          ],
+          "signature": "אבות|23,38;22,39;21,40;20,41",
+          "kind": "els",
+          "distance": 17,
+          "band": "far",
+          "source": "L"
+        },
+        {
+          "id": "r1.f24",
+          "text": "בבל",
+          "line": "A42-",
+          "skip": 582,
+          "dir": -1,
+          "start": 229587,
+          "cells": [
+            [
+              4,
+              39
+            ],
+            [
+              3,
+              40
+            ],
+            [
+              2,
+              41
+            ]
+          ],
+          "signature": "בבל|4,39;3,40;2,41",
+          "kind": "els",
+          "distance": 18,
+          "band": "far",
+          "source": "L"
+        }
+      ],
+      "axis_context": [
+        {
+          "id": "r1.f01",
+          "text": "משיחבא",
+          "line": "C21-",
+          "skip": 583,
+          "dir": -1,
+          "start": 237731,
+          "cells": [
+            [
+              18,
+              21
+            ],
+            [
+              17,
+              21
+            ],
+            [
+              16,
+              21
+            ],
+            [
+              15,
+              21
+            ],
+            [
+              14,
+              21
+            ],
+            [
+              13,
+              21
+            ]
+          ],
+          "signature": "משיחבא|18,21;17,21;16,21;15,21;14,21;13,21",
+          "kind": "els",
+          "distance": 0,
+          "band": "crosses",
+          "source": "L"
+        },
+        {
+          "id": "r1.f11",
+          "text": "מורה",
+          "line": "A42-",
+          "skip": 582,
+          "dir": -1,
+          "start": 241227,
+          "cells": [
+            [
+              24,
+              19
+            ],
+            [
+              23,
+              20
+            ],
+            [
+              22,
+              21
+            ],
+            [
+              21,
+              22
+            ]
+          ],
+          "signature": "מורה|24,19;23,20;22,21;21,22",
+          "kind": "els",
+          "distance": 1,
+          "band": "touches",
+          "source": "L"
+        },
+        {
+          "id": "r1.f17",
+          "text": "נשיא",
+          "line": "A01-",
+          "skip": 582,
+          "dir": -1,
+          "start": 240644,
+          "cells": [
+            [
+              23,
+              19
+            ],
+            [
+              22,
+              20
+            ],
+            [
+              21,
+              21
+            ],
+            [
+              20,
+              22
+            ]
+          ],
+          "signature": "נשיא|23,19;22,20;21,21;20,22",
+          "kind": "els",
+          "distance": 0,
+          "band": "crosses",
+          "source": "L"
+        }
+      ]
+    }
+  },
+  "saved_targets": [
+    {
+      "text": "מחכיתשפו",
+      "key": "583_1_233063",
+      "skip": 583,
+      "dir": 1,
+      "start": 233063,
+      "cells": [
+        [
+          10,
+          17
+        ],
+        [
+          11,
+          17
+        ],
+        [
+          12,
+          17
+        ],
+        [
+          13,
+          17
+        ],
+        [
+          14,
+          17
+        ],
+        [
+          15,
+          17
+        ],
+        [
+          16,
+          17
+        ],
+        [
+          17,
+          17
+        ]
+      ],
+      "kind": "els",
+      "distance": 4,
+      "U": {
+        "status": "not_proposed",
+        "with": []
+      },
+      "A": {
+        "status": "not_proposed",
+        "with": []
+      },
+      "L": {
+        "status": "not_proposed",
+        "with": []
+      }
+    },
+    {
+      "text": "לכפרעליכמ",
+      "key": "1_1_236559",
+      "skip": 1,
+      "dir": 1,
+      "start": 236559,
+      "cells": [
+        [
+          16,
+          15
+        ],
+        [
+          16,
+          16
+        ],
+        [
+          16,
+          17
+        ],
+        [
+          16,
+          18
+        ],
+        [
+          16,
+          19
+        ],
+        [
+          16,
+          20
+        ],
+        [
+          16,
+          21
+        ],
+        [
+          16,
+          22
+        ],
+        [
+          16,
+          23
+        ]
+      ],
+      "kind": "source_row",
+      "distance": 0,
+      "U": {
+        "status": "crossed",
+        "with": [
+          "r1.f01 יוממשיחבא (C21-) · תא יחיד",
+          "r1.f05 משמימ (D08+) · תא יחיד"
+        ]
+      },
+      "A": {
+        "status": "crossed",
+        "with": [
+          "r1.f01 יוממשיחבא (C21-) · תא יחיד",
+          "r1.f02 משיחבא (C21-) · תא יחיד",
+          "r1.f03 משיח (C21-) · תא יחיד",
+          "r1.f06 משמימ (D08+) · תא יחיד"
+        ]
+      },
+      "L": {
+        "status": "crossed",
+        "with": [
+          "r1.f01 משיחבא (C21-) · תא יחיד",
+          "r1.f05 משמימ (D08+) · תא יחיד"
+        ]
+      }
+    },
+    {
+      "text": "הארחשכ",
+      "key": "584_1_232474",
+      "skip": 584,
+      "dir": 1,
+      "start": 232474,
+      "cells": [
+        [
+          9,
+          11
+        ],
+        [
+          10,
+          12
+        ],
+        [
+          11,
+          13
+        ],
+        [
+          12,
+          14
+        ],
+        [
+          13,
+          15
+        ],
+        [
+          14,
+          16
+        ]
+      ],
+      "kind": "els",
+      "distance": 5,
+      "U": {
+        "status": "not_proposed",
+        "with": []
+      },
+      "A": {
+        "status": "not_proposed",
+        "with": []
+      },
+      "L": {
+        "status": "not_proposed",
+        "with": []
+      }
+    },
+    {
+      "text": "שופר",
+      "key": "583_-1_235391",
+      "skip": 583,
+      "dir": -1,
+      "start": 235391,
+      "cells": [
+        [
+          14,
+          13
+        ],
+        [
+          13,
+          13
+        ],
+        [
+          12,
+          13
+        ],
+        [
+          11,
+          13
+        ]
+      ],
+      "kind": "els",
+      "distance": 8,
+      "U": {
+        "status": "not_proposed",
+        "with": []
+      },
+      "A": {
+        "status": "not_proposed",
+        "with": []
+      },
+      "L": {
+        "status": "crossed",
+        "with": [
+          "r1.f21 מפיו (A18-) · תא יחיד"
+        ]
+      }
+    },
+    {
+      "text": "ישלח",
+      "key": "583_-1_233650",
+      "skip": 583,
+      "dir": -1,
+      "start": 233650,
+      "cells": [
+        [
+          11,
+          21
+        ],
+        [
+          10,
+          21
+        ],
+        [
+          9,
+          21
+        ],
+        [
+          8,
+          21
+        ]
+      ],
+      "kind": "els",
+      "distance": 2,
+      "U": {
+        "status": "not_proposed",
+        "with": []
+      },
+      "A": {
+        "status": "crossed",
+        "with": [
+          "r1.f18 שמש (D12+) · תא יחיד"
+        ]
+      },
+      "L": {
+        "status": "not_proposed",
+        "with": []
+      }
+    },
+    {
+      "text": "מלכ",
+      "key": "1_1_232483",
+      "skip": 1,
+      "dir": 1,
+      "start": 232483,
+      "cells": [
+        [
+          9,
+          20
+        ],
+        [
+          9,
+          21
+        ],
+        [
+          9,
+          22
+        ]
+      ],
+      "kind": "source_row",
+      "distance": 4,
+      "U": {
+        "status": "not_proposed",
+        "with": []
+      },
+      "A": {
+        "status": "crossed",
+        "with": [
+          "r1.f18 שמש (D12+) · תא יחיד"
+        ]
+      },
+      "L": {
+        "status": "not_proposed",
+        "with": []
+      }
+    }
+  ],
+  "saved_hits": {
+    "U": {
+      "exact": 0,
+      "overlap": 0,
+      "crossed_at_one_cell": 1,
+      "of": 6
+    },
+    "A": {
+      "exact": 0,
+      "overlap": 0,
+      "crossed_at_one_cell": 3,
+      "of": 6
+    },
+    "L": {
+      "exact": 0,
+      "overlap": 0,
+      "crossed_at_one_cell": 2,
+      "of": 6
+    }
+  },
+  "overlap_between_arms": {
+    "same_text_and_cells": 5,
+    "only_U": 20,
+    "only_A": 20,
+    "same_text_anywhere": 5
+  },
+  "both": [
+    {
+      "text": "יוממשיחבא",
+      "line": "C21-",
+      "distance": 0,
+      "kind": "els"
+    },
+    {
+      "text": "משמימ",
+      "line": "D08+",
+      "distance": 2,
+      "kind": "els"
+    },
+    {
+      "text": "בלבבמ",
+      "line": "C09-",
+      "distance": 12,
+      "kind": "els"
+    },
+    {
+      "text": "משמח",
+      "line": "D52+",
+      "distance": 17,
+      "kind": "els"
+    },
+    {
+      "text": "נשיא",
+      "line": "A01-",
+      "distance": 0,
+      "kind": "els"
+    }
+  ],
+  "only_U": [
+    {
+      "text": "בנתה",
+      "line": "C21-",
+      "distance": 4,
+      "kind": "els",
+      "band": "near"
+    },
+    {
+      "text": "מאתהשמימ",
+      "line": "C01+",
+      "distance": 20,
+      "kind": "els",
+      "band": "far"
+    },
+    {
+      "text": "זהשמו",
+      "line": "D57-",
+      "distance": 9,
+      "kind": "els",
+      "band": "far"
+    },
+    {
+      "text": "ברכה",
+      "line": "D13-",
+      "distance": 16,
+      "kind": "els",
+      "band": "far"
+    },
+    {
+      "text": "בחלמי",
+      "line": "D14-",
+      "distance": 6,
+      "kind": "els",
+      "band": "near"
+    },
+    {
+      "text": "בחלמו",
+      "line": "C40-",
+      "distance": 19,
+      "kind": "els",
+      "band": "far"
+    },
+    {
+      "text": "חומה",
+      "line": "D16-",
+      "distance": 4,
+      "kind": "els",
+      "band": "near"
+    },
+    {
+      "text": "כשופ",
+      "line": "D45+",
+      "distance": 16,
+      "kind": "els",
+      "band": "far"
+    },
+    {
+      "text": "לבבכ",
+      "line": "A42+",
+      "distance": 17,
+      "kind": "els",
+      "band": "far"
+    },
+    {
+      "text": "ואעמד",
+      "line": "A42+",
+      "distance": 6,
+      "kind": "els",
+      "band": "near"
+    },
+    {
+      "text": "האשהברה",
+      "line": "A42+",
+      "distance": 6,
+      "kind": "els",
+      "band": "near"
+    },
+    {
+      "text": "מסמרו",
+      "line": "D46-",
+      "distance": 8,
+      "kind": "els",
+      "band": "near"
+    },
+    {
+      "text": "הסכל",
+      "line": "D53+",
+      "distance": 11,
+      "kind": "els",
+      "band": "far"
+    },
+    {
+      "text": "הרבה",
+      "line": "A42-",
+      "distance": 9,
+      "kind": "els",
+      "band": "far"
+    },
+    {
+      "text": "נשלחו",
+      "line": "A18+",
+      "distance": 5,
+      "kind": "els",
+      "band": "near"
+    },
+    {
+      "text": "מהלל",
+      "line": "A24-",
+      "distance": 11,
+      "kind": "els",
+      "band": "far"
+    },
+    {
+      "text": "ינחמ",
+      "line": "A25+",
+      "distance": 10,
+      "kind": "els",
+      "band": "far"
+    },
+    {
+      "text": "ועשיו",
+      "line": "A33-",
+      "distance": 16,
+      "kind": "els",
+      "band": "far"
+    },
+    {
+      "text": "ותמר",
+      "line": "A55+",
+      "distance": 17,
+      "kind": "els",
+      "band": "far"
+    },
+    {
+      "text": "השתרע",
+      "line": "A14-",
+      "distance": 11,
+      "kind": "els",
+      "band": "far"
+    }
+  ],
+  "only_A": [
+    {
+      "text": "משיחבא",
+      "line": "C21-",
+      "distance": 0,
+      "kind": "els",
+      "band": "crosses"
+    },
+    {
+      "text": "משיח",
+      "line": "C21-",
+      "distance": 0,
+      "kind": "els",
+      "band": "crosses"
+    },
+    {
+      "text": "לתתנקמתיהוה",
+      "line": "R21+",
+      "distance": 10,
+      "kind": "source_row",
+      "band": "far"
+    },
+    {
+      "text": "אשריבאלפניהמ",
+      "line": "R13+",
+      "distance": 9,
+      "kind": "source_row",
+      "band": "far"
+    },
+    {
+      "text": "אלבית",
+      "line": "A02+",
+      "distance": 5,
+      "kind": "els",
+      "band": "near"
+    },
+    {
+      "text": "כרות",
+      "line": "D05-",
+      "distance": 8,
+      "kind": "els",
+      "band": "near"
+    },
+    {
+      "text": "שכנה",
+      "line": "A06-",
+      "distance": 8,
+      "kind": "els",
+      "band": "near"
+    },
+    {
+      "text": "מרד",
+      "line": "D06+",
+      "distance": 15,
+      "kind": "els",
+      "band": "far"
+    },
+    {
+      "text": "קול",
+      "line": "C15-",
+      "distance": 10,
+      "kind": "els",
+      "band": "far"
+    },
+    {
+      "text": "לוקהל",
+      "line": "C15+",
+      "distance": 8,
+      "kind": "els",
+      "band": "near"
+    },
+    {
+      "text": "אמרלו",
+      "line": "C01-",
+      "distance": 20,
+      "kind": "els",
+      "band": "far"
+    },
+    {
+      "text": "השמימ",
+      "line": "C01+",
+      "distance": 20,
+      "kind": "els",
+      "band": "far"
+    },
+    {
+      "text": "ייצור",
+      "line": "C03+",
+      "distance": 18,
+      "kind": "els",
+      "band": "far"
+    },
+    {
+      "text": "שמש",
+      "line": "D12+",
+      "distance": 3,
+      "kind": "els",
+      "band": "near"
+    },
+    {
+      "text": "חריש",
+      "line": "D26+",
+      "distance": 9,
+      "kind": "els",
+      "band": "far"
+    },
+    {
+      "text": "יכשופ",
+      "line": "D45+",
+      "distance": 16,
+      "kind": "els",
+      "band": "far"
+    },
+    {
+      "text": "ככבי",
+      "line": "A43+",
+      "distance": 2,
+      "kind": "els",
+      "band": "near"
+    },
+    {
+      "text": "תמוז",
+      "line": "A64+",
+      "distance": 17,
+      "kind": "els",
+      "band": "far"
+    },
+    {
+      "text": "אלהמסעיבניישראל",
+      "line": "R29+",
+      "distance": 8,
+      "kind": "source_row",
+      "band": "near"
+    },
+    {
+      "text": "נפש",
+      "line": "C19+",
+      "distance": 5,
+      "kind": "els",
+      "band": "near"
+    }
+  ]
+}

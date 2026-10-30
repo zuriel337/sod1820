@@ -1,0 +1,22 @@
+{
+  "cap_usd": 4,
+  "basis": "usage x list prices of the product module (Message Batches at 50%); not an invoice",
+  "entries": [
+    {
+      "usd": 0.62108,
+      "batch": "msgbatch_012bRQTGtAcf1JkcZhcWWoJH",
+      "result_type": "succeeded",
+      "note": "settled from the usage object and list prices (not an invoice)",
+      "id": "U"
+    },
+    {
+      "usd": 0.340105,
+      "batch": "msgbatch_01E1FEpr2AQVKgTKZpmtJppG",
+      "result_type": "succeeded",
+      "note": "settled from the usage object and list prices (not an invoice)",
+      "id": "A"
+    }
+  ],
+  "spent_usd": 0.961185,
+  "remaining_usd": 3.038815
+}

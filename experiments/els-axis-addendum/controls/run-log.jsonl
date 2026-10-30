@@ -1,0 +1,13 @@
+{"at":"2026-10-30T02:50:45.036Z","event":"plan_verified","runs":2}
+{"at":"2026-10-30T02:50:46.423Z","event":"selftest","results":[{"name":"known model claude-fable-5-1 with the token","status":200,"ok":true},{"name":"no token","status":403,"ok":true},{"name":"wrong token","status":403,"ok":true},{"name":"an unapproved batch","status":403,"ok":true},{"name":"another model (Sonnet)","status":403,"ok":true},{"name":"another model (Opus)","status":403,"ok":true},{"name":"the messages route","status":404,"ok":true},{"name":"another API area","status":404,"ok":true},{"name":"a batch list","status":404,"ok":true}]}
+{"at":"2026-10-30T02:50:59.435Z","event":"plan_verified","runs":2}
+{"at":"2026-10-30T02:51:00.895Z","event":"selftest","results":[{"name":"known model claude-fable-5-1 with the token","status":200,"ok":true},{"name":"no token","status":403,"ok":true},{"name":"wrong token","status":403,"ok":true},{"name":"an unapproved batch","status":403,"ok":true},{"name":"another model (Sonnet)","status":403,"ok":true},{"name":"another model (Opus)","status":403,"ok":true},{"name":"the messages route","status":404,"ok":true},{"name":"another API area","status":404,"ok":true},{"name":"a batch list","status":404,"ok":true}]}
+{"at":"2026-10-30T02:51:02.772Z","event":"preflight","run":"U","counted":20917,"worst":1.730735,"guard":{"ok":true,"reason":null,"spent":0,"worstCase":1.730735}}
+{"at":"2026-10-30T02:51:03.224Z","event":"batch_created","run":"U","batch":"msgbatch_012bRQTGtAcf1JkcZhcWWoJH"}
+{"at":"2026-10-30T02:55:45.206Z","event":"answer_saved","run":"U","result":"succeeded","usd":0.62108}
+{"at":"2026-10-30T02:55:48.040Z","event":"run_finished","run":"U","state":"COMPLETE","usd":0.62108,"proposals":25}
+{"at":"2026-10-30T02:55:48.470Z","event":"preflight","run":"A","counted":22266,"worst":1.739165,"guard":{"ok":true,"reason":null,"spent":0.62108,"worstCase":2.360245}}
+{"at":"2026-10-30T02:55:49.001Z","event":"batch_created","run":"A","batch":"msgbatch_01E1FEpr2AQVKgTKZpmtJppG"}
+{"at":"2026-10-30T02:58:25.581Z","event":"answer_saved","run":"A","result":"succeeded","usd":0.340105}
+{"at":"2026-10-30T02:58:28.203Z","event":"run_finished","run":"A","state":"COMPLETE","usd":0.340105,"proposals":25}
+{"at":"2026-10-30T02:58:28.206Z","event":"finished","halted":null,"spent":0.961185,"runs":2}

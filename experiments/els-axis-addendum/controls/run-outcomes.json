@@ -1,0 +1,22 @@
+{
+  "finished_at": "2026-10-30T02:58:28.203Z",
+  "halted": null,
+  "spent_usd": 0.961185,
+  "settled_usd": 0.961185,
+  "cap_usd": 4,
+  "remaining_usd": 3.038815,
+  "outcomes": [
+    {
+      "id": "U",
+      "state": "COMPLETE",
+      "usd": 0.62108,
+      "batch": "msgbatch_012bRQTGtAcf1JkcZhcWWoJH"
+    },
+    {
+      "id": "A",
+      "state": "COMPLETE",
+      "usd": 0.340105,
+      "batch": "msgbatch_01E1FEpr2AQVKgTKZpmtJppG"
+    }
+  ]
+}

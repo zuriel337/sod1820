@@ -1,0 +1,27 @@
+{
+  "run": "A",
+  "model": {
+    "ok": true,
+    "model": "claude-fable-5-1",
+    "display_name": "Claude Fable 5.1",
+    "max_input_tokens": 1000000,
+    "max_tokens_limit": 128000,
+    "checks": {
+      "id_matches": true,
+      "structured_outputs": true,
+      "adaptive_thinking": true,
+      "effort_level": true,
+      "max_tokens_within_model_limit": true
+    }
+  },
+  "input_tokens_counted": 22266,
+  "worst_case_usd": 1.739165,
+  "guard": {
+    "ok": true,
+    "reason": null,
+    "spent": 0.62108,
+    "worstCase": 2.360245
+  },
+  "request_sha256": "5dc874c7ee57306a68a055091e9f9ab693bd50ec89a9d7cd95a7fdb871f01207",
+  "lock_sha256": "b378dc29ec8c60ffec71086d2791c271c28075061afedec6cf0c3f91f75ffade"
+}

@@ -202,3 +202,35 @@ test("a recorded answer is verified, classified and reported by the product's co
   const failed = await processEntry({ arm: a, ctx, entry: { custom_id: "x", result: { type: "errored", error: { type: "api_error" } } }, batch: null, timing, fetchImpl: async () => assert.fail("no engine call"), restHeaders: () => ({}) });
   assert.deepEqual([failed.state, failed.reason, failed.cost.usd], ["FAILED", "batch_errored", null]);
 });
+
+// ---------- the recorded run (EXP-22, 30.10.2026): what happened is what was reviewed, and nothing was sent twice ----------
+test("the recorded run: each reviewed request was sent exactly once, inside the USD 4, the answers are saved as received, and the evaluation file is what the code computes from them", async () => {
+  const { evaluate } = await import("../experiments/els-axis-addendum/evaluate.mjs");
+  const plan = json(join(exp, "controls/plan-review.json"));
+  const log = readFileSync(join(exp, "controls/run-log.jsonl"), "utf8").split("\n").filter(Boolean).map((l) => JSON.parse(l));
+  for (const id of ["U", "A"]) {
+    assert.equal(log.filter((e) => e.event === "batch_created" && e.run === id).length, 1, `${id}: one batch, never a retry`);
+    assert.equal(log.filter((e) => e.event === "preflight" && e.run === id).length, 1);
+    const entry = json(join(exp, `controls/runs/${id}/batch-entry.json`));
+    const result = json(join(exp, `controls/runs/${id}/result.json`));
+    const reviewed = plan.runs.find((r) => r.id === id);
+    assert.deepEqual([result.request_sha256, result.lock_sha256, result.window_sha256], [reviewed.request_sha256, reviewed.lock_sha256, plan.window_sha256], `${id}: what was sent is what was reviewed`);
+    assert.equal(entry.saved_as_received, true);
+    assert.equal(entry.entry.result.type, "succeeded");
+    assert.equal(json(join(exp, `controls/runs/${id}/request.json`)).model, MODEL.id);
+    assert.deepEqual([result.state, result.output.stop_reason, result.cap_info.requested], ["COMPLETE", "end_turn", 25]);
+    assert.equal(result.cost.usd, M.costFromUsage(MODEL.id, entry.entry.result.message.usage, { batch: true }).usd, `${id}: the cost is the usage times the list prices`);
+    assert.ok(result.findings.every((f) => f.verification.state !== "NOT_VERIFIED"), `${id}: every proposal verified (engine or plain-text row)`);
+  }
+  assert.equal(log.filter((e) => e.event === "batch_created").length, 2);
+  assert.equal(json(join(exp, "controls/runs/U/result.json")).usage.input_tokens, 21_541, "U billed exactly the input of the live run it repeats");
+  const ledger = loadLedger(join(exp, "controls/budget-ledger.json"));
+  assert.ok(ledger.entries.every((e) => !e.reserved && !e.unknown_outcome), "both reservations settled");
+  assert.ok(spentOf(ledger) < 1.5 && spentOf(ledger) <= EXPERIMENT_CAP_USD);
+  const fresh = evaluate();
+  const saved = json(join(exp, "results/summary.json"));
+  delete fresh.generated_at; delete saved.generated_at;
+  assert.deepEqual(saved, JSON.parse(JSON.stringify(fresh)), "results/summary.json is stale: rerun evaluate");
+  assert.deepEqual(fresh.saved_hits.U, { exact: 0, overlap: 0, crossed_at_one_cell: 1, of: 6 });
+  assert.deepEqual(fresh.saved_hits.A, { exact: 0, overlap: 0, crossed_at_one_cell: 3, of: 6 });
+});
