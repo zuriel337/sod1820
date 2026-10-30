@@ -51,4 +51,35 @@ Preview retains the existing live Supabase client and narrowly admitted
 authenticated actions. It is **not** an isolated AI/backend environment.
 Hosted smoke must not initiate models, save records or mutate live product data.
 
-Status: tested branch, deployment pending.
+## Protected Preview AFTER
+
+Runtime SHA `fb9a2bf8278f09da9e0ba005463d024cc4ebc3b7` deployed to
+`dpl_Apyh7Z2ucZEALdZxnwtwD85VTvWt`, target **null / Preview**, status READY.
+URL `https://sod1820-gv8on8e8t-sod1820-s-projects.vercel.app/code?mode=research`.
+The temporary share link is delivered privately in the user conversation and
+is intentionally not committed. Deployment protection remains enabled.
+
+- Hosted `preview-identity.json` returns 200 and exact runtime SHA/branch,
+  the unchanged account/reading transport and `edge_deploy:false`.
+- Current branch real-tool browser: 3/3 (structures, explicit lexical scan,
+  cancellation), no skips, 320/390/1440 in three presets. Exact replay/admission
+  uses declared verification fixtures and actual canonical corpus/tool, not live writes.
+- Built global Raziel responsive browser: 1/1, twelve width/preset combinations,
+  mixed Hebrew/English, keyboard/touch, no automatic AI, one fixture submit.
+- Hosted Chromium: nine width/preset combinations, both disclosures present and
+  open, global Raziel window in viewport, no page horizontal overflow or page errors.
+  Zero model requests and zero dynamic dictionary/verse-word-list requests from opening,
+  mode entry or reload. All non-GET/HEAD/OPTIONS requests blocked by test harness;
+  no live login, save, paid AI or scan was exercised in this smoke.
+- Screenshots inspected at 320/day and 1440/day. Browser API identity read uses
+  the existing browser proxy path; the harness does not print protection cookies.
+- Four production/default aliases re-read after deployment: unchanged at
+  `dpl_AiKPHaoo5pxo9T5PFTpcBRG7LfMA`; remote main unchanged at the SHA above.
+
+Later receipt/test-only commit does not change the deployed runtime. Files in this cut:
+`scripts/lib/matrix-raziel-preview.mjs`, two existing Preview tests, hosted smoke
+`test/els-lexicon-structure-preview.browser.mjs`, and this receipt. No source UI,
+engine, server, DB/RLS, model, account policy or experiment ledger edits.
+
+Status: IMPLEMENTED / TESTED / PROTECTED PREVIEW READY, not merged/Production.
+Scope released with this passive AFTER to ZURIEL only; no live work_log write claimed.
