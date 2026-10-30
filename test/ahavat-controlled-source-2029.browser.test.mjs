@@ -164,6 +164,14 @@ test("returning to the painted page while new PDF work is delayed never labels a
   } finally { await fixture.close(); }
 });
 
+test("physical-page acceptance rejects an empty canvas even when metadata falsely claims a completed source", { timeout: 30_000 }, async () => {
+  const fixture = await setup(390, "light"), { page } = fixture;
+  try {
+    await page.setContent(`<div data-book-pdf-renderer="controlled" data-book-pdf-source="${AHAVAT_PDF_URL}" data-book-source-sha256="895e9a720d984adf8ea453b644e3f6d0864e101238f348f418aa5fafa20e9c8b" data-book-requested-page="36"><canvas width="320" height="400" data-book-pdf-canvas="true" data-book-pdf-page="36" data-book-pdf-page-count="99" data-book-pdf-painted="true"></canvas></div>`);
+    await assert.rejects(assertAhavatSourcePage(page, 36), error => error.name === "AssertionError" && error.actual === 0 && error.expected === 255);
+  } finally { await fixture.close(); }
+});
+
 test("the source decoder worker closes on component unmount without navigating away", { timeout: 60_000 }, async () => {
   const fixture = await setup(390, "light"), { page, origin } = fixture;
   try {

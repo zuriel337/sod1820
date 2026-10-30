@@ -13,13 +13,24 @@ export function sourcePageCanvas(target, physical) {
 // not a screenshot label or a requested-page attribute standing in for pixels.
 export async function assertAhavatSourcePage(target, physical) {
   assert.ok(Number.isInteger(physical) && physical >= 1 && physical <= 99);
-  const canvas = sourcePageCanvas(target, physical);
-  await canvas.waitFor({ state: "visible", timeout: 30_000 });
-  const snapshot = await canvas.evaluate(element => {
-    const reader = element.closest("[data-book-pdf-renderer]"), rect = element.getBoundingClientRect();
-    const context = element.getContext("2d");
-    return { renderer: reader.dataset.bookPdfRenderer, source: reader.dataset.bookPdfSource, sha256: reader.dataset.bookSourceSha256, requested: Number(reader.dataset.bookRequestedPage), rendered: Number(element.dataset.bookPdfPage), pages: Number(element.dataset.bookPdfPageCount), painted: element.dataset.bookPdfPainted, width: element.width, height: element.height, visibleWidth: rect.width, visibleHeight: rect.height, sample: [...context.getImageData(0, 0, 1, 1).data] };
-  });
+  const reader = target.locator("xpath=descendant-or-self::*[@data-book-pdf-renderer='controlled']").first();
+  const root = await reader.elementHandle();
+  let proof, snapshot;
+  try {
+    // Fullscreen/ResizeObserver may invalidate a paint between locator.waitFor
+    // and a later evaluate. Capture readiness, identity and pixels in one JS
+    // turn; return an immutable snapshot, not a live canvas reference.
+    proof = await reader.page().waitForFunction(({ root, physical }) => {
+      if (!root.isConnected) return null;
+      const element = root.querySelector(`[data-book-pdf-canvas][data-book-pdf-page="${physical}"][data-book-pdf-painted="true"]`);
+      if (!element) return null;
+      const rect = element.getBoundingClientRect(), style = getComputedStyle(element);
+      if (!rect.width || !rect.height || style.visibility !== "visible" || style.display === "none") return null;
+      const context = element.getContext("2d");
+      return { renderer: root.dataset.bookPdfRenderer, source: root.dataset.bookPdfSource, sha256: root.dataset.bookSourceSha256, requested: Number(root.dataset.bookRequestedPage), rendered: Number(element.dataset.bookPdfPage), pages: Number(element.dataset.bookPdfPageCount), painted: element.dataset.bookPdfPainted, width: element.width, height: element.height, visibleWidth: rect.width, visibleHeight: rect.height, sample: [...context.getImageData(0, 0, 1, 1).data] };
+    }, { root, physical }, { timeout: 30_000, polling: "raf" });
+    snapshot = await proof.jsonValue();
+  } finally { await proof?.dispose(); await root?.dispose(); }
   assert.equal(snapshot.renderer, "controlled"); assert.equal(snapshot.source, AHAVAT_PDF_URL); assert.equal(snapshot.sha256, AHAVAT_PDF_SHA256);
   assert.equal(snapshot.pages, 99); assert.equal(snapshot.requested, physical); assert.equal(snapshot.rendered, physical); assert.equal(snapshot.painted, "true");
   assert.ok(snapshot.width > 0 && snapshot.height > 0 && snapshot.visibleWidth > 0 && snapshot.visibleHeight > 0);
