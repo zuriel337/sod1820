@@ -10,7 +10,8 @@ assert.match(supplied.hostname, /^sod1820-[a-z0-9]+-sod1820-s-projects\.vercel\.
 assert.equal(supplied.protocol, 'https:');
 const expectedSha = process.env.ELS_PREVIEW_SHA;
 assert.match(expectedSha || '', /^[a-f0-9]{40}$/);
-const expectedBranch = 'gpt/els-lexicon-structure-preview-20261030';
+const expectedBranch = process.env.ELS_PREVIEW_BRANCH || 'gpt/els-lexicon-structure-preview-20261030';
+assert.ok(['gpt/els-lexicon-structure-preview-20261030','gpt/els-search-clarity-preview-20261030'].includes(expectedBranch));
 const browser = await chromium.launch({ headless:true,
   executablePath:existsSync('/usr/bin/chromium')?'/usr/bin/chromium':chromium.executablePath(),
   args:['--no-sandbox'] });
@@ -51,6 +52,12 @@ try {
       await page.getByRole('region',{name:'מילים במטריצה',exact:true}).waitFor();
       if(!await structures.evaluate(n=>n.parentElement.open))await structures.click();
       await page.getByRole('region',{name:'מבנים והשוואת מופעים',exact:true}).waitFor();
+      if(expectedBranch==='gpt/els-search-clarity-preview-20261030'){
+        const panel=page.getByRole('region',{name:'מבנים והשוואת מופעים',exact:true});
+        assert.ok(await panel.getByText('איך מוצאים זוגות?',{exact:true}).isVisible());
+        assert.ok(await panel.getByRole('button',{name:'חפש והוסף מילה למטריצה',exact:true}).isVisible());
+        assert.ok(await panel.getByText(/עדיין לא הוספתם תמונות מצב להשוואה/).isVisible());
+      }
       const size=await page.evaluate(()=>({client:document.documentElement.clientWidth,scroll:document.documentElement.scrollWidth}));
       assert.ok(size.scroll<=size.client+1,JSON.stringify({width,theme,size}));
       await page.locator('.sod29-command-island .sod29-raziel-orb').click();
