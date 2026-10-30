@@ -31,6 +31,49 @@ const options = (w, over = {}) => ({
 });
 const fresh = () => world({ sb: FIXTURE });
 
+test("bounded admin trial starts without a flag; replay and recovery never submit a second batch", async () => {
+  const w = fresh();
+  // The recorded fixture covers 23 rows. Synthetic padding supplies the extra
+  // rows for this 33-row transport/gate test; it is not live corpus evidence.
+  for (let i = -20; i < 0; i++) w.state.stream[i] = "א".repeat(41);
+  const opts = options(w, { envOverrides: {} });
+  const preview = await runAiAnalyze({ ...opts, body: body(req("preview", { window: { rows: 33, cols: 41 }, cap: 25 })) });
+  assert.equal(preview.result.els_matrix_reading.state, "PREVIEW");
+  assert.equal(w.calls.filter(c => c.url.endsWith("/messages/batches") && c.method === "POST").length, 0);
+  const action = req("start", { window: { rows: 33, cols: 41 }, cap: 25, ack_upper_bound_usd: 2 });
+  const first = await runAiAnalyze({ ...opts, body: body(action) });
+  assert.equal(first.result.els_matrix_reading.state, "RUNNING", JSON.stringify(first.result));
+  const replay = await runAiAnalyze({ ...opts, body: body(action) });
+  const recovered = await runAiAnalyze({ ...opts, body: body(req("recover")) });
+  assert.equal(replay.result.els_matrix_reading.job.id, first.result.els_matrix_reading.job.id);
+  assert.equal(recovered.result.els_matrix_reading.job.id, first.result.els_matrix_reading.job.id);
+  assert.equal(w.calls.filter(c => c.url.endsWith("/messages/batches") && c.method === "POST").length, 1);
+  assert.equal(first.models.length + replay.models.length + recovered.models.length, 0);
+});
+
+test("no-config trial preserves explicit disable, admin, availability, replay and cost boundaries", async () => {
+  const action = req("start", { window: { rows: 33, cols: 41 }, cap: 25, ack_upper_bound_usd: 2 });
+  const cases = [
+    [{ envOverrides: { ELS_MATRIX_READING_ENABLED: "off" } }, action, "not_enabled"],
+    [{ envOverrides: { ELS_MATRIX_READING_ENABLED: "" } }, action, "not_enabled"],
+    [{ envOverrides: { ELS_MATRIX_READING_ENABLED: "preview" } }, action, "preview_mode_only"],
+    [{ role: "user" }, action, "admin_only"],
+    [{ bearer: "", verifiedUid: null }, action, "admin_only"],
+    [{ siteAllowed: false }, action, "availability"],
+    [{ elsVerifyStatus: "mismatch" }, action, "els_matrix_axis_unverified"],
+    [{}, { ...action, cap: 60 }, "not_enabled"],
+    [{}, { ...action, window: { rows: 35, cols: 45 } }, "not_enabled"],
+    [{}, { ...action, ack_upper_bound_usd: 10 }, "not_enabled"],
+    [{}, { ...action, request_id: undefined }, "reading_request_id_required"],
+  ];
+  for (const [over, candidate, expected] of cases) {
+    const w = fresh();
+    const run = await runAiAnalyze({ ...options(w, { envOverrides: {}, ...over }), body: body(candidate) });
+    assert.equal(run.result.els_matrix_reading?.error ?? run.result.error, expected);
+    assert.equal(w.calls.filter(c => c.url.endsWith("/messages/batches") && c.method === "POST").length, 0);
+  }
+});
+
 test("a start through the real Raziel route: no ordinary model call, the batch is created, the Raziel answer says it started, and the reading result rides next to it", async () => {
   const w = fresh();
   const run = await runAiAnalyze({ ...options(w), body: body(req("start", { ack_upper_bound_usd: 2 })) });
@@ -74,10 +117,10 @@ test("a poll that is still running leaves no trace; the collection logs the cost
   assert.deepEqual([w.tokenLog.length, again.traces.length], [1, 0]);
 });
 
-test("the gates of the route: OFF by default, admin only, availability, canonical opt-in, matrix context required, nothing else may ride along", async () => {
+test("the gates of the route: explicit OFF, admin only, availability, canonical opt-in, matrix context required, nothing else may ride along", async () => {
   const w = fresh();
   const action = req("start", { ack_upper_bound_usd: 2 });
-  const off = await runAiAnalyze({ ...options(w, { envOverrides: {} }), body: body(action) });
+  const off = await runAiAnalyze({ ...options(w, { envOverrides: { ELS_MATRIX_READING_ENABLED: "off" } }), body: body(action) });
   assert.equal(off.result.els_matrix_reading.error, "not_enabled");
   assert.match(off.result.raziel.answer, /אינה פעילה/);
   const user = await runAiAnalyze({ ...options(w, { role: "user" }), body: body(action) });

@@ -2800,6 +2800,16 @@ Deno.serve(async (req: Request) => {
         return rzJson({ analysis: null, error: "els_matrix_axis_unverified" }, 422);
       }
       if (rMatrixReading) {
+        // ZURIEL 2026-10-30: the bounded administrator trial needs no manual secret setup.
+        // Explicit configuration (including empty/OFF) wins. This is only an operational
+        // default: the existing site availability, identity, admin and cost gates still apply.
+        const rReadingTrialBounded = rMatrixReadingJobOp || (
+          rMatrixReading.window?.rows === 33 && rMatrixReading.window?.cols === 41
+          && rMatrixReading.cap === 25
+          && (rMatrixReading.op === "preview" || rMatrixReading.ack_upper_bound_usd === 2)
+        );
+        const rReadingEnabled = Deno.env.get("ELS_MATRIX_READING_ENABLED")
+          ?? (rReadingTrialBounded ? "on" : "");
         // Exits before the ordinary Raziel planner, tools, memory, Metatron, quota and research-run: no ordinary model call is made on this path.
         // The operational trace is opened lazily, only when a span worth recording exists (a start, a collection, a cancel), never for a poll that is still running.
         const readingTrace: { current: OperationalTraceHandle | null } = { current: null };
@@ -2825,7 +2835,7 @@ Deno.serve(async (req: Request) => {
               },
             },
             env: {
-              enabled: Deno.env.get("ELS_MATRIX_READING_ENABLED") || "",
+              enabled: rReadingEnabled,
               anthropicKey: ANTHROPIC_KEY,
               supabaseUrl: SB_URL,
               serviceKey: SB_SVC,
