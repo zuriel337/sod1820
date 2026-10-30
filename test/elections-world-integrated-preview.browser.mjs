@@ -80,6 +80,15 @@ try {
     await page.locator(".rv-gallery .rv-source").first().waitFor();
     assert.equal(await page.locator(".sod29-topic-hero").count(), 0);
     assert.equal(await page.locator("h1").count(), 1);
+    const missingMapTargets = await page.evaluate(() => [...document.querySelectorAll('.rv-nav a[href^="#"]')]
+      .map(anchor => anchor.getAttribute("href").slice(1)).filter(id => !document.getElementById(id)));
+    assert.deepEqual(missingMapTargets, [], "every gate chapter resolves to a real section");
+    if (width === 1440) {
+      await page.locator('[data-context-map-item="rv-center"]').first().waitFor();
+      assert.deepEqual(await page.locator('[data-context-map-item]').evaluateAll(nodes => nodes
+        .map(node => node.getAttribute("data-context-map-item")).filter(id => !document.getElementById(id))), [],
+      "the actual shared Frame map uses existing gate anchors rather than generic Topic anchors");
+    }
     assert.match(await page.locator("#rv-elections").innerText(), /סף צירי הוועידה, לא אלקטורים/);
     assert.equal(await page.locator('.rv-conn[data-status="tree"]').count(), 0);
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);

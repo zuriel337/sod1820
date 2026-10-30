@@ -14,6 +14,12 @@ in the passive coordination AFTER; an old screenshot is not current acceptance.
   preserving both the Claude special gate and the newer exact-expression
   Number-sheet wiring, error states and through-number public findings entry.
   The gate CSS is byte-identical to Claude's original; no visual redesign.
+  Final visual inspection also found the special gate still publishing generic
+  Topic section IDs to the shared context rail. Its existing context payload now
+  lists the real gate sections, with matching labels and active location. Gate
+  chapter clicks update that same context; no shared Frame component was edited.
+  Browser regression asserts every emitted map target exists and chapter
+  activation leaves the exact-expression Number focus working.
 - Imported released pure story composition `0bac33566` as `36893ce0e` and flight
   contract adapter `cf95780f2` as `230e93fc5`. These are bounded data/contract
   modules and tests, **not** a new story carousel or a claim that the flight

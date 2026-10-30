@@ -251,6 +251,11 @@ test("Topic opens the existing Number sheet with method/value/source and exact r
       await page.locator(".rv [data-rv-hero]").waitFor();
       assert.equal(await page.locator(".sod29-topic-hero").count(), 0, "Claude gate replaces rather than duplicates the generic hero");
       await page.locator('.rv-method[data-status="confirmed"]').nth(1).waitFor();
+      const map = await page.evaluate(()=>window.__researchContext.dimensions.surfaceSections.map(item=>({id:item.id,exists:Boolean(document.getElementById(item.targetId))})));
+      assert.ok(map.length >= 6 && map.every(item=>item.exists), "every shared context-map entry targets a real gate section");
+      assert.equal(await page.evaluate(()=>window.__researchContext.dimensions.activeSectionId), "rv-center");
+      await page.getByRole("navigation", { name: "פרקי השער", exact: true }).getByRole("link", { name: "גלריות", exact: true }).click();
+      await page.waitForFunction(()=>window.__researchContext.dimensions.activeSectionId==='rv-galleries');
       await page.getByRole("region", { name: "ממצאים דרך המספר", exact: true }).waitFor();
       const gallery = page.locator('.rv-gallery[aria-labelledby="rv-gal-29"]');
       await page.waitForFunction(()=>document.querySelectorAll('[aria-labelledby="rv-gal-29"] .rv-source').length===3);

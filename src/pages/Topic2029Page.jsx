@@ -459,7 +459,19 @@ function TopicBody() {
     [projection, goldenState.hub, goldenState.prominence],
   );
   const hasFindings = Object.values(projection?.sections || {}).some((rows) => Array.isArray(rows) && rows.length);
-  const navItems = projection ? [
+  const revelationGate = sourceDiscoveryEnabled && projection?.slug === "1237" && !projection.withheld;
+  const navItems = projection ? revelationGate ? [
+    { id: "rv-center", label: "המרכז המספרי" },
+    { id: "rv-galleries", label: "גלריות" },
+    { id: "rv-news", label: "אירועים" },
+    { id: "rv-elections", label: "בחירות" },
+    { id: "rv-posts", label: "פוסטים" },
+    { id: "rv-connections", label: "חיבורים מתועדים ומועמדים" },
+    ...(projection.phrases.length ? [{ id: "topic-phrases", label: "ביטויים בציר" }] : []),
+    ...(hasFindings ? [{ id: "topic-findings", label: "המשך הציר השמור" }] : []),
+    ...(projection.numbers.some((value) => Number.isSafeInteger(value) && value >= 0)
+      ? [{ id: "topic-number-research", label: "ממצאים דרך המספר" }] : []),
+  ] : [
     { id: "topic-essential", label: "עיקר" },
     ...(sourceDiscoveryEnabled && DISCOVERY_TOPIC_SLUGS.includes(projection.slug) && !projection.withheld ? [{ id: 'topic-discovery', label: 'קריאה במקורות' }] : []),
     ...((projection.phrases.length || projection.numericClaims.length || projection.authoredRows.length) ? [{ id: "topic-phrases", label: "גימטריות", targetId: projection.phrases.length ? "topic-phrases" : "topic-findings" }] : []),
@@ -470,6 +482,9 @@ function TopicBody() {
     ...((golden?.sources?.length || golden?.media?.length || golden?.people?.length) ? [{ id: "topic-sources", label: "מקורות" }] : []),
     ...(projection.relatedConvergences.length ? [{ id: "topic-related", label: "המשך" }] : []),
   ] : [];
+  const currentSection = navItems.find((item) => item.id === activeSectionId) || navItems[0];
+  const currentSectionId = currentSection?.id || "topic-essential";
+  const currentSectionLabel = currentSection?.label || "עיקר";
 
   useEffect(() => {
     if (!projection) return undefined;
@@ -485,7 +500,7 @@ function TopicBody() {
       ...(research.context?.dimensions || {}),
       bottomTrail: [
         { id: "topic", label: "טופיק" },
-        { id: "section", label: activeSectionId === "topic-findings" ? "חיבורים" : activeSectionId === "topic-posts" ? "פוסטים" : activeSectionId === "topic-sources" ? "מקורות" : activeSectionId === "topic-related" ? "המשך" : activeSectionId === "topic-phrases" ? "גימטריות" : "עיקר" },
+        { id: "section", label: currentSectionLabel },
         ...(heroNumber != null ? [{ id: "number", label: String(heroNumber), active: true }] : []),
       ],
       surfaceSections: navItems.map((item) => ({
@@ -493,24 +508,24 @@ function TopicBody() {
         label: item.label,
         targetId: item.targetId || item.id,
       })),
-      activeSectionId,
+      activeSectionId: currentSectionId,
       surfaceMapLabel: "בתוך הציר",
       surfaceFocus: {
         id: projection.slug,
         type: "topic",
-        sectionLabel: activeSectionId === "topic-findings" ? "חיבורים" : activeSectionId === "topic-posts" ? "פוסטים" : activeSectionId === "topic-sources" ? "מקורות" : activeSectionId === "topic-related" ? "המשך" : activeSectionId === "topic-phrases" ? "גימטריות" : "עיקר",
+        sectionLabel: currentSectionLabel,
         label: projection.displayTitle || projection.title,
         primary: heroNumber != null ? String(heroNumber) : projection.title,
         number: heroNumber,
         signals: projection.phrases?.slice(0, 3).map((row) => textOf(row)).filter(Boolean) || [],
         sourceLabel: projection.createdBy || null,
-        locator: "#" + activeSectionId,
+        locator: "#" + (currentSection?.targetId || currentSectionId),
       },
     };
     if (!research.context?.subject) research.setResearchContext?.({ subject, selection, lens: "topic", dimensions });
     else research.updateResearchContext?.({ subject, selection, lens: "topic", dimensions });
     return undefined;
-  }, [projection?.slug, activeSectionId]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [projection?.slug, currentSectionId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const openExpressionFocus = async (row, origin) => {
     if (!projection || projection.withheld) return;
@@ -616,9 +631,13 @@ function TopicBody() {
     trump: 'אדם אחד, כמה אירועים: המועמדות הרפובליקנית, הביקור בכותל ותיעוד מאוחר יותר. כל מעבר שומר את שנתו, את תפקיד המספר ואת המקור שלו.',
   })[projection.slug];
 
-  const revelationGate = sourceDiscoveryEnabled && projection.slug === "1237" && !projection.withheld;
   if (revelationGate) {
-    return <article className="sod29-topic2029 sod29-topic-gate-1237" data-entity-type="convergence" data-canonical-slug={projection.slug}>
+    return <article className="sod29-topic2029 sod29-topic-gate-1237" data-entity-type="convergence" data-canonical-slug={projection.slug}
+      onClickCapture={(event) => {
+        const href = event.target.closest?.('a[href^="#"]')?.getAttribute("href");
+        const section = navItems.find((item) => `#${item.targetId || item.id}` === href);
+        if (section) setActiveSectionId(section.id);
+      }}>
       <React.Suspense fallback={<FrameState kind="loading" title="פותח את השער">טוען את 1,237 — התגלות.</FrameState>}>
         <Revelation1237Gate2029 readers={REVELATION_GATE_READERS} relatedPosts={projection.relatedPosts || []} />
       </React.Suspense>
