@@ -1,5 +1,5 @@
 import CanonicalMediaFigure2029 from "../components/experience2029/CanonicalMediaFigure2029.jsx";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import ShareActions from "../components/ShareActions.jsx";
@@ -14,7 +14,7 @@ import { buildTopicGoldenProjection } from "../lib/research/topicGoldenProjectio
 import { topicSourceAnchor, topicSourceContextPatch } from "../lib/research/topicSourceContext.js";
 import WorldSourceStory from '../components/research/WorldSourceStory.jsx';
 import { DISCOVERY_TOPIC_SLUGS } from '../lib/research/worldSourceConnections.js';
-import { resolveExpressionFocus } from "../lib/research/numberExpressionFocus.js";
+import { resolveTopicExpressionFocus2029 } from "../lib/research/topicExpressionFocus2029.js";
 import { applySeo, clearConvergenceJsonLd, setConvergenceJsonLd } from "../lib/seo.js";
 import "./topic2029.css";
 import ConvergenceRatings2029 from "../components/experience2029/ConvergenceRatings2029.jsx";
@@ -22,6 +22,19 @@ import ConvergenceRatings2029 from "../components/experience2029/ConvergenceRati
 const clean = (value) => value == null ? "" : String(value).trim();
 const textOf = (row) => clean(row?.text || row?.title || row?.phrase || row?.note);
 const sourceDiscoveryEnabled = import.meta.env.DEV || import.meta.env.VITE_INTEGRATED_PREVIEW === "true";
+const expressionElementId = (row, fallback) => "topic-expression-" + encodeURIComponent(clean(row?.sourcePath) || fallback);
+const claimNumber = (value) => {
+  if (typeof value !== "number" && typeof value !== "string") return null;
+  if (typeof value === "string" && !/^\d+$/.test(value.trim())) return null;
+  const number = Number(value);
+  return Number.isSafeInteger(number) && number >= 0 ? number : null;
+};
+const EXPRESSION_ERRORS = Object.freeze({
+  needs_method: "השיטה לא צוינה במקור. נדרשת שיטה מפורשת כדי לפתוח את החישוב הזה.",
+  needs_exact_expression: "צריך לבחור ביטוי אחד וערך תקין כדי לפתוח חישוב מדויק.",
+  method_unavailable_or_value_mismatch: "השיטה אינה זמינה או שהתוצאה אינה תואמת לערך במקור. פרטי המקור נשארו כאן.",
+  profile_unavailable: "לא ניתן לטעון כרגע את החישוב. אפשר לנסות שוב; פרטי המקור נשארו כאן.",
+});
 
 function TopicMapNav({ items = [] }) {
   if (!items.length) return null;
@@ -30,7 +43,7 @@ function TopicMapNav({ items = [] }) {
   </nav>;
 }
 
-function TopicPhrases({ rows = [], onOpenExpression, openingExpression = null }) {
+function TopicPhrases({ rows = [], onOpenExpression, openingKey = null }) {
   if (!rows.length) return null;
   return <section className="sod29-section sod29-topic-section" id="topic-phrases">
     <div className="sod29-section-head"><div><div className="sod29-kicker">ביטויים בציר</div><h2>אותו מספר, מילים שונות</h2></div><span className="sod29-chip">{rows.length}</span></div>
@@ -38,8 +51,9 @@ function TopicPhrases({ rows = [], onOpenExpression, openingExpression = null })
       {rows.map((row, index) => {
         const text = textOf(row);
         if (!text) return null;
-        const opening = openingExpression === text;
-        return <button className="sod29-topic-phrase" type="button" disabled={opening} onClick={() => onOpenExpression?.(text)} key={row.sourcePath || (text + "-" + index)}>
+        const id = expressionElementId(row, "phrase-" + index);
+        const opening = openingKey === id;
+        return <button id={id} className="sod29-topic-phrase" type="button" disabled={opening} aria-busy={opening || undefined} onClick={() => onOpenExpression?.({ ...row, text: row.text || text }, { key: id, locator: "#" + encodeURIComponent(id), sectionId: "topic-phrases" })} key={row.sourcePath || (text + "-" + index)}>
           <strong>{text}</strong><small>{opening ? "פותח…" : "פתח את החיבור ←"}</small>
         </button>;
       })}
@@ -47,7 +61,7 @@ function TopicPhrases({ rows = [], onOpenExpression, openingExpression = null })
   </section>;
 }
 
-function TopicFindings({ projection, onOpenExpression }) {
+function TopicFindings({ projection, onOpenExpression, openingKey = null }) {
   const S = projection.sections || {};
   const headline = (S.headline || []).map(textOf).filter(Boolean);
   const hints = (S.hint || []).map(textOf).filter(Boolean);
@@ -69,22 +83,29 @@ function TopicFindings({ projection, onOpenExpression }) {
     {bullets.length ? <ul className="sod29-topic-bullets">{bullets.map((text, i) => <li key={"b-" + i}>{text}</li>)}</ul> : null}
     {rows.length || numericClaims.length ? (() => {
       const allRows = [...numericClaims, ...rows];
-      const primaryRows = allRows.filter((row) => Number(row.value) === projection.heroNumber).slice(0, 3);
+      const primaryRows = allRows.filter((row) => claimNumber(row.value) != null && claimNumber(row.value) === projection.heroNumber).slice(0, 3);
       const primaryKeys = new Set(primaryRows.map((row) => row.sourcePath || clean(row.phrase || row.text)));
-      const supportingRows = allRows.filter((row) => Number(row.value) !== projection.heroNumber);
-      const depthRows = allRows.filter((row) => Number(row.value) === projection.heroNumber && !primaryKeys.has(row.sourcePath || clean(row.phrase || row.text)));
+      const supportingRows = allRows.filter((row) => claimNumber(row.value) == null || claimNumber(row.value) !== projection.heroNumber);
+      const depthRows = allRows.filter((row) => claimNumber(row.value) != null && claimNumber(row.value) === projection.heroNumber && !primaryKeys.has(row.sourcePath || clean(row.phrase || row.text)));
       const renderEquation = (row, i, kind) => {
         const phrase = clean(row.phrase || row.text);
-        const value = Number(row.value);
-        return <article className={`sod29-topic-equation is-${kind}`} key={row.sourcePath || phrase || i}>
+        const value = claimNumber(row.value);
+        const id = expressionElementId(row, `equation-${kind}-${i}`);
+        const opening = openingKey === id;
+        const open = () => onOpenExpression?.(row, { key: id, locator: "#" + encodeURIComponent(id), sectionId: "topic-findings" });
+        return <article id={id} className={`sod29-topic-equation is-${kind}`} key={row.sourcePath || phrase || i} aria-busy={opening || undefined}>
           <div className="sod29-topic-equation-line">
             {phrase && onOpenExpression
-              ? <button type="button" className="sod29-topic-equation-phrase" onClick={() => onOpenExpression(phrase)}>{phrase}</button>
+              ? <button type="button" className="sod29-topic-equation-phrase" disabled={opening} onClick={open}>{phrase}</button>
               : <span className="sod29-topic-equation-phrase">{phrase || "חיבור מספרי"}</span>}
-            {Number.isFinite(value) ? <span className="sod29-topic-equation-equals">=</span> : null}
-            {Number.isFinite(value) ? <Link className="sod29-topic-equation-value" to={"/2029/number/" + value}>{value}</Link> : null}
+            {value != null ? <span className="sod29-topic-equation-equals">=</span> : null}
+            {value != null ? <Link className="sod29-topic-equation-value" to={"/2029/number/" + value} onClick={(event) => {
+              if (!phrase || !onOpenExpression || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+              event.preventDefault();
+              if (!opening) open();
+            }}>{value}</Link> : null}
           </div>
-          {(row.method || row.note) ? <small className="sod29-topic-equation-note">{row.method || row.note}</small> : null}
+          {(row.methodLabel || row.method || row.note) ? <small className="sod29-topic-equation-note">{row.methodLabel || row.method || row.note}</small> : null}
         </article>;
       };
       return <div className="sod29-topic-claims">
@@ -361,8 +382,15 @@ function TopicBody() {
   const research = useResearch();
   const [state, setState] = useState({ loading: true, finding: null, error: null });
   const [goldenState, setGoldenState] = useState({ loading: false, hub: null, prominence: null, error: null });
-  const [expressionOpenState, setExpressionOpenState] = useState({ expression: null, error: null });
+  const [expressionOpenState, setExpressionOpenState] = useState({ key: null, error: null });
+  const expressionRequestRef = useRef(0);
   const [activeSectionId, setActiveSectionId] = useState("topic-essential");
+
+  useEffect(() => {
+    expressionRequestRef.current += 1;
+    setExpressionOpenState({ key: null, error: null });
+    return () => { expressionRequestRef.current += 1; };
+  }, [slug]);
 
   useEffect(() => {
     let alive = true;
@@ -430,6 +458,11 @@ function TopicBody() {
 
   useEffect(() => {
     if (!projection) return undefined;
+    // A section observer must not replace an explicitly selected calculation
+    // while the shared Number sheet is using the same Research Context.
+    if (research.context?.dimensions?.focusOrigin === "topic"
+      && research.context?.dimensions?.topicSlug === projection.slug
+      && research.context?.selection?.expression) return undefined;
     const subject = { id: projection.slug, type: "topic", label: projection.title, href: projection.canonicalPath };
     const selection = { entityId: projection.slug, entityType: "topic" };
     const heroNumber = projection.heroNumber ?? projection.highlightNumbers?.[0] ?? projection.numbers?.[0] ?? null;
@@ -464,13 +497,18 @@ function TopicBody() {
     return undefined;
   }, [projection?.slug, activeSectionId]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const openExpressionFocus = async (expression) => {
-    const expr = clean(expression);
-    if (!expr || !projection) return;
-    setExpressionOpenState({ expression: expr, error: null });
+  const openExpressionFocus = async (row, origin) => {
+    if (!projection || projection.withheld) return;
+    const request = ++expressionRequestRef.current;
+    setExpressionOpenState({ key: origin.key, error: null });
     try {
-      const focus = await resolveExpressionFocus(expr);
-      if (!focus?.href) throw new Error("expression_focus_unavailable");
+      const resolved = await resolveTopicExpressionFocus2029(row);
+      if (request !== expressionRequestRef.current) return;
+      const focus = resolved.focus;
+      if (resolved.status !== "ready" || !focus?.method) {
+        setExpressionOpenState({ key: null, error: EXPRESSION_ERRORS[resolved.status] || EXPRESSION_ERRORS.profile_unavailable });
+        return;
+      }
 
       const topicSubject = {
         id: projection.slug,
@@ -478,8 +516,15 @@ function TopicBody() {
         label: projection.title,
         href: projection.canonicalPath,
       };
-      const topicSelection = { entityId: projection.slug, entityType: "topic" };
+      const topicSelection = { entityId: projection.slug, entityType: "topic", sourceRef: projection.sourceRef, locator: origin.locator };
       const current = research.context || {};
+      const focusId = `topic:${projection.slug}:${resolved.sourcePath || origin.key}`;
+      const methodVersion = focus.rows.find((entry) => entry.methodKey === focus.method)?.definitionVersion;
+      const surfaceFocus = { id: focusId, type: "gematria_expression", label: focus.expression, primary: focus.expression,
+        expression: focus.expression, method: focus.method, resultValue: focus.resultValue, number: focus.resultValue,
+        locator: origin.locator, sourceLabel: projection.title, href: projection.canonicalPath + origin.locator };
+      const returnDimensions = { ...(current.dimensions || {}), activeSectionId: origin.sectionId,
+        topicAuthoredSourcePath: resolved.sourcePath };
 
       research.setResearchContext?.({
         subject: {
@@ -489,35 +534,42 @@ function TopicBody() {
           href: focus.href,
         },
         selection: {
-          entityId: String(focus.root),
-          entityType: "number",
+          entityId: focusId,
+          entityType: "gematria_expression",
+          sourceRef: projection.sourceRef,
+          locator: origin.locator,
           expression: focus.expression,
           method: focus.method,
+          methodVersion: methodVersion == null ? null : String(methodVersion),
           resultValue: focus.resultValue,
           focusKind: "expression",
         },
-        lens: "number",
+        lens: "gematria",
         locale: current.locale || "he",
         dimensions: {
-          ...(current.dimensions || {}),
+          ...returnDimensions,
           expressionFocusExplicit: true,
           focusOrigin: "topic",
           topicSlug: projection.slug,
+          topicSourceRef: projection.sourceRef,
+          topicClaimStatus: resolved.claimStatus,
+          surfaceFocus,
         },
         journey: current.journey || null,
         returnTo: {
-          href: projection.canonicalPath,
+          href: projection.canonicalPath + origin.locator,
           label: projection.title,
           subject: topicSubject,
           selection: topicSelection,
           lens: "topic",
-          dimensions: current.dimensions || {},
+          dimensions: returnDimensions,
           journey: current.journey || null,
         },
       });
-      navigate(focus.href);
-    } catch (error) {
-      setExpressionOpenState({ expression: null, error });
+      setExpressionOpenState({ key: null, error: null });
+      shell.openNumber?.({ ...surfaceFocus, type: "phrase", source: "topic-authored-expression" });
+    } catch {
+      if (request === expressionRequestRef.current) setExpressionOpenState({ key: null, error: EXPRESSION_ERRORS.profile_unavailable });
     }
   };
 
@@ -590,9 +642,9 @@ function TopicBody() {
 
     {projection.withheld ? <FrameState kind="unavailable" title="גוף ההתכנסות אינו מוצג לציבור">קיימת זהות ציבורית, אבל מקור התוכן סימן את הגוף כלא־מיועד לפרסום. לא נעקוף את הסימון.</FrameState> : <>
       {sourceDiscoveryEnabled ? <WorldSourceStory research={research} shell={shell} topicSlug={projection.slug} /> : null}
-      <TopicPhrases rows={projection.phrases} onOpenExpression={openExpressionFocus} openingExpression={expressionOpenState.expression} />
-      {expressionOpenState.error ? <div className="sod29-topic-focus-error" role="status">הביטוי נשאר שמור כאן, אבל מנוע השיטות לא החזיר כרגע מספר פתיחה בטוח.</div> : null}
-      <TopicFindings projection={projection} onOpenExpression={openExpressionFocus} />
+      <TopicPhrases rows={projection.phrases} onOpenExpression={openExpressionFocus} openingKey={expressionOpenState.key} />
+      {expressionOpenState.error ? <div className="sod29-topic-focus-error" role="status">{expressionOpenState.error}</div> : null}
+      <TopicFindings projection={projection} onOpenExpression={openExpressionFocus} openingKey={expressionOpenState.key} />
       <TopicPosts projection={projection} />
       <TopicAuthoredConnections projection={projection} />
       <TopicRelatedAxes projection={projection} />
