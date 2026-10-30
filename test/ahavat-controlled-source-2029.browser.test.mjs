@@ -137,6 +137,33 @@ test("wrong witness bytes never become a painted source page and original-file a
   } finally { await fixture.close(); }
 });
 
+test("returning to the painted page while new PDF work is delayed never labels an empty canvas as source", { timeout: 60_000 }, async () => {
+  const fixture = await setup(390, "parchment"), { page, origin, context } = fixture;
+  await context.addInitScript(() => {
+    const post = Worker.prototype.postMessage;
+    window.sourceWorkDelayed = false; window.delayedSourceMessages = 0;
+    Worker.prototype.postMessage = function(message, ...rest) {
+      if (window.sourceWorkDelayed && ["GetPage", "GetOperatorList"].includes(message?.action)) { window.delayedSourceMessages++; return; }
+      return post.call(this, message, ...rest);
+    };
+  });
+  try {
+    await page.goto(`${origin}/2029/control?surface=ahavat-torah-system&page=36`, { waitUntil: "domcontentloaded" });
+    await assertAhavatSourcePage(page, 36);
+    const before = await signature(sourcePageCanvas(page, 36)), source = page.locator("#ahavat29-source");
+    await page.evaluate(() => { window.sourceWorkDelayed = true; });
+    await source.getByLabel("עמוד PDF", { exact: true }).fill("46");
+    await click(source.getByRole("button", { name: "עבור", exact: true }));
+    await page.waitForFunction(() => document.querySelector('[data-book-requested-page="46"]') && window.delayedSourceMessages > 0);
+    assert.equal(await page.locator('[data-book-pdf-painted="true"]').count(), 0, "page 36 cannot stand in for pending page 46");
+    await source.getByLabel("עמוד PDF", { exact: true }).fill("36");
+    await click(source.getByRole("button", { name: "עבור", exact: true }));
+    await assertAhavatSourcePage(page, 36);
+    assert.deepEqual(await signature(sourcePageCanvas(page, 36)), before, "return preserves the actual completed original raster, not only its old metadata");
+    assert.deepEqual(fixture.errors, []);
+  } finally { await fixture.close(); }
+});
+
 test("the source decoder worker closes on component unmount without navigating away", { timeout: 60_000 }, async () => {
   const fixture = await setup(390, "light"), { page, origin } = fixture;
   try {

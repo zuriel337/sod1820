@@ -33,4 +33,6 @@ test("controlled rendering is an Ahavat-only variant of the existing reader", ()
   assert.match(shared, /manifest\.pdfRenderer === "controlled_page"/); assert.match(shared, /import\("\.\/BookPdfPage2029\.jsx"\)/);
   assert.match(deep, /import\("\.\.\/components\/books2029\/BookPdfPage2029\.jsx"\)/);
   assert.match(deep, /fallbackHref=\{pdfUrl\}/); assert.match(deep, /href=\{pdfUrl\}/);
+  const renderer = readFileSync(new URL("../src/components/books2029/BookPdfPage2029.jsx", import.meta.url), "utf8");
+  assert.doesNotMatch(renderer, /<canvas[^>]*\bkey=/, "the completed raster and paint metadata must retain the same display surface during page changes");
 });

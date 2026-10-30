@@ -90,8 +90,10 @@ export default function BookPdfPage2029({ manifest, page, selectionKey }) {
     return () => { active = false; renderTask?.cancel(); };
   }, [documentReady, documentState, width, page, source, manifest.pdfPages, manifest.pdfSha256]);
 
+  // Keep this one display surface: remounting it on page change would discard
+  // the raster while the last completed paint metadata could still match.
   return <div ref={container} className="book-pdf-page29" role="region" tabIndex={0} aria-label={`${manifest.title}, עמוד המקור ${page}`} data-book-pdf-renderer="controlled" data-book-pdf-source={source} data-book-requested-page={page} data-book-rendered-href={painted && !failure ? `${source}#page=${paint.page}&view=FitH` : undefined} data-book-source-sha256={manifest.pdfSha256} aria-busy={!painted && !failure}>
-    <canvas ref={canvas} key={page} data-book-pdf-canvas="true" data-book-pdf-page={painted ? paint.page : undefined} data-book-pdf-page-count={documentReady ? documentState.document.numPages : undefined} data-book-pdf-painted={painted && !failure ? "true" : "false"} role="img" aria-label={`${manifest.title}, צילום עמוד PDF ${page}`} style={{ visibility: painted && !failure ? "visible" : "hidden" }} />
+    <canvas ref={canvas} data-book-pdf-canvas="true" data-book-pdf-page={painted ? paint.page : undefined} data-book-pdf-page-count={documentReady ? documentState.document.numPages : undefined} data-book-pdf-painted={painted && !failure ? "true" : "false"} role="img" aria-label={`${manifest.title}, צילום עמוד PDF ${page}`} style={{ visibility: painted && !failure ? "visible" : "hidden" }} />
     {!painted && !failure ? <div className="book-pdf-page29-status"><CanonicalProgress compact title="טעינת עמוד המקור" detail={documentReady ? "הכנת צילום העמוד לקריאה" : "פתיחת קובץ הספר"} current={documentReady ? null : progress?.loaded} total={documentReady ? null : progress?.total} /></div> : null}
     {failure ? <div className="book-pdf-page29-status" role="status"><p>לא ניתן להציג כרגע את צילום העמוד.</p><a href={`${source}#page=${page}&view=FitH`} target="_blank" rel="noreferrer">פתח את ה־PDF המקורי · עמוד {page}</a></div> : null}
   </div>;
