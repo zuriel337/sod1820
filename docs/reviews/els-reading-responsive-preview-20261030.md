@@ -22,6 +22,9 @@ model route or dictionary load. The previous global scan-presence cut is retaine
 - Canonical type/palette roles, 44px chat controls, wrapping long English runs,
   readable body copy and a reachable composer in both chat projections.
 - The reading badge now meets the 14px metadata floor without literal colors.
+- Hosted 320px acceptance caught the inherited floating Preview notice covering
+  the Raziel sheet. The reading-only Preview notice now stays in document flow;
+  the existing card still discloses administrator access and cost before Start.
 - Add only this exact branch to the existing bounded matrix-reading Preview
   allowlist. Preview status/start/cancel/recover permissions are unchanged.
 

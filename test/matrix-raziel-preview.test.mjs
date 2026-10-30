@@ -116,6 +116,13 @@ test("responsive acceptance branch admits only the existing bounded reading Prev
   assert.throws(() => selectMatrixRazielPreview({ SOD_MATRIX_RAZIEL_PREVIEW: "true", VERCEL_ENV: "production", VERCEL_GIT_COMMIT_REF: branch }), /never_production/);
 });
 
+test("reading Preview notice cannot float over the mobile Raziel composer", () => {
+  const notice = builder.slice(builder.indexOf('const readingNotice ='), builder.indexOf('html = html.replace("</body>", (matrixReadingPreview'));
+  assert.match(notice, /replace\(\/style=/);
+  assert.doesNotMatch(notice, /position:fixed|z-index|bottom:/);
+  assert.match(notice, /עד \$2 לסריקה/);
+});
+
 test("the builder applies the gate only after the baseline worker and reports its identity", () => {
   assert.match(builder, /selectMatrixRazielPreview\(process\.env\)/);
   assert.match(builder, /live-ai-analyze-matrix-request-only/);

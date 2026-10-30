@@ -109,7 +109,11 @@ if (razielSafeActionsMock) {
 }
 if (selectedMatrixBranch) {
   const notice = '<aside data-matrix-raziel-preview="live-explicit-request-only" role="note" dir="rtl" style="position:fixed;z-index:2147483000;inset-inline:8px;bottom:82px;padding:6px 10px;border:1px solid #98783e;border-radius:8px;background:#fff5de;color:#231b12;font:14px/1.4 Arial;text-align:center;pointer-events:none">פריוויו בדיקה · רזיאל נקרא רק בלחיצה מפורשת על „בקש מרזיאל לבדוק את המטריצה” · אין כתיבה למוצר.</aside>';
-  const readingNotice = notice.replace('פריוויו בדיקה · רזיאל נקרא רק בלחיצה מפורשת על „בקש מרזיאל לבדוק את המטריצה” · אין כתיבה למוצר.', 'פריוויו · סריקת Fable למנהל בלבד ובכפוף להפעלת השרת · עד $2 לסריקה · נשמרים מעקב ועלות.');
+  // The reading card already discloses Preview/admin/cost before an explicit action.
+  // Keep this additional notice in document flow, never floating over the chat/composer.
+  const readingNotice = notice
+    .replace(/style="[^"]*"/, 'style="margin:12px;padding:10px;border:1px solid currentColor;border-radius:8px;font:inherit;font-size:16px;line-height:1.5;text-align:center;overflow-wrap:anywhere"')
+    .replace('פריוויו בדיקה · רזיאל נקרא רק בלחיצה מפורשת על „בקש מרזיאל לבדוק את המטריצה” · אין כתיבה למוצר.', 'פריוויו · סריקת Fable למנהל בלבד ובכפוף להפעלת השרת · עד $2 לסריקה · נשמרים מעקב ועלות.');
   html = html.replace("</body>", (matrixReadingPreview ? readingNotice : notice) + "</body>");
 }
 await writeFile(resolve(output, "2029.html"), html);
