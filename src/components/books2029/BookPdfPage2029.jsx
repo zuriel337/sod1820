@@ -40,7 +40,8 @@ export default function BookPdfPage2029({ manifest, page, selectionKey }) {
     const measure = () => setWidth(Math.max(0, Math.floor(element.clientWidth)));
     const observer = new ResizeObserver(measure);
     observer.observe(element); measure();
-    return () => observer.disconnect();
+    const frame = element.closest("[data-book-pdf-frame]");
+    return () => { observer.disconnect(); frame?.style.removeProperty("--book-pdf-page-ratio"); };
   }, []);
 
   useEffect(() => {
@@ -73,6 +74,7 @@ export default function BookPdfPage2029({ manifest, page, selectionKey }) {
       pdfPage = await documentState.document.getPage(page);
       if (!active) return;
       const unit = pdfPage.getViewport({ scale: 1 });
+      container.current.closest("[data-book-pdf-frame]")?.style.setProperty("--book-pdf-page-ratio", String(unit.width / unit.height));
       const cssHeight = width * unit.height / unit.width;
       const density = Math.min(window.devicePixelRatio || 1, 2, Math.sqrt(4_000_000 / (width * cssHeight)));
       const viewport = pdfPage.getViewport({ scale: width / unit.width * density });
