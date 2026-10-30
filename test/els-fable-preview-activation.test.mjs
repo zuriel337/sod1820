@@ -18,8 +18,8 @@ async function call(payload,path='/functions/v1/ai-analyze'){
  const response=await output;return {status:response?.status,forwarded};
 }
 test('activation is confined to the approved Preview branch, never production or another branch',()=>{
- const branch=[...MATRIX_READING_PREVIEW_BRANCHES][0];
- assert.equal(branch,'gpt/els-fable-preview-activation-20261029');
+ const branch='gpt/els-fable-preview-activation-20261029';
+ assert.equal(MATRIX_READING_PREVIEW_BRANCHES.has(branch),true);
  assert.equal(selectMatrixRazielPreview({VERCEL_ENV:'preview',VERCEL_GIT_COMMIT_REF:'gpt/els-fable-admin-default-20261030'}),'gpt/els-fable-admin-default-20261030');
  assert.equal(selectMatrixRazielPreview({VERCEL_ENV:'preview',VERCEL_GIT_COMMIT_REF:branch}),branch);
  assert.equal(selectMatrixRazielPreview({VERCEL_ENV:'production',VERCEL_GIT_COMMIT_REF:branch}),null);

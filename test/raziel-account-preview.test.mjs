@@ -62,6 +62,18 @@ test('no auth, malformed batch, wrong origin/method, direct tables and unrelated
     ['/rest/v1/research_items',write],['/rest/v1/rpc/fn_upsert_family_member',{}],['/auth/v1/signup',{}],
   ]){const r=await call(worker,path,body,opts);assert.equal(r.response.status,403,path);assert.equal(r.forwarded,0);}
 });
+test('lexicon and structure Preview retains byte-identical account/reading guards on its exact branch only',async()=>{
+  const next='gpt/els-lexicon-structure-preview-20261030';
+  assert.equal(selectMatrixRazielPreview({VERCEL_ENV:'preview',VERCEL_GIT_COMMIT_REF:next}),next);
+  assert.equal(selectMatrixRazielPreview({VERCEL_ENV:'preview',VERCEL_GIT_COMMIT_REF:next+'-other'}),null);
+  assert.equal(selectMatrixRazielPreview({VERCEL_ENV:'production',VERCEL_GIT_COMMIT_REF:next}),null);
+  assert.throws(()=>selectMatrixRazielPreview({VERCEL_ENV:'production',VERCEL_GIT_COMMIT_REF:next,SOD_MATRIX_RAZIEL_PREVIEW:'true'}),/never_production/);
+  const source=buildMatrixRazielPreviewWorker(base,{readingOnly:true,branch:next});
+  assert.equal(source,worker);
+  assert.equal((await call(source,'/rest/v1/rpc/research_state_snapshot_v1',read)).forwarded,1);
+  assert.equal((await call(source,'/rest/v1/rpc/research_state_snapshot_v1',read,{auth:false})).forwarded,0);
+  assert.equal((await call(source,'/rest/v1/els_records',{})).forwarded,0);
+});
 test('server authorization/conflict errors are not converted to success',async()=>{
   for(const status of [401,403,409,500]) assert.equal((await call(worker,'/rest/v1/rpc/research_state_apply_ops_v1',write,{status})).response.status,status);
 });
