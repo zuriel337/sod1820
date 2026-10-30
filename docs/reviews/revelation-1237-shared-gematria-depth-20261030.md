@@ -73,3 +73,29 @@ General continuation ownership `ae17201f` remains outside this bounded release.
 
 Live-public and protected-hosted acceptance, exact runtime SHA and deployment
 are recorded after verification. READY alone is not browser acceptance.
+
+## Completed protected Preview acceptance
+
+- Runtime SHA: `e58823aa95aaf62f6f16f1b50c016d99f3ddb98c`.
+- Deployment: `dpl_2s4tRwQJievyZPMnPwhPMLoMQrLa`, READY, target `null`;
+  build approximately 16 seconds; existing project/team and enabled SSO checked.
+- https://sod1820-ht744h9kp-sod1820-s-projects.vercel.app/topic/1237#rv-center
+- Actual hosted browser test passed at 390 and 1440 against live anonymous data.
+  All four method/depth/return cases passed, using actual engine trace reads.
+  Four existing graph edges, Topic 1118 → exact World finding → Back and public
+  Zvi source entry also passed. Zero page errors or model requests. No product
+  writes escaped the guard; the pre-existing `fn_zero_scale` request is blocked.
+- Hosted identity reports the exact runtime SHA, mock-only transport,
+  `product_writes=false`, `edge_deploy=false`; worker is `unifiedReadOnly=true`
+  with write guard. `no-store` and `noindex` retained. No auth settings changed.
+- Hosted evidence: `/tmp/revelation-shared-depth-hosted-live-20261030`; access
+  link stayed in memory/stdin, never in source/logs or saved browser auth state.
+  Screenshots of both method explanations were visually inspected.
+- Final strengthened synthetic browser rerun: one registered test passed,
+  zero failed/skipped, covering both 320 and 1440. Focused batch remains 42/42.
+- Later receipt-only commit changes no runtime/test/build file relative to the
+  deployed SHA. Remote main remains `2195c9784c5c9f0b1ec3cd3c1137fbd76045845b`.
+
+Status: IMPLEMENTED / TESTED / PROTECTED_PREVIEW_VERIFIED. Not merged or
+Production-live. The bounded task is released in passive AFTER; the broader
+World/elections continuation remains assigned to this session.
