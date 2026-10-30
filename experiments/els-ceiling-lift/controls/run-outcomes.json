@@ -1,0 +1,34 @@
+{
+  "finished_at": "2026-10-30T13:07:50.759Z",
+  "halted": null,
+  "spent_usd": 0.289125,
+  "settled_usd": 0.289125,
+  "cap_usd": 2.5,
+  "remaining_usd": 2.210875,
+  "outcomes": [
+    {
+      "id": "G06A",
+      "state": "INCOMPLETE",
+      "usd": 0.01294,
+      "batch": "msgbatch_01EycjkhD121eHfg1rehdrGp"
+    },
+    {
+      "id": "G07A",
+      "state": "COMPLETE",
+      "usd": 0.154,
+      "batch": "msgbatch_015tzbvzJJ2z1VrgWQKdvRX6"
+    },
+    {
+      "id": "G02A",
+      "state": "COMPLETE",
+      "usd": 0.109075,
+      "batch": "msgbatch_0197ZRaSxqiamCio8CrwRV8X"
+    },
+    {
+      "id": "G10A",
+      "state": "INCOMPLETE",
+      "usd": 0.01311,
+      "batch": "msgbatch_01JihD1H4ZvbhueDKbg4de1F"
+    }
+  ]
+}

@@ -179,3 +179,43 @@ test("an answer is located ONLY in the lines of its group; the ceiling is report
   assert.deepEqual([failed.state, failed.reason, failed.cost.usd], ["FAILED", "batch_errored", null]);
   assert.ok(worstCaseUsd(3_000) < 0.53 && worstCaseUsd(3_000) > 0.5);
 });
+
+// ---------- the recorded run (EXP-24, 30.10.2026): what happened is what was reviewed, each request was sent once, inside the USD 2.5 ----------
+test("the recorded run: each reviewed request was sent exactly once, the answers are saved as received (refusals included), inside the USD 2.5; the evaluation file is what the code computes; the decision rules were applied as written", async () => {
+  const { evaluate } = await import("../experiments/els-ceiling-lift/evaluate.mjs");
+  const plan = json(join(exp, "controls/plan-review.json"));
+  const log = readFileSync(join(exp, "controls/run-log.jsonl"), "utf8").split("\n").filter(Boolean).map((l) => JSON.parse(l));
+  assert.equal(log.filter((e) => e.event === "batch_created").length, 4, "one batch per request, never a retry");
+  assert.equal(log.filter((e) => e.event === "preflight").length, 4);
+  assert.equal(log.filter((e) => ["create_unknown", "budget_stop", "halted", "stop_duplicate", "error"].includes(e.event)).length, 0);
+  const selftest = log.filter((e) => e.event === "selftest");
+  assert.ok(selftest.length >= 1 && selftest.every((e) => e.results.length === 9 && e.results.every((r) => r.ok)), "the pass-through was proved locked before the run");
+  const states = {};
+  for (const r of plan.runs) {
+    assert.equal(log.filter((e) => e.event === "batch_created" && e.run === r.id).length, 1, r.id);
+    const entry = json(join(exp, `controls/runs/${r.id}/batch-entry.json`));
+    const result = json(join(exp, `controls/runs/${r.id}/result.json`));
+    assert.deepEqual([result.request_sha256, result.lock_sha256, result.window_sha256, result.cap], [r.request_sha256, r.lock_sha256, plan.window_sha256, 40], `${r.id}: what was sent is what was reviewed`);
+    assert.equal(entry.saved_as_received, true);
+    assert.equal(entry.entry.result.type, "succeeded");
+    assert.equal(result.cost.usd, M.costFromUsage(MODEL.id, entry.entry.result.message.usage, { batch: true }).usd);
+    assert.ok(entry.entry.result.message.usage.output_tokens <= MODEL.maxTokens);
+    const kind = result.state === "COMPLETE" ? "complete" : entry.entry.result.message.stop_reason;
+    states[kind] = (states[kind] ?? 0) + 1;
+    if (result.state === "INCOMPLETE") { assert.equal(result.reason, "refusal"); assert.equal(result.findings, undefined, "nothing is shown from a refused answer"); assert.equal(entry.entry.result.message.stop_details.category, "cyber"); }
+    else { assert.ok(result.findings.every((f) => f.group_check.cited_line_in_group), `${r.id}: only the group's lines were cited`); assert.equal(result.summary.duplicates, 0); assert.equal(result.cap_info.reached, true); }
+  }
+  assert.deepEqual(states, { complete: 2, refusal: 2 });
+  const ledger = loadLedger(join(exp, "controls/budget-ledger.json"));
+  assert.ok(ledger.entries.every((e) => !e.reserved && !e.unknown_outcome) && ledger.entries.length === 4);
+  assert.ok(ledger.spent_usd < 0.3 && ledger.spent_usd <= EXPERIMENT_CAP_USD);
+  const fresh = await evaluate();
+  const saved = json(join(exp, "results/summary.json"));
+  delete fresh.generated_at; delete saved.generated_at;
+  assert.deepEqual(saved, JSON.parse(JSON.stringify(fresh)), "results/summary.json is stale: rerun evaluate");
+  assert.deepEqual(fresh.targets.map((t) => [t.line, t.group]), [["C17", "G07"], ["R16", "G02"], ["D03", "G10"], ["C13", "G06"], ["C21", "G07"], ["R09", "G02"]], "each saved finding belongs to the group of its own line");
+  assert.deepEqual([fresh.saved_exact.P, fresh.saved_exact.L], [0, 0]);
+  assert.equal(fresh.interpretation.verdict, "inconclusive", "two groups reached the ceiling without an exact reproduction and two groups were refused");
+  assert.deepEqual(fresh.interpretation.groups_read, ["G02", "G07"]);
+  assert.deepEqual(fresh.interpretation.groups_that_reached_the_ceiling, ["G02", "G07"]);
+});

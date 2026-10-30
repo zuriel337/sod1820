@@ -1,0 +1,36 @@
+{
+  "cap_usd": 2.5,
+  "basis": "usage x list prices of the product module (Message Batches at 50%); not an invoice",
+  "entries": [
+    {
+      "usd": 0.109075,
+      "batch": "msgbatch_0197ZRaSxqiamCio8CrwRV8X",
+      "result_type": "succeeded",
+      "note": "settled from the usage object and list prices (not an invoice)",
+      "id": "G02A"
+    },
+    {
+      "usd": 0.01311,
+      "batch": "msgbatch_01JihD1H4ZvbhueDKbg4de1F",
+      "result_type": "succeeded",
+      "note": "settled from the usage object and list prices (not an invoice)",
+      "id": "G10A"
+    },
+    {
+      "usd": 0.154,
+      "batch": "msgbatch_015tzbvzJJ2z1VrgWQKdvRX6",
+      "result_type": "succeeded",
+      "note": "settled from the usage object and list prices (not an invoice)",
+      "id": "G07A"
+    },
+    {
+      "usd": 0.01294,
+      "batch": "msgbatch_01EycjkhD121eHfg1rehdrGp",
+      "result_type": "succeeded",
+      "note": "settled from the usage object and list prices (not an invoice)",
+      "id": "G06A"
+    }
+  ],
+  "spent_usd": 0.289125,
+  "remaining_usd": 2.210875
+}

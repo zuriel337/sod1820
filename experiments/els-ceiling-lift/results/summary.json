@@ -1,0 +1,4124 @@
+{
+  "experiment": "EXP-24",
+  "generated_at": "2026-10-30T13:08:59.545Z",
+  "window_sha256": "208cbe689b68f941daf995f07ff490d8974a5c13128f1724c8792471c02802fe",
+  "ceiling": {
+    "exp24": 40,
+    "exp23": 12
+  },
+  "note": "DIAGNOSTIC with an evaluation-oriented choice of groups (the saved lines), not a blind discovery; n=1 per group; descriptive only. The saved words were loaded only for this evaluation, after the answers were saved. Previous run = EXP-23 arm A (ceiling 12, max_tokens 10,000).",
+  "runs": {
+    "G02": {
+      "L": {
+        "run": "G02A",
+        "group": "G02",
+        "state": "COMPLETE",
+        "reason": null,
+        "cap": 40,
+        "usd": 0.109075,
+        "batch_ms": 136184,
+        "output": {
+          "stop_reason": "end_turn",
+          "input_tokens": 2730,
+          "output_tokens": 3817,
+          "thinking_tokens": 2676
+        },
+        "summary": {
+          "proposals": 40,
+          "engine_verified": 0,
+          "source_rows": 40,
+          "not_verified": 0,
+          "duplicates": 0,
+          "cited_line_outside_group": 0
+        },
+        "observations": "הקווים הישרים (R+) הם טקסט מקראי רציף (במדבר כו-כח), ולכן התמקדתי יותר בקריאה ההפוכה (R-) שם נמצאו מילים לא-מקוריות כמו לולב, כותב, רשאי, אובדן. בקו R16- היו מעט מועמדים מעבר ל'לעד'.",
+        "cap_reached": true,
+        "beyond_previous_cap": 28,
+        "near": 22,
+        "findings": [
+          {
+            "id": "G02A.f01",
+            "rank": 1,
+            "text": "צלפחד",
+            "line": "R09+",
+            "skip": 1,
+            "kind": "source_row",
+            "cells": [
+              [
+                9,
+                3
+              ],
+              [
+                9,
+                4
+              ],
+              [
+                9,
+                5
+              ],
+              [
+                9,
+                6
+              ],
+              [
+                9,
+                7
+              ]
+            ],
+            "duplicate": false,
+            "e": null
+          },
+          {
+            "id": "G02A.f02",
+            "rank": 2,
+            "text": "מחלהונעהחגלהמלכהותרצה",
+            "line": "R09+",
+            "skip": 1,
+            "kind": "source_row",
+            "cells": [
+              [
+                9,
+                8
+              ],
+              [
+                9,
+                9
+              ],
+              [
+                9,
+                10
+              ],
+              [
+                9,
+                11
+              ],
+              [
+                9,
+                12
+              ],
+              [
+                9,
+                13
+              ],
+              [
+                9,
+                14
+              ],
+              [
+                9,
+                15
+              ],
+              [
+                9,
+                16
+              ],
+              [
+                9,
+                17
+              ],
+              [
+                9,
+                18
+              ],
+              [
+                9,
+                19
+              ],
+              [
+                9,
+                20
+              ],
+              [
+                9,
+                21
+              ],
+              [
+                9,
+                22
+              ],
+              [
+                9,
+                23
+              ],
+              [
+                9,
+                24
+              ],
+              [
+                9,
+                25
+              ],
+              [
+                9,
+                26
+              ],
+              [
+                9,
+                27
+              ],
+              [
+                9,
+                28
+              ]
+            ],
+            "duplicate": false,
+            "e": null
+          },
+          {
+            "id": "G02A.f03",
+            "rank": 3,
+            "text": "משפחתמנשה",
+            "line": "R09+",
+            "skip": 1,
+            "kind": "source_row",
+            "cells": [
+              [
+                9,
+                32
+              ],
+              [
+                9,
+                33
+              ],
+              [
+                9,
+                34
+              ],
+              [
+                9,
+                35
+              ],
+              [
+                9,
+                36
+              ],
+              [
+                9,
+                37
+              ],
+              [
+                9,
+                38
+              ],
+              [
+                9,
+                39
+              ],
+              [
+                9,
+                40
+              ]
+            ],
+            "duplicate": false,
+            "e": null
+          },
+          {
+            "id": "G02A.f04",
+            "rank": 4,
+            "text": "בתאשרשרח",
+            "line": "R10+",
+            "skip": 1,
+            "kind": "source_row",
+            "cells": [
+              [
+                10,
+                18
+              ],
+              [
+                10,
+                19
+              ],
+              [
+                10,
+                20
+              ],
+              [
+                10,
+                21
+              ],
+              [
+                10,
+                22
+              ],
+              [
+                10,
+                23
+              ],
+              [
+                10,
+                24
+              ],
+              [
+                10,
+                25
+              ]
+            ],
+            "duplicate": false,
+            "e": null
+          },
+          {
+            "id": "G02A.f05",
+            "rank": 5,
+            "text": "אתמשהואתמרימ",
+            "line": "R11+",
+            "skip": 1,
+            "kind": "source_row",
+            "cells": [
+              [
+                11,
+                4
+              ],
+              [
+                11,
+                5
+              ],
+              [
+                11,
+                6
+              ],
+              [
+                11,
+                7
+              ],
+              [
+                11,
+                8
+              ],
+              [
+                11,
+                9
+              ],
+              [
+                11,
+                10
+              ],
+              [
+                11,
+                11
+              ],
+              [
+                11,
+                12
+              ],
+              [
+                11,
+                13
+              ],
+              [
+                11,
+                14
+              ],
+              [
+                11,
+                15
+              ]
+            ],
+            "duplicate": false,
+            "e": null
+          },
+          {
+            "id": "G02A.f06",
+            "rank": 6,
+            "text": "אהרנ",
+            "line": "R11+",
+            "skip": 1,
+            "kind": "source_row",
+            "cells": [
+              [
+                11,
+                26
+              ],
+              [
+                11,
+                27
+              ],
+              [
+                11,
+                28
+              ],
+              [
+                11,
+                29
+              ]
+            ],
+            "duplicate": false,
+            "e": null
+          },
+          {
+            "id": "G02A.f07",
+            "rank": 7,
+            "text": "אינלובנ",
+            "line": "R12+",
+            "skip": 1,
+            "kind": "source_row",
+            "cells": [
+              [
+                12,
+                19
+              ],
+              [
+                12,
+                20
+              ],
+              [
+                12,
+                21
+              ],
+              [
+                12,
+                22
+              ],
+              [
+                12,
+                23
+              ],
+              [
+                12,
+                24
+              ],
+              [
+                12,
+                25
+              ]
+            ],
+            "duplicate": false,
+            "e": null
+          },
+          {
+            "id": "G02A.f08",
+            "rank": 8,
+            "text": "תנהלנואחזה",
+            "line": "R12+",
+            "skip": 1,
+            "kind": "source_row",
+            "cells": [
+              [
+                12,
+                26
+              ],
+              [
+                12,
+                27
+              ],
+              [
+                12,
+                28
+              ],
+              [
+                12,
+                29
+              ],
+              [
+                12,
+                30
+              ],
+              [
+                12,
+                31
+              ],
+              [
+                12,
+                32
+              ],
+              [
+                12,
+                33
+              ],
+              [
+                12,
+                34
+              ],
+              [
+                12,
+                35
+              ]
+            ],
+            "duplicate": false,
+            "e": null
+          },
+          {
+            "id": "G02A.f09",
+            "rank": 9,
+            "text": "עלתתמיד",
+            "line": "R14+",
+            "skip": 1,
+            "kind": "source_row",
+            "cells": [
+              [
+                14,
+                29
+              ],
+              [
+                14,
+                30
+              ],
+              [
+                14,
+                31
+              ],
+              [
+                14,
+                32
+              ],
+              [
+                14,
+                33
+              ],
+              [
+                14,
+                34
+              ],
+              [
+                14,
+                35
+              ]
+            ],
+            "duplicate": false,
+            "e": null
+          },
+          {
+            "id": "G02A.f10",
+            "rank": 10,
+            "text": "חגשבעתימימ",
+            "line": "R15+",
+            "skip": 1,
+            "kind": "source_row",
+            "cells": [
+              [
+                15,
+                21
+              ],
+              [
+                15,
+                22
+              ],
+              [
+                15,
+                23
+              ],
+              [
+                15,
+                24
+              ],
+              [
+                15,
+                25
+              ],
+              [
+                15,
+                26
+              ],
+              [
+                15,
+                27
+              ],
+              [
+                15,
+                28
+              ],
+              [
+                15,
+                29
+              ],
+              [
+                15,
+                30
+              ]
+            ],
+            "duplicate": false,
+            "e": null
+          },
+          {
+            "id": "G02A.f11",
+            "rank": 11,
+            "text": "שעירעזימאחד",
+            "line": "R16+",
+            "skip": 1,
+            "kind": "source_row",
+            "cells": [
+              [
+                16,
+                4
+              ],
+              [
+                16,
+                5
+              ],
+              [
+                16,
+                6
+              ],
+              [
+                16,
+                7
+              ],
+              [
+                16,
+                8
+              ],
+              [
+                16,
+                9
+              ],
+              [
+                16,
+                10
+              ],
+              [
+                16,
+                11
+              ],
+              [
+                16,
+                12
+              ],
+              [
+                16,
+                13
+              ],
+              [
+                16,
+                14
+              ]
+            ],
+            "duplicate": false,
+            "e": null
+          },
+          {
+            "id": "G02A.f12",
+            "rank": 12,
+            "text": "נמתח",
+            "line": "R09-",
+            "skip": 1,
+            "kind": "source_row",
+            "cells": [
+              [
+                9,
+                38
+              ],
+              [
+                9,
+                37
+              ],
+              [
+                9,
+                36
+              ],
+              [
+                9,
+                35
+              ]
+            ],
+            "duplicate": false,
+            "e": null
+          },
+          {
+            "id": "G02A.f13",
+            "rank": 13,
+            "text": "הכל",
+            "line": "R09-",
+            "skip": 1,
+            "kind": "source_row",
+            "cells": [
+              [
+                9,
+                23
+              ],
+              [
+                9,
+                22
+              ],
+              [
+                9,
+                21
+              ]
+            ],
+            "duplicate": false,
+            "e": null
+          },
+          {
+            "id": "G02A.f14",
+            "rank": 14,
+            "text": "לחמ",
+            "line": "R09-",
+            "skip": 1,
+            "kind": "source_row",
+            "cells": [
+              [
+                9,
+                10
+              ],
+              [
+                9,
+                9
+              ],
+              [
+                9,
+                8
+              ]
+            ],
+            "duplicate": false,
+            "e": null
+          },
+          {
+            "id": "G02A.f15",
+            "rank": 15,
+            "text": "הצר",
+            "line": "R09-",
+            "skip": 1,
+            "kind": "source_row",
+            "cells": [
+              [
+                9,
+                28
+              ],
+              [
+                9,
+                27
+              ],
+              [
+                9,
+                26
+              ]
+            ],
+            "duplicate": false,
+            "e": null
+          },
+          {
+            "id": "G02A.f16",
+            "rank": 16,
+            "text": "רשאי",
+            "line": "R10-",
+            "skip": 1,
+            "kind": "source_row",
+            "cells": [
+              [
+                10,
+                39
+              ],
+              [
+                10,
+                38
+              ],
+              [
+                10,
+                37
+              ],
+              [
+                10,
+                36
+              ]
+            ],
+            "duplicate": false,
+            "e": null
+          },
+          {
+            "id": "G02A.f17",
+            "rank": 17,
+            "text": "אחר",
+            "line": "R10-",
+            "skip": 1,
+            "kind": "source_row",
+            "cells": [
+              [
+                10,
+                26
+              ],
+              [
+                10,
+                25
+              ],
+              [
+                10,
+                24
+              ]
+            ],
+            "duplicate": false,
+            "e": null
+          },
+          {
+            "id": "G02A.f18",
+            "rank": 18,
+            "text": "חרש",
+            "line": "R10-",
+            "skip": 1,
+            "kind": "source_row",
+            "cells": [
+              [
+                10,
+                25
+              ],
+              [
+                10,
+                24
+              ],
+              [
+                10,
+                23
+              ]
+            ],
+            "duplicate": false,
+            "e": null
+          },
+          {
+            "id": "G02A.f19",
+            "rank": 19,
+            "text": "כלמה",
+            "line": "R10-",
+            "skip": 1,
+            "kind": "source_row",
+            "cells": [
+              [
+                10,
+                10
+              ],
+              [
+                10,
+                9
+              ],
+              [
+                10,
+                8
+              ],
+              [
+                10,
+                7
+              ]
+            ],
+            "duplicate": false,
+            "e": null
+          },
+          {
+            "id": "G02A.f20",
+            "rank": 20,
+            "text": "אובדנ",
+            "line": "R11-",
+            "skip": 1,
+            "kind": "source_row",
+            "cells": [
+              [
+                11,
+                36
+              ],
+              [
+                11,
+                35
+              ],
+              [
+                11,
+                34
+              ],
+              [
+                11,
+                33
+              ],
+              [
+                11,
+                32
+              ]
+            ],
+            "duplicate": false,
+            "e": null
+          },
+          {
+            "id": "G02A.f21",
+            "rank": 21,
+            "text": "יומת",
+            "line": "R11-",
+            "skip": 1,
+            "kind": "source_row",
+            "cells": [
+              [
+                11,
+                21
+              ],
+              [
+                11,
+                20
+              ],
+              [
+                11,
+                19
+              ],
+              [
+                11,
+                18
+              ]
+            ],
+            "duplicate": false,
+            "e": null
+          },
+          {
+            "id": "G02A.f22",
+            "rank": 22,
+            "text": "אמיר",
+            "line": "R11-",
+            "skip": 1,
+            "kind": "source_row",
+            "cells": [
+              [
+                11,
+                16
+              ],
+              [
+                11,
+                15
+              ],
+              [
+                11,
+                14
+              ],
+              [
+                11,
+                13
+              ]
+            ],
+            "duplicate": false,
+            "e": null
+          },
+          {
+            "id": "G02A.f23",
+            "rank": 23,
+            "text": "מתח",
+            "line": "R11-",
+            "skip": 1,
+            "kind": "source_row",
+            "cells": [
+              [
+                11,
+                19
+              ],
+              [
+                11,
+                18
+              ],
+              [
+                11,
+                17
+              ]
+            ],
+            "duplicate": false,
+            "e": null
+          },
+          {
+            "id": "G02A.f24",
+            "rank": 24,
+            "text": "כותב",
+            "line": "R12-",
+            "skip": 1,
+            "kind": "source_row",
+            "cells": [
+              [
+                12,
+                39
+              ],
+              [
+                12,
+                38
+              ],
+              [
+                12,
+                37
+              ],
+              [
+                12,
+                36
+              ]
+            ],
+            "duplicate": false,
+            "e": null
+          },
+          {
+            "id": "G02A.f25",
+            "rank": 25,
+            "text": "מכות",
+            "line": "R12-",
+            "skip": 1,
+            "kind": "source_row",
+            "cells": [
+              [
+                12,
+                11
+              ],
+              [
+                12,
+                10
+              ],
+              [
+                12,
+                9
+              ],
+              [
+                12,
+                8
+              ]
+            ],
+            "duplicate": false,
+            "e": null
+          },
+          {
+            "id": "G02A.f26",
+            "rank": 26,
+            "text": "ניבא",
+            "line": "R12-",
+            "skip": 1,
+            "kind": "source_row",
+            "cells": [
+              [
+                12,
+                5
+              ],
+              [
+                12,
+                4
+              ],
+              [
+                12,
+                3
+              ],
+              [
+                12,
+                2
+              ]
+            ],
+            "duplicate": false,
+            "e": null
+          },
+          {
+            "id": "G02A.f27",
+            "rank": 27,
+            "text": "ותחפש",
+            "line": "R12-",
+            "skip": 1,
+            "kind": "source_row",
+            "cells": [
+              [
+                12,
+                16
+              ],
+              [
+                12,
+                15
+              ],
+              [
+                12,
+                14
+              ],
+              [
+                12,
+                13
+              ],
+              [
+                12,
+                12
+              ]
+            ],
+            "duplicate": false,
+            "e": null
+          },
+          {
+            "id": "G02A.f28",
+            "rank": 28,
+            "text": "דעה",
+            "line": "R13-",
+            "skip": 1,
+            "kind": "source_row",
+            "cells": [
+              [
+                13,
+                40
+              ],
+              [
+                13,
+                39
+              ],
+              [
+                13,
+                38
+              ]
+            ],
+            "duplicate": false,
+            "e": null
+          },
+          {
+            "id": "G02A.f29",
+            "rank": 29,
+            "text": "אביר",
+            "line": "R13-",
+            "skip": 1,
+            "kind": "source_row",
+            "cells": [
+              [
+                13,
+                6
+              ],
+              [
+                13,
+                5
+              ],
+              [
+                13,
+                4
+              ],
+              [
+                13,
+                3
+              ]
+            ],
+            "duplicate": false,
+            "e": null
+          },
+          {
+            "id": "G02A.f30",
+            "rank": 30,
+            "text": "ירש",
+            "line": "R13-",
+            "skip": 1,
+            "kind": "source_row",
+            "cells": [
+              [
+                13,
+                27
+              ],
+              [
+                13,
+                26
+              ],
+              [
+                13,
+                25
+              ]
+            ],
+            "duplicate": false,
+            "e": null
+          },
+          {
+            "id": "G02A.f31",
+            "rank": 31,
+            "text": "ישע",
+            "line": "R14-",
+            "skip": 1,
+            "kind": "source_row",
+            "cells": [
+              [
+                14,
+                39
+              ],
+              [
+                14,
+                38
+              ],
+              [
+                14,
+                37
+              ]
+            ],
+            "duplicate": false,
+            "e": null
+          },
+          {
+            "id": "G02A.f32",
+            "rank": 32,
+            "text": "לעני",
+            "line": "R14-",
+            "skip": 1,
+            "kind": "source_row",
+            "cells": [
+              [
+                14,
+                30
+              ],
+              [
+                14,
+                29
+              ],
+              [
+                14,
+                28
+              ],
+              [
+                14,
+                27
+              ]
+            ],
+            "duplicate": false,
+            "e": null
+          },
+          {
+            "id": "G02A.f33",
+            "rank": 33,
+            "text": "לולב",
+            "line": "R14-",
+            "skip": 1,
+            "kind": "source_row",
+            "cells": [
+              [
+                14,
+                10
+              ],
+              [
+                14,
+                9
+              ],
+              [
+                14,
+                8
+              ],
+              [
+                14,
+                7
+              ]
+            ],
+            "duplicate": false,
+            "e": null
+          },
+          {
+            "id": "G02A.f34",
+            "rank": 34,
+            "text": "נמל",
+            "line": "R14-",
+            "skip": 1,
+            "kind": "source_row",
+            "cells": [
+              [
+                14,
+                4
+              ],
+              [
+                14,
+                3
+              ],
+              [
+                14,
+                2
+              ]
+            ],
+            "duplicate": false,
+            "e": null
+          },
+          {
+            "id": "G02A.f35",
+            "rank": 35,
+            "text": "איתו",
+            "line": "R15-",
+            "skip": 1,
+            "kind": "source_row",
+            "cells": [
+              [
+                15,
+                36
+              ],
+              [
+                15,
+                35
+              ],
+              [
+                15,
+                34
+              ],
+              [
+                15,
+                33
+              ]
+            ],
+            "duplicate": false,
+            "e": null
+          },
+          {
+            "id": "G02A.f36",
+            "rank": 36,
+            "text": "חלמו",
+            "line": "R15-",
+            "skip": 1,
+            "kind": "source_row",
+            "cells": [
+              [
+                15,
+                15
+              ],
+              [
+                15,
+                14
+              ],
+              [
+                15,
+                13
+              ],
+              [
+                15,
+                12
+              ]
+            ],
+            "duplicate": false,
+            "e": null
+          },
+          {
+            "id": "G02A.f37",
+            "rank": 37,
+            "text": "רשעה",
+            "line": "R15-",
+            "skip": 1,
+            "kind": "source_row",
+            "cells": [
+              [
+                15,
+                10
+              ],
+              [
+                15,
+                9
+              ],
+              [
+                15,
+                8
+              ],
+              [
+                15,
+                7
+              ]
+            ],
+            "duplicate": false,
+            "e": null
+          },
+          {
+            "id": "G02A.f38",
+            "rank": 38,
+            "text": "שמח",
+            "line": "R15-",
+            "skip": 1,
+            "kind": "source_row",
+            "cells": [
+              [
+                15,
+                6
+              ],
+              [
+                15,
+                5
+              ],
+              [
+                15,
+                4
+              ]
+            ],
+            "duplicate": false,
+            "e": null
+          },
+          {
+            "id": "G02A.f39",
+            "rank": 39,
+            "text": "מימי",
+            "line": "R15-",
+            "skip": 1,
+            "kind": "source_row",
+            "cells": [
+              [
+                15,
+                30
+              ],
+              [
+                15,
+                29
+              ],
+              [
+                15,
+                28
+              ],
+              [
+                15,
+                27
+              ]
+            ],
+            "duplicate": false,
+            "e": null
+          },
+          {
+            "id": "G02A.f40",
+            "rank": 40,
+            "text": "לעד",
+            "line": "R16-",
+            "skip": 1,
+            "kind": "source_row",
+            "cells": [
+              [
+                16,
+                29
+              ],
+              [
+                16,
+                28
+              ],
+              [
+                16,
+                27
+              ]
+            ],
+            "duplicate": false,
+            "e": null
+          }
+        ],
+        "not_verified": []
+      },
+      "P": {
+        "run": "G02A",
+        "group": "G02",
+        "state": "COMPLETE",
+        "reason": null,
+        "cap": 12,
+        "usd": 0.061225,
+        "batch_ms": 139315,
+        "output": {
+          "stop_reason": "end_turn",
+          "input_tokens": 2730,
+          "output_tokens": 1903,
+          "thinking_tokens": 1476
+        },
+        "summary": {
+          "proposals": 12,
+          "engine_verified": 0,
+          "source_rows": 12,
+          "not_verified": 0,
+          "duplicates": 0,
+          "cited_line_outside_group": 0
+        },
+        "observations": "כל הקווים כאן הם שורות מקור (R); הצעות הכיוון ההפוך (ענוה, תאוה, ניבא, לולב, לעד) הן הצירופים הלא-מקראיים המעניינים. R13 בשני הכיוונים לא הניב דבר מעבר לטקסט עצמו.",
+        "cap_reached": true,
+        "beyond_previous_cap": 0,
+        "near": 4,
+        "findings": [
+          {
+            "id": "G02A.f01",
+            "rank": 1,
+            "text": "צלפחד",
+            "line": "R09+",
+            "skip": 1,
+            "kind": "source_row",
+            "cells": [
+              [
+                9,
+                3
+              ],
+              [
+                9,
+                4
+              ],
+              [
+                9,
+                5
+              ],
+              [
+                9,
+                6
+              ],
+              [
+                9,
+                7
+              ]
+            ],
+            "duplicate": false,
+            "e": null
+          },
+          {
+            "id": "G02A.f02",
+            "rank": 2,
+            "text": "משפחתמנשה",
+            "line": "R09+",
+            "skip": 1,
+            "kind": "source_row",
+            "cells": [
+              [
+                9,
+                32
+              ],
+              [
+                9,
+                33
+              ],
+              [
+                9,
+                34
+              ],
+              [
+                9,
+                35
+              ],
+              [
+                9,
+                36
+              ],
+              [
+                9,
+                37
+              ],
+              [
+                9,
+                38
+              ],
+              [
+                9,
+                39
+              ],
+              [
+                9,
+                40
+              ]
+            ],
+            "duplicate": false,
+            "e": null
+          },
+          {
+            "id": "G02A.f03",
+            "rank": 3,
+            "text": "הענוה",
+            "line": "R09-",
+            "skip": 1,
+            "kind": "source_row",
+            "cells": [
+              [
+                9,
+                15
+              ],
+              [
+                9,
+                14
+              ],
+              [
+                9,
+                13
+              ],
+              [
+                9,
+                12
+              ],
+              [
+                9,
+                11
+              ]
+            ],
+            "duplicate": false,
+            "e": null
+          },
+          {
+            "id": "G02A.f04",
+            "rank": 4,
+            "text": "תאוה",
+            "line": "R11-",
+            "skip": 1,
+            "kind": "source_row",
+            "cells": [
+              [
+                11,
+                11
+              ],
+              [
+                11,
+                10
+              ],
+              [
+                11,
+                9
+              ],
+              [
+                11,
+                8
+              ]
+            ],
+            "duplicate": false,
+            "e": null
+          },
+          {
+            "id": "G02A.f05",
+            "rank": 5,
+            "text": "וניבא",
+            "line": "R12-",
+            "skip": 1,
+            "kind": "source_row",
+            "cells": [
+              [
+                12,
+                6
+              ],
+              [
+                12,
+                5
+              ],
+              [
+                12,
+                4
+              ],
+              [
+                12,
+                3
+              ],
+              [
+                12,
+                2
+              ]
+            ],
+            "duplicate": false,
+            "e": null
+          },
+          {
+            "id": "G02A.f06",
+            "rank": 6,
+            "text": "הלולב",
+            "line": "R14-",
+            "skip": 1,
+            "kind": "source_row",
+            "cells": [
+              [
+                14,
+                11
+              ],
+              [
+                14,
+                10
+              ],
+              [
+                14,
+                9
+              ],
+              [
+                14,
+                8
+              ],
+              [
+                14,
+                7
+              ]
+            ],
+            "duplicate": false,
+            "e": null
+          },
+          {
+            "id": "G02A.f07",
+            "rank": 7,
+            "text": "לעני",
+            "line": "R14-",
+            "skip": 1,
+            "kind": "source_row",
+            "cells": [
+              [
+                14,
+                30
+              ],
+              [
+                14,
+                29
+              ],
+              [
+                14,
+                28
+              ],
+              [
+                14,
+                27
+              ]
+            ],
+            "duplicate": false,
+            "e": null
+          },
+          {
+            "id": "G02A.f08",
+            "rank": 8,
+            "text": "לעד",
+            "line": "R16-",
+            "skip": 1,
+            "kind": "source_row",
+            "cells": [
+              [
+                16,
+                29
+              ],
+              [
+                16,
+                28
+              ],
+              [
+                16,
+                27
+              ]
+            ],
+            "duplicate": false,
+            "e": null
+          },
+          {
+            "id": "G02A.f09",
+            "rank": 9,
+            "text": "חגשבעתימימ",
+            "line": "R15+",
+            "skip": 1,
+            "kind": "source_row",
+            "cells": [
+              [
+                15,
+                21
+              ],
+              [
+                15,
+                22
+              ],
+              [
+                15,
+                23
+              ],
+              [
+                15,
+                24
+              ],
+              [
+                15,
+                25
+              ],
+              [
+                15,
+                26
+              ],
+              [
+                15,
+                27
+              ],
+              [
+                15,
+                28
+              ],
+              [
+                15,
+                29
+              ],
+              [
+                15,
+                30
+              ]
+            ],
+            "duplicate": false,
+            "e": null
+          },
+          {
+            "id": "G02A.f10",
+            "rank": 10,
+            "text": "שעירעזימ",
+            "line": "R16+",
+            "skip": 1,
+            "kind": "source_row",
+            "cells": [
+              [
+                16,
+                4
+              ],
+              [
+                16,
+                5
+              ],
+              [
+                16,
+                6
+              ],
+              [
+                16,
+                7
+              ],
+              [
+                16,
+                8
+              ],
+              [
+                16,
+                9
+              ],
+              [
+                16,
+                10
+              ],
+              [
+                16,
+                11
+              ]
+            ],
+            "duplicate": false,
+            "e": null
+          },
+          {
+            "id": "G02A.f11",
+            "rank": 11,
+            "text": "כלמה",
+            "line": "R10-",
+            "skip": 1,
+            "kind": "source_row",
+            "cells": [
+              [
+                10,
+                10
+              ],
+              [
+                10,
+                9
+              ],
+              [
+                10,
+                8
+              ],
+              [
+                10,
+                7
+              ]
+            ],
+            "duplicate": false,
+            "e": null
+          },
+          {
+            "id": "G02A.f12",
+            "rank": 12,
+            "text": "ישע",
+            "line": "R14-",
+            "skip": 1,
+            "kind": "source_row",
+            "cells": [
+              [
+                14,
+                39
+              ],
+              [
+                14,
+                38
+              ],
+              [
+                14,
+                37
+              ]
+            ],
+            "duplicate": false,
+            "e": null
+          }
+        ],
+        "not_verified": []
+      }
+    },
+    "G06": {
+      "L": {
+        "run": "G06A",
+        "group": "G06",
+        "state": "INCOMPLETE",
+        "reason": "refusal",
+        "cap": 40,
+        "usd": 0.01294,
+        "batch_ms": 60383,
+        "output": {
+          "stop_reason": "refusal",
+          "input_tokens": 2588,
+          "output_tokens": 0,
+          "thinking_tokens": null
+        }
+      },
+      "P": {
+        "run": "G06A",
+        "group": "G06",
+        "state": "COMPLETE",
+        "reason": null,
+        "cap": 12,
+        "usd": 0.08184,
+        "batch_ms": 117126,
+        "output": {
+          "stop_reason": "end_turn",
+          "input_tokens": 2588,
+          "output_tokens": 2756,
+          "thinking_tokens": 2356
+        },
+        "summary": {
+          "proposals": 12,
+          "engine_verified": 12,
+          "source_rows": 0,
+          "not_verified": 0,
+          "duplicates": 0,
+          "cited_line_outside_group": 0
+        },
+        "observations": "קווים C08 ו-C10 נראו דלים במילים ברורות (רצפי א ו-ת/ה חוזרים) והוקדשה להם פחות תשומת לב. ב-C12 נראו רצפים קצרים בלבד (כרכ, בצר) שלא נכללו.",
+        "cap_reached": true,
+        "beyond_previous_cap": 0,
+        "near": 6,
+        "findings": [
+          {
+            "id": "G06A.f01",
+            "rank": 1,
+            "text": "יברכ",
+            "line": "C09+",
+            "skip": 583,
+            "kind": "els",
+            "cells": [
+              [
+                18,
+                9
+              ],
+              [
+                19,
+                9
+              ],
+              [
+                20,
+                9
+              ],
+              [
+                21,
+                9
+              ]
+            ],
+            "duplicate": false,
+            "e": 7.85
+          },
+          {
+            "id": "G06A.f02",
+            "rank": 2,
+            "text": "בלבבמ",
+            "line": "C09-",
+            "skip": 583,
+            "kind": "els",
+            "cells": [
+              [
+                8,
+                9
+              ],
+              [
+                7,
+                9
+              ],
+              [
+                6,
+                9
+              ],
+              [
+                5,
+                9
+              ],
+              [
+                4,
+                9
+              ]
+            ],
+            "duplicate": false,
+            "e": 0.5434
+          },
+          {
+            "id": "G06A.f03",
+            "rank": 3,
+            "text": "מנרה",
+            "line": "C11+",
+            "skip": 583,
+            "kind": "els",
+            "cells": [
+              [
+                16,
+                11
+              ],
+              [
+                17,
+                11
+              ],
+              [
+                18,
+                11
+              ],
+              [
+                19,
+                11
+              ]
+            ],
+            "duplicate": false,
+            "e": 12.66
+          },
+          {
+            "id": "G06A.f04",
+            "rank": 4,
+            "text": "כחמש",
+            "line": "C13-",
+            "skip": 583,
+            "kind": "els",
+            "cells": [
+              [
+                17,
+                13
+              ],
+              [
+                16,
+                13
+              ],
+              [
+                15,
+                13
+              ],
+              [
+                14,
+                13
+              ]
+            ],
+            "duplicate": false,
+            "e": 2.364
+          },
+          {
+            "id": "G06A.f05",
+            "rank": 5,
+            "text": "בושש",
+            "line": "C14+",
+            "skip": 583,
+            "kind": "els",
+            "cells": [
+              [
+                27,
+                14
+              ],
+              [
+                28,
+                14
+              ],
+              [
+                29,
+                14
+              ],
+              [
+                30,
+                14
+              ]
+            ],
+            "duplicate": false,
+            "e": 8.517
+          },
+          {
+            "id": "G06A.f06",
+            "rank": 6,
+            "text": "שירת",
+            "line": "C14+",
+            "skip": 583,
+            "kind": "els",
+            "cells": [
+              [
+                30,
+                14
+              ],
+              [
+                31,
+                14
+              ],
+              [
+                32,
+                14
+              ],
+              [
+                33,
+                14
+              ]
+            ],
+            "duplicate": false,
+            "e": 11.23
+          },
+          {
+            "id": "G06A.f07",
+            "rank": 7,
+            "text": "שובע",
+            "line": "C14-",
+            "skip": 583,
+            "kind": "els",
+            "cells": [
+              [
+                29,
+                14
+              ],
+              [
+                28,
+                14
+              ],
+              [
+                27,
+                14
+              ],
+              [
+                26,
+                14
+              ]
+            ],
+            "duplicate": false,
+            "e": 6.144
+          },
+          {
+            "id": "G06A.f08",
+            "rank": 8,
+            "text": "להשמש",
+            "line": "C15+",
+            "skip": 583,
+            "kind": "els",
+            "cells": [
+              [
+                16,
+                15
+              ],
+              [
+                17,
+                15
+              ],
+              [
+                18,
+                15
+              ],
+              [
+                19,
+                15
+              ],
+              [
+                20,
+                15
+              ]
+            ],
+            "duplicate": false,
+            "e": 0.8491
+          },
+          {
+            "id": "G06A.f09",
+            "rank": 9,
+            "text": "תמוה",
+            "line": "C15-",
+            "skip": 583,
+            "kind": "els",
+            "cells": [
+              [
+                12,
+                15
+              ],
+              [
+                11,
+                15
+              ],
+              [
+                10,
+                15
+              ],
+              [
+                9,
+                15
+              ]
+            ],
+            "duplicate": false,
+            "e": 27.07
+          },
+          {
+            "id": "G06A.f10",
+            "rank": 10,
+            "text": "הקול",
+            "line": "C15-",
+            "skip": 583,
+            "kind": "els",
+            "cells": [
+              [
+                4,
+                15
+              ],
+              [
+                3,
+                15
+              ],
+              [
+                2,
+                15
+              ],
+              [
+                1,
+                15
+              ]
+            ],
+            "duplicate": false,
+            "e": 6.088
+          },
+          {
+            "id": "G06A.f11",
+            "rank": 11,
+            "text": "הדר",
+            "line": "C15-",
+            "skip": 583,
+            "kind": "els",
+            "cells": [
+              [
+                9,
+                15
+              ],
+              [
+                8,
+                15
+              ],
+              [
+                7,
+                15
+              ]
+            ],
+            "duplicate": false,
+            "e": 76.68
+          },
+          {
+            "id": "G06A.f12",
+            "rank": 12,
+            "text": "משא",
+            "line": "C15+",
+            "skip": 583,
+            "kind": "els",
+            "cells": [
+              [
+                31,
+                15
+              ],
+              [
+                32,
+                15
+              ],
+              [
+                33,
+                15
+              ]
+            ],
+            "duplicate": false,
+            "e": 227
+          }
+        ],
+        "not_verified": []
+      }
+    },
+    "G07": {
+      "L": {
+        "run": "G07A",
+        "group": "G07",
+        "state": "COMPLETE",
+        "reason": null,
+        "cap": 40,
+        "usd": 0.154,
+        "batch_ms": 124078,
+        "output": {
+          "stop_reason": "end_turn",
+          "input_tokens": 2600,
+          "output_tokens": 5640,
+          "thinking_tokens": 4579
+        },
+        "summary": {
+          "proposals": 40,
+          "engine_verified": 40,
+          "source_rows": 0,
+          "not_verified": 0,
+          "duplicates": 0,
+          "cited_line_outside_group": 0
+        },
+        "observations": "מילים קצרות ושכיחות (כנפ, שבו, רמש, יומ, אמי, איה, השר, אוי, חלק) הושמטו בשל תקרת ההצעות. הקו C18+ וחלקים אמצעיים של C16 ו-C17 נראו דלים יחסית.",
+        "cap_reached": true,
+        "beyond_previous_cap": 28,
+        "near": 35,
+        "findings": [
+          {
+            "id": "G07A.f01",
+            "rank": 1,
+            "text": "מרמה",
+            "line": "C16+",
+            "skip": 583,
+            "kind": "els",
+            "cells": [
+              [
+                17,
+                16
+              ],
+              [
+                18,
+                16
+              ],
+              [
+                19,
+                16
+              ],
+              [
+                20,
+                16
+              ]
+            ],
+            "duplicate": false,
+            "e": 22.48
+          },
+          {
+            "id": "G07A.f02",
+            "rank": 2,
+            "text": "המומ",
+            "line": "C16+",
+            "skip": 583,
+            "kind": "els",
+            "cells": [
+              [
+                27,
+                16
+              ],
+              [
+                28,
+                16
+              ],
+              [
+                29,
+                16
+              ],
+              [
+                30,
+                16
+              ]
+            ],
+            "duplicate": false,
+            "e": 37.84
+          },
+          {
+            "id": "G07A.f03",
+            "rank": 3,
+            "text": "כלכל",
+            "line": "C16+",
+            "skip": 583,
+            "kind": "els",
+            "cells": [
+              [
+                3,
+                16
+              ],
+              [
+                4,
+                16
+              ],
+              [
+                5,
+                16
+              ],
+              [
+                6,
+                16
+              ]
+            ],
+            "duplicate": false,
+            "e": 4.68
+          },
+          {
+            "id": "G07A.f04",
+            "rank": 4,
+            "text": "הרעב",
+            "line": "C16-",
+            "skip": 583,
+            "kind": "els",
+            "cells": [
+              [
+                27,
+                16
+              ],
+              [
+                26,
+                16
+              ],
+              [
+                25,
+                16
+              ],
+              [
+                24,
+                16
+              ]
+            ],
+            "duplicate": false,
+            "e": 6.566
+          },
+          {
+            "id": "G07A.f05",
+            "rank": 5,
+            "text": "חכית",
+            "line": "C17+",
+            "skip": 583,
+            "kind": "els",
+            "cells": [
+              [
+                11,
+                17
+              ],
+              [
+                12,
+                17
+              ],
+              [
+                13,
+                17
+              ],
+              [
+                14,
+                17
+              ]
+            ],
+            "duplicate": false,
+            "e": 3.419
+          },
+          {
+            "id": "G07A.f06",
+            "rank": 6,
+            "text": "יצא",
+            "line": "C17+",
+            "skip": 583,
+            "kind": "els",
+            "cells": [
+              [
+                30,
+                17
+              ],
+              [
+                31,
+                17
+              ],
+              [
+                32,
+                17
+              ]
+            ],
+            "duplicate": false,
+            "e": 72.49
+          },
+          {
+            "id": "G07A.f07",
+            "rank": 7,
+            "text": "חצימ",
+            "line": "C17-",
+            "skip": 583,
+            "kind": "els",
+            "cells": [
+              [
+                22,
+                17
+              ],
+              [
+                21,
+                17
+              ],
+              [
+                20,
+                17
+              ],
+              [
+                19,
+                17
+              ]
+            ],
+            "duplicate": false,
+            "e": 1.582
+          },
+          {
+            "id": "G07A.f08",
+            "rank": 8,
+            "text": "למבוא",
+            "line": "C17-",
+            "skip": 583,
+            "kind": "els",
+            "cells": [
+              [
+                8,
+                17
+              ],
+              [
+                7,
+                17
+              ],
+              [
+                6,
+                17
+              ],
+              [
+                5,
+                17
+              ],
+              [
+                4,
+                17
+              ]
+            ],
+            "duplicate": false,
+            "e": 1.679
+          },
+          {
+            "id": "G07A.f09",
+            "rank": 9,
+            "text": "יהיה",
+            "line": "C18+",
+            "skip": 583,
+            "kind": "els",
+            "cells": [
+              [
+                22,
+                18
+              ],
+              [
+                23,
+                18
+              ],
+              [
+                24,
+                18
+              ],
+              [
+                25,
+                18
+              ]
+            ],
+            "duplicate": false,
+            "e": 54.95
+          },
+          {
+            "id": "G07A.f10",
+            "rank": 10,
+            "text": "תבל",
+            "line": "C18-",
+            "skip": 583,
+            "kind": "els",
+            "cells": [
+              [
+                11,
+                18
+              ],
+              [
+                10,
+                18
+              ],
+              [
+                9,
+                18
+              ]
+            ],
+            "duplicate": false,
+            "e": 135.7
+          },
+          {
+            "id": "G07A.f11",
+            "rank": 11,
+            "text": "נפשה",
+            "line": "C19+",
+            "skip": 583,
+            "kind": "els",
+            "cells": [
+              [
+                6,
+                19
+              ],
+              [
+                7,
+                19
+              ],
+              [
+                8,
+                19
+              ],
+              [
+                9,
+                19
+              ]
+            ],
+            "duplicate": false,
+            "e": 2.085
+          },
+          {
+            "id": "G07A.f12",
+            "rank": 12,
+            "text": "נמות",
+            "line": "C19+",
+            "skip": 583,
+            "kind": "els",
+            "cells": [
+              [
+                23,
+                19
+              ],
+              [
+                24,
+                19
+              ],
+              [
+                25,
+                19
+              ],
+              [
+                26,
+                19
+              ]
+            ],
+            "duplicate": false,
+            "e": 13.63
+          },
+          {
+            "id": "G07A.f13",
+            "rank": 13,
+            "text": "נשמר",
+            "line": "C19-",
+            "skip": 583,
+            "kind": "els",
+            "cells": [
+              [
+                6,
+                19
+              ],
+              [
+                5,
+                19
+              ],
+              [
+                4,
+                19
+              ],
+              [
+                3,
+                19
+              ]
+            ],
+            "duplicate": false,
+            "e": 7.035
+          },
+          {
+            "id": "G07A.f14",
+            "rank": 14,
+            "text": "אמתה",
+            "line": "C19-",
+            "skip": 583,
+            "kind": "els",
+            "cells": [
+              [
+                12,
+                19
+              ],
+              [
+                11,
+                19
+              ],
+              [
+                10,
+                19
+              ],
+              [
+                9,
+                19
+              ]
+            ],
+            "duplicate": false,
+            "e": 24.01
+          },
+          {
+            "id": "G07A.f15",
+            "rank": 15,
+            "text": "אבא",
+            "line": "C20+",
+            "skip": 583,
+            "kind": "els",
+            "cells": [
+              [
+                4,
+                20
+              ],
+              [
+                5,
+                20
+              ],
+              [
+                6,
+                20
+              ]
+            ],
+            "duplicate": false,
+            "e": 256.6
+          },
+          {
+            "id": "G07A.f16",
+            "rank": 16,
+            "text": "ושווי",
+            "line": "C20+",
+            "skip": 583,
+            "kind": "els",
+            "cells": [
+              [
+                21,
+                20
+              ],
+              [
+                22,
+                20
+              ],
+              [
+                23,
+                20
+              ],
+              [
+                24,
+                20
+              ],
+              [
+                25,
+                20
+              ]
+            ],
+            "duplicate": false,
+            "e": 3.212
+          },
+          {
+            "id": "G07A.f17",
+            "rank": 17,
+            "text": "חוב",
+            "line": "C20-",
+            "skip": 583,
+            "kind": "els",
+            "cells": [
+              [
+                33,
+                20
+              ],
+              [
+                32,
+                20
+              ],
+              [
+                31,
+                20
+              ]
+            ],
+            "duplicate": false,
+            "e": 76.89
+          },
+          {
+            "id": "G07A.f18",
+            "rank": 18,
+            "text": "מפח",
+            "line": "C20-",
+            "skip": 583,
+            "kind": "els",
+            "cells": [
+              [
+                9,
+                20
+              ],
+              [
+                8,
+                20
+              ],
+              [
+                7,
+                20
+              ]
+            ],
+            "duplicate": false,
+            "e": 18.59
+          },
+          {
+            "id": "G07A.f19",
+            "rank": 19,
+            "text": "אבאאלי",
+            "line": "C20-",
+            "skip": 583,
+            "kind": "els",
+            "cells": [
+              [
+                6,
+                20
+              ],
+              [
+                5,
+                20
+              ],
+              [
+                4,
+                20
+              ],
+              [
+                3,
+                20
+              ],
+              [
+                2,
+                20
+              ],
+              [
+                1,
+                20
+              ]
+            ],
+            "duplicate": false,
+            "e": 0.1658
+          },
+          {
+            "id": "G07A.f20",
+            "rank": 20,
+            "text": "לעמל",
+            "line": "C21+",
+            "skip": 583,
+            "kind": "els",
+            "cells": [
+              [
+                1,
+                21
+              ],
+              [
+                2,
+                21
+              ],
+              [
+                3,
+                21
+              ],
+              [
+                4,
+                21
+              ]
+            ],
+            "duplicate": false,
+            "e": 9.222
+          },
+          {
+            "id": "G07A.f21",
+            "rank": 21,
+            "text": "תתחל",
+            "line": "C21+",
+            "skip": 583,
+            "kind": "els",
+            "cells": [
+              [
+                6,
+                21
+              ],
+              [
+                7,
+                21
+              ],
+              [
+                8,
+                21
+              ],
+              [
+                9,
+                21
+              ]
+            ],
+            "duplicate": false,
+            "e": 3.508
+          },
+          {
+            "id": "G07A.f22",
+            "rank": 22,
+            "text": "חלש",
+            "line": "C21+",
+            "skip": 583,
+            "kind": "els",
+            "cells": [
+              [
+                8,
+                21
+              ],
+              [
+                9,
+                21
+              ],
+              [
+                10,
+                21
+              ]
+            ],
+            "duplicate": false,
+            "e": 51.86
+          },
+          {
+            "id": "G07A.f23",
+            "rank": 23,
+            "text": "הנמס",
+            "line": "C21-",
+            "skip": 583,
+            "kind": "els",
+            "cells": [
+              [
+                32,
+                21
+              ],
+              [
+                31,
+                21
+              ],
+              [
+                30,
+                21
+              ],
+              [
+                29,
+                21
+              ]
+            ],
+            "duplicate": false,
+            "e": 1.28
+          },
+          {
+            "id": "G07A.f24",
+            "rank": 24,
+            "text": "משיח",
+            "line": "C21-",
+            "skip": 583,
+            "kind": "els",
+            "cells": [
+              [
+                18,
+                21
+              ],
+              [
+                17,
+                21
+              ],
+              [
+                16,
+                21
+              ],
+              [
+                15,
+                21
+              ]
+            ],
+            "duplicate": false,
+            "e": 6.228
+          },
+          {
+            "id": "G07A.f25",
+            "rank": 25,
+            "text": "שלחת",
+            "line": "C21-",
+            "skip": 583,
+            "kind": "els",
+            "cells": [
+              [
+                10,
+                21
+              ],
+              [
+                9,
+                21
+              ],
+              [
+                8,
+                21
+              ],
+              [
+                7,
+                21
+              ]
+            ],
+            "duplicate": false,
+            "e": 3.048
+          },
+          {
+            "id": "G07A.f26",
+            "rank": 26,
+            "text": "למעל",
+            "line": "C21-",
+            "skip": 583,
+            "kind": "els",
+            "cells": [
+              [
+                4,
+                21
+              ],
+              [
+                3,
+                21
+              ],
+              [
+                2,
+                21
+              ],
+              [
+                1,
+                21
+              ]
+            ],
+            "duplicate": false,
+            "e": 9.222
+          },
+          {
+            "id": "G07A.f27",
+            "rank": 27,
+            "text": "השוא",
+            "line": "C22+",
+            "skip": 583,
+            "kind": "els",
+            "cells": [
+              [
+                17,
+                22
+              ],
+              [
+                18,
+                22
+              ],
+              [
+                19,
+                22
+              ],
+              [
+                20,
+                22
+              ]
+            ],
+            "duplicate": false,
+            "e": 25.37
+          },
+          {
+            "id": "G07A.f28",
+            "rank": 28,
+            "text": "רעל",
+            "line": "C22+",
+            "skip": 583,
+            "kind": "els",
+            "cells": [
+              [
+                28,
+                22
+              ],
+              [
+                29,
+                22
+              ],
+              [
+                30,
+                22
+              ]
+            ],
+            "duplicate": false,
+            "e": 94.32
+          },
+          {
+            "id": "G07A.f29",
+            "rank": 29,
+            "text": "הורע",
+            "line": "C22+",
+            "skip": 583,
+            "kind": "els",
+            "cells": [
+              [
+                26,
+                22
+              ],
+              [
+                27,
+                22
+              ],
+              [
+                28,
+                22
+              ],
+              [
+                29,
+                22
+              ]
+            ],
+            "duplicate": false,
+            "e": 12.26
+          },
+          {
+            "id": "G07A.f30",
+            "rank": 30,
+            "text": "ערוה",
+            "line": "C22-",
+            "skip": 583,
+            "kind": "els",
+            "cells": [
+              [
+                29,
+                22
+              ],
+              [
+                28,
+                22
+              ],
+              [
+                27,
+                22
+              ],
+              [
+                26,
+                22
+              ]
+            ],
+            "duplicate": false,
+            "e": 12.26
+          },
+          {
+            "id": "G07A.f31",
+            "rank": 31,
+            "text": "גימל",
+            "line": "C22-",
+            "skip": 583,
+            "kind": "els",
+            "cells": [
+              [
+                15,
+                22
+              ],
+              [
+                14,
+                22
+              ],
+              [
+                13,
+                22
+              ],
+              [
+                12,
+                22
+              ]
+            ],
+            "duplicate": false,
+            "e": 2.527
+          },
+          {
+            "id": "G07A.f32",
+            "rank": 32,
+            "text": "בלק",
+            "line": "C23+",
+            "skip": 583,
+            "kind": "els",
+            "cells": [
+              [
+                3,
+                23
+              ],
+              [
+                4,
+                23
+              ],
+              [
+                5,
+                23
+              ]
+            ],
+            "duplicate": false,
+            "e": 35.5
+          },
+          {
+            "id": "G07A.f33",
+            "rank": 33,
+            "text": "לחמ",
+            "line": "C23+",
+            "skip": 583,
+            "kind": "els",
+            "cells": [
+              [
+                6,
+                23
+              ],
+              [
+                7,
+                23
+              ],
+              [
+                8,
+                23
+              ]
+            ],
+            "duplicate": false,
+            "e": 83.43
+          },
+          {
+            "id": "G07A.f34",
+            "rank": 34,
+            "text": "שמע",
+            "line": "C23+",
+            "skip": 583,
+            "kind": "els",
+            "cells": [
+              [
+                15,
+                23
+              ],
+              [
+                16,
+                23
+              ],
+              [
+                17,
+                23
+              ]
+            ],
+            "duplicate": false,
+            "e": 94.4
+          },
+          {
+            "id": "G07A.f35",
+            "rank": 35,
+            "text": "עננ",
+            "line": "C23+",
+            "skip": 583,
+            "kind": "els",
+            "cells": [
+              [
+                17,
+                23
+              ],
+              [
+                18,
+                23
+              ],
+              [
+                19,
+                23
+              ]
+            ],
+            "duplicate": false,
+            "e": 48.14
+          },
+          {
+            "id": "G07A.f36",
+            "rank": 36,
+            "text": "שינו",
+            "line": "C23+",
+            "skip": 583,
+            "kind": "els",
+            "cells": [
+              [
+                30,
+                23
+              ],
+              [
+                31,
+                23
+              ],
+              [
+                32,
+                23
+              ],
+              [
+                33,
+                23
+              ]
+            ],
+            "duplicate": false,
+            "e": 14.88
+          },
+          {
+            "id": "G07A.f37",
+            "rank": 37,
+            "text": "ישי",
+            "line": "C23-",
+            "skip": 583,
+            "kind": "els",
+            "cells": [
+              [
+                31,
+                23
+              ],
+              [
+                30,
+                23
+              ],
+              [
+                29,
+                23
+              ]
+            ],
+            "duplicate": false,
+            "e": 332.5
+          },
+          {
+            "id": "G07A.f38",
+            "rank": 38,
+            "text": "אכר",
+            "line": "C23-",
+            "skip": 583,
+            "kind": "els",
+            "cells": [
+              [
+                26,
+                23
+              ],
+              [
+                25,
+                23
+              ],
+              [
+                24,
+                23
+              ]
+            ],
+            "duplicate": false,
+            "e": 125.9
+          },
+          {
+            "id": "G07A.f39",
+            "rank": 39,
+            "text": "עוול",
+            "line": "C23-",
+            "skip": 583,
+            "kind": "els",
+            "cells": [
+              [
+                14,
+                23
+              ],
+              [
+                13,
+                23
+              ],
+              [
+                12,
+                23
+              ],
+              [
+                11,
+                23
+              ]
+            ],
+            "duplicate": false,
+            "e": 15.86
+          },
+          {
+            "id": "G07A.f40",
+            "rank": 40,
+            "text": "מחלק",
+            "line": "C23-",
+            "skip": 583,
+            "kind": "els",
+            "cells": [
+              [
+                8,
+                23
+              ],
+              [
+                7,
+                23
+              ],
+              [
+                6,
+                23
+              ],
+              [
+                5,
+                23
+              ]
+            ],
+            "duplicate": false,
+            "e": 1.283
+          }
+        ],
+        "not_verified": []
+      },
+      "P": {
+        "run": "G07A",
+        "group": "G07",
+        "state": "INCOMPLETE",
+        "reason": "refusal",
+        "cap": 12,
+        "usd": 0.03915,
+        "batch_ms": 114898,
+        "output": {
+          "stop_reason": "refusal",
+          "input_tokens": 2600,
+          "output_tokens": 1046,
+          "thinking_tokens": 1046
+        }
+      }
+    },
+    "G10": {
+      "L": {
+        "run": "G10A",
+        "group": "G10",
+        "state": "INCOMPLETE",
+        "reason": "refusal",
+        "cap": 40,
+        "usd": 0.01311,
+        "batch_ms": 135965,
+        "output": {
+          "stop_reason": "refusal",
+          "input_tokens": 2622,
+          "output_tokens": 0,
+          "thinking_tokens": null
+        }
+      },
+      "P": {
+        "run": "G10A",
+        "group": "G10",
+        "state": "COMPLETE",
+        "reason": null,
+        "cap": 12,
+        "usd": 0.08946,
+        "batch_ms": 105899,
+        "output": {
+          "stop_reason": "end_turn",
+          "input_tokens": 2622,
+          "output_tokens": 3054,
+          "thinking_tokens": 2635
+        },
+        "summary": {
+          "proposals": 14,
+          "engine_verified": 14,
+          "source_rows": 0,
+          "not_verified": 0,
+          "duplicates": 0,
+          "cited_line_outside_group": 0
+        },
+        "observations": "הקווים D04 בשני הכיוונים ו-C41+ נראו עניים במילים ברורות; D03- כולל רצפים קצרים (מלח, חרש, שחר) שלא הוצעו.",
+        "cap_reached": true,
+        "beyond_previous_cap": 2,
+        "near": 7,
+        "findings": [
+          {
+            "id": "G10A.f01",
+            "rank": 1,
+            "text": "בחלמו",
+            "line": "C40-",
+            "skip": 583,
+            "kind": "els",
+            "cells": [
+              [
+                28,
+                40
+              ],
+              [
+                27,
+                40
+              ],
+              [
+                26,
+                40
+              ],
+              [
+                25,
+                40
+              ],
+              [
+                24,
+                40
+              ]
+            ],
+            "duplicate": false,
+            "e": 0.4462
+          },
+          {
+            "id": "G10A.f02",
+            "rank": 2,
+            "text": "הרכב",
+            "line": "C40-",
+            "skip": 583,
+            "kind": "els",
+            "cells": [
+              [
+                9,
+                40
+              ],
+              [
+                8,
+                40
+              ],
+              [
+                7,
+                40
+              ],
+              [
+                6,
+                40
+              ]
+            ],
+            "duplicate": false,
+            "e": 6.985
+          },
+          {
+            "id": "G10A.f03",
+            "rank": 3,
+            "text": "חלב",
+            "line": "C41-",
+            "skip": 583,
+            "kind": "els",
+            "cells": [
+              [
+                3,
+                41
+              ],
+              [
+                2,
+                41
+              ],
+              [
+                1,
+                41
+              ]
+            ],
+            "duplicate": false,
+            "e": 54.35
+          },
+          {
+            "id": "G10A.f04",
+            "rank": 4,
+            "text": "חמוש",
+            "line": "D01-",
+            "skip": 584,
+            "kind": "els",
+            "cells": [
+              [
+                15,
+                15
+              ],
+              [
+                14,
+                14
+              ],
+              [
+                13,
+                13
+              ],
+              [
+                12,
+                12
+              ]
+            ],
+            "duplicate": false,
+            "e": 6.027
+          },
+          {
+            "id": "G10A.f05",
+            "rank": 5,
+            "text": "ביתו",
+            "line": "D02+",
+            "skip": 584,
+            "kind": "els",
+            "cells": [
+              [
+                17,
+                18
+              ],
+              [
+                18,
+                19
+              ],
+              [
+                19,
+                20
+              ],
+              [
+                20,
+                21
+              ]
+            ],
+            "duplicate": false,
+            "e": 19.82
+          },
+          {
+            "id": "G10A.f06",
+            "rank": 6,
+            "text": "ואבק",
+            "line": "D03+",
+            "skip": 584,
+            "kind": "els",
+            "cells": [
+              [
+                2,
+                4
+              ],
+              [
+                3,
+                5
+              ],
+              [
+                4,
+                6
+              ],
+              [
+                5,
+                7
+              ]
+            ],
+            "duplicate": false,
+            "e": 4.449
+          },
+          {
+            "id": "G10A.f07",
+            "rank": 7,
+            "text": "חבל",
+            "line": "D05+",
+            "skip": 584,
+            "kind": "els",
+            "cells": [
+              [
+                1,
+                5
+              ],
+              [
+                2,
+                6
+              ],
+              [
+                3,
+                7
+              ]
+            ],
+            "duplicate": false,
+            "e": 54.35
+          },
+          {
+            "id": "G10A.f08",
+            "rank": 8,
+            "text": "שכרות",
+            "line": "D05-",
+            "skip": 584,
+            "kind": "els",
+            "cells": [
+              [
+                29,
+                33
+              ],
+              [
+                28,
+                32
+              ],
+              [
+                27,
+                31
+              ],
+              [
+                26,
+                30
+              ],
+              [
+                25,
+                29
+              ]
+            ],
+            "duplicate": false,
+            "e": 0.426
+          },
+          {
+            "id": "G10A.f09",
+            "rank": 9,
+            "text": "שופע",
+            "line": "D05-",
+            "skip": 584,
+            "kind": "els",
+            "cells": [
+              [
+                24,
+                28
+              ],
+              [
+                23,
+                27
+              ],
+              [
+                22,
+                26
+              ],
+              [
+                21,
+                25
+              ]
+            ],
+            "duplicate": false,
+            "e": 1.806
+          },
+          {
+            "id": "G10A.f10",
+            "rank": 10,
+            "text": "היהנס",
+            "line": "D06+",
+            "skip": 584,
+            "kind": "els",
+            "cells": [
+              [
+                15,
+                20
+              ],
+              [
+                16,
+                21
+              ],
+              [
+                17,
+                22
+              ],
+              [
+                18,
+                23
+              ],
+              [
+                19,
+                24
+              ]
+            ],
+            "duplicate": false,
+            "e": 0.1478
+          },
+          {
+            "id": "G10A.f11",
+            "rank": 11,
+            "text": "לילה",
+            "line": "D06+",
+            "skip": 584,
+            "kind": "els",
+            "cells": [
+              [
+                5,
+                10
+              ],
+              [
+                6,
+                11
+              ],
+              [
+                7,
+                12
+              ],
+              [
+                8,
+                13
+              ]
+            ],
+            "duplicate": false,
+            "e": 28.9
+          },
+          {
+            "id": "G10A.f12",
+            "rank": 12,
+            "text": "מרד",
+            "line": "D06+",
+            "skip": 584,
+            "kind": "els",
+            "cells": [
+              [
+                31,
+                36
+              ],
+              [
+                32,
+                37
+              ],
+              [
+                33,
+                38
+              ]
+            ],
+            "duplicate": false,
+            "e": 68.58
+          },
+          {
+            "id": "G10A.f13",
+            "rank": 13,
+            "text": "נהיה",
+            "line": "D06-",
+            "skip": 584,
+            "kind": "els",
+            "cells": [
+              [
+                18,
+                23
+              ],
+              [
+                17,
+                22
+              ],
+              [
+                16,
+                21
+              ],
+              [
+                15,
+                20
+              ]
+            ],
+            "duplicate": false,
+            "e": 24.62
+          },
+          {
+            "id": "G10A.f14",
+            "rank": 14,
+            "text": "מצב",
+            "line": "D02+",
+            "skip": 584,
+            "kind": "els",
+            "cells": [
+              [
+                31,
+                32
+              ],
+              [
+                32,
+                33
+              ],
+              [
+                33,
+                34
+              ]
+            ],
+            "duplicate": false,
+            "e": 34.84
+          }
+        ],
+        "not_verified": []
+      }
+    }
+  },
+  "targets": [
+    {
+      "text": "מחכיתשפו",
+      "key": "583_1_233063",
+      "skip": 583,
+      "dir": 1,
+      "start": 233063,
+      "cells": [
+        [
+          10,
+          17
+        ],
+        [
+          11,
+          17
+        ],
+        [
+          12,
+          17
+        ],
+        [
+          13,
+          17
+        ],
+        [
+          14,
+          17
+        ],
+        [
+          15,
+          17
+        ],
+        [
+          16,
+          17
+        ],
+        [
+          17,
+          17
+        ]
+      ],
+      "kind": "els",
+      "distance": 4,
+      "line": "C17",
+      "group": "G07",
+      "P": {
+        "status": "INCOMPLETE",
+        "reason": "refusal",
+        "with": [],
+        "ranks": []
+      },
+      "L": {
+        "status": "overlap",
+        "with": [
+          "G07A.f05 חכית (C17+) · 4 תאים · חלק מהרצף השמור"
+        ],
+        "ranks": [
+          5
+        ],
+        "relations": [
+          "חלק מהרצף השמור"
+        ]
+      }
+    },
+    {
+      "text": "לכפרעליכמ",
+      "key": "1_1_236559",
+      "skip": 1,
+      "dir": 1,
+      "start": 236559,
+      "cells": [
+        [
+          16,
+          15
+        ],
+        [
+          16,
+          16
+        ],
+        [
+          16,
+          17
+        ],
+        [
+          16,
+          18
+        ],
+        [
+          16,
+          19
+        ],
+        [
+          16,
+          20
+        ],
+        [
+          16,
+          21
+        ],
+        [
+          16,
+          22
+        ],
+        [
+          16,
+          23
+        ]
+      ],
+      "kind": "source_row",
+      "distance": 0,
+      "line": "R16",
+      "group": "G02",
+      "P": {
+        "status": "not_proposed",
+        "with": [],
+        "ranks": []
+      },
+      "L": {
+        "status": "not_proposed",
+        "with": [],
+        "ranks": []
+      }
+    },
+    {
+      "text": "הארחשכ",
+      "key": "584_1_232474",
+      "skip": 584,
+      "dir": 1,
+      "start": 232474,
+      "cells": [
+        [
+          9,
+          11
+        ],
+        [
+          10,
+          12
+        ],
+        [
+          11,
+          13
+        ],
+        [
+          12,
+          14
+        ],
+        [
+          13,
+          15
+        ],
+        [
+          14,
+          16
+        ]
+      ],
+      "kind": "els",
+      "distance": 5,
+      "line": "D03",
+      "group": "G10",
+      "P": {
+        "status": "not_proposed",
+        "with": [],
+        "ranks": []
+      },
+      "L": {
+        "status": "INCOMPLETE",
+        "reason": "refusal",
+        "with": [],
+        "ranks": []
+      }
+    },
+    {
+      "text": "שופר",
+      "key": "583_-1_235391",
+      "skip": 583,
+      "dir": -1,
+      "start": 235391,
+      "cells": [
+        [
+          14,
+          13
+        ],
+        [
+          13,
+          13
+        ],
+        [
+          12,
+          13
+        ],
+        [
+          11,
+          13
+        ]
+      ],
+      "kind": "els",
+      "distance": 8,
+      "line": "C13",
+      "group": "G06",
+      "P": {
+        "status": "crossed",
+        "with": [
+          "G06A.f04 כחמש (C13-) · תא יחיד"
+        ],
+        "ranks": [
+          4
+        ]
+      },
+      "L": {
+        "status": "INCOMPLETE",
+        "reason": "refusal",
+        "with": [],
+        "ranks": []
+      }
+    },
+    {
+      "text": "ישלח",
+      "key": "583_-1_233650",
+      "skip": 583,
+      "dir": -1,
+      "start": 233650,
+      "cells": [
+        [
+          11,
+          21
+        ],
+        [
+          10,
+          21
+        ],
+        [
+          9,
+          21
+        ],
+        [
+          8,
+          21
+        ]
+      ],
+      "kind": "els",
+      "distance": 2,
+      "line": "C21",
+      "group": "G07",
+      "P": {
+        "status": "INCOMPLETE",
+        "reason": "refusal",
+        "with": [],
+        "ranks": []
+      },
+      "L": {
+        "status": "overlap",
+        "with": [
+          "G07A.f21 תתחל (C21+) · 2 תאים · חפיפה חלקית",
+          "G07A.f22 חלש (C21+) · 3 תאים · חלק מהרצף השמור",
+          "G07A.f25 שלחת (C21-) · 3 תאים · חפיפה חלקית"
+        ],
+        "ranks": [
+          21,
+          22,
+          25
+        ],
+        "relations": [
+          "חפיפה חלקית",
+          "חלק מהרצף השמור",
+          "חפיפה חלקית"
+        ]
+      }
+    },
+    {
+      "text": "מלכ",
+      "key": "1_1_232483",
+      "skip": 1,
+      "dir": 1,
+      "start": 232483,
+      "cells": [
+        [
+          9,
+          20
+        ],
+        [
+          9,
+          21
+        ],
+        [
+          9,
+          22
+        ]
+      ],
+      "kind": "source_row",
+      "distance": 4,
+      "line": "R09",
+      "group": "G02",
+      "P": {
+        "status": "not_proposed",
+        "with": [],
+        "ranks": []
+      },
+      "L": {
+        "status": "overlap",
+        "with": [
+          "G02A.f02 מחלהונעהחגלהמלכהותרצה (R09+) · 3 תאים · מכילה את הרצף השמור כולו (הצעה ארוכה יותר)",
+          "G02A.f13 הכל (R09-) · 2 תאים · חפיפה חלקית"
+        ],
+        "ranks": [
+          2,
+          13
+        ],
+        "relations": [
+          "מכילה את הרצף השמור כולו (הצעה ארוכה יותר)",
+          "חפיפה חלקית"
+        ]
+      }
+    }
+  ],
+  "stability": [
+    {
+      "group": "G02",
+      "comparable": true,
+      "previous": 12,
+      "returned": 7,
+      "new_in_ceiling_lift": 33,
+      "new_beyond_previous_cap": 24
+    },
+    {
+      "group": "G06",
+      "comparable": false
+    },
+    {
+      "group": "G07",
+      "comparable": false
+    },
+    {
+      "group": "G10",
+      "comparable": false
+    }
+  ],
+  "interpretation": {
+    "rule_source": "experiments/els-ceiling-lift/PREREGISTERED-EXP24.md (כללי פרשנות)",
+    "verdict": "inconclusive",
+    "groups_read": [
+      "G02",
+      "G07"
+    ],
+    "groups_not_read": [
+      "G06:INCOMPLETE(refusal)",
+      "G10:INCOMPLETE(refusal)"
+    ],
+    "saved_exact_now": [],
+    "saved_exact_new_vs_exp23": [],
+    "groups_that_reached_the_ceiling": [
+      "G02",
+      "G07"
+    ],
+    "saved_read_but_not_exact": [
+      "מחכיתשפו: overlap",
+      "לכפרעליכמ: not_proposed",
+      "ישלח: overlap",
+      "מלכ: overlap"
+    ]
+  },
+  "saved_exact": {
+    "P": 0,
+    "L": 0
+  },
+  "saved_overlap": {
+    "P": 0,
+    "L": 3
+  },
+  "totals": {
+    "requests": 4,
+    "completed": 2,
+    "incomplete": 2,
+    "failed": 0,
+    "proposals": 80,
+    "usd": 0.289125,
+    "max_batch_ms": 136184
+  }
+}
