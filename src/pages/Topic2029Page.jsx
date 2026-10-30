@@ -18,6 +18,7 @@ import { resolveTopicExpressionFocus2029 } from "../lib/research/topicExpression
 import { applySeo, clearConvergenceJsonLd, setConvergenceJsonLd } from "../lib/seo.js";
 import "./topic2029.css";
 import ConvergenceRatings2029 from "../components/experience2029/ConvergenceRatings2029.jsx";
+import TopicNumberResearch2029 from "../components/research/TopicNumberResearch2029.jsx";
 
 const clean = (value) => value == null ? "" : String(value).trim();
 const textOf = (row) => clean(row?.text || row?.title || row?.phrase || row?.note);
@@ -451,6 +452,8 @@ function TopicBody() {
     ...(sourceDiscoveryEnabled && DISCOVERY_TOPIC_SLUGS.includes(projection.slug) && !projection.withheld ? [{ id: 'topic-discovery', label: 'קריאה במקורות' }] : []),
     ...((projection.phrases.length || projection.numericClaims.length || projection.authoredRows.length) ? [{ id: "topic-phrases", label: "גימטריות", targetId: projection.phrases.length ? "topic-phrases" : "topic-findings" }] : []),
     ...(hasFindings ? [{ id: "topic-findings", label: "חיבורים" }] : []),
+    ...(!projection.withheld && projection.numbers.some((value) => Number.isSafeInteger(value) && value >= 0)
+      ? [{ id: "topic-number-research", label: "ממצאים דרך המספר" }] : []),
     ...(projection.relatedPosts.length ? [{ id: "topic-posts", label: "פוסטים" }] : []),
     ...((golden?.sources?.length || golden?.media?.length || golden?.people?.length) ? [{ id: "topic-sources", label: "מקורות" }] : []),
     ...(projection.relatedConvergences.length ? [{ id: "topic-related", label: "המשך" }] : []),
@@ -645,6 +648,7 @@ function TopicBody() {
       <TopicPhrases rows={projection.phrases} onOpenExpression={openExpressionFocus} openingKey={expressionOpenState.key} />
       {expressionOpenState.error ? <div className="sod29-topic-focus-error" role="status">{expressionOpenState.error}</div> : null}
       <TopicFindings projection={projection} onOpenExpression={openExpressionFocus} openingKey={expressionOpenState.key} />
+      <TopicNumberResearch2029 key={projection.slug} projection={projection} />
       <TopicPosts projection={projection} />
       <TopicAuthoredConnections projection={projection} />
       <TopicRelatedAxes projection={projection} />
