@@ -19,7 +19,10 @@ import PostCategories2029 from "../components/experience2029/PostCategories2029.
 import PostConvergenceMeasures2029 from "../components/experience2029/PostConvergenceMeasures2029.jsx";
 import PostComments2029 from "../components/experience2029/PostComments2029.jsx";
 import { publicPostCommentArchiveId } from "../components/experience2029/postComments2029.js";
+import MatrixRain from "../components/MatrixRain.jsx";
+import { postCharacterFor, matrixOpeningFor } from "../lib/postCharacters2029.js";
 import "./post2029-reading.css";
+import "./post2029-legacy-grade.css";
 
 const normalize = (value) => String(value || "")
   .replace(/[״"']/g, "")
@@ -52,6 +55,7 @@ function PostReadingBody() {
   const shell = use2029Shell();
   const research = useResearch();
   const sourceRef = useRef(null);
+  const researchRef = useRef(null);
   const connectionsHeadingRef = useRef(null);
   const explicitGematriaFocusRef = useRef(null);
   const entryRef = useRef(null);
@@ -132,6 +136,26 @@ function PostReadingBody() {
     ...(commentArchiveId != null ? [{ id: "post-comments", label: "תגובות", targetId: "post-comments" }] : []),
     { id: "post-next", label: "המשך", targetId: "post-next" },
   ], [regions, state.projection, commentArchiveId]);
+
+  useEffect(() => {
+    // One closed "מקורות וקשרים" entry holds the research depth. Any in-page jump that lands inside it
+    // (section map, hash entry) opens it first so the target has layout; nothing else opens it.
+    const reveal = (targetId) => {
+      const box = researchRef.current;
+      const target = targetId ? document.getElementById(targetId) : null;
+      if (box && target && box.contains(target) && !box.open) box.open = true;
+    };
+    const onMapClick = (event) => {
+      const button = event.target?.closest?.(".sod29-surface-tabs button");
+      if (!button) return;
+      const label = (button.textContent || "").trim();
+      const item = sectionItems.find((entry) => entry.label === label);
+      if (item) reveal(item.targetId || item.id);
+    };
+    reveal(decodeURIComponent((location.hash || "").replace(/^#/, "")));
+    document.addEventListener("click", onMapClick, true);
+    return () => document.removeEventListener("click", onMapClick, true);
+  }, [sectionItems, location.hash, state.projection]);
 
   useEffect(() => {
     setSourceUpdates(state.projection ? provenSourceUpdatesFor(state.projection.post?.id, sourceRef.current) : []);
@@ -403,6 +427,8 @@ function PostReadingBody() {
   const { projection } = state;
   const { post } = projection;
   const coverItem = postReadingCoverItem(post);
+  const character = postCharacterFor(post);
+  const matrixOpening = matrixOpeningFor(post);
   const experience = projection.experience || {};
   const isBennettMaster = post.slug === "bennett-melach-631-78";
   const isFz1073Master = post.slug === "flydubai-fz1073-363-14000-remzei-geula";
@@ -738,6 +764,7 @@ function PostReadingBody() {
     data-experience-capability="post-master-reading-stage"
     data-architecture-wireframe={experience.wireframe ? "true" : undefined}
     data-post-slug={post.slug}
+    data-post-character={character}
   >
     {experience.wireframe ? <section className="sod29-architecture-wireframe-note" aria-label="מבנה בלבד">
       <b>מבנה בלבד</b>
@@ -745,6 +772,9 @@ function PostReadingBody() {
     </section> : null}
 
     <header id="post-story" className="sod29-reading-hero" data-experience-capability="post-master-hero">
+      {matrixOpening ? <div className="sod29-post-opening" aria-hidden="true">
+        <MatrixRain color={matrixOpening.color} headColor={matrixOpening.headColor} featured={matrixOpening.featured} />
+      </div> : null}
       <div className="sod29-reading-hero-grid">
         <div className="sod29-reading-hero-copy">
           <h1>{humanContentTitle(post.title, { max: 0 })}</h1>
@@ -834,6 +864,13 @@ function PostReadingBody() {
 
     </div>
 
+    <details ref={researchRef} className="sod29-post-research" id="post-research" data-experience-capability="post-sources-and-connections">
+      <summary>
+        <span className="sod29-post-research-title">מקורות וקשרים</span>
+        <span className="sod29-post-research-hint">מקור, חיבורים, ציר זמן ומדדים — בלי להעמיס על הקריאה</span>
+        <span className="sod29-post-research-chevron" aria-hidden="true">⌄</span>
+      </summary>
+      <div className="sod29-post-research-body">
     <PostConvergenceMeasures2029 tags={post.tags} fallbackNumbers={heroNumbers} />
 
     {contextualConnections.length ? <section id="post-connections" className="sod29-post-continuations" aria-labelledby="source-region-post-connections" data-experience-capability="post-connected-continuations">
@@ -870,6 +907,8 @@ function PostReadingBody() {
       <strong>{projection.sourceLine}</strong>
       <p>{projection.caveat}</p>
     </footer>
+      </div>
+    </details>
     {commentArchiveId != null ? <PostComments2029 key={String(commentArchiveId)} postWpId={commentArchiveId} /> : null}
     <nav id="post-next" className="sod29-post-next" aria-label="להמשיך לגלות">
       <a href="/2029/posts" onClick={(event) => openConnection(event, "/2029/posts")}>לכל הפוסטים ←</a>
