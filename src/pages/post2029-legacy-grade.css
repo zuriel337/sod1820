@@ -5,6 +5,8 @@
    Gold here is decoration, never a rating. Nothing in this file creates a verification mark: authored claim boxes are
    labelled as the post's own claim. Motion is slow, opacity/transform only, and off under prefers-reduced-motion. */
 
+.sod29-reading-source [data-duplicate-cover="true"]{display:none}
+
 /* ───────────── Shared reading finish ───────────── */
 .sod29-reading-post[data-post-character="quiet"],
 .sod29-reading-post[data-post-character="lexicon"],
@@ -185,34 +187,36 @@
 
 /* ───────────── matrix — present opening, green touches, elegant chapters ───────────── */
 .sod29-reading-post[data-post-character="matrix"]{
-  --pg-matrix:#23c768;--pg-matrix-soft:#bfffd6;--pg-measure:42rem;
+  --pg-matrix:var(--post-fx-color,#23c768);--pg-matrix-soft:var(--post-fx-head,#bfffd6);--pg-measure:42rem;
 }
-:is([data-theme-preset="light"],[data-theme-preset="parchment"]) .sod29-reading-post[data-post-character="matrix"]{--pg-matrix:#0f7a3c;--pg-matrix-soft:#0b5a2c}
+:is([data-theme-preset="light"],[data-theme-preset="parchment"]) .sod29-reading-post[data-post-character="matrix"]{--pg-matrix:color-mix(in srgb,var(--post-fx-color,#23c768) 62%,#000);--pg-matrix-soft:color-mix(in srgb,var(--post-fx-color,#23c768) 40%,#000)}
+/* the opening stage stays dark in every theme, so its own copy keeps the bright tones */
+.sod29-reading-post[data-post-character="matrix"] .sod29-reading-hero{--pg-matrix:var(--post-fx-color,#23c768);--pg-matrix-soft:var(--post-fx-head,#bfffd6)}
 /* The opening: a contained stage behind the title (the rain is POST_FX's, drawn by MatrixRain). */
 .sod29-reading-post[data-post-character="matrix"] .sod29-reading-hero{
   position:relative;isolation:isolate;width:min(1000px,100%);
   padding:clamp(34px,6vw,72px) clamp(20px,4vw,52px) clamp(26px,4vw,44px);border-radius:28px;overflow:hidden;
-  background:linear-gradient(180deg,#05100a,#07120d 70%,color-mix(in srgb,#07120d 70%,var(--s29-panel)));
+  background:linear-gradient(180deg,color-mix(in srgb,var(--pg-matrix) 5%,#000),color-mix(in srgb,var(--pg-matrix) 7%,#000) 70%,color-mix(in srgb,var(--pg-matrix) 7%,var(--s29-panel)));
   box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--pg-matrix) 40%,transparent),0 24px 60px color-mix(in srgb,var(--pg-matrix) 14%,transparent);
-  color:#e6fff0;
+  color:color-mix(in srgb,var(--pg-matrix-soft) 28%,#fff);
 }
 .sod29-reading-post[data-post-character="matrix"] .sod29-reading-hero::before{display:none}
 .sod29-reading-post[data-post-character="matrix"] .sod29-post-opening{position:absolute;inset:0;z-index:-1;opacity:.9;
   -webkit-mask-image:linear-gradient(to bottom,#000 55%,transparent);mask-image:linear-gradient(to bottom,#000 55%,transparent)}
 .sod29-reading-post[data-post-character="matrix"] .sod29-reading-hero h1{
-  color:#f0fff5;text-shadow:0 0 34px color-mix(in srgb,var(--pg-matrix) 55%,transparent);
+  color:color-mix(in srgb,var(--pg-matrix-soft) 12%,#fff);text-shadow:0 0 34px color-mix(in srgb,var(--pg-matrix) 55%,transparent);
   background:linear-gradient(to left,color-mix(in srgb,var(--pg-matrix) 70%,transparent),transparent 62%) bottom/100% 1px no-repeat;
   animation:pg-rise .9s cubic-bezier(.2,.7,.2,1) both;
 }
-.sod29-reading-post[data-post-character="matrix"] .sod29-reading-hero :is(.sod29-reading-source-badge,.sod29-post-details-label,.sod29-post-details>summary){color:#c9ffdc}
-.sod29-reading-post[data-post-character="matrix"] .sod29-reading-hero .sod29-reading-source-badge{background:rgba(35,199,104,.12);border-color:rgba(35,199,104,.45)}
-.sod29-reading-post[data-post-character="matrix"] .sod29-reading-hero .sod29-post-details-body{background:rgba(5,16,10,.88);color:#e6fff0;border-radius:14px;padding:12px 16px}
-.sod29-reading-post[data-post-character="matrix"] .sod29-reading-hero :is(.sod29-post-details-body p,.sod29-reading-source-line){color:#d6f7e3}
+.sod29-reading-post[data-post-character="matrix"] .sod29-reading-hero :is(.sod29-reading-source-badge,.sod29-post-details-label,.sod29-post-details>summary){color:var(--pg-matrix-soft)}
+.sod29-reading-post[data-post-character="matrix"] .sod29-reading-hero .sod29-reading-source-badge{background:color-mix(in srgb,var(--pg-matrix) 12%,transparent);border-color:color-mix(in srgb,var(--pg-matrix) 45%,transparent)}
+.sod29-reading-post[data-post-character="matrix"] .sod29-reading-hero .sod29-post-details-body{background:color-mix(in srgb,var(--pg-matrix) 5%,#000);color:color-mix(in srgb,var(--pg-matrix-soft) 28%,#fff);border-radius:14px;padding:12px 16px}
+.sod29-reading-post[data-post-character="matrix"] .sod29-reading-hero :is(.sod29-post-details-body p,.sod29-reading-source-line){color:color-mix(in srgb,var(--pg-matrix-soft) 20%,#fff)}
 .sod29-reading-post[data-post-character="matrix"] .sod29-reading-number-signal{
-  background:rgba(35,199,104,.10);border-color:rgba(35,199,104,.5);color:#e6fff0;
+  background:color-mix(in srgb,var(--pg-matrix) 10%,transparent);border-color:color-mix(in srgb,var(--pg-matrix) 50%,transparent);color:color-mix(in srgb,var(--pg-matrix-soft) 28%,#fff);
 }
 .sod29-reading-post[data-post-character="matrix"] .sod29-reading-number-stage-kicker,
-.sod29-reading-post[data-post-character="matrix"] .sod29-reading-number-stage p{color:#bfffd6}
+.sod29-reading-post[data-post-character="matrix"] .sod29-reading-number-stage p{color:var(--pg-matrix-soft)}
 @keyframes pg-rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 
 /* Chapters of the dossier: eyebrow + title, with a green hairline. */

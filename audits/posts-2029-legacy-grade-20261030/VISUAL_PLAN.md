@@ -23,8 +23,12 @@ legacy-production-lock PASS · 2029-cheap-hardening PASS · public-2029-language
 Browser (Playwright, live data): dark/parchment/light × 1440 and 390 — `shots/`.
 Flow: clicking 506 in matrix-506 opens the shared calculation drawer; section-map jump opens the closed entry (mobile); «עולם» → exact-return control restores /post/matrix-506.
 
+## Follow-up pass
+- Duplicate cover fixed (presentation only): a body image with the same file as `image_url` is hidden (`data-duplicate-cover`), source DOM untouched. Verified on 5105 and 5003 at 390px; no horizontal scroll on all three.
+- Matrix hero colours now derive from POST_FX (`--post-fx-color/head`), not literals.
+- Existing suite `test/post2029-*.test.mjs` (incl. region-return, living-tree-infra) passes: proves the code contract in the test environment, not a real post with mapped regions.
+
 ## Not done / needs ZURIEL
 - Commit b2302df44f5295f70ed67b21a2f8bff199999648 is not reachable from this checkout or origin (fetch: "not our ref"): the metrics/transitions infrastructure was NOT compared or merged.
 - Exact-section return and "new finding appears without a manual list" were not proven here: matrix-506 has no mapped regions (return lands on the post top) and no new finding was injected (that needs a product write).
-- Cover and first in-body image duplicate on 5105 (existing content/cover behaviour, left alone).
 - No work_log DB record written (no DB writes in this task).

@@ -138,6 +138,18 @@ function PostReadingBody() {
   ], [regions, state.projection, commentArchiveId]);
 
   useEffect(() => {
+    // The reading cover already shows posts.image_url. When the authored body opens with that same file, the body
+    // copy is hidden (presentation only: the source DOM and text stay intact, and it remains in the post for AT-free copy/export).
+    const root = sourceRef.current;
+    const cover = typeof state.projection?.post?.image_url === "string" ? state.projection.post.image_url.trim().split("?")[0] : "";
+    if (!root || !cover) return;
+    const first = root.querySelector("img");
+    if (!first || (first.getAttribute("src") || "").trim().split("?")[0] !== cover) return;
+    const wrap = first.parentElement !== root && first.parentElement?.children.length === 1 && !first.parentElement.textContent.trim() ? first.parentElement : first;
+    wrap.setAttribute("data-duplicate-cover", "true");
+  }, [state.projection]);
+
+  useEffect(() => {
     // One closed "מקורות וקשרים" entry holds the research depth. Any in-page jump that lands inside it
     // (section map, hash entry) opens it first so the target has layout; nothing else opens it.
     const reveal = (targetId) => {
@@ -765,6 +777,7 @@ function PostReadingBody() {
     data-architecture-wireframe={experience.wireframe ? "true" : undefined}
     data-post-slug={post.slug}
     data-post-character={character}
+    style={matrixOpening ? { "--post-fx-color": matrixOpening.color, "--post-fx-head": matrixOpening.headColor } : undefined}
   >
     {experience.wireframe ? <section className="sod29-architecture-wireframe-note" aria-label="מבנה בלבד">
       <b>מבנה בלבד</b>
