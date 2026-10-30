@@ -1,4 +1,4 @@
-import { AHAVAT_PDF_BYTES, AHAVAT_PDF_URL, assertAhavatSourcePage, ahavatSourceHref } from "./fixtures/ahavat-controlled-source-2029.mjs";
+import { ahavatRequestedSourceHref as ahavatSourceHref } from "./fixtures/ahavat-controlled-source-2029.mjs";
 import test from "node:test";
 import assert from "node:assert/strict";
 import { mkdirSync, writeFileSync } from "node:fs";
@@ -86,7 +86,6 @@ test("Ahavat action rows and labels center without centering source prose, break
       // This geometry/interaction matrix mocks services/UI fonts and renders the exact original PDF.
       // Independent 99-page raster acceptance proves the physical source; an anchor alone is not acceptance.
       await context.route("**/*", async route => {
-      if (route.request().url() === AHAVAT_PDF_URL) return route.fulfill({ contentType: "application/pdf", body: AHAVAT_PDF_BYTES });
         const url = new URL(route.request().url());
         if (url.origin === origin && url.pathname === "/2029/control" && route.request().isNavigationRequest()) {
           const response = await context.request.get(`${origin}/2029.html`);

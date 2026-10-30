@@ -36,3 +36,18 @@ export async function ahavatSourceHref(target) {
   const snapshot = await assertAhavatSourcePage(reader, physical);
   return `${snapshot.source}#page=${snapshot.rendered}&view=FitH`;
 }
+
+// Request-state acceptance for the original deliberately aborted PDF UI cases.
+// Never use this function as evidence that a physical PDF page was rendered.
+export async function ahavatRequestedSourceHref(target) {
+  const source = target.locator("xpath=ancestor-or-self::*[@id='ahavat29-source']").first();
+  const reader = source.locator('[data-book-pdf-renderer="controlled"]');
+  await reader.waitFor();
+  const href = await source.locator("a[data-book-reader-secondary]").getAttribute("href");
+  assert.ok(href.startsWith(`${AHAVAT_PDF_URL}#page=`));
+  const physical = Number(new URLSearchParams(new URL(href).hash.slice(1)).get("page"));
+  assert.equal(await reader.getAttribute("data-book-pdf-source"), AHAVAT_PDF_URL);
+  assert.equal(Number(await reader.getAttribute("data-book-requested-page")), physical);
+  assert.equal(await source.locator('[data-book-pdf-painted="true"]').count(), 0, "aborted delivery must not masquerade as a completed source page");
+  return href;
+}
