@@ -1,5 +1,6 @@
 import React, { lazy, Suspense, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import BookFullscreenButton2029 from "./BookFullscreenButton2029.jsx";
+import CanonicalProgress from "../CanonicalProgress.jsx";
 import {
   chapterForBookPage,
   clampBookPage,
@@ -9,6 +10,7 @@ import "./bookSourceReader2029.css";
 const BookInternalMap2029 = lazy(
   () => import("./MaamarEstherInternalMap2029.jsx"),
 );
+const BookPdfPage2029 = lazy(() => import("./BookPdfPage2029.jsx"));
 
 function pageFromUrl(manifest) {
   if (typeof window === "undefined") return 1;
@@ -161,7 +163,7 @@ export default function BookSourceReader2029({ manifest, researchRows = [] }) {
         </header>
 
         <div className="book-reader29-pdf" data-book-pdf-frame>
-          <iframe key={pdfPageUrl} src={pdfPageUrl} title={`${manifest.title}, עמוד ${page}`} loading="eager" />
+          {manifest.pdfRenderer === "controlled_page" ? <Suspense fallback={<CanonicalProgress compact title="טעינת עמוד המקור" />}><BookPdfPage2029 manifest={manifest} page={page} /></Suspense> : <iframe key={pdfPageUrl} src={pdfPageUrl} title={`${manifest.title}, עמוד ${page}`} loading="eager" />}
         </div>
 
         <form className="book-reader29-page-nav" onSubmit={submitPage} aria-label={`מעבר בין עמודי ${manifest.title}`} data-book-reader-secondary>

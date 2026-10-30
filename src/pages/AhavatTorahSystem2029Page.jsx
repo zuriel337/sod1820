@@ -1,6 +1,8 @@
 import React, { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import BookFullscreenButton2029 from "../components/books2029/BookFullscreenButton2029.jsx";
 import BookReadingLayout2029 from "../components/books2029/BookReadingLayout2029.jsx";
+import CanonicalProgress from "../components/CanonicalProgress.jsx";
+import { getBookReaderManifest } from "../data/bookReader2029.js";
 import AhavatLetterStudy2029 from "../components/books2029/AhavatLetterStudy2029.jsx";
 import AhavatLetterParasha2029 from "../components/books2029/AhavatLetterParasha2029.jsx";
 import { AHAVAT_LETTER_COMPARISON_ANCHOR, ahavatLetterComparisonTarget, ahavatLetterComparisonHref, ahavatRetainedLetterRow } from "../components/books2029/ahavatLetterJourney2029.js";
@@ -97,6 +99,9 @@ function scrollToBookSource(behavior) {
   });
 }
 
+const BookPdfPage2029 = lazy(() => import("../components/books2029/BookPdfPage2029.jsx"));
+const ahavatPdfManifest = getBookReaderManifest("ahavat-torah");
+
 function SourcePanel({ page, contextLabel, onPage, readerUnit, onReturnToUnit }) {
   const pdfUrl = `${AHAVAT_TORAH_SOURCE.pdfUrl}#page=${page}&view=FitH`;
   const [pageDraft, setPageDraft] = useState(String(page));
@@ -118,7 +123,7 @@ function SourcePanel({ page, contextLabel, onPage, readerUnit, onReturnToUnit })
     </header>
     <div id="ahavat29-pdf-frame" className="ahavat29-pdf-frame" data-book-pdf-frame data-book-presentation={bookPresentation ? "book" : "straight"}>
       <span className="ahavat29-book-page-edges" aria-hidden="true" />
-      <iframe key={page} src={pdfUrl} title={`${AHAVAT_TORAH_SOURCE.title}, עמוד PDF ${page}`} loading="eager" />
+      <Suspense fallback={<CanonicalProgress compact title="טעינת עמוד המקור" />}><BookPdfPage2029 manifest={ahavatPdfManifest} page={page} selectionKey={readerUnit} /></Suspense>
     </div>
     <form className="ahavat29-page-nav" onSubmit={submitPage} aria-label="ניווט בכל 99 עמודי המקור">
       <button type="button" disabled={page <= 1} onClick={() => onPage(page - 1)} aria-label="לעמוד הקודם">הקודם</button>
