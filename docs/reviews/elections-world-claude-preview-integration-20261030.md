@@ -81,3 +81,31 @@ generic envelope ownership `b30d0a4d` remains unresolved and its excluded files
 and tests/docs were not edited. Shared Frame, Providers, ELS, Books and Life
 Journey were not modified. No product DB, RLS, schema/migration, Edge, publication,
 main, Production domain/alias or live-content change is included.
+
+## Hosted acceptance
+
+- Deployment: `dpl_53qKDRQcgABRz81y4d2w46M31sCS`, READY, target `null` (Preview).
+- Tested source: `ae563ecfa24c6fbc33a2fbf1e2c36277bdea4953` on the exact branch
+  above. This acceptance paragraph is a later documentation-only commit, not a
+  claim that the deployed source SHA changed.
+- World: https://sod1820-ooqrzpu9n-sod1820-s-projects.vercel.app/world
+- Claude gate: https://sod1820-ooqrzpu9n-sod1820-s-projects.vercel.app/topic/1237
+- Vercel SSO protection remains enabled. Authenticated access used an existing
+  account's temporary share link in memory; no link token or browser state was
+  printed, committed or saved to an artifact. No protection setting changed.
+- Protected identity and carry receipts returned HTTP 200 and the exact source
+  SHA. The deployed worker was fetched and verified to contain
+  `unifiedReadOnly=true`, the write-blocking guard and mock-only model transport.
+  Responses retain `no-store` and `noindex, nofollow, noarchive` headers.
+- The same actual-build live-public browser test passed again **on this hosted
+  deployment**, at 390 and 1440, for 1237, Topic 1118 → World finding → Back,
+  and the World Zvi source entry. Zero page errors, model requests or escaped
+  product writes were observed. Screenshots remain local under
+  `/tmp/elections-world-hosted-preview-20261030`.
+- Both Legacy and 2029 builds passed, followed by the built graph/lazy boundary
+  check (142 reachable / 15 eager manifest records) and the Legacy lock. The
+  three strengthened synthetic browser tests passed again without skips.
+  The unrelated inherited World literal-label test failure remains as above.
+- Main remained `2195c9784c5c9f0b1ec3cd3c1137fbd76045845b`. No Production
+  deployment or domain assignment was performed; previous previews were not
+  replaced through an alias action.
