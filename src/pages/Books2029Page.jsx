@@ -17,6 +17,8 @@ import {
 } from "../lib/research/bookResearchProjection.js";
 import { applySeo } from "../lib/seo.js";
 import { getBookReaderManifest } from "../data/bookReader2029.js";
+import { AHAVAT_BOOK_SLUG, AHAVAT_CARD_SUMMARY, AHAVAT_CARD_TOPICS, AHAVAT_COVER_IMAGE } from "../data/ahavatBookNavigation2029.js";
+import "../components/books2029/booksLibraryCard2029.css";
 
 const COVERAGE_LABELS = {
   structural: "מיפוי מבני",
@@ -140,9 +142,30 @@ function ResearchFamily({ group, book, research, defaultOpen = false }) {
   </details>;
 }
 
+// Prototype card (Ahavat Torah only): real source page, summary, representative
+// topics and one primary action. Other books keep the existing tile.
+function AhavatPrototypeCard({ book, reader }) {
+  const deepEntry = import.meta.env.VITE_BOOK_PUBLICATION_REVIEW_PREVIEW === "true" && reader.experience?.href;
+  return <article className="sod29-book-tile books29-card" data-book-card="ahavat-torah-prototype" aria-labelledby="books29-card-ahavat-title">
+    <img className="books29-card-cover" src={AHAVAT_COVER_IMAGE.src} width={AHAVAT_COVER_IMAGE.width} height={AHAVAT_COVER_IMAGE.height} alt={AHAVAT_COVER_IMAGE.alt} loading="lazy" decoding="async" />
+    <div className="books29-card-body">
+      <div className="sod29-kicker">ספר ומקור · {reader.pdfPages} עמודים</div>
+      <h3 id="books29-card-ahavat-title">{book.label}</h3>
+      <p className="books29-card-author">{reader.author}</p>
+      <p className="books29-card-summary">{AHAVAT_CARD_SUMMARY}</p>
+      <ul className="books29-card-topics" aria-label="נושאים בספר">{AHAVAT_CARD_TOPICS.map(topic => <li key={topic}>{topic}</li>)}</ul>
+      <div className="books29-card-actions">
+        <Link className="sod29-action books29-card-primary" to={deepEntry || `/book/${AHAVAT_BOOK_SLUG}`}>פתח את הספר</Link>
+        {deepEntry ? <Link className="books29-card-secondary" to={`/book/${AHAVAT_BOOK_SLUG}`}>הקורא האחיד</Link> : null}
+      </div>
+    </div>
+  </article>;
+}
+
 function BookCard({ book }) {
   const slug = book?.metadata?.slug;
   const reader = getBookReaderManifest(slug);
+  if (slug === AHAVAT_BOOK_SLUG && reader) return <AhavatPrototypeCard book={book} reader={reader} />;
   const coverage = { ...(book?.metadata?.coverage || {}), ...(book?.metadata?.coverage_2029 || {}) };
   const primary = primaryCoverage(coverage);
   return <Link className="sod29-book-tile" to={slug ? `/book/${slug}` : "/books"}>

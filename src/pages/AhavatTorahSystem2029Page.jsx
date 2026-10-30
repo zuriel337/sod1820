@@ -37,6 +37,7 @@ import { AHAVAT_LETTER_FORMS, AHAVAT_LETTER_READINGS, AHAVAT_LETTER_READING_LOCA
 import { AHAVAT_PARASHA_COUNT_FORMS, AHAVAT_PARASHA_COUNT_READINGS } from "../data/ahavatTorahParashaCounts2029.js";
 import { AhavatTorahPeopleReader2029, AhavatTorahRootsReader2029, AhavatTorahMegillotReader2029, AhavatTorahPrintedNotes2029 } from "../components/books2029/AhavatTorahSourceTables2029.jsx";
 import { ahavatCountUnitId, ahavatLetterUnitId, ahavatReaderUnit, ahavatReaderUnitDomId, ahavatReaderUnitHref } from "../data/ahavatTorahReaderUnits2029.js";
+import { AhavatBookFigure2029, AhavatBookToc2029, AhavatRecommendedStarts2029, AhavatSelectionPanel2029 } from "../components/books2029/AhavatBookEntry2029.jsx";
 import "./ahavatTorahSystem2029.css";
 import "../components/books2029/ahavatBookPresentation2029.css";
 
@@ -101,6 +102,49 @@ function scrollToBookSource(behavior) {
     const source = document.getElementById("ahavat29-source");
     if (source) window.scrollTo({ top: window.scrollY + source.getBoundingClientRect().top - 84, behavior });
   });
+}
+
+// In-page anchors cross lazily sized sections (content-visibility, table bundles).
+// After the native jump, keep the target aligned under the shell header until the
+// layout settles or the reader takes over; no optimization is disabled for this.
+const JUMP_ANCHORS = ["ahavat29-source", "ahavat29-full-reader", "ahavat29-toc", "ahavat29-selection", "ahavat29-spatial-title"];
+const JUMP_CLEARANCE = 92;
+
+function stableJump(id) {
+  const target = document.getElementById(id);
+  const root = document.querySelector(".ahavat29");
+  if (!target || !root) return () => {};
+  let done = false;
+  const interactions = ["pointerdown", "wheel", "keydown", "touchstart"];
+  let observer;
+  let timer;
+  let quiet;
+  const stop = () => {
+    if (done) return;
+    done = true;
+    observer?.disconnect();
+    window.clearTimeout(timer);
+    window.clearTimeout(quiet);
+    interactions.forEach(event => window.removeEventListener(event, stop));
+  };
+  const align = () => {
+    if (done) return;
+    const offset = target.getBoundingClientRect().top - JUMP_CLEARANCE;
+    if (Math.abs(offset) > 1) window.scrollBy({ top: offset, behavior: "instant" });
+    window.clearTimeout(quiet);
+    quiet = window.setTimeout(stop, 700);
+  };
+  interactions.forEach(event => window.addEventListener(event, stop, { once: true, passive: true }));
+  observer = new ResizeObserver(align);
+  observer.observe(root);
+  timer = window.setTimeout(stop, 6000);
+  Promise.resolve(document.fonts?.ready).then(() => window.requestAnimationFrame(align));
+  return stop;
+}
+
+function jumpOnClick(event) {
+  const id = decodeURIComponent((event.currentTarget.getAttribute("href") || "").slice(1));
+  if (JUMP_ANCHORS.includes(id)) window.requestAnimationFrame(() => stableJump(id));
 }
 
 const BookPdfPage2029 = lazy(() => import("../components/books2029/BookPdfPage2029.jsx"));
@@ -901,7 +945,7 @@ export default function AhavatTorahSystem2029Page() {
     try { id = decodeURIComponent(window.location.hash.slice(1)); } catch { return; }
     const unit = ahavatReaderUnit(new URLSearchParams(window.location.search).get("readerUnit"));
     const unitTarget = unit && id === ahavatReaderUnitDomId(unit.id);
-    if (!unitTarget && !["ahavat29-people", "ahavat29-roots", "ahavat29-scrolls", "ahavat29-counts", "ahavat29-letters", "ahavat29-parasha-letter-atlas", "ahavat29-letter-comparison", "ahavat29-letter-overview"].includes(id)) return;
+    if (!unitTarget && !["ahavat29-people", "ahavat29-roots", "ahavat29-scrolls", "ahavat29-counts", "ahavat29-letters", "ahavat29-parasha-letter-atlas", "ahavat29-letter-comparison", "ahavat29-letter-overview", ...JUMP_ANCHORS].includes(id)) return;
     let cancelled = false;
     let frame;
     let observer;
@@ -923,6 +967,7 @@ export default function AhavatTorahSystem2029Page() {
           if (unitTarget) scrollToReaderUnit(element);
           else if (id === AHAVAT_LETTER_COMPARISON_ANCHOR) scrollToReaderUnit(comparisonSourceControl(unit?.id) || element);
           else if (id === "ahavat29-letter-overview" || id === "ahavat29-parasha-letter-atlas") scrollToReaderUnit(element);
+          else if (JUMP_ANCHORS.includes(id)) stableJump(id);
           else element.scrollIntoView({ block: "start", behavior: "instant" });
         });
       };
@@ -1036,24 +1081,32 @@ export default function AhavatTorahSystem2029Page() {
           <span>ר׳ פנחס זלמן הורוויץ · תרס״ה</span>
           <h1 id="ahavat29-title">{letterFocus ? <>אהבת תורה <em>· מסע באותיות</em></> : <>אהבת תורה<br /><em>לקרוא, להבין ולחקור</em></>}</h1>
           <p>מנייני התורה, אותיותיה וחידושי הפרשות — עם הסבר בהיר לצד צילום הספר. בוחרים קטע, מבינים את מהלכו וחוזרים אל המילים המקוריות.</p>
-          <nav className="books29-entry-actions" aria-label="דרכי קריאה באהבת תורה"><a href="#ahavat29-source">קרא את הספר</a><a href="#ahavat29-full-reader">למד עם ההסברים</a><a href="#ahavat29-spatial-title">גלה את המבנים</a></nav>
-          <nav className="books29-entry-actions" aria-label="מאיפה מתחילים ללמוד"><a href={ahavatReaderUnitHref("ahavat-migdal-p006-01")}>להבין את מניין 1,820</a><a href={ahavatReaderUnitHref("ahavat-novellae-p046-02")}>אותיות ובניית בית</a><a href={ahavatReaderUnitHref("ahavat-novellae-p093-03")}>אסתר והאחריות לפעול</a></nav>
+          <div className="ahavat29-intro-identity" role="group" aria-label="זהות הספר"><span>{AHAVAT_TORAH_SOURCE.author}</span><span>{AHAVAT_TORAH_SOURCE.imprint}</span><span>{AHAVAT_TORAH_SOURCE.pdfPages} עמודי מקור</span></div>
+          <nav className="books29-entry-actions" aria-label="דרכי קריאה באהבת תורה"><a href="#ahavat29-source" onClick={jumpOnClick}>קרא את הספר</a><a href="#ahavat29-full-reader" onClick={jumpOnClick}>למד עם ההסברים</a><a href="#ahavat29-spatial-title" onClick={jumpOnClick}>גלה את המבנים</a></nav>
+          <AhavatRecommendedStarts2029 />
         </div>
+        <AhavatBookFigure2029 />
         <aside><strong>המקור לצד ההסבר</strong><p>הספר המלא זמין לדפדוף, חיפוש ומסך מלא. יחידות הלימוד מסבירות קטעים נבחרים; צילום העמוד נשאר נגיש לאורך הקריאה.</p></aside>
       </section>
 
-      <section className="ahavat29-metrics" aria-label="מצב מערכת אהבת תורה">
-        <article><strong>99</strong><span>עמודי מקור</span><small>PDF אחד וזהות מקור אחת</small></article>
-        <article><strong>98</strong><span>עמודי תעתיק</span><small>ועמוד ריק אחד מתועד</small></article>
-        <article><strong>{Object.values(AHAVAT_COMPANION_PAGE_COUNTS).reduce((total, count) => total + count, 0)}</strong><span>יחידות הסבר נבחרות</span><small>קושיה, מהלך ורעיון מרכזי</small></article>
-        <article><strong>{Object.keys(AHAVAT_COMPANION_PAGE_COUNTS).length}</strong><span>עמודים עם יחידות לימוד</span><small>לצד העמוד המקורי</small></article>
-        <article><strong>{AHAVAT_LOCATED_DATASETS.length}</strong><span>נושאים עם עמוד מקור</span><small>מניינים, רשימות ותיקונים</small></article>
-      </section>
+      <AhavatBookToc2029 page={page} onOpenPage={nextPage => openPage(nextPage)} onSelectDataset={selectDataset} />
+
+      <details className="ahavat29-source-details ahavat29-source-status">
+        <summary>פרטי המקור ומצב ההשלמה</summary>
+        <section className="ahavat29-metrics" aria-label="מצב מערכת אהבת תורה">
+          <article><strong>99</strong><span>עמודי מקור</span><small>PDF אחד וזהות מקור אחת</small></article>
+          <article><strong>98</strong><span>עמודי תעתיק</span><small>ועמוד ריק אחד מתועד</small></article>
+          <article><strong>{Object.values(AHAVAT_COMPANION_PAGE_COUNTS).reduce((total, count) => total + count, 0)}</strong><span>יחידות הסבר נבחרות</span><small>קושיה, מהלך ורעיון מרכזי</small></article>
+          <article><strong>{Object.keys(AHAVAT_COMPANION_PAGE_COUNTS).length}</strong><span>עמודים עם יחידות לימוד</span><small>לצד העמוד המקורי</small></article>
+          <article><strong>{AHAVAT_LOCATED_DATASETS.length}</strong><span>נושאים עם עמוד מקור</span><small>מניינים, רשימות ותיקונים</small></article>
+        </section>
+      </details>
 
       <nav className="ahavat29-study-mode" aria-label="מיקוד הלימוד"><span>אהבת תורה</span><button type="button" aria-pressed={!letterFocus} onClick={() => setStudyFocus(false)}>כל הספר</button><button type="button" aria-pressed={letterFocus} onClick={() => setStudyFocus(true)}>לימוד אותיות</button></nav>
       <BookReadingLayout2029 mode={readingLayout} onMode={setReadingLayout} />
       <div className="ahavat29-layout books29-reading-layout" data-reading-layout={readingLayout}>
         <div className="ahavat29-story">
+          <AhavatSelectionPanel2029 page={page} datasetId={datasetId} onOpenPage={(nextPage, contextId, options) => openPage(nextPage, contextId || "", "", options)} />
           <OrbitMap selectedId={selectedSection.id} onSelect={selectSection} />
           <div id="ahavat29-reader"><SectionReader section={selectedSection} onPage={openPage} /></div>
 
