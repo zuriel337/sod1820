@@ -135,49 +135,63 @@ function countByMany(rows, key, fallbackKey) {
   return out;
 }
 
+// A raw tree_match is a search hint, not graph evidence. Only the existing
+// governance attachment contract can prove a number target in this projection;
+// a bare promoted id or an author-supplied match label cannot.
+function documentedTreeAttachment(row) {
+  const attachment = row?.meta?.governance?.tree_attachment;
+  const promotedNodeId = clean(row?.promoted_node_id);
+  const targetNodeId = clean(attachment?.target_node_id);
+  if (clean(row?.status).toLowerCase() !== "canonical"
+    || attachment?.mode !== "existing_graph_identity_pointer"
+    || clean(attachment?.target_node_type).toLowerCase() !== "number"
+    || !promotedNodeId || targetNodeId !== promotedNodeId || finite(row?.value) == null) return null;
+  return { targetNodeId, targetType: "number" };
+}
+
 function normalizeTreeMatches(row) {
   const matches = Array.isArray(row?.meta?.ext?.wa_channel_intake?.tree_matches)
     ? row.meta.ext.wa_channel_intake.tree_matches
     : [];
-  const seen = new Set();
+  const seen = new Map();
   const out = [];
-  const add = (match) => {
+  const add = (match, documented = false) => {
     if (!match || typeof match !== "object" || Array.isArray(match)) return;
     const type = clean(match.type).toLowerCase();
     const key = clean(match.key);
     if (!type || !key) return;
     const identity = `${type}:${key}`;
-    if (seen.has(identity)) return;
-    seen.add(identity);
+    if (seen.has(identity)) {
+      if (documented) {
+        const existing = out[seen.get(identity)];
+        existing.match = "governed_attachment";
+        // The historical attachment contract proves the node identity, but
+        // does not prove that its label equals this finding's claimed value.
+        existing.label = "צומת מספר מתועד";
+      }
+      return;
+    }
+    seen.set(identity, out.length);
     out.push({
       type,
       key,
-      label: clean(match.label) || null,
-      match: clean(match.match) || null,
+      label: documented ? "צומת מספר מתועד" : clean(match.label) || null,
+      // Do not let a raw input forge our presentation-only provenance label.
+      match: documented ? "governed_attachment" : clean(match.match) === "governed_attachment" ? "candidate" : clean(match.match) || null,
     });
   };
   for (const match of matches) {
     add(match);
   }
 
-  const attachment = row?.meta?.governance?.tree_attachment;
-  const promotedNodeId = clean(row?.promoted_node_id);
-  const targetNodeId = clean(attachment?.target_node_id);
-  const targetType = clean(attachment?.target_node_type).toLowerCase();
-  const value = finite(row?.value);
-  if (
-    attachment?.mode === "existing_graph_identity_pointer"
-    && targetType === "number"
-    && promotedNodeId
-    && targetNodeId === promotedNodeId
-    && value != null
-  ) {
+  const attachment = documentedTreeAttachment(row);
+  if (attachment) {
     add({
       type: "number",
-      key: promotedNodeId,
-      label: String(value),
+      key: attachment.targetNodeId,
+      label: "צומת מספר מתועד",
       match: "governed_attachment",
-    });
+    }, true);
   }
   return out;
 }
@@ -243,7 +257,11 @@ function attachLinkedTopicRatings(rows, topicRows) {
     const add = (rating) => {
       if (!rating || seen.has(rating.topicId)) return;
       seen.add(rating.topicId);
-      ratings.push(rating);
+      ratings.push({
+        ...rating,
+        connectionState: row.documentedTreeAttachment?.targetNodeId === rating.nodeId
+          ? "documented_attachment" : "candidate",
+      });
     };
     for (const match of row.treeMatches || []) {
       if (match.type === "topic") add(index.get(`topic:${match.key}`) || index.get(`topic_id:${match.key}`));
@@ -262,13 +280,15 @@ function attachLinkedTopicRatings(rows, topicRows) {
 function researchStrengthPresentation(row) {
   const verification = clean(row?.verification).toLowerCase() || "not_tested";
   const explicitMatch = verification === "match";
-  const treeMatched = Array.isArray(row?.treeMatches) && row.treeMatches.length > 0;
+  const treeMatched = Boolean(row?.documentedTreeAttachment);
+  const candidateCount = (row?.treeMatches || []).filter((item) => item.match !== "governed_attachment").length;
   const rating = row?.linkedTopicRating || null;
   const reasons = [];
   if (explicitMatch) reasons.push("אימות מנוע מפורש תואם");
   else reasons.push("אין עדיין אימות מנוע מפורש תואם");
-  if (treeMatched) reasons.push(`${row.treeMatches.length} יעדים קיימים בעץ`);
-  else reasons.push("עדיין אין חיבור מתועד ליעד קיים בעץ");
+  if (treeMatched) reasons.push("הצמדה לצומת מספר נרשמה");
+  else if (candidateCount) reasons.push(`${candidateCount} יעדים לבחינה; לא אומת קשר לעץ`);
+  else reasons.push("לא נטענה הצמדה מתועדת לצומת בעץ");
   if (rating?.meterScore != null) reasons.push(`מד ההתכנסות של היעד: ${rating.meterScore}`);
   else reasons.push("ליעד אין עדיין מד התכנסות זמין");
   return {
@@ -276,11 +296,11 @@ function researchStrengthPresentation(row) {
     treeMatched,
     hasLinkedMeter: rating?.meterScore != null,
     label: explicitMatch && treeMatched
-      ? "מאומת · מחובר לעץ"
+      ? "מאומת · הצמדה לצומת נרשמה"
       : explicitMatch
-        ? "מאומת · טרם חובר לעץ"
+        ? "מאומת · קשר לעץ לא אומת"
         : treeMatched
-          ? "מחובר לעץ · דורש אימות"
+          ? "הצמדה לצומת נרשמה · דורש אימות"
           : "דורש סקירה",
     reasons,
   };
@@ -295,7 +315,7 @@ export function compareWorldResearchStrength(left, right) {
   const verification = classifyWorldVerificationStrength(left?.verification)
     - classifyWorldVerificationStrength(right?.verification);
   if (verification) return verification;
-  const tree = (left?.treeMatches?.length ? 0 : 1) - (right?.treeMatches?.length ? 0 : 1);
+  const tree = (left?.documentedTreeAttachment ? 0 : 1) - (right?.documentedTreeAttachment ? 0 : 1);
   if (tree) return tree;
   const meter = compareNullableDesc(left?.linkedTopicRating?.meterScore, right?.linkedTopicRating?.meterScore);
   if (meter) return meter;
@@ -473,6 +493,7 @@ export function normalizeWorldAllResearchRow(row, family = "research_object") {
     || row?.engine_detail?.outcome
   ) || null;
   const treeMatches = normalizeTreeMatches(row);
+  const treeAttachment = documentedTreeAttachment(row);
   return {
     id: "research:" + row.id,
     sourceId: String(row.id),
@@ -500,6 +521,8 @@ export function normalizeWorldAllResearchRow(row, family = "research_object") {
     status: clean(row.status) || "לא צוין",
     access: clean(row.privacy_scope) || "לא צוין",
     promotedNodeId: clean(row.promoted_node_id) || null,
+    documentedTreeAttachment: treeAttachment,
+    documentedTreeConnected: Boolean(treeAttachment),
     parentId: clean(row.parent_id) || null,
     batchKey: clean(row?.meta?.batch_key) || null,
     operationalState,
@@ -528,10 +551,19 @@ export function buildWorldAllResearchProjection(familyRows = {}, totals = {}) {
   const normalizedResearchRows = generalResearchRows
     .map((row) => normalizeWorldAllResearchRow(row, "research_object"))
     .filter(Boolean);
+  const documentedBySourceId = new Map(normalizedResearchRows.map((row) => [row.sourceId, row.documentedTreeConnected]));
   const ratedResearchOccurrences = attachLinkedTopicRatings(normalizedResearchRows, scoped.topics);
   const duplicateProjection = clusterWorldResearchRows(normalizedResearchRows);
   const ratedResearchRows = attachLinkedTopicRatings(duplicateProjection.rows, scoped.topics)
-    .map((row) => ({ ...row, researchStrength: researchStrengthPresentation(row) }));
+    .map((row) => ({
+      ...row,
+      // An exact duplicate may have a different provenance. Count only the
+      // original occurrences that actually carry a documented attachment.
+      documentedTreeOccurrenceCount: Array.isArray(row.occurrences)
+        ? row.occurrences.filter((occurrence) => documentedBySourceId.get(occurrence.sourceId) === true).length
+        : row.documentedTreeConnected ? 1 : 0,
+      researchStrength: researchStrengthPresentation(row),
+    }));
   const rows = [
     ...ratedResearchRows,
     ...scoped.contributions.map((row) => normalizeWorldAllResearchRow(row, "contribution")),
@@ -577,9 +609,9 @@ export function buildWorldAllResearchProjection(familyRows = {}, totals = {}) {
     byStatus: countBy(orderedRows, "status"),
     byVerification: countBy(orderedRows, "verification"),
     byContributor: countByMany(orderedRows, "contributors", "contributor"),
-    treeMatchedResearch: ratedResearchRows.filter((row) => row.treeMatches?.length).length,
+    treeMatchedResearch: ratedResearchRows.filter((row) => row.documentedTreeConnected).length,
     meteredResearch: ratedResearchRows.filter((row) => row.linkedTopicRating?.meterScore != null).length,
-    treeMatchedResearchOccurrences: ratedResearchOccurrences.filter((row) => row.treeMatches?.length).length,
+    treeMatchedResearchOccurrences: ratedResearchOccurrences.filter((row) => row.documentedTreeConnected).length,
     meteredResearchOccurrences: ratedResearchOccurrences.filter((row) => row.linkedTopicRating?.meterScore != null).length,
     excludedMaterial: scoped.excluded,
     excludedPersonOnlyResearch,
@@ -607,8 +639,8 @@ export function filterWorldAllResearchRows(rows = [], filters = {}) {
     if (access !== "all" && row.access !== access) return false;
     if (status !== "all" && row.status !== status) return false;
     if (verification !== "all" && row.verification !== verification) return false;
-    if (tree === "matched" && !(row.family === "research_object" && row.treeMatches?.length)) return false;
-    if (tree === "unmatched" && !(row.family === "research_object" && !row.treeMatches?.length)) return false;
+    if (tree === "matched" && !(row.family === "research_object" && row.documentedTreeConnected)) return false;
+    if (tree === "unmatched" && !(row.family === "research_object" && !row.documentedTreeConnected)) return false;
     if (meter === "metered" && !(row.family === "research_object" && row.linkedTopicRating?.meterScore != null)) return false;
     if (meter === "unmetered" && !(row.family === "research_object" && row.linkedTopicRating?.meterScore == null)) return false;
     const contributors = Array.isArray(row.contributors) && row.contributors.length
@@ -694,6 +726,11 @@ export function worldPublicResearchDto(projection = {}) {
   const rows = (Array.isArray(projection?.rows) ? projection.rows : [])
     .filter(isWorldPublicProjectionRow)
     .map((row) => {
+      // A shared projection may also have been assembled for an admin. Topic
+      // links in a public finding must never carry an unpublished topic along.
+      const publicTopics = (Array.isArray(row.linkedTopicRatings)
+        ? row.linkedTopicRatings : row.linkedTopicRating ? [row.linkedTopicRating] : [])
+        .filter((topic) => clean(topic?.status).toLowerCase() === "approved");
       const {
         terms: _terms,
         triage: _triage,
@@ -710,6 +747,9 @@ export function worldPublicResearchDto(projection = {}) {
         sourceContributorId: _sourceContributorId,
         sourceContributorIds: _sourceContributorIds,
         promotedNodeId: _promotedNodeId,
+        documentedTreeAttachment: _documentedTreeAttachment,
+        linkedTopicRatings: _linkedTopicRatings,
+        linkedTopicRating: _linkedTopicRating,
         parentId: _parentId,
         treeMatchState: _treeMatchState,
         batchKey: _batchKey,
@@ -719,6 +759,10 @@ export function worldPublicResearchDto(projection = {}) {
       } = row || {};
       return {
         ...publicRow,
+        ...(row.family === "research_object" ? {
+          linkedTopicRatings: publicTopics,
+          linkedTopicRating: publicTopics[0] || null,
+        } : {}),
         sourceHref: verifiedWebUrl(publicRow.sourceHref),
         ...(publicRow.family === "research_object"
           ? { canonicalFindingHref: publicFindingHref(publicRow.sourceId) }
@@ -764,10 +808,10 @@ export function worldPublicResearchDto(projection = {}) {
     byStatus: countBy(rows, "status"),
     byVerification: countBy(rows, "verification"),
     byContributor: countByMany(rows, "contributors", "contributor"),
-    treeMatchedResearch: researchRows.filter((row) => row.treeMatches?.length).length,
+    treeMatchedResearch: researchRows.filter((row) => row.documentedTreeConnected).length,
     meteredResearch: researchRows.filter((row) => row.linkedTopicRating?.meterScore != null).length,
     treeMatchedResearchOccurrences: researchRows.reduce(
-      (sum, row) => sum + (row.treeMatches?.length ? Math.max(1, finite(row.occurrenceCount) || 1) : 0),
+      (sum, row) => sum + (finite(row.documentedTreeOccurrenceCount) || 0),
       0,
     ),
     meteredResearchOccurrences: researchRows.reduce(

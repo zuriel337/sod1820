@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { getPublicResearchClient } from "../../lib/research/researchViewMode.js";
 import { fetchZviApprovedFindingsPage, fetchZviReviewedFindingsPage } from "../../lib/research/worldZviApprovedFindings2029.js";
+import ZviFindingCards2029 from "./ZviFindingCards2029.jsx";
 import "./WorldZviApprovedFindings2029.css";
 
 // Each list has its own cursor, retry state and explicit visitor action.
@@ -36,23 +37,6 @@ function useFindingPages(fetchPage) {
   return { state, load };
 }
 
-function FindingCards({ rows, returnTo }) {
-  return <ul className="zvi-research__grid">{rows.map((row) => <li className="zvi-research__card" key={row.id}>
-      <div className="zvi-research__card-labels">
-        <span>{row.kindLabel || "ממצא מחקר"}</span>
-        {row.status === "canonical" ? <span>קנוני</span> : row.status === "approved" ? <span>מאושר</span> : null}
-      </div>
-      <span className="zvi-research__excerpt-label">תקציר הממצא · לחצו לקריאה</span>
-      <Link className="zvi-research__excerpt" to={row.findingHref} state={{ returnTo }}>{row.title}{row.summaryTruncated ? "…" : ""}</Link>
-      {row.contributor ? <p className="zvi-research__byline">ייחוס ברשומה: <bdi>{row.contributor}</bdi></p> : null}
-      {row.roleLabel ? <p className="zvi-research__note">{row.roleLabel}</p> : null}
-      {row.ocrNeedsReview ? <p className="zvi-research__note">סריקת OCR — נדרשת בדיקה מול המקור; אינו ציטוט מאומת.</p> : null}
-      <div className="zvi-research__actions">
-        {row.sourceHref ? <Link className="zvi-research__action" to={row.sourceHref}>פתיחת המקור</Link> : null}
-      </div>
-  </li>)}</ul>;
-}
-
 function FindingList({ state, load, returnTo, initialLabel, moreLabel, loadingLabel }) {
   return <>
     {!state.opened ? <button className="sod29-action zvi-research__button" type="button" onClick={load}>{initialLabel}</button> : null}
@@ -62,7 +46,7 @@ function FindingList({ state, load, returnTo, initialLabel, moreLabel, loadingLa
     {state.omittedForReview ? <p className="zvi-research__status">חלק מהחומר ממתין לעיון.</p> : null}
     {state.opened && !state.loading && !state.error && !state.rows.length && !state.hasMore && !state.omittedUnavailable && !state.omittedForReview
       ? <p className="zvi-research__status">לא נמצאו ממצאים ציבוריים מאושרים במקורות אלו.</p> : null}
-    {state.rows.length ? <FindingCards rows={state.rows} returnTo={returnTo} /> : null}
+    {state.rows.length ? <ZviFindingCards2029 rows={state.rows} returnTo={returnTo} /> : null}
     {state.opened && !state.loading && (state.hasMore || state.error)
       ? <button className="sod29-action zvi-research__button" type="button" onClick={load}>{state.error ? "נסה שוב" : moreLabel}</button> : null}
   </>;

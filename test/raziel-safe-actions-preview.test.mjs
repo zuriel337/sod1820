@@ -112,6 +112,7 @@ test("mock Preview selection admits only the exact reviewed branches", () => {
     "gpt/2029-central-public-context-labels-20261029",
     "gpt/2029-central-zvi-public-material-20261029",
     "gpt/2029-central-zvi-research-experience-20261029",
+    "gpt/2029-central-zvi-world-source-tree-20261030",
   ]) {
     assert.equal(selectMockPreviewBranch({
       VERCEL_ENV: "preview",

@@ -557,7 +557,7 @@ function WorldSourceStory({ research, shell, compact = false }) {
   </section>;
 }
 
-function PublicWorldFindingFocus({ finding, context, shell }) {
+export function PublicWorldFindingFocus({ finding, context, shell }) {
   const sourceRefs = [...new Set([
     finding?.sourceRef,
     ...(Array.isArray(finding?.sourceRefs) ? finding.sourceRefs : []),
@@ -573,6 +573,8 @@ function PublicWorldFindingFocus({ finding, context, shell }) {
     ? finding.contributors
     : [finding?.contributor]).filter(Boolean).join(" · ") || "ייחוס לא צוין";
   const linkedTopic = finding?.linkedTopicRating || null;
+  const otherTopics = (Array.isArray(finding?.linkedTopicRatings) ? finding.linkedTopicRatings : [])
+    .filter((topic) => topic?.topicId !== linkedTopic?.topicId);
   const publicShare = worldFindingPublicShare(finding);
   const linkedFollow = worldFindingFollowTarget(finding);
   const returnHref = String(context?.returnTo?.href || "");
@@ -627,19 +629,32 @@ function PublicWorldFindingFocus({ finding, context, shell }) {
       </div> : null}
 
       {linkedTopic ? <div className="sod29-world-all-research-cluster">
-        <strong>יעד מדויק בעץ · {linkedTopic.title}</strong>
-        <p>זהו המד של יעד העץ, לא מד של הממצא ולא ציון אמת.</p>
-        {linkedTopic.href ? <Link className="sod29-action" to={linkedTopic.href}>פתח את יעד העץ ←</Link> : null}
+        <strong>{linkedTopic.connectionState === "documented_attachment" ? "הצמדה לצומת מספר נרשמה" : "נושא לבחינה"} · {linkedTopic.title}</strong>
+        <p>{linkedTopic.connectionState === "documented_attachment"
+          ? "ההצמדה רשומה; זמינות הצומת לא נבדקה כאן. זהו מד הנושא, לא מד הממצא ולא ציון אמת."
+          : "זהו נושא מוצע לבדיקה; הקשר לממצא עדיין לא הוכח."}</p>
+        {linkedTopic.href ? <Link className="sod29-action" to={linkedTopic.href}>פתח את הנושא ←</Link> : null}
       </div> : null}
+      {otherTopics.length ? <details className="sod29-world-all-research-cluster">
+        <summary>נושאים נוספים · {otherTopics.length}</summary>
+        <ul>{otherTopics.map((topic) => <li key={topic.topicId}>
+          <span>{topic.connectionState === "documented_attachment" ? "הצמדה לצומת מספר נרשמה" : "נושא לבחינה"} · {topic.title}</span>
+          {topic.href ? <> · <Link to={topic.href}>פתח את הנושא</Link></> : null}
+        </li>)}</ul>
+      </details> : null}
 
       <div className="sod29-world-source-locator">
         <strong>מקור וכתובת מדויקת</strong>
-        {sourceRefs.length ? sourceRefs.map((sourceRef) => <code dir="ltr" key={sourceRef}>{sourceRef}</code>)
-          : <code dir="ltr">אין source locator</code>}
+        <details>
+          <summary>פרטי המקור</summary>
+          <small>מזהה הממצא</small> <code dir="ltr">{finding.sourceId}</code>
+          {sourceRefs.length ? sourceRefs.map((sourceRef) => <code dir="ltr" key={sourceRef}>{sourceRef}</code>)
+            : <small>לא נשמר מזהה מקור נוסף</small>}
+        </details>
         {occurrenceCount > 1 ? <small>{occurrenceCount} הופעות מקור נשמרו באשכול אחד; הן אינן נספרות כמקורות עצמאיים.</small> : null}
         <div className="sod29-actions">
           {finding.sourceHref ? <a className="sod29-action primary" href={finding.sourceHref} target="_blank" rel="noreferrer">פתח מקור ↗</a> : null}
-          {finding.href?.startsWith("/") ? <Link className="sod29-action" to={finding.href}>פתח יעד קשור ←</Link> : null}
+          {finding.href?.startsWith("/") ? <Link className="sod29-action" to={finding.href}>פתח את מספר הממצא ←</Link> : null}
           {canReturnToBeitMidrash ? <button className="sod29-action" type="button" onClick={() => shell.returnExact()}>
             חזרה מדויקת אל {context.returnTo.label || "בית המדרש"}
           </button> : null}

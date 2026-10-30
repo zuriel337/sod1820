@@ -52,6 +52,9 @@ test("exact public finding reader uses one row and at most two bounded enrichmen
   assert.equal(row?.canonicalFindingHref, "/world?finding=finding-1#finding-finding-1");
   assert.equal(row?.sourceHref, "https://example.com/exact");
   assert.equal(row?.linkedTopicRating?.slug, "documented-topic");
+  assert.equal(row?.linkedTopicRating?.connectionState, "candidate", "topic lookup is navigation, not evidence of a tree edge");
+  assert.equal(row?.documentedTreeConnected, false);
+  assert.equal(row?.linkedTopicRating?.href, "/topic/documented-topic", "candidate navigation remains available");
   assert.deepEqual(calls.map((call) => call.table), ["research_objects", "channel_updates", "topic_cards"]);
   assert.deepEqual(calls[0].filters, [
     ["eq", "id", "finding-1"],
@@ -63,6 +66,38 @@ test("exact public finding reader uses one row and at most two bounded enrichmen
   assert.match(calls[0].select, /\bevidence\b/);
   assert.doesNotMatch(calls[0].select, /source_contributor_id/);
   assert.equal(calls.some((call) => /range/i.test(JSON.stringify(call))), false);
+});
+
+test("candidate and recorded attachment remain separately navigable in strength order; nonpublic topics stay out", async () => {
+  const nodeId = "b84f4fbe-86aa-4c32-adbd-5a7dcf17450c";
+  const record = finding({
+    status: "canonical", value: 374, promoted_node_id: nodeId,
+    meta: {
+      governance: { tree_attachment: { mode: "existing_graph_identity_pointer", target_node_id: nodeId, target_node_type: "number" } },
+      ext: { wa_channel_intake: { tree_matches: [
+        { type: "topic", key: "strong-candidate", match: "number" },
+        { type: "topic", key: "private-topic", match: "term" },
+      ] } },
+    },
+  });
+  const { client } = clientFor({
+    research_objects: { data: record, error: null },
+    channel_updates: { data: { id: "source-1", channel: "tzvi", status: "live" }, error: null },
+    // Include a nonpublic topic in the fake response to exercise the public DTO boundary independently.
+    topic_cards: { data: [
+      { id: "private", slug: "private-topic", title: "לא לפרסום", status: "candidate", meter_score: 100 },
+      { id: "strong", slug: "strong-candidate", title: "נושא מועמד", status: "approved", meter_score: 90 },
+      { id: "attached", slug: "attached-topic", title: "נושא בהצמדה", status: "approved", meter_score: 30, node_id: nodeId },
+    ], error: null },
+  });
+  const row = await fetchWorldPublicFindingById("finding-1", { publicClient: () => client, cache: false });
+  assert.deepEqual(row.linkedTopicRatings.map((topic) => [topic.slug, topic.connectionState]), [
+    ["strong-candidate", "candidate"],
+    ["attached-topic", "documented_attachment"],
+  ]);
+  assert.equal(row.linkedTopicRating.slug, "strong-candidate", "existing strongest-first ordering stays intact");
+  assert.deepEqual(row.linkedTopicRatings.map((topic) => topic.href), ["/topic/strong-candidate", "/topic/attached-topic"]);
+  assert.ok(!JSON.stringify(row.linkedTopicRatings).includes("private-topic"));
 });
 test("reader fails closed for person-only, old-chat and Or Geula material", async () => {
   for (const [row, source] of [

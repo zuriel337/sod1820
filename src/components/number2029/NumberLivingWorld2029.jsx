@@ -16,6 +16,7 @@ import { humanContentTitle } from "../../lib/presentation/contentTitle.js";
 import SurfaceMapBar2029 from "../experience2029/SurfaceMapBar2029.jsx";
 import CanonicalMediaFigure2029 from "../experience2029/CanonicalMediaFigure2029.jsx";
 import CanonicalVerseCards2029 from "../experience2029/CanonicalVerseCards2029.jsx";
+import NumberZviPublicResearch2029 from "./NumberZviPublicResearch2029.jsx";
 import "./numberLivingWorld2029.css";
 
 const clean = (value) => value == null ? "" : String(value).trim();
@@ -613,6 +614,7 @@ export default function NumberLivingWorld2029({
         {sourcesShown.map((row, index) => <button type="button" key={row?.id || row?.ref || index} onClick={() => onFocusContext?.({ id: row?.id || row?.ref || `source-${index}`, type: "source", label: sourceLabel(row), primary: sourceLabel(row), sectionLabel: "מקורות", sourceLabel: sourceDetail(row) || "מקור", sourceRef: row?.sourceRef || row?.ref || null, locator: "#number-content-live", href: row?.href || row?.url || null })}><strong>{sourceLabel(row)}</strong>{sourceDetail(row) ? <small>{sourceDetail(row)}</small> : null}<span>פתח הקשר מקור</span></button>)}
         {!sources.length ? <div className="sod29-lw-empty">אין כרגע מקור אנושי מספיק ברור להצגה.</div> : null}
       </div>
+      <NumberZviPublicResearch2029 value={root} />
       <div className="sod29-lw-depth-gates">
         {onOpenHeichal ? <>
           <button type="button" onClick={() => onOpenHeichal({ kind: "els_saved_from_number", root })}><span>ELS / צפנים</span><strong>פתח ספריית צפנים שמורים</strong><small>פריטים מורשים בלבד</small></button>

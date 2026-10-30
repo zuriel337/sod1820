@@ -160,6 +160,55 @@ test("owner review validates admin, ranks server-side, and returns only 40 findi
   }
 });
 
+test("contributor summary counts only documented attachments, not candidates or duplicate occurrences", async () => {
+  const originalFetch = globalThis.fetch;
+  const targetId = "b84f4fbe-86aa-4c32-adbd-5a7dcf17450c";
+  const candidate = researchRow(0);
+  const attached = {
+    ...researchRow(1), statement: "כפילות בדיקה", value: 374, terms: ["בדיקה"],
+    created_at: "2026-10-22T00:01:00Z", status: "canonical", privacy_scope: "public",
+    engine_verified: true, engine_detail: { verification_state: "match" }, promoted_node_id: targetId,
+    meta: { governance: { tree_attachment: {
+      mode: "existing_graph_identity_pointer", target_node_type: "number", target_node_id: targetId,
+    } } },
+  };
+  const duplicateWithoutAttachment = {
+    ...attached, id: researchRow(2).id, source_ref: "channel_updates:duplicate",
+    promoted_node_id: null, meta: {},
+  };
+  const findings = [candidate, attached, duplicateWithoutAttachment];
+  const topic = {
+    id: "10000000-0000-4000-8000-000000000000", slug: "target", title: "יעד",
+    status: "approved", meter_score: 91, node_id: null,
+  };
+  globalThis.fetch = async (input) => {
+    const url = new URL(String(input));
+    if (url.pathname === "/auth/v1/user") return jsonResponse({ id: "admin-user" });
+    if (url.pathname === "/rest/v1/users") return jsonResponse([{ role: "admin" }]);
+    if (url.pathname === "/rest/v1/channel_updates") return jsonResponse([], { contentRange: "0-0/0" });
+    if (url.pathname === "/rest/v1/topic_cards") return jsonResponse([topic], { contentRange: "0-0/1" });
+    if (url.pathname === "/rest/v1/world_contributor_research_v1") return jsonResponse(findings, { contentRange: "0-2/3" });
+    if (url.pathname === "/rest/v1/contributors") return jsonResponse([{ id: ZVI_ID, display_name: "צבי (OPOC)", wa_names: ["צבי"] }]);
+    throw new Error(`unexpected fetch ${url.pathname}`);
+  };
+  try {
+    const response = mockResponse();
+    await handler({ method: "GET", headers: { authorization: "Bearer admin-token" },
+      query: { contributor_id: ZVI_ID, tree: "all", meter: "all" } }, response);
+    assert.equal(response.statusCode, 200);
+    assert.equal(response.body.page.totalFiltered, 2, "two equal claims are one display group");
+    assert.equal(response.body.projection.treeMatchedResearchOccurrences, 1, "only the attached occurrence is counted");
+    assert.equal(response.body.projection.meteredResearchOccurrences, 1, "the candidate target meter remains a separate measure");
+    const candidateRow = response.body.projection.rows.find((item) => item.sourceId === candidate.id);
+    assert.equal(candidateRow.linkedTopicRating.connectionState, "candidate");
+    assert.equal(candidateRow.researchStrength.label, "מאומת · קשר לעץ לא אומת");
+    const cluster = response.body.projection.rows.find((item) => item.occurrenceCount === 2);
+    assert.equal(cluster.documentedTreeOccurrenceCount, 1);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
 function reviewRow(sourceId, extra = {}) {
   return enrichWorldFindingReviewRow({
     id: `research:${sourceId}`,

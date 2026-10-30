@@ -807,8 +807,10 @@ function pageResponse(projection, req, contributorScope = null) {
       strongContinuation: WORLD_FINDING_TRIAGE_META.strongContinuation,
     };
     summary.treeMatchedResearchOccurrences = filtered
-      .filter((row) => row.treeMatches?.length)
-      .reduce((sum, row) => sum + Number(row.occurrenceCount || 1), 0);
+      .reduce((sum, row) => {
+        const count = row.documentedTreeOccurrenceCount;
+        return sum + (Number.isSafeInteger(count) && count >= 0 ? count : 0);
+      }, 0);
     summary.meteredResearchOccurrences = filtered
       .filter((row) => row.linkedTopicRating?.meterScore != null)
       .reduce((sum, row) => sum + Number(row.occurrenceCount || 1), 0);

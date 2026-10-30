@@ -60,7 +60,7 @@ const linkedTopic = {
   node_id: null,
 };
 
-test("private unpublished findings keep their axes, receive the exact linked Topic meter, and rank strongest first", () => {
+test("candidate topic navigation and its meter remain visible without claiming a graph connection", () => {
   const projection = buildWorldAllResearchProjection({
     researchObjects: [
       researchRow("strong-linked", {
@@ -88,15 +88,17 @@ test("private unpublished findings keep their axes, receive the exact linked Top
   assert.equal(strongest.linkedTopicRating.meterScore, 93);
   assert.equal(strongest.linkedTopicRating.quality, 8);
   assert.equal(strongest.linkedTopicRating.status, "candidate", "an unpublished Topic can be reviewed without publication");
-  assert.equal(strongest.researchStrength.label, "מאומת · מחובר לעץ");
-  assert.equal(projection.treeMatchedResearch, 2);
+  assert.equal(strongest.linkedTopicRating.connectionState, "candidate");
+  assert.equal(strongest.researchStrength.label, "מאומת · קשר לעץ לא אומת");
+  assert.match(strongest.researchStrength.reasons.join(" "), /יעדים לבחינה/);
+  assert.equal(projection.treeMatchedResearch, 0);
   assert.equal(projection.meteredResearch, 2);
-  assert.equal(projection.treeMatchedResearchOccurrences, 2);
+  assert.equal(projection.treeMatchedResearchOccurrences, 0);
   assert.equal(projection.meteredResearchOccurrences, 2);
   assert.deepEqual(
     filterWorldAllResearchRows(projection.rows, { family: "research_object", tree: "matched", meter: "metered" })
       .map((row) => row.sourceId),
-    ["strong-linked", "review-linked"],
+    [],
   );
 });
 
@@ -132,6 +134,6 @@ test("an exact duplicate cluster preserves a tree match carried by a non-canonic
   assert.equal(findings[0].occurrenceCount, 2);
   assert.equal(findings[0].treeMatches.length, 1);
   assert.equal(findings[0].linkedTopicRating.meterScore, 93);
-  assert.equal(projection.treeMatchedResearchOccurrences, 1);
+  assert.equal(projection.treeMatchedResearchOccurrences, 0);
   assert.equal(projection.meteredResearchOccurrences, 1);
 });

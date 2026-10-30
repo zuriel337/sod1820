@@ -3,9 +3,24 @@ import WorldGraphCanvas2029, { fitView } from "./WorldGraphCanvas2029.jsx";
 import WorldMiniMap2029 from "./WorldMiniMap2029.jsx";
 import WorldSourceInspector2029 from "./WorldSourceInspector2029.jsx";
 import { buildWorldMapViewModel, describeWorldMapNode } from "../../lib/research/worldMapViewModel2029.js";
+import { publicContextLabel } from "../experience2029/razielSessionSeam2029.js";
 import "./worldMapShell2029.css";
 
 const SHEET_QUERY = "(max-width: 900px)";
+const EMPTY_LABELS = Object.freeze({});
+const HUMAN_FALLBACKS = Object.freeze({ source: "מקור מחקר", occurrence: "הופעה במקור", finding: "ממצא מחקר", tree: "יעד מתועד" });
+
+function humanNodeLabel(node, labels) {
+  const raw = node.kind === "finding" && Object.prototype.hasOwnProperty.call(labels, node.ref)
+    ? labels[node.ref] : node.kind === "finding" ? "" : node.label;
+  const text = typeof raw === "string" ? raw.trim() : "";
+  // IDs and locators remain in the model, but are not presentation titles.
+  if (!text || text === node.ref || /^(?:uf1|node|channel_updates|world-material|edge|fixture|governance):/i.test(text)
+    || /^(?:topic|post|source|finding|occurrence|tree|candidate|relation|related|mentions|unknown)$/i.test(text)) {
+    return HUMAN_FALLBACKS[node.kind] || "פריט";
+  }
+  return publicContextLabel(text, 120) || HUMAN_FALLBACKS[node.kind] || "פריט";
+}
 
 function useSheetMode() {
   const [sheet, setSheet] = useState(() => typeof matchMedia === "function" && matchMedia(SHEET_QUERY).matches);
@@ -28,6 +43,7 @@ function useSheetMode() {
  */
 export default function WorldMapShell2029({
   projection, window: windowSpec, layersByNode = {}, relationTargets = [], candidates = [], openRelations = null, fixtureNotice = null,
+  humanReadable = false, findingLabelsByRef = EMPTY_LABELS,
 }) {
   const sheetMode = useSheetMode();
   const [relationStates, setRelationStates] = useState({});
@@ -41,8 +57,12 @@ export default function WorldMapShell2029({
   const fitted = useRef(false);
   const requests = useRef(new Map());
 
-  const model = useMemo(() => buildWorldMapViewModel({ projection, relationStates, window: windowSpec }),
-    [projection, relationStates, windowSpec]);
+  const model = useMemo(() => {
+    const raw = buildWorldMapViewModel({ projection, relationStates, window: windowSpec });
+    if (!humanReadable) return raw;
+    const labels = findingLabelsByRef && typeof findingLabelsByRef === "object" ? findingLabelsByRef : EMPTY_LABELS;
+    return { ...raw, nodes: raw.nodes.map((node) => ({ ...node, label: humanNodeLabel(node, labels) })) };
+  }, [projection, relationStates, windowSpec, humanReadable, findingLabelsByRef]);
   const detail = useMemo(() => describeWorldMapNode(model, projection, selectedId), [model, projection, selectedId]);
   const relationStatus = useMemo(() => Object.fromEntries(Object.entries(relationStates).map(([ref, state]) => [ref, state.status])), [relationStates]);
 
@@ -117,7 +137,7 @@ export default function WorldMapShell2029({
       </div>
       <div className="wm29-area-canvas">
         <WorldGraphCanvas2029 model={model} view={view} onViewChange={setView} onSize={handleSize} selectedId={selectedId}
-          onSelect={select} relationStatus={relationStatus} treeLayerNote={treeNote} />
+          onSelect={select} relationStatus={relationStatus} treeLayerNote={treeNote} humanReadable={humanReadable} />
       </div>
       <div className="wm29-area-inspector">
         <WorldSourceInspector2029 detail={detail} layers={detail ? layersByNode[detail.id] : null}
@@ -125,7 +145,7 @@ export default function WorldMapShell2029({
           onOpenRelations={open} relationsDisabled={!openRelations}
           candidates={detail?.kind === "finding" ? candidates.filter((row) => row.findingRef === detail.ref) : []}
           onClose={close} asSheet={sheetMode} expanded={expanded} onToggleExpanded={() => setExpanded((v) => !v)}
-          headingRef={headingRef} />
+          headingRef={headingRef} humanReadable={humanReadable} />
       </div>
     </div>
   </section>;

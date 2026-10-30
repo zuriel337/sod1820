@@ -19,7 +19,7 @@ export function fitView(extent, size) {
   return { x, y, k };
 }
 export default function WorldGraphCanvas2029({
-  model, view, onViewChange, onSize, selectedId, onSelect, relationStatus = {}, treeLayerNote = null,
+  model, view, onViewChange, onSize, selectedId, onSelect, relationStatus = {}, treeLayerNote = null, humanReadable = false,
 }) {
   const frame = useRef(null);
   const svg = useRef(null);
@@ -149,7 +149,9 @@ export default function WorldGraphCanvas2029({
               if (!from || !to) return null;
               return <path key={edge.id} d={edgePath(from, to)} className={`wm29-edge wm29-edge-${edge.kind}`}
                 markerEnd={edge.kind === "tree" ? "url(#wm29-arrow)" : undefined} data-edge-kind={edge.kind}>
-                <title>{edge.kind === "tree" ? `${edge.label} · ${edge.edgeRef || edge.governanceRef}` : `${edge.label} (שיוך, לא קשר עץ)`}</title>
+                <title>{humanReadable
+                  ? edge.kind === "tree" ? "קשר עץ מתועד" : "שיוך למקור, לא קשר עץ"
+                  : edge.kind === "tree" ? `${edge.label} · ${edge.edgeRef || edge.governanceRef}` : `${edge.label} (שיוך, לא קשר עץ)`}</title>
               </path>;
             })}
             {model.nodes.map((node) => {

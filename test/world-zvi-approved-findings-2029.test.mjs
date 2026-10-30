@@ -1,7 +1,8 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { createHash, webcrypto } from "node:crypto";
-import { fetchZviApprovedFindingsPage, fetchZviReviewedFindingsPage, ZVI_SOURCE_CONTRIBUTOR_ID } from "../src/lib/research/worldZviApprovedFindings2029.js";
+import { fetchZviApprovedFindingsPage, fetchZviReviewedFindingsPage, fetchZviNumberFindingsPage, fetchZviSourceFindingsPage, ZVI_SOURCE_CONTRIBUTOR_ID } from "../src/lib/research/worldZviApprovedFindings2029.js";
+import { researchObjectToUniversalFinding } from "../src/lib/research/researchObjectFinding.js";
 
 const sourceId = "e720a119-00e7-4e27-8c8a-d8671ae7b474";
 const uuid = (number) => `00000000-0000-4000-8000-${String(number).padStart(12, "0")}`;
@@ -23,6 +24,12 @@ function client(rows, calls, { error = null, sourceError = null, sourceRows = [{
       order(key, options) { calls.push(["order", key, options]); return q; },
       or(filter) {
         calls.push(["or", filter]);
+        if (filter.startsWith("source_ref.eq.")) {
+          const match = /^source_ref\.eq\.(channel_updates:[0-9a-f-]+),source_ref\.like\.\1#%$/i.exec(filter);
+          assert.ok(match);
+          if (serverFilters) filtered = filtered.filter((r) => r.source_ref === match[1] || r.source_ref?.startsWith(`${match[1]}#`));
+          return q;
+        }
         if (filter.startsWith("meta->ext->presentation->>statement_role.in.")) {
           if (serverFilters) filtered = filtered.filter((r) => (
             ["research_statement", "research_analysis", "extraction_observation"].includes(r.meta?.ext?.presentation?.statement_role)
@@ -192,6 +199,137 @@ function reviewedEntry(record) {
   const content = JSON.stringify([record.id, record.kind, record.statement, record.contributor, record.source_ref]);
   return { id: record.id, fingerprint: createHash("sha256").update(content, "utf8").digest("hex") };
 }
+
+test("number lookup uses structured exact value; missing values do not become zero", async () => {
+  const calls = [];
+  const candidates = [
+    row(1, { value: 0 }), row(2, { value: null }), row(3, { value: "" }),
+    row(4, { value: false }), row(5, { value: 1 }), row(6, { value: 0, privacy_scope: "private" }),
+    row(7, { value: 0, meta: { ext: { personal_scope: { scope: "person_only" }, presentation: { statement_role: "research_statement" } } } }),
+    row(8, { value: 0, source_contributor_id: uuid(88) }),
+  ];
+  const result = await fetchZviNumberFindingsPage({ client: client(candidates, calls, { serverFilters: false }), value: 0 });
+  assert.deepEqual(result.rows.map((r) => r.id), [uuid(1)]);
+  assert.equal(result.rows[0].claimedNumber, 0);
+  assert.equal(result.rows[0].verificationState, null);
+  assert.equal(result.rows[0].sourceRef, `channel_updates:${sourceId}`);
+  assert.equal(result.rows[0].findingRef, researchObjectToUniversalFinding(candidates[0]).id);
+  assert.ok(calls.some((c) => c[0] === "eq" && c[1] === "value" && c[2] === 0));
+  assert.equal(result.omittedForReview, true);
+  for (const bad of [null, "", "0", NaN, 1.5]) {
+    await assert.rejects(fetchZviNumberFindingsPage({ client: client([], []), value: bad }), /invalid_zvi_number_findings_page/);
+  }
+});
+
+test("number lookup follows stable pages beyond 80 and never fabricates totals", async () => {
+  const candidates = Array.from({ length: 107 }, (_, i) => row(i + 1, { value: 73 }));
+  const calls = []; const c = client(candidates, calls); const seen = []; let cursor = null;
+  do {
+    const result = await fetchZviNumberFindingsPage({ client: c, value: 73, cursor });
+    seen.push(...result.rows.map((r) => r.id));
+    assert.ok(!("total" in result));
+    cursor = result.nextCursor;
+  } while (cursor);
+  assert.equal(seen.length, 107);
+  assert.equal(new Set(seen).size, 107);
+  assert.equal(calls.filter((c) => c[0] === "limit").length, 5);
+});
+
+test("number lookup only admits reviewed unsorted-role rows when exact fingerprint and source still match", async () => {
+  const allowed = row(1, { value: 73, kind: "observation", meta: {} });
+  const changed = row(2, { value: 73, kind: "observation", meta: {} });
+  const old = { ...changed, statement: "מקור מוקדם אחר" };
+  const unknown = row(3, { value: 73, kind: "observation", meta: {} });
+  const manifest = [reviewedEntry(allowed), reviewedEntry(old)];
+  const result = await fetchZviNumberFindingsPage({ client: client([allowed, changed, unknown], []), value: 73, manifest, subtle: webcrypto.subtle });
+  assert.deepEqual(result.rows.map((r) => r.id), [uuid(1)]);
+  assert.equal(result.omittedForReview, true);
+  assert.equal(result.omittedUnavailable, false);
+  const inactive = await fetchZviNumberFindingsPage({ client: client([allowed], [], { sourceRows: [] }), value: 73, manifest, subtle: webcrypto.subtle });
+  assert.deepEqual(inactive.rows, []);
+  assert.equal(inactive.omittedUnavailable, true);
+  await assert.rejects(fetchZviNumberFindingsPage({ client: client([allowed], []), value: 73, manifest, subtle: null }), /review_digest_unavailable/);
+});
+
+test("number lookup preserves universal identity and exact source in ordinary and reviewed pages", async () => {
+  const candidate = row(1, { value: 73 });
+  const ordinary = await fetchZviApprovedFindingsPage({ client: client([candidate], []) });
+  const number = await fetchZviNumberFindingsPage({ client: client([candidate], []), value: 73 });
+  const reviewed = await fetchZviReviewedFindingsPage({ client: client([candidate], []), manifest: [reviewedEntry(candidate)], subtle: webcrypto.subtle });
+  for (const result of [ordinary, number, reviewed]) {
+    assert.equal(result.rows[0].findingRef, researchObjectToUniversalFinding(candidate).id);
+    assert.equal(result.rows[0].sourceRef, `channel_updates:${sourceId}`);
+    assert.equal(result.rows[0].href, `/world?finding=${candidate.id}`);
+    assert.equal(result.rows[0].publicationState, "approved");
+    assert.equal(result.rows[0].verificationState, null);
+  }
+});
+
+test("source lookup accepts only the exact source or its hash occurrence, never prefix collisions", async () => {
+  const ref = `channel_updates:${sourceId}`;
+  const rows = [
+    row(1, { source_ref: ref }), row(2, { source_ref: `${ref}#precise` }),
+    row(3, { source_ref: `${ref}-collision` }), row(4, { source_ref: `${ref}:other` }),
+    row(5, { source_ref: ref, privacy_scope: "private" }),
+    row(6, { source_ref: ref, meta: { ext: { personal_scope: { scope: "person_only" }, presentation: { statement_role: "research_statement" } } } }),
+    row(7, { source_ref: ref, status: "candidate" }), row(8, { source_ref: ref, contributor: "צוריאל" }),
+  ];
+  const calls = [];
+  // Guard against a faulty server ignoring the exact-source and privacy filters.
+  const result = await fetchZviSourceFindingsPage({ client: client(rows, calls, { serverFilters: false }), sourceRef: ref });
+  assert.deepEqual(result.rows.map((r) => r.id).sort(), [uuid(1), uuid(2)]);
+  assert.ok(result.rows.every((r) => r.sourceRef === ref && !("claimedNumber" in r)));
+  assert.equal(result.omittedForReview, true);
+  assert.ok(calls.some((c) => c[0] === "or" && c[1] === `source_ref.eq.${ref},source_ref.like.${ref}#%`));
+  assert.ok(calls.some((c) => c[0] === "eq" && c[1] === "source_contributor_id" && c[2] === ZVI_SOURCE_CONTRIBUTOR_ID));
+});
+
+test("source lookup follows stable keyset pages beyond 100 and never invents a total", async () => {
+  const ref = `channel_updates:${sourceId}`;
+  const rows = Array.from({ length: 107 }, (_, i) => row(i + 1));
+  const calls = []; const c = client(rows, calls); const seen = []; let cursor = null;
+  do {
+    const result = await fetchZviSourceFindingsPage({ client: c, sourceRef: ref, cursor });
+    seen.push(...result.rows.map((r) => r.id));
+    assert.ok(!("total" in result));
+    cursor = result.nextCursor;
+  } while (cursor);
+  assert.equal(seen.length, 107);
+  assert.equal(new Set(seen).size, 107);
+  assert.equal(calls.filter((c) => c[0] === "limit").length, 5);
+  assert.equal(calls.filter((c) => c[0] === "or" && c[1].startsWith("created_at.lt.")).length, 4);
+});
+
+test("source lookup requires the exact reviewed fingerprint and fails closed for unavailable sources", async () => {
+  const ref = `channel_updates:${sourceId}`;
+  const allowed = row(1, { meta: {}, kind: "observation" });
+  const changed = row(2, { meta: {}, kind: "observation" });
+  const old = { ...changed, statement: "נוסח מוקדם" };
+  const manifest = [reviewedEntry(allowed), reviewedEntry(old)];
+  const result = await fetchZviSourceFindingsPage({ client: client([allowed, changed], []), sourceRef: ref, manifest, subtle: webcrypto.subtle });
+  assert.deepEqual(result.rows.map((r) => r.id), [uuid(1)]);
+  assert.equal(result.omittedForReview, true);
+  assert.equal(result.rows[0].findingRef, researchObjectToUniversalFinding(allowed).id);
+  assert.equal(result.rows[0].verificationState, null);
+  const inactive = await fetchZviSourceFindingsPage({ client: client([allowed], [], { sourceRows: [] }), sourceRef: ref, manifest, subtle: webcrypto.subtle });
+  assert.equal(inactive.omittedUnavailable, true);
+  assert.deepEqual(inactive.rows, []);
+  await assert.rejects(fetchZviSourceFindingsPage({ client: client([allowed], [], { sourceError: new Error("source offline") }), sourceRef: ref, manifest, subtle: webcrypto.subtle }), /source offline/);
+  await assert.rejects(fetchZviSourceFindingsPage({ client: client([allowed], []), sourceRef: ref, manifest, subtle: null }), /review_digest_unavailable/);
+});
+
+test("source lookup refuses malformed, anchored or injected selectors and reports unclassified pages honestly", async () => {
+  const ref = `channel_updates:${sourceId}`; const c = client([], []);
+  for (const sourceRef of [null, "", sourceId, `${ref}#anchor`, `${ref},status.eq.private`, "channel_updates:invalid"]) {
+    await assert.rejects(fetchZviSourceFindingsPage({ client: c, sourceRef }), /invalid_zvi_source_findings_page/);
+  }
+  const unknown = Array.from({ length: 8 }, (_, i) => row(i + 1, { meta: {}, kind: "observation" }));
+  const page = await fetchZviSourceFindingsPage({ client: client(unknown, []), sourceRef: ref, pageSize: 5, manifest: [] });
+  assert.deepEqual(page.rows, []);
+  assert.equal(page.hasMore, true);
+  assert.equal(page.omittedForReview, true);
+  assert.equal(page.omittedUnavailable, false);
+});
 
 test("individually reviewed items require an unchanged exact fingerprint and a live public source", async () => {
   const reviewed = row(1, { meta: {}, kind: "observation" });

@@ -76,7 +76,7 @@ const SORT_LABELS = Object.freeze({
 });
 
 const CONTINUATION_LABELS = Object.freeze({
-  already_connected: "כבר מחובר לעץ",
+  already_connected: "מזהה יעד שמור · הקשר לא אומת כאן",
   ready: "מוכן ליישום מבוקר",
   clustered: "אשכול כפילות מאושר",
   blocked_missing_target: "חסום · חסר יעד",
@@ -289,7 +289,7 @@ const REPLAY_SOURCE_LABELS = Object.freeze({
 });
 
 const REPLAY_TARGET_LABELS = Object.freeze({
-  already_connected: "כבר מחובר לעץ",
+  already_connected: "מזהה יעד שמור · הקשר לא אומת כאן",
   single_structured_target: "יעד מובנה יחיד לבדיקה",
   multiple_structured_targets: "כמה יעדים · נדרשת הכרעה",
   missing_structured_target: "חסר יעד מובנה",
@@ -297,7 +297,7 @@ const REPLAY_TARGET_LABELS = Object.freeze({
 });
 
 const REPLAY_TARGET_EVIDENCE_LABELS = Object.freeze({
-  existing_promotion: "חיבור חי קיים",
+  existing_promotion: "מזהה יעד שמור",
   exact_row_value_match: "יעד מספר יחיד תואם לערך",
   exact_value_primary_with_context: "מספר ראשי תואם + הקשרים",
   exact_value_among_multiple_numbers: "מספר תואם + מספרים נוספים",
@@ -479,6 +479,12 @@ function continuationClass(value) {
 function treeTargetLabel(match) {
   const type = match?.type === "number" ? "מספר" : match?.type === "topic" ? "נושא" : match?.type === "book" ? "ספר" : "יעד";
   return `${type} · ${clean(match?.label || match?.key)}`;
+}
+
+function safeRecordedTargetReason(value) {
+  return String(value || "")
+    .replace("קיים חיבור חי ליעד; ה־replay אינו משנה אותו.", "מזהה יעד שמור; זמינותו והקשר לא אומתו בתצוגה זו.")
+    .replace("אין חיבור מתועד,", "לא נטענה הצמדה מתועדת,");
 }
 
 function DuplicateOccurrences({ row }) {
@@ -1032,14 +1038,14 @@ export default function WorldAllResearchTable({ state }) {
         <span><b>{projection.triageSnapshot?.matchedCards || 0}</b> כרטיסים מדוח המיון</span>
         <span><b>{projection.triageSnapshot?.recommendationCounts?.["מתאים לעץ"] || 0}</b> המלצות עץ בדוח 22.10</span>
         <span><b>{projection.triageSnapshot?.strengthCounts?.["חזק"] || 0}</b> ממצאים חזקים</span>
-        <span><b>{projection.treeMatchedResearchOccurrences || 0}</b> רשומות מחוברות ליעד קיים בעץ</span>
+        <span><b>{projection.treeMatchedResearchOccurrences || 0}</b> רשומות עם הצמדה מתועדת</span>
         <span><b>{projection.meteredResearchOccurrences || 0}</b> רשומות עם מד יעד זמין</span>
         {projection.duplicateProjection?.groups ? <span><b>{projection.duplicateProjection.groups}</b> אשכולות מאוחדים</span> : null}
         <span><b>{projection.triageSnapshot?.untriagedLiveCards || 0}</b> חדשים שטרם מוינו בדוח</span>
       </div>
 
       {projection.triageSnapshot?.strongContinuation ? <div className="sod29-world-all-research-summary">
-        <span><b>{projection.triageSnapshot.strongContinuation.alreadyConnected}</b> חזקים שכבר מחוברים</span>
+        <span><b>{projection.triageSnapshot.strongContinuation.alreadyConnected}</b> חזקים שסומנו בדוח כמחוברים</span>
         <span><b>{projection.triageSnapshot.strongContinuation.readyForImplementation}</b> מוכנים ליישום מבוקר</span>
         <span><b>{projection.triageSnapshot.strongContinuation.clusteredDuplicates}</b> כפילויות תקינות לתצוגת אשכול</span>
         <span><b>{projection.triageSnapshot.strongContinuation.correctedDuplicateClassifications}</b> סיווגי כפילות שתוקנו</span>
@@ -1060,7 +1066,7 @@ export default function WorldAllResearchTable({ state }) {
         <span><b>{projection.technicallyReadyReplayOccurrences}</b> הופעות בשלות טכנית לביקורת מקור ויעד</span>
         <span><b>{projection.byLegacyReplaySourceReadiness?.exact_source || 0}</b> עם מקור מדויק</span>
         <span><b>{projection.byLegacyReplaySourceReadiness?.source_locator_repair || 0}</b> דורשות תיקון locator</span>
-        <span><b>{projection.byLegacyReplayTargetReadiness?.already_connected || 0}</b> כבר מחוברות</span>
+        <span><b>{projection.byLegacyReplayTargetReadiness?.already_connected || 0}</b> עם מזהה יעד שמור</span>
         <span><b>{projection.byLegacyReplayTargetReadiness?.single_structured_target || 0}</b> עם יעד יחיד לבדיקה</span>
         <span><b>{projection.byLegacyReplayTargetEvidence?.exact_row_value_match || 0}</b> יעדי מספר יחידים שתואמים לערך המובנה</span>
         <span><b>{projection.byLegacyReplayTargetEvidence?.exact_value_primary_with_context || 0}</b> מספר ראשי תואם עם הקשרים נוספים</span>
@@ -1121,7 +1127,7 @@ export default function WorldAllResearchTable({ state }) {
         <label><span>ראיית יעד · חסרה מעטפת</span><select value={pendingEngineTargetEvidence} onChange={(e) => setPendingEngineTargetEvidence(e.target.value)}><option value="all">כל ראיות היעד לפני מנוע</option>{Object.entries(REPLAY_TARGET_EVIDENCE_LABELS).map(([value, label]) => <option value={value} key={value}>{label} · {projection.byPendingEngineTargetEvidence?.[value] || 0}</option>)}</select></label>
         <label><span>ייחוס / תורם</span><select value={contributor} onChange={(e) => setContributor(e.target.value)}><option value="all">כל הייחוסים</option>{Object.entries(projection.byContributor).sort((a,b) => b[1]-a[1]).map(([v,count]) => <option value={v} key={v}>{contributorLabel(v)} · {count}</option>)}</select></label>
         <label><span>חיבור לעץ · מנהל</span><select value={tree} onChange={(e) => setTree(e.target.value)}>
-          <option value="all">הכול</option><option value="matched">מחוברים ליעד קיים</option><option value="unmatched">ממתין לשיוך · מנהל בלבד</option>
+          <option value="all">הכול</option><option value="matched">נטענה הצמדה מתועדת</option><option value="unmatched">לא נטענה הצמדה מתועדת</option>
         </select></label>
         <label><span>מד יעד</span><select value={meter} onChange={(e) => setMeter(e.target.value)}>
           <option value="all">עם ובלי מד</option><option value="metered">יש מד זמין</option><option value="unmetered">עדיין אין מד</option>
@@ -1173,9 +1179,9 @@ export default function WorldAllResearchTable({ state }) {
             <strong>{triage?.recommendation || "טרם מוין בדוח"}</strong>
           </div>
 
-          {triage?.continuationState ? <div className={`sod29-world-triage-recommendation ${continuationClass(triage.continuationState)}`}>
-            <span><small>החלטת המשך · 26.10.2026</small><strong>{triage.continuationLabel || humanLabel(CONTINUATION_LABELS, triage.continuationState, "מצב המשך")}</strong></span>
-            <small>{triage.continuationReason}</small>
+          {triage?.continuationState ? <div className={`sod29-world-triage-recommendation ${continuationClass(triage.continuationState === "already_connected" && !row.documentedTreeConnected ? "review" : triage.continuationState)}`}>
+            <span><small>החלטת המשך · 26.10.2026</small><strong>{triage.continuationState === "already_connected" ? CONTINUATION_LABELS.already_connected : (triage.continuationLabel || humanLabel(CONTINUATION_LABELS, triage.continuationState, "מצב המשך"))}</strong></span>
+            <small>{triage.continuationState === "already_connected" ? "נשמר מזהה יעד ברשומה; זמינותו והקשר לא אומתו בתצוגה זו." : triage.continuationReason}</small>
           </div> : null}
 
           {row.legacyReplay ? <div className={`sod29-world-triage-recommendation ${legacyReplayClass(row.legacyReplay.state)}`}>
@@ -1242,16 +1248,16 @@ export default function WorldAllResearchTable({ state }) {
               <small>הקשר מקור ויעד · לפני השלמת מעטפת מנוע</small>
               <strong>{humanLabel(REPLAY_SOURCE_LABELS, row.legacyReplay.pendingEngineContext.sourceReadiness, "מצב מקור נוסף")} · {humanLabel(REPLAY_TARGET_LABELS, row.legacyReplay.pendingEngineContext.targetReadiness, "מצב יעד נוסף")}</strong>
             </span>
-            <small>{row.legacyReplay.pendingEngineContext.reason}</small>
+            <small>{safeRecordedTargetReason(row.legacyReplay.pendingEngineContext.reason)}</small>
             {row.legacyReplay.pendingEngineContext.proposedNumberTargets?.length ? <small>הצעת מספר מן ה־value המובנה: {row.legacyReplay.pendingEngineContext.proposedNumberTargets.join(" · ")}. אין לחבר לפני הכרעת המנוע.</small> : null}
           </div> : null}
 
-          {row.legacyReplay?.decision ? <div className={`sod29-world-triage-recommendation ${row.legacyReplay.decision.decisionState === "already_connected" ? "is-ready" : "is-review"}`}>
+          {row.legacyReplay?.decision ? <div className={`sod29-world-triage-recommendation ${row.legacyReplay.decision.decisionState === "already_connected" && row.documentedTreeConnected ? "is-ready" : "is-review"}`}>
             <span>
               <small>הכרעת מקור ויעד · מנהל בלבד · ללא קידום אוטומטי</small>
               <strong>{humanLabel(REPLAY_SOURCE_LABELS, row.legacyReplay.decision.sourceReadiness, "מצב מקור נוסף")} · {humanLabel(REPLAY_TARGET_LABELS, row.legacyReplay.decision.targetReadiness, "מצב יעד נוסף")}</strong>
             </span>
-            <small>{row.legacyReplay.decision.reason}</small>
+            <small>{safeRecordedTargetReason(row.legacyReplay.decision.reason)}</small>
             {row.legacyReplay.decision.targets?.length ? <details className="sod29-world-all-research-duplicates">
               <summary>היעדים המובנים שנשמרו · {row.legacyReplay.decision.targets.length}</summary>
               <ul>{row.legacyReplay.decision.targets.map((target) => <li key={`${target.type}:${target.key}`}>{treeTargetLabel(target)}</li>)}</ul>
@@ -1303,9 +1309,11 @@ export default function WorldAllResearchTable({ state }) {
           {row.spatialCluster ? <div className="sod29-world-all-research-cluster">קיים אשכול מחקר מרחבי</div> : null}
 
           {row.family === "research_object" ? <div className="sod29-world-all-research-cluster">
-            <strong>{rating ? `מד החיבור לעץ · יעד מדויק · ${rating.title}` : "מד החיבור לעץ · אין נתון"}</strong>
+            <strong>{rating ? `${rating.connectionState === "documented_attachment" ? "הצמדה לצומת מספר נרשמה" : "נושא לבחינה"} · ${rating.title}` : "נושא או יעד בעץ · אין נתון"}</strong>
             <p>{rating
-              ? "זהו המד של הנושא המדויק בעץ, לא מד של הממצא ולא ציון אמת. איכות היעד המוצגת כאן נפרדת מאיכות הראיות של הממצא."
+              ? rating.connectionState === "documented_attachment"
+                ? "ההצמדה רשומה; זמינות הצומת לא נבדקה כאן. מד הנושא אינו מד הממצא או ציון אמת."
+                : "זהו מד הנושא המוצע בלבד; הקשר לממצא עדיין לא הוכח. המד אינו ציון אמת או מד של הממצא."
               : "אין לממצא מד יעד זמין. הוא נשאר ללא נתון ואינו מקבל ציון אפס מומצא."}</p>
             <ConvergenceRatings2029
               quality={rating?.quality ?? null}
@@ -1314,15 +1322,15 @@ export default function WorldAllResearchTable({ state }) {
               numbers={ratingNumbers || []}
               popover
             />
-            {rating?.href ? <Link className="sod29-action" to={rating.href}>פתח את יעד העץ ←</Link> : null}
+            {rating?.href ? <Link className="sod29-action" to={rating.href}>פתח את הנושא ←</Link> : null}
             {proposedTreeTargets.length ? <details className="sod29-world-all-research-duplicates" open={proposedTreeTargets.length > 1}>
               <summary>יעדי העץ שהומלצו · {proposedTreeTargets.length}</summary>
               <ul>{proposedTreeTargets.map((target) => <li key={target}><code dir="ltr">{target}</code></li>)}</ul>
             </details> : null}
             {treeTargets.length ? <details className="sod29-world-all-research-duplicates">
-              <summary>כל החיבורים המתועדים לעץ · {treeTargets.length}</summary>
-              <ul>{treeTargets.map((match, targetIndex) => <li key={`${match.type}:${match.key}:${targetIndex}`}>{treeTargetLabel(match)}</li>)}</ul>
-            </details> : <p>ממתין לשיוך · מידע למנהל בלבד.</p>}
+              <summary>הצמדות רשומות ויעדים לבחינה · {treeTargets.length}</summary>
+              <ul>{treeTargets.map((match, targetIndex) => <li key={`${match.type}:${match.key}:${targetIndex}`}>{treeTargetLabel(match)} · {row.documentedTreeConnected && match.type === "number" && row.documentedTreeAttachment?.targetNodeId === match.key ? "הצמדה נרשמה" : "יעד לבחינה"}</li>)}</ul>
+            </details> : <p>לא נטען יעד מתועד לתצוגה זו · מידע למנהל בלבד.</p>}
           </div> : null}
 
           <div className="sod29-world-source-locator">

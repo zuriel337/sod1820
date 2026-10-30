@@ -1,6 +1,7 @@
 import { channelUpdateOccurrenceId, contributorSourceLocator } from "./worldContributorSourceLocator.js";
 import { worldPreviewMaterialExclusion } from "./worldPreviewMaterialScope.js";
 import { ZVI_REVIEWED_FINDINGS } from "./zviReviewedFindings2029.js";
+import { universalFindingId } from "./universalFinding.js";
 
 // This reader is bounded to the existing public contributor view. The source
 // contributor is provenance, not a claim that the source owner authored a row.
@@ -48,12 +49,23 @@ function project(row, { reviewed = false } = {}) {
     || mentionsOwner(row?.statement) || mentionsOwner(row?.contributor)
     || hasContactDetails(row?.statement) || hasContactDetails(row?.contributor)) return null;
   const source = contributorSourceLocator(row.source_ref, { slug: "tzvi-opoc" });
+  const sourceId = channelUpdateOccurrenceId(row.source_ref);
   const ocrFlags = [row?.meta?.ext?.wa_channel_intake?.ocr_used, row?.meta?.ext?.presentation?.ocr_used,
     row?.meta?.ext?.ocr_used, row?.meta?.ocr_used];
   const statement = text(row.statement);
   const chars = Array.from(statement);
   return Object.freeze({
     id: text(row.id),
+    sourceRef: sourceId && source.exact ? `channel_updates:${sourceId}` : null,
+    findingRef: universalFindingId({
+      kind: "research-object",
+      sourceIdentity: { researchObjectId: text(row.id) },
+      subjectKey: text(row.id),
+    }),
+    href: `/world?${new URLSearchParams({ finding: text(row.id) })}`,
+    publicationState: text(row.status).toLowerCase(),
+    // This DTO does not carry enough scoped truth evidence to certify a state.
+    verificationState: null,
     title: chars.slice(0, 240).join("") || "ממצא ציבורי מאושר",
     summaryTruncated: chars.length > 240,
     contributor: text(row.contributor) || null,
@@ -163,4 +175,88 @@ export async function fetchZviApprovedFindingsPage({ client, cursor = null, page
     omittedUnavailable: eligible.length < vetted.length,
     omittedForReview: vetted.length < page.length,
   });
+}
+
+// Shared, bounded reader for exact structured value or exact source occurrence.
+// Results still pass the same public, identity, review and live-source guards.
+async function fetchZviExactFindingsPage({ client, cursor, pageSize, manifest, subtle, filter }) {
+  const reviewedById = new Map(manifest.map((entry) => [text(entry?.id), text(entry?.fingerprint)]));
+  let query = client.from("world_contributor_research_v1")
+    .select("id,created_at,kind,statement,contributor,source,source_ref,source_contributor_id,status,privacy_scope,meta,engine_verified,engine_detail,promoted_node_id,value")
+    .eq("source_contributor_id", ZVI_SOURCE_CONTRIBUTOR_ID)
+    .eq("privacy_scope", "public").in("status", ["approved", "canonical"])
+    .order("created_at", { ascending: false }).order("id", { ascending: false });
+  if (filter.type === "number") query = query.eq("value", filter.value);
+  else query = query.or(`source_ref.eq.${filter.sourceRef},source_ref.like.${filter.sourceRef}#%`);
+  if (cursor) query = query.or(`created_at.lt."${cursor.createdAt}",and(created_at.eq."${cursor.createdAt}",id.lt.${cursor.id})`);
+  const { data, error } = await query.limit(pageSize + 1);
+  if (error || !Array.isArray(data)) throw error || new Error("zvi_exact_findings_unavailable");
+  const page = data.slice(0, pageSize);
+  const checks = await Promise.all(page.map(async (row) => {
+    if (filter.type === "number" && (
+      // Do not coerce missing, blank or boolean values to zero.
+      row?.value == null || !["number", "string"].includes(typeof row.value)
+      || (typeof row.value === "string" && !row.value.trim())
+      || !Number.isSafeInteger(Number(row.value)) || Number(row.value) !== filter.value
+    )) return null;
+    const rowSourceRef = text(row?.source_ref);
+    if (filter.type === "source" && rowSourceRef !== filter.sourceRef
+      && !rowSourceRef.startsWith(`${filter.sourceRef}#`)) return null;
+    if (worldPreviewMaterialExclusion(row, "research_object") || !project(row, { reviewed: true })) return null;
+    if (acceptedResearch(row)) return row;
+    const fingerprint = reviewedById.get(text(row.id));
+    if (!/^[a-f0-9]{64}$/.test(fingerprint || "")) return null;
+    return await reviewedFingerprint(row, subtle) === fingerprint ? row : null;
+  }));
+  const vetted = checks.filter(Boolean);
+  const liveIds = await livePublicSourceIds(client, vetted);
+  const eligible = vetted.filter((row) => liveIds.has(channelUpdateOccurrenceId(row?.source_ref)));
+  const last = page.at(-1);
+  const nextCursor = data.length > pageSize ? { id: text(last?.id), createdAt: text(last?.created_at) } : null;
+  if (nextCursor && (!UUID.test(nextCursor.id) || !TIMESTAMP.test(nextCursor.createdAt))) {
+    throw new Error("zvi_exact_findings_cursor_unavailable");
+  }
+  return Object.freeze({
+    rows: eligible.map((row) => filter.type === "number"
+      ? Object.freeze({ ...project(row, { reviewed: true }), claimedNumber: filter.value })
+      : project(row, { reviewed: true })),
+    hasMore: data.length > pageSize,
+    nextCursor,
+    omittedUnavailable: eligible.length < vetted.length,
+    omittedForReview: vetted.length < page.length,
+  });
+}
+
+/**
+ * Lookup by a structured value; it is a claim, not a verified calculation or
+ * graph relation. An unclassified record requires its reviewed fingerprint.
+ */
+export async function fetchZviNumberFindingsPage({
+  client, value, cursor = null, pageSize = ZVI_APPROVED_PAGE_SIZE,
+  manifest = ZVI_REVIEWED_FINDINGS, subtle = globalThis.crypto?.subtle,
+} = {}) {
+  if (!client || !Number.isSafeInteger(value) || !Array.isArray(manifest)
+    || (cursor && (!UUID.test(text(cursor.id)) || !TIMESTAMP.test(text(cursor.createdAt))))
+    || !Number.isSafeInteger(pageSize) || pageSize < 1 || pageSize > 50) {
+    throw new Error("invalid_zvi_number_findings_page");
+  }
+  return fetchZviExactFindingsPage({ client, cursor, pageSize, manifest, subtle, filter: { type: "number", value } });
+}
+
+/**
+ * Lookup of one exact public channel occurrence, including anchored claims
+ * under that same source_ref. Text, another source prefix and arbitrary
+ * caller-provided PostgREST fragments are never used to select a source.
+ */
+export async function fetchZviSourceFindingsPage({
+  client, sourceRef, cursor = null, pageSize = ZVI_APPROVED_PAGE_SIZE,
+  manifest = ZVI_REVIEWED_FINDINGS, subtle = globalThis.crypto?.subtle,
+} = {}) {
+  const sourceId = typeof sourceRef === "string" ? channelUpdateOccurrenceId(sourceRef) : null;
+  if (!client || !sourceId || sourceRef !== `channel_updates:${sourceId}` || !Array.isArray(manifest)
+    || (cursor && (!UUID.test(text(cursor.id)) || !TIMESTAMP.test(text(cursor.createdAt))))
+    || !Number.isSafeInteger(pageSize) || pageSize < 1 || pageSize > 50) {
+    throw new Error("invalid_zvi_source_findings_page");
+  }
+  return fetchZviExactFindingsPage({ client, cursor, pageSize, manifest, subtle, filter: { type: "source", sourceRef } });
 }

@@ -16,6 +16,10 @@ import { fetchCanonicalGraphEntityFindings } from "../../lib/research/entityGrap
 import WorldMapShell2029 from "./WorldMapShell2029.jsx";
 import { createCanonicalRelationOpener } from "../../lib/research/worldGraphRelationOpener2029.js";
 import WorldZviApprovedFindings2029 from "./WorldZviApprovedFindings2029.jsx";
+import WorldZviSourceFindings2029 from "./WorldZviSourceFindings2029.jsx";
+import { channelUpdateOccurrenceId } from "../../lib/research/worldContributorSourceLocator.js";
+import { mergeZviFindingsIntoWorldProjection } from "../../lib/research/worldZviContentProjection2029.js";
+import { universalFindingId } from "../../lib/research/universalFinding.js";
 
 const TREE_RELATION_CACHE = new Map();
 const WORLD_MAP_RELATION_OPENER = createCanonicalRelationOpener();
@@ -81,8 +85,11 @@ export default function WorldPeopleSources2029({ index, loading = false, error =
   const [peopleLimit, setPeopleLimit] = useState(WORLD_PEOPLE_PAGE_SIZE);
   const [itemLimit, setItemLimit] = useState(WORLD_SOURCE_ITEMS_PAGE_SIZE);
   const [material, setMaterial] = useState({ slug: null, loading: false, data: null, error: null });
+  const [zviMapFocus, setZviMapFocus] = useState(null);
+  const [zviMapError, setZviMapError] = useState(false);
   const focusedCard = useRef(null);
   const appliedFocus = useRef(null);
+  const mapArea = useRef(null);
 
   const chooseSource = (slug) => {
     const next = new URLSearchParams(location.search);
@@ -120,10 +127,73 @@ export default function WorldPeopleSources2029({ index, loading = false, error =
     setItemLimit(WORLD_SOURCE_ITEMS_PAGE_SIZE);
   }, [query, filter, source]);
 
+  useEffect(() => {
+    setZviMapFocus(null);
+    setZviMapError(false);
+  }, [source]);
+
   const selectedMaterial = material.slug === selected?.slug
     ? material
     : { slug: selected?.slug || null, loading: Boolean(selected), data: null, error: null };
   const publicContent = selectedMaterial.data?.contentProjection || null;
+  // A focus changes only the map's visible window. The complete base DTO and
+  // the existing catalog stay intact; no relation is manufactured.
+  const focusedZviMap = useMemo(() => {
+    if (!zviMapFocus || selected?.slug !== "tzvi-opoc" || !publicContent) return null;
+    const sourceRow = (publicContent.sources || []).find((row) => row.sourceRef === zviMapFocus.sourceRef);
+    if (!sourceRow) return { unavailable: true };
+    let merged;
+    try {
+      merged = mergeZviFindingsIntoWorldProjection(publicContent, [zviMapFocus.page], { complete: false });
+    } catch {
+      return { unavailable: true };
+    }
+    const existing = new Map((merged.findings || []).filter((finding) => (
+      finding.sourceRefs.includes(zviMapFocus.sourceRef)
+    )).map((finding) => [finding.findingRef, finding]));
+    const unique = new Set();
+    const rows = (zviMapFocus.page.rows || []).filter((row) => {
+      const id = String(row?.id || "");
+      if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) return false;
+      const expectedRef = universalFindingId({ kind: "research-object",
+        sourceIdentity: { researchObjectId: id }, subjectKey: id });
+      const expectedHref = `/world?${new URLSearchParams({ finding: id })}`;
+      if (row.sourceRef !== zviMapFocus.sourceRef || row.findingRef !== expectedRef || row.href !== expectedHref
+        || !["approved", "canonical"].includes(row.publicationState)
+        || !existing.has(expectedRef) || unique.has(expectedRef)) return false;
+      unique.add(row.findingRef);
+      return true;
+    });
+    if (!rows.length) return { unavailable: true };
+    const offset = Math.min(zviMapFocus.offset, Math.floor((rows.length - 1) / 6) * 6);
+    const visible = rows.slice(offset, offset + 6);
+    const visibleRefs = new Set(visible.map((row) => row.findingRef));
+    const projection = {
+      ...merged,
+      sources: [sourceRow],
+      occurrences: (merged.occurrences || []).filter((row) => row.sourceRef === zviMapFocus.sourceRef),
+      findings: visible.map((row) => existing.get(row.findingRef)),
+      treeRelations: (merged.treeRelations || []).filter((row) => visibleRefs.has(row.findingRef)),
+      coverage: { ...merged.coverage, sources: { available: false, total: null }, findings: { available: false, total: null } },
+      metrics: { ...merged.metrics, corpusSources: null, findings: null },
+    };
+    return { projection, offset, count: visible.length, total: rows.length,
+      pageHasMore: zviMapFocus.page.hasMore,
+      labels: Object.fromEntries(visible.map((row) => [row.findingRef, row.title || "ממצא מחקר"])) };
+  }, [publicContent, selected?.slug, zviMapFocus]);
+
+  const showZviSourceOnMap = ({ sourceRef, page }) => {
+    if (selected?.slug !== "tzvi-opoc" || !publicContent?.sources?.some((row) => row.sourceRef === sourceRef)) {
+      setZviMapError(true);
+      return;
+    }
+    setZviMapError(false);
+    setZviMapFocus({ sourceRef, page, offset: 0 });
+    requestAnimationFrame(() => {
+      mapArea.current?.focus({ preventScroll: true });
+      mapArea.current?.scrollIntoView({ block: "start", behavior: "auto" });
+    });
+  };
   const sourceByRef = useMemo(() => new Map((publicContent?.sources || []).map((row) => [row.sourceRef, row])), [publicContent]);
   const occurrenceBySourceRef = useMemo(() => {
     const rows = new Map();
@@ -227,6 +297,7 @@ export default function WorldPeopleSources2029({ index, loading = false, error =
       {selectedMaterial.loading ? <p role="status">פותח כתבים, מקורות, צפנים ונושאים…</p> : null}
       {selectedMaterial.data?.researchLoading ? <p role="status">המקורות מוכנים; שאר החומר והקשרים לעץ עדיין נטענים…</p> : null}
       {selectedMaterial.error ? <div role="status"><strong>חלק מהחומר אינו זמין כרגע.</strong><p>לא מוצג 0 במקום נתון שלא התקבל.</p></div> : null}
+      {zviMapError && !publicContent ? <p role="status">לא ניתן להציג את המקור בחלון המפה הנוכחי. החומר נשאר במקור.</p> : null}
       {selectedMaterial.data?.partial && !selectedMaterial.data?.researchLoading ? <p role="status">חלק מן הקוראים לא השלימו טעינה; נתון חסר מוצג כ״אין נתון״.</p> : null}
       {selectedMaterial.data ? <>
         {materialWindow.focusState === "filtered_out" ? <p role="status">המקור שבקישור מוסתר במסנן הנוכחי.</p> : null}
@@ -251,20 +322,43 @@ export default function WorldPeopleSources2029({ index, loading = false, error =
             <h3>{row.title}</h3>
             {row.summary ? <p>{row.summary}</p> : null}
             {row.number != null ? <strong className="sod29-world-material-number">{row.number}</strong> : null}
-            <code dir="ltr">{row.sourceRef}</code>
+            {selected.slug === "tzvi-opoc"
+              ? <details><summary>פרטי המקור</summary><code dir="ltr">{row.sourceRef}</code></details>
+              : <code dir="ltr">{row.sourceRef}</code>}
             {occurrenceBySourceRef.get(row.sourceRef)?.length > 1 ? <small>{occurrenceBySourceRef.get(row.sourceRef).length} הופעות מדויקות של אותה זהות מקור.</small> : null}
             {row.meta?.sourceRecordCount > 1 ? <small>{row.meta.sourceRecordCount} רשומות מקור נשמרו ללא כפילות מקור.</small> : null}
             <MaterialLink href={sourceByRef.get(row.sourceRef)?.sourceHref || row.href}>{(sourceByRef.get(row.sourceRef)?.sourceHref || row.href) ? `${CANONICAL_PUBLIC_UI_COPY.action.source} ←` : "אין קישור ציבורי מאומת"}</MaterialLink>
+            {selected.slug === "tzvi-opoc" && channelUpdateOccurrenceId(row.sourceRef) ? <WorldZviSourceFindings2029
+              sourceRef={row.sourceRef} returnTo={`${location.pathname}${location.search}${location.hash}`}
+              onShowMap={showZviSourceOnMap} /> : null}
             {(treeTargetsBySourceRef.get(row.sourceRef) || []).map((target) => <DocumentedTreeRelations key={target.findingRef} target={target} />)}
           </article>)}
         </div>
         {materialWindow.hasMore ? <button className="sod29-action" type="button"
           onClick={() => setItemLimit((value) => value + WORLD_SOURCE_ITEMS_PAGE_SIZE)}>עוד</button> : null}
-        {publicContent ? <WorldMapShell2029
-          projection={publicContent}
-          relationTargets={selectedMaterial.data.treeFindingTargets || []}
-          openRelations={WORLD_MAP_RELATION_OPENER}
-        /> : null}
+        {publicContent ? <div ref={mapArea} tabIndex={-1}>
+          {zviMapError || focusedZviMap?.unavailable ? <p role="status">לא ניתן להציג את המקור בחלון המפה הנוכחי. החומר נשאר במקור.</p> : null}
+          {focusedZviMap?.projection ? <section aria-label="חלון מקור במפת העולם">
+            <p role="status">מוצגים {focusedZviMap.offset + 1}–{focusedZviMap.offset + focusedZviMap.count} מתוך {focusedZviMap.total} ממצאים בטעינה הנוכחית. הכיסוי חלקי.</p>
+            {focusedZviMap.pageHasMore ? <p>אפשר לחזור למקור ולטעון בו ממצאים נוספים.</p> : null}
+            <div className="sod29-actions">
+              <button className="sod29-action" type="button" disabled={focusedZviMap.offset === 0}
+                onClick={() => setZviMapFocus((current) => ({ ...current, offset: Math.max(0, current.offset - 6) }))}>קודמים במפה</button>
+              <button className="sod29-action" type="button" disabled={focusedZviMap.offset + focusedZviMap.count >= focusedZviMap.total}
+                onClick={() => setZviMapFocus((current) => ({ ...current, offset: current.offset + 6 }))}>הבאים במפה</button>
+              <button className="sod29-action" type="button" onClick={() => { setZviMapFocus(null); setZviMapError(false); }}>חזרה למפה הכללית</button>
+            </div>
+          </section> : null}
+          <WorldMapShell2029
+            key={focusedZviMap?.projection ? `${zviMapFocus.sourceRef}:${focusedZviMap.offset}` : "overview"}
+            projection={focusedZviMap?.projection || publicContent}
+            window={focusedZviMap?.projection ? { sources: 1, occurrencesPerSource: 2, findingsPerSource: 6 } : undefined}
+            humanReadable={selected.slug === "tzvi-opoc"}
+            findingLabelsByRef={focusedZviMap?.labels || {}}
+            relationTargets={selectedMaterial.data.treeFindingTargets || []}
+            openRelations={WORLD_MAP_RELATION_OPENER}
+          />
+        </div> : null}
       </> : null}
     </section> : null}
   </div>;
