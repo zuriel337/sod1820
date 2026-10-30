@@ -1,7 +1,7 @@
 /* Experience Governance v10 / Design V2: S2 depth around the source, never on its text. */
 .ahavat29-source.book-fullscreen29-target{height:calc(100dvh - 100px);max-height:none;grid-template-rows:auto minmax(360px,1fr) auto auto}
 .ahavat29-source>header{display:grid;grid-template-columns:minmax(0,1fr)}
-.ahavat29-source .ahavat29-source-actions{justify-content:flex-start}
+.ahavat29-source .ahavat29-source-actions{justify-content:center}
 .ahavat29-source-provenance{min-width:0;border-top:1px solid var(--s29-line-strong);color:var(--s29-muted);font:400 var(--s29-type-small)/1.6 var(--s29-font-body)}
 .ahavat29-source-provenance summary{min-height:44px;display:flex;align-items:center;cursor:pointer;color:var(--s29-text);font:500 var(--s29-type-ui)/1.4 var(--s29-font-ui)}
 .ahavat29-source-provenance nav{margin-top:10px}

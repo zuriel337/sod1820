@@ -88,3 +88,24 @@
 .ahavat29-companion-unit .ahavat29-ds01-controls a{min-height:44px;padding:8px 14px;border:1px solid var(--s29-line-strong);border-radius:999px;display:inline-flex;align-items:center;color:var(--s29-text);text-decoration:none}
 .ahavat29-companion-unit .ahavat29-ds01-controls,.ahavat29-companion-pages .ahavat29-ds01-controls{font:500 var(--s29-type-ui)/1.5 var(--s29-font-ui)}
 .ahavat29-companion-unit :is(button,a,summary):focus-visible,.ahavat29-companion-pages select:focus-visible{outline:3px solid var(--s29-focus-ring);outline-offset:3px}
+
+/* ZURIEL 30.10.2026: extend the existing centered-action direction to this book only. */
+.ahavat29 :is(.books29-entry-actions,.ahavat29-ds01-controls,.ahavat29-letter-comparison-actions),
+.ahavat29 .ahavat29-letter-parasha .ahavat29-letter-journey,
+.ahavat29 .ahavat29-reader>footer,
+.ahavat29 .ahavat29-finding-detail>footer{
+  justify-content:center;
+  align-items:center;
+}
+.ahavat29 .ahavat29-letter-comparison>footer{
+  display:flex;
+  justify-content:center;
+}
+.ahavat29 :is(.books29-entry-actions,.ahavat29-ds01-controls,.ahavat29-source-actions,.ahavat29-letter-comparison-actions,.ahavat29-letter-journey,.ahavat29-reader>footer,.ahavat29-finding-detail>footer,.ahavat29-letter-comparison>footer)>:is(button,a){
+  min-inline-size:44px;
+  max-inline-size:100%;
+  white-space:normal;
+  text-align:center;
+  justify-content:center;
+  align-items:center;
+}
