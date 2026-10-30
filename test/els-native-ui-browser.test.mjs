@@ -158,6 +158,45 @@ test('explicit lexicon cancellation discards late download and permits a fresh e
   },{realHost:true});
  });
 
+test('completed phrase has no redundant skip continuation in Classic or Research; a lone axis explains pairs',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
+  for(const width of [320,1440])await withNative({width,height:900},async page=>{
+    const heavy=[];page.on('request',req=>{if(/ai-analyze|els-dynamic-lexicon|tanakh-verses/.test(req.url()))heavy.push(req.url());});
+    await page.getByRole('textbox',{name:/^מונח(?: ראשון)?$/}).fill('יום משיח בא');
+    await activate(page,'חפש');
+    await page.waitForFunction(()=>window.__operation?.status==='done'&&window.__state?.term==='יוממשיחבא');
+    const result=await page.evaluate(()=>window.__state.search.occurrences);
+    assert.equal(result.total,1);assert.equal(result.discoveryComplete,true);assert.equal(result.continuation,null);
+    assert.equal(result.items[0].hitId,'583_-1_239480');
+    for(const research of [false,true]){
+      await page.evaluate(value=>{window.__fixtureResearchProfile=value;window.__forceParentRender();},research);
+      assert.equal(await page.getByRole('button',{name:/המשך.*(?:סריקה|מופעים).*דילוג|נסה שוב סריקת דילוגים/}).count(),0);
+    }
+    await page.getByText('מבנים והשוואת מופעים · ללא AI',{exact:true}).click();
+    const panel=page.getByRole('region',{name:'מבנים והשוואת מופעים',exact:true});await panel.waitFor();
+    await panel.getByRole('button',{name:'בדוק מבנים בממצאים שנבחרו',exact:true}).click();
+    assert.ok(await panel.getByText(/מסומן כרגע רק הציר הראשי — עדיין אין זוג לבדיקה/).isVisible());
+    assert.equal(await panel.locator('summary').filter({hasText:'קווים מקבילים וקווים משותפים (0)'}).count(),0);
+    assert.ok(await panel.getByText(/עדיין לא הוספתם תמונות מצב להשוואה/).isVisible());
+    await panel.getByRole('button',{name:'פתח גילוי מילים ללא AI',exact:true}).click();
+    await page.getByRole('region',{name:'מילים במטריצה',exact:true}).waitFor();
+    assert.equal(page.__elsDynamicLexiconRequests.length,0);
+    await panel.getByRole('button',{name:'חפש והוסף מילה למטריצה',exact:true}).click();
+    await page.getByRole('textbox',{name:'חיפוש משני במטריצה',exact:true}).waitFor();
+    await addSecondary(page,'ישלח');
+    await panel.getByRole('button',{name:'בדוק מבנים בממצאים שנבחרו',exact:true}).click();
+    assert.equal(await panel.getByText(/מסומן כרגע רק הציר הראשי — עדיין אין זוג לבדיקה/).count(),0);
+    assert.ok(await panel.locator('summary').filter({hasText:'קווים מקבילים וקווים משותפים'}).isVisible());
+    for(const theme of ['light','parchment','dark']){
+      await page.evaluate(theme=>window.__setThemePreset(theme),theme);
+      const size=await page.evaluate(()=>({w:document.documentElement.clientWidth,s:document.documentElement.scrollWidth}));
+      assert.ok(size.s<=size.w+1,JSON.stringify({width,theme,size}));
+      if(process.env.ELS_CLARITY_SCREENSHOTS){mkdirSync(process.env.ELS_CLARITY_SCREENSHOTS,{recursive:true});await panel.scrollIntoViewIfNeeded();await page.screenshot({path:`${process.env.ELS_CLARITY_SCREENSHOTS}/clarity-${width}-${theme}.png`});}
+    }
+    assert.deepEqual(heavy,[]);
+  },{realHost:true});
+ });
+
 const host = `import React,{useRef,useEffect} from 'react';
 export default function Host(props){
  const frame=useRef(null),latest=useRef(props),ready=useRef(false);latest.current=props;
@@ -2341,7 +2380,7 @@ test('historical search repairs: pending identity, saved skip, ordered continuat
   assert.equal(first.ordered.completeThrough,50);
   assert.equal(first.items.filter(h=>h.skip===2).length,31,'every skip-2 occurrence is exposed, not only the sampled two');
   const axis=await identity(page);
-  await activate(page,'המשך סריקה מסודרת עד דילוג 100');
+  await activate(page,'המשך סריקה בדילוגים 51–100');
   await page.waitForFunction(()=>window.__operation?.status==='done'&&window.__state.search.occurrences.ordered.completeThrough===100);
   const continued=await identity(page);assert.deepEqual([continued.axis,continued.scope,continued.geometry],[axis.axis,axis.scope,axis.geometry],'continuation preserves the selected occurrence');
 

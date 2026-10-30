@@ -1414,7 +1414,9 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     }else{                                   // ANCHOR_FAST_V1: sparse / no-signal — exact anchor scan (legacy discovery kernel)
       const base=st.scope==="tanakh"?await findAllAdaptive(raw,cap):findAll(raw,cap);hits=base.hits;capped=base.capped;
     }
-    return {hits,capped,t,strategy:{policy:AD_POLICY,strategy:ch.strategy,version:"1",probe_pairs:ps.pairs,probe_hits:ps.sig,extended:ch.extended}};
+    // Execution coverage, NOT canonical negative authority: both collectors exhaust
+    // their lanes/anchors unless capped. Preserve this independently of ordered pages.
+    return {hits,capped,t,discoveryComplete:!capped,strategy:{policy:AD_POLICY,strategy:ch.strategy,version:"1",probe_pairs:ps.pairs,probe_hits:ps.sig,extended:ch.extended}};
   }
   // ── canonical batch verification (server) ──
   async function verifyBatch(t,hits,strategy,operation,searchScope=st.scope){
@@ -1472,6 +1474,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
   async function continueNativeSearch(req,operation){
     const result=st.res,epoch=_matrixRequestSeq,view=nativeOccurrenceResults();
     if(!hasGov(result)||st.crossMeetings||req.setId!==view?.id){operationStatus(operation,"error","התוצאות השתנו. פתחו שוב את הרשימה.");return;}
+    if(!view.continuation){operationStatus(operation,"done","אין המשך סריקה זמין לחיפוש הזה.");return;}
     const key=hitKey(occ());
     const page=await orderedSearchPage(result.t,result.scope||st.scope,result.ordered,operation);
     if(epoch!==_matrixRequestSeq||operation?.status==="cancelled")return;
@@ -1483,7 +1486,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
   // candidate result -> governed result. Fail closed: bridge unavailable => labeled CANDIDATE (never promoted).
   async function promoteVerified(cand,scope,operation){
     const t=cand.t,sc=scope||st.scope;
-    const out={hits:cand.hits,capped:cand.capped,t,scope:sc,strategy:cand.strategy||null,vstate:"CANDIDATE",vtrace:[]};
+    const out={hits:cand.hits,capped:cand.capped,t,scope:sc,strategy:cand.strategy||null,discoveryComplete:cand.discoveryComplete===true,vstate:"CANDIDATE",vtrace:[]};
     if(!cand.hits.length){out.vstate="LOCAL_NO_HIT";return out;}   // local/sampled no-hit: NOT a canonical negative
     const elig=cand.hits.filter(h=>Math.abs(h.skip)>=2);
     cand.hits.forEach(h=>{if(Math.abs(h.skip)<2)h.v="PLAIN_TEXT";else if(h.v!=="MATCH")h.v="CANDIDATE";});
@@ -1961,13 +1964,22 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
   }
   // Bounded presentation of the SAME admitted primary hits; never publish candidate coordinates.
   const nativeOccurrenceSets=new WeakMap();let nativeOccurrenceSetSeq=0;
+  function nativeSearchContinuation(result){
+    if(!result||result.discoveryComplete===true)return null;
+    const ordered=result.ordered;
+    if(ordered?.error)return {kind:"retry",min:ordered.min,max:ordered.max};
+    if(ordered?.hasMore)return {kind:"page",min:ordered.min,max:ordered.max};
+    // Unknown/exact-only coverage is not permission to invent a continuation.
+    if(!result.capped||(ordered?.max||0)>=500)return null;
+    return {kind:"range",min:ordered?ordered.max+1:2,max:Math.min(500,(ordered?.max||0)+50)};
+  }
   function nativeOccurrenceResults(){
     const r=st.res;if(!hasGov(r)||st.crossMeetings)return null;
     let view=nativeOccurrenceSets.get(r);
     if(!view){view={id:"occ-"+(++nativeOccurrenceSetSeq),page:0};nativeOccurrenceSets.set(r,view);}
     const admitted=r.hits.map((h,index)=>({h,index})).filter(x=>isGov(x.h)),pageSize=80;
     const page=Math.max(0,Math.min(view.page,Math.ceil(admitted.length/pageSize)-1));view.page=page;
-    return {kind:"regular",id:view.id,page,pageSize,total:admitted.length,selectedOrdinal:admitted.findIndex(x=>x.index===st.occ)+1,capped:!!r.capped,ordered:r.ordered||null,
+    return {kind:"regular",id:view.id,page,pageSize,total:admitted.length,selectedOrdinal:admitted.findIndex(x=>x.index===st.occ)+1,capped:!!r.capped,ordered:r.ordered||null,discoveryComplete:r.discoveryComplete===true,continuation:nativeSearchContinuation(r),
       items:admitted.slice(page*pageSize,(page+1)*pageSize).map(({h,index},offset)=>({index,ordinal:page*pageSize+offset+1,
         available:true,hitId:hitKey(h),skip:Math.abs(h.skip),direction:h.dir===1?"fwd":"back",book:bookOf(h.start),ref:refStr(verseAt(h.start))}))};
   }

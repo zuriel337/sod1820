@@ -563,6 +563,7 @@ function GuidedCoveragePanel({ coverage, exactTotal, pending, currentHitId, onOp
 function RegularResultsRail({ state, pending, operation, visible, guided = false, guidedCoverage = null, onGuidedContinue, onGuidedAddSupports,
   onGuidedOpenSource, onGuidedCloseSource, guidedSourceContext, guidedSourcePendingItemId, onHighlightVerse, verseHighlight, onSelect, onRetry, onContinue }) {
   const results = state?.search?.occurrences;
+  const continuation = results?.continuation;
   const blocked = pending || ["empty", "error", "cancelled"].includes(operation?.status);
   const items = blocked ? [] : results?.items || [];
   const resultButtons = items.map((item) => <button type="button" key={item.hitId} className="els29-native-result" aria-label={`פתח מופע ${item.ordinal}`} aria-pressed={state.axis?.hitId === item.hitId}
@@ -581,11 +582,15 @@ function RegularResultsRail({ state, pending, operation, visible, guided = false
         sourceContext={guidedSourceContext} sourcePendingItemId={guidedSourcePendingItemId}
         onHighlightVerse={onHighlightVerse} verseHighlight={verseHighlight} /> : null}
       {results.capped ? <small>הסריקה מוגבלת; זאת רשימת המופעים שנמצאו בסריקה הזאת, ולא כל המופעים האפשריים.</small> : null}
-      {results.ordered?.completeThrough >= 2 ? <small>הושלמה סריקה בשני הכיוונים בדילוגים 2–{results.ordered.completeThrough}. הדילוגים שמעבר לכך עדיין חלקיים.</small> : null}
-      {results.ordered?.error ? <small role="status">סריקת הדילוגים הקטנים לא הושלמה. אפשר להמשיך אותה כאן.</small> : null}
-      {!guided && (!results.ordered || results.ordered.error || results.ordered.hasMore || results.ordered.max < 500) ? <button type="button" disabled={pending} onClick={() => onContinue(results.id)}>
-        {results.ordered?.hasMore ? `המשך מופעים בדילוגים ${results.ordered.min}–${results.ordered.max}` : results.ordered?.error ? "נסה שוב סריקת דילוגים" : `המשך סריקה מסודרת עד דילוג ${Math.min(500,(results.ordered?.max || 0)+50)}`}
-      </button> : !guided ? <small>הסריקה המסודרת הושלמה עד דילוג 500. מעבר לכך מוצגים ממצאי הסריקה המוגבלת.</small> : null}
+      {results.discoveryComplete ? <small>החיפוש הנוכחי הסתיים ללא עצירה בתקרת התוצאות. אין המשך סריקה זמין.</small>
+        : results.ordered?.completeThrough >= 2 ? <small>הושלמה סריקה בשני הכיוונים בדילוגים 2–{results.ordered.completeThrough}. הדילוגים שמעבר לכך עדיין חלקיים.</small> : null}
+      {continuation?.kind === "retry" ? <small role="status">סריקת הדילוגים הקטנים לא הושלמה. אפשר לנסות שוב.</small> : null}
+      {!guided && continuation ? <>
+        <button type="button" disabled={pending} onClick={() => onContinue(results.id)}>
+          {continuation.kind === "page" ? `המשך מופעים בדילוגים ${continuation.min}–${continuation.max}` : continuation.kind === "retry" ? "נסה שוב סריקת דילוגים" : `המשך סריקה בדילוגים ${continuation.min}–${continuation.max}`}
+        </button>
+        <small>המשך בדיקת הטווח שטרם הושלם; אין הבטחה שיימצאו מופעים נוספים.</small>
+      </> : !guided && !results.discoveryComplete && results.ordered?.completeThrough >= 500 ? <small>הסריקה המסודרת הושלמה עד דילוג 500. מעבר לכך מוצגים ממצאי הסריקה המוגבלת.</small> : null}
       <div className="els29-native-results-pages" role="group" aria-label="עמודי תוצאות">
         <button type="button" disabled={results.page === 0} onClick={() => onSelect("occurrence-page", { setId: results.id, page: results.page - 1 })}>עמוד קודם</button>
         <span>עמוד <bdi>{results.page + 1} / {Math.ceil(results.total / results.pageSize)}</bdi></span>
@@ -829,6 +834,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   const [guidedMatrixOpen, setGuidedMatrixOpen] = useState(false);
   const [structuresVisited, setStructuresVisited] = useState(false);
   const [lexiconVisited, setLexiconVisited] = useState(false);
+  const lexiconDetailsRef = useRef(null);
   const [lexiconResponse, setLexiconResponse] = useState(null);
   useEffect(() => {
     const sync = () => setCameraFullscreen(document.fullscreenElement === cameraStageRef.current);
@@ -1560,7 +1566,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
           </div>
           <small>מציג את הציר ואחריו את הממצאים, אחד אחרי השני. אפשר להקליט באמצעות כלי צילום המסך במכשיר.</small>
         </section> : null}
-        <details hidden={!researchProfile || guidedProfile} className="els29-native-structure-entry"
+        <details ref={lexiconDetailsRef} hidden={!researchProfile || guidedProfile} className="els29-native-structure-entry"
           onToggle={event => { if (event.currentTarget.open) setLexiconVisited(true); }}>
           <summary>מילים במטריצה · ללא AI</summary>
           {lexiconVisited ? <React.Suspense fallback={<p role="status">טוען כלי סריקה…</p>}>
@@ -1576,7 +1582,15 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
           {structuresVisited ? <React.Suspense fallback={<p role="status">טוען כלי בדיקה…</p>}>
             <ElsStructureResearch2029 key={user?.id || "guest"} state={engineState}
               visible={researchProfile && !guidedProfile} busy={searchPending || ["searching", "verifying"].includes(operations.findings?.status)}
-              onRestore={onResearchRestore} onFocus={selectFinding} />
+              onRestore={onResearchRestore} onFocus={selectFinding}
+              onFindWords={event => openTool("findings", event.currentTarget)}
+              onOpenLexicon={() => {
+                if (!lexiconDetailsRef.current) return;
+                lexiconDetailsRef.current.open = true;
+                setLexiconVisited(true);
+                lexiconDetailsRef.current.scrollIntoView({ block: "start", behavior: "instant" });
+                lexiconDetailsRef.current.querySelector("summary")?.focus({ preventScroll: true });
+              }} />
           </React.Suspense> : null}
         </details>
         {matrixReading ? <ElsMatrixReadingCard2029 context={readingContext} reading={matrixReading} pending={searchPending} onSubmit={onRazielMatrix}

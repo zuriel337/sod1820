@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { inspectElsStructures, structureInspectionKey, restoreElsStructureInspection } from "../../lib/research/elsStructureInspection.js";
 import "./elsStructureResearch2029.css";
 
-export default function ElsStructureResearch2029({ state, busy, visible, onRestore, onFocus }) {
+export default function ElsStructureResearch2029({ state, busy, visible, onRestore, onFocus, onFindWords, onOpenLexicon }) {
   const [result, setResult] = useState(null);
   const [comparisons, setComparisons] = useState([]);
   const [notice, setNotice] = useState("");
@@ -29,6 +29,15 @@ export default function ElsStructureResearch2029({ state, busy, visible, onResto
   return <section className="els29-structure-research" hidden={!visible} aria-label="מבנים והשוואת מופעים">
     <h3>מבנים והשוואת מופעים</h3>
     <p>בדיקת הקשרים בין הציר לממצאים שבחרתם, ובין הממצאים עצמם. ללא AI וללא טעינת מילון. אינה מחפשת מילים חדשות.</p>
+    <details><summary>איך מוצאים זוגות?</summary>
+      <p>חיפוש הביטוי פותח את הציר הראשי. כדי לבדוק זוג צריך להוסיף ולסמן לפחות מופע אחד של מילה נוספת.</p>
+      <p>אם יודעים איזו מילה לחפש: פתחו את החיפוש המשני, חפשו אותה ובחרו מופע לסימון. לגילוי מילים בלי רשימה מראש: פתחו „מילים במטריצה”, הפעילו סריקה ובחרו „בדוק והוסף” במילים שמעניינות אתכם.</p>
+      <p>לאחר ההוספה לחצו „בדוק מבנים בממצאים שנבחרו”. הבדיקה משווה כל זוג: קווים מקבילים, אותו קו ואותיות משותפות. היא אינה מחפשת את כל הזוגות האפשריים בטקסט.</p>
+    </details>
+    <div className="els29-structure-actions">
+      {onFindWords ? <button type="button" disabled={busy || !ready} onClick={onFindWords}>חפש והוסף מילה למטריצה</button> : null}
+      {onOpenLexicon ? <button type="button" disabled={busy || !ready} onClick={onOpenLexicon}>פתח גילוי מילים ללא AI</button> : null}
+    </div>
     <div className="els29-structure-actions">
       <button type="button" disabled={busy || !ready} onClick={inspect}>בדוק מבנים בממצאים שנבחרו</button>
       <button type="button" disabled={busy || !ready} onClick={pin}>הוסף את המופע להשוואה</button>
@@ -39,11 +48,12 @@ export default function ElsStructureResearch2029({ state, busy, visible, onResto
       <h4><bdi>{result.snapshot.term}</bdi> · דילוג <bdi>{result.origin.skip}</bdi></h4>
       <p>{result.lines.length} מופעים נבחרים נבדקו, כולל הציר · {result.lines.filter(l => l.kind === "source").length} רצפי מקור. טקסט רגיל מובחן מ־ELS.</p>
       <p>המופעים נבדקים במלואם, גם אם חלק מאותיותיהם מחוץ לחלון או מוסתרות במסנן המרחק.</p>
-      <p>{summary(result).parallel} זוגות מקבילים · {summary(result).same} זוגות על אותו קו · {summary(result).intersections} זוגות בעלי אות משותפת.</p>
+      {result.lines.length > 1 ? <p>{summary(result).parallel} זוגות מקבילים · {summary(result).same} זוגות על אותו קו · {summary(result).intersections} זוגות בעלי אות משותפת.</p> : null}
       <p>זו תמונת מצב מזמן הלחיצה, לא דירוג חוזק ולא כיסוי של כל המילים במטריצה. שינויים בסימונים דורשים בדיקה חדשה.</p>
       {!current ? <p role="status">המטריצה הפעילה שונה מתוצאת הבדיקה הזאת.</p> : null}
       {result.excluded ? <p>{result.excluded} מופעים עם זהות לא תקינה לא נבדקו.</p> : null}
-      {result.lines.length === 1 ? <p>בחרו ממצאים במטריצה כדי לבדוק את היחסים ביניהם.</p> : null}
+      {result.lines.length === 1 ? <p role="status">מסומן כרגע רק הציר הראשי — עדיין אין זוג לבדיקה. זו אינה תוצאת „לא נמצאו מילים”. הוסיפו מילה דרך החיפוש המשני או „מילים במטריצה”, סמנו מופע שלה ובדקו שוב.</p> : <>
+      {!result.geometry.relations.length && !result.geometry.intersections.length ? <p role="status">נבדקו המופעים שסימנתם, ולא נמצאו ביניהם קווים מקבילים, קווים משותפים או אותיות משותפות. מילים שלא נוספו לא נבדקו.</p> : null}
       <details><summary>קווים מקבילים וקווים משותפים ({result.geometry.relations.length})</summary>
         <p>מוצגים עד 60 זוגות; הסיכום כולל את כל הזוגות שנבדקו.</p>
         {result.geometry.relations.slice(0,60).map(r => <article key={`${r.a}:${r.b}`}>
@@ -57,14 +67,16 @@ export default function ElsStructureResearch2029({ state, busy, visible, onResto
         {result.geometry.intersections.slice(0,60).map(r => <article key={`${r.a}:${r.b}`}><strong><bdi>{pairLabel(r,result)}</bdi></strong>
           <p>{r.positions.length} אותיות משותפות · כולל חפיפות וקטעי אותו ציר; אינם אישורים עצמאיים.</p></article>)}
       </details>
+      </>}
       <details><summary>המופעים שנבדקו והסימון במטריצה</summary>
         {result.lines.map(line => <button key={line.occurrenceId} type="button" disabled={busy || !current || line.kind === "axis"
           || !state.findings?.some(f => f.t === line.term && [...(f.hits || []),...(f.sourceHits || [])].some(h => h.hitId === line.hitId && h.shown && h.withinRadius !== false))}
           onClick={() => onFocus?.({term:line.term,hitId:line.hitId,scope:result.origin.corpus,axisHitId:result.snapshot.axis.hitId})}><bdi>{line.term}</bdi> · {line.kind === "source" ? "טקסט מקור" : line.kind === "axis" ? "הציר" : "ELS"}</button>)}
       </details>
     </div> : null}
-    <h4>השוואה זמנית · {comparisons.length}/3</h4>
-    <p>פתחו מופע אחר והוסיפו גם אותו. ההשוואה אינה מפעילה חיפוש אוטומטי. נשמרת במעבר בין קלאסי למחקר, אך לא ביציאה מהדף או ברענון.</p>
+    <h4>תמונות מצב להשוואה{comparisons.length ? <> · <bdi>{comparisons.length}</bdi> מתוך <bdi>3</bdi></> : null}</h4>
+    {!comparisons.length ? <p>עדיין לא הוספתם תמונות מצב להשוואה. זה אינו מספר תוצאות החיפוש.</p> : null}
+    <p>לחצו „הוסף את המופע להשוואה”, פתחו מופע אחר והוסיפו גם אותו — עד שלוש תמונות מצב. ההשוואה אינה מפעילה חיפוש אוטומטי. נשמרת במעבר בין קלאסי למחקר, אך לא ביציאה מהדף או ברענון.</p>
     <div className="els29-structure-comparisons">{comparisons.map((item, index) => <article key={structureInspectionKey(item)}>
       <h4><bdi>{item.snapshot.term}</bdi></h4>
       <p>{item.origin.corpus === "torah" ? "תורה" : "תנ״ך"} · דילוג <bdi>{item.origin.skip}</bdi> · {item.origin.dir < 0 ? "לאחור" : "קדימה"} · מיקום (מ־0) <bdi>{item.origin.start}</bdi></p>
