@@ -43,6 +43,7 @@ const EarlyAccess2029Page = lazy(() => import("./pages/EarlyAccess2029Page.jsx")
 const Community2029Page = lazy(() => import("./pages/Community2029Page.jsx"));
 const CommunityChatTransition2029Page = lazy(() => import("./pages/CommunityChatTransition2029Page.jsx"));
 const AuthPage = lazy(() => import("./pages/Auth2029Page.jsx"));
+const OAuthCallback2029 = lazy(() => import("./pages/OAuthCallback2029.jsx"));
 
 // Gallery pilot reuses the existing World document route and lock. No parallel
 // document rewrite, global navigation change or Legacy route is introduced.
@@ -222,6 +223,7 @@ export default function App2029() {
               <Route path="/topic/:slug" element={<Locked flag="lock_world" homeHref="/2029"><Topic2029Page /></Locked>} />
               <Route path="/2029/posts" element={<Posts2029Page />} />
               <Route path="/login" element={<AuthPage />} />
+              <Route path="/auth/callback" element={<OAuthCallback2029 />} />
               <Route path="/community/chat" element={<CommunityChatTransition2029Page />} />
               <Route path="/2029/journey" element={<Locked flag="lock_life_journey" requireFlag homeHref="/2029"><LifeJourney2029Page /></Locked>} />
               <Route path="/post/:slug" element={<Post2029Page />} />

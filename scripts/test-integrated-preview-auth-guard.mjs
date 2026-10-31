@@ -10,12 +10,14 @@ const builder = await readFile(new URL('./build-integrated-preview.mjs', import.
 const vercelConfig = JSON.parse(await readFile(new URL('../vercel.json', import.meta.url), 'utf8'));
 const source = builder.slice(builder.indexOf('const allow ='), builder.indexOf('await writeFile(resolve(output, "preview-readonly-sw.js")'));
 const postsBranch = 'gpt/posts-integrated-backgrounds-20261030';
+const functionalBranch = 'gpt/2029-functional-unified-preview-20261031';
+const functionalWorker = vm.runInNewContext(`${source}\nworker;`, { COMMUNITY_UPLOAD_POLICY, AVATAR_UPLOAD_POLICY, process: {env:{VERCEL_ENV:'preview',VERCEL_GIT_COMMIT_REF:functionalBranch}} });
 const worker = vm.runInNewContext(`${source}\nworker;`, { COMMUNITY_UPLOAD_POLICY, AVATAR_UPLOAD_POLICY });
 async function request(path, { method = 'POST', body, rawBody, headers, serverUser = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', serverConfirmed = true, replyContext = undefined, contextStatus = 200, origin = 'https://linswmnnkjxvweumprav.supabase.co', workerSource = worker } = {}) {
   let handler, response, forwarded = 0;
   vm.runInNewContext(workerSource, {
     self: { location: {origin:'https://preview.invalid'}, addEventListener: (name, fn) => { if (name === 'fetch') handler = fn; } },
-    URL, Response,
+    URL, Response, Request, atob,
     fetch: async target => { forwarded++; const path=new URL(typeof target === 'string' ? target : target.url).pathname; if(path==='/rest/v1/rpc/community_message_context')return new Response(JSON.stringify(replyContext === undefined ? [{id:body?.p_parent}] : replyContext),{status:contextStatus}); return path === '/auth/v1/user' ? new Response(JSON.stringify(serverUser ? {id:serverUser,email_confirmed_at:serverConfirmed?'2026-10-31T00:00:00Z':null} : {}), {status:serverUser?200:401}) : new Response('{}', { status: 200 }); },
   });
   handler({ request: new Request(origin + path, { method, headers, ...(rawBody !== undefined ? { body:rawBody } : body === undefined ? {} : { body: JSON.stringify(body) }) }), respondWith: (value) => { response = value; } });
@@ -31,6 +33,26 @@ test('existing accounts can sign in, refresh, read identity and sign out locally
     ['/auth/v1/otp', { body: { email: 'test@example.invalid', create_user: false } }],
     ['/auth/v1/verify', { body: { email: 'test@example.invalid', type: 'email', token: '123456' } }],
   ]) assert.deepEqual(await request(path, options), { status: 200, forwarded: 1, blocked: null }, path);
+});
+test('functional Preview admits verified own Person, state and item writes without widening old previews', async () => {
+  const headers={Authorization:'Bearer e30.e30.synthetic-signature'};
+  for(const rpc of ['fn_get_or_create_my_person','research_state_apply_ops_v1','fn_research_path_append_v1']){
+    assert.deepEqual(await request('/rest/v1/rpc/'+rpc,{workerSource:functionalWorker,headers,body:{}}),{status:200,forwarded:2,blocked:null});
+    assert.equal((await request('/rest/v1/rpc/'+rpc,{workerSource:functionalWorker,body:{}})).status,403);
+    assert.equal((await request('/rest/v1/rpc/'+rpc,{workerSource:functionalWorker,headers,serverUser:null,body:{}})).status,403);
+  }
+  assert.equal((await request('/rest/v1/research_items',{workerSource:functionalWorker,headers,body:{user_id:'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',bucket:'hint',title:'synthetic'}})).status,200);
+  for(const row of [{user_id:'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',bucket:'hint'},{user_id:'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',media:[]}])assert.equal((await request('/rest/v1/research_items',{workerSource:functionalWorker,headers,body:row})).status,403);
+  assert.equal((await request('/rest/v1/research_items?id=eq.aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',{workerSource:functionalWorker,headers,method:'PATCH',body:{user_id:'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb'}})).status,403);
+  for(const rpc of ['admin_research_set_publication_v1','arbitrary_write','private_research_item_hint_media_bind'])assert.equal((await request('/rest/v1/rpc/'+rpc,{workerSource:functionalWorker,headers,body:{}})).status,403);
+});
+test('functional Preview permits deliberate signup, never phone signup or arbitrary media operations',async()=>{
+  assert.equal((await request('/auth/v1/otp',{workerSource:functionalWorker,body:{email:'fixture@example.invalid',create_user:true}})).status,200);
+  assert.equal((await request('/auth/v1/otp',{workerSource:functionalWorker,body:{phone:'+10000000000',create_user:true}})).status,403);
+  const headers={Authorization:'Bearer e30.e30.synthetic-signature'};
+  for(const op of ['page','verify','verify_batch'])assert.equal((await request('/functions/v1/els-search-bridge',{workerSource:functionalWorker,headers,body:{op}})).status,200);
+  assert.equal((await request('/functions/v1/els-search-bridge',{workerSource:functionalWorker,headers,body:{op:'save'}})).status,403);
+  assert.equal((await request('/functions/v1/media-upload-intent',{workerSource:functionalWorker,headers,body:{action:'issue',owner_kind:'public',kind:'image'}})).status,403);
 });
 test('signup, global logout, account mutation, other grants and origins stay blocked', async () => {
   for (const [path, options] of [

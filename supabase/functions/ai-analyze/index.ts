@@ -10,6 +10,7 @@ import { runElsMatrixReadingOperation, razielReadingAnswer, READING_CAPABILITY, 
 import { normalizeElsMatrixReadingAction } from "../_shared/elsMatrixReadingAction.js";
 import { ELS_RAZIEL_GROUNDING, normalizeElsRazielOccurrence, sameElsRazielOccurrence } from "../_shared/elsRazielOccurrenceContext.js";
 import { readElsRazielReadingContext, elsRazielReadingText } from "../_shared/elsRazielReadingContext.js";
+import { verifyFunctionalPreviewIdentity } from "../_shared/functionalPreviewIdentity.js";
 // ai-analyze — ניתוח AI גנרי. fast=true → Haiku (מהיר, לכלים אינטראקטיביים); אחרת Sonnet (עומק).
 // יושר: מפרש רק עובדות שסופקו, לא מחשב גימטריה, מפריד עובדה מפרשנות, בלי נבואות.
 //
@@ -2789,13 +2790,17 @@ Deno.serve(async (req: Request) => {
       // RAZIEL_VIEW_MODE_V1: only the 2029 canonical contract can select a non-general observation mode.
       const rViewMode: RazielViewMode = rCanonicalResearchOptIn ? normalizeRazielViewMode(body?.view_mode) : "general";
       const { identity, tier } = rTrusted ? { identity: rTrusted.identity, tier: rTrusted.tier } : await resolveIdentity(req, body);
+      const functionalPreviewIdentity = !rTrusted && await verifyFunctionalPreviewIdentity(
+        req.headers.get("x-sod-preview-identity"),
+        { userRef: identity.startsWith("u:") ? identity.slice(2) : null },
+      );
       // Website launch availability applies to every site Raziel path, including
       // deterministic answers and advanced mode. The verified WhatsApp adapter
       // has its own channel owner and is outside this site-only launch gate.
       if (!rTrusted) {
         const availability = await traceRpc("fn_capability_execution_gate_v1", {
           p_capability: "ai-analyze:raziel:site",
-          p_flag_key: "lock_raziel_site",
+          p_flag_key: functionalPreviewIdentity ? null : "lock_raziel_site",
           p_required_entitlement: "public",
           p_user_ref: identity.startsWith("u:") ? identity.slice(2) : null,
           p_visitor: identity.startsWith("v:") ? identity.slice(2) : null,
@@ -2823,7 +2828,7 @@ Deno.serve(async (req: Request) => {
       if (rMatrixReading) {
         // Central integration keeps the administrator experiment OFF unless explicitly configured.
         // Historical source-branch trial defaults do not authorize enabling it here.
-        const rReadingEnabled = Deno.env.get("ELS_MATRIX_READING_ENABLED") ?? "off";
+        const rReadingEnabled = Deno.env.get("ELS_MATRIX_READING_ENABLED") ?? (functionalPreviewIdentity ? "on" : "off");
         // Exits before the ordinary Raziel planner, tools, memory, Metatron, quota and research-run: no ordinary model call is made on this path.
         // The operational trace is opened lazily, only when a span worth recording exists (a start, a collection, a cancel), never for a poll that is still running.
         const readingTrace: { current: OperationalTraceHandle | null } = { current: null };

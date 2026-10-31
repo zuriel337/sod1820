@@ -13,12 +13,17 @@ if ([END_TO_END_BRANCH, "gpt/2029-unified-performance-consolidation-20261031", "
 }
 
 const POSTS_PREVIEW_BRANCH = "gpt/posts-integrated-backgrounds-20261030";
+if (process.env.VERCEL_GIT_COMMIT_REF === "gpt/2029-functional-unified-preview-20261031" && process.env.VERCEL_ENV !== "preview") {
+  throw new Error("functional_preview_requires_preview_environment");
+}
 if (process.env.VERCEL_GIT_COMMIT_REF === POSTS_PREVIEW_BRANCH && process.env.VERCEL_ENV === "production") {
   throw new Error("posts_preview_is_never_production");
 }
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 const output = resolve(root, "preview-deploy/dist");
+const functionalPreviewBuild = process.env.VERCEL_ENV === "preview"
+  && process.env.VERCEL_GIT_COMMIT_REF === "gpt/2029-functional-unified-preview-20261031";
 process.env.SOD_BUILD_TARGET = "2029";
 // Same source/content gate used by the regular builds; no Preview exemption.
 execFileSync(process.execPath, [resolve(root, "scripts/test-one-tree-content-contract.mjs")], { cwd: root, stdio: "inherit" });
@@ -27,13 +32,91 @@ await build({ root, define: {
   "import.meta.env.VITE_KINGDOM_PREVIEW": '"true"',
   "import.meta.env.VITE_BOOK_PUBLICATION_REVIEW_PREVIEW": '"true"',
   "import.meta.env.VITE_UNLOCKED_2029_PREVIEW": '"true"',
+  "import.meta.env.VITE_FUNCTIONAL_UNIFIED_PREVIEW": JSON.stringify(functionalPreviewBuild ? "true" : "false"),
 }, build: { outDir: output, emptyOutDir: true, manifest: true } });
 
 const allow = ["gematria_api", "fn_method_value", "fn_method_profile", "gematria_method_trace", "fn_zero_scale", "posts_by_number_strict", "fn_number_lookup", "fn_number_dossier", "fn_number_journey", "fn_verses_by_gematria", "lang_links_list", "number_neighbors", "fn_all_methods", "world_group_source_arrivals_v2", "rd_is_admin", "fn_list_family", "fn_name_protocol", "fn_cross_research"];
+const functionalPreview = typeof process !== "undefined" && process.env.VERCEL_ENV === "preview"
+  && process.env.VERCEL_GIT_COMMIT_REF === "gpt/2029-functional-unified-preview-20261031";
+// This is a transport boundary, never an alternative to canonical server Auth/RLS.
+// New functionality belongs only to the explicitly authorized Preview branch.
+function interceptFunctionalPreview(event, { req, u, rpc, authOrigin }) {
+  const mutating = !["GET", "HEAD", "OPTIONS"].includes(req.method);
+  const personRpcs = new Set(["fn_get_or_create_my_person", "fn_upsert_self_profile", "fn_upsert_family_member", "fn_upsert_family_relation"]);
+  const stateRpcs = new Set(["research_state_snapshot_v1", "research_state_apply_ops_v1", "fn_research_path_resume_v1", "fn_research_path_append_v1", "fn_research_path_fork_v1"]);
+  const hintMedia = u.origin === authOrigin && u.pathname === "/functions/v1/media-upload-intent";
+  const els = u.origin === authOrigin && u.pathname === "/functions/v1/els-search-bridge";
+  const researchItems = u.origin === authOrigin && u.pathname === "/rest/v1/research_items" && mutating;
+  const signup = u.origin === authOrigin && req.method === "POST" && ["/auth/v1/otp", "/auth/v1/signup"].includes(u.pathname);
+  const razielProxy = u.origin === self.location?.origin && u.pathname === "/api/preview-raziel";
+  const privateTus = u.origin === "https://linswmnnkjxvweumprav.storage.supabase.co" && /^\/storage\/v1\/upload\/resumable(?:\/[^/?#]+)?$/.test(u.pathname) && mutating;
+  if (!(signup || hintMedia || els || privateTus || researchItems || razielProxy || (u.origin === authOrigin && (personRpcs.has(rpc) || stateRpcs.has(rpc))))) return false;
+  event.respondWith((async () => {
+    const denied = reason => new Response(JSON.stringify({ error: reason || "preview_operation_denied" }), { status: 403, headers: { "Content-Type": "application/json", "X-Preview-Write-Blocked": "true" } });
+    try {
+      if (privateTus) {
+        const signature = req.headers.get("x-signature") || "";
+        if (!["POST", "PATCH"].includes(req.method) || signature.length < 30 || signature.length > 4096 || req.headers.get("Tus-Resumable") !== "1.0.0" || u.search) return denied();
+        if (req.method === "POST") {
+          const metadata = new Map((req.headers.get("Upload-Metadata") || "").split(",").map(pair => { const [key, value] = pair.trim().split(" "); return [key, atob(value || "")]; }));
+          const size = Number(req.headers.get("Upload-Length"));
+          if (metadata.get("bucketName") !== "submission-inbox" || !/^sod1820\/2029\/accounts\/[0-9a-f-]{36}\//i.test(metadata.get("objectName") || "") || !metadata.get("contentType")?.startsWith("image/") || !(size > 0 && size <= 25 * 1024 * 1024)) return denied();
+        }
+        return fetch(req); // Storage validates the server-signed capability for this exact object.
+      }
+      if (signup) {
+        const body = await req.clone().json();
+        if (!body || typeof body.email !== "string" || !body.email.includes("@") || body.phone) return denied();
+        return fetch(req); // Supabase owns confirmation, provider configuration and rate limits.
+      }
+      if (req.method !== "POST" && !researchItems) return denied();
+      const bearer = req.headers.get("Authorization") || "";
+      if (!/^Bearer [A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/i.test(bearer)) return denied("authentication_required");
+      const authResponse = await fetch(authOrigin + "/auth/v1/user", { headers: { apikey: req.headers.get("apikey") || "", Authorization: bearer }, credentials: "omit" });
+      if (!authResponse.ok) return denied("authentication_required");
+      const user = await authResponse.json();
+      if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(user?.id || "")) return denied();
+      const raw = req.method === "DELETE" ? "{}" : await req.clone().text();
+      if (raw.length > 100000) return denied("payload_too_large");
+      const body = JSON.parse(raw || "{}");
+      if (razielProxy) {
+        if(u.search || body?.kind!=="research" || body?.persona!=="raziel" || body?.research_contract!=="public-number-research-run-v1" || typeof body.subject!=="string" || !body.subject.trim() || Array.from(body.subject).length>300) return denied();
+        return fetch(req); // Same-origin server verifies platform identity; Edge owns quotas and receipts.
+      }
+      if (els) {
+        if (!body || !["page", "verify", "verify_batch"].includes(body.op) || u.search) return denied();
+        return fetch(req); // Canonical bridge validates scope, bounds, permission and trace persistence.
+      }
+      if (hintMedia) {
+        const operations = new Set(["issue", "verify_hint_media", "bind_hint_media", "read_hint_media", "detach_hint_media", "retry_hint_media_cleanup", "delete_hint", "retry_hint_delete_cleanup"]);
+        if (!operations.has(body?.action) || (body.action === "issue" && (body.owner_kind !== "research_item_hint" || body.kind !== "image")) || u.search) return denied();
+        return fetch(req); // Server verifies owner, signed receipts, private bindings and cleanup.
+      }
+      if (personRpcs.has(rpc) || stateRpcs.has(rpc)) {
+        if (!body || Array.isArray(body) || typeof body !== "object" || u.search || (rpc === "fn_get_or_create_my_person" && Object.keys(body).length)) return denied();
+        return fetch(req); // Existing functions derive identity from auth.uid(), never client role claims.
+      }
+      if (researchItems) {
+        const keys = new Set(["id", "user_id", "bucket", "entity_ref", "title", "link", "metadata"]);
+        if (req.method === "POST") {
+          const rows = Array.isArray(body) ? body : [body];
+          if (!rows.length || rows.length > 50 || rows.some(row => !row || row.user_id !== user.id || Object.keys(row).some(key => !keys.has(key)))) return denied("owned_item_required");
+          return fetch(req);
+        }
+        if (!["PATCH", "DELETE"].includes(req.method) || !/^eq\.[0-9a-f-]{36}$/i.test(u.searchParams.get("id") || "")) return denied();
+        if (req.method === "PATCH" && (Array.isArray(body) || Object.keys(body).some(key => !["title", "link", "metadata"].includes(key)))) return denied();
+        const owned = new URL(u); owned.searchParams.set("user_id", "eq." + user.id);
+        return fetch(new Request(owned.href, req));
+      }
+      return denied();
+    } catch { return denied(); }
+  })());
+  return true;
+}
 // One explicit, authenticated user turn may reach the EXISTING live server.
 // This is not an Edge rollout, matrix job allowance or product-write exemption.
 const realRazielPreview = typeof process !== "undefined" && process.env.VERCEL_ENV === "preview"
-  && ["gpt/2029-unified-end-to-end-preview-20261031", "gpt/2029-unified-community-latest-integration-20261031", "gpt/2029-unified-performance-consolidation-20261031", "gpt/2029-home-loading-acceptance-20261031"].includes(process.env.VERCEL_GIT_COMMIT_REF);
+  && ["gpt/2029-unified-end-to-end-preview-20261031", "gpt/2029-unified-community-latest-integration-20261031", "gpt/2029-unified-performance-consolidation-20261031", "gpt/2029-home-loading-acceptance-20261031", "gpt/2029-functional-unified-preview-20261031"].includes(process.env.VERCEL_GIT_COMMIT_REF);
 const endToEndReadOnly = typeof process !== "undefined"
   && ["gpt/2029-unified-end-to-end-preview-20261031", "gpt/2029-unified-community-latest-integration-20261031", "gpt/2029-unified-performance-consolidation-20261031", "gpt/2029-home-loading-acceptance-20261031"].includes(process.env.VERCEL_GIT_COMMIT_REF);
 // The Preview is restricted to existing accounts. This identity RPC is forwarded so an
@@ -48,14 +131,16 @@ const communityFields = "id,parent_id,author_name,author_user_id,author_contribu
 // messages through the reviewed server RPCs. No general write or model allowance.
 const communityMessageManagement = typeof process !== "undefined"
   && process.env.VERCEL_ENV === "preview"
-  && ["gpt/community-server-auth-20261031", "gpt/community-auth-publish-media-20261031", "gpt/2029-unified-community-latest-integration-20261031", "gpt/2029-unified-performance-consolidation-20261031", "gpt/2029-home-loading-acceptance-20261031"].includes(process.env.VERCEL_GIT_COMMIT_REF);
+  && ["gpt/community-server-auth-20261031", "gpt/community-auth-publish-media-20261031", "gpt/2029-unified-community-latest-integration-20261031", "gpt/2029-unified-performance-consolidation-20261031", "gpt/2029-home-loading-acceptance-20261031", "gpt/2029-functional-unified-preview-20261031"].includes(process.env.VERCEL_GIT_COMMIT_REF);
 const communityPublishing = typeof process !== "undefined" && process.env.VERCEL_ENV === "preview"
-  && ["gpt/community-auth-publish-media-20261031", "gpt/2029-unified-community-latest-integration-20261031", "gpt/2029-unified-performance-consolidation-20261031", "gpt/2029-home-loading-acceptance-20261031"].includes(process.env.VERCEL_GIT_COMMIT_REF);
+  && ["gpt/community-auth-publish-media-20261031", "gpt/2029-unified-community-latest-integration-20261031", "gpt/2029-unified-performance-consolidation-20261031", "gpt/2029-home-loading-acceptance-20261031", "gpt/2029-functional-unified-preview-20261031"].includes(process.env.VERCEL_GIT_COMMIT_REF);
 // The unified working preview must not create Person records or record ELS traces.
 const unifiedReadOnly = typeof process !== "undefined" && ["gpt/2029-central-unified-workspace-20261029", "gpt/2029-central-shell-alignment-20261029", "gpt/2029-central-topbar-menu-completion-20261029", "gpt/2029-central-ui-carry-restoration-20261029", "gpt/2029-central-community-filter-tiles-20261029", "gpt/2029-central-community-small-filters-20261029", "gpt/2029-central-single-command-bar-20261029", "gpt/2029-central-public-context-labels-20261029", "gpt/2029-central-zvi-public-material-20261029", "gpt/2029-central-zvi-research-experience-20261029", "gpt/2029-central-zvi-world-source-tree-20261030", "gpt/elections-world-seed-integration-20261030", "gpt/posts-integrated-backgrounds-20261030", "gpt/2029-central-posts-els-raziel-integration-20261031"].includes(process.env.VERCEL_GIT_COMMIT_REF);
 const worker = `const reads = new Set(${JSON.stringify(allow)});
+const functionalPreview=${JSON.stringify(functionalPreview)};
+${interceptFunctionalPreview.toString()}
 const existingPersonAccess=${JSON.stringify(existingPersonAccess)};
-const unifiedReadOnly=${JSON.stringify(unifiedReadOnly || communityMessageManagement || endToEndReadOnly)};
+const unifiedReadOnly=${JSON.stringify((unifiedReadOnly || communityMessageManagement || endToEndReadOnly) && !functionalPreview)};
 const realRazielPreview=${JSON.stringify(realRazielPreview)};
 const communityMessageManagement=${JSON.stringify(communityMessageManagement)};
 const communityPublishing=${JSON.stringify(communityPublishing)};
@@ -68,6 +153,7 @@ self.addEventListener('install',()=>self.skipWaiting());
 self.addEventListener('activate',event=>event.waitUntil(self.clients.claim()));
 self.addEventListener('fetch',event=>{
  const req=event.request,u=new URL(req.url),rpc=u.pathname.match(/^\\/rest\\/v1\\/rpc\\/(.+)$/)?.[1];
+ if(functionalPreview&&interceptFunctionalPreview(event,{req,u,rpc,authOrigin}))return;
  if(req.method==='OPTIONS')return;
  if(u.origin===authOrigin&&rpc==='community_replies_page'&&communityPublishing){
   event.respondWith((async()=>{

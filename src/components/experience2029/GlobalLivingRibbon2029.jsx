@@ -50,7 +50,12 @@ export default function GlobalLivingRibbon2029({ feed, onOpen, preview = false }
     const timer = window.setInterval(() => { if (mobile.matches && !reduced.matches) setIndex(i => (i + 1) % items.length); }, 8000);
     return () => window.clearInterval(timer);
   }, [items.length, paused, focused, quiet]);
-  if (!items.length) return null;
+  // Keep the header's geometry stable while the shared reader or Preview notice loads.
+  // Loading, failed and genuinely empty feeds remain distinct from a result.
+  if (!items.length) return <section className="sod29-living-ribbon is-pending" aria-label="פס הגילויים החיים" aria-busy={feed?.loading !== false} data-ribbon-state={feed?.error ? "unavailable" : feed?.loading !== false ? "loading" : "empty"}>
+    <span className="sod29-living-mark" aria-hidden="true">✦</span>
+    <span role="status">{feed?.error ? "העדכונים אינם זמינים כרגע" : feed?.loading !== false ? "טוען עדכונים…" : "אין עדכונים חדשים כרגע"}</span>
+  </section>;
   const itemButton = item => <button type="button" className="sod29-living-item" onClick={() => onOpen(item.detail)}><span>{item.typeLabel}</span><bdi>{item.title}</bdi></button>;
   if (quiet) return <section className="sod29-living-ribbon is-quiet" aria-label="פס הגילויים החיים"><button type="button" className="sod29-living-pause" onClick={() => setQuiet(false)} aria-label="הרחב את פס הגילויים">✦</button></section>;
   return <section className="sod29-living-ribbon" aria-label="פס הגילויים החיים" dir="rtl" onFocusCapture={() => setFocused(true)} onBlurCapture={event => { if (!event.currentTarget.contains(event.relatedTarget)) setFocused(false); }}>

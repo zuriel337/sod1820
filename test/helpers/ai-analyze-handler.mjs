@@ -28,6 +28,7 @@ import { runElsMatrixReadingOperation, razielReadingAnswer, READING_CAPABILITY, 
 import { normalizeElsMatrixReadingAction } from "../../supabase/functions/_shared/elsMatrixReadingAction.js";
 import { ELS_RAZIEL_GROUNDING, normalizeElsRazielOccurrence, sameElsRazielOccurrence } from "../../supabase/functions/_shared/elsRazielOccurrenceContext.js";
 import { readElsRazielReadingContext, elsRazielReadingText } from "../../supabase/functions/_shared/elsRazielReadingContext.js";
+import { verifyFunctionalPreviewIdentity } from "../../supabase/functions/_shared/functionalPreviewIdentity.js";
 
 export const UID = "11111111-2222-4333-8444-555555555555";
 export const OTHER_UID = "aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee";
@@ -69,7 +70,7 @@ export async function runAiAnalyze({
   researchBundleByExpression = {},
   elsVerifyStatus = null,
   researchRunFailure = null, legacyContext = null, genericProviderText = null,
-  role = "user", extraRoute = null, envOverrides = {},
+  role = "user", extraRoute = null, envOverrides = {}, previewIdentity = null, previewVerifier = verifyFunctionalPreviewIdentity,
   source = readFileSync(new URL("../../supabase/functions/ai-analyze/index.ts", import.meta.url), "utf8"),
 } = {}) {
   const calls = [], models = [], unexpected = [];
@@ -113,7 +114,7 @@ export async function runAiAnalyze({
         switch (name) {
           case "fn_capability_execution_gate_v1":
             if (payload.p_capability === "ai-analyze:raziel:site") {
-              assert.equal(payload.p_flag_key, "lock_raziel_site");
+              assert.equal(payload.p_flag_key, previewIdentity?.verified ? null : "lock_raziel_site");
               assert.equal(payload.p_required_entitlement, "public");
               assert.equal(payload.p_budget_kind, "none");
               return response({ allowed: siteAllowed, availability: {
@@ -159,7 +160,7 @@ export async function runAiAnalyze({
     ...envOverrides,
   };
   const imports = [...source.matchAll(/^import .*;$/gm)].map(([line]) => line);
-  assert.equal(imports.length, 12, "review any new handler dependency before mocking it");
+  assert.equal(imports.length, 13, "review any new handler dependency before mocking it");
   assert.ok(imports[0].includes('import { callClaudeReliable }'));
   assert.ok(imports[1].includes('import { selectRazielIntelligence, RAZIEL_LEVELS }'));
   assert.ok(imports[2].includes('import { whatsappSurfaceProfileText, continuationHrefFromSurface }'));
@@ -178,6 +179,7 @@ export async function runAiAnalyze({
   assert.ok(imports[9].includes('normalizeElsMatrixReadingAction'));
   assert.ok(imports[10].includes('normalizeElsRazielOccurrence'));
   assert.ok(imports[11].includes('readElsRazielReadingContext'));
+  assert.equal(imports[12], 'import { verifyFunctionalPreviewIdentity } from "../_shared/functionalPreviewIdentity.js";');
   let handler;
   runInNewContext(stripTypeScriptTypes(source.replace(/^import .*;\n/gm, "")), {
     Deno: { env: { get: (key) => env[key] }, serve: (fn) => { handler = fn; } },
@@ -185,6 +187,7 @@ export async function runAiAnalyze({
     crypto: { randomUUID }, selectRazielIntelligence, RAZIEL_LEVELS,
     whatsappSurfaceProfileText, continuationHrefFromSurface,
     supabaseServiceHeaders,
+    verifyFunctionalPreviewIdentity: previewVerifier,
     buildRazielResultBundleConsumer,
     buildRazielGroundedSourceComposer,
     razielMethodLayerNumbers,
@@ -213,7 +216,7 @@ export async function runAiAnalyze({
   }, { filename: "ai-analyze/index.ts", timeout: 5000 });
   assert.equal(typeof handler, "function");
   const res = await handler(new Request("https://fixture.invalid/functions/v1/ai-analyze", {
-    method: "POST", headers: { "Content-Type": "application/json", ...(bearer ? { Authorization: `Bearer ${bearer}` } : {}) },
+    method: "POST", headers: { "Content-Type": "application/json", ...(bearer ? { Authorization: `Bearer ${bearer}` } : {}), ...(previewIdentity?.token ? {'x-sod-preview-identity':previewIdentity.token} : {}) },
     body: JSON.stringify({ persona: "raziel", subject: PRIVATE, visitor_id: "fixture-visitor", ...body }),
   }));
   const result = await res.json();

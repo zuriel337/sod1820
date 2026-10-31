@@ -13,7 +13,21 @@ export function safeOAuthReturnPath(returnTo) {
   } catch { return '/'; }
 }
 
-export function providerOAuthRequest({ provider = 'google', origin, returnTo = '/', integratedPreview = false, verifiedPreviewOrigins } = {}) {
+export const PREVIEW_OAUTH_RETURN_KEY = 'sod2029_oauth_return';
+export function rememberPreviewOAuthReturn(returnTo, storage = globalThis.sessionStorage, now = Date.now()) {
+  storage?.setItem(PREVIEW_OAUTH_RETURN_KEY, JSON.stringify({path:safeOAuthReturnPath(returnTo),createdAt:now}));
+}
+export function consumePreviewOAuthReturn(storage = globalThis.sessionStorage, now = Date.now()) {
+  try {
+    const raw=storage?.getItem(PREVIEW_OAUTH_RETURN_KEY);storage?.removeItem(PREVIEW_OAUTH_RETURN_KEY);
+    const value=JSON.parse(raw||'null');
+    if(!value||!Number.isFinite(value.createdAt)||now-value.createdAt<0||now-value.createdAt>10*60*1000)return '/2029';
+    const path=safeOAuthReturnPath(value.path);
+    return path==='/'||path.startsWith('/auth/callback')?'/2029':path;
+  } catch{return '/2029';}
+}
+
+export function providerOAuthRequest({ provider = 'google', origin, returnTo = '/', integratedPreview = false, verifiedPreviewOrigins, functionalPreview = import.meta.env?.VITE_FUNCTIONAL_UNIFIED_PREVIEW === 'true' } = {}) {
   if (typeof provider !== 'string' || !/^[a-z][a-z0-9_]*$/.test(provider) || ['email', 'phone', 'anonymous'].includes(provider)) throw new Error('invalid_oauth_provider');
   const site = new URL(origin);
   if (!['https:', 'http:'].includes(site.protocol) || site.origin !== origin) {
@@ -31,7 +45,7 @@ export function providerOAuthRequest({ provider = 'google', origin, returnTo = '
     error.code = 'OAUTH_PREVIEW_UNVERIFIED';
     throw error;
   }
-  return { provider, options: { redirectTo: origin + safeOAuthReturnPath(returnTo), ...(provider === 'facebook' ? { scopes: 'email public_profile' } : {}) } };
+  return { provider, options: { redirectTo: origin + (functionalPreview ? '/auth/callback' : safeOAuthReturnPath(returnTo)), ...(provider === 'facebook' ? { scopes: 'email public_profile' } : {}) } };
 }
 
 export function googleOAuthRequest(args) { return providerOAuthRequest({ ...args, provider: 'google' }); }

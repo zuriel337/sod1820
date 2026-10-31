@@ -1,6 +1,6 @@
 import { supabase } from './supabase.js';
 import { signupAttribution, visitorId } from './acquisition.js';
-import { googleOAuthRequest, providerOAuthRequest } from './oauthReturn.js';
+import { providerOAuthRequest, rememberPreviewOAuthReturn } from './oauthReturn.js';
 
 const SITE_URL = typeof window !== 'undefined' ? window.location.origin : '';
 // 🌱 עץ אחד: כלכלה (credits/xp/level) נקראת מ-profiles הקנונית (getMyProfile), לא מ-users.
@@ -9,25 +9,19 @@ const PROFILE_COLS = 'id, username, display_name, avatar_url, tier, role, create
 
 // ── מערכת המשתמשים (Google + Magic Link + פרופילים) ──
 export function signInWithGoogle({ returnTo = '/' } = {}) {
-  const request = googleOAuthRequest({
-    origin: SITE_URL,
-    returnTo,
-    integratedPreview: import.meta.env.VITE_INTEGRATED_PREVIEW === 'true',
-  });
-  return supabase.auth.signInWithOAuth(request);
+  return signInWithConfiguredProvider('google', {returnTo});
 }
 
-export function signInWithFacebook() {
-  return supabase.auth.signInWithOAuth({
-    provider: 'facebook',
-    options: { redirectTo: SITE_URL + '/', scopes: 'email public_profile' },
-  });
+export function signInWithFacebook({returnTo='/'}={}) {
+  return signInWithConfiguredProvider('facebook', {returnTo});
 }
 
 // Shared 2029 entry: provider availability comes from the existing Auth server.
 // All federated methods consume the same trusted-origin and exact-return policy.
 export function signInWithConfiguredProvider(provider, { returnTo = '/' } = {}) {
-  return supabase.auth.signInWithOAuth(providerOAuthRequest({ provider, origin: SITE_URL, returnTo, integratedPreview: import.meta.env.VITE_INTEGRATED_PREVIEW === 'true' }));
+  const request=providerOAuthRequest({ provider, origin: SITE_URL, returnTo, integratedPreview: import.meta.env.VITE_INTEGRATED_PREVIEW === 'true' });
+  if(import.meta.env.VITE_FUNCTIONAL_UNIFIED_PREVIEW === 'true')rememberPreviewOAuthReturn(returnTo);
+  return supabase.auth.signInWithOAuth(request);
 }
 
 // כניסה ישירה עם סיסמה (אדמין) — ללא מייל/הפניה, עובד בכל דומיין

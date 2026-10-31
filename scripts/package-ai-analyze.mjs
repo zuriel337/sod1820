@@ -80,6 +80,7 @@ async function main() {
     "--platform=neutral",
     "--format=esm",
     "--target=es2022",
+    "--external:npm:jose@6.2.13",
     "--minify-syntax",
     `--outfile=${RAW_FILE}`,
     `--metafile=${META_FILE}`,

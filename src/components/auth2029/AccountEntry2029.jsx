@@ -41,7 +41,7 @@ export default function AccountEntry2029({ returnHref = "/2029", inline = false,
     setBusy(true); setError("");
     try {
       if (action === "email") {
-        await requestEmailOtp(address, { shouldCreateUser: !preview });
+        await requestEmailOtp(address, { shouldCreateUser: !preview || import.meta.env.VITE_FUNCTIONAL_UNIFIED_PREVIEW === "true" });
         if (current() && !principal.current) { setEmail(address); setStep("code"); }
       } else {
         const result = action === "password" ? await signInWithPassword(address, password) : await verifyEmailOtp(address, code);

@@ -1420,10 +1420,16 @@ export async function askRaziel({ subject, facts, context = null, path = null, a
     const interactionId = researchContract === 'public-number-research-run-v1' ? aiInteractionId() : null;
     const makeBody = (readingAction = null) => ({ kind: 'research', persona: 'raziel', subject, facts, context, path, again, metatron, visitor_id: aiVisitorId(), ...(level ? { intelligence_level: level } : {}), ...(surfaceSemantic && typeof surfaceSemantic === 'object' ? { surface_semantic: surfaceSemantic } : {}), ...(conversationResolution && typeof conversationResolution === 'object' ? { conversation_resolution: conversationResolution } : {}), ...(researchContract === 'public-number-research-run-v1' ? { research_contract: researchContract, ...(interactionId ? { interaction_id: interactionId } : {}) } : {}), ...(researchContract === 'public-number-research-run-v1' && companionAction && typeof companionAction === 'object' ? { companion_action: companionAction } : {}), ...(researchContract === 'public-number-research-run-v1' && elsPlanningAction && typeof elsPlanningAction === 'object' ? { els_planning_action: elsPlanningAction } : {}), ...(researchContract === 'public-number-research-run-v1' && elsMatrixContext && typeof elsMatrixContext === 'object' ? { els_matrix_context: elsMatrixContext } : {}), ...(researchContract === 'public-number-research-run-v1' && (viewMode === 'landscape' || viewMode === 'exploratory') ? { view_mode: viewMode } : {}), ...(researchContract === 'public-number-research-run-v1' && elsMatrixContext && readingAction && typeof readingAction === 'object' ? { els_matrix_reading_action: readingAction } : {}) });
     // metatron:true → רזיאל נשען על «העץ האחד» (חוקים+גרף) בצד השרת (בטא, opt-in). ברירת-מחדל כבוי.
-    const sendBody = (readingAction = null) => supabase.functions.invoke('ai-analyze', {
-      body: makeBody(readingAction),
-      ...(signal instanceof AbortSignal ? { signal } : {}),
-    });
+    const sendBody = async (readingAction = null) => {
+      if (import.meta.env?.VITE_FUNCTIONAL_UNIFIED_PREVIEW === 'true') {
+        const { invokePreviewRaziel } = await import('./research/functionalPreviewTransport.js');
+        return invokePreviewRaziel({client:supabase,body:makeBody(readingAction),signal});
+      }
+      return supabase.functions.invoke('ai-analyze', {
+        body: makeBody(readingAction),
+        ...(signal instanceof AbortSignal ? { signal } : {}),
+      });
+    };
     let data, error;
     if (elsMatrixReadingAction) {
       // Never reached without the canonical contract and a matrix context (the server refuses anything else); the long leg lives in a lazy module.

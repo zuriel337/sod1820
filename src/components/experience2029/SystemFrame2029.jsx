@@ -2024,12 +2024,14 @@ function SystemFrame2029Body({
     ? { ids: progressSections.map((item) => item.id), index: progressIndex + 1, total: progressSections.length, label: progressSections[progressIndex].label }
     : null;
   // ELS owns its on-demand matrix inspector; avoid a second permanent context column.
-  const showContextRail = surface !== "control" && surface !== "els" && surface !== "community"
+  const showContextRail = surface !== "home" && surface !== "control" && surface !== "els" && surface !== "community"
     && Boolean(activeTarget || context?.subject);
   // Core-public launch permits this source-only Companion, not the admin Context/
   // Golden Projector or Event Sequence. The existing public World/RLS readers remain
   // the only source of truth; gated research and private controls stay inaccessible.
-  const companionActive = companionWide && surface !== "control";
+  // Home's left Companion is withheld by ZURIEL until its contents are decided.
+  // The shared feed remains mounted for the living ribbon and Now.
+  const companionActive = companionWide && surface !== "control" && surface !== "home";
   const companionHasContext = showContextRail && !numberPageRoute;
   const companionHasSequence = !corePublicViewer && hasEventSequence(context, surface);
   const companionPinned = companionPref === "pinned" || (!corePublicViewer && companionPref === null && typeof window !== "undefined" && window.innerWidth >= 1560 && feed.rows.length > 0);
