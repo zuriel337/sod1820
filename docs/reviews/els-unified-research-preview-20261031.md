@@ -36,3 +36,38 @@ AGENTS pin is outside scope and is not repaired. Remote main is unchanged at
 The Preview retains existing live account/AI backend connections; it is not an
 isolated Supabase model environment. No paid scan or live product write is part
 of this acceptance. Deployment identity and hosted evidence follow below.
+
+## AFTER — protected Preview verified
+
+- Runtime SHA `a6d646969ef56346f29e5d59a6106423c8079f4a`, pushed and remote verified.
+- Deployment `dpl_Htho8LnZjW7fmqvvdi4gtkSiEt94`, READY, target null / Preview.
+- URL `https://sod1820-fb94bzrbt-sod1820-s-projects.vercel.app/code?mode=research`.
+  The temporary share URL is delivered in the user conversation, not committed.
+  Project protection remains enabled (`all_except_custom_domains`).
+- New release guard/group tests: 30/30. Integrated Preview build, built graph/
+  lazy budget (eager JS gzip 419,459 bytes), isolation, cheap hardening, Legacy
+  Production lock and diff checks pass. No runtime source changes in this cut.
+- Real hosted Chromium: 320/390/1440 × light/parchment/dark, all nine pass.
+  Exact SHA/branch, existing account/reading transport and `edge_deploy:false`
+  verified from the hosted identity. One unified top-level Research entry and
+  its two actions appear; selected-findings inspection/comparison remains nested.
+  Global Raziel stays inside each viewport, without page horizontal overflow.
+  Zero page errors, model requests or dictionary downloads from opening/reload.
+  Screenshots at 320/day and 1440/day were inspected.
+- Hosted smoke blocks every non-GET/HEAD/OPTIONS request. No live login, save,
+  paid reading, corpus scan or product write was performed. Full scan/group
+  admission is covered by the feature cut's fixture-backed 53/53 browser suite,
+  not represented as a live backend test in this release.
+- All four Production/default aliases were rechecked after deployment and remain
+  at `dpl_AiKPHaoo5pxo9T5PFTpcBRG7LfMA`. Remote main remains unchanged.
+
+Files: exact-branch allowlists in `scripts/lib/matrix-raziel-preview.mjs`,
+`test/raziel-account-preview.test.mjs`, the existing hosted smoke
+`test/els-lexicon-structure-preview.browser.mjs`, and this receipt.
+Later documentation-only HEAD does not alter the deployed runtime SHA.
+
+IMPLEMENTED / TESTED / PROTECTED PREVIEW VERIFIED. No merge, main push,
+Production, Edge, model call or live DB/RLS change. Scope released with this
+passive AFTER to ZURIEL; no live work_log insertion or other-agent dispatch claimed.
+Historical feature-parity and experiment-journal gaps remain as explicitly
+documented in the feature receipt; this release does not claim they are complete.
