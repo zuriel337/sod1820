@@ -96,6 +96,14 @@ test("DS-03/04 source counts, PDF boundaries, CSV, 3D and reload work at 320/390
         assert.equal(await reader.locator("tbody tr").count(), 12);
       }
       // An external dataset selection must switch this same reader, not create a stale second projection.
+      // The source-map legend lives in explicit source details, not the public
+      // reading path. Follow the user's disclosure action before selecting it.
+      const mapSummary = page.locator("summary").filter({ hasText: /^מפת עמודי המקור ופרטי הקריאה$/ });
+      const mapDetails = mapSummary.locator("..");
+      assert.equal(await mapDetails.evaluate(element => element.open), false);
+      await click(mapSummary);
+      assert.equal(await mapDetails.evaluate(element => element.open), true);
+      assert.equal(await page.locator("canvas:not([data-book-pdf-canvas])").count(), 0, "opening source details must not start a model");
       const externalDataset = page.locator(".ahavat29-spatial-legend button").filter({ hasText: "DS-03" });
       await externalDataset.evaluate(element => element.scrollIntoView({ block: "center", behavior: "instant" }));
       await click(externalDataset);

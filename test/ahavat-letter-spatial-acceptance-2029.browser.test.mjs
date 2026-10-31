@@ -12,7 +12,7 @@ const require = createRequire(import.meta.url);
 let playwright, vite, react;
 try { playwright = require("playwright"); vite = await import(pathToFileURL(require.resolve("vite")).href); react = (await import(pathToFileURL(require.resolve("@vitejs/plugin-react")).href)).default; } catch { /* Optional in lightweight checkout. */ }
 const available = Boolean(playwright && vite && react && existsSync("/usr/bin/chromium"));
-const sourcePath = "/tmp/books-wide-ahavat-source-20261028.pdf";
+const sourcePath = process.env.AHAVAT_SOURCE_PDF || "/tmp/books-wide-ahavat-source-20261028.pdf";
 
 async function fixture() {
   process.env.SOD_BUILD_TARGET = "2029"; process.env.VITE_BOOK_PUBLICATION_REVIEW_PREVIEW = "true"; process.env.VITE_INTEGRATED_PREVIEW = "true";
@@ -84,6 +84,15 @@ test("letter selection, source return, scale, scene switching and context loss w
       assert.equal(await toggle.evaluate(element => document.activeElement === element), true, "closing the model must retain keyboard focus on its toggle");
       await page.waitForFunction(() => window.__letterContext?.isContextLost(), null, { timeout: 10_000 });
       await toggle.click(); await reader.locator("canvas:not([data-book-pdf-canvas])").waitFor();
+      // The metadata observatory is deliberately secondary source detail.
+      // Opening that disclosure alone must leave the user's letter model active.
+      const mapSummary = page.locator("summary").filter({ hasText: /^מפת עמודי המקור ופרטי הקריאה$/ });
+      const mapDetails = mapSummary.locator("..");
+      assert.equal(await mapDetails.evaluate(element => element.open), false);
+      await mapSummary.click();
+      assert.equal(await mapDetails.evaluate(element => element.open), true);
+      assert.equal(await reader.locator("canvas:not([data-book-pdf-canvas])").count(), 1);
+      assert.equal(await page.locator("canvas:not([data-book-pdf-canvas])").count(), 1, "source detail disclosure must not allocate another model");
       await page.getByRole("button", { name: "פתח מצפה תלת־ממדי", exact: true }).click();
       await page.locator(".ahavat29-spatial-stage canvas").waitFor();
       assert.equal(await reader.locator("canvas:not([data-book-pdf-canvas])").count(), 0);
