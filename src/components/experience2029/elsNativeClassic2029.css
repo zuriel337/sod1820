@@ -8,6 +8,21 @@
   position:relative;
 }
 .els29-native-classic.is-height-expanded{--els29-stage-height:calc(var(--els29-stage-height-base) * 1.5)}
+.els29-planner-entry{min-width:0;border-top:1px solid var(--s29-line);padding-block:8px}
+.els29-planner-entry>summary{min-height:44px;padding:10px 4px;cursor:pointer;font-size:var(--s29-type-ui);font-weight:700}
+.els29-search-planner{display:grid;gap:12px;min-width:0;font-size:var(--s29-type-body);overflow-wrap:anywhere}
+.els29-search-planner p{margin:0;line-height:1.65}
+.els29-search-planner fieldset{min-width:0;margin:0;padding:8px;border:1px solid var(--s29-line);border-radius:12px;max-height:280px;overflow:auto}
+.els29-search-planner legend{font-size:var(--s29-type-ui);max-width:100%}
+.els29-search-planner label{display:grid;gap:6px;min-width:0}
+.els29-search-planner textarea{width:100%;min-height:88px;resize:vertical;border:1px solid var(--s29-line-strong);border-radius:12px;padding:10px;background:var(--s29-panel);color:var(--s29-ink);font:inherit}
+.els29-search-planner .els29-planner-choice{display:flex;align-items:center;gap:10px;min-height:44px;padding:6px;cursor:pointer;font-size:var(--s29-type-ui)}
+.els29-search-planner .els29-planner-choice input{flex:0 0 20px;width:20px;min-height:20px;height:20px;accent-color:var(--s29-accent);padding:0}
+.els29-search-planner .els29-planner-choice>span{font-size:var(--s29-type-ui);color:var(--s29-ink)}
+.els29-search-planner button{min-height:44px;padding:8px 12px;white-space:normal;overflow-wrap:anywhere;border:1px solid var(--s29-line-strong);border-radius:12px;background:var(--s29-panel-soft);color:var(--s29-ink);font:inherit;font-size:var(--s29-type-ui);cursor:pointer}
+.els29-search-planner button:disabled{opacity:.55;cursor:not-allowed}
+.els29-search-planner :is(button,input,textarea):focus-visible,.els29-planner-entry>summary:focus-visible{outline:2px solid var(--s29-focus-ring);outline-offset:2px}
+.els29-planner-report{display:grid;gap:8px;padding:12px;margin-block:12px;border:1px solid var(--s29-line);border-radius:12px;background:var(--s29-panel-soft)}
 [data-els-2029-surface="v1"].sod29-focus-stage{padding-inline:6px}
 [data-els-2029-surface="v1"].sod29-focus-stage::after{display:none}
 [data-els-classic-2029="native-v1"].sod29-section{padding:6px}

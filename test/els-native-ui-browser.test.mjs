@@ -26,6 +26,107 @@ const executablePath = process.env.CHROMIUM_EXECUTABLE_PATH ||
   (existsSync('/usr/bin/chromium') ? '/usr/bin/chromium' : pw?.chromium.executablePath());
 const canRun = Boolean(pw && vite && react && executablePath && existsSync(executablePath));
 
+test('Research pair preparation is explicit, uses canonical crossed search and leaves Classic clean',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
+  for(const width of [320,390,1440])await withNative({width,height:900},async page=>{
+    const ai=[];page.on('request',request=>{if(/ai-analyze/.test(request.url()))ai.push(request.url());});
+    await page.getByRole('textbox',{name:/^מונח(?: ראשון)?$/}).fill('קולומביה');
+    await page.getByText('הכנת זוגות לחיפוש',{exact:true}).click();
+    const planner=page.getByRole('region',{name:'הכנת זוגות לחיפוש',exact:true});
+    await planner.getByRole('textbox').fill('ספינת\nיכל אש\nספינת');
+    const before=await page.evaluate(()=>window.__hostLog?.filter(x=>x.type==='native-search').length||0);
+    await planner.getByRole('button',{name:'הכן זוגות לחיפוש',exact:true}).click();
+    assert.equal(await planner.getByRole('radio').count(),2);
+    assert.equal(await page.evaluate(()=>window.__hostLog?.filter(x=>x.type==='native-search').length||0),before);
+    assert.equal(page.__elsDynamicLexiconRequests.length,0);
+    // Changing the primary makes the old plan unusable rather than silently running it.
+    await page.getByRole('textbox',{name:/^מונח(?: ראשון)?$/}).fill('שלום');
+    assert.equal(await planner.getByRole('button',{name:'חפש את הזוג שנבחר',exact:true}).count(),0);
+    await page.getByRole('textbox',{name:/^מונח(?: ראשון)?$/}).fill('קולומביה');
+    await page.getByRole('button',{name:'הצלבה בין צירים',exact:true}).click();
+    await page.getByLabel('מרחק מרבי מהציר בהצלבה',{exact:true}).fill('7');
+    await page.getByLabel('מרווח מרבי בין אותיות הממצא בהצלבה',{exact:true}).fill('2');
+    await planner.getByRole('button',{name:'הכן זוגות לחיפוש',exact:true}).click();
+    for(const theme of ['light','parchment','dark']){
+      await page.evaluate(theme=>window.__setThemePreset(theme),theme);
+      assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,`${width}:${theme}`);
+      assert.ok((await planner.locator('button:visible,label.els29-planner-choice').evaluateAll(nodes=>nodes.map(n=>n.getBoundingClientRect().height))).every(h=>h>=44));
+      if(process.env.ELS_PLANNER_SCREENSHOTS)await page.screenshot({path:`${process.env.ELS_PLANNER_SCREENSHOTS}/pairs-${width}-${theme}.png`});
+    }
+    await planner.getByRole('button',{name:'חפש את הזוג שנבחר',exact:true}).click();
+    await page.waitForFunction(count=>(window.__hostLog?.filter(x=>x.type==='native-search').length||0)>count,before);
+    const calls=await page.evaluate(()=>window.__hostLog.filter(x=>x.type==='native-search'));
+    assert.equal(calls.length,before+1);assert.equal(calls.at(-1).request.kind,'cross');
+    assert.equal(calls.at(-1).request.axis,'קולומביה');assert.equal(calls.at(-1).request.term,'ספינת');
+    assert.equal(calls.at(-1).request.radius,7);assert.equal(calls.at(-1).request.maxLetterGap,2);
+    await page.evaluate(()=>{window.__fixtureResearchProfile=false;window.__forceParentRender();});
+    assert.equal(await page.getByText('הכנת זוגות לחיפוש',{exact:true}).count(),0);
+    assert.equal(page.__elsDynamicLexiconRequests.length,0);assert.deepEqual(ai,[]);
+  },{realHost:true});
+ });
+
+test('Research occurrence inspection uses exact loaded axes, is explicit and preserves the matrix',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
+  await withNative({width:320,height:900},async page=>{
+    const ai=[];page.on('request',request=>{if(/ai-analyze/.test(request.url()))ai.push(request.url());});
+    await activate(page,'תוצאות');
+    await page.getByText('בחירת מופעים להעמקה · עד שלושה',{exact:true}).click();
+    const planner=page.getByRole('region',{name:'בחירת מופעים להעמקה',exact:true});
+    await planner.getByRole('checkbox').first().check();
+    assert.equal(page.__elsDynamicLexiconRequests.length,0,'no heavy load on opening or selection');
+    const before=await page.evaluate(()=>window.__state);
+    await planner.getByRole('button',{name:'בדוק את המופעים שנבחרו',exact:true}).click();
+    await planner.getByText(/הבדיקה המבוקשת הסתיימה/).waitFor({timeout:60000});
+    const lens=await page.evaluate(()=>window.__lens);
+    assert.equal(lens.ok,true);assert.equal(lens.target.hitId,before.search.occurrences.items[0].hitId);
+    assert.equal(page.__elsDynamicLexiconRequests.length,1);
+    assert.deepEqual((await page.evaluate(()=>window.__state)).axis,before.axis);
+    assert.deepEqual((await page.evaluate(()=>window.__state)).findings,before.findings);
+    for(const theme of ['light','parchment','dark']){
+      await page.evaluate(theme=>window.__setThemePreset(theme),theme);
+      assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,theme);
+      if(process.env.ELS_PLANNER_SCREENSHOTS)await page.screenshot({path:`${process.env.ELS_PLANNER_SCREENSHOTS}/inspection-320-${theme}.png`});
+    }
+    await planner.getByRole('button',{name:/פתח מופע .* להעמקה/}).first().click();
+    assert.equal(await page.evaluate(()=>window.__state.axis.hitId),lens.target.hitId);
+    assert.deepEqual(ai,[]);
+  },{realHost:true});
+ });
+
+test('Research occurrence queue caps selection, cancels late work and resets on a new results page',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:120000},async()=>{
+  await withNative({width:390,height:900},async page=>{
+    await page.getByRole('textbox',{name:/^מונח(?: ראשון)?$/}).fill('יהוה');await activate(page,'חפש');
+    await page.waitForFunction(()=>window.__operation?.status==='done'&&window.__state.search.occurrences.items.length===80,null,{timeout:60000});
+    await page.getByText('בחירת מופעים להעמקה · עד שלושה',{exact:true}).click();
+    const planner=page.getByRole('region',{name:'בחירת מופעים להעמקה',exact:true});
+    for(let i=0;i<3;i++)await planner.getByRole('checkbox').nth(i).check();
+    assert.equal(await planner.getByRole('checkbox').nth(3).isDisabled(),true);
+    let release,intercepted;
+    const held=new Promise(resolve=>{release=resolve;});const requested=new Promise(resolve=>{intercepted=resolve;});
+    await page.route('**/els-dynamic-lexicon-v1.gz64.txt*',async route=>{intercepted();await held;await route.continue();});
+    await planner.getByRole('button',{name:'בדוק את המופעים שנבחרו',exact:true}).click();await requested;
+    await planner.getByRole('button',{name:'בטל פעולה',exact:true}).click();
+    await page.waitForFunction(()=>window.__hostLog.some(x=>x.type==='request-lens'&&x.target?.researchOccurrenceInspection&&x.target.cancel));
+    release();
+    await planner.getByText(/הבדיקה הופסקה/).waitFor();
+    assert.equal(await planner.locator('article').count(),0);
+    await page.unroute('**/els-dynamic-lexicon-v1.gz64.txt*');
+    await planner.getByRole('button',{name:'בדוק את המופעים שנבחרו',exact:true}).click();
+    await planner.getByText(/הבדיקה המבוקשת הסתיימה/).waitFor({timeout:60000});
+    assert.equal(await planner.locator('article').count(),3);
+    const requests=await page.evaluate(()=>window.__hostLog.filter(x=>x.type==='request-lens'&&x.target?.researchOccurrenceInspection&&!x.target.cancel));
+    assert.equal(requests.length,4,'one cancelled occurrence plus exactly three explicit inspections');
+    assert.equal(new Set(requests.slice(1).map(x=>x.target.hitId)).size,3);
+    await page.getByRole('button',{name:'עמוד הבא',exact:true}).click();
+    await page.waitForFunction(()=>window.__state.search.occurrences.page===1);
+    assert.equal(await planner.locator('article').count(),0,'old reports cannot be reused for a new page');
+    assert.equal(await planner.getByRole('checkbox',{checked:true}).count(),0);
+    assert.equal(await planner.getByRole('button',{name:'בדוק את המופעים שנבחרו',exact:true}).isDisabled(),true);
+    assert.equal(await page.evaluate(()=>window.__hostLog.filter(x=>x.type==='request-lens'&&x.target?.researchOccurrenceInspection&&!x.target.cancel).length),4);
+  },{realHost:true});
+ });
+
 test('CI: native UI browser regression must not be skipped when required', () => {
   if (process.env.ELS_REQUIRE_EXECUTABLE) {
     assert.ok(canRun, 'ELS_REQUIRE_EXECUTABLE=1 requires Playwright, Vite/plugin-react and Chromium');

@@ -2259,7 +2259,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
   // st.occ or st.words. Its broad language index is lazy and lookup-only: it is opened after a
   // verified axis, never scanned term-by-term, and can never promote a reading into a Finding.
   const GUIDED_MATRIX_DISCOVERY_CONTRACT="els_matrix_discovery_v1",GUIDED_MATRIX_BUDGET_CONTRACT="els_matrix_discovery_budget_v1",GUIDED_MATRIX_LANGUAGE_CONTRACT="els_matrix_language_inspection_v1",GUIDED_LANGUAGE_READING_CONTRACT="els_torah_language_reading_v1",GUIDED_LANGUAGE_RELATION_CONTRACT="els_torah_language_relation_v1",GUIDED_LANGUAGE_REPLAY_CONTRACT="els_language_relation_replay_v1",GUIDED_LANGUAGE_BOUNDARY_CONTRACT="els_torah_language_boundary_v1",GUIDED_DYNAMIC_LEXICON_CONTRACT="els_dynamic_lexicon_profile_v1";
-  let _guidedMatrixLensSeq=0;
+  let _guidedMatrixLensSeq=0,_researchInspectionRun=null;
   let _guidedDynamicLexiconPromise=null;
   function guidedDynamicLexiconSkeleton(term){const value=norm(term);return value.length<3?value:value[0]+value.slice(1,-1).replace(/[וי]/g,"")+value.at(-1);}
   async function guidedDynamicLexiconAsset(){
@@ -2462,6 +2462,9 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     return {contract:"els_cipher_discovery_plan_v1",projection:"verified-pair",status:verifiedPairs.length?"VERIFIED_PAIR":verifiedFindings.length?"VERIFIED_LOCAL":ranked.length?"NO_VERIFIED_PAIR":"NO_CANDIDATE_PAIR",failureCause,selected:verifiedPairs[0]||null,alternatives:verifiedPairs.slice(1,3),verifiedFindings,consideredPairs:ranked.length,verification:{attempted:attempts,failed,maxAttempts:12,complete:verifiedPairs.length>=3||attempts>=12||processed>=ranked.length},selectionLaw:{order:["canonical-verification","strong-geometry","story-relevance","recurrence-and-source","distance","stable-label"],numericSkipPromoted:false},findingMutation:false};
   }
   async function guidedMatrixDiscoveryLens(target){
+    // Explicit Research inspection shares this lens; cancellation must not start a scan.
+    if(target?.researchOccurrenceInspection===true&&target.cancel===true){if(target.inspectionRun===_researchInspectionRun){++_guidedMatrixLensSeq;_researchInspectionRun=null;}return;}
+    _researchInspectionRun=target?.researchOccurrenceInspection===true?target.inspectionRun:null;
     const seq=++_guidedMatrixLensSeq,sourceResult=st.res,occurrences=nativeOccurrenceResults(),item=occurrences&&target.setId===occurrences.id&&Number(target.page)===Number(occurrences.page)?occurrences.items.find(row=>row.hitId===target.hitId):null,axis=item&&isGov(sourceResult?.hits?.[item.index])?sourceResult.hits[item.index]:null;
     if(!axis){postHost({type:"lens",lens:"matrix-discovery",ok:false,target,reason:"results-changed"});return;}
     const cancelled=()=>seq!==_guidedMatrixLensSeq||st.res!==sourceResult||!isGov(axis)||!nativeOccurrenceResults()?.items.some(row=>row.hitId===target.hitId&&row.index===item.index);

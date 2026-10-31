@@ -22,6 +22,8 @@ import "./elsNativeClassic2029.css";
 
 const ElsGuidedMatrixSnapshot2029 = React.lazy(() => import("./ElsGuidedMatrixSnapshot2029.jsx"));
 const ElsLexiconResearch2029 = React.lazy(() => import("./ElsLexiconResearch2029.jsx"));
+const ElsPairPlanner2029 = React.lazy(() => import("./ElsPairPlanner2029.jsx"));
+const ElsOccurrencePlanner2029 = React.lazy(() => import("./ElsOccurrencePlanner2029.jsx"));
 
 const clean = (value) => String(value ?? "").trim();
 const canonicalHebrew = (value) => clean(value).replace(/[^א-ת]/g, "").replace(/[ךםןףץ]/g, letter => ({ ך: "כ", ם: "מ", ן: "נ", ף: "פ", ץ: "צ" })[letter]);
@@ -560,7 +562,9 @@ function GuidedCoveragePanel({ coverage, exactTotal, pending, currentHitId, onOp
 }
 
 function RegularResultsRail({ state, pending, operation, visible, guided = false, guidedCoverage = null, onGuidedContinue, onGuidedAddSupports,
-  onGuidedOpenSource, onGuidedCloseSource, guidedSourceContext, guidedSourcePendingItemId, onHighlightVerse, verseHighlight, onSelect, onRetry, onContinue }) {
+  onGuidedOpenSource, onGuidedCloseSource, guidedSourceContext, guidedSourcePendingItemId, onHighlightVerse, verseHighlight, onSelect, onRetry, onContinue,
+  research = false, inspectionResponse, inspectionChannel, onInspect }) {
+  const [inspectionOpen, setInspectionOpen] = useState(false);
   const results = state?.search?.occurrences;
   const continuation = results?.continuation;
   const blocked = pending || ["empty", "error", "cancelled"].includes(operation?.status);
@@ -595,6 +599,13 @@ function RegularResultsRail({ state, pending, operation, visible, guided = false
         <span>עמוד <bdi>{results.page + 1} / {Math.ceil(results.total / results.pageSize)}</bdi></span>
         <button type="button" disabled={(results.page + 1) * results.pageSize >= results.total} onClick={() => onSelect("occurrence-page", { setId: results.id, page: results.page + 1 })}>עמוד הבא</button>
       </div>
+      {research && !guided ? <details className="els29-planner-entry" onToggle={event => setInspectionOpen(event.currentTarget.open)}>
+        <summary>בחירת מופעים להעמקה · עד שלושה</summary>
+        {inspectionOpen ? <React.Suspense fallback={<p>טוען את כלי הבחירה…</p>}>
+          <ElsOccurrencePlanner2029 key={`${state.scope}:${results.id}:${results.page}`} results={results} scope={state.scope} term={state.termRaw || state.term}
+            response={inspectionResponse} channel={inspectionChannel} onRequest={onInspect} onOpen={onSelect} />
+        </React.Suspense> : null}
+      </details> : null}
       {guided ? <details className="els29-guided-occurrences"><summary>כל מופעי הציר ({results.total})</summary>{resultButtons}</details> : resultButtons}
     </> : <p role="status">{pending ? "התוצאות יופיעו כאן בסיום החיפוש והאימות." : operation?.status === "error" ? operation.message || "החיפוש או האימות לא הושלמו. נסו שוב." : operation?.status === "cancelled" ? "החיפוש בוטל." : operation?.status === "empty" ? "לא נמצאו מופעים מאומתים בסריקה הזאת. אפשר לשנות מונח או היקף ולנסות שוב." : "חפשו מונח כדי לראות כאן את המופעים שלו."}</p>}
     {["error", "empty", "cancelled"].includes(operation?.status) ? <button type="button" onClick={onRetry}>נסה שוב</button> : null}
@@ -953,6 +964,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   const [workspaceRequest, setWorkspaceRequest] = useState(null);
   const actionSeqRef = useRef(0);
   const [crossOpen, setCrossOpen] = useState(false);
+  const [pairPlannerOpen, setPairPlannerOpen] = useState(false);
   const crossSearchOpen = researchProfile && crossOpen;
   const [crossTerm, setCrossTerm] = useState("");
   const [crossThirdTerm, setCrossThirdTerm] = useState("");
@@ -963,6 +975,9 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   const [windowSize, setWindowSize] = useState("small");
   const crossRadiusDraftRef = useRef({ edited: false, revision: 0, submitted: null });
   const [lensRequest, setLensRequest] = useState(null);
+  const lensRequestRef = useRef(null);
+  lensRequestRef.current = lensRequest;
+  const [researchInspectionResponse, setResearchInspectionResponse] = useState(null);
   const lensSeqRef = useRef(0);
   const [lensResult, setLensResult] = useState(null);
   const [lensPending, setLensPending] = useState(false);
@@ -1195,6 +1210,10 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
 
   const handleLens = (result) => {
     if (result?.lens === "matrix-lexicon") { setLexiconResponse(result); return; }
+    if (result?.target?.researchOccurrenceInspection === true) {
+      if (result.target.inspectionRun === lensRequestRef.current?.target?.inspectionRun) setResearchInspectionResponse(result);
+      return;
+    }
     if (result?.target?.guidedOccurrenceCoverage === true) {
       if (result.target.guidedSeq !== guidedLensSeqRef.current) return;
       if (guidedSourceActiveRef.current) { guidedDeferredInspectionRef.current = result;return; }
@@ -1468,6 +1487,16 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
         <button className="els29-native-more" type="button" onClick={() => { cancelOperation("search"); cancelOperation("findings"); setClassicOpen(value => !value); }}>{classicOpen ? "חזור למטריצה" : "כל הכלים"}</button>
       </div>
       </div>
+      {researchProfile && !guidedProfile ? <details className="els29-planner-entry" onToggle={event => setPairPlannerOpen(event.currentTarget.open)}>
+        <summary>הכנת זוגות לחיפוש</summary>
+        {pairPlannerOpen ? <React.Suspense fallback={<p>טוען את כלי ההכנה…</p>}>
+          <ElsPairPlanner2029 axis={query} scope={activeScope} radius={crossRadius} letterGap={crossLetterGap} disabled={searchPending}
+            onSearchPair={pair => {
+              setQuery(pair.axis); setCrossTerm(pair.term); setCrossThirdTerm(""); setCrossOpen(true);
+              requestSearch("cross", { axis: pair.axis, term: pair.term, scope: activeScope, radius: crossRadius, maxLetterGap: crossLetterGap });
+            }} />
+        </React.Suspense> : null}
+      </details> : null}
     </form>
 
     <SearchProgress operation={operations.search} onCancel={() => cancelOperation("search")} />
@@ -1616,6 +1645,13 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
           onContinue={setId => requestSearch("cross-continue", {setId, scope:activeScope})} onRetry={() => requestSearch(operations.search?.searchKind || "cross", operations.search?.payload || {})} state={engineState} pending={searchPending || ["searching", "verifying"].includes(operations.findings?.status)}
           outcome={operations.search?.status} visible={activeTool === "results" && resultsAreCross} onSelect={requestControl} />
         <RegularResultsRail onContinue={setId => requestSearch("continue", {setId, term:engineState?.termRaw || engineState?.term, scope:activeScope})} state={engineState} pending={searchPending} operation={operations.search} visible={activeTool === "results" && !resultsAreCross}
+          research={researchProfile && active} inspectionResponse={researchInspectionResponse} inspectionChannel={lensRequest}
+          onInspect={target => {
+            // Cleanup must not replace a newer user request in the shared lens channel.
+            if (target.cancel && lensRequestRef.current?.target?.inspectionRun !== target.inspectionRun) return;
+            const request = { lens: "matrix-discovery", target };
+            lensRequestRef.current = request; setLensRequest(request);
+          }}
           guided={guidedProfile} guidedCoverage={guidedCoverage} onGuidedContinue={continueGuidedCoverage} onGuidedAddSupports={addGuidedSupports}
           onGuidedOpenSource={openGuidedSource} onGuidedCloseSource={closeGuidedSource}
           guidedSourceContext={guidedSourceContext} guidedSourcePendingItemId={guidedSourcePendingItemId}
