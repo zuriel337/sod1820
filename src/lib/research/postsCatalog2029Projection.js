@@ -9,6 +9,38 @@ import { publicWriterFollowLinks } from "../userCenter/writerPersonal2029.js";
 const categoryHref = name => `/2029/posts?category=${encodeURIComponent(name)}`;
 const seriesHref = key => `/2029/posts?series=${encodeURIComponent(key)}`;
 
+// Public content context for the EXISTING track()/events pipeline. An open is
+// an observed route entry, never a confirmed read, Follow, preference or person
+// label. DIM5 is the already approved content-world key (story taxonomy v1).
+// Other admitted series keep their own keys; no world is guessed from a tag.
+export function postContentEntry2029({ post = null, scope = null } = {}) {
+  if (post && scope) return null;
+  let series, section, slug, surface, entry, sourceRef;
+  if (post) {
+    if (hasSuppressedPublicPostTag(post) || !/^\d+$/.test(String(post.id))
+      || !Number.isSafeInteger(Number(post.id)) || Number(post.id) <= 0
+      || typeof post.slug !== "string" || !post.slug || post.slug.length > 200 || /[/?#\u0000-\u001f]/.test(post.slug)) return null;
+    series = contentSeriesKeysForPost(post).map(contentSeriesByKey);
+    section = "post"; slug = post.slug; surface = "POST_PAGE"; entry = "reading";
+    sourceRef = `posts:${post.id}`;
+  } else {
+    const spec = scope?.kind === "series" ? contentSeriesByKey(scope.key) : null;
+    if (!spec) return null;
+    series = [spec]; section = "posts"; slug = `series:${spec.key}`;
+    surface = "POSTS_INDEX"; entry = "series_catalog"; sourceRef = null;
+  }
+  return {
+    section, slug, eventType: "open",
+    meta: {
+      surface, entry, confirmed_read: false,
+      ...(sourceRef ? { source_ref: sourceRef } : {}),
+      content_series: series.map(spec => spec.key),
+      classification_basis: series.map(spec => spec.decisionId),
+      ...(series.some(spec => spec.key === "dimension-five") ? { content_world: "DIM5" } : {}),
+    },
+  };
+}
+
 // Post-only presentation of already admitted sources, not a category→Topic map.
 // PLAN37 DEC-CONTENT-001/DEC-VIDEO-001 and the existing exact series descriptors
 // distinguish these roles. Unresolved labels remain source classifications. In

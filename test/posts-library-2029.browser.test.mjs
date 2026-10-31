@@ -22,7 +22,7 @@ function libraryFixture() {
       export const supabase={};export const getNotificationPrefs=async()=>({topics:window.__prefs||[],channels:[]});`,
     auth: `export const useAuth=()=>({user:null,isAdmin:false,loading:false});`,
     command: `export async function watchToggle(topic,source,on){window.__followCalls.push({topic,source,on});if(window.__followFails)return null;window.__prefs=on?[...new Set([...(window.__prefs||[]),topic])]:(window.__prefs||[]).filter(t=>t!==topic);return {ok:true};}`,
-    tracking: `export const getVisitorId=()=>'fixture-guest';`,
+    tracking: `export const getVisitorId=()=>'fixture-guest';export function track(...args){window.__contentEntries.push(args);}`,
     marketing: `export const trackConversion=()=>{};`,
     push: `export const PUSH_CONFIGURED=false,pushSupported=()=>false,enablePush=async()=>({ok:false});`,
     identity: `import React from 'react';export default function Identity(){return <div data-identity-fixture='true'>אימות זהות לדוגמה בלבד</div>;}`,
@@ -43,7 +43,7 @@ function libraryFixture() {
       import '/src/components/experience2029/previewVisualCalibration2029.css';
       const seed=(id,over={})=>({id,slug:'post-'+id,title:'פוסט לקריאה '+id,excerpt:'פסקה קצרה שמזמינה לקרוא ולהתבונן בסיפור ובמקורות שלו.',author:'המערכת',categories:[],tags:[],image_url:'/cover.svg',thumb_url:'/cover.svg',date:'2026-10-20',modified:'2026-10-31',...over});
       window.__rows=[seed(1,{author:'בדרך לנצח',categories:['מימד חמש']}),seed(2,{author:'אלון לוי',tags:['מה קורה הבורא'],image_url:null,thumb_url:null}),seed(3,{author:'מחבר אורח',tags:['סוד החשמל']}),seed(4,{author:'מפרסם אחר',categories:['מימד חמש']}),seed(5,{title:'פוסט ללא סדרה',tags:['1237','2029-golden'],thumb_url:null,image_url:null}),...Array.from({length:30},(_,i)=>seed(i+6)),seed(90,{author:'בדרך לנצח',categories:['מימד חמש'],tags:['טיוטה']}),seed(91,{tags:['פורום']})];
-      window.__calls=[];window.__followCalls=[];window.__failSeries=false;window.__failPosts=false;window.__slowDimension=false;window.__seriesReady=false;
+      window.__calls=[];window.__followCalls=[];window.__contentEntries=[];window.__failSeries=false;window.__failPosts=false;window.__slowDimension=false;window.__seriesReady=false;
       window.__db={async rpc(name,args){if(name!=='canonical_follow_subject')throw Error('Unexpected RPC');if(window.__resolverFails)return {error:{message:'unavailable'},data:null};return {error:null,data:args.p_entity_type==='series'&&!window.__seriesReady?'':(args.p_entity_type==='category'?'cat':args.p_entity_type)+':'+args.p_stable_id};},from(table){const calls={table,filters:[],columns:'',limit:null,range:null};
         const q={select(columns){calls.columns=columns;return q;},or(filter){calls.filters.push(['or',filter]);return q;},eq(k,v){calls.filters.push(['eq',k,v]);return q;},ilike(k,v){calls.filters.push(['ilike',k,v]);return q;},overlaps(k,v){calls.filters.push(['overlaps',k,v]);return q;},order(){return q;},limit(n){calls.limit=n;return q;},range(a,b){calls.range=[a,b];return q;},
           async then(done,fail){try{
@@ -86,7 +86,7 @@ test("Posts library: live series, general posts, scoped navigation, errors and r
   mkdirSync(artifacts, { recursive: true });
   let server, browser;
   try {
-    const result = await build({ root, configFile: false, publicDir: false, logLevel: "error", plugins: [libraryFixture(), react()], build: { outDir: output, emptyOutDir: true, rollupOptions: { input: "virtual:posts-library.jsx" } } });
+    const result = await build({ root, configFile: false, publicDir: false, logLevel: "error", define:{'import.meta.env.VITE_INTEGRATED_PREVIEW':'window.__integratedPreview'}, plugins: [libraryFixture(), react()], build: { outDir: output, emptyOutDir: true, rollupOptions: { input: "virtual:posts-library.jsx" } } });
     const entry = result.output.find(x => x.isEntry), css = result.output.filter(x => x.fileName.endsWith(".css"));
     const html = `<!doctype html><html lang="he" dir="rtl"><head><meta name="viewport" content="width=device-width,initial-scale=1">${css.map(x => `<link rel="stylesheet" href="/${x.fileName}">`).join("")}</head><body><div id="root"></div><script type="module" src="/${entry.fileName}"></script></body></html>`;
     server = createServer((req, res) => {
@@ -100,6 +100,12 @@ test("Posts library: live series, general posts, scoped navigation, errors and r
     await new Promise(done => server.listen(0, "127.0.0.1", done));
     const origin = "http://127.0.0.1:" + server.address().port;
     browser = await playwright.chromium.launch({ executablePath, headless: true, args: ["--no-sandbox", "--disable-dev-shm-usage"] });
+    const previewContext=await browser.newContext(),previewPage=await previewContext.newPage();
+    await previewPage.addInitScript(()=>{window.__integratedPreview='true';});
+    await previewPage.goto(origin+'/2029/posts?series=dimension-five');
+    await previewPage.locator('.sod29-library-post-card').waitFor();
+    assert.deepEqual(await previewPage.evaluate(()=>window.__contentEntries),[],'Read-only Preview does not collect series audience entries');
+    await previewContext.close();
     const cases = [];
     for (const width of [320, 390, 1440]) for (const theme of ["light", "parchment", "dark"]) {
       const context = await browser.newContext({ viewport: { width, height: 1000 }, reducedMotion: "reduce" }), page = await context.newPage(), errors = [];
@@ -124,11 +130,16 @@ test("Posts library: live series, general posts, scoped navigation, errors and r
       assert.equal(geometry.columns, width === 1440 ? 3 : 1);
       const calls = await page.evaluate(() => window.__calls);
       assert.equal(calls.filter(call => call.limit === 1).length, 3);
+      assert.equal(await page.evaluate(()=>window.__contentEntries.length),0,'General library visibility does not assign a content world');
       assert.ok(calls.every(call => !call.columns.includes("content") && call.filters.some(filter => filter[0] === "or" && filter[1].includes("tags.is.null"))));
       const series = page.locator('a.sod29-posts-series-card[href="/2029/posts?series=dimension-five"]');
       await series.focus(); await page.keyboard.press("Enter");
       await page.waitForURL("**/2029/posts?series=dimension-five");
       await page.waitForFunction(() => document.querySelectorAll(".sod29-library-post-card").length === 1);
+      await page.waitForFunction(()=>window.__contentEntries.length===1);
+      const entry=await page.evaluate(()=>window.__contentEntries[0]);
+      assert.deepEqual(entry.slice(0,3),['posts','series:dimension-five','open']);
+      assert.equal(entry[3].content_world,'DIM5');assert.deepEqual(entry[3].content_series,['dimension-five']);assert.equal(entry[3].confirmed_read,false);
       assert.equal(await page.locator('.sod29-posts-series-card[aria-current="page"]').getAttribute("href"), "/2029/posts?series=dimension-five");
       assert.equal(await page.locator(".sod29-library-post-card-link").getAttribute("href"), "/post/post-1");
       assert.equal(await page.evaluate(() => window.__calls.filter(call => call.limit === 1).length), 3, "changing series does not refetch all entrances");
@@ -215,6 +226,7 @@ test("Posts library: live series, general posts, scoped navigation, errors and r
     await page.getByRole("button", { name: "לטעון שוב את הסדרות", exact: true }).click();
     await page.locator(".sod29-posts-series-card").nth(2).waitFor();
     assert.equal(await page.locator('[href="/2029/posts?series=dimension-five"] .sod29-posts-series-image img').getAttribute("src"), "/cover.svg?new", "new admitted source supplies its cover without a Post-ID list");
+    const dimensionEntriesBefore=await page.evaluate(()=>window.__contentEntries.filter(entry=>entry[1]==='series:dimension-five').length);
     await page.evaluate(() => { window.__slowDimension = true; window.__navigate("/2029/posts?series=dimension-five"); });
     await page.waitForFunction(() => typeof window.__releaseDimension === "function");
     await page.evaluate(() => window.__navigate("/2029/posts?series=sod-hashmal"));
@@ -222,6 +234,7 @@ test("Posts library: live series, general posts, scoped navigation, errors and r
     await page.evaluate(() => window.__releaseDimension());
     await page.waitForTimeout(50);
     assert.equal(await page.locator(".sod29-library-post-card-link").getAttribute("href"), "/post/post-3", "a late source response cannot overwrite a new series scope");
+    assert.equal(await page.evaluate(()=>window.__contentEntries.filter(entry=>entry[1]==='series:dimension-five').length),dimensionEntriesBefore,'A stale late response cannot manufacture a DIM5 audience entry');
     await page.locator(".sod29-library-post-card-link").click(); await page.waitForURL("**/post/post-3");
     await page.close();
     writeFileSync(join(artifacts, "browser.json"), JSON.stringify({ cases, independentErrorsAndRetry: true, newCoverAfterBuild: true, staleRouteGuard: true }, null, 2));

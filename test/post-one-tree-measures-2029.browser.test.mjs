@@ -24,13 +24,14 @@ async function openResearch(page){
 function fixturePlugin(){
   const aliases=new Map([
     ['Sod2029Shell.jsx','shell'],['ResearchProvider.jsx','context'],['AuthContext.jsx','auth'],
-    ['events.js','events'],['supabase.js','backend'],['entityHubProjection.js','hub'],['worldProminenceInputs.js','prominence'],
+    ['events.js','events'],['tracking.js','tracking'],['supabase.js','backend'],['entityHubProjection.js','hub'],['worldProminenceInputs.js','prominence'],
     ['worldSourceConnections.js','discovery'],['CanonicalMediaFigure2029.jsx','noop'],
     ['PostComments2029.jsx','noop'],['NumberAiAnalysis2029.jsx','noop'],['ShareActions.jsx','noop'],
     ['SpatialMethodStage2029.jsx','noop'],['WorldSourceStory.jsx','noop'],
   ]);
   const modules={
     events:`export const emit=()=>{};`,
+    tracking:`export const getVisitorId=()=>'fixture-guest';export const trackResearch=()=>{};export function track(...args){window.__contentEntries.push(args);}`,
     noop:`export default function Noop(){return null;}`,
     auth:`export const useAuth=()=>({user:null,isAdmin:false,loading:false});`,
     hub:`export async function fetchEntityHubProjection(){return null;}export async function fetchGallerySourceContext(){return {items:[]};}`,
@@ -104,7 +105,7 @@ function fixturePlugin(){
       import '/src/components/experience2029/systemFrame2029.css';
       import Shell from '/src/components/experience2029/Sod2029Shell.jsx';import LearnMark from '/src/components/experience2029/LearnMark2029.jsx';
       import * as postReaders from '/src/lib/research/post2029ReadingProjection.js';window.__postReaders=postReaders;
-      window.__reads=[];window.__rpcs=[];window.__targets=[];window.__razielHandoffs=[];
+      window.__reads=[];window.__rpcs=[];window.__targets=[];window.__razielHandoffs=[];window.__contentEntries=[];
       window.__post={id:9001,slug:'future-source',title:'מקור בדיקה חי',source:'ai',home_hidden:false,date:'2026-10-20',modified:'2026-10-30T14:00:00Z',tags:['1237'],categories:[],
         content:'<h2 id="native-heading" data-source-heading="true">ממצא ראשון</h2><p>הטענה כפי שנשמרה במקור</p><button id="claim-one" type="button" data-expression="התגלות" data-method="מסתתר" data-method-version="1" data-result="1237">התגלות = 1237</button><p>הפרשנות נשארת נפרדת.</p>'};
       Object.assign(window.__post,JSON.parse(sessionStorage.getItem('fixture-post-overrides')||'{}'));
@@ -127,7 +128,7 @@ test('built Post: adopted design, bounded backgrounds, lazy research, exact retu
   const output=mkdtempSync(join(tmpdir(),'post-one-tree-'));let server,browser;
   const artifacts=process.env.POST_MEASURES_ARTIFACT_DIR || '/workspace/scratch/post-one-tree-browser';mkdirSync(artifacts,{recursive:true});
   try{
-    const result=await build({root,configFile:false,publicDir:false,logLevel:'error',plugins:[fixturePlugin(),react()],build:{outDir:output,emptyOutDir:true,rollupOptions:{input:'virtual:post-one-tree-entry.jsx'}}});
+    const result=await build({root,configFile:false,publicDir:false,logLevel:'error',define:{'import.meta.env.VITE_INTEGRATED_PREVIEW':'window.__integratedPreview'},plugins:[fixturePlugin(),react()],build:{outDir:output,emptyOutDir:true,rollupOptions:{input:'virtual:post-one-tree-entry.jsx'}}});
     const chunks=result.output,entry=chunks.find(chunk=>chunk.isEntry),css=chunks.filter(chunk=>chunk.fileName.endsWith('.css'));
     const html=`<!doctype html><html lang="he" dir="rtl"><head><meta name="viewport" content="width=device-width,initial-scale=1">${css.map(c=>`<link rel="stylesheet" href="/${c.fileName}">`).join('')}</head><body><div id="root"></div><script type="module" src="/${entry.fileName}"></script></body></html>`;
     const backgroundPaths=new Set(Object.values(POST_BACKGROUND_ASSETS_2029).flatMap(item=>[item.mobile,item.desktop]));
@@ -149,6 +150,11 @@ test('built Post: adopted design, bounded backgrounds, lazy research, exact retu
     });
     await new Promise(done=>server.listen(0,'127.0.0.1',done));const origin=`http://127.0.0.1:${server.address().port}`;
     browser=await playwright.chromium.launch({executablePath,headless:true,args:['--no-sandbox','--disable-dev-shm-usage']});
+    const previewContext=await browser.newContext(),previewPage=await previewContext.newPage();
+    await previewPage.addInitScript(()=>{window.__integratedPreview='true';});
+    await previewPage.goto(origin+'/post/future-source');await previewPage.locator('.sod29-reading-source').waitFor();
+    assert.deepEqual(await previewPage.evaluate(()=>window.__contentEntries),[],'Read-only Preview never emits new audience entries');
+    await previewContext.close();
     // Exercise the real Post -> existing shell callback boundary. This fixture
     // captures a handoff, never pretends to be a model/session integration test.
     for(const width of [390,1280]){
@@ -160,6 +166,10 @@ test('built Post: adopted design, bounded backgrounds, lazy research, exact retu
       });
       await page.reload();await page.locator('.sod29-reading-source').waitFor();
       assert.equal(await page.evaluate(()=>window.__razielHandoffs.length),0);
+      const entries=await page.evaluate(()=>window.__contentEntries);
+      assert.equal(entries.length,1);assert.equal(entries[0][0],'post');assert.equal(entries[0][2],'open');
+      assert.equal(entries[0][3].content_world,'DIM5');assert.equal(entries[0][3].source_ref,'posts:5105');
+      assert.deepEqual(entries[0][3].content_series,['dimension-five']);assert.equal(entries[0][3].confirmed_read,false);
       await page.locator('.sod29-post-research > summary').click();
       const action=page.getByRole('button',{name:'להבין את השיוך למימד חמש עם רזיאל',exact:true});
       await action.click();await page.getByRole('dialog',{name:'תפיסת מעבר לרזיאל — בדיקת מתאם בלבד'}).waitFor();
@@ -173,11 +183,13 @@ test('built Post: adopted design, bounded backgrounds, lazy research, exact retu
       assert.ok(state.handoffs[0].readingFocus.signals.includes('אור הגאולה: ערוץ/בית פרסום'));
       assert.equal(state.rpcs.length,0,'Opening the handoff does not calculate');
       await page.getByRole('button',{name:'סגירת תפיסת המעבר',exact:true}).click();
+      assert.equal(await page.evaluate(()=>window.__contentEntries.length),1,'Rerender and explicit Raziel open do not duplicate a content entry');
       const back=state.context.returnTo.href;assert.equal(back,'/post/hierarchy-dim5#post-classification');
       await page.goto(origin+back);
       await page.waitForFunction(()=>document.activeElement?.id==='post-classification');
       assert.equal(await page.locator('.sod29-post-research').getAttribute('open'),'');
       assert.equal(await page.evaluate(()=>window.__razielHandoffs.length),1,'Same-document return leaves the handoff count unchanged');
+      assert.equal(await page.evaluate(()=>window.__contentEntries.length),1,'An anchor return is not a new content entry');
       assert.equal(await page.getByRole('dialog').count(),0);
       await page.reload();await page.waitForFunction(()=>document.activeElement?.id==='post-classification');
       assert.equal(await page.evaluate(()=>window.__razielHandoffs.length),0,'Reload never auto-opens or submits');

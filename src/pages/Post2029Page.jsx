@@ -13,13 +13,14 @@ import { goldenPublicSurfaceFindings } from "../lib/research/goldenProjectorMode
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { applySeo } from "../lib/seo.js";
 import { logView, logActivity } from "../lib/supabase.js";
+import { track } from "../lib/tracking.js";
 import { hardenPassiveMediaHtml } from "../lib/mediaEgressGuard.js";
 import { humanContentTitle } from "../lib/presentation/contentTitle.js";
 import { bilingualDateLabel } from "../lib/relativeTime2029.js";
 import { provenSourceUpdatesFor, provenUpdateForHash, formatUpdateDate } from "../lib/research/postSourceUpdates2029.js";
 import CanonicalMediaFigure2029 from "../components/experience2029/CanonicalMediaFigure2029.jsx";
 import PostCategories2029 from "../components/experience2029/PostCategories2029.jsx";
-import { postClassification2029, postHierarchyContext2029 } from "../lib/research/postsCatalog2029Projection.js";
+import { postClassification2029, postHierarchyContext2029, postContentEntry2029 } from "../lib/research/postsCatalog2029Projection.js";
 import PostConvergenceMeasures2029 from "../components/experience2029/PostConvergenceMeasures2029.jsx";
 import PostComments2029 from "../components/experience2029/PostComments2029.jsx";
 import { publicPostCommentArchiveId } from "../components/experience2029/postComments2029.js";
@@ -74,6 +75,7 @@ function PostReadingBody() {
   const connectionsHeadingRef = useRef(null);
   const explicitGematriaFocusRef = useRef(null);
   const entryRef = useRef(null);
+  const recordedContentEntry = useRef(null);
   entryRef.current = { context: research.context, hash: location.hash };
   const restoredRegionRef = useRef(null);
   const [state, setState] = useState({ loading: true, projection: null, error: null });
@@ -131,6 +133,15 @@ function PostReadingBody() {
     // view meter and signed-in reading history. logView deduplicates per session.
     void logView("post", post.slug);
     void logActivity("post", post.slug, post.title);
+    // Preserve the old view/history sinks. One additional route-open carries
+    // public series context through the same telemetry owner, without a new
+    // visitor id, source read, preference, or automatic research/model call.
+    if (import.meta.env.VITE_INTEGRATED_PREVIEW === "true" || recordedContentEntry.current === String(post.id)) return;
+    const event = postContentEntry2029({ post: projection.sourcePost });
+    if (event) {
+      recordedContentEntry.current = String(post.id);
+      track(event.section, event.slug, event.eventType, event.meta);
+    }
   }, [state.projection]);
 
   useEffect(() => {

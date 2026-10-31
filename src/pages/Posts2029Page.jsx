@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import Sod2029Shell, { FrameState } from "../components/experience2029/Sod2029Shell.jsx";
-import { fetchPostsCatalog2029, postClassification2029, postsCatalogScope2029 } from "../lib/research/postsCatalog2029Projection.js";
+import { fetchPostsCatalog2029, postClassification2029, postsCatalogScope2029, postContentEntry2029 } from "../lib/research/postsCatalog2029Projection.js";
+import { track } from "../lib/tracking.js";
 import { applySeo } from "../lib/seo.js";
 import { stripHtml } from "../lib/format.js";
 import { bilingualDateLabel } from "../lib/relativeTime2029.js";
@@ -104,6 +105,19 @@ export default function Posts2029Page() {
   const requestedPage = Number(searchParams.get("page") || 1);
   const page = Number.isSafeInteger(requestedPage) && requestedPage > 0 && requestedPage <= 10000 ? requestedPage : 1;
   const [state, setState] = useState({ page, scopeKey, loading: true, posts: [], total: null, error: null });
+  const recordedContentEntry = useRef(null);
+
+  useEffect(() => {
+    // Wait for this exact public result. Stale responses, failures and an empty
+    // result do not manufacture audience evidence. Search terms never travel.
+    if (import.meta.env.VITE_INTEGRATED_PREVIEW === "true" || state.loading || state.error
+      || state.scopeKey !== scopeKey || state.page !== page || !state.posts.length) return;
+    const key = `${scope.kind}:${scope.key}:${page}`;
+    if (recordedContentEntry.current === key) return;
+    recordedContentEntry.current = key;
+    const event = postContentEntry2029({ scope });
+    if (event) track(event.section, event.slug, event.eventType, event.meta);
+  }, [state, scopeKey, page]);
 
   useEffect(() => {
     applySeo({
