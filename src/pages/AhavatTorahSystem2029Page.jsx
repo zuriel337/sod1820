@@ -150,8 +150,21 @@ function jumpOnClick(event) {
 const BookPdfPage2029 = lazy(() => import("../components/books2029/BookPdfPage2029.jsx"));
 const ahavatPdfManifest = getBookReaderManifest("ahavat-torah");
 
-function SourcePanel({ page, contextLabel, onPage, readerUnit, onReturnToUnit }) {
+function SourcePanel({ page, contextLabel, onPage, readerUnit, onReturnToUnit, focusedLetters = false }) {
   const pdfUrl = `${AHAVAT_TORAH_SOURCE.pdfUrl}#page=${page}&view=FitH`;
+  const explanationHref = focusedLetters
+    ? (readerUnit ? sourceReturnHref(readerUnit.id) : "#ahavat29-letters")
+    : "#ahavat29-selection";
+  const returnToExplanation = event => {
+    if (!focusedLetters) return jumpOnClick(event);
+    if (readerUnit) return onReturnToUnit(event);
+    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    event.preventDefault();
+    const next = new URL(window.location.href);
+    next.hash = "ahavat29-letters";
+    window.history.pushState(window.history.state, "", `${next.pathname}${next.search}${next.hash}`);
+    scrollToReaderUnit(document.getElementById("ahavat29-letters"));
+  };
   const [pageDraft, setPageDraft] = useState(String(page));
   const [bookPresentation, setBookPresentation] = useState(true);
   const fullscreenRef = useRef(null);
@@ -167,7 +180,7 @@ function SourcePanel({ page, contextLabel, onPage, readerUnit, onReturnToUnit })
   return <aside ref={fullscreenRef} id="ahavat29-source" className="ahavat29-source book-fullscreen29-target" aria-labelledby="ahavat29-source-title">
     <header>
       <div><span>המקור נשאר פתוח</span><h2 id="ahavat29-source-title">עמוד PDF {page}</h2></div>
-      <div className="ahavat29-source-actions"><b>{contextLabel}</b><button type="button" className="ahavat29-book-view-toggle" aria-pressed={bookPresentation} aria-controls="ahavat29-pdf-frame" onClick={() => setBookPresentation(value => !value)} title="הצג את המקור במסגרת ספר או בתצוגה ישרה">תצוגת ספר</button><a className="book-fullscreen29-button ahavat29-to-explanation" href="#ahavat29-selection" onClick={jumpOnClick}>להסבר</a><BookFullscreenButton2029 targetRef={fullscreenRef} fallbackHref={pdfUrl} controls="ahavat29-source" /><a className="book-fullscreen29-button" href={pdfUrl} target="_blank" rel="noreferrer" data-book-reader-secondary>קרא את ה־PDF · עמוד {page} ↗</a>{readerUnit ? <a className="book-fullscreen29-button" title={readerUnit.title} href={sourceReturnHref(readerUnit.id)} onClick={onReturnToUnit}>חזור ליחידת הקריאה</a> : null}</div>
+      <div className="ahavat29-source-actions"><b>{contextLabel}</b><button type="button" className="ahavat29-book-view-toggle" aria-pressed={bookPresentation} aria-controls="ahavat29-pdf-frame" onClick={() => setBookPresentation(value => !value)} title="הצג את המקור במסגרת ספר או בתצוגה ישרה">תצוגת ספר</button><a className="book-fullscreen29-button ahavat29-to-explanation" href={explanationHref} onClick={returnToExplanation}>להסבר</a><BookFullscreenButton2029 targetRef={fullscreenRef} fallbackHref={pdfUrl} controls="ahavat29-source" /><a className="book-fullscreen29-button" href={pdfUrl} target="_blank" rel="noreferrer" data-book-reader-secondary>קרא את ה־PDF · עמוד {page} ↗</a>{readerUnit ? <a className="book-fullscreen29-button" title={readerUnit.title} href={sourceReturnHref(readerUnit.id)} onClick={onReturnToUnit}>חזור ליחידת הקריאה</a> : null}</div>
     </header>
     <div id="ahavat29-pdf-frame" className="ahavat29-pdf-frame" data-book-pdf-frame data-book-presentation={bookPresentation ? "book" : "straight"}>
       <span className="ahavat29-book-page-edges" aria-hidden="true" />
@@ -1150,7 +1163,7 @@ export default function AhavatTorahSystem2029Page() {
           </details>
         </div>
 
-        <SourcePanel page={page} contextLabel={selectedFinding?.title || locatedDataset?.title || selectedSection.shortTitle} readerUnit={readerUnit} onReturnToUnit={returnToUnit} onPage={next => openPage(next, "", readerUnit?.id || "")} />
+        <SourcePanel page={page} contextLabel={selectedFinding?.title || locatedDataset?.title || selectedSection.shortTitle} readerUnit={readerUnit} onReturnToUnit={returnToUnit} onPage={next => openPage(next, "", readerUnit?.id || "")} focusedLetters={letterFocus} />
       </div>
     </main>
   </Sod2029Shell>;
