@@ -62,10 +62,10 @@ try:
                 page.route("**/*", handle)
                 try:
                     page.goto(base + "/2029/number/786?focus=synthetic#number-content-live")
-                    section = page.get_by_role("region", name="ממצאים ממקורות צבי למספר")
+                    section = page.get_by_role("region", name="ממצאים ציבוריים למספר")
                     expect(section).to_be_visible()
                     assert page.evaluate("window.__numberZviFixture.calls.length") == 0
-                    button = section.get_by_role("button", name="הצגת ממצאי צבי למספר", exact=True)
+                    button = section.get_by_role("button", name="הצגת ממצאים למספר", exact=True)
                     expect(button).to_be_visible()
                     size = button.evaluate("(e)=>{let r=e.getBoundingClientRect();return {w:r.width,h:r.height}}")
                     assert size["w"] >= 44 and size["h"] >= 44, size
@@ -113,10 +113,10 @@ try:
                     # receives the public anonymous client, regardless of principal.
                     page.locator('[data-test="principal-admin"]').click()
                     page.locator('[data-test="number-224"]').click()
-                    section.get_by_role("button", name="הצגת ממצאי צבי למספר", exact=True).click()
+                    section.get_by_role("button", name="הצגת ממצאים למספר", exact=True).click()
                     expect(section.get_by_text("טוען ממצאים…", exact=True)).to_be_visible()
                     page.locator('[data-test="number-0"]').click()
-                    section.get_by_role("button", name="הצגת ממצאי צבי למספר", exact=True).click()
+                    section.get_by_role("button", name="הצגת ממצאים למספר", exact=True).click()
                     expect(section.get_by_role("link", name="אפס מפורש", exact=True)).to_be_visible()
                     assert section.get_by_text("מספר המופיע בממצא: 0", exact=True).count() == 1
                     page.wait_for_timeout(1050)
@@ -124,7 +124,7 @@ try:
                     assert section.get_by_role("link", name="אפס מפורש", exact=True).count() == 1
                     page.evaluate("window.__numberZviFixture.fail = true")
                     page.locator('[data-test="number-999"]').click()
-                    section.get_by_role("button", name="הצגת ממצאי צבי למספר", exact=True).click()
+                    section.get_by_role("button", name="הצגת ממצאים למספר", exact=True).click()
                     expect(section.get_by_text("הממצאים אינם זמינים כרגע. אפשר לנסות שוב.", exact=True)).to_be_visible()
                     page.evaluate("window.__numberZviFixture.fail = false")
                     section.get_by_role("button", name="נסה שוב", exact=True).click()

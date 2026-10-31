@@ -8,8 +8,8 @@ import "../research/WorldZviApprovedFindings2029.css";
 // Reuse the existing anonymous World reader. Neither its module nor its network
 // request is loaded until the visitor explicitly asks to see these findings.
 const defaultReader = async (args) => {
-  const { fetchZviNumberFindingsPage } = await import("../../lib/research/worldZviApprovedFindings2029.js");
-  return fetchZviNumberFindingsPage(args);
+  const { fetchWorldPublicFindingsPage } = await import("../../lib/research/worldPublicFindingReader.js");
+  return fetchWorldPublicFindingsPage(args);
 };
 const emptyState = () => ({
   opened: false, loading: false, rows: [], cursor: null,
@@ -32,11 +32,19 @@ export function validFindingHref(href, id) {
 }
 
 export function validSourceHref(href) {
-  if (typeof href !== "string" || !href.startsWith("/world?")) return false;
+  if (typeof href !== "string" || (!href.startsWith("/world?") && !href.startsWith("/post/"))) return false;
   try {
     const url = new URL(href, "https://example.invalid");
     const sourceRef = url.searchParams.get("sourceRef");
     const occurrenceId = channelUpdateOccurrenceId(sourceRef);
+    if (url.origin === "https://example.invalid" && /^\/post\/[^/]+$/.test(url.pathname)
+      && !url.search && !url.hash && !/[\\]/.test(href) && !/%(?:2f|5c)/i.test(href)) return true;
+    if (url.origin === "https://example.invalid" && url.pathname === "/world"
+      && url.searchParams.get("view") === "gallery" && /^[1-9]\d*$/.test(url.searchParams.get("gallery") || "")
+      && UUID.test(url.searchParams.get("image") || "")
+      && url.hash === `#gallery-source-${url.searchParams.get("image")}`
+      && [...url.searchParams.keys()].length === 3
+      && ["view", "gallery", "image"].every((key) => url.searchParams.getAll(key).length === 1)) return true;
     return url.origin === "https://example.invalid" && url.pathname === "/world"
       && url.searchParams.get("view") === "sources" && url.searchParams.get("source") === "tzvi-opoc"
       && [...url.searchParams.keys()].every((key) => ["view", "source", "sourceRef"].includes(key))
@@ -124,18 +132,18 @@ export default function NumberZviPublicResearch2029({
 
   if (!validValue) return null;
   const returnTo = `${location.pathname}${location.search}${location.hash}`;
-  return <section className="zvi-research" aria-label="ממצאים ממקורות צבי למספר" dir="rtl">
+  return <section className="zvi-research" aria-label="ממצאים ציבוריים למספר" dir="rtl">
     <header className="zvi-research__header">
-      <h3 className="zvi-research__title">ממצאים ממקורות צבי</h3>
+      <h3 className="zvi-research__title">ממצאים ממקורות העולם</h3>
       <p className="zvi-research__intro">ממצאים שבהם מופיע המספר. המקור ומצב הבדיקה זמינים בכל ממצא.</p>
     </header>
-    {!state.opened ? <button type="button" className="sod29-action zvi-research__button" onClick={load}>הצגת ממצאי צבי למספר</button> : null}
+    {!state.opened ? <button type="button" className="sod29-action zvi-research__button" onClick={load}>הצגת ממצאים למספר</button> : null}
     {state.loading ? <p className="zvi-research__status" role="status">טוען ממצאים…</p> : null}
     {state.error ? <p className="zvi-research__status" role="status">הממצאים אינם זמינים כרגע. אפשר לנסות שוב.</p> : null}
     {state.omittedUnavailable ? <p className="zvi-research__status">חלק מהחומר או מקורותיו אינם זמינים בתצוגה הציבורית.</p> : null}
     {state.omittedForReview ? <p className="zvi-research__status">חלק מהחומר ממתין לעיון.</p> : null}
     {state.opened && !state.loading && !state.error && !state.rows.length && !state.hasMore && !state.omittedUnavailable && !state.omittedForReview
-      ? <p className="zvi-research__status">לא נמצאו ממצאים ציבוריים למספר זה במקורות צבי.</p> : null}
+      ? <p className="zvi-research__status">לא נמצאו ממצאים להצגה בחיפוש המספרי הזה.</p> : null}
     {state.rows.length ? <ZviFindingCards2029 rows={state.rows} returnTo={returnTo}
       claimedNumber={value} sourceHrefAllowed={validSourceHref} /> : null}
     {state.opened && !state.loading && (state.hasMore || state.error)

@@ -267,3 +267,100 @@ No runtime/UI/CSS changed, no Preview rebuilt/deployed, no Post/Claude gallery/
 Frame/provider/engine or b30 scope acquired. Source data, graph, publication,
 RLS, canonical contract, main and Production are unchanged. Final branch/HEAD
 and scoped release belong to the passive task AFTER.
+
+## 31 October — all-source finding discovery, bounded runtime implementation
+
+Task `ONE_TREE_ALL_SOURCE_FINDING_DISCOVERY_20261031`; passive BEFORE
+`6dc7b172-6a43-479d-8bb0-0840ee5a5698`. Local base
+`c9ae8892927362807b78b48f4898310858fe7de2`; remote base
+`cd8c1555ed62057cf7c8dddd6fb6ea17d5f48548`, identical tree
+`2199ed09114447f2ef7e86a2c21862ade6da2fa3`. Main independently verified as
+`2195c9784c5c9f0b1ec3cd3c1137fbd76045845b`. No other branch was imported.
+
+### What is implemented, without a new research corpus or visual redesign
+
+- Extended existing `worldPublicFindingReader.js` with
+  `fetchWorldPublicFindingsPage`: anonymous, public approved/canonical finding
+  discovery by structured number, literal statement text, exact source and
+  optional explicitly selected source-contributor ID. No implicit Zvi filter.
+- Reused existing presentation/review guards from the historical Zvi reader.
+  A classified research role or exact reviewed fingerprint is still required;
+  `approved` alone does not admit arbitrary material. The historical 248-entry
+  review manifest remains limited to its exact identities, not universal review.
+- Re-admit channel sources through their live anonymous owner; gallery sources
+  through `fetchGallerySourceContext`; Post sources through
+  `fetchPublicWorldPostSource(includeContent:false)`. Gallery reads batch at12;
+  Post concurrency is at most4. Unknown source families and bot-log sources are
+  withheld, not made public by the finding status. Gallery/Post exact-finding
+  opening now repeats source admission, rather than trusting an earlier list.
+- Same universal finding ID, full stored source occurrence ref and honest route
+  precision survive projection. Post routes are Post-level, not an unverified
+  paragraph anchor. Non-Zvi channel sources without a supported source-home
+  locator do not receive a fabricated Zvi link; their finding details remain
+  available. Nothing creates or promotes a graph relation.
+- The existing Number public-findings component and Topic number lens now use
+  this shared discovery reader. Historical component/module filenames remain
+  compatibility names; there is no second generic visual component or Provider.
+- The existing World sources view has an all-source findings entry using the
+  same card component. Its existing search input filters finding text, or the
+  structured value for a plain nonnegative integer. Query `q` is preserved in
+  the URL and exact finding return. Typing itself triggers no finding read.
+  The existing contributor-specific Zvi entry is preserved.
+- Pages examine at most25 rows by default (maximum50), with stable keyset
+  cursors bound to the filter. An empty withheld page can still have a next
+  page; it is not displayed as an empty corpus. No scan-all on page open,
+  new cache/store/registry, model call or product write was added.
+
+### Current counts and real public checks
+
+A fresh complete scan of the pre-existing Zvi display readers on31 October
+returned5,081 classified findings and248 exact-reviewed findings, disjoint,
+for5,329 distinct loadable identities. The earlier967 count is an attachment
+cohort, not the display ceiling. SQL inventory remains5,647 public approved/
+canonical Zvi-source-attributed rows; actual anonymous inventory5,554. These
+are different denominators, not independent-evidence counts or engine results.
+
+Bounded live check of the new reader at `2026-10-31T05:14:47.480Z` made17
+GET/HEAD requests, zero writes/RPC/model calls. Existing number paths returned
+14→1,1118→10,1820→13; text `התגלות`→10. The latter two reported material
+omitted for review. One exact source returned9; a general first page returned
+24 with a next page and a review omission. These are query windows, not totals.
+
+Two existing canonical gallery findings are public at the finding layer, but
+their source images have `published=NULL,min_tier=5`. Both were withheld by
+actual anonymous source admission. Seven other-source bot-log extractions lack
+a supported public source adapter; three bot-log cleanup outputs additionally
+lack a research display role. No source/privacy/publication was changed to
+force these rows into the result set. Positive non-Zvi/channel/gallery/Post
+admission and later intake were verified with synthetic public-source fixtures,
+not by inserting production records.
+
+### Verification and remaining boundaries
+
+- Focused public/number/Topic/World suites:56/56, no skips. Browser tests use
+  the actual Topic number lens and World sources component at320 and1440:
+  non-Zvi result, explicit-only read, text filter, query return, source return,
+  pagination, stale response rejection and newly available material.
+- Existing Number browser:320/390/1440 × three themes; no errors, writes,
+  model calls or unexpected reads. This is functional, not final visual adoption.
+- Both builds, World surface, Topic surface, built graph/lazy, isolation,
+  cheap hardening, Legacy Production lock and `git diff --check` passed.
+- Neighbor suite:32/33. Existing gallery static test forbids any `.delete(`,
+  including unchanged URLSearchParams/Set deletes. Public-language suite2/3:
+  unchanged Frame no longer contains its expected exact conditional literal.
+  Both stale assertions were traced to unchanged base files, not weakened.
+- Canonical18 already requires contributor-independent One Tree projection;
+  it was not rewritten. Plan37 remains planning, not implementation evidence.
+- **Not complete:** the owned shared Frame command still routes into Number,
+  not full statement search. No Frame/Provider/Posts/River/ELS/Books edits,
+  graph-edge inference, OCR/text-to-number derivation or semantic/fuzzy search.
+  Existing gallery/OCR/Post/source-work searches remain their own source-owner
+  capabilities; this change searches admitted findings, not every raw source.
+  Full source-family coverage, source navigation for other contributors, direct
+  Topic/Post relations and the previously identified general-list field-loss
+  defect remain separate work. New findings appear on the next eligible read,
+  not via a new push/novelty service. No claim of every search wired everywhere.
+- Branch-only; no new Preview or hosted UI acceptance, merge, main push,
+  Production, DB/RLS/migration, live publication or source reassignment.
+  Claude's active River design, Posts and shared Frame scopes remain untouched.
+  Exact final local/remote commits and limited release are recorded in AFTER.

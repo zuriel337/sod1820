@@ -46,19 +46,29 @@ test("an explicit numeric zero is accepted and initial render makes no request",
       reader: () => { calls += 1; throw new Error("unexpected request"); },
       clientFactory: () => { calls += 1; throw new Error("unexpected client"); },
     })));
-  assert.match(markup, /הצגת ממצאי צבי למספר/);
+  assert.match(markup, /הצגת ממצאים למספר/);
   assert.equal(calls, 0);
   const invalid = renderToStaticMarkup(React.createElement(MemoryRouter, null,
     React.createElement(NumberZviPublicResearch2029, { value: null })));
   assert.equal(invalid, "");
 });
 
+test("all-source navigation accepts exact native gallery and public Post paths only", () => {
+  assert.equal(validSourceHref(`/world?view=gallery&gallery=29&image=${id}#gallery-source-${id}`), true);
+  assert.equal(validSourceHref("/post/public-source"), true);
+  for (const href of ["/post/public-source?private=1", "/post/%2fprivate", "//outside.test/post/name",
+    `/world?view=gallery&gallery=29&image=${id}#gallery-source-${other}`,
+    `/world?view=gallery&gallery=29&image=${id}&image=${other}#gallery-source-${id}`]) {
+    assert.equal(validSourceHref(href), false);
+  }
+});
+
 test("the real number page places the entry inside the existing source section", () => {
   const markup = renderToStaticMarkup(React.createElement(MemoryRouter, null,
     React.createElement(NumberLivingWorld2029, { root: 224 })));
   const sourceSection = markup.indexOf('id="number-content-live"');
-  const zvi = markup.indexOf('aria-label="ממצאים ממקורות צבי למספר"');
+  const zvi = markup.indexOf('aria-label="ממצאים ציבוריים למספר"');
   const depthGates = markup.indexOf('class="sod29-lw-depth-gates"');
   assert.ok(sourceSection >= 0 && zvi > sourceSection && depthGates > zvi);
-  assert.match(markup.slice(zvi, depthGates), /הצגת ממצאי צבי למספר/);
+  assert.match(markup.slice(zvi, depthGates), /הצגת ממצאים למספר/);
 });

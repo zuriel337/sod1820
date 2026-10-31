@@ -41,8 +41,9 @@ function personalOnly(meta) {
   return text(typeof scope === "object" ? scope?.scope : scope).toLowerCase() === "person_only";
 }
 
-function project(row, { reviewed = false } = {}) {
-  if (!UUID.test(text(row?.id)) || text(row?.source_contributor_id) !== ZVI_SOURCE_CONTRIBUTOR_ID
+function project(row, { reviewed = false, contributorId = ZVI_SOURCE_CONTRIBUTOR_ID,
+  admittedSourceRef = null, admittedSourceHref = null } = {}) {
+  if (!UUID.test(text(row?.id)) || (contributorId && text(row?.source_contributor_id) !== contributorId)
     || text(row?.privacy_scope).toLowerCase() !== "public"
     || !["approved", "canonical"].includes(text(row?.status).toLowerCase()) || personalOnly(row?.meta)
     || (!reviewed && !acceptedResearch(row))
@@ -56,7 +57,7 @@ function project(row, { reviewed = false } = {}) {
   const chars = Array.from(statement);
   return Object.freeze({
     id: text(row.id),
-    sourceRef: sourceId && source.exact ? `channel_updates:${sourceId}` : null,
+    sourceRef: admittedSourceRef || (sourceId && source.exact ? `channel_updates:${sourceId}` : null),
     findingRef: universalFindingId({
       kind: "research-object",
       sourceIdentity: { researchObjectId: text(row.id) },
@@ -76,8 +77,27 @@ function project(row, { reviewed = false } = {}) {
     ocrNeedsReview: /ocr/i.test(text(row.statement))
       || ocrFlags.some((flag) => flag === true || text(flag).toLowerCase() === "true"),
     findingHref: `/world?${new URLSearchParams({ finding: text(row.id) })}`,
-    sourceHref: source.exact ? source.href : null,
+    sourceHref: admittedSourceRef ? admittedSourceHref : (source.exact ? source.href : null),
   });
+}
+
+// Shared admission/presentation seam, not another contributor-specific corpus.
+// Public discovery must keep these guards instead of admitting every approved row.
+export async function publicResearchPresentationEligible(row, { subtle = globalThis.crypto?.subtle } = {}) {
+  if (!project(row, { reviewed: true, contributorId: null })
+    || worldPreviewMaterialExclusion(row, "research_object")) return false;
+  if (acceptedResearch(row)) return true;
+  // This historical manifest reviews exact Zvi identities only. It cannot certify
+  // a different contributor, changed wording or an arbitrary approved source.
+  if (text(row.source_contributor_id) !== ZVI_SOURCE_CONTRIBUTOR_ID) return false;
+  const entry = ZVI_REVIEWED_FINDINGS.find((item) => item.id === row.id);
+  return Boolean(entry && await reviewedFingerprint(row, subtle) === entry.fingerprint);
+}
+
+export function projectPublicResearchFinding(row, { sourceRef, sourceHref = null } = {}) {
+  if (!sourceRef) return null;
+  return project(row, { reviewed: true, contributorId: null,
+    admittedSourceRef: sourceRef, admittedSourceHref: sourceHref });
 }
 
 async function livePublicSourceIds(client, rows) {
