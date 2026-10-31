@@ -4,6 +4,9 @@ import fs from 'node:fs';
 import handler from '../preview-deploy/api/contributor-self.js';
 
 const response=()=>({code:0,headers:{},setHeader(k,v){this.headers[k]=v;},status(code){this.code=code;return this;},json(body){this.body=body;return this;}});
+test('Preview Node entry shares the canonical ESM package mode used by its imported handler',()=>{
+ for(const path of ['../preview-deploy/package.json','../package.json'])assert.equal(JSON.parse(fs.readFileSync(new URL(path,import.meta.url),'utf8')).type,'module');
+});
 test('Preview SPA fallback excludes API paths and retains native personal routes',()=>{
  const config=JSON.parse(fs.readFileSync(new URL('../preview-deploy/vercel.json',import.meta.url),'utf8'));
  const fallback=config.rewrites.find(r=>r.destination==='/index.html');const match=new RegExp('^'+fallback.source+'$');
