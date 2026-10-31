@@ -247,7 +247,7 @@ def community_case(page, width, suffix="", theme="dark"):
     expect(footer).to_contain_text("משתפים בכבוד, מצרפים מקורות כשאפשר ושומרים על הפרטיות.")
     assert footer.evaluate("e=>Boolean(e.compareDocumentPosition(document.querySelector('.sod29-community-feed')) & Node.DOCUMENT_POSITION_PRECEDING)")
     assert footer.evaluate("e=>Boolean(e.compareDocumentPosition(document.getElementById('legacy-chat')) & Node.DOCUMENT_POSITION_FOLLOWING)")
-    expect(footer.get_by_role("link", name="לשיחות הוותיקות", exact=False)).to_have_attribute("href", "#legacy-chat")
+    expect(footer.get_by_role("link", name="ממשיכים לשוחח", exact=False)).to_have_attribute("href", "#legacy-chat")
     expect(legacy).to_have_attribute("data-openweb-loaded", "false")
     expect(legacy.locator("[data-spotim-module]")).to_have_count(0)
     assert legacy.get_by_role("link", name="פתיחת הצ׳אט המקורי").get_attribute("href") == "https://sod1820.co.il/community/chat"
