@@ -3306,6 +3306,41 @@ function elsRazielReadingText(context) {
 ` : "";
 }
 
+// supabase/functions/_shared/functionalPreviewIdentity.js
+var FUNCTIONAL_PREVIEW_IDENTITY = Object.freeze({
+  issuers: ["https://oidc.vercel.com/sod1820-s-projects", "https://oidc.vercel.com"],
+  audience: "https://vercel.com/sod1820-s-projects",
+  subject: "owner:sod1820-s-projects:project:sod1820:environment:preview",
+  projectId: "prj_43q7k7QFAcWnin1tcBjce5xOi7Cq",
+  ownerId: "team_vtfWHZfKvdbob8gvynQb5N89"
+}), keySets = /* @__PURE__ */ new Map();
+function functionalPreviewJwtOptions(issuer) {
+  if (!FUNCTIONAL_PREVIEW_IDENTITY.issuers.includes(issuer)) throw new Error("preview_issuer_denied");
+  return {
+    issuer,
+    audience: FUNCTIONAL_PREVIEW_IDENTITY.audience,
+    subject: FUNCTIONAL_PREVIEW_IDENTITY.subject,
+    algorithms: ["RS256"],
+    requiredClaims: ["iss", "aud", "sub", "exp", "iat"],
+    maxTokenAge: "2h",
+    clockTolerance: 10
+  };
+}
+async function verifyPlatformToken(token) {
+  let { decodeJwt, createRemoteJWKSet, jwtVerify } = await import("npm:jose@6.2.13"), issuer = decodeJwt(token).iss;
+  if (!FUNCTIONAL_PREVIEW_IDENTITY.issuers.includes(issuer)) throw new Error("preview_issuer_denied");
+  return keySets.has(issuer) || keySets.set(issuer, createRemoteJWKSet(new URL(issuer + "/.well-known/jwks"), { timeoutDuration: 5e3 })), jwtVerify(token, keySets.get(issuer), functionalPreviewJwtOptions(issuer));
+}
+async function verifyFunctionalPreviewIdentity(token, { userRef, verifyToken = verifyPlatformToken } = {}) {
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(userRef || "") || typeof token != "string" || token.length > 16384 || token.split(".").length !== 3) return !1;
+  try {
+    let { payload } = await verifyToken(token);
+    return !(!FUNCTIONAL_PREVIEW_IDENTITY.issuers.includes(payload.iss) || !(Array.isArray(payload.aud) ? payload.aud : [payload.aud]).includes(FUNCTIONAL_PREVIEW_IDENTITY.audience) || payload.sub !== FUNCTIONAL_PREVIEW_IDENTITY.subject || payload.project_id != null && payload.project_id !== FUNCTIONAL_PREVIEW_IDENTITY.projectId || payload.owner_id != null && payload.owner_id !== FUNCTIONAL_PREVIEW_IDENTITY.ownerId || payload.environment != null && payload.environment !== "preview");
+  } catch {
+    return !1;
+  }
+}
+
 // supabase/functions/ai-analyze/index.ts
 var ANTHROPIC_KEY = (Deno.env.get("ANTHROPIC_API_KEY") || "").trim(), GEMINI_KEY = (Deno.env.get("GEMINI_API_KEY") || "").trim(), MODEL = (Deno.env.get("ANALYZE_MODEL") || "claude-sonnet-5").trim(), FAST_MODEL = (Deno.env.get("CHAT_MODEL") || "claude-haiku-4-5").trim(), RAZIEL_DEEP_MAX_TOKENS = 4e3, RAZIEL_VIEW_FAST_MAX_TOKENS = 2400, GEMINI_MODEL_RAW = (Deno.env.get("GEMINI_MODEL") || "").trim(), GEMINI_MODEL = GEMINI_MODEL_RAW.startsWith("gemini") ? GEMINI_MODEL_RAW : "gemini-2.5-flash", CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -5326,11 +5361,14 @@ Deno.serve(async (req) => {
         return rzJson({ analysis: null, error: "invalid_personal_area_companion_contract" }, 400);
       if (rElsPlanningRequested && (!rElsPlanningAction || !razielElsPlanningEnvelopeSafe(body, rElsPlanningAction) || rPersonalAreaCompanionRequested))
         return rzJson({ analysis: null, error: "invalid_els_planning_contract" }, 400);
-      let rViewMode = rCanonicalResearchOptIn ? normalizeRazielViewMode(body?.view_mode) : "general", { identity: identity2, tier: tier2 } = rTrusted ? { identity: rTrusted.identity, tier: rTrusted.tier } : await resolveIdentity(req, body);
+      let rViewMode = rCanonicalResearchOptIn ? normalizeRazielViewMode(body?.view_mode) : "general", { identity: identity2, tier: tier2 } = rTrusted ? { identity: rTrusted.identity, tier: rTrusted.tier } : await resolveIdentity(req, body), functionalPreviewIdentity = !rTrusted && await verifyFunctionalPreviewIdentity(
+        req.headers.get("x-sod-preview-identity"),
+        { userRef: identity2.startsWith("u:") ? identity2.slice(2) : null }
+      );
       if (!rTrusted) {
         let availability = await traceRpc("fn_capability_execution_gate_v1", {
           p_capability: "ai-analyze:raziel:site",
-          p_flag_key: "lock_raziel_site",
+          p_flag_key: functionalPreviewIdentity ? null : "lock_raziel_site",
           p_required_entitlement: "public",
           p_user_ref: identity2.startsWith("u:") ? identity2.slice(2) : null,
           p_visitor: identity2.startsWith("v:") ? identity2.slice(2) : null,
@@ -5356,7 +5394,7 @@ Deno.serve(async (req) => {
         }), !rElsReadingContext) return rzJson({ analysis: null, error: "els_reading_context_unavailable" }, 422);
       }
       if (rMatrixReading) {
-        let rReadingEnabled = Deno.env.get("ELS_MATRIX_READING_ENABLED") ?? "off", readingTrace = { current: null }, readingOp = await runElsMatrixReadingOperation({
+        let rReadingEnabled = Deno.env.get("ELS_MATRIX_READING_ENABLED") ?? (functionalPreviewIdentity ? "on" : "off"), readingTrace = { current: null }, readingOp = await runElsMatrixReadingOperation({
           action: rMatrixReading,
           axis: rMatrix.axis,
           identity: identity2,

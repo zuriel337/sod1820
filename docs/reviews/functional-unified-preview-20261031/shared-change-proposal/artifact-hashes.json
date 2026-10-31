@@ -16,7 +16,7 @@
   },
   {
     "path": "supabase/functions/ai-analyze/.build/index.ts",
-    "sha256": "b5fef2472d025ea9b19c0429208d633522a97a34f1c772216f37e34525259c96",
-    "bytes": 593102
+    "sha256": "2ac19e112e77e71fbab61270338e126edf88128a786f3425b09157291494281f",
+    "bytes": 595627
   }
 ]
