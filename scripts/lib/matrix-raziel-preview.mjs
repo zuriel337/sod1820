@@ -8,6 +8,7 @@ export const MATRIX_RAZIEL_PREVIEW_BRANCHES = new Set([
   "claude/els-matrix-discovery-raziel-preview-20261028",
 ]);
 export const MATRIX_READING_PREVIEW_BRANCHES = new Set([
+  "gpt/els-research-area-preview-20261031",
   "gpt/els-language-preview-20261031",
   "gpt/els-context-reset-20261031",
   "gpt/els-search-order-preview-20261031",
@@ -28,6 +29,7 @@ export const MATRIX_READING_PREVIEW_BRANCHES = new Set([
 export const RAZIEL_ACCOUNT_PREVIEW_BRANCH = "gpt/raziel-account-sync-map-20261030";
 export const RAZIEL_ACCOUNT_PREVIEW_BRANCHES = new Set([
   RAZIEL_ACCOUNT_PREVIEW_BRANCH,
+  "gpt/els-research-area-preview-20261031",
   "gpt/els-language-preview-20261031",
   "gpt/els-context-reset-20261031",
   "gpt/els-search-order-preview-20261031",

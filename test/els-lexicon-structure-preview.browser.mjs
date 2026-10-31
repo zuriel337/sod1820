@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import { existsSync, mkdirSync } from 'node:fs';
 import { createRequire } from 'node:module';
 const { chromium } = createRequire(import.meta.url)('playwright');
+process.env.PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS = '1';
 
 const supplied = new URL(process.env.ELS_PREVIEW_URL);
 assert.match(supplied.hostname, /^sod1820-[a-z0-9]+-sod1820-s-projects\.vercel\.app$/);
@@ -11,10 +12,11 @@ assert.equal(supplied.protocol, 'https:');
 const expectedSha = process.env.ELS_PREVIEW_SHA;
 assert.match(expectedSha || '', /^[a-f0-9]{40}$/);
 const expectedBranch = process.env.ELS_PREVIEW_BRANCH || 'gpt/els-lexicon-structure-preview-20261030';
+const researchArea = expectedBranch === 'gpt/els-research-area-preview-20261031';
 const searchOrder = expectedBranch === 'gpt/els-search-order-preview-20261031';
 const planners = searchOrder || expectedBranch === 'gpt/els-search-planners-preview-20261031';
-assert.ok(['gpt/els-lexicon-structure-preview-20261030','gpt/els-search-clarity-preview-20261030','gpt/els-unified-research-preview-20261031','gpt/els-search-planners-preview-20261031','gpt/els-search-order-preview-20261031'].includes(expectedBranch));
-const unified = planners || expectedBranch === 'gpt/els-unified-research-preview-20261031';
+assert.ok(researchArea || ['gpt/els-lexicon-structure-preview-20261030','gpt/els-search-clarity-preview-20261030','gpt/els-unified-research-preview-20261031','gpt/els-search-planners-preview-20261031','gpt/els-search-order-preview-20261031'].includes(expectedBranch));
+const unified = researchArea || planners || expectedBranch === 'gpt/els-unified-research-preview-20261031';
 const browser = await chromium.launch({ headless:true,
   executablePath:existsSync('/usr/bin/chromium')?'/usr/bin/chromium':chromium.executablePath(),
   args:['--no-sandbox'] });
@@ -37,6 +39,7 @@ try {
     page.on('pageerror',e=>errors.push(e.message));
     await page.goto(supplied.href,{waitUntil:'domcontentloaded'});
     await page.getByRole('navigation',{name:'מצבי הצופן התנ״כי'}).waitFor({timeout:60000});
+    if(researchArea)await page.getByRole('navigation',{name:'מצבי הצופן התנ״כי'}).getByRole('button',{name:'מחקר',exact:true}).click();
     const identity=await page.evaluate(async()=>{
       const response=await fetch('/preview-identity.json');
       if(!response.ok)throw new Error('preview_identity_unavailable');
@@ -84,7 +87,16 @@ try {
       const words=page.getByText(unified?'גילוי וקשרים במטריצה · ללא AI':'מילים במטריצה · ללא AI',{exact:true});
       const structures=page.getByText(unified?'בדיקת הסימונים והשוואת מופעים':'מבנים והשוואת מופעים · ללא AI',{exact:true});
       assert.ok(await words.isVisible());
-      if(!await words.evaluate(n=>n.parentElement.open))await words.click();
+      if(researchArea){
+        const entry=page.getByRole('button',{name:'כלי מחקר',exact:true});
+        assert.deepEqual(await page.locator('.els29-native-toolstrip > button').evaluateAll(nodes=>nodes.map(n=>n.getAttribute('aria-label'))),['סריקה וממצאים','תוצאות','שמירה','גילוי עם AI']);
+        const geometry=await page.locator('.els29-native-structure-entry').evaluate(el=>{
+          const area=el.getBoundingClientRect(),stage=el.parentElement.querySelector('.els29-native-stage-column').getBoundingClientRect();
+          return {top:area.top,stageBottom:stage.bottom,inInspector:!!el.closest('.els29-native-panel-wrap')};
+        });
+        assert.equal(geometry.inInspector,false);assert.ok(geometry.top>=geometry.stageBottom-1,JSON.stringify(geometry));
+        if(await entry.getAttribute('aria-expanded')!=='true')await entry.click();
+      }else if(!await words.evaluate(n=>n.parentElement.open))await words.click();
       const workspace=page.getByRole('region',{name:unified?'גילוי וקשרים במטריצה':'מילים במטריצה',exact:true});
       await workspace.waitFor();
       if(unified){
@@ -104,6 +116,14 @@ try {
       }
       const size=await page.evaluate(()=>({client:document.documentElement.clientWidth,scroll:document.documentElement.scrollWidth}));
       assert.ok(size.scroll<=size.client+1,JSON.stringify({width,theme,size}));
+      if(researchArea){
+        if(process.env.ELS_PREVIEW_SCREENSHOTS){mkdirSync(process.env.ELS_PREVIEW_SCREENSHOTS,{recursive:true});await page.locator('.els29-native-structure-entry').scrollIntoViewIfNeeded();await page.screenshot({path:process.env.ELS_PREVIEW_SCREENSHOTS+`/research-${width}-${theme}.png`});}
+        const modes=page.getByRole('navigation',{name:'מצבי הצופן התנ״כי'});
+        await modes.getByRole('button',{name:'קלאסי',exact:true}).click();
+        assert.equal(await page.locator('.els29-native-structure-entry').isVisible(),false);
+        await modes.getByRole('button',{name:'מחקר',exact:true}).click();
+        assert.equal(await page.getByRole('button',{name:'כלי מחקר',exact:true}).getAttribute('aria-expanded'),'true');
+      }
       await page.locator('.sod29-command-island .sod29-raziel-orb').click();
       const chat=page.locator(width>=1000?'[data-raziel-companion-view="open"] [data-raziel-native-chat="true"]':'.sod29-frame-panel [data-raziel-native-chat="true"]');
       await chat.waitFor();
