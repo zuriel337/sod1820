@@ -62,9 +62,10 @@ test("the matrix is decoration; title, sentence and action are live UI", () => {
 
 test("subtitle is exactly the wording ZURIEL specified (explicit Human Gate decision, 31.10.2026)", () => {
   assert.match(code, /export const ELS_CARD_SENTENCE = "AI · מנוע חיפוש עוצמתי";/);
-  // Recorded caveat, kept visible so a later owner can revisit it: the ELS page itself says "no AI guessing".
-  const guided = fs.readFileSync("src/components/experience2029/ElsGuidedDiscovery2029.jsx", "utf8");
-  assert.match(guided, /בלי ניחוש של AI/);
+  // This is the source handoff's historical caveat, not a frozen sentence in the
+  // newer central ELS page. Keep the provenance alongside the exact approved copy.
+  const handoff = fs.readFileSync("docs/reviews/els-home-rotating-matrix-card-20261031.md", "utf8");
+  assert.match(handoff, /בלי ניחוש של AI/);
 });
 
 test("availability is the existing feature state - nothing is enabled locally", () => {

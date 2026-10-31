@@ -210,12 +210,14 @@ try {
   {
     const collect = async (base) => {
       const srv = await serve(base);
-      const { context, page } = await openHome(browser, srv.origin, { width: 1440, height: 900, wait: ".h29" });
       const urls = [];
-      page.on("request", (request) => urls.push(request.method() + " " + new URL(request.url()).pathname.replace(/\/\d+(?=\/|$)/g, "/#").replace(/-[A-Za-z0-9_-]{8}\.(js|css)$/, ".$1")));
-      await page.reload({ waitUntil: "load" });
-      await page.waitForSelector(".els-hm, .h29", { timeout: 25000 });
-      await page.waitForTimeout(3500);
+      // Observe one fresh navigation from its beginning. Registering after an
+      // initial mount and immediately reloading mixed two pages' pending reads.
+      const { context, page } = await openHome(browser, srv.origin, {
+        width: 1440, height: 900, wait: ".h29",
+        route: async page => page.on("request", request => urls.push(request.method() + " " + new URL(request.url()).pathname.replace(/\/\d+(?=\/|$)/g, "/#").replace(/-[A-Za-z0-9_-]{8}\.(js|css)$/, ".$1"))),
+      });
+      await settle(page);
       await context.close(); srv.server.close();
       return urls;
     };
