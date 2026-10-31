@@ -1617,12 +1617,15 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
             readingFindings={readingOverlayVisible ? readingProjection.findings : []} selectedReading={selectedReading} readingFocus={readingDisplay?.focus} />
         </main>
         <footer className="els29-native-bottom-controls" role="group" aria-label="תצוגת המטריצה">
+          <button type="button" className="els29-matrix-quick-action els29-matrix-height-trigger"
+            aria-label={heightExpanded ? "חזור לגובה הרגיל" : "הגדל גובה ב־50%"}
+            title={heightExpanded ? "חזור לגובה הרגיל" : "הגדל את גובה המטריצה ב־50%"}
+            aria-pressed={heightExpanded} onClick={() => setHeightExpanded(value => !value)}>
+            <bdi dir="ltr">{heightExpanded ? "100%" : "+50%"}</bdi><span>{heightExpanded ? "רגיל" : "גובה"}</span>
+          </button>
           <button type="button" className="els29-matrix-quick-action" aria-label="סימון חופשי"
             aria-pressed={!!engineState?.ui?.selMode} disabled={!matrixActive || searchPending}
             onClick={() => requestSelection("selection-mode")}><NavigationIcon2029 name="check" /><span>סימון</span></button>
-          <button type="button" className="els29-matrix-quick-action" aria-label="התאם מטריצה למסך" aria-pressed={!!engineState?.ui?.fit}
-            disabled={!matrixActive || searchPending || ["searching", "verifying"].includes(operations.findings?.status)} onClick={() => requestControl("fit-toggle")}>
-            <NavigationIcon2029 name="scan" /><span>התאמה</span></button>
           <ElsMatrixShare2029 state={engineState} disabled={!matrixActive || searchPending || ["searching", "verifying"].includes(operations.findings?.status)} />
           <button ref={matrixOptionsTriggerRef} type="button" className="els29-matrix-quick-action els29-matrix-more-trigger"
             aria-label="עוד אפשרויות תצוגה" aria-expanded={matrixOptionsOpen} aria-controls="els29-matrix-display-options"
@@ -1630,9 +1633,9 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
           <div id="els29-matrix-display-options" className="els29-matrix-display-options" hidden={!matrixOptionsOpen}
             role="group" aria-label="אפשרויות תצוגת המטריצה"
             onKeyDown={event => { if(event.key === "Escape") { event.stopPropagation();setMatrixOptionsOpen(false);matrixOptionsTriggerRef.current?.focus(); } }}>
-          <button type="button" aria-pressed={heightExpanded} onClick={() => setHeightExpanded((value) => !value)}>
-            {heightExpanded ? "חזור לגובה הרגיל" : "הגדל גובה ב־50%"}
-          </button>
+          <button type="button" aria-label="התאם מטריצה למסך" aria-pressed={!!engineState?.ui?.fit}
+            disabled={!matrixActive || searchPending || ["searching", "verifying"].includes(operations.findings?.status)}
+            onClick={() => requestControl("fit-toggle")}>התאמה למסך</button>
           <button type="button" aria-pressed={!!engineState?.ui?.heat} disabled={!matrixActive}
             title="צפיפות סביב אותיות הציר והממצאים המאומתים" onClick={() => requestControl("heat-toggle")}>מפת חום</button>
           <button type="button" aria-label="סימון הציר הראשי" aria-pressed={!engineState?.ui?.hideMain}

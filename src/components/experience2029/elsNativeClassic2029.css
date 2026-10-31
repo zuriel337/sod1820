@@ -173,6 +173,8 @@
 .els29-native-bottom-controls button:is([aria-pressed="true"],[aria-expanded="true"]){border-color:var(--s29-accent);background:var(--s29-panel-soft);color:var(--s29-accent-text)}
 .els29-native-bottom-controls>button{grid-row:1;display:grid;justify-items:center;align-content:center;gap:3px;padding:6px 2px;min-height:64px}
 .els29-native-bottom-controls>button svg{width:22px;height:22px}
+.els29-native-bottom-controls>.els29-matrix-height-trigger{grid-column:1;border-color:var(--s29-accent);background:var(--s29-panel-soft);color:var(--s29-accent-text);font-weight:700}
+.els29-matrix-height-trigger>bdi{font-family:var(--s29-font-numeric);font-size:var(--s29-type-body);line-height:1.3}
 .els29-native-bottom-controls>.els29-matrix-share-trigger{grid-column:3}
 .els29-native-bottom-controls>.els29-matrix-more-trigger{grid-column:4}
 .els29-matrix-display-options{grid-column:1/-1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding-block:12px 6px;border-block-start:1px solid var(--s29-line)}

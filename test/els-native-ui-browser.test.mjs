@@ -93,10 +93,27 @@ test('matrix toolbar is compact, preserves every display action and clears the r
   assert.equal(await controls.locator(':scope > button').count(),4);
   const boxes=await controls.locator(':scope > button').evaluateAll(nodes=>nodes.map(el=>{const b=el.getBoundingClientRect();return {x:b.x,y:b.y,width:b.width,height:b.height,font:parseFloat(getComputedStyle(el).fontSize)};}));
   assert.ok(boxes.every(b=>Math.abs(b.y-boxes[0].y)<1&&Math.abs(b.width-boxes[0].width)<1&&b.width>=44&&b.height>=44&&b.font>=16),'one equal-width row, readable and touch-sized');
+  assert.ok(boxes.slice(1).every(b=>boxes[0].x>b.x),'height is the rightmost action in the RTL row');
+  const grow=controls.getByRole('button',{name:'הגדל גובה ב־50%',exact:true});
+  assert.equal(await controls.locator(':scope > button').first().getAttribute('aria-label'),'הגדל גובה ב־50%');
+  assert.equal(await grow.isVisible(),true,'height is visible without opening More');
+  assert.equal(await controls.getByRole('button',{name:'התאם מטריצה למסך',exact:true,includeHidden:true}).count(),1,'fit remains a single action');
+  const regularHeight=await stageHeight(page);
+  await grow.click();
+  assert.ok(Math.abs(await stageHeight(page)-regularHeight*1.5)<=1,'one explicit click enlarges height by exactly 50%');
+  assert.equal(await more.getAttribute('aria-expanded'),'false','height does not open the disclosure');
+  const restore=controls.getByRole('button',{name:'חזור לגובה הרגיל',exact:true});
+  assert.equal(await restore.getAttribute('aria-pressed'),'true');
+  await restore.press('Enter');assert.ok(Math.abs(await stageHeight(page)-regularHeight)<=1,'keyboard restores regular height');
   assert.ok((await controls.boundingBox()).height<90,'closed controls are not a wall of buttons');
   await more.click();assert.equal(await more.getAttribute('aria-expanded'),'true');
-  for(const name of ['הגדל גובה ב־50%','מפת חום','סימון הציר הראשי','אותיות קלאסיות','הדגש פסוק במטריצה','מצב מצלמה'])
+  for(const name of ['התאם מטריצה למסך','מפת חום','סימון הציר הראשי','אותיות קלאסיות','הדגש פסוק במטריצה','מצב מצלמה'])
    assert.equal(await options.getByRole('button',{name,exact:true}).isVisible(),true,name+' remains available');
+  const wasFit=await options.getByRole('button',{name:'התאם מטריצה למסך',exact:true}).getAttribute('aria-pressed');
+  await options.getByRole('button',{name:'התאם מטריצה למסך',exact:true}).click();
+  await page.waitForFunction(v=>String(!!window.__state.ui.fit)!==v,wasFit);
+  await options.getByRole('button',{name:'התאם מטריצה למסך',exact:true}).click();
+  await page.waitForFunction(v=>String(!!window.__state.ui.fit)===v,wasFit);
   await options.getByRole('button',{name:'מפת חום',exact:true}).click();await page.waitForFunction(()=>window.__state.ui.heat);
   await options.getByRole('button',{name:'מפת חום',exact:true}).press('Escape');
   assert.equal(await more.getAttribute('aria-expanded'),'false');assert.equal(await more.evaluate(el=>el===document.activeElement),true);
@@ -111,6 +128,8 @@ test('matrix toolbar is compact, preserves every display action and clears the r
   await selection.getByText(/פותח חיפוש חדש/).waitFor();await help.click();
   for(const theme of ['light','parchment','dark']){
    await page.evaluate(t=>window.__setThemePreset(t),theme);
+   assert.equal(await grow.isVisible(),true);
+   assert.equal(await grow.evaluate(el=>getComputedStyle(el).borderTopColor===getComputedStyle(el).backgroundColor),false,'height stays prominent in every theme');
    await selection.evaluate(el=>el.scrollIntoView({block:'end',behavior:'instant'}));
    const overlays=await page.locator('.sod29-command-island,.sod29-feed-chip,.sod29-selection-cue').evaluateAll(nodes=>nodes.filter(el=>el.getClientRects().length).map(el=>el.getBoundingClientRect().top));
    const mark=await selection.boundingBox();
