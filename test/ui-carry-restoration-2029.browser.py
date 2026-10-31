@@ -238,8 +238,8 @@ def community_case(page, width, suffix="", theme="dark"):
         assert legacy.evaluate("e => { const r=e.getBoundingClientRect(); return r.top < innerHeight && r.bottom > 0; }")
     assert feed.evaluate("e=>e.getBoundingClientRect().top + scrollY") < legacy.evaluate("e=>e.getBoundingClientRect().top + scrollY")
     expect(feed.locator(".sod29-community-aside")).to_have_count(0)
-    expect(feed.get_by_role("heading", name="הקהילה", exact=True)).to_have_count(1)
-    expect(feed.get_by_text("מקום לשתף, לשאול ולגלות יחד.", exact=True)).to_be_visible()
+    expect(feed.locator(".sod29-community-intro h1")).to_have_count(1)
+    expect(feed.get_by_text("מקום לשתף, לשאול ולגלות יחד.", exact=True)).to_have_count(0)
     main = feed.locator(".sod29-community-main")
     geometry = feed.evaluate("e=>{const r=e.getBoundingClientRect(), m=e.querySelector('.sod29-community-main').getBoundingClientRect();return {page:r.width,content:m.width,columns:getComputedStyle(e.querySelector('.sod29-community-layout')).gridTemplateColumns.split(' ').length}}")
     assert geometry["columns"] == 1 and abs(geometry["page"] - geometry["content"]) <= 1, geometry

@@ -1,4 +1,4 @@
-import React, { lazy, Suspense, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import React, { lazy, Suspense, useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { useAuth } from "../../lib/AuthContext.jsx";
 import { appendCommunityAttachments, COMMUNITY_ATTACHMENT_ACCEPT, COMMUNITY_ATTACHMENT_MAX_FILES, uploadCommunityAttachment, validateCommunityAttachment } from "../../lib/community/communityAttachments.js";
@@ -21,9 +21,18 @@ import UserBadge from "../UserBadge.jsx";
 import { MessageConfirm, MessageEditor } from "./CommunityMessageManage.jsx";
 import { useCommunityMessageActions2029 } from "./useCommunityMessageActions2029.js";
 import QuickProfileAvatar2029 from "../contributor2029/QuickProfileAvatar2029.jsx";
+import publicStats from "../../lib/community/communityPublicStats2029.json";
 
 const dateFormat = new Intl.DateTimeFormat("he-IL", { dateStyle: "medium", timeStyle: "short" });
 const sinceFormat = new Intl.DateTimeFormat("he-IL", { day: "numeric", month: "long", year: "numeric" });
+const compactMessages = new Intl.NumberFormat("en", { notation: "compact", maximumFractionDigits: 1 }).format(publicStats.messages);
+function ConversationCount({ bottom = false }) {
+  const detailId = useId();
+  return <span className="sod29-community-conversation-count" data-position={bottom ? "bottom" : "top"}>
+    <button type="button" popoverTarget={detailId} aria-label={`${compactMessages} הודעות. פרטי הספירה`}>{bottom ? <><bdi>{compactMessages}</bdi> הודעות</> : <bdi>({compactMessages})</bdi>}</button>
+    <span id={detailId} popover="auto" className="sod29-community-count-detail">כולל הצ׳אט הישן</span>
+  </span>;
+}
 const sourceLabels = { openweb: "הצ׳אט הישן", community_2029: "הקהילה", number: "מספר", els: "צופן", forum: "דיון", community: "קהילה" };
 const PublicContributor2029Page = lazy(() => import("../../pages/PublicContributor2029Page.jsx"));
 
@@ -484,20 +493,19 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
     {!memberId ? leadingContent : null}
     <main id="community-new-chat" className={`sod29-community sod29-community--artwork${!memberId && !claimId ? " sod29-community--full" : ""}`} data-community-mode="connected-preview" dir="rtl" style={{ "--community-input": palette.mode === "dark" ? `color-mix(in srgb, ${palette.cardRaised} 82%, ${palette.ink})` : palette.cardRaised }}>
       {claimId ? <LegacyAccountClaim key={claimId} contributorId={claimId} palette={palette} /> : null}
-      {!memberId && !claimId ? <header className="sod29-community-intro"><div><h1>הקהילה</h1><p>מקום לשתף, לשאול ולגלות יחד.</p></div></header> : null}
+      {!memberId && !claimId ? <header className="sod29-community-intro"><h1>שיחה {!threadFocus ? <ConversationCount /> : null}</h1></header> : null}
       {claimId ? null : memberId ? <Suspense fallback={null}>
         <PublicContributor2029Page communityAuthorKey={memberId}
           entryReturnHref={communityPersonReturnHref(window.location.pathname, params.toString(), window.location.hash)}
           communityOwnProfileHref={isOwner ? writerPersonalHref("profile", { returnTo: window.location.pathname + window.location.search }) : null}
           onCommunityReply={(item) => { closeProfile(); startReply(item); }} />
       </Suspense> : <div className="sod29-community-layout"><section className="sod29-community-main" aria-label="מרחב הקהילה">
-        <CommunitySignIn compact />
-        <LegacyAccountClaimEntry rows={rows} onClaimed={messageActions.retry} />
+        <div className="sod29-community-entry-tools"><CommunitySignIn compact /><LegacyAccountClaimEntry rows={rows} onClaimed={messageActions.retry} /></div>
         {messageActions.principalKey && messageActions.state === "unavailable" ? <p role="status">אפשרויות העריכה אינן זמינות כרגע. <button type="button" className="sod29-community-secondary" onClick={messageActions.retry}>ניסיון נוסף</button></p> : null}
         <section className="sod29-community-composer" aria-label="כתיבת הודעה">
           <label htmlFor="community-live-draft">מה תרצו לשתף?</label>
           {replyTo ? <div className="sod29-community-reply-target"><span>תשובה ל{replyTo.authorName}</span><button type="button" onClick={() => setReplyTo(null)}>ביטול תשובה</button></div> : null}
-          <textarea ref={composerRef} id="community-live-draft" rows={2} maxLength={1500} value={draft} onChange={(event) => setDraft(event.target.value)} placeholder="הוסף תגובה…" />
+          <textarea ref={composerRef} id="community-live-draft" rows={2} maxLength={1500} value={draft} onChange={(event) => setDraft(event.target.value)} placeholder="כתבו משהו לקהילה…" />
           <CommunityMessageContent text={draft} previewsOnly />
           <div className="sod29-community-attachment-toolbar"><button type="button" className="sod29-community-text-action" disabled={sending || !user || attachments.length >= COMMUNITY_ATTACHMENT_MAX_FILES} title={!user ? "יש להתחבר כדי לצרף קבצים" : undefined} onClick={() => attachmentRef.current?.click()}>📎 צירוף קובץ או סרטון</button><input ref={attachmentRef} type="file" multiple accept={COMMUNITY_ATTACHMENT_ACCEPT} onChange={pickAttachments} hidden /><small>עד 3 קבצים · סרטון עד 50MB, קובץ אחר עד 8MB · גלויים לציבור</small></div>
           {attachments.length ? <ul className="sod29-community-attachment-list">{attachments.map((item, index) => <li key={`${item.file.name}-${index}`}><span>{item.name}</span><button type="button" disabled={sending} onClick={() => setAttachments((current) => current.filter((_, itemIndex) => itemIndex !== index))} aria-label={`הסרת ${item.name}`}>×</button></li>)}</ul> : null}
@@ -516,10 +524,10 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
           {focusedThreadState === "not_found" ? <FrameState kind="empty" title="השיחה אינה זמינה"><p>ייתכן שהשיחה אינה ציבורית או שהוסרה.</p></FrameState> : null}
           {focusedThread ? <LiveThread key={focusedThread.id} row={focusedThread} accountProfiles={accountProfiles} onReply={startReply} replyCounts={replyCounts} onRepliesLoaded={onRepliesLoaded} refreshToken={threadRefresh} focusPath={threadFocus.path} messageActions={messageActions} /> : null}
         </section> : <>
-          <label className="sod29-community-search"><span className="sod29-community-sr-only">חיפוש בשיחות שבדף</span><input type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="חיפוש בשיחות שבדף" /></label>
+          <div className="sod29-community-stream-tools"><label className="sod29-community-search"><span className="sod29-community-sr-only">חיפוש בשיחות שבדף</span><input type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="חיפוש בשיחות שבדף" /></label>
           <section className="sod29-community-feed-controls" aria-label="סידור וסינון השיחות" aria-describedby="community-search-scope">
             <div className="sod29-community-feed-controls-top">
-              <label className="sod29-community-sort sod29-community-stream-sort">סדר לפי <select value={sort} aria-describedby="community-search-scope" onChange={event => {
+              <label className="sod29-community-sort sod29-community-stream-sort"><span className="sod29-community-sr-only">סדר לפי</span><select value={sort} aria-describedby="community-search-scope" onChange={event => {
                 const value = event.target.value;
                 setParams(current => {
                   const next = new URLSearchParams(current);
@@ -534,12 +542,13 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
             <div className="sod29-community-feed-filter-chips" role="group" aria-label="סינון שיחות" tabIndex={0}>
               <button type="button" aria-pressed={!query.trim()} onClick={() => setQuery("")}>הכול</button>
             </div>
-            <p id="community-search-scope" className="sod29-community-feed-controls-note">{sort === "liked" ? "לפי מספר הלייקים, מתוך ההודעות שכבר נטענו בלבד. החיפוש חל על אותן הודעות." : "החיפוש מציג התאמות מתוך ההודעות שכבר נטענו."}</p>
-          </section>
+            <p id="community-search-scope" className={`sod29-community-feed-controls-note${!query.trim() && sort !== "liked" ? " sod29-community-sr-only" : ""}`}>{sort === "liked" ? "לפי מספר הלייקים, מתוך ההודעות שכבר נטענו בלבד. החיפוש חל על אותן הודעות." : "החיפוש מציג התאמות מתוך ההודעות שכבר נטענו."}</p>
+          </section></div>
           {error ? <FrameState kind="error" title="טעינת השיחות נכשלה"><p>{error}</p><button type="button" className="sod29-community-secondary" onClick={() => loadPage(0, true)}>ניסיון נוסף</button></FrameState> : null}
           {!error && !loading && !filtered.length ? <FrameState kind="empty" title={query.trim() ? "לא נמצאו התאמות לחיפוש" : "אין הודעות להצגה כרגע"}>{query.trim() ? <><p>החיפוש חל רק על ההודעות שכבר נטענו.</p><button type="button" className="sod29-community-secondary" onClick={() => setQuery("")}>ניקוי החיפוש</button></> : <p>אפשר לנסות לרענן את השיחות.</p>}</FrameState> : null}
           <div className="sod29-community-feed">{filtered.map((row) => <LiveThread key={row.id} row={row} accountProfiles={accountProfiles} onReply={startReply} replyCounts={replyCounts} onRepliesLoaded={onRepliesLoaded} refreshToken={threadRefresh} messageActions={messageActions} />)}</div>
           {nextOffset < total ? <button className="sod29-community-load" type="button" disabled={loading} onClick={() => loadPage(nextOffset, false)}>{loading ? "טוען…" : "עוד הודעות"} <span aria-hidden="true">↓</span></button> : <p className="sod29-community-end">הגעתם לסוף השיחות.</p>}
+          <ConversationCount bottom />
         </>}
       </section></div>}
       {!memberId && !claimId ? <footer className="sod29-community-public-footer" aria-label="השתתפות בקהילה">
