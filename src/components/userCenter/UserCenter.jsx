@@ -780,7 +780,7 @@ const PE_SECTIONS = [
   { id: 'dossier',          label: '📁 תיק החוקר' },
   { id: 'links',            label: '🔗 קישורים חיצוניים' },
 ];
-export function PageEditor({ T, goto, onSaved, refreshUnavailable = false }) {
+export function PageEditor({ T, goto, onSaved, refreshUnavailable = false, readOnly = false }) {
   const { user } = useAuth();
   const [loaded, setLoaded] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -837,7 +837,7 @@ export function PageEditor({ T, goto, onSaved, refreshUnavailable = false }) {
   const rmLink = i => setLinks(prev => prev.filter((_, idx) => idx !== i));
 
   async function save() {
-    if (busy || readFailed) return;
+    if (busy || readFailed || readOnly) return;
     setBusy(true); setMsg(null);
     const nameTrim = displayName.trim();
     const p_config = {
@@ -877,7 +877,7 @@ export function PageEditor({ T, goto, onSaved, refreshUnavailable = false }) {
   return (
     <fieldset disabled={busy} style={{ border: 0, padding: 0, margin: 0, minWidth: 0 }}>
       <div style={{ fontSize: 12.5, color: T.sub, lineHeight: 1.7, marginBottom: 6 }}>
-        עצב את הדף הפומבי שלך. השינויים נשמרים ומופיעים לכל מבקר.{" "}
+        {readOnly ? "אפשר לצפות בפרטי הדף. שמירת שינויים אינה זמינה בגרסת התצוגה הזו." : "עצב את הדף הפומבי שלך. השינויים נשמרים ומופיעים לכל מבקר."}{" "}
         {publicHref ? <button onClick={() => window.location.assign(`${publicHref}?view=public`)} style={{ background: "none", border: "none", color: T.acc, fontWeight: 800, cursor: "pointer", padding: 0, fontFamily: "inherit", fontSize: 12.5 }}>👁 תצוגה מקדימה ←</button> : null}
       </div>
 
@@ -944,7 +944,7 @@ export function PageEditor({ T, goto, onSaved, refreshUnavailable = false }) {
           {msg.kind === "ok" && refreshUnavailable ? "הדף נשמר. רענון הפרטים לא הושלם; אפשר להמשיך לערוך." : msg.text}
         </div>
       )}
-      <button onClick={save} disabled={busy} style={{ width: "100%", marginTop: 14, background: T.acc, color: "#fff", border: "none", borderRadius: 11, padding: "13px 16px", minHeight: 48, fontFamily: "inherit", fontSize: 14, fontWeight: 800, cursor: busy ? "default" : "pointer", opacity: busy ? .7 : 1 }}>
+      <button onClick={save} disabled={busy || readOnly} style={{ width: "100%", marginTop: 14, background: T.acc, color: "#fff", border: "none", borderRadius: 11, padding: "13px 16px", minHeight: 48, fontFamily: "inherit", fontSize: 14, fontWeight: 800, cursor: busy || readOnly ? "default" : "pointer", opacity: busy || readOnly ? .7 : 1 }}>
         {busy ? "שומר…" : "💾 שמור את הדף שלי"}
       </button>
     </fieldset>

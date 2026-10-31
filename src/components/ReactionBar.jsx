@@ -1,4 +1,4 @@
-import React, { useId, useState } from "react";
+import React, { useEffect, useId, useRef, useState } from "react";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { useAuth } from "../lib/AuthContext.jsx";
@@ -25,7 +25,7 @@ export default function ReactionBar(props) {
   return <LiveReactionBar {...props} />;
 }
 
-function LiveReactionBar({ id, reactions = {}, boosts = {}, compact = false, variant }) {
+function LiveReactionBar({ id, reactions = {}, boosts = {}, compact = false, variant, allowBoost = true, requireAccount = false }) {
   const P = usePalette();
   const { user, isAdmin } = useAuth();
   const myKey = user?.id || ("v:" + getVisitorId());
@@ -34,6 +34,14 @@ function LiveReactionBar({ id, reactions = {}, boosts = {}, compact = false, var
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const errorId = useId();
+  const principal = useRef(null);
+  const identity = `${id}:${myKey}`;
+  principal.current = identity;
+  useEffect(() => {
+    principal.current = identity;
+    setRx(reactions || {}); setBx(boosts || {}); setBusy(false); setError("");
+    return () => { principal.current = null; };
+  }, [identity]);
 
   const boostOf = (e) => Number(bx[e]) || 0;
   // OpenWeb's imported archive stores its historical 👍 count in reactions.likes.
@@ -44,7 +52,9 @@ function LiveReactionBar({ id, reactions = {}, boosts = {}, compact = false, var
   const mine = (e) => Array.isArray(rx[e]) && rx[e].includes(myKey);
 
   const toggle = async (e) => {
-    if (busy || !id) return;
+    if (busy || !id || requireAccount && !user) return;
+    const owner = principal.current;
+    const current = () => principal.current === owner;
     setBusy(true);
     setError("");
     const arr = Array.isArray(rx[e]) ? [...rx[e]] : [];
@@ -54,26 +64,26 @@ function LiveReactionBar({ id, reactions = {}, boosts = {}, compact = false, var
       previous: rx,
       optimistic: { ...rx, [e]: arr },
       request: () => supabase.rpc("toggle_contribution_reaction", { p_id: id, p_emoji: e, p_visitor: user ? null : getVisitorId() }),
-      apply: setRx,
+      apply: value => { if (current()) setRx(value); },
     });
-    if (!saved) setError("לא נשמרה התגובה. נסו שוב.");
-    setBusy(false);
+    if (current()) { if (!saved) setError("לא נשמרה התגובה. נסו שוב."); setBusy(false); }
   };
 
   // 👑 בוסט-אדמין — כל הקשה = עוד לייק (delta=+1) / הפחתה (delta=-1). נאכף בשרת ל-role='admin'.
   const boost = async (e, delta) => {
-    if (busy || !id || !isAdmin) return;
+    if (busy || !id || !isAdmin || !allowBoost) return;
+    const owner = principal.current;
+    const current = () => principal.current === owner;
     setBusy(true);
     setError("");
     const saved = await commitReactionMutation({
       previous: bx,
       optimistic: { ...bx, [e]: Math.max(0, (Number(bx[e]) || 0) + delta) },
       request: () => supabase.rpc("admin_boost_reaction", { p_id: id, p_emoji: e, p_delta: delta }),
-      apply: setBx,
+      apply: value => { if (current()) setBx(value); },
       isValid: isReactionBoostMap,
     });
-    if (!saved) setError("לא נשמרה התגובה. נסו שוב.");
-    setBusy(false);
+    if (current()) { if (!saved) setError("לא נשמרה התגובה. נסו שוב."); setBusy(false); }
   };
 
   const feedback = error ? <span id={errorId} role="alert" style={{ flexBasis: "100%", fontFamily: F.heading, fontSize: 13, color: P.accentDim }}>{error}</span> : null;
@@ -90,7 +100,7 @@ function LiveReactionBar({ id, reactions = {}, boosts = {}, compact = false, var
   }
 
   // 🔘 מיני-כפתור בוסט-אדמין (➕/➖) — מוצג רק לאדמין, ליד הלייק
-  const adminBoost = (e) => isAdmin ? (
+  const adminBoost = (e) => isAdmin && allowBoost ? (
     <>
       <button onClick={(ev) => { ev.stopPropagation(); boost(e, 1); }} disabled={busy} title="עוד לייק (מנהל)"
         style={{ cursor: busy ? "default" : "pointer", border: `1px solid ${P.border}`, background: "transparent", color: P.accentDim, borderRadius: 999, width: 22, height: 22, minWidth: 22, lineHeight: 1, fontFamily: F.heading, fontSize: 13, fontWeight: 900, padding: 0 }}>＋</button>
@@ -112,8 +122,8 @@ function LiveReactionBar({ id, reactions = {}, boosts = {}, compact = false, var
     const e = "👍", c = count(e), on = mine(e);
     return (
       <span style={{ display: "inline-flex", flexWrap: "wrap", maxWidth: "100%", alignItems: "center", gap: 4 }} onClick={(ev) => ev.stopPropagation()}>
-        <button onClick={(ev) => { ev.stopPropagation(); toggle(e); }} disabled={busy} aria-pressed={on} aria-describedby={error ? errorId : undefined} title={on ? "בטל לייק" : "אהבתי"}
-          style={pill(e, on)}>
+        <button onClick={(ev) => { ev.stopPropagation(); toggle(e); }} disabled={busy || requireAccount && !user} aria-pressed={on} aria-describedby={error ? errorId : undefined} aria-label={requireAccount && !user ? "יש להתחבר כדי לסמן אהבתי" : on ? "בטל לייק" : "אהבתי"} title={requireAccount && !user ? "יש להתחבר כדי לסמן אהבתי" : on ? "בטל לייק" : "אהבתי"}
+          style={{ ...pill(e, on), minWidth: 44, minHeight: 44 }}>
           <span style={{ fontSize: 14 }}>{e}</span>{c > 0 && <span style={{ fontVariantNumeric: "tabular-nums" }}>{c}</span>}
         </button>
         {adminBoost(e)}

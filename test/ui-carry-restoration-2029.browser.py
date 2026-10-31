@@ -63,6 +63,8 @@ def wire(page, delayed_feed=False, paginated=False):
         if url.path.endswith(("/ai-analyze", "/research-run", "/raziel-submit")) or any(x in (url.hostname or "") for x in ("openai", "anthropic", "generativelanguage")):
             report["model_calls"].append(req.url); return handler.abort()
         name = url.path.rsplit("/", 1)[-1]
+        if url.path == "/auth/v1/settings":
+            return handler.fulfill(content_type="application/json", body=json.dumps({"external":{"email":True,"google":True,"facebook":True}}))
         if req.method == "POST" and url.path.startswith("/rest/v1/rpc/") and name == "community_feed_page":
             if delayed_feed and first_feed: time.sleep(0.8)
             first_feed = False
@@ -223,6 +225,12 @@ def community_case(page, width, suffix="", theme="dark"):
     feed = page.locator('[data-community-mode="connected-preview"]')
     legacy = page.locator('[data-community-chat="legacy"]')
     expect(feed).to_be_visible(); expect(legacy).to_be_visible()
+    artwork = feed.evaluate("""e=>{const a=getComputedStyle(e,'::before'),v=getComputedStyle(e,'::after');return {image:a.backgroundImage,opacity:Number(a.opacity),filter:a.filter,position:a.position,pointer:a.pointerEvents,veil:v.backgroundImage}}""")
+    expected_image = "legacy-dark-bg-post-mobile-v2-720x1280-81d7bbed9769.webp" if width <= 760 else "legacy-dark-bg-post-1280-6ca0167e2dda.webp"
+    assert expected_image in artwork["image"], artwork
+    assert artwork["opacity"] == {"light":.2,"parchment":.3,"dark":.68}[theme], artwork
+    assert artwork["position"] == "fixed" and artwork["pointer"] == "none" and "gradient" in artwork["veil"], artwork
+    page.evaluate("""async name=>{const image=new Image();image.src='/'+name;await image.decode();if(!image.naturalWidth)throw Error('background unavailable')}""", expected_image)
     if suffix:
         # This is a cold direct-entry hash; assert before interacting with or
         # manually scrolling the page, after the delayed feed has settled.
@@ -249,7 +257,7 @@ def community_case(page, width, suffix="", theme="dark"):
     join = sign_in.get_by_role("button", name="הצטרפו לשיחה", exact=True)
     expect(join).to_have_attribute("aria-expanded", "false")
     size44(join)
-    expect(sign_in.locator("form")).to_have_count(0)
+    expect(sign_in.locator("form:visible")).to_have_count(0)
     assert sign_in.bounding_box()["height"] <= (132 if width < 600 else 80)
     join.focus(); page.keyboard.press("Enter")
     email = sign_in.get_by_label("כתובת מייל", exact=True)
@@ -258,7 +266,7 @@ def community_case(page, width, suffix="", theme="dark"):
     page.keyboard.press("Escape")
     join = sign_in.get_by_role("button", name="הצטרפו לשיחה", exact=True)
     expect(join).to_be_focused()
-    expect(sign_in.locator("form")).to_have_count(0)
+    expect(sign_in.locator("form:visible")).to_have_count(0)
     join.click()
     expect(sign_in.get_by_label("כתובת מייל", exact=True)).to_have_value("layout-fixture@example.invalid")
     sign_in.get_by_role("button", name="סגירת טופס ההתחברות", exact=True).click()
@@ -317,7 +325,7 @@ def community_case(page, width, suffix="", theme="dark"):
     assert not report["external_chat"], report["external_chat"]
     no_overflow(page)
     page.screenshot(path=str(OUT / f"community-{width}-{theme}{'-hash' if suffix else ''}.png"))
-    report["community"].append({"width":width, "theme":theme, "initial_hash":bool(suffix), "status":"passed", "single_column":True, "geometry":geometry, "footer_before_old_chat":True, "compact_sign_in_keyboard":True, "only_available_controls":True, "liked_loaded_scope_reload":True})
+    report["community"].append({"width":width, "theme":theme, "initial_hash":bool(suffix), "status":"passed", "single_column":True, "geometry":geometry, "footer_before_old_chat":True, "compact_sign_in_keyboard":True, "only_available_controls":True, "liked_loaded_scope_reload":True,"adopted_post_artwork":artwork})
 
 
 def liked_pagination_case(page):

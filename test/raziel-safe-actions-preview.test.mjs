@@ -2,13 +2,14 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
+import { COMMUNITY_UPLOAD_POLICY } from "../src/lib/community/communityUploadPolicy.js";
 import { buildRazielSafeActionsPreviewFixture, buildRazielSafeActionsPreviewWorker } from "./helpers/raziel-safe-actions-preview-fixture.mjs";
 import { normalizeRazielResponse } from "../src/lib/research/razielSessionRequest2029.js";
 
 const builder = readFileSync(new URL("../scripts/build-integrated-preview.mjs", import.meta.url), "utf8");
 const start = builder.indexOf("const allow =");
 const end = builder.indexOf('await writeFile(resolve(output, "preview-readonly-sw.js")');
-const base = vm.runInNewContext(builder.slice(start, end) + "\nworker;");
+const base = vm.runInNewContext(builder.slice(start, end) + "\nworker;", { COMMUNITY_UPLOAD_POLICY });
 const selectorStart = builder.indexOf("const legacyMockBranch =");
 const selectorEnd = builder.indexOf("const selectedMockBranch =");
 const selectMockPreviewBranch = vm.runInNewContext(

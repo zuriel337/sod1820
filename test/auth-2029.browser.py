@@ -47,6 +47,7 @@ def install(context, preset='dark', initial=None):
   if u.hostname!='linswmnnkjxvweumprav.supabase.co': handler.fulfill(status=200,body='');return
   body=json.loads(req.post_data or '{}') if req.method=='POST' else {}
   def reply(data,status=200): handler.fulfill(status=status,content_type='application/json',body=json.dumps(data,ensure_ascii=False))
+  if u.path=='/auth/v1/settings':reply({'external':{'google':True,'facebook':True,'email':True}});return
   if u.path.startswith('/auth/v1/'):
    state['requests'].append({'path':u.path,'query':u.query,'body':body})
    if u.path=='/auth/v1/otp':
@@ -93,7 +94,8 @@ with sync_playwright() as p:
     context=browser.new_context(viewport={'width':width,'height':900});state=install(context,preset)
     page=context.new_page();page.on('pageerror',lambda e:state['errors'].append(str(e)))
     open_entry(page)
-    expect(page.get_by_role('button',name='המשך עם Google')).to_have_count(0)
+    expect(page.get_by_role('button',name='המשך עם Google')).to_be_disabled()
+    expect(page.get_by_role('button',name='המשך עם Facebook')).to_be_disabled()
     assert not page.evaluate('document.documentElement.scrollWidth>innerWidth+1')
     assert page.locator('[data-frame-theme-mode]').count()>0
     for box in page.locator('.sod29-auth button,.sod29-auth input,.sod29-auth a').all():
