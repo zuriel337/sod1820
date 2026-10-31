@@ -135,7 +135,7 @@ test("World only mounts the shared controls inside public focus, without follow 
   assert.match(publicFocus, /<ShareActions\s+type="finding"/);
   assert.match(publicFocus, /channels=\{\["native", "copy"\]\}/);
   assert.match(publicFocus, /<WatchButton topic=\{linkedFollow\.topic\}/);
-  assert.match(publicFocus, /noPush compact ghost/);
+  assert.match(publicFocus, /variant="2029" noPush compact/);
   assert.doesNotMatch(publicFocus, /onShare=.*[Ff]ollow|onShare=.*[Ww]atch/);
 });
 
@@ -154,6 +154,7 @@ test("public reader ignores numeric/namespaced entity targets in UUID Topic filt
   };
   const byTable = {
     research_objects: { data: research, error: null },
+    posts: { data: { id: 5123, slug: "public-source-fixture", title: "מקור ציבורי", tags: [], source: "ai" }, error: null },
     topic_cards: { data: [{ id: "a238cb3e-ff78-4f68-ad00-4bd2f3640083", slug: "india-axis",
       title: "הודו", status: "approved", node_id: uuidTarget }], error: null },
   };

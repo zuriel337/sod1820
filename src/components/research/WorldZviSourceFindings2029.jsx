@@ -10,9 +10,12 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 // This is a source-scoped view of the existing public reader. It never creates
 // a graph relation or infers a number from the finding, and loads only on click.
-export default function WorldZviSourceFindings2029({ sourceRef, returnTo, onShowMap }) {
+export default function WorldZviSourceFindings2029({ sourceRef, returnTo, onShowMap, scope = 'zvi', onFindingOpen }) {
+  const allSources = scope === 'all';
   const occurrenceId = channelUpdateOccurrenceId(sourceRef);
-  const exactSource = occurrenceId && sourceRef === `channel_updates:${occurrenceId}` ? sourceRef : null;
+  const publicSource = typeof sourceRef === 'string' && (/^(channel_updates|gallery_images):[0-9a-f-]{36}$/.test(sourceRef)
+    && UUID.test(sourceRef.split(':')[1]) || /^posts:[1-9]\d*$/.test(sourceRef)) ? sourceRef : null;
+  const exactSource = allSources ? publicSource : occurrenceId && sourceRef === `channel_updates:${occurrenceId}` ? sourceRef : null;
   const [state, setState] = useState(initial);
   const generation = useRef(0);
   const pending = useRef(false);
@@ -22,16 +25,19 @@ export default function WorldZviSourceFindings2029({ sourceRef, returnTo, onShow
     pending.current = false;
     setState(initial());
     return () => { generation.current += 1; };
-  }, [exactSource]);
+  }, [exactSource, allSources]);
 
-  async function load() {
+  async function load(options = {}) {
     if (!exactSource || pending.current) return;
+    const restart = options?.restart === true;
     pending.current = true;
     const current = generation.current;
-    const cursor = state.cursor;
-    setState((previous) => ({ ...previous, opened: true, loading: true, error: false }));
+    const cursor = restart ? null : state.cursor;
+    setState((previous) => ({ ...(restart ? initial() : previous), opened: true, loading: true, error: false }));
     try {
-      const page = await fetchZviSourceFindingsPage({ client: getPublicResearchClient(), sourceRef: exactSource, cursor });
+      const reader = allSources ? (await import('../../lib/research/worldPublicFindingReader.js')).fetchWorldPublicFindingsPage : fetchZviSourceFindingsPage;
+      const page = await reader({ client: getPublicResearchClient(), sourceRef: exactSource, cursor,
+        ...(allSources ? {pageSize:8} : {}) });
       if (current !== generation.current) return;
       if (!page || !Array.isArray(page.rows) || typeof page.hasMore !== "boolean"
         || (page.hasMore && !page.nextCursor)) throw new Error("invalid_source_page");
@@ -64,7 +70,12 @@ export default function WorldZviSourceFindings2029({ sourceRef, returnTo, onShow
   }
 
   if (!exactSource) return null;
-  return <section className="zvi-research" aria-label="ממצאים במקור" style={{ display: "grid", gap: 8, minWidth: 0 }}>
+  return <section className="zvi-research" aria-label="ממצאים במקור" style={{ display: "grid", gap: 8, minWidth: 0 }}
+    onClickCapture={allSources && onFindingOpen ? event => {
+      const link=event.target.closest?.('a.zvi-research__excerpt');
+      if(link && event.button===0 && !event.ctrlKey && !event.metaKey && !event.shiftKey && !event.altKey) onFindingOpen();
+    } : undefined}>
+    {allSources ? <p>ממצאים המשויכים למקור התמונה. שיוך למקור אינו כשלעצמו קשר מאומת לנושא; את מצב החישוב והקשרים רואים בפרטי הממצא.</p> : null}
     {!state.opened ? <button className="sod29-action" type="button" onClick={load}
       style={{ minHeight: 44 }}>ממצאים במקור</button> : null}
     {state.loading ? <span role="status">טוען ממצאים מהמקור…</span> : null}
@@ -83,5 +94,7 @@ export default function WorldZviSourceFindings2029({ sourceRef, returnTo, onShow
       ? <button className="sod29-action" type="button" onClick={load} style={{ minHeight: 44 }}>
         {state.error ? "נסה שוב" : "עוד ממצאים במקור"}
       </button> : null}
+    {allSources && state.opened && !state.loading ? <button className="sod29-action" type="button" onClick={() => load({restart:true})}
+      style={{ minHeight: 44 }}>בדיקה מחדש של הממצאים</button> : null}
   </section>;
 }

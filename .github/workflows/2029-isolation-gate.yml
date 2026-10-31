@@ -3,6 +3,11 @@ name: 2029 Isolation Gate
 on:
   pull_request:
     paths:
+      - "src/lib/research/**"
+      - "src/components/research/**"
+      - "test/**"
+      - "scripts/test-one-tree-content-contract.mjs"
+      - "docs/reviews/one-tree-unified-findings-contract-20261030.md"
       - "2029.html"
       - "public/fonts/**"
       - "src/main2029.jsx"
@@ -97,6 +102,8 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
+      - name: One Tree content contract acceptance
+        run: npm run test:one-tree-content
       - name: Experience Context 2029 acceptance
         run: npm run test:experience-context
       - name: Entry Orientation + Contextual Learn 2029 acceptance

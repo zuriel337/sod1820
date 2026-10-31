@@ -66,7 +66,7 @@ export default function TopicNumberResearch2029({ projection }) {
   return <section id={sectionId} className="sod29-section sod29-topic-section" aria-label="ממצאים דרך המספר">
     <div className="sod29-section-head"><div><div className="sod29-kicker">עוד חומר למחקר</div><h2>ממצאים דרך המספר</h2></div></div>
     <p>אפשר לחקור ממצאים שבהם מופיע אחד ממספרי הטופיק. זהו מסלול דרך המספר, ולא קשר ישיר מתועד בין הממצא לנושא.</p>
-    <p className="sod29-muted">הכיסוי כרגע הוא מקורות צבי שעוברים את הקורא הציבורי הקיים. מקור וסטטוס נשמרים בכל ממצא; חומר שטרם הותר להצגה אינו נכלל.</p>
+    <p className="sod29-muted">החיפוש כולל ממצאים ציבוריים ממקורות שונים, ככל שעברו בדיקת תצוגה ומקור. מקור וסטטוס נשמרים בכל ממצא; חומר שטרם הותר להצגה אינו נכלל.</p>
     {numbers.slice(0, shown).map((value) => <details key={`${projection.slug}:${value}`} id={numberId(value)}
       className="sod29-topic-depth-equations" open={expanded === value} onToggle={(event) => toggle(event, value)}>
       <summary>מחקר דרך המספר {value}</summary>

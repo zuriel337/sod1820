@@ -11,7 +11,7 @@ import { resolve, extname, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createRequire } from "node:module";
 import { getImagesByGallery, getGalleriesOverview } from '../src/lib/supabase.js';
-import { buildPublicGalleryCatalog2029, galleryImageDatePresentation, galleryEditorialUpdate2029, galleryReadingFilters2029, projectGalleryReading2029, storedGalleryOrderIds, gallerySourceHref2029 } from '../src/lib/research/topicSourceContext.js';
+import { buildPublicGalleryCatalog2029, galleryImageDatePresentation, galleryEditorialUpdate2029, galleryReadingFilters2029, projectGalleryReading2029, storedGalleryOrderIds, gallerySourceHref2029, galleryReadingHref2029 } from '../src/lib/research/topicSourceContext.js';
 
 const require = createRequire(import.meta.url);
 const { chromium } = require("playwright");
@@ -54,7 +54,7 @@ let browser;
 try {
   browser = await chromium.launch({ executablePath: process.env.CHROMIUM_EXECUTABLE_PATH || "/usr/bin/chromium", headless: true,
     args: ["--no-sandbox", "--disable-dev-shm-usage"], ...(proxy ? { proxy } : {}) });
-  for (const width of [390, 1440]) {
+  for (const width of (process.env.PREVIEW_CONTEXT_LINKS_ONLY==='true'?[320,390,1440]:[390,1440])) {
     const context = await browser.newContext({ viewport: { width, height: 1000 }, locale: "he-IL", reducedMotion: "reduce" });
     await context.addInitScript(() => { localStorage.setItem("sod-theme", "dark"); });
     await context.route("**/*", route => {
@@ -82,6 +82,41 @@ try {
       authenticationUrl.pathname = "/preview-identity.json";
       try { await page.goto(authenticationUrl.href); }
       catch { throw new Error("Protected Preview access failed; access URL withheld."); }
+    }
+    if (process.env.PREVIEW_CONTEXT_LINKS_ONLY === 'true') {
+      const imageId='7287ad08-1c7b-4642-a5c4-cecbbaf35b81';
+      const imageHref=galleryReadingHref2029('?sort=original&layout=compact',{galleryId:105,imageId,take:12});
+      await page.goto(origin+imageHref);
+      await page.locator(`[data-gallery-image-id="${imageId}"]`).waitFor();
+      const strip=page.getByRole('navigation',{name:'ההקשר שלך פעיל'});
+      const menu=page.getByRole('button',{name:'פתח ניווט',exact:true});
+      if(await menu.isVisible())await menu.click();
+      await page.locator('a[href="/world"]:visible').first().click();
+      await page.waitForURL(url=>url.pathname==='/world'&&!url.searchParams.get('gallery'));
+      const story=page.locator('[data-flight-story="world"]');await story.waitFor();await story.scrollIntoViewIfNeeded();
+      const source=strip.locator('[data-context-role="reading"]');await source.waitFor();
+      assert.match(await source.innerText(),/המקור שמוצג כאן/);
+      assert.match(await strip.locator('[data-context-role="subject"]').innerText(),/^במסלול/);
+      assert.match(await strip.locator('[data-context-role="selection"]').innerText(),/^בחירה קודמת/);
+      assert.match(await strip.innerText(),/דוד 24/);
+      const imageLink=await strip.locator('[data-context-role="selection"]').getAttribute('href');
+      assert.equal(new URL(imageLink,origin).searchParams.get('image'),imageId);
+      assert.ok(!(await strip.innerText()).includes('קוראים עכשיו'));
+      const postHref=await source.getAttribute('href');assert.match(postHref,/^\/post\//);
+      await strip.scrollIntoViewIfNeeded();
+      assert.equal(await source.getAttribute('href'),postHref,'source link stays usable at the header');
+      assert.ok(await source.evaluate(el=>el.getBoundingClientRect().height>=44));
+      assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'context links do not widen World');
+      await source.focus();await page.screenshot({path:`${output}/context-links-${width}.png`});
+      await source.press('Enter');await page.waitForURL(url=>url.pathname===new URL(postHref,origin).pathname);
+      await page.goBack();await story.waitFor();
+      await strip.locator('[data-context-role="return"]').click();
+      await page.locator(`[data-gallery-selected="${imageId}"]`).waitFor();
+      const current=new URL(page.url());assert.equal(current.searchParams.get('sort'),'original');assert.equal(current.searchParams.get('layout'),'compact');
+      assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+      const identity=await page.evaluate(()=>fetch('/preview-identity.json').then(r=>r.json()));
+      report.widths.push({width,identity,contextLinks:true,previousGalleryPreserved:true,postLink:true,keyboard:true});
+      await context.close();continue;
     }
     if (process.env.PREVIEW_GALLERY_CATALOG_ONLY === 'true') {
       const expected=projectGalleryReading2029(buildPublicGalleryCatalog2029(await getGalleriesOverview({force:true,publicSourceOnly:true})),galleryReadingFilters2029());
@@ -410,7 +445,9 @@ try {
   }
   assert.deepEqual(report.errors, [], "no page errors");
   assert.deepEqual(report.modelRequests, [], "no model request on navigation");
-  console.log(JSON.stringify({ ...report, blocked: [...new Set(report.blocked)], origin, productWrites: false, data: "live public anonymous", coverage: process.env.PREVIEW_GALLERY_CATALOG_ONLY === 'true'
+  console.log(JSON.stringify({ ...report, blocked: [...new Set(report.blocked)], origin, productWrites: false, data: "live public anonymous", coverage: process.env.PREVIEW_CONTEXT_LINKS_ONLY === 'true'
+    ? "Context links only: exact Gallery -> World, previous selection vs current public Post source, keyboard Post link, preserved exact return/filter/order; no graph inference or whole-site acceptance."
+    : process.env.PREVIEW_GALLERY_CATALOG_ONLY === 'true'
     ? "Public gallery catalog against existing strict overview: eligible IDs/names/counts, search/sort URL, gallery entry and Back/reload at390/1440. Not every gallery body or source audited."
     : process.env.PREVIEW_GALLERY_EXPANSION_ONLY === 'true'
     ? "Explicit gallery expansion subset:69/73/105 stored window, exact source, optional number tag/Back and reload;102 empty public window, at390/1440. Not every gallery, hosted or whole-site acceptance."

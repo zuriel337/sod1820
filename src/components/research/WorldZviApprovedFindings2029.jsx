@@ -1,9 +1,10 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { getPublicResearchClient } from "../../lib/research/researchViewMode.js";
 import { fetchZviApprovedFindingsPage, fetchZviReviewedFindingsPage } from "../../lib/research/worldZviApprovedFindings2029.js";
 import ZviFindingCards2029 from "./ZviFindingCards2029.jsx";
 import "./WorldZviApprovedFindings2029.css";
+import { fetchWorldPublicFindingsPage } from "../../lib/research/worldPublicFindingReader.js";
 
 // Each list has its own cursor, retry state and explicit visitor action.
 function useFindingPages(fetchPage) {
@@ -53,26 +54,31 @@ function FindingList({ state, load, returnTo, initialLabel, moreLabel, loadingLa
 }
 
 // Opening one list does not trigger the other or create a graph relation.
-export default function WorldZviApprovedFindings2029() {
+export default function WorldZviApprovedFindings2029({ scope = "zvi", query = "" }) {
   const location = useLocation();
-  const main = useFindingPages(fetchZviApprovedFindingsPage);
+  const allSources = scope === "all";
+  const numericQuery = /^(0|[1-9]\d*)$/.test(query) && Number.isSafeInteger(Number(query)) ? Number(query) : null;
+  const publicReader = useCallback((options) => fetchWorldPublicFindingsPage({ ...options,
+    value: numericQuery, query: numericQuery == null ? query : "" }), [query, numericQuery]);
+  const main = useFindingPages(allSources ? publicReader : fetchZviApprovedFindingsPage);
   const reviewed = useFindingPages(fetchZviReviewedFindingsPage);
   const returnTo = `${location.pathname}${location.search}${location.hash}`;
-  return <section className="zvi-research" aria-label="ממצאים הקשורים למקורות צבי" dir="rtl">
+  return <section className="zvi-research" aria-label={allSources ? "ממצאים בכל המקורות" : "ממצאים הקשורים למקורות צבי"} dir="rtl">
     <header className="zvi-research__header">
       <span className="zvi-research__eyebrow">ספריית המחקר</span>
-      <h3 className="zvi-research__title">ממצאים הקשורים למקורות צבי</h3>
+      <h3 className="zvi-research__title">{allSources ? "ממצאים בכל המקורות" : "ממצאים הקשורים למקורות צבי"}</h3>
       <p className="zvi-research__intro">ממצאים, שאלות ורעיונות מתוך המקורות הציבוריים. אפשר לפתוח כל ממצא ולהגיע למקור המדויק שלו.</p>
       <p className="zvi-research__coverage">רשימה חלקית של חומר ציבורי מאושר שעבר סינון; יתר החומר ממתין לעיון. ייחוס המקור אינו קובע מי כתב כל ממצא; מצב הבדיקה מוצג בממצא עצמו.</p>
-      <a className="zvi-research__action" href="#zvi-reviewed-research">לחומר נוסף שנבדק ↓</a>
+      {allSources ? <p className="zvi-research__coverage">{query ? `${numericQuery == null ? "חיפוש בטקסט הממצאים" : "חיפוש לפי מספר שמור"}: ${query}` : "חיפוש ללא הגבלה לכותב מסוים."} הכיסוי הוא ממצאים ציבוריים שסווגו להצגה ומקורם זמין; תוצאות מספריות אינן קשר ישיר לטופיק.</p>
+        : <a className="zvi-research__action" href="#zvi-reviewed-research">לחומר נוסף שנבדק ↓</a>}
     </header>
     <FindingList {...main} returnTo={returnTo} initialLabel="הצגת הממצאים המאושרים" moreLabel="עוד ממצאים" loadingLabel="טוען ממצאים…" />
-    <section id="zvi-reviewed-research" className="zvi-research" aria-label="חומר נוסף שנבדק">
+    {!allSources ? <section id="zvi-reviewed-research" className="zvi-research" aria-label="חומר נוסף שנבדק">
       <header className="zvi-research__header">
         <h3 className="zvi-research__title">חומר נוסף שנבדק</h3>
         <p className="zvi-research__coverage">הפריטים נבדקו לצורך סיווג כתוכן מחקרי. בדיקה זו אינה אימות במנוע; סקירת חומר נוסף עדיין נמשכת.</p>
       </header>
       <FindingList {...reviewed} returnTo={returnTo} initialLabel="חומר נוסף שנבדק" moreLabel="עוד חומר שנבדק" loadingLabel="טוען חומר נוסף…" />
-    </section>
+    </section> : null}
   </section>;
 }

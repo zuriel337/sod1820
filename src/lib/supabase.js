@@ -1120,7 +1120,7 @@ export async function getGalleriesOverview({ force = false, publicSourceOnly = f
   while (true) {
     let query = client
       .from('gallery_images')
-      .select(publicSourceOnly ? 'id,gallery_id,wp_gallery_id,image_url,thumb_url,ordering,published,min_tier,curator_hidden,occurred_at,created_at,date_derived:ocr_meta->>date_derived,name,description,primary_value,all_values,related_values,image_type'
+      .select(publicSourceOnly ? 'id,gallery_id,wp_gallery_id,image_url,thumb_url,ordering,published,min_tier,curator_hidden,occurred_at,created_at,date_derived:ocr_meta->>date_derived,name,description,primary_value,all_values,related_values,image_type,source,stream_at'
         : 'id,gallery_id,image_url,thumb_url,name,description,ordering,primary_value,all_values,occurred_at,created_at,importance,image_type,source,curator_hidden,tags')
       .not('image_url', 'is', null);
     query = publicSourceOnly ? query.eq('published', 1).eq('min_tier', 0).not('curator_hidden', 'is', true).order('id')

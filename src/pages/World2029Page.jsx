@@ -18,7 +18,7 @@ import { EXPERIENCE_SURFACE, resolveExperienceContext } from "../lib/experienceC
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { fetchEntityHubProjection, fetchGallerySourceContext, fetchResearchSourceOccurrences, fetchTopicSourceContext } from "../lib/research/entityHubProjection.js";
 import { REVIEWED_SOURCE_WITNESSES, discoveryHref, witnessSource } from "../lib/research/worldSourceConnections.js";
-import { INDIA_CAPTAIN_SOURCE } from "../lib/research/topicSourceContext.js";
+import { INDIA_CAPTAIN_SOURCE, isExactGalleryFindingReturn2029 } from "../lib/research/topicSourceContext.js";
 import {
   fetchExplorerFacetDetail,
   fetchExplorerFacetPage,
@@ -580,6 +580,7 @@ export function PublicWorldFindingFocus({ finding, context, shell }) {
   const linkedFollow = worldFindingFollowTarget(finding);
   const returnHref = String(context?.returnTo?.href || "");
   const canReturnToBeitMidrash = /^\/beit-midrash(?:[/?#]|$)/.test(returnHref);
+  const canReturnToGallery = isExactGalleryFindingReturn2029(returnHref, sourceRefs);
   const findingAnchor = `finding-${encodeURIComponent(String(finding.sourceId))}`;
   const independentSources = finding?.independentSourceCount == null
     ? "אין נתון"
@@ -622,9 +623,10 @@ export function PublicWorldFindingFocus({ finding, context, shell }) {
         <ShareActions type="finding" url={publicShare.url} title={publicShare.title} image={publicShare.image}
           entityId={publicShare.sourceId} sourceSurface="world" locale="he" compact force channels={["native", "copy"]} />
         {linkedFollow ? <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 8 }}>
-          <WatchButton topic={linkedFollow.topic} source="world:linked_topic" label={"עקוב אחר הנושא: " + linkedFollow.title}
+          <WatchButton topic={linkedFollow.topic} source="world:linked_topic" label={"מעקב אחרי " + linkedFollow.title}
+            followLabel={"במעקב אחרי " + linkedFollow.title}
             explainer="שמירת הנושא במרכז המעקבים. אין הבטחה להתראות עד שמסלול עדכונים וערוץ משלוח יאומתו."
-            noPush compact ghost />
+            variant="2029" noPush compact />
           <small>מעקב בנושא נפרד משיתוף הממצא; לא מובטח משלוח התראות.</small>
         </div> : null}
       </div> : null}
@@ -658,6 +660,9 @@ export function PublicWorldFindingFocus({ finding, context, shell }) {
           {finding.href?.startsWith("/") ? <Link className="sod29-action" to={finding.href}>פתח את מספר הממצא ←</Link> : null}
           {canReturnToBeitMidrash ? <button className="sod29-action" type="button" onClick={() => shell.returnExact()}>
             חזרה מדויקת אל {context.returnTo.label || "בית המדרש"}
+          </button> : null}
+          {canReturnToGallery ? <button className="sod29-action" type="button" onClick={() => shell.returnExact()}>
+            חזרה לתמונה בגלריה
           </button> : null}
         </div>
         {!finding.sourceHref ? <small>למקור הזה אין כתובת Web מאומתת; מזהה המקור נשמר בלי להמציא קישור.</small> : null}
@@ -1111,12 +1116,15 @@ function LiveWorldLanding({ research, shell, context }) {
     </section> : null);
 
   return <>
+    {activeView === WORLD_LANDING_VIEW.START ? <div data-world-story-entry>
+      <WorldFlightStory2029 research={research} shell={shell} />
+    </div> : null}
     <section className="sod29-world-overview sod29-world-entry" aria-label="כניסה לעולם">
       <div className="sod29-world-entry-copy">
         <div className="sod29-kicker">SOD1820 · עולם של חיבורים</div>
-        <h2>מפת הידע של SOD1820</h2>
+        <h2>{activeView === WORLD_LANDING_VIEW.START ? "לאן ממשיכים מכאן?" : "מפת הידע של SOD1820"}</h2>
         <p>מספרים, מילים, אנשים, מקורות ותמונות מחוברים לפי קשרים מתועדים.</p>
-        <button className="sod29-action primary" type="button" onClick={() => shell.openCommand()}>חיפוש מספר, מילה או נושא</button>
+        <button className="sod29-action primary" type="button" onClick={() => shell.openCommand()}>חיפוש מספר או ביטוי</button>
       </div>
       <nav className="sod29-world-entry-grid" aria-label="דרכים לגלות את העולם">
         {WORLD_LANDING_ENTRIES.map((entry) => <button type="button" key={entry.key}

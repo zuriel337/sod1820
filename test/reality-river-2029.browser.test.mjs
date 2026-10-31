@@ -49,12 +49,21 @@ test('golden river: larger dated images, stable page, no same-source scroll comm
       assert.equal(await page.evaluate(()=>window.__riverCommits),stationaryCommits,'scroll inside same source must not rerender React tree');
       const pageHeight=await page.evaluate(()=>document.documentElement.scrollHeight);
       const initialWidth=(await page.locator('[data-reality-river]').boundingBox()).width;
+      const detailHeight=await page.locator('.r29-detail').evaluate(el=>el.getBoundingClientRect().height);
+      const photo=page.locator('.r29-picture img').first();
+      assert.ok(await photo.evaluate(im=>{const r=im.getBoundingClientRect();return Math.abs(r.width/r.height-im.naturalWidth/im.naturalHeight)<.02;}),'image keeps its natural ratio (no crop)');
+      assert.ok(await page.locator('.r29-image-date').first().evaluate(el=>{const d=el.getBoundingClientRect(),s=el.closest('.r29-image-surface').getBoundingClientRect();return d.left>=s.left&&d.right<=s.right&&d.top>=s.top&&d.bottom<=s.bottom;}),'date pill stays inside its image');
+      assert.equal(await page.locator('.r29-ticks i').count(),12,'one rail mark per picture');
+      assert.equal(await page.locator('.r29-picture-meta .r29-num').first().innerText(),'456','stored number tag is the hero chip beside the picture');
+      assert.match(await page.locator('.r29-picture-meta .r29-num').first().getAttribute('href'),/456/);
       assert.equal(await page.locator('.r29-picture img').first().evaluate(el=>getComputedStyle(el).objectFit),'contain');
       const handle=page.getByRole('slider',{name:'ידית הגלילה של זרם המציאות'});
       await handle.focus();await handle.press('End');
       await page.waitForFunction(()=>document.querySelector('.r29-window').scrollTop>300);
       assert.equal(await page.evaluate(()=>document.documentElement.scrollHeight),pageHeight,'changing source/caption must not change page height');
       assert.equal((await page.locator('[data-reality-river]').boundingBox()).width,initialWidth,'memory thumbnails cannot widen a flex-hosted river');
+      assert.equal(await page.locator('.r29-detail').evaluate(el=>el.getBoundingClientRect().height),detailHeight,'story panel keeps a fixed height across short/long captions');
+      assert.ok(await page.locator('.r29-ticks i').last().evaluate(t=>{const r=t.closest('.r29-rail').getBoundingClientRect(),y=t.getBoundingClientRect().top-r.top;return y>r.height*.8&&y<=r.height;}),'last rail mark sits at the end of the rail');
       console.log(JSON.stringify({width,sameSourceScrollCommits:0,pageHeightStable:true}));
       assert.ok(await page.locator('.r29-memory button').count()>1);
       await page.getByRole('button',{name:'חזרה לתמונה 1',exact:true}).click();
@@ -63,7 +72,7 @@ test('golden river: larger dated images, stable page, no same-source scroll comm
       const rect=await handle.boundingBox();await page.mouse.move(rect.x+rect.width/2,rect.y+rect.height*.15);await page.mouse.down();await page.mouse.move(rect.x+rect.width/2,rect.y+rect.height*.7,{steps:6});await page.mouse.up();
       await page.waitForFunction(()=>document.querySelector('.r29-window').scrollTop>200);
       assert.match(await page.locator('.r29-open').getAttribute('href'),/gallery=105&image=image-/);
-      assert.equal(await page.locator('.r29-detail h3').evaluate(el=>parseFloat(getComputedStyle(el).fontSize)>=21),true);
+      assert.equal(await page.locator('.r29-detail h3').evaluate(el=>parseFloat(getComputedStyle(el).fontSize)>=(innerWidth<=760?17:21)),true); // compact floating tray on phones
       assert.deepEqual(errors,[]);
       await page.screenshot({path:`/tmp/reality-river-2029/frame-${width}.png`,fullPage:true});
       for(const preset of ['light','parchment','dark']){
@@ -72,6 +81,14 @@ test('golden river: larger dated images, stable page, no same-source scroll comm
           for(const [key,value]of Object.entries({'page':p.pageBg,'panel':p.card,'panel-soft':p.cardSoft,'line':p.border,'ink':p.ink,'muted':p.inkSoft,'warm-accent':p.warmAccent,'accent-text':p.accentText}))document.body.style.setProperty('--s29-'+key,value);
           document.body.style.background=p.pageBg;
         },preset);
+        // Colour roles are resolved by the shared palette owner (Design V2 shared treatment): numbers=identity, share=discovery, actions/selection=action.
+        const roles=await page.evaluate(async preset=>{
+          const {setThemePreset}=await import('/src/lib/themeMode.js');setThemePreset(preset);await new Promise(r=>setTimeout(r,80));
+          const {resolve2029Palette,resolveTreatment}=await import('/src/lib/palette.js'),p=resolve2029Palette(preset),want=k=>resolveTreatment(p,{purpose:k}).fg,got=sel=>document.querySelector(sel)?.style.getPropertyValue('--tr-fg').trim()??null;
+          return {number:[got('.r29-num'),want('identity')],detailNumber:[got('.r29-numbers a'),want('identity')],share:[got('.r29-share'),want('discovery')],action:[got('.r29-river'),want('action')]};
+        },preset);
+        for(const [role,[actual,expected]] of Object.entries(roles))if(actual!==null||role!=='share')assert.equal(actual,expected,`${preset}/${width}: ${role} colour comes from the shared treatment resolver`);
+        assert.equal(await page.locator('.r29-memory button[aria-current=true]').count(),1,'exactly one selected return thumbnail');
         assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
         await page.screenshot({path:`/tmp/reality-river-2029/frame-${preset}-${width}.png`,fullPage:true});
       }

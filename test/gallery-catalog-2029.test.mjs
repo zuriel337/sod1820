@@ -46,6 +46,7 @@ test('public overview is lightweight, strictly gated, stable paged, cache-isolat
   assert.ok(c.calls.some(x=>x[1]==='not'&&x[2]==='curator_hidden'));
   assert.ok(c.calls.filter(x=>x[1]==='select').every(x=>!String(x[2]).replace('date_derived:ocr_meta->>date_derived','').match(/ocr|img_count/)));
   assert.ok(c.calls.some(x=>x[1]==='select'&&String(x[2]).includes('occurred_at,created_at,date_derived:ocr_meta->>date_derived')));
+  assert.ok(c.calls.some(x=>x[0]==='gallery_images'&&x[1]==='select'&&String(x[2]).endsWith('image_type,source,stream_at')));
   assert.ok(c.calls.filter(x=>x[1]==='order').every(x=>x[2]==='id'));
   assert.equal(r.coverage.partial,false);
   await assert.rejects(getGalleriesOverview({client:client({errorTable:'galleries'}),publicSourceOnly:true}),/offline/);

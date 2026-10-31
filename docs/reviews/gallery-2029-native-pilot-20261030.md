@@ -984,3 +984,58 @@ Back. Logs `/tmp/river-polish-final3-tests.log`,
 `/tmp/river-polish-live*.log`. Hosted identity/acceptance and final branch SHA
 are recorded in the task AFTER once deployed. No main/Production/DB/RLS/
 migration/Edge or publication action; Preview Follow remains read-only.
+
+## 31.10 — Reality river exhibition-grade presentation (Claude)
+
+Task `REALITY_RIVER_VISUAL_UPGRADE_20261031`, BEFORE `f9999025-4f5a-45d9-b28c-2bbbedaf31dc`.
+Base: remote `gpt/elections-world-seed-integration-20261030` @ `71e9cb9061870f5e8124b25eb33fd08a8a2ba5e4`
+(main `2195c97` verified). Visual-only; no data, RLS, migration, content placement, `supabase.js`, Legacy,
+main, domain or Production change. `getRealityHints` → `fetchGallerySourceContext` path, canonical
+Follow/Share, exact-source links, typed date rule (`עדכון` / `נוסף לזרם`, Israel time) and the
+rAF-coalesced scroll model are untouched.
+
+- Images: window taller (`clamp(660px,86svh,920px)`), image cap derived from window height, whole-image
+  `object-fit:contain`, natural ratio (asserted). Window column wider than the story column.
+- Frame: metal moulding + mat + inner shadow, derived from `--s29-warm-accent` so Day/Parchment/Night keep
+  their own gold; active picture gets a soft glow. Decoration only — not verification or strength.
+- Golden rod: larger ridged handle, grooved rail, one mark per picture positioned imperatively at
+  measure time (no per-scroll render).
+- Story: head (thumbnail + number + title) and source/numbers footer are pinned; only the caption scrolls,
+  so panel height is constant. Mobile: the story is a tray fused under the wall with a pointer to it
+  and the active thumbnail, instead of a detached block.
+- Date: single small pill on the image's top corner (was a two-line box over the poster's text).
+- Plaque under each picture: number, title, "מתוך" gallery, share. Return strip: gold-framed thumbnails.
+- Tests: `test/reality-river-2029.browser.test.mjs` extended (ratio, date inside image, rail marks,
+  fixed story height). New read-only evidence script `test/reality-river-real-data.browser.mjs`
+  (real public readers, writes aborted, keyboard + CDP touch drag + geometry stability).
+- Result: unit 6/6; frame browser test pass at 320/390/1440 (zero React commits during same-source scroll,
+  stable page/story/river geometry); real-data run at 320/390/1440 × Day/Parchment/Night with 7 admitted
+  pictures — no page errors, no writes, keyboard End/Home and touch drag move the window;
+  `npm run build` (both targets) and Legacy Production lock pass.
+- Not done here: hosted Preview deployment and its identity check; the full built-app
+  `reality-river-integrated-preview.browser.mjs` run (needs the protected Preview/static build access).
+
+### 31.10 — River continuation: rhythm, number chip, phone tray (Claude)
+
+BEFORE `81902d20-33ab-4120-a6c6-970ba3c3f60c`; same bounded scope; rebased onto remote
+`cd8c1555ed62057cf7c8dddd6fb6ea17d5f48548` (upstream delta docs/script only). User approved the
+legacy-comparison fixes after the visual review.
+
+- Number: the stored primary tag is a large gold chip beside each picture and the first chip in the
+  story panel (existing `numberExpressionFocusHref` link). It is a source tag, not a result: the
+  existing note "התיוגים במקור אינם כשלעצמם אימות…" stays (desktop: panel footer; phone: bottom note).
+- Rhythm/light: alternate ±0.8° tilt that straightens on the active picture; thicker thread with a soft
+  gold/cyan glow; the story panel enters with a short fade (caption scroll resets per picture).
+  Class/key toggles on source change only; reduced-motion disables all of it. No per-scroll work.
+- Phone: the story is a fixed-height tray floating over the wall's bottom edge (legacy bubble model); the
+  wall keeps matching bottom padding so the last picture scrolls clear. Page is ~500px shorter.
+  Heading in the tray is 17px (guard relaxed from 21px on phones only; legacy bubble was 15.5px).
+- Handle: remaining pictures are warmed at idle (`loading` → eager, DOM only) so heights settle and
+  End/drag land on the true end (`scrollTop == max`, asserted on real data).
+- Evidence harness now loads the app's self-hosted Rubik / Noto Sans Hebrew and real TYPEFACE tokens.
+  Before/after pairs (same real pictures, three presets, 320/390/1440) were regenerated with them.
+  Note: element/fullPage screenshots of a tall river re-resolve svh units, so scroll-state shots are
+  not used as evidence; scroll state is asserted numerically.
+- Tests: unit 6/6; frame browser pass (zero same-source commits, stable geometry, number chip, tray);
+  real-data run 3 widths × 3 presets, no errors/writes, keyboard End/Home and touch drag; `npm run build`
+  (both targets) and Legacy Production lock pass. Hosted Preview + integrated built-app run still open.

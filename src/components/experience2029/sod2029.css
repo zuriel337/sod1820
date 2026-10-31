@@ -96,7 +96,9 @@
 .sod29-page-intro h1{margin:9px 0 12px;font-size:clamp(38px,5.2vw,70px);line-height:.98;letter-spacing:-.025em;color:var(--s29-ink);text-wrap:balance}
 .sod29-page-intro p{max-width:790px;margin:0;color:var(--s29-muted);line-height:1.8;font-size:clamp(15px,1.5vw,18px)}
 .sod29-context-strip{display:flex;gap:7px;flex-wrap:wrap;margin-top:20px}
-.sod29-context-strip span,.sod29-chip{display:inline-flex;align-items:center;padding:6px 10px;border-radius:999px;border:1px solid var(--s29-line);background:color-mix(in srgb,var(--s29-accent) 6%,transparent);color:var(--s29-accent-text);font-size:11px}
+.sod29-context-strip :is(span,a,button),.sod29-chip{display:inline-flex;align-items:center;padding:6px 10px;border-radius:999px;border:1px solid var(--s29-line);background:color-mix(in srgb,var(--s29-accent) 6%,transparent);color:var(--s29-accent-text);font-size:11px}
+.sod29-context-strip :is(a,button){min-height:44px;max-width:100%;font-family:inherit;font-size:var(--s29-type-ui,16px);line-height:1.5;text-align:start;text-decoration:none;overflow-wrap:anywhere;cursor:pointer}
+.sod29-context-strip :is(a,button):focus-visible{outline:2px solid var(--s29-focus-ring);outline-offset:2px}
 
 /* Design V2 compact Surface Intro: World/Heichal/Topic orientation, never a second Hero. */
 .sod29-page-intro.is-compact{

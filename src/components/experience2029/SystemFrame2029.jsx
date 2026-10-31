@@ -51,7 +51,8 @@ import RazielOneShotActions2029 from "./RazielOneShotActions2029.jsx";
 import ElsMatrixReadingActivity2029 from "./ElsMatrixReadingActivity2029.jsx";
 import ElsResearchActivity2029 from "./ElsResearchActivity2029.jsx";
 import { selectElsMatrixReadingActivity } from "../../lib/research/elsMatrixReadingActivity.js";
-import { publicContextLabel, contextDisplayTitle, contextDisplayPosition, entityTypeNounHe, razielContextParts, razielNavigationButton, razielStatusLabel } from "./razielSessionSeam2029.js";
+import { publicContextLabel, contextDisplayTitle, contextNavigationItems2029, entityTypeNounHe, razielContextParts, razielNavigationButton, razielStatusLabel } from "./razielSessionSeam2029.js";
+
 import { createRazielContextSnapshot, selectRazielDeepeningCandidate } from "../../lib/research/razielSession2029.js";
 import { razielViewModeLabel } from "../../lib/research/razielViewMode2029.js";
 import { readRazielCompanionView, writeRazielCompanionView } from "../../lib/research/razielCompanionPreference2029.js";
@@ -1623,13 +1624,14 @@ function WorkspaceProjection({ context, go, onRaziel, onOpenPrivateHints, journe
 
 // The visual comparison folds context independently from decorative intros.
 // Context data and navigation continue to come from the existing ResearchProvider.
-function IntroResearchContext2029({ context }) {
-  const title = contextDisplayTitle(context);
-  const position = contextDisplayPosition(context);
-  const strip = <div className="sod29-context-strip" aria-label="ההקשר שלך פעיל">
-    {title ? <span>{title}</span> : <span>ההקשר הנוכחי</span>}
-    {position ? <span>קוראים עכשיו · {position}</span> : null}
-  </div>;
+function IntroResearchContext2029({ context, currentHref, pageTitle, onReturnExact }) {
+  const items=contextNavigationItems2029(context,{currentHref,pageTitle});
+  const strip = <nav className="sod29-context-strip" aria-label="ההקשר שלך פעיל">
+    {items.map(item=>item.href?(item.key==='return'
+      ?<button key={item.key} type="button" data-context-role={item.key} onClick={onReturnExact}>{item.prefix} · {item.label}</button>
+      :<Link key={item.key} data-context-role={item.key} to={item.href}>{item.prefix} · {item.label}</Link>)
+      :<span key={item.key} data-context-role={item.key}>{item.prefix} · {item.label}</span>)}
+  </nav>;
   const review = import.meta.env.VITE_INTEGRATED_PREVIEW === "true";
   if (!review) return strip;
   const arrivingWithContext = Boolean(context.selection?.locator || context.journey || context.returnTo?.href);
@@ -2432,7 +2434,7 @@ function SystemFrame2029Body({
                     {eyebrow ? <div className="sod29-eyebrow">{eyebrow}</div> : null}
                     {title ? <h1 style={{ fontFamily: TYPEFACE.display }}>{title}</h1> : null}
                     {description ? <p>{description}</p> : null}
-                    {context && surface !== "number" ? <IntroResearchContext2029 context={context} /> : null}
+                    {context && surface !== "number" ? <IntroResearchContext2029 context={context} currentHref={currentHref} pageTitle={currentLabel} onReturnExact={returnExact} /> : null}
                   </div>
                 </section>
               ) : null}
