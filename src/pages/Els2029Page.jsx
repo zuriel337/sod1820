@@ -88,7 +88,7 @@ function ElsRazielEntry({ researchContext, projection, layers, planSummary, read
   const shell = use2029Shell();
   const surfaceContext = useMemo(
     () => ready
-      ? buildElsRazielSurfaceContext({ researchContext, projection, layers, planSummary })
+      ? buildElsRazielSurfaceContext({ researchContext, projection, layers, planSummary, includeText: true })
       : null,
     [ready, researchContext, projection, layers, planSummary]
   );
@@ -117,7 +117,7 @@ function ElsRazielEntry({ researchContext, projection, layers, planSummary, read
 function ElsResearchBarConnected({ researchContext, projection, layers, planSummary, replay, ready, subject, locator, onLibrary, profileSwitch }) {
   const shell = use2029Shell();
   const surfaceContext = useMemo(
-    () => ready ? buildElsRazielSurfaceContext({ researchContext, projection, layers, planSummary }) : null,
+    () => ready ? buildElsRazielSurfaceContext({ researchContext, projection, layers, planSummary, includeText: true }) : null,
     [ready, researchContext, projection, layers, planSummary]
   );
   const available = Boolean(surfaceContext?.occurrence?.occurrenceRef);
@@ -143,7 +143,7 @@ function ElsNativeWithRaziel({ razielSession, researchContext, projection, layer
     const selected = projection?.selectedOccurrence;
     const matching = replayReady && selected?.start === context.axis.start && selected?.skip === context.axis.skip && selected?.dir === context.axis.dir
       && (selected?.corpusId || projection?.corpusId) === context.axis.corpusId;
-    const surfaceContext = matching ? buildElsRazielSurfaceContext({ researchContext, projection, layers, planSummary }) : null;
+    const surfaceContext = matching ? buildElsRazielSurfaceContext({ researchContext, projection, layers, planSummary, includeText: true }) : null;
     if (!surfaceContext?.occurrence?.occurrenceRef) return { ok: false, error: "replay_pending_or_changed" };
     shell.openRaziel({ razielMicroIntent: "explain_els_occurrence", elsSurfaceContext: { ...surfaceContext, matrixAnalysisRequested: true } });
     return razielSession.submitElsMatrixReading({ ...options, context });

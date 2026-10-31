@@ -26,6 +26,8 @@ import {
 } from "../../src/lib/research/elsRazielPlanning.js";
 import { runElsMatrixReadingOperation, razielReadingAnswer, READING_CAPABILITY, READING_OWNER_REF, PROVIDER_LIVE } from "../../supabase/functions/_shared/elsMatrixReading.js";
 import { normalizeElsMatrixReadingAction } from "../../supabase/functions/_shared/elsMatrixReadingAction.js";
+import { ELS_RAZIEL_GROUNDING, normalizeElsRazielOccurrence, sameElsRazielOccurrence } from "../../supabase/functions/_shared/elsRazielOccurrenceContext.js";
+import { readElsRazielReadingContext, elsRazielReadingText } from "../../supabase/functions/_shared/elsRazielReadingContext.js";
 
 export const UID = "11111111-2222-4333-8444-555555555555";
 export const OTHER_UID = "aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee";
@@ -157,7 +159,7 @@ export async function runAiAnalyze({
     ...envOverrides,
   };
   const imports = [...source.matchAll(/^import .*;$/gm)].map(([line]) => line);
-  assert.equal(imports.length, 10, "review any new handler dependency before mocking it");
+  assert.equal(imports.length, 12, "review any new handler dependency before mocking it");
   assert.ok(imports[0].includes('import { callClaudeReliable }'));
   assert.ok(imports[1].includes('import { selectRazielIntelligence, RAZIEL_LEVELS }'));
   assert.ok(imports[2].includes('import { whatsappSurfaceProfileText, continuationHrefFromSurface }'));
@@ -174,6 +176,8 @@ export async function runAiAnalyze({
   assert.ok(imports[7].includes('normalizeElsRazielSearchPlan'));
   assert.ok(imports[8].includes('runElsMatrixReadingOperation') && imports[8].includes('PROVIDER_LIVE'));
   assert.ok(imports[9].includes('normalizeElsMatrixReadingAction'));
+  assert.ok(imports[10].includes('normalizeElsRazielOccurrence'));
+  assert.ok(imports[11].includes('readElsRazielReadingContext'));
   let handler;
   runInNewContext(stripTypeScriptTypes(source.replace(/^import .*;\n/gm, "")), {
     Deno: { env: { get: (key) => env[key] }, serve: (fn) => { handler = fn; } },
@@ -197,6 +201,7 @@ export async function runAiAnalyze({
     normalizeElsRazielPlanningAction,
     normalizeElsRazielSearchPlan,
     runElsMatrixReadingOperation, razielReadingAnswer, READING_CAPABILITY, READING_OWNER_REF, PROVIDER_LIVE, normalizeElsMatrixReadingAction,
+    ELS_RAZIEL_GROUNDING, normalizeElsRazielOccurrence, sameElsRazielOccurrence, readElsRazielReadingContext, elsRazielReadingText,
     callClaudeReliable: async (options) => {
       models.push(options);
       const sequence = Array.isArray(modelResults) ? modelResults : null;

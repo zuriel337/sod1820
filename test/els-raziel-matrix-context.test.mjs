@@ -37,7 +37,9 @@ test("an explicit matrix turn uses the same session and verifies the axis before
   assert.equal(run.status, 200, JSON.stringify(run.result));
   assert.equal(run.result.els_matrix_status, "verified_axis_unverified_presentation_v1");
   assert.equal(run.models.length, 1);
-  assert.deepEqual(run.result.raziel.facts, []);
+  assert.equal(run.result.raziel.facts.length, 1, "only the server-replayed axis may become a fact");
+  assert.equal(run.result.raziel.facts[0].label, "המופע שנבדק במנוע");
+  assert.equal(JSON.stringify(run.result.raziel.facts).includes("טענה לא מאומתת"), false);
   assert.match(run.result.raziel.answer, /ממצאים לבדיקה במנוע/);
   assert.doesNotMatch(run.result.raziel.answer, /פרשנות והצעות בלבד/);
   assert.match(run.models[0].user, /אינה מאומתת ואינה ראיה/);

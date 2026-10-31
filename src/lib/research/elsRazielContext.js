@@ -41,6 +41,8 @@ export function buildElsRazielSurfaceContext({
             ? `anon:${stableIdentityDigest(selected.occurrenceId)}`
             : null,
           corpusId: clean(selected.corpusId || projection?.corpusId),
+          scope: ["torah", "tanakh"].includes(researchContext?.selection?.corpus)
+            ? researchContext.selection.corpus : null,
           skip: safeInt(selected.skip),
           dir: [-1, 1].includes(safeInt(selected.dir)) ? safeInt(selected.dir) : null,
           start: safeInt(selected.start),

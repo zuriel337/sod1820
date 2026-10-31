@@ -15,7 +15,8 @@ test("ELS opens the existing 2029 Raziel panel only from canonical MATCH-derived
   assert.match(page, /surfaceContext\?\.occurrence\?\.occurrenceRef/);
   assert.doesNotMatch(page, /surfaceContext\?\.occurrence\?\.occurrenceId/);
   assert.match(page, /disabled=\{!available \|\| shell\.razielLocked\}/);
-  assert.doesNotMatch(page, /includeText:\s*true/);
+  assert.match(page, /buildElsRazielSurfaceContext\(\{[^\n]*includeText:\s*true/,
+    "the explicit ELS entry carries the selected phrase for canonical server replay");
   assert.doesNotMatch(page, /askRazielAdvanced|askRaziel\s*\(/);
 });
 
@@ -37,7 +38,7 @@ test("canonical System Frame Raziel consumer accepts bounded ELS context without
   assert.equal((frame.match(/askRaziel\s*\(/g) || []).length, 0);
 });
 
-test("ELS Raziel panel stays context-only; native chat is user-initiated (no call on open) and sends no ELS text", () => {
+test("ELS Raziel panel stays context-only on open; native chat is user-initiated", () => {
   assert.match(frame, /data-raziel-native-chat="true"/);
   assert.doesNotMatch(frame, /השיחה המלאה עם רזיאל תחובר בהמשך/);
   assert.doesNotMatch(frame, /onClick=\{[^}]*askRaziel/);

@@ -1435,7 +1435,14 @@ export async function askRaziel({ subject, facts, context = null, path = null, a
     }
     // Older ai-analyze deployments ignore unknown request fields. Never present
     // their ordinary answer as an analysis of a matrix they did not process.
-    if (elsMatrixContext && !elsMatrixReadingAction && data?.els_matrix_status !== 'verified_axis_unverified_presentation_v1') return null;
+    if ((elsMatrixContext || surfaceSemantic?.els?.grounding === 'canonical_replay_v1') && !elsMatrixReadingAction
+      && data?.els_matrix_status !== 'verified_axis_unverified_presentation_v1') return null;
+    if (surfaceSemantic?.els?.grounding === 'canonical_replay_v1' && !elsMatrixReadingAction) {
+      const focus = surfaceSemantic.els, receipt = data?.els_occurrence_context;
+      if (receipt?.status !== 'verified' || receipt.axis?.corpusId !== focus.corpus
+        || !['term', 'scope', 'start', 'skip', 'dir'].every(key => receipt.axis?.[key] === focus[key])
+        || (receipt.readingJobId ?? null) !== (focus.readingJobId ?? null)) return null;
+    }
     // Same rule for a reading: an older ai-analyze that ignores the action must never have its ordinary answer shown as a reading.
     if (elsMatrixReadingAction && data?.els_matrix_reading?.contract !== 'els_matrix_reading_v1') return null;
     const c = data?.raziel || data?.contract;   // המוח מחזיר את החוזה כשמוכן

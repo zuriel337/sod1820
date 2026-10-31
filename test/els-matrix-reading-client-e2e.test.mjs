@@ -98,6 +98,16 @@ test("one click end to end: start, minutes of polling with progress, the batch e
   assert.ok(t.session.progress.some((p) => p.batchId === BATCH && p.jobId && !p.jobToken && p.providerStatus === "in_progress"));
   assert.equal(done.provenance.model, "claude-fable-5-1");
   assert.deepEqual(done.provenance.usage, { inputTokens: savedAnswer.summary.usage.input_tokens, outputTokens: savedAnswer.summary.usage.output_tokens });
+  // Ordinary follow-up reuses that REAL handler-created private job, through
+  // the same transport. Only network/provider/engine are fakes in this test.
+  const followup = prepareRazielSessionSubmission({ question: "הסבר את הממצאים מהסריקה", state: t.session.state,
+    view: { surface: "els", elsFocus: context.axis }, createTurnId: () => "followup-e2e" });
+  assert.equal(followup.request.surfaceSemantic.els.readingJobId, final.elsMatrixReading.job.id);
+  const reply = await askRaziel(followup.request);
+  assert.ok(reply, "the server accepts the stored job and emits a matching replay receipt");
+  assert.ok(reply.facts.some(fact => fact.label === "ELS מאומת"));
+  assert.equal(counter.ops.at(-1), "none", "an ordinary question is not another reading action");
+  assert.equal(w.calls.filter(c => c.url.endsWith("/messages/batches") && c.method === "POST").length, 1);
 }));
 
 test("an explicit cancel: the provider is asked, the end is awaited, and the thread says honestly what became of it and what it cost", withTimers(async () => {

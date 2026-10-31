@@ -24,7 +24,9 @@ import '/src/components/experience2029/sod2029.css';
 const axis={term:'קולומביה',scope:'torah',corpusId:'0b022e8eef6f9c16',skip:4545,dir:1,start:248765,hitId:'4545_1_248765'};
 const context={contract:'els_matrix_presentation_context_v1',axis,matrix:{width:4545,rowStart:54,colStart:3300,rows:['אבגד']}};
 window.__requests=[];window.__cancels=0;
-const transport=request=>{window.__requests.push(request);request.__razielProgress({kind:'els_matrix_reading',phase:'running',elapsedMs:125000,polls:1});
+const transport=request=>{window.__requests.push(request);
+if(!request.elsMatrixReadingAction)return Promise.resolve({v:1,answer:'תשובת המשך מדומה — ללא מודל חי'});
+request.__razielProgress({kind:'els_matrix_reading',phase:'running',elapsedMs:125000,polls:1});
 return new Promise(resolve=>{window.__finish=result=>resolve({v:1,answer:'תשובת בדיקה',els_matrix_reading:result});
 request.__razielCancelSignal.addEventListener('abort',()=>{window.__cancels++;request.__razielProgress({kind:'els_matrix_reading',phase:'cancelling',elapsedMs:125000,cancelling:true});});});};
 function Body(){const session=useRazielSession2029();window.__session=session;const location=useLocation();window.__route=location;
@@ -32,6 +34,7 @@ const [theme,setTheme]=useState('light');window.__theme=setTheme;
 const p=resolve2029Palette(theme,'research_lab');
 return React.createElement('div',{className:'sod29-root',style:{padding:12,background:p.pageBg,color:p.ink,minHeight:'100vh','--s29-panel':p.card,'--s29-panel-soft':p.cardSoft,'--s29-line':p.border,'--s29-ink':p.ink,'--s29-accent':p.accent}},
 React.createElement('button',{onClick:()=>session.submitElsMatrixReading({context})},'התחל סריקת בדיקה'),
+React.createElement('button',{onClick:()=>session.submit({question:'הסבר את המופע הנבחר',view:{surface:'els',elsFocus:{...axis,grounding:'canonical_replay_v1'}}})},'שאל על המופע'),
 React.createElement(Link,{to:'/world'},'לעמוד אחר'),React.createElement(Activity),
 location.pathname==='/code'?React.createElement(Page):React.createElement('p',null,'דף אחר באותו אתר'));}
 createRoot(document.getElementById('root')).render(React.createElement(BrowserRouter,null,React.createElement(RazielSessionProvider2029,{transport},React.createElement(Body))));`;
@@ -90,6 +93,19 @@ test("global reading: navigate while running, exact return through real ELS page
     await page.getByRole('button',{name:'חזור למטריצה של הסריקה'}).click();
     await page.waitForFunction(()=>window.__advancedLoad?.hitId==='4545_1_248765');
     assert.equal(await page.evaluate(()=>window.__requests.length),1);
+    await page.getByRole('button',{name:'שאל על המופע'}).click();
+    await page.waitForFunction(()=>window.__session.thread?.at(-1)?.text?.includes('תשובת המשך מדומה'));
+    assert.equal(await page.evaluate(()=>window.__requests.length),2,'one explicit follow-up, one request');
+    const occurrence=await page.evaluate(()=>window.__requests.at(-1).surfaceSemantic.els);
+    assert.equal(occurrence.start,248765);assert.equal(occurrence.term,'קולומביה');
+    assert.equal(occurrence.grounding,'canonical_replay_v1');
+    assert.equal(occurrence.readingJobId,undefined,'a declared test fixture is not promoted to a live reading');
+    await page.getByRole('link',{name:'לעמוד אחר'}).click();
+    assert.equal(await page.evaluate(()=>window.__requests.length),2,'page navigation does not submit');
+    assert.ok(await page.evaluate(()=>window.__session.thread.some(m=>m.elsMatrixReading?.state==='COMPLETE')),'same conversation survives navigation');
+    await page.getByRole('button',{name:'שאל על המופע'}).click();
+    await page.waitForFunction(()=>window.__requests.length===3&&!window.__session.busy);
+    assert.equal(await page.evaluate(()=>window.__requests.filter(r=>r.elsMatrixReadingAction).length),1,'follow-ups never restart the scan');
     await page.goto(origin+'/fixture');await page.getByRole('button',{name:'התחל סריקת בדיקה'}).waitFor();
     assert.equal(await page.getByLabel('מעקב סריקת מטריצה').count(),0,'new principal/session retains no scan presence');
     assert.equal(await page.evaluate(()=>window.__requests.length),0,'opening never starts or resumes AI');
