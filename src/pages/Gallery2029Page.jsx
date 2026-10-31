@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import Sod2029Shell, { FrameState } from "../components/experience2029/Sod2029Shell.jsx";
 import CanonicalMediaImage2029 from "../components/experience2029/CanonicalMediaImage2029.jsx";
 import ShareActions from "../components/ShareActions.jsx";
+import RealityStreamFollow2029 from "../components/research/RealityStreamFollow2029.jsx";
 import { worldMediaPublicShare } from "../lib/research/worldFindingShare.js";
 import { SourceMethodResearch } from "../components/research/Revelation1237Gate2029.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
@@ -116,6 +117,7 @@ function GalleryCatalogBody() {
           <h3>{publicMediaCaption(item.originalName)}</h3><p>{state.coverage?.partial ? 'לפחות ' : ''}{item.matchingCount} מתוך {item.imageCount} תמונות זמינות</p>
           {item.updatedAt?<p>עדכון אחרון · {bilingualDateLabel(item.updatedAt)}</p>:<p>תאריך עדכון לא צוין</p>}<span className="g29-text-link">לפתיחת הגלריה ←</span></div>
       </Link>)}</div></> : null}
+    <RealityStreamFollow2029 source="gallery_catalog_2029" />
   </article>;
 }
 
@@ -400,6 +402,7 @@ function GalleryBody() {
         {page.occurrencesTruncated ? <p>יש לתמונות הופעות נוספות שאינן מוצגות בקריאה הזו.</p> : null}
       </details> : null}
     </footer> : null}
+    <RealityStreamFollow2029 source="gallery_reading_2029" />
   </article>;
 }
 

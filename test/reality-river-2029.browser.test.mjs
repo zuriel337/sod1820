@@ -1,0 +1,67 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { createRequire } from 'node:module';
+import { mkdir } from 'node:fs/promises';
+import { createServer } from 'vite';
+import react from '@vitejs/plugin-react';
+const require = createRequire(import.meta.url);
+const { chromium } = require('playwright');
+
+test('golden river frame: mobile/desktop, three images, keyboard/drag, history and exact source links', async () => {
+  const fixture = `import React from 'react';import{createRoot}from'react-dom/client';import{MemoryRouter}from'react-router-dom';
+    import{RealityRiver2029}from'/src/components/research/RealityRiver2029.jsx';
+    const picture='data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="700" height="420"><rect width="700" height="420" fill="goldenrod"/><text x="100" y="230" font-size="80">456 · 45</text></svg>');
+    const items=Array.from({length:12},(_,i)=>({galleryImageId:'image-'+i,imageUrl:picture,thumbUrl:picture,
+      streamHref:'/world?view=gallery&gallery=105&image=image-'+i+'#gallery-source-image-'+i,
+      legacyPlacement:{originalName:'עדכון 2/3/2021 תמונה '+(i+1),originalCaption:'כיתוב מקור מלא לקריאה. אותה תמונה, אותו מקור ואותו סיפור.'},storedNumbers:{primary:456,all:[456,45]}}));
+    createRoot(document.getElementById('root')).render(React.createElement(MemoryRouter,null,React.createElement(RealityRiver2029,{items})));`;
+  const server = await createServer({ configFile: false, root: process.cwd(), server: { host: '127.0.0.1', port: 0, watch: {ignored:['**/preview-deploy/**','**/dist/**']} }, plugins: [react(), {
+    name: 'river-browser-fixture', configureServer(s) { s.middlewares.use(async (req,res,next) => {
+      if(req.url?.split('?')[0] !== '/river-fixture/') return next();
+      res.setHeader('Content-Type','text/html');
+      res.end(await s.transformIndexHtml(req.url, '<html dir="rtl"><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{margin:0;background:#0b0b0c;--s29-ink:#f5f5f0;--s29-muted:#c6c6c1;--s29-panel:#171719;--s29-panel-soft:#202023;--s29-page:#0b0b0c;--s29-line:#625943;--s29-warm-accent:#d4af37;--s29-accent-text:#a8c7ff;--s29-font-ui:Arial;--s29-font-body:Arial;--s29-font-numeric:monospace}*{box-sizing:border-box}</style><div id="root"></div><script type="module" src="/river-fixture.jsx"></script></html>'));
+    }); },
+    resolveId(id) { if(id==='/river-fixture.jsx')return '\0river-fixture.jsx'; },
+    load(id) { if(id==='\0river-fixture.jsx') return fixture; }
+  }] });
+  await server.listen();
+  const browser = await chromium.launch({ executablePath: '/usr/bin/chromium', args:['--no-sandbox','--disable-dev-shm-usage'] });
+  try {
+    await mkdir('/tmp/reality-river-2029',{recursive:true});
+    for(const width of [320,390,1440]) {
+      const page = await browser.newPage({viewport:{width,height:1000},reducedMotion:'reduce'});
+      const errors=[];page.on('pageerror',error=>{errors.push(error.message);console.error('river fixture:',error.message);});
+      await page.goto(`http://127.0.0.1:${server.httpServer.address().port}/river-fixture/`);
+      await page.locator('[data-river-image]').first().waitFor();
+      await page.locator('.r29-picture img').first().evaluate(im=>im.decode());
+      assert.equal(await page.locator('[data-river-image]').count(),12);
+      assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+      const view=page.getByRole('region',{name:'התמונות בזרם — אפשר לגלול'});
+      assert.ok(await view.evaluate(el=>[...el.querySelectorAll('[data-river-image]')].filter(c=>c.getBoundingClientRect().top<el.getBoundingClientRect().bottom&&c.getBoundingClientRect().bottom>el.getBoundingClientRect().top).length>=3));
+      assert.equal(await page.locator('.r29-picture img').first().evaluate(el=>getComputedStyle(el).objectFit),'contain');
+      const handle=page.getByRole('slider',{name:'ידית הגלילה של זרם המציאות'});
+      await handle.focus();await handle.press('End');
+      await page.waitForFunction(()=>document.querySelector('.r29-window').scrollTop>300);
+      assert.ok(await page.locator('.r29-memory button').count()>1);
+      await page.getByRole('button',{name:'חזרה לתמונה 1',exact:true}).click();
+      await page.waitForFunction(()=>document.querySelector('.r29-window').scrollTop<20);
+      await handle.scrollIntoViewIfNeeded();
+      const rect=await handle.boundingBox();await page.mouse.move(rect.x+rect.width/2,rect.y+rect.height*.15);await page.mouse.down();await page.mouse.move(rect.x+rect.width/2,rect.y+rect.height*.7,{steps:6});await page.mouse.up();
+      await page.waitForFunction(()=>document.querySelector('.r29-window').scrollTop>200);
+      assert.match(await page.locator('.r29-open').getAttribute('href'),/gallery=105&image=image-/);
+      assert.equal(await page.locator('.r29-detail h3').evaluate(el=>parseFloat(getComputedStyle(el).fontSize)>=21),true);
+      assert.deepEqual(errors,[]);
+      await page.screenshot({path:`/tmp/reality-river-2029/frame-${width}.png`,fullPage:true});
+      for(const preset of ['light','parchment','dark']){
+        await page.evaluate(async preset=>{
+          const {resolve2029Palette}=await import('/src/lib/palette.js'),p=resolve2029Palette(preset);
+          for(const [key,value]of Object.entries({'page':p.pageBg,'panel':p.card,'panel-soft':p.cardSoft,'line':p.border,'ink':p.ink,'muted':p.inkSoft,'warm-accent':p.warmAccent,'accent-text':p.accentText}))document.body.style.setProperty('--s29-'+key,value);
+          document.body.style.background=p.pageBg;
+        },preset);
+        assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+        await page.screenshot({path:`/tmp/reality-river-2029/frame-${preset}-${width}.png`,fullPage:true});
+      }
+      await page.close();
+    }
+  } finally {await browser.close();await server.close();}
+});

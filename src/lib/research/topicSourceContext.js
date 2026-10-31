@@ -222,6 +222,38 @@ export function galleryOccurrenceItem(selected) {
     access: item.access, dateUse: "provenance_only" };
 }
 
+// Compose the existing stream selector with exact public occurrence admission.
+// The selector's captions/OCR/URLs are never trusted as public renderable content.
+// This is a bounded window, not a corpus count or an independent source collection.
+export async function loadPublicRealityStream2029({ listHints, fetchSourceContext }) {
+  const candidates = await listHints(12);
+  const ids = [...new Set((Array.isArray(candidates) ? candidates : [])
+    .map(row => row?.id).filter(id => typeof id === 'string' && /^[a-f0-9-]{36}$/i.test(id)))].slice(0, 12);
+  const result = ids.length ? await fetchSourceContext({ imageIds: ids }) : { items: [] };
+  const items = [];
+  for (const id of ids) {
+    const candidate = candidates.find(row => row.id === id);
+    const contexts = (result.items || []).filter(item => item?.access?.scope === 'public' && item.access.available !== false);
+    const placements = contexts.flatMap(item => (item.occurrences || [])
+      .filter(o => o.legacyPlacement?.galleryImageId === id)
+      .map(o => ({ item, occurrence: o })));
+    if (placements.length !== 1) continue;
+    const { item, occurrence } = placements[0];
+    if (occurrence.legacyPlacement.originalCredit?.source !== 'update') continue;
+    const wpGalleryId = occurrence.legacyPlacement.wpGalleryId;
+    const selection = resolvePublicGallerySelection({ wpGalleryId, scannedIds: [id], items: [item] }, id);
+    const admitted = galleryOccurrenceItem(selection);
+    const href = gallerySourceHref2029(wpGalleryId, id);
+    if (!admitted || !href) continue;
+    items.push({ ...admitted, streamHref: href,
+      // Arrival time is explicitly separate from authored update/event dates.
+      streamAddedAt: typeof candidate.stream_at === 'string' && Number.isFinite(Date.parse(candidate.stream_at))
+        ? candidate.stream_at : null });
+  }
+  return { items, coverage: { partial: true, occurrencesTruncated: result.occurrencesTruncated === true },
+    selectedCount: ids.length, withheld: ids.length - items.length };
+}
+
 export async function loadPublicGallerySourceWindow({ imageId = null, offset = 0, ...options }) {
   const limit = options.limit ?? 6;
   if (!gallerySourceHref2029(options.wpGalleryId)

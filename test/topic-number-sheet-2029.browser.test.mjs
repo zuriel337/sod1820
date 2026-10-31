@@ -32,6 +32,7 @@ function fixturePlugin() {
     ["/experience2029/CanonicalMediaFigure2029.jsx", "noop"],
     ["/experience2029/ConvergenceRatings2029.jsx", "noop"],
     ["/components/ShareActions.jsx", "noop"],
+    ["/research/RealityStreamFollow2029.jsx", "noop"],
     ["/number2029/NumberAiAnalysis2029.jsx", "noop"],
     ["/gematria2029/MethodLens2029.jsx", "noop"],
     ["/lib/seo.js", "seo"],

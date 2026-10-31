@@ -11,6 +11,7 @@ import { buildUnifiedResearchEntry } from "../lib/research/unifiedResearchEntry.
 import { applySeo } from "../lib/seo.js";
 import WorldFlightStory2029 from "../components/research/WorldFlightStory2029.jsx";
 import SourceArrivalList2029 from "../components/research/SourceArrivalList2029.jsx";
+import HomeRealityRiver2029 from "../components/research/RealityRiver2029.jsx";
 import HomeComposition2029 from "../components/experience2029/HomeComposition2029.jsx";
 import { useFeatureState } from "../components/MaintenanceLock.jsx";
 import { CORE_PUBLIC_LAUNCH_2029 } from "../lib/publicLaunch2029.js";
@@ -473,6 +474,7 @@ function HomeBody() {
     nowHero={!homeState.loading && temporalNow ? <TemporalNowCard item={temporalNow} onOpen={openTemporalNow} /> : null}
     story={CORE_PUBLIC_LAUNCH_2029 ? null : <WorldFlightStory2029 surface="home" research={research} shell={shell} />}
     arrivals={CORE_PUBLIC_LAUNCH_2029 ? null : <div className="h29-stream">
+      <HomeRealityRiver2029 />
       <SourceArrivalList2029 surface="home" loading={homeState.loading} limit={4} showNew
         items={worldPreview?.arrivals || worldPreview?.items || []}
         availability={worldPreview?.groupArrivals} onOpen={openWorldItem} />

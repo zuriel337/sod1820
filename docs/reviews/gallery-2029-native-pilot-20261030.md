@@ -863,3 +863,76 @@ and mobile catalog inspected. Logs `/tmp/gallery-chain-hosted.log`,
 `/tmp/gallery-chain-hosted-identity.log`; images `/tmp/gallery-chain-hosted-20261031/`.
 Main freshly verified through authorized GitHub connector as2195c9784c5c9f0b1ec3cd3c1137fbd76045845b.
 Later documentation-only local/API heads are not the served runtime SHA.
+
+## 31.10 — Reality stream frame and golden handle in 2029 Home
+
+Task `REALITY_STREAM_2029_FRAME_HANDLE_HOME_20261031`, bounded BEFORE
+`1672d36d-025c-4f5f-8921-142b323601ad`, extends the existing same-session
+Home/gallery scope. ZURIEL explicitly chose GPT to reuse the Legacy river's
+visual frame/handle only. No Legacy component was imported or changed.
+
+### Existing owners, not a competing contract
+
+- Live `reality_stream_law` v1: stream is the existing source=update projection;
+  historical galleries remain collections. No automatic promotion of the whole
+  archive into the stream. `stream_at` is arrival, not event time.
+- Live `subscription_funnel_law` v21 (index still points to v19): reuse the
+  canonical `WatchButton`, topic `stream:reality`, separate Home/catalog/reading
+  attribution. No gallery-specific subscription or duplicate controller.
+  Viewing/sharing does not follow; following does not opt into a channel.
+- Design V2 existing semantic presets/fonts, whole-image primitive and shared
+  ShareActions remain owners. Ornament is not verification/strength/Truth.
+
+### Implemented in the branch
+
+`RealityRiver2029` is a bounded presentation frame, not another graph/provider
+or source reader: multi-image vertical window, warm frame and golden handle,
+native keyboard slider with explicit pointer/touch mapping, current-window
+position/remaining count, return thumbnails, exact source opening and compact
+canonical share. Uses existing media/title/date/number-link primitives.
+
+Home's existing arrivals slot includes the river **and retains** the existing
+source-arrival list. Posts, shared Frame and unrelated surfaces are untouched.
+Gallery catalog and native gallery reading use the same stream Follow target;
+the description explicitly excludes arbitrary gallery metadata changes.
+The protected static Preview still blocks Follow writes, with an explicit
+read-only notice. A blocked/unavailable preference read is not displayed as a
+saved subscription. No reader was allowlisted merely to make a button look saved.
+
+Existing `getRealityHints(12)` selects IDs; its unadmitted captions/OCR/URLs are
+not rendered. The existing exact public gallery reader re-admits every selected
+occurrence, preserving exact source/credit/sibling history and native gallery
+locator. Nonpublic, ambiguous, missing or no-longer-source=update rows are
+withheld without fallback. Window coverage is explicitly partial; no fabricated
+corpus, follower or reader counts. No supabase.js edit was needed (active Raziel
+ownership there remains untouched).
+
+Photo dates come only from authored update headings via the existing parser;
+neither archive nor stream arrival is relabeled as an event/update date.
+Stored number tags remain tags, not calculation or graph verification.
+
+### Explicitly deferred, not a completed capability
+
+The user-selected viewed rule (at least half the image visible continuously for
+three seconds while the document is active), editorial batch inheritance and
+account-level cross-device resume need their existing canonical persistence
+seam resolved separately. They are **not implemented by the slider/history
+thumbnails**, and no localStorage/DB/store was invented to claim otherwise.
+Grouped editorial notifications also require producer-level review, not a
+presentation-only change. Current notifications/followers were not modified.
+
+### Verification and release boundary
+
+Focused source/chronology/catalog tests and the frame browser case:22/22 passed;
+frame screenshots at320/390/1440 in Day/Parchment/Night, native keyboard and
+pointer dragging, no crop or horizontal overflow. Existing source/gallery/topic
+Number-return browser suite:3/3 passed. Real anonymous static build Home→exact
+gallery occurrence→Back passed at390/1440 with seven admitted stream pictures
+at check time, no page errors/model calls/product writes. Receipt evidence is in
+`/tmp/reality-river-*`; temporary Preview access is never stored here.
+
+Both build targets and existing graph/isolation/World/Topic/hardening/Legacy
+lock gates passed; guard tests7/7 passed. Existing chunk/mixed Shell import
+warnings remain. Final exact runtime/deployment identity and AFTER release are
+recorded under the task above after final source verification. No main merge,
+Production/domain action, DB/RLS/migration/Edge change or publication.
