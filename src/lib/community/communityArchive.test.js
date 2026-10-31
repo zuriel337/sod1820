@@ -1,6 +1,20 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { PROFILE_BASELINES, VERIFIED_ARCHIVE_PROFILES, communityAuthorIdentity, decodeCommunityText, fetchCommunityArchivePage, fetchCommunityReply, fetchCommunityReplies, fetchCommunityReplyCounts, fetchCommunityThread, fetchPublicAuthorActivityPage, fetchCommunityAuthorSummary, legacyLikeCount, normalizeCommunityRow, normalizeCommunityThreadFocus } from "./communityArchive.js";
+import { PROFILE_BASELINES, VERIFIED_ARCHIVE_PROFILES, communityAuthorIdentity, compareCommunityLikedRows, decodeCommunityText, fetchCommunityArchivePage, fetchCommunityReply, fetchCommunityReplies, fetchCommunityReplyCounts, fetchCommunityThread, fetchPublicAuthorActivityPage, fetchCommunityAuthorSummary, legacyLikeCount, normalizeCommunityRow, normalizeCommunityThreadFocus } from "./communityArchive.js";
+
+test("most-loved projection combines historical and current thumbs-up counts with stable ties", () => {
+  const row = (id, day, reactions, isDeleted = false) => ({ id, createdAt: `2026-10-${day}T12:00:00Z`, reactions, isDeleted });
+  const source = [row("a", "30", {}), row("b", "28", { likes: 12 }), row("c", "27", { likes: 10, "👍": ["one", "two", "three"] }),
+    row("d", "29", { "👍": ["one"], "🔥": Array(30).fill("other") }), row("e", "30", { likes: -50 }),
+    row("f", "30", { likes: "not a count" }), row("g", "30", { likes: 900 }, true), row("h", "28", { likes: "12" })];
+  const original = JSON.stringify(source);
+  const ranked = [...source].sort(compareCommunityLikedRows);
+  assert.deepEqual(ranked.map(item => item.id), ["c", "h", "b", "d", "g", "f", "e", "a"]);
+  assert.equal(JSON.stringify(source), original, "view ranking does not mutate the paginated source");
+  const nextPage = row("next", "01", { likes: 100 });
+  assert.equal([...source, nextPage].sort(compareCommunityLikedRows)[0].id, "next", "newly loaded older messages can rise to the top");
+  assert.equal([{ ...source[1], reactions: { likes: 14 } }, source[2]].sort(compareCommunityLikedRows)[0].id, "b", "refreshed public counts can change ranking");
+});
 
 test("preserves the five user-authorized profile like baselines", () => {
   assert.deepEqual(Object.fromEntries(Object.entries(PROFILE_BASELINES).map(([name, value]) => [name, value.likesLabel])), {

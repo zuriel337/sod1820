@@ -135,6 +135,15 @@ export function legacyLikeCount(reactions) {
   return (Number.isFinite(legacy) && legacy > 0 ? legacy : 0) + modern;
 }
 
+// View ordering for already-loaded public roots only. Use the same historical
+// and current thumbs-up count that the existing Community row displays.
+export function compareCommunityLikedRows(a, b) {
+  const likes = row => row.isDeleted ? 0 : legacyLikeCount(row.reactions);
+  return likes(b) - likes(a)
+    || String(b.createdAt).localeCompare(String(a.createdAt))
+    || String(b.id).localeCompare(String(a.id));
+}
+
 export async function fetchCommunityArchivePage({ offset = 0, limit = COMMUNITY_PAGE_SIZE, sort = "newest" } = {}) {
   const safeOffset = Math.max(0, Math.trunc(offset));
   const safeLimit = Math.max(1, Math.min(100, Math.trunc(limit)));

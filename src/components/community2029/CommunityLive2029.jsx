@@ -5,7 +5,7 @@ import { appendCommunityAttachments, COMMUNITY_ATTACHMENT_MAX_FILES, uploadCommu
 import { applySeo } from "../../lib/seo.js";
 import { bilingualDateLabel } from "../../lib/relativeTime2029.js";
 import { use2029Palette } from "../../lib/palette.js";
-import { COMMUNITY_ARCHIVE_TOTAL, COMMUNITY_PAGE_SIZE, VERIFIED_ARCHIVE_PROFILES, fetchCommunityArchivePage, fetchCommunityAuthorPage, fetchCommunityAuthorSummary, fetchCommunityReply, fetchCommunityReplies, fetchCommunityReplyCounts, fetchCommunityThread, fetchLinkedAccountProfiles, fetchPublicAuthorActivityPage, legacyLikeCount, normalizeCommunityThreadFocus, publishCommunityMessage } from "../../lib/community/communityArchive.js";
+import { COMMUNITY_ARCHIVE_TOTAL, COMMUNITY_PAGE_SIZE, VERIFIED_ARCHIVE_PROFILES, compareCommunityLikedRows, fetchCommunityArchivePage, fetchCommunityAuthorPage, fetchCommunityAuthorSummary, fetchCommunityReply, fetchCommunityReplies, fetchCommunityReplyCounts, fetchCommunityThread, fetchLinkedAccountProfiles, fetchPublicAuthorActivityPage, legacyLikeCount, normalizeCommunityThreadFocus, publishCommunityMessage } from "../../lib/community/communityArchive.js";
 import { captureCommunityScrollAnchor, mergeCommunityRefreshRows, restoreCommunityScrollAnchor, startCommunityRefresh } from "../../lib/community/communityRefresh.js";
 import Sod2029Shell, { FrameState } from "../experience2029/Sod2029Shell.jsx";
 import CommunityMessageContent from "./CommunityMessageContent.jsx";
@@ -208,7 +208,10 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
   const [feedSettled, setFeedSettled] = useState(false);
   const [error, setError] = useState("");
   const [query, setQuery] = useState("");
-  const [sort, setSort] = useState("newest");
+  const sort = ["newest", "oldest", "liked"].includes(params.get("sort")) ? params.get("sort") : "newest";
+  // Keep the loaded date window when switching to likes, including after a
+  // reload. The public reader continues to receive only its supported sorts.
+  const fetchSort = sort === "oldest" || sort === "liked" && params.get("sourceSort") === "oldest" ? "oldest" : "newest";
   const [draft, setDraft] = useState("");
   const [attachments, setAttachments] = useState([]);
   const [attachmentError, setAttachmentError] = useState("");
@@ -256,7 +259,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
     const read = (async () => {
       if (previousRead) await previousRead.catch(() => {});
       if (request !== streamRequestRef.current) return null;
-      return fetchCommunityArchivePage({ offset, limit: COMMUNITY_PAGE_SIZE, sort });
+      return fetchCommunityArchivePage({ offset, limit: COMMUNITY_PAGE_SIZE, sort: fetchSort });
     })();
     feedReadRef.current = read;
     try {
@@ -265,7 +268,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
       setRows((current) => replace ? page.rows : [...current, ...page.rows.filter((item) => !current.some((existing) => existing.id === item.id))]);
       setNextOffset(page.nextOffset);
       if (page.count != null) setTotal(page.count);
-      loadedFeedSort.current = sort;
+      loadedFeedSort.current = fetchSort;
     } catch {
       if (request !== streamRequestRef.current) return;
       setError("לא הצלחנו לטעון את השיחות כרגע.");
@@ -273,7 +276,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
       if (feedReadRef.current === read) feedReadRef.current = null;
       if (request === streamRequestRef.current) { setLoading(false); setFeedSettled(true); }
     }
-  }, [sort]);
+  }, [fetchSort]);
 
   useEffect(() => {
     if (!feedSettled || window.location.hash !== "#legacy-chat") return undefined;
@@ -284,10 +287,10 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
   }, [feedSettled]);
 
   useEffect(() => {
-    if (memberId || claimId || threadFocus || loadedFeedSort.current === sort) return;
+    if (memberId || claimId || threadFocus || loadedFeedSort.current === fetchSort) return;
     loadPage(0, true);
     return () => { streamRequestRef.current++; };
-  }, [loadPage, memberId, claimId, sort, threadFocus]);
+  }, [loadPage, memberId, claimId, fetchSort, threadFocus]);
   useEffect(() => {
     setFocusedThread(null);
     if (!threadFocus) { setFocusedThreadState("idle"); return undefined; }
@@ -314,12 +317,12 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
       const current = feedStateRef.current;
       if (current.loading || current.sending || !current.rows.length || feedReadRef.current) return;
       const request = streamRequestRef.current;
-      const read = fetchCommunityArchivePage({ limit: COMMUNITY_PAGE_SIZE, sort });
+      const read = fetchCommunityArchivePage({ limit: COMMUNITY_PAGE_SIZE, sort: fetchSort });
       feedReadRef.current = read;
       try {
         const page = await read;
         if (!active || document.hidden || request !== streamRequestRef.current) return;
-        const merged = mergeCommunityRefreshRows(feedStateRef.current.rows, page.rows, sort, { complete: page.count != null && page.nextOffset >= page.count });
+        const merged = mergeCommunityRefreshRows(feedStateRef.current.rows, page.rows, fetchSort, { complete: page.count != null && page.nextOffset >= page.count });
         if (merged !== feedStateRef.current.rows) {
           feedAnchorRef.current = captureCommunityScrollAnchor(document.getElementById("community-new-chat"));
           setRows(merged);
@@ -335,7 +338,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
       } finally { if (feedReadRef.current === read) feedReadRef.current = null; }
     }});
     return () => { active = false; stop(); };
-  }, [sort, memberId, claimId, cardId, threadFocus]);
+  }, [fetchSort, memberId, claimId, cardId, threadFocus]);
   useEffect(() => { applySeo({ title: "הקהילה — סוד 1820", description: "שיחות והודעות של קהילת סוד 1820.", path: canonicalPath, noindex: true }); }, [canonicalPath]);
   useEffect(() => { let active = true; fetchLinkedAccountProfiles().then((accounts) => { if (active) setAccountProfiles(accounts); }).catch(() => {}); return () => { active = false; }; }, []);
   useEffect(() => {
@@ -401,8 +404,9 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
   const filtered = useMemo(() => {
     const needle = query.trim().toLocaleLowerCase("he");
     const visible = rows.filter((row) => row.isDeleted || row.body || replyCounts[row.id] > 0);
-    return needle ? visible.filter((row) => `${row.authorName} ${row.body}`.toLocaleLowerCase("he").includes(needle)) : visible;
-  }, [query, rows, replyCounts]);
+    const matching = needle ? visible.filter((row) => `${row.authorName} ${row.body}`.toLocaleLowerCase("he").includes(needle)) : visible;
+    return sort === "liked" ? [...matching].sort(compareCommunityLikedRows) : matching;
+  }, [query, rows, replyCounts, sort]);
   const baseline = VERIFIED_ARCHIVE_PROFILES[selectedAuthorId];
   const linkedAccountId = profileRows.find((row) => row.linkedUserId)?.linkedUserId || baseline?.accountUserId;
   const linkedAccount = linkedAccountId ? accountProfiles[linkedAccountId] : null;
@@ -501,14 +505,22 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
           <label className="sod29-community-search"><span className="sod29-community-sr-only">חיפוש בשיחות שבדף</span><input type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="חיפוש בשיחות שבדף" /></label>
           <section className="sod29-community-feed-controls" aria-label="סידור וסינון השיחות" aria-describedby="community-search-scope">
             <div className="sod29-community-feed-controls-top">
-              <label className="sod29-community-sort sod29-community-stream-sort">סדר לפי <select value={sort} onChange={(event) => setSort(event.target.value)}>
-                <option value="newest">החדש ביותר</option><option value="oldest">הישן ביותר</option>
+              <label className="sod29-community-sort sod29-community-stream-sort">סדר לפי <select value={sort} aria-describedby="community-search-scope" onChange={event => {
+                const value = event.target.value;
+                setParams(current => {
+                  const next = new URLSearchParams(current);
+                  if (value === "newest") next.delete("sort"); else next.set("sort", value);
+                  if (value === "liked" && fetchSort === "oldest") next.set("sourceSort", "oldest"); else next.delete("sourceSort");
+                  return next;
+                });
+              }}>
+                <option value="newest">החדש ביותר</option><option value="oldest">הישן ביותר</option><option value="liked">הכי אהוב</option>
               </select></label>
             </div>
             <div className="sod29-community-feed-filter-chips" role="group" aria-label="סינון שיחות" tabIndex={0}>
               <button type="button" aria-pressed={!query.trim()} onClick={() => setQuery("")}>הכול</button>
             </div>
-            <p id="community-search-scope" className="sod29-community-feed-controls-note">החיפוש מציג התאמות מתוך ההודעות שכבר נטענו.</p>
+            <p id="community-search-scope" className="sod29-community-feed-controls-note">{sort === "liked" ? "לפי מספר הלייקים, מתוך ההודעות שכבר נטענו בלבד. החיפוש חל על אותן הודעות." : "החיפוש מציג התאמות מתוך ההודעות שכבר נטענו."}</p>
           </section>
           {error ? <FrameState kind="error" title="טעינת השיחות נכשלה"><p>{error}</p><button type="button" className="sod29-community-secondary" onClick={() => loadPage(0, true)}>ניסיון נוסף</button></FrameState> : null}
           {!error && !loading && !filtered.length ? <FrameState kind="empty" title="לא נמצאו הודעות"><p>אפשר לחפש מילה אחרת.</p></FrameState> : null}
