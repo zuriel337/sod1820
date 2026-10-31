@@ -236,3 +236,4 @@
 .sod29-community-public-footer p{margin:0;font-size:var(--s29-type-ui,16px);line-height:1.75}
 .sod29-community-public-footer a{display:inline-flex;align-items:center;min-height:44px;color:var(--s29-accent-text);font-size:var(--s29-type-ui,16px);text-underline-offset:4px}
 @media(max-width:600px){.sod29-community--full{width:calc(100% - 24px);padding-top:16px;padding-bottom:28px}.sod29-community--full .sod29-community-intro{padding:4px 0 16px}.sod29-community--full .sod29-community-sign-in--compact{padding:8px 10px}.sod29-community-public-footer{display:block}.sod29-community-public-footer p{margin-top:8px}}
+.sod29-community-video-card video{display:block;width:100%;max-height:520px;background:#000;border-radius:10px}

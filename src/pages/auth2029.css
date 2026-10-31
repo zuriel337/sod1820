@@ -21,3 +21,12 @@
 .sod29-auth .sod29-auth-error{color:var(--auth29-danger);font-size:15px;line-height:1.7;margin:4px 0;overflow-wrap:anywhere}
 .sod29-auth-footer{grid-column:1/-1;color:var(--s29-muted);font-size:14px;line-height:1.8;text-align:center}
 @media(max-width:700px){.sod29-auth{width:min(460px,calc(100% - 32px));grid-template-columns:minmax(0,1fr);gap:22px;padding-top:24px}.sod29-auth-intro h1{max-width:none;font-size:30px;margin:8px 0 10px}.sod29-auth-intro p{font-size:16px;margin:0}.sod29-auth-return{margin-top:6px}.sod29-auth-card{padding:24px 20px}.sod29-auth-card h2{font-size:22px}}
+.sod29-account-entry button:disabled{opacity:.6;cursor:not-allowed}
+.sod29-account-entry :is(a,button,input):focus-visible{outline:3px solid var(--s29-focus-ring);outline-offset:3px}
+.sod29-account-entry .sod29-auth-error{color:var(--auth29-danger);font-size:15px;line-height:1.7;overflow-wrap:anywhere}
+.sod29-auth-method-note{font-size:14px;line-height:1.8;color:var(--s29-muted);margin:8px 0 0}
+.sod29-community-sign-in>.sod29-account-entry{width:100%;max-width:520px;margin:auto;padding:16px;border:0;box-shadow:none;background:transparent}
+.sod29-community-sign-in .sod29-account-entry form{display:grid;gap:10px;margin:0}
+.sod29-community-sign-in .sod29-account-entry input{width:100%;min-height:50px;flex:initial}
+.sod29-community-sign-in .sod29-account-entry[data-auth-state="signed-in"]{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px 16px;max-width:none;padding:0}
+.sod29-community-sign-in .sod29-account-entry[data-auth-state="signed-in"] h2{font-size:16px;margin:0}

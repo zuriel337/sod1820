@@ -27,15 +27,12 @@ assert.match(frame, /בבנייה/);
 
 /* Native 2029 account connection — reuses canonical AuthProvider/auth helpers, no legacy login handoff. */
 assert.match(frame, /function AccountConnection2029/);
-assert.match(frame, /requestEmailOtp/);
-assert.match(frame, /verifyEmailOtp/);
-assert.match(frame, /isValidEmailOtp/);
-assert.match(frame, /sanitizeEmailOtp/);
+const authEntry = fs.readFileSync("src/components/auth2029/AccountEntry2029.jsx", "utf8");
+assert.match(frame, /<AccountEntry2029 inline variant="account"/);
+for (const helper of ["requestEmailOtp", "verifyEmailOtp", "isValidEmailOtp", "sanitizeEmailOtp"]) assert.match(authEntry, new RegExp(helper));
 assert.match(frame, /data-workspace-section="account"/);
-assert.match(frame, /אותו חשבון SOD1820 · בתוך 2029/);
-assert.match(frame, /התחברו כדי לקחת את המחקר איתכם/);
-assert.match(frame, /שלחו לי קוד כניסה/);
-assert.match(frame, /כניסה \/ הרשמה/);
+assert.match(authEntry, /shouldCreateUser: !preview/);
+assert.match(authEntry, /signOut\(\{ scope: "local" \}\)/);
 assert.match(frame, /signOut/);
 assert.match(frame, /onClick: openAccount/);
 assert.match(frame, /<AccountConnection2029 user=\{user\} profile=\{profile\} signOut=\{signOut\} \/>/);

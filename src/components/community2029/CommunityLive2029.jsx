@@ -1,7 +1,7 @@
 import React, { lazy, Suspense, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { useAuth } from "../../lib/AuthContext.jsx";
-import { appendCommunityAttachments, COMMUNITY_ATTACHMENT_MAX_FILES, uploadCommunityAttachment, validateCommunityAttachment } from "../../lib/community/communityAttachments.js";
+import { appendCommunityAttachments, COMMUNITY_ATTACHMENT_ACCEPT, COMMUNITY_ATTACHMENT_MAX_FILES, uploadCommunityAttachment, validateCommunityAttachment } from "../../lib/community/communityAttachments.js";
 import { applySeo } from "../../lib/seo.js";
 import { bilingualDateLabel } from "../../lib/relativeTime2029.js";
 import { use2029Palette } from "../../lib/palette.js";
@@ -46,7 +46,7 @@ function LiveLike({ row }) {
   const reactions = row.reactions || {};
   const dislikes = Number(reactions.dislikes) || 0;
   return <div className="sod29-community-reactions">
-    <ReactionBar key={JSON.stringify(reactions)} id={row.id} reactions={reactions} variant="row" />
+    <ReactionBar key={JSON.stringify(reactions)} id={row.id} reactions={reactions} variant="row" allowBoost={false} requireAccount={import.meta.env.VITE_INTEGRATED_PREVIEW === "true"} />
     {dislikes > 0 ? <span className="sod29-community-dislikes" aria-label={`${dislikes} לא אהבו`}><span aria-hidden="true">👎</span> {dislikes}</span> : null}
   </div>;
 }
@@ -443,6 +443,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
   const submit = async () => {
     const body = draft.trim();
     if ((!body && !attachments.length) || sending) return;
+    if (import.meta.env.VITE_INTEGRATED_PREVIEW === "true" && !user) { setNotice("יש להתחבר כדי לפרסם הודעה."); return; }
     setSending(true); setNotice(""); setAttachmentError("");
     const principal = composerPrincipal;
     const isCurrent = () => activeComposerPrincipal.current === principal;
@@ -464,7 +465,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
       }
       setDraft(""); setAttachments([]); setReplyTo(null); setNotice(user ? "ההודעה פורסמה." : "ההודעה נשלחה לבדיקה.");
       await loadPage(0, true);
-    } catch { if (isCurrent()) setNotice("השליחה או העלאת הקובץ נכשלה. הקבצים שנבחרו נשמרו בטיוטה לניסיון חוזר."); }
+    } catch (error) { if (isCurrent()) setNotice(error?.code === "AUTH_REQUIRED" ? "יש להתחבר מחדש כדי לצרף קבצים. הטיוטה נשמרה." : attachments.length ? "השליחה או העלאת הקובץ נכשלה. הקבצים שנבחרו נשמרו בטיוטה לניסיון חוזר." : "לא הצלחנו לפרסם את ההודעה. הטיוטה נשמרה לניסיון חוזר."); }
     finally { if (isCurrent()) setSending(false); }
   };
 
@@ -486,10 +487,11 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
           {replyTo ? <div className="sod29-community-reply-target"><span>תשובה ל{replyTo.authorName}</span><button type="button" onClick={() => setReplyTo(null)}>ביטול תשובה</button></div> : null}
           <textarea ref={composerRef} id="community-live-draft" rows={2} maxLength={1500} value={draft} onChange={(event) => setDraft(event.target.value)} placeholder="הוסף תגובה…" />
           <CommunityMessageContent text={draft} previewsOnly />
-          <div className="sod29-community-attachment-toolbar"><button type="button" className="sod29-community-text-action" disabled={sending || attachments.length >= COMMUNITY_ATTACHMENT_MAX_FILES} onClick={() => attachmentRef.current?.click()}>📎 צירוף קובץ</button><input ref={attachmentRef} type="file" multiple accept="image/jpeg,image/png,image/webp,image/gif,application/pdf,text/plain,application/vnd.openxmlformats-officedocument.wordprocessingml.document,.pdf,.txt,.docx" onChange={pickAttachments} hidden /><small>עד 3 קבצים · 8MB לקובץ · גלויים לציבור</small></div>
+          <div className="sod29-community-attachment-toolbar"><button type="button" className="sod29-community-text-action" disabled={sending || !user || attachments.length >= COMMUNITY_ATTACHMENT_MAX_FILES} title={!user ? "יש להתחבר כדי לצרף קבצים" : undefined} onClick={() => attachmentRef.current?.click()}>📎 צירוף קובץ או סרטון</button><input ref={attachmentRef} type="file" multiple accept={COMMUNITY_ATTACHMENT_ACCEPT} onChange={pickAttachments} hidden /><small>עד 3 קבצים · סרטון עד 50MB, קובץ אחר עד 8MB · גלויים לציבור</small></div>
           {attachments.length ? <ul className="sod29-community-attachment-list">{attachments.map((item, index) => <li key={`${item.file.name}-${index}`}><span>{item.name}</span><button type="button" disabled={sending} onClick={() => setAttachments((current) => current.filter((_, itemIndex) => itemIndex !== index))} aria-label={`הסרת ${item.name}`}>×</button></li>)}</ul> : null}
           {attachmentError ? <p className="sod29-community-status" role="alert">{attachmentError}</p> : null}
-          <div className="sod29-community-composer-bottom"><small>{draft.length}/1500</small><button type="button" className="sod29-community-primary" disabled={(!draft.trim() && !attachments.length) || sending} onClick={submit}>{sending ? "שולח…" : "פרסום"}</button></div>
+          <div className="sod29-community-composer-bottom"><small>{draft.length}/1500</small><button type="button" className="sod29-community-primary" disabled={(!draft.trim() && !attachments.length) || sending || import.meta.env.VITE_INTEGRATED_PREVIEW === "true" && !user} title={import.meta.env.VITE_INTEGRATED_PREVIEW === "true" && !user ? "יש להתחבר כדי לפרסם" : undefined} onClick={submit}>{sending ? "שולח…" : "פרסום"}</button></div>
+          {import.meta.env.VITE_INTEGRATED_PREVIEW === "true" && !user ? <p className="sod29-community-feed-controls-note">התחברו כדי לפרסם הודעות, לצרף קבצים ולסמן אהבתי.</p> : null}
           {notice ? <p className="sod29-community-status" role="status">{notice}</p> : null}
         </section>
         {threadFocus ? <section className="sod29-community-focus" aria-labelledby="community-focus-title">

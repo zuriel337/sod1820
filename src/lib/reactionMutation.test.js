@@ -56,3 +56,11 @@ test("a failed removal restores the existing vote; a failed admin boost restores
     assert.equal(value, snapshot.previous);
   }
 });
+
+test('historical dislikes are preserved by a confirmed like and a failed retry',async()=>{
+ const previous={likes:7,dislikes:3,'👍':[]};const next={...previous,'👍':['account-one']};let value;
+ assert.equal(await commitReactionMutation({previous,optimistic:next,request:async()=>({data:next,error:null}),apply:result=>{value=result;}}),true);
+ assert.equal(value.dislikes,3);assert.equal(value.likes,7);
+ assert.equal(await commitReactionMutation({previous:next,optimistic:previous,request:async()=>({data:null,error:{code:'42501'}}),apply:result=>{value=result;}}),false);
+ assert.deepEqual(value,next);
+});

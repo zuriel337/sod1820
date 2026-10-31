@@ -49,6 +49,7 @@ try {
         contentType: "application/json",
         body: JSON.stringify(body),
       });
+      if (url.pathname === "/auth/v1/settings") return reply({external:{google:true,facebook:true,email:true}});
       if (url.pathname === "/auth/v1/token") return reply(session);
       if (url.pathname === "/auth/v1/user") return reply(user);
       if (url.pathname === "/rest/v1/users") return reply({
