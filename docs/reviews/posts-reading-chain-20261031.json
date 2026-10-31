@@ -1,5 +1,5 @@
 {
-  "status": "GEMATRIA_BOX_IMPLEMENTED_TESTED_HOSTED_READONLY_PREVIEW_READY",
+  "status": "IMPLEMENTED_TESTED_PROTECTED_PREVIEW_READY_SCOPE_RELEASED",
   "actor": "GPT",
   "handoff_to": "ZURIEL",
   "scope": "Existing Post occurrence reader, Post activation and existing source disclosure only; no shared Frame/Learn/Number/engine/CSS or product data change",
@@ -1648,11 +1648,11 @@
     "access": "Existing Vercel authentication retained"
   },
   "hosted_preview": {
-    "deployment_id": "dpl_2ZtVxYpEtEUex4n3CTvW5DSN4FRZ",
-    "url": "https://sod1820-jiosme522-sod1820-s-projects.vercel.app",
+    "deployment_id": "dpl_9sq3cfS1TTMs9BotK5dBV9Cqv4mC",
+    "url": "https://sod1820-8pg3fejh0-sod1820-s-projects.vercel.app",
     "status": "READY",
     "target": "preview",
-    "runtime_sha": "dbb4e03acc522b1af9c2dc9505f14881b159fe97",
+    "runtime_sha": "a98bb623ca8b792d20b410f4173ef32ff20b5ec3",
     "checks": [
       {
         "path": "/posts-preview-identity.json",
@@ -1660,7 +1660,7 @@
         "robots": "noindex",
         "identity": {
           "branch": "gpt/posts-integrated-backgrounds-20261030",
-          "sha": "dbb4e03acc522b1af9c2dc9505f14881b159fe97",
+          "sha": "a98bb623ca8b792d20b410f4173ef32ff20b5ec3",
           "target": "preview",
           "readOnly": true,
           "realModelCalls": false
@@ -1677,12 +1677,25 @@
         "status": 200,
         "robots": "noindex",
         "readOnlyBootstrap": true
+      },
+      {
+        "path": "/post/old-timeline-complete-new-self-dim5",
+        "status": 200,
+        "robots": "noindex",
+        "readOnlyBootstrap": true
+      },
+      {
+        "path": "/2029/number/216",
+        "status": 200,
+        "robots": "noindex",
+        "readOnlyBootstrap": true
       }
     ],
-    "production_before": "dpl_AiKPHaoo5pxo9T5PFTpcBRG7LfMA",
-    "production_after": "dpl_AiKPHaoo5pxo9T5PFTpcBRG7LfMA",
-    "production_unchanged": true,
-    "hosted_visual_browser": "Not asserted; authenticated HTTP verified and actual UI tested locally with live public data",
+    "production_deployment_before": "dpl_AiKPHaoo5pxo9T5PFTpcBRG7LfMA",
+    "production_deployment_after": "dpl_AiKPHaoo5pxo9T5PFTpcBRG7LfMA",
+    "production_deployment_unchanged": true,
+    "product_data_exception": "Only explicitly approved Post5129 author+modified, recorded/released separately",
+    "hosted_visual_browser": "Not asserted; authenticated hosted HTTP and actual local UI verified",
     "access": "Existing Vercel Authentication retained"
   },
   "gematria_box_followup": {
@@ -1961,7 +1974,7 @@
     "production_changed": false
   },
   "repair_chain_followup": {
-    "status": "IMPLEMENTED_TESTED_PR_READY_PROTECTED_PREVIEW_PENDING",
+    "status": "IMPLEMENTED_TESTED_PROTECTED_PREVIEW_READY_SCOPE_RELEASED",
     "receipt": "posts-repair-chain-20261031.json",
     "public_posts": 1282,
     "located_expressions": 1653,
@@ -1969,6 +1982,50 @@
     "source_method_not_invented": true,
     "post5129_correction_applied": true,
     "ownership_parent": "86192c3f-d98b-41d5-86d1-c7ab73e2b0b7",
-    "hosted_preview_pending": true
+    "hosted_preview_pending": false,
+    "runtime_sha": "a98bb623ca8b792d20b410f4173ef32ff20b5ec3",
+    "after_release": {
+      "code_after_id": "4703d187-95e7-4886-a651-17a9a9010d63",
+      "page_after_id": "49e6595d-c9c3-405c-b781-d4f0264d945d",
+      "both_claims_released": 1
+    }
+  },
+  "previous_hosted_preview_before_repair_chain": {
+    "deployment_id": "dpl_2ZtVxYpEtEUex4n3CTvW5DSN4FRZ",
+    "url": "https://sod1820-jiosme522-sod1820-s-projects.vercel.app",
+    "status": "READY",
+    "target": "preview",
+    "runtime_sha": "dbb4e03acc522b1af9c2dc9505f14881b159fe97",
+    "checks": [
+      {
+        "path": "/posts-preview-identity.json",
+        "status": 200,
+        "robots": "noindex",
+        "identity": {
+          "branch": "gpt/posts-integrated-backgrounds-20261030",
+          "sha": "dbb4e03acc522b1af9c2dc9505f14881b159fe97",
+          "target": "preview",
+          "readOnly": true,
+          "realModelCalls": false
+        }
+      },
+      {
+        "path": "/preview-readonly-sw.js",
+        "status": 200,
+        "robots": "noindex",
+        "readOnlyBootstrap": true
+      },
+      {
+        "path": "/post/koach-hashtika-dim5",
+        "status": 200,
+        "robots": "noindex",
+        "readOnlyBootstrap": true
+      }
+    ],
+    "production_before": "dpl_AiKPHaoo5pxo9T5PFTpcBRG7LfMA",
+    "production_after": "dpl_AiKPHaoo5pxo9T5PFTpcBRG7LfMA",
+    "production_unchanged": true,
+    "hosted_visual_browser": "Not asserted; authenticated HTTP verified and actual UI tested locally with live public data",
+    "access": "Existing Vercel Authentication retained"
   }
 }
