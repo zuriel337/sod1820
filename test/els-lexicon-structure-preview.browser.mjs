@@ -11,7 +11,8 @@ assert.equal(supplied.protocol, 'https:');
 const expectedSha = process.env.ELS_PREVIEW_SHA;
 assert.match(expectedSha || '', /^[a-f0-9]{40}$/);
 const expectedBranch = process.env.ELS_PREVIEW_BRANCH || 'gpt/els-lexicon-structure-preview-20261030';
-assert.ok(['gpt/els-lexicon-structure-preview-20261030','gpt/els-search-clarity-preview-20261030'].includes(expectedBranch));
+assert.ok(['gpt/els-lexicon-structure-preview-20261030','gpt/els-search-clarity-preview-20261030','gpt/els-unified-research-preview-20261031'].includes(expectedBranch));
+const unified = expectedBranch === 'gpt/els-unified-research-preview-20261031';
 const browser = await chromium.launch({ headless:true,
   executablePath:existsSync('/usr/bin/chromium')?'/usr/bin/chromium':chromium.executablePath(),
   args:['--no-sandbox'] });
@@ -45,14 +46,22 @@ try {
     for(const width of [320,390,1440]){
       await page.setViewportSize({width,height:900});
       assert.equal(await page.locator('html').getAttribute('data-theme-preset'),theme);
-      const words=page.getByText('מילים במטריצה · ללא AI',{exact:true});
-      const structures=page.getByText('מבנים והשוואת מופעים · ללא AI',{exact:true});
-      assert.ok(await words.isVisible());assert.ok(await structures.isVisible());
+      const words=page.getByText(unified?'גילוי וקשרים במטריצה · ללא AI':'מילים במטריצה · ללא AI',{exact:true});
+      const structures=page.getByText(unified?'בדיקת הסימונים והשוואת מופעים':'מבנים והשוואת מופעים · ללא AI',{exact:true});
+      assert.ok(await words.isVisible());
       if(!await words.evaluate(n=>n.parentElement.open))await words.click();
-      await page.getByRole('region',{name:'מילים במטריצה',exact:true}).waitFor();
+      const workspace=page.getByRole('region',{name:unified?'גילוי וקשרים במטריצה':'מילים במטריצה',exact:true});
+      await workspace.waitFor();
+      if(unified){
+        assert.equal(await page.locator('.els29-native-structure-entry:visible').count(),1);
+        assert.ok(await workspace.getByRole('button',{name:'גלה מילים ומבנים',exact:true}).isVisible());
+        assert.ok(await workspace.getByRole('button',{name:'חפש מילה מסוימת',exact:true}).isVisible());
+        assert.equal(await workspace.getByText('בדיקת הסימונים והשוואת מופעים',{exact:true}).count(),1);
+      }
+      assert.ok(await structures.isVisible());
       if(!await structures.evaluate(n=>n.parentElement.open))await structures.click();
       await page.getByRole('region',{name:'מבנים והשוואת מופעים',exact:true}).waitFor();
-      if(expectedBranch==='gpt/els-search-clarity-preview-20261030'){
+      if(expectedBranch==='gpt/els-search-clarity-preview-20261030'||unified){
         const panel=page.getByRole('region',{name:'מבנים והשוואת מופעים',exact:true});
         assert.ok(await panel.getByText('איך מוצאים זוגות?',{exact:true}).isVisible());
         assert.ok(await panel.getByRole('button',{name:'חפש והוסף מילה למטריצה',exact:true}).isVisible());
