@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+import { ordinaryRazielStages } from "../../../test/helpers/raziel-ordinary-stages.mjs";
 import { selectRazielIntelligence, razielEscalationTrigger } from "../../../supabase/functions/_shared/razielIntelligence.js";
 
 const read = (p) => readFileSync(new URL(p, import.meta.url), "utf8");
@@ -102,10 +103,7 @@ test("Golden: selector is semantic-only — no tier/admin/length/subscription/pr
 });
 
 test("Golden: wiring — selector decides after deterministic path, before quota/model; L2→FAST_MODEL, L3→MODEL", () => {
-  const iDet = razielBlock.indexOf("det.needs_synthesis === false");
-  const iSel = razielBlock.indexOf("selectRazielIntelligence(");
-  const iQuota = razielBlock.indexOf("checkQuota(");
-  const iModel = razielBlock.indexOf("callClaudeReliable(");
+  const { deterministic: iDet, selector: iSel, quota: iQuota, model: iModel } = ordinaryRazielStages(razielBlock);
   assert.ok(iDet > 0 && iDet < iSel && iSel < iQuota && iQuota < iModel);
   assert.match(razielBlock, /rFast \? FAST_MODEL : MODEL/);
   assert.match(razielBlock, /requested_level: rSel\.requested_level, selected_level: rSel\.selected_level, escalation_reason: rSel\.escalation_reason/);

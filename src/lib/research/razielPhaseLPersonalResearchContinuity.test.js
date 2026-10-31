@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+import { ordinaryRazielStages } from "../../../test/helpers/raziel-ordinary-stages.mjs";
 import { stripTypeScriptTypes } from "node:module";
 import { runAiAnalyze, personalAnswer, UID as VERIFIED_UID, OTHER_UID, SERVICE_KEY } from "../../../test/helpers/ai-analyze-handler.mjs";
 
@@ -168,9 +169,13 @@ test("Phase L: call-site answers L0 without a model (deterministic); synthesis g
   assert.match(callSite, /model: "none", intelligence_level: "deterministic"/);
   assert.match(callSite, /if \(op\.ok && op\.pack\) rPersPack = op\.pack/);
   const requestPath = edge.slice(edge.indexOf('if (String(body?.persona || "").toLowerCase() === "raziel")'), edge.indexOf('const isCollection = kind === "research"'));
-  assert.ok(requestPath.indexOf("runRazielPersonal(rPersDesc") < requestPath.indexOf("const rel = await callClaudeReliable("));
+  const personal = requestPath.indexOf("runRazielPersonal(rPersDesc");
+  const stages = ordinaryRazielStages(requestPath);
+  assert.ok(personal > stages.quota && personal < stages.model);
   for (const k of ["runRazielOperator(rOpDesc", "runRazielCoordination(rCoordDesc", "razielNumberContextDescriptor(", "razielCurrentContentDescriptor("]) assert.ok(edge.includes(k), k);
-  assert.match(edge, /const planText = razielPlanBlockText\(rPlanMeta\) \+ \(rPersPack/);
+  const planText = requestPath.slice(requestPath.indexOf("const planText ="), requestPath.indexOf("const canonicalBundleText ="));
+  assert.match(planText, /razielPlanBlockText\(rPlanMeta\)/);
+  assert.match(planText, /\+ \(rPersPack\s*\?[^]*?\+ rPersPack\s*: ""\)/);
 });
 
 test("Phase L: migration extends only fn_raziel_plan; first-person grammar; anon denied; routing OFF; no tables/policies/grants/provider names", () => {
