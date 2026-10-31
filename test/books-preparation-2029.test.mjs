@@ -10,7 +10,7 @@ test("preparation projection is reproducible from the current assets, including 
   assert.deepEqual(bundle, buildBookPreparation());
   assert.deepEqual(Object.keys(bundle.books).sort(), getAllBookReaderManifests().map(b => b.slug).sort());
 });
-test("all eight books stay closed: page coverage alone is not full editorial/reader acceptance", () => {
+test("all eight preparation records stay incomplete: reading access is separate from full editorial/reader acceptance", () => {
   for (const entry of Object.values(bundle.books)) {
     const status = bookPreparation(entry);
     assert.ok(Number.isInteger(status.percent) && status.percent < 100);

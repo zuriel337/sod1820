@@ -93,11 +93,10 @@ test("card, entry and 1,820 route work on phones and desktop in all three displa
       assert.ok(imageBox.width <= (width === 1440 ? 160 : 140));
       assert.ok(await noOverflow(page), `card overflow at ${width}`);
       await page.screenshot({ path: join(out, `card-${theme}-${width}.png`) });
-      // ZURIEL 31.10: incomplete books are closed in the library. Continue the
-      // existing reader acceptance via its protected work route, not a fake release.
-      assert.equal(await card.getByRole("button", { name: "סגור — בהכנה", exact: true }).isDisabled(), true);
-      assert.equal(await card.getByRole("link", { name: "פתח את הספר", exact: true }).count(), 0);
-      await page.goto(`${new URL(page.url()).origin}/2029/control?surface=ahavat-torah-system`);
+      // ZURIEL: this book stays open in Preview without claiming completion.
+      assert.equal(await card.locator('[data-book-ready="false"]').count(), 1);
+      assert.match(await card.innerText(), /פתוח לקריאה · בהכנה/);
+      await card.getByRole("link", { name: "פתח את הספר", exact: true }).click();
 
       await page.locator("#ahavat29-toc").waitFor();
       assert.equal(await page.getByRole("heading", { name: "קטעים מומלצים להתחלה", level: 2 }).isVisible(), true);

@@ -145,10 +145,10 @@ function ResearchFamily({ group, book, research, defaultOpen = false }) {
 
 // Prototype card (Ahavat Torah only): real source page, summary, representative
 // topics and one primary action. Other books keep the existing tile.
-function PreparationStatus({ entry, title }) {
+function PreparationStatus({ entry, title, previewOpen = false }) {
   const status = bookPreparation(entry);
   return <div className="books29-preparation" data-book-ready={status.ready ? "true" : "false"}>
-    <div className="books29-preparation-heading"><span>{status.ready ? "ההכנה הושלמה" : "סגור — בהכנה"}</span><strong>{status.percent === null ? "טרם נמדד" : <><bdi>{status.percent}%</bdi> <span>השלמה מתועדת</span></>}</strong></div>
+    <div className="books29-preparation-heading"><span>{status.ready ? "ההכנה הושלמה" : previewOpen ? "פתוח לקריאה · בהכנה" : "סגור — בהכנה"}</span><strong>{status.percent === null ? "טרם נמדד" : <><bdi>{status.percent}%</bdi> <span>השלמה מתועדת</span></>}</strong></div>
     {status.percent !== null ? <progress max="100" value={status.percent} aria-label={`התקדמות הכנת ${title}`} /> : null}
     <details><summary>מה הושלם ומה נשאר?</summary>
       <p>חמישה שלבי הכנה במשקל שווה. האחוז משקף התקדמות מתועדת, לא אחוז מן הידע שבספר. שלב שטרם נבדק אינו נחשב שהושלם.</p>
@@ -160,6 +160,8 @@ function PreparationStatus({ entry, title }) {
 
 function AhavatPrototypeCard({ book, reader, preparation }) {
   const deepEntry = import.meta.env.VITE_BOOK_PUBLICATION_REVIEW_PREVIEW === "true" && reader.experience?.href;
+  // ZURIEL: Ahavat stays open for Preview reading independently of completion.
+  const previewOpen = Boolean(deepEntry);
   const status = bookPreparation(preparation);
   return <article className="sod29-book-tile books29-card" data-book-card="ahavat-torah-prototype" aria-labelledby="books29-card-ahavat-title">
     <img className="books29-card-cover" src={AHAVAT_COVER_IMAGE.src} width={AHAVAT_COVER_IMAGE.width} height={AHAVAT_COVER_IMAGE.height} alt={AHAVAT_COVER_IMAGE.alt} loading="lazy" decoding="async" />
@@ -169,9 +171,9 @@ function AhavatPrototypeCard({ book, reader, preparation }) {
       <p className="books29-card-author">{reader.author}</p>
       <p className="books29-card-summary">{AHAVAT_CARD_SUMMARY}</p>
       <ul className="books29-card-topics" aria-label="נושאים בספר">{AHAVAT_CARD_TOPICS.map(topic => <li key={topic}>{topic}</li>)}</ul>
-      <PreparationStatus entry={preparation} title={book.label} />
+      <PreparationStatus entry={preparation} title={book.label} previewOpen={previewOpen} />
       <div className="books29-card-actions">
-        {status.ready ? <Link className="sod29-action books29-card-primary" to={deepEntry || `/book/${AHAVAT_BOOK_SLUG}`}>פתח את הספר</Link> : <button type="button" className="sod29-action" disabled>סגור — בהכנה</button>}
+        {status.ready || previewOpen ? <Link className="sod29-action books29-card-primary" to={deepEntry || `/book/${AHAVAT_BOOK_SLUG}`}>פתח את הספר</Link> : <button type="button" className="sod29-action" disabled>סגור — בהכנה</button>}
       </div>
     </div>
   </article>;
@@ -211,37 +213,14 @@ function LibraryView() {
   if (state.error) return <section className="sod29-section"><div className="sod29-state error">לא ניתן לטעון את הספרייה: {String(state.error?.message || state.error)}</div></section>;
 
   return <>
-    <section className="sod29-focus-stage">
-      <div className="sod29-command-shell">
-        <div className="sod29-command-copy">
-          <div className="sod29-kicker">ספרים ומקורות</div>
-          <h2>הספרים שלנו</h2>
-          <div className="sod29-muted">מקור, הסברים ויחידות לימוד. לכל ספר מוצגים ההתקדמות המתועדת והשלבים שעוד נותרו להכנתו.</div>
-          <div className="sod29-actions"><span className="sod29-chip">{state.books.length} ספרים בספרייה</span><span className="sod29-chip">ספרים שטרם הושלמו סגורים לקריאה מתוך הרשימה</span></div>
-        </div>
-        <div className="sod29-orbit-map" aria-hidden="true">
-          <div className="sod29-orbit-center">מקור<br />אחד</div>
-          <span className="sod29-orbit-node n1">ספר</span>
-          <span className="sod29-orbit-node n2">עדות</span>
-          <span className="sod29-orbit-node n3">מראה־מקום</span>
-          <span className="sod29-orbit-node n4">מחקר</span>
-        </div>
-      </div>
-    </section>
-
     <section className="sod29-section">
-      <div className="sod29-section-head"><div><div className="sod29-kicker">הספרייה</div><h2>ספרים לקריאה וללימוד</h2><div className="sod29-muted">„סגור — בהכנה” פירושו שהספר עוד לא השלים את כל שלבי התוכן וקבלת הקריאה. אפשר לפתוח את פירוט ההתקדמות בכל כרטיס.</div></div></div>
+      <div className="sod29-section-head"><div><div className="sod29-kicker">הספרייה</div><h2>ספרים לקריאה וללימוד</h2><div className="sod29-muted">בחרו ספר, קראו לצד המקור וגלו את הרעיונות, הטבלאות והמבנים שבו. מצב הזמינות מוצג בכל כרטיס.</div></div></div>
       {state.books.length ? <div className="sod29-book-grid">{state.books.map(book => <BookCard key={book.id} book={book} preparation={state.preparation?.[book.metadata?.slug]} />)}</div> : <div className="sod29-state">אין כרגע ספרים זמינים להצגה.</div>}
     </section>
 
-    <section className="sod29-section sod29-placeholder">
-      <div className="sod29-section-head"><div><div className="sod29-kicker">CORPUS PROJECTION</div><h2>תנ״ך · Library Group</h2></div></div>
-      <p className="sod29-muted">ה־Foundation כבר קבע Tanakh כ־corpus projection מעל 24 Book identities, לא כ“ספר 25”. הם נשארים inactive-first עד שה־runtime/projection וה־Human Gate יאשרו הפעלה. לכן הם לא מוצגים כאן כאילו הם כבר ספרייה ציבורית חיה.</p>
-    </section>
-
-    <section className="sod29-section sod29-placeholder">
-      <div className="sod29-section-head"><div><div className="sod29-kicker">PERSONAL SOURCE INTAKE</div><h2>חקור ספר משלך</h2><div className="sod29-muted">הכיוון נעול: Private Source → Light Intake → בחירת מטרת מחקר → Book Research Lab. ה־private storage/RLS runtime עדיין לא מחובר, ולכן הכפתור לא מזייף העלאה.</div></div></div>
-      <button className="sod29-action" disabled>העלאת ספר פרטי · runtime pending</button>
+    <section className="sod29-section" aria-labelledby="books29-tanakh-title">
+      <div className="sod29-section-head"><div><div className="sod29-kicker">תורה · נביאים · כתובים</div><h2 id="books29-tanakh-title">ספרי התנ״ך</h2></div><span className="sod29-chip">בהכנה</span></div>
+      <p className="sod29-muted">כ״ד ספרי התנ״ך יקבלו כאן מקום לקריאה לפי ספר, פרק ופסוק. הקריאה בהם מתוך הספרייה עדיין אינה זמינה.</p>
     </section>
   </>;
 }
@@ -360,5 +339,5 @@ export default function Books2029Page({ previewSlug = "" }) {
   const { slug: routeSlug } = useParams();
   const slug = routeSlug || previewSlug;
   useEffect(() => { applySeo({ title: slug ? "ספר · SOD1820" : "ספרים ומקורות · SOD1820", description: "ספרים, מקורות, עדים ומחקר ב־SOD1820", path: slug ? `/book/${slug}` : "/books" }); }, [slug]);
-  return <Sod2029Shell surface="books" symbol="▤" eyebrow="BOOKS · SOURCES · WITNESSES" title={slug ? "ספר ומקור" : "ספרים ומקורות"} description="ספרייה אחת מעל זהויות ומקורות חיים. המקור אינו רק קובץ — הוא שער למחקר, לעדות ולמראה־מקום.">{slug ? <BookDetail slug={slug} previewOnly={Boolean(previewSlug)} /> : <LibraryView />}</Sod2029Shell>;
+  return <Sod2029Shell surface="books" symbol="▤" eyebrow="ספרים ומקורות" title={slug ? "ספר ומקור" : "ספרים ומקורות"} description="קוראים בספרים, מבינים את הרעיונות וחוזרים תמיד לעמוד המקור.">{slug ? <BookDetail slug={slug} previewOnly={Boolean(previewSlug)} /> : <LibraryView />}</Sod2029Shell>;
 }
