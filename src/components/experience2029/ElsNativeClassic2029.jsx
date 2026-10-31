@@ -859,6 +859,8 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   const [activeTool, setActiveTool] = useState(() => window.matchMedia("(min-width:981px)").matches ? "findings" : null);
   const [panelPinned, setPanelPinned] = useState(true);
   const [heightExpanded, setHeightExpanded] = useState(false);
+  const [matrixOptionsOpen, setMatrixOptionsOpen] = useState(false);
+  const matrixOptionsTriggerRef = useRef(null);
   const [classicGlyphs, setClassicGlyphs] = useState(false);
   const [verseRead, setVerseRead] = useState(false);
   const verseReadRef = useRef(false);
@@ -1615,37 +1617,54 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
             readingFindings={readingOverlayVisible ? readingProjection.findings : []} selectedReading={selectedReading} readingFocus={readingDisplay?.focus} />
         </main>
         <footer className="els29-native-bottom-controls" role="group" aria-label="תצוגת המטריצה">
+          <button type="button" className="els29-matrix-quick-action" aria-label="סימון חופשי"
+            aria-pressed={!!engineState?.ui?.selMode} disabled={!matrixActive || searchPending}
+            onClick={() => requestSelection("selection-mode")}><NavigationIcon2029 name="check" /><span>סימון</span></button>
+          <button type="button" className="els29-matrix-quick-action" aria-label="התאם מטריצה למסך" aria-pressed={!!engineState?.ui?.fit}
+            disabled={!matrixActive || searchPending || ["searching", "verifying"].includes(operations.findings?.status)} onClick={() => requestControl("fit-toggle")}>
+            <NavigationIcon2029 name="scan" /><span>התאמה</span></button>
+          <ElsMatrixShare2029 state={engineState} disabled={!matrixActive || searchPending || ["searching", "verifying"].includes(operations.findings?.status)} />
+          <button ref={matrixOptionsTriggerRef} type="button" className="els29-matrix-quick-action els29-matrix-more-trigger"
+            aria-label="עוד אפשרויות תצוגה" aria-expanded={matrixOptionsOpen} aria-controls="els29-matrix-display-options"
+            onClick={() => setMatrixOptionsOpen(value => !value)}><NavigationIcon2029 name="tools" /><span>עוד</span></button>
+          <div id="els29-matrix-display-options" className="els29-matrix-display-options" hidden={!matrixOptionsOpen}
+            role="group" aria-label="אפשרויות תצוגת המטריצה"
+            onKeyDown={event => { if(event.key === "Escape") { event.stopPropagation();setMatrixOptionsOpen(false);matrixOptionsTriggerRef.current?.focus(); } }}>
           <button type="button" aria-pressed={heightExpanded} onClick={() => setHeightExpanded((value) => !value)}>
             {heightExpanded ? "חזור לגובה הרגיל" : "הגדל גובה ב־50%"}
           </button>
-          <button type="button" aria-label="התאם מטריצה למסך" aria-pressed={!!engineState?.ui?.fit}
-            disabled={!matrixActive || searchPending || ["searching", "verifying"].includes(operations.findings?.status)} onClick={() => requestControl("fit-toggle")}>התאמה למסך</button>
           <button type="button" aria-pressed={!!engineState?.ui?.heat} disabled={!matrixActive}
             title="צפיפות סביב אותיות הציר והממצאים המאומתים" onClick={() => requestControl("heat-toggle")}>מפת חום</button>
-          <ElsMatrixShare2029 state={engineState} disabled={!matrixActive || searchPending || ["searching", "verifying"].includes(operations.findings?.status)} />
           <button type="button" aria-label="סימון הציר הראשי" aria-pressed={!engineState?.ui?.hideMain}
             disabled={!matrixActive} onClick={() => requestControl("axis-visibility")}>
             {engineState?.ui?.hideMain ? "הצג ציר" : "סימון הציר"}
           </button>
           <button type="button" aria-pressed={classicGlyphs} onClick={() => setClassicGlyphs((value) => !value)}>אותיות קלאסיות</button>
-          <button type="button" aria-pressed={!!engineState?.ui?.selMode} disabled={!matrixActive || searchPending}
-            onClick={() => requestSelection("selection-mode")}>סימון חופשי</button>
           <button type="button" aria-label="הדגש פסוק במטריצה" aria-pressed={verseRead} disabled={!matrixActive} onClick={toggleVerseRead}>הדגש פסוק</button>
           <button type="button" aria-pressed={!!activePresentation} disabled={!matrixActive || searchPending || !presentationPlan.steps.length}
             onClick={() => setPresentation(activePresentation ? null : { key: presentationPlan.key, index: -1, auto: false, seconds: 3 })}>מצב מצלמה</button>
           {verseRead ? <small role="status">{verseHighlight ? `${verseHighlight.ref} — המילים מודגשות לסירוגין בתכלת ובכתום.` : "געו באות במטריצה כדי להדגיש את הפסוק שלה."}</small> : null}
           {engineState?.ui?.heat ? <small>מפת החום מציגה צפיפות סביב האותיות המסומנות.</small> : null}
+          </div>
         </footer>
         {matrixActive && (engineState.ui?.selMode || engineState.ui?.selCells?.length > 0) ? <section className="els29-manual-selection" aria-label="סימון חופשי במטריצה">
-          <p>{engineState.ui.selMode ? "געו באותיות לפי הסדר הרצוי. לחיצה נוספת מסירה סימון; גרירה מזיזה את המטריצה." : "הסימונים נשארים. הפעילו סימון חופשי כדי לשנות אותם."}</p>
-          <p role="status">נבחרו <bdi>{engineState.ui.selCells?.length || 0} / 64</bdi> אותיות · <bdi className="els29-manual-text">{engineState.ui.selText || "טרם נבחרו אותיות"}</bdi></p>
-          <small>סימון זמני במופע הזה, לא ממצא מאומת. נשמר במעבר בין מצבי התצוגה; לא נשמר לחשבון.</small>
-          <div>
-            <button type="button" disabled={searchPending || !engineState.ui.selCells?.length} onClick={() => requestSelection("selection-clear")}>נקה סימונים</button>
-            <button type="button" disabled={searchPending || (engineState.ui.selCells?.length || 0) < 2}
-              onClick={() => { const term = engineStateRef.current?.ui?.selText; if (term?.length >= 2) { setQuery(term);requestSearch("regular", { term, scope: activeScope }); } }}>חפש את הבחירה כציר</button>
+          <div className="els29-manual-selection-value" role="status">
+            <bdi className="els29-manual-text">{engineState.ui.selText || (engineState.ui.selMode ? "געו באותיות לסימון" : "לא נבחרו אותיות")}</bdi>
+            <span><bdi>{engineState.ui.selCells?.length || 0}/64</bdi> אותיות</span>
           </div>
-          <small>חיפוש הבחירה פותח חיפוש חדש. המופעים שיימצאו עשויים להיות במיקום אחר מהאותיות שסימנתם.</small>
+          <small>סימון זמני · לא נשמר לחשבון</small>
+          <div className="els29-manual-selection-actions">
+            <button type="button" className="els29-manual-search" aria-label="חפש את הבחירה כציר" disabled={searchPending || (engineState.ui.selCells?.length || 0) < 2}
+              onClick={() => { const term = engineStateRef.current?.ui?.selText; if (term?.length >= 2) { setQuery(term);requestSearch("regular", { term, scope: activeScope }); } }}>חפש כציר</button>
+            <button type="button" aria-label="נקה סימונים" disabled={searchPending || !engineState.ui.selCells?.length} onClick={() => requestSelection("selection-clear")}>נקה</button>
+            <details className="els29-manual-help"><summary aria-label="איך עובד הסימון החופשי?" title="איך עובד הסימון החופשי?">?</summary>
+              <div>
+                <p>געו באותיות לפי הסדר הרצוי. לחיצה נוספת מסירה סימון; גרירה מזיזה את המטריצה. כיבוי ״סימון״ משאיר את ההדגשות.</p>
+                <p>הסימונים זמניים במופע הזה ונשארים במעבר בין מצבי התצוגה. הם אינם ממצא מאומת ואינם נשמרים לחשבון.</p>
+                <p>״חפש כציר״ פותח חיפוש חדש. המופעים שיימצאו עשויים להיות במיקום אחר מהאותיות שסימנתם.</p>
+              </div>
+            </details>
+          </div>
         </section> : null}
         {activePresentation ? <section className="els29-native-presenter" aria-label="מצב מצלמה" onKeyDown={(event) => {
           if (event.key === "Escape") { event.stopPropagation();setPresentation(null); }

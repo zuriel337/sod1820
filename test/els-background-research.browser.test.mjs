@@ -150,7 +150,8 @@ for (const theme of ['light', 'parchment', 'dark']) test(`non-AI research surviv
       await page.waitForFunction(() => document.querySelector('[data-els-research-task]')?.textContent.includes('בודק: אמת'));
       assert.equal(ai, 0);
       const share = page.locator('.els29-matrix-share');
-      await share.locator('summary').click();
+      const shareTrigger=page.getByRole('button',{name:'שתף מטריצה',exact:true});
+      await shareTrigger.click();
       const sharedUrl = await share.getByRole('textbox', { name: 'קישור למטריצה' }).inputValue();
       assert.match(sharedUrl, /\/code\?mode=classic#els-matrix=/);
       assert.equal(await share.evaluate(el => el.scrollWidth <= el.clientWidth + 1), true, 'share panel fits');
@@ -160,7 +161,7 @@ for (const theme of ['light', 'parchment', 'dark']) test(`non-AI research surviv
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, 'share does not overflow');
       if (process.env.ELS_SCREENSHOT_DIR) await page.screenshot({ path: join(process.env.ELS_SCREENSHOT_DIR, `matrix-share-${width}-${theme}.png`) });
       await share.getByRole('button', { name: 'סגור שיתוף', exact: true }).click();
-      assert.equal(await share.locator('summary').evaluate(el => el === document.activeElement), true);
+      assert.equal(await shareTrigger.evaluate(el => el === document.activeElement), true);
       const contextBox = page.locator('[data-els-active-context]');
       const frameIdentity = await page.locator('iframe').first().elementHandle();
       const engineCommands = await page.locator('iframe').first().evaluate(el => el.contentWindow.__loads);

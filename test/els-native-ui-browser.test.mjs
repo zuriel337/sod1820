@@ -27,6 +27,53 @@ const executablePath = process.env.CHROMIUM_EXECUTABLE_PATH ||
   (existsSync('/usr/bin/chromium') ? '/usr/bin/chromium' : pw?.chromium.executablePath());
 const canRun = Boolean(pw && vite && react && executablePath && existsSync(executablePath));
 
+test('matrix toolbar is compact, preserves every display action and clears the real dock in all presets',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
+ for(const width of [320,360,390,768,1440])await withNative({width,height:900},async page=>{
+  const controls=page.getByRole('group',{name:'תצוגת המטריצה',exact:true});
+  const before=await identity(page),requests=await page.evaluate(()=>window.__log.filter(m=>m.type==='engine-request').length);
+  const more=page.getByRole('button',{name:'עוד אפשרויות תצוגה',exact:true});
+  const options=page.getByRole('group',{name:'אפשרויות תצוגת המטריצה',exact:true});
+  assert.equal(await more.getAttribute('aria-expanded'),'false');
+  assert.equal(await options.isVisible(),false);
+  assert.equal(await controls.locator(':scope > button').count(),4);
+  const boxes=await controls.locator(':scope > button').evaluateAll(nodes=>nodes.map(el=>{const b=el.getBoundingClientRect();return {x:b.x,y:b.y,width:b.width,height:b.height,font:parseFloat(getComputedStyle(el).fontSize)};}));
+  assert.ok(boxes.every(b=>Math.abs(b.y-boxes[0].y)<1&&Math.abs(b.width-boxes[0].width)<1&&b.width>=44&&b.height>=44&&b.font>=16),'one equal-width row, readable and touch-sized');
+  assert.ok((await controls.boundingBox()).height<90,'closed controls are not a wall of buttons');
+  await more.click();assert.equal(await more.getAttribute('aria-expanded'),'true');
+  for(const name of ['הגדל גובה ב־50%','מפת חום','סימון הציר הראשי','אותיות קלאסיות','הדגש פסוק במטריצה','מצב מצלמה'])
+   assert.equal(await options.getByRole('button',{name,exact:true}).isVisible(),true,name+' remains available');
+  await options.getByRole('button',{name:'מפת חום',exact:true}).click();await page.waitForFunction(()=>window.__state.ui.heat);
+  await options.getByRole('button',{name:'מפת חום',exact:true}).press('Escape');
+  assert.equal(await more.getAttribute('aria-expanded'),'false');assert.equal(await more.evaluate(el=>el===document.activeElement),true);
+  await more.press('Enter');await options.getByRole('button',{name:'מפת חום',exact:true}).click();await page.waitForFunction(()=>!window.__state.ui.heat);await more.click();
+  await page.getByRole('button',{name:'סימון חופשי',exact:true}).click();await page.waitForFunction(()=>window.__state.ui.selMode);
+  const indices=await page.evaluate(()=>window.__state.matrix.marks.filter(m=>m.type==='main').slice(0,3).map(m=>m.i));
+  for(const index of indices)await page.locator(`[data-els-index="${index}"]`).press('Enter');
+  await page.waitForFunction(()=>window.__state.ui.selCells.length===3);
+  const selection=page.getByRole('region',{name:'סימון חופשי במטריצה',exact:true});
+  assert.ok((await selection.boundingBox()).height<190,'selection stays compact with three letters');
+  const help=selection.getByText('?',{exact:true});await help.click();
+  await selection.getByText(/פותח חיפוש חדש/).waitFor();await help.click();
+  for(const theme of ['light','parchment','dark']){
+   await page.evaluate(t=>window.__setThemePreset(t),theme);
+   await selection.evaluate(el=>el.scrollIntoView({block:'end',behavior:'instant'}));
+   const overlays=await page.locator('.sod29-command-island,.sod29-feed-chip,.sod29-selection-cue').evaluateAll(nodes=>nodes.filter(el=>el.getClientRects().length).map(el=>el.getBoundingClientRect().top));
+   const mark=await selection.boundingBox();
+   assert.ok(mark.y+mark.height<=Math.min(...overlays)-8,`${width}/${theme}: the entire selection clears the dock AND update/selection cues`);
+   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+   for(const name of ['חפש את הבחירה כציר','נקה סימונים']){
+    const target=selection.getByRole('button',{name,exact:true}),b=await target.boundingBox();assert.ok(b.width>=44&&b.height>=44);
+    assert.equal(await target.evaluate(el=>{const r=el.getBoundingClientRect();return el.contains(document.elementFromPoint(r.x+r.width/2,r.y+r.height/2));}),true,'control not obscured');
+   }
+   if(process.env.ELS_TOOLBAR_SCREENSHOTS){mkdirSync(process.env.ELS_TOOLBAR_SCREENSHOTS,{recursive:true});await page.screenshot({path:`${process.env.ELS_TOOLBAR_SCREENSHOTS}/toolbar-${width}-${theme}.png`});}
+  }
+  assert.deepEqual(await identity(page),before);
+  assert.equal(await page.evaluate(()=>window.__log.filter(m=>m.type==='engine-request').length),requests);
+  assert.equal(page.__elsDynamicLexiconRequests.length,0);assert.equal(await page.evaluate(()=>(window.__matrixSubmits||[]).length),0);
+ },{realHost:true,fullFrame:true,loadGolden:true,mobile:width<981});
+});
+
 test('manual letter selection uses canonical UI state, survives profiles, rejects stale controls and never scans',
  {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
  for(const width of [320,390,1440])await withNative({width,height:900},async page=>{
@@ -123,13 +170,13 @@ test('matrix share: explicit, private-safe and exact canonical replay across all
  for(const profile of [{researchProfile:false},{researchProfile:true},{researchProfile:true,guided:true}])
   await withNative({width:320,height:900},async page=>{
    if(profile.guided) await page.getByRole('button',{name:'פתח מטריצה מדויקת'}).click();
-   const before=await identity(page),share=page.locator('.els29-matrix-share');
-   assert.equal(await share.count(),1);assert.equal(await share.getAttribute('open'),null);
+   const before=await identity(page),share=page.locator('.els29-matrix-share'),trigger=page.getByRole('button',{name:'שתף מטריצה',exact:true});
+   assert.equal(await share.count(),0);assert.equal(await trigger.getAttribute('aria-expanded'),'false');
    await page.evaluate(()=>{
     Object.defineProperty(navigator,'clipboard',{configurable:true,value:{writeText:async value=>{window.__copiedMatrix=value;}}});
     Object.defineProperty(navigator,'share',{configurable:true,value:async value=>{window.__sharedMatrix=value;}});
    });
-   await share.locator('summary').click();
+   await trigger.click();
    const url=await share.getByRole('textbox',{name:'קישור למטריצה'}).inputValue();
    const restored=readElsMatrixShare(new URL(url).hash).loadItem;
    assert.ok(restored);assert.equal(restored.hitId,before.axis.hitId);
@@ -913,8 +960,14 @@ async function withNative(viewport, run, options = {}) {
 const button = (page, name) => page.getByRole('button', { name, exact: true }).filter({ visible: true });
 // Dispatch actions directly so Playwright does not scroll an offscreen inspector button into view.
 async function activate(page, name) {
+  await revealMatrixOption(page,name);
   await button(page, name).dispatchEvent('click');
   await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+}
+async function revealMatrixOption(page,name) {
+  const candidate=page.getByRole('button',{name,exact:true,includeHidden:true});
+  if(await candidate.count()===1&&await candidate.evaluate(el=>!!el.closest('.els29-matrix-display-options[hidden]')))
+    await page.getByRole('button',{name:'עוד אפשרויות תצוגה',exact:true}).click();
 }
 const capture = (page) => page.evaluate(() => {
   const matrix = document.querySelector('.els29-native-matrix-scroll');
@@ -1422,7 +1475,7 @@ test('native UI: unified scan recovers from Classic; heat paints only unmarked c
    assert.equal(await page.locator('.els29-classic-fallback.is-open').count(),1);
    await page.getByRole('button',{name:'סרוק לאורך הציר הנבחר',exact:true,includeHidden:true}).dispatchEvent('click');
    await button(page,'סמן את תורה ברצף').waitFor();await expectNative(page,url,'scan after Classic');
-   await activate(page,'סגור כלי מטריצה');await button(page,'מפת חום').scrollIntoViewIfNeeded();
+   await activate(page,'סגור כלי מטריצה');await revealMatrixOption(page,'מפת חום');await button(page,'מפת חום').scrollIntoViewIfNeeded();
    const initial=await identity(page),before=await pan(page);
    const marked=()=>page.locator('.els29-native-cell.is-axis,.els29-native-cell.is-finding').evaluateAll(cells=>cells.map(cell=>({index:cell.dataset.elsIndex,background:getComputedStyle(cell).backgroundColor,color:getComputedStyle(cell).color})));
    const backgrounds=()=>page.locator('.els29-native-cell:not(.is-axis):not(.is-finding)').evaluateAll(cells=>cells.map(cell=>getComputedStyle(cell).backgroundColor));
