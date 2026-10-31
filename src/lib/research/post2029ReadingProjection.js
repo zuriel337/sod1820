@@ -6,15 +6,80 @@ import { POST2029_PREVIEW_SNAPSHOT } from "./post2029PreviewSnapshot.js";
 import { formatBilingualDate } from "./timeline2029.js";
 import { buildPost2029ArchitectureWireframe, projectPost2029Experience } from "./post2029ExperienceProjection.js";
 import { isDocumentedIndiaCaptainPost } from "./topicSourceContext.js";
+import { hasSuppressedPublicPostTag } from "./publicPostBoundary.js";
+import { projectTopicCardContent } from "./topicConvergence.js";
+import { decodePublicEntities } from "../presentation/contentTitle.js";
+import { classifyCalculatorInput, CALCULATOR_INPUT_KIND } from "./calculator2029Input.js";
+
+export function isPostEnglishExpression(expression) {
+  const info = classifyCalculatorInput(expression);
+  return info.kind === CALCULATOR_INPUT_KIND.LATIN && !info.hasDigits && !info.otherLetters
+    && /^[A-Za-z\s'’.-]+$/.test(String(expression || ""));
+}
 
 const clean = (value) => value == null ? "" : String(value).trim();
+
+function postCssSelectors(selector) {
+  const selectors = []; let start = 0, depth = 0, quote = null, escaped = false;
+  for (let index = 0; index < selector.length; index += 1) {
+    const char = selector[index];
+    if (escaped) { escaped = false; continue; }
+    if (char === "\\") { escaped = true; continue; }
+    if (quote) { if (char === quote) quote = null; continue; }
+    if (char === '"' || char === "'") { quote = char; continue; }
+    if (char === "(" || char === "[") depth += 1;
+    if (char === ")" || char === "]") depth -= 1;
+    if (char === "," && !depth) { selectors.push(selector.slice(start, index)); start = index + 1; }
+  }
+  selectors.push(selector.slice(start));
+  return selectors.map(value => value.trim()).filter(Boolean);
+}
+
+// Presentation containment over the authored source, not an HTML sanitizer or
+// a source rewrite. Legacy plugin resources never become 2029 global styles.
+export function postReadingHtml2029(html) {
+  if (!globalThis.document?.createElement) return String(html || "");
+  const template = document.createElement("template"); template.innerHTML = String(html || "");
+  for (const dependency of template.content.querySelectorAll('script,link[rel~="stylesheet"],link[rel="preload"][as="style"]')) dependency.remove();
+  for (const icon of template.content.querySelectorAll('img[src*="/wp-content/plugins/gallery-images/"]')) {
+    // WordPress plugin arrows/spinners are UI assets, not the authored gallery
+    // images. Keep the raw source witness and all actual media URLs unchanged.
+    const loader = icon.closest(".loading");
+    if (loader && !clean(loader.textContent) && loader.querySelectorAll("img").length === 1) loader.remove();
+    else icon.remove();
+  }
+  const scopedRules = rules => [...rules].flatMap(rule => {
+    if (rule.type === 1 && rule.selectorText) {
+      const selectors = postCssSelectors(rule.selectorText).map(selector => `.sod29-reading-source ${selector}`);
+      return [`${selectors.join(",")} {${rule.style.cssText}}`];
+    }
+    if ((rule.type === 4 || rule.type === 12) && rule.cssRules) {
+      const body = scopedRules(rule.cssRules).join("\n");
+      return body ? [`${rule.cssText.slice(0, rule.cssText.indexOf("{"))}{${body}}`] : [];
+    }
+    // Imports, font faces and animations belong to the existing 2029 owners.
+    return [];
+  });
+  for (const style of template.content.querySelectorAll("style")) {
+    try {
+      const sheet = new CSSStyleSheet(); sheet.replaceSync(style.textContent || "");
+      style.textContent = scopedRules(sheet.cssRules).join("\n");
+      style.dataset.postScopedStyle = "true";
+    } catch { style.remove(); }
+  }
+  for (const frame of template.content.querySelectorAll("iframe")) {
+    frame.loading = "lazy";
+    if (!clean(frame.title)) frame.title = "מדיה מוטמעת מתוך הפוסט";
+  }
+  return template.innerHTML;
+}
 
 // Some WordPress Posts authored equalities as plain text with a colored value,
 // before data-gem existed. Decorate only complete, explicit equality lines.
 // Preserve their wording, colors and media; no association is engine-verified
 // here. Each operand opens its own canonical Number calculation.
 function markLegacyEqualityLines(content = "") {
-  const operand = (text, numeric = false) => `<button type="button" class="${numeric ? "sod29-gematria-value" : "sod29-gematria-expression"}" data-gem="${text.trim().replace(/&/g, "&amp;").replace(/"/g, "&quot;")}">${text.trim()}</button>`;
+  const operand = (text, numeric = false) => `<button type="button" class="${numeric ? "sod29-gematria-value" : "sod29-gematria-expression"}" data-post-equality-operand="true" data-gem="${text.trim().replace(/&/g, "&amp;").replace(/"/g, "&quot;")}">${text.trim()}</button>`;
   const hebrew = '[א-ת][א-ת\\u0591-\\u05C7 ״׳"\\x27-]{0,70}';
   const forward = new RegExp('(^|>|\\n)(' + hebrew + ')\\s*=\\s*(<span\\b[^>]*>)?(\\d{1,9})(<\\/span>)?(?:\\s*=\\s*(' + hebrew + '))?(?=\\s*(?:<br\\b|<\\/(?:p|h[1-6]|div)>|$))', 'g');
   const reverse = new RegExp('(^|>|\\n)(\\d{1,9})\\s*=\\s*(' + hebrew + ')(?=\\s*(?:<br\\b|<\\/(?:p|h[1-6]|div)>|$))', 'g');
@@ -762,6 +827,7 @@ export async function fetchGoldenContextPackBySlug(slug) {
 
 export async function fetchPost2029ReadingProjection(slug) {
   const publicPost = await getPostBySlug(slug);
+  if (publicPost && !isPublicPostMeasureSource(publicPost)) return null;
   const privateStage = publicPost ? null : await fetchPrivateGoldenStage(slug);
   const previewSnapshot = !publicPost && !privateStage && slug === GOLDEN_SLUG ? POST2029_PREVIEW_SNAPSHOT : null;
   const post = publicPost || privateStage || previewSnapshot;
@@ -837,6 +903,9 @@ export async function fetchPost2029ReadingProjection(slug) {
   return {
     version: "post-2029-reading-v1",
     post: presentationPost,
+    // The unmodified, access-controlled source used for version revalidation.
+    // Render annotations never become historical source assertions.
+    sourcePost: post,
     identity: {
       type: "post",
       id: String(post.id),
@@ -872,6 +941,526 @@ export async function fetchPost2029ReadingProjection(slug) {
     experience,
     contextPack,
   };
+}
+
+// Post measures compose the existing public Post, Topic and canonical method
+// readers. No cache, graph edge, score or publication decision is created here.
+export function isPublicPostMeasureSource(post) {
+  return Boolean(post?.id != null && clean(post.slug) && post.home_hidden !== true
+    && !post._privateStage && !post._previewSnapshot && !hasSuppressedPublicPostTag(post)
+    && !["gpt-draft", "web"].includes(clean(post.source).toLowerCase()));
+}
+
+export async function revalidatePostMeasureSource(sourcePost, { client = supabase } = {}) {
+  if (!isPublicPostMeasureSource(sourcePost)) return { status: "source_unavailable" };
+  try {
+    const { data, error } = await client.from("posts")
+      .select("id,slug,content,tags,source,home_hidden,modified,date")
+      .eq("id", sourcePost.id).eq("slug", sourcePost.slug).limit(1);
+    if (error) return { status: "source_failed" };
+    const row = data?.[0];
+    if (!isPublicPostMeasureSource(row) || String(row.id) !== String(sourcePost.id)
+      || row.slug !== sourcePost.slug) return { status: "source_unavailable" };
+    if (clean(row.modified) !== clean(sourcePost.modified) || row.content !== sourcePost.content) {
+      return { status: "source_changed" };
+    }
+    return { status: "ready", source: row };
+  } catch { return { status: "source_failed" }; }
+}
+
+const exactPostValue = value => {
+  if (!["string", "number"].includes(typeof value) || !/^\d+$/.test(String(value).trim())) return null;
+  const n = Number(value);
+  return Number.isSafeInteger(n) ? n : null;
+};
+
+// Compatibility reading of an explicitly authored legacy marking. This reads
+// bounded equality syntax, not narrative meanings, tags, OCR or engine matches.
+// Method names stay verbatim; only the canonical profile resolves their identity.
+const sourceMethodLabel = value => {
+  const label = clean(value);
+  // A comparison, player number or formula in parentheses is not a method name.
+  return label && !/[=<>]/.test(label) && !/^\d[\d\s.,]*$/.test(label) ? label : null;
+};
+
+function authoredRegularCaption(box) {
+  const note = box?.querySelector(":scope > .gb-note");
+  if (!note) return null;
+  const sentence = clean(note.textContent).split(/[.!?]/)[0];
+  const match = sentence.match(/(?:גימטרי(?:ה|ת)|מניין|מנין|חישוב|שיטת)\s+ה?רגיל(?:ה)?/);
+  if (!match || /(?:לא|אינ[וה])\s+(?:ב|ה)?(?:גימטריה|מניין|מנין|חישוב|שיטת)/.test(sentence)
+    || /שיטות|מילוי|מסתתר|מצומצם|משולש|fn_|miluy/i.test(sentence)) return null;
+  // Grammatical source wording is retained separately from the canonical request.
+  // No method is chosen from the numeric result. The profile must still resolve it.
+  return { method: "רגיל", sourceMethodLabel: match[0], methodSourceText: sentence };
+}
+
+function legacyCalculationTuple(node) {
+  const line = node.closest("p,div,li,td,h2,h3,h4,h5,h6");
+  if (!line) return { method: null, value: null };
+  const copy = line.cloneNode(true);
+  const markings = [...line.querySelectorAll("[data-gem]")];
+  const selected = markings.indexOf(node);
+  if (selected < 0) return { method: null, value: null };
+  [...copy.querySelectorAll("[data-gem]")].forEach((item, index) => item.replaceWith(`\uFFF0${index}\uFFF1`));
+  const marker = `\uFFF0${selected}\uFFF1`;
+  const text = copy.textContent;
+  let suffix = text.slice(text.indexOf(marker) + marker.length);
+  const leadingMethod = suffix.match(/^\s*\(([^)]+)\)\s*(?==)/);
+  const leadingRegular = !leadingMethod && suffix.match(/^\s*(ברגיל)\s*(?==)/);
+  if (leadingMethod) suffix = suffix.slice(leadingMethod[0].length);
+  if (leadingRegular) suffix = suffix.slice(leadingRegular[0].length);
+  // A chain may share one value/method; a middle dot starts a separate claim.
+  const equality = suffix.match(/^\s*(?:=\s*\uFFF0\d+\uFFF1\s*)*=\s*(\d+)\s*(?:\(([^)]+)\))?(?=\s*(?:$|[·,.;]))/);
+  const explicit = sourceMethodLabel(leadingMethod?.[1] || equality?.[2]);
+  if (explicit && equality) return { method: explicit, value: exactPostValue(equality[1]) };
+  if (leadingRegular && equality) return { method: "רגיל", sourceMethodLabel: leadingRegular[1], value: exactPostValue(equality[1]) };
+  const header = element => {
+    if (!element || element.contains(node) || element.querySelector("[data-gem],p,div,li,table")) return null;
+    const label = clean(element.textContent);
+    // A documented group label may give both method and value.
+    const group = label.match(/^([^=()]+?)(?:\s*\([^)]*\))?\s*=\s*(\d+)$/);
+    if (group && sourceMethodLabel(group[1])) return { method: sourceMethodLabel(group[1]), value: exactPostValue(group[2]) };
+    // Explicit alias declarations such as «משולש» (קדמי): ... .
+    const alias = label.match(/^«[^»]+»\s*\(([^)]+)\)\s*:/);
+    if (alias && sourceMethodLabel(alias[1])) return { method: sourceMethodLabel(alias[1]), value: null };
+    const caption = label.match(/\(([^)]+)\)\s*$/);
+    return caption && sourceMethodLabel(caption[1]) ? { method: sourceMethodLabel(caption[1]), value: null } : null;
+  };
+  const local = header(line.previousElementSibling) || header(line.parentElement?.firstElementChild);
+  // Group lists must consist only of authored markings and separators. A nearby
+  // group heading does not assign a method/value to prose inside that group.
+  const isList = /^\s*\uFFF0\d+\uFFF1(?:\s*·\s*\uFFF0\d+\uFFF1)*\s*$/.test(text);
+  if (local && (equality || isList)) return { method: local.method, value: equality ? exactPostValue(equality[1]) : local.value };
+  const boxCaption = equality && authoredRegularCaption(node.closest(".sod-gematria-box"));
+  if (boxCaption) return { ...boxCaption, value: exactPostValue(equality[1]) };
+  return { method: null, value: equality ? exactPostValue(equality[1]) : null };
+}
+
+function normalizePostDuplicateSourceIds(source, root, digest) {
+  for (const node of root.querySelectorAll("[id]")) {
+    if (!node.id.trim()) { node.removeAttribute("id"); node.dataset.postEmptyNativeId = "true"; }
+  }
+  const saved = [...source.querySelectorAll("[id]")];
+  const byId = new Map(), renderedById = new Map(), used = new Set();
+  saved.forEach((node, index) => { if (!byId.has(node.id)) byId.set(node.id, []); byId.get(node.id).push({ node, index }); });
+  for (const node of root.querySelectorAll("[id]")) {
+    const original = node.dataset.postSourceNativeId || node.id;
+    if (!renderedById.has(original)) renderedById.set(original, []);
+    renderedById.get(original).push(node); used.add(node.id);
+  }
+  for (const [id, originals] of byId) {
+    if (!id) continue;
+    if (originals.length < 2) continue;
+    const rendered = renderedById.get(id) || [];
+    const readableText = node => { const copy = node.cloneNode(true); for (const resource of copy.querySelectorAll("style,script,link")) resource.remove(); return copy.textContent; };
+    if (rendered.length !== originals.length || originals.some(({ node }, index) =>
+      node.tagName !== rendered[index].tagName || readableText(node) !== readableText(rendered[index]))) continue;
+    rendered.forEach((target, index) => {
+      target.dataset.postSourceNativeId = id;
+      target.dataset.postDuplicateNativeId = "true";
+      // Preserve the first historical hash destination. Later identical IDs get
+      // snapshot-bound presentation IDs, never new source-native identities.
+      if (!index) return;
+      const anchor = `post-source-${digest}-${originals[index].index}`;
+      if (used.has(anchor) && target.id !== anchor) return;
+      target.id = anchor; target.dataset.postPresentationAnchor = "true"; used.add(anchor);
+    });
+  }
+}
+
+function preparePostReadingDom(root) {
+  for (const node of root.querySelectorAll("[style],font[size],small")) {
+    const size = node.style?.fontSize || "";
+    const number = parseFloat(size);
+    const pixels = /px$/i.test(size) ? number : /pt$/i.test(size) ? number * 4 / 3 : null;
+    if ((pixels != null && pixels < 14) || node.matches('font[size="1"],font[size="2"],small')) {
+      if (clean(node.textContent)) node.dataset.postTextFloor = node.matches("p,div,li") || clean(node.textContent).length > 80 ? "supporting" : "micro";
+    }
+  }
+  for (const number of root.querySelectorAll(".gb-rows :is(b,strong)")) {
+    if (/^\d+$/.test(clean(number.textContent))) number.dataset.postNumeric = "true";
+  }
+  for (const image of root.querySelectorAll("img[src]")) {
+    if (!clean(image.getAttribute("alt"))) {
+      const caption = image.closest("figure,.wp-caption")?.querySelector("figcaption,.wp-caption-text");
+      image.alt = clean(caption?.textContent) || "תמונה מתוך הפוסט; תיאור תוכן לא סופק במקור";
+      image.dataset.postAltFallback = caption ? "source_caption" : "description_missing";
+    }
+    if (!image.hasAttribute("loading")) image.loading = "lazy";
+    if (!image.hasAttribute("decoding")) image.decoding = "async";
+  }
+}
+
+const annotationWitnessKey = node => JSON.stringify(["data-expression", "data-method", "data-result", "data-method-version", "data-region-id"]
+  .map(key => node.getAttribute(key)));
+
+function locateSavedPostAnnotations(source, root, digest) {
+  const saved = [...source.querySelectorAll("[data-expression]")];
+  const rendered = [...root.querySelectorAll("[data-expression]")];
+  if (saved.length !== rendered.length || saved.some((node, index) => annotationWitnessKey(node) !== annotationWitnessKey(rendered[index]))) return;
+  saved.forEach((node, index) => {
+    const target = rendered[index], nativeId = node.id || node.closest("[id]")?.id;
+    target.dataset.postAnnotationIndex = String(index);
+    if (nativeId && [...source.querySelectorAll("[id]")].filter(other => other.id === nativeId).length === 1) return;
+    const anchor = target.id || `post-annotation-${digest}-${index}`;
+    if ([...root.querySelectorAll("[id]")].some(other => other !== target && other.id === anchor)) return;
+    target.id = anchor; target.dataset.postAnnotationLocator = anchor;
+    target.dataset.postPresentationAnchor = "true";
+  });
+}
+
+function boxOperandTarget(row, expression, ordinal, anchor) {
+  const existing = [...row.querySelectorAll("[data-post-box-operand],[data-post-equality-operand]")]
+    .find(node => node.textContent === expression && (node.dataset.postBoxOperand === String(ordinal) || !node.hasAttribute("data-post-box-operand")));
+  if (existing) { existing.id = anchor; existing.dataset.postBoxOperand = String(ordinal); return existing; }
+  const walker = row.ownerDocument.createTreeWalker(row, 4); const texts = [];
+  for (let node = walker.nextNode(); node; node = walker.nextNode()) texts.push(node);
+  const full = texts.map(node => node.textContent).join("");
+  const pieces = [...full.matchAll(/[^=]+/g)]; const piece = pieces[ordinal];
+  if (!piece || piece[0].trim() !== expression) return null;
+  const start = piece.index + piece[0].indexOf(expression), end = start + expression.length;
+  let offset = 0, begin = null, finish = null;
+  for (const node of texts) {
+    const next = offset + node.textContent.length;
+    if (!begin && start >= offset && start < next) begin = [node, start - offset];
+    if (end > offset && end <= next) { finish = [node, end - offset]; break; }
+    offset = next;
+  }
+  if (!begin || !finish || begin[0].parentElement.closest("a,button") || finish[0].parentElement.closest("a,button")) return null;
+  const range = row.ownerDocument.createRange(); range.setStart(...begin); range.setEnd(...finish);
+  const button = row.ownerDocument.createElement("button"); button.type = "button";
+  button.className = "sod29-gematria-expression"; button.id = anchor;
+  button.dataset.gem = expression; button.dataset.postBoxOperand = String(ordinal); button.dataset.postPresentationAnchor = "true";
+  button.append(range.extractContents()); range.insertNode(button); return button;
+}
+
+function collectAuthoredBoxOccurrences(sourcePost, source, root, digest) {
+  const savedBoxes = [...source.querySelectorAll(".sod-gematria-box")];
+  const renderedBoxes = [...root.querySelectorAll(".sod-gematria-box")];
+  if (savedBoxes.length !== renderedBoxes.length) return [];
+  return savedBoxes.flatMap((box, boxIndex) => {
+    const caption = authoredRegularCaption(box);
+    const rows = [...box.querySelectorAll(":scope > .gb-rows > div")];
+    const targets = [...renderedBoxes[boxIndex].querySelectorAll(":scope > .gb-rows > div")];
+    if (rows.length !== targets.length || rows.some((row, i) => row.textContent !== targets[i].textContent)) return [];
+    return rows.flatMap((row, rowIndex) => {
+      if (row.querySelector("a,button,[data-gem],[data-expression]")) return [];
+      const parts = row.textContent.split("=").map(part => part.trim());
+      const numeric = part => part.match(/^(\d+)(?:\s*(?:·\s*([^()]+)|\(([^)]+)\)))?\s*$/);
+      const values = parts.map(numeric);
+      if (parts.length < 2 || values.filter(Boolean).length !== 1
+        || parts.some((part, index) => !values[index] && !/^[א-ת\u0591-\u05c7\u05f3\u05f4'"’‘\s-]+$/.test(part))) return [];
+      const number = values.find(Boolean), value = exactPostValue(number[1]); if (value == null) return [];
+      const explicit = sourceMethodLabel(number[2] || number[3]);
+      const method = explicit ? { method: explicit, sourceMethodLabel: explicit } : caption || { method: null };
+      return parts.flatMap((expression, partIndex) => {
+        if (values[partIndex]) return [];
+        const anchor = `post-box-${digest}-${boxIndex}-${rowIndex}-${partIndex}`;
+        if ([...root.querySelectorAll("[id]")].some(node => node.id === anchor && node.dataset.postBoxOperand !== String(partIndex))) return [];
+        const target = boxOperandTarget(targets[rowIndex], expression, partIndex, anchor); if (!target) return [];
+        return [{ id: `posts:${sourcePost.id}:${anchor}`, expression, ...method, value, methodVersion: null,
+          sourceRef: `posts:${sourcePost.id}`, sourceVersion: clean(sourcePost.modified) || null,
+          locator: `#${anchor}`, locatorPrecision: "snapshot_bound_occurrence", sourceOrdinal: `${boxIndex}:${rowIndex}:${partIndex}`,
+          sourceDigest: digest, binding: "authored_gematria_box", lang: sourcePost.lang || null }];
+      });
+    });
+  });
+}
+
+function collectAuthoredEqualityOccurrences(sourcePost, root, digest) {
+  const template = root.ownerDocument.createElement("template");
+  template.innerHTML = markLegacyEqualityLines(sourcePost.content);
+  const selector = "[data-post-equality-operand]";
+  const saved = [...template.content.querySelectorAll(selector)].filter(node => !node.closest(".sod-gematria-box"));
+  const rendered = [...root.querySelectorAll(selector)].filter(node => !node.closest(".sod-gematria-box"));
+  if (saved.length !== rendered.length || saved.some((node, index) => node.dataset.gem !== rendered[index].dataset.gem
+    || node.textContent !== rendered[index].textContent)) return [];
+  const ids = new Set([...root.querySelectorAll("[id]")].map(node => node.id));
+  return saved.flatMap((node, index) => {
+    const expression = node.dataset.gem;
+    if (!expression || /^\d+$/.test(expression) || node.closest("script,style,template,pre,code,[hidden],[aria-hidden='true']")) return [];
+    const row = node.closest("p,div,li,td,h1,h2,h3,h4,h5,h6"); if (!row) return [];
+    const clone = row.cloneNode(true), controls = [...row.querySelectorAll(selector)];
+    const selected = controls.indexOf(node); if (selected < 0) return [];
+    for (const br of clone.querySelectorAll("br")) br.replaceWith("\n");
+    for (const [ordinal, control] of [...clone.querySelectorAll(selector)].entries()) {
+      control.replaceWith(/^\d+$/.test(control.dataset.gem) ? control.dataset.gem : `\uFFF0${ordinal}\uFFF1`);
+    }
+    const marker = `\uFFF0${selected}\uFFF1`, all = clone.textContent, at = all.indexOf(marker);
+    if (at < 0) return [];
+    const end = all.indexOf("\n", at), line = all.slice(all.lastIndexOf("\n", at) + 1, end < 0 ? undefined : end);
+    const parts = line.split("=").map(part => part.trim());
+    if (parts.length < 2 || !parts.includes(marker) || parts.filter(part => /^\d+$/.test(part)).length !== 1
+      || parts.some(part => !/^\d+$/.test(part) && !/^\uFFF0\d+\uFFF1$/.test(part))) return [];
+    const value = exactPostValue(parts.find(part => /^\d+$/.test(part))); if (value == null) return [];
+    const target = rendered[index], anchor = `post-equality-${digest}-${index}`;
+    if (ids.has(anchor) && target.id !== anchor) return [];
+    target.id = anchor; ids.add(anchor); target.dataset.postPresentationAnchor = "true";
+    const renderedRow = target.closest("p,h1,h2,h3,h4,h5,h6");
+    if (renderedRow) renderedRow.dataset.postEquationLine = "true";
+    return [{ id: `posts:${sourcePost.id}:${anchor}`, expression, method: null, value, methodVersion: null,
+      sourceRef: `posts:${sourcePost.id}`, sourceVersion: clean(sourcePost.modified) || null,
+      locator: `#${anchor}`, locatorPrecision: "snapshot_bound_occurrence", sourceOrdinal: index, sourceDigest: digest,
+      binding: "authored_equality_line", sourceState: "expression_without_documented_method", lang: sourcePost.lang || null }];
+  });
+}
+
+export async function collectPostLegacyOccurrences2029(sourcePost, root) {
+  if (!isPublicPostMeasureSource(sourcePost) || !root?.ownerDocument) return [];
+  const template = root.ownerDocument.createElement("template");
+  template.innerHTML = String(sourcePost.content || "");
+  const savedMarkings = "[data-gem]:not([data-post-equality-operand]):not([data-post-number-link]):not([data-post-box-operand])";
+  const saved = [...template.content.querySelectorAll(savedMarkings)];
+  const rendered = [...root.querySelectorAll(savedMarkings)];
+  // Do not attach a saved position to markings added by a presentation adapter.
+  if (saved.length !== rendered.length || saved.some((node, index) =>
+    node.getAttribute("data-gem") !== rendered[index].getAttribute("data-gem")
+    || node.textContent !== rendered[index].textContent)) return [];
+  const bytes = new TextEncoder().encode(String(sourcePost.content || ""));
+  const digest = [...new Uint8Array(await globalThis.crypto.subtle.digest("SHA-256", bytes))]
+    .map(byte => byte.toString(16).padStart(2, "0")).join("");
+  normalizePostDuplicateSourceIds(template.content, root, digest);
+  preparePostReadingDom(root);
+  locateSavedPostAnnotations(template.content, root, digest);
+  root.dataset.postSourceDigest = digest;
+  const legacy = saved.flatMap((node, index) => {
+    const expression = node.getAttribute("data-gem");
+    const englishExpression = isPostEnglishExpression(expression) && node.textContent.includes(expression);
+    if (!expression?.trim() || (node.textContent !== expression && !englishExpression) || /^\d[\d,]*$/.test(expression.trim())
+      || node.closest("script,style,template,pre,code,[hidden],[aria-hidden='true']")) return [];
+    const target = rendered[index];
+    // This is a presentation locator bound to the exact source snapshot, not a
+    // claimed source-native section or a persisted research-object identity.
+    const anchor = target.id || `post-legacy-${digest}-${index}`;
+    if ([...root.querySelectorAll("[id]")].some(other => other !== target && other.id === anchor)) return [];
+    if (!target.id) { target.id = anchor; target.dataset.postPresentationAnchor = "true"; }
+    const tuple = englishExpression ? { method: null, value: null } : legacyCalculationTuple(node);
+    return [{ id: `posts:${sourcePost.id}:${anchor}`, expression, ...tuple, methodVersion: null,
+      sourceRef: `posts:${sourcePost.id}`, sourceVersion: clean(sourcePost.modified) || null,
+      locator: `#${anchor}`, locatorPrecision: node.id && !target.dataset.postDuplicateNativeId ? "occurrence" : "snapshot_bound_occurrence",
+      sourceOrdinal: index, sourceDigest: digest, binding: "saved_legacy_marking", lang: englishExpression ? "en" : sourcePost.lang || null }];
+  });
+  return [...legacy, ...collectAuthoredBoxOccurrences(sourcePost, template.content, root, digest),
+    ...collectAuthoredEqualityOccurrences(sourcePost, root, digest)];
+}
+
+async function sourceContainsLegacyCalculation(sourcePost, claim, sourceDocument) {
+  if (!sourceDocument?.createElement) return false;
+  try {
+    const inert = sourceDocument.implementation?.createHTMLDocument?.("") || sourceDocument;
+    const root = inert.createElement("div");
+    root.innerHTML = claim.binding === "authored_equality_line" ? markLegacyEqualityLines(sourcePost.content) : String(sourcePost.content || "");
+    const occurrences = await collectPostLegacyOccurrences2029(sourcePost, root);
+    return occurrences.some(row => ["expression", "method", "value", "locator", "sourceOrdinal", "sourceDigest", "binding", "sourceMethodLabel", "methodSourceText"]
+      .every(key => row[key] === claim[key]) && claim.methodVersion === null);
+  } catch { return false; }
+}
+
+async function sourceContainsPostCalculation(sourcePost, claim, sourceDocument) {
+  if (!claim) return false;
+  if (claim.sourceDigest) {
+    if (!sourceDocument?.createElement) return false;
+    const inert = sourceDocument.implementation?.createHTMLDocument?.("") || sourceDocument;
+    const root = inert.createElement("div"); root.innerHTML = String(sourcePost.content || "");
+    await collectPostLegacyOccurrences2029(sourcePost, root);
+    return collectPostCalculationOccurrences2029(sourcePost, root).some(row =>
+      ["expression", "method", "value", "locator", "sourceOrdinal", "sourceDigest", "methodVersion", "binding"]
+        .every(key => row[key] === claim[key]));
+  }
+  // Attribute-level witness only, not semantic extraction from prose or OCR.
+  const html = String(sourcePost.content || "").replace(/<(script|style|pre|code|template)\b[^>]*>[\s\S]*?<\/\1>/gi, "");
+  for (const tag of html.matchAll(/<[a-z][^>]*\bdata-expression\s*=[^>]*>/gi)) {
+    const attrs = Object.fromEntries([...tag[0].matchAll(/\b(data-expression|data-method|data-result|data-method-version)\s*=\s*(["'])([\s\S]*?)\2/gi)]
+      .map(m => [m[1].toLowerCase(), decodePublicEntities(m[3], 1)]));
+    if (attrs["data-expression"] === claim.expression && clean(attrs["data-method"]) === claim.method
+      && exactPostValue(attrs["data-result"]) === claim.value
+      && (clean(attrs["data-method-version"]) || null) === claim.methodVersion) return true;
+  }
+  return false;
+}
+
+// This is an occurrence reader for explicit saved annotations, not an extractor
+// of number/phrase pairs from OCR, tags, typography or positional guesses.
+export function collectPostCalculationOccurrences2029(sourcePost, root, { sourceProjection = null } = {}) {
+  if (!isPublicPostMeasureSource(sourcePost) || !root?.ownerDocument) return [];
+  const template = root.ownerDocument.createElement("template");
+  template.innerHTML = String(sourcePost.content || "");
+  const authored = [...template.content.querySelectorAll("[data-expression]")]
+    .map((node, sourceOrdinal) => ({ node, sourceOrdinal, binding: "saved_text_annotation" }));
+  const annotationKey = node => JSON.stringify(["data-expression", "data-method", "data-result", "data-method-version", "id", "data-region-id"]
+    .map(key => node.getAttribute(key)));
+  const savedAnnotations = new Set(authored.map(({ node }) => annotationKey(node)));
+  if (sourceProjection?.sourcePost === sourcePost && sourceProjection.golden === true) {
+    const projected = root.ownerDocument.createElement("template");
+    projected.innerHTML = String(sourceProjection.post.content || "");
+    authored.push(...[...projected.content.querySelectorAll("[data-contextual-number-focus='true'][data-expression]")]
+      .filter(node => !savedAnnotations.has(annotationKey(node)))
+      .map(node => ({ node, binding: "existing_reviewed_post_projection" })));
+  }
+  const locate = (node, sourceOrdinal) => {
+    const nativeId = node.id || node.closest("[id]")?.id;
+    if (nativeId && [...template.content.querySelectorAll("[id]")].filter(el => el.id === nativeId).length === 1
+      && [...root.querySelectorAll("[id]")].filter(el => el.id === nativeId).length === 1) {
+      return { locator: `#${nativeId}`, precision: node.id ? "occurrence" : "section" };
+    }
+    const target = sourceOrdinal != null && [...root.querySelectorAll("[data-post-annotation-index]")]
+      .find(el => el.dataset.postAnnotationIndex === String(sourceOrdinal) && annotationWitnessKey(el) === annotationWitnessKey(node));
+    if (target?.dataset.postAnnotationLocator && root.dataset.postSourceDigest) {
+      return { locator: `#${target.dataset.postAnnotationLocator}`, precision: "snapshot_bound_occurrence" };
+    }
+    const regionId = node.getAttribute("data-region-id");
+    const region = regionId && [...root.querySelectorAll("[id]")].find(el => el.id === `source-region-${regionId}`);
+    return region ? { locator: `#${region.id}`, precision: "section" } : { locator: null, precision: "unlocated" };
+  };
+  const occurrences = new Map();
+  for (const { node, binding, sourceOrdinal } of authored) {
+    if (node.closest("script,style,template,code,pre,[hidden],[aria-hidden='true']")) continue;
+    const expression = node.getAttribute("data-expression"); // preserve exact spelling/spacing
+    const method = clean(node.getAttribute("data-method")) || null;
+    const value = exactPostValue(node.getAttribute("data-result"));
+    const methodVersion = clean(node.getAttribute("data-method-version")) || null;
+    if (!expression?.trim()) continue;
+    const { locator, precision } = locate(node, sourceOrdinal);
+    const sourceRef = `posts:${sourcePost.id}`;
+    const key = JSON.stringify([sourceRef, locator, expression, method, methodVersion, value]);
+    if (!occurrences.has(key)) occurrences.set(key, {
+      id: key, expression, lang: node.getAttribute("lang") || sourcePost.lang || null,
+      method, methodVersion, value, sourceRef, locator, locatorPrecision: precision,
+      sourceVersion: clean(sourcePost.modified) || null,
+      ...(binding === "saved_text_annotation" && root.dataset.postSourceDigest
+        ? { sourceDigest: root.dataset.postSourceDigest, sourceOrdinal } : {}),
+      binding, sourceState: "source_claim_not_verified",
+      appearanceCount: 0,
+    });
+    occurrences.get(key).appearanceCount += 1;
+  }
+  return [...occurrences.values()];
+}
+
+export function collectPostSourcePlacements2029(sourcePost, root) {
+  if (!isPublicPostMeasureSource(sourcePost) || !root) return [];
+  const ref = `posts:${sourcePost.id}`;
+  const sources = [{ kind: "post_body", ref }, { kind: "tag", ref }];
+  for (const image of root.querySelectorAll("img[src]")) {
+    if (image.closest("[hidden],[aria-hidden='true']")) continue;
+    // Exact stored artifact ref/URL only. Similar-looking images are not merged.
+    const artifactRef = image.getAttribute("data-source-ref") || image.getAttribute("data-media-id") || image.getAttribute("src");
+    const locator = image.id || image.closest("[id]")?.id || null;
+    sources.push({ kind: "image", ref: artifactRef, artifactRef,
+      occurrence: { sourceRef: ref, locator: locator ? `#${locator}` : null } });
+  }
+  return sources;
+}
+
+const publicMeasureCard = (row, numbers) => {
+  if (row?.status !== "approved" || !clean(row.slug) || row.id == null
+    || projectTopicCardContent(row.findings).flags.doNotPublish) return null;
+  const shared = [...new Set((Array.isArray(row.numbers) ? row.numbers : [])
+    .map(exactPostValue).filter(n => n != null && numbers.includes(n)))];
+  if (!shared.length) return null;
+  return { id: String(row.id), slug: row.slug, label: stripTags(row.title || ""),
+    shared, quality: row.quality ?? null, meterScore: row.meter_score ?? null,
+    sourceRef: `topic_cards:${row.id}`, basis: "shared_number_indirect",
+    href: `/topic/${encodeURIComponent(row.slug)}`,
+  };
+};
+const POST_MEASURE_CARD_FIELDS = "id,slug,title,numbers,status,quality,meter_score,findings";
+export function postMeasureNumbers(sourcePost) {
+  return [...new Set((Array.isArray(sourcePost?.tags) ? sourcePost.tags : [])
+    .map(exactPostValue).filter(n => n != null))];
+}
+
+export async function readPostConvergencePage2029(sourcePost, {
+  client = supabase, offset = 0, pageSize = 8, selectedId = null,
+} = {}) {
+  const access = await revalidatePostMeasureSource(sourcePost, { client });
+  if (access.status !== "ready") return access;
+  const numbers = postMeasureNumbers(access.source);
+  if (!numbers.length) return { status: "not_tested", cards: [], hasMore: false, scope: "אין תגיות מספריות לאיתור במסלול הזה." };
+  const start = Math.max(0, Number.isSafeInteger(offset) ? offset : 0);
+  const size = Math.min(16, Math.max(1, Number.isSafeInteger(pageSize) ? pageSize : 8));
+  try {
+    let query = client.from("topic_cards_public").select(POST_MEASURE_CARD_FIELDS)
+      .overlaps("numbers", numbers).eq("status", "approved");
+    // Stable source ordering, never a maximum-score or popularity selection.
+    query = selectedId == null ? query.order("id", { ascending: true }).range(start, start + size)
+      : query.eq("id", selectedId).limit(1);
+    const { data, error } = await query;
+    if (error) return { status: "failed" };
+    const cards = (Array.isArray(data) ? data : []).map(row => publicMeasureCard(row, numbers)).filter(Boolean);
+    const after = await revalidatePostMeasureSource(sourcePost, { client });
+    if (after.status !== "ready") return after;
+    return { status: "ready", cards: cards.slice(0, size), hasMore: selectedId == null && cards.length > size,
+      nextOffset: start + size, numbers,
+      scope: `${selectedId == null ? `חלון של עד ${size} כרטיסים ציבוריים, החל מפריט ${start + 1}` : "הכרטיס שנבחר נבדק מחדש"}, דרך תגיות מספריות. אין כאן בדיקת קשר ישיר, עצמאות מקורות או כלל המאגר.` };
+  } catch { return { status: "failed" }; }
+}
+
+export async function checkPostCalculation2029(sourcePost, claim, {
+  client = supabase, profileReader = null, traceReader = null, checkSteps = false, sourceProjection = null, sourceDocument = globalThis.document || null,
+} = {}) {
+  const access = await revalidatePostMeasureSource(sourcePost, { client });
+  if (access.status !== "ready") return access;
+  if (claim?.sourceRef !== `posts:${sourcePost.id}` || !claim.locator || !claim.expression?.trim()
+    || !claim.method || claim.value == null || exactPostValue(claim.value) == null
+    || claim.sourceVersion !== (clean(sourcePost.modified) || null)) {
+    return { status: "incomplete_claim", resultMatch: "not_tested", steps: "not_tested" };
+  }
+  const savedWitness = claim?.binding === "saved_text_annotation" && await sourceContainsPostCalculation(access.source, claim, sourceDocument);
+  const legacyWitness = ["saved_legacy_marking", "authored_gematria_box", "authored_equality_line"].includes(claim?.binding)
+    && await sourceContainsLegacyCalculation(access.source, claim, sourceDocument);
+  // The pre-existing Golden adapters already locate/verify explicit authored
+  // equalities. Keep that route, with distinct provenance; it is not OCR or a tag.
+  const projectedWitness = claim?.binding === "existing_reviewed_post_projection"
+    && sourceProjection?.sourcePost === sourcePost && sourceProjection.golden === true
+    && sourceProjection.post.id === sourcePost.id
+    && await sourceContainsPostCalculation(sourceProjection.post, claim, sourceDocument);
+  if (!savedWitness && !projectedWitness && !legacyWitness) {
+    return { status: "incomplete_claim", resultMatch: "not_tested", steps: "not_tested" };
+  }
+  try {
+    const { resolveExpressionFocus } = await import("./numberExpressionFocus.js");
+    const { fetchNumberMethodProfile } = await import("./numberCoreProjection.js");
+    const focus = await resolveExpressionFocus(claim.expression, {
+      preferredMethod: claim.method, expectedValue: claim.value,
+      profileReader: profileReader || (expression => fetchNumberMethodProfile(expression, { client })),
+    });
+    const profileAccess = await revalidatePostMeasureSource(sourcePost, { client });
+    if (profileAccess.status !== "ready") return profileAccess;
+    const selected = focus?.rows?.find(row => row.methodKey === focus.method);
+    if (!focus || selected?.lifecycleActive === false) return { status: "mismatch", resultMatch: "mismatch", steps: "not_tested" };
+    const version = selected?.definitionVersion ?? null;
+    if (version == null || (claim.methodVersion != null && String(claim.methodVersion) !== String(version))) {
+      return { status: "method_version_unavailable_or_changed", resultMatch: "not_tested", steps: "not_tested" };
+    }
+    let steps = "not_tested";
+    if (checkSteps) {
+      try {
+        const readTrace = traceReader || (async (method, expression) => {
+          const { data, error } = await client.rpc("gematria_method_trace", { p_method_key: method, p_phrase: expression });
+          if (error) throw error;
+          return data;
+        });
+        const trace = await readTrace(focus.method, claim.expression);
+        const { projectGematriaTrace } = await import("./gematriaTracePresentation.js");
+        const traceVersion = trace?.method_version ?? trace?.provenance?.method_version;
+        steps = !trace ? "unavailable" : String(traceVersion ?? "") !== String(version) ? "version_mismatch"
+          : projectGematriaTrace(trace, { expression: claim.expression, methodKey: focus.method, expectedValue: claim.value }).state === "ready"
+            ? "matched" : "unavailable_or_mismatch";
+      } catch { steps = "failed"; }
+    }
+    const after = await revalidatePostMeasureSource(sourcePost, { client });
+    if (after.status !== "ready") return after;
+    return { status: "ready", resultMatch: "matched", steps,
+      // The profile resolves identity, not the historical spelling or method version.
+      focus: { ...focus, expression: claim.expression }, methodVersion: String(version),
+      sourceMethodVersion: claim.methodVersion, claim,
+    };
+  } catch {
+    const after = await revalidatePostMeasureSource(sourcePost, { client });
+    return after.status !== "ready" ? after : { status: "failed", resultMatch: "failed", steps: "not_tested" };
+  }
 }
 
 export const post2029ReadingInternals = {

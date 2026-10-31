@@ -80,10 +80,10 @@ test("missing counts, private/draft rows and mismatched membership fail rather t
 test("2029 follows and reasons name approved series and stay native; unknown keys are not invented", () => {
   const model = buildFollowCenterModel({ principal: "registered", follows: { state: "ready", topics: ["cat:מימד חמש", "series:dimension-five", "series:unknown"] },
     notifications: { state: "ready", items: [{ id: "n", kind: "post_new", title: "פרסום", link: "/old-post-slug", source_topic: "series:dimension-five" }] } });
-  assert.deepEqual(model.following.groups.map(group => group.heading), ["קטגוריות", "סדרות", "אחר"]);
-  assert.equal(model.following.groups[0].items[0].href, "/2029/posts?category=" + encodeURIComponent("מימד חמש"));
-  assert.equal(model.following.groups[1].items[0].href, "/2029/posts?series=dimension-five");
-  assert.equal(model.following.groups[2].items[0].href, null);
+  assert.deepEqual(model.following.groups.map(group => group.heading), ["סדרות", "אחר"]);
+  assert.equal(model.following.groups[0].items[0].href, "/2029/posts?series=dimension-five");
+  assert.deepEqual(model.following.groups[0].items[0].topics, ["cat:מימד חמש", "series:dimension-five"]);
+  assert.equal(model.following.groups[1].items[0].href, null);
   assert.equal(model.updates.items[0].why.label, "מימד חמש");
   assert.equal(model.updates.items[0].href, "/post/old-post-slug");
   assert.equal(topicLabel("cat:מימד חמש").link, "/category/" + encodeURIComponent("מימד חמש"), "Legacy default route remains compatible");

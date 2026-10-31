@@ -1,0 +1,48 @@
+{
+  "follow_series_preflight": {
+    "functions": [
+      {
+        "name": "canonical_follow_topic",
+        "actual": "536e29febf235d1bc9f4157b337ac51a",
+        "expected": "536e29febf235d1bc9f4157b337ac51a"
+      },
+      {
+        "name": "follow_topic_aliases",
+        "actual": "3b207f3b0a2e9e1049ce7487275c76f0",
+        "expected": "3b207f3b0a2e9e1049ce7487275c76f0"
+      },
+      {
+        "name": "canonical_follow_subject",
+        "actual": "a187331b0370bbd97b9985d8320d6fb1",
+        "expected": "a187331b0370bbd97b9985d8320d6fb1"
+      },
+      {
+        "name": "notify_on_post_publish",
+        "actual": "a680e77bf85a506588de457819b139be",
+        "expected": "a680e77bf85a506588de457819b139be"
+      },
+      {
+        "name": "resolve_topics",
+        "actual": "2f34eb18e00a050d3931c37b25f8847d",
+        "expected": "2f34eb18e00a050d3931c37b25f8847d"
+      },
+      {
+        "name": "dispatch",
+        "actual": "c2bf5b273b5ef4644997786a95835553",
+        "expected": "c2bf5b273b5ef4644997786a95835553"
+      },
+      {
+        "name": "watch_toggle",
+        "actual": "fa41495b802bbd75155fc1ab74c5cb39",
+        "expected": "fa41495b802bbd75155fc1ab74c5cb39"
+      }
+    ],
+    "helper_absent": true,
+    "server_version": "17.6",
+    "trigger_matches": true,
+    "candidate_sha256": "fcdc20284b6d824b6b6b20aeaec7a63e517fb3a59dcde2adfda7e87178b7df19",
+    "series_not_yet_admitted": true,
+    "function_preimages_match": true,
+    "migration_history_absent": true
+  }
+}

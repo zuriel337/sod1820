@@ -49,7 +49,8 @@ test("Post 2029 page exposes stable semantic capability seams", () => {
   assert.match(page, /data-experience-surface="post-reading"/);
   assert.match(media, /data-experience-capability="post-source-media"/);
   assert.match(timeline, /data-experience-capability="public-timeline"/);
-  assert.match(frame, /sod29-command-trail/);
+  assert.match(frame, /data-command-mode="global"/);
+  assert.match(frame, /aria-label="מסלול המחקר והפעולות הזמינות עכשיו"/);
   assert.doesNotMatch(page, /PostContextTrail2029/);
 });
 
@@ -80,8 +81,8 @@ test("Golden Post architecture wireframe exposes the full structural preview wit
   assert.match(page, /<b>מבנה בלבד<\/b>/);
   // The adopted tools rail now exposes the existing Heichal destination.
   assert.match(frame, /to: "\/heichal", label: "היכל"/);
-  assert.match(frame, /label: "מסעות"/);
-  assert.match(frame, /label: "אזור משתמשים"/);
+  assert.match(frame, /to: "\/2029\/journey", label: "מסע החיים"/);
+  assert.match(frame, /onClick=\{openWorkspace\} aria-label="האזור האישי שלי"/);
   assert.match(frame, /data-raziel-anchor="center"/);
 });
 
@@ -115,7 +116,10 @@ test("Research Path and commands share one physical System Frame bottom surface"
   assert.match(page, /lens: preserveExplicitGematriaFocus \? "gematria" : "reading"/);
   assert.match(page, /activeSectionId: activeFocus\.id/);
   assert.match(page, /surfaceFocus:/);
-  assert.match(frame, /has-context-trail/);
+  // Context history now lives in the existing "כאן" sheet; the global dock
+  // remains one physical toolbar, rather than a second inline trail.
+  assert.match(frame, /is-single-command-bar/);
+  assert.match(frame, /data-command-mode="global"/);
   assert.match(frame, /aria-label="מסלול המחקר הנוכחי"/);
   assert.match(css, /Unified bottom Context \+ Command Surface/);
   assert.doesNotMatch(page, /<PostContextTrail2029/);
@@ -210,7 +214,10 @@ test("Posts-first High-Fidelity Golden reconciles onto current 2029 shell", () =
   assert.doesNotMatch(index, /<Sod2029Shell surface="posts"/);
   assert.match(index, /data-experience-surface="posts-index"/);
   assert.match(index, /data-experience-capability="posts-index-hero"/);
-  assert.match(index, /getPostsFromSupabase/);
+  assert.match(index, /fetchPostsCatalog2029/);
+  const catalog = readFileSync(new URL("../src/lib/research/postsCatalog2029Projection.js", import.meta.url), "utf8");
+  assert.match(catalog, /getPublicResearchClient/);
+  assert.match(catalog, /publicPostOnlyFilter/);
   assert.doesNotMatch(index, /Golden Preview/);
   assert.match(index, /הפוסטים האחרונים/);
 
@@ -266,13 +273,14 @@ test("Post Master Bennett fixture opens canonical contextual number focus withou
   assert.match(marked, /data-result="78"/);
 
   assert.match(page, /entityType: "gematria_expression"/);
-  assert.match(page, /expression: cleanExpression/);
-  assert.match(page, /method: cleanMethodKey/);
-  assert.match(page, /resultValue: numericResult/);
+  assert.match(page, /expression: claim.expression/);
+  assert.match(page, /method: focus.method/);
+  assert.match(page, /resultValue: focus.resultValue/);
   assert.match(page, /locator,/);
   assert.match(page, /type: "phrase"/);
-  assert.match(page, /source: "post-contextual-focus"/);
-  assert.match(page, /exactReturnForRegion\(targetRegion\)/);
+  assert.match(page, /source: "post-exact-source-claim"/);
+  assert.match(page, /checkPostCalculation2029\(projection.sourcePost, claim/);
+  assert.match(page, /href: `\/post\/\$\{post.slug\}\$\{claim.locator\}`/);
   assert.doesNotMatch(page, /SpatialMethodStage2029/);
   assert.doesNotMatch(page, /fetchGematriaMethodTrace/);
 });

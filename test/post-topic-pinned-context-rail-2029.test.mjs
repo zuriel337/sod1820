@@ -34,7 +34,7 @@ test("single pinned region: one rail mounted by the shared frame, no second draw
   assert.equal((frame.match(/<SurfaceContextRail2029/g) || []).length, 3);
   assert.equal((frame.match(/<SurfaceContextRail2029\s+sheet/g) || []).length, 1);
   assert.match(frame, /const companionHasContext = showContextRail && !numberPageRoute/);
-  assert.match(frame, /showContextRail && !\(companionActive && !numberPageRoute\) \? <SurfaceContextRail2029/);
+  assert.match(frame, /showContextRail && !\(companionActive && companionHasContext\) \? <SurfaceContextRail2029/);
   assert.match(frame, /contextNode=\{companionHasContext \? <SurfaceContextRail2029/);
   assert.doesNotMatch(post + topic, /<SurfaceContextRail2029|<ContextualInspector2029/);
 });

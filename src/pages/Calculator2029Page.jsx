@@ -6,6 +6,7 @@ import ShareActions from "../components/ShareActions.jsx";
 import MethodLens2029 from "../components/gematria2029/MethodLens2029.jsx";
 import CalculatorCompare2029 from "../components/gematria2029/CalculatorCompare2029.jsx";
 import CalculatorOpening2029 from "../components/gematria2029/CalculatorOpening2029.jsx";
+import EnglishGematriaLane2029 from "../components/gematria2029/EnglishGematriaLane2029.jsx";
 import { emit } from "../lib/events.js";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { fetchNumberMethodProfile } from "../lib/research/numberCoreProjection.js";
@@ -86,16 +87,14 @@ const CalculatorFastCore2029 = React.memo(function CalculatorFastCore2029({
     [draft]
   );
   const info = useMemo(() => classifyCalculatorInput(draft), [draft]);
-  const canonicalSettled = info.hebrewApplicable
+  const canonicalSettled = (info.hebrewApplicable || info.englishApplicable)
     && clean(profile.expression) === clean(draft)
     && Array.isArray(profile.rows)
     && profile.rows.length > 0
     && !profile.loading;
   const displayRows = info.kind === CALCULATOR_INPUT_KIND.EMPTY
     ? (fastPreview?.methods || [])
-    : !info.hebrewApplicable
-      ? []
-      : canonicalSettled ? profile.rows : (fastPreview?.methods || []);
+    : canonicalSettled ? profile.rows : info.hebrewApplicable ? (fastPreview?.methods || []) : [];
   const methods = useMemo(() => splitCalculatorMethods(displayRows), [displayRows]);
 
   const handleDraftChange = (value) => {
@@ -132,7 +131,7 @@ const CalculatorFastCore2029 = React.memo(function CalculatorFastCore2029({
             value={draft}
             onChange={(event) => handleDraftChange(event.target.value)}
             placeholder="שם, מילה או ביטוי"
-            dir="rtl"
+            dir="auto"
             autoComplete="off"
             spellCheck="false"
             aria-describedby="calculator-2029-help"
@@ -149,13 +148,13 @@ const CalculatorFastCore2029 = React.memo(function CalculatorFastCore2029({
         className={`sod29-calc2029-engine-status${profile.error ? " is-error" : ""}`}
         aria-live="polite"
         role={profile.error ? "alert" : undefined}
-        data-engine-status={profile.error ? "error" : !info.hebrewApplicable ? "idle" : profile.loading ? "verifying" : canonicalSettled ? "verified" : "instant"}
+        data-engine-status={profile.error ? "error" : !(info.hebrewApplicable || info.englishApplicable) ? "idle" : profile.loading ? "verifying" : canonicalSettled ? "verified" : "instant"}
       >
         {profile.error
           ? String(profile.error?.message || "").includes("SHARED_RESULT_CANONICAL_MISMATCH")
             ? "הקישור המשותף לא תאם לתוצאה הקנונית הנוכחית ולכן לא הוצג כעובדה."
             : "לא ניתן לקבל כרגע את פרופיל השיטות."
-          : !info.hebrewApplicable
+          : !(info.hebrewApplicable || info.englishApplicable)
             ? ""
             : profile.loading
               ? "מאמת מול המנוע הקנוני…"
@@ -164,16 +163,13 @@ const CalculatorFastCore2029 = React.memo(function CalculatorFastCore2029({
                 : "מיידי"}
       </div>
 
-      {clean(draft) && !info.hebrewApplicable ? (
+      {clean(draft) && !info.hebrewApplicable && !info.englishApplicable ? (
         <div className="sod29-calc2029-handoff" role="status">
-          <p>{info.kind === CALCULATOR_INPUT_KIND.LATIN
-            ? "כאן מגלים מה מסתתר בשם בעברית. הקלידו את השם באותיות עבריות."
-            : info.notice}</p>
-          {info.kind === CALCULATOR_INPUT_KIND.LATIN ? (
-            <Link to={"/2029/calculator?q=" + encodeURIComponent(info.expression)}>רוצים אנגלית? המחשבון המקצועי מחשב גם אנגלית ←</Link>
-          ) : null}
+          <p>{info.notice}</p>
         </div>
       ) : info.notice ? <p className="sod29-calc2029-notice">{info.notice}</p> : null}
+
+      <EnglishGematriaLane2029 expression={draft} canonicalRows={canonicalSettled ? profile.rows : []} />
 
       {methods.all.length ? (
         <section className="sod29-calc2029-results" aria-label="תוצאות גימטריה">
@@ -304,8 +300,8 @@ function CalculatorExperience() {
     if (!phrase) return;
     const inputInfo = classifyCalculatorInput(phrase);
     const requestId = ++computeRequestRef.current;
-    if (!inputInfo.hebrewApplicable) {
-      // Hebrew methods do not apply (Latin, digits, other scripts): never present zeros as a verified result.
+    if (!inputInfo.hebrewApplicable && !inputInfo.englishApplicable) {
+      // Neither supported alphabet applies: never present zeros as a verified result.
       setProfile({
         loading: false,
         rows: [],

@@ -70,15 +70,21 @@ function AccountCenter({ userId, authLoading, io, returnHref, onSignIn }) {
 
   async function unfollow(topic) {
     if (!active() || !userId || followLock.current || follows.state !== "ready" || !includesFollowSubject(follows.topics, topic)) return;
+    const entry = model.following.groups.flatMap(group => group.items).find(item => item.topic === topic);
+    const targets = entry?.topics || [topic];
     followLock.current = true;
     versions.current.following++;
-    setFollows(value => ({ ...value, pending: { [topic]: "pending" } }));
-    try { await request(() => io.unfollow(userId, topic)); } catch { /* Readback owns the final state even if the mutation applied before a failure. */ }
+    setFollows(value => ({ ...value, pending: Object.fromEntries(targets.map(target => [target, "pending"])) }));
+    for (const target of targets) {
+      if (!active()) return;
+      try { await request(() => io.unfollow(userId, target)); } catch { /* Readback owns the final state, including partial cancellation. */ }
+    }
     if (!active()) return;
     const result = await load("following");
     if (active()) {
       // Only a fresh authoritative read can justify saying the follow is still active.
-      if (result && includesFollowSubject(result.topics, topic)) setFollows(value => ({ ...value, pending: { [topic]: "failed" } }));
+      const remaining = result ? targets.filter(target => includesFollowSubject(result.topics, target)) : [];
+      if (remaining.length) setFollows(value => ({ ...value, pending: Object.fromEntries(remaining.map(target => [target, "failed"])) }));
       followLock.current = false;
     }
   }
