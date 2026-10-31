@@ -137,11 +137,11 @@ test("card, entry and 1,820 route work on phones and desktop in all three displa
   } finally { await app.close(); }
 });
 
-test("למד עם ההסברים lands on the explanation and stays there once lazy tables settle (1440×900)", { skip: !available, timeout: 300_000 }, async () => {
+test("למד עם ההסברים lands on the explanation and stays there once lazy tables settle (1440×900 and 390 phone)", { skip: !available, timeout: 600_000 }, async () => {
   const app = await start();
   try {
-    for (const theme of ["light", "parchment", "dark"]) {
-      const { page, context, errors } = await app.open({ width: 1440, height: 900, theme, path: "/2029/control?surface=ahavat-torah-system&page=6" });
+    for (const [width, height] of [[1440, 900], [390, 844]]) for (const theme of ["light", "parchment", "dark"]) {
+      const { page, context, errors } = await app.open({ width, height, theme, path: "/2029/control?surface=ahavat-torah-system&page=6" });
       await page.locator("#ahavat29-source").waitFor();
       await page.waitForTimeout(1200);
       await page.getByRole("link", { name: "למד עם ההסברים", exact: true }).click();
@@ -149,9 +149,9 @@ test("למד עם ההסברים lands on the explanation and stays there once l
       await settled(page, "ahavat29-full-reader");
       assert.equal(await page.locator("#ahavat29-full-reader").getByRole("heading", { level: 2 }).first().isVisible(), true);
       assert.equal(await page.evaluate(() => { const box = document.getElementById("ahavat29-letters")?.getBoundingClientRect(); return !box || box.bottom < 0 || box.top > innerHeight; }), true, "the letter table is not what the reader landed on");
+      assert.ok(await noOverflow(page), `overflow at ${width}`);
       // Same stability for the other in-page entries, with the target title not hidden by the fixed header.
       for (const [name, id] of [["גלה את המבנים", "ahavat29-spatial-title"], ["קרא את הספר", "ahavat29-source"]]) {
-        await page.getByRole("link", { name, exact: true }).first().evaluate(element => element.scrollIntoView({ block: "center" })).catch(() => {});
         await page.evaluate(() => window.scrollTo(0, 0));
         await page.getByRole("link", { name, exact: true }).click();
         await settled(page, id);
