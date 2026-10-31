@@ -11,8 +11,9 @@ assert.equal(supplied.protocol, 'https:');
 const expectedSha = process.env.ELS_PREVIEW_SHA;
 assert.match(expectedSha || '', /^[a-f0-9]{40}$/);
 const expectedBranch = process.env.ELS_PREVIEW_BRANCH || 'gpt/els-lexicon-structure-preview-20261030';
-const planners = expectedBranch === 'gpt/els-search-planners-preview-20261031';
-assert.ok(['gpt/els-lexicon-structure-preview-20261030','gpt/els-search-clarity-preview-20261030','gpt/els-unified-research-preview-20261031','gpt/els-search-planners-preview-20261031'].includes(expectedBranch));
+const searchOrder = expectedBranch === 'gpt/els-search-order-preview-20261031';
+const planners = searchOrder || expectedBranch === 'gpt/els-search-planners-preview-20261031';
+assert.ok(['gpt/els-lexicon-structure-preview-20261030','gpt/els-search-clarity-preview-20261030','gpt/els-unified-research-preview-20261031','gpt/els-search-planners-preview-20261031','gpt/els-search-order-preview-20261031'].includes(expectedBranch));
 const unified = planners || expectedBranch === 'gpt/els-unified-research-preview-20261031';
 const browser = await chromium.launch({ headless:true,
   executablePath:existsSync('/usr/bin/chromium')?'/usr/bin/chromium':chromium.executablePath(),
@@ -47,6 +48,25 @@ try {
     for(const width of [320,390,1440]){
       await page.setViewportSize({width,height:900});
       assert.equal(await page.locator('html').getAttribute('data-theme-preset'),theme);
+      if(searchOrder){
+        const search=page.locator('#els29-query');
+        for(const name of ['חיפוש רגיל','הצלבה בין צירים','חיפוש מתקדם'])assert.ok(await search.getByRole('button',{name,exact:true}).isVisible());
+        assert.equal(await search.getByRole('button',{name:'כל הכלים',exact:true}).count(),0);
+        await search.getByRole('button',{name:'חיפוש מתקדם',exact:true}).click();
+        assert.ok(await search.getByRole('textbox',{name:'מונח לחיפוש מתקדם',exact:true}).isVisible());
+        assert.ok(await search.getByRole('button',{name:'בדוק גם היפוכים וסדר מילים',exact:true}).isVisible());
+        assert.equal(await search.locator('form form').count(),0);
+        await search.getByRole('button',{name:'הצלבה בין צירים',exact:true}).click();
+        const third=search.getByRole('textbox',{name:'מונח שלישי',exact:true});
+        const required=search.getByRole('checkbox',{name:'חובה למצוא גם את המונח השלישי'});
+        assert.equal(await required.isChecked(),false);
+        await third.fill('שלום');await required.check();assert.equal(await required.isChecked(),true);
+        await required.uncheck();assert.ok(await search.getByText(/זוג יישאר בתוצאות גם בלעדיו/).isVisible());
+        assert.equal(await search.locator('button[type=submit]:visible').count(),1);
+        assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+        if(process.env.ELS_PREVIEW_SCREENSHOTS){mkdirSync(process.env.ELS_PREVIEW_SCREENSHOTS,{recursive:true});await page.screenshot({path:process.env.ELS_PREVIEW_SCREENSHOTS+`/cross-${width}-${theme}.png`});}
+        await search.getByRole('button',{name:'חיפוש רגיל',exact:true}).click();
+      }
       if(planners){
         const prepare=page.getByText('הכנת זוגות לחיפוש',{exact:true});
         await prepare.click();
