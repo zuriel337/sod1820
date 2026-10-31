@@ -1,5 +1,5 @@
 {
-  "status": "SHARED_HELP_LEARNING_IMPLEMENTED_TESTED_HOSTED_READONLY_PREVIEW_READY",
+  "status": "GEMATRIA_BOX_IMPLEMENTED_TESTED_PR_READY",
   "actor": "GPT",
   "handoff_to": "ZURIEL",
   "scope": "Existing Post occurrence reader, Post activation and existing source disclosure only; no shared Frame/Learn/Number/engine/CSS or product data change",
@@ -1697,5 +1697,218 @@
     "production_after": "dpl_AiKPHaoo5pxo9T5PFTpcBRG7LfMA",
     "hosted_visual_browser": "Not asserted; authenticated HTTP verified, actual UI tested locally with live public data",
     "access": "Existing Vercel authentication retained"
+  },
+  "gematria_box_followup": {
+    "status": "IMPLEMENTED_TESTED_PR_READY",
+    "base": "8016fbcaa23e2fc212e28b8f8324f9ccd500a40e",
+    "scope": [
+      "src/pages/post2029-legacy-grade.css",
+      "test/post-one-tree-measures-2029.browser.test.mjs",
+      "existing review receipt"
+    ],
+    "ownership": "Fresh exact-path lookup returned no overlap; bounded semantic lookup retained World/Gallery exclusions; no live ledger write claimed.",
+    "canonical_law": {
+      "id": 18,
+      "body_md5": "05b73b416ab47804c9a0c807250b16f7",
+      "changed": false
+    },
+    "authored_source": {
+      "post_id": 5105,
+      "slug": "koach-hashtika-dim5",
+      "modified": "2026-09-09T18:49:39.034612+00:00",
+      "content_md5": "67b9837ddf8efc1376e6df0c73262e25",
+      "icon": "U+1F522 🔢 is stored directly in posts.content .gb-title; same convention exists in PostEditorPage GEM_BOX. Device emoji rendering, not a canonical2029 icon or imported Legacy UI runtime."
+    },
+    "changes": [
+      "Center short gb-title and equation group/chip content; keep explanatory prose aligned to start.",
+      "Consume existing UI16 and micro14 tokens; supporting explanation15 minimum. Narrow equation chips may wrap within source width.",
+      "Keep authored wording/icon and existing source-claim label. No verification inferred from source caption."
+    ],
+    "contract_assessment": "Existing DesignV2 §8.2 already allows centered short headings/equations; no new contract or global token change. Screenshot exposed alignment and11/13/13.5px local presentation gaps now corrected. This bounded check does not certify every Post, source claim or calculation.",
+    "excluded": [
+      "Frame/bars/World/Topics/Galleries/personal area",
+      "global typography/palette/icons",
+      "engines/DB/RLS",
+      "authored source edits and corpus-wide calculation acceptance",
+      "main/Production"
+    ],
+    "acceptance": {
+      "browser_suite": {
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0,
+        "duration_ms": 83610
+      },
+      "typography_contract_tests": 3,
+      "builds": [
+        "npm run build: Legacy +2029",
+        "static integrated read-only Preview"
+      ],
+      "gates": [
+        "2029 isolation",
+        "built dependency graph",
+        "cheap hardening",
+        "Legacy Production lock"
+      ],
+      "actual_app": {
+        "scope": "Actual local read-only App2029 with anonymous live post5105; unchanged authored text/icon; no all-post contract certification",
+        "results": [
+          {
+            "width": 320,
+            "theme": "parchment",
+            "metrics": {
+              "actualTheme": "parchment",
+              "title": "🔢 גימטריה — עובדה מאומתת במנוע",
+              "titleAlign": "center",
+              "titleSize": "16px",
+              "noteAlign": "start",
+              "noteSize": "15px",
+              "labelSize": "14px",
+              "rowsOffset": 0,
+              "overflow": false
+            },
+            "errors": [],
+            "blocked": []
+          },
+          {
+            "width": 320,
+            "theme": "dark",
+            "metrics": {
+              "actualTheme": "dark",
+              "title": "🔢 גימטריה — עובדה מאומתת במנוע",
+              "titleAlign": "center",
+              "titleSize": "16px",
+              "noteAlign": "start",
+              "noteSize": "15px",
+              "labelSize": "14px",
+              "rowsOffset": 0,
+              "overflow": false
+            },
+            "errors": [],
+            "blocked": []
+          },
+          {
+            "width": 320,
+            "theme": "light",
+            "metrics": {
+              "actualTheme": "light",
+              "title": "🔢 גימטריה — עובדה מאומתת במנוע",
+              "titleAlign": "center",
+              "titleSize": "16px",
+              "noteAlign": "start",
+              "noteSize": "15px",
+              "labelSize": "14px",
+              "rowsOffset": 0,
+              "overflow": false
+            },
+            "errors": [],
+            "blocked": []
+          },
+          {
+            "width": 390,
+            "theme": "parchment",
+            "metrics": {
+              "actualTheme": "parchment",
+              "title": "🔢 גימטריה — עובדה מאומתת במנוע",
+              "titleAlign": "center",
+              "titleSize": "16px",
+              "noteAlign": "start",
+              "noteSize": "15px",
+              "labelSize": "14px",
+              "rowsOffset": 0,
+              "overflow": false
+            },
+            "errors": [],
+            "blocked": []
+          },
+          {
+            "width": 390,
+            "theme": "dark",
+            "metrics": {
+              "actualTheme": "dark",
+              "title": "🔢 גימטריה — עובדה מאומתת במנוע",
+              "titleAlign": "center",
+              "titleSize": "16px",
+              "noteAlign": "start",
+              "noteSize": "15px",
+              "labelSize": "14px",
+              "rowsOffset": 0,
+              "overflow": false
+            },
+            "errors": [],
+            "blocked": []
+          },
+          {
+            "width": 390,
+            "theme": "light",
+            "metrics": {
+              "actualTheme": "light",
+              "title": "🔢 גימטריה — עובדה מאומתת במנוע",
+              "titleAlign": "center",
+              "titleSize": "16px",
+              "noteAlign": "start",
+              "noteSize": "15px",
+              "labelSize": "14px",
+              "rowsOffset": 0,
+              "overflow": false
+            },
+            "errors": [],
+            "blocked": []
+          },
+          {
+            "width": 1440,
+            "theme": "parchment",
+            "metrics": {
+              "actualTheme": "parchment",
+              "title": "🔢 גימטריה — עובדה מאומתת במנוע",
+              "titleAlign": "center",
+              "titleSize": "16px",
+              "noteAlign": "start",
+              "noteSize": "15px",
+              "labelSize": "14px",
+              "rowsOffset": 0.0078125,
+              "overflow": false
+            },
+            "errors": [],
+            "blocked": []
+          },
+          {
+            "width": 1440,
+            "theme": "dark",
+            "metrics": {
+              "actualTheme": "dark",
+              "title": "🔢 גימטריה — עובדה מאומתת במנוע",
+              "titleAlign": "center",
+              "titleSize": "16px",
+              "noteAlign": "start",
+              "noteSize": "15px",
+              "labelSize": "14px",
+              "rowsOffset": 0.0078125,
+              "overflow": false
+            },
+            "errors": [],
+            "blocked": []
+          },
+          {
+            "width": 1440,
+            "theme": "light",
+            "metrics": {
+              "actualTheme": "light",
+              "title": "🔢 גימטריה — עובדה מאומתת במנוע",
+              "titleAlign": "center",
+              "titleSize": "16px",
+              "noteAlign": "start",
+              "noteSize": "15px",
+              "labelSize": "14px",
+              "rowsOffset": 0.0078125,
+              "overflow": false
+            },
+            "errors": [],
+            "blocked": []
+          }
+        ]
+      },
+      "hosted_visual_browser": "Not asserted; actual UI tested locally with live anonymous public post"
+    }
   }
 }

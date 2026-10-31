@@ -139,7 +139,7 @@ test('built Post: adopted design, bounded backgrounds, lazy research, exact retu
     for(const width of [320,390,1440])for(const theme of ['light','parchment','dark']){
       const context=await browser.newContext({viewport:{width,height:900},reducedMotion:'reduce'}),page=await context.newPage();
       const errors=[];page.on('pageerror',error=>errors.push(error.message));
-      await context.addInitScript(()=>sessionStorage.setItem('fixture-post-overrides',JSON.stringify({slug:'readability-dim5',author:'בדרך לנצח',content:'<h2>קריאה נוחה בעברית</h2><p id="reading-prose" style="text-align:center;color:#cbb25e">'+('פסקה ארוכה נשארת מיושרת לתחילת השורה בתוך טור קריאה ממורכז. '.repeat(5))+'</p><blockquote><p id="reading-quote">ציטוט קצר במרכז</p></blockquote><p class="sod29-gematria-line" id="reading-equation">12 + 3 = 15</p>'})));
+      await context.addInitScript(()=>sessionStorage.setItem('fixture-post-overrides',JSON.stringify({slug:'readability-dim5',author:'בדרך לנצח',content:'<h2>קריאה נוחה בעברית</h2><p id="reading-prose" style="text-align:center;color:#cbb25e">'+('פסקה ארוכה נשארת מיושרת לתחילת השורה בתוך טור קריאה ממורכז. '.repeat(5))+'</p><blockquote><p id="reading-quote">ציטוט קצר במרכז</p></blockquote><p class="sod29-gematria-line" id="reading-equation">12 + 3 = 15</p><div class="sod-gematria-box"><div class="gb-title">🔢 גימטריה — עובדה מאומתת במנוע</div><div class="gb-rows"><div><b>216</b> = גבורה = ראיה</div><div><b>32</b> = כבוד = לב</div></div><div class="gb-note">שני השוויונות בגימטריה רגילה אומתו במנוע הרשמי. <b>זהו חישוב, לא הוכחת משמעות.</b> הקריאה נשארת רמז ופרשנות למחקר.</div></div>'})));
       await page.goto(origin+'/post/readability-dim5?theme='+theme);await page.locator('#reading-prose').waitFor();
       const help=page.getByRole('button',{name:'איך זה עובד? — איך קוראים את הפוסט?',exact:true});await help.waitFor();
       assert.equal(await help.locator('.sod29-learn-mark-label').innerText(),'איך זה עובד?');
@@ -156,6 +156,20 @@ test('built Post: adopted design, bounded backgrounds, lazy research, exact retu
       assert.ok(Math.abs(geometry.source.center-geometry.article.center)<1,'The removed spine leaves no empty grid column');
       assert.ok(Math.abs(geometry.nav.center-geometry.source.center)<1,'Section menu and source share the same centered axis');
       assert.ok(['start','right'].includes(geometry.prose));assert.equal(geometry.quote,'center');assert.equal(geometry.equation,'center');
+      const claimBox=await page.locator('.sod-gematria-box').evaluate(box=>{
+        const title=box.querySelector('.gb-title'),rows=box.querySelector('.gb-rows'),note=box.querySelector('.gb-note');
+        const bounds=rows.getBoundingClientRect(),chips=[...rows.children].map(node=>node.getBoundingClientRect());
+        const left=Math.min(...chips.map(b=>b.left)),right=Math.max(...chips.map(b=>b.right));
+        return {titleAlign:getComputedStyle(title).textAlign,titleSize:parseFloat(getComputedStyle(title).fontSize),
+          noteAlign:getComputedStyle(note).textAlign,noteSize:parseFloat(getComputedStyle(note).fontSize),
+          labelSize:parseFloat(getComputedStyle(box,'::before').fontSize),label:getComputedStyle(box,'::before').content,
+          rowsOffset:Math.abs((left+right)/2-(bounds.left+bounds.right)/2),
+          within:chips.every(b=>b.left>=bounds.left-1&&b.right<=bounds.right+1),text:title.textContent};
+      });
+      assert.equal(claimBox.titleAlign,'center');assert.ok(claimBox.titleSize>=16);
+      assert.ok(['start','right'].includes(claimBox.noteAlign));assert.ok(claimBox.noteSize>=15);assert.ok(claimBox.labelSize>=14);
+      assert.ok(claimBox.rowsOffset<1,'Equation group shares the centered title axis');assert.equal(claimBox.within,true);
+      assert.match(claimBox.label,/טענת הפוסט/);assert.equal(claimBox.text,'🔢 גימטריה — עובדה מאומתת במנוע','Authored caption and emoji stay source wording, not a new verification badge');
       assert.equal(geometry.symbolBorder,0);assert.ok(geometry.help.width>=44&&geometry.help.height>=44);assert.equal(geometry.overflow,false);
       if(width===390)assert.ok(Math.min(geometry.help.y+geometry.help.height,geometry.details.y+geometry.details.height)>Math.max(geometry.help.y,geometry.details.y),'Compact help shares the metadata row when space allows');
       for(const button of await page.locator('nav[aria-label="בתוך הפוסט"] button').all()){const b=await button.boundingBox();assert.ok(b.width>=44&&b.height>=44);}

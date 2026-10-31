@@ -52,3 +52,14 @@ Screen-level help links to the existing `/beit-midrash?section=methods` route. T
 Fresh ownership reads show unresolved claims on SystemFrame2029; it is kept byte-identical. No Frame integration, bar, global reset, Provider or school implementation was edited. The existing exact-return action and browser Back were exercised in the actual application. The hidden header projection was invoked through DOM for its action test; that alone is not claimed as visible mobile UI acceptance.
 
 Verification:128 Node checks,15 existing school/route checks and one built-browser suite pass. Four actual local read-only app cases cover Post320/390/1440 and Number390,16px/500/22.4px typography,44px controls, the real method list and both return paths, with no page errors/blocked requests/overflow. The live registry returned32 active method links at this observation; no count is hard-coded in runtime.
+
+
+## Authored gematria box: centered heading and source-icon provenance
+
+Followup base: `8016fbcaa23e2fc212e28b8f8324f9ccd500a40e`. Fresh bounded live ownership reads found no exact Post CSS/test overlap; World/Gallery and Frame scopes remain excluded. Canonical reality_graph_law18 remains at the previously read bodyMD5 `05b73b416ab47804c9a0c807250b16f7`.
+
+Live public Post5105 (`koach-hashtika-dim5`) stores `🔢 גימטריה — עובדה מאומתת במנוע` directly inside its authored `.gb-title`. The same Unicode emoji convention appears in the existing editor GEM_BOX template. The glyph is device-rendered source text, not a2029 Logo/SVG or an imported Legacy UI runtime. Source wording/icon are preserved, with the existing “טענת הפוסט” label distinguishing authored assertions from system verification.
+
+The bounded Post stylesheet centers this short title and the equation group/chips while keeping the explanatory paragraph aligned to start. The former11px source label,13px title and13.5px explanation now use the existing14px micro/16px UI tokens and15px supporting-text minimum respectively. Chip wrapping prevents narrow-width overflow. Existing DesignV2 §8.2 covers this distinction; no contract, global typography/icon registry or source data was rewritten. This is not an all-corpus contract or calculation certification.
+
+Acceptance: built-browser suite passes (no failures/skips), three typography contract checks pass, Legacy+2029 and integrated Preview builds pass, and isolation/dependency/hardening/Legacy-lock gates pass. Nine actual local App2029 read-only cases verify320/390/1440px in all three confirmed presets against public Post5105: centered title/equations,16/15/14px sizes, start-aligned prose and no overflow/page errors/blocked requests. Hosted browser acceptance is not asserted.
