@@ -59,6 +59,7 @@ function WriterPersonalController2029({ module, user, authLoading }) {
   useEffect(() => { mounted.current = true; return () => { mounted.current = false; }; }, []);
   const params = new URLSearchParams(location.search);
   const selected = WRITER_PERSONAL_MODULES.some(([id]) => id === module) ? module : "public-page";
+  const previewReadOnly = import.meta.env.VITE_INTEGRATED_PREVIEW === "true";
   const returnHref = personalReturnHref(params.get("returnTo"));
   // These modules have their own authenticated readers. An unavailable public
   // writer overview must not prevent the existing private inbox from opening.
@@ -98,10 +99,11 @@ function WriterPersonalController2029({ module, user, authLoading }) {
     state={state} module={selected} onRetry={reload} onOpenWorkspace={shell.openWorkspace} publicHref={writer.publicVisible ? writer.href : null} returnHref={returnHref} nav={nav}>
     {!user && !authLoading ? <section className="wp-card wp-login" aria-labelledby="wp-login-title"><h2 id="wp-login-title" className="wp-h">צריך להתחבר כדי לראות את האזור האישי</h2><p className="wp-muted">הפרופיל, ההודעות, המעקב וההתקדמות מוצגים רק לחשבון שלהם הם שייכים.</p><button className="wp-btn wp-primary" type="button" onClick={shell.openWorkspace}>התחברות לאזור האישי</button></section> : null}
     {state === "ready" ? <>
+      {previewReadOnly && (selected === "public-page" || selected === "page-editor") ? <p role="status">בגרסת התצוגה אפשר לצפות בפרטי הדף. יצירה ושמירה של שינויים אינן זמינות כאן.</p> : null}
       {selected === "public-page" ? <WriterPersonalHome2029 principalKey={user.id} writer={writer} state="ready" onRetry={reload}
-        onCreate={(values) => mutate("create", values)} onEdit={() => setActive("page-editor")} /> : null}
+        onCreate={previewReadOnly ? undefined : (values) => mutate("create", values)} onEdit={() => setActive("page-editor")} /> : null}
       {selected === "page-editor" ? <>
-        {writer.state === "ready" ? <PageEditor T={T} goto={goto} onSaved={() => reload(true)} refreshUnavailable={data.refreshState === "unavailable"} /> : <WriterPersonalHome2029 principalKey={user.id} writer={writer} state="ready" onRetry={reload} onCreate={(values) => mutate("create", values)} />}
+        {writer.state === "ready" ? <PageEditor T={T} goto={goto} onSaved={() => reload(true)} refreshUnavailable={data.refreshState === "unavailable"} readOnly={previewReadOnly} /> : <WriterPersonalHome2029 principalKey={user.id} writer={writer} state="ready" onRetry={reload} onCreate={previewReadOnly ? undefined : (values) => mutate("create", values)} />}
         {writer.publicVisible ? <a className="pc-open" href={writer.href}>בחירת כתבים והקדמה בדף שלי</a> : null}
       </> : null}
       {selected === "profile" ? <>
