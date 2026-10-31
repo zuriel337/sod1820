@@ -97,6 +97,14 @@ function fixturePlugin() {
           {type:'gematria',phrase:'ערך חסר',n:null,method:'רגיל'},
         ]};}
       export const getAllValuePhrases=async()=>[],langLinksList=async()=>[];
+      export const getGalleriesOverview=async(options)=>{
+        window.__catalogOptions=options;
+        if(window.__catalogFail)throw Error('catalog offline');
+        if(window.__holdCatalog)await new Promise(resolve=>{window.__releaseCatalog=resolve;});
+        const ids=[69,73,81,...(window.__catalogNew?[105]:[])];
+        return {gals:ids.map(n=>({id:'gallery-'+n,wp_gallery_id:n,name:n===69?'גלרית 14 - 5':n===73?'גלרית 14 - 7':'גלריה '+n})),
+          imgs:ids.filter(n=>!(window.__catalogWithdraw&&n===69)).map(n=>({...window.__nativeGalleryRow('10000000-0000-4000-8000-'+String(n*100).padStart(12,'0')),gallery_id:'gallery-'+n})),coverage:{partial:window.__catalogPartial||false}};
+      };
       export const getImagesByGallery=async(id,options)=>{window.__lastGalleryListOptions=options;if(window.__listFail)throw Error('list offline');return Array.from({length:window.__nativeGallery?14:8},(_,ordering)=>({
         id:window.__nativeGallery?'10000000-0000-4000-8000-'+String(id*100+ordering).padStart(12,'0'):id+'-'+ordering,ordering}));
       };
@@ -335,6 +343,50 @@ test("native gallery uses exact public occurrences and canonical method navigati
       assert.deepEqual(errors,[]);await context.close();
     }
   }finally{await browser?.close();await server.close();rmSync(cacheDir,{recursive:true,force:true});}
+});
+
+test("gallery catalog: search/order URL, original names, source re-entry, refresh/privacy/error", { skip: !available, timeout:120000 }, async () => {
+  const cacheDir=mkdtempSync(join(tmpdir(),"gallery-catalog-"));
+  const server=await vite.createServer({root,configFile:false,cacheDir,plugins:[fixturePlugin(),reactPlugin()],server:{host:'127.0.0.1',port:0},logLevel:'error'});
+  let browser;
+  try {
+    await server.listen();const origin=`http://127.0.0.1:${server.httpServer.address().port}`;
+    browser=await playwright.chromium.launch({headless:true,executablePath,args:['--no-sandbox','--disable-dev-shm-usage']});
+    for(const width of [320,390,1440]) {
+      const context=await browser.newContext({viewport:{width,height:900}});
+      await context.addInitScript(()=>{window.__nativeGallery=true;});
+      const errors=[],writes=[];const page=await context.newPage();page.setDefaultTimeout(15000);
+      page.on('pageerror',e=>errors.push(e.message));page.on('request',r=>{if(!['GET','HEAD'].includes(r.method()))writes.push(r.url());});
+      await page.route('https://example.test/**',route=>route.fulfill({contentType:'image/svg+xml',body:'<svg xmlns="http://www.w3.org/2000/svg" width="400" height="240"><rect width="400" height="240" fill="gold"/></svg>'}));
+      await page.goto(origin+'/world?view=gallery');
+      await page.locator('[data-catalog-gallery="69"]').waitFor();
+      assert.deepEqual(await page.evaluate(()=>window.__catalogOptions),{force:true,publicSourceOnly:true});
+      assert.deepEqual(await page.locator('[data-catalog-gallery]').evaluateAll(nodes=>nodes.map(n=>Number(n.dataset.catalogGallery))),[81,73,69]);
+      await page.getByRole('searchbox',{name:'חיפוש בשם או במספר גלריה'}).fill('14');
+      await page.getByLabel('סדר הגלריות',{exact:true}).selectOption('asc');
+      assert.deepEqual(await page.locator('[data-catalog-gallery]').evaluateAll(nodes=>nodes.map(n=>Number(n.dataset.catalogGallery))),[69,73]);
+      await page.reload();await page.locator('[data-catalog-gallery="69"]').waitFor();
+      assert.equal(await page.getByRole('searchbox').inputValue(),'14');
+      await page.locator('[data-catalog-gallery="69"]').click();
+      await page.locator('.g29-exhibit').first().waitFor();
+      assert.equal(new URL(page.url()).searchParams.get('gallery'),'69');
+      await page.goBack();await page.locator('[data-catalog-gallery="69"]').waitFor();
+      assert.equal(await page.getByRole('searchbox').inputValue(),'14');
+      await page.getByRole('searchbox').fill('');
+      await page.evaluate(()=>{window.__catalogNew=true;});
+      await page.getByRole('button',{name:'רענון הגלריות',exact:true}).click();await page.locator('[data-catalog-gallery="105"]').waitFor();
+      await page.evaluate(()=>{window.__catalogWithdraw=true;});
+      await page.getByRole('button',{name:'רענון הגלריות',exact:true}).click();
+      await page.locator('[data-catalog-gallery="105"]').waitFor();assert.equal(await page.locator('[data-catalog-gallery="69"]').count(),0);
+      await page.evaluate(()=>{window.__catalogFail=true;});
+      await page.getByRole('button',{name:'רענון הגלריות',exact:true}).click();await page.getByRole('alert').waitFor();
+      assert.equal(await page.locator('[data-catalog-gallery]').count(),0);
+      await page.evaluate(()=>{window.__catalogFail=false;window.__catalogPartial=true;});
+      await page.getByRole('button',{name:'רענון הגלריות',exact:true}).click();await page.getByText('התצוגה חלקית.',{exact:false}).waitFor();
+      assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
+      assert.deepEqual(errors,[]);assert.deepEqual(writes,[]);await context.close();
+    }
+  } finally {await browser?.close();await server.close();rmSync(cacheDir,{recursive:true,force:true});}
 });
 
 test("Topic opens the existing Number sheet with method/value/source and exact return", { skip: !available, timeout: 120000 }, async () => {

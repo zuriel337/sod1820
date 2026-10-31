@@ -1155,6 +1155,7 @@ function LiveWorldLanding({ research, shell, context }) {
           <button type="button" onClick={() => openLandingView(WORLD_LANDING_VIEW.CONNECTIONS)}>נושאים וחיבורים</button>
           <button type="button" onClick={() => openLandingView(WORLD_LANDING_VIEW.SOURCES)}>אנשים ומקורות</button>
           <button type="button" onClick={() => openKnowledgeKind(WORLD_KNOWLEDGE_KIND.MEDIA)}>תמונות ומדיה</button>
+          <Link className="sod29-action" to="/world?view=gallery">כל הגלריות</Link>
           <button type="button" onClick={() => openKnowledgeKind(WORLD_KNOWLEDGE_KIND.LANGUAGES)}>שפות וגשרים</button>
           <button type="button" onClick={() => openKnowledgeKind(WORLD_KNOWLEDGE_KIND.CIPHERS)}>צפנים</button>
           <button type="button" onClick={() => openKnowledgeKind(WORLD_KNOWLEDGE_KIND.TIME)}>אירועים וזמן</button>

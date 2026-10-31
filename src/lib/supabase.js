@@ -1103,30 +1103,38 @@ let _overviewCache = null;            // { ts, gals, imgs }
 const OVERVIEW_TTL = 120000;          // 2 דקות — טרי מספיק, חוסך טעינות חוזרות
 export function invalidateGalleriesOverview() { _overviewCache = null; }
 
-export async function getGalleriesOverview({ force = false } = {}) {
-  if (!supabase) return { gals: [], imgs: [] };
-  if (!force && _overviewCache && Date.now() - _overviewCache.ts < OVERVIEW_TTL) {
+export async function getGalleriesOverview({ force = false, publicSourceOnly = false, client = supabase } = {}) {
+  if (!client) { if (publicSourceOnly) throw new Error('gallery_reader_unavailable'); return { gals: [], imgs: [] }; }
+  const useCache = !publicSourceOnly && client === supabase;
+  if (useCache && !force && _overviewCache && Date.now() - _overviewCache.ts < OVERVIEW_TTL) {
     return { gals: _overviewCache.gals, imgs: _overviewCache.imgs };
   }
-  const { data: gals } = await supabase
+  let galleryQuery = client
     .from('galleries')
-    .select('id,name,anchor_number,img_count,wp_gallery_id');
+    .select(publicSourceOnly ? 'id,name,wp_gallery_id' : 'id,name,anchor_number,img_count,wp_gallery_id', publicSourceOnly ? { count: 'exact' } : undefined);
+  if (publicSourceOnly) galleryQuery = galleryQuery.order('id').range(0, 999);
+  const { data: gals, error: galleryError, count: galleryCount } = await galleryQuery;
+  if (galleryError && publicSourceOnly) throw galleryError;
   let imgs = [], from = 0;
+  let partial = publicSourceOnly && galleryCount > (gals || []).length;
   while (true) {
-    const { data } = await supabase
+    let query = client
       .from('gallery_images')
-      .select('id,gallery_id,image_url,thumb_url,name,description,ordering,primary_value,all_values,occurred_at,created_at,importance,image_type,source,curator_hidden,tags')
-      .not('image_url', 'is', null)
-      .order('occurred_at', { ascending: false, nullsFirst: false })
-      .order('created_at', { ascending: false })
-      .range(from, from + 999);
+      .select(publicSourceOnly ? 'id,gallery_id,wp_gallery_id,image_url,thumb_url,ordering,published,min_tier,curator_hidden'
+        : 'id,gallery_id,image_url,thumb_url,name,description,ordering,primary_value,all_values,occurred_at,created_at,importance,image_type,source,curator_hidden,tags')
+      .not('image_url', 'is', null);
+    query = publicSourceOnly ? query.eq('published', 1).eq('min_tier', 0).not('curator_hidden', 'is', true).order('id')
+      : query.order('occurred_at', { ascending: false, nullsFirst: false }).order('created_at', { ascending: false });
+    const { data, error } = await query.range(from, from + 999);
+    if (error && publicSourceOnly) throw error;
     if (!data || !data.length) break;
     imgs = imgs.concat(data);
     if (data.length < 1000) break;
     from += 1000;
+    if (publicSourceOnly && from >= 10000) { partial = true; break; }
   }
-  _overviewCache = { ts: Date.now(), gals: gals || [], imgs };
-  return { gals: gals || [], imgs };
+  if (useCache) _overviewCache = { ts: Date.now(), gals: gals || [], imgs };
+  return { gals: gals || [], imgs, ...(publicSourceOnly ? { coverage: { partial } } : {}) };
 }
 
 // ✦ עוגן-המהות של מספר — «מהות המספר» (עובדה+רמז מאומתים) לדף המספר. null אם אין.

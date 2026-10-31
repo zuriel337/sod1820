@@ -10,15 +10,15 @@ import { createInterface } from "node:readline";
 import { resolve, extname, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createRequire } from "node:module";
-import { getImagesByGallery } from '../src/lib/supabase.js';
-import { storedGalleryOrderIds, gallerySourceHref2029 } from '../src/lib/research/topicSourceContext.js';
+import { getImagesByGallery, getGalleriesOverview } from '../src/lib/supabase.js';
+import { buildPublicGalleryCatalog2029, storedGalleryOrderIds, gallerySourceHref2029 } from '../src/lib/research/topicSourceContext.js';
 
 const require = createRequire(import.meta.url);
 const { chromium } = require("playwright");
 const root = fileURLToPath(new URL("..", import.meta.url));
 const output = process.env.PREVIEW_EVIDENCE_DIR || "/tmp/elections-world-preview-20261030";
 await mkdir(output, { recursive: true });
-const report = { widths: [], expandedGalleries: [], storySequence: [], methodDepth: [], galleryMethodDepth: [], nativeGalleries: [], reads: {}, blocked: [], errors: [], modelRequests: [] };
+const report = { widths: [], catalog: [], expandedGalleries: [], storySequence: [], methodDepth: [], galleryMethodDepth: [], nativeGalleries: [], reads: {}, blocked: [], errors: [], modelRequests: [] };
 const publicHost = "linswmnnkjxvweumprav.supabase.co";
 // fn_zero_scale is an existing anonymous STABLE/security-invoker read (live
 // definition inspected); the unchanged Preview worker already admits it.
@@ -82,6 +82,34 @@ try {
       authenticationUrl.pathname = "/preview-identity.json";
       try { await page.goto(authenticationUrl.href); }
       catch { throw new Error("Protected Preview access failed; access URL withheld."); }
+    }
+    if (process.env.PREVIEW_GALLERY_CATALOG_ONLY === 'true') {
+      const expected=buildPublicGalleryCatalog2029(await getGalleriesOverview({force:true,publicSourceOnly:true}));
+      await page.goto(origin+'/world?view=gallery');
+      await page.locator('[data-catalog-gallery="69"]').waitFor();
+      assert.deepEqual(await page.locator('[data-catalog-gallery]').evaluateAll(nodes=>nodes.map(n=>Number(n.dataset.catalogGallery))),expected.items.map(x=>x.wpGalleryId));
+      assert.equal(await page.locator('[data-catalog-gallery="102"]').count(),0,'empty/private-only galleries are not available catalog cards');
+      await page.waitForFunction(()=>{const image=document.querySelector('.g29-catalog-cover img');return image?.complete&&image.naturalWidth>0;});
+      await page.screenshot({path:resolve(output,`gallery-catalog-${width}.png`)});
+      for(const [preset,label] of [['light','יום'],['parchment','קלף'],['dark','לילה']]) {
+        const control=page.locator('.sod29-theme-presets.is-header-control');
+        const option=control.getByRole('button',{name:label,exact:true});
+        if(!await option.isVisible())await control.locator('.sod29-theme-trigger').click();
+        await option.click();await page.waitForFunction(value=>document.documentElement.dataset.themePreset===value,preset);
+        assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
+        await page.screenshot({path:resolve(output,`gallery-catalog-${preset}-${width}.png`)});
+      }
+      await page.getByRole('searchbox',{name:'חיפוש בשם או במספר גלריה'}).fill('69');
+      await page.getByLabel('סדר הגלריות',{exact:true}).selectOption('asc');
+      await page.reload();await page.locator('[data-catalog-gallery="69"]').waitFor();
+      assert.equal(await page.getByRole('searchbox').inputValue(),'69');
+      await page.locator('[data-catalog-gallery="69"]').click();await page.locator('.g29-exhibit').first().waitFor();
+      assert.equal(new URL(page.url()).searchParams.get('gallery'),'69');
+      await page.goBack();await page.locator('[data-catalog-gallery="69"]').waitFor();
+      assert.equal(await page.getByRole('searchbox').inputValue(),'69');
+      assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
+      report.catalog.push({width,count:expected.items.length,coverage:expected.coverage,sourceCount:expected.items.reduce((n,x)=>n+x.imageCount,0),search:true,sort:true,reload:true,galleryBack:true,presets:['light','parchment','dark']});
+      report.widths.push(width);await context.close();continue;
     }
     if (process.env.PREVIEW_GALLERY_EXPANSION_ONLY === 'true') {
       for (const gallery of [69,73,105]) {
@@ -345,7 +373,9 @@ try {
   }
   assert.deepEqual(report.errors, [], "no page errors");
   assert.deepEqual(report.modelRequests, [], "no model request on navigation");
-  console.log(JSON.stringify({ ...report, blocked: [...new Set(report.blocked)], origin, productWrites: false, data: "live public anonymous", coverage: process.env.PREVIEW_GALLERY_EXPANSION_ONLY === 'true'
+  console.log(JSON.stringify({ ...report, blocked: [...new Set(report.blocked)], origin, productWrites: false, data: "live public anonymous", coverage: process.env.PREVIEW_GALLERY_CATALOG_ONLY === 'true'
+    ? "Public gallery catalog against existing strict overview: eligible IDs/names/counts, search/sort URL, gallery entry and Back/reload at390/1440. Not every gallery body or source audited."
+    : process.env.PREVIEW_GALLERY_EXPANSION_ONLY === 'true'
     ? "Explicit gallery expansion subset:69/73/105 stored window, exact source, optional number tag/Back and reload;102 empty public window, at390/1440. Not every gallery, hosted or whole-site acceptance."
     : process.env.PREVIEW_STORY_SEQUENCE_ONLY === 'true'
     ? "Explicit story subset: real World fragment -> canonical graph edge -> public Post body -> native Back -> reload, at390/1440; no whole-site or hosted acceptance"

@@ -6,13 +6,13 @@ import ShareActions from "../components/ShareActions.jsx";
 import { worldMediaPublicShare } from "../lib/research/worldFindingShare.js";
 import { SourceMethodResearch } from "../components/research/Revelation1237Gate2029.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
-import { getImagesByGallery } from "../lib/supabase.js";
+import { getImagesByGallery, getGalleriesOverview } from "../lib/supabase.js";
 import { fetchGallerySourceContext } from "../lib/research/entityHubProjection.js";
 import { fetchNumberMethodProfile } from "../lib/research/numberCoreProjection.js";
 import { resolveTopicExpressionFocus2029 } from "../lib/research/topicExpressionFocus2029.js";
 import { numberExpressionFocusHref } from "../lib/research/numberExpressionFocus.js";
 import { gatePublicMethodRows, gateSourcePresentation, gateSourceSelectionIsCurrent } from "../lib/research/revelation1237Gate2029.js";
-import { gallerySourceHref2029, galleryOccurrenceItem, loadPublicGallerySourceWindow, resolvePublicGallerySelection } from "../lib/research/topicSourceContext.js";
+import { buildPublicGalleryCatalog2029, gallerySourceHref2029, galleryOccurrenceItem, loadPublicGallerySourceWindow, resolvePublicGallerySelection } from "../lib/research/topicSourceContext.js";
 import { bilingualDateLabel } from "../lib/relativeTime2029.js";
 import { publicMediaCaption, publicMediaTitle } from "../lib/presentation/contentTitle.js";
 import { canonicalMediaPublicLabel } from "../lib/presentation/canonicalPresentation.js";
@@ -27,6 +27,58 @@ const readingLabel = (item) => canonicalMediaPublicLabel({
   title: publicMediaTitle(item?.legacyPlacement?.originalName),
   description: publicMediaCaption(item?.legacyPlacement?.originalCaption),
 }, { fallback: "תמונה מהגלריה" });
+
+function GalleryCatalogBody() {
+  const location = useLocation(), navigate = useNavigate(), research = useResearch();
+  const [state, setState] = useState({ status: 'loading', items: [] });
+  const [retry, setRetry] = useState(0);
+  const params = new URLSearchParams(location.search);
+  const query = (params.get('q') || '').slice(0, 200);
+  const ascending = params.get('sort') === 'asc';
+  const href = `/world?${new URLSearchParams({ view: 'gallery', ...(query ? { q: query } : {}), ...(ascending ? { sort: 'asc' } : {}) })}`;
+  useEffect(() => {
+    let alive = true;
+    setState({ status: 'loading', items: [] });
+    getGalleriesOverview({ force: true, publicSourceOnly: true }).then(overview => {
+      if (alive) setState({ status: 'ready', ...buildPublicGalleryCatalog2029(overview) });
+    }).catch(() => { if (alive) setState({ status: 'failed', items: [] }); });
+    return () => { alive = false; };
+  }, [retry]);
+  useEffect(() => {
+    research.updateResearchContext?.({ subject: null, selection: null, lens: 'gallery', returnTo: null,
+      dimensions: { surfaceFocus: { id: 'gallery-catalog', type: 'surface', label: 'גלריות', href },
+        surfaceSections: [{ id: 'gallery-catalog', label: 'גלריות' }], surfaceMapLabel: 'בתוך הגלריות', activeSectionId: 'gallery-catalog',
+        readingFocus: null, surfaceFindings: [], expressionFocusExplicit: false, topicSlug: null,
+        galleryImageId: null, wpGalleryId: null } });
+  }, [href]);
+  const needle = query.trim().normalize('NFC').toLocaleLowerCase('he');
+  const items = state.items.filter(item => !needle || item.originalName.normalize('NFC').toLocaleLowerCase('he').includes(needle)
+    || String(item.wpGalleryId).includes(needle)).sort((a,b) => ascending ? a.wpGalleryId-b.wpGalleryId : b.wpGalleryId-a.wpGalleryId);
+  function filter(nextQuery, nextAscending = ascending) {
+    navigate(`/world?${new URLSearchParams({ view: 'gallery', ...(nextQuery ? { q: nextQuery } : {}), ...(nextAscending ? { sort: 'asc' } : {}) })}`, { replace: true });
+  }
+  return <article className="g29-gallery g29-catalog" id="gallery-catalog" dir="rtl">
+    <header className="g29-heading"><div className="g29-heading-line"><div><p className="g29-eyebrow">סוד 1820 · מבט בתמונות</p>
+      <h2>גלריות רמזי הגאולה</h2></div></div><p className="g29-intro">סיפורים, מספרים ותמונות שנאספו לאורך השנים.</p>
+      <Link className="g29-text-link" to="/world">חזרה לעולם ←</Link></header>
+    <div className="g29-catalog-controls"><label>חיפוש בשם או במספר גלריה<input type="search" value={query} maxLength={200}
+      onChange={event => filter(event.target.value)} placeholder="למשל דוד או 69" /></label>
+      <label>סדר הגלריות<select aria-label="סדר הגלריות" value={ascending ? 'asc' : 'desc'} onChange={event => filter(query,event.target.value === 'asc')}>
+        <option value="desc">מספר גלריה — יורד</option><option value="asc">מספר גלריה — עולה</option></select></label>
+      <button className="g29-page-link" type="button" onClick={() => setRetry(n => n+1)} disabled={state.status === 'loading'}>רענון הגלריות</button></div>
+    {state.status === 'loading' ? <FrameState kind="loading" title="פותחים את הגלריות">טוענים את הגלריות הזמינות לעיון.</FrameState> : null}
+    {state.status === 'failed' ? <p className="g29-message" role="alert">לא הצלחנו לטעון את הגלריות כרגע. אפשר לנסות שוב באמצעות הרענון.</p> : null}
+    {state.status === 'ready' ? <><p className="g29-catalog-status" role="status">{items.length} גלריות זמינות{query ? ' בתוצאות החיפוש' : ' לעיון'}</p>
+      {state.coverage?.partial ? <p className="g29-message">התצוגה חלקית. ייתכן שיש גלריות או תמונות נוספות שאינן מוצגות בקריאה הזו.</p> : null}
+      {!items.length ? <p className="g29-message">{query ? 'לא נמצאו גלריות מתאימות לחיפוש.' : 'אין כרגע גלריות עם תמונות ציבוריות זמינות.'}</p> : null}
+      <div className="g29-catalog-grid">{items.map((item, index) => <Link key={item.galleryId} className="g29-catalog-card" to={item.href}
+        data-catalog-gallery={item.wpGalleryId} aria-label={`פתיחת ${publicMediaCaption(item.originalName)}`}>
+        <div className="g29-catalog-cover">{item.cover ? <CanonicalMediaImage2029 item={item.cover} alt={publicMediaCaption(item.originalName)} loading={index < 3 ? 'eager' : 'lazy'} /> : <span>גלריה בתמונות</span>}</div>
+        <div className="g29-catalog-copy"><span className="g29-kind">גלריה <bdi>{item.wpGalleryId}</bdi></span>
+          <h3>{publicMediaCaption(item.originalName)}</h3><p>{state.coverage?.partial ? 'לפחות ' : ''}{item.imageCount} תמונות זמינות</p><span className="g29-text-link">לפתיחת הגלריה ←</span></div>
+      </Link>)}</div></> : null}
+  </article>;
+}
 
 function GalleryImageCard({ item, index, selected, opening, error, onRemember, onOpenExpression, onSelect }) {
   const [captionExpanded, setCaptionExpanded] = useState(false);
@@ -226,14 +278,14 @@ function GalleryBody() {
   });
   return <article id="gallery-top" className="g29-gallery" dir="rtl" data-gallery-id={wpGalleryId}>
     <header className="g29-heading">
-      <nav className="g29-breadcrumb" aria-label="מיקום בגלריות"><Link to="/world">העולם</Link><span aria-hidden="true">/</span><span>גלריות</span></nav>
+      <nav className="g29-breadcrumb" aria-label="מיקום בגלריות"><Link to="/world">העולם</Link><span aria-hidden="true">/</span><Link to="/world?view=gallery">כל הגלריות</Link></nav>
       <div className="g29-heading-line"><div><p className="g29-eyebrow">סוד 1820 · מבט בתמונות</p>
         <h2>{title}</h2></div><svg className="g29-gallery-mark" width="72" height="72" viewBox="0 0 72 72" fill="none" aria-hidden="true">
           <rect x="11" y="7" width="45" height="48" rx="7" transform="rotate(-8 11 7)" /><rect x="17" y="16" width="45" height="48" rx="7" />
           <circle cx="46" cy="31" r="5" /><path d="m23 53 12-14 9 9 6-6 7 11" />
         </svg></div>
       <p className="g29-intro">תמונות, מספרים ועוד כיוון להתבוננות.</p>
-      <div className="g29-heading-bottom"><nav aria-label="המשך הגלישה"><Link className="g29-text-link" to="/topic/1237">לסיפור של התגלות ←</Link>
+      <div className="g29-heading-bottom"><nav aria-label="המשך הגלישה"><Link className="g29-text-link" to="/world?view=gallery">כל הגלריות ←</Link><Link className="g29-text-link" to="/topic/1237">לסיפור של התגלות ←</Link>
         <Link className="g29-text-link" to={gallerySourceHref2029(wpGalleryId === 29 ? 81 : 29)}>לגלריה נוספת ←</Link></nav>
         {images.length ? <span className="g29-count"><bdi>{images.length}</bdi> תמונות לעיון</span> : null}</div>
     </header>
@@ -263,5 +315,6 @@ function GalleryBody() {
 }
 
 export default function Gallery2029Page() {
-  return <Sod2029Shell surface="world" title="גלריות" introVariant="none"><GalleryBody /></Sod2029Shell>;
+  const location = useLocation();
+  return <Sod2029Shell surface="world" title="גלריות" introVariant="none">{new URLSearchParams(location.search).has('gallery') ? <GalleryBody /> : <GalleryCatalogBody />}</Sod2029Shell>;
 }

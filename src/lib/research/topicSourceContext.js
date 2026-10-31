@@ -76,6 +76,38 @@ export function gallerySourceHref2029(wpGalleryId, galleryImageId = null) {
   return `${base}&image=${encodeURIComponent(galleryImageId)}#gallery-source-${galleryImageId}`;
 }
 
+export function buildPublicGalleryCatalog2029(overview = {}) {
+  const galleries = new Map(), ambiguous = new Set();
+  let incomplete = false;
+  for (const g of Array.isArray(overview.gals) ? overview.gals : []) {
+    if (!g?.id || !gallerySourceHref2029(g.wp_gallery_id) || typeof g.name !== 'string' || !g.name.trim()) continue;
+    if (galleries.has(g.wp_gallery_id)) { ambiguous.add(g.wp_gallery_id); incomplete = true; }
+    else galleries.set(g.wp_gallery_id, g);
+  }
+  const images = new Map();
+  for (const row of Array.isArray(overview.imgs) ? overview.imgs : []) {
+    const g = galleries.get(row?.wp_gallery_id);
+    if (!isPublicSourceImage(row)) continue;
+    if (!row?.id || !g || ambiguous.has(g.wp_gallery_id) || row.gallery_id !== g.id) { incomplete = true; continue; }
+    if (!images.has(g.wp_gallery_id)) images.set(g.wp_gallery_id, new Map());
+    images.get(g.wp_gallery_id).set(row.id, row);
+  }
+  const safeCover = (value) => {
+    try { const u = new URL(value); return u.protocol === 'https:' && !u.username && !u.password && !u.search && !u.hash
+      && !/^\/storage\/v1\/object\/(sign|authenticated)\//.test(u.pathname); } catch { return false; }
+  };
+  const items = [...images].map(([wpGalleryId, byId]) => {
+    const g = galleries.get(wpGalleryId), rows = [...byId.values()];
+    const ordered = storedGalleryOrderIds(rows);
+    const coverRow = ordered.map(id => byId.get(id)).find(row => safeCover(row.image_url));
+    const cover = coverRow ? buildGallerySourceContext({ images: [{ ...coverRow,
+      thumb_url: safeCover(coverRow.thumb_url) ? coverRow.thumb_url : null }], galleries: [g] })[0] : null;
+    return { galleryId: g.id, wpGalleryId, originalName: g.name, imageCount: rows.length,
+      href: gallerySourceHref2029(wpGalleryId), cover: cover || null };
+  }).sort((a, b) => b.wpGalleryId - a.wpGalleryId);
+  return { items, coverage: { partial: overview.coverage?.partial === true || incomplete } };
+}
+
 export function galleryOccurrenceItem(selected) {
   if (selected?.status !== "ready") return null;
   const { item, occurrence } = selected;
