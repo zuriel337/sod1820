@@ -75,6 +75,8 @@ Candidate member value:
 - member pricing for additional credit packs;
 - early access to approved 2029 capabilities.
 
+Recommended V1 allowance presentation: **600 credits every membership month**. Monthly subscribers receive it after each verified renewal; annual subscribers receive the same allowance monthly throughout the paid annual period. The membership is sold for its content, continuity and tools as well as the allowance; credits are not advertised as a cash equivalent.
+
 ### 3.3 Credits
 
 Credits are a single usage currency across 2029. Do not introduce separate “research points”, “tokens” and “Raziel coins” in customer-facing language.
@@ -92,6 +94,74 @@ Proposed policy:
 | client-side 3D/spatial | access tier only | no AI credit charge unless it explicitly invokes server AI |
 
 The user sees understandable operation prices and remaining credits. Raw model tokens remain an internal cost/observability metric.
+
+#### Raziel and variable-cost pricing calibration
+
+The launch meter must price a bounded customer action, not raw provider tokens. A user should never need to know which model ran, how many tokens it used or whether a truth retry occurred. Those details remain internal evidence for setting and reviewing the fixed credit price.
+
+Measured end-to-end Raziel evidence from production observability between 2026-10-22 and 2026-10-31:
+
+| Customer interaction | Sample | Average recorded provider cost | P90 | Recorded maximum |
+|---|---:|---:|---:|---:|
+| Raziel site — fast | 124 | ₪0.0755 | ₪0.1544 | ₪0.3096 |
+| Raziel site — deep | 37 | ₪0.3295 | ₪0.6328 | ₪1.2090 |
+| Raziel site — deterministic/no model | 17 | ₪0 | ₪0 | ₪0 |
+| Raziel WhatsApp — fast | 7 | ₪0.0324 | ₪0.0506 | ₪0.0518 |
+
+The end-to-end figures include observed model retries inside the same interaction. Other bounded Haiku helpers such as Number, Discovery, Name Lab, Compare and Research recorded common per-call averages around ₪0.016–₪0.022 in the same window. Samples remain small for several surfaces, so they justify an initial price band, not a permanent tariff.
+
+Current active credit packs, excluding the admin-only ₪1 test item, imply a retail value of approximately ₪0.0222–₪0.0333 per credit. On that basis the recommended V1 customer prices are:
+
+| Bounded operation shown to the user | V1 price candidate | Examples and boundary |
+|---|---:|---|
+| deterministic calculation or exact cached result | 0 credits | gematria arithmetic, deterministic ELS construction, reopen an existing result |
+| short AI explanation | 5 credits | a bounded Number, Name, Discovery or guided explanation |
+| Raziel fast | 15 credits | one submitted prompt and its completed fast answer, including internal retries |
+| Raziel deep | 60 credits | one submitted prompt and its completed deep answer, including internal retries |
+| bounded deep module | 60 credits | one measured Life Journey / Number-style deep module within the current one-call envelope |
+| extended multi-tool report | 120 credits provisional | only after the complete job has a hard budget and end-to-end P90 telemetry; do not expose before that gate |
+| deep Bible Code matrix reading | 500 credits | one usable completed Fable-backed reading, under the rules below |
+| voice, transcription or generated media | not priced yet | keep unavailable or explicitly free in a bounded pilot until duration and provider-cost evidence exists |
+
+Why these bands are coherent:
+
+- 15 credits currently represents about ₪0.33–₪0.50 of pack value against a ₪0.1544 fast P90;
+- 60 credits represents about ₪1.33–₪2.00 against a ₪0.6328 deep P90 and the recorded ₪1.209 maximum;
+- the customer pays once for the promised action, never again because the server retried internally;
+- the server may route to a cheaper sufficient model, but the displayed price and required answer quality do not change during the action;
+- prices must be rechecked monthly at first, and whenever model price, FX, routing, context size or P90 cost changes materially.
+
+These are launch candidates, not published prices. The existing source-code constants `els: 30`, `cross: 20`, `name_deep: 40`, `report: 50` and `journey: 60` predate this calibration and are not canonical product truth for 2029.
+
+#### Customer credit meter
+
+Use one customer-facing currency named **credits**. The meter has two simple views:
+
+1. **Available now** — the total spendable balance across membership allowance, earned credits and purchased credits.
+2. **This membership cycle** — how much of the 600-credit monthly allowance was used, for example `215 / 600 used` and `385 remain this cycle`.
+
+Before every paid action show all three facts together: the fixed action price, the available balance and the balance expected after completion. Example: `Raziel deep · 60 credits · 740 available · 680 after completion`.
+
+Meter behavior:
+
+- green above 50% of the cycle allowance remaining, amber at 20–50%, red below 20%; color supports the numbers and never replaces them;
+- a long job moves credits to **reserved** while it runs, then to **spent** once a usable result completes or to **returned** on a qualifying failure;
+- reservations count as unavailable so two simultaneous jobs cannot spend the same balance;
+- reopening an exact saved or cached result is free and visibly marked as already paid;
+- the ledger uses human labels such as `Raziel fast`, `Raziel deep` and `Deep matrix reading`, not provider/model names;
+- insufficient balance blocks before provider work begins and offers the relevant credit pack; it must not create hidden debt;
+- the member may set an optional low-balance warning, initially recommended at 100 credits.
+
+Internal balance policy required for Membership:
+
+- grant 600 included credits at the start of each successful monthly membership period;
+- grant an annual subscriber 600 each month, not 7,200 at purchase time;
+- let unused included credits roll forward up to a maximum included balance of 1,200, so one quiet month is not lost while business exposure remains bounded;
+- purchased credits do not expire under this draft; any expiry for earned/promotional credits requires explicit customer terms before launch;
+- consume the time-limited membership allowance first and purchased credits last;
+- preserve one displayed total while keeping source, expiry, reservation and settlement entries separately reconcilable on the server.
+
+The current interface already shows `profile.credits` and recent `credit_ledger` movements, but it is only a single balance plus history. It does **not** yet provide a membership-cycle meter, allowance-source buckets, rollover cap or reserve/settle state. Those are implementation requirements after product approval; this document does not authorize their migration or deployment.
 
 #### Deep Bible Code / ELS matrix reading
 
@@ -125,7 +195,7 @@ Product rules:
 - cache and reopen the completed reading without a new charge when the exact saved result is reused;
 - reprice or route to a cheaper sufficient model only after measured quality parity, never by silently reducing required research quality.
 
-Working allowance hypothesis: if the launch promise includes one deep matrix reading per month, the monthly membership allowance must be at least 500 credits. A **600-credit monthly allowance** is the smallest coherent launch candidate because it funds one reading and leaves 100 credits for other metered actions. This is not approved until Raziel and other operation costs are calibrated together.
+Working allowance hypothesis: if the launch promise includes one deep matrix reading per month, the monthly membership allowance must be at least 500 credits. A **600-credit monthly allowance** is the smallest coherent launch candidate because it can fund one reading plus, for example, six Raziel-fast answers and two short AI explanations. Alternatively it funds about 40 fast answers or 10 deep answers. The measured Raziel and matrix evidence now supports this as the recommended V1 allowance, but it still requires ZURIEL approval before publication or implementation.
 
 ### 3.4 Bible Code-only plan
 
@@ -382,11 +452,12 @@ Do not publish internal provider mechanics, raw token costs, Cardcom identifiers
 
 - [ ] Final membership name.
 - [ ] Approve or change ₪30 monthly / ₪300 annual working prices.
-- [ ] Included monthly credit allowance.
 - [ ] Approve, change or reject 500 credits per deep ELS matrix reading.
-- [ ] Approve, change or reject the 600-credit minimum monthly allowance candidate when one deep reading is promised.
+- [ ] Approve, change or reject the initial 5 / 15 / 60 / 120 / 500 fixed operation-price bands.
+- [ ] Approve, change or reject the recommended 600-credit monthly allowance.
+- [ ] Approve, change or reject allowance rollover up to 1,200 included credits, with purchased credits kept separately and not expiring.
 - [ ] Exact Free vs Member limits for ELS, Life Journey, Heichal and Raziel.
-- [ ] Whether annual members receive all credits upfront or monthly; monthly release is safer for cost and refunds.
+- [ ] Confirm monthly allowance release for annual members instead of granting 7,200 upfront.
 - [ ] Grace period after failed renewal.
 - [ ] Refund policy and effect on already-used credits.
 - [ ] Expiry and redemption mechanics for referral ILS credit.
