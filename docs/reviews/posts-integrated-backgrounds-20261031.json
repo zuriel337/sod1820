@@ -85,7 +85,8 @@
       "desktop_max_bytes": 60000,
       "selected_requests_per_night_post": 1,
       "selected_requests_in_day_or_parchment": 0,
-      "warm_requests_in_fixture": 0
+      "warm_requests_in_fixture": 0,
+      "cache_policy": "Eight exact content-hashed image paths only: public, max-age=31536000, immutable, appended after the catch-all revalidation header. All content/private routes unchanged."
     },
     "preview_guard": {
       "posts_branch": "read-only",
@@ -93,6 +94,14 @@
       "product_model_writes": "blocked",
       "calculation_reads": "permitted",
       "production_build": "explicitly rejected for this Posts Preview branch"
+    },
+    "complete_post_sweep": {
+      "tests": 125,
+      "pass": 125,
+      "fail": 0,
+      "skipped": 0,
+      "includes_browser": true,
+      "pending_final_rerun": true
     }
   },
   "baseline_failures": [
@@ -121,12 +130,12 @@
     "Existing generic prose and image calculations without exact source annotations are not newly decoded; absent native source anchors remain absent",
     "No post-specific background field or new series taxonomy was invented"
   ],
-  "release_advice": "DRAFT_PREVIEW_REVIEW_ONLY; no merge or Production authorization. Depends on the current elections/World integration base.",
+  "release_advice": "HOSTED_PREVIEW_READY; user visual review next. No merge or Production authorization.",
   "handoff_to": "ZURIEL",
   "baseline_failure_resolution": {
     "status": "RESOLVED_AS_OBSOLETE_SOURCE_ASSERTIONS",
-    "count": 5,
-    "change": "Verification files now assert the adopted single-bar, accessible search labels, current journey/personal affordances and anonymous Posts catalog; product UI and unrelated scopes unchanged",
+    "count": 6,
+    "change": "Verification files now assert the adopted single-bar, accessible search labels, current journey/personal affordances and anonymous Posts catalog; product UI and unrelated scopes unchanged; also refresh the pinned-rail predicate to its existing companionHasContext guard",
     "targeted_tests": 42,
     "result": "PASS"
   },

@@ -5,7 +5,7 @@
     "mobileMaxBytes": 30000,
     "desktopMaxBytes": 60000
   },
-  "runtimeRequirement": "Implemented: one selected responsive image, exact existing series membership, general fallback for absent/ambiguous membership; research reader mounts only on disclosure opening; existing image cache headers retained",
+  "runtimeRequirement": "One selected responsive background; exact existing series membership; general fallback for absent/ambiguous membership. Eight exact hashed image paths override the catch-all cache rule with one-year immutable caching; all other routes retain their existing policy. Research mounts only on first disclosure opening.",
   "artwork": [
     {
       "key": "general",

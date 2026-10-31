@@ -44,3 +44,15 @@ test('every shipped background variant matches its reviewed bytes, identity and 
     }
   }
 });
+
+test('versioned public backgrounds override the catch-all cache policy without caching content or private data',()=>{
+  const config=JSON.parse(readFileSync(new URL('../vercel.json',import.meta.url)));
+  const catchAll=config.headers.findLastIndex(rule=>rule.source==='/(.*)');
+  assert.ok(catchAll>=0);
+  for(const item of Object.values(POST_BACKGROUND_ASSETS_2029))for(const href of [item.mobile,item.desktop]){
+    const index=config.headers.findLastIndex(rule=>rule.source===href);
+    assert.ok(index>catchAll,`${href} must take precedence over the general revalidation rule`);
+    assert.deepEqual(config.headers[index].headers,[{key:'Cache-Control',value:'public, max-age=31536000, immutable'}]);
+    assert.match(href,/-[a-f0-9]{12}\.webp$/);
+  }
+});
