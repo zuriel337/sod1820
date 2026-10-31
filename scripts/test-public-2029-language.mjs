@@ -32,9 +32,12 @@ test("public 2029 copy has no forbidden internal labels", () => {
   }
 });
 
-test("command label is gated: public says חיפוש, Heichal keeps פקודה", () => {
+test("public header and command input expose accessible search labels", () => {
   const src = fs.readFileSync("src/components/experience2029/SystemFrame2029.jsx", "utf8");
-  assert.ok(src.includes('surface === "heichal" ? "פקודה" : "חיפוש"'));
+  // The adopted single bar opens the same search capability. A historical
+  // surface-dependent source expression is no longer the accessibility contract.
+  assert.match(src, /<input[\s\S]*?aria-label="חיפוש"/);
+  assert.match(src, /className="sod29-header-search"[^>]*aria-label="חיפוש"/);
   assert.ok(!src.includes("<small>פקודה</small>"));
 });
 

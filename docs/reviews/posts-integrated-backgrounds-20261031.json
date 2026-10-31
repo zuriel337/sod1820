@@ -86,6 +86,13 @@
       "selected_requests_per_night_post": 1,
       "selected_requests_in_day_or_parchment": 0,
       "warm_requests_in_fixture": 0
+    },
+    "preview_guard": {
+      "posts_branch": "read-only",
+      "Person_creation": "blocked",
+      "product_model_writes": "blocked",
+      "calculation_reads": "permitted",
+      "production_build": "explicitly rejected for this Posts Preview branch"
     }
   },
   "baseline_failures": [
@@ -110,11 +117,22 @@
     }
   ],
   "remaining": [
-    "Five inherited source-string assertions fail in shared-frame/catalog gates; unchanged shared files verified against the base; not weakened or repaired in this Post scope",
     "Hosted Preview, signed-in/admin/RLS flows, physical phone frame-rate and final visual acceptance remain unverified",
     "Existing generic prose and image calculations without exact source annotations are not newly decoded; absent native source anchors remain absent",
     "No post-specific background field or new series taxonomy was invented"
   ],
   "release_advice": "DRAFT_PREVIEW_REVIEW_ONLY; no merge or Production authorization. Depends on the current elections/World integration base.",
-  "handoff_to": "ZURIEL"
+  "handoff_to": "ZURIEL",
+  "baseline_failure_resolution": {
+    "status": "RESOLVED_AS_OBSOLETE_SOURCE_ASSERTIONS",
+    "count": 5,
+    "change": "Verification files now assert the adopted single-bar, accessible search labels, current journey/personal affordances and anonymous Posts catalog; product UI and unrelated scopes unchanged",
+    "targeted_tests": 42,
+    "result": "PASS"
+  },
+  "production_observation": {
+    "documented_legacy_pin": "dpl_46k9WvaD5QBUo969obYzJ7pKkNyq",
+    "observed_existing_legacy_alias_before": "dpl_AiKPHaoo5pxo9T5PFTpcBRG7LfMA",
+    "note": "Observed existing Legacy production differs from the older documented pin. No Production setting/alias/deployment changed; reconciliation is outside this Post scope."
+  }
 }
