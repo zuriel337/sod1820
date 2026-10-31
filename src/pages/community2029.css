@@ -1,5 +1,14 @@
 .sod29-community{width:min(1180px,calc(100% - 40px));margin:0 auto;padding:24px 0 120px;color:var(--s29-ink);font-family:var(--s29-font-body);font-size:18px}
 .sod29-community *{box-sizing:border-box}
+/* Reuse the adopted general Post artwork. The existing theme owns the veil;
+   decoration is scoped to the mounted Community and never captures input. */
+.sod29-community--artwork{--community-art-opacity:.68;--community-art-filter:none}
+.sod29-community--artwork::before,.sod29-community--artwork::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none}
+.sod29-community--artwork::before{background:url('/legacy-dark-bg-post-1280-6ca0167e2dda.webp') center/cover no-repeat;opacity:var(--community-art-opacity);filter:var(--community-art-filter)}
+.sod29-community--artwork::after{background:radial-gradient(ellipse 76% 95% at 50% 45%,color-mix(in srgb,var(--s29-page) 76%,transparent),color-mix(in srgb,var(--s29-page) 42%,transparent) 65%,transparent),linear-gradient(color-mix(in srgb,var(--s29-page) 20%,transparent),color-mix(in srgb,var(--s29-page) 38%,transparent))}
+html[data-theme-preset="light"] .sod29-community--artwork{--community-art-opacity:.2;--community-art-filter:grayscale(.7)}
+html[data-theme-preset="parchment"] .sod29-community--artwork{--community-art-opacity:.3;--community-art-filter:sepia(.65)}
+@media(max-width:760px){.sod29-community--artwork::before{background-image:url('/legacy-dark-bg-post-mobile-v2-720x1280-81d7bbed9769.webp')}}
 .sod29-community button,.sod29-community input,.sod29-community select,.sod29-community textarea{font:inherit}
 .sod29-community button{cursor:pointer}
 .sod29-community button:disabled{cursor:not-allowed;opacity:.55}
