@@ -5,7 +5,7 @@ import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience
 import SurfaceSectionNav2029 from "../components/experience2029/SurfaceSectionNav2029.jsx";
 import PostEvidenceMedia2029 from "../components/experience2029/PostEvidenceMedia2029.jsx";
 import PostTimeline2029 from "../components/experience2029/PostTimeline2029.jsx";
-import { fetchPost2029ReadingProjection, resolvePostReadingRegion, collectPostCalculationOccurrences2029, collectPostLegacyOccurrences2029, collectPostSourcePlacements2029, checkPostCalculation2029 } from "../lib/research/post2029ReadingProjection.js";
+import { fetchPost2029ReadingProjection, resolvePostReadingRegion, collectPostCalculationOccurrences2029, collectPostLegacyOccurrences2029, collectPostSourcePlacements2029, checkPostCalculation2029, revalidatePostMeasureSource, postReadingHtml2029 } from "../lib/research/post2029ReadingProjection.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { mergeContextPackWithConnections } from "../lib/research/goldenPostContextPacks.js";
 import { goldenPublicSurfaceFindings } from "../lib/research/goldenProjectorModes.js";
@@ -62,8 +62,10 @@ function PostReadingBody() {
   const [measureSource, setMeasureSource] = useState({ claims: [], placements: [] });
   const [calculationNotice, setCalculationNotice] = useState(null);
   const [calculationFeedbackHost, setCalculationFeedbackHost] = useState(null);
+  const [explorationOccurrence, setExplorationOccurrence] = useState(null);
   const calculationRequest = useRef(0);
   const sourceRef = useRef(null);
+  const sourcePointerActive = useRef(false);
   const researchRef = useRef(null);
   const [researchOpen, setResearchOpen] = useState(false);
   const [researchStarted, setResearchStarted] = useState(false);
@@ -73,6 +75,8 @@ function PostReadingBody() {
   entryRef.current = { context: research.context, hash: location.hash };
   const restoredRegionRef = useRef(null);
   const [state, setState] = useState({ loading: true, projection: null, error: null });
+  const passiveSourceHtml = useMemo(() => hardenPassiveMediaHtml(postReadingHtml2029(state.projection?.post?.content || "")),
+    [state.projection?.post?.content]);
   const [activeRegionId, setActiveRegionId] = useState(null);
   const [sourceUpdates, setSourceUpdates] = useState([]);
 
@@ -82,6 +86,7 @@ function PostReadingBody() {
     ++calculationRequest.current;
     setMeasureSource({ claims: [], placements: [] });
     setCalculationNotice(null);
+    setExplorationOccurrence(null);
     setResearchOpen(false);
     setResearchStarted(false);
     restoredRegionRef.current = null;
@@ -462,12 +467,13 @@ function PostReadingBody() {
   useEffect(() => {
     const sourcePost = state.projection?.sourcePost;
     let live = true;
-    setMeasureSource({ claims: collectPostCalculationOccurrences2029(sourcePost, sourceRef.current, { sourceProjection: state.projection }),
-      placements: collectPostSourcePlacements2029(sourcePost, sourceRef.current) });
+    setMeasureSource({ claims: [], placements: [] });
     void collectPostLegacyOccurrences2029(sourcePost, sourceRef.current).then(legacyOccurrences => {
-      if (live) setMeasureSource(current => ({ ...current, legacyOccurrences,
-        claims: [...current.claims, ...legacyOccurrences.filter(row => row.method && row.value != null)],
-      }));
+      if (live) setMeasureSource({ legacyOccurrences,
+        claims: [...collectPostCalculationOccurrences2029(sourcePost, sourceRef.current, { sourceProjection: state.projection }),
+          ...legacyOccurrences.filter(row => row.method && row.value != null)],
+        placements: collectPostSourcePlacements2029(sourcePost, sourceRef.current),
+      });
     }).catch(() => { /* Unsupported mapping fails closed; no inferred source claim. */ });
     return () => { live = false; };
   }, [state.projection]);
@@ -584,7 +590,7 @@ function PostReadingBody() {
     const bottomTrail = [{ id: "post", label: "פוסט" }, { id: "calculation", label: "טענת חישוב" }, { id: "number", label: String(focus.root), active: true }];
     explicitGematriaFocusRef.current = { postId: String(post.id), subject, selection, surfaceFocus, bottomTrail };
     const patch = { subject, selection, lens: "gematria", dimensions: { ...(current.dimensions || {}),
-      surfaceFocus, bottomTrail, postClaimBinding: claim.binding, postClaimResultMatch: result.resultMatch,
+      surfaceFocus, bottomTrail, postEngineExploration: false, postClaimBinding: claim.binding, postClaimResultMatch: result.resultMatch,
       postClaimSourceRef: claim.sourceRef, postClaimSourceVersion: claim.sourceVersion,
       postClaimLocator: claim.locator, postClaimMethodVersion: methodVersion,
       postClaimSteps: result.steps, postClaimSourceMethodVersion: claim.methodVersion, postClaimLanguage: claim.lang },
@@ -603,11 +609,13 @@ function PostReadingBody() {
   };
   const openPostSourceClaim = async claim => {
     const ticket = ++calculationRequest.current;
+    setExplorationOccurrence(null);
     setCalculationNotice("בודק את הביטוי, השיטה והמקור…");
     const result = await checkPostCalculation2029(projection.sourcePost, claim, {
       sourceProjection: projection, sourceDocument: sourceRef.current?.ownerDocument,
     });
     if (ticket !== calculationRequest.current) return;
+    if (result.status === "incomplete_claim" && claim?.expression && claim?.locator) setExplorationOccurrence(claim);
     if (result.status.startsWith("source_")) { invalidatePostSource(result.status); return; }
     if (result.status !== "ready") { setCalculationNotice(result.status === "incomplete_claim"
       ? "להופעה הזאת אין ביטוי, שיטה ותוצאה מתועדים במלואם. לא נבחרה שיטה אוטומטית."
@@ -615,6 +623,35 @@ function PostReadingBody() {
         ? "התוצאה במקור אינה תואמת לתוצאת המנוע בשיטה המתועדת. לא נבחרה שיטה חלופית."
         : "לא ניתן לפתוח את הטענה בשיטה ובגרסה שנבחרו. אין מעבר לשיטה חלופית."); return; }
     setCalculationNotice(null); openCheckedPostCalculation(result);
+  };
+  const openPostEngineExploration = async () => {
+    const occurrence = explorationOccurrence;
+    if (!occurrence) return;
+    const ticket = ++calculationRequest.current;
+    const access = await revalidatePostMeasureSource(projection.sourcePost);
+    if (ticket !== calculationRequest.current) return;
+    if (access.status !== "ready") { invalidatePostSource(access.status); return; }
+    const source = [...(sourceRef.current?.querySelectorAll("[id]") || [])].find(node => `#${node.id}` === occurrence.locator);
+    if (!source) return;
+    const dimensions = { ...(research.context?.dimensions || {}) };
+    for (const key of Object.keys(dimensions)) if (key.startsWith("postClaim")) dimensions[key] = null;
+    const selection = { entityId: occurrence.id, entityType: "post_occurrence", expression: occurrence.expression,
+      method: null, methodVersion: null, resultValue: null,
+      sourceRef: occurrence.sourceRef, locator: occurrence.locator, versionRef: occurrence.sourceVersion };
+    const patch = { subject: { id: occurrence.id, type: "phrase", label: occurrence.expression },
+      selection, lens: "gematria", dimensions: { ...dimensions, postEngineExploration: true,
+        surfaceFocus: { id: occurrence.id, type: "phrase", label: occurrence.expression, expression: occurrence.expression,
+          locator: occurrence.locator, sourceLabel: "בדיקה חדשה במנוע; אינה אימות של חישוב המקור" } },
+      returnTo: { ...exactReturnForRegion(activeFocus), href: `/post/${post.slug}${occurrence.locator}`, selection,
+        dimensions: { ...dimensions, postEngineExploration: false,
+          surfaceFocus: { id: occurrence.id, type: "post_occurrence", label: occurrence.expression, locator: occurrence.locator } } } };
+    explicitGematriaFocusRef.current = null;
+    try { window.history.replaceState(window.history.state, "", `${location.pathname}${location.search}${occurrence.locator}`); }
+    catch { /* Existing Research Context remains the return target. */ }
+    shell.openNumber?.({ id: occurrence.id, type: "phrase", label: occurrence.expression, expression: occurrence.expression,
+      href: `/post/${post.slug}${occurrence.locator}`, locator: occurrence.locator,
+      sourceLabel: "בדיקה חדשה במנוע; השיטה לא הושלמה מהמקור", source: "post-engine-exploration" });
+    research.updateResearchContext?.(patch);
   };
   const openMeasureConnection = (event, href, card) => {
     if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
@@ -939,9 +976,15 @@ function PostReadingBody() {
         ref={sourceRef}
         className="sod29-reading-source"
         aria-label="טקסט המקור"
+        onPointerDownCapture={() => { sourcePointerActive.current = true; }}
+        onPointerUpCapture={() => { sourcePointerActive.current = false; }}
+        onPointerCancel={() => { sourcePointerActive.current = false; }}
         onFocusCapture={event => {
           const control = event.target?.closest?.("[data-gem],[data-expression]");
           if (!control || !event.currentTarget.contains(control)) return;
+          // Pointer-down focus must not move the target before pointer-up/click.
+          // Keyboard and programmatic return still receive visibility restoration.
+          if (sourcePointerActive.current) return;
           // A restored focus may use preventScroll while the Frame closes.
           // Keep the source control clear of its existing header/island margins.
           const box = control.getBoundingClientRect(), style = getComputedStyle(control);
@@ -953,19 +996,23 @@ function PostReadingBody() {
         }}
         onClick={handleSourceContextualFocus}
         onKeyDown={(event) => {
+          sourcePointerActive.current = false;
           if ((event.key === "Enter" || event.key === " ") && event.target?.matches?.('[data-gem][role="button"],[data-expression][role="button"]')) {
             event.preventDefault();
             handleSourceContextualFocus(event);
           }
         }}
-        dangerouslySetInnerHTML={{ __html: hardenPassiveMediaHtml(post.content || "") }}
+        dangerouslySetInnerHTML={{ __html: passiveSourceHtml }}
       />
 
 
     </div>
 
     {calculationNotice ? (calculationFeedbackHost
-      ? createPortal(<p role="status">{calculationNotice}</p>, calculationFeedbackHost)
+      ? createPortal(<><p role="status">{calculationNotice}</p>{explorationOccurrence ? <div className="sod29-post-engine-exploration">
+        <p>אפשר לבדוק את הביטוי מחדש במנוע. זו בדיקה נוספת, ואינה משלימה את התיעוד או מאמתת את חישוב המקור.</p>
+        <button type="button" onClick={openPostEngineExploration}>בדיקה חדשה במנוע</button>
+      </div> : null}</>, calculationFeedbackHost)
       : <p role="status">{calculationNotice}</p>) : null}
     <details ref={researchRef} open={researchOpen} className="sod29-post-research" id="post-research"
       data-experience-capability="post-sources-and-connections"

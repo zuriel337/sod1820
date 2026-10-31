@@ -1,0 +1,436 @@
+{
+  "status": "IMPLEMENTED_TESTED_PR_READY_PROTECTED_PREVIEW_PENDING",
+  "actor": "GPT",
+  "handoff_to": "ZURIEL",
+  "base": "cf033b8a25afbee8ff9321a7e416d4937f662828",
+  "branch": "gpt/posts-integrated-backgrounds-20261030",
+  "remote_main_observed": "2195c9784c5c9f0b1ec3cd3c1137fbd76045845b",
+  "world_branch_observed": "c6a1a43722604d677f7676b039f470d8ce4f0b5e",
+  "canonical_law": {
+    "id": 18,
+    "body_md5": "05b73b416ab47804c9a0c807250b16f7"
+  },
+  "ownership": {
+    "parent_user_claim": "86192c3f-d98b-41d5-86d1-c7ab73e2b0b7",
+    "scoped_reader_style_claim": "42a94662-ebea-4a02-8c14-6d70e85b9e8a",
+    "after_release": "To be recorded after exact protected Preview verification; no release asserted yet"
+  },
+  "repairs": {
+    "source_bound_occurrences": {
+      "before": 272,
+      "after": 1653
+    },
+    "posts_with_source_bound_occurrences": {
+      "before": 20,
+      "after": 202
+    },
+    "matched_engine_profile_results": {
+      "before": 29,
+      "after": 71
+    },
+    "unresolved_player_notes_treated_as_methods": {
+      "before": 4,
+      "after": 0
+    },
+    "posts_with_duplicate_source_ids": 29,
+    "rendered_duplicate_ids_remaining": 0,
+    "normalized_duplicate_nodes": 55,
+    "readability_floor_nodes": 474,
+    "honest_missing_image_description_fallbacks": 3127,
+    "all_authored_gematria_boxes_share_post_style": true,
+    "body_md5_manifest_unchanged": "30e76cf6fe7edd03d947b2e3a65eb8d0"
+  },
+  "current_series": {
+    "general": 1118,
+    "sod-hashmal": 133,
+    "dimension-five": 24,
+    "mah-kore-habora": 7
+  },
+  "readings": {
+    "convergence": {
+      "belongs_to": "Individual convergence card",
+      "source": "topic_cards_public approved rows after existing doNotPublish/access gate",
+      "post_binding": "Shared numeric tag, explicitly indirect; stable source order; no highest-score choice",
+      "checked": "Existing list/pagination/selected-card return/source revocation; snapshot reader on all public Post rows",
+      "missing": "Corpus-wide admitted graph adjacency/other relation paths not asserted"
+    },
+    "quality": {
+      "belongs_to": "Rated card only",
+      "source": "Existing card quality field; null retained",
+      "post_binding": "Displayed only with the selected relevant card; no Post/finding inheritance",
+      "checked": "Missing rating remains missing; no score-to-Gold/Diamond conversion",
+      "missing": "No new Post Gold/Diamond curation or whole-corpus editorial assessment"
+    },
+    "coverage": {
+      "belongs_to": "Six separate bounded research checks for each Post",
+      "source": "Existing Post/card/source-group and occurrence readers",
+      "post_binding": "Per-Post source access and snapshot; exact artifact refs retain all placements",
+      "checked": "Six states with scope/missing; same body/tags share a group; repeated refs do not become independent evidence",
+      "missing": "Image/video semantic extraction, copies with different IDs/URLs and all independent-source assessment"
+    },
+    "calculation": {
+      "belongs_to": "Specific located authored calculation/expression occurrence",
+      "source": "Original saved data-gem/data-expression, explicit authored box schema or the existing complete-equality adapter, then canonical profile/registry",
+      "post_binding": "Exact spelling, source SHA256, source version/ordinal and native or explicitly snapshot-bound locator",
+      "checked": "71 documented method/value results match; unknown methods never auto-filled; new engine exploration is explicit and separate; exact return/new-after-build tested",
+      "missing": "1582 parsed expressions lack complete documented source method context; trace steps, interpretation/event relation and historical method version are not certified"
+    }
+  },
+  "post5129": {
+    "before": {
+      "id": 5129,
+      "slug": "old-timeline-complete-new-self-dim5",
+      "title": "ציר הזמן הישן הושלם — אתה לא נכנס לפרק חדש, אלא לעצמי חדש | מימד חמש",
+      "author": "manifestaffirms",
+      "authors": null,
+      "categories": [
+        "מימד חמש",
+        "וידאו"
+      ],
+      "tags": [
+        "מימד חמש",
+        "וידאו",
+        "תודעה",
+        "זהות",
+        "התעוררות",
+        "תדר"
+      ],
+      "date": "2026-10-30 14:09:15.871898+00",
+      "modified": "2026-10-30 14:11:23.362233+00",
+      "source_content_md5": "fc6dfbd4be2ae6daab014826709ad618",
+      "home_hidden": false,
+      "source": "ai"
+    },
+    "after": {
+      "id": 5129,
+      "slug": "old-timeline-complete-new-self-dim5",
+      "title": "ציר הזמן הישן הושלם — אתה לא נכנס לפרק חדש, אלא לעצמי חדש | מימד חמש",
+      "author": "בדרך לנצח",
+      "authors": null,
+      "categories": [
+        "מימד חמש",
+        "וידאו"
+      ],
+      "tags": [
+        "מימד חמש",
+        "וידאו",
+        "תודעה",
+        "זהות",
+        "התעוררות",
+        "תדר"
+      ],
+      "date": "2026-10-30 14:09:15.871898+00",
+      "modified": "2026-10-31 03:56:34.768416+00",
+      "source_content_md5": "fc6dfbd4be2ae6daab014826709ad618",
+      "home_hidden": false,
+      "source": "ai"
+    },
+    "authorization": "ZURIEL explicitly approved live correction for Post5129 only on31.10.2026",
+    "claim_id": "60c827ea-8efc-429b-85a6-8213c77634f5",
+    "after_release_id": "4af9bc55-1361-477e-b01c-7fef941009f5",
+    "verified_changed_fields": [
+      "author",
+      "modified"
+    ]
+  },
+  "performance": [
+    "Authored HTML/CSS containment is memoized per source body, not rerun for Context/selection renders",
+    "Source-witness DOM uses inert documents and starts no media requests",
+    "Existing progressive research reader stays lazy; no new engine/cache/store/graph or runtime audit-ID list",
+    "Images decode asynchronously and load lazily; external Legacy plugin styles/spinners do not load into the shell; canonical media guard is retained"
+  ],
+  "verification": {
+    "node_tests": {
+      "pass": 128,
+      "fail": 0,
+      "skip": 0
+    },
+    "built_browser_suites": {
+      "pass": 2,
+      "fail": 0,
+      "skip": 0
+    },
+    "new_empty_id_targeted_browser_check": "PASS",
+    "actual_local_readonly_app": {
+      "scope": "Actual local read-only App2029/Frame with live public Post sources and canonical engine; no model/product writes",
+      "results": [
+        {
+          "id": 5105,
+          "width": 320,
+          "theme": "light",
+          "metrics": {
+            "titleAlign": "center",
+            "duplicates": 0,
+            "overflow": false,
+            "background": "dimension-five",
+            "boxStyles": [
+              {
+                "label": "\"טענת הפוסט\"",
+                "titleAlign": "center"
+              }
+            ],
+            "imageFallbacks": 0
+          },
+          "calculation": {
+            "expression": "גבורה",
+            "value": 216,
+            "identity": "גבורה\nרגיל\n216"
+          },
+          "errors": [],
+          "blocked": [],
+          "blockedMedia": []
+        },
+        {
+          "id": 5105,
+          "width": 390,
+          "theme": "parchment",
+          "metrics": {
+            "titleAlign": "center",
+            "duplicates": 0,
+            "overflow": false,
+            "background": "dimension-five",
+            "boxStyles": [
+              {
+                "label": "\"טענת הפוסט\"",
+                "titleAlign": "center"
+              }
+            ],
+            "imageFallbacks": 0
+          },
+          "calculation": {
+            "expression": "גבורה",
+            "value": 216,
+            "identity": "גבורה\nרגיל\n216"
+          },
+          "errors": [],
+          "blocked": [],
+          "blockedMedia": []
+        },
+        {
+          "id": 5105,
+          "width": 1440,
+          "theme": "dark",
+          "metrics": {
+            "titleAlign": "center",
+            "duplicates": 0,
+            "overflow": false,
+            "background": "dimension-five",
+            "boxStyles": [
+              {
+                "label": "\"טענת הפוסט\"",
+                "titleAlign": "center"
+              }
+            ],
+            "imageFallbacks": 0
+          },
+          "calculation": {
+            "expression": "גבורה",
+            "value": 216,
+            "identity": "גבורה\nרגיל\n216"
+          },
+          "errors": [],
+          "blocked": [],
+          "blockedMedia": []
+        },
+        {
+          "id": 5005,
+          "width": 390,
+          "theme": "dark",
+          "metrics": {
+            "titleAlign": "center",
+            "duplicates": 0,
+            "overflow": false,
+            "background": "general",
+            "boxStyles": [
+              {
+                "label": "\"טענת הפוסט\"",
+                "titleAlign": "center"
+              }
+            ],
+            "imageFallbacks": 0
+          },
+          "calculation": {
+            "expression": "אורו של מלך המשיח",
+            "value": 996,
+            "identity": "אורו של מלך המשיח\nרגיל\n996"
+          },
+          "errors": [],
+          "blocked": [],
+          "blockedMedia": []
+        },
+        {
+          "id": 2600,
+          "width": 390,
+          "theme": "light",
+          "metrics": {
+            "titleAlign": "center",
+            "duplicates": 0,
+            "overflow": false,
+            "background": "general",
+            "boxStyles": [
+              {
+                "label": "\"טענת הפוסט\"",
+                "titleAlign": "center"
+              }
+            ],
+            "imageFallbacks": 1
+          },
+          "calculation": {
+            "expression": "ההסכם שלשים לשישי יכשל",
+            "value": 1820,
+            "identity": "ההסכם שלשים לשישי יכשל\nרגיל\n1820"
+          },
+          "errors": [],
+          "blocked": [],
+          "blockedMedia": []
+        },
+        {
+          "id": 5031,
+          "width": 1440,
+          "theme": "parchment",
+          "metrics": {
+            "titleAlign": "center",
+            "duplicates": 0,
+            "overflow": false,
+            "background": "general",
+            "boxStyles": [
+              {
+                "label": "\"טענת הפוסט\"",
+                "titleAlign": "center"
+              }
+            ],
+            "imageFallbacks": 0
+          },
+          "calculation": {
+            "expression": "אירן",
+            "value": 261,
+            "identity": "אירן\nרגיל\n261"
+          },
+          "errors": [],
+          "blocked": [],
+          "blockedMedia": []
+        },
+        {
+          "id": 5018,
+          "width": 390,
+          "theme": "light",
+          "metrics": {
+            "titleAlign": "center",
+            "duplicates": 0,
+            "overflow": false,
+            "background": "general",
+            "boxStyles": [],
+            "imageFallbacks": 0
+          },
+          "calculation": null,
+          "errors": [],
+          "blocked": [],
+          "blockedMedia": []
+        },
+        {
+          "id": 233,
+          "width": 390,
+          "theme": "dark",
+          "metrics": {
+            "titleAlign": "center",
+            "duplicates": 0,
+            "overflow": false,
+            "background": "general",
+            "boxStyles": [],
+            "imageFallbacks": 100
+          },
+          "calculation": null,
+          "errors": [],
+          "blocked": [],
+          "blockedMedia": []
+        },
+        {
+          "id": 5004,
+          "width": 390,
+          "theme": "dark",
+          "metrics": {
+            "titleAlign": "center",
+            "duplicates": 0,
+            "overflow": false,
+            "background": "general",
+            "boxStyles": [],
+            "imageFallbacks": 0
+          },
+          "calculation": null,
+          "errors": [],
+          "blocked": [],
+          "blockedMedia": []
+        },
+        {
+          "id": 5129,
+          "width": 390,
+          "theme": "dark",
+          "metrics": {
+            "titleAlign": "center",
+            "duplicates": 0,
+            "overflow": false,
+            "background": "dimension-five",
+            "boxStyles": [],
+            "imageFallbacks": 0
+          },
+          "calculation": null,
+          "errors": [],
+          "blocked": [],
+          "blockedMedia": []
+        },
+        {
+          "id": 938,
+          "width": 390,
+          "theme": "light",
+          "metrics": {
+            "titleAlign": "center",
+            "duplicates": 0,
+            "overflow": false,
+            "background": "general",
+            "boxStyles": [],
+            "imageFallbacks": 0
+          },
+          "calculation": null,
+          "errors": [],
+          "blocked": [],
+          "blockedMedia": []
+        }
+      ]
+    },
+    "corpus": {
+      "public_posts": 1282,
+      "body_manifest_exact_match": true,
+      "browser_external_requests": 0,
+      "all_raw_source_bodies_unchanged": true
+    },
+    "builds": [
+      "Legacy PASS",
+      "2029 PASS",
+      "Read-only integrated Preview PASS"
+    ],
+    "gates": [
+      "2029 isolation",
+      "built graph",
+      "cheap hardening",
+      "Experience Context",
+      "Post characters",
+      "Legacy Production lock"
+    ]
+  },
+  "limits": [
+    "The readable Post projection is not a replacement HTML security sanitizer; existing publishing trust/access owners remain",
+    "Public corpus structural/source binding sweep is complete; this is not semantic/OCR/video/trace/whole-graph truth acceptance",
+    "Viewport tests are Chromium; physical phone/frame rate, signed-in/admin/RLS and screen-reader acceptance are not newly certified",
+    "Hosted visual browser acceptance is not asserted; exact hosted identity/HTTP checks follow publication"
+  ],
+  "unchanged_scopes": [
+    "Home",
+    "World/Topic/Gallery/categories",
+    "global Frame/bars/rails/Providers",
+    "global typography/palette",
+    "canonical engines",
+    "main",
+    "Production deployment"
+  ],
+  "product_writes": "Only explicitly approved Post5129 author+modified, with normal revision trigger. No other live product writes."
+}

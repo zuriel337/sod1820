@@ -1344,6 +1344,18 @@
 .sod29-reading-source p{text-align:start!important}
 .sod29-reading-source :is(blockquote,.sod-verse) p{text-align:inherit!important}
 .sod29-reading-source p:is(.sod-verse,.sod29-gematria-line){text-align:center!important}
+.sod29-reading-source :is(h1,h2,h3,h4,h5,h6){text-align:start!important}
+.sod29-reading-source :is(blockquote,.sod-verse,.sod29-gematria-line,.sod-poem,[data-content-role="poem"]) :is(h1,h2,h3,h4,h5,h6,p){text-align:inherit!important}
+.sod29-reading-source :is(h1,h2,h3,h4,h5,h6).sod29-gematria-line{text-align:center!important}
+.sod29-reading-source [data-post-equation-line="true"]{text-align:center!important}
+.sod29-reading-source [data-post-text-floor="micro"]{font-size:var(--s29-type-micro,14px)!important;line-height:1.5!important}
+.sod29-reading-source [data-post-text-floor="supporting"]{font-size:max(15px,var(--s29-type-micro,14px))!important;line-height:1.7!important}
+.sod29-reading-source :is(img,video,iframe){max-inline-size:100%!important;box-sizing:border-box}
+.sod29-reading-source table{max-inline-size:100%;display:block;overflow-x:auto}
+.sod29-reading-source :is([data-gem],[data-expression]):is(button,a,[role="button"]){display:inline-flex;align-items:center;min-block-size:44px;min-inline-size:44px;max-inline-size:100%;box-sizing:border-box;white-space:normal;vertical-align:baseline}
+.sod29-post-engine-exploration{padding:12px;border:1px solid var(--s29-line);border-radius:12px;margin-block:8px 16px}
+.sod29-post-engine-exploration p{font-size:15px!important;line-height:1.7!important;color:var(--s29-muted)}
+.sod29-post-engine-exploration button{font:inherit;font-size:var(--s29-type-ui,16px);min-block-size:44px;padding:8px 14px;color:var(--s29-accent-text);background:var(--s29-panel);border:1px solid var(--s29-line);border-radius:10px}
 #post-sources{scroll-margin-top:120px}
 @media(max-width:620px){.sod29-post-continuation-grid{grid-template-columns:1fr}.sod29-post-continuation{padding:20px}}
 
@@ -1438,7 +1450,7 @@ html[data-theme-preset="dark"] .sod29-reading-post{--post-link-a:#FFE23A;--post-
 /* One metadata row, with help depth below it. Flatten only the existing portal
    wrappers so opening an explanation cannot move its trigger or hide metadata. */
 .sod29-reading-hero-copy{display:grid;grid-template-columns:minmax(0,1fr) fit-content(50%);align-items:center;gap:4px 12px}
-.sod29-reading-hero-copy>h1{grid-column:1 / -1;grid-row:1;min-width:0}
+.sod29-reading-hero-copy>h1{grid-column:1 / -1;grid-row:1;min-width:0;inline-size:100%;justify-self:center;text-align:center;margin-inline:auto}
 .sod29-reading-hero-copy>.sod29-post-details{grid-column:1;grid-row:2;min-width:0}
 .sod29-reading-hero-copy>.sod29-orientation-host,
 .sod29-reading-hero-copy>.sod29-orientation-host>.sod29-entry-orientation-slot.is-in-header,
@@ -1460,7 +1472,7 @@ html[data-theme-preset="dark"] .sod29-reading-post{--post-link-a:#FFE23A;--post-
   appearance:none;-webkit-appearance:none;background:transparent!important;border:0!important;box-shadow:none!important;border-radius:6px;
   padding:0 .12em;margin:0;font:inherit;font-weight:inherit;cursor:pointer;
   text-decoration:underline dotted currentColor;text-underline-offset:.28em;
-  display:inline;min-height:0;line-height:inherit;
+  display:inline-flex;align-items:center;min-height:44px;min-inline-size:44px;max-inline-size:100%;line-height:inherit;
 }
 .sod29-reading-source :is(button.sod29-gematria-expression,button.sod29-gematria-value:not(.sod29-gematria-hero),button[data-gem]:not(.sod29-gematria-hero),span[data-gem][role="button"]):hover{background:color-mix(in srgb,var(--s29-accent) 8%,transparent)!important}
 .sod29-reading-source :is(button.sod29-gematria-expression,button.sod29-gematria-value:not(.sod29-gematria-hero),button[data-gem]:not(.sod29-gematria-hero),span[data-gem][role="button"]):focus-visible{outline:2px solid var(--s29-focus-ring,var(--s29-accent));outline-offset:3px}

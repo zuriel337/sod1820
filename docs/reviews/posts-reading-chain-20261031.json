@@ -1959,5 +1959,16 @@
     "incomplete_occurrences": 239,
     "runtime_changed": false,
     "production_changed": false
+  },
+  "repair_chain_followup": {
+    "status": "IMPLEMENTED_TESTED_PR_READY_PROTECTED_PREVIEW_PENDING",
+    "receipt": "posts-repair-chain-20261031.json",
+    "public_posts": 1282,
+    "located_expressions": 1653,
+    "matched_profile_results": 71,
+    "source_method_not_invented": true,
+    "post5129_correction_applied": true,
+    "ownership_parent": "86192c3f-d98b-41d5-86d1-c7ab73e2b0b7",
+    "hosted_preview_pending": true
   }
 }

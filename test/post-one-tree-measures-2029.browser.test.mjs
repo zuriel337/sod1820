@@ -213,6 +213,35 @@ test('built Post: adopted design, bounded backgrounds, lazy research, exact retu
       assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);await context.close();
     }
     writeFileSync(join(artifacts,'reading-alignment.json'),JSON.stringify(layoutResults,null,2));
+    // A future ordinary Post gets the SAME box reader/styles, with no series or
+    // ID-list entry. Duplicate IDs and a missing image description stay source
+    // provenance; presentation return targets are unique and source-bound.
+    for(const [width,theme]of [[320,'light'],[390,'parchment'],[1440,'dark']]){
+      const context=await browser.newContext({viewport:{width,height:900},reducedMotion:'reduce'}),page=await context.newPage();
+      await context.addInitScript(()=>{
+        sessionStorage.setItem('fixture-post-overrides',JSON.stringify({slug:'ordinary-future-post',author:'מערכת',categories:[],content:'<h2 id="repeat" style="text-align:center">פרק ראשון</h2><p style="font-size:9px">הערת מקור קטנה</p><h2 id="repeat" style="text-align:center">פרק שני</h2><div class="sod-gematria-box"><div class="gb-title">🔢 גימטריה — טענת המקור</div><div class="gb-rows"><div><b>216</b> = גבורה</div></div><div class="gb-note">השוויון בגימטריה רגילה אומת במנוע. זהו חישוב ולא הוכחת משמעות.</div></div>'}));
+        window.__profiles={'גבורה':[{method_key:'רגיל',computed_value:216,definition_version:1}],'לב':[{method_key:'רגיל',computed_value:32,definition_version:1}]};
+      });
+      await page.goto(origin+'/post/ordinary-future-post?theme='+theme);
+      const expression=page.getByRole('button',{name:'גבורה',exact:true});await expression.waitFor();
+      assert.equal(await page.locator('article').getAttribute('data-post-character'),'plain');
+      const metrics=await page.evaluate(()=>{
+        const css=selector=>getComputedStyle(document.querySelector(selector));
+        const box=document.querySelector('.sod-gematria-box'),button=box.querySelector('button'),b=button.getBoundingClientRect();
+        const ids=[...document.querySelectorAll('.sod29-reading-source [id]')].map(node=>node.id);
+        return {title:css('.sod29-reading-hero h1').textAlign,heading:css('.sod29-reading-source h2').textAlign,boxTitle:css('.gb-title').textAlign,boxTitleSize:parseFloat(css('.gb-title').fontSize),small:parseFloat(css('[data-post-text-floor]').fontSize),button:{width:b.width,height:b.height},idsUnique:new Set(ids).size===ids.length,overflow:document.documentElement.scrollWidth>innerWidth};
+      });
+      assert.equal(metrics.title,'center');assert.ok(['start','right'].includes(metrics.heading));assert.equal(metrics.boxTitle,'center');assert.ok(metrics.boxTitleSize>=16&&metrics.small>=14);assert.ok(metrics.button.width>=44&&metrics.button.height>=44,JSON.stringify(metrics));assert.equal(metrics.idsUnique,true);assert.equal(metrics.overflow,false);
+      await expression.click();await page.getByRole('dialog').waitFor();
+      assert.equal(await page.evaluate(()=>window.__researchContext.selection.method),'רגיל');assert.equal(await page.evaluate(()=>window.__researchContext.dimensions.postClaimBinding),'authored_gematria_box');
+      const anchor=await expression.getAttribute('id');await page.getByRole('button',{name:'סגירה וחזרה למקור'}).click();await page.waitForFunction(id=>document.activeElement?.id===id,anchor);
+      await page.reload();await page.waitForFunction(id=>document.activeElement?.id===id,anchor);
+      await page.screenshot({path:join(artifacts,'ordinary-box-'+width+'-'+theme+'.png')});
+      await openResearch(page);
+      await page.evaluate(()=>{window.__post.content+='<div class="sod-gematria-box"><div class="gb-title">ממצא שנוסף</div><div class="gb-rows"><div><b>32</b> = לב</div></div><div class="gb-note">השוויון בגימטריה רגילה אומת.</div></div>';window.__post.modified='2026-10-31T03:00:00Z';});
+      await page.getByRole('button',{name:'רענון מהמקור'}).click();await page.getByRole('button',{name:'לב',exact:true}).click();await page.getByRole('dialog').waitFor();assert.equal(await page.evaluate(()=>window.__researchContext.selection.resultValue),32);
+      await context.close();
+    }
     if(process.env.POST_LEGACY_AUDIT_SOURCE){
       const source=JSON.parse(readFileSync(process.env.POST_LEGACY_AUDIT_SOURCE,'utf8'));
       const context=await browser.newContext(),page=await context.newPage();
@@ -339,16 +368,21 @@ test('built Post: adopted design, bounded backgrounds, lazy research, exact retu
       const before=await page.evaluate(()=>window.__rpcs.length);
       await page.locator('#missing').click();await page.getByRole('status').filter({hasText:'לא נבחרה שיטה אוטומטית'}).waitFor();assert.equal(await page.getByRole('dialog').count(),0);
       assert.equal(await page.evaluate(()=>window.__rpcs.length),before,'Missing method never starts an automatic calculation');
+      await page.getByRole('button',{name:'בדיקה חדשה במנוע',exact:true}).click();await page.getByRole('dialog').waitFor();
+      const exploration=await page.evaluate(()=>window.__researchContext);
+      assert.equal(exploration.dimensions.postEngineExploration,true);assert.ok(exploration.dimensions.postClaimResultMatch==null);
+      assert.equal(exploration.selection.expression,'עולם המחשבה');assert.ok(exploration.selection.method==null);assert.ok(exploration.selection.resultValue==null);
+      await page.getByRole('button',{name:'סגירה וחזרה למקור'}).click();await page.waitForFunction(()=>document.activeElement?.id==='missing');
       await page.evaluate(()=>{
-        window.__post.content+='<div><strong id="future-method" data-gem="אני גואלך">אני גואלך</strong> = 2000 (שיטה שהתווספה)</div>';
+        window.__post.content+='<div><strong id="future-method" data-gem="אני גואלך">אני גואלך</strong> = 2000 (שיטה שהתווספה2029)</div>';
         window.__post.modified='2026-10-31T02:00:00Z';
-        window.__profiles['אני גואלך'].push({method_key:'שיטה שהתווספה',computed_value:2000,definition_version:3});
-        window.__registry.push({method_key:'שיטה שהתווספה',display_label:'שיטה שהתווספה'});
+        window.__profiles['אני גואלך'].push({method_key:'שיטה שהתווספה2029',computed_value:2000,definition_version:3});
+        window.__registry.push({method_key:'שיטה שהתווספה2029',display_label:'שיטה שהתווספה2029'});
         window.__goFixture('/topic/new-source');
       });
       await page.getByRole('heading',{name:'כרטיס התכנסות',exact:true}).waitFor();
       await page.evaluate(()=>window.__goFixture('/post/future-source'));await page.locator('#future-method').click();
-      await page.getByRole('dialog').waitFor();assert.equal(await page.evaluate(()=>window.__researchContext.selection.method),'שיטה שהתווספה');
+      await page.getByRole('dialog').waitFor();assert.equal(await page.evaluate(()=>window.__researchContext.selection.method),'שיטה שהתווספה2029');
       await page.getByRole('button',{name:'סגירה וחזרה למקור'}).click();await page.waitForFunction(()=>document.activeElement?.id==='future-method');
       const privacy=await page.evaluate(async()=>{
         const source={...window.__post},root=document.createElement('div');root.innerHTML=source.content;
