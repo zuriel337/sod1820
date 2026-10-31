@@ -281,3 +281,29 @@ test('reviewed public reply reads require exact projection and a server-confirme
  for(const workerSource of [worker,managementWorker(),managementWorker(publishingBranch,'production')])assert.equal((await request(path,{...options,workerSource})).status,403);
  for(const wrong of ['/rest/v1/rpc/community_replies_page?select=*',path+'&extra=1','/rest/v1/rpc/community_reply_counts'])assert.equal((await request(wrong,options)).status,403);
 });
+
+test('exact unified Community integration composes reviewed actions with central Raziel without widening other previews',async()=>{
+ const branch='gpt/2029-unified-community-latest-integration-20261031',current=managementWorker(branch);
+ const fields='id,parent_id,author_name,author_user_id,author_contributor_id,title,body,reactions,origin,created_at,edited_at,is_deleted,total_count';
+ const path='/rest/v1/rpc/community_replies_page?select='+encodeURIComponent(fields),body={p_parent:managementId,p_offset:0,p_limit:20};
+ for(const[rpc,args]of managementCalls)assert.deepEqual(await request('/rest/v1/rpc/'+rpc,{workerSource:current,headers:managementHeaders,body:args}),{status:200,forwarded:1,blocked:null});
+ assert.deepEqual(await request(path,{workerSource:current,body}),{status:200,forwarded:2,blocked:null});
+ assert.deepEqual(await request(path,{workerSource:current,body,replyContext:[]}),{status:200,forwarded:1,blocked:null});
+ assert.equal((await request(path,{workerSource:current,body,contextStatus:503})).status,503);
+ const avatar={origin:'https://preview.invalid',workerSource:current,headers:managementHeaders,body:{action:'avatar',url:'https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/avatars/'+managementId+'-1761868800000.png',ack:true,publish:true}};
+ assert.equal((await request('/api/contributor-self',avatar)).status,200);
+ for(const invalid of [{...avatar.body,action:'create'},{...avatar.body,user_id:managementId},{...avatar.body,publish:false}])assert.equal((await request('/api/contributor-self',{...avatar,body:invalid})).status,403);
+ const chat={kind:'research',persona:'raziel',subject:'מה אפשר לחקור כאן?',research_contract:'public-number-research-run-v1'};
+ assert.deepEqual(await request('/functions/v1/ai-analyze',{workerSource:current,headers:managementHeaders,body:chat}),{status:200,forwarded:1,blocked:null});
+ for(const extras of [{els_matrix_reading_action:{op:'start'}},{els_matrix_context:{}},{operation:'publish'}])assert.equal((await request('/functions/v1/ai-analyze',{workerSource:current,headers:managementHeaders,body:{...chat,...extras}})).status,403);
+ for(const rpc of ['research_state_apply_v1','fn_get_or_create_my_person','dm_thread','community_reply_counts'])assert.equal((await request('/rest/v1/rpc/'+rpc,{workerSource:current,headers:managementHeaders,body:{}})).status,403,rpc);
+ for(const wrong of ['/rest/v1/rpc/community_replies_page?select=*',path+'&select=*',path+'&private=1'])assert.equal((await request(wrong,{workerSource:current,body})).status,403);
+ for(const denied of [managementWorker(branch,'production'),managementWorker(branch,'development'),managementWorker('gpt/unreviewed-community-preview'),managementWorker(branch+'-other')]){
+  assert.equal((await request('/rest/v1/rpc/community_edit_message',{workerSource:denied,headers:managementHeaders,body:{p_id:managementId,p_body:'בדיקה'}})).status,403);
+  assert.equal((await request(path,{workerSource:denied,body})).status,403);
+  assert.equal((await request('/api/contributor-self',{...avatar,workerSource:denied})).status,403);
+  assert.equal((await request('/functions/v1/ai-analyze',{workerSource:denied,headers:managementHeaders,body:chat})).status,403);
+ }
+ const productionGuard=builder.slice(builder.indexOf('const END_TO_END_BRANCH'),builder.indexOf('const POSTS_PREVIEW_BRANCH'));
+ assert.throws(()=>vm.runInNewContext(productionGuard,{process:{env:{VERCEL_GIT_COMMIT_REF:branch,VERCEL_ENV:'production'}}}),/unified_preview_is_never_production/);
+});

@@ -7,8 +7,8 @@ import { COMMUNITY_UPLOAD_POLICY } from "../src/lib/community/communityUploadPol
 import { AVATAR_UPLOAD_POLICY } from "../src/lib/userCenter/avatarPolicy.js";
 import { execFileSync } from "node:child_process";
 
-const END_TO_END_BRANCH = "gpt/2029-unified-end-to-end-preview-20261031";
-if (process.env.VERCEL_GIT_COMMIT_REF === END_TO_END_BRANCH && process.env.VERCEL_ENV === "production") {
+const END_TO_END_BRANCH = "gpt/2029-unified-community-latest-integration-20261031";
+if ([END_TO_END_BRANCH, "gpt/2029-unified-end-to-end-preview-20261031"].includes(process.env.VERCEL_GIT_COMMIT_REF) && process.env.VERCEL_ENV === "production") {
   throw new Error("unified_preview_is_never_production");
 }
 
@@ -33,23 +33,24 @@ const allow = ["gematria_api", "fn_method_value", "fn_method_profile", "gematria
 // One explicit, authenticated user turn may reach the EXISTING live server.
 // This is not an Edge rollout, matrix job allowance or product-write exemption.
 const realRazielPreview = typeof process !== "undefined" && process.env.VERCEL_ENV === "preview"
-  && process.env.VERCEL_GIT_COMMIT_REF === "gpt/2029-unified-end-to-end-preview-20261031";
+  && ["gpt/2029-unified-end-to-end-preview-20261031", "gpt/2029-unified-community-latest-integration-20261031"].includes(process.env.VERCEL_GIT_COMMIT_REF);
 const endToEndReadOnly = typeof process !== "undefined"
-  && process.env.VERCEL_GIT_COMMIT_REF === "gpt/2029-unified-end-to-end-preview-20261031";
+  && ["gpt/2029-unified-end-to-end-preview-20261031", "gpt/2029-unified-community-latest-integration-20261031"].includes(process.env.VERCEL_GIT_COMMIT_REF);
 // The Preview is restricted to existing accounts. This identity RPC is forwarded so an
 // already-linked account can recover its canonical Person ref; every Person/Family upsert
 // remains blocked below. The approved owner's Person exists before this disposable build.
 const existingPersonAccess = "fn_get_or_create_my_person";
 // Match the existing public reader's closed projection. Joined contributor
-// columns are deliberately excluded. Replies/counts await chain-visibility acceptance.
+// columns are deliberately excluded. Reply pages require the parent-chain check below;
+// raw reply-count RPCs remain blocked.
 const communityFields = "id,parent_id,author_name,author_user_id,author_contributor_id,title,body,reactions,origin,created_at,edited_at,is_deleted,total_count";
 // ZURIEL explicitly authorized this single protected Preview to manage Community
 // messages through the reviewed server RPCs. No general write or model allowance.
 const communityMessageManagement = typeof process !== "undefined"
   && process.env.VERCEL_ENV === "preview"
-  && ["gpt/community-server-auth-20261031", "gpt/community-auth-publish-media-20261031"].includes(process.env.VERCEL_GIT_COMMIT_REF);
+  && ["gpt/community-server-auth-20261031", "gpt/community-auth-publish-media-20261031", "gpt/2029-unified-community-latest-integration-20261031"].includes(process.env.VERCEL_GIT_COMMIT_REF);
 const communityPublishing = typeof process !== "undefined" && process.env.VERCEL_ENV === "preview"
-  && process.env.VERCEL_GIT_COMMIT_REF === "gpt/community-auth-publish-media-20261031";
+  && ["gpt/community-auth-publish-media-20261031", "gpt/2029-unified-community-latest-integration-20261031"].includes(process.env.VERCEL_GIT_COMMIT_REF);
 // The unified working preview must not create Person records or record ELS traces.
 const unifiedReadOnly = typeof process !== "undefined" && ["gpt/2029-central-unified-workspace-20261029", "gpt/2029-central-shell-alignment-20261029", "gpt/2029-central-topbar-menu-completion-20261029", "gpt/2029-central-ui-carry-restoration-20261029", "gpt/2029-central-community-filter-tiles-20261029", "gpt/2029-central-community-small-filters-20261029", "gpt/2029-central-single-command-bar-20261029", "gpt/2029-central-public-context-labels-20261029", "gpt/2029-central-zvi-public-material-20261029", "gpt/2029-central-zvi-research-experience-20261029", "gpt/2029-central-zvi-world-source-tree-20261030", "gpt/elections-world-seed-integration-20261030", "gpt/posts-integrated-backgrounds-20261030", "gpt/2029-central-posts-els-raziel-integration-20261031"].includes(process.env.VERCEL_GIT_COMMIT_REF);
 const worker = `const reads = new Set(${JSON.stringify(allow)});
@@ -288,9 +289,11 @@ await writeFile(resolve(output, "index.html"), html);
 if (realRazielPreview) {
   const sha = process.env.VERCEL_GIT_COMMIT_SHA || execFileSync("git", ["rev-parse", "HEAD"], { cwd: root, encoding: "utf8" }).trim();
   await writeFile(resolve(output, "preview-identity.json"), JSON.stringify({
-    sha, branch: END_TO_END_BRANCH, target: "preview", transport: "existing-live-ai-analyze",
+    sha, branch: process.env.VERCEL_GIT_COMMIT_REF, target: "preview", transport: "existing-live-ai-analyze",
     model_trigger: "explicit-user-turn", requires_existing_account: true,
-    product_writes: false, edge_deploy: false, matrix_jobs: false,
+    product_writes: communityPublishing, edge_deploy: false, matrix_jobs: false,
+    product_write_scope: communityPublishing ? ["governed-community-actions", "own-avatar", "existing-verified-legacy-claim"] : [],
+    general_profile_writes: false,
     els_followup_server_contract: "pending", server_observed_version: 90,
   }, null, 2));
 }

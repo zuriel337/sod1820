@@ -21,3 +21,18 @@ test('deployed wrapper denies writes even outside a Preview runtime',async()=>{
  const r=response();await handler({method:'POST',headers:{},body:{action:'create'}},r);
  assert.equal(r.code,403);assert.deepEqual(r.body,{state:'preview_read_only'});assert.equal(r.headers['X-Preview-Write-Blocked'],'true');
 });
+
+test('exact unified Preview enables only the existing own-avatar capability and keeps profile writes blocked',async()=>{
+ const previous={VERCEL_ENV:process.env.VERCEL_ENV,VERCEL_GIT_COMMIT_REF:process.env.VERCEL_GIT_COMMIT_REF};
+ const branch='gpt/2029-unified-community-latest-integration-20261031';
+ try{
+  for(const[index,[environment,ref,expected]]of [[ 'preview',branch,'true'],['preview',branch+'-other','false'],['production',branch,'false']].entries()){
+   process.env.VERCEL_ENV=environment;process.env.VERCEL_GIT_COMMIT_REF=ref;
+   const {default:entry}=await import('../preview-deploy/api/contributor-self.js?unified-avatar='+index);
+   const guest=response();await entry({method:'GET',headers:{},url:'/api/contributor-self'},guest);
+   assert.equal(guest.code,401);assert.equal(guest.headers['X-Preview-Avatar-Updates'],expected);
+   const denied=response();await entry({method:'POST',headers:{},body:{action:'create'}},denied);
+   assert.equal(denied.code,403);assert.equal(denied.headers['X-Preview-Write-Blocked'],'true');
+  }
+ }finally{for(const[key,value]of Object.entries(previous)){if(value===undefined)delete process.env[key];else process.env[key]=value;}}
+});
