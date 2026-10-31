@@ -91,7 +91,7 @@ test("Posts library: live series, general posts, scoped navigation, errors and r
     const html = `<!doctype html><html lang="he" dir="rtl"><head><meta name="viewport" content="width=device-width,initial-scale=1">${css.map(x => `<link rel="stylesheet" href="/${x.fileName}">`).join("")}</head><body><div id="root"></div><script type="module" src="/${entry.fileName}"></script></body></html>`;
     server = createServer((req, res) => {
       const pathname = new URL(req.url, "http://test").pathname;
-      if (Object.values(POST_BACKGROUND_ASSETS_2029).some(asset => asset.mobile === pathname)) { res.setHeader("Content-Type", "image/webp"); res.end(readFileSync(join(root, "public", pathname.slice(1)))); return; }
+      if (Object.values(POST_BACKGROUND_ASSETS_2029).some(asset => asset.preview === pathname || asset.mobile === pathname)) { res.setHeader("Content-Type", "image/webp"); res.end(readFileSync(join(root, "public", pathname.slice(1)))); return; }
       if (pathname === "/cover.svg") { res.setHeader("Content-Type", "image/svg+xml"); res.end('<svg xmlns="http://www.w3.org/2000/svg" width="640" height="400"><rect width="640" height="400" fill="#342b20"/><circle cx="320" cy="200" r="95" fill="#897843"/></svg>'); return; }
       const file = result.output.find(x => "/" + x.fileName === pathname);
       res.setHeader("Content-Type", file ? extname(pathname) === ".css" ? "text/css" : "text/javascript" : "text/html; charset=utf-8");
@@ -107,7 +107,7 @@ test("Posts library: live series, general posts, scoped navigation, errors and r
       await page.goto(`${origin}/2029/posts?theme=${theme}`);
       await page.locator(".sod29-posts-series-card").nth(2).waitFor();
       await page.locator(".sod29-library-post-card").nth(23).waitFor();
-      assert.equal(await page.locator('[href="/2029/posts?series=mah-kore-habora"] [data-series-cover="illustration"] img').getAttribute("src"), POST_BACKGROUND_ASSETS_2029["mah-kore-habora"].mobile);
+      assert.equal(await page.locator('[href="/2029/posts?series=mah-kore-habora"] [data-series-cover="illustration"] img').getAttribute("src"), POST_BACKGROUND_ASSETS_2029["mah-kore-habora"].preview);
       assert.equal(await page.getByRole("heading", { level: 1, name: "פוסטים", exact: true }).count(), 1);
       assert.ok(await page.getByRole("heading", { name: "פוסט ללא סדרה", exact: true }).isVisible());
       assert.equal(await page.locator('[href="/post/post-90"]').count(), 0);

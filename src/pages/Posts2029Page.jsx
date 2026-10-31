@@ -45,7 +45,7 @@ function SeriesEntrances2029({ activeKey, search = "" }) {
           to={`/2029/posts?series=${encodeURIComponent(series.key)}`} aria-current={activeKey === series.key ? "page" : undefined}>
           <div className="sod29-posts-series-image" aria-hidden="true" data-series-cover={image ? "post" : "illustration"}>
             <NavigationIcon2029 name="layers" size={32} />
-            {image || POST_BACKGROUND_ASSETS_2029[series.key] ? <img src={image || POST_BACKGROUND_ASSETS_2029[series.key].mobile} alt="" width="360" height="225" loading="eager" decoding="async" onError={event => { event.currentTarget.hidden = true; }} /> : null}
+            {image || POST_BACKGROUND_ASSETS_2029[series.key] ? <img src={image || POST_BACKGROUND_ASSETS_2029[series.key].preview} alt="" width="360" height="225" loading="eager" decoding="async" onError={event => { event.currentTarget.hidden = true; }} /> : null}
           </div>
           <div className="sod29-posts-series-copy">
             <h3>{series.label}</h3>

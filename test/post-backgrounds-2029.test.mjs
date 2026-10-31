@@ -35,13 +35,30 @@ test('every shipped background variant matches its reviewed bytes, identity and 
   for(const artwork of receipt.artwork){
     const assets=POST_BACKGROUND_ASSETS_2029[artwork.key];assert.ok(assets);
     for(const variant of artwork.variants){
-      assert.equal(assets[variant.width===720?'mobile':'desktop'],'/'+variant.filename);
+      assert.equal(assets[variant.width===720?'preview':'desktop'],'/'+variant.filename);
       const bytes=readFileSync(new URL('../public/'+variant.filename,import.meta.url));
       assert.equal(bytes.length,variant.bytes);
       assert.ok(bytes.length<=(variant.width===720?30_000:60_000));
       assert.equal(bytes.subarray(8,12).toString(),'WEBP');
       assert.equal(createHash('sha256').update(bytes).digest('hex'),variant.sha256);
     }
+  }
+});
+
+
+test('mobile portraits preserve native 9:16 framing and the existing thirty-kilobyte budget',()=>{
+  const receipt=JSON.parse(readFileSync(new URL('../docs/reviews/post-mobile-backgrounds-20261031.json',import.meta.url)));
+  assert.equal(receipt.artwork.length,4);
+  for(const item of receipt.artwork){
+    const assets=POST_BACKGROUND_ASSETS_2029[item.key];assert.equal(assets.mobile,'/'+item.filename);
+    assert.notEqual(assets.mobile,assets.preview,'Library thumbnails keep their landscape artwork');
+    const bytes=readFileSync(new URL('../public/'+item.filename,import.meta.url));
+    assert.equal(bytes.length,item.bytes);assert.ok(bytes.length<=30_000);
+    assert.equal(bytes.subarray(8,12).toString(),'WEBP');assert.equal(bytes.subarray(12,16).toString(),'VP8 ');
+    assert.equal(bytes.readUInt16LE(26)&0x3fff,720);assert.equal(bytes.readUInt16LE(28)&0x3fff,1280);
+    assert.equal(createHash('sha256').update(bytes).digest('hex'),item.sha256);
+    assert.ok(item.generatedSourceDimensions[0]>=720&&item.generatedSourceDimensions[1]>=1280,'No upscaled native source');
+    assert.match(item.origin,/not source evidence/);
   }
 });
 

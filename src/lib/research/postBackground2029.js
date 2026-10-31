@@ -7,19 +7,23 @@ import { hasSuppressedPublicPostTag } from "./publicPostBoundary.js";
 // checked by the Post reader before this presentation projection is consumed.
 export const POST_BACKGROUND_ASSETS_2029 = Object.freeze({
   general: Object.freeze({
-    mobile: "/legacy-dark-bg-post-720-8f3a91ae32df.webp",
+    mobile: "/legacy-dark-bg-post-mobile-v2-720x1280-81d7bbed9769.webp",
+    preview: "/legacy-dark-bg-post-720-8f3a91ae32df.webp",
     desktop: "/legacy-dark-bg-post-1280-6ca0167e2dda.webp",
   }),
   "dimension-five": Object.freeze({
-    mobile: "/dimension-five-night-720-a608fa1bd777.webp",
+    mobile: "/dimension-five-night-mobile-v2-720x1280-b062e53195ec.webp",
+    preview: "/dimension-five-night-720-a608fa1bd777.webp",
     desktop: "/dimension-five-night-1280-fed0a0b53207.webp",
   }),
   "sod-hashmal": Object.freeze({
-    mobile: "/sod-hashmal-night-720-90d9a95561e9.webp",
+    mobile: "/sod-hashmal-night-mobile-v2-720x1280-83478f421a58.webp",
+    preview: "/sod-hashmal-night-720-90d9a95561e9.webp",
     desktop: "/sod-hashmal-night-1280-42ded30738bd.webp",
   }),
   "mah-kore-habora": Object.freeze({
-    mobile: "/mah-kore-habora-night-720-883ada3afb2f.webp",
+    mobile: "/mah-kore-habora-night-mobile-v2-720x1280-ee55ed6ecb14.webp",
+    preview: "/mah-kore-habora-night-720-883ada3afb2f.webp",
     desktop: "/mah-kore-habora-night-1280-8bce64abed3a.webp",
   }),
 });
