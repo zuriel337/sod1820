@@ -264,7 +264,7 @@ try:
                     report["failures"].append({"case":"theme", "width":width, "theme":initial, "error":str(error)})
                     page.screenshot(path=str(OUT / f"failure-theme-{width}-{initial}.png"), full_page=True)
                 context.close()
-        for width in (320, 390, 1440):
+        for width in (320, 360, 390, 1440):
             for theme, suffix in [(theme, "") for theme in ("light", "parchment", "dark")] + [("dark", "#legacy-chat")]:
                 context = browser.new_context(viewport={"width":width, "height":1000}, reduced_motion="reduce")
                 context.add_init_script("localStorage.setItem('sod-theme'," + json.dumps(theme) + ")")

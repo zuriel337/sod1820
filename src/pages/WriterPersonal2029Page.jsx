@@ -3,7 +3,7 @@ import { Navigate, useLocation, useNavigate, useParams } from "react-router-dom"
 import { useAuth } from "../lib/AuthContext.jsx";
 import { use2029Palette } from "../lib/palette.js";
 import { applySeo } from "../lib/seo.js";
-import { WRITER_PERSONAL_MODULES, personalReturnHref, writerPersonalHref, writerSelfRequest } from "../lib/userCenter/writerPersonal2029.js";
+import { WRITER_PERSONAL_MODULES, personalMessagesState, personalReturnHref, writerPersonalHref, writerSelfRequest } from "../lib/userCenter/writerPersonal2029.js";
 import { use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import ProfileSettings from "../components/ProfileSettings.jsx";
 import { PageEditor, MessagesHub } from "../components/userCenter/UserCenter.jsx";
@@ -53,14 +53,16 @@ export default function WriterPersonal2029Page() {
 
 function WriterPersonalController2029({ module, user, authLoading }) {
   const auth = useAuth(), shell = use2029Shell(), P = use2029Palette(), location = useLocation(), navigate = useNavigate();
-  const { data, reload } = useSelf(authLoading || module === "notifications" ? null : user?.id);
+  const { data, reload } = useSelf(authLoading || module === "notifications" || module === "messages" ? null : user?.id);
   const [mutation, setMutation] = useState("idle"), [conversation, setConversation] = useState(null);
   const pending = useRef(false), mounted = useRef(true);
   useEffect(() => { mounted.current = true; return () => { mounted.current = false; }; }, []);
   const params = new URLSearchParams(location.search);
   const selected = WRITER_PERSONAL_MODULES.some(([id]) => id === module) ? module : "public-page";
   const returnHref = personalReturnHref(params.get("returnTo"));
-  const state = authLoading ? "loading" : !user ? "login_required" : selected === "notifications" ? "ready" : data.state === "loading" ? "loading" : data.state === "ready" ? "ready" : "error";
+  // These modules have their own authenticated readers. An unavailable public
+  // writer overview must not prevent the existing private inbox from opening.
+  const state = authLoading ? "loading" : !user ? "login_required" : selected === "notifications" || selected === "messages" ? "ready" : data.state === "loading" ? "loading" : data.state === "ready" ? "ready" : "error";
   const writer = data.writer || { state: "unavailable" };
   const T = { bg: P.pageBg, card: P.card, ink: P.ink, sub: P.inkSoft, line: P.border, acc: P.accentText,
     accSoft: P.cardSoft, gold: P.brandGold, goldSoft: P.cardSoft };
@@ -110,7 +112,9 @@ function WriterPersonalController2029({ module, user, authLoading }) {
       </> : null}
       {selected === "messages" ? <>
         {conversation?.state === "not_found" || conversation?.state === "unavailable" ? <p role="status">לא נמצאה שיחה זמינה בכתובת הזאת. מוצגת התיבה האישית.</p> : null}
-        {(sourceWriter || dm) && !conversation ? <p role="status">בודק את השיחה בתיבה שלך…</p> : <MessagesHub key={`${user.id}:${conversation?.counterpart || "inbox"}`} T={T} goto={goto} initialDm={conversation?.counterpart || null} resolveWriterHref={resolveWriterHref} />}
+        {(sourceWriter || dm) && !conversation ? <p role="status">בודק את השיחה בתיבה שלך…</p> : <MessagesHub key={`${user.id}:${conversation?.counterpart || "inbox"}`} T={T} goto={goto} initialDm={conversation?.counterpart || null} resolveWriterHref={resolveWriterHref}
+          messageNavigation={{ ...personalMessagesState(location.search), returnTo: returnHref,
+            onChange: next => navigate(writerPersonalHref("messages", { returnTo: returnHref, ...next }), { replace: true }) }} />}
       </> : null}
       {selected === "notifications" ? <FollowCenterController2029 returnHref={`${location.pathname}${location.search}`} onSignIn={shell.openWorkspace} /> : null}
       {/* Activity stats are not a research standing. The approved 2029 standing

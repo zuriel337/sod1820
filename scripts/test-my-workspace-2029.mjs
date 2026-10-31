@@ -81,7 +81,9 @@ assert.ok(frame.indexOf('data-workspace-section="follow"') > frame.indexOf('<sec
 assert.ok(frame.indexOf('data-workspace-section="pulse"') < frame.indexOf('<section data-workspace-section="research"'));
 // Personal entry: the single existing command bar reaches WORKSPACE through the typed Now "for me" tab,
 // and the top bar carries a visible sign-in / name control. No separate avatar button in the bar.
-assert.equal((frame.match(/className=\{`sod29-command-island/g) || []).length, 1);
+assert.equal((frame.match(/data-command-mode="global"/g) || []).length, 1);
+assert.equal((frame.match(/data-command-mode="tool"/g) || []).length, 1);
+assert.match(frame, /unifiedGlobalDock \? <div className="sod29-command-island[^]*data-command-mode="global"[^]*<\/div> : <div className="sod29-command-island[^]*data-command-mode="tool"/);
 assert.match(frame, /onMe=\{openWorkspace\}/);
 assert.equal((frame.match(/sod29-island-personal/g) || []).length, 0);
 assert.match(frame, /sod29-header-workspace\$\{user \? "" : " is-signed-out"\}`\} onClick=\{openWorkspace\}/);

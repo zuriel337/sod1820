@@ -14,7 +14,7 @@ import LegacyAccountClaim from "./LegacyAccountClaim.jsx";
 import { isLegacyContributorId } from "../../lib/community/legacyClaim.js";
 import { communityWriterHref, resolveCommunityWriter } from "../../lib/community/communityWriterLink.js";
 import { communityPersonReturnHref } from "../../lib/community/communityPersonNavigation.js";
-import { writerPersonalHref } from "../../lib/userCenter/writerPersonal2029.js";
+import { personalMessagesReturnHref, writerPersonalHref } from "../../lib/userCenter/writerPersonal2029.js";
 import "../../pages/community2029.css";
 import ReactionBar from "../ReactionBar.jsx";
 import UserBadge from "../UserBadge.jsx";
@@ -27,6 +27,7 @@ const sourceLabels = { openweb: "הצ׳אט הישן", community_2029: "הקהי
 const PublicContributor2029Page = lazy(() => import("../../pages/PublicContributor2029Page.jsx"));
 
 function LiveAuthor({ row, accountProfiles, formatDate, linkAuthor = true, showAvatar = true }) {
+  const [currentParams] = useSearchParams();
   const accountId = row.authorUserId || row.linkedUserId || VERIFIED_ARCHIVE_PROFILES[row.authorKey]?.accountUserId;
   const account = accountId ? accountProfiles[accountId] : null;
   const name = account?.display_name || account?.username || row.authorName;
@@ -34,7 +35,8 @@ function LiveAuthor({ row, accountProfiles, formatDate, linkAuthor = true, showA
     <time dateTime={row.createdAt}>{formatDate ? formatDate(row.createdAt) : dateFormat.format(new Date(row.createdAt))}</time>
   </UserBadge>;
   if (!row.authorKey || !linkAuthor) return <span className="sod29-community-author-link">{badge}</span>;
-  const target = new URLSearchParams({ preview: "community", data: "live", memberCard: row.authorKey });
+  const target = new URLSearchParams(currentParams);
+  target.set("preview", "community"); target.set("data", "live"); target.set("memberCard", row.authorKey); target.delete("member");
   return <Link className="sod29-community-author-link" to={`?${target}`} aria-label={`פתיחת כרטיס הכותב של ${name}`}>
     {badge}
   </Link>;
@@ -197,7 +199,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
   const replyIdParam = params.get("reply") || "";
   const threadPathParam = params.get("path") || "";
   const threadFocus = useMemo(() => normalizeCommunityThreadFocus({ threadId: threadIdParam, replyId: replyIdParam, path: threadPathParam }), [threadIdParam, replyIdParam, threadPathParam]);
-  const threadReturnHref = params.get("returnTo") === "/2029/me/messages" ? "/2029/me/messages" : canonicalPath;
+  const threadReturnHref = personalMessagesReturnHref(params.get("returnTo")) || canonicalPath;
   const fullThreadHref = `/2029?${new URLSearchParams({ preview: "community", data: "live", thread: threadFocus?.threadId || "", returnTo: threadReturnHref })}`;
   const [rows, setRows] = useState([]);
   const [nextOffset, setNextOffset] = useState(0);
@@ -213,6 +215,12 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
   const [replyTo, setReplyTo] = useState(null);
   const [sending, setSending] = useState(false);
   const [notice, setNotice] = useState("");
+  const composerPrincipal = user?.id || null;
+  const activeComposerPrincipal = useRef(composerPrincipal);
+  activeComposerPrincipal.current = composerPrincipal;
+  useEffect(() => {
+    setDraft(""); setAttachments([]); setReplyTo(null); setNotice(""); setAttachmentError(""); setSending(false);
+  }, [composerPrincipal]);
   const [profileRows, setProfileRows] = useState([]);
   const [profileNextOffset, setProfileNextOffset] = useState(0);
   const [profileCount, setProfileCount] = useState(0);
@@ -432,14 +440,19 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
     const body = draft.trim();
     if ((!body && !attachments.length) || sending) return;
     setSending(true); setNotice(""); setAttachmentError("");
+    const principal = composerPrincipal;
+    const isCurrent = () => activeComposerPrincipal.current === principal;
     try {
       const uploaded = [];
       for (const item of attachments) {
         const result = item.url ? item : await uploadCommunityAttachment(item.file);
+        if (!isCurrent()) return;
         uploaded.push(result);
         if (!item.url) setAttachments((current) => current.map((entry) => entry.file === item.file ? { ...entry, ...result } : entry));
       }
+      if (!isCurrent()) return;
       await publishCommunityMessage({ body: appendCommunityAttachments(body, uploaded), parentId: replyTo?.id || null, authorName: profile?.display_name || profile?.username || null });
+      if (!isCurrent()) return;
       if (replyTo) {
         requestedReplyCounts.current.delete(replyTo.id);
         setReplyCounts((current) => { const next = { ...current }; delete next[replyTo.id]; return next; });
@@ -447,8 +460,8 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
       }
       setDraft(""); setAttachments([]); setReplyTo(null); setNotice(user ? "ההודעה פורסמה." : "ההודעה נשלחה לבדיקה.");
       await loadPage(0, true);
-    } catch { setNotice("השליחה או העלאת הקובץ נכשלה. הקבצים שנבחרו נשמרו בטיוטה לניסיון חוזר."); }
-    finally { setSending(false); }
+    } catch { if (isCurrent()) setNotice("השליחה או העלאת הקובץ נכשלה. הקבצים שנבחרו נשמרו בטיוטה לניסיון חוזר."); }
+    finally { if (isCurrent()) setSending(false); }
   };
 
   return <Sod2029Shell surface="community" title="הקהילה" introVariant="none" status="קהילה" symbol="◎">

@@ -16,7 +16,7 @@ import { getMyNotifications, getUnreadCount, markNotificationRead, markAllRead, 
 import { getMyMatrices, selfPublishMatrix } from "../../lib/elsMatrices.js";
 import { getMyProfile, claimFoundingGrants, claimDailyCredit, claimWaActivityCredits, getNextActions, getAgentRoster, getAgentStats, getMyWaMemory, getMyCreditLedger, getMyLinkedPhones, requestWaLinkCode, verifyWaLinkCode, unlinkMyWa, getMyReferralStats, getMyResearchLevel, dmInbox, dmThread, dmSend, dmUnreadCount, repliesToMe, myContributions, watchToggle } from "../../lib/commandCenter.js";
 import { useWaLink, WaDot } from "../../lib/userCenter/useWaLink.jsx";
-import { loadOwnWriterIdentity, publicWriterFollowLinks } from "../../lib/userCenter/writerPersonal2029.js";
+import { loadOwnWriterIdentity, publicWriterFollowLinks, personalMessagesReturnHref, writerPersonalHref } from "../../lib/userCenter/writerPersonal2029.js";
 import { bilingualDateLabel } from "../../lib/relativeTime2029.js";
 
 // 🟢 צ'יפ סטטוס-וואטסאפ בכותרת המגירה — גלוי מיד: מנותק = CTA לחיבור (+100 קרדיט),
@@ -1094,14 +1094,14 @@ function AdminOnlinePanel({ T }) {
 const PERSONAL_REPLY_UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const PERSONAL_REPLY_COMMUNITY_ORIGINS = new Set(["openweb", "community_2029"]);
 
-export function personalReplyContext(row) {
+export function personalReplyContext(row, returnTo = "/2029/me/messages") {
   const origin = String(row?.origin || "");
   if (PERSONAL_REPLY_COMMUNITY_ORIGINS.has(origin) && PERSONAL_REPLY_UUID.test(row?.thread_root_id || "")) {
     const replyId = PERSONAL_REPLY_UUID.test(row?.id || "") ? row.id : "";
     const rawPath = Array.isArray(row?.thread_path) ? row.thread_path : [];
     const path = rawPath.filter((id) => PERSONAL_REPLY_UUID.test(id));
     const safePath = path[0] === row.thread_root_id && (!replyId || path[path.length - 1] === replyId) ? path : [row.thread_root_id, replyId].filter(Boolean);
-    const query = new URLSearchParams({ preview: "community", data: "live", thread: row.thread_root_id, returnTo: "/2029/me/messages" });
+    const query = new URLSearchParams({ preview: "community", data: "live", thread: row.thread_root_id, returnTo: personalMessagesReturnHref(returnTo) || "/2029/me/messages" });
     if (replyId) query.set("reply", replyId);
     if (safePath.length > 1) query.set("path", safePath.join(","));
     return { kind: "community", label: origin === "openweb" ? "הצ׳אט הוותיק" : "הקהילה", href: `/2029?${query}` };
@@ -1112,8 +1112,10 @@ export function personalReplyContext(row) {
 }
 
 // 📨 ההודעות שלי — שני טאבים: 💬 הודעות פרטיות (DM) · 🗣 תגובות לפוסטים ולתרומות.
-export function MessagesHub({ T, goto, initialDm = null, resolveWriterHref }) {
-  const [tab, setTab] = useState("dm");   // deep-link ל-DM → תמיד טאב ההודעות
+export function MessagesHub({ T, goto, initialDm = null, resolveWriterHref, messageNavigation = null }) {
+  const [localTab, setLocalTab] = useState("dm");
+  const tab = messageNavigation?.tab || localTab;
+  const setTab = next => messageNavigation ? messageNavigation.onChange({ ...messageNavigation, tab: next }) : setLocalTab(next);
   const tabBtn = (active) => ({ flex: 1, padding: "9px", borderRadius: 9, border: `1px solid ${active ? T.acc : T.line}`, background: active ? T.accSoft : T.card, color: active ? T.acc : T.sub, fontWeight: 800, fontSize: 13, cursor: "pointer", fontFamily: "inherit" });
   return (
     <div>
@@ -1121,7 +1123,7 @@ export function MessagesHub({ T, goto, initialDm = null, resolveWriterHref }) {
         <button onClick={() => setTab("dm")} style={tabBtn(tab === "dm")}>💬 הודעות</button>
         <button onClick={() => setTab("replies")} style={tabBtn(tab === "replies")}>🗣 תגובות אליי</button>
       </div>
-      {tab === "dm" ? <InboxPanel T={T} initialDm={initialDm} resolveWriterHref={resolveWriterHref} /> : <RepliesPanel T={T} goto={goto} />}
+      {tab === "dm" ? <InboxPanel T={T} initialDm={initialDm} resolveWriterHref={resolveWriterHref} /> : <RepliesPanel T={T} goto={goto} messageNavigation={messageNavigation} />}
     </div>
   );
 }
@@ -1131,27 +1133,61 @@ export function MessagesHub({ T, goto, initialDm = null, resolveWriterHref }) {
 // היה חוסם כל תגובה מעבר לזה, בלי דרך לראות אותה. עכשיו: "טען עוד" עם cursor (p_before, אותה
 // RPC replies_to_me מורחבת) — סדר חדש→ישן נשמר, שום store חדש.
 const REPLIES_PAGE = 50;
-function RepliesPanel({ T, goto }) {
+function RepliesPanel({ T, goto, messageNavigation = null }) {
   const [rows, setRows] = useState(null);
   const [loadingMore, setLoadingMore] = useState(false);
   const [done, setDone] = useState(false);   // עמוד אחרון החזיר פחות מ-REPLIES_PAGE → אין עוד
   const [error, setError] = useState("");
   const [attempt, setAttempt] = useState(0);
+  const [pages, setPages] = useState(1);
+  const [restoring, setRestoring] = useState(true);
+  const mounted = useRef(false);
+  const listRef = useRef(null);
+  const restored = useRef(false);
+  const initialNavigation = useRef(messageNavigation);
   useEffect(() => {
-    let alive = true; setError(""); setRows(null);
-    repliesToMe(REPLIES_PAGE, null, { strict: true }).then(r => { if (alive) { setRows(r); setDone((r || []).length < REPLIES_PAGE); } })
-      .catch(() => { if (alive) { setRows([]); setError("לא ניתן לטעון את התגובות כרגע."); } });
-    return () => { alive = false; };
+    let alive = true; mounted.current = true; restored.current = false;
+    setError(""); setRows(null); setRestoring(true); setPages(1);
+    (async () => {
+      let loaded = [], cursor = null;
+      const wanted = initialNavigation.current?.replyPages || 1;
+      for (let page = 1; page <= wanted; page++) {
+        const more = await repliesToMe(REPLIES_PAGE, cursor, { strict: true });
+        if (!alive) return;
+        loaded = [...loaded, ...more.filter(row => !loaded.some(previous => previous.id === row.id))];
+        setRows(loaded); setPages(page); setDone(more.length < REPLIES_PAGE);
+        const next = more.at(-1)?.created_at;
+        if (more.length < REPLIES_PAGE || !next || next === cursor) break;
+        cursor = next;
+      }
+    })().catch(() => { if (alive) { setRows(previous => previous || []); setError("לא ניתן לטעון את התגובות כרגע."); } })
+      .finally(() => { if (alive) setRestoring(false); });
+    return () => { alive = false; mounted.current = false; };
   }, [attempt]);
+  useEffect(() => {
+    const navigation = initialNavigation.current;
+    if (restoring || restored.current || !navigation?.replyAnchor || !rows?.length) return;
+    restored.current = true;
+    const target = listRef.current?.querySelector(`[data-reply-id="${navigation.replyAnchor}"]`);
+    if (!target) return;
+    const frame = requestAnimationFrame(() => {
+      target.focus({ preventScroll: true });
+      window.scrollBy({ top: target.getBoundingClientRect().top - navigation.replyOffset, behavior: "instant" });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [restoring, rows]);
   const loadMore = async () => {
-    if (loadingMore || done || !rows?.length) return;
+    if (loadingMore || restoring || done || !rows?.length) return;
     setLoadingMore(true);
     try {
       const cursor = rows[rows.length - 1]?.created_at;
       const more = await repliesToMe(REPLIES_PAGE, cursor, { strict: true });
-      setRows(prev => [...(prev || []), ...(more || [])]);
+      if (!mounted.current) return;
+      setRows(prev => [...(prev || []), ...(more || []).filter(row => !prev?.some(previous => previous.id === row.id))]);
+      setPages(value => value + 1);
+      messageNavigation?.onChange({ ...messageNavigation, tab: "replies", replyPages: pages + 1, replyAnchor: null });
       if ((more || []).length < REPLIES_PAGE) setDone(true);
-    } catch { setError("לא ניתן לטעון תגובות נוספות כרגע."); } finally { setLoadingMore(false); }
+    } catch { if (mounted.current) setError("לא ניתן לטעון תגובות נוספות כרגע."); } finally { if (mounted.current) setLoadingMore(false); }
   };
   const fmt = t => bilingualDateLabel(t) || "תאריך לא זמין";
   const contextNote = <p style={{ color: T.sub, fontSize: 14, lineHeight: 1.65, margin: "0 0 12px" }}>כאן מופיעות תגובות לפוסטים שלך בקהילה ולתרומות מחקריות. תגובות מהצ׳אט הוותיק יוצגו אחרי חיבור מאומת של הפרופיל הישן לחשבון.</p>;
@@ -1164,7 +1200,7 @@ function RepliesPanel({ T, goto }) {
     </div></>
   );
   return (
-    <div style={{ display: "grid", gap: 8 }}>
+    <div ref={listRef} style={{ display: "grid", gap: 8 }}>
       {contextNote}
       {rows.map(r => {
         const context = personalReplyContext(r);
@@ -1182,12 +1218,18 @@ function RepliesPanel({ T, goto }) {
         </>);
         const style = { display: "block", textAlign: "right", background: T.card, border: `1px solid ${T.line}`, borderRadius: 12, padding: "10px 12px", color: T.ink, fontFamily: "inherit", width: "100%", boxSizing: "border-box", cursor: link ? "pointer" : "default" };
         return link
-          ? <button key={r.id} onClick={() => goto(link)} style={style}>{inner}</button>
+          ? <button key={r.id} data-reply-id={r.id} onClick={event => {
+              const view = { tab: "replies", replyPages: pages, replyAnchor: r.id,
+                replyOffset: Math.max(-2000, Math.min(2000, Math.round(event.currentTarget.getBoundingClientRect().top))) };
+              const returnTo = messageNavigation ? writerPersonalHref("messages", { returnTo: messageNavigation.returnTo, ...view }) : undefined;
+              if (returnTo) messageNavigation.onChange(view);
+              goto(personalReplyContext(r, returnTo).href);
+            }} style={style}>{inner}</button>
           : <div key={r.id} style={style}>{inner}</div>;
       })}
       {error ? <p role="alert">{error}</p> : null}
       {!done && (
-        <button onClick={loadMore} disabled={loadingMore}
+        <button onClick={loadMore} disabled={loadingMore || restoring}
           style={{ background: "transparent", border: `1px solid ${T.line}`, color: T.sub, borderRadius: 10, padding: "9px 14px", fontFamily: "inherit", fontSize: 12.5, cursor: loadingMore ? "default" : "pointer", opacity: loadingMore ? 0.6 : 1 }}>
           {loadingMore ? "טוען…" : "טען תגובות ותיקות יותר ↓"}
         </button>

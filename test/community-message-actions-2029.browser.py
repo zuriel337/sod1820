@@ -163,7 +163,7 @@ def tap(button, width): button.tap() if width <= 390 else button.click()
 try:
     with sync_playwright() as p:
         browser = p.chromium.launch(executable_path="/usr/bin/chromium", headless=True, args=["--no-sandbox"])
-        for width in [320, 390, 1440]:
+        for width in [320, 360, 390, 1440]:
             for theme in ["light", "parchment", "dark"]:
                 for surface, path in [("feed", FEED), ("author", AUTHOR)]:
                     ctx = context(browser, width, theme); page = ctx.new_page(); state = install(page)
@@ -197,7 +197,7 @@ try:
                     ctx.close()
         # A reply in the existing personal inbox opens the same inline controls;
         # deletion keeps the foreign child through Reload and Exact Return.
-        for width in [320,390,1440]:
+        for width in [320,360,390,1440]:
             ctx = context(browser,width); page=ctx.new_page(); state=install(page)
             page.goto(BASE+"/2029/me/messages"); page.locator(".wp-layout[data-state=ready]").wait_for()
             page.get_by_role("button",name="תגובות אליי",exact=False).click()
@@ -212,7 +212,9 @@ try:
             page.reload()
             expect(article(page).get_by_text("ההודעה נמחקה",exact=True)).to_be_visible()
             expect(article(page,CHILD)).to_contain_text("תגובה של חבר נשארת בשרשור")
-            page.get_by_role("link",name="חזרה להודעות שלי",exact=True).click(); page.wait_for_url(BASE+"/2029/me/messages")
+            back_href=page.get_by_role("link",name="חזרה להודעות שלי",exact=True).get_attribute("href")
+            page.get_by_role("link",name="חזרה להודעות שלי",exact=True).click(); page.wait_for_url(BASE+back_href)
+            expect(page.locator(f'[data-reply-id="{CHILD}"]')).to_be_focused()
             REPORT["cases"].append({"surface":"personal-return","width":width,"tombstone_reload":True,"child_retained":True,"exact_return":True})
             ctx.close()
         # Guest/missing RPC/failure states do not manufacture permission/success.
@@ -233,12 +235,14 @@ try:
                 if mode=="failed-edit":
                     root.get_by_role("button",name="שמירה",exact=True).click();expect(root.get_by_role("alert")).to_be_visible();expect(editor).to_have_value("טיוטה של החשבון הראשון")
                 else:
+                    page.get_by_label("מה תרצו לשתף?",exact=True).fill("טיוטת פרסום פרטית של חשבון ראשון")
                     state["hold_edit"]=True;root.get_by_role("button",name="שמירה",exact=True).click()
                     deadline=time.monotonic()+10
                     while state["held"] is None and time.monotonic()<deadline: page.wait_for_timeout(20)
                     assert state["held"] is not None
                     page.evaluate("""s=>{const key='sb-linswmnnkjxvweumprav-auth-token';localStorage.setItem(key,JSON.stringify(s));const c=new BroadcastChannel(key);c.postMessage({event:'SIGNED_IN',session:s});setTimeout(()=>c.close(),100)}""",session(OTHER))
                     expect(editor).to_have_count(0)
+                    expect(page.get_by_label("מה תרצו לשתף?",exact=True)).to_have_value("")
                     state["held"].fulfill(json="2026-10-26T10:00:00Z")
                     expect(root.get_by_role("button",name="עריכה",exact=True)).to_have_count(0)
                     expect(root.get_by_text("ההודעה הישנה שלי",exact=True)).to_be_visible()
@@ -246,7 +250,7 @@ try:
             REPORT["cases"].append({"mode":mode,"no_fake_success":True});ctx.close()
         # The RPC fixture follows the candidate migration: administrative removal
         # is separate from author-only edits, and cannot bypass source review.
-        for width in [320, 390, 1440]:
+        for width in [320, 360, 390, 1440]:
             for theme in ["light", "parchment", "dark"]:
                 ctx = context(browser, width, theme, actor=ADMIN); page = ctx.new_page(); state = install(page)
                 page.goto(BASE + FEED)
