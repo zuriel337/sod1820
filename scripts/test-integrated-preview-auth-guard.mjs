@@ -10,12 +10,12 @@ const builder = await readFile(new URL('./build-integrated-preview.mjs', import.
 const vercelConfig = JSON.parse(await readFile(new URL('../vercel.json', import.meta.url), 'utf8'));
 const source = builder.slice(builder.indexOf('const allow ='), builder.indexOf('await writeFile(resolve(output, "preview-readonly-sw.js")'));
 const worker = vm.runInNewContext(`${source}\nworker;`, { COMMUNITY_UPLOAD_POLICY, AVATAR_UPLOAD_POLICY });
-async function request(path, { method = 'POST', body, rawBody, headers, serverUser = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', serverConfirmed = true, origin = 'https://linswmnnkjxvweumprav.supabase.co', workerSource = worker } = {}) {
+async function request(path, { method = 'POST', body, rawBody, headers, serverUser = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', serverConfirmed = true, replyContext = undefined, contextStatus = 200, origin = 'https://linswmnnkjxvweumprav.supabase.co', workerSource = worker } = {}) {
   let handler, response, forwarded = 0;
   vm.runInNewContext(workerSource, {
     self: { location: {origin:'https://preview.invalid'}, addEventListener: (name, fn) => { if (name === 'fetch') handler = fn; } },
     URL, Response,
-    fetch: async target => { forwarded++; return new URL(typeof target === 'string' ? target : target.url).pathname === '/auth/v1/user' ? new Response(JSON.stringify(serverUser ? {id:serverUser,email_confirmed_at:serverConfirmed?'2026-10-31T00:00:00Z':null} : {}), {status:serverUser?200:401}) : new Response('{}', { status: 200 }); },
+    fetch: async target => { forwarded++; const path=new URL(typeof target === 'string' ? target : target.url).pathname; if(path==='/rest/v1/rpc/community_message_context')return new Response(JSON.stringify(replyContext === undefined ? [{id:body?.p_parent}] : replyContext),{status:contextStatus}); return path === '/auth/v1/user' ? new Response(JSON.stringify(serverUser ? {id:serverUser,email_confirmed_at:serverConfirmed?'2026-10-31T00:00:00Z':null} : {}), {status:serverUser?200:401}) : new Response('{}', { status: 200 }); },
   });
   handler({ request: new Request(origin + path, { method, headers, ...(rawBody !== undefined ? { body:rawBody } : body === undefined ? {} : { body: JSON.stringify(body) }) }), respondWith: (value) => { response = value; } });
   const result = response ? await response : null;
@@ -229,4 +229,17 @@ test('exact own-avatar Preview upload and self action keep all other writes clos
  assert.deepEqual(await request('/api/contributor-self',action),{status:200,forwarded:1,blocked:null});
  for(const body of [{...action.body,action:'create'},{...action.body,user_id:uid},{...action.body,publish:false},{...action.body,url:'https://evil.invalid/a.png'}])assert.equal((await request('/api/contributor-self',{...action,body})).status,403);
  assert.equal((await request('/api/contributor-self',{...action,workerSource:managementWorker()})).status,403);
+});
+
+
+test('reviewed public reply reads require exact projection and a server-confirmed visible parent chain',async()=>{
+ const fields='id,parent_id,author_name,author_user_id,author_contributor_id,title,body,reactions,origin,created_at,edited_at,is_deleted,total_count';
+ const path='/rest/v1/rpc/community_replies_page?select='+encodeURIComponent(fields);
+ const options={workerSource:publishingWorker(),body:{p_parent:managementId,p_offset:0,p_limit:20}};
+ assert.deepEqual(await request(path,options),{status:200,forwarded:2,blocked:null});
+ assert.deepEqual(await request(path,{...options,replyContext:[]}),{status:200,forwarded:1,blocked:null});
+ assert.equal((await request(path,{...options,contextStatus:503})).status,503);
+ for(const body of [{...options.body,p_parent:'bad'},{...options.body,p_limit:101},{...options.body,p_offset:-1},{...options.body,p_offset:1.5},{...options.body,extra:true}])assert.equal((await request(path,{...options,body})).status,403);
+ for(const workerSource of [worker,managementWorker(),managementWorker(publishingBranch,'production')])assert.equal((await request(path,{...options,workerSource})).status,403);
+ for(const wrong of ['/rest/v1/rpc/community_replies_page?select=*',path+'&extra=1','/rest/v1/rpc/community_reply_counts'])assert.equal((await request(wrong,options)).status,403);
 });

@@ -343,3 +343,7 @@ html[data-theme-preset="parchment"] .sod29-community--artwork{--community-art-op
 .sod29-community-conversation-count>button{gap:.3em}
 @media(max-width:600px){.sod29-community--full .sod29-community-composer textarea:focus{min-height:80px}}
 .sod29-community-stream-tools .sod29-community-feed-filter-chips button{width:44px;height:44px;min-height:44px;flex-basis:44px;font-size:14px}
+/* Same canonical share icon as other public units, with a 44px touch target. */
+.sod29-community-thread-actions>.sod-share-actions.is-icon{display:inline-flex;margin-inline-start:auto}
+.sod29-community-thread-actions>.sod-share-actions.is-icon button{display:inline-flex;align-items:center;justify-content:center;width:44px;min-width:44px;height:44px;padding:10px;background:transparent;color:var(--s29-muted);border:0;border-radius:10px}
+.sod29-community-thread-actions>.sod-share-actions.is-icon button:hover{color:var(--s29-accent-text);background:var(--s29-panel-soft)}
