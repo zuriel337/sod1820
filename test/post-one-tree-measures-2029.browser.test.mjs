@@ -69,20 +69,22 @@ function fixturePlugin(){
     `,
     shell:`
       import React,{createContext,useContext,useState} from 'react';import {useNavigate} from 'react-router-dom';
+      import {createPortal} from 'react-dom';import LearnMark from '/src/components/experience2029/LearnMark2029.jsx';
       import {useResearch} from '/src/lib/research/ResearchProvider.jsx';
       import NumberDrawer from '/src/components/number2029/NumberDrawer2029.jsx';
       import {buildExactReturnPatch} from '/src/lib/research/researchContext.js';
       import {resolve2029Palette} from '/src/lib/palette.js';
       const Context=createContext(null);export const use2029Shell=()=>useContext(Context);
       export function FrameState({title,children}){return <section><h2>{title}</h2>{children}</section>;}
-      export default function Shell({children}){const [target,setTarget]=useState(null);const research=useResearch(),navigate=useNavigate();
+      export default function Shell({children}){const [target,setTarget]=useState(null),[orientationHost,setOrientationHost]=useState(null);const research=useResearch(),navigate=useNavigate();
         const preset=new URLSearchParams(location.search).get('theme')||sessionStorage.getItem('fixture-theme')||'dark';sessionStorage.setItem('fixture-theme',preset);window.__fixturePreset=preset;
         document.documentElement.dataset.themePreset=preset;
         const p=resolve2029Palette(preset);
         const go=href=>{setTarget(null);navigate(href);};
         const openNumber=value=>{window.__targets.push(value);research.updateResearchContext({subject:{id:String(value.resultValue),type:'number',label:String(value.resultValue)},selection:{entityId:value.id,entityType:'gematria_expression',expression:value.expression,method:value.method,resultValue:value.resultValue,locator:value.locator},lens:'gematria'});setTarget(value);};
         const close=()=>{const back=research.context.returnTo;research.updateResearchContext(buildExactReturnPatch(research.context));go(back.href);};
-        return <Context.Provider value={{openNumber,go,razielLocked:true}}><div className='sod29-root surface-post' style={{'--s29-page':p.pageBg,'--s29-panel':p.card,'--s29-panel-soft':p.cardSoft,'--s29-ink':p.ink,'--s29-muted':p.inkSoft,'--s29-line':p.border,'--s29-line-strong':p.borderStrong,'--s29-accent':p.accent,'--s29-accent-text':p.accentText,'--s29-focus-ring':p.focusRing,'--s29-font-ui':'Arial,sans-serif'}}>{children}
+        return <Context.Provider value={{openNumber,go,razielLocked:true,registerOrientationHost:setOrientationHost}}><div className='sod29-root surface-post' style={{'--s29-page':p.pageBg,'--s29-panel':p.card,'--s29-panel-soft':p.cardSoft,'--s29-ink':p.ink,'--s29-muted':p.inkSoft,'--s29-line':p.border,'--s29-line-strong':p.borderStrong,'--s29-accent':p.accent,'--s29-accent-text':p.accentText,'--s29-focus-ring':p.focusRing,'--s29-font-ui':'Arial,sans-serif'}}>{children}
+          {orientationHost?createPortal(<span className='sod29-entry-orientation-slot is-in-header'><LearnMark scope='surface' compact label='איך קוראים את הפוסט?'><p>הסבר קריאה שנפתח לפי בחירה.</p></LearnMark></span>,orientationHost):null}
           {target?<div role='dialog' aria-label='מספר בהקשר' className='fixture-sheet'><button onClick={close}>סגירה וחזרה למקור</button><NumberDrawer target={target} context={research.context} research={research} go={go}/></div>:null}</div></Context.Provider>;
       }
     `,
@@ -90,6 +92,8 @@ function fixturePlugin(){
       import React from 'react';import {createRoot} from 'react-dom/client';import {BrowserRouter,Routes,Route,useNavigate} from 'react-router-dom';
       import {Provider,useResearch} from '/src/lib/research/ResearchProvider.jsx';import {buildExactReturnPatch} from '/src/lib/research/researchContext.js';
       import Post from '/src/pages/Post2029Page.jsx';import '/src/components/experience2029/sod2029.css';
+      import '/src/components/experience2029/systemFrame2029.css';
+      import Shell from '/src/components/experience2029/Sod2029Shell.jsx';import LearnMark from '/src/components/experience2029/LearnMark2029.jsx';
       import * as postReaders from '/src/lib/research/post2029ReadingProjection.js';window.__postReaders=postReaders;
       window.__reads=[];window.__rpcs=[];window.__targets=[];
       window.__post={id:9001,slug:'future-source',title:'מקור בדיקה חי',source:'ai',home_hidden:false,date:'2026-10-20',modified:'2026-10-30T14:00:00Z',tags:['1237'],categories:[],
@@ -100,7 +104,7 @@ function fixturePlugin(){
       function TopicDestination(){const research=useResearch(),navigate=useNavigate();return <main><h1>כרטיס התכנסות</h1><button onClick={()=>{const back=research.context.returnTo;research.updateResearchContext(buildExactReturnPatch(research.context));navigate(back.href);}}>חזרה מההתכנסות לפוסט</button></main>;}
       function Navigation(){window.__goFixture=useNavigate();return null;}
       const style=document.createElement('style');style.textContent='html,body{margin:0;padding:0}body{font-family:Arial,sans-serif}.sod29-root{display:block!important;padding:12px;box-sizing:border-box;min-height:100vh;background:var(--s29-page);color:var(--s29-ink)}.sod29-reading-post{max-width:100%;margin:auto}.fixture-sheet{position:fixed;inset:0;z-index:1000;overflow:auto;background:var(--s29-panel);padding:12px}button{min-height:44px}';document.head.append(style);
-      createRoot(document.getElementById('root')).render(<BrowserRouter><Provider><Navigation/><Routes><Route path='/post/:slug' element={<Post/>}/><Route path='/2029/number/:value' element={<NumberPage/>}/><Route path='/topic/:slug' element={<TopicDestination/>}/><Route path='*' element={<p>יעד המשך</p>}/></Routes></Provider></BrowserRouter>);
+      createRoot(document.getElementById('root')).render(<BrowserRouter><Provider><Navigation/><Routes><Route path='/post/:slug' element={<Post/>}/><Route path='/learn-control' element={<Shell><LearnMark compact label='הסבר מושג'><p>הסבר מושג נגיש</p></LearnMark><LearnMark scope='surface' prominent label='הסבר ארוך על המסך ועל האפשרויות שעומדות לרשות הקורא'><p>הסבר על המסך</p></LearnMark></Shell>}/><Route path='/2029/number/:value' element={<NumberPage/>}/><Route path='/topic/:slug' element={<TopicDestination/>}/><Route path='*' element={<p>יעד המשך</p>}/></Routes></Provider></BrowserRouter>);
     `,
   };
   return {name:'posts-one-tree-fixture',enforce:'pre',resolveId(source){
@@ -130,6 +134,54 @@ test('built Post: adopted design, bounded backgrounds, lazy research, exact retu
     });
     await new Promise(done=>server.listen(0,'127.0.0.1',done));const origin=`http://127.0.0.1:${server.address().port}`;
     browser=await playwright.chromium.launch({executablePath,headless:true,args:['--no-sandbox','--disable-dev-shm-usage']});
+    const layoutResults=[];
+    for(const width of [320,390,1440])for(const theme of ['light','parchment','dark']){
+      const context=await browser.newContext({viewport:{width,height:900},reducedMotion:'reduce'}),page=await context.newPage();
+      const errors=[];page.on('pageerror',error=>errors.push(error.message));
+      await context.addInitScript(()=>sessionStorage.setItem('fixture-post-overrides',JSON.stringify({slug:'readability-dim5',author:'בדרך לנצח',content:'<h2>קריאה נוחה בעברית</h2><p id="reading-prose" style="text-align:center;color:#cbb25e">'+('פסקה ארוכה נשארת מיושרת לתחילת השורה בתוך טור קריאה ממורכז. '.repeat(5))+'</p><blockquote><p id="reading-quote">ציטוט קצר במרכז</p></blockquote><p class="sod29-gematria-line" id="reading-equation">12 + 3 = 15</p>'})));
+      await page.goto(origin+'/post/readability-dim5?theme='+theme);await page.locator('#reading-prose').waitFor();
+      const help=page.getByRole('button',{name:'איך זה עובד? — איך קוראים את הפוסט?',exact:true});await help.waitFor();
+      assert.equal(await help.locator('.sod29-learn-mark-label').innerText(),'איך זה עובד?');
+      assert.ok((await help.getAttribute('aria-label')).includes(await help.locator('.sod29-learn-mark-label').innerText()),'Visible label is included in the accessible name');
+      const geometry=await page.evaluate(()=>{
+        const rect=selector=>{const b=document.querySelector(selector).getBoundingClientRect();return {x:b.x,y:b.y,width:b.width,height:b.height,center:b.x+b.width/2};};
+        const symbol=getComputedStyle(document.querySelector('.sod29-learn-mark-symbol'));
+        return {article:rect('article'),source:rect('.sod29-reading-source'),nav:rect('nav[aria-label="בתוך הפוסט"]'),help:rect('.sod29-learn-mark-trigger'),details:rect('.sod29-post-details'),
+          prose:getComputedStyle(document.querySelector('#reading-prose')).textAlign,quote:getComputedStyle(document.querySelector('#reading-quote')).textAlign,equation:getComputedStyle(document.querySelector('#reading-equation')).textAlign,
+          symbolBorder:parseFloat(symbol.borderTopWidth),overflow:document.documentElement.scrollWidth>innerWidth};
+      });
+      assert.ok(Math.abs(geometry.source.center-geometry.article.center)<1,'The removed spine leaves no empty grid column');
+      assert.ok(Math.abs(geometry.nav.center-geometry.source.center)<1,'Section menu and source share the same centered axis');
+      assert.ok(['start','right'].includes(geometry.prose));assert.equal(geometry.quote,'center');assert.equal(geometry.equation,'center');
+      assert.equal(geometry.symbolBorder,0);assert.ok(geometry.help.width>=44&&geometry.help.height>=44);assert.equal(geometry.overflow,false);
+      if(width===390)assert.ok(Math.min(geometry.help.y+geometry.help.height,geometry.details.y+geometry.details.height)>Math.max(geometry.help.y,geometry.details.y),'Compact help shares the metadata row when space allows');
+      for(const button of await page.locator('nav[aria-label="בתוך הפוסט"] button').all()){const b=await button.boundingBox();assert.ok(b.width>=44&&b.height>=44);}
+      if(width===320){
+        const boxes=await page.locator('nav[aria-label="בתוך הפוסט"] button').evaluateAll(nodes=>nodes.map(node=>{const b=node.getBoundingClientRect();return {x:b.x,y:b.y,width:b.width};}));
+        assert.equal(boxes[0].y,boxes[1].y);assert.ok(Math.abs(boxes[0].width-boxes[1].width)<1);
+        for(let i=2;i+1<boxes.length;i+=2)assert.equal(boxes[i].y,boxes[i+1].y);
+        if(boxes.length%2){const last=boxes.at(-1);assert.ok(Math.abs(last.x+last.width/2-geometry.nav.center)<1);assert.ok(last.width>boxes[0].width);}
+      }
+      await page.screenshot({path:join(artifacts,`reading-alignment-${width}-${theme}.png`),fullPage:true});
+      await help.focus();assert.equal(await help.evaluate(node=>getComputedStyle(node).outlineStyle),'solid');await page.keyboard.press('Enter');
+      assert.equal(await help.getAttribute('aria-expanded'),'true');
+      const panel=page.locator('[id="'+await help.getAttribute('aria-controls')+'"]');await panel.waitFor();const box=await panel.boundingBox();assert.ok(box.x>=0&&box.x+box.width<=width&&box.width<=520);
+      const openedHelp=await help.boundingBox();assert.ok(Math.abs(openedHelp.x-geometry.help.x)<1&&Math.abs(openedHelp.y-geometry.help.y)<1,'Opening help leaves its trigger in place');
+      await page.screenshot({path:join(artifacts,`reading-help-open-${width}-${theme}.png`)});
+      await page.keyboard.press('Enter');assert.equal(await help.getAttribute('aria-expanded'),'false');
+      assert.equal(await page.evaluate(()=>window.__rpcs.length),0,'Reading/help do not trigger calculations');assert.deepEqual(errors,[]);
+      layoutResults.push({width,theme,...geometry});await context.close();
+    }
+    for(const theme of ['light','parchment','dark']){
+      const context=await browser.newContext({viewport:{width:320,height:900}}),page=await context.newPage();
+      await page.goto(origin+'/learn-control?theme='+theme);
+      const concept=page.getByRole('button',{name:'הסבר מושג',exact:true});await concept.waitFor();assert.equal(await concept.locator('.sod29-learn-mark-label').count(),0);
+      const b=await concept.boundingBox();assert.equal(b.width,44);assert.ok(b.height>=44);await concept.click();await page.getByText('הסבר מושג נגיש',{exact:true}).waitFor();
+      assert.equal(await page.locator('.scope-surface .sod29-learn-mark-label').innerText(),'איך זה עובד?');
+      assert.match(await page.locator('.scope-surface .sod29-learn-mark-trigger').getAttribute('aria-label'),/הסבר ארוך על המסך/);
+      assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);await context.close();
+    }
+    writeFileSync(join(artifacts,'reading-alignment.json'),JSON.stringify(layoutResults,null,2));
     if(process.env.POST_LEGACY_AUDIT_SOURCE){
       const source=JSON.parse(readFileSync(process.env.POST_LEGACY_AUDIT_SOURCE,'utf8'));
       const context=await browser.newContext(),page=await context.newPage();
@@ -245,6 +297,7 @@ test('built Post: adopted design, bounded backgrounds, lazy research, exact retu
         assert.equal(selected.selection.method,method);assert.equal(selected.selection.resultValue,value);assert.equal(selected.selection.methodVersion,version);
         assert.equal(selected.dimensions.postClaimBinding,'saved_legacy_marking');assert.equal(selected.dimensions.postClaimSteps,'not_tested');
         await page.getByRole('button',{name:'סגירה וחזרה למקור'}).click();await page.waitForFunction(id=>document.activeElement?.id===id,selector.slice(1));
+        const returned=await page.locator(selector).boundingBox();assert.ok(returned.y>=0&&returned.y+returned.height<=900,'Returned source focus stays visible');
       }
       await page.locator('#'+anchor).click();await page.getByRole('dialog').waitFor();
       await page.getByRole('button',{name:'פתח דף מלא ↗',exact:true}).click();await page.getByRole('heading',{name:'דף המספר',exact:true}).waitFor();

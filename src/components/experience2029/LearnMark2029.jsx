@@ -5,6 +5,7 @@ import "./learnMark2029.css";
 export default function LearnMark2029({
   scope = LEARN_SCOPE.CONCEPT,
   label = "איך זה עובד?",
+  shortLabel = "איך זה עובד?",
   compact = false,
   prominent = false,
   children = null,
@@ -17,6 +18,12 @@ export default function LearnMark2029({
 }) {
   const [open, setOpen] = useState(false);
   const panelId = useId();
+  // Screen-level help has a short visible name and full accessible context.
+  // Inline concept help keeps its existing icon-only compact variant.
+  const showLabel = !compact || scope === LEARN_SCOPE.SURFACE;
+  const visibleLabel = scope === LEARN_SCOPE.SURFACE ? (shortLabel || label) : label;
+  const accessibleLabel = showLabel && visibleLabel !== (ariaLabel || label)
+    ? `${visibleLabel} — ${ariaLabel || label}` : (ariaLabel || label);
 
   const toggle = () => {
     const next = !open;
@@ -29,6 +36,7 @@ export default function LearnMark2029({
       "sod29-learn-mark",
       `scope-${scope}`,
       compact ? "is-compact" : "",
+      showLabel ? "has-visible-label" : "",
       prominent ? "is-prominent" : "",
       open ? "is-open" : "",
       className,
@@ -41,10 +49,10 @@ export default function LearnMark2029({
       onClick={toggle}
       aria-expanded={open}
       aria-controls={panelId}
-      aria-label={ariaLabel || label}
+      aria-label={accessibleLabel}
     >
       <span className="sod29-learn-mark-symbol" aria-hidden="true">?</span>
-      {!compact ? <span className="sod29-learn-mark-label">{label}</span> : null}
+      {showLabel ? <span className="sod29-learn-mark-label">{visibleLabel}</span> : null}
     </button>
     {open ? <div id={panelId} className="sod29-learn-mark-disclosure">
       <div className="sod29-learn-mark-copy">{children}</div>

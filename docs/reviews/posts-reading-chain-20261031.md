@@ -1,4 +1,4 @@
-# Post reading chain — technical repair and bounded visual proposal
+# Post reading chain — source repair and centered reading/help integration
 
 Base: `8b501aa47f7f25c3c086f80baf59e81feea26984`, branch `gpt/posts-integrated-backgrounds-20261030`. Existing Design V2 §8.2 and Reality Graph v8 remain the owners. This is a review receipt, not a replacement contract.
 
@@ -22,17 +22,21 @@ The existing plain-equality decorator labels the operands it adds, so generated 
 
 Matrix calibration: 38 saved markings consist of four generic numeric entries and 34 phrase occurrences. Twenty-five have explicit local method/value context and match the current canonical profile. Nine remain incomplete; no method is borrowed from another occurrence. Profile parity does not certify trace steps, narrative interpretation or a graph relation. No source content or product data was edited.
 
-## Concrete visual proposal — not applied
+Visual followup base: `f2febb751e1d4f38c0498da88de226e9d8517d62`.
 
-The live coordination owner preserves Claude as mandatory visual writer. The routing index states: “CLAUDE is the mandatory writer for every 2029 surface and visual component” (`SOD1820_MASTER_OWNER_INDEX.md`, writer lanes). No new visual activation, scope transfer or acceptance is claimed.
+## Applied visual repair — explicit one-time authorization
 
-Apply this through the existing `LearnMark2029` / `learnMark2029.css` and Post CSS owners:
+ZURIEL explicitly instructed “תעקוף אותו הפעם” after reviewing the writer restriction. GPT applies this one-time exception only to the existing help component and Post reading alignment below. The default Claude visual policy remains in force for other work; no canonical ownership rule, database record or permanent delegation policy was rewritten. Fresh bounded ownership reads found no matching active writer. This connector cannot journal a live work-log claim/release, and none is asserted.
 
-1. Keep a visible short label for surface-level help even in compact mode. Concept-level compact help may retain its existing icon-only behavior. Preserve orientation/familiarity state and accessible expansion semantics.
-2. Keep one outer button outline; remove the inner decorative symbol ring for the chosen surface-help variant. Preserve a 44×44px minimum hit target and a visible focus ring.
-3. Replace the Post rule that forces both metadata and orientation to `flex-basis:100%` below620px. Keep the labelled help in the metadata group; allow ordinary wrapping when it cannot fit.
-4. Center/distribute the existing Post section buttons within their bounded container. Do not alter global navigation, create a new menu, or center long prose.
+Implemented through the existing `LearnMark2029` / `learnMark2029.css` and Post CSS owners:
 
-Acceptance: 320/390/1440px, all three presets, touch/keyboard/expanded state, balanced gutters, visible label, no horizontal overflow, unchanged source text/media and no status meaning inferred from decorative colors. Shared Frame, personal area, World, Topics, Galleries, global typography/palette, engines, RLS and Production remain outside this technical repair.
+1. Surface help displays the short “איך זה עובד?” label for both first-time and familiar readers. Its accessible name includes that visible label plus the full existing contextual prompt. Compact concept help retains its icon-only variant; orientation/familiarity state is unchanged.
+2. The primary control has one decorative outline, a 44×44px minimum target and a visible keyboard-focus ring. Help copy/actions consume existing readable UI tokens, including dismiss and further-help controls.
+3. The Post metadata row uses the existing portal wrappers in a bounded grid. Help depth opens below without moving its trigger; the explanation stays at most520px wide. At320px metadata and help use separate rows. No Frame/portal runtime was replaced.
+4. The removed reading spine no longer reserves an empty grid column. The790px source plane and existing section menu share a centered axis; narrow menus use balanced two-column rows with an odd last item spanning the row. Long prose aligns to start; explicit quote/equation roles retain their treatment. Source wording, colors and calculations are untouched.
+
+Acceptance: 320/390/1440px, all three presets, touch/keyboard/expanded state, balanced gutters, visible label included in the accessible name, stable trigger position, no horizontal overflow and no status meaning inferred from decorative colors. Actual local App2029/Frame checks cover twelve compact-mode cases across Dimension Five, Matrix, Mah Kore Habora and Shvilei Safa, plus two first-visit cases. Shared Frame/rails, personal area, World/Topic/Gallery implementations, global typography/palette, engines, RLS and Production remain unchanged. Hosted visual acceptance is reported separately from local browser and authenticated HTTP checks.
+
+A focused source control is kept inside its existing header/island margins when the Frame restores focus. Final verification:128 Node checks plus one built-browser suite pass; all fourteen actual-app layout/help cases and both actual calculation/return cases pass.
 
 Machine-readable findings and final verification: `posts-reading-chain-20261031.json`.

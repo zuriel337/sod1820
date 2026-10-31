@@ -939,6 +939,18 @@ function PostReadingBody() {
         ref={sourceRef}
         className="sod29-reading-source"
         aria-label="טקסט המקור"
+        onFocusCapture={event => {
+          const control = event.target?.closest?.("[data-gem],[data-expression]");
+          if (!control || !event.currentTarget.contains(control)) return;
+          // A restored focus may use preventScroll while the Frame closes.
+          // Keep the source control clear of its existing header/island margins.
+          const box = control.getBoundingClientRect(), style = getComputedStyle(control);
+          const before = parseFloat(style.scrollMarginBlockStart) || 0;
+          const after = parseFloat(style.scrollMarginBlockEnd) || 0;
+          if (box.top < before || box.bottom > window.innerHeight - after) {
+            control.scrollIntoView({ block: "center", inline: "nearest", behavior: "instant" });
+          }
+        }}
         onClick={handleSourceContextualFocus}
         onKeyDown={(event) => {
           if ((event.key === "Enter" || event.key === " ") && event.target?.matches?.('[data-gem][role="button"],[data-expression][role="button"]')) {

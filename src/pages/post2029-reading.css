@@ -1093,19 +1093,10 @@
 
 /* Unified Experience V1: persistent contextual rail is owned by SystemFrame, not duplicated inside Post. */
 .sod29-reading-layout{
-  grid-template-columns:34px minmax(0,790px);
-  grid-template-areas:"spine source";
-  justify-content:center;
-}
-@media(max-width:980px){
-  .sod29-reading-layout{
-    display:grid;
-    grid-template-columns:26px minmax(0,760px);
-    grid-template-areas:"spine source";
-  }
-}
-@media(max-width:720px){
-  .sod29-reading-layout{display:block}
+  /* The old reading spine is gone. Its empty grid track displaced the source. */
+  display:block;
+  width:min(790px,100%);
+  direction:rtl;
 }
 
 
@@ -1342,7 +1333,17 @@
 .sod29-post-continuation-open{display:flex;justify-content:space-between;gap:12px;font-size:16px;color:var(--s29-accent-text);margin-top:auto;padding-top:12px}
 .sod29-post-next{display:flex;justify-content:center;gap:18px;flex-wrap:wrap;scroll-margin-top:120px}
 .sod29-post-next a{display:inline-flex;align-items:center;min-height:44px;padding:12px 18px;border:1px solid var(--s29-line);border-radius:14px;color:var(--s29-accent-text);font-size:16px;text-decoration:none}
-.sod29-reading-post>.sod29-surface-tabs{width:min(900px,100%);margin:0 auto 28px;flex-wrap:wrap}
+.sod29-reading-post>.sod29-surface-tabs{width:min(790px,100%);margin:0 auto 28px;flex-wrap:wrap;justify-content:center}
+.sod29-reading-post>.sod29-surface-tabs>button{flex:1 1 auto;min-inline-size:44px;min-block-size:44px;padding-inline:8px;font-size:var(--s29-type-ui,16px);font-weight:600}
+@media(max-width:360px){
+  .sod29-reading-post>.sod29-surface-tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+  .sod29-reading-post>.sod29-surface-tabs>button:last-child:nth-child(odd){grid-column:1 / -1}
+}
+/* Reading alignment is independent of the centered content plane. Authored
+   words/colors stay intact; explicit quote/equation roles keep their treatment. */
+.sod29-reading-source p{text-align:start!important}
+.sod29-reading-source :is(blockquote,.sod-verse) p{text-align:inherit!important}
+.sod29-reading-source p:is(.sod-verse,.sod29-gematria-line){text-align:center!important}
 #post-sources{scroll-margin-top:120px}
 @media(max-width:620px){.sod29-post-continuation-grid{grid-template-columns:1fr}.sod29-post-continuation{padding:20px}}
 
@@ -1393,7 +1394,7 @@
 .sod29-post-details>summary::-webkit-details-marker{display:none}
 .sod29-post-details>summary>.k29-cats{gap:8px;flex:0 1 auto}
 .sod29-post-details>summary>.sod29-post-details-label{margin-inline-start:auto;padding-inline-start:12px;white-space:nowrap;color:var(--s29-accent-text);font-size:14px}
-@media(max-width:480px){.sod29-post-details>summary>.sod29-post-details-label{margin-inline-start:0;padding-inline-start:0;flex-basis:100%}}
+@media(max-width:480px){.sod29-post-details>summary>.sod29-post-details-label{margin-inline-start:0;padding-inline-start:0}}
 
 /* Source update strip: newest in one slim row, the rest behind one disclosure (bounded). */
 .sod29-update-strip{flex-wrap:wrap;border-radius:14px;width:min(1180px,100%);margin-inline:auto}
@@ -1434,13 +1435,23 @@ html[data-theme-preset="dark"] .sod29-reading-post{--post-link-a:#FFE23A;--post-
 .sod29-reading-cover .sod29-canonical-media-image.is-primary{height:100%!important;max-height:none;object-fit:contain!important}
 
 
-/* Hero copy: title on its own row, then details + orientation share one row (wraps on narrow screens). */
-.sod29-reading-hero-copy{display:flex;flex-wrap:wrap;align-items:center;gap:4px 12px}
-.sod29-reading-hero-copy>h1{flex:1 0 100%}
-.sod29-reading-hero-copy>.sod29-post-details{flex:1 1 55%;min-width:0}
-.sod29-reading-hero-copy>.sod29-orientation-host{order:2;flex:0 1 auto;min-width:0}
+/* One metadata row, with help depth below it. Flatten only the existing portal
+   wrappers so opening an explanation cannot move its trigger or hide metadata. */
+.sod29-reading-hero-copy{display:grid;grid-template-columns:minmax(0,1fr) fit-content(50%);align-items:center;gap:4px 12px}
+.sod29-reading-hero-copy>h1{grid-column:1 / -1;grid-row:1;min-width:0}
+.sod29-reading-hero-copy>.sod29-post-details{grid-column:1;grid-row:2;min-width:0}
+.sod29-reading-hero-copy>.sod29-orientation-host,
+.sod29-reading-hero-copy>.sod29-orientation-host>.sod29-entry-orientation-slot.is-in-header,
+.sod29-reading-hero-copy>.sod29-orientation-host .sod29-learn-mark{display:contents}
+.sod29-reading-hero-copy>.sod29-orientation-host .sod29-learn-mark-trigger{grid-column:2;grid-row:2}
+.sod29-reading-hero-copy>.sod29-orientation-host .sod29-learn-mark-disclosure{grid-column:1 / -1;grid-row:3;min-width:0;width:100%;max-width:520px;justify-self:end}
+.sod29-reading-hero-copy>.sod29-orientation-host:empty+.sod29-post-details{grid-column:1 / -1}
 .sod29-reading-hero-copy>.sod29-orientation-host:empty{display:none}
-@media(max-width:620px){.sod29-reading-hero-copy>.sod29-post-details,.sod29-reading-hero-copy>.sod29-orientation-host{flex:1 1 100%}}
+@media(max-width:360px){
+  .sod29-reading-hero-copy{grid-template-columns:minmax(0,1fr)}
+  .sod29-reading-hero-copy>.sod29-orientation-host .sod29-learn-mark-trigger{grid-column:1;grid-row:3;justify-self:start}
+  .sod29-reading-hero-copy>.sod29-orientation-host .sod29-learn-mark-disclosure{grid-row:4}
+}
 /* Number controls inside the story keep clear of the fixed header and command island when scrolled into view. */
 .sod29-reading-source :is([data-contextual-number-focus],[data-gem],.sod-numlink){scroll-margin-block:132px}
 

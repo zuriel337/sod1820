@@ -1,5 +1,5 @@
 {
-  "status": "IMPLEMENTED_TESTED_HOSTED_READONLY_PREVIEW_READY",
+  "status": "VISUAL_IMPLEMENTED_TESTED_READONLY_PREVIEW_PENDING",
   "actor": "GPT",
   "handoff_to": "ZURIEL",
   "scope": "Existing Post occurrence reader, Post activation and existing source disclosure only; no shared Frame/Learn/Number/engine/CSS or product data change",
@@ -11,7 +11,7 @@
   },
   "ownership": {
     "live_bounded_path_check": "No matching active writer returned for the exact Post/Learn paths; no new live claim or release row asserted because only a read-only connector is available",
-    "visual_writer": "Claude under existing mandatory visual lane; no shared visual redesign applied"
+    "visual_writer": "GPT for this explicitly authorized one-time visual followup. Default Claude lane remains unchanged outside this scope."
   },
   "matrix_scan": {
     "id": 5003,
@@ -380,7 +380,7 @@
   ],
   "visual_followup": {
     "canonical_owner": "SOD1820_DESIGN_CONTRACT_V2.md §8.2",
-    "status": "CONCRETE_REVIEW_PROPOSAL_ONLY",
+    "status": "IMPLEMENTED_UNDER_EXPLICIT_ONE_TIME_USER_EXCEPTION",
     "recommendation": {
       "content_plane": "Centered, bounded with balanced logical gutters",
       "long_hebrew_prose": "text-align:start; no blanket center or justified alignment",
@@ -404,7 +404,962 @@
       "Separate content-plane centering from prose alignment",
       "Visible label, 44px hit area, keyboard focus/expanded state, no clipped controls",
       "Same source text/media/colors; no gold/decoration interpreted as verification"
-    ]
+    ],
+    "base": "f2febb751e1d4f38c0498da88de226e9d8517d62",
+    "authorization": {
+      "actor": "ZURIEL",
+      "instruction": "תעקוף אותו הפעם",
+      "scope": "Shared LearnMark and Post reading centering/help integration only; no permanent visual-policy rewrite",
+      "permanent_policy_change": false
+    },
+    "implementation": [
+      "Removed the obsolete empty reading-spine grid track; source and section menu share the centered790px plane",
+      "Ordinary prose aligns to start; explicit quote/equation roles keep their separate alignment; source wording and colors unchanged",
+      "Surface help has a short visible label for both new/familiar readers and a visible label included in its full accessible name",
+      "Single decorative button outline, visible keyboard focus,44px minimum hit targets and existing readable UI tokens for help/actions",
+      "Existing portal wrappers participate in the metadata grid; the explanation opens below, at most520px wide, without moving the trigger",
+      "At320px section navigation uses two balanced columns, with an odd last item spanning the row",
+      "Source focus restoration keeps the control visible within its existing header/island scroll margins"
+    ],
+    "verification": {
+      "tests": 129,
+      "pass": 129,
+      "fail": 0,
+      "skipped": 0,
+      "node": 128,
+      "built_browser": 1,
+      "layout_theme_width_cases": 9,
+      "shared_concept_and_first_visit_cases": 3,
+      "actual_app_compact_cases": 12,
+      "actual_app_first_visit_cases": 2,
+      "actual_app_calculation_return_cases": 2,
+      "layout_artifacts": "/workspace/shared/downloads/posts-alignment-approved",
+      "first_visit_artifacts": "/workspace/shared/downloads/posts-alignment-first-visit-approved",
+      "calculation_artifacts": "/workspace/shared/downloads/posts-alignment-verified-calculations",
+      "layout_results": [
+        {
+          "slug": "koach-hashtika-dim5",
+          "width": 320,
+          "theme": "light",
+          "state": {
+            "theme": "light",
+            "article": {
+              "x": 18,
+              "y": 84,
+              "width": 284,
+              "height": 6071.890625,
+              "center": 160
+            },
+            "source": {
+              "x": 18,
+              "y": 744.34375,
+              "width": 284,
+              "height": 4839.859375,
+              "center": 160
+            },
+            "nav": {
+              "x": 18,
+              "y": 606.34375,
+              "width": 284,
+              "height": 110,
+              "center": 160
+            },
+            "navVisible": true,
+            "help": {
+              "x": 143.09375,
+              "y": 320.765625,
+              "width": 143.90625,
+              "height": 46.953125,
+              "center": 215.046875
+            },
+            "details": {
+              "x": 33,
+              "y": 272.765625,
+              "width": 254,
+              "height": 44,
+              "center": 160
+            },
+            "label": "איך זה עובד?",
+            "helpFont": "18px",
+            "symbolBorder": "0px",
+            "proseAlignment": "start",
+            "overflow": false
+          },
+          "helpPanel": {
+            "x": 33,
+            "y": 379.71875,
+            "width": 254,
+            "height": 164.953125
+          },
+          "openedHelp": {
+            "x": 143.09375,
+            "y": 320.765625,
+            "width": 143.90625,
+            "height": 46.953125
+          },
+          "errors": [],
+          "blocked": []
+        },
+        {
+          "slug": "koach-hashtika-dim5",
+          "width": 390,
+          "theme": "light",
+          "state": {
+            "theme": "light",
+            "article": {
+              "x": 18,
+              "y": 84,
+              "width": 354,
+              "height": 5517.609375,
+              "center": 195
+            },
+            "source": {
+              "x": 18,
+              "y": 656.53125,
+              "width": 354,
+              "height": 4392.140625,
+              "center": 195
+            },
+            "nav": {
+              "x": 18,
+              "y": 568.53125,
+              "width": 354,
+              "height": 60,
+              "center": 195
+            },
+            "navVisible": true,
+            "help": {
+              "x": 33,
+              "y": 239.171875,
+              "width": 143.90625,
+              "height": 46.953125,
+              "center": 104.953125
+            },
+            "details": {
+              "x": 188.90625,
+              "y": 240.640625,
+              "width": 168.09375,
+              "height": 44,
+              "center": 272.953125
+            },
+            "label": "איך זה עובד?",
+            "helpFont": "18px",
+            "symbolBorder": "0px",
+            "proseAlignment": "start",
+            "overflow": false
+          },
+          "helpPanel": {
+            "x": 33,
+            "y": 298.125,
+            "width": 324,
+            "height": 138.5625
+          },
+          "openedHelp": {
+            "x": 33,
+            "y": 239.171875,
+            "width": 143.90625,
+            "height": 46.953125
+          },
+          "errors": [],
+          "blocked": []
+        },
+        {
+          "slug": "koach-hashtika-dim5",
+          "width": 1440,
+          "theme": "light",
+          "state": {
+            "theme": "light",
+            "article": {
+              "x": 373,
+              "y": 134,
+              "width": 944,
+              "height": 5439,
+              "center": 845
+            },
+            "source": {
+              "x": 450,
+              "y": 802.703125,
+              "width": 790,
+              "height": 4339.890625,
+              "center": 845
+            },
+            "nav": {
+              "x": 0,
+              "y": 0,
+              "width": 0,
+              "height": 0,
+              "center": 0
+            },
+            "navVisible": false,
+            "help": {
+              "x": 388,
+              "y": 320.5,
+              "width": 143.90625,
+              "height": 46.953125,
+              "center": 459.953125
+            },
+            "details": {
+              "x": 543.90625,
+              "y": 321.96875,
+              "width": 758.09375,
+              "height": 44,
+              "center": 922.953125
+            },
+            "label": "איך זה עובד?",
+            "helpFont": "18px",
+            "symbolBorder": "0px",
+            "proseAlignment": "start",
+            "overflow": false
+          },
+          "helpPanel": {
+            "x": 388,
+            "y": 379.453125,
+            "width": 520,
+            "height": 112.171875
+          },
+          "openedHelp": {
+            "x": 388,
+            "y": 320.5,
+            "width": 143.90625,
+            "height": 46.953125
+          },
+          "errors": [],
+          "blocked": []
+        },
+        {
+          "slug": "koach-hashtika-dim5",
+          "width": 320,
+          "theme": "parchment",
+          "state": {
+            "theme": "parchment",
+            "article": {
+              "x": 18,
+              "y": 84,
+              "width": 284,
+              "height": 6071.890625,
+              "center": 160
+            },
+            "source": {
+              "x": 18,
+              "y": 744.34375,
+              "width": 284,
+              "height": 4839.859375,
+              "center": 160
+            },
+            "nav": {
+              "x": 18,
+              "y": 606.34375,
+              "width": 284,
+              "height": 110,
+              "center": 160
+            },
+            "navVisible": true,
+            "help": {
+              "x": 143.09375,
+              "y": 320.765625,
+              "width": 143.90625,
+              "height": 46.953125,
+              "center": 215.046875
+            },
+            "details": {
+              "x": 33,
+              "y": 272.765625,
+              "width": 254,
+              "height": 44,
+              "center": 160
+            },
+            "label": "איך זה עובד?",
+            "helpFont": "18px",
+            "symbolBorder": "0px",
+            "proseAlignment": "start",
+            "overflow": false
+          },
+          "helpPanel": {
+            "x": 33,
+            "y": 379.71875,
+            "width": 254,
+            "height": 164.953125
+          },
+          "openedHelp": {
+            "x": 143.09375,
+            "y": 320.765625,
+            "width": 143.90625,
+            "height": 46.953125
+          },
+          "errors": [],
+          "blocked": []
+        },
+        {
+          "slug": "koach-hashtika-dim5",
+          "width": 390,
+          "theme": "parchment",
+          "state": {
+            "theme": "parchment",
+            "article": {
+              "x": 18,
+              "y": 84,
+              "width": 354,
+              "height": 5517.609375,
+              "center": 195
+            },
+            "source": {
+              "x": 18,
+              "y": 656.53125,
+              "width": 354,
+              "height": 4392.140625,
+              "center": 195
+            },
+            "nav": {
+              "x": 18,
+              "y": 568.53125,
+              "width": 354,
+              "height": 60,
+              "center": 195
+            },
+            "navVisible": true,
+            "help": {
+              "x": 33,
+              "y": 239.171875,
+              "width": 143.90625,
+              "height": 46.953125,
+              "center": 104.953125
+            },
+            "details": {
+              "x": 188.90625,
+              "y": 240.640625,
+              "width": 168.09375,
+              "height": 44,
+              "center": 272.953125
+            },
+            "label": "איך זה עובד?",
+            "helpFont": "18px",
+            "symbolBorder": "0px",
+            "proseAlignment": "start",
+            "overflow": false
+          },
+          "helpPanel": {
+            "x": 33,
+            "y": 298.125,
+            "width": 324,
+            "height": 138.5625
+          },
+          "openedHelp": {
+            "x": 33,
+            "y": 239.171875,
+            "width": 143.90625,
+            "height": 46.953125
+          },
+          "errors": [],
+          "blocked": []
+        },
+        {
+          "slug": "koach-hashtika-dim5",
+          "width": 1440,
+          "theme": "parchment",
+          "state": {
+            "theme": "parchment",
+            "article": {
+              "x": 373,
+              "y": 134,
+              "width": 944,
+              "height": 5439,
+              "center": 845
+            },
+            "source": {
+              "x": 450,
+              "y": 802.703125,
+              "width": 790,
+              "height": 4339.890625,
+              "center": 845
+            },
+            "nav": {
+              "x": 0,
+              "y": 0,
+              "width": 0,
+              "height": 0,
+              "center": 0
+            },
+            "navVisible": false,
+            "help": {
+              "x": 388,
+              "y": 320.5,
+              "width": 143.90625,
+              "height": 46.953125,
+              "center": 459.953125
+            },
+            "details": {
+              "x": 543.90625,
+              "y": 321.96875,
+              "width": 758.09375,
+              "height": 44,
+              "center": 922.953125
+            },
+            "label": "איך זה עובד?",
+            "helpFont": "18px",
+            "symbolBorder": "0px",
+            "proseAlignment": "start",
+            "overflow": false
+          },
+          "helpPanel": {
+            "x": 388,
+            "y": 379.453125,
+            "width": 520,
+            "height": 112.171875
+          },
+          "openedHelp": {
+            "x": 388,
+            "y": 320.5,
+            "width": 143.90625,
+            "height": 46.953125
+          },
+          "errors": [],
+          "blocked": []
+        },
+        {
+          "slug": "koach-hashtika-dim5",
+          "width": 320,
+          "theme": "dark",
+          "state": {
+            "theme": "dark",
+            "article": {
+              "x": 18,
+              "y": 84,
+              "width": 284,
+              "height": 6071.890625,
+              "center": 160
+            },
+            "source": {
+              "x": 18,
+              "y": 744.34375,
+              "width": 284,
+              "height": 4839.859375,
+              "center": 160
+            },
+            "nav": {
+              "x": 18,
+              "y": 606.34375,
+              "width": 284,
+              "height": 110,
+              "center": 160
+            },
+            "navVisible": true,
+            "help": {
+              "x": 143.09375,
+              "y": 320.765625,
+              "width": 143.90625,
+              "height": 46.953125,
+              "center": 215.046875
+            },
+            "details": {
+              "x": 33,
+              "y": 272.765625,
+              "width": 254,
+              "height": 44,
+              "center": 160
+            },
+            "label": "איך זה עובד?",
+            "helpFont": "18px",
+            "symbolBorder": "0px",
+            "proseAlignment": "start",
+            "overflow": false
+          },
+          "helpPanel": {
+            "x": 33,
+            "y": 379.71875,
+            "width": 254,
+            "height": 164.953125
+          },
+          "openedHelp": {
+            "x": 143.09375,
+            "y": 320.765625,
+            "width": 143.90625,
+            "height": 46.953125
+          },
+          "errors": [],
+          "blocked": []
+        },
+        {
+          "slug": "koach-hashtika-dim5",
+          "width": 390,
+          "theme": "dark",
+          "state": {
+            "theme": "dark",
+            "article": {
+              "x": 18,
+              "y": 84,
+              "width": 354,
+              "height": 5517.609375,
+              "center": 195
+            },
+            "source": {
+              "x": 18,
+              "y": 656.53125,
+              "width": 354,
+              "height": 4392.140625,
+              "center": 195
+            },
+            "nav": {
+              "x": 18,
+              "y": 568.53125,
+              "width": 354,
+              "height": 60,
+              "center": 195
+            },
+            "navVisible": true,
+            "help": {
+              "x": 33,
+              "y": 239.171875,
+              "width": 143.90625,
+              "height": 46.953125,
+              "center": 104.953125
+            },
+            "details": {
+              "x": 188.90625,
+              "y": 240.640625,
+              "width": 168.09375,
+              "height": 44,
+              "center": 272.953125
+            },
+            "label": "איך זה עובד?",
+            "helpFont": "18px",
+            "symbolBorder": "0px",
+            "proseAlignment": "start",
+            "overflow": false
+          },
+          "helpPanel": {
+            "x": 33,
+            "y": 298.125,
+            "width": 324,
+            "height": 138.5625
+          },
+          "openedHelp": {
+            "x": 33,
+            "y": 239.171875,
+            "width": 143.90625,
+            "height": 46.953125
+          },
+          "errors": [],
+          "blocked": []
+        },
+        {
+          "slug": "koach-hashtika-dim5",
+          "width": 1440,
+          "theme": "dark",
+          "state": {
+            "theme": "dark",
+            "article": {
+              "x": 373,
+              "y": 134,
+              "width": 944,
+              "height": 5439,
+              "center": 845
+            },
+            "source": {
+              "x": 450,
+              "y": 802.703125,
+              "width": 790,
+              "height": 4339.890625,
+              "center": 845
+            },
+            "nav": {
+              "x": 0,
+              "y": 0,
+              "width": 0,
+              "height": 0,
+              "center": 0
+            },
+            "navVisible": false,
+            "help": {
+              "x": 388,
+              "y": 320.5,
+              "width": 143.90625,
+              "height": 46.953125,
+              "center": 459.953125
+            },
+            "details": {
+              "x": 543.90625,
+              "y": 321.96875,
+              "width": 758.09375,
+              "height": 44,
+              "center": 922.953125
+            },
+            "label": "איך זה עובד?",
+            "helpFont": "18px",
+            "symbolBorder": "0px",
+            "proseAlignment": "start",
+            "overflow": false
+          },
+          "helpPanel": {
+            "x": 388,
+            "y": 379.453125,
+            "width": 520,
+            "height": 112.171875
+          },
+          "openedHelp": {
+            "x": 388,
+            "y": 320.5,
+            "width": 143.90625,
+            "height": 46.953125
+          },
+          "errors": [],
+          "blocked": []
+        },
+        {
+          "slug": "mah-kore-france-october-obadiah",
+          "width": 390,
+          "theme": "dark",
+          "state": {
+            "theme": "dark",
+            "article": {
+              "x": 18,
+              "y": 84,
+              "width": 354,
+              "height": 2695.328125,
+              "center": 195
+            },
+            "source": {
+              "x": 18,
+              "y": 591.546875,
+              "width": 354,
+              "height": 1781.53125,
+              "center": 195
+            },
+            "nav": {
+              "x": 18,
+              "y": 503.546875,
+              "width": 354,
+              "height": 60,
+              "center": 195
+            },
+            "navVisible": true,
+            "help": {
+              "x": 33,
+              "y": 190.1875,
+              "width": 143.90625,
+              "height": 46.953125,
+              "center": 104.953125
+            },
+            "details": {
+              "x": 188.90625,
+              "y": 191.65625,
+              "width": 168.09375,
+              "height": 44,
+              "center": 272.953125
+            },
+            "label": "איך זה עובד?",
+            "helpFont": "18px",
+            "symbolBorder": "0px",
+            "proseAlignment": "start",
+            "overflow": false
+          },
+          "helpPanel": {
+            "x": 33,
+            "y": 249.140625,
+            "width": 324,
+            "height": 138.5625
+          },
+          "openedHelp": {
+            "x": 33,
+            "y": 190.1875,
+            "width": 143.90625,
+            "height": 46.953125
+          },
+          "errors": [],
+          "blocked": []
+        },
+        {
+          "slug": "matrix-506",
+          "width": 390,
+          "theme": "dark",
+          "state": {
+            "theme": "dark",
+            "article": {
+              "x": 18,
+              "y": 84,
+              "width": 354,
+              "height": 8032.328125,
+              "center": 195
+            },
+            "source": {
+              "x": 18,
+              "y": 632.140625,
+              "width": 354,
+              "height": 6931.25,
+              "center": 195
+            },
+            "nav": {
+              "x": 18,
+              "y": 544.140625,
+              "width": 354,
+              "height": 60,
+              "center": 195
+            },
+            "navVisible": true,
+            "help": {
+              "x": 33,
+              "y": 210.171875,
+              "width": 143.90625,
+              "height": 46.953125,
+              "center": 104.953125
+            },
+            "details": {
+              "x": 188.90625,
+              "y": 205.578125,
+              "width": 168.09375,
+              "height": 56.15625,
+              "center": 272.953125
+            },
+            "label": "איך זה עובד?",
+            "helpFont": "18px",
+            "symbolBorder": "0px",
+            "proseAlignment": "start",
+            "overflow": false
+          },
+          "helpPanel": {
+            "x": 33,
+            "y": 273.734375,
+            "width": 324,
+            "height": 138.5625
+          },
+          "openedHelp": {
+            "x": 33,
+            "y": 210.171875,
+            "width": 143.90625,
+            "height": 46.953125
+          },
+          "errors": [],
+          "blocked": []
+        },
+        {
+          "slug": "chibur-bein-hasafot-mafteach-lagan",
+          "width": 390,
+          "theme": "dark",
+          "state": {
+            "theme": "dark",
+            "article": {
+              "x": 18,
+              "y": 84,
+              "width": 354,
+              "height": 10468.140625,
+              "center": 195
+            },
+            "source": {
+              "x": 18,
+              "y": 665.734375,
+              "width": 354,
+              "height": 9333.46875,
+              "center": 195
+            },
+            "nav": {
+              "x": 18,
+              "y": 577.734375,
+              "width": 354,
+              "height": 60,
+              "center": 195
+            },
+            "navVisible": true,
+            "help": {
+              "x": 33,
+              "y": 243.765625,
+              "width": 143.90625,
+              "height": 46.953125,
+              "center": 104.953125
+            },
+            "details": {
+              "x": 188.90625,
+              "y": 239.171875,
+              "width": 168.09375,
+              "height": 56.15625,
+              "center": 272.953125
+            },
+            "label": "איך זה עובד?",
+            "helpFont": "18px",
+            "symbolBorder": "0px",
+            "proseAlignment": "start",
+            "overflow": false
+          },
+          "helpPanel": {
+            "x": 33,
+            "y": 307.328125,
+            "width": 324,
+            "height": 138.5625
+          },
+          "openedHelp": {
+            "x": 33,
+            "y": 243.765625,
+            "width": 143.90625,
+            "height": 46.953125
+          },
+          "errors": [],
+          "blocked": []
+        }
+      ],
+      "first_visit_results": [
+        {
+          "slug": "koach-hashtika-dim5",
+          "width": 320,
+          "theme": "dark",
+          "state": {
+            "theme": "dark",
+            "article": {
+              "x": 18,
+              "y": 84,
+              "width": 284,
+              "height": 6071.890625,
+              "center": 160
+            },
+            "source": {
+              "x": 18,
+              "y": 744.34375,
+              "width": 284,
+              "height": 4839.859375,
+              "center": 160
+            },
+            "nav": {
+              "x": 18,
+              "y": 606.34375,
+              "width": 284,
+              "height": 110,
+              "center": 160
+            },
+            "navVisible": true,
+            "help": {
+              "x": 143.09375,
+              "y": 320.765625,
+              "width": 143.90625,
+              "height": 46.953125,
+              "center": 215.046875
+            },
+            "details": {
+              "x": 33,
+              "y": 272.765625,
+              "width": 254,
+              "height": 44,
+              "center": 160
+            },
+            "label": "איך זה עובד?",
+            "helpFont": "18px",
+            "symbolBorder": "0px",
+            "proseAlignment": "start",
+            "overflow": false
+          },
+          "helpPanel": {
+            "x": 33,
+            "y": 379.71875,
+            "width": 254,
+            "height": 216.953125
+          },
+          "openedHelp": {
+            "x": 143.09375,
+            "y": 320.765625,
+            "width": 143.90625,
+            "height": 46.953125
+          },
+          "secondary": [
+            {
+              "font": 18,
+              "height": 44
+            }
+          ],
+          "errors": [],
+          "blocked": []
+        },
+        {
+          "slug": "koach-hashtika-dim5",
+          "width": 390,
+          "theme": "dark",
+          "state": {
+            "theme": "dark",
+            "article": {
+              "x": 18,
+              "y": 84,
+              "width": 354,
+              "height": 5517.609375,
+              "center": 195
+            },
+            "source": {
+              "x": 18,
+              "y": 656.53125,
+              "width": 354,
+              "height": 4392.140625,
+              "center": 195
+            },
+            "nav": {
+              "x": 18,
+              "y": 568.53125,
+              "width": 354,
+              "height": 60,
+              "center": 195
+            },
+            "navVisible": true,
+            "help": {
+              "x": 33,
+              "y": 239.171875,
+              "width": 143.90625,
+              "height": 46.953125,
+              "center": 104.953125
+            },
+            "details": {
+              "x": 188.90625,
+              "y": 240.640625,
+              "width": 168.09375,
+              "height": 44,
+              "center": 272.953125
+            },
+            "label": "איך זה עובד?",
+            "helpFont": "18px",
+            "symbolBorder": "0px",
+            "proseAlignment": "start",
+            "overflow": false
+          },
+          "helpPanel": {
+            "x": 33,
+            "y": 298.125,
+            "width": 324,
+            "height": 190.5625
+          },
+          "openedHelp": {
+            "x": 33,
+            "y": 239.171875,
+            "width": 143.90625,
+            "height": 46.953125
+          },
+          "secondary": [
+            {
+              "font": 18,
+              "height": 44
+            }
+          ],
+          "errors": [],
+          "blocked": []
+        }
+      ],
+      "calculation_results": [
+        {
+          "width": 390,
+          "identity": "אני גואלך\nמילוי בלבד\n506",
+          "triangleIdentity": "מטריקס\nמשולש\n1890",
+          "fullNumber": "/2029/number/1890",
+          "returnVisible": true,
+          "unmappedNotice": "להופעה הזאת אין ביטוי, שיטה ותוצאה מתועדים במלואם. לא נבחרה שיטה אוטומטית.",
+          "errors": [],
+          "blocked": [],
+          "overflow": false
+        },
+        {
+          "width": 1440,
+          "identity": "אני גואלך\nמילוי בלבד\n506",
+          "triangleIdentity": "מטריקס\nמשולש\n1890",
+          "fullNumber": "/2029/number/1890",
+          "returnVisible": true,
+          "unmappedNotice": "להופעה הזאת אין ביטוי, שיטה ותוצאה מתועדים במלואם. לא נבחרה שיטה אוטומטית.",
+          "errors": [],
+          "blocked": [],
+          "overflow": false
+        }
+      ]
+    },
+    "entry_smoke_resolution": "Updated obsolete direct-open string assertions to the existing source/version-checked Number activation; no activation behavior was weakened."
   },
   "verification": {
     "pending": false,
@@ -463,14 +1418,13 @@
       "Forged method/value rejected; incomplete method starts no engine RPC; revocation hides result"
     ],
     "limits": [
-      "Hosted visual browser not asserted; authenticated HTTP checks pass. Local actual public-data browser passes at390/1440px with no page errors or blocked requests.",
+      "Hosted visual browser acceptance not asserted; exact hosted identity/HTTP checks follow deployment",
       "Signed-in/admin/RLS and physical phone frame rate not certified",
-      "Nine Matrix occurrences still have incomplete local source context",
-      "Shared help/layout proposal not applied; existing visual writer lane preserved"
+      "Nine Matrix occurrences retain incomplete local source context; no automatic method inheritance"
     ]
   },
   "production": "Legacy unchanged before and after Preview: dpl_AiKPHaoo5pxo9T5PFTpcBRG7LfMA; no merge, main push or Production change",
-  "hosted_preview": {
+  "previous_hosted_preview": {
     "deployment_id": "dpl_74dHb3BYPYtn64qsRouSKX579Ak4",
     "url": "https://sod1820-89x1dutkz-sod1820-s-projects.vercel.app",
     "status": "READY",
