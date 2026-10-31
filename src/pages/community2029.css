@@ -267,7 +267,6 @@ html[data-theme-preset="parchment"] .sod29-community--artwork{--community-art-op
 .sod29-community--full .sod29-community-intro h1{font-size:clamp(34px,5vw,52px);letter-spacing:-.025em;line-height:1.15;margin:0 0 10px}
 .sod29-community--full .sod29-community-conversation-count{margin:0;color:var(--s29-muted);font-family:var(--s29-font-ui);font-size:17px;line-height:1.5;font-variant-numeric:tabular-nums}
 .sod29-community-conversation-count bdi{font-weight:650;color:var(--s29-ink)}
-.sod29-community--full .sod29-community-conversation-count[data-position="bottom"]{margin:24px 0 0;text-align:center;font-size:15px}
 .sod29-community-entry-tools{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px 20px;margin-bottom:18px}
 .sod29-community-entry-tools>.sod29-community-sign-in--compact{flex:1 1 auto;margin:0!important;padding:0!important;border:0;background:transparent}
 .sod29-community-entry-tools:has(.sod29-community-sign-in:not(.sod29-community-sign-in--collapsed))>.sod29-community-sign-in{flex-basis:100%}
@@ -339,7 +338,6 @@ html[data-theme-preset="parchment"] .sod29-community--artwork{--community-art-op
 .sod29-community-count-detail::backdrop{background:transparent}
 /* Keep the publish target still when focus leaves the text field. */
 .sod29-community--full .sod29-community-composer textarea:focus{min-height:88px}
-.sod29-community-conversation-count[data-position="bottom"]{display:block}
 .sod29-community-conversation-count>button{gap:.3em}
 @media(max-width:600px){.sod29-community--full .sod29-community-composer textarea:focus{min-height:80px}}
 .sod29-community-stream-tools .sod29-community-feed-filter-chips button{width:44px;height:44px;min-height:44px;flex-basis:44px;font-size:14px}

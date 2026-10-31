@@ -50,12 +50,12 @@ export default function LegacyOpenWebChat2029() {
   return <section ref={sectionRef} id="legacy-chat" className="sod29-legacy-chat" aria-labelledby="legacy-chat-title"
     data-community-chat="legacy" data-openweb-loaded={!readOnlyPreview && active ? "true" : "false"}>
     <header className="sod29-legacy-chat-header">
-      <h2 id="legacy-chat-title">הצ׳אט הוותיק</h2>
-      <a href="#community-new-chat">לצ׳אט החדש ↑</a>
+      <h2 id="legacy-chat-title">ממשיכים לשוחח</h2>
+      <a href="#community-new-chat">בחזרה לשיחה ↑</a>
     </header>
     <div ref={hostRef} className="sod29-legacy-chat-conversation">
-      {readOnlyPreview ? <p>הצ׳אט הוותיק זמין באתר המקורי. <a href={SOURCE_URL} target="_blank" rel="noopener noreferrer">פתיחת הצ׳אט המקורי</a></p>
-        : active ? <OpenWebConversation /> : <p role="status">הצ׳אט הוותיק נטען כשמגיעים לכאן.</p>}
+      {readOnlyPreview ? <p><a href={SOURCE_URL} target="_blank" rel="noopener noreferrer">פתיחת השיחה ↗</a></p>
+        : active ? <OpenWebConversation /> : <p role="status">טוענים את השיחה…</p>}
     </div>
   </section>;
 }

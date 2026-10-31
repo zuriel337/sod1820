@@ -28,10 +28,10 @@ import { communityMessageShareUrl } from "../../lib/community/communityMessageSh
 const dateFormat = new Intl.DateTimeFormat("he-IL", { dateStyle: "medium", timeStyle: "short" });
 const sinceFormat = new Intl.DateTimeFormat("he-IL", { day: "numeric", month: "long", year: "numeric" });
 const compactMessages = new Intl.NumberFormat("en", { notation: "compact", maximumFractionDigits: 1 }).format(publicStats.messages);
-function ConversationCount({ bottom = false }) {
+function ConversationCount() {
   const detailId = useId();
-  return <span className="sod29-community-conversation-count" data-position={bottom ? "bottom" : "top"}>
-    <button type="button" popoverTarget={detailId} aria-label={`${compactMessages} הודעות. פרטי הספירה`}>{bottom ? <><bdi>{compactMessages}</bdi> הודעות</> : <bdi>({compactMessages})</bdi>}</button>
+  return <span className="sod29-community-conversation-count" data-position="top">
+    <button type="button" popoverTarget={detailId} aria-label={`${compactMessages} הודעות. פרטי הספירה`}><bdi>({compactMessages})</bdi></button>
     <span id={detailId} popover="auto" className="sod29-community-count-detail">כולל הצ׳אט הישן</span>
   </span>;
 }
@@ -553,11 +553,10 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
           {!error && !loading && !filtered.length ? <FrameState kind="empty" title={query.trim() ? "לא נמצאו התאמות לחיפוש" : "אין הודעות להצגה כרגע"}>{query.trim() ? <><p>החיפוש חל רק על ההודעות שכבר נטענו.</p><button type="button" className="sod29-community-secondary" onClick={() => setQuery("")}>ניקוי החיפוש</button></> : <p>אפשר לנסות לרענן את השיחות.</p>}</FrameState> : null}
           <div className="sod29-community-feed">{filtered.map((row) => <LiveThread key={row.id} row={row} accountProfiles={accountProfiles} onReply={startReply} replyCounts={replyCounts} onRepliesLoaded={onRepliesLoaded} refreshToken={threadRefresh} messageActions={messageActions} />)}</div>
           {nextOffset < total ? <button className="sod29-community-load" type="button" disabled={loading} onClick={() => loadPage(nextOffset, false)}>{loading ? "טוען…" : "עוד הודעות"} <span aria-hidden="true">↓</span></button> : <p className="sod29-community-end">הגעתם לסוף השיחות.</p>}
-          <ConversationCount bottom />
         </>}
       </section></div>}
       {!memberId && !claimId ? <footer className="sod29-community-public-footer" aria-label="השתתפות בקהילה">
-        {trailingContent && !threadFocus ? <a href="#legacy-chat">לשיחות הוותיקות ↓</a> : null}
+        {trailingContent && !threadFocus ? <a href="#legacy-chat">ממשיכים לשוחח ↓</a> : null}
         <p>משתפים בכבוד, מצרפים מקורות כשאפשר ושומרים על הפרטיות.</p>
       </footer> : null}
       {cardId ? <div className="sod29-community-card-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget) closeCard(); }}>
