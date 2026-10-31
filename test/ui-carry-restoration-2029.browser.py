@@ -175,15 +175,15 @@ def verify_filter_tiles(page, feed, width, theme):
     expect(group).to_be_visible()
     expect(group).to_have_attribute("tabindex", "0")
     buttons = group.locator("button")
-    expect(buttons).to_have_count(6)
+    expect(buttons).to_have_count(1)
     expect(group.get_by_role("button", name="הכול", exact=True)).to_have_attribute("aria-pressed", "true")
     dimensions = buttons.evaluate_all("""nodes => nodes.map(e=>{const r=e.getBoundingClientRect();return {width:r.width,height:r.height,top:r.top,font:parseFloat(getComputedStyle(e).fontSize),disabled:e.disabled,text:e.innerText.trim(),clipped:e.scrollWidth>e.clientWidth+1||e.scrollHeight>e.clientHeight+1}})""")
     assert all(abs(d["width"]-44)<1 and abs(d["height"]-44)<1 and d["width"]>=44 and d["height"]>=44 and d["font"]>=14 and not d["clipped"] for d in dimensions), dimensions
     assert max(d["top"] for d in dimensions)-min(d["top"] for d in dimensions)<1, dimensions
-    assert sum(d["disabled"] for d in dimensions)==5, dimensions
-    assert [d["text"] for d in dimensions] == ["הכול", "ללא מענה", "קבצים", "שלי", "חדשה", "ותיקה"], dimensions
+    assert not any(d["disabled"] for d in dimensions), dimensions
+    assert [d["text"] for d in dimensions] == ["הכול"], dimensions
     for accessible in ("ללא מענה", "עם קבצים", "ההודעות שלי", "מהקהילה החדשה", "מהצ׳אט הוותיק"):
-        expect(group.get_by_role("button", name=accessible, exact=True)).to_be_disabled()
+        expect(group.get_by_role("button", name=accessible, exact=True)).to_have_count(0)
     if group.evaluate("e=>e.scrollWidth>e.clientWidth+1"):
         group.scroll_into_view_if_needed()
         group.focus(); expect(group).to_be_focused()
@@ -217,20 +217,51 @@ def community_case(page, width, suffix="", theme="dark"):
         expect(legacy).to_be_in_viewport()
         assert legacy.evaluate("e => { const r=e.getBoundingClientRect(); return r.top < innerHeight && r.bottom > 0; }")
     assert feed.evaluate("e=>e.getBoundingClientRect().top + scrollY") < legacy.evaluate("e=>e.getBoundingClientRect().top + scrollY")
+    expect(feed.locator(".sod29-community-aside")).to_have_count(0)
+    expect(feed.get_by_role("heading", name="הקהילה", exact=True)).to_have_count(1)
+    expect(feed.get_by_text("מקום לשתף, לשאול ולגלות יחד.", exact=True)).to_be_visible()
+    main = feed.locator(".sod29-community-main")
+    geometry = feed.evaluate("e=>{const r=e.getBoundingClientRect(), m=e.querySelector('.sod29-community-main').getBoundingClientRect();return {page:r.width,content:m.width,columns:getComputedStyle(e.querySelector('.sod29-community-layout')).gridTemplateColumns.split(' ').length}}")
+    assert geometry["columns"] == 1 and abs(geometry["page"] - geometry["content"]) <= 1, geometry
+    footer = feed.get_by_label("השתתפות בקהילה", exact=True)
+    expect(footer).to_contain_text("משתפים בכבוד, מצרפים מקורות כשאפשר ושומרים על הפרטיות.")
+    assert footer.evaluate("e=>Boolean(e.compareDocumentPosition(document.querySelector('.sod29-community-feed')) & Node.DOCUMENT_POSITION_PRECEDING)")
+    assert footer.evaluate("e=>Boolean(e.compareDocumentPosition(document.getElementById('legacy-chat')) & Node.DOCUMENT_POSITION_FOLLOWING)")
+    expect(footer.get_by_role("link", name="לשיחות הוותיקות", exact=False)).to_have_attribute("href", "#legacy-chat")
     expect(legacy).to_have_attribute("data-openweb-loaded", "false")
     expect(legacy.locator("[data-spotim-module]")).to_have_count(0)
     assert legacy.get_by_role("link", name="פתיחת הצ׳אט המקורי").get_attribute("href") == "https://sod1820.co.il/community/chat"
     expect(feed.get_by_text("הודעת זית", exact=True)).to_be_visible()
     expect(feed.get_by_text("הודעת דקל", exact=True)).to_be_visible()
+    sign_in = main.get_by_label("התחברות לקהילה", exact=True)
+    join = sign_in.get_by_role("button", name="הצטרפו לשיחה", exact=True)
+    expect(join).to_have_attribute("aria-expanded", "false")
+    size44(join)
+    expect(sign_in.locator("form")).to_have_count(0)
+    assert sign_in.bounding_box()["height"] <= (132 if width < 600 else 80)
+    join.focus(); page.keyboard.press("Enter")
+    email = sign_in.get_by_label("כתובת מייל", exact=True)
+    expect(email).to_be_focused()
+    email.fill("layout-fixture@example.invalid")
+    page.keyboard.press("Escape")
+    join = sign_in.get_by_role("button", name="הצטרפו לשיחה", exact=True)
+    expect(join).to_be_focused()
+    expect(sign_in.locator("form")).to_have_count(0)
+    join.click()
+    expect(sign_in.get_by_label("כתובת מייל", exact=True)).to_have_value("layout-fixture@example.invalid")
+    sign_in.get_by_role("button", name="סגירת טופס ההתחברות", exact=True).click()
+    expect(sign_in.get_by_role("button", name="הצטרפו לשיחה", exact=True)).to_be_focused()
+    page.screenshot(path=str(OUT / f"community-public-{width}-{theme}.png"), full_page=True)
     controls = feed.locator('[aria-label="סידור וסינון השיחות"]')
     verify_filter_tiles(page, feed, width, theme)
-    expect(controls.get_by_role("button", name="חיפוש בכל הארכיון")).to_be_disabled()
+    expect(controls.get_by_role("button", name="חיפוש בכל הארכיון")).to_have_count(0)
     for label in ("ללא מענה", "עם קבצים", "ההודעות שלי", "מהקהילה החדשה", "מהצ׳אט הוותיק"):
-        expect(controls.get_by_role("button", name=label, exact=True)).to_be_disabled()
-    expect(controls).to_contain_text("אינם זמינים כרגע")
+        expect(controls.get_by_role("button", name=label, exact=True)).to_have_count(0)
+    expect(controls).to_contain_text("החיפוש מציג התאמות מתוך ההודעות שכבר נטענו.")
     select = controls.locator("select")
     for value in ("active", "discussed", "liked"):
-        assert select.locator(f'option[value="{value}"]').evaluate("e => e.disabled")
+        expect(select.locator(f'option[value="{value}"]')).to_have_count(0)
+    assert select.locator("option").evaluate_all("nodes=>nodes.map(e=>e.value)") == ["newest", "oldest"]
     select.select_option("oldest")
     page.wait_for_function("""() => {const s=document.querySelector('.sod29-community-feed')?.innerText || '';return s.includes('הודעת דקל') && s.includes('הודעת זית') && s.indexOf('הודעת דקל') < s.indexOf('הודעת זית')}""")
     assert report["feed_sorts"] and report["feed_sorts"][-1] == "oldest"
@@ -240,6 +271,12 @@ def community_case(page, width, suffix="", theme="dark"):
     search.fill("זית")
     expect(feed.get_by_text("הודעת זית", exact=True)).to_be_visible()
     expect(feed.get_by_text("הודעת דקל", exact=True)).to_have_count(0)
+    all_rows = controls.get_by_role("button", name="הכול", exact=True)
+    expect(all_rows).to_have_attribute("aria-pressed", "false")
+    all_rows.click()
+    expect(search).to_have_value("")
+    expect(all_rows).to_have_attribute("aria-pressed", "true")
+    expect(feed.get_by_text("הודעת דקל", exact=True)).to_be_visible()
     page.evaluate("location.hash='#legacy-chat'")
     legacy.scroll_into_view_if_needed()
     page.wait_for_timeout(400)
@@ -248,7 +285,7 @@ def community_case(page, width, suffix="", theme="dark"):
     assert not report["external_chat"], report["external_chat"]
     no_overflow(page)
     page.screenshot(path=str(OUT / f"community-{width}-{theme}{'-hash' if suffix else ''}.png"))
-    report["community"].append({"width":width, "theme":theme, "initial_hash":bool(suffix), "status":"passed"})
+    report["community"].append({"width":width, "theme":theme, "initial_hash":bool(suffix), "status":"passed", "single_column":True, "geometry":geometry, "footer_before_old_chat":True, "compact_sign_in_keyboard":True, "only_available_controls":True})
 
 
 try:

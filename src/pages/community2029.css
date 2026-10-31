@@ -207,3 +207,32 @@
 @media(max-width:600px){.sod29-community-main{padding:0 14px 16px}.sod29-community-intro{padding:20px 0 16px}.sod29-community-composer{padding:0}.sod29-community-thread{padding:18px 0 10px}.sod29-community-profile{padding:16px}.sod29-community-author{gap:8px}.sod29-community-body{line-height:1.75}}
 @media(max-width:600px){.sod29-community-card-backdrop{align-items:end;padding:0}.sod29-community-card{width:100%;max-height:88dvh;border-radius:20px 20px 0 0;padding-bottom:max(96px,env(safe-area-inset-bottom))}}
 @media(max-width:600px){.sod29-community-sign-in{padding:16px}.sod29-community-sign-in form{align-items:stretch}.sod29-community-sign-in input,.sod29-community-sign-in .sod29-community-primary{flex-basis:100%;width:100%}.sod29-community-signed-in{align-items:flex-start}.sod29-community-signed-in .sod29-community-secondary{width:100%}}
+
+/* The live community uses the available page width; public guidance follows the feed. */
+.sod29-community--full{width:min(1440px,calc(100% - 40px));padding-bottom:32px}
+.sod29-community--full .sod29-community-layout{grid-template-columns:minmax(0,1fr);gap:0}
+.sod29-community--full .sod29-community-main{padding:0}
+.sod29-community--full .sod29-community-intro{padding:8px 0 20px}
+.sod29-community--full .sod29-community-intro p{font-size:var(--s29-type-body,18px)}
+.sod29-community--full .sod29-community-sign-in--compact{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px 16px;padding:10px 14px;margin-bottom:16px}
+.sod29-community--full .sod29-community-sign-in--compact p{font-size:var(--s29-type-ui,16px)}
+.sod29-community--full .sod29-community-sign-in--compact strong{margin:0;overflow-wrap:anywhere}
+.sod29-community--full .sod29-community-sign-in--compact .sod29-community-secondary{width:auto;max-width:100%}
+.sod29-community--full .sod29-community-sign-in-heading{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;flex-basis:100%}
+.sod29-community--full .sod29-community-sign-in--compact form{flex-basis:100%}
+.sod29-community--full .sod29-community-sign-in--collapsed{padding:0;border:0;background:transparent}
+.sod29-community--full .sod29-community-composer{margin-bottom:18px}
+.sod29-community--full .sod29-community-composer>label{margin-bottom:8px}
+.sod29-community--full .sod29-community-composer-bottom{flex-direction:row;align-items:center;margin-top:8px}
+.sod29-community--full .sod29-community-composer small,.sod29-community--full .sod29-community-end{font-size:var(--s29-type-small,15px)}
+.sod29-community--full .sod29-community-attachment-toolbar .sod29-community-text-action{font-size:var(--s29-type-ui,16px)!important}
+.sod29-community--full .sod29-community-body{max-width:96ch;font-size:var(--s29-type-body,18px);overflow-wrap:anywhere}
+.sod29-community--full .sod29-community-feed-controls{grid-template-columns:auto minmax(0,1fr);align-items:center;column-gap:16px}
+.sod29-community--full .sod29-community-feed-controls-top{grid-column:2;grid-row:1;justify-content:flex-end}
+.sod29-community--full .sod29-community-stream-sort{margin:0;font-size:var(--s29-type-ui,16px)}
+.sod29-community--full .sod29-community-feed-filter-chips{grid-column:1;grid-row:1}
+.sod29-community--full .sod29-community-feed-controls-note{grid-column:1/-1;font-size:var(--s29-type-small,15px)}
+.sod29-community-public-footer{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px 24px;margin-top:28px;padding:18px 0 0;border-top:1px solid var(--s29-line);color:var(--s29-muted)}
+.sod29-community-public-footer p{margin:0;font-size:var(--s29-type-ui,16px);line-height:1.75}
+.sod29-community-public-footer a{display:inline-flex;align-items:center;min-height:44px;color:var(--s29-accent-text);font-size:var(--s29-type-ui,16px);text-underline-offset:4px}
+@media(max-width:600px){.sod29-community--full{width:calc(100% - 24px);padding-top:16px;padding-bottom:28px}.sod29-community--full .sod29-community-intro{padding:4px 0 16px}.sod29-community--full .sod29-community-sign-in--compact{padding:8px 10px}.sod29-community-public-footer{display:block}.sod29-community-public-footer p{margin-top:8px}}
