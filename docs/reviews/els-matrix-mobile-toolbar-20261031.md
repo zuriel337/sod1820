@@ -146,3 +146,19 @@ bounded receipt for the authorized coordinator, not a claimed live work-log row.
 Remaining work: resolve the separately reproduced exact-skip history race and
 obtain explicit Preview release approval. User visual acceptance of the new
 toolbar remains separate from passing automated layout checks.
+
+## Publication blocker
+
+Code commit: `5dae28f1986f59317c400d9133b84ae423202ca4`.
+Both normal push attempts and the intervening remote read failed with HTTP 503
+(`upstream connect error`, `envoy://cloudflare_https_tunnel/`). The earlier
+remote source verification succeeded, but it is not evidence of a later push.
+The GitHub connector can read repository permissions; no API-created replacement
+history or alternate-SHA branch was manufactured. Existing local commits remain
+intact. Status is **COMMITTED_LOCALLY / PUSH_BLOCKED**, not PUSHED or LIVE.
+
+An exact Git bundle of this branch from remote ancestor `32dc50bae` is supplied
+at `/workspace/els-matrix-mobile-toolbar-20261031.bundle`, including the previous
+manual-selection commit and this receipt. It is a delivery backup, not a second
+implementation. Restore only on a branch with its prerequisite base available;
+do not apply its patches again after the same commits have been imported.
