@@ -23,3 +23,13 @@ test("state points to the existing planning map without claiming a final design 
   assert.match(checkpoint,/not evidence of a main merge, Production change, G4 closure or final/);
   assert.match(checkpoint,/no source merge or renumbering/);
 });
+test("bounded story runtime updates the same state map without claiming hosted or generic completion", () => {
+  const state = read("../SOD1820_MASTER_STATE.md");
+  const checkpoint = state.slice(state.indexOf("Bounded runtime follow-up · 2026-10-31"), state.indexOf("Live reality is resolved from:"));
+  assert.match(checkpoint, /plan37 §12\.11/);
+  assert.match(checkpoint, /STORY_TREE_SEQUENCE_RUNTIME_20261031/);
+  assert.match(checkpoint, /241ae98bbdbaa3c50353dc895d2c3b2232f7d95b/);
+  assert.match(checkpoint, /9c7a7994390f135f6ec0779acd561c5f/);
+  assert.match(checkpoint, /NOT in that Preview/);
+  assert.match(checkpoint, /§12\.10 gaps remain open/);
+});

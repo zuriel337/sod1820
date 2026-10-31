@@ -313,7 +313,9 @@ try {
   }
   assert.deepEqual(report.errors, [], "no page errors");
   assert.deepEqual(report.modelRequests, [], "no model request on navigation");
-  console.log(JSON.stringify({ ...report, blocked: [...new Set(report.blocked)], origin, productWrites: false, data: "live public anonymous", coverage: process.env.PREVIEW_GALLERY_REVIEW_ONLY==='true'
+  console.log(JSON.stringify({ ...report, blocked: [...new Set(report.blocked)], origin, productWrites: false, data: "live public anonymous", coverage: process.env.PREVIEW_STORY_SEQUENCE_ONLY === 'true'
+    ? "Explicit story subset: real World fragment -> canonical graph edge -> public Post body -> native Back -> reload, at390/1440; no whole-site or hosted acceptance"
+    : process.env.PREVIEW_GALLERY_REVIEW_ONLY==='true'
     ? "Explicit gallery-design subset:1237 shared depth and exact source; galleries29/81, source->method Number->exact return, three presets and typography; excludes Topic1118/Zvi regression"
     : "1237 shared method depth; native galleries29/81, exact source -> canonical method Number -> exact return; Topic1118 -> World finding -> Back; World Zvi entry" }, null, 2));
 } finally {

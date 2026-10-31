@@ -31,6 +31,17 @@ graph-backed story navigation, explainable meter, intake-to-destination and fina
 cross-surface visual acceptance remain partial or unverified. Source references
 and historical part order are preserved; no source merge or renumbering.
 
+**Bounded runtime follow-up · 2026-10-31:** plan37 §12.11
+`STORY_TREE_SEQUENCE_RUNTIME_20261031` supersedes only the earlier story UI
+not-connected status. Code `241ae98bbdbaa3c50353dc895d2c3b2232f7d95b` connects the
+same bounded graph/public-post sequence to World and both Topic bodies, with
+explicit open/refresh, exact post return/reload and no inferred story-to-story
+edge. Existing plan body prefix MD5 `6b16163667a74a88e8d38c5309dc74fe` is preserved;
+new planning MD5 `9c7a7994390f135f6ec0779acd561c5f`. Bounded unit/browser/live-anon
+local-build tests passed. It is NOT in that Preview; no new hosted deployment,
+whole-corpus, final visual or Production acceptance is claimed. All other
+§12.10 gaps remain open; see the existing gallery receipt for evidence/limits.
+
 Live reality is resolved from:
 
 `canonical Supabase + origin/main + production where behavior matters`.

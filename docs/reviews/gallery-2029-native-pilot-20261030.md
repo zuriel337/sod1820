@@ -430,3 +430,73 @@ generic new-finding projection, novelty and final visual acceptance stay open.
 Status: PLANNING_ROW_SAVED_READBACK_VERIFIED / POINTERS_RECONCILED /
 STATIC_TESTED / BRANCH_ONLY. No source data, publication, graph, RLS, migrations,
 main or Production changes. No Preview was deployed or switched in this slice.
+
+## 31.10 follow-up — graph-backed story sequence
+
+Task `STORY_TREE_SEQUENCE_RUNTIME_20261031`; BEFORE
+`cc2bc142-5959-4c61-9b58-17b691ab7fda`; Topic race addendum
+`a62d31ad-c1ea-43a3-9c28-9982a0f0ef8a`. Branch
+`gpt/elections-world-seed-integration-20261030`, base
+`509780ef4148fb51603b821a9137aff51e3e11ec`; runtime
+`241ae98bbdbaa3c50353dc895d2c3b2232f7d95b`.
+
+The shared StoryTreeSequence2029 consumes the existing pure composition and
+canonical graph/public Post readers. Mounted in Anchored World and both Topic
+bodies (including1237), with a real Topic context-map target. No shared Frame,
+Provider, engine, publication or b30-file changes. Reads on explicit open/refresh
+or exact return only: existing relationLimit50 and separate media-window policy,
+at most8 exact-source lightweight Posts. SourceRef, nodeRef, exact edgeRef and
+original direction survive. Graph existence alone never admits a public Post.
+Default id/content reader remains compatible; additive normalized-slug lookup
+rejects ambiguous variants, mixed identifiers and unsafe paths.
+
+One story at a time, previous/next and a source Post link. Input order is not
+chronology, relevance, independent evidence or a new gallery-part order. Shared
+anchor does not create story-to-story relations. Partial/error/unavailable are
+distinct. Back/reload re-admit exact source/edge; World restores anchor/source
+Context. Refresh clears old content, ignores stale requests and accepts newly
+eligible linked sources without a manual list. This is not automatic intake,
+promotion, push or a corpus scan. Withdrawn selection is not silently replaced.
+
+Regressions found and fixed: absent Topic node matched an undefined fragment;
+late previous-topic calculation could finish after native URL navigation before
+passive slug invalidation;1237 alternate body initially lacked the new map target.
+Original negative tests retained. The existing request guard now also compares
+the captured browser path, without changing calculation semantics or the engine.
+
+Evidence:
+
+- 68 unit/contract/scoped regression checks; focused15 replay after directional
+  metadata hardening. Five registered browser checks across new sequence,
+  existing Topic/Gallery Number return and quiet sharing passed, no skips.
+- New browser covers320/390/1440, no eager reads, exact edge/source, previous/next,
+  native/context Back/reload, newly eligible source on refresh, withdrawal,
+  failed refresh, changed anchor race, missing node and restored World Context.
+  Final synthetic evidence `/tmp/story-tree-browser-8s7ave`: real UI/composition,
+  fixture graph/source results, not live content.
+- Anonymous real default readers returned posts:5112 at root
+  78fe15e1-6fc5-4641-b1cd-831a75c5bab7 via
+  edge:20f3b1d0-78d2-474a-b481-85e078bc706f. Initial Node fetch failed without
+  honoring the environment proxy; configured proxy enabled the same read. No
+  credentials, gates or network policy changed.
+- Actual integrated local build390/1440: full1237/29/81/1118/Zvi regression and
+  final story replay passed. Final replay waits for the real Post body before
+  Back, exact fragment and reload;0 pageerrors/model requests/blocked requests
+  or observed product-write escapes. Logs `/tmp/story-tree-live-browser.log`,
+  `/tmp/story-tree-final-live-browser.log`; screenshots in
+  `/tmp/story-tree-final-live-20261031/`. Not a hosted Preview acceptance.
+- Both builds, built graph/lazy, isolation, World/Topic, cheap hardening,
+  Legacy lock and diff passed. Existing chunk-size/static-dynamic Shell import
+  warnings remain. No gate was weakened.
+
+Existing planning map only: append§12.11, CAS expected
+`6b16163667a74a88e8d38c5309dc74fe`, saved
+`9c7a7994390f135f6ec0779acd561c5f`. Dedicated readonly verified exact append,
+entire preserved prefix hash/order and DRAFT. Canonical18 remains unchanged at
+`05b73b416ab47804c9a0c807250b16f7`; no parallel owner or master.
+
+IMPLEMENTED / TESTED / BRANCH ONLY, not hosted/site-final. Old f8b611cf Preview
+unchanged; no main/Production/Edge/RLS/migration/product writes. Not every root
+necessarily has multiple stories (live1073 has one); windows remain bounded.
+Generic finding-to-Topic, novelty/seen, explained meter, intake routing,
+all-gallery rollout and final cross-surface design remain open in plan37.
