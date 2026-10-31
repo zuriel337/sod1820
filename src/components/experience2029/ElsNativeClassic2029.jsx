@@ -870,7 +870,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   const [cameraFullscreen, setCameraFullscreen] = useState(false);
   const [guidedMatrixOpen, setGuidedMatrixOpen] = useState(false);
   const [lexiconVisited, setLexiconVisited] = useState(false);
-  const lexiconDetailsRef = useRef(null);
+  const [researchToolsOpen, setResearchToolsOpen] = useState(false);
   const [lexiconResponse, setLexiconResponse] = useState(null);
   useEffect(() => {
     const sync = () => setCameraFullscreen(document.fullscreenElement === cameraStageRef.current);
@@ -1683,23 +1683,30 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
           </div>
           <small>מציג את הציר ואחריו את הממצאים, אחד אחרי השני. אפשר להקליט באמצעות כלי צילום המסך במכשיר.</small>
         </section> : null}
-        <details ref={lexiconDetailsRef} hidden={!researchProfile || guidedProfile} className="els29-native-structure-entry"
-          onToggle={event => { if (event.currentTarget.open) setLexiconVisited(true); }}>
-          <summary>גילוי וקשרים במטריצה · ללא AI</summary>
-          {lexiconVisited ? <React.Suspense fallback={<p role="status">טוען כלי סריקה…</p>}>
-            <ElsLexiconResearch2029 key={user?.id || "guest"} state={engineState} visible={active && researchProfile && !guidedProfile}
-              busy={searchPending || ["searching", "verifying"].includes(operations.findings?.status)} response={lexiconResponse}
-              onRequest={target => setLensRequest({ lens: "matrix-lexicon", target })} onRestore={onResearchRestore}
-              color={findings => nextFindingColor(findings, palette)} onFocus={selectFinding}
-              onFindWords={event => openTool("findings", event.currentTarget)} />
-          </React.Suspense> : null}
-        </details>
         {matrixReading || typeof onRazielMatrix === "function" ? <button type="button" className="els29-ai-entry"
           aria-expanded={activeTool === "ai"} aria-controls="els29-context-panel"
           onClick={event => openTool("ai", event.currentTarget)}>
           <strong>✦ גילוי עם AI</strong><span>{readingPending ? "סריקה פעילה · פתח מעקב" : readingResult?.state === "COMPLETE" ? "התוצאה מוכנה · הצג במטריצה" : "בחרו אזור, בדקו עלות והתחילו רק בלחיצה"}</span>
         </button> : null}
         </div>
+        <section hidden={!researchProfile || guidedProfile} className="els29-native-structure-entry" aria-label="כלי מחקר במטריצה">
+          <button type="button" className="els29-research-entry" aria-label="כלי מחקר"
+            aria-expanded={researchToolsOpen} aria-controls="els29-research-tools"
+            onClick={() => { setLexiconVisited(true); setResearchToolsOpen(value => !value); }}>
+            <NavigationIcon2029 name="tools" />
+            <span className="els29-research-entry-copy"><strong>כלי מחקר</strong><span>גילוי וקשרים במטריצה · ללא AI</span></span>
+            <span className="els29-research-entry-state" aria-hidden="true">{researchToolsOpen ? "סגור" : "פתח"}</span>
+          </button>
+          <div id="els29-research-tools" hidden={!researchToolsOpen}>
+            {lexiconVisited ? <React.Suspense fallback={<p role="status">טוען כלי מחקר…</p>}>
+              <ElsLexiconResearch2029 key={user?.id || "guest"} state={engineState} visible={active && researchProfile && !guidedProfile}
+                busy={searchPending || ["searching", "verifying"].includes(operations.findings?.status)} response={lexiconResponse}
+                onRequest={target => setLensRequest({ lens: "matrix-lexicon", target })} onRestore={onResearchRestore}
+                color={findings => nextFindingColor(findings, palette)} onFocus={selectFinding}
+                onFindWords={event => openTool("findings", event.currentTarget)} />
+            </React.Suspense> : null}
+          </div>
+        </section>
         <div className="els29-native-toolstrip" ref={toolRailRef} hidden={classicOpen} role="group" aria-label="כלי המטריצה">
           {[["findings", "סריקה וממצאים", "els"], ["results", "תוצאות", "posts"], ["research", "שמירה", "books"]].map(([tool, label, icon]) => <button
             type="button" key={tool} aria-label={label} title={label}
