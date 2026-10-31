@@ -299,3 +299,85 @@ Edge/main/Production/domain change. Legacy helpers remain untouched.
 
 Status: IMPLEMENTED / GALLERY_TESTED / PROTECTED_PREVIEW_VERIFIED.
 Not merged or Production-live; visual acceptance still belongs to ZURIEL.
+
+## 2026-10-31 — Historical post/part mapping and quiet contextual share
+
+Task: `GALLERY_HISTORY_MAPPING_QUIET_SHARE_20261031`.
+BEFORE: `b9143552-4f6a-4eff-bf31-dd934b4eb3c7`.
+Branch: `gpt/elections-world-seed-integration-20261030`.
+Base: `1b23e75ffc9542a74254db80b013cc553dc1f6c1`.
+This section describes a new BRANCH-ONLY slice; earlier hosted receipts above
+do not imply that this newer share UI is deployed.
+
+### Historical source evidence, not another registry
+
+`gallery-historical-post-mapping-20261031.json` is a read-only audit snapshot,
+not imported by runtime, not a new gallery/series registry or canonical edge.
+It covers all 106 gallery metadata rows and 84 explicit references from 56
+eligible post representations to 56 existing galleries. Every referenced ID
+resolved. Eligibility mirrors the existing World post/source predicates; the
+privileged read-only audit is not proof of every anonymous destination.
+Unsupported shortcode/prose references and all image placements were not fully
+scanned. The other 50 gallery metadata rows are NOT declared orphaned.
+
+The existing David14/Geula45 series is explicitly witnessed by these stored
+post markers (source document TOP to BOTTOM, not a new sort):
+
+| Post | Named parts | Source gallery IDs, top to bottom |
+| --- | --- | --- |
+| 1076 | 1–10 | 78,77,76,73,70,69,61,59,57,54 |
+| 260 | 11–15 | 84,83,82,80,79 |
+| 168 | 16–20 | 99,95,91,88,86 |
+| 58 | 21–23 | 104,103,102 |
+| 37 | 23–24 | 105,104 |
+
+These groups reference 24 distinct original galleries. Part23's two post
+occurrences remain intact. Display part5 is source69, part7 is source73; neither
+is source5/7. Elections post906 explicitly embeds source69. No old content,
+names, IDs, order, publication/privacy, URLs or graph relationships were changed.
+
+### One quiet action, explicit coverage boundary
+
+Existing `ShareActions` gains an opt-in `variant="icon"`: one 16px mark inside
+a 44px keyboard/touch target. It reuses the existing native/copy execution and
+telemetry. Default callers keep their old channel row and explicit image-file
+choice; no implicit download or external sending occurs.
+
+The existing `worldFindingShare.js` projection accepts only an explicitly
+public source occurrence with matching row/provenance/placement identity and
+an unsigned public storage image. It reuses the existing 29/81 exact gallery
+locator or a reader-provided exact Topic source locator. The current origin is
+explicit: protected Preview links never pretend to be deployed Production URLs.
+No current query, auth token, OCR, caption or private Research Context is copied.
+
+Gallery29/81 cards and the shared `CanonicalMediaFigure2029` consume the same
+action. This covers eligible source cards in World/Topic/story contexts through
+the existing figure. It does NOT prove every Number/Post/Projector payload has
+public admission and an exact reopen target: where either is missing the action
+is withheld, not a guessed link or access inferred from an image URL. No routes,
+readers, Lightbox, source history, graph, Frame or Providers were changed.
+
+### Verification
+
+- Focused unit/contract regressions: 72/72, no skips; the mapping test also
+  checks all24 original parts and preservation of both part23 occurrences.
+- New real-UI fixture browser: 1/1 at320/390/1440 and dark/light/parchment;
+  exact copy, native cancellation, copy failure/retry, keyboard, 16px icon,
+  44px target, visible whole image, no overflow or nested buttons. Shared
+  execution is real; platform dialogs/clipboard/telemetry and public thumbnail
+  are fixtures. No live backend or external recipient was contacted.
+- Existing Gallery/Topic→Number exact-return browser: 2/2, no skips on final
+  rerun. An earlier parallel batch timed out at Gallery page.goto; isolated
+  Gallery passed and the final two-test file passed without runtime changes.
+- Both builds and built-graph/lazy, isolation, World/Topic surfaces, cheap
+  hardening, Legacy Production lock and diff checks passed; existing chunk
+  warnings remain. No test gate was weakened.
+- Final fixture evidence: `/tmp/gallery-quiet-share-kFWs63`, including idle
+  share-icon screenshots, visually inspected.
+  An initial fixture cross-origin SVG failed ORB; the fixture now uses an
+  inline synthetic thumbnail and aborts external network. No application
+  image policy was changed to mask that fixture issue.
+
+Status: IMPLEMENTED / BOUNDED_TESTED / NOT_DEPLOYED.
+No product DB/RLS/migration/rule changes, source merge/renumbering, main push,
+Production deployment or external WhatsApp publication.

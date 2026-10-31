@@ -1,9 +1,43 @@
 // Public World Finding share projection — presentation only, no second share/follow engine.
 // The public reader owns the exact canonicalFindingHref. Reject rather than synthesize a URL.
+import { gallerySourceHref2029, topicSourceAnchor } from "./topicSourceContext.js";
 export const WORLD_FINDING_SHARE_ORIGIN = "https://sod1820.co.il";
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const clean = (value) => value == null ? "" : String(value).replace(/\s+/g, " ").trim();
 const clip = (value, max) => clean(value).slice(0, max);
+
+// A public SOURCE occurrence is not a promoted finding. Extend this existing share
+// projection; never invent an Archive image query or substitute a sibling occurrence.
+// Explicit origin lets the isolated 2029 Preview share itself, never a nonexistent
+// Production route. No current query, auth token, OCR text or Research Context travels.
+export function worldMediaPublicShare(item, { origin } = {}) {
+  if (item?.access?.scope !== "public" || item.access.available === false) return null;
+  const id = clean(item.galleryImageId);
+  if (!UUID.test(id) || item.sourceRef !== `gallery_images:${id}`) return null;
+  const placement = item.legacyPlacement;
+  if (!placement || placement.galleryImageId !== id) return null;
+  let base, image;
+  try {
+    base = new URL(origin);
+    image = new URL(item.imageUrl);
+  } catch { return null; }
+  if (base.origin !== origin || base.username || base.password
+      || !(base.protocol === "https:" || (base.protocol === "http:" && ["localhost", "127.0.0.1"].includes(base.hostname)))) return null;
+  if (image.protocol !== "https:" || image.username || image.password || image.search || image.hash
+      || !/^\/storage\/v1\/object\/public\/[^/]+\/.+/.test(image.pathname)) return null;
+  const galleryHref = gallerySourceHref2029(placement.wpGalleryId, id);
+  let href = galleryHref;
+  if (!href && item.reopen?.topicHref) {
+    let topic;
+    try { topic = new URL(item.reopen.topicHref, origin); } catch { return null; }
+    if (!item.reopen.topicHref.startsWith("/topic/") || topic.origin !== origin || topic.search
+        || !/^\/topic\/[^/]+$/.test(topic.pathname) || topic.hash !== `#${topicSourceAnchor(item)}`) return null;
+    href = `${topic.pathname}${topic.hash}`;
+  }
+  if (!href) return null;
+  return { url: new URL(href, origin).href, title: clean(item.presentation?.label || item.label) || "תמונה מהגלריה",
+    image: image.href, entityId: id, exactState: { galleryImageId: id, sourceRef: item.sourceRef } };
+}
 
 export function worldFindingShareCard({ title, typeLabel, sourceLabel, attributionLabel, summary } = {}) {
   const heading = clean(title);

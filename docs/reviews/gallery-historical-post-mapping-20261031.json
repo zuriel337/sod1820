@@ -1,0 +1,3064 @@
+{
+  "kind": "read_only_historical_mapping_evidence_not_runtime_registry",
+  "observed_at": "2026-10-31",
+  "project": "linswmnnkjxvweumprav",
+  "base_sha": "1b23e75ffc9542a74254db80b013cc553dc1f6c1",
+  "scope": "All galleries metadata; explicit Huge-IT/data-sod markers in posts meeting existing World post representation filters. Not full prose/shortcode/image-link detection or pixel review.",
+  "privacy_note": "Privileged readonly metadata audit with explicit public-source predicates; not proof of anonymous route availability. No private post bodies, OCR, image URLs, personal details or credentials exported.",
+  "counts": {
+    "gallery_records": 106,
+    "post_references": 84,
+    "referencing_posts": 56,
+    "referenced_galleries": 56,
+    "unresolved_gallery_ids": 0
+  },
+  "existing_series_evidence": {
+    "post_id": 1076,
+    "label": "רמזי דוד 14 וגאולה 45 — חלקים 1–10",
+    "source_marker_top_to_bottom": [
+      78,
+      77,
+      76,
+      73,
+      70,
+      69,
+      61,
+      59,
+      57,
+      54
+    ],
+    "display_part_is_not_wp_gallery_id": [
+      {
+        "display_part": 5,
+        "wp_gallery_id": 69
+      },
+      {
+        "display_part": 7,
+        "wp_gallery_id": 73
+      }
+    ],
+    "elections_post_exact_reference": {
+      "post_id": 906,
+      "wp_gallery_id": 69
+    },
+    "policy": "Keep historical parts/names/IDs and existing links. No data merge, renumbering, new graph edge or guessed chronology."
+  },
+  "historical_series_post_groups": {
+    "status": "historical_explicit_source_associations_not_new_graph_edges",
+    "series_label": "רמזי דוד 14 וגאולה 45",
+    "distinct_original_parts": 24,
+    "shared_part_preserved": {
+      "wp_gallery_id": 104,
+      "post_ids": [
+        58,
+        37
+      ]
+    },
+    "groups": [
+      {
+        "post_id": 1076,
+        "original_post_title": "גלריות דוד המלך רמזי דוד {14} וגאולה {45} גלריות מס' 1/2/3/4/5/6/7/8/9/10",
+        "parts_named_by_post": "1–10",
+        "gallery_ids_top_to_bottom": [
+          78,
+          77,
+          76,
+          73,
+          70,
+          69,
+          61,
+          59,
+          57,
+          54
+        ]
+      },
+      {
+        "post_id": 260,
+        "original_post_title": "ברכבת שנפתחה ב5:40 יש 45 קרונות של 450 איש | 140 הסתייגויות על חוק עילת הסבירות שעבר בכנסת | גלריות דוד המלך &#8211; מספר 11/12/13/14/15",
+        "parts_named_by_post": "11–15",
+        "gallery_ids_top_to_bottom": [
+          84,
+          83,
+          82,
+          80,
+          79
+        ]
+      },
+      {
+        "post_id": 168,
+        "original_post_title": "רמזי 67 = יבנה | ביבי: ננצח בזכות חרב דוד! | מעבר דוד נפתח | גלריות דוד המלך מספר 16/17/18/19/20",
+        "parts_named_by_post": "16–20",
+        "gallery_ids_top_to_bottom": [
+          99,
+          95,
+          91,
+          88,
+          86
+        ]
+      },
+      {
+        "post_id": 58,
+        "original_post_title": "חדש! גלרית דוד המלך מספר 23 | רמזי גאולה ודוד חזקים ביותר | ריכוז גלריות 21/22/23",
+        "parts_named_by_post": "21–23",
+        "gallery_ids_top_to_bottom": [
+          104,
+          103,
+          102
+        ]
+      },
+      {
+        "post_id": 37,
+        "original_post_title": "בקרוב כל האתר והגלריות בממשק חדש עם מנגנוני חיפוש חישוב הדרכה ולימוד, לא היה כבושם הזה היכונו !  השבת נכנסת לעולם | גלרית דוד המלך מספר 23/24",
+        "parts_named_by_post": "23–24",
+        "gallery_ids_top_to_bottom": [
+          105,
+          104
+        ]
+      }
+    ]
+  },
+  "remaining_work": [
+    "Text-only references, unsupported shortcode forms and media placement order require separate source inspection.",
+    "Gallery listing order, order inside each part, and each post's original placement order are independent. Never re-sort by importance/time to repair them.",
+    "A zero eligible count is not missing/deleted content; do not change publication/privacy.",
+    "number_sets and hint_sets were empty in the checked snapshot; do not recreate historical sets from names or overlapping numbers.",
+    "Existing 29/81 source/method/Number exact-return integration remains; other gallery routes remain unchanged."
+  ],
+  "posts": [
+    {
+      "source_ref": "posts:4",
+      "post_id": 4,
+      "wp_id": 36846,
+      "title": "מצור מיצר הורמוז איראן = 1202 | חדש! גלרית 1202 = התגלות משיח",
+      "slug": "%d7%9e%d7%a6%d7%95%d7%a8-%d7%9e%d7%99%d7%a6%d7%a8-%d7%94%d7%95%d7%a8%d7%9e%d7%95%d7%96-%d7%90%d7%99%d7%a8%d7%90%d7%9f-1202-%d7%92%d7%9c%d7%a8%d7%99%d7%aa-1202-%d7%94%d7%aa%d7%92%d7%9c%d7%95",
+      "reference_order_basis": "first matching source marker position in stored post HTML; not date, importance or inferred series order",
+      "gallery_references": [
+        {
+          "wp_gallery_id": 106,
+          "gallery_id": "82b622eb-7f48-43be-902c-69aa10c87b14",
+          "original_name": "1202",
+          "first_marker_offset": 1407,
+          "marker_kinds": [
+            "huge_it_gallery"
+          ],
+          "relation": "explicit_post_gallery_marker_not_graph_edge"
+        }
+      ]
+    },
+    {
+      "source_ref": "posts:13",
+      "post_id": 13,
+      "wp_id": 36465,
+      "title": "חדש!! גלרית דוד המלך מספר 24 &#8211; אירן: גשם של טילים",
+      "slug": "%d7%97%d7%93%d7%a9-%d7%92%d7%9c%d7%a8%d7%99%d7%aa-%d7%93%d7%95%d7%93-%d7%94%d7%9e%d7%9c%d7%9a-%d7%9e%d7%a1%d7%a4%d7%a8-24",
+      "reference_order_basis": "first matching source marker position in stored post HTML; not date, importance or inferred series order",
+      "gallery_references": [
+        {
+          "wp_gallery_id": 105,
+          "gallery_id": "3ee0ec23-04f3-468b-a7b5-67087d41681a",
+          "original_name": "גלרית דוד 24",
+          "first_marker_offset": 1407,
+          "marker_kinds": [
+            "huge_it_gallery"
+          ],
+          "relation": "explicit_post_gallery_marker_not_graph_edge"
+        }
+      ]
+    },
+    {
+      "source_ref": "posts:21",
+      "post_id": 21,
+      "wp_id": 36317,
+      "title": " גימטריות שנת תשפ&quot;ו 5786 &#8211; 2026",
+      "slug": "%d7%a8%d7%9e%d7%96%d7%99-%d7%94%d7%97%d7%98%d7%95%d7%a4%d7%99%d7%9d-%d7%94%d7%90%d7%97%d7%a8%d7%95%d7%a0%d7%99%d7%9d-%d7%91%d7%a2%d7%96%d7%94-%d7%a8%d7%9e%d7%96%d7%99-%d7%a9%d7%a0%d7%aa",
+      "reference_order_basis": "first matching source marker position in stored post HTML; not date, importance or inferred series order",
+      "gallery_references": [
+        {
+          "wp_gallery_id": 104,
+          "gallery_id": "b4fac0d2-2769-4c23-a8b5-5521f6fa5ffb",
+          "original_name": "גלרית דוד המלך מספר 23",
+          "first_marker_offset": 25847,
+          "marker_kinds": [
+            "huge_it_gallery"
+          ],
+          "relation": "explicit_post_gallery_marker_not_graph_edge"
+        }
+      ]
+    },
+    {
+      "source_ref": "posts:37",
+      "post_id": 37,
+      "wp_id": 36088,
+      "title": "בקרוב כל האתר והגלריות בממשק חדש עם מנגנוני חיפוש חישוב הדרכה ולימוד, לא היה כבושם הזה היכונו !  השבת נכנסת לעולם | גלרית דוד המלך מספר 23/24",
+      "slug": "%d7%92%d7%9c%d7%a8%d7%99%d7%aa-%d7%93%d7%95%d7%93-%d7%94%d7%9e%d7%9c%d7%9a-%d7%9e%d7%a1%d7%a4%d7%a8-23",
+      "reference_order_basis": "first matching source marker position in stored post HTML; not date, importance or inferred series order",
+      "gallery_references": [
+        {
+          "wp_gallery_id": 105,
+          "gallery_id": "3ee0ec23-04f3-468b-a7b5-67087d41681a",
+          "original_name": "גלרית דוד 24",
+          "first_marker_offset": 1676,
+          "marker_kinds": [
+            "huge_it_gallery"
+          ],
+          "relation": "explicit_post_gallery_marker_not_graph_edge"
+        },
+        {
+          "wp_gallery_id": 104,
+          "gallery_id": "b4fac0d2-2769-4c23-a8b5-5521f6fa5ffb",
+          "original_name": "גלרית דוד המלך מספר 23",
+          "first_marker_offset": 28305,
+          "marker_kinds": [
+            "huge_it_gallery"
+          ],
+          "relation": "explicit_post_gallery_marker_not_graph_edge"
+        }
+      ]
+    },
+    {
+      "source_ref": "posts:41",
+      "post_id": 41,
+      "wp_id": 36007,
+      "title": "סיום המבצע באירן ובאר שבע | צופן התורה שמראה שכוח צה&quot;ל זה כוח המשיח | חדש! גלרית דוד המלך מספר 23 | פוסט אירן 3#",
+      "slug": "%d7%a1%d7%99%d7%95%d7%9d-%d7%94%d7%9e%d7%91%d7%a6%d7%a2-%d7%91%d7%90%d7%99%d7%a8%d7%9f-%d7%95%d7%91%d7%90%d7%a8-%d7%a9%d7%91%d7%a2-%d7%a6%d7%95%d7%a4%d7%9f-%d7%94%d7%aa%d7%95%d7%a8%d7%94-%d7%a9",
+      "reference_order_basis": "first matching source marker position in stored post HTML; not date, importance or inferred series order",
+      "gallery_references": [
+        {
+          "wp_gallery_id": 104,
+          "gallery_id": "b4fac0d2-2769-4c23-a8b5-5521f6fa5ffb",
+          "original_name": "גלרית דוד המלך מספר 23",
+          "first_marker_offset": 7999,
+          "marker_kinds": [
+            "huge_it_gallery"
+          ],
+          "relation": "explicit_post_gallery_marker_not_graph_edge"
+        }
+      ]
+    },
+    {
+      "source_ref": "posts:48",
+      "post_id": 48,
+      "wp_id": 35669,
+      "title": "רמזי השריפות ויום העצמאות ה77 למדינת ישראל | רמזי שער נון",
+      "slug": "%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e%d7%94%d7%a9%d7%a8%d7%99%d7%a4%d7%95%d7%aa-%d7%a2%d7%a8%d7%91-%d7%99%d7%95%d7%9d-%d7%94%d7%a2%d7%a6%d7%9e%d7%90%d7%95%d7%aa-%d7%9477-%d7%9c%d7%9e%d7%93%d7%99%d7%a0",
+      "reference_order_basis": "first matching source marker position in stored post HTML; not date, importance or inferred series order",
+      "gallery_references": [
+        {
+          "wp_gallery_id": 103,
+          "gallery_id": "f653f584-2160-470b-8695-2153b77a9ec2",
+          "original_name": "גלרית דוד המלך 22",
+          "first_marker_offset": 37657,
+          "marker_kinds": [
+            "huge_it_gallery"
+          ],
+          "relation": "explicit_post_gallery_marker_not_graph_edge"
+        }
+      ]
+    },
+    {
+      "source_ref": "posts:51",
+      "post_id": 51,
+      "wp_id": 35615,
+      "title": "50 חטופים בעזה רמזי החטופים | גלרית אליהו | רמזים חזקים",
+      "slug": "%d7%a1%d7%99%d7%9f-120-%d7%90%d7%9c%d7%99%d7%94%d7%95-%d7%94%d7%a0%d7%91%d7%99%d7%90-%d7%92%d7%99%d7%9c%d7%95%d7%99-%d7%90%d7%9c%d7%99%d7%94%d7%95-%d7%91%d7%a2%d7%99%d7%a6%d7%95%d7%9e%d7%95-%d7%a8",
+      "reference_order_basis": "first matching source marker position in stored post HTML; not date, importance or inferred series order",
+      "gallery_references": [
+        {
+          "wp_gallery_id": 72,
+          "gallery_id": "a4f20fdf-f6f8-447b-8be9-94f1ed550d96",
+          "original_name": "120 - סין",
+          "first_marker_offset": 45454,
+          "marker_kinds": [
+            "huge_it_gallery"
+          ],
+          "relation": "explicit_post_gallery_marker_not_graph_edge"
+        }
+      ]
+    },
+    {
+      "source_ref": "posts:58",
+      "post_id": 58,
+      "wp_id": 35096,
+      "title": "חדש! גלרית דוד המלך מספר 23 | רמזי גאולה ודוד חזקים ביותר | ריכוז גלריות 21/22/23",
+      "slug": "%d7%92%d7%9c%d7%a8%d7%99%d7%aa-%d7%93%d7%95%d7%93-%d7%94%d7%9e%d7%9c%d7%9a-%d7%aa%d7%a9%d7%a4%d7%94-21",
+      "reference_order_basis": "first matching source marker position in stored post HTML; not date, importance or inferred series order",
+      "gallery_references": [
+        {
+          "wp_gallery_id": 104,
+          "gallery_id": "b4fac0d2-2769-4c23-a8b5-5521f6fa5ffb",
+          "original_name": "גלרית דוד המלך מספר 23",
+          "first_marker_offset": 6108,
+          "marker_kinds": [
+            "huge_it_gallery"
+          ],
+          "relation": "explicit_post_gallery_marker_not_graph_edge"
+        },
+        {
+          "wp_gallery_id": 103,
+          "gallery_id": "f653f584-2160-470b-8695-2153b77a9ec2",
+          "original_name": "גלרית דוד המלך 22",
+          "first_marker_offset": 40088,
+          "marker_kinds": [
+            "huge_it_gallery"
+          ],
+          "relation": "explicit_post_gallery_marker_not_graph_edge"
+        },
+        {
+          "wp_gallery_id": 102,
+          "gallery_id": "368160b5-c679-4ca4-b845-147808bc572a",
+          "original_name": "גלרית דוד המלך 21",
+          "first_marker_offset": 69568,
+          "marker_kinds": [
+            "huge_it_gallery"
+          ],
+          "relation": "explicit_post_gallery_marker_not_graph_edge"
+        }
+      ]
+    },
+    {
+      "source_ref": "posts:65",
+      "post_id": 65,
+      "wp_id": 34952,
+      "title": "טראמפ רוצה להוציא את הפלסטינים מעזה, רמזי התגלות | תאונת אוטובוס יום אחרי יום בלאוס מרמז על הזמן שבא לקיצו",
+      "slug": "%d7%aa%d7%90%d7%95%d7%a0%d7%aa-%d7%90%d7%95%d7%98%d7%95%d7%91%d7%95%d7%a1-%d7%99%d7%95%d7%9d-%d7%90%d7%97%d7%a8%d7%99-%d7%99%d7%95%d7%9d-%d7%91%d7%9c%d7%90%d7%95%d7%a1-%d7%9e%d7%a8%d7%9e%d7%96-%d7%a2",
+      "reference_order_basis": "first matching source marker position in stored post HTML; not date, importance or inferred series order",
+      "gallery_references": [
+        {
+          "wp_gallery_id": 81,
+          "gallery_id": "897946f3-c551-42a1-b504-ea1f9bf45172",
+          "original_name": "2137-318 -1237",
+          "first_marker_offset": 7143,
+          "marker_kinds": [
+            "huge_it_gallery"
+          ],
+          "relation": "explicit_post_gallery_marker_not_graph_edge"
+        }
+      ]
+    },
+    {
+      "source_ref": "posts:67",
+      "post_id": 67,
+      "wp_id": 34820,
+      "title": "טראמפ ארה&quot;ב הולכת להשתלט על עזה | שחרור החטופים | רמזי נאום טראמפ בהשבעתו לנשיאות 2025 | רמזים חזקים רמזי 16",
+      "slug": "%d7%90-%d7%9c%d7%95%d7%94%d7%99%d7%9d-%d7%94%d7%a6%d7%99%d7%9c-%d7%90%d7%95%d7%aa%d7%99-%d7%9b%d7%93%d7%99-%d7%a9%d7%90%d7%97%d7%96%d7%99%d7%a8-%d7%90%d7%aa-%d7%90%d7%9e%d7%a8%d7%99%d7%a7%d7%94",
+      "reference_order_basis": "first matching source marker position in stored post HTML; not date, importance or inferred series order",
+      "gallery_references": [
+        {
+          "wp_gallery_id": 89,
+          "gallery_id": "b64401b2-d63f-4d95-9f3d-7fdcbff8a42c",
+          "original_name": "גלרית המספר 16/36 א",
+          "first_marker_offset": 61115,
+          "marker_kinds": [
+            "huge_it_gallery"
+          ],
+          "relation": "explicit_post_gallery_marker_not_graph_edge"
+        }
+      ]
+    },
+    {
+      "source_ref": "posts:87",
+      "post_id": 87,
+      "wp_id": 34328,
+      "title": "גלרית 7.10 = נסתר | רמזי אירן תשפה| כב בתשרי תשפד = 785 (תשפה) (אתבש)",
+      "slug": "%d7%92%d7%9c%d7%a8%d7%99%d7%aa-7-10-%d7%a0%d7%a1%d7%aa%d7%a8",
+      "reference_order_basis": "first matching source marker position in stored post HTML; not date, importance or inferred series order",
+      "gallery_references": [
+        {
+          "wp_gallery_id": 101,
+          "gallery_id": "450b9c2c-81e6-41d1-a70c-a13db958427a",
+          "original_name": "גלרית 710",
+          "first_marker_offset": 10854,
+          "marker_kinds": [
+            "huge_it_gallery"
+          ],
+          "relation": "explicit_post_gallery_marker_not_graph_edge"
+        }
+      ]
+    },
+    {
+      "source_ref": "posts:92",
+      "post_id": 92,
+      "wp_id": 34200,
+      "title": "חיסול נסראללה התרחש ביום ה358 ללחימה (משיח) בשעה 18:20 (סוד ה') | תקיפות בתימן עזה לבנון וסוריה בכ&quot;ו אלול רמזים מצמררים",
+      "slug": "%d7%97%d7%99%d7%a1%d7%95%d7%9c-%d7%a0%d7%a1%d7%a8%d7%90%d7%9c%d7%9c%d7%94-%d7%94%d7%aa%d7%a8%d7%97%d7%a9-%d7%91%d7%99%d7%95%d7%9d-%d7%94358-%d7%9c%d7%9c%d7%97%d7%99%d7%9e%d7%94-%d7%9e%d7%a9%d7%99",
+      "reference_order_basis": "first matching source marker position in stored post HTML; not date, importance or inferred series order",
+      "gallery_references": [
+        {
+          "wp_gallery_id": 15,
+          "gallery_id": "6695e06d-e308-403f-b693-c197dbefe317",
+          "original_name": "1820",
+          "first_marker_offset": 10290,
+          "marker_kinds": [
+            "huge_it_gallery"
+          ],
+          "relation": "explicit_post_gallery_marker_not_graph_edge"
+        }
+      ]
+    },
+    {
+      "source_ref": "posts:102",
+      "post_id": 102,
+      "wp_id": 33567,
+      "title": "כוחות הטבע נרתמים למען עם ישראל | רמזי תימן 45 הרוגים בשיטפונות כנאמר בנביא: וְהָלַ֖ךְ בְּסַעֲר֥וֹת תֵּימָֽן יְהֹוָ֣ה צְבָאוֹת֮ יָגֵ֣ן",
+      "slug": "%d7%91%d7%a6%d7%95%d7%a4%d7%9f-%d7%94%d7%a4%d7%9c%d7%90%d7%99-%d7%a2%d7%9c-%d7%94%d7%97%d7%95%d7%aa%d7%99%d7%9d-%d7%a8%d7%95%d7%90%d7%99%d7%9d-%d7%90%d7%aa-%d7%9b%d7%95%d7%95%d7%a0%d7%aa-%d7%90%d7%99",
+      "reference_order_basis": "first matching source marker position in stored post HTML; not date, importance or inferred series order",
+      "gallery_references": [
+        {
+          "wp_gallery_id": 96,
+          "gallery_id": "cff8d8ae-a278-4c19-a21e-afe8228dd471",
+          "original_name": "878 - 360 עולם הפוך",
+          "first_marker_offset": 26847,
+          "marker_kinds": [
+            "huge_it_gallery"
+          ],
+          "relation": "explicit_post_gallery_marker_not_graph_edge"
+        }
+      ]
+    },
+    {
+      "source_ref": "posts:105",
+      "post_id": 105,
+      "wp_id": 33462,
+      "title": "החותים בתימן מגלים לנו איך להתכונן לגאולה &#8211; גלרית רמזי המספר 15",
+      "slug": "%d7%94%d7%97%d7%95%d7%aa%d7%99%d7%9d-%d7%9e%d7%92%d7%9c%d7%99%d7%9d-%d7%9c%d7%a0%d7%95-%d7%90%d7%99%d7%9a-%d7%9c%d7%94%d7%aa%d7%9b%d7%95%d7%a0%d7%9f-%d7%9c%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%92%d7%9c",
+      "reference_order_basis": "first matching source marker position in stored post HTML; not date, importance or inferred series order",
+      "gallery_references": [
+        {
+          "wp_gallery_id": 98,
+          "gallery_id": "fde40ef4-a161-4367-8a9b-85f8ea37f6da",
+          "original_name": "גלרית המספר 15",
+          "first_marker_offset": 13090,
+          "marker_kinds": [
+            "huge_it_gallery"
+          ],
+          "relation": "explicit_post_gallery_marker_not_graph_edge"
+        }
+      ]
+    },
+    {
+      "source_ref": "posts:106",
+      "post_id": 106,
+      "wp_id": 33336,
+      "title": "חדש! &quot;גלרית לדעת בארץ דרכך&quot; &#8211; מספרים ורמזים נבחרים",
+      "slug": "%d7%97%d7%93%d7%a9-%d7%92%d7%9c%d7%a8%d7%99%d7%aa-%d7%9c%d7%93%d7%a2%d7%aa-%d7%91%d7%90%d7%a8%d7%a5-%d7%93%d7%a8%d7%9b%d7%9a-%d7%9e%d7%a1%d7%a4%d7%a8%d7%99%d7%9d-%d7%95%d7%a8%d7%9e%d7%96%d7%99",
+      "reference_order_basis": "first matching source marker position in stored post HTML; not date, importance or inferred series order",
+      "gallery_references": [
+        {
+          "wp_gallery_id": 97,
+          "gallery_id": "fb564227-d4ac-45cb-92d2-8e45e6464ff5",
+          "original_name": "רמזי 26 -17 = טוב - ורמזי מכוניות",
+          "first_marker_offset": 1407,
+          "marker_kinds": [
+            "huge_it_gallery"
+          ],
+          "relation": "explicit_post_gallery_marker_not_graph_edge"
+        }
+      ]
+    },
+    {
+      "source_ref": "posts:108",
+      "post_id": 108,
+      "wp_id": 33244,
+      "title": "השתלת לב מלאכותי לבן 63 | גלרית 360 = צירי הגאולה | גלרית 878 = עולם הפוך ראיתי",
+      "slug": "%d7%97%d7%93%d7%a9-%d7%92%d7%9c%d7%a8%d7%99%d7%aa-36-878-%d7%a2%d7%95%d7%9c%d7%9d-%d7%94%d7%a4%d7%95%d7%9a-%d7%a8%d7%90%d7%99%d7%aa%d7%99-%d7%9e%d7%a9%d7%99%d7%97",
+      "reference_order_basis": "first matching source marker position in stored post HTML; not date, importance or inferred series order",
+      "gallery_references": [
+        {
+          "wp_gallery_id": 96,
+          "gallery_id": "cff8d8ae-a278-4c19-a21e-afe8228dd471",
+          "original_name": "878 - 360 עולם הפוך",
+          "first_marker_offset": 1407,
+          "marker_kinds": [
+            "huge_it_gallery"
+          ],
+          "relation": "explicit_post_gallery_marker_not_graph_edge"
+        }
+      ]
+    },
+    {
+      "source_ref": "posts:115",
+      "post_id": 115,
+      "wp_id": 33075,
+      "title": "רמזי יציאת מצרים &#8211; כדי לצאת לגאולה האדם עובר מ&quot;ב מסעות במדבר | גלרית רמזי 42/40 | רמזים חזקים ביותר",
+      "slug": "%d7%9b%d7%93%d7%99-%d7%9c%d7%a6%d7%90%d7%aa-%d7%9c%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%94%d7%90%d7%93%d7%9d-%d7%a2%d7%95%d7%91%d7%a8-%d7%9e%d7%91-%d7%9e%d7%a1%d7%a2%d7%95%d7%aa-%d7%91%d7%9e%d7%93",
+      "reference_order_basis": "first matching source marker position in stored post HTML; not date, importance or inferred series order",
+      "gallery_references": [
+        {
+          "wp_gallery_id": 94,
+          "gallery_id": "92604057-eaef-4784-946a-8e25930b83c2",
+          "original_name": "גלרית 40/42",
+          "first_marker_offset": 1513,
+          "marker_kinds": [
+            "huge_it_gallery"
+          ],
+          "relation": "explicit_post_gallery_marker_not_graph_edge"
+        }
+      ]
+    },
+    {
+      "source_ref": "posts:120",
+      "post_id": 120,
+      "wp_id": 32729,
+      "title": "חדש!!! גלרית 776 = ביאת המשיח | המספר החזק ביותר של הגאולה",
+      "slug": "%d7%97%d7%93%d7%a9-%d7%92%d7%9c%d7%a8%d7%99%d7%aa-776-%d7%91%d7%99%d7%90%d7%aa-%d7%94%d7%9e%d7%a9%d7%99%d7%97",
+      "reference_order_basis": "first matching source marker position in stored post HTML; not date, importance or inferred series order",
+      "gallery_references": [
+        {
+          "wp_gallery_id": 93,
+          "gallery_id": "eb4da5e5-a1a2-485b-80ef-cf86b5f091cf",
+          "original_name": "776",
+          "first_marker_offset": 1524,
+          "marker_kinds": [
+            "huge_it_gallery"
+          ],
+          "relation": "explicit_post_gallery_marker_not_graph_edge"
+        }
+      ]
+    },
+    {
+      "source_ref": "posts:123",
+      "post_id": 123,
+      "wp_id": 32619,
+      "title": "המשיח קיבל אור ירוק. הרב זיסהולץ | מטבע נדיר התגלה |שלטים נגד ביבי | יום הגאולה בגימטריה",
+      "slug": "%d7%94%d7%9e%d7%a9%d7%99%d7%97-%d7%a7%d7%99%d7%91%d7%9c-%d7%90%d7%95%d7%a8-%d7%99%d7%a8%d7%95%d7%a7-%d7%94%d7%a8%d7%91-%d7%96%d7%99%d7%a1%d7%94%d7%95%d7%9c%d7%a5-%d7%9e%d7%94-%d7%a6%d7%a8%d7%99",
+      "reference_order_basis": "first matching source marker position in stored post HTML; not date, importance or inferred series order",
+      "gallery_references": [
+        {
+          "wp_gallery_id": 91,
+          "gallery_id": "e48a61d4-4280-42ed-ba6d-db5111d90184",
+          "original_name": "גלרית דוד המלך מספר 18",
+          "first_marker_offset": 4198,
+          "marker_kinds": [
+            "huge_it_gallery"
+          ],
+          "relation": "explicit_post_gallery_marker_not_graph_edge"
+        }
+      ]
+    },
+    {
+      "source_ref": "posts:127",
+      "post_id": 127,
+      "wp_id": 32380,
+      "title": "כיבוש פילדלפי בכ&quot;ג אייר | מים מותזים בפומבי על נשיא אירן | רמזי המתקפה האירנית בישראל | כביש 749 הוקם בעזה &quot;כיפת ברזל = 749&quot; | רמזי חרבות ברזל 4#",
+      "slug": "%d7%a8%d7%9e%d7%96%d7%99-%d7%9d%d7%97%d7%96%d7%a7%d7%99%d7%9d-%d7%9e%d7%a9%d7%97%d7%a8%d7%95%d7%a8-%d7%94%d7%97%d7%98%d7%95%d7%a4%d7%99%d7%9d-%d7%94%d7%90%d7%a8%d7%92%d7%a0%d7%98%d7%99%d7%a0%d7%90",
+      "reference_order_basis": "first matching source marker position in stored post HTML; not date, importance or inferred series order",
+      "gallery_references": [
+        {
+          "wp_gallery_id": 91,
+          "gallery_id": "e48a61d4-4280-42ed-ba6d-db5111d90184",
+          "original_name": "גלרית דוד המלך מספר 18",
+          "first_marker_offset": 97061,
+          "marker_kinds": [
+            "huge_it_gallery"
+          ],
+          "relation": "explicit_post_gallery_marker_not_graph_edge"
+        }
+      ]
+    },
+    {
+      "source_ref": "posts:133",
+      "post_id": 133,
+      "wp_id": 31891,
+      "title": "הרב אברהם ברוך &#8211; הצפון כולו רותח | לחזור בתשובה מיד!!! | + רמזי 1237 התגלות ו588 = מלחמת גוג ומגוג",
+      "slug": "%d7%94%d7%a8%d7%91-%d7%90%d7%91%d7%a8%d7%94%d7%9d-%d7%91%d7%a8%d7%95%d7%9a-%d7%94%d7%a6%d7%a4%d7%95%d7%9f-%d7%9b%d7%95%d7%9c%d7%95-%d7%a8%d7%95%d7%aa%d7%97-%d7%9c%d7%97%d7%96%d7%95%d7%a8-%d7%91",
+      "reference_order_basis": "first matching source marker position in stored post HTML; not date, importance or inferred series order",
+      "gallery_references": [
+        {
+          "wp_gallery_id": 89,
+          "gallery_id": "b64401b2-d63f-4d95-9f3d-7fdcbff8a42c",
+          "original_name": "גלרית המספר 16/36 א",
+          "first_marker_offset": 5167,
+          "marker_kinds": [
+            "huge_it_gallery"
+          ],
+          "relation": "explicit_post_gallery_marker_not_graph_edge"
+        }
+      ]
+    },
+    {
+      "source_ref": "posts:142",
+      "post_id": 142,
+      "wp_id": 31721,
+      "title": "רמזי ביבי חזקים | ונשגב י-הוה לבדו ביום ההוא = 683 = בנימין נתניהו | גלרית ביבי נתניהו",
+      "slug": "%d7%a8%d7%9e%d7%96%d7%99-%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%97%d7%96%d7%a7%d7%99%d7%9d-%d7%a2%d7%9c-%d7%94%d7%9e%d7%a1%d7%a4%d7%a8-2024",
+      "reference_order_basis": "first matching source marker position in stored post HTML; not date, importance or inferred series order",
+      "gallery_references": [
+        {
+          "wp_gallery_id": 87,
+          "gallery_id": "bb226d32-660c-41f6-8272-f0233bf19716",
+          "original_name": "גלרית ביבי - תשפ\"ד",
+          "first_marker_offset": 4104,
+          "marker_kinds": [
+            "huge_it_gallery"
+          ],
+          "relation": "explicit_post_gallery_marker_not_graph_edge"
+        },
+        {
+          "wp_gallery_id": 90,
+          "gallery_id": "7654ad82-eeb8-4305-9f13-d7ca1a169ac3",
+          "original_name": "גלרית המספר 2024",
+          "first_marker_offset": 47152,
+          "marker_kinds": [
+            "huge_it_gallery"
+          ],
+          "relation": "explicit_post_gallery_marker_not_graph_edge"
+        }
+      ]
+    },
+    {
+      "source_ref": "posts:149",
+      "post_id": 149,
+      "wp_id": 31540,
+      "title": "תדר הגאולה מתגבר בעולם התחלת הגאולה ב7.10 , קץ דניאל | #כל העדכונים הכי חזקים רמזי חרבות ברזל חלק 5",
+      "slug": "%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e%d7%a0%d7%a4%d7%99%d7%9c%d7%aa-%d7%92%d7%9c-%d7%9e%d7%90%d7%99%d7%a8-%d7%90%d7%99%d7%96%d7%a0%d7%a7%d7%95%d7%98",
+      "reference_order_basis": "first matching source marker position in stored post HTML; not date, importance or inferred series order",
+      "gallery_references": [
+        {
+          "wp_gallery_id": 101,
+          "gallery_id": "450b9c2c-81e6-41d1-a70c-a13db958427a",
+          "original_name": "גלרית 710",
+          "first_marker_offset": 33906,
+          "marker_kinds": [
+            "huge_it_gallery"
+          ],
+          "relation": "explicit_post_gallery_marker_not_graph_edge"
+        }
+      ]
+    },
+    {
+      "source_ref": "posts:168",
+      "post_id": 168,
+      "wp_id": 30776,
+      "title": "רמזי 67 = יבנה | ביבי: ננצח בזכות חרב דוד! | מעבר דוד נפתח | גלריות דוד המלך מספר 16/17/18/19/20",
+      "slug": "%d7%9e%d7%93%d7%94%d7%99%d7%9d-%d7%92%d7%95%d7%93%d7%9c-%d7%9c%d7%91%d7%a0%d7%95%d7%9f-10-400-%d7%92%d7%95%d7%93%d7%9c-%d7%a2%d7%96%d7%94-45-%d7%a0%d7%9e%d7%a6%d7%90%d7%99%d7%9d-%d7%91%d7%a9%d7%a0",
+      "reference_order_basis": "first matching source marker position in stored post HTML; not date, importance or inferred series order",
+      "gallery_references": [
+        {
+          "wp_gallery_id": 99,
+          "gallery_id": "caef5a77-ffe8-43a3-8ab1-ae36f4d50b4e",
+          "original_name": "גלרית דוד המלך מספר 20",
+          "first_marker_offset": 1556,
+          "marker_kinds": [
+            "huge_it_gallery"
+          ],
+          "relation": "explicit_post_gallery_marker_not_graph_edge"
+        },
+        {
+          "wp_gallery_id": 95,
+          "gallery_id": "a9f27315-1641-4ae8-9e06-ed9d109ef6b1",
+          "original_name": "גלרית דוד המלך מספר 19",
+          "first_marker_offset": 53278,
+          "marker_kinds": [
+            "huge_it_gallery"
+          ],
+          "relation": "explicit_post_gallery_marker_not_graph_edge"
+        },
+        {
+          "wp_gallery_id": 91,
+          "gallery_id": "e48a61d4-4280-42ed-ba6d-db5111d90184",
+          "original_name": "גלרית דוד המלך מספר 18",
+          "first_marker_offset": 90236,
+          "marker_kinds": [
+            "huge_it_gallery"
+          ],
+          "relation": "explicit_post_gallery_marker_not_graph_edge"
+        },
+        {
+          "wp_gallery_id": 88,
+          "gallery_id": "2d1c54b9-9a67-4872-b7da-e24c5bf98167",
+          "original_name": "גלרית דוד מס 17",
+          "first_marker_offset": 123897,
+          "marker_kinds": [
+            "huge_it_gallery"
+          ],
+          "relation": "explicit_post_gallery_marker_not_graph_edge"
+        },
+        {
+          "wp_gallery_id": 86,
+          "gallery_id": "a5765c27-dd5a-427a-8ff0-23cc1ec9ffe6",
+          "original_name": "גלרית דוד המלך מספר 16",
+          "first_marker_offset": 156133,
+          "marker_kinds": [
+            "huge_it_gallery"
+          ],
+          "relation": "explicit_post_gallery_marker_not_graph_edge"
+        }
+      ]
+    },
+    {
+      "source_ref": "posts:177",
+      "post_id": 177,
+      "wp_id": 30163,
+      "title": "רמז מדהים ביותר בסיכוי סטטיסטי לא הגיוני |  גלריות גימטריה וצפנים תשפ&quot;ד",
+      "slug": "%d7%92%d7%9c%d7%a8%d7%99%d7%aa-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%94-%d7%aa%d7%a9%d7%a4%d7%93",
+      "reference_order_basis": "first matching source marker position in stored post HTML; not date, importance or inferred series order",
+      "gallery_references": [
+        {
+          "wp_gallery_id": 87,
+          "gallery_id": "bb226d32-660c-41f6-8272-f0233bf19716",
+          "original_name": "גלרית ביבי - תשפ\"ד",
+          "first_marker_offset": 2143,
+          "marker_kinds": [
+            "huge_it_gallery"
+          ],
+          "relation": "explicit_post_gallery_marker_not_graph_edge"
+        }
+      ]
+    },
+    {
+      "source_ref": "posts:181",
+      "post_id": 181,
+      "wp_id": 29757,
+      "title": "החל מיום חמישי (5) שחרור 50 חטופים | חמישה בני אדם ממקומות שונים נעקצו על ידי עקרבים | גלרית המספר 5",
+      "slug": "%d7%97%d7%9e%d7%99%d7%a9%d7%94-%d7%91%d7%a0%d7%99-%d7%90%d7%93%d7%9d-%d7%9e%d7%9e%d7%a7%d7%95%d7%9e%d7%95%d7%aa-%d7%a9%d7%95%d7%a0%d7%99%d7%9d-%d7%a0%d7%a2%d7%a7%d7%a6%d7%95-%d7%a2%d7%9c-%d7%99%d7%93",
+      "reference_order_basis": "first matching source marker position in stored post HTML; not date, importance or inferred series order",
+      "gallery_references": [
+        {
+          "wp_gallery_id": 85,
+          "gallery_id": "e308f008-5254-4455-88a4-7e7767133ade",
+          "original_name": "גלרית המספר 5",
+          "first_marker_offset": 1536,
+          "marker_kinds": [
+            "huge_it_gallery"
+          ],
+          "relation": "explicit_post_gallery_marker_not_graph_edge"
+        }
+      ]
+    },
+    {
+      "source_ref": "posts:203",
+      "post_id": 203,
+      "wp_id": 29114,
+      "title": "רמזי &quot;26 הויה&quot; בתוך המילה דין &#8211; רמזי 17 = טוב | מה זה עולם פנימי? | אח ואחות נספו.. וכן אסון משפחת די |",
+      "slug": "%d7%90%d7%a1%d7%95%d7%9f-%d7%9e%d7%a9%d7%a4%d7%97%d7%aa-%d7%93%d7%99-%d7%a8%d7%9e%d7%96%d7%99%d7%9d",
+      "reference_order_basis": "first matching source marker position in stored post HTML; not date, importance or inferred series order",
+      "gallery_references": [
+        {
+          "wp_gallery_id": 97,
+          "gallery_id": "fb564227-d4ac-45cb-92d2-8e45e6464ff5",
+          "original_name": "רמזי 26 -17 = טוב - ורמזי מכוניות",
+          "first_marker_offset": 1410,
+          "marker_kinds": [
+            "huge_it_gallery"
+          ],
+          "relation": "explicit_post_gallery_marker_not_graph_edge"
+        },
+        {
+          "wp_gallery_id": 81,
+          "gallery_id": "897946f3-c551-42a1-b504-ea1f9bf45172",
+          "original_name": "2137-318 -1237",
+          "first_marker_offset": 47704,
+          "marker_kinds": [
+            "huge_it_gallery"
+          ],
+          "relation": "explicit_post_gallery_marker_not_graph_edge"
+        }
+      ]
+    },
+    {
+      "source_ref": "posts:226",
+      "post_id": 226,
+      "wp_id": 28337,
+      "title": "האות ע' של עזה _ סיום והתפרקות דתות ומבנים ישנים | רמזי ה&quot;יראה = 216&quot; רמזי &quot;16 חדשים&quot; | רמזי ה&quot;חכמה 73&quot; | סוד ה&quot;רצון 346&quot;",
+      "slug": "%d7%9b%d7%95%d7%9b%d7%91-%d7%a9%d7%91%d7%99%d7%98-%d7%a9%d7%9c%d7%90-%d7%a0%d7%a8%d7%90%d7%94-%d7%9b%d7%90%d7%9f-%d7%90%d7%9c%d7%a4%d7%99-%d7%a9%d7%a0%d7%99%d7%9d-%d7%9e%d7%aa%d7%a7%d7%a8%d7%91",
+      "reference_order_basis": "first matching source marker position in stored post HTML; not date, importance or inferred series order",
+      "gallery_references": [
+        {
+          "wp_gallery_id": 89,
+          "gallery_id": "b64401b2-d63f-4d95-9f3d-7fdcbff8a42c",
+          "original_name": "גלרית המספר 16/36 א",
+          "first_marker_offset": 7162,
+          "marker_kinds": [
+            "huge_it_gallery"
+          ],
+          "relation": "explicit_post_gallery_marker_not_graph_edge"
+        }
+      ]
+    },
+    {
+      "source_ref": "posts:233",
+      "post_id": 233,
+      "wp_id": 28247,
+      "title": "רמזי מלחמת &quot;חרבות ברזל&quot; שהתחילה בשעה 6:30 בשמחת תורה | פוסט רמזים מרכזי במספר &quot;360 = עזר כנגדו&quot; #הקפצה",
+      "slug": "%d7%a8%d7%9e%d7%96%d7%99-%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%97%d7%a0%d7%95%d7%9b%d7%94-%d7%aa%d7%a9%d7%a4%d7%92-%d7%a8%d7%9e%d7%96%d7%99-%d7%98%d7%a8%d7%90%d7%9e%d7%a4-%d7%97%d7%93%d7%a9",
+      "reference_order_basis": "first matching source marker position in stored post HTML; not date, importance or inferred series order",
+      "gallery_references": [
+        {
+          "wp_gallery_id": 86,
+          "gallery_id": "a5765c27-dd5a-427a-8ff0-23cc1ec9ffe6",
+          "original_name": "גלרית דוד המלך מספר 16",
+          "first_marker_offset": 54054,
+          "marker_kinds": [
+            "huge_it_gallery"
+          ],
+          "relation": "explicit_post_gallery_marker_not_graph_edge"
+        },
+        {
+          "wp_gallery_id": 15,
+          "gallery_id": "6695e06d-e308-403f-b693-c197dbefe317",
+          "original_name": "1820",
+          "first_marker_offset": 199366,
+          "marker_kinds": [
+            "huge_it_gallery"
+          ],
+          "relation": "explicit_post_gallery_marker_not_graph_edge"
+        }
+      ]
+    },
+    {
+      "source_ref": "posts:236",
+      "post_id": 236,
+      "wp_id": 28180,
+      "title": "עיסקת החטופים יוצאת לדרך ב16 לחודש &#8211; פעימה ראשונה 16 יום | כביש חדש לירושלים כביש 16| גלרית המספר 16 | רמזים חזקים",
+      "slug": "%d7%a8%d7%9e%d7%96%d7%99-%d7%99%d7%a8%d7%95%d7%a9%d7%9c%d7%99%d7%9d-%d7%9b%d7%91%d7%99%d7%a9-%d7%97%d7%93%d7%a9-%d7%9c%d7%99%d7%a8%d7%95%d7%a9%d7%9c%d7%99%d7%9d-%d7%9b%d7%91%d7%99%d7%a9-16-%d7%a8",
+      "reference_order_basis": "first matching source marker position in stored post HTML; not date, importance or inferred series order",
+      "gallery_references": [
+        {
+          "wp_gallery_id": 89,
+          "gallery_id": "b64401b2-d63f-4d95-9f3d-7fdcbff8a42c",
+          "original_name": "גלרית המספר 16/36 א",
+          "first_marker_offset": 1434,
+          "marker_kinds": [
+            "huge_it_gallery"
+          ],
+          "relation": "explicit_post_gallery_marker_not_graph_edge"
+        },
+        {
+          "wp_gallery_id": 38,
+          "gallery_id": "58a59187-4ce9-4d41-b633-a206d02ef118",
+          "original_name": "גלרית 2368",
+          "first_marker_offset": 129245,
+          "marker_kinds": [
+            "huge_it_gallery"
+          ],
+          "relation": "explicit_post_gallery_marker_not_graph_edge"
+        }
+      ]
+    },
+    {
+      "source_ref": "posts:253",
+      "post_id": 253,
+      "wp_id": 27635,
+      "title": "שנת תשפ&quot;ג בסימן שנת התורה | חזק ביותר !!! | גלרית גימטריה תשפ&quot;ג &#8211; 2023",
+      "slug": "%d7%a9%d7%a0%d7%aa-%d7%aa%d7%a9%d7%a4%d7%92-%d7%91%d7%a1%d7%99%d7%9e%d7%9f-%d7%a9%d7%a0%d7%aa-%d7%94%d7%aa%d7%95%d7%a8%d7%94-%d7%97%d7%96%d7%a7-%d7%91%d7%99%d7%95%d7%aa%d7%a8-%d7%92%d7%9c",
+      "reference_order_basis": "first matching source marker position in stored post HTML; not date, importance or inferred series order",
+      "gallery_references": [
+        {
+          "wp_gallery_id": 74,
+          "gallery_id": "efebbd12-40b5-49cc-a9d5-b367b6c419cf",
+          "original_name": "גימטריה תשפג",
+          "first_marker_offset": 1464,
+          "marker_kinds": [
+            "huge_it_gallery"
+          ],
+          "relation": "explicit_post_gallery_marker_not_graph_edge"
+        }
+      ]
+    },
+    {
+      "source_ref": "posts:260",
+      "post_id": 260,
+      "wp_id": 27374,
+      "title": "ברכבת שנפתחה ב5:40 יש 45 קרונות של 450 איש | 140 הסתייגויות על חוק עילת הסבירות שעבר בכנסת | גלריות דוד המלך &#8211; מספר 11/12/13/14/15",
+      "slug": "%d7%92%d7%9c%d7%a8%d7%99%d7%aa-%d7%93%d7%95%d7%93-%d7%94%d7%9e%d7%9c%d7%9a-%d7%9e%d7%a1%d7%a4%d7%a8-11",
+      "reference_order_basis": "first matching source marker position in stored post HTML; not date, importance or inferred series order",
+      "gallery_references": [
+        {
+          "wp_gallery_id": 84,
+          "gallery_id": "74701536-ff1c-4184-99cf-e088971ecf74",
+          "original_name": "גלרית דוד המלך מספר 15",
+          "first_marker_offset": 1749,
+          "marker_kinds": [
+            "huge_it_gallery"
+          ],
+          "relation": "explicit_post_gallery_marker_not_graph_edge"
+        },
+        {
+          "wp_gallery_id": 83,
+          "gallery_id": "4604fb49-a142-4168-98d9-8e4cd987a170",
+          "original_name": "גלרית דוד מספר 14",
+          "first_marker_offset": 39861,
+          "marker_kinds": [
+            "huge_it_gallery"
+          ],
+          "relation": "explicit_post_gallery_marker_not_graph_edge"
+        },
+        {
+          "wp_gallery_id": 82,
+          "gallery_id": "bc53d79f-e54d-4667-ab9b-aa059873cc2f",
+          "original_name": "גלרית 14 - 13",
+          "first_marker_offset": 80005,
+          "marker_kinds": [
+            "huge_it_gallery"
+          ],
+          "relation": "explicit_post_gallery_marker_not_graph_edge"
+        },
+        {
+          "wp_gallery_id": 80,
+          "gallery_id": "cca166f2-99fb-4746-b0d0-f6509287f7c0",
+          "original_name": "גלרית 14 - 12",
+          "first_marker_offset": 117485,
+          "marker_kinds": [
+            "huge_it_gallery"
+          ],
+          "relation": "explicit_post_gallery_marker_not_graph_edge"
+        },
+        {
+          "wp_gallery_id": 79,
+          "gallery_id": "554073f3-4ac4-4459-badd-04b3752bfd70",
+          "original_name": "גלרית 14 - 11",
+          "first_marker_offset": 150693,
+          "marker_kinds": [
+            "huge_it_gallery"
+          ],
+          "relation": "explicit_post_gallery_marker_not_graph_edge"
+        }
+      ]
+    },
+    {
+      "source_ref": "posts:261",
+      "post_id": 261,
+      "wp_id": 27349,
+      "title": "5 רמזי גאולה מדהימים (45) בהקשר לנשיא רוסיה ולדימיר פוטין",
+      "slug": "5-%d7%a8%d7%9e%d7%96%d7%99-%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%9e%d7%93%d7%94%d7%99%d7%9e%d7%99%d7%9d-45-%d7%91%d7%94%d7%a7%d7%a9%d7%a8-%d7%9c%d7%95%d7%93%d7%99%d7%9e%d7%99%d7%a8-%d7%a4%d7%95%d7%98",
+      "reference_order_basis": "first matching source marker position in stored post HTML; not date, importance or inferred series order",
+      "gallery_references": [
+        {
+          "wp_gallery_id": 78,
+          "gallery_id": "1c7aed8b-b4cb-4c20-814c-96ad4602698f",
+          "original_name": "גלרית 14 - 10",
+          "first_marker_offset": 1871,
+          "marker_kinds": [
+            "huge_it_gallery"
+          ],
+          "relation": "explicit_post_gallery_marker_not_graph_edge"
+        }
+      ]
+    },
+    {
+      "source_ref": "posts:281",
+      "post_id": 281,
+      "wp_id": 26713,
+      "title": "גילויים מרעישים!!! ידיעת הקץ ומלחמת גוג &#8230;",
+      "slug": "26713-2",
+      "reference_order_basis": "first matching source marker position in stored post HTML; not date, importance or inferred series order",
+      "gallery_references": [
+        {
+          "wp_gallery_id": 2,
+          "gallery_id": "4a9db840-10c6-4cd7-9fbb-f6adc2f8fe83",
+          "original_name": "סוד הגאולה מעוצב",
+          "first_marker_offset": 6244,
+          "marker_kinds": [
+            "huge_it_gallery"
+          ],
+          "relation": "explicit_post_gallery_marker_not_graph_edge"
+        }
+      ]
+    },
+    {
+      "source_ref": "posts:295",
+      "post_id": 295,
+      "wp_id": 26354,
+      "title": "רמזי שנת 2022 שנתיים לקורונה | רמזי מגפת הקורונה פוסט מרכזי מס #2",
+      "slug": "%d7%a8%d7%9e%d7%96%d7%99-%d7%a9%d7%a0%d7%aa-2022-%d7%a9%d7%a0%d7%aa%d7%99%d7%99%d7%9d-%d7%9c%d7%a7%d7%95%d7%a8%d7%95%d7%a0%d7%94-%d7%9b%d7%9c-%d7%a8%d7%9e%d7%96%d7%99-%d7%94%d7%a7%d7%95%d7%a8%d7%95",
+      "reference_order_basis": "first matching source marker position in stored post HTML; not date, importance or inferred series order",
+      "gallery_references": [
+        {
+          "wp_gallery_id": 76,
+          "gallery_id": "5f25dece-efa3-4659-8371-6f747f8f54f2",
+          "original_name": "גלרית 14 - 8",
+          "first_marker_offset": 3868,
+          "marker_kinds": [
+            "huge_it_gallery"
+          ],
+          "relation": "explicit_post_gallery_marker_not_graph_edge"
+        }
+      ]
+    },
+    {
+      "source_ref": "posts:298",
+      "post_id": 298,
+      "wp_id": 26301,
+      "title": "פאי בתורה: הקשר הנסתר נחשף | קוד הבריאה חלק ב' &#8211; שם השם 'שדי' והנדסת הפאי | אורן עברון",
+      "slug": "%d7%a7%d7%95%d7%93-%d7%94%d7%91%d7%a8%d7%99%d7%90%d7%94-%d7%97%d7%9c%d7%a7-%d7%91-%d7%a9%d7%9d-%d7%94%d7%a9%d7%9d-%d7%a9%d7%93%d7%99-%d7%95%d7%94%d7%a0%d7%93%d7%a1%d7%aa-%d7%94%d7%a4%d7%90",
+      "reference_order_basis": "first matching source marker position in stored post HTML; not date, importance or inferred series order",
+      "gallery_references": [
+        {
+          "wp_gallery_id": 39,
+          "gallery_id": "56971760-384f-42b0-8032-f2a0eb72cb0d",
+          "original_name": "גלרית 37",
+          "first_marker_offset": 5794,
+          "marker_kinds": [
+            "huge_it_gallery"
+          ],
+          "relation": "explicit_post_gallery_marker_not_graph_edge"
+        }
+      ]
+    },
+    {
+      "source_ref": "posts:906",
+      "post_id": 906,
+      "wp_id": 23886,
+      "title": "פוסט מרכזי רמזי הבחירות והממשלה | רמזי המתמטיקה והמספרים | רמזים חזקים",
+      "slug": "%d7%a8%d7%9e%d7%96%d7%99-%d7%94%d7%91%d7%97%d7%99%d7%a8%d7%95%d7%aa-%d7%94%d7%a8%d7%91%d7%99%d7%a2%d7%99%d7%95%d7%aa-%d7%99%d7%90-%d7%a0%d7%99%d7%a1%d7%9f-%d7%99%d7%95%d7%9d-%d7%94%d7%95%d7%9c%d7%93",
+      "reference_order_basis": "first matching source marker position in stored post HTML; not date, importance or inferred series order",
+      "gallery_references": [
+        {
+          "wp_gallery_id": 69,
+          "gallery_id": "f8b5e5a4-275f-4ec2-8d8f-b355b144fae1",
+          "original_name": "גלרית 14 - 5",
+          "first_marker_offset": 79313,
+          "marker_kinds": [
+            "huge_it_gallery"
+          ],
+          "relation": "explicit_post_gallery_marker_not_graph_edge"
+        }
+      ]
+    },
+    {
+      "source_ref": "posts:940",
+      "post_id": 940,
+      "wp_id": 23309,
+      "title": "טראמפ ביידן פוטין כולם חלק בפלאי הגאולה | גלרית דונלד טראמפ 2024 | מספר האסיר של דונלד טראמפ 358 !!! | פוסט",
+      "slug": "%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e%d7%93%d7%94%d7%99%d7%9e%d7%99%d7%9d-%d7%9e%d7%94%d7%94%d7%aa%d7%a4%d7%a8%d7%a6%d7%95%d7%aa-%d7%9c%d7%91%d7%a0%d7%99%d7%9f-%d7%94%d7%a7%d7%a4%d7%99%d7%98%d7%95",
+      "reference_order_basis": "first matching source marker position in stored post HTML; not date, importance or inferred series order",
+      "gallery_references": [
+        {
+          "wp_gallery_id": 92,
+          "gallery_id": "f92523f3-3ebb-4c97-809d-4588bcdbbf58",
+          "original_name": "רמזי טראמפ 2024",
+          "first_marker_offset": 1416,
+          "marker_kinds": [
+            "huge_it_gallery"
+          ],
+          "relation": "explicit_post_gallery_marker_not_graph_edge"
+        }
+      ]
+    },
+    {
+      "source_ref": "posts:943",
+      "post_id": 943,
+      "wp_id": 23259,
+      "title": "שיא של ימי יובש בחודש &#8211; מרמז על הגאולה המתקרבת",
+      "slug": "%d7%a9%d7%99%d7%90-%d7%a9%d7%9c-%d7%99%d7%9e%d7%99-%d7%99%d7%95%d7%91%d7%a9-%d7%91%d7%97%d7%95%d7%93%d7%a9-%d7%9e%d7%a8%d7%9e%d7%96-%d7%a2%d7%9c-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%94%d7%9e",
+      "reference_order_basis": "first matching source marker position in stored post HTML; not date, importance or inferred series order",
+      "gallery_references": [
+        {
+          "wp_gallery_id": 69,
+          "gallery_id": "f8b5e5a4-275f-4ec2-8d8f-b355b144fae1",
+          "original_name": "גלרית 14 - 5",
+          "first_marker_offset": 8631,
+          "marker_kinds": [
+            "huge_it_gallery"
+          ],
+          "relation": "explicit_post_gallery_marker_not_graph_edge"
+        }
+      ]
+    },
+    {
+      "source_ref": "posts:980",
+      "post_id": 980,
+      "wp_id": 22472,
+      "title": "גלריות גימטריה תשפ&quot;א &#8211; 2020 &#8211; 2021",
+      "slug": "%d7%92%d7%9c%d7%a8%d7%99%d7%95%d7%aa-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%94-%d7%aa%d7%a9%d7%a4%d7%90-2020-2021",
+      "reference_order_basis": "first matching source marker position in stored post HTML; not date, importance or inferred series order",
+      "gallery_references": [
+        {
+          "wp_gallery_id": 64,
+          "gallery_id": "15142716-26cc-4b33-87be-d7cc6aa9e114",
+          "original_name": "גימטריה תשפא",
+          "first_marker_offset": 1588,
+          "marker_kinds": [
+            "huge_it_gallery"
+          ],
+          "relation": "explicit_post_gallery_marker_not_graph_edge"
+        },
+        {
+          "wp_gallery_id": 67,
+          "gallery_id": "12ad360d-9f1e-42ab-b276-0a03d49e68bf",
+          "original_name": "בשורת משיח 1",
+          "first_marker_offset": 35261,
+          "marker_kinds": [
+            "huge_it_gallery"
+          ],
+          "relation": "explicit_post_gallery_marker_not_graph_edge"
+        }
+      ]
+    },
+    {
+      "source_ref": "posts:992",
+      "post_id": 992,
+      "wp_id": 22121,
+      "title": "גלרית בשורת משיח &#8211; 2 &#8211; רמזי גאולה בגימטריות",
+      "slug": "%d7%92%d7%9c%d7%a8%d7%99%d7%aa-%d7%91%d7%a9%d7%95%d7%a8%d7%aa-%d7%9e%d7%a9%d7%99%d7%97-%d7%94%d7%aa%d7%a9%d7%a4%d7%90",
+      "reference_order_basis": "first matching source marker position in stored post HTML; not date, importance or inferred series order",
+      "gallery_references": [
+        {
+          "wp_gallery_id": 63,
+          "gallery_id": "66ccf302-8fc3-4540-a32f-033ad0241dc7",
+          "original_name": "בשורת משיח 2",
+          "first_marker_offset": 1509,
+          "marker_kinds": [
+            "huge_it_gallery"
+          ],
+          "relation": "explicit_post_gallery_marker_not_graph_edge"
+        },
+        {
+          "wp_gallery_id": 67,
+          "gallery_id": "12ad360d-9f1e-42ab-b276-0a03d49e68bf",
+          "original_name": "בשורת משיח 1",
+          "first_marker_offset": 34082,
+          "marker_kinds": [
+            "huge_it_gallery"
+          ],
+          "relation": "explicit_post_gallery_marker_not_graph_edge"
+        }
+      ]
+    },
+    {
+      "source_ref": "posts:1027",
+      "post_id": 1027,
+      "wp_id": 20960,
+      "title": "אנשי התרבות קורסים ובמקביל &quot;נתניהו יקבל מאות אלפים&quot; רמזים חזקים לגאולה |  סוד הריחוק החברתי להתגלות השכינה | חדש!!! גלרית תשפ&quot;א / 220 / 1111 |",
+      "slug": "%d7%90%d7%a0%d7%a9%d7%99-%d7%94%d7%aa%d7%a8%d7%91%d7%95%d7%aa-%d7%a7%d7%95%d7%a8%d7%a1%d7%99%d7%9d-%d7%91%d7%90%d7%95%d7%aa%d7%95-%d7%99%d7%95%d7%9d-%d7%a4%d7%95%d7%a8%d7%a1%d7%9d-%d7%a0%d7%aa%d7%a0",
+      "reference_order_basis": "first matching source marker position in stored post HTML; not date, importance or inferred series order",
+      "gallery_references": [
+        {
+          "wp_gallery_id": 60,
+          "gallery_id": "fe3aea90-7034-4a24-852d-7a64d3749077",
+          "original_name": "220 - אליהו/דיבור",
+          "first_marker_offset": 20125,
+          "marker_kinds": [
+            "huge_it_gallery"
+          ],
+          "relation": "explicit_post_gallery_marker_not_graph_edge"
+        }
+      ]
+    },
+    {
+      "source_ref": "posts:1054",
+      "post_id": 1054,
+      "wp_id": 20356,
+      "title": "בליל הסדר יהיה עוצר כללי רמזים חזקים ביותר מפסוקי  תנ&quot;ך וההגבלות של נתנ-יהו | קורונה בצופן התנ&quot;כי בדילוג מינימלי # עודכן",
+      "slug": "%d7%a7%d7%95%d7%a8%d7%95%d7%a0%d7%94-%d7%91%d7%a6%d7%95%d7%a4%d7%9f-%d7%94%d7%aa%d7%a0%d7%9b%d7%99-%d7%91%d7%93%d7%99%d7%9c%d7%95%d7%92-131-%d7%90%d7%95%d7%aa%d7%99%d7%95%d7%aa-%d7%a8%d7%9e%d7%96",
+      "reference_order_basis": "first matching source marker position in stored post HTML; not date, importance or inferred series order",
+      "gallery_references": [
+        {
+          "wp_gallery_id": 57,
+          "gallery_id": "0e320374-cd03-4655-b350-aa6b54d90db1",
+          "original_name": "גלרית 14 ב",
+          "first_marker_offset": 4032,
+          "marker_kinds": [
+            "huge_it_gallery"
+          ],
+          "relation": "explicit_post_gallery_marker_not_graph_edge"
+        }
+      ]
+    },
+    {
+      "source_ref": "posts:1058",
+      "post_id": 1058,
+      "wp_id": 20218,
+      "title": "התרופה האמיתית לקורונה | מסר | כדור הארץ בעוצר תמונות",
+      "slug": "%d7%94%d7%aa%d7%a8%d7%95%d7%a4%d7%94-%d7%94%d7%90%d7%9e%d7%99%d7%aa%d7%99%d7%aa-%d7%9c%d7%a7%d7%95%d7%a8%d7%95%d7%a0%d7%94-%d7%9e%d7%a1%d7%a8-%d7%9b%d7%93%d7%95%d7%a8-%d7%94%d7%90%d7%a8%d7%a5",
+      "reference_order_basis": "first matching source marker position in stored post HTML; not date, importance or inferred series order",
+      "gallery_references": [
+        {
+          "wp_gallery_id": 54,
+          "gallery_id": "c7c0c9ed-cf6a-403e-8ce5-d998a328a491",
+          "original_name": "גלרית 14",
+          "first_marker_offset": 53684,
+          "marker_kinds": [
+            "huge_it_gallery"
+          ],
+          "relation": "explicit_post_gallery_marker_not_graph_edge"
+        }
+      ]
+    },
+    {
+      "source_ref": "posts:1069",
+      "post_id": 1069,
+      "wp_id": 19767,
+      "title": "נגיף הקורונה משתולל באירן המצב קטסטרופה | רמזים חזקים לגאולה | כי בשמחה תצאו&#8230;",
+      "slug": "%d7%a0%d7%92%d7%99%d7%a3-%d7%94%d7%a7%d7%95%d7%a8%d7%95%d7%a0%d7%94-%d7%9e%d7%a9%d7%aa%d7%95%d7%9c%d7%9c-%d7%91%d7%90%d7%99%d7%a8%d7%9f-%d7%94%d7%9e%d7%a6%d7%91-%d7%a7%d7%98%d7%a1%d7%98%d7%a8%d7%95",
+      "reference_order_basis": "first matching source marker position in stored post HTML; not date, importance or inferred series order",
+      "gallery_references": [
+        {
+          "wp_gallery_id": 54,
+          "gallery_id": "c7c0c9ed-cf6a-403e-8ce5-d998a328a491",
+          "original_name": "גלרית 14",
+          "first_marker_offset": 25572,
+          "marker_kinds": [
+            "huge_it_gallery"
+          ],
+          "relation": "explicit_post_gallery_marker_not_graph_edge"
+        }
+      ]
+    },
+    {
+      "source_ref": "posts:1076",
+      "post_id": 1076,
+      "wp_id": 19616,
+      "title": "גלריות דוד המלך רמזי דוד {14} וגאולה {45} גלריות מס' 1/2/3/4/5/6/7/8/9/10",
+      "slug": "%d7%92%d7%9c%d7%a8%d7%99%d7%aa-%d7%93%d7%95%d7%93-%d7%94%d7%9e%d7%9c%d7%9a-14",
+      "reference_order_basis": "first matching source marker position in stored post HTML; not date, importance or inferred series order",
+      "gallery_references": [
+        {
+          "wp_gallery_id": 78,
+          "gallery_id": "1c7aed8b-b4cb-4c20-814c-96ad4602698f",
+          "original_name": "גלרית 14 - 10",
+          "first_marker_offset": 2170,
+          "marker_kinds": [
+            "huge_it_gallery"
+          ],
+          "relation": "explicit_post_gallery_marker_not_graph_edge"
+        },
+        {
+          "wp_gallery_id": 77,
+          "gallery_id": "48bb5cbd-b050-42c2-b353-f1bd16d26e78",
+          "original_name": "גלרית 14 - 9",
+          "first_marker_offset": 37058,
+          "marker_kinds": [
+            "huge_it_gallery"
+          ],
+          "relation": "explicit_post_gallery_marker_not_graph_edge"
+        },
+        {
+          "wp_gallery_id": 76,
+          "gallery_id": "5f25dece-efa3-4659-8371-6f747f8f54f2",
+          "original_name": "גלרית 14 - 8",
+          "first_marker_offset": 69370,
+          "marker_kinds": [
+            "huge_it_gallery"
+          ],
+          "relation": "explicit_post_gallery_marker_not_graph_edge"
+        },
+        {
+          "wp_gallery_id": 73,
+          "gallery_id": "0d39830b-7902-4010-81ce-35b5b7969835",
+          "original_name": "גלרית 14 - 7",
+          "first_marker_offset": 102232,
+          "marker_kinds": [
+            "huge_it_gallery"
+          ],
+          "relation": "explicit_post_gallery_marker_not_graph_edge"
+        },
+        {
+          "wp_gallery_id": 70,
+          "gallery_id": "f7c33f71-6c09-4ba2-9650-4ff1047764a6",
+          "original_name": "גלרית 14 - 6",
+          "first_marker_offset": 137882,
+          "marker_kinds": [
+            "huge_it_gallery"
+          ],
+          "relation": "explicit_post_gallery_marker_not_graph_edge"
+        },
+        {
+          "wp_gallery_id": 69,
+          "gallery_id": "f8b5e5a4-275f-4ec2-8d8f-b355b144fae1",
+          "original_name": "גלרית 14 - 5",
+          "first_marker_offset": 172034,
+          "marker_kinds": [
+            "huge_it_gallery"
+          ],
+          "relation": "explicit_post_gallery_marker_not_graph_edge"
+        },
+        {
+          "wp_gallery_id": 61,
+          "gallery_id": "9450243f-7d9a-4570-9533-f46116ecbf49",
+          "original_name": "גלרית 14 - 4",
+          "first_marker_offset": 208726,
+          "marker_kinds": [
+            "huge_it_gallery"
+          ],
+          "relation": "explicit_post_gallery_marker_not_graph_edge"
+        },
+        {
+          "wp_gallery_id": 59,
+          "gallery_id": "0671e31b-5c3f-4295-bed0-0d8f5658aa89",
+          "original_name": "גלרית 14 - 3",
+          "first_marker_offset": 240224,
+          "marker_kinds": [
+            "huge_it_gallery"
+          ],
+          "relation": "explicit_post_gallery_marker_not_graph_edge"
+        },
+        {
+          "wp_gallery_id": 57,
+          "gallery_id": "0e320374-cd03-4655-b350-aa6b54d90db1",
+          "original_name": "גלרית 14 ב",
+          "first_marker_offset": 272510,
+          "marker_kinds": [
+            "huge_it_gallery"
+          ],
+          "relation": "explicit_post_gallery_marker_not_graph_edge"
+        },
+        {
+          "wp_gallery_id": 54,
+          "gallery_id": "c7c0c9ed-cf6a-403e-8ce5-d998a328a491",
+          "original_name": "גלרית 14",
+          "first_marker_offset": 304498,
+          "marker_kinds": [
+            "huge_it_gallery"
+          ],
+          "relation": "explicit_post_gallery_marker_not_graph_edge"
+        }
+      ]
+    },
+    {
+      "source_ref": "posts:1094",
+      "post_id": 1094,
+      "wp_id": 19012,
+      "title": "333 עדי תביעה במשפט נתניהו &#8211; בחירות  ז אדר | רמזים חזקים לגאולת ישראל",
+      "slug": "333-%d7%a2%d7%93%d7%99-%d7%aa%d7%91%d7%99%d7%a2%d7%94-%d7%91%d7%9e%d7%a9%d7%a4%d7%98-%d7%a0%d7%aa%d7%a0%d7%99%d7%94%d7%95-%d7%91%d7%97%d7%99%d7%a8%d7%95%d7%aa-%d7%96-%d7%90%d7%93%d7%a8-%d7%a8",
+      "reference_order_basis": "first matching source marker position in stored post HTML; not date, importance or inferred series order",
+      "gallery_references": [
+        {
+          "wp_gallery_id": 51,
+          "gallery_id": "19032fd7-c47b-47bb-a32a-d2e1c01a3cf3",
+          "original_name": "333",
+          "first_marker_offset": 10118,
+          "marker_kinds": [
+            "huge_it_gallery"
+          ],
+          "relation": "explicit_post_gallery_marker_not_graph_edge"
+        }
+      ]
+    },
+    {
+      "source_ref": "posts:1098",
+      "post_id": 1098,
+      "wp_id": 18874,
+      "title": "מסר חזק ביותר מעולם האמת | מסרי גאולה דרך ב.ד",
+      "slug": "18874-2",
+      "reference_order_basis": "first matching source marker position in stored post HTML; not date, importance or inferred series order",
+      "gallery_references": [
+        {
+          "wp_gallery_id": 47,
+          "gallery_id": "44413a7d-38c7-4e20-8baa-a5d79cd7cb1c",
+          "original_name": "רמזים 5780",
+          "first_marker_offset": 72820,
+          "marker_kinds": [
+            "huge_it_gallery"
+          ],
+          "relation": "explicit_post_gallery_marker_not_graph_edge"
+        }
+      ]
+    },
+    {
+      "source_ref": "posts:1146",
+      "post_id": 1146,
+      "wp_id": 16091,
+      "title": "החללית הישראלית לירח &quot;בראשית&quot; תשוגר בשעה 3:58 !!!",
+      "slug": "%d7%94%d7%97%d7%9c%d7%9c%d7%99%d7%aa-%d7%94%d7%99%d7%a9%d7%a8%d7%90%d7%9c%d7%99%d7%aa-%d7%9c%d7%99%d7%a8%d7%97-%d7%91%d7%a8%d7%90%d7%a9%d7%99%d7%aa-%d7%aa%d7%a9%d7%95%d7%92%d7%a8-%d7%91%d7%a9",
+      "reference_order_basis": "first matching source marker position in stored post HTML; not date, importance or inferred series order",
+      "gallery_references": [
+        {
+          "wp_gallery_id": 32,
+          "gallery_id": "08054574-af77-4281-a79d-2048dfba8e8b",
+          "original_name": "2701 - 1",
+          "first_marker_offset": 19457,
+          "marker_kinds": [
+            "huge_it_gallery"
+          ],
+          "relation": "explicit_post_gallery_marker_not_graph_edge"
+        },
+        {
+          "wp_gallery_id": 31,
+          "gallery_id": "9786fdb7-b31e-4a69-9a23-9b08882e95be",
+          "original_name": "2701-2",
+          "first_marker_offset": 52598,
+          "marker_kinds": [
+            "huge_it_gallery"
+          ],
+          "relation": "explicit_post_gallery_marker_not_graph_edge"
+        },
+        {
+          "wp_gallery_id": 33,
+          "gallery_id": "8489b6c9-d930-40dd-ac64-15dfecf9ad35",
+          "original_name": "בראשית - כט אלול",
+          "first_marker_offset": 86006,
+          "marker_kinds": [
+            "huge_it_gallery"
+          ],
+          "relation": "explicit_post_gallery_marker_not_graph_edge"
+        }
+      ]
+    },
+    {
+      "source_ref": "posts:1170",
+      "post_id": 1170,
+      "wp_id": 11557,
+      "title": "ממצאים סטטיסטים ורמזים חזקים מהגרלות הלוטו האחרונות",
+      "slug": "%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%97%d7%96%d7%a7%d7%99%d7%9d-%d7%9e%d7%94%d7%92%d7%a8%d7%9c%d7%aa-%d7%94%d7%9c%d7%95%d7%98%d7%95-%d7%a9%d7%9c-%d7%99%d7%96-%d7%aa%d7%9e%d7%95%d7%96",
+      "reference_order_basis": "first matching source marker position in stored post HTML; not date, importance or inferred series order",
+      "gallery_references": [
+        {
+          "wp_gallery_id": 18,
+          "gallery_id": "64f68cb1-9b4d-4ba3-84e8-3a5184b3647c",
+          "original_name": "2212 בלבד",
+          "first_marker_offset": 66557,
+          "marker_kinds": [
+            "huge_it_gallery"
+          ],
+          "relation": "explicit_post_gallery_marker_not_graph_edge"
+        }
+      ]
+    },
+    {
+      "source_ref": "posts:1197",
+      "post_id": 1197,
+      "wp_id": 10754,
+      "title": "גלרית בשורת משיח # עודכנו וסודר 22 גימטריות 1234",
+      "slug": "%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%9e%d7%93%d7%94%d7%99%d7%9e%d7%95%d7%aa-%d7%a2%d7%9c-%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%91%d7%a4%d7%a1%d7%97-%d7%aa%d7%a9%d7%a2%d7%96-%d7%92",
+      "reference_order_basis": "first matching source marker position in stored post HTML; not date, importance or inferred series order",
+      "gallery_references": [
+        {
+          "wp_gallery_id": 67,
+          "gallery_id": "12ad360d-9f1e-42ab-b276-0a03d49e68bf",
+          "original_name": "בשורת משיח 1",
+          "first_marker_offset": 1646,
+          "marker_kinds": [
+            "huge_it_gallery"
+          ],
+          "relation": "explicit_post_gallery_marker_not_graph_edge"
+        }
+      ]
+    },
+    {
+      "source_ref": "posts:1231",
+      "post_id": 1231,
+      "wp_id": 9346,
+      "title": "חדש! גלרית צמצום = 266 | 'אור פניך' בגימטריה 'קורונה' רמזים חזקים  | סוד המסך (מסכה) והקשר לגלוי משיח | חכמת החיבור",
+      "slug": "%d7%a1%d7%95%d7%93-%d7%94%d7%9e%d7%a1%d7%9a-%d7%95%d7%90%d7%95%d7%a8-%d7%97%d7%95%d7%96%d7%a8-%d7%95%d7%94%d7%a7%d7%a9%d7%a8-%d7%9c%d7%92%d7%9c%d7%95%d7%99-%d7%9e%d7%a9%d7%99%d7%97-%d7%91%d7%aa%d7%a9",
+      "reference_order_basis": "first matching source marker position in stored post HTML; not date, importance or inferred series order",
+      "gallery_references": [
+        {
+          "wp_gallery_id": 62,
+          "gallery_id": "534c6d06-f210-45f6-b469-8fb7fa1f4291",
+          "original_name": "גלרית 266",
+          "first_marker_offset": 1583,
+          "marker_kinds": [
+            "huge_it_gallery"
+          ],
+          "relation": "explicit_post_gallery_marker_not_graph_edge"
+        }
+      ]
+    },
+    {
+      "source_ref": "posts:1256",
+      "post_id": 1256,
+      "wp_id": 7340,
+      "title": "גימטריות פסוקים 5776 גימטריות חדשות 2212 | סוד האותיות פוסט 11",
+      "slug": "%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%a4%d7%a1%d7%95%d7%a7%d7%99%d7%9d-5776-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%97%d7%93%d7%a9%d7%95%d7%aa-2212-%d7%a1%d7%95%d7%93",
+      "reference_order_basis": "first matching source marker position in stored post HTML; not date, importance or inferred series order",
+      "gallery_references": [
+        {
+          "wp_gallery_id": 3,
+          "gallery_id": "940a2beb-b963-4bae-9780-050987498cfb",
+          "original_name": "מלחמת גוג",
+          "first_marker_offset": 1518,
+          "marker_kinds": [
+            "huge_it_gallery"
+          ],
+          "relation": "explicit_post_gallery_marker_not_graph_edge"
+        }
+      ]
+    },
+    {
+      "source_ref": "posts:1324",
+      "post_id": 1324,
+      "wp_id": 5339,
+      "title": "רשימת גימטריות 2212 (יום י' טבת = 22.12)",
+      "slug": "%d7%a8%d7%a9%d7%99%d7%9e%d7%aa-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-2212",
+      "reference_order_basis": "first matching source marker position in stored post HTML; not date, importance or inferred series order",
+      "gallery_references": [
+        {
+          "wp_gallery_id": 18,
+          "gallery_id": "64f68cb1-9b4d-4ba3-84e8-3a5184b3647c",
+          "original_name": "2212 בלבד",
+          "first_marker_offset": 1474,
+          "marker_kinds": [
+            "huge_it_gallery"
+          ],
+          "relation": "explicit_post_gallery_marker_not_graph_edge"
+        }
+      ]
+    },
+    {
+      "source_ref": "posts:1325",
+      "post_id": 1325,
+      "wp_id": 5332,
+      "title": "רשימת גימטריות 2015 | גלריה",
+      "slug": "%d7%a8%d7%a9%d7%99%d7%9e%d7%aa-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-2015",
+      "reference_order_basis": "first matching source marker position in stored post HTML; not date, importance or inferred series order",
+      "gallery_references": [
+        {
+          "wp_gallery_id": 14,
+          "gallery_id": "81e13a31-bfab-4f42-a340-f992babdd38a",
+          "original_name": "2016 - 776",
+          "first_marker_offset": 1444,
+          "marker_kinds": [
+            "huge_it_gallery"
+          ],
+          "relation": "explicit_post_gallery_marker_not_graph_edge"
+        }
+      ]
+    },
+    {
+      "source_ref": "posts:1500",
+      "post_id": 1500,
+      "wp_id": 17503,
+      "title": "ביבי עובר ניתוח ערמונית | כבוד ה' מתגלה | זינוק מטבע הביטקוין | גלרית ביטקוין 2368",
+      "slug": "%d7%9e%d7%94-%d7%9e%d7%a8%d7%9e%d7%96-%d7%9c%d7%a0%d7%95-%d7%96%d7%99%d7%a0%d7%95%d7%a7-%d7%9e%d7%98%d7%91%d7%a2-%d7%94%d7%91%d7%99%d7%98%d7%a7%d7%95%d7%99%d7%9f-%d7%92%d7%9c%d7%a8%d7%99%d7%aa",
+      "reference_order_basis": "first matching source marker position in stored post HTML; not date, importance or inferred series order",
+      "gallery_references": [
+        {
+          "wp_gallery_id": 38,
+          "gallery_id": "58a59187-4ce9-4d41-b633-a206d02ef118",
+          "original_name": "גלרית 2368",
+          "first_marker_offset": 1507,
+          "marker_kinds": [
+            "huge_it_gallery"
+          ],
+          "relation": "explicit_post_gallery_marker_not_graph_edge"
+        }
+      ]
+    }
+  ],
+  "galleries": [
+    {
+      "id": "4a9db840-10c6-4cd7-9fbb-f6adc2f8fe83",
+      "wp_gallery_id": 2,
+      "name": "סוד הגאולה מעוצב",
+      "gallery_type": "other",
+      "anchor_number": null,
+      "anchor_numbers": null,
+      "eligible_occurrences": 0,
+      "distinct_urls": 0,
+      "missing_order": 0,
+      "explicit_post_reference_count": 1,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "940a2beb-b963-4bae-9780-050987498cfb",
+      "wp_gallery_id": 3,
+      "name": "מלחמת גוג",
+      "gallery_type": "time_news",
+      "anchor_number": null,
+      "anchor_numbers": null,
+      "eligible_occurrences": 34,
+      "distinct_urls": 34,
+      "missing_order": 0,
+      "explicit_post_reference_count": 1,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "38538eed-c7fc-4cb3-994c-47c8259e51c1",
+      "wp_gallery_id": 4,
+      "name": "2212-988",
+      "gallery_type": "theme",
+      "anchor_number": 2212,
+      "anchor_numbers": [
+        2212
+      ],
+      "eligible_occurrences": 41,
+      "distinct_urls": 41,
+      "missing_order": 0,
+      "explicit_post_reference_count": 0,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "7c85e754-ac1c-4dff-9638-87c961268d24",
+      "wp_gallery_id": 5,
+      "name": "776-5776",
+      "gallery_type": "theme",
+      "anchor_number": 776,
+      "anchor_numbers": [
+        776
+      ],
+      "eligible_occurrences": 95,
+      "distinct_urls": 95,
+      "missing_order": 0,
+      "explicit_post_reference_count": 0,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "4ad1a67c-9080-4c13-a316-f9b0a3e0631c",
+      "wp_gallery_id": 6,
+      "name": "קץ עמלק",
+      "gallery_type": "time_news",
+      "anchor_number": null,
+      "anchor_numbers": null,
+      "eligible_occurrences": 1,
+      "distinct_urls": 1,
+      "missing_order": 0,
+      "explicit_post_reference_count": 0,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "f772f9b5-0214-46d9-ba2b-ded4640d7fbc",
+      "wp_gallery_id": 7,
+      "name": "גאולה בזכות אבות",
+      "gallery_type": "time_news",
+      "anchor_number": null,
+      "anchor_numbers": null,
+      "eligible_occurrences": 25,
+      "distinct_urls": 25,
+      "missing_order": 0,
+      "explicit_post_reference_count": 0,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "0abd4274-0d0d-462e-912a-53d065230c61",
+      "wp_gallery_id": 8,
+      "name": "צפנים התשעו",
+      "gallery_type": "time_news",
+      "anchor_number": null,
+      "anchor_numbers": null,
+      "eligible_occurrences": 6,
+      "distinct_urls": 6,
+      "missing_order": 0,
+      "explicit_post_reference_count": 0,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "189b8af2-c3c7-460f-bd3c-2484b4b7d79a",
+      "wp_gallery_id": 9,
+      "name": "חדשות 644",
+      "gallery_type": "time_news",
+      "anchor_number": 644,
+      "anchor_numbers": [
+        644
+      ],
+      "eligible_occurrences": 7,
+      "distinct_urls": 7,
+      "missing_order": 0,
+      "explicit_post_reference_count": 0,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "3de389c6-e234-4fdd-ad2e-9a51a9bb2c2e",
+      "wp_gallery_id": 10,
+      "name": "גלרית 11111",
+      "gallery_type": "theme",
+      "anchor_number": 1111,
+      "anchor_numbers": [
+        1111
+      ],
+      "eligible_occurrences": 0,
+      "distinct_urls": 0,
+      "missing_order": 0,
+      "explicit_post_reference_count": 0,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "5e63c890-f14a-4a2e-bb0a-4fbe05660b91",
+      "wp_gallery_id": 11,
+      "name": "2756 - 1692 3382",
+      "gallery_type": "theme",
+      "anchor_number": 2756,
+      "anchor_numbers": [
+        2756
+      ],
+      "eligible_occurrences": 0,
+      "distinct_urls": 0,
+      "missing_order": 0,
+      "explicit_post_reference_count": 0,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "ebc9c1c6-bcfc-4740-aca5-8c401e67801e",
+      "wp_gallery_id": 12,
+      "name": "קטלוג",
+      "gallery_type": "other",
+      "anchor_number": null,
+      "anchor_numbers": null,
+      "eligible_occurrences": 0,
+      "distinct_urls": 0,
+      "missing_order": 0,
+      "explicit_post_reference_count": 0,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "84675f80-d97c-4d06-a74b-c590e7750ff7",
+      "wp_gallery_id": 13,
+      "name": "444 - מקדש",
+      "gallery_type": "theme",
+      "anchor_number": 444,
+      "anchor_numbers": [
+        444
+      ],
+      "eligible_occurrences": 0,
+      "distinct_urls": 0,
+      "missing_order": 0,
+      "explicit_post_reference_count": 0,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "81e13a31-bfab-4f42-a340-f992babdd38a",
+      "wp_gallery_id": 14,
+      "name": "2016 - 776",
+      "gallery_type": "theme",
+      "anchor_number": 2016,
+      "anchor_numbers": [
+        2016
+      ],
+      "eligible_occurrences": 0,
+      "distinct_urls": 0,
+      "missing_order": 0,
+      "explicit_post_reference_count": 1,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "6695e06d-e308-403f-b693-c197dbefe317",
+      "wp_gallery_id": 15,
+      "name": "1820",
+      "gallery_type": "theme",
+      "anchor_number": 1820,
+      "anchor_numbers": [
+        1820
+      ],
+      "eligible_occurrences": 0,
+      "distinct_urls": 0,
+      "missing_order": 0,
+      "explicit_post_reference_count": 2,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "d683db3d-b94f-43aa-b8a8-fe413296df02",
+      "wp_gallery_id": 16,
+      "name": "חדשות בתמונות תשעו",
+      "gallery_type": "time_news",
+      "anchor_number": null,
+      "anchor_numbers": null,
+      "eligible_occurrences": 1,
+      "distinct_urls": 1,
+      "missing_order": 0,
+      "explicit_post_reference_count": 0,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "d230878c-a5e9-495d-9944-d80fad5f2525",
+      "wp_gallery_id": 17,
+      "name": "הרהורי תשובה",
+      "gallery_type": "time_news",
+      "anchor_number": null,
+      "anchor_numbers": null,
+      "eligible_occurrences": 0,
+      "distinct_urls": 0,
+      "missing_order": 0,
+      "explicit_post_reference_count": 0,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "64f68cb1-9b4d-4ba3-84e8-3a5184b3647c",
+      "wp_gallery_id": 18,
+      "name": "2212 בלבד",
+      "gallery_type": "theme",
+      "anchor_number": 2212,
+      "anchor_numbers": [
+        2212
+      ],
+      "eligible_occurrences": 0,
+      "distinct_urls": 0,
+      "missing_order": 0,
+      "explicit_post_reference_count": 2,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "d27fdda2-6bc0-4450-b9d3-7fca1f23473f",
+      "wp_gallery_id": 19,
+      "name": "קריאת שמע",
+      "gallery_type": "other",
+      "anchor_number": null,
+      "anchor_numbers": null,
+      "eligible_occurrences": 0,
+      "distinct_urls": 0,
+      "missing_order": 0,
+      "explicit_post_reference_count": 0,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "e8a4e4cd-0d03-4239-90ef-37e30db95d16",
+      "wp_gallery_id": 20,
+      "name": "בשורת משיח 474",
+      "gallery_type": "theme",
+      "anchor_number": 474,
+      "anchor_numbers": [
+        474
+      ],
+      "eligible_occurrences": 55,
+      "distinct_urls": 55,
+      "missing_order": 0,
+      "explicit_post_reference_count": 0,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "72308468-b56e-4171-aa6b-73bf94896b59",
+      "wp_gallery_id": 21,
+      "name": "גלרית פסח",
+      "gallery_type": "time_news",
+      "anchor_number": null,
+      "anchor_numbers": null,
+      "eligible_occurrences": 15,
+      "distinct_urls": 15,
+      "missing_order": 0,
+      "explicit_post_reference_count": 0,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "3ba32564-c9ae-4a80-90bb-ae23a6ea078a",
+      "wp_gallery_id": 22,
+      "name": "בריקות טבעית",
+      "gallery_type": "other",
+      "anchor_number": null,
+      "anchor_numbers": null,
+      "eligible_occurrences": 4,
+      "distinct_urls": 4,
+      "missing_order": 0,
+      "explicit_post_reference_count": 0,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "d7b7b8d5-9f88-49b7-ad05-45b4a04cab74",
+      "wp_gallery_id": 23,
+      "name": "נס פורים",
+      "gallery_type": "time_news",
+      "anchor_number": null,
+      "anchor_numbers": null,
+      "eligible_occurrences": 23,
+      "distinct_urls": 23,
+      "missing_order": 0,
+      "explicit_post_reference_count": 0,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "5d07a76a-dd2d-4f46-b853-f9c4b14a6cb7",
+      "wp_gallery_id": 24,
+      "name": "ספר תורה",
+      "gallery_type": "other",
+      "anchor_number": null,
+      "anchor_numbers": null,
+      "eligible_occurrences": 0,
+      "distinct_urls": 0,
+      "missing_order": 0,
+      "explicit_post_reference_count": 0,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "57b1849f-0b08-4709-8544-3f404e7ceed9",
+      "wp_gallery_id": 25,
+      "name": "רמזים בחדשות תשעז",
+      "gallery_type": "time_news",
+      "anchor_number": null,
+      "anchor_numbers": null,
+      "eligible_occurrences": 94,
+      "distinct_urls": 94,
+      "missing_order": 0,
+      "explicit_post_reference_count": 0,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "08efaff2-0ddd-4ad5-bb52-faf10598044b",
+      "wp_gallery_id": 26,
+      "name": "חץ שלוש",
+      "gallery_type": "other",
+      "anchor_number": null,
+      "anchor_numbers": null,
+      "eligible_occurrences": 17,
+      "distinct_urls": 17,
+      "missing_order": 0,
+      "explicit_post_reference_count": 0,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "0f8ecad0-bed3-4d25-879f-eda5ffa39faa",
+      "wp_gallery_id": 27,
+      "name": "רמזים במספר 45 עז - עח",
+      "gallery_type": "other",
+      "anchor_number": 45,
+      "anchor_numbers": [
+        45
+      ],
+      "eligible_occurrences": 85,
+      "distinct_urls": 85,
+      "missing_order": 0,
+      "explicit_post_reference_count": 0,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "fd827e46-d3cc-48e9-8013-ab56ac8a4ead",
+      "wp_gallery_id": 28,
+      "name": "רמזים בחדשות תשעח-ט",
+      "gallery_type": "time_news",
+      "anchor_number": null,
+      "anchor_numbers": null,
+      "eligible_occurrences": 93,
+      "distinct_urls": 93,
+      "missing_order": 0,
+      "explicit_post_reference_count": 0,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "32ea3aab-afb4-45c6-bb2b-0c8498aed173",
+      "wp_gallery_id": 29,
+      "name": "גלרית לילה כיום יאיר",
+      "gallery_type": "other",
+      "anchor_number": null,
+      "anchor_numbers": null,
+      "eligible_occurrences": 92,
+      "distinct_urls": 90,
+      "missing_order": 0,
+      "explicit_post_reference_count": 0,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "3fddaf1b-41f4-4d28-a46e-06627909aece",
+      "wp_gallery_id": 30,
+      "name": "logo",
+      "gallery_type": "other",
+      "anchor_number": null,
+      "anchor_numbers": null,
+      "eligible_occurrences": 4,
+      "distinct_urls": 4,
+      "missing_order": 0,
+      "explicit_post_reference_count": 0,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "9786fdb7-b31e-4a69-9a23-9b08882e95be",
+      "wp_gallery_id": 31,
+      "name": "2701-2",
+      "gallery_type": "theme",
+      "anchor_number": 2701,
+      "anchor_numbers": [
+        2701
+      ],
+      "eligible_occurrences": 63,
+      "distinct_urls": 63,
+      "missing_order": 0,
+      "explicit_post_reference_count": 1,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "08054574-af77-4281-a79d-2048dfba8e8b",
+      "wp_gallery_id": 32,
+      "name": "2701 - 1",
+      "gallery_type": "theme",
+      "anchor_number": 2701,
+      "anchor_numbers": [
+        2701
+      ],
+      "eligible_occurrences": 45,
+      "distinct_urls": 45,
+      "missing_order": 0,
+      "explicit_post_reference_count": 1,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "8489b6c9-d930-40dd-ac64-15dfecf9ad35",
+      "wp_gallery_id": 33,
+      "name": "בראשית - כט אלול",
+      "gallery_type": "other",
+      "anchor_number": null,
+      "anchor_numbers": null,
+      "eligible_occurrences": 52,
+      "distinct_urls": 52,
+      "missing_order": 0,
+      "explicit_post_reference_count": 1,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "fb17a8b3-04d5-4855-b6b4-eb42781ab8d5",
+      "wp_gallery_id": 34,
+      "name": "רמזים 45 תשעט",
+      "gallery_type": "time_news",
+      "anchor_number": 45,
+      "anchor_numbers": [
+        45
+      ],
+      "eligible_occurrences": 49,
+      "distinct_urls": 49,
+      "missing_order": 0,
+      "explicit_post_reference_count": 0,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "be19ef8c-9f24-4ac6-8983-31cdb56434fe",
+      "wp_gallery_id": 35,
+      "name": "גלרית 336",
+      "gallery_type": "theme",
+      "anchor_number": 336,
+      "anchor_numbers": [
+        336
+      ],
+      "eligible_occurrences": 16,
+      "distinct_urls": 16,
+      "missing_order": 0,
+      "explicit_post_reference_count": 0,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "148cbd49-893b-444b-9f51-3716ba97c29d",
+      "wp_gallery_id": 36,
+      "name": "גלריה 36",
+      "gallery_type": null,
+      "anchor_number": null,
+      "anchor_numbers": null,
+      "eligible_occurrences": 11,
+      "distinct_urls": 11,
+      "missing_order": 0,
+      "explicit_post_reference_count": 0,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "09f8038d-bb92-4d81-8446-4dc544ca4ca7",
+      "wp_gallery_id": 37,
+      "name": "גלריה 37",
+      "gallery_type": null,
+      "anchor_number": null,
+      "anchor_numbers": null,
+      "eligible_occurrences": 13,
+      "distinct_urls": 13,
+      "missing_order": 0,
+      "explicit_post_reference_count": 0,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "58a59187-4ce9-4d41-b633-a206d02ef118",
+      "wp_gallery_id": 38,
+      "name": "גלרית 2368",
+      "gallery_type": "theme",
+      "anchor_number": 2368,
+      "anchor_numbers": [
+        2368
+      ],
+      "eligible_occurrences": 23,
+      "distinct_urls": 23,
+      "missing_order": 0,
+      "explicit_post_reference_count": 2,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "56971760-384f-42b0-8032-f2a0eb72cb0d",
+      "wp_gallery_id": 39,
+      "name": "גלרית 37",
+      "gallery_type": "other",
+      "anchor_number": 37,
+      "anchor_numbers": [
+        37
+      ],
+      "eligible_occurrences": 31,
+      "distinct_urls": 31,
+      "missing_order": 0,
+      "explicit_post_reference_count": 1,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "c00e6692-554b-4148-8136-471c8cf727e7",
+      "wp_gallery_id": 40,
+      "name": "גלריה 40",
+      "gallery_type": null,
+      "anchor_number": null,
+      "anchor_numbers": null,
+      "eligible_occurrences": 6,
+      "distinct_urls": 6,
+      "missing_order": 0,
+      "explicit_post_reference_count": 0,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "5757dca8-f9f8-4778-af8c-7b3b62e0366e",
+      "wp_gallery_id": 41,
+      "name": "2701 - 3",
+      "gallery_type": "theme",
+      "anchor_number": 2701,
+      "anchor_numbers": [
+        2701
+      ],
+      "eligible_occurrences": 39,
+      "distinct_urls": 39,
+      "missing_order": 0,
+      "explicit_post_reference_count": 0,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "011b42c5-71ab-43c6-93c8-95f12e60d3d8",
+      "wp_gallery_id": 42,
+      "name": "2701-4",
+      "gallery_type": "theme",
+      "anchor_number": 2701,
+      "anchor_numbers": [
+        2701
+      ],
+      "eligible_occurrences": 33,
+      "distinct_urls": 29,
+      "missing_order": 0,
+      "explicit_post_reference_count": 0,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "fdb70ad4-b552-42f2-a8a7-c5373de0786b",
+      "wp_gallery_id": 43,
+      "name": "3022 סוד ה' בבראשית",
+      "gallery_type": "theme",
+      "anchor_number": 3022,
+      "anchor_numbers": [
+        3022
+      ],
+      "eligible_occurrences": 12,
+      "distinct_urls": 12,
+      "missing_order": 0,
+      "explicit_post_reference_count": 0,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "a0e1d7aa-0d71-4b41-aae8-0ca767814286",
+      "wp_gallery_id": 44,
+      "name": "2701-5",
+      "gallery_type": "theme",
+      "anchor_number": 2701,
+      "anchor_numbers": [
+        2701
+      ],
+      "eligible_occurrences": 25,
+      "distinct_urls": 25,
+      "missing_order": 0,
+      "explicit_post_reference_count": 0,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "3b457381-a577-4b04-9ec7-432d7a296bd1",
+      "wp_gallery_id": 45,
+      "name": "גלרית 5780",
+      "gallery_type": "theme",
+      "anchor_number": 5780,
+      "anchor_numbers": [
+        5780
+      ],
+      "eligible_occurrences": 19,
+      "distinct_urls": 19,
+      "missing_order": 0,
+      "explicit_post_reference_count": 0,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "2a521464-44c8-4b0b-a0b1-bba2fbb37845",
+      "wp_gallery_id": 46,
+      "name": "2701-6",
+      "gallery_type": "theme",
+      "anchor_number": 2701,
+      "anchor_numbers": [
+        2701
+      ],
+      "eligible_occurrences": 14,
+      "distinct_urls": 13,
+      "missing_order": 0,
+      "explicit_post_reference_count": 0,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "44413a7d-38c7-4e20-8baa-a5d79cd7cb1c",
+      "wp_gallery_id": 47,
+      "name": "רמזים 5780",
+      "gallery_type": "theme",
+      "anchor_number": 5780,
+      "anchor_numbers": [
+        5780
+      ],
+      "eligible_occurrences": 36,
+      "distinct_urls": 36,
+      "missing_order": 0,
+      "explicit_post_reference_count": 1,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "a5a54be4-10ce-475b-bfc3-617c39dde1ac",
+      "wp_gallery_id": 48,
+      "name": "2701-7",
+      "gallery_type": "theme",
+      "anchor_number": 2701,
+      "anchor_numbers": [
+        2701
+      ],
+      "eligible_occurrences": 36,
+      "distinct_urls": 36,
+      "missing_order": 0,
+      "explicit_post_reference_count": 0,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "90fbbd6f-09d7-4eb1-8364-26d8a2e84b12",
+      "wp_gallery_id": 49,
+      "name": "2701-8",
+      "gallery_type": "theme",
+      "anchor_number": 2701,
+      "anchor_numbers": [
+        2701
+      ],
+      "eligible_occurrences": 19,
+      "distinct_urls": 17,
+      "missing_order": 0,
+      "explicit_post_reference_count": 0,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "f8376546-02b6-4a05-a9f0-e9953acf0f71",
+      "wp_gallery_id": 50,
+      "name": "גלריה 50",
+      "gallery_type": null,
+      "anchor_number": null,
+      "anchor_numbers": null,
+      "eligible_occurrences": 6,
+      "distinct_urls": 6,
+      "missing_order": 0,
+      "explicit_post_reference_count": 0,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "19032fd7-c47b-47bb-a32a-d2e1c01a3cf3",
+      "wp_gallery_id": 51,
+      "name": "333",
+      "gallery_type": "theme",
+      "anchor_number": 333,
+      "anchor_numbers": [
+        333
+      ],
+      "eligible_occurrences": 18,
+      "distinct_urls": 18,
+      "missing_order": 0,
+      "explicit_post_reference_count": 1,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "0ab37043-1bd0-4766-83ed-360bdc7861c4",
+      "wp_gallery_id": 52,
+      "name": "2701-9",
+      "gallery_type": "theme",
+      "anchor_number": 2701,
+      "anchor_numbers": [
+        2701
+      ],
+      "eligible_occurrences": 26,
+      "distinct_urls": 21,
+      "missing_order": 0,
+      "explicit_post_reference_count": 0,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "5d7eb15f-f941-4f98-9e90-fbb8c6d8eaf0",
+      "wp_gallery_id": 53,
+      "name": "2701-10",
+      "gallery_type": "theme",
+      "anchor_number": 2701,
+      "anchor_numbers": [
+        2701
+      ],
+      "eligible_occurrences": 16,
+      "distinct_urls": 16,
+      "missing_order": 0,
+      "explicit_post_reference_count": 0,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "c7c0c9ed-cf6a-403e-8ce5-d998a328a491",
+      "wp_gallery_id": 54,
+      "name": "גלרית 14",
+      "gallery_type": "david",
+      "anchor_number": 14,
+      "anchor_numbers": [
+        14
+      ],
+      "eligible_occurrences": 27,
+      "distinct_urls": 27,
+      "missing_order": 0,
+      "explicit_post_reference_count": 3,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "37946b17-2261-4bcd-a325-d659683621d9",
+      "wp_gallery_id": 55,
+      "name": "2701-11",
+      "gallery_type": "theme",
+      "anchor_number": 2701,
+      "anchor_numbers": [
+        2701
+      ],
+      "eligible_occurrences": 25,
+      "distinct_urls": 25,
+      "missing_order": 0,
+      "explicit_post_reference_count": 0,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "6ac8c396-e268-4952-b1c8-17fc9e603ac8",
+      "wp_gallery_id": 56,
+      "name": "2701-12",
+      "gallery_type": "theme",
+      "anchor_number": 2701,
+      "anchor_numbers": [
+        2701
+      ],
+      "eligible_occurrences": 28,
+      "distinct_urls": 28,
+      "missing_order": 0,
+      "explicit_post_reference_count": 0,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "0e320374-cd03-4655-b350-aa6b54d90db1",
+      "wp_gallery_id": 57,
+      "name": "גלרית 14 ב",
+      "gallery_type": "david",
+      "anchor_number": 14,
+      "anchor_numbers": [
+        14
+      ],
+      "eligible_occurrences": 21,
+      "distinct_urls": 21,
+      "missing_order": 0,
+      "explicit_post_reference_count": 2,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "76e7c724-f007-4173-9137-28f03d1da35d",
+      "wp_gallery_id": 58,
+      "name": "2701-13",
+      "gallery_type": "theme",
+      "anchor_number": 2701,
+      "anchor_numbers": [
+        2701
+      ],
+      "eligible_occurrences": 9,
+      "distinct_urls": 9,
+      "missing_order": 0,
+      "explicit_post_reference_count": 0,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "0671e31b-5c3f-4295-bed0-0d8f5658aa89",
+      "wp_gallery_id": 59,
+      "name": "גלרית 14 - 3",
+      "gallery_type": "david",
+      "anchor_number": 14,
+      "anchor_numbers": [
+        14
+      ],
+      "eligible_occurrences": 15,
+      "distinct_urls": 15,
+      "missing_order": 0,
+      "explicit_post_reference_count": 1,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "fe3aea90-7034-4a24-852d-7a64d3749077",
+      "wp_gallery_id": 60,
+      "name": "220 - אליהו/דיבור",
+      "gallery_type": "theme",
+      "anchor_number": 220,
+      "anchor_numbers": [
+        220
+      ],
+      "eligible_occurrences": 16,
+      "distinct_urls": 16,
+      "missing_order": 0,
+      "explicit_post_reference_count": 1,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "9450243f-7d9a-4570-9533-f46116ecbf49",
+      "wp_gallery_id": 61,
+      "name": "גלרית 14 - 4",
+      "gallery_type": "david",
+      "anchor_number": 14,
+      "anchor_numbers": [
+        14
+      ],
+      "eligible_occurrences": 16,
+      "distinct_urls": 16,
+      "missing_order": 0,
+      "explicit_post_reference_count": 1,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "534c6d06-f210-45f6-b469-8fb7fa1f4291",
+      "wp_gallery_id": 62,
+      "name": "גלרית 266",
+      "gallery_type": "theme",
+      "anchor_number": 266,
+      "anchor_numbers": [
+        266
+      ],
+      "eligible_occurrences": 6,
+      "distinct_urls": 6,
+      "missing_order": 0,
+      "explicit_post_reference_count": 1,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "66ccf302-8fc3-4540-a32f-033ad0241dc7",
+      "wp_gallery_id": 63,
+      "name": "בשורת משיח 2",
+      "gallery_type": "other",
+      "anchor_number": null,
+      "anchor_numbers": null,
+      "eligible_occurrences": 25,
+      "distinct_urls": 25,
+      "missing_order": 0,
+      "explicit_post_reference_count": 1,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "15142716-26cc-4b33-87be-d7cc6aa9e114",
+      "wp_gallery_id": 64,
+      "name": "גימטריה תשפא",
+      "gallery_type": "time_news",
+      "anchor_number": null,
+      "anchor_numbers": null,
+      "eligible_occurrences": 30,
+      "distinct_urls": 30,
+      "missing_order": 0,
+      "explicit_post_reference_count": 1,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "09734fe7-12b4-4bb0-bb56-f85ea60c926b",
+      "wp_gallery_id": 65,
+      "name": "רמזים תשפא",
+      "gallery_type": "time_news",
+      "anchor_number": null,
+      "anchor_numbers": null,
+      "eligible_occurrences": 28,
+      "distinct_urls": 28,
+      "missing_order": 0,
+      "explicit_post_reference_count": 0,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "12ad360d-9f1e-42ab-b276-0a03d49e68bf",
+      "wp_gallery_id": 67,
+      "name": "בשורת משיח 1",
+      "gallery_type": "other",
+      "anchor_number": null,
+      "anchor_numbers": null,
+      "eligible_occurrences": 23,
+      "distinct_urls": 23,
+      "missing_order": 0,
+      "explicit_post_reference_count": 3,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "f8b5e5a4-275f-4ec2-8d8f-b355b144fae1",
+      "wp_gallery_id": 69,
+      "name": "גלרית 14 - 5",
+      "gallery_type": "david",
+      "anchor_number": 14,
+      "anchor_numbers": [
+        14
+      ],
+      "eligible_occurrences": 23,
+      "distinct_urls": 23,
+      "missing_order": 0,
+      "explicit_post_reference_count": 3,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "f7c33f71-6c09-4ba2-9650-4ff1047764a6",
+      "wp_gallery_id": 70,
+      "name": "גלרית 14 - 6",
+      "gallery_type": "david",
+      "anchor_number": 14,
+      "anchor_numbers": [
+        14
+      ],
+      "eligible_occurrences": 37,
+      "distinct_urls": 37,
+      "missing_order": 0,
+      "explicit_post_reference_count": 1,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "a4f20fdf-f6f8-447b-8be9-94f1ed550d96",
+      "wp_gallery_id": 72,
+      "name": "120 - סין",
+      "gallery_type": "theme",
+      "anchor_number": 120,
+      "anchor_numbers": [
+        120
+      ],
+      "eligible_occurrences": 13,
+      "distinct_urls": 13,
+      "missing_order": 0,
+      "explicit_post_reference_count": 1,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "0d39830b-7902-4010-81ce-35b5b7969835",
+      "wp_gallery_id": 73,
+      "name": "גלרית 14 - 7",
+      "gallery_type": "david",
+      "anchor_number": 14,
+      "anchor_numbers": [
+        14
+      ],
+      "eligible_occurrences": 23,
+      "distinct_urls": 23,
+      "missing_order": 0,
+      "explicit_post_reference_count": 1,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "efebbd12-40b5-49cc-a9d5-b367b6c419cf",
+      "wp_gallery_id": 74,
+      "name": "גימטריה תשפג",
+      "gallery_type": "time_news",
+      "anchor_number": null,
+      "anchor_numbers": null,
+      "eligible_occurrences": 14,
+      "distinct_urls": 14,
+      "missing_order": 0,
+      "explicit_post_reference_count": 1,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "3d55d067-d69a-4f2f-a170-20a6cc621234",
+      "wp_gallery_id": 75,
+      "name": "506",
+      "gallery_type": "theme",
+      "anchor_number": 506,
+      "anchor_numbers": [
+        506
+      ],
+      "eligible_occurrences": 12,
+      "distinct_urls": 12,
+      "missing_order": 0,
+      "explicit_post_reference_count": 0,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "5f25dece-efa3-4659-8371-6f747f8f54f2",
+      "wp_gallery_id": 76,
+      "name": "גלרית 14 - 8",
+      "gallery_type": "david",
+      "anchor_number": 14,
+      "anchor_numbers": [
+        14
+      ],
+      "eligible_occurrences": 17,
+      "distinct_urls": 17,
+      "missing_order": 0,
+      "explicit_post_reference_count": 2,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "48bb5cbd-b050-42c2-b353-f1bd16d26e78",
+      "wp_gallery_id": 77,
+      "name": "גלרית 14 - 9",
+      "gallery_type": "david",
+      "anchor_number": 14,
+      "anchor_numbers": [
+        14
+      ],
+      "eligible_occurrences": 12,
+      "distinct_urls": 12,
+      "missing_order": 0,
+      "explicit_post_reference_count": 1,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "1c7aed8b-b4cb-4c20-814c-96ad4602698f",
+      "wp_gallery_id": 78,
+      "name": "גלרית 14 - 10",
+      "gallery_type": "david",
+      "anchor_number": 14,
+      "anchor_numbers": [
+        14
+      ],
+      "eligible_occurrences": 15,
+      "distinct_urls": 15,
+      "missing_order": 0,
+      "explicit_post_reference_count": 2,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "554073f3-4ac4-4459-badd-04b3752bfd70",
+      "wp_gallery_id": 79,
+      "name": "גלרית 14 - 11",
+      "gallery_type": "david",
+      "anchor_number": 14,
+      "anchor_numbers": [
+        14
+      ],
+      "eligible_occurrences": 21,
+      "distinct_urls": 21,
+      "missing_order": 0,
+      "explicit_post_reference_count": 1,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "cca166f2-99fb-4746-b0d0-f6509287f7c0",
+      "wp_gallery_id": 80,
+      "name": "גלרית 14 - 12",
+      "gallery_type": "david",
+      "anchor_number": 14,
+      "anchor_numbers": [
+        14
+      ],
+      "eligible_occurrences": 21,
+      "distinct_urls": 21,
+      "missing_order": 0,
+      "explicit_post_reference_count": 1,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "897946f3-c551-42a1-b504-ea1f9bf45172",
+      "wp_gallery_id": 81,
+      "name": "2137-318 -1237",
+      "gallery_type": "theme",
+      "anchor_number": 2137,
+      "anchor_numbers": [
+        2137
+      ],
+      "eligible_occurrences": 29,
+      "distinct_urls": 29,
+      "missing_order": 0,
+      "explicit_post_reference_count": 2,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "bc53d79f-e54d-4667-ab9b-aa059873cc2f",
+      "wp_gallery_id": 82,
+      "name": "גלרית 14 - 13",
+      "gallery_type": "david",
+      "anchor_number": 14,
+      "anchor_numbers": [
+        14
+      ],
+      "eligible_occurrences": 21,
+      "distinct_urls": 21,
+      "missing_order": 0,
+      "explicit_post_reference_count": 1,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "4604fb49-a142-4168-98d9-8e4cd987a170",
+      "wp_gallery_id": 83,
+      "name": "גלרית דוד מספר 14",
+      "gallery_type": "david",
+      "anchor_number": 14,
+      "anchor_numbers": [
+        14
+      ],
+      "eligible_occurrences": 21,
+      "distinct_urls": 21,
+      "missing_order": 0,
+      "explicit_post_reference_count": 1,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "74701536-ff1c-4184-99cf-e088971ecf74",
+      "wp_gallery_id": 84,
+      "name": "גלרית דוד המלך מספר 15",
+      "gallery_type": "david",
+      "anchor_number": 14,
+      "anchor_numbers": [
+        14
+      ],
+      "eligible_occurrences": 17,
+      "distinct_urls": 17,
+      "missing_order": 0,
+      "explicit_post_reference_count": 1,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "e308f008-5254-4455-88a4-7e7767133ade",
+      "wp_gallery_id": 85,
+      "name": "גלרית המספר 5",
+      "gallery_type": "other",
+      "anchor_number": 5,
+      "anchor_numbers": [
+        5
+      ],
+      "eligible_occurrences": 5,
+      "distinct_urls": 5,
+      "missing_order": 0,
+      "explicit_post_reference_count": 1,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "a5765c27-dd5a-427a-8ff0-23cc1ec9ffe6",
+      "wp_gallery_id": 86,
+      "name": "גלרית דוד המלך מספר 16",
+      "gallery_type": "david",
+      "anchor_number": 14,
+      "anchor_numbers": [
+        14
+      ],
+      "eligible_occurrences": 17,
+      "distinct_urls": 17,
+      "missing_order": 0,
+      "explicit_post_reference_count": 2,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "bb226d32-660c-41f6-8272-f0233bf19716",
+      "wp_gallery_id": 87,
+      "name": "גלרית ביבי - תשפ\"ד",
+      "gallery_type": "time_news",
+      "anchor_number": null,
+      "anchor_numbers": null,
+      "eligible_occurrences": 38,
+      "distinct_urls": 38,
+      "missing_order": 0,
+      "explicit_post_reference_count": 2,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "2d1c54b9-9a67-4872-b7da-e24c5bf98167",
+      "wp_gallery_id": 88,
+      "name": "גלרית דוד מס 17",
+      "gallery_type": "david",
+      "anchor_number": 14,
+      "anchor_numbers": [
+        14
+      ],
+      "eligible_occurrences": 33,
+      "distinct_urls": 33,
+      "missing_order": 0,
+      "explicit_post_reference_count": 1,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "b64401b2-d63f-4d95-9f3d-7fdcbff8a42c",
+      "wp_gallery_id": 89,
+      "name": "גלרית המספר 16/36 א",
+      "gallery_type": "other",
+      "anchor_number": 16,
+      "anchor_numbers": [
+        16,
+        36
+      ],
+      "eligible_occurrences": 43,
+      "distinct_urls": 43,
+      "missing_order": 0,
+      "explicit_post_reference_count": 4,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "7654ad82-eeb8-4305-9f13-d7ca1a169ac3",
+      "wp_gallery_id": 90,
+      "name": "גלרית המספר 2024",
+      "gallery_type": "theme",
+      "anchor_number": 2024,
+      "anchor_numbers": [
+        2024
+      ],
+      "eligible_occurrences": 1,
+      "distinct_urls": 1,
+      "missing_order": 0,
+      "explicit_post_reference_count": 1,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "e48a61d4-4280-42ed-ba6d-db5111d90184",
+      "wp_gallery_id": 91,
+      "name": "גלרית דוד המלך מספר 18",
+      "gallery_type": "david",
+      "anchor_number": 14,
+      "anchor_numbers": [
+        14
+      ],
+      "eligible_occurrences": 28,
+      "distinct_urls": 28,
+      "missing_order": 0,
+      "explicit_post_reference_count": 3,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "f92523f3-3ebb-4c97-809d-4588bcdbbf58",
+      "wp_gallery_id": 92,
+      "name": "רמזי טראמפ 2024",
+      "gallery_type": "time_news",
+      "anchor_number": 2024,
+      "anchor_numbers": [
+        2024
+      ],
+      "eligible_occurrences": 15,
+      "distinct_urls": 15,
+      "missing_order": 0,
+      "explicit_post_reference_count": 1,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "eb4da5e5-a1a2-485b-80ef-cf86b5f091cf",
+      "wp_gallery_id": 93,
+      "name": "776",
+      "gallery_type": "theme",
+      "anchor_number": 776,
+      "anchor_numbers": [
+        776
+      ],
+      "eligible_occurrences": 35,
+      "distinct_urls": 35,
+      "missing_order": 0,
+      "explicit_post_reference_count": 1,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "92604057-eaef-4784-946a-8e25930b83c2",
+      "wp_gallery_id": 94,
+      "name": "גלרית 40/42",
+      "gallery_type": "other",
+      "anchor_number": 40,
+      "anchor_numbers": [
+        40,
+        42
+      ],
+      "eligible_occurrences": 6,
+      "distinct_urls": 6,
+      "missing_order": 0,
+      "explicit_post_reference_count": 1,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "a9f27315-1641-4ae8-9e06-ed9d109ef6b1",
+      "wp_gallery_id": 95,
+      "name": "גלרית דוד המלך מספר 19",
+      "gallery_type": "david",
+      "anchor_number": 14,
+      "anchor_numbers": [
+        14
+      ],
+      "eligible_occurrences": 29,
+      "distinct_urls": 29,
+      "missing_order": 0,
+      "explicit_post_reference_count": 1,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "cff8d8ae-a278-4c19-a21e-afe8228dd471",
+      "wp_gallery_id": 96,
+      "name": "878 - 360 עולם הפוך",
+      "gallery_type": "theme",
+      "anchor_number": 878,
+      "anchor_numbers": [
+        878
+      ],
+      "eligible_occurrences": 15,
+      "distinct_urls": 15,
+      "missing_order": 0,
+      "explicit_post_reference_count": 2,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "fb564227-d4ac-45cb-92d2-8e45e6464ff5",
+      "wp_gallery_id": 97,
+      "name": "רמזי 26 -17 = טוב - ורמזי מכוניות",
+      "gallery_type": "other",
+      "anchor_number": 26,
+      "anchor_numbers": [
+        26,
+        17
+      ],
+      "eligible_occurrences": 8,
+      "distinct_urls": 8,
+      "missing_order": 0,
+      "explicit_post_reference_count": 2,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "fde40ef4-a161-4367-8a9b-85f8ea37f6da",
+      "wp_gallery_id": 98,
+      "name": "גלרית המספר 15",
+      "gallery_type": "other",
+      "anchor_number": 15,
+      "anchor_numbers": [
+        15
+      ],
+      "eligible_occurrences": 2,
+      "distinct_urls": 2,
+      "missing_order": 0,
+      "explicit_post_reference_count": 1,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "caef5a77-ffe8-43a3-8ab1-ae36f4d50b4e",
+      "wp_gallery_id": 99,
+      "name": "גלרית דוד המלך מספר 20",
+      "gallery_type": "david",
+      "anchor_number": 14,
+      "anchor_numbers": [
+        14
+      ],
+      "eligible_occurrences": 35,
+      "distinct_urls": 35,
+      "missing_order": 0,
+      "explicit_post_reference_count": 1,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "450b9c2c-81e6-41d1-a70c-a13db958427a",
+      "wp_gallery_id": 101,
+      "name": "גלרית 710",
+      "gallery_type": "theme",
+      "anchor_number": 710,
+      "anchor_numbers": [
+        710
+      ],
+      "eligible_occurrences": 0,
+      "distinct_urls": 0,
+      "missing_order": 0,
+      "explicit_post_reference_count": 2,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "368160b5-c679-4ca4-b845-147808bc572a",
+      "wp_gallery_id": 102,
+      "name": "גלרית דוד המלך 21",
+      "gallery_type": "david",
+      "anchor_number": 14,
+      "anchor_numbers": [
+        14
+      ],
+      "eligible_occurrences": 0,
+      "distinct_urls": 0,
+      "missing_order": 0,
+      "explicit_post_reference_count": 1,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "f653f584-2160-470b-8695-2153b77a9ec2",
+      "wp_gallery_id": 103,
+      "name": "גלרית דוד המלך 22",
+      "gallery_type": "david",
+      "anchor_number": 14,
+      "anchor_numbers": [
+        14
+      ],
+      "eligible_occurrences": 0,
+      "distinct_urls": 0,
+      "missing_order": 0,
+      "explicit_post_reference_count": 2,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "b4fac0d2-2769-4c23-a8b5-5521f6fa5ffb",
+      "wp_gallery_id": 104,
+      "name": "גלרית דוד המלך מספר 23",
+      "gallery_type": "david",
+      "anchor_number": 14,
+      "anchor_numbers": [
+        14
+      ],
+      "eligible_occurrences": 0,
+      "distinct_urls": 0,
+      "missing_order": 0,
+      "explicit_post_reference_count": 4,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "3ee0ec23-04f3-468b-a7b5-67087d41681a",
+      "wp_gallery_id": 105,
+      "name": "גלרית דוד 24",
+      "gallery_type": "david",
+      "anchor_number": 14,
+      "anchor_numbers": [
+        14
+      ],
+      "eligible_occurrences": 10,
+      "distinct_urls": 10,
+      "missing_order": 10,
+      "explicit_post_reference_count": 2,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "82b622eb-7f48-43be-902c-69aa10c87b14",
+      "wp_gallery_id": 106,
+      "name": "1202",
+      "gallery_type": "theme",
+      "anchor_number": 1202,
+      "anchor_numbers": [
+        1202
+      ],
+      "eligible_occurrences": 0,
+      "distinct_urls": 0,
+      "missing_order": 0,
+      "explicit_post_reference_count": 1,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "c6906a2b-05fd-4282-b76b-0bf87dab4e38",
+      "wp_gallery_id": 9999,
+      "name": "גלרית 7.10 — שמחת תורה תשפ\"ד",
+      "gallery_type": "7.10",
+      "anchor_number": 710,
+      "anchor_numbers": [
+        710
+      ],
+      "eligible_occurrences": 0,
+      "distinct_urls": 0,
+      "missing_order": 0,
+      "explicit_post_reference_count": 0,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "fc520928-3976-448a-82b3-7c4ead7d6902",
+      "wp_gallery_id": 10000,
+      "name": "א-להים = 86 — שם ה׳ בטבע",
+      "gallery_type": "theme",
+      "anchor_number": 86,
+      "anchor_numbers": [
+        86,
+        860,
+        2701
+      ],
+      "eligible_occurrences": 2,
+      "distinct_urls": 2,
+      "missing_order": 0,
+      "explicit_post_reference_count": 0,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "52dd781c-f1ca-486a-9167-9b1b9e2d7713",
+      "wp_gallery_id": 10001,
+      "name": "עדכוני גלריה",
+      "gallery_type": "pilot",
+      "anchor_number": null,
+      "anchor_numbers": null,
+      "eligible_occurrences": 4,
+      "distinct_urls": 4,
+      "missing_order": 4,
+      "explicit_post_reference_count": 0,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "bcc8a7c3-748c-4faa-84f0-dd6ddacaaeb1",
+      "wp_gallery_id": 10002,
+      "name": "דיווחי קהילה",
+      "gallery_type": "community",
+      "anchor_number": null,
+      "anchor_numbers": null,
+      "eligible_occurrences": 0,
+      "distinct_urls": 0,
+      "missing_order": 0,
+      "explicit_post_reference_count": 0,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    },
+    {
+      "id": "a9ad5747-82e6-45d6-b89e-206f0cccf255",
+      "wp_gallery_id": 10003,
+      "name": "צפני התכנסות",
+      "gallery_type": "cipher",
+      "anchor_number": 1010,
+      "anchor_numbers": [
+        1010
+      ],
+      "eligible_occurrences": 0,
+      "distinct_urls": 0,
+      "missing_order": 0,
+      "explicit_post_reference_count": 0,
+      "public_image_eligibility": "published=1,min_tier=0,not_curator_hidden,https_image_url; not findings"
+    }
+  ]
+}

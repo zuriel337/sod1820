@@ -2,6 +2,8 @@ import React, { useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import Sod2029Shell, { FrameState } from "../components/experience2029/Sod2029Shell.jsx";
 import CanonicalMediaImage2029 from "../components/experience2029/CanonicalMediaImage2029.jsx";
+import ShareActions from "../components/ShareActions.jsx";
+import { worldMediaPublicShare } from "../lib/research/worldFindingShare.js";
 import { SourceMethodResearch } from "../components/research/Revelation1237Gate2029.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { getImagesByGallery } from "../lib/supabase.js";
@@ -32,6 +34,7 @@ function GalleryImageCard({ item, index, selected, opening, error, onRemember, o
   const slotKey = `gallery-source-${item.galleryImageId}`;
   const title = publicMediaTitle(p.originalName);
   const caption = publicMediaCaption(p.originalCaption);
+  const share = worldMediaPublicShare(item, { origin: typeof window !== "undefined" ? window.location.origin : null });
   const kind = p.imageType === "gematria" ? "גימטריה" : p.imageType === "hint" ? "רמזים בתמונה"
     : p.imageType === "event" ? "מן החדשות" : "מהגלריה";
   const numberLink = (number) => <Link key={number} className="g29-number" to={numberExpressionFocusHref(number)}
@@ -43,7 +46,9 @@ function GalleryImageCard({ item, index, selected, opening, error, onRemember, o
       <CanonicalMediaImage2029 item={item} primary loading={index < 2 ? "eager" : "lazy"} alt={title || "תמונה מהגלריה"} />
     </a>
     <div className="g29-placard">
-      <div className="g29-card-heading"><span className="g29-kind">{kind}</span><span className="g29-index" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span></div>
+      <div className="g29-card-heading"><span className="g29-kind">{kind}</span><span className="g29-index" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
+        {share ? <ShareActions type="image" {...share} title={title || share.title} variant="icon" sourceSurface="gallery_2029" force /> : null}
+      </div>
       {title ? <h3>{title}</h3> : null}
       {caption ? <><p className={`g29-caption${captionExpanded ? " is-expanded" : ""}`}>{caption}</p>
         {caption.length > 170 ? <button className="g29-text-button" type="button" aria-expanded={captionExpanded}

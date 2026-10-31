@@ -32,7 +32,7 @@ export default function ShareActions({
   type = "page", url, title = "", image = null, channels = ALL, compact = false, extra = null, force = false, style,
   // Share Object (all optional, additive)
   entityId = null, sourceSurface = null, subtype = "share", locale = null, exactState = null, context = null,
-  video = null, poster = null, onShare = null,
+  video = null, poster = null, onShare = null, variant = "default",
 }) {
   const P = usePalette();
   const visualPalette = use2029Palette();
@@ -109,6 +109,22 @@ export default function ShareActions({
 
   // 👑 share_placement_law — הבלוק מופיע רק היכן שהווידג׳ט-הצף נעדר (אלא אם force). אפס כפילות.
   if (!force && floatingShareShown(pathname)) return null;
+
+  // A contextual unit uses the SAME execution/telemetry with one quiet icon.
+  // No image file is fetched implicitly: this action shares the exact unit link.
+  // Existing callers keep the original channel row and image-file choice.
+  if (variant === "icon") return (
+    <div className="sod-share-actions is-icon" dir="rtl" style={{ "--action-success": visualPalette.successText, "--action-danger": visualPalette.dangerText, ...style }}>
+      <button type="button" data-action="share" data-share-variant="icon"
+        data-state={copied ? "success" : copyFailed ? "error" : "idle"}
+        title={copied ? "הקישור הועתק" : "שתף קישור לתמונה"}
+        aria-label={copied ? "הקישור לתמונה הועתק" : copyFailed ? "ההעתקה נכשלה, נסה שוב" : "שתף קישור לתמונה"}
+        onClick={(event) => { event.preventDefault(); event.stopPropagation(); if (canNative) void native(); else void copy(); }}>
+        <NavigationIcon2029 name={copied ? "check" : "share"} size={16} />
+      </button>
+      <span className="sod-action-announcement" role="status" aria-live="polite">{copied ? "הקישור לתמונה הועתק" : copyFailed ? "ההעתקה נכשלה. נסה שוב." : ""}</span>
+    </div>
+  );
 
   const btn = { display: "inline-flex", alignItems: "center", gap: 6, cursor: "pointer", textDecoration: "none",
     background: P.card, borderWidth: 1, borderStyle: "solid", borderColor: P.border, borderRadius: 999, padding: compact ? "8px 11px" : "8px 15px",
