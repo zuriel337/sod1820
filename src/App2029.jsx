@@ -42,7 +42,7 @@ const Campaign718Page2029 = lazy(() => import("./pages/Campaign718Page2029.jsx")
 const EarlyAccess2029Page = lazy(() => import("./pages/EarlyAccess2029Page.jsx"));
 const Community2029Page = lazy(() => import("./pages/Community2029Page.jsx"));
 const CommunityChatTransition2029Page = lazy(() => import("./pages/CommunityChatTransition2029Page.jsx"));
-const AuthPage = lazy(() => import("./pages/AuthPage.jsx"));
+const AuthPage = lazy(() => import("./pages/Auth2029Page.jsx"));
 
 // Gallery pilot reuses the existing World document route and lock. No parallel
 // document rewrite, global navigation change or Legacy route is introduced.

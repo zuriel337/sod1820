@@ -22,11 +22,17 @@ const existingPersonAccess = "fn_get_or_create_my_person";
 // Match the existing public reader's closed projection. Joined contributor
 // columns are deliberately excluded. Replies/counts await chain-visibility acceptance.
 const communityFields = "id,parent_id,author_name,author_user_id,author_contributor_id,title,body,reactions,origin,created_at,edited_at,is_deleted,total_count";
+// ZURIEL explicitly authorized this single protected Preview to manage Community
+// messages through the reviewed server RPCs. No general write or model allowance.
+const communityMessageManagement = typeof process !== "undefined"
+  && process.env.VERCEL_ENV === "preview"
+  && process.env.VERCEL_GIT_COMMIT_REF === "gpt/community-server-auth-20261031";
 // The unified working preview must not create Person records or record ELS traces.
 const unifiedReadOnly = typeof process !== "undefined" && ["gpt/2029-central-unified-workspace-20261029", "gpt/2029-central-shell-alignment-20261029", "gpt/2029-central-topbar-menu-completion-20261029", "gpt/2029-central-ui-carry-restoration-20261029", "gpt/2029-central-community-filter-tiles-20261029", "gpt/2029-central-community-small-filters-20261029", "gpt/2029-central-single-command-bar-20261029", "gpt/2029-central-public-context-labels-20261029", "gpt/2029-central-zvi-public-material-20261029", "gpt/2029-central-zvi-research-experience-20261029", "gpt/2029-central-zvi-world-source-tree-20261030", "gpt/elections-world-seed-integration-20261030"].includes(process.env.VERCEL_GIT_COMMIT_REF);
 const worker = `const reads = new Set(${JSON.stringify(allow)});
 const existingPersonAccess=${JSON.stringify(existingPersonAccess)};
-const unifiedReadOnly=${JSON.stringify(unifiedReadOnly)};
+const unifiedReadOnly=${JSON.stringify(unifiedReadOnly || communityMessageManagement)};
+const communityMessageManagement=${JSON.stringify(communityMessageManagement)};
 const communityFields=${JSON.stringify(communityFields)};
 const communityReads=new Set(['community_feed_page','community_message_context']);
 const authOrigin='https://linswmnnkjxvweumprav.supabase.co';
@@ -34,6 +40,26 @@ self.addEventListener('install',()=>self.skipWaiting());
 self.addEventListener('activate',event=>event.waitUntil(self.clients.claim()));
 self.addEventListener('fetch',event=>{
  const req=event.request,u=new URL(req.url),rpc=u.pathname.match(/^\\/rest\\/v1\\/rpc\\/(.+)$/)?.[1];
+ const managementRpc=['community_message_actions_v1','community_edit_message','community_delete_message'].includes(rpc);
+ if(u.origin===authOrigin&&managementRpc){
+  event.respondWith((async()=>{
+   const blocked=()=>new Response(JSON.stringify({error:'preview_read_only'}),{status:403,headers:{'Content-Type':'application/json','X-Preview-Write-Blocked':'true'}});
+   if(!communityMessageManagement||req.method!=='POST'||u.search||!/^Bearer [A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+$/i.test(req.headers.get('Authorization')||''))return blocked();
+   try{
+    const body=await req.clone().json();
+    const uuid=v=>typeof v==='string'&&/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(v);
+    if(!body||typeof body!=='object'||Array.isArray(body))return blocked();
+    const keys=Object.keys(body).sort().join(',');
+    const permitted=rpc==='community_message_actions_v1'
+      ? keys==='p_ids'&&Array.isArray(body.p_ids)&&body.p_ids.length<=100&&body.p_ids.every(uuid)
+      : rpc==='community_delete_message'
+        ? keys==='p_id'&&uuid(body.p_id)
+        : keys==='p_body,p_id'&&uuid(body.p_id)&&typeof body.p_body==='string'&&body.p_body.trim().length>0&&Array.from(body.p_body.trim()).length<=6000;
+    if(permitted)return fetch(req);
+   }catch{}
+   return blocked();
+  })());return;
+ }
  const communityRead=u.origin===authOrigin&&communityReads.has(rpc);
  const communityProjection=communityRead&&u.searchParams.getAll('select').length===1&&u.searchParams.get('select')===communityFields;
  const ambiguousPath=(u.pathname.includes('%')&&!u.pathname.startsWith('/storage/v1/'))
