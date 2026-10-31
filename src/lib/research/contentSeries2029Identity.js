@@ -1,4 +1,4 @@
-import { isPost2029OnlyReleased } from "./publicPostBoundary.js";
+import { isPost2029OnlyReleased, POST_2029_ONLY_RELEASE_TAG } from "./publicPostBoundary.js";
 
 const clean = (value) => value == null ? "" : String(value).trim();
 
@@ -78,6 +78,15 @@ export function contentSeriesByKey(key) {
 // Explicit Human-Gated 2029-only editorial release can admit an unattributed
 // source into the Dimension Five stream without falsely assigning its creator
 // or modifying the approved publisher identity of that series.
+// Use the existing PostgREST source reader, not a second catalog. This is the
+// exact allowlist exception for a 2029-only editorially admitted Dimension Five
+// item; all other series retain their original exact-author gate.
+export function seriesPublisherFilter2029(spec) {
+  if (spec?.key !== "dimension-five" || !spec.exactAuthor) return null;
+  const sourceAuthor = String(spec.exactAuthor).replace(/["\\]/g, "");
+  return `author.eq."${sourceAuthor}",and(tags.cs.{טיוטה,${POST_2029_ONLY_RELEASE_TAG}},home_hidden.eq.true)`;
+}
+
 export function hasExactSeriesPublisher2029(row, spec) {
   return !spec?.exactAuthor || row?.author === spec.exactAuthor
     || (spec.key === "dimension-five" && hasExactMembership(row, spec) && isPost2029OnlyReleased(row));
