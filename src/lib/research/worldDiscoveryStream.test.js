@@ -114,9 +114,14 @@ test("2029 World and bottom share the same source reader; legacy WhatsApp/privat
   assert.match(hook, /limit:\s*40, includeResearch:\s*false/);
   assert.doesNotMatch(frame, /watchWorldDiscoveryStream\(\{/);
   assert.match(frame, /<AttentionProjection[\s\S]{0,240}?feed=\{feed\}/);
-  assert.match(frame, /title="מה חדש בעולם"/);
-  assert.match(frame, /className="sod29-feed-chip" onClick=\{openAttention\}/);
-  assert.match(frame, /feed\.newCount > 0 && !transientKind/);
+  // The approved single command bar moved the same Attention/feed into Now.
+  // Keep its unread signal and shared reader, without reviving a floating chip.
+  assert.match(frame, /onClick=\{research\.elsResearchOperation\?\.task \? openWorkspace : openAttention\}/);
+  assert.match(frame, /aria-expanded=\{transientKind === \(research\.elsResearchOperation\?\.task \? TRANSIENT\.WORKSPACE : TRANSIENT\.ATTENTION\)\}/);
+  assert.match(frame, /feed\.newCount > 0 \? <span className="sod29-dock-unread"/);
+  assert.doesNotMatch(frame, /className="sod29-feed-chip"/);
+  assert.match(frame, /<GlobalLivingRibbon2029 feed=\{feed\}/);
+  assert.match(frame, /<CompanionPanel2029\s+feed=\{feed\}/);
   assert.match(frame, /const openAttention = useCallback\(\(\) => openTransient\(TRANSIENT\.ATTENTION\)/);
 });
 

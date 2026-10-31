@@ -1,0 +1,269 @@
+{
+  "task": "CI1185_CURRENT_PREVIEW_RECONCILIATION_20261031",
+  "before_id": "2b3904cb-91b8-4b52-b2f4-e5aef6c35fc4",
+  "source_sha": "63e6882c3b7b4004d337927c7231728a7612d452",
+  "fix_branch": "gpt/2029-ci1185-acceptance-reconcile-20261031",
+  "pr": {
+    "number": 1185,
+    "head": "b056827004725ee287d34f2f64f02411081a6201",
+    "ci_checkout": "9445123b921429c04fc46e2ec9ccd1c6e21a08ac",
+    "current_source_has_no_pull_request_runs": true
+  },
+  "historical_jobs": [
+    {
+      "gate": "Research Sync",
+      "run": 41221020037,
+      "job": 124595399292,
+      "classification": "INFRASTRUCTURE",
+      "error": "ECR postgres:17 toomanyrequests: Data limit exceeded; fails before checkout"
+    },
+    {
+      "gate": "Isolation",
+      "run": 41221020020,
+      "job": 124595399036,
+      "classification": "STALE_PRESENTATION_ASSERTION",
+      "error": "worldDiscoveryStream.test.js title=\"מה חדש בעולם\" / former floating feed chip; source isolation itself passed"
+    },
+    {
+      "gate": "ELS",
+      "run": 41221020018,
+      "job": 124595399202,
+      "classification": "ALREADY_RECONCILED_IN_CURRENT_SOURCE",
+      "error": "SystemFrame dock global Search old placement; existing current test uses More > Search > More > return to tool"
+    },
+    {
+      "gate": "G4",
+      "run": 41221020025,
+      "job": 124595399267,
+      "classification": "STALE_APPROVED_UI_AND_AGED_LIVE_FIXTURES",
+      "historical_failed": 7,
+      "historical_passed": 6,
+      "reproduced_current_failed": 7,
+      "reproduced_current_passed": 6
+    }
+  ],
+  "content_comparison": {
+    "community_runtime_and_style": "selected CommunityLive/transition/LegacyOpenWeb/css blobs equal PR head and63e6882c; no import needed",
+    "research_sync_runtime_recovery_state_and_sql": "unchanged against PR head",
+    "ResearchProvider": "15-line already integrated ELS operation observer/context extension; current actual mounted provider tested",
+    "ELS_current_test": "already stronger shared-bar/registration cleanup tests, no edit needed",
+    "runtime_files_changed_by_this_task": []
+  },
+  "verification": {
+    "node": {
+      "passed": 116,
+      "failed": 0,
+      "skipped": 0,
+      "groups": {
+        "research_runtime_recovery_hardening": 72,
+        "mounted_research_provider": 10,
+        "isolation_failed_step": 30,
+        "companion_shared_feed": 4
+      }
+    },
+    "research_sql": {
+      "passed_assertions": 36,
+      "expected_rejections": 18,
+      "version": "PostgreSQL17",
+      "network": "task-created container --network none, repo read-only; no host port or live connection",
+      "marker": "RESEARCH_SYNC_SQL_ACCEPTANCE_PASS"
+    },
+    "els_reported_case": {
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "widths": [
+        320,
+        390,
+        1440
+      ],
+      "no_engine_request_on_panel_change": true
+    },
+    "g4": {
+      "passed": 14,
+      "failed": 0,
+      "skipped": 0,
+      "flaky": 0,
+      "cases": [
+        {
+          "title": "2029 Preview Home keeps the adopted page without claiming a public opening",
+          "status": "expected",
+          "results": [
+            "passed"
+          ]
+        },
+        {
+          "title": "public navigation opens the same user area",
+          "status": "expected",
+          "results": [
+            "passed"
+          ]
+        },
+        {
+          "title": "launch Number lock blocks direct entry before the Number engine mounts",
+          "status": "expected",
+          "results": [
+            "passed"
+          ]
+        },
+        {
+          "title": "chat transition has one frame with the connected new chat above the retained old conversation",
+          "status": "expected",
+          "results": [
+            "passed"
+          ]
+        },
+        {
+          "title": "Number navigation requires an explicit value and opens its same full page on mobile and desktop",
+          "status": "expected",
+          "results": [
+            "passed"
+          ]
+        },
+        {
+          "title": "a phrase in the Number drawer opens its calculated full page, never a missing-value zero",
+          "status": "expected",
+          "results": [
+            "passed"
+          ]
+        },
+        {
+          "title": "a large signed-in profile image cannot squeeze the account text",
+          "status": "expected",
+          "results": [
+            "passed"
+          ]
+        },
+        {
+          "title": "posts, ELS, calculator and Number are reachable on mobile",
+          "status": "expected",
+          "results": [
+            "passed"
+          ]
+        },
+        {
+          "title": "existing gematria share links still open the shared result",
+          "status": "expected",
+          "results": [
+            "passed"
+          ]
+        },
+        {
+          "title": "World opens from Home and requests its grouped source reader",
+          "status": "expected",
+          "results": [
+            "passed"
+          ]
+        },
+        {
+          "title": "Topic number remains tappable when external fonts are unavailable",
+          "status": "expected",
+          "results": [
+            "passed"
+          ]
+        },
+        {
+          "title": "an absent public Topic never fabricates an 888 Number entry",
+          "status": "expected",
+          "results": [
+            "passed"
+          ]
+        },
+        {
+          "title": "Heichal and the other unopened areas stay closed",
+          "status": "expected",
+          "results": [
+            "passed"
+          ]
+        },
+        {
+          "title": "the existing public World stays open when no lock flag has been installed",
+          "status": "expected",
+          "results": [
+            "passed"
+          ]
+        }
+      ]
+    },
+    "gates": [
+      "source isolation",
+      "Legacy lock",
+      "normal dual build with VITE_HOME_2029_ENABLED=true",
+      "One Tree78",
+      "built graph/lazy",
+      "workflow YAML parse",
+      "diff check"
+    ]
+  },
+  "guard_preservation": [
+    "closed Number lock before engine, zero reads",
+    "Heichal/Books/Journey closed",
+    "single frame and retained old-chat source/one launcher",
+    "explicit Number intent without guessed1820",
+    "same 46px avatar cap and160px text minimum, actual container/viewport and text overflow limits",
+    "Guided no-result initial state plus explicit Classic entry",
+    "exact888 navigation/reload/return and44px target under unavailable external fonts",
+    "new missing-public-Topic no invented888 link",
+    "test transport replaces fn_* wildcard with bounded read RPC allowlist"
+  ],
+  "live_public_precondition": {
+    "public_relation": "topic_cards_public",
+    "filter": "slug=888-yeshua",
+    "observed_rows": 0,
+    "action": "use explicit synthetic approved Topic fixture for positive navigation plus absent-row negative; no product row written or restored"
+  },
+  "source_identity": "App/runtime/permissions unchanged from protected63e6882c; source containing this receipt is the test/CI-only delivery commit",
+  "remote_research_workflow": "One workflow_dispatch on final remote fix SHA to verify replacement runner-local PostgreSQL bootstrap; outcome in closing passive AFTER/user handoff",
+  "not_claimed": [
+    "No whole-repository green",
+    "No new Actions results for63e6882c (none exist)",
+    "No rerun of full ELS workflow or previously skipped five local PostgreSQL cases",
+    "No new hosted timing/field latency or live-role/model/write acceptance",
+    "Existing historical PR1185 statuses are not overwritten"
+  ],
+  "preview": {
+    "new_required": false,
+    "selected_sha": "63e6882c3b7b4004d337927c7231728a7612d452",
+    "url": "https://sod1820-26of53pw9-sod1820-s-projects.vercel.app/2029",
+    "deployed_this_task": false
+  },
+  "local_evidence": [
+    {
+      "path": "/tmp/ci1185-current-node-before.log",
+      "sha256": "f947451849cab612a2da9da58d2e7a4112d630fd6457999a40c0f572dcd7889e"
+    },
+    {
+      "path": "/tmp/ci1185-els-before.log",
+      "sha256": "44fa0effc6f26e4e6089faf4d97ae6fc61aa4e469a9a343966afe3537af2e276"
+    },
+    {
+      "path": "/tmp/ci1185-g4-before-correct-build.log",
+      "sha256": "6a07906d5c8085577364c3f7353037728da27db8616d26cd37f948e8cca49ac3"
+    },
+    {
+      "path": "/tmp/ci1185-g4-final.json",
+      "sha256": "73eafa038927cd9e0e698c37a98ecdeb2cf7d0235fe6d0e29943a125a21b7bb0"
+    },
+    {
+      "path": "/tmp/ci1185-final-node.log",
+      "sha256": "1cf6048f5dfcdd0c76913b6a42f28ca6af31175b95d17879702c1c8a4c9ca687"
+    },
+    {
+      "path": "/tmp/ci1185-research-sql.log",
+      "sha256": "3e0f9628ccdc7dad33f02d6f291f9d67189745827e779018866e8f9a1170bc74"
+    },
+    {
+      "path": "/tmp/ci1185-build.log",
+      "sha256": "76ad59c83dbb36538fbe213cbe3a1f5a7046534f67d8c89bd665e25779ec42e2"
+    },
+    {
+      "path": "/tmp/ci1185-graph.log",
+      "sha256": "ceacc0bad28c6817b3a8cbb1a3725a8aa702dd886c7537056bd6ff0b2a999ffe"
+    }
+  ],
+  "runner_notes": [
+    "Initial local G4 build omitted CI VITE_HOME_2029_ENABLED and was interrupted; not acceptance evidence. Correct-env unmodified G4 then reproduced exactly7/13 failures.",
+    "Intermediate adapted G4 runs exposed incorrect assumptions about Guided hidden state and World public-updates selector; corrected through actual DOM and source inspection. Final14/14 passed; no error/timeout/skip suppression.",
+    "External Playwright1.55, esbuild0.28.2, React renderer19.3 installed under/tmp; ignored worktree links only, package/lockfiles unchanged."
+  ]
+}
