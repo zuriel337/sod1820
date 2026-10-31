@@ -25,17 +25,17 @@ test("2029-only visibility requires explicit release marker PLUS legacy draft", 
 
 test("2029 query requires marked draft AND hidden Legacy home while public admission remains intact", () => {
   const filter = publicPostOnlyFilter();
-  assert.match(filter, /tags\\.not\\.ov\\.\\{טיוטה,פורום\\}/);
-  assert.match(filter, /and\\(tags\\.cs\\.\\{טיוטה,2029-only-live\\},tags\\.not\\.ov\\.\\{פורום\\},home_hidden\\.eq\\.true\\)/);
+  assert.ok(filter.includes("tags.not.ov.{טיוטה,פורום}"));
+  assert.ok(filter.includes("and(tags.cs.{טיוטה,2029-only-live},tags.not.ov.{פורום},home_hidden.eq.true)"));
 });
 
 test("Legacy still excludes drafts from public posts and Dimension Five feed", () => {
-  assert.match(legacy, /query\\.not\\('tags', 'cs', '\\{טיוטה\\}'\\)/);
-  assert.match(legacy, /p\\.tags\\s*\\|\\|\\s*\\[\\]\\)\\.includes\\("טיוטה"\\)/);
-  assert.doesNotMatch(legacy, /2029-only-live/);
+  assert.ok(legacy.includes(".not('tags', 'cs', '{טיוטה}')"));
+  assert.ok(legacy.includes('(p.tags || []).includes("טיוטה")'));
+  assert.ok(!legacy.includes("2029-only-live"));
 });
 
 test("2029 reading is not draft after marked 2029-only release, with separate private stage gate", () => {
-  assert.match(reader, /import \\{ isPost2029OnlyReleased \\} from "\\.\\/publicPostBoundary\\.js"/);
-  assert.match(reader, /post\\._privateStage === true \\|\\| \\(Array\\.isArray\\(post\\.tags\\) && post\\.tags\\.includes\\("טיוטה"\\) && !isPost2029OnlyReleased\\(post\\)\\)/);
+  assert.ok(reader.includes('import { isPost2029OnlyReleased } from "./publicPostBoundary.js"'));
+  assert.ok(reader.includes('post._privateStage === true || (Array.isArray(post.tags) && post.tags.includes("טיוטה") && !isPost2029OnlyReleased(post))'));
 });
