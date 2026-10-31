@@ -379,6 +379,18 @@
   outline-offset:-2px;
   box-shadow:0 0 0 3px color-mix(in srgb,var(--s29-focus-ring) 18%,transparent);
 }
+.els29-native-cell.is-manually-marked{outline:3px dashed var(--s29-focus-ring);outline-offset:-3px;text-decoration:underline;text-underline-offset:3px}
+.els29-native-cell.is-manually-marked:not(.is-axis):not(.is-finding):not(.is-source-text):not(.is-ai-reading){background:var(--s29-panel-soft);color:var(--s29-ink)}
+.els29-native-cell:focus-visible{outline:3px solid var(--s29-focus-ring);outline-offset:1px}
+.els29-manual-selection{min-width:0;padding:12px;border:1px solid var(--s29-line);border-radius:12px;background:var(--s29-panel);color:var(--s29-ink);text-align:start}
+.els29-manual-selection p,.els29-letter-occurrences p{margin:0 0 8px;font-size:var(--s29-type-body);line-height:1.6;overflow-wrap:anywhere}
+.els29-manual-selection small{display:block;color:var(--s29-muted);font-size:var(--s29-type-small);line-height:1.6}
+.els29-manual-text{overflow-wrap:anywhere}
+.els29-manual-selection>div,.els29-letter-occurrences>div{display:flex;flex-wrap:wrap;gap:8px;margin-block:8px;min-width:0}
+.els29-letter-occurrences strong{flex-basis:100%}
+.els29-manual-selection button,.els29-letter-occurrences button{min-height:44px;min-width:44px;max-width:100%;padding:8px 12px;border:1px solid var(--s29-line);border-radius:10px;background:var(--s29-panel-soft);color:var(--s29-ink);font:inherit;font-size:var(--s29-type-ui);cursor:pointer;overflow-wrap:anywhere}
+.els29-manual-selection button:focus-visible{outline:2px solid var(--s29-focus-ring);outline-offset:2px}
+.els29-manual-selection button:disabled,.els29-letter-occurrences button:disabled{opacity:.45;cursor:not-allowed}
 .els29-native-workrail{
   min-width:0;
   overflow:auto;

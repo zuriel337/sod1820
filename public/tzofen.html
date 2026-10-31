@@ -2043,7 +2043,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
       geometry:{S:b.S,mainCol:b.mainCol,c0:b.c0,cw:b.cw,r0:b.r0,r1:b.r1},
       matrix:matrixSnapshot(b),
       findings:st.words.map(nativeFindingResults),
-      ui:{expand:st.expand,swOpen:st.swOpen,lineFor:st.lineFor,selCells:(st.selCells||[]).slice(0,64),windowSize:st.windowSize,windowRequested:st.windowRequested,
+      ui:{expand:st.expand,swOpen:st.swOpen,lineFor:st.lineFor,selCells:(st.selCells||[]).slice(0,64),selText:(st.selCells||[]).slice(0,64).map(i=>T[i]).join(""),windowSize:st.windowSize,windowRequested:st.windowRequested,
         showN:st.showN,findingRadius:st.findingRadius,ctxR:st.ctxR,hideMain:!!st.hideMain,zoom:st.zoom,fit:!!st.fit,
         heat:!!st.heat,niqqud:!!st.niqqud,selMode:!!st.selMode,verseRead:!!st.verseRead},
       search:{mode:st.crossSimple?"cross-simple":st.crossBridge?"bridge":st.crossFree?"cross-free":(st.crossMeetings?"cross":"regular"),
@@ -2139,13 +2139,18 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
   async function letterContextLens(target){
     const t=target||{},i=Number(t.i);
     try{
+      const axis=hasGov(st.res)?hitKey(occ()):null,scope=st.scope;
+      if(!axis)return;
       if(!Number.isInteger(i)||i<0||i>=scopeN()){postHost({type:"lens",lens:"letter-context",ok:false,target:t});return;}
       const b=blockOf(),r=Math.floor(i/b.S),c=((i%b.S)+b.S)%b.S;
       if(r<b.r0||r>b.r1||c<b.c0||c>=b.c0+b.cw){postHost({type:"lens",lens:"letter-context",ok:false,target:t});return;}
       await ensureVerseText();
+      if(searchUncommitted()||!hasGov(st.res)||hitKey(occ())!==axis||st.scope!==scope)return;
       const loc=locateLetter(i);
       if(!loc){postHost({type:"lens",lens:"letter-context",ok:false,target:t});return;}
       postHost({type:"lens",lens:"letter-context",ok:true,target:t,index:i,letter:T[i],
+        occurrences:[...(occ().positions.includes(i)?[{term:st.raw,hitId:axis,primary:true}]:[]),
+          ...st.words.flatMap(w=>shownHitsOf(w).filter(h=>isGov(h)&&h.positions.includes(i)).map(h=>({term:w.t,hitId:hitKey(h),primary:false})))],
         location:{book:loc.book,chapter:loc.chapter,verse:loc.verse,offset:loc.offset,ref:loc.ref,verseIndex:loc.verseIndex},
         verse:{ref:loc.ref,text:loc.text||"",from:VCUM[loc.verseIndex],to:VCUM[loc.verseIndex+1]-1}});
     }catch(e){postHost({type:"lens",lens:"letter-context",ok:false,target:t});}
@@ -2701,6 +2706,21 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
       else if(d.action==="axis-visibility"){st.hideMain=!st.hideMain;recolorOnly();emitState();}
       else if(d.action==="heat-toggle"){st.heat=!st.heat;recolorOnly();emitState();}
       else if(d.action==="niqqud-toggle")toggleNiqqud();
+      else if(EXPR2029&&["selection-mode","selection-toggle","selection-clear"].includes(d.action)){
+        // Same manual selection as the classic tool. Indices are presentation, never findings.
+        const v=d.value||{};
+        if(v.axisHitId!==hitKey(occ())||v.scope!==st.scope)return;
+        if(d.action==="selection-mode")st.selMode=!st.selMode;
+        else if(d.action==="selection-clear")st.selCells=[];
+        else{
+          if(!st.selMode||!Number.isInteger(v.index)||v.index<0||v.index>=scopeN())return;
+          const b=blockOf(),r=Math.floor(v.index/b.S),c=v.index%b.S;
+          if(r<b.r0||r>b.r1||c<b.c0||c>=b.c0+b.cw)return;
+          const at=st.selCells.indexOf(v.index);
+          if(at>=0)st.selCells.splice(at,1);else if(st.selCells.length<64)st.selCells.push(v.index);
+        }
+        recolorOnly();updateSelBar();emitState();
+      }
       else if(d.action==="finding-radius"&&(d.value===null||(Number.isInteger(d.value)&&d.value>=0&&d.value<=100))){
         st.findingRadius=d.value;recolorOnly();if(st._renderNativeList)st._renderNativeList();emitState();
       }

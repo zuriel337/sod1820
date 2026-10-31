@@ -1,6 +1,6 @@
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { use2029Palette } from "../../lib/palette.js";
-import { parseElsHitKey } from "../../lib/elsJourney.js";
+import { parseElsHitKey, buildJourneyPromotion } from "../../lib/elsJourney.js";
 import { buildElsRazielMatrixContext } from "../../lib/research/elsRazielMatrixContext.js";
 import ElsMatrixReadingCard2029 from "./ElsMatrixReadingCard2029.jsx";
 import { selectElsMatrixReading } from "../../lib/research/elsMatrixReadingPresentation.js";
@@ -49,6 +49,7 @@ const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex, selectedFinding, visible, classicGlyphs, verseHighlight, presentation, presentationPlan, readingView, onZoomChange, readingFindings = [], selectedReading, readingFocus }) {
   const palette = use2029Palette("research_lab");
   const matrix = state?.matrix;
+  const manualSelection = useMemo(() => new Set(state?.ui?.selCells || []), [state?.ui?.selCells]);
   const geometry = state?.geometry;
   const scrollRef = useRef(null);
   const dragRef = useRef({ active: false, pointerId: null, x: 0, y: 0, left: 0, top: 0, moved: false });
@@ -234,8 +235,8 @@ function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex, selectedFin
 
   const summaryId = "els29-native-matrix-summary";
   const zoom = clamp(Number(state?.ui?.zoom) || 1, 0.5, 2.8);
-  const cellPx = clamp(Math.round(26 * zoom), 16, 54);
-  const fit = Boolean(state?.ui?.fit);
+  const cellPx = clamp(Math.round(26 * zoom), state?.ui?.selMode ? 44 : 16, 54);
+  const fit = Boolean(state?.ui?.fit) && !state?.ui?.selMode;
 
   return <div
     ref={scrollRef}
@@ -264,7 +265,7 @@ function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex, selectedFin
     </p> : null}
     <div
       className={`els29-native-matrix${fit ? " is-fit" : ""}${readingView ? " is-reading" : ""}${classicGlyphs ? " is-classic-glyphs" : ""}${state?.ui?.niqqud ? " is-niqqud" : ""}`}
-      aria-hidden="true"
+      aria-hidden={state?.ui?.selMode ? undefined : true}
       style={{ "--els29-cols": matrix.cw || geometry.cw || 1, "--els29-cell": `${cellPx}px` }}
     >
       {matrix.rows.map((row, rowOffset) => {
@@ -293,6 +294,7 @@ function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex, selectedFin
               readingMark ? "is-ai-reading" : "",
               readingMark && readingSelection.has(index) ? "is-ai-reading-selected" : "",
               selectedLetterIndex === index ? "is-selected" : "",
+              manualSelection.has(index) ? "is-manually-marked" : "",
               heat > 0 ? "is-heat" : "",
             ].filter(Boolean).join(" ");
             return <span
@@ -302,9 +304,18 @@ function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex, selectedFin
               data-reading-finding={readingMark?.readingKey}
               data-verse-word={verseParity}
               data-present-concealed={concealed ? "true" : undefined}
-              title={sourceMark ? `רצף מקור: ${sourceMark.term} · הצג פסוק` : "הצג מקור ופסוק"}
+              title={state?.ui?.selMode ? "סימון חופשי — לחצו שוב להסרה" : sourceMark ? `רצף מקור: ${sourceMark.term} · הצג פסוק` : "הצג מקור ופעולות הציר"}
+              role={state?.ui?.selMode && onLetterClick && letter !== " " ? "button" : undefined}
+              tabIndex={state?.ui?.selMode && onLetterClick && letter !== " " ? 0 : undefined}
+              aria-label={state?.ui?.selMode && onLetterClick && letter !== " " ? `אות ${letter} במיקום מקור ${index} (ספירה מאפס)` : undefined}
+              aria-pressed={state?.ui?.selMode && letter !== " " ? manualSelection.has(index) : undefined}
+              onKeyDown={(event) => {
+                if (letter !== " " && ["Enter", " "].includes(event.key)) {
+                  event.preventDefault();onLetterClick?.({ index, letter, mark });
+                }
+              }}
               onClick={() => {
-                if (dragRef.current.moved || Date.now() < (dragRef.current.suppressClickUntil || 0)) return;
+                if (letter === " " || dragRef.current.moved || Date.now() < (dragRef.current.suppressClickUntil || 0)) return;
                 onLetterClick?.({ index, letter, mark });
               }}
               style={{
@@ -412,7 +423,7 @@ function LineExplorer({ result, findings, onAddFinding, addingFinding }) {
   </div>;
 }
 
-function SourceLens({ lensResult, findings, onAddLineFinding, addingFinding, onHighlightVerse, verseHighlight }) {
+function SourceLens({ lensResult, findings, onAddLineFinding, addingFinding, onHighlightVerse, verseHighlight, onSelectOccurrence, onOpenOccurrence }) {
   if (!lensResult) return <p className="els29-native-muted">לחצו על אות במטריצה כדי לראות את המקור שלה, או השתמשו ב״מקור הממצא״ לקריאה נגישה של פסוקי הציר.</p>;
   if (lensResult.ok === false) return <p className="els29-native-muted">המקור לא זמין לתא הזה במצב הנוכחי.</p>;
 
@@ -423,6 +434,14 @@ function SourceLens({ lensResult, findings, onAddLineFinding, addingFinding, onH
         <strong>{lensResult?.location?.ref || lensResult?.verse?.ref || "מקור"}</strong>
         <p>{lensResult?.verse?.text || "טקסט הפסוק נטען מהמנוע הקנוני."}</p>
         <button type="button" aria-pressed={verseHighlight?.from === lensResult?.verse?.from} onClick={() => onHighlightVerse(lensResult.verse)}>הדגש פסוק</button>
+        {lensResult.occurrences?.length ? <div className="els29-letter-occurrences" aria-label="צירים שעוברים באות">
+          <p>צירים מאומתים שעוברים באות הזאת</p>
+          {lensResult.occurrences.map(item => <div key={`${item.term}:${item.hitId}`}>
+            <strong>{item.term}{item.primary ? " · הציר הראשי" : ""}</strong>
+            <button type="button" disabled={addingFinding} onClick={() => onSelectOccurrence(item)}>בחר כציר לסריקה</button>
+            {!item.primary && onOpenOccurrence ? <button type="button" disabled={addingFinding} onClick={() => onOpenOccurrence(item)}>פתח מטריצה של המופע</button> : null}
+          </div>)}
+        </div> : null}
       </div>
     </div>;
   }
@@ -668,7 +687,7 @@ function CrossResultsRail({ state, pending, outcome, visible, onSelect, onContin
   </div>;
 }
 
-function FindingsRail({ onHighlightVerse, verseHighlight, activeTool, state, selected, lensResult, lensPending, operation, searchPending, onCancel, onScan, onSource, onSelectTarget, onAxisControl, onAddLineFinding, onFindingsChange, onFindingControl, readingCount = 0 }) {
+function FindingsRail({ onHighlightVerse, verseHighlight, activeTool, state, selected, lensResult, lensPending, operation, searchPending, onCancel, onScan, onSource, onSelectTarget, onAxisControl, onAddLineFinding, onFindingsChange, onFindingControl, onOpenOccurrence, readingCount = 0 }) {
   const palette = use2029Palette("research_lab");
   const colorChoices = findingColorChoices(palette);
   const findings = Array.isArray(state?.findings) ? state.findings : [];
@@ -799,7 +818,8 @@ function FindingsRail({ onHighlightVerse, verseHighlight, activeTool, state, sel
       </div>
       {lensPending || lensResult ? <details ref={inspectionRef} key={lensResult?.target?.nativeSeq || "pending"} className="els29-native-inline-inspection" open>
         <summary>{lensResult?.lens === "line-context" ? "תוצאות סריקת הציר" : lensPending ? "טוען…" : "מקור ופסוק"}</summary>
-        {lensPending ? <p role="status">טוען את הציר הנבחר…</p> : <SourceLens onHighlightVerse={onHighlightVerse} verseHighlight={verseHighlight} lensResult={lensResult} findings={findings} onAddLineFinding={onAddLineFinding} addingFinding={pending} />}
+        {lensPending ? <p role="status">טוען את הציר הנבחר…</p> : <SourceLens onHighlightVerse={onHighlightVerse} verseHighlight={verseHighlight} lensResult={lensResult} findings={findings} onAddLineFinding={onAddLineFinding} addingFinding={pending}
+          onSelectOccurrence={item => selectTarget(item.primary ? "" : item.term, item.hitId)} onOpenOccurrence={onOpenOccurrence} />}
       </details> : null}
       <details className="els29-native-findings-options"><summary>אפשרויות תצוגת ממצאים</summary>
         <label className="els29-native-proximity"><span>מופעים להצגה לכל מילה <output>{showN}</output></span>
@@ -1364,9 +1384,27 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   };
 
   const handleLetterClick = ({ index }) => {
+    if (searchPending) return;
+    if (engineStateRef.current?.ui?.selMode) {
+      requestSelection("selection-toggle", index);return;
+    }
     setSelectedLetterIndex(index);
     requestLens("letter-context", { i: index });
   };
+  const requestSelection = (action, index) => {
+    const current = engineStateRef.current;
+    if (action === "selection-mode" && !current?.ui?.selMode) setActiveTool(null);
+    requestControl(action, { axisHitId: current?.axis?.hitId, scope: current?.scope, ...(index === undefined ? {} : { index }) });
+  };
+  const openLetterOccurrence = onResearchRestore ? item => {
+    const current = engineStateRef.current, finding = current?.findings?.find(f => f.t === item.term);
+    const hit = finding?.hits?.find(h => h.hitId === item.hitId && h.verified && h.shown);
+    if (!hit || searchPending) return;
+    const promotion = buildJourneyPromotion(current, { ...finding, shown: [item.hitId] }, { axisColor: palette.matrix.axis });
+    if (!promotion.ok) return;
+    resetReadContext();setSelectedFinding(null);
+    onResearchRestore(promotion.loadItem);
+  } : null;
 
   const matrixActive = !loadError && engineState?.status === "ok" && engineState?.verification?.state === "MATCH";
   const guidedCrossActive = guidedProfile && ["crossed_pair", "crossed_three"].includes(guidedContextRef.current?.searchMode);
@@ -1590,12 +1628,25 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
             {engineState?.ui?.hideMain ? "הצג ציר" : "סימון הציר"}
           </button>
           <button type="button" aria-pressed={classicGlyphs} onClick={() => setClassicGlyphs((value) => !value)}>אותיות קלאסיות</button>
+          <button type="button" aria-pressed={!!engineState?.ui?.selMode} disabled={!matrixActive || searchPending}
+            onClick={() => requestSelection("selection-mode")}>סימון חופשי</button>
           <button type="button" aria-label="הדגש פסוק במטריצה" aria-pressed={verseRead} disabled={!matrixActive} onClick={toggleVerseRead}>הדגש פסוק</button>
           <button type="button" aria-pressed={!!activePresentation} disabled={!matrixActive || searchPending || !presentationPlan.steps.length}
             onClick={() => setPresentation(activePresentation ? null : { key: presentationPlan.key, index: -1, auto: false, seconds: 3 })}>מצב מצלמה</button>
           {verseRead ? <small role="status">{verseHighlight ? `${verseHighlight.ref} — המילים מודגשות לסירוגין בתכלת ובכתום.` : "געו באות במטריצה כדי להדגיש את הפסוק שלה."}</small> : null}
           {engineState?.ui?.heat ? <small>מפת החום מציגה צפיפות סביב האותיות המסומנות.</small> : null}
         </footer>
+        {matrixActive && (engineState.ui?.selMode || engineState.ui?.selCells?.length > 0) ? <section className="els29-manual-selection" aria-label="סימון חופשי במטריצה">
+          <p>{engineState.ui.selMode ? "געו באותיות לפי הסדר הרצוי. לחיצה נוספת מסירה סימון; גרירה מזיזה את המטריצה." : "הסימונים נשארים. הפעילו סימון חופשי כדי לשנות אותם."}</p>
+          <p role="status">נבחרו <bdi>{engineState.ui.selCells?.length || 0} / 64</bdi> אותיות · <bdi className="els29-manual-text">{engineState.ui.selText || "טרם נבחרו אותיות"}</bdi></p>
+          <small>סימון זמני במופע הזה, לא ממצא מאומת. נשמר במעבר בין מצבי התצוגה; לא נשמר לחשבון.</small>
+          <div>
+            <button type="button" disabled={searchPending || !engineState.ui.selCells?.length} onClick={() => requestSelection("selection-clear")}>נקה סימונים</button>
+            <button type="button" disabled={searchPending || (engineState.ui.selCells?.length || 0) < 2}
+              onClick={() => { const term = engineStateRef.current?.ui?.selText; if (term?.length >= 2) { setQuery(term);requestSearch("regular", { term, scope: activeScope }); } }}>חפש את הבחירה כציר</button>
+          </div>
+          <small>חיפוש הבחירה פותח חיפוש חדש. המופעים שיימצאו עשויים להיות במיקום אחר מהאותיות שסימנתם.</small>
+        </section> : null}
         {activePresentation ? <section className="els29-native-presenter" aria-label="מצב מצלמה" onKeyDown={(event) => {
           if (event.key === "Escape") { event.stopPropagation();setPresentation(null); }
         }}>
@@ -1705,6 +1756,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
           operation={operations.findings}
           searchPending={searchPending}
           onSelectTarget={selectFinding}
+          onOpenOccurrence={openLetterOccurrence}
           onScan={(target) => requestLens("line-context", { ...target, scan: true })}
           onSource={(target) => requestLens("verse-context", target)}
           onAxisControl={requestControl}

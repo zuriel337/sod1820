@@ -27,6 +27,97 @@ const executablePath = process.env.CHROMIUM_EXECUTABLE_PATH ||
   (existsSync('/usr/bin/chromium') ? '/usr/bin/chromium' : pw?.chromium.executablePath());
 const canRun = Boolean(pw && vite && react && executablePath && existsSync(executablePath));
 
+test('manual letter selection uses canonical UI state, survives profiles, rejects stale controls and never scans',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
+ for(const width of [320,390,1440])await withNative({width,height:900},async page=>{
+  const before=await identity(page), initial=await page.evaluate(()=>window.__state);
+  const indices=initial.matrix.marks.filter(m=>m.type==='main').slice(0,3).map(m=>m.i);
+  const baseline=await page.evaluate(()=>window.__log.filter(m=>m.type==='engine-request').length);
+  const mode=page.getByRole('button',{name:'סימון חופשי',exact:true});
+  await mode.click();await page.waitForFunction(()=>window.__state?.ui?.selMode===true);
+  for(const index of indices){
+   const cell=page.locator(`[data-els-index="${index}"]`);await cell.scrollIntoViewIfNeeded();
+   const bounds=await cell.boundingBox();assert.ok(bounds.width>=44&&bounds.height>=44);
+   if(width===1440)await cell.press('Enter');else await cell.tap();
+   await page.waitForFunction(i=>window.__state.ui.selCells.includes(i),index);
+  }
+  assert.deepEqual(await page.evaluate(()=>window.__state.ui.selCells),indices);
+  assert.equal(await page.evaluate(()=>window.__state.ui.selText),indices.map(i=>letters[i]).join(''));
+  assert.equal(await page.locator('.is-manually-marked').count(),3);
+  assert.equal(await page.locator('.els29-native-inline-inspection:visible').count(),0,'marking never opens source');
+  for(const theme of ['light','parchment','dark']){
+   await page.evaluate(t=>window.__setThemePreset(t),theme);
+   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+   if(process.env.ELS_MANUAL_SCREENSHOTS){mkdirSync(process.env.ELS_MANUAL_SCREENSHOTS,{recursive:true});await page.getByRole('region',{name:'סימון חופשי במטריצה'}).scrollIntoViewIfNeeded();await page.screenshot({path:`${process.env.ELS_MANUAL_SCREENSHOTS}/selection-${width}-${theme}.png`});}
+  }
+  await page.evaluate(()=>{window.__fixtureResearchProfile=false;window.__forceParentRender();});
+  assert.equal(await mode.getAttribute('aria-pressed'),'true');
+  await mode.click();await page.waitForFunction(()=>!window.__state.ui.selMode);
+  assert.equal(await page.locator('.is-manually-marked').count(),3,'turning the tool off keeps marks');
+  await page.evaluate(()=>{window.__fixtureResearchProfile=true;window.__forceParentRender();});
+  assert.deepEqual(await page.evaluate(()=>window.__state.ui.selCells),indices);
+  await mode.click();await page.waitForFunction(()=>window.__state.ui.selMode);
+  await page.locator(`[data-els-index="${indices[1]}"]`).press('Space');
+  await page.waitForFunction(()=>window.__state.ui.selCells.length===2);
+  const post=async(action,value)=>page.locator('iframe').evaluate((frame,payload)=>frame.contentWindow.postMessage({source:'sod-host',type:'native-control',...payload},location.origin),{action,value});
+  for(const value of [{axisHitId:'stale',scope:initial.scope,index:indices[1]}, {axisHitId:initial.axis.hitId,scope:'wrong',index:indices[1]}, {axisHitId:initial.axis.hitId,scope:initial.scope,index:-1}, {axisHitId:initial.axis.hitId,scope:initial.scope,index:1.5}])await post('selection-toggle',value);
+  await page.getByRole('button',{name:'הגדל מטריצה',exact:true}).click();
+  await page.waitForFunction(z=>window.__state.ui.zoom!==z,initial.ui.zoom);
+  assert.deepEqual(await page.evaluate(()=>window.__state.ui.selCells),[indices[0],indices[2]]);
+  assert.deepEqual(await identity(page),before,'marks, zoom and profiles do not change evidence');
+  assert.equal(await page.evaluate(()=>window.__log.filter(m=>m.type==='engine-request').length),baseline);
+  assert.equal(page.__elsDynamicLexiconRequests.length,0);
+  assert.equal(await page.evaluate(()=>(window.__matrixSubmits||[]).length),0);
+  await page.getByRole('button',{name:'נקה סימונים',exact:true}).click();
+  await page.waitForFunction(()=>window.__state.ui.selCells.length===0);
+  assert.equal(await page.locator('.is-manually-marked').count(),0);
+  assert.equal(await page.getByRole('button',{name:'חפש את הבחירה כציר',exact:true}).isDisabled(),true);
+  const visible=await page.locator('.els29-native-cell[data-els-index]').evaluateAll(nodes=>nodes.filter(n=>n.textContent.trim()).slice(0,70).map(n=>Number(n.dataset.elsIndex)));
+  for(const index of visible)await post('selection-toggle',{axisHitId:initial.axis.hitId,scope:initial.scope,index});
+  await page.waitForFunction(()=>window.__state.ui.selCells.length===64);
+  assert.equal(await page.evaluate(()=>window.__state.ui.selText.length),64);
+  await page.getByRole('button',{name:'נקה סימונים',exact:true}).click();await page.waitForFunction(()=>!window.__state.ui.selCells.length);
+  // The explicit search is a normal search, not a claim that an arbitrary manual path is ELS.
+  for(const index of indices.slice(0,2)){await page.locator(`[data-els-index="${index}"]`).press('Enter');await page.waitForFunction(i=>window.__state.ui.selCells.includes(i),index);}
+  const term=await page.evaluate(()=>window.__state.ui.selText);
+  await page.getByRole('button',{name:'חפש את הבחירה כציר',exact:true}).click();
+  await page.waitForFunction(()=>['done','empty'].includes(window.__operation?.status),null,{timeout:60000});
+  assert.equal(await page.evaluate(()=>window.__state.term),term);
+  assert.equal(await page.locator('.is-manually-marked').count(),0);
+ },{realHost:true,loadGolden:true,matrixAnalysis:true,mobile:width<1000});
+});
+
+test('letter occurrence actions choose the same verified scan target and open its exact matrix',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
+ await withNative({width:1440,height:1000},async page=>{
+  await addSecondary(page,'התורה');
+  const state=await page.evaluate(()=>window.__state),finding=state.findings.find(f=>f.t==='התורה'),hit=finding.hits.find(h=>h.verified&&h.shown);
+  assert.ok(hit);
+  const index=state.matrix.marks.find(m=>m.type==='finding')?.i;assert.ok(Number.isInteger(index));
+  await page.locator(`[data-els-index="${index}"]`).click();
+  const choices=page.getByLabel('צירים שעוברים באות',{exact:true});await choices.waitFor();
+  const chosen=await page.evaluate(()=>window.__lens.occurrences.find(o=>!o.primary));assert.ok(chosen);
+  await choices.getByRole('button',{name:'בחר כציר לסריקה',exact:true}).last().click();
+  assert.equal(await page.getByRole('button',{name:`בחר ציר לסריקה: ${chosen.term}`,exact:true}).getAttribute('aria-pressed'),'true');
+  await page.locator(`[data-els-index="${index}"]`).click();await choices.waitFor();
+  await choices.getByRole('button',{name:'פתח מטריצה של המופע',exact:true}).last().click();
+  await page.waitForFunction(id=>window.__state?.axis?.hitId===id,chosen.hitId,{timeout:60000});
+  assert.equal(await page.evaluate(()=>window.__state.term),chosen.term);
+  assert.equal(await page.evaluate(()=>window.__state.verification.state),'MATCH');
+  const promoted=await page.evaluate(()=>window.__hostLog.filter(m=>m.type==='load-matrix').at(-1).item);
+  assert.equal(promoted.journey,true);
+  assert.deepEqual(promoted.words.find(w=>w.t===state.term).sh,[state.axis.hitId],'carry the exact old anchor through the existing Journey contract');
+  const after=await page.evaluate(()=>window.__state),carried=after.findings.find(f=>f.t===state.term);
+  assert.ok(carried,'previous term remains in the findings list');
+  const b=after.geometry;
+  assert.ok(golden.positions.some(i=>Math.floor(i/b.S)<b.r0||Math.floor(i/b.S)>b.r1||i%b.S<b.c0||i%b.S>=b.c0+b.cw),'fixture: old axis lies partly outside the new-width window');
+  assert.equal(carried.shown.includes(state.axis.hitId),false,'never pretend an out-of-window old axis is visible');
+  assert.equal(await page.locator('iframe').count(),1);
+  assert.equal(await page.evaluate(()=>window.__state.ui.selCells.length),0);
+  assert.equal(await page.evaluate(()=>(window.__matrixSubmits||[]).length),0);
+ },{realHost:true,loadGolden:true,matrixAnalysis:true});
+});
+
 test('matrix share: explicit, private-safe and exact canonical replay across all profiles',
  {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
  for(const profile of [{researchProfile:false},{researchProfile:true},{researchProfile:true,guided:true}])
