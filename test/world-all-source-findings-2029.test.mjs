@@ -55,6 +55,37 @@ function backend(rows, { sources = [{ id: sourceId, status: "live", channel: "pu
   return { client, calls };
 }
 
+test("a later admitted finding appears through number and exact source on re-read without editing a contributor list", async () => {
+  const rows = [], sources = [{ id: sourceId, status: "live", channel: "public" }];
+  const { client } = backend(rows, { sources });
+  const byNumber = () => fetchWorldPublicFindingsPage({ client, value: 0 });
+  const bySource = () => fetchWorldPublicFindingsPage({ client, sourceRef: `channel_updates:${sourceId}` });
+  assert.equal((await byNumber()).rows.length, 0);
+  assert.equal((await bySource()).rows.length, 0);
+  rows.push(finding(24, { value: 0, source_contributor_id: null }));
+  const number = (await byNumber()).rows[0], source = (await bySource()).rows[0];
+  assert.equal(number.id, rows[0].id);
+  assert.equal(number.findingRef, source.findingRef);
+  assert.equal(number.sourceOccurrenceRef, source.sourceOccurrenceRef);
+  assert.equal(number.claimedNumber, 0);
+  assert.equal(number.discoveryPath, 'via-stored-number-not-direct-topic-edge');
+  sources[0].status = 'off';
+  for (const read of [byNumber, bySource]) {
+    const hidden = await read();
+    assert.equal(hidden.rows.length, 0);
+    assert.equal(hidden.omittedUnavailable, true);
+  }
+  sources[0].status = 'live';
+  rows[0].privacy_scope = 'private';
+  assert.equal((await byNumber()).rows.length, 0);
+  assert.equal((await bySource()).rows.length, 0);
+  rows[0].privacy_scope = 'public_candidate';
+  assert.equal((await bySource()).rows.length, 0);
+  rows[0].privacy_scope = 'public';
+  rows[0].value = null;
+  assert.equal((await byNumber()).rows.length, 0, 'missing value never inherits zero');
+});
+
 test("all-source number lookup admits different and unassigned contributors without changing identity", async () => {
   const { client, calls } = backend([finding(1), finding(2), finding(3, { source_contributor_id: null })]);
   const page = await fetchWorldPublicFindingsPage({ client, value: 1118 });

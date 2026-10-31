@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "prebuild": "node scripts/test-legacy-production-lock.mjs",
+    "prebuild": "node scripts/test-legacy-production-lock.mjs && npm run test:one-tree-content",
+    "prebuild:2029": "npm run test:one-tree-content",
+    "test:one-tree-content": "node scripts/test-one-tree-content-contract.mjs",
     "build": "SOD_BUILD_TARGET=legacy vite build && SOD_BUILD_TARGET=2029 vite build",
     "build:legacy": "SOD_BUILD_TARGET=legacy vite build",
     "build:2029": "SOD_BUILD_TARGET=2029 vite build",
