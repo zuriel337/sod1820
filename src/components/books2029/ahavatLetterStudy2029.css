@@ -115,9 +115,12 @@
 .ahavat29-study-mode{display:flex;gap:8px;flex-wrap:wrap;align-items:center;font:500 16px/1.5 var(--s29-font-ui)}
 .ahavat29-study-mode>span{color:var(--s29-muted);margin-inline-end:6px}
 .ahavat29-study-mode button[aria-pressed=true]{border-color:var(--s29-accent-text);color:var(--s29-accent-text);background:color-mix(in srgb,var(--s29-accent) 9%,var(--s29-panel))}
-.ahavat29[data-study-focus=letters] .ahavat29-intro{min-height:0;padding:22px 26px;grid-template-columns:minmax(0,1fr);gap:12px}
+.ahavat29[data-study-focus=letters] .ahavat29-intro{min-height:0;padding:22px 26px;grid-template-columns:minmax(0,1fr) auto;gap:12px}
 .ahavat29[data-study-focus=letters] .ahavat29-intro h1{font-size:clamp(30px,4vw,46px);line-height:1.15;margin:8px 0}
 .ahavat29[data-study-focus=letters] :is(.ahavat29-intro aside,.ahavat29-intro>div>p,.ahavat29-intro .books29-entry-actions,.ahavat29-metrics,.books29-reading-layout-control){display:none}
+.ahavat29[data-study-focus=letters] .ahavat29-intro .ahavat29-recommended{display:none}
+/* Keep both tracks explicit: the cover must never create an intrinsic auto track. */
+@media(max-width:900px){.ahavat29[data-study-focus=letters] .ahavat29-intro{grid-template-columns:minmax(0,1fr) clamp(76px,22vw,104px)}}
 .ahavat29[data-study-focus=letters] .ahavat29-story>:not(.ahavat29-spatial),.ahavat29[data-study-focus=letters] .ahavat29-spatial>:not(#ahavat29-letters){display:none}
 .ahavat29[data-study-focus=letters] .ahavat29-spatial{padding:0;border:0;background:transparent}
 .ahavat29[data-study-focus=letters] #ahavat29-letters{margin:0}

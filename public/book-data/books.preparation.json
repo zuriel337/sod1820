@@ -1,0 +1,354 @@
+{
+  "schema": "books-preparation-projection.v1",
+  "basis": "Five equally weighted preparation steps. Documented progress, not research truth, engine verification, exhaustive commentary or publication permission. Unassessed gates remain null. Current checked-in assets only.",
+  "books": {
+    "ahavat-torah": {
+      "pdfPages": 99,
+      "steps": [
+        {
+          "id": "source",
+          "label": "מקור PDF מקושר",
+          "completed": 1,
+          "total": 1
+        },
+        {
+          "id": "guides",
+          "label": "עמודים עם הסבר מקושר",
+          "completed": 99,
+          "total": 99
+        },
+        {
+          "id": "units",
+          "label": "עמודים עם מפת יחידות לימוד",
+          "completed": 98,
+          "total": 99
+        },
+        {
+          "id": "editorial",
+          "label": "קבלה עריכתית מלאה",
+          "completed": null,
+          "total": 1
+        },
+        {
+          "id": "reader",
+          "label": "קבלת חוויית הספר המלאה",
+          "completed": null,
+          "total": 1
+        }
+      ],
+      "inputs": [
+        {
+          "path": "public/book-data/ahavat-torah.commentary.json",
+          "sha256": "8de1457e77938ba77d3a600ed40e5fc5fc4d43b0001eb9f0d0e05f4a6167c84c"
+        }
+      ]
+    },
+    "daat-tevunot": {
+      "pdfPages": 99,
+      "steps": [
+        {
+          "id": "source",
+          "label": "מקור PDF מקושר",
+          "completed": 1,
+          "total": 1
+        },
+        {
+          "id": "guides",
+          "label": "עמודים עם הסבר מקושר",
+          "completed": 99,
+          "total": 99
+        },
+        {
+          "id": "units",
+          "label": "עמודים עם מפת יחידות לימוד",
+          "completed": 99,
+          "total": 99
+        },
+        {
+          "id": "editorial",
+          "label": "קבלה עריכתית מלאה",
+          "completed": null,
+          "total": 1
+        },
+        {
+          "id": "reader",
+          "label": "קבלת חוויית הספר המלאה",
+          "completed": null,
+          "total": 1
+        }
+      ],
+      "inputs": [
+        {
+          "path": "public/book-data/daat-tevunot.commentary.json",
+          "sha256": "70a37aff07414b7942fcbd389c19c63b0ee6b855b5ea1625255e8fab32f197b2"
+        },
+        {
+          "path": "public/book-data/daat-tevunot.internal-map.json",
+          "sha256": "ac892d6486906af4cb8d548ad4e22edc646e85bbf5f5e357529ed52503f0d834"
+        }
+      ]
+    },
+    "sefer-yetzirah": {
+      "pdfPages": 220,
+      "steps": [
+        {
+          "id": "source",
+          "label": "מקור PDF מקושר",
+          "completed": 1,
+          "total": 1
+        },
+        {
+          "id": "guides",
+          "label": "עמודים עם הסבר מקושר",
+          "completed": 220,
+          "total": 220
+        },
+        {
+          "id": "units",
+          "label": "עמודים עם מפת יחידות לימוד",
+          "completed": 158,
+          "total": 220
+        },
+        {
+          "id": "editorial",
+          "label": "קבלה עריכתית מלאה",
+          "completed": null,
+          "total": 1
+        },
+        {
+          "id": "reader",
+          "label": "קבלת חוויית הספר המלאה",
+          "completed": null,
+          "total": 1
+        }
+      ],
+      "inputs": [
+        {
+          "path": "public/book-data/sefer-yetzirah.commentary.json",
+          "sha256": "8f06385e049425fea5286560f5ac5cda0a7f71ae7feb69e4d01b836e461de557"
+        },
+        {
+          "path": "public/book-data/sefer-yetzirah.units.json",
+          "sha256": "8dbe743cebd22e2a25e8c0b05d8b460f7c041e63537b42dc8bc11cb9f422c312"
+        }
+      ]
+    },
+    "sefer-raziel-hamalach": {
+      "pdfPages": 90,
+      "steps": [
+        {
+          "id": "source",
+          "label": "מקור PDF מקושר",
+          "completed": 1,
+          "total": 1
+        },
+        {
+          "id": "guides",
+          "label": "עמודים עם הסבר מקושר",
+          "completed": 90,
+          "total": 90
+        },
+        {
+          "id": "units",
+          "label": "עמודים עם מפת יחידות לימוד",
+          "completed": null,
+          "total": 90
+        },
+        {
+          "id": "editorial",
+          "label": "קבלה עריכתית מלאה",
+          "completed": null,
+          "total": 1
+        },
+        {
+          "id": "reader",
+          "label": "קבלת חוויית הספר המלאה",
+          "completed": null,
+          "total": 1
+        }
+      ],
+      "inputs": [
+        {
+          "path": "public/book-data/sefer-raziel-hamalach.commentary.json",
+          "sha256": "fbecc03f7d092a219556351b34d2bd20224133a3764cce618663db4ca3d41689"
+        }
+      ]
+    },
+    "sefer-hapliah": {
+      "pdfPages": 327,
+      "steps": [
+        {
+          "id": "source",
+          "label": "מקור PDF מקושר",
+          "completed": 1,
+          "total": 1
+        },
+        {
+          "id": "guides",
+          "label": "עמודים עם הסבר מקושר",
+          "completed": 327,
+          "total": 327
+        },
+        {
+          "id": "units",
+          "label": "עמודים עם מפת יחידות לימוד",
+          "completed": 93,
+          "total": 327
+        },
+        {
+          "id": "editorial",
+          "label": "קבלה עריכתית מלאה",
+          "completed": null,
+          "total": 1
+        },
+        {
+          "id": "reader",
+          "label": "קבלת חוויית הספר המלאה",
+          "completed": null,
+          "total": 1
+        }
+      ],
+      "inputs": [
+        {
+          "path": "public/book-data/sefer-hapliah.commentary.json",
+          "sha256": "c6319e4d9b12c3386816cb22f9b080a7a93275b54f34e91f89d8bf867faab548"
+        },
+        {
+          "path": "public/book-data/sefer-hapliah.internal-map.json",
+          "sha256": "89fb37cabad0ca2c47fcde8438e0f97e95e3c45ebd44a381d2d836efc65ee6cb"
+        }
+      ]
+    },
+    "sefer-habahir": {
+      "pdfPages": 48,
+      "steps": [
+        {
+          "id": "source",
+          "label": "מקור PDF מקושר",
+          "completed": 1,
+          "total": 1
+        },
+        {
+          "id": "guides",
+          "label": "עמודים עם הסבר מקושר",
+          "completed": 48,
+          "total": 48
+        },
+        {
+          "id": "units",
+          "label": "עמודים עם מפת יחידות לימוד",
+          "completed": 39,
+          "total": 48
+        },
+        {
+          "id": "editorial",
+          "label": "קבלה עריכתית מלאה",
+          "completed": null,
+          "total": 1
+        },
+        {
+          "id": "reader",
+          "label": "קבלת חוויית הספר המלאה",
+          "completed": null,
+          "total": 1
+        }
+      ],
+      "inputs": [
+        {
+          "path": "public/book-data/sefer-habahir.commentary.json",
+          "sha256": "7ed99553147630e20a9910784d3b3c234633dc0c2b9b0ab27b0fb145c76387f5"
+        },
+        {
+          "path": "public/book-data/sefer-habahir.internal-map.json",
+          "sha256": "727dcf12e697dcce421c64b11b0b81dc6e0128939d1787b74e122653bd2af6fe"
+        }
+      ]
+    },
+    "maamar-esther": {
+      "pdfPages": 84,
+      "steps": [
+        {
+          "id": "source",
+          "label": "מקור PDF מקושר",
+          "completed": 1,
+          "total": 1
+        },
+        {
+          "id": "guides",
+          "label": "עמודים עם הסבר מקושר",
+          "completed": 84,
+          "total": 84
+        },
+        {
+          "id": "units",
+          "label": "עמודים עם מפת יחידות לימוד",
+          "completed": 84,
+          "total": 84
+        },
+        {
+          "id": "editorial",
+          "label": "קבלה עריכתית מלאה",
+          "completed": null,
+          "total": 1
+        },
+        {
+          "id": "reader",
+          "label": "קבלת חוויית הספר המלאה",
+          "completed": null,
+          "total": 1
+        }
+      ],
+      "inputs": [
+        {
+          "path": "public/book-data/maamar-esther.commentary.json",
+          "sha256": "86c860d3ad6d07fb5bcc31a98ad879f7436afcb85796fff7d02d3c0966f04753"
+        },
+        {
+          "path": "public/book-data/maamar-esther.internal-map.json",
+          "sha256": "50ba5c780ee11f9797bb2ef1fa2cbc81461ad70b84d9d895579ab0bdc19c6f72"
+        }
+      ]
+    },
+    "bentov-brief-tour-higher-consciousness": {
+      "pdfPages": 127,
+      "steps": [
+        {
+          "id": "source",
+          "label": "מקור PDF מקושר",
+          "completed": 1,
+          "total": 1
+        },
+        {
+          "id": "guides",
+          "label": "עמודים עם הסבר מקושר",
+          "completed": 127,
+          "total": 127
+        },
+        {
+          "id": "units",
+          "label": "עמודים עם מפת יחידות לימוד",
+          "completed": null,
+          "total": 127
+        },
+        {
+          "id": "editorial",
+          "label": "קבלה עריכתית מלאה",
+          "completed": null,
+          "total": 1
+        },
+        {
+          "id": "reader",
+          "label": "קבלת חוויית הספר המלאה",
+          "completed": null,
+          "total": 1
+        }
+      ],
+      "inputs": [
+        {
+          "path": "public/book-data/bentov-brief-tour-higher-consciousness.commentary.json",
+          "sha256": "aa586020508451877a791be30bdf3a35463d4bbd7e401171cbe6e028c735ec0e"
+        }
+      ]
+    }
+  }
+}

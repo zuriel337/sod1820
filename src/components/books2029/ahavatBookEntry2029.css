@@ -105,6 +105,12 @@
 .ahavat29-story>#ahavat29-selection{order:-2}
 .ahavat29-story>#ahavat29-full-reader{order:-1}
 
+/* A section lives inside a reading column, not the full viewport. */
+.ahavat29-story{container:ahavat-reading / inline-size}
+@container ahavat-reading (max-width:760px){
+  .ahavat29-story :is(.ahavat29-map,.ahavat29-findings,.ahavat29-datasets,.ahavat29-depth,.ahavat29-spatial,.ahavat29-extraction)>header{grid-template-columns:minmax(0,1fr);gap:14px}
+}
+
 @media(max-width:900px){
   .ahavat29 .ahavat29-intro{grid-template-columns:minmax(0,1fr) clamp(76px,22vw,104px);gap:10px 14px;padding:18px 16px;align-items:start}
   .ahavat29 .ahavat29-intro>div:first-child{display:contents}

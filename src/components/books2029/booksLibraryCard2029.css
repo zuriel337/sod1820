@@ -13,3 +13,22 @@
 .books29-card .books29-card-actions a.books29-card-secondary{border:1px solid var(--s29-line-strong);color:var(--s29-ink)}
 .books29-card-actions a:focus-visible{outline:3px solid var(--s29-focus-ring);outline-offset:3px}
 @media(max-width:650px){.books29-card-summary{font-size:var(--s29-type-small)}.books29-card-actions a{flex:1 1 130px}}
+
+.books29-preparation{min-width:0;display:grid;gap:8px;margin-block:10px;color:var(--s29-ink)}
+.books29-preparation-heading{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px;font:500 var(--s29-type-ui)/1.5 var(--s29-font-ui)}
+.books29-preparation-heading>span{color:var(--s29-muted)}
+.books29-preparation-heading strong{font-weight:600}
+.books29-preparation-heading strong bdi{font-family:var(--s29-font-numeric)}
+.books29-preparation progress{width:100%;height:10px;accent-color:var(--s29-accent)}
+.books29-preparation summary{min-height:44px;display:flex;align-items:center;cursor:pointer;text-decoration:underline;text-underline-offset:4px;font:500 var(--s29-type-ui)/1.5 var(--s29-font-ui)}
+.books29-preparation summary:focus-visible{outline:3px solid var(--s29-focus-ring);outline-offset:3px}
+.books29-preparation details p{font:400 var(--s29-type-small)/1.7 var(--s29-font-body);color:var(--s29-muted)}
+.books29-preparation ul{list-style:none;padding:0;display:grid;gap:8px}
+.books29-preparation li{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;font:400 var(--s29-type-ui)/1.5 var(--s29-font-ui)}
+.books29-library-tile{min-width:0;display:flex;flex-direction:column;gap:8px}
+.sod29-book-grid:has(.books29-preparation){grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr))}
+.books29-library-tile .sod29-book-cover{height:110px;min-height:0;width:86px}
+.books29-library-tile>h3{overflow-wrap:anywhere}
+.books29-library-tile .books29-card-actions{margin-block-start:auto}
+.books29-card-actions button{min-height:44px;padding:9px 20px;font:500 var(--s29-type-ui)/1.4 var(--s29-font-ui);border:1px solid var(--s29-line-strong);border-radius:999px;background:var(--s29-panel-soft);color:var(--s29-muted);cursor:not-allowed;opacity:1}
+@media(max-width:650px){.sod29-book-grid .books29-card{grid-template-columns:clamp(64px,18vw,96px) minmax(0,1fr);gap:12px}.books29-card-actions button{flex:1 1 130px}.books29-card .books29-preparation{grid-column:1/-1}}
