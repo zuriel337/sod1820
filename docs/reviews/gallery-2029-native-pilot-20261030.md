@@ -381,3 +381,52 @@ readers, Lightbox, source history, graph, Frame or Providers were changed.
 Status: IMPLEMENTED / BOUNDED_TESTED / NOT_DEPLOYED.
 No product DB/RLS/migration/rule changes, source merge/renumbering, main push,
 Production deployment or external WhatsApp publication.
+
+## 2026-10-31 — Existing state-map reconciliation and current-entry tests
+
+Task: `WORLD_TOPIC_GALLERY_STATE_MAP_RECONCILIATION_20261031`.
+BEFORE: `a85d019e-6925-4c2b-af91-78806ec93293`.
+Test dependency addendum: `f06ff5ba-7ad6-4bd1-8ae8-a29c8cb43440`.
+Base: `e27447d85579d98d1d08048645a78089cb66fc3d`.
+
+ZURIEL explicitly requested updating the existing status map, not another plan.
+The old plan37 ownership was checked through the exact historical task: AFTER
+`331c868b-518f-476b-8bc3-df0fdc82d69d` releases BEFORE `6b09f2b1` in full.
+Its old BEFORE still appearing in current was not taken as permission or as a
+reason to invent a release. Other later bounded plan37 scopes also had releases.
+Historic `b30d0a4d` still has no AFTER for its exact task and is not overridden.
+
+The authorized general connector updated **planning only**, `project_codex.id37`,
+with expected-body MD5 CAS `34fda94a4542343d4e864646d4e98ee1`:
+one current scoped note + §12.10 coverage matrix, evidence and remaining work.
+New MD5: `6b16163667a74a88e8d38c5309dc74fe`; saved
+`2026-10-31 00:41:20.029298+00`. Independent dedicated-readonly readback proved
+the exact note/appendix, the previous full body's original order/hash and DRAFT.
+No existing decisions or source evidence were removed; no active owner body or
+product row changed. The Gallery NOT_MAPPED snapshot is superseded only by the
+29/81 pilot, not an all-gallery rollout or a final route decision.
+
+`SOD1820_MASTER_STATE.md` points to that existing coverage map, identifies the
+branch-only evidence and older hosted SHA, and explicitly withholds site/G4/
+Production closure. `SOD1820_MASTER_OWNER_INDEX.md` corrects only the verified
+Experience v10 and canonical UI v11 pointers. These are not new canonical bodies.
+
+The scoped status tests passed; the broader existing G1 static test exposed three
+stale assertions. Its narrow update now resolves the current coordination row,
+checks passive v17/no-GPT-ACK safety, replays all three Oct9 immutable artifact
+hashes from the exact captured Git commit, retains all historical successor/
+approval assertions, and rejects a current Experience pointer older than that
+accepted successor. Separate new tests require the actually verified v10/v11
+pointers. Historical fixture files, AGENTS.md, CLAUDE.md and Design are untouched.
+
+Verification: current-entry + status tests **20/20**, no skips; historical exact
+Git blobs available and verified. Legacy Production lock and diff check pass.
+This is a STATIC routing/status acceptance, not a fresh-agent live replay or
+proof that a future agent autonomously implements every missing requirement.
+No runtime changed, so existing Gallery/source/Number browser acceptance is not
+relabelled as a new runtime or deployment acceptance. Story carousel integration,
+generic new-finding projection, novelty and final visual acceptance stay open.
+
+Status: PLANNING_ROW_SAVED_READBACK_VERIFIED / POINTERS_RECONCILED /
+STATIC_TESTED / BRANCH_ONLY. No source data, publication, graph, RLS, migrations,
+main or Production changes. No Preview was deployed or switched in this slice.

@@ -7,6 +7,30 @@
 
 ## 1. Authority
 
+**Scoped documented checkpoint · 2026-10-31 · World/Topics/Galleries, BRANCH ONLY:**
+the existing planning map `public.project_codex.id=37`, §12.10
+`STATE-MAP-WORLD-TOPIC-GALLERY-20261031`, now distinguishes approved contract,
+partial runtime, bounded tests and hosted Preview. Read back through the dedicated
+read-only connector: body MD5 `6b16163667a74a88e8d38c5309dc74fe`; previous body
+MD5 `34fda94a4542343d4e864646d4e98ee1` preserved in full and in order. DRAFT remains;
+the old §12.5 Gallery NOT_MAPPED label is superseded only by the 29/81 pilot,
+not by a whole-gallery migration or a new canonical route decision.
+
+Evidence baseline: branch `gpt/elections-world-seed-integration-20261030` at
+`e27447d85579d98d1d08048645a78089cb66fc3d`; handed-off protected Preview
+`dpl_G2J8kwRpL4u9RwhLsZnPeWWk3HuP` at
+`f8b611cfb5d49cd418be553266f75e4f64c7cdcd` (READY, target=null when checked).
+The later small image-share implementation is NOT in that Preview. This branch
+checkpoint is not evidence of a main merge, Production change, G4 closure or final
+site design. The 22.10 Legacy Production lock in AGENTS.md remains controlling.
+
+Existing owners were live-verified: Reality Graph v8, canonical UI v11, Experience
+Governance v10. Runtime coverage/remaining work is kept in plan37 §12.10 rather
+than copied into a new master: generic finding→Topic coverage, novelty/seen,
+graph-backed story navigation, explainable meter, intake-to-destination and final
+cross-surface visual acceptance remain partial or unverified. Source references
+and historical part order are preserved; no source merge or renumbering.
+
 Live reality is resolved from:
 
 `canonical Supabase + origin/main + production where behavior matters`.

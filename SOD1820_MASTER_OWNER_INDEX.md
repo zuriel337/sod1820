@@ -18,6 +18,11 @@ Purpose: resolve `domain → owner family → canonical owner → direct depende
 
 This file is an index only. It does not become a registry, rulebook, graph, store or semantic super-owner.
 
+**Scoped pointer reconciliation · 2026-10-31:** live active-node verification corrected
+Experience Governance to v10 and canonical UI components to v11 below. This is a
+version-pointer correction, not a new owner, rule change or fresh global freeze.
+Other pinned versions remain subject to the live active-rule selection below.
+
 ## 1. Agent entry
 
 For every substantive task:
@@ -188,11 +193,11 @@ Historical Dimension Five / Or-Geula upload recipes and legacy post CSS/layout r
 
 | Responsibility | Canonical owner |
 |---|---|
-| Experience lifecycle / projection / zero legacy-UI inheritance | `experience_governance_foundation_v1_law` **v9 ACTIVE** |
+| Experience lifecycle / projection / zero legacy-UI inheritance | `experience_governance_foundation_v1_law` **v10 ACTIVE** |
 | global frame/navigation/orientation | `docs/sod1820-system-frame-contract-v1.md` + current addendum lineage |
 | desktop left Companion Updates/Context + nested contextual Golden Projector + mobile Now + bottom Command Island/page-progress | existing System Frame V2 Contextual Inspector (addendum §3.5.3) + `SOD1820_DESIGN_CONTRACT_V2.md` §§8.1 / 11.8; no extra owner, feed, RLS boundary or fixed bar |
 | visual language / typography / public naming | `SOD1820_DESIGN_CONTRACT_V2.md` — **2029 ACTIVE**; V1 = preserved Legacy provenance |
-| canonical reusable UI primitives | `canonical_ui_components_law` **v7 ACTIVE** |
+| canonical reusable UI primitives | `canonical_ui_components_law` **v11 ACTIVE** |
 | mobile acceptance | `mobile_acceptance_law` |
 | semantic colors | `canonical_colors_law` under Design |
 
