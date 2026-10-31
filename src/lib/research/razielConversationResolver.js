@@ -141,6 +141,11 @@ function canonicalResolutionFromMessage(message) {
 }
 
 function contextFromPriorMessage(message) {
+  // Older saved turns may contain the now-rejected expression-pair identity. A subsequent
+  // "deepen" must not revive that calculation, an earlier numeric turn, or an unrelated surface.
+  if (resolveRazielCanonicalRequest(message?.text).kind === "conversation") {
+    return { candidates: [], explicitTextComputation: false, conversationOnly: true };
+  }
   const canonical = canonicalResolutionFromMessage(message);
   if (canonical) return canonical;
   const text = clean(message?.text, 500);
@@ -158,7 +163,7 @@ function latestPriorContext(thread) {
     const message = messages[index];
     if (!message || message.role !== "user") continue;
     const context = contextFromPriorMessage(message);
-    if (context?.candidates?.length) return context;
+    if (context?.conversationOnly || context?.candidates?.length) return context;
   }
   return { candidates: [], explicitTextComputation: false };
 }
@@ -248,6 +253,7 @@ export function resolveRazielConversationTurn({
 } = {}) {
   const currentQuestion = clean(question, 500);
   const canonicalRequest = resolveRazielCanonicalRequest(currentQuestion);
+  const conversationOnly = canonicalRequest.kind === "conversation";
   const expressionContinuation = canonicalRequest.kind === "expression_continuation"
     ? canonicalRequest
     : null;
@@ -267,11 +273,11 @@ export function resolveRazielConversationTurn({
     : [];
   const explicitNumbers = deterministicCandidates.filter((candidate) => candidate?.type === "number");
   const explicitPhrases = deterministicCandidates.filter((candidate) => ["phrase", "word"].includes(candidate?.type));
-  const referential = isReferentialFollowUp(currentQuestion);
+  const referential = !conversationOnly && isReferentialFollowUp(currentQuestion);
   const currentSurfaceQuestion = isRazielCurrentSurfaceQuestion(currentQuestion);
   // Semantic fallback is considered only after deterministic/current-turn and referential grammar
   // had no answer. The gate itself is pure and exact-evidence-bound; it never calls a model.
-  const semantic = canonicalRequest.status !== "clarify" && !deterministicCandidates.length && !referential
+  const semantic = !conversationOnly && canonicalRequest.status !== "clarify" && !deterministicCandidates.length && !referential
     ? validateRazielSemanticIntent(semanticIntent, currentQuestion)
     : null;
   const semanticCandidates = semantic?.status === "resolved" ? semantic.candidates : [];
@@ -281,7 +287,7 @@ export function resolveRazielConversationTurn({
   const previous = referential && !currentSurfaceQuestion
     ? latestPriorContext(thread)
     : { candidates: [], explicitTextComputation: false };
-  const surface = referential && !previous.candidates.length ? surfaceCandidate(surfaceSemantic) : null;
+  const surface = referential && !previous.candidates.length && !previous.conversationOnly ? surfaceCandidate(surfaceSemantic) : null;
 
   let candidates = explicitCandidates;
   let referentSource = explicitCandidates.length ? "explicit_current_turn" : "none";

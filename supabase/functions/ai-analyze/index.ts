@@ -3091,6 +3091,12 @@ Deno.serve(async (req: Request) => {
       const rServerCanonicalMethodRequest = rCanonicalResearchOptIn
         ? resolveRazielCanonicalRequest(rSubject)
         : null;
+      const rContentComparison = !rPersonalAreaCompanion && !rMatrix
+        && rServerCanonicalMethodRequest?.kind === "conversation"
+        && rServerCanonicalMethodRequest?.reason === "non_computational_comparison";
+      if (rContentComparison) rPlanMeta = {
+        conversation_intent: { kind: "non_computational_comparison", computation_requested: false },
+      };
       const rMethodRouteRejected = !rExpressionCrossingHint
         && rServerCanonicalMethodRequest?.status === "resolved"
         && ["expression", "expression_continuation"].includes(String(rServerCanonicalMethodRequest?.kind || ""))
@@ -3132,8 +3138,9 @@ Deno.serve(async (req: Request) => {
       // forged or non-matching envelope, and for requests without the canonical research opt-in) owns the turn. The legacy fn_raziel_answer
       // is not called at all — no deterministic early return, tool facts, plan block or descriptors from the old path — and the turn goes
       // straight to research-run and the Result Bundle.
+      // An explanatory comparison instead stays on ordinary synthesis, without any calculation.
       const rLegacyDeterministicSkipped = rCanonicalResearchOptIn
-        && (!!rExpressionCrossingHint || !!rPersonalAreaCompanion || !!rMatrix);
+        && (!!rExpressionCrossingHint || !!rPersonalAreaCompanion || !!rMatrix || rContentComparison);
       try {
         if (rSubject && SB_URL && SB_SVC && !rTrusted?.media && !rLegacyDeterministicSkipped) {
           const detR = await fetch(`${SB_URL}/rest/v1/rpc/fn_raziel_answer`, {
@@ -3262,7 +3269,7 @@ Deno.serve(async (req: Request) => {
       // admits only 1-2 public numeric subjects; Research Plan / research-run still own execution.
       // One FAST attempt, bounded output, separately traced and costed.
       // RAZIEL_VIEW_MODE_V1: a non-general mode spends exactly ONE synthesis call, so it never adds the classifier attempt.
-      const rSemanticEligible = q.allowed && rCanonicalResearchOptIn && rViewMode === "general" && !rMatrix
+      const rSemanticEligible = q.allowed && rCanonicalResearchOptIn && rViewMode === "general" && !rMatrix && !rContentComparison
         && !rTrusted && body?.conversation_resolution == null && !rConversationHint && !rExpressionCrossingHint
         && !!rSubject && /\d{1,6}/u.test(rSubject) && !rTrusted?.media
         && !rToolRes && !rOpDesc && !rCoordDesc && !rPersDesc
@@ -3802,7 +3809,9 @@ Deno.serve(async (req: Request) => {
       // Phase B: bounded semantic surface (any persona=raziel request) + non-authoritative plan block.
       const semText = rPersonalAreaCompanion ? "" : razielSemanticSurfaceText(rElsGroundingRequested
         ? { ...body?.surface_semantic, els: null } : body?.surface_semantic);
-      const planText = razielPlanBlockText(rPlanMeta) + (rPersPack
+      const planText = razielPlanBlockText(rPlanMeta) + (rContentComparison
+        ? "\n\nהמשתמש ביקש הסבר על הבדל בין נושאים, לא חישוב שמות. השב תחילה בקצרה מתוך המקורות הזמינים; אל תחשב גימטריה. בתוכן האתר הבחן בין מקור, סדרה, ערוץ ונושא, בלי להמציא שיוך או חברות כשאין מקור. הבחן בין מעקב מפורש, עניין משוער והמלצה שלך: פתיחה או צפייה אינן מעקב ואינן הסכמה לעדכונים. אין להסיק זהות, אמונה או העדפות אישיות ממספרי קהל כוללים או משם התוכן. אם ההקשר אינו מספיק להסבר, אמור מה חסר."
+        : "") + (rPersPack
         ? "\n\nמצב-מחקר אישי של המשתמש (קריאה-בלבד מהבעלים עם ה-JWT שלו; PERSONAL_RESEARCH_STATE — לא עובדה/קנוני; המלץ להמשך רק על בסיס הפריטים כאן, אל תמציא פריטים ואל תחשב):\n" + rPersPack
         : "") + (rOpPack
         ? "\n\nנתוני-מפעיל (קריאה-בלבד ממקור הבעלים, אומתו כאדמין; השתמש רק במספרים כאן, אל תמציא ואל תחשב מעבר; שמור על תוויות EXACT/ESTIMATED/UNKNOWN):\n" + rOpPack

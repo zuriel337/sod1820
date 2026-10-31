@@ -480,8 +480,24 @@ export function resolveExplicitHebrewExpressionResearchSubject(question) {
 // slots; this never scans arbitrary prose and never decides that a relationship exists. It only
 // gives the existing canonical crossing path two bounded endpoints to verify.
 export function resolveExplicitHebrewExpressionPairResearchSubject(question) {
-  const q = grammarText(question);
+  let q = grammarText(question);
   if (!q) return null;
+  if (/\s+(?:לא|בלי|ללא)\s+ב?גימטרי[הא]$/u.test(q)) return null;
+  // "Difference" alone asks for an explanation, not numerical research. Only a calculation
+  // modifier in the grammatical request (not a known content name) opts it into the pair path.
+  let explicitGematria = false;
+  q = q.replace(/^מה\s+(הקשר|היחס|ההבדל)\s+בגימטרי[הא]\s+בין\s+/u, (_, relation) => {
+    explicitGematria = true;
+    return `מה ${relation} בין `;
+  }).replace(/^מה\s+ההבדל\s+הגימטרי\s+בין\s+/u, () => {
+    explicitGematria = true;
+    return "מה ההבדל בין ";
+  });
+  if (/^מה\s+(?:הקשר|היחס|ההבדל)\s+בין\s+/u.test(q) && /\s+בגימטרי[הא]$/u.test(q)) {
+    q = q.replace(/\s+בגימטרי[הא]$/u, "");
+    explicitGematria = true;
+  }
+  if (/^מה\s+ההבדל\s+בין\s+/u.test(q) && !explicitGematria) return null;
   const match = /^(?:מה\s+(?:הקשר|היחס|ההבדל)\s+בין|(?:מצא|מצאי|בדוק|בדקי|תבדוק|תבדקי)(?:\s+לי)?\s+(?:את\s+)?(?:הקשר|היחס)\s+בין)\s+(.+?)\s+(?:לבין\s+|מול\s+|עם\s+|ל(?=[\u0590-\u05ff])|ו(?=[\u0590-\u05ff]))(.+)$/u.exec(q);
   if (!match) return null;
   const expressions = [validExplicitHebrewExpression(match[1]), validExplicitHebrewExpression(match[2])];
@@ -638,6 +654,16 @@ export function resolveRazielCanonicalRequest(question) {
     "expression_pair",
     expressionPair.requested_action,
     expressionPair.expressions.map((expression) => expressionSubjectFromSlot({ expression, observedValue: null })),
+  );
+
+  // Keep content/concept comparisons out of calculation, including numerals inside names.
+  // Numeric pairs and explicit gematria above retain their existing canonical engine path.
+  // This is a conversation boundary, not a content taxonomy, answer, or authorization grant.
+  const explanatoryComparison = /^(?:מה(?:ו)?\s+ההבדל|(?:הסבר|הסבירי|תסביר|תסבירי)(?:\s+לי)?\s+(?:את\s+)?ההבדל)\s+בין\s+.+?\s+(?:לבין\s+|מול\s+|עם\s+|ל(?=[\u0590-\u05ff])|ו(?=[\u0590-\u05ff])).+$/u.test(q);
+  if (explanatoryComparison && (!/\s+בגימטרי[הא]$/u.test(q)
+    || /\s+(?:לא|בלי|ללא)\s+ב?גימטרי[הא]$/u.test(q))) return canonicalRequestResult(
+    "conversation", "understand", [],
+    { server_authorizable: false, reason: "non_computational_comparison" },
   );
 
   const candidateExpressionPair = resolveCandidateExpressionPair(q);
