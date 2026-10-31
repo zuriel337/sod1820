@@ -27,6 +27,8 @@ import { useOptionalRazielSession2029 } from "../components/experience2029/Razie
 import { elsMatrixReadingMode } from "../lib/research/elsMatrixReadingPresentation.js";
 import { elsMatrixReadingReturnLoad } from "../lib/research/elsMatrixReadingActivity.js";
 import { elsResearchReturnLoad } from "../lib/research/elsResearchReturnSnapshot.js";
+import { razielPublicLabel, razielSubjectLabel } from "../components/experience2029/razielSessionSeam2029.js";
+import { readElsMatrixShare } from "../lib/elsMatrixShare.js";
 
 const clean = (value) => String(value ?? "").trim();
 const ELS_DESCRIPTION = "חפשו דילוגי אותיות, קראו את המקור ושמרו ממצאים להמשך מחקר.";
@@ -35,6 +37,49 @@ function StateRow({ label, value, state = "ready" }) {
   return <div className="sod29-state" data-state={state}>
     <small>{label}</small>
     <b>{value}</b>
+  </div>;
+}
+
+function ElsActiveContext({ research }) {
+  const context = research.context;
+  const [pendingReset, setPendingReset] = useState(null);
+  const [notice, setNotice] = useState(null);
+  const summaryRef = useRef(null);
+  const active = Boolean(context?.subject || context?.selection || context?.journey);
+  const confirming = active && pendingReset === context;
+  const selection = context?.selection;
+  const els = selection?.entityType === "els";
+  const pendingSteps = context?.journey?.pendingSteps?.length || 0;
+  const clear = () => {
+    if (!confirming) return;
+    const ok = research.clearResearchContext?.();
+    setPendingReset(null);
+    setNotice({ context: ok ? null : context, text: ok ? "ההקשר נוקה. המטריצה והתוצאות נשארו כפי שהיו. בחירת מופע חדש תיצור הקשר חדש."
+      : "ההקשר לא נוקה. נסו שוב כשהחשבון זמין." });
+    summaryRef.current?.focus();
+  };
+  return <div className="els29-active-context" data-els-active-context>
+    <details>
+      <summary ref={summaryRef}>{active ? "הקשר מחקר פעיל" : "ללא הקשר מחקר פעיל"}</summary>
+      <div className="els29-active-context-body">
+        {active ? <>
+          {context.subject ? <p>נושא המחקר: <bdi>{razielSubjectLabel(context.subject)}</bdi></p> : null}
+          {els ? <p>בחירה בצופן: <bdi>{razielPublicLabel(selection.term, "מופע ללא ביטוי")}</bdi>
+            {selection.corpus === "torah" ? " · תורה" : selection.corpus === "tanakh" ? " · כל התנ״ך" : ""}
+            {Number.isSafeInteger(selection.skip) && Math.abs(selection.skip) >= 2 ? <> · דילוג <bdi>{Math.abs(selection.skip)}</bdi></> : null}
+          </p> : <p>אין מופע צופן שנבחר בהקשר הזה.</p>}
+          <p>זהו מוקד המחקר שמלווה את המעבר בין דפי האתר, לא סימן שסריקה פועלת.</p>
+          {confirming ? <div className="els29-context-confirm" role="group" aria-label="אישור ניקוי הקשר">
+            <p>לנתק את הנושא, הבחירה והמסלול הפעיל? המטריצה, התוצאות והשיחות השמורות לא יימחקו. סריקות פעילות ימשיכו.</p>
+            {pendingSteps > 0 ? <p role="alert">במסלול יש <bdi>{pendingSteps}</bdi> צעדים שעדיין לא נשמרו. ניקוי ההקשר יסיר אותם מהמסלול הפעיל.</p> : null}
+            <div><button className="sod29-action" type="button" onClick={() => { setPendingReset(null); summaryRef.current?.focus(); }}>השאר את ההקשר</button>
+              <button className="sod29-action" type="button" onClick={clear}>כן, נקה הקשר</button></div>
+          </div> : <button className="sod29-action" type="button" disabled={!research.clearResearchContext}
+            onClick={() => { setNotice(null); setPendingReset(context); }}>נקה הקשר</button>}
+        </> : <p>אין נושא או מופע שמלווים כרגע את המחקר. אפשר להמשיך לחפש; בחירת מופע חדש תעדכן את ההקשר.</p>}
+        {notice && notice.context === context ? <p role="status">{notice.text}</p> : null}
+      </div>
+    </details>
   </div>;
 }
 
@@ -111,6 +156,7 @@ export default function Els2029Page({ previewAdvanced = false }) {
   const research = useResearch();
   const razielSession = useOptionalRazielSession2029();
   const location = useLocation();
+  const sharedMatrix = useMemo(() => readElsMatrixShare(location.hash), [location.hash]);
   const { user, loading: authLoading } = useAuth();
   const [params, setParams] = useSearchParams();
   const library = params.get("library");
@@ -171,7 +217,7 @@ export default function Els2029Page({ previewAdvanced = false }) {
   // starts a scan or an AI call; Guided starts only on its explicit submit.
   const [matrixProfile, setMatrixProfile] = useState(() => {
     const requested = clean(params.get("mode")).toLowerCase();
-    if (requested === "classic" || directSavedOpen) return ELS_MATRIX_PROFILE.CLASSIC;
+    if (requested === "classic" || directSavedOpen || sharedMatrix.present) return ELS_MATRIX_PROFILE.CLASSIC;
     if (requested === "research" || previewAdvanced) return ELS_MATRIX_PROFILE.RESEARCH;
     return ELS_MATRIX_PROFILE.GUIDED;
   });
@@ -345,6 +391,8 @@ export default function Els2029Page({ previewAdvanced = false }) {
       : savedRecord.error ? <FrameState kind="error" title="הצופן אינו זמין">ייתכן שהקישור אינו נכון או שנדרשת התחברות לחשבון ששמר אותו. <button type="button" className="sod29-action" onClick={() => showLibrary("mine")}>הצפנים שלי</button></FrameState>
       : <div hidden={!!library}>
     {findingNotice ? <p role="status">{findingNotice}</p> : null}
+    {sharedMatrix.present ? <p role="status">{sharedMatrix.loadItem ? "מטריצה משותפת: המופע והסימונים נבדקים מחדש במנוע לפני הצגתם." : "קישור המטריצה אינו תקין או גדול מדי. בקשו קישור חדש."}</p> : null}
+    {!guidedProfile ? <ElsRecentCiphers2029 onOpen={openCipher} onLibrary={showLibrary} collapseSignal={searchRevision} revision={savedRevision} enabled={!library} /> : null}
     <nav className="els29-mode-selector" aria-label="מצבי הצופן התנ״כי">
       <div><small>סביבת עבודה</small><strong>{guidedProfile ? "גילוי מודרך" : advancedResearchProfile ? "מחקר" : "קלאסי"}</strong></div>
       <ElsMatrixProfileSwitch profile={matrixProfile} onChange={setMatrixProfile} />
@@ -358,7 +406,6 @@ export default function Els2029Page({ previewAdvanced = false }) {
         {savedRecord.row.image_url ? <details><summary>התמונה המקורית שנשמרה</summary><img src={savedRecord.row.image_url} alt="התמונה המקורית של הצופן השמור" /></details> : null}
       </> : null}
     </section> : null}
-    {!guidedProfile ? <ElsRecentCiphers2029 onOpen={openCipher} onLibrary={showLibrary} collapseSignal={searchRevision} revision={savedRevision} enabled={!library} /> : null}
     <div className="els29-guided-workspace" data-els-guided-workspace="separate-v1" data-run-state={guidedRunActive ? "active" : "entry"}
       data-els-guided-tools="single-window-v1" hidden={!guidedProfile || directSavedOpen}>
       <ElsGuidedDiscovery2029 onPlanSummary={setAutomaticSummary}
@@ -392,7 +439,7 @@ export default function Els2029Page({ previewAdvanced = false }) {
               : "חיפוש ישיר וסימוני צבע על טקסט התורה. הממצאים נשמרים להמשך עבודה."}
           </div>
         </div>
-        <span className="sod29-chip">{subject ? "הקשר מחקר פעיל" : "מוכן לחיפוש"}</span>
+        <ElsActiveContext research={research} />
       </div>
 
       <section
@@ -404,10 +451,10 @@ export default function Els2029Page({ previewAdvanced = false }) {
             The same iframe instance remains mounted as an engine-only bridge and can be revealed
             as the parity fallback for capabilities that have not yet been ported to 2029. */}
         <ElsNativeWithRaziel razielSession={razielSession} researchContext={context} projection={replayProjection} layers={replayLayers} planSummary={automaticSummary} replayReady={replayMatched && layeredReady}
-          initialSeed={savedRecord.row || legacyMatrix || location.state?.elsReadingReturnTurnId || location.state?.elsResearchReturnTaskId ? "" : classicSeed} matrix={savedRecord.row || legacyMatrix}
+          initialSeed={savedRecord.row || legacyMatrix || sharedMatrix.present || location.state?.elsReadingReturnTurnId || location.state?.elsResearchReturnTaskId ? "" : classicSeed} matrix={savedRecord.row || legacyMatrix}
           active={!library && (!guidedProfile || researchLoad?.guidedDiscovery === true || directSavedOpen)}
           advancedSearchRequestKey={location.state?.elsResearchReturnTaskId && location.state.elsResearchReturnTaskId === research.elsResearchOperation?.task?.id ? location.key : null}
-          researchProfile={researchProfile} guidedProfile={guidedProfile} researchLoad={researchLoad || (savedRecord.row ? null : findingJourneyLoad)} researchProbe={researchProbe} onResearchProbeResult={receiveExactSkip} onResearchLoadError={() => setExactStatus("failed")}
+          researchProfile={researchProfile} guidedProfile={guidedProfile} researchLoad={researchLoad || (savedRecord.row ? null : sharedMatrix.loadItem || findingJourneyLoad)} researchProbe={researchProbe} onResearchProbeResult={receiveExactSkip} onResearchLoadError={() => setExactStatus("failed")}
           advancedSearch={<ElsAdvancedSearch2029
             researchOrigin={replayMatched && layeredReady ? { ...context?.selection, corpusId: replayProjection?.corpusId } : null}
             exactStatus={exactStatus} onExactSkip={requestExactSkip} deriveCanonicalForms={deriveCanonicalForms} onPlanSummary={setAutomaticSummary}

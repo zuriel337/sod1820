@@ -18,7 +18,7 @@ window.__loads=[];addEventListener('message',event=>{if(event.data?.type==='load
 window.__publish=state=>parent.postMessage({source:'tzofen',type:'state',...state},location.origin);
 parent.postMessage({source:'tzofen',type:'ready'},location.origin);</script></body></html>`;
 
-test('non-AI research survives route unmount, remains independent of Raziel, returns exactly and cancels', { timeout: 180000 }, async () => {
+for (const theme of ['light', 'parchment', 'dark']) test(`non-AI research survives context reset, sharing, route unmount and cancellation (${theme})`, { timeout: 180000 }, async () => {
   assert.ok(existsSync(join(dist, '2029.html')), 'build:2029 first');
   const manifest = JSON.parse(readFileSync(join(dist, '.vite/manifest.json'), 'utf8'));
   const eager = new Set();
@@ -38,20 +38,28 @@ test('non-AI research survives route unmount, remains independent of Raziel, ret
   const browser = await chromium.launch({ headless: true, executablePath: '/usr/bin/chromium' });
   const errors = [];
   try {
-    for (const theme of ['light', 'parchment', 'dark']) for (const width of [320, 390, 1440]) {
+    for (const width of [320, 390, 1440]) {
       let cloud = { ...emptyResearchState(), revision: 0, context: {
         subject: { id: 'תורה', type: 'phrase', label: 'תורה', href: '/code' }, lens: 'els', selection: axis,
+        journey: { id: '22222222-2222-4222-8222-222222222222', kind: 'research_path', pendingSteps: [
+          { context: { subject: { id: 'תורה', type: 'phrase', label: 'תורה', href: '/code' } }, href: '/code' },
+        ] },
       } };
+      cloud.saved = [{ id: 'saved-fixture', type: 'phrase', title: 'פריט שמור' }];
+      cloud.cart = [{ id: 'cart-fixture', type: 'phrase', title: 'בתיק המחקר' }];
+      cloud.pinned = [{ id: 'pinned-fixture', type: 'phrase', title: 'נעוץ' }];
+      const retained = structuredClone({ saved: cloud.saved, cart: cloud.cart, pinned: cloud.pinned });
+      const writes = [];
       const calls = []; let ai = 0, release;
       const user = { id: uid, email: 'test@example.invalid', aud: 'authenticated', role: 'authenticated', app_metadata: { provider: 'email' }, user_metadata: {} };
       const jwt = [{ alg: 'HS256', typ: 'JWT' }, { sub: uid, role: 'authenticated', exp: 2200000000 }, 'test-only'].map((x, i) => i === 2 ? x : Buffer.from(JSON.stringify(x)).toString('base64url')).join('.');
       const context = await browser.newContext({ viewport: { width, height: 900 }, reducedMotion: 'reduce' });
-      await context.addInitScript(({ user, jwt, theme, selection }) => {
+      await context.addInitScript(({ user, jwt, theme, researchContext }) => {
         localStorage.setItem('sod-theme', theme);
         localStorage.setItem('sb-linswmnnkjxvweumprav-auth-token', JSON.stringify({ access_token: jwt, refresh_token: 'test-only', expires_at: 2200000000, expires_in: 3600, token_type: 'bearer', user }));
         const key = 'sod_research_context_v2:user:' + user.id;
-        if (window === window.top && !sessionStorage.getItem(key)) sessionStorage.setItem(key, JSON.stringify({ subject: { id: 'תורה', type: 'phrase', label: 'תורה', href: '/code' }, lens: 'els', selection }));
-      }, { user, jwt, theme, selection: axis });
+        if (window === window.top && !sessionStorage.getItem(key)) sessionStorage.setItem(key, JSON.stringify(researchContext));
+      }, { user, jwt, theme, researchContext: cloud.context });
       const page = await context.newPage(); page.setDefaultTimeout(15000);
       page.on('pageerror', error => errors.push(error.message));
       await page.route('**/*', async route => {
@@ -66,7 +74,7 @@ test('non-AI research survives route unmount, remains independent of Raziel, ret
         else if (url.pathname.endsWith('/site_flags')) body = ['lock_world', 'lock_els', 'lock_raziel_site', 'lock_books', 'lock_number'].map(key => ({ key, enabled: false, mode: 'all' }));
         else if (url.pathname.endsWith('/research_state_snapshot_v1')) body = cloud;
         else if (url.pathname.endsWith('/research_state_apply_ops_v1')) {
-          const b = req.postDataJSON(); cloud = { ...applyResearchOps(cloud, b.p_ops), revision: cloud.revision + 1 };
+          const b = req.postDataJSON(); writes.push(...b.p_ops); cloud = { ...applyResearchOps(cloud, b.p_ops), revision: cloud.revision + 1 };
           body = { ok: true, batch_id: b.p_batch_id, applied_revision: cloud.revision, snapshot: cloud };
         } else if (url.pathname.includes('ai-analyze')) { ai++; body = { v: 1, answer: 'תשובת בדיקה בלבד', sources: [], grounding: 'interpretation' }; }
         else if (url.pathname.includes('els-search-bridge')) {
@@ -80,6 +88,10 @@ test('non-AI research survives route unmount, remains independent of Raziel, ret
         await route.fulfill({ headers, contentType: 'application/json', body: JSON.stringify(body) }).catch(() => {});
       });
       await page.goto(origin + '/code?mode=research');
+      await page.getByRole('region', { name: 'תיקיית הצפנים' }).waitFor();
+      assert.equal(await page.getByRole('region', { name: 'תיקיית הצפנים' }).count(), 1);
+      const folderBeforeModes = await page.evaluate(() => !!(document.querySelector('.els29-recent').compareDocumentPosition(document.querySelector('.els29-mode-selector')) & Node.DOCUMENT_POSITION_FOLLOWING));
+      assert.equal(folderBeforeModes, true, 'the same folder sits above mode selection');
       await page.getByRole('button', { name: 'חיפוש מתקדם', exact: true }).click();
       const advanced = page.locator('[data-els-advanced-search]');
       const checkFormLayout = async () => {
@@ -124,12 +136,56 @@ test('non-AI research survives route unmount, remains independent of Raziel, ret
       await page.locator('[data-els-research-task="RUNNING"]').waitFor();
       await page.waitForFunction(() => document.querySelector('[data-els-research-task]')?.textContent.includes('בודק: אמת'));
       assert.equal(ai, 0);
+      const share = page.locator('.els29-matrix-share');
+      await share.locator('summary').click();
+      const sharedUrl = await share.getByRole('textbox', { name: 'קישור למטריצה' }).inputValue();
+      assert.match(sharedUrl, /\/code\?mode=classic#els-matrix=/);
+      assert.equal(await share.evaluate(el => el.scrollWidth <= el.clientWidth + 1), true, 'share panel fits');
+      assert.deepEqual(await share.locator('summary,button,textarea').evaluateAll(nodes => nodes.filter(node => {
+        const b=node.getBoundingClientRect();return b.width<43.5||b.height<43.5||parseFloat(getComputedStyle(node).fontSize)<16;
+      }).map(node => node.textContent)), [], 'share targets and type');
+      assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, 'share does not overflow');
+      if (process.env.ELS_SCREENSHOT_DIR) await page.screenshot({ path: join(process.env.ELS_SCREENSHOT_DIR, `matrix-share-${width}-${theme}.png`) });
+      await share.getByRole('button', { name: 'סגור שיתוף', exact: true }).click();
+      assert.equal(await share.locator('summary').evaluate(el => el === document.activeElement), true);
+      const contextBox = page.locator('[data-els-active-context]');
+      const frameIdentity = await page.locator('iframe').first().elementHandle();
+      const engineCommands = await page.locator('iframe').first().evaluate(el => el.contentWindow.__loads);
+      const callsBeforeClear = calls.length;
+      await contextBox.locator('summary').click();
+      assert.match(await contextBox.innerText(), /נושא המחקר: תורה/);
+      assert.match(await contextBox.innerText(), /בחירה בצופן: תורה/);
+      await contextBox.getByRole('button', { name: 'נקה הקשר', exact: true }).click();
+      await contextBox.getByRole('alert').filter({ hasText: /צעדים שעדיין לא נשמרו/ }).waitFor();
+      assert.equal(writes.filter(op => op.kind === 'context_set' && op.context === null).length, 0, 'preparing reset does not clear');
+      await contextBox.getByRole('button', { name: 'השאר את ההקשר', exact: true }).click();
+      assert.match(await contextBox.innerText(), /נושא המחקר: תורה/);
+      await contextBox.getByRole('button', { name: 'נקה הקשר', exact: true }).click();
+      assert.equal(await contextBox.evaluate(el => el.scrollWidth <= el.clientWidth + 1), true, 'context confirmation fits its panel');
+      assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, 'context confirmation never overflows the page');
+      assert.deepEqual(await contextBox.locator('button,summary').evaluateAll(nodes => nodes.filter(node => {
+        const box = node.getBoundingClientRect(); return box.width < 43.5 || box.height < 43.5 || parseFloat(getComputedStyle(node).fontSize) < 16;
+      }).map(node => node.textContent)), [], 'context targets and type');
+      if (process.env.ELS_SCREENSHOT_DIR) await page.screenshot({ path: join(process.env.ELS_SCREENSHOT_DIR, `context-reset-${width}-${theme}.png`) });
+      await contextBox.getByRole('button', { name: 'כן, נקה הקשר', exact: true }).click();
+      await contextBox.getByText('ללא הקשר מחקר פעיל', { exact: true }).waitFor();
+      await contextBox.getByRole('status').filter({ hasText: 'ההקשר נוקה' }).waitFor();
+      assert.equal(await contextBox.locator('summary').evaluate(el => el === document.activeElement), true, 'focus remains reachable after clear');
+      assert.equal(await page.evaluate(id => sessionStorage.getItem('sod_research_context_v2:user:' + id), uid), null);
+      assert.equal(calls.length, callsBeforeClear, 'clearing never starts a search or verification');
+      assert.equal(ai, 0, 'clearing never calls a model');
+      assert.equal(await frameIdentity.evaluate(el => el === document.querySelector('iframe')), true, 'clearing keeps the same engine mounted');
+      assert.deepEqual(await page.locator('iframe').first().evaluate(el => el.contentWindow.__loads), engineCommands, 'no matrix reset command');
+      assert.equal(await page.locator('[data-els-research-task="RUNNING"]').count(), 1, 'clearing context does not cancel the active task');
       await page.evaluate(() => { history.pushState({}, '', '/2029'); dispatchEvent(new PopStateEvent('popstate')); });
       await page.getByRole('button', { name: 'עכשיו · סורק', exact: true }).click();
       const activity = page.getByLabel('מעקב מחקר ללא AI');
       await activity.waitFor();
       assert.match(await activity.innerText(), /תורה/);
       assert.equal(calls.filter(x => x.op === 'page').length, 1);
+      assert.equal(writes.filter(op => op.kind === 'context_set' && op.context === null).length, 1, 'one confirmed reset uses the existing sync operation');
+      assert.deepEqual({ saved: cloud.saved, cart: cloud.cart, pinned: cloud.pinned }, retained, 'saved research and pinned items survive');
+      assert.equal(writes.some(op => /clear_bucket|history_clear|journey_clear/.test(op.kind)), false, 'no broad clear operation');
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, `${width}/${theme}`);
       // Real global conversation remains available; research never sets its busy state.
       await page.keyboard.press('Escape');
@@ -166,6 +222,10 @@ test('non-AI research survives route unmount, remains independent of Raziel, ret
       assert.equal(ai, 0);
       page.on('dialog', dialog => dialog.accept());
       await page.getByRole('button', { name: 'נקה תוצאה זמנית', exact: true }).click();
+      // This fixture does not execute load-matrix. Publish the selected replay's
+      // state as the real engine does; the old context was explicitly cleared.
+      await page.locator('iframe').first().evaluate(el=>el.contentWindow.__publish({status:'ok',term:'אמת',termRaw:'אמת',scope:'torah',verification:{state:'MATCH',corpus_id:'fixture'},
+        axis:{hitId:'86_1_1200',start:1200,skip:86,direction:'fwd',length:3},findings:[]}));
       // Exact return may remount the form; choose the same existing background action explicitly.
       await page.getByRole('button', { name: 'חיפוש מתקדם', exact: true }).click();
       const extra = page.locator('.els29-advanced-options');
@@ -185,6 +245,15 @@ test('non-AI research survives route unmount, remains independent of Raziel, ret
       await page.getByLabel('מונח לחיפוש מתקדם').waitFor();
       assert.equal(await page.getByLabel('מעקב מחקר ללא AI').count(), 0, 'reload does not pretend to restore a memory-only task');
       assert.equal(calls.filter(x => x.op === 'page').length, 3, 'reload never auto-restarts a scan');
+      assert.equal(ai, 0);
+      // Fresh page: shared fragment uses the existing exact-load route, not a separate
+      // background search, saved-record fetch or model. The fixture records that command.
+      await page.goto(sharedUrl);
+      await page.waitForFunction(() => [...document.querySelectorAll('iframe')].some(f => f.contentWindow.__loads?.some(item => item.hitId === '50_1_5')));
+      const sharedLoad = await page.locator('iframe').first().evaluate(el => el.contentWindow.__loads.find(item => item.hitId === '50_1_5'));
+      assert.equal(sharedLoad.corpusId, 'fixture');assert.equal(sharedLoad.view.zoom, 1.6);
+      assert.deepEqual(sharedLoad.words, [{t:'אמת',color:'#112233',sh:['49_1_25'],sourceShown:[]}]);
+      assert.equal(calls.filter(x => x.op === 'page').length, 3, 'opening share does not start a background research request');
       assert.equal(ai, 0);
       await context.close();
     }

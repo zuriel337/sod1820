@@ -10,6 +10,7 @@ import { ELS_GOLDENS, ELS_GOLDEN_CORPUS_ID } from './fixtures/els-runtime-golden
 import { libraryFixturePlugin } from './fixtures/els-library-browser-fixture.mjs';
 import { captureElsResearchReturn, elsResearchReturnLoad } from '../src/lib/research/elsResearchReturnSnapshot.js';
 import { groupElsLexiconDiscoveries } from '../src/lib/research/elsStructureInspection.js';
+import { readElsMatrixShare } from '../src/lib/elsMatrixShare.js';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 const req = createRequire(import.meta.url);
@@ -25,6 +26,41 @@ try {
 const executablePath = process.env.CHROMIUM_EXECUTABLE_PATH ||
   (existsSync('/usr/bin/chromium') ? '/usr/bin/chromium' : pw?.chromium.executablePath());
 const canRun = Boolean(pw && vite && react && executablePath && existsSync(executablePath));
+
+test('matrix share: explicit, private-safe and exact canonical replay across all profiles',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
+ for(const profile of [{researchProfile:false},{researchProfile:true},{researchProfile:true,guided:true}])
+  await withNative({width:320,height:900},async page=>{
+   if(profile.guided) await page.getByRole('button',{name:'פתח מטריצה מדויקת'}).click();
+   const before=await identity(page),share=page.locator('.els29-matrix-share');
+   assert.equal(await share.count(),1);assert.equal(await share.getAttribute('open'),null);
+   await page.evaluate(()=>{
+    Object.defineProperty(navigator,'clipboard',{configurable:true,value:{writeText:async value=>{window.__copiedMatrix=value;}}});
+    Object.defineProperty(navigator,'share',{configurable:true,value:async value=>{window.__sharedMatrix=value;}});
+   });
+   await share.locator('summary').click();
+   const url=await share.getByRole('textbox',{name:'קישור למטריצה'}).inputValue();
+   const restored=readElsMatrixShare(new URL(url).hash).loadItem;
+   assert.ok(restored);assert.equal(restored.hitId,before.axis.hitId);
+   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+   await share.getByRole('button',{name:'העתק קישור',exact:true}).click();
+   assert.equal(await page.evaluate(()=>window.__copiedMatrix),url);
+   await share.getByRole('button',{name:'שתף דרך המכשיר',exact:true}).click();
+   assert.equal(await page.evaluate(()=>window.__sharedMatrix.url),url);
+   assert.equal(await page.evaluate(()=>window.__saveCalls?.length||0),0,'no record save or publication');
+   assert.equal(await page.evaluate(()=>(window.__matrixSubmits||[]).length),0,'no AI submission');
+   assert.equal(page.__elsDynamicLexiconRequests.length,0);
+   const send=item=>page.locator('iframe').evaluate((frame,item)=>frame.contentWindow.postMessage({source:'sod-host',type:'load-matrix',item},location.origin),item);
+   await send({...restored,start:restored.start+1,hitId:`${restored.skip}_${restored.dir}_${restored.start+1}`});
+   await page.waitForFunction(()=>window.__log.some(m=>m.type==='load-error'));
+   await share.getByText('בחרו מופע מאומת והמתינו לסיום החיפוש כדי לשתף את המטריצה.',{exact:true}).waitFor();
+   await send(restored);
+   await page.waitForFunction(hitId=>window.__state?.status==='ok'&&window.__state?.axis?.hitId===hitId,restored.hitId);
+   assert.equal(await page.evaluate(()=>window.__state.verification.state),'MATCH','shared coordinates must reverify');
+   assert.deepEqual((await identity(page)).axis,before.axis);
+   assert.equal(await page.evaluate(()=>window.__saveCalls?.length||0),0);
+  },{realHost:true,loadGolden:true,matrixAnalysis:true,...profile});
+});
 
 test('Research has one regular/cross/advanced search surface with preserved drafts and no automatic work',
  {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{

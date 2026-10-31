@@ -798,3 +798,12 @@
 .els29-reading-map-controls { display: grid; gap: 8px; }
 .els29-native-structure-entry[hidden]{display:none!important}
 .els29-native-structure-entry>summary{min-height:44px;padding:12px;font-size:var(--s29-type-ui);cursor:pointer}
+.els29-matrix-share{min-width:0;max-width:100%;font-size:var(--s29-type-ui)}
+.els29-matrix-share summary{display:flex;align-items:center;min-height:44px;min-width:44px;padding:8px 14px;border:1px solid var(--s29-line);border-radius:12px;cursor:pointer;background:var(--s29-panel-soft)}
+.els29-matrix-share[open]{flex-basis:100%}
+.els29-matrix-share>div{display:grid;gap:12px;padding:14px;border:1px solid var(--s29-line);border-radius:12px;background:var(--s29-panel-soft);min-width:0}
+.els29-matrix-share p{margin:0;font-size:var(--s29-type-small);line-height:1.65;overflow-wrap:anywhere}
+.els29-matrix-share label{display:grid;gap:8px;min-width:0}
+.els29-matrix-share textarea{box-sizing:border-box;width:100%;min-width:0;max-width:100%;min-height:60px;font-size:var(--s29-type-ui);color:var(--s29-ink);background:var(--s29-panel);border:1px solid var(--s29-line);border-radius:10px;overflow-wrap:anywhere;resize:vertical}
+.els29-matrix-share-actions{display:flex;flex-wrap:wrap;gap:8px}
+.els29-matrix-share-actions button{min-width:44px;min-height:44px;white-space:normal;font-size:var(--s29-type-ui)}

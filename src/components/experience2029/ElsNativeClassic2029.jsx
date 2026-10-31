@@ -11,6 +11,7 @@ import ContextualInspector2029 from "./ContextualInspector2029.jsx";
 import TzofenEmbed from "../TzofenEmbed.jsx";
 import { useAuth } from "../../lib/AuthContext.jsx";
 import ElsSavePanel2029 from "./ElsSavePanel2029.jsx";
+import ElsMatrixShare2029 from "./ElsMatrixShare2029.jsx";
 import { useSystemToolDock2029 } from "./SystemToolDock2029.jsx";
 import { projectVerseWords, projectPresentation } from "./elsPresentation2029.js";
 import {
@@ -1583,6 +1584,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
             disabled={!matrixActive || searchPending || ["searching", "verifying"].includes(operations.findings?.status)} onClick={() => requestControl("fit-toggle")}>התאמה למסך</button>
           <button type="button" aria-pressed={!!engineState?.ui?.heat} disabled={!matrixActive}
             title="צפיפות סביב אותיות הציר והממצאים המאומתים" onClick={() => requestControl("heat-toggle")}>מפת חום</button>
+          <ElsMatrixShare2029 state={engineState} disabled={!matrixActive || searchPending || ["searching", "verifying"].includes(operations.findings?.status)} />
           <button type="button" aria-label="סימון הציר הראשי" aria-pressed={!engineState?.ui?.hideMain}
             disabled={!matrixActive} onClick={() => requestControl("axis-visibility")}>
             {engineState?.ui?.hideMain ? "הצג ציר" : "סימון הציר"}
