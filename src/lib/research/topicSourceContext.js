@@ -66,10 +66,10 @@ export function resolvePublicGallerySelection(page, galleryImageId) {
     mediaId: occurrence.mediaId, dateUse: "provenance_only" } };
 }
 
-// Native pilot only; other galleries keep their existing destination. URLs are
+// Same native document for any valid historical gallery ID. URLs are
 // locators, never permission to render the listed row without public re-admission.
 export function gallerySourceHref2029(wpGalleryId, galleryImageId = null) {
-  if (![29, 81].includes(wpGalleryId)) return null;
+  if (!Number.isSafeInteger(wpGalleryId) || wpGalleryId < 1) return null;
   const base = `/world?view=gallery&gallery=${wpGalleryId}`;
   if (galleryImageId == null) return base;
   if (typeof galleryImageId !== "string" || !/^[a-f0-9]{8}-[a-f0-9]{4}-[1-5][a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i.test(galleryImageId)) return null;
@@ -94,12 +94,13 @@ export function galleryOccurrenceItem(selected) {
 }
 
 export async function loadPublicGallerySourceWindow({ imageId = null, offset = 0, ...options }) {
+  const limit = options.limit ?? 6;
   if (!gallerySourceHref2029(options.wpGalleryId)
-    || (imageId != null && !gallerySourceHref2029(options.wpGalleryId, imageId))) throw new RangeError("Invalid pilot gallery locator");
+    || (imageId != null && !gallerySourceHref2029(options.wpGalleryId, imageId))
+    || !Number.isSafeInteger(offset) || offset < 0 || !Number.isSafeInteger(limit) || limit < 1 || limit > 12) throw new RangeError("Invalid bounded gallery locator");
   const rows = await options.listGalleryImages(options.wpGalleryId);
   const ids = storedGalleryOrderIds(rows);
   const index = imageId == null ? -1 : ids.indexOf(imageId);
-  const limit = options.limit ?? 6;
   if (imageId != null && index === -1) return { status: "unavailable", page: null, selected: null };
   const page = await loadPublicGallerySourcePage({ ...options, listGalleryImages: async () => rows,
     offset: index < 0 ? offset : Math.floor(index / limit) * limit, limit });

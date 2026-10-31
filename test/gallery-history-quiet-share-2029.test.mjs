@@ -29,12 +29,12 @@ test("a public-looking image alone is not permission or an exact destination", (
     { sourceRef: `gallery_images:aaaaaaaa-1234-4123-8123-123456789012` },
     { legacyPlacement: { galleryImageId: "other", wpGalleryId: 81 } }])
     assert.equal(worldMediaPublicShare(item(patch), { origin }), null);
-  assert.equal(worldMediaPublicShare(item({ legacyPlacement: { galleryImageId: id, wpGalleryId: 69 } }), { origin }), null,
-    "does not invent an exact Archive image locator");
+  assert.equal(worldMediaPublicShare(item({ legacyPlacement: { galleryImageId: id, wpGalleryId: 0 } }), { origin }), null,
+    "malformed placement never becomes an exact destination");
 });
 
 test("existing exact Topic source locator is allowed without minting a new route", () => {
-  const input = item({ legacyPlacement: { galleryImageId: id, wpGalleryId: 69 }, reopen: { topicHref: `/topic/existing#topic-source-${id}` } });
+  const input = item({ legacyPlacement: { galleryImageId: id, wpGalleryId: null }, reopen: { topicHref: `/topic/existing#topic-source-${id}` } });
   assert.equal(worldMediaPublicShare(input, { origin }).url, `${origin}/topic/existing#topic-source-${id}`);
   for (const href of [`/topic/existing#topic-source-other`, `/topic/existing?admin=1#topic-source-${id}`,
     `https://other.example/topic/existing#topic-source-${id}`, `/archive?gal=69&image=${id}`, `/topic/a/b#topic-source-${id}`])

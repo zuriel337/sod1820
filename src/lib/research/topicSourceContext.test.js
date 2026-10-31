@@ -15,10 +15,11 @@ const project = (slug, changes = {}) => buildTopicSourceContext({ ...fixture, to
 const sharedImage = "5579cca1-ff12-4a9a-87ee-e32e89ca9af3";
 const railImage = "8940efb2-8423-4a27-a10a-d3fdd07cf595";
 
-test("native gallery locators are exact and limited to the two pilot galleries", () => {
+test("native gallery locators preserve historical IDs without a pilot-only inventory", () => {
   assert.equal(gallerySourceHref2029(29),"/world?view=gallery&gallery=29");
   assert.equal(gallerySourceHref2029(81,sharedImage),`/world?view=gallery&gallery=81&image=${sharedImage}#gallery-source-${sharedImage}`);
-  for(const [gallery,id] of [["29",sharedImage],[1,sharedImage],[29,"../private"],[81,""]]) assert.equal(gallerySourceHref2029(gallery,id),null);
+  for (const gallery of [1,54,69,73,105,99999]) assert.equal(gallerySourceHref2029(gallery),`/world?view=gallery&gallery=${gallery}`);
+  for(const [gallery,id] of [["29",sharedImage],[0,sharedImage],[-1,sharedImage],[NaN,sharedImage],[Number.MAX_SAFE_INTEGER+1,sharedImage],[29,"../private"],[81,""]]) assert.equal(gallerySourceHref2029(gallery,id),null);
 });
 
 test("native gallery deep selection fetches one bounded stored-order window, never scans the corpus", async () => {

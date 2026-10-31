@@ -97,8 +97,9 @@ function fixturePlugin() {
           {type:'gematria',phrase:'ערך חסר',n:null,method:'רגיל'},
         ]};}
       export const getAllValuePhrases=async()=>[],langLinksList=async()=>[];
-      export const getImagesByGallery=async(id)=>Array.from({length:window.__nativeGallery?14:8},(_,ordering)=>({
+      export const getImagesByGallery=async(id,options)=>{window.__lastGalleryListOptions=options;if(window.__listFail)throw Error('list offline');return Array.from({length:window.__nativeGallery?14:8},(_,ordering)=>({
         id:window.__nativeGallery?'10000000-0000-4000-8000-'+String(id*100+ordering).padStart(12,'0'):id+'-'+ordering,ordering}));
+      };
       export const supabase={
         from(table){
           let slugs=[];
@@ -300,6 +301,27 @@ test("native gallery uses exact public occurrences and canonical method navigati
       await page.goto(origin+"/world?view=gallery&gallery=81&image=10000000-0000-4000-8000-000000002901");
       await page.getByText(/התמונה המבוקשת אינה זמינה כאן/).waitFor();
       assert.equal(await page.locator(".g29-exhibit").count(),0,"wrong-gallery locator cannot select another gallery row");
+      for (const gallery of [69,73]) {
+        const selectedId='10000000-0000-4000-8000-'+String(gallery*100+7).padStart(12,'0');
+        const selectedHref=`/world?view=gallery&gallery=${gallery}&image=${selectedId}#gallery-source-${selectedId}`;
+        await page.goto(origin+selectedHref);
+        const card=page.locator(`[data-gallery-image-id="${selectedId}"]`);await card.waitFor();
+        assert.deepEqual(await page.evaluate(()=>window.__lastGalleryListOptions),{publicSourceOnly:true,throwOnError:true});
+        assert.equal(await page.locator('.g29-flow .g29-exhibit').count(),6);
+        await card.getByRole('link',{name:'לדף המספר 3137',exact:true}).click();
+        await page.waitForURL('**/2029/number/3137');
+        assert.equal((await page.evaluate(()=>window.__researchContext)).returnTo.href,selectedHref);
+        await page.getByRole('button',{name:'חזרה לתמונה',exact:true}).click();
+        await card.waitFor();await page.reload();await card.waitFor();
+        assert.equal(new URL(page.url()).searchParams.get('gallery'),String(gallery));
+      }
+      await page.evaluate(()=>{window.__listFail=true;});
+      await page.getByRole('link',{name:'התמונות הבאות ←',exact:true}).click();
+      await page.getByRole('button',{name:'בדיקה מחדש',exact:true}).waitFor();
+      assert.equal(await page.locator('.g29-exhibit').count(),0,'a listing failure clears old content');
+      await page.evaluate(()=>{window.__listFail=false;});
+      await page.getByRole('button',{name:'בדיקה מחדש',exact:true}).click();
+      await page.locator('.g29-exhibit').first().waitFor();
       assert.deepEqual(errors,[]);await context.close();
     }
   }finally{await browser?.close();await server.close();rmSync(cacheDir,{recursive:true,force:true});}

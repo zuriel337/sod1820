@@ -19,7 +19,8 @@ import { canonicalMediaPublicLabel } from "../lib/presentation/canonicalPresenta
 import "./gallery2029.css";
 
 const readWindow = (options) => loadPublicGallerySourceWindow({ ...options,
-  listGalleryImages: getImagesByGallery, fetchSourceContext: fetchGallerySourceContext });
+  listGalleryImages: (id) => getImagesByGallery(id, { publicSourceOnly: true, throwOnError: true }),
+  fetchSourceContext: fetchGallerySourceContext });
 const ordinaryClick = (event) => !event.defaultPrevented && event.button === 0
   && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey;
 const readingLabel = (item) => canonicalMediaPublicLabel({
@@ -162,13 +163,16 @@ function GalleryBody() {
 
   const openExpression = async (sourceItem, row, origin) => {
     const request = ++requestRef.current;
+    const startedRoute = window.location.pathname + window.location.search;
+    const isCurrentRequest = () => request === requestRef.current
+      && window.location.pathname + window.location.search === startedRoute;
     const sourceSlot = `gallery-source-${sourceItem.galleryImageId}`;
     const sourceHref = gallerySourceHref2029(wpGalleryId, sourceItem.galleryImageId);
     const fail = (message) => setError({ key: sourceSlot, message });
     setOpening(sourceSlot); setError(null);
     try {
       const fresh = await fetchGallerySourceContext({ imageIds: [sourceItem.galleryImageId] });
-      if (request !== requestRef.current) return false;
+      if (!isCurrentRequest()) return false;
       const selected = resolvePublicGallerySelection({ wpGalleryId, scannedIds: [sourceItem.galleryImageId], items: fresh.items }, sourceItem.galleryImageId);
       const freshItem = galleryOccurrenceItem(selected);
       if (!gateSourceSelectionIsCurrent(freshItem, origin)
@@ -178,7 +182,7 @@ function GalleryBody() {
         return false;
       }
       const resolved = await resolveTopicExpressionFocus2029(row, { profileReader: fetchNumberMethodProfile });
-      if (request !== requestRef.current) return false;
+      if (!isCurrentRequest()) return false;
       const focus = resolved.focus;
       const method = focus && gatePublicMethodRows(focus.rows).find((entry) => entry.methodKey === focus.method
         && entry.computedValue === focus.resultValue);
@@ -204,7 +208,7 @@ function GalleryBody() {
       navigate(focus.href);
       return true;
     } catch {
-      if (request === requestRef.current) fail("לא הצלחנו לפתוח את החישוב כרגע. אפשר לנסות שוב בעוד רגע.");
+      if (isCurrentRequest()) fail("לא הצלחנו לפתוח את החישוב כרגע. אפשר לנסות שוב בעוד רגע.");
       return false;
     } finally { if (request === requestRef.current) setOpening(null); }
   };

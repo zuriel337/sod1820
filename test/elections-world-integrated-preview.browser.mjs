@@ -10,13 +10,15 @@ import { createInterface } from "node:readline";
 import { resolve, extname, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createRequire } from "node:module";
+import { getImagesByGallery } from '../src/lib/supabase.js';
+import { storedGalleryOrderIds, gallerySourceHref2029 } from '../src/lib/research/topicSourceContext.js';
 
 const require = createRequire(import.meta.url);
 const { chromium } = require("playwright");
 const root = fileURLToPath(new URL("..", import.meta.url));
 const output = process.env.PREVIEW_EVIDENCE_DIR || "/tmp/elections-world-preview-20261030";
 await mkdir(output, { recursive: true });
-const report = { widths: [], storySequence: [], methodDepth: [], galleryMethodDepth: [], nativeGalleries: [], reads: {}, blocked: [], errors: [], modelRequests: [] };
+const report = { widths: [], expandedGalleries: [], storySequence: [], methodDepth: [], galleryMethodDepth: [], nativeGalleries: [], reads: {}, blocked: [], errors: [], modelRequests: [] };
 const publicHost = "linswmnnkjxvweumprav.supabase.co";
 // fn_zero_scale is an existing anonymous STABLE/security-invoker read (live
 // definition inspected); the unchanged Preview worker already admits it.
@@ -80,6 +82,36 @@ try {
       authenticationUrl.pathname = "/preview-identity.json";
       try { await page.goto(authenticationUrl.href); }
       catch { throw new Error("Protected Preview access failed; access URL withheld."); }
+    }
+    if (process.env.PREVIEW_GALLERY_EXPANSION_ONLY === 'true') {
+      for (const gallery of [69,73,105]) {
+        const rows = await getImagesByGallery(gallery,{publicSourceOnly:true,throwOnError:true});
+        const ids = storedGalleryOrderIds(rows);
+        assert.ok(ids.length > 7, `gallery${gallery} still has an exact public sample`);
+        const id = ids[7], href = gallerySourceHref2029(gallery,id);
+        await page.goto(origin + href);
+        const card = page.locator(`[data-gallery-image-id="${id}"]`);
+        await card.waitFor();
+        assert.deepEqual(await page.locator('.g29-exhibit').evaluateAll(nodes=>nodes.map(n=>n.dataset.galleryImageId)),ids.slice(6,12));
+        const number = card.locator('.g29-number').first();
+        let numberReturn=false;
+        if(await number.count()) {
+          const numberHref=await number.getAttribute('href');
+          await number.click();await page.waitForURL(origin+numberHref);
+          await page.locator('.sod29-number-page').waitFor();
+          await page.goBack();await card.waitFor();numberReturn=true;
+          assert.equal(page.url(),origin+href);
+        }
+        await page.reload();await card.waitFor();
+        assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
+        await page.screenshot({path:resolve(output,`gallery-expanded-${gallery}-${width}.png`),fullPage:true});
+        report.expandedGalleries.push({width,gallery,sourceRef:`gallery_images:${id}`,storedOrder:true,numberReturn,reload:true});
+      }
+      await page.goto(origin+'/world?view=gallery&gallery=102');
+      await page.locator('.g29-message').waitFor();
+      assert.equal(await page.locator('.g29-exhibit').count(),0);
+      report.expandedGalleries.push({width,gallery:102,emptyPublicWindow:true});
+      report.widths.push(width);await context.close();continue;
     }
     // Real default readers, real public source and existing edge. The fragment
     // selects a return target; it cannot admit a source or manufacture a link.
@@ -313,7 +345,9 @@ try {
   }
   assert.deepEqual(report.errors, [], "no page errors");
   assert.deepEqual(report.modelRequests, [], "no model request on navigation");
-  console.log(JSON.stringify({ ...report, blocked: [...new Set(report.blocked)], origin, productWrites: false, data: "live public anonymous", coverage: process.env.PREVIEW_STORY_SEQUENCE_ONLY === 'true'
+  console.log(JSON.stringify({ ...report, blocked: [...new Set(report.blocked)], origin, productWrites: false, data: "live public anonymous", coverage: process.env.PREVIEW_GALLERY_EXPANSION_ONLY === 'true'
+    ? "Explicit gallery expansion subset:69/73/105 stored window, exact source, optional number tag/Back and reload;102 empty public window, at390/1440. Not every gallery, hosted or whole-site acceptance."
+    : process.env.PREVIEW_STORY_SEQUENCE_ONLY === 'true'
     ? "Explicit story subset: real World fragment -> canonical graph edge -> public Post body -> native Back -> reload, at390/1440; no whole-site or hosted acceptance"
     : process.env.PREVIEW_GALLERY_REVIEW_ONLY==='true'
     ? "Explicit gallery-design subset:1237 shared depth and exact source; galleries29/81, source->method Number->exact return, three presets and typography; excludes Topic1118/Zvi regression"

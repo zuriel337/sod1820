@@ -1933,9 +1933,9 @@ export async function getImagesByValue(value) {
 // עץ אחד: הפוסט הישן מפסיק להציג HTML קפוא ומצביע ל-gallery_images העריך —
 // כך עריכת תאריך/חשיבות/הסתרה/מספר בגלריה משתקפת מיד בפוסט. ציבורי בלבד.
 // סדר: חשיבות↓ ואז הסדר הידני של הגלריה (ordering) — שומר על הסדר הישן של צוריאל.
-export async function getImagesByGallery(wpGalleryId) {
-  if (!supabase || !wpGalleryId) return [];
-  const { data } = await supabase
+export async function getImagesByGallery(wpGalleryId, { publicSourceOnly = false, throwOnError = false, client = supabase } = {}) {
+  if (!client || !wpGalleryId) return [];
+  let query = client
     .from('gallery_images')
     .select('id,name,description,image_url,thumb_url,ordering,primary_value,all_values,occurred_at,created_at,importance')
     .eq('wp_gallery_id', wpGalleryId)
@@ -1944,6 +1944,10 @@ export async function getImagesByGallery(wpGalleryId) {
     .eq('min_tier', 0)                                               // נראות: פרימיום/מוסתר לא לציבור
     .order('importance', { ascending: false, nullsFirst: false })
     .order('ordering', { ascending: true, nullsFirst: false });
+  // Opt-in for the existing 2029 source reader; Legacy/default callers unchanged.
+  if (publicSourceOnly) query = query.eq('published', 1);
+  const { data, error } = await query;
+  if (error && throwOnError) throw error;
   return data || [];
 }
 
