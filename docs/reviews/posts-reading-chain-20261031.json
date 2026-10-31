@@ -1948,5 +1948,16 @@
     "production_after": "dpl_AiKPHaoo5pxo9T5PFTpcBRG7LfMA",
     "hosted_visual_browser": "Not asserted; authenticated HTTP verified, actual UI tested locally with live public data",
     "access": "Existing Vercel authentication retained"
+  },
+  "corpus_mapping_followup": {
+    "status": "PUBLIC_CORPUS_STRUCTURAL_MAPPING_COMPLETE_RESEARCH_ACCEPTANCE_OPEN",
+    "receipt": "posts-corpus-map-20261031.json",
+    "public_posts": 1282,
+    "claims": 272,
+    "matched_profile_results": 29,
+    "unresolved_method_candidates": 4,
+    "incomplete_occurrences": 239,
+    "runtime_changed": false,
+    "production_changed": false
   }
 }

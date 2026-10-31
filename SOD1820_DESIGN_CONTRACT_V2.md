@@ -201,6 +201,8 @@ RTL controls reading direction, logical order and the start edge of Hebrew copy.
 
 This is a composition rule, not a command to center every Hebrew sentence. Page centering and text alignment are separate decisions and must be tested separately.
 
+**Posts alignment · Human Gate ZURIEL · 31.10.2026:** approved for the existing Post surface: the primary Post title is centered; article subsection headings and ordinary explanatory paragraphs align to logical start (right in Hebrew). Short gematria-box headings and separated equations are centered. A short standalone quotation or emphasis may center deliberately; a poem or intentionally short-line composition may retain its authored alignment. The bounded reading plane and its section navigation stay centered with balanced gutters. This presentation rule does not rewrite authored wording, source locators or calculation semantics, and does not authorize changes to shared chrome or other surfaces. Apply it through the existing Post styles after checking explicit semantic exceptions, rather than rewriting stored article HTML.
+
 ## 9. Migration
 - 2029 migrates through shared tokens/components first.
 - Legacy remains Legacy until its own redesign pass.
