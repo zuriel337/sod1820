@@ -1,11 +1,11 @@
 # SOD1820 2029 — Membership, Credits & Cardcom Product Contract V1
 
-**Status:** INTERNAL DRAFT · 2029 ONLY · NOT A PUBLIC OFFER · NOT IMPLEMENTED
-**Date:** 2026-10-25
+**Status:** INTERNAL DRAFT · 2029 ONLY · NOT A PUBLIC OFFER · PARTIALLY PROVEN BY ADMIN PILOT
+**Date:** 2026-10-31
 **Owner:** ZURIEL / Human Gate
 **Scope:** the 2029 product runtime only. Legacy pages, labels and access behavior are not product truth for this contract.
-**Activation:** No active membership product exists.
-**Authorization:** This draft authorizes no migration, Cardcom action or configuration, Checkout, charge, live DB/RLS change, deployment or publication.
+**Activation:** No public membership product exists. A limited admin-only ₪4 monthly pilot proved first charge, encrypted-token storage, server-initiated renewal, cancellation-at-period-end and isolated failure handling. It is not the launch product or public offer.
+**Authorization:** This draft records the proven pilot and product recommendations. It authorizes no additional migration, Cardcom action or configuration, Checkout, charge, live DB/RLS change, deployment or publication.
 **Pricing:** ₪30 monthly and ₪300 annually are working hypotheses and are not approved for publication.
 
 ## 1. Why this document exists
@@ -93,6 +93,40 @@ Proposed policy:
 
 The user sees understandable operation prices and remaining credits. Raw model tokens remain an internal cost/observability metric.
 
+#### Deep Bible Code / ELS matrix reading
+
+The Fable-backed deep matrix reading is a premium, variable-cost operation. It is not part of deterministic ELS search and must never be presented as unlimited merely because the ELS surface is included in Membership.
+
+Measured evidence from the first two completed `els_matrix_reading_jobs` on 2026-10-30:
+
+| Completed reading | Model | Usage-based estimated provider cost | Notes |
+|---|---|---:|---|
+| reading 1 | `claude-fable-5-1` | ₪3.9604 | 21,541 input / 48,322 output tokens |
+| reading 2 | `claude-fable-5-1` | ₪1.4616 | 21,387 input / 15,146 output tokens |
+
+The job evidence estimates a normal range of about ₪1.26–₪1.54 for a bounded 25-proposal reading, but records an estimated exposure ceiling of about **₪5.21** when output grows or reaches its allowance. These figures use usage objects, recorded list prices, a Message Batches factor and an FX rate of 3.01 ILS/USD. They are estimates, not provider-invoice truth; current pricing and FX must be revalidated before publication.
+
+**V1 pricing recommendation: 500 credits for one completed deep matrix reading.**
+
+Why 500:
+
+- current public credit packs value 500 credits at approximately ₪11.10–₪16.67, depending on pack size;
+- against the ₪5.21 observed exposure ceiling, this leaves an estimated gross contribution of about ₪5.90–₪11.46 before shared infrastructure, tax, support, failed attempts and membership-allocation economics;
+- the round price is understandable and leaves room for model-price, FX and output variance;
+- charging credits avoids a separate Cardcom transaction and transaction fee for every reading.
+
+Product rules:
+
+- deterministic ELS search, matrix construction and saved-matrix viewing do not consume these 500 credits;
+- show the 500-credit price and current balance before starting;
+- reserve once and settle idempotently; retries and duplicate callbacks must not double-charge;
+- charge only after a usable completed result; return the reserved credits on a technical/provider failure or an incomplete result with no usable answer, while recording the provider cost internally;
+- one member allowance may fund a reading, but the feature is not “unlimited”; additional readings consume credits;
+- cache and reopen the completed reading without a new charge when the exact saved result is reused;
+- reprice or route to a cheaper sufficient model only after measured quality parity, never by silently reducing required research quality.
+
+Working allowance hypothesis: if the launch promise includes one deep matrix reading per month, the monthly membership allowance must be at least 500 credits. A **600-credit monthly allowance** is the smallest coherent launch candidate because it funds one reading and leaves 100 credits for other metered actions. This is not approved until Raziel and other operation costs are calibrated together.
+
 ### 3.4 Bible Code-only plan
 
 Do **not** launch a separate Bible Code-only subscription in V1. It adds choice and entitlement complexity before demand is known. Keep it as an experiment candidate after Public Beta if ELS users show strong standalone demand and low cross-use of the broader membership.
@@ -116,21 +150,23 @@ The following is a product hypothesis, not an implemented gate:
 
 An entitlement can expose more authorized depth. It must never imply that paid output is “truer”.
 
-## 5. Recommended Cardcom recurring-payment model
+## 5. Proven Cardcom recurring-payment direction
 
 ### Decision
 
-Use **Cardcom-managed recurring orders** for V1, while Supabase remains the source of truth for SOD1820 subscription state and entitlements.
+Use **SOD1820-managed recurring billing with a Cardcom token** for V1, while Supabase remains the source of truth for subscription state and entitlements.
 
-Why this fits V1:
+Why this is now the V1 direction:
 
-- only one membership with monthly/annual intervals;
-- Cardcom schedules recurring charges and can produce documents;
-- Cardcom reports the recurring-order state and every actual debit by webhook;
-- SOD1820 does not need to run its own monthly token-charging scheduler;
-- the system still owns authorization, grace periods, referrals and customer-visible status.
+- Cardcom confirmed that the account's token/API model is active;
+- the limited production pilot successfully charged ₪4, stored only an AES-GCM encrypted Cardcom token envelope, and then performed a second ₪4 server-initiated charge without card re-entry;
+- Cardcom produced a document for each approved charge;
+- the renewal kept the subscription active, advanced the paid period exactly once and reset failure state;
+- cancellation-at-period-end was scheduled without another charge;
+- isolated PostgreSQL acceptance tests passed for decline-to-`past_due`, cancellation, no-charge-after-cancel, replay, rollback and RLS;
+- SOD1820 needs direct control of grace periods, retries, entitlements, credits, referrals, plan changes and customer-visible state.
 
-Cardcom also documents a token + server-initiated charge model as a more flexible alternative. Do not use both models for the same subscription. Reconsider token-managed billing only when SOD1820 needs complex proration, usage billing, many plan changes or provider portability.
+Do not combine Cardcom-managed recurring orders and SOD1820 token-managed billing for the same subscription. A future provider-managed recurring-order path would be a separate, explicitly reviewed migration decision.
 
 ### 5.1 Signup sequence
 
@@ -139,36 +175,34 @@ Cardcom also documents a token + server-initiated charge model as a more flexibl
 3. The server creates a Cardcom Low Profile payment page for the **first charge**.
 4. Cardcom hosts card entry; SOD1820 never receives or stores the card number/CVV.
 5. Cardcom webhook arrives and the server independently verifies the payment result.
-6. After a verified successful first charge, the server creates a Cardcom recurring order using the successful `LowProfileDealGuid`.
-7. `NextDateToBill` is the next month or next year. It must not charge the first period twice.
-8. The server stores only provider references such as Cardcom `AccountId`, `RecurringId`, Low Profile ID and transaction IDs.
+6. After a verified successful first charge, the server encrypts the returned Cardcom token with the server-only token-encryption key and stores the ciphertext envelope and expiry in the private credential boundary.
+7. The server schedules `next_charge_at` for one month or one year later. It must not charge the first period twice.
+8. The server stores only the encrypted token envelope, expiry and provider references such as Low Profile ID and transaction IDs. It never stores card number or CVV.
 9. Supabase activates the subscription and derives the member entitlement for the paid period.
 10. If the signup came through a valid referral, the verified subscription-payment event is passed once to the referral processor.
 
-### 5.2 Monthly and annual Cardcom configuration
+### 5.2 Monthly and annual configuration
 
 | Field | Monthly | Annual |
 |---|---|---|
-| Cardcom interval | configured monthly `TimeIntervalId` | configured annual `TimeIntervalId` |
+| billing interval | one month, server-owned | one year, server-owned |
 | first charge | Low Profile checkout now | Low Profile checkout now |
 | next debit | one month later | one year later |
-| recurring count | ongoing membership (`99999`/provider-approved no-end value) | ongoing annual renewal |
+| renewal execution | guarded server-initiated token charge | guarded server-initiated token charge |
 | amount | canonical monthly price | canonical annual price |
 | currency | ILS | ILS |
-| `ReturnValue` | opaque internal subscription reference | opaque internal subscription reference |
+| internal reference | opaque subscription / due-period identity | opaque subscription / due-period identity |
 
-Do not assume an interval ID in code. Read the IDs configured for this Cardcom account and store them in server-only configuration.
+The browser never supplies the amount, interval or next billing date. The renewal worker must require its server secret, production environment and explicit billing-enable flags, and must use one idempotency key for retries of the same due period.
 
-### 5.3 Cardcom interfaces confirmed by current official documentation
+### 5.3 Cardcom interfaces and account facts
 
-- Recurring-order creation/update: Cardcom `RecurringPayment.aspx`, production requests by `POST`, using a successful Low Profile deal or a token.
-- Recurring-order read: API v11 `RecuringPayments/GetRecurringPayment`.
-- Recurring history/reconciliation: API v11 `RecuringPayments/GetRecurringPaymentHistory`.
-- Recurring webhook types:
-  - `MasterRecurring` for recurring-order creation/status changes;
-  - `DetailRecurring` for an actual debit/status change.
-- Cardcom explicitly requires duplicate webhook handling; `InternalDealNumber` is an available debit identity.
-- Cardcom supports a shared webhook secret and retries failed reports.
+- first charge and token creation use Cardcom Low Profile `ChargeAndCreateToken`;
+- subsequent debits use API v11 `Transactions/Transaction` with the encrypted-at-rest token decrypted only inside the guarded server runtime;
+- `ExternalUniqTranId` is the renewal idempotency identity and must remain exact across retries;
+- every charge is persisted as an immutable attempt and settled only from a verified Cardcom response;
+- Cardcom's account manager confirmed that token-based recurring API billing is active in the account's subscription;
+- provider documents and transaction IDs are retained as payment evidence.
 
 Official references:
 
@@ -177,15 +211,13 @@ Official references:
 - https://cardcomapi.zendesk.com/hc/he/articles/25405486094226
 - https://cardcomapi.zendesk.com/hc/he/articles/25407418754450
 
-Before implementation, Cardcom support must confirm that the merchant account has:
+Before public launch, Cardcom support must still confirm that the merchant account has:
 
-- the recurring-payments module enabled;
-- an API username/password authorized for the required interfaces;
-- a terminal configured for recurring debit and the relevant acquirer/Shva settings;
-- monthly and annual interval IDs;
+- token/API billing enabled for the production terminal and the relevant acquirer/Shva settings;
+- the existing API identity authorized for unattended token charges;
 - the correct document type and VAT treatment;
-- recurring webhooks set to API Level 11 JSON if available for this account;
-- a test environment/user and the required production endpoint behavior.
+- the recommended way to test a real decline response without a customer card;
+- a test environment/user if available and the required production endpoint behavior.
 
 ## 6. Subscription state model
 
@@ -229,7 +261,7 @@ Minimum identifiers:
 - user UUID;
 - immutable plan/version identifier;
 - billing cycle;
-- Cardcom `AccountId` and `RecurringId`;
+- encrypted-token credential reference in the private boundary;
 - Low Profile/provider reference;
 - exact Cardcom transaction/internal-deal ID stored as text-safe identity;
 - current period start/end;
@@ -238,24 +270,24 @@ Minimum identifiers:
 
 Client-visible reads must be owner-scoped. Provider secrets, payment payloads and privileged transition functions remain server-only. A paid tier in editable user metadata is never authorization proof.
 
-## 8. Webhook and reconciliation contract
+## 8. Payment verification and reconciliation contract
 
-1. Authenticate the configured Cardcom secret and expected payload shape.
+1. Treat the initial Low Profile callback only as a prompt to fetch and verify the Cardcom result server-to-server; renewals are decided from the guarded `Transactions/Transaction` response.
 2. Persist the raw event only in a bounded, access-controlled audit form.
 3. Deduplicate by provider event/debit identity before any grant.
 4. Map `ReturnValue` to the internal subscription without trusting client-supplied user IDs.
 5. Update payment event, subscription and entitlement atomically or through a retry-safe state transition.
 6. Grant recurring credits and referral rewards from the verified event once.
-7. Return Cardcom's expected plain success response promptly.
-8. Run a daily reconciliation job against Cardcom recurring info/history.
-9. Alert on provider success without entitlement, entitlement without provider success, repeated webhook failure, unknown recurring IDs and duplicate/replayed events.
+7. Return Cardcom's expected callback response promptly and keep renewal responses internal.
+8. Run a daily reconciliation job against local due/charge state and Cardcom transaction evidence.
+9. Alert on provider success without entitlement, entitlement without provider success, repeated callback/renewal failure, unknown transaction references and duplicate/replayed events.
 
 ## 9. Cancellation, failed payments and refunds
 
 ### User cancellation
 
 - user requests cancellation in My Workspace;
-- server disables the Cardcom recurring order;
+- server sets `cancel_at_period_end` and prevents any future token charge after the paid period;
 - subscription becomes `cancel_at_period_end`;
 - access remains until `current_period_end` unless a legally required or explicitly approved immediate cancellation applies;
 - UI shows the exact end date and a reactivation path.
@@ -312,18 +344,17 @@ Do not publish internal provider mechanics, raw token costs, Cardcom identifiers
 
 ### Gate B — Cardcom account confirmation
 
-- recurring module and terminal enabled;
-- API credentials/permissions confirmed;
-- monthly/annual intervals configured;
+- token/API billing and terminal enabled;
+- API identity/permissions for unattended token charges confirmed;
 - document/VAT rules confirmed;
-- recurring webhook and secret configured;
+- provider decline test method confirmed;
 - real test plan agreed with Cardcom support.
 
 ### Gate C — implementation
 
 - canonical plan catalog;
 - subscription/payment/entitlement state model;
-- Cardcom checkout + recurring creation;
+- Cardcom checkout + encrypted token + guarded renewal worker;
 - webhook + reconciliation;
 - 2029 My Workspace subscription UI;
 - server-side capability gates before expensive IO;
@@ -332,7 +363,7 @@ Do not publish internal provider mechanics, raw token costs, Cardcom identifiers
 ### Gate D — verification
 
 - monthly real low-value test and cancellation;
-- annual test or Cardcom-approved accelerated interval test;
+- annual token-charge test or an approved accelerated simulation;
 - duplicate/out-of-order webhook tests;
 - failed debit and retry tests;
 - refund/chargeback simulation;
@@ -352,6 +383,8 @@ Do not publish internal provider mechanics, raw token costs, Cardcom identifiers
 - [ ] Final membership name.
 - [ ] Approve or change ₪30 monthly / ₪300 annual working prices.
 - [ ] Included monthly credit allowance.
+- [ ] Approve, change or reject 500 credits per deep ELS matrix reading.
+- [ ] Approve, change or reject the 600-credit minimum monthly allowance candidate when one deep reading is promised.
 - [ ] Exact Free vs Member limits for ELS, Life Journey, Heichal and Raziel.
 - [ ] Whether annual members receive all credits upfront or monthly; monthly release is safer for cost and refunds.
 - [ ] Grace period after failed renewal.
