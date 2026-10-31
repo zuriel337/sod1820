@@ -250,7 +250,7 @@ def community_case(page, width, suffix="", theme="dark"):
     expect(footer.get_by_role("link", name="ממשיכים לשוחח", exact=False)).to_have_attribute("href", "#legacy-chat")
     expect(legacy).to_have_attribute("data-openweb-loaded", "false")
     expect(legacy.locator("[data-spotim-module]")).to_have_count(0)
-    assert legacy.get_by_role("link", name="פתיחת הצ׳אט המקורי").get_attribute("href") == "https://sod1820.co.il/community/chat"
+    assert legacy.get_by_role("link", name="פתיחת השיחה").get_attribute("href") == "https://sod1820.co.il/community/chat"
     expect(feed.get_by_text("הודעת זית", exact=True)).to_be_visible()
     expect(feed.get_by_text("הודעת דקל", exact=True)).to_be_visible()
     sign_in = main.get_by_label("התחברות לקהילה", exact=True)
