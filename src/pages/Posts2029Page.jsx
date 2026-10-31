@@ -59,28 +59,28 @@ function PostIndexCard({ post, index }) {
   const { credit } = postClassification2029(post);
 
   return <article
-    className="sod29-post-index-card"
+    className="sod29-library-post-card"
     data-experience-capability="post-index-card"
     style={{ "--post-order": index }}
   >
-    <Link className="sod29-post-index-card-link" to={"/post/" + encodeURIComponent(post.slug)}>
+    <Link className="sod29-library-post-card-link" to={"/post/" + encodeURIComponent(post.slug)}>
       <div
-        className={"sod29-post-index-visual" + (image ? " has-image" : "")}
+        className={"sod29-library-post-visual" + (image ? " has-image" : "")}
         aria-hidden="true"
       >
-        <span className="sod29-post-index-cover-fallback">✦</span>
-        {image ? <img className="sod29-post-index-cover" src={image} alt="" loading="lazy" decoding="async" width="640" height="400" onError={event => { event.currentTarget.hidden = true; }} /> : null}
+        <span className="sod29-library-post-cover-fallback">✦</span>
+        {image ? <img className="sod29-library-post-cover" src={image} alt="" loading="lazy" decoding="async" width="640" height="400" onError={event => { event.currentTarget.hidden = true; }} /> : null}
       </div>
 
-      <div className="sod29-post-index-copy">
+      <div className="sod29-library-post-copy">
         <h2>{title || "פוסט"}</h2>
         {excerpt ? <p>{excerpt}</p> : null}
-        <div className="sod29-post-index-meta">
+        <div className="sod29-library-post-meta">
           {credit ? <span>{credit.prefix}: {credit.name}</span> : null}
           <span>{post?.modified ? "עודכן " : "פורסם "}{bilingualDateLabel(post?.modified || post?.date, "תאריך לא צוין")}</span>
           <PostCategories2029 post={post} max={2} compact nested />
         </div>
-        <span className="sod29-post-index-open">פתח את הפוסט <b aria-hidden="true">←</b></span>
+        <span className="sod29-library-post-open">פתח את הפוסט <b aria-hidden="true">←</b></span>
       </div>
     </Link>
   </article>;
@@ -134,15 +134,15 @@ export default function Posts2029Page() {
   };
 
   return <Sod2029Shell surface="post" title={title} introVariant="none" symbol="✦" status="פוסטים">
-    <main className="sod29-posts-index" data-experience-surface="posts-index">
-      <header className="sod29-posts-index-hero" data-experience-capability="posts-index-hero">
-        {scope.kind !== "all" ? <Link className="sod29-posts-index-back" to="/2029/posts">לכל הפוסטים <span aria-hidden="true">←</span></Link> : null}
-        <div className="sod29-posts-index-hero-grid">
+    <main className="sod29-posts-library" data-experience-surface="posts-index">
+      <header className="sod29-posts-library-hero" data-experience-capability="posts-index-hero">
+        {scope.kind !== "all" ? <Link className="sod29-posts-library-back" to="/2029/posts">לכל הפוסטים <span aria-hidden="true">←</span></Link> : null}
+        <div className="sod29-posts-library-hero-grid">
           <div>
             <h1>{title}</h1>
-            {scope.kind === "all" ? <p className="sod29-posts-index-intro">סיפורים, רמזים וחיבורים שמעוררים התבוננות</p> : null}
+            {scope.kind === "all" ? <p className="sod29-posts-library-intro">סיפורים, רמזים וחיבורים שמעוררים התבוננות</p> : null}
             {scope.compatibilityNote ? <p>{scope.compatibilityNote} {scope.seriesLink ? <Link to={scope.seriesLink.href}>{scope.seriesLink.label} ←</Link> : null}</p> : null}
-            <details className="sod29-post-details sod29-post-index-about">
+            <details className="sod29-post-details sod29-library-post-about">
               <summary>על הפוסטים <span aria-hidden="true">⌄</span></summary>
               <p>אירועים · סיפורים · רמזים</p>
               <p>
@@ -169,13 +169,13 @@ export default function Posts2029Page() {
         </FrameState>
         : null}
 
-      {posts.length ? <section id="posts-catalog" className="sod29-posts-index-stage" aria-label="פוסטים" data-posts-page={page}>
-        <div className="sod29-posts-index-stage-head">
+      {posts.length ? <section id="posts-catalog" className="sod29-posts-library-stage" aria-label="פוסטים" data-posts-page={page}>
+        <div className="sod29-posts-library-stage-head">
           <h2>{scope.kind === "all" ? "כל הפוסטים" : "הפוסטים בבחירה"}</h2>
           <span><bdi className="sod29-posts-numeric">{state.total}</bdi> פוסטים · עמוד <bdi className="sod29-posts-numeric">{page}</bdi> מתוך <bdi className="sod29-posts-numeric">{pages}</bdi></span>
           <small>הפוסטים האחרונים · לפי עדכון הפוסט</small>
         </div>
-        <div className="sod29-posts-index-grid">
+        <div className="sod29-posts-library-grid">
           {posts.map((post, index) => <PostIndexCard key={post.id || post.slug} post={post} index={index} />)}
         </div>
       </section> : null}
