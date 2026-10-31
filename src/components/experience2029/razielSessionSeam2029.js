@@ -13,7 +13,7 @@ const TYPE_NOUN_HE = Object.freeze({
   world: "העולם", els: "צופן", cipher: "צופן", heichal: "היכל", journey: "מסע", calculator: "מחשבון",
   video: "וידאו", image: "תמונה", researcher: "חוקר", community: "קהילה", finding: "ממצא", verse: "פסוק",
   person: "אדם", entity: "ישות", home: "דף הבית", date: "תאריך", name: "שם",
-  frame: "העמוד הנוכחי", system: "העמוד הנוכחי", research: "מחקר", path: "מסלול",
+  frame: "העמוד הנוכחי", system: "העמוד הנוכחי", research: "מחקר", path: "מסלול", gallery: "גלריה",
 });
 
 export function entityTypeNounHe(type) {
@@ -35,6 +35,46 @@ export const publicContextLabel = (value, limit = 80) => {
   return text && !looksLikeInternalKey(text) ? text.slice(0, limit) : "";
 };
 const visible = publicContextLabel;
+
+// Link projection of existing Context only: no route registry, graph inference,
+// reads or writes. Unresolved labels remain text; source owners provide hrefs.
+function contextLinkHref(value) {
+  if(typeof value!=='string'||value.length>1200||!value.startsWith('/')||value.startsWith('//')||/[\\\u0000-\u0020\u007f]/.test(value))return null;
+  try{
+    const u=new URL(value,'https://context.invalid');
+    if(u.origin!=='https://context.invalid'||/^\/(admin|api|auth|functions|rest|storage)(?:\/|$)/.test(u.pathname))return null;
+    if(/%(?:2f|5c|0[0-9a-f])/i.test(u.pathname))return null;
+    if([...u.searchParams.keys()].some(k=>/^(_vercel_share|vercel_protection_bypass|token|access_token|refresh_token|secret|password|authorization|admin|private|redirect)$/i.test(k)))return null;
+    if(u.searchParams.get('view')==='admin')return null;
+    return value;
+  }catch{return null;}
+}
+function sameContextDocument(a,b) {
+  if(!a||!b)return false;
+  const x=new URL(a,'https://context.invalid'),y=new URL(b,'https://context.invalid');
+  if(x.pathname!==y.pathname)return false;
+  if(x.pathname==='/world')return ['view','gallery','finding','focus','source','sourceRef'].every(k=>x.searchParams.get(k)===y.searchParams.get(k));
+  return true;
+}
+export function contextNavigationItems2029(context,{currentHref='',pageTitle=''}={}) {
+  const rows=[],add=(key,prefix,label,href)=>{const text=visible(label,120);if(text)rows.push({key,prefix,label:text,href:contextLinkHref(href)});};
+  let pageHref=contextLinkHref(currentHref);
+  if(!pageHref)try{const u=new URL(currentHref,'https://context.invalid');if(u.origin==='https://context.invalid')pageHref=contextLinkHref(u.pathname);}catch{}
+  add('page','כאן',pageTitle,pageHref);
+  const subject=context?.subject,dimensions=context?.dimensions||{};
+  const subjectHref=contextLinkHref(subject?.href);
+  add('subject',sameContextDocument(subjectHref,pageHref)?entityTypeNounHe(subject?.type):'במסלול',subject?.label,subjectHref);
+  const reading=dimensions.readingFocus;
+  const readingHref=contextLinkHref(reading?.href);
+  const host=contextLinkHref(dimensions.readingFocusSurfaceHref);
+  const currentReading=reading&&(host?sameContextDocument(host,pageHref):sameContextDocument(readingHref,pageHref));
+  if(reading)add('reading',currentReading?'המקור שמוצג כאן':'בחירה קודמת',reading.sectionLabel||reading.label||reading.primary,readingHref);
+  const focus=dimensions.surfaceFocus;
+  const position=contextDisplayPosition(context);
+  if(position&&position!==(reading?.sectionLabel||reading?.label))add('selection',sameContextDocument(contextLinkHref(focus?.href),pageHref)?'בחירה':'בחירה קודמת',position,focus?.href);
+  add('return','חזרה אל',context?.returnTo?.label,context?.returnTo?.href);
+  return rows.filter((row,index)=>!rows.slice(0,index).some(other=>row.href&&other.href===row.href&&other.label===row.label)).slice(0,6);
+}
 
 // Presentation only. An opaque selected item may borrow its subject title only
 // when both canonical identity and type match; never guess a person or source.

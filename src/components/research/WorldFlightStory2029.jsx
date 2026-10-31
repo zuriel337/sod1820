@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { FrameState } from '../experience2029/Sod2029Shell.jsx';
 import NavigationIcon2029 from '../experience2029/NavigationIcon2029.jsx';
@@ -28,6 +28,7 @@ export default function WorldFlightStory2029({ surface = 'world', research, shel
   const home = surface === 'home';
   const timeMode = home ? 'relative' : 'bilingual';
   const anchor = home ? 'home-plane' : 'world-plane-story';
+  const researchRef=useRef(research);researchRef.current=research;
   useEffect(() => {
     let live = true;
     setState({ loading: true, projection: null });
@@ -39,6 +40,38 @@ export default function WorldFlightStory2029({ surface = 'world', research, shel
     }).catch(() => { if (live) setState({ loading: false, projection: null }); });
     return () => { live = false; };
   }, [attempt]);
+  useEffect(()=>{
+    const projection=state.projection;
+    if(!projection)return;
+    const element=document.getElementById(anchor);
+    if(!element)return;
+    const hostHref=location.pathname+location.search;
+    const focus={id:anchor,type:'post',label:projection.post.title,href:projection.identity.href,
+      locator:'#'+anchor,sourceLabel:'פוסט המטוס',postId:String(projection.post.id),postSlug:slug};
+    let active=false,previousReading=null,previousHost=null;
+    const show=()=>{
+      if(active)return;active=true;
+      const dimensions=researchRef.current?.context?.dimensions||{};
+      previousReading=dimensions.readingFocus?.id===anchor?null:dimensions.readingFocus||null;
+      previousHost=dimensions.readingFocusSurfaceHref||null;
+      researchRef.current?.updateResearchContext?.({dimensions:{readingFocus:focus,readingFocusSurfaceHref:hostHref}});
+    };
+    const hide=()=>{
+      if(!active)return;active=false;
+      researchRef.current?.updateResearchContext?.(current=>{
+        const d=current?.dimensions||{};
+        if(d.readingFocusSurfaceHref!==hostHref)return {};
+        return {dimensions:{...(d.readingFocus?.id===anchor?{readingFocus:previousReading}:{}),readingFocusSurfaceHref:previousHost}};
+      });
+    };
+    const observer=typeof IntersectionObserver==='undefined'?null:new IntersectionObserver(entries=>{
+      // Once presented, keep its source link usable when scrolling back to the
+      // header. This is page context, not a viewed/read signal. Clear on departure.
+      const entry=entries[0];if(entry.intersectionRatio>=.2)show();
+    },{threshold:[0,.2]});
+    if(observer)observer.observe(element);else show();
+    return()=>{observer?.disconnect();hide();};
+  },[state.projection,anchor,location.pathname,location.search]);
   useEffect(() => {
     if (state.loading || location.hash !== `#${anchor}`) return;
     const frame = requestAnimationFrame(() => document.getElementById(anchor)?.scrollIntoView({ block: 'start', behavior: 'instant' }));

@@ -620,3 +620,53 @@ reviewed intake of the remaining gallery material; direct edge or Topic promotio
 global novelty indicators. These require their existing owners/Human Gate, not
 automatic conversion of tags into claims. No product DB/RLS, publication,
 migration, engine, Claude River, main or Production changes.
+
+## 31 October — functional context links without replacing the research path
+
+BEFORE349867ce-6310-4e91-a22d-2351dc8c0908, task
+CONTEXT_STRIP_SOURCE_LINKS_PRESERVE_PATH_20261031. Local base1808223d352c5c612f6a6e26e3a8d7003411ed0e,
+remote base0d56cbe523e0aac3b58014b818ee9c3fbbbd9843. User explicitly approved
+functional context navigation/synchronization; this is not a new visual language
+or a takeover of another active writer. Fresh relevant Frame/seam/story ownership
+queries found no active overlapping scope. Existing Context/Experience/System Frame
+and DesignV2/UIcomponents owners consumed; no new contract, route registry or store.
+
+The existing IntroResearchContext now projects links from owner-provided hrefs:
+current page, subject in this document or prior subject in the path, source shown
+in this page, previous selection and existing exact return. Missing destinations
+remain text. Unsafe external/admin/credential-bearing destinations are not linked.
+Expression/method query strings and exact gallery locators are passed unchanged;
+neither numbers in titles nor shared gallery/post words create relations.
+
+The public flight-story component registers only its existing admitted Post's
+readingFocus plus a primitive host-document binding in existing dimensions after
+the story has been presented. Its link stays available when returning to the header;
+this is not a read/viewed/Follow signal. On departure only this temporary display
+binding is restored/removed, without overwriting another consumer's reading focus.
+Subject, selection, journey/active Path and exact-return snapshots are not cleared
+or replaced by this display registration. No automatic Research Path start.
+
+The current-page/source versus previous-selection distinction fixes the stale
+Gallery context being labelled as current reading on World. The prior Gallery
+remains an explicit path link, not a claimed graph edge to the Post. The existing
+returnExact controller is used rather than a new return history. Existing story
+sequences, graph readers, number/method openers and source re-admission stay intact.
+
+Link/button chips inherit the existing border/background/color roles with44px
+targets,16px control text and a canonical focus ring. No palette, Frame structure,
+global provider, Post/ELS/Books surface, Claude River or final visual redesign.
+
+Local verification:18/18 focused context/exact-return/gallery tests; existing public
+context browser27cases (3widths/3presets/3identity modes) passes. Both builds,
+World/Topic, auth guards, isolation/hardening and graph/lazy pass. Actual built app
+on anonymous public data at320/390/1440 passes Gallery->World, correct current source
+versus previous gallery/image links, keyboard Post opening, Back and existing
+exact-return to the photo with original sort/layout retained. Zero page errors,
+model calls or product writes. The first test incorrectly expected an intro on the
+Gallery page, whose approved introVariant=none was preserved; assertion moved to
+World rather than adding a duplicate Gallery header. Final protected hosted SHA
+acceptance and bounded release are recorded in AFTER.
+
+No new Gallery-image-to-Post edge/association, automatic candidate promotion,
+DB/RLS/product writes/publication, main or Production. Existing cold-bootstrap
+Preview issue and River End selection limitation are not claimed fixed here.
