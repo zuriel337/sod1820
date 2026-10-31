@@ -2,7 +2,7 @@
   "actor": "GPT",
   "task_key": "POSTS_ADOPTED_DESIGN_SERIES_BACKGROUNDS_20261030",
   "completed_at": "2026-10-31T00:02:17.419441+00:00",
-  "status": "IMPLEMENTED_LOCAL_TESTED_DRAFT_REVIEW",
+  "status": "HOSTED_READONLY_PREVIEW_READY_FOR_VISUAL_REVIEW",
   "base": {
     "branch": "gpt/elections-world-seed-integration-20261030",
     "sha": "1b23e75ffc9542a74254db80b013cc553dc1f6c1"
@@ -101,7 +101,7 @@
       "fail": 0,
       "skipped": 0,
       "includes_browser": true,
-      "pending_final_rerun": true
+      "pending_final_rerun": false
     }
   },
   "baseline_failures": [
@@ -126,7 +126,7 @@
     }
   ],
   "remaining": [
-    "Hosted Preview, signed-in/admin/RLS flows, physical phone frame-rate and final visual acceptance remain unverified",
+    "Hosted automated browser acceptance remains unverified: execution-network Envoy returned 403; authenticated Vercel fetch succeeds. Local full-app visual checks passed. Signed-in/admin/RLS flows, physical phone frame-rate and final user visual acceptance remain unverified",
     "Existing generic prose and image calculations without exact source annotations are not newly decoded; absent native source anchors remain absent",
     "No post-specific background field or new series taxonomy was invented"
   ],
@@ -142,6 +142,9 @@
   "production_observation": {
     "documented_legacy_pin": "dpl_46k9WvaD5QBUo969obYzJ7pKkNyq",
     "observed_existing_legacy_alias_before": "dpl_AiKPHaoo5pxo9T5PFTpcBRG7LfMA",
-    "note": "Observed existing Legacy production differs from the older documented pin. No Production setting/alias/deployment changed; reconciliation is outside this Post scope."
-  }
+    "note": "Observed existing Legacy production differs from the older documented pin. No Production setting/alias/deployment changed; reconciliation is outside this Post scope.",
+    "observed_existing_legacy_alias_after": "dpl_AiKPHaoo5pxo9T5PFTpcBRG7LfMA",
+    "unchanged": true
+  },
+  "hosted_preview_receipt": "docs/reviews/posts-hosted-preview-20261031.json"
 }
