@@ -314,6 +314,16 @@ test("native gallery uses exact public occurrences and canonical method navigati
         await page.getByRole('button',{name:'חזרה לתמונה',exact:true}).click();
         await card.waitFor();await page.reload();await card.waitFor();
         assert.equal(new URL(page.url()).searchParams.get('gallery'),String(gallery));
+        const selectedAt=n=>'10000000-0000-4000-8000-'+String(gallery*100+n).padStart(12,'0');
+        for (const n of [6,5]) {
+          await page.getByRole('link',{name:'→ התמונה הקודמת',exact:true}).click();
+          await page.locator(`[data-gallery-selected="${selectedAt(n)}"]`).waitFor();
+        }
+        assert.ok((await page.locator('.g29-exhibit').first().getAttribute('data-gallery-image-id')).endsWith(String(gallery*100).padStart(12,'0')));
+        await page.getByRole('link',{name:'התמונה הבאה ←',exact:true}).click();
+        await page.locator(`[data-gallery-selected="${selectedAt(6)}"]`).waitFor();
+        await page.goBack();await page.locator(`[data-gallery-selected="${selectedAt(5)}"]`).waitFor();
+        await page.reload();await page.locator(`[data-gallery-selected="${selectedAt(5)}"]`).waitFor();
       }
       await page.evaluate(()=>{window.__listFail=true;});
       await page.getByRole('link',{name:'התמונות הבאות ←',exact:true}).click();

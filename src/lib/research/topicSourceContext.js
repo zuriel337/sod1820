@@ -106,7 +106,14 @@ export async function loadPublicGallerySourceWindow({ imageId = null, offset = 0
     offset: index < 0 ? offset : Math.floor(index / limit) * limit, limit });
   const selected = imageId != null ? resolvePublicGallerySelection(page, imageId)
     : page.scannedIds.map((id) => resolvePublicGallerySelection(page, id)).find((row) => row.status === "ready");
-  return { status: selected?.status || "empty_window", page, selected: selected || null };
+  const position = selected?.status === "ready" ? ids.indexOf(selected.selection.galleryImageId) : -1;
+  // Source-order locators only, not admitted destination payloads or graph edges.
+  // Each destination goes through this same public reader again on navigation.
+  const navigation = position < 0 ? null : {
+    previous: position > 0 ? gallerySourceHref2029(options.wpGalleryId, ids[position - 1]) : null,
+    next: position < ids.length - 1 ? gallerySourceHref2029(options.wpGalleryId, ids[position + 1]) : null,
+  };
+  return { status: selected?.status || "empty_window", page, selected: selected || null, navigation };
 }
 
 // This is one source locator, NOT permission to read its research_object/public_candidate.

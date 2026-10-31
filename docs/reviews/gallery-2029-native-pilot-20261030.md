@@ -560,3 +560,48 @@ no main/Production/Edge/product DB/RLS/migration/source changes. Still open:
 2029 gallery catalog/series navigation based on live source references, broader
 gallery/browser coverage, old Post links not yet connected to2029, hosted Preview
 acceptance and final visual acceptance. Other One Tree gaps stay open.
+
+## 31.10 follow-up — exact image steps; Posts session explicitly reserved
+
+ZURIEL explicitly reports a concurrent Posts session. This gallery lane MUST NOT
+edit Post pages, components, renderers, extraction, publishing or Post data. This
+reservation applies even if the other session has not yet registered its task.
+BEFORE `4989fd26-0b82-4862-b1be-490cad70d6bb`, task
+`GALLERY_EXACT_IMAGE_STEPS_POSTS_BOUNDARY_20261031`; base
+`3324cad890e35a6ffd44581153f2e8a68149473f` on the same continuation branch.
+
+Implemented only the independent gallery seam: existing
+loadPublicGallerySourceWindow returns previous/next EXACT image locators after
+admitting the current selection. Uses its existing stored-order list (no extra
+reader or list). Gallery2029Page projects those through existing link styles.
+Crossing a six-image window selects and reads the destination window through
+the same public occurrence gate. A locator never admits destination content;
+withdrawn/ambiguous current source has no image-step projection. No wrapping,
+ID arithmetic, importance sorting, new chronology or tree edge is introduced.
+The existing multi-image gallery layout and whole-window pager remain intact.
+
+Series integration boundary (not an alternate series contract or parser):
+
+- Existing PostGalleryLinks privately extracts Huge-IT/data-sod associations and
+  renders Legacy links. It is read-only evidence here; no export/refactor/copy.
+- Cross-gallery series navigation remains pending. Consume source-qualified
+  ordered occurrences from the Posts owner when that seam exists, not the audit
+  JSON as a runtime inventory. Preserve exact post source identity/slug, original
+  wp_id where Huge-IT suffix resolution needs it, marker locator/order and every
+  repeated occurrence. Do not infer order from numeric gallery IDs or titles.
+- Each gallery destination uses gallerySourceHref2029 and existing public
+  re-admission. Gallery links/source associations do not become graph edges.
+  Parts5/7 remain69/73; shared104 in different Post contexts must stay distinct.
+- Post updates and source withdrawal require fresh eligibility; no stale list
+  grants access. No promise that cross-gallery series navigation is live yet.
+
+Verification:34 focused source/gallery/share tests pass, including first/last,
+window5->6, conflicting importance order and withdrawn-source denial. Existing
+browser acceptance covers69/73 at320/1440, image7->6->5->6->Back->5->reload,
+alongside previous exact Number return, source withdrawal and list failure.
+Both builds, graph/lazy, isolation, World/Topic, hardening and Legacy lock pass;
+no gate weakened. Browser fixtures use the real Gallery component and source
+model with backend fixtures: no fresh live-anonymous or hosted image-step
+acceptance is claimed. No CSS, Post, Frame/Provider/engine, DB/RLS/migration,
+Edge/main/Production or source publication changes. No new hosted Preview.
+Evidence `/tmp/gallery-steps-browser.log`. Final SHA/tests in passive AFTER.

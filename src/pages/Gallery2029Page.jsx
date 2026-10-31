@@ -246,6 +246,10 @@ function GalleryBody() {
       onRemember={remember} onOpenExpression={openExpression} onSelect={select} />)}</div>
     {page ? <footer className="g29-browse">
       <span className="g29-footer-note">לכל תמונה יש סיפור. ממשיכים לגלות?</span>
+      {current.navigation?.previous || current.navigation?.next ? <nav aria-label="תמונות לפי הסדר המקורי">
+        {current.navigation.previous ? <Link className="g29-page-link" to={current.navigation.previous}>→ התמונה הקודמת</Link> : null}
+        {current.navigation.next ? <Link className="g29-page-link is-next" to={current.navigation.next}>התמונה הבאה ←</Link> : null}
+      </nav> : null}
       <nav aria-label="עוד תמונות בגלריה">
         {page.offset > 0 ? <Link className="g29-page-link" to={`${subject.href}&offset=${Math.max(0, page.offset - page.limit)}`}>→ התמונות הקודמות</Link> : null}
         {page.hasMore ? <Link className="g29-page-link is-next" to={`${subject.href}&offset=${page.nextOffset}`}>התמונות הבאות ←</Link> : null}

@@ -43,6 +43,20 @@ test('empty public gallery is distinct from failed listing and from withdrawn se
   assert.equal((await loadPublicGallerySourceWindow({...options,imageId:id(1)})).status,'unavailable');
   await assert.rejects(loadPublicGallerySourceWindow({...options,listGalleryImages:async()=>{throw Error('offline');}}),/offline/);
 });
+test('exact image stepping follows saved order across windows, not importance or IDs', async () => {
+  const rows=Array.from({length:14},(_,n)=>({...row(n),importance:n}));
+  const options={wpGalleryId:69,listGalleryImages:async()=>[...rows].reverse(),
+    fetchSourceContext:async({imageIds})=>({items:buildGallerySourceContext({images:rows.filter(r=>imageIds.includes(r.id))})})};
+  for(const n of [0,5,6,13]) {
+    const result=await loadPublicGallerySourceWindow({...options,imageId:id(n)});
+    assert.equal(result.navigation.previous,n===0?null:gallerySourceHref2029(69,id(n-1)));
+    assert.equal(result.navigation.next,n===13?null:gallerySourceHref2029(69,id(n+1)));
+  }
+  const next=await loadPublicGallerySourceWindow({...options,imageId:id(6)});
+  assert.equal(next.page.offset,6);assert.equal(next.selected.selection.galleryImageId,id(6));
+  const withdrawn=await loadPublicGallerySourceWindow({...options,imageId:id(6),fetchSourceContext:async()=>({items:[]})});
+  assert.equal(withdrawn.status,'unavailable');assert.equal(withdrawn.navigation,null);
+});
 function client(result) {
   const calls=[];
   const query=Object.fromEntries(['select','eq','not','order'].map(key=>[key,(...args)=>{calls.push([key,...args]);return query;}]));
