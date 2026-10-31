@@ -1575,7 +1575,7 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
 
       {variant !== "2029" ? mapsBlock : null}
 
-      {variant === "2029" && selfRef ? <LifeJourneyResume2029 research={research} personRef={selfRef} readOnly={import.meta.env.VITE_INTEGRATED_PREVIEW === "true"} onResume={resumeLifeJourney} /> : null}
+      {variant === "2029" && selfRef ? <LifeJourneyResume2029 research={research} personRef={selfRef} readOnly={import.meta.env.VITE_INTEGRATED_PREVIEW === "true" && import.meta.env.VITE_FUNCTIONAL_UNIFIED_PREVIEW !== "true"} onResume={resumeLifeJourney} /> : null}
 
       {members.length ? <div className="person-journey-family-research-actions">
         <button

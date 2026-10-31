@@ -1266,6 +1266,7 @@ function LiveWorldLanding({ research, shell, context }) {
 }
 
 function AnchoredWorld({ research, shell, subject, context }) {
+  const location = useLocation();
   const { isAdmin } = useAuth();
   const [state, setState] = useState({ loading: true, data: null, prominenceInputs: null, prominenceError: null, error: null });
   const [deepening, setDeepening] = useState({ id: null, error: false });
@@ -1661,14 +1662,14 @@ function AnchoredWorld({ research, shell, subject, context }) {
           id: String(target.identity.label),
           type: target.identity.type,
           label: target.identity.label,
-          href: "/world",
+          href: "/world?focus=context",
         },
         selection: { entityId: String(target.identity.nodeId), entityType: target.identity.type },
         lens: "world",
         dimensions: context?.dimensions || {},
         journey: context?.journey || null,
         returnTo: {
-          href: "/world",
+          href: location.pathname + location.search + location.hash,
           label: data.identity.label,
           subject: context?.subject || subject,
           selection: context?.selection || null,

@@ -54,6 +54,38 @@ test('functional Preview permits deliberate signup, never phone signup or arbitr
   assert.equal((await request('/functions/v1/els-search-bridge',{workerSource:functionalWorker,headers,body:{op:'save'}})).status,403);
   assert.equal((await request('/functions/v1/media-upload-intent',{workerSource:functionalWorker,headers,body:{action:'issue',owner_kind:'public',kind:'image'}})).status,403);
 });
+test('functional Preview public meter stays a bounded canonical read; private hints retain their actual typed payload',async()=>{
+  assert.equal((await request('/rest/v1/rpc/convergence_meter',{workerSource:functionalWorker,body:{p_n:98}})).forwarded,1);
+  for(const body of [{p_n:98,role:'admin'},{p_n:'98'},{p_n:-1},{p_n:2147483648}])assert.equal((await request('/rest/v1/rpc/convergence_meter',{workerSource:functionalWorker,body})).status,403);
+  const headers={Authorization:'Bearer synthetic.user.jwt'};
+  assert.equal((await request('/rest/v1/research_items',{workerSource:functionalWorker,headers,body:{user_id:'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',bucket:'hint',entity_type:'hint',entity_ref:'631',title:'synthetic owned hint',metadata:{}}})).status,200);
+  for(const origin of ['https://preview.invalid','https://foreign.invalid']){
+    const result=await request('/api/preview-raziel',{origin,workerSource:functionalWorker,headers,body:{kind:'research',persona:'raziel',subject:'synthetic',research_contract:'public-number-research-run-v1'}});
+    assert.equal(result.status,origin==='https://preview.invalid'?200:403);
+  }
+});
+test('functional owned profile, page, save and inbox actions require verified identity and preserve forbidden fields',async()=>{
+ const headers={Authorization:'Bearer synthetic.user.jwt'},uid='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
+ for(const [rpc,body]of [['update_my_page_config',{p_config:{version:1,sections:[]}}],['save_my_info',{p_full_name:'fixture',p_birth_date:null}],['save_els_matrix',{p_term:'fixture',p_public:false}],['dm_thread',{p_with:uid,p_limit:10}]]){
+  assert.equal((await request('/rest/v1/rpc/'+rpc,{workerSource:functionalWorker,headers,body})).status,200);
+  assert.equal((await request('/rest/v1/rpc/'+rpc,{workerSource:functionalWorker,headers,serverUser:null,body})).status,403);
+  assert.equal((await request('/rest/v1/rpc/'+rpc,{workerSource:functionalWorker,headers,body:{...body,p_user_id:uid}})).status,403);
+ }
+ assert.equal((await request('/rest/v1/users?id=eq.'+uid,{workerSource:functionalWorker,headers,method:'PATCH',body:{username:'fixture',display_name:null,avatar_url:null}})).status,200);
+ for(const change of [{path:'/rest/v1/users?id=eq.bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',body:{username:'fixture'}},{path:'/rest/v1/users?id=eq.'+uid,body:{role:'admin'}},{path:'/rest/v1/users?id=eq.'+uid,body:{avatar_url:'https://foreign.invalid/photo.jpg'}}])assert.equal((await request(change.path,{workerSource:functionalWorker,headers,method:'PATCH',body:change.body})).status,403);
+ assert.equal((await request('/api/contributor-self',{origin:'https://preview.invalid',workerSource:functionalWorker,headers,body:{action:'create',displayName:'fixture',bio:'',ack:true}})).status,200);
+ assert.equal((await request('/api/contributor-self',{origin:'https://preview.invalid',workerSource:functionalWorker,headers,body:{action:'avatar',url:'https://foreign.invalid/photo.jpg',ack:true,publish:true}})).status,403);
+ assert.equal((await request('/functions/v1/els-search-bridge',{workerSource:functionalWorker,headers,serverUser:null,body:{op:'page'}})).forwarded,1,'canonical bridge owns its existing guest quota; no forced role elevation');
+});
+test('functional private resumable uploads require the signed canonical image capability',async()=>{
+ const origin='https://linswmnnkjxvweumprav.storage.supabase.co';
+ const meta=(key,value)=>key+' '+Buffer.from(value).toString('base64');
+ const headers={'x-signature':'s'.repeat(60),'Tus-Resumable':'1.0.0','Upload-Length':'1024','Upload-Metadata':[meta('bucketName','submission-inbox'),meta('objectName','sod1820/2029/accounts/aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa/2026/10/cccccccc-cccc-4ccc-8ccc-cccccccccccc/image/original.webp'),meta('contentType','image/webp')].join(',')};
+ assert.equal((await request('/storage/v1/upload/resumable',{origin,workerSource:functionalWorker,headers})).forwarded,1);
+ for(const override of [{'x-signature':''},{'Upload-Length':String(26*1024*1024)},{'Tus-Resumable':'0'},{'Upload-Metadata':meta('bucketName','public')}])assert.equal((await request('/storage/v1/upload/resumable',{origin,workerSource:functionalWorker,headers:{...headers,...override}})).status,403);
+ const guard=builder.slice(builder.indexOf('const POSTS_PREVIEW_BRANCH ='),builder.indexOf('const root ='));
+ for(const target of ['production','development',undefined])assert.throws(()=>vm.runInNewContext(guard,{process:{env:{VERCEL_GIT_COMMIT_REF:functionalBranch,VERCEL_ENV:target}}}),/functional_preview_requires_preview_environment/);
+});
 test('signup, global logout, account mutation, other grants and origins stay blocked', async () => {
   for (const [path, options] of [
     ['/auth/v1/signup', {}], ['/auth/v1/recover', {}], ['/auth/v1/user', { method: 'PUT' }],

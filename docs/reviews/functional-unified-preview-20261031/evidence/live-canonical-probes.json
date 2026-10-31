@@ -1,0 +1,17 @@
+{
+  "authenticatedUser": false,
+  "modelCalls": 0,
+  "publications": 0,
+  "ordinaryTraceAndRateLimitWrites": "canonical ELS request may record its normal trace/rate-limit receipt",
+  "elsPage": {
+    "status": 200,
+    "contract": "els_search_page_v1",
+    "resultStatus": "OK",
+    "executed": true,
+    "hits": 1
+  },
+  "anonymousPrivateMedia": {
+    "status": 401,
+    "error": "unauthorized"
+  }
+}

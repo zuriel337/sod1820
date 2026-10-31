@@ -18,22 +18,7 @@ test.setTimeout(45_000);
 
 // The historical 888-yeshua row is no longer in the public projection. Keep the
 // UI acceptance deterministic without publishing/restoring an absent live row.
-async function installPublicTopicFixture(page, { available = true } = {}) {
-  await page.route('**/rest/v1/topic_cards_public*', async (route) => {
-    const url = new URL(route.request().url());
-    const slug = url.searchParams.get('slug');
-    if (slug && !slug.includes('888-yeshua')) return route.fallback();
-    const rows = available ? [{
-      id: '11111111-1111-4111-8111-111111111888', slug: '888-yeshua',
-      title: '888 — ציר בדיקה', subtitle: 'מקור ציבורי מדומה לבדיקת ניווט בלבד',
-      status: 'approved', numbers: [888], highlight_numbers: [888],
-      node_id: null, findings: [], image_ids: [], search_terms: [],
-      created_at: '2026-10-12T00:00:00Z', approved_at: '2026-10-12T00:00:00Z',
-    }] : [];
-    await route.fulfill({ status: 200, contentType: 'application/json',
-      headers: { 'content-range': rows.length ? '0-0/1' : '*/0' }, body: JSON.stringify(rows) });
-  });
-}
+const { installPublicTopicFixture } = require('./fixtures/public-topic-888.cjs');
 
 test.beforeEach(async ({ context }) => {
   // The preview reads public production data. Never send analytics or other

@@ -118,7 +118,7 @@ export default function WorldFlightStory2029({ surface = 'world', research, shel
         </button></div>
       </div>
       {image ? <figure className="sod29-flight-media">
-        <img src={image} alt="תמונת המקור מתוך פוסט טיסה 1073" fetchPriority={home ? 'high' : 'auto'} />
+        <img src={image} width={home ? 480 : 1586} height={home ? 300 : 992} alt="תמונת המקור מתוך פוסט טיסה 1073" fetchPriority={home ? 'high' : 'auto'} />
         <figcaption>מתוך פוסט המטוס · תמונת המקור בשלמותה</figcaption>
       </figure> : null}
     </div>

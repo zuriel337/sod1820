@@ -27,7 +27,7 @@ function PostFollow2029({ post, scope, source }) {
   return <section className="sod29-post-follow" aria-label="מעקב אחרי סדרה ותחום" data-follow-source={source}>
     <h2><NavigationIcon2029 name="add" size={22} /> להישאר בקשר</h2>
     <p>בוחרים אחרי מה לעקוב. מעקב אינו מפעיל מייל או התראות דפדפן.</p>
-    {import.meta.env?.VITE_INTEGRATED_PREVIEW ? <p role="note" data-follow-preview="read-only">זהו פריוויו לקריאה בלבד. שמירת מעקב ואימות חשבון אינם פעילים כאן; כשל בקריאת המצב אינו אומר שאין מעקבים.</p> : null}
+    {import.meta.env?.VITE_INTEGRATED_PREVIEW === 'true' && import.meta.env?.VITE_FUNCTIONAL_UNIFIED_PREVIEW !== 'true' ? <p role="note" data-follow-preview="read-only">זהו פריוויו לקריאה בלבד. שמירת מעקב ואימות חשבון אינם פעילים כאן; כשל בקריאת המצב אינו אומר שאין מעקבים.</p> : null}
     {!current ? <p role="status">בודק אילו יעדי מעקב זמינים…</p> : null}
     {items.map(item => <div key={item.topic} className="sod29-post-follow-target" data-follow-target={item.topic} data-follow-readiness={item.state}>
       <h3><NavigationIcon2029 name={item.icon} size={20} /><span>{item.kind}: {item.label}</span></h3>

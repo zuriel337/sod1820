@@ -42,15 +42,34 @@ const functionalPreview = typeof process !== "undefined" && process.env.VERCEL_E
 // New functionality belongs only to the explicitly authorized Preview branch.
 function interceptFunctionalPreview(event, { req, u, rpc, authOrigin }) {
   const mutating = !["GET", "HEAD", "OPTIONS"].includes(req.method);
+  if(u.origin===authOrigin && rpc==="convergence_meter") {
+    event.respondWith((async()=>{
+      try {const b=await req.clone().json();if(req.method==="POST"&&!u.search&&Object.keys(b).join(",")==="p_n"&&Number.isSafeInteger(b.p_n)&&b.p_n>0&&b.p_n<=2147483647)return fetch(req);}catch{}
+      return new Response(JSON.stringify({error:"preview_operation_denied"}),{status:403});
+    })());
+    return true;
+  }
   const personRpcs = new Set(["fn_get_or_create_my_person", "fn_upsert_self_profile", "fn_upsert_family_member", "fn_upsert_family_relation"]);
   const stateRpcs = new Set(["research_state_snapshot_v1", "research_state_apply_ops_v1", "fn_research_path_resume_v1", "fn_research_path_append_v1", "fn_research_path_fork_v1"]);
+  const ownRpcKeys = {
+    my_center:[],update_my_page_config:["p_config"],save_my_info:["p_full_name","p_birth_date"],
+    save_els_matrix:["p_term","p_scope","p_skip","p_direction","p_positions","p_image_url","p_title","p_note","p_public","p_from_topic","p_corpus_id","p_term_norm","p_start_index","p_engine_detail"],
+    self_publish_matrix:["p_id","p_on"],delete_els_matrix:["p_id"],
+    follow_subject_state:["p_entity_type","p_stable_id","p_visitor"],
+    follow_subject_toggle:["p_entity_type","p_stable_id","p_source","p_on","p_visitor"],
+    watch_toggle:["p_topic","p_source","p_on","p_visitor"],
+    dm_inbox:[],dm_thread:["p_with","p_limit"],dm_mark_read:["p_with"],dm_send:["p_to","p_body"],
+    my_contributions:["p_limit"],
+  };
   const hintMedia = u.origin === authOrigin && u.pathname === "/functions/v1/media-upload-intent";
   const els = u.origin === authOrigin && u.pathname === "/functions/v1/els-search-bridge";
   const researchItems = u.origin === authOrigin && u.pathname === "/rest/v1/research_items" && mutating;
   const signup = u.origin === authOrigin && req.method === "POST" && ["/auth/v1/otp", "/auth/v1/signup"].includes(u.pathname);
   const razielProxy = u.origin === self.location?.origin && u.pathname === "/api/preview-raziel";
+  const ownSelf = u.origin === self.location?.origin && u.pathname === "/api/contributor-self" && mutating;
+  const ownProfile = u.origin === authOrigin && u.pathname === "/rest/v1/users" && mutating;
   const privateTus = u.origin === "https://linswmnnkjxvweumprav.storage.supabase.co" && /^\/storage\/v1\/upload\/resumable(?:\/[^/?#]+)?$/.test(u.pathname) && mutating;
-  if (!(signup || hintMedia || els || privateTus || researchItems || razielProxy || (u.origin === authOrigin && (personRpcs.has(rpc) || stateRpcs.has(rpc))))) return false;
+  if (!(signup || hintMedia || els || privateTus || researchItems || razielProxy || ownSelf || ownProfile || (u.origin === authOrigin && (personRpcs.has(rpc) || stateRpcs.has(rpc) || Object.hasOwn(ownRpcKeys,rpc))))) return false;
   event.respondWith((async () => {
     const denied = reason => new Response(JSON.stringify({ error: reason || "preview_operation_denied" }), { status: 403, headers: { "Content-Type": "application/json", "X-Preview-Write-Blocked": "true" } });
     try {
@@ -69,9 +88,15 @@ function interceptFunctionalPreview(event, { req, u, rpc, authOrigin }) {
         if (!body || typeof body.email !== "string" || !body.email.includes("@") || body.phone) return denied();
         return fetch(req); // Supabase owns confirmation, provider configuration and rate limits.
       }
-      if (req.method !== "POST" && !researchItems) return denied();
+      if (req.method !== "POST" && !researchItems && !ownProfile) return denied();
       const bearer = req.headers.get("Authorization") || "";
       if (!/^Bearer [A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/i.test(bearer)) return denied("authentication_required");
+      if(els) {
+        const raw=await req.clone().text();if(raw.length>100000)return denied("payload_too_large");
+        const body=JSON.parse(raw);
+        if(!body||!["page","verify","verify_batch"].includes(body.op)||u.search)return denied();
+        return fetch(req); // Canonical bridge explicitly supports guest/user quotas; no role is elevated.
+      }
       const authResponse = await fetch(authOrigin + "/auth/v1/user", { headers: { apikey: req.headers.get("apikey") || "", Authorization: bearer }, credentials: "omit" });
       if (!authResponse.ok) return denied("authentication_required");
       const user = await authResponse.json();
@@ -79,13 +104,39 @@ function interceptFunctionalPreview(event, { req, u, rpc, authOrigin }) {
       const raw = req.method === "DELETE" ? "{}" : await req.clone().text();
       if (raw.length > 100000) return denied("payload_too_large");
       const body = JSON.parse(raw || "{}");
+      if(ownSelf){
+        if(u.search||!body||body.ack!==true)return denied();
+        const keys=Object.keys(body).sort().join(",");
+        const valid=body.action==="create" ? keys==="ack,action,bio,displayName"&&typeof body.displayName==="string"&&typeof body.bio==="string"&&body.displayName.trim().length>0&&Array.from(body.displayName).length<=60&&Array.from(body.bio).length<=600
+          :body.action==="portrait" ? keys==="ack,action,enabled"&&typeof body.enabled==="boolean"
+          :body.action==="avatar"&&keys==="ack,action,publish,url"&&body.publish===true&&typeof body.url==="string";
+        if(!valid)return denied();
+        if(body.action==="avatar"){
+          const image=new URL(body.url),prefix="/storage/v1/object/public/gallery/avatars/"+user.id+"-";
+          if(image.origin!==authOrigin||image.username||image.password||image.search||image.hash||!image.pathname.startsWith(prefix)||!/^[0-9]{13}\.(jpg|jpeg|png|webp|gif)$/.test(image.pathname.slice(prefix.length)))return denied();
+        }
+        return fetch(req); // Canonical self handler re-verifies JWT and caller-bound ownership/consent.
+      }
+      if(ownProfile){
+        if(req.method!=="PATCH"||u.searchParams.get("id")!=="eq."+user.id||!body||Array.isArray(body)||Object.keys(body).some(k=>!["username","display_name","avatar_url"].includes(k)))return denied();
+        if(Object.values(body).some(v=>v!==null&&(typeof v!=="string"||v.length>2048)))return denied();
+        if(body.avatar_url){
+          const avatar=new URL(body.avatar_url);
+          const prefix="/storage/v1/object/public/gallery/avatars/"+user.id+"-";
+          if(avatar.origin!==authOrigin||!avatar.pathname.startsWith(prefix)||avatar.search||avatar.hash){
+            const old=await fetch(authOrigin+"/rest/v1/users?select=avatar_url&id=eq."+user.id,{headers:{apikey:req.headers.get("apikey")||"",Authorization:bearer},credentials:"omit"});
+            if(!old.ok||(await old.json())?.[0]?.avatar_url!==body.avatar_url)return denied();
+          }
+        }
+        return fetch(req);
+      }
+      if(Object.hasOwn(ownRpcKeys,rpc)){
+        if(u.search||!body||Array.isArray(body)||Object.keys(body).some(key=>!ownRpcKeys[rpc].includes(key)))return denied();
+        return fetch(req); // Existing RPC owns Auth/RLS, publication truth and any administrator check.
+      }
       if (razielProxy) {
         if(u.search || body?.kind!=="research" || body?.persona!=="raziel" || body?.research_contract!=="public-number-research-run-v1" || typeof body.subject!=="string" || !body.subject.trim() || Array.from(body.subject).length>300) return denied();
         return fetch(req); // Same-origin server verifies platform identity; Edge owns quotas and receipts.
-      }
-      if (els) {
-        if (!body || !["page", "verify", "verify_batch"].includes(body.op) || u.search) return denied();
-        return fetch(req); // Canonical bridge validates scope, bounds, permission and trace persistence.
       }
       if (hintMedia) {
         const operations = new Set(["issue", "verify_hint_media", "bind_hint_media", "read_hint_media", "detach_hint_media", "retry_hint_media_cleanup", "delete_hint", "retry_hint_delete_cleanup"]);
@@ -97,7 +148,7 @@ function interceptFunctionalPreview(event, { req, u, rpc, authOrigin }) {
         return fetch(req); // Existing functions derive identity from auth.uid(), never client role claims.
       }
       if (researchItems) {
-        const keys = new Set(["id", "user_id", "bucket", "entity_ref", "title", "link", "metadata"]);
+        const keys = new Set(["id", "user_id", "bucket", "entity_type", "entity_ref", "title", "link", "metadata"]);
         if (req.method === "POST") {
           const rows = Array.isArray(body) ? body : [body];
           if (!rows.length || rows.length > 50 || rows.some(row => !row || row.user_id !== user.id || Object.keys(row).some(key => !keys.has(key)))) return denied("owned_item_required");
@@ -375,12 +426,12 @@ await writeFile(resolve(output, "index.html"), html);
 if (realRazielPreview) {
   const sha = process.env.VERCEL_GIT_COMMIT_SHA || execFileSync("git", ["rev-parse", "HEAD"], { cwd: root, encoding: "utf8" }).trim();
   await writeFile(resolve(output, "preview-identity.json"), JSON.stringify({
-    sha, branch: process.env.VERCEL_GIT_COMMIT_REF, target: "preview", transport: "existing-live-ai-analyze",
-    model_trigger: "explicit-user-turn", requires_existing_account: true,
-    product_writes: communityPublishing, edge_deploy: false, matrix_jobs: false,
-    product_write_scope: communityPublishing ? ["governed-community-actions", "own-avatar", "existing-verified-legacy-claim"] : [],
+    sha, branch: process.env.VERCEL_GIT_COMMIT_REF, target: "preview", transport: functionalPreview ? "authenticated-preview-server-to-canonical-ai-analyze" : "existing-live-ai-analyze",
+    model_trigger: "explicit-user-turn", requires_existing_account: !functionalPreview,
+    product_writes: functionalPreview || communityPublishing, edge_deploy: false, matrix_jobs: functionalPreview ? "admin-explicit-cost-ack" : false,
+    product_write_scope: functionalPreview ? ["own-person-family","own-research-state","own-private-hints-media","governed-community-actions","own-avatar","existing-verified-legacy-claim"] : communityPublishing ? ["governed-community-actions", "own-avatar", "existing-verified-legacy-claim"] : [],
     general_profile_writes: false,
-    els_followup_server_contract: "pending", server_observed_version: 90,
+    ...(functionalPreview ? {els_followup_server_contract:"requires-approved-shared-artifact",expected_server_sha256:"2ac19e112e77e71fbab61270338e126edf88128a786f3425b09157291494281f"} : {els_followup_server_contract:"pending",server_observed_version:90}),
   }, null, 2));
 }
 // Exact Posts Preview identity; no project/Production settings or live writes.

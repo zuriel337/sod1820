@@ -59,7 +59,7 @@ function WriterPersonalController2029({ module, user, authLoading }) {
   useEffect(() => { mounted.current = true; return () => { mounted.current = false; }; }, []);
   const params = new URLSearchParams(location.search);
   const selected = WRITER_PERSONAL_MODULES.some(([id]) => id === module) ? module : "public-page";
-  const previewReadOnly = import.meta.env.VITE_INTEGRATED_PREVIEW === "true";
+  const previewReadOnly = import.meta.env.VITE_INTEGRATED_PREVIEW === "true" && import.meta.env.VITE_FUNCTIONAL_UNIFIED_PREVIEW !== "true";
   const returnHref = personalReturnHref(params.get("returnTo"));
   // These modules have their own authenticated readers. An unavailable public
   // writer overview must not prevent the existing private inbox from opening.

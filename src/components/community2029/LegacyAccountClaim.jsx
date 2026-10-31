@@ -48,7 +48,7 @@ export default function LegacyAccountClaim({ contributorId, embedded = false, on
     {known?.name ? <div className="sod29-community-claim-person"><strong>{known.name}</strong></div> : null}
     {!valid ? <p role="alert">הקישור אינו תקין. פתחו את הפרופיל מתוך הודעה ישנה ונסו שוב.</p> : null}
     {valid && !claimed ? <>
-      {!loading && !user && import.meta.env.VITE_INTEGRATED_PREVIEW === "true" ? <p className="sod29-community-claim-help">כדי לחבר פרופיל ישן צריך חשבון באתר עם אותו מייל. בגרסת הבדיקה הזו אפשר להיכנס לחשבון קיים; פתיחת חשבון חדש עדיין אינה זמינה כאן.</p> : null}
+      {!loading && !user && import.meta.env.VITE_INTEGRATED_PREVIEW === "true" && import.meta.env.VITE_FUNCTIONAL_UNIFIED_PREVIEW !== "true" ? <p className="sod29-community-claim-help">כדי לחבר פרופיל ישן צריך חשבון באתר עם אותו מייל. בגרסת הבדיקה הזו אפשר להיכנס לחשבון קיים; פתיחת חשבון חדש עדיין אינה זמינה כאן.</p> : null}
       <CommunitySignIn />
       {!loading && user ? <div className="sod29-community-claim-actions"><p>החיבור יאושר רק אם המייל המאומת שלכם תואם לפרופיל הישן והוא עדיין לא מחובר לחשבון אחר.</p><button type="button" className="sod29-community-primary" disabled={claiming} onClick={claim}>{claiming ? "מאמתים בעלות…" : "אימות וחיבור החשבון הישן"}</button></div> : null}
       {error ? <p role="alert" className="sod29-community-status">{error} <a href="mailto:zyz997@gmail.com">פנייה לתמיכה</a></p> : null}

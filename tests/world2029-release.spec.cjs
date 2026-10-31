@@ -1,4 +1,5 @@
 const { test, expect } = require('@playwright/test');
+const { installPublicTopicFixture, installSyntheticWorldCatalogFixture } = require('./fixtures/public-topic-888.cjs');
 const { installStorageEgressGuard } = require('./playwright-storage-egress-guard.cjs');
 
 const BASE = 'http://127.0.0.1:4173';
@@ -89,7 +90,8 @@ test.setTimeout(60_000);
 // Each test receives a fresh page/context. Report every independent regression
 // even when an earlier route fails, while retaining the runner's worker limit.
 test.describe.configure({ mode: 'default' });
-test.beforeEach(async ({ context }) => {
+test.beforeEach(async ({ context, page }) => {
+  await installPublicTopicFixture(page,{onlyMatchingRequests:true});
   await installStorageEgressGuard(context);
   // Preserve real read-only engine/data requests while keeping browser acceptance
   // visits, metrics and identity events out of the canonical product database.
@@ -198,12 +200,7 @@ async function assertNoHorizontalOverflow(page) {
 }
 
 async function openNumberCapabilityFromIsland(page) {
-  const action = page.locator('.sod29-command-island').getByRole('button', { name: 'פעולה', exact: true });
-  await expect(action).toBeVisible();
-  await action.click();
-  const actionDialog = page.getByRole('dialog', { name: /פעולה ·/ });
-  await expect(actionDialog).toBeVisible();
-  const number = actionDialog.getByRole('button', { name: '123 מספר / גימטריה' });
+  const number = page.locator('.sod29-command-island').getByRole('button', { name: 'מספר · פתח חלונית מספר', exact: true });
   await expect(number).toBeVisible();
   await number.click();
 }
@@ -228,11 +225,13 @@ test('direct /world opens public composed World with aircraft story, real arriva
   await expect(page.getByRole('main')).toBeVisible();
   await expect(page.getByRole('heading', { name: 'העולם', exact: true })).toBeVisible();
   await expect(page.getByRole('region', { name: 'כניסה לעולם' })).toBeVisible({ timeout: 30_000 });
-  await expect(page.getByRole('heading', { name: 'מתחילים ממה שמסקרן אותך.' })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'מה מגיע עכשיו' })).toBeVisible({ timeout: 30_000 });
-  const postsFilter = page.getByRole('button', { name: 'פוסטים אחרונים' });
-  await postsFilter.click();
-  await expect(page.locator('.sod29-source-arrivals [data-source-arrival^="posts:"]').first()).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByRole('heading', { name: 'לאן ממשיכים מכאן?' })).toBeVisible();
+  const updates=page.getByRole('region',{name:'עדכונים ציבוריים אחרונים'});
+  await expect(updates.getByRole('heading',{name:'חדש בעולם'})).toBeVisible({timeout:30000});
+  const sourceFilter=updates.getByRole('group',{name:'סינון העדכונים הציבוריים'}).getByRole('button',{name:'מקורות',exact:true});
+  await sourceFilter.click();
+  await expect(sourceFilter).toHaveAttribute('aria-pressed','true');
+  await expect(updates.locator('article').first()).toBeVisible({timeout:30000});
 
   await selectWorldLandingView(page, 'נושאים וחיבורים');
   await expect(page).toHaveURL(`${BASE}/world?view=connections`);
@@ -252,6 +251,7 @@ test('direct /world opens public composed World with aircraft story, real arriva
 });
 
 test('public World catalog remains searchable and paginated inside the new composed presentation', async ({ page }) => {
+  await installSyntheticWorldCatalogFixture(page);
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(`${BASE}${WORLD}`, { waitUntil: 'domcontentloaded' });
   await selectWorldLandingView(page, 'נושאים וחיבורים');
@@ -271,6 +271,11 @@ test('public World catalog remains searchable and paginated inside the new compo
     await expand.click();
     await expect(expand).toHaveAttribute('aria-expanded', 'true');
   }
+  const before=await cards.count();
+  const more=catalog.getByRole('button',{name:'טען עוד',exact:true});
+  await expect(more).toBeVisible();
+  await more.click();
+  await expect.poll(()=>cards.count()).toBeGreaterThan(before);
   await assertNoHorizontalOverflow(page);
 });
 
@@ -283,7 +288,7 @@ test('native canonical Topic 2029 renders 888 with semantic links and SEO identi
   const heroNumber = article.locator('a[href="/2029/number/888"]').first();
   await expect(heroNumber).toBeVisible({ timeout: 20_000 });
   await expect(heroNumber).toHaveText('888');
-  await expect(article.locator('h1')).toContainText('אלהים משיח מקדש');
+  await expect(article.locator('h1')).toHaveText('ציר בדיקה');
   await expect(article).toContainText('מה מחבר את הציר הזה?');
   await expect(article).toContainText('בין שוויון מספרי לבין הרמז');
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://sod1820.co.il/topic/888-yeshua');
@@ -303,6 +308,15 @@ test('Topic expression focus opens Number 2029 and survives World + Heichal tran
   await expect(chinam).toBeVisible({ timeout: 20_000 });
   await chinam.click();
 
+  // Approved behavior opens the contextual Number tool in place. Full-page
+  // navigation is a separate deliberate action, with the same expression/method.
+  await expect(page).toHaveURL(`${BASE}/topic/98-ikuv-geula`);
+  const drawer=page.locator('[data-contextual-number-surface="v1"]');
+  await expect(drawer).toBeVisible({timeout:30000});
+  await expect(drawer.locator('.sod29-number-drawer-identity')).toContainText('חנם');
+  await expect(drawer.locator('.sod29-number-drawer-identity')).toContainText('98');
+  await expect(page.locator('[data-contextual-number-surface="v1"]')).toHaveCount(1);
+  await drawer.getByRole('button',{name:/פתח דף מלא/}).click();
   await expect(page).toHaveURL(/\/2029\/number\/98\?focus=.*method=/, { timeout: 30_000 });
   const numberPage = page.locator('[data-experience-surface="number"]');
   await expect(numberPage).toBeVisible({ timeout: 30_000 });
@@ -672,8 +686,8 @@ for (const width of MOBILE_WIDTHS) {
     await page.setViewportSize({ width, height: 844 });
     await page.goto(`${BASE}${WORLD}`, { waitUntil: 'domcontentloaded' });
     await expect(page.locator('.sod29-world-overview')).toBeVisible({ timeout: 30_000 });
-    await expect(page.getByRole('heading', { name: 'מתחילים ממה שמסקרן אותך.' })).toBeVisible();
-    await expect(page.locator('#world-sources')).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByRole('heading', { name: 'לאן ממשיכים מכאן?' })).toBeVisible();
+    await expect(page.getByRole('region',{name:'עדכונים ציבוריים אחרונים'})).toBeVisible({ timeout: 30_000 });
     await selectWorldLandingView(page, 'נושאים וחיבורים');
     await expect(page.locator('#world-all-convergences')).toBeVisible();
     await assertNoHorizontalOverflow(page);
@@ -685,7 +699,7 @@ for (const width of [...MOBILE_WIDTHS, 1440]) {
   test(`RICH live World 1820 is truthful and overflow-free at ${width}px`, async ({ page }) => {
     const projection = await openWorldAnchor(page, 1820, width);
     await expect(projection).toHaveAttribute('data-world-density', 'rich');
-    await expect(page.getByRole('heading', { name: 'מה אתה רוצה לראות עכשיו?' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'שכבות המידע' })).toBeVisible();
     await selectWorldLane(page, 'מקורות');
     await expect(page.getByText('מאיפה החומר מגיע')).toBeVisible();
     await assertNoHorizontalOverflow(page);
@@ -697,7 +711,7 @@ test('RICH 1820 presents one anchor header before profile and exploration lanes'
   await openWorldAnchor(page, 1820, 390);
 
   await expect(page.locator('.sod29-world-anchor-intro h2')).toHaveText('1820');
-  await expect(page.locator('.sod29-world-anchor-intro')).toContainText('מתחילים במהות');
+  await expect(page.locator('.sod29-world-anchor-intro')).toContainText('החומר סביב העוגן מסודר לפי שכבות');
   await expect(page.getByText('מרכז העולם', { exact: true })).toHaveCount(0);
   await expect(page.locator('.sod29-world-stage')).toHaveCount(0);
   await expect(page.locator('.sod29-anchor-core')).toHaveCount(0);
@@ -826,7 +840,7 @@ test('SPARSE live World 122 stays honestly sparse with no fabricated research', 
 test('World uses the shared Command, Inspect, Share and exact-return seams', async ({ page }) => {
   await openWorldAnchor(page, 1820, 390);
 
-  const command = page.locator('.sod29-command-island button').filter({ hasText: 'חיפוש' });
+  const command = page.locator('.sod29-header').getByRole('button', { name: 'חיפוש', exact: true });
   await expect(command).toBeVisible();
   await command.click();
   await expect(page.getByRole('dialog', { name: 'חיפוש' })).toBeVisible();
@@ -871,6 +885,7 @@ test('World uses the shared Command, Inspect, Share and exact-return seams', asy
   exactReturn = mobileNav.getByRole('button', { name: /חזרה מדויקת/ });
   await expect(exactReturn).toBeEnabled({ timeout: 30_000 });
   await exactReturn.click();
+  await expect(page).toHaveURL(`${BASE}/world?focus=context`);
   await expect(page.locator('.sod29-world-anchor-intro h2')).toHaveText('1820', { timeout: 30_000 });
 });
 
@@ -979,8 +994,15 @@ for (const preset of ['light', 'parchment', 'dark']) {
       await assertNoHorizontalOverflow(page);
       await corpus.screenshot({ path: `test-results/release-visual/hashmal-projector-${preset}-${width}.png` });
       await selectWorldLandingView(page, 'מה חדש');
-      await page.getByRole('button', { name: 'הודעות מקור' }).click();
-      if (groupRows.length) await expect(page.locator('#world-sources details.sod29-world-group-source').first()).toBeVisible({ timeout: 20_000 });
+      const updates=page.getByRole('region',{name:'עדכונים ציבוריים אחרונים'});
+      const sourceFilter=updates.getByRole('group',{name:'סינון העדכונים הציבוריים'}).getByRole('button',{name:'מקורות',exact:true});
+      await sourceFilter.click();
+      await expect(sourceFilter).toHaveAttribute('aria-pressed','true');
+      // Group-source proof above remains verified at its boundary. The approved
+      // UI combines it with the existing public activity feed, not another feed.
+      await expect(updates).not.toContainText(/private|candidate|verified_phone_unique/i);
+      await expect(updates.getByText('העדכונים הציבוריים נטענים')).toHaveCount(0,{timeout:20000});
+      if(groupRows.length) await expect(updates.locator('article').first()).toBeVisible({timeout:20000});
       await expect(page.getByText(/עדכוני תורת הרמז והגילוי היומי טרם חוברו/)).toHaveCount(0);
     });
   }

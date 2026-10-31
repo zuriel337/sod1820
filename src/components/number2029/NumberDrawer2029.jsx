@@ -14,6 +14,7 @@ import {
   phraseOf,
 } from "../../lib/research/numberCoreProjection.js";
 import { getAllValuePhrases, langLinksList } from "../../lib/supabase.js";
+import { numberExpressionFocusHref } from "../../lib/research/numberExpressionFocus.js";
 import "./numberDrawer2029.css";
 
 const NUMBER_METHOD_RESULT_CACHE = new Map();
@@ -580,7 +581,9 @@ export default function NumberDrawer2029({
   const openPage = () => {
     if (!Number.isSafeInteger(root)) return;
     updateContext();
-    go?.(`/2029/number/${root}`);
+    const href = numberExpressionFocusHref(root, surfaceMode === "focus"
+      ? {expression,method:selectedProfile?.methodKey || selectedMethodKey} : {});
+    go?.(href);
   };
 
   const openWorld = () => {

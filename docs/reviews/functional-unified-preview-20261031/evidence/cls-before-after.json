@@ -1,0 +1,420 @@
+[
+  {
+    "version": "before",
+    "width": 390,
+    "late": false,
+    "cls": {
+      "value": 0.23730977380344564,
+      "sources": [
+        {
+          "tag": "DIV",
+          "className": "sod29-flight-copy",
+          "oldY": 369.28125,
+          "newY": 576.9375
+        },
+        {
+          "tag": "DIV",
+          "className": "sod29-flight-directions",
+          "oldY": 745.1875,
+          "newY": 0
+        },
+        {
+          "tag": "FIGCAPTION",
+          "className": "",
+          "oldY": 334.890625,
+          "newY": 542.546875
+        }
+      ]
+    },
+    "storyReady": true,
+    "imageReady": true,
+    "headerHeight": 120,
+    "overflow": false,
+    "errors": [],
+    "passed": false
+  },
+  {
+    "version": "after",
+    "width": 390,
+    "late": false,
+    "cls": {
+      "value": 0.03858894070588412,
+      "sources": [
+        {
+          "tag": "SECTION",
+          "className": "sod29-world-overview sod29-world-entry",
+          "oldY": 827.890625,
+          "newY": 0
+        }
+      ]
+    },
+    "storyReady": true,
+    "imageReady": true,
+    "headerHeight": 120,
+    "overflow": false,
+    "errors": [],
+    "passed": true
+  },
+  {
+    "version": "before",
+    "width": 390,
+    "late": false,
+    "cls": {
+      "value": 0.23704152942410062,
+      "sources": [
+        {
+          "tag": "DIV",
+          "className": "sod29-flight-copy",
+          "oldY": 369.28125,
+          "newY": 576.9375
+        },
+        {
+          "tag": "DIV",
+          "className": "sod29-flight-directions",
+          "oldY": 745.1875,
+          "newY": 0
+        },
+        {
+          "tag": "FIGCAPTION",
+          "className": "",
+          "oldY": 334.890625,
+          "newY": 542.546875
+        }
+      ]
+    },
+    "storyReady": true,
+    "imageReady": true,
+    "headerHeight": 120,
+    "overflow": false,
+    "errors": [],
+    "passed": false
+  },
+  {
+    "version": "after",
+    "width": 390,
+    "late": false,
+    "cls": {
+      "value": 0.03859260607947762,
+      "sources": [
+        {
+          "tag": "SECTION",
+          "className": "sod29-world-overview sod29-world-entry",
+          "oldY": 827.890625,
+          "newY": 0
+        }
+      ]
+    },
+    "storyReady": true,
+    "imageReady": true,
+    "headerHeight": 120,
+    "overflow": false,
+    "errors": [],
+    "passed": true
+  },
+  {
+    "version": "before",
+    "width": 390,
+    "late": false,
+    "cls": {
+      "value": 0.09763423211151004,
+      "sources": [
+        {
+          "tag": "SECTION",
+          "className": "sod29-world-overview sod29-world-entry",
+          "oldY": 827.890625,
+          "newY": 0
+        }
+      ]
+    },
+    "storyReady": true,
+    "imageReady": true,
+    "headerHeight": 120,
+    "overflow": false,
+    "errors": [],
+    "passed": true
+  },
+  {
+    "version": "after",
+    "width": 390,
+    "late": false,
+    "cls": {
+      "value": 0.007833527782049267,
+      "sources": [
+        {
+          "tag": "SECTION",
+          "className": "sod29-world-overview sod29-world-entry",
+          "oldY": 827.890625,
+          "newY": 0
+        }
+      ]
+    },
+    "storyReady": true,
+    "imageReady": true,
+    "headerHeight": 120,
+    "overflow": false,
+    "errors": [],
+    "passed": true
+  },
+  {
+    "version": "before",
+    "width": 390,
+    "late": true,
+    "cls": {
+      "value": 0.1439289150010021,
+      "sources": [
+        {
+          "tag": "DIV",
+          "className": "sod29-flight-copy",
+          "oldY": 369.28125,
+          "newY": 576.9375
+        },
+        {
+          "tag": "DIV",
+          "className": "sod29-flight-directions",
+          "oldY": 745.1875,
+          "newY": 0
+        },
+        {
+          "tag": "FIGCAPTION",
+          "className": "",
+          "oldY": 334.890625,
+          "newY": 542.546875
+        }
+      ]
+    },
+    "storyReady": true,
+    "imageReady": true,
+    "headerHeight": 120,
+    "overflow": false,
+    "errors": [],
+    "passed": false
+  },
+  {
+    "version": "after",
+    "width": 390,
+    "late": true,
+    "cls": {
+      "value": 0.0387824822179493,
+      "sources": [
+        {
+          "tag": "SECTION",
+          "className": "sod29-world-overview sod29-world-entry",
+          "oldY": 827.890625,
+          "newY": 0
+        }
+      ]
+    },
+    "storyReady": true,
+    "imageReady": true,
+    "headerHeight": 120,
+    "overflow": false,
+    "errors": [],
+    "passed": true
+  },
+  {
+    "version": "before",
+    "width": 390,
+    "late": true,
+    "cls": {
+      "value": 0.1439289150010021,
+      "sources": [
+        {
+          "tag": "DIV",
+          "className": "sod29-flight-copy",
+          "oldY": 369.28125,
+          "newY": 576.9375
+        },
+        {
+          "tag": "DIV",
+          "className": "sod29-flight-directions",
+          "oldY": 745.1875,
+          "newY": 0
+        },
+        {
+          "tag": "FIGCAPTION",
+          "className": "",
+          "oldY": 334.890625,
+          "newY": 542.546875
+        }
+      ]
+    },
+    "storyReady": true,
+    "imageReady": true,
+    "headerHeight": 120,
+    "overflow": false,
+    "errors": [],
+    "passed": false
+  },
+  {
+    "version": "after",
+    "width": 390,
+    "late": true,
+    "cls": {
+      "value": 0.038782382667369886,
+      "sources": [
+        {
+          "tag": "SECTION",
+          "className": "sod29-world-overview sod29-world-entry",
+          "oldY": 827.890625,
+          "newY": 0
+        }
+      ]
+    },
+    "storyReady": true,
+    "imageReady": true,
+    "headerHeight": 120,
+    "overflow": false,
+    "errors": [],
+    "passed": true
+  },
+  {
+    "version": "before",
+    "width": 390,
+    "late": true,
+    "cls": {
+      "value": 0.1439289150010021,
+      "sources": [
+        {
+          "tag": "DIV",
+          "className": "sod29-flight-copy",
+          "oldY": 369.28125,
+          "newY": 576.9375
+        },
+        {
+          "tag": "DIV",
+          "className": "sod29-flight-directions",
+          "oldY": 745.1875,
+          "newY": 0
+        },
+        {
+          "tag": "FIGCAPTION",
+          "className": "",
+          "oldY": 334.890625,
+          "newY": 542.546875
+        }
+      ]
+    },
+    "storyReady": true,
+    "imageReady": true,
+    "headerHeight": 120,
+    "overflow": false,
+    "errors": [],
+    "passed": false
+  },
+  {
+    "version": "after",
+    "width": 390,
+    "late": true,
+    "cls": {
+      "value": 0.03878249177930438,
+      "sources": [
+        {
+          "tag": "SECTION",
+          "className": "sod29-world-overview sod29-world-entry",
+          "oldY": 827.890625,
+          "newY": 0
+        }
+      ]
+    },
+    "storyReady": true,
+    "imageReady": true,
+    "headerHeight": 120,
+    "overflow": false,
+    "errors": [],
+    "passed": true
+  },
+  {
+    "version": "before",
+    "width": 320,
+    "late": true,
+    "cls": {
+      "value": 0.11340816709697038,
+      "sources": [
+        {
+          "tag": "DIV",
+          "className": "sod29-flight-copy",
+          "oldY": 369.28125,
+          "newY": 533.140625
+        },
+        {
+          "tag": "FIGCAPTION",
+          "className": "",
+          "oldY": 334.890625,
+          "newY": 498.75
+        }
+      ]
+    },
+    "storyReady": true,
+    "imageReady": true,
+    "headerHeight": 120,
+    "overflow": false,
+    "errors": [],
+    "passed": false
+  },
+  {
+    "version": "after",
+    "width": 320,
+    "late": true,
+    "cls": {
+      "value": 0.04152568003920377,
+      "sources": [
+        {
+          "tag": "SECTION",
+          "className": "sod29-world-overview sod29-world-entry",
+          "oldY": 827.890625,
+          "newY": 0
+        }
+      ]
+    },
+    "storyReady": true,
+    "imageReady": true,
+    "headerHeight": 120,
+    "overflow": false,
+    "errors": [],
+    "passed": true
+  },
+  {
+    "version": "before",
+    "width": 1440,
+    "late": true,
+    "cls": {
+      "value": 0.10220243517702862,
+      "sources": [
+        {
+          "tag": "SECTION",
+          "className": "sod29-world-overview sod29-world-entry",
+          "oldY": 697.890625,
+          "newY": 0
+        }
+      ]
+    },
+    "storyReady": true,
+    "imageReady": true,
+    "headerHeight": 120,
+    "overflow": false,
+    "errors": [],
+    "passed": false
+  },
+  {
+    "version": "after",
+    "width": 1440,
+    "late": true,
+    "cls": {
+      "value": 0.07262236701564019,
+      "sources": [
+        {
+          "tag": "SECTION",
+          "className": "sod29-world-overview sod29-world-entry",
+          "oldY": 697.890625,
+          "newY": 0
+        }
+      ]
+    },
+    "storyReady": true,
+    "imageReady": true,
+    "headerHeight": 120,
+    "overflow": false,
+    "errors": [],
+    "passed": true
+  }
+]

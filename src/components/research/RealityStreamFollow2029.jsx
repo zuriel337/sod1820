@@ -8,6 +8,6 @@ export default function RealityStreamFollow2029({ source = 'reality_stream_2029'
     <WatchButton topic="stream:reality" source={source} variant="2029" compact noPush
       label="לעקוב אחרי הזרם" followLabel="במעקב אחרי הזרם"
       explainer="מעקב אחרי תמונות ורמזים שנוספים לזרם המציאות — לא אחרי כל שינוי בגלריות." />
-    {import.meta.env.VITE_INTEGRATED_PREVIEW === 'true' ? <p className="r29-note">הפריוויו לקריאה בלבד; שינויים במעקב אינם נשמרים כאן.</p> : null}
+    {import.meta.env.VITE_INTEGRATED_PREVIEW === 'true' && import.meta.env.VITE_FUNCTIONAL_UNIFIED_PREVIEW !== 'true' ? <p className="r29-note">הפריוויו לקריאה בלבד; שינויים במעקב אינם נשמרים כאן.</p> : null}
   </div>;
 }

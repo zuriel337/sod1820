@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {generateKeyPair,SignJWT,jwtVerify} from 'jose';
 import {FUNCTIONAL_PREVIEW_IDENTITY as policy,functionalPreviewJwtOptions,verifyFunctionalPreviewIdentity} from '../supabase/functions/_shared/functionalPreviewIdentity.js';
 import {previewRazielHandler} from '../preview-deploy/api/preview-raziel.js';
+import {previewCapabilitiesHandler} from '../preview-deploy/api/preview-capabilities.js';
 import {runAiAnalyze,UID,USER_JWT} from './helpers/ai-analyze-handler.mjs';
 
 const {privateKey,publicKey}=await generateKeyPair('RS256');
@@ -23,6 +24,13 @@ test('actual RSA signatures bind authenticated users to this Vercel project and 
 const env={VERCEL_ENV:'preview',VERCEL_GIT_COMMIT_REF:'gpt/2029-functional-unified-preview-20261031'};
 const body={kind:'research',persona:'raziel',subject:'fixture',research_contract:'public-number-research-run-v1'};
 function response(){return {code:0,headers:{},setHeader(k,v){this.headers[k]=v;},status(n){this.code=n;return this;},json(value){this.value=value;return this;}};}
+test('server proof health exposes only signature-verification booleans, never a token or identity claims',async()=>{
+ const token=await sign(),handler=previewCapabilitiesHandler({env,verifyToken:async raw=>{await verifyToken(raw);return true;}});
+ const req={method:'GET',headers:{'x-vercel-oidc-token':token}},res=response();await handler(req,res);
+ assert.equal(res.code,200);assert.equal(res.value.serverIdentityVerified,true);assert.equal(JSON.stringify(res.value).includes(token),false);assert.equal(res.headers['Cache-Control'],'private, no-store');
+ const forged=response();await handler({...req,headers:{'x-vercel-oidc-token':'forged.platform.token'}},forged);assert.equal(forged.value.serverIdentityVerified,false);
+ const production=response();await previewCapabilitiesHandler({env:{...env,VERCEL_ENV:'production'}})(req,production);assert.equal(production.code,404);
+});
 test('Preview proxy verifies the actual caller then forwards one unchanged canonical request and never retries',async()=>{
  const calls=[];const handler=previewRazielHandler({env,fetchImpl:async(url,init)=>{calls.push({url,init});return new Response(JSON.stringify(url.endsWith('/user')?{id:UID}:{status:'ok'}));}});
  const req={method:'POST',headers:{host:'preview.vercel.app',origin:'https://preview.vercel.app',authorization:'Bearer a.b.c','x-vercel-oidc-token':'signed.platform.proof'},body};const res=response();await handler(req,res);
