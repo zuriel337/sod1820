@@ -53,7 +53,7 @@ export const ELS_DISCOVERY_GROUP_LABELS = Object.freeze({
 // Restore structural discovery as a projection of the EXISTING bounded scan.
 // No letters/dictionary/search here. Engine-provided positions remain candidates
 // until the existing exact-load verifier admits the selected occurrences.
-export function groupElsLexiconDiscoveries(state, result) {
+export function groupElsLexiconDiscoveries(state, result, settings = {}) {
   const snapshot = captureElsResearchReturn(state), box = result?.box;
   const empty = reason => ({ groups: [], ok: false, reason });
   if (!result?.ok || result.pending || !elsResearchSnapshotMatches(snapshot, result.origin)
@@ -67,7 +67,7 @@ export function groupElsLexiconDiscoveries(state, result) {
   let excluded = 0;
   for (const item of result.items) {
     const positions = item?.positions, id = `${item?.term}:${item?.hitId}`;
-    if (!/^[א-ת]{5,10}$/.test(item?.term) || !Number.isSafeInteger(item.start) || !Number.isSafeInteger(item.skip)
+    if (!/^[א-ת]{3,10}$/.test(item?.term) || !Number.isSafeInteger(item.start) || !Number.isSafeInteger(item.skip)
       || item.skip < 1 || ![-1, 1].includes(item.dir) || item.hitId !== `${item.skip}_${item.dir}_${item.start}`
       || !Array.isArray(positions) || positions.length !== item.term.length
       || positions.some((p, i) => p !== item.start + i * item.skip * item.dir || p < 0 || p >= state.corpusLetters
@@ -81,6 +81,7 @@ export function groupElsLexiconDiscoveries(state, result) {
   const geometry = extractElsVectorGeometry({ axisWidth: box.S, occurrences });
   const cellSets = new Map(occurrences.map(item => [item.occurrenceId, new Set(item.positions)]));
   const groups = new Map(), maxMembers = 8, maxGroups = 240;
+  const minMembers = Number.isSafeInteger(settings.minMembers) ? Math.max(2, Math.min(6, settings.minMembers)) : 2;
   const distanceCache = new Map();
   const distance = (a, b) => {
     const key = [a.occurrenceId, b.occurrenceId].sort().join("|");
@@ -97,7 +98,7 @@ export function groupElsLexiconDiscoveries(state, result) {
     let members = [...new Set(memberIds)].map(id => byId.get(id)).filter(Boolean);
     members = members.filter(member => !members.some(other => other !== member && contains(other, member)
       && (other.positions.length > member.positions.length || other.occurrenceId < member.occurrenceId)));
-    if (members.length < 2 || !members.some(item => item !== axis)) return;
+    if (members.length < minMembers || !members.some(item => item !== axis)) return;
     members.sort((a, b) => Number(requiredIds.includes(b.occurrenceId)) - Number(requiredIds.includes(a.occurrenceId))
       || axisDistance.get(a.occurrenceId) - axisDistance.get(b.occurrenceId) || a.occurrenceId.localeCompare(b.occurrenceId));
     const totalMembers = members.length; members = members.slice(0, maxMembers);
@@ -131,6 +132,12 @@ export function groupElsLexiconDiscoveries(state, result) {
   }
   for (const intersection of geometry.intersections)
     add("intersection", [intersection.a, intersection.b], `${intersection.positions.length} אותיות באותם מיקומים בטקסט.`);
+  // A family requires pairwise supported parallels, not a chain of merely nearby lines.
+  for (const [seed, neighbours] of parallelEdges) {
+    const family = [seed];
+    for (const next of neighbours) if (family.every(id => parallelEdges.get(id)?.has(next))) family.push(next);
+    if (family.length > 2) add("parallel", family, "משפחת מקבילות: לכל זוג כיוון משותף ותמיכה גיאומטרית; לא אישורים עצמאיים.");
+  }
   const byTerm = new Map();
   for (const item of candidates) {
     if (!byTerm.has(item.term)) byTerm.set(item.term, []);

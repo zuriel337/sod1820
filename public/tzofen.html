@@ -2477,15 +2477,23 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
   // Explicit Research S2: reuse the canonical ray builder and lazy lookup index. No term-by-corpus
   // sweep, morphology, model or Finding mutation. Admission remains the existing verified load.
   let _lexiconScanSeq=0,_lexiconScanRequest=null;
-  async function scanMatrixLexicon(axis,box,lexicon,cancelled,progress){
+  async function scanMatrixLexicon(axis,box,lexicon,cancelled,progress,requestedPlan){
+    requestedPlan=requestedPlan||{};
     const started=performance.now(),maxWindows=100000,maxResults=300,maxWallMs=10000;
+    // Explicit settings over this scanner, never another word-by-corpus search.
+    // The current fingerprinted lexicon contains words up to ten letters.
+    const bounded=(value,fallback,min,max)=>Number.isSafeInteger(value)?Math.max(min,Math.min(max,value)):fallback;
+    const minLength=bounded(requestedPlan.minLength,5,3,10),maxLength=bounded(requestedPlan.maxLength,10,minLength,10);
+    const maxDistance=bounded(requestedPlan.maxDistance,120,0,120);
+    const plan={minLength,maxLength,maxDistance,minMembers:bounded(requestedPlan.minMembers,2,2,6),
+      shortTokenRadius:12,shortTokenEligible:(axis.positions||[]).length>=5};
     const rays=guidedMatrixRays(axis,box,Math.max(box.r1-box.r0+1,box.c1-box.c0+1))
       .sort((a,b)=>a.distance-b.distance||a.id.localeCompare(b.id));
-    const items=[],seen=new Set(),axisCells=new Set(axis.positions);let windows=0,completedRays=0,axisFragments=0,stop="COMPLETE";
+    const items=[],seen=new Set(),axisCells=new Set(axis.positions);let windows=0,completedRays=0,axisFragments=0,outsidePlan=0,shortTokenExcluded=0,stop="COMPLETE";
     scan:for(const ray of rays){
       if(cancelled())return null;
       for(const traversal of [{text:ray.text,start:ray.start,step:ray.step},{text:ray.reverseText,start:ray.start+(ray.length-1)*ray.step,step:-ray.step}]){
-        for(let offset=0;offset<traversal.text.length;offset++)for(let length=5;length<=10&&offset+length<=traversal.text.length;length++){
+        for(let offset=0;offset<traversal.text.length;offset++)for(let length=minLength;length<=maxLength&&offset+length<=traversal.text.length;length++){
           if(windows>=maxWindows){stop="WINDOW_LIMIT";break scan;}
           if(performance.now()-started>=maxWallMs){stop="TIME_LIMIT";break scan;}
           windows++;const term=traversal.text.slice(offset,offset+length),hint=lexicon.words.get(term);if(!hint)continue;
@@ -2493,10 +2501,13 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
           if(seen.has(key))continue;seen.add(key);
           const positions=Array.from({length},(_,i)=>start+i*traversal.step);
           if(positions.every(p=>axisCells.has(p))){axisFragments++;continue;}
+          const distance=guidedMatrixDistance(positions,axis,box);
+          if(distance>maxDistance){outsidePlan++;continue;}
+          if(length<5&&(!plan.shortTokenEligible||distance>plan.shortTokenRadius)){shortTokenExcluded++;continue;}
           if(items.length>=maxResults){stop="RESULT_LIMIT";break scan;}
           items.push({term,label:guidedMatrixDisplayTerm(term),hitId,start,skip,dir,positions,
             kind:skip===1?"source":"els",status:"CANDIDATE",lexiconSources:[...hint.lexiconSources],
-            distance:guidedMatrixDistance(positions,axis,box),orientation:ray.orientation});
+            distance,orientation:ray.orientation});
         }
       }
       completedRays++;if(completedRays%4===0||completedRays===rays.length)progress({completedRays,totalRays:rays.length,windows});
@@ -2505,8 +2516,8 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     }
     if(cancelled())return null;
     items.sort((a,b)=>a.distance-b.distance||b.term.length-a.term.length||a.term.localeCompare(b.term,"he")||a.start-b.start);
-    return {items,coverage:{stop,complete:stop==="COMPLETE",completedRays,totalRays:rays.length,windows,axisFragments,
-      maxWindows,maxResults,maxWallMs,minLength:5,maxLength:10,directions:8,elapsedMs:Math.round(performance.now()-started)},
+    return {items,plan,coverage:{stop,complete:stop==="COMPLETE",completedRays,totalRays:rays.length,windows,axisFragments,outsidePlan,shortTokenExcluded,
+      maxWindows,maxResults,maxWallMs,minLength,maxLength,directions:8,elapsedMs:Math.round(performance.now()-started)},
       box,lexicon:lexicon.profile,selectionProtocol:"EXPLORATORY_DISCOVERY",modelCalls:0,findingMutation:false,truthPromotion:false};
   }
   async function matrixLexiconLens(target){
@@ -2528,7 +2539,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
       send({ok:true,pending:true,phase:"lexicon",box});
       const lexicon=await guidedLoadDynamicLexicon();if(cancelled())return;
       if(!lexicon){send({ok:false,reason:"lexicon-unavailable"});return;}
-      const result=await scanMatrixLexicon(axis,box,lexicon,cancelled,coverage=>send({ok:true,pending:true,phase:"scan",coverage}));
+      const result=await scanMatrixLexicon(axis,box,lexicon,cancelled,coverage=>send({ok:true,pending:true,phase:"scan",coverage}),target.plan||{});
       if(!result||cancelled())return;
       send({ok:true,pending:false,...result,origin:{term:norm(st.raw),corpus:scope,corpusId:CORPUS_ID[scope],skip:axis.skip,dir:axis.dir,start:axis.start}});
     }catch(_){if(!cancelled())send({ok:false,reason:"scan-failed"});}

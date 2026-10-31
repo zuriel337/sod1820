@@ -717,7 +717,7 @@ function FindingsRail({ onHighlightVerse, verseHighlight, activeTool, state, sel
   const removeFinding = (index) => onFindingsChange(projected().filter((_, itemIndex) => itemIndex !== index));
   const changeFindingColor = (index, color) => onFindingsChange(projected().map((finding, itemIndex) => itemIndex === index ? { ...finding, color } : finding));
 
-  return <div className="els29-native-unified-rail" hidden={activeTool === "results"}>
+  return <div className="els29-native-unified-rail" hidden={activeTool === "results" || activeTool === "ai"}>
     <div ref={railScrollRef} className="els29-native-rail-scroll" hidden={activeTool === "research"}>
       <label className="els29-native-secondary-label" htmlFor="els29-secondary-term">חיפוש משני במטריצה</label>
       <div className="els29-native-finding-add">
@@ -1624,6 +1624,32 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
               onFindWords={event => openTool("findings", event.currentTarget)} />
           </React.Suspense> : null}
         </details>
+        {matrixReading || typeof onRazielMatrix === "function" ? <button type="button" className="els29-ai-entry"
+          aria-expanded={activeTool === "ai"} aria-controls="els29-context-panel"
+          onClick={event => openTool("ai", event.currentTarget)}>
+          <strong>✦ גילוי עם AI</strong><span>{readingPending ? "סריקה פעילה · פתח מעקב" : readingResult?.state === "COMPLETE" ? "התוצאה מוכנה · הצג במטריצה" : "בחרו אזור, בדקו עלות והתחילו רק בלחיצה"}</span>
+        </button> : null}
+        </div>
+        <div className="els29-native-toolstrip" ref={toolRailRef} hidden={classicOpen} role="group" aria-label="כלי המטריצה">
+          {[["findings", "סריקה וממצאים", "els"], ["results", "תוצאות", "posts"], ["research", "שמירה", "books"]].map(([tool, label, icon]) => <button
+            type="button" key={tool} aria-label={label} title={label}
+            aria-expanded={activeTool === tool} aria-controls="els29-context-panel"
+            onClick={(event) => activeTool === tool && !classicOpen ? closeTool() : openTool(tool, event.currentTarget)}
+          ><NavigationIcon2029 name={icon} /><small>{tool === "findings" ? "סריקה" : label}</small></button>)}
+          {matrixReading || typeof onRazielMatrix === "function" ? <button type="button" aria-label="גילוי עם AI"
+            aria-expanded={activeTool === "ai"} aria-controls="els29-context-panel"
+            onClick={event => activeTool === "ai" ? closeTool() : openTool("ai", event.currentTarget)}>
+            <span aria-hidden="true">✦</span><small>AI</small>
+          </button> : null}
+        </div>
+        <div ref={panelRef} className="els29-native-panel-wrap" hidden={classicOpen || !activeTool}>
+        <ContextualInspector2029 id="els29-context-panel" className="els29-native-context-panel" ariaLabel="כלי ELS והקשר המטריצה">
+          <header className="els29-native-panel-head">
+            <strong>{activeTool === "ai" ? "גילוי עם AI" : activeTool === "research" ? "שמירה והמשך מחקר" : activeTool === "results" ? (guidedProfile ? "חבילת הגילוי" : resultsAreCross ? "תוצאות הצלבה" : "תוצאות החיפוש") : "סריקה וממצאים"}</strong>
+            <button type="button" hidden={guidedProfile} className="els29-native-pin" aria-pressed={panelPinned} onClick={() => setPanelPinned((value) => !value)}>{panelPinned ? "בטל הצמדה" : "הצמד"}</button>
+            <button type="button" hidden={guidedProfile} onClick={closeTool} aria-label="סגור כלי מטריצה" title="סגור את הסרגל">×</button>
+          </header>
+        <div className="els29-ai-inspector" hidden={activeTool !== "ai"}>
         {matrixReading ? <ElsMatrixReadingCard2029 context={readingContext} reading={matrixReading} pending={searchPending} onSubmit={onRazielMatrix}
           projection={readingProjection} selectedKey={selectedReading?.key} overlayVisible={readingOverlayVisible}
           onToggleOverlay={() => setReadingDisplay({ result: readingResult, hidden: readingOverlayVisible })}
@@ -1646,20 +1672,6 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
           }}>בקש מרזיאל לבדוק את המטריצה</button>
         </section> : null}
         </div>
-        <div className="els29-native-toolstrip" ref={toolRailRef} hidden={classicOpen} role="group" aria-label="כלי המטריצה">
-          {[["findings", "סריקה וממצאים", "els"], ["results", "תוצאות", "posts"], ["research", "שמירה", "books"]].map(([tool, label, icon]) => <button
-            type="button" key={tool} aria-label={label} title={label}
-            aria-expanded={activeTool === tool} aria-controls="els29-context-panel"
-            onClick={(event) => activeTool === tool && !classicOpen ? closeTool() : openTool(tool, event.currentTarget)}
-          ><NavigationIcon2029 name={icon} /><small>{tool === "findings" ? "סריקה" : label}</small></button>)}
-        </div>
-        <div ref={panelRef} className="els29-native-panel-wrap" hidden={classicOpen || !activeTool}>
-        <ContextualInspector2029 id="els29-context-panel" className="els29-native-context-panel" ariaLabel="כלי ELS והקשר המטריצה">
-          <header className="els29-native-panel-head">
-            <strong>{activeTool === "research" ? "שמירה והמשך מחקר" : activeTool === "results" ? (guidedProfile ? "חבילת הגילוי" : resultsAreCross ? "תוצאות הצלבה" : "תוצאות החיפוש") : "סריקה וממצאים"}</strong>
-            <button type="button" hidden={guidedProfile} className="els29-native-pin" aria-pressed={panelPinned} onClick={() => setPanelPinned((value) => !value)}>{panelPinned ? "בטל הצמדה" : "הצמד"}</button>
-            <button type="button" hidden={guidedProfile} onClick={closeTool} aria-label="סגור כלי מטריצה" title="סגור את הסרגל">×</button>
-          </header>
         <CrossResultsRail searchTerms={["cross-three", "cross-three-continue"].includes(operations.search?.searchKind) ? operations.search.payload?.terms : null} crossProgress={operations.search?.progress?.phase === "cross-three-wave" ? operations.search.progress : null}
           onContinueTriple={token => requestSearch("cross-three-continue", {token, terms:operations.search?.payload?.terms, scope:operations.search?.payload?.scope || activeScope})}
           onContinue={setId => requestSearch("cross-continue", {setId, scope:activeScope})} onRetry={() => requestSearch(operations.search?.searchKind || "cross", operations.search?.payload || {})} state={engineState} pending={searchPending || ["searching", "verifying"].includes(operations.findings?.status)}

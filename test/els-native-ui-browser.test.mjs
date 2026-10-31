@@ -310,6 +310,44 @@ test('research structures are explicit, preserve Classic and compare exact snaps
   },{realHost:true});
  });
 
+test('discovery plans and source-direction filtering stay explicit on the actual canonical scan',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
+  await withNative({width:390,height:900},async page=>{
+    await page.getByText('גילוי וקשרים במטריצה · ללא AI',{exact:true}).click();
+    const panel=page.getByRole('region',{name:'גילוי וקשרים במטריצה',exact:true});
+    await panel.getByText('תכנית סריקה · מהיר, רחב או עמוק',{exact:true}).click();
+    await panel.getByRole('button',{name:'מהיר',exact:true}).click();
+    assert.equal(await panel.getByLabel('מינימום אותיות בגילוי').inputValue(),'4');
+    assert.equal(await panel.getByLabel('מרחק מהציר בגילוי').inputValue(),'12');
+    assert.equal(page.__elsDynamicLexiconRequests.length,0,'settings never load dictionary');
+    await panel.getByRole('button',{name:'גלה מילים ומבנים',exact:true}).click();
+    await panel.getByLabel('תוצאות הסריקה המילונית').waitFor({timeout:30000});
+    const scan=await page.evaluate(()=>window.__lens);
+    assert.equal(scan.plan.minLength,4);assert.equal(scan.plan.maxLength,8);assert.equal(scan.plan.maxDistance,12);
+    assert.ok(scan.items.some(item=>item.term.length===4),'requested short tokens are reachable');
+    assert.ok(scan.items.every(item=>item.distance<=12));
+    const starts=await page.evaluate(()=>window.__hostLog.filter(x=>x.type==='request-lens'&&x.lens==='matrix-lexicon').length);
+    await panel.getByLabel('סוג התוצאות',{exact:true}).selectOption('source');
+    const countBefore=await panel.locator('[data-lexicon-hit]').count();assert.ok(countBefore>0);
+    await panel.getByLabel('הסתר טקסט רגיל קדימה — דילוג 1',{exact:true}).check();
+    assert.equal(await panel.locator('[data-lexicon-hit^="1_1_"]').count(),0);
+    assert.equal(await page.evaluate(()=>window.__hostLog.filter(x=>x.type==='request-lens'&&x.lens==='matrix-lexicon').length),starts);
+    assert.deepEqual(await page.evaluate(()=>window.__lens.items),scan.items,'raw result remains intact');
+    await panel.getByLabel('הסתר טקסט רגיל קדימה — דילוג 1',{exact:true}).uncheck();
+    assert.equal(await panel.locator('[data-lexicon-hit]').count(),countBefore);
+    await panel.getByRole('button',{name:'הרחב עוד טבעת · סרוק מחדש עד 30 תאים',exact:true}).click();
+    await page.waitForFunction(()=>window.__lens?.ok&&!window.__lens.pending&&window.__lens.plan?.maxDistance===30);
+    assert.equal(page.__elsDynamicLexiconRequests.length,1,'explicit rerun reuses the same fingerprinted lexicon');
+    for(const width of [320,390,1440])for(const theme of ['light','parchment','dark']) {
+      await page.setViewportSize({width,height:900});await page.evaluate(theme=>window.__setThemePreset(theme),theme);
+      assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,`${width}/${theme}`);
+      assert.ok(await panel.locator('button:visible,select:visible').evaluateAll(nodes=>nodes.every(n=>n.getBoundingClientRect().height>=44)));
+      if(process.env.ELS_SCREENSHOT_DIR){mkdirSync(process.env.ELS_SCREENSHOT_DIR,{recursive:true});await panel.scrollIntoViewIfNeeded();await page.screenshot({path:join(process.env.ELS_SCREENSHOT_DIR,`discovery-plan-${width}-${theme}.png`)});}
+    }
+    assert.equal(await page.evaluate(()=>(window.__matrixSubmits||[]).length),0);
+  },{realHost:true,loadGolden:true});
+ });
+
 test('explicit Research lexicon is lazy, exact, cancellable and responsive without AI',
  {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
   for(const width of [320,390,1440])await withNative({width,height:900},async page=>{
@@ -851,6 +889,8 @@ test('Fable existing results project exact letters without search, AI, manual-fi
     window.__readingFixture=reading;window.__setMatrixReading(reading);
     return {selected:findings[0].verification.engine.occurrence_id,positions:Array.from({length:5},(_,i)=>findings[0].occurrence.start+i*m.S)};
    });
+   assert.equal(await page.locator('.els29-matrix-ai-card').count(),1,'one persistent card, not a duplicate chat');
+   await page.locator('.els29-native-toolstrip').getByRole('button',{name:'גילוי עם AI',exact:true}).click();
    await page.getByRole('heading',{name:'ממצאים שאומתו במנוע · 25',exact:true}).waitFor();
    await page.getByText('חלק מהציר הראשי — לא הצלבה חדשה',{exact:true}).waitFor();
    assert.equal(await page.locator('.els29-matrix-reading-result li').count(),25,'not limited to the 12 manual findings');
@@ -2325,6 +2365,8 @@ test('matrix analysis submits only on explicit action and keeps successive axis 
  {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
  for(const width of [320,1440])await withNative({width,height:900},async page=>{
   assert.equal(await page.evaluate(()=>(window.__matrixSubmits||[]).length),0);
+  await page.locator('.els29-ai-entry').click();
+  assert.equal(await page.evaluate(()=>(window.__matrixSubmits||[]).length),0,'opening AI panel never submits');
   await page.getByRole('button',{name:'בקש מרזיאל לבדוק את המטריצה'}).click();
   const first=await page.evaluate(()=>window.__matrixSubmits[0]);
   assert.equal(first.trust.matrix,'unverified_presentation');
@@ -2332,6 +2374,7 @@ test('matrix analysis submits only on explicit action and keeps successive axis 
   await form.getByRole('button',{name:'חפש',exact:true}).click();
   await page.waitForFunction(()=>window.__operation?.status==='done',null,{timeout:90000});
   assert.equal(await page.evaluate(()=>window.__matrixSubmits.length),1,'search does not submit AI');
+  await page.locator('.els29-ai-entry').click();
   await page.getByRole('button',{name:'בקש מרזיאל לבדוק את המטריצה'}).click();
   const items=await page.evaluate(()=>window.__matrixSubmits);
   assert.equal(items.length,2);assert.notEqual(items[0].axis.hitId,items[1].axis.hitId);
@@ -2343,11 +2386,15 @@ test('matrix analysis submits only on explicit action and keeps successive axis 
 test('shared matrix AI card is available across profiles without automatic submission',
  {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
  for(const profile of [{researchProfile:false},{researchProfile:true},{researchProfile:true,guided:true}])
-  await withNative({width:320,height:900},async page=>{
+  for(const width of [320,1440]) await withNative({width,height:900},async page=>{
    if(profile.guided) await page.getByRole('button',{name:'פתח מטריצה מדויקת'}).click();
    const card=page.locator('.els29-matrix-ai-card');
    assert.equal(await card.count(),1,JSON.stringify(profile));
+   assert.equal(await card.isVisible(),false,'card is quiet until explicit opening');
+   await page.locator('.els29-ai-entry').click();
    assert.equal(await card.isVisible(),true);
+   assert.equal(await page.getByRole('textbox',{name:'חיפוש משני במטריצה'}).count(),0,'AI inspector does not mix in the secondary search rail');
+   assert.equal(await page.locator('.els29-native-unified-rail').isVisible(),false);
    assert.match(await card.innerText(),/סריקת Fable המורחבת עדיין אינה מחוברת/);
    assert.equal(await page.evaluate(()=>(window.__matrixSubmits||[]).length),0);
    assert.equal(page.__elsDynamicLexiconRequests.length,0,'opening a profile with the AI card does not load the broad language asset');

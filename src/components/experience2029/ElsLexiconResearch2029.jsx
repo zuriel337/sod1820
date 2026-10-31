@@ -1,6 +1,6 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import CanonicalProgress from "../CanonicalProgress.jsx";
-import { elsLexiconWindowKey, prepareElsLexiconFindings } from "../../lib/research/elsLexiconResearch.js";
+import { elsLexiconWindowKey, prepareElsLexiconFindings, ELS_LEXICON_PRESETS, expandElsLexiconPlan, filterElsForwardSource } from "../../lib/research/elsLexiconResearch.js";
 import { groupElsLexiconDiscoveries, ELS_DISCOVERY_GROUP_LABELS } from "../../lib/research/elsStructureInspection.js";
 import ElsStructureResearch2029 from "./ElsStructureResearch2029.jsx";
 import "./elsLexiconResearch2029.css";
@@ -17,6 +17,8 @@ export default function ElsLexiconResearch2029({ state, visible, busy, response,
   const [run, setRun] = useState(null), [result, setResult] = useState(null), [notice, setNotice] = useState("");
   const [page, setPage] = useState(0), [kind, setKind] = useState("groups"), [groupType, setGroupType] = useState("all");
   const [inspectionVisited, setInspectionVisited] = useState(false);
+  const [plan, setPlan] = useState({ minLength: 5, maxLength: 10, maxDistance: 120, minMembers: 2 });
+  const [hideForwardSource, setHideForwardSource] = useState(false);
   const scanButton = useRef(null);
   const active = useRef(null), request = useRef(onRequest); request.current = onRequest;
   const key = elsLexiconWindowKey(state);
@@ -41,17 +43,31 @@ export default function ElsLexiconResearch2029({ state, visible, busy, response,
     if (response.pending) { setRun(current => ({ ...current, progress: response })); return; }
     const runKey = active.current.key; active.current = null; setRun(null);
     if (!response.ok) { setNotice(errors[response.reason] || errors["scan-failed"]); return; }
-    setResult({ key: runKey, data: { ...response, structures: groupElsLexiconDiscoveries(state, response) } }); setPage(0); setNotice("");
+    setResult({ key: runKey, state, data: response }); setPage(0); setNotice("");
   }, [response, key]);
-  const start = () => {
+  const startPlan = selectedPlan => {
     if (!visible || busy || !key || active.current) return;
-    const target = { scanId: crypto.randomUUID(), hitId: state.axis.hitId, scope: state.scope };
+    const target = { scanId: crypto.randomUUID(), hitId: state.axis.hitId, scope: state.scope, plan: { ...selectedPlan } };
     const next = { key, target }; active.current = next; setRun(next); setResult(null); setNotice(""); onRequest(target);
   };
+  const start = () => startPlan(plan);
+  const updatePlan = (field, value) => setPlan(current => {
+    const next = { ...current, [field]: Number(value) };
+    if (field === "minLength" && next.maxLength < next.minLength) next.maxLength = next.minLength;
+    if (field === "maxLength" && next.minLength > next.maxLength) next.minLength = next.maxLength;
+    return next;
+  });
   const data = result?.data, current = result?.key === key && !!key;
-  const groups = data?.structures?.groups || [];
+  const presented = useMemo(() => {
+    if (!result) return null;
+    const items = filterElsForwardSource(result.data.items, hideForwardSource);
+    return { items, structures: groupElsLexiconDiscoveries(result.state, { ...result.data, items }, result.data.plan) };
+  }, [result, hideForwardSource]);
+  const structures = presented?.structures;
+  const groups = structures?.groups || [];
   const rows = kind === "groups" ? groups.filter(group => groupType === "all" || group.types.includes(groupType))
-    : (data?.items || []).filter(item => item.kind === kind);
+    : (presented?.items || []).filter(item => item.kind === kind);
+  const nextPlan = data?.plan ? expandElsLexiconPlan(data.plan) : null;
   const slice = rows.slice(page * 20, page * 20 + 20);
   const isAdded = item => {
     const finding = state?.findings?.find(f => f.t === item.term);
@@ -66,8 +82,34 @@ export default function ElsLexiconResearch2029({ state, visible, busy, response,
   return <section hidden={!visible} className="els29-lexicon-research" aria-label="גילוי וקשרים במטריצה">
     <h3>גילוי וקשרים במטריצה</h3>
     <p>גלו מילים וקשרים בחלון הנוכחי, ובחרו קבוצה לבדיקה ולסימון על אותה מטריצה. ללא AI.</p>
+    <details className="els29-discovery-plan"><summary>תכנית סריקה · מהיר, רחב או עמוק</summary>
+      <p>הגדירו אילו מילים לחפש וכמה להתרחק מהציר. שינוי הגדרה אינו מתחיל סריקה.</p>
+      <div className="els29-discovery-actions" role="group" aria-label="תבניות סריקה">
+        {[["quick", "מהיר"], ["broad", "רחב"], ["deep", "עמוק"]].map(([id, label]) => <button type="button" key={id} disabled={!!run}
+          aria-pressed={Object.keys(plan).every(field => plan[field] === ELS_LEXICON_PRESETS[id][field])}
+          onClick={() => setPlan({ ...ELS_LEXICON_PRESETS[id] })}>{label}</button>)}
+      </div>
+      <fieldset disabled={!!run}><legend>גבולות הסריקה בחלון הפעיל</legend>
+        <label>מינימום אותיות<select aria-label="מינימום אותיות בגילוי" value={plan.minLength} onChange={event => updatePlan("minLength", event.target.value)}>
+          {[3,4,5,6,7,8,9,10].map(n => <option key={n} value={n}>{n}</option>)}
+        </select></label>
+        <label>מקסימום אותיות<select aria-label="מקסימום אותיות בגילוי" value={plan.maxLength} onChange={event => updatePlan("maxLength", event.target.value)}>
+          {[3,4,5,6,7,8,9,10].map(n => <option key={n} value={n}>{n}</option>)}
+        </select></label>
+        <label>מרחק מרבי מהציר<select aria-label="מרחק מהציר בגילוי" value={plan.maxDistance} onChange={event => updatePlan("maxDistance", event.target.value)}>
+          {[0,4,8,12,30,40,80,120].map(n => <option key={n} value={n}>{n === 0 ? "נוגע בציר בלבד" : `עד ${n} תאים`}</option>)}
+        </select></label>
+        <label>מינימום מופעים בקבוצה<select aria-label="מינימום מופעים בקבוצה" value={plan.minMembers} onChange={event => updatePlan("minMembers", event.target.value)}>
+          {[2,3,4,5,6].map(n => <option key={n} value={n}>{n}</option>)}
+        </select></label>
+      </fieldset>
+      <p>המילון הנוכחי תומך עד 10 אותיות. בחירה ב־3–4 אותיות מוגבלת לעד 12 תאים סביב ציר מאומת באורך 5 אותיות ומעלה. „עמוק” מרחיב את התכנית בתוך החלון בלבד, לא את כל התורה.</p>
+    </details>
+    <label className="els29-discovery-source-filter"><input type="checkbox" checked={hideForwardSource}
+      onChange={event => { setHideForwardSource(event.target.checked); setPage(0); }} />הסתר טקסט רגיל קדימה — דילוג 1</label>
+    <p>קריאה לאחור בדילוג 1 נשארת מוצגת, ומסומנת כקריאה הפוכה. הסינון משנה גם את הקבוצות, בלי למחוק תוצאות או להריץ סריקה.</p>
     <details><summary>היקף הסריקה והמגבלות</summary>
-      <p>5–10 אותיות · עד 8,192 תאים, 256 שורות ו־129 עמודות · עד 100,000 בדיקות רצף ו־300 התאמות · עד 10 שניות חישוב לאחר הטעינה.</p>
+      <p>התכנית הבאה: {plan.minLength}–{plan.maxLength} אותיות · עד {plan.maxDistance} תאים מהציר · לפחות {plan.minMembers} מופעים בקבוצה, כולל הציר כשהוא משתתף. עד 8,192 תאים, 256 שורות ו־129 עמודות · עד 100,000 בדיקות רצף ו־300 התאמות · עד 10 שניות חישוב לאחר הטעינה.</p>
       <p>המילון נטען רק בלחיצה. הסריקה אינה מקיפה את כל התורה, את כל הדילוגים או כל ביטוי עברי. שמות וכתיבים שאינם במילון עלולים להחמיץ; אפשר לחפש אותם ידנית.</p>
       <p>שורות, טורים ושני האלכסונים בשני הכיוונים. קבוצות נבנות רק מההתאמות שנשמרו: מקבילות עד 8 תאים עם תמיכה משותפת, המשכים עד 3 תאים, חיתוכים, חזרות, מסדרונות ואשכולות של 3 מופעים ומעלה עד 4 תאים בין כל זוג. עד 240 קבוצות, עד 8 מופעים בקבוצה.</p>
     </details>
@@ -81,28 +123,32 @@ export default function ElsLexiconResearch2029({ state, visible, busy, response,
     {data ? <div aria-label="תוצאות הסריקה המילונית">
       <p>המופע שנסרק: <bdi>{data.origin.term}</bdi> · {data.origin.corpus === "tanakh" ? "תנ״ך" : "תורה"} · דילוג <bdi>{data.origin.skip}</bdi>.</p>
       {!current ? <p role="note">התוצאה שייכת לחלון קודם. סרקו את החלון הנוכחי לפני הוספת ממצא.</p> : null}
-      <p>{data.coverage.complete ? "הסריקה המוגדרת הושלמה" : "סריקה חלקית — הושגה תקרת החישוב או התוצאות"} · {data.items.length} מילים · {groups.length} קבוצות להצגה.</p>
+      <p>{data.coverage.complete ? "הסריקה המוגדרת הושלמה" : "סריקה חלקית — הושגה תקרת החישוב או התוצאות"} · {presented.items.length} קריאות מוצגות מתוך {data.items.length} שנשמרו · {groups.length} קבוצות להצגה.</p>
+      {hideForwardSource ? <p>{data.items.length - presented.items.length} קריאות מקור קדימה הוסתרו. קבוצות נבנו מחדש מהקריאות שנותרו; הסינון אינו משלים התאמות שלא נשמרו בגלל תקרת הסריקה.</p> : null}
+      {data.plan ? <p>בוצע: {data.plan.minLength}–{data.plan.maxLength} אותיות, עד {data.plan.maxDistance} תאים מהציר, לפחות {data.plan.minMembers} מופעים בקבוצה.</p> : null}
+      {current && nextPlan ? <button type="button" disabled={busy || !!run} onClick={() => { setPlan(nextPlan); startPlan(nextPlan); }}>הרחב עוד טבעת · סרוק מחדש עד {nextPlan.maxDistance} תאים</button> : null}
+      {nextPlan ? <p>הרחבה בודקת מחדש את התכנית בטווח רחב יותר בתוך אותו חלון. האזור שמחוץ לחלון אינו נסרק.</p> : null}
       <p>הקבוצות הן מועמדות לבדיקה. הוספה למטריצה עוברת אימות במנוע.</p>
-      {!data.structures?.ok ? <p role="status">{data.structures?.reason}</p> : null}
-      {data.structures?.truncated ? <p>מוצג מדגם של עד 240 קבוצות מכל סוגי הקשרים שנמצאו. בחרו סוג קשר למיקוד; המספרים מציינים כמה מוצגות מתוך הקבוצות שנבנו.</p> : null}
-      {data.structures?.excluded ? <p>{data.structures.excluded} התאמות עם זהות או מיקום לא שלמים לא צורפו לקבוצות.</p> : null}
+      {!structures?.ok ? <p role="status">{structures?.reason}</p> : null}
+      {structures?.truncated ? <p>מוצג מדגם של עד 240 קבוצות מכל סוגי הקשרים שנמצאו. בחרו סוג קשר למיקוד; המספרים מציינים כמה מוצגות מתוך הקבוצות שנבנו.</p> : null}
+      {structures?.excluded ? <p>{structures.excluded} התאמות עם זהות או מיקום לא שלמים לא צורפו לקבוצות.</p> : null}
       <details><summary>מקור, כיסוי וגבולות</summary>
         <p>התחלת הציר: <bdi>{data.origin.start}</bdi>. {data.coverage.completedRays}/{data.coverage.totalRays} קווים · {data.coverage.windows} רצפים נבדקו. התוצאות זמניות בעמוד זה ולא נשמרות ברענון.</p>
         <p>הסריקה מצאה התאמות לאותיות, לא דירוג של משמעות או נדירות. חלקי הציר ({data.coverage.axisFragments}) לא נספרו כממצאים חדשים.</p>
-        <p>{groups.length} קבוצות מוצגות מתוך {data.structures?.totalGroups ?? 0} שנבנו מאותן מילים. קשרים מבניים מוצגים לפני אשכולות של קרבה בלבד; בתוך כל סוג — קרבה לציר ואז מספר המופעים. זה סדר תצוגה, לא ציון חוזק.</p>
+        <p>{groups.length} קבוצות מוצגות מתוך {structures?.totalGroups ?? 0} שנבנו מאותן מילים. קשרים מבניים מוצגים לפני אשכולות של קרבה בלבד; בתוך כל סוג — קרבה לציר ואז מספר המופעים. זה סדר תצוגה, לא ציון חוזק.</p>
         <p>אוצר: מילות התנ״ך ומילון הליבה, {data.lexicon.entryCount} ערכים. התאמה מדויקת לאחר נרמול אותיות סופיות; אין השלמת אותיות.</p>
         <p>רוחב מטריצה {data.box.S}; שורות {data.box.r0}–{data.box.r1}, עמודות {data.box.c0}–{data.box.c1} (ספירה מאפס). חלון המחקר עשוי להיות גדול מהחלק המוצג במסך.</p>
         <p>סדר ההצגה: קרבה לציר, אורך, מילה ומיקום. התקרה נשמרת לפי סדר הסריקה; זו אינה הבטחה שכל הממצאים נמצאו.</p>
       </details>
       <label>סוג התוצאות <select aria-label="סוג התוצאות" value={kind} onChange={event => { setKind(event.target.value); setPage(0); }}>
         <option value="groups">קבוצות ומבנים ({groups.length})</option>
-        <option value="els">מילים בדילוג ({data.items.filter(item => item.kind === "els").length})</option>
-        <option value="source">רצפי מקור ({data.items.filter(item => item.kind === "source").length})</option>
+        <option value="els">מילים בדילוג ({presented.items.filter(item => item.kind === "els").length})</option>
+        <option value="source">רצפי מקור וקריאות הפוכות ({presented.items.filter(item => item.kind === "source").length})</option>
       </select></label>
       {kind === "groups" ? <label>סוג הקשר <select aria-label="סוג הקשר" value={groupType} onChange={event => { setGroupType(event.target.value); setPage(0); }}>
         <option value="all">כל הקשרים</option>
         {Object.entries(ELS_DISCOVERY_GROUP_LABELS).map(([value, label]) => {
-          const shown = groups.filter(group => group.types.includes(value)).length, total = data.structures?.typeCounts?.[value] ?? shown;
+          const shown = groups.filter(group => group.types.includes(value)).length, total = structures?.typeCounts?.[value] ?? shown;
           return <option key={value} value={value}>{label} ({shown === total ? shown : `${shown} מתוך ${total}`})</option>;
         })}
       </select></label> : null}
@@ -112,13 +158,13 @@ export default function ElsLexiconResearch2029({ state, visible, busy, response,
           <strong>{item.types.map(type => ELS_DISCOVERY_GROUP_LABELS[type]).join(" · ")}</strong>
           <p>{item.includesAxis ? <><bdi>{data.origin.term}</bdi> · </> : null}{item.items.map((word, index) => <React.Fragment key={`${word.term}:${word.hitId}`}>{index ? " · " : ""}<bdi>{word.label || word.term}</bdi></React.Fragment>)}</p>
           <details><summary>מה מחבר ביניהם?</summary>{item.reasons.map(reason => <p key={reason}>{reason}</p>)}
-            {item.items.map(word => <p key={`${word.term}:${word.hitId}`}><bdi>{word.label || word.term}</bdi> · {word.kind === "source" ? "רצף מקור" : "ELS"} · דילוג <bdi>{word.skip}</bdi> · התחלה <bdi>{word.start}</bdi> · {word.dir < 0 ? "אחורה" : "קדימה"}</p>)}
+            {item.items.map(word => <p key={`${word.term}:${word.hitId}`}><bdi>{word.label || word.term}</bdi> · {word.kind === "source" ? word.dir < 0 ? "קריאה הפוכה בדילוג 1" : "רצף מקור" : "ELS"} · דילוג <bdi>{word.skip}</bdi> · התחלה <bdi>{word.start}</bdi> · {word.dir < 0 ? "אחורה" : "קדימה"}</p>)}
           </details>
           {item.membersTruncated ? <p>מוצגים עד 8 מתוך {item.totalMembers} מופעים בקבוצה; ההוספה בודקת רק את המוצגים.</p> : null}
           <button type="button" disabled={!current || busy || !!run || item.items.every(isAdded) || !onRestore} onClick={() => add(item.items)}>{item.items.every(isAdded) ? "הקבוצה נבחרה במטריצה" : "אמת והצג קבוצה"}</button>
         </li>;
         const added = isAdded(item);
-        return <li key={`${item.term}:${item.hitId}`}><strong>{item.label}</strong><p>דילוג <bdi>{item.skip}</bdi> · {item.dir < 0 ? "אחורה" : "קדימה"} · התחלה <bdi>{item.start}</bdi> · {item.lexiconSources.map(source => sources[source] || source).join(" + ")}</p>
+        return <li key={`${item.term}:${item.hitId}`} data-lexicon-hit={item.hitId}><strong>{item.label}</strong><p>{item.skip === 1 ? item.dir < 0 ? "קריאה הפוכה · " : "טקסט מקור קדימה · " : ""}דילוג <bdi>{item.skip}</bdi> · {item.dir < 0 ? "אחורה" : "קדימה"} · התחלה <bdi>{item.start}</bdi> · {item.lexiconSources.map(source => sources[source] || source).join(" + ")}</p>
           <button type="button" disabled={!current || busy || !!run || added || !onRestore} onClick={() => add([item])}>{added ? "נבחר במטריצה" : `בדוק והוסף ${item.label}`}</button>
         </li>;
       })}</ol>

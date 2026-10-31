@@ -1,5 +1,21 @@
 import { captureElsResearchReturn, elsResearchSnapshotMatches, elsResearchReturnLoad } from "./elsResearchReturnSnapshot.js";
 
+// Presentation plans only; the canonical scanner independently bounds every field.
+export const ELS_LEXICON_PRESETS = Object.freeze({
+  quick: Object.freeze({ minLength: 4, maxLength: 8, maxDistance: 12, minMembers: 2 }),
+  broad: Object.freeze({ minLength: 4, maxLength: 10, maxDistance: 40, minMembers: 2 }),
+  deep: Object.freeze({ minLength: 5, maxLength: 10, maxDistance: 80, minMembers: 3 }),
+});
+
+export function filterElsForwardSource(items, hideForwardSource) {
+  return (items || []).filter(item => !hideForwardSource || !(item.skip === 1 && item.dir === 1));
+}
+
+export function expandElsLexiconPlan(plan) {
+  const maxDistance = [12, 30, 40, 80, 120].find(value => value > plan.maxDistance);
+  return maxDistance === undefined ? null : { ...plan, maxDistance };
+}
+
 // Request identity and exact return only; the canonical tool owns letters, matching and admission.
 export function elsLexiconWindowKey(state) {
   if (state?.status !== "ok" || state?.verification?.state !== "MATCH" || !state.axis) return "";
@@ -20,7 +36,7 @@ export function prepareElsLexiconFindings(state, result, items, color) {
     || state.geometry?.r1 !== result.box.r1 || state.geometry?.c0 !== result.box.c0
     || state.geometry?.cw !== result.box.c1 - result.box.c0 + 1)) return null;
   for (const item of items) {
-    if (!result.items?.includes(item) || !/^[א-ת]{5,10}$/.test(item.term) || !Number.isSafeInteger(item.skip) || item.skip < 1
+    if (!result.items?.includes(item) || !/^[א-ת]{3,10}$/.test(item.term) || !Number.isSafeInteger(item.skip) || item.skip < 1
       || ![-1, 1].includes(item.dir) || !Number.isSafeInteger(item.start) || item.start < 0
       || item.hitId !== `${item.skip}_${item.dir}_${item.start}`) return null;
   }

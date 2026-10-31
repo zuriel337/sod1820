@@ -598,6 +598,12 @@
 .els29-native-toolstrip{grid-column:2;grid-row:1;display:grid;gap:8px;position:sticky;top:80px}
 .els29-native-toolstrip button,.els29-native-panel-head button{min-width:44px;min-height:44px;border:1px solid var(--s29-line);border-radius:12px;background:var(--s29-panel);color:var(--s29-ink);font:inherit;cursor:pointer}
 .els29-native-toolstrip button{display:grid;justify-items:center;align-content:center;padding:6px 2px;gap:2px}
+.els29-ai-entry{display:grid;gap:6px;width:100%;min-height:44px;margin-block:12px;padding:12px 16px;border:1px solid var(--s29-line);border-radius:16px;background:var(--s29-panel);color:var(--s29-ink);font:inherit;text-align:start;cursor:pointer}
+.els29-ai-entry strong{color:var(--s29-accent-text);font-size:18px}.els29-ai-entry span{font-size:16px}
+.els29-ai-entry:focus-visible{outline:2px solid var(--s29-focus-ring);outline-offset:3px}
+.els29-ai-inspector{min-width:0;overflow-y:auto;overscroll-behavior:contain;padding:8px;flex:1}
+.els29-ai-inspector[hidden]{display:none}
+.els29-ai-inspector .els29-matrix-ai-card{margin:0;width:100%;box-sizing:border-box}
 .els29-native-toolstrip span{font-size:22px}
 .els29-native-toolstrip small{min-width:0;max-width:100%;font-size:var(--s29-type-micro);line-height:1.3;overflow-wrap:anywhere}
 .els29-native-toolstrip button[aria-expanded="true"],.els29-native-panel-head button[aria-pressed="true"]{border-color:var(--s29-accent);background:var(--s29-panel-soft)}
@@ -665,7 +671,7 @@
  .els29-native-classic{--els29-stage-height-base:clamp(500px,77.5dvh,700px)}
  .els29-native-layout,.els29-native-layout.is-panel-pinned,.els29-native-layout.has-system-dock.is-panel-pinned{grid-template-columns:minmax(0,1fr)}
  .els29-native-stage-column{grid-row:2}
- .els29-native-toolstrip,.els29-native-layout.is-panel-pinned .els29-native-toolstrip{grid-column:1;grid-row:1;display:flex;position:static;justify-content:flex-end}
+ .els29-native-toolstrip,.els29-native-layout.is-panel-pinned .els29-native-toolstrip{grid-column:1;grid-row:1;display:flex;flex-wrap:wrap;position:static;justify-content:flex-end}
  .els29-native-toolstrip button{min-width:64px}
  .els29-native-panel-wrap,.els29-native-layout.is-panel-pinned .els29-native-panel-wrap{
   position:relative;inset:auto;grid-column:1;grid-row:3;width:auto;z-index:auto;

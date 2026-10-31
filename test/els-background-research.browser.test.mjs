@@ -92,6 +92,19 @@ for (const theme of ['light', 'parchment', 'dark']) test(`non-AI research surviv
       assert.equal(await page.getByRole('region', { name: 'תיקיית הצפנים' }).count(), 1);
       const folderBeforeModes = await page.evaluate(() => !!(document.querySelector('.els29-recent').compareDocumentPosition(document.querySelector('.els29-mode-selector')) & Node.DOCUMENT_POSITION_FOLLOWING));
       assert.equal(folderBeforeModes, true, 'the same folder sits above mode selection');
+      // DOM order alone missed the Preview CSS order:2 regression. Exercise that
+      // actual stylesheet, every review layout, and all three page profiles.
+      const calibration = await page.addStyleTag({content:readFileSync(new URL('../src/components/experience2029/previewVisualCalibration2029.css',import.meta.url),'utf8')});
+      for(const visual of ['1','2','3','4','5','6','7','8']) {
+        await page.evaluate(value=>document.documentElement.setAttribute('data-sod-visual-option',value),visual);
+        for(const profile of ['גילוי מודרך','קלאסי','מחקר']) {
+          await page.locator('.els29-mode-selector').getByRole('button',{name:profile,exact:true}).click();
+          const geometry=await page.evaluate(()=>({folder:document.querySelector('.els29-recent').getBoundingClientRect().bottom,modes:document.querySelector('.els29-mode-selector').getBoundingClientRect().top}));
+          assert.ok(geometry.folder<=geometry.modes+1,JSON.stringify({width,theme,visual,profile,geometry}));
+        }
+      }
+      await page.evaluate(()=>document.documentElement.removeAttribute('data-sod-visual-option'));
+      await calibration.evaluate(node=>node.remove());
       await page.getByRole('button', { name: 'חיפוש מתקדם', exact: true }).click();
       const advanced = page.locator('[data-els-advanced-search]');
       const checkFormLayout = async () => {

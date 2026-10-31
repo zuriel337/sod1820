@@ -392,7 +392,7 @@ export default function Els2029Page({ previewAdvanced = false }) {
       : <div hidden={!!library}>
     {findingNotice ? <p role="status">{findingNotice}</p> : null}
     {sharedMatrix.present ? <p role="status">{sharedMatrix.loadItem ? "מטריצה משותפת: המופע והסימונים נבדקים מחדש במנוע לפני הצגתם." : "קישור המטריצה אינו תקין או גדול מדי. בקשו קישור חדש."}</p> : null}
-    {!guidedProfile ? <ElsRecentCiphers2029 onOpen={openCipher} onLibrary={showLibrary} collapseSignal={searchRevision} revision={savedRevision} enabled={!library} /> : null}
+    <ElsRecentCiphers2029 onOpen={openCipher} onLibrary={showLibrary} collapseSignal={searchRevision} revision={savedRevision} enabled={!library} />
     <nav className="els29-mode-selector" aria-label="מצבי הצופן התנ״כי">
       <div><small>סביבת עבודה</small><strong>{guidedProfile ? "גילוי מודרך" : advancedResearchProfile ? "מחקר" : "קלאסי"}</strong></div>
       <ElsMatrixProfileSwitch profile={matrixProfile} onChange={setMatrixProfile} />

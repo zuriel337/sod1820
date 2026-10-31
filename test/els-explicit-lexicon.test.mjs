@@ -52,6 +52,22 @@ test('bounded rays do not wrap across cropped columns or corpus end',async()=>{
   const scan=await result(ctx);
   for(const item of scan.items)for(const p of item.positions){assert.ok(p<text.length);assert.ok(p%20>=3&&p%20<=15);}
 });
+test('explicit length and distance plans admit short words only near a longer verified axis',async()=>{
+  const S=31,grid=Array(S*S).fill('ת'),axis={positions:[5*S+10,6*S+10,7*S+10,8*S+10,9*S+10]};
+  for(const [word,r,c] of [['אבגד',5,12],['אבגד',24,28],['אבגדהו',6,14]])
+    [...word].forEach((ch,i)=>grid[(r+i)*S+c]=ch);
+  const ctx=runtime(grid.join(''),['אבגד','אבגדהו'],axis,{S,r0:0,r1:30,c0:0,c1:30});
+  const scan=JSON.parse(JSON.stringify(await vm.runInContext('scanMatrixLexicon(axis,box,lexicon,()=>false,()=>{},{minLength:4,maxLength:8,maxDistance:40,minMembers:3})',ctx)));
+  assert.ok(scan.items.some(i=>i.term==='אבגד'&&i.start===5*S+12));
+  assert.ok(!scan.items.some(i=>i.term==='אבגד'&&i.start===24*S+28));
+  assert.ok(scan.coverage.shortTokenExcluded>0);assert.equal(scan.plan.minMembers,3);
+  const tight=await vm.runInContext('scanMatrixLexicon(axis,box,lexicon,()=>false,()=>{},{minLength:4,maxLength:8,maxDistance:0})',ctx);
+  assert.equal(tight.items.length,0);assert.ok(tight.coverage.outsidePlan>0);
+  ctx.axis={positions:[5*S+10,6*S+10,7*S+10,8*S+10]};
+  const cold=await vm.runInContext('scanMatrixLexicon(axis,box,lexicon,()=>false,()=>{},{minLength:3,maxLength:99,maxDistance:999})',ctx);
+  assert.equal(cold.plan.maxLength,10);assert.equal(cold.plan.maxDistance,120);
+  assert.ok(cold.items.every(i=>i.term.length>=5));
+});
 const state={status:'ok',term:'אבגדה',termRaw:'אבגדה',scope:'torah',verification:{state:'MATCH',corpus_id:'test'},
   axis:{hitId:'10_1_2',skip:10,start:2,direction:'fwd'},geometry:{S:10,c0:0,cw:10,r0:0,r1:8},findings:[],ui:{}};
 const origin={term:'אבגדה',corpus:'torah',corpusId:'test',skip:10,start:2,dir:1};
