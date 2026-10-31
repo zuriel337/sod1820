@@ -7,7 +7,8 @@
   position:relative;
   min-width:0;
 }
-.sod29-learn-mark-trigger{
+.sod29-learn-mark-trigger,
+.sod29-root .sod29-learn-mark-trigger{
   min-height:44px;
   min-inline-size:44px;
   max-inline-size:100%;
@@ -23,7 +24,7 @@
   font-family:var(--s29-font-ui,inherit);
   font-size:var(--s29-type-ui,16px);
   line-height:1.4;
-  font-weight:600;
+  font-weight:500;
   cursor:pointer;
 }
 .sod29-learn-mark-trigger:focus-visible{outline:2px solid var(--s29-focus-ring,var(--s29-accent));outline-offset:3px}
@@ -36,6 +37,7 @@
   color:var(--learn-accent);
   font-size:18px;
   font-weight:700;
+  line-height:1;
 }
 .sod29-learn-mark.is-prominent .sod29-learn-mark-trigger{
   border-color:var(--learn-strong);
@@ -71,7 +73,14 @@
   flex-wrap:wrap;
   margin-top:10px;
 }
-.sod29-learn-mark-actions button{
+.sod29-learn-mark-actions :is(button,a),
+.sod29-root .sod29-learn-mark-actions :is(button,a){
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  max-inline-size:100%;
+  white-space:normal;
+  text-align:center;
   min-height:44px;
   padding:8px 12px;
   border:1px solid var(--learn-line);
@@ -79,18 +88,24 @@
   background:color-mix(in srgb,var(--s29-accent) 8%,transparent);
   color:var(--learn-ink);
   font:inherit;
+  font-family:var(--s29-font-ui,inherit);
   font-size:var(--s29-type-ui,16px);
-  font-weight:600;
+  font-weight:500;
+  line-height:1.4;
   cursor:pointer;
 }
-.sod29-learn-mark-dismiss{
+.sod29-learn-mark-dismiss,
+.sod29-root .sod29-learn-mark-dismiss{
   min-height:44px;
   margin-top:8px;
   border:0;
   background:transparent;
   color:var(--learn-muted);
   font:inherit;
+  font-family:var(--s29-font-ui,inherit);
   font-size:var(--s29-type-ui,16px);
+  font-weight:500;
+  line-height:1.4;
   cursor:pointer;
 }
 .sod29-entry-orientation-slot{
@@ -118,7 +133,8 @@
   .sod29-learn-mark-disclosure{transition:none!important}
 }
 
-.sod29-learn-mark-help{
+.sod29-learn-mark-help,
+.sod29-root .sod29-learn-mark-help{
   min-height:44px;
   margin-top:8px;
   padding:6px 8px;
@@ -129,8 +145,10 @@
   background:transparent;
   color:var(--learn-muted);
   font:inherit;
+  font-family:var(--s29-font-ui,inherit);
   font-size:var(--s29-type-ui,16px);
-  font-weight:600;
+  font-weight:500;
+  line-height:1.4;
   cursor:pointer;
 }
 .sod29-learn-mark-help>span:first-child{

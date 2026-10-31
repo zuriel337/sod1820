@@ -4,6 +4,7 @@ import { emit } from "./events.js";
 // Presentation/learning state only. No truth, research state, graph state, router or course store.
 
 export const ENTRY_LEARN_SURFACE = "entry_2029";
+export const ENTRY_METHODS_LEARNING_HREF = "/beit-midrash?section=methods";
 
 export const ENTRY_ARRIVAL = Object.freeze({
   DIRECT: "direct",
@@ -166,7 +167,7 @@ export const ENTRY_ORIENTATION_MANIFESTS = Object.freeze({
   post: Object.freeze({
     version: 1,
     label: "חדש כאן? מה עושים בפוסט הזה?",
-    body: "זהו פוסט שמציג חיבורים וממצאים. מספרים וביטויים הם נקודות כניסה לבדיקה, בלי לאבד את הסיפור או את הדרך חזרה.",
+    body: "בדקו חישוב בלחיצה על ביטוי מסומן; תיעוד חסר יצוין. סגירת החלונית מחזירה לקריאה. להעמקה פתחו „מקורות וקשרים”.",
     firstAction: "number",
   }),
   number: Object.freeze({

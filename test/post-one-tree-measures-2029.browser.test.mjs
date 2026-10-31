@@ -83,7 +83,7 @@ function fixturePlugin(){
         const go=href=>{setTarget(null);navigate(href);};
         const openNumber=value=>{window.__targets.push(value);research.updateResearchContext({subject:{id:String(value.resultValue),type:'number',label:String(value.resultValue)},selection:{entityId:value.id,entityType:'gematria_expression',expression:value.expression,method:value.method,resultValue:value.resultValue,locator:value.locator},lens:'gematria'});setTarget(value);};
         const close=()=>{const back=research.context.returnTo;research.updateResearchContext(buildExactReturnPatch(research.context));go(back.href);};
-        return <Context.Provider value={{openNumber,go,razielLocked:true,registerOrientationHost:setOrientationHost}}><div className='sod29-root surface-post' style={{'--s29-page':p.pageBg,'--s29-panel':p.card,'--s29-panel-soft':p.cardSoft,'--s29-ink':p.ink,'--s29-muted':p.inkSoft,'--s29-line':p.border,'--s29-line-strong':p.borderStrong,'--s29-accent':p.accent,'--s29-accent-text':p.accentText,'--s29-focus-ring':p.focusRing,'--s29-font-ui':'Arial,sans-serif'}}>{children}
+        return <Context.Provider value={{openNumber,go,razielLocked:true,registerOrientationHost:setOrientationHost}}><div className='sod29-root surface-post' style={{'--s29-page':p.pageBg,'--s29-panel':p.card,'--s29-panel-soft':p.cardSoft,'--s29-ink':p.ink,'--s29-muted':p.inkSoft,'--s29-line':p.border,'--s29-line-strong':p.borderStrong,'--s29-accent':p.accent,'--s29-accent-text':p.accentText,'--s29-focus-ring':p.focusRing,'--s29-font-ui':'Arial,sans-serif','--s29-type-ui':'16px','--s29-type-body':'18px'}}>{children}
           {orientationHost?createPortal(<span className='sod29-entry-orientation-slot is-in-header'><LearnMark scope='surface' compact label='איך קוראים את הפוסט?'><p>הסבר קריאה שנפתח לפי בחירה.</p></LearnMark></span>,orientationHost):null}
           {target?<div role='dialog' aria-label='מספר בהקשר' className='fixture-sheet'><button onClick={close}>סגירה וחזרה למקור</button><NumberDrawer target={target} context={research.context} research={research} go={go}/></div>:null}</div></Context.Provider>;
       }
@@ -102,9 +102,10 @@ function fixturePlugin(){
       window.__cards=Array.from({length:10},(_,i)=>({id:String(i),slug:'card-'+i,title:'התכנסות '+i,numbers:[1237],status:'approved',quality:i===0?null:10,meter_score:i===0?10:99,findings:[]}));
       function NumberPage(){const research=useResearch(),navigate=useNavigate();return <main><h1>דף המספר</h1><button onClick={()=>{const back=research.context.returnTo;research.updateResearchContext(buildExactReturnPatch(research.context));navigate(back.href);}}>חזרה מדף המספר למקור</button></main>;}
       function TopicDestination(){const research=useResearch(),navigate=useNavigate();return <main><h1>כרטיס התכנסות</h1><button onClick={()=>{const back=research.context.returnTo;research.updateResearchContext(buildExactReturnPatch(research.context));navigate(back.href);}}>חזרה מההתכנסות לפוסט</button></main>;}
+      function LearningDestination(){const research=useResearch(),navigate=useNavigate();return <main><h1>לימוד שיטות בבית המדרש</h1><button onClick={()=>{const back=research.context.returnTo;research.updateResearchContext(buildExactReturnPatch(research.context));navigate(back.href,{state:{sodEntryArrival:'exact_return'}});}}>חזרה מהלימוד למקור</button></main>;}
       function Navigation(){window.__goFixture=useNavigate();return null;}
       const style=document.createElement('style');style.textContent='html,body{margin:0;padding:0}body{font-family:Arial,sans-serif}.sod29-root{display:block!important;padding:12px;box-sizing:border-box;min-height:100vh;background:var(--s29-page);color:var(--s29-ink)}.sod29-reading-post{max-width:100%;margin:auto}.fixture-sheet{position:fixed;inset:0;z-index:1000;overflow:auto;background:var(--s29-panel);padding:12px}button{min-height:44px}';document.head.append(style);
-      createRoot(document.getElementById('root')).render(<BrowserRouter><Provider><Navigation/><Routes><Route path='/post/:slug' element={<Post/>}/><Route path='/learn-control' element={<Shell><LearnMark compact label='הסבר מושג'><p>הסבר מושג נגיש</p></LearnMark><LearnMark scope='surface' prominent label='הסבר ארוך על המסך ועל האפשרויות שעומדות לרשות הקורא'><p>הסבר על המסך</p></LearnMark></Shell>}/><Route path='/2029/number/:value' element={<NumberPage/>}/><Route path='/topic/:slug' element={<TopicDestination/>}/><Route path='*' element={<p>יעד המשך</p>}/></Routes></Provider></BrowserRouter>);
+      createRoot(document.getElementById('root')).render(<BrowserRouter><Provider><Navigation/><Routes><Route path='/post/:slug' element={<Post/>}/><Route path='/learn-control' element={<Shell><LearnMark compact label='הסבר מושג'><p>הסבר מושג נגיש</p></LearnMark><LearnMark scope='surface' prominent label='הסבר ארוך על המסך ועל האפשרויות שעומדות לרשות הקורא'><p>הסבר על המסך</p></LearnMark></Shell>}/><Route path='/beit-midrash' element={<LearningDestination/>}/><Route path='/2029/number/:value' element={<NumberPage/>}/><Route path='/topic/:slug' element={<TopicDestination/>}/><Route path='*' element={<p>יעד המשך</p>}/></Routes></Provider></BrowserRouter>);
     `,
   };
   return {name:'posts-one-tree-fixture',enforce:'pre',resolveId(source){
@@ -142,6 +143,8 @@ test('built Post: adopted design, bounded backgrounds, lazy research, exact retu
       await page.goto(origin+'/post/readability-dim5?theme='+theme);await page.locator('#reading-prose').waitFor();
       const help=page.getByRole('button',{name:'איך זה עובד? — איך קוראים את הפוסט?',exact:true});await help.waitFor();
       assert.equal(await help.locator('.sod29-learn-mark-label').innerText(),'איך זה עובד?');
+      const typography=await help.evaluate(node=>{const s=getComputedStyle(node);return {font:s.fontSize,line:s.lineHeight,weight:s.fontWeight};});
+      assert.deepEqual(typography,{font:'16px',line:'22.4px',weight:'500'},'Shared help must override the generic button font inheritance');
       assert.ok((await help.getAttribute('aria-label')).includes(await help.locator('.sod29-learn-mark-label').innerText()),'Visible label is included in the accessible name');
       const geometry=await page.evaluate(()=>{
         const rect=selector=>{const b=document.querySelector(selector).getBoundingClientRect();return {x:b.x,y:b.y,width:b.width,height:b.height,center:b.x+b.width/2};};
@@ -167,18 +170,32 @@ test('built Post: adopted design, bounded backgrounds, lazy research, exact retu
       assert.equal(await help.getAttribute('aria-expanded'),'true');
       const panel=page.locator('[id="'+await help.getAttribute('aria-controls')+'"]');await panel.waitFor();const box=await panel.boundingBox();assert.ok(box.x>=0&&box.x+box.width<=width&&box.width<=520);
       const openedHelp=await help.boundingBox();assert.ok(Math.abs(openedHelp.x-geometry.help.x)<1&&Math.abs(openedHelp.y-geometry.help.y)<1,'Opening help leaves its trigger in place');
+      const studyLink=panel.getByRole('link',{name:'לימוד שיטות בבית המדרש',exact:true});assert.equal(await studyLink.getAttribute('href'),'/beit-midrash?section=methods');
+      const studyBox=await studyLink.boundingBox();assert.ok(studyBox.height>=44&&studyBox.x>=0&&studyBox.x+studyBox.width<=width);
       await page.screenshot({path:join(artifacts,`reading-help-open-${width}-${theme}.png`)});
       await page.keyboard.press('Enter');assert.equal(await help.getAttribute('aria-expanded'),'false');
       assert.equal(await page.evaluate(()=>window.__rpcs.length),0,'Reading/help do not trigger calculations');assert.deepEqual(errors,[]);
+      if(width===390&&theme==='dark'){
+        await help.click();await panel.getByRole('link',{name:'לימוד שיטות בבית המדרש',exact:true}).click();
+        await page.getByRole('heading',{name:'לימוד שיטות בבית המדרש',exact:true}).waitFor();
+        const back=await page.evaluate(()=>window.__researchContext.returnTo);assert.ok(back.href.startsWith('/post/readability-dim5?theme=dark#'));assert.equal(back.subject.type,'post');
+        await page.getByRole('button',{name:'חזרה מהלימוד למקור',exact:true}).click();
+        await page.waitForFunction(id=>document.activeElement?.id===id,back.selection.locator.slice(1));
+      }
       layoutResults.push({width,theme,...geometry});await context.close();
     }
     for(const theme of ['light','parchment','dark']){
       const context=await browser.newContext({viewport:{width:320,height:900}}),page=await context.newPage();
       await page.goto(origin+'/learn-control?theme='+theme);
       const concept=page.getByRole('button',{name:'הסבר מושג',exact:true});await concept.waitFor();assert.equal(await concept.locator('.sod29-learn-mark-label').count(),0);
+      assert.equal(await concept.evaluate(node=>getComputedStyle(node).fontSize),'16px');
       const b=await concept.boundingBox();assert.equal(b.width,44);assert.ok(b.height>=44);await concept.click();await page.getByText('הסבר מושג נגיש',{exact:true}).waitFor();
       assert.equal(await page.locator('.scope-surface .sod29-learn-mark-label').innerText(),'איך זה עובד?');
       assert.match(await page.locator('.scope-surface .sod29-learn-mark-trigger').getAttribute('aria-label'),/הסבר ארוך על המסך/);
+      const surfaceHelp=page.locator('.scope-surface .sod29-learn-mark-trigger');await surfaceHelp.click();
+      assert.equal(await surfaceHelp.evaluate(node=>getComputedStyle(node).fontSize),'16px');
+      assert.equal(await page.locator('.scope-surface a').getAttribute('href'),'/beit-midrash?section=methods');
+      assert.equal(await page.locator('.scope-concept a').count(),0);
       assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);await context.close();
     }
     writeFileSync(join(artifacts,'reading-alignment.json'),JSON.stringify(layoutResults,null,2));

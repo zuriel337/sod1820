@@ -1,5 +1,5 @@
 {
-  "status": "VISUAL_IMPLEMENTED_TESTED_HOSTED_READONLY_PREVIEW_READY",
+  "status": "SHARED_HELP_LEARNING_IMPLEMENTED_TESTED_PREVIEW_PENDING",
   "actor": "GPT",
   "handoff_to": "ZURIEL",
   "scope": "Existing Post occurrence reader, Post activation and existing source disclosure only; no shared Frame/Learn/Number/engine/CSS or product data change",
@@ -1472,7 +1472,127 @@
     "hosted_visual_browser": "Not asserted; authenticated hosted HTTP and local actual public-data browser were verified",
     "access": "Existing Vercel authentication retained"
   },
-  "hosted_preview": {
+  "help_learning_followup": {
+    "base": "deda0d1abfc613a5f21c7981976f93f99de56044",
+    "scope": "Existing shared LearnMark, its CSS and existing entry-learning manifest only; SystemFrame/Provider/global reset/school implementations unchanged",
+    "ownership": "Fresh bounded live reads found no matching Learn/entry owner, but unresolved Frame claims exist; Frame remained byte-identical. Read-only connector cannot journal claim/release.",
+    "typography": {
+      "token": "--s29-type-ui",
+      "font_size_px": 16,
+      "weight": 500,
+      "line_height_px": 22.4,
+      "minimum_target_px": 44,
+      "measured_control_width_px": 135.34375
+    },
+    "learning_href": "/beit-midrash?section=methods",
+    "behavior": [
+      "Screen-level help includes the existing methods-learning route; concept help retains its own existing actions",
+      "Text stays owned by each surface manifest; Post guidance is shorter and practical",
+      "Normal navigation preserves an origin snapshot through existing Research Context, including a matching existing Post locator",
+      "Modified clicks keep native behavior; opening help starts no engine/model work"
+    ],
+    "verification": {
+      "tests": 144,
+      "pass": 144,
+      "fail": 0,
+      "skipped": 0,
+      "node": 128,
+      "existing_learning_route_checks": 15,
+      "built_browser": 1,
+      "actual_app": {
+        "scope": "Actual local read-only App2029 with anonymous sources and real existing method registry; existing Frame exact-return action invoked through DOM, no Frame source edit",
+        "results": [
+          {
+            "path": "/post/koach-hashtika-dim5",
+            "width": 320,
+            "control": {
+              "font": "16px",
+              "family": "Rubik, \"Noto Sans Hebrew\", Arial, sans-serif",
+              "weight": "500",
+              "line": "22.4px",
+              "width": 135.34375,
+              "height": 44
+            },
+            "learningHref": "/beit-midrash?section=methods",
+            "methodLinks": 32,
+            "browserBackPath": "/post/koach-hashtika-dim5",
+            "returnEnabled": true,
+            "returnPath": "/post/koach-hashtika-dim5#source-region-post-story",
+            "overflow": false,
+            "errors": [],
+            "blocked": []
+          },
+          {
+            "path": "/post/koach-hashtika-dim5",
+            "width": 390,
+            "control": {
+              "font": "16px",
+              "family": "Rubik, \"Noto Sans Hebrew\", Arial, sans-serif",
+              "weight": "500",
+              "line": "22.4px",
+              "width": 135.34375,
+              "height": 44
+            },
+            "learningHref": "/beit-midrash?section=methods",
+            "methodLinks": 32,
+            "browserBackPath": "/post/koach-hashtika-dim5",
+            "returnEnabled": true,
+            "returnPath": "/post/koach-hashtika-dim5#source-region-post-story",
+            "overflow": false,
+            "errors": [],
+            "blocked": []
+          },
+          {
+            "path": "/post/koach-hashtika-dim5",
+            "width": 1440,
+            "control": {
+              "font": "16px",
+              "family": "Rubik, \"Noto Sans Hebrew\", Arial, sans-serif",
+              "weight": "500",
+              "line": "22.4px",
+              "width": 135.34375,
+              "height": 44
+            },
+            "learningHref": "/beit-midrash?section=methods",
+            "methodLinks": 32,
+            "browserBackPath": "/post/koach-hashtika-dim5",
+            "returnEnabled": true,
+            "returnPath": "/post/koach-hashtika-dim5#source-region-post-story",
+            "overflow": false,
+            "errors": [],
+            "blocked": []
+          },
+          {
+            "path": "/2029/number/506",
+            "width": 390,
+            "control": {
+              "font": "16px",
+              "family": "Rubik, \"Noto Sans Hebrew\", Arial, sans-serif",
+              "weight": "500",
+              "line": "22.4px",
+              "width": 135.34375,
+              "height": 44
+            },
+            "learningHref": "/beit-midrash?section=methods",
+            "methodLinks": 32,
+            "browserBackPath": "/2029/number/506",
+            "returnEnabled": true,
+            "returnPath": "/2029/number/506",
+            "overflow": false,
+            "errors": [],
+            "blocked": []
+          }
+        ]
+      },
+      "artifacts": "/workspace/shared/downloads/posts-help-learning",
+      "limits": [
+        "Hosted visual browser not asserted; authenticated hosted identity/HTTP verified separately",
+        "Other surfaces without this existing help component are not newly activated",
+        "Nine Matrix source contexts remain incomplete; no new source claim was invented"
+      ]
+    }
+  },
+  "previous_hosted_preview_before_learning": {
     "deployment_id": "dpl_HchEzedm58HG7J7TrJoYYgbYHCfn",
     "url": "https://sod1820-7ha0rk8ut-sod1820-s-projects.vercel.app",
     "status": "READY",

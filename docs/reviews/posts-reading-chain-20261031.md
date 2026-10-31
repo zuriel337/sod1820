@@ -40,3 +40,15 @@ Acceptance: 320/390/1440px, all three presets, touch/keyboard/expanded state, ba
 A focused source control is kept inside its existing header/island margins when the Frame restores focus. Final verification:128 Node checks plus one built-browser suite pass; all fourteen actual-app layout/help cases and both actual calculation/return cases pass.
 
 Machine-readable findings and final verification: `posts-reading-chain-20261031.json`.
+
+## Shared help typography and methods learning
+
+Followup base: `deda0d1abfc613a5f21c7981976f93f99de56044`. ZURIEL approved the smaller shared help and a learning link, including screens other than Posts.
+
+The generic `.sod29-root button { font:inherit }` had defeated the component's UI size/weight/line-height. The shared help control now explicitly consumes the existing16px UI token at weight500 and line-height1.4; its44px touch target remains. This affects users of LearnMark, including concept help, rather than restyling every button or changing global tokens. The Post manifest contains concise existing-action guidance; other surfaces keep their own help copy.
+
+Screen-level help links to the existing `/beit-midrash?section=methods` route. The native Router link stores an origin snapshot in the existing Research Context; a matching Post can retain its existing source locator, while unrelated source locators are not appended to another route. Modified clicks retain native browser behavior. Opening help starts no engine/model requests; visiting the existing school uses its existing registry/lesson readers. No course, engine, route registry or knowledge store was created.
+
+Fresh ownership reads show unresolved claims on SystemFrame2029; it is kept byte-identical. No Frame integration, bar, global reset, Provider or school implementation was edited. The existing exact-return action and browser Back were exercised in the actual application. The hidden header projection was invoked through DOM for its action test; that alone is not claimed as visible mobile UI acceptance.
+
+Verification:128 Node checks,15 existing school/route checks and one built-browser suite pass. Four actual local read-only app cases cover Post320/390/1440 and Number390,16px/500/22.4px typography,44px controls, the real method list and both return paths, with no page errors/blocked requests/overflow. The live registry returned32 active method links at this observation; no count is hard-coded in runtime.

@@ -1,6 +1,36 @@
 import React, { useId, useState } from "react";
-import { LEARN_SCOPE } from "../../lib/entryLearn2029.js";
+import { Link, useLocation } from "react-router-dom";
+import { ENTRY_METHODS_LEARNING_HREF, LEARN_SCOPE } from "../../lib/entryLearn2029.js";
+import { useResearch } from "../../lib/research/ResearchProvider.jsx";
 import "./learnMark2029.css";
+
+// The same Router and Research Context used by other navigation controls. A
+// learning visit preserves the current source; it does not create research data.
+function MethodsLearningLink() {
+  const location = useLocation();
+  const research = useResearch();
+  const preserveOrigin = event => {
+    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    research.updateResearchContext?.(current => {
+      const context = current || {};
+      let ownSource = false;
+      try {
+        ownSource = context.subject?.href?.startsWith("/")
+          && !context.subject.href.startsWith("//")
+          && new URL(context.subject.href, window.location.origin).pathname === location.pathname;
+      } catch { /* Unknown source identity keeps only the current route. */ }
+      const locator = ownSource && context.subject?.type === "post"
+        && context.selection?.locator?.startsWith("#") ? context.selection.locator : "";
+      const href = `${location.pathname}${location.search}${location.hash || locator}`;
+      return { returnTo: { href, label: ownSource ? context.subject.label : "חזרה למקום שממנו יצאתם",
+        subject: context.subject || null, selection: context.selection || null,
+        lens: context.lens || null, dimensions: context.dimensions || {}, journey: context.journey || null } };
+    });
+  };
+  return <Link to={ENTRY_METHODS_LEARNING_HREF} state={{ sodEntryArrival: "internal" }} onClick={preserveOrigin}>
+    לימוד שיטות בבית המדרש
+  </Link>;
+}
 
 export default function LearnMark2029({
   scope = LEARN_SCOPE.CONCEPT,
@@ -56,7 +86,10 @@ export default function LearnMark2029({
     </button>
     {open ? <div id={panelId} className="sod29-learn-mark-disclosure">
       <div className="sod29-learn-mark-copy">{children}</div>
-      {actions ? <div className="sod29-learn-mark-actions">{actions}</div> : null}
+      {actions || scope === LEARN_SCOPE.SURFACE ? <div className="sod29-learn-mark-actions">
+        {actions}
+        {scope === LEARN_SCOPE.SURFACE ? <MethodsLearningLink /> : null}
+      </div> : null}
       {onStillUnclear ? <button className="sod29-learn-mark-help" type="button" onClick={onStillUnclear}><span aria-hidden="true">!</span><span>עדיין לא ברור?</span></button> : null}
       {onDismiss ? <button className="sod29-learn-mark-dismiss" type="button" onClick={() => { setOpen(false); onDismiss(); }}>לא עכשיו</button> : null}
     </div> : null}
