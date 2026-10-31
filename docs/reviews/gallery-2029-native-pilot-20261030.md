@@ -701,3 +701,69 @@ prefix, exact append and DRAFT. Canonical18 unchanged
 IMPLEMENTED/TESTED/BRANCH_ONLY/PREVIEW_DEPLOYED_BOUNDED_VERIFIED, not main,
 Production, Edge, product DB/RLS/migration or publication. Later docs-only SHA
 is not the served runtime SHA. Other One Tree/final design gaps remain open.
+
+## 31.10 original gallery names and compact photo dates — ZURIEL correction
+
+Task `GALLERY_ORIGINAL_NAME_DATE_BADGE_20261031`, BEFORE
+`70e37812-7692-4d86-8817-e7bc14881688`, base
+`245bd6c986b4d02c6523f9f8ba1616f670b6e52d`, same continuation branch.
+Runtime commits93d002332 and8fa3410c2, final runtime
+`8fa3410c2b9a273c5940a2bd542a90f425246c5f` pushed and hosted.
+
+User decision: gallery title means its original name/part, not the technical
+wp_gallery_id. Removed the duplicate technical ID label above catalog names;
+search and numeric-aware Hebrew name sort now use those names, not internal IDs.
+Original IDs, exact URLs, stored image/part order and source names unchanged.
+Missing-name gallery heading is generic, never an ID promoted to a public title.
+
+User explicitly requests a small Gregorian date on each image with shaded
+backing on the physical left. Scoped exception is only this compact photo badge;
+existing bilingual provenance/history dates remain unchanged. The same local
+badge renders on catalog covers and every admitted full gallery image. Exact
+placement date only: stored date labelled מקור, path-derived date shows month/year
+labelled תיקייה, archive fallback labelled ארכיון; no date shows תאריך לא צוין.
+Never infer an event/report date or turn a folder month into a precise day.
+Accessible description retains provenance. Existing Gregorian formatter reused;
+no new date engine, event data, OCR inference or parallel reader.
+
+Existing public overview adds occurred_at,created_at and ONLY the date_derived
+JSON leaf, not full OCR/metadata. Legacy defaults/cache unchanged. Pure source
+composition keeps that date provenance for its admitted cover. Private eligibility,
+source identity, sibling occurrences and destination re-admission unchanged.
+Photo badge14px, bottom-left, neutral photographic backing/shadow, no pointer
+interception or cropping; width/min-height reserved while lazy images load.
+Live browser caught zero-width lazy frames after the initial min-height fix;
+explicit width fixes the real defect. Geometry assertion retained, not weakened.
+
+Verification:50 focused source/catalog/date/caption/share regressions and7 auth
+cases pass; final serial registered browser3/3 pass320/390/1440 including all
+lazy-frame bounds, exact Number return, refresh/withdrawal/privacy/error.
+One parallel fixture run timed out performing a visible Return click; unchanged
+serial rerun passed. Both builds and graph/lazy/isolation/World/Topic/hardening/
+Legacy lock/diff pass; eager gzip418538, inherited chunk warnings remain.
+Node live-reader check initially lacked inherited proxy handling; corrected
+with --use-env-proxy. An overlapping local output rebuild invalidated a first
+test server; final stable-build run passed. No product change made for harness
+failures. Logs `/tmp/gallery-date-release-units.log`,
+`/tmp/gallery-date-serial-browser.log`, `/tmp/gallery-date-layout-live.log`.
+
+Final protected deployment `dpl_8GYjPRUJaNSen2c9b8xuHCGC7Vqk`, READY target=null,
+served SHA independently verified8fa3410c2; existing SSO/read-only/mock-only/
+no-store/noindex guard retained. URL:
+https://sod1820-6k9wib14r-sod1820-s-projects.vercel.app/world?view=gallery
+Temporary share access stays out of this receipt/logs. Earlier task deployments
+CjaU2G2BpeKjz8Mh1ismbDA6ySpL and8vx1rMaHr5Yt6wnGGDArDzrPQH1D use93d002332
+and are NOT the final accepted runtime (the second request resolved the older
+remote ref while its push was pending; final request pins full8fa3410c2 SHA).
+
+Final hosted public-anonymous390/1440:87 eligible galleries,2191 image rows at
+check time, original headings/no technical ID labels, date provenance, cover
+asset loaded, all gallery photo badges within loaded/lazy frames, search/name
+sort/reload/entry/Back pass in light/parchment/dark. Zero pageerrors/model/blocked
+requests or observed product writes. Exact identity/guard smoke passed. Evidence
+`/tmp/gallery-date-hosted.log`, `/tmp/gallery-date-hosted-identity.log`, screenshots
+`/tmp/gallery-date-hosted-20261031/` (mobile catalog and desktop gallery inspected).
+No whole-corpus pixel audit or final site-wide design acceptance is claimed.
+Posts session, b30, Frame/Provider/engine, canonical contract18/plan37, source
+publication, main/Production/aliases/Edge/DB product/RLS/migrations untouched.
+This later documentation-only commit does not change the deployed runtime SHA.
