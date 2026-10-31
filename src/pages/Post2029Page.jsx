@@ -19,7 +19,7 @@ import { bilingualDateLabel } from "../lib/relativeTime2029.js";
 import { provenSourceUpdatesFor, provenUpdateForHash, formatUpdateDate } from "../lib/research/postSourceUpdates2029.js";
 import CanonicalMediaFigure2029 from "../components/experience2029/CanonicalMediaFigure2029.jsx";
 import PostCategories2029 from "../components/experience2029/PostCategories2029.jsx";
-import { postClassification2029 } from "../lib/research/postsCatalog2029Projection.js";
+import { postClassification2029, postHierarchyContext2029 } from "../lib/research/postsCatalog2029Projection.js";
 import PostConvergenceMeasures2029 from "../components/experience2029/PostConvergenceMeasures2029.jsx";
 import PostComments2029 from "../components/experience2029/PostComments2029.jsx";
 import { publicPostCommentArchiveId } from "../components/experience2029/postComments2029.js";
@@ -493,7 +493,7 @@ function PostReadingBody() {
     let id;
     try { id = decodeURIComponent(location.hash.slice(1)); } catch { return; }
     if (!id || !state.projection || !sourceRef.current) return;
-    const target = id === "post-measures" ? document.getElementById("post-measures")
+    const target = id === "post-measures" || id === "post-classification" ? document.getElementById(id)
       : [...sourceRef.current.querySelectorAll("[id]")].find(node => node.id === id);
     if (!target) return;
     revealReadingAnchor(target);
@@ -757,6 +757,17 @@ function PostReadingBody() {
     });
   };
 
+  const askAboutPostHierarchy = (seriesKey = null) => {
+    if (shell.razielLocked || !shell.openRaziel || projection.draft || projection.privateStage || projection.previewSnapshot) return;
+    const patch = postHierarchyContext2029(projection.sourcePost, { seriesKey });
+    if (!patch) return;
+    explicitGematriaFocusRef.current = null;
+    research.updateResearchContext?.({ ...patch,
+      dimensions: { ...research.context?.dimensions, ...patch.dimensions, surfaceFindings: [] } });
+    // Opening the existing companion never submits a question or creates a Follow.
+    shell.openRaziel({ razielMicroIntent: "explain_reading_focus", readingFocus: patch.dimensions.readingFocus });
+  };
+
   const openContext = () => {
     if (!activeFocus) return;
     explicitGematriaFocusRef.current = null;
@@ -924,6 +935,7 @@ function PostReadingBody() {
                 <PostCategories2029 post={projection.sourcePost} max={Infinity} />
               </div>
               {classification.legacyMediaLabels.length ? <p>„וידאו” נשמר כסיווג ישן. סוג המדיה נקבע מהמדיה עצמה, ולא מהתווית.</p> : null}
+
               {projection.excerpt ? <p>{projection.excerpt}</p> : null}
               {heroNumbers.length ? <p>המספרים פותחים חלונית באותו מקום. אפשר לבדוק את החישוב ולהמשיך בקריאה.</p> : null}
               {!isBennettMaster && !isFz1073Master && !isElectionsMaster ? <p>המקור נשמר כלשונו. חישוב, מקור ופרשנות נשארים שכבות נפרדות.</p> : null}
@@ -1072,10 +1084,25 @@ function PostReadingBody() {
 
     <PostTimeline2029 items={visibleTimeline} currentHref={`/post/${post.slug}`} />
 
+      {!projection.draft && !projection.privateStage && !projection.previewSnapshot ? <section id="post-classification" className="sod29-post-continuations">
+        <header><h2>איך הפוסט משתלב?</h2>
+        <p>הפוסט הוא הסיפור; סדרה מאגדת פרסומים, ערוץ הוא בית פרסום, ונושא מחבר תכנים על אותו עניין. אלה תפקידים שיכולים לחפוף, בלי להיכפות להורה אחד.</p>
+        <p>„מימד חמש” היא סדרת תוכן של „בדרך לנצח”; „אור הגאולה” הוא ערוץ. ההשוואה ביניהם אינה משייכת את הפוסט לערוץ. ייחוס במקור אינו זיהוי אוטומטי של כתב.</p>
+        <p>מעקב נבחר במפורש בהמשך הפוסט. רלוונטיות והמלצה של רזיאל אינן הרשמה למעקב.</p>
+        </header>
+        {classification.series.length ? classification.series.map(item => <button key={item.key} type="button" className="sod29-action"
+          disabled={shell.razielLocked || !shell.openRaziel} onClick={() => askAboutPostHierarchy(item.key)}>
+          להבין את השיוך ל{item.name} עם רזיאל
+        </button>) : <button type="button" className="sod29-action" disabled={shell.razielLocked || !shell.openRaziel} onClick={() => askAboutPostHierarchy()}>
+          לברר את שיוך הפוסט עם רזיאל
+        </button>}
+      </section> : null}
+
     <footer id="post-sources" className="sod29-reading-footnote">
       <span>מקור</span>
       <strong>{projection.sourceLine}</strong>
       <p>{projection.caveat}</p>
+
     </footer>
       </div>
     </details>

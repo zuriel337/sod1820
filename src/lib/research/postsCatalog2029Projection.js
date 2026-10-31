@@ -35,6 +35,42 @@ export function postClassification2029(post) {
     credit: author ? { name: author, prefix: publisher ? "מפרסם" : "ייחוס במקור" } : null };
 }
 
+// Explicit reading focus in the SAME Research Context / Raziel session. PLAN37
+// ENTITY_SERIES and ENTITY_CHANNEL describe different roles, not a parent-child
+// tree. The comparison with Or Geula never asserts this post belongs to it.
+// This is surface context, not a new entity, edge, permission or Follow command.
+export function postHierarchyContext2029(post, { seriesKey = null } = {}) {
+  if (!post || hasSuppressedPublicPostTag(post)
+    || !/^\d+$/.test(String(post.id)) || !Number.isSafeInteger(Number(post.id)) || Number(post.id) <= 0
+    || typeof post.slug !== "string" || !post.slug || post.slug.length > 200 || /[/?#\u0000-\u001f]/.test(post.slug)) return null;
+  const classification = postClassification2029(post);
+  const selected = seriesKey == null ? null : classification.series.find(item => item.key === seriesKey);
+  if (seriesKey != null && !selected) return null;
+  const spec = selected ? contentSeriesByKey(selected.key) : null;
+  const primary = spec
+    ? `${spec.label}: סדרת תוכן.${spec.writerLabel ? ` ${spec.writerLabel}: כתב.` : spec.publisherLabel && post.author === spec.publisherLabel ? ` ${spec.publisherLabel}: מפרסם.` : " ייחוס המחבר נשאר כפי שנרשם במקור."}`
+    : classification.series.length ? "הפוסט הוא סיפור; שיוכיו לסדרות מוצגים בנפרד בפרטי הפוסט."
+      : "בהיטל הנוכחי לא אומת שיוך לסדרה; סיווג שמור אינו חברות בסדרה.";
+  const id = String(post.id), href = `/post/${post.slug}`, locator = "#post-classification";
+  const subject = { type: "post", id, label: post.title, href };
+  const selection = { entityType: "post_classification", entityId: selected?.key || id, sourceRef: `posts:${id}`, locator };
+  const readingFocus = {
+    id: "post-classification", label: "הפוסט, הסדרה והערוץ", primary,
+    signals: ["אור הגאולה: ערוץ/בית פרסום", "ההשוואה אינה ראיית חברות בערוץ", "מעקב מפורש ≠ רלוונטיות או המלצה"],
+    sourceLabel: `PLAN37 ${spec?.decisionId || "ENTITY_SERIES/CHANNEL"} · posts:${id}`,
+    postId: id, postSlug: post.slug, locator,
+  };
+  return {
+    subject, selection, lens: "reading",
+    returnTo: { href: href + locator, label: "חזרה לשיוך הפוסט", subject, selection, lens: "reading" },
+    dimensions: {
+      entrySource: "post_classification_2029", sourceRef: `posts:${id}`,
+      surfaceFocus: { type: "post_classification", id: selection.entityId, label: readingFocus.label, postId: id, postSlug: post.slug },
+      readingFocus, numberCoreFocus: null, postClaimBinding: null, postClaimResultMatch: null,
+    },
+  };
+}
+
 export function postsCatalogScope2029(search = "") {
   const params = search instanceof URLSearchParams ? search : new URLSearchParams(search);
   const categories = params.getAll("category"), series = params.getAll("series");

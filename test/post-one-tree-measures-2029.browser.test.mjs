@@ -81,16 +81,18 @@ function fixturePlugin(){
       import {resolve2029Palette} from '/src/lib/palette.js';
       const Context=createContext(null);export const use2029Shell=()=>useContext(Context);
       export function FrameState({title,children}){return <section><h2>{title}</h2>{children}</section>;}
-      export default function Shell({children}){const [target,setTarget]=useState(null),[orientationHost,setOrientationHost]=useState(null);const research=useResearch(),navigate=useNavigate();
+      export default function Shell({children}){const [target,setTarget]=useState(null),[orientationHost,setOrientationHost]=useState(null),[razielFocus,setRazielFocus]=useState(null);const research=useResearch(),navigate=useNavigate();
         const preset=new URLSearchParams(location.search).get('theme')||sessionStorage.getItem('fixture-theme')||'dark';sessionStorage.setItem('fixture-theme',preset);window.__fixturePreset=preset;
         document.documentElement.dataset.themePreset=preset;
         const p=resolve2029Palette(preset);
         const go=href=>{setTarget(null);navigate(href);};
         const openNumber=value=>{window.__targets.push(value);research.updateResearchContext({subject:{id:String(value.resultValue),type:'number',label:String(value.resultValue)},selection:{entityId:value.id,entityType:'gematria_expression',expression:value.expression,method:value.method,resultValue:value.resultValue,locator:value.locator},lens:'gematria'});setTarget(value);};
         const close=()=>{const back=research.context.returnTo;research.updateResearchContext(buildExactReturnPatch(research.context));go(back.href);};
-        return <Context.Provider value={{openNumber,go,razielLocked:true,registerOrientationHost:setOrientationHost}}><div className='sod29-root surface-post' style={{'--s29-page':p.pageBg,'--s29-panel':p.card,'--s29-panel-soft':p.cardSoft,'--s29-ink':p.ink,'--s29-muted':p.inkSoft,'--s29-line':p.border,'--s29-line-strong':p.borderStrong,'--s29-accent':p.accent,'--s29-accent-text':p.accentText,'--s29-focus-ring':p.focusRing,'--s29-font-ui':'Arial,sans-serif','--s29-type-ui':'16px','--s29-type-body':'18px'}}>{children}
+        const openRaziel=value=>{window.__razielHandoffs.push(value);setRazielFocus(value.readingFocus);};
+        return <Context.Provider value={{openNumber,go,openRaziel,razielLocked:sessionStorage.getItem('fixture-raziel-unlocked')!=='true',registerOrientationHost:setOrientationHost}}><div className='sod29-root surface-post' style={{'--s29-page':p.pageBg,'--s29-panel':p.card,'--s29-panel-soft':p.cardSoft,'--s29-ink':p.ink,'--s29-muted':p.inkSoft,'--s29-line':p.border,'--s29-line-strong':p.borderStrong,'--s29-accent':p.accent,'--s29-accent-text':p.accentText,'--s29-focus-ring':p.focusRing,'--s29-font-ui':'Arial,sans-serif','--s29-type-ui':'16px','--s29-type-body':'18px'}}>{children}
           {orientationHost?createPortal(<span className='sod29-entry-orientation-slot is-in-header'><LearnMark scope='surface' compact label='איך קוראים את הפוסט?'><p>הסבר קריאה שנפתח לפי בחירה.</p></LearnMark></span>,orientationHost):null}
-          {target?<div role='dialog' aria-label='מספר בהקשר' className='fixture-sheet'><button onClick={close}>סגירה וחזרה למקור</button><NumberDrawer target={target} context={research.context} research={research} go={go}/></div>:null}</div></Context.Provider>;
+          {target?<div role='dialog' aria-label='מספר בהקשר' className='fixture-sheet'><button onClick={close}>סגירה וחזרה למקור</button><NumberDrawer target={target} context={research.context} research={research} go={go}/></div>:null}
+          {razielFocus?<div role='dialog' aria-label='תפיסת מעבר לרזיאל — בדיקת מתאם בלבד' className='fixture-sheet'><p>{razielFocus.primary}</p><button onClick={()=>setRazielFocus(null)}>סגירת תפיסת המעבר</button></div>:null}</div></Context.Provider>;
       }
     `,
     entry:`
@@ -102,7 +104,7 @@ function fixturePlugin(){
       import '/src/components/experience2029/systemFrame2029.css';
       import Shell from '/src/components/experience2029/Sod2029Shell.jsx';import LearnMark from '/src/components/experience2029/LearnMark2029.jsx';
       import * as postReaders from '/src/lib/research/post2029ReadingProjection.js';window.__postReaders=postReaders;
-      window.__reads=[];window.__rpcs=[];window.__targets=[];
+      window.__reads=[];window.__rpcs=[];window.__targets=[];window.__razielHandoffs=[];
       window.__post={id:9001,slug:'future-source',title:'מקור בדיקה חי',source:'ai',home_hidden:false,date:'2026-10-20',modified:'2026-10-30T14:00:00Z',tags:['1237'],categories:[],
         content:'<h2 id="native-heading" data-source-heading="true">ממצא ראשון</h2><p>הטענה כפי שנשמרה במקור</p><button id="claim-one" type="button" data-expression="התגלות" data-method="מסתתר" data-method-version="1" data-result="1237">התגלות = 1237</button><p>הפרשנות נשארת נפרדת.</p>'};
       Object.assign(window.__post,JSON.parse(sessionStorage.getItem('fixture-post-overrides')||'{}'));
@@ -147,6 +149,43 @@ test('built Post: adopted design, bounded backgrounds, lazy research, exact retu
     });
     await new Promise(done=>server.listen(0,'127.0.0.1',done));const origin=`http://127.0.0.1:${server.address().port}`;
     browser=await playwright.chromium.launch({executablePath,headless:true,args:['--no-sandbox','--disable-dev-shm-usage']});
+    // Exercise the real Post -> existing shell callback boundary. This fixture
+    // captures a handoff, never pretends to be a model/session integration test.
+    for(const width of [390,1280]){
+      const context=await browser.newContext({viewport:{width,height:900}}),page=await context.newPage();
+      await page.goto(origin+'/post/hierarchy-dim5');
+      await page.evaluate(()=>{
+        sessionStorage.setItem('fixture-post-overrides',JSON.stringify({id:5105,slug:'hierarchy-dim5',author:'בדרך לנצח',categories:['מימד חמש']}));
+        sessionStorage.setItem('fixture-raziel-unlocked','true');
+      });
+      await page.reload();await page.locator('.sod29-reading-source').waitFor();
+      assert.equal(await page.evaluate(()=>window.__razielHandoffs.length),0);
+      await page.locator('.sod29-post-research > summary').click();
+      const action=page.getByRole('button',{name:'להבין את השיוך למימד חמש עם רזיאל',exact:true});
+      await action.click();await page.getByRole('dialog',{name:'תפיסת מעבר לרזיאל — בדיקת מתאם בלבד'}).waitFor();
+      const state=await page.evaluate(()=>({context:window.__researchContext,handoffs:window.__razielHandoffs,rpcs:window.__rpcs}));
+      assert.equal(state.handoffs.length,1);
+      assert.equal(state.context.subject.type,'post');assert.equal(state.context.subject.id,'5105');
+      assert.equal(state.context.selection.entityType,'post_classification');
+      assert.equal(state.context.selection.entityId,'dimension-five');
+      assert.equal(state.context.dimensions.sourceRef,'posts:5105');
+      assert.match(state.handoffs[0].readingFocus.primary,/מימד חמש: סדרת תוכן/);
+      assert.ok(state.handoffs[0].readingFocus.signals.includes('אור הגאולה: ערוץ/בית פרסום'));
+      assert.equal(state.rpcs.length,0,'Opening the handoff does not calculate');
+      await page.getByRole('button',{name:'סגירת תפיסת המעבר',exact:true}).click();
+      const back=state.context.returnTo.href;assert.equal(back,'/post/hierarchy-dim5#post-classification');
+      await page.goto(origin+back);
+      await page.waitForFunction(()=>document.activeElement?.id==='post-classification');
+      assert.equal(await page.locator('.sod29-post-research').getAttribute('open'),'');
+      assert.equal(await page.evaluate(()=>window.__razielHandoffs.length),1,'Same-document return leaves the handoff count unchanged');
+      assert.equal(await page.getByRole('dialog').count(),0);
+      await page.reload();await page.waitForFunction(()=>document.activeElement?.id==='post-classification');
+      assert.equal(await page.evaluate(()=>window.__razielHandoffs.length),0,'Reload never auto-opens or submits');
+      assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+      const focusBox=await page.locator('#post-classification').boundingBox();assert.ok(focusBox.width>(await page.locator('.sod29-post-research-body').boundingBox()).width*.85,'Hierarchy explanation uses the reading column');
+      await page.screenshot({path:join(artifacts,`post-hierarchy-return-${width}.png`)});
+      await context.close();
+    }
     const layoutResults=[];
     for(const width of [320,390,1440])for(const theme of ['light','parchment','dark']){
       const context=await browser.newContext({viewport:{width,height:900},reducedMotion:'reduce'}),page=await context.newPage();
