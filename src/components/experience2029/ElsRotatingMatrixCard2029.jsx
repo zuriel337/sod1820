@@ -11,8 +11,9 @@ import { DESIGN_V2_PALETTES } from "../../lib/palette.js";
 import "./elsRotatingMatrixCard2029.css";
 
 export const ELS_CARD_TITLE = "חיפוש בצופן התנ״כי";
-// A factual sentence. The ELS page itself states "no AI guessing"; AI is not part of this capability.
-export const ELS_CARD_SENTENCE = "דילוגי אותיות בתורה ובכל התנ״ך, עם אימות כל מופע במנוע.";
+// Subtitle exactly as specified by ZURIEL (Human Gate, 31.10.2026). Recorded caveat: the existing ELS page states
+// "בלי ניחוש של AI" for its deterministic engine; the owner chose this wording explicitly.
+export const ELS_CARD_SENTENCE = "AI · מנוע חיפוש עוצמתי";
 export const ELS_CARD_ACTION = "פתח את הצופן";
 export const ELS_CARD_NOTE = "מטריצה להמחשה";
 export const ELS_CARD_HREF = "/code";

@@ -60,12 +60,11 @@ test("the matrix is decoration; title, sentence and action are live UI", () => {
   assert.doesNotMatch(code, /Math\.random/, "decoration must be deterministic");
 });
 
-test("copy matches the real capability: the ELS page promises no AI, so the card does not either", () => {
-  const sentence = code.match(/ELS_CARD_SENTENCE = "([^"]+)"/)[1];
-  assert.doesNotMatch(sentence, /\bAI\b|בינה מלאכותית|עוצמתי/);
+test("subtitle is exactly the wording ZURIEL specified (explicit Human Gate decision, 31.10.2026)", () => {
+  assert.match(code, /export const ELS_CARD_SENTENCE = "AI · מנוע חיפוש עוצמתי";/);
+  // Recorded caveat, kept visible so a later owner can revisit it: the ELS page itself says "no AI guessing".
   const guided = fs.readFileSync("src/components/experience2029/ElsGuidedDiscovery2029.jsx", "utf8");
   assert.match(guided, /בלי ניחוש של AI/);
-  assert.match(guided, /כל התנ״ך/);
 });
 
 test("availability is the existing feature state - nothing is enabled locally", () => {

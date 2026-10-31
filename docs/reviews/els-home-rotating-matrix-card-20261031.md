@@ -17,7 +17,7 @@ existing Home owner; this scope was a bounded component plus one slot and one ca
 A full-width entrance card between the existing world story and the cipher/video strips:
 
 - **Two foci.** (1) A softly swaying, lit Hebrew letter matrix with one golden thread through four letters
-  (an illustrative equal-step line, *not* a result). (2) A dark live panel: title, one factual sentence, the
+  (an illustrative equal-step line, *not* a result). (2) A dark live panel: title, the subtitle, the
   `פתח את הצופן` action to the existing `/code` route, and the note `מטריצה להמחשה`.
 - **Depth.** A dim flat far layer stays still behind a lit near layer that sways in 3D (`rotateX/Y/Z`, 46 s,
   alternate). The relative motion is the depth cue; in the static / reduced-motion pose the tilt still shows it.
@@ -25,14 +25,15 @@ A full-width entrance card between the existing world story and the cipher/video
   text/controls. The matrix is `aria-hidden` decoration drawn from ~220 spans — no image, no new asset.
 - **Layout.** Wide (≥720px container): panel on the start edge over the matrix, 412px minimum height.
   Narrow: matrix on top at a fixed 5:4 ratio, panel overlapping its lower edge. Heights are fixed per state.
-- **Copy.** Title `חיפוש בצופן התנ״כי`; sentence `דילוגי אותיות בתורה ובכל התנ״ך, עם אימות כל מופע במנוע.`
+- **Copy.** Title `חיפוש בצופן התנ״כי`; subtitle `AI · מנוע חיפוש עוצמתי` (exactly as specified by ZURIEL).
 
 ### Decisions for ZURIEL (flagged, reversible)
 
-1. **The suggested subtitle `AI · מנוע חיפוש עוצמתי` is not used.** It was offered "only if it matches the
-   available capability". It does not: the existing ELS guided page states `בלי ניחוש של AI`; the engine is
-   deterministic and AI appears only through Raziel, which has its own lock. The sentence above is limited to
-   what the UI states (`כל התנ״ך` scope option, `מאמת כל מופע`). Wording remains ZURIEL's to approve.
+1. **Subtitle `AI · מנוע חיפוש עוצמתי` — used exactly as ZURIEL instructed (31.10.2026, after the first version).**
+   The first version replaced it with a factual sentence because the handoff said "only if it matches the
+   available capability" and the existing ELS guided page states `בלי ניחוש של AI` (deterministic engine; AI only
+   through Raziel, which has its own lock). ZURIEL then explicitly directed the original wording, so it is the
+   shipped copy. The caveat stays recorded here and in a static test; this is a product-claim decision of the Human Gate.
 2. **A bounded "Night window" in all three presets.** The user asked for a dark panel that guarantees
    legibility over a luminous matrix. The card therefore reads the *Night* roles from the palette owner
    (`DESIGN_V2_PALETTES.dark`, no literal colours) and stays dark in Day and Parchment, framed with the host
@@ -76,7 +77,7 @@ ELS engine/pages, `/code` route.
 - `node --test test/els-home-card-2029.test.mjs` — 11/11.
 - `test/els-home-card-2029.browser.mjs` — 0 failures: widths 320/390/768/1440 × Day/Parchment/Night.
   No horizontal page/card overflow; card inside viewport; height stable (±1px between samples);
-  title Rubik 650–780 (700), line-height ≥1.04; sentence Noto Sans Hebrew ≥16px (≥18px desktop); note ≥14px;
+  title Rubik 650–780 (700), line-height ≥1.04; subtitle Noto Sans Hebrew ≥16px (≥18px desktop); note ≥14px;
   action ≥44px tall/wide and ≥16px; pause ≥44×44; worst-case contrast ≥4.5 for title/sentence/note and for the
   button label on every gradient stop; real fonts loaded; no page errors; exactly one running animation.
   Reduced motion (OS) at 390/1440: nothing animates, static tilted pose kept, pause control not offered.
@@ -138,7 +139,7 @@ Reading these honestly:
   integration; any hosted LCP/CLS/GPU result must be recorded separately.
 - No real-device (GPU, iOS Safari) check; the `container` query units (`cqw/cqi`) and `color-mix` need a modern
   engine (same baseline as the existing Home CSS).
-- Copy and the dark-in-all-presets decision await ZURIEL (Human Gate). `lock_els` was open in the live table at
+- The dark-in-all-presets decision awaits ZURIEL (Human Gate); the subtitle wording is ZURIEL's explicit instruction. `lock_els` was open in the live table at
   test time; production behaviour depends on that flag, never on this component.
 
 ## Re-run

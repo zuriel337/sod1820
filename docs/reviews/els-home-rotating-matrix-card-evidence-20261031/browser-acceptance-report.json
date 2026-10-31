@@ -5,7 +5,7 @@
       "rect": {
         "x": 12,
         "w": 296,
-        "h": 422.265625
+        "h": 397.46875
       },
       "title": [
         "Rubik, \"Noto Sans Hebrew\", Arial, sans-serif",
@@ -31,7 +31,7 @@
       "rect": {
         "x": 12,
         "w": 296,
-        "h": 422.265625
+        "h": 397.46875
       },
       "title": [
         "Rubik, \"Noto Sans Hebrew\", Arial, sans-serif",
@@ -57,7 +57,7 @@
       "rect": {
         "x": 12,
         "w": 296,
-        "h": 422.265625
+        "h": 397.46875
       },
       "title": [
         "Rubik, \"Noto Sans Hebrew\", Arial, sans-serif",
@@ -83,7 +83,7 @@
       "rect": {
         "x": 12,
         "w": 366,
-        "h": 488.0625
+        "h": 461
       },
       "title": [
         "Rubik, \"Noto Sans Hebrew\", Arial, sans-serif",
@@ -109,7 +109,7 @@
       "rect": {
         "x": 12,
         "w": 366,
-        "h": 488.0625
+        "h": 461
       },
       "title": [
         "Rubik, \"Noto Sans Hebrew\", Arial, sans-serif",
@@ -135,7 +135,7 @@
       "rect": {
         "x": 12,
         "w": 366,
-        "h": 488.0625
+        "h": 461
       },
       "title": [
         "Rubik, \"Noto Sans Hebrew\", Arial, sans-serif",
@@ -353,8 +353,8 @@
       "resumed": {
         "pressed": "false",
         "motion": "running",
-        "top": 178,
-        "bottom": 666,
+        "top": 192,
+        "bottom": 653,
         "innerH": 844,
         "vis": "visible"
       }
@@ -367,38 +367,38 @@
       "availability": "open",
       "tag": "A",
       "label": "פתח את הצופן\n←",
-      "h": 488.0625
+      "h": 461
     },
     {
       "name": "closed (lock_els enabled, mode all)",
       "availability": "blocked",
       "tag": "SPAN",
       "label": "הצופן ייפתח בקרוב",
-      "h": 488.0625
+      "h": 461
     },
     {
       "name": "registered only (mode anon, signed out)",
       "availability": "blocked",
       "tag": "SPAN",
       "label": "פתוח למשתמשים רשומים",
-      "h": 488.0625
+      "h": 461
     },
     {
       "name": "no flag row (default open)",
       "availability": "open",
       "tag": "A",
       "label": "פתח את הצופן\n←",
-      "h": 488.0625
+      "h": 461
     },
     {
       "name": "loading->open",
-      "loadingH": 488.0625,
-      "openH": 488.0625
+      "loadingH": 461,
+      "openH": 461
     }
   ],
   "requests": {
     "before": 153,
-    "after": 154,
+    "after": 153,
     "added": [
       "GET /rest/v1/site_flags +1"
     ]
