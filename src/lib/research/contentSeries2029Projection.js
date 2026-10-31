@@ -5,7 +5,7 @@ import { hasSuppressedPublicPostTag, publicPostOnlyFilter } from "./publicPostBo
 const clean = (value) => value == null ? "" : String(value).trim();
 
 // Adopted from 780db978a9dce428aef31d9b68cf5437170b1677; shared exact compatibility descriptors keep Home/World and Follow in step.
-import { CONTENT_SERIES_2029, contentSeriesMembershipFilter, hasExactMembership } from "./contentSeries2029Identity.js";
+import { CONTENT_SERIES_2029, contentSeriesMembershipFilter, hasExactMembership, hasExactSeriesPublisher2029, seriesPublisherFilter2029 } from "./contentSeries2029Identity.js";
 export { CONTENT_SERIES_2029, contentSeriesMembershipFilter } from "./contentSeries2029Identity.js";
 
 function isSuppressedPost(row) {
@@ -20,7 +20,7 @@ export function projectContentSeriesItems(rows = [], spec = {}) {
       excluded.push({ id: row?.id == null ? null : String(row.id), reason: "membership_not_exact" });
       continue;
     }
-    if (spec.exactAuthor && row?.author !== spec.exactAuthor) {
+    if (!hasExactSeriesPublisher2029(row, spec)) {
       excluded.push({ id: row?.id == null ? null : String(row.id), reason: "author_not_mapped" });
       continue;
     }
@@ -86,7 +86,10 @@ async function fetchSeriesPreview(spec, { client, limit, homeOnly }) {
     .select("id,slug,title,excerpt,author,categories,tags,image_url,thumb_url,date,modified,home_hidden", { count: "exact" })
     .or(filter)
     .or(publicPostOnlyFilter());
-  if (spec.exactAuthor) query = query.eq("author", spec.exactAuthor);
+  if (spec.exactAuthor) {
+    const publisherFilter = seriesPublisherFilter2029(spec);
+    query = publisherFilter ? query.or(publisherFilter) : query.eq("author", spec.exactAuthor);
+  }
   if (homeOnly) query = query.eq("home_hidden", false);
   const { data, error, count } = await query
     .order("modified", { ascending: false, nullsFirst: false })
