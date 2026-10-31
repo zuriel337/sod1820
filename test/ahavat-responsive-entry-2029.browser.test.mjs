@@ -77,6 +77,21 @@ test("both study modes preserve readable title/cover geometry and narrow desktop
         }
         await assertAhavatSourcePage(page.locator("#ahavat29-source"), 36);
         assert.equal(await page.locator("canvas:not([data-book-pdf-canvas])").count(), 0);
+        // Simulate a late layout shift after the previous 700ms quiet window.
+        await page.setViewportSize({ width: 390, height: 844 });
+        await page.evaluate(() => scrollTo({ top: 0, behavior: "instant" }));
+        await page.getByRole("link", { name: "למד עם ההסברים", exact: true }).click();
+        await page.evaluate(() => {
+          document.documentElement.style.overflowAnchor = "none";
+          setTimeout(() => { const el = document.querySelector(".ahavat29-intro"); el.style.paddingBlockEnd = "900px"; }, 1200);
+        });
+        await page.waitForTimeout(2000);
+        assert.ok(Math.abs(await page.locator("#ahavat29-full-reader").evaluate(el => el.getBoundingClientRect().top) - 92) <= 2, "late layout must preserve the chosen reading target");
+        await page.evaluate(() => document.querySelector(".ahavat29-intro").style.removeProperty("padding-block-end"));
+        // Real reader input wins over the temporary anchor tracking.
+        await page.mouse.wheel(0, 400);
+        await page.waitForTimeout(200);
+        assert.ok(Math.abs(await page.locator("#ahavat29-full-reader").evaluate(el => el.getBoundingClientRect().top) - 92) > 100);
         assert.deepEqual(errors, []);
       } finally { await context.close(); }
     }

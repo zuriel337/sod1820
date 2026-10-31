@@ -109,8 +109,10 @@ function scrollToBookSource(behavior) {
 // layout settles or the reader takes over; no optimization is disabled for this.
 const JUMP_ANCHORS = ["ahavat29-source", "ahavat29-full-reader", "ahavat29-toc", "ahavat29-selection", "ahavat29-spatial-title"];
 const JUMP_CLEARANCE = 92;
+let stopCurrentBookJump = () => {};
 
 function stableJump(id) {
+  stopCurrentBookJump();
   const target = document.getElementById(id);
   const root = document.querySelector(".ahavat29");
   if (!target || !root) return () => {};
@@ -118,27 +120,32 @@ function stableJump(id) {
   const interactions = ["pointerdown", "wheel", "keydown", "touchstart"];
   let observer;
   let timer;
-  let quiet;
+  let frame;
   const stop = () => {
     if (done) return;
     done = true;
     observer?.disconnect();
     window.clearTimeout(timer);
-    window.clearTimeout(quiet);
+    window.cancelAnimationFrame(frame);
+    if (stopCurrentBookJump === stop) stopCurrentBookJump = () => {};
     interactions.forEach(event => window.removeEventListener(event, stop));
   };
   const align = () => {
     if (done) return;
+    if (!target.isConnected || !root.isConnected) return stop();
     const offset = target.getBoundingClientRect().top - JUMP_CLEARANCE;
     if (Math.abs(offset) > 1) window.scrollBy({ top: offset, behavior: "instant" });
-    window.clearTimeout(quiet);
-    quiet = window.setTimeout(stop, 700);
   };
+  // A quiet 700ms is not proof lazy table/PDF layout has finished. Observe the
+  // actual target for the existing bounded window, yielding immediately to the
+  // reader and cancelling an older jump before starting the next one.
+  const track = () => { align(); if (!done) frame = window.requestAnimationFrame(track); };
+  stopCurrentBookJump = stop;
   interactions.forEach(event => window.addEventListener(event, stop, { once: true, passive: true }));
   observer = new ResizeObserver(align);
   observer.observe(root);
   timer = window.setTimeout(stop, 6000);
-  Promise.resolve(document.fonts?.ready).then(() => window.requestAnimationFrame(align));
+  frame = window.requestAnimationFrame(track);
   return stop;
 }
 
