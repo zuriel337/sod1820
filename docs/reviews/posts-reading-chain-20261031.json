@@ -1,5 +1,5 @@
 {
-  "status": "SHARED_HELP_LEARNING_IMPLEMENTED_TESTED_PREVIEW_PENDING",
+  "status": "SHARED_HELP_LEARNING_IMPLEMENTED_TESTED_HOSTED_READONLY_PREVIEW_READY",
   "actor": "GPT",
   "handoff_to": "ZURIEL",
   "scope": "Existing Post occurrence reader, Post activation and existing source disclosure only; no shared Frame/Learn/Number/engine/CSS or product data change",
@@ -1645,6 +1645,57 @@
     "production_before": "dpl_AiKPHaoo5pxo9T5PFTpcBRG7LfMA",
     "production_after": "dpl_AiKPHaoo5pxo9T5PFTpcBRG7LfMA",
     "hosted_visual_browser": "Not asserted; actual local App2029 and authenticated hosted HTTP verified",
+    "access": "Existing Vercel authentication retained"
+  },
+  "hosted_preview": {
+    "deployment_id": "dpl_9YiPbXHorNmCmCKEHyg7Aib6DGZc",
+    "url": "https://sod1820-je4sswxue-sod1820-s-projects.vercel.app",
+    "status": "READY",
+    "target": "preview",
+    "runtime_sha": "dcbfd1a94dd9af48616ce07b3f91992eff218f6f",
+    "build_duration_ms": 25533,
+    "checks": [
+      {
+        "path": "/posts-preview-identity.json",
+        "status": 200,
+        "identity": {
+          "branch": "gpt/posts-integrated-backgrounds-20261030",
+          "sha": "dcbfd1a94dd9af48616ce07b3f91992eff218f6f",
+          "target": "preview",
+          "readOnly": true,
+          "realModelCalls": false
+        },
+        "robots": "noindex"
+      },
+      {
+        "path": "/preview-readonly-sw.js",
+        "status": 200,
+        "readOnlyWorker": true,
+        "robots": "noindex"
+      },
+      {
+        "path": "/post/koach-hashtika-dim5",
+        "status": 200,
+        "readOnlyBootstrap": true,
+        "robots": "noindex"
+      },
+      {
+        "path": "/2029/number/506",
+        "status": 200,
+        "readOnlyBootstrap": true,
+        "robots": "noindex"
+      },
+      {
+        "path": "/beit-midrash?section=methods",
+        "status": 200,
+        "readOnlyBootstrap": true,
+        "robots": "noindex"
+      }
+    ],
+    "production_unchanged": true,
+    "production_before": "dpl_AiKPHaoo5pxo9T5PFTpcBRG7LfMA",
+    "production_after": "dpl_AiKPHaoo5pxo9T5PFTpcBRG7LfMA",
+    "hosted_visual_browser": "Not asserted; authenticated HTTP verified, actual UI tested locally with live public data",
     "access": "Existing Vercel authentication retained"
   }
 }
