@@ -364,3 +364,46 @@ not by inserting production records.
   Production, DB/RLS/migration, live publication or source reassignment.
   Claude's active River design, Posts and shared Frame scopes remain untouched.
   Exact final local/remote commits and limited release are recorded in AFTER.
+
+## 31 October — approved exact Claude river snapshot integration
+
+ZURIEL explicitly approved combining Claude snapshot
+`45e0ad16d56ff31d3ca5e07bcdebf38f36f73f46` with our latest findings work
+and deploying a protected Preview, with visual ownership retained by Claude.
+Passive BEFORE `19e4f741-5e01-421b-94cf-59047c5d2038`, task
+`CLAUDE_RIVER_EXACT_INTEGRATION_PREVIEW_20261031`. This is a bounded Human Gate
+integration permission, not a fabricated release of Claude's `Not released`
+source branch/visual scope.
+
+Local base `57103909ed9925645c26cea6a86ab87897a583ca`, remote base
+`c7686ee90cbf7c883138c7dedb303b97fb42be4f`, identical tree
+`3c711f200f9e062d0aa7189acc189252296cc9a0`. The exact five-file delta from
+Claude against shared base `cd8c1555ed62057cf7c8dddd6fb6ea17d5f48548`
+does not intersect our all-source findings delta. Imported all five files;
+hashes match Claude exactly, including JSX/CSS, frame browser test, real-data
+harness and Claude's gallery receipt. No visual edits, reader replacement,
+privacy change or unrelated branch import.
+
+Only our existing integrated browser check was adapted to read the date kind
+from the compact pill's accessible label. It additionally waits for actual
+photo loading and asserts End=max scroll and the last selected item, rather
+than accepting any positive scroll. No check was weakened. Claude's raw
+real-data harness is retained byte-for-byte, but not run against live services:
+its separate touch context lacks the independent network guard. Verification
+uses the actual full static app + existing read-only/mock-only worker and an
+additional browser network guard for every context.
+
+Initial local verification:15/15 river/all-source tests; seven auth-guard
+tests; normal integrated build; Legacy lock/isolation/built graph. Full app
+on real anonymous data at390/1440 returned seven photos, typed dates and
+historical gallery names, correct End position, stable selection geometry,
+exact gallery occurrence opening and Back. Real local fonts are used. The
+local dirty-build identity is not presented as a hosted commit acceptance;
+the hosted final SHA must be checked separately after commit and deployment.
+
+The existing actual integration branch is already in the builder's closed
+read-only and mock-only allowlists. No builder/test guard edit or ELS ownership
+transfer is needed. No source branch identity is spoofed. Target remains the
+existing project's Preview, with SSO preserved and only temporary scoped access;
+no Production, aliases, main, DB/RLS, live publication or other owner changes.
+Final deployment ID/SHA, hosted browser result and scoped release belong in AFTER.

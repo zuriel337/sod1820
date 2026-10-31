@@ -57,7 +57,9 @@ try{
     await river.locator('.sod29-watch:not([data-state="loading"])').waitFor({timeout:30000});
     const itemCount=await river.locator('[data-river-image]').count();assert.ok(itemCount>2);
     assert.equal(await river.locator('.r29-image-date time').count(),itemCount,'every current admitted stream photo has a typed date');
-    const firstDate=await river.locator('.r29-image-date').first().innerText();
+    // Claude's compact date pill keeps the date kind in its accessible label,
+    // not a second visible line covering the poster.
+    const firstDate=await river.locator('.r29-image-date').first().getAttribute('aria-label');
     assert.match(firstDate,/\d{2}\.\d{2}\.\d{4}/);assert.match(firstDate,/נוסף לזרם|עדכון/);
     const gallery=await river.locator('.r29-gallery-name').first().innerText();assert.match(gallery,/מתוך:/);
     const initialBounds=await river.boundingBox(),riverHeight=initialBounds.height;
@@ -66,6 +68,10 @@ try{
     assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
     const slider=river.getByRole('slider');await slider.focus();await slider.press('End');
     await page.waitForFunction(()=>document.querySelector('.r29-window').scrollTop>300);
+    await page.waitForFunction(()=>[...document.querySelectorAll('.r29-picture img')].every(im=>im.complete&&im.naturalWidth>0));
+    await slider.press('End');
+    await page.waitForFunction(()=>{const el=document.querySelector('.r29-window');return Math.abs(el.scrollTop-(el.scrollHeight-el.clientHeight))<2;});
+    await page.waitForFunction(()=>{const el=document.querySelector('.r29-rail input');const count=document.querySelectorAll('[data-river-image]').length;return el?.getAttribute('aria-valuetext')===`תמונה ${count} מתוך ${count}`;});
     const afterHeight=(await river.boundingBox()).height;
     assert.ok(Math.abs((await river.boundingBox()).width-initialBounds.width)<2,'thumbnail arrivals cannot widen Home river');
     assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));

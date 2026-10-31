@@ -17,6 +17,7 @@ const RiverPicture = memo(function RiverPicture({ item, index, selected, registe
   const share = useMemo(() => worldMediaPublicShare(item, {
     origin: typeof window !== 'undefined' ? window.location.origin : null,
   }), [item]);
+  const tag = Number.isSafeInteger(item.storedNumbers?.primary) && item.storedNumbers.primary > 0 ? item.storedNumbers.primary : null;
   const cardRef = useCallback(el => registerCard(item.galleryImageId, el), [item.galleryImageId, registerCard]);
   return <article ref={cardRef} className={`r29-picture${selected ? ' is-current' : ''}`} data-river-image={item.galleryImageId}>
     <Link to={item.streamHref} className="r29-picture-frame" aria-label={`פתיחת המקור: ${title}`}>
@@ -26,7 +27,9 @@ const RiverPicture = memo(function RiverPicture({ item, index, selected, registe
         </span> : <span className="r29-image-date">תאריך לא צוין</span>}
       </span>
     </Link>
-    <div className="r29-picture-meta"><div className="r29-picture-copy"><p className="r29-picture-title">{title}</p>
+    <div className="r29-picture-meta">
+      {tag ? <Link className="r29-num" to={numberExpressionFocusHref(tag)} aria-label={`לדף המספר ${tag}`}><bdi>{tag.toLocaleString('en-US')}</bdi></Link> : null}
+      <div className="r29-picture-copy"><p className="r29-picture-title">{title}</p>
       {item.legacyPlacement?.galleryName ? <p className="r29-gallery-name">מתוך: {publicMediaCaption(item.legacyPlacement.galleryName)}</p> : null}</div>
       {share ? <ShareActions type="image" {...share} title={title} variant="icon" sourceSurface="home_reality_stream_2029" force /> : null}
     </div>
@@ -35,7 +38,7 @@ const RiverPicture = memo(function RiverPicture({ item, index, selected, registe
 
 /** Legacy river silhouette only. All content is admitted by 2029 source readers. */
 export function RealityRiver2029({ items = [], loading = false, failed = false, onRetry, follow = null }) {
-  const view = useRef(null), cards = useRef(new Map()), knob = useRef(null), rail = useRef(null), slider = useRef(null);
+  const view = useRef(null), cards = useRef(new Map()), knob = useRef(null), rail = useRef(null), slider = useRef(null), ticks = useRef(null);
   const geometry = useRef({ max: 0, travel: 0, cards: [] }), frame = useRef(null), positionRef = useRef(0);
   const [position, setPosition] = useState(0);
   const regionId = useId();
@@ -82,6 +85,14 @@ export function RealityRiver2029({ items = [], loading = false, failed = false, 
     seek(Math.max(0, Math.min(100, (event.clientY - bounds.top) / Math.max(1, bounds.height) * 100)));
   };
   useEffect(() => {
+    // Warm the rest of the window once the page is idle (DOM only, no render): otherwise lazy pictures stay
+    // collapsed, the total height grows after a jump, and the handle's End/drag lands mid-window.
+    if (!items.length) return undefined;
+    const idle = window.requestIdleCallback || (fn => setTimeout(fn, 900)), cancel = window.cancelIdleCallback || clearTimeout;
+    const id = idle(() => cards.current.forEach(card => card.querySelectorAll('img').forEach(image => { image.loading = 'eager'; })));
+    return () => cancel(id);
+  }, [items]);
+  useEffect(() => {
     const el = view.current;
     if (!el) return;
     el.scrollTop = 0;
@@ -91,6 +102,11 @@ export function RealityRiver2029({ items = [], loading = false, failed = false, 
         travel: Math.max(0, (rail.current?.clientHeight || 0) - (knob.current?.offsetHeight || 0)),
         cards: items.map(item => { const card = cards.current.get(item.galleryImageId);
           return { top: card?.offsetTop || 0, bottom: (card?.offsetTop || 0) + (card?.offsetHeight || 0) }; }) };
+      // Rail marks sit where the handle rests when that picture is at the top of the window (DOM only, no render).
+      const { max, travel, cards: spans } = geometry.current, half = (knob.current?.offsetHeight || 0) / 2;
+      ticks.current?.childNodes.forEach((tick, i) => {
+        tick.style.top = `${(max ? Math.min(1, Math.max(0, (spans[i]?.top || 0) - 12) / max) : 0) * travel + half}px`;
+      });
       schedule();
     };
     measure();
@@ -115,24 +131,31 @@ export function RealityRiver2029({ items = [], loading = false, failed = false, 
       <div className="r29-progress"><span>בתצוגה: <bdi>{position + 1}</bdi> מתוך <bdi>{items.length}</bdi></span>
         <span>עוד <bdi>{Math.max(0, items.length - position - 1)}</bdi> בהמשך החלון</span></div>
       <div className="r29-stage">
-        <aside className="r29-detail" aria-label="הסיפור שבתמונה">
-          <span className="r29-detail-label">מבט מקרוב</span><h3>{currentTitle}</h3>
-          {date ? <p className="r29-date">{date.kind} · <time dir="ltr" dateTime={date.dateTime}>{date.label}</time></p> : null}
-          {current?.legacyPlacement?.galleryName ? <p className="r29-gallery-name">מתוך: {publicMediaCaption(current.legacyPlacement.galleryName)}</p> : null}
-          {currentCaption ? <p className="r29-description">{currentCaption}</p> : <p className="r29-description">התמונה פתוחה לעיון במקורה, עם הכיתובים וההקשר שנשמרו איתה.</p>}
-          {numbers.length ? <><p className="r29-number-label">מספרים שסומנו במקור</p><div className="r29-numbers">{numbers.map(n =>
-            <Link key={n} to={numberExpressionFocusHref(n)} aria-label={`לדף המספר ${n}`}><bdi>{n.toLocaleString('en-US')}</bdi>
-              <svg width="14" height="14" viewBox="0 0 12 12" fill="none" stroke="currentColor" aria-hidden="true"><path d="m3 9 6-6M3 3h6v6" /></svg></Link>)}</div></> : null}
-          <Link className="r29-open" to={current.streamHref}>למקור ולהקשר ←</Link>
-          <p className="r29-note">התיוגים במקור אינם כשלעצמם אימות חישוב או קשר בעץ.</p>
-        </aside>
+        <aside className="r29-detail" aria-label="הסיפור שבתמונה"><div className="r29-detail-inner" key={current.galleryImageId}>
+          <div className="r29-detail-head">
+            <span className="r29-detail-thumb" aria-hidden="true"><CanonicalMediaImage2029 item={current} thumbnail alt="" /></span>
+            <div><span className="r29-detail-label">מבט מקרוב · תמונה <bdi>{position + 1}</bdi></span><h3>{currentTitle}</h3></div>
+          </div>
+          <div className="r29-detail-body">
+            {date ? <p className="r29-date">{date.kind} · <time dir="ltr" dateTime={date.dateTime}>{date.label}</time></p> : null}
+            {current?.legacyPlacement?.galleryName ? <p className="r29-gallery-name">מתוך: {publicMediaCaption(current.legacyPlacement.galleryName)}</p> : null}
+            {currentCaption ? <p className="r29-description">{currentCaption}</p> : <p className="r29-description">התמונה פתוחה לעיון במקורה, עם הכיתובים וההקשר שנשמרו איתה.</p>}
+          </div>
+          <div className="r29-detail-foot">
+            {numbers.length ? <><p className="r29-number-label">מספרים שסומנו במקור</p><div className="r29-numbers">{numbers.map(n =>
+              <Link key={n} to={numberExpressionFocusHref(n)} aria-label={`לדף המספר ${n}`}><bdi>{n.toLocaleString('en-US')}</bdi>
+                <svg width="14" height="14" viewBox="0 0 12 12" fill="none" stroke="currentColor" aria-hidden="true"><path d="m3 9 6-6M3 3h6v6" /></svg></Link>)}</div></> : null}
+            <Link className="r29-open" to={current.streamHref}>למקור ולהקשר ←</Link>
+            <p className="r29-note">התיוגים במקור אינם כשלעצמם אימות חישוב או קשר בעץ.</p>
+          </div>
+        </div></aside>
         <div className="r29-window" id={regionId} ref={view} onScroll={schedule} tabIndex={0} role="region" aria-label="התמונות בזרם — אפשר לגלול">
-          <div className="r29-thread" aria-hidden="true" />
           {items.map((item, index) => <RiverPicture key={item.galleryImageId} item={item} index={index}
             selected={index === position} registerCard={registerCard} />)}
           <Link className="r29-end" to="/world?view=gallery&flow=1">יש עוד מה לגלות · לכל הגלריות ←</Link>
         </div>
         <div className="r29-rod"><span aria-hidden="true">תחילה</span><div className="r29-rail" ref={rail}>
+          <div className="r29-ticks" ref={ticks} aria-hidden="true">{items.map(item => <i key={item.galleryImageId} />)}</div>
           <div className="r29-knob" ref={knob} aria-hidden="true"><i /><i /><i /></div>
           <input ref={slider} type="range" min="0" max="100" step="0.1" defaultValue="0"
             aria-label="ידית הגלילה של זרם המציאות" aria-controls={regionId}
@@ -147,7 +170,8 @@ export function RealityRiver2029({ items = [], loading = false, failed = false, 
           aria-label={`חזרה לתמונה ${index + 1}`} aria-current={index === position ? 'true' : undefined} onClick={() => jump(index)}>
           <CanonicalMediaImage2029 item={item} thumbnail alt="" /><bdi>{index + 1}</bdi></button>)}
       </nav>
-      <p className="r29-note">חלון מתוך הזרם, לא כל הארכיון. ההתקדמות כאן מתארת גלילה בלבד.</p>
+      <p className="r29-note">חלון מתוך הזרם, לא כל הארכיון. ההתקדמות כאן מתארת גלילה בלבד.
+        <span className="r29-note-tags"> התיוגים במקור אינם כשלעצמם אימות חישוב או קשר בעץ.</span></p>
     </> : null}
     {follow}
   </section>;
