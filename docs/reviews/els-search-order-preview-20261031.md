@@ -35,3 +35,38 @@ from the historical AGENTS pin is not repaired. Remote main remains
 
 No project-setting/env change, custom alias, main merge/push, Edge or DB/RLS write.
 Runtime SHA, deployment and final hosted acceptance will be recorded below.
+
+## AFTER — protected Preview ready
+
+Runtime SHA: `dfcaebf508f996624ae691b71789ed73f117119d`.
+Deployment: `dpl_ZqcHZwgWPMaVLfV8eK1dzRJcH2Tw`, READY, target null (Preview).
+Host: `sod1820-4zug9ogq6-sod1820-s-projects.vercel.app`.
+Vercel Git metadata and served `/preview-identity.json` match this exact runtime
+SHA and release branch. A deployment-scoped 24-hour share link was created for
+ZURIEL; its token is not recorded in the repository. SSO protection is unchanged.
+
+Verification for this release:
+
+- Preview/account/optional-third gates: 29/29; integrated auth guard: 5/5.
+- Legacy Production lock, 2029 isolation, cheap hardening and diff check: pass.
+- Actual integrated 2029 Preview build: pass without stubs; built graph: pass,
+  160 reachable chunks, 16 eager, 416310 eager JS gzip bytes. Raziel submit stays lazy.
+- Hosted Chromium smoke: all 9 combinations of 320/390/1440 and light/parchment/dark
+  pass. Three search modes, advanced controls, optional-third checkbox, preserved
+  pair planner, unified discovery/structure tools and global Raziel are present.
+- No horizontal overflow; chat fits each viewport; no page errors, model requests
+  or automatic large-lexicon requests. Non-read requests were blocked by the
+  harness. No live search, account save or paid AI call was exercised.
+- Visually inspected the hosted 320px search and Raziel screenshots. Evidence:
+  `/tmp/els-search-order-hosted-screens`, `/tmp/els-search-order-hosted-smoke.log`.
+
+Both public custom aliases still point to `dpl_AiKPHaoo5pxo9T5PFTpcBRG7LfMA`.
+The default `sod1820.vercel.app` hostname resolves to that same existing Legacy
+Production deployment. Remote main remains `2195c9784c5c9f0b1ec3cd3c1137fbd76045845b`.
+No project settings, env, public aliases, Edge functions, schema or RLS changed.
+Only a Preview deployment and its temporary share link were created.
+
+Scope released. Passive AFTER in this receipt only; no live work_log row was
+written. A following documentation-only receipt commit does not change the
+deployed runtime SHA above. Feature-suite baseline failures/skips remain as
+recorded in the feature review; hosted smoke is not a live AI/account E2E claim.
