@@ -23,7 +23,7 @@ server=ThreadingHTTPServer(('127.0.0.1',0),functools.partial(Files,directory=str
 threading.Thread(target=server.serve_forever,daemon=True).start();BASE=f'http://127.0.0.1:{server.server_port}'
 
 def install(context):
- state={'upload_fail':False,'publish_fail':False,'like_fail':False,'hold_like':False,'held_like':None,'uploads':[],'posts':[],'likes':[],'errors':[],'unexpected':[],
+ state={'upload_fail':False,'publish_fail':False,'like_fail':False,'hold_like':False,'held_like':None,'uploads':[],'posts':[],'likes':[],'feed_sorts':[],'errors':[],'unexpected':[],
  'rows':[{'id':OLD,'parent_id':None,'author_name':'חבר קהילה','author_user_id':None,'author_contributor_id':None,'title':None,'body':'הודעת בדיקה עם לייקים ודיסלייקים מהארכיון','origin':'openweb','created_at':'2026-10-01T00:00:00Z','reactions':{'likes':7,'dislikes':3,'👍':[]},'edited_at':None,'is_deleted':False}]}
  def route(h):
   req=h.request;u=urlparse(req.url)
@@ -48,8 +48,11 @@ def install(context):
   if u.path=='/rest/v1/users':reply({'id':actor,'display_name':'חשבון בדיקה','username':'fixture','role':'admin' if actor==ADMIN else 'user','tier':'member'});return
   name=u.path.rsplit('/',1)[-1]
   if name=='community_feed_page':
-   rows=state['rows'][body.get('p_offset',0):body.get('p_offset',0)+body.get('p_limit',50)]
-   reply([{**r,'total_count':len(state['rows'])} for r in rows]);return
+   state['feed_sorts'].append(body.get('p_sort'))
+   roots=[r for r in state['rows'] if r['parent_id'] is None]
+   if body.get('p_sort')=='oldest':roots=list(reversed(roots))
+   rows=roots[body.get('p_offset',0):body.get('p_offset',0)+body.get('p_limit',50)]
+   reply([{**r,'total_count':len(roots)} for r in rows]);return
   if name=='community_message_actions_v1':reply([]);return
   if name=='community_reply_counts':reply({});return
   if name in ('community_replies_page','world_group_source_arrivals_v2','fn_list_family'):reply([]);return
@@ -58,7 +61,7 @@ def install(context):
    assert actor;assert body['p_origin']=='community_2029' and body['p_intent']=='תגובה';assert body['p_target_id']=='community'
    state['posts'].append(body)
    if state['publish_fail']:reply({'message':'synthetic publish failure'},503);return
-   state['rows'].insert(0,{'id':NEW,'parent_id':None,'author_name':'חשבון בדיקה','author_user_id':actor,'author_contributor_id':None,'title':None,'body':body['p_body'],'origin':'community_2029','created_at':'2026-10-31T10:00:00Z','reactions':{},'edited_at':None,'is_deleted':False})
+   state['rows'].insert(0,{'id':NEW,'parent_id':body['p_parent_id'],'author_name':'חשבון בדיקה','author_user_id':actor,'author_contributor_id':None,'title':None,'body':body['p_body'],'origin':'community_2029','created_at':'2026-10-31T10:00:00Z','reactions':{},'edited_at':None,'is_deleted':False})
    reply(NEW);return
   if name=='toggle_contribution_reaction':
    assert actor and body['p_visitor'] is None and body['p_emoji']=='👍';state['likes'].append(actor)
@@ -112,6 +115,34 @@ with sync_playwright() as p:
    assert not page.evaluate('document.documentElement.scrollWidth>innerWidth+1')
    page.screenshot(path=str(OUT/f'published-{width}.png'),full_page=True)
    cases.append({'width':width,'like_toggle':True,'like_failure_rollback':True,'legacy_dislikes_preserved':3,'video_upload_failure_retry':True,'publish_failure_reuses_upload':True,'native_video_controls':True,'account_switch_pending_like':True,'no_overflow':True});context.close()
+  # Reproduce the reported success + empty search for a differently shared URL
+  # of the same video, including an older loaded window retained by liked sort.
+  for width in [390,1440]:
+   for suffix,sort in [('', 'newest'),('?sort=oldest','oldest'),('?sort=liked&sourceSort=oldest','liked')]:
+    context=browser.new_context(viewport={'width':width,'height':1000});context.add_init_script('localStorage.setItem('+json.dumps(KEY)+','+json.dumps(json.dumps(session(ADMIN)))+');')
+    state=install(context);page=context.new_page();page.set_default_timeout(20000);page.on('pageerror',lambda e:state['errors'].append(str(e)))
+    page.goto(BASE+'/community/chat'+suffix,wait_until='domcontentloaded');page.locator('#message-'+OLD).wait_for()
+    search=page.get_by_placeholder('חיפוש בשיחות שבדף');previous='https://youtu.be/DAT6Soq3jf8?si=old-share';published='https://youtu.be/DAT6Soq3jf8?si=new-share'
+    search.fill(previous);expect(page.get_by_text('לא נמצאו התאמות לחיפוש',exact=True)).to_be_visible()
+    page.get_by_role('button',name='ניקוי החיפוש',exact=True).click();expect(search).to_have_value('');expect(page.locator('#message-'+OLD)).to_be_visible();search.fill(previous)
+    page.locator('textarea').fill(published);state['publish_fail']=True;page.get_by_role('button',name='פרסום',exact=True).click()
+    expect(page.get_by_text('לא הצלחנו לפרסם את ההודעה. הטיוטה נשמרה לניסיון חוזר.',exact=True)).to_be_visible()
+    expect(search).to_have_value(previous);expect(page.locator('select')).to_have_value(sort);expect(page.locator('textarea')).to_have_value(published)
+    state['publish_fail']=False;page.get_by_role('button',name='פרסום',exact=True).click();expect(page.get_by_text('ההודעה פורסמה.',exact=True)).to_be_visible()
+    expect(search).to_have_value('');expect(page.locator('select')).to_have_value('newest');expect(page.locator('#message-'+NEW)).to_be_visible()
+    expect(page.get_by_text('לא נמצאו התאמות לחיפוש',exact=True)).to_have_count(0)
+    assert 'sort=' not in page.url and 'sourceSort=' not in page.url;assert state['feed_sorts'][-1]=='newest'
+    page.reload();expect(page.locator('#message-'+NEW)).to_be_visible();expect(page.get_by_placeholder('חיפוש בשיחות שבדף')).to_have_value('')
+    assert not state['errors'] and not state['unexpected'],state
+    cases.append({'width':width,'successful_publish_visible_after':sort,'stale_search_cleared':True,'failed_publish_retains_context':True,'reload_visible':True});context.close()
+  for width in [390,1440]:
+   context=browser.new_context(viewport={'width':width,'height':1000});context.add_init_script('localStorage.setItem('+json.dumps(KEY)+','+json.dumps(json.dumps(session(ADMIN)))+');')
+   state=install(context);page=context.new_page();page.goto(BASE+'/community/chat?sort=oldest',wait_until='domcontentloaded');row=page.locator('#message-'+OLD);row.wait_for()
+   search=page.get_by_placeholder('חיפוש בשיחות שבדף');search.fill('הודעת בדיקה');row.get_by_role('button',name='השב',exact=True).click()
+   page.locator('textarea').fill('תשובה בתוך השיחה הקיימת');page.get_by_role('button',name='פרסום',exact=True).click();expect(page.get_by_text('ההודעה פורסמה.',exact=True)).to_be_visible()
+   expect(search).to_have_value('הודעת בדיקה');expect(page.locator('select')).to_have_value('oldest');assert state['posts'][0]['p_parent_id']==OLD
+   expect(row).to_be_visible();assert state['feed_sorts'][-1]=='oldest';assert not state['unexpected'],state['unexpected']
+   cases.append({'width':width,'reply_preserves_existing_search_sort_and_parent':True});context.close()
   context=browser.new_context(viewport={'width':390,'height':1000});state=install(context);page=context.new_page();page.goto(BASE+'/community/chat',wait_until='domcontentloaded');row=page.locator('#message-'+OLD)
   expect(row.get_by_role('button',name='יש להתחבר כדי לסמן אהבתי')).to_be_disabled()
   page.locator('textarea').fill('טיוטה של אורח');expect(page.get_by_role('button',name='פרסום',exact=True)).to_be_disabled()

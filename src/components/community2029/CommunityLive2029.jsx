@@ -218,6 +218,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
   const [replyTo, setReplyTo] = useState(null);
   const [sending, setSending] = useState(false);
   const [notice, setNotice] = useState("");
+  const [publishedFeedRefresh, setPublishedFeedRefresh] = useState(0);
   const composerPrincipal = user?.id || null;
   const activeComposerPrincipal = useRef(composerPrincipal);
   activeComposerPrincipal.current = composerPrincipal;
@@ -250,6 +251,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
   const feedAnchorRef = useRef(null);
   const profileReturnAnchor = useRef(null);
   const loadedFeedSort = useRef(null);
+  const loadedPublishedFeedRefresh = useRef(0);
   feedStateRef.current = { rows, loading, sending };
 
   const loadPage = useCallback(async (offset = 0, replace = false) => {
@@ -287,10 +289,11 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
   }, [feedSettled]);
 
   useEffect(() => {
-    if (memberId || claimId || threadFocus || loadedFeedSort.current === fetchSort) return;
+    if (memberId || claimId || threadFocus || loadedFeedSort.current === fetchSort && loadedPublishedFeedRefresh.current === publishedFeedRefresh) return;
+    loadedPublishedFeedRefresh.current = publishedFeedRefresh;
     loadPage(0, true);
     return () => { streamRequestRef.current++; };
-  }, [loadPage, memberId, claimId, fetchSort, threadFocus]);
+  }, [loadPage, memberId, claimId, fetchSort, threadFocus, publishedFeedRefresh]);
   useEffect(() => {
     setFocusedThread(null);
     if (!threadFocus) { setFocusedThreadState("idle"); return undefined; }
@@ -464,7 +467,14 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
         setThreadRefresh((current) => current + 1);
       }
       setDraft(""); setAttachments([]); setReplyTo(null); setNotice(user ? "ההודעה פורסמה." : "ההודעה נשלחה לבדיקה.");
-      await loadPage(0, true);
+      if (user && !replyTo && !threadFocus) {
+        // Show an accepted new root in the newest public window. A retained
+        // search (including a different YouTube share token) or old/liked window
+        // must not hide it. The feed effect reads after the URL/state commit.
+        setQuery("");
+        setParams(current => { const next = new URLSearchParams(current); next.delete("sort"); next.delete("sourceSort"); return next; }, { replace: true });
+        setPublishedFeedRefresh(value => value + 1);
+      } else await loadPage(0, true);
     } catch (error) { if (isCurrent()) setNotice(error?.code === "AUTH_REQUIRED" ? "יש להתחבר מחדש כדי לצרף קבצים. הטיוטה נשמרה." : attachments.length ? "השליחה או העלאת הקובץ נכשלה. הקבצים שנבחרו נשמרו בטיוטה לניסיון חוזר." : "לא הצלחנו לפרסם את ההודעה. הטיוטה נשמרה לניסיון חוזר."); }
     finally { if (isCurrent()) setSending(false); }
   };
@@ -525,7 +535,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
             <p id="community-search-scope" className="sod29-community-feed-controls-note">{sort === "liked" ? "לפי מספר הלייקים, מתוך ההודעות שכבר נטענו בלבד. החיפוש חל על אותן הודעות." : "החיפוש מציג התאמות מתוך ההודעות שכבר נטענו."}</p>
           </section>
           {error ? <FrameState kind="error" title="טעינת השיחות נכשלה"><p>{error}</p><button type="button" className="sod29-community-secondary" onClick={() => loadPage(0, true)}>ניסיון נוסף</button></FrameState> : null}
-          {!error && !loading && !filtered.length ? <FrameState kind="empty" title="לא נמצאו הודעות"><p>אפשר לחפש מילה אחרת.</p></FrameState> : null}
+          {!error && !loading && !filtered.length ? <FrameState kind="empty" title={query.trim() ? "לא נמצאו התאמות לחיפוש" : "אין הודעות להצגה כרגע"}>{query.trim() ? <><p>החיפוש חל רק על ההודעות שכבר נטענו.</p><button type="button" className="sod29-community-secondary" onClick={() => setQuery("")}>ניקוי החיפוש</button></> : <p>אפשר לנסות לרענן את השיחות.</p>}</FrameState> : null}
           <div className="sod29-community-feed">{filtered.map((row) => <LiveThread key={row.id} row={row} accountProfiles={accountProfiles} onReply={startReply} replyCounts={replyCounts} onRepliesLoaded={onRepliesLoaded} refreshToken={threadRefresh} messageActions={messageActions} />)}</div>
           {nextOffset < total ? <button className="sod29-community-load" type="button" disabled={loading} onClick={() => loadPage(nextOffset, false)}>{loading ? "טוען…" : "עוד הודעות"} <span aria-hidden="true">↓</span></button> : <p className="sod29-community-end">הגעתם לסוף השיחות.</p>}
         </>}
