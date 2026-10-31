@@ -81,6 +81,14 @@ test('golden river: larger dated images, stable page, no same-source scroll comm
           for(const [key,value]of Object.entries({'page':p.pageBg,'panel':p.card,'panel-soft':p.cardSoft,'line':p.border,'ink':p.ink,'muted':p.inkSoft,'warm-accent':p.warmAccent,'accent-text':p.accentText}))document.body.style.setProperty('--s29-'+key,value);
           document.body.style.background=p.pageBg;
         },preset);
+        // Colour roles are resolved by the shared palette owner (Design V2 shared treatment): numbers=identity, share=discovery, actions/selection=action.
+        const roles=await page.evaluate(async preset=>{
+          const {setThemePreset}=await import('/src/lib/themeMode.js');setThemePreset(preset);await new Promise(r=>setTimeout(r,80));
+          const {resolve2029Palette,resolveTreatment}=await import('/src/lib/palette.js'),p=resolve2029Palette(preset),want=k=>resolveTreatment(p,{purpose:k}).fg,got=sel=>document.querySelector(sel)?.style.getPropertyValue('--tr-fg').trim()??null;
+          return {number:[got('.r29-num'),want('identity')],detailNumber:[got('.r29-numbers a'),want('identity')],share:[got('.r29-share'),want('discovery')],action:[got('.r29-river'),want('action')]};
+        },preset);
+        for(const [role,[actual,expected]] of Object.entries(roles))if(actual!==null||role!=='share')assert.equal(actual,expected,`${preset}/${width}: ${role} colour comes from the shared treatment resolver`);
+        assert.equal(await page.locator('.r29-memory button[aria-current=true]').count(),1,'exactly one selected return thumbnail');
         assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
         await page.screenshot({path:`/tmp/reality-river-2029/frame-${preset}-${width}.png`,fullPage:true});
       }

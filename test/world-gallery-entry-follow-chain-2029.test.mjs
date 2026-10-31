@@ -49,7 +49,7 @@ test('World Follow consumes the canonical2029 view while retaining its Topic tar
 
 test('Claude river source/styles and canonical Follow controller/styles are not locally redesigned',()=>{
   for(const path of ['src/components/research/RealityRiver2029.jsx','src/components/research/realityRiver2029.css']) {
-    assert.equal(read(path),execFileSync('git',['show','45e0ad16d56ff31d3ca5e07bcdebf38f36f73f46:'+path],{encoding:'utf8'}));
+    assert.equal(read(path),execFileSync('git',['show','510bd8b20f5918432b3ce0e83e9432e35c1510b4:'+path],{encoding:'utf8'}));
   }
   for(const path of ['src/components/WatchButton.jsx','src/components/followCenter2029/WatchControl2029.jsx','src/components/followCenter2029/watchControl2029.css']) {
     assert.equal(read(path),execFileSync('git',['show','a10bd229f06e06733fa03f21464818f4acccee79:'+path],{encoding:'utf8'}));

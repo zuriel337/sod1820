@@ -15,7 +15,7 @@ await mkdir(out, { recursive: true });
 
 const fixture = `import React from 'react';import{createRoot}from'react-dom/client';import{MemoryRouter}from'react-router-dom';
   import HomeRiver from '/src/components/research/RealityRiver2029.jsx';
-  createRoot(document.getElementById('root')).render(React.createElement(MemoryRouter,null,React.createElement('div',{style:{maxWidth:1240,margin:'0 auto',padding:'0 8px'}},React.createElement(HomeRiver))));`;
+  createRoot(document.getElementById('root')).render(React.createElement(MemoryRouter,null,React.createElement('div',{className:'sod29-root',style:{maxWidth:1240,margin:'0 auto',padding:'0 8px'}},React.createElement(HomeRiver))));`;
 const server = await createServer({ configFile: false, root: process.cwd(), logLevel: 'error',
   server: { host: '127.0.0.1', port: 0, watch: { ignored: ['**/preview-deploy/**', '**/dist/**'] } },
   plugins: [react(), {
@@ -35,7 +35,7 @@ const shoot = async (page, river, path) => {
   const box = await river.boundingBox(), top = await page.evaluate(() => scrollY);
   await page.screenshot({ path, fullPage: true, clip: { x: box.x, y: box.y + top, width: box.width, height: box.height } });
 };
-const report = { out, widths: [], writes: [], blockedReads: [] };
+const report = { out, widths: [], writes: [], allowedReads: [] };
 try {
   for (const width of widths) {
     const context = await browser.newContext({ viewport: { width, height: 1000 }, locale: 'he-IL', reducedMotion: 'reduce' });
@@ -45,8 +45,8 @@ try {
       const url = new URL(req.url());
       if (!['GET', 'HEAD', 'OPTIONS'].includes(req.method()) && url.hostname !== '127.0.0.1') {
         // Follow-state `_get_` RPCs are POST-shaped reads; they stay blocked here. Anything else is a write.
-        if (/\/rpc\/[a-z_]*_get_[a-z0-9_]*$/.test(url.pathname)) report.blockedReads.push(url.pathname);
-        else report.writes.push(`${req.method()} ${url.pathname}`);
+        if (/\/rpc\/[a-z_]*_get_[a-z0-9_]*$/.test(url.pathname)) { report.allowedReads.push(url.pathname); return route.continue(); }
+        report.writes.push(`${req.method()} ${url.pathname}`);
         return route.abort();
       }
       return route.continue();
@@ -64,16 +64,24 @@ try {
     for (const preset of presets) {
       await page.evaluate(async preset => {
         const { resolve2029Palette } = await import('/src/lib/palette.js'), p = resolve2029Palette(preset);
-        const { TYPEFACE } = await import('/src/lib/designTokens.js');
+        const { TYPEFACE } = await import('/src/lib/designTokens.js'), { setThemePreset } = await import('/src/lib/themeMode.js');
+        setThemePreset(preset);
         for (const [key, value] of Object.entries(TYPEFACE)) document.body.style.setProperty('--s29-font-' + key, value);
         document.body.style.fontFamily = TYPEFACE.body;
         for (const [key, value] of Object.entries({ page: p.pageBg, panel: p.card, 'panel-soft': p.cardSoft, line: p.border, 'line-strong': p.borderStrong,
           ink: p.ink, muted: p.inkSoft, 'warm-accent': p.warmAccent, 'accent-text': p.accentText, discovery: p.accentDiscovery, 'focus-ring': p.focusRing,
-          'brand-gold': p.brandGold, hero: p.heroNum, 'type-micro': '14px', 'type-small': '16px', 'type-ui': '16px', 'type-body': '18px' }))
+          'brand-gold': p.brandGold, 'brand-sapphire': p.brandSapphire, 'brand-glow': p.brandGlow, hero: p.heroNum, 'accent-secondary': p.accentSecondary, glow: p.glow,
+          'on-accent': p.onAccent, 'accent-btn': p.accentBtn, 'panel-grad': p.cardGrad, 'type-micro': '14px', 'type-small': '16px', 'type-ui': '16px', 'type-body': '18px' }))
           document.body.style.setProperty('--s29-' + key, value);
         document.body.style.background = p.pageBg; document.body.dataset.preset = preset;
       }, preset);
       await page.waitForTimeout(150);
+      const roles = await page.evaluate(async preset => {
+        const { resolve2029Palette, resolveTreatment } = await import('/src/lib/palette.js'), p = resolve2029Palette(preset), want = k => resolveTreatment(p, { purpose: k }).fg;
+        const got = sel => document.querySelector(sel)?.style.getPropertyValue('--tr-fg').trim() ?? null;
+        return { number: [got('.r29-num'), want('identity')], share: [got('.r29-share'), want('discovery')], action: [got('.r29-river'), want('action')] };
+      }, preset);
+      for (const [role, [actual, expected]] of Object.entries(roles)) assert.equal(actual, expected, `${preset}/${width}: ${role} role from shared resolver`);
       await shoot(page, river, `${out}/river-${preset}-${width}.png`);
     }
     // Interaction evidence on the real window: keyboard, touch drag, stable geometry.

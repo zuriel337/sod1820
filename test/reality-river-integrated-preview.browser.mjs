@@ -56,6 +56,16 @@ try{
     await page.evaluate(()=>document.fonts.ready);
     await river.locator('.sod29-watch:not([data-state="loading"])').waitFor({timeout:30000});
     const itemCount=await river.locator('[data-river-image]').count();assert.ok(itemCount>2);
+    const colorRoles=await river.evaluate(el=>({
+      action:el.style.getPropertyValue('--tr-fg'),
+      identity:el.querySelector('.r29-num')?.style.getPropertyValue('--tr-fg'),
+      share:el.querySelector('.r29-share')?.style.getPropertyValue('--tr-fg'),
+      identityBackground:el.querySelector('.r29-num')?.style.getPropertyValue('--tr-bg'),
+      actionBackground:el.style.getPropertyValue('--tr-bg'),
+    }));
+    assert.ok(colorRoles.action&&colorRoles.identity&&colorRoles.share,'built river uses Claude shared treatment roles');
+    assert.notEqual(colorRoles.identityBackground,colorRoles.actionBackground,'identity may share action text color but has its own treatment background');
+    assert.notEqual(colorRoles.share,colorRoles.action);
     assert.equal(await river.locator('.r29-image-date time').count(),itemCount,'every current admitted stream photo has a typed date');
     // Claude's compact date pill keeps the date kind in its accessible label,
     // not a second visible line covering the poster.
@@ -111,6 +121,7 @@ try{
     await galleryRiver.locator('[data-river-image]').first().waitFor({timeout:45000});
     await page.locator('[data-catalog-gallery]').first().waitFor({timeout:45000});
     assert.equal(await galleryRiver.locator('[data-river-image]').first().getAttribute('data-river-image'),selected,'same latest occurrence as Home, not a new gallery copy');
+    assert.deepEqual(await galleryRiver.evaluate(el=>({action:el.style.getPropertyValue('--tr-fg'),identity:el.querySelector('.r29-num')?.style.getPropertyValue('--tr-fg'),share:el.querySelector('.r29-share')?.style.getPropertyValue('--tr-fg'),identityBackground:el.querySelector('.r29-num')?.style.getPropertyValue('--tr-bg'),actionBackground:el.style.getPropertyValue('--tr-bg')})),colorRoles,'World Gallery uses the same updated color roles as Home');
     assert.equal(await page.locator('.r29-follow').count(),1,'one stream Follow on the catalog');
     assert.equal(await page.locator('.r29-follow .sod29-watch').count(),1);
     assert.ok((await galleryRiver.boundingBox()).y<(await page.locator('#gallery-catalog').boundingBox()).y);

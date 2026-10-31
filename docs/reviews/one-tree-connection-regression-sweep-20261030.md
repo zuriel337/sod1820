@@ -523,3 +523,26 @@ add latest-photo cover/link identity, exact opening and Back with activity sort.
 Tests/builds and final protected hosted SHA acceptance are recorded in AFTER.
 No River/CSS redesign, Posts, Frame, engines, DB/RLS/product writes, publication,
 main or Production changes. Existing tree/time contracts are consumed unchanged.
+
+## 31 October — exact Claude shared-treatment color snapshot
+
+ZURIEL identified that Preview still used Claude45e0ad1 rather than his later
+color-role work. Fresh remote inspection confirmed510bd8b20f5918432b3ce0e83e9432e35c1510b4.
+BEFORE27f0906d-9024-48a6-b92e-a5817f91281b, task
+CLAUDE_RIVER_COLOR_EXACT_INTEGRATION_20261031. User-authorized exact integration
+does not release Claude's visual ownership or import his whole branch.
+
+Imported exact River JSX/CSS and associated fixture/real-data tests from510bd8b20.
+Number tags use shared identity treatment, actions/selection action treatment,
+share discovery treatment. Gold remains decorative on frames/handle/rail. Phone
+wrapping/tray/date fixes included in that exact snapshot. No local color redesign
+or shared palette/controller changes. The existing parity check now pins510bd8b20;
+canonical Follow remains byte-identical to its prior accepted base. Existing
+activity sorting, latest-photo cover/exact link and source re-admission retained.
+
+Claude's synthetic fixture tests all3presets/widths and checks exact resolver
+outputs. The actual-app integration additionally compares resolved role variables
+in Home and Gallery; identity/action may share foreground while backgrounds differ.
+Raw real-data harness retained for provenance, not run against live services due
+to its broader independent request guard. No unrelated Showcase/calculator work
+imported. Final tests/protected hosted SHA and scoped release belong in AFTER.
