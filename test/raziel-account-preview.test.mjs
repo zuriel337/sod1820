@@ -62,7 +62,7 @@ test('no auth, malformed batch, wrong origin/method, direct tables and unrelated
     ['/rest/v1/research_items',write],['/rest/v1/rpc/fn_upsert_family_member',{}],['/auth/v1/signup',{}],
   ]){const r=await call(worker,path,body,opts);assert.equal(r.response.status,403,path);assert.equal(r.forwarded,0);}
 });
-for(const next of ['gpt/els-context-reset-20261031','gpt/els-lexicon-structure-preview-20261030','gpt/els-search-clarity-preview-20261030','gpt/els-unified-research-preview-20261031','gpt/els-search-planners-preview-20261031','gpt/els-search-order-preview-20261031'])
+for(const next of ['gpt/els-language-preview-20261031','gpt/els-context-reset-20261031','gpt/els-lexicon-structure-preview-20261030','gpt/els-search-clarity-preview-20261030','gpt/els-unified-research-preview-20261031','gpt/els-search-planners-preview-20261031','gpt/els-search-order-preview-20261031'])
 test(`${next}: retains byte-identical account/reading guards on its exact branch only`,async()=>{
   assert.equal(selectMatrixRazielPreview({VERCEL_ENV:'preview',VERCEL_GIT_COMMIT_REF:next}),next);
   assert.equal(selectMatrixRazielPreview({VERCEL_ENV:'preview',VERCEL_GIT_COMMIT_REF:next+'-other'}),null);
