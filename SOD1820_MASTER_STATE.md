@@ -42,6 +42,17 @@ local-build tests passed. It is NOT in that Preview; no new hosted deployment,
 whole-corpus, final visual or Production acceptance is claimed. All other
 §12.10 gaps remain open; see the existing gallery receipt for evidence/limits.
 
+**Gallery continuation · 2026-10-31:** existing plan37 §12.12
+`GALLERY_2029_PUBLIC_EXPANSION_20261031`, MD5
+`df72132b708c640239555dd4e4025866`, preserves the previous entire prefix
+`9c7a7994390f135f6ec0779acd561c5f`. Native gallery locators/reader no longer
+require a29/81 allowlist (runtime `1ebd49358fe9dbf3c31dafb25530328581920754`).
+Every occurrence still requires public source admission; positive ID is not
+permission. Historical order/parts preserved, Legacy defaults unchanged.
+Live-anonymous local-build examples69/73/105 and empty102 passed390/1440;
+not proof of all106 galleries. No catalog/SEO route decision, tree promotion,
+source publication, new hosted Preview or Production change. Existing gaps remain.
+
 Live reality is resolved from:
 
 `canonical Supabase + origin/main + production where behavior matters`.

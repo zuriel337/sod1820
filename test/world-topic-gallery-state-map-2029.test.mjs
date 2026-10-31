@@ -33,3 +33,12 @@ test("bounded story runtime updates the same state map without claiming hosted o
   assert.match(checkpoint, /NOT in that Preview/);
   assert.match(checkpoint, /§12\.10 gaps remain open/);
 });
+test("gallery expansion is recorded without claiming migration of the whole archive", () => {
+  const state = read("../SOD1820_MASTER_STATE.md");
+  const checkpoint = state.slice(state.indexOf("Gallery continuation · 2026-10-31"),state.indexOf("Live reality is resolved from:"));
+  assert.match(checkpoint,/plan37 §12\.12/);
+  assert.match(checkpoint,/df72132b708c640239555dd4e4025866/);
+  assert.match(checkpoint,/not proof of all106 galleries/);
+  assert.match(checkpoint,/Legacy defaults unchanged/);
+  assert.match(checkpoint,/new hosted Preview or Production change/);
+});

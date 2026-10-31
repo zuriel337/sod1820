@@ -500,3 +500,63 @@ unchanged; no main/Production/Edge/RLS/migration/product writes. Not every root
 necessarily has multiple stories (live1073 has one); windows remain bounded.
 Generic finding-to-Topic, novelty/seen, explained meter, intake routing,
 all-gallery rollout and final cross-surface design remain open in plan37.
+
+## 31.10 continuation — existing public gallery flow beyond29/81
+
+Task `GALLERY_2029_PUBLIC_EXPANSION_20261031`; BEFORE
+`ffe18e2a-6a3e-4ddf-9241-1596cec507e8`. Base
+`fef7d4de6d2d2a93c8da1926672076303b6c761c`; runtime
+`1ebd49358fe9dbf3c31dafb25530328581920754` on the same continuation branch.
+Old apparent source-context ownership has exact AFTER554b90e7; shared Supabase
+ownership df6dca6d has exact AFTER9069d0c0 releasing every claimed path. Fresh
+bounded overlap check found no foreign writer. b30 scope remains excluded.
+
+Same document, UI, styles, source reader and occurrence model; no catalog/store,
+parallel gallery reader, migration, graph edge or automatic source promotion.
+The locator accepts any valid positive historical gallery ID, not just29/81.
+This is navigational capability, never permission. Exact public source/occurrence
+admission remains mandatory. Invalid limit/offset/ID fails before any read.
+Existing getImagesByGallery adds opt-in publicSourceOnly/throwOnError options:
+2029 opts in; original caller fields, filters, order and error defaults unchanged.
+2029 no longer treats a failed listing as a successfully empty gallery. A held
+calculation also checks native route identity before continuing to Number.
+
+Stored ordering controls each gallery window; no gallery merge, number rewrite
+or date/importance reordering. Existing historical mapping remains evidence, not
+a runtime series registry. Part5 is gallery69, part7 gallery73. Live metadata
+for the24 historical14/45 parts was checked:102/103/104 returned0 public images
+under the explicit source predicate. Nothing was published to fill those gaps.
+ShareActions automatically uses the same precise gallery occurrence URL beyond
+the pilot where public admission permits; no new share component or context leak.
+Existing Post/Archive HTML/links remain untouched (not automatically rewritten).
+
+Verification:
+
+- 72 scoped unit/contract/source/caption/gate/story regressions pass,0 skips;
+  new tests cover valid previously-unlisted IDs, exact order/window/membership,
+  private/draft/hidden/wrong-gallery denial, pre-read bound validation, empty
+  versus failed listing, Legacy defaults and optional strict source-list flags.
+- Existing registered gallery and Topic/Number browser tests2/2 pass320/1440.
+  Gallery test now includes69/73 exact selection, number tag/return/reload,
+  strict reader arguments and failed-list clear/retry. Not a live backend test.
+- Actual integrated local build with live anonymous public readers at390/1440:
+  galleries69/73/105 exact image at index7 -> original six-image window ->
+  real Number page -> Back -> exact image -> reload. All six samples passed,
+  plus empty public102 at both widths.0 pageerrors/model/blocked requests and
+  no observed product writes. Screenshots `/tmp/gallery-expansion-live-20261031/`;
+  report `/tmp/gallery-expansion-live-browser.log`. No all106 browser claim.
+- Legacy +2029 builds and built graph/lazy, isolation, World/Topic surface,
+  hardening, Legacy Production lock and diff check pass. Eager gzip417396 bytes;
+  existing chunk/static-dynamic import warnings remain; no gate weakened.
+
+Plan37 §12.12 is a dated status append, not a new contract: CAS expected
+`9c7a7994390f135f6ec0779acd561c5f`, new
+`df72132b708c640239555dd4e4025866`; dedicated readonly verifies exact append,
+previous full-prefix hash and DRAFT. Canonical18 unchanged at
+`05b73b416ab47804c9a0c807250b16f7`. MasterState points here, not a duplicate map.
+
+BRANCH_IMPLEMENTED / TESTED / NOT_DEPLOYED. Old hosted Preview unchanged;
+no main/Production/Edge/product DB/RLS/migration/source changes. Still open:
+2029 gallery catalog/series navigation based on live source references, broader
+gallery/browser coverage, old Post links not yet connected to2029, hosted Preview
+acceptance and final visual acceptance. Other One Tree gaps stay open.
