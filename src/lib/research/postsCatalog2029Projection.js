@@ -1,6 +1,6 @@
 import { getPublicResearchClient } from "./researchViewMode.js";
 import { canonicalPostCategories, postCategoryFilterNames } from "../postCategoryIdentity.js";
-import { CONTENT_SERIES_2029, contentSeriesByKey, contentSeriesKeysForPost, contentSeriesMembershipFilter, hasExactMembership } from "./contentSeries2029Identity.js";
+import { CONTENT_SERIES_2029, contentSeriesByKey, contentSeriesKeysForPost, contentSeriesMembershipFilter, hasExactMembership, hasExactSeriesPublisher2029, seriesPublisherFilter2029 } from "./contentSeries2029Identity.js";
 import { hasSuppressedPublicPostTag, publicPostOnlyFilter } from "./publicPostBoundary.js";
 import { publicWriterFollowLinks } from "../userCenter/writerPersonal2029.js";
 
@@ -153,7 +153,10 @@ export async function fetchPostsCatalog2029({ scope = postsCatalogScope2029(), p
   }
   if (spec) {
     query = query.or(contentSeriesMembershipFilter(spec));
-    if (spec.exactAuthor) query = query.eq("author", spec.exactAuthor);
+    if (spec.exactAuthor) {
+      const publisherFilter = seriesPublisherFilter2029(spec);
+      query = publisherFilter ? query.or(publisherFilter) : query.eq("author", spec.exactAuthor);
+    }
   }
   const term = postsSearch2029(search);
   // One escaped column filter on the existing public catalog, not a second search index.
@@ -162,7 +165,7 @@ export async function fetchPostsCatalog2029({ scope = postsCatalogScope2029(), p
     .order("id", { ascending: true }).range((page - 1) * 24, page * 24 - 1);
   if (error) throw error;
   if (!Array.isArray(data) || !Number.isSafeInteger(count) || count < 0) throw new Error("לא ניתן לאמת את רשימת התוכן.");
-  if (data.some(row => hasSuppressedPublicPostTag(row) || spec && (!hasExactMembership(row, spec) || spec.exactAuthor && row.author !== spec.exactAuthor))) {
+  if (data.some(row => hasSuppressedPublicPostTag(row) || spec && (!hasExactMembership(row, spec) || !hasExactSeriesPublisher2029(row, spec)))) {
     throw new Error("לא ניתן לאמת את שיוך התוכן.");
   }
   return { posts: data, total: count };
