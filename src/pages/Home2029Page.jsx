@@ -5,13 +5,14 @@ import { relativeTimeLabel } from "../lib/relativeTime2029.js";
 import Sod2029Shell, { use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import CurationMark2029 from "../components/experience2029/CurationMark2029.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
-import { fetchHome2029Projection } from "../lib/research/home2029Projection.js";
+import { fetchHome2029Projection, fetchHomeWorldPreview2029 } from "../lib/research/home2029Projection.js";
 import { buildCalculator2029FastPreview } from "../lib/research/calculator2029FastPreview.js";
 import { buildUnifiedResearchEntry } from "../lib/research/unifiedResearchEntry.js";
 import { applySeo } from "../lib/seo.js";
 import WorldFlightStory2029 from "../components/research/WorldFlightStory2029.jsx";
 import SourceArrivalList2029 from "../components/research/SourceArrivalList2029.jsx";
-import HomeRealityRiver2029 from "../components/research/RealityRiver2029.jsx";
+import HomeRealityRiver2029, { RealityRiver2029 } from "../components/research/RealityRiver2029.jsx";
+import RealityStreamFollow2029 from "../components/research/RealityStreamFollow2029.jsx";
 import HomeComposition2029 from "../components/experience2029/HomeComposition2029.jsx";
 import ElsRotatingMatrixCard2029 from "../components/experience2029/ElsRotatingMatrixCard2029.jsx";
 import { useFeatureState } from "../components/MaintenanceLock.jsx";
@@ -322,15 +323,26 @@ function HomeBody() {
   const worldOpen = !worldFeature.loading && worldFeature.allowed;
   const [query, setQuery] = useState("");
   const [homeState, setHomeState] = useState({ loading: true, projection: null });
+  const [worldRequested, setWorldRequested] = useState(false);
+  const [homeWorldState, setHomeWorldState] = useState({ loading: true, projection: null });
   const context = research.context || null;
 
   useEffect(() => {
     let live = true;
-    fetchHome2029Projection({ includeWorld: !CORE_PUBLIC_LAUNCH_2029, includeTemporal: !CORE_PUBLIC_LAUNCH_2029 })
+    fetchHome2029Projection({ includeWorld: !CORE_PUBLIC_LAUNCH_2029 && !HOME_COMPOSED, includeTemporal: !CORE_PUBLIC_LAUNCH_2029 })
       .then((projection) => { if (live) setHomeState({ loading: false, projection }); })
       .catch(() => { if (live) setHomeState({ loading: false, projection: null }); });
     return () => { live = false; };
   }, []);
+
+  useEffect(() => {
+    if (!HOME_COMPOSED || CORE_PUBLIC_LAUNCH_2029 || !worldRequested) return undefined;
+    let live = true;
+    fetchHomeWorldPreview2029()
+      .then(projection => { if (live) setHomeWorldState({ loading: false, projection }); })
+      .catch(() => { if (live) setHomeWorldState({ loading: false, projection: null }); });
+    return () => { live = false; };
+  }, [worldRequested]);
 
   const start = (e) => {
     e?.preventDefault?.();
@@ -386,7 +398,7 @@ function HomeBody() {
   };
 
   const temporalNow = homeState.projection?.temporalNow || null;
-  const worldPreview = homeState.projection?.worldPreview || null;
+  const worldPreview = HOME_COMPOSED ? homeWorldState.projection : homeState.projection?.worldPreview || null;
 
   const openCalculator = (expression) => {
     const phrase = String(expression || "").trim();
@@ -467,7 +479,8 @@ function HomeBody() {
   // Approved composition (reference fa0e26f) on the same public readers and the single Frame.
   // Include/Publish is unchanged; production keeps its current body until release.
   if (HOME_COMPOSED) return <HomeComposition2029
-    projection={homeState.projection}
+    projection={{ ...homeState.projection, worldPreview }}
+    onWorldApproach={setWorldRequested}
     loading={homeState.loading}
     corePublic={CORE_PUBLIC_LAUNCH_2029}
     onOpenWorkspace={shell.openWorkspace}
@@ -476,8 +489,9 @@ function HomeBody() {
     story={CORE_PUBLIC_LAUNCH_2029 ? null : <WorldFlightStory2029 surface="home" research={research} shell={shell} />}
     elsEntry={<ElsRotatingMatrixCard2029 />}
     arrivals={CORE_PUBLIC_LAUNCH_2029 ? null : <div className="h29-stream">
-      <HomeRealityRiver2029 />
-      <SourceArrivalList2029 surface="home" loading={homeState.loading} limit={4} showNew
+      {worldRequested ? <HomeRealityRiver2029 />
+        : <RealityRiver2029 loading follow={<RealityStreamFollow2029 source="home_reality_stream_2029" />} />}
+      <SourceArrivalList2029 surface="home" loading={homeWorldState.loading} limit={4} showNew
         items={worldPreview?.arrivals || worldPreview?.items || []}
         availability={worldPreview?.groupArrivals} onOpen={openWorldItem} />
       <Link className="h29-btn h29-stream-more" to="/world#world-sources">כניסה לזרם המלא בעולם ←</Link>

@@ -287,7 +287,15 @@ test("combined World acceptance keeps the public DTO bounded and navigation exac
       const text = await finding.innerText();
       findingByPrincipal.set(principal, text);
       assert.match(text, new RegExp(PUBLIC_STATEMENT));
-      assert.match(text, /channel_updates:source-1#a2/);
+      // Provenance belongs in the adopted disclosure, rather than public copy.
+      const sourceDetails = finding.locator('.sod29-world-source-locator details');
+      assert.equal(await sourceDetails.getAttribute('open'), null);
+      await sourceDetails.getByText('פרטי המקור', { exact: true }).click();
+      const sourceRefs = await sourceDetails.locator('code').allTextContents();
+      assert.deepEqual(sourceRefs, ['f-public', 'channel_updates:source-1#a2']);
+      assert.equal(await sourceDetails.locator('code').last().isVisible(), true);
+      await sourceDetails.getByText('פרטי המקור', { exact: true }).click();
+      assert.equal(await sourceDetails.locator('code').last().isVisible(), false);
       assert.match(text, /נוסף למחקר · .* · .*2026/);
       assert.doesNotMatch(text, /לפני|PRIVATE_WORLD_MARKER|CANDIDATE_WORLD_MARKER/);
       assert.equal(await finding.getByRole("link", { name: "פתח מקור ↗", exact: true }).getAttribute("href"), "https://example.test/exact-source");

@@ -96,7 +96,12 @@ assert.match(hardened, /<audio[^>]*preload="none"[^>]*data-sod-egress-guard="pas
 assert.equal(/\sautoplay(?:\s|=|>)/i.test(hardened), false);
 assert.equal(/preload="auto"/i.test(hardened), false);
 assert.match(legacy, /hardenPassiveMediaHtml\(\(post\?\.content \?\? ""\)/);
-assert.match(post2029, /hardenPassiveMediaHtml\(post\.content \|\| ""\)/);
+// The contained authored projection is hardened before the actual HTML sink.
+// Behavioral no-fetch and explicit-play coverage lives in the built browser test
+// home-loading-admission-2029.browser.mjs; this guard verifies the wiring too.
+assert.match(post2029, /import \{ hardenPassiveMediaHtml \} from "\.\.\/lib\/mediaEgressGuard\.js"/);
+assert.match(post2029, /const passiveSourceHtml = useMemo\(\(\) => hardenPassiveMediaHtml\(postReadingHtml2029\(state\.projection\?\.post\?\.content \|\| ""\)\)/);
+assert.match(post2029, /dangerouslySetInnerHTML=\{\{ __html: passiveSourceHtml \}\}/);
 
 // ONE OWNER / NO ISLANDS: Legacy /traffic is only a temporary projection of the exact same
 // canonical System Health RPC consumed by /2029/control.

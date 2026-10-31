@@ -22,7 +22,19 @@ test("ELS 2029 remains the active build surface and is not launch-gated by the l
   assert.match(els2029, /data-els-2029-surface="v1"/);
   assert.doesNotMatch(els2029, /ELS_LEGACY_COUNTDOWN_TARGET|els-2029-early-access|week-countdown/);
   assert.doesNotMatch(els2029, /href="\/lab\/els"/);
-  assert.match(els2029, /<ElsNativeClassic2029 initialSeed=\{savedRecord\.row \|\| legacyMatrix \? "" : classicSeed\}/);
+  // Exercise the actual seed expression: an exact saved/shared/returned matrix
+  // must never be overwritten by the ordinary query seed. Component wrappers
+  // and JSX line wrapping are not the launch contract.
+  const expressions = [...els2029.matchAll(/initialSeed=\{([^{}]+)\}/g)];
+  assert.equal(expressions.length, 1);
+  const seed = new Function('savedRecord', 'legacyMatrix', 'sharedMatrix', 'location', 'classicSeed', `return (${expressions[0][1]});`);
+  for (let mask = 0; mask < 32; mask += 1) {
+    const actual = seed({ row: mask & 1 ? { id: 'saved' } : null }, mask & 2 ? { skip_distance: 7 } : null,
+      { present: Boolean(mask & 4) }, { state: { elsReadingReturnTurnId: mask & 8 ? 'reading-turn' : null,
+        elsResearchReturnTaskId: mask & 16 ? 'research-task' : null } }, 'זרע מדויק');
+    assert.equal(actual, mask ? '' : 'זרע מדויק', `matrix/return guard mask ${mask}`);
+  }
+  assert.equal(seed({ row: null }, null, { present: false }, {}, 'זרע מדויק'), 'זרע מדויק');
   assert.match(els2029, /matrix=\{savedRecord\.row \|\| legacyMatrix\}/);
   assert.doesNotMatch(els2029, /<CodePage\b|<ElsWorkAreaPage\b/);
 });

@@ -12,6 +12,7 @@ import { relativeTimeLabel } from "../../lib/relativeTime2029.js";
 import ConvergenceRatings2029 from "./ConvergenceRatings2029.jsx";
 import HomeHeroMotion2029 from "./HomeHeroMotion2029.jsx";
 import { useReveal } from "./useReveal2029.js";
+import { useApproach2029 } from "./useApproach2029.js";
 import { realUpdate } from "../../lib/heroUpdate2029.js";
 import { recentConvergence, readSeen, markSeen } from "../../lib/homeMotion2029.js";
 import PostCategories2029 from "./PostCategories2029.jsx";
@@ -35,7 +36,7 @@ function titleNumber(title, tags) {
 }
 
 function useHomeCompositionData({ includeWorld = true } = {}) {
-  const [state, setState] = useState({ loading: true, posts: [], ciphers: [], videos: [], dimensionPost: null, notable: [] });
+  const [state, setState] = useState({ loading: true, posts: [], ciphers: [], notable: [] });
   useEffect(() => {
     let live = true;
     const update = (patch) => { if (live) setState((current) => ({ ...current, ...patch })); };
@@ -61,12 +62,31 @@ function useHomeCompositionData({ includeWorld = true } = {}) {
     }).catch(() => update({ loading: false, posts: [] }));
     getTzofonStories({ limit: 6 }).then((ciphers) => update({ ciphers: ciphers || [] })).catch(() => {});
     if (includeWorld) {
-      getHomeVideos({ limit: 6 }).then((videos) => update({ videos: videos || [] })).catch(() => {});
-      getPostsFromSupabase({ limit: 1, tag: "מימד חמש" }).then((result) => update({ dimensionPost: result?.posts?.[0] || null })).catch(() => {});
       fetchExplorerFacetPage("topic", { limit: 4 }).then((result) => update({ notable: result?.cards || [] })).catch(() => {});
     }
     return () => { live = false; };
   }, [includeWorld]);
+  return state;
+}
+
+function useHomeDeferredData({ includeWorld, videosAdmitted, identityAdmitted }) {
+  const [state, setState] = useState({ videos: [], videosLoading: true, dimensionPost: null });
+  useEffect(() => {
+    if (!includeWorld || !videosAdmitted) return undefined;
+    let live = true;
+    getHomeVideos({ limit: 6 }).then(videos => {
+      if (live) setState(current => ({ ...current, videos: videos || [], videosLoading: false }));
+    }).catch(() => { if (live) setState(current => ({ ...current, videosLoading: false })); });
+    return () => { live = false; };
+  }, [includeWorld, videosAdmitted]);
+  useEffect(() => {
+    if (!includeWorld || !identityAdmitted) return undefined;
+    let live = true;
+    getPostsFromSupabase({ limit: 1, tag: "מימד חמש" }).then(result => {
+      if (live) setState(current => ({ ...current, dimensionPost: result?.posts?.[0] || null }));
+    }).catch(() => {});
+    return () => { live = false; };
+  }, [includeWorld, identityAdmitted]);
   return state;
 }
 
@@ -76,14 +96,14 @@ function Media({ src, fallback, className = "" }) {
     : <div className={`h29-media is-empty ${className}`}><span>{fallback}</span></div>;
 }
 
-function Reveal({ id, children }) {
+function Reveal({ id, children, admissionRef }) {
   const [ref, reveal] = useReveal(`home:${id}`);
-  return <div ref={ref} data-reveal={reveal} className="k29-reveal k29-rv-self">{children}</div>;
+  return <div ref={element => { ref.current = element; if (admissionRef) admissionRef.current = element; }} data-reveal={reveal} className="k29-reveal k29-rv-self">{children}</div>;
 }
 
-function Section({ title, link, label, children, className = "" }) {
+function Section({ title, link, label, children, className = "", admissionRef }) {
   const [ref, reveal] = useReveal(`home:${label || title}`);
-  return <section ref={ref} data-reveal={reveal} className={`h29-sec k29-reveal ${className}`} aria-label={label || title}>
+  return <section ref={element => { ref.current = element; if (admissionRef) admissionRef.current = element; }} data-reveal={reveal} className={`h29-sec k29-reveal ${className}`} aria-label={label || title}>
     {title ? <div className="h29-sec-h"><h2>{title}</h2>{link}</div> : null}
     {children}
   </section>;
@@ -92,8 +112,17 @@ function Section({ title, link, label, children, className = "" }) {
 export default function HomeComposition2029({
   projection, loading, nowHero, story, elsEntry, arrivals, calculator, entry, continuity,
   selectedSlug, onSelectPost, onOpenWorkspace, journeyLocked = false, corePublic = false, worldOpen = false,
+  onWorldApproach,
 }) {
-  const data = useHomeCompositionData({ includeWorld: !corePublic });
+  const primary = useHomeCompositionData({ includeWorld: !corePublic });
+  // Wait for the primary cards to establish section geometry. A short loading
+  // skeleton must not admit distant readers before the real content arrives.
+  const [videosRef, videosAdmitted] = useApproach2029(!corePublic && !primary.loading);
+  const [identityRef, identityAdmitted] = useApproach2029(!corePublic && !primary.loading);
+  const [worldRef, worldAdmitted] = useApproach2029(!corePublic && !primary.loading);
+  const deferred = useHomeDeferredData({ includeWorld: !corePublic, videosAdmitted, identityAdmitted });
+  const data = { ...primary, ...deferred };
+  useEffect(() => { if (worldAdmitted) onWorldApproach?.(true); }, [worldAdmitted, onWorldApproach]);
   const now = projection?.temporalNow || null;
   const people = projection?.worldPreview?.people || [];
   const pulse = projection?.systemPulse || null;
@@ -164,22 +193,22 @@ export default function HomeComposition2029({
             {!data.loading && !data.ciphers.length ? <p className="h29-empty">אין צפנים להצגה כרגע.</p> : null}
           </div>
         </div>
-        {!corePublic ? <div className="h29-strip k29-rv">
+        {!corePublic ? <div ref={videosRef} className="h29-strip k29-rv">
           <div className="h29-sec-h"><h2>הסרטים האחרונים</h2><a href="/archive">כל הסרטים ←</a></div>
           <div className="h29-strip-row">
             {data.videos.map((video) => <a key={video.yt || video.slug} className="h29-tile is-video" href={video.slug ? `/${video.slug}` : "/archive"}>
               <Media src={video.poster_url || (video.yt ? `https://i.ytimg.com/vi/${video.yt}/hqdefault.jpg` : null)} fallback="▶" />
               <span>{clean(video.title)}</span>
             </a>)}
-            {!data.loading && !data.videos.length ? <p className="h29-empty">אין סרטים להצגה כרגע.</p> : null}
+            {!data.videosLoading && !data.videos.length ? <p className="h29-empty">אין סרטים להצגה כרגע.</p> : null}
           </div>
         </div> : null}
       </div>
     </Section>
 
-    {arrivals ? <Reveal id="arrivals">{arrivals}</Reveal> : null}
+    {arrivals ? <Reveal id="arrivals" admissionRef={worldRef}>{arrivals}</Reveal> : null}
 
-    {!corePublic ? <Section label="מוקדי זהות">
+    {!corePublic ? <Section label="מוקדי זהות" admissionRef={identityRef}>
       <div className="h29-anchors">
         <Link className="h29-anchor k29-rv" to="/world"><span className="h29-glyph is-people"><NavigationIcon2029 name="community" /></span>
           <span><b>הכותבים</b><small>{people.length ? people.map((person) => person.displayName).join(" · ") : "הכותבים שמקורותיהם בעולם"}</small></span></Link>

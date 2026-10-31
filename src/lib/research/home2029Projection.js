@@ -148,7 +148,7 @@ export function projectHomeWorldPreviewItem(item) {
   };
 }
 
-async function fetchHomeWorldPreview2029() {
+export async function fetchHomeWorldPreview2029() {
   const contributors = await fetchWorldLandingContributorProjection().catch(() => null);
   const publicPeople = Array.isArray(contributors?.people) ? contributors.people : [];
   const discovery = await fetchWorldDiscoveryStream({ limit: 8, publicPeople });
