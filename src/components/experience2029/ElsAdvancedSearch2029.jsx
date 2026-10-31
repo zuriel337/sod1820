@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "../../lib/supabase.js";
 import { verifyEls2029Selection } from "../../lib/research/els2029ReplayClient.js";
 import { buildElsAdvancedLoadItem, buildElsAdvancedPageRequest, buildElsAdvancedSelection, buildElsExactSkipProbe, elsSearchSpelling, projectElsAdvancedPage } from "../../lib/research/elsAdvancedPage.js";
@@ -33,7 +33,7 @@ function AdvancedLiveProgress({ activeVariant, rows, reduction, onReduce, onStop
   </section>;
 }
 
-export default function ElsAdvancedSearch2029({ onLoad, onExactSkip, deriveCanonicalForms, onPlanSummary, exactStatus = "idle", researchOrigin = null }) {
+export default function ElsAdvancedSearch2029({ onLoad, onExactSkip, deriveCanonicalForms, onPlanSummary, exactStatus = "idle", researchOrigin = null, active = true }) {
   const { elsResearchOperation } = useResearch();
   const [form, setForm] = useState(initialForm);
   const [query, setQuery] = useState(null);
@@ -60,13 +60,16 @@ export default function ElsAdvancedSearch2029({ onLoad, onExactSkip, deriveCanon
     return controller;
   };
   const finishRequest = controller => { if (abortRef.current === controller) abortRef.current = null; };
-  const stopSearch = (message = "הסריקה הופסקה. תוצאות שהושלמו נשמרו; שאר הבדיקות לא הושלמו.") => {
+  const stopSearch = useCallback((message = "הסריקה הופסקה. תוצאות שהושלמו נשמרו; שאר הבדיקות לא הושלמו.") => {
     revision.current += 1;
     abortRef.current?.abort();
     abortRef.current = null;
     setBusy(false); setSelecting(null); setActiveVariant(null);
     setNotice(message);
-  };
+  }, []);
+  useEffect(() => {
+    if (!active && (busy || selecting)) stopSearch("החיפוש המקומי נעצר במעבר סוג החיפוש. הטיוטה והתוצאות שכבר התקבלו נשמרו.");
+  }, [active, busy, selecting, stopSearch]);
   useEffect(() => () => abortRef.current?.abort(), []);
   const edit = (field, value) => {
     abortRef.current?.abort(); abortRef.current = null;
@@ -246,7 +249,7 @@ export default function ElsAdvancedSearch2029({ onLoad, onExactSkip, deriveCanon
     setNotice("הסריקה נעצרה וההיקף צומצם. המטריצה הפעילה לא השתנתה. לחצו שוב כדי לחפש בהיקף החדש.");
   };
   return <section className="sod29-section" aria-label="חיפוש דילוגים מתקדם" data-els-advanced-search="v1">
-    <div className="sod29-section-head"><div><div className="sod29-kicker">מחקר דילוגים</div><h3>חיפוש אחד, כל המופעים</h3></div></div>
+    <div className="sod29-section-head"><div><h3>טווח דילוגים וצורות כתיבה</h3><p>חיפוש בטווח שתבחרו, פתיחת דילוג ידוע ובדיקת היפוכים — באותו מנוע.</p></div></div>
     <form onSubmit={event => { event.preventDefault(); search(false); }} className="els29-advanced-form">
       <label>מונח <input aria-label="מונח לחיפוש מתקדם" value={form.term} onChange={event => edit("term", event.target.value)} /></label>
       <label>טקסט <select aria-label="טקסט לחיפוש מתקדם" value={form.scope} onChange={event => edit("scope", event.target.value)}><option value="torah">תורה</option><option value="tanakh">תנ״ך</option></select></label>
@@ -273,7 +276,11 @@ export default function ElsAdvancedSearch2029({ onLoad, onExactSkip, deriveCanon
       }}>
         <option value="all">ראשי ומשניים</option><option value="primary">המונח הראשי</option><option value="secondary">המונחים המשניים</option>
       </select></label>
-      <button type="button" className="sod29-action" disabled={busy || !!selecting} onClick={searchAutomatic}>חקור את כל הצורות אוטומטית</button>
+      <div className="els29-advanced-forms-help">
+        <button type="button" className="sod29-action" disabled={busy || !!selecting} onClick={searchAutomatic}>בדוק גם היפוכים וסדר מילים</button>
+        <p>בודק את הביטוי המקורי, היפוך הביטוי, היפוך כל מילה והיפוך המילה האחרונה. בביטוי בן שתי מילים נבדקים גם חילופי הסדר ושילובי ההיפוכים של שתיהן.</p>
+        <p>אין כאן ערבוב חופשי של האותיות או AI. צורות זהות נבדקות פעם אחת; ליד כל תוצאה יוצגו הביטוי שנבדק ואופן השינוי.</p>
+      </div>
     </form>
     {notice ? <p role="status">{notice}</p> : null}
     {exactStatus === "failed" ? <p role="alert">לא הצלחנו למצוא או לאמת מופע בדילוג המבוקש. המטריצה הקיימת נשמרה.</p>

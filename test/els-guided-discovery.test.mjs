@@ -161,7 +161,11 @@ test("page keeps Guided, Research and Classic as projections over one native wor
   assert.equal((source.match(/<ElsNativeClassic2029/g) || []).length, 1);
   assert.equal((source.match(/<ElsGuidedDiscovery2029/g) || []).length, 1);
   assert.match(source, /active=\{!library && \(!guidedProfile \|\| researchLoad\?\.guidedDiscovery === true \|\| directSavedOpen\)\}/);
-  assert.match(source, /hidden=\{!advancedResearchProfile \|\| directSavedOpen\}/);
+  assert.equal((source.match(/<ElsAdvancedSearch2029/g) || []).length, 1);
+  assert.match(source, /advancedSearch=\{<ElsAdvancedSearch2029/);
+  const native = await readFile(new URL('../src/components/experience2029/ElsNativeClassic2029.jsx', import.meta.url), 'utf8');
+  assert.match(native, /advancedSearchOpen = researchProfile && !guidedProfile && advancedOpen/);
+  assert.match(native, /id="els29-advanced-search" hidden=\{!advancedSearchOpen\}/);
   assert.match(source, /hidden=\{!guidedProfile \|\| directSavedOpen\}/);
   assert.match(source, /data-els-guided-workspace="separate-v1"/);
   assert.match(source, /aria-label=\{guidedProfile \? "תוצאות הגילוי המודרך"/);

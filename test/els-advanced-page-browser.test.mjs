@@ -81,6 +81,8 @@ test("Guided starts explicitly in one window; advanced page still verifies befor
     assert.match(await page.getByLabel("תוכנית הגילוי שנשלחה").innerText(), /משיח × טבת × עשירי/);
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
     await page.goto(`http://127.0.0.1:${server.httpServer.address().port}/fixture?testAdvanced`);
+    assert.equal(await page.getByLabel("מונח לחיפוש מתקדם").isVisible(), false);
+    await page.getByRole("button", { name: "חיפוש מתקדם", exact: true }).click();
     await page.getByLabel("מונח לחיפוש מתקדם").fill("תורתאמת");
     assert.equal(await page.getByRole("button", { name: /קרוב|בינוני|רחוק/ }).count(), 0);
     await page.getByLabel("דילוג מינימלי").fill("81");
@@ -98,7 +100,7 @@ test("Guided starts explicitly in one window; advanced page still verifies befor
     await page.getByRole("button", { name: /מחקר/ }).first().click();
     assert.equal(await page.getByLabel("מונח לחיפוש מתקדם").inputValue(), "תורתאמת");
     await page.getByLabel("מילות המשך למחקר").fill("אמת");
-    await page.getByRole("button", { name: "חקור את כל הצורות אוטומטית" }).click();
+    await page.getByRole("button", { name: "בדוק גם היפוכים וסדר מילים" }).click();
     await page.getByText(/ביטויים · .*צורות שונות/).waitFor();
     await page.getByLabel("תוצאות אמת").getByRole("button", { name: /דילוג 86/ }).click();
     await page.waitForFunction(() => window.__advancedLoad?.term === "אמת");
@@ -134,7 +136,7 @@ test("Guided starts explicitly in one window; advanced page still verifies befor
     await page.getByLabel("מונחים למחקר הצורות").selectOption("secondary");
     await page.evaluate(() => { window.__advancedHoldTerm = 'משיח'; });
     const beforeSecondary = await page.evaluate(() => window.__advancedCalls.length);
-    await page.getByRole("button", { name: "חקור את כל הצורות אוטומטית" }).click();
+    await page.getByRole("button", { name: "בדוק גם היפוכים וסדר מילים" }).click();
     await page.getByText("סורק עכשיו: משיח").waitFor();
     assert.equal(await page.getByLabel("תוצאות משיח").getByText("הצורה הזאת נסרקת כעת…").count(), 1);
     assert.equal(await page.getByLabel("תוצאות חשפד").count(), 0, "secondary-only research does not scan the primary term");
@@ -154,10 +156,22 @@ test("Guided starts explicitly in one window; advanced page still verifies befor
     await page.getByLabel("מונח לחיפוש מתקדם").fill("חשפד");
     await page.getByLabel("מונחים למחקר הצורות").selectOption("primary");
     await page.evaluate(() => { window.__advancedFailTerm = 'חשפד'; });
-    await page.getByRole("button", { name: "חקור את כל הצורות אוטומטית" }).click();
+    await page.getByRole("button", { name: "בדוק גם היפוכים וסדר מילים" }).click();
     await page.getByLabel("תוצאות חשפד").getByRole("heading", { name: /הבדיקה לא הושלמה/ }).waitFor();
     assert.equal(await page.getByLabel("תוצאות חשפד").getByText(/לא נמצאו מופעים/).count(), 0);
     assert.equal(await page.getByText(/הטווח פתוח גם מעל 500/).count(), 0);
+    await page.getByLabel("מונח לחיפוש מתקדם").fill("בדיקה");
+    await page.evaluate(() => { window.__advancedHoldTerm = 'בדיקה'; window.__advancedAborted = 0; });
+    await page.getByRole("button", { name: "חפש בטווח" }).click();
+    await page.waitForFunction(() => window.__advancedCalls.at(-1)?.body?.term === 'בדיקה');
+    const beforeSwitch = await page.evaluate(() => window.__advancedLoad);
+    await page.getByRole("button", { name: "קלאסי", exact: true }).click();
+    await page.waitForFunction(() => window.__advancedAborted === 1);
+    await page.evaluate(() => { window.__advancedHoldTerm = null; window.__releaseAdvanced(); });
+    await page.getByRole("button", { name: "מחקר", exact: true }).click();
+    await page.getByText(/החיפוש המקומי נעצר במעבר סוג החיפוש/).waitFor();
+    assert.deepEqual(await page.evaluate(() => window.__advancedLoad), beforeSwitch, 'late result cannot replace the current matrix');
+    assert.equal(await page.getByLabel("מונח לחיפוש מתקדם").inputValue(), 'בדיקה');
     assert.deepEqual(errors, []);
   } finally {
     await browser?.close();

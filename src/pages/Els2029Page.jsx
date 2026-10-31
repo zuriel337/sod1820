@@ -373,9 +373,6 @@ export default function Els2029Page({ previewAdvanced = false }) {
         <article><span>ג</span><div><strong>מקור ופסוקים</strong><small>פתיחה וחזרה לאותו ממצא בדיוק.</small></div></article>
       </aside>
     </div>
-    <div data-els-research-tools="brief-visible-v1" hidden={!advancedResearchProfile || directSavedOpen}><ElsAdvancedSearch2029
-      researchOrigin={replayMatched && layeredReady ? { ...context?.selection, corpusId: replayProjection?.corpusId } : null}
-      exactStatus={exactStatus} onExactSkip={requestExactSkip} deriveCanonicalForms={deriveCanonicalForms} onPlanSummary={setAutomaticSummary} onLoad={item => { pendingProbeRef.current = null; setResearchProbe(null); setExactStatus("idle"); setResearchLoad(item); }} /></div>
     <section className={`sod29-focus-stage${guidedProfile ? " els29-guided-result-stage" : ""}`} data-els-2029-surface="v1"
       hidden={guidedProfile && !directSavedOpen && researchLoad?.guidedDiscovery !== true}
       {...(researchProfile ? { "data-els-research-composition": "v1" } : {})}
@@ -410,6 +407,10 @@ export default function Els2029Page({ previewAdvanced = false }) {
           initialSeed={savedRecord.row || legacyMatrix || location.state?.elsReadingReturnTurnId || location.state?.elsResearchReturnTaskId ? "" : classicSeed} matrix={savedRecord.row || legacyMatrix}
           active={!library && (!guidedProfile || researchLoad?.guidedDiscovery === true || directSavedOpen)}
           researchProfile={researchProfile} guidedProfile={guidedProfile} researchLoad={researchLoad || (savedRecord.row ? null : findingJourneyLoad)} researchProbe={researchProbe} onResearchProbeResult={receiveExactSkip} onResearchLoadError={() => setExactStatus("failed")}
+          advancedSearch={<ElsAdvancedSearch2029
+            researchOrigin={replayMatched && layeredReady ? { ...context?.selection, corpusId: replayProjection?.corpusId } : null}
+            exactStatus={exactStatus} onExactSkip={requestExactSkip} deriveCanonicalForms={deriveCanonicalForms} onPlanSummary={setAutomaticSummary}
+            onLoad={item => { pendingProbeRef.current = null; setResearchProbe(null); setExactStatus("idle"); setResearchLoad(item); }} />}
           formsPreviewRequest={formsPreviewRequest} onFormsPreviewResult={receiveFormsPreview}
           onResearchRestore={item => { pendingProbeRef.current = null; setResearchProbe(null); setExactStatus("idle");
             setResearchLoad({ ...item, researchNonce: crypto.randomUUID() }); }}

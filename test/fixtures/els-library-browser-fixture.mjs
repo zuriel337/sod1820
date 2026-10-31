@@ -66,12 +66,14 @@ export function libraryFixturePlugin() {
       export const useOptionalRazielSession2029=()=>session;export default function Mount({children}){return children;}`,
     'Sod2029Shell.jsx': `import React from 'react';export default function Shell({children}){return React.createElement('main',{className:'sod29-root',style:{padding:16}},children);}
       export const FrameState=({title,children})=>React.createElement('section',null,React.createElement('h2',null,title),children);export const use2029Shell=()=>({});`,
-    'ElsNativeClassic2029.jsx': `import React,{useState,useEffect} from 'react';export default function Engine({matrix,researchLoad,researchProbe,onResearchProbeResult,formsPreviewRequest,onFormsPreviewResult,onSearchStart,onSaved}){
-      window.__libraryMatrix=matrix;window.__advancedLoad=researchLoad;const [query,setQuery]=useState('');
+    'ElsNativeClassic2029.jsx': `import React,{useState,useEffect} from 'react';export default function Engine({matrix,researchLoad,researchProbe,onResearchProbeResult,formsPreviewRequest,onFormsPreviewResult,onSearchStart,onSaved,advancedSearch,researchProfile,guidedProfile}){
+      window.__libraryMatrix=matrix;window.__advancedLoad=researchLoad;const [query,setQuery]=useState(''),[advanced,setAdvanced]=useState(false);
       useEffect(()=>{window.__libraryEngineMounts=(window.__libraryEngineMounts||0)+1;},[]);
       useEffect(()=>{if(researchProbe)onResearchProbeResult?.({requestId:researchProbe.requestId,ok:true,term:researchProbe.term,scope:researchProbe.scope,skip:researchProbe.skip,dir:1,start:50890,hitId:researchProbe.skip+'_1_50890',corpusId:'fixture-torah'});},[researchProbe?.requestId]);
       useEffect(()=>{if(formsPreviewRequest)onFormsPreviewResult?.({requestId:formsPreviewRequest.requestId,rows:formsPreviewRequest.expressions.filter(source=>source.includes(' ')).map(source=>({source,term:source.replace(/\\s/g,''),derivation:'A + B'}))});},[formsPreviewRequest?.requestId]);
       return React.createElement('div',{'data-fixture-matrix':matrix?.id||'new'},
+        researchProfile&&!guidedProfile?React.createElement('button',{onClick:()=>setAdvanced(true)},'חיפוש מתקדם'):null,
+        React.createElement('div',{hidden:!researchProfile||guidedProfile||!advanced},advancedSearch?React.cloneElement(advancedSearch,{active:researchProfile&&!guidedProfile&&advanced}):null),
         React.createElement('input',{'aria-label':'טיוטת חיפוש',value:query,onChange:e=>setQuery(e.target.value)}),
         React.createElement('button',{onClick:onSearchStart},'חיפוש לדוגמה'),
         React.createElement('button',{onClick:onSaved},'שמירה לדוגמה'));}`,

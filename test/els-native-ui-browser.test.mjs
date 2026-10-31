@@ -26,6 +26,75 @@ const executablePath = process.env.CHROMIUM_EXECUTABLE_PATH ||
   (existsSync('/usr/bin/chromium') ? '/usr/bin/chromium' : pw?.chromium.executablePath());
 const canRun = Boolean(pw && vite && react && executablePath && existsSync(executablePath));
 
+test('Research has one regular/cross/advanced search surface with preserved drafts and no automatic work',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
+  for(const width of [320,390,1440])await withNative({width,height:900},async page=>{
+    const ai=[];page.on('request',request=>{if(/ai-analyze/.test(request.url()))ai.push(request.url());});
+    const box=page.locator('#els29-query');
+    assert.equal(await box.getByRole('button',{name:'חיפוש רגיל',exact:true}).getAttribute('aria-pressed'),'true');
+    assert.equal(await box.getByLabel('מונח לחיפוש מתקדם').isVisible(),false);
+    await box.getByRole('textbox',{name:'מונח',exact:true}).fill('יום משיח בא');
+    const count=await page.evaluate(()=>window.__hostLog.filter(x=>x.type==='native-search').length);
+    const frame=await page.locator('iframe').elementHandle();
+    await box.getByRole('button',{name:'חיפוש מתקדם',exact:true}).click();
+    await box.getByLabel('מונח לחיפוש מתקדם').fill('סוד החשמל');
+    assert.equal(await box.locator('form form').count(),0);
+    assert.equal(await box.getByRole('button',{name:'חפש',exact:true}).isVisible(),false);
+    assert.match(await box.innerText(),/אין כאן ערבוב חופשי של האותיות או AI/);
+    for(const theme of ['light','parchment','dark']){
+      await page.evaluate(theme=>window.__setThemePreset(theme),theme);
+      assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,`${width}:${theme}`);
+      assert.ok((await box.locator('button:visible').evaluateAll(nodes=>nodes.map(n=>n.getBoundingClientRect().height))).every(h=>h>=44));
+      if(process.env.ELS_SEARCH_ORDER_SCREENSHOTS){mkdirSync(process.env.ELS_SEARCH_ORDER_SCREENSHOTS,{recursive:true});await box.scrollIntoViewIfNeeded();await page.screenshot({path:`${process.env.ELS_SEARCH_ORDER_SCREENSHOTS}/advanced-${width}-${theme}.png`});}
+    }
+    await box.getByRole('button',{name:'חיפוש רגיל',exact:true}).click();
+    assert.equal(await box.getByRole('textbox',{name:'מונח',exact:true}).inputValue(),'יום משיח בא');
+    await box.getByRole('button',{name:'חיפוש מתקדם',exact:true}).click();
+    assert.equal(await box.getByLabel('מונח לחיפוש מתקדם').inputValue(),'סוד החשמל');
+    await page.evaluate(()=>{window.__fixtureResearchProfile=false;window.__forceParentRender();});
+    assert.equal(await box.getByRole('button',{name:'חיפוש מתקדם',exact:true}).count(),0);
+    assert.equal(await box.getByLabel('מונח לחיפוש מתקדם').isVisible(),false);
+    assert.equal(await box.getByRole('button',{name:'כל הכלים',exact:true}).isVisible(),true);
+    await box.getByRole('button',{name:'כל הכלים',exact:true}).click();
+    await page.evaluate(()=>{window.__fixtureResearchProfile=true;window.__forceParentRender();});
+    assert.equal(await page.locator('.els29-classic-fallback.is-open').count(),0,'Research cannot remain trapped in the full Classic tool');
+    assert.equal(await frame.evaluate(node=>node===document.querySelector('iframe')),true,'one unchanged canonical engine');
+    assert.equal(await page.evaluate(()=>window.__hostLog.filter(x=>x.type==='native-search').length),count);
+    assert.equal(page.__elsDynamicLexiconRequests.length,0);assert.deepEqual(ai,[]);
+  },{realHost:true});
+ });
+
+test('unchecked third term preserves pairs, checked third requires three, and verified optional matches reach the matrix',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:240000},async()=>{
+  await withNative({width:320,height:900},async page=>{
+    const form=page.locator('#els29-query');await form.getByRole('button',{name:'הצלבה בין צירים',exact:true}).click();
+    await form.getByRole('textbox',{name:'מונח ראשון'}).fill('תורהקדשה');
+    await form.getByRole('textbox',{name:'מונח שני'}).fill('בחשרתע');
+    const third=form.getByRole('textbox',{name:'מונח שלישי',exact:true}),required=form.getByRole('checkbox',{name:'חובה למצוא גם את המונח השלישי'});
+    assert.equal(await required.isChecked(),false);
+    await third.fill('תתתתתתתתתתתת');
+    const search=async()=>{const before=await page.evaluate(()=>window.__operation?.requestId||0);await form.getByRole('button',{name:'חפש הצלבה'}).click();
+      await page.waitForFunction(id=>window.__operation?.requestId>id&&['done','empty','error'].includes(window.__operation.status),before,{timeout:90000});
+      return page.evaluate(()=>({op:window.__operation,state:window.__state}));};
+    const pair=await search();assert.equal(pair.op.status,'done',JSON.stringify(pair.op));
+    assert.equal(pair.op.progress.thirdRequired,false);
+    assert.ok(pair.state.search.results.items.some(x=>x.available&&x.terms.length===1&&x.optionalThird.status==='NOT_FOUND_IN_WINDOW'));
+    assert.equal(await page.evaluate(()=>window.__log.some(x=>x.type==='engine-request'&&x.payload?.term==='תתתתתתתתתתתת')),false,'no independent scan of optional third');
+    await required.check();const strict=await search();assert.equal(strict.op.status,'empty');assert.equal(strict.op.progress.thirdRequired,true);
+    await third.fill('כויזלת');await required.uncheck();const optional=await search();assert.equal(optional.op.status,'done');
+    const found=optional.state.search.results.items.find(x=>x.available&&x.optionalThird?.status==='VERIFIED');assert.ok(found);
+    await page.getByRole('button',{name:`פתח מפגש ${found.index+1}`,exact:true}).click();
+    await page.waitForFunction(()=>window.__state?.findings?.some(x=>x.t==='כויזלת'&&x.shown?.length));
+    assert.ok(await page.getByText('כויזלת: נמצא ואומת גם המונח השלישי',{exact:true}).count());
+    await form.getByRole('textbox',{name:'מונח ראשון'}).fill('משיח טבת');
+    await form.getByRole('textbox',{name:'מונח שני'}).fill('ישלח מלאכו');
+    await third.fill('תתתתתתתתתתתת');
+    const sourcePair=await search();assert.equal(sourcePair.op.status,'done',JSON.stringify(sourcePair.op));
+    assert.ok(sourcePair.state.search.results.items.some(x=>x.available&&x.sourceSequence&&x.optionalThird.status==='NOT_FOUND_IN_WINDOW'),'optional third must retain literal-source pairs too');
+    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+  },{realHost:true,loadGolden:false});
+ });
+
 test('Research pair preparation is explicit, uses canonical crossed search and leaves Classic clean',
  {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
   for(const width of [320,390,1440])await withNative({width,height:900},async page=>{
@@ -353,6 +422,8 @@ export default function Host(props){
 const entry = `import React from 'react';import {flushSync} from 'react-dom';import {createRoot} from 'react-dom/client';
 import {MemoryRouter} from 'react-router-dom';
 import Native from '/src/components/experience2029/ElsNativeClassic2029.jsx';
+import Advanced from '/src/components/experience2029/ElsAdvancedSearch2029.jsx';
+import '/src/components/experience2029/els2029-research.css';
 import {resolve2029Palette,usePalette} from '/src/lib/palette.js';
 import {useThemePreset,setThemePreset} from '/src/lib/themeMode.js';
 import {findingColorChoices,projectFindingColor,nextFindingColor} from '/src/components/experience2029/elsFindingColors2029.js';
@@ -384,7 +455,7 @@ return React.createElement('div',{style,className:'sod29-root closed-shell nativ
   React.createElement('div',{className:'sod29-main-stage'},
    React.createElement('main',{className:'sod29-content wide'},
     React.createElement('section',{className:'sod29-focus-stage','data-els-2029-surface':'v1'},
-     React.createElement('section',{className:'sod29-section','data-els-classic-2029':'native-v1'},React.createElement(Native,{matrix,matrixReading,researchLoad,researchProbe,onResearchRestore:restoreResearch,researchProfile:window.__fixtureResearchProfile!==false,guidedProfile:!!window.__fixtureGuided,onRazielMatrix:window.__fixtureMatrixAnalysis?async context=>{(window.__matrixSubmits||=[]).push(context);return {ok:true};}:undefined,onResearchProbeResult:result=>{(window.__probeHistory||=[]).push(result);if(result.requestId!==pendingProbe.current)return;pendingProbe.current=null;window.__probeResult=result;if(result.ok)setResearchLoad({term:result.term,scope:result.scope,skip:result.skip,dir:result.dir,start:result.start,hitId:result.hitId,corpusId:result.corpusId,words:[],researchNonce:result.requestId});}})))))),dock);
+     React.createElement('section',{className:'sod29-section','data-els-classic-2029':'native-v1'},React.createElement(Native,{matrix,matrixReading,researchLoad,researchProbe,advancedSearch:React.createElement(Advanced,{onLoad:setResearchLoad}),onResearchRestore:restoreResearch,researchProfile:window.__fixtureResearchProfile!==false,guidedProfile:!!window.__fixtureGuided,onRazielMatrix:window.__fixtureMatrixAnalysis?async context=>{(window.__matrixSubmits||=[]).push(context);return {ok:true};}:undefined,onResearchProbeResult:result=>{(window.__probeHistory||=[]).push(result);if(result.requestId!==pendingProbe.current)return;pendingProbe.current=null;window.__probeResult=result;if(result.ok)setResearchLoad({term:result.term,scope:result.scope,skip:result.skip,dir:result.dir,start:result.start,hitId:result.hitId,corpusId:result.corpusId,words:[],researchNonce:result.requestId});}})))))),dock);
 }
 if(window.__fixtureFullFrame){
  const [{default:Frame},{BrowserRouter}]=await Promise.all([import('/src/components/experience2029/Sod2029Shell.jsx'),import('react-router-dom')]);
@@ -510,6 +581,8 @@ async function withNative(viewport, run, options = {}) {
     name: 'els-native-browser-fixture', enforce: 'pre',
     resolveId(id, importer) {
       if (id === 'els-native-fixture') return '\0els-native-fixture';
+      if (importer?.endsWith('/ElsAdvancedSearch2029.jsx') && id.endsWith('/ResearchProvider.jsx')) return '\0els-frame-research';
+      if (importer?.endsWith('/ElsAdvancedSearch2029.jsx') && id.endsWith('/supabase.js')) return '\0els-host-stub:../lib/supabase.js';
       if (fullFrame && id.endsWith('/ResearchProvider.jsx')) return '\0els-frame-research';
       if (fullFrame && id.endsWith('/MaintenanceLock.jsx')) return '\0els-frame-open-flags';
       if (fullFrame && importer?.endsWith('/SystemFrame2029.jsx') && Object.hasOwn(frameStubs,id)) return '\0els-frame-stub:'+Object.keys(frameStubs).indexOf(id);
@@ -1133,7 +1206,7 @@ test('native UI: unified scan recovers from Classic; heat paints only unmarked c
    assert.deepEqual(await marked(),originalMarks);assert.notDeepEqual(await backgrounds(),originalBackgrounds);assert.deepEqual(await identity(page),initial);await expectStable(page,before,'heat on');
    await activate(page,'מפת חום');await page.waitForFunction(()=>window.__state?.ui?.heat===false);
    assert.deepEqual(await marked(),originalMarks);assert.deepEqual(await backgrounds(),originalBackgrounds);await expectStable(page,before,'heat off');
-  });
+  },{researchProfile:false});
  });
 
 test('native UI: fresh anonymous 2029 searches bypass legacy demo gates while canonical verification remains required',
@@ -1322,7 +1395,11 @@ test('native UI: cross meetings have exact numbered navigation, real compact bou
    const third=multi.search.results.items.find(item=>item.available&&item.index===sortedIndex);
    assert.ok(third);await activate(page,visibleLabel);await page.waitForFunction(index=>window.__state.search.zoneIndex===index,sortedIndex);
    assert.equal((await page.evaluate(()=>window.__state)).axis.hitId,third.hitId,'sorting retains original exact meeting identity');
-   const panBefore=await capture(page);await page.getByLabel('דילוג מינימלי בתוצאות',{exact:true}).fill('999999');
+   const skipFilter=page.getByLabel('דילוג מינימלי בתוצאות',{exact:true});
+   // Browser focus may reveal the field after the taller search controls. Measure
+   // filtering itself only after focus, so its no-pan assertion stays meaningful.
+   await skipFilter.focus();const panBefore=await capture(page);
+   await skipFilter.fill('999999');
    assert.equal(await page.locator('.els29-native-result').count(),0);await expectStable(page,panBefore,'local results filter');
    await page.getByLabel('דילוג מינימלי בתוצאות',{exact:true}).fill('');
    // A saved compact matrix restores its search geometry, and cannot retain the previous cross list.
@@ -1337,7 +1414,7 @@ test('native UI: cross meetings have exact numbered navigation, real compact bou
    await page.waitForFunction(()=>window.__state?.ui?.windowRequested==='legacy');
    assert.equal((await page.evaluate(()=>window.__state)).geometry.cw,80,'older saves retain their original window');
    assert.equal(await page.getByText('מוצג החלון המקורי',{exact:true}).count(),1);
-   await activate(page,'הצלבה בין צירים');
+   await activate(page,'חיפוש רגיל');
    await page.getByRole('textbox',{name:/^מונח(?: ראשון)?$/}).fill('תורהקדשה');await activate(page,'חפש');
    await page.waitForFunction(()=>window.__state?.term==='תורהקדשה'&&window.__operation?.status==='done');
    assert.equal((await page.evaluate(()=>window.__state)).search.mode,'regular','fresh regular search clears cross identity');
@@ -2114,7 +2191,7 @@ test('native results: regular and crossed searches expose selectable results in 
  await withNative({width:390,height:844},async page=>{
   let stale;
   for(const [scope,label] of [['torah','תורה'],['tanakh','כל התנ״ך']]){
-   if(await page.locator('.els29-native-cross-row').count())await activate(page,'הצלבה בין צירים');
+   await activate(page,'חיפוש רגיל');
    await page.getByRole('textbox',{name:/^מונח(?: ראשון)?$/}).fill('יהוה');
    const request=await page.evaluate(()=>window.__operation?.requestId||0);
    if(scope==='torah')await activate(page,'חפש');else await activate(page,label);
@@ -2150,7 +2227,7 @@ test('native results: regular and crossed searches expose selectable results in 
    const meeting=crossed.search.results.items.find(item=>item.available&&item.index!==crossed.search.zoneIndex);
    if(meeting){await activate(page,`פתח מפגש ${meeting.index+1}`);await page.waitForFunction(id=>window.__state.axis.hitId===id,meeting.hitId);}
   }
-  await activate(page,'הצלבה בין צירים');
+  await activate(page,'חיפוש רגיל');
   await page.evaluate(()=>window.__fixtureVerificationDenied=true);
   await page.getByRole('textbox',{name:/^מונח(?: ראשון)?$/}).fill('תורה');await activate(page,'חפש');
   await page.waitForFunction(()=>window.__operation?.status==='error');
@@ -2191,9 +2268,10 @@ test('native form: crossing terms stay adjacent before the shared submit on mobi
   const a=await first.boundingBox(),b=await second.boundingBox();
   assert.ok(b.y>=a.y+a.height&&b.y-(a.y+a.height)<55,'second term follows the first, with no controls between');
   assert.ok(Math.abs(a.x-b.x)<2&&Math.abs(a.width-b.width)<2,'terms share the same column');
-  assert.equal(await form.locator('button[type=submit]').count(),1);
-  assert.equal(await form.locator('button[type=submit]').textContent(),'חפש הצלבה');
-  assert.ok(await form.locator('button[type=submit]').evaluate(button=>Boolean(document.querySelector('[data-els-native-cross] input').compareDocumentPosition(button)&Node.DOCUMENT_POSITION_FOLLOWING)));
+  const submit=form.locator('button[type=submit]:visible');
+  assert.equal(await submit.count(),1);
+  assert.equal(await submit.textContent(),'חפש הצלבה');
+  assert.ok(await submit.evaluate(button=>Boolean(document.querySelector('[data-els-native-cross] input').compareDocumentPosition(button)&Node.DOCUMENT_POSITION_FOLLOWING)));
   await form.getByRole('button',{name:'חיפוש רגיל',exact:true}).click();
   assert.equal(await first.inputValue(),'צוריאל');assert.equal(await second.count(),0);
   await form.getByRole('button',{name:'הצלבה בין צירים',exact:true}).click();
@@ -2238,15 +2316,18 @@ test('shared matrix AI card is available across profiles without automatic submi
   },{realHost:true,loadGolden:true,matrixAnalysis:true,...profile});
 });
 
-test('research form offers a unified axis through the existing regular engine',
+test('Research removes the redundant unified button but regular search still accepts the complete phrase',
  {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
  for(const width of [320,1440])await withNative({width,height:900},async page=>{
   const form=page.locator('#els29-query');
   await form.getByRole('button',{name:'הצלבה בין צירים',exact:true}).click();
   await form.getByRole('textbox',{name:'מונח ראשון'}).fill('משיח');
   await form.getByRole('textbox',{name:'מונח שני'}).fill('טבת');
-  await form.getByRole('textbox',{name:'מונח שלישי · לא חובה'}).fill('עשירי');
-  await form.getByRole('button',{name:'חפש את המילים כציר מאוחד'}).click();
+  assert.equal(await form.getByRole('button',{name:'חפש את המילים כציר מאוחד'}).count(),0);
+  assert.equal(await form.getByRole('button',{name:'כל הכלים',exact:true}).count(),0);
+  await form.getByRole('button',{name:'חיפוש רגיל',exact:true}).click();
+  await form.getByRole('textbox',{name:'מונח',exact:true}).fill('משיח טבת עשירי');
+  await form.getByRole('button',{name:'חפש',exact:true}).click();
   await page.waitForFunction(()=>['done','empty','error'].includes(window.__operation?.status),null,{timeout:90000});
   const result=await page.evaluate(()=>({request:window.__hostLog.filter(x=>x.type==='native-search').at(-1)?.request,operation:window.__operation,state:window.__state}));
   assert.equal(result.request.kind,'regular');assert.equal(result.request.term,'משיח טבת עשירי');
@@ -2262,10 +2343,13 @@ test('research form: optional third axis uses the existing verified triple or th
  for(const width of [320,1440])await withNative({width,height:900},async page=>{
   const form=page.locator('#els29-query');
   await form.getByRole('button',{name:'הצלבה בין צירים',exact:true}).click();
-  const first=form.getByRole('textbox',{name:'מונח ראשון'}), second=form.getByRole('textbox',{name:'מונח שני'}), third=form.getByRole('textbox',{name:'מונח שלישי · לא חובה'});
+  const first=form.getByRole('textbox',{name:'מונח ראשון'}), second=form.getByRole('textbox',{name:'מונח שני'}), third=form.getByRole('textbox',{name:'מונח שלישי',exact:true});
+  const required=form.getByRole('checkbox',{name:'חובה למצוא גם את המונח השלישי'});
+  assert.equal(await required.isChecked(),false);
   const gap=form.getByRole('slider',{name:'מרווח מרבי בין אותיות הממצא בהצלבה'});
   assert.equal(await gap.inputValue(),'0');
   await first.fill('תורהקדשה');await second.fill('בחשרתע');await third.fill('כויזלת');
+  await required.check();
   const before=await page.evaluate(()=>window.__operation?.requestId||0);
   await form.getByRole('button',{name:'חפש הצלבה'}).click();
   await page.waitForFunction(id=>window.__operation?.requestId>id&&['done','empty','error'].includes(window.__operation.status),before,{timeout:120000});
@@ -2298,7 +2382,8 @@ test('three-term research can continue the available axes after a bounded first 
   const form=page.locator('#els29-query');await form.getByRole('button',{name:'הצלבה בין צירים',exact:true}).click();
   await form.getByRole('textbox',{name:'מונח ראשון'}).fill('משיח');
   await form.getByRole('textbox',{name:'מונח שני'}).fill('טבת');
-  await form.getByRole('textbox',{name:'מונח שלישי · לא חובה'}).fill('עשירי');
+  await form.getByRole('textbox',{name:'מונח שלישי',exact:true}).fill('עשירי');
+  await form.getByRole('checkbox',{name:'חובה למצוא גם את המונח השלישי'}).check();
   await form.getByRole('button',{name:'חפש הצלבה'}).click();
   await page.waitForFunction(()=>['done','empty','error'].includes(window.__operation?.status),null,{timeout:180000});
   const first=await page.evaluate(()=>window.__operation);
@@ -2410,7 +2495,7 @@ test('native form: a phrase and its split-and-cross action stay in one centered 
   await split.click();
   assert.equal(await form.getByRole('textbox',{name:'מונח ראשון',exact:true}).inputValue(),'תורת');
   assert.equal(await form.getByRole('textbox',{name:'מונח שני',exact:true}).inputValue(),'אמת');
-  assert.equal(await form.locator('button[type=submit]').textContent(),'חפש הצלבה');
+  assert.equal(await form.locator('button[type=submit]:visible').textContent(),'חפש הצלבה');
  });
 });
 

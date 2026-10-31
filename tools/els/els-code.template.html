@@ -1948,7 +1948,7 @@
       if(!isGov(h))return {index,available:false};
       return {index,available:true,axis:z.axis||st.raw,hitId:hitKey(h),skip:Math.abs(h.skip),book:z.book,
         stars:z.stars,score:z.score,terms:z.detail.map(d=>d.t),distance:Math.min(...z.detail.map(d=>d.cost)),
-        sourceSequence:z.detail.some(d=>Math.abs(d.skip)<2)};
+        sourceSequence:z.detail.some(d=>Math.abs(d.skip)<2),optionalThird:z.optionalThird||null};
     })};
   }
   function selectNativeMeeting(value){
@@ -2679,7 +2679,9 @@
         const terms=Array.isArray(req.terms)?req.terms.map(t=>typeof t==="string"?t.trim():""):[];
         const keys=terms.map(norm),radius=req.radius===undefined?18:req.radius;
         if(terms.length!==3||keys.some(t=>t.length<2||t.length>12)||new Set(keys).size!==3||!Number.isInteger(radius)||radius<2||radius>20){operationStatus(operation,"error","נדרשות שלוש מילים שונות ומרחק תקין.");return;}
+        if(req.thirdRequired!==undefined&&typeof req.thirdRequired!=="boolean"){operationStatus(operation,"error","בחרו אם המונח השלישי הוא חובה.");return;}
         if(!canCross()||!selectSearchScope(scope,false)){operationStatus(operation,"error","החיפוש לא זמין בחשבון הנוכחי.");return;}
+        if(operation)operation.thirdRequired=req.thirdRequired!==false;
         runCrossThree(terms,radius,operation);return;
       }
       if(kind==="regular"){
@@ -3017,33 +3019,51 @@
   async function runCrossThree(terms,pure,operation,previous=null){
     const epoch=_matrixRequestSeq;
     try{
-      if(!previous)await prefetchVerified(terms,operation);if(epoch!==_matrixRequestSeq)return;
-      if(terms.some(term=>faMemo(term).verr)){operationStatus(operation,"error","אימות הצירים לא הושלם.");return;}
-      const window=previous?.window||{...nativeWindow(operation?.windowSize||"small",pure,terms),scopeLength:scopeN(),maxLetterGap:operation?.maxLetterGap??0};
-      const progress={completed:0,total:terms.reduce((n,t,i)=>n+Math.min(150,Math.max(0,faMemo(t).hits.filter(h=>Math.abs(h.skip)>=2).length-(previous?.runs[i]?.scanned||0))),0),startedAt:Date.now()};
-      const runs=[];for(let i=0;i<terms.length;i++){const axis=terms[i],others=terms.filter(t=>norm(t)!==norm(axis));runs.push(await crossFindBounded(axis,others,pure,window,operation,progress,epoch,previous?.runs[i]));}
+      // Existing Guided callers require all three. Research explicitly opts into
+      // a pair plus a locally checked optional term; never scan that term as an axis.
+      const thirdRequired=previous?.thirdRequired??(operation?.thirdRequired!==false),axes=thirdRequired?terms:terms.slice(0,2);
+      if(!previous)await prefetchVerified(axes,operation);if(epoch!==_matrixRequestSeq)return;
+      if(axes.some(term=>faMemo(term).verr)){operationStatus(operation,"error","אימות הצירים לא הושלם.");return;}
+      const window=previous?.window||{...nativeWindow(operation?.windowSize||"small",pure,axes),scopeLength:scopeN(),maxLetterGap:operation?.maxLetterGap??0};
+      const progress={completed:0,total:axes.reduce((n,t,i)=>n+Math.min(150,Math.max(0,faMemo(t).hits.filter(h=>Math.abs(h.skip)>=2).length-(previous?.runs[i]?.scanned||0))),0),startedAt:Date.now()};
+      const runs=[];for(let i=0;i<axes.length;i++){const axis=axes[i],others=axes.filter(t=>norm(t)!==norm(axis));runs.push(await crossFindBounded(axis,others,pure,window,operation,progress,epoch,previous?.runs[i]));}
       if(epoch!==_matrixRequestSeq)return;
-      const candidates=runs.flatMap((run,index)=>run.meetings.filter(z=>z.detail.length===2).map(z=>({...z,axis:terms[index]})));
+      const candidates=runs.flatMap((run,index)=>run.meetings.filter(z=>z.detail.length===(thirdRequired?2:1)).map(z=>({...z,axis:axes[index]})));
       candidates.sort((a,b)=>b.score-a.score||a.skip-b.skip||a.occ-b.occ);
-      const cache=Object.fromEntries(terms.map((term,index)=>[term,runs[index].resA])),admitted=[...(previous?.admitted||[])],processed=new Set(previous?.processed||[]);
+      const cache=Object.fromEntries(axes.map((term,index)=>[term,runs[index].resA])),admitted=[...(previous?.admitted||[])],processed=new Set(previous?.processed||[]);
       const candidateKey=z=>[norm(z.axis),z.occ,...z.detail.map(d=>[d.t,d.skip,d.dir,d.p0].join(":"))].join("|");
-      for(const z of candidates.filter(z=>!processed.has(candidateKey(z))).slice(0,24)){
+      for(const candidate of candidates.filter(z=>!processed.has(candidateKey(z))).slice(0,24)){
+        const z={...candidate,detail:candidate.detail.slice()};
         const key=candidateKey(z),h=cache[z.axis]?.hits[z.occ];if(!isGov(h)){processed.add(key);continue;}
         let valid=true;for(const d of z.detail){
           const skip=Math.abs(d.skip),dir=d.dir,start=d.p0;
-          if(skip<2){valid=false;break;}
           const hit={skip,dir,start,positions:Array.from({length:d.t.length},(_,i)=>start+dir*skip*i)};
+          if(skip<2){if(!thirdRequired&&isSourceHit(hit,d.t))continue;valid=false;break;}
           const replay=await verifyBatch(d.t,[hit],{policy:"GUIDED_THREE_TERM_REPLAY_V1"},operation,st.scope);
           if(epoch!==_matrixRequestSeq)return;
           if(!replay?.ok){operationStatus(operation,"error","אימות מונחי ההצלבה לא הושלם.");return;}
           if(!replay.verified?.has(hitKey(hit))){valid=false;break;}
         }
+        if(valid&&!thirdRequired){
+          const term=norm(terms[2]);
+          // Unknown global frequency is deliberately neutral for this local-only
+          // check. It never triggers faMemo/full-corpus discovery for the third term.
+          const extra=crossFindMultiHit(h,z.occ,[term],pure,new Map([[term,9999]]),0,window)?.detail?.[0];
+          z.optionalThird={term,status:extra?"UNVERIFIED":"NOT_FOUND_IN_WINDOW"};
+          if(extra){
+            const skip=Math.abs(extra.skip),hit={skip,dir:extra.dir,start:extra.p0,positions:Array.from(term,(_,i)=>extra.p0+extra.dir*skip*i)};
+            let replay;try{if(skip>=2)replay=await verifyBatch(term,[hit],{policy:"GUIDED_THREE_TERM_REPLAY_V1"},operation,st.scope);}catch(e){if(e?.name==="AbortError")throw e;}
+            if(epoch!==_matrixRequestSeq)return;
+            const sourceExact=isSourceHit(hit,term);
+            if(sourceExact||replay?.ok&&replay.verified?.has(hitKey(hit))){z.detail=[...z.detail,{...extra,rar:null}];z.nFound=z.detail.length;z.optionalThird.status=sourceExact?"SOURCE_EXACT":"VERIFIED";}
+          }
+        }
         processed.add(key);if(valid)admitted.push(z);
       }
       if(epoch!==_matrixRequestSeq)return;
       const pendingCandidates=candidates.filter(z=>!processed.has(candidateKey(z))).length;
-      const coverage={phase:"cross-three-wave",token:previous?.token||++_nativeTripleScanSeq,scanned:runs.reduce((n,r)=>n+r.scanned,0),available:runs.reduce((n,r)=>n+r.available,0),pendingCandidates,canContinue:runs.some(r=>r.scanned<r.available)||pendingCandidates>0,partial:runs.some(r=>r.capped||r.scanned<r.available)||pendingCandidates>0};
-      _nativeTripleScan={token:coverage.token,terms:terms.slice(),pure,window,runs,admitted,processed:[...processed],scope:st.scope,canContinue:coverage.canContinue};
+      const coverage={phase:"cross-three-wave",thirdRequired,token:previous?.token||++_nativeTripleScanSeq,scanned:runs.reduce((n,r)=>n+r.scanned,0),available:runs.reduce((n,r)=>n+r.available,0),pendingCandidates,canContinue:runs.some(r=>r.scanned<r.available)||pendingCandidates>0,partial:runs.some(r=>r.capped||r.scanned<r.available)||pendingCandidates>0};
+      _nativeTripleScan={token:coverage.token,terms:terms.slice(),thirdRequired,pure,window,runs,admitted,processed:[...processed],scope:st.scope,canContinue:coverage.canContinue};
       if(!admitted.length){operationStatus(operation,"empty","לא נמצא מפגש מאומת בגל המקומי שנבדק; ייתכן שקיימים מופעים נוספים.",coverage);return;}
       const selected=previous&&st.crossFree&&hasGov(st.res)?{axis:norm(st.raw),hit:hitKey(occ())}:null;
       operation.committed=true;Object.assign(st,{ctxR:window.ctxR,windowColumns:window.windowColumns,windowSize:window.windowSize,windowRequested:window.windowRequested});
@@ -5192,7 +5212,7 @@
     s+="הצמוד ביותר: <b>"+tight.t+"</b> ("+(tight.step<=1?"אות-ליד-אות":"פער "+heb(tight.step))+", מרחק-מהציר "+heb(Math.round(tight.cost))+"). ";
     const adj=z.detail.filter(d=>d.step<=1);
     if(adj.length)s+="מונחים <b>אות-ליד-אות</b> (בלי פערים): "+adj.map(d=>"«"+d.t+"»").join(", ")+" — אלה הכי חזקים. ";
-    const rare=z.detail.filter(d=>d.rar<=5);
+    const rare=z.detail.filter(d=>d.rar!=null&&d.rar<=5);
     if(rare.length)s+="מונחים נדירים בתורה שנפגשו כאן: "+rare.map(d=>"«"+d.t+"»").join(", ")+" — מחזק את הטוהר. ";
     if(gm.length)s+="<span class='xz-ai-gem'>🔢 צירופי-גימטריה שווים: "+gm.map(g=>g.terms.join(" = ")+" = "+heb(g.val)).join(" · ")+".</span> ";
     else s+="לא נמצאו שוויונות-גימטריה בין המונחים באזור זה. ";
@@ -5321,7 +5341,7 @@
       const rows=z.detail.map(d=>'<div class="xz-term"><b>'+d.t+'</b>'+
         (d.side?'<span class="xz-side">🔄 '+d.side+' של השם</span>':"")+
         '<span class="xz-tag '+(d.step<=1?"t-tight":d.step<=3?"t-mid":"t-far")+'">'+(d.step<=1?"✦ אות-ליד-אות":"פער "+heb(d.step))+'</span>'+
-        '<span class="xz-meta">דילוג '+heb(Math.abs(d.skip))+' '+(d.dir===1?"↓":"↑")+' · מרחק-מהציר '+heb(Math.round(d.cost))+' · גימ׳ '+heb(d.gem)+' · '+(d.rar>=9999?"נפוץ":d.rar===1?"יחיד בתורה":heb(d.rar)+" בתורה")+'</span></div>').join("");
+        '<span class="xz-meta">דילוג '+heb(Math.abs(d.skip))+' '+(d.dir===1?"↓":"↑")+' · מרחק-מהציר '+heb(Math.round(d.cost))+' · גימ׳ '+heb(d.gem)+' · '+(d.rar==null?"שכיחות לא נבדקה":d.rar>=9999?"נפוץ":d.rar===1?"יחיד בתורה":heb(d.rar)+" בתורה")+'</span></div>').join("");
       card.innerHTML='<div class="xz-head"><span class="xz-stars">'+"★".repeat(z.stars)+'<span class="xz-starsoff">'+"☆".repeat(5-z.stars)+'</span></span>'+
         '<span class="xz-title">'+(z.bridge?'🌉 גשר '+heb(i+1)+' · <b style="color:#cbb3ff">'+z.axis+'</b> מחבר את שניהם':('אזור '+heb(i+1)+' · '+parts+'/'+heb(st.crossTotal)+(z.axis?' · 🧭 ציר: '+z.axis:'')+(z.side&&z.side!=="מקורי"?' · <span style="color:#9fc0ff">🔄 '+z.side+'</span>':'')))+'</span>'+
         '<span class="xz-loc">דילוג-ציר '+heb(z.skip)+' · '+z.book+'</span></div>'+
