@@ -936,3 +936,51 @@ lock gates passed; guard tests7/7 passed. Existing chunk/mixed Shell import
 warnings remain. Final exact runtime/deployment identity and AFTER release are
 recorded under the task above after final source verification. No main merge,
 Production/domain action, DB/RLS/migration/Edge change or publication.
+
+## 31.10 — River responsiveness, original proportions and typed photo dates
+
+Task `REALITY_RIVER_SCROLL_DATE_POLISH_20261031`, BEFORE
+`843e6dc4-2064-49ba-bea6-b649cd6f304d`. User explicitly requested richer
+presentation, scroll improvement and dates on these stream photos.
+
+- Scroll events coalesce into one animation-frame callback. Card geometry is
+  cached on resize/media layout rather than measured on each scroll. Only
+  active-source changes update React state; handle movement updates its own
+  transform/slider DOM value. Memoized picture/share instances are preserved.
+- The original tiny150px mobile media cap is replaced by larger natural-ratio
+  images, stronger semantic-gold frame depth and a taller multi-image window.
+  Description geometry is stable; full text remains scrollable, not discarded.
+  Number-link arrow is SVG rather than an unsupported font glyph.
+- Live integration exposed an additional flex-host problem: `margin:auto`
+  with width:auto allowed the growing thumbnail strip to widen the river;
+  the resulting reflow shortened the Follow block by55px. Initial live checks
+  failed and were not waived. Explicit bounded100% width and a contained
+  horizontal thumbnail strip fixed the issue without changing Home/Frame.
+- Every current photo shows a Gregorian date over its image. Authored update
+  headings retain priority. Without one, the existing stored stream_at is
+  labeled **נוסף לזרם**, formatted with the existing Israel-zone date helper.
+  Unknown/invalid time stays unknown. No event date is inferred, no archive
+  timestamp is substituted, and generic gallery chronology remains unchanged.
+  The image and explanation both name the stored source gallery (for the
+  newest reviewed sources, **גלרית דוד24**). No image was moved or reclassified.
+
+Existing contract/owner semantics are extended only in this stream display;
+there is no new law/engine/store or canonical record write. Posts code/readers,
+shared Frame/providers and Legacy are unchanged. The existing Post update date
+formatter is imported as a pure utility, not edited or used as a data source.
+
+Verification:23 focused tests including the real frame browser at320/390/1440
+and three semantic presets; profiler measured **zero React commits during
+20 consecutive small scroll steps within the same source**, with stable page
+height and stable flex-hosted frame width across source/long-caption changes.
+This is bounded regression evidence, not a claim about FPS on every device.
+Existing source/catalog/Topic Number-return browser3/3; guard tests7/7; both
+builds plus graph/isolation/World/Topic/hardening/Legacy/Home Pulse gates passed.
+Real anonymous static Preview390/1440 passed after the width fix, including
+all seven admitted photo dates/gallery names, handle/history, exact source and
+Back. Logs `/tmp/river-polish-final3-tests.log`,
+`/tmp/river-polish-existing-browser.log`, `/tmp/river-polish-live4.log` and
+`/tmp/river-polish-release-gates.log`; failed pre-fix live checks retained in
+`/tmp/river-polish-live*.log`. Hosted identity/acceptance and final branch SHA
+are recorded in the task AFTER once deployed. No main/Production/DB/RLS/
+migration/Edge or publication action; Preview Follow remains read-only.

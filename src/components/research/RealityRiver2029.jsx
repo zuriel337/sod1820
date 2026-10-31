@@ -1,4 +1,4 @@
-import React, { useEffect, useId, useRef, useState } from 'react';
+import React, { memo, useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import CanonicalMediaImage2029 from '../experience2029/CanonicalMediaImage2029.jsx';
 import RealityStreamFollow2029 from './RealityStreamFollow2029.jsx';
@@ -6,46 +6,76 @@ import ShareActions from '../ShareActions.jsx';
 import { worldMediaPublicShare } from '../../lib/research/worldFindingShare.js';
 import { getRealityHints } from '../../lib/supabase.js';
 import { fetchGallerySourceContext } from '../../lib/research/entityHubProjection.js';
-import { galleryImageDatePresentation, loadPublicRealityStream2029 } from '../../lib/research/topicSourceContext.js';
+import { realityStreamDatePresentation2029, loadPublicRealityStream2029 } from '../../lib/research/topicSourceContext.js';
 import { publicMediaCaption, publicMediaTitle } from '../../lib/presentation/contentTitle.js';
 import { numberExpressionFocusHref } from '../../lib/research/numberExpressionFocus.js';
 import './realityRiver2029.css';
 
+const RiverPicture = memo(function RiverPicture({ item, index, selected, registerCard }) {
+  const title = publicMediaTitle(item.legacyPlacement?.originalName) || 'תמונה מתוך הזרם';
+  const date = realityStreamDatePresentation2029(item);
+  const share = useMemo(() => worldMediaPublicShare(item, {
+    origin: typeof window !== 'undefined' ? window.location.origin : null,
+  }), [item]);
+  const cardRef = useCallback(el => registerCard(item.galleryImageId, el), [item.galleryImageId, registerCard]);
+  return <article ref={cardRef} className={`r29-picture${selected ? ' is-current' : ''}`} data-river-image={item.galleryImageId}>
+    <Link to={item.streamHref} className="r29-picture-frame" aria-label={`פתיחת המקור: ${title}`}>
+      <span className="r29-image-surface"><CanonicalMediaImage2029 item={item} alt={title} loading={index < 3 ? 'eager' : 'lazy'} />
+        {date ? <span className="r29-image-date" title={date.description} aria-label={`${date.kind}: ${date.label}. ${date.description}`}>
+          <time dateTime={date.dateTime} dir="ltr">{date.label}</time><span>{date.kind}</span>
+        </span> : <span className="r29-image-date">תאריך לא צוין</span>}
+      </span>
+    </Link>
+    <div className="r29-picture-meta"><div className="r29-picture-copy"><p className="r29-picture-title">{title}</p>
+      {item.legacyPlacement?.galleryName ? <p className="r29-gallery-name">מתוך: {publicMediaCaption(item.legacyPlacement.galleryName)}</p> : null}</div>
+      {share ? <ShareActions type="image" {...share} title={title} variant="icon" sourceSurface="home_reality_stream_2029" force /> : null}
+    </div>
+  </article>;
+});
+
 /** Legacy river silhouette only. All content is admitted by 2029 source readers. */
 export function RealityRiver2029({ items = [], loading = false, failed = false, onRetry, follow = null }) {
-  const view = useRef(null), cards = useRef(new Map());
-  const [position, setPosition] = useState(0), [ratio, setRatio] = useState(0);
+  const view = useRef(null), cards = useRef(new Map()), knob = useRef(null), rail = useRef(null), slider = useRef(null);
+  const geometry = useRef({ max: 0, travel: 0, cards: [] }), frame = useRef(null), positionRef = useRef(0);
+  const [position, setPosition] = useState(0);
   const regionId = useId();
   const current = items[position] || items[0];
   const currentTitle = publicMediaTitle(current?.legacyPlacement?.originalName) || 'תמונה מתוך הזרם';
   const currentCaption = publicMediaCaption(current?.legacyPlacement?.originalCaption);
-  const date = galleryImageDatePresentation(current);
+  const date = realityStreamDatePresentation2029(current);
   const numbers = [...new Set([current?.storedNumbers?.primary, ...(current?.storedNumbers?.all || [])])]
     .filter(n => Number.isSafeInteger(n) && n > 0).slice(0, 4);
 
-  const synchronize = () => {
+  const registerCard = useCallback((id, element) => {
+    if (element) cards.current.set(id, element); else cards.current.delete(id);
+  }, []);
+  const synchronize = useCallback(() => {
     const el = view.current;
     if (!el) return;
-    const max = Math.max(0, el.scrollHeight - el.clientHeight);
-    setRatio(max ? el.scrollTop / max : 0);
-    const top = el.getBoundingClientRect().top;
-    const index = items.findIndex(item => {
-      const card = cards.current.get(item.galleryImageId);
-      return card && card.getBoundingClientRect().bottom > top + 45;
-    });
-    setPosition(index < 0 ? Math.max(0, items.length - 1) : index);
-  };
+    const metrics = geometry.current, top = Math.max(0, el.scrollTop);
+    const ratio = metrics.max ? Math.min(1, top / metrics.max) : 0;
+    // Moving the handle never rerenders cards, shares or the reading panel.
+    if (knob.current) knob.current.style.transform = `translate3d(-50%,${ratio * metrics.travel}px,0)`;
+    if (slider.current) slider.current.value = String(ratio * 100);
+    const index = metrics.cards.findIndex(card => card.bottom > top + 45);
+    const next = index < 0 ? Math.max(0, items.length - 1) : index;
+    if (positionRef.current !== next) { positionRef.current = next; setPosition(next); }
+  }, [items]);
+  const schedule = useCallback(() => {
+    if (frame.current !== null) return;
+    frame.current = requestAnimationFrame(() => { frame.current = null; synchronize(); });
+  }, [synchronize]);
   const seek = value => {
     const el = view.current;
     if (!el) return;
-    el.scrollTop = Number(value) / 100 * Math.max(0, el.scrollHeight - el.clientHeight);
-    synchronize();
+    el.scrollTop = Number(value) / 100 * geometry.current.max;
+    schedule();
   };
   const jump = index => {
-    const el = view.current, card = cards.current.get(items[index]?.galleryImageId);
+    const el = view.current, card = geometry.current.cards[index];
     if (!el || !card) return;
-    el.scrollTop += card.getBoundingClientRect().top - el.getBoundingClientRect().top - 12;
-    synchronize();
+    el.scrollTop = Math.max(0, card.top - 12);
+    schedule();
   };
   const pointerSeek = event => {
     const bounds = event.currentTarget.getBoundingClientRect();
@@ -55,12 +85,24 @@ export function RealityRiver2029({ items = [], loading = false, failed = false, 
     const el = view.current;
     if (!el) return;
     el.scrollTop = 0;
-    synchronize();
-    if (typeof ResizeObserver === 'undefined') return;
-    const observer = new ResizeObserver(synchronize);
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [items]); // Current-window progress only; never a persistent viewed/follow signal.
+    const measure = () => {
+      // Geometry is read on resize/image layout, never once per scroll event.
+      geometry.current = { max: Math.max(0, el.scrollHeight - el.clientHeight),
+        travel: Math.max(0, (rail.current?.clientHeight || 0) - (knob.current?.offsetHeight || 0)),
+        cards: items.map(item => { const card = cards.current.get(item.galleryImageId);
+          return { top: card?.offsetTop || 0, bottom: (card?.offsetTop || 0) + (card?.offsetHeight || 0) }; }) };
+      schedule();
+    };
+    measure();
+    const observer = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(measure) : null;
+    observer?.observe(el);
+    cards.current.forEach(card => observer?.observe(card));
+    // Old browsers still refresh geometry when media finish loading.
+    el.addEventListener('load', measure, true);
+    window.addEventListener('resize', measure);
+    return () => { observer?.disconnect(); el.removeEventListener('load', measure, true); window.removeEventListener('resize', measure);
+      if (frame.current !== null) cancelAnimationFrame(frame.current); frame.current = null; };
+  }, [items, loading, failed, schedule]); // Window progress only, never a viewed/follow signal.
 
   return <section id="reality-stream" className="r29-river" dir="rtl" aria-label="זרם המציאות" data-reality-river>
     <header className="r29-heading"><div><p className="r29-eyebrow">תמונה פותחת סיפור</p>
@@ -75,33 +117,24 @@ export function RealityRiver2029({ items = [], loading = false, failed = false, 
       <div className="r29-stage">
         <aside className="r29-detail" aria-label="הסיפור שבתמונה">
           <span className="r29-detail-label">מבט מקרוב</span><h3>{currentTitle}</h3>
-          {date ? <p className="r29-date">עדכון במקור · <time dir="ltr" dateTime={date.dateTime}>{date.label}</time></p> : null}
+          {date ? <p className="r29-date">{date.kind} · <time dir="ltr" dateTime={date.dateTime}>{date.label}</time></p> : null}
+          {current?.legacyPlacement?.galleryName ? <p className="r29-gallery-name">מתוך: {publicMediaCaption(current.legacyPlacement.galleryName)}</p> : null}
           {currentCaption ? <p className="r29-description">{currentCaption}</p> : <p className="r29-description">התמונה פתוחה לעיון במקורה, עם הכיתובים וההקשר שנשמרו איתה.</p>}
           {numbers.length ? <><p className="r29-number-label">מספרים שסומנו במקור</p><div className="r29-numbers">{numbers.map(n =>
-            <Link key={n} to={numberExpressionFocusHref(n)} aria-label={`לדף המספר ${n}`}><bdi>{n.toLocaleString('en-US')}</bdi> ↗</Link>)}</div></> : null}
+            <Link key={n} to={numberExpressionFocusHref(n)} aria-label={`לדף המספר ${n}`}><bdi>{n.toLocaleString('en-US')}</bdi>
+              <svg width="14" height="14" viewBox="0 0 12 12" fill="none" stroke="currentColor" aria-hidden="true"><path d="m3 9 6-6M3 3h6v6" /></svg></Link>)}</div></> : null}
           <Link className="r29-open" to={current.streamHref}>למקור ולהקשר ←</Link>
           <p className="r29-note">התיוגים במקור אינם כשלעצמם אימות חישוב או קשר בעץ.</p>
         </aside>
-        <div className="r29-window" id={regionId} ref={view} onScroll={synchronize} tabIndex={0} role="region" aria-label="התמונות בזרם — אפשר לגלול">
+        <div className="r29-window" id={regionId} ref={view} onScroll={schedule} tabIndex={0} role="region" aria-label="התמונות בזרם — אפשר לגלול">
           <div className="r29-thread" aria-hidden="true" />
-          {items.map((item, index) => {
-            const title = publicMediaTitle(item.legacyPlacement?.originalName) || 'תמונה מתוך הזרם';
-            const authoredDate = galleryImageDatePresentation(item);
-            const share = worldMediaPublicShare(item, { origin: typeof window !== 'undefined' ? window.location.origin : null });
-            return <article key={item.galleryImageId} ref={el => { if (el) cards.current.set(item.galleryImageId, el); else cards.current.delete(item.galleryImageId); }}
-              className={`r29-picture${index === position ? ' is-current' : ''}`} data-river-image={item.galleryImageId}>
-              <Link to={item.streamHref} className="r29-picture-frame" aria-label={`פתיחת המקור: ${title}`}>
-                <CanonicalMediaImage2029 item={item} alt={title} loading={index < 3 ? 'eager' : 'lazy'} />
-                {authoredDate ? <time className="r29-image-date" dateTime={authoredDate.dateTime} dir="ltr" title="תאריך העדכון שנכתב במקור">{authoredDate.label}</time> : null}
-              </Link><div className="r29-picture-meta"><p className="r29-picture-title">{title}</p>
-                {share ? <ShareActions type="image" {...share} title={title} variant="icon" sourceSurface="home_reality_stream_2029" force /> : null}</div>
-            </article>;
-          })}
+          {items.map((item, index) => <RiverPicture key={item.galleryImageId} item={item} index={index}
+            selected={index === position} registerCard={registerCard} />)}
           <Link className="r29-end" to="/world?view=gallery&flow=1">יש עוד מה לגלות · לכל הגלריות ←</Link>
         </div>
-        <div className="r29-rod"><span aria-hidden="true">תחילה</span><div className="r29-rail">
-          <div className="r29-knob" style={{ top: `${ratio * 100}%` }} aria-hidden="true"><i /><i /><i /></div>
-          <input type="range" min="0" max="100" step="0.1" value={ratio * 100}
+        <div className="r29-rod"><span aria-hidden="true">תחילה</span><div className="r29-rail" ref={rail}>
+          <div className="r29-knob" ref={knob} aria-hidden="true"><i /><i /><i /></div>
+          <input ref={slider} type="range" min="0" max="100" step="0.1" defaultValue="0"
             aria-label="ידית הגלילה של זרם המציאות" aria-controls={regionId}
             aria-valuetext={`תמונה ${position + 1} מתוך ${items.length}`} onChange={event => seek(event.target.value)}
             onPointerDown={event => { event.preventDefault(); event.currentTarget.focus(); event.currentTarget.setPointerCapture(event.pointerId); pointerSeek(event); }}

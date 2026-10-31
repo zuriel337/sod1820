@@ -7,14 +7,15 @@ import react from '@vitejs/plugin-react';
 const require = createRequire(import.meta.url);
 const { chromium } = require('playwright');
 
-test('golden river frame: mobile/desktop, three images, keyboard/drag, history and exact source links', async () => {
+test('golden river: larger dated images, stable page, no same-source scroll commits, keyboard/drag and return', async () => {
   const fixture = `import React from 'react';import{createRoot}from'react-dom/client';import{MemoryRouter}from'react-router-dom';
     import{RealityRiver2029}from'/src/components/research/RealityRiver2029.jsx';
     const picture='data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="700" height="420"><rect width="700" height="420" fill="goldenrod"/><text x="100" y="230" font-size="80">456 · 45</text></svg>');
     const items=Array.from({length:12},(_,i)=>({galleryImageId:'image-'+i,imageUrl:picture,thumbUrl:picture,
+      streamAddedAt:'2026-10-04T14:41:48Z',
       streamHref:'/world?view=gallery&gallery=105&image=image-'+i+'#gallery-source-image-'+i,
-      legacyPlacement:{originalName:'עדכון 2/3/2021 תמונה '+(i+1),originalCaption:'כיתוב מקור מלא לקריאה. אותה תמונה, אותו מקור ואותו סיפור.'},storedNumbers:{primary:456,all:[456,45]}}));
-    createRoot(document.getElementById('root')).render(React.createElement(MemoryRouter,null,React.createElement(RealityRiver2029,{items})));`;
+      legacyPlacement:{galleryName:'גלרית דוד 24',originalName:i===0?'עדכון 2/3/2021 תמונה 1':'תמונה '+(i+1),originalCaption:'כיתוב מקור מלא לקריאה. אותה תמונה, אותו מקור ואותו סיפור.'.repeat(i%2?15:1)},storedNumbers:{primary:456,all:[456,45]}}));
+    window.__riverCommits=0;createRoot(document.getElementById('root')).render(React.createElement(MemoryRouter,null,React.createElement('div',{style:{display:'flex',flexDirection:'column',width:'100%',minWidth:0}},React.createElement(React.Profiler,{id:'river',onRender:()=>window.__riverCommits++},React.createElement(RealityRiver2029,{items})))));`;
   const server = await createServer({ configFile: false, root: process.cwd(), server: { host: '127.0.0.1', port: 0, watch: {ignored:['**/preview-deploy/**','**/dist/**']} }, plugins: [react(), {
     name: 'river-browser-fixture', configureServer(s) { s.middlewares.use(async (req,res,next) => {
       if(req.url?.split('?')[0] !== '/river-fixture/') return next();
@@ -37,11 +38,24 @@ test('golden river frame: mobile/desktop, three images, keyboard/drag, history a
       assert.equal(await page.locator('[data-river-image]').count(),12);
       assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
       const view=page.getByRole('region',{name:'התמונות בזרם — אפשר לגלול'});
-      assert.ok(await view.evaluate(el=>[...el.querySelectorAll('[data-river-image]')].filter(c=>c.getBoundingClientRect().top<el.getBoundingClientRect().bottom&&c.getBoundingClientRect().bottom>el.getBoundingClientRect().top).length>=3));
+      assert.ok(await view.evaluate(el=>[...el.querySelectorAll('[data-river-image]')].filter(c=>c.getBoundingClientRect().top<el.getBoundingClientRect().bottom&&c.getBoundingClientRect().bottom>el.getBoundingClientRect().top).length>=2));
+      assert.equal(await page.locator('.r29-image-date time').nth(0).innerText(),'02.03.2021');
+      assert.equal(await page.locator('.r29-image-date time').nth(1).innerText(),'04.10.2026');
+      assert.match(await page.locator('.r29-image-date').nth(1).innerText(),/נוסף לזרם/);
+      assert.match(await page.locator('.r29-gallery-name').first().innerText(),/גלרית דוד 24/);
+      await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
+      const stationaryCommits=await page.evaluate(()=>window.__riverCommits);
+      await view.evaluate(async el=>{for(let i=1;i<=20;i++){el.scrollTop=i;await new Promise(requestAnimationFrame);}});
+      assert.equal(await page.evaluate(()=>window.__riverCommits),stationaryCommits,'scroll inside same source must not rerender React tree');
+      const pageHeight=await page.evaluate(()=>document.documentElement.scrollHeight);
+      const initialWidth=(await page.locator('[data-reality-river]').boundingBox()).width;
       assert.equal(await page.locator('.r29-picture img').first().evaluate(el=>getComputedStyle(el).objectFit),'contain');
       const handle=page.getByRole('slider',{name:'ידית הגלילה של זרם המציאות'});
       await handle.focus();await handle.press('End');
       await page.waitForFunction(()=>document.querySelector('.r29-window').scrollTop>300);
+      assert.equal(await page.evaluate(()=>document.documentElement.scrollHeight),pageHeight,'changing source/caption must not change page height');
+      assert.equal((await page.locator('[data-reality-river]').boundingBox()).width,initialWidth,'memory thumbnails cannot widen a flex-hosted river');
+      console.log(JSON.stringify({width,sameSourceScrollCommits:0,pageHeightStable:true}));
       assert.ok(await page.locator('.r29-memory button').count()>1);
       await page.getByRole('button',{name:'חזרה לתמונה 1',exact:true}).click();
       await page.waitForFunction(()=>document.querySelector('.r29-window').scrollTop<20);

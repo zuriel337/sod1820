@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { buildGallerySourceContext, loadPublicRealityStream2029 } from '../src/lib/research/topicSourceContext.js';
+import { buildGallerySourceContext, loadPublicRealityStream2029, realityStreamDatePresentation2029 as streamDate } from '../src/lib/research/topicSourceContext.js';
 const id = n => `10000000-0000-4000-8000-${String(n).padStart(12,'0')}`;
 const gallery = { id: id(90), wp_gallery_id: 105, name: 'זרם המציאות' };
 const row = n => ({ id: id(n), gallery_id: gallery.id, wp_gallery_id: 105, ordering: n,
@@ -49,4 +49,11 @@ test('bounded selector input and exact source errors do not turn into successful
 test('source no longer designated for stream is not shown, even if still public', async () => {
   const result=await loadPublicRealityStream2029({listHints:async()=>[row(1)],fetchSourceContext:reader([{...row(1),source:'hugeit_migration'}])});
   assert.equal(result.items.length,0);
+});
+test('stream dates preserve authored dates; fallback explicitly labels arrival in Israel time, never event/archive',()=>{
+  const item={legacyPlacement:{originalName:'תמונה בלי תאריך',occurredAt:'2001-01-01',createdAt:'2002-01-01'},streamAddedAt:'2026-10-31T23:30:00Z'};
+  const date=streamDate(item);assert.equal(date.kind,'נוסף לזרם');assert.equal(date.label,'01.11.2026');assert.equal(date.basis,'gallery_images.stream_at');
+  assert.equal(streamDate({...item,legacyPlacement:{...item.legacyPlacement,originalName:'עדכון 2/3/2021'}}).label,'02.03.2021');
+  assert.equal(streamDate({...item,streamAddedAt:null}),null);assert.equal(streamDate({...item,streamAddedAt:'not a date'}),null);
+  assert.equal(streamDate({...item,streamAddedAt:'2026-02-31T14:00:00Z'}),null);
 });

@@ -51,11 +51,29 @@ try{
     const river=page.locator('[data-reality-river]');await river.waitFor({timeout:45000});await river.scrollIntoViewIfNeeded();
     await river.locator('[data-river-image]').first().waitFor({timeout:45000});
     const image=river.locator('.r29-picture img').first();await image.evaluate(im=>im.decode());
+    // Compare selection after independent font/preference loading has settled.
+    // A pending follow-state read is not a source-selection layout change.
+    await page.evaluate(()=>document.fonts.ready);
+    await river.locator('.sod29-watch:not([data-state="loading"])').waitFor({timeout:30000});
     const itemCount=await river.locator('[data-river-image]').count();assert.ok(itemCount>2);
+    assert.equal(await river.locator('.r29-image-date time').count(),itemCount,'every current admitted stream photo has a typed date');
+    const firstDate=await river.locator('.r29-image-date').first().innerText();
+    assert.match(firstDate,/\d{2}\.\d{2}\.\d{4}/);assert.match(firstDate,/נוסף לזרם|עדכון/);
+    const gallery=await river.locator('.r29-gallery-name').first().innerText();assert.match(gallery,/מתוך:/);
+    const initialBounds=await river.boundingBox(),riverHeight=initialBounds.height;
+    const initialGeometry=await river.evaluate(el=>[...el.children].map(c=>({part:c.className,height:c.getBoundingClientRect().height})));
     const exact=await river.locator('.r29-open').getAttribute('href');assert.match(exact,/^\/world\?view=gallery&gallery=\d+&image=[a-f0-9-]+#gallery-source-/);
     assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
     const slider=river.getByRole('slider');await slider.focus();await slider.press('End');
     await page.waitForFunction(()=>document.querySelector('.r29-window').scrollTop>300);
+    const afterHeight=(await river.boundingBox()).height;
+    assert.ok(Math.abs((await river.boundingBox()).width-initialBounds.width)<2,'thumbnail arrivals cannot widen Home river');
+    assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+    if(Math.abs(afterHeight-riverHeight)>=2){
+      console.log(JSON.stringify({width,riverHeight,afterHeight,initialGeometry,afterGeometry:await river.evaluate(el=>[...el.children].map(c=>({part:c.className,height:c.getBoundingClientRect().height})))}));
+      await river.screenshot({path:`${output}/height-diagnostic-${width}.png`});
+    }
+    assert.ok(Math.abs(afterHeight-riverHeight)<2,'source selection does not resize river');
     await river.getByRole('button',{name:'חזרה לתמונה 1',exact:true}).click();
     await page.waitForFunction(()=>document.querySelector('.r29-window').scrollTop<20);
     await river.screenshot({path:`${output}/home-river-${width}.png`});
@@ -66,7 +84,7 @@ try{
     await page.goBack({waitUntil:'domcontentloaded'});await page.locator('[data-reality-river]').waitFor();
     const identity=await page.evaluate(()=>fetch('/preview-identity.json').then(r=>r.json()));
     await page.locator('[data-river-image]').first().waitFor({timeout:45000});
-    report.widths.push({width,items:itemCount,selected,identity});
+    report.widths.push({width,items:itemCount,firstDate,gallery,selected,identity});
     await context.close();
   }
   assert.deepEqual(report.errors,[]);assert.deepEqual(report.modelRequests,[]);

@@ -3,6 +3,7 @@
 import { buildMediaEnvelope, buildStoredInterpretation, dedupeMediaEnvelopes } from "./galleryMediaEnvelope.js";
 import { canonicalMediaPresentation, canonicalMediaPublicLabel } from "../presentation/canonicalPresentation.js";
 import { formatGregorianDate } from "./timeline2029.js";
+import { formatUpdateDate } from "./postSourceUpdates2029.js";
 
 export const TOPIC_SOURCE_LIMIT = 64;
 export const TOPIC_OCCURRENCE_LIMIT = 256;
@@ -135,6 +136,19 @@ export function galleryEditorialUpdate2029(name) {
 export function galleryImageDatePresentation(item) {
   const update = galleryEditorialUpdate2029(item?.legacyPlacement?.originalName);
   return update ? { ...update, kind: 'עדכון', description: 'תאריך העדכון שנכתב בכותרת המקור; אינו תאריך קליטה או תאריך אירוע מאומת' } : null;
+}
+
+// Stream-only display: authored update first; arrival is explicitly a different
+// date role. Never changes gallery chronology or substitutes an event/archive date.
+export function realityStreamDatePresentation2029(item) {
+  const authored = galleryImageDatePresentation(item);
+  if (authored) return authored;
+  const dateTime = item?.streamAddedAt;
+  if (typeof dateTime !== 'string' || !/^\d{4}-\d{2}-\d{2}T/.test(dateTime)
+    || formatGregorianDate(dateTime.slice(0,10))?.split('.').reverse().join('-') !== dateTime.slice(0,10)) return null;
+  const label = typeof dateTime === 'string' ? formatUpdateDate(dateTime) : '';
+  return label ? { kind: 'נוסף לזרם', label, dateTime, basis: 'gallery_images.stream_at',
+    description: 'מועד ההוספה לזרם המציאות לפי שעון ישראל; אינו תאריך האירוע או עדכון שנכתב במקור' } : null;
 }
 
 export function galleryReadingFilters2029(search = '') {
