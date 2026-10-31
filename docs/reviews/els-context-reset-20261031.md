@@ -89,3 +89,31 @@ No paid call, live save or live auth/account mutation was exercised. Existing
 Production drift from the historical AGENTS pin is observed, not repaired:
 `sod1820.vercel.app` remains Legacy `dpl_AiKPHaoo5pxo9T5PFTpcBRG7LfMA`.
 Hosted acceptance and exact release identity follow after deployment.
+
+## AFTER — protected 2029 Preview
+
+Runtime SHA `c9e87194965350109b758eabdb21bf23ec2f6c4f`, pushed and remote verified.
+Deployment `dpl_5qMC74mAWNZVALHYTySBjqokw638`, READY, target null (Preview).
+Host `sod1820-4y45v38s6-sod1820-s-projects.vercel.app`.
+The Vercel Git metadata and the served `/preview-identity.json` match this exact
+SHA and branch. Integrated Preview builds successfully without stubs. Its worker
+is byte-identical to the approved account/reading worker (new branch gate test).
+A deployment-scoped share URL was created, expiring in 23 hours. No access token
+is committed here; SSO protection and project settings remain unchanged.
+
+Hosted Chromium: light theme passes at 320/390/1440, checking the folder order,
+Classic/Research share disclosure, context disclosure, global Raziel and no
+horizontal overflow. Actual mobile screenshot inspected. Subsequent fresh
+contexts could not load the HTML: the environment proxy returned an upstream
+connection failure (`envoy://cloudflare_https_tunnel/`, Invalid argument), before
+the application started. One retry reproduced that infrastructure failure.
+Therefore hosted parchment/dark acceptance is NOT claimed. All nine width/theme
+combinations already passed locally with the built real UI. No model or product
+write was sent during hosted smoke; non-read requests were intercepted/blocked.
+
+Production hostname still resolves to existing Legacy deployment
+`dpl_AiKPHaoo5pxo9T5PFTpcBRG7LfMA`. Main is unchanged. No Edge deployment,
+DB/RLS change, project-setting change or Production/custom-domain assignment.
+
+Scope released. Passive AFTER receipt only; no live work_log row was written.
+The following documentation-only commit does not change the deployed runtime.
