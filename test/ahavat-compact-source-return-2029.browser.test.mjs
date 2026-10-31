@@ -52,7 +52,7 @@ test("the compact source action returns to the same letter unit, source and filt
         await assertAhavatSourcePage(source, 36);
         assert.equal(await page.locator("#ahavat29-selection").count(), 0, "letter mode has no general selection panel");
         const action = source.getByRole("link", { name: "להסבר", exact: true });
-        assert.equal(new URL(await action.getAttribute("href"), page.url()).hash, `#${ahavatReaderUnitDomId(id)}`);
+        assert.equal(decodeURIComponent(new URL(await action.getAttribute("href"), page.url()).hash), `#${ahavatReaderUnitDomId(id)}`);
         await source.getByRole("button", { name: "לעמוד הבא", exact: true }).click();
         await assertAhavatSourcePage(source, 37);
         await action.focus(); await page.keyboard.press("Enter");
