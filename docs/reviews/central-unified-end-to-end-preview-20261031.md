@@ -116,3 +116,34 @@ Production baseline read immediately before deployment: all three canonical
 domains point to Legacy `dpl_AiKPHaoo5pxo9T5PFTpcBRG7LfMA` at `8bc5980f`.
 The historical emergency anchor was not restored. No main, Edge deployment,
 product DB/RLS/migration apply, custom-domain change or Production action.
+
+## Hosted acceptance supplement
+
+The first exact-SHA protected deployment is READY, target null:
+`dpl_7AGWuaRAjMvCyH8yUk9VXxVeVE4s`, SHA
+`a698b178a08dbd465dd4723fa4cc8596ea7df2f4`.
+Its public build identity reports `existing-live-ai-analyze`, product writes false,
+matrix jobs false, `no-store` and `noindex, nofollow, noarchive` headers.
+
+The hosted route-entry matrix passed90 cases: ten routes ×320/390/1440 ×three
+themes, zero JS errors, zero automatic model calls and zero product test writes.
+The self API returned an actual401 private JSON response to the unauthenticated
+browser, separately from Vercel protection. These are route-entry checks, not
+complete functional acceptance of every surface.
+
+The complete World browser also passed **against this hosted deployment** at
+390/1440 with real anonymous data: 1237 method depth, galleries29/81, exact source
+→ canonical method Number → exact return, Topic1118 → World finding → Back,
+and Zvi source entry. Zero page errors/model requests/product test writes.
+Evidence remains outside the repository in `/tmp/unified-hosted-acceptance` and
+`/tmp/unified-hosted-world`; access cookies/temporary share links are not saved.
+
+The hosted test initially authenticated on `/`, racing the existing root
+document handoff. It now authenticates on the JSON identity document before
+opening the exact routes, just like the existing World harness, and explicitly
+closes its stdin reader. This is test-only; no routing or runtime change.
+The final receipt/test follow-up retains the identical runtime trees/assets and
+Preview builder. Its final exact-SHA Preview identity is rechecked and recorded
+in the passive coordination AFTER; the above deployment remains evidence for
+the complete matrix. Real authenticated model completion remains unverified
+and requires the user's own login; unsupported server contracts remain blocked.

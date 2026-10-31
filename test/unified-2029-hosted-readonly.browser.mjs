@@ -10,7 +10,8 @@ const sha = process.env.UNIFIED_PREVIEW_SHA;
 const out = process.env.UNIFIED_PREVIEW_OUT || '/tmp/unified-hosted-acceptance';
 await mkdir(out, { recursive: true });
 let access;
-for await (const line of createInterface({ input: process.stdin })) { access = line.trim(); break; }
+const input = createInterface({ input: process.stdin });
+for await (const line of input) { access = line.trim(); input.close(); process.stdin.pause(); break; }
 assert.equal(new URL(access).origin, origin);
 const proxy = process.env.HTTPS_PROXY ? { server: process.env.HTTPS_PROXY, bypass: '127.0.0.1,localhost' } : undefined;
 const browser = await chromium.launch({ executablePath: '/usr/bin/chromium', headless: true, args: ['--no-sandbox', '--disable-dev-shm-usage'], ...(proxy ? { proxy } : {}) });
@@ -29,7 +30,11 @@ try {
     const page = await context.newPage();
     page.on('pageerror', error => errors.push(error.message));
     page.on('request', req => { if (/\/functions\/v1\/(ai-analyze|research-run|wa-raziel|els-live-reading)$/.test(new URL(req.url()).pathname)) models.push(new URL(req.url()).pathname); });
-    try { await page.goto(access, { waitUntil: 'domcontentloaded' }); }
+    // Authenticate on a JSON document so the application's root redirect cannot
+    // race the first route check while its lazy entry is still booting.
+    const authenticationURL = new URL(access);
+    authenticationURL.pathname = '/preview-identity.json';
+    try { await page.goto(authenticationURL.href, { waitUntil: 'domcontentloaded' }); }
     catch { throw new Error('Protected Preview access failed (access URL withheld)'); }
     const identity = await page.evaluate(() => fetch('/preview-identity.json').then(r => r.json()));
     assert.equal(identity.sha, sha); assert.equal(identity.transport, 'existing-live-ai-analyze');
