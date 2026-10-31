@@ -74,14 +74,28 @@
     "runtime_source_unchanged_since_measured_commit": true
   },
   "preview_binding": {
-    "applied": false,
+    "applied": true,
     "patch": "home-loading-preview-bindings-20261031.patch",
-    "active_builder_owner_record": "412a0132-0b3f-43d9-bcab-74e414e98a11",
-    "proposed_guard_vm_tests": 4,
-    "hosted_deployment": false,
-    "ownership_checked_at": "2026-10-31T20:04:31.217826Z",
-    "owner_explicit_release_found": false,
-    "status": "PROPOSED_TESTED_NOT_APPLIED_WAITING_OWNERSHIP"
+    "prior_before_record": "412a0132-0b3f-43d9-bcab-74e414e98a11",
+    "closing_release_record": "4b8dd78f-52c7-4884-ad8b-7d4ffd26cdcc",
+    "owner_explicit_release_found": true,
+    "prior_blocker_report_corrected": true,
+    "current_before_record": "6e2df76d-b87d-48dd-98ff-aa889b278b82",
+    "current_before_at": "2026-10-31T20:20:00.743278Z",
+    "actual_node_tests": {
+      "passed": 53,
+      "failed": 0,
+      "skipped": 0
+    },
+    "worker_comparison": "byte-identical to received reviewed branch worker",
+    "production_denial": "pass",
+    "hosted_deployment": "See closing AFTER and user handoff for exact source SHA and observed result",
+    "status": "APPLIED_LOCAL_TESTED_HOSTED_CHECK_FOLLOWS",
+    "built_browser_rerun": {
+      "passed": 23,
+      "failed": 0,
+      "report": "/tmp/home-preview-applied-browser/results.json"
+    }
   },
   "coordination": {
     "reader_role": "supabase_read_only_user",
@@ -95,7 +109,9 @@
     "resumed_before_readback_verified": true,
     "resumed_before_not_retroactive": true,
     "coordination_writes": "Only explicit-user-authorized passive work_log receipts to ZURIEL; no dispatch",
-    "closing_receipt": "Same task_key HOME_LOADING_ACCEPTANCE_20261031 in work_log_current, recorded after final remote verification"
+    "closing_receipt": "Same task_key HOME_LOADING_ACCEPTANCE_20261031 in work_log_current, recorded after final remote verification",
+    "preview_binding_before_id": "6e2df76d-b87d-48dd-98ff-aa889b278b82",
+    "closing_preview_receipt": "HOME_PREVIEW_BINDING_PROTECTED_ACCEPTANCE_20261031; written after deployment/read-only acceptance"
   },
   "limitations": [
     "Synthetic public API fixtures; external model and product writes intercepted",

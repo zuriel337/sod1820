@@ -282,7 +282,7 @@ test('reviewed public reply reads require exact projection and a server-confirme
  for(const wrong of ['/rest/v1/rpc/community_replies_page?select=*',path+'&extra=1','/rest/v1/rpc/community_reply_counts'])assert.equal((await request(wrong,options)).status,403);
 });
 
-for (const branch of ['gpt/2029-unified-community-latest-integration-20261031', 'gpt/2029-unified-performance-consolidation-20261031']) test(`exact unified branch ${branch} composes reviewed actions with central Raziel without widening other previews`,async()=>{
+for (const branch of ['gpt/2029-unified-community-latest-integration-20261031', 'gpt/2029-unified-performance-consolidation-20261031', 'gpt/2029-home-loading-acceptance-20261031']) test(`exact unified branch ${branch} composes reviewed actions with central Raziel without widening other previews`,async()=>{
  const current=managementWorker(branch);
  const fields='id,parent_id,author_name,author_user_id,author_contributor_id,title,body,reactions,origin,created_at,edited_at,is_deleted,total_count';
  const path='/rest/v1/rpc/community_replies_page?select='+encodeURIComponent(fields),body={p_parent:managementId,p_offset:0,p_limit:20};

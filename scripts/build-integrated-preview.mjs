@@ -8,7 +8,7 @@ import { AVATAR_UPLOAD_POLICY } from "../src/lib/userCenter/avatarPolicy.js";
 import { execFileSync } from "node:child_process";
 
 const END_TO_END_BRANCH = "gpt/2029-unified-community-latest-integration-20261031";
-if ([END_TO_END_BRANCH, "gpt/2029-unified-performance-consolidation-20261031", "gpt/2029-unified-end-to-end-preview-20261031"].includes(process.env.VERCEL_GIT_COMMIT_REF) && process.env.VERCEL_ENV === "production") {
+if ([END_TO_END_BRANCH, "gpt/2029-unified-performance-consolidation-20261031", "gpt/2029-home-loading-acceptance-20261031", "gpt/2029-unified-end-to-end-preview-20261031"].includes(process.env.VERCEL_GIT_COMMIT_REF) && process.env.VERCEL_ENV === "production") {
   throw new Error("unified_preview_is_never_production");
 }
 
@@ -33,9 +33,9 @@ const allow = ["gematria_api", "fn_method_value", "fn_method_profile", "gematria
 // One explicit, authenticated user turn may reach the EXISTING live server.
 // This is not an Edge rollout, matrix job allowance or product-write exemption.
 const realRazielPreview = typeof process !== "undefined" && process.env.VERCEL_ENV === "preview"
-  && ["gpt/2029-unified-end-to-end-preview-20261031", "gpt/2029-unified-community-latest-integration-20261031", "gpt/2029-unified-performance-consolidation-20261031"].includes(process.env.VERCEL_GIT_COMMIT_REF);
+  && ["gpt/2029-unified-end-to-end-preview-20261031", "gpt/2029-unified-community-latest-integration-20261031", "gpt/2029-unified-performance-consolidation-20261031", "gpt/2029-home-loading-acceptance-20261031"].includes(process.env.VERCEL_GIT_COMMIT_REF);
 const endToEndReadOnly = typeof process !== "undefined"
-  && ["gpt/2029-unified-end-to-end-preview-20261031", "gpt/2029-unified-community-latest-integration-20261031", "gpt/2029-unified-performance-consolidation-20261031"].includes(process.env.VERCEL_GIT_COMMIT_REF);
+  && ["gpt/2029-unified-end-to-end-preview-20261031", "gpt/2029-unified-community-latest-integration-20261031", "gpt/2029-unified-performance-consolidation-20261031", "gpt/2029-home-loading-acceptance-20261031"].includes(process.env.VERCEL_GIT_COMMIT_REF);
 // The Preview is restricted to existing accounts. This identity RPC is forwarded so an
 // already-linked account can recover its canonical Person ref; every Person/Family upsert
 // remains blocked below. The approved owner's Person exists before this disposable build.
@@ -48,9 +48,9 @@ const communityFields = "id,parent_id,author_name,author_user_id,author_contribu
 // messages through the reviewed server RPCs. No general write or model allowance.
 const communityMessageManagement = typeof process !== "undefined"
   && process.env.VERCEL_ENV === "preview"
-  && ["gpt/community-server-auth-20261031", "gpt/community-auth-publish-media-20261031", "gpt/2029-unified-community-latest-integration-20261031", "gpt/2029-unified-performance-consolidation-20261031"].includes(process.env.VERCEL_GIT_COMMIT_REF);
+  && ["gpt/community-server-auth-20261031", "gpt/community-auth-publish-media-20261031", "gpt/2029-unified-community-latest-integration-20261031", "gpt/2029-unified-performance-consolidation-20261031", "gpt/2029-home-loading-acceptance-20261031"].includes(process.env.VERCEL_GIT_COMMIT_REF);
 const communityPublishing = typeof process !== "undefined" && process.env.VERCEL_ENV === "preview"
-  && ["gpt/community-auth-publish-media-20261031", "gpt/2029-unified-community-latest-integration-20261031", "gpt/2029-unified-performance-consolidation-20261031"].includes(process.env.VERCEL_GIT_COMMIT_REF);
+  && ["gpt/community-auth-publish-media-20261031", "gpt/2029-unified-community-latest-integration-20261031", "gpt/2029-unified-performance-consolidation-20261031", "gpt/2029-home-loading-acceptance-20261031"].includes(process.env.VERCEL_GIT_COMMIT_REF);
 // The unified working preview must not create Person records or record ELS traces.
 const unifiedReadOnly = typeof process !== "undefined" && ["gpt/2029-central-unified-workspace-20261029", "gpt/2029-central-shell-alignment-20261029", "gpt/2029-central-topbar-menu-completion-20261029", "gpt/2029-central-ui-carry-restoration-20261029", "gpt/2029-central-community-filter-tiles-20261029", "gpt/2029-central-community-small-filters-20261029", "gpt/2029-central-single-command-bar-20261029", "gpt/2029-central-public-context-labels-20261029", "gpt/2029-central-zvi-public-material-20261029", "gpt/2029-central-zvi-research-experience-20261029", "gpt/2029-central-zvi-world-source-tree-20261030", "gpt/elections-world-seed-integration-20261030", "gpt/posts-integrated-backgrounds-20261030", "gpt/2029-central-posts-els-raziel-integration-20261031"].includes(process.env.VERCEL_GIT_COMMIT_REF);
 const worker = `const reads = new Set(${JSON.stringify(allow)});

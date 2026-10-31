@@ -113,30 +113,64 @@ node --test test/home-loading-preview-continuity-2029.test.mjs \
   scripts/test-integrated-preview-auth-guard.mjs
 ```
 
-## Preview binding: prepared, NOT APPLIED, ownership-blocked
+## Preview binding: applied exact-branch guards; protected hosted check follows
 
-The proposed [two-file exact-branch patch](home-loading-preview-bindings-20261031.patch)
-adds only this new branch alongside the received branch in the existing bindings.
-It preserves the same explicit-turn Raziel transport, bounded Community actions,
-own-avatar exception, Auth/ownership/payload checks and Production denial. Other
-branches and missing/non-Preview environments gain no exception. VM comparison
-proves its generated worker is byte-identical to the received branch's worker;
-the self wrapper retains `previewReadOnly=true` and exact-environment behavior.
+The reviewed [two-file exact-branch patch](home-loading-preview-bindings-20261031.patch)
+is now applied to both `scripts/build-integrated-preview.mjs` and
+`preview-deploy/api/contributor-self.js`. The six changed lines only add this exact
+branch beside the received performance branch. The actual generated worker is
+byte-identical to that prior branch's worker. The API retains `previewReadOnly=true`.
+Production, other-branch, suffix and missing-environment negatives are asserted.
+No wildcard, new write operation, payload field or account privilege was added.
 
-Neither `scripts/build-integrated-preview.mjs` nor
-`preview-deploy/api/contributor-self.js` was changed. They must be updated together
-before a new Preview can claim all received capabilities. Do not deploy this branch
-with the unadapted builder and describe missing capabilities as accepted behavior.
+Correction to the earlier receipt: AFTER `4b8dd78f-52c7-4884-ad8b-7d4ffd26cdcc`
+(2026-10-28 23:45:18 UTC), same task `ELS_MATRIX_DISCOVERY_RAZIEL_PREVIEW_20261028`,
+explicitly says Closed/Released and names the builder among its three files.
+It closes BEFORE `412a0132-0b3f-43d9-bcab-74e414e98a11`. The bounded current view
+kept an active-status BEFORE but omitted its older closing AFTER. The full-history
+latest-per-task check includes closing/archived records before classifying owners;
+no later overlapping writer was found. The prior claim of an active blocker was
+incorrect. No view/schema was changed.
 
-Live current ownership still includes claim
-`412a0132-0b3f-43d9-bcab-74e414e98a11`, task
-`ELS_MATRIX_DISCOVERY_RAZIEL_PREVIEW_20261028`, explicitly covering the builder.
-No explicit release was found in the separate post-backup check at
-2026-10-31 20:04:31 UTC. AGENTS.md requires **ONE FILE / SCOPE — ONE ACTIVE
-WRITER**; branch isolation is not ownership transfer. Recheck live ownership and
-source hashes before applying the patch; regenerate/review it if the builder moved.
-After release, apply both bindings, extend the actual guard tests to this branch,
-and verify a protected exact-SHA Preview separately. No wildcard is proposed.
+Current narrow BEFORE: `6e2df76d-b87d-48dd-98ff-aa889b278b82`,
+2026-10-31 20:20:00.743278 UTC, task
+`HOME_PREVIEW_BINDING_PROTECTED_ACCEPTANCE_20261031`, passive GPT → ZURIEL,
+dispatch NULL. Local and remote starting head were independently verified as
+`5cafa111075bbb9a8b9e20a204e8260982edf88b` before writing. Frozen WIP9b15052c is
+preserved. App runtime, readers, River, feed, Provider, design and canonical37 are
+outside this binding-only batch.
+
+Current verification: 53 actual Node checks pass, zero failures/skips, including
+exact-branch permissions, negative permissions, own-avatar API, Home/ELS contracts,
+read policy and Control Plane. Legacy lock, One Tree's 78 checks, cheap hardening,
+integrated build and diff check pass. An initial mixed command accidentally
+invoked the separate World-flight browser runner as a Node test without its
+external Playwright module; it failed to start. The corrected Node-only command
+above passes; this receipt does not claim the World-flight journey was rerun.
+The 23-case built Home browser rerun passed, including scrolling/return, failure/reload,
+slow primary, cancellation attribution, fragment intent and actual passive Post media.
+Log: `/tmp/home-preview-applied-browser.log`; report: `/tmp/home-preview-applied-browser/results.json`.
+
+The commit containing this receipt is the source to push and deploy as protected
+Preview (existing `preview-deploy` root, target omitted; never staging/Production).
+The exact deployed SHA, deployment ID/URL, protection/alias checks and hosted
+results will be recorded in the closing passive AFTER and user delivery, so the
+source identity is not invalidated by a post-deployment documentation commit.
+`test/home-preview-binding-hosted-2029.browser.mjs` checks the actual hosted worker,
+identity, guest API denial, Home, shared Raziel UI, real public Community feed and
+personal-area login gate, at390/1440px in three themes. Temporary Vercel access
+links/cookies stay out of repository and report files.
+
+Allowed after existing-account authentication, subject to unchanged server rights:
+explicit Raziel turns through existing ai-analyze; governed Community publication,
+replies/reactions, owned bounded attachments and server-authorized edit/delete;
+own-avatar update and existing verified Legacy account claim. These are live
+operations, not sandbox fixtures. General profile/page/family writes, Person
+creation, other Edge/model calls, matrix jobs and research persistence remain
+blocked. Guest public reads and login UI are available. The hosted acceptance
+submits no login/OTP, model request, message, reaction, upload, claim or profile
+change, and does not claim authenticated/private-role acceptance or backend ELS
+parity. Vercel access is separate from application login.
 
 ## Coordination and remaining gates
 
@@ -154,8 +188,8 @@ inserted and independently read back through the dedicated reader:
 `e7d8ec5a-1a27-4b59-b706-02bf1b614638`, 2026-10-31 20:02:48 UTC.
 This records the existing f269775e work honestly; it does not backdate ownership
 or fabricate a BEFORE for earlier unlogged edits. Actor GPT, recipient ZURIEL,
-WRITE scope bounded to this task, dispatch_kind/state NULL. The builder and River
-owners remain excluded. The closing AFTER records exact remote results and releases
+WRITE scope bounded to this task, dispatch_kind/state NULL. In that historical resumption, the builder and River
+owners remained excluded. The newer binding-only scope is recorded above. The closing AFTER records exact remote results and releases
 only this resumed scope. No other agent was activated or messaged.
 
 The four previously untracked task files were inspected and preserved in the
@@ -178,6 +212,7 @@ retains its existing empty-on-error fallback and SDK retries; reload recovery is
 verified, not a new error UI. Real authenticated roles, backend Raziel/ELS parity,
 privacy, SEO/direct-entry, G4 and physical-mobile acceptance remain separate.
 
-State: IMPLEMENTED / COMMITTED / TESTED / BRANCH_ONLY. Preview binding:
-PROPOSED_TESTED_NOT_APPLIED_WAITING_OWNERSHIP. No merge, main push, hosted deployment,
-Production/alias/domain change, Edge rollout, product DB/RLS/migration or publication.
+State: IMPLEMENTED / TESTED / BRANCH_ONLY; exact binding applied and locally verified.
+Protected exact-SHA hosted deployment/acceptance is the next authorized step; consult
+the closing AFTER for its observed outcome. No merge/main push, Production/alias/domain
+change, Edge rollout, product DB/RLS/migration or test publication is authorized.
