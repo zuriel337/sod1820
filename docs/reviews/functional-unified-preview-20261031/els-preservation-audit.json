@@ -1,0 +1,1614 @@
+{
+  "base": "c2f2e9948dd119c96b69e377b33be2eb2a886efb",
+  "els_548": "548ef03f3d207062e9bdfd54a1e51597440e0390",
+  "later_handoff": "4ea9ac370bd8a873d96dd8f4cb13c2a5515ad468",
+  "counts": {
+    "identical": 165,
+    "adapted": 9,
+    "excluded": 4
+  },
+  "paths": [
+    {
+      "path": "docs/planning/els-guided-discovery-test-ledger-v1.md",
+      "source_blob": "a517be68de14ae4d8c9f14eed657999259552df2",
+      "integrated_blob": "a517be68de14ae4d8c9f14eed657999259552df2",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PRESERVE_LEDGER_MERGE_PROVENANCE_NO_OVERWRITE_OF_NEWER_EXPERIMENTS",
+      "baseline_blob": "a517be68de14ae4d8c9f14eed657999259552df2",
+      "current_status": "identical"
+    },
+    {
+      "path": "docs/reviews/els-advanced-search-clarity-20261031.md",
+      "source_blob": "ce8743c96bd786a2c669c2401fba042e778070a9",
+      "integrated_blob": "ce8743c96bd786a2c669c2401fba042e778070a9",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PROVENANCE_NOT_RUNTIME",
+      "baseline_blob": "ce8743c96bd786a2c669c2401fba042e778070a9",
+      "current_status": "identical"
+    },
+    {
+      "path": "docs/reviews/els-background-research-20261030.md",
+      "source_blob": "ccfdd2007fcbab207d4f42e76f39db0e4cee9c54",
+      "integrated_blob": "ccfdd2007fcbab207d4f42e76f39db0e4cee9c54",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PROVENANCE_NOT_RUNTIME",
+      "baseline_blob": "ccfdd2007fcbab207d4f42e76f39db0e4cee9c54",
+      "current_status": "identical"
+    },
+    {
+      "path": "docs/reviews/els-context-reset-20261031.md",
+      "source_blob": "e081374bd8bc30af0c7a5be1d22cba83de38dd8f",
+      "integrated_blob": "e081374bd8bc30af0c7a5be1d22cba83de38dd8f",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PROVENANCE_NOT_RUNTIME",
+      "baseline_blob": "e081374bd8bc30af0c7a5be1d22cba83de38dd8f",
+      "current_status": "identical"
+    },
+    {
+      "path": "docs/reviews/els-discovery-controls-20261031.md",
+      "source_blob": "b806702f1702f0e5b9b27a148e3c9a99b0984f2f",
+      "integrated_blob": "b806702f1702f0e5b9b27a148e3c9a99b0984f2f",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PROVENANCE_NOT_RUNTIME",
+      "baseline_blob": "b806702f1702f0e5b9b27a148e3c9a99b0984f2f",
+      "current_status": "identical"
+    },
+    {
+      "path": "docs/reviews/els-exact-probe-readiness-20261031.md",
+      "source_blob": "2a5b5388dd343c92bf21e445538bc73a14f8843c",
+      "integrated_blob": "2a5b5388dd343c92bf21e445538bc73a14f8843c",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PROVENANCE_NOT_RUNTIME",
+      "baseline_blob": "2a5b5388dd343c92bf21e445538bc73a14f8843c",
+      "current_status": "identical"
+    },
+    {
+      "path": "docs/reviews/els-explicit-lexicon-scan-20261030.md",
+      "source_blob": "b9c28f09511d9a43e0845fd513e0b6546cc3231b",
+      "integrated_blob": "b9c28f09511d9a43e0845fd513e0b6546cc3231b",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PROVENANCE_NOT_RUNTIME",
+      "baseline_blob": "b9c28f09511d9a43e0845fd513e0b6546cc3231b",
+      "current_status": "identical"
+    },
+    {
+      "path": "docs/reviews/els-fable-admin-default-20261030.md",
+      "source_blob": "07397c3a3800a0c1243d13d73b3831541da4ac21",
+      "integrated_blob": "07397c3a3800a0c1243d13d73b3831541da4ac21",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PROVENANCE_NOT_RUNTIME",
+      "baseline_blob": "07397c3a3800a0c1243d13d73b3831541da4ac21",
+      "current_status": "identical"
+    },
+    {
+      "path": "docs/reviews/els-fable-findings-matrix-20261030.md",
+      "source_blob": "1d64f2acc9816cd8c164a2718758115a4dc9417a",
+      "integrated_blob": "1d64f2acc9816cd8c164a2718758115a4dc9417a",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PROVENANCE_NOT_RUNTIME",
+      "baseline_blob": "1d64f2acc9816cd8c164a2718758115a4dc9417a",
+      "current_status": "identical"
+    },
+    {
+      "path": "docs/reviews/els-fable-preview-activation-20261029.md",
+      "source_blob": "9953e4e8d283a2dfe037c8f733a5eb3bffb26a7c",
+      "integrated_blob": "9953e4e8d283a2dfe037c8f733a5eb3bffb26a7c",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PROVENANCE_NOT_RUNTIME",
+      "baseline_blob": "9953e4e8d283a2dfe037c8f733a5eb3bffb26a7c",
+      "current_status": "identical"
+    },
+    {
+      "path": "docs/reviews/els-language-preview-20261031.md",
+      "source_blob": "ac54715872cc91fadfe0bb3c7a991de8b1a7c2f3",
+      "integrated_blob": "ac54715872cc91fadfe0bb3c7a991de8b1a7c2f3",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PROVENANCE_NOT_RUNTIME",
+      "baseline_blob": "ac54715872cc91fadfe0bb3c7a991de8b1a7c2f3",
+      "current_status": "identical"
+    },
+    {
+      "path": "docs/reviews/els-lexicon-structure-preview-20261030.md",
+      "source_blob": "88603eaa7464c6ccf6e606badabc6e93be853bc0",
+      "integrated_blob": "88603eaa7464c6ccf6e606badabc6e93be853bc0",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PROVENANCE_NOT_RUNTIME",
+      "baseline_blob": "88603eaa7464c6ccf6e606badabc6e93be853bc0",
+      "current_status": "identical"
+    },
+    {
+      "path": "docs/reviews/els-manual-letter-selection-20261031.md",
+      "source_blob": "f939226eca86c38bbc236d230c8f476468d0f617",
+      "integrated_blob": "f939226eca86c38bbc236d230c8f476468d0f617",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PROVENANCE_NOT_RUNTIME",
+      "baseline_blob": "f939226eca86c38bbc236d230c8f476468d0f617",
+      "current_status": "identical"
+    },
+    {
+      "path": "docs/reviews/els-matrix-fable-card-integration-20261029.md",
+      "source_blob": "8aeeda10ef8f015dfb266022058d5ddab663675a",
+      "integrated_blob": "8aeeda10ef8f015dfb266022058d5ddab663675a",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PROVENANCE_NOT_RUNTIME",
+      "baseline_blob": "8aeeda10ef8f015dfb266022058d5ddab663675a",
+      "current_status": "identical"
+    },
+    {
+      "path": "docs/reviews/els-matrix-fable-reading-raziel-20261029.md",
+      "source_blob": "69f866fcd60bab28d3fc51c9e8ebefe516a9298e",
+      "integrated_blob": "69f866fcd60bab28d3fc51c9e8ebefe516a9298e",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PROVENANCE_NOT_RUNTIME",
+      "baseline_blob": "69f866fcd60bab28d3fc51c9e8ebefe516a9298e",
+      "current_status": "identical"
+    },
+    {
+      "path": "docs/reviews/els-matrix-height-raziel-audit-20261031.md",
+      "source_blob": "30bfa18be1cba6579ea0ba78dacb4704462aac3c",
+      "integrated_blob": "30bfa18be1cba6579ea0ba78dacb4704462aac3c",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PROVENANCE_NOT_RUNTIME",
+      "baseline_blob": "30bfa18be1cba6579ea0ba78dacb4704462aac3c",
+      "current_status": "identical"
+    },
+    {
+      "path": "docs/reviews/els-matrix-mobile-toolbar-20261031.md",
+      "source_blob": "cf80527e00c4ce3a4952f17490de6f099c416a45",
+      "integrated_blob": "cf80527e00c4ce3a4952f17490de6f099c416a45",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PROVENANCE_NOT_RUNTIME",
+      "baseline_blob": "cf80527e00c4ce3a4952f17490de6f099c416a45",
+      "current_status": "identical"
+    },
+    {
+      "path": "docs/reviews/els-matrix-reading-durable-jobs-20261029.md",
+      "source_blob": "b4a477ca26894ef5dd095a3cf644e9ba168506b1",
+      "integrated_blob": "b4a477ca26894ef5dd095a3cf644e9ba168506b1",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PROVENANCE_NOT_RUNTIME",
+      "baseline_blob": "b4a477ca26894ef5dd095a3cf644e9ba168506b1",
+      "current_status": "identical"
+    },
+    {
+      "path": "docs/reviews/els-matrix-reading-saved-results-20261029.md",
+      "source_blob": "6096cd9e3546113d0b96f1a77c793572b75cf583",
+      "integrated_blob": "6096cd9e3546113d0b96f1a77c793572b75cf583",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PROVENANCE_NOT_RUNTIME",
+      "baseline_blob": "6096cd9e3546113d0b96f1a77c793572b75cf583",
+      "current_status": "identical"
+    },
+    {
+      "path": "docs/reviews/els-raziel-verified-followup-20261031.md",
+      "source_blob": "04e4699828ba95a10cb96cfd963be1ba0df909f9",
+      "integrated_blob": "04e4699828ba95a10cb96cfd963be1ba0df909f9",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PROVENANCE_NOT_RUNTIME",
+      "baseline_blob": "04e4699828ba95a10cb96cfd963be1ba0df909f9",
+      "current_status": "identical"
+    },
+    {
+      "path": "docs/reviews/els-reading-global-progress-20261030.md",
+      "source_blob": "477c1b489c6e3dc440f6d22b3d4f72c9920d60fd",
+      "integrated_blob": "477c1b489c6e3dc440f6d22b3d4f72c9920d60fd",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PROVENANCE_NOT_RUNTIME",
+      "baseline_blob": "477c1b489c6e3dc440f6d22b3d4f72c9920d60fd",
+      "current_status": "identical"
+    },
+    {
+      "path": "docs/reviews/els-reading-responsive-preview-20261030.md",
+      "source_blob": "b24b65baa206ea2ce3c2c2745e3b7996def4b774",
+      "integrated_blob": "b24b65baa206ea2ce3c2c2745e3b7996def4b774",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PROVENANCE_NOT_RUNTIME",
+      "baseline_blob": "b24b65baa206ea2ce3c2c2745e3b7996def4b774",
+      "current_status": "identical"
+    },
+    {
+      "path": "docs/reviews/els-research-area-below-matrix-20261031.md",
+      "source_blob": "e8aadb11b1d3d33497160f75c80d92eb93098486",
+      "integrated_blob": "e8aadb11b1d3d33497160f75c80d92eb93098486",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PROVENANCE_NOT_RUNTIME",
+      "baseline_blob": "e8aadb11b1d3d33497160f75c80d92eb93098486",
+      "current_status": "identical"
+    },
+    {
+      "path": "docs/reviews/els-research-area-preview-20261031.md",
+      "source_blob": "4bdde4c7cfc76efae8c6d5d06ac9b24b27cd2883",
+      "integrated_blob": "4bdde4c7cfc76efae8c6d5d06ac9b24b27cd2883",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PROVENANCE_NOT_RUNTIME",
+      "baseline_blob": "4bdde4c7cfc76efae8c6d5d06ac9b24b27cd2883",
+      "current_status": "identical"
+    },
+    {
+      "path": "docs/reviews/els-research-exact-return-preview-20261030.md",
+      "source_blob": "a895ee48310e290f148ca9c1781844c9bced94f2",
+      "integrated_blob": "a895ee48310e290f148ca9c1781844c9bced94f2",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PROVENANCE_NOT_RUNTIME",
+      "baseline_blob": "a895ee48310e290f148ca9c1781844c9bced94f2",
+      "current_status": "identical"
+    },
+    {
+      "path": "docs/reviews/els-research-language-restore-20261031.md",
+      "source_blob": "e98f1307ac9d4db549f1d296f543cfab7aa54c39",
+      "integrated_blob": "e98f1307ac9d4db549f1d296f543cfab7aa54c39",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PROVENANCE_NOT_RUNTIME",
+      "baseline_blob": "e98f1307ac9d4db549f1d296f543cfab7aa54c39",
+      "current_status": "identical"
+    },
+    {
+      "path": "docs/reviews/els-research-restoration-20261030.md",
+      "source_blob": "90a0b448d5887d29cbaeb01a597ff63825238afb",
+      "integrated_blob": "90a0b448d5887d29cbaeb01a597ff63825238afb",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PROVENANCE_NOT_RUNTIME",
+      "baseline_blob": "90a0b448d5887d29cbaeb01a597ff63825238afb",
+      "current_status": "identical"
+    },
+    {
+      "path": "docs/reviews/els-research-search-order-20261031.md",
+      "source_blob": "e42ee9966cf50d243126ee0b972cbf88fb2ea452",
+      "integrated_blob": "e42ee9966cf50d243126ee0b972cbf88fb2ea452",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PROVENANCE_NOT_RUNTIME",
+      "baseline_blob": "e42ee9966cf50d243126ee0b972cbf88fb2ea452",
+      "current_status": "identical"
+    },
+    {
+      "path": "docs/reviews/els-search-clarity-preview-20261030.md",
+      "source_blob": "3d10248996bb8a5b5a0f0efe2ff8ca5b8616387b",
+      "integrated_blob": "3d10248996bb8a5b5a0f0efe2ff8ca5b8616387b",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PROVENANCE_NOT_RUNTIME",
+      "baseline_blob": "3d10248996bb8a5b5a0f0efe2ff8ca5b8616387b",
+      "current_status": "identical"
+    },
+    {
+      "path": "docs/reviews/els-search-continuation-structure-clarity-20261031.md",
+      "source_blob": "227a77e03849b16be84b830c087d235bd598fc07",
+      "integrated_blob": "227a77e03849b16be84b830c087d235bd598fc07",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PROVENANCE_NOT_RUNTIME",
+      "baseline_blob": "227a77e03849b16be84b830c087d235bd598fc07",
+      "current_status": "identical"
+    },
+    {
+      "path": "docs/reviews/els-search-order-preview-20261031.md",
+      "source_blob": "9c4cbc4bfa55dd1c0937f8091f40d30f5ecd64a9",
+      "integrated_blob": "9c4cbc4bfa55dd1c0937f8091f40d30f5ecd64a9",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PROVENANCE_NOT_RUNTIME",
+      "baseline_blob": "9c4cbc4bfa55dd1c0937f8091f40d30f5ecd64a9",
+      "current_status": "identical"
+    },
+    {
+      "path": "docs/reviews/els-search-planners-preview-20261031.md",
+      "source_blob": "dbc80212dc03c6b6816a9c053597a29bdb5b4e62",
+      "integrated_blob": "dbc80212dc03c6b6816a9c053597a29bdb5b4e62",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PROVENANCE_NOT_RUNTIME",
+      "baseline_blob": "dbc80212dc03c6b6816a9c053597a29bdb5b4e62",
+      "current_status": "identical"
+    },
+    {
+      "path": "docs/reviews/els-search-planners-restore-20261031.md",
+      "source_blob": "a2199908c1f1bb8353f9d3e4d43e0b435acf7a7c",
+      "integrated_blob": "a2199908c1f1bb8353f9d3e4d43e0b435acf7a7c",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PROVENANCE_NOT_RUNTIME",
+      "baseline_blob": "a2199908c1f1bb8353f9d3e4d43e0b435acf7a7c",
+      "current_status": "identical"
+    },
+    {
+      "path": "docs/reviews/els-structure-comparison-20261030.md",
+      "source_blob": "1d4e27b4962dc98c72e8fe96f5c5f1ca66d0d15c",
+      "integrated_blob": "1d4e27b4962dc98c72e8fe96f5c5f1ca66d0d15c",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PROVENANCE_NOT_RUNTIME",
+      "baseline_blob": "1d4e27b4962dc98c72e8fe96f5c5f1ca66d0d15c",
+      "current_status": "identical"
+    },
+    {
+      "path": "docs/reviews/els-unified-research-preview-20261031.md",
+      "source_blob": "c921764ec5ae6c4c409a1da1d5cb70bb0938957c",
+      "integrated_blob": "c921764ec5ae6c4c409a1da1d5cb70bb0938957c",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PROVENANCE_NOT_RUNTIME",
+      "baseline_blob": "c921764ec5ae6c4c409a1da1d5cb70bb0938957c",
+      "current_status": "identical"
+    },
+    {
+      "path": "docs/reviews/els-unified-research-workspace-20261030.md",
+      "source_blob": "a8863278ea8868ec76ac0a23c87aa9494d2ed6eb",
+      "integrated_blob": "a8863278ea8868ec76ac0a23c87aa9494d2ed6eb",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PROVENANCE_NOT_RUNTIME",
+      "baseline_blob": "a8863278ea8868ec76ac0a23c87aa9494d2ed6eb",
+      "current_status": "identical"
+    },
+    {
+      "path": "docs/reviews/raziel-account-sync-map-20261030.md",
+      "source_blob": "75f7768e1c026e9d72b880322297c7c9ff9028b0",
+      "integrated_blob": "75f7768e1c026e9d72b880322297c7c9ff9028b0",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PROVENANCE_NOT_RUNTIME",
+      "baseline_blob": "75f7768e1c026e9d72b880322297c7c9ff9028b0",
+      "current_status": "identical"
+    },
+    {
+      "path": "docs/reviews/raziel-content-comparison-follow-handoff-20261031.md",
+      "source_blob": "f127b8a36bd1e79113dd516d1c281e9f0cab8737",
+      "integrated_blob": "f127b8a36bd1e79113dd516d1c281e9f0cab8737",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PROVENANCE_NOT_RUNTIME",
+      "baseline_blob": "f127b8a36bd1e79113dd516d1c281e9f0cab8737",
+      "current_status": "identical"
+    },
+    {
+      "path": "public/tzofen.html",
+      "source_blob": "24990457b0e24b8fdc5ebe02a2f0d1c7ba365162",
+      "integrated_blob": "24990457b0e24b8fdc5ebe02a2f0d1c7ba365162",
+      "disposition": "REGENERATED_FROM_TEMPLATE",
+      "source_policy": "REGENERATE_FROM_MERGED_CANONICAL_TEMPLATE",
+      "baseline_blob": "24990457b0e24b8fdc5ebe02a2f0d1c7ba365162",
+      "current_status": "identical"
+    },
+    {
+      "path": "scripts/build-integrated-preview.mjs",
+      "source_blob": "2b0e8bdbce526f645750de35da0bf5ad1132c876",
+      "integrated_blob": "0a252b32830e926395f50a83b4d43c6c9aeacc1d",
+      "disposition": "CENTRAL_PREVIEW_POLICY_REUSED_AND_RESTRICTED_FOR_EXACT_BRANCH",
+      "source_policy": "HISTORICAL_PREVIEW_ONLY_DO_NOT_REPLAY",
+      "baseline_blob": "14e2675b5b9b9e8a2317b0f486b6cfdc5e1b523f",
+      "current_status": "adapted"
+    },
+    {
+      "path": "scripts/lib/matrix-raziel-preview.mjs",
+      "source_blob": "1b42296dbd5ff3a998b3c7310b427859bb8bddad",
+      "integrated_blob": null,
+      "disposition": "EXCLUDED_HISTORICAL_PREVIEW_POLICY",
+      "source_policy": "HISTORICAL_PREVIEW_ONLY_DO_NOT_REPLAY",
+      "baseline_blob": null,
+      "current_status": "excluded"
+    },
+    {
+      "path": "src/components/TzofenEmbed.jsx",
+      "source_blob": "6d049b6c80beba7d672959860957920a858aa695",
+      "integrated_blob": "6d049b6c80beba7d672959860957920a858aa695",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK",
+      "baseline_blob": "6d049b6c80beba7d672959860957920a858aa695",
+      "current_status": "identical"
+    },
+    {
+      "path": "src/components/experience2029/ElsAdvancedSearch2029.jsx",
+      "source_blob": "58f8dd3bedc251a2f1f046d7f0d19743e633f491",
+      "integrated_blob": "58f8dd3bedc251a2f1f046d7f0d19743e633f491",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK",
+      "baseline_blob": "58f8dd3bedc251a2f1f046d7f0d19743e633f491",
+      "current_status": "identical"
+    },
+    {
+      "path": "src/components/experience2029/ElsGuidedDiscovery2029.jsx",
+      "source_blob": "4946adfeee29927eb086a7ddd31a6f4f655889e9",
+      "integrated_blob": "4946adfeee29927eb086a7ddd31a6f4f655889e9",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK",
+      "baseline_blob": "4946adfeee29927eb086a7ddd31a6f4f655889e9",
+      "current_status": "identical"
+    },
+    {
+      "path": "src/components/experience2029/ElsLexiconResearch2029.jsx",
+      "source_blob": "7418adec7daf193f461e64857241ffecef949202",
+      "integrated_blob": "7418adec7daf193f461e64857241ffecef949202",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK",
+      "baseline_blob": "7418adec7daf193f461e64857241ffecef949202",
+      "current_status": "identical"
+    },
+    {
+      "path": "src/components/experience2029/ElsMatrixReadingActivity2029.jsx",
+      "source_blob": "c239f83b20071c6ca912fe627ba6fff591d0a6ba",
+      "integrated_blob": "c239f83b20071c6ca912fe627ba6fff591d0a6ba",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK",
+      "baseline_blob": "c239f83b20071c6ca912fe627ba6fff591d0a6ba",
+      "current_status": "identical"
+    },
+    {
+      "path": "src/components/experience2029/ElsMatrixReadingCard2029.jsx",
+      "source_blob": "819b0ebbf789498fba1e064ab250ebaa46362131",
+      "integrated_blob": "819b0ebbf789498fba1e064ab250ebaa46362131",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK",
+      "baseline_blob": "819b0ebbf789498fba1e064ab250ebaa46362131",
+      "current_status": "identical"
+    },
+    {
+      "path": "src/components/experience2029/ElsMatrixShare2029.jsx",
+      "source_blob": "54dbd8afe833e51b82a12a91ea952d834332fc2b",
+      "integrated_blob": "54dbd8afe833e51b82a12a91ea952d834332fc2b",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK",
+      "baseline_blob": "54dbd8afe833e51b82a12a91ea952d834332fc2b",
+      "current_status": "identical"
+    },
+    {
+      "path": "src/components/experience2029/ElsNativeClassic2029.jsx",
+      "source_blob": "fb0fee525ffa72ad8247ed45c08bbbc7371d2c27",
+      "integrated_blob": "fb0fee525ffa72ad8247ed45c08bbbc7371d2c27",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK",
+      "baseline_blob": "fb0fee525ffa72ad8247ed45c08bbbc7371d2c27",
+      "current_status": "identical"
+    },
+    {
+      "path": "src/components/experience2029/ElsOccurrencePlanner2029.jsx",
+      "source_blob": "9cbd8f136060a8fcee5983339e9d4b5fc9a28878",
+      "integrated_blob": "9cbd8f136060a8fcee5983339e9d4b5fc9a28878",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK",
+      "baseline_blob": "9cbd8f136060a8fcee5983339e9d4b5fc9a28878",
+      "current_status": "identical"
+    },
+    {
+      "path": "src/components/experience2029/ElsPairPlanner2029.jsx",
+      "source_blob": "c2ee4814ff377c3dc7f7a3f0d623248e039d30c0",
+      "integrated_blob": "c2ee4814ff377c3dc7f7a3f0d623248e039d30c0",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK",
+      "baseline_blob": "c2ee4814ff377c3dc7f7a3f0d623248e039d30c0",
+      "current_status": "identical"
+    },
+    {
+      "path": "src/components/experience2029/ElsResearchActivity2029.jsx",
+      "source_blob": "d3093c4645234cb78ca927846d3f206c80611054",
+      "integrated_blob": "d3093c4645234cb78ca927846d3f206c80611054",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK",
+      "baseline_blob": "d3093c4645234cb78ca927846d3f206c80611054",
+      "current_status": "identical"
+    },
+    {
+      "path": "src/components/experience2029/ElsStructureResearch2029.jsx",
+      "source_blob": "19cd48ece89c6ede317492ba4c2268ac30b497de",
+      "integrated_blob": "19cd48ece89c6ede317492ba4c2268ac30b497de",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK",
+      "baseline_blob": "19cd48ece89c6ede317492ba4c2268ac30b497de",
+      "current_status": "identical"
+    },
+    {
+      "path": "src/components/experience2029/RazielCenter2029.jsx",
+      "source_blob": "11b85973f1a3e4cb58b5ca118f2ce11b15c05744",
+      "integrated_blob": "11b85973f1a3e4cb58b5ca118f2ce11b15c05744",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ADAPT_EXISTING_SHARED_FUNCTIONS",
+      "baseline_blob": "11b85973f1a3e4cb58b5ca118f2ce11b15c05744",
+      "current_status": "identical"
+    },
+    {
+      "path": "src/components/experience2029/SystemFrame2029.jsx",
+      "source_blob": "6812fc7489c51f043337c989e61873b3eefc3db4",
+      "integrated_blob": "d47c03159a980e4dd66657aff3b7d58500fdf1a7",
+      "disposition": "CENTRAL_ADAPTED",
+      "source_policy": "ADAPT_EXISTING_SHARED_FUNCTIONS",
+      "baseline_blob": "28cc2e14c983e1bd7c07ed431a36a958d5c96b0d",
+      "current_status": "adapted"
+    },
+    {
+      "path": "src/components/experience2029/els2029-research.css",
+      "source_blob": "48916c11ddf0da3e9cba55d8e47566dc653f4e35",
+      "integrated_blob": "48916c11ddf0da3e9cba55d8e47566dc653f4e35",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK",
+      "baseline_blob": "48916c11ddf0da3e9cba55d8e47566dc653f4e35",
+      "current_status": "identical"
+    },
+    {
+      "path": "src/components/experience2029/elsLexiconResearch2029.css",
+      "source_blob": "de3921695108dec60d46a242dcc988f73ddab947",
+      "integrated_blob": "de3921695108dec60d46a242dcc988f73ddab947",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK",
+      "baseline_blob": "de3921695108dec60d46a242dcc988f73ddab947",
+      "current_status": "identical"
+    },
+    {
+      "path": "src/components/experience2029/elsNativeClassic2029.css",
+      "source_blob": "b9d82ceba69fcdbebc0959a2038710dc35131b4a",
+      "integrated_blob": "b9d82ceba69fcdbebc0959a2038710dc35131b4a",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK",
+      "baseline_blob": "b9d82ceba69fcdbebc0959a2038710dc35131b4a",
+      "current_status": "identical"
+    },
+    {
+      "path": "src/components/experience2029/elsStructureResearch2029.css",
+      "source_blob": "c7f669edb838044a276364a06b9cb68946d451de",
+      "integrated_blob": "c7f669edb838044a276364a06b9cb68946d451de",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK",
+      "baseline_blob": "c7f669edb838044a276364a06b9cb68946d451de",
+      "current_status": "identical"
+    },
+    {
+      "path": "src/components/experience2029/previewVisualCalibration2029.css",
+      "source_blob": "fdddbe77bf0d51f20062d381e2c0b679b22be7f7",
+      "integrated_blob": "fdddbe77bf0d51f20062d381e2c0b679b22be7f7",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ADAPT_EXISTING_SHARED_FUNCTIONS",
+      "baseline_blob": "fdddbe77bf0d51f20062d381e2c0b679b22be7f7",
+      "current_status": "identical"
+    },
+    {
+      "path": "src/components/experience2029/razielSessionSeam2029.js",
+      "source_blob": "7cc5fc2cab38dbfa46b0cc73d6102e6c9da74e71",
+      "integrated_blob": "0640eff97edd175a5cc168d6ee2084c790966f57",
+      "disposition": "CENTRAL_ADAPTED",
+      "source_policy": "ADAPT_EXISTING_SHARED_FUNCTIONS",
+      "baseline_blob": "859d39f4a0a3827f09a7643b3168a6d37c209168",
+      "current_status": "adapted"
+    },
+    {
+      "path": "src/components/experience2029/systemFrame2029.css",
+      "source_blob": "7c305579a1c18542b8c85cde5a707f63ceca3ec6",
+      "integrated_blob": "7c305579a1c18542b8c85cde5a707f63ceca3ec6",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ADAPT_EXISTING_SHARED_FUNCTIONS",
+      "baseline_blob": "7c305579a1c18542b8c85cde5a707f63ceca3ec6",
+      "current_status": "identical"
+    },
+    {
+      "path": "src/lib/elsMatrixShare.js",
+      "source_blob": "ed3e0a55baacd367941bdba233735d55b6ac613c",
+      "integrated_blob": "ed3e0a55baacd367941bdba233735d55b6ac613c",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK",
+      "baseline_blob": "ed3e0a55baacd367941bdba233735d55b6ac613c",
+      "current_status": "identical"
+    },
+    {
+      "path": "src/lib/research/RazielSessionProvider2029.jsx",
+      "source_blob": "4e7777f0d4afb2c2f358d458824b686f2f7f6611",
+      "integrated_blob": "4e7777f0d4afb2c2f358d458824b686f2f7f6611",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ADAPT_EXISTING_SHARED_FUNCTIONS",
+      "baseline_blob": "4e7777f0d4afb2c2f358d458824b686f2f7f6611",
+      "current_status": "identical"
+    },
+    {
+      "path": "src/lib/research/ResearchProvider.jsx",
+      "source_blob": "8bb4911cb1822c8f8324c8f14f6c601528d184cb",
+      "integrated_blob": "8bb4911cb1822c8f8324c8f14f6c601528d184cb",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ADAPT_EXISTING_SHARED_FUNCTIONS",
+      "baseline_blob": "8bb4911cb1822c8f8324c8f14f6c601528d184cb",
+      "current_status": "identical"
+    },
+    {
+      "path": "src/lib/research/elsAutomaticResearchPlan.js",
+      "source_blob": "21f5a1b4f1f0b31de977dfd7cf0131ca4083ec05",
+      "integrated_blob": "21f5a1b4f1f0b31de977dfd7cf0131ca4083ec05",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK",
+      "baseline_blob": "21f5a1b4f1f0b31de977dfd7cf0131ca4083ec05",
+      "current_status": "identical"
+    },
+    {
+      "path": "src/lib/research/elsBackgroundResearch.js",
+      "source_blob": "abdc795b7a15a2ec7a96f9b2f73925daaf602277",
+      "integrated_blob": "abdc795b7a15a2ec7a96f9b2f73925daaf602277",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK",
+      "baseline_blob": "abdc795b7a15a2ec7a96f9b2f73925daaf602277",
+      "current_status": "identical"
+    },
+    {
+      "path": "src/lib/research/elsLexiconResearch.js",
+      "source_blob": "60231b654aeb07065fbcdbca58bd7495177587e0",
+      "integrated_blob": "60231b654aeb07065fbcdbca58bd7495177587e0",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK",
+      "baseline_blob": "60231b654aeb07065fbcdbca58bd7495177587e0",
+      "current_status": "identical"
+    },
+    {
+      "path": "src/lib/research/elsMatrixReadingActivity.js",
+      "source_blob": "86fa4c078a46e92045fdc036f74ae3e173d171d6",
+      "integrated_blob": "86fa4c078a46e92045fdc036f74ae3e173d171d6",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK",
+      "baseline_blob": "86fa4c078a46e92045fdc036f74ae3e173d171d6",
+      "current_status": "identical"
+    },
+    {
+      "path": "src/lib/research/elsMatrixReadingPresentation.js",
+      "source_blob": "c7a68de9b5dfa7208639b63bdcab4b318037e12d",
+      "integrated_blob": "c7a68de9b5dfa7208639b63bdcab4b318037e12d",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK",
+      "baseline_blob": "c7a68de9b5dfa7208639b63bdcab4b318037e12d",
+      "current_status": "identical"
+    },
+    {
+      "path": "src/lib/research/elsMatrixReadingProjection.js",
+      "source_blob": "7588fde05e0d009f88064c0df434d3a2d4bf6cb5",
+      "integrated_blob": "7588fde05e0d009f88064c0df434d3a2d4bf6cb5",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK",
+      "baseline_blob": "7588fde05e0d009f88064c0df434d3a2d4bf6cb5",
+      "current_status": "identical"
+    },
+    {
+      "path": "src/lib/research/elsMatrixReadingSavedResult.js",
+      "source_blob": "a0a7c803622e94e9bbe0c40eafccf7be640aed85",
+      "integrated_blob": "a0a7c803622e94e9bbe0c40eafccf7be640aed85",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK",
+      "baseline_blob": "a0a7c803622e94e9bbe0c40eafccf7be640aed85",
+      "current_status": "identical"
+    },
+    {
+      "path": "src/lib/research/elsMatrixReadingSession.js",
+      "source_blob": "33a3f1ec64009f5ff85095d8b50a1da6df4ea944",
+      "integrated_blob": "33a3f1ec64009f5ff85095d8b50a1da6df4ea944",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK",
+      "baseline_blob": "33a3f1ec64009f5ff85095d8b50a1da6df4ea944",
+      "current_status": "identical"
+    },
+    {
+      "path": "src/lib/research/elsMatrixReadingTransport.js",
+      "source_blob": "31d34578fd64fb92b7ac7f8214b420c7e424b830",
+      "integrated_blob": "31d34578fd64fb92b7ac7f8214b420c7e424b830",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK",
+      "baseline_blob": "31d34578fd64fb92b7ac7f8214b420c7e424b830",
+      "current_status": "identical"
+    },
+    {
+      "path": "src/lib/research/elsRazielContext.js",
+      "source_blob": "74cddcc43b9322cf2381587fdef8ee99bbc6ba1e",
+      "integrated_blob": "74cddcc43b9322cf2381587fdef8ee99bbc6ba1e",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK",
+      "baseline_blob": "74cddcc43b9322cf2381587fdef8ee99bbc6ba1e",
+      "current_status": "identical"
+    },
+    {
+      "path": "src/lib/research/elsRazielGuidedPlanAdapter.js",
+      "source_blob": "6c1949a95ad1dae369ceb91ad1dd9e435179a85b",
+      "integrated_blob": "6c1949a95ad1dae369ceb91ad1dd9e435179a85b",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK",
+      "baseline_blob": "6c1949a95ad1dae369ceb91ad1dd9e435179a85b",
+      "current_status": "identical"
+    },
+    {
+      "path": "src/lib/research/elsRazielMatrixContext.js",
+      "source_blob": "5492716196c841b4d67f879f0433c43a9a9e7e67",
+      "integrated_blob": "5492716196c841b4d67f879f0433c43a9a9e7e67",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK",
+      "baseline_blob": "5492716196c841b4d67f879f0433c43a9a9e7e67",
+      "current_status": "identical"
+    },
+    {
+      "path": "src/lib/research/elsRazielPlanning.js",
+      "source_blob": "49cd880f3eddf2c2415512da978990324caa8ac8",
+      "integrated_blob": "49cd880f3eddf2c2415512da978990324caa8ac8",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK",
+      "baseline_blob": "49cd880f3eddf2c2415512da978990324caa8ac8",
+      "current_status": "identical"
+    },
+    {
+      "path": "src/lib/research/elsResearchReturnSnapshot.js",
+      "source_blob": "789dddc1541f80f983bf656f0bb3feeec5f07541",
+      "integrated_blob": "789dddc1541f80f983bf656f0bb3feeec5f07541",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK",
+      "baseline_blob": "789dddc1541f80f983bf656f0bb3feeec5f07541",
+      "current_status": "identical"
+    },
+    {
+      "path": "src/lib/research/elsStructureInspection.js",
+      "source_blob": "6fc9ebfe2cdfb3522db2eaddb3d8e4d2037c043b",
+      "integrated_blob": "6fc9ebfe2cdfb3522db2eaddb3d8e4d2037c043b",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK",
+      "baseline_blob": "6fc9ebfe2cdfb3522db2eaddb3d8e4d2037c043b",
+      "current_status": "identical"
+    },
+    {
+      "path": "src/lib/research/razielConversationResolver.js",
+      "source_blob": "57649518f910999542f3a7559f8994bafa019c50",
+      "integrated_blob": "57649518f910999542f3a7559f8994bafa019c50",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ADAPT_EXISTING_SHARED_FUNCTIONS",
+      "baseline_blob": "57649518f910999542f3a7559f8994bafa019c50",
+      "current_status": "identical"
+    },
+    {
+      "path": "src/lib/research/razielOneShotCopy2029.js",
+      "source_blob": "03bab9af83aba92921b10b41c68c4837e18070fa",
+      "integrated_blob": "03bab9af83aba92921b10b41c68c4837e18070fa",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK",
+      "baseline_blob": "03bab9af83aba92921b10b41c68c4837e18070fa",
+      "current_status": "identical"
+    },
+    {
+      "path": "src/lib/research/razielSavedSession2029.js",
+      "source_blob": "de461fb58199965de921d07ed4e2c8633bbd6bd1",
+      "integrated_blob": "de461fb58199965de921d07ed4e2c8633bbd6bd1",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ADAPT_EXISTING_SHARED_FUNCTIONS",
+      "baseline_blob": "de461fb58199965de921d07ed4e2c8633bbd6bd1",
+      "current_status": "identical"
+    },
+    {
+      "path": "src/lib/research/razielSavedSession2029.test.js",
+      "source_blob": "6a6305ffa31d469c18c451392771beeb123f75b2",
+      "integrated_blob": "6a6305ffa31d469c18c451392771beeb123f75b2",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING",
+      "baseline_blob": "6a6305ffa31d469c18c451392771beeb123f75b2",
+      "current_status": "identical"
+    },
+    {
+      "path": "src/lib/research/razielSavedSync2029.js",
+      "source_blob": "cb0114325806e21656aff452f37040c6c8afedcc",
+      "integrated_blob": "cb0114325806e21656aff452f37040c6c8afedcc",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK",
+      "baseline_blob": "cb0114325806e21656aff452f37040c6c8afedcc",
+      "current_status": "identical"
+    },
+    {
+      "path": "src/lib/research/razielSemanticIntentGate.js",
+      "source_blob": "a00a5f67e40e8aaa669a64a399fc5ad092615199",
+      "integrated_blob": "a00a5f67e40e8aaa669a64a399fc5ad092615199",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ADAPT_EXISTING_SHARED_FUNCTIONS",
+      "baseline_blob": "a00a5f67e40e8aaa669a64a399fc5ad092615199",
+      "current_status": "identical"
+    },
+    {
+      "path": "src/lib/research/razielSession2029.js",
+      "source_blob": "ad73f55c4fcc470d05d3c7a2627f563322d96c9b",
+      "integrated_blob": "ad73f55c4fcc470d05d3c7a2627f563322d96c9b",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ADAPT_EXISTING_SHARED_FUNCTIONS",
+      "baseline_blob": "ad73f55c4fcc470d05d3c7a2627f563322d96c9b",
+      "current_status": "identical"
+    },
+    {
+      "path": "src/lib/research/razielSessionRequest2029.js",
+      "source_blob": "20c821f9d2246f3679c4ed39dbb38146c08c4426",
+      "integrated_blob": "20c821f9d2246f3679c4ed39dbb38146c08c4426",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ADAPT_EXISTING_SHARED_FUNCTIONS",
+      "baseline_blob": "20c821f9d2246f3679c4ed39dbb38146c08c4426",
+      "current_status": "identical"
+    },
+    {
+      "path": "src/lib/research/useElsResearchOperation.js",
+      "source_blob": "c9e223ea3f80b222d1e1d5ac48587c7e6f953612",
+      "integrated_blob": "c9e223ea3f80b222d1e1d5ac48587c7e6f953612",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK",
+      "baseline_blob": "c9e223ea3f80b222d1e1d5ac48587c7e6f953612",
+      "current_status": "identical"
+    },
+    {
+      "path": "src/lib/supabase.js",
+      "source_blob": "02b7a2d946ff68a64280013f85500ce033589738",
+      "integrated_blob": "27285299083d7804c500673ae09e99cbdf72d3c2",
+      "disposition": "CENTRAL_ADAPTED",
+      "source_policy": "ADAPT_EXISTING_SHARED_FUNCTIONS",
+      "baseline_blob": "630dca7a349ff1513853bc13e3e07ca42ee2d0d0",
+      "current_status": "adapted"
+    },
+    {
+      "path": "src/pages/Els2029Page.jsx",
+      "source_blob": "2215a42c8ad3518e24dff2a229ff3bab812c8f87",
+      "integrated_blob": "2215a42c8ad3518e24dff2a229ff3bab812c8f87",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK",
+      "baseline_blob": "2215a42c8ad3518e24dff2a229ff3bab812c8f87",
+      "current_status": "identical"
+    },
+    {
+      "path": "supabase/functions/_shared/elsMatrixReading.js",
+      "source_blob": "d8fe310bac6497bbcafa38195653e6afe740bb43",
+      "integrated_blob": "d8fe310bac6497bbcafa38195653e6afe740bb43",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK",
+      "baseline_blob": "d8fe310bac6497bbcafa38195653e6afe740bb43",
+      "current_status": "identical"
+    },
+    {
+      "path": "supabase/functions/_shared/elsMatrixReadingAction.js",
+      "source_blob": "1da62ff236238400a4224a6572a22a87aea614bc",
+      "integrated_blob": "1da62ff236238400a4224a6572a22a87aea614bc",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK",
+      "baseline_blob": "1da62ff236238400a4224a6572a22a87aea614bc",
+      "current_status": "identical"
+    },
+    {
+      "path": "supabase/functions/_shared/elsMatrixReadingJobs.js",
+      "source_blob": "3ecf05ea349102016b8dab4f330745ee42e26f9e",
+      "integrated_blob": "3ecf05ea349102016b8dab4f330745ee42e26f9e",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK",
+      "baseline_blob": "3ecf05ea349102016b8dab4f330745ee42e26f9e",
+      "current_status": "identical"
+    },
+    {
+      "path": "supabase/functions/_shared/elsRazielOccurrenceContext.js",
+      "source_blob": "1044cd4867d1fb6f52b765fb9191cbf5ad5024a5",
+      "integrated_blob": "1044cd4867d1fb6f52b765fb9191cbf5ad5024a5",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK",
+      "baseline_blob": "1044cd4867d1fb6f52b765fb9191cbf5ad5024a5",
+      "current_status": "identical"
+    },
+    {
+      "path": "supabase/functions/_shared/elsRazielReadingContext.js",
+      "source_blob": "9513338f8c29711d0fc93b8046da01f2e2699684",
+      "integrated_blob": "9513338f8c29711d0fc93b8046da01f2e2699684",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK",
+      "baseline_blob": "9513338f8c29711d0fc93b8046da01f2e2699684",
+      "current_status": "identical"
+    },
+    {
+      "path": "supabase/functions/ai-analyze/index.ts",
+      "source_blob": "b46569ae44cc61aa1024cda1f754deefc7542db6",
+      "integrated_blob": "2de1be9bf9d4dfc36678006af9c5c82f5455d979",
+      "disposition": "CENTRAL_ADAPTED",
+      "source_policy": "ADAPT_EXISTING_SHARED_FUNCTIONS",
+      "baseline_blob": "2de1be9bf9d4dfc36678006af9c5c82f5455d979",
+      "current_status": "adapted"
+    },
+    {
+      "path": "supabase/migrations/20261029125427_els_matrix_reading_durable_jobs.sql",
+      "source_blob": "022a447f9696f97991823a049734a61f0c5a0288",
+      "integrated_blob": "022a447f9696f97991823a049734a61f0c5a0288",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "DELIVER_SCHEMA_CODE_ONLY_NO_APPLY",
+      "baseline_blob": "022a447f9696f97991823a049734a61f0c5a0288",
+      "current_status": "identical"
+    },
+    {
+      "path": "test/els-2029-explain-guidance.test.mjs",
+      "source_blob": "6b1c245ef5e616ec1c98ef96e0c2137986b026d8",
+      "integrated_blob": "6b1c245ef5e616ec1c98ef96e0c2137986b026d8",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING",
+      "baseline_blob": "6b1c245ef5e616ec1c98ef96e0c2137986b026d8",
+      "current_status": "identical"
+    },
+    {
+      "path": "test/els-2029-raziel-consumer.test.mjs",
+      "source_blob": "0957b25e5da6a33dd5769f4bb73d4f7074632637",
+      "integrated_blob": "0957b25e5da6a33dd5769f4bb73d4f7074632637",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING",
+      "baseline_blob": "0957b25e5da6a33dd5769f4bb73d4f7074632637",
+      "current_status": "identical"
+    },
+    {
+      "path": "test/els-advanced-page-browser.test.mjs",
+      "source_blob": "afbb024f99e222a4f38a1e2c7fa6f4a07bf19d3b",
+      "integrated_blob": "afbb024f99e222a4f38a1e2c7fa6f4a07bf19d3b",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING",
+      "baseline_blob": "afbb024f99e222a4f38a1e2c7fa6f4a07bf19d3b",
+      "current_status": "identical"
+    },
+    {
+      "path": "test/els-advanced-search-clarity.browser.test.mjs",
+      "source_blob": "d39aa1d0bb82b9c25af8aa74fd66ec641f2557c3",
+      "integrated_blob": "d39aa1d0bb82b9c25af8aa74fd66ec641f2557c3",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING",
+      "baseline_blob": "d39aa1d0bb82b9c25af8aa74fd66ec641f2557c3",
+      "current_status": "identical"
+    },
+    {
+      "path": "test/els-background-principal.browser.test.mjs",
+      "source_blob": "f696a1295870af56063ec762daeecbc079ed50a9",
+      "integrated_blob": "f696a1295870af56063ec762daeecbc079ed50a9",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING",
+      "baseline_blob": "f696a1295870af56063ec762daeecbc079ed50a9",
+      "current_status": "identical"
+    },
+    {
+      "path": "test/els-background-research.browser.test.mjs",
+      "source_blob": "f2202668e6479a8ff55f55bf0fb020a6e5252cf0",
+      "integrated_blob": "f2202668e6479a8ff55f55bf0fb020a6e5252cf0",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING",
+      "baseline_blob": "f2202668e6479a8ff55f55bf0fb020a6e5252cf0",
+      "current_status": "identical"
+    },
+    {
+      "path": "test/els-background-research.test.mjs",
+      "source_blob": "b928d9f91041bc47617ca36458aade9b826a41ae",
+      "integrated_blob": "b928d9f91041bc47617ca36458aade9b826a41ae",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING",
+      "baseline_blob": "b928d9f91041bc47617ca36458aade9b826a41ae",
+      "current_status": "identical"
+    },
+    {
+      "path": "test/els-connected-cross.test.mjs",
+      "source_blob": "6e0b2bdd4d1dbfd302a8d91bb8acca7d8d299c64",
+      "integrated_blob": "6e0b2bdd4d1dbfd302a8d91bb8acca7d8d299c64",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING",
+      "baseline_blob": "6e0b2bdd4d1dbfd302a8d91bb8acca7d8d299c64",
+      "current_status": "identical"
+    },
+    {
+      "path": "test/els-continuation-availability.test.mjs",
+      "source_blob": "4db749a6a089fe720fe79c86bfdb7435d58de390",
+      "integrated_blob": "4db749a6a089fe720fe79c86bfdb7435d58de390",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING",
+      "baseline_blob": "4db749a6a089fe720fe79c86bfdb7435d58de390",
+      "current_status": "identical"
+    },
+    {
+      "path": "test/els-discovery-controls.test.mjs",
+      "source_blob": "fff3927b3584d7972ce962bebc32224102227650",
+      "integrated_blob": "fff3927b3584d7972ce962bebc32224102227650",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING",
+      "baseline_blob": "fff3927b3584d7972ce962bebc32224102227650",
+      "current_status": "identical"
+    },
+    {
+      "path": "test/els-explicit-lexicon.test.mjs",
+      "source_blob": "a372fbeaee12eb67a7c982382c60cea544604a72",
+      "integrated_blob": "a372fbeaee12eb67a7c982382c60cea544604a72",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING",
+      "baseline_blob": "a372fbeaee12eb67a7c982382c60cea544604a72",
+      "current_status": "identical"
+    },
+    {
+      "path": "test/els-fable-preview-activation.test.mjs",
+      "source_blob": "76a56decdc488e7ec81dc0b9c2a4ffdbbb588fd8",
+      "integrated_blob": null,
+      "disposition": "EXCLUDED_HISTORICAL_PREVIEW_TEST",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING",
+      "baseline_blob": null,
+      "current_status": "excluded"
+    },
+    {
+      "path": "test/els-guided-discovery.test.mjs",
+      "source_blob": "17ab0ca41784f8e0f35b5963acb6695e344c089d",
+      "integrated_blob": "17ab0ca41784f8e0f35b5963acb6695e344c089d",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING",
+      "baseline_blob": "17ab0ca41784f8e0f35b5963acb6695e344c089d",
+      "current_status": "identical"
+    },
+    {
+      "path": "test/els-guided-language-recognition.test.mjs",
+      "source_blob": "73205f7e3d263040a2e7456ed95f449b7d4d00e8",
+      "integrated_blob": "73205f7e3d263040a2e7456ed95f449b7d4d00e8",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING",
+      "baseline_blob": "73205f7e3d263040a2e7456ed95f449b7d4d00e8",
+      "current_status": "identical"
+    },
+    {
+      "path": "test/els-host-bridge.test.mjs",
+      "source_blob": "914e5a867f7beb792273a3734ded0129be04457c",
+      "integrated_blob": "914e5a867f7beb792273a3734ded0129be04457c",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING",
+      "baseline_blob": "914e5a867f7beb792273a3734ded0129be04457c",
+      "current_status": "identical"
+    },
+    {
+      "path": "test/els-lexicon-structure-preview.browser.mjs",
+      "source_blob": "9ebe6b5c25a57be09692d7ab35f4c558babb34e2",
+      "integrated_blob": "9ebe6b5c25a57be09692d7ab35f4c558babb34e2",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING",
+      "baseline_blob": "9ebe6b5c25a57be09692d7ab35f4c558babb34e2",
+      "current_status": "identical"
+    },
+    {
+      "path": "test/els-matrix-reading-action.test.mjs",
+      "source_blob": "f543d0c4624126a1d5776a18e2f2f9ca0da5390f",
+      "integrated_blob": "f543d0c4624126a1d5776a18e2f2f9ca0da5390f",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING",
+      "baseline_blob": "f543d0c4624126a1d5776a18e2f2f9ca0da5390f",
+      "current_status": "identical"
+    },
+    {
+      "path": "test/els-matrix-reading-activity-browser.test.mjs",
+      "source_blob": "7e89188e40e17826d0a8c8f91cab18678d7354a3",
+      "integrated_blob": "7e89188e40e17826d0a8c8f91cab18678d7354a3",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING",
+      "baseline_blob": "7e89188e40e17826d0a8c8f91cab18678d7354a3",
+      "current_status": "identical"
+    },
+    {
+      "path": "test/els-matrix-reading-activity.test.mjs",
+      "source_blob": "6200e3b50e5c809970773e6abbd4f466ef97631d",
+      "integrated_blob": "6200e3b50e5c809970773e6abbd4f466ef97631d",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING",
+      "baseline_blob": "6200e3b50e5c809970773e6abbd4f466ef97631d",
+      "current_status": "identical"
+    },
+    {
+      "path": "test/els-matrix-reading-card-browser.test.mjs",
+      "source_blob": "ac0dc304e2bb68c191bc2532850c3b9a9de78863",
+      "integrated_blob": "ac0dc304e2bb68c191bc2532850c3b9a9de78863",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING",
+      "baseline_blob": "ac0dc304e2bb68c191bc2532850c3b9a9de78863",
+      "current_status": "identical"
+    },
+    {
+      "path": "test/els-matrix-reading-card-examples.test.mjs",
+      "source_blob": "6e20c58d0e873832e8af8a11766273bbde0f9582",
+      "integrated_blob": "6e20c58d0e873832e8af8a11766273bbde0f9582",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING",
+      "baseline_blob": "6e20c58d0e873832e8af8a11766273bbde0f9582",
+      "current_status": "identical"
+    },
+    {
+      "path": "test/els-matrix-reading-client-e2e.test.mjs",
+      "source_blob": "1862f92167b5a9060d397fddeb6c0cb22fd2bd26",
+      "integrated_blob": "1862f92167b5a9060d397fddeb6c0cb22fd2bd26",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING",
+      "baseline_blob": "1862f92167b5a9060d397fddeb6c0cb22fd2bd26",
+      "current_status": "identical"
+    },
+    {
+      "path": "test/els-matrix-reading-durable-jobs-sql.test.mjs",
+      "source_blob": "dab62eff794ea400263019fc8a817735b8f152c7",
+      "integrated_blob": "dab62eff794ea400263019fc8a817735b8f152c7",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING",
+      "baseline_blob": "dab62eff794ea400263019fc8a817735b8f152c7",
+      "current_status": "identical"
+    },
+    {
+      "path": "test/els-matrix-reading-durable-postgres-integration.test.mjs",
+      "source_blob": "25f349dd63cea79466d7b307e7ff76e9bdb45f96",
+      "integrated_blob": "25f349dd63cea79466d7b307e7ff76e9bdb45f96",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING",
+      "baseline_blob": "25f349dd63cea79466d7b307e7ff76e9bdb45f96",
+      "current_status": "identical"
+    },
+    {
+      "path": "test/els-matrix-reading-durable.test.mjs",
+      "source_blob": "71fd4554e153d1571092f3edd5dae2576202d6e2",
+      "integrated_blob": "71fd4554e153d1571092f3edd5dae2576202d6e2",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING",
+      "baseline_blob": "71fd4554e153d1571092f3edd5dae2576202d6e2",
+      "current_status": "identical"
+    },
+    {
+      "path": "test/els-matrix-reading-engine.test.mjs",
+      "source_blob": "50c88849786638f1a2b6da3308bb3520c7ca2113",
+      "integrated_blob": "50c88849786638f1a2b6da3308bb3520c7ca2113",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING",
+      "baseline_blob": "50c88849786638f1a2b6da3308bb3520c7ca2113",
+      "current_status": "identical"
+    },
+    {
+      "path": "test/els-matrix-reading-operation.test.mjs",
+      "source_blob": "41fcd2b9865b2fe8792dbdb4f4ace3f19975f90c",
+      "integrated_blob": "41fcd2b9865b2fe8792dbdb4f4ace3f19975f90c",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING",
+      "baseline_blob": "41fcd2b9865b2fe8792dbdb4f4ace3f19975f90c",
+      "current_status": "identical"
+    },
+    {
+      "path": "test/els-matrix-reading-presentation.test.mjs",
+      "source_blob": "01e2b0323d423d8fde7030d7d9f830fef58f22b2",
+      "integrated_blob": "01e2b0323d423d8fde7030d7d9f830fef58f22b2",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING",
+      "baseline_blob": "01e2b0323d423d8fde7030d7d9f830fef58f22b2",
+      "current_status": "identical"
+    },
+    {
+      "path": "test/els-matrix-reading-projection.test.mjs",
+      "source_blob": "2bb7df89b4eabdcdb9b2156a6eb1f2d3d9b596ae",
+      "integrated_blob": "2bb7df89b4eabdcdb9b2156a6eb1f2d3d9b596ae",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING",
+      "baseline_blob": "2bb7df89b4eabdcdb9b2156a6eb1f2d3d9b596ae",
+      "current_status": "identical"
+    },
+    {
+      "path": "test/els-matrix-reading-raziel-route.test.mjs",
+      "source_blob": "e43cf05a7f2f8c1d403a572c719637454c404f08",
+      "integrated_blob": "5aa057a5cff303a013590b7a17e79ad5eef79881",
+      "disposition": "CENTRAL_ADAPTED",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING",
+      "baseline_blob": "5aa057a5cff303a013590b7a17e79ad5eef79881",
+      "current_status": "adapted"
+    },
+    {
+      "path": "test/els-matrix-reading-resume-contract.test.mjs",
+      "source_blob": "786f22931e1c54babc5e2412739ad6bd94a82aaf",
+      "integrated_blob": "786f22931e1c54babc5e2412739ad6bd94a82aaf",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING",
+      "baseline_blob": "786f22931e1c54babc5e2412739ad6bd94a82aaf",
+      "current_status": "identical"
+    },
+    {
+      "path": "test/els-matrix-reading-saved-result.test.mjs",
+      "source_blob": "697836cf67091b65c1aebfd7d58d18160af1112b",
+      "integrated_blob": "697836cf67091b65c1aebfd7d58d18160af1112b",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING",
+      "baseline_blob": "697836cf67091b65c1aebfd7d58d18160af1112b",
+      "current_status": "identical"
+    },
+    {
+      "path": "test/els-matrix-reading-session.test.mjs",
+      "source_blob": "b98fa80e076158ae7dba8eabb572d396b458d92b",
+      "integrated_blob": "b98fa80e076158ae7dba8eabb572d396b458d92b",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING",
+      "baseline_blob": "b98fa80e076158ae7dba8eabb572d396b458d92b",
+      "current_status": "identical"
+    },
+    {
+      "path": "test/els-matrix-reading-transport.test.mjs",
+      "source_blob": "13fd1d15a961ee40b8d6f1f2427985e8f1efc4f2",
+      "integrated_blob": "13fd1d15a961ee40b8d6f1f2427985e8f1efc4f2",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING",
+      "baseline_blob": "13fd1d15a961ee40b8d6f1f2427985e8f1efc4f2",
+      "current_status": "identical"
+    },
+    {
+      "path": "test/els-matrix-share.test.mjs",
+      "source_blob": "8e14ff10ecfaac11fba35ecd92f752cf0ae6472b",
+      "integrated_blob": "8e14ff10ecfaac11fba35ecd92f752cf0ae6472b",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING",
+      "baseline_blob": "8e14ff10ecfaac11fba35ecd92f752cf0ae6472b",
+      "current_status": "identical"
+    },
+    {
+      "path": "test/els-native-ui-browser.test.mjs",
+      "source_blob": "5f705f4a5e6c7853f9c423d495b4e7e8b1f11621",
+      "integrated_blob": "8c02e8676de5e25098a29e3edb79b6917fa2cba9",
+      "disposition": "CENTRAL_ADAPTED",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING",
+      "baseline_blob": "8c02e8676de5e25098a29e3edb79b6917fa2cba9",
+      "current_status": "adapted"
+    },
+    {
+      "path": "test/els-optional-third-term.test.mjs",
+      "source_blob": "3a614eb0af2b75897ac29e0bd6c40a9d9c2cb2e2",
+      "integrated_blob": "3a614eb0af2b75897ac29e0bd6c40a9d9c2cb2e2",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING",
+      "baseline_blob": "3a614eb0af2b75897ac29e0bd6c40a9d9c2cb2e2",
+      "current_status": "identical"
+    },
+    {
+      "path": "test/els-raziel-guided-planning.test.mjs",
+      "source_blob": "03acb36f16f62d0f991246a6fc25ec024a09ec22",
+      "integrated_blob": "03acb36f16f62d0f991246a6fc25ec024a09ec22",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING",
+      "baseline_blob": "03acb36f16f62d0f991246a6fc25ec024a09ec22",
+      "current_status": "identical"
+    },
+    {
+      "path": "test/els-raziel-matrix-context.test.mjs",
+      "source_blob": "873a9722ef7299f470b723c7603be9fd28c35786",
+      "integrated_blob": "873a9722ef7299f470b723c7603be9fd28c35786",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING",
+      "baseline_blob": "873a9722ef7299f470b723c7603be9fd28c35786",
+      "current_status": "identical"
+    },
+    {
+      "path": "test/els-raziel-responsive-browser.test.mjs",
+      "source_blob": "8c065ff7b3918156da3f710de83c282964e75048",
+      "integrated_blob": "8c065ff7b3918156da3f710de83c282964e75048",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING",
+      "baseline_blob": "8c065ff7b3918156da3f710de83c282964e75048",
+      "current_status": "identical"
+    },
+    {
+      "path": "test/els-raziel-responsive-labels.test.mjs",
+      "source_blob": "f351e515237944c8b2085fa10c253ba12e64c600",
+      "integrated_blob": "f351e515237944c8b2085fa10c253ba12e64c600",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING",
+      "baseline_blob": "f351e515237944c8b2085fa10c253ba12e64c600",
+      "current_status": "identical"
+    },
+    {
+      "path": "test/els-raziel-verified-followup.test.mjs",
+      "source_blob": "1e6d59e8aaa6b7c9ce05d9c1ea880e0e71998203",
+      "integrated_blob": "1e6d59e8aaa6b7c9ce05d9c1ea880e0e71998203",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING",
+      "baseline_blob": "1e6d59e8aaa6b7c9ce05d9c1ea880e0e71998203",
+      "current_status": "identical"
+    },
+    {
+      "path": "test/els-relationship-plan-restore.test.mjs",
+      "source_blob": "db4273206964b4bf13a1db2f892149a777bf0af0",
+      "integrated_blob": "db4273206964b4bf13a1db2f892149a777bf0af0",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING",
+      "baseline_blob": "db4273206964b4bf13a1db2f892149a777bf0af0",
+      "current_status": "identical"
+    },
+    {
+      "path": "test/els-research-controls-browser.test.mjs",
+      "source_blob": "c606ded2b36e8f9c06ab85dd7b6dda9c27edb686",
+      "integrated_blob": "c606ded2b36e8f9c06ab85dd7b6dda9c27edb686",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING",
+      "baseline_blob": "c606ded2b36e8f9c06ab85dd7b6dda9c27edb686",
+      "current_status": "identical"
+    },
+    {
+      "path": "test/els-research-language-restore.test.mjs",
+      "source_blob": "4a959893c93a98dc7e59312eacaba39c9f0f5e38",
+      "integrated_blob": "09097f1a2494ca3fcb790990562303668e90938b",
+      "disposition": "CENTRAL_ADAPTED",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING",
+      "baseline_blob": "09097f1a2494ca3fcb790990562303668e90938b",
+      "current_status": "adapted"
+    },
+    {
+      "path": "test/els-research-return-snapshot.test.mjs",
+      "source_blob": "670e035d847b9791bfecac1cfd7f1851d6c0c687",
+      "integrated_blob": "670e035d847b9791bfecac1cfd7f1851d6c0c687",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING",
+      "baseline_blob": "670e035d847b9791bfecac1cfd7f1851d6c0c687",
+      "current_status": "identical"
+    },
+    {
+      "path": "test/els-search-planners.test.mjs",
+      "source_blob": "c1e9866572df9c53dd2d579b81d72a8a97cf05ed",
+      "integrated_blob": "c1e9866572df9c53dd2d579b81d72a8a97cf05ed",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING",
+      "baseline_blob": "c1e9866572df9c53dd2d579b81d72a8a97cf05ed",
+      "current_status": "identical"
+    },
+    {
+      "path": "test/els-structure-inspection.test.mjs",
+      "source_blob": "20d7b417c0d9694a520b132b5d18005d2167d27d",
+      "integrated_blob": "20d7b417c0d9694a520b132b5d18005d2167d27d",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING",
+      "baseline_blob": "20d7b417c0d9694a520b132b5d18005d2167d27d",
+      "current_status": "identical"
+    },
+    {
+      "path": "test/els-unified-discovery.test.mjs",
+      "source_blob": "d8ad0a3f93a493b572aa4656db7f29c16bd507e2",
+      "integrated_blob": "d8ad0a3f93a493b572aa4656db7f29c16bd507e2",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING",
+      "baseline_blob": "d8ad0a3f93a493b572aa4656db7f29c16bd507e2",
+      "current_status": "identical"
+    },
+    {
+      "path": "test/fixtures/els-library-browser-fixture.mjs",
+      "source_blob": "7e21305c76caa8293ce029fb71484567f3376028",
+      "integrated_blob": "7e21305c76caa8293ce029fb71484567f3376028",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING",
+      "baseline_blob": "7e21305c76caa8293ce029fb71484567f3376028",
+      "current_status": "identical"
+    },
+    {
+      "path": "test/fixtures/els-matrix-reading-durable-jobs-bootstrap.sql",
+      "source_blob": "1e9f6e1f81f35525b73a7be10271d108698831d3",
+      "integrated_blob": "1e9f6e1f81f35525b73a7be10271d108698831d3",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING",
+      "baseline_blob": "1e9f6e1f81f35525b73a7be10271d108698831d3",
+      "current_status": "identical"
+    },
+    {
+      "path": "test/fixtures/els-matrix-reading/README.md",
+      "source_blob": "a38e34507270b83cd8ee4100524f027d687ba8b6",
+      "integrated_blob": "a38e34507270b83cd8ee4100524f027d687ba8b6",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING",
+      "baseline_blob": "a38e34507270b83cd8ee4100524f027d687ba8b6",
+      "current_status": "identical"
+    },
+    {
+      "path": "test/fixtures/els-matrix-reading/card-examples/cancel-requested.json",
+      "source_blob": "88acf2ea7e8e85957e96a55e1fddca6ff3015433",
+      "integrated_blob": "88acf2ea7e8e85957e96a55e1fddca6ff3015433",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING",
+      "baseline_blob": "88acf2ea7e8e85957e96a55e1fddca6ff3015433",
+      "current_status": "identical"
+    },
+    {
+      "path": "test/fixtures/els-matrix-reading/card-examples/complete.json",
+      "source_blob": "5671e4cd98afa724223fda7bf5c08ca23cf95c37",
+      "integrated_blob": "5671e4cd98afa724223fda7bf5c08ca23cf95c37",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING",
+      "baseline_blob": "5671e4cd98afa724223fda7bf5c08ca23cf95c37",
+      "current_status": "identical"
+    },
+    {
+      "path": "test/fixtures/els-matrix-reading/card-examples/failed-batch-errored.json",
+      "source_blob": "12a54b943bfc99d155134645ebc2c569ab7748bc",
+      "integrated_blob": "12a54b943bfc99d155134645ebc2c569ab7748bc",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING",
+      "baseline_blob": "12a54b943bfc99d155134645ebc2c569ab7748bc",
+      "current_status": "identical"
+    },
+    {
+      "path": "test/fixtures/els-matrix-reading/card-examples/incomplete-max-tokens.json",
+      "source_blob": "4667ea01cc10f9f6e44070ab8aeff38625bdff69",
+      "integrated_blob": "4667ea01cc10f9f6e44070ab8aeff38625bdff69",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING",
+      "baseline_blob": "4667ea01cc10f9f6e44070ab8aeff38625bdff69",
+      "current_status": "identical"
+    },
+    {
+      "path": "test/fixtures/els-matrix-reading/card-examples/preview.json",
+      "source_blob": "dd1220e5e78df3bd2a9665a35b7abd5c5e35da0b",
+      "integrated_blob": "dd1220e5e78df3bd2a9665a35b7abd5c5e35da0b",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING",
+      "baseline_blob": "dd1220e5e78df3bd2a9665a35b7abd5c5e35da0b",
+      "current_status": "identical"
+    },
+    {
+      "path": "test/fixtures/els-matrix-reading/card-examples/refused-admin-only.json",
+      "source_blob": "58312eb9e143058e409b1be7c9ab573e02470371",
+      "integrated_blob": "58312eb9e143058e409b1be7c9ab573e02470371",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING",
+      "baseline_blob": "58312eb9e143058e409b1be7c9ab573e02470371",
+      "current_status": "identical"
+    },
+    {
+      "path": "test/fixtures/els-matrix-reading/card-examples/refused-not-enabled.json",
+      "source_blob": "5afb451e14634f205d3ff025abeea111c1a4e40d",
+      "integrated_blob": "5afb451e14634f205d3ff025abeea111c1a4e40d",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING",
+      "baseline_blob": "5afb451e14634f205d3ff025abeea111c1a4e40d",
+      "current_status": "identical"
+    },
+    {
+      "path": "test/fixtures/els-matrix-reading/card-examples/running-poll.json",
+      "source_blob": "b9145d9485d43cbf45c3939fb5aece5ac966fec9",
+      "integrated_blob": "b9145d9485d43cbf45c3939fb5aece5ac966fec9",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING",
+      "baseline_blob": "b9145d9485d43cbf45c3939fb5aece5ac966fec9",
+      "current_status": "identical"
+    },
+    {
+      "path": "test/fixtures/els-matrix-reading/card-examples/running-start.json",
+      "source_blob": "c054afa01917f7c7905c582a1de5c684a53869ad",
+      "integrated_blob": "c054afa01917f7c7905c582a1de5c684a53869ad",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING",
+      "baseline_blob": "c054afa01917f7c7905c582a1de5c684a53869ad",
+      "current_status": "identical"
+    },
+    {
+      "path": "test/fixtures/els-matrix-reading/card-examples/session-progress.json",
+      "source_blob": "e8666531ff2f386e2dd2c4f4df8786394949ead1",
+      "integrated_blob": "e8666531ff2f386e2dd2c4f4df8786394949ead1",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING",
+      "baseline_blob": "e8666531ff2f386e2dd2c4f4df8786394949ead1",
+      "current_status": "identical"
+    },
+    {
+      "path": "test/fixtures/els-matrix-reading/engine-replay-c3.json",
+      "source_blob": "2efeceb54e53cea7d067e7a95bec485e2107a7db",
+      "integrated_blob": "2efeceb54e53cea7d067e7a95bec485e2107a7db",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING",
+      "baseline_blob": "2efeceb54e53cea7d067e7a95bec485e2107a7db",
+      "current_status": "identical"
+    },
+    {
+      "path": "test/fixtures/els-matrix-reading/harness-classified-c3.json",
+      "source_blob": "09f1c9db6d34b34785f6d875d62bf664346bb137",
+      "integrated_blob": "09f1c9db6d34b34785f6d875d62bf664346bb137",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING",
+      "baseline_blob": "09f1c9db6d34b34785f6d875d62bf664346bb137",
+      "current_status": "identical"
+    },
+    {
+      "path": "test/fixtures/els-matrix-reading/request-c2-general-cap60.json",
+      "source_blob": "76b1be568bec21cb08375eb3b9d6f0c365d7240e",
+      "integrated_blob": "76b1be568bec21cb08375eb3b9d6f0c365d7240e",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING",
+      "baseline_blob": "76b1be568bec21cb08375eb3b9d6f0c365d7240e",
+      "current_status": "identical"
+    },
+    {
+      "path": "test/fixtures/els-matrix-reading/request-c3-general-cap25.json",
+      "source_blob": "215c0fd8cec2f0c587896e7dab58e8f548eba73f",
+      "integrated_blob": "215c0fd8cec2f0c587896e7dab58e8f548eba73f",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING",
+      "baseline_blob": "215c0fd8cec2f0c587896e7dab58e8f548eba73f",
+      "current_status": "identical"
+    },
+    {
+      "path": "test/fixtures/els-matrix-reading/response-c3.json",
+      "source_blob": "f8fd18296dbc21f04c9f46b64d988eaec7aeccb9",
+      "integrated_blob": "f8fd18296dbc21f04c9f46b64d988eaec7aeccb9",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING",
+      "baseline_blob": "f8fd18296dbc21f04c9f46b64d988eaec7aeccb9",
+      "current_status": "identical"
+    },
+    {
+      "path": "test/fixtures/els-matrix-reading/window-c1.json",
+      "source_blob": "2a2debecb5def1e1833691ec01c10bd671ed5b2a",
+      "integrated_blob": "2a2debecb5def1e1833691ec01c10bd671ed5b2a",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING",
+      "baseline_blob": "2a2debecb5def1e1833691ec01c10bd671ed5b2a",
+      "current_status": "identical"
+    },
+    {
+      "path": "test/helpers/ai-analyze-handler.mjs",
+      "source_blob": "ef5dc9cfe72c40a92ff0bdb1824433983943bb23",
+      "integrated_blob": "ef5dc9cfe72c40a92ff0bdb1824433983943bb23",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING",
+      "baseline_blob": "ef5dc9cfe72c40a92ff0bdb1824433983943bb23",
+      "current_status": "identical"
+    },
+    {
+      "path": "test/helpers/els-matrix-reading-card-examples.mjs",
+      "source_blob": "4893de870b7f2f4ccd631c8fa4a99b9ee9b29061",
+      "integrated_blob": "4893de870b7f2f4ccd631c8fa4a99b9ee9b29061",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING",
+      "baseline_blob": "4893de870b7f2f4ccd631c8fa4a99b9ee9b29061",
+      "current_status": "identical"
+    },
+    {
+      "path": "test/helpers/els-matrix-reading-durable-jobs-local-pg.mjs",
+      "source_blob": "04f50ac18fc732e8a4e73642a918cd7c96c89049",
+      "integrated_blob": "04f50ac18fc732e8a4e73642a918cd7c96c89049",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING",
+      "baseline_blob": "04f50ac18fc732e8a4e73642a918cd7c96c89049",
+      "current_status": "identical"
+    },
+    {
+      "path": "test/helpers/els-matrix-reading-world.mjs",
+      "source_blob": "2d57e91304f50787a6fb2e487094b1fe27580598",
+      "integrated_blob": "d3d28ddec85db1197029272879747c35a0adb60f",
+      "disposition": "CENTRAL_ADAPTED",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING",
+      "baseline_blob": "d3d28ddec85db1197029272879747c35a0adb60f",
+      "current_status": "adapted"
+    },
+    {
+      "path": "test/matrix-raziel-preview.test.mjs",
+      "source_blob": "69e13b6bdf058c82892fe7337cca2c1627980584",
+      "integrated_blob": null,
+      "disposition": "EXCLUDED_HISTORICAL_PREVIEW_TEST",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING",
+      "baseline_blob": null,
+      "current_status": "excluded"
+    },
+    {
+      "path": "test/raziel-account-preview.test.mjs",
+      "source_blob": "420350ba111290f76011c1b24119541ea8bd598a",
+      "integrated_blob": null,
+      "disposition": "EXCLUDED_HISTORICAL_PREVIEW_TEST",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING",
+      "baseline_blob": null,
+      "current_status": "excluded"
+    },
+    {
+      "path": "test/raziel-account-sync-map.browser.test.mjs",
+      "source_blob": "88a1fdc3a0114a575ee9598e7f2e232a9bc662a3",
+      "integrated_blob": "88a1fdc3a0114a575ee9598e7f2e232a9bc662a3",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING",
+      "baseline_blob": "88a1fdc3a0114a575ee9598e7f2e232a9bc662a3",
+      "current_status": "identical"
+    },
+    {
+      "path": "test/raziel-canonical-navigation-actions-2029.browser.test.mjs",
+      "source_blob": "5426c53569f370f3f3e3a3125b18e30ed43d0b76",
+      "integrated_blob": "5426c53569f370f3f3e3a3125b18e30ed43d0b76",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING",
+      "baseline_blob": "5426c53569f370f3f3e3a3125b18e30ed43d0b76",
+      "current_status": "identical"
+    },
+    {
+      "path": "test/raziel-content-comparison.test.mjs",
+      "source_blob": "37574b2cb63795ef7742f4ee56b7998dfad85d46",
+      "integrated_blob": "37574b2cb63795ef7742f4ee56b7998dfad85d46",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING",
+      "baseline_blob": "37574b2cb63795ef7742f4ee56b7998dfad85d46",
+      "current_status": "identical"
+    },
+    {
+      "path": "test/raziel-personal-area-companion-seam.test.mjs",
+      "source_blob": "26a7236552ec20184964823cb80e2ad0c3ef3fc3",
+      "integrated_blob": "26a7236552ec20184964823cb80e2ad0c3ef3fc3",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING",
+      "baseline_blob": "26a7236552ec20184964823cb80e2ad0c3ef3fc3",
+      "current_status": "identical"
+    },
+    {
+      "path": "tools/els/README.md",
+      "source_blob": "5c8ceab1499eef3192c394f680bacb9ba676cd7b",
+      "integrated_blob": "5c8ceab1499eef3192c394f680bacb9ba676cd7b",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK",
+      "baseline_blob": "5c8ceab1499eef3192c394f680bacb9ba676cd7b",
+      "current_status": "identical"
+    },
+    {
+      "path": "tools/els/els-code.template.html",
+      "source_blob": "b7cb44e929f23c06a84a0bfc843bcabb62f0ce46",
+      "integrated_blob": "b7cb44e929f23c06a84a0bfc843bcabb62f0ce46",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK",
+      "baseline_blob": "b7cb44e929f23c06a84a0bfc843bcabb62f0ce46",
+      "current_status": "identical"
+    }
+  ]
+}

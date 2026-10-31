@@ -16,10 +16,25 @@ export function encodeTusMetadata(metadata = {}) {
     .join(",");
 }
 
-const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+const sleep = (ms, signal) => new Promise((resolve, reject) => {
+  if (signal?.aborted) {
+    reject(new DOMException("The operation was aborted", "AbortError"));
+    return;
+  }
+  const timer = setTimeout(() => {
+    signal?.removeEventListener?.("abort", abort);
+    resolve();
+  }, ms);
+  const abort = () => {
+    clearTimeout(timer);
+    signal?.removeEventListener?.("abort", abort);
+    reject(new DOMException("The operation was aborted", "AbortError"));
+  };
+  signal?.addEventListener?.("abort", abort, { once: true });
+});
 
-async function resumeOffset(uploadUrl, token, signal) {
-  const r = await fetch(uploadUrl, {
+async function resumeOffset(uploadUrl, token, signal, fetchImpl) {
+  const r = await fetchImpl(uploadUrl, {
     method: "HEAD",
     headers: { "Tus-Resumable": TUS_VERSION, "x-signature": token },
     signal,
@@ -30,7 +45,7 @@ async function resumeOffset(uploadUrl, token, signal) {
   return offset;
 }
 
-export async function uploadResumableMedia(file, intent, { onProgress, signal, retryDelays = [0, 1000, 3000, 5000, 10000] } = {}) {
+export async function uploadResumableMedia(file, intent, { onProgress, signal, retryDelays = [0, 1000, 3000, 5000, 10000], fetchImpl = fetch } = {}) {
   if (!file || typeof file.size !== "number") throw new Error("file_required");
   if (!intent?.tus?.endpoint || !intent?.signed_upload?.token) throw new Error("tus_intent_required");
   if (Number(intent.size) !== file.size) throw new Error("size_changed_after_intent");
@@ -44,7 +59,7 @@ export async function uploadResumableMedia(file, intent, { onProgress, signal, r
     contentType: intent.mime,
   });
 
-  const created = await fetch(intent.tus.endpoint, {
+  const created = await fetchImpl(intent.tus.endpoint, {
     method: "POST",
     headers: {
       "Tus-Resumable": TUS_VERSION,
@@ -67,12 +82,12 @@ export async function uploadResumableMedia(file, intent, { onProgress, signal, r
     let lastError;
 
     for (const delay of retryDelays) {
-      if (delay) await sleep(delay);
+      if (delay) await sleep(delay, signal);
       const attemptOffset = offset;
       const end = Math.min(attemptOffset + chunkSize, file.size);
       const chunk = file.slice(attemptOffset, end);
       try {
-        const r = await fetch(uploadUrl, {
+        const r = await fetchImpl(uploadUrl, {
           method: "PATCH",
           headers: {
             "Tus-Resumable": TUS_VERSION,
@@ -93,7 +108,7 @@ export async function uploadResumableMedia(file, intent, { onProgress, signal, r
       } catch (error) {
         lastError = error;
         try {
-          const serverOffset = await resumeOffset(uploadUrl, token, signal);
+          const serverOffset = await resumeOffset(uploadUrl, token, signal, fetchImpl);
           if (serverOffset > file.size) throw new Error("tus_server_offset_too_large");
           offset = serverOffset;
           if (offset >= file.size) {
