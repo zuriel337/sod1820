@@ -80,6 +80,38 @@ test('non-AI research survives route unmount, remains independent of Raziel, ret
         await route.fulfill({ headers, contentType: 'application/json', body: JSON.stringify(body) }).catch(() => {});
       });
       await page.goto(origin + '/code?mode=research');
+      await page.getByRole('button', { name: 'חיפוש מתקדם', exact: true }).click();
+      const advanced = page.locator('[data-els-advanced-search]');
+      const checkFormLayout = async () => {
+        assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, `Advanced ${width}/${theme}`);
+        assert.equal(await advanced.locator('button[type=submit]:visible').count(), 1, 'one primary action');
+        const issues = await advanced.locator('button:visible, input:visible, select:visible, textarea:visible, summary:visible').evaluateAll(nodes => nodes.flatMap(node => {
+          const checkbox = ['checkbox', 'radio'].includes(node.type);
+          const target = checkbox ? node.closest('label') : node;
+          const box = target.getBoundingClientRect();
+          const failures = [];
+          if (box.height < 43.5 || box.width < 43.5) failures.push(`target: ${node.getAttribute('aria-label') || node.textContent}`);
+          if (!checkbox && parseFloat(getComputedStyle(node).fontSize) < 16) failures.push(`font: ${node.getAttribute('aria-label') || node.textContent}`);
+          return failures;
+        }));
+        assert.deepEqual(issues, [], `Advanced controls ${width}/${theme}`);
+      };
+      await checkFormLayout();
+      assert.equal(await advanced.locator('details').evaluate(el => el.open), false, 'optional tools stay collapsed');
+      await page.getByLabel('מונח לחיפוש מתקדם').focus();
+      await page.keyboard.press('Tab');
+      assert.equal(await page.getByLabel('טקסט לחיפוש מתקדם').evaluate(el => el === document.activeElement), true, 'keyboard follows input order');
+      if (process.env.ELS_SCREENSHOT_DIR) {
+        mkdirSync(process.env.ELS_SCREENSHOT_DIR, { recursive: true });
+        await page.getByLabel('מונח לחיפוש מתקדם').scrollIntoViewIfNeeded();
+        await page.screenshot({ path: join(process.env.ELS_SCREENSHOT_DIR, `advanced-built-${width}-${theme}.png`) });
+      }
+      await page.getByText('אפשרויות נוספות · היפוכים ובדיקה ברקע', { exact: true }).click();
+      await page.getByRole('radio', { name: 'בדוק גם היפוכים וסדר מילים', exact: true }).check();
+      await checkFormLayout();
+      assert.equal(calls.filter(x => x.op === 'page').length, 0, 'opening/changing controls does not search');
+      assert.equal(ai, 0);
+      await page.getByRole('radio', { name: 'בדיקת ביטויים ברקע · ללא AI', exact: true }).check();
       await page.getByLabel('מונח לחיפוש מתקדם').fill('אמת');
       await page.getByLabel('מילות המשך למחקר').fill('חסד');
       await page.getByLabel('דילוג מקסימלי').fill('200');
@@ -87,7 +119,7 @@ test('non-AI research survives route unmount, remains independent of Raziel, ret
         axis:{hitId:'50_1_5',start:5,skip:50,direction:'fwd',length:4},geometry:{cw:40},
         ui:{ctxR:1,windowSize:'small',windowRequested:'small',zoom:1.6,fit:false,heat:true,niqqud:false,showN:2,findingRadius:null},
         findings:[{t:'אמת',color:'#112233',shown:['49_1_25'],sourceHits:[]}]}));
-      const start = page.getByRole('button', { name: 'בדוק את המונחים ברקע · ללא AI', exact: true });
+      const start = page.getByRole('button', { name: 'התחל בדיקה ברקע', exact: true });
       try { await start.click(); } catch (error) { throw new Error(`${width}/${theme}: ${JSON.stringify({ calls, selection: cloud.context?.selection, errors, panel: await page.locator('[data-els-advanced-search]').innerText() })}`, { cause: error }); }
       await page.locator('[data-els-research-task="RUNNING"]').waitFor();
       await page.waitForFunction(() => document.querySelector('[data-els-research-task]')?.textContent.includes('בודק: אמת'));
@@ -134,6 +166,11 @@ test('non-AI research survives route unmount, remains independent of Raziel, ret
       assert.equal(ai, 0);
       page.on('dialog', dialog => dialog.accept());
       await page.getByRole('button', { name: 'נקה תוצאה זמנית', exact: true }).click();
+      // Exact return may remount the form; choose the same existing background action explicitly.
+      await page.getByRole('button', { name: 'חיפוש מתקדם', exact: true }).click();
+      const extra = page.locator('.els29-advanced-options');
+      if (!await extra.evaluate(el => el.open)) await extra.locator('summary').click();
+      await page.getByRole('radio', { name: 'בדיקת ביטויים ברקע · ללא AI', exact: true }).check();
       await page.getByLabel('מונח לחיפוש מתקדם').fill('אמת'); await page.getByLabel('מילות המשך למחקר').fill('חסד');
       await page.getByLabel('דילוג מקסימלי').fill('200');
       await start.click();
@@ -144,6 +181,7 @@ test('non-AI research survives route unmount, remains independent of Raziel, ret
       await page.waitForTimeout(150);
       assert.equal(calls.filter(x => x.op === 'page').length, 3, 'cancel sends no next term');
       await page.reload();
+      await page.getByRole('button', { name: 'חיפוש מתקדם', exact: true }).click();
       await page.getByLabel('מונח לחיפוש מתקדם').waitFor();
       assert.equal(await page.getByLabel('מעקב מחקר ללא AI').count(), 0, 'reload does not pretend to restore a memory-only task');
       assert.equal(calls.filter(x => x.op === 'page').length, 3, 'reload never auto-restarts a scan');

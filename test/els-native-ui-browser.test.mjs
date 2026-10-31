@@ -37,10 +37,14 @@ test('Research has one regular/cross/advanced search surface with preserved draf
     const count=await page.evaluate(()=>window.__hostLog.filter(x=>x.type==='native-search').length);
     const frame=await page.locator('iframe').elementHandle();
     await box.getByRole('button',{name:'חיפוש מתקדם',exact:true}).click();
+    await box.getByRole('button',{name:'השתמש בביטוי שהקלדתי: יום משיח בא',exact:true}).click();
+    assert.equal(await box.getByLabel('מונח לחיפוש מתקדם').inputValue(),'יום משיח בא');
     await box.getByLabel('מונח לחיפוש מתקדם').fill('סוד החשמל');
     assert.equal(await box.locator('form form').count(),0);
     assert.equal(await box.getByRole('button',{name:'חפש',exact:true}).isVisible(),false);
-    assert.match(await box.innerText(),/אין כאן ערבוב חופשי של האותיות או AI/);
+    assert.match(await box.innerText(),/בוחרים ביטוי והיקף בדיקה/);
+    assert.match(await box.getByLabel('מה ייבדק בלחיצה').innerText(),/2–80/);
+    assert.equal(await box.locator('button[type=submit]:visible').count(),1);
     for(const theme of ['light','parchment','dark']){
       await page.evaluate(theme=>window.__setThemePreset(theme),theme);
       assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,`${width}:${theme}`);

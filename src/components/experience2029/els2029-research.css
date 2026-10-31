@@ -50,10 +50,35 @@
 [data-els-cipher-discovery] .els29-guided-axis-options{display:flex;gap:8px;flex-wrap:wrap;padding:0 13px 13px}
 .els29-guided-promise{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;padding:0 4px 4px}.els29-guided-promise article{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:11px;min-width:0;padding:14px;border:1px solid var(--s29-line);border-radius:16px;background:color-mix(in srgb,var(--s29-panel) 78%,transparent)}.els29-guided-promise article>span{display:grid;width:36px;height:36px;place-items:center;border:1px solid color-mix(in srgb,var(--s29-accent) 45%,var(--s29-line));border-radius:12px;color:var(--s29-accent);font-family:var(--s29-font-display);font-weight:900}.els29-guided-promise article>div{display:grid;gap:3px;min-width:0}.els29-guided-promise strong{font-size:var(--s29-type-small,14px)}.els29-guided-promise small{color:var(--s29-muted);font-size:var(--s29-type-micro,12px);line-height:1.45}
 .els29-guided-result-stage{margin-top:14px;padding:clamp(10px,2vw,20px);border:1px solid color-mix(in srgb,var(--s29-accent) 32%,var(--s29-line));border-radius:28px;background:linear-gradient(160deg,color-mix(in srgb,var(--s29-panel) 92%,transparent),color-mix(in srgb,var(--s29-page) 94%,var(--s29-accent) 6%))}.els29-guided-result-stage>.sod29-section-head{margin:0 4px 12px}.els29-engine-surface{margin-top:18px;overflow:hidden}
-[data-els-advanced-search] .els29-advanced-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));align-items:end;gap:12px;margin-block:12px}
-[data-els-advanced-search] .els29-advanced-form label{display:grid;gap:6px;min-width:0;color:var(--s29-ink);font-size:var(--s29-type-small,14px)}
+[data-els-advanced-search] .els29-advanced-form{display:grid;gap:18px;margin-block:16px;min-width:0}
+[data-els-advanced-search] .els29-advanced-form label{display:grid;gap:6px;min-width:0;color:var(--s29-ink);font-size:var(--s29-type-ui,16px)}
 [data-els-advanced-search] .els29-advanced-form input,[data-els-advanced-search] .els29-advanced-form select,[data-els-advanced-search] .els29-advanced-form textarea{width:100%;min-height:44px}
 [data-els-advanced-search] .els29-advanced-form button{min-height:44px}
+[data-els-advanced-search] .els29-advanced-group{display:grid;gap:12px;margin:0;padding:0 0 18px;border:0;border-block-end:1px solid var(--s29-line);min-width:0}
+[data-els-advanced-search] legend{padding:0;margin-block-end:12px;font-size:var(--s29-type-body);font-weight:700;color:var(--s29-ink)}
+[data-els-advanced-search] .els29-advanced-fields{display:grid;grid-template-columns:minmax(0,2fr) minmax(140px,1fr);gap:12px;min-width:0}
+[data-els-advanced-search] .els29-advanced-range{grid-template-columns:repeat(2,minmax(0,1fr));max-width:500px}
+[data-els-advanced-search] .els29-advanced-methods,[data-els-advanced-search] .els29-advanced-reuse{display:flex;flex-wrap:wrap;gap:8px}
+[data-els-advanced-search] .els29-advanced-methods button{flex:1;min-width:0}
+[data-els-advanced-search] .els29-advanced-methods button[aria-pressed=true]{border-color:var(--s29-accent);background:var(--s29-panel-soft);box-shadow:inset 0 -3px var(--s29-accent);font-weight:700}
+[data-els-advanced-search] p{margin:0;font-size:var(--s29-type-small);line-height:1.65;overflow-wrap:anywhere}
+[data-els-advanced-search] .els29-advanced-options{border:1px solid var(--s29-line);border-radius:14px;padding:0 12px;min-width:0}
+[data-els-advanced-search] .els29-advanced-options>summary{padding-block:12px;min-height:44px;cursor:pointer;font-size:var(--s29-type-ui);font-weight:600}
+[data-els-advanced-search] .els29-advanced-options[open]>*:not(summary){margin-block-end:16px}
+[data-els-advanced-search] .els29-advanced-form .els29-advanced-check{display:flex;align-items:center;gap:10px;min-height:44px;cursor:pointer;line-height:1.5;padding-block:6px}
+[data-els-advanced-search] .els29-advanced-form .els29-advanced-check input{width:24px;height:24px;min-height:24px;flex:0 0 24px;margin:0;accent-color:var(--s29-accent)}
+[data-els-advanced-search] .els29-advanced-check>span{min-width:0;overflow-wrap:anywhere}
+[data-els-advanced-search] .els29-advanced-check small,[data-els-advanced-search] .els29-advanced-help{display:block;font-size:var(--s29-type-small);line-height:1.55;color:var(--s29-muted)}
+[data-els-advanced-search] .els29-advanced-related,[data-els-advanced-search] .els29-advanced-forms-help{display:grid;gap:10px}
+[data-els-advanced-search] .els29-advanced-candidates{min-width:0;margin:0;padding:10px 0;border:0;border-block-start:1px solid var(--s29-line)}
+[data-els-advanced-search] .els29-advanced-candidates label+label{border-block-start:1px solid var(--s29-line)}
+[data-els-advanced-search] .els29-advanced-summary{display:grid;gap:10px;padding:16px;border:1px solid var(--s29-line);border-radius:14px;background:var(--s29-panel-soft);min-width:0}
+[data-els-advanced-search] .els29-advanced-summary strong{font-size:var(--s29-type-body)}
+[data-els-advanced-search] .els29-advanced-summary .primary{justify-self:start;min-width:min(100%,220px)}
+[data-els-advanced-search] .els29-advanced-last-run{display:grid;gap:8px;margin-block:16px;padding-block:12px;border-block:1px solid var(--s29-line)}
+[data-els-advanced-search] .els29-advanced-warning{border-inline-start:3px solid var(--s29-accent);padding-inline-start:10px}
+[data-els-advanced-search] button,[data-els-advanced-search] input,[data-els-advanced-search] select,[data-els-advanced-search] textarea,[data-els-advanced-search] summary{scroll-margin-block:90px 180px;max-width:100%}
+@media(max-width:600px){[data-els-advanced-search] .els29-advanced-fields:not(.els29-advanced-range){grid-template-columns:minmax(0,1fr)}[data-els-advanced-search] .els29-advanced-summary .primary{width:100%}[data-els-advanced-search] .els29-advanced-summary{padding:12px}}
 [data-els-advanced-search] .els29-advanced-progress{display:grid;gap:10px;min-width:0;padding-block:12px;border-block:1px solid var(--s29-line);font-size:var(--s29-type-ui,16px);overflow-wrap:anywhere}
 [data-els-advanced-search] .els29-advanced-progress progress{width:100%;max-width:100%;accent-color:var(--s29-accent)}
 [data-els-advanced-search] .els29-advanced-progress>div{display:flex;flex-wrap:wrap;gap:8px}

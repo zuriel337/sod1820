@@ -815,7 +815,7 @@ function FindingsRail({ onHighlightVerse, verseHighlight, activeTool, state, sel
   </div>;
 }
 
-export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, active = true, researchProfile = false, guidedProfile = false, advancedSearch = null, researchLoad = null, researchProbe = null, onResearchProbeResult, onResearchLoadError, onResearchRestore, onSearchStart, onSaved, onRazielMatrix, matrixReading = null, formsPreviewRequest = null, onFormsPreviewResult }) {
+export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, active = true, researchProfile = false, guidedProfile = false, advancedSearch = null, advancedSearchRequestKey = null, researchLoad = null, researchProbe = null, onResearchProbeResult, onResearchLoadError, onResearchRestore, onSearchStart, onSaved, onRazielMatrix, matrixReading = null, formsPreviewRequest = null, onFormsPreviewResult }) {
   const palette = use2029Palette("research_lab");
   const { user } = useAuth();
   const [query, setQuery] = useState(clean(initialSeed));
@@ -969,6 +969,12 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   const actionSeqRef = useRef(0);
   const [crossOpen, setCrossOpen] = useState(false);
   const [advancedOpen, setAdvancedOpen] = useState(false);
+  const openedAdvancedRequest = useRef(null);
+  useEffect(() => {
+    if (!advancedSearchRequestKey || !researchProfile || guidedProfile || openedAdvancedRequest.current === advancedSearchRequestKey) return;
+    openedAdvancedRequest.current = advancedSearchRequestKey;
+    setAdvancedOpen(true);
+  }, [advancedSearchRequestKey, researchProfile, guidedProfile]);
   const advancedSearchOpen = researchProfile && !guidedProfile && advancedOpen;
   const [pairPlannerOpen, setPairPlannerOpen] = useState(false);
   const crossSearchOpen = researchProfile && crossOpen;
@@ -1503,7 +1509,11 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
       </details> : null}
       </form>
       <div id="els29-advanced-search" hidden={!advancedSearchOpen} data-els-research-tools="advanced-search-v1">
-        {React.isValidElement(advancedSearch) ? React.cloneElement(advancedSearch, { active: advancedSearchOpen }) : advancedSearch}
+        {React.isValidElement(advancedSearch) ? React.cloneElement(advancedSearch, { active: advancedSearchOpen,
+          searchDraft: { term: query, scope: activeScope },
+          activeAxis: matrixActive ? { term: engineState?.termRaw || engineState?.term, scope: activeScope } : null,
+          onChooseCross: () => { setAdvancedOpen(false); setCrossOpen(true); },
+        }) : advancedSearch}
       </div>
     </div>
 

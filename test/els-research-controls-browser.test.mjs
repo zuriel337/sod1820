@@ -25,6 +25,7 @@ async function withPage(run) {
     const errors = [];
     page.on('pageerror', error => errors.push(error.message));
     await page.goto(`http://127.0.0.1:${server.httpServer.address().port}/fixture?testAdvanced`);
+    await page.getByRole('button', { name: 'חיפוש מתקדם', exact: true }).click();
     await page.getByLabel('מונח לחיפוש מתקדם').waitFor();
     await run(page);
     assert.deepEqual(errors, []);
@@ -37,9 +38,12 @@ const options = { skip: !existsSync(executablePath), timeout: 60000 };
 
 test('changing the forms target cancels the old request and rejects its late response', options, () => withPage(async page => {
   await page.getByLabel('מונח לחיפוש מתקדם').fill('בדיקה');
+  await page.getByText('אפשרויות נוספות · היפוכים ובדיקה ברקע', { exact: true }).click();
+  await page.getByRole('radio', { name: 'בדוק גם היפוכים וסדר מילים', exact: true }).check();
   await page.getByLabel('מילות המשך למחקר').fill('אמת');
   await page.evaluate(() => { window.__advancedHoldTerm = 'בדיקה'; });
-  await page.getByRole('button', { name: 'חקור את כל הצורות אוטומטית' }).click();
+  await page.getByRole('button', { name: 'הצג את הביטויים לפני החיפוש' }).click();
+  await page.getByRole('button', { name: 'חפש את הביטויים שנבחרו' }).click();
   await page.waitForFunction(() => window.__advancedCalls.at(-1)?.body.term === 'בדיקה');
   await page.getByLabel('מונחים למחקר הצורות').selectOption('secondary');
   assert.equal(await page.evaluate(() => window.__advancedAborted || 0), 1);
@@ -47,7 +51,8 @@ test('changing the forms target cancels the old request and rejects its late res
   await page.evaluate(() => { window.__advancedHoldTerm = null; window.__releaseAdvanced(); });
   await page.waitForTimeout(150);
   assert.equal(await page.evaluate(() => window.__advancedCalls.length), requests);
-  assert.equal(await page.getByLabel('תוכנית צורות אוטומטית').count(), 0);
+  assert.equal(await page.getByLabel('תוכנית צורות אוטומטית').getByRole('button', { name: /דילוג/ }).count(), 0, 'the late held result is never admitted');
+  assert.match(await page.getByLabel('החיפוש האחרון שהופעל').innerText(), /ההגדרות השתנו/);
   assert.equal(await page.evaluate(() => window.__advancedLoad || null), null);
 }));
 
@@ -62,11 +67,6 @@ test('Research progress and narrowing are explicit; Classic round trip does not 
   const progress = page.getByRole('region', { name: 'התקדמות מחקר הדילוגים' });
   await progress.waitFor();
   assert.equal(await progress.getByRole('progressbar').getAttribute('value'), null, 'unknown work must be indeterminate');
-  await page.getByRole('button', { name: 'קלאסי', exact: true }).click();
-  assert.equal(await progress.isVisible(), false);
-  await page.getByRole('button', { name: 'מחקר', exact: true }).click();
-  assert.equal(await progress.isVisible(), true);
-  assert.equal(await page.evaluate(() => window.__advancedCalls.length), 1);
   for (const width of [320, 390, 1440]) {
     await page.setViewportSize({ width, height: 900 });
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, `${width}px overflow`);
@@ -93,6 +93,10 @@ test('Research progress and narrowing are explicit; Classic round trip does not 
   await page.evaluate(() => { window.__advancedHoldTerm = null; window.__releaseAdvanced(); });
   await page.waitForTimeout(150);
   assert.equal(await page.evaluate(() => window.__advancedCalls.length), 2);
+  await page.getByRole('button', { name: 'קלאסי', exact: true }).click();
+  assert.equal(await progress.isVisible(), false);
+  await page.getByRole('button', { name: 'מחקר', exact: true }).click();
+  assert.equal(await page.evaluate(() => window.__advancedCalls.length), 2, 'mode round trip cannot restart narrowed work');
   assert.equal(await page.evaluate(() => window.__razielPlannerCalls.length), 0);
   assert.equal(await page.evaluate(() => window.__libraryEngineMounts), 1);
 }));
@@ -102,12 +106,14 @@ test('editing exact skip aborts range work; stopping pagination retains the comp
   await page.evaluate(() => { window.__advancedHoldTerm = 'בדיקה'; });
   await page.getByRole('button', { name: 'חפש בטווח', exact: true }).click();
   await page.waitForFunction(() => window.__advancedCalls.length === 1);
+  await page.getByRole('button', { name: 'דילוג ידוע', exact: true }).click();
   await page.getByLabel('דילוג מדויק ללא תקרת 500').fill('1820');
   assert.equal(await page.evaluate(() => window.__advancedAborted), 1);
   await page.evaluate(() => { window.__advancedHoldTerm = null; window.__releaseAdvanced(); });
   await page.waitForTimeout(150);
   assert.equal(await page.getByLabel('מופעי החיפוש המתקדם').count(), 0);
   assert.equal(await page.evaluate(() => window.__advancedCalls.length), 1);
+  await page.getByRole('button', { name: 'טווח דילוגים', exact: true }).click();
   await page.getByLabel('מונח לחיפוש מתקדם').fill('דפדוף');
   await page.getByLabel('דילוג מקסימלי').fill('200');
   await page.getByRole('button', { name: 'חפש בטווח', exact: true }).click();
