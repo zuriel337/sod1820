@@ -93,16 +93,17 @@ export function LockTeaser({ message, showLogin = false }) {
 }
 
 // hook בסיסי לשליפת דגל בודד. זהו reader בלבד; סמנטיקת-הגישה נפתרת ב-useFeatureState.
-export function useSiteFlag(flag) {
-  const [st, setSt] = useState({ loading: true, lock: null });
+export function useSiteFlag(flag, { pendingScope = null } = {}) {
+  const readKey = pendingScope === null ? null : `${pendingScope}\u0000${flag}`;
+  const [st, setSt] = useState({ loading: true, lock: null, readKey });
   useEffect(() => {
     let alive = true;
-    getSiteFlags()
-      .then(f => { if (alive) setSt({ loading: false, lock: f[flag] || null }); })
-      .catch(() => { if (alive) setSt({ loading: false, lock: null }); });
+    getSiteFlags({ pendingScope })
+      .then(f => { if (alive) setSt({ loading: false, lock: f[flag] || null, readKey }); })
+      .catch(() => { if (alive) setSt({ loading: false, lock: null, readKey }); });
     return () => { alive = false; };
-  }, [flag]);
-  return st;
+  }, [flag, pendingScope]);
+  return readKey !== null && st.readKey !== readKey ? { loading: true, lock: null } : st;
 }
 
 // pure resolver — מקור יחיד לכל נוסחת availability/access.
@@ -166,7 +167,13 @@ export function resolveFeatureState(lock, {
 // canonical hook for every feature-controlled surface.
 export function useFeatureState(flag, { requireFlag = false } = {}) {
   const { user, isAdmin, loading: authLoading } = useAuth();
-  const { loading, lock } = useSiteFlag(flag);
+  // Shared public policy only; the canonical resolver below still decides access.
+  // A principal or Router navigation change starts a fresh read, even at one URL.
+  // Compile-time separation keeps the Legacy read behavior unchanged.
+  const pendingScope = typeof __SOD_2029_BUILD__ !== "undefined" && __SOD_2029_BUILD__
+    ? JSON.stringify([user?.id || "anon", typeof window !== "undefined" ? [window.location.pathname, window.location.search, window.location.hash, window.history.state?.key || "initial"] : []])
+    : null;
+  const { loading, lock } = useSiteFlag(flag, { pendingScope });
   return useMemo(() => {
     const resolved = resolveFeatureState(lock, {
       user,

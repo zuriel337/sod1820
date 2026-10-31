@@ -1,0 +1,1328 @@
+{
+  "task": "UNIFIED_2029_PERFORMANCE_CONSOLIDATION_20261031",
+  "baseline": "d2dd882f960a329394f4a23d7b6e4a7d4c4c6fd5",
+  "branch": "gpt/2029-unified-performance-consolidation-20261031",
+  "historical_package": "f19f7cfcb5530d9632c99d345c22c8b0124b6292",
+  "historical_product_base": "5de4d5772bbf2624d9f6195c00216d49df2d04d1",
+  "groups": [
+    {
+      "id": "F01",
+      "historical_title": "בסיס PR1100: הקדמת קריאות ראשיות, הגבלת עבודת World ותקציבי ביצועים",
+      "source_commits": [
+        {
+          "sha": "01ac7706409e488f4d503ad9a86a848c9e0f33b0",
+          "direct_ancestor_of_baseline": false
+        }
+      ],
+      "verdict": "PARTIAL",
+      "finding": "Current graph/isolation/cheap-hardening gates are retained; the old PR1100 aggregate does not prove early primary-read scheduling in the new tree.",
+      "current_witness": "2029.html; vite.config.js; scripts/test-2029-built-graph.mjs",
+      "next_step": "Measure critical-path requests per surface before porting early-read logic.",
+      "paths": []
+    },
+    {
+      "id": "F02",
+      "historical_title": "מתגי הביצועים הקיימים ותיקון לוח הבקרה",
+      "source_commits": [
+        {
+          "sha": "b4c5724cbea07197f9849d978cc7b1a06a856b48",
+          "direct_ancestor_of_baseline": false
+        }
+      ],
+      "verdict": "SUPERSEDED_PARTIAL",
+      "finding": "Current capability flags and current public composition supersede old runtime-switch paths; historical switches are absent and must not silently be reactivated.",
+      "current_witness": "MaintenanceLock.jsx; App2029.jsx; SystemFrame2029.jsx",
+      "next_step": "Reconcile only a measured cost boundary; no historical default-on or policy change.",
+      "paths": [
+        {
+          "path": "src/App2029.jsx",
+          "baseline_blob": "aaffbfe35ed039e553f0d23f433b2b05a73e75ac",
+          "candidate_blob": "aaffbfe35ed039e553f0d23f433b2b05a73e75ac"
+        },
+        {
+          "path": "src/components/TzofenEmbed.jsx",
+          "baseline_blob": "6d049b6c80beba7d672959860957920a858aa695",
+          "candidate_blob": "6d049b6c80beba7d672959860957920a858aa695"
+        },
+        {
+          "path": "src/components/experience2029/DiscoveryGateways2029.jsx",
+          "baseline_blob": null,
+          "candidate_blob": null
+        },
+        {
+          "path": "src/components/experience2029/HomeComposition2029.jsx",
+          "baseline_blob": "ac62c9146cbd73aa6eca105056aafa2862ea261b",
+          "candidate_blob": "ac62c9146cbd73aa6eca105056aafa2862ea261b"
+        },
+        {
+          "path": "src/components/experience2029/SystemFrame2029.jsx",
+          "baseline_blob": "29291254370189c509b0c59fbd83e49c82f6e843",
+          "candidate_blob": "28cc2e14c983e1bd7c07ed431a36a958d5c96b0d"
+        },
+        {
+          "path": "src/components/experience2029/useSystemFeed2029.js",
+          "baseline_blob": "e499dee65118c195324861578d54a281f93c6633",
+          "candidate_blob": "e499dee65118c195324861578d54a281f93c6633"
+        },
+        {
+          "path": "src/components/research/WorldSourceConnections.jsx",
+          "baseline_blob": "266502f82264f110a79d13e6ebe1804e199a6ef2",
+          "candidate_blob": "266502f82264f110a79d13e6ebe1804e199a6ef2"
+        },
+        {
+          "path": "src/lib/research/entityHubProjection.js",
+          "baseline_blob": "028aa28ff62ce4e299cd4a35657fb81cc3a81c21",
+          "candidate_blob": "028aa28ff62ce4e299cd4a35657fb81cc3a81c21"
+        },
+        {
+          "path": "src/lib/research/home2029Projection.js",
+          "baseline_blob": "1de07f58b7bd800cbc1d01a67c20b5ed21520352",
+          "candidate_blob": "1de07f58b7bd800cbc1d01a67c20b5ed21520352"
+        },
+        {
+          "path": "src/lib/research/numberLookupTransport2029.js",
+          "baseline_blob": null,
+          "candidate_blob": null
+        },
+        {
+          "path": "src/lib/research/numberTierSignals.js",
+          "baseline_blob": "9e0e4695f67ffda936a5132c8e1e298e72ee235c",
+          "candidate_blob": "9e0e4695f67ffda936a5132c8e1e298e72ee235c"
+        },
+        {
+          "path": "src/lib/research/numericResearch.js",
+          "baseline_blob": "b15c8779628d494995dcffd6cfbd35455309d3e2",
+          "candidate_blob": "b15c8779628d494995dcffd6cfbd35455309d3e2"
+        },
+        {
+          "path": "src/lib/research/numericResearchBase.js",
+          "baseline_blob": "699f5b008607205228d87ffdead219e0ed999948",
+          "candidate_blob": "699f5b008607205228d87ffdead219e0ed999948"
+        },
+        {
+          "path": "src/lib/research/researchSyncRuntime.js",
+          "baseline_blob": "d990efc1191ad3bbf0d080162457bb8449f70a30",
+          "candidate_blob": "d990efc1191ad3bbf0d080162457bb8449f70a30"
+        },
+        {
+          "path": "src/lib/research/researchSyncRuntime.test.js",
+          "baseline_blob": "e2874df723480876dad5aea1dc391b95062fd837",
+          "candidate_blob": "e2874df723480876dad5aea1dc391b95062fd837"
+        },
+        {
+          "path": "src/lib/research/worldRelationIdentity2029.js",
+          "baseline_blob": null,
+          "candidate_blob": null
+        },
+        {
+          "path": "src/lib/runtimeSwitchCosts2029.js",
+          "baseline_blob": null,
+          "candidate_blob": null
+        },
+        {
+          "path": "src/lib/runtimeSwitches2029.js",
+          "baseline_blob": null,
+          "candidate_blob": null
+        },
+        {
+          "path": "src/lib/supabase.js",
+          "baseline_blob": "86892ed084eaf93c9819adfc5dbb0b48a6d44042",
+          "candidate_blob": "630dca7a349ff1513853bc13e3e07ca42ee2d0d0"
+        },
+        {
+          "path": "src/pages/ControlPlane2029Page.jsx",
+          "baseline_blob": "3594c19a49c4a19df6ede848d847adefc9cddd08",
+          "candidate_blob": "3594c19a49c4a19df6ede848d847adefc9cddd08"
+        },
+        {
+          "path": "src/pages/World2029Page.jsx",
+          "baseline_blob": "fafc248275d6ae67cd052d7e1393af989b81c649",
+          "candidate_blob": "fafc248275d6ae67cd052d7e1393af989b81c649"
+        },
+        {
+          "path": "vite.config.js",
+          "baseline_blob": "c155475ffab8dd1237bfa4a481284aed92348279",
+          "candidate_blob": "c6b55f18633429d0e59c04f91324b05a9809b3c1"
+        }
+      ]
+    },
+    {
+      "id": "F03",
+      "historical_title": "שחזור גלילה F2 והמתנה לתוכן שמגיע מאוחר",
+      "source_commits": [
+        {
+          "sha": "339d695bdb6f7888b1883f6d4caa9f291a96bcf5",
+          "direct_ancestor_of_baseline": false
+        }
+      ],
+      "verdict": "OPEN",
+      "finding": "Historical scrollRestore2029 helper is absent. Later exact-return tests cover selected routes, not full delayed-content scroll parity.",
+      "current_witness": "central-unified-end-to-end-preview-20261031.md",
+      "next_step": "Test cold/deep-link/back with late images in current routes before restoring a global handler.",
+      "paths": [
+        {
+          "path": "src/lib/scrollRestore2029.js",
+          "baseline_blob": null,
+          "candidate_blob": null
+        }
+      ]
+    },
+    {
+      "id": "F04",
+      "historical_title": "השהיית אנימציות אינסופיות בפוסט מחוץ למסך",
+      "source_commits": [
+        {
+          "sha": "a5f272d3868ed5f55db83f05abc2d32dec4d5cf0",
+          "direct_ancestor_of_baseline": false
+        }
+      ],
+      "verdict": "OPEN",
+      "finding": "Current Post has no historical pauseOffscreenAnimations2029 helper. Home card/reveal controls are specific replacements, not proof of all Post motion pausing.",
+      "current_witness": "Post2029Page.jsx; useReveal2029.js; ElsRotatingMatrixCard2029.jsx",
+      "next_step": "Audit actual offscreen animations without removing adopted motion or changing design.",
+      "paths": [
+        {
+          "path": "src/lib/pauseOffscreenAnimations2029.js",
+          "baseline_blob": null,
+          "candidate_blob": null
+        },
+        {
+          "path": "src/pages/Post2029Page.jsx",
+          "baseline_blob": "f73af05f1775b244cd8f3613bb80684ef9aa3d08",
+          "candidate_blob": "f73af05f1775b244cd8f3613bb80684ef9aa3d08"
+        }
+      ]
+    },
+    {
+      "id": "F05",
+      "historical_title": "מניעת כניסת תלויות דפדפן לחבילת research-run ב-Edge",
+      "source_commits": [
+        {
+          "sha": "5c147e4a2db97ac035227f7c6d15787849f61f6e",
+          "direct_ancestor_of_baseline": false
+        }
+      ],
+      "verdict": "PARTIAL",
+      "finding": "The historical numberLookupTransport2029 path is absent; current Edge bundler/contract guards must prove browser dependencies stay excluded.",
+      "current_witness": "scripts/package-research-run.mjs; scripts/test-research-run-contract.mjs",
+      "next_step": "Treat packaging as its own acceptance; no Edge deployment.",
+      "paths": [
+        {
+          "path": "src/lib/research/numberLookupTransport2029.js",
+          "baseline_blob": null,
+          "candidate_blob": null
+        }
+      ]
+    },
+    {
+      "id": "F06",
+      "historical_title": "ניווט למקורות בעולם וקריאת העדפות אורח מוגבלת בפריוויו",
+      "source_commits": [
+        {
+          "sha": "a1f7cd0b08674daf89c98a666fc9676efca80998",
+          "direct_ancestor_of_baseline": false
+        },
+        {
+          "sha": "b797b8d58f59a71f4871092d44f9c7b48662ad33",
+          "direct_ancestor_of_baseline": false
+        }
+      ],
+      "verdict": "CARRIED_BOUNDED",
+      "finding": "Current World source selectors and tested public gallery/source/number/return routes preserve the useful source navigation. Old guest Preview write exceptions are not imported.",
+      "current_witness": "World2029Page.jsx; worldLandingNavigation.js; central-unified-end-to-end-preview-20261031.md",
+      "next_step": "Broader guest/private/role coverage remains separate.",
+      "paths": [
+        {
+          "path": "src/pages/World2029Page.jsx",
+          "baseline_blob": "fafc248275d6ae67cd052d7e1393af989b81c649",
+          "candidate_blob": "fafc248275d6ae67cd052d7e1393af989b81c649"
+        }
+      ]
+    },
+    {
+      "id": "F07",
+      "historical_title": "תיקון שעון המדידה, איסוף הבקשות ומדידת תוכן שמיש",
+      "source_commits": [
+        {
+          "sha": "70385dfc37e4028703850f0164822be8b518d758",
+          "direct_ancestor_of_baseline": false
+        },
+        {
+          "sha": "3896ceb6cbd708d3c7fa09e976b0a38a15372d83",
+          "direct_ancestor_of_baseline": false
+        }
+      ],
+      "verdict": "REPLACED_LAB_ONLY",
+      "finding": "Current lab uses exact built artifacts, paired cold contexts, interleaving, explicit primary content and request/byte observers. It does not claim historic runner carry or field p75.",
+      "current_witness": "test/unified-performance-2029.browser.mjs",
+      "next_step": "Extend profiles to current real Post/World paths; do not call lab LCP a field result.",
+      "paths": []
+    },
+    {
+      "id": "F08",
+      "historical_title": "בידוד CI משירותים חיים, מלכודות UDP וקורפוס ציבורי מאושר",
+      "source_commits": [
+        {
+          "sha": "da86e7e06771391e1b8003461e349fbc7204488f",
+          "direct_ancestor_of_baseline": false
+        },
+        {
+          "sha": "5e83540b28ddce1489ff299d66cc9688df4368cf",
+          "direct_ancestor_of_baseline": false
+        },
+        {
+          "sha": "778400b60b7eb6ea230a3ab123c149c7ad8e8e72",
+          "direct_ancestor_of_baseline": false
+        }
+      ],
+      "verdict": "PARTIAL",
+      "finding": "Current browser fixtures block all external APIs; real SDK transport tests use loopback. This is not proof of the historical full approved corpus or remote CI.",
+      "current_witness": "test/unified-performance-2029.browser.mjs; realtime-entry-split-browser-loopback-2029.test.mjs",
+      "next_step": "Remote CI and full historical runner corpus still require independent checks.",
+      "paths": []
+    },
+    {
+      "id": "F09",
+      "historical_title": "כשל סגירת trace מוחזר ככשל ולא כהצלחה",
+      "source_commits": [
+        {
+          "sha": "2dc84a2c4398ed7bbcf66ecd2fe97ab83b7b5a13",
+          "direct_ancestor_of_baseline": false
+        }
+      ],
+      "verdict": "CARRIED_CODE",
+      "finding": "Current research-run returns trace_incomplete instead of a successful bundle when op_trace_finish_v1 fails.",
+      "current_witness": "supabase/functions/research-run/index.ts:672; scripts/test-research-run-contract.mjs",
+      "next_step": "Source-level/packaging evidence is not proof of deployed server SHA.",
+      "paths": []
+    },
+    {
+      "id": "F10",
+      "historical_title": "בדיקת פרסום לפני חלונות מדיה של מספר",
+      "source_commits": [
+        {
+          "sha": "8e485a8ede585593b3ec7d5a708032263861152e",
+          "direct_ancestor_of_baseline": false
+        }
+      ],
+      "verdict": "RESTORED_2029_ONLY",
+      "finding": "Found the missing published=1 predicate in numeric getEntityBundle media windows. Restored it before both windows/counts for 2029; Legacy compilation keeps its old query.",
+      "current_witness": "src/lib/supabase.js getEntityBundle; test/entity-bundle-publication-2029.test.mjs",
+      "next_step": "Negative fixtures cover unpublished/hidden/private rows and count-before-limit; no live mutation/RLS change.",
+      "paths": [
+        {
+          "path": "src/lib/supabase.js",
+          "baseline_blob": "86892ed084eaf93c9819adfc5dbb0b48a6d44042",
+          "candidate_blob": "630dca7a349ff1513853bc13e3e07ca42ee2d0d0"
+        }
+      ]
+    },
+    {
+      "id": "F11",
+      "historical_title": "HomeV2: התאוששות, הודעת תקלה יציבה, שטח שמור וחזרה לקריאה",
+      "source_commits": [
+        {
+          "sha": "d325780c080715ddd827e808c100310c491ec58b",
+          "direct_ancestor_of_baseline": false
+        },
+        {
+          "sha": "bd13ebe751a985b0892bb5eee65f63bdf2bc0e69",
+          "direct_ancestor_of_baseline": false
+        }
+      ],
+      "verdict": "SUPERSEDED_PARTIAL",
+      "finding": "Historical HomeV2 has been replaced by the adopted HomeComposition. Its separate primary card read already publishes before enrichment. Old HomeV2 recovery evidence is not current full CLS/retry acceptance.",
+      "current_witness": "HomeComposition2029.jsx useHomeCompositionData",
+      "next_step": "Preserve current composition and verify empty/error/retry/late-media behavior.",
+      "paths": []
+    },
+    {
+      "id": "F12",
+      "historical_title": "שליפת שדות כרטיס פוסט מצומצמים בבית",
+      "source_commits": [
+        {
+          "sha": "35189a2868d5865b66adeab4ee5afae0ba5a76d4",
+          "direct_ancestor_of_baseline": false
+        }
+      ],
+      "verdict": "CARRIED_BOUNDED",
+      "finding": "getLatestPostCards selects eight compact fields and no body. Current Home publishes those cards before enrichment. WorldFlightStory still uses the full reader (see F21).",
+      "current_witness": "src/lib/supabase.js getLatestPostCards; HomeComposition2029.jsx",
+      "next_step": "Do not conflate compact Home cards with all source-story readers.",
+      "paths": [
+        {
+          "path": "src/components/research/WorldFlightStory2029.jsx",
+          "baseline_blob": "85a56c22d06c8d6dbbaeee355ddd6ae6e1abc2ed",
+          "candidate_blob": "85a56c22d06c8d6dbbaeee355ddd6ae6e1abc2ed"
+        },
+        {
+          "path": "src/lib/postReadQueries2029.js",
+          "baseline_blob": null,
+          "candidate_blob": null
+        },
+        {
+          "path": "src/lib/supabase.js",
+          "baseline_blob": "86892ed084eaf93c9819adfc5dbb0b48a6d44042",
+          "candidate_blob": "630dca7a349ff1513853bc13e3e07ca42ee2d0d0"
+        }
+      ]
+    },
+    {
+      "id": "F13",
+      "historical_title": "StoryViewer וטופס דיווח לפי דרישה ב-2029; בידוד Legacy והתאוששות מכשל chunk",
+      "source_commits": [
+        {
+          "sha": "c942561cbcfbc011e7cb400a3f05601c2a75ff10",
+          "direct_ancestor_of_baseline": false
+        },
+        {
+          "sha": "a414f395737e13d148e9e93dbb1876efdbc082de",
+          "direct_ancestor_of_baseline": false
+        }
+      ],
+      "verdict": "RESTORED_AND_ADAPTED",
+      "finding": "Extracted the existing single rail without rewriting its render/read logic; Legacy injects its static viewer. 2029 injects the canonical viewer on demand. ContactGateway is also deferred. Stable Companion selection survives peek/slim remounts during load.",
+      "current_witness": "OrGeulaStoryColumnCore.jsx; CompanionPanel2029.jsx; StoryViewerOnDemand2029.jsx; ContactGatewayOnDemand2029.jsx",
+      "next_step": "Browser verifies normal opening, close, slow/failing chunk and reload recovery. No new media/feed/store.",
+      "paths": [
+        {
+          "path": "src/components/OrGeulaStoryColumn.jsx",
+          "baseline_blob": "15a5a026f79b2af1399a51e68012397728f22c08",
+          "candidate_blob": "4e795b6eccdf7cd7409cc149bef0d106d35eb74e"
+        },
+        {
+          "path": "src/components/OrGeulaStoryColumnCore.jsx",
+          "baseline_blob": null,
+          "candidate_blob": "77ce45d8dd97ad0e39b32b408e7921a4fd7146cc"
+        },
+        {
+          "path": "src/components/experience2029/CompanionPanel2029.jsx",
+          "baseline_blob": "3f02a1fe4f531588e1632fb4cdb75e44fd601123",
+          "candidate_blob": "9b70fa567ccf249ee84153aba8e01fd74707c786"
+        },
+        {
+          "path": "src/components/experience2029/OnDemandComponent2029.jsx",
+          "baseline_blob": null,
+          "candidate_blob": null
+        },
+        {
+          "path": "src/components/experience2029/OrGeulaSourceShortcut2029.jsx",
+          "baseline_blob": null,
+          "candidate_blob": "4ef8388631f6327edfc6cb8d659fbd42b322592a"
+        },
+        {
+          "path": "src/components/experience2029/StoryViewerOnDemand2029.jsx",
+          "baseline_blob": null,
+          "candidate_blob": "3fb43ab37001abcd98e0c4331de3daa16ad4f6cc"
+        },
+        {
+          "path": "src/components/experience2029/SystemFrame2029.jsx",
+          "baseline_blob": "29291254370189c509b0c59fbd83e49c82f6e843",
+          "candidate_blob": "28cc2e14c983e1bd7c07ed431a36a958d5c96b0d"
+        },
+        {
+          "path": "src/components/experience2029/onDemandLoader2029.js",
+          "baseline_blob": null,
+          "candidate_blob": null
+        },
+        {
+          "path": "src/components/experience2029/storyViewerRegistry2029.js",
+          "baseline_blob": null,
+          "candidate_blob": null
+        },
+        {
+          "path": "src/components/experience2029/systemFrame2029.css",
+          "baseline_blob": "7c305579a1c18542b8c85cde5a707f63ceca3ec6",
+          "candidate_blob": "7c305579a1c18542b8c85cde5a707f63ceca3ec6"
+        }
+      ]
+    },
+    {
+      "id": "F14",
+      "historical_title": "קוד World/Number מתחיל עם שערי ההרשאה; תוכן מוגן נשאר חסום עד אישור",
+      "source_commits": [
+        {
+          "sha": "7ede24ca6084f7b9339e672d67d025f379c67bcc",
+          "direct_ancestor_of_baseline": false
+        }
+      ],
+      "verdict": "OPEN",
+      "finding": "The current Locked wrapper keeps children blocked until policy settles. Historical parallel code loading is not proven present, and data-access guards must not be removed for speed.",
+      "current_witness": "App2029.jsx; MaintenanceLock.jsx",
+      "next_step": "Port only code admission after controlled waterfall evidence, preserving zero protected fetch.",
+      "paths": [
+        {
+          "path": "src/App2029.jsx",
+          "baseline_blob": "aaffbfe35ed039e553f0d23f433b2b05a73e75ac",
+          "candidate_blob": "aaffbfe35ed039e553f0d23f433b2b05a73e75ac"
+        },
+        {
+          "path": "src/lib/lockedRouteCode2029.js",
+          "baseline_blob": null,
+          "candidate_blob": null
+        },
+        {
+          "path": "src/lib/postReadQueries2029.js",
+          "baseline_blob": null,
+          "candidate_blob": null
+        },
+        {
+          "path": "vite.config.js",
+          "baseline_blob": "c155475ffab8dd1237bfa4a481284aed92348279",
+          "candidate_blob": "c6b55f18633429d0e59c04f91324b05a9809b3c1"
+        }
+      ]
+    },
+    {
+      "id": "F15",
+      "historical_title": "הסרת RPC בדיקת slug מהמתנת ניווט אנושי מתאים; שימור בדיקת crawler/HEAD",
+      "source_commits": [
+        {
+          "sha": "a831f3e8610732697e555d8aba2e09f46cefbdf8",
+          "direct_ancestor_of_baseline": false
+        }
+      ],
+      "verdict": "SEPARATE_LEGACY_SCOPE",
+      "finding": "Historical human/crawler slug middleware optimization belongs to deployed Legacy routing. This task changes no middleware/Production routes.",
+      "current_witness": "middleware.js; protected Preview route receipts",
+      "next_step": "Audit against exact deployed Legacy SHA in its own release lane; do not replay blindly.",
+      "paths": []
+    },
+    {
+      "id": "F16",
+      "historical_title": "מפקח שיטות המספר והמנוע המרחבי לפי דרישה",
+      "source_commits": [
+        {
+          "sha": "fe816232f43e006f62948ed46f4e3f0eaabd8675",
+          "direct_ancestor_of_baseline": false
+        }
+      ],
+      "verdict": "PARTIAL",
+      "finding": "Number method/depth UI exists and deterministic engine actions remain explicit. The exact historical inspector chunk boundary is not proven from component presence.",
+      "current_witness": "NumberCore2029.jsx; Number2029Page.jsx",
+      "next_step": "Measure deep inspector bytes/intent and verify module graph before a targeted cut.",
+      "paths": [
+        {
+          "path": "src/components/number2029/NumberCore2029.jsx",
+          "baseline_blob": "7eea7fc9afc021508eaffdb04a99a7d012dd185b",
+          "candidate_blob": "7eea7fc9afc021508eaffdb04a99a7d012dd185b"
+        },
+        {
+          "path": "src/components/number2029/NumberMethodInspector2029.jsx",
+          "baseline_blob": null,
+          "candidate_blob": null
+        }
+      ]
+    },
+    {
+      "id": "F17",
+      "historical_title": "קריאת סרטוני המקרא בבית רק בהתקרבות לאזור",
+      "source_commits": [
+        {
+          "sha": "09d340e413c11097214f2e90c364b03650dc1f16",
+          "direct_ancestor_of_baseline": false
+        }
+      ],
+      "verdict": "OPEN",
+      "finding": "Historical DiscoveryGateways path is absent; current HomeComposition starts getHomeVideos immediately when includeWorld is true.",
+      "current_witness": "HomeComposition2029.jsx useHomeCompositionData",
+      "next_step": "Introduce measured approach admission using the existing reader and adopted layout.",
+      "paths": [
+        {
+          "path": "src/components/experience2029/DiscoveryGateways2029.jsx",
+          "baseline_blob": null,
+          "candidate_blob": null
+        }
+      ]
+    },
+    {
+      "id": "F18",
+      "historical_title": "snapshot משותף של site_flags לכל ניווט 2029 עם רענון לפי הקשר",
+      "source_commits": [
+        {
+          "sha": "fd831f89499937824116609ab3b48241b1c0f761",
+          "direct_ancestor_of_baseline": false
+        }
+      ],
+      "verdict": "RESTORED_PENDING_ONLY",
+      "finding": "2029 capability consumers coalesce only in-flight public policy per navigation/principal. Settled results are discarded, so no stale policy TTL/snapshot. Legacy default calls remain independent.",
+      "current_witness": "MaintenanceLock.jsx; supabase.js getSiteFlags; unified-performance-read-policy-2029.test.mjs",
+      "next_step": "This deliberately does not claim restoration of the old navigation-long snapshot or push-live synchronization.",
+      "paths": [
+        {
+          "path": "src/lib/AuthContext.jsx",
+          "baseline_blob": "8d285a9e4e5c0068f23c4977581ad4ee64ef9237",
+          "candidate_blob": "8d285a9e4e5c0068f23c4977581ad4ee64ef9237"
+        },
+        {
+          "path": "src/lib/runtimeSwitches2029.js",
+          "baseline_blob": null,
+          "candidate_blob": null
+        },
+        {
+          "path": "src/lib/siteFlagsReadScope2029.js",
+          "baseline_blob": null,
+          "candidate_blob": null
+        },
+        {
+          "path": "src/lib/supabase.js",
+          "baseline_blob": "86892ed084eaf93c9819adfc5dbb0b48a6d44042",
+          "candidate_blob": "630dca7a349ff1513853bc13e3e07ca42ee2d0d0"
+        }
+      ]
+    },
+    {
+      "id": "F19",
+      "historical_title": "תשתית RUM v2 קיימת בקוד; הפעלה ומיגרציה חיות דורשות אימות נפרד",
+      "source_commits": [
+        {
+          "sha": "b10c5dd31ae224d0aeea713970fd4832b759a8d5",
+          "direct_ancestor_of_baseline": false
+        }
+      ],
+      "verdict": "METRICS_PARTIAL_V2_OPEN",
+      "finding": "Current WebVitals collector/admin projection is v1-style hard-document-navigation data. Live October contains 207 document samples, none with build SHA or usable-content measurement. Historic RUMv2 cannot be declared applied/carried.",
+      "current_witness": "webVitals2029.js; webVitalsCore.js; live admin_2029_analytics metadata",
+      "next_step": "Use the existing events/TI owner for a later bounded extension; no new analytics store or live SQL apply here.",
+      "paths": [
+        {
+          "path": "src/lib/usableContent2029.js",
+          "baseline_blob": null,
+          "candidate_blob": null
+        },
+        {
+          "path": "src/lib/webVitals2029.js",
+          "baseline_blob": "24febd9877e7cc44720594d52945535b0f5c0e20",
+          "candidate_blob": "24febd9877e7cc44720594d52945535b0f5c0e20"
+        },
+        {
+          "path": "src/lib/webVitalsCore.js",
+          "baseline_blob": "04afc77690b6c0df6e5b0c283900ed3b67166f92",
+          "candidate_blob": "04afc77690b6c0df6e5b0c283900ed3b67166f92"
+        },
+        {
+          "path": "src/main2029.jsx",
+          "baseline_blob": "afdf4cb921bb1f00c96cfa3f2cf31ba3ac8b3a02",
+          "candidate_blob": "afdf4cb921bb1f00c96cfa3f2cf31ba3ac8b3a02"
+        },
+        {
+          "path": "vite.config.js",
+          "baseline_blob": "c155475ffab8dd1237bfa4a481284aed92348279",
+          "candidate_blob": "c6b55f18633429d0e59c04f91324b05a9809b3c1"
+        }
+      ]
+    },
+    {
+      "id": "F20",
+      "historical_title": "Realtime/Phoenix נטען בעת שימוש במקום בכניסה הציבורית",
+      "source_commits": [
+        {
+          "sha": "05bc151ea2218b925d06ed044d3ad623e55811bb",
+          "direct_ancestor_of_baseline": false
+        },
+        {
+          "sha": "31d3b42332c0f14cf14f82567b5f6a616d085539",
+          "direct_ancestor_of_baseline": false
+        }
+      ],
+      "verdict": "RESTORED_EXACT_IMPLEMENTATION",
+      "finding": "Restored the reviewed 417-line adapter from 5de4d577. SDK remains 2.116.0, one Supabase/Auth client, same token callback. Exact 2029-only alias removes Phoenix from eager entry; Legacy resolution unchanged.",
+      "current_witness": "realtimeLazy2029.js; vite.config.js; realtime-entry-split tests",
+      "next_step": "14 adapter and two real installed-SDK/Chromium loopback tests; mechanical consumer subset guard remains.",
+      "paths": [
+        {
+          "path": "src/lib/realtimeLazy2029.js",
+          "baseline_blob": null,
+          "candidate_blob": "bd0a2f4fd66efbd3df25076c8f5575d51257c03b"
+        },
+        {
+          "path": "vite.config.js",
+          "baseline_blob": "c155475ffab8dd1237bfa4a481284aed92348279",
+          "candidate_blob": "c6b55f18633429d0e59c04f91324b05a9809b3c1"
+        }
+      ]
+    },
+    {
+      "id": "F21",
+      "historical_title": "כרטיס סיפור בעולם מצומצם; ציר הזמן וההקרנה המלאה בעת פתיחה והתאוששות",
+      "source_commits": [
+        {
+          "sha": "8bdf43db24e93288b766f2d44d7653f0c8e0fee4",
+          "direct_ancestor_of_baseline": false
+        },
+        {
+          "sha": "95686a1974feada006344e673447f0c8069b4426",
+          "direct_ancestor_of_baseline": false
+        }
+      ],
+      "verdict": "OPEN",
+      "finding": "WorldFlightStory still awaits fetchPost2029ReadingProjection even for its initial card. Historical compact-card/full-timeline separation is not carried.",
+      "current_witness": "WorldFlightStory2029.jsx lines32-40",
+      "next_step": "Split exact compact public identity from explicit full source/timeline and retain retry/return.",
+      "paths": [
+        {
+          "path": "src/components/research/WorldFlightStory2029.jsx",
+          "baseline_blob": "85a56c22d06c8d6dbbaeee355ddd6ae6e1abc2ed",
+          "candidate_blob": "85a56c22d06c8d6dbbaeee355ddd6ae6e1abc2ed"
+        }
+      ]
+    },
+    {
+      "id": "F22",
+      "historical_title": "דף מספר: פתיחה מצומצמת, זהות קנונית וכוונת משתמש לפני העמקה",
+      "source_commits": [
+        {
+          "sha": "6225b62bc479830ec33e0ba09200035fab81ce28",
+          "direct_ancestor_of_baseline": false
+        },
+        {
+          "sha": "97f94b6e66fde738da62130db6876ece408bc655",
+          "direct_ancestor_of_baseline": false
+        },
+        {
+          "sha": "3f48b87865bd887fb06751d8909a98f01cafa3ae",
+          "direct_ancestor_of_baseline": false
+        }
+      ],
+      "verdict": "PARTIAL",
+      "finding": "Modern Number uses deferred client work and bounded caches; old strict opening-identity/drag-intent files are absent. These observations are not full semantic equivalence.",
+      "current_witness": "Number2029Page.jsx; numberExpressionFocus.js",
+      "next_step": "Check malformed/leading-zero routes, exact method context, drag vs explicit depth and account boundaries.",
+      "paths": [
+        {
+          "path": "src/lib/research/entityHubNumberOpeningContext.test.js",
+          "baseline_blob": null,
+          "candidate_blob": null
+        },
+        {
+          "path": "src/lib/research/entityHubProjection.js",
+          "baseline_blob": "028aa28ff62ce4e299cd4a35657fb81cc3a81c21",
+          "candidate_blob": "028aa28ff62ce4e299cd4a35657fb81cc3a81c21"
+        },
+        {
+          "path": "src/lib/research/numberDepthIntent2029.js",
+          "baseline_blob": null,
+          "candidate_blob": null
+        },
+        {
+          "path": "src/lib/research/numberOpeningIdentity2029.js",
+          "baseline_blob": null,
+          "candidate_blob": null
+        },
+        {
+          "path": "src/lib/research/numberOpeningOrchestration2029.js",
+          "baseline_blob": null,
+          "candidate_blob": null
+        },
+        {
+          "path": "src/lib/research/numberOpeningProjection2029.js",
+          "baseline_blob": null,
+          "candidate_blob": null
+        },
+        {
+          "path": "src/lib/research/numberSystemMethods.js",
+          "baseline_blob": "3d943d6486b69e98ff36f74ab3bc71d4f617cf1d",
+          "candidate_blob": "3d943d6486b69e98ff36f74ab3bc71d4f617cf1d"
+        },
+        {
+          "path": "src/lib/research/researchW2ExecutorsBase.js",
+          "baseline_blob": "84c9e35fc4d3db03f114fca4ed611f7304a334f9",
+          "candidate_blob": "84c9e35fc4d3db03f114fca4ed611f7304a334f9"
+        },
+        {
+          "path": "src/lib/research/scriptureDiscoveryProjection.js",
+          "baseline_blob": "7ae3532cd4fc60790398f440c6fd30a389413429",
+          "candidate_blob": "7ae3532cd4fc60790398f440c6fd30a389413429"
+        },
+        {
+          "path": "src/pages/Number2029Page.jsx",
+          "baseline_blob": "59d9fb1157217dd8b95f748bbfe3c0f31c1e015b",
+          "candidate_blob": "59d9fb1157217dd8b95f748bbfe3c0f31c1e015b"
+        }
+      ]
+    },
+    {
+      "id": "F23",
+      "historical_title": "דחיית מדיה בגוף פוסט, שמירת מקום וכוונת wheel/touch לפני טעינה",
+      "source_commits": [
+        {
+          "sha": "c229de9d2449622c04a8fe72507abb06fa7ac983",
+          "direct_ancestor_of_baseline": false
+        },
+        {
+          "sha": "560fdb0c608228899bde76e6df2cb373e1c34eb7",
+          "direct_ancestor_of_baseline": false
+        },
+        {
+          "sha": "d44c05539ccd732a99d316c25c4edae3ab8103e5",
+          "direct_ancestor_of_baseline": false
+        },
+        {
+          "sha": "270daa08d3f068bcee788670f7e2c185c5e53136",
+          "direct_ancestor_of_baseline": false
+        }
+      ],
+      "verdict": "PARTIAL",
+      "finding": "Current source projection marks images lazy/async and iframes lazy. The old approach/intent admission helper and exact reserved-dimension evidence are absent.",
+      "current_witness": "post2029ReadingProjection.js; Post2029Page.jsx",
+      "next_step": "Inspect heavy body originals, dimensions and source-preserving fallback before porting FZ-specific hints.",
+      "paths": [
+        {
+          "path": "src/lib/postBodyMedia2029.js",
+          "baseline_blob": null,
+          "candidate_blob": null
+        },
+        {
+          "path": "src/pages/Post2029Page.jsx",
+          "baseline_blob": "f73af05f1775b244cd8f3613bb80684ef9aa3d08",
+          "candidate_blob": "f73af05f1775b244cd8f3613bb80684ef9aa3d08"
+        },
+        {
+          "path": "src/pages/post2029-reading.css",
+          "baseline_blob": "74c86547caf4c13c6ba724cc1ef0b5fb3b7cf7cf",
+          "candidate_blob": "74c86547caf4c13c6ba724cc1ef0b5fb3b7cf7cf"
+        }
+      ]
+    },
+    {
+      "id": "F24",
+      "historical_title": "טעינת payload תצוגת פסוקים ב-ELS לפי צורך והקשחת פרסום הארטיפקט",
+      "source_commits": [
+        {
+          "sha": "e54014e037220d0f98cf3981fb46fe37d61bc232",
+          "direct_ancestor_of_baseline": false
+        },
+        {
+          "sha": "d303739aa9c06df08e2a31402293f8d3ed4ad0a3",
+          "direct_ancestor_of_baseline": false
+        }
+      ],
+      "verdict": "OPEN_LARGE_PAYLOAD",
+      "finding": "Current canonical generator still embeds gz64(vtext) inline. Historic deferred content-addressed payload/offline publication hardening is not carried.",
+      "current_witness": "tools/els/build.py; tools/els/els-code.template.html; public/tzofen.html",
+      "next_step": "Separate scoped port must preserve current ELS chain, corpus hash, offline/standalone parity and Legacy shared artifact. No old HTML replacement.",
+      "paths": [
+        {
+          "path": "public/els-data/tk-vtext.134189ee3c5f9cb8.gzdata",
+          "baseline_blob": null,
+          "candidate_blob": null
+        },
+        {
+          "path": "public/tzofen.html",
+          "baseline_blob": "24990457b0e24b8fdc5ebe02a2f0d1c7ba365162",
+          "candidate_blob": "24990457b0e24b8fdc5ebe02a2f0d1c7ba365162"
+        },
+        {
+          "path": "tools/els/README.md",
+          "baseline_blob": "5c8ceab1499eef3192c394f680bacb9ba676cd7b",
+          "candidate_blob": "5c8ceab1499eef3192c394f680bacb9ba676cd7b"
+        },
+        {
+          "path": "tools/els/build.py",
+          "baseline_blob": "474ed92ea5936f04caa3c26f26094c74657d447d",
+          "candidate_blob": "474ed92ea5936f04caa3c26f26094c74657d447d"
+        },
+        {
+          "path": "tools/els/els-code.template.html",
+          "baseline_blob": "b7cb44e929f23c06a84a0bfc843bcabb62f0ce46",
+          "candidate_blob": "b7cb44e929f23c06a84a0bfc843bcabb62f0ce46"
+        }
+      ]
+    },
+    {
+      "id": "F25",
+      "historical_title": "פתיחת Number לביקורת בפריוויו עם worker קשור לתוכן, SHA ומארח; חסימת כתיבות",
+      "source_commits": [
+        {
+          "sha": "89d076fd5c61e12930ecd5b090053773466dcb2c",
+          "direct_ancestor_of_baseline": false
+        },
+        {
+          "sha": "ff24be456d1099708491d462f204646fa2d8cfba",
+          "direct_ancestor_of_baseline": false
+        }
+      ],
+      "verdict": "SUPERSEDED_SAFE",
+      "finding": "Current exact-branch protected Preview transport replaces the old Number-review exception with narrow Auth/ownership/payload guards. Historical worker write exemptions are not restored.",
+      "current_witness": "scripts/build-integrated-preview.mjs; test-integrated-preview-auth-guard.mjs",
+      "next_step": "Jobs/matrix context remain blocked pending matching server; no wildcard Preview permissions.",
+      "paths": [
+        {
+          "path": "src/components/MaintenanceLock.jsx",
+          "baseline_blob": "79d66898870577ea342896d73f221ad33a39aa30",
+          "candidate_blob": "f3f59801720b01058a2bf6d039d60ee56ba4baae"
+        },
+        {
+          "path": "src/lib/numberReviewPreview2029.js",
+          "baseline_blob": null,
+          "candidate_blob": null
+        }
+      ]
+    },
+    {
+      "id": "F26",
+      "historical_title": "הסרת דופק המערכת מנתיב הכניסה של הבית לפי בקשת צוריאל",
+      "source_commits": [
+        {
+          "sha": "261e4c2a7440a44a83953c94852a9b360759e77c",
+          "direct_ancestor_of_baseline": false
+        }
+      ],
+      "verdict": "DECISION_REVIEW",
+      "finding": "Current adopted Home still has system-pulse data paths. Historical user-directed removal cannot be replayed over later adopted composition without reconciling current intent.",
+      "current_witness": "Home2029Page.jsx; home2029Projection.js; HomeComposition2029.jsx",
+      "next_step": "First separate unnecessary initial reads from any decision to remove visible capability.",
+      "paths": [
+        {
+          "path": "src/components/experience2029/HomeBuildSignup2029.jsx",
+          "baseline_blob": null,
+          "candidate_blob": null
+        },
+        {
+          "path": "src/components/experience2029/HomeComposition2029.jsx",
+          "baseline_blob": "ac62c9146cbd73aa6eca105056aafa2862ea261b",
+          "candidate_blob": "ac62c9146cbd73aa6eca105056aafa2862ea261b"
+        },
+        {
+          "path": "src/components/experience2029/homeBuildSignup2029.css",
+          "baseline_blob": null,
+          "candidate_blob": null
+        },
+        {
+          "path": "src/components/experience2029/sod2029-closed.css",
+          "baseline_blob": "b25b926d81e689827bbb7deb149004aa7528e3a5",
+          "candidate_blob": "b25b926d81e689827bbb7deb149004aa7528e3a5"
+        },
+        {
+          "path": "src/lib/research/home2029Projection.js",
+          "baseline_blob": "1de07f58b7bd800cbc1d01a67c20b5ed21520352",
+          "candidate_blob": "1de07f58b7bd800cbc1d01a67c20b5ed21520352"
+        },
+        {
+          "path": "src/lib/runtimeSwitchCosts2029.js",
+          "baseline_blob": null,
+          "candidate_blob": null
+        },
+        {
+          "path": "src/lib/runtimeSwitches2029.js",
+          "baseline_blob": null,
+          "candidate_blob": null
+        },
+        {
+          "path": "src/pages/Home2029Page.jsx",
+          "baseline_blob": "053e587d5ecb15a81fb0d0759ae14544304b3d4e",
+          "candidate_blob": "053e587d5ecb15a81fb0d0759ae14544304b3d4e"
+        },
+        {
+          "path": "src/pages/HomePreview2029Page.jsx",
+          "baseline_blob": "d507b81538f4ff46b5737707374c887ee9e0ffae",
+          "candidate_blob": "d507b81538f4ff46b5737707374c887ee9e0ffae"
+        }
+      ]
+    },
+    {
+      "id": "F27",
+      "historical_title": "שערי הגילוי בבית נטענים בהתקרבות",
+      "source_commits": [
+        {
+          "sha": "f239c7429f7a0e8483c5a3eb94bf93448fc3393b",
+          "direct_ancestor_of_baseline": false
+        }
+      ],
+      "verdict": "OPEN",
+      "finding": "The current replacement Home composition starts discovery reads at mount. Historical approach gate is absent.",
+      "current_witness": "HomeComposition2029.jsx",
+      "next_step": "Restore request timing only after section geometry/intent measurements; do not add a second data source.",
+      "paths": [
+        {
+          "path": "src/components/experience2029/DiscoveryGateways2029.jsx",
+          "baseline_blob": null,
+          "candidate_blob": null
+        }
+      ]
+    },
+    {
+      "id": "F28",
+      "historical_title": "הקורא הכבד של חיבורים בבית נטען בהתקרבות",
+      "source_commits": [
+        {
+          "sha": "7998b4807607a2f86d723f363d25a4a33f4bb70a",
+          "direct_ancestor_of_baseline": false
+        }
+      ],
+      "verdict": "OPEN",
+      "finding": "Current Home composition imports its source/update projection chain directly; historical bounded connection-reader admission is not proven.",
+      "current_witness": "HomeComposition2029.jsx; Home2029Page.jsx",
+      "next_step": "Measure Home module/reader fanout and cut the relevant existing boundary.",
+      "paths": [
+        {
+          "path": "src/components/experience2029/HomeComposition2029.jsx",
+          "baseline_blob": "ac62c9146cbd73aa6eca105056aafa2862ea261b",
+          "candidate_blob": "ac62c9146cbd73aa6eca105056aafa2862ea261b"
+        },
+        {
+          "path": "src/components/experience2029/homeComposition2029.css",
+          "baseline_blob": "1183526becd0d1a069552f38cec18ad6ef4a8b90",
+          "candidate_blob": "1183526becd0d1a069552f38cec18ad6ef4a8b90"
+        }
+      ]
+    },
+    {
+      "id": "F29",
+      "historical_title": "תצוגת העולם בבית והמודולים שלה נדחים עד התקרבות, לאחר התייצבות הראשי",
+      "source_commits": [
+        {
+          "sha": "6ff16633ce0db2bf79e4bdf4eddb1b4224bfed27",
+          "direct_ancestor_of_baseline": false
+        },
+        {
+          "sha": "0568b2581d3c2076f5d871024cdf68d8b8677a7f",
+          "direct_ancestor_of_baseline": false
+        },
+        {
+          "sha": "e994cb67120fa0f735ab3859aa5acba67e24adba",
+          "direct_ancestor_of_baseline": false
+        }
+      ],
+      "verdict": "OPEN",
+      "finding": "Current Home starts fetchHome2029Projection(includeWorld=true) at mount in the reviewed Preview; world preview work begins immediately.",
+      "current_witness": "Home2029Page.jsx:327; home2029Projection.js:350",
+      "next_step": "Defer existing below-fold World projection by actual approach/intent, preserving current primary content.",
+      "paths": [
+        {
+          "path": "src/components/experience2029/HomeComposition2029.jsx",
+          "baseline_blob": "ac62c9146cbd73aa6eca105056aafa2862ea261b",
+          "candidate_blob": "ac62c9146cbd73aa6eca105056aafa2862ea261b"
+        },
+        {
+          "path": "src/components/experience2029/homeComposition2029.css",
+          "baseline_blob": "1183526becd0d1a069552f38cec18ad6ef4a8b90",
+          "candidate_blob": "1183526becd0d1a069552f38cec18ad6ef4a8b90"
+        },
+        {
+          "path": "src/pages/Home2029Page.jsx",
+          "baseline_blob": "053e587d5ecb15a81fb0d0759ae14544304b3d4e",
+          "candidate_blob": "053e587d5ecb15a81fb0d0759ae14544304b3d4e"
+        }
+      ]
+    },
+    {
+      "id": "F30",
+      "historical_title": "הסרת העת עכשיו וקריאות הזמן הנלוות מפתיחת Home 2029",
+      "source_commits": [
+        {
+          "sha": "1085305ddd5639fd16f7bed19458acfda7f17791",
+          "direct_ancestor_of_baseline": false
+        }
+      ],
+      "verdict": "DECISION_REVIEW",
+      "finding": "Current Home requests includeTemporal=true when launch flag is false. Old removal of time calls is not current proof of intent or equivalence.",
+      "current_witness": "Home2029Page.jsx; home2029Projection.js",
+      "next_step": "Measure current temporal requests, reconcile adopted Home decision, never remove content silently.",
+      "paths": [
+        {
+          "path": "src/components/experience2029/HomeComposition2029.jsx",
+          "baseline_blob": "ac62c9146cbd73aa6eca105056aafa2862ea261b",
+          "candidate_blob": "ac62c9146cbd73aa6eca105056aafa2862ea261b"
+        },
+        {
+          "path": "src/pages/Home2029Page.jsx",
+          "baseline_blob": "053e587d5ecb15a81fb0d0759ae14544304b3d4e",
+          "candidate_blob": "053e587d5ecb15a81fb0d0759ae14544304b3d4e"
+        }
+      ]
+    },
+    {
+      "id": "F31",
+      "historical_title": "בדיקת קבלת פוסט לכרטיס הבית אינה מושכת את worldDiscoveryStream",
+      "source_commits": [
+        {
+          "sha": "aa0b27500457bb89f96f36ecf0a73b7a80488c50",
+          "direct_ancestor_of_baseline": false
+        }
+      ],
+      "verdict": "OPEN",
+      "finding": "Current WorldFlightStory imports postRowToWorldUpdate from worldDiscoveryStream; the historical light post-read helper is absent.",
+      "current_witness": "WorldFlightStory2029.jsx; worldDiscoveryStream.js",
+      "next_step": "Extract/reuse the exact admission predicate without pulling full discovery into primary cards.",
+      "paths": [
+        {
+          "path": "src/components/research/WorldFlightStory2029.jsx",
+          "baseline_blob": "85a56c22d06c8d6dbbaeee355ddd6ae6e1abc2ed",
+          "candidate_blob": "85a56c22d06c8d6dbbaeee355ddd6ae6e1abc2ed"
+        },
+        {
+          "path": "src/lib/postReadQueries2029.js",
+          "baseline_blob": null,
+          "candidate_blob": null
+        },
+        {
+          "path": "src/lib/research/worldDiscoveryStream.js",
+          "baseline_blob": "f3f4b193447079adb4d62565ca87b9016c7975b5",
+          "candidate_blob": "f3f4b193447079adb4d62565ca87b9016c7975b5"
+        }
+      ]
+    },
+    {
+      "id": "F32",
+      "historical_title": "איחוד Hybrid ששומר עוגן Legacy ומפת בעלות נתיבים להחלפה הדרגתית",
+      "source_commits": [
+        {
+          "sha": "fe47d8827eac15dcc9c11259a576b9af6733e7c7",
+          "direct_ancestor_of_baseline": false
+        },
+        {
+          "sha": "83e1246a4393bbd55e7b2637769e0a95607f675c",
+          "direct_ancestor_of_baseline": false
+        },
+        {
+          "sha": "dcf124cb2f91576cd57fa2512c2a1dbe4318e570",
+          "direct_ancestor_of_baseline": false
+        }
+      ],
+      "verdict": "SUPERSEDED_RELEASE_EVIDENCE",
+      "finding": "Old Hybrid route ownership is historical release evidence. Current isolated 2029 Preview and Legacy lock are a later boundary, not the old production cutover.",
+      "current_witness": "AGENTS.md; App2029.jsx; preview-deploy/vercel.json",
+      "next_step": "No root redirect, domains, aliases or automatic old Hybrid import.",
+      "paths": [
+        {
+          "path": "src/App.jsx",
+          "baseline_blob": "6a19a38849c337ffaad9cc913e0939644c8ecad1",
+          "candidate_blob": "6a19a38849c337ffaad9cc913e0939644c8ecad1"
+        }
+      ]
+    },
+    {
+      "id": "F33",
+      "historical_title": "פריוויו מתארח עם קבלות ארטיפקטים, shallow checkout מדויק וכניסת שורש ל-2029",
+      "source_commits": [
+        {
+          "sha": "ec0e78149bf046f97ab5b0b785a45150f754c153",
+          "direct_ancestor_of_baseline": false
+        },
+        {
+          "sha": "60f571865d584e5e44c1372b7af95420654900b6",
+          "direct_ancestor_of_baseline": false
+        },
+        {
+          "sha": "580ede725c0fc52a3f20746e9b23bf227216e6c1",
+          "direct_ancestor_of_baseline": false
+        }
+      ],
+      "verdict": "REPLACED_PREVIEW_IDENTITY",
+      "finding": "Current Preview carries exact SHA/branch identity, protected access and API rewrite/ESM boundaries. Old deployment readiness does not prove the current runtime.",
+      "current_witness": "scripts/build-integrated-preview.mjs; preview-identity.json",
+      "next_step": "Inspect the final hosted deployment SHA and test actual SW/bootstrap separately from local lab.",
+      "paths": [
+        {
+          "path": "vercel.json",
+          "baseline_blob": "9cfd3bf5b1f7449dc43a5d6bf51d72a1a1ffe614",
+          "candidate_blob": "9cfd3bf5b1f7449dc43a5d6bf51d72a1a1ffe614"
+        }
+      ]
+    },
+    {
+      "id": "F34",
+      "historical_title": "תוכן המקור בפוסט לפני ההעמקות; ההרחבות אינן מסתירות מקור כשנכשלות",
+      "source_commits": [
+        {
+          "sha": "5de4d5772bbf2624d9f6195c00216d49df2d04d1",
+          "direct_ancestor_of_baseline": false
+        }
+      ],
+      "verdict": "PARTIAL",
+      "finding": "Current Post starts with getPostBySlug but pilot branches still await canonical verifications/context preparation before returning the complete reading projection. Source-first public UX needs fresh controlled evidence.",
+      "current_witness": "post2029ReadingProjection.js:828; Post2029Page.jsx:97",
+      "next_step": "Expose approved source without waiting for optional depth; never bypass public/private admission or label unverified calculations verified.",
+      "paths": [
+        {
+          "path": "src/lib/research/goldenPostContextPacks.test.js",
+          "baseline_blob": "7de32f97e1692a69a9d1e037d17e4f21f0c6f9bd",
+          "candidate_blob": "7de32f97e1692a69a9d1e037d17e4f21f0c6f9bd"
+        },
+        {
+          "path": "src/lib/research/post2029PrimaryProjection.js",
+          "baseline_blob": null,
+          "candidate_blob": null
+        },
+        {
+          "path": "src/lib/research/post2029ReadingProjection.js",
+          "baseline_blob": "c09e44d59f8b64e934d2b6351c55d3ee9cd19baa",
+          "candidate_blob": "c09e44d59f8b64e934d2b6351c55d3ee9cd19baa"
+        },
+        {
+          "path": "src/pages/Post2029Page.jsx",
+          "baseline_blob": "f73af05f1775b244cd8f3613bb80684ef9aa3d08",
+          "candidate_blob": "f73af05f1775b244cd8f3613bb80684ef9aa3d08"
+        }
+      ]
+    }
+  ],
+  "counts": {
+    "PARTIAL": 7,
+    "SUPERSEDED_PARTIAL": 2,
+    "OPEN": 9,
+    "CARRIED_BOUNDED": 2,
+    "REPLACED_LAB_ONLY": 1,
+    "CARRIED_CODE": 1,
+    "RESTORED_2029_ONLY": 1,
+    "RESTORED_AND_ADAPTED": 1,
+    "SEPARATE_LEGACY_SCOPE": 1,
+    "RESTORED_PENDING_ONLY": 1,
+    "METRICS_PARTIAL_V2_OPEN": 1,
+    "RESTORED_EXACT_IMPLEMENTATION": 1,
+    "OPEN_LARGE_PAYLOAD": 1,
+    "SUPERSEDED_SAFE": 1,
+    "DECISION_REVIEW": 2,
+    "SUPERSEDED_RELEASE_EVIDENCE": 1,
+    "REPLACED_PREVIEW_IDENTITY": 1
+  },
+  "coordination_and_metrics": {
+    "plan37": {
+      "id": 37,
+      "before_md5": "72ac7de9c70334c61512cbbd98b8bd19",
+      "after_md5": "96fba6b6ce15ba0cbd5f4bcf6eef1913",
+      "updated_at": "2026-10-31 17:29:28.775669+00",
+      "previous_text_preserved_exactly": true,
+      "draft_preserved": true,
+      "claim": "4ce0b4a4-e5a2-4836-a593-ee1135d988a5",
+      "released_after": "d17e60b6-9494-4734-8e39-cbc60329aaa8"
+    },
+    "rum": {
+      "sample_state": [
+        {
+          "samples": 207,
+          "first_sample": "2026-10-01 00:11:21.840384+00",
+          "last_sample": "2026-10-30 14:30:56.388698+00"
+        }
+      ],
+      "identity_state": [
+        {
+          "events": 207,
+          "document_samples": 207,
+          "events_with_build_identity": 0,
+          "events_with_usable_content": 0
+        }
+      ],
+      "recent_scope": [
+        {
+          "day": "2026-10-30",
+          "collector": "performance_observer",
+          "measurement_scope": "document_navigation_hard_load_only",
+          "events": 3,
+          "documents": 3
+        },
+        {
+          "day": "2026-10-29",
+          "collector": "performance_observer",
+          "measurement_scope": "document_navigation_hard_load_only",
+          "events": 1,
+          "documents": 1
+        },
+        {
+          "day": "2026-10-26",
+          "collector": "performance_observer",
+          "measurement_scope": "document_navigation_hard_load_only",
+          "events": 2,
+          "documents": 2
+        },
+        {
+          "day": "2026-10-25",
+          "collector": "performance_observer",
+          "measurement_scope": "document_navigation_hard_load_only",
+          "events": 3,
+          "documents": 3
+        },
+        {
+          "day": "2026-10-24",
+          "collector": "performance_observer",
+          "measurement_scope": "document_navigation_hard_load_only",
+          "events": 1,
+          "documents": 1
+        },
+        {
+          "day": "2026-10-22",
+          "collector": "performance_observer",
+          "measurement_scope": "document_navigation_hard_load_only",
+          "events": 8,
+          "documents": 8
+        },
+        {
+          "day": "2026-10-21",
+          "collector": "performance_observer",
+          "measurement_scope": "document_navigation_hard_load_only",
+          "events": 1,
+          "documents": 1
+        },
+        {
+          "day": "2026-10-20",
+          "collector": "performance_observer",
+          "measurement_scope": "document_navigation_hard_load_only",
+          "events": 3,
+          "documents": 3
+        },
+        {
+          "day": "2026-10-19",
+          "collector": "performance_observer",
+          "measurement_scope": "document_navigation_hard_load_only",
+          "events": 2,
+          "documents": 2
+        },
+        {
+          "day": "2026-10-18",
+          "collector": "performance_observer",
+          "measurement_scope": "document_navigation_hard_load_only",
+          "events": 5,
+          "documents": 5
+        },
+        {
+          "day": "2026-10-17",
+          "collector": "performance_observer",
+          "measurement_scope": "document_navigation_hard_load_only",
+          "events": 1,
+          "documents": 1
+        },
+        {
+          "day": "2026-10-16",
+          "collector": "performance_observer",
+          "measurement_scope": "document_navigation_hard_load_only",
+          "events": 13,
+          "documents": 13
+        }
+      ],
+      "rpc": [
+        {
+          "proname": "admin_2029_analytics",
+          "provolatile": "v",
+          "source_md5": "8f2a62223a8da2b5ef66ca49e09a1432",
+          "web_vitals_present": true,
+          "usable_content_present": false
+        }
+      ]
+    },
+    "focused_journals": [
+      {
+        "id": "4cc44363-b624-4731-bf63-2b8ddfeab9dd",
+        "task_key": "CLAUDE_PERF_POST_MEDIA_P0_20261018",
+        "status": "AFTER_BRANCH_ONLY_IMPLEMENTED_TESTED_MEASURED_PUSHED_SCOPE_RELEASED",
+        "evidence": "AFTER: branch claude/perf-post-media-p0-20261018-cwujt8 head 582a4ce8 from exact base 8f78c0c7 (gpt/perf-unified-candidate-20261018, remote re-verified before push). Files: src/lib/postRawMediaRendition2029.js (new), src/pages/Post2029Page.jsx, src/components/experience2029/CanonicalMediaImage2029.jsx, test/post-raw-media-rendition-2029.test.mjs. mediaEgressGuard.js untouched. Chromium (real 2029 build, live post 5112, 3 runs/viewport): image bytes 2,610,4xx -> 445,9xx mobile (PNG 2,090,2xx -> 148,3xx), 415,9xx desktop (PNG -> 118,398); CLS unchanged (desktop ~0.083 -> ~0.082, mobile 0.006). Local unthrottled LCP not improved (cover remains LCP). Overlap noted: GPT_PERF_POST_BODY_MEDIA_DEFER_20261018 (gpt/perf-post-body-media-defer-20261018 fc78fa80, base 6124db8d, released) touches the same Post2029Page body-media line; not merged, needs reconcile choice. PRs #1039/#915/#914/#904 stale open drafts, not included, not merged. Passive record only; no PR/CI/merge/deploy.",
+        "gaps": "Hosted Preview LCP/CLS re-measure; reconcile with gpt/perf-post-body-media-defer-20261018 before any merge; browser Accept without webp returns PNG at requested width.",
+        "created_at": "2026-10-18 04:51:11.959521+00"
+      },
+      {
+        "id": "622ba02c-e8f6-4c35-bbab-64951bff7327",
+        "task_key": "GPT_PERF_POST_BODY_MEDIA_DEFER_20261018",
+        "status": "AFTER_BRANCH_ONLY_IMPLEMENTED_TESTED_MEASURED_PUSHED_SCOPE_RELEASED_PASSIVE",
+        "evidence": "AFTER: gpt/perf-post-body-media-defer-20261018 pushed and verified at fc78fa80bbf3359479cf710fcb06f79bc7a7b7b2 from exact base 6124db8d7ddac82654a09c49abf8ed60fe999d47; implementation commit c069b0f0baa8388c86f79124b62560eae2c1698c. FZ audited body: 3 eager requests / 2308906 bytes deferred until 600px approach; exact known dimensions reserved; bounded retry/source fallback. Chromium isolated 15/15 at 320/390/1440 and three themes; full Legacy+2029 build PASS; bundle budget 5/5; exact Legacy build bit-identical. Evidence: docs/perf-evidence-20261018/post-body-media-defer/. Scope released. Passive record only; no dispatch, PR, merge, CI invocation, deployment or Production change.",
+        "gaps": "Hosted Preview LCP/usable timing, physical phone, authenticated reader, Safari/Firefox and SEO crawler acceptance remain NOT_MEASURED. Two focused source-shape assertions reproduce on the exact Wave3 base and were not edited.",
+        "created_at": "2026-10-18 04:27:14.236628+00"
+      }
+    ]
+  },
+  "limits": [
+    "Historical counts are 34 groups/55 commits, not 62 verified commits.",
+    "Verdict counts are audit entries, not product completion percentages.",
+    "No live product DB/RLS/Edge/main/Production write.",
+    "Current lab/API fixtures and historical/field metrics remain separate."
+  ]
+}

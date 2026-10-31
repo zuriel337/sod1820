@@ -17,7 +17,11 @@ test("2029 Companion exposes the three EXISTING public source destinations", () 
 });
 
 test("Or Geula shortcut reuses the canonical source reader and viewer", () => {
-  const stories = read("src/components/OrGeulaStoryColumn.jsx");
+  const stories = read("src/components/OrGeulaStoryColumnCore.jsx");
+  const shortcut = read("src/components/experience2029/OrGeulaSourceShortcut2029.jsx");
+  assert.match(shortcut, /OrGeulaStoryColumnCore\.jsx/);
+  assert.match(shortcut, /Viewer=\{StoryViewerOnDemand2029\}/);
+  assert.doesNotMatch(stories, /import StoryViewer from/);
   assert.match(stories, /if \(variant === "shortcut"\)/);
   assert.match(stories, /<StoryViewer items=\{rows\}/);
   assert.match(stories, /supabase\.from\("channel_updates"\)/);

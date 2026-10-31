@@ -5,10 +5,15 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { recordTimeLabel } from "../../lib/relativeTime2029.js";
-import OrGeulaStoryColumn from "../OrGeulaStoryColumn.jsx";
+import OrGeulaStoryColumn from "./OrGeulaSourceShortcut2029.jsx";
+import StoryViewerOnDemand2029 from "./StoryViewerOnDemand2029.jsx";
 import "./companionPanel2029.css";
 
 export default function CompanionPanel2029({ feed, mode, tab, onTab, onOpenPanel, pinned, onTogglePin, hasContext, contextNode, hasSequence = false, sequenceNode = null, onOpenHref, razielNode, razielView = "quiet", onRazielView, razielHint = "מה שמולך עכשיו", hoverProps, timeMode = "bilingual" }) {
+  // Opening a public story survives slim/full presentation remounts of its
+  // shortcut. This is one UI selection and the same canonical viewer.
+  const [sourceStory, setSourceStory] = React.useState(null);
+  const closeSourceStory = React.useCallback(() => setSourceStory(null), []);
   const open = mode !== "slim";
   const badge = feed.newCount > 9 ? "9+" : String(feed.newCount);
   return <aside className={`sod29-companion is-${mode}`} aria-label="עדכונים, הקשר ורצף האירועים" data-companion-mode={mode} {...hoverProps}>
@@ -19,7 +24,7 @@ export default function CompanionPanel2029({ feed, mode, tab, onTab, onOpenPanel
       {hasContext ? <button type="button" className="sod29-companion-ico is-ctx" onClick={() => onOpenPanel("ctx")} aria-label="הקשר"><span className="sod29-companion-ctx" aria-hidden="true" /></button> : null}
       {hasSequence ? <button type="button" className={`sod29-companion-ico is-seq${tab === "seq" ? " is-on" : ""}`} onClick={() => onOpenPanel("seq")} aria-label="רצף האירועים"><span className="sod29-companion-seq" aria-hidden="true">⋮</span></button> : null}
       <div className="sod29-companion-source-quick is-slim" aria-label="מקורות ציבוריים">
-        <OrGeulaStoryColumn variant="shortcut" limit={12} />
+        <OrGeulaStoryColumn variant="shortcut" limit={12} onOpenStory={setSourceStory} />
         <button type="button" className="sod29-companion-source-link" onClick={() => onOpenHref("/world?subjectSource=zvi#world-public-content-map")} aria-label="מקורות ציבוריים של צבי"><span aria-hidden="true">צ</span></button>
         <button type="button" className="sod29-companion-source-link" onClick={() => onOpenHref("/world?subjectSource=hashmal#world-public-content-map")} aria-label="ספריית סוד החשמל"><span aria-hidden="true">⚡</span></button>
       </div>
@@ -36,7 +41,7 @@ export default function CompanionPanel2029({ feed, mode, tab, onTab, onOpenPanel
 
       {tab === "seq" && hasSequence ? <div className="sod29-companion-seqbody">{sequenceNode}</div> : tab === "ctx" && hasContext ? <div className="sod29-companion-ctxbody">{contextNode}</div> : <div className="sod29-companion-feed">
         <div className="sod29-companion-source-quick is-expanded" aria-label="ערוצי מקור ציבוריים">
-          <OrGeulaStoryColumn variant="shortcut" limit={12} />
+          <OrGeulaStoryColumn variant="shortcut" limit={12} onOpenStory={setSourceStory} />
           <button type="button" className="sod29-companion-source-link" onClick={() => onOpenHref("/world?subjectSource=zvi#world-public-content-map")} aria-label="לקריאת מקורות צבי"><span className="sod29-companion-source-icon" aria-hidden="true">צ</span><span>צבי · הנושאים</span></button>
           <button type="button" className="sod29-companion-source-link" onClick={() => onOpenHref("/world?subjectSource=hashmal#world-public-content-map")} aria-label="לקריאת סוד החשמל"><span className="sod29-companion-source-icon" aria-hidden="true">⚡</span><span>סוד החשמל · הנושאים</span></button>
         </div>
@@ -75,5 +80,6 @@ export default function CompanionPanel2029({ feed, mode, tab, onTab, onOpenPanel
         <button type="button" onClick={() => onRazielView?.("open")}>פתח שיחה</button>
       </div> : razielNode}
     </section> : null}
+    {sourceStory ? <StoryViewerOnDemand2029 {...sourceStory} onClose={closeSourceStory} /> : null}
   </aside>;
 }

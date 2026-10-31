@@ -1839,14 +1839,26 @@ export async function getRealityHints(limit = 1000) {
 
 // 🔒 דגלי-אתר (site_flags) — נעילות תחזוקה/שדרוגים וכד'. קריאה ציבורית; כתיבה = service_role בלבד.
 // מחזיר מפה {key: {enabled, message, mode}}. mode: 'all'=כולם חסומים · 'anon'=רשומים עוברים.
-export async function getSiteFlags() {
+// Only callers with an explicit navigation/principal scope share a PENDING read.
+// Nothing survives settlement: refresh/new navigation must see current DB policy.
+// Legacy callers omit the option and retain their independent reads.
+const siteFlagPendingReads = new Map();
+export async function getSiteFlags({ pendingScope = null } = {}) {
   if (!supabase) return {};
-  try {
-    const { data } = await supabase.from('site_flags').select('key,enabled,message,mode');
-    const m = {};
-    for (const r of (data || [])) m[r.key] = r;
-    return m;
-  } catch { return {}; }
+  const read = async () => {
+    try {
+      const { data } = await supabase.from('site_flags').select('key,enabled,message,mode');
+      const m = {};
+      for (const r of (data || [])) m[r.key] = r;
+      return m;
+    } catch { return {}; }
+  };
+  if (pendingScope === null) return read();
+  if (siteFlagPendingReads.has(pendingScope)) return siteFlagPendingReads.get(pendingScope);
+  const pending = read();
+  siteFlagPendingReads.set(pendingScope, pending);
+  try { return await pending; }
+  finally { if (siteFlagPendingReads.get(pendingScope) === pending) siteFlagPendingReads.delete(pendingScope); }
 }
 
 // 🔥 המספרים החמים באתר — לפי מפת-החום האמיתית (search_log, 7 ימים): אילו מספרים הכי חיפשו.
@@ -2045,7 +2057,10 @@ export async function getEntityBundle({ term, value, isNumber }) {
     isNumber ? (async () => {
       try {
         const cols = 'id,name,description,image_url,thumb_url,primary_value,gallery_id,all_values,occurred_at,created_at,importance';
-        const ord = q => q.not('curator_hidden', 'is', true).eq('min_tier', 0)
+        // Restore F10 for 2029: publication belongs BEFORE both windows/counts.
+        // The independently built Legacy path keeps its existing query behavior.
+        const publicRead = q => typeof __SOD_2029_BUILD__ !== 'undefined' && __SOD_2029_BUILD__ ? q.eq('published', 1) : q;
+        const ord = q => publicRead(q).not('curator_hidden', 'is', true).eq('min_tier', 0)
           .order('importance', { ascending: false, nullsFirst: false })
           .order('occurred_at', { ascending: false, nullsFirst: false })
           .order('created_at', { ascending: false });
