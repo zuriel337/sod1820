@@ -622,9 +622,10 @@ export function PublicWorldFindingFocus({ finding, context, shell }) {
         <ShareActions type="finding" url={publicShare.url} title={publicShare.title} image={publicShare.image}
           entityId={publicShare.sourceId} sourceSurface="world" locale="he" compact force channels={["native", "copy"]} />
         {linkedFollow ? <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 8 }}>
-          <WatchButton topic={linkedFollow.topic} source="world:linked_topic" label={"עקוב אחר הנושא: " + linkedFollow.title}
+          <WatchButton topic={linkedFollow.topic} source="world:linked_topic" label={"מעקב אחרי " + linkedFollow.title}
+            followLabel={"במעקב אחרי " + linkedFollow.title}
             explainer="שמירת הנושא במרכז המעקבים. אין הבטחה להתראות עד שמסלול עדכונים וערוץ משלוח יאומתו."
-            noPush compact ghost />
+            variant="2029" noPush compact />
           <small>מעקב בנושא נפרד משיתוף הממצא; לא מובטח משלוח התראות.</small>
         </div> : null}
       </div> : null}
@@ -1111,12 +1112,15 @@ function LiveWorldLanding({ research, shell, context }) {
     </section> : null);
 
   return <>
+    {activeView === WORLD_LANDING_VIEW.START ? <div data-world-story-entry>
+      <WorldFlightStory2029 research={research} shell={shell} />
+    </div> : null}
     <section className="sod29-world-overview sod29-world-entry" aria-label="כניסה לעולם">
       <div className="sod29-world-entry-copy">
         <div className="sod29-kicker">SOD1820 · עולם של חיבורים</div>
-        <h2>מפת הידע של SOD1820</h2>
+        <h2>{activeView === WORLD_LANDING_VIEW.START ? "לאן ממשיכים מכאן?" : "מפת הידע של SOD1820"}</h2>
         <p>מספרים, מילים, אנשים, מקורות ותמונות מחוברים לפי קשרים מתועדים.</p>
-        <button className="sod29-action primary" type="button" onClick={() => shell.openCommand()}>חיפוש מספר, מילה או נושא</button>
+        <button className="sod29-action primary" type="button" onClick={() => shell.openCommand()}>חיפוש מספר או ביטוי</button>
       </div>
       <nav className="sod29-world-entry-grid" aria-label="דרכים לגלות את העולם">
         {WORLD_LANDING_ENTRIES.map((entry) => <button type="button" key={entry.key}

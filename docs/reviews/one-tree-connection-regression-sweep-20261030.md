@@ -407,3 +407,46 @@ transfer is needed. No source branch identity is spoofed. Target remains the
 existing project's Preview, with SSO preserved and only temporary scoped access;
 no Production, aliases, main, DB/RLS, live publication or other owner changes.
 Final deployment ID/SHA, hosted browser result and scoped release belong in AFTER.
+
+## 31 October — World story, Gallery stream and canonical Follow entry chain
+
+ZURIEL approved the three entry-composition corrections in one chain. Passive
+BEFORE `c24e1ce7-535a-4dac-9d35-c3ecb0c81ff0`, mobile visibility addendum
+`b372c8ce-b753-400b-8cfb-0f28986692a3`, task
+`WORLD_GALLERY_STORY_ENTRY_FOLLOW_CHAIN_20261031`. Local base
+`a10bd229f06e06733fa03f21464818f4acccee79`, remote base
+`fba5cf573d69acd57e0f01845b7b4141a4a2835d`, same tree
+`12fbeb00deac663a5816ae6b869393a55295b47f`.
+
+- Gallery catalog starts with the existing admitted Reality Stream, before the
+  historical collections. The named, unchanged Claude river view uses the same
+  canonical selector/admission and exact source routes. Its Follow is attributed
+  to `gallery_catalog_2029`, not the Home wrapper's source. Only one stream Follow
+  is rendered. Content filters hide the unrelated stream; sorting alone does not.
+  Gallery names, memberships, historical order and authored dates are unchanged.
+- World START opens with the existing real public flight story before navigation.
+  Connections keeps its existing story. No generic decorative Hero was added.
+  A real mobile screenshot exposed an old shared rule hiding the flight image.
+  A START-wrapper-only override in World composition restores the image; the
+  shared story stylesheet and other surfaces are untouched. The browser test now
+  requires visible, decoded media with actual dimensions, not DOM presence alone.
+- The World linked-topic Follow callsite now selects the same canonical 2029
+  WatchButton variant as the river/contributor controls. Existing target, noPush,
+  consent and controller remain unchanged. This is not a global controls redesign.
+  Search wording describes the actual Number/expression command capability.
+
+Verification:27/27 focused tests,56/56 findings/source regressions,7/7 Preview
+auth guards; Follow, World, Topic, graph/lazy, isolation, hardening, normal builds,
+integrated build and Legacy lock pass. The share test fixture now supplies its
+existing public Post source for current source re-admission; no gate was weakened.
+Full static application on live anonymous data passes at320/390/1440:seven stream
+images,87 galleries in this snapshot, real flight image first, same first stream
+source as Home, one Follow, exact source open/Back and filter exclusion. No browser
+errors or model calls; attempted telemetry/Follow reads remain blocked by Preview.
+Local dirty-build identity is not hosted SHA acceptance. Final deployment identity,
+hosted verification and scoped release are recorded in AFTER after deployment.
+
+Claude River JSX/CSS and canonical Follow controller/styles remain byte-identical.
+No Posts, Frame/Provider, builder/ELS, b30 projection, DB/RLS, privacy, source
+reassignment, publication, main or Production changes. Existing visual ownership
+and broad continuation are not released. Final visual adoption remains ZURIEL's.

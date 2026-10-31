@@ -387,6 +387,12 @@
   .sod29-root.surface-world .sod29-world-start-facets { grid-column: auto; }
   .sod29-root.surface-world .sod29-flight-story.is-world .sod29-flight-feature { grid-template-columns: minmax(0, 1fr); padding: 16px; gap: 12px; }
   .sod29-root.surface-world .sod29-flight-story.is-world h2 { font-size: 21px; }
+  /* The entry is an actual source story, not a generic decorative Hero.
+     Override the older shared World mobile media hide only in this entry. */
+  .sod29-root.surface-world [data-world-story-entry] .sod29-flight-story.is-world .sod29-flight-media {
+    display: block;
+    grid-row: 1;
+  }
   .sod29-root.surface-world .sod29-flight-directions { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 4px; }
   .sod29-root.surface-world .sod29-flight-directions > button { flex: 0 0 78%; scroll-snap-align: start; }
   .sod29-root.surface-world .sod29-world-discovery-door-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }

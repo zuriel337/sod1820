@@ -28,11 +28,11 @@ if(process.env.PREVIEW_ACCESS_STDIN==='true'){
 }
 const output=process.env.PREVIEW_EVIDENCE_DIR||'/tmp/reality-river-live';await mkdir(output,{recursive:true});
 const rpcReads=new Set(['gematria_api','fn_method_value','fn_method_profile','gematria_method_trace','fn_zero_scale','posts_by_number_strict','fn_number_lookup','fn_number_dossier','fn_number_journey','fn_verses_by_gematria','lang_links_list','number_neighbors','fn_all_methods','world_group_source_arrivals_v2','rd_is_admin','fn_list_family','fn_name_protocol','fn_cross_research']);
-const report={widths:[],blocked:[],modelRequests:[],readPaths:[],errors:[]};
+const report={widths:[],entryChain:[],blocked:[],modelRequests:[],readPaths:[],errors:[]};
 const proxy=process.env.HTTPS_PROXY?{server:process.env.HTTPS_PROXY,bypass:'127.0.0.1,localhost'}:undefined;
 const browser=await chromium.launch({executablePath:'/usr/bin/chromium',args:['--no-sandbox','--disable-dev-shm-usage'],...(proxy?{proxy}:{})});
 try{
-  for(const width of [390,1440]){
+  for(const width of [320,390,1440]){
     const context=await browser.newContext({viewport:{width,height:1000},locale:'he-IL',reducedMotion:'reduce'});
     await context.route('**/*',route=>{
       const req=route.request(),url=new URL(req.url()),method=req.method();
@@ -91,6 +91,43 @@ try{
     const identity=await page.evaluate(()=>fetch('/preview-identity.json').then(r=>r.json()));
     await page.locator('[data-river-image]').first().waitFor({timeout:45000});
     report.widths.push({width,items:itemCount,firstDate,gallery,selected,identity});
+    // The same source window is discoverable from World -> Galleries, not only Home.
+    await page.goto(origin+'/world',{waitUntil:'domcontentloaded',timeout:60000});
+    const story=page.locator('[data-flight-story="world"]');await story.waitFor({timeout:45000});
+    const navigation=page.getByRole('region',{name:'כניסה לעולם',exact:true});
+    await navigation.waitFor();
+    assert.ok((await story.boundingBox()).y<(await navigation.boundingBox()).y,'story precedes the navigation catalog');
+    assert.equal(await page.locator('[data-flight-story="world"]').count(),1);
+    const storyImage=story.locator('.sod29-flight-media img');
+    await storyImage.waitFor({state:'visible'});await storyImage.evaluate(im=>im.decode());
+    const storyImageBounds=await storyImage.boundingBox();
+    assert.ok(storyImageBounds.width>=120&&storyImageBounds.height>=100,'source photo is visibly rendered, not only present in DOM');
+    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+    assert.equal(await page.locator('.sod29-flight-media img').evaluate(im=>getComputedStyle(im).objectFit),'contain');
+    await story.screenshot({path:`${output}/world-story-${width}.png`});
+    await page.getByRole('link',{name:'כל הגלריות',exact:true}).click();
+    await page.waitForURL('**/world?view=gallery');
+    const galleryRiver=page.locator('[data-gallery-entry-stream] [data-reality-river]');
+    await galleryRiver.locator('[data-river-image]').first().waitFor({timeout:45000});
+    await page.locator('[data-catalog-gallery]').first().waitFor({timeout:45000});
+    assert.equal(await galleryRiver.locator('[data-river-image]').first().getAttribute('data-river-image'),selected,'same latest occurrence as Home, not a new gallery copy');
+    assert.equal(await page.locator('.r29-follow').count(),1,'one stream Follow on the catalog');
+    assert.equal(await page.locator('.r29-follow .sod29-watch').count(),1);
+    assert.ok((await galleryRiver.boundingBox()).y<(await page.locator('#gallery-catalog').boundingBox()).y);
+    const totalGalleries=await page.locator('[data-catalog-gallery]').count();
+    assert.ok(totalGalleries>1);
+    await galleryRiver.locator('.r29-picture img').first().evaluate(im=>im.decode());
+    await galleryRiver.screenshot({path:`${output}/gallery-stream-${width}.png`});
+    await galleryRiver.locator('.r29-open').click();
+    await page.locator(`[data-gallery-selected="${selected}"]`).waitFor({timeout:45000});
+    await page.goBack({waitUntil:'domcontentloaded'});
+    await galleryRiver.locator('[data-river-image]').first().waitFor({timeout:45000});
+    await page.getByRole('searchbox',{name:'חיפוש בגלריות ובכיתובים'}).fill('1237');
+    await page.waitForFunction(()=>document.querySelectorAll('[data-gallery-entry-stream]').length===0);
+    await page.locator('[data-catalog-gallery]').first().waitFor({timeout:45000});
+    assert.equal(await page.locator('.r29-follow').count(),1);
+    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+    report.entryChain.push({width,storyFirst:true,sameLatestSource:true,totalGalleries,singleFollow:true,filterHidesUnrelatedStream:true});
     await context.close();
   }
   assert.deepEqual(report.errors,[]);assert.deepEqual(report.modelRequests,[]);

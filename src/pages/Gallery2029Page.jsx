@@ -4,16 +4,17 @@ import Sod2029Shell, { FrameState } from "../components/experience2029/Sod2029Sh
 import CanonicalMediaImage2029 from "../components/experience2029/CanonicalMediaImage2029.jsx";
 import ShareActions from "../components/ShareActions.jsx";
 import RealityStreamFollow2029 from "../components/research/RealityStreamFollow2029.jsx";
+import { RealityRiver2029 } from "../components/research/RealityRiver2029.jsx";
 import { worldMediaPublicShare } from "../lib/research/worldFindingShare.js";
 import { SourceMethodResearch } from "../components/research/Revelation1237Gate2029.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
-import { getImagesByGallery, getGalleriesOverview, searchArchiveOcrIds } from "../lib/supabase.js";
+import { getImagesByGallery, getGalleriesOverview, getRealityHints, searchArchiveOcrIds } from "../lib/supabase.js";
 import { fetchGallerySourceContext } from "../lib/research/entityHubProjection.js";
 import { fetchNumberMethodProfile } from "../lib/research/numberCoreProjection.js";
 import { resolveTopicExpressionFocus2029 } from "../lib/research/topicExpressionFocus2029.js";
 import { numberExpressionFocusHref } from "../lib/research/numberExpressionFocus.js";
 import { gatePublicMethodRows, gateSourcePresentation, gateSourceSelectionIsCurrent } from "../lib/research/revelation1237Gate2029.js";
-import { buildPublicGalleryCatalog2029, galleryImageDatePresentation, galleryEditorialUpdate2029, galleryReadingFilters2029, projectGalleryReading2029, loadPublicGalleryReading2029, galleryReadingHref2029, gallerySourceHref2029, galleryOccurrenceItem, loadPublicGallerySourceWindow, resolvePublicGallerySelection } from "../lib/research/topicSourceContext.js";
+import { buildPublicGalleryCatalog2029, galleryImageDatePresentation, galleryEditorialUpdate2029, galleryReadingFilters2029, projectGalleryReading2029, loadPublicGalleryReading2029, galleryReadingHref2029, gallerySourceHref2029, galleryOccurrenceItem, loadPublicGallerySourceWindow, resolvePublicGallerySelection, loadPublicRealityStream2029 } from "../lib/research/topicSourceContext.js";
 import { bilingualDateLabel } from "../lib/relativeTime2029.js";
 import { publicMediaCaption, publicMediaTitle } from "../lib/presentation/contentTitle.js";
 import { canonicalMediaPublicLabel } from "../lib/presentation/canonicalPresentation.js";
@@ -36,9 +37,22 @@ function GalleryImageDate({ item }) {
   </span> : <span className="g29-image-date is-unknown">תאריך עדכון לא צוין</span>;
 }
 
-function useGalleryReading(search,retry,enabled=true) {
+function useGalleryReading(search,retry,enabled=true,includeStream=false) {
   const filters=useMemo(()=>galleryReadingFilters2029(search),[search]);
   const [overview,setOverview]=useState({status:'loading'}),[ocr,setOcr]=useState({key:'',status:'ready',rows:[]});
+  const [stream,setStream]=useState({status:'loading',items:[]});
+  const showStream=enabled&&includeStream&&!filters.q&&!filters.from&&!filters.to&&!filters.year
+    &&!filters.kind&&!filters.nums.length;
+  useEffect(()=>{
+    if(!showStream)return;
+    let alive=true;setStream({status:'loading',items:[]});
+    // Existing source selector + exact-source admission own all content rules.
+    // This surface owns only its async lifecycle and truthful Follow attribution.
+    loadPublicRealityStream2029({listHints:getRealityHints,fetchSourceContext:fetchGallerySourceContext})
+      .then(result=>{if(alive)setStream({...result,status:'ready'});})
+      .catch(()=>{if(alive)setStream({status:'failed',items:[]});});
+    return()=>{alive=false;};
+  },[showStream,retry]);
   useEffect(()=>{
     if(!enabled)return;
     let alive=true;setOverview({status:'loading'});
@@ -58,7 +72,7 @@ function useGalleryReading(search,retry,enabled=true) {
   const status=overview.status!=='ready'?overview.status:key&&(ocr.key!==key||ocr.status!=='ready')?(ocr.key===key?ocr.status:'loading'):'ready';
   const projection=useMemo(()=>status==='ready'?projectGalleryReading2029(overview.catalog,filters,{ocrIds:ocr.rows.map(r=>r.id),ocrPartial:ocr.partial}):{items:[],total:0,coverage:{}},[overview,filters,ocr,status]);
   const years=useMemo(()=>[...new Set((overview.catalog?.items||[]).flatMap(g=>g.entries.map(row=>galleryEditorialUpdate2029(row.name)?.dateTime?.slice(0,4)).filter(Boolean)))].sort().reverse(),[overview]);
-  return {status,filters,projection,years};
+  return {status,filters,projection,years,stream,showStream};
 }
 
 function GalleryReadingControls({reading,search,onChange,onRefresh}) {
@@ -88,7 +102,7 @@ function GalleryReadingControls({reading,search,onChange,onRefresh}) {
 function GalleryCatalogBody() {
   const location = useLocation(), navigate = useNavigate(), research = useResearch();
   const [retry, setRetry] = useState(0);
-  const reading=useGalleryReading(location.search,retry);
+  const reading=useGalleryReading(location.search,retry,true,true);
   const state={status:reading.status,...reading.projection};
   const query = reading.filters.q;
   const href = galleryReadingHref2029(location.search);
@@ -100,9 +114,17 @@ function GalleryCatalogBody() {
         galleryImageId: null, wpGalleryId: null } });
   }, [href]);
   const items = state.items;
-  return <article className="g29-gallery g29-catalog" id="gallery-catalog" dir="rtl">
+  // Stream arrival and authored gallery-update chronology are different lenses.
+  // Reuse the same admitted river; never move source rows or rewrite dates.
+  const showStream = reading.showStream;
+  return <>
+    {showStream ? <section aria-label="חדש בזרם המציאות" data-gallery-entry-stream>
+      <RealityRiver2029 items={reading.stream.items} loading={reading.stream.status==='loading'} failed={reading.stream.status==='failed'}
+        onRetry={()=>setRetry(n=>n+1)} follow={<RealityStreamFollow2029 source="gallery_catalog_2029" />} />
+    </section> : null}
+    <article className="g29-gallery g29-catalog" id="gallery-catalog" dir="rtl">
     <header className="g29-heading"><div className="g29-heading-line"><div><p className="g29-eyebrow">סוד 1820 · מבט בתמונות</p>
-      <h2>גלריות רמזי הגאולה</h2></div></div><p className="g29-intro">סיפורים, מספרים ותמונות שנאספו לאורך השנים.</p>
+      <h2>גלריות רמזי הגאולה</h2></div></div><p className="g29-intro">האוספים ההיסטוריים — סיפורים, מספרים ותמונות שנאספו לאורך השנים. אפשר לעיין לפי עדכוני המקור או לשמור את הסדר ההיסטורי.</p>
       <Link className="g29-text-link" to="/world">חזרה לעולם ←</Link></header>
     <GalleryReadingControls reading={reading} search={location.search} onChange={href=>navigate(href,{replace:true})} onRefresh={()=>setRetry(n=>n+1)} />
     {state.status === 'loading' ? <FrameState kind="loading" title="פותחים את הגלריות">טוענים את הגלריות הזמינות לעיון.</FrameState> : null}
@@ -117,8 +139,8 @@ function GalleryCatalogBody() {
           <h3>{publicMediaCaption(item.originalName)}</h3><p>{state.coverage?.partial ? 'לפחות ' : ''}{item.matchingCount} מתוך {item.imageCount} תמונות זמינות</p>
           {item.updatedAt?<p>עדכון אחרון · {bilingualDateLabel(item.updatedAt)}</p>:<p>תאריך עדכון לא צוין</p>}<span className="g29-text-link">לפתיחת הגלריה ←</span></div>
       </Link>)}</div></> : null}
-    <RealityStreamFollow2029 source="gallery_catalog_2029" />
-  </article>;
+    {!showStream ? <RealityStreamFollow2029 source="gallery_catalog_2029" /> : null}
+  </article></>;
 }
 
 function GalleryImageCard({ item, index, selected, opening, error, onRemember, onOpenExpression, onSelect }) {
