@@ -16,10 +16,11 @@ export function storedGalleryOrderIds(rows) {
 
 // Existing 1237 pager, shared here under its source-context owner. Readers remain
 // injected, unchanged, and re-admit the selected public rows on every window.
-export async function loadPublicGallerySourcePage({ wpGalleryId, listGalleryImages, fetchSourceContext, offset = 0, limit = 6 }) {
+export async function loadPublicGallerySourcePage({ wpGalleryId, listGalleryImages, fetchSourceContext, offset = 0, limit = 6, orderedIds = null }) {
   if (!Number.isSafeInteger(wpGalleryId) || wpGalleryId < 1 || !Number.isSafeInteger(offset) || offset < 0
     || !Number.isSafeInteger(limit) || limit < 1 || limit > 12) throw new RangeError("Invalid bounded gallery window");
-  const candidates = storedGalleryOrderIds(await listGalleryImages(wpGalleryId));
+  const listed = storedGalleryOrderIds(await listGalleryImages(wpGalleryId));
+  const candidates = orderedIds == null ? listed : [...new Set(orderedIds)].filter(id => listed.includes(id));
   const slice = candidates.slice(offset, offset + limit);
   const { items = [], occurrencesTruncated = false } = slice.length ? await fetchSourceContext({ imageIds: slice }) : {};
   const order = new Map(slice.map((id, index) => [id, index]));
@@ -104,31 +105,104 @@ export function buildPublicGalleryCatalog2029(overview = {}) {
     const cover = coverRow ? buildGallerySourceContext({ images: [{ ...coverRow,
       ocr_meta: { date_derived: coverRow.date_derived },
       thumb_url: safeCover(coverRow.thumb_url) ? coverRow.thumb_url : null }], galleries: [g] })[0] : null;
-    return { galleryId: g.id, wpGalleryId, originalName: g.name, imageCount: rows.length,
+    // Candidate metadata for filtering only; never propagate signed/credential URLs.
+    const entryFields=['id','name','description','ordering','primary_value','all_values','related_values','image_type'];
+    const entries = ordered.map(id => Object.fromEntries(entryFields.map(key=>[key,byId.get(id)[key]])));
+    const updatedAt = entries.map(row => galleryEditorialUpdate2029(row.name)?.dateTime).filter(Boolean).sort().at(-1) || null;
+    return { galleryId: g.id, wpGalleryId, originalName: g.name, imageCount: rows.length, entries, updatedAt,
       href: gallerySourceHref2029(wpGalleryId), cover: cover || null };
   }).sort((a, b) => b.wpGalleryId - a.wpGalleryId);
   return { items, coverage: { partial: overview.coverage?.partial === true || incomplete } };
 }
 
-// Compact Gregorian photo label requested by ZURIEL. Placement provenance only,
-// never an event/report date; a folder-derived day must not invent day precision.
+// Authored historical update heading, not arbitrary dates inside the caption/OCR.
+// Exact stored text + span retained. Ambiguous/invalid dates remain unknown.
+export function galleryEditorialUpdate2029(name) {
+  if (typeof name !== 'string' || !/עדכון/u.test(name)) return null;
+  const matches = [...name.matchAll(/(?<!\d)(\d{1,2})\s*[./-]\s*(\d{1,2})\s*[./-]\s*(\d{4}|\d{2})(?!\d)/g)];
+  const dates = matches.map(m => {
+    const year = m[3].length === 2 ? '20' + m[3] : m[3];
+    const dateTime = `${year}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`;
+    const label = formatGregorianDate(dateTime);
+    return label?.split('.').reverse().join('-') === dateTime && Number(year)>=1900 && Number(year)<=2099
+      ? { dateTime, label, basis: 'original_update_heading', originalHeader: name,
+        locator: { field: 'gallery_images.name', start: m.index, end: m.index+m[0].length, quote: m[0] } } : null;
+  });
+  return dates.length && dates.every(Boolean) && new Set(dates.map(d=>d.dateTime)).size===1 ? dates[0] : null;
+}
+
+// Compact photo date is exclusively the authored update, never archive/path time.
 export function galleryImageDatePresentation(item) {
-  const p = item?.legacyPlacement;
-  const valid = value => {
-    if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}(?:$|[T ])/.test(value)) return null;
-    const label = formatGregorianDate(value);
-    return label && label.split('.').reverse().join('-') === value.slice(0,10) ? label : null;
+  const update = galleryEditorialUpdate2029(item?.legacyPlacement?.originalName);
+  return update ? { ...update, kind: 'עדכון', description: 'תאריך העדכון שנכתב בכותרת המקור; אינו תאריך קליטה או תאריך אירוע מאומת' } : null;
+}
+
+export function galleryReadingFilters2029(search = '') {
+  const p = new URLSearchParams(search);
+  const day = key => { const d=p.get(key)||'';return /^\d{4}-\d{2}-\d{2}$/.test(d)&&formatGregorianDate(d)?.split('.').reverse().join('-')===d?d:null; };
+  return { q:(p.get('q')||'').slice(0,200).trim(), from:day('from'), to:day('to'),
+    year:/^\d{4}$/.test(p.get('year')||'')?p.get('year'):null,
+    nums:[...new Set((p.get('nums')||'').split(/[,\s]+/).filter(s=>/^\d+$/.test(s)).map(Number).filter(Number.isSafeInteger))].slice(0,12),
+    mode:p.get('mode')==='and'?'and':'or', primary:p.get('primary')==='1',
+    kind:['hint','gematria','method','trail','event','gallery'].includes(p.get('kind'))?p.get('kind'):null,
+    order:['date','oldest','original','name','asc','desc'].includes(p.get('sort'))?p.get('sort'):'date',
+    ocr:p.get('ocr')==='1', layout:p.get('layout')==='compact'?'compact':'reading' };
+}
+
+export function projectGalleryReading2029(catalog, filters, { ocrIds = [], ocrPartial = false } = {}) {
+  const f=filters || galleryReadingFilters2029(), needle=f.q.normalize('NFC').toLocaleLowerCase('he');
+  const ocr=new Set(ocrIds), nameOrder=new Intl.Collator('he',{numeric:true});
+  const byDate=(a,b)=>{
+    const da=galleryEditorialUpdate2029(a.name)?.dateTime, db=galleryEditorialUpdate2029(b.name)?.dateTime;
+    return da&&db?(f.order==='oldest'?da.localeCompare(db):db.localeCompare(da)):da?-1:db?1:0;
   };
-  const stored = valid(p?.occurredAt);
-  if (stored) {
-    const folder = p.dateProvenance?.occurredAt?.derivedFrom === 'path';
-    return { label: folder ? stored.slice(3) : stored, kind: folder ? 'תיקייה' : 'מקור',
-      dateTime: p.occurredAt.slice(0,folder ? 7 : 10),
-      description: folder ? 'חודש תיקיית המקור; יום האירוע אינו ידוע' : 'תאריך שנשמר עם התמונה; אינו תאריך אירוע מאומת' };
-  }
-  const archived = valid(p?.createdAt);
-  return archived ? { label: archived, kind: 'ארכיון', dateTime: p.createdAt.slice(0,10),
-    description: 'מועד ההוספה לארכיון; אינו תאריך אירוע או פרסום' } : null;
+  const items=(catalog?.items||[]).flatMap(g=>{
+    let entries=g.entries.filter(row=>{
+      const date=galleryEditorialUpdate2029(row.name)?.dateTime;
+      const ns=[row.primary_value,...(Array.isArray(row.all_values)?row.all_values:[]),...(Array.isArray(row.related_values)?row.related_values:[])].filter(Number.isSafeInteger);
+      const text=`${g.originalName} ${row.name||''} ${row.description||''}`.normalize('NFC').toLocaleLowerCase('he');
+      return (!needle||text.includes(needle)||(f.ocr&&ocr.has(row.id)))
+        && (!f.kind||row.image_type===f.kind)
+        && (!f.year||date?.startsWith(f.year+'-')) && (!f.from||date&&date>=f.from) && (!f.to||date&&date<=f.to)
+        && (!f.nums.length||(f.mode==='and'?f.nums.every(n=>f.primary?row.primary_value===n:ns.includes(n)):f.nums.some(n=>f.primary?row.primary_value===n:ns.includes(n))));
+    });
+    if(!entries.length)return [];
+    if(f.order!=='original')entries=[...entries].sort((a,b)=>byDate(a,b)||(a.ordering??Infinity)-(b.ordering??Infinity)||String(a.id).localeCompare(String(b.id)));
+    const date=entries.map(row=>galleryEditorialUpdate2029(row.name)?.dateTime).filter(Boolean).sort().at(f.order==='oldest'?0:-1)||null;
+    return [{...g,entries,matchingCount:entries.length,updatedAt:date}];
+  });
+  items.sort((a,b)=>f.order==='original'?b.wpGalleryId-a.wpGalleryId:['name','asc','desc'].includes(f.order)
+    ?(f.order==='desc'?-1:1)*nameOrder.compare(a.originalName,b.originalName)||a.wpGalleryId-b.wpGalleryId
+    :a.updatedAt&&b.updatedAt?(f.order==='oldest'?a.updatedAt.localeCompare(b.updatedAt):b.updatedAt.localeCompare(a.updatedAt))||a.wpGalleryId-b.wpGalleryId:a.updatedAt?-1:b.updatedAt?1:a.wpGalleryId-b.wpGalleryId);
+  return { items, coverage:{partial:catalog?.coverage?.partial===true||ocrPartial}, total:items.reduce((n,g)=>n+g.matchingCount,0) };
+}
+
+// Bounded composition of the SAME existing public occurrence page reader.
+// At most ten 12-row reads; every destination independently re-admitted.
+export async function loadPublicGalleryReading2029({ gallery, take=12, imageId=null, fetchSourceContext }) {
+  if(!gallerySourceHref2029(gallery?.wpGalleryId)||!Number.isSafeInteger(take)||take<12||take>120||take%12)throw new RangeError('Invalid reading range');
+  const ids=gallery.entries.map(row=>row.id), index=imageId?ids.indexOf(imageId):-1;
+  if(imageId&&index<0)return {status:'unavailable',page:null,selected:null};
+  // Exact old links never expand unboundedly to reach a far locator.
+  const start=index>=take?Math.floor(index/12)*12:0, end=Math.min(ids.length,start+take);
+  const pages=[];
+  for(let offset=start;offset<end;offset+=12)pages.push(await loadPublicGallerySourcePage({wpGalleryId:gallery.wpGalleryId,
+    listGalleryImages:async()=>gallery.entries,fetchSourceContext,orderedIds:ids,offset,limit:12}));
+  const page={wpGalleryId:gallery.wpGalleryId,items:pages.flatMap(p=>p.items),scannedIds:ids.slice(start,end),offset:start,limit:take,
+    totalListed:ids.length,hasMore:end<ids.length,nextOffset:end,withheld:pages.reduce((n,p)=>n+p.withheld,0),occurrencesTruncated:pages.some(p=>p.occurrencesTruncated)};
+  // One shared media may span two batches. Keep one identical source object with all occurrences.
+  page.items=dedupeMediaEnvelopes(page.items,{bySourceObject:true});
+  const selected=imageId?resolvePublicGallerySelection(page,imageId):page.scannedIds.map(id=>resolvePublicGallerySelection(page,id)).find(s=>s.status==='ready');
+  return {status:selected?.status||'empty_window',page,selected:selected||null,navigation:null};
+}
+
+export function galleryReadingHref2029(search='', { galleryId=null, imageId=null, take=null }={}) {
+  const current=new URLSearchParams(search), p=new URLSearchParams({view:'gallery',flow:'1'});
+  for(const key of ['q','sort','from','to','year','nums','mode','primary','kind','ocr','layout'])if(current.get(key))p.set(key,current.get(key));
+  if(galleryId!=null){if(!gallerySourceHref2029(galleryId,imageId))return null;p.set('gallery',String(galleryId));}
+  if(take)p.set('take',String(take));
+  if(imageId)p.set('image',imageId);
+  return `/world?${p}${imageId?'#gallery-source-'+imageId:''}`;
 }
 
 export function galleryOccurrenceItem(selected) {

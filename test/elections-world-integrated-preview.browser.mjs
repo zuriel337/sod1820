@@ -11,7 +11,7 @@ import { resolve, extname, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createRequire } from "node:module";
 import { getImagesByGallery, getGalleriesOverview } from '../src/lib/supabase.js';
-import { buildPublicGalleryCatalog2029, galleryImageDatePresentation, storedGalleryOrderIds, gallerySourceHref2029 } from '../src/lib/research/topicSourceContext.js';
+import { buildPublicGalleryCatalog2029, galleryImageDatePresentation, galleryEditorialUpdate2029, galleryReadingFilters2029, projectGalleryReading2029, storedGalleryOrderIds, gallerySourceHref2029 } from '../src/lib/research/topicSourceContext.js';
 
 const require = createRequire(import.meta.url);
 const { chromium } = require("playwright");
@@ -84,8 +84,7 @@ try {
       catch { throw new Error("Protected Preview access failed; access URL withheld."); }
     }
     if (process.env.PREVIEW_GALLERY_CATALOG_ONLY === 'true') {
-      const expected=buildPublicGalleryCatalog2029(await getGalleriesOverview({force:true,publicSourceOnly:true}));
-      expected.items.sort((a,b)=>new Intl.Collator('he',{numeric:true}).compare(b.originalName,a.originalName)||a.wpGalleryId-b.wpGalleryId);
+      const expected=projectGalleryReading2029(buildPublicGalleryCatalog2029(await getGalleriesOverview({force:true,publicSourceOnly:true})),galleryReadingFilters2029());
       await page.goto(origin+'/world?view=gallery');
       await page.locator('[data-catalog-gallery="69"]').waitFor();
       assert.deepEqual(await page.locator('[data-catalog-gallery]').evaluateAll(nodes=>nodes.map(n=>Number(n.dataset.catalogGallery))),expected.items.map(x=>x.wpGalleryId));
@@ -96,7 +95,7 @@ try {
         assert.equal(await card.locator('.g29-kind').count(),0);
         const date=galleryImageDatePresentation(sample.cover);
         if(date)assert.equal(await card.locator('.g29-image-date time').getAttribute('datetime'),date.dateTime);
-        else assert.match(await card.locator('.g29-image-date').innerText(),/תאריך לא צוין/);
+        else assert.match(await card.locator('.g29-image-date').innerText(),/תאריך עדכון לא צוין/);
       }
       await page.waitForFunction(()=>{const image=document.querySelector('.g29-catalog-cover img');return image?.complete&&image.naturalWidth>0;});
       await page.screenshot({path:resolve(output,`gallery-catalog-${width}.png`)});
@@ -108,15 +107,24 @@ try {
         assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
         await page.screenshot({path:resolve(output,`gallery-catalog-${preset}-${width}.png`)});
       }
-      await page.getByRole('searchbox',{name:'חיפוש בשם הגלריה'}).fill('14');
-      await page.getByLabel('סדר הגלריות',{exact:true}).selectOption('asc');
+      await page.getByRole('searchbox',{name:'חיפוש בגלריות ובכיתובים'}).fill('14');
+      await page.getByLabel('סדר הגלריות',{exact:true}).selectOption('name');
       await page.reload();await page.locator('[data-catalog-gallery="69"]').waitFor();
       assert.equal(await page.getByRole('searchbox').inputValue(),'14');
       await page.locator('[data-catalog-gallery="69"]').click();await page.locator('.g29-exhibit').first().waitFor();
       assert.equal(new URL(page.url()).searchParams.get('gallery'),'69');
       await page.waitForFunction(()=>{const image=document.querySelector('.g29-canvas img');return image?.complete&&image.naturalWidth>0;});
       assert.equal(await page.locator('.g29-flow .g29-image-date').count(),await page.locator('.g29-exhibit').count());
-      assert.match(await page.locator('.g29-exhibit').first().locator('.g29-image-date').innerText(),/מקור\s+05\.05\.2021/);
+      const sourceId=await page.locator('.g29-exhibit').first().getAttribute('data-gallery-image-id');
+      const source=expected.items.find(g=>g.wpGalleryId===69).entries.find(row=>row.id===sourceId);
+      const update=galleryEditorialUpdate2029(source.name);
+      if(update)assert.equal(await page.locator('.g29-exhibit').first().locator('.g29-image-date time').getAttribute('datetime'),update.dateTime);
+      assert.equal(await page.locator('.g29-exhibit').count(),12);
+      await page.getByRole('link',{name:/טען עוד — מצטרף לרצף/}).click();
+      await page.waitForFunction(()=>document.querySelectorAll('.g29-exhibit').length>12);
+      assert.equal(await page.locator(`[data-gallery-image-id="${sourceId}"]`).count(),1,'append keeps previous images');
+      await page.reload();await page.locator(`[data-gallery-image-id="${sourceId}"]`).waitFor();
+      assert.equal(new URL(page.url()).searchParams.get('take'),'24');
       const badgeBounds=await page.locator('.g29-flow .g29-image-date').evaluateAll(nodes=>nodes.map(el=>{
         const badge=el.getBoundingClientRect(),frame=el.parentElement.getBoundingClientRect();
         return {left:badge.x-frame.x,top:badge.y-frame.y,bottom:badge.bottom-frame.bottom,width:frame.width,height:frame.height};
@@ -129,10 +137,15 @@ try {
         await option.click();await page.waitForFunction(value=>document.documentElement.dataset.themePreset===value,preset);
         await page.screenshot({path:resolve(output,`gallery-date-${preset}-${width}.png`)});
       }
-      await page.goBack();await page.locator('[data-catalog-gallery="69"]').waitFor();
+      await page.getByRole('link',{name:'כל הגלריות ←',exact:true}).click();await page.locator('[data-catalog-gallery="69"]').waitFor();
       assert.equal(await page.getByRole('searchbox').inputValue(),'14');
       assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
-      report.catalog.push({width,count:expected.items.length,coverage:expected.coverage,sourceCount:expected.items.reduce((n,x)=>n+x.imageCount,0),search:true,sort:true,reload:true,galleryBack:true,originalHeadings:true,dateBadges:true,presets:['light','parchment','dark']});
+      const datedId='e583bcf4-6c20-4a3f-857a-fdf7a8a75b3f';
+      await page.goto(origin+'/world?view=gallery&flow=1&gallery=29&image='+datedId+'#gallery-source-'+datedId);
+      const dated=page.locator(`[data-gallery-image-id="${datedId}"]`);await dated.waitFor();
+      assert.equal(await dated.locator('.g29-image-date time').getAttribute('datetime'),'2022-08-17');
+      assert.match(await dated.locator('.g29-update-heading').innerText(),/17-8-22/);
+      report.catalog.push({width,count:expected.items.length,coverage:expected.coverage,sourceCount:expected.items.reduce((n,x)=>n+x.imageCount,0),search:true,sort:true,reload:true,galleryBack:true,originalHeadings:true,dateBadges:true,editorial17August:true,appendAndReload:true,presets:['light','parchment','dark']});
       report.widths.push(width);await context.close();continue;
     }
     if (process.env.PREVIEW_GALLERY_EXPANSION_ONLY === 'true') {

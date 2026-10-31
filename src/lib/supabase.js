@@ -1120,7 +1120,7 @@ export async function getGalleriesOverview({ force = false, publicSourceOnly = f
   while (true) {
     let query = client
       .from('gallery_images')
-      .select(publicSourceOnly ? 'id,gallery_id,wp_gallery_id,image_url,thumb_url,ordering,published,min_tier,curator_hidden,occurred_at,created_at,date_derived:ocr_meta->>date_derived'
+      .select(publicSourceOnly ? 'id,gallery_id,wp_gallery_id,image_url,thumb_url,ordering,published,min_tier,curator_hidden,occurred_at,created_at,date_derived:ocr_meta->>date_derived,name,description,primary_value,all_values,related_values,image_type'
         : 'id,gallery_id,image_url,thumb_url,name,description,ordering,primary_value,all_values,occurred_at,created_at,importance,image_type,source,curator_hidden,tags')
       .not('image_url', 'is', null);
     query = publicSourceOnly ? query.eq('published', 1).eq('min_tier', 0).not('curator_hidden', 'is', true).order('id')
@@ -2848,7 +2848,18 @@ export async function searchGalleryForCuration(term = '', { limit = 60 } = {}) {
   return data || [];
 }
 // חיפוש OCR בצד-שרת — מחזיר ids תואמים (במקום לטעון את כל ה-ocr_text מראש)
-export async function searchArchiveOcrIds(q, { limit = 800 } = {}) {
+export async function searchArchiveOcrIds(q, { limit = 800, publicSourceOnly = false, client = supabase } = {}) {
+  if(publicSourceOnly){
+    if(!client)throw new Error('gallery_reader_unavailable');
+    const t=String(q||'').trim().slice(0,200), cap=Math.min(800,Math.max(1,Math.floor(limit)||800));
+    if(t.length<2)return {rows:[],partial:false};
+    const escaped=t.replace(/[\\%_]/g,'\\$&');
+    const {data,error}=await client.from('gallery_images').select('id,gallery_id')
+      .eq('published',1).eq('min_tier',0).not('curator_hidden','is',true).not('image_url','is',null)
+      .ilike('ocr_text',`%${escaped}%`).order('id').limit(cap+1);
+    if(error)throw error;
+    return {rows:(data||[]).slice(0,cap),partial:(data||[]).length>cap};
+  }
   if (!supabase || !q || q.trim().length < 2) return [];
   const t = q.trim();
   const { data } = await supabase.from('gallery_images')

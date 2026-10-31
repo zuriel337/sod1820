@@ -97,13 +97,14 @@ function fixturePlugin() {
           {type:'gematria',phrase:'ערך חסר',n:null,method:'רגיל'},
         ]};}
       export const getAllValuePhrases=async()=>[],langLinksList=async()=>[];
+      export const searchArchiveOcrIds=async()=>{if(window.__ocrFail)throw Error('offline');return {rows:[],partial:false};};
       export const getGalleriesOverview=async(options)=>{
         window.__catalogOptions=options;
         if(window.__catalogFail)throw Error('catalog offline');
         if(window.__holdCatalog)await new Promise(resolve=>{window.__releaseCatalog=resolve;});
         const ids=[69,73,81,...(window.__catalogNew?[105]:[])];
         return {gals:ids.map(n=>({id:'gallery-'+n,wp_gallery_id:n,name:n===69?'גלרית 14 - 5':n===73?'גלרית 14 - 7':'גלריה '+n})),
-          imgs:ids.filter(n=>!(window.__catalogWithdraw&&n===69)).map(n=>({...window.__nativeGalleryRow('10000000-0000-4000-8000-'+String(n*100).padStart(12,'0')),gallery_id:'gallery-'+n})),coverage:{partial:window.__catalogPartial||false}};
+          imgs:ids.filter(n=>!(window.__catalogWithdraw&&n===69)).flatMap(n=>Array.from({length:14},(_,i)=>({...window.__nativeGalleryRow('10000000-0000-4000-8000-'+String(n*100+i).padStart(12,'0')),gallery_id:'gallery-'+n}))),coverage:{partial:window.__catalogPartial||false}};
       };
       export const getImagesByGallery=async(id,options)=>{window.__lastGalleryListOptions=options;if(window.__listFail)throw Error('list offline');return Array.from({length:window.__nativeGallery?14:8},(_,ordering)=>({
         id:window.__nativeGallery?'10000000-0000-4000-8000-'+String(id*100+ordering).padStart(12,'0'):id+'-'+ordering,ordering}));
@@ -183,7 +184,7 @@ function fixturePlugin() {
       import '/src/components/experience2029/sod2029.css';
       window.__reads=[];window.__sheetTargets=[];window.__galleryRequests=[];window.__traceReads=[];
       window.__nativeGalleryRow=id=>({id,wp_gallery_id:Math.floor(Number(id.slice(-12))/100),ordering:Number(id.slice(-12))%100,
-        published:1,min_tier:0,image_type:'gematria',name:'עדכון **** נוספו 6 תמונות חדשות',
+        published:1,min_tier:0,image_type:'gematria',name:'עדכון 5/5/2021 נוספו 6 תמונות חדשות',
         occurred_at:Number(id.slice(-12))%2?'2021-05-05':'2021-05-01',date_derived:Number(id.slice(-12))%2?'name':'path',
         ocr_meta:{date_derived:Number(id.slice(-12))%2?'name':'path'},created_at:'2026-06-12T23:02:06Z',
         description:'כיתוב מדויק '+id+' '+String.fromCharCode(92).repeat(3)+'"וראית את אחרי'+String.fromCharCode(92).repeat(3)+'" = 1237',
@@ -258,7 +259,7 @@ test("native gallery uses exact public occurrences and canonical method navigati
       assert.equal(await exhibit.locator('h3').count(),0,'maintenance notices are not public image headlines');
       assert.ok(await exhibit.locator('.g29-depth').evaluate(el=>!el.open),"research stays behind an intentional action");
       assert.equal(await exhibit.locator(".g29-canvas img").getAttribute("data-media-fit"),"preserve-whole-image");
-      assert.match(await exhibit.locator('.g29-image-date').innerText(),/מקור\s+05\.05\.2021/);
+      assert.match(await exhibit.locator('.g29-image-date').innerText(),/עדכון\s+05\.05\.2021/);
       assert.equal(await exhibit.locator('.g29-image-date time').getAttribute('datetime'),'2021-05-05');
       const photoBox=await exhibit.locator('.g29-image-surface').boundingBox(),dateBox=await exhibit.locator('.g29-image-date').boundingBox();
       assert.ok(dateBox.x>=photoBox.x&&dateBox.x<photoBox.x+photoBox.width/2,'badge stays physically left in RTL');
@@ -275,7 +276,7 @@ test("native gallery uses exact public occurrences and canonical method navigati
       await exhibit.locator('.g29-depth > summary').click();
       await exhibit.locator('.g29-source-details > summary').click();
       await exhibit.locator('.g29-verbatim > summary').click();
-      assert.match(await exhibit.locator('.g29-verbatim').innerText(),/עדכון \*\*\*\*/);
+      assert.match(await exhibit.locator('.g29-verbatim').innerText(),/עדכון 5\/5\/2021/);
       assert.match(await exhibit.locator('.g29-verbatim pre').last().innerText(),/\\/,'verbatim source remains unchanged');
       await exhibit.locator('.g29-depth > summary').click();
       const otherId="10000000-0000-4000-8000-000000008108";
@@ -372,23 +373,60 @@ test("gallery catalog: search/order URL, original names, source re-entry, refres
       await page.goto(origin+'/world?view=gallery');
       await page.locator('[data-catalog-gallery="69"]').waitFor();
       assert.deepEqual(await page.evaluate(()=>window.__catalogOptions),{force:true,publicSourceOnly:true});
-      assert.deepEqual(await page.locator('[data-catalog-gallery]').evaluateAll(nodes=>nodes.map(n=>Number(n.dataset.catalogGallery))),[73,69,81]);
+      assert.deepEqual(await page.locator('[data-catalog-gallery]').evaluateAll(nodes=>nodes.map(n=>Number(n.dataset.catalogGallery))),[69,73,81]);
       const original=page.locator('[data-catalog-gallery="69"]');
       assert.equal(await original.locator('h3').innerText(),'גלרית 14 - 5');
       assert.equal(await original.locator('.g29-kind').count(),0,'technical69 is not a public gallery heading');
-      assert.match(await original.locator('.g29-image-date').innerText(),/תיקייה\s+05\.2021/);
-      await page.getByRole('searchbox',{name:'חיפוש בשם הגלריה'}).fill('69');
-      assert.equal(await page.locator('[data-catalog-gallery]').count(),0,'search matches original titles, not hidden IDs');
-      await page.getByRole('searchbox',{name:'חיפוש בשם הגלריה'}).fill('14');
-      await page.getByLabel('סדר הגלריות',{exact:true}).selectOption('asc');
+      assert.match(await original.locator('.g29-image-date').innerText(),/עדכון\s+05\.05\.2021/);
+      await page.getByRole('searchbox',{name:'חיפוש בגלריות ובכיתובים'}).fill('לאנמצא');
+      await page.waitForFunction(()=>document.querySelectorAll('[data-catalog-gallery]').length===0);
+      assert.equal(await page.locator('[data-catalog-gallery]').count(),0);
+      await page.getByRole('searchbox',{name:'חיפוש בגלריות ובכיתובים'}).fill('14');
+      await page.getByLabel('סדר הגלריות',{exact:true}).selectOption('name');
       assert.deepEqual(await page.locator('[data-catalog-gallery]').evaluateAll(nodes=>nodes.map(n=>Number(n.dataset.catalogGallery))),[69,73]);
       await page.reload();await page.locator('[data-catalog-gallery="69"]').waitFor();
       assert.equal(await page.getByRole('searchbox').inputValue(),'14');
       await page.locator('[data-catalog-gallery="69"]').click();
       await page.locator('.g29-exhibit').first().waitFor();
       assert.equal(new URL(page.url()).searchParams.get('gallery'),'69');
-      await page.goBack();await page.locator('[data-catalog-gallery="69"]').waitFor();
+      assert.equal(await page.locator('.g29-exhibit').count(),12);
+      await page.getByRole('link',{name:/טען עוד — מצטרף לרצף/}).click();
+      await page.waitForFunction(()=>document.querySelectorAll('.g29-exhibit').length===14);
+      assert.match(await page.locator('.g29-progress').innerText(),/מוצגות 14/);
+      assert.equal(await page.locator('[data-next-gallery="73"]').count(),1);
+      await page.locator('[data-next-gallery="73"]').click();await page.locator('.g29-exhibit').first().waitFor();
+      assert.equal(new URL(page.url()).searchParams.get('gallery'),'73');assert.equal(new URL(page.url()).searchParams.get('q'),'14');
+      await page.goBack();await page.locator('[data-gallery-id="69"]').waitFor();
+      await page.waitForFunction(()=>document.querySelectorAll('.g29-exhibit').length===14);
+      const selectedId='10000000-0000-4000-8000-000000006913';
+      const finalCard=page.locator(`[data-gallery-image-id="${selectedId}"]`);
+      await finalCard.getByRole('link',{name:'לדף המספר 3137',exact:true}).click();
+      await page.waitForURL('**/2029/number/3137');
+      assert.equal(new URL((await page.evaluate(()=>window.__researchContext)).returnTo.href,origin).searchParams.get('take'),'24');
+      await page.getByRole('button',{name:'חזרה לתמונה',exact:true}).click();await finalCard.waitFor();
+      assert.equal(await page.locator('.g29-exhibit').count(),14);
+      assert.equal(new URL(page.url()).searchParams.get('q'),'14');
+      await page.reload();await finalCard.waitFor();assert.equal(await page.locator('.g29-exhibit').count(),14);
+      await page.getByRole('link',{name:'כל הגלריות ←',exact:true}).click();await page.locator('[data-catalog-gallery="69"]').waitFor();
       assert.equal(await page.getByRole('searchbox').inputValue(),'14');
+      await page.locator('.g29-filter-panel > summary').click();
+      await page.getByLabel('שנת עדכון',{exact:true}).selectOption('2021');
+      await page.getByLabel('סוג תמונה',{exact:true}).selectOption('event');
+      await page.waitForFunction(()=>document.querySelectorAll('[data-catalog-gallery]').length===0);
+      assert.equal(await page.locator('[data-catalog-gallery]').count(),0);
+      await page.getByLabel('סוג תמונה',{exact:true}).selectOption('gematria');await page.locator('[data-catalog-gallery="69"]').waitFor();
+      await page.getByLabel('מספרים שסומנו',{exact:true}).fill('3137,844');
+      await page.getByLabel('שילוב מספרים',{exact:true}).selectOption('and');await page.locator('[data-catalog-gallery="69"]').waitFor();
+      await page.getByLabel('היקף המספרים',{exact:true}).selectOption('1');
+      await page.waitForFunction(()=>document.querySelectorAll('[data-catalog-gallery]').length===0);
+      assert.equal(await page.locator('[data-catalog-gallery]').count(),0);
+      await page.getByRole('button',{name:'ניקוי הסינון',exact:true}).click();await page.locator('[data-catalog-gallery="69"]').waitFor();
+      await page.evaluate(()=>{window.__ocrFail=true;});
+      await page.getByLabel('גם בטקסט שזוהה בתמונות',{exact:true}).check();
+      await page.getByRole('searchbox').fill('בדיקתטקסט');await page.getByRole('alert').waitFor();
+      assert.equal(await page.locator('[data-catalog-gallery]').count(),0);
+      await page.evaluate(()=>{window.__ocrFail=false;});
+      await page.getByRole('button',{name:'ניקוי הסינון',exact:true}).click();await page.locator('[data-catalog-gallery="69"]').waitFor();
       await page.getByRole('searchbox').fill('');
       await page.evaluate(()=>{window.__catalogNew=true;});
       await page.getByRole('button',{name:'רענון הגלריות',exact:true}).click();await page.locator('[data-catalog-gallery="105"]').waitFor();
