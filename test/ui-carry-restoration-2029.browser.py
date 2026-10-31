@@ -29,9 +29,10 @@ FLAGS = ["lock_world", "lock_heichal", "lock_raziel_site", "lock_life_journey", 
 READ_RPCS = {"world_group_source_arrivals_v2", "rd_is_admin", "fn_method_profile", "fn_method_value", "writer_public_contributions_page_v1", "community_reply_counts", "notification_prefs_guest_get_v1", "notification_prefs_get_v1"}
 BLOCKED_TELEMETRY = {"link_identity", "ingest_event", "track_visit"}
 ROWS = [
-    {"id":"11111111-1111-4111-8111-111111111111", "author_name":"אלף בדיקה", "body":"הודעת זית", "origin":"community_2029", "created_at":"2026-10-28T12:00:00Z", "total_count":2},
-    {"id":"22222222-2222-4222-8222-222222222222", "author_name":"בית בדיקה", "body":"הודעת דקל", "origin":"openweb", "created_at":"2026-10-27T12:00:00Z", "total_count":2},
+    {"id":"11111111-1111-4111-8111-111111111111", "author_user_id":"11111111-1111-4111-8111-111111111111", "author_name":"אלף בדיקה", "body":"הודעת זית", "origin":"community_2029", "created_at":"2026-10-28T12:00:00Z", "reactions":{"likes":4}, "total_count":2},
+    {"id":"22222222-2222-4222-8222-222222222222", "author_user_id":"22222222-2222-4222-8222-222222222222", "author_name":"בית בדיקה", "body":"הודעת דקל", "origin":"openweb", "created_at":"2026-10-27T12:00:00Z", "reactions":{"likes":5,"👍":["fixture-one","fixture-two"]}, "total_count":2},
 ]
+OLDER = {"id":"33333333-3333-4333-8333-333333333333", "author_name":"כותב ותיק", "body":"הודעה ותיקה אהובה", "origin":"openweb", "created_at":"2016-01-01T12:00:00Z", "reactions":{"likes":50}}
 report = {"themes": [], "community": [], "failures": [], "page_errors": [], "model_calls": [], "blocked_writes": [], "blocked_telemetry": [], "external_chat": [], "feed_sorts": []}
 
 
@@ -44,8 +45,9 @@ threading.Thread(target=server.serve_forever, daemon=True).start()
 BASE = f"http://127.0.0.1:{server.server_port}"
 
 
-def wire(page, delayed_feed=False):
+def wire(page, delayed_feed=False, paginated=False):
     first_feed = True
+    state = {"updated":False, "reads":[]}
     page.on("pageerror", lambda error: report["page_errors"].append(str(error)))
     def route(handler):
         nonlocal first_feed
@@ -56,17 +58,28 @@ def wire(page, delayed_feed=False):
                 if req.method != "GET": report["blocked_writes"].append(url.path)
                 return handler.fulfill(status=503, content_type="application/json", body='{"state":"unavailable"}')
             return handler.continue_()
-        if any(key in req.url.lower() for key in ("spot.im", "spotim", "openweb", "/sso")):
+        if any(key in (url.hostname or "").lower() for key in ("spot.im", "spotim", "openweb")) or "/sso" in url.path.lower():
             report["external_chat"].append(req.url); return handler.abort()
         if url.path.endswith(("/ai-analyze", "/research-run", "/raziel-submit")) or any(x in (url.hostname or "") for x in ("openai", "anthropic", "generativelanguage")):
             report["model_calls"].append(req.url); return handler.abort()
         name = url.path.rsplit("/", 1)[-1]
+        if url.path == "/auth/v1/settings":
+            return handler.fulfill(content_type="application/json", body=json.dumps({"external":{"email":True,"google":True,"facebook":True}}))
         if req.method == "POST" and url.path.startswith("/rest/v1/rpc/") and name == "community_feed_page":
             if delayed_feed and first_feed: time.sleep(0.8)
             first_feed = False
-            sort = (req.post_data_json or {}).get("p_sort", "newest")
+            args = req.post_data_json or {}
+            sort = args.get("p_sort", "newest")
+            assert sort in ("newest", "oldest"), "loaded-only ranking must not pretend the server supports likes"
             report["feed_sorts"].append(sort)
-            return handler.fulfill(content_type="application/json", headers={"access-control-allow-origin": "*"}, body=json.dumps(ROWS[::-1] if sort == "oldest" else ROWS))
+            state["reads"].append({"sort":sort,"offset":args.get("p_offset",0)})
+            data = [dict(row) for row in ROWS] + ([dict(OLDER)] if paginated else [])
+            if state["updated"]: data[0]["reactions"] = {"likes":90}
+            for row in data: row["total_count"] = len(data)
+            if sort == "oldest": data.reverse()
+            offset = args.get("p_offset",0)
+            data = data[offset:offset + (2 if paginated else args.get("p_limit",40))]
+            return handler.fulfill(content_type="application/json", headers={"access-control-allow-origin": "*"}, body=json.dumps(data))
         if req.method == "POST" and url.path.startswith("/rest/v1/rpc/") and name in READ_RPCS:
             return handler.fulfill(content_type="application/json", headers={"access-control-allow-origin": "*"}, body="[]")
         if req.method == "POST" and url.path.startswith("/rest/v1/rpc/") and name in BLOCKED_TELEMETRY:
@@ -76,6 +89,7 @@ def wire(page, delayed_feed=False):
         rows = [{"key":key, "enabled":False, "mode":"all"} for key in FLAGS] if url.path.endswith("/site_flags") else []
         return handler.fulfill(content_type="application/json", headers={"access-control-allow-origin":"*", "content-range":"0-0/0"}, body=json.dumps(rows))
     page.route("**/*", route)
+    return state
 
 
 def no_overflow(page):
@@ -175,15 +189,15 @@ def verify_filter_tiles(page, feed, width, theme):
     expect(group).to_be_visible()
     expect(group).to_have_attribute("tabindex", "0")
     buttons = group.locator("button")
-    expect(buttons).to_have_count(6)
+    expect(buttons).to_have_count(1)
     expect(group.get_by_role("button", name="הכול", exact=True)).to_have_attribute("aria-pressed", "true")
     dimensions = buttons.evaluate_all("""nodes => nodes.map(e=>{const r=e.getBoundingClientRect();return {width:r.width,height:r.height,top:r.top,font:parseFloat(getComputedStyle(e).fontSize),disabled:e.disabled,text:e.innerText.trim(),clipped:e.scrollWidth>e.clientWidth+1||e.scrollHeight>e.clientHeight+1}})""")
     assert all(abs(d["width"]-44)<1 and abs(d["height"]-44)<1 and d["width"]>=44 and d["height"]>=44 and d["font"]>=14 and not d["clipped"] for d in dimensions), dimensions
     assert max(d["top"] for d in dimensions)-min(d["top"] for d in dimensions)<1, dimensions
-    assert sum(d["disabled"] for d in dimensions)==5, dimensions
-    assert [d["text"] for d in dimensions] == ["הכול", "ללא מענה", "קבצים", "שלי", "חדשה", "ותיקה"], dimensions
+    assert not any(d["disabled"] for d in dimensions), dimensions
+    assert [d["text"] for d in dimensions] == ["הכול"], dimensions
     for accessible in ("ללא מענה", "עם קבצים", "ההודעות שלי", "מהקהילה החדשה", "מהצ׳אט הוותיק"):
-        expect(group.get_by_role("button", name=accessible, exact=True)).to_be_disabled()
+        expect(group.get_by_role("button", name=accessible, exact=True)).to_have_count(0)
     if group.evaluate("e=>e.scrollWidth>e.clientWidth+1"):
         group.scroll_into_view_if_needed()
         group.focus(); expect(group).to_be_focused()
@@ -211,35 +225,98 @@ def community_case(page, width, suffix="", theme="dark"):
     feed = page.locator('[data-community-mode="connected-preview"]')
     legacy = page.locator('[data-community-chat="legacy"]')
     expect(feed).to_be_visible(); expect(legacy).to_be_visible()
+    artwork = feed.evaluate("""e=>{const a=getComputedStyle(e,'::before'),v=getComputedStyle(e,'::after');return {image:a.backgroundImage,opacity:Number(a.opacity),filter:a.filter,position:a.position,pointer:a.pointerEvents,veil:v.backgroundImage}}""")
+    expected_image = "legacy-dark-bg-post-mobile-v2-720x1280-81d7bbed9769.webp" if width <= 760 else "legacy-dark-bg-post-1280-6ca0167e2dda.webp"
+    assert expected_image in artwork["image"], artwork
+    assert artwork["opacity"] == {"light":.2,"parchment":.3,"dark":.68}[theme], artwork
+    assert artwork["position"] == "fixed" and artwork["pointer"] == "none" and "gradient" in artwork["veil"], artwork
+    page.evaluate("""async name=>{const image=new Image();image.src='/'+name;await image.decode();if(!image.naturalWidth)throw Error('background unavailable')}""", expected_image)
     if suffix:
         # This is a cold direct-entry hash; assert before interacting with or
         # manually scrolling the page, after the delayed feed has settled.
         expect(legacy).to_be_in_viewport()
         assert legacy.evaluate("e => { const r=e.getBoundingClientRect(); return r.top < innerHeight && r.bottom > 0; }")
     assert feed.evaluate("e=>e.getBoundingClientRect().top + scrollY") < legacy.evaluate("e=>e.getBoundingClientRect().top + scrollY")
+    expect(feed.locator(".sod29-community-aside")).to_have_count(0)
+    expect(feed.locator(".sod29-community-intro h1")).to_have_count(1)
+    expect(feed.get_by_text("מקום לשתף, לשאול ולגלות יחד.", exact=True)).to_have_count(0)
+    main = feed.locator(".sod29-community-main")
+    geometry = feed.evaluate("e=>{const r=e.getBoundingClientRect(), m=e.querySelector('.sod29-community-main').getBoundingClientRect();return {page:r.width,content:m.width,columns:getComputedStyle(e.querySelector('.sod29-community-layout')).gridTemplateColumns.split(' ').length}}")
+    assert geometry["columns"] == 1 and abs(geometry["page"] - geometry["content"]) <= 1, geometry
+    footer = feed.get_by_label("השתתפות בקהילה", exact=True)
+    expect(footer).to_contain_text("משתפים בכבוד, מצרפים מקורות כשאפשר ושומרים על הפרטיות.")
+    assert footer.evaluate("e=>Boolean(e.compareDocumentPosition(document.querySelector('.sod29-community-feed')) & Node.DOCUMENT_POSITION_PRECEDING)")
+    assert footer.evaluate("e=>Boolean(e.compareDocumentPosition(document.getElementById('legacy-chat')) & Node.DOCUMENT_POSITION_FOLLOWING)")
+    expect(footer.get_by_role("link", name="לשיחות הוותיקות", exact=False)).to_have_attribute("href", "#legacy-chat")
     expect(legacy).to_have_attribute("data-openweb-loaded", "false")
     expect(legacy.locator("[data-spotim-module]")).to_have_count(0)
     assert legacy.get_by_role("link", name="פתיחת הצ׳אט המקורי").get_attribute("href") == "https://sod1820.co.il/community/chat"
     expect(feed.get_by_text("הודעת זית", exact=True)).to_be_visible()
     expect(feed.get_by_text("הודעת דקל", exact=True)).to_be_visible()
+    sign_in = main.get_by_label("התחברות לקהילה", exact=True)
+    join = sign_in.get_by_role("button", name="הצטרפו לשיחה", exact=True)
+    expect(join).to_have_attribute("aria-expanded", "false")
+    size44(join)
+    expect(sign_in.locator("form:visible")).to_have_count(0)
+    assert sign_in.bounding_box()["height"] <= (132 if width < 600 else 80)
+    join.focus(); page.keyboard.press("Enter")
+    email = sign_in.get_by_label("כתובת מייל", exact=True)
+    expect(email).to_be_focused()
+    email.fill("layout-fixture@example.invalid")
+    page.keyboard.press("Escape")
+    join = sign_in.get_by_role("button", name="הצטרפו לשיחה", exact=True)
+    expect(join).to_be_focused()
+    expect(sign_in.locator("form:visible")).to_have_count(0)
+    join.click()
+    expect(sign_in.get_by_label("כתובת מייל", exact=True)).to_have_value("layout-fixture@example.invalid")
+    sign_in.get_by_role("button", name="סגירת טופס ההתחברות", exact=True).click()
+    expect(sign_in.get_by_role("button", name="הצטרפו לשיחה", exact=True)).to_be_focused()
+    page.screenshot(path=str(OUT / f"community-public-{width}-{theme}.png"), full_page=True)
     controls = feed.locator('[aria-label="סידור וסינון השיחות"]')
     verify_filter_tiles(page, feed, width, theme)
-    expect(controls.get_by_role("button", name="חיפוש בכל הארכיון")).to_be_disabled()
+    expect(controls.get_by_role("button", name="חיפוש בכל הארכיון")).to_have_count(0)
     for label in ("ללא מענה", "עם קבצים", "ההודעות שלי", "מהקהילה החדשה", "מהצ׳אט הוותיק"):
-        expect(controls.get_by_role("button", name=label, exact=True)).to_be_disabled()
-    expect(controls).to_contain_text("אינם זמינים כרגע")
+        expect(controls.get_by_role("button", name=label, exact=True)).to_have_count(0)
+    expect(controls).to_contain_text("החיפוש מציג התאמות מתוך ההודעות שכבר נטענו.")
     select = controls.locator("select")
-    for value in ("active", "discussed", "liked"):
-        assert select.locator(f'option[value="{value}"]').evaluate("e => e.disabled")
+    for value in ("active", "discussed"):
+        expect(select.locator(f'option[value="{value}"]')).to_have_count(0)
+    assert select.locator("option").evaluate_all("nodes=>nodes.map(e=>e.value)") == ["newest", "oldest", "liked"]
+    reads_before = len(report["feed_sorts"])
+    select.select_option("liked")
+    expect(controls).to_contain_text("מתוך ההודעות שכבר נטענו בלבד")
+    expect(feed.locator(".sod29-community-feed > .sod29-community-thread-group").first).to_contain_text("הודעת דקל")
+    assert len(report["feed_sorts"]) == reads_before, "view-only change must retain the loaded pages"
+    page.reload()
+    feed = page.locator('[data-community-mode="connected-preview"]')
+    controls = feed.locator('[aria-label="סידור וסינון השיחות"]')
+    select = controls.locator("select")
+    expect(select).to_have_value("liked")
+    expect(feed.locator(".sod29-community-feed > .sod29-community-thread-group").first).to_contain_text("הודעת דקל")
+    assert report["feed_sorts"][-1] == "newest"
     select.select_option("oldest")
     page.wait_for_function("""() => {const s=document.querySelector('.sod29-community-feed')?.innerText || '';return s.includes('הודעת דקל') && s.includes('הודעת זית') && s.indexOf('הודעת דקל') < s.indexOf('הודעת זית')}""")
     assert report["feed_sorts"] and report["feed_sorts"][-1] == "oldest"
     feed_text = feed.locator(".sod29-community-feed").first.inner_text()
     assert feed_text.index("הודעת דקל") < feed_text.index("הודעת זית")
+    reads_before = len(report["feed_sorts"])
+    select.select_option("liked")
+    expect(controls).to_contain_text("מתוך ההודעות שכבר נטענו בלבד")
+    assert "sourceSort=oldest" in page.url
+    assert len(report["feed_sorts"]) == reads_before, "oldest loaded window must also survive switching to likes"
+    page.reload()
+    expect(page.locator(".sod29-community-stream-sort select")).to_have_value("liked")
+    assert report["feed_sorts"][-1] == "oldest", "reload must retain the chosen source window"
     search = feed.get_by_placeholder("חיפוש בשיחות שבדף")
     search.fill("זית")
     expect(feed.get_by_text("הודעת זית", exact=True)).to_be_visible()
     expect(feed.get_by_text("הודעת דקל", exact=True)).to_have_count(0)
+    all_rows = controls.get_by_role("button", name="הכול", exact=True)
+    expect(all_rows).to_have_attribute("aria-pressed", "false")
+    all_rows.click()
+    expect(search).to_have_value("")
+    expect(all_rows).to_have_attribute("aria-pressed", "true")
+    expect(feed.get_by_text("הודעת דקל", exact=True)).to_be_visible()
     page.evaluate("location.hash='#legacy-chat'")
     legacy.scroll_into_view_if_needed()
     page.wait_for_timeout(400)
@@ -248,7 +325,44 @@ def community_case(page, width, suffix="", theme="dark"):
     assert not report["external_chat"], report["external_chat"]
     no_overflow(page)
     page.screenshot(path=str(OUT / f"community-{width}-{theme}{'-hash' if suffix else ''}.png"))
-    report["community"].append({"width":width, "theme":theme, "initial_hash":bool(suffix), "status":"passed"})
+    report["community"].append({"width":width, "theme":theme, "initial_hash":bool(suffix), "status":"passed", "single_column":True, "geometry":geometry, "footer_before_old_chat":True, "compact_sign_in_keyboard":True, "only_available_controls":True, "liked_loaded_scope_reload":True,"adopted_post_artwork":artwork})
+
+
+def liked_pagination_case(page):
+    state = wire(page, paginated=True)
+    page.goto(BASE + "/community/chat?sort=liked")
+    feed = page.locator(".sod29-community-feed")
+    roots = feed.locator(":scope > .sod29-community-thread-group")
+    expect(roots).to_have_count(2)
+    expect(roots.first).to_contain_text("הודעת דקל")
+    assert all(read["offset"] == 0 for read in state["reads"]), "never scan unrequested history"
+    page.get_by_role("button",name="עוד הודעות",exact=False).click()
+    expect(roots).to_have_count(3)
+    expect(roots.first).to_contain_text("הודעה ותיקה אהובה")
+    assert any(read["offset"] == 2 for read in state["reads"])
+    # Existing visible/focus refresh updates public reactions and preserves the
+    # paginated tail using the unchanged chronological reader/refresh adapter.
+    state["updated"] = True
+    page.evaluate("window.dispatchEvent(new Event('focus'))")
+    expect(roots.first).to_contain_text("הודעת זית")
+    expect(roots).to_have_count(3)
+    expect(roots.nth(1)).to_contain_text("הודעה ותיקה אהובה")
+    select = page.get_by_role("combobox",name="סדר לפי",exact=True)
+    select.select_option("newest")
+    expect(roots).to_have_count(3)
+    expect(roots.first).to_contain_text("הודעת זית")
+    expect(roots.last).to_contain_text("הודעה ותיקה אהובה")
+    select.select_option("liked")
+    expect(roots.nth(1)).to_contain_text("הודעה ותיקה אהובה")
+    page.screenshot(path=str(OUT / "community-liked-390.png"), full_page=True)
+    author = roots.first.get_by_role("link",name="פתיחת כרטיס הכותב",exact=False)
+    author.click()
+    assert "sort=liked" in page.url
+    page.get_by_role("button",name="סגירת כרטיס הכותב",exact=True).click()
+    expect(select).to_have_value("liked")
+    expect(roots).to_have_count(3)
+    assert not report["model_calls"] and not report["blocked_writes"]
+    report["community"].append({"case":"liked-pagination-refresh","rows":3,"newer_likes_after_refresh":90,"older_page_can_rank_first":True,"no_server_liked_sort":True,"public_author_return":True,"status":"passed"})
 
 
 try:
@@ -264,7 +378,7 @@ try:
                     report["failures"].append({"case":"theme", "width":width, "theme":initial, "error":str(error)})
                     page.screenshot(path=str(OUT / f"failure-theme-{width}-{initial}.png"), full_page=True)
                 context.close()
-        for width in (320, 390, 1440):
+        for width in (320, 360, 390, 1440):
             for theme, suffix in [(theme, "") for theme in ("light", "parchment", "dark")] + [("dark", "#legacy-chat")]:
                 context = browser.new_context(viewport={"width":width, "height":1000}, reduced_motion="reduce")
                 context.add_init_script("localStorage.setItem('sod-theme'," + json.dumps(theme) + ")")
@@ -274,6 +388,13 @@ try:
                     report["failures"].append({"case":"community", "width":width, "theme":theme, "hash":bool(suffix), "error":str(error)})
                     page.screenshot(path=str(OUT / f"failure-community-{width}-{theme}{'-hash' if suffix else ''}.png"), full_page=True)
                 context.close()
+        context = browser.new_context(viewport={"width":390,"height":1000}, reduced_motion="reduce")
+        page = context.new_page(); page.set_default_timeout(8000)
+        try: liked_pagination_case(page)
+        except Exception as error:
+            report["failures"].append({"case":"liked-pagination-refresh","error":str(error)})
+            page.screenshot(path=str(OUT / "failure-liked-pagination.png"),full_page=True)
+        context.close()
         browser.close()
 finally:
     server.shutdown(); server.server_close()

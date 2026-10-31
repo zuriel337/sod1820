@@ -1,6 +1,6 @@
 import { supabase } from './supabase.js';
 import { signupAttribution, visitorId } from './acquisition.js';
-import { googleOAuthRequest } from './oauthReturn.js';
+import { googleOAuthRequest, providerOAuthRequest } from './oauthReturn.js';
 
 const SITE_URL = typeof window !== 'undefined' ? window.location.origin : '';
 // 🌱 עץ אחד: כלכלה (credits/xp/level) נקראת מ-profiles הקנונית (getMyProfile), לא מ-users.
@@ -22,6 +22,12 @@ export function signInWithFacebook() {
     provider: 'facebook',
     options: { redirectTo: SITE_URL + '/', scopes: 'email public_profile' },
   });
+}
+
+// Shared 2029 entry: provider availability comes from the existing Auth server.
+// All federated methods consume the same trusted-origin and exact-return policy.
+export function signInWithConfiguredProvider(provider, { returnTo = '/' } = {}) {
+  return supabase.auth.signInWithOAuth(providerOAuthRequest({ provider, origin: SITE_URL, returnTo, integratedPreview: import.meta.env.VITE_INTEGRATED_PREVIEW === 'true' }));
 }
 
 // כניסה ישירה עם סיסמה (אדמין) — ללא מייל/הפניה, עובד בכל דומיין

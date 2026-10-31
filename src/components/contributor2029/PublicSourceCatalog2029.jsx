@@ -13,7 +13,7 @@ import { useContributorReading2029 } from "./ContributorReadingController2029.js
 const FORMAT_LABEL = { text: "טקסט", image: "תמונה", video: "וידאו", external_link: "קישור" };
 const recordTimePrefix = (item) => item?.dateKind === "updated" ? "עודכן · " : item?.dateKind === "published" ? "פורסם · " : "";
 
-export default function PublicSourceCatalog2029({ view, onRetry, onCommunityReply }) {
+export default function PublicSourceCatalog2029({ view, onRetry, onCommunityReply, avatarAction = null }) {
   const P = use2029Palette();
   const reading = useContributorReading2029(view, onRetry);
   const person = useMemo(() => contributorPersonView2029(view.personProjection, { overview: reading.overview, name: view.profile.name }),
@@ -44,7 +44,7 @@ export default function PublicSourceCatalog2029({ view, onRetry, onCommunityRepl
         {view.profile.bio ? <p className="pc-bio">{view.profile.bio}</p> : null}
         <p className="pc-boundary">להכיר את הכתבים, לקרוא במקור ולהמשיך אל הממצאים והקשרים בעולם.</p>
       </div>
-      <ContributorPersonMedallion2029 person={person} name={view.profile.name} avatar={view.profile.avatar} bio={view.profile.bio}
+      <ContributorPersonMedallion2029 person={person} name={view.profile.name} avatar={view.profile.avatar} bio={view.profile.bio} avatarAction={avatarAction}
         links={[{ href: view.worldHref, label: "הממצאים בעולם" }, { href: `${view.canonicalHref}?section=all`, label: "כל הכתבים" }]} />
     </header>
     <ContributorActionsController2029 view={view} onPublicData={reading.receivePublicData} excludedStudioIds={reading.featuredIds} />

@@ -1,9 +1,21 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { contributorSelfHandler } from "../../../api/contributor-self.js";
-import { personalReturnHref, writerPersonalHref, publicWriterFollowLinks, loadOwnWriterIdentity } from "./writerPersonal2029.js";
+import { personalMessagesReturnHref, personalMessagesState, personalReturnHref, writerPersonalHref, publicWriterFollowLinks, loadOwnWriterIdentity } from "./writerPersonal2029.js";
 import { publicContributorAvatar } from "../../components/contributor2029/publicContributor2029Model.js";
 const UID="11111111-1111-4111-8111-111111111111", OTHER="22222222-2222-4222-8222-222222222222";
+test("private reply return round-trips bounded view state without creating private identity authority", () => {
+ const state={tab:"replies",replyPages:2,replyAnchor:OTHER,replyOffset:137};
+ const href=writerPersonalHref("messages",{returnTo:"/community/chat#community-new-chat",...state});
+ assert.equal(personalMessagesReturnHref(href),href);
+ assert.deepEqual(personalMessagesState(new URL(href,"https://local.invalid").search),state);
+ assert.equal(personalMessagesReturnHref("/2029/me/messages"),"/2029/me/messages");
+ for(const value of ["https://evil.invalid/2029/me/messages","//evil.invalid/2029/me/messages","/2029/me/profile?tab=replies","/2029/me/messages?writer=another","/2029/me/messages?tab=replies&tab=dm","/2029/me/messages?returnTo=https%3A%2F%2Fevil.invalid","/2029/me/messages#private"])
+  assert.equal(personalMessagesReturnHref(value),null,value);
+ assert.deepEqual(personalMessagesState("?tab=replies&replyPages=999999&replyAnchor=bad&replyOffset=Infinity"),{tab:"replies",replyPages:1,replyAnchor:null,replyOffset:0});
+ assert.equal(personalMessagesState("?tab=replies&dm="+OTHER).tab,"dm");
+ assert.equal(new URL(writerPersonalHref("messages",{...state,dm:OTHER}),"https://local.invalid").searchParams.has("tab"),false);
+});
 const person={id:"writer-id",user_id:UID,slug:"writer",code:"2042",display_name:"שם קנוני",bio:"הקדמה",active:true,visibility:"public",avatar_url:null};
 const accountAvatar="https://example.invalid/account-avatar.jpg";
 const response=()=>({code:200,headers:{},setHeader(k,v){this.headers[k]=v;},status(c){this.code=c;return this;},json(v){this.body=v;return this;}});

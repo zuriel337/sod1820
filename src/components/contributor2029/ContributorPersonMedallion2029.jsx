@@ -8,7 +8,7 @@ const safeUrl = (url) => typeof url === "string" && (/^\/(?!\/)/.test(url) || /^
 // Identity medallion for the public writer family. The centre is the approved public portrait or the first
 // letter of the name. Depth is presentation only: it never encodes a rank, a score or a percentage.
 // An outer research-standing ring exists only when the authorized evidence adapter supplied a level.
-export default function ContributorPersonMedallion2029({ person, name, avatar, bio, links }) {
+export default function ContributorPersonMedallion2029({ person, name, avatar, bio, links, avatarAction = null }) {
   const P = use2029Palette();
   const [open, setOpen] = useState(false);
   const [avatarFailed, setAvatarFailed] = useState(false);
@@ -45,6 +45,7 @@ export default function ContributorPersonMedallion2029({ person, name, avatar, b
           {person.standing ? <span className="pc-person-level">{person.standing.level}</span> : null}
         </div>
       </div>
+      {avatarAction}
     </div>
     <div className="pc-person-copy">
       <ul className="pc-person-labels" aria-label="התפקידים של האדם">

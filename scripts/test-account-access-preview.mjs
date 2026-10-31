@@ -26,6 +26,7 @@ try {
     await context.route('https://linswmnnkjxvweumprav.supabase.co/**', async route => {
       const req = route.request(), url = new URL(req.url()), path = url.pathname;
       const reply = (data, status = 200) => route.fulfill({ status, contentType: 'application/json', body: JSON.stringify(data) });
+      if (path === '/auth/v1/settings') return reply({external:{google:true,facebook:true,email:true}});
       if (path.startsWith('/auth/')) {
         const body = req.postDataJSON() || {};
         calls.push({ path, method: req.method(), grant: url.searchParams.get('grant_type'), scope: url.searchParams.get('scope'), createUser: body.create_user });
@@ -57,15 +58,16 @@ try {
     else await page.goto(base + '/2029/posts', { waitUntil: 'domcontentloaded' });
     const account = page.locator('[data-workspace-section="account"]');
     const openAccount = async () => {
-      if (!await account.isVisible()) await page.getByRole('button', { name: 'האזור האישי שלי', exact: true }).filter({ visible: true }).first().click();
+      if (!await account.isVisible()) await page.locator('.sod29-header-workspace').click();
       await account.waitFor(); await account.scrollIntoViewIfNeeded();
     };
     const login = async (key, password = 'synthetic-correct-password') => {
-      await openAccount(); await account.getByLabel('כתובת מייל', { exact: true }).fill(`${key}@example.invalid`);
+      await openAccount(); if (!await account.getByLabel('סיסמה', {exact:true}).isVisible()) await account.getByRole('button',{name:'כניסה עם סיסמה',exact:true}).click(); await account.getByLabel('כתובת מייל', { exact: true }).fill(`${key}@example.invalid`);
       await account.getByLabel('סיסמה', { exact: true }).fill(password);
-      await account.getByRole('button', { name: 'כניסה לחשבון', exact: true }).click();
+      await account.getByRole('button', { name: 'כניסה לחשבון ←', exact: true }).click();
     };
     await openAccount();
+    await account.getByRole('button',{name:'כניסה עם סיסמה',exact:true}).click();
     assert.equal(await account.getByLabel('סיסמה', { exact: true }).getAttribute('autocomplete'), 'current-password');
     await account.getByRole('button', { name: 'הצגת סיסמה', exact: true }).click();
     assert.equal(await account.getByLabel('סיסמה', { exact: true }).getAttribute('type'), 'text');
@@ -79,9 +81,9 @@ try {
     assert.equal(await account.locator('input[type=password]').count(), 0);
     await account.getByRole('button', { name: 'התנתקות', exact: true }).click();
     await account.waitFor({ state: 'hidden' }); await openAccount();
-    await account.getByLabel('סיסמה', { exact: true }).waitFor();
+    await account.getByRole('button',{name:'כניסה עם סיסמה',exact:true}).waitFor();
     await login('b'); await account.waitFor({ state: 'hidden' }); await openAccount();
-    await account.getByText('חשבון ב', { exact: true }).waitFor();
+    await account.getByRole('heading',{name:'שלום, חשבון ב',exact:true}).waitFor();
     delayA = false; releaseA();
     // Flush the delayed A response through the real provider, then verify B remains current.
     await page.waitForTimeout(300);
@@ -105,13 +107,13 @@ try {
     await account.getByRole('button', { name: 'התנתקות', exact: true }).click();
     await account.waitFor({ state: 'hidden' });
     await page.reload({ waitUntil: 'domcontentloaded' }); await openAccount();
-    await account.getByLabel('סיסמה', { exact: true }).waitFor();
+    await account.getByRole('button',{name:'כניסה עם סיסמה',exact:true}).waitFor();
     assert.ok(calls.filter(c => c.path.endsWith('/logout')).every(c => c.scope === 'local'));
-    await account.getByRole('button', { name: 'אין לי סיסמה · כניסה בקוד למייל', exact: true }).click();
-    await account.getByRole('textbox', { name: 'מייל לכניסה או הרשמה', exact: true }).fill('b@example.invalid');
+    if(await account.getByLabel('סיסמה',{exact:true}).isVisible()) await account.getByRole('button',{name:'כניסה עם קוד למייל',exact:true}).click();
+    await account.getByLabel('כתובת מייל', {exact:true}).fill('b@example.invalid');
     await account.getByRole('button', { name: 'שלחו לי קוד כניסה', exact: true }).click();
     await account.getByRole('textbox', { name: 'קוד כניסה מהמייל', exact: true }).fill('123456');
-    await account.getByRole('button', { name: 'כניסה לחשבון', exact: true }).click();
+    await account.getByRole('button', { name: 'כניסה לחשבון ←', exact: true }).click();
     await account.waitFor({ state: 'hidden' }); await openAccount();
     await account.getByText('b@example.invalid', { exact: true }).waitFor();
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1), false);

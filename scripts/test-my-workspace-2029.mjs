@@ -27,15 +27,12 @@ assert.match(frame, /בבנייה/);
 
 /* Native 2029 account connection — reuses canonical AuthProvider/auth helpers, no legacy login handoff. */
 assert.match(frame, /function AccountConnection2029/);
-assert.match(frame, /requestEmailOtp/);
-assert.match(frame, /verifyEmailOtp/);
-assert.match(frame, /isValidEmailOtp/);
-assert.match(frame, /sanitizeEmailOtp/);
+const authEntry = fs.readFileSync("src/components/auth2029/AccountEntry2029.jsx", "utf8");
+assert.match(frame, /<AccountEntry2029 inline variant="account"/);
+for (const helper of ["requestEmailOtp", "verifyEmailOtp", "isValidEmailOtp", "sanitizeEmailOtp"]) assert.match(authEntry, new RegExp(helper));
 assert.match(frame, /data-workspace-section="account"/);
-assert.match(frame, /אותו חשבון SOD1820 · בתוך 2029/);
-assert.match(frame, /התחברו כדי לקחת את המחקר איתכם/);
-assert.match(frame, /שלחו לי קוד כניסה/);
-assert.match(frame, /כניסה \/ הרשמה/);
+assert.match(authEntry, /shouldCreateUser: !preview/);
+assert.match(authEntry, /signOut\(\{ scope: "local" \}\)/);
 assert.match(frame, /signOut/);
 assert.match(frame, /onClick: openAccount/);
 assert.match(frame, /<AccountConnection2029 user=\{user\} profile=\{profile\} signOut=\{signOut\} \/>/);
@@ -81,7 +78,9 @@ assert.ok(frame.indexOf('data-workspace-section="follow"') > frame.indexOf('<sec
 assert.ok(frame.indexOf('data-workspace-section="pulse"') < frame.indexOf('<section data-workspace-section="research"'));
 // Personal entry: the single existing command bar reaches WORKSPACE through the typed Now "for me" tab,
 // and the top bar carries a visible sign-in / name control. No separate avatar button in the bar.
-assert.equal((frame.match(/className=\{`sod29-command-island/g) || []).length, 1);
+assert.equal((frame.match(/data-command-mode="global"/g) || []).length, 1);
+assert.equal((frame.match(/data-command-mode="tool"/g) || []).length, 1);
+assert.match(frame, /unifiedGlobalDock \? <div className="sod29-command-island[^]*data-command-mode="global"[^]*<\/div> : <div className="sod29-command-island[^]*data-command-mode="tool"/);
 assert.match(frame, /onMe=\{openWorkspace\}/);
 assert.equal((frame.match(/sod29-island-personal/g) || []).length, 0);
 assert.match(frame, /sod29-header-workspace\$\{user \? "" : " is-signed-out"\}`\} onClick=\{openWorkspace\}/);

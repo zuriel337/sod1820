@@ -49,6 +49,7 @@ try {
         contentType: "application/json",
         body: JSON.stringify(body),
       });
+      if (url.pathname === "/auth/v1/settings") return reply({external:{google:true,facebook:true,email:true}});
       if (url.pathname === "/auth/v1/token") return reply(session);
       if (url.pathname === "/auth/v1/user") return reply(user);
       if (url.pathname === "/rest/v1/users") return reply({
@@ -73,17 +74,17 @@ try {
     });
 
     await page.goto(`${base}/login?returnTo=%2F2029%2Fjourney`, { waitUntil: "domcontentloaded" });
-    await page.getByRole("heading", { name: "כניסה להיכל", exact: true }).waitFor();
+    await page.getByRole("heading", { name: "כניסה לחשבון", exact: true }).waitFor();
     await page.waitForTimeout(250);
     const settledNavigations = loginNavigations;
     await page.waitForTimeout(250);
     assert.equal(loginNavigations, settledNavigations, "login route must settle instead of reload-looping");
     assert.ok(loginNavigations <= 2, `login route reloaded ${loginNavigations} times`);
 
-    await page.getByRole("button", { name: "🔑 כניסה עם סיסמה", exact: true }).click();
+    await page.getByRole("button", { name: "כניסה עם סיסמה", exact: true }).click();
     await page.locator('input[type="email"]').fill(user.email);
     await page.locator('input[type="password"]').fill("synthetic-correct-password");
-    await page.getByRole("button", { name: "התחבר ←", exact: true }).click();
+    await page.getByRole("button", { name: "כניסה לחשבון ←", exact: true }).click();
     await page.waitForURL(url => url.pathname === "/2029/journey");
     await page.locator('[data-experience-surface="life-journey-2029"]').waitFor();
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1), false);

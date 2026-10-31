@@ -20,12 +20,44 @@ export function personalReturnHref(value, { native2029 = false } = {}) {
     return url.pathname + url.search + url.hash;
   } catch { return null; }
 }
-export function writerPersonalHref(module, { returnTo, writer, dm } = {}) {
+const REPLY_UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+export function personalMessagesState(search = "") {
+  const params = new URLSearchParams(search);
+  const pages = Number(params.get("replyPages") || 1);
+  const offset = Number(params.get("replyOffset") || 0);
+  return {
+    tab: !params.has("dm") && !params.has("writer") && params.get("tab") === "replies" ? "replies" : "dm",
+    replyPages: Number.isInteger(pages) && pages >= 1 && pages <= 20 ? pages : 1,
+    replyAnchor: REPLY_UUID.test(params.get("replyAnchor") || "") ? params.get("replyAnchor") : null,
+    replyOffset: Number.isInteger(offset) && Math.abs(offset) <= 2000 ? offset : 0,
+  };
+}
+// Only the existing private messages route can be a community-thread return.
+// No person identity, reply text, timestamp cursor or private payload in the URL.
+export function personalMessagesReturnHref(value) {
+  const safe = personalReturnHref(value);
+  if (!safe) return null;
+  const url = new URL(safe, "https://local.invalid");
+  const allowed = new Set(["returnTo", "tab", "replyPages", "replyAnchor", "replyOffset"]);
+  if (url.pathname !== "/2029/me/messages" || url.hash
+      || [...url.searchParams.keys()].some(key => !allowed.has(key) || url.searchParams.getAll(key).length !== 1)
+      || url.searchParams.has("returnTo") && !personalReturnHref(url.searchParams.get("returnTo"))) return null;
+  return writerPersonalHref("messages", { returnTo: url.searchParams.get("returnTo"), ...personalMessagesState(url.search) });
+}
+export function writerPersonalHref(module, { returnTo, writer, dm, tab, replyPages, replyAnchor, replyOffset } = {}) {
   const allowed = WRITER_PERSONAL_MODULES.some(([id]) => id === module);
   const params = new URLSearchParams();
   if (personalReturnHref(returnTo)) params.set("returnTo", returnTo);
   if (module === "messages" && typeof writer === "string" && /^[\p{L}\p{N}_-]{1,160}$/u.test(writer)) params.set("writer", writer);
   if (module === "messages" && typeof dm === "string" && /^[0-9a-f-]{36}$/i.test(dm)) params.set("dm", dm);
+  if (module === "messages" && tab === "replies" && !params.has("writer") && !params.has("dm")) {
+    params.set("tab", "replies");
+    if (Number.isInteger(replyPages) && replyPages > 1 && replyPages <= 20) params.set("replyPages", String(replyPages));
+    if (REPLY_UUID.test(replyAnchor || "")) {
+      params.set("replyAnchor", replyAnchor);
+      if (Number.isInteger(replyOffset) && Math.abs(replyOffset) <= 2000) params.set("replyOffset", String(replyOffset));
+    }
+  }
   return `/2029/me/${allowed ? module : "public-page"}${params.size ? `?${params}` : ""}`;
 }
 export function publicWriterVisible(row) {

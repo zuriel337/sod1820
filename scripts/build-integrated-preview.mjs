@@ -3,6 +3,8 @@ import { build } from "vite";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { readFile, writeFile, copyFile, mkdir } from "node:fs/promises";
+import { COMMUNITY_UPLOAD_POLICY } from "../src/lib/community/communityUploadPolicy.js";
+import { AVATAR_UPLOAD_POLICY } from "../src/lib/userCenter/avatarPolicy.js";
 
 const POSTS_PREVIEW_BRANCH = "gpt/posts-integrated-backgrounds-20261030";
 if (process.env.VERCEL_GIT_COMMIT_REF === POSTS_PREVIEW_BRANCH && process.env.VERCEL_ENV === "production") {
@@ -27,11 +29,22 @@ const existingPersonAccess = "fn_get_or_create_my_person";
 // Match the existing public reader's closed projection. Joined contributor
 // columns are deliberately excluded. Replies/counts await chain-visibility acceptance.
 const communityFields = "id,parent_id,author_name,author_user_id,author_contributor_id,title,body,reactions,origin,created_at,edited_at,is_deleted,total_count";
+// ZURIEL explicitly authorized this single protected Preview to manage Community
+// messages through the reviewed server RPCs. No general write or model allowance.
+const communityMessageManagement = typeof process !== "undefined"
+  && process.env.VERCEL_ENV === "preview"
+  && ["gpt/community-server-auth-20261031", "gpt/community-auth-publish-media-20261031"].includes(process.env.VERCEL_GIT_COMMIT_REF);
+const communityPublishing = typeof process !== "undefined" && process.env.VERCEL_ENV === "preview"
+  && process.env.VERCEL_GIT_COMMIT_REF === "gpt/community-auth-publish-media-20261031";
 // The unified working preview must not create Person records or record ELS traces.
 const unifiedReadOnly = typeof process !== "undefined" && ["gpt/2029-central-unified-workspace-20261029", "gpt/2029-central-shell-alignment-20261029", "gpt/2029-central-topbar-menu-completion-20261029", "gpt/2029-central-ui-carry-restoration-20261029", "gpt/2029-central-community-filter-tiles-20261029", "gpt/2029-central-community-small-filters-20261029", "gpt/2029-central-single-command-bar-20261029", "gpt/2029-central-public-context-labels-20261029", "gpt/2029-central-zvi-public-material-20261029", "gpt/2029-central-zvi-research-experience-20261029", "gpt/2029-central-zvi-world-source-tree-20261030", "gpt/elections-world-seed-integration-20261030", "gpt/posts-integrated-backgrounds-20261030", "gpt/2029-central-posts-els-raziel-integration-20261031"].includes(process.env.VERCEL_GIT_COMMIT_REF);
 const worker = `const reads = new Set(${JSON.stringify(allow)});
 const existingPersonAccess=${JSON.stringify(existingPersonAccess)};
-const unifiedReadOnly=${JSON.stringify(unifiedReadOnly)};
+const unifiedReadOnly=${JSON.stringify(unifiedReadOnly || communityMessageManagement)};
+const communityMessageManagement=${JSON.stringify(communityMessageManagement)};
+const communityPublishing=${JSON.stringify(communityPublishing)};
+const uploadPolicy=${JSON.stringify(COMMUNITY_UPLOAD_POLICY)};
+const avatarPolicy=${JSON.stringify(AVATAR_UPLOAD_POLICY)};
 const communityFields=${JSON.stringify(communityFields)};
 const communityReads=new Set(['community_feed_page','community_message_context']);
 const authOrigin='https://linswmnnkjxvweumprav.supabase.co';
@@ -39,6 +52,92 @@ self.addEventListener('install',()=>self.skipWaiting());
 self.addEventListener('activate',event=>event.waitUntil(self.clients.claim()));
 self.addEventListener('fetch',event=>{
  const req=event.request,u=new URL(req.url),rpc=u.pathname.match(/^\\/rest\\/v1\\/rpc\\/(.+)$/)?.[1];
+ if(req.method==='OPTIONS')return;
+ const avatarStorage=u.origin===authOrigin&&u.pathname.startsWith('/storage/v1/object/gallery/avatars/')&&!['GET','HEAD'].includes(req.method);
+ const avatarSave=u.origin===self.location?.origin&&u.pathname==='/api/contributor-self'&&req.method==='POST';
+ if(avatarStorage||avatarSave){
+  event.respondWith((async()=>{
+   const blocked=()=>new Response(JSON.stringify({error:'preview_read_only'}),{status:403,headers:{'Content-Type':'application/json','X-Preview-Write-Blocked':'true'}});
+   const bearer=req.headers.get('Authorization')||'';
+   if(!communityPublishing||req.method!=='POST'||u.search||!/^Bearer [A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+$/i.test(bearer))return blocked();
+   try{
+    if(avatarSave){
+     const b=await req.clone().json();
+     if(!b||typeof b!=='object'||Object.keys(b).sort().join(',')!=='ack,action,publish,url'||b.action!=='avatar'||b.ack!==true||b.publish!==true||typeof b.url!=='string')return blocked();
+     const image=new URL(b.url);
+     if(image.origin!==authOrigin||image.search||image.hash||image.username||image.password||!/^\\/storage\\/v1\\/object\\/public\\/gallery\\/avatars\\/[0-9a-f-]{36}-[0-9]{13}\\.(jpg|jpeg|png|webp|gif)$/.test(image.pathname))return blocked();
+     return fetch(req); // The canonical self handler verifies caller + URL ownership.
+    }
+    const path=/^\\/storage\\/v1\\/object\\/gallery\\/avatars\\/([0-9a-f-]{36})-[0-9]{13}\\.(jpg|jpeg|png|webp|gif)$/.exec(u.pathname);
+    if(!path||req.headers.get('x-upsert')!=='false'||!req.headers.get('Content-Type')?.startsWith('multipart/form-data;'))return blocked();
+    const form=await req.clone().formData();if([...form.keys()].some(k=>!['','cacheControl'].includes(k))||form.getAll('').length!==1)return blocked();
+    const file=form.get(''),extensions=avatarPolicy.types[file?.type?.toLowerCase()];
+    if(!extensions?.includes(path[2])||!(file.size>0)||file.size>avatarPolicy.maxBytes)return blocked();
+    const identity=await fetch(authOrigin+'/auth/v1/user',{headers:{apikey:req.headers.get('apikey')||'',Authorization:bearer},credentials:'omit'});
+    if(!identity.ok||(await identity.json())?.id!==path[1])return blocked();
+    return fetch(req);
+   }catch{}
+   return blocked();
+  })());return;
+ }
+ const publishRpc=['add_contribution','toggle_contribution_reaction','contributors_claim_legacy'].includes(rpc);
+ const communityUpload=u.origin===authOrigin&&u.pathname.startsWith('/storage/v1/object/gallery/community/');
+ if(u.origin===authOrigin&&(publishRpc||communityUpload&&req.method!=='GET'&&req.method!=='HEAD')){
+  event.respondWith((async()=>{
+   const blocked=()=>new Response(JSON.stringify({error:'preview_read_only'}),{status:403,headers:{'Content-Type':'application/json','X-Preview-Write-Blocked':'true'}});
+   const bearer=req.headers.get('Authorization')||'';
+   if(!communityPublishing||req.method!=='POST'||u.search||!/^Bearer [A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+$/i.test(bearer))return blocked();
+   const uuid=v=>typeof v==='string'&&/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(v);
+   const verifiedUser=async(requireConfirmed=false)=>{const r=await fetch(authOrigin+'/auth/v1/user',{method:'GET',headers:{apikey:req.headers.get('apikey')||'',Authorization:bearer},credentials:'omit'});if(!r.ok)return null;const user=await r.json();return uuid(user?.id)&&(!requireConfirmed||user.email_confirmed_at)?user.id:null;};
+   try{
+    if(communityUpload){
+     const path=/^\\/storage\\/v1\\/object\\/gallery\\/community\\/([0-9a-f-]{36})\\/([0-9a-f-]{36})\\.([a-z0-9]+)$/i.exec(u.pathname);
+     if(!path||!uuid(path[1])||!uuid(path[2])||req.headers.get('x-upsert')!=='false'||!req.headers.get('Content-Type')?.startsWith('multipart/form-data;'))return blocked();
+     const form=await req.clone().formData();
+     if([...form.keys()].some(key=>!['','cacheControl'].includes(key))||form.getAll('').length!==1)return blocked();
+     const file=form.get(''),type=uploadPolicy.types[file?.type?.toLowerCase()];
+     if(!type||!type.extensions.includes(path[3].toLowerCase())||!(file.size>0)||file.size>(type.kind==='video'?uploadPolicy.videoMaxBytes:uploadPolicy.fileMaxBytes))return blocked();
+     if(await verifiedUser()!==path[1])return blocked();
+     return fetch(req);
+    }
+    const body=await req.clone().json();if(!body||typeof body!=='object'||Array.isArray(body))return blocked();
+    const keys=Object.keys(body).sort().join(',');
+    if(rpc==='contributors_claim_legacy'){
+     // The existing server checks exact confirmed email and unclaimed status.
+     // No target user/email/role is accepted from a client or a display name.
+     if(keys==='p_contributor_id'&&uuid(body.p_contributor_id)&&await verifiedUser(true))return fetch(req);
+    }else if(rpc==='toggle_contribution_reaction'){
+     if(keys==='p_emoji,p_id,p_visitor'&&uuid(body.p_id)&&['👍','💡','🔥','🙏','✨'].includes(body.p_emoji)&&body.p_visitor===null)return fetch(req);
+    }else{
+     const expected='p_author_name,p_body,p_gematria_claim,p_image_url,p_intent,p_origin,p_parent_id,p_target_id,p_target_type,p_title';
+     if(keys!==expected||body.p_origin!=='community_2029'||body.p_intent!=='תגובה'||body.p_target_type!=='home'||body.p_target_id!=='community'||body.p_title!==null||body.p_gematria_claim!==null||body.p_image_url!==null||!(body.p_parent_id===null||uuid(body.p_parent_id))||typeof body.p_body!=='string'||!body.p_body.trim()||Array.from(body.p_body).length>6000||!(body.p_author_name===null||typeof body.p_author_name==='string'&&body.p_author_name.length<=200))return blocked();
+     if(!await verifiedUser())return blocked();
+     return fetch(req);
+    }
+   }catch{}
+   return blocked();
+  })());return;
+ }
+ const managementRpc=['community_message_actions_v1','community_edit_message','community_delete_message'].includes(rpc);
+ if(u.origin===authOrigin&&managementRpc){
+  event.respondWith((async()=>{
+   const blocked=()=>new Response(JSON.stringify({error:'preview_read_only'}),{status:403,headers:{'Content-Type':'application/json','X-Preview-Write-Blocked':'true'}});
+   if(!communityMessageManagement||req.method!=='POST'||u.search||!/^Bearer [A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+$/i.test(req.headers.get('Authorization')||''))return blocked();
+   try{
+    const body=await req.clone().json();
+    const uuid=v=>typeof v==='string'&&/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(v);
+    if(!body||typeof body!=='object'||Array.isArray(body))return blocked();
+    const keys=Object.keys(body).sort().join(',');
+    const permitted=rpc==='community_message_actions_v1'
+      ? keys==='p_ids'&&Array.isArray(body.p_ids)&&body.p_ids.length<=100&&body.p_ids.every(uuid)
+      : rpc==='community_delete_message'
+        ? keys==='p_id'&&uuid(body.p_id)
+        : keys==='p_body,p_id'&&uuid(body.p_id)&&typeof body.p_body==='string'&&body.p_body.trim().length>0&&Array.from(body.p_body.trim()).length<=6000;
+    if(permitted)return fetch(req);
+   }catch{}
+   return blocked();
+  })());return;
+ }
  const communityRead=u.origin===authOrigin&&communityReads.has(rpc);
  const communityProjection=communityRead&&u.searchParams.getAll('select').length===1&&u.searchParams.get('select')===communityFields;
  const ambiguousPath=(u.pathname.includes('%')&&!u.pathname.startsWith('/storage/v1/'))
@@ -52,7 +151,7 @@ self.addEventListener('fetch',event=>{
  event.respondWith((async()=>{
   // Existing-account access only. No signup, account mutation or product writes.
   if(u.origin===authOrigin){
-   if(req.method==='GET'&&u.pathname==='/auth/v1/user')return fetch(req);
+   if(req.method==='GET'&&['/auth/v1/user','/auth/v1/settings'].includes(u.pathname))return fetch(req);
    if(req.method==='POST'&&u.pathname==='/auth/v1/token'&&['password','refresh_token'].includes(u.searchParams.get('grant_type')))return fetch(req);
    if(req.method==='POST'&&u.pathname==='/auth/v1/logout'&&u.searchParams.get('scope')==='local')return fetch(req);
    if(req.method==='POST'&&['/auth/v1/otp','/auth/v1/verify'].includes(u.pathname)){

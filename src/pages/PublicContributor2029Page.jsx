@@ -14,16 +14,18 @@ import ContributorPersonMedallion2029 from "../components/contributor2029/Contri
 import { contributorPersonView2029 } from "../components/contributor2029/contributorPersonView2029.js";
 import ContributorActionsController2029 from "../components/contributor2029/ContributorActionsController2029.jsx";
 import { useContributorReading2029 } from "../components/contributor2029/ContributorReadingController2029.jsx";
+import QuickProfileAvatar2029 from "../components/contributor2029/QuickProfileAvatar2029.jsx";
 
 const TYPE_LABELS = { sources: "מקור", findings: "ממצא", writings: "כתב", topics: "נושא" };
 const VERIFICATION = { match: "טענה אומתה מול המנוע", mismatch: "טענה נסתרה במנוע", not_tested: "לא נבדקה טענה מול המנוע", method_unknown: "השיטה לא זוהתה" };
 const recordTimePrefix = (item) => item?.dateKind === "updated" ? "עודכן · " : item?.dateKind === "published" ? "פורסם · " : "";
 
 export function PublicContributor2029View(props) {
-  return props.view?.kind === "source_catalog" ? <PublicSourceCatalog2029 view={props.view} onRetry={props.onRetry} onCommunityReply={props.onCommunityReply} /> : <GeneralContributor2029View {...props} />;
+  const avatarAction = props.view ? <QuickProfileAvatar2029 view={props.view} onSaved={props.onRetry} /> : null;
+  return props.view?.kind === "source_catalog" ? <PublicSourceCatalog2029 view={props.view} onRetry={props.onRetry} onCommunityReply={props.onCommunityReply} avatarAction={avatarAction} /> : <GeneralContributor2029View {...props} avatarAction={avatarAction} />;
 }
 
-function GeneralContributor2029View({ view, loading = false, error = false, onRetry, onCommunityReply }) {
+function GeneralContributor2029View({ view, loading = false, error = false, onRetry, onCommunityReply, avatarAction }) {
   const P = use2029Palette();
   const reading = useContributorReading2029(view, onRetry);
   const person = useMemo(() => view ? contributorPersonView2029(view.personProjection, { overview: reading.overview, name: view.profile.name }) : null,
@@ -72,7 +74,7 @@ function GeneralContributor2029View({ view, loading = false, error = false, onRe
           <p className="pc-boundary">{person?.boundary || "מה שהאדם כתב והעלה בקהילה ובמקורות. שיוך לאדם אינו אימות של תוכן."}</p>
         </div>
         <ContributorPersonMedallion2029 person={person} name={view.profile.name} avatar={view.profile.avatar} bio={view.profile.bio}
-          links={view.publicLinks || [{ href: `${view.canonicalHref}?section=findings`, label: "ממצאים וכתבים" }]} />
+          links={view.publicLinks || [{ href: `${view.canonicalHref}?section=findings`, label: "ממצאים וכתבים" }]} avatarAction={avatarAction} />
       </header>
       {view.publicActions !== false ? <ContributorActionsController2029 view={view} onPublicData={reading.receivePublicData} excludedStudioIds={reading.featuredIds} /> : null}
       {reading.header}
