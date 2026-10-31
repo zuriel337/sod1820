@@ -47,8 +47,8 @@ function DocumentedTreeRelations({ target }) {
           ? (finding?.projection?.relations || []).map((relation) => ({
             edgeRef: finding.identity.relationRef,
             relationType: relation.relationType || "קשר",
-            from: relation.from?.label || relation.fromNodeId,
-            to: relation.to?.label || relation.toNodeId,
+            from: relation.from?.label || "פריט",
+            to: relation.to?.label || "פריט",
           }))
           : []
       ));
@@ -63,7 +63,7 @@ function DocumentedTreeRelations({ target }) {
     {state.loading ? <small role="status">פותח קשרים מתועדים…</small> : null}
     {state.error ? <small role="status">קשרי העץ אינם זמינים כרגע.</small> : null}
     {state.rows ? (state.rows.length ? <ul>{state.rows.map((relation) => <li key={relation.edgeRef}>
-      {relation.from} · {relation.relationType} · {relation.to} <code dir="ltr">{relation.edgeRef}</code>
+      {relation.from} · {relation.relationType} · {relation.to}
     </li>)}</ul> : <small>לא נמצאו קשרים בחלון הקשרים שנבדק; אין להסיק מכך שאין קשרים נוספים בעץ.</small>) : null}
   </div>;
 }
@@ -220,7 +220,7 @@ export default function WorldPeopleSources2029({ index, loading = false, error =
 
     {selected ? <section className="sod29-section sod29-world-selected-source" aria-label={`החומר הציבורי של ${selected.displayName}`}>
       <header className="sod29-section-head"><div><div className="sod29-kicker">החומר הציבורי שנבחר</div>
-        <h2>{selected.displayName}</h2><p>הקטלוג נטען רק לאחר הבחירה. ממצא מחקר נשאר מחובר ל־source_ref שלו ואינו נספר כמקור נוסף.</p></div>
+        <h2>{selected.displayName}</h2><p>כתבים, מקורות וממצאים לקריאה ולעיון.</p></div>
         <Link className="sod29-action" to={writerHref}>{CANONICAL_PUBLIC_UI_COPY.action.writer}</Link></header>
       {selectedMaterial.loading ? <p role="status">פותח כתבים, מקורות, צפנים ונושאים…</p> : null}
       {selectedMaterial.data?.researchLoading ? <p role="status">המקורות מוכנים; שאר החומר והקשרים לעץ עדיין נטענים…</p> : null}
@@ -249,7 +249,6 @@ export default function WorldPeopleSources2029({ index, loading = false, error =
             <h3>{row.title}</h3>
             {row.summary ? <p>{row.summary}</p> : null}
             {row.number != null ? <strong className="sod29-world-material-number">{row.number}</strong> : null}
-            <code dir="ltr">{row.sourceRef}</code>
             {occurrenceBySourceRef.get(row.sourceRef)?.length > 1 ? <small>{occurrenceBySourceRef.get(row.sourceRef).length} הופעות מדויקות של אותה זהות מקור.</small> : null}
             {row.meta?.sourceRecordCount > 1 ? <small>{row.meta.sourceRecordCount} רשומות מקור נשמרו ללא כפילות מקור.</small> : null}
             <MaterialLink href={sourceByRef.get(row.sourceRef)?.sourceHref || row.href}>{(sourceByRef.get(row.sourceRef)?.sourceHref || row.href) ? `${CANONICAL_PUBLIC_UI_COPY.action.source} ←` : "אין קישור ציבורי מאומת"}</MaterialLink>

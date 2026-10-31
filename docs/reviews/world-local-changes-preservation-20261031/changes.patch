@@ -1,0 +1,314 @@
+diff --git a/src/components/research/WorldKnowledgeTypes2029.jsx b/src/components/research/WorldKnowledgeTypes2029.jsx
+index 4d631a1c07e80dba62419cfc633c93f1f861973d..01c81094e74a46f1ee8f4742d8011f817532c2c4 100644
+--- a/src/components/research/WorldKnowledgeTypes2029.jsx
++++ b/src/components/research/WorldKnowledgeTypes2029.jsx
+@@ -43,13 +43,6 @@ const FACETS = Object.freeze({
+ });
+ const KIND_REQUEST_CACHE = new Map();
+ 
+-function publicationStateLabel(value) {
+-  if (value === "approved") return "מאושר";
+-  if (value === "candidate") return "מועמד";
+-  if (value === "published") return "פורסם";
+-  return value || "אין נתון";
+-}
+-
+ function cardHref(card) {
+   return card.facet === "number" ? `/2029/number/${encodeURIComponent(card.refId)}` : card.href;
+ }
+@@ -134,33 +127,16 @@ async function fetchKind(kind) {
+ }
+ 
+ function ZviMultiValueShelf({ projection }) {
+-  if (projection?.access?.available === false) {
+-    return <section className="sod29-world-kind-section" aria-label="ממצאי צבי רב ערכיים">
+-      <header><div><h3>{projection.title}</h3><p>{projection.description}</p></div></header>
+-      <p role="status">האשכולות הציבוריים אינם זמינים כרגע. זה אינו אומר שאין כאלה.</p>
+-    </section>;
+-  }
+-  return <section className="sod29-world-kind-section sod29-world-multi-value-shelf" aria-label="ממצאי צבי רב ערכיים">
+-    <header><div><h3>{projection.title}</h3><p>{projection.description}</p></div>
+-      <span>{projection.counts.findings} ממצאים · {projection.counts.exactSourceOccurrences} הופעות מקור</span></header>
+-    <p className="sod29-world-spatial-rule">הופעה היא מיקום מדויק בקורפוס, לא מקור עצמאי נוסף. הרשומות נשארות חזקות, אך מסומנות לבדיקה עד לפיצול או ליצירת יעד מבוסס.</p>
++  if (projection?.access?.available === false) return <p role="status">הממצאים אינם זמינים כרגע.</p>;
++  if (!projection.cards.length) return null;
++  return <section className="sod29-world-kind-section sod29-world-multi-value-shelf" aria-label="ממצאי צבי">
++    <header><div><h3>ממצאי צבי</h3><p>ממצאים מספריים וקישורים למקורותיהם.</p></div></header>
+     <div className="sod29-world-kind-card-grid">{projection.cards.map((card) => <article key={card.id} className="sod29-world-kind-card sod29-world-multi-value-card">
+-      <small>מיקום בדוח #{card.rank} · חוזק: {card.review.connectionStrength} · {card.review.recommendation}</small>
+-      <strong>{card.title}</strong>
+       <p>{card.statement}</p>
+-      <div className="sod29-world-spatial-status" aria-label="מצב הממצא">
+-        <span>ראיות: {card.review.evidenceQuality}</span>
+-        <span>סטטוס רשומה: {publicationStateLabel(card.review.publicationState)}</span>
+-        <span>גישה: ציבורי</span>
+-        <span>מקורות עצמאיים: אין נתון</span>
+-      </div>
+-      <p><b>למה עדיין לא חובר:</b> {card.review.reason}</p>
+       <div className="sod29-actions">
+         {card.targets.map((target) => <Link key={target.value} className="sod29-action" to={target.href}>לערך {target.value}</Link>)}
+-        {card.values.filter((value) => !card.targets.some((target) => target.value === value)).map((value) => <span key={value} className="sod29-action" aria-disabled="true">{value} · יעד חסר</span>)}
+         <Link className="sod29-action primary" to={card.source.href}>להופעת המקור בספריית צבי</Link>
+       </div>
+-      <details><summary>מזהה ומיקום מדויק</summary><p><code dir="ltr">{card.id}</code></p><p><code dir="ltr">{card.source.ref}</code></p></details>
+     </article>)}</div>
+   </section>;
+ }
+@@ -188,7 +164,7 @@ function SpatialShelf({ projection }) {
+           <li><strong>צורה</strong><span>{card.form}{card.dimension ? ` · ${card.dimension}` : ""}</span></li>
+         </ol>
+         {card.interpretation ? <details><summary>הפרשנות של המקור</summary><p>{card.interpretation}</p></details> : null}
+-        <details><summary>הופעות מקור מדויקות · {card.source.occurrenceCount}</summary><ul>{card.source.locators.map((item) => <li key={item.ref}><Link to={item.href}>{item.exact ? "פתח את ההופעה בספריית צבי" : "פתח את ספריית צבי"}</Link> · <code dir="ltr">{item.ref}</code></li>)}</ul></details>
++        <details><summary>הופעות מקור מדויקות · {card.source.occurrenceCount}</summary><ul>{card.source.locators.map((item) => <li key={item.ref}><Link to={item.href}>{item.exact ? "פתח את ההופעה בספריית צבי" : "פתח את ספריית צבי"}</Link></li>)}</ul></details>
+         <div className="sod29-actions"><Link className="sod29-action primary" to={`/2029/number/${card.value}`}>לערך {card.value}</Link><Link className="sod29-action" to={card.source.href}>לספריית צבי בעולם</Link></div>
+       </div>
+     </article>)}</div>
+@@ -249,7 +225,7 @@ function MediaShelf({ items, hasMore, access }) {
+     <header><div><h3>תמונות ומדיה ציבורית</h3><p>כל תמונה נשארת מחוברת לזהות המקור שלה. הופעה כאן אינה הופכת OCR או כיתוב לממצא מאומת.</p></div><span>{items.length} מוצגים{hasMore ? " · יש עוד" : ""}</span></header>
+     {items.length ? <div className="sod29-world-media-shelf">{items.map((item) => <article key={item.mediaId}>
+       <CanonicalMediaFigure2029 item={item} thumbnail alt={item.presentation?.label || "פתח תמונת מקור"} contextNote="פריט ציבורי במאגר המדיה" />
+-      <div><strong>{item.presentation?.label || "פריט מדיה"}</strong><small>{item.sourceRef}</small></div>
++      <div><strong>{item.presentation?.label || "פריט מדיה"}</strong></div>
+     </article>)}</div> : <p className="sod29-muted">לא נמצאו כרגע פריטי מדיה ציבוריים.</p>}
+     <div className="sod29-actions"><Link className="sod29-action" to="/gallery">למאגר המדיה הציבורי</Link></div>
+   </section>;
+@@ -296,9 +272,9 @@ export default function WorldKnowledgeTypes2029({ kind = WORLD_KNOWLEDGE_KIND.NU
+     {state.loading || state.kind !== kind ? <p role="status">פותח את {option.label}…</p> : null}
+     {state.error ? <p role="status">הפריטים אינם זמינים כרגע. שום חומר חלופי לא הומצא.</p> : null}
+     {openingSections.map((section) => <EntitySection key={section.key} section={section} />)}
+-    {kind === WORLD_KNOWLEDGE_KIND.NUMBERS && data?.multiValue ? <ZviMultiValueShelf projection={data.multiValue} /> : null}
+     {kind === WORLD_KNOWLEDGE_KIND.TIME ? <TimeShelf sections={remainingSections} /> : remainingSections.map((section) => <EntitySection key={section.key} section={section} />)}
+     {kind === WORLD_KNOWLEDGE_KIND.CIPHERS && data ? <CipherShelf rows={data.ciphers} hasMore={data.hasMore} /> : null}
++    {kind === WORLD_KNOWLEDGE_KIND.NUMBERS && data?.multiValue ? <ZviMultiValueShelf projection={data.multiValue} /> : null}
+     {kind === WORLD_KNOWLEDGE_KIND.LANGUAGES && data ? <LanguageShelf projection={data.language} /> : null}
+     {kind === WORLD_KNOWLEDGE_KIND.MEDIA && data ? <MediaShelf items={data.media} hasMore={data.hasMore} access={data.access} /> : null}
+     {kind === WORLD_KNOWLEDGE_KIND.SPATIAL && data?.spatial ? <SpatialShelf projection={data.spatial} /> : null}
+diff --git a/src/components/research/WorldPeopleSources2029.jsx b/src/components/research/WorldPeopleSources2029.jsx
+index aeeba0b99aa466f37bc7105d949108f6d3652c99..76a8d9d393dc265099664d20625f19ccb72e49a3 100644
+--- a/src/components/research/WorldPeopleSources2029.jsx
++++ b/src/components/research/WorldPeopleSources2029.jsx
+@@ -47,8 +47,8 @@ function DocumentedTreeRelations({ target }) {
+           ? (finding?.projection?.relations || []).map((relation) => ({
+             edgeRef: finding.identity.relationRef,
+             relationType: relation.relationType || "קשר",
+-            from: relation.from?.label || relation.fromNodeId,
+-            to: relation.to?.label || relation.toNodeId,
++            from: relation.from?.label || "פריט",
++            to: relation.to?.label || "פריט",
+           }))
+           : []
+       ));
+@@ -63,7 +63,7 @@ function DocumentedTreeRelations({ target }) {
+     {state.loading ? <small role="status">פותח קשרים מתועדים…</small> : null}
+     {state.error ? <small role="status">קשרי העץ אינם זמינים כרגע.</small> : null}
+     {state.rows ? (state.rows.length ? <ul>{state.rows.map((relation) => <li key={relation.edgeRef}>
+-      {relation.from} · {relation.relationType} · {relation.to} <code dir="ltr">{relation.edgeRef}</code>
++      {relation.from} · {relation.relationType} · {relation.to}
+     </li>)}</ul> : <small>לא נמצאו קשרים בחלון הקשרים שנבדק; אין להסיק מכך שאין קשרים נוספים בעץ.</small>) : null}
+   </div>;
+ }
+@@ -220,7 +220,7 @@ export default function WorldPeopleSources2029({ index, loading = false, error =
+ 
+     {selected ? <section className="sod29-section sod29-world-selected-source" aria-label={`החומר הציבורי של ${selected.displayName}`}>
+       <header className="sod29-section-head"><div><div className="sod29-kicker">החומר הציבורי שנבחר</div>
+-        <h2>{selected.displayName}</h2><p>הקטלוג נטען רק לאחר הבחירה. ממצא מחקר נשאר מחובר ל־source_ref שלו ואינו נספר כמקור נוסף.</p></div>
++        <h2>{selected.displayName}</h2><p>כתבים, מקורות וממצאים לקריאה ולעיון.</p></div>
+         <Link className="sod29-action" to={writerHref}>{CANONICAL_PUBLIC_UI_COPY.action.writer}</Link></header>
+       {selectedMaterial.loading ? <p role="status">פותח כתבים, מקורות, צפנים ונושאים…</p> : null}
+       {selectedMaterial.data?.researchLoading ? <p role="status">המקורות מוכנים; שאר החומר והקשרים לעץ עדיין נטענים…</p> : null}
+@@ -249,7 +249,6 @@ export default function WorldPeopleSources2029({ index, loading = false, error =
+             <h3>{row.title}</h3>
+             {row.summary ? <p>{row.summary}</p> : null}
+             {row.number != null ? <strong className="sod29-world-material-number">{row.number}</strong> : null}
+-            <code dir="ltr">{row.sourceRef}</code>
+             {occurrenceBySourceRef.get(row.sourceRef)?.length > 1 ? <small>{occurrenceBySourceRef.get(row.sourceRef).length} הופעות מדויקות של אותה זהות מקור.</small> : null}
+             {row.meta?.sourceRecordCount > 1 ? <small>{row.meta.sourceRecordCount} רשומות מקור נשמרו ללא כפילות מקור.</small> : null}
+             <MaterialLink href={sourceByRef.get(row.sourceRef)?.sourceHref || row.href}>{(sourceByRef.get(row.sourceRef)?.sourceHref || row.href) ? `${CANONICAL_PUBLIC_UI_COPY.action.source} ←` : "אין קישור ציבורי מאומת"}</MaterialLink>
+diff --git a/src/components/research/WorldSourceConnections.jsx b/src/components/research/WorldSourceConnections.jsx
+index 266502f82264f110a79d13e6ebe1804e199a6ef2..57642843a1db98135360c64583a5967f1855fe13 100644
+--- a/src/components/research/WorldSourceConnections.jsx
++++ b/src/components/research/WorldSourceConnections.jsx
+@@ -47,8 +47,6 @@ function Witness({ witness, research, shell, select }) {
+           <small>{relation.verified.card.note}</small>
+           <details><summary>איך נוצר החיבור?</summary>
+             <p>הקלט המקורי: {relation.from}. יעד החיבור: {relation.to}. החוק מציע זיקה פרשנית; הוא אינו משנה את ערך המקור ואינו ראיה עצמאית נוספת.</p>
+-            <code>{relation.verified.card.ruleId} · v{relation.verified.card.ruleVersion}</code>
+-            <pre>{JSON.stringify(relation.verified.card.finding.evidence.facts[0], null, 2)}</pre>
+           </details>
+         </> : <p role="status">החיבור {relation.from} → {relation.to} ממתין לאימות החוק או החישוב; אינו מוצג כחיבור מאומת.</p>}
+       </div>)}
+@@ -68,7 +66,6 @@ function Witness({ witness, research, shell, select }) {
+               <SpatialMethodStage2029 expression={entry.expression} methodKey={entry.method}
+                 trace={entry.verified.trace} expectedValue={entry.verified.value} depth="S2"
+                 onOpenHeichal={() => calculate(entry.verified)} />
+-              <details><summary>פרטי המנוע והמקור</summary><code>{source.sourceRef}</code><pre>{JSON.stringify(entry.verified.trace, null, 2)}</pre></details>
+             </> : <p>אין תוצאה מאומתת זמינה. הערך ההיסטורי המצוטט נשמר במקור.</p>}
+           </section>)}
+         </details>
+@@ -102,8 +99,6 @@ function Witness({ witness, research, shell, select }) {
+       <details><summary>{source.item ? 'הטקסט שחולץ מן התמונה' : 'הקטע המדויק מן הפוסט'}</summary>
+         <blockquote>{source.text}</blockquote>
+         {source.author ? <p>קרדיט שמור: {source.author}</p> : null}
+-        <code>{source.sourceRef}</code>
+-        {!source.item ? <p>הקישור פותח את הפוסט. פתיחה למקטע גלוי וזמני הניגון המדויקים עדיין בבדיקת בעל הפוסט.</p> : null}
+       </details>
+     </div>
+   </article>;
+diff --git a/src/components/research/WorldSourceInspector2029.jsx b/src/components/research/WorldSourceInspector2029.jsx
+index caa737c1fb1dd7803fde1aeba69e110755b388ae..afa114b2b175583e6f477cdec594f302d764a7fe 100644
+--- a/src/components/research/WorldSourceInspector2029.jsx
++++ b/src/components/research/WorldSourceInspector2029.jsx
+@@ -8,9 +8,6 @@ const LAYER_SECTIONS = Object.freeze([
+   ["interpretation", "פרשנות"],
+ ]);
+ 
+-function Ref({ children }) {
+-  return <code dir="ltr" className="wm29-ref">{children}</code>;
+-}
+ function Href({ href, children }) {
+   if (!href) return <span>{children}</span>;
+   return href.startsWith("/") ? <Link to={href}>{children}</Link> : <a href={href} target="_blank" rel="noreferrer">{children}</a>;
+@@ -45,7 +42,7 @@ function RelationPanel({ target, relation, onOpen, disabled }) {
+     {target && (status === "partial" || status === "failed") ? <button type="button" onClick={onOpen}>נסו לפתוח שוב</button> : null}
+     <p role="status" className={`wm29-relation-status wm29-relation-${status}`} data-relation-status={status}>{relationStatusCopy(status, count)}</p>
+     {count ? <ul>{relation.relations.map((row) => <li key={row.edgeRef}>
+-      {row.fromLabel || row.fromNodeId} · {row.relationType} · {row.toLabel || row.toNodeId} <Ref>{row.edgeRef}</Ref>
++      {row.fromLabel || "פריט"} · {row.relationType} · {row.toLabel || "פריט"}
+     </li>)}</ul> : null}
+   </section>;
+ }
+@@ -66,8 +63,8 @@ export default function WorldSourceInspector2029({
+       {open ? <button type="button" className="wm29-close" onClick={onClose} aria-label="סגירת חלונית הפרטים">✕</button> : null}
+     </header>
+     {!detail ? <p className="wm29-muted">בחרו מקור, הופעה או ממצא בקנבס כדי לראות את פרטיו. כל שכבה מוצגת בנפרד.</p> : <div className="wm29-inspector-body">
+-      <p className="wm29-kind"><span className={`wm29-swatch wm29-node-${detail.kind}`} aria-hidden="true" />{detail.kindLabel} <Ref>{detail.ref}</Ref></p>
+-      <p className="wm29-boundary">{detail.boundary}</p>
++      <p className="wm29-kind"><span className={`wm29-swatch wm29-node-${detail.kind}`} aria-hidden="true" />{detail.kindLabel}</p>
++      {detail.kind !== "tree" ? <p className="wm29-boundary">{detail.boundary}</p> : null}
+ 
+       {detail.kind === "source" ? <>
+         <dl className="wm29-facts">
+@@ -81,7 +78,7 @@ export default function WorldSourceInspector2029({
+ 
+       {detail.kind === "occurrence" ? <>
+         <dl className="wm29-facts">
+-          <div><dt>מקור אב</dt><dd><Ref>{detail.parentSourceRef}</Ref></dd></div>
++
+           {detail.locator ? <div><dt>מיקום</dt><dd>{detail.locator}</dd></div> : null}
+           {detail.href ? <div><dt>קריאה</dt><dd><Href href={detail.href}>פתיחת ההופעה</Href></dd></div> : null}
+         </dl>
+@@ -90,7 +87,7 @@ export default function WorldSourceInspector2029({
+ 
+       {detail.kind === "finding" ? <>
+         <dl className="wm29-facts">
+-          <div><dt>נשען על מקור</dt><dd>{detail.sourceRefs.map((ref) => <Ref key={ref}>{ref}</Ref>)}</dd></div>
++
+           {detail.stage ? <div><dt>שלב</dt><dd>{detail.stage}</dd></div> : null}
+           {detail.verificationState ? <div><dt>אימות</dt><dd>{detail.verificationState}</dd></div> : null}
+           {detail.publicationState ? <div><dt>פרסום</dt><dd>{detail.publicationState}</dd></div> : null}
+@@ -100,17 +97,11 @@ export default function WorldSourceInspector2029({
+         <RelationPanel target={relationTarget} relation={relation} onOpen={onOpenRelations} disabled={relationsDisabled} />
+         {candidates.length ? <section className="wm29-candidates" aria-label="הצעות שאינן קשרי עץ">
+           <h4>הצעות — אינן קשרי עץ</h4>
+-          <ul>{candidates.map((candidate) => <li key={candidate.candidateRef}>{candidate.label}<small>{candidate.basis} · אין edgeRef או החלטה ממשלית, ולכן לא מצויר על הקנבס.</small></li>)}</ul>
++          <ul>{candidates.map((candidate) => <li key={candidate.candidateRef}>{candidate.label}<small>{candidate.basis} · הצעה לעיון, שאינה קשר מתועד בעץ.</small></li>)}</ul>
+         </section> : null}
+       </> : null}
+ 
+-      {detail.kind === "tree" ? <section className="wm29-evidence" aria-label="אסמכתת הקשר">
+-        <h4>אסמכתת הקשר</h4>
+-        <ul>{detail.evidence.map((row) => <li key={`${row.edgeRef}:${row.governanceRef}`}>
+-          {row.edgeRef ? <>edge <Ref>{row.edgeRef}</Ref></> : null}
+-          {row.governanceRef ? <>החלטה ממשלית <Ref>{row.governanceRef}</Ref></> : null}
+-        </li>)}</ul>
+-      </section> : null}
++      {detail.kind === "tree" ? <p>קשר מתועד בעץ.</p> : null}
+     </div>}
+   </aside>;
+ }
+diff --git a/src/components/research/WorldSourceStory.jsx b/src/components/research/WorldSourceStory.jsx
+index d3b90b018a8e8cac15292caf76b207c50e2ae503..e6dd5a36c8b6f4aa551875086233fb8574c95f07 100644
+--- a/src/components/research/WorldSourceStory.jsx
++++ b/src/components/research/WorldSourceStory.jsx
+@@ -55,13 +55,8 @@ function CalculationDepth({ witness, openNumber }) {
+           {' · '}פעולה: {entry.verified.trace.steps?.operator} · תוצאה: {entry.verified.value}
+         </p> : null}
+         <button className="sod29-action" onClick={() => openNumber(entry.verified)}>להמשך בהיכל · {entry.verified.value}</button>
+-        <details><summary>פרטי האימות</summary><pre>{JSON.stringify(entry.verified.trace, null, 2)}</pre></details>
+       </> : <p role="status">החישוב אינו זמין לאימות כעת. אין החלפה בשיטה אחרת.</p>}
+     </section>)}
+-    {witness.clock ? <details><summary>פרטי חוק השעון והמקור</summary><pre>{JSON.stringify({ originalDisplay: witness.clock.originalDisplay,
+-      occurrence: witness.clock.occurrence, application: witness.clock.application }, null, 2)}</pre></details> : null}
+-    {witness.relations.map((r, index) => r.verified ? <details key={index}><summary>{r.verified.display} · פרטי החוק</summary>
+-      <pre>{JSON.stringify(r.verified.card.finding.evidence, null, 2)}</pre></details> : null)}
+   </details>;
+ }
+ 
+@@ -182,7 +177,7 @@ export default function WorldSourceStory({ research, shell, topicSlug = null })
+             key={t.slug} className="sod29-action" onClick={() => leave(t.href, { id: t.slug, type: 'topic', label: t.title, href: t.href })}>
+             {t.title} ←</button>)}</div> : null}
+           <details className="sod29-discovery-extraction"><summary>הקטע המדויק ומצב הקשר</summary>
+-            <blockquote>{witness.source.text}</blockquote><code>{witness.source.sourceRef}</code>
++            <blockquote>{witness.source.text}</blockquote>
+             <p>זוהי קריאה מחוברת לעיון. אין בה שינוי של שיוכי המקור או אישורי הטופיקים.</p>
+             {witness.topicLinks.map((t) => <p key={t.slug}>{t.title}: {t.association === 'stored_topic_association' ? 'שיוך תמונה כבר שמור' : 'הרחבת קריאה מוצעת; אין שיוך תמונה שמור'}</p>)}
+           </details>
+diff --git a/src/lib/research/zviMultiValueWorldProjection.js b/src/lib/research/zviMultiValueWorldProjection.js
+index fccc55a868da57da9cc197b9c6ba30a5bdba3a9a..be2d33949cdc4d51b18a4b2776585203854ba364 100644
+--- a/src/lib/research/zviMultiValueWorldProjection.js
++++ b/src/lib/research/zviMultiValueWorldProjection.js
+@@ -57,6 +57,7 @@ export function buildZviMultiValueWorldProjection(rows = []) {
+   const cards = (Array.isArray(rows) ? rows : [])
+     .filter((row) => SPEC_BY_ID.has(String(row?.id || "")))
+     .filter((row) => String(row?.privacy_scope || "").trim() === "public")
++    .filter((row) => ["approved", "canonical"].includes(String(row?.status || "").trim()))
+     .map((row) => {
+       const spec = SPEC_BY_ID.get(String(row.id));
+       return {
+@@ -66,7 +67,8 @@ export function buildZviMultiValueWorldProjection(rows = []) {
+         statement: String(row.statement || "").trim(),
+         terms: Array.isArray(row.terms) ? row.terms : [],
+         values: [...spec.values],
+-        targets: spec.connectedValues.map((value) => ({ value, href: `/2029/number/${value}` })),
++        targets: (spec.groupKind === "missing_target" && row.status === "canonical" && row.promoted_node_id
++          ? spec.values : spec.connectedValues).map((value) => ({ value, href: `/2029/number/${value}` })),
+         groupKind: spec.groupKind,
+         source: contributorSourceLocator(row.source_ref, { slug: ZVI_SOURCE_SLUG }),
+         review: {
+@@ -108,7 +110,9 @@ export async function fetchZviMultiValueWorldProjection({ publicClient = getPubl
+     const client = publicClient();
+     const { data, error } = await client
+       .from("world_contributor_research_v1")
+-      .select("id,statement,terms,value,source_ref,contributor,engine_verified,status,privacy_scope")
++      .select("id,statement,terms,value,source_ref,contributor,engine_verified,status,privacy_scope,promoted_node_id")
++      .eq("privacy_scope", "public")
++      .in("status", ["approved", "canonical"])
+       .in("id", ZVI_MULTI_VALUE_SPECS.map((item) => item.id));
+     if (error) throw error;
+     return { ...buildZviMultiValueWorldProjection(data), access: { available: true, reader: "public_rls" } };
+diff --git a/test/world-knowledge-types-2029.test.mjs b/test/world-knowledge-types-2029.test.mjs
+index 6839429261601c1fac9732876442e2a3c52eeff0..a6e8c511d5e830a1bb2531efdf1d16075cde1b65 100644
+--- a/test/world-knowledge-types-2029.test.mjs
++++ b/test/world-knowledge-types-2029.test.mjs
+@@ -44,7 +44,7 @@ test("cipher shelf is public-only and never imports drafts or research-folder ro
+ test("media shelf uses one bounded public World projection and preserves source identity", () => {
+   assert.match(types, /fetchPublicWorldMediaPage\(\{ limit: 12 \}\)/);
+   assert.match(types, /CanonicalMediaFigure2029/);
+-  assert.match(types, /item\.sourceRef/);
++  assert.match(types, /buildPublicMediaContentProjection\(media\)/);
+   assert.doesNotMatch(types, /from\(["']gallery_images["']\)|supabase/);
+   const reader = entityHub.slice(entityHub.indexOf("export async function fetchPublicWorldMediaPage"), entityHub.indexOf("export async function fetchEntityTypeDefinition"));
+   assert.match(reader, /eq\("published", 1\)/);
+diff --git a/test/world-writer-source-focus-2029.browser.py b/test/world-writer-source-focus-2029.browser.py
+index 857562133a3bb2b1dfa30ae1d820434518901c00..602c701297b09964819f24b8cebee16c323e84d3 100644
+--- a/test/world-writer-source-focus-2029.browser.py
++++ b/test/world-writer-source-focus-2029.browser.py
+@@ -131,6 +131,8 @@ with sync_playwright() as p:
+             page.wait_for_url('**/world?**')
+             world_path = page.url.removeprefix(BASE)
+             target = assert_target(page)
++            assert 'posts:5038' not in target.inner_text(), 'source identity is not visitor-facing copy'
++            assert 'source_ref' not in page.locator('.sod29-world-selected-source').inner_text()
+             assert target.get_by_role('link', name='למקור ←').get_attribute('href') == '/fixture-article-0'
+             target.get_by_role('link', name='למקור ←').click()
+             page.get_by_role('heading', name='מקור המאמר המקורי · נתוני בדיקה').wait_for()

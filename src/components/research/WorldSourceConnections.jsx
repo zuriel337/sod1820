@@ -47,8 +47,6 @@ function Witness({ witness, research, shell, select }) {
           <small>{relation.verified.card.note}</small>
           <details><summary>איך נוצר החיבור?</summary>
             <p>הקלט המקורי: {relation.from}. יעד החיבור: {relation.to}. החוק מציע זיקה פרשנית; הוא אינו משנה את ערך המקור ואינו ראיה עצמאית נוספת.</p>
-            <code>{relation.verified.card.ruleId} · v{relation.verified.card.ruleVersion}</code>
-            <pre>{JSON.stringify(relation.verified.card.finding.evidence.facts[0], null, 2)}</pre>
           </details>
         </> : <p role="status">החיבור {relation.from} → {relation.to} ממתין לאימות החוק או החישוב; אינו מוצג כחיבור מאומת.</p>}
       </div>)}
@@ -68,7 +66,6 @@ function Witness({ witness, research, shell, select }) {
               <SpatialMethodStage2029 expression={entry.expression} methodKey={entry.method}
                 trace={entry.verified.trace} expectedValue={entry.verified.value} depth="S2"
                 onOpenHeichal={() => calculate(entry.verified)} />
-              <details><summary>פרטי המנוע והמקור</summary><code>{source.sourceRef}</code><pre>{JSON.stringify(entry.verified.trace, null, 2)}</pre></details>
             </> : <p>אין תוצאה מאומתת זמינה. הערך ההיסטורי המצוטט נשמר במקור.</p>}
           </section>)}
         </details>
@@ -102,8 +99,6 @@ function Witness({ witness, research, shell, select }) {
       <details><summary>{source.item ? 'הטקסט שחולץ מן התמונה' : 'הקטע המדויק מן הפוסט'}</summary>
         <blockquote>{source.text}</blockquote>
         {source.author ? <p>קרדיט שמור: {source.author}</p> : null}
-        <code>{source.sourceRef}</code>
-        {!source.item ? <p>הקישור פותח את הפוסט. פתיחה למקטע גלוי וזמני הניגון המדויקים עדיין בבדיקת בעל הפוסט.</p> : null}
       </details>
     </div>
   </article>;

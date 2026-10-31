@@ -55,13 +55,8 @@ function CalculationDepth({ witness, openNumber }) {
           {' · '}פעולה: {entry.verified.trace.steps?.operator} · תוצאה: {entry.verified.value}
         </p> : null}
         <button className="sod29-action" onClick={() => openNumber(entry.verified)}>להמשך בהיכל · {entry.verified.value}</button>
-        <details><summary>פרטי האימות</summary><pre>{JSON.stringify(entry.verified.trace, null, 2)}</pre></details>
       </> : <p role="status">החישוב אינו זמין לאימות כעת. אין החלפה בשיטה אחרת.</p>}
     </section>)}
-    {witness.clock ? <details><summary>פרטי חוק השעון והמקור</summary><pre>{JSON.stringify({ originalDisplay: witness.clock.originalDisplay,
-      occurrence: witness.clock.occurrence, application: witness.clock.application }, null, 2)}</pre></details> : null}
-    {witness.relations.map((r, index) => r.verified ? <details key={index}><summary>{r.verified.display} · פרטי החוק</summary>
-      <pre>{JSON.stringify(r.verified.card.finding.evidence, null, 2)}</pre></details> : null)}
   </details>;
 }
 
@@ -182,7 +177,7 @@ export default function WorldSourceStory({ research, shell, topicSlug = null }) 
             key={t.slug} className="sod29-action" onClick={() => leave(t.href, { id: t.slug, type: 'topic', label: t.title, href: t.href })}>
             {t.title} ←</button>)}</div> : null}
           <details className="sod29-discovery-extraction"><summary>הקטע המדויק ומצב הקשר</summary>
-            <blockquote>{witness.source.text}</blockquote><code>{witness.source.sourceRef}</code>
+            <blockquote>{witness.source.text}</blockquote>
             <p>זוהי קריאה מחוברת לעיון. אין בה שינוי של שיוכי המקור או אישורי הטופיקים.</p>
             {witness.topicLinks.map((t) => <p key={t.slug}>{t.title}: {t.association === 'stored_topic_association' ? 'שיוך תמונה כבר שמור' : 'הרחבת קריאה מוצעת; אין שיוך תמונה שמור'}</p>)}
           </details>

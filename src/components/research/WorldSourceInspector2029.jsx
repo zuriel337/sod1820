@@ -8,9 +8,6 @@ const LAYER_SECTIONS = Object.freeze([
   ["interpretation", "פרשנות"],
 ]);
 
-function Ref({ children }) {
-  return <code dir="ltr" className="wm29-ref">{children}</code>;
-}
 function Href({ href, children }) {
   if (!href) return <span>{children}</span>;
   return href.startsWith("/") ? <Link to={href}>{children}</Link> : <a href={href} target="_blank" rel="noreferrer">{children}</a>;
@@ -45,7 +42,7 @@ function RelationPanel({ target, relation, onOpen, disabled }) {
     {target && (status === "partial" || status === "failed") ? <button type="button" onClick={onOpen}>נסו לפתוח שוב</button> : null}
     <p role="status" className={`wm29-relation-status wm29-relation-${status}`} data-relation-status={status}>{relationStatusCopy(status, count)}</p>
     {count ? <ul>{relation.relations.map((row) => <li key={row.edgeRef}>
-      {row.fromLabel || row.fromNodeId} · {row.relationType} · {row.toLabel || row.toNodeId} <Ref>{row.edgeRef}</Ref>
+      {row.fromLabel || "פריט"} · {row.relationType} · {row.toLabel || "פריט"}
     </li>)}</ul> : null}
   </section>;
 }
@@ -66,8 +63,8 @@ export default function WorldSourceInspector2029({
       {open ? <button type="button" className="wm29-close" onClick={onClose} aria-label="סגירת חלונית הפרטים">✕</button> : null}
     </header>
     {!detail ? <p className="wm29-muted">בחרו מקור, הופעה או ממצא בקנבס כדי לראות את פרטיו. כל שכבה מוצגת בנפרד.</p> : <div className="wm29-inspector-body">
-      <p className="wm29-kind"><span className={`wm29-swatch wm29-node-${detail.kind}`} aria-hidden="true" />{detail.kindLabel} <Ref>{detail.ref}</Ref></p>
-      <p className="wm29-boundary">{detail.boundary}</p>
+      <p className="wm29-kind"><span className={`wm29-swatch wm29-node-${detail.kind}`} aria-hidden="true" />{detail.kindLabel}</p>
+      {detail.kind !== "tree" ? <p className="wm29-boundary">{detail.boundary}</p> : null}
 
       {detail.kind === "source" ? <>
         <dl className="wm29-facts">
@@ -81,7 +78,7 @@ export default function WorldSourceInspector2029({
 
       {detail.kind === "occurrence" ? <>
         <dl className="wm29-facts">
-          <div><dt>מקור אב</dt><dd><Ref>{detail.parentSourceRef}</Ref></dd></div>
+
           {detail.locator ? <div><dt>מיקום</dt><dd>{detail.locator}</dd></div> : null}
           {detail.href ? <div><dt>קריאה</dt><dd><Href href={detail.href}>פתיחת ההופעה</Href></dd></div> : null}
         </dl>
@@ -90,7 +87,7 @@ export default function WorldSourceInspector2029({
 
       {detail.kind === "finding" ? <>
         <dl className="wm29-facts">
-          <div><dt>נשען על מקור</dt><dd>{detail.sourceRefs.map((ref) => <Ref key={ref}>{ref}</Ref>)}</dd></div>
+
           {detail.stage ? <div><dt>שלב</dt><dd>{detail.stage}</dd></div> : null}
           {detail.verificationState ? <div><dt>אימות</dt><dd>{detail.verificationState}</dd></div> : null}
           {detail.publicationState ? <div><dt>פרסום</dt><dd>{detail.publicationState}</dd></div> : null}
@@ -100,17 +97,11 @@ export default function WorldSourceInspector2029({
         <RelationPanel target={relationTarget} relation={relation} onOpen={onOpenRelations} disabled={relationsDisabled} />
         {candidates.length ? <section className="wm29-candidates" aria-label="הצעות שאינן קשרי עץ">
           <h4>הצעות — אינן קשרי עץ</h4>
-          <ul>{candidates.map((candidate) => <li key={candidate.candidateRef}>{candidate.label}<small>{candidate.basis} · אין edgeRef או החלטה ממשלית, ולכן לא מצויר על הקנבס.</small></li>)}</ul>
+          <ul>{candidates.map((candidate) => <li key={candidate.candidateRef}>{candidate.label}<small>{candidate.basis} · הצעה לעיון, שאינה קשר מתועד בעץ.</small></li>)}</ul>
         </section> : null}
       </> : null}
 
-      {detail.kind === "tree" ? <section className="wm29-evidence" aria-label="אסמכתת הקשר">
-        <h4>אסמכתת הקשר</h4>
-        <ul>{detail.evidence.map((row) => <li key={`${row.edgeRef}:${row.governanceRef}`}>
-          {row.edgeRef ? <>edge <Ref>{row.edgeRef}</Ref></> : null}
-          {row.governanceRef ? <>החלטה ממשלית <Ref>{row.governanceRef}</Ref></> : null}
-        </li>)}</ul>
-      </section> : null}
+      {detail.kind === "tree" ? <p>קשר מתועד בעץ.</p> : null}
     </div>}
   </aside>;
 }

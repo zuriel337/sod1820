@@ -43,13 +43,6 @@ const FACETS = Object.freeze({
 });
 const KIND_REQUEST_CACHE = new Map();
 
-function publicationStateLabel(value) {
-  if (value === "approved") return "מאושר";
-  if (value === "candidate") return "מועמד";
-  if (value === "published") return "פורסם";
-  return value || "אין נתון";
-}
-
 function cardHref(card) {
   return card.facet === "number" ? `/2029/number/${encodeURIComponent(card.refId)}` : card.href;
 }
@@ -134,33 +127,16 @@ async function fetchKind(kind) {
 }
 
 function ZviMultiValueShelf({ projection }) {
-  if (projection?.access?.available === false) {
-    return <section className="sod29-world-kind-section" aria-label="ממצאי צבי רב ערכיים">
-      <header><div><h3>{projection.title}</h3><p>{projection.description}</p></div></header>
-      <p role="status">האשכולות הציבוריים אינם זמינים כרגע. זה אינו אומר שאין כאלה.</p>
-    </section>;
-  }
-  return <section className="sod29-world-kind-section sod29-world-multi-value-shelf" aria-label="ממצאי צבי רב ערכיים">
-    <header><div><h3>{projection.title}</h3><p>{projection.description}</p></div>
-      <span>{projection.counts.findings} ממצאים · {projection.counts.exactSourceOccurrences} הופעות מקור</span></header>
-    <p className="sod29-world-spatial-rule">הופעה היא מיקום מדויק בקורפוס, לא מקור עצמאי נוסף. הרשומות נשארות חזקות, אך מסומנות לבדיקה עד לפיצול או ליצירת יעד מבוסס.</p>
+  if (projection?.access?.available === false) return <p role="status">הממצאים אינם זמינים כרגע.</p>;
+  if (!projection.cards.length) return null;
+  return <section className="sod29-world-kind-section sod29-world-multi-value-shelf" aria-label="ממצאי צבי">
+    <header><div><h3>ממצאי צבי</h3><p>ממצאים מספריים וקישורים למקורותיהם.</p></div></header>
     <div className="sod29-world-kind-card-grid">{projection.cards.map((card) => <article key={card.id} className="sod29-world-kind-card sod29-world-multi-value-card">
-      <small>מיקום בדוח #{card.rank} · חוזק: {card.review.connectionStrength} · {card.review.recommendation}</small>
-      <strong>{card.title}</strong>
       <p>{card.statement}</p>
-      <div className="sod29-world-spatial-status" aria-label="מצב הממצא">
-        <span>ראיות: {card.review.evidenceQuality}</span>
-        <span>סטטוס רשומה: {publicationStateLabel(card.review.publicationState)}</span>
-        <span>גישה: ציבורי</span>
-        <span>מקורות עצמאיים: אין נתון</span>
-      </div>
-      <p><b>למה עדיין לא חובר:</b> {card.review.reason}</p>
       <div className="sod29-actions">
         {card.targets.map((target) => <Link key={target.value} className="sod29-action" to={target.href}>לערך {target.value}</Link>)}
-        {card.values.filter((value) => !card.targets.some((target) => target.value === value)).map((value) => <span key={value} className="sod29-action" aria-disabled="true">{value} · יעד חסר</span>)}
         <Link className="sod29-action primary" to={card.source.href}>להופעת המקור בספריית צבי</Link>
       </div>
-      <details><summary>מזהה ומיקום מדויק</summary><p><code dir="ltr">{card.id}</code></p><p><code dir="ltr">{card.source.ref}</code></p></details>
     </article>)}</div>
   </section>;
 }
@@ -188,7 +164,7 @@ function SpatialShelf({ projection }) {
           <li><strong>צורה</strong><span>{card.form}{card.dimension ? ` · ${card.dimension}` : ""}</span></li>
         </ol>
         {card.interpretation ? <details><summary>הפרשנות של המקור</summary><p>{card.interpretation}</p></details> : null}
-        <details><summary>הופעות מקור מדויקות · {card.source.occurrenceCount}</summary><ul>{card.source.locators.map((item) => <li key={item.ref}><Link to={item.href}>{item.exact ? "פתח את ההופעה בספריית צבי" : "פתח את ספריית צבי"}</Link> · <code dir="ltr">{item.ref}</code></li>)}</ul></details>
+        <details><summary>הופעות מקור מדויקות · {card.source.occurrenceCount}</summary><ul>{card.source.locators.map((item) => <li key={item.ref}><Link to={item.href}>{item.exact ? "פתח את ההופעה בספריית צבי" : "פתח את ספריית צבי"}</Link></li>)}</ul></details>
         <div className="sod29-actions"><Link className="sod29-action primary" to={`/2029/number/${card.value}`}>לערך {card.value}</Link><Link className="sod29-action" to={card.source.href}>לספריית צבי בעולם</Link></div>
       </div>
     </article>)}</div>
@@ -249,7 +225,7 @@ function MediaShelf({ items, hasMore, access }) {
     <header><div><h3>תמונות ומדיה ציבורית</h3><p>כל תמונה נשארת מחוברת לזהות המקור שלה. הופעה כאן אינה הופכת OCR או כיתוב לממצא מאומת.</p></div><span>{items.length} מוצגים{hasMore ? " · יש עוד" : ""}</span></header>
     {items.length ? <div className="sod29-world-media-shelf">{items.map((item) => <article key={item.mediaId}>
       <CanonicalMediaFigure2029 item={item} thumbnail alt={item.presentation?.label || "פתח תמונת מקור"} contextNote="פריט ציבורי במאגר המדיה" />
-      <div><strong>{item.presentation?.label || "פריט מדיה"}</strong><small>{item.sourceRef}</small></div>
+      <div><strong>{item.presentation?.label || "פריט מדיה"}</strong></div>
     </article>)}</div> : <p className="sod29-muted">לא נמצאו כרגע פריטי מדיה ציבוריים.</p>}
     <div className="sod29-actions"><Link className="sod29-action" to="/gallery">למאגר המדיה הציבורי</Link></div>
   </section>;
@@ -296,9 +272,9 @@ export default function WorldKnowledgeTypes2029({ kind = WORLD_KNOWLEDGE_KIND.NU
     {state.loading || state.kind !== kind ? <p role="status">פותח את {option.label}…</p> : null}
     {state.error ? <p role="status">הפריטים אינם זמינים כרגע. שום חומר חלופי לא הומצא.</p> : null}
     {openingSections.map((section) => <EntitySection key={section.key} section={section} />)}
-    {kind === WORLD_KNOWLEDGE_KIND.NUMBERS && data?.multiValue ? <ZviMultiValueShelf projection={data.multiValue} /> : null}
     {kind === WORLD_KNOWLEDGE_KIND.TIME ? <TimeShelf sections={remainingSections} /> : remainingSections.map((section) => <EntitySection key={section.key} section={section} />)}
     {kind === WORLD_KNOWLEDGE_KIND.CIPHERS && data ? <CipherShelf rows={data.ciphers} hasMore={data.hasMore} /> : null}
+    {kind === WORLD_KNOWLEDGE_KIND.NUMBERS && data?.multiValue ? <ZviMultiValueShelf projection={data.multiValue} /> : null}
     {kind === WORLD_KNOWLEDGE_KIND.LANGUAGES && data ? <LanguageShelf projection={data.language} /> : null}
     {kind === WORLD_KNOWLEDGE_KIND.MEDIA && data ? <MediaShelf items={data.media} hasMore={data.hasMore} access={data.access} /> : null}
     {kind === WORLD_KNOWLEDGE_KIND.SPATIAL && data?.spatial ? <SpatialShelf projection={data.spatial} /> : null}

@@ -1,0 +1,143 @@
+{
+  "task": "WORLD_LOCAL_CHANGES_REMOTE_PRESERVATION_20261031",
+  "status": "BACKUP_UNACCEPTED_NOT_INTEGRATED",
+  "captured_at_utc": "2026-10-31T20:09:25.889859+00:00",
+  "branch": "gpt/2029-world-local-changes-preservation-20261031",
+  "source_base_sha": "ff23ae685dcae824c4cdb45830fc1578820bcf1d",
+  "source_base_tree": "3a533ee39ffa56eb86231c29c757dc2b40b62288",
+  "source_worktree": "/workspace/sod1820-central-world-rebuilt-20261029",
+  "source_state": {
+    "head": "ff23ae685dcae824c4cdb45830fc1578820bcf1d",
+    "branch": "gpt/2029-central-world-rebuilt-acceptance-20261029",
+    "index_sha256": "93772ed08d0e9b2d19a9ea093a300d2dbdd44aa2c6253f883cb0db8d141f1ec2",
+    "status": " M src/components/research/WorldKnowledgeTypes2029.jsx\n M src/components/research/WorldPeopleSources2029.jsx\n M src/components/research/WorldSourceConnections.jsx\n M src/components/research/WorldSourceInspector2029.jsx\n M src/components/research/WorldSourceStory.jsx\n M src/lib/research/zviMultiValueWorldProjection.js\n M test/world-knowledge-types-2029.test.mjs\n M test/world-writer-source-focus-2029.browser.py\n?? node_modules\n?? work/evidence/world-writer-source-focus/results.json\n",
+    "files_sha256": {
+      "src/components/research/WorldKnowledgeTypes2029.jsx": "91243fcf7131215d561edda02059041bd0ce13c93cc909403060e7f6ab409f59",
+      "src/components/research/WorldPeopleSources2029.jsx": "ee8323855df9531e57f2c94d38e1f3d857995bf9f24a5c86f182e09fa75690d4",
+      "src/components/research/WorldSourceConnections.jsx": "682cdf20b5c2d9a0d838a22fc7ed2a8738dfdacd2acf885d42517233b575dc5d",
+      "src/components/research/WorldSourceInspector2029.jsx": "2e61122413f8e929cd831ae2fd4f9345bb8f1b64fc45663530aef71b905d7872",
+      "src/components/research/WorldSourceStory.jsx": "5d7f84078193ea8d737efadc541c8aa9db5d36ef1953d218f4af7fe16683c651",
+      "src/lib/research/zviMultiValueWorldProjection.js": "5c6bd10f9164eac68fd1eab3c9874aa44bc2ddc24da58862d90f8704ff0a534c",
+      "test/world-knowledge-types-2029.test.mjs": "2e9e4f7773ee776aa24da1519dd331a8070f58a23fb26b0c8502ce1fc17053c2",
+      "test/world-writer-source-focus-2029.browser.py": "740ef0915bdb96fa45c61b1b5a14d19c0f71e4fba8dd92ca2f8801e0abb25c78",
+      "work/evidence/world-writer-source-focus/results.json": "48b1628da355ea5cb62682383bc2b04426f60812d4b4163dc345024659c0a400"
+    },
+    "central_head": "4cf3079342e82e73633d18a3ab37cda5479dce72",
+    "central_status": ""
+  },
+  "before_id": "3074c100-0914-4ac7-abb5-b3234b80ecfa",
+  "records": [
+    {
+      "source_path": "src/components/research/WorldKnowledgeTypes2029.jsx",
+      "stored_path": "src/components/research/WorldKnowledgeTypes2029.jsx",
+      "kind": "uncommitted_tracked_file",
+      "mode": "100644",
+      "base_git_blob": "4d631a1c07e80dba62419cfc633c93f1f861973d",
+      "base_sha256": "a05be2a237306739bf0648aaba41100bf66cdc149dc1d6790eb93485195081e8",
+      "snapshot_git_blob": "01c81094e74a46f1ee8f4742d8011f817532c2c4",
+      "snapshot_sha256": "91243fcf7131215d561edda02059041bd0ce13c93cc909403060e7f6ab409f59",
+      "bytes": 21118
+    },
+    {
+      "source_path": "src/components/research/WorldPeopleSources2029.jsx",
+      "stored_path": "src/components/research/WorldPeopleSources2029.jsx",
+      "kind": "uncommitted_tracked_file",
+      "mode": "100644",
+      "base_git_blob": "aeeba0b99aa466f37bc7105d949108f6d3652c99",
+      "base_sha256": "ff9a4e6c52c4d8dce4435a6499200352f7019fb6ace2db16bf00b5f042190f61",
+      "snapshot_git_blob": "76a8d9d393dc265099664d20625f19ccb72e49a3",
+      "snapshot_sha256": "ee8323855df9531e57f2c94d38e1f3d857995bf9f24a5c86f182e09fa75690d4",
+      "bytes": 17147
+    },
+    {
+      "source_path": "src/components/research/WorldSourceConnections.jsx",
+      "stored_path": "src/components/research/WorldSourceConnections.jsx",
+      "kind": "uncommitted_tracked_file",
+      "mode": "100644",
+      "base_git_blob": "266502f82264f110a79d13e6ebe1804e199a6ef2",
+      "base_sha256": "d846b2bf07405d4ee138a416fbf420c505146474bcfc98cdd712788573a7cc19",
+      "snapshot_git_blob": "57642843a1db98135360c64583a5967f1855fe13",
+      "snapshot_sha256": "682cdf20b5c2d9a0d838a22fc7ed2a8738dfdacd2acf885d42517233b575dc5d",
+      "bytes": 11685
+    },
+    {
+      "source_path": "src/components/research/WorldSourceInspector2029.jsx",
+      "stored_path": "src/components/research/WorldSourceInspector2029.jsx",
+      "kind": "uncommitted_tracked_file",
+      "mode": "100644",
+      "base_git_blob": "caa737c1fb1dd7803fde1aeba69e110755b388ae",
+      "base_sha256": "80e0a1374c089625e41de43fc2be312ed8cfe7ec2585a5491d224581063b83ef",
+      "snapshot_git_blob": "afa114b2b175583e6f477cdec594f302d764a7fe",
+      "snapshot_sha256": "2e61122413f8e929cd831ae2fd4f9345bb8f1b64fc45663530aef71b905d7872",
+      "bytes": 6698
+    },
+    {
+      "source_path": "src/components/research/WorldSourceStory.jsx",
+      "stored_path": "src/components/research/WorldSourceStory.jsx",
+      "kind": "uncommitted_tracked_file",
+      "mode": "100644",
+      "base_git_blob": "d3b90b018a8e8cac15292caf76b207c50e2ae503",
+      "base_sha256": "7feb2903f531e25816e66e2b034c75e02d77fc23478eeb4ef44866289e3ab73d",
+      "snapshot_git_blob": "e6dd5a36c8b6f4aa551875086233fb8574c95f07",
+      "snapshot_sha256": "5d7f84078193ea8d737efadc541c8aa9db5d36ef1953d218f4af7fe16683c651",
+      "bytes": 17799
+    },
+    {
+      "source_path": "src/lib/research/zviMultiValueWorldProjection.js",
+      "stored_path": "src/lib/research/zviMultiValueWorldProjection.js",
+      "kind": "uncommitted_tracked_file",
+      "mode": "100644",
+      "base_git_blob": "fccc55a868da57da9cc197b9c6ba30a5bdba3a9a",
+      "base_sha256": "bc01438cea340918abb60e15217867ffcf19a0daf5db1465a3ea5333cc223c59",
+      "snapshot_git_blob": "be2d33949cdc4d51b18a4b2776585203854ba364",
+      "snapshot_sha256": "5c6bd10f9164eac68fd1eab3c9874aa44bc2ddc24da58862d90f8704ff0a534c",
+      "bytes": 5926
+    },
+    {
+      "source_path": "test/world-knowledge-types-2029.test.mjs",
+      "stored_path": "test/world-knowledge-types-2029.test.mjs",
+      "kind": "uncommitted_tracked_file",
+      "mode": "100644",
+      "base_git_blob": "6839429261601c1fac9732876442e2a3c52eeff0",
+      "base_sha256": "d6148bd20b51e5c653abd3bd9e8ab693875fc80096e02e8a53fc6573d5a8fff6",
+      "snapshot_git_blob": "a6e8c511d5e830a1bb2531efdf1d16075cde1b65",
+      "snapshot_sha256": "2e9e4f7773ee776aa24da1519dd331a8070f58a23fb26b0c8502ce1fc17053c2",
+      "bytes": 3925
+    },
+    {
+      "source_path": "test/world-writer-source-focus-2029.browser.py",
+      "stored_path": "test/world-writer-source-focus-2029.browser.py",
+      "kind": "uncommitted_tracked_file",
+      "mode": "100644",
+      "base_git_blob": "857562133a3bb2b1dfa30ae1d820434518901c00",
+      "base_sha256": "19b171e06914d32d0a85c87a569523dce5677c05215a807cdb746e6667b8d7c8",
+      "snapshot_git_blob": "602c701297b09964819f24b8cebee16c323e84d3",
+      "snapshot_sha256": "740ef0915bdb96fa45c61b1b5a14d19c0f71e4fba8dd92ca2f8801e0abb25c78",
+      "bytes": 11772
+    },
+    {
+      "source_path": "work/evidence/world-writer-source-focus/results.json",
+      "stored_path": "docs/reviews/world-local-changes-preservation-20261031/evidence/world-writer-source-focus-results.json",
+      "kind": "historical_untracked_browser_result",
+      "mode": "100644",
+      "snapshot_git_blob": "4df33a479a29db360d7234c2cd45f79cc031de85",
+      "snapshot_sha256": "48b1628da355ea5cb62682383bc2b04426f60812d4b4163dc345024659c0a400",
+      "bytes": 2105,
+      "acceptance": "UNBOUND_HISTORICAL_RESULT_NOT_RERUN"
+    }
+  ],
+  "tracked_snapshot_count": 8,
+  "historical_evidence_count": 1,
+  "patch_path": "docs/reviews/world-local-changes-preservation-20261031/changes.patch",
+  "patch_sha256": "637c61563371b5301e93399ca6361b023ed40f0ea2b7deeea6363a93e0b6c93e",
+  "scope": "Preservation only; original files/index/HEAD and unified base are not modified.",
+  "product_testing": "NOT_RERUN; historical browser JSON has 13 cases/errors=[] and no build/source identity.",
+  "release": {
+    "main": false,
+    "preview": false,
+    "production": false,
+    "edge": false,
+    "product_db_rls": false
+  },
+  "remote_verification": "Exact remote SHA, independent-fetch verification and original-state readback recorded in final passive work_log AFTER and ZURIEL handoff."
+}

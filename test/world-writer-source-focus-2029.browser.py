@@ -131,6 +131,8 @@ with sync_playwright() as p:
             page.wait_for_url('**/world?**')
             world_path = page.url.removeprefix(BASE)
             target = assert_target(page)
+            assert 'posts:5038' not in target.inner_text(), 'source identity is not visitor-facing copy'
+            assert 'source_ref' not in page.locator('.sod29-world-selected-source').inner_text()
             assert target.get_by_role('link', name='למקור ←').get_attribute('href') == '/fixture-article-0'
             target.get_by_role('link', name='למקור ←').click()
             page.get_by_role('heading', name='מקור המאמר המקורי · נתוני בדיקה').wait_for()

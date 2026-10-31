@@ -1,0 +1,88 @@
+{
+  "cases": [
+    {
+      "width": 320,
+      "theme": "light",
+      "flow": "writer-world-native-link-back-writer-return-reload-filter",
+      "initial_world_cards": 13,
+      "violations": []
+    },
+    {
+      "width": 320,
+      "theme": "parchment",
+      "flow": "writer-world-native-link-back-writer-return-reload-filter",
+      "initial_world_cards": 13,
+      "violations": []
+    },
+    {
+      "width": 320,
+      "theme": "dark",
+      "flow": "writer-world-native-link-back-writer-return-reload-filter",
+      "initial_world_cards": 13,
+      "violations": []
+    },
+    {
+      "width": 390,
+      "theme": "light",
+      "flow": "writer-world-native-link-back-writer-return-reload-filter",
+      "initial_world_cards": 13,
+      "violations": []
+    },
+    {
+      "width": 390,
+      "theme": "parchment",
+      "flow": "writer-world-native-link-back-writer-return-reload-filter",
+      "initial_world_cards": 13,
+      "violations": []
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "flow": "writer-world-native-link-back-writer-return-reload-filter",
+      "initial_world_cards": 13,
+      "violations": []
+    },
+    {
+      "width": 1440,
+      "theme": "light",
+      "flow": "writer-world-native-link-back-writer-return-reload-filter",
+      "initial_world_cards": 13,
+      "violations": []
+    },
+    {
+      "width": 1440,
+      "theme": "parchment",
+      "flow": "writer-world-native-link-back-writer-return-reload-filter",
+      "initial_world_cards": 13,
+      "violations": []
+    },
+    {
+      "width": 1440,
+      "theme": "dark",
+      "flow": "writer-world-native-link-back-writer-return-reload-filter",
+      "initial_world_cards": 13,
+      "violations": []
+    },
+    {
+      "scenario": "unknown-source",
+      "violations": [],
+      "requests": 14
+    },
+    {
+      "scenario": "private-writer",
+      "violations": [],
+      "requests": 1
+    },
+    {
+      "scenario": "partial-reader",
+      "violations": [],
+      "requests": 14
+    },
+    {
+      "scenario": "neria",
+      "violations": [],
+      "requests": 14
+    }
+  ],
+  "errors": []
+}

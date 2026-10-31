@@ -44,7 +44,7 @@ test("cipher shelf is public-only and never imports drafts or research-folder ro
 test("media shelf uses one bounded public World projection and preserves source identity", () => {
   assert.match(types, /fetchPublicWorldMediaPage\(\{ limit: 12 \}\)/);
   assert.match(types, /CanonicalMediaFigure2029/);
-  assert.match(types, /item\.sourceRef/);
+  assert.match(types, /buildPublicMediaContentProjection\(media\)/);
   assert.doesNotMatch(types, /from\(["']gallery_images["']\)|supabase/);
   const reader = entityHub.slice(entityHub.indexOf("export async function fetchPublicWorldMediaPage"), entityHub.indexOf("export async function fetchEntityTypeDefinition"));
   assert.match(reader, /eq\("published", 1\)/);
