@@ -1,0 +1,1441 @@
+{
+  "observed_code_head": "37db7b61b2c57939a5eded4ae18db16b87737a93",
+  "same_profile_builds": {
+    "baseline": {
+      "name": "central_base",
+      "eagerGzipBytes": 420781,
+      "records": 16
+    },
+    "integrated": {
+      "name": "integrated",
+      "eagerGzipBytes": 437834,
+      "records": 29
+    },
+    "eager_delta_bytes": 17053,
+    "eager_delta_percent": 4.05,
+    "gate_baseline_bytes": 458742,
+    "required_recovery_bytes": 12288,
+    "remaining_headroom_bytes": 8620
+  },
+  "current_tzofen_raw_bytes": 2566993,
+  "source_inventory": {
+    "observed_central_head": "37db7b61b2c57939a5eded4ae18db16b87737a93",
+    "observed_origin_main": "2195c9784c5c9f0b1ec3cd3c1137fbd76045845b",
+    "scope": "Targeted released deliveries and historical risks; not all GitHub work proven complete",
+    "sources": [
+      {
+        "label": "Books latest",
+        "branch": "codex/ahavat-preview-open-20261031",
+        "handoff_sha": "23e03e82a478bee55c6840252b7962ffe6ba5958",
+        "remote_sha": "23e03e82a478bee55c6840252b7962ffe6ba5958",
+        "remote_match": true,
+        "ancestor": true,
+        "status": "INCLUDED_BY_ANCESTRY"
+      },
+      {
+        "label": "Books spatial contract",
+        "branch": "gpt/2029-books-spatial-experience-binding-contract-20261027",
+        "handoff_sha": "b352aa399fb15cde22788ef5ec6a81b6bc940d6a",
+        "remote_sha": "b352aa399fb15cde22788ef5ec6a81b6bc940d6a",
+        "remote_match": true,
+        "ancestor": true,
+        "status": "INCLUDED_BY_ANCESTRY"
+      },
+      {
+        "label": "World latest",
+        "branch": "gpt/elections-world-seed-integration-20261030",
+        "handoff_sha": "d52ff6b834fbbaf69d2fa79177750c4bdf73c2ad",
+        "remote_sha": "d52ff6b834fbbaf69d2fa79177750c4bdf73c2ad",
+        "remote_match": true,
+        "ancestor": false,
+        "status": "PENDING_SEPARATE_ACCEPTANCE_OR_SEMANTIC_REVIEW"
+      },
+      {
+        "label": "Posts latest",
+        "branch": "gpt/posts-integrated-backgrounds-20261030",
+        "handoff_sha": "b65ef2109048069bce29d38e538e0abcd6d9b41e",
+        "remote_sha": "b65ef2109048069bce29d38e538e0abcd6d9b41e",
+        "remote_match": true,
+        "ancestor": true,
+        "status": "INCLUDED_BY_ANCESTRY"
+      },
+      {
+        "label": "ELS accepted cumulative",
+        "branch": "gpt/raziel-content-comparison-follow-handoff-20261031",
+        "handoff_sha": "4ea9ac370bd8a873d96dd8f4cb13c2a5515ad468",
+        "remote_sha": "4ea9ac370bd8a873d96dd8f4cb13c2a5515ad468",
+        "remote_match": true,
+        "ancestor": false,
+        "status": "INTEGRATED_BY_EXPLICIT_CUMULATIVE_DELTA"
+      },
+      {
+        "label": "ELS package",
+        "branch": "gpt/els-raziel-cumulative-integration-package-20261031",
+        "handoff_sha": "70e446fab2ccc960f9f08bfd2a86194bf8b53f38",
+        "remote_sha": "70e446fab2ccc960f9f08bfd2a86194bf8b53f38",
+        "remote_match": true,
+        "ancestor": false,
+        "status": "VERIFIED_PACKAGE_NOT_PRODUCT_MERGE"
+      },
+      {
+        "label": "Claude river/design active",
+        "branch": "ccr-e1d578f1-rrki1x",
+        "handoff_sha": "510bd8b20f5918432b3ce0e83e9432e35c1510b4",
+        "remote_sha": "510bd8b20f5918432b3ce0e83e9432e35c1510b4",
+        "remote_match": true,
+        "ancestor": false,
+        "status": "PENDING_SEPARATE_ACCEPTANCE_OR_SEMANTIC_REVIEW"
+      },
+      {
+        "label": "Historical performance",
+        "branch": "gpt/2029-unified-session-handoff-20261019",
+        "handoff_sha": "f19f7cfcb5530d9632c99d345c22c8b0124b6292",
+        "remote_sha": "f19f7cfcb5530d9632c99d345c22c8b0124b6292",
+        "remote_match": true,
+        "ancestor": false,
+        "status": "PENDING_SEPARATE_ACCEPTANCE_OR_SEMANTIC_REVIEW"
+      },
+      {
+        "label": "Historical Posts metrics A",
+        "branch": "ccr-37d8f2ad-y091xn",
+        "handoff_sha": "10e4a9e2940a5ace81809cde253adeb161df658e",
+        "remote_sha": "10e4a9e2940a5ace81809cde253adeb161df658e",
+        "remote_match": true,
+        "ancestor": false,
+        "status": "PENDING_SEPARATE_ACCEPTANCE_OR_SEMANTIC_REVIEW"
+      },
+      {
+        "label": "Global Living Ticker local delivery",
+        "branch": "gpt/2029-global-living-ticker-v1-20261031",
+        "handoff_sha": "5971a534819cb8ca15c6d67f3e771366011c9a33",
+        "remote_sha": null,
+        "ancestor": false,
+        "status": "LOCAL_ONLY_NOT_IN_CURRENT_CENTRAL_NOT_DEPLOYED"
+      }
+    ]
+  },
+  "historical_performance_carry": {
+    "current_head": "37db7b61b2c57939a5eded4ae18db16b87737a93",
+    "historical_base": "5de4d5772bbf2624d9f6195c00216d49df2d04d1",
+    "historical_package": "f19f7cfcb5530d9632c99d345c22c8b0124b6292",
+    "merge_base": "4651042dc5fdb09e872d9c9bbec688c070e7172a",
+    "groups": [
+      {
+        "id": "F01",
+        "title": "בסיס PR1100: הקדמת קריאות ראשיות, הגבלת עבודת World ותקציבי ביצועים",
+        "commits": [
+          {
+            "sha": "01ac7706409e488f4d503ad9a86a848c9e0f33b0",
+            "status": "SEMANTIC_REVIEW_REQUIRED"
+          }
+        ],
+        "status": "SEMANTIC_REVIEW_REQUIRED",
+        "product_paths": []
+      },
+      {
+        "id": "F02",
+        "title": "מתגי הביצועים הקיימים ותיקון לוח הבקרה",
+        "commits": [
+          {
+            "sha": "b4c5724cbea07197f9849d978cc7b1a06a856b48",
+            "status": "SEMANTIC_REVIEW_REQUIRED"
+          }
+        ],
+        "status": "SEMANTIC_REVIEW_REQUIRED",
+        "product_paths": [
+          {
+            "path": "src/App2029.jsx",
+            "comparison": "PATH_PRESENT_EVOLVED_REQUIRES_SEMANTIC_REVIEW"
+          },
+          {
+            "path": "src/components/TzofenEmbed.jsx",
+            "comparison": "PATH_PRESENT_EVOLVED_REQUIRES_SEMANTIC_REVIEW"
+          },
+          {
+            "path": "src/components/experience2029/DiscoveryGateways2029.jsx",
+            "comparison": "PATH_ABSENT_NOW_CHECK_REPLACEMENT"
+          },
+          {
+            "path": "src/components/experience2029/HomeComposition2029.jsx",
+            "comparison": "PATH_PRESENT_EVOLVED_REQUIRES_SEMANTIC_REVIEW"
+          },
+          {
+            "path": "src/components/experience2029/SystemFrame2029.jsx",
+            "comparison": "PATH_PRESENT_EVOLVED_REQUIRES_SEMANTIC_REVIEW"
+          },
+          {
+            "path": "src/components/experience2029/useSystemFeed2029.js",
+            "comparison": "PATH_PRESENT_EVOLVED_REQUIRES_SEMANTIC_REVIEW"
+          },
+          {
+            "path": "src/components/research/WorldSourceConnections.jsx",
+            "comparison": "PATH_PRESENT_EVOLVED_REQUIRES_SEMANTIC_REVIEW"
+          },
+          {
+            "path": "src/lib/research/entityHubProjection.js",
+            "comparison": "PATH_PRESENT_EVOLVED_REQUIRES_SEMANTIC_REVIEW"
+          },
+          {
+            "path": "src/lib/research/home2029Projection.js",
+            "comparison": "PATH_PRESENT_EVOLVED_REQUIRES_SEMANTIC_REVIEW"
+          },
+          {
+            "path": "src/lib/research/numberLookupTransport2029.js",
+            "comparison": "PATH_ABSENT_NOW_CHECK_REPLACEMENT"
+          },
+          {
+            "path": "src/lib/research/numberTierSignals.js",
+            "comparison": "PATH_PRESENT_EVOLVED_REQUIRES_SEMANTIC_REVIEW"
+          },
+          {
+            "path": "src/lib/research/numericResearch.js",
+            "comparison": "PATH_PRESENT_EVOLVED_REQUIRES_SEMANTIC_REVIEW"
+          },
+          {
+            "path": "src/lib/research/numericResearchBase.js",
+            "comparison": "PATH_PRESENT_EVOLVED_REQUIRES_SEMANTIC_REVIEW"
+          },
+          {
+            "path": "src/lib/research/researchSyncRuntime.js",
+            "comparison": "PATH_PRESENT_EVOLVED_REQUIRES_SEMANTIC_REVIEW"
+          },
+          {
+            "path": "src/lib/research/researchSyncRuntime.test.js",
+            "comparison": "PATH_PRESENT_EVOLVED_REQUIRES_SEMANTIC_REVIEW"
+          },
+          {
+            "path": "src/lib/research/worldRelationIdentity2029.js",
+            "comparison": "PATH_ABSENT_NOW_CHECK_REPLACEMENT"
+          },
+          {
+            "path": "src/lib/runtimeSwitchCosts2029.js",
+            "comparison": "PATH_ABSENT_NOW_CHECK_REPLACEMENT"
+          },
+          {
+            "path": "src/lib/runtimeSwitches2029.js",
+            "comparison": "PATH_ABSENT_NOW_CHECK_REPLACEMENT"
+          },
+          {
+            "path": "src/lib/supabase.js",
+            "comparison": "PATH_PRESENT_EVOLVED_REQUIRES_SEMANTIC_REVIEW"
+          },
+          {
+            "path": "src/pages/ControlPlane2029Page.jsx",
+            "comparison": "PATH_PRESENT_EVOLVED_REQUIRES_SEMANTIC_REVIEW"
+          },
+          {
+            "path": "src/pages/World2029Page.jsx",
+            "comparison": "PATH_PRESENT_EVOLVED_REQUIRES_SEMANTIC_REVIEW"
+          },
+          {
+            "path": "vite.config.js",
+            "comparison": "PATH_PRESENT_EVOLVED_REQUIRES_SEMANTIC_REVIEW"
+          }
+        ]
+      },
+      {
+        "id": "F03",
+        "title": "שחזור גלילה F2 והמתנה לתוכן שמגיע מאוחר",
+        "commits": [
+          {
+            "sha": "339d695bdb6f7888b1883f6d4caa9f291a96bcf5",
+            "status": "SEMANTIC_REVIEW_REQUIRED"
+          }
+        ],
+        "status": "SEMANTIC_REVIEW_REQUIRED",
+        "product_paths": [
+          {
+            "path": "src/lib/scrollRestore2029.js",
+            "comparison": "PATH_ABSENT_NOW_CHECK_REPLACEMENT"
+          }
+        ]
+      },
+      {
+        "id": "F04",
+        "title": "השהיית אנימציות אינסופיות בפוסט מחוץ למסך",
+        "commits": [
+          {
+            "sha": "a5f272d3868ed5f55db83f05abc2d32dec4d5cf0",
+            "status": "SEMANTIC_REVIEW_REQUIRED"
+          }
+        ],
+        "status": "SEMANTIC_REVIEW_REQUIRED",
+        "product_paths": [
+          {
+            "path": "src/lib/pauseOffscreenAnimations2029.js",
+            "comparison": "PATH_ABSENT_NOW_CHECK_REPLACEMENT"
+          },
+          {
+            "path": "src/pages/Post2029Page.jsx",
+            "comparison": "PATH_PRESENT_EVOLVED_REQUIRES_SEMANTIC_REVIEW"
+          }
+        ]
+      },
+      {
+        "id": "F05",
+        "title": "מניעת כניסת תלויות דפדפן לחבילת research-run ב-Edge",
+        "commits": [
+          {
+            "sha": "5c147e4a2db97ac035227f7c6d15787849f61f6e",
+            "status": "SEMANTIC_REVIEW_REQUIRED"
+          }
+        ],
+        "status": "SEMANTIC_REVIEW_REQUIRED",
+        "product_paths": [
+          {
+            "path": "src/lib/research/numberLookupTransport2029.js",
+            "comparison": "PATH_ABSENT_NOW_CHECK_REPLACEMENT"
+          }
+        ]
+      },
+      {
+        "id": "F06",
+        "title": "ניווט למקורות בעולם וקריאת העדפות אורח מוגבלת בפריוויו",
+        "commits": [
+          {
+            "sha": "a1f7cd0b08674daf89c98a666fc9676efca80998",
+            "status": "SEMANTIC_REVIEW_REQUIRED"
+          },
+          {
+            "sha": "b797b8d58f59a71f4871092d44f9c7b48662ad33",
+            "status": "SEMANTIC_REVIEW_REQUIRED"
+          }
+        ],
+        "status": "SEMANTIC_REVIEW_REQUIRED",
+        "product_paths": [
+          {
+            "path": "src/pages/World2029Page.jsx",
+            "comparison": "PATH_PRESENT_EVOLVED_REQUIRES_SEMANTIC_REVIEW"
+          }
+        ]
+      },
+      {
+        "id": "F07",
+        "title": "תיקון שעון המדידה, איסוף הבקשות ומדידת תוכן שמיש",
+        "commits": [
+          {
+            "sha": "70385dfc37e4028703850f0164822be8b518d758",
+            "status": "SEMANTIC_REVIEW_REQUIRED"
+          },
+          {
+            "sha": "3896ceb6cbd708d3c7fa09e976b0a38a15372d83",
+            "status": "SEMANTIC_REVIEW_REQUIRED"
+          }
+        ],
+        "status": "SEMANTIC_REVIEW_REQUIRED",
+        "product_paths": []
+      },
+      {
+        "id": "F08",
+        "title": "בידוד CI משירותים חיים, מלכודות UDP וקורפוס ציבורי מאושר",
+        "commits": [
+          {
+            "sha": "da86e7e06771391e1b8003461e349fbc7204488f",
+            "status": "SEMANTIC_REVIEW_REQUIRED"
+          },
+          {
+            "sha": "5e83540b28ddce1489ff299d66cc9688df4368cf",
+            "status": "SEMANTIC_REVIEW_REQUIRED"
+          },
+          {
+            "sha": "778400b60b7eb6ea230a3ab123c149c7ad8e8e72",
+            "status": "SEMANTIC_REVIEW_REQUIRED"
+          }
+        ],
+        "status": "SEMANTIC_REVIEW_REQUIRED",
+        "product_paths": []
+      },
+      {
+        "id": "F09",
+        "title": "כשל סגירת trace מוחזר ככשל ולא כהצלחה",
+        "commits": [
+          {
+            "sha": "2dc84a2c4398ed7bbcf66ecd2fe97ab83b7b5a13",
+            "status": "SEMANTIC_REVIEW_REQUIRED"
+          }
+        ],
+        "status": "SEMANTIC_REVIEW_REQUIRED",
+        "product_paths": []
+      },
+      {
+        "id": "F10",
+        "title": "בדיקת פרסום לפני חלונות מדיה של מספר",
+        "commits": [
+          {
+            "sha": "8e485a8ede585593b3ec7d5a708032263861152e",
+            "status": "SEMANTIC_REVIEW_REQUIRED"
+          }
+        ],
+        "status": "SEMANTIC_REVIEW_REQUIRED",
+        "product_paths": [
+          {
+            "path": "src/lib/supabase.js",
+            "comparison": "PATH_PRESENT_EVOLVED_REQUIRES_SEMANTIC_REVIEW"
+          }
+        ]
+      },
+      {
+        "id": "F11",
+        "title": "HomeV2: התאוששות, הודעת תקלה יציבה, שטח שמור וחזרה לקריאה",
+        "commits": [
+          {
+            "sha": "d325780c080715ddd827e808c100310c491ec58b",
+            "status": "SEMANTIC_REVIEW_REQUIRED"
+          },
+          {
+            "sha": "bd13ebe751a985b0892bb5eee65f63bdf2bc0e69",
+            "status": "SEMANTIC_REVIEW_REQUIRED"
+          }
+        ],
+        "status": "SEMANTIC_REVIEW_REQUIRED",
+        "product_paths": []
+      },
+      {
+        "id": "F12",
+        "title": "שליפת שדות כרטיס פוסט מצומצמים בבית",
+        "commits": [
+          {
+            "sha": "35189a2868d5865b66adeab4ee5afae0ba5a76d4",
+            "status": "SEMANTIC_REVIEW_REQUIRED"
+          }
+        ],
+        "status": "SEMANTIC_REVIEW_REQUIRED",
+        "product_paths": [
+          {
+            "path": "src/components/research/WorldFlightStory2029.jsx",
+            "comparison": "PATH_PRESENT_EVOLVED_REQUIRES_SEMANTIC_REVIEW"
+          },
+          {
+            "path": "src/lib/postReadQueries2029.js",
+            "comparison": "PATH_ABSENT_NOW_CHECK_REPLACEMENT"
+          },
+          {
+            "path": "src/lib/supabase.js",
+            "comparison": "PATH_PRESENT_EVOLVED_REQUIRES_SEMANTIC_REVIEW"
+          }
+        ]
+      },
+      {
+        "id": "F13",
+        "title": "StoryViewer וטופס דיווח לפי דרישה ב-2029; בידוד Legacy והתאוששות מכשל chunk",
+        "commits": [
+          {
+            "sha": "c942561cbcfbc011e7cb400a3f05601c2a75ff10",
+            "status": "SEMANTIC_REVIEW_REQUIRED"
+          },
+          {
+            "sha": "a414f395737e13d148e9e93dbb1876efdbc082de",
+            "status": "SEMANTIC_REVIEW_REQUIRED"
+          }
+        ],
+        "status": "SEMANTIC_REVIEW_REQUIRED",
+        "product_paths": [
+          {
+            "path": "src/components/OrGeulaStoryColumn.jsx",
+            "comparison": "PATH_PRESENT_EVOLVED_REQUIRES_SEMANTIC_REVIEW"
+          },
+          {
+            "path": "src/components/OrGeulaStoryColumnCore.jsx",
+            "comparison": "PATH_ABSENT_NOW_CHECK_REPLACEMENT"
+          },
+          {
+            "path": "src/components/experience2029/CompanionPanel2029.jsx",
+            "comparison": "PATH_PRESENT_EVOLVED_REQUIRES_SEMANTIC_REVIEW"
+          },
+          {
+            "path": "src/components/experience2029/OnDemandComponent2029.jsx",
+            "comparison": "PATH_ABSENT_NOW_CHECK_REPLACEMENT"
+          },
+          {
+            "path": "src/components/experience2029/OrGeulaSourceShortcut2029.jsx",
+            "comparison": "PATH_ABSENT_NOW_CHECK_REPLACEMENT"
+          },
+          {
+            "path": "src/components/experience2029/StoryViewerOnDemand2029.jsx",
+            "comparison": "PATH_ABSENT_NOW_CHECK_REPLACEMENT"
+          },
+          {
+            "path": "src/components/experience2029/SystemFrame2029.jsx",
+            "comparison": "PATH_PRESENT_EVOLVED_REQUIRES_SEMANTIC_REVIEW"
+          },
+          {
+            "path": "src/components/experience2029/onDemandLoader2029.js",
+            "comparison": "PATH_ABSENT_NOW_CHECK_REPLACEMENT"
+          },
+          {
+            "path": "src/components/experience2029/storyViewerRegistry2029.js",
+            "comparison": "PATH_ABSENT_NOW_CHECK_REPLACEMENT"
+          },
+          {
+            "path": "src/components/experience2029/systemFrame2029.css",
+            "comparison": "PATH_PRESENT_EVOLVED_REQUIRES_SEMANTIC_REVIEW"
+          }
+        ]
+      },
+      {
+        "id": "F14",
+        "title": "קוד World/Number מתחיל עם שערי ההרשאה; תוכן מוגן נשאר חסום עד אישור",
+        "commits": [
+          {
+            "sha": "7ede24ca6084f7b9339e672d67d025f379c67bcc",
+            "status": "SEMANTIC_REVIEW_REQUIRED"
+          }
+        ],
+        "status": "SEMANTIC_REVIEW_REQUIRED",
+        "product_paths": [
+          {
+            "path": "src/App2029.jsx",
+            "comparison": "PATH_PRESENT_EVOLVED_REQUIRES_SEMANTIC_REVIEW"
+          },
+          {
+            "path": "src/lib/lockedRouteCode2029.js",
+            "comparison": "PATH_ABSENT_NOW_CHECK_REPLACEMENT"
+          },
+          {
+            "path": "src/lib/postReadQueries2029.js",
+            "comparison": "PATH_ABSENT_NOW_CHECK_REPLACEMENT"
+          },
+          {
+            "path": "vite.config.js",
+            "comparison": "PATH_PRESENT_EVOLVED_REQUIRES_SEMANTIC_REVIEW"
+          }
+        ]
+      },
+      {
+        "id": "F15",
+        "title": "הסרת RPC בדיקת slug מהמתנת ניווט אנושי מתאים; שימור בדיקת crawler/HEAD",
+        "commits": [
+          {
+            "sha": "a831f3e8610732697e555d8aba2e09f46cefbdf8",
+            "status": "SEMANTIC_REVIEW_REQUIRED"
+          }
+        ],
+        "status": "SEMANTIC_REVIEW_REQUIRED",
+        "product_paths": []
+      },
+      {
+        "id": "F16",
+        "title": "מפקח שיטות המספר והמנוע המרחבי לפי דרישה",
+        "commits": [
+          {
+            "sha": "fe816232f43e006f62948ed46f4e3f0eaabd8675",
+            "status": "SEMANTIC_REVIEW_REQUIRED"
+          }
+        ],
+        "status": "SEMANTIC_REVIEW_REQUIRED",
+        "product_paths": [
+          {
+            "path": "src/components/number2029/NumberCore2029.jsx",
+            "comparison": "PATH_PRESENT_EVOLVED_REQUIRES_SEMANTIC_REVIEW"
+          },
+          {
+            "path": "src/components/number2029/NumberMethodInspector2029.jsx",
+            "comparison": "PATH_ABSENT_NOW_CHECK_REPLACEMENT"
+          }
+        ]
+      },
+      {
+        "id": "F17",
+        "title": "קריאת סרטוני המקרא בבית רק בהתקרבות לאזור",
+        "commits": [
+          {
+            "sha": "09d340e413c11097214f2e90c364b03650dc1f16",
+            "status": "SEMANTIC_REVIEW_REQUIRED"
+          }
+        ],
+        "status": "SEMANTIC_REVIEW_REQUIRED",
+        "product_paths": [
+          {
+            "path": "src/components/experience2029/DiscoveryGateways2029.jsx",
+            "comparison": "PATH_ABSENT_NOW_CHECK_REPLACEMENT"
+          }
+        ]
+      },
+      {
+        "id": "F18",
+        "title": "snapshot משותף של site_flags לכל ניווט 2029 עם רענון לפי הקשר",
+        "commits": [
+          {
+            "sha": "fd831f89499937824116609ab3b48241b1c0f761",
+            "status": "SEMANTIC_REVIEW_REQUIRED"
+          }
+        ],
+        "status": "SEMANTIC_REVIEW_REQUIRED",
+        "product_paths": [
+          {
+            "path": "src/lib/AuthContext.jsx",
+            "comparison": "PATH_PRESENT_EVOLVED_REQUIRES_SEMANTIC_REVIEW"
+          },
+          {
+            "path": "src/lib/runtimeSwitches2029.js",
+            "comparison": "PATH_ABSENT_NOW_CHECK_REPLACEMENT"
+          },
+          {
+            "path": "src/lib/siteFlagsReadScope2029.js",
+            "comparison": "PATH_ABSENT_NOW_CHECK_REPLACEMENT"
+          },
+          {
+            "path": "src/lib/supabase.js",
+            "comparison": "PATH_PRESENT_EVOLVED_REQUIRES_SEMANTIC_REVIEW"
+          }
+        ]
+      },
+      {
+        "id": "F19",
+        "title": "תשתית RUM v2 קיימת בקוד; הפעלה ומיגרציה חיות דורשות אימות נפרד",
+        "commits": [
+          {
+            "sha": "b10c5dd31ae224d0aeea713970fd4832b759a8d5",
+            "status": "SEMANTIC_REVIEW_REQUIRED"
+          }
+        ],
+        "status": "SEMANTIC_REVIEW_REQUIRED",
+        "product_paths": [
+          {
+            "path": "src/lib/usableContent2029.js",
+            "comparison": "PATH_ABSENT_NOW_CHECK_REPLACEMENT"
+          },
+          {
+            "path": "src/lib/webVitals2029.js",
+            "comparison": "PATH_PRESENT_EVOLVED_REQUIRES_SEMANTIC_REVIEW"
+          },
+          {
+            "path": "src/lib/webVitalsCore.js",
+            "comparison": "PATH_PRESENT_EVOLVED_REQUIRES_SEMANTIC_REVIEW"
+          },
+          {
+            "path": "src/main2029.jsx",
+            "comparison": "PATH_PRESENT_EVOLVED_REQUIRES_SEMANTIC_REVIEW"
+          },
+          {
+            "path": "vite.config.js",
+            "comparison": "PATH_PRESENT_EVOLVED_REQUIRES_SEMANTIC_REVIEW"
+          }
+        ]
+      },
+      {
+        "id": "F20",
+        "title": "Realtime/Phoenix נטען בעת שימוש במקום בכניסה הציבורית",
+        "commits": [
+          {
+            "sha": "05bc151ea2218b925d06ed044d3ad623e55811bb",
+            "status": "SEMANTIC_REVIEW_REQUIRED"
+          },
+          {
+            "sha": "31d3b42332c0f14cf14f82567b5f6a616d085539",
+            "status": "SEMANTIC_REVIEW_REQUIRED"
+          }
+        ],
+        "status": "SEMANTIC_REVIEW_REQUIRED",
+        "product_paths": [
+          {
+            "path": "src/lib/realtimeLazy2029.js",
+            "comparison": "PATH_ABSENT_NOW_CHECK_REPLACEMENT"
+          },
+          {
+            "path": "vite.config.js",
+            "comparison": "PATH_PRESENT_EVOLVED_REQUIRES_SEMANTIC_REVIEW"
+          }
+        ]
+      },
+      {
+        "id": "F21",
+        "title": "כרטיס סיפור בעולם מצומצם; ציר הזמן וההקרנה המלאה בעת פתיחה והתאוששות",
+        "commits": [
+          {
+            "sha": "8bdf43db24e93288b766f2d44d7653f0c8e0fee4",
+            "status": "SEMANTIC_REVIEW_REQUIRED"
+          },
+          {
+            "sha": "95686a1974feada006344e673447f0c8069b4426",
+            "status": "SEMANTIC_REVIEW_REQUIRED"
+          }
+        ],
+        "status": "SEMANTIC_REVIEW_REQUIRED",
+        "product_paths": [
+          {
+            "path": "src/components/research/WorldFlightStory2029.jsx",
+            "comparison": "PATH_PRESENT_EVOLVED_REQUIRES_SEMANTIC_REVIEW"
+          }
+        ]
+      },
+      {
+        "id": "F22",
+        "title": "דף מספר: פתיחה מצומצמת, זהות קנונית וכוונת משתמש לפני העמקה",
+        "commits": [
+          {
+            "sha": "6225b62bc479830ec33e0ba09200035fab81ce28",
+            "status": "SEMANTIC_REVIEW_REQUIRED"
+          },
+          {
+            "sha": "97f94b6e66fde738da62130db6876ece408bc655",
+            "status": "SEMANTIC_REVIEW_REQUIRED"
+          },
+          {
+            "sha": "3f48b87865bd887fb06751d8909a98f01cafa3ae",
+            "status": "SEMANTIC_REVIEW_REQUIRED"
+          }
+        ],
+        "status": "SEMANTIC_REVIEW_REQUIRED",
+        "product_paths": [
+          {
+            "path": "src/lib/research/entityHubNumberOpeningContext.test.js",
+            "comparison": "PATH_ABSENT_NOW_CHECK_REPLACEMENT"
+          },
+          {
+            "path": "src/lib/research/entityHubProjection.js",
+            "comparison": "PATH_PRESENT_EVOLVED_REQUIRES_SEMANTIC_REVIEW"
+          },
+          {
+            "path": "src/lib/research/numberDepthIntent2029.js",
+            "comparison": "PATH_ABSENT_NOW_CHECK_REPLACEMENT"
+          },
+          {
+            "path": "src/lib/research/numberOpeningIdentity2029.js",
+            "comparison": "PATH_ABSENT_NOW_CHECK_REPLACEMENT"
+          },
+          {
+            "path": "src/lib/research/numberOpeningOrchestration2029.js",
+            "comparison": "PATH_ABSENT_NOW_CHECK_REPLACEMENT"
+          },
+          {
+            "path": "src/lib/research/numberOpeningProjection2029.js",
+            "comparison": "PATH_ABSENT_NOW_CHECK_REPLACEMENT"
+          },
+          {
+            "path": "src/lib/research/numberSystemMethods.js",
+            "comparison": "PATH_PRESENT_EVOLVED_REQUIRES_SEMANTIC_REVIEW"
+          },
+          {
+            "path": "src/lib/research/researchW2ExecutorsBase.js",
+            "comparison": "PATH_PRESENT_EVOLVED_REQUIRES_SEMANTIC_REVIEW"
+          },
+          {
+            "path": "src/lib/research/scriptureDiscoveryProjection.js",
+            "comparison": "PATH_PRESENT_EVOLVED_REQUIRES_SEMANTIC_REVIEW"
+          },
+          {
+            "path": "src/pages/Number2029Page.jsx",
+            "comparison": "PATH_PRESENT_EVOLVED_REQUIRES_SEMANTIC_REVIEW"
+          }
+        ]
+      },
+      {
+        "id": "F23",
+        "title": "דחיית מדיה בגוף פוסט, שמירת מקום וכוונת wheel/touch לפני טעינה",
+        "commits": [
+          {
+            "sha": "c229de9d2449622c04a8fe72507abb06fa7ac983",
+            "status": "SEMANTIC_REVIEW_REQUIRED"
+          },
+          {
+            "sha": "560fdb0c608228899bde76e6df2cb373e1c34eb7",
+            "status": "SEMANTIC_REVIEW_REQUIRED"
+          },
+          {
+            "sha": "d44c05539ccd732a99d316c25c4edae3ab8103e5",
+            "status": "SEMANTIC_REVIEW_REQUIRED"
+          },
+          {
+            "sha": "270daa08d3f068bcee788670f7e2c185c5e53136",
+            "status": "SEMANTIC_REVIEW_REQUIRED"
+          }
+        ],
+        "status": "SEMANTIC_REVIEW_REQUIRED",
+        "product_paths": [
+          {
+            "path": "src/lib/postBodyMedia2029.js",
+            "comparison": "PATH_ABSENT_NOW_CHECK_REPLACEMENT"
+          },
+          {
+            "path": "src/pages/Post2029Page.jsx",
+            "comparison": "PATH_PRESENT_EVOLVED_REQUIRES_SEMANTIC_REVIEW"
+          },
+          {
+            "path": "src/pages/post2029-reading.css",
+            "comparison": "PATH_PRESENT_EVOLVED_REQUIRES_SEMANTIC_REVIEW"
+          }
+        ]
+      },
+      {
+        "id": "F24",
+        "title": "טעינת payload תצוגת פסוקים ב-ELS לפי צורך והקשחת פרסום הארטיפקט",
+        "commits": [
+          {
+            "sha": "e54014e037220d0f98cf3981fb46fe37d61bc232",
+            "status": "SEMANTIC_REVIEW_REQUIRED"
+          },
+          {
+            "sha": "d303739aa9c06df08e2a31402293f8d3ed4ad0a3",
+            "status": "SEMANTIC_REVIEW_REQUIRED"
+          }
+        ],
+        "status": "SEMANTIC_REVIEW_REQUIRED",
+        "product_paths": [
+          {
+            "path": "public/els-data/tk-vtext.134189ee3c5f9cb8.gzdata",
+            "comparison": "PATH_ABSENT_NOW_CHECK_REPLACEMENT"
+          },
+          {
+            "path": "public/tzofen.html",
+            "comparison": "PATH_PRESENT_EVOLVED_REQUIRES_SEMANTIC_REVIEW"
+          },
+          {
+            "path": "tools/els/README.md",
+            "comparison": "PATH_PRESENT_EVOLVED_REQUIRES_SEMANTIC_REVIEW"
+          },
+          {
+            "path": "tools/els/build.py",
+            "comparison": "PATH_PRESENT_EVOLVED_REQUIRES_SEMANTIC_REVIEW"
+          },
+          {
+            "path": "tools/els/els-code.template.html",
+            "comparison": "PATH_PRESENT_EVOLVED_REQUIRES_SEMANTIC_REVIEW"
+          }
+        ]
+      },
+      {
+        "id": "F25",
+        "title": "פתיחת Number לביקורת בפריוויו עם worker קשור לתוכן, SHA ומארח; חסימת כתיבות",
+        "commits": [
+          {
+            "sha": "89d076fd5c61e12930ecd5b090053773466dcb2c",
+            "status": "SEMANTIC_REVIEW_REQUIRED"
+          },
+          {
+            "sha": "ff24be456d1099708491d462f204646fa2d8cfba",
+            "status": "SEMANTIC_REVIEW_REQUIRED"
+          }
+        ],
+        "status": "SEMANTIC_REVIEW_REQUIRED",
+        "product_paths": [
+          {
+            "path": "src/components/MaintenanceLock.jsx",
+            "comparison": "PATH_PRESENT_EVOLVED_REQUIRES_SEMANTIC_REVIEW"
+          },
+          {
+            "path": "src/lib/numberReviewPreview2029.js",
+            "comparison": "PATH_ABSENT_NOW_CHECK_REPLACEMENT"
+          }
+        ]
+      },
+      {
+        "id": "F26",
+        "title": "הסרת דופק המערכת מנתיב הכניסה של הבית לפי בקשת צוריאל",
+        "commits": [
+          {
+            "sha": "261e4c2a7440a44a83953c94852a9b360759e77c",
+            "status": "SEMANTIC_REVIEW_REQUIRED"
+          }
+        ],
+        "status": "SEMANTIC_REVIEW_REQUIRED",
+        "product_paths": [
+          {
+            "path": "src/components/experience2029/HomeBuildSignup2029.jsx",
+            "comparison": "PATH_ABSENT_NOW_CHECK_REPLACEMENT"
+          },
+          {
+            "path": "src/components/experience2029/HomeComposition2029.jsx",
+            "comparison": "PATH_PRESENT_EVOLVED_REQUIRES_SEMANTIC_REVIEW"
+          },
+          {
+            "path": "src/components/experience2029/homeBuildSignup2029.css",
+            "comparison": "PATH_ABSENT_NOW_CHECK_REPLACEMENT"
+          },
+          {
+            "path": "src/components/experience2029/sod2029-closed.css",
+            "comparison": "PATH_PRESENT_EVOLVED_REQUIRES_SEMANTIC_REVIEW"
+          },
+          {
+            "path": "src/lib/research/home2029Projection.js",
+            "comparison": "PATH_PRESENT_EVOLVED_REQUIRES_SEMANTIC_REVIEW"
+          },
+          {
+            "path": "src/lib/runtimeSwitchCosts2029.js",
+            "comparison": "PATH_ABSENT_NOW_CHECK_REPLACEMENT"
+          },
+          {
+            "path": "src/lib/runtimeSwitches2029.js",
+            "comparison": "PATH_ABSENT_NOW_CHECK_REPLACEMENT"
+          },
+          {
+            "path": "src/pages/Home2029Page.jsx",
+            "comparison": "PATH_PRESENT_EVOLVED_REQUIRES_SEMANTIC_REVIEW"
+          },
+          {
+            "path": "src/pages/HomePreview2029Page.jsx",
+            "comparison": "PATH_PRESENT_EVOLVED_REQUIRES_SEMANTIC_REVIEW"
+          }
+        ]
+      },
+      {
+        "id": "F27",
+        "title": "שערי הגילוי בבית נטענים בהתקרבות",
+        "commits": [
+          {
+            "sha": "f239c7429f7a0e8483c5a3eb94bf93448fc3393b",
+            "status": "SEMANTIC_REVIEW_REQUIRED"
+          }
+        ],
+        "status": "SEMANTIC_REVIEW_REQUIRED",
+        "product_paths": [
+          {
+            "path": "src/components/experience2029/DiscoveryGateways2029.jsx",
+            "comparison": "PATH_ABSENT_NOW_CHECK_REPLACEMENT"
+          }
+        ]
+      },
+      {
+        "id": "F28",
+        "title": "הקורא הכבד של חיבורים בבית נטען בהתקרבות",
+        "commits": [
+          {
+            "sha": "7998b4807607a2f86d723f363d25a4a33f4bb70a",
+            "status": "SEMANTIC_REVIEW_REQUIRED"
+          }
+        ],
+        "status": "SEMANTIC_REVIEW_REQUIRED",
+        "product_paths": [
+          {
+            "path": "src/components/experience2029/HomeComposition2029.jsx",
+            "comparison": "PATH_PRESENT_EVOLVED_REQUIRES_SEMANTIC_REVIEW"
+          },
+          {
+            "path": "src/components/experience2029/homeComposition2029.css",
+            "comparison": "PATH_PRESENT_EVOLVED_REQUIRES_SEMANTIC_REVIEW"
+          }
+        ]
+      },
+      {
+        "id": "F29",
+        "title": "תצוגת העולם בבית והמודולים שלה נדחים עד התקרבות, לאחר התייצבות הראשי",
+        "commits": [
+          {
+            "sha": "6ff16633ce0db2bf79e4bdf4eddb1b4224bfed27",
+            "status": "SEMANTIC_REVIEW_REQUIRED"
+          },
+          {
+            "sha": "0568b2581d3c2076f5d871024cdf68d8b8677a7f",
+            "status": "SEMANTIC_REVIEW_REQUIRED"
+          },
+          {
+            "sha": "e994cb67120fa0f735ab3859aa5acba67e24adba",
+            "status": "SEMANTIC_REVIEW_REQUIRED"
+          }
+        ],
+        "status": "SEMANTIC_REVIEW_REQUIRED",
+        "product_paths": [
+          {
+            "path": "src/components/experience2029/HomeComposition2029.jsx",
+            "comparison": "PATH_PRESENT_EVOLVED_REQUIRES_SEMANTIC_REVIEW"
+          },
+          {
+            "path": "src/components/experience2029/homeComposition2029.css",
+            "comparison": "PATH_PRESENT_EVOLVED_REQUIRES_SEMANTIC_REVIEW"
+          },
+          {
+            "path": "src/pages/Home2029Page.jsx",
+            "comparison": "PATH_PRESENT_EVOLVED_REQUIRES_SEMANTIC_REVIEW"
+          }
+        ]
+      },
+      {
+        "id": "F30",
+        "title": "הסרת העת עכשיו וקריאות הזמן הנלוות מפתיחת Home 2029",
+        "commits": [
+          {
+            "sha": "1085305ddd5639fd16f7bed19458acfda7f17791",
+            "status": "SEMANTIC_REVIEW_REQUIRED"
+          }
+        ],
+        "status": "SEMANTIC_REVIEW_REQUIRED",
+        "product_paths": [
+          {
+            "path": "src/components/experience2029/HomeComposition2029.jsx",
+            "comparison": "PATH_PRESENT_EVOLVED_REQUIRES_SEMANTIC_REVIEW"
+          },
+          {
+            "path": "src/pages/Home2029Page.jsx",
+            "comparison": "PATH_PRESENT_EVOLVED_REQUIRES_SEMANTIC_REVIEW"
+          }
+        ]
+      },
+      {
+        "id": "F31",
+        "title": "בדיקת קבלת פוסט לכרטיס הבית אינה מושכת את worldDiscoveryStream",
+        "commits": [
+          {
+            "sha": "aa0b27500457bb89f96f36ecf0a73b7a80488c50",
+            "status": "SEMANTIC_REVIEW_REQUIRED"
+          }
+        ],
+        "status": "SEMANTIC_REVIEW_REQUIRED",
+        "product_paths": [
+          {
+            "path": "src/components/research/WorldFlightStory2029.jsx",
+            "comparison": "PATH_PRESENT_EVOLVED_REQUIRES_SEMANTIC_REVIEW"
+          },
+          {
+            "path": "src/lib/postReadQueries2029.js",
+            "comparison": "PATH_ABSENT_NOW_CHECK_REPLACEMENT"
+          },
+          {
+            "path": "src/lib/research/worldDiscoveryStream.js",
+            "comparison": "PATH_PRESENT_EVOLVED_REQUIRES_SEMANTIC_REVIEW"
+          }
+        ]
+      },
+      {
+        "id": "F32",
+        "title": "איחוד Hybrid ששומר עוגן Legacy ומפת בעלות נתיבים להחלפה הדרגתית",
+        "commits": [
+          {
+            "sha": "fe47d8827eac15dcc9c11259a576b9af6733e7c7",
+            "status": "SEMANTIC_REVIEW_REQUIRED"
+          },
+          {
+            "sha": "83e1246a4393bbd55e7b2637769e0a95607f675c",
+            "status": "SEMANTIC_REVIEW_REQUIRED"
+          },
+          {
+            "sha": "dcf124cb2f91576cd57fa2512c2a1dbe4318e570",
+            "status": "SEMANTIC_REVIEW_REQUIRED"
+          }
+        ],
+        "status": "SEMANTIC_REVIEW_REQUIRED",
+        "product_paths": [
+          {
+            "path": "src/App.jsx",
+            "comparison": "PATH_PRESENT_EVOLVED_REQUIRES_SEMANTIC_REVIEW"
+          }
+        ]
+      },
+      {
+        "id": "F33",
+        "title": "פריוויו מתארח עם קבלות ארטיפקטים, shallow checkout מדויק וכניסת שורש ל-2029",
+        "commits": [
+          {
+            "sha": "ec0e78149bf046f97ab5b0b785a45150f754c153",
+            "status": "SEMANTIC_REVIEW_REQUIRED"
+          },
+          {
+            "sha": "60f571865d584e5e44c1372b7af95420654900b6",
+            "status": "SEMANTIC_REVIEW_REQUIRED"
+          },
+          {
+            "sha": "580ede725c0fc52a3f20746e9b23bf227216e6c1",
+            "status": "SEMANTIC_REVIEW_REQUIRED"
+          }
+        ],
+        "status": "SEMANTIC_REVIEW_REQUIRED",
+        "product_paths": [
+          {
+            "path": "vercel.json",
+            "comparison": "PATH_PRESENT_EVOLVED_REQUIRES_SEMANTIC_REVIEW"
+          }
+        ]
+      },
+      {
+        "id": "F34",
+        "title": "תוכן המקור בפוסט לפני ההעמקות; ההרחבות אינן מסתירות מקור כשנכשלות",
+        "commits": [
+          {
+            "sha": "5de4d5772bbf2624d9f6195c00216d49df2d04d1",
+            "status": "SEMANTIC_REVIEW_REQUIRED"
+          }
+        ],
+        "status": "SEMANTIC_REVIEW_REQUIRED",
+        "product_paths": [
+          {
+            "path": "src/lib/research/goldenPostContextPacks.test.js",
+            "comparison": "PATH_PRESENT_EVOLVED_REQUIRES_SEMANTIC_REVIEW"
+          },
+          {
+            "path": "src/lib/research/post2029PrimaryProjection.js",
+            "comparison": "PATH_ABSENT_NOW_CHECK_REPLACEMENT"
+          },
+          {
+            "path": "src/lib/research/post2029ReadingProjection.js",
+            "comparison": "PATH_PRESENT_EVOLVED_REQUIRES_SEMANTIC_REVIEW"
+          },
+          {
+            "path": "src/pages/Post2029Page.jsx",
+            "comparison": "PATH_PRESENT_EVOLVED_REQUIRES_SEMANTIC_REVIEW"
+          }
+        ]
+      }
+    ],
+    "limits": "Ancestry/whole-patch equivalence only. Rewritten or semantically adapted fixes require file/function review. A plus sign does not prove lost work. No history imported."
+  },
+  "measurement_limits": "Build/graph and static carry audit. No hosted cold-cache timing, no p75 LCP/INP/CLS conclusion, no real-account or paid-model acceptance. Same dependencies and gate gzip settings for both builds.",
+  "pending_shared_file_overlap": [
+    {
+      "name": "World",
+      "source_head": "d52ff6b834fbbaf69d2fa79177750c4bdf73c2ad",
+      "central_head": "37db7b61b2c57939a5eded4ae18db16b87737a93",
+      "common_base": "71e9cb9061870f5e8124b25eb33fd08a8a2ba5e4",
+      "source_delta_file_count": 46,
+      "central_delta_file_count": 645,
+      "overlap_paths": [
+        "package.json",
+        "src/components/experience2029/SystemFrame2029.jsx",
+        "src/components/experience2029/razielSessionSeam2029.js",
+        "src/lib/supabase.js"
+      ],
+      "overlap_count": 4,
+      "limit": "Overlap is an inspection priority, not a textual conflict, ownership transfer or permission to merge."
+    },
+    {
+      "name": "Claude active design",
+      "source_head": "510bd8b20f5918432b3ce0e83e9432e35c1510b4",
+      "central_head": "37db7b61b2c57939a5eded4ae18db16b87737a93",
+      "common_base": "71e9cb9061870f5e8124b25eb33fd08a8a2ba5e4",
+      "source_delta_file_count": 21,
+      "central_delta_file_count": 645,
+      "overlap_paths": [],
+      "overlap_count": 0,
+      "limit": "Overlap is an inspection priority, not a textual conflict, ownership transfer or permission to merge."
+    },
+    {
+      "name": "Ticker local",
+      "source_head": "5971a534819cb8ca15c6d67f3e771366011c9a33",
+      "central_head": "37db7b61b2c57939a5eded4ae18db16b87737a93",
+      "common_base": "ec6610ae4e481427fadcb66052e8e38dc356bf87",
+      "source_delta_file_count": 8,
+      "central_delta_file_count": 664,
+      "overlap_paths": [
+        "src/components/experience2029/SystemFrame2029.jsx"
+      ],
+      "overlap_count": 1,
+      "limit": "Overlap is an inspection priority, not a textual conflict, ownership transfer or permission to merge."
+    }
+  ],
+  "world_source_fresh_checks": {
+    "head": "d52ff6b834fbbaf69d2fa79177750c4bdf73c2ad",
+    "one_tree_gate": {
+      "tests": 78,
+      "pass": 78,
+      "fail": 0,
+      "skip": 0
+    },
+    "gate_wiring": {
+      "tests": 4,
+      "pass": 4,
+      "fail": 0
+    },
+    "worktree": "clean detached source audit",
+    "limit": "Source-only static acceptance; no central merge or browser/source-data intake claim",
+    "legacy_build": "PASS",
+    "build_2029": "PASS",
+    "graph": "PASS; eager gzip 422679, recovery36063; submit/plan lazy",
+    "isolation": "PASS"
+  },
+  "world_claude_shared_lineage": {
+    "common_base": "fba5cf573d69acd57e0f01845b7b4141a4a2835d",
+    "claude_exclusive_commits": [
+      "32974e832060d0e28a2a68c08407ff40bc181c2a",
+      "b2ddae4f8be8ced8842a9dfe011906aded1c3900",
+      "510bd8b20f5918432b3ce0e83e9432e35c1510b4"
+    ],
+    "limit": "World already includes original river/all-source work through common base. Do not reimport that chain when receiving later Claude colours/proposal."
+  },
+  "accessible_worktree_scan": [
+    {
+      "path": "/workspace/sod1820",
+      "head": "618cbe4fe31435696640a9d9a5f93df1da074864",
+      "branch": "refs/heads/gpt/2029-central-els-cumulative-integration-20261027",
+      "dirty_count": 0,
+      "status": "CLEAN",
+      "changed_paths": []
+    },
+    {
+      "path": "/workspace/sod1820-books-spatial-contract",
+      "head": "b352aa399fb15cde22788ef5ec6a81b6bc940d6a",
+      "branch": "refs/heads/gpt/2029-books-spatial-experience-binding-contract-20261027",
+      "dirty_count": 0,
+      "status": "CLEAN",
+      "changed_paths": []
+    },
+    {
+      "path": "/workspace/sod1820-books-spatial-source403",
+      "head": "40382ae21b9ca2d6ca38f58c387542b993d18f69",
+      "branch": null,
+      "dirty_count": 0,
+      "status": "CLEAN",
+      "changed_paths": []
+    },
+    {
+      "path": "/workspace/sod1820-central-books-ahavat-integration-20261031",
+      "head": "14b3b14fa09ee7c0654b1431b8792d45b61170fc",
+      "branch": "refs/heads/gpt/2029-central-books-ahavat-integration-20261031",
+      "dirty_count": 0,
+      "status": "CLEAN",
+      "changed_paths": []
+    },
+    {
+      "path": "/workspace/sod1820-central-books-spatial-contract",
+      "head": "1549fa60d91dd1b68f3b1f38b9d55481d0d87185",
+      "branch": "refs/heads/gpt/2029-central-books-spatial-contract-integration-20261027",
+      "dirty_count": 0,
+      "status": "CLEAN",
+      "changed_paths": []
+    },
+    {
+      "path": "/workspace/sod1820-central-elections-session-20261029",
+      "head": "17c7a09f5e2c7fa4eb45148a9ff62d92aaa0814c",
+      "branch": "refs/heads/gpt/2029-central-elections-session-integration-20261029",
+      "dirty_count": 0,
+      "status": "CLEAN",
+      "changed_paths": []
+    },
+    {
+      "path": "/workspace/sod1820-central-posts-els-raziel-20261031",
+      "head": "37db7b61b2c57939a5eded4ae18db16b87737a93",
+      "branch": "refs/heads/gpt/2029-central-posts-els-raziel-integration-20261031",
+      "dirty_count": 4,
+      "status": "DIRTY_DO_NOT_OVERWRITE",
+      "changed_paths": [
+        "docs/reviews/central-posts-els-raziel-integration-20261031.json",
+        "test/els-native-ui-browser.test.mjs",
+        "docs/reviews/central-baselines-performance-audit-20261031.json",
+        "docs/reviews/central-baselines-performance-audit-20261031.md"
+      ]
+    },
+    {
+      "path": "/workspace/sod1820-central-shell-20261029",
+      "head": "3445e2dcf3b3ee5724713f0b72e5da7cfb6953d0",
+      "branch": "refs/heads/gpt/2029-central-shell-alignment-20261029",
+      "dirty_count": 0,
+      "status": "CLEAN",
+      "changed_paths": []
+    },
+    {
+      "path": "/workspace/sod1820-central-topbar-20261029",
+      "head": "b9121d1f191b9510b96a6c0dcfa337058c8c8396",
+      "branch": "refs/heads/gpt/2029-central-topbar-menu-completion-20261029",
+      "dirty_count": 0,
+      "status": "CLEAN",
+      "changed_paths": []
+    },
+    {
+      "path": "/workspace/sod1820-central-ui-carry-20261029",
+      "head": "e8da6c31c7550c680fd2548a8dadf3ce78539335",
+      "branch": "refs/heads/gpt/2029-central-ui-carry-restoration-20261029",
+      "dirty_count": 0,
+      "status": "CLEAN",
+      "changed_paths": []
+    },
+    {
+      "path": "/workspace/sod1820-central-world-rebuilt-20261029",
+      "head": "ff23ae685dcae824c4cdb45830fc1578820bcf1d",
+      "branch": "refs/heads/gpt/2029-central-world-rebuilt-acceptance-20261029",
+      "dirty_count": 10,
+      "status": "DIRTY_DO_NOT_OVERWRITE",
+      "changed_paths": [
+        "src/components/research/WorldKnowledgeTypes2029.jsx",
+        "src/components/research/WorldPeopleSources2029.jsx",
+        "src/components/research/WorldSourceConnections.jsx",
+        "src/components/research/WorldSourceInspector2029.jsx",
+        "src/components/research/WorldSourceStory.jsx",
+        "src/lib/research/zviMultiValueWorldProjection.js",
+        "test/world-knowledge-types-2029.test.mjs",
+        "test/world-writer-source-focus-2029.browser.py",
+        "node_modules",
+        "work/"
+      ]
+    },
+    {
+      "path": "/workspace/sod1820-central-world-zvi-20261029",
+      "head": "05dfa0ce7caae900e72d1049d301d955e0845952",
+      "branch": "refs/heads/gpt/2029-central-world-zvi-tree-integration-20261029",
+      "dirty_count": 0,
+      "status": "CLEAN",
+      "changed_paths": []
+    },
+    {
+      "path": "/workspace/sod1820-central-zvi-public-material-20261029",
+      "head": "91eb33f354c555abac09f49c058616cd4568968a",
+      "branch": "refs/heads/gpt/2029-central-zvi-public-material-20261029",
+      "dirty_count": 0,
+      "status": "CLEAN",
+      "changed_paths": []
+    },
+    {
+      "path": "/workspace/sod1820-central-zvi-research-experience-20261029",
+      "head": "d2190811cdd87be2581425228ac9b339a2b22d4b",
+      "branch": "refs/heads/gpt/2029-central-zvi-research-experience-20261029",
+      "dirty_count": 0,
+      "status": "CLEAN",
+      "changed_paths": []
+    },
+    {
+      "path": "/workspace/sod1820-central-zvi-world-source-tree-20261030",
+      "head": "500710e6301d4a3029e3db79067fd7fb80e12a7f",
+      "branch": "refs/heads/gpt/2029-central-zvi-world-source-tree-20261030",
+      "dirty_count": 0,
+      "status": "CLEAN",
+      "changed_paths": []
+    },
+    {
+      "path": "/workspace/sod1820-community-filter-tiles-20261029",
+      "head": "e6d181265bebfc41608a617682a6e56f9e408612",
+      "branch": "refs/heads/gpt/2029-central-community-filter-tiles-20261029",
+      "dirty_count": 0,
+      "status": "CLEAN",
+      "changed_paths": []
+    },
+    {
+      "path": "/workspace/sod1820-community-small-filters-20261029",
+      "head": "d765e2ec1c4625b01a885e2f0722105a47159e6c",
+      "branch": "refs/heads/gpt/2029-central-community-small-filters-20261029",
+      "dirty_count": 0,
+      "status": "CLEAN",
+      "changed_paths": []
+    },
+    {
+      "path": "/workspace/sod1820-els-package-audit-20261031",
+      "head": "70e446fab2ccc960f9f08bfd2a86194bf8b53f38",
+      "branch": null,
+      "dirty_count": 0,
+      "status": "CLEAN",
+      "changed_paths": []
+    },
+    {
+      "path": "/workspace/sod1820-global-living-ticker-v1-20261031",
+      "head": "5971a534819cb8ca15c6d67f3e771366011c9a33",
+      "branch": "refs/heads/gpt/2029-global-living-ticker-v1-20261031",
+      "dirty_count": 0,
+      "status": "CLEAN",
+      "changed_paths": []
+    },
+    {
+      "path": "/workspace/sod1820-one-tree-unified-findings-contract-20261030",
+      "head": "ca49279f3162210d48ae7203d7d3a77e45db06de",
+      "branch": "refs/heads/gpt/2029-one-tree-unified-findings-contract-20261030",
+      "dirty_count": 0,
+      "status": "CLEAN",
+      "changed_paths": []
+    },
+    {
+      "path": "/workspace/sod1820-or-geula-acceptance",
+      "head": "16e642be0fcdb1c64bfd3212ebba9f9f1c489dac",
+      "branch": "refs/heads/gpt/legacy-or-geula-audio-acceptance-20261027",
+      "dirty_count": 0,
+      "status": "CLEAN",
+      "changed_paths": []
+    },
+    {
+      "path": "/workspace/sod1820-public-context-labels-20261029",
+      "head": "a8b77bdb037c03260a6310ed43e12253681fa169",
+      "branch": "refs/heads/gpt/2029-central-public-context-labels-20261029",
+      "dirty_count": 0,
+      "status": "CLEAN",
+      "changed_paths": []
+    },
+    {
+      "path": "/workspace/sod1820-single-command-bar-20261029",
+      "head": "658902d3ac3610991a34b2580a8976a28be363d4",
+      "branch": "refs/heads/gpt/2029-central-single-command-bar-20261029",
+      "dirty_count": 0,
+      "status": "CLEAN",
+      "changed_paths": []
+    },
+    {
+      "path": "/workspace/sod1820-unified-workspace-20261029",
+      "head": "346e3b169ed3f9bf589c3050ab19c0ae7d0e728f",
+      "branch": "refs/heads/gpt/2029-central-unified-workspace-20261029",
+      "dirty_count": 0,
+      "status": "CLEAN",
+      "changed_paths": []
+    },
+    {
+      "path": "/workspace/sod1820-world-delivery-audit-20261031",
+      "head": "d52ff6b834fbbaf69d2fa79177750c4bdf73c2ad",
+      "branch": null,
+      "dirty_count": 0,
+      "status": "CLEAN",
+      "changed_paths": []
+    }
+  ],
+  "uncommitted_world_preservation": {
+    "worktree": "/workspace/sod1820-central-world-rebuilt-20261029",
+    "base": "ff23ae685dcae824c4cdb45830fc1578820bcf1d",
+    "files": [
+      {
+        "path": "src/components/research/WorldKnowledgeTypes2029.jsx",
+        "status": " M",
+        "local_blob": "01c81094e74a46f1ee8f4742d8011f817532c2c4",
+        "matches": []
+      },
+      {
+        "path": "src/components/research/WorldPeopleSources2029.jsx",
+        "status": " M",
+        "local_blob": "76a8d9d393dc265099664d20625f19ccb72e49a3",
+        "matches": []
+      },
+      {
+        "path": "src/components/research/WorldSourceConnections.jsx",
+        "status": " M",
+        "local_blob": "57642843a1db98135360c64583a5967f1855fe13",
+        "matches": []
+      },
+      {
+        "path": "src/components/research/WorldSourceInspector2029.jsx",
+        "status": " M",
+        "local_blob": "afa114b2b175583e6f477cdec594f302d764a7fe",
+        "matches": []
+      },
+      {
+        "path": "src/components/research/WorldSourceStory.jsx",
+        "status": " M",
+        "local_blob": "e6dd5a36c8b6f4aa551875086233fb8574c95f07",
+        "matches": []
+      },
+      {
+        "path": "src/lib/research/zviMultiValueWorldProjection.js",
+        "status": " M",
+        "local_blob": "be2d33949cdc4d51b18a4b2776585203854ba364",
+        "matches": []
+      },
+      {
+        "path": "test/world-knowledge-types-2029.test.mjs",
+        "status": " M",
+        "local_blob": "a6e8c511d5e830a1bb2531efdf1d16075cde1b65",
+        "matches": []
+      },
+      {
+        "path": "test/world-writer-source-focus-2029.browser.py",
+        "status": " M",
+        "local_blob": "602c701297b09964819f24b8cebee16c323e84d3",
+        "matches": []
+      },
+      {
+        "path": "node_modules",
+        "status": "??",
+        "local_blob": null,
+        "matches": []
+      },
+      {
+        "path": "work/",
+        "status": "??",
+        "local_blob": null,
+        "matches": []
+      }
+    ],
+    "preservation": "/tmp/central-world-dirty-preservation-20261031.tar.gz",
+    "limit": "Read-only local capture; no ownership assumed, source worktree unchanged, no unreviewed product imported.",
+    "backup_sha256": "c0afa21c7a16193c18e95f85584b81a8a1093179ccbf9b92de250cfa665c575f",
+    "extra_evidence": "work/evidence/world-writer-source-focus/results.json",
+    "excluded_generated_dependency_link": "node_modules"
+  },
+  "ticker_local_preservation": {
+    "path": "/tmp/sod1820-ticker-5971-20261031.bundle",
+    "bytes": 11194,
+    "sha256": "ee9db23abdb65321a55ef91f58a6e4884354321b25d1faf89348e770e35514da",
+    "branch": "gpt/2029-global-living-ticker-v1-20261031",
+    "head": "5971a534819cb8ca15c6d67f3e771366011c9a33",
+    "prerequisite": "ec6610ae4e481427fadcb66052e8e38dc356bf87",
+    "verified": true,
+    "limit": "Local incremental Git bundle, not a remote push or integration. Receiver must have prerequisite and recheck coordination."
+  }
+}

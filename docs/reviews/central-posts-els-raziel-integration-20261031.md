@@ -29,7 +29,7 @@ Do not use absence of ELS ancestry as permission to replay this cumulative patch
 
 ## Shared-file resolutions and exclusions
 
-165 of the 178 manifest paths are byte-identical to the source. Seven are adapted;
+164 of the 178 manifest paths are byte-identical to the source. Eight are adapted;
 one generated HTML is rebuilt from the canonical template. The other five are
 historical Preview policy/test exclusions, detailed below and in the JSON.
 
@@ -58,6 +58,15 @@ historical Preview policy/test exclusions, detailed below and in the JSON.
   `raziel-account-preview`. The latter's two independent saved-sync/map assertions
   are retained unchanged in `test/raziel-saved-sync-2029.test.mjs`.
 - Two source test/helper trailing blank lines were removed; no assertion changed.
+- Native browser acceptance follows the current central More menu for global search
+  and exact tool return. It reveals the collapsed matrix display-options region
+  before checking that Fit is disabled during pending verification. Same engine
+  counts, stale-completion, canonical denial, touch size and identity assertions remain.
+- A restrictive integration adaptation registers this exact new central branch in
+  the existing static Preview read-only guard, with its existing negative auth/Person/
+  ELS-write tests extended to that branch. A fresh live owner scan found no overlap;
+  the existing BEFORE scope was extended explicitly. This closes a branch-identity
+  gap without granting a Preview action or importing historical write exceptions.
 
 ## Actual verification
 
@@ -72,8 +81,33 @@ historical Preview policy/test exclusions, detailed below and in the JSON.
 - Built graph/lazy: PASS, eager JS gzip **437,834 bytes**, **20,908 bytes recovered**
   above required 12,288 floor. Submit adapter/resolver and Research Plan remain lazy.
 - Hard isolation, cheap hardening, Legacy Production lock and public language: PASS.
-- Browser, Follow Center and committed-source ai-analyze packaging: pending completion
-  of this receipt; no acceptance claim yet.
+- Integrated Preview Auth Guard: **9/9**, including current central branch read-only denial.
+- Full affected Browser rerun: **79/79**, zero failures/skips/cancellations,
+  with `ELS_NATIVE_CACHE_DIR=/tmp/central-els-native-acceptance-cache` and serial
+  test-file execution. Actual ELS tool/native corpus and built global app are used;
+  model/auth/backend responses are declared intercepted fixtures, never paid calls.
+  Includes 320/360/390/768/1440 where applicable, three presets, exact returns,
+  manual selection/cross/continuation, reading jobs/cards, cancellation/principal
+  isolation, account save→ACK→fresh-browser restore, and Posts→global Raziel.
+- Follow Center Browser: **38 cases**, zero failures/errors/unexpected requests/live writes.
+- Existing central single-command-bar Browser: **121 cases**, zero failures/page
+  errors/model requests, all declared surfaces and presets; telemetry intercepted.
+- Committed-source `package:ai-analyze`: PASS, **15 committed sources**, verify_jwt=true.
+
+The earlier full Browser attempt was **76/79**. Two tests were adapted to the
+accepted central More menu and collapsed Fit control; their original behavior
+assertions were retained. The third timeout occurred at the tool-ready precondition
+before the phrase search; isolated central and clean source runs both passed.
+The final full 79-case rerun above passed with the existing separate-cache option.
+This is one successful full acceptance run, not proof that all future harness
+flakiness or real-device/network problems are eliminated.
+
+Full browser logs: `/tmp/central-els-browser-acceptance.log`; earlier attempt:
+`/tmp/central-els-browser-final.log`. Independent unit selections overlap and must
+not be added into a synthetic global test total. Baseline/performance/source overlap
+and preservation details are in `central-baselines-performance-audit-20261031.md`.
+The current branch matches `gpt/*` automatic-deployment denial in vercel.json;
+pushing this branch is not a hosted deployment.
 
 The 17 old static source-shape failure titles were independently reproduced in a
 clean source-package checkout (116 tests: 99 pass / 17 fail). The same selection on
@@ -126,6 +160,16 @@ audience store, new Provider or service-role access to personal traffic is added
 
 Until that interface is verified, connecting both signals is **BLOCKED_BY_AUTHORIZED
 ACTIVITY_READER**, not complete. No DB/RLS changes are authorized in this integration.
+
+## Continuation base rules
+
+Use the final pushed HEAD of this branch as the continuation base. The runtime
+integration commit is `37db7b61b2c57939a5eded4ae18db16b87737a93`; later commits record
+acceptance/test routing and restrictive guard registration, not a second ELS import.
+Fetch and verify the exact final SHA before creating an isolated continuation branch.
+Do not start again at 4ea9ac37 or replay the ordered 75 commits. Retain the default-off
+experimental path and existing one Provider, chat, transport and canonical engine.
+A source-only test pass or the old hosted preview is not proof this new SHA is deployed.
 
 ## Remaining release limits
 

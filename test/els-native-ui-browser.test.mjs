@@ -1452,10 +1452,14 @@ test('native UI: actual SystemFrame dock owns search, tools, Raziel and registra
    await dock.getByRole('button',{name:'פעולות המערכת',exact:true}).click();
    assert.equal(await dock.getAttribute('data-command-mode'),'global');
    assert.ok(Math.abs((await orb().boundingBox()).x-orbX)<1,'Raziel keeps its stable slot');
-   await dock.getByRole('button',{name:/חיפוש/}).click();
+   // The central single command bar keeps global search and return-to-tool in More.
+   await dock.getByRole('button',{name:'עוד · פעולות וכלים',exact:true}).click();
+   const more=page.getByRole('dialog',{name:'פעולות וכלים',exact:true});
+   await more.getByRole('button',{name:'חיפוש',exact:true}).click();
    await page.getByRole('dialog',{name:'חיפוש',exact:true}).waitFor();
    await page.keyboard.press('Escape');assert.equal(await page.getByRole('dialog').count(),0);
-   await dock.getByRole('button',{name:'חזור לכלי הצופן',exact:true}).click();
+   await dock.getByRole('button',{name:'עוד · פעולות וכלים',exact:true}).click();
+   await more.getByRole('button',{name:'חזור לכלי הצופן',exact:true}).click();
    assert.equal(await dock.getAttribute('data-command-mode'),'tool');
    assert.deepEqual((await identity(page)).axis,before.axis);
    assert.equal(await page.evaluate(()=>window.__hostLog.length),commands,'changing panels never executes an engine search');
@@ -1466,7 +1470,10 @@ test('native UI: actual SystemFrame dock owns search, tools, Raziel and registra
    await page.waitForFunction(()=>!document.querySelector('.sod29-command-island')?.dataset.toolOwner);
    assert.equal(await dock.getAttribute('data-command-mode'),'global');
    assert.equal(await dock.locator('[data-tool-action]').count(),0,'leaving the matrix removes its tool registration');
-   assert.equal(await dock.getByRole('button',{name:'עכשיו · בשבילי',exact:true}).count(),1);
+   assert.equal(await dock.getByRole('button',{name:/^עכשיו(?: · \d+ חדשים)?$/}).count(),1);
+   await dock.getByRole('button',{name:/^עכשיו(?: · \d+ חדשים)?$/}).click();
+   assert.equal(await page.getByRole('dialog',{name:'עכשיו',exact:true}).getByRole('button',{name:'עכשיו · בשבילי',exact:true}).count(),1);
+   await page.keyboard.press('Escape');
   },{fullFrame:true,leavesMatrix:true,mobile:width<981});
  });
 
@@ -1575,6 +1582,7 @@ test('native UI: fresh anonymous 2029 searches bypass legacy demo gates while ca
      await page.waitForFunction(()=>typeof window.__fixtureReleaseVerification==='function');
      assert.equal(await page.locator('.els29-native-search').isDisabled(),true,'primary search stays disabled while verification is pending');
      await openPanel(page);
+     await revealMatrixOption(page,'התאם מטריצה למסך');
      for(const label of ['סרוק לאורך הציר הנבחר','מקור הממצא הנבחר','חפש במטריצה','הגדל מטריצה','התאם מטריצה למסך'])assert.equal(await button(page,label).isDisabled(),true,label+' is disabled during main verification');
      assert.equal(await page.getByLabel('גודל חלון החיפוש',{exact:true}).isDisabled(),true);
      assert.equal(await page.getByRole('textbox',{name:'חיפוש משני במטריצה',exact:true}).isDisabled(),true);
