@@ -1,4 +1,5 @@
 import { getPostBySlug, supabase } from "../supabase.js";
+import { isPost2029OnlyReleased } from "./publicPostBoundary.js";
 import { buildGoldenPostContextPack, goldenContextPackClaims } from "./goldenPostContextPacks.js";
 import { createCanonicalNumberW2Executors } from "./researchW2Executors.js";
 import { fetchLiveNumericRuleVersions } from "./numberSystemMethods.js";
@@ -926,7 +927,7 @@ export async function fetchPost2029ReadingProjection(slug) {
     regions: readingRegions,
     defaultRegionId: readingRegions[0]?.id || null,
     golden: isGolden || isFz1073Pilot || isBennettSaltPilot || isElectionsChain,
-    draft: post._privateStage === true || (Array.isArray(post.tags) && post.tags.includes("טיוטה")),
+    draft: post._privateStage === true || (Array.isArray(post.tags) && post.tags.includes("טיוטה") && !isPost2029OnlyReleased(post)),
     privateStage: post._privateStage === true,
     previewSnapshot: post._previewSnapshot === true,
     caveat: isGolden
