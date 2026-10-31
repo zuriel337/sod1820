@@ -82,7 +82,11 @@ export default function Layout() {
         {false && showBanner && <CosmicVerseBanner mode={mode} />}
         {/* 📡 טיקר-החדשות/בקרוב — גלובלי, כולל דף הבית. משתמש באותו LiveActivityBar קנוני ובאותם ticker_messages. */}
         {/* 🚫 הוסתר בכל האתר (בקשת צוריאל 17.10.2026). להחזרה: הסר את false. */}
-        {false && <LiveActivityBar />}
+        {/* הודעת Legacy יחידה: כל המשפט גלוי בבת אחת גם בנייד, ללא חיתוך או החלפת שקופיות. */}
+        <div dir="rtl" role="status" aria-label="הודעה חשובה" className="legacy-single-ticker" style={{ position: "relative", isolation: "isolate", padding: "10px 16px", textAlign: "center", background: "linear-gradient(90deg,#241809,#4a310b,#241809)", borderBottom: "1px solid #ad8735", color: "#ffe4a0", fontFamily: F.heading, fontSize: "clamp(14px, 2.4vw, 18px)", lineHeight: 1.65, fontWeight: 800, overflowWrap: "break-word" }}>
+          <style>{`@keyframes legacy-ticker-glow { 0%,100% {box-shadow: inset 0 0 5px rgba(255,212,103,.10)} 50% {box-shadow: inset 0 0 20px rgba(255,212,103,.42)} } .legacy-single-ticker { animation: legacy-ticker-glow 2.4s ease-in-out infinite; } @media (prefers-reduced-motion: reduce) { .legacy-single-ticker { animation: none; } }`}</style>
+          הקדוש ברוך הוא מסדר, ואם המדינה תגיע למצב עוד יותר קטסטרופלי, זה רצון השם שיהיה יותר קטסטרופלי לפני שאני מביא את הגאולה. שיהיה יותר חושך.
+        </div>
         {/* רצועת «כלי ההיכל» הוסרה (הועברה לתפריט-הנפתח של היכל הגילוי בנאב) */}
         {/* 🎺📜 באנר מתחלף (המלך בשדה ↔ צופן «אשלים מלאכה») — בכל עמוד חוץ מהבית ומההיכל.
             מחליף את באנר-הפסוק הקוסמי הישן (הוסתר למטה). התחלה אקראית בכל כניסה. */}
