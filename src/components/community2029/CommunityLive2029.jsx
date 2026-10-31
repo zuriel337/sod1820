@@ -10,7 +10,7 @@ import { captureCommunityScrollAnchor, mergeCommunityRefreshRows, restoreCommuni
 import Sod2029Shell, { FrameState } from "../experience2029/Sod2029Shell.jsx";
 import CommunityMessageContent from "./CommunityMessageContent.jsx";
 import CommunitySignIn from "./CommunitySignIn.jsx";
-import LegacyAccountClaim from "./LegacyAccountClaim.jsx";
+import LegacyAccountClaim, { LegacyAccountClaimEntry } from "./LegacyAccountClaim.jsx";
 import { isLegacyContributorId } from "../../lib/community/legacyClaim.js";
 import { communityWriterHref, resolveCommunityWriter } from "../../lib/community/communityWriterLink.js";
 import { communityPersonReturnHref } from "../../lib/community/communityPersonNavigation.js";
@@ -491,6 +491,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
           onCommunityReply={(item) => { closeProfile(); startReply(item); }} />
       </Suspense> : <div className="sod29-community-layout"><section className="sod29-community-main" aria-label="מרחב הקהילה">
         <CommunitySignIn compact />
+        <LegacyAccountClaimEntry rows={rows} onClaimed={messageActions.retry} />
         {messageActions.principalKey && messageActions.state === "unavailable" ? <p role="status">אפשרויות העריכה אינן זמינות כרגע. <button type="button" className="sod29-community-secondary" onClick={messageActions.retry}>ניסיון נוסף</button></p> : null}
         <section className="sod29-community-composer" aria-label="כתיבת הודעה">
           <label htmlFor="community-live-draft">מה תרצו לשתף?</label>

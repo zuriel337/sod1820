@@ -38,6 +38,7 @@ export const VERIFIED_ARCHIVE_PROFILES = Object.freeze({
     publicBio: "מנהלת ותיקה בקהילת סוד 1820, פעילה ומלווה את הקהילה מזה כעשור." },
   // ZURIEL explicitly identified Esther26; this is distinct from the source named אסתר.
   "99bcfb38-85be-4f38-89f0-7886f2f179e6": {
+    name: "Esther26",
     publicBio: "מנהלת ותיקה בקהילת סוד 1820, פעילה ומלווה את הקהילה מזה כעשור." },
   "27c10d9a-14a6-4493-980b-2f5eda105ad7": { sourceUserId: "u_vtNX8TEGu5VV", name: "אביזוהר בן חיים", ...PROFILE_BASELINES["אביזוהר בן חיים"] },
   "4cd9c034-0464-4600-a35d-7156f0584d9b": { sourceUserId: "u_3knnZ5YC", name: "Sod1820", accountUserId: "02a0d207-0136-4beb-a34d-8ff57d10cd85" },

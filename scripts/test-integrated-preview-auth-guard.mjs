@@ -9,12 +9,12 @@ const builder = await readFile(new URL('./build-integrated-preview.mjs', import.
 const vercelConfig = JSON.parse(await readFile(new URL('../vercel.json', import.meta.url), 'utf8'));
 const source = builder.slice(builder.indexOf('const allow ='), builder.indexOf('await writeFile(resolve(output, "preview-readonly-sw.js")'));
 const worker = vm.runInNewContext(`${source}\nworker;`, { COMMUNITY_UPLOAD_POLICY });
-async function request(path, { method = 'POST', body, rawBody, headers, serverUser = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', origin = 'https://linswmnnkjxvweumprav.supabase.co', workerSource = worker } = {}) {
+async function request(path, { method = 'POST', body, rawBody, headers, serverUser = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', serverConfirmed = true, origin = 'https://linswmnnkjxvweumprav.supabase.co', workerSource = worker } = {}) {
   let handler, response, forwarded = 0;
   vm.runInNewContext(workerSource, {
     self: { addEventListener: (name, fn) => { if (name === 'fetch') handler = fn; } },
     URL, Response,
-    fetch: async target => { forwarded++; return new URL(typeof target === 'string' ? target : target.url).pathname === '/auth/v1/user' ? new Response(JSON.stringify(serverUser ? {id:serverUser} : {}), {status:serverUser?200:401}) : new Response('{}', { status: 200 }); },
+    fetch: async target => { forwarded++; return new URL(typeof target === 'string' ? target : target.url).pathname === '/auth/v1/user' ? new Response(JSON.stringify(serverUser ? {id:serverUser,email_confirmed_at:serverConfirmed?'2026-10-31T00:00:00Z':null} : {}), {status:serverUser?200:401}) : new Response('{}', { status: 200 }); },
   });
   handler({ request: new Request(origin + path, { method, headers, ...(rawBody !== undefined ? { body:rawBody } : body === undefined ? {} : { body: JSON.stringify(body) }) }), respondWith: (value) => { response = value; } });
   const result = response ? await response : null;
@@ -202,4 +202,17 @@ test('account-scoped media uploads validate the file and server-authenticated ow
  assert.equal((await request(path,{workerSource:managementWorker(),headers,rawBody:form()})).status,403);
  assert.equal((await request('/auth/v1/settings',{workerSource:current,method:'GET'})).status,200);
  for(const method of ['PUT','DELETE'])assert.equal((await request(path,{workerSource:current,method,headers})).status,403);
+});
+
+test('legacy claim transport requires exact branch, confirmed server identity and only a source ID',async()=>{
+ const path='/rest/v1/rpc/contributors_claim_legacy',body={p_contributor_id:managementId},opts={body,headers:managementHeaders,workerSource:publishingWorker()};
+ assert.deepEqual(await request(path,opts),{status:200,forwarded:2,blocked:null});
+ for(const user of [null])assert.equal((await request(path,{...opts,serverUser:user})).status,403);
+ assert.equal((await request(path,{...opts,serverConfirmed:false})).status,403);
+ for(const invalid of [{...body,p_user_id:managementId},{...body,email:'forged@example.invalid'},{...body,role:'admin'},{p_contributor_id:'אמילי'},null,[]]){
+  const r=await request(path,{...opts,body:invalid});assert.equal(r.status,403);assert.equal(r.forwarded,0);
+ }
+ for(const denied of [worker,managementWorker(),managementWorker(publishingBranch,'production')])assert.equal((await request(path,{...opts,workerSource:denied})).status,403);
+ for(const method of ['GET','PUT','DELETE'])assert.equal((await request(path,{...opts,method,body:undefined})).status,403);
+ assert.equal((await request(path+'?select=*',opts)).status,403);
 });

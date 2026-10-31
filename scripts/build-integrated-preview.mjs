@@ -46,7 +46,7 @@ self.addEventListener('activate',event=>event.waitUntil(self.clients.claim()));
 self.addEventListener('fetch',event=>{
  const req=event.request,u=new URL(req.url),rpc=u.pathname.match(/^\\/rest\\/v1\\/rpc\\/(.+)$/)?.[1];
  if(req.method==='OPTIONS')return;
- const publishRpc=['add_contribution','toggle_contribution_reaction'].includes(rpc);
+ const publishRpc=['add_contribution','toggle_contribution_reaction','contributors_claim_legacy'].includes(rpc);
  const communityUpload=u.origin===authOrigin&&u.pathname.startsWith('/storage/v1/object/gallery/community/');
  if(u.origin===authOrigin&&(publishRpc||communityUpload&&req.method!=='GET'&&req.method!=='HEAD')){
   event.respondWith((async()=>{
@@ -54,7 +54,7 @@ self.addEventListener('fetch',event=>{
    const bearer=req.headers.get('Authorization')||'';
    if(!communityPublishing||req.method!=='POST'||u.search||!/^Bearer [A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+$/i.test(bearer))return blocked();
    const uuid=v=>typeof v==='string'&&/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(v);
-   const verifiedUser=async()=>{const r=await fetch(authOrigin+'/auth/v1/user',{method:'GET',headers:{apikey:req.headers.get('apikey')||'',Authorization:bearer},credentials:'omit'});if(!r.ok)return null;const user=await r.json();return uuid(user?.id)?user.id:null;};
+   const verifiedUser=async(requireConfirmed=false)=>{const r=await fetch(authOrigin+'/auth/v1/user',{method:'GET',headers:{apikey:req.headers.get('apikey')||'',Authorization:bearer},credentials:'omit'});if(!r.ok)return null;const user=await r.json();return uuid(user?.id)&&(!requireConfirmed||user.email_confirmed_at)?user.id:null;};
    try{
     if(communityUpload){
      const path=/^\\/storage\\/v1\\/object\\/gallery\\/community\\/([0-9a-f-]{36})\\/([0-9a-f-]{36})\\.([a-z0-9]+)$/i.exec(u.pathname);
@@ -68,7 +68,11 @@ self.addEventListener('fetch',event=>{
     }
     const body=await req.clone().json();if(!body||typeof body!=='object'||Array.isArray(body))return blocked();
     const keys=Object.keys(body).sort().join(',');
-    if(rpc==='toggle_contribution_reaction'){
+    if(rpc==='contributors_claim_legacy'){
+     // The existing server checks exact confirmed email and unclaimed status.
+     // No target user/email/role is accepted from a client or a display name.
+     if(keys==='p_contributor_id'&&uuid(body.p_contributor_id)&&await verifiedUser(true))return fetch(req);
+    }else if(rpc==='toggle_contribution_reaction'){
      if(keys==='p_emoji,p_id,p_visitor'&&uuid(body.p_id)&&['👍','💡','🔥','🙏','✨'].includes(body.p_emoji)&&body.p_visitor===null)return fetch(req);
     }else{
      const expected='p_author_name,p_body,p_gematria_claim,p_image_url,p_intent,p_origin,p_parent_id,p_target_id,p_target_type,p_title';
