@@ -1,0 +1,19 @@
+
+> sod1820@1.0.0 test:research-path-resume
+> node scripts/test-research-path-resumability-runtime.mjs
+
+Research Path resumability runtime acceptance: PASS
+✔ late Number trace enriches a pending choice without inventing another step (1.736522ms)
+✔ explicit start retains the exact source; another method/crossing continues the same root (0.573729ms)
+✔ save/reload restores private navigation and exact source, not access authority or duplicate pending steps (0.611972ms)
+✔ exact ELS replay intent and Raziel's same selection survive Path serialization without invented verification (0.337486ms)
+✔ missing source keeps the ref but cannot open; unsafe destinations and invalid private IDs fail closed (0.39894ms)
+✔ 878 preset identity remains separate from durable Path identity; bounded draft never drops earlier steps (0.87307ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 14.661013

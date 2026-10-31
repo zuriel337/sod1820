@@ -1,0 +1,6 @@
+
+> sod1820@1.0.0 test:issue-report
+> node scripts/test-issue-report-canonical-emitter.mjs
+
+issue-report canonical emitter: ok
+git: /lib/x86_64-linux-gnu/libc.so.6: version `GLIBC_2.38' not found (required by git)

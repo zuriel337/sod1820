@@ -1,0 +1,11 @@
+✔ Heichal consumes the server-gated research-run Result Bundle exactly once (1.631165ms)
+✔ invalid action or server failure fails closed to generic Raziel with context preserved (0.250107ms)
+✔ existing SystemFrame receives, validates, and presents the action without execution (0.403618ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 50.807491

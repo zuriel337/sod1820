@@ -1,0 +1,5 @@
+
+> sod1820@1.0.0 test:2029-server-seo-ai
+> node scripts/test-2029-server-seo-ai-parity.mjs
+
+2029 server/crawler SEO+AI metadata parity: PASS

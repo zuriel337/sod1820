@@ -1,0 +1,40 @@
+g3 client correlation: PASS
+✔ helper mints a UUID and rejects non-UUID values; holds no store (4.447227ms)
+✔ ELS replay client sends a fresh interaction_id per action and nothing private (1.215109ms)
+✔ ELS bridge: server-issued trace root, interaction_id validated and not in inputHash (0.364769ms)
+✔ research-run: server-issued root, interaction_id carried, provenance refs current (0.378922ms)
+✔ Heichal and Tzofen callers use the single helper; no second trace system (0.324182ms)
+(node:982) ExperimentalWarning: stripTypeScriptTypes is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ successful computation with http finish failure returns trace_incomplete without Result (111.326062ms)
+✔ successful computation with throw finish failure returns trace_incomplete without Result (27.053028ms)
+✔ successful computation with false finish failure returns trace_incomplete without Result (8.847236ms)
+✔ persisted completion still returns the actual nonempty Result and saved witness (6.783286ms)
+✔ existing bounded site visitor identity reaches the same public Result Bundle contract (6.597203ms)
+✔ arbitrary visitor text is rejected before trace, gate or research execution (3.595048ms)
+✔ unavailable gate keeps its existing error when finish also fails via http (3.515526ms)
+✔ unrecorded gate keeps its existing error when finish also fails via http (3.492129ms)
+✔ denied gate keeps its existing error when finish also fails via http (4.338089ms)
+✔ gate unavailability before gate-span failure keeps its existing error when finish also fails via http (3.230956ms)
+✔ gate-span failure before denied gate keeps its existing error when finish also fails via http (3.45014ms)
+✔ composer exception keeps its existing error when finish also fails via http (3.228901ms)
+✔ unrecorded composeResearchW2 keeps its existing error when finish also fails via http (6.598989ms)
+✔ unrecorded w2:numeric keeps its existing error when finish also fails via http (6.944786ms)
+✔ unrecorded w2:numeric_operators keeps its existing error when finish also fails via http (6.518301ms)
+✔ unavailable gate keeps its existing error when finish also fails via throw (3.093977ms)
+✔ unrecorded gate keeps its existing error when finish also fails via throw (4.249476ms)
+✔ denied gate keeps its existing error when finish also fails via throw (3.148197ms)
+✔ gate unavailability before gate-span failure keeps its existing error when finish also fails via throw (4.06749ms)
+✔ gate-span failure before denied gate keeps its existing error when finish also fails via throw (3.467045ms)
+✔ composer exception keeps its existing error when finish also fails via throw (3.222476ms)
+✔ unrecorded composeResearchW2 keeps its existing error when finish also fails via throw (10.737791ms)
+✔ unrecorded w2:numeric keeps its existing error when finish also fails via throw (5.784051ms)
+✔ unrecorded w2:numeric_operators keeps its existing error when finish also fails via throw (5.770554ms)
+ℹ tests 29
+ℹ suites 0
+ℹ pass 29
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 377.573552

@@ -1,0 +1,35 @@
+
+> sod1820@1.0.0 test:world-convergence-pr591
+> node --test src/lib/research/worldConvergencePr591SerialRepairA2.test.js src/lib/research/worldConvergencePr591SerialRepairA3.test.js src/lib/research/worldConvergencePr591PhaseBSourceMemberInspector.test.js
+
+✔ relation sourceRef fragment resolves to the exact base source occurrence, full wording preserved (16.463583ms)
+✔ an unresolved source occurrence is reported, not dropped or fuzzy-matched (0.853463ms)
+✔ makeRelationRow preserves engineVerificationStateRaw and scopeVerificationStates even when composed verification is partial (0.704753ms)
+✔ dependency family collapses to one top-level representative; every member is still inspectable with its own state, none borrows a sibling's verification (1.838078ms)
+✔ candidate row exposes shared_sources/warnings and keeps generatedBy separate from contributor (0.814268ms)
+✔ filterWorldConvergenceRows keeps every live verification state addressable, none hardcoded away (1.322682ms)
+✔ buildZviCoverage never dedupes compound text+different-media source artifacts (0.990121ms)
+✔ research_strength orders an explicit match before a mismatch; attention inverts it (2.176642ms)
+✔ a generic needs_check candidate is review-required, never a certified mismatch (0.830356ms)
+✔ an explicit mismatch/contradiction outcome does yield a decision-changing mismatch (0.256158ms)
+✔ a single source referenced twice is never labeled independent multi-source proof (0.426603ms)
+✔ a top-level match coexisting with a per-scope mismatch exposes partial/needs-review (13.237679ms)
+✔ repeating the same occurrence 100 times never increases its research strength class (2.572672ms)
+✔ dependency grouping preserves every member id/state instead of discarding children (1.858085ms)
+✔ an exact-identity duplicate group is never certified as a full match from just one matched copy (0.820717ms)
+✔ two independently-derived candidates for the same number stay two separate rows (0.410673ms)
+✔ candidate contributor never falls back to the generating agent (0.414671ms)
+✔ candidate contributor is unknown (null), never the raw research_candidates placeholder, when no source-owned path exists (0.277245ms)
+✔ graph and topic candidates naming the same explicit node identity merge into one representative (2.749437ms)
+✔ graph and topic candidates naming different explicit node identities stay two separate rows (0.819488ms)
+✔ a topic candidate with no explicit node identity stays its own row rather than merging by presentation similarity (0.201272ms)
+✔ research dependency members stay three separate rows, unaffected by the graph+topic merge (6.504721ms)
+✔ candidates sharing a numeric value but naming different node identities never merge (0.33805ms)
+ℹ tests 23
+ℹ suites 0
+ℹ pass 23
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 320.773046

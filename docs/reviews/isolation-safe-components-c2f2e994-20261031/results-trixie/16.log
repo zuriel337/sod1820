@@ -1,0 +1,5 @@
+
+> sod1820@1.0.0 test:home-2029-pulse
+> node scripts/test-home-2029-system-pulse.mjs
+
+Home 2029 System Pulse + enrichment acceptance: PASS

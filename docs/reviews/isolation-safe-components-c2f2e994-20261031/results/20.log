@@ -1,0 +1,38 @@
+✔ post numbers: only 2-5 digit numeric tags, unique, in order (1.189145ms)
+✔ Home uses the same exact fragment revision and seen key as the shared feed (0.685711ms)
+✔ cover-only saves, unknown sources, hidden posts, future and old events produce no Home news (0.309964ms)
+✔ only the owner-certified BEFORE→AFTER 5107 section is a public source-update projection (1.243715ms)
+✔ no event for cover-only edits, changed content version, or unknown section identity (0.390726ms)
+✔ a hidden, draft/forum or internal carrier can never create a public update (0.204139ms)
+✔ event is a safe public label / location, never raw post_revisions or private research (0.640079ms)
+✔ the three 205->206 source units are listed newest-first with the real addition time, Netanyahu keeps its own (11.595793ms)
+✔ native hash resolves only to a proven unit of the same post (0.268757ms)
+✔ Bennett 207->208 units are certified with the exact saved time and only for their own slug (0.232304ms)
+✔ a certified newer source preserves distinct child events and their real times (0.207607ms)
+✔ a public source post arrives even with zero research Findings, without numeric 0 (1.974379ms)
+✔ publication, recording and discovery time are distinct; modification never invents arrival (0.208218ms)
+✔ recent research cannot crowd source-only material out of the source projection (0.600148ms)
+✔ exclude hidden/draft/forum and unresolved internal origins; published AI/uploaded source is still a source (0.413012ms)
+✔ same occurrence groups authorized research beneath the source, not two independent arrivals (0.745287ms)
+✔ one time-ordered projection serves both World and bottom attention by arrival and approval time (0.24644ms)
+✔ 2029 World and bottom share the same source reader; legacy WhatsApp/private DM are not queried (1.954607ms)
+✔ creator chips expose recent-window counts: a creator absent from the last N has 0, not hidden (6.187622ms)
+✔ unconnected group arrivals cannot masquerade as a working empty group feed (0.249054ms)
+✔ public World source rail puts an updated older post before newly published posts without changing original publication time (0.376929ms)
+✔ new public World uses the composed story and sources without a feature toggle or integrated-preview gate (1.227943ms)
+✔ exact reviewed public section update projects once from a source, retaining its publication timestamp (0.564135ms)
+✔ future cover edit and hidden/draft source cannot propagate the certified segment event (0.210957ms)
+✔ labels and hrefs follow the item kind (0.771174ms)
+✔ new = recent window and unseen (0.349705ms)
+✔ updates chronological: curated older strength never hides a fresh public source (1.414628ms)
+✔ a burst of one kind does not drown the others (bucket caps) (0.422643ms)
+✔ the same source revision remains unseen until its exact version is read (0.178686ms)
+✔ the public feed reserves four bounded slots for recent post sources (0.255978ms)
+ℹ tests 30
+ℹ suites 0
+ℹ pass 30
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 267.640977

@@ -1,0 +1,26 @@
+24.21.0-trixie-slim: Pulling from library/node
+ecc510c1e359: Pulling fs layer
+92e5108e7149: Pulling fs layer
+342851af33a6: Pulling fs layer
+ae7f77214d73: Pulling fs layer
+ae7f77214d73: Waiting
+68a475a78318: Pulling fs layer
+68a475a78318: Waiting
+92e5108e7149: Verifying Checksum
+92e5108e7149: Download complete
+ecc510c1e359: Verifying Checksum
+ecc510c1e359: Download complete
+ae7f77214d73: Verifying Checksum
+ae7f77214d73: Download complete
+342851af33a6: Verifying Checksum
+342851af33a6: Download complete
+68a475a78318: Verifying Checksum
+68a475a78318: Download complete
+ecc510c1e359: Pull complete
+92e5108e7149: Pull complete
+342851af33a6: Pull complete
+ae7f77214d73: Pull complete
+68a475a78318: Pull complete
+Digest: sha256:173f125896c3b47ddf056734c7ea789d04595a6a08769a8f78e0df642781fb66
+Status: Downloaded newer image for node:24.21.0-trixie-slim
+docker.io/library/node:24.21.0-trixie-slim

@@ -1,0 +1,7 @@
+
+> sod1820@1.0.0 package:research-run
+> node scripts/package-research-run.mjs
+
+Packaged supabase/functions/research-run/index.ts -> supabase/functions/research-run/.build/index.ts (332867 bytes, 29 committed sources, verify_jwt=true).
+Manifest: supabase/functions/research-run/.build/manifest.json
+git HEAD: c2f2e9948dd119c96b69e377b33be2eb2a886efb

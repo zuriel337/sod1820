@@ -1,0 +1,8 @@
+
+> sod1820@1.0.0 package:research-run
+> node scripts/package-research-run.mjs
+
+git: /lib/x86_64-linux-gnu/libc.so.6: version `GLIBC_2.38' not found (required by git)
+COMMITTED-SOURCE PROVENANCE GUARD FAILED: not a git checkout (or no HEAD) -- Command failed: git rev-parse HEAD
+git: /lib/x86_64-linux-gnu/libc.so.6: version `GLIBC_2.38' not found (required by git)
+

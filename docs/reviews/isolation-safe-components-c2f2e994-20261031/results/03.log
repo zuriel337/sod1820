@@ -1,0 +1,5 @@
+
+> sod1820@1.0.0 test:entry-learn-2029
+> node scripts/test-entry-contextual-learn-2029.mjs
+
+Entry Orientation + Contextual Learn 2029 smoke gate: PASS

@@ -1,0 +1,5 @@
+
+Running 1 test using 1 worker
+
+[1A[2K[1/1] tests/world2029-release.spec.cjs:934:1 › private researcher corpus stays gated for non-admin 2029 sessions
+[1A[2K  1 passed (3.1s)
