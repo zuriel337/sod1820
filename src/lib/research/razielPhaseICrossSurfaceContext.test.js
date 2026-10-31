@@ -61,7 +61,8 @@ test("I: SystemFrame wires it into existing surface_semantic only; no new read/p
   assert.match(chat, /useEffect\(\(\) => \{ setGuestQuotaEnded\(false\); \}, \[user\?\.id\]\)/);
   assert.doesNotMatch(chat.slice(chat.indexOf("useEffect("), chat.indexOf("if (!session)")), /submit|transport|fetch|askRaziel/);
   assert.match(provider, /prepareSubmission\(\{/);
-  assert.match(request, /createRazielRequestContextSnapshot\(researchContext, view, startedAt\)/);
+  assert.match(request, /const requestView = view\?\.elsMatrixContext \|\| !sameMatrix \? view : \{ \.\.\.view, elsMatrixContext: oldMatrix \}/);
+  assert.match(request, /createRazielRequestContextSnapshot\(researchContext, requestView, startedAt\)/);
   const semantic = request.slice(request.indexOf("function snapshotSurfaceSemantic"), request.indexOf("export function buildRazielSessionRequest"));
   assert.match(semantic, /subject: snapshot\.subject/);
   assert.match(semantic, /number: snapshot\.focus\?\.number/);

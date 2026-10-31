@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+import { ordinaryRazielStages } from "../../../test/helpers/raziel-ordinary-stages.mjs";
 
 const read = (p) => readFileSync(new URL(p, import.meta.url), "utf8");
 const edge = read("../../../supabase/functions/ai-analyze/index.ts");
@@ -11,17 +12,19 @@ const request = read("./razielSessionRequest2029.js");
 const provider = read("./RazielSessionProvider2029.jsx");
 const razielBlock = edge.slice(edge.indexOf('persona || "").toLowerCase() === "raziel"'), edge.indexOf('const isCollection = kind === "research"'));
 const chat = frame.slice(frame.indexOf("function RazielNativeChat"), frame.indexOf("function RazielProjection"));
+const stages = ordinaryRazielStages(razielBlock);
 
 test("Phase B: plan is reused from fn_raziel_answer (fallback: existing fn_raziel_plan) and injected before the model call", () => {
   assert.match(razielBlock, /rPlanMeta = razielPlanMeta\(det\)/);
   assert.match(razielBlock, /rpc\/fn_raziel_plan/);
-  assert.ok(razielBlock.indexOf("planText") < razielBlock.indexOf("callClaudeReliable("));
+  assert.ok(razielBlock.indexOf("const planText =") > stages.quota);
+  assert.ok(razielBlock.indexOf("const planText =") < stages.model);
   assert.match(edge, /הכוונה בלבד — לא אמת, לא תוצאת-כלי; שום כלי לא הורץ/);
 });
 
 test("Phase B: deterministic short-circuit unchanged; zero-model for gematria/ELS; Phase A negatives fall to L2", () => {
   assert.match(razielBlock, /det\.mode === "deterministic" && det\.needs_synthesis === false/);
-  assert.ok(razielBlock.indexOf("det.needs_synthesis === false") < razielBlock.indexOf("checkQuota("));
+  assert.ok(stages.deterministic < stages.quota && stages.quota < stages.model);
   assert.doesNotMatch(razielBlock, /routing_enabled|sandalphon|research_intel/i);
 });
 
@@ -43,7 +46,8 @@ test("Phase B: semantic surface is whitelisted, tag-stripped and server-capped (
   assert.match(edge, /replace\(\/<\[\^>\]\*>\/g, " "\)/);
   assert.match(fn, /\.slice\(0, 1000\)/);
   assert.doesNotMatch(fn, /innerHTML|outerHTML|pageText|html/i);
-  assert.match(razielBlock, /razielSemanticSurfaceText\(body\?\.surface_semantic\)/);
+  // A grounded ELS turn must not also pass the unverified client ELS pack as truth.
+  assert.match(razielBlock, /const semText = rPersonalAreaCompanion \? "" : razielSemanticSurfaceText\(rElsGroundingRequested\s*\? \{ \.\.\.body\?\.surface_semantic, els: null \} : body\?\.surface_semantic\)/);
 });
 
 test("Phase B: askRaziel transport is additive — surface_semantic only when provided", () => {
@@ -58,7 +62,8 @@ test("Phase B: SystemFrame builds the pack from existing context only; no provid
   assert.doesNotMatch(chat.slice(chat.indexOf("useEffect("), chat.indexOf("if (!session)")), /submit|transport|fetch|askRaziel/);
   assert.match(chat, /session\.submit\(\{ question: q,[\s\S]*view: \{ numberFocus, readingFocus, elsFocus \}/);
   assert.match(provider, /prepareSubmission\(\{/);
-  assert.match(request, /createRazielRequestContextSnapshot\(researchContext, view, startedAt\)/);
+  assert.match(request, /const requestView = view\?\.elsMatrixContext \|\| !sameMatrix \? view : \{ \.\.\.view, elsMatrixContext: oldMatrix \}/);
+  assert.match(request, /createRazielRequestContextSnapshot\(researchContext, requestView, startedAt\)/);
   assert.match(provider, /const rawResponse = await transport\(request\)/);
   assert.equal((provider.match(/transport\(request\)/g) || []).length, 1);
   assert.match(request, /function snapshotSurfaceSemantic\(snapshot\)/);
