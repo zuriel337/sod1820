@@ -149,5 +149,27 @@ assignment is claimed in the live ledger; this connector cannot write one. The
 authorized coordinator can record this receipt, exact Git delivery and file list.
 No message to another agent, automatic activation, ACK wait or PR was created.
 
-Packaging provenance will be recorded after the code is committed; the packaging
-guard correctly refuses uncommitted server sources and has not been bypassed.
+Code commit: `d99c952208f79457b227cee2e364f86197fe4c96`.
+`npm run package:ai-analyze` passed against that committed tree: 15 committed
+sources, 584,731 characters, `verify_jwt: true`, bundle SHA-256
+`b9cf5517ed97e32a142631fcf85f0d25c298ba3ac11b060d54df28711c5e6501`.
+This is packaging evidence only, not deployment. The guard first refused the
+uncommitted sources as intended; it was not bypassed. The subsequent documentation
+commit changes no packaged source.
+
+### Files (14)
+
+- `src/lib/research/elsRazielContext.js`
+- `src/lib/research/razielSessionRequest2029.js`
+- `src/lib/supabase.js`
+- `src/pages/Els2029Page.jsx`
+- `supabase/functions/_shared/elsRazielOccurrenceContext.js`
+- `supabase/functions/_shared/elsRazielReadingContext.js`
+- `supabase/functions/ai-analyze/index.ts`
+- `test/els-2029-raziel-consumer.test.mjs`
+- `test/els-matrix-reading-activity-browser.test.mjs`
+- `test/els-matrix-reading-client-e2e.test.mjs`
+- `test/els-raziel-matrix-context.test.mjs`
+- `test/els-raziel-verified-followup.test.mjs`
+- `test/helpers/ai-analyze-handler.mjs`
+- `docs/reviews/els-raziel-verified-followup-20261031.md`
