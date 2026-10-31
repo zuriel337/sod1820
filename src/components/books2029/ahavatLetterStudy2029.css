@@ -1,0 +1,130 @@
+/* Scoped projection. All colors/fonts come from the active Design V2 owner. */
+.ahavat29-letter-comparison{margin-block:22px 8px;padding:14px;border:1px solid var(--s29-line-strong);border-radius:12px;background:var(--s29-panel);scroll-margin-top:84px}
+.ahavat29-letter-comparison>summary{min-height:44px;padding:8px;color:var(--s29-accent-text);font:500 var(--s29-type-ui)/1.6 var(--s29-font-ui);cursor:pointer}
+.ahavat29-letter-comparison>header>span{font:500 var(--s29-type-ui)/1.6 var(--s29-font-ui);color:var(--s29-accent-text)}
+.ahavat29-letter-comparison>header h5{font:600 var(--s29-type-title)/1.4 var(--s29-font-display)}
+.ahavat29-letter-comparison-choices,.ahavat29-letter-comparison-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:12px;margin-block:16px}
+.ahavat29-letter-comparison-grid>article{min-width:0;padding:12px;border:1px solid var(--s29-line);border-radius:10px;background:var(--s29-panel-soft)}
+.ahavat29-letter-comparison-grid h6{margin:0 0 12px;font:500 var(--s29-type-lead)/1.5 var(--s29-font-display)}
+.ahavat29-letter-parasha .ahavat29-letter-comparison-grid dl{grid-template-columns:minmax(0,1fr);gap:8px;margin:10px 0}
+.ahavat29-letter-parasha .ahavat29-letter-comparison-grid dl>div{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;padding:8px;background:transparent;border:0}
+.ahavat29-letter-parasha .ahavat29-letter-comparison-grid dd{margin:0;flex-shrink:0;white-space:nowrap}
+.ahavat29-letter-comparison-grid>article>button{width:100%;scroll-margin-top:84px}
+.ahavat29-letter-comparison-actions{display:flex;gap:12px;flex-wrap:wrap;margin-block:14px}
+.ahavat29-letter-comparison>summary:focus-visible{outline:3px solid var(--s29-focus-ring);outline-offset:3px}
+.ahavat29-parasha-letter-atlas{margin-block:22px 8px;border:1px solid var(--s29-line-strong);border-radius:12px;background:var(--s29-panel);scroll-margin-top:84px}
+.ahavat29-parasha-letter-atlas>summary{min-height:44px;padding:12px;color:var(--s29-accent-text);font:500 var(--s29-type-ui)/1.6 var(--s29-font-ui);cursor:pointer;scroll-margin-top:84px}
+.ahavat29-parasha-letter-atlas>header,.ahavat29-parasha-letter-atlas>p,.ahavat29-parasha-letter-atlas>footer,.ahavat29-parasha-atlas-tools{margin:14px}
+.ahavat29-parasha-letter-atlas>header>span{font:500 var(--s29-type-ui)/1.6 var(--s29-font-ui);color:var(--s29-accent-text)}
+.ahavat29-parasha-letter-atlas>header h5{margin:8px 0;font:600 var(--s29-type-title)/1.4 var(--s29-font-display)}
+.ahavat29-parasha-atlas-tools{display:flex;align-items:end;flex-wrap:wrap;gap:12px;font:500 var(--s29-type-ui)/1.6 var(--s29-font-ui)}
+.ahavat29-parasha-atlas-tools label{flex:1 1 220px;min-width:0}
+.ahavat29-parasha-atlas-tools input{min-width:0;width:100%;min-height:44px;padding:9px;border:1px solid var(--s29-line-strong);border-radius:8px;background:var(--s29-panel);color:var(--s29-text);font:inherit}
+.ahavat29-parasha-atlas-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr));gap:10px;padding:14px}
+.ahavat29-parasha-atlas-grid>article{min-width:0;padding:10px;border:1px solid var(--s29-line);border-radius:10px;background:var(--s29-panel-soft)}
+.ahavat29-parasha-atlas-grid .ahavat29-parasha-atlas-choice{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;font:500 var(--s29-type-ui)/1.5 var(--s29-font-ui)}
+.ahavat29-parasha-atlas-choice>b{font:500 32px/1.3 var(--s29-font-display)}
+.ahavat29-parasha-letter-atlas .ahavat29-parasha-atlas-grid dl{grid-template-columns:minmax(0,1fr);gap:6px;margin:10px 0}
+.ahavat29-parasha-letter-atlas .ahavat29-parasha-atlas-grid dl>div{display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding:6px;background:transparent;border:0}
+.ahavat29-parasha-atlas-grid dt{font:400 var(--s29-type-ui)/1.6 var(--s29-font-body)}
+.ahavat29-parasha-letter-atlas .ahavat29-parasha-atlas-grid dd{margin:0;flex-shrink:0;white-space:nowrap}
+.ahavat29-parasha-atlas-grid>article>button:last-child{width:100%}
+.ahavat29-parasha-letter-atlas>footer{display:flex;align-items:center;flex-wrap:wrap;gap:12px;border-top:1px solid var(--s29-line);padding-block-start:14px}
+.ahavat29-parasha-letter-atlas>footer p{flex:1;min-width:min(100%,220px);margin:0;font:400 var(--s29-type-body)/1.7 var(--s29-font-body)}
+.ahavat29-parasha-letter-atlas :is(summary,input):focus-visible{outline:3px solid var(--s29-focus-ring);outline-offset:3px}
+.ahavat29-parasha-letter-atlas bdi{unicode-bidi:isolate}
+.ahavat29-letter-study{display:grid;grid-template-columns:minmax(150px,.6fr) minmax(0,1.6fr);border:1px solid var(--s29-line-strong);border-radius:20px;overflow:hidden;background:var(--s29-panel);margin-block:24px}
+.ahavat29-letter-stepper{grid-column:1/-1;display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:8px;align-items:center;padding:10px;border-bottom:1px solid var(--s29-line);font:500 var(--s29-type-ui)/1.5 var(--s29-font-ui);color:var(--s29-text)}
+.ahavat29-letter-stepper>span{text-align:center;white-space:nowrap}
+.ahavat29-letter-stepper bdi{font-family:var(--s29-font-numeric)}
+.ahavat29-letter-stepper button{min-width:44px;min-height:44px;padding:9px 8px;border:1px solid var(--s29-line-strong);border-radius:10px;background:var(--s29-panel);color:var(--s29-accent-text);font:inherit;cursor:pointer}
+.ahavat29-letter-stepper button:disabled{opacity:.45;cursor:default}
+.ahavat29-letter-study{scroll-margin-top:84px}
+.ahavat29-letter-continuity{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;padding:10px 16px;border-bottom:1px solid var(--s29-line);color:var(--s29-text);font:500 var(--s29-type-ui)/1.6 var(--s29-font-ui)}
+.ahavat29-letter-continuity a,.ahavat29-letter-overview-link{display:inline-flex;align-items:center;min-width:44px;min-height:44px;padding:8px 10px;color:var(--s29-accent-text);font:500 var(--s29-type-ui)/1.5 var(--s29-font-ui);text-underline-offset:4px}
+.ahavat29-letter-continuity a:focus-visible,.ahavat29-letter-overview-link:focus-visible{outline:3px solid var(--s29-focus-ring);outline-offset:3px}
+.ahavat29-letter-parasha{min-width:0;margin-block:20px;padding:18px;border-block:1px solid var(--s29-line-strong);background:var(--s29-panel-soft);scroll-margin-top:84px}
+.ahavat29-letter-parasha>header>span,.ahavat29-letter-parasha article>header span{font:500 var(--s29-type-ui)/1.6 var(--s29-font-ui);color:var(--s29-accent-text)}
+.ahavat29-letter-parasha h4{margin:6px 0 18px;font:600 var(--s29-type-title)/1.3 var(--s29-font-display)}
+.ahavat29-letter-parasha label{display:grid;gap:8px;font:500 var(--s29-type-ui)/1.5 var(--s29-font-ui)}
+.ahavat29-letter-parasha select{min-width:0;width:100%;min-height:48px;padding:9px 12px;border:1px solid var(--s29-line-strong);border-radius:10px;background:var(--s29-panel);color:var(--s29-text);font:inherit}
+.ahavat29-letter-parasha :is(button,select):focus-visible{outline:3px solid var(--s29-focus-ring);outline-offset:3px}
+.ahavat29-letter-parasha article>header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-block:20px 12px}
+.ahavat29-letter-parasha h5{margin:6px 0;font:600 24px/1.4 var(--s29-font-display)}
+.ahavat29-letter-parasha button{min-height:44px;min-width:44px;padding:9px 12px;border:1px solid var(--s29-line-strong);border-radius:10px;background:var(--s29-panel);color:var(--s29-accent-text);font:500 var(--s29-type-ui)/1.5 var(--s29-font-ui);cursor:pointer}
+.ahavat29-letter-parasha button:disabled{opacity:.45;cursor:default}
+.ahavat29-letter-parasha dl{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:18px 0}
+.ahavat29-letter-parasha dl>div{padding:12px;border:1px solid var(--s29-line);border-radius:10px;background:var(--s29-panel)}
+.ahavat29-letter-parasha dt{font:400 var(--s29-type-ui)/1.6 var(--s29-font-body);color:var(--s29-muted)}
+.ahavat29-letter-parasha dd{margin:8px 0 0;font:500 var(--s29-type-body)/1.6 var(--s29-font-body);overflow-wrap:anywhere}
+.ahavat29-letter-row-number,.ahavat29-letter-parasha nav bdi{font-family:var(--s29-font-numeric)}
+.ahavat29-letter-parasha p{font:400 var(--s29-type-body)/1.8 var(--s29-font-body);color:var(--s29-text)}
+.ahavat29-letter-parasha nav{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:8px;align-items:center;font:500 var(--s29-type-ui)/1.5 var(--s29-font-ui)}
+.ahavat29-letter-parasha nav>span{text-align:center;white-space:nowrap}
+.ahavat29-letter-parasha .ahavat29-letter-journey{display:flex;gap:8px;flex-wrap:wrap;margin-block:14px}
+.ahavat29-letter-parasha .ahavat29-letter-journey-guide{font:400 var(--s29-type-ui)/1.7 var(--s29-font-body);color:var(--s29-muted)}
+.ahavat29-letter-camera{display:flex;flex-wrap:wrap;gap:8px;margin-block:12px}
+.ahavat29-letter-camera button{min-width:44px;min-height:44px;padding:9px 12px;border:1px solid var(--s29-line-strong);border-radius:10px;background:var(--s29-panel);color:var(--s29-accent-text);font:500 var(--s29-type-ui)/1.5 var(--s29-font-ui);cursor:pointer}
+.ahavat29-letter-camera button:disabled{opacity:.45;cursor:default}
+.ahavat29-letter-identity{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:24px 14px;border-inline-end:1px solid var(--s29-line);background:radial-gradient(ellipse at center,color-mix(in srgb,var(--s29-accent-secondary) 12%,transparent),transparent 74%)}
+.ahavat29-letter-identity>span,.ahavat29-letter-landscape-heading>span{font:500 15px/1.5 var(--s29-font-ui);color:var(--s29-muted);text-align:center}
+.ahavat29-letter-glyph{font:500 clamp(88px,10vw,132px)/1.2 var(--s29-font-display);color:var(--s29-accent-text);text-shadow:0 5px 0 color-mix(in srgb,var(--s29-accent-secondary) 12%,transparent)}
+.ahavat29-letter-identity h4{margin:0;font:600 24px/1.4 var(--s29-font-display);color:var(--s29-text)}
+.ahavat29-letter-identity p{margin:0;text-align:center;font:400 15px/1.6 var(--s29-font-body);color:var(--s29-muted)}
+.ahavat29-letter-identity>strong{font:500 clamp(24px,3vw,34px)/1.4 var(--s29-font-numeric);color:var(--s29-text)}
+.ahavat29-letter-study [data-value-missing=true]{font-family:var(--s29-font-body)}
+.ahavat29-letter-identity>a{display:inline-flex;align-items:center;min-height:44px;padding:8px;font:500 16px/1.5 var(--s29-font-ui);color:var(--s29-accent-text);text-underline-offset:4px}
+.ahavat29-letter-identity>a:focus-visible{outline:3px solid var(--s29-focus-ring);outline-offset:3px}
+.ahavat29-letter-identity button,.ahavat29-study-mode button{min-height:44px;min-width:44px;padding:10px 14px;border:1px solid var(--s29-line-strong);border-radius:10px;background:var(--s29-panel);color:var(--s29-accent-text);font:500 16px/1.5 var(--s29-font-ui);cursor:pointer}
+.ahavat29-letter-identity button{background:var(--s29-accent);border-color:var(--s29-accent);color:var(--s29-on-accent)}
+.ahavat29-letter-landscape{min-width:0;display:flex;flex-direction:column;padding:24px clamp(12px,2vw,28px);gap:14px}
+.ahavat29-letter-landscape-heading>span{color:var(--s29-accent-text)}
+.ahavat29-letter-landscape-heading p{margin:6px 0 0;font:400 18px/1.65 var(--s29-font-body);color:var(--s29-text)}
+.ahavat29-letter-pillars{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:clamp(4px,1vw,14px);min-height:230px;align-items:end;padding-block:12px;border-bottom:1px solid var(--s29-line-strong)}
+.ahavat29-letter-pillars button{display:grid;grid-template-rows:auto 150px auto;gap:10px;min-width:0;padding:8px 3px;border:1px solid transparent;border-radius:10px;background:transparent;color:var(--s29-text);font:500 16px/1.5 var(--s29-font-ui);cursor:pointer}
+.ahavat29-letter-pillars button[aria-pressed=true]{border-color:var(--s29-accent-text);background:color-mix(in srgb,var(--s29-accent) 8%,var(--s29-panel))}
+.ahavat29-letter-pillar-number{font:500 clamp(14px,1.5vw,20px)/1.4 var(--s29-font-numeric);text-align:center;overflow-wrap:anywhere}
+.ahavat29-letter-pillar-track{display:flex;align-items:end;justify-content:center;min-width:0;perspective:600px}
+.ahavat29-letter-pillar-track i{display:block;position:relative;width:62%;height:var(--pillar-height);background:linear-gradient(90deg,color-mix(in srgb,var(--s29-accent) 72%,var(--s29-panel)),var(--s29-accent));border:1px solid var(--s29-accent-text);border-radius:3px 3px 0 0;box-shadow:-5px 4px 0 color-mix(in srgb,var(--s29-accent-secondary) 22%,transparent)}
+.ahavat29-letter-pillar-track i::before{content:"";position:absolute;inset:0 0 auto;height:5px;background:color-mix(in srgb,var(--s29-panel) 40%,transparent)}
+.ahavat29-letter-pillar-track i[data-missing=true]{display:none}
+.ahavat29-letter-pillar-track i[data-missing=true]::before{display:none}
+.ahavat29-letter-pillar-label{display:grid;gap:2px;place-items:center;font-size:16px}
+.ahavat29-letter-pillar-label small{font:400 14px/1.4 var(--s29-font-numeric);color:var(--s29-muted)}
+.ahavat29-letter-scale{margin:0;font:400 15px/1.75 var(--s29-font-body);color:var(--s29-muted)}
+.ahavat29-letter-path{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-block-start:auto;padding-block-start:12px;border-top:1px solid var(--s29-line);font:500 16px/1.6 var(--s29-font-ui);color:var(--s29-text)}
+#ahavat29-letters{container-type:inline-size;background:var(--s29-panel);padding:clamp(14px,2vw,28px);border-radius:20px}
+#ahavat29-letters>header span{color:var(--s29-accent-text);font-size:15px}
+#ahavat29-letters>header>strong{color:var(--s29-accent-text);font-weight:500}
+#ahavat29-letters h3{font-weight:620}
+#ahavat29-letters :is(.ahavat29-letter-location strong,.ahavat29-letter-checkpoints strong,.ahavat29-table-tools strong,.ahavat29-data-table td>b){color:var(--s29-accent-text)}
+#ahavat29-letters button[aria-pressed=true]{border-color:var(--s29-accent-text);background:color-mix(in srgb,var(--s29-accent) 9%,var(--s29-panel))}
+#ahavat29-letters :is(button,input,summary):focus-visible,.ahavat29-study-mode button:focus-visible{outline:3px solid var(--s29-focus-ring);outline-offset:3px}
+#ahavat29-letters .ahavat29-letter-alphabet{grid-template-columns:repeat(auto-fit,minmax(56px,1fr));gap:7px}
+#ahavat29-letters .ahavat29-letter-alphabet button{min-height:88px;padding:10px 3px;border-radius:10px}
+#ahavat29-letters .ahavat29-letter-alphabet b{font-weight:500}
+#ahavat29-letters .ahavat29-letter-alphabet small{font-size:14px;line-height:1.45}
+#ahavat29-letters .ahavat29-letter-location{background:var(--s29-panel-soft);border-radius:12px}
+#ahavat29-letters .ahavat29-letter-bars i{background:var(--s29-accent)}
+#ahavat29-letters .ahavat29-ds01-controls button,#ahavat29-letters .ahavat29-data-table button{border-color:var(--s29-line-strong);color:var(--s29-accent-text);font:500 16px/1.5 var(--s29-font-ui);min-height:44px}
+#ahavat29-letters .ahavat29-data-table td{font-size:16px}
+#ahavat29-letters .ahavat29-letter-scene{height:auto;margin-block:14px 22px;border:1px solid var(--s29-line-strong);border-radius:16px;padding:12px;background:var(--s29-panel-soft)}
+/* Existing renderer CSS uses height:100%!important. Give this auto-height legend a definite scene height. */
+#ahavat29-letters .ahavat29-letter-scene .ahavat29-spatial-canvas{height:360px!important;min-height:0;border-radius:12px;overflow:hidden}
+#ahavat29-letters .ahavat29-letter-scene p{font-size:15px}
+.ahavat29-study-mode{display:flex;gap:8px;flex-wrap:wrap;align-items:center;font:500 16px/1.5 var(--s29-font-ui)}
+.ahavat29-study-mode>span{color:var(--s29-muted);margin-inline-end:6px}
+.ahavat29-study-mode button[aria-pressed=true]{border-color:var(--s29-accent-text);color:var(--s29-accent-text);background:color-mix(in srgb,var(--s29-accent) 9%,var(--s29-panel))}
+.ahavat29[data-study-focus=letters] .ahavat29-intro{min-height:0;padding:22px 26px;grid-template-columns:minmax(0,1fr) auto;gap:12px}
+.ahavat29[data-study-focus=letters] .ahavat29-intro h1{font-size:clamp(30px,4vw,46px);line-height:1.15;margin:8px 0}
+.ahavat29[data-study-focus=letters] :is(.ahavat29-intro aside,.ahavat29-intro>div>p,.ahavat29-intro .books29-entry-actions,.ahavat29-metrics,.books29-reading-layout-control){display:none}
+.ahavat29[data-study-focus=letters] .ahavat29-intro .ahavat29-recommended{display:none}
+/* Keep both tracks explicit: the cover must never create an intrinsic auto track. */
+@media(max-width:900px){.ahavat29[data-study-focus=letters] .ahavat29-intro{grid-template-columns:minmax(0,1fr) clamp(76px,22vw,104px)}}
+.ahavat29[data-study-focus=letters] .ahavat29-story>:not(.ahavat29-spatial),.ahavat29[data-study-focus=letters] .ahavat29-spatial>:not(#ahavat29-letters){display:none}
+.ahavat29[data-study-focus=letters] .ahavat29-spatial{padding:0;border:0;background:transparent}
+.ahavat29[data-study-focus=letters] #ahavat29-letters{margin:0}
+@media(min-width:1100px){.ahavat29[data-study-focus=letters] .ahavat29-layout.books29-reading-layout{grid-template-columns:minmax(340px,.8fr) minmax(0,1.55fr)}}
+@container(max-width:480px){.ahavat29-letter-study{grid-template-columns:minmax(0,1fr)}.ahavat29-letter-identity{display:grid;grid-template-columns:auto minmax(0,1fr);padding:18px;gap:6px 18px;border-inline-end:0;border-bottom:1px solid var(--s29-line)}.ahavat29-letter-identity>span{grid-column:1/-1;text-align:start}.ahavat29-letter-glyph{grid-row:2/6;grid-column:1;font-size:90px}.ahavat29-letter-identity :is(h4,p,strong,button,a){grid-column:2;text-align:start}.ahavat29-letter-identity button{width:fit-content}.ahavat29-letter-landscape{padding:18px 10px}.ahavat29-letter-pillars{gap:3px}.ahavat29-letter-pillars button{grid-template-rows:auto 120px auto}.ahavat29-letter-pillar-label{font-size:14px}}
+@media(max-width:1023px){.ahavat29[data-study-focus=letters] .ahavat29-layout.books29-reading-layout{grid-template-columns:minmax(0,1fr);grid-template-areas:"story" "source"}}
+@media(max-width:650px){#ahavat29-letters .ahavat29-letter-alphabet{grid-template-columns:repeat(4,minmax(0,1fr))}.ahavat29[data-study-focus=letters] .ahavat29-intro{padding:18px 16px}.ahavat29-study-mode button{flex:1}#ahavat29-letters .ahavat29-letter-scene .ahavat29-spatial-canvas{height:300px!important}}

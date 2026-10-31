@@ -1,0 +1,21 @@
+{
+  "modelContexts": 108,
+  "models": {
+    "ten-depths": 9,
+    "five-against-five": 9,
+    "letter-families": 9,
+    "five-mouth-groups": 9,
+    "six-seals-synoptic": 9,
+    "six-seals-gra-edition": 9,
+    "mothers-world-year-soul": 9,
+    "doubles-synoptic": 9,
+    "doubles-gra-distinction": 9,
+    "stones-houses": 9,
+    "twelve-boundaries-gra": 9,
+    "three-kings": 9
+  },
+  "resumedAfterEnvironmentRestart": [
+    "letter-families",
+    "mothers-world-year-soul"
+  ]
+}

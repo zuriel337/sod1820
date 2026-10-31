@@ -1,10 +1,16 @@
-import React, { useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
+import React, { lazy, Suspense, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import BookFullscreenButton2029 from "./BookFullscreenButton2029.jsx";
+import CanonicalProgress from "../CanonicalProgress.jsx";
 import {
   chapterForBookPage,
   clampBookPage,
 } from "../../data/bookReader2029.js";
 import "./bookSourceReader2029.css";
+
+const BookInternalMap2029 = lazy(
+  () => import("./MaamarEstherInternalMap2029.jsx"),
+);
+const BookPdfPage2029 = lazy(() => import("./BookPdfPage2029.jsx"));
 
 function pageFromUrl(manifest) {
   if (typeof window === "undefined") return 1;
@@ -51,6 +57,7 @@ export default function BookSourceReader2029({ manifest, researchRows = [] }) {
   const [draftPage, setDraftPage] = useState(String(page));
   const [searchQuery, setSearchQuery] = useState("");
   const [deepReading, setDeepReading] = useState({ loading: false, pageText: null, commentary: null });
+  const [showInternalMap, setShowInternalMap] = useState(false);
   const fullscreenRef = useRef(null);
   const chapter = chapterForBookPage(manifest, page);
   const deferredQuery = useDeferredValue(searchQuery);
@@ -60,6 +67,7 @@ export default function BookSourceReader2029({ manifest, researchRows = [] }) {
     setPage(requested);
     setDraftPage(String(requested));
     setSearchQuery("");
+    setShowInternalMap(false);
   }, [manifest]);
 
   useEffect(() => {
@@ -140,6 +148,7 @@ export default function BookSourceReader2029({ manifest, researchRows = [] }) {
           {deepReading.pageText ? <div><dt>חיפוש טקסט</dt><dd>{searchablePages}/{manifest.pdfPages} עמודים · שכבת איתור בלבד</dd></div> : null}
           {sourceOnlyPages.length ? <div><dt>עמודים ללא טקסט לחיפוש</dt><dd>{sourceOnlyPages.join(", ")} · נקראים ישירות מן ה־PDF</dd></div> : null}
           {deepReading.commentary?.source_layers?.printed_commentary ? <div><dt>פירוש מודפס במהדורה</dt><dd>{deepReading.commentary.source_layers.printed_commentary}</dd></div> : null}
+          {deepReading.commentary?.source_layers?.translation ? <div><dt>תרגום עברי</dt><dd>{deepReading.commentary.source_layers.translation}</dd></div> : null}
           {pageCommentary?.technical_note ? <div><dt>הבחנת קריאה</dt><dd>{pageCommentary.technical_note}</dd></div> : null}
         </dl>
         {deepReading.commentary?.source_note ? <p className="book-reader29-source-note">{deepReading.commentary.source_note}</p> : null}
@@ -154,7 +163,7 @@ export default function BookSourceReader2029({ manifest, researchRows = [] }) {
         </header>
 
         <div className="book-reader29-pdf" data-book-pdf-frame>
-          <iframe key={pdfPageUrl} src={pdfPageUrl} title={`${manifest.title}, עמוד ${page}`} loading="eager" />
+          {manifest.pdfRenderer === "controlled_page" ? <Suspense fallback={<CanonicalProgress compact title="טעינת עמוד המקור" />}><BookPdfPage2029 manifest={manifest} page={page} /></Suspense> : <iframe key={pdfPageUrl} src={pdfPageUrl} title={`${manifest.title}, עמוד ${page}`} loading="eager" />}
         </div>
 
         <form className="book-reader29-page-nav" onSubmit={submitPage} aria-label={`מעבר בין עמודי ${manifest.title}`} data-book-reader-secondary>
@@ -168,6 +177,22 @@ export default function BookSourceReader2029({ manifest, researchRows = [] }) {
       </aside>
 
       <div className="book-reader29-guide">
+        {manifest.internalMapUrl ? <article className="book-reader29-internal-map-entry">
+          <span>מפה פנימית · נטענת לפי בקשה</span>
+          <h3>לקרוא את הספר מהלך אחר מהלך</h3>
+          <p>פסוק או מאמר חז״ל, קושיה, מקורות, שלבי המהלך ומסקנה — כולם נשארים מחוברים לעמוד ה־PDF המדויק.</p>
+          <button type="button" aria-expanded={showInternalMap} onClick={() => setShowInternalMap(value => !value)}>
+            {showInternalMap ? "סגור את המפה הפנימית" : "פתח את המפה הפנימית"}
+          </button>
+        </article> : null}
+        {manifest.internalMapUrl && showInternalMap ? <Suspense fallback={<article className="book-reader29-internal-map-loading" role="status">מכין את המפה הפנימית…</article>}>
+          <BookInternalMap2029 mapUrl={manifest.internalMapUrl} currentPage={page} onOpenPage={openPage} />
+        </Suspense> : null}
+        {pageCommentary?.hebrew_translation ? <article className="book-reader29-current book-reader29-translation">
+          <span>תרגום עברי · PDF {page}</span>
+          <h3>{pageCommentary.title || manifest.title}</h3>
+          <p lang="he" dir="rtl">{pageCommentary.hebrew_translation}</p>
+        </article> : null}
         <article className="book-reader29-current" aria-live="polite">
           <span>הסבר נלווה · PDF {pageCommentary ? page : `${chapter?.from}–${chapter?.to}`}</span>
           <h3>{pageCommentary?.title || chapter?.title || manifest.title}</h3>

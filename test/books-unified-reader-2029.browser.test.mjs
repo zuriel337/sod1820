@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { AHAVAT_PDF_BYTES, AHAVAT_PDF_URL, assertAhavatSourcePage } from "./fixtures/ahavat-controlled-source-2029.mjs";
 import { existsSync } from "node:fs";
 import { createRequire } from "node:module";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -42,14 +43,14 @@ function bookRow(slug) {
   };
 }
 
-test("all seven unified readers remain source-first and fit 320/390/1440", { skip: !available, timeout: 120_000 }, async () => {
+test("all eight unified readers remain source-first and fit 320/390/1440", { skip: !available, timeout: 120_000 }, async () => {
   process.env.SOD_BUILD_TARGET = "2029";
   process.env.VITE_BOOK_PUBLICATION_REVIEW_PREVIEW = "true";
   process.env.VITE_INTEGRATED_PREVIEW = "true";
 
   const server = await vite.createServer({
     root: ROOT,
-    configFile: false,
+    configFile: false, cacheDir: `/workspace/artifacts/ahavat-native-source-fix-20261030-i85M6O/browser-output/books-unified-reader-2029${process.pid}`,
     plugins: [reactPlugin()],
     appType: "spa",
     server: { host: "127.0.0.1", port: 0 },
@@ -63,6 +64,7 @@ test("all seven unified readers remain source-first and fit 320/390/1440", { ski
     for (const width of [320, 390, 1440]) {
       const context = await browser.newContext({ viewport: { width, height: 1000 }, reducedMotion: "reduce" });
       await context.route("**/*", async route => {
+        if (route.request().url() === AHAVAT_PDF_URL) return route.fulfill({ contentType: "application/pdf", body: AHAVAT_PDF_BYTES });
         const request = route.request();
         const url = new URL(request.url());
         if (url.origin === base && request.isNavigationRequest() && url.pathname === "/2029/control") {
@@ -103,7 +105,9 @@ test("all seven unified readers remain source-first and fit 320/390/1440", { ski
         assert.equal(await reader.getByText("דברי הספר · המקור פתוח תמיד", { exact: true }).count(), 1);
         assert.equal(await reader.getByText(/הסבר נלווה · PDF/).count() > 0, true);
         assert.equal(await reader.getByText("פרטי המקור", { exact: true }).count(), 1);
-        assert.equal(await page.locator("#book-reader29-source iframe").count(), 1);
+        await page.locator('#book-reader29-source :is(iframe,[data-book-pdf-renderer="controlled"])').waitFor();
+        assert.equal(await page.locator('#book-reader29-source :is(iframe,[data-book-pdf-renderer="controlled"])').count(), 1);
+        if (manifest.pdfRenderer === "controlled_page") await assertAhavatSourcePage(page, 1);
         assert.equal(await page.getByRole("button", { name: "מסך מלא", exact: true }).count(), 1);
         assert.equal(await page.evaluate(() => (
           document.documentElement.scrollWidth <= window.innerWidth + 1
@@ -144,7 +148,104 @@ test("all seven unified readers remain source-first and fit 320/390/1440", { ski
           await result.waitFor();
           await result.click();
           assert.equal(new URL(page.url()).searchParams.get("page"), "283");
-          await page.getByRole("heading", { name: "״והנחש היה ערום״", exact: true }).waitFor();
+          await page.getByRole("heading", { name: "והנחש היה ערום: הכינוי ודרשתו", exact: true }).waitFor();
+        }
+        if (manifest.slug === "ahavat-torah" && width === 390) {
+          await page.getByText("פרטי המקור", { exact: true }).click();
+          await page.getByText("98/99 עמודים · שכבת איתור בלבד", { exact: true }).waitFor();
+          await page.getByText("45 · נקראים ישירות מן ה־PDF", { exact: true }).waitFor();
+          await page.getByRole("searchbox", { name: "מילה או צירוף" }).fill("הערות שהעיר");
+          const result = page.locator(".book-reader29-search-results button").filter({ hasText: "PDF 99" });
+          await result.waitFor();
+          await result.click();
+          assert.equal(new URL(page.url()).searchParams.get("page"), "99");
+          await page.getByRole("heading", { name: "לוח ההשמטות והתיקונים", exact: true }).waitFor();
+          const source = page.locator("#book-reader29-source");
+          await assertAhavatSourcePage(source, 99);
+          await source.getByRole("button", { name: "מסך מלא", exact: true }).click();
+          await page.waitForFunction(() => Boolean(document.fullscreenElement));
+          await assertAhavatSourcePage(source, 99);
+          await source.getByRole("button", { name: "יציאה ממסך מלא", exact: true }).click();
+          await page.waitForFunction(() => !document.fullscreenElement);
+          await assertAhavatSourcePage(source, 99);
+        }
+        if (manifest.slug === "daat-tevunot" && width === 390) {
+          await page.getByText("פרטי המקור", { exact: true }).click();
+          await page.getByText("99/99 עמודים · שכבת איתור בלבד", { exact: true }).waitFor();
+          assert.equal(await page.getByText("עמודים ללא טקסט לחיפוש", { exact: true }).count(), 0);
+          await page.getByRole("searchbox", { name: "מילה או צירוף" }).fill("יום הדין הגדול");
+          const result = page.locator(".book-reader29-search-results button").filter({ hasText: "PDF 89" });
+          await result.waitFor();
+          await result.click();
+          assert.equal(new URL(page.url()).searchParams.get("page"), "89");
+          await page.getByRole("heading", { name: "הנהגת המשפט", exact: true }).waitFor();
+        }
+        if (manifest.slug === "daat-tevunot") {
+          await page.getByRole("button", { name: "פתח את המפה הפנימית", exact: true }).click();
+          await page.getByRole("heading", { name: "סעיף אחר סעיף בתוך „דעת תבונות”", exact: true }).waitFor();
+          assert.deepEqual(await page.locator(".maamar-map29-coverage strong").allTextContents(), ["229", "99/99"]);
+          assert.equal(await page.evaluate(() => (
+            document.documentElement.scrollWidth <= window.innerWidth + 1
+            && document.querySelector(".maamar-map29").getBoundingClientRect().right <= window.innerWidth + 1
+          )), true, `Daat Tevunot internal map overflows at ${width}px`);
+          if (width === 390) {
+            await page.getByRole("searchbox", { name: "חיפוש לפי סעיף, דובר, מקור, מושג או ציר הנהגה" }).fill("שתים שהם שלש יסודות");
+            const mappedUnit = page.locator(".maamar-map29-units button").filter({ hasText: "סעיף קלח · PDF 61" });
+            await mappedUnit.waitFor();
+            await mappedUnit.click();
+            assert.equal(new URL(page.url()).searchParams.get("page"), "61");
+            assert.match(await page.locator("#book-reader29-source iframe").getAttribute("src"), /#page=61&view=FitH$/);
+          }
+        }
+        if (manifest.slug === "sefer-yetzirah" && width === 390) {
+          await page.getByText("פרטי המקור", { exact: true }).click();
+          await page.getByText("207/220 עמודים · שכבת איתור בלבד", { exact: true }).waitFor();
+          await page.getByText("1, 2, 3, 27, 33, 110, 114, 115, 202, 217, 218, 219, 220 · נקראים ישירות מן ה־PDF", { exact: true }).waitFor();
+          await page.getByRole("searchbox", { name: "מילה או צירוף" }).fill("ספירות בלימה");
+          const result = page.locator(".book-reader29-search-results button").filter({ hasText: "PDF 61" });
+          await result.waitFor();
+          await result.click();
+          assert.equal(new URL(page.url()).searchParams.get("page"), "61");
+          await page.getByRole("heading", { name: "פרק ראשון · עשר ספירות", exact: true }).waitFor();
+        }
+        if (manifest.slug === "maamar-esther") {
+          await page.getByRole("button", { name: "פתח את המפה הפנימית", exact: true }).click();
+          await page.getByRole("heading", { name: "מהלך אחר מהלך בתוך „מאמר אסתר”", exact: true }).waitFor();
+          assert.deepEqual(await page.locator(".maamar-map29-coverage strong").allTextContents(), ["139", "84/84"]);
+          assert.equal(await page.evaluate(() => (
+            document.documentElement.scrollWidth <= window.innerWidth + 1
+            && document.querySelector(".maamar-map29").getBoundingClientRect().right <= window.innerWidth + 1
+          )), true, `Maamar Esther internal map overflows at ${width}px`);
+          if (width === 390) {
+            await page.getByText("פרטי המקור", { exact: true }).first().click();
+            await page.getByText("84/84 עמודים · שכבת איתור בלבד", { exact: true }).waitFor();
+            assert.equal(await page.getByText("עמודים ללא טקסט לחיפוש", { exact: true }).count(), 0);
+            await page.getByRole("searchbox", { name: "מילה או צירוף" }).fill("וישם המלך אחשורוש מס");
+            const result = page.locator(".book-reader29-search-results button").filter({ hasText: "PDF 83" });
+            await result.waitFor();
+            await result.click();
+            assert.equal(new URL(page.url()).searchParams.get("page"), "83");
+            await page.getByRole("heading", { name: /פרק י׳ · חתימת המגילה/ }).waitFor();
+            await page.getByRole("searchbox", { name: "חיפוש לפי פסוק, דמות, מקור או מושג" }).fill("זרש");
+            const mappedUnit = page.locator(".maamar-map29-units button").filter({ hasText: /PDF (54|55)/ }).first();
+            await mappedUnit.waitFor();
+            await mappedUnit.click();
+            assert.match(new URL(page.url()).searchParams.get("page"), /^(54|55)$/);
+            assert.match(await page.locator("#book-reader29-source iframe").getAttribute("src"), /#page=(54|55)&view=FitH$/);
+          }
+        }
+        if (manifest.slug === "bentov-brief-tour-higher-consciousness" && width === 390) {
+          await page.getByText("פרטי המקור", { exact: true }).click();
+          await page.getByText("125/127 עמודים · שכבת איתור בלבד", { exact: true }).waitFor();
+          await page.getByText("1, 2 · נקראים ישירות מן ה־PDF", { exact: true }).waitFor();
+          await page.getByText("תרגום עברי · מועמד מכונה", { exact: true }).waitFor();
+          await page.getByRole("searchbox", { name: "מילה או צירוף" }).fill("pure awareness");
+          const result = page.locator(".book-reader29-search-results button").filter({ hasText: "PDF 99" });
+          await result.waitFor();
+          await result.click();
+          assert.equal(new URL(page.url()).searchParams.get("page"), "99");
+          await page.getByText("תרגום עברי · PDF 99", { exact: true }).waitFor();
+          await page.getByRole("heading", { name: "חלק חמישי · העצמי הגבוה · עמוד 99", exact: true }).first().waitFor();
         }
       }
       await context.close();

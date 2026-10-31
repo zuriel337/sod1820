@@ -1,0 +1,17 @@
+.books29-reading-layout-control{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:12px 0;color:var(--s29-text);font:500 var(--s29-type-ui)/1.4 var(--s29-font-ui)}
+.books29-reading-layout-control span{margin-inline-end:4px;color:var(--s29-muted)}
+.books29-reading-layout-control button,.books29-entry-actions a{min-height:44px;padding:9px 16px;border:1px solid var(--s29-line-strong);border-radius:12px;background:var(--s29-panel);color:var(--s29-text);font:600 var(--s29-type-ui)/1.4 var(--s29-font-ui);cursor:pointer}
+.books29-reading-layout-control button[aria-pressed="true"]{border-color:var(--s29-brand-gold);background:color-mix(in srgb,var(--s29-brand-gold) 14%,var(--s29-panel))}
+.books29-reading-layout-control button:focus-visible,.books29-entry-actions a:focus-visible{outline:3px solid var(--s29-focus-ring);outline-offset:3px}
+.books29-entry-actions{display:flex;flex-wrap:wrap;gap:8px;margin-block-start:22px}
+.books29-entry-actions a{display:inline-flex;align-items:center;text-decoration:none}
+@media(min-width:1024px){
+  .ahavat29-layout.books29-reading-layout,.yetzirah29-layout.books29-reading-layout{grid-template-areas:"source story";grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(14px,1.4vw,24px)}
+  .ahavat29-layout.books29-reading-layout[data-reading-layout="source"],.yetzirah29-layout.books29-reading-layout[data-reading-layout="source"]{grid-template-columns:minmax(0,1.22fr) minmax(0,.78fr)}
+  .books29-reading-layout .ahavat29-source,.books29-reading-layout .yetzirah29-source{min-width:0}
+  .books29-reading-layout .ahavat29-orbit{height:auto;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .books29-reading-layout .ahavat29-orbit::before,.books29-reading-layout .ahavat29-orbit::after,.books29-reading-layout .ahavat29-orbit-ring{display:none}
+  .books29-reading-layout .ahavat29-orbit-core{position:relative;left:auto;top:auto;translate:none;grid-column:1/-1;justify-self:center;margin:8px auto}
+  .books29-reading-layout .ahavat29-orbit>button{position:relative;left:auto;top:auto;transform:none;width:100%;min-width:0}
+}
+@media(max-width:1023px){.books29-reading-layout-control{display:none}}

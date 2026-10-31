@@ -1,0 +1,809 @@
+{
+  "base": "fc50f68c31646cb5fae166fe34b99ae8d66ca430",
+  "browser": "Chromium headless, SwiftShader, reduced motion; mocked backend; product reader",
+  "pdf_matrix": "aborted; separately tested actual hash-matched PDF page 53",
+  "real_pdf_sha256": "2cc0710667dde3db94745b4f652d4b2e3eb8ea9c64424ab52f1f2ce44281c13a",
+  "models": [
+    {
+      "id": "sy-structure:ten-depths",
+      "title": "עשרה עומקים בנוסח הגוף המשולב",
+      "pdf_pages": [
+        53
+      ],
+      "component_count": 10,
+      "relation_count": 5,
+      "implemented": true,
+      "connected_to_reader": true,
+      "source_linked": true,
+      "table": true,
+      "illustration": true,
+      "product_browser_cases": [
+        {
+          "width": 320,
+          "theme": "light",
+          "passed": true
+        },
+        {
+          "width": 320,
+          "theme": "parchment",
+          "passed": true
+        },
+        {
+          "width": 320,
+          "theme": "dark",
+          "passed": true
+        },
+        {
+          "width": 390,
+          "theme": "light",
+          "passed": true
+        },
+        {
+          "width": 390,
+          "theme": "parchment",
+          "passed": true
+        },
+        {
+          "width": 390,
+          "theme": "dark",
+          "passed": true
+        },
+        {
+          "width": 1440,
+          "theme": "light",
+          "passed": true
+        },
+        {
+          "width": 1440,
+          "theme": "parchment",
+          "passed": true
+        },
+        {
+          "width": 1440,
+          "theme": "dark",
+          "passed": true
+        }
+      ],
+      "all_components_tested_at_390_parchment": true,
+      "all_relations_tested_at_390_parchment": true,
+      "complete_contract_acceptance": "pending_full_books_gate",
+      "screenshot": "ten-depths-spatial.png"
+    },
+    {
+      "id": "sy-structure:five-against-five",
+      "title": "חמש כנגד חמש וברית באמצע",
+      "pdf_pages": [
+        45
+      ],
+      "component_count": 3,
+      "relation_count": 3,
+      "implemented": true,
+      "connected_to_reader": true,
+      "source_linked": true,
+      "table": true,
+      "illustration": true,
+      "product_browser_cases": [
+        {
+          "width": 320,
+          "theme": "light",
+          "passed": true
+        },
+        {
+          "width": 320,
+          "theme": "parchment",
+          "passed": true
+        },
+        {
+          "width": 320,
+          "theme": "dark",
+          "passed": true
+        },
+        {
+          "width": 390,
+          "theme": "light",
+          "passed": true
+        },
+        {
+          "width": 390,
+          "theme": "parchment",
+          "passed": true
+        },
+        {
+          "width": 390,
+          "theme": "dark",
+          "passed": true
+        },
+        {
+          "width": 1440,
+          "theme": "light",
+          "passed": true
+        },
+        {
+          "width": 1440,
+          "theme": "parchment",
+          "passed": true
+        },
+        {
+          "width": 1440,
+          "theme": "dark",
+          "passed": true
+        }
+      ],
+      "all_components_tested_at_390_parchment": true,
+      "all_relations_tested_at_390_parchment": true,
+      "complete_contract_acceptance": "pending_full_books_gate",
+      "screenshot": "five-against-five-spatial.png"
+    },
+    {
+      "id": "sy-structure:letter-families",
+      "title": "שלוש משפחות כ״ב האותיות",
+      "pdf_pages": [
+        65
+      ],
+      "component_count": 3,
+      "relation_count": 0,
+      "implemented": true,
+      "connected_to_reader": true,
+      "source_linked": true,
+      "table": true,
+      "illustration": true,
+      "product_browser_cases": [
+        {
+          "width": 320,
+          "theme": "light",
+          "passed": true
+        },
+        {
+          "width": 320,
+          "theme": "parchment",
+          "passed": true
+        },
+        {
+          "width": 320,
+          "theme": "dark",
+          "passed": true
+        },
+        {
+          "width": 390,
+          "theme": "light",
+          "passed": true
+        },
+        {
+          "width": 390,
+          "theme": "parchment",
+          "passed": true
+        },
+        {
+          "width": 390,
+          "theme": "dark",
+          "passed": true
+        },
+        {
+          "width": 1440,
+          "theme": "light",
+          "passed": true
+        },
+        {
+          "width": 1440,
+          "theme": "parchment",
+          "passed": true
+        },
+        {
+          "width": 1440,
+          "theme": "dark",
+          "passed": true
+        }
+      ],
+      "all_components_tested_at_390_parchment": true,
+      "all_relations_tested_at_390_parchment": true,
+      "complete_contract_acceptance": "pending_full_books_gate",
+      "screenshot": "letter-families-spatial.png"
+    },
+    {
+      "id": "sy-structure:five-mouth-groups",
+      "title": "חמש קבוצות מוצא",
+      "pdf_pages": [
+        80
+      ],
+      "component_count": 5,
+      "relation_count": 0,
+      "implemented": true,
+      "connected_to_reader": true,
+      "source_linked": true,
+      "table": true,
+      "illustration": true,
+      "product_browser_cases": [
+        {
+          "width": 320,
+          "theme": "light",
+          "passed": true
+        },
+        {
+          "width": 320,
+          "theme": "parchment",
+          "passed": true
+        },
+        {
+          "width": 320,
+          "theme": "dark",
+          "passed": true
+        },
+        {
+          "width": 390,
+          "theme": "light",
+          "passed": true
+        },
+        {
+          "width": 390,
+          "theme": "parchment",
+          "passed": true
+        },
+        {
+          "width": 390,
+          "theme": "dark",
+          "passed": true
+        },
+        {
+          "width": 1440,
+          "theme": "light",
+          "passed": true
+        },
+        {
+          "width": 1440,
+          "theme": "parchment",
+          "passed": true
+        },
+        {
+          "width": 1440,
+          "theme": "dark",
+          "passed": true
+        }
+      ],
+      "all_components_tested_at_390_parchment": true,
+      "all_relations_tested_at_390_parchment": true,
+      "complete_contract_acceptance": "pending_full_books_gate",
+      "screenshot": "five-mouth-groups-spatial.png"
+    },
+    {
+      "id": "sy-structure:six-seals-synoptic",
+      "title": "שש חותמות · גוף משולב",
+      "pdf_pages": [
+        73
+      ],
+      "component_count": 6,
+      "relation_count": 3,
+      "implemented": true,
+      "connected_to_reader": true,
+      "source_linked": true,
+      "table": true,
+      "illustration": true,
+      "product_browser_cases": [
+        {
+          "width": 320,
+          "theme": "light",
+          "passed": true
+        },
+        {
+          "width": 320,
+          "theme": "parchment",
+          "passed": true
+        },
+        {
+          "width": 320,
+          "theme": "dark",
+          "passed": true
+        },
+        {
+          "width": 390,
+          "theme": "light",
+          "passed": true
+        },
+        {
+          "width": 390,
+          "theme": "parchment",
+          "passed": true
+        },
+        {
+          "width": 390,
+          "theme": "dark",
+          "passed": true
+        },
+        {
+          "width": 1440,
+          "theme": "light",
+          "passed": true
+        },
+        {
+          "width": 1440,
+          "theme": "parchment",
+          "passed": true
+        },
+        {
+          "width": 1440,
+          "theme": "dark",
+          "passed": true
+        }
+      ],
+      "all_components_tested_at_390_parchment": true,
+      "all_relations_tested_at_390_parchment": true,
+      "complete_contract_acceptance": "pending_full_books_gate",
+      "screenshot": "six-seals-synoptic-spatial.png"
+    },
+    {
+      "id": "sy-structure:six-seals-gra-edition",
+      "title": "שש חותמות · נוסח הגר״א",
+      "pdf_pages": [
+        175
+      ],
+      "component_count": 6,
+      "relation_count": 3,
+      "implemented": true,
+      "connected_to_reader": true,
+      "source_linked": true,
+      "table": true,
+      "illustration": true,
+      "product_browser_cases": [
+        {
+          "width": 320,
+          "theme": "light",
+          "passed": true
+        },
+        {
+          "width": 320,
+          "theme": "parchment",
+          "passed": true
+        },
+        {
+          "width": 320,
+          "theme": "dark",
+          "passed": true
+        },
+        {
+          "width": 390,
+          "theme": "light",
+          "passed": true
+        },
+        {
+          "width": 390,
+          "theme": "parchment",
+          "passed": true
+        },
+        {
+          "width": 390,
+          "theme": "dark",
+          "passed": true
+        },
+        {
+          "width": 1440,
+          "theme": "light",
+          "passed": true
+        },
+        {
+          "width": 1440,
+          "theme": "parchment",
+          "passed": true
+        },
+        {
+          "width": 1440,
+          "theme": "dark",
+          "passed": true
+        }
+      ],
+      "all_components_tested_at_390_parchment": true,
+      "all_relations_tested_at_390_parchment": true,
+      "complete_contract_acceptance": "pending_full_books_gate",
+      "screenshot": "six-seals-gra-edition-spatial.png"
+    },
+    {
+      "id": "sy-structure:mothers-world-year-soul",
+      "title": "אמ״ש והקבלות עולם שנה ונפש",
+      "pdf_pages": [
+        94,
+        95,
+        97,
+        98,
+        99
+      ],
+      "component_count": 3,
+      "relation_count": 2,
+      "implemented": true,
+      "connected_to_reader": true,
+      "source_linked": true,
+      "table": true,
+      "illustration": true,
+      "product_browser_cases": [
+        {
+          "width": 320,
+          "theme": "light",
+          "passed": true
+        },
+        {
+          "width": 320,
+          "theme": "parchment",
+          "passed": true
+        },
+        {
+          "width": 320,
+          "theme": "dark",
+          "passed": true
+        },
+        {
+          "width": 390,
+          "theme": "light",
+          "passed": true
+        },
+        {
+          "width": 390,
+          "theme": "parchment",
+          "passed": true
+        },
+        {
+          "width": 390,
+          "theme": "dark",
+          "passed": true
+        },
+        {
+          "width": 1440,
+          "theme": "light",
+          "passed": true
+        },
+        {
+          "width": 1440,
+          "theme": "parchment",
+          "passed": true
+        },
+        {
+          "width": 1440,
+          "theme": "dark",
+          "passed": true
+        }
+      ],
+      "all_components_tested_at_390_parchment": true,
+      "all_relations_tested_at_390_parchment": true,
+      "complete_contract_acceptance": "pending_full_books_gate",
+      "screenshot": "mothers-world-year-soul-spatial.png"
+    },
+    {
+      "id": "sy-structure:doubles-synoptic",
+      "title": "הקבלות שבע הכפולות בגוף המשולב",
+      "pdf_pages": [
+        105,
+        106,
+        107,
+        108,
+        109,
+        110
+      ],
+      "component_count": 7,
+      "relation_count": 0,
+      "implemented": true,
+      "connected_to_reader": true,
+      "source_linked": true,
+      "table": true,
+      "illustration": true,
+      "product_browser_cases": [
+        {
+          "width": 320,
+          "theme": "light",
+          "passed": true
+        },
+        {
+          "width": 320,
+          "theme": "parchment",
+          "passed": true
+        },
+        {
+          "width": 320,
+          "theme": "dark",
+          "passed": true
+        },
+        {
+          "width": 390,
+          "theme": "light",
+          "passed": true
+        },
+        {
+          "width": 390,
+          "theme": "parchment",
+          "passed": true
+        },
+        {
+          "width": 390,
+          "theme": "dark",
+          "passed": true
+        },
+        {
+          "width": 1440,
+          "theme": "light",
+          "passed": true
+        },
+        {
+          "width": 1440,
+          "theme": "parchment",
+          "passed": true
+        },
+        {
+          "width": 1440,
+          "theme": "dark",
+          "passed": true
+        }
+      ],
+      "all_components_tested_at_390_parchment": true,
+      "all_relations_tested_at_390_parchment": true,
+      "complete_contract_acceptance": "pending_full_books_gate",
+      "screenshot": "doubles-synoptic-spatial.png"
+    },
+    {
+      "id": "sy-structure:doubles-gra-distinction",
+      "title": "הקבלות בי״ת וגימ״ל בנוסח הגר״א",
+      "pdf_pages": [
+        184,
+        185
+      ],
+      "component_count": 7,
+      "relation_count": 0,
+      "implemented": true,
+      "connected_to_reader": true,
+      "source_linked": true,
+      "table": true,
+      "illustration": true,
+      "product_browser_cases": [
+        {
+          "width": 320,
+          "theme": "light",
+          "passed": true
+        },
+        {
+          "width": 320,
+          "theme": "parchment",
+          "passed": true
+        },
+        {
+          "width": 320,
+          "theme": "dark",
+          "passed": true
+        },
+        {
+          "width": 390,
+          "theme": "light",
+          "passed": true
+        },
+        {
+          "width": 390,
+          "theme": "parchment",
+          "passed": true
+        },
+        {
+          "width": 390,
+          "theme": "dark",
+          "passed": true
+        },
+        {
+          "width": 1440,
+          "theme": "light",
+          "passed": true
+        },
+        {
+          "width": 1440,
+          "theme": "parchment",
+          "passed": true
+        },
+        {
+          "width": 1440,
+          "theme": "dark",
+          "passed": true
+        }
+      ],
+      "all_components_tested_at_390_parchment": true,
+      "all_relations_tested_at_390_parchment": true,
+      "complete_contract_acceptance": "pending_full_books_gate",
+      "screenshot": "doubles-gra-distinction-spatial.png"
+    },
+    {
+      "id": "sy-structure:stones-houses",
+      "title": "אבנים ובתים — מניין סידורים",
+      "pdf_pages": [
+        111
+      ],
+      "component_count": 6,
+      "relation_count": 0,
+      "implemented": true,
+      "connected_to_reader": true,
+      "source_linked": true,
+      "table": true,
+      "illustration": true,
+      "product_browser_cases": [
+        {
+          "width": 320,
+          "theme": "light",
+          "passed": true
+        },
+        {
+          "width": 320,
+          "theme": "parchment",
+          "passed": true
+        },
+        {
+          "width": 320,
+          "theme": "dark",
+          "passed": true
+        },
+        {
+          "width": 390,
+          "theme": "light",
+          "passed": true
+        },
+        {
+          "width": 390,
+          "theme": "parchment",
+          "passed": true
+        },
+        {
+          "width": 390,
+          "theme": "dark",
+          "passed": true
+        },
+        {
+          "width": 1440,
+          "theme": "light",
+          "passed": true
+        },
+        {
+          "width": 1440,
+          "theme": "parchment",
+          "passed": true
+        },
+        {
+          "width": 1440,
+          "theme": "dark",
+          "passed": true
+        }
+      ],
+      "all_components_tested_at_390_parchment": true,
+      "all_relations_tested_at_390_parchment": true,
+      "complete_contract_acceptance": "pending_full_books_gate",
+      "screenshot": "stones-houses-spatial.png"
+    },
+    {
+      "id": "sy-structure:twelve-boundaries-gra",
+      "title": "י״ב גבולי אלכסון בנוסח הגר״א",
+      "pdf_pages": [
+        187
+      ],
+      "component_count": 12,
+      "relation_count": 0,
+      "implemented": true,
+      "connected_to_reader": true,
+      "source_linked": true,
+      "table": true,
+      "illustration": true,
+      "product_browser_cases": [
+        {
+          "width": 320,
+          "theme": "light",
+          "passed": true
+        },
+        {
+          "width": 320,
+          "theme": "parchment",
+          "passed": true
+        },
+        {
+          "width": 320,
+          "theme": "dark",
+          "passed": true
+        },
+        {
+          "width": 390,
+          "theme": "light",
+          "passed": true
+        },
+        {
+          "width": 390,
+          "theme": "parchment",
+          "passed": true
+        },
+        {
+          "width": 390,
+          "theme": "dark",
+          "passed": true
+        },
+        {
+          "width": 1440,
+          "theme": "light",
+          "passed": true
+        },
+        {
+          "width": 1440,
+          "theme": "parchment",
+          "passed": true
+        },
+        {
+          "width": 1440,
+          "theme": "dark",
+          "passed": true
+        }
+      ],
+      "all_components_tested_at_390_parchment": true,
+      "all_relations_tested_at_390_parchment": true,
+      "complete_contract_acceptance": "pending_full_books_gate",
+      "screenshot": "twelve-boundaries-gra-spatial.png"
+    },
+    {
+      "id": "sy-structure:three-kings",
+      "title": "תלי, גלגל ולב",
+      "pdf_pages": [
+        122,
+        151,
+        192
+      ],
+      "component_count": 3,
+      "relation_count": 0,
+      "implemented": true,
+      "connected_to_reader": true,
+      "source_linked": true,
+      "table": true,
+      "illustration": true,
+      "product_browser_cases": [
+        {
+          "width": 320,
+          "theme": "light",
+          "passed": true
+        },
+        {
+          "width": 320,
+          "theme": "parchment",
+          "passed": true
+        },
+        {
+          "width": 320,
+          "theme": "dark",
+          "passed": true
+        },
+        {
+          "width": 390,
+          "theme": "light",
+          "passed": true
+        },
+        {
+          "width": 390,
+          "theme": "parchment",
+          "passed": true
+        },
+        {
+          "width": 390,
+          "theme": "dark",
+          "passed": true
+        },
+        {
+          "width": 1440,
+          "theme": "light",
+          "passed": true
+        },
+        {
+          "width": 1440,
+          "theme": "parchment",
+          "passed": true
+        },
+        {
+          "width": 1440,
+          "theme": "dark",
+          "passed": true
+        }
+      ],
+      "all_components_tested_at_390_parchment": true,
+      "all_relations_tested_at_390_parchment": true,
+      "complete_contract_acceptance": "pending_full_books_gate",
+      "screenshot": "three-kings-spatial.png"
+    }
+  ],
+  "full_books_gate": {
+    "result": "FAIL_UNCHANGED_BASELINE",
+    "passed": 178,
+    "failed": 1,
+    "skipped": 0,
+    "failing_test": "test/ahavat-torah-spatial-tables-2029.browser.test.mjs:168",
+    "message": "PDF overlaps the letter reader on desktop",
+    "additional_books_tests_passed": 184
+  }
+}

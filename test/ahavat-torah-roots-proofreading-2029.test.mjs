@@ -1,0 +1,113 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
+import { readFile } from "node:fs/promises";
+import { AHAVAT_ROOT_GLYPH_READINGS as readings, AHAVAT_ROOT_OPEN_READINGS as openReadings, ahavatPartiallyReviewedRoots, ahavatReviewedRootFragments } from "../src/data/ahavatTorahRootsCorrections2029.js";
+import { AHAVAT_ROOT_COLUMNS } from "../src/data/ahavatTorahRoots2029.js";
+import { ahavatNativePdfPageAtStart } from "./fixtures/ahavat-native-pdf-page-2029.mjs";
+
+const raw = await readFile(new URL("../public/book-data/ahavat-torah.roots.json", import.meta.url));
+const bundle = JSON.parse(raw);
+const digest = value => createHash("sha256").update(value).digest("hex");
+
+test("source proofreading is additive over the adopted fifteen readings and immutable OCR", () => {
+  assert.equal(digest(raw), "c4dc52ea138c99ed33bee9de274e78b0c041fc69fa60b25e95f0224be28108f8");
+  assert.equal(digest(JSON.stringify(readings.slice(0, 15))), "0357d557ef97ceda336650102b38d87ea59e821add321b37073c6131fc1f00e0");
+  assert.equal(readings.slice(15, 274).length, 259);
+  assert.equal(new Set(readings.map(reading => reading.id)).size, 280);
+  assert.ok(Object.isFrozen(readings));
+  const reviewed = ahavatPartiallyReviewedRoots(bundle);
+  assert.deepEqual(reviewed.map(fragment => fragment.id), AHAVAT_ROOT_COLUMNS.map(column => column.id));
+  assert.deepEqual(reviewed.map(fragment => fragment.appliedReadings.length), [28,24,34,49,37,28,32,36,5,7]);
+  assert.ok(reviewed.every(fragment => Object.isFrozen(fragment) && Object.isFrozen(fragment.readingDetails)));
+});
+
+test("all before/after records retain exact unique OCR anchors and explicit source-bound restoration lineage", () => {
+  for (const fragment of ahavatPartiallyReviewedRoots(bundle)) {
+    assert.equal(fragment.readingDetails.length, fragment.appliedReadings.length);
+    for (const reading of fragment.readingDetails) {
+      assert.equal(fragment.originalOcr.split(reading.originalOcrAnchor).length, 2, reading.id);
+      assert.notEqual(reading.before, reading.after);
+      assert.equal(fragment.originalOcr.split("\n")[reading.originalOcrLine - 1].includes(reading.originalOcrAnchor), true, reading.id);
+      if (reading.supersededBy) {
+        const restoration = fragment.readingDetails.find(detail => detail.id === reading.supersededBy);
+        assert.equal(restoration.restoresReadingId, reading.id);
+        assert.equal(restoration.before, reading.after);
+        assert.equal(restoration.after, reading.before);
+        assert.equal(fragment.partiallyReviewedText.includes(reading.after), false, "withdrawn spelling is history, not active text");
+      } else assert.equal(fragment.partiallyReviewedText.includes(reading.after), true, reading.id);
+      assert.equal(reading.pdfPage, fragment.pdfPage);
+      assert.equal(reading.fragmentId, fragment.id);
+      assert.match(reading.sourceUrl, new RegExp(`#page=${fragment.pdfPage}&view=FitH$`));
+      assert.equal(reading.basis, reading.restoresReadingId ? "original_ocr_restored_pending_source_glyph_decision" : "direct_visual_source_comparison");
+      assert.equal(reading.status, reading.restoresReadingId ? "restoration_pending_source_review" : "local_glyph_reading");
+      assert.equal("engine_verified" in reading, false);
+    }
+  }
+});
+
+test("original open-window provenance stays unchanged; partial readings do not become settled words", () => {
+  assert.equal(openReadings.length, 12);
+  assert.equal(digest(JSON.stringify(openReadings.slice(0, 11))), "1c071ec38c2dd1a6aa1de9f869372c49e4882eab10e4d95ae53bea31f218df06");
+  assert.equal(new Set(openReadings.map(reading => reading.fragmentId)).size, 10);
+  for (const fragment of ahavatPartiallyReviewedRoots(bundle)) {
+    for (const reading of fragment.openReadings) {
+      assert.ok(["unresolved", "partial_reading"].includes(reading.status));
+      assert.equal(reading.proposedReading, null);
+      assert.equal(reading.pdfPage, fragment.pdfPage);
+      assert.ok(fragment.originalOcr.includes(reading.originalOcr));
+      assert.ok(fragment.partiallyReviewedText.includes(reading.reading ?? reading.originalOcr));
+    }
+  }
+  const source = ahavatReviewedRootFragments(bundle).find(fragment => fragment.id === "roots:33:left");
+  assert.ok(source.text.includes("הרחים"), "source-correct OCR must not become a false correction to הרדים");
+  assert.ok(source.text.includes("ובאזרח"), "new source reading must retain the whole printed word, not the earlier unadopted shortening");
+});
+
+test("search locates both reading layers for every correction without minting lexical identities", () => {
+  for (const reading of readings) for (const query of [reading.before, reading.after]) {
+    const match = ahavatReviewedRootFragments(bundle, query).find(fragment => fragment.id === reading.fragmentId);
+    assert.ok(match, `${reading.id} ${query}`);
+    assert.equal(match.pdf_page, reading.pdfPage);
+    assert.ok(match.readingDetails.some(detail => detail.id === reading.id));
+  }
+  assert.equal(ahavatReviewedRootFragments(bundle).length, 10, "corrections are not a fabricated count of roots");
+});
+
+test("ambiguous or missing replacement windows fail closed rather than silently applying twice", () => {
+  for (const reading of [readings[15], readings.at(-1)]) {
+    const duplicate = structuredClone(bundle);
+    duplicate.fragments.find(fragment => fragment.id === reading.fragmentId).text += `\n${reading.before}`;
+    assert.throws(() => ahavatPartiallyReviewedRoots(duplicate), /no longer applies/);
+    const missing = structuredClone(bundle);
+    const fragment = missing.fragments.find(item => item.id === reading.fragmentId);
+    const anchor = ahavatPartiallyReviewedRoots(bundle).flatMap(item => item.readingDetails).find(item => item.id === reading.id).originalOcrAnchor;
+    fragment.text = fragment.text.replace(anchor, "[changed]");
+    assert.throws(() => ahavatPartiallyReviewedRoots(missing), /no longer applies/);
+  }
+  const changed = structuredClone(bundle);
+  changed.fragments[0].text = changed.fragments[0].text.replace(openReadings[0].originalOcr, "[changed]");
+  assert.throws(() => ahavatPartiallyReviewedRoots(changed), /Open source window/);
+});
+
+test("the existing reader mounts comparison records only on explicit expansion", async () => {
+  const reader = await readFile(new URL("../src/components/books2029/AhavatTorahSourceTables2029.jsx", import.meta.url), "utf8");
+  assert.match(reader, /const \[showReadings, setShowReadings\] = useState\(false\)/);
+  assert.match(reader, /showReadings \? <ol/);
+  assert.match(reader, /data-root-reading=\{reading.id\}/);
+  assert.match(reader, /originalOcrLine/);
+});
+
+test("native acceptance checks the requested physical page at the top, not Chromium's central page counter", () => {
+  const measured = { loadState: "success", documentPages: 99, pageIndex: 30, viewportHeight: 640, requestedRect: { x: 26.07, y: 0.78, width: 199.86, height: 255.98 }, previousRect: { y: -259.91, height: 255.62 }, centralPageCounter: "32" };
+  assert.equal(ahavatNativePdfPageAtStart(measured, 31), true);
+  assert.equal(ahavatNativePdfPageAtStart({ ...measured, pageIndex: 31, requestedRect: { ...measured.requestedRect, y: 261.83 }, centralPageCounter: "32" }, 32), false, "a visible central neighbouring page is not the requested top anchor");
+  for (const changed of [
+    { ...measured, loadState: "loading" }, { ...measured, documentPages: 98 },
+    { ...measured, pageIndex: 31 }, { ...measured, requestedRect: null },
+    { ...measured, requestedRect: { ...measured.requestedRect, y: -260 } },
+    { ...measured, requestedRect: { ...measured.requestedRect, width: 0 } },
+    { ...measured, previousRect: { y: 0, height: 256 } },
+  ]) assert.equal(ahavatNativePdfPageAtStart(changed, 31), false);
+  for (const page of [0, 100, "31", null, 31.5]) assert.equal(ahavatNativePdfPageAtStart(measured, page), false);
+});

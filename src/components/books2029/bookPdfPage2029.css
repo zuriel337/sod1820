@@ -1,0 +1,11 @@
+.book-pdf-page29{position:relative;width:100%;height:100%;min-width:0;min-height:0;overflow:auto;direction:ltr}
+.book-pdf-page29:focus-visible{outline:3px solid var(--s29-focus-ring);outline-offset:-3px}
+.book-pdf-page29>canvas{display:block;width:100%;height:auto;margin-inline:auto}
+.book-pdf-page29-status{position:absolute;inset:0;padding:12px;display:grid;place-content:center;direction:rtl;color:var(--s29-text);font:400 var(--s29-type-ui)/1.6 var(--s29-font-body)}
+.book-pdf-page29-status a{color:var(--s29-accent-text);min-height:44px;display:inline-flex;align-items:center;justify-content:center;text-align:center}
+.book-pdf-page29-status a:focus-visible{outline:3px solid var(--s29-focus-ring);outline-offset:3px}
+@media(max-width:900px){
+  .ahavat29-source.book-fullscreen29-target:has(.book-pdf-page29){grid-template-rows:auto auto auto auto}
+  .ahavat29-source .ahavat29-pdf-frame:has(.book-pdf-page29),.book-reader29-pdf:has(.book-pdf-page29){height:auto;min-height:0;aspect-ratio:var(--book-pdf-page-ratio,.78)}
+}
+.book-fullscreen29-target:fullscreen [data-book-pdf-frame]:has(.book-pdf-page29),.book-fullscreen29-target:-webkit-full-screen [data-book-pdf-frame]:has(.book-pdf-page29){aspect-ratio:auto}

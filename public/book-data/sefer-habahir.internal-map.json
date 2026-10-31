@@ -1,0 +1,2250 @@
+{
+  "schema_version": "sefer-habahir-internal-map.v1",
+  "book_slug": "sefer-habahir",
+  "source_identity": "book:sefer-habahir-1883",
+  "source_pdf_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf",
+  "source_pdf_sha256": "b099f2298525c71e7abd45e6132610525fef7ccb8a8f3be338cf4e2404a57067",
+  "generated_at": "2026-10-27",
+  "source_layers": {
+    "book_text": "דברי הספר",
+    "printed_commentary": "פירוש אור הגנוז, הגהות ותרשים המהדורה",
+    "edition": "חומר מהדורה, קולופון וסיום",
+    "companion": "הסבר נלווה חדש; אינו ציטוט"
+  },
+  "edition_year_status": "unresolved",
+  "book_exhaustion": "not_established",
+  "engine_verification": "not_tested",
+  "publication_state": "source_content_only_preview_no_new_surface",
+  "locator_contract": "קישור לכל יחידה לעמוד PDF מדויק. החל בעמוד 25 מצורף מזהה בלוק מן הקורפוס הפעיל כשידוע; בלוק אינו עוגן קואורדינטות בתוך הדף.",
+  "page_index": [
+    {
+      "pdf_page": 1,
+      "title": "כריכת העותק וסימן הספרייה",
+      "category": "witness_or_edition",
+      "source_anchor": "#page=1&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=1&view=FitH",
+      "unit_ids": [],
+      "extraction_status": "search_candidate_only",
+      "visual_basis": "visual_witness_only",
+      "fresh_visual_review": "not_done_this_session"
+    },
+    {
+      "pdf_page": 2,
+      "title": "דף מגן כמעט ריק",
+      "category": "witness_or_edition",
+      "source_anchor": "#page=2&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=2&view=FitH",
+      "unit_ids": [],
+      "extraction_status": "search_candidate_only",
+      "visual_basis": "visual_blank_leaf",
+      "fresh_visual_review": "not_done_this_session"
+    },
+    {
+      "pdf_page": 3,
+      "title": "שער מהדורת וילנה",
+      "category": "witness_or_edition",
+      "source_anchor": "#page=3&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=3&view=FitH",
+      "unit_ids": [],
+      "extraction_status": "search_candidate_only",
+      "visual_basis": "visual_title_page",
+      "fresh_visual_review": "not_done_this_session"
+    },
+    {
+      "pdf_page": 4,
+      "title": "אישור הצנזורה ופרטי הדפוס",
+      "category": "witness_or_edition",
+      "source_anchor": "#page=4&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=4&view=FitH",
+      "unit_ids": [],
+      "extraction_status": "search_candidate_only",
+      "visual_basis": "visual_imprint_page",
+      "fresh_visual_review": "not_done_this_session"
+    },
+    {
+      "pdf_page": 5,
+      "title": "פתיחת הבהיר: אור מתוך חושך",
+      "category": "bahir_with_printed_commentary",
+      "source_anchor": "#page=5&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=5&view=FitH",
+      "unit_ids": [
+        "bahir-p05-light-dark",
+        "bahir-p05-third-verse"
+      ],
+      "extraction_status": "search_candidate_only",
+      "visual_basis": "visual_and_embedded_text",
+      "fresh_visual_review": "not_done_this_session"
+    },
+    {
+      "pdf_page": 6,
+      "title": "תהו, בהו וברכת החכמה",
+      "category": "bahir_with_printed_commentary",
+      "source_anchor": "#page=6&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=6&view=FitH",
+      "unit_ids": [
+        "bahir-p06-tohu-bohu",
+        "bahir-p06-king-children"
+      ],
+      "extraction_status": "search_candidate_only",
+      "visual_basis": "visual_and_embedded_text",
+      "fresh_visual_review": "not_done_this_session"
+    },
+    {
+      "pdf_page": 7,
+      "title": "המעיין, הפלטרין ומלא ברכת ה׳",
+      "category": "bahir_with_printed_commentary",
+      "source_anchor": "#page=7&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=7&view=FitH",
+      "unit_ids": [
+        "bahir-p07-palace-spring",
+        "bahir-p07-full-blessing"
+      ],
+      "extraction_status": "search_candidate_only",
+      "visual_basis": "visual_and_embedded_text",
+      "fresh_visual_review": "not_done_this_session"
+    },
+    {
+      "pdf_page": 8,
+      "title": "התורה הקדומה ובריאת הניגודים",
+      "category": "bahir_with_printed_commentary",
+      "source_anchor": "#page=8&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=8&view=FitH",
+      "unit_ids": [
+        "bahir-p08-torah-before-world",
+        "bahir-p08-creation-opposites"
+      ],
+      "extraction_status": "search_candidate_only",
+      "visual_basis": "visual_and_embedded_text",
+      "fresh_visual_review": "not_done_this_session"
+    },
+    {
+      "pdf_page": 9,
+      "title": "אל״ף, בי״ת וגימ״ל כצורות פעילות",
+      "category": "bahir_with_printed_commentary",
+      "source_anchor": "#page=9&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=9&view=FitH",
+      "unit_ids": [
+        "bahir-p09-aleph-form",
+        "bahir-p09-letters-flow"
+      ],
+      "extraction_status": "search_candidate_only",
+      "visual_basis": "visual_and_embedded_text",
+      "fresh_visual_review": "not_done_this_session"
+    },
+    {
+      "pdf_page": 10,
+      "title": "האילן בגן והמעיין המשקה אותו",
+      "category": "bahir_with_printed_commentary",
+      "source_anchor": "#page=10&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=10&view=FitH",
+      "unit_ids": [
+        "bahir-p10-tree-spring",
+        "bahir-p10-tree-explanation"
+      ],
+      "extraction_status": "search_candidate_only",
+      "visual_basis": "visual_and_embedded_text",
+      "fresh_visual_review": "not_done_this_session"
+    },
+    {
+      "pdf_page": 11,
+      "title": "דירות האותיות והיחס בין עשיר לדל",
+      "category": "bahir_with_printed_commentary",
+      "source_anchor": "#page=11&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=11&view=FitH",
+      "unit_ids": [
+        "bahir-p11-letters-houses",
+        "bahir-p11-gimel-dalet"
+      ],
+      "extraction_status": "search_candidate_only",
+      "visual_basis": "visual_and_embedded_text",
+      "fresh_visual_review": "not_done_this_session"
+    },
+    {
+      "pdf_page": 12,
+      "title": "גן עדן בארץ ולבוש האור",
+      "category": "bahir_with_printed_commentary",
+      "source_anchor": "#page=12&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=12&view=FitH",
+      "unit_ids": [
+        "bahir-p12-eden-place",
+        "bahir-p12-robe-throne"
+      ],
+      "extraction_status": "search_candidate_only",
+      "visual_basis": "visual_and_embedded_text",
+      "fresh_visual_review": "not_done_this_session"
+    },
+    {
+      "pdf_page": 13,
+      "title": "מ״ם פתוחה ושערי הניקוד",
+      "category": "bahir_with_printed_commentary",
+      "source_anchor": "#page=13&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=13&view=FitH",
+      "unit_ids": [
+        "bahir-p13-open-mem",
+        "bahir-p13-vowels"
+      ],
+      "extraction_status": "search_candidate_only",
+      "visual_basis": "visual_and_embedded_text",
+      "fresh_visual_review": "not_done_this_session"
+    },
+    {
+      "pdf_page": 14,
+      "title": "מעמד סיני ושבעת הקולות",
+      "category": "bahir_with_printed_commentary",
+      "source_anchor": "#page=14&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=14&view=FitH",
+      "unit_ids": [
+        "bahir-p14-sinai-directions",
+        "bahir-p14-seven-voices"
+      ],
+      "extraction_status": "search_candidate_only",
+      "visual_basis": "visual_and_embedded_text",
+      "fresh_visual_review": "not_done_this_session"
+    },
+    {
+      "pdf_page": 15,
+      "title": "שבעה קולות ושלושה מאמרות",
+      "category": "bahir_with_printed_commentary",
+      "source_anchor": "#page=15&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=15&view=FitH",
+      "unit_ids": [
+        "bahir-p15-seven-plus-three",
+        "bahir-p15-unified-voice"
+      ],
+      "extraction_status": "search_candidate_only",
+      "visual_basis": "visual_and_embedded_text",
+      "fresh_visual_review": "not_done_this_session"
+    },
+    {
+      "pdf_page": 16,
+      "title": "זהב, חמש מדרגות הנשמה ובית החכמה",
+      "category": "bahir_with_printed_commentary",
+      "source_anchor": "#page=16&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=16&view=FitH",
+      "unit_ids": [
+        "bahir-p16-gold-letters",
+        "bahir-p16-soul-five"
+      ],
+      "extraction_status": "search_candidate_only",
+      "visual_basis": "visual_and_embedded_text",
+      "fresh_visual_review": "not_done_this_session"
+    },
+    {
+      "pdf_page": 17,
+      "title": "שמים כאש ומים ויסוד העולם",
+      "category": "bahir_with_printed_commentary",
+      "source_anchor": "#page=17&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=17&view=FitH",
+      "unit_ids": [
+        "bahir-p17-fire-water",
+        "bahir-p17-foundation"
+      ],
+      "extraction_status": "search_candidate_only",
+      "visual_basis": "visual_and_embedded_text",
+      "fresh_visual_review": "not_done_this_session"
+    },
+    {
+      "pdf_page": 18,
+      "title": "ל״ב נתיבות ושבע ספירות",
+      "category": "bahir_with_printed_commentary",
+      "source_anchor": "#page=18&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=18&view=FitH",
+      "unit_ids": [
+        "bahir-p18-paths-rooms",
+        "bahir-p18-seven-seven"
+      ],
+      "extraction_status": "search_candidate_only",
+      "visual_basis": "visual_and_embedded_text",
+      "fresh_visual_review": "not_done_this_session"
+    },
+    {
+      "pdf_page": 19,
+      "title": "אל״ף, המוח והמחשבה שאין לה סוף",
+      "category": "bahir_with_printed_commentary",
+      "source_anchor": "#page=19&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=19&view=FitH",
+      "unit_ids": [
+        "bahir-p19-aleph-brain",
+        "bahir-p19-thought-endless"
+      ],
+      "extraction_status": "search_candidate_only",
+      "visual_basis": "visual_and_embedded_text",
+      "fresh_visual_review": "not_done_this_session"
+    },
+    {
+      "pdf_page": 20,
+      "title": "„בכל” כברכת אברהם ומידת השלום",
+      "category": "bahir_with_printed_commentary",
+      "source_anchor": "#page=20&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=20&view=FitH",
+      "unit_ids": [
+        "bahir-p20-abraham-bakol",
+        "bahir-p20-morning-evening"
+      ],
+      "extraction_status": "search_candidate_only",
+      "visual_basis": "visual_and_embedded_text",
+      "fresh_visual_review": "not_done_this_session"
+    },
+    {
+      "pdf_page": 21,
+      "title": "שורש האילן והאותיות הכפופות והארוכות",
+      "category": "bahir_with_printed_commentary",
+      "source_anchor": "#page=21&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=21&view=FitH",
+      "unit_ids": [
+        "bahir-p21-branch-root",
+        "bahir-p21-letters-shapes"
+      ],
+      "extraction_status": "search_candidate_only",
+      "visual_basis": "visual_and_embedded_text",
+      "fresh_visual_review": "not_done_this_session"
+    },
+    {
+      "pdf_page": 22,
+      "title": "תכלת, ל״ב נתיבות וגן שמור",
+      "category": "bahir_with_printed_commentary",
+      "source_anchor": "#page=22&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=22&view=FitH",
+      "unit_ids": [
+        "bahir-p22-techelet",
+        "bahir-p22-garden-guard"
+      ],
+      "extraction_status": "search_candidate_only",
+      "visual_basis": "visual_and_embedded_text",
+      "fresh_visual_review": "not_done_this_session"
+    },
+    {
+      "pdf_page": 23,
+      "title": "שתים־עשרה אבנים, ע״ב שמות וגבולי האלכסון",
+      "category": "bahir_with_printed_commentary",
+      "source_anchor": "#page=23&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=23&view=FitH",
+      "unit_ids": [
+        "bahir-p23-stones-tribes",
+        "bahir-p23-diagonals"
+      ],
+      "extraction_status": "search_candidate_only",
+      "visual_basis": "visual_and_embedded_text",
+      "fresh_visual_review": "not_done_this_session"
+    },
+    {
+      "pdf_page": 24,
+      "title": "תלי, גלגל ולב: שלושים ושישה כוחות",
+      "category": "bahir_with_printed_commentary",
+      "source_anchor": "#page=24&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=24&view=FitH",
+      "unit_ids": [
+        "bahir-p24-triad",
+        "bahir-p24-three-twelves"
+      ],
+      "extraction_status": "search_candidate_only",
+      "visual_basis": "visual_and_embedded_text",
+      "fresh_visual_review": "not_done_this_session"
+    },
+    {
+      "pdf_page": 25,
+      "title": "צדיק יסוד עולם, סוכות ותלי־גלגל־לב",
+      "category": "bahir_with_printed_commentary",
+      "source_anchor": "#page=25&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=25&view=FitH",
+      "unit_ids": [
+        "bahir-p25-tzaddik-pillar",
+        "bahir-p25-sukkot-atzeret",
+        "bahir-p25-terumah"
+      ],
+      "extraction_status": "search_candidate_only",
+      "visual_basis": "visual_and_embedded_text",
+      "fresh_visual_review": "not_done_this_session"
+    },
+    {
+      "pdf_page": 26,
+      "title": "קרבן כקירוב ושם בן שתים־עשרה",
+      "category": "bahir_with_printed_commentary",
+      "source_anchor": "#page=26&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=26&view=FitH",
+      "unit_ids": [
+        "bahir-p26-korban",
+        "bahir-p26-twelve-name"
+      ],
+      "extraction_status": "search_candidate_only",
+      "visual_basis": "visual_and_embedded_text",
+      "fresh_visual_review": "not_done_this_session"
+    },
+    {
+      "pdf_page": 27,
+      "title": "מעיין ושנים־עשר צינורות",
+      "category": "bahir_with_printed_commentary",
+      "source_anchor": "#page=27&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=27&view=FitH",
+      "unit_ids": [
+        "bahir-p27-names",
+        "bahir-p27-twelve-channels",
+        "bahir-p27-nested-shapes"
+      ],
+      "extraction_status": "search_candidate_only",
+      "visual_basis": "visual_and_embedded_text",
+      "fresh_visual_review": "not_done_this_session"
+    },
+    {
+      "pdf_page": 28,
+      "title": "השכינה הנקראת צדק והאילן הפורח",
+      "category": "bahir_with_printed_commentary",
+      "source_anchor": "#page=28&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=28&view=FitH",
+      "unit_ids": [
+        "bahir-p28-shechinah",
+        "bahir-p28-tree-righteous"
+      ],
+      "extraction_status": "search_candidate_only",
+      "visual_basis": "visual_and_embedded_text",
+      "fresh_visual_review": "not_done_this_session"
+    },
+    {
+      "pdf_page": 29,
+      "title": "עשר מידות, כ״ב אותיות ותרי״ג מצוות",
+      "category": "bahir_with_printed_commentary",
+      "source_anchor": "#page=29&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=29&view=FitH",
+      "unit_ids": [
+        "bahir-p29-ten-and-letters",
+        "bahir-p29-priestly-blessings",
+        "bahir-p29-mitzvot"
+      ],
+      "extraction_status": "search_candidate_only",
+      "visual_basis": "visual_and_embedded_text",
+      "fresh_visual_review": "not_done_this_session"
+    },
+    {
+      "pdf_page": 30,
+      "title": "בת המלך, הגן ומידות האבות",
+      "category": "bahir_with_printed_commentary",
+      "source_anchor": "#page=30&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=30&view=FitH",
+      "unit_ids": [
+        "bahir-p30-princess",
+        "bahir-p30-garden-field",
+        "bahir-p30-patriarchs",
+        "bahir-p30-kavod-lev"
+      ],
+      "extraction_status": "search_candidate_only",
+      "visual_basis": "visual_and_embedded_text",
+      "fresh_visual_review": "not_done_this_session"
+    },
+    {
+      "pdf_page": 31,
+      "title": "אמת, שלום והאות אל״ף",
+      "category": "bahir_with_printed_commentary",
+      "source_anchor": "#page=31&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=31&view=FitH",
+      "unit_ids": [
+        "bahir-p31-truth-peace",
+        "bahir-p31-aleph-utterances",
+        "bahir-p31-moses-hands"
+      ],
+      "extraction_status": "search_candidate_only",
+      "visual_basis": "visual_and_embedded_text",
+      "fresh_visual_review": "not_done_this_session"
+    },
+    {
+      "pdf_page": 32,
+      "title": "שני המאורות והאור הגנוז",
+      "category": "bahir_with_printed_commentary",
+      "source_anchor": "#page=32&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=32&view=FitH",
+      "unit_ids": [
+        "bahir-p32-two-lights",
+        "bahir-p32-hidden-light"
+      ],
+      "extraction_status": "search_candidate_only",
+      "visual_basis": "visual_and_embedded_text",
+      "fresh_visual_review": "not_done_this_session"
+    },
+    {
+      "pdf_page": 33,
+      "title": "יסוד הנפשות, מים ואש",
+      "category": "bahir_with_printed_commentary",
+      "source_anchor": "#page=33&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=33&view=FitH",
+      "unit_ids": [
+        "bahir-p33-souls-foundation",
+        "bahir-p33-fire-water-peace"
+      ],
+      "extraction_status": "search_candidate_only",
+      "visual_basis": "visual_and_embedded_text",
+      "fresh_visual_review": "not_done_this_session"
+    },
+    {
+      "pdf_page": 34,
+      "title": "האור השביעי, עץ החיים ומי מרה",
+      "category": "bahir_with_printed_commentary",
+      "source_anchor": "#page=34&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=34&view=FitH",
+      "unit_ids": [
+        "bahir-p34-seventh-light",
+        "bahir-p34-marah-tree",
+        "bahir-p34-end-beginning"
+      ],
+      "extraction_status": "search_candidate_only",
+      "visual_basis": "visual_and_embedded_text",
+      "fresh_visual_review": "not_done_this_session"
+    },
+    {
+      "pdf_page": 35,
+      "title": "הצפון, שבעים תמרים ומשל העבד",
+      "category": "bahir_with_printed_commentary",
+      "source_anchor": "#page=35&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=35&view=FitH",
+      "unit_ids": [
+        "bahir-p35-north",
+        "bahir-p35-seventy-palms",
+        "bahir-p35-rebellious-servant"
+      ],
+      "extraction_status": "search_candidate_only",
+      "visual_basis": "visual_and_embedded_text",
+      "fresh_visual_review": "not_done_this_session"
+    },
+    {
+      "pdf_page": 36,
+      "title": "רפואה, דלתות וכיוונים",
+      "category": "bahir_with_printed_commentary",
+      "source_anchor": "#page=36&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=36&view=FitH",
+      "unit_ids": [
+        "bahir-p36-healing",
+        "bahir-p36-directions"
+      ],
+      "extraction_status": "search_candidate_only",
+      "visual_basis": "visual_and_embedded_text",
+      "fresh_visual_review": "not_done_this_session"
+    },
+    {
+      "pdf_page": 37,
+      "title": "שיר השירים וארבעת המינים",
+      "category": "bahir_with_printed_commentary",
+      "source_anchor": "#page=37&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=37&view=FitH",
+      "unit_ids": [
+        "bahir-p37-song",
+        "bahir-p37-species"
+      ],
+      "extraction_status": "search_candidate_only",
+      "visual_basis": "visual_and_embedded_text",
+      "fresh_visual_review": "not_done_this_session"
+    },
+    {
+      "pdf_page": 38,
+      "title": "יסוד, שבת והכלה של המלך",
+      "category": "bahir_with_printed_commentary",
+      "source_anchor": "#page=38&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=38&view=FitH",
+      "unit_ids": [
+        "bahir-p38-yesod",
+        "bahir-p38-sabbath-bride",
+        "bahir-p38-printed-diagram"
+      ],
+      "extraction_status": "search_candidate_only",
+      "visual_basis": "visual_and_embedded_text",
+      "fresh_visual_review": "not_done_this_session"
+    },
+    {
+      "pdf_page": 39,
+      "title": "לימוד לשמה ומשל הפת המעופשת",
+      "category": "bahir_with_printed_commentary",
+      "source_anchor": "#page=39&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=39&view=FitH",
+      "unit_ids": [
+        "bahir-p39-study",
+        "bahir-p39-stale-bread"
+      ],
+      "extraction_status": "search_candidate_only",
+      "visual_basis": "visual_and_embedded_text",
+      "fresh_visual_review": "not_done_this_session"
+    },
+    {
+      "pdf_page": 40,
+      "title": "קרני משה, מידת החסד והאבן היקרה",
+      "category": "bahir_with_printed_commentary",
+      "source_anchor": "#page=40&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=40&view=FitH",
+      "unit_ids": [
+        "bahir-p40-moses-rays",
+        "bahir-p40-precious-stone"
+      ],
+      "extraction_status": "search_candidate_only",
+      "visual_basis": "visual_and_embedded_text",
+      "fresh_visual_review": "not_done_this_session"
+    },
+    {
+      "pdf_page": 41,
+      "title": "הכרם, אלף הדורות וחידוש הנשמה",
+      "category": "bahir_with_printed_commentary",
+      "source_anchor": "#page=41&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=41&view=FitH",
+      "unit_ids": [
+        "bahir-p41-vineyard",
+        "bahir-p41-soul"
+      ],
+      "extraction_status": "search_candidate_only",
+      "visual_basis": "visual_and_embedded_text",
+      "fresh_visual_review": "not_done_this_session"
+    },
+    {
+      "pdf_page": 42,
+      "title": "תורה ככלה וכהיכל קדוש",
+      "category": "bahir_with_printed_commentary",
+      "source_anchor": "#page=42&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=42&view=FitH",
+      "unit_ids": [
+        "bahir-p42-david-study",
+        "bahir-p42-torah-bride",
+        "bahir-p42-palace"
+      ],
+      "extraction_status": "search_candidate_only",
+      "visual_basis": "visual_and_embedded_text",
+      "fresh_visual_review": "not_done_this_session"
+    },
+    {
+      "pdf_page": 43,
+      "title": "עץ הדעת וחתימת ספר הבהיר",
+      "category": "bahir_with_printed_commentary",
+      "source_anchor": "#page=43&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=43&view=FitH",
+      "unit_ids": [
+        "bahir-p43-serpent",
+        "bahir-p43-serpent-meaning",
+        "bahir-p43-colophon",
+        "bahir-p43-explicit-end"
+      ],
+      "extraction_status": "search_candidate_only",
+      "visual_basis": "visual_and_embedded_text",
+      "fresh_visual_review": "not_done_this_session"
+    },
+    {
+      "pdf_page": 44,
+      "title": "דבר אל הקורא ומלאכת המהדיר",
+      "category": "editorial_afterword",
+      "source_anchor": "#page=44&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=44&view=FitH",
+      "unit_ids": [],
+      "extraction_status": "search_candidate_only",
+      "visual_basis": "visual_and_embedded_text",
+      "fresh_visual_review": "not_done_this_session"
+    },
+    {
+      "pdf_page": 45,
+      "title": "דף כריכה פנימי ריק",
+      "category": "witness_endmatter",
+      "source_anchor": "#page=45&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=45&view=FitH",
+      "unit_ids": [],
+      "extraction_status": "no_embedded_text",
+      "visual_basis": "visual_blank_page",
+      "fresh_visual_review": "not_done_this_session"
+    },
+    {
+      "pdf_page": 46,
+      "title": "דף כריכה פנימי ריק נוסף",
+      "category": "witness_endmatter",
+      "source_anchor": "#page=46&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=46&view=FitH",
+      "unit_ids": [],
+      "extraction_status": "no_embedded_text",
+      "visual_basis": "visual_blank_page",
+      "fresh_visual_review": "not_done_this_session"
+    },
+    {
+      "pdf_page": 47,
+      "title": "דף הזיהוי של הספרייה הלאומית",
+      "category": "witness_endmatter",
+      "source_anchor": "#page=47&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=47&view=FitH",
+      "unit_ids": [],
+      "extraction_status": "search_candidate_only",
+      "visual_basis": "visual_and_embedded_text",
+      "fresh_visual_review": "not_done_this_session"
+    },
+    {
+      "pdf_page": 48,
+      "title": "הכריכה האחורית של העותק",
+      "category": "witness_endmatter",
+      "source_anchor": "#page=48&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=48&view=FitH",
+      "unit_ids": [],
+      "extraction_status": "no_embedded_text",
+      "visual_basis": "visual_cover_only",
+      "fresh_visual_review": "not_done_this_session"
+    }
+  ],
+  "units": [
+    {
+      "id": "bahir-p05-light-dark",
+      "pdf_page": 5,
+      "kind": "שאלה",
+      "title": "אור וחושך",
+      "companion_explanation": "הפתיחה שואלת כיצד מקיימים פסוקים על אור ועל חושך. יש לקרוא תחילה את שאלת הסתירה, ורק אחר כך את הפסוק שבו הספר משיב.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=5&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=5&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p5",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual"
+    },
+    {
+      "id": "bahir-p05-third-verse",
+      "pdf_page": 5,
+      "kind": "מהלך",
+      "title": "הפסוק השלישי",
+      "companion_explanation": "הכרעת הדרשה נבנית מפסוק נוסף. זהו מהלך פרשני על נוכחות והסתר, לא הגדרה מדעית של אור.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=5&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=5&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p5",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual"
+    },
+    {
+      "id": "bahir-p06-tohu-bohu",
+      "pdf_page": 6,
+      "kind": "שאלה",
+      "title": "מה בין תוהו לבוהו",
+      "companion_explanation": "הספר מבדיל בין בלבול או תמיהה לבין מצב שיש בו ממש. אין לכפות על שני המונחים משמעות מודרנית אחידה.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=6&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=6&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p6",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual"
+    },
+    {
+      "id": "bahir-p06-king-children",
+      "pdf_page": 6,
+      "kind": "משל",
+      "title": "המלך, הבן והבת",
+      "companion_explanation": "דמויות משפחת המלך מאפשרות לתאר קרבה, ברכה והעברת שפע. אין לזהות כל דמות אוטומטית עם ספירה קבועה בכל מקום.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=6&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=6&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p6",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual"
+    },
+    {
+      "id": "bahir-p07-palace-spring",
+      "pdf_page": 7,
+      "kind": "משל",
+      "title": "הפלטרין והמעיין",
+      "companion_explanation": "הבניין זקוק למעיין חיים, ולא די בבניית קירותיו. זהו משל לתלות של המבנה במקור המקיים אותו.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=7&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=7&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p7",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual"
+    },
+    {
+      "id": "bahir-p07-full-blessing",
+      "pdf_page": 7,
+      "kind": "מהלך",
+      "title": "ברכת ה׳, ים ודרום",
+      "companion_explanation": "מקומות, כיוונים וברכה נדרשים יחד. יש להבחין בין הפסוק לבין היחסים שהדרשה מוציאה ממנו.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=7&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=7&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p7",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual"
+    },
+    {
+      "id": "bahir-p08-torah-before-world",
+      "pdf_page": 8,
+      "kind": "מאמר",
+      "title": "התורה שקודמת לעולם",
+      "companion_explanation": "המאמר מציג את התורה כיסוד שקודם לעולם וכדבר שנשמר בהעלם. זו טענה מדרשית ולא תיארוך היסטורי.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=8&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=8&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p8",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual"
+    },
+    {
+      "id": "bahir-p08-creation-opposites",
+      "pdf_page": 8,
+      "kind": "מהלך",
+      "title": "זוגות הניגודים",
+      "companion_explanation": "אור וחושך, שלום ורע ותוהו ובהו נמנים בזוגות. אין לאחד כל זוג לזהות מטפיזית אחת בלי מראה מקום.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=8&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=8&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p8",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual"
+    },
+    {
+      "id": "bahir-p09-aleph-form",
+      "pdf_page": 9,
+      "kind": "מאמר",
+      "title": "צורת האל״ף",
+      "companion_explanation": "פתחים, צינור וכיווני האות נושאים משמעות בדרשה. צילום צורת האות בעדות חשוב מן הייצוג המכני שלה.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=9&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=9&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p9",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual"
+    },
+    {
+      "id": "bahir-p09-letters-flow",
+      "pdf_page": 9,
+      "kind": "מהלך",
+      "title": "אותיות כמעבר",
+      "companion_explanation": "יחסי קבלה והמשכה נקראים באמצעות צורות אותיות. זהו דימוי של כיוון ולא תרשים בקנה מידה.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=9&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=9&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p9",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual"
+    },
+    {
+      "id": "bahir-p10-tree-spring",
+      "pdf_page": 10,
+      "kind": "משל",
+      "title": "האילן והמעיין",
+      "companion_explanation": "לפני שהאילן נושא פרי על המלך לספק לו מים. סדר ההזנה, השורש והפרי הוא עיקר המשל.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=10&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=10&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p10",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual"
+    },
+    {
+      "id": "bahir-p10-tree-explanation",
+      "pdf_page": 10,
+      "kind": "נמשל",
+      "title": "מה האילן מלמד",
+      "companion_explanation": "המשל מציג קיום התלוי בשורש ובהזנה מתמדת. אין לקבע שם ספירה לכל חלק בעץ בלי עדות מקומית.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=10&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=10&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p10",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual"
+    },
+    {
+      "id": "bahir-p11-letters-houses",
+      "pdf_page": 11,
+      "kind": "משל",
+      "title": "דירות האותיות",
+      "companion_explanation": "המלך מקצה דירות לאותיות. המיקום והשכנות משפיעים על הבנת כל אות במסגרת המשל.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=11&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=11&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p11",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual"
+    },
+    {
+      "id": "bahir-p11-gimel-dalet",
+      "pdf_page": 11,
+      "kind": "מהלך",
+      "title": "גימ״ל ודל״ת",
+      "companion_explanation": "דרשת העשיר והדל מציגה יחס של נתינה וחסר. אין להעמידה רק על ערכי אותיות מספריים.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=11&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=11&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p11",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual"
+    },
+    {
+      "id": "bahir-p12-eden-place",
+      "pdf_page": 12,
+      "kind": "שאלה",
+      "title": "היכן גן עדן",
+      "companion_explanation": "הדיון על מקומו של גן עדן נמשך לשמים ולארץ. התיאור אינו בהכרח הוראות מיקום גיאוגרפיות.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=12&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=12&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p12",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual"
+    },
+    {
+      "id": "bahir-p12-robe-throne",
+      "pdf_page": 12,
+      "kind": "משל",
+      "title": "לבוש האור וכיסא הכבוד",
+      "companion_explanation": "לבוש, כיסא ועטרה הם דימויים נפרדים לקרבה וכבוד. קריאתם דורשת הבחנה בין סיפור המשל לבין הדרשה.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=12&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=12&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p12",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual"
+    },
+    {
+      "id": "bahir-p13-open-mem",
+      "pdf_page": 13,
+      "kind": "מאמר",
+      "title": "מ״ם פתוחה",
+      "companion_explanation": "צורת המ״ם משמשת להסברת אמת הצומחת מן הארץ. ראוי לעיין בצורת הדפוס עצמה.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=13&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=13&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p13",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual"
+    },
+    {
+      "id": "bahir-p13-vowels",
+      "pdf_page": 13,
+      "kind": "מהלך",
+      "title": "מיקום הנקודה",
+      "companion_explanation": "מעל האות, בתוכה ומתחתיה הם מיקומים בעלי תפקיד. אל תוסיף ניקוד שלא נקרא במקור.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=13&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=13&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p13",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual"
+    },
+    {
+      "id": "bahir-p14-sinai-directions",
+      "pdf_page": 14,
+      "kind": "שאלה",
+      "title": "מן השמים או מן הארץ",
+      "companion_explanation": "פסוקי ההתגלות נראים סותרים במיקום הקול. הספר מבחין בין הקול הגדול לשאר הקולות.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=14&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=14&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p14",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual"
+    },
+    {
+      "id": "bahir-p14-seven-voices",
+      "pdf_page": 14,
+      "kind": "מאמר",
+      "title": "שבעת הקולות",
+      "companion_explanation": "ריבוי הקולות מסודר במניין שבעה. זהו מניין הנקרא בספר, לא חישוב שבוצע במנוע.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=14&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=14&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p14",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual"
+    },
+    {
+      "id": "bahir-p15-seven-plus-three",
+      "pdf_page": 15,
+      "kind": "מאמר",
+      "title": "שבעה ושלושה מאמרות",
+      "companion_explanation": "הספר מצרף שבעה לשלושה כדי לדון בעשרה. ההצגה המספרית צריכה לשמור את נוסח המהלך.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=15&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=15&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p15",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual"
+    },
+    {
+      "id": "bahir-p15-unified-voice",
+      "pdf_page": 15,
+      "kind": "מהלך",
+      "title": "דיבור אחד וריבוי קולות",
+      "companion_explanation": "הדרשה מבקשת להבין כיצד קולות רבים נשמעים כאחד. יש לקרוא את היחס, לא רק את הסכום.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=15&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=15&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p15",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual"
+    },
+    {
+      "id": "bahir-p16-gold-letters",
+      "pdf_page": 16,
+      "kind": "מאמר",
+      "title": "זהב כאותיות",
+      "companion_explanation": "אותיות המילה זהב נקראות לפי תפקודן בדרשה. אין לצרף שיטות גימטריה חיצוניות שלא הופיעו בדף.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=16&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=16&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p16",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual"
+    },
+    {
+      "id": "bahir-p16-soul-five",
+      "pdf_page": 16,
+      "kind": "מהלך",
+      "title": "חמש בחינות הנשמה",
+      "companion_explanation": "רוח, חיה, יחידה, נפש ונשמה מופיעות במסגרת מניין. סדרן כאן אינו מוכיח היררכיה אוניברסלית בכל המקורות.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=16&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=16&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p16",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual"
+    },
+    {
+      "id": "bahir-p17-fire-water",
+      "pdf_page": 17,
+      "kind": "שאלה",
+      "title": "שמים כאש ומים",
+      "companion_explanation": "שם השמים נדרש באמצעות שני יסודות מנוגדים. השלום שביניהם הוא נושא הדרשה.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=17&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=17&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p17",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual"
+    },
+    {
+      "id": "bahir-p17-foundation",
+      "pdf_page": 17,
+      "kind": "מהלך",
+      "title": "אל יסוד העולם",
+      "companion_explanation": "מן היסודות עובר המאמר לדימוי הצדיק ויסוד העולם. זו סמיכות נושאית, לא מפת רכיבים מחייבת.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=17&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=17&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p17",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual"
+    },
+    {
+      "id": "bahir-p18-paths-rooms",
+      "pdf_page": 18,
+      "kind": "משל",
+      "title": "ל״ב נתיבות וחדרי המלך",
+      "companion_explanation": "נתיבים מובילים אל חדרים וגנזים נסתרים. המספר הוא מן המקור, אך צורת הנתיבים לא נקבעה.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=18&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=18&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p18",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual"
+    },
+    {
+      "id": "bahir-p18-seven-seven",
+      "pdf_page": 18,
+      "kind": "מהלך",
+      "title": "שבע כנגד שבע",
+      "companion_explanation": "המבנה הזוגי מציג קבוצות במקביל. אין לאחד קבוצות שונות בלי שהספר עושה זאת.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=18&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=18&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p18",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual"
+    },
+    {
+      "id": "bahir-p19-aleph-brain",
+      "pdf_page": 19,
+      "kind": "מאמר",
+      "title": "אל״ף, אוזן ומוח",
+      "companion_explanation": "האות מוסברת באמצעות איברי מחשבה והקשבה. זהו לשון דימוי, לא תיאור אנטומי מדעי.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=19&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=19&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p19",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual"
+    },
+    {
+      "id": "bahir-p19-thought-endless",
+      "pdf_page": 19,
+      "kind": "מהלך",
+      "title": "ממחשבה לביטוי",
+      "companion_explanation": "המעבר ממחשבה להיגוי מדגיש את פער הנסתר והנגלה. צורת האות משמשת כפתח ללימוד.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=19&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=19&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p19",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual"
+    },
+    {
+      "id": "bahir-p20-abraham-bakol",
+      "pdf_page": 20,
+      "kind": "שאלה",
+      "title": "מהי ברכת 'בכל'",
+      "companion_explanation": "הפסוק על אברהם נדרש דרך בת וברכה. אין להניח שבת זו זהה לכל 'בת מלך' במקום אחר.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=20&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=20&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p20",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual"
+    },
+    {
+      "id": "bahir-p20-morning-evening",
+      "pdf_page": 20,
+      "kind": "מהלך",
+      "title": "ערב ובוקר, שלום ואמת",
+      "companion_explanation": "הדרשה משתמשת בזמן ובמידות לביטוי של שלמות. יש להבחין בין לשון הפסוק להרחבת הספר.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=20&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=20&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p20",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual"
+    },
+    {
+      "id": "bahir-p21-branch-root",
+      "pdf_page": 21,
+      "kind": "משל",
+      "title": "ענף ההופך לשורש",
+      "companion_explanation": "הדימוי מציג שינוי תפקיד בתוך אילן חי. אין לזהותו עם כל האילנות האחרים בספר בלי קישור.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=21&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=21&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p21",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual"
+    },
+    {
+      "id": "bahir-p21-letters-shapes",
+      "pdf_page": 21,
+      "kind": "מהלך",
+      "title": "נו״ן ומ״ם בצורותיהן",
+      "companion_explanation": "כפופה, ארוכה, פתוחה וסתומה הן הבחנות חזותיות. אותיות אלה טעונות עיון ב־PDF ולא שחזור OCR.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=21&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=21&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p21",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual"
+    },
+    {
+      "id": "bahir-p22-techelet",
+      "pdf_page": 22,
+      "kind": "שאלה",
+      "title": "תכלת בציצית",
+      "companion_explanation": "הצבע פותח דיון בכיוון ובהתבוננות. אין להוסיף הקבלות שלא נאמרו בקטע.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=22&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=22&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p22",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual"
+    },
+    {
+      "id": "bahir-p22-garden-guard",
+      "pdf_page": 22,
+      "kind": "משל",
+      "title": "גן ל״ב הנתיבות",
+      "companion_explanation": "השומר יודע את דרכי הגן. המשל מתמקד בידיעת הדרך וההכנה לקריאה בנסתר.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=22&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=22&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p22",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual"
+    },
+    {
+      "id": "bahir-p23-stones-tribes",
+      "pdf_page": 23,
+      "kind": "מאמר",
+      "title": "שתים־עשרה אבנים ושבטים",
+      "companion_explanation": "האבנים והשמות נסקרים כמניין. כל קבוצת פרטים עומדת לפני כל חישוב או הקבלה נוספת.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=23&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=23&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p23",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual"
+    },
+    {
+      "id": "bahir-p23-diagonals",
+      "pdf_page": 23,
+      "kind": "מהלך",
+      "title": "גבולי האלכסון",
+      "companion_explanation": "המקור עובר לכיוונים ופקידים. בלעדי בדיקת הנוסח אין להמציא מפת כיוונים מלאה.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=23&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=23&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p23",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual"
+    },
+    {
+      "id": "bahir-p24-triad",
+      "pdf_page": 24,
+      "kind": "מאמר",
+      "title": "תלי, גלגל ולב",
+      "companion_explanation": "השלישייה היא מבנה יסודי בעמוד. אל תתרגם את תלי אוטומטית לצורה גופנית מחייבת.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=24&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=24&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p24",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual"
+    },
+    {
+      "id": "bahir-p24-three-twelves",
+      "pdf_page": 24,
+      "kind": "מהלך",
+      "title": "י״ב, י״ב וי״ב",
+      "companion_explanation": "שלוש קבוצות של שנים־עשר מצורפות למניין ל״ו. המניין מתועד כטענת הספר, לא כמאומת במנוע.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=24&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=24&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p24",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual"
+    },
+    {
+      "id": "bahir-p25-tzaddik-pillar",
+      "pdf_page": 25,
+      "kind": "מאמר",
+      "title": "צדיק כעמוד העולם",
+      "companion_explanation": "הצדיק מתואר כתומך בעולם בתוך דיון בחג ובקדושה. זהו דימוי של קיום, לא מבנה אדריכלי.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=25&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=25&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p25",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual",
+      "block_id": "p25-b2",
+      "block_source_ref": "book:sefer-habahir-1883#p25:p25-b2"
+    },
+    {
+      "id": "bahir-p25-sukkot-atzeret",
+      "pdf_page": 25,
+      "kind": "שאלה",
+      "title": "סוכות ועצרת",
+      "companion_explanation": "הספר משווה את ימי החג ואת כינוי העצרת. יש להבחין בין מניין הימים לדרשה על קדושתם.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=25&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=25&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p25",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual",
+      "block_id": "p25-b3",
+      "block_source_ref": "book:sefer-habahir-1883#p25:p25-b3"
+    },
+    {
+      "id": "bahir-p25-terumah",
+      "pdf_page": 25,
+      "kind": "מאמר",
+      "title": "פתיחת הדרשה על תרומה",
+      "companion_explanation": "בעמוד מזוהה מעבר פנימי לדרשה נוספת על תרומה. הסימן מו נשמר כמועמד מספור עד בדיקה מחודשת.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=25&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=25&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p25",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual",
+      "block_id": "p25-b3",
+      "block_source_ref": "book:sefer-habahir-1883#p25:p25-b3",
+      "printed_marker_candidate": "מו"
+    },
+    {
+      "id": "bahir-p26-korban",
+      "pdf_page": 26,
+      "kind": "שאלה",
+      "title": "קרבן כקירוב",
+      "companion_explanation": "הספר מרחיק את ההבנה שהקרבן מאכיל את האל, ומסביר אותו בלשון איחוד וקירוב.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=26&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=26&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p26",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual",
+      "block_id": "p26-b2",
+      "block_source_ref": "book:sefer-habahir-1883#p26:p26-b2"
+    },
+    {
+      "id": "bahir-p26-twelve-name",
+      "pdf_page": 26,
+      "kind": "מאמר",
+      "title": "שם בן שתים־עשרה",
+      "companion_explanation": "מובא תיאור של חלוקת שם ותנאי שימוש בלשון הספר. אין כאן שחזור, הדרכה או אימות חישובי.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=26&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=26&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p26",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual",
+      "block_id": "p26-b3",
+      "block_source_ref": "book:sefer-habahir-1883#p26:p26-b3"
+    },
+    {
+      "id": "bahir-p27-names",
+      "pdf_page": 27,
+      "kind": "מהלך",
+      "title": "רצף שמות לא ודאי",
+      "companion_explanation": "רשימת השמות צפופה וקשה לקריאה; אין להעבירה כתעתיק מוסמך על בסיס OCR.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=27&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=27&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p27",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual",
+      "block_id": "p27-b2",
+      "block_source_ref": "book:sefer-habahir-1883#p27:p27-b2"
+    },
+    {
+      "id": "bahir-p27-twelve-channels",
+      "pdf_page": 27,
+      "kind": "משל",
+      "title": "מעיין וי״ב צינורות",
+      "companion_explanation": "מקור אחד משקה צינורות רבים, וההקבלה לשבטים נידונה במשל. צורתם אינה מוכרעת.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=27&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=27&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p27",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual",
+      "block_id": "p27-b3",
+      "block_source_ref": "book:sefer-habahir-1883#p27:p27-b3",
+      "printed_marker_candidate": "מז"
+    },
+    {
+      "id": "bahir-p27-nested-shapes",
+      "pdf_page": 27,
+      "kind": "מהלך",
+      "title": "נקודה, עיגול ומרובע",
+      "companion_explanation": "הצורות נזכרות בהקשר של תנועה ומבנה. יש לשמר אותן כמושגים עד עיון חזותי מפורט.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=27&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=27&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p27",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual",
+      "block_id": "p27-b3",
+      "block_source_ref": "book:sefer-habahir-1883#p27:p27-b3"
+    },
+    {
+      "id": "bahir-p28-shechinah",
+      "pdf_page": 28,
+      "kind": "מאמר",
+      "title": "השכינה נקראת צדק",
+      "companion_explanation": "הדרשה מחברת שם זה למעשי צדיקים. שני טורי הדף עשויים להכיל נוסחים דומים; אין לפצלם אוטומטית.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=28&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=28&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p28",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual",
+      "block_id": "p28-b2",
+      "block_source_ref": "book:sefer-habahir-1883#p28:p28-b2"
+    },
+    {
+      "id": "bahir-p28-tree-righteous",
+      "pdf_page": 28,
+      "kind": "מהלך",
+      "title": "אילן הפורח בזכות מעשים",
+      "companion_explanation": "פריחת האילן מתוארת בהקשר מעשי אדם. אין לקבוע שזה אותו אילן שהופיע בעמוד 10.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=28&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=28&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p28",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual",
+      "block_id": "p28-b3",
+      "block_source_ref": "book:sefer-habahir-1883#p28:p28-b3"
+    },
+    {
+      "id": "bahir-p29-ten-and-letters",
+      "pdf_page": 29,
+      "kind": "מאמר",
+      "title": "עשר מידות וכ״ב אותיות",
+      "companion_explanation": "שתי מערכות מניין נזכרות בסמיכות. אין לייחס להן נוסחת חיבור שלא נכתבה.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=29&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=29&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p29",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual",
+      "block_id": "p29-b2",
+      "block_source_ref": "book:sefer-habahir-1883#p29:p29-b2",
+      "printed_marker_candidate": "מח"
+    },
+    {
+      "id": "bahir-p29-priestly-blessings",
+      "pdf_page": 29,
+      "kind": "מהלך",
+      "title": "שלוש ברכות וקדושות",
+      "companion_explanation": "הספר משתמש בתבנית החוזרת של ברכה וקדושה. המניין משמש להסבר, לא כאימות מנוע.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=29&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=29&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p29",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual",
+      "block_id": "p29-b3",
+      "block_source_ref": "book:sefer-habahir-1883#p29:p29-b3"
+    },
+    {
+      "id": "bahir-p29-mitzvot",
+      "pdf_page": 29,
+      "kind": "מאמר",
+      "title": "תרי״ג מצוות",
+      "companion_explanation": "נזכר מניין תרי״ג לצד מניינים אחרים; סמיכות אינה ראיה לשוויון גימטרי.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=29&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=29&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p29",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual",
+      "block_id": "p29-b2",
+      "block_source_ref": "book:sefer-habahir-1883#p29:p29-b2"
+    },
+    {
+      "id": "bahir-p30-princess",
+      "pdf_page": 30,
+      "kind": "משל",
+      "title": "בת המלך הבאה מרחוק",
+      "companion_explanation": "מוצאה של בת המלך אינו ידוע ומעשיה מעידים על מעלתה. פירוש חכמתי מסוים שייך להגהות כשמקורו בהן.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=30&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=30&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p30",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual",
+      "block_id": "p30-b2",
+      "block_source_ref": "book:sefer-habahir-1883#p30:p30-b2"
+    },
+    {
+      "id": "bahir-p30-garden-field",
+      "pdf_page": 30,
+      "kind": "משל",
+      "title": "הגן והשדה הנפרדת",
+      "companion_explanation": "השדה הסמוכה מושקית בנפרד מן הגן. זהו משל שונה ממשל בת המלך ואין למזגם.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=30&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=30&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p30",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual",
+      "block_id": "p30-b2",
+      "block_source_ref": "book:sefer-habahir-1883#p30:p30-b2"
+    },
+    {
+      "id": "bahir-p30-patriarchs",
+      "pdf_page": 30,
+      "kind": "מהלך",
+      "title": "חסד, פחד ואמת",
+      "companion_explanation": "מידות האבות נדרשות מן הפסוקים. יש להפריד בין דברי הספר לזיהויים נוספים בפירוש.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=30&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=30&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p30",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual",
+      "block_id": "p30-b3",
+      "block_source_ref": "book:sefer-habahir-1883#p30:p30-b3"
+    },
+    {
+      "id": "bahir-p30-kavod-lev",
+      "pdf_page": 30,
+      "kind": "מאמר",
+      "title": "כבוד ולב",
+      "companion_explanation": "בקטע המסומן מט מתפתח דיון על כבוד ולב. התעתיק חלקי ולכן אין להציג משוואה מילולית מדויקת כציטוט.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=30&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=30&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p30",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual",
+      "block_id": "p30-b4",
+      "block_source_ref": "book:sefer-habahir-1883#p30:p30-b4",
+      "printed_marker_candidate": "מט"
+    },
+    {
+      "id": "bahir-p31-truth-peace",
+      "pdf_page": 31,
+      "kind": "מהלך",
+      "title": "אמת, תורה ושלום",
+      "companion_explanation": "הדיון ממשיך קו מן האבות ומרחיב אותו אל תורה ושלום. יש לעקוב אחר ציטוטי הפסוקים בנפרד.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=31&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=31&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p31",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual",
+      "block_id": "p31-b2",
+      "block_source_ref": "book:sefer-habahir-1883#p31:p31-b2"
+    },
+    {
+      "id": "bahir-p31-aleph-utterances",
+      "pdf_page": 31,
+      "kind": "שאלה",
+      "title": "מעמד האל״ף",
+      "companion_explanation": "עשרת המאמרות נדרשים ביחס לאות הראשונה. אין לקבוע מספור יחידות מעבר לסימני הדפוס.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=31&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=31&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p31",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual",
+      "block_id": "p31-b3",
+      "block_source_ref": "book:sefer-habahir-1883#p31:p31-b3"
+    },
+    {
+      "id": "bahir-p31-moses-hands",
+      "pdf_page": 31,
+      "kind": "מאמר",
+      "title": "ידי משה מול עמלק",
+      "companion_explanation": "הפסוק משמש שוב במהלך נוסף. חזרה של פסוק אינה כשלעצמה ראיה להדפסה כפולה.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=31&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=31&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p31",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual",
+      "block_id": "p31-b4",
+      "block_source_ref": "book:sefer-habahir-1883#p31:p31-b4",
+      "printed_marker_candidate": "נ"
+    },
+    {
+      "id": "bahir-p32-two-lights",
+      "pdf_page": 32,
+      "kind": "מאמר",
+      "title": "שני המאורות",
+      "companion_explanation": "המאמר מבחין בין אור גלוי לאור הנגנז. זיהוי האור עם כתר מופיע בפירוש המודפס, ואין לייחסו אוטומטית לגוף הספר.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=32&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=32&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p32",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual",
+      "block_id": "p32-b2",
+      "block_source_ref": "book:sefer-habahir-1883#p32:p32-b2"
+    },
+    {
+      "id": "bahir-p32-hidden-light",
+      "pdf_page": 32,
+      "kind": "מהלך",
+      "title": "האור ול״ב נתיבות",
+      "companion_explanation": "יש לעקוב אחר המעבר מן האור אל הנתיבות בלי להניח שכל נתיב הוא קרן אור גיאומטרית.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=32&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=32&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p32",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual",
+      "block_id": "p32-b3",
+      "block_source_ref": "book:sefer-habahir-1883#p32:p32-b3",
+      "printed_marker_candidate": "נא"
+    },
+    {
+      "id": "bahir-p33-souls-foundation",
+      "pdf_page": 33,
+      "kind": "מאמר",
+      "title": "יסוד הנפשות",
+      "companion_explanation": "הצדיק מתואר ככוח מקיים חיים. האברים המשמשים בדימוי אינם תיאור ביולוגי.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=33&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=33&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p33",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual",
+      "block_id": "p33-b2",
+      "block_source_ref": "book:sefer-habahir-1883#p33:p33-b2"
+    },
+    {
+      "id": "bahir-p33-fire-water-peace",
+      "pdf_page": 33,
+      "kind": "מהלך",
+      "title": "אש משמאל ומים מימין",
+      "companion_explanation": "שלום ניצב ביניהם בתוך משל של איזון. אפשר להמחיש צדדים, לא מידות שאינן מצוינות.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=33&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=33&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p33",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual",
+      "block_id": "p33-b3",
+      "block_source_ref": "book:sefer-habahir-1883#p33:p33-b3"
+    },
+    {
+      "id": "bahir-p34-seventh-light",
+      "pdf_page": 34,
+      "kind": "מאמר",
+      "title": "האור השביעי",
+      "companion_explanation": "האור משקה ומקיים את השבעה. יש לשמור את הניסוח המספרי בהקשרו.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=34&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=34&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p34",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual",
+      "block_id": "p34-b2",
+      "block_source_ref": "book:sefer-habahir-1883#p34:p34-b2",
+      "printed_marker_candidate": "נב"
+    },
+    {
+      "id": "bahir-p34-marah-tree",
+      "pdf_page": 34,
+      "kind": "משל",
+      "title": "עץ החיים ומי מרה",
+      "companion_explanation": "העץ משמש להבנת המתקת המים, תוך הבחנה בין הסיפור המקראי לדרשה.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=34&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=34&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p34",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual",
+      "block_id": "p34-b3",
+      "block_source_ref": "book:sefer-habahir-1883#p34:p34-b3"
+    },
+    {
+      "id": "bahir-p34-end-beginning",
+      "pdf_page": 34,
+      "kind": "מהלך",
+      "title": "סוף ותחילה",
+      "companion_explanation": "הנוסחה מקשרת תחילה, סוף ואמצע; אין להסיק ממנה צורה מעגלית מחייבת.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=34&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=34&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p34",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual",
+      "block_id": "p34-b2",
+      "block_source_ref": "book:sefer-habahir-1883#p34:p34-b2"
+    },
+    {
+      "id": "bahir-p35-north",
+      "pdf_page": 35,
+      "kind": "מאמר",
+      "title": "הצפון וכף החובה",
+      "companion_explanation": "הצפון נקשר למידה של רעה ולשפת הדין בקטע זה, לא בכל הופעה של המילה צפון.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=35&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=35&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p35",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual",
+      "block_id": "p35-b2",
+      "block_source_ref": "book:sefer-habahir-1883#p35:p35-b2"
+    },
+    {
+      "id": "bahir-p35-seventy-palms",
+      "pdf_page": 35,
+      "kind": "שאלה",
+      "title": "שבעים תמרים",
+      "companion_explanation": "התמרים משמשים מניין סמלי. יש לעיין בהבחנה המקומית מול שבעים ושניים.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=35&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=35&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p35",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual",
+      "block_id": "p35-b3",
+      "block_source_ref": "book:sefer-habahir-1883#p35:p35-b3",
+      "printed_marker_candidate": "נה"
+    },
+    {
+      "id": "bahir-p35-rebellious-servant",
+      "pdf_page": 35,
+      "kind": "משל",
+      "title": "עבד מורד ואוצרות המלך",
+      "companion_explanation": "המשל מתאר אחריות, מיאון ותוצאות המעשה. הוא אינו וריאציה של משל בת המלך.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=35&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=35&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p35",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual",
+      "block_id": "p35-b4",
+      "block_source_ref": "book:sefer-habahir-1883#p35:p35-b4"
+    },
+    {
+      "id": "bahir-p36-healing",
+      "pdf_page": 36,
+      "kind": "שאלה",
+      "title": "שמירת החוקים ורפואה",
+      "companion_explanation": "העמוד נפתח בשאלת הרפואה שבפסוק. צפיפות הדפוס מונעת קביעה של כל פרטי התשובה.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=36&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=36&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p36",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual",
+      "block_id": "p36-b2",
+      "block_source_ref": "book:sefer-habahir-1883#p36:p36-b2"
+    },
+    {
+      "id": "bahir-p36-directions",
+      "pdf_page": 36,
+      "kind": "מהלך",
+      "title": "דלתות, צפון ודרום",
+      "companion_explanation": "כמה זוגות כיוונים מופיעים במקור. אין להפכם לתרשים מפורט עד אימות הצילום.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=36&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=36&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p36",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual",
+      "block_id": "p36-b3",
+      "block_source_ref": "book:sefer-habahir-1883#p36:p36-b3"
+    },
+    {
+      "id": "bahir-p37-song",
+      "pdf_page": 37,
+      "kind": "מאמר",
+      "title": "שיר השירים",
+      "companion_explanation": "הספר משתמש בלשון קודש קודשים בדיון על השיר. קישור למקורות רבניים נוספים הוא הצעת מחקר בלבד.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=37&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=37&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p37",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual",
+      "block_id": "p37-b2",
+      "block_source_ref": "book:sefer-habahir-1883#p37:p37-b2"
+    },
+    {
+      "id": "bahir-p37-species",
+      "pdf_page": 37,
+      "kind": "מהלך",
+      "title": "אתרוג ולולב",
+      "companion_explanation": "איגוד המינים משמש להבנת אחדות שאינה מבטלת חלקים. שמות המינים נשמרים בנפרד.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=37&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=37&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p37",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual",
+      "block_id": "p37-b3",
+      "block_source_ref": "book:sefer-habahir-1883#p37:p37-b3"
+    },
+    {
+      "id": "bahir-p38-yesod",
+      "pdf_page": 38,
+      "kind": "מאמר",
+      "title": "יסוד ושבת",
+      "companion_explanation": "היסוד נקרא בהקשר קיום העולם והמשך השבוע. יש להבחין בין המידות לבין משל הכלה.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=38&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=38&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p38",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual",
+      "block_id": "p38-b2",
+      "block_source_ref": "book:sefer-habahir-1883#p38:p38-b2"
+    },
+    {
+      "id": "bahir-p38-sabbath-bride",
+      "pdf_page": 38,
+      "kind": "משל",
+      "title": "המלך וכלתו",
+      "companion_explanation": "יום המפגש בין המלך לכלה מסייע להבין את השבת. אין לזהות את הדמויות בלי נמשל מפורש.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=38&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=38&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p38",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual",
+      "block_id": "p38-b3",
+      "block_source_ref": "book:sefer-habahir-1883#p38:p38-b3"
+    },
+    {
+      "id": "bahir-p38-printed-diagram",
+      "pdf_page": 38,
+      "kind": "תרשים",
+      "title": "תרשים הכיוונים בהגהות",
+      "companion_explanation": "השרטוט נמצא בשכבת ההגהות המודפסת, ולכן אינו ראיה לציור בגוף ספר הבהיר.",
+      "source_layer": "printed_commentary",
+      "source_anchor": "#page=38&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=38&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p38",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual",
+      "block_id": "p38-b_hagahot_r_diagram",
+      "block_source_ref": "book:sefer-habahir-1883#p38:p38-b_hagahot_r_diagram"
+    },
+    {
+      "id": "bahir-p39-study",
+      "pdf_page": 39,
+      "kind": "מאמר",
+      "title": "לימוד תורה לשמה",
+      "companion_explanation": "לימוד וקיום תפקיד נקשרים לעלייה ולבניין שמים. זהו שיח מוסרי וסמלי.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=39&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=39&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p39",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual",
+      "block_id": "p39-b2",
+      "block_source_ref": "book:sefer-habahir-1883#p39:p39-b2"
+    },
+    {
+      "id": "bahir-p39-stale-bread",
+      "pdf_page": 39,
+      "kind": "משל",
+      "title": "הפת הישנה",
+      "companion_explanation": "המלך מבקש לתקן את הפת הישנה בטרם יעניק חדשה. המשימה המשותפת היא מוקד הסיפור.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=39&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=39&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p39",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual",
+      "block_id": "p39-b3",
+      "block_source_ref": "book:sefer-habahir-1883#p39:p39-b3"
+    },
+    {
+      "id": "bahir-p40-moses-rays",
+      "pdf_page": 40,
+      "kind": "מאמר",
+      "title": "קרני משה",
+      "companion_explanation": "האור נקרא כחלק מדרשה על עוז וחסד. אין להעמידו כהסבר פיזיקלי.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=40&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=40&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p40",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual",
+      "block_id": "p40-b2",
+      "block_source_ref": "book:sefer-habahir-1883#p40:p40-b2"
+    },
+    {
+      "id": "bahir-p40-precious-stone",
+      "pdf_page": 40,
+      "kind": "משל",
+      "title": "האבן היקרה",
+      "companion_explanation": "דימוי האבן מסביר קבלת סיוע ומידת החסד. צורת האבן אינה מתוארת כתוכנית בנייה.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=40&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=40&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p40",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual",
+      "block_id": "p40-b2",
+      "block_source_ref": "book:sefer-habahir-1883#p40:p40-b2"
+    },
+    {
+      "id": "bahir-p41-vineyard",
+      "pdf_page": 41,
+      "kind": "משל",
+      "title": "הכרם והדורות",
+      "companion_explanation": "נטיעות חוזרות נעשות דימוי לשינוי דרך הדורות. אין להסיק מכך תיאוריה מפורטת של גלגול נשמות.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=41&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=41&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p41",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual",
+      "block_id": "p41-b2",
+      "block_source_ref": "book:sefer-habahir-1883#p41:p41-b2"
+    },
+    {
+      "id": "bahir-p41-soul",
+      "pdf_page": 41,
+      "kind": "מהלך",
+      "title": "העוון כחציצה",
+      "companion_explanation": "העוון מפריד והנשמה מתחדשת. זהו משל רוחני, לא תיאור קליני.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=41&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=41&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p41",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual",
+      "block_id": "p41-b3",
+      "block_source_ref": "book:sefer-habahir-1883#p41:p41-b3"
+    },
+    {
+      "id": "bahir-p42-david-study",
+      "pdf_page": 42,
+      "kind": "מאמר",
+      "title": "דוד ולימוד התורה",
+      "companion_explanation": "לימוד מתמיד מתואר כעמידה מול היצר. זוהי יחידה מוסרית לפני דימוי הכלה.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=42&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=42&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p42",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual",
+      "block_id": "p42-b2",
+      "block_source_ref": "book:sefer-habahir-1883#p42:p42-b2"
+    },
+    {
+      "id": "bahir-p42-torah-bride",
+      "pdf_page": 42,
+      "kind": "משל",
+      "title": "תורה ככלה",
+      "companion_explanation": "הדרשה מורשה–מאורסה הופכת קשר לימודי לקשר של קרבה. אין להוציא את משחק הלשון מהקשרו.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=42&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=42&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p42",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual",
+      "block_id": "p42-b3",
+      "block_source_ref": "book:sefer-habahir-1883#p42:p42-b3"
+    },
+    {
+      "id": "bahir-p42-palace",
+      "pdf_page": 42,
+      "kind": "מהלך",
+      "title": "עשרת המאמרות וההיכל",
+      "companion_explanation": "ההיכל הוא דימוי הנבנה סביב דיבור ואמת. אין מידות אדריכליות בטקסט.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=42&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=42&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p42",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual",
+      "block_id": "p42-b3",
+      "block_source_ref": "book:sefer-habahir-1883#p42:p42-b3"
+    },
+    {
+      "id": "bahir-p43-serpent",
+      "pdf_page": 43,
+      "kind": "משל",
+      "title": "הנחש ותוספת הנגיעה",
+      "companion_explanation": "השינוי בניסוח האזהרה מאפשר למפתה לערער עליה. יש להבחין בין פסוק מקראי לדרשה.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=43&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=43&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p43",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual",
+      "block_id": "p43-b2",
+      "block_source_ref": "book:sefer-habahir-1883#p43:p43-b2"
+    },
+    {
+      "id": "bahir-p43-serpent-meaning",
+      "pdf_page": 43,
+      "kind": "נמשל",
+      "title": "הסכנה בהחלפת לשון",
+      "companion_explanation": "ההסבר מצביע על הסכנה בהצגת תוספת כאילו הייתה הלשון המקורית. זו מסקנת קריאה נלווית.",
+      "source_layer": "book_text",
+      "source_anchor": "#page=43&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=43&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p43",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual",
+      "block_id": "p43-b3",
+      "block_source_ref": "book:sefer-habahir-1883#p43:p43-b3"
+    },
+    {
+      "id": "bahir-p43-colophon",
+      "pdf_page": 43,
+      "kind": "קולופון",
+      "title": "חתימת המפרש",
+      "companion_explanation": "המפרש מציג את מלאכתו ואת מסירת רבותיו; זו שכבה מודפסת נפרדת מגוף הבהיר.",
+      "source_layer": "printed_commentary",
+      "source_anchor": "#page=43&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=43&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p43",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual",
+      "block_id": "p43-colophon",
+      "block_source_ref": "book:sefer-habahir-1883#p43:p43-colophon"
+    },
+    {
+      "id": "bahir-p43-explicit-end",
+      "pdf_page": 43,
+      "kind": "חתימה",
+      "title": "חתימת הדפוס",
+      "companion_explanation": "שורת הסיום חותמת את הספר בעדות זו, לפני דבר המהדיר בעמוד הבא.",
+      "source_layer": "edition",
+      "source_anchor": "#page=43&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer_HaBahir_1883.pdf#page=43&view=FitH",
+      "source_ref": "book:sefer-habahir-1883#p43",
+      "quote_status": "no_new_direct_quote",
+      "evidence_status": "previous_corpus_mapping_not_fresh_visual",
+      "block_id": "p43-final-colophon",
+      "block_source_ref": "book:sefer-habahir-1883#p43:p43-final-colophon"
+    }
+  ],
+  "spatial_specifications": [
+    {
+      "id": "spring-tree",
+      "title": "האילן והמעיין",
+      "status": "SPECIFICATION_ONLY",
+      "engine_status": "not_tested",
+      "source_unit_ids": [
+        "bahir-p10-tree-spring",
+        "bahir-p10-tree-explanation"
+      ],
+      "source_pages": [
+        10
+      ],
+      "legend": "יחסי תלות והזנה; לא מיקום, גודל או זיהוי ספירתי.",
+      "components": [
+        {
+          "id": "spring",
+          "label": "מעיין",
+          "source_unit_id": "bahir-p10-tree-spring",
+          "source_anchor": "#page=10&view=FitH"
+        },
+        {
+          "id": "tree",
+          "label": "אילן",
+          "source_unit_id": "bahir-p10-tree-spring",
+          "source_anchor": "#page=10&view=FitH"
+        },
+        {
+          "id": "fruit",
+          "label": "פרי",
+          "source_unit_id": "bahir-p10-tree-spring",
+          "source_anchor": "#page=10&view=FitH"
+        }
+      ],
+      "relationships": [
+        {
+          "from": "spring",
+          "to": "tree",
+          "kind": "sustaining_relation",
+          "source_unit_id": "bahir-p10-tree-spring",
+          "source_anchor": "#page=10&view=FitH",
+          "editorial": false
+        },
+        {
+          "from": "tree",
+          "to": "fruit",
+          "kind": "narrative_sequence",
+          "source_unit_id": "bahir-p10-tree-spring",
+          "source_anchor": "#page=10&view=FitH",
+          "editorial": false
+        }
+      ]
+    },
+    {
+      "id": "paths",
+      "title": "ל״ב נתיבות וחדרי המלך",
+      "status": "SPECIFICATION_ONLY",
+      "engine_status": "not_tested",
+      "source_unit_ids": [
+        "bahir-p18-paths-rooms"
+      ],
+      "source_pages": [
+        18
+      ],
+      "legend": "רשימת נתיבים; לא מבוך גיאומטרי מקורי.",
+      "components": [
+        {
+          "id": "paths",
+          "label": "ל״ב נתיבות",
+          "source_unit_id": "bahir-p18-paths-rooms",
+          "source_anchor": "#page=18&view=FitH"
+        },
+        {
+          "id": "rooms",
+          "label": "חדרים וגנזים",
+          "source_unit_id": "bahir-p18-paths-rooms",
+          "source_anchor": "#page=18&view=FitH"
+        }
+      ],
+      "relationships": [
+        {
+          "from": "paths",
+          "to": "rooms",
+          "kind": "narrative_access",
+          "source_unit_id": "bahir-p18-paths-rooms",
+          "source_anchor": "#page=18&view=FitH",
+          "editorial": false
+        }
+      ]
+    },
+    {
+      "id": "triad",
+      "title": "תלי, גלגל ולב",
+      "status": "SPECIFICATION_ONLY",
+      "engine_status": "not_tested",
+      "source_unit_ids": [
+        "bahir-p24-triad",
+        "bahir-p24-three-twelves"
+      ],
+      "source_pages": [
+        24
+      ],
+      "legend": "שלוש קבוצות נבדלות: סידורן בציר אחד הוא הצעת המחשה.",
+      "components": [
+        {
+          "id": "tli",
+          "label": "תלי · י״ב",
+          "source_unit_id": "bahir-p24-three-twelves",
+          "source_anchor": "#page=24&view=FitH"
+        },
+        {
+          "id": "galgal",
+          "label": "גלגל · י״ב",
+          "source_unit_id": "bahir-p24-three-twelves",
+          "source_anchor": "#page=24&view=FitH"
+        },
+        {
+          "id": "lev",
+          "label": "לב · י״ב",
+          "source_unit_id": "bahir-p24-three-twelves",
+          "source_anchor": "#page=24&view=FitH"
+        }
+      ],
+      "relationships": [
+        {
+          "from": "tli",
+          "to": "galgal",
+          "kind": "editorial_layout",
+          "source_unit_id": "bahir-p24-triad",
+          "source_anchor": "#page=24&view=FitH",
+          "editorial": true
+        },
+        {
+          "from": "galgal",
+          "to": "lev",
+          "kind": "editorial_layout",
+          "source_unit_id": "bahir-p24-triad",
+          "source_anchor": "#page=24&view=FitH",
+          "editorial": true
+        }
+      ]
+    },
+    {
+      "id": "channels",
+      "title": "מעיין ושנים־עשר צינורות",
+      "status": "SPECIFICATION_ONLY",
+      "engine_status": "not_tested",
+      "source_unit_ids": [
+        "bahir-p27-twelve-channels"
+      ],
+      "source_pages": [
+        27
+      ],
+      "legend": "לא נמסרו מידות, זוויות או מיקומי צינורות.",
+      "components": [
+        {
+          "id": "source",
+          "label": "מעיין",
+          "source_unit_id": "bahir-p27-twelve-channels",
+          "source_anchor": "#page=27&view=FitH"
+        },
+        {
+          "id": "branches",
+          "label": "י״ב צינורות",
+          "source_unit_id": "bahir-p27-twelve-channels",
+          "source_anchor": "#page=27&view=FitH"
+        },
+        {
+          "id": "tribes",
+          "label": "י״ב שבטים",
+          "source_unit_id": "bahir-p27-twelve-channels",
+          "source_anchor": "#page=27&view=FitH"
+        }
+      ],
+      "relationships": [
+        {
+          "from": "source",
+          "to": "branches",
+          "kind": "narrative_flow",
+          "source_unit_id": "bahir-p27-twelve-channels",
+          "source_anchor": "#page=27&view=FitH",
+          "editorial": false
+        },
+        {
+          "from": "branches",
+          "to": "tribes",
+          "kind": "source_analogy",
+          "source_unit_id": "bahir-p27-twelve-channels",
+          "source_anchor": "#page=27&view=FitH",
+          "editorial": false
+        }
+      ]
+    },
+    {
+      "id": "sides",
+      "title": "מים, שלום ואש",
+      "status": "SPECIFICATION_ONLY",
+      "engine_status": "not_tested",
+      "source_unit_ids": [
+        "bahir-p33-fire-water-peace"
+      ],
+      "source_pages": [
+        33
+      ],
+      "legend": "קשרי ימין־אמצע־שמאל, לא טענה על צורה תלת־ממדית.",
+      "components": [
+        {
+          "id": "right",
+          "label": "מים מימין",
+          "source_unit_id": "bahir-p33-fire-water-peace",
+          "source_anchor": "#page=33&view=FitH"
+        },
+        {
+          "id": "center",
+          "label": "שלום באמצע",
+          "source_unit_id": "bahir-p33-fire-water-peace",
+          "source_anchor": "#page=33&view=FitH"
+        },
+        {
+          "id": "left",
+          "label": "אש משמאל",
+          "source_unit_id": "bahir-p33-fire-water-peace",
+          "source_anchor": "#page=33&view=FitH"
+        }
+      ],
+      "relationships": [
+        {
+          "from": "right",
+          "to": "center",
+          "kind": "directional_relation",
+          "source_unit_id": "bahir-p33-fire-water-peace",
+          "source_anchor": "#page=33&view=FitH",
+          "editorial": false
+        },
+        {
+          "from": "left",
+          "to": "center",
+          "kind": "directional_relation",
+          "source_unit_id": "bahir-p33-fire-water-peace",
+          "source_anchor": "#page=33&view=FitH",
+          "editorial": false
+        }
+      ]
+    },
+    {
+      "id": "printed-direction-diagram",
+      "title": "תרשים הכיוונים שבהגהות",
+      "status": "SPECIFICATION_ONLY",
+      "engine_status": "not_tested",
+      "source_unit_ids": [
+        "bahir-p38-printed-diagram"
+      ],
+      "source_pages": [
+        38
+      ],
+      "legend": "מקורו בהגהות המודפסות ולא בדברי הבהיר. תמלול הכיתובים מצריך בדיקת PDF חדשה.",
+      "components": [
+        {
+          "id": "diagram",
+          "label": "תרשים מודפס",
+          "source_unit_id": "bahir-p38-printed-diagram",
+          "source_anchor": "#page=38&view=FitH"
+        }
+      ],
+      "relationships": []
+    }
+  ],
+  "provenance": {
+    "prior_active_blocks": 212,
+    "prior_unresolved_readings": 115,
+    "prior_corrected_pages": [
+      30,
+      31,
+      32,
+      34,
+      35,
+      38
+    ],
+    "pdf_image_only_pages": [
+      45,
+      46,
+      48
+    ],
+    "fresh_visual_pdf_read": "not_performed_access_unavailable",
+    "raw_extraction_for_search_only": true,
+    "source_records": [
+      "research/sefer-habahir-1883/FULL_CORPUS_MANIFEST.json",
+      "research/sefer-habahir-1883/scan-b/pages/",
+      "research/sefer-habahir-1883/scan-b-corrective/pages/"
+    ]
+  },
+  "notice": "החלוקה הפנימית היא מפת למידה המבוססת על התיעוד הקודם של המהדורה. גבולות מאמרים מסומנים כמועמדים בלבד; מקור PDF נשאר סמכות עליונה ואין כאן שחזור מלא של נוסח הספר."
+}

@@ -1,0 +1,137 @@
+/* Ahavat Torah prototype: entry, table of contents, selection panel. Tokens only (--s29-*); scoped to .ahavat29. */
+.ahavat29-cover{margin:0;display:grid;gap:8px;justify-items:center;align-self:start}
+.ahavat29-cover img{display:block;width:min(100%,230px);height:auto;aspect-ratio:560/704;object-fit:cover;border:1px solid var(--a29-line-strong);border-radius:10px;background:var(--a29-panel);box-shadow:0 14px 34px -18px color-mix(in srgb,var(--s29-ink) 60%,transparent)}
+.ahavat29-cover figcaption{color:var(--a29-muted);font:500 var(--s29-type-small)/1.4 var(--s29-font-ui);text-align:center}
+.ahavat29-recommended{margin-block-start:26px;display:grid;gap:4px}
+.ahavat29-recommended h2{margin:0;font:690 var(--s29-type-ui)/1.3 var(--s29-font-ui);color:var(--a29-gold)}
+.ahavat29-recommended .books29-entry-actions{margin-block-start:8px}
+.ahavat29-recommended p{margin:6px 0 0;color:var(--a29-muted);font:400 var(--s29-type-small)/1.6 var(--s29-font-ui)}
+.ahavat29-intro-identity{display:flex;flex-wrap:wrap;gap:6px;margin-block:18px 4px}
+.ahavat29-intro-identity span{padding:5px 11px;border:1px solid var(--a29-line);border-radius:999px;font:500 var(--s29-type-small)/1.3 var(--s29-font-ui);color:var(--a29-muted)}
+.ahavat29 .ahavat29-intro>.ahavat29-cover{grid-column:2;grid-row:1}
+.ahavat29 .ahavat29-intro>div:first-child{grid-column:1;grid-row:1}
+.ahavat29 .ahavat29-intro>aside{grid-column:1/-1}
+
+.ahavat29-toc,.ahavat29-selection{min-width:0;padding:clamp(20px,3.4vw,40px);border:1px solid var(--a29-line);border-radius:22px;background:linear-gradient(145deg,var(--a29-panel),color-mix(in srgb,var(--a29-soft) 72%,var(--a29-panel)));scroll-margin-top:96px}
+.ahavat29-toc>header,.ahavat29-selection>header{display:flex;justify-content:space-between;align-items:end;gap:18px;flex-wrap:wrap}
+.ahavat29-toc>header span,.ahavat29-selection>header span{color:var(--a29-gold);font:680 var(--s29-type-micro)/1.4 var(--s29-font-ui)}
+.ahavat29-toc h2,.ahavat29-selection h2{margin:6px 0 0;font:690 clamp(24px,2.6vw,34px)/1.25 var(--s29-font-display)}
+.ahavat29-toc>header p,.ahavat29-selection>p{margin:0;max-width:62ch;color:var(--a29-muted);font:400 var(--s29-type-ui)/1.7 var(--s29-font-body)}
+.ahavat29-selection>p{margin-block:14px}
+.ahavat29-toc-search{margin-block:20px 12px;display:grid;gap:7px}
+.ahavat29-toc-search>span{color:var(--a29-gold);font:700 var(--s29-type-ui)/1.3 var(--s29-font-ui)}
+.ahavat29-toc-search input{width:100%;min-height:52px;padding:10px 16px;border:1px solid var(--a29-line-strong);border-radius:999px;background:var(--a29-panel);color:var(--a29-ink)}
+.ahavat29-toc-results{display:grid;gap:6px;margin-block-end:14px}
+.ahavat29-toc-results button,.ahavat29-toc-kinds button,.ahavat29-selection-books button,.ahavat29-selection-parashot button{min-height:44px;border:1px solid var(--a29-line);border-radius:12px;background:var(--a29-panel);color:var(--a29-ink);cursor:pointer;text-align:start}
+.ahavat29-toc-results button{display:flex;justify-content:space-between;gap:12px;padding:10px 14px;align-items:center}
+.ahavat29-toc-results small,.ahavat29-toc-kinds small,.ahavat29-toc-division small{color:var(--a29-muted);font:500 var(--s29-type-small)/1.3 var(--s29-font-numeric)}
+.ahavat29-toc-list{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.ahavat29-toc-list>li{min-width:0;border:1px solid var(--a29-line);border-radius:16px;background:var(--a29-soft);overflow:hidden}
+.ahavat29-toc-list>li.is-current{border-color:var(--a29-gold);box-shadow:inset 0 0 0 1px var(--a29-gold)}
+.ahavat29-toc-division{width:100%;min-height:64px;padding:12px 16px;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center;border:0;border-block-end:1px solid var(--a29-line);background:transparent;color:var(--a29-ink);cursor:pointer;text-align:start}
+.ahavat29-toc-division span{color:var(--a29-gold);font:700 var(--s29-type-small)/1.3 var(--s29-font-ui)}
+.ahavat29-toc-division strong{font:650 var(--s29-type-ui)/1.4 var(--s29-font-ui)}
+.ahavat29-toc-kinds{padding:12px 16px 16px;display:grid;gap:12px}
+.ahavat29-toc-kinds>div{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.ahavat29-toc-kinds em{flex-basis:100%;font:600 var(--s29-type-micro)/1.3 var(--s29-font-ui);font-style:normal;color:var(--a29-muted);letter-spacing:.02em}
+.ahavat29-toc-kinds button{padding:7px 12px;display:inline-flex;gap:8px;align-items:center}
+.ahavat29-toc-kinds ul{margin:0;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:4px 14px;font:400 var(--s29-type-small)/1.6 var(--s29-font-body);color:var(--a29-muted)}
+.ahavat29-toc-kinds button[data-toc-kind="topic"]{border-style:dashed}
+.ahavat29-toc-division:focus-visible,.ahavat29-toc-kinds button:focus-visible,.ahavat29-toc-results button:focus-visible,.ahavat29-selection button:focus-visible,.ahavat29-selection a:focus-visible,.ahavat29-toc-search input:focus-visible{outline:3px solid var(--s29-focus-ring);outline-offset:3px}
+
+.ahavat29-selection>header b{font:800 clamp(28px,3vw,40px)/1 var(--s29-font-numeric);color:var(--s29-hero)}
+.ahavat29-selection-divine{display:grid;gap:12px}
+.ahavat29-selection-books{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+.ahavat29-selection-books button{padding:8px 6px;display:grid;gap:4px;justify-items:center;text-align:center}
+.ahavat29-selection-books strong{font:760 22px/1 var(--s29-font-numeric)}
+.ahavat29-selection-parashot{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:6px}
+.ahavat29-selection-parashot button{padding:8px 10px;display:flex;justify-content:space-between;gap:8px;align-items:center}
+.ahavat29-selection button[aria-pressed="true"]{border-color:var(--a29-gold);background:color-mix(in srgb,var(--a29-gold) 14%,var(--a29-panel))}
+.ahavat29-selection-picked{margin:0;padding:10px 14px;border-radius:12px;background:color-mix(in srgb,var(--a29-discovery) 9%,transparent);font:500 var(--s29-type-ui)/1.6 var(--s29-font-body)}
+.ahavat29-selection-actions{margin-block-start:16px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.ahavat29-selection-actions>:is(a,button){min-height:44px;padding:9px 16px;border:1px solid var(--a29-line-strong);border-radius:999px;display:inline-flex;align-items:center;background:var(--a29-panel);color:var(--a29-ink);font:600 var(--s29-type-ui)/1.3 var(--s29-font-ui);text-decoration:none;cursor:pointer}
+.ahavat29-selection-actions>a:first-child{background:var(--s29-accent-btn);color:var(--s29-on-accent);border-color:transparent}
+.ahavat29-gaps{flex-basis:100%}
+
+.ahavat29-source-status{padding:0}
+.ahavat29-source-status>summary{min-height:48px}
+.ahavat29-source-status .ahavat29-metrics{margin-block-start:12px}
+.ahavat29-source-status .ahavat29-metrics article{min-height:110px}
+
+/* One stable jump target clearance for in-page navigation under the fixed shell header. */
+.ahavat29 :is(#ahavat29-source,#ahavat29-full-reader,#ahavat29-toc,#ahavat29-selection,#ahavat29-spatial-title,#ahavat29-reader){scroll-margin-top:var(--ahavat29-jump-clearance,92px)}
+
+@media(max-width:900px){
+  .ahavat29-toc-list{grid-template-columns:minmax(0,1fr)}
+  .ahavat29 .ahavat29-intro{grid-template-columns:minmax(0,1fr);gap:14px}
+  .ahavat29 .ahavat29-intro>.ahavat29-cover{grid-column:1;grid-row:1;justify-items:start}
+  .ahavat29 .ahavat29-intro>div:first-child{grid-row:2}
+  .ahavat29 .ahavat29-intro>aside{grid-row:3}
+  .ahavat29 .ahavat29-intro>.ahavat29-cover img{width:clamp(92px,26vw,132px)}
+  .ahavat29 .ahavat29-intro>.ahavat29-cover figcaption{text-align:start}
+}
+@media(max-width:650px){
+  .ahavat29-toc,.ahavat29-selection{padding:18px 14px;border-radius:18px}
+  .ahavat29-selection-books{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .ahavat29-selection-parashot{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .ahavat29-selection-actions>:is(a,button){flex:1 1 150px;justify-content:center}
+}
+
+/* Prominent PDF action: source column header, all widths. */
+.ahavat29-source .book-fullscreen29-button[data-book-reader-secondary]{background:var(--s29-accent-btn);color:var(--s29-on-accent);border-color:transparent}
+@media(max-width:650px){.ahavat29-source .ahavat29-source-actions>:is(a,button){flex:1 1 140px}}
+
+/* Compact entry: short opening, contents search on the first screen. */
+.ahavat29 .ahavat29-intro{min-height:0;padding:clamp(20px,3vw,38px);grid-template-columns:minmax(0,1fr) auto;gap:14px clamp(18px,3vw,40px);align-items:center}
+.ahavat29 .ahavat29-intro h1{margin:8px 0 10px;font:660 clamp(32px,4vw,54px)/1.08 var(--s29-font-display)}
+.ahavat29 .ahavat29-intro>div>p{margin:0;max-width:56ch}
+.ahavat29 .ahavat29-intro .books29-entry-actions{margin-block-start:14px}
+.ahavat29 .ahavat29-intro .ahavat29-cover img{width:clamp(150px,13vw,190px)}
+.ahavat29-recommended{margin-block-start:14px}
+.ahavat29-recommended .books29-entry-actions{margin-block-start:6px}
+.ahavat29-toc-all{margin-block-start:6px}
+.ahavat29-toc-all>summary{min-height:48px;display:flex;flex-wrap:wrap;align-items:center;gap:4px 12px;cursor:pointer;font:650 var(--s29-type-ui)/1.4 var(--s29-font-ui);color:var(--a29-ink)}
+.ahavat29-toc-all>summary small{color:var(--a29-muted);font:400 var(--s29-type-small)/1.4 var(--s29-font-ui)}
+.ahavat29-toc-all>summary:focus-visible{outline:3px solid var(--s29-focus-ring);outline-offset:3px}
+.ahavat29-toc-all[open]>summary{margin-block-end:10px}
+.ahavat29-toc{padding:clamp(14px,2.4vw,28px)}
+.ahavat29-toc h2{font-size:clamp(20px,2.2vw,28px)}
+.ahavat29-toc-search{margin-block:12px 6px}
+.ahavat29-to-explanation{display:none}
+.ahavat29-source-status .ahavat29-intro-identity{margin-block-start:10px}
+.ahavat29-source-status>p{margin:8px 0 0;color:var(--a29-muted);font:400 var(--s29-type-small)/1.7 var(--s29-font-body)}
+
+/* Reading order: the chosen unit and its explanation come first, beside the source. */
+.ahavat29-story>#ahavat29-selection{order:-2}
+.ahavat29-story>#ahavat29-full-reader{order:-1}
+
+/* A section lives inside a reading column, not the full viewport. */
+.ahavat29-story{container:ahavat-reading / inline-size}
+@container ahavat-reading (max-width:760px){
+  .ahavat29-story :is(.ahavat29-map,.ahavat29-findings,.ahavat29-datasets,.ahavat29-depth,.ahavat29-spatial,.ahavat29-extraction)>header{grid-template-columns:minmax(0,1fr);gap:14px}
+}
+
+@media(max-width:900px){
+  .ahavat29 .ahavat29-intro{grid-template-columns:minmax(0,1fr) clamp(76px,22vw,104px);gap:10px 14px;padding:18px 16px;align-items:start}
+  .ahavat29 .ahavat29-intro>div:first-child{display:contents}
+  .ahavat29 .ahavat29-intro>div>span{grid-column:1;grid-row:1}
+  .ahavat29 .ahavat29-intro>div>h1{grid-column:1;grid-row:2;margin:0;font-size:clamp(26px,8vw,34px);line-height:1.12}
+  .ahavat29 .ahavat29-intro>div>p{grid-column:1;grid-row:3;font-size:var(--s29-type-small);line-height:1.6}
+  .ahavat29 .ahavat29-intro>.ahavat29-cover{grid-column:2;grid-row:1/4;align-self:start}
+  .ahavat29 .ahavat29-intro>.ahavat29-cover{min-width:0}
+  .ahavat29 .ahavat29-intro>.ahavat29-cover img{width:100%}
+  .ahavat29 .ahavat29-intro>.ahavat29-cover figcaption{display:none}
+  .ahavat29 .ahavat29-intro>div>nav,.ahavat29 .ahavat29-intro>div>.ahavat29-recommended{grid-column:1/-1}
+  .ahavat29 .ahavat29-intro .books29-entry-actions{margin-block-start:4px;gap:6px}
+  .ahavat29 .ahavat29-intro .books29-entry-actions a{min-height:44px;padding:8px 12px;font-size:var(--s29-type-small)}
+  .ahavat29-recommended h2{font-size:var(--s29-type-small)}
+  .ahavat29-recommended{margin-block-start:6px}
+  .ahavat29-to-explanation{display:inline-flex}
+  .ahavat29-toc-search{margin-block:8px 4px}
+  .ahavat29-toc-search>span{font-size:var(--s29-type-small)}
+}
+@media(min-width:1024px){
+  /* Wide reading: the source takes the first row beside the explanation, no empty column under it. */
+  .ahavat29-layout.books29-reading-layout{align-items:start}
+  .ahavat29-source.book-fullscreen29-target{height:calc(100dvh - 92px);top:80px}
+}

@@ -3,6 +3,8 @@ import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import {
   AHAVAT_TORAH_DATASETS,
+  AHAVAT_LOCATED_DATASETS,
+  AHAVAT_UNLOCATED_DATASETS,
   AHAVAT_TORAH_DEEP_PAGES,
   AHAVAT_TORAH_AI_EXPLANATIONS_HE,
   AHAVAT_TORAH_EXTRACTION_LAYERS,
@@ -59,6 +61,12 @@ test("the bounded system keeps the canonical source identity and all 99 source p
   assert.equal(sectionForPage(94).id, "addenda");
 });
 
+test("DS-01 source details reflect the closed transcription without claiming an engine count", () => {
+  assert.match(page, /54 שורות הפרשות נסגרות חשבונית/);
+  assert.match(page, /לא בוצעה כאן ספירת קורפוס עצמאית/);
+  assert.doesNotMatch(page, /קריאת תאי שמות ובמדבר נשמרת כמועמדת/);
+});
+
 test("first findings remain typed and agree with the bounded source bundle", () => {
   assert.deepEqual(Object.keys(AHAVAT_TORAH_TRUTH_STATES), ["source_verified", "source_located", "structural_map", "candidate", "open", "machine_candidate"]);
   assert.equal(AHAVAT_TORAH_FINDINGS.length, 4);
@@ -71,7 +79,15 @@ test("first findings remain typed and agree with the bounded source bundle", () 
   }
   assert.equal(byDataset.get("DS-01").total, "1,820");
   assert.equal(byDataset.get("DS-03").total, "79,976");
-  assert.equal(AHAVAT_TORAH_FINDINGS.find(finding => finding.dataset === "DS-04").status, "candidate");
+  const letterTotal = AHAVAT_TORAH_FINDINGS.find(finding => finding.dataset === "DS-04");
+  assert.equal(letterTotal.status, "source_verified");
+  assert.equal(letterTotal.value, "304,812");
+  assert.equal(letterTotal.page, 42);
+  assert.match(letterTotal.formula, /ש״ד אלף תתי״ב/);
+  assert.match(letterTotal.sourceNote, /סוף הטור השמאלי/);
+  assert.match(page, /לא בוצעה כאן ספירת קורפוס עצמאית/);
+  assert.equal(AHAVAT_TORAH_DATASETS.find(dataset => dataset.id === "DS-04").state, "partial", "total reading does not complete all parasha cells");
+  assert.match(byDataset.get("DS-04").total, /candidate/, "historical source dossier remains provenance");
   assert.equal(AHAVAT_TORAH_FINDINGS.find(finding => finding.dataset === "DS-09").status, "source_located");
 });
 
@@ -88,10 +104,14 @@ test("all bounded datasets and deep-read pages are represented without upgrading
     assert.ok(dataset.nextStep.length > 25);
     assert.ok(dataset.pages.every(value => value >= 1 && value <= 99));
   }
-  assert.match(page, /כל 13 מאגרי הבדיקה/);
+  assert.equal(AHAVAT_LOCATED_DATASETS.length, 11);
+  assert.deepEqual(AHAVAT_UNLOCATED_DATASETS.map(item => item.id), ["DS-07", "DS-08"]);
+  assert.match(page, /AHAVAT_LOCATED_DATASETS.length\} נושאים לקריאה בספר/);
+  assert.match(page, /פרטי המקור ואיתורים נוספים/);
   assert.match(page, /99 עמודים · קורא מלא וחיפוש/);
-  assert.match(page, /קריאת עומק בהמשך/);
-  assert.match(page, /עוד שש שכבות מתוך הספר/);
+  assert.match(page, /ahavatCompanionPage\(companion, page\)/);
+  assert.doesNotMatch(page, /קריאת עומק בהמשך/);
+  assert.match(page, /שישה שערים אל תוכן הספר/);
   for (const block of bundle.content_blocks.filter(item => !item.text_he)) {
     assert.ok(AHAVAT_TORAH_AI_EXPLANATIONS_HE[block.block_id], `missing Hebrew AI explanation for ${block.block_id}`);
   }
@@ -113,7 +133,8 @@ test("the full-book machine layer covers all pages without pretending to be veri
   assert.match(page, /AHAVAT_TORAH_SOURCE\.pageTextBundleUrl/);
   assert.match(page, /חיפוש בכל הספר/);
   assert.match(page, /תעתיק מלא לעמוד/);
-  assert.match(page, /הסבר נלווה · מפת קריאה/);
+  assert.match(page, /הסבר נלווה ·/);
+  assert.match(page, /pageGuide\?\.companion_explanation \|\| readingArc\.explanation/);
 });
 
 test("the reader keeps source, explanation, finding and publication axes separate", () => {

@@ -1,0 +1,411 @@
+{
+  "task": "AHAVAT_NATIVE_SOURCE_RELIABILITY_20261030",
+  "branch": "codex/ahavat-native-source-reliability-20261030",
+  "base": "590c2e123b2fb8b26ab91cb90df136c477f3400f",
+  "runtime": "50fe3c2e8acc47add9ac9379d2854965ed6b26a4",
+  "head": "a8e03ff04cbe0fb5a24319d0f1542cf9148e5680",
+  "range": "590c2e123b2fb8b26ab91cb90df136c477f3400f..a8e03ff04cbe0fb5a24319d0f1542cf9148e5680",
+  "commits": [
+    "3b0a187592333b24e5f45a180e2f247002315637 fix(books): render exact Ahavat source pages within the canonical reader",
+    "414032a9b9a03733b901f1766aba99a5d5e00416 test(books): verify original source pixels and preserve reader acceptance",
+    "293e18322518a571dccc5ec7f5b91a587202a700 test(books): isolate source acceptance caches and evidence outputs",
+    "a80b3834cb1e2798da1fad81b657d2ccd36c3ffd fix(books): size the mobile source frame to its actual PDF page",
+    "ed09681daad43ecf2581e54f13926666b916796e test(books): preserve bulk proofreading and real-source acceptance layers",
+    "50fe3c2e8acc47add9ac9379d2854965ed6b26a4 fix(books): keep source pixels paired with their completed page on rapid return",
+    "8b663461f21b01453d807f118c9dfd10baa614cb test(books): separate original UI requests from physical PDF acceptance",
+    "fac6b77c36702e41c62925d1a02da08c5780609b test(books): sample completed source pixels atomically through viewport changes",
+    "a8e03ff04cbe0fb5a24319d0f1542cf9148e5680 test(books): verify controlled source inside model and unified-reader fullscreen"
+  ],
+  "files": [
+    "docs/research-notes/AHAVAT_NATIVE_SOURCE_RELIABILITY_20261030.md",
+    "package-lock.json",
+    "package.json",
+    "public/vendor-notices/pdfjs/LICENSE_FOXIT",
+    "public/vendor-notices/pdfjs/LICENSE_JBIG2",
+    "public/vendor-notices/pdfjs/LICENSE_LIBERATION",
+    "public/vendor-notices/pdfjs/LICENSE_PDFJS",
+    "public/vendor-notices/pdfjs/LICENSE_PDFJS_JBIG2",
+    "src/components/books2029/BookPdfPage2029.jsx",
+    "src/components/books2029/BookSourceReader2029.jsx",
+    "src/components/books2029/ahavatBookPresentation2029.css",
+    "src/components/books2029/bookPdfPage2029.css",
+    "src/components/books2029/bookPdfSource2029.js",
+    "src/data/bookReader2029.js",
+    "src/pages/AhavatTorahSystem2029Page.jsx",
+    "test/ahavat-centered-actions-2029.browser.test.mjs",
+    "test/ahavat-controlled-source-2029.browser.test.mjs",
+    "test/ahavat-controlled-source-2029.test.mjs",
+    "test/ahavat-count-spatial-source-2029.browser.test.mjs",
+    "test/ahavat-letter-continuous-study-2029.browser.test.mjs",
+    "test/ahavat-letter-guided-exploration-2029.browser.test.mjs",
+    "test/ahavat-letter-source-comparison-2029.browser.test.mjs",
+    "test/ahavat-letter-spatial-acceptance-2029.browser.test.mjs",
+    "test/ahavat-letter-visual-workspace-2029.browser.test.mjs",
+    "test/ahavat-parasha-letter-atlas-2029.browser.test.mjs",
+    "test/ahavat-public-reading-2029.browser.test.mjs",
+    "test/ahavat-torah-book-completion-2029.browser.test.mjs",
+    "test/ahavat-torah-book-completion-native-2029.browser.test.mjs",
+    "test/ahavat-torah-book-presentation-2029.test.mjs",
+    "test/ahavat-torah-editorial-return-2029.browser.test.mjs",
+    "test/ahavat-torah-native-source-return-2029.browser.test.mjs",
+    "test/ahavat-torah-novellae-depth-2029.browser.test.mjs",
+    "test/ahavat-torah-parasha-counts-2029.browser.test.mjs",
+    "test/ahavat-torah-reader-units-2029.browser.test.mjs",
+    "test/ahavat-torah-roots-journey-2029.browser.test.mjs",
+    "test/ahavat-torah-roots-proofreading-2029.browser.test.mjs",
+    "test/ahavat-torah-source-tables-2029.browser.test.mjs",
+    "test/ahavat-torah-spatial-tables-2029.browser.test.mjs",
+    "test/books-unified-reader-2029.browser.test.mjs",
+    "test/books-wide-dual-experience-2029.browser.test.mjs",
+    "test/fixtures/ahavat-controlled-source-2029.mjs",
+    "test/fixtures/book-source-resource-2029.html"
+  ],
+  "unit": {
+    "tests": 429,
+    "pass": 429,
+    "fail": 0,
+    "cancelled": 0,
+    "skipped": 0,
+    "log": "/workspace/artifacts/ahavat-native-source-fix-20261030-i85M6O/stable-unit.log"
+  },
+  "languageAuth": {
+    "tests": 7,
+    "pass": 7,
+    "fail": 0,
+    "cancelled": 0,
+    "skipped": 0,
+    "log": "/workspace/artifacts/ahavat-native-source-fix-20261030-i85M6O/stable-language-auth.log"
+  },
+  "browserFiles": 23,
+  "browserTests": 47,
+  "browsers": [
+    {
+      "file": "ahavat-controlled-source-2029.browser.test.mjs",
+      "head": "fac6b77c36702e41c62925d1a02da08c5780609b",
+      "log": "/workspace/artifacts/ahavat-native-source-fix-20261030-i85M6O/atomic-controlled-source.log",
+      "tests": 6,
+      "pass": 6,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0
+    },
+    {
+      "file": "ahavat-torah-roots-proofreading-2029.browser.test.mjs",
+      "head": "50fe3c2e8acc47add9ac9379d2854965ed6b26a4",
+      "log": "/workspace/artifacts/ahavat-native-source-fix-20261030-i85M6O/stable-roots-proofreading.log",
+      "tests": 4,
+      "pass": 4,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0
+    },
+    {
+      "file": "ahavat-torah-novellae-depth-2029.browser.test.mjs",
+      "head": "50fe3c2e8acc47add9ac9379d2854965ed6b26a4",
+      "log": "/workspace/artifacts/ahavat-native-source-fix-20261030-i85M6O/acceptance-stable/ahavat-torah-novellae-depth-2029.browser.test.mjs.log",
+      "tests": 5,
+      "pass": 5,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0
+    },
+    {
+      "file": "ahavat-torah-book-completion-2029.browser.test.mjs",
+      "head": "8b663461f21b01453d807f118c9dfd10baa614cb",
+      "log": "/workspace/artifacts/ahavat-native-source-fix-20261030-i85M6O/layered-book-completion.log",
+      "tests": 5,
+      "pass": 5,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0
+    },
+    {
+      "file": "ahavat-letter-continuous-study-2029.browser.test.mjs",
+      "head": "8b663461f21b01453d807f118c9dfd10baa614cb",
+      "log": "/workspace/artifacts/ahavat-native-source-fix-20261030-i85M6O/acceptance-layered/ahavat-letter-continuous-study-2029.browser.test.mjs.log",
+      "tests": 1,
+      "pass": 1,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0
+    },
+    {
+      "file": "ahavat-parasha-letter-atlas-2029.browser.test.mjs",
+      "head": "8b663461f21b01453d807f118c9dfd10baa614cb",
+      "log": "/workspace/artifacts/ahavat-native-source-fix-20261030-i85M6O/acceptance-layered/ahavat-parasha-letter-atlas-2029.browser.test.mjs.log",
+      "tests": 1,
+      "pass": 1,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0
+    },
+    {
+      "file": "ahavat-torah-editorial-return-2029.browser.test.mjs",
+      "head": "8b663461f21b01453d807f118c9dfd10baa614cb",
+      "log": "/workspace/artifacts/ahavat-native-source-fix-20261030-i85M6O/acceptance-layered/ahavat-torah-editorial-return-2029.browser.test.mjs.log",
+      "tests": 1,
+      "pass": 1,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0
+    },
+    {
+      "file": "ahavat-letter-source-comparison-2029.browser.test.mjs",
+      "head": "fac6b77c36702e41c62925d1a02da08c5780609b",
+      "log": "/workspace/artifacts/ahavat-native-source-fix-20261030-i85M6O/acceptance-atomic/ahavat-letter-source-comparison-2029.browser.test.mjs.log",
+      "tests": 1,
+      "pass": 1,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0
+    },
+    {
+      "file": "ahavat-letter-guided-exploration-2029.browser.test.mjs",
+      "head": "fac6b77c36702e41c62925d1a02da08c5780609b",
+      "log": "/workspace/artifacts/ahavat-native-source-fix-20261030-i85M6O/acceptance-atomic/ahavat-letter-guided-exploration-2029.browser.test.mjs.log",
+      "tests": 1,
+      "pass": 1,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0
+    },
+    {
+      "file": "ahavat-torah-book-completion-native-2029.browser.test.mjs",
+      "head": "fac6b77c36702e41c62925d1a02da08c5780609b",
+      "log": "/workspace/artifacts/ahavat-native-source-fix-20261030-i85M6O/acceptance-atomic/ahavat-torah-book-completion-native-2029.browser.test.mjs.log",
+      "tests": 1,
+      "pass": 1,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0
+    },
+    {
+      "file": "ahavat-torah-spatial-tables-2029.browser.test.mjs",
+      "head": "fac6b77c36702e41c62925d1a02da08c5780609b",
+      "log": "/workspace/artifacts/ahavat-native-source-fix-20261030-i85M6O/acceptance-atomic/ahavat-torah-spatial-tables-2029.browser.test.mjs.log",
+      "tests": 1,
+      "pass": 1,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0
+    },
+    {
+      "file": "ahavat-letter-spatial-acceptance-2029.browser.test.mjs",
+      "head": "a8e03ff04cbe0fb5a24319d0f1542cf9148e5680",
+      "log": "/workspace/artifacts/ahavat-native-source-fix-20261030-i85M6O/acceptance-final/ahavat-letter-spatial-acceptance-2029.browser.test.mjs.log",
+      "tests": 4,
+      "pass": 4,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0
+    },
+    {
+      "file": "ahavat-torah-reader-units-2029.browser.test.mjs",
+      "head": "a8e03ff04cbe0fb5a24319d0f1542cf9148e5680",
+      "log": "/workspace/artifacts/ahavat-native-source-fix-20261030-i85M6O/reader-units-exclusive.log",
+      "tests": 1,
+      "pass": 1,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0
+    },
+    {
+      "file": "ahavat-letter-visual-workspace-2029.browser.test.mjs",
+      "code": 0,
+      "signal": null,
+      "tests": 1,
+      "pass": 1,
+      "fail": 0,
+      "skipped": 0,
+      "cancelled": 0,
+      "observedFailure": false,
+      "log": "/workspace/artifacts/ahavat-native-source-fix-20261030-i85M6O/acceptance-close/ahavat-letter-visual-workspace-2029.browser.test.mjs.log"
+    },
+    {
+      "file": "ahavat-torah-source-tables-2029.browser.test.mjs",
+      "code": 0,
+      "signal": null,
+      "tests": 1,
+      "pass": 1,
+      "fail": 0,
+      "skipped": 0,
+      "cancelled": 0,
+      "observedFailure": false,
+      "log": "/workspace/artifacts/ahavat-native-source-fix-20261030-i85M6O/acceptance-close/ahavat-torah-source-tables-2029.browser.test.mjs.log"
+    },
+    {
+      "file": "ahavat-centered-actions-2029.browser.test.mjs",
+      "code": 0,
+      "signal": null,
+      "tests": 1,
+      "pass": 1,
+      "fail": 0,
+      "skipped": 0,
+      "cancelled": 0,
+      "observedFailure": false,
+      "log": "/workspace/artifacts/ahavat-native-source-fix-20261030-i85M6O/acceptance-close/ahavat-centered-actions-2029.browser.test.mjs.log"
+    },
+    {
+      "file": "books-unified-reader-2029.browser.test.mjs",
+      "code": 0,
+      "signal": null,
+      "tests": 1,
+      "pass": 1,
+      "fail": 0,
+      "skipped": 0,
+      "cancelled": 0,
+      "observedFailure": false,
+      "log": "/workspace/artifacts/ahavat-native-source-fix-20261030-i85M6O/acceptance-close/books-unified-reader-2029.browser.test.mjs.log"
+    },
+    {
+      "file": "ahavat-torah-roots-journey-2029.browser.test.mjs",
+      "code": 0,
+      "signal": null,
+      "tests": 1,
+      "pass": 1,
+      "fail": 0,
+      "skipped": 0,
+      "cancelled": 0,
+      "observedFailure": false,
+      "log": "/workspace/artifacts/ahavat-native-source-fix-20261030-i85M6O/acceptance-close/ahavat-torah-roots-journey-2029.browser.test.mjs.log"
+    },
+    {
+      "file": "ahavat-count-spatial-source-2029.browser.test.mjs",
+      "code": 0,
+      "signal": null,
+      "tests": 5,
+      "pass": 5,
+      "fail": 0,
+      "skipped": 0,
+      "cancelled": 0,
+      "observedFailure": false,
+      "log": "/workspace/artifacts/ahavat-native-source-fix-20261030-i85M6O/acceptance-close/ahavat-count-spatial-source-2029.browser.test.mjs.log"
+    },
+    {
+      "file": "books-wide-dual-experience-2029.browser.test.mjs",
+      "code": 0,
+      "signal": null,
+      "tests": 2,
+      "pass": 2,
+      "fail": 0,
+      "skipped": 0,
+      "cancelled": 0,
+      "observedFailure": false,
+      "log": "/workspace/artifacts/ahavat-native-source-fix-20261030-i85M6O/acceptance-close/books-wide-dual-experience-2029.browser.test.mjs.log"
+    },
+    {
+      "file": "ahavat-public-reading-2029.browser.test.mjs",
+      "code": 0,
+      "signal": null,
+      "tests": 1,
+      "pass": 1,
+      "fail": 0,
+      "skipped": 0,
+      "cancelled": 0,
+      "observedFailure": false,
+      "log": "/workspace/artifacts/ahavat-native-source-fix-20261030-i85M6O/acceptance-close/ahavat-public-reading-2029.browser.test.mjs.log"
+    },
+    {
+      "file": "ahavat-torah-native-source-return-2029.browser.test.mjs",
+      "code": 0,
+      "signal": null,
+      "tests": 1,
+      "pass": 1,
+      "fail": 0,
+      "skipped": 0,
+      "cancelled": 0,
+      "observedFailure": false,
+      "log": "/workspace/artifacts/ahavat-native-source-fix-20261030-i85M6O/acceptance-close/ahavat-torah-native-source-return-2029.browser.test.mjs.log"
+    },
+    {
+      "file": "ahavat-torah-parasha-counts-2029.browser.test.mjs",
+      "code": 0,
+      "signal": null,
+      "tests": 1,
+      "pass": 1,
+      "fail": 0,
+      "skipped": 0,
+      "cancelled": 0,
+      "observedFailure": false,
+      "log": "/workspace/artifacts/ahavat-native-source-fix-20261030-i85M6O/acceptance-close/ahavat-torah-parasha-counts-2029.browser.test.mjs.log"
+    }
+  ],
+  "physicalPageRaster": {
+    "pages": 99,
+    "nearestPhysicalPageCorrect": 99,
+    "maximumNormalizedError": 0.03842901092728758,
+    "unchangedErrorBound": 0.08,
+    "independentDecoder": "Poppler pdftoppm"
+  },
+  "sourceMatrix": {
+    "contexts": 9,
+    "widths": [
+      320,
+      390,
+      1440
+    ],
+    "themes": [
+      "light",
+      "parchment",
+      "dark"
+    ],
+    "actualPages": true,
+    "sourceAborted": false,
+    "servicesMocked": true,
+    "physicalDevices": false
+  },
+  "builds": [
+    {
+      "kind": "normal",
+      "status": "PASS",
+      "eagerJsGzipBytes": 380361
+    },
+    {
+      "kind": "flags",
+      "status": "PASS",
+      "eagerJsGzipBytes": 377513
+    },
+    {
+      "kind": "integrated",
+      "status": "PASS",
+      "eagerJsGzipBytes": 377879
+    }
+  ],
+  "sourceHash": "895e9a720d984adf8ea453b644e3f6d0864e101238f348f418aa5fafa20e9c8b",
+  "sourceDataPreserved": true,
+  "canonicalEngineRun": false,
+  "dependency": {
+    "name": "pdfjs-dist",
+    "version": "6.4.299",
+    "lazy": true
+  },
+  "remaining": {
+    "selectedExplanations": 267,
+    "explainedNonblankPages": 98,
+    "pdfPages": 99,
+    "blankPhysicalPage": 45,
+    "unresolvedNumericReadings": 24,
+    "cumulativeCheckpoints": 2,
+    "exhaustiveParagraphCommentary": false,
+    "safariPhysicalDeviceAcceptance": false,
+    "universalSpatialContractAcceptance": false,
+    "centralIntegration": false,
+    "publicRelease": false
+  },
+  "scope": {
+    "legacyChanged": false,
+    "mainOrCentralMerged": false,
+    "productionDeployment": false,
+    "dbOrPermissionsWrite": false,
+    "publicationStateChanged": false,
+    "liveJournalWritten": false
+  },
+  "preparedAt": "2026-10-30T05:57:18.251Z",
+  "testCheckpoint": "a8e03ff04cbe0fb5a24319d0f1542cf9148e5680",
+  "acceptedSourcePartitionsAt": "50fe3c2e8acc47add9ac9379d2854965ed6b26a4",
+  "testLayers": {
+    "physicalSourceAndInteraction": "completed PDF page raster, no requested-state fallback",
+    "originalUiOnly": "deliberately aborted witness; requested URL/state and no painted-page claim",
+    "hosted": "separate real-HTTPS verification required before the final share link"
+  }
+}

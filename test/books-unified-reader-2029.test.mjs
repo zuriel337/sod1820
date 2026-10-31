@@ -22,6 +22,9 @@ test("reader is wired into the canonical book detail and preview-only control su
     readFile(new URL("src/App2029.jsx", ROOT), "utf8"),
   ]);
   assert.match(booksPage, /<BookSourceReader2029 manifest=\{readerManifest\}/);
+  assert.match(booksPage, /previewBookForManifest/);
+  assert.match(booksPage, /previewOnly && readerManifest/);
+  assert.match(booksPage, /previewOnly=\{Boolean\(previewSlug\)\}/);
   assert.match(app, /surface\"\) === \"books-unified-reader\"/);
   assert.match(app, /bookPublicationReviewPreviewEnabled && unifiedBooksReaderRequested/);
 });

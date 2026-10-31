@@ -1,0 +1,303 @@
+{
+  "task": "AHAVAT_PARASHA_LETTER_ATLAS_20261029",
+  "actor": "GPT",
+  "recipient": "ZURIEL",
+  "branch": "codex/ahavat-parasha-letter-atlas-20261029",
+  "base": "d03c5b47c24ee49c7d7f3243135b81c28d2b9513",
+  "runtimeHead": "d1d6e9861592ba9872ebb957da70a747aca4ce5d",
+  "qaHead": "612979647ff16e2b0a092b7e862c0cedd417d481",
+  "deliveryHead": "See the git commit containing this artifact; exact remote/deployment HEAD is in the external final handoff.json",
+  "status": "IMPLEMENTED / FULL LOCAL ACCEPTANCE PASSED / BRANCH ONLY",
+  "integration": false,
+  "productionChange": false,
+  "sourceDataChanged": false,
+  "canonicalEngineRun": false,
+  "visualAdoptionConfirmed": false,
+  "files": [
+    "src/pages/AhavatTorahSystem2029Page.jsx",
+    "src/components/books2029/AhavatParashaLetterAtlas2029.jsx",
+    "src/components/books2029/AhavatLetterParasha2029.jsx",
+    "src/components/books2029/ahavatLetterJourney2029.js",
+    "src/components/books2029/ahavatLetterStudy2029.css",
+    "test/ahavat-parasha-letter-atlas-2029.test.mjs",
+    "test/ahavat-parasha-letter-atlas-2029.browser.test.mjs",
+    "test/ahavat-letter-guided-exploration-2029.browser.test.mjs",
+    "docs/research-notes/AHAVAT_PARASHA_LETTER_ATLAS_20261029.md",
+    "docs/research-notes/ahavat-parasha-atlas-20261029/acceptance.json",
+    "docs/research-notes/ahavat-parasha-atlas-20261029/atlas-390-parchment.png",
+    "docs/research-notes/ahavat-parasha-atlas-20261029/atlas-1440-parchment.png",
+    "docs/research-notes/ahavat-parasha-atlas-20261029/nun-source-candidate-pdf38.png",
+    "test/ahavat-count-spatial-source-2029.browser.test.mjs"
+  ],
+  "source": {
+    "identity": "book:hebrewbooks:5635",
+    "pdfPages": 99,
+    "pdfSha256": "895e9a720d984adf8ea453b644e3f6d0864e101238f348f418aa5fafa20e9c8b",
+    "forms": 28,
+    "parashot": 54,
+    "reusedRows": 1512,
+    "missingNumericRowsUnchanged": 24,
+    "missingCumulativeCheckpointsUnchanged": 2,
+    "existingCompanionUnitsUnchanged": 267,
+    "initialPageGuidesUnchanged": 99,
+    "ocrPagesUnchanged": 98
+  },
+  "acceptance": {
+    "nonBrowserPassed": 417,
+    "browserFinalPerCasePassed": 19,
+    "partitions": [
+      1,
+      11,
+      5,
+      2
+    ],
+    "oneCleanMonolithicRun": false,
+    "finalSkipped": 0,
+    "finalCancelled": 0,
+    "atlasContexts": 9,
+    "widths": [
+      320,
+      390,
+      1440
+    ],
+    "themes": [
+      "light",
+      "parchment",
+      "dark"
+    ],
+    "acceptedCases": [
+      {
+        "file": "test/ahavat-parasha-letter-atlas-2029.browser.test.mjs",
+        "exit": 0,
+        "signal": null,
+        "tests": 1,
+        "passed": 1,
+        "failed": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "log": "/workspace/artifacts/ahavat-parasha-atlas-20261029/acceptance-readable-final/ahavat-parasha-letter-atlas-2029.browser.test.mjs.log"
+      },
+      {
+        "file": "test/ahavat-count-spatial-source-2029.browser.test.mjs",
+        "exit": 0,
+        "signal": null,
+        "tests": 5,
+        "passed": 5,
+        "failed": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "log": "/workspace/artifacts/ahavat-parasha-atlas-20261029/acceptance-settled-regressions-final/ahavat-count-spatial-source-2029.browser.test.mjs.log"
+      },
+      {
+        "file": "test/ahavat-letter-continuous-study-2029.browser.test.mjs",
+        "exit": 0,
+        "signal": null,
+        "tests": 1,
+        "passed": 1,
+        "failed": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "log": "/workspace/artifacts/ahavat-parasha-atlas-20261029/acceptance-settled-regressions-final/ahavat-letter-continuous-study-2029.browser.test.mjs.log"
+      },
+      {
+        "file": "test/ahavat-letter-guided-exploration-2029.browser.test.mjs",
+        "exit": 0,
+        "signal": null,
+        "tests": 1,
+        "passed": 1,
+        "failed": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "log": "/workspace/artifacts/ahavat-parasha-atlas-20261029/acceptance-settled-regressions-final/ahavat-letter-guided-exploration-2029.browser.test.mjs.log"
+      },
+      {
+        "file": "test/ahavat-letter-spatial-acceptance-2029.browser.test.mjs",
+        "exit": 0,
+        "signal": null,
+        "tests": 4,
+        "passed": 4,
+        "failed": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "log": "/workspace/artifacts/ahavat-parasha-atlas-20261029/acceptance-settled-regressions-final/ahavat-letter-spatial-acceptance-2029.browser.test.mjs.log"
+      },
+      {
+        "file": "test/ahavat-letter-visual-workspace-2029.browser.test.mjs",
+        "exit": 0,
+        "signal": null,
+        "tests": 1,
+        "passed": 1,
+        "failed": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "log": "/workspace/artifacts/ahavat-parasha-atlas-20261029/acceptance-final-readers/ahavat-letter-visual-workspace-2029.browser.test.mjs.log"
+      },
+      {
+        "file": "test/ahavat-torah-reader-units-2029.browser.test.mjs",
+        "exit": 0,
+        "signal": null,
+        "tests": 1,
+        "passed": 1,
+        "failed": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "log": "/workspace/artifacts/ahavat-parasha-atlas-20261029/acceptance-final-readers/ahavat-torah-reader-units-2029.browser.test.mjs.log"
+      },
+      {
+        "file": "test/ahavat-torah-source-tables-2029.browser.test.mjs",
+        "exit": 0,
+        "signal": null,
+        "tests": 1,
+        "passed": 1,
+        "failed": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "log": "/workspace/artifacts/ahavat-parasha-atlas-20261029/acceptance-final-readers/ahavat-torah-source-tables-2029.browser.test.mjs.log"
+      },
+      {
+        "file": "test/ahavat-torah-spatial-tables-2029.browser.test.mjs",
+        "exit": 0,
+        "signal": null,
+        "tests": 1,
+        "passed": 1,
+        "failed": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "log": "/workspace/artifacts/ahavat-parasha-atlas-20261029/acceptance-final-readers/ahavat-torah-spatial-tables-2029.browser.test.mjs.log"
+      },
+      {
+        "file": "test/books-unified-reader-2029.browser.test.mjs",
+        "exit": 0,
+        "signal": null,
+        "tests": 1,
+        "passed": 1,
+        "failed": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "log": "/workspace/artifacts/ahavat-parasha-atlas-20261029/acceptance-final-readers/books-unified-reader-2029.browser.test.mjs.log"
+      },
+      {
+        "file": "test/books-wide-dual-experience-2029.browser.test.mjs",
+        "tests": 2,
+        "passed": 2,
+        "failed": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "log": "/workspace/artifacts/ahavat-parasha-atlas-20261029/wide-isolated-final.log",
+        "head": "612979647ff16e2b0a092b7e862c0cedd417d481"
+      }
+    ],
+    "language": 3,
+    "authGuard": 4,
+    "builds": [
+      "normal 2029 PASS",
+      "two Preview flags PASS",
+      "actual integrated Preview PASS"
+    ],
+    "graphEagerGzipBytes": {
+      "normal": 379579,
+      "twoFlags": 376886,
+      "integrated": 377255
+    },
+    "budgetRaised": false,
+    "legacyLock": "PASS",
+    "sourceIsolation": "PASS",
+    "cheapHardening": "PASS",
+    "services": "Local application-service stubs; exact source PDF bytes rendered natively; no physical-device claim",
+    "hosted": "Not pre-claimed: exact pushed-HEAD protected Preview and no-mock/TLS/native-source matrix recorded separately",
+    "runStartedAt": "2026-10-29T21:19:49.135Z",
+    "runFinishedAt": "2026-10-29T21:57:49.276Z",
+    "sourceNumeralsOneLineInsideEveryCard": true,
+    "priorPartitionedAcceptance": {
+      "runtimeHead": "1cff3152190e8cc889b9bd754ca2419ce606dcd3",
+      "qaHead": "d7e704b58b2630522c55c948e3f5c77930a09817",
+      "partitions": [
+        7,
+        1,
+        11
+      ],
+      "status": "historical; superseded by final full run"
+    }
+  },
+  "export": {
+    "file": "ahavat-torah-all-parasha-letters.csv",
+    "identity": "book:hebrewbooks:5635",
+    "forms": 28,
+    "parashot": 54,
+    "rows": 1512,
+    "uniqueCanonicalUnitIds": 1512,
+    "missingNumericCellsPreserved": 24,
+    "order": "Existing source parasha order, then existing printed letter-form order",
+    "csvEncoding": "UTF-8 BOM / CRLF / quoted cells",
+    "csvSha256": "a4dc9ba83904823d3b2c906ac1e7afd1e8f8a5960b339066a91d10c72a62b2b5",
+    "pdfSha256": "895e9a720d984adf8ea453b644e3f6d0864e101238f348f418aa5fafa20e9c8b",
+    "sourceDataSha256": "29a32e791cd930cf7e0efbfe1347951b4f2b174541fa89d6af9ee686dd94071e",
+    "readerRuntimeHead": "1cff3152190e8cc889b9bd754ca2419ce606dcd3",
+    "status": "Existing source readings copied unchanged; not a new transcription or engine result",
+    "canonicalEngineRun": false,
+    "totalsRanksPercentagesAdded": false,
+    "sourceDataChanged": false,
+    "dbWrites": false,
+    "publicPublication": false,
+    "verifiedAgainstRuntimeHead": "d1d6e9861592ba9872ebb957da70a747aca4ce5d"
+  },
+  "sourceReview": {
+    "identity": "book:hebrewbooks:5635",
+    "pdfSha256": "895e9a720d984adf8ea453b644e3f6d0864e101238f348f418aa5fafa20e9c8b",
+    "physicalPdfPage": 38,
+    "printedPageLabel": null,
+    "unitId": "letter-row:נ:bereshit:ויחי",
+    "form": "נ",
+    "parasha": "ויחי",
+    "currentPrinted": "?",
+    "currentNumeric": null,
+    "proposedPrintedCandidate": "קמ״ו",
+    "proposedNumeric": null,
+    "status": "UNADOPTED_VISUAL_READING_CANDIDATE",
+    "note": "Tentative glyph reading from the nun paragraph, not a canonical transcription or numeric adjudication. The PDF and existing null remain authoritative for the shipped reader. Neighboring known rows were used to locate the paragraph, never to balance a sum.",
+    "crop": {
+      "file": "pdf-38-nun.png",
+      "dpi": 300,
+      "x": 220,
+      "y": 890,
+      "width": 670,
+      "height": 740,
+      "method": "direct pdftoppm rendering from the hash-checked PDF, without generative edits"
+    },
+    "reviewedUnresolvedNunLoci": [
+      "letter-row:נ:bereshit:ויחי",
+      "letter-row:נ:shemot:ויקהל",
+      "letter-row:נ:bamidbar:במדבר"
+    ],
+    "otherTwoReadingsAdjudicated": false,
+    "ordinaryMemCropExcludedFromFinalMemEvidence": true,
+    "sourceDataChanged": false,
+    "remainingNullRows": 24,
+    "canonicalEngineRun": false,
+    "humanReviewRequiredBeforeAdoption": true,
+    "committedCrop": "docs/research-notes/ahavat-parasha-atlas-20261029/nun-source-candidate-pdf38.png",
+    "cropSha256": "8ec5797f442705557d297cc1317598bac70ffe5b50e44f97507f08e505f90318"
+  },
+  "retainedFailures": {
+    "earlyAtlas": "Pointer/focus races diagnosed. Native preventScroll, uncovered hit tests, exact source-return completion, real input retained all assertions; no force/timeouts raised. Diagnostic-only anchor exclusion reverted.",
+    "sessionInterruption": "Eight context messages without terminal result were not accepted; durable runner restarted.",
+    "initialGuided": "First native PDF page-36 readiness failure retained, cause not established. Unchanged isolated initial page passed but exposed old unfocused selectOption/camera scroll race.",
+    "guidedCorrection": "QA-only focused select, trusted centered hit-tested clicks and exact return focus; no runtime change from this correction.",
+    "numeralReadability": "Visual review of the first receipt exposed wrapped three-digit values in narrow desktop cards. Scoped dd no-wrap/no-shrink fixes this without changing values/font sizes. A strict one-line/in-card range geometry assertion was added. Its first measurement selected a null-label wrapper and counted the same rectangle twice; text-node contents are now measured, preserving the single-line/in-card assertion. Both failed diagnostic logs remain retained; all final accepted cases pass.",
+    "countRegression": "The final-runtime atlas passed all nine contexts. A subsequent existing count regression stopped after automation fill() and competing scrolls left its missing-row source button under fixed chrome. QA-only real pointer focus + keyboard input + uncovered centered source click preserve every count/source assertion and timeout. A diagnostic then recorded the search field outside the viewport after one centering step (y=1732). The helper re-centers across at most eight two-frame layout steps, still requires a real uncovered target, and never force-clicks. The dedicated nine-context diagnostic passed. Prior failed count cases are retained and excluded; final corrected count case passes all nine contexts. Product runtime is unchanged.",
+    "initialVisualPdf": "After eleven accepted regression cases, unchanged visual-workspace QA timed out at its first physical page-35 native PDF check, before new atlas usage. This initial native-viewer failure has also occurred before this follow-up. The original failure is retained; cause is unresolved. The same unmodified visual case and remaining readers were then run separately, with the same assertions/timeouts. There is no claim of one clean monolithic run or elimination of the native-viewer flake.",
+    "wideLocalTransport": "After all Ahavat and eight of nine Yetzirah viewport/theme combinations, the unchanged wide QA received ECONNRESET from its local Vite 2029.html request. Native real-PDF case passed in that same failed file. The original transport failure is retained and excluded; the unchanged wide file then passed both cases in isolation. No assertion, timeout, source or server configuration was changed. PID cgroup has no cap and ample free memory; root cause remains unresolved."
+  },
+  "ownership": "Local release at delivery only; verified live journal is readonly, no live BEFORE/AFTER/dispatch/ACK fabricated",
+  "remaining": [
+    "Human visual adoption",
+    "24 source numeral readings and two cumulative checkpoints remain unadjudicated",
+    "Nun/Vayechi glyph candidate is not adopted or converted",
+    "Broader book explanation/other structures not claimed complete",
+    "Canonical engine not run; approved source display remains available",
+    "Physical-device/Safari testing not performed",
+    "Central/main integration and publication not performed",
+    "Intermittent local native PDF first-load readiness failure remains unexplained; passing isolated and hosted acceptance do not prove it eliminated",
+    "One local Vite HTTP ECONNRESET in wide QA remains unexplained; isolated acceptance does not claim elimination"
+  ]
+}

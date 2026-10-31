@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head><meta charset="utf-8"><title>Source component resource acceptance</title></head>
+<body>
+  <div id="root" style="width:390px;height:700px"></div>
+  <script type="module">
+    import React from "react";
+    import { createRoot } from "react-dom/client";
+    import { MemoryRouter } from "react-router-dom";
+    import Pdf from "../../src/components/books2029/BookPdfPage2029.jsx";
+    import { getBookReaderManifest } from "../../src/data/bookReader2029.js";
+    const root = createRoot(document.getElementById("root"));
+    window.unmountBookSource = () => root.render(null);
+    root.render(React.createElement(MemoryRouter, null, React.createElement(Pdf, { manifest: getBookReaderManifest("ahavat-torah"), page: 36 })));
+  </script>
+</body>
+</html>
