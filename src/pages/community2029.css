@@ -171,6 +171,8 @@ html[data-theme-preset="parchment"] .sod29-community--artwork{--community-art-op
 .sod29-community-card-close{position:absolute;top:10px;inset-inline-end:12px;width:44px;min-height:44px;border:0;background:transparent;color:var(--s29-ink);font-size:28px!important}
 .sod29-community-card-header{display:grid;justify-items:center;gap:5px;text-align:center;padding:24px 0 18px}
 .sod29-community-card-header .sod29-community-avatar{width:84px;height:84px;font-size:32px}
+.sod29-community-card-avatar-edit{position:relative;display:grid;justify-items:center;align-items:start;width:84px;height:84px}
+.sod29-community-card-avatar-edit:has(.qa29){width:112px;height:128px}
 .sod29-community-card-header h2{margin:7px 0 0;font-family:var(--s29-font-ui);font-size:25px}
 .sod29-community-card-header p{margin:0;color:var(--s29-muted);font-size:14px}
 .sod29-community-card-header strong{margin-top:12px;color:var(--s29-accent-text);font-size:15px}

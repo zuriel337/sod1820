@@ -4,6 +4,7 @@ import { getPublicResearchClient } from "../src/lib/research/researchViewMode.js
 import { publicContributorRank, validContributorKey } from "../src/components/contributor2029/contributorRank2029Model.js";
 import { publicContributorAvatar, safePublicUrl } from "../src/components/contributor2029/publicContributor2029Model.js";
 import { publicWriterVisible } from "../src/lib/userCenter/writerPersonal2029.js";
+import { ownedProfileAvatarUrl } from "../src/lib/userCenter/avatarPolicy.js";
 const privateClient = (token) => createClient(SUPABASE_URL, SUPABASE_ANON, { auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false }, global: { headers: { Authorization: `Bearer ${token}` } } });
 const reply = (res, code, state) => res.status(code).json({ state });
 const number = (value) => value !== null && value !== undefined && Number.isFinite(Number(value)) ? Number(value) : null;
@@ -15,13 +16,14 @@ async function boundWriter(client, uid) {
   return error || !Array.isArray(data) ? { state: "unavailable" } : data.length > 1 ? { state: "ambiguous" }
     : data.length ? { state: "ready", row: data[0] } : { state: "unlinked" };
 }
-export function contributorSelfHandler({ authenticatedClient = privateClient, publicClient = getPublicResearchClient, previewReadOnly = process.env.VERCEL_ENV === "preview" } = {}) {
+export function contributorSelfHandler({ authenticatedClient = privateClient, publicClient = getPublicResearchClient, previewReadOnly = process.env.VERCEL_ENV === "preview", avatarUpdates = !previewReadOnly } = {}) {
   return async (req, res) => {
     res.setHeader("Cache-Control", "private, no-store"); res.setHeader("Vary", "Authorization");
     res.setHeader("X-Robots-Tag", "noindex, nofollow, noarchive"); res.setHeader("X-Content-Type-Options", "nosniff");
     if (!["GET", "POST"].includes(req.method)) { res.setHeader("Allow", "GET, POST"); return reply(res, 405, "unavailable"); }
     if (previewReadOnly) res.setHeader("X-Preview-Read-Only", "true");
-    if (previewReadOnly && req.method === "POST") {
+    if (previewReadOnly) res.setHeader("X-Preview-Avatar-Updates", avatarUpdates ? "true" : "false");
+    if (previewReadOnly && req.method === "POST" && !(avatarUpdates && req.body?.action === "avatar")) {
       res.setHeader("X-Preview-Write-Blocked", "true");
       return reply(res, 403, "preview_read_only");
     }
@@ -53,6 +55,19 @@ export function contributorSelfHandler({ authenticatedClient = privateClient, pu
         return matched ? res.status(200).json({ state: "ready", counterpart: matched.user_id, writerHref: contributorHref(matched) }) : reply(res, 404, "not_found");
       }
       const bound = await boundWriter(client, uid);
+      if (req.method === "POST" && req.body?.action === "avatar") {
+        if (!avatarUpdates || req.body.ack !== true || req.body.publish !== true
+            || Object.keys(req.body).some(key => !["action", "ack", "publish", "url"].includes(key))) return reply(res, 400, "invalid");
+        const url = ownedProfileAvatarUrl(req.body.url, uid, SUPABASE_URL);
+        if (!url) return reply(res, 400, "invalid");
+        if (!["ready", "unlinked"].includes(bound.state)) return reply(res, 409, "unavailable");
+        const { data: saved, error } = await client.from("users").update({ avatar_url: url }).eq("id", uid).select("id,avatar_url").maybeSingle();
+        if (error || saved?.id !== uid || saved.avatar_url !== url) return reply(res, 503, "unavailable");
+        // Reuse the existing caller-derived dossier primitive and public-photo
+        // consent. It may establish the caller's first canonical self-dossier.
+        const publication = await client.rpc("update_my_dossier", { p_settings: { public_avatar: { enabled: true, url } } });
+        return !publication.error && publication.data?.ok === true ? reply(res, 200, "saved") : reply(res, 200, "account_saved");
+      }
       if (req.method === "GET") {
         const [account, rank, stats] = await Promise.allSettled([
           client.from("users").select("avatar_url").eq("id", uid).maybeSingle(),
@@ -61,7 +76,7 @@ export function contributorSelfHandler({ authenticatedClient = privateClient, pu
         ]);
         const value = (result) => result.status === "fulfilled" && !result.value.error ? result.value.data : null;
         const row = bound.row, privateStats = value(stats);
-        return res.status(200).json({ state: "ready", writer: row ? { state: "ready", slug: row.slug, name: row.display_name, bio: row.bio || "",
+        return res.status(200).json({ state: "ready", capabilities: { avatarUpdate: avatarUpdates && ["ready", "unlinked"].includes(bound.state) }, writer: row ? { state: "ready", id: row.id, slug: row.slug, name: row.display_name, bio: row.bio || "",
           href: contributorHref(row), publicVisible: publicWriterVisible(row), avatar: publicContributorAvatar(row) } : { state: bound.state },
           accountAvatar: safePublicUrl(value(account)?.avatar_url), rank: publicContributorRank({ state: "ready", ...value(rank) }),
           stats: privateStats ? { xp: number(privateStats.xp), credits: number(privateStats.credits), streak: number(privateStats.streak), tier: typeof privateStats.tier === "string" ? privateStats.tier.slice(0, 60) : null } : null });

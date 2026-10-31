@@ -4,6 +4,7 @@ import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { readFile, writeFile, copyFile, mkdir } from "node:fs/promises";
 import { COMMUNITY_UPLOAD_POLICY } from "../src/lib/community/communityUploadPolicy.js";
+import { AVATAR_UPLOAD_POLICY } from "../src/lib/userCenter/avatarPolicy.js";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 const output = resolve(root, "preview-deploy/dist");
@@ -38,6 +39,7 @@ const unifiedReadOnly=${JSON.stringify(unifiedReadOnly || communityMessageManage
 const communityMessageManagement=${JSON.stringify(communityMessageManagement)};
 const communityPublishing=${JSON.stringify(communityPublishing)};
 const uploadPolicy=${JSON.stringify(COMMUNITY_UPLOAD_POLICY)};
+const avatarPolicy=${JSON.stringify(AVATAR_UPLOAD_POLICY)};
 const communityFields=${JSON.stringify(communityFields)};
 const communityReads=new Set(['community_feed_page','community_message_context']);
 const authOrigin='https://linswmnnkjxvweumprav.supabase.co';
@@ -46,6 +48,33 @@ self.addEventListener('activate',event=>event.waitUntil(self.clients.claim()));
 self.addEventListener('fetch',event=>{
  const req=event.request,u=new URL(req.url),rpc=u.pathname.match(/^\\/rest\\/v1\\/rpc\\/(.+)$/)?.[1];
  if(req.method==='OPTIONS')return;
+ const avatarStorage=u.origin===authOrigin&&u.pathname.startsWith('/storage/v1/object/gallery/avatars/')&&!['GET','HEAD'].includes(req.method);
+ const avatarSave=u.origin===self.location?.origin&&u.pathname==='/api/contributor-self'&&req.method==='POST';
+ if(avatarStorage||avatarSave){
+  event.respondWith((async()=>{
+   const blocked=()=>new Response(JSON.stringify({error:'preview_read_only'}),{status:403,headers:{'Content-Type':'application/json','X-Preview-Write-Blocked':'true'}});
+   const bearer=req.headers.get('Authorization')||'';
+   if(!communityPublishing||req.method!=='POST'||u.search||!/^Bearer [A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+$/i.test(bearer))return blocked();
+   try{
+    if(avatarSave){
+     const b=await req.clone().json();
+     if(!b||typeof b!=='object'||Object.keys(b).sort().join(',')!=='ack,action,publish,url'||b.action!=='avatar'||b.ack!==true||b.publish!==true||typeof b.url!=='string')return blocked();
+     const image=new URL(b.url);
+     if(image.origin!==authOrigin||image.search||image.hash||image.username||image.password||!/^\\/storage\\/v1\\/object\\/public\\/gallery\\/avatars\\/[0-9a-f-]{36}-[0-9]{13}\\.(jpg|jpeg|png|webp|gif)$/.test(image.pathname))return blocked();
+     return fetch(req); // The canonical self handler verifies caller + URL ownership.
+    }
+    const path=/^\\/storage\\/v1\\/object\\/gallery\\/avatars\\/([0-9a-f-]{36})-[0-9]{13}\\.(jpg|jpeg|png|webp|gif)$/.exec(u.pathname);
+    if(!path||req.headers.get('x-upsert')!=='false'||!req.headers.get('Content-Type')?.startsWith('multipart/form-data;'))return blocked();
+    const form=await req.clone().formData();if([...form.keys()].some(k=>!['','cacheControl'].includes(k))||form.getAll('').length!==1)return blocked();
+    const file=form.get(''),extensions=avatarPolicy.types[file?.type?.toLowerCase()];
+    if(!extensions?.includes(path[2])||!(file.size>0)||file.size>avatarPolicy.maxBytes)return blocked();
+    const identity=await fetch(authOrigin+'/auth/v1/user',{headers:{apikey:req.headers.get('apikey')||'',Authorization:bearer},credentials:'omit'});
+    if(!identity.ok||(await identity.json())?.id!==path[1])return blocked();
+    return fetch(req);
+   }catch{}
+   return blocked();
+  })());return;
+ }
  const publishRpc=['add_contribution','toggle_contribution_reaction','contributors_claim_legacy'].includes(rpc);
  const communityUpload=u.origin===authOrigin&&u.pathname.startsWith('/storage/v1/object/gallery/community/');
  if(u.origin===authOrigin&&(publishRpc||communityUpload&&req.method!=='GET'&&req.method!=='HEAD')){
