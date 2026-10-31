@@ -17,7 +17,7 @@ const clean = (value) => value == null ? "" : String(value).trim();
 // Preserve their wording, colors and media; no association is engine-verified
 // here. Each operand opens its own canonical Number calculation.
 function markLegacyEqualityLines(content = "") {
-  const operand = (text, numeric = false) => `<button type="button" class="${numeric ? "sod29-gematria-value" : "sod29-gematria-expression"}" data-gem="${text.trim().replace(/&/g, "&amp;").replace(/"/g, "&quot;")}">${text.trim()}</button>`;
+  const operand = (text, numeric = false) => `<button type="button" class="${numeric ? "sod29-gematria-value" : "sod29-gematria-expression"}" data-post-equality-operand="true" data-gem="${text.trim().replace(/&/g, "&amp;").replace(/"/g, "&quot;")}">${text.trim()}</button>`;
   const hebrew = '[א-ת][א-ת\\u0591-\\u05C7 ״׳"\\x27-]{0,70}';
   const forward = new RegExp('(^|>|\\n)(' + hebrew + ')\\s*=\\s*(<span\\b[^>]*>)?(\\d{1,9})(<\\/span>)?(?:\\s*=\\s*(' + hebrew + '))?(?=\\s*(?:<br\\b|<\\/(?:p|h[1-6]|div)>|$))', 'g');
   const reverse = new RegExp('(^|>|\\n)(\\d{1,9})\\s*=\\s*(' + hebrew + ')(?=\\s*(?:<br\\b|<\\/(?:p|h[1-6]|div)>|$))', 'g');
@@ -912,6 +912,86 @@ const exactPostValue = value => {
   return Number.isSafeInteger(n) ? n : null;
 };
 
+// Compatibility reading of an explicitly authored legacy marking. This reads
+// bounded equality syntax, not narrative meanings, tags, OCR or engine matches.
+// Method names stay verbatim; only the canonical profile resolves their identity.
+function legacyCalculationTuple(node) {
+  const line = node.closest("p,div,li,td,h2,h3,h4,h5,h6");
+  if (!line) return { method: null, value: null };
+  const copy = line.cloneNode(true);
+  const markings = [...line.querySelectorAll("[data-gem]")];
+  const selected = markings.indexOf(node);
+  if (selected < 0) return { method: null, value: null };
+  [...copy.querySelectorAll("[data-gem]")].forEach((item, index) => item.replaceWith(`\uFFF0${index}\uFFF1`));
+  const marker = `\uFFF0${selected}\uFFF1`;
+  const text = copy.textContent;
+  const suffix = text.slice(text.indexOf(marker) + marker.length);
+  // A chain may share one value/method; a middle dot starts a separate claim.
+  const equality = suffix.match(/^\s*(?:=\s*\uFFF0\d+\uFFF1\s*)*=\s*(\d+)\s*(?:\(([^)]+)\))?(?=\s*(?:$|[·,.;]))/);
+  if (equality?.[2]) return { method: clean(equality[2]), value: exactPostValue(equality[1]) };
+  const header = element => {
+    if (!element || element.contains(node) || element.querySelector("[data-gem],p,div,li,table")) return null;
+    const label = clean(element.textContent);
+    // A documented group label may give both method and value.
+    const group = label.match(/^([^=()]+?)(?:\s*\([^)]*\))?\s*=\s*(\d+)$/);
+    if (group) return { method: clean(group[1]), value: exactPostValue(group[2]) };
+    // Explicit alias declarations such as «משולש» (קדמי): ... .
+    const alias = label.match(/^«[^»]+»\s*\(([^)]+)\)\s*:/);
+    if (alias) return { method: clean(alias[1]), value: null };
+    const caption = label.match(/\(([^)]+)\)\s*$/);
+    return caption ? { method: clean(caption[1]), value: null } : null;
+  };
+  const local = header(line.previousElementSibling) || header(line.parentElement?.firstElementChild);
+  // Group lists must consist only of authored markings and separators. A nearby
+  // group heading does not assign a method/value to prose inside that group.
+  const isList = /^\s*\uFFF0\d+\uFFF1(?:\s*·\s*\uFFF0\d+\uFFF1)*\s*$/.test(text);
+  if (local && (equality || isList)) return { method: local.method, value: equality ? exactPostValue(equality[1]) : local.value };
+  return { method: null, value: equality ? exactPostValue(equality[1]) : null };
+}
+
+export async function collectPostLegacyOccurrences2029(sourcePost, root) {
+  if (!isPublicPostMeasureSource(sourcePost) || !root?.ownerDocument) return [];
+  const template = root.ownerDocument.createElement("template");
+  template.innerHTML = String(sourcePost.content || "");
+  const savedMarkings = "[data-gem]:not([data-post-equality-operand]):not([data-post-number-link])";
+  const saved = [...template.content.querySelectorAll(savedMarkings)];
+  const rendered = [...root.querySelectorAll(savedMarkings)];
+  // Do not attach a saved position to markings added by a presentation adapter.
+  if (saved.length !== rendered.length || saved.some((node, index) =>
+    node.getAttribute("data-gem") !== rendered[index].getAttribute("data-gem")
+    || node.textContent !== rendered[index].textContent)) return [];
+  const bytes = new TextEncoder().encode(String(sourcePost.content || ""));
+  const digest = [...new Uint8Array(await globalThis.crypto.subtle.digest("SHA-256", bytes))]
+    .map(byte => byte.toString(16).padStart(2, "0")).join("");
+  return saved.flatMap((node, index) => {
+    const expression = node.getAttribute("data-gem");
+    if (!expression?.trim() || node.textContent !== expression || /^\d[\d,]*$/.test(expression.trim())
+      || node.closest("script,style,template,pre,code,[hidden],[aria-hidden='true']")) return [];
+    const target = rendered[index];
+    // This is a presentation locator bound to the exact source snapshot, not a
+    // claimed source-native section or a persisted research-object identity.
+    const anchor = target.id || `post-legacy-${digest}-${index}`;
+    if ([...root.querySelectorAll("[id]")].some(other => other !== target && other.id === anchor)) return [];
+    if (!target.id) { target.id = anchor; target.dataset.postPresentationAnchor = "true"; }
+    const tuple = legacyCalculationTuple(node);
+    return [{ id: `posts:${sourcePost.id}:${anchor}`, expression, ...tuple, methodVersion: null,
+      sourceRef: `posts:${sourcePost.id}`, sourceVersion: clean(sourcePost.modified) || null,
+      locator: `#${anchor}`, locatorPrecision: node.id ? "occurrence" : "snapshot_bound_occurrence",
+      sourceOrdinal: index, sourceDigest: digest, binding: "saved_legacy_marking", lang: sourcePost.lang || null }];
+  });
+}
+
+async function sourceContainsLegacyCalculation(sourcePost, claim, sourceDocument) {
+  if (!sourceDocument?.createElement) return false;
+  try {
+    const root = sourceDocument.createElement("div");
+    root.innerHTML = String(sourcePost.content || "");
+    const occurrences = await collectPostLegacyOccurrences2029(sourcePost, root);
+    return occurrences.some(row => ["expression", "method", "value", "locator", "sourceOrdinal", "sourceDigest"]
+      .every(key => row[key] === claim[key]) && claim.methodVersion === null);
+  } catch { return false; }
+}
+
 function sourceContainsPostCalculation(sourcePost, claim) {
   if (!claim) return false;
   // Attribute-level witness only, not semantic extraction from prose or OCR.
@@ -1036,18 +1116,20 @@ export async function readPostConvergencePage2029(sourcePost, {
 }
 
 export async function checkPostCalculation2029(sourcePost, claim, {
-  client = supabase, profileReader = null, traceReader = null, checkSteps = false, sourceProjection = null,
+  client = supabase, profileReader = null, traceReader = null, checkSteps = false, sourceProjection = null, sourceDocument = globalThis.document || null,
 } = {}) {
   const access = await revalidatePostMeasureSource(sourcePost, { client });
   if (access.status !== "ready") return access;
   const savedWitness = claim?.binding === "saved_text_annotation" && sourceContainsPostCalculation(access.source, claim);
+  const legacyWitness = claim?.binding === "saved_legacy_marking"
+    && await sourceContainsLegacyCalculation(access.source, claim, sourceDocument);
   // The pre-existing Golden adapters already locate/verify explicit authored
   // equalities. Keep that route, with distinct provenance; it is not OCR or a tag.
   const projectedWitness = claim?.binding === "existing_reviewed_post_projection"
     && sourceProjection?.sourcePost === sourcePost && sourceProjection.golden === true
     && sourceProjection.post.id === sourcePost.id
     && sourceContainsPostCalculation(sourceProjection.post, claim);
-  if (claim?.sourceRef !== `posts:${sourcePost.id}` || (!savedWitness && !projectedWitness)
+  if (claim?.sourceRef !== `posts:${sourcePost.id}` || (!savedWitness && !projectedWitness && !legacyWitness)
     || !claim.locator || !claim.expression?.trim() || !claim.method || claim.value == null
     || exactPostValue(claim.value) == null || claim.sourceVersion !== (clean(sourcePost.modified) || null)) {
     return { status: "incomplete_claim", resultMatch: "not_tested", steps: "not_tested" };

@@ -54,12 +54,12 @@ function fixturePlugin(){
           overlaps(){return q;},order(k){if(k==='meter_score')throw Error('forbidden score order');return q;},
           limit(n){limit=n;return q;},range(a,b){range=[a,b];return q;},
           then(done,fail){window.__reads.push(table);
-            let data=table==='posts'?[structuredClone(window.__post)]:table==='topic_cards_public'?structuredClone(window.__cards):table==='gematria_methods'?['רגיל','מסתתר','מילוי'].map(method_key=>({method_key,display_label:method_key})):[];
+            let data=table==='posts'?[structuredClone(window.__post)]:table==='topic_cards_public'?structuredClone(window.__cards):table==='gematria_methods'?(window.__registry||['רגיל','מסתתר','מילוי'].map(method_key=>({method_key,display_label:method_key}))):[];
             data=data.filter(row=>filters.every(([k,v])=>Array.isArray(v)?v.includes(row[k]):String(row[k])===String(v)));
             if(range)data=data.slice(range[0],range[1]+1);if(limit!=null)data=data.slice(0,limit);
             return Promise.resolve({data,error:window.__failTable===table?{message:'offline'}:null}).then(done,fail);}
         };return q;},
-        async rpc(name,args){window.__rpcs.push(name);if(name==='fn_method_profile'){if(window.__holdProfile)await new Promise(resolve=>{window.__releaseProfile=resolve;});return {error:null,data:[
+        async rpc(name,args){window.__rpcs.push(name);if(name==='fn_method_profile'){if(window.__holdProfile)await new Promise(resolve=>{window.__releaseProfile=resolve;});return {error:null,data:window.__profiles?.[args.p_phrase]||[
           {method_key:'רגיל',computed_value:args.p_phrase==='בן דוד'?66:844,definition_version:1},
           {method_key:'מסתתר',computed_value:1237,definition_version:window.__versionChanged?2:1},
           {method_key:'מילוי',computed_value:1026,definition_version:1}]};}
@@ -90,6 +90,7 @@ function fixturePlugin(){
       import React from 'react';import {createRoot} from 'react-dom/client';import {BrowserRouter,Routes,Route,useNavigate} from 'react-router-dom';
       import {Provider,useResearch} from '/src/lib/research/ResearchProvider.jsx';import {buildExactReturnPatch} from '/src/lib/research/researchContext.js';
       import Post from '/src/pages/Post2029Page.jsx';import '/src/components/experience2029/sod2029.css';
+      import * as postReaders from '/src/lib/research/post2029ReadingProjection.js';window.__postReaders=postReaders;
       window.__reads=[];window.__rpcs=[];window.__targets=[];
       window.__post={id:9001,slug:'future-source',title:'מקור בדיקה חי',source:'ai',home_hidden:false,date:'2026-10-20',modified:'2026-10-30T14:00:00Z',tags:['1237'],categories:[],
         content:'<h2 id="native-heading" data-source-heading="true">ממצא ראשון</h2><p>הטענה כפי שנשמרה במקור</p><button id="claim-one" type="button" data-expression="התגלות" data-method="מסתתר" data-method-version="1" data-result="1237">התגלות = 1237</button><p>הפרשנות נשארת נפרדת.</p>'};
@@ -129,6 +130,17 @@ test('built Post: adopted design, bounded backgrounds, lazy research, exact retu
     });
     await new Promise(done=>server.listen(0,'127.0.0.1',done));const origin=`http://127.0.0.1:${server.address().port}`;
     browser=await playwright.chromium.launch({executablePath,headless:true,args:['--no-sandbox','--disable-dev-shm-usage']});
+    if(process.env.POST_LEGACY_AUDIT_SOURCE){
+      const source=JSON.parse(readFileSync(process.env.POST_LEGACY_AUDIT_SOURCE,'utf8'));
+      const context=await browser.newContext(),page=await context.newPage();
+      await page.goto(origin+'/post/future-source');
+      const rows=await page.evaluate(async source=>{
+        const root=document.createElement('div');root.innerHTML=source.content;
+        return window.__postReaders.collectPostLegacyOccurrences2029(source,root);
+      },source);
+      writeFileSync(join(artifacts,'legacy-source-occurrences.json'),JSON.stringify({sourceId:source.id,sourceModified:source.modified,occurrences:rows},null,2));
+      await context.close();
+    }
     for(const width of [320,390,1440])for(const theme of ['light','parchment','dark']){
       const context=await browser.newContext({viewport:{width,height:900},reducedMotion:'reduce'}),page=await context.newPage();page.setDefaultTimeout(8000);
       const errors=[],external=[];page.on('pageerror',e=>errors.push(e.message));
@@ -197,6 +209,80 @@ test('built Post: adopted design, bounded backgrounds, lazy research, exact retu
       }
       assert.deepEqual(errors,[]);assert.deepEqual(external,[]);assert.ok((await page.evaluate(()=>window.__rpcs)).every(name=>['fn_method_profile','gematria_method_trace'].includes(name)));
       await context.close();
+    }
+    // Authored legacy method labels must reach the SAME real Number drawer.
+    // No per-post ID list, regular-method fallback or value-based method search.
+    for(const width of [390,1440]){
+      const context=await browser.newContext({viewport:{width,height:900},reducedMotion:'reduce'});
+      const content='<h2 id="legacy-heading">מקור עם שיטות שונות</h2><p>רגיל = 506</p>'
+        +'<div><strong id="regular" data-gem="כבוד יהוה יתגלה">כבוד יהוה יתגלה</strong> = 506 (רגיל) · <strong id="fill" data-gem="אני גואלך">אני גואלך</strong> = 506 (מילוי בלבד)</div>'
+        +'<div><p>«משולש» (קדמי): הסבר השיטה</p><div><strong data-gem="מטריקס">מטריקס</strong> = 1890</div></div>'
+        +'<div><div>מילוי בלבד (מילוי − רגיל) = 506</div><div><strong id="group" data-gem="סוד">סוד</strong> · <strong data-gem="כוח">כוח</strong></div></div>'
+        +'<div><strong id="mismatch" data-gem="אני גואלך">אני גואלך</strong> = 507 (מילוי בלבד)</div>'
+        +'<p><strong id="missing" data-gem="עולם המחשבה">עולם המחשבה</strong> = 506</p>'
+        +'<p>מספר כללי <strong data-gem="506">506</strong></p><a href="/number/506">מספר מקושר</a>';
+      const profiles={
+        'אני גואלך':[{method_key:'רגיל',computed_value:121,definition_version:1},{method_key:'מילוי בלבד',computed_value:506,definition_version:2}],
+        'כבוד יהוה יתגלה':[{method_key:'רגיל',computed_value:506,definition_version:1}],
+        'מטריקס':[{method_key:'רגיל',computed_value:419,definition_version:1},{method_key:'קדמי',display_label:'משולש',computed_value:1890,definition_version:1},{method_key:'משולש מילה',computed_value:1890,definition_version:1}],
+        'סוד':[{method_key:'רגיל',computed_value:70,definition_version:1},{method_key:'מילוי בלבד',computed_value:506,definition_version:2}],
+      };
+      await context.addInitScript(({content,profiles})=>{
+        sessionStorage.setItem('fixture-post-overrides',JSON.stringify({content}));window.__profiles=profiles;
+        window.__registry=[{method_key:'רגיל',display_label:'רגיל'},{method_key:'מילוי בלבד',display_label:'מילוי בלבד'},{method_key:'קדמי',display_label:'משולש'},{method_key:'משולש מילה',display_label:'משולש מילה'}];
+      },{content,profiles});
+      const page=await context.newPage(),errors=[];page.on('pageerror',error=>errors.push(error.message));
+      await page.goto(origin+'/post/future-source');
+      const triangle=page.locator('strong[data-gem="מטריקס"]');
+      await page.waitForFunction(()=>document.querySelector('[data-gem="מטריקס"]')?.id.startsWith('post-legacy-'));
+      const anchor=await triangle.getAttribute('id');
+      await openResearch(page);
+      await page.getByText('טענות חישוב ממופות (6)',{exact:true}).waitFor();
+      await page.locator('#post-research > summary').click();
+      for(const [selector,method,value,version]of [['#fill','מילוי בלבד',506,'2'],['#regular','רגיל',506,'1'],['#'+anchor,'קדמי',1890,'1'],['#group','מילוי בלבד',506,'2']]){
+        await page.locator(selector).focus();await page.keyboard.press('Enter');await page.getByRole('dialog').waitFor();
+        const selected=await page.evaluate(()=>window.__researchContext);
+        assert.equal(selected.selection.method,method);assert.equal(selected.selection.resultValue,value);assert.equal(selected.selection.methodVersion,version);
+        assert.equal(selected.dimensions.postClaimBinding,'saved_legacy_marking');assert.equal(selected.dimensions.postClaimSteps,'not_tested');
+        await page.getByRole('button',{name:'סגירה וחזרה למקור'}).click();await page.waitForFunction(id=>document.activeElement?.id===id,selector.slice(1));
+      }
+      await page.locator('#'+anchor).click();await page.getByRole('dialog').waitFor();
+      await page.getByRole('button',{name:'פתח דף מלא ↗',exact:true}).click();await page.getByRole('heading',{name:'דף המספר',exact:true}).waitFor();
+      await page.goBack();await page.waitForFunction(id=>document.activeElement?.id===id,anchor);
+      await page.reload();await page.waitForFunction(id=>document.activeElement?.id===id,anchor);
+      const view=await page.locator('#'+anchor).boundingBox();assert.ok(view.y>=0&&view.y<900,'Return lands on the visible occurrence, not only its focus');
+      await page.locator('#mismatch').click();await page.getByRole('status').filter({hasText:'התוצאה במקור אינה תואמת'}).waitFor();assert.equal(await page.getByRole('dialog').count(),0);
+      const before=await page.evaluate(()=>window.__rpcs.length);
+      await page.locator('#missing').click();await page.getByRole('status').filter({hasText:'לא נבחרה שיטה אוטומטית'}).waitFor();assert.equal(await page.getByRole('dialog').count(),0);
+      assert.equal(await page.evaluate(()=>window.__rpcs.length),before,'Missing method never starts an automatic calculation');
+      await page.evaluate(()=>{
+        window.__post.content+='<div><strong id="future-method" data-gem="אני גואלך">אני גואלך</strong> = 2000 (שיטה שהתווספה)</div>';
+        window.__post.modified='2026-10-31T02:00:00Z';
+        window.__profiles['אני גואלך'].push({method_key:'שיטה שהתווספה',computed_value:2000,definition_version:3});
+        window.__registry.push({method_key:'שיטה שהתווספה',display_label:'שיטה שהתווספה'});
+        window.__goFixture('/topic/new-source');
+      });
+      await page.getByRole('heading',{name:'כרטיס התכנסות',exact:true}).waitFor();
+      await page.evaluate(()=>window.__goFixture('/post/future-source'));await page.locator('#future-method').click();
+      await page.getByRole('dialog').waitFor();assert.equal(await page.evaluate(()=>window.__researchContext.selection.method),'שיטה שהתווספה');
+      await page.getByRole('button',{name:'סגירה וחזרה למקור'}).click();await page.waitForFunction(()=>document.activeElement?.id==='future-method');
+      const privacy=await page.evaluate(async()=>{
+        const source={...window.__post},root=document.createElement('div');root.innerHTML=source.content;
+        const rows=await window.__postReaders.collectPostLegacyOccurrences2029(source,root);
+        const claim=rows.find(row=>row.locator==='#fill');
+        const invented=await window.__postReaders.checkPostCalculation2029(source,{...claim,method:'רגיל'},{sourceDocument:document});
+        const forgedValue=await window.__postReaders.checkPostCalculation2029(source,{...claim,value:121},{sourceDocument:document});
+        const altered={...source,content:source.content.replace('אני גואלך','אני גואלך אחר')};
+        const alteredRoot=document.createElement('div');alteredRoot.innerHTML=altered.content;
+        const changed=await window.__postReaders.collectPostLegacyOccurrences2029(altered,alteredRoot);
+        const oldPresentation=rows.find(row=>row.expression==='מטריקס').locator;
+        const newPresentation=changed.find(row=>row.expression==='מטריקס').locator;
+        window.__post.home_hidden=true;
+        const revoked=await window.__postReaders.checkPostCalculation2029(source,claim,{sourceDocument:document});
+        return {invented:invented.status,forgedValue:forgedValue.status,revoked:revoked.status,oldAnchorInvalidated:oldPresentation!==newPresentation};
+      });
+      assert.deepEqual(privacy,{invented:'incomplete_claim',forgedValue:'incomplete_claim',revoked:'source_unavailable',oldAnchorInvalidated:true});
+      assert.deepEqual(errors,[]);await context.close();
     }
     const backgroundCases={
       general:{categories:['כללי'],author:null},

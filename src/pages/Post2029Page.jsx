@@ -1,10 +1,11 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useLocation, useParams } from "react-router-dom";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import SurfaceSectionNav2029 from "../components/experience2029/SurfaceSectionNav2029.jsx";
 import PostEvidenceMedia2029 from "../components/experience2029/PostEvidenceMedia2029.jsx";
 import PostTimeline2029 from "../components/experience2029/PostTimeline2029.jsx";
-import { fetchPost2029ReadingProjection, resolvePostReadingRegion, collectPostCalculationOccurrences2029, collectPostSourcePlacements2029, checkPostCalculation2029 } from "../lib/research/post2029ReadingProjection.js";
+import { fetchPost2029ReadingProjection, resolvePostReadingRegion, collectPostCalculationOccurrences2029, collectPostLegacyOccurrences2029, collectPostSourcePlacements2029, checkPostCalculation2029 } from "../lib/research/post2029ReadingProjection.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { mergeContextPackWithConnections } from "../lib/research/goldenPostContextPacks.js";
 import { goldenPublicSurfaceFindings } from "../lib/research/goldenProjectorModes.js";
@@ -60,6 +61,7 @@ function PostReadingBody() {
   const [reloadTick, setReloadTick] = useState(0);
   const [measureSource, setMeasureSource] = useState({ claims: [], placements: [] });
   const [calculationNotice, setCalculationNotice] = useState(null);
+  const [calculationFeedbackHost, setCalculationFeedbackHost] = useState(null);
   const calculationRequest = useRef(0);
   const sourceRef = useRef(null);
   const researchRef = useRef(null);
@@ -259,6 +261,7 @@ function PostReadingBody() {
         const term = decodeURIComponent(link.getAttribute("href").slice("/number/".length).split(/[?#]/)[0]).trim();
         if (term) {
           link.dataset.gem = term;
+          link.dataset.postNumberLink = "true";
           if (/^\d[\d,]*$/.test(String(link.textContent || "").trim())) link.classList.add("sod-numlink");
         }
       } catch { /* Keep a malformed legacy URL unchanged. */ }
@@ -458,13 +461,27 @@ function PostReadingBody() {
 
   useEffect(() => {
     const sourcePost = state.projection?.sourcePost;
+    let live = true;
     setMeasureSource({ claims: collectPostCalculationOccurrences2029(sourcePost, sourceRef.current, { sourceProjection: state.projection }),
       placements: collectPostSourcePlacements2029(sourcePost, sourceRef.current) });
+    void collectPostLegacyOccurrences2029(sourcePost, sourceRef.current).then(legacyOccurrences => {
+      if (live) setMeasureSource(current => ({ ...current, legacyOccurrences,
+        claims: [...current.claims, ...legacyOccurrences.filter(row => row.method && row.value != null)],
+      }));
+    }).catch(() => { /* Unsupported mapping fails closed; no inferred source claim. */ });
+    return () => { live = false; };
   }, [state.projection]);
 
   useEffect(() => {
-    // Existing source-native IDs (including future annotations) survive refresh,
-    // Back and Forward. Never synthesize a locator from scan position.
+    setCalculationFeedbackHost(null);
+    return () => {
+      for (const host of sourceRef.current?.querySelectorAll("[data-post-calculation-feedback]") || []) host.remove();
+    };
+  }, [state.projection]);
+
+  useEffect(() => {
+    // Native IDs and snapshot-bound presentation locators survive refresh/Back.
+    // Legacy locators are admitted only after mapping to the unchanged source.
     let id;
     try { id = decodeURIComponent(location.hash.slice(1)); } catch { return; }
     if (!id || !state.projection || !sourceRef.current) return;
@@ -478,7 +495,7 @@ function PostReadingBody() {
       target.focus({ preventScroll: true });
     });
     return () => cancelAnimationFrame(frame);
-  }, [state.projection, location.hash]);
+  }, [state.projection, location.hash, measureSource.legacyOccurrences]);
 
   if (state.loading) {
     return <FrameState kind="loading" title="פותח את המקור">המילים נשארות במרכז; שכבת ההקשר נטענת מסביבן.</FrameState>;
@@ -573,6 +590,10 @@ function PostReadingBody() {
       postClaimSteps: result.steps, postClaimSourceMethodVersion: claim.methodVersion, postClaimLanguage: claim.lang },
       returnTo: { ...exactReturnForRegion(activeFocus), href: `/post/${post.slug}${claim.locator}`,
         selection: { ...selection, entityType: "post_occurrence" }, lens: "reading" } };
+    // Browser Back from the full Number page must name the current occurrence,
+    // even when a different calculation was opened earlier in this same Post.
+    try { window.history.replaceState(window.history.state, "", `${location.pathname}${location.search}${claim.locator}`); }
+    catch { /* Research Context still carries the explicit return target. */ }
     // Same existing activation seam as Topic: commit rich source/version context
     // after the shared activation's generic selection, in the same React batch.
     shell.openNumber?.({ id: claim.id, type: "phrase", label: claim.expression, expression: claim.expression,
@@ -583,10 +604,16 @@ function PostReadingBody() {
   const openPostSourceClaim = async claim => {
     const ticket = ++calculationRequest.current;
     setCalculationNotice("בודק את הביטוי, השיטה והמקור…");
-    const result = await checkPostCalculation2029(projection.sourcePost, claim, { sourceProjection: projection });
+    const result = await checkPostCalculation2029(projection.sourcePost, claim, {
+      sourceProjection: projection, sourceDocument: sourceRef.current?.ownerDocument,
+    });
     if (ticket !== calculationRequest.current) return;
     if (result.status.startsWith("source_")) { invalidatePostSource(result.status); return; }
-    if (result.status !== "ready") { setCalculationNotice("לא ניתן לפתוח את הטענה בשיטה ובגרסה שנבחרו. אין מעבר לשיטה חלופית."); return; }
+    if (result.status !== "ready") { setCalculationNotice(result.status === "incomplete_claim"
+      ? "להופעה הזאת אין ביטוי, שיטה ותוצאה מתועדים במלואם. לא נבחרה שיטה אוטומטית."
+      : result.status === "mismatch"
+        ? "התוצאה במקור אינה תואמת לתוצאת המנוע בשיטה המתועדת. לא נבחרה שיטה חלופית."
+        : "לא ניתן לפתוח את הטענה בשיטה ובגרסה שנבחרו. אין מעבר לשיטה חלופית."); return; }
     setCalculationNotice(null); openCheckedPostCalculation(result);
   };
   const openMeasureConnection = (event, href, card) => {
@@ -751,16 +778,15 @@ function PostReadingBody() {
         if (Number.isSafeInteger(numericValue)) {
           openHeroNumber(numericValue);
         } else {
-          const locator = activeFocus ? `#source-region-${activeFocus.id}` : "#post-story";
-          research.updateResearchContext?.({
-            subject: { id: String(post.id), type: "post", label: post.title, href: `/post/${post.slug}` },
-            selection: { entityId: activeFocus?.id || String(post.id), entityType: "gematria_expression", locator, expression: term },
-            lens: "gematria",
-            returnTo: exactReturnForRegion(activeFocus),
-          });
-          shell.openNumber?.({ id: `post:${post.id}:${term}`, type: "phrase", label: term, expression: term,
-            method: legacyNumber.dataset.method || undefined,
-            source: "post-authored-gematria", locator, sourceLabel: projection.sourceLabel });
+          const occurrence = measureSource.legacyOccurrences?.find(row => row.locator === `#${legacyNumber.id}`);
+          // Reuse the existing status feedback, next to the selected source line
+          // so an incomplete/mismatched claim does not fail silently off-screen.
+          for (const host of sourceRef.current.querySelectorAll("[data-post-calculation-feedback]")) host.remove();
+          const host = document.createElement("div"); host.dataset.postCalculationFeedback = "true";
+          (legacyNumber.closest("p,div,li,td,h2,h3,h4,h5,h6") || legacyNumber).after(host);
+          setCalculationFeedbackHost(host);
+          if (occurrence) void openPostSourceClaim(occurrence);
+          else { ++calculationRequest.current; setCalculationNotice("ההופעה הזאת עדיין אינה ממופה לחישוב מדויק במקור. לא נבחרה שיטה אוטומטית."); }
         }
       }
     }
@@ -926,7 +952,9 @@ function PostReadingBody() {
 
     </div>
 
-    {calculationNotice ? <p role="status">{calculationNotice}</p> : null}
+    {calculationNotice ? (calculationFeedbackHost
+      ? createPortal(<p role="status">{calculationNotice}</p>, calculationFeedbackHost)
+      : <p role="status">{calculationNotice}</p>) : null}
     <details ref={researchRef} open={researchOpen} className="sod29-post-research" id="post-research"
       data-experience-capability="post-sources-and-connections"
       onToggle={event => {

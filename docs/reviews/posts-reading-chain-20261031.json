@@ -1,0 +1,473 @@
+{
+  "status": "IMPLEMENTED_TESTED_LOCAL_LIVE_DATA_PREVIEW_PENDING",
+  "actor": "GPT",
+  "handoff_to": "ZURIEL",
+  "scope": "Existing Post occurrence reader, Post activation and existing source disclosure only; no shared Frame/Learn/Number/engine/CSS or product data change",
+  "base": "8b501aa47f7f25c3c086f80baf59e81feea26984",
+  "branch": "gpt/posts-integrated-backgrounds-20261030",
+  "canonical_law": {
+    "id": 18,
+    "body_md5": "05b73b416ab47804c9a0c807250b16f7"
+  },
+  "ownership": {
+    "live_bounded_path_check": "No matching active writer returned for the exact Post/Learn paths; no new live claim or release row asserted because only a read-only connector is available",
+    "visual_writer": "Claude under existing mandatory visual lane; no shared visual redesign applied"
+  },
+  "matrix_scan": {
+    "id": 5003,
+    "modified": "2026-07-02 19:42:02.126909+00",
+    "source_content_md5": "619e9d005ae5715fbc29f14ffbb28e2e",
+    "raw_markings": 38,
+    "numeric_indirect_entries": 4,
+    "phrase_occurrences": 34,
+    "explicit_method_value_occurrences": 25,
+    "matched_live_profile_results": 25,
+    "mismatched_profile_results": 0,
+    "incomplete_context_occurrences": 9,
+    "trace_verification": "Not asserted by this audit; current engine profile parity only",
+    "occurrences": [
+      {
+        "ordinal": 1,
+        "expression": "המטריקס",
+        "sourceMethod": "רגיל",
+        "sourceValue": 424,
+        "canonicalMethod": "רגיל",
+        "canonicalVersion": 1,
+        "engineValue": 424,
+        "result": "matched"
+      },
+      {
+        "ordinal": 2,
+        "expression": "משיח בן דוד",
+        "sourceMethod": "רגיל",
+        "sourceValue": 424,
+        "canonicalMethod": "רגיל",
+        "canonicalVersion": 1,
+        "engineValue": 424,
+        "result": "matched"
+      },
+      {
+        "ordinal": 3,
+        "expression": "ניאו",
+        "sourceMethod": "רגיל",
+        "sourceValue": 67,
+        "canonicalMethod": "רגיל",
+        "canonicalVersion": 1,
+        "engineValue": 67,
+        "result": "matched"
+      },
+      {
+        "ordinal": 4,
+        "expression": "בינה",
+        "sourceMethod": "רגיל",
+        "sourceValue": 67,
+        "canonicalMethod": "רגיל",
+        "canonicalVersion": 1,
+        "engineValue": 67,
+        "result": "matched"
+      },
+      {
+        "ordinal": 5,
+        "expression": "עולם המחשבה",
+        "sourceMethod": null,
+        "sourceValue": 506,
+        "canonicalMethod": null,
+        "canonicalVersion": null,
+        "engineValue": null,
+        "result": "incomplete_source_context"
+      },
+      {
+        "ordinal": 6,
+        "expression": "סוד",
+        "sourceMethod": null,
+        "sourceValue": 506,
+        "canonicalMethod": null,
+        "canonicalVersion": null,
+        "engineValue": null,
+        "result": "incomplete_source_context"
+      },
+      {
+        "ordinal": 7,
+        "expression": "כבוד יהוה יתגלה",
+        "sourceMethod": "רגיל",
+        "sourceValue": 506,
+        "canonicalMethod": "רגיל",
+        "canonicalVersion": 1,
+        "engineValue": 506,
+        "result": "matched"
+      },
+      {
+        "ordinal": 8,
+        "expression": "אני גואלך",
+        "sourceMethod": "מילוי בלבד",
+        "sourceValue": 506,
+        "canonicalMethod": "מילוי בלבד",
+        "canonicalVersion": 2,
+        "engineValue": 506,
+        "result": "matched"
+      },
+      {
+        "ordinal": 9,
+        "expression": "עצבות",
+        "sourceMethod": "מסתתר",
+        "sourceValue": 506,
+        "canonicalMethod": "מסתתר",
+        "canonicalVersion": 1,
+        "engineValue": 506,
+        "result": "matched"
+      },
+      {
+        "ordinal": 10,
+        "expression": "מערכת",
+        "sourceMethod": "מילוי בלבד",
+        "sourceValue": 506,
+        "canonicalMethod": "מילוי בלבד",
+        "canonicalVersion": 2,
+        "engineValue": 506,
+        "result": "matched"
+      },
+      {
+        "ordinal": 11,
+        "expression": "סוד",
+        "sourceMethod": "מילוי בלבד",
+        "sourceValue": 506,
+        "canonicalMethod": "מילוי בלבד",
+        "canonicalVersion": 2,
+        "engineValue": 506,
+        "result": "matched"
+      },
+      {
+        "ordinal": 12,
+        "expression": "כוח",
+        "sourceMethod": "מילוי בלבד",
+        "sourceValue": 506,
+        "canonicalMethod": "מילוי בלבד",
+        "canonicalVersion": 2,
+        "engineValue": 506,
+        "result": "matched"
+      },
+      {
+        "ordinal": 13,
+        "expression": "דעת",
+        "sourceMethod": "מילוי בלבד",
+        "sourceValue": 506,
+        "canonicalMethod": "מילוי בלבד",
+        "canonicalVersion": 2,
+        "engineValue": 506,
+        "result": "matched"
+      },
+      {
+        "ordinal": 14,
+        "expression": "גרזן",
+        "sourceMethod": "מילוי בלבד",
+        "sourceValue": 506,
+        "canonicalMethod": "מילוי בלבד",
+        "canonicalVersion": 2,
+        "engineValue": 506,
+        "result": "matched"
+      },
+      {
+        "ordinal": 15,
+        "expression": "כבוד יהוה יתגלה",
+        "sourceMethod": "רגיל",
+        "sourceValue": 506,
+        "canonicalMethod": "רגיל",
+        "canonicalVersion": 1,
+        "engineValue": 506,
+        "result": "matched"
+      },
+      {
+        "ordinal": 16,
+        "expression": "מטריקס",
+        "sourceMethod": null,
+        "sourceValue": null,
+        "canonicalMethod": null,
+        "canonicalVersion": null,
+        "engineValue": null,
+        "result": "incomplete_source_context"
+      },
+      {
+        "ordinal": 17,
+        "expression": "יציאת מצרים",
+        "sourceMethod": null,
+        "sourceValue": null,
+        "canonicalMethod": null,
+        "canonicalVersion": null,
+        "engineValue": null,
+        "result": "incomplete_source_context"
+      },
+      {
+        "ordinal": 18,
+        "expression": "גוף",
+        "sourceMethod": null,
+        "sourceValue": null,
+        "canonicalMethod": null,
+        "canonicalVersion": null,
+        "engineValue": null,
+        "result": "incomplete_source_context"
+      },
+      {
+        "ordinal": 19,
+        "expression": "ארור המן",
+        "sourceMethod": null,
+        "sourceValue": null,
+        "canonicalMethod": null,
+        "canonicalVersion": null,
+        "engineValue": null,
+        "result": "incomplete_source_context"
+      },
+      {
+        "ordinal": 20,
+        "expression": "ברוך מרדכי",
+        "sourceMethod": null,
+        "sourceValue": null,
+        "canonicalMethod": null,
+        "canonicalVersion": null,
+        "engineValue": null,
+        "result": "incomplete_source_context"
+      },
+      {
+        "ordinal": 21,
+        "expression": "דעה את יהוה",
+        "sourceMethod": null,
+        "sourceValue": 506,
+        "canonicalMethod": null,
+        "canonicalVersion": null,
+        "engineValue": null,
+        "result": "incomplete_source_context"
+      },
+      {
+        "ordinal": 22,
+        "expression": "עולם המחשבה",
+        "sourceMethod": "רגיל",
+        "sourceValue": 506,
+        "canonicalMethod": "רגיל",
+        "canonicalVersion": 1,
+        "engineValue": 506,
+        "result": "matched"
+      },
+      {
+        "ordinal": 23,
+        "expression": "סתום",
+        "sourceMethod": "רגיל",
+        "sourceValue": 506,
+        "canonicalMethod": "רגיל",
+        "canonicalVersion": 1,
+        "engineValue": 506,
+        "result": "matched"
+      },
+      {
+        "ordinal": 24,
+        "expression": "כבוד יהוה יתגלה",
+        "sourceMethod": "רגיל",
+        "sourceValue": 506,
+        "canonicalMethod": "רגיל",
+        "canonicalVersion": 1,
+        "engineValue": 506,
+        "result": "matched"
+      },
+      {
+        "ordinal": 25,
+        "expression": "סוד",
+        "sourceMethod": "מילוי בלבד",
+        "sourceValue": 506,
+        "canonicalMethod": "מילוי בלבד",
+        "canonicalVersion": 2,
+        "engineValue": 506,
+        "result": "matched"
+      },
+      {
+        "ordinal": 26,
+        "expression": "כוח",
+        "sourceMethod": "מילוי בלבד",
+        "sourceValue": 506,
+        "canonicalMethod": "מילוי בלבד",
+        "canonicalVersion": 2,
+        "engineValue": 506,
+        "result": "matched"
+      },
+      {
+        "ordinal": 27,
+        "expression": "דעת",
+        "sourceMethod": "מילוי בלבד",
+        "sourceValue": 506,
+        "canonicalMethod": "מילוי בלבד",
+        "canonicalVersion": 2,
+        "engineValue": 506,
+        "result": "matched"
+      },
+      {
+        "ordinal": 28,
+        "expression": "מערכת",
+        "sourceMethod": "מילוי בלבד",
+        "sourceValue": 506,
+        "canonicalMethod": "מילוי בלבד",
+        "canonicalVersion": 2,
+        "engineValue": 506,
+        "result": "matched"
+      },
+      {
+        "ordinal": 29,
+        "expression": "גרזן",
+        "sourceMethod": "מילוי בלבד",
+        "sourceValue": 506,
+        "canonicalMethod": "מילוי בלבד",
+        "canonicalVersion": 2,
+        "engineValue": 506,
+        "result": "matched"
+      },
+      {
+        "ordinal": 30,
+        "expression": "אני גואלך",
+        "sourceMethod": "מילוי בלבד",
+        "sourceValue": 506,
+        "canonicalMethod": "מילוי בלבד",
+        "canonicalVersion": 2,
+        "engineValue": 506,
+        "result": "matched"
+      },
+      {
+        "ordinal": 31,
+        "expression": "עצבות",
+        "sourceMethod": "מסתתר",
+        "sourceValue": 506,
+        "canonicalMethod": "מסתתר",
+        "canonicalVersion": 1,
+        "engineValue": 506,
+        "result": "matched"
+      },
+      {
+        "ordinal": 32,
+        "expression": "מטריקס",
+        "sourceMethod": "קדמי",
+        "sourceValue": 1890,
+        "canonicalMethod": "קדמי",
+        "canonicalVersion": 1,
+        "engineValue": 1890,
+        "result": "matched"
+      },
+      {
+        "ordinal": 33,
+        "expression": "כבוד יהוה יתגלה",
+        "sourceMethod": "קדמי",
+        "sourceValue": 1891,
+        "canonicalMethod": "קדמי",
+        "canonicalVersion": 1,
+        "engineValue": 1891,
+        "result": "matched"
+      },
+      {
+        "ordinal": 34,
+        "expression": "יציאת מצרים",
+        "sourceMethod": null,
+        "sourceValue": 891,
+        "canonicalMethod": null,
+        "canonicalVersion": null,
+        "engineValue": null,
+        "result": "incomplete_source_context"
+      }
+    ]
+  },
+  "behavior": [
+    "Exact source-marked spelling, local explicit equality/method label and source version retained",
+    "Canonical profile resolves exact key/display alias; no partial label/value-based method selection or automatic regular fallback",
+    "Generated presentation locators use the source SHA-256 plus marking position; bound to an exact source snapshot, not source-native section identities",
+    "Re-admit source, content and permission before profile reads and again afterward; no new graph edges, claims, publication or database writes",
+    "Documented legacy tuples join the existing closed measure disclosure; missing versions and presentation locators are described honestly",
+    "Missing/ambiguous context and engine mismatches are explained next to the selected line; generic numeric entries remain indirect",
+    "Current occurrence is placed in browser history before full Number navigation, preserving browser Back after earlier calculations in the same Post",
+    "Generated equality operands and generic number links are explicitly distinguished from saved source markings"
+  ],
+  "visual_followup": {
+    "canonical_owner": "SOD1820_DESIGN_CONTRACT_V2.md §8.2",
+    "status": "CONCRETE_REVIEW_PROPOSAL_ONLY",
+    "recommendation": {
+      "content_plane": "Centered, bounded with balanced logical gutters",
+      "long_hebrew_prose": "text-align:start; no blanket center or justified alignment",
+      "short_identity_heading": "May center within the reading plane",
+      "quotes_and_equations": "May center when short and intentionally separate; keep long explanatory prose aligned to start",
+      "section_navigation": "Same centered content axis; evenly distributed when space allows; wrap rather than clip",
+      "surface_help": "One 44px minimum touch target, one visible outline, short visible label for screen-level help; inline with Post metadata rather than a standalone icon row"
+    },
+    "diagnosis": [
+      "LearnMark2029 compact hides its label and CSS draws both a trigger border and an inner circular symbol border",
+      "Post CSS forces details and orientation each to flex-basis:100% below620px, yielding the isolated help row",
+      "Shared section navigation has no explicit centering/distribution; the wrapper width alone does not center its buttons"
+    ],
+    "paths_for_existing_visual_owner": [
+      "src/components/experience2029/LearnMark2029.jsx",
+      "src/components/experience2029/learnMark2029.css",
+      "src/pages/post2029-reading.css"
+    ],
+    "acceptance": [
+      "320/390/1440px and all three presets",
+      "Separate content-plane centering from prose alignment",
+      "Visible label, 44px hit area, keyboard focus/expanded state, no clipped controls",
+      "Same source text/media/colors; no gold/decoration interpreted as verification"
+    ]
+  },
+  "verification": {
+    "pending": false,
+    "node_and_built_browser": {
+      "tests": 125,
+      "pass": 125,
+      "fail": 0,
+      "skipped": 0
+    },
+    "local_actual_public_data": {
+      "scope": "Local exact read-only Preview build, actual anonymous public Post and canonical engine profile/trace; no product/model writes",
+      "results": [
+        {
+          "width": 390,
+          "identity": "אני גואלך\nמילוי בלבד\n506",
+          "triangleIdentity": "מטריקס\nמשולש\n1890",
+          "fullNumber": "/2029/number/1890",
+          "returnVisible": true,
+          "unmappedNotice": "להופעה הזאת אין ביטוי, שיטה ותוצאה מתועדים במלואם. לא נבחרה שיטה אוטומטית.",
+          "errors": [],
+          "blocked": [],
+          "overflow": false
+        },
+        {
+          "width": 1440,
+          "identity": "אני גואלך\nמילוי בלבד\n506",
+          "triangleIdentity": "מטריקס\nמשולש\n1890",
+          "fullNumber": "/2029/number/1890",
+          "returnVisible": true,
+          "unmappedNotice": "להופעה הזאת אין ביטוי, שיטה ותוצאה מתועדים במלואם. לא נבחרה שיטה אוטומטית.",
+          "errors": [],
+          "blocked": [],
+          "overflow": false
+        }
+      ]
+    },
+    "builds": [
+      "Legacy PASS",
+      "2029 PASS",
+      "Read-only integrated Preview PASS"
+    ],
+    "gates": [
+      "Source isolation PASS",
+      "Built dependency graph PASS",
+      "Cheap hardening PASS",
+      "Experience Context PASS",
+      "Post characters PASS",
+      "Legacy Production lock PASS"
+    ],
+    "browser_cases": [
+      "Distinct regular/fill-only/triangle methods and same-value methods",
+      "Saved source markings coexist with generated equality buttons and number links",
+      "Close and explicit return, full Number browser Back, refresh and visible occurrence",
+      "Source SHA change invalidates presentation locator",
+      "New source method after build without a manual method list",
+      "Forged method/value rejected; incomplete method starts no engine RPC; revocation hides result"
+    ],
+    "limits": [
+      "Hosted browser acceptance pending; local actual app and data tested",
+      "Signed-in/admin/RLS and physical phone frame rate not certified",
+      "Nine Matrix occurrences still have incomplete local source context",
+      "Shared help/layout proposal not applied; existing visual writer lane preserved"
+    ]
+  },
+  "production": "Existing Legacy unchanged; before Preview deployment dpl_AiKPHaoo5pxo9T5PFTpcBRG7LfMA"
+}
