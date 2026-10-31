@@ -122,3 +122,11 @@ states; account changes/revocation must discard stale data before composition.
    by a new table/reader/Provider.
 
 Status: IMPLEMENTED / TESTED on isolated branch; integration and live release remain open.
+
+## Committed-source packaging (not deployment)
+
+Code commit: `f8b9dd9c226121e000a410e83956f39e1335c584`.
+`node scripts/package-ai-analyze.mjs` proved all 15 bundled local sources are
+committed, with no unresolved local imports and `verify_jwt=true`.
+Bundle SHA-256: `9272658a8849440f87d8cf4daaf1890011e2b1c2252f24cc0d0ef23f90ff4670`.
+Output size reported by the packager: 588,068 characters. No artifact was deployed.
