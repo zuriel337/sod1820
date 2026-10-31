@@ -92,9 +92,13 @@ test("both study modes preserve readable title/cover geometry and narrow desktop
         // Aim at the document gutter: a wheel over the reader's inner list may
         // correctly scroll that list without moving the document heading.
         await page.mouse.move(2, 400);
+        await page.evaluate(() => { window.ahavatTestWheelSeen = false; window.addEventListener("wheel", () => { window.ahavatTestWheelSeen = true; }, { once: true, capture: true }); });
         await page.mouse.wheel(0, 400);
+        // Playwright wheel() does not wait for delivery or default scrolling.
+        await page.waitForFunction(() => window.ahavatTestWheelSeen, null, { timeout: 2000 });
         await page.waitForTimeout(200);
-        assert.ok(Math.abs(await page.locator("#ahavat29-full-reader").evaluate(el => el.getBoundingClientRect().top) - 92) > 100);
+        const afterInput = await page.evaluate(() => ({ top: document.getElementById("ahavat29-full-reader").getBoundingClientRect().top, y: scrollY, max: document.documentElement.scrollHeight - innerHeight, target: document.elementFromPoint(2, 400)?.className, wheel: window.ahavatTestWheelSeen }));
+        assert.ok(Math.abs(afterInput.top - 92) > 100, JSON.stringify(afterInput));
         assert.deepEqual(errors, []);
       } finally { await context.close(); }
     }
