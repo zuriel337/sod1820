@@ -1402,6 +1402,12 @@ export async function askRaziel({ subject, facts, context = null, path = null, a
   // Keep the public transport signature stable for every existing caller. The personal-area adapter
   // adds only two internal request fields: the closed action envelope and a non-enumerable AbortSignal.
   const companionAction = arguments[0]?.companionAction ?? null;
+  const elsPlanningAction = arguments[0]?.elsPlanningAction ?? null;
+  const elsMatrixContext = arguments[0]?.elsMatrixContext ?? null;
+  // One explicit matrix reading (admin-only, experimental): the same Raziel turn, plus the closed action; polling, progress and cancel are non-enumerable session hooks like the abort signal.
+  const elsMatrixReadingAction = arguments[0]?.elsMatrixReadingAction ?? null;
+  const cancelSignal = arguments[0]?.__razielCancelSignal ?? null;
+  const onProgress = typeof arguments[0]?.__razielProgress === 'function' ? arguments[0].__razielProgress : undefined;
   const signal = arguments[0]?.__razielAbortSignal ?? null;
   if (!supabase) return null;
   if (signal?.aborted) return null;
@@ -1412,11 +1418,22 @@ export async function askRaziel({ subject, facts, context = null, path = null, a
     // This correlation id is non-authoritative. The server remains the owner of trace/root identities.
     // Legacy callers preserve their previous body shape by not opting into the canonical contract.
     const interactionId = researchContract === 'public-number-research-run-v1' ? aiInteractionId() : null;
-    const { data, error } = await supabase.functions.invoke('ai-analyze', {
-      // metatron:true → רזיאל נשען על «העץ האחד» (חוקים+גרף) בצד השרת (בטא, opt-in). ברירת-מחדל כבוי.
-      body: { kind: 'research', persona: 'raziel', subject, facts, context, path, again, metatron, visitor_id: aiVisitorId(), ...(level ? { intelligence_level: level } : {}), ...(surfaceSemantic && typeof surfaceSemantic === 'object' ? { surface_semantic: surfaceSemantic } : {}), ...(conversationResolution && typeof conversationResolution === 'object' ? { conversation_resolution: conversationResolution } : {}), ...(researchContract === 'public-number-research-run-v1' ? { research_contract: researchContract, ...(interactionId ? { interaction_id: interactionId } : {}) } : {}), ...(researchContract === 'public-number-research-run-v1' && companionAction && typeof companionAction === 'object' ? { companion_action: companionAction } : {}), ...(researchContract === 'public-number-research-run-v1' && (viewMode === 'landscape' || viewMode === 'exploratory') ? { view_mode: viewMode } : {}) },
+    const makeBody = (readingAction = null) => ({ kind: 'research', persona: 'raziel', subject, facts, context, path, again, metatron, visitor_id: aiVisitorId(), ...(level ? { intelligence_level: level } : {}), ...(surfaceSemantic && typeof surfaceSemantic === 'object' ? { surface_semantic: surfaceSemantic } : {}), ...(conversationResolution && typeof conversationResolution === 'object' ? { conversation_resolution: conversationResolution } : {}), ...(researchContract === 'public-number-research-run-v1' ? { research_contract: researchContract, ...(interactionId ? { interaction_id: interactionId } : {}) } : {}), ...(researchContract === 'public-number-research-run-v1' && companionAction && typeof companionAction === 'object' ? { companion_action: companionAction } : {}), ...(researchContract === 'public-number-research-run-v1' && elsPlanningAction && typeof elsPlanningAction === 'object' ? { els_planning_action: elsPlanningAction } : {}), ...(researchContract === 'public-number-research-run-v1' && elsMatrixContext && typeof elsMatrixContext === 'object' ? { els_matrix_context: elsMatrixContext } : {}), ...(researchContract === 'public-number-research-run-v1' && (viewMode === 'landscape' || viewMode === 'exploratory') ? { view_mode: viewMode } : {}), ...(researchContract === 'public-number-research-run-v1' && elsMatrixContext && readingAction && typeof readingAction === 'object' ? { els_matrix_reading_action: readingAction } : {}) });
+    // metatron:true → רזיאל נשען על «העץ האחד» (חוקים+גרף) בצד השרת (בטא, opt-in). ברירת-מחדל כבוי.
+    const sendBody = (readingAction = null) => supabase.functions.invoke('ai-analyze', {
+      body: makeBody(readingAction),
       ...(signal instanceof AbortSignal ? { signal } : {}),
     });
+    let data, error;
+    if (elsMatrixReadingAction) {
+      // Never reached without the canonical contract and a matrix context (the server refuses anything else); the long leg lives in a lazy module.
+      if (researchContract !== 'public-number-research-run-v1' || !elsMatrixContext) return null;
+      const { runElsMatrixReadingTurn } = await import('./research/elsMatrixReadingTransport.js');
+      data = await runElsMatrixReadingTurn({ invoke: (action) => sendBody(action), action: elsMatrixReadingAction, signal, cancelSignal, onProgress });
+      error = data ? null : new Error('els_matrix_reading_unavailable');
+    } else {
+      ({ data, error } = await sendBody(null));
+    }
     // A principal change may race a completed response. Do not emit the old
     // principal's quota event or fallback telemetry after cancellation.
     if (signal?.aborted || error) return null;
@@ -1424,9 +1441,21 @@ export async function askRaziel({ subject, facts, context = null, path = null, a
       try { window.dispatchEvent(new CustomEvent('sod:ai-quota', { detail: { tier: data.tier, used: data.used, limit: data.limit, message: data.message } })); } catch { /* noop */ }
       return null;
     }
+    // Older ai-analyze deployments ignore unknown request fields. Never present
+    // their ordinary answer as an analysis of a matrix they did not process.
+    if ((elsMatrixContext || surfaceSemantic?.els?.grounding === 'canonical_replay_v1') && !elsMatrixReadingAction
+      && data?.els_matrix_status !== 'verified_axis_unverified_presentation_v1') return null;
+    if (surfaceSemantic?.els?.grounding === 'canonical_replay_v1' && !elsMatrixReadingAction) {
+      const focus = surfaceSemantic.els, receipt = data?.els_occurrence_context;
+      if (receipt?.status !== 'verified' || receipt.axis?.corpusId !== focus.corpus
+        || !['term', 'scope', 'start', 'skip', 'dir'].every(key => receipt.axis?.[key] === focus[key])
+        || (receipt.readingJobId ?? null) !== (focus.readingJobId ?? null)) return null;
+    }
+    // Same rule for a reading: an older ai-analyze that ignores the action must never have its ordinary answer shown as a reading.
+    if (elsMatrixReadingAction && data?.els_matrix_reading?.contract !== 'els_matrix_reading_v1') return null;
     const c = data?.raziel || data?.contract;   // המוח מחזיר את החוזה כשמוכן
     // intelligence_level = תווית-מצב כנה מאותו transport (deterministic|fast|deep) — additive, לא API שני.
-    if (c && typeof c === 'object') return { v: 1, ...razielContractWithoutTransportMetadata(c), ...(data?.evidence_summary ? { evidence_summary: data.evidence_summary } : {}), ...razielTransportMetadata(data), ...(data?.intelligence_level ? { intelligence_level: data.intelligence_level } : {}), ...(data?.plan_meta && !c.plan_meta ? { plan_meta: data.plan_meta } : {}), ...(data?.intelligence_selection && !c.intelligence_selection ? { intelligence_selection: data.intelligence_selection } : {}) };
+    if (c && typeof c === 'object') return { v: 1, ...razielContractWithoutTransportMetadata(c), ...(elsMatrixReadingAction && data?.els_matrix_reading ? { els_matrix_reading: data.els_matrix_reading } : {}), ...(data?.evidence_summary ? { evidence_summary: data.evidence_summary } : {}), ...razielTransportMetadata(data), ...(data?.intelligence_level ? { intelligence_level: data.intelligence_level } : {}), ...(data?.plan_meta && !c.plan_meta ? { plan_meta: data.plan_meta } : {}), ...(data?.intelligence_selection && !c.intelligence_selection ? { intelligence_selection: data.intelligence_selection } : {}) };
     if (data?.analysis) {   // fallback — עוטף את המחרוזת הנוכחית כחוזה מינימלי
       try { logAiAnalysis({ kind: 'research', subject, styleKey: data.style_key, engine: data.engine, model: data.model, content: data.analysis }); } catch { /* noop */ }
       return { v: 1, answer: data.analysis, ...(data?.evidence_summary ? { evidence_summary: data.evidence_summary } : {}), ...razielTransportMetadata(data) };

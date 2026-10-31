@@ -46,13 +46,14 @@ test('host bridge rejects same-origin spoof: e.source must be the exact iframe c
 });
 
 function hostMessageHarness(overrides = {}) {
-  const toolWindow = {};
+  const toolWindow = { document: {} };
   const sent = [], operations = [], gates = [], legacyGates = [];
   const start = src.indexOf('async function onMsg(e)');
   const end = src.indexOf('    window.addEventListener("message", onMsg);', start);
   const context = {
     window: { location: { origin: 'https://els.test' } },
-    iframeRef: { current: { contentWindow: toolWindow } },
+    iframeRef: { current: { contentWindow: toolWindow, get contentDocument() { return toolWindow.document; } } },
+    readyDocumentRef: { current: null }, exactProbeRef: { current: null },
     verified: false, experience2029: true,
     onOperation: (message) => operations.push(message),
     onGate: (message) => gates.push(message),
@@ -64,9 +65,11 @@ function hostMessageHarness(overrides = {}) {
     ...overrides,
   };
   context.messageContextRef = { current: context };
+  const probeCallback = src.match(/const sendExactSkipProbe = useCallback\(([\s\S]*?), \[postToTool\]\);/)[1];
+  runInNewContext('globalThis.sendExactSkipProbe = ' + probeCallback, context);
   runInNewContext(src.slice(start, end) + ';globalThis.handle=onMsg;', context);
   return {
-    sent, operations, gates, legacyGates,
+    sent, operations, gates, legacyGates, context, toolWindow,
     send: (data, source = toolWindow, origin = context.window.location.origin) => context.handle({ data, source, origin }),
   };
 }
@@ -82,6 +85,61 @@ test('operation progress comes only from the mounted canonical iframe and preser
   assert.equal(host.operations[0], progress, 'the exact canonical acknowledgement reaches the consumer');
 });
 
+test('exact probe waits for readiness and ignores duplicate handshakes and duplicate effects', async () => {
+  const request = { term: 'תורה', scope: 'torah', skip: 50, requestId: 41 };
+  let tiers = 0;
+  const host = hostMessageHarness({ exactSkipProbe: request, postTier: () => tiers++ });
+  host.context.sendExactSkipProbe(request);
+  assert.equal(host.sent.length, 0, 'an explicit action before load remains queued in its existing prop');
+  await host.send({ source: 'tzofen', type: 'ready' });
+  host.context.sendExactSkipProbe({ ...request });
+  await host.send({ source: 'tzofen', type: 'ready' });
+  assert.equal(tiers, 2, 'tier handshake is still acknowledged');
+  assert.equal(host.sent.filter(m => m.type === 'probe-exact-skip').length, 1);
+});
+
+test('exact probe responses require the current request, document and trusted sender, once', async () => {
+  const replies = [], request = { term: 'תורה', scope: 'torah', skip: 50, requestId: 51 };
+  const host = hostMessageHarness({ exactSkipProbe: request, onExactSkipProbeResult: value => replies.push(value) });
+  await host.send({ source: 'tzofen', type: 'ready' });
+  const success = { source: 'tzofen', type: 'exact-skip-probe-result', requestId: 51, ok: true };
+  await host.send(success, {});
+  await host.send(success, undefined, 'https://other.test');
+  host.context.exactSkipProbe = { ...request, skip: 400000, requestId: 52 };
+  host.context.sendExactSkipProbe(host.context.exactSkipProbe);
+  await host.send(success);
+  assert.equal(replies.length, 0, 'late or spoofed success cannot complete the replacement request');
+  const noHit = { ...success, requestId: 52, ok: false, reason: 'LOCAL_NO_HIT' };
+  await host.send(noHit);
+  await host.send(noHit);
+  await host.send({ ...noHit, ok: true });
+  assert.deepEqual(replies, [noHit], 'no-hit remains false; duplicate completion is ignored');
+  host.context.exactSkipProbe = { ...host.context.exactSkipProbe, requestId: 53 };
+  host.context.sendExactSkipProbe(host.context.exactSkipProbe);
+  await host.send({ ...noHit, requestId: 53 });
+  assert.equal(replies.length, 2, 'same parameters with a new requestId are an explicit retry');
+  host.context.exactSkipProbe = null;
+  await host.send({ ...success, requestId: 53 });
+  assert.equal(replies.length, 2, 'cleared requests do not deliver late results');
+});
+
+test('a new iframe document resumes a pending probe but never replays a completed probe', async () => {
+  const replies = [], request = { term: 'תורה', scope: 'torah', skip: 50, requestId: 61 };
+  const host = hostMessageHarness({ exactSkipProbe: request, onExactSkipProbeResult: result => replies.push(result) });
+  const ready = { source: 'tzofen', type: 'ready' };
+  await host.send(ready);
+  host.toolWindow.document = {};
+  const success = { source: 'tzofen', type: 'exact-skip-probe-result', requestId: 61, ok: true };
+  await host.send(success);
+  assert.equal(replies.length, 0, 'old-document reply cannot resolve a probe after navigation');
+  await host.send(ready);
+  assert.equal(host.sent.filter(m => m.type === 'probe-exact-skip').length, 2, 'new document receives pending work');
+  await host.send(success);
+  host.toolWindow.document = {};
+  await host.send(ready);
+  assert.equal(host.sent.filter(m => m.type === 'probe-exact-skip').length, 2, 'completed work is not another request on reload');
+});
+
 test('queued primary and secondary searches keep their request IDs when the engine becomes ready', async () => {
   const searchRequest = { kind: 'regular', term: 'תורה', seq: 10 };
   const findingsRequest = { findings: [{ t: 'אור', color: '#ffaa00' }], seq: 11 };
@@ -95,6 +153,10 @@ test('queued primary and secondary searches keep their request IDs when the engi
   assert.equal(search.requestId, 10);
   assert.equal(findings.findings, findingsRequest.findings);
   assert.equal(findings.requestId, 11);
+  await host.send({ source: 'tzofen', type: 'ready' });
+  assert.equal(tierPosts, 2);
+  assert.equal(host.sent.filter(message => message.type === 'native-search').length, 1);
+  assert.equal(host.sent.filter(message => message.type === 'update-findings').length, 1);
 });
 
 test('2029 access notifications use the parent account entry while legacy hosts retain their gate', async () => {

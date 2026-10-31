@@ -1414,7 +1414,9 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     }else{                                   // ANCHOR_FAST_V1: sparse / no-signal — exact anchor scan (legacy discovery kernel)
       const base=st.scope==="tanakh"?await findAllAdaptive(raw,cap):findAll(raw,cap);hits=base.hits;capped=base.capped;
     }
-    return {hits,capped,t,strategy:{policy:AD_POLICY,strategy:ch.strategy,version:"1",probe_pairs:ps.pairs,probe_hits:ps.sig,extended:ch.extended}};
+    // Execution coverage, NOT canonical negative authority: both collectors exhaust
+    // their lanes/anchors unless capped. Preserve this independently of ordered pages.
+    return {hits,capped,t,discoveryComplete:!capped,strategy:{policy:AD_POLICY,strategy:ch.strategy,version:"1",probe_pairs:ps.pairs,probe_hits:ps.sig,extended:ch.extended}};
   }
   // ── canonical batch verification (server) ──
   async function verifyBatch(t,hits,strategy,operation,searchScope=st.scope){
@@ -1472,6 +1474,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
   async function continueNativeSearch(req,operation){
     const result=st.res,epoch=_matrixRequestSeq,view=nativeOccurrenceResults();
     if(!hasGov(result)||st.crossMeetings||req.setId!==view?.id){operationStatus(operation,"error","התוצאות השתנו. פתחו שוב את הרשימה.");return;}
+    if(!view.continuation){operationStatus(operation,"done","אין המשך סריקה זמין לחיפוש הזה.");return;}
     const key=hitKey(occ());
     const page=await orderedSearchPage(result.t,result.scope||st.scope,result.ordered,operation);
     if(epoch!==_matrixRequestSeq||operation?.status==="cancelled")return;
@@ -1483,7 +1486,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
   // candidate result -> governed result. Fail closed: bridge unavailable => labeled CANDIDATE (never promoted).
   async function promoteVerified(cand,scope,operation){
     const t=cand.t,sc=scope||st.scope;
-    const out={hits:cand.hits,capped:cand.capped,t,scope:sc,strategy:cand.strategy||null,vstate:"CANDIDATE",vtrace:[]};
+    const out={hits:cand.hits,capped:cand.capped,t,scope:sc,strategy:cand.strategy||null,discoveryComplete:cand.discoveryComplete===true,vstate:"CANDIDATE",vtrace:[]};
     if(!cand.hits.length){out.vstate="LOCAL_NO_HIT";return out;}   // local/sampled no-hit: NOT a canonical negative
     const elig=cand.hits.filter(h=>Math.abs(h.skip)>=2);
     cand.hits.forEach(h=>{if(Math.abs(h.skip)<2)h.v="PLAIN_TEXT";else if(h.v!=="MATCH")h.v="CANDIDATE";});
@@ -1950,7 +1953,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
       if(!isGov(h))return {index,available:false};
       return {index,available:true,axis:z.axis||st.raw,hitId:hitKey(h),skip:Math.abs(h.skip),book:z.book,
         stars:z.stars,score:z.score,terms:z.detail.map(d=>d.t),distance:Math.min(...z.detail.map(d=>d.cost)),
-        sourceSequence:z.detail.some(d=>Math.abs(d.skip)<2)};
+        sourceSequence:z.detail.some(d=>Math.abs(d.skip)<2),optionalThird:z.optionalThird||null};
     })};
   }
   function selectNativeMeeting(value){
@@ -1961,13 +1964,22 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
   }
   // Bounded presentation of the SAME admitted primary hits; never publish candidate coordinates.
   const nativeOccurrenceSets=new WeakMap();let nativeOccurrenceSetSeq=0;
+  function nativeSearchContinuation(result){
+    if(!result||result.discoveryComplete===true)return null;
+    const ordered=result.ordered;
+    if(ordered?.error)return {kind:"retry",min:ordered.min,max:ordered.max};
+    if(ordered?.hasMore)return {kind:"page",min:ordered.min,max:ordered.max};
+    // Unknown/exact-only coverage is not permission to invent a continuation.
+    if(!result.capped||(ordered?.max||0)>=500)return null;
+    return {kind:"range",min:ordered?ordered.max+1:2,max:Math.min(500,(ordered?.max||0)+50)};
+  }
   function nativeOccurrenceResults(){
     const r=st.res;if(!hasGov(r)||st.crossMeetings)return null;
     let view=nativeOccurrenceSets.get(r);
     if(!view){view={id:"occ-"+(++nativeOccurrenceSetSeq),page:0};nativeOccurrenceSets.set(r,view);}
     const admitted=r.hits.map((h,index)=>({h,index})).filter(x=>isGov(x.h)),pageSize=80;
     const page=Math.max(0,Math.min(view.page,Math.ceil(admitted.length/pageSize)-1));view.page=page;
-    return {kind:"regular",id:view.id,page,pageSize,total:admitted.length,selectedOrdinal:admitted.findIndex(x=>x.index===st.occ)+1,capped:!!r.capped,ordered:r.ordered||null,
+    return {kind:"regular",id:view.id,page,pageSize,total:admitted.length,selectedOrdinal:admitted.findIndex(x=>x.index===st.occ)+1,capped:!!r.capped,ordered:r.ordered||null,discoveryComplete:r.discoveryComplete===true,continuation:nativeSearchContinuation(r),
       items:admitted.slice(page*pageSize,(page+1)*pageSize).map(({h,index},offset)=>({index,ordinal:page*pageSize+offset+1,
         available:true,hitId:hitKey(h),skip:Math.abs(h.skip),direction:h.dir===1?"fwd":"back",book:bookOf(h.start),ref:refStr(verseAt(h.start))}))};
   }
@@ -2031,7 +2043,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
       geometry:{S:b.S,mainCol:b.mainCol,c0:b.c0,cw:b.cw,r0:b.r0,r1:b.r1},
       matrix:matrixSnapshot(b),
       findings:st.words.map(nativeFindingResults),
-      ui:{expand:st.expand,swOpen:st.swOpen,lineFor:st.lineFor,selCells:(st.selCells||[]).slice(0,64),windowSize:st.windowSize,windowRequested:st.windowRequested,
+      ui:{expand:st.expand,swOpen:st.swOpen,lineFor:st.lineFor,selCells:(st.selCells||[]).slice(0,64),selText:(st.selCells||[]).slice(0,64).map(i=>T[i]).join(""),windowSize:st.windowSize,windowRequested:st.windowRequested,
         showN:st.showN,findingRadius:st.findingRadius,ctxR:st.ctxR,hideMain:!!st.hideMain,zoom:st.zoom,fit:!!st.fit,
         heat:!!st.heat,niqqud:!!st.niqqud,selMode:!!st.selMode,verseRead:!!st.verseRead},
       search:{mode:st.crossSimple?"cross-simple":st.crossBridge?"bridge":st.crossFree?"cross-free":(st.crossMeetings?"cross":"regular"),
@@ -2127,13 +2139,18 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
   async function letterContextLens(target){
     const t=target||{},i=Number(t.i);
     try{
+      const axis=hasGov(st.res)?hitKey(occ()):null,scope=st.scope;
+      if(!axis)return;
       if(!Number.isInteger(i)||i<0||i>=scopeN()){postHost({type:"lens",lens:"letter-context",ok:false,target:t});return;}
       const b=blockOf(),r=Math.floor(i/b.S),c=((i%b.S)+b.S)%b.S;
       if(r<b.r0||r>b.r1||c<b.c0||c>=b.c0+b.cw){postHost({type:"lens",lens:"letter-context",ok:false,target:t});return;}
       await ensureVerseText();
+      if(searchUncommitted()||!hasGov(st.res)||hitKey(occ())!==axis||st.scope!==scope)return;
       const loc=locateLetter(i);
       if(!loc){postHost({type:"lens",lens:"letter-context",ok:false,target:t});return;}
       postHost({type:"lens",lens:"letter-context",ok:true,target:t,index:i,letter:T[i],
+        occurrences:[...(occ().positions.includes(i)?[{term:st.raw,hitId:axis,primary:true}]:[]),
+          ...st.words.flatMap(w=>shownHitsOf(w).filter(h=>isGov(h)&&h.positions.includes(i)).map(h=>({term:w.t,hitId:hitKey(h),primary:false})))],
         location:{book:loc.book,chapter:loc.chapter,verse:loc.verse,offset:loc.offset,ref:loc.ref,verseIndex:loc.verseIndex},
         verse:{ref:loc.ref,text:loc.text||"",from:VCUM[loc.verseIndex],to:VCUM[loc.verseIndex+1]-1}});
     }catch(e){postHost({type:"lens",lens:"letter-context",ok:false,target:t});}
@@ -2162,6 +2179,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     recolorOnly();if(st._renderNativeList)st._renderNativeList();emitState();
   }
   let _nativeFindingsOperation=null,_nativeSearchOperation=null,_nativeFindingsSeq=0;
+  let _nativeTripleScan=null,_nativeTripleScanSeq=0;
   function searchUncommitted(){return !!(_nativeSearchOperation&&!_nativeSearchOperation.terminal&&!_nativeSearchOperation.committed);}
   function operationStatus(operation,status,message,progress){
     if(!operation||(operation.kind==="findings"?operation!==_nativeFindingsOperation:operation!==_nativeSearchOperation))return;
@@ -2246,7 +2264,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
   // st.occ or st.words. Its broad language index is lazy and lookup-only: it is opened after a
   // verified axis, never scanned term-by-term, and can never promote a reading into a Finding.
   const GUIDED_MATRIX_DISCOVERY_CONTRACT="els_matrix_discovery_v1",GUIDED_MATRIX_BUDGET_CONTRACT="els_matrix_discovery_budget_v1",GUIDED_MATRIX_LANGUAGE_CONTRACT="els_matrix_language_inspection_v1",GUIDED_LANGUAGE_READING_CONTRACT="els_torah_language_reading_v1",GUIDED_LANGUAGE_RELATION_CONTRACT="els_torah_language_relation_v1",GUIDED_LANGUAGE_REPLAY_CONTRACT="els_language_relation_replay_v1",GUIDED_LANGUAGE_BOUNDARY_CONTRACT="els_torah_language_boundary_v1",GUIDED_DYNAMIC_LEXICON_CONTRACT="els_dynamic_lexicon_profile_v1";
-  let _guidedMatrixLensSeq=0;
+  let _guidedMatrixLensSeq=0,_researchInspectionRun=null;
   let _guidedDynamicLexiconPromise=null;
   function guidedDynamicLexiconSkeleton(term){const value=norm(term);return value.length<3?value:value[0]+value.slice(1,-1).replace(/[וי]/g,"")+value.at(-1);}
   async function guidedDynamicLexiconAsset(){
@@ -2287,7 +2305,9 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
   }
   function guidedLanguageReadings(surface,hints,dynamicLexicon=null,lookupBudget=null){
     const prefixes=["","וב","וה","ול","ומ","וש","ו","ה","ב","כ","ל","מ","ש"].map(norm),suffixes=["","יכם","יהם","ינו","כם","כן","ים","ות","נו","יו","יה","ך","ו","ה","י","ם","ן","ת"].map(norm),matches=[],seen=new Set(),lookup=(map,key)=>{if(!map)return null;if(lookupBudget){if(lookupBudget.count>=lookupBudget.max){lookupBudget.exhausted=true;return null;}lookupBudget.count++;}return map.get(key)||null;};
-    const add=(hint,base,relation,prefix=null,suffix=null,penalty=0)=>{if(!hint)return;const dynamic=hint.selectionProtocol==="DYNAMIC_LEXICON_LOOKUP_V1",derived=relation!=="exact-lexicon-match"&&relation!=="defective-spelling";if(base.length<2||base.length<3&&!dynamic||base.length===2&&derived&&surface.length<3)return;const key=`${base}:${relation}:${prefix||""}:${suffix||""}:${hint.source}`;if(seen.has(key))return;seen.add(key);
+    // A short context proposal may influence a split only when the existing lexical index confirms
+    // that exact two-letter form. This is a candidate signal, never verification of meaning.
+    const add=(hint,base,relation,prefix=null,suffix=null,penalty=0)=>{if(!hint)return;const dynamic=hint.selectionProtocol==="DYNAMIC_LEXICON_LOOKUP_V1",derived=relation!=="exact-lexicon-match"&&relation!=="defective-spelling",shortStory=base.length===2&&hint.source==="story"&&!derived&&!!lookup(dynamicLexicon?.words,base);if(base.length<2||base.length<3&&!dynamic&&!shortStory||base.length===2&&derived&&surface.length<3)return;const key=`${base}:${relation}:${prefix||""}:${suffix||""}:${hint.source}`;if(seen.has(key))return;seen.add(key);
       const lexiconSources=Array.isArray(hint.lexiconSources)?hint.lexiconSources:[hint.source||"bounded-dictionary"],lexiconFrequency=Math.max(0,Number(hint.lexiconFrequency)||0),lexicalConfidence=Math.max(0,Math.min(100,Number(hint.sourceConfidence||(hint.source==="story"?100:96))-penalty-(base.length===2?15:0))),core=lexiconSources.includes("maftech_core_snapshot"),tanakh=lexiconSources.includes("canonical_tanakh_words"),sourceBonus=core&&!tanakh?20:core?10:0,relationBonus=relation==="construct-form"?28:relation==="exact-lexicon-match"?16:relation==="mater-omission"?8:3,frequencyBonus=lexiconFrequency===0?12:Math.max(0,12-Math.floor(Math.log2(lexiconFrequency+1)*2)),lexicalPriority=Math.min(120,surface.length*6+sourceBonus+relationBonus+frequencyBonus);
       matches.push({baseTerm:base,label:hint.readingLabel||hint.label||guidedMatrixDisplayTerm(base),relation,prefix,suffix,source:hint.source||"bounded-dictionary",selectionProtocol:hint.selectionProtocol||(hint.source==="story"?"CONTEXT_PRE_REGISTERED":"GOVERNED_CORE"),lexiconSources,lexiconFrequency,lexicalConfidence,lexicalPriority,shortToken:base.length===2});};
     for(const prefix of prefixes){if(prefix&&!surface.startsWith(prefix))continue;for(const suffix of suffixes){if(suffix&&!surface.endsWith(suffix))continue;const end=surface.length-suffix.length;if(end<=prefix.length)continue;const base=surface.slice(prefix.length,end),derived=!!prefix||!!suffix;if(derived&&surface.length<3)continue;
@@ -2331,9 +2351,8 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
   // A bounded S2/S3 language map over canonical letters already present in the approved S1 box. It
   // does not expand geometry or call AI. A broad lexicon is used as a lazy direct index, never as a
   // term scan. Word divisions remain candidates; exact coordinates stay authoritative.
-  function guidedMatrixLanguageInspection(axis,box,hints,dynamicLexicon=null){
-    if(!box||!Array.isArray(axis?.positions)||!axis.positions.length||!(hints instanceof Map))return null;
-    const rayCap=24,maxLetters=24,maxCandidateWindows=9216,maxHintComparisons=8192,maxLexiconLookups=196608,readingCap=24,segmentationCap=24,relationReadingCap=384,perTraversalReadingCap=16,anchors=axis.positions.map(position=>[Math.floor(position/box.S),((position%box.S)+box.S)%box.S]),rays=[],priorities={vertical:0,"diagonal-left":1,"diagonal-right":2,horizontal:3},directions=[
+  function guidedMatrixRays(axis,box,maxLetters){
+    const anchors=axis.positions.map(position=>[Math.floor(position/box.S),((position%box.S)+box.S)%box.S]),rays=[],directions=[
       {name:"horizontal",dr:0,dc:1},{name:"vertical",dr:1,dc:0},{name:"diagonal-right",dr:1,dc:1},{name:"diagonal-left",dr:1,dc:-1}];
     for(const direction of directions)for(let row=box.r0;row<=box.r1;row++)for(let col=box.c0;col<=box.c1;col++){
       const priorRow=row-direction.dr,priorCol=col-direction.dc;if(priorRow>=box.r0&&priorRow<=box.r1&&priorCol>=box.c0&&priorCol<=box.c1)continue;
@@ -2342,6 +2361,11 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
       const sliceStart=Math.max(0,Math.min(Math.max(0,full.length-maxLetters),focus-Math.floor(maxLetters/2))),cells=full.slice(sliceStart,sliceStart+maxLetters),text=cells.map(cell=>T[cell.position]).join("");if(text.length<4)continue;
       const step=direction.dr*box.S+direction.dc,start=cells[0].position,focusOffset=Math.max(0,Math.min(text.length-1,focus-sliceStart));rays.push({id:`${direction.name}:${start}:${step}:${text.length}`,orientation:direction.name,text,reverseText:[...text].reverse().join(""),start,step,length:text.length,distance,intersectsAxis:distance===0,anchorIndex,focusOffset});
     }
+    return rays;
+  }
+  function guidedMatrixLanguageInspection(axis,box,hints,dynamicLexicon=null){
+    if(!box||!Array.isArray(axis?.positions)||!axis.positions.length||!(hints instanceof Map))return null;
+    const rayCap=24,maxLetters=24,maxCandidateWindows=9216,maxHintComparisons=8192,maxLexiconLookups=196608,readingCap=24,segmentationCap=24,relationReadingCap=384,perTraversalReadingCap=16,anchors=axis.positions.map(position=>[Math.floor(position/box.S),((position%box.S)+box.S)%box.S]),rays=guidedMatrixRays(axis,box,maxLetters),priorities={vertical:0,"diagonal-left":1,"diagonal-right":2,horizontal:3},directions=[{name:"horizontal"},{name:"vertical"},{name:"diagonal-right"},{name:"diagonal-left"}];
     // The matrix axis is vertical, so all bounded parallel rays are checked first for exact governed
     // hints. This makes a compact parallel pair stronger than a memorable skip without privileging
     // any word, cipher or number. The visible raw sample then remains balanced across all directions.
@@ -2394,7 +2418,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
   }
   async function guidedMatrixCandidates(axis,target,isCancelled){
     const box=guidedMatrixBox(axis);if(!box)return null;
-    const context=new Map(),hints=new Map(),addHint=(raw,source)=>{const term=norm(raw),label=String(raw||term).trim()||term;if(term.length<3||term.length>10)return;if(!hints.has(term)&&hints.size<100)hints.set(term,{term,label,source});
+    const context=new Map(),hints=new Map(),addHint=(raw,source)=>{const term=norm(raw),label=String(raw||term).trim()||term;if(term.length<(source==="story"?2:3)||term.length>10)return;if(!hints.has(term)&&hints.size<100)hints.set(term,{term,label,source});
       // General defective/plene spelling relation: remove one internal mater lectionis. The exact
       // matrix letters remain the finding; the fuller spelling is annotation only.
       for(let index=1;index<term.length-1&&hints.size<100;index++)if("וי".includes(term[index])){const variant=term.slice(0,index)+term.slice(index+1);if(variant.length>=3&&!hints.has(variant))hints.set(variant,{term:variant,label:guidedMatrixDisplayTerm(variant),source,readingLabel:label,readingRelation:"defective-spelling"});}};
@@ -2443,6 +2467,9 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     return {contract:"els_cipher_discovery_plan_v1",projection:"verified-pair",status:verifiedPairs.length?"VERIFIED_PAIR":verifiedFindings.length?"VERIFIED_LOCAL":ranked.length?"NO_VERIFIED_PAIR":"NO_CANDIDATE_PAIR",failureCause,selected:verifiedPairs[0]||null,alternatives:verifiedPairs.slice(1,3),verifiedFindings,consideredPairs:ranked.length,verification:{attempted:attempts,failed,maxAttempts:12,complete:verifiedPairs.length>=3||attempts>=12||processed>=ranked.length},selectionLaw:{order:["canonical-verification","strong-geometry","story-relevance","recurrence-and-source","distance","stable-label"],numericSkipPromoted:false},findingMutation:false};
   }
   async function guidedMatrixDiscoveryLens(target){
+    // Explicit Research inspection shares this lens; cancellation must not start a scan.
+    if(target?.researchOccurrenceInspection===true&&target.cancel===true){if(target.inspectionRun===_researchInspectionRun){++_guidedMatrixLensSeq;_researchInspectionRun=null;}return;}
+    _researchInspectionRun=target?.researchOccurrenceInspection===true?target.inspectionRun:null;
     const seq=++_guidedMatrixLensSeq,sourceResult=st.res,occurrences=nativeOccurrenceResults(),item=occurrences&&target.setId===occurrences.id&&Number(target.page)===Number(occurrences.page)?occurrences.items.find(row=>row.hitId===target.hitId):null,axis=item&&isGov(sourceResult?.hits?.[item.index])?sourceResult.hits[item.index]:null;
     if(!axis){postHost({type:"lens",lens:"matrix-discovery",ok:false,target,reason:"results-changed"});return;}
     const cancelled=()=>seq!==_guidedMatrixLensSeq||st.res!==sourceResult||!isGov(axis)||!nativeOccurrenceResults()?.items.some(row=>row.hitId===target.hitId&&row.index===item.index);
@@ -2450,6 +2477,117 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
       const rawPatterns=scan.raw.map(row=>({kind:"raw-pattern",term:guidedMatrixDisplayTerm(row.term),length:row.term.length,occurrenceCount:row.occurrenceCount,matrixStage:row.matrixStage,gapScale:row.gapScale,distance:row.distance,status:"UNVERIFIED_PATTERN"}));
       postHost({type:"lens",lens:"matrix-discovery",ok:true,target,contract:GUIDED_MATRIX_DISCOVERY_CONTRACT,status:discoveryBundle.status,scope:st.scope,strategy:"matrix-first",searchRule:"lazy-bounded-dynamic-lexicon",defaultLexiconLoaded:false,dynamicLexiconLoaded:!!dynamicLexicon,vocabularyTermsChecked:scan.hintCount,budget:{contract:GUIDED_MATRIX_BUDGET_CONTRACT,cells:scan.box.cells,matrixPathsChecked:scan.pathsChecked,maxVocabularyTerms:scan.box.maxVocabularyTerms,maxGapScale:scan.box.maxGapScale,rowPad:scan.box.rowPad,colRadius:scan.box.colRadius},axis:{term:norm(st.raw),skip:Math.abs(axis.skip),direction:axis.dir===1?"fwd":"back",hitId:hitKey(axis)},items:scan.recognized.map(row=>({term:row.term,label:row.label,readingLabel:row.readingLabel,readingRelation:row.readingRelation,occurrenceCount:row.occurrenceCount,matrixStage:row.matrixStage,status:"CANDIDATE"})),rawPatterns,languageInspection,discoveryBundle,truthPromotion:false});
     }catch(_){if(!cancelled())postHost({type:"lens",lens:"matrix-discovery",ok:false,target,reason:"scan-failed"});}
+  }
+
+  // Explicit Research S2: reuse the canonical ray builder and lazy lookup index. No term-by-corpus
+  // sweep, morphology, model or Finding mutation. Admission remains the existing verified load.
+  let _lexiconScanSeq=0,_lexiconScanRequest=null;
+  // Projection of the EXISTING bounded language reader, not a second scanner.
+  // Labels contain only exact canonical letters plus proposed spaces. A derived
+  // dictionary headword never replaces the letters admitted by canonical replay.
+  function projectMatrixLanguageInspection(inspection,axis,box,lexicon,plan,started){
+    if(!inspection)return null;
+    const items=[],seen=new Set(),axisCells=new Set(axis.positions);let axisFragments=0,outsidePlan=0,invalid=0;
+    for(const row of [...inspection.segmentations,...inspection.readings]){
+      const term=row.canonicalLetters,parts=row.tokens||[{exactLetters:row.exactLetters,baseTerm:row.baseTerm,relation:row.relation,lexiconSources:row.lexiconSources}];
+      const tokens=parts.map(token=>({letters:norm(token.exactLetters),baseTerm:token.baseTerm,relation:token.relation}));
+      if(!/^[א-ת]{5,16}$/.test(term)||tokens.map(token=>token.letters).join("")!==term||!Number.isSafeInteger(row.start)||!Number.isSafeInteger(row.step)||!row.step){invalid++;continue;}
+      const positions=Array.from(term,(_,i)=>row.start+i*row.step);
+      if(positions.some((p,i)=>p<0||p>=scopeN()||Math.floor(p/box.S)<box.r0||Math.floor(p/box.S)>box.r1||p%box.S<box.c0||p%box.S>box.c1||T[p]!==term[i]
+        ||i>0&&(Math.abs(Math.floor(p/box.S)-Math.floor(positions[i-1]/box.S))>1||Math.abs(p%box.S-positions[i-1]%box.S)>1))){invalid++;continue;}
+      const skip=Math.abs(row.step),dir=Math.sign(row.step),hitId=`${skip}_${dir}_${row.start}`,key=`${term}:${hitId}`;
+      if(seen.has(key))continue;seen.add(key);
+      if(positions.every(p=>axisCells.has(p))){axisFragments++;continue;}
+      const distance=guidedMatrixDistance(positions,axis,box);
+      if(distance>plan.maxDistance){outsidePlan++;continue;}
+      items.push({term,label:tokens.map(token=>guidedMatrixDisplayTerm(token.letters)).join(" "),hitId,start:row.start,skip,dir,positions,
+        kind:skip===1?"source":"els",status:"CANDIDATE",distance,orientation:row.orientation,
+        lexiconSources:[...new Set(parts.flatMap(token=>token.lexiconSources||[]))],
+        language:{exactLetters:term,relation:row.relation,tokens,segmentationVerified:false}});
+    }
+    items.sort((a,b)=>a.distance-b.distance||b.term.length-a.term.length||a.term.localeCompare(b.term,"he")||a.start-b.start);
+    const c=inspection.coverage;
+    return {items,plan,languageInspection:inspection,coverage:{stop:"BOUNDED_LANGUAGE_SAMPLE",complete:false,
+      completedRays:c.returnedRays,totalRays:c.totalRays,windows:c.candidatesExamined,axisFragments,outsidePlan,invalid,
+      maxWindows:c.maxCandidateWindows,maxResults:48,minLength:5,maxLength:16,directions:8,elapsedMs:Math.round(performance.now()-started)},
+      box,lexicon:lexicon.profile,selectionProtocol:"EXPLORATORY_DISCOVERY",modelCalls:0,findingMutation:false,truthPromotion:false};
+  }
+  async function scanMatrixLexicon(axis,box,lexicon,cancelled,progress,requestedPlan){
+    requestedPlan=requestedPlan||{};
+    const started=performance.now(),maxWindows=100000,maxResults=300,maxWallMs=10000;
+    // Explicit settings over this scanner, never another word-by-corpus search.
+    // The current fingerprinted lexicon contains words up to ten letters.
+    const bounded=(value,fallback,min,max)=>Number.isSafeInteger(value)?Math.max(min,Math.min(max,value)):fallback;
+    if(requestedPlan.mode==="language"){
+      if(cancelled())return null;
+      progress({completedRays:0,totalRays:null,windows:0});
+      await new Promise(resolve=>setTimeout(resolve,0));if(cancelled())return null;
+      const inspection=guidedMatrixLanguageInspection(axis,box,new Map(),lexicon);
+      // Deliver only after queued selection/cancel messages can invalidate this bounded computation.
+      await new Promise(resolve=>setTimeout(resolve,0));if(cancelled())return null;
+      return projectMatrixLanguageInspection(inspection,axis,box,lexicon,{mode:"language",minLength:5,maxLength:16,
+        maxDistance:bounded(requestedPlan.maxDistance,120,0,120),minMembers:bounded(requestedPlan.minMembers,2,2,6)},started);
+    }
+    const minLength=bounded(requestedPlan.minLength,5,3,10),maxLength=bounded(requestedPlan.maxLength,10,minLength,10);
+    const maxDistance=bounded(requestedPlan.maxDistance,120,0,120);
+    const plan={minLength,maxLength,maxDistance,minMembers:bounded(requestedPlan.minMembers,2,2,6),
+      shortTokenRadius:12,shortTokenEligible:(axis.positions||[]).length>=5};
+    const rays=guidedMatrixRays(axis,box,Math.max(box.r1-box.r0+1,box.c1-box.c0+1))
+      .sort((a,b)=>a.distance-b.distance||a.id.localeCompare(b.id));
+    const items=[],seen=new Set(),axisCells=new Set(axis.positions);let windows=0,completedRays=0,axisFragments=0,outsidePlan=0,shortTokenExcluded=0,stop="COMPLETE";
+    scan:for(const ray of rays){
+      if(cancelled())return null;
+      for(const traversal of [{text:ray.text,start:ray.start,step:ray.step},{text:ray.reverseText,start:ray.start+(ray.length-1)*ray.step,step:-ray.step}]){
+        for(let offset=0;offset<traversal.text.length;offset++)for(let length=minLength;length<=maxLength&&offset+length<=traversal.text.length;length++){
+          if(windows>=maxWindows){stop="WINDOW_LIMIT";break scan;}
+          if(performance.now()-started>=maxWallMs){stop="TIME_LIMIT";break scan;}
+          windows++;const term=traversal.text.slice(offset,offset+length),hint=lexicon.words.get(term);if(!hint)continue;
+          const start=traversal.start+offset*traversal.step,skip=Math.abs(traversal.step),dir=traversal.step<0?-1:1,hitId=`${skip}_${dir}_${start}`,key=`${term}:${hitId}`;
+          if(seen.has(key))continue;seen.add(key);
+          const positions=Array.from({length},(_,i)=>start+i*traversal.step);
+          if(positions.every(p=>axisCells.has(p))){axisFragments++;continue;}
+          const distance=guidedMatrixDistance(positions,axis,box);
+          if(distance>maxDistance){outsidePlan++;continue;}
+          if(length<5&&(!plan.shortTokenEligible||distance>plan.shortTokenRadius)){shortTokenExcluded++;continue;}
+          if(items.length>=maxResults){stop="RESULT_LIMIT";break scan;}
+          items.push({term,label:guidedMatrixDisplayTerm(term),hitId,start,skip,dir,positions,
+            kind:skip===1?"source":"els",status:"CANDIDATE",lexiconSources:[...hint.lexiconSources],
+            distance,orientation:ray.orientation});
+        }
+      }
+      completedRays++;if(completedRays%4===0||completedRays===rays.length)progress({completedRays,totalRays:rays.length,windows});
+      // Yield between lines, so cancel/selection/navigation can invalidate this same operation.
+      if(completedRays%4===0)await new Promise(resolve=>setTimeout(resolve,0));
+    }
+    if(cancelled())return null;
+    items.sort((a,b)=>a.distance-b.distance||b.term.length-a.term.length||a.term.localeCompare(b.term,"he")||a.start-b.start);
+    return {items,plan,coverage:{stop,complete:stop==="COMPLETE",completedRays,totalRays:rays.length,windows,axisFragments,outsidePlan,shortTokenExcluded,
+      maxWindows,maxResults,maxWallMs,minLength,maxLength,directions:8,elapsedMs:Math.round(performance.now()-started)},
+      box,lexicon:lexicon.profile,selectionProtocol:"EXPLORATORY_DISCOVERY",modelCalls:0,findingMutation:false,truthPromotion:false};
+  }
+  async function matrixLexiconLens(target){
+    if(!target?.scanId||typeof target.scanId!=="string"||target.scanId.length>100)return;
+    if(target.cancel===true){if(_lexiconScanRequest===target.scanId)_lexiconScanSeq++;return;}
+    if(_lexiconScanRequest===target.scanId)return;
+    const seq=++_lexiconScanSeq,source=st.res,axis=source?.hits?.[st.occ],scope=st.scope;
+    const send=payload=>postHost({type:"lens",lens:"matrix-lexicon",target,...payload});
+    if(!hasGov(source)||!isGov(axis)||target.hitId!==hitKey(axis)||target.scope!==scope||searchUncommitted()){
+      send({ok:false,reason:"results-changed"});return;
+    }
+    const b=blockOf(),box={S:b.S,r0:b.r0,r1:b.r1,c0:b.c0,c1:b.c0+b.cw-1},cells=(box.r1-box.r0+1)*(box.c1-box.c0+1);
+    if(!Object.values(box).every(Number.isSafeInteger)||box.S<2||box.r0<0||box.r1<box.r0||box.c0<0||box.c1<box.c0||box.c1>=box.S||cells>8192||box.r1-box.r0+1>256||box.c1-box.c0+1>129){
+      send({ok:false,reason:"window-too-large"});return;
+    }
+    _lexiconScanRequest=target.scanId;
+    const cancelled=()=>seq!==_lexiconScanSeq||st.res!==source||st.scope!==scope||!isGov(axis)||occ()!==axis||searchUncommitted()||JSON.stringify(blockOf())!==JSON.stringify(b);
+    try{
+      send({ok:true,pending:true,phase:"lexicon",box});
+      const lexicon=await guidedLoadDynamicLexicon();if(cancelled())return;
+      if(!lexicon){send({ok:false,reason:"lexicon-unavailable"});return;}
+      const result=await scanMatrixLexicon(axis,box,lexicon,cancelled,coverage=>send({ok:true,pending:true,phase:"scan",coverage}),target.plan||{});
+      if(!result||cancelled())return;
+      send({ok:true,pending:false,...result,origin:{term:norm(st.raw),corpus:scope,corpusId:CORPUS_ID[scope],skip:axis.skip,dir:axis.dir,start:axis.start}});
+    }catch(_){if(!cancelled())send({ok:false,reason:"scan-failed"});}
   }
 
   const isAnon=()=>st.tier==="anon"&&!st.admin;   // מנהל (מקומי או מהאתר) לעולם לא נחשב אנונימי → אין שער
@@ -2551,6 +2689,8 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
       else postHost({type:"lens",lens:"line-context",ok:false,target});
     }
     if(d.type==="request-lens"&&d.lens==="matrix-discovery")guidedMatrixDiscoveryLens(d.target||{});
+    if(d.type==="request-lens"&&d.lens==="matrix-lexicon")matrixLexiconLens(d.target||{});
+    if(d.type==="request-lens"&&d.lens==="cross-third-axis")crossThirdAxisLens(d.target||{});
     if(d.type==="request-lens"&&d.lens==="letter-context"){letterContextLens(d.target||{});}   // 📍 תא-מטריצה → מקור/פסוק; קריאה בלבד
     if(d.type==="native-control"&&typeof d.action==="string"){
       if(searchUncommitted())return;   // 🎛️ 2029 Native Classic — allowlist presentation בלבד
@@ -2561,10 +2701,26 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
       else if(d.action==="occurrence-select"||d.action==="occurrence-page")controlNativeOccurrence(d.action,d.value);
       else if(d.action==="zoom-out")adjustZoom(-0.2);
       else if(d.action==="zoom-in")adjustZoom(0.2);
+      else if(d.action==="zoom-set"&&Number.isFinite(d.value)){st.fit=false;setZoom(d.value);}
       else if(d.action==="fit-toggle")toggleFit();
       else if(d.action==="axis-visibility"){st.hideMain=!st.hideMain;recolorOnly();emitState();}
       else if(d.action==="heat-toggle"){st.heat=!st.heat;recolorOnly();emitState();}
       else if(d.action==="niqqud-toggle")toggleNiqqud();
+      else if(EXPR2029&&["selection-mode","selection-toggle","selection-clear"].includes(d.action)){
+        // Same manual selection as the classic tool. Indices are presentation, never findings.
+        const v=d.value||{};
+        if(v.axisHitId!==hitKey(occ())||v.scope!==st.scope)return;
+        if(d.action==="selection-mode")st.selMode=!st.selMode;
+        else if(d.action==="selection-clear")st.selCells=[];
+        else{
+          if(!st.selMode||!Number.isInteger(v.index)||v.index<0||v.index>=scopeN())return;
+          const b=blockOf(),r=Math.floor(v.index/b.S),c=v.index%b.S;
+          if(r<b.r0||r>b.r1||c<b.c0||c>=b.c0+b.cw)return;
+          const at=st.selCells.indexOf(v.index);
+          if(at>=0)st.selCells.splice(at,1);else if(st.selCells.length<64)st.selCells.push(v.index);
+        }
+        recolorOnly();updateSelBar();emitState();
+      }
       else if(d.action==="finding-radius"&&(d.value===null||(Number.isInteger(d.value)&&d.value>=0&&d.value<=100))){
         st.findingRadius=d.value;recolorOnly();if(st._renderNativeList)st._renderNativeList();emitState();
       }
@@ -2579,10 +2735,31 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
       const operation=beginOperation("search",d.requestId===undefined?d.request.seq:d.requestId);
       if(!ensureOnboarded()){postHost({type:"onboarding-required"});operationStatus(operation,"error","קראו את ההדרכה לפני החיפוש הראשון.");return;}   // 🎓 אותו helper: bridge=hidden אינו שומר אישור ואינו משנה הרשאות
       const req=d.request,kind=req.kind,term=typeof req.term==="string"?req.term.trim():"";
+      if(kind!=="cross-three-continue")_nativeTripleScan=null;
       if(operation&&EXPR2029)operation.windowSize=NATIVE_WINDOWS[req.windowSize]?req.windowSize:"small";
       const scope=req.scope==="tanakh"?"tanakh":"torah";
+      if(kind==="cross"||kind==="cross-three"){
+        const gap=req.maxLetterGap===undefined?0:req.maxLetterGap;
+        if(!Number.isInteger(gap)||gap<0||gap>20){operationStatus(operation,"error","בחרו מרווח בין אותיות מ־0 עד 20 תאים.");return;}
+        if(operation)operation.maxLetterGap=gap;
+      }
       if(kind==="continue"){continueNativeSearch(req,operation);return;}
       if(kind==="cross-continue"){continueNativeCross(req,operation);return;}
+      if(kind==="cross-three-continue"){
+        const prior=_nativeTripleScan;
+        if(!prior||req.token!==prior.token||!prior.canContinue||scope!==prior.scope){operationStatus(operation,"error","גלי ההצלבה השתנו. התחילו חיפוש חדש.");return;}
+        if(!selectSearchScope(scope,false)){operationStatus(operation,"error","החיפוש לא זמין בחשבון הנוכחי.");return;}
+        runCrossThree(prior.terms,prior.pure,operation,prior);return;
+      }
+      if(kind==="cross-three"){
+        const terms=Array.isArray(req.terms)?req.terms.map(t=>typeof t==="string"?t.trim():""):[];
+        const keys=terms.map(norm),radius=req.radius===undefined?18:req.radius;
+        if(terms.length!==3||keys.some(t=>t.length<2||t.length>12)||new Set(keys).size!==3||!Number.isInteger(radius)||radius<2||radius>20){operationStatus(operation,"error","נדרשות שלוש מילים שונות ומרחק תקין.");return;}
+        if(req.thirdRequired!==undefined&&typeof req.thirdRequired!=="boolean"){operationStatus(operation,"error","בחרו אם המונח השלישי הוא חובה.");return;}
+        if(!canCross()||!selectSearchScope(scope,false)){operationStatus(operation,"error","החיפוש לא זמין בחשבון הנוכחי.");return;}
+        if(operation)operation.thirdRequired=req.thirdRequired!==false;
+        runCrossThree(terms,radius,operation);return;
+      }
       if(kind==="regular"){
         if(norm(term).length<2){toast("רשום לפחות 2 אותיות");operationStatus(operation,"error","כתבו לפחות שתי אותיות.");return;}
         if(!selectSearchScope(scope,false)){operationStatus(operation,"error","החיפוש לא זמין בחשבון הנוכחי.");return;}
@@ -2781,7 +2958,10 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     for(const t of T2){const L=t.length,starts=byChar.get(t[0]);if(!starts)continue;let bc=1e9,bsk=0,bdir=1,bs0=-1;const skips=searchSpace(_geo,L);
       for(const s0 of starts)for(const sk of skips)for(const d of[1,-1]){const end=s0+d*sk*(L-1);if(end<0||end>=SN)continue;let ok=1;const pos=[s0];
         for(let k=1;k<L;k++){const p=s0+d*sk*k;if(T[p]!==t[k]||!inWin(p)){ok=0;break;}pos.push(p);}
-        if(!ok)continue;const cc=distanceToAnchors(pos,anchorCells,S);
+        if(!ok)continue;
+        const maxStep=Number.isInteger(window.maxLetterGap)?window.maxLetterGap+1:window.connectedOnly===true?1:null;
+        if(maxStep!==null&&pos.some((p,k)=>k>0&&(Math.abs(Math.floor(p/S)-Math.floor(pos[k-1]/S))>maxStep||Math.abs((p%S)-(pos[k-1]%S))>maxStep)))continue;
+        const cc=distanceToAnchors(pos,anchorCells,S);
         if(cc<bc){bc=cc;bsk=sk;bdir=d;bs0=s0;}}
       if(bc<=pure){const step=gridStep(bsk,S),gf=gapF(step),pf=proxF(bc),rf=rarF(rar.get(t));
         detail.push({t,skip:bsk,dir:bdir,cost:bc,gem:gem(t),rar:rar.get(t),step,p0:bs0,p1:bs0+bdir*bsk*(L-1)});   // p0/p1 = תאי-קצה (לשרשרת-צופן)
@@ -2857,6 +3037,118 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
       canContinue:r1.scanned<r1.available||r2.scanned<r2.available,
       truncated:r1.capped||r2.capped||r1.scanned<r1.available||r2.scanned<r2.available}};
   }
+  // Explicit Guided-only three-term request. Every displayed meeting is replayed through
+  // the canonical verifier; bounded omissions are never a corpus-wide negative.
+  // Previous Research tool: search the already admitted meetings, never the full corpus.
+  function crossThirdAxisCandidates(zone,requested,radius,window=st,limit=4){
+    const term=norm(requested),result=zone?.axis&&st.crossResCache?st.crossResCache[zone.axis]:st.res,axisHit=result?.hits?.[zone?.occ];
+    if(!isGov(axisHit)||term.length<2||term===norm(zone.axis||st.raw)||(zone.detail||[]).some(detail=>norm(detail.t)===term))return[];
+    const S=Math.abs(Number(axisHit.skip));if(S<2)return[];
+    const mainCol=((axisHit.positions[0]%S)+S)%S,axisRows=axisHit.positions.map(position=>Math.floor(position/S)),middleRow=Math.round((Math.min(...axisRows)+Math.max(...axisRows))/2),
+      geometry=researchGeometry(S,mainCol,middleRow,{...window,scopeLength:window?.scopeLength||scopeN()}),c1=geometry.c0+geometry.cw,
+      inWindow=position=>{const row=Math.floor(position/S),column=((position%S)+S)%S;return row>=geometry.r0&&row<=geometry.r1&&column>=geometry.c0&&column<c1;},
+      rc=position=>[Math.floor(position/S),((position%S)+S)%S],axisAnchors=axisHit.positions.map(rc),companionAnchors=[];
+    for(const detail of zone.detail||[]){
+      const companion=norm(detail.t),skip=Math.abs(Number(detail.skip)),direction=Number(detail.dir),start=Number(detail.p0);
+      if(companion.length<2||skip<1||![1,-1].includes(direction)||!Number.isInteger(start))continue;
+      const positions=Array.from(companion,(_,index)=>start+direction*skip*index);
+      if(positions.every(position=>position>=0&&position<scopeN()))companionAnchors.push({term:companion,anchors:positions.map(rc)});
+    }
+    if(!companionAnchors.length)return[];
+    const byChar=new Map();for(let row=geometry.r0;row<=geometry.r1;row++)for(let column=geometry.c0;column<c1;column++){
+      const index=row*S+column;if(index<0||index>=scopeN())continue;const letter=T[index],list=byChar.get(letter)||[];list.push(index);byChar.set(letter,list);
+    }
+    const starts=byChar.get(term[0])||[],ends=byChar.get(term.at(-1))||[],found=new Map(),span=term.length-1,bound=Math.max(1,Math.min(80,Number(radius)||18));
+    for(const start of starts)for(const end of ends){
+      const delta=end-start;if(!delta||delta%span)continue;const step=delta/span,skip=Math.abs(step),direction=Math.sign(step);if(skip<1||![1,-1].includes(direction))continue;
+      const positions=Array.from(term,(_,index)=>start+step*index);if(!positions.every((position,index)=>position>=0&&position<scopeN()&&inWindow(position)&&T[position]===term[index]))continue;
+      if(positions.some((p,k)=>k>0&&(Math.abs(Math.floor(p/S)-Math.floor(positions[k-1]/S))>1||Math.abs((p%S)-(positions[k-1]%S))>1)))continue;
+      const axisDistance=distanceToAnchors(positions,axisAnchors,S),companionDistances=companionAnchors.map(companion=>({term:companion.term,distance:distanceToAnchors(positions,companion.anchors,S)}));
+      if(axisDistance>bound||companionDistances.some(companion=>companion.distance>bound))continue;
+      const meetingDistance=Math.max(...companionDistances.map(companion=>companion.distance)),candidate={term:requested,skip,dir:direction,start,positions,distance:axisDistance,axisDistance,meetingDistance,companionDistances};
+      const key=hitKey(candidate),prior=found.get(key);if(!prior||Math.max(axisDistance,meetingDistance)<Math.max(prior.axisDistance,prior.meetingDistance))found.set(key,candidate);
+    }
+    return [...found.values()].sort((a,b)=>Math.max(a.axisDistance,a.meetingDistance)-Math.max(b.axisDistance,b.meetingDistance)||Number(Math.abs(a.skip)!==1)-Number(Math.abs(b.skip)!==1)||a.skip-b.skip||a.start-b.start).slice(0,Math.max(1,Math.min(8,Number(limit)||4)));
+  }
+  let _crossThirdLensSeq=0;
+  async function crossThirdAxisLens(target){
+    const seq=++_crossThirdLensSeq,epoch=_matrixRequestSeq,results=nativeCrossResults(),term=norm(target.term),meetingScope=target.meetingScope==="all"?"all":"selected",maxDistance=Math.max(3,Math.min(80,Number(target.maxDistance)||18));
+    const fail=reason=>postHost({type:"lens",lens:"cross-third-axis",ok:false,target,reason});
+    if(!results||target.setId!==results.id)return fail("results-changed");
+    if(term.length<2||term.length>24)return fail("invalid-term");
+    const index=Number.isInteger(Number(target.meetingIndex))?Number(target.meetingIndex):st.crossIdx,indexes=results.items.filter(item=>item.available&&(meetingScope==="all"||item.index===index)).map(item=>item.index);
+    if(!indexes.length)return fail("meeting-changed");
+    const stale=()=>seq!==_crossThirdLensSeq||epoch!==_matrixRequestSeq||nativeCrossResults()?.id!==results.id;
+    try{
+      const raw=[],window=st.crossScan?.window||st;
+      for(const meetingIndex of indexes){if(stale())return;const zone=st.crossMeetings?.[meetingIndex];for(const candidate of crossThirdAxisCandidates(zone,target.term,maxDistance,window,2))raw.push({meetingIndex,zone,candidate});await paintOperation();}
+      if(stale())return;
+      const candidates=[...new Map(raw.filter(row=>Math.abs(row.candidate.skip)>=2).map(row=>[hitKey(row.candidate),row.candidate])).values()];
+      const verified=candidates.length?await promoteVerified({t:term,hits:candidates,capped:false,strategy:{policy:"CROSS_THIRD_AXIS_V1"}},st.scope,null):{hits:[]};
+      if(stale())return;if(verified.verr)return fail("verification-unavailable");const keys=new Set((verified.hits||[]).filter(isGov).map(hitKey)),seen=new Set(),items=[];
+      for(const {meetingIndex,zone,candidate} of raw){const sourceExact=Math.abs(candidate.skip)===1&&isSourceHit(candidate,term),key=`${meetingIndex}:${hitKey(candidate)}`;if(seen.has(key)||!sourceExact&&!keys.has(hitKey(candidate)))continue;seen.add(key);
+        items.push({key,meetingIndex,axis:zone.axis||st.raw,terms:(zone.detail||[]).map(detail=>detail.t),thirdTerm:term,label:String(target.term||term).trim()||term,status:sourceExact?"SOURCE_EXACT":"VERIFIED",skip:Math.abs(candidate.skip),direction:candidate.dir===1?"fwd":"back",maxDistance:Math.max(candidate.axisDistance,candidate.meetingDistance),ref:refStr(verseAt(candidate.start)),hitId:hitKey(candidate)});}
+      items.sort((a,b)=>a.maxDistance-b.maxDistance||Number(a.status!=="SOURCE_EXACT")-Number(b.status!=="SOURCE_EXACT")||a.skip-b.skip||a.meetingIndex-b.meetingIndex);
+      postHost({type:"lens",lens:"cross-third-axis",ok:true,target,status:items.length?"VERIFIED":"EMPTY",contract:"els_cross_third_axis_v1",scope:st.scope,meetingScope,maxDistance,searchedMeetings:indexes.length,items,total:items.length});
+    }catch(_){if(!stale())fail("scan-failed");}
+  }
+  async function runCrossThree(terms,pure,operation,previous=null){
+    const epoch=_matrixRequestSeq;
+    try{
+      // Existing Guided callers require all three. Research explicitly opts into
+      // a pair plus a locally checked optional term; never scan that term as an axis.
+      const thirdRequired=previous?.thirdRequired??(operation?.thirdRequired!==false),axes=thirdRequired?terms:terms.slice(0,2);
+      if(!previous)await prefetchVerified(axes,operation);if(epoch!==_matrixRequestSeq)return;
+      if(axes.some(term=>faMemo(term).verr)){operationStatus(operation,"error","אימות הצירים לא הושלם.");return;}
+      const window=previous?.window||{...nativeWindow(operation?.windowSize||"small",pure,axes),scopeLength:scopeN(),maxLetterGap:operation?.maxLetterGap??0};
+      const progress={completed:0,total:axes.reduce((n,t,i)=>n+Math.min(150,Math.max(0,faMemo(t).hits.filter(h=>Math.abs(h.skip)>=2).length-(previous?.runs[i]?.scanned||0))),0),startedAt:Date.now()};
+      const runs=[];for(let i=0;i<axes.length;i++){const axis=axes[i],others=axes.filter(t=>norm(t)!==norm(axis));runs.push(await crossFindBounded(axis,others,pure,window,operation,progress,epoch,previous?.runs[i]));}
+      if(epoch!==_matrixRequestSeq)return;
+      const candidates=runs.flatMap((run,index)=>run.meetings.filter(z=>z.detail.length===(thirdRequired?2:1)).map(z=>({...z,axis:axes[index]})));
+      candidates.sort((a,b)=>b.score-a.score||a.skip-b.skip||a.occ-b.occ);
+      const cache=Object.fromEntries(axes.map((term,index)=>[term,runs[index].resA])),admitted=[...(previous?.admitted||[])],processed=new Set(previous?.processed||[]);
+      const candidateKey=z=>[norm(z.axis),z.occ,...z.detail.map(d=>[d.t,d.skip,d.dir,d.p0].join(":"))].join("|");
+      for(const candidate of candidates.filter(z=>!processed.has(candidateKey(z))).slice(0,24)){
+        const z={...candidate,detail:candidate.detail.slice()};
+        const key=candidateKey(z),h=cache[z.axis]?.hits[z.occ];if(!isGov(h)){processed.add(key);continue;}
+        let valid=true;for(const d of z.detail){
+          const skip=Math.abs(d.skip),dir=d.dir,start=d.p0;
+          const hit={skip,dir,start,positions:Array.from({length:d.t.length},(_,i)=>start+dir*skip*i)};
+          if(skip<2){if(!thirdRequired&&isSourceHit(hit,d.t))continue;valid=false;break;}
+          const replay=await verifyBatch(d.t,[hit],{policy:"GUIDED_THREE_TERM_REPLAY_V1"},operation,st.scope);
+          if(epoch!==_matrixRequestSeq)return;
+          if(!replay?.ok){operationStatus(operation,"error","אימות מונחי ההצלבה לא הושלם.");return;}
+          if(!replay.verified?.has(hitKey(hit))){valid=false;break;}
+        }
+        if(valid&&!thirdRequired){
+          const term=norm(terms[2]);
+          // Unknown global frequency is deliberately neutral for this local-only
+          // check. It never triggers faMemo/full-corpus discovery for the third term.
+          const extra=crossFindMultiHit(h,z.occ,[term],pure,new Map([[term,9999]]),0,window)?.detail?.[0];
+          z.optionalThird={term,status:extra?"UNVERIFIED":"NOT_FOUND_IN_WINDOW"};
+          if(extra){
+            const skip=Math.abs(extra.skip),hit={skip,dir:extra.dir,start:extra.p0,positions:Array.from(term,(_,i)=>extra.p0+extra.dir*skip*i)};
+            let replay;try{if(skip>=2)replay=await verifyBatch(term,[hit],{policy:"GUIDED_THREE_TERM_REPLAY_V1"},operation,st.scope);}catch(e){if(e?.name==="AbortError")throw e;}
+            if(epoch!==_matrixRequestSeq)return;
+            const sourceExact=isSourceHit(hit,term);
+            if(sourceExact||replay?.ok&&replay.verified?.has(hitKey(hit))){z.detail=[...z.detail,{...extra,rar:null}];z.nFound=z.detail.length;z.optionalThird.status=sourceExact?"SOURCE_EXACT":"VERIFIED";}
+          }
+        }
+        processed.add(key);if(valid)admitted.push(z);
+      }
+      if(epoch!==_matrixRequestSeq)return;
+      const pendingCandidates=candidates.filter(z=>!processed.has(candidateKey(z))).length;
+      const coverage={phase:"cross-three-wave",thirdRequired,token:previous?.token||++_nativeTripleScanSeq,scanned:runs.reduce((n,r)=>n+r.scanned,0),available:runs.reduce((n,r)=>n+r.available,0),pendingCandidates,canContinue:runs.some(r=>r.scanned<r.available)||pendingCandidates>0,partial:runs.some(r=>r.capped||r.scanned<r.available)||pendingCandidates>0};
+      _nativeTripleScan={token:coverage.token,terms:terms.slice(),thirdRequired,pure,window,runs,admitted,processed:[...processed],scope:st.scope,canContinue:coverage.canContinue};
+      if(!admitted.length){operationStatus(operation,"empty","לא נמצא מפגש מאומת בגל המקומי שנבדק; ייתכן שקיימים מופעים נוספים.",coverage);return;}
+      const selected=previous&&st.crossFree&&hasGov(st.res)?{axis:norm(st.raw),hit:hitKey(occ())}:null;
+      operation.committed=true;Object.assign(st,{ctxR:window.ctxR,windowColumns:window.windowColumns,windowSize:window.windowSize,windowRequested:window.windowRequested});
+      st.crossResCache=cache;st.crossMeetings=admitted;st.crossIdx=Math.max(0,selected?admitted.findIndex(z=>norm(z.axis)===selected.axis&&hitKey(cache[z.axis].hits[z.occ])===selected.hit):-1);st.crossTerms=terms.slice(1);st.crossTotal=2;
+      st.crossSimple=false;st.crossFree=true;st.crossBridge=false;st.crossCoverage={scanned:coverage.scanned,available:coverage.available,canContinue:coverage.canContinue,truncated:coverage.partial};
+      st.crossScan=null;openZone(st.crossIdx,operation);await healGoverned();if(epoch!==_matrixRequestSeq)return;
+      operationStatus(operation,hasGov(st.res)?"done":"error",hasGov(st.res)?null:"אימות המפגש לא הושלם.",coverage);
+    }catch(e){if(epoch===_matrixRequestSeq&&e?.name!=="AbortError")operationStatus(operation,"error","הצלבת שלוש המילים לא הושלמה.");}
+  }
   async function continueNativeCross(req,operation){
     const prior=st.crossScan,view=nativeCrossResults(),epoch=_matrixRequestSeq;
     if(!prior||req.setId!==view?.id||!st.crossCoverage?.canContinue){operationStatus(operation,"error","תוצאות ההצלבה השתנו.");return;}
@@ -2908,7 +3200,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
       try{
       await prefetchVerified([A,B],operation);   // 🧬 G3: שני הצירים מאומתים בשרת לפני הדירוג/גאומטריה (faMemo קורא מהמטמון המאומת)
       if(requestSeq!==_matrixRequestSeq)return;
-      const window={...(operation?.windowSize?nativeWindow(operation.windowSize,pure,[A,B]):searchWindowSnapshot()),scopeLength:scopeN()};
+      const window={...(operation?.windowSize?nativeWindow(operation.windowSize,pure,[A,B]):searchWindowSnapshot()),scopeLength:scopeN(),...(operation&&EXPR2029?{maxLetterGap:operation.maxLetterGap??0}:{})};
       const progress={completed:0,total:[A,B].reduce((n,t)=>n+Math.min(150,faMemo(t).hits.filter(h=>Math.abs(h.skip)>=2).length),0),startedAt:Date.now()};
       const r1=await crossFindBounded(A,[B],pure,window,operation,progress,requestSeq);
       const r2=await crossFindBounded(B,[A],pure,window,operation,progress,requestSeq);
@@ -3934,6 +4226,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
   // טעינת מטריצה שמורה (מערכת או משתמש): קובע מילה, קופץ לדילוג השמור, וטוען ההצטלבויות
   async function loadMatrix(item,filmTimes){
     const requestSeq=++_matrixRequestSeq;
+    _nativeTripleScan=null;
     const prior=item.researchNonce?{zoom:st.zoom,fit:st.fit,verseHL:st.verseHL,scope:st.scope,
       postUrl:st.postUrl,postTitle:st.postTitle,desc:st.desc,author:st.author,
       cipherSlug:st.cipherSlug,cipherTerm:st.cipherTerm,raw:st.raw,query:q.value,editId:st.editId,editTerm:st.editTerm}:null;
@@ -4995,7 +5288,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     s+="הצמוד ביותר: <b>"+tight.t+"</b> ("+(tight.step<=1?"אות-ליד-אות":"פער "+heb(tight.step))+", מרחק-מהציר "+heb(Math.round(tight.cost))+"). ";
     const adj=z.detail.filter(d=>d.step<=1);
     if(adj.length)s+="מונחים <b>אות-ליד-אות</b> (בלי פערים): "+adj.map(d=>"«"+d.t+"»").join(", ")+" — אלה הכי חזקים. ";
-    const rare=z.detail.filter(d=>d.rar<=5);
+    const rare=z.detail.filter(d=>d.rar!=null&&d.rar<=5);
     if(rare.length)s+="מונחים נדירים בתורה שנפגשו כאן: "+rare.map(d=>"«"+d.t+"»").join(", ")+" — מחזק את הטוהר. ";
     if(gm.length)s+="<span class='xz-ai-gem'>🔢 צירופי-גימטריה שווים: "+gm.map(g=>g.terms.join(" = ")+" = "+heb(g.val)).join(" · ")+".</span> ";
     else s+="לא נמצאו שוויונות-גימטריה בין המונחים באזור זה. ";
@@ -5124,7 +5417,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
       const rows=z.detail.map(d=>'<div class="xz-term"><b>'+d.t+'</b>'+
         (d.side?'<span class="xz-side">🔄 '+d.side+' של השם</span>':"")+
         '<span class="xz-tag '+(d.step<=1?"t-tight":d.step<=3?"t-mid":"t-far")+'">'+(d.step<=1?"✦ אות-ליד-אות":"פער "+heb(d.step))+'</span>'+
-        '<span class="xz-meta">דילוג '+heb(Math.abs(d.skip))+' '+(d.dir===1?"↓":"↑")+' · מרחק-מהציר '+heb(Math.round(d.cost))+' · גימ׳ '+heb(d.gem)+' · '+(d.rar>=9999?"נפוץ":d.rar===1?"יחיד בתורה":heb(d.rar)+" בתורה")+'</span></div>').join("");
+        '<span class="xz-meta">דילוג '+heb(Math.abs(d.skip))+' '+(d.dir===1?"↓":"↑")+' · מרחק-מהציר '+heb(Math.round(d.cost))+' · גימ׳ '+heb(d.gem)+' · '+(d.rar==null?"שכיחות לא נבדקה":d.rar>=9999?"נפוץ":d.rar===1?"יחיד בתורה":heb(d.rar)+" בתורה")+'</span></div>').join("");
       card.innerHTML='<div class="xz-head"><span class="xz-stars">'+"★".repeat(z.stars)+'<span class="xz-starsoff">'+"☆".repeat(5-z.stars)+'</span></span>'+
         '<span class="xz-title">'+(z.bridge?'🌉 גשר '+heb(i+1)+' · <b style="color:#cbb3ff">'+z.axis+'</b> מחבר את שניהם':('אזור '+heb(i+1)+' · '+parts+'/'+heb(st.crossTotal)+(z.axis?' · 🧭 ציר: '+z.axis:'')+(z.side&&z.side!=="מקורי"?' · <span style="color:#9fc0ff">🔄 '+z.side+'</span>':'')))+'</span>'+
         '<span class="xz-loc">דילוג-ציר '+heb(z.skip)+' · '+z.book+'</span></div>'+

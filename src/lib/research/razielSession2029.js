@@ -156,6 +156,35 @@ function appendMessage(thread, message) {
   return [...thread, message].slice(-LIMITS.threadMessages);
 }
 
+const PROGRESS_PHASES = new Set(["starting", "running", "cancelling"]);
+const nonNegativeInteger = (value) => (Number.isSafeInteger(value) && value >= 0 ? value : null);
+// Progress of a long turn (today only the explicit ELS matrix reading). It is display state: the phase, the time already elapsed, the provider's own status and
+// the batch/job references a host may keep in order to resume. A batch gives no partial output, so there is nothing else to show.
+export function normalizeRazielTurnProgress(value) {
+  if (!isObject(value) || value.kind !== "els_matrix_reading" || !PROGRESS_PHASES.has(value.phase)) return null;
+  const minutes = isObject(value.expectedMinutes) ? value.expectedMinutes : {};
+  return compactObject({
+    kind: "els_matrix_reading",
+    phase: value.phase,
+    elapsedMs: nonNegativeInteger(Math.round(Number(value.elapsedMs))),
+    polls: nonNegativeInteger(value.polls),
+    expectedMinutes: nonNegativeInteger(minutes.min) != null && nonNegativeInteger(minutes.max) != null ? { min: minutes.min, max: minutes.max } : null,
+    providerStatus: cleanInline(value.providerStatus, 40),
+    batchId: /^msgbatch_[A-Za-z0-9]{4,64}$/.test(String(value.batchId ?? "")) ? value.batchId : null,
+    jobToken: /^[A-Za-z0-9._-]{40,6000}$/.test(String(value.jobToken ?? "")) ? value.jobToken : null,
+    jobId: /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(value.jobId ?? "")) ? value.jobId : null,
+    pollSeconds: nonNegativeInteger(value.pollSeconds),
+    cancelling: value.cancelling === true ? true : null,
+  });
+}
+
+function progressAnnouncement(progress) {
+  if (progress.phase === "starting") return "קריאת המטריצה מתחילה…";
+  const minutes = progress.elapsedMs != null ? Math.floor(progress.elapsedMs / 60000) : null;
+  const suffix = minutes != null ? ` (חלפו ${minutes} דקות)` : "";
+  return progress.phase === "cancelling" ? `מבטל את קריאת המטריצה…${suffix}` : `קריאת המטריצה רצה אצל הספק${suffix}…`;
+}
+
 export function razielSessionReducer(state, action) {
   switch (action?.type) {
     case "view_mode_set": {
@@ -196,6 +225,12 @@ export function razielSessionReducer(state, action) {
         status: "busy",
         announcement: "רזיאל חושב…",
       };
+    }
+    case "turn_progress": {
+      if (!state.busy || !state.currentTurn || state.currentTurn.id !== action.turnId) return state;
+      const progress = normalizeRazielTurnProgress(action.progress);
+      if (!progress) return state;
+      return { ...state, currentTurn: { ...state.currentTurn, progress }, announcement: progressAnnouncement(progress) };
     }
     case "turn_succeeded":
       return { ...state, ...action.patch };

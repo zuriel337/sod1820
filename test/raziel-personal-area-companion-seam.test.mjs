@@ -129,7 +129,7 @@ test("invalid personal-area contracts fail closed before the single transport bo
 
 test("open, save, upload and reload paths have zero companion model calls; only the explicit method reaches submit", () => {
   const methodStart = providerSource.indexOf("const submitPersonalAreaCompanion");
-  const methodEnd = providerSource.indexOf("const setViewMode", methodStart);
+  const methodEnd = providerSource.indexOf("const submitElsGuidedPlan", methodStart);
   const method = providerSource.slice(methodStart, methodEnd);
   assert.match(method, /=> submit\(\{/);
   assert.doesNotMatch(method, /transport|askRaziel|saveItem|upload|reload|useEffect/);

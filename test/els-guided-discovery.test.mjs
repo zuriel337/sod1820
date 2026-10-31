@@ -20,7 +20,7 @@ test("Guided planning remains structural and contains no Golden vocabulary patch
   assert.match(source, /label: "לשון מקומית"/);
 });
 
-test("Guided Discovery is one explicit story window with no AI, persistence or transport", async () => {
+test("Guided Discovery is one explicit story window; AI planning occurs only on submit and has no direct transport or persistence", async () => {
   const source = await readFile(COMPONENT, "utf8");
   assert.match(source, /data-els-cipher-discovery="v1"/);
   assert.match(source, /סביבת עבודה נפרדת/);
@@ -33,8 +33,10 @@ test("Guided Discovery is one explicit story window with no AI, persistence or t
   assert.match(source, /אין סריקה של כל האוצר/);
   assert.match(source, /contextTerms/);
   assert.match(source, /\.slice\(0, 6\)/);
-  assert.match(source, /החיפוש מתחיל רק בלחיצה/);
-  assert.match(source, /רזיאל יצטרף רק אחרי שהמנוע ימצא ויאמת מופע/);
+  assert.match(source, /רק הלחיצה שולחת בקשה אחת לרזיאל/);
+  assert.match(source, /המנוע הקנוני בלבד מחפש ומאמת/);
+  assert.match(source, /await onPlan\(\{ story, scope \}\)/);
+  assert.match(source, /prepareElsGuidedPlanFromRaziel/);
   assert.doesNotMatch(source, /fetch\s*\(|supabase|ai-analyze|askRaziel|localStorage|sessionStorage/);
   assert.doesNotMatch(source, /save|insert|upsert/i);
 });
@@ -112,7 +114,8 @@ test("Guided matrix discovery is a bounded lens in the existing engine and keeps
 test("Torah-language candidates stay Advanced while the smart snapshot is verified-only", async () => {
   const source = await readFile(NATIVE, "utf8"), snapshot = await readFile(SNAPSHOT, "utf8");
   assert.match(source, /data-els-language-inspection="candidate-only"/);
-  assert.match(source, /<ElsGuidedMatrixSnapshot2029 snapshot=\{coverage\.matrixSnapshot\}/);
+  assert.match(source, /const displaySnapshot = coverage\.status === "INSPECTING" \? null : coverage\.matrixSnapshot/);
+  assert.match(source, /<ElsGuidedMatrixSnapshot2029 snapshot=\{displaySnapshot\}/);
   assert.match(source, /React\.lazy\(\(\) => import\("\.\/ElsGuidedMatrixSnapshot2029\.jsx"\)\)/);
   assert.match(source, /<React\.Suspense fallback=\{null\}>/);
   assert.match(snapshot, /data-els-smart-matrix-snapshot="v1"/);
@@ -158,7 +161,11 @@ test("page keeps Guided, Research and Classic as projections over one native wor
   assert.equal((source.match(/<ElsNativeClassic2029/g) || []).length, 1);
   assert.equal((source.match(/<ElsGuidedDiscovery2029/g) || []).length, 1);
   assert.match(source, /active=\{!library && \(!guidedProfile \|\| researchLoad\?\.guidedDiscovery === true \|\| directSavedOpen\)\}/);
-  assert.match(source, /hidden=\{!advancedResearchProfile \|\| directSavedOpen\}/);
+  assert.equal((source.match(/<ElsAdvancedSearch2029/g) || []).length, 1);
+  assert.match(source, /advancedSearch=\{<ElsAdvancedSearch2029/);
+  const native = await readFile(new URL('../src/components/experience2029/ElsNativeClassic2029.jsx', import.meta.url), 'utf8');
+  assert.match(native, /advancedSearchOpen = researchProfile && !guidedProfile && advancedOpen/);
+  assert.match(native, /id="els29-advanced-search" hidden=\{!advancedSearchOpen\}/);
   assert.match(source, /hidden=\{!guidedProfile \|\| directSavedOpen\}/);
   assert.match(source, /data-els-guided-workspace="separate-v1"/);
   assert.match(source, /aria-label=\{guidedProfile \? "תוצאות הגילוי המודרך"/);

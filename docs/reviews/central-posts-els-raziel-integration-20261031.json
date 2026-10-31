@@ -1,0 +1,4257 @@
+{
+  "task": "CENTRAL_POSTS_ELS_RAZIEL_CUMULATIVE_INTEGRATION_20261031",
+  "central_branch": "gpt/2029-central-posts-els-raziel-integration-20261031",
+  "central_base": "14b3b14fa09ee7c0654b1431b8792d45b61170fc",
+  "posts_source": "b65ef2109048069bce29d38e538e0abcd6d9b41e",
+  "posts_merge": "8c9e0140eec6f22e033c52caf2639e5c1e401991",
+  "els_source": "4ea9ac370bd8a873d96dd8f4cb13c2a5515ad468",
+  "els_package": "70e446fab2ccc960f9f08bfd2a86194bf8b53f38",
+  "cumulative_start": "618cbe4fe31435696640a9d9a5f93df1da074864",
+  "ordered_commits": [
+    {
+      "position": 1,
+      "sha": "d34831b449a9d375e278950ec603304f2a46e35f",
+      "parents": [
+        "618cbe4fe31435696640a9d9a5f93df1da074864"
+      ],
+      "kind": "regular",
+      "slice": "C01",
+      "capability": "test(els): stabilize native browser acceptance",
+      "classification": "VERIFICATION_EVIDENCE",
+      "essential_for_latest_delivery": "ACCEPTANCE_ONLY",
+      "integration_action": "PORT_RELEVANT_ACCEPTANCE_WITHOUT_BRANCH_ALLOWLISTS",
+      "dependencies": {
+        "history_parents": [
+          "618cbe4fe31435696640a9d9a5f93df1da074864"
+        ],
+        "capability_stages": []
+      },
+      "files": [
+        "test/els-native-ui-browser.test.mjs"
+      ],
+      "tests": {
+        "changed": [
+          "test/els-native-ui-browser.test.mjs"
+        ],
+        "receipt_paths": [],
+        "status": "NOT_REEXECUTED_PER_COMMIT_FOR_THIS_PACKAGE; use cited receipt and aggregate evidence"
+      }
+    },
+    {
+      "position": 2,
+      "sha": "3f56590871cc8fc48c302b64c338762b9edb111f",
+      "parents": [
+        "d34831b449a9d375e278950ec603304f2a46e35f"
+      ],
+      "kind": "regular",
+      "slice": "C01",
+      "capability": "feat(els): plan guided searches through Raziel",
+      "classification": "PRODUCT",
+      "essential_for_latest_delivery": "REQUIRED_FOR_CUMULATIVE_PARITY",
+      "integration_action": "APPLY_OWNED_HUNKS_ADAPT_SHARED_FUNCTIONS",
+      "dependencies": {
+        "history_parents": [
+          "d34831b449a9d375e278950ec603304f2a46e35f"
+        ],
+        "capability_stages": []
+      },
+      "files": [
+        "src/components/experience2029/ElsGuidedDiscovery2029.jsx",
+        "src/components/experience2029/ElsNativeClassic2029.jsx",
+        "src/lib/research/RazielSessionProvider2029.jsx",
+        "src/lib/research/elsAutomaticResearchPlan.js",
+        "src/lib/research/elsRazielGuidedPlanAdapter.js",
+        "src/lib/research/elsRazielPlanning.js",
+        "src/lib/research/razielSavedSession2029.js",
+        "src/lib/research/razielSavedSession2029.test.js",
+        "src/lib/research/razielSessionRequest2029.js",
+        "src/lib/supabase.js",
+        "src/pages/Els2029Page.jsx",
+        "supabase/functions/ai-analyze/index.ts",
+        "test/els-advanced-page-browser.test.mjs",
+        "test/els-guided-discovery.test.mjs",
+        "test/els-raziel-guided-planning.test.mjs",
+        "test/fixtures/els-library-browser-fixture.mjs",
+        "test/helpers/ai-analyze-handler.mjs",
+        "test/raziel-personal-area-companion-seam.test.mjs"
+      ],
+      "tests": {
+        "changed": [
+          "src/lib/research/razielSavedSession2029.test.js",
+          "test/els-advanced-page-browser.test.mjs",
+          "test/els-guided-discovery.test.mjs",
+          "test/els-raziel-guided-planning.test.mjs",
+          "test/fixtures/els-library-browser-fixture.mjs",
+          "test/helpers/ai-analyze-handler.mjs",
+          "test/raziel-personal-area-companion-seam.test.mjs"
+        ],
+        "receipt_paths": [],
+        "status": "NOT_REEXECUTED_PER_COMMIT_FOR_THIS_PACKAGE; use cited receipt and aggregate evidence"
+      }
+    },
+    {
+      "position": 3,
+      "sha": "772f58e28406661128893f9560e7aaa5e8b0a89a",
+      "parents": [
+        "3f56590871cc8fc48c302b64c338762b9edb111f"
+      ],
+      "kind": "regular",
+      "slice": "C01",
+      "capability": "test(els): measure guided discovery coverage for holdout",
+      "classification": "VERIFICATION_EVIDENCE",
+      "essential_for_latest_delivery": "ACCEPTANCE_ONLY",
+      "integration_action": "PORT_RELEVANT_ACCEPTANCE_WITHOUT_BRANCH_ALLOWLISTS",
+      "dependencies": {
+        "history_parents": [
+          "3f56590871cc8fc48c302b64c338762b9edb111f"
+        ],
+        "capability_stages": []
+      },
+      "files": [
+        "docs/planning/els-guided-discovery-test-ledger-v1.md",
+        "test/els-guided-language-recognition.test.mjs"
+      ],
+      "tests": {
+        "changed": [
+          "test/els-guided-language-recognition.test.mjs"
+        ],
+        "receipt_paths": [
+          "docs/planning/els-guided-discovery-test-ledger-v1.md"
+        ],
+        "status": "NOT_REEXECUTED_PER_COMMIT_FOR_THIS_PACKAGE; use cited receipt and aggregate evidence"
+      }
+    },
+    {
+      "position": 4,
+      "sha": "b8cabb1950f7a2006aaac581aaa884f3ee7f810c",
+      "parents": [
+        "772f58e28406661128893f9560e7aaa5e8b0a89a"
+      ],
+      "kind": "regular",
+      "slice": "C01",
+      "capability": "feat(els): support guided three-term crossings",
+      "classification": "PRODUCT",
+      "essential_for_latest_delivery": "REQUIRED_FOR_CUMULATIVE_PARITY",
+      "integration_action": "APPLY_OWNED_HUNKS_ADAPT_SHARED_FUNCTIONS",
+      "dependencies": {
+        "history_parents": [
+          "772f58e28406661128893f9560e7aaa5e8b0a89a"
+        ],
+        "capability_stages": []
+      },
+      "files": [
+        "docs/planning/els-guided-discovery-test-ledger-v1.md",
+        "public/tzofen.html",
+        "src/components/experience2029/ElsGuidedDiscovery2029.jsx",
+        "src/components/experience2029/ElsNativeClassic2029.jsx",
+        "src/lib/research/elsAutomaticResearchPlan.js",
+        "src/lib/research/elsRazielGuidedPlanAdapter.js",
+        "src/lib/research/elsRazielPlanning.js",
+        "supabase/functions/ai-analyze/index.ts",
+        "test/els-advanced-page-browser.test.mjs",
+        "test/els-native-ui-browser.test.mjs",
+        "test/els-raziel-guided-planning.test.mjs",
+        "tools/els/els-code.template.html"
+      ],
+      "tests": {
+        "changed": [
+          "test/els-advanced-page-browser.test.mjs",
+          "test/els-native-ui-browser.test.mjs",
+          "test/els-raziel-guided-planning.test.mjs"
+        ],
+        "receipt_paths": [
+          "docs/planning/els-guided-discovery-test-ledger-v1.md"
+        ],
+        "status": "NOT_REEXECUTED_PER_COMMIT_FOR_THIS_PACKAGE; use cited receipt and aggregate evidence"
+      }
+    },
+    {
+      "position": 5,
+      "sha": "d8da3b9d2803f829e7a66127ef8a5639ab466396",
+      "parents": [
+        "b8cabb1950f7a2006aaac581aaa884f3ee7f810c"
+      ],
+      "kind": "regular",
+      "slice": "C01",
+      "capability": "Restore matrix tool launchers alongside dock",
+      "classification": "PRODUCT",
+      "essential_for_latest_delivery": "REQUIRED_FOR_CUMULATIVE_PARITY",
+      "integration_action": "APPLY_OWNED_HUNKS_ADAPT_SHARED_FUNCTIONS",
+      "dependencies": {
+        "history_parents": [
+          "b8cabb1950f7a2006aaac581aaa884f3ee7f810c"
+        ],
+        "capability_stages": []
+      },
+      "files": [
+        "src/components/experience2029/ElsNativeClassic2029.jsx",
+        "src/components/experience2029/elsNativeClassic2029.css",
+        "test/els-native-ui-browser.test.mjs"
+      ],
+      "tests": {
+        "changed": [
+          "test/els-native-ui-browser.test.mjs"
+        ],
+        "receipt_paths": [],
+        "status": "NOT_REEXECUTED_PER_COMMIT_FOR_THIS_PACKAGE; use cited receipt and aggregate evidence"
+      }
+    },
+    {
+      "position": 6,
+      "sha": "da2864fd79dc2a8a5182738856f0e15f9f3100fe",
+      "parents": [
+        "d8da3b9d2803f829e7a66127ef8a5639ab466396"
+      ],
+      "kind": "regular",
+      "slice": "C01",
+      "capability": "Preserve corroborated short context in local discovery",
+      "classification": "PRODUCT",
+      "essential_for_latest_delivery": "REQUIRED_FOR_CUMULATIVE_PARITY",
+      "integration_action": "APPLY_OWNED_HUNKS_ADAPT_SHARED_FUNCTIONS",
+      "dependencies": {
+        "history_parents": [
+          "d8da3b9d2803f829e7a66127ef8a5639ab466396"
+        ],
+        "capability_stages": []
+      },
+      "files": [
+        "docs/planning/els-guided-discovery-test-ledger-v1.md",
+        "public/tzofen.html",
+        "test/els-guided-language-recognition.test.mjs",
+        "test/els-native-ui-browser.test.mjs",
+        "test/els-raziel-guided-planning.test.mjs",
+        "tools/els/els-code.template.html"
+      ],
+      "tests": {
+        "changed": [
+          "test/els-guided-language-recognition.test.mjs",
+          "test/els-native-ui-browser.test.mjs",
+          "test/els-raziel-guided-planning.test.mjs"
+        ],
+        "receipt_paths": [
+          "docs/planning/els-guided-discovery-test-ledger-v1.md"
+        ],
+        "status": "NOT_REEXECUTED_PER_COMMIT_FOR_THIS_PACKAGE; use cited receipt and aggregate evidence"
+      }
+    },
+    {
+      "position": 7,
+      "sha": "106a37308051926af0112604578fa5360532e973",
+      "parents": [
+        "da2864fd79dc2a8a5182738856f0e15f9f3100fe"
+      ],
+      "kind": "regular",
+      "slice": "C01",
+      "capability": "Add optional third axis in research crossing",
+      "classification": "PRODUCT",
+      "essential_for_latest_delivery": "REQUIRED_FOR_CUMULATIVE_PARITY",
+      "integration_action": "APPLY_OWNED_HUNKS_ADAPT_SHARED_FUNCTIONS",
+      "dependencies": {
+        "history_parents": [
+          "da2864fd79dc2a8a5182738856f0e15f9f3100fe"
+        ],
+        "capability_stages": []
+      },
+      "files": [
+        "src/components/experience2029/ElsNativeClassic2029.jsx",
+        "test/els-native-ui-browser.test.mjs"
+      ],
+      "tests": {
+        "changed": [
+          "test/els-native-ui-browser.test.mjs"
+        ],
+        "receipt_paths": [],
+        "status": "NOT_REEXECUTED_PER_COMMIT_FOR_THIS_PACKAGE; use cited receipt and aggregate evidence"
+      },
+      "note": "תוספת ביניים; התנהגות המונח השלישי הסופית נקבעת ב-89e3d31c ולא בחתך זה לבדו."
+    },
+    {
+      "position": 8,
+      "sha": "3c2753c379ff1e31f03852b25a933dce49528455",
+      "parents": [
+        "106a37308051926af0112604578fa5360532e973"
+      ],
+      "kind": "regular",
+      "slice": "C01",
+      "capability": "Restore third-axis inspection within verified meetings",
+      "classification": "PRODUCT",
+      "essential_for_latest_delivery": "REQUIRED_FOR_CUMULATIVE_PARITY",
+      "integration_action": "APPLY_OWNED_HUNKS_ADAPT_SHARED_FUNCTIONS",
+      "dependencies": {
+        "history_parents": [
+          "106a37308051926af0112604578fa5360532e973"
+        ],
+        "capability_stages": []
+      },
+      "files": [
+        "public/tzofen.html",
+        "src/components/experience2029/ElsNativeClassic2029.jsx",
+        "src/components/experience2029/elsNativeClassic2029.css",
+        "test/els-native-ui-browser.test.mjs",
+        "tools/els/els-code.template.html"
+      ],
+      "tests": {
+        "changed": [
+          "test/els-native-ui-browser.test.mjs"
+        ],
+        "receipt_paths": [],
+        "status": "NOT_REEXECUTED_PER_COMMIT_FOR_THIS_PACKAGE; use cited receipt and aggregate evidence"
+      },
+      "note": "בדיקת ציר שלישי ההיסטורית שונתה בהמשך. אין לשחזר inspector שהוסר במצב הסופי."
+    },
+    {
+      "position": 9,
+      "sha": "5e5c0e5f4c6cb4dce599d026e143261b3a18cbe4",
+      "parents": [
+        "3c2753c379ff1e31f03852b25a933dce49528455"
+      ],
+      "kind": "regular",
+      "slice": "C01",
+      "capability": "Restore bounded relationship planning contract",
+      "classification": "PRODUCT",
+      "essential_for_latest_delivery": "REQUIRED_FOR_CUMULATIVE_PARITY",
+      "integration_action": "APPLY_OWNED_HUNKS_ADAPT_SHARED_FUNCTIONS",
+      "dependencies": {
+        "history_parents": [
+          "3c2753c379ff1e31f03852b25a933dce49528455"
+        ],
+        "capability_stages": []
+      },
+      "files": [
+        "src/lib/research/elsAutomaticResearchPlan.js",
+        "test/els-relationship-plan-restore.test.mjs"
+      ],
+      "tests": {
+        "changed": [
+          "test/els-relationship-plan-restore.test.mjs"
+        ],
+        "receipt_paths": [],
+        "status": "NOT_REEXECUTED_PER_COMMIT_FOR_THIS_PACKAGE; use cited receipt and aggregate evidence"
+      }
+    },
+    {
+      "position": 10,
+      "sha": "8516866beb4a6b234978d8eec7133a4d756681a9",
+      "parents": [
+        "5e5c0e5f4c6cb4dce599d026e143261b3a18cbe4"
+      ],
+      "kind": "regular",
+      "slice": "C01",
+      "capability": "Keep native crossing letters adjacent and restore pinch zoom",
+      "classification": "PRODUCT",
+      "essential_for_latest_delivery": "REQUIRED_FOR_CUMULATIVE_PARITY",
+      "integration_action": "APPLY_OWNED_HUNKS_ADAPT_SHARED_FUNCTIONS",
+      "dependencies": {
+        "history_parents": [
+          "5e5c0e5f4c6cb4dce599d026e143261b3a18cbe4"
+        ],
+        "capability_stages": []
+      },
+      "files": [
+        "public/tzofen.html",
+        "src/components/experience2029/ElsNativeClassic2029.jsx",
+        "test/els-connected-cross.test.mjs",
+        "test/els-native-ui-browser.test.mjs",
+        "tools/els/els-code.template.html"
+      ],
+      "tests": {
+        "changed": [
+          "test/els-connected-cross.test.mjs",
+          "test/els-native-ui-browser.test.mjs"
+        ],
+        "receipt_paths": [],
+        "status": "NOT_REEXECUTED_PER_COMMIT_FOR_THIS_PACKAGE; use cited receipt and aggregate evidence"
+      }
+    },
+    {
+      "position": 11,
+      "sha": "d1957bacc734ff75ce6738c04637870b69381903",
+      "parents": [
+        "8516866beb4a6b234978d8eec7133a4d756681a9"
+      ],
+      "kind": "regular",
+      "slice": "C01",
+      "capability": "Expose optional cross letter spacing and simplify results",
+      "classification": "PRODUCT",
+      "essential_for_latest_delivery": "REQUIRED_FOR_CUMULATIVE_PARITY",
+      "integration_action": "APPLY_OWNED_HUNKS_ADAPT_SHARED_FUNCTIONS",
+      "dependencies": {
+        "history_parents": [
+          "8516866beb4a6b234978d8eec7133a4d756681a9"
+        ],
+        "capability_stages": []
+      },
+      "files": [
+        "public/tzofen.html",
+        "src/components/experience2029/ElsNativeClassic2029.jsx",
+        "src/components/experience2029/elsNativeClassic2029.css",
+        "test/els-connected-cross.test.mjs",
+        "test/els-native-ui-browser.test.mjs",
+        "tools/els/els-code.template.html"
+      ],
+      "tests": {
+        "changed": [
+          "test/els-connected-cross.test.mjs",
+          "test/els-native-ui-browser.test.mjs"
+        ],
+        "receipt_paths": [],
+        "status": "NOT_REEXECUTED_PER_COMMIT_FOR_THIS_PACKAGE; use cited receipt and aggregate evidence"
+      },
+      "note": "מחליף ברירת מחדל/פשטות תוצאות מן החתכים הקודמים; שימור maxLetterGap חשוב."
+    },
+    {
+      "position": 12,
+      "sha": "6abfa286754d25a3a640d2426955d7097a6d3fd0",
+      "parents": [
+        "d1957bacc734ff75ce6738c04637870b69381903"
+      ],
+      "kind": "regular",
+      "slice": "C01",
+      "capability": "Offer unified axis search from research cross form",
+      "classification": "PRODUCT",
+      "essential_for_latest_delivery": "REQUIRED_FOR_CUMULATIVE_PARITY",
+      "integration_action": "APPLY_OWNED_HUNKS_ADAPT_SHARED_FUNCTIONS",
+      "dependencies": {
+        "history_parents": [
+          "d1957bacc734ff75ce6738c04637870b69381903"
+        ],
+        "capability_stages": []
+      },
+      "files": [
+        "src/components/experience2029/ElsNativeClassic2029.jsx",
+        "test/els-native-ui-browser.test.mjs"
+      ],
+      "tests": {
+        "changed": [
+          "test/els-native-ui-browser.test.mjs"
+        ],
+        "receipt_paths": [],
+        "status": "NOT_REEXECUTED_PER_COMMIT_FOR_THIS_PACKAGE; use cited receipt and aggregate evidence"
+      }
+    },
+    {
+      "position": 13,
+      "sha": "b80fec8e40c034f9afbe5de9010e0d4819b044ee",
+      "parents": [
+        "6abfa286754d25a3a640d2426955d7097a6d3fd0"
+      ],
+      "kind": "regular",
+      "slice": "C01",
+      "capability": "Continue bounded triple cross search in explicit waves",
+      "classification": "PRODUCT",
+      "essential_for_latest_delivery": "REQUIRED_FOR_CUMULATIVE_PARITY",
+      "integration_action": "APPLY_OWNED_HUNKS_ADAPT_SHARED_FUNCTIONS",
+      "dependencies": {
+        "history_parents": [
+          "6abfa286754d25a3a640d2426955d7097a6d3fd0"
+        ],
+        "capability_stages": []
+      },
+      "files": [
+        "public/tzofen.html",
+        "src/components/experience2029/ElsNativeClassic2029.jsx",
+        "test/els-native-ui-browser.test.mjs",
+        "tools/els/els-code.template.html"
+      ],
+      "tests": {
+        "changed": [
+          "test/els-native-ui-browser.test.mjs"
+        ],
+        "receipt_paths": [],
+        "status": "NOT_REEXECUTED_PER_COMMIT_FOR_THIS_PACKAGE; use cited receipt and aggregate evidence"
+      }
+    },
+    {
+      "position": 14,
+      "sha": "f49c72f2dba09791ae85300c2c796b5b3861d24e",
+      "parents": [
+        "b80fec8e40c034f9afbe5de9010e0d4819b044ee"
+      ],
+      "kind": "regular",
+      "slice": "C02",
+      "capability": "Connect bounded ELS matrix context to global Raziel",
+      "classification": "PRODUCT",
+      "essential_for_latest_delivery": "REQUIRED_FOR_CUMULATIVE_PARITY",
+      "integration_action": "APPLY_OWNED_HUNKS_ADAPT_SHARED_FUNCTIONS",
+      "dependencies": {
+        "history_parents": [
+          "b80fec8e40c034f9afbe5de9010e0d4819b044ee"
+        ],
+        "capability_stages": [
+          "C01"
+        ]
+      },
+      "files": [
+        "src/components/experience2029/ElsNativeClassic2029.jsx",
+        "src/lib/research/elsRazielMatrixContext.js",
+        "src/lib/research/razielSessionRequest2029.js",
+        "src/lib/supabase.js",
+        "src/pages/Els2029Page.jsx",
+        "supabase/functions/ai-analyze/index.ts",
+        "test/els-native-ui-browser.test.mjs",
+        "test/els-raziel-matrix-context.test.mjs",
+        "test/helpers/ai-analyze-handler.mjs"
+      ],
+      "tests": {
+        "changed": [
+          "test/els-native-ui-browser.test.mjs",
+          "test/els-raziel-matrix-context.test.mjs",
+          "test/helpers/ai-analyze-handler.mjs"
+        ],
+        "receipt_paths": [],
+        "status": "NOT_REEXECUTED_PER_COMMIT_FOR_THIS_PACKAGE; use cited receipt and aggregate evidence"
+      }
+    },
+    {
+      "position": 15,
+      "sha": "eddbef1ca70b7fc7bc1c218acef0288e38714517",
+      "parents": [
+        "f49c72f2dba09791ae85300c2c796b5b3861d24e"
+      ],
+      "kind": "regular",
+      "slice": "C02",
+      "capability": "Clarify ELS matrix context in Raziel guidance",
+      "classification": "PRODUCT",
+      "essential_for_latest_delivery": "REQUIRED_FOR_CUMULATIVE_PARITY",
+      "integration_action": "APPLY_OWNED_HUNKS_ADAPT_SHARED_FUNCTIONS",
+      "dependencies": {
+        "history_parents": [
+          "f49c72f2dba09791ae85300c2c796b5b3861d24e"
+        ],
+        "capability_stages": [
+          "C01"
+        ]
+      },
+      "files": [
+        "src/lib/research/elsRazielContext.js",
+        "src/pages/Els2029Page.jsx",
+        "test/els-2029-explain-guidance.test.mjs"
+      ],
+      "tests": {
+        "changed": [
+          "test/els-2029-explain-guidance.test.mjs"
+        ],
+        "receipt_paths": [],
+        "status": "NOT_REEXECUTED_PER_COMMIT_FOR_THIS_PACKAGE; use cited receipt and aggregate evidence"
+      }
+    },
+    {
+      "position": 16,
+      "sha": "b24dc6c23066547417c0695f8d693f6e198702f1",
+      "parents": [
+        "eddbef1ca70b7fc7bc1c218acef0288e38714517"
+      ],
+      "kind": "regular",
+      "slice": "C02",
+      "capability": "Clarify ELS matrix findings wording",
+      "classification": "PRODUCT",
+      "essential_for_latest_delivery": "REQUIRED_FOR_CUMULATIVE_PARITY",
+      "integration_action": "APPLY_OWNED_HUNKS_ADAPT_SHARED_FUNCTIONS",
+      "dependencies": {
+        "history_parents": [
+          "eddbef1ca70b7fc7bc1c218acef0288e38714517"
+        ],
+        "capability_stages": [
+          "C01"
+        ]
+      },
+      "files": [
+        "supabase/functions/ai-analyze/index.ts",
+        "test/els-raziel-matrix-context.test.mjs"
+      ],
+      "tests": {
+        "changed": [
+          "test/els-raziel-matrix-context.test.mjs"
+        ],
+        "receipt_paths": [],
+        "status": "NOT_REEXECUTED_PER_COMMIT_FOR_THIS_PACKAGE; use cited receipt and aggregate evidence"
+      }
+    },
+    {
+      "position": 17,
+      "sha": "63e430113eb5edca7f2ae69eabc9e1c0eeeb70cd",
+      "parents": [
+        "b24dc6c23066547417c0695f8d693f6e198702f1"
+      ],
+      "kind": "regular",
+      "slice": "C02",
+      "capability": "Preview: admit one explicit matrix-bearing Raziel request on a named branch",
+      "classification": "HISTORICAL_PREVIEW_ONLY",
+      "essential_for_latest_delivery": "NO_RUNTIME_IMPORT",
+      "integration_action": "DO_NOT_REPLAY_OLD_PREVIEW_ALLOWLIST",
+      "dependencies": {
+        "history_parents": [
+          "b24dc6c23066547417c0695f8d693f6e198702f1"
+        ],
+        "capability_stages": [
+          "C01"
+        ]
+      },
+      "files": [
+        "scripts/build-integrated-preview.mjs",
+        "scripts/lib/matrix-raziel-preview.mjs",
+        "test/matrix-raziel-preview.test.mjs"
+      ],
+      "tests": {
+        "changed": [
+          "test/matrix-raziel-preview.test.mjs"
+        ],
+        "receipt_paths": [],
+        "status": "NOT_REEXECUTED_PER_COMMIT_FOR_THIS_PACKAGE; use cited receipt and aggregate evidence"
+      }
+    },
+    {
+      "position": 18,
+      "sha": "94732f2f7e74b1ee788d74ea9176416610206a51",
+      "parents": [
+        "63e430113eb5edca7f2ae69eabc9e1c0eeeb70cd"
+      ],
+      "kind": "regular",
+      "slice": "C02",
+      "capability": "Place shared matrix analysis card below matrix",
+      "classification": "PRODUCT",
+      "essential_for_latest_delivery": "REQUIRED_FOR_CUMULATIVE_PARITY",
+      "integration_action": "APPLY_OWNED_HUNKS_ADAPT_SHARED_FUNCTIONS",
+      "dependencies": {
+        "history_parents": [
+          "63e430113eb5edca7f2ae69eabc9e1c0eeeb70cd"
+        ],
+        "capability_stages": [
+          "C01"
+        ]
+      },
+      "files": [
+        "src/components/experience2029/ElsNativeClassic2029.jsx",
+        "src/components/experience2029/elsNativeClassic2029.css",
+        "test/els-native-ui-browser.test.mjs"
+      ],
+      "tests": {
+        "changed": [
+          "test/els-native-ui-browser.test.mjs"
+        ],
+        "receipt_paths": [],
+        "status": "NOT_REEXECUTED_PER_COMMIT_FOR_THIS_PACKAGE; use cited receipt and aggregate evidence"
+      }
+    },
+    {
+      "position": 19,
+      "sha": "679e46c39819a99c7272ed50c58a983c3efb7f4e",
+      "parents": [
+        "94732f2f7e74b1ee788d74ea9176416610206a51"
+      ],
+      "kind": "regular",
+      "slice": "C02",
+      "capability": "Restore cancellable advanced research requests",
+      "classification": "PRODUCT",
+      "essential_for_latest_delivery": "REQUIRED_FOR_CUMULATIVE_PARITY",
+      "integration_action": "APPLY_OWNED_HUNKS_ADAPT_SHARED_FUNCTIONS",
+      "dependencies": {
+        "history_parents": [
+          "94732f2f7e74b1ee788d74ea9176416610206a51"
+        ],
+        "capability_stages": [
+          "C01"
+        ]
+      },
+      "files": [
+        "src/components/experience2029/ElsAdvancedSearch2029.jsx",
+        "test/els-advanced-page-browser.test.mjs",
+        "test/fixtures/els-library-browser-fixture.mjs"
+      ],
+      "tests": {
+        "changed": [
+          "test/els-advanced-page-browser.test.mjs",
+          "test/fixtures/els-library-browser-fixture.mjs"
+        ],
+        "receipt_paths": [],
+        "status": "NOT_REEXECUTED_PER_COMMIT_FOR_THIS_PACKAGE; use cited receipt and aggregate evidence"
+      }
+    },
+    {
+      "position": 20,
+      "sha": "503c38c85cf9550ac2dd92380c9dc2d2deb2d8e7",
+      "parents": [
+        "63e430113eb5edca7f2ae69eabc9e1c0eeeb70cd"
+      ],
+      "kind": "regular",
+      "slice": "C03",
+      "capability": "feat(els-matrix-reading): one explicit Fable matrix reading inside the existing Raziel conversation",
+      "classification": "PRODUCT",
+      "essential_for_latest_delivery": "REQUIRED_FOR_CUMULATIVE_PARITY",
+      "integration_action": "APPLY_OWNED_HUNKS_ADAPT_SHARED_FUNCTIONS",
+      "dependencies": {
+        "history_parents": [
+          "63e430113eb5edca7f2ae69eabc9e1c0eeeb70cd"
+        ],
+        "capability_stages": [
+          "C02"
+        ]
+      },
+      "files": [
+        "docs/planning/els-guided-discovery-test-ledger-v1.md",
+        "docs/reviews/els-matrix-fable-reading-raziel-20261029.md",
+        "src/lib/research/RazielSessionProvider2029.jsx",
+        "src/lib/research/elsMatrixReadingSession.js",
+        "src/lib/research/elsMatrixReadingTransport.js",
+        "src/lib/research/razielSession2029.js",
+        "src/lib/research/razielSessionRequest2029.js",
+        "src/lib/supabase.js",
+        "supabase/functions/_shared/elsMatrixReading.js",
+        "supabase/functions/_shared/elsMatrixReadingAction.js",
+        "supabase/functions/ai-analyze/index.ts",
+        "test/els-matrix-reading-action.test.mjs",
+        "test/els-matrix-reading-card-examples.test.mjs",
+        "test/els-matrix-reading-client-e2e.test.mjs",
+        "test/els-matrix-reading-engine.test.mjs",
+        "test/els-matrix-reading-operation.test.mjs",
+        "test/els-matrix-reading-raziel-route.test.mjs",
+        "test/els-matrix-reading-session.test.mjs",
+        "test/els-matrix-reading-transport.test.mjs",
+        "test/fixtures/els-matrix-reading/README.md",
+        "test/fixtures/els-matrix-reading/card-examples/cancel-requested.json",
+        "test/fixtures/els-matrix-reading/card-examples/complete.json",
+        "test/fixtures/els-matrix-reading/card-examples/failed-batch-errored.json",
+        "test/fixtures/els-matrix-reading/card-examples/incomplete-max-tokens.json",
+        "test/fixtures/els-matrix-reading/card-examples/preview.json",
+        "test/fixtures/els-matrix-reading/card-examples/refused-admin-only.json",
+        "test/fixtures/els-matrix-reading/card-examples/refused-not-enabled.json",
+        "test/fixtures/els-matrix-reading/card-examples/running-poll.json",
+        "test/fixtures/els-matrix-reading/card-examples/running-start.json",
+        "test/fixtures/els-matrix-reading/card-examples/session-progress.json",
+        "test/fixtures/els-matrix-reading/engine-replay-c3.json",
+        "test/fixtures/els-matrix-reading/harness-classified-c3.json",
+        "test/fixtures/els-matrix-reading/request-c2-general-cap60.json",
+        "test/fixtures/els-matrix-reading/request-c3-general-cap25.json",
+        "test/fixtures/els-matrix-reading/response-c3.json",
+        "test/fixtures/els-matrix-reading/window-c1.json",
+        "test/helpers/ai-analyze-handler.mjs",
+        "test/helpers/els-matrix-reading-card-examples.mjs",
+        "test/helpers/els-matrix-reading-world.mjs",
+        "test/matrix-raziel-preview.test.mjs"
+      ],
+      "tests": {
+        "changed": [
+          "test/els-matrix-reading-action.test.mjs",
+          "test/els-matrix-reading-card-examples.test.mjs",
+          "test/els-matrix-reading-client-e2e.test.mjs",
+          "test/els-matrix-reading-engine.test.mjs",
+          "test/els-matrix-reading-operation.test.mjs",
+          "test/els-matrix-reading-raziel-route.test.mjs",
+          "test/els-matrix-reading-session.test.mjs",
+          "test/els-matrix-reading-transport.test.mjs",
+          "test/fixtures/els-matrix-reading/README.md",
+          "test/fixtures/els-matrix-reading/card-examples/cancel-requested.json",
+          "test/fixtures/els-matrix-reading/card-examples/complete.json",
+          "test/fixtures/els-matrix-reading/card-examples/failed-batch-errored.json",
+          "test/fixtures/els-matrix-reading/card-examples/incomplete-max-tokens.json",
+          "test/fixtures/els-matrix-reading/card-examples/preview.json",
+          "test/fixtures/els-matrix-reading/card-examples/refused-admin-only.json",
+          "test/fixtures/els-matrix-reading/card-examples/refused-not-enabled.json",
+          "test/fixtures/els-matrix-reading/card-examples/running-poll.json",
+          "test/fixtures/els-matrix-reading/card-examples/running-start.json",
+          "test/fixtures/els-matrix-reading/card-examples/session-progress.json",
+          "test/fixtures/els-matrix-reading/engine-replay-c3.json",
+          "test/fixtures/els-matrix-reading/harness-classified-c3.json",
+          "test/fixtures/els-matrix-reading/request-c2-general-cap60.json",
+          "test/fixtures/els-matrix-reading/request-c3-general-cap25.json",
+          "test/fixtures/els-matrix-reading/response-c3.json",
+          "test/fixtures/els-matrix-reading/window-c1.json",
+          "test/helpers/ai-analyze-handler.mjs",
+          "test/helpers/els-matrix-reading-card-examples.mjs",
+          "test/helpers/els-matrix-reading-world.mjs",
+          "test/matrix-raziel-preview.test.mjs"
+        ],
+        "receipt_paths": [
+          "docs/planning/els-guided-discovery-test-ledger-v1.md",
+          "docs/reviews/els-matrix-fable-reading-raziel-20261029.md"
+        ],
+        "status": "NOT_REEXECUTED_PER_COMMIT_FOR_THIS_PACKAGE; use cited receipt and aggregate evidence"
+      },
+      "note": "שכבת הקריאה נבנתה במקור בלי טבלת jobs. לצריכת הגרסה הסופית חובה להמשיך גם ל-945b2862."
+    },
+    {
+      "position": 21,
+      "sha": "82491eb4acbcbec7b9c63b28aeb557ed594a54ed",
+      "parents": [
+        "503c38c85cf9550ac2dd92380c9dc2d2deb2d8e7"
+      ],
+      "kind": "regular",
+      "slice": "C03",
+      "capability": "docs(els-matrix-reading): record the packaging proof (bundle hash) for the approval section",
+      "classification": "DOCUMENTATION",
+      "essential_for_latest_delivery": "PROVENANCE_ONLY",
+      "integration_action": "RETAIN_AS_PROVENANCE",
+      "dependencies": {
+        "history_parents": [
+          "503c38c85cf9550ac2dd92380c9dc2d2deb2d8e7"
+        ],
+        "capability_stages": [
+          "C02"
+        ]
+      },
+      "files": [
+        "docs/reviews/els-matrix-fable-reading-raziel-20261029.md"
+      ],
+      "tests": {
+        "changed": [],
+        "receipt_paths": [
+          "docs/reviews/els-matrix-fable-reading-raziel-20261029.md"
+        ],
+        "status": "NOT_REEXECUTED_PER_COMMIT_FOR_THIS_PACKAGE; use cited receipt and aggregate evidence"
+      }
+    },
+    {
+      "position": 22,
+      "sha": "4d9700ed6981f426ad8ef0b7f40c8d070e9eda58",
+      "parents": [
+        "679e46c39819a99c7272ed50c58a983c3efb7f4e",
+        "82491eb4acbcbec7b9c63b28aeb557ed594a54ed"
+      ],
+      "kind": "merge",
+      "slice": "C03",
+      "capability": "Integrate reviewed matrix reading layer above the ELS UI branch",
+      "classification": "MERGE_PROVENANCE_ONLY",
+      "essential_for_latest_delivery": "NO_RUNTIME_IMPORT",
+      "integration_action": "SKIP_DUPLICATE_CONTENT",
+      "dependencies": {
+        "history_parents": [
+          "679e46c39819a99c7272ed50c58a983c3efb7f4e",
+          "82491eb4acbcbec7b9c63b28aeb557ed594a54ed"
+        ],
+        "capability_stages": [
+          "C02"
+        ]
+      },
+      "files": [
+        "docs/planning/els-guided-discovery-test-ledger-v1.md",
+        "docs/reviews/els-matrix-fable-reading-raziel-20261029.md",
+        "src/lib/research/RazielSessionProvider2029.jsx",
+        "src/lib/research/elsMatrixReadingSession.js",
+        "src/lib/research/elsMatrixReadingTransport.js",
+        "src/lib/research/razielSession2029.js",
+        "src/lib/research/razielSessionRequest2029.js",
+        "src/lib/supabase.js",
+        "supabase/functions/_shared/elsMatrixReading.js",
+        "supabase/functions/_shared/elsMatrixReadingAction.js",
+        "supabase/functions/ai-analyze/index.ts",
+        "test/els-matrix-reading-action.test.mjs",
+        "test/els-matrix-reading-card-examples.test.mjs",
+        "test/els-matrix-reading-client-e2e.test.mjs",
+        "test/els-matrix-reading-engine.test.mjs",
+        "test/els-matrix-reading-operation.test.mjs",
+        "test/els-matrix-reading-raziel-route.test.mjs",
+        "test/els-matrix-reading-session.test.mjs",
+        "test/els-matrix-reading-transport.test.mjs",
+        "test/fixtures/els-matrix-reading/README.md",
+        "test/fixtures/els-matrix-reading/card-examples/cancel-requested.json",
+        "test/fixtures/els-matrix-reading/card-examples/complete.json",
+        "test/fixtures/els-matrix-reading/card-examples/failed-batch-errored.json",
+        "test/fixtures/els-matrix-reading/card-examples/incomplete-max-tokens.json",
+        "test/fixtures/els-matrix-reading/card-examples/preview.json",
+        "test/fixtures/els-matrix-reading/card-examples/refused-admin-only.json",
+        "test/fixtures/els-matrix-reading/card-examples/refused-not-enabled.json",
+        "test/fixtures/els-matrix-reading/card-examples/running-poll.json",
+        "test/fixtures/els-matrix-reading/card-examples/running-start.json",
+        "test/fixtures/els-matrix-reading/card-examples/session-progress.json",
+        "test/fixtures/els-matrix-reading/engine-replay-c3.json",
+        "test/fixtures/els-matrix-reading/harness-classified-c3.json",
+        "test/fixtures/els-matrix-reading/request-c2-general-cap60.json",
+        "test/fixtures/els-matrix-reading/request-c3-general-cap25.json",
+        "test/fixtures/els-matrix-reading/response-c3.json",
+        "test/fixtures/els-matrix-reading/window-c1.json",
+        "test/helpers/ai-analyze-handler.mjs",
+        "test/helpers/els-matrix-reading-card-examples.mjs",
+        "test/helpers/els-matrix-reading-world.mjs",
+        "test/matrix-raziel-preview.test.mjs"
+      ],
+      "tests": {
+        "changed": [
+          "test/els-matrix-reading-action.test.mjs",
+          "test/els-matrix-reading-card-examples.test.mjs",
+          "test/els-matrix-reading-client-e2e.test.mjs",
+          "test/els-matrix-reading-engine.test.mjs",
+          "test/els-matrix-reading-operation.test.mjs",
+          "test/els-matrix-reading-raziel-route.test.mjs",
+          "test/els-matrix-reading-session.test.mjs",
+          "test/els-matrix-reading-transport.test.mjs",
+          "test/fixtures/els-matrix-reading/README.md",
+          "test/fixtures/els-matrix-reading/card-examples/cancel-requested.json",
+          "test/fixtures/els-matrix-reading/card-examples/complete.json",
+          "test/fixtures/els-matrix-reading/card-examples/failed-batch-errored.json",
+          "test/fixtures/els-matrix-reading/card-examples/incomplete-max-tokens.json",
+          "test/fixtures/els-matrix-reading/card-examples/preview.json",
+          "test/fixtures/els-matrix-reading/card-examples/refused-admin-only.json",
+          "test/fixtures/els-matrix-reading/card-examples/refused-not-enabled.json",
+          "test/fixtures/els-matrix-reading/card-examples/running-poll.json",
+          "test/fixtures/els-matrix-reading/card-examples/running-start.json",
+          "test/fixtures/els-matrix-reading/card-examples/session-progress.json",
+          "test/fixtures/els-matrix-reading/engine-replay-c3.json",
+          "test/fixtures/els-matrix-reading/harness-classified-c3.json",
+          "test/fixtures/els-matrix-reading/request-c2-general-cap60.json",
+          "test/fixtures/els-matrix-reading/request-c3-general-cap25.json",
+          "test/fixtures/els-matrix-reading/response-c3.json",
+          "test/fixtures/els-matrix-reading/window-c1.json",
+          "test/helpers/ai-analyze-handler.mjs",
+          "test/helpers/els-matrix-reading-card-examples.mjs",
+          "test/helpers/els-matrix-reading-world.mjs",
+          "test/matrix-raziel-preview.test.mjs"
+        ],
+        "receipt_paths": [
+          "docs/planning/els-guided-discovery-test-ledger-v1.md",
+          "docs/reviews/els-matrix-fable-reading-raziel-20261029.md"
+        ],
+        "status": "NOT_REEXECUTED_PER_COMMIT_FOR_THIS_PACKAGE; use cited receipt and aggregate evidence"
+      },
+      "note": "SKIP: first-parent delta שקול בדיוק לטווח 63e430113..82491eb4 שכבר כלול במיקומים 20–21. אין cherry-pick -m בנוסף."
+    },
+    {
+      "position": 23,
+      "sha": "98a716dcecb367230fde5c0e6b6960f8051190f1",
+      "parents": [
+        "4d9700ed6981f426ad8ef0b7f40c8d070e9eda58"
+      ],
+      "kind": "regular",
+      "slice": "C03",
+      "capability": "Connect shared ELS matrix card to explicit Raziel reading action",
+      "classification": "PRODUCT",
+      "essential_for_latest_delivery": "REQUIRED_FOR_CUMULATIVE_PARITY",
+      "integration_action": "APPLY_OWNED_HUNKS_ADAPT_SHARED_FUNCTIONS",
+      "dependencies": {
+        "history_parents": [
+          "4d9700ed6981f426ad8ef0b7f40c8d070e9eda58"
+        ],
+        "capability_stages": [
+          "C02"
+        ]
+      },
+      "files": [
+        "docs/reviews/els-matrix-fable-card-integration-20261029.md",
+        "src/components/experience2029/ElsMatrixReadingCard2029.jsx",
+        "src/components/experience2029/ElsNativeClassic2029.jsx",
+        "src/components/experience2029/elsNativeClassic2029.css",
+        "src/lib/research/elsMatrixReadingPresentation.js",
+        "src/pages/Els2029Page.jsx",
+        "supabase/functions/_shared/elsMatrixReadingAction.js",
+        "test/els-matrix-reading-action.test.mjs",
+        "test/els-matrix-reading-card-browser.test.mjs",
+        "test/els-matrix-reading-presentation.test.mjs",
+        "test/els-matrix-reading-resume-contract.test.mjs",
+        "test/els-native-ui-browser.test.mjs",
+        "test/matrix-raziel-preview.test.mjs"
+      ],
+      "tests": {
+        "changed": [
+          "test/els-matrix-reading-action.test.mjs",
+          "test/els-matrix-reading-card-browser.test.mjs",
+          "test/els-matrix-reading-presentation.test.mjs",
+          "test/els-matrix-reading-resume-contract.test.mjs",
+          "test/els-native-ui-browser.test.mjs",
+          "test/matrix-raziel-preview.test.mjs"
+        ],
+        "receipt_paths": [
+          "docs/reviews/els-matrix-fable-card-integration-20261029.md"
+        ],
+        "status": "NOT_REEXECUTED_PER_COMMIT_FOR_THIS_PACKAGE; use cited receipt and aggregate evidence"
+      }
+    },
+    {
+      "position": 24,
+      "sha": "e10553963a7d10b6f3ba98fd1aa895b25cd07505",
+      "parents": [
+        "98a716dcecb367230fde5c0e6b6960f8051190f1"
+      ],
+      "kind": "regular",
+      "slice": "C03",
+      "capability": "Preserve explicit ELS reading results and refuse tokenless resume",
+      "classification": "PRODUCT",
+      "essential_for_latest_delivery": "REQUIRED_FOR_CUMULATIVE_PARITY",
+      "integration_action": "APPLY_OWNED_HUNKS_ADAPT_SHARED_FUNCTIONS",
+      "dependencies": {
+        "history_parents": [
+          "98a716dcecb367230fde5c0e6b6960f8051190f1"
+        ],
+        "capability_stages": [
+          "C02"
+        ]
+      },
+      "files": [
+        "docs/reviews/els-matrix-reading-saved-results-20261029.md",
+        "src/components/experience2029/ElsMatrixReadingCard2029.jsx",
+        "src/lib/research/elsMatrixReadingSavedResult.js",
+        "src/lib/research/elsMatrixReadingSession.js",
+        "src/lib/research/razielSavedSession2029.js",
+        "test/els-matrix-reading-card-browser.test.mjs",
+        "test/els-matrix-reading-saved-result.test.mjs",
+        "test/els-matrix-reading-session.test.mjs"
+      ],
+      "tests": {
+        "changed": [
+          "test/els-matrix-reading-card-browser.test.mjs",
+          "test/els-matrix-reading-saved-result.test.mjs",
+          "test/els-matrix-reading-session.test.mjs"
+        ],
+        "receipt_paths": [
+          "docs/reviews/els-matrix-reading-saved-results-20261029.md"
+        ],
+        "status": "NOT_REEXECUTED_PER_COMMIT_FOR_THIS_PACKAGE; use cited receipt and aggregate evidence"
+      },
+      "note": "שמירה מפורשת של תוצאה; איסור חידוש ללא מזהה משימה. שכבת jobs ב-25 מחליפה את הטוקן בזיכרון כנתיב עמיד."
+    },
+    {
+      "position": 25,
+      "sha": "945b2862f4b19c937bfb72ecbfe367b373d1a7ac",
+      "parents": [
+        "e10553963a7d10b6f3ba98fd1aa895b25cd07505"
+      ],
+      "kind": "regular",
+      "slice": "C03",
+      "capability": "Make ELS matrix reading recoverable with atomic private job receipts",
+      "classification": "PRODUCT",
+      "essential_for_latest_delivery": "REQUIRED_FOR_CUMULATIVE_PARITY",
+      "integration_action": "APPLY_OWNED_HUNKS_ADAPT_SHARED_FUNCTIONS",
+      "dependencies": {
+        "history_parents": [
+          "e10553963a7d10b6f3ba98fd1aa895b25cd07505"
+        ],
+        "capability_stages": [
+          "C02"
+        ]
+      },
+      "files": [
+        "docs/reviews/els-matrix-reading-durable-jobs-20261029.md",
+        "src/components/experience2029/ElsMatrixReadingCard2029.jsx",
+        "src/lib/research/elsMatrixReadingPresentation.js",
+        "src/lib/research/elsMatrixReadingSavedResult.js",
+        "src/lib/research/elsMatrixReadingSession.js",
+        "src/lib/research/elsMatrixReadingTransport.js",
+        "src/lib/research/razielSession2029.js",
+        "supabase/functions/_shared/elsMatrixReading.js",
+        "supabase/functions/_shared/elsMatrixReadingAction.js",
+        "supabase/functions/_shared/elsMatrixReadingJobs.js",
+        "supabase/functions/ai-analyze/index.ts",
+        "supabase/migrations/20261029125427_els_matrix_reading_durable_jobs.sql",
+        "test/els-matrix-reading-card-browser.test.mjs",
+        "test/els-matrix-reading-card-examples.test.mjs",
+        "test/els-matrix-reading-client-e2e.test.mjs",
+        "test/els-matrix-reading-durable-jobs-sql.test.mjs",
+        "test/els-matrix-reading-durable-postgres-integration.test.mjs",
+        "test/els-matrix-reading-durable.test.mjs",
+        "test/els-matrix-reading-engine.test.mjs",
+        "test/els-matrix-reading-operation.test.mjs",
+        "test/els-matrix-reading-raziel-route.test.mjs",
+        "test/els-matrix-reading-resume-contract.test.mjs",
+        "test/els-matrix-reading-session.test.mjs",
+        "test/fixtures/els-matrix-reading-durable-jobs-bootstrap.sql",
+        "test/fixtures/els-matrix-reading/card-examples/cancel-requested.json",
+        "test/fixtures/els-matrix-reading/card-examples/complete.json",
+        "test/fixtures/els-matrix-reading/card-examples/failed-batch-errored.json",
+        "test/fixtures/els-matrix-reading/card-examples/incomplete-max-tokens.json",
+        "test/fixtures/els-matrix-reading/card-examples/running-poll.json",
+        "test/fixtures/els-matrix-reading/card-examples/running-start.json",
+        "test/fixtures/els-matrix-reading/card-examples/session-progress.json",
+        "test/helpers/els-matrix-reading-card-examples.mjs",
+        "test/helpers/els-matrix-reading-durable-jobs-local-pg.mjs",
+        "test/helpers/els-matrix-reading-world.mjs"
+      ],
+      "tests": {
+        "changed": [
+          "test/els-matrix-reading-card-browser.test.mjs",
+          "test/els-matrix-reading-card-examples.test.mjs",
+          "test/els-matrix-reading-client-e2e.test.mjs",
+          "test/els-matrix-reading-durable-jobs-sql.test.mjs",
+          "test/els-matrix-reading-durable-postgres-integration.test.mjs",
+          "test/els-matrix-reading-durable.test.mjs",
+          "test/els-matrix-reading-engine.test.mjs",
+          "test/els-matrix-reading-operation.test.mjs",
+          "test/els-matrix-reading-raziel-route.test.mjs",
+          "test/els-matrix-reading-resume-contract.test.mjs",
+          "test/els-matrix-reading-session.test.mjs",
+          "test/fixtures/els-matrix-reading-durable-jobs-bootstrap.sql",
+          "test/fixtures/els-matrix-reading/card-examples/cancel-requested.json",
+          "test/fixtures/els-matrix-reading/card-examples/complete.json",
+          "test/fixtures/els-matrix-reading/card-examples/failed-batch-errored.json",
+          "test/fixtures/els-matrix-reading/card-examples/incomplete-max-tokens.json",
+          "test/fixtures/els-matrix-reading/card-examples/running-poll.json",
+          "test/fixtures/els-matrix-reading/card-examples/running-start.json",
+          "test/fixtures/els-matrix-reading/card-examples/session-progress.json",
+          "test/helpers/els-matrix-reading-card-examples.mjs",
+          "test/helpers/els-matrix-reading-durable-jobs-local-pg.mjs",
+          "test/helpers/els-matrix-reading-world.mjs"
+        ],
+        "receipt_paths": [
+          "docs/reviews/els-matrix-reading-durable-jobs-20261029.md"
+        ],
+        "status": "NOT_REEXECUTED_PER_COMMIT_FOR_THIS_PACKAGE; use cited receipt and aggregate evidence"
+      },
+      "note": "סכמה למסירה בלבד; CREATE TABLE אינו idempotent. טבלה ושש פונקציות נצפו קיימות בחי, ללא בדיקת פריסה תואמת."
+    },
+    {
+      "position": 26,
+      "sha": "5f9c7d236da16a4f4cc56af4f954fb9ada93e87a",
+      "parents": [
+        "945b2862f4b19c937bfb72ecbfe367b373d1a7ac"
+      ],
+      "kind": "regular",
+      "slice": "C03",
+      "capability": "Enable bounded admin Fable reading on approved 2029 preview",
+      "classification": "HISTORICAL_PREVIEW_ONLY",
+      "essential_for_latest_delivery": "NO_RUNTIME_IMPORT",
+      "integration_action": "DO_NOT_REPLAY_OLD_PREVIEW_ALLOWLIST",
+      "dependencies": {
+        "history_parents": [
+          "945b2862f4b19c937bfb72ecbfe367b373d1a7ac"
+        ],
+        "capability_stages": [
+          "C02"
+        ]
+      },
+      "files": [
+        "docs/reviews/els-fable-preview-activation-20261029.md",
+        "scripts/build-integrated-preview.mjs",
+        "scripts/lib/matrix-raziel-preview.mjs",
+        "test/els-fable-preview-activation.test.mjs"
+      ],
+      "tests": {
+        "changed": [
+          "test/els-fable-preview-activation.test.mjs"
+        ],
+        "receipt_paths": [
+          "docs/reviews/els-fable-preview-activation-20261029.md"
+        ],
+        "status": "NOT_REEXECUTED_PER_COMMIT_FOR_THIS_PACKAGE; use cited receipt and aggregate evidence"
+      }
+    },
+    {
+      "position": 27,
+      "sha": "e20e1d08355cbfb9d985e78e221692d260b9c37d",
+      "parents": [
+        "5f9c7d236da16a4f4cc56af4f954fb9ada93e87a"
+      ],
+      "kind": "regular",
+      "slice": "C03",
+      "capability": "Enable bounded admin matrix trial without manual Edge setup",
+      "classification": "HISTORICAL_ADMIN_ENABLEMENT",
+      "essential_for_latest_delivery": "NO_RUNTIME_IMPORT",
+      "integration_action": "REVIEW_ONLY_PRESERVE_EXPLICIT_CENTRAL_ENABLEMENT",
+      "dependencies": {
+        "history_parents": [
+          "5f9c7d236da16a4f4cc56af4f954fb9ada93e87a"
+        ],
+        "capability_stages": [
+          "C02"
+        ]
+      },
+      "files": [
+        "docs/reviews/els-fable-admin-default-20261030.md",
+        "scripts/lib/matrix-raziel-preview.mjs",
+        "supabase/functions/ai-analyze/index.ts",
+        "test/els-fable-preview-activation.test.mjs",
+        "test/els-matrix-reading-raziel-route.test.mjs"
+      ],
+      "tests": {
+        "changed": [
+          "test/els-fable-preview-activation.test.mjs",
+          "test/els-matrix-reading-raziel-route.test.mjs"
+        ],
+        "receipt_paths": [
+          "docs/reviews/els-fable-admin-default-20261030.md"
+        ],
+        "status": "NOT_REEXECUTED_PER_COMMIT_FOR_THIS_PACKAGE; use cited receipt and aggregate evidence"
+      },
+      "note": "הקוד מוסיף fallback on כאשר env חסר בניסוי 33×41/cap25. זהו חריג הפעלה היסטורי: אין להכניסו אוטומטית למדיניות המרכז."
+    },
+    {
+      "position": 28,
+      "sha": "7f6895225cb4b31f6e5f11717f1814dd4fbf08f7",
+      "parents": [
+        "e20e1d08355cbfb9d985e78e221692d260b9c37d"
+      ],
+      "kind": "regular",
+      "slice": "C04",
+      "capability": "Project verified Fable findings onto the existing ELS matrix",
+      "classification": "PRODUCT_WITH_HISTORICAL_PREVIEW_HUNKS",
+      "essential_for_latest_delivery": "REQUIRED_FOR_CUMULATIVE_PARITY",
+      "integration_action": "APPLY_OWNED_HUNKS_ADAPT_SHARED_FUNCTIONS",
+      "dependencies": {
+        "history_parents": [
+          "e20e1d08355cbfb9d985e78e221692d260b9c37d"
+        ],
+        "capability_stages": [
+          "C03"
+        ]
+      },
+      "files": [
+        "docs/reviews/els-fable-findings-matrix-20261030.md",
+        "scripts/lib/matrix-raziel-preview.mjs",
+        "src/components/experience2029/ElsMatrixReadingCard2029.jsx",
+        "src/components/experience2029/ElsNativeClassic2029.jsx",
+        "src/components/experience2029/elsNativeClassic2029.css",
+        "src/lib/research/elsMatrixReadingProjection.js",
+        "test/els-matrix-reading-projection.test.mjs",
+        "test/els-native-ui-browser.test.mjs"
+      ],
+      "tests": {
+        "changed": [
+          "test/els-matrix-reading-projection.test.mjs",
+          "test/els-native-ui-browser.test.mjs"
+        ],
+        "receipt_paths": [
+          "docs/reviews/els-fable-findings-matrix-20261030.md"
+        ],
+        "status": "NOT_REEXECUTED_PER_COMMIT_FOR_THIS_PACKAGE; use cited receipt and aggregate evidence"
+      },
+      "note": "להעביר הקרנת ממצאים וקבלות בלבד; שינוי allowlist ב-scripts/lib הוא היסטורי."
+    },
+    {
+      "position": 29,
+      "sha": "33eb52fb68bbd395d854f764736a4edc665ce87d",
+      "parents": [
+        "7f6895225cb4b31f6e5f11717f1814dd4fbf08f7"
+      ],
+      "kind": "regular",
+      "slice": "C04",
+      "capability": "Project ongoing ELS reading through global Raziel with exact return",
+      "classification": "PRODUCT",
+      "essential_for_latest_delivery": "REQUIRED_FOR_CUMULATIVE_PARITY",
+      "integration_action": "APPLY_OWNED_HUNKS_ADAPT_SHARED_FUNCTIONS",
+      "dependencies": {
+        "history_parents": [
+          "7f6895225cb4b31f6e5f11717f1814dd4fbf08f7"
+        ],
+        "capability_stages": [
+          "C03"
+        ]
+      },
+      "files": [
+        "docs/reviews/els-reading-global-progress-20261030.md",
+        "src/components/experience2029/ElsMatrixReadingActivity2029.jsx",
+        "src/components/experience2029/SystemFrame2029.jsx",
+        "src/components/experience2029/systemFrame2029.css",
+        "src/lib/research/elsMatrixReadingActivity.js",
+        "src/pages/Els2029Page.jsx",
+        "test/els-matrix-reading-activity-browser.test.mjs",
+        "test/els-matrix-reading-activity.test.mjs"
+      ],
+      "tests": {
+        "changed": [
+          "test/els-matrix-reading-activity-browser.test.mjs",
+          "test/els-matrix-reading-activity.test.mjs"
+        ],
+        "receipt_paths": [
+          "docs/reviews/els-reading-global-progress-20261030.md"
+        ],
+        "status": "NOT_REEXECUTED_PER_COMMIT_FOR_THIS_PACKAGE; use cited receipt and aggregate evidence"
+      }
+    },
+    {
+      "position": 30,
+      "sha": "f86dddec14f4f790c55dc4b3551045786c262cb4",
+      "parents": [
+        "33eb52fb68bbd395d854f764736a4edc665ce87d"
+      ],
+      "kind": "regular",
+      "slice": "C04",
+      "capability": "Polish shared Raziel responsiveness and Hebrew ELS context for Preview",
+      "classification": "PRODUCT_WITH_HISTORICAL_PREVIEW_HUNKS",
+      "essential_for_latest_delivery": "REQUIRED_FOR_CUMULATIVE_PARITY",
+      "integration_action": "APPLY_OWNED_HUNKS_ADAPT_SHARED_FUNCTIONS",
+      "dependencies": {
+        "history_parents": [
+          "33eb52fb68bbd395d854f764736a4edc665ce87d"
+        ],
+        "capability_stages": [
+          "C03"
+        ]
+      },
+      "files": [
+        "docs/reviews/els-reading-responsive-preview-20261030.md",
+        "scripts/lib/matrix-raziel-preview.mjs",
+        "src/components/experience2029/SystemFrame2029.jsx",
+        "src/components/experience2029/razielSessionSeam2029.js",
+        "src/components/experience2029/systemFrame2029.css",
+        "test/els-2029-raziel-consumer.test.mjs",
+        "test/els-raziel-responsive-browser.test.mjs",
+        "test/els-raziel-responsive-labels.test.mjs",
+        "test/matrix-raziel-preview.test.mjs"
+      ],
+      "tests": {
+        "changed": [
+          "test/els-2029-raziel-consumer.test.mjs",
+          "test/els-raziel-responsive-browser.test.mjs",
+          "test/els-raziel-responsive-labels.test.mjs",
+          "test/matrix-raziel-preview.test.mjs"
+        ],
+        "receipt_paths": [
+          "docs/reviews/els-reading-responsive-preview-20261030.md"
+        ],
+        "status": "NOT_REEXECUTED_PER_COMMIT_FOR_THIS_PACKAGE; use cited receipt and aggregate evidence"
+      },
+      "note": "יש במרכז publicContextLabel/contextDisplayTitle/contextDisplayPosition חדשים יותר. הרחב אותם במקום לשכפל/להחליף."
+    },
+    {
+      "position": 31,
+      "sha": "85c124002896446bb8ba4bf432d59ecde5dac1b9",
+      "parents": [
+        "f86dddec14f4f790c55dc4b3551045786c262cb4"
+      ],
+      "kind": "regular",
+      "slice": "C04",
+      "capability": "Keep reading Preview notice clear of the Raziel sheet",
+      "classification": "HISTORICAL_PREVIEW_ONLY",
+      "essential_for_latest_delivery": "NO_RUNTIME_IMPORT",
+      "integration_action": "DO_NOT_REPLAY_OLD_PREVIEW_ALLOWLIST",
+      "dependencies": {
+        "history_parents": [
+          "f86dddec14f4f790c55dc4b3551045786c262cb4"
+        ],
+        "capability_stages": [
+          "C03"
+        ]
+      },
+      "files": [
+        "docs/reviews/els-reading-responsive-preview-20261030.md",
+        "scripts/build-integrated-preview.mjs",
+        "test/matrix-raziel-preview.test.mjs"
+      ],
+      "tests": {
+        "changed": [
+          "test/matrix-raziel-preview.test.mjs"
+        ],
+        "receipt_paths": [
+          "docs/reviews/els-reading-responsive-preview-20261030.md"
+        ],
+        "status": "NOT_REEXECUTED_PER_COMMIT_FOR_THIS_PACKAGE; use cited receipt and aggregate evidence"
+      }
+    },
+    {
+      "position": 32,
+      "sha": "bfbd40236c6c45dae81d51dd496457be0acf5450",
+      "parents": [
+        "85c124002896446bb8ba4bf432d59ecde5dac1b9"
+      ],
+      "kind": "regular",
+      "slice": "C04",
+      "capability": "Keep focused Raziel composer inside the Preview sheet",
+      "classification": "PRODUCT",
+      "essential_for_latest_delivery": "REQUIRED_FOR_CUMULATIVE_PARITY",
+      "integration_action": "APPLY_OWNED_HUNKS_ADAPT_SHARED_FUNCTIONS",
+      "dependencies": {
+        "history_parents": [
+          "85c124002896446bb8ba4bf432d59ecde5dac1b9"
+        ],
+        "capability_stages": [
+          "C03"
+        ]
+      },
+      "files": [
+        "docs/reviews/els-reading-responsive-preview-20261030.md",
+        "src/components/experience2029/systemFrame2029.css",
+        "test/els-raziel-responsive-browser.test.mjs"
+      ],
+      "tests": {
+        "changed": [
+          "test/els-raziel-responsive-browser.test.mjs"
+        ],
+        "receipt_paths": [
+          "docs/reviews/els-reading-responsive-preview-20261030.md"
+        ],
+        "status": "NOT_REEXECUTED_PER_COMMIT_FOR_THIS_PACKAGE; use cited receipt and aggregate evidence"
+      }
+    },
+    {
+      "position": 33,
+      "sha": "08b070ab053b03497e7b4b2a496770a93148c11f",
+      "parents": [
+        "bfbd40236c6c45dae81d51dd496457be0acf5450"
+      ],
+      "kind": "regular",
+      "slice": "C04",
+      "capability": "Repair private Raziel account sync in named Preview and clarify map continuation",
+      "classification": "PRODUCT_WITH_HISTORICAL_PREVIEW_HUNKS",
+      "essential_for_latest_delivery": "REQUIRED_FOR_CUMULATIVE_PARITY",
+      "integration_action": "APPLY_OWNED_HUNKS_ADAPT_SHARED_FUNCTIONS",
+      "dependencies": {
+        "history_parents": [
+          "bfbd40236c6c45dae81d51dd496457be0acf5450"
+        ],
+        "capability_stages": [
+          "C03"
+        ]
+      },
+      "files": [
+        "docs/reviews/raziel-account-sync-map-20261030.md",
+        "scripts/build-integrated-preview.mjs",
+        "scripts/lib/matrix-raziel-preview.mjs",
+        "src/components/experience2029/RazielCenter2029.jsx",
+        "src/components/experience2029/SystemFrame2029.jsx",
+        "src/lib/research/razielOneShotCopy2029.js",
+        "src/lib/research/razielSavedSync2029.js",
+        "test/raziel-account-preview.test.mjs",
+        "test/raziel-account-sync-map.browser.test.mjs"
+      ],
+      "tests": {
+        "changed": [
+          "test/raziel-account-preview.test.mjs",
+          "test/raziel-account-sync-map.browser.test.mjs"
+        ],
+        "receipt_paths": [
+          "docs/reviews/raziel-account-sync-map-20261030.md"
+        ],
+        "status": "NOT_REEXECUTED_PER_COMMIT_FOR_THIS_PACKAGE; use cited receipt and aggregate evidence"
+      },
+      "note": "כולל copy/actions לשמירה אמיתית לצד חריגי worker היסטוריים. פצל והתאם למדיניות Preview הנוכחית."
+    },
+    {
+      "position": 34,
+      "sha": "4cf9c8fc40e0ac1ee4a893496827924193190aca",
+      "parents": [
+        "08b070ab053b03497e7b4b2a496770a93148c11f"
+      ],
+      "kind": "regular",
+      "slice": "C04",
+      "capability": "Record protected Raziel account Preview acceptance",
+      "classification": "DOCUMENTATION",
+      "essential_for_latest_delivery": "PROVENANCE_ONLY",
+      "integration_action": "RETAIN_AS_PROVENANCE",
+      "dependencies": {
+        "history_parents": [
+          "08b070ab053b03497e7b4b2a496770a93148c11f"
+        ],
+        "capability_stages": [
+          "C03"
+        ]
+      },
+      "files": [
+        "docs/reviews/raziel-account-sync-map-20261030.md"
+      ],
+      "tests": {
+        "changed": [],
+        "receipt_paths": [
+          "docs/reviews/raziel-account-sync-map-20261030.md"
+        ],
+        "status": "NOT_REEXECUTED_PER_COMMIT_FOR_THIS_PACKAGE; use cited receipt and aggregate evidence"
+      }
+    },
+    {
+      "position": 35,
+      "sha": "3ad15f38b881eda2cc0afad79e4fefd4467f18b6",
+      "parents": [
+        "4cf9c8fc40e0ac1ee4a893496827924193190aca"
+      ],
+      "kind": "regular",
+      "slice": "C05",
+      "capability": "Restore explicit Research scan controls without changing Classic",
+      "classification": "PRODUCT",
+      "essential_for_latest_delivery": "REQUIRED_FOR_CUMULATIVE_PARITY",
+      "integration_action": "APPLY_OWNED_HUNKS_ADAPT_SHARED_FUNCTIONS",
+      "dependencies": {
+        "history_parents": [
+          "4cf9c8fc40e0ac1ee4a893496827924193190aca"
+        ],
+        "capability_stages": [
+          "C01",
+          "C04"
+        ]
+      },
+      "files": [
+        "docs/reviews/els-research-restoration-20261030.md",
+        "src/components/experience2029/ElsAdvancedSearch2029.jsx",
+        "src/components/experience2029/els2029-research.css",
+        "test/els-research-controls-browser.test.mjs"
+      ],
+      "tests": {
+        "changed": [
+          "test/els-research-controls-browser.test.mjs"
+        ],
+        "receipt_paths": [
+          "docs/reviews/els-research-restoration-20261030.md"
+        ],
+        "status": "NOT_REEXECUTED_PER_COMMIT_FOR_THIS_PACKAGE; use cited receipt and aggregate evidence"
+      }
+    },
+    {
+      "position": 36,
+      "sha": "46df61035b1d89202812029cb35d1785aa5844ab",
+      "parents": [
+        "3ad15f38b881eda2cc0afad79e4fefd4467f18b6"
+      ],
+      "kind": "regular",
+      "slice": "C05",
+      "capability": "Keep bounded ELS research active across routes in existing research owner",
+      "classification": "PRODUCT",
+      "essential_for_latest_delivery": "REQUIRED_FOR_CUMULATIVE_PARITY",
+      "integration_action": "APPLY_OWNED_HUNKS_ADAPT_SHARED_FUNCTIONS",
+      "dependencies": {
+        "history_parents": [
+          "3ad15f38b881eda2cc0afad79e4fefd4467f18b6"
+        ],
+        "capability_stages": [
+          "C01",
+          "C04"
+        ]
+      },
+      "files": [
+        "docs/reviews/els-background-research-20261030.md",
+        "src/components/experience2029/ElsAdvancedSearch2029.jsx",
+        "src/components/experience2029/ElsResearchActivity2029.jsx",
+        "src/components/experience2029/SystemFrame2029.jsx",
+        "src/lib/research/ResearchProvider.jsx",
+        "src/lib/research/elsBackgroundResearch.js",
+        "src/lib/research/useElsResearchOperation.js",
+        "src/pages/Els2029Page.jsx",
+        "test/els-background-principal.browser.test.mjs",
+        "test/els-background-research.browser.test.mjs",
+        "test/els-background-research.test.mjs"
+      ],
+      "tests": {
+        "changed": [
+          "test/els-background-principal.browser.test.mjs",
+          "test/els-background-research.browser.test.mjs",
+          "test/els-background-research.test.mjs"
+        ],
+        "receipt_paths": [
+          "docs/reviews/els-background-research-20261030.md"
+        ],
+        "status": "NOT_REEXECUTED_PER_COMMIT_FOR_THIS_PACKAGE; use cited receipt and aggregate evidence"
+      }
+    },
+    {
+      "position": 37,
+      "sha": "41e8fd8f97e20fca46517e3ba6c09bd93b8fe4ae",
+      "parents": [
+        "46df61035b1d89202812029cb35d1785aa5844ab"
+      ],
+      "kind": "regular",
+      "slice": "C05",
+      "capability": "Preserve canonical matrix findings and view on background research return",
+      "classification": "PRODUCT_WITH_HISTORICAL_PREVIEW_HUNKS",
+      "essential_for_latest_delivery": "REQUIRED_FOR_CUMULATIVE_PARITY",
+      "integration_action": "APPLY_OWNED_HUNKS_ADAPT_SHARED_FUNCTIONS",
+      "dependencies": {
+        "history_parents": [
+          "46df61035b1d89202812029cb35d1785aa5844ab"
+        ],
+        "capability_stages": [
+          "C01",
+          "C04"
+        ]
+      },
+      "files": [
+        "docs/reviews/els-research-exact-return-preview-20261030.md",
+        "scripts/build-integrated-preview.mjs",
+        "scripts/lib/matrix-raziel-preview.mjs",
+        "src/components/experience2029/ElsResearchActivity2029.jsx",
+        "src/lib/research/ResearchProvider.jsx",
+        "src/lib/research/elsResearchReturnSnapshot.js",
+        "src/lib/research/useElsResearchOperation.js",
+        "src/pages/Els2029Page.jsx",
+        "test/els-background-research.browser.test.mjs",
+        "test/els-native-ui-browser.test.mjs",
+        "test/els-research-return-snapshot.test.mjs",
+        "test/raziel-account-preview.test.mjs"
+      ],
+      "tests": {
+        "changed": [
+          "test/els-background-research.browser.test.mjs",
+          "test/els-native-ui-browser.test.mjs",
+          "test/els-research-return-snapshot.test.mjs",
+          "test/raziel-account-preview.test.mjs"
+        ],
+        "receipt_paths": [
+          "docs/reviews/els-research-exact-return-preview-20261030.md"
+        ],
+        "status": "NOT_REEXECUTED_PER_COMMIT_FOR_THIS_PACKAGE; use cited receipt and aggregate evidence"
+      },
+      "note": "צילום חזרה קנוני הוא קוד מוצר; חריגי worker/allowlist אינם חלק מהפעלתו."
+    },
+    {
+      "position": 38,
+      "sha": "f5e9fd59c4541229350b963cc3730ca8a5afa5b6",
+      "parents": [
+        "41e8fd8f97e20fca46517e3ba6c09bd93b8fe4ae"
+      ],
+      "kind": "regular",
+      "slice": "C05",
+      "capability": "Record protected 2029 Preview identity and acceptance",
+      "classification": "DOCUMENTATION",
+      "essential_for_latest_delivery": "PROVENANCE_ONLY",
+      "integration_action": "RETAIN_AS_PROVENANCE",
+      "dependencies": {
+        "history_parents": [
+          "41e8fd8f97e20fca46517e3ba6c09bd93b8fe4ae"
+        ],
+        "capability_stages": [
+          "C01",
+          "C04"
+        ]
+      },
+      "files": [
+        "docs/reviews/els-research-exact-return-preview-20261030.md"
+      ],
+      "tests": {
+        "changed": [],
+        "receipt_paths": [
+          "docs/reviews/els-research-exact-return-preview-20261030.md"
+        ],
+        "status": "NOT_REEXECUTED_PER_COMMIT_FOR_THIS_PACKAGE; use cited receipt and aggregate evidence"
+      }
+    },
+    {
+      "position": 39,
+      "sha": "98b74b22f9a59410291dd1a9ea5ed6f8edf34954",
+      "parents": [
+        "f5e9fd59c4541229350b963cc3730ca8a5afa5b6"
+      ],
+      "kind": "regular",
+      "slice": "C06",
+      "capability": "Add explicit canonical structure inspection and exact occurrence comparison in Research",
+      "classification": "PRODUCT",
+      "essential_for_latest_delivery": "REQUIRED_FOR_CUMULATIVE_PARITY",
+      "integration_action": "APPLY_OWNED_HUNKS_ADAPT_SHARED_FUNCTIONS",
+      "dependencies": {
+        "history_parents": [
+          "f5e9fd59c4541229350b963cc3730ca8a5afa5b6"
+        ],
+        "capability_stages": [
+          "C05"
+        ]
+      },
+      "files": [
+        "docs/reviews/els-structure-comparison-20261030.md",
+        "src/components/experience2029/ElsNativeClassic2029.jsx",
+        "src/components/experience2029/ElsStructureResearch2029.jsx",
+        "src/components/experience2029/elsNativeClassic2029.css",
+        "src/components/experience2029/elsStructureResearch2029.css",
+        "src/lib/research/elsStructureInspection.js",
+        "src/pages/Els2029Page.jsx",
+        "test/els-native-ui-browser.test.mjs",
+        "test/els-structure-inspection.test.mjs"
+      ],
+      "tests": {
+        "changed": [
+          "test/els-native-ui-browser.test.mjs",
+          "test/els-structure-inspection.test.mjs"
+        ],
+        "receipt_paths": [
+          "docs/reviews/els-structure-comparison-20261030.md"
+        ],
+        "status": "NOT_REEXECUTED_PER_COMMIT_FOR_THIS_PACKAGE; use cited receipt and aggregate evidence"
+      }
+    },
+    {
+      "position": 40,
+      "sha": "bbd98735d0902f9c1626ba442119899d4c168c9b",
+      "parents": [
+        "98b74b22f9a59410291dd1a9ea5ed6f8edf34954"
+      ],
+      "kind": "regular",
+      "slice": "C06",
+      "capability": "Add explicit bounded lexicon discovery to Research using the canonical ELS tool",
+      "classification": "PRODUCT",
+      "essential_for_latest_delivery": "REQUIRED_FOR_CUMULATIVE_PARITY",
+      "integration_action": "APPLY_OWNED_HUNKS_ADAPT_SHARED_FUNCTIONS",
+      "dependencies": {
+        "history_parents": [
+          "98b74b22f9a59410291dd1a9ea5ed6f8edf34954"
+        ],
+        "capability_stages": [
+          "C05"
+        ]
+      },
+      "files": [
+        "docs/reviews/els-explicit-lexicon-scan-20261030.md",
+        "public/tzofen.html",
+        "src/components/experience2029/ElsLexiconResearch2029.jsx",
+        "src/components/experience2029/ElsNativeClassic2029.jsx",
+        "src/components/experience2029/elsLexiconResearch2029.css",
+        "src/lib/research/elsLexiconResearch.js",
+        "test/els-explicit-lexicon.test.mjs",
+        "test/els-guided-language-recognition.test.mjs",
+        "test/els-native-ui-browser.test.mjs",
+        "tools/els/README.md",
+        "tools/els/els-code.template.html"
+      ],
+      "tests": {
+        "changed": [
+          "test/els-explicit-lexicon.test.mjs",
+          "test/els-guided-language-recognition.test.mjs",
+          "test/els-native-ui-browser.test.mjs"
+        ],
+        "receipt_paths": [
+          "docs/reviews/els-explicit-lexicon-scan-20261030.md"
+        ],
+        "status": "NOT_REEXECUTED_PER_COMMIT_FOR_THIS_PACKAGE; use cited receipt and aggregate evidence"
+      }
+    },
+    {
+      "position": 41,
+      "sha": "fb9a2bf8278f09da9e0ba005463d024cc4ebc3b7",
+      "parents": [
+        "bbd98735d0902f9c1626ba442119899d4c168c9b"
+      ],
+      "kind": "regular",
+      "slice": "C06",
+      "capability": "preview(els): admit exact lexicon and structure review branch",
+      "classification": "HISTORICAL_PREVIEW_ONLY",
+      "essential_for_latest_delivery": "NO_RUNTIME_IMPORT",
+      "integration_action": "DO_NOT_REPLAY_OLD_PREVIEW_ALLOWLIST",
+      "dependencies": {
+        "history_parents": [
+          "bbd98735d0902f9c1626ba442119899d4c168c9b"
+        ],
+        "capability_stages": [
+          "C05"
+        ]
+      },
+      "files": [
+        "docs/reviews/els-lexicon-structure-preview-20261030.md",
+        "scripts/lib/matrix-raziel-preview.mjs",
+        "test/els-fable-preview-activation.test.mjs",
+        "test/raziel-account-preview.test.mjs"
+      ],
+      "tests": {
+        "changed": [
+          "test/els-fable-preview-activation.test.mjs",
+          "test/raziel-account-preview.test.mjs"
+        ],
+        "receipt_paths": [
+          "docs/reviews/els-lexicon-structure-preview-20261030.md"
+        ],
+        "status": "NOT_REEXECUTED_PER_COMMIT_FOR_THIS_PACKAGE; use cited receipt and aggregate evidence"
+      }
+    },
+    {
+      "position": 42,
+      "sha": "fd8ac7f5fc170e3831203feb5613f0a1cb94ccac",
+      "parents": [
+        "fb9a2bf8278f09da9e0ba005463d024cc4ebc3b7"
+      ],
+      "kind": "regular",
+      "slice": "C06",
+      "capability": "docs(els): record protected lexicon structure Preview acceptance",
+      "classification": "VERIFICATION_EVIDENCE",
+      "essential_for_latest_delivery": "ACCEPTANCE_ONLY",
+      "integration_action": "PORT_RELEVANT_ACCEPTANCE_WITHOUT_BRANCH_ALLOWLISTS",
+      "dependencies": {
+        "history_parents": [
+          "fb9a2bf8278f09da9e0ba005463d024cc4ebc3b7"
+        ],
+        "capability_stages": [
+          "C05"
+        ]
+      },
+      "files": [
+        "docs/reviews/els-lexicon-structure-preview-20261030.md",
+        "test/els-lexicon-structure-preview.browser.mjs"
+      ],
+      "tests": {
+        "changed": [
+          "test/els-lexicon-structure-preview.browser.mjs"
+        ],
+        "receipt_paths": [
+          "docs/reviews/els-lexicon-structure-preview-20261030.md"
+        ],
+        "status": "NOT_REEXECUTED_PER_COMMIT_FOR_THIS_PACKAGE; use cited receipt and aggregate evidence"
+      }
+    },
+    {
+      "position": 43,
+      "sha": "d88e37b338b5b2aafe7d575c7ac5163826fdd0f9",
+      "parents": [
+        "fd8ac7f5fc170e3831203feb5613f0a1cb94ccac"
+      ],
+      "kind": "regular",
+      "slice": "C06",
+      "capability": "fix(els): show genuine search continuation and explain selected pairs",
+      "classification": "PRODUCT",
+      "essential_for_latest_delivery": "REQUIRED_FOR_CUMULATIVE_PARITY",
+      "integration_action": "APPLY_OWNED_HUNKS_ADAPT_SHARED_FUNCTIONS",
+      "dependencies": {
+        "history_parents": [
+          "fd8ac7f5fc170e3831203feb5613f0a1cb94ccac"
+        ],
+        "capability_stages": [
+          "C05"
+        ]
+      },
+      "files": [
+        "docs/reviews/els-search-continuation-structure-clarity-20261031.md",
+        "public/tzofen.html",
+        "src/components/experience2029/ElsNativeClassic2029.jsx",
+        "src/components/experience2029/ElsStructureResearch2029.jsx",
+        "test/els-continuation-availability.test.mjs",
+        "test/els-native-ui-browser.test.mjs",
+        "tools/els/els-code.template.html"
+      ],
+      "tests": {
+        "changed": [
+          "test/els-continuation-availability.test.mjs",
+          "test/els-native-ui-browser.test.mjs"
+        ],
+        "receipt_paths": [
+          "docs/reviews/els-search-continuation-structure-clarity-20261031.md"
+        ],
+        "status": "NOT_REEXECUTED_PER_COMMIT_FOR_THIS_PACKAGE; use cited receipt and aggregate evidence"
+      }
+    },
+    {
+      "position": 44,
+      "sha": "4c2b1bcecb77df8338f7750b8e8caad52a1acac2",
+      "parents": [
+        "d88e37b338b5b2aafe7d575c7ac5163826fdd0f9"
+      ],
+      "kind": "regular",
+      "slice": "C06",
+      "capability": "preview(els): admit tested search clarity cut with existing guards",
+      "classification": "HISTORICAL_PREVIEW_ONLY",
+      "essential_for_latest_delivery": "NO_RUNTIME_IMPORT",
+      "integration_action": "DO_NOT_REPLAY_OLD_PREVIEW_ALLOWLIST",
+      "dependencies": {
+        "history_parents": [
+          "d88e37b338b5b2aafe7d575c7ac5163826fdd0f9"
+        ],
+        "capability_stages": [
+          "C05"
+        ]
+      },
+      "files": [
+        "docs/reviews/els-search-clarity-preview-20261030.md",
+        "scripts/lib/matrix-raziel-preview.mjs",
+        "test/els-lexicon-structure-preview.browser.mjs",
+        "test/raziel-account-preview.test.mjs"
+      ],
+      "tests": {
+        "changed": [
+          "test/els-lexicon-structure-preview.browser.mjs",
+          "test/raziel-account-preview.test.mjs"
+        ],
+        "receipt_paths": [
+          "docs/reviews/els-search-clarity-preview-20261030.md"
+        ],
+        "status": "NOT_REEXECUTED_PER_COMMIT_FOR_THIS_PACKAGE; use cited receipt and aggregate evidence"
+      }
+    },
+    {
+      "position": 45,
+      "sha": "926c791e536d617daa439ddb564f400a81c03632",
+      "parents": [
+        "4c2b1bcecb77df8338f7750b8e8caad52a1acac2"
+      ],
+      "kind": "regular",
+      "slice": "C06",
+      "capability": "docs(els): record verified search clarity protected Preview",
+      "classification": "DOCUMENTATION",
+      "essential_for_latest_delivery": "PROVENANCE_ONLY",
+      "integration_action": "RETAIN_AS_PROVENANCE",
+      "dependencies": {
+        "history_parents": [
+          "4c2b1bcecb77df8338f7750b8e8caad52a1acac2"
+        ],
+        "capability_stages": [
+          "C05"
+        ]
+      },
+      "files": [
+        "docs/reviews/els-search-clarity-preview-20261030.md"
+      ],
+      "tests": {
+        "changed": [],
+        "receipt_paths": [
+          "docs/reviews/els-search-clarity-preview-20261030.md"
+        ],
+        "status": "NOT_REEXECUTED_PER_COMMIT_FOR_THIS_PACKAGE; use cited receipt and aggregate evidence"
+      }
+    },
+    {
+      "position": 46,
+      "sha": "7e1981439a0c5401aa9c71ffd3f09e8815040ebc",
+      "parents": [
+        "926c791e536d617daa439ddb564f400a81c03632"
+      ],
+      "kind": "regular",
+      "slice": "C07",
+      "capability": "feat(els): unify research words and structural discovery in one workspace",
+      "classification": "PRODUCT",
+      "essential_for_latest_delivery": "REQUIRED_FOR_CUMULATIVE_PARITY",
+      "integration_action": "APPLY_OWNED_HUNKS_ADAPT_SHARED_FUNCTIONS",
+      "dependencies": {
+        "history_parents": [
+          "926c791e536d617daa439ddb564f400a81c03632"
+        ],
+        "capability_stages": [
+          "C06"
+        ]
+      },
+      "files": [
+        "docs/reviews/els-unified-research-workspace-20261030.md",
+        "src/components/experience2029/ElsLexiconResearch2029.jsx",
+        "src/components/experience2029/ElsNativeClassic2029.jsx",
+        "src/components/experience2029/ElsStructureResearch2029.jsx",
+        "src/components/experience2029/elsLexiconResearch2029.css",
+        "src/lib/research/elsLexiconResearch.js",
+        "src/lib/research/elsStructureInspection.js",
+        "test/els-native-ui-browser.test.mjs",
+        "test/els-unified-discovery.test.mjs"
+      ],
+      "tests": {
+        "changed": [
+          "test/els-native-ui-browser.test.mjs",
+          "test/els-unified-discovery.test.mjs"
+        ],
+        "receipt_paths": [
+          "docs/reviews/els-unified-research-workspace-20261030.md"
+        ],
+        "status": "NOT_REEXECUTED_PER_COMMIT_FOR_THIS_PACKAGE; use cited receipt and aggregate evidence"
+      }
+    },
+    {
+      "position": 47,
+      "sha": "1b283248d058b3cf76d9e35e0d66d64ffcee6632",
+      "parents": [
+        "7e1981439a0c5401aa9c71ffd3f09e8815040ebc"
+      ],
+      "kind": "regular",
+      "slice": "C07",
+      "capability": "docs(els): record unified research acceptance and remaining parity",
+      "classification": "DOCUMENTATION",
+      "essential_for_latest_delivery": "PROVENANCE_ONLY",
+      "integration_action": "RETAIN_AS_PROVENANCE",
+      "dependencies": {
+        "history_parents": [
+          "7e1981439a0c5401aa9c71ffd3f09e8815040ebc"
+        ],
+        "capability_stages": [
+          "C06"
+        ]
+      },
+      "files": [
+        "docs/reviews/els-unified-research-workspace-20261030.md"
+      ],
+      "tests": {
+        "changed": [],
+        "receipt_paths": [
+          "docs/reviews/els-unified-research-workspace-20261030.md"
+        ],
+        "status": "NOT_REEXECUTED_PER_COMMIT_FOR_THIS_PACKAGE; use cited receipt and aggregate evidence"
+      }
+    },
+    {
+      "position": 48,
+      "sha": "a6d646969ef56346f29e5d59a6106423c8079f4a",
+      "parents": [
+        "1b283248d058b3cf76d9e35e0d66d64ffcee6632"
+      ],
+      "kind": "regular",
+      "slice": "C07",
+      "capability": "preview(els): expose tested unified research workspace with existing guards",
+      "classification": "HISTORICAL_PREVIEW_ONLY",
+      "essential_for_latest_delivery": "NO_RUNTIME_IMPORT",
+      "integration_action": "DO_NOT_REPLAY_OLD_PREVIEW_ALLOWLIST",
+      "dependencies": {
+        "history_parents": [
+          "1b283248d058b3cf76d9e35e0d66d64ffcee6632"
+        ],
+        "capability_stages": [
+          "C06"
+        ]
+      },
+      "files": [
+        "docs/reviews/els-unified-research-preview-20261031.md",
+        "scripts/lib/matrix-raziel-preview.mjs",
+        "test/els-lexicon-structure-preview.browser.mjs",
+        "test/raziel-account-preview.test.mjs"
+      ],
+      "tests": {
+        "changed": [
+          "test/els-lexicon-structure-preview.browser.mjs",
+          "test/raziel-account-preview.test.mjs"
+        ],
+        "receipt_paths": [
+          "docs/reviews/els-unified-research-preview-20261031.md"
+        ],
+        "status": "NOT_REEXECUTED_PER_COMMIT_FOR_THIS_PACKAGE; use cited receipt and aggregate evidence"
+      }
+    },
+    {
+      "position": 49,
+      "sha": "74785ca5862665983b3577be3036487064f82a60",
+      "parents": [
+        "a6d646969ef56346f29e5d59a6106423c8079f4a"
+      ],
+      "kind": "regular",
+      "slice": "C07",
+      "capability": "docs(els): record unified research protected preview acceptance",
+      "classification": "DOCUMENTATION",
+      "essential_for_latest_delivery": "PROVENANCE_ONLY",
+      "integration_action": "RETAIN_AS_PROVENANCE",
+      "dependencies": {
+        "history_parents": [
+          "a6d646969ef56346f29e5d59a6106423c8079f4a"
+        ],
+        "capability_stages": [
+          "C06"
+        ]
+      },
+      "files": [
+        "docs/reviews/els-unified-research-preview-20261031.md"
+      ],
+      "tests": {
+        "changed": [],
+        "receipt_paths": [
+          "docs/reviews/els-unified-research-preview-20261031.md"
+        ],
+        "status": "NOT_REEXECUTED_PER_COMMIT_FOR_THIS_PACKAGE; use cited receipt and aggregate evidence"
+      }
+    },
+    {
+      "position": 50,
+      "sha": "b3237b1b2266f5a08e00c7eb490d51601b78935c",
+      "parents": [
+        "74785ca5862665983b3577be3036487064f82a60"
+      ],
+      "kind": "regular",
+      "slice": "C08",
+      "capability": "feat(els): restore explicit research pair and occurrence planners",
+      "classification": "PRODUCT",
+      "essential_for_latest_delivery": "REQUIRED_FOR_CUMULATIVE_PARITY",
+      "integration_action": "APPLY_OWNED_HUNKS_ADAPT_SHARED_FUNCTIONS",
+      "dependencies": {
+        "history_parents": [
+          "74785ca5862665983b3577be3036487064f82a60"
+        ],
+        "capability_stages": [
+          "C07"
+        ]
+      },
+      "files": [
+        "docs/reviews/els-search-planners-restore-20261031.md",
+        "public/tzofen.html",
+        "src/components/experience2029/ElsNativeClassic2029.jsx",
+        "src/components/experience2029/ElsOccurrencePlanner2029.jsx",
+        "src/components/experience2029/ElsPairPlanner2029.jsx",
+        "src/components/experience2029/elsNativeClassic2029.css",
+        "test/els-native-ui-browser.test.mjs",
+        "test/els-search-planners.test.mjs",
+        "tools/els/els-code.template.html"
+      ],
+      "tests": {
+        "changed": [
+          "test/els-native-ui-browser.test.mjs",
+          "test/els-search-planners.test.mjs"
+        ],
+        "receipt_paths": [
+          "docs/reviews/els-search-planners-restore-20261031.md"
+        ],
+        "status": "NOT_REEXECUTED_PER_COMMIT_FOR_THIS_PACKAGE; use cited receipt and aggregate evidence"
+      }
+    },
+    {
+      "position": 51,
+      "sha": "450866396762453fd8f2b272c54d7548064668ad",
+      "parents": [
+        "b3237b1b2266f5a08e00c7eb490d51601b78935c"
+      ],
+      "kind": "regular",
+      "slice": "C08",
+      "capability": "preview(els): admit tested search planners on isolated preview branch",
+      "classification": "HISTORICAL_PREVIEW_ONLY",
+      "essential_for_latest_delivery": "NO_RUNTIME_IMPORT",
+      "integration_action": "DO_NOT_REPLAY_OLD_PREVIEW_ALLOWLIST",
+      "dependencies": {
+        "history_parents": [
+          "b3237b1b2266f5a08e00c7eb490d51601b78935c"
+        ],
+        "capability_stages": [
+          "C07"
+        ]
+      },
+      "files": [
+        "docs/reviews/els-search-planners-preview-20261031.md",
+        "scripts/lib/matrix-raziel-preview.mjs",
+        "test/els-lexicon-structure-preview.browser.mjs",
+        "test/raziel-account-preview.test.mjs"
+      ],
+      "tests": {
+        "changed": [
+          "test/els-lexicon-structure-preview.browser.mjs",
+          "test/raziel-account-preview.test.mjs"
+        ],
+        "receipt_paths": [
+          "docs/reviews/els-search-planners-preview-20261031.md"
+        ],
+        "status": "NOT_REEXECUTED_PER_COMMIT_FOR_THIS_PACKAGE; use cited receipt and aggregate evidence"
+      }
+    },
+    {
+      "position": 52,
+      "sha": "50d0a299a28010e78b9e8d3a9227dfe354ed3b53",
+      "parents": [
+        "450866396762453fd8f2b272c54d7548064668ad"
+      ],
+      "kind": "regular",
+      "slice": "C08",
+      "capability": "docs(els): record protected search planners preview acceptance",
+      "classification": "DOCUMENTATION",
+      "essential_for_latest_delivery": "PROVENANCE_ONLY",
+      "integration_action": "RETAIN_AS_PROVENANCE",
+      "dependencies": {
+        "history_parents": [
+          "450866396762453fd8f2b272c54d7548064668ad"
+        ],
+        "capability_stages": [
+          "C07"
+        ]
+      },
+      "files": [
+        "docs/reviews/els-search-planners-preview-20261031.md"
+      ],
+      "tests": {
+        "changed": [],
+        "receipt_paths": [
+          "docs/reviews/els-search-planners-preview-20261031.md"
+        ],
+        "status": "NOT_REEXECUTED_PER_COMMIT_FOR_THIS_PACKAGE; use cited receipt and aggregate evidence"
+      }
+    },
+    {
+      "position": 53,
+      "sha": "89e3d31c4a7c0f0e72a740b22e65e18ebcdeec51",
+      "parents": [
+        "50d0a299a28010e78b9e8d3a9227dfe354ed3b53"
+      ],
+      "kind": "regular",
+      "slice": "C08",
+      "capability": "ELS: organize Research search and make third crossed term optional",
+      "classification": "PRODUCT",
+      "essential_for_latest_delivery": "REQUIRED_FOR_CUMULATIVE_PARITY",
+      "integration_action": "APPLY_OWNED_HUNKS_ADAPT_SHARED_FUNCTIONS",
+      "dependencies": {
+        "history_parents": [
+          "50d0a299a28010e78b9e8d3a9227dfe354ed3b53"
+        ],
+        "capability_stages": [
+          "C07"
+        ]
+      },
+      "files": [
+        "docs/reviews/els-research-search-order-20261031.md",
+        "public/tzofen.html",
+        "src/components/experience2029/ElsAdvancedSearch2029.jsx",
+        "src/components/experience2029/ElsNativeClassic2029.jsx",
+        "src/components/experience2029/elsNativeClassic2029.css",
+        "src/pages/Els2029Page.jsx",
+        "test/els-advanced-page-browser.test.mjs",
+        "test/els-guided-discovery.test.mjs",
+        "test/els-native-ui-browser.test.mjs",
+        "test/els-optional-third-term.test.mjs",
+        "test/fixtures/els-library-browser-fixture.mjs",
+        "tools/els/els-code.template.html"
+      ],
+      "tests": {
+        "changed": [
+          "test/els-advanced-page-browser.test.mjs",
+          "test/els-guided-discovery.test.mjs",
+          "test/els-native-ui-browser.test.mjs",
+          "test/els-optional-third-term.test.mjs",
+          "test/fixtures/els-library-browser-fixture.mjs"
+        ],
+        "receipt_paths": [
+          "docs/reviews/els-research-search-order-20261031.md"
+        ],
+        "status": "NOT_REEXECUTED_PER_COMMIT_FOR_THIS_PACKAGE; use cited receipt and aggregate evidence"
+      }
+    },
+    {
+      "position": 54,
+      "sha": "dfcaebf508f996624ae691b71789ed73f117119d",
+      "parents": [
+        "89e3d31c4a7c0f0e72a740b22e65e18ebcdeec51"
+      ],
+      "kind": "regular",
+      "slice": "C08",
+      "capability": "preview(els): publish isolated Research search organization cut",
+      "classification": "HISTORICAL_PREVIEW_ONLY",
+      "essential_for_latest_delivery": "NO_RUNTIME_IMPORT",
+      "integration_action": "DO_NOT_REPLAY_OLD_PREVIEW_ALLOWLIST",
+      "dependencies": {
+        "history_parents": [
+          "89e3d31c4a7c0f0e72a740b22e65e18ebcdeec51"
+        ],
+        "capability_stages": [
+          "C07"
+        ]
+      },
+      "files": [
+        "docs/reviews/els-search-order-preview-20261031.md",
+        "scripts/lib/matrix-raziel-preview.mjs",
+        "test/els-lexicon-structure-preview.browser.mjs",
+        "test/raziel-account-preview.test.mjs"
+      ],
+      "tests": {
+        "changed": [
+          "test/els-lexicon-structure-preview.browser.mjs",
+          "test/raziel-account-preview.test.mjs"
+        ],
+        "receipt_paths": [
+          "docs/reviews/els-search-order-preview-20261031.md"
+        ],
+        "status": "NOT_REEXECUTED_PER_COMMIT_FOR_THIS_PACKAGE; use cited receipt and aggregate evidence"
+      }
+    },
+    {
+      "position": 55,
+      "sha": "30636806495c9dcaf93fad2432c8fddded67bfd7",
+      "parents": [
+        "dfcaebf508f996624ae691b71789ed73f117119d"
+      ],
+      "kind": "regular",
+      "slice": "C08",
+      "capability": "docs(els): record verified protected search-order Preview",
+      "classification": "DOCUMENTATION",
+      "essential_for_latest_delivery": "PROVENANCE_ONLY",
+      "integration_action": "RETAIN_AS_PROVENANCE",
+      "dependencies": {
+        "history_parents": [
+          "dfcaebf508f996624ae691b71789ed73f117119d"
+        ],
+        "capability_stages": [
+          "C07"
+        ]
+      },
+      "files": [
+        "docs/reviews/els-search-order-preview-20261031.md"
+      ],
+      "tests": {
+        "changed": [],
+        "receipt_paths": [
+          "docs/reviews/els-search-order-preview-20261031.md"
+        ],
+        "status": "NOT_REEXECUTED_PER_COMMIT_FOR_THIS_PACKAGE; use cited receipt and aggregate evidence"
+      }
+    },
+    {
+      "position": 56,
+      "sha": "b83bb2939df5367b4afd059a59bcfb2051d298d8",
+      "parents": [
+        "30636806495c9dcaf93fad2432c8fddded67bfd7"
+      ],
+      "kind": "regular",
+      "slice": "C09",
+      "capability": "ELS: clarify Advanced search intent, previews and retained results",
+      "classification": "PRODUCT",
+      "essential_for_latest_delivery": "REQUIRED_FOR_CUMULATIVE_PARITY",
+      "integration_action": "APPLY_OWNED_HUNKS_ADAPT_SHARED_FUNCTIONS",
+      "dependencies": {
+        "history_parents": [
+          "30636806495c9dcaf93fad2432c8fddded67bfd7"
+        ],
+        "capability_stages": [
+          "C08"
+        ]
+      },
+      "files": [
+        "docs/reviews/els-advanced-search-clarity-20261031.md",
+        "src/components/experience2029/ElsAdvancedSearch2029.jsx",
+        "src/components/experience2029/ElsNativeClassic2029.jsx",
+        "src/components/experience2029/els2029-research.css",
+        "src/pages/Els2029Page.jsx",
+        "test/els-advanced-page-browser.test.mjs",
+        "test/els-advanced-search-clarity.browser.test.mjs",
+        "test/els-background-research.browser.test.mjs",
+        "test/els-native-ui-browser.test.mjs",
+        "test/els-research-controls-browser.test.mjs",
+        "test/fixtures/els-library-browser-fixture.mjs"
+      ],
+      "tests": {
+        "changed": [
+          "test/els-advanced-page-browser.test.mjs",
+          "test/els-advanced-search-clarity.browser.test.mjs",
+          "test/els-background-research.browser.test.mjs",
+          "test/els-native-ui-browser.test.mjs",
+          "test/els-research-controls-browser.test.mjs",
+          "test/fixtures/els-library-browser-fixture.mjs"
+        ],
+        "receipt_paths": [
+          "docs/reviews/els-advanced-search-clarity-20261031.md"
+        ],
+        "status": "NOT_REEXECUTED_PER_COMMIT_FOR_THIS_PACKAGE; use cited receipt and aggregate evidence"
+      }
+    },
+    {
+      "position": 57,
+      "sha": "bc4bb4e7509c9cd10250ed376e1473b5dc46d8e8",
+      "parents": [
+        "b83bb2939df5367b4afd059a59bcfb2051d298d8"
+      ],
+      "kind": "regular",
+      "slice": "C09",
+      "capability": "docs(els): record Advanced clarity acceptance and handoff",
+      "classification": "DOCUMENTATION",
+      "essential_for_latest_delivery": "PROVENANCE_ONLY",
+      "integration_action": "RETAIN_AS_PROVENANCE",
+      "dependencies": {
+        "history_parents": [
+          "b83bb2939df5367b4afd059a59bcfb2051d298d8"
+        ],
+        "capability_stages": [
+          "C08"
+        ]
+      },
+      "files": [
+        "docs/reviews/els-advanced-search-clarity-20261031.md"
+      ],
+      "tests": {
+        "changed": [],
+        "receipt_paths": [
+          "docs/reviews/els-advanced-search-clarity-20261031.md"
+        ],
+        "status": "NOT_REEXECUTED_PER_COMMIT_FOR_THIS_PACKAGE; use cited receipt and aggregate evidence"
+      }
+    },
+    {
+      "position": 58,
+      "sha": "c9e87194965350109b758eabdb21bf23ec2f6c4f",
+      "parents": [
+        "bc4bb4e7509c9cd10250ed376e1473b5dc46d8e8"
+      ],
+      "kind": "regular",
+      "slice": "C09",
+      "capability": "feat(els): add safe context reset and exact matrix sharing",
+      "classification": "PRODUCT_WITH_HISTORICAL_PREVIEW_HUNKS",
+      "essential_for_latest_delivery": "REQUIRED_FOR_CUMULATIVE_PARITY",
+      "integration_action": "APPLY_OWNED_HUNKS_ADAPT_SHARED_FUNCTIONS",
+      "dependencies": {
+        "history_parents": [
+          "bc4bb4e7509c9cd10250ed376e1473b5dc46d8e8"
+        ],
+        "capability_stages": [
+          "C08"
+        ]
+      },
+      "files": [
+        "docs/reviews/els-context-reset-20261031.md",
+        "scripts/lib/matrix-raziel-preview.mjs",
+        "src/components/experience2029/ElsMatrixShare2029.jsx",
+        "src/components/experience2029/ElsNativeClassic2029.jsx",
+        "src/components/experience2029/els2029-research.css",
+        "src/components/experience2029/elsNativeClassic2029.css",
+        "src/lib/elsMatrixShare.js",
+        "src/pages/Els2029Page.jsx",
+        "test/els-background-research.browser.test.mjs",
+        "test/els-matrix-share.test.mjs",
+        "test/els-native-ui-browser.test.mjs",
+        "test/raziel-account-preview.test.mjs"
+      ],
+      "tests": {
+        "changed": [
+          "test/els-background-research.browser.test.mjs",
+          "test/els-matrix-share.test.mjs",
+          "test/els-native-ui-browser.test.mjs",
+          "test/raziel-account-preview.test.mjs"
+        ],
+        "receipt_paths": [
+          "docs/reviews/els-context-reset-20261031.md"
+        ],
+        "status": "NOT_REEXECUTED_PER_COMMIT_FOR_THIS_PACKAGE; use cited receipt and aggregate evidence"
+      },
+      "note": "שיתוף ואיפוס הם קוד מוצר; שינוי allowlist ב-scripts/lib אינו אישור הפעלה."
+    },
+    {
+      "position": 59,
+      "sha": "9c77a84c5de0dbe817605c71a060e8baecbafaaa",
+      "parents": [
+        "c9e87194965350109b758eabdb21bf23ec2f6c4f"
+      ],
+      "kind": "regular",
+      "slice": "C09",
+      "capability": "docs(els): record protected context and share preview acceptance",
+      "classification": "DOCUMENTATION",
+      "essential_for_latest_delivery": "PROVENANCE_ONLY",
+      "integration_action": "RETAIN_AS_PROVENANCE",
+      "dependencies": {
+        "history_parents": [
+          "c9e87194965350109b758eabdb21bf23ec2f6c4f"
+        ],
+        "capability_stages": [
+          "C08"
+        ]
+      },
+      "files": [
+        "docs/reviews/els-context-reset-20261031.md"
+      ],
+      "tests": {
+        "changed": [],
+        "receipt_paths": [
+          "docs/reviews/els-context-reset-20261031.md"
+        ],
+        "status": "NOT_REEXECUTED_PER_COMMIT_FOR_THIS_PACKAGE; use cited receipt and aggregate evidence"
+      }
+    },
+    {
+      "position": 60,
+      "sha": "0fe88f4853347cb980d90525fc42fa3a5a2b85f3",
+      "parents": [
+        "9c77a84c5de0dbe817605c71a060e8baecbafaaa"
+      ],
+      "kind": "regular",
+      "slice": "C10",
+      "capability": "feat(els): restore bounded discovery controls and unify AI inspector",
+      "classification": "PRODUCT",
+      "essential_for_latest_delivery": "REQUIRED_FOR_CUMULATIVE_PARITY",
+      "integration_action": "APPLY_OWNED_HUNKS_ADAPT_SHARED_FUNCTIONS",
+      "dependencies": {
+        "history_parents": [
+          "9c77a84c5de0dbe817605c71a060e8baecbafaaa"
+        ],
+        "capability_stages": [
+          "C09"
+        ]
+      },
+      "files": [
+        "docs/reviews/els-discovery-controls-20261031.md",
+        "public/tzofen.html",
+        "src/components/experience2029/ElsLexiconResearch2029.jsx",
+        "src/components/experience2029/ElsNativeClassic2029.jsx",
+        "src/components/experience2029/elsLexiconResearch2029.css",
+        "src/components/experience2029/elsNativeClassic2029.css",
+        "src/components/experience2029/previewVisualCalibration2029.css",
+        "src/lib/research/elsLexiconResearch.js",
+        "src/lib/research/elsStructureInspection.js",
+        "src/pages/Els2029Page.jsx",
+        "test/els-background-research.browser.test.mjs",
+        "test/els-discovery-controls.test.mjs",
+        "test/els-explicit-lexicon.test.mjs",
+        "test/els-native-ui-browser.test.mjs",
+        "tools/els/els-code.template.html"
+      ],
+      "tests": {
+        "changed": [
+          "test/els-background-research.browser.test.mjs",
+          "test/els-discovery-controls.test.mjs",
+          "test/els-explicit-lexicon.test.mjs",
+          "test/els-native-ui-browser.test.mjs"
+        ],
+        "receipt_paths": [
+          "docs/reviews/els-discovery-controls-20261031.md"
+        ],
+        "status": "NOT_REEXECUTED_PER_COMMIT_FOR_THIS_PACKAGE; use cited receipt and aggregate evidence"
+      },
+      "note": "שינוי previewVisualCalibration2029.css נוגע רק לסדר תיקיית הצפנים/המטריצה תחת data-sod-visual-option; להעביר רק אם מצב הסקירה עדיין קיים."
+    },
+    {
+      "position": 61,
+      "sha": "7286127aaf57f40ce388a712598179de9fa20764",
+      "parents": [
+        "0fe88f4853347cb980d90525fc42fa3a5a2b85f3"
+      ],
+      "kind": "regular",
+      "slice": "C10",
+      "capability": "feat(els): restore bounded language discovery in Research",
+      "classification": "PRODUCT",
+      "essential_for_latest_delivery": "REQUIRED_FOR_CUMULATIVE_PARITY",
+      "integration_action": "APPLY_OWNED_HUNKS_ADAPT_SHARED_FUNCTIONS",
+      "dependencies": {
+        "history_parents": [
+          "0fe88f4853347cb980d90525fc42fa3a5a2b85f3"
+        ],
+        "capability_stages": [
+          "C09"
+        ]
+      },
+      "files": [
+        "docs/reviews/els-research-language-restore-20261031.md",
+        "public/tzofen.html",
+        "src/components/experience2029/ElsLexiconResearch2029.jsx",
+        "src/lib/research/elsLexiconResearch.js",
+        "src/lib/research/elsStructureInspection.js",
+        "test/els-guided-language-recognition.test.mjs",
+        "test/els-native-ui-browser.test.mjs",
+        "test/els-research-language-restore.test.mjs",
+        "tools/els/els-code.template.html"
+      ],
+      "tests": {
+        "changed": [
+          "test/els-guided-language-recognition.test.mjs",
+          "test/els-native-ui-browser.test.mjs",
+          "test/els-research-language-restore.test.mjs"
+        ],
+        "receipt_paths": [
+          "docs/reviews/els-research-language-restore-20261031.md"
+        ],
+        "status": "NOT_REEXECUTED_PER_COMMIT_FOR_THIS_PACKAGE; use cited receipt and aggregate evidence"
+      }
+    },
+    {
+      "position": 62,
+      "sha": "7a60ab009284c347cbc268f134dce26901a8b6ec",
+      "parents": [
+        "7286127aaf57f40ce388a712598179de9fa20764"
+      ],
+      "kind": "regular",
+      "slice": "C10",
+      "capability": "chore(els): admit exact language restoration Preview branch",
+      "classification": "HISTORICAL_PREVIEW_ONLY",
+      "essential_for_latest_delivery": "NO_RUNTIME_IMPORT",
+      "integration_action": "DO_NOT_REPLAY_OLD_PREVIEW_ALLOWLIST",
+      "dependencies": {
+        "history_parents": [
+          "7286127aaf57f40ce388a712598179de9fa20764"
+        ],
+        "capability_stages": [
+          "C09"
+        ]
+      },
+      "files": [
+        "docs/reviews/els-language-preview-20261031.md",
+        "scripts/lib/matrix-raziel-preview.mjs",
+        "test/raziel-account-preview.test.mjs"
+      ],
+      "tests": {
+        "changed": [
+          "test/raziel-account-preview.test.mjs"
+        ],
+        "receipt_paths": [
+          "docs/reviews/els-language-preview-20261031.md"
+        ],
+        "status": "NOT_REEXECUTED_PER_COMMIT_FOR_THIS_PACKAGE; use cited receipt and aggregate evidence"
+      }
+    },
+    {
+      "position": 63,
+      "sha": "32dc50bae53c3c3f04464af5d11c8fc3b673cfc9",
+      "parents": [
+        "7a60ab009284c347cbc268f134dce26901a8b6ec"
+      ],
+      "kind": "regular",
+      "slice": "C10",
+      "capability": "docs(els): record verified protected language Preview",
+      "classification": "DOCUMENTATION",
+      "essential_for_latest_delivery": "PROVENANCE_ONLY",
+      "integration_action": "RETAIN_AS_PROVENANCE",
+      "dependencies": {
+        "history_parents": [
+          "7a60ab009284c347cbc268f134dce26901a8b6ec"
+        ],
+        "capability_stages": [
+          "C09"
+        ]
+      },
+      "files": [
+        "docs/reviews/els-language-preview-20261031.md"
+      ],
+      "tests": {
+        "changed": [],
+        "receipt_paths": [
+          "docs/reviews/els-language-preview-20261031.md"
+        ],
+        "status": "NOT_REEXECUTED_PER_COMMIT_FOR_THIS_PACKAGE; use cited receipt and aggregate evidence"
+      }
+    },
+    {
+      "position": 64,
+      "sha": "533749adf737b3994d4b2d9505ed914a03c13e5a",
+      "parents": [
+        "32dc50bae53c3c3f04464af5d11c8fc3b673cfc9"
+      ],
+      "kind": "regular",
+      "slice": "C11",
+      "capability": "feat(els): restore canonical manual letter selection and occurrence actions",
+      "classification": "PRODUCT",
+      "essential_for_latest_delivery": "REQUIRED_FOR_CUMULATIVE_PARITY",
+      "integration_action": "APPLY_OWNED_HUNKS_ADAPT_SHARED_FUNCTIONS",
+      "dependencies": {
+        "history_parents": [
+          "32dc50bae53c3c3f04464af5d11c8fc3b673cfc9"
+        ],
+        "capability_stages": [
+          "C10"
+        ]
+      },
+      "files": [
+        "docs/reviews/els-manual-letter-selection-20261031.md",
+        "public/tzofen.html",
+        "src/components/experience2029/ElsNativeClassic2029.jsx",
+        "src/components/experience2029/elsNativeClassic2029.css",
+        "test/els-native-ui-browser.test.mjs",
+        "tools/els/els-code.template.html"
+      ],
+      "tests": {
+        "changed": [
+          "test/els-native-ui-browser.test.mjs"
+        ],
+        "receipt_paths": [
+          "docs/reviews/els-manual-letter-selection-20261031.md"
+        ],
+        "status": "NOT_REEXECUTED_PER_COMMIT_FOR_THIS_PACKAGE; use cited receipt and aggregate evidence"
+      }
+    },
+    {
+      "position": 65,
+      "sha": "5dae28f1986f59317c400d9133b84ae423202ca4",
+      "parents": [
+        "533749adf737b3994d4b2d9505ed914a03c13e5a"
+      ],
+      "kind": "regular",
+      "slice": "C11",
+      "capability": "refactor(els): compact matrix controls for mobile without losing tools",
+      "classification": "PRODUCT",
+      "essential_for_latest_delivery": "REQUIRED_FOR_CUMULATIVE_PARITY",
+      "integration_action": "APPLY_OWNED_HUNKS_ADAPT_SHARED_FUNCTIONS",
+      "dependencies": {
+        "history_parents": [
+          "533749adf737b3994d4b2d9505ed914a03c13e5a"
+        ],
+        "capability_stages": [
+          "C10"
+        ]
+      },
+      "files": [
+        "docs/reviews/els-matrix-mobile-toolbar-20261031.md",
+        "src/components/experience2029/ElsMatrixShare2029.jsx",
+        "src/components/experience2029/ElsNativeClassic2029.jsx",
+        "src/components/experience2029/elsNativeClassic2029.css",
+        "test/els-background-research.browser.test.mjs",
+        "test/els-native-ui-browser.test.mjs"
+      ],
+      "tests": {
+        "changed": [
+          "test/els-background-research.browser.test.mjs",
+          "test/els-native-ui-browser.test.mjs"
+        ],
+        "receipt_paths": [
+          "docs/reviews/els-matrix-mobile-toolbar-20261031.md"
+        ],
+        "status": "NOT_REEXECUTED_PER_COMMIT_FOR_THIS_PACKAGE; use cited receipt and aggregate evidence"
+      },
+      "note": "63/64 בדפדפן בנקודת הזמן; אין למסור כירוק. תיקון race אמיתי מגיע ב-331354dc."
+    },
+    {
+      "position": 66,
+      "sha": "3fcbc25bfed5374a846c801737759bf7fa85cea9",
+      "parents": [
+        "5dae28f1986f59317c400d9133b84ae423202ca4"
+      ],
+      "kind": "regular",
+      "slice": "C11",
+      "capability": "docs(els): record mobile acceptance and publication blocker",
+      "classification": "DOCUMENTATION",
+      "essential_for_latest_delivery": "PROVENANCE_ONLY",
+      "integration_action": "RETAIN_AS_PROVENANCE",
+      "dependencies": {
+        "history_parents": [
+          "5dae28f1986f59317c400d9133b84ae423202ca4"
+        ],
+        "capability_stages": [
+          "C10"
+        ]
+      },
+      "files": [
+        "docs/reviews/els-matrix-mobile-toolbar-20261031.md"
+      ],
+      "tests": {
+        "changed": [],
+        "receipt_paths": [
+          "docs/reviews/els-matrix-mobile-toolbar-20261031.md"
+        ],
+        "status": "NOT_REEXECUTED_PER_COMMIT_FOR_THIS_PACKAGE; use cited receipt and aggregate evidence"
+      }
+    },
+    {
+      "position": 67,
+      "sha": "331354dc8d56fc639ad208f73daaa4dfe0a39b88",
+      "parents": [
+        "3fcbc25bfed5374a846c801737759bf7fa85cea9"
+      ],
+      "kind": "regular",
+      "slice": "C11",
+      "capability": "fix(els): make exact probes one-shot across readiness retries",
+      "classification": "PRODUCT",
+      "essential_for_latest_delivery": "REQUIRED_FOR_CUMULATIVE_PARITY",
+      "integration_action": "APPLY_OWNED_HUNKS_ADAPT_SHARED_FUNCTIONS",
+      "dependencies": {
+        "history_parents": [
+          "3fcbc25bfed5374a846c801737759bf7fa85cea9"
+        ],
+        "capability_stages": [
+          "C10"
+        ]
+      },
+      "files": [
+        "docs/reviews/els-exact-probe-readiness-20261031.md",
+        "src/components/TzofenEmbed.jsx",
+        "test/els-host-bridge.test.mjs",
+        "test/els-native-ui-browser.test.mjs"
+      ],
+      "tests": {
+        "changed": [
+          "test/els-host-bridge.test.mjs",
+          "test/els-native-ui-browser.test.mjs"
+        ],
+        "receipt_paths": [
+          "docs/reviews/els-exact-probe-readiness-20261031.md"
+        ],
+        "status": "NOT_REEXECUTED_PER_COMMIT_FOR_THIS_PACKAGE; use cited receipt and aggregate evidence"
+      },
+      "note": "תיקון runtime של TzofenEmbed, לא רק fixture; שומר פרטיות/no-hit/late response ולא מגדיל timeout."
+    },
+    {
+      "position": 68,
+      "sha": "1efc1cd79435fe73ca7da79b93eb42553a456efc",
+      "parents": [
+        "331354dc8d56fc639ad208f73daaa4dfe0a39b88"
+      ],
+      "kind": "regular",
+      "slice": "C11",
+      "capability": "ELS: give research tools a dedicated full-width matrix entry",
+      "classification": "PRODUCT",
+      "essential_for_latest_delivery": "REQUIRED_FOR_CUMULATIVE_PARITY",
+      "integration_action": "APPLY_OWNED_HUNKS_ADAPT_SHARED_FUNCTIONS",
+      "dependencies": {
+        "history_parents": [
+          "331354dc8d56fc639ad208f73daaa4dfe0a39b88"
+        ],
+        "capability_stages": [
+          "C10"
+        ]
+      },
+      "files": [
+        "docs/reviews/els-research-area-below-matrix-20261031.md",
+        "src/components/experience2029/ElsNativeClassic2029.jsx",
+        "src/components/experience2029/elsNativeClassic2029.css",
+        "test/els-native-ui-browser.test.mjs"
+      ],
+      "tests": {
+        "changed": [
+          "test/els-native-ui-browser.test.mjs"
+        ],
+        "receipt_paths": [
+          "docs/reviews/els-research-area-below-matrix-20261031.md"
+        ],
+        "status": "NOT_REEXECUTED_PER_COMMIT_FOR_THIS_PACKAGE; use cited receipt and aggregate evidence"
+      }
+    },
+    {
+      "position": 69,
+      "sha": "548ef03f3d207062e9bdfd54a1e51597440e0390",
+      "parents": [
+        "1efc1cd79435fe73ca7da79b93eb42553a456efc"
+      ],
+      "kind": "regular",
+      "slice": "C11",
+      "capability": "chore(els): admit isolated research-area 2029 Preview",
+      "classification": "HISTORICAL_PREVIEW_ONLY",
+      "essential_for_latest_delivery": "NO_RUNTIME_IMPORT",
+      "integration_action": "DO_NOT_REPLAY_OLD_PREVIEW_ALLOWLIST",
+      "dependencies": {
+        "history_parents": [
+          "1efc1cd79435fe73ca7da79b93eb42553a456efc"
+        ],
+        "capability_stages": [
+          "C10"
+        ]
+      },
+      "files": [
+        "docs/reviews/els-research-area-preview-20261031.md",
+        "scripts/lib/matrix-raziel-preview.mjs",
+        "test/els-lexicon-structure-preview.browser.mjs",
+        "test/raziel-account-preview.test.mjs"
+      ],
+      "tests": {
+        "changed": [
+          "test/els-lexicon-structure-preview.browser.mjs",
+          "test/raziel-account-preview.test.mjs"
+        ],
+        "receipt_paths": [
+          "docs/reviews/els-research-area-preview-20261031.md"
+        ],
+        "status": "NOT_REEXECUTED_PER_COMMIT_FOR_THIS_PACKAGE; use cited receipt and aggregate evidence"
+      }
+    },
+    {
+      "position": 70,
+      "sha": "ba9ee00f76e3d5fc28128857c07dc86024327d96",
+      "parents": [
+        "548ef03f3d207062e9bdfd54a1e51597440e0390"
+      ],
+      "kind": "regular",
+      "slice": "C11",
+      "capability": "docs(els): record verified protected research-area Preview",
+      "classification": "DOCUMENTATION",
+      "essential_for_latest_delivery": "PROVENANCE_ONLY",
+      "integration_action": "RETAIN_AS_PROVENANCE",
+      "dependencies": {
+        "history_parents": [
+          "548ef03f3d207062e9bdfd54a1e51597440e0390"
+        ],
+        "capability_stages": [
+          "C10"
+        ]
+      },
+      "files": [
+        "docs/reviews/els-research-area-preview-20261031.md"
+      ],
+      "tests": {
+        "changed": [],
+        "receipt_paths": [
+          "docs/reviews/els-research-area-preview-20261031.md"
+        ],
+        "status": "NOT_REEXECUTED_PER_COMMIT_FOR_THIS_PACKAGE; use cited receipt and aggregate evidence"
+      }
+    },
+    {
+      "position": 71,
+      "sha": "cb7536c28d241c2f93fc4741288bd5ef1ffbcd58",
+      "parents": [
+        "ba9ee00f76e3d5fc28128857c07dc86024327d96"
+      ],
+      "kind": "regular",
+      "slice": "C11",
+      "capability": "feat(els): promote matrix height action and document Raziel gaps",
+      "classification": "PRODUCT",
+      "essential_for_latest_delivery": "REQUIRED_FOR_CUMULATIVE_PARITY",
+      "integration_action": "APPLY_OWNED_HUNKS_ADAPT_SHARED_FUNCTIONS",
+      "dependencies": {
+        "history_parents": [
+          "ba9ee00f76e3d5fc28128857c07dc86024327d96"
+        ],
+        "capability_stages": [
+          "C10"
+        ]
+      },
+      "files": [
+        "docs/reviews/els-matrix-height-raziel-audit-20261031.md",
+        "src/components/experience2029/ElsNativeClassic2029.jsx",
+        "src/components/experience2029/elsNativeClassic2029.css",
+        "test/els-native-ui-browser.test.mjs"
+      ],
+      "tests": {
+        "changed": [
+          "test/els-native-ui-browser.test.mjs"
+        ],
+        "receipt_paths": [
+          "docs/reviews/els-matrix-height-raziel-audit-20261031.md"
+        ],
+        "status": "NOT_REEXECUTED_PER_COMMIT_FOR_THIS_PACKAGE; use cited receipt and aggregate evidence"
+      }
+    },
+    {
+      "position": 72,
+      "sha": "d99c952208f79457b227cee2e364f86197fe4c96",
+      "parents": [
+        "cb7536c28d241c2f93fc4741288bd5ef1ffbcd58"
+      ],
+      "kind": "regular",
+      "slice": "C12",
+      "capability": "fix(els): ground Raziel follow-ups in canonical occurrence and owned reading",
+      "classification": "PRODUCT",
+      "essential_for_latest_delivery": "REQUIRED_FOR_CUMULATIVE_PARITY",
+      "integration_action": "APPLY_OWNED_HUNKS_ADAPT_SHARED_FUNCTIONS",
+      "dependencies": {
+        "history_parents": [
+          "cb7536c28d241c2f93fc4741288bd5ef1ffbcd58"
+        ],
+        "capability_stages": [
+          "C03",
+          "C04",
+          "C11"
+        ]
+      },
+      "files": [
+        "docs/reviews/els-raziel-verified-followup-20261031.md",
+        "src/lib/research/elsRazielContext.js",
+        "src/lib/research/razielSessionRequest2029.js",
+        "src/lib/supabase.js",
+        "src/pages/Els2029Page.jsx",
+        "supabase/functions/_shared/elsRazielOccurrenceContext.js",
+        "supabase/functions/_shared/elsRazielReadingContext.js",
+        "supabase/functions/ai-analyze/index.ts",
+        "test/els-2029-raziel-consumer.test.mjs",
+        "test/els-matrix-reading-activity-browser.test.mjs",
+        "test/els-matrix-reading-client-e2e.test.mjs",
+        "test/els-raziel-matrix-context.test.mjs",
+        "test/els-raziel-verified-followup.test.mjs",
+        "test/helpers/ai-analyze-handler.mjs"
+      ],
+      "tests": {
+        "changed": [
+          "test/els-2029-raziel-consumer.test.mjs",
+          "test/els-matrix-reading-activity-browser.test.mjs",
+          "test/els-matrix-reading-client-e2e.test.mjs",
+          "test/els-raziel-matrix-context.test.mjs",
+          "test/els-raziel-verified-followup.test.mjs",
+          "test/helpers/ai-analyze-handler.mjs"
+        ],
+        "receipt_paths": [
+          "docs/reviews/els-raziel-verified-followup-20261031.md"
+        ],
+        "status": "NOT_REEXECUTED_PER_COMMIT_FOR_THIS_PACKAGE; use cited receipt and aggregate evidence"
+      },
+      "note": "תלוי ב-jobs, ב-session ובמתאם שכבר נבנו; ארבעת הקומיטים האחרונים אינם חתך עצמאי על המרכז."
+    },
+    {
+      "position": 73,
+      "sha": "25177b717ed59deb0bab7bc7d306b5af7efd47ab",
+      "parents": [
+        "d99c952208f79457b227cee2e364f86197fe4c96"
+      ],
+      "kind": "regular",
+      "slice": "C12",
+      "capability": "docs(els): record verified follow-up packaging and test boundaries",
+      "classification": "DOCUMENTATION",
+      "essential_for_latest_delivery": "PROVENANCE_ONLY",
+      "integration_action": "RETAIN_AS_PROVENANCE",
+      "dependencies": {
+        "history_parents": [
+          "d99c952208f79457b227cee2e364f86197fe4c96"
+        ],
+        "capability_stages": [
+          "C03",
+          "C04",
+          "C11"
+        ]
+      },
+      "files": [
+        "docs/reviews/els-raziel-verified-followup-20261031.md"
+      ],
+      "tests": {
+        "changed": [],
+        "receipt_paths": [
+          "docs/reviews/els-raziel-verified-followup-20261031.md"
+        ],
+        "status": "NOT_REEXECUTED_PER_COMMIT_FOR_THIS_PACKAGE; use cited receipt and aggregate evidence"
+      }
+    },
+    {
+      "position": 74,
+      "sha": "f8b9dd9c226121e000a410e83956f39e1335c584",
+      "parents": [
+        "25177b717ed59deb0bab7bc7d306b5af7efd47ab"
+      ],
+      "kind": "regular",
+      "slice": "C13",
+      "capability": "fix(raziel): keep content comparisons out of gematria research",
+      "classification": "PRODUCT",
+      "essential_for_latest_delivery": "REQUIRED_FOR_CUMULATIVE_PARITY",
+      "integration_action": "APPLY_OWNED_HUNKS_ADAPT_SHARED_FUNCTIONS",
+      "dependencies": {
+        "history_parents": [
+          "25177b717ed59deb0bab7bc7d306b5af7efd47ab"
+        ],
+        "capability_stages": [
+          "C12"
+        ]
+      },
+      "files": [
+        "docs/reviews/raziel-content-comparison-follow-handoff-20261031.md",
+        "src/lib/research/razielConversationResolver.js",
+        "src/lib/research/razielSemanticIntentGate.js",
+        "supabase/functions/ai-analyze/index.ts",
+        "test/raziel-canonical-navigation-actions-2029.browser.test.mjs",
+        "test/raziel-content-comparison.test.mjs"
+      ],
+      "tests": {
+        "changed": [
+          "test/raziel-canonical-navigation-actions-2029.browser.test.mjs",
+          "test/raziel-content-comparison.test.mjs"
+        ],
+        "receipt_paths": [
+          "docs/reviews/raziel-content-comparison-follow-handoff-20261031.md"
+        ],
+        "status": "NOT_REEXECUTED_PER_COMMIT_FOR_THIS_PACKAGE; use cited receipt and aggregate evidence"
+      },
+      "note": "הקשרי קהל/Follow הם הוראות הפרדה בלבד. אין צרכן אישי חדש או ייבוא Posts."
+    },
+    {
+      "position": 75,
+      "sha": "4ea9ac370bd8a873d96dd8f4cb13c2a5515ad468",
+      "parents": [
+        "f8b9dd9c226121e000a410e83956f39e1335c584"
+      ],
+      "kind": "regular",
+      "slice": "C13",
+      "capability": "docs(raziel): record content comparison packaging proof",
+      "classification": "DOCUMENTATION",
+      "essential_for_latest_delivery": "PROVENANCE_ONLY",
+      "integration_action": "RETAIN_AS_PROVENANCE",
+      "dependencies": {
+        "history_parents": [
+          "f8b9dd9c226121e000a410e83956f39e1335c584"
+        ],
+        "capability_stages": [
+          "C12"
+        ]
+      },
+      "files": [
+        "docs/reviews/raziel-content-comparison-follow-handoff-20261031.md"
+      ],
+      "tests": {
+        "changed": [],
+        "receipt_paths": [
+          "docs/reviews/raziel-content-comparison-follow-handoff-20261031.md"
+        ],
+        "status": "NOT_REEXECUTED_PER_COMMIT_FOR_THIS_PACKAGE; use cited receipt and aggregate evidence"
+      }
+    }
+  ],
+  "merge_content_proof": {
+    "merge_sha": "4d9700ed6981f426ad8ef0b7f40c8d070e9eda58",
+    "first_parent": "679e46c39819a99c7272ed50c58a983c3efb7f4e",
+    "second_parent": "82491eb4acbcbec7b9c63b28aeb557ed594a54ed",
+    "side_branch_base": "63e430113eb5edca7f2ae69eabc9e1c0eeeb70cd",
+    "side_branch_commits": [
+      "503c38c85cf9550ac2dd92380c9dc2d2deb2d8e7",
+      "82491eb4acbcbec7b9c63b28aeb557ed594a54ed"
+    ],
+    "stable_patch_id_both_deltas": "8e0d1d7be3a5c929f7594081b923643a465f8ba5",
+    "decision": "Apply the side-branch content once by function/path; retain merge as provenance only. Never apply both side commits and cherry-pick -m 1 merge."
+  },
+  "method": "Posts no-ff ancestry merge; ELS cumulative path-restricted three-way delta once, not a whole source-history merge",
+  "files": [
+    {
+      "path": "docs/planning/els-guided-discovery-test-ledger-v1.md",
+      "source_blob": "a517be68de14ae4d8c9f14eed657999259552df2",
+      "integrated_blob": "a517be68de14ae4d8c9f14eed657999259552df2",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PRESERVE_LEDGER_MERGE_PROVENANCE_NO_OVERWRITE_OF_NEWER_EXPERIMENTS"
+    },
+    {
+      "path": "docs/reviews/els-advanced-search-clarity-20261031.md",
+      "source_blob": "ce8743c96bd786a2c669c2401fba042e778070a9",
+      "integrated_blob": "ce8743c96bd786a2c669c2401fba042e778070a9",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PROVENANCE_NOT_RUNTIME"
+    },
+    {
+      "path": "docs/reviews/els-background-research-20261030.md",
+      "source_blob": "ccfdd2007fcbab207d4f42e76f39db0e4cee9c54",
+      "integrated_blob": "ccfdd2007fcbab207d4f42e76f39db0e4cee9c54",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PROVENANCE_NOT_RUNTIME"
+    },
+    {
+      "path": "docs/reviews/els-context-reset-20261031.md",
+      "source_blob": "e081374bd8bc30af0c7a5be1d22cba83de38dd8f",
+      "integrated_blob": "e081374bd8bc30af0c7a5be1d22cba83de38dd8f",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PROVENANCE_NOT_RUNTIME"
+    },
+    {
+      "path": "docs/reviews/els-discovery-controls-20261031.md",
+      "source_blob": "b806702f1702f0e5b9b27a148e3c9a99b0984f2f",
+      "integrated_blob": "b806702f1702f0e5b9b27a148e3c9a99b0984f2f",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PROVENANCE_NOT_RUNTIME"
+    },
+    {
+      "path": "docs/reviews/els-exact-probe-readiness-20261031.md",
+      "source_blob": "2a5b5388dd343c92bf21e445538bc73a14f8843c",
+      "integrated_blob": "2a5b5388dd343c92bf21e445538bc73a14f8843c",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PROVENANCE_NOT_RUNTIME"
+    },
+    {
+      "path": "docs/reviews/els-explicit-lexicon-scan-20261030.md",
+      "source_blob": "b9c28f09511d9a43e0845fd513e0b6546cc3231b",
+      "integrated_blob": "b9c28f09511d9a43e0845fd513e0b6546cc3231b",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PROVENANCE_NOT_RUNTIME"
+    },
+    {
+      "path": "docs/reviews/els-fable-admin-default-20261030.md",
+      "source_blob": "07397c3a3800a0c1243d13d73b3831541da4ac21",
+      "integrated_blob": "07397c3a3800a0c1243d13d73b3831541da4ac21",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PROVENANCE_NOT_RUNTIME"
+    },
+    {
+      "path": "docs/reviews/els-fable-findings-matrix-20261030.md",
+      "source_blob": "1d64f2acc9816cd8c164a2718758115a4dc9417a",
+      "integrated_blob": "1d64f2acc9816cd8c164a2718758115a4dc9417a",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PROVENANCE_NOT_RUNTIME"
+    },
+    {
+      "path": "docs/reviews/els-fable-preview-activation-20261029.md",
+      "source_blob": "9953e4e8d283a2dfe037c8f733a5eb3bffb26a7c",
+      "integrated_blob": "9953e4e8d283a2dfe037c8f733a5eb3bffb26a7c",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PROVENANCE_NOT_RUNTIME"
+    },
+    {
+      "path": "docs/reviews/els-language-preview-20261031.md",
+      "source_blob": "ac54715872cc91fadfe0bb3c7a991de8b1a7c2f3",
+      "integrated_blob": "ac54715872cc91fadfe0bb3c7a991de8b1a7c2f3",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PROVENANCE_NOT_RUNTIME"
+    },
+    {
+      "path": "docs/reviews/els-lexicon-structure-preview-20261030.md",
+      "source_blob": "88603eaa7464c6ccf6e606badabc6e93be853bc0",
+      "integrated_blob": "88603eaa7464c6ccf6e606badabc6e93be853bc0",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PROVENANCE_NOT_RUNTIME"
+    },
+    {
+      "path": "docs/reviews/els-manual-letter-selection-20261031.md",
+      "source_blob": "f939226eca86c38bbc236d230c8f476468d0f617",
+      "integrated_blob": "f939226eca86c38bbc236d230c8f476468d0f617",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PROVENANCE_NOT_RUNTIME"
+    },
+    {
+      "path": "docs/reviews/els-matrix-fable-card-integration-20261029.md",
+      "source_blob": "8aeeda10ef8f015dfb266022058d5ddab663675a",
+      "integrated_blob": "8aeeda10ef8f015dfb266022058d5ddab663675a",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PROVENANCE_NOT_RUNTIME"
+    },
+    {
+      "path": "docs/reviews/els-matrix-fable-reading-raziel-20261029.md",
+      "source_blob": "69f866fcd60bab28d3fc51c9e8ebefe516a9298e",
+      "integrated_blob": "69f866fcd60bab28d3fc51c9e8ebefe516a9298e",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PROVENANCE_NOT_RUNTIME"
+    },
+    {
+      "path": "docs/reviews/els-matrix-height-raziel-audit-20261031.md",
+      "source_blob": "30bfa18be1cba6579ea0ba78dacb4704462aac3c",
+      "integrated_blob": "30bfa18be1cba6579ea0ba78dacb4704462aac3c",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PROVENANCE_NOT_RUNTIME"
+    },
+    {
+      "path": "docs/reviews/els-matrix-mobile-toolbar-20261031.md",
+      "source_blob": "cf80527e00c4ce3a4952f17490de6f099c416a45",
+      "integrated_blob": "cf80527e00c4ce3a4952f17490de6f099c416a45",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PROVENANCE_NOT_RUNTIME"
+    },
+    {
+      "path": "docs/reviews/els-matrix-reading-durable-jobs-20261029.md",
+      "source_blob": "b4a477ca26894ef5dd095a3cf644e9ba168506b1",
+      "integrated_blob": "b4a477ca26894ef5dd095a3cf644e9ba168506b1",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PROVENANCE_NOT_RUNTIME"
+    },
+    {
+      "path": "docs/reviews/els-matrix-reading-saved-results-20261029.md",
+      "source_blob": "6096cd9e3546113d0b96f1a77c793572b75cf583",
+      "integrated_blob": "6096cd9e3546113d0b96f1a77c793572b75cf583",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PROVENANCE_NOT_RUNTIME"
+    },
+    {
+      "path": "docs/reviews/els-raziel-verified-followup-20261031.md",
+      "source_blob": "04e4699828ba95a10cb96cfd963be1ba0df909f9",
+      "integrated_blob": "04e4699828ba95a10cb96cfd963be1ba0df909f9",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PROVENANCE_NOT_RUNTIME"
+    },
+    {
+      "path": "docs/reviews/els-reading-global-progress-20261030.md",
+      "source_blob": "477c1b489c6e3dc440f6d22b3d4f72c9920d60fd",
+      "integrated_blob": "477c1b489c6e3dc440f6d22b3d4f72c9920d60fd",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PROVENANCE_NOT_RUNTIME"
+    },
+    {
+      "path": "docs/reviews/els-reading-responsive-preview-20261030.md",
+      "source_blob": "b24b65baa206ea2ce3c2c2745e3b7996def4b774",
+      "integrated_blob": "b24b65baa206ea2ce3c2c2745e3b7996def4b774",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PROVENANCE_NOT_RUNTIME"
+    },
+    {
+      "path": "docs/reviews/els-research-area-below-matrix-20261031.md",
+      "source_blob": "e8aadb11b1d3d33497160f75c80d92eb93098486",
+      "integrated_blob": "e8aadb11b1d3d33497160f75c80d92eb93098486",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PROVENANCE_NOT_RUNTIME"
+    },
+    {
+      "path": "docs/reviews/els-research-area-preview-20261031.md",
+      "source_blob": "4bdde4c7cfc76efae8c6d5d06ac9b24b27cd2883",
+      "integrated_blob": "4bdde4c7cfc76efae8c6d5d06ac9b24b27cd2883",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PROVENANCE_NOT_RUNTIME"
+    },
+    {
+      "path": "docs/reviews/els-research-exact-return-preview-20261030.md",
+      "source_blob": "a895ee48310e290f148ca9c1781844c9bced94f2",
+      "integrated_blob": "a895ee48310e290f148ca9c1781844c9bced94f2",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PROVENANCE_NOT_RUNTIME"
+    },
+    {
+      "path": "docs/reviews/els-research-language-restore-20261031.md",
+      "source_blob": "e98f1307ac9d4db549f1d296f543cfab7aa54c39",
+      "integrated_blob": "e98f1307ac9d4db549f1d296f543cfab7aa54c39",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PROVENANCE_NOT_RUNTIME"
+    },
+    {
+      "path": "docs/reviews/els-research-restoration-20261030.md",
+      "source_blob": "90a0b448d5887d29cbaeb01a597ff63825238afb",
+      "integrated_blob": "90a0b448d5887d29cbaeb01a597ff63825238afb",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PROVENANCE_NOT_RUNTIME"
+    },
+    {
+      "path": "docs/reviews/els-research-search-order-20261031.md",
+      "source_blob": "e42ee9966cf50d243126ee0b972cbf88fb2ea452",
+      "integrated_blob": "e42ee9966cf50d243126ee0b972cbf88fb2ea452",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PROVENANCE_NOT_RUNTIME"
+    },
+    {
+      "path": "docs/reviews/els-search-clarity-preview-20261030.md",
+      "source_blob": "3d10248996bb8a5b5a0f0efe2ff8ca5b8616387b",
+      "integrated_blob": "3d10248996bb8a5b5a0f0efe2ff8ca5b8616387b",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PROVENANCE_NOT_RUNTIME"
+    },
+    {
+      "path": "docs/reviews/els-search-continuation-structure-clarity-20261031.md",
+      "source_blob": "227a77e03849b16be84b830c087d235bd598fc07",
+      "integrated_blob": "227a77e03849b16be84b830c087d235bd598fc07",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PROVENANCE_NOT_RUNTIME"
+    },
+    {
+      "path": "docs/reviews/els-search-order-preview-20261031.md",
+      "source_blob": "9c4cbc4bfa55dd1c0937f8091f40d30f5ecd64a9",
+      "integrated_blob": "9c4cbc4bfa55dd1c0937f8091f40d30f5ecd64a9",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PROVENANCE_NOT_RUNTIME"
+    },
+    {
+      "path": "docs/reviews/els-search-planners-preview-20261031.md",
+      "source_blob": "dbc80212dc03c6b6816a9c053597a29bdb5b4e62",
+      "integrated_blob": "dbc80212dc03c6b6816a9c053597a29bdb5b4e62",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PROVENANCE_NOT_RUNTIME"
+    },
+    {
+      "path": "docs/reviews/els-search-planners-restore-20261031.md",
+      "source_blob": "a2199908c1f1bb8353f9d3e4d43e0b435acf7a7c",
+      "integrated_blob": "a2199908c1f1bb8353f9d3e4d43e0b435acf7a7c",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PROVENANCE_NOT_RUNTIME"
+    },
+    {
+      "path": "docs/reviews/els-structure-comparison-20261030.md",
+      "source_blob": "1d4e27b4962dc98c72e8fe96f5c5f1ca66d0d15c",
+      "integrated_blob": "1d4e27b4962dc98c72e8fe96f5c5f1ca66d0d15c",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PROVENANCE_NOT_RUNTIME"
+    },
+    {
+      "path": "docs/reviews/els-unified-research-preview-20261031.md",
+      "source_blob": "c921764ec5ae6c4c409a1da1d5cb70bb0938957c",
+      "integrated_blob": "c921764ec5ae6c4c409a1da1d5cb70bb0938957c",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PROVENANCE_NOT_RUNTIME"
+    },
+    {
+      "path": "docs/reviews/els-unified-research-workspace-20261030.md",
+      "source_blob": "a8863278ea8868ec76ac0a23c87aa9494d2ed6eb",
+      "integrated_blob": "a8863278ea8868ec76ac0a23c87aa9494d2ed6eb",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PROVENANCE_NOT_RUNTIME"
+    },
+    {
+      "path": "docs/reviews/raziel-account-sync-map-20261030.md",
+      "source_blob": "75f7768e1c026e9d72b880322297c7c9ff9028b0",
+      "integrated_blob": "75f7768e1c026e9d72b880322297c7c9ff9028b0",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PROVENANCE_NOT_RUNTIME"
+    },
+    {
+      "path": "docs/reviews/raziel-content-comparison-follow-handoff-20261031.md",
+      "source_blob": "f127b8a36bd1e79113dd516d1c281e9f0cab8737",
+      "integrated_blob": "f127b8a36bd1e79113dd516d1c281e9f0cab8737",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PROVENANCE_NOT_RUNTIME"
+    },
+    {
+      "path": "public/tzofen.html",
+      "source_blob": "24990457b0e24b8fdc5ebe02a2f0d1c7ba365162",
+      "integrated_blob": "24990457b0e24b8fdc5ebe02a2f0d1c7ba365162",
+      "disposition": "REGENERATED_FROM_TEMPLATE",
+      "source_policy": "REGENERATE_FROM_MERGED_CANONICAL_TEMPLATE"
+    },
+    {
+      "path": "scripts/build-integrated-preview.mjs",
+      "source_blob": "2b0e8bdbce526f645750de35da0bf5ad1132c876",
+      "integrated_blob": "59baaf8cf0a6f93725104b551f215a1a8ce90f17",
+      "disposition": "CENTRAL_PREVIEW_POLICY_PRESERVED",
+      "source_policy": "HISTORICAL_PREVIEW_ONLY_DO_NOT_REPLAY"
+    },
+    {
+      "path": "scripts/lib/matrix-raziel-preview.mjs",
+      "source_blob": "1b42296dbd5ff3a998b3c7310b427859bb8bddad",
+      "integrated_blob": null,
+      "disposition": "EXCLUDED_HISTORICAL_PREVIEW_POLICY",
+      "source_policy": "HISTORICAL_PREVIEW_ONLY_DO_NOT_REPLAY"
+    },
+    {
+      "path": "src/components/TzofenEmbed.jsx",
+      "source_blob": "6d049b6c80beba7d672959860957920a858aa695",
+      "integrated_blob": "6d049b6c80beba7d672959860957920a858aa695",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK"
+    },
+    {
+      "path": "src/components/experience2029/ElsAdvancedSearch2029.jsx",
+      "source_blob": "58f8dd3bedc251a2f1f046d7f0d19743e633f491",
+      "integrated_blob": "58f8dd3bedc251a2f1f046d7f0d19743e633f491",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK"
+    },
+    {
+      "path": "src/components/experience2029/ElsGuidedDiscovery2029.jsx",
+      "source_blob": "4946adfeee29927eb086a7ddd31a6f4f655889e9",
+      "integrated_blob": "4946adfeee29927eb086a7ddd31a6f4f655889e9",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK"
+    },
+    {
+      "path": "src/components/experience2029/ElsLexiconResearch2029.jsx",
+      "source_blob": "7418adec7daf193f461e64857241ffecef949202",
+      "integrated_blob": "7418adec7daf193f461e64857241ffecef949202",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK"
+    },
+    {
+      "path": "src/components/experience2029/ElsMatrixReadingActivity2029.jsx",
+      "source_blob": "c239f83b20071c6ca912fe627ba6fff591d0a6ba",
+      "integrated_blob": "c239f83b20071c6ca912fe627ba6fff591d0a6ba",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK"
+    },
+    {
+      "path": "src/components/experience2029/ElsMatrixReadingCard2029.jsx",
+      "source_blob": "819b0ebbf789498fba1e064ab250ebaa46362131",
+      "integrated_blob": "819b0ebbf789498fba1e064ab250ebaa46362131",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK"
+    },
+    {
+      "path": "src/components/experience2029/ElsMatrixShare2029.jsx",
+      "source_blob": "54dbd8afe833e51b82a12a91ea952d834332fc2b",
+      "integrated_blob": "54dbd8afe833e51b82a12a91ea952d834332fc2b",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK"
+    },
+    {
+      "path": "src/components/experience2029/ElsNativeClassic2029.jsx",
+      "source_blob": "fb0fee525ffa72ad8247ed45c08bbbc7371d2c27",
+      "integrated_blob": "fb0fee525ffa72ad8247ed45c08bbbc7371d2c27",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK"
+    },
+    {
+      "path": "src/components/experience2029/ElsOccurrencePlanner2029.jsx",
+      "source_blob": "9cbd8f136060a8fcee5983339e9d4b5fc9a28878",
+      "integrated_blob": "9cbd8f136060a8fcee5983339e9d4b5fc9a28878",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK"
+    },
+    {
+      "path": "src/components/experience2029/ElsPairPlanner2029.jsx",
+      "source_blob": "c2ee4814ff377c3dc7f7a3f0d623248e039d30c0",
+      "integrated_blob": "c2ee4814ff377c3dc7f7a3f0d623248e039d30c0",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK"
+    },
+    {
+      "path": "src/components/experience2029/ElsResearchActivity2029.jsx",
+      "source_blob": "d3093c4645234cb78ca927846d3f206c80611054",
+      "integrated_blob": "d3093c4645234cb78ca927846d3f206c80611054",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK"
+    },
+    {
+      "path": "src/components/experience2029/ElsStructureResearch2029.jsx",
+      "source_blob": "19cd48ece89c6ede317492ba4c2268ac30b497de",
+      "integrated_blob": "19cd48ece89c6ede317492ba4c2268ac30b497de",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK"
+    },
+    {
+      "path": "src/components/experience2029/RazielCenter2029.jsx",
+      "source_blob": "11b85973f1a3e4cb58b5ca118f2ce11b15c05744",
+      "integrated_blob": "11b85973f1a3e4cb58b5ca118f2ce11b15c05744",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ADAPT_EXISTING_SHARED_FUNCTIONS"
+    },
+    {
+      "path": "src/components/experience2029/SystemFrame2029.jsx",
+      "source_blob": "6812fc7489c51f043337c989e61873b3eefc3db4",
+      "integrated_blob": "d47c03159a980e4dd66657aff3b7d58500fdf1a7",
+      "disposition": "CENTRAL_ADAPTED",
+      "source_policy": "ADAPT_EXISTING_SHARED_FUNCTIONS"
+    },
+    {
+      "path": "src/components/experience2029/els2029-research.css",
+      "source_blob": "48916c11ddf0da3e9cba55d8e47566dc653f4e35",
+      "integrated_blob": "48916c11ddf0da3e9cba55d8e47566dc653f4e35",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK"
+    },
+    {
+      "path": "src/components/experience2029/elsLexiconResearch2029.css",
+      "source_blob": "de3921695108dec60d46a242dcc988f73ddab947",
+      "integrated_blob": "de3921695108dec60d46a242dcc988f73ddab947",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK"
+    },
+    {
+      "path": "src/components/experience2029/elsNativeClassic2029.css",
+      "source_blob": "b9d82ceba69fcdbebc0959a2038710dc35131b4a",
+      "integrated_blob": "b9d82ceba69fcdbebc0959a2038710dc35131b4a",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK"
+    },
+    {
+      "path": "src/components/experience2029/elsStructureResearch2029.css",
+      "source_blob": "c7f669edb838044a276364a06b9cb68946d451de",
+      "integrated_blob": "c7f669edb838044a276364a06b9cb68946d451de",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK"
+    },
+    {
+      "path": "src/components/experience2029/previewVisualCalibration2029.css",
+      "source_blob": "fdddbe77bf0d51f20062d381e2c0b679b22be7f7",
+      "integrated_blob": "fdddbe77bf0d51f20062d381e2c0b679b22be7f7",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ADAPT_EXISTING_SHARED_FUNCTIONS"
+    },
+    {
+      "path": "src/components/experience2029/razielSessionSeam2029.js",
+      "source_blob": "7cc5fc2cab38dbfa46b0cc73d6102e6c9da74e71",
+      "integrated_blob": "0640eff97edd175a5cc168d6ee2084c790966f57",
+      "disposition": "CENTRAL_ADAPTED",
+      "source_policy": "ADAPT_EXISTING_SHARED_FUNCTIONS"
+    },
+    {
+      "path": "src/components/experience2029/systemFrame2029.css",
+      "source_blob": "7c305579a1c18542b8c85cde5a707f63ceca3ec6",
+      "integrated_blob": "7c305579a1c18542b8c85cde5a707f63ceca3ec6",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ADAPT_EXISTING_SHARED_FUNCTIONS"
+    },
+    {
+      "path": "src/lib/elsMatrixShare.js",
+      "source_blob": "ed3e0a55baacd367941bdba233735d55b6ac613c",
+      "integrated_blob": "ed3e0a55baacd367941bdba233735d55b6ac613c",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK"
+    },
+    {
+      "path": "src/lib/research/RazielSessionProvider2029.jsx",
+      "source_blob": "4e7777f0d4afb2c2f358d458824b686f2f7f6611",
+      "integrated_blob": "4e7777f0d4afb2c2f358d458824b686f2f7f6611",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ADAPT_EXISTING_SHARED_FUNCTIONS"
+    },
+    {
+      "path": "src/lib/research/ResearchProvider.jsx",
+      "source_blob": "8bb4911cb1822c8f8324c8f14f6c601528d184cb",
+      "integrated_blob": "8bb4911cb1822c8f8324c8f14f6c601528d184cb",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ADAPT_EXISTING_SHARED_FUNCTIONS"
+    },
+    {
+      "path": "src/lib/research/elsAutomaticResearchPlan.js",
+      "source_blob": "21f5a1b4f1f0b31de977dfd7cf0131ca4083ec05",
+      "integrated_blob": "21f5a1b4f1f0b31de977dfd7cf0131ca4083ec05",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK"
+    },
+    {
+      "path": "src/lib/research/elsBackgroundResearch.js",
+      "source_blob": "abdc795b7a15a2ec7a96f9b2f73925daaf602277",
+      "integrated_blob": "abdc795b7a15a2ec7a96f9b2f73925daaf602277",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK"
+    },
+    {
+      "path": "src/lib/research/elsLexiconResearch.js",
+      "source_blob": "60231b654aeb07065fbcdbca58bd7495177587e0",
+      "integrated_blob": "60231b654aeb07065fbcdbca58bd7495177587e0",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK"
+    },
+    {
+      "path": "src/lib/research/elsMatrixReadingActivity.js",
+      "source_blob": "86fa4c078a46e92045fdc036f74ae3e173d171d6",
+      "integrated_blob": "86fa4c078a46e92045fdc036f74ae3e173d171d6",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK"
+    },
+    {
+      "path": "src/lib/research/elsMatrixReadingPresentation.js",
+      "source_blob": "c7a68de9b5dfa7208639b63bdcab4b318037e12d",
+      "integrated_blob": "c7a68de9b5dfa7208639b63bdcab4b318037e12d",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK"
+    },
+    {
+      "path": "src/lib/research/elsMatrixReadingProjection.js",
+      "source_blob": "7588fde05e0d009f88064c0df434d3a2d4bf6cb5",
+      "integrated_blob": "7588fde05e0d009f88064c0df434d3a2d4bf6cb5",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK"
+    },
+    {
+      "path": "src/lib/research/elsMatrixReadingSavedResult.js",
+      "source_blob": "a0a7c803622e94e9bbe0c40eafccf7be640aed85",
+      "integrated_blob": "a0a7c803622e94e9bbe0c40eafccf7be640aed85",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK"
+    },
+    {
+      "path": "src/lib/research/elsMatrixReadingSession.js",
+      "source_blob": "33a3f1ec64009f5ff85095d8b50a1da6df4ea944",
+      "integrated_blob": "33a3f1ec64009f5ff85095d8b50a1da6df4ea944",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK"
+    },
+    {
+      "path": "src/lib/research/elsMatrixReadingTransport.js",
+      "source_blob": "31d34578fd64fb92b7ac7f8214b420c7e424b830",
+      "integrated_blob": "31d34578fd64fb92b7ac7f8214b420c7e424b830",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK"
+    },
+    {
+      "path": "src/lib/research/elsRazielContext.js",
+      "source_blob": "74cddcc43b9322cf2381587fdef8ee99bbc6ba1e",
+      "integrated_blob": "74cddcc43b9322cf2381587fdef8ee99bbc6ba1e",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK"
+    },
+    {
+      "path": "src/lib/research/elsRazielGuidedPlanAdapter.js",
+      "source_blob": "6c1949a95ad1dae369ceb91ad1dd9e435179a85b",
+      "integrated_blob": "6c1949a95ad1dae369ceb91ad1dd9e435179a85b",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK"
+    },
+    {
+      "path": "src/lib/research/elsRazielMatrixContext.js",
+      "source_blob": "5492716196c841b4d67f879f0433c43a9a9e7e67",
+      "integrated_blob": "5492716196c841b4d67f879f0433c43a9a9e7e67",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK"
+    },
+    {
+      "path": "src/lib/research/elsRazielPlanning.js",
+      "source_blob": "49cd880f3eddf2c2415512da978990324caa8ac8",
+      "integrated_blob": "49cd880f3eddf2c2415512da978990324caa8ac8",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK"
+    },
+    {
+      "path": "src/lib/research/elsResearchReturnSnapshot.js",
+      "source_blob": "789dddc1541f80f983bf656f0bb3feeec5f07541",
+      "integrated_blob": "789dddc1541f80f983bf656f0bb3feeec5f07541",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK"
+    },
+    {
+      "path": "src/lib/research/elsStructureInspection.js",
+      "source_blob": "6fc9ebfe2cdfb3522db2eaddb3d8e4d2037c043b",
+      "integrated_blob": "6fc9ebfe2cdfb3522db2eaddb3d8e4d2037c043b",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK"
+    },
+    {
+      "path": "src/lib/research/razielConversationResolver.js",
+      "source_blob": "57649518f910999542f3a7559f8994bafa019c50",
+      "integrated_blob": "57649518f910999542f3a7559f8994bafa019c50",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ADAPT_EXISTING_SHARED_FUNCTIONS"
+    },
+    {
+      "path": "src/lib/research/razielOneShotCopy2029.js",
+      "source_blob": "03bab9af83aba92921b10b41c68c4837e18070fa",
+      "integrated_blob": "03bab9af83aba92921b10b41c68c4837e18070fa",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK"
+    },
+    {
+      "path": "src/lib/research/razielSavedSession2029.js",
+      "source_blob": "de461fb58199965de921d07ed4e2c8633bbd6bd1",
+      "integrated_blob": "de461fb58199965de921d07ed4e2c8633bbd6bd1",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ADAPT_EXISTING_SHARED_FUNCTIONS"
+    },
+    {
+      "path": "src/lib/research/razielSavedSession2029.test.js",
+      "source_blob": "6a6305ffa31d469c18c451392771beeb123f75b2",
+      "integrated_blob": "6a6305ffa31d469c18c451392771beeb123f75b2",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING"
+    },
+    {
+      "path": "src/lib/research/razielSavedSync2029.js",
+      "source_blob": "cb0114325806e21656aff452f37040c6c8afedcc",
+      "integrated_blob": "cb0114325806e21656aff452f37040c6c8afedcc",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK"
+    },
+    {
+      "path": "src/lib/research/razielSemanticIntentGate.js",
+      "source_blob": "a00a5f67e40e8aaa669a64a399fc5ad092615199",
+      "integrated_blob": "a00a5f67e40e8aaa669a64a399fc5ad092615199",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ADAPT_EXISTING_SHARED_FUNCTIONS"
+    },
+    {
+      "path": "src/lib/research/razielSession2029.js",
+      "source_blob": "ad73f55c4fcc470d05d3c7a2627f563322d96c9b",
+      "integrated_blob": "ad73f55c4fcc470d05d3c7a2627f563322d96c9b",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ADAPT_EXISTING_SHARED_FUNCTIONS"
+    },
+    {
+      "path": "src/lib/research/razielSessionRequest2029.js",
+      "source_blob": "20c821f9d2246f3679c4ed39dbb38146c08c4426",
+      "integrated_blob": "20c821f9d2246f3679c4ed39dbb38146c08c4426",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ADAPT_EXISTING_SHARED_FUNCTIONS"
+    },
+    {
+      "path": "src/lib/research/useElsResearchOperation.js",
+      "source_blob": "c9e223ea3f80b222d1e1d5ac48587c7e6f953612",
+      "integrated_blob": "c9e223ea3f80b222d1e1d5ac48587c7e6f953612",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK"
+    },
+    {
+      "path": "src/lib/supabase.js",
+      "source_blob": "02b7a2d946ff68a64280013f85500ce033589738",
+      "integrated_blob": "27285299083d7804c500673ae09e99cbdf72d3c2",
+      "disposition": "CENTRAL_ADAPTED",
+      "source_policy": "ADAPT_EXISTING_SHARED_FUNCTIONS"
+    },
+    {
+      "path": "src/pages/Els2029Page.jsx",
+      "source_blob": "2215a42c8ad3518e24dff2a229ff3bab812c8f87",
+      "integrated_blob": "2215a42c8ad3518e24dff2a229ff3bab812c8f87",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK"
+    },
+    {
+      "path": "supabase/functions/_shared/elsMatrixReading.js",
+      "source_blob": "d8fe310bac6497bbcafa38195653e6afe740bb43",
+      "integrated_blob": "d8fe310bac6497bbcafa38195653e6afe740bb43",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK"
+    },
+    {
+      "path": "supabase/functions/_shared/elsMatrixReadingAction.js",
+      "source_blob": "1da62ff236238400a4224a6572a22a87aea614bc",
+      "integrated_blob": "1da62ff236238400a4224a6572a22a87aea614bc",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK"
+    },
+    {
+      "path": "supabase/functions/_shared/elsMatrixReadingJobs.js",
+      "source_blob": "3ecf05ea349102016b8dab4f330745ee42e26f9e",
+      "integrated_blob": "3ecf05ea349102016b8dab4f330745ee42e26f9e",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK"
+    },
+    {
+      "path": "supabase/functions/_shared/elsRazielOccurrenceContext.js",
+      "source_blob": "1044cd4867d1fb6f52b765fb9191cbf5ad5024a5",
+      "integrated_blob": "1044cd4867d1fb6f52b765fb9191cbf5ad5024a5",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK"
+    },
+    {
+      "path": "supabase/functions/_shared/elsRazielReadingContext.js",
+      "source_blob": "9513338f8c29711d0fc93b8046da01f2e2699684",
+      "integrated_blob": "9513338f8c29711d0fc93b8046da01f2e2699684",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK"
+    },
+    {
+      "path": "supabase/functions/ai-analyze/index.ts",
+      "source_blob": "b46569ae44cc61aa1024cda1f754deefc7542db6",
+      "integrated_blob": "2de1be9bf9d4dfc36678006af9c5c82f5455d979",
+      "disposition": "CENTRAL_ADAPTED",
+      "source_policy": "ADAPT_EXISTING_SHARED_FUNCTIONS"
+    },
+    {
+      "path": "supabase/migrations/20261029125427_els_matrix_reading_durable_jobs.sql",
+      "source_blob": "022a447f9696f97991823a049734a61f0c5a0288",
+      "integrated_blob": "022a447f9696f97991823a049734a61f0c5a0288",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "DELIVER_SCHEMA_CODE_ONLY_NO_APPLY"
+    },
+    {
+      "path": "test/els-2029-explain-guidance.test.mjs",
+      "source_blob": "6b1c245ef5e616ec1c98ef96e0c2137986b026d8",
+      "integrated_blob": "6b1c245ef5e616ec1c98ef96e0c2137986b026d8",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING"
+    },
+    {
+      "path": "test/els-2029-raziel-consumer.test.mjs",
+      "source_blob": "0957b25e5da6a33dd5769f4bb73d4f7074632637",
+      "integrated_blob": "0957b25e5da6a33dd5769f4bb73d4f7074632637",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING"
+    },
+    {
+      "path": "test/els-advanced-page-browser.test.mjs",
+      "source_blob": "afbb024f99e222a4f38a1e2c7fa6f4a07bf19d3b",
+      "integrated_blob": "afbb024f99e222a4f38a1e2c7fa6f4a07bf19d3b",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING"
+    },
+    {
+      "path": "test/els-advanced-search-clarity.browser.test.mjs",
+      "source_blob": "d39aa1d0bb82b9c25af8aa74fd66ec641f2557c3",
+      "integrated_blob": "d39aa1d0bb82b9c25af8aa74fd66ec641f2557c3",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING"
+    },
+    {
+      "path": "test/els-background-principal.browser.test.mjs",
+      "source_blob": "f696a1295870af56063ec762daeecbc079ed50a9",
+      "integrated_blob": "f696a1295870af56063ec762daeecbc079ed50a9",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING"
+    },
+    {
+      "path": "test/els-background-research.browser.test.mjs",
+      "source_blob": "f2202668e6479a8ff55f55bf0fb020a6e5252cf0",
+      "integrated_blob": "f2202668e6479a8ff55f55bf0fb020a6e5252cf0",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING"
+    },
+    {
+      "path": "test/els-background-research.test.mjs",
+      "source_blob": "b928d9f91041bc47617ca36458aade9b826a41ae",
+      "integrated_blob": "b928d9f91041bc47617ca36458aade9b826a41ae",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING"
+    },
+    {
+      "path": "test/els-connected-cross.test.mjs",
+      "source_blob": "6e0b2bdd4d1dbfd302a8d91bb8acca7d8d299c64",
+      "integrated_blob": "6e0b2bdd4d1dbfd302a8d91bb8acca7d8d299c64",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING"
+    },
+    {
+      "path": "test/els-continuation-availability.test.mjs",
+      "source_blob": "4db749a6a089fe720fe79c86bfdb7435d58de390",
+      "integrated_blob": "4db749a6a089fe720fe79c86bfdb7435d58de390",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING"
+    },
+    {
+      "path": "test/els-discovery-controls.test.mjs",
+      "source_blob": "fff3927b3584d7972ce962bebc32224102227650",
+      "integrated_blob": "fff3927b3584d7972ce962bebc32224102227650",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING"
+    },
+    {
+      "path": "test/els-explicit-lexicon.test.mjs",
+      "source_blob": "a372fbeaee12eb67a7c982382c60cea544604a72",
+      "integrated_blob": "a372fbeaee12eb67a7c982382c60cea544604a72",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING"
+    },
+    {
+      "path": "test/els-fable-preview-activation.test.mjs",
+      "source_blob": "76a56decdc488e7ec81dc0b9c2a4ffdbbb588fd8",
+      "integrated_blob": null,
+      "disposition": "EXCLUDED_HISTORICAL_PREVIEW_TEST",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING"
+    },
+    {
+      "path": "test/els-guided-discovery.test.mjs",
+      "source_blob": "17ab0ca41784f8e0f35b5963acb6695e344c089d",
+      "integrated_blob": "17ab0ca41784f8e0f35b5963acb6695e344c089d",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING"
+    },
+    {
+      "path": "test/els-guided-language-recognition.test.mjs",
+      "source_blob": "73205f7e3d263040a2e7456ed95f449b7d4d00e8",
+      "integrated_blob": "73205f7e3d263040a2e7456ed95f449b7d4d00e8",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING"
+    },
+    {
+      "path": "test/els-host-bridge.test.mjs",
+      "source_blob": "914e5a867f7beb792273a3734ded0129be04457c",
+      "integrated_blob": "914e5a867f7beb792273a3734ded0129be04457c",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING"
+    },
+    {
+      "path": "test/els-lexicon-structure-preview.browser.mjs",
+      "source_blob": "9ebe6b5c25a57be09692d7ab35f4c558babb34e2",
+      "integrated_blob": "9ebe6b5c25a57be09692d7ab35f4c558babb34e2",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING"
+    },
+    {
+      "path": "test/els-matrix-reading-action.test.mjs",
+      "source_blob": "f543d0c4624126a1d5776a18e2f2f9ca0da5390f",
+      "integrated_blob": "f543d0c4624126a1d5776a18e2f2f9ca0da5390f",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING"
+    },
+    {
+      "path": "test/els-matrix-reading-activity-browser.test.mjs",
+      "source_blob": "7e89188e40e17826d0a8c8f91cab18678d7354a3",
+      "integrated_blob": "7e89188e40e17826d0a8c8f91cab18678d7354a3",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING"
+    },
+    {
+      "path": "test/els-matrix-reading-activity.test.mjs",
+      "source_blob": "6200e3b50e5c809970773e6abbd4f466ef97631d",
+      "integrated_blob": "6200e3b50e5c809970773e6abbd4f466ef97631d",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING"
+    },
+    {
+      "path": "test/els-matrix-reading-card-browser.test.mjs",
+      "source_blob": "ac0dc304e2bb68c191bc2532850c3b9a9de78863",
+      "integrated_blob": "ac0dc304e2bb68c191bc2532850c3b9a9de78863",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING"
+    },
+    {
+      "path": "test/els-matrix-reading-card-examples.test.mjs",
+      "source_blob": "6e20c58d0e873832e8af8a11766273bbde0f9582",
+      "integrated_blob": "6e20c58d0e873832e8af8a11766273bbde0f9582",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING"
+    },
+    {
+      "path": "test/els-matrix-reading-client-e2e.test.mjs",
+      "source_blob": "1862f92167b5a9060d397fddeb6c0cb22fd2bd26",
+      "integrated_blob": "1862f92167b5a9060d397fddeb6c0cb22fd2bd26",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING"
+    },
+    {
+      "path": "test/els-matrix-reading-durable-jobs-sql.test.mjs",
+      "source_blob": "dab62eff794ea400263019fc8a817735b8f152c7",
+      "integrated_blob": "dab62eff794ea400263019fc8a817735b8f152c7",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING"
+    },
+    {
+      "path": "test/els-matrix-reading-durable-postgres-integration.test.mjs",
+      "source_blob": "25f349dd63cea79466d7b307e7ff76e9bdb45f96",
+      "integrated_blob": "25f349dd63cea79466d7b307e7ff76e9bdb45f96",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING"
+    },
+    {
+      "path": "test/els-matrix-reading-durable.test.mjs",
+      "source_blob": "71fd4554e153d1571092f3edd5dae2576202d6e2",
+      "integrated_blob": "71fd4554e153d1571092f3edd5dae2576202d6e2",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING"
+    },
+    {
+      "path": "test/els-matrix-reading-engine.test.mjs",
+      "source_blob": "50c88849786638f1a2b6da3308bb3520c7ca2113",
+      "integrated_blob": "50c88849786638f1a2b6da3308bb3520c7ca2113",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING"
+    },
+    {
+      "path": "test/els-matrix-reading-operation.test.mjs",
+      "source_blob": "41fcd2b9865b2fe8792dbdb4f4ace3f19975f90c",
+      "integrated_blob": "41fcd2b9865b2fe8792dbdb4f4ace3f19975f90c",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING"
+    },
+    {
+      "path": "test/els-matrix-reading-presentation.test.mjs",
+      "source_blob": "01e2b0323d423d8fde7030d7d9f830fef58f22b2",
+      "integrated_blob": "01e2b0323d423d8fde7030d7d9f830fef58f22b2",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING"
+    },
+    {
+      "path": "test/els-matrix-reading-projection.test.mjs",
+      "source_blob": "2bb7df89b4eabdcdb9b2156a6eb1f2d3d9b596ae",
+      "integrated_blob": "2bb7df89b4eabdcdb9b2156a6eb1f2d3d9b596ae",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING"
+    },
+    {
+      "path": "test/els-matrix-reading-raziel-route.test.mjs",
+      "source_blob": "e43cf05a7f2f8c1d403a572c719637454c404f08",
+      "integrated_blob": "5aa057a5cff303a013590b7a17e79ad5eef79881",
+      "disposition": "CENTRAL_ADAPTED",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING"
+    },
+    {
+      "path": "test/els-matrix-reading-resume-contract.test.mjs",
+      "source_blob": "786f22931e1c54babc5e2412739ad6bd94a82aaf",
+      "integrated_blob": "786f22931e1c54babc5e2412739ad6bd94a82aaf",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING"
+    },
+    {
+      "path": "test/els-matrix-reading-saved-result.test.mjs",
+      "source_blob": "697836cf67091b65c1aebfd7d58d18160af1112b",
+      "integrated_blob": "697836cf67091b65c1aebfd7d58d18160af1112b",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING"
+    },
+    {
+      "path": "test/els-matrix-reading-session.test.mjs",
+      "source_blob": "b98fa80e076158ae7dba8eabb572d396b458d92b",
+      "integrated_blob": "b98fa80e076158ae7dba8eabb572d396b458d92b",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING"
+    },
+    {
+      "path": "test/els-matrix-reading-transport.test.mjs",
+      "source_blob": "13fd1d15a961ee40b8d6f1f2427985e8f1efc4f2",
+      "integrated_blob": "13fd1d15a961ee40b8d6f1f2427985e8f1efc4f2",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING"
+    },
+    {
+      "path": "test/els-matrix-share.test.mjs",
+      "source_blob": "8e14ff10ecfaac11fba35ecd92f752cf0ae6472b",
+      "integrated_blob": "8e14ff10ecfaac11fba35ecd92f752cf0ae6472b",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING"
+    },
+    {
+      "path": "test/els-native-ui-browser.test.mjs",
+      "source_blob": "5f705f4a5e6c7853f9c423d495b4e7e8b1f11621",
+      "integrated_blob": "5f705f4a5e6c7853f9c423d495b4e7e8b1f11621",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING"
+    },
+    {
+      "path": "test/els-optional-third-term.test.mjs",
+      "source_blob": "3a614eb0af2b75897ac29e0bd6c40a9d9c2cb2e2",
+      "integrated_blob": "3a614eb0af2b75897ac29e0bd6c40a9d9c2cb2e2",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING"
+    },
+    {
+      "path": "test/els-raziel-guided-planning.test.mjs",
+      "source_blob": "03acb36f16f62d0f991246a6fc25ec024a09ec22",
+      "integrated_blob": "03acb36f16f62d0f991246a6fc25ec024a09ec22",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING"
+    },
+    {
+      "path": "test/els-raziel-matrix-context.test.mjs",
+      "source_blob": "873a9722ef7299f470b723c7603be9fd28c35786",
+      "integrated_blob": "873a9722ef7299f470b723c7603be9fd28c35786",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING"
+    },
+    {
+      "path": "test/els-raziel-responsive-browser.test.mjs",
+      "source_blob": "8c065ff7b3918156da3f710de83c282964e75048",
+      "integrated_blob": "8c065ff7b3918156da3f710de83c282964e75048",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING"
+    },
+    {
+      "path": "test/els-raziel-responsive-labels.test.mjs",
+      "source_blob": "f351e515237944c8b2085fa10c253ba12e64c600",
+      "integrated_blob": "f351e515237944c8b2085fa10c253ba12e64c600",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING"
+    },
+    {
+      "path": "test/els-raziel-verified-followup.test.mjs",
+      "source_blob": "1e6d59e8aaa6b7c9ce05d9c1ea880e0e71998203",
+      "integrated_blob": "1e6d59e8aaa6b7c9ce05d9c1ea880e0e71998203",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING"
+    },
+    {
+      "path": "test/els-relationship-plan-restore.test.mjs",
+      "source_blob": "db4273206964b4bf13a1db2f892149a777bf0af0",
+      "integrated_blob": "db4273206964b4bf13a1db2f892149a777bf0af0",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING"
+    },
+    {
+      "path": "test/els-research-controls-browser.test.mjs",
+      "source_blob": "c606ded2b36e8f9c06ab85dd7b6dda9c27edb686",
+      "integrated_blob": "c606ded2b36e8f9c06ab85dd7b6dda9c27edb686",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING"
+    },
+    {
+      "path": "test/els-research-language-restore.test.mjs",
+      "source_blob": "4a959893c93a98dc7e59312eacaba39c9f0f5e38",
+      "integrated_blob": "09097f1a2494ca3fcb790990562303668e90938b",
+      "disposition": "CENTRAL_ADAPTED",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING"
+    },
+    {
+      "path": "test/els-research-return-snapshot.test.mjs",
+      "source_blob": "670e035d847b9791bfecac1cfd7f1851d6c0c687",
+      "integrated_blob": "670e035d847b9791bfecac1cfd7f1851d6c0c687",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING"
+    },
+    {
+      "path": "test/els-search-planners.test.mjs",
+      "source_blob": "c1e9866572df9c53dd2d579b81d72a8a97cf05ed",
+      "integrated_blob": "c1e9866572df9c53dd2d579b81d72a8a97cf05ed",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING"
+    },
+    {
+      "path": "test/els-structure-inspection.test.mjs",
+      "source_blob": "20d7b417c0d9694a520b132b5d18005d2167d27d",
+      "integrated_blob": "20d7b417c0d9694a520b132b5d18005d2167d27d",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING"
+    },
+    {
+      "path": "test/els-unified-discovery.test.mjs",
+      "source_blob": "d8ad0a3f93a493b572aa4656db7f29c16bd507e2",
+      "integrated_blob": "d8ad0a3f93a493b572aa4656db7f29c16bd507e2",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING"
+    },
+    {
+      "path": "test/fixtures/els-library-browser-fixture.mjs",
+      "source_blob": "7e21305c76caa8293ce029fb71484567f3376028",
+      "integrated_blob": "7e21305c76caa8293ce029fb71484567f3376028",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING"
+    },
+    {
+      "path": "test/fixtures/els-matrix-reading-durable-jobs-bootstrap.sql",
+      "source_blob": "1e9f6e1f81f35525b73a7be10271d108698831d3",
+      "integrated_blob": "1e9f6e1f81f35525b73a7be10271d108698831d3",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING"
+    },
+    {
+      "path": "test/fixtures/els-matrix-reading/README.md",
+      "source_blob": "a38e34507270b83cd8ee4100524f027d687ba8b6",
+      "integrated_blob": "a38e34507270b83cd8ee4100524f027d687ba8b6",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING"
+    },
+    {
+      "path": "test/fixtures/els-matrix-reading/card-examples/cancel-requested.json",
+      "source_blob": "88acf2ea7e8e85957e96a55e1fddca6ff3015433",
+      "integrated_blob": "88acf2ea7e8e85957e96a55e1fddca6ff3015433",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING"
+    },
+    {
+      "path": "test/fixtures/els-matrix-reading/card-examples/complete.json",
+      "source_blob": "5671e4cd98afa724223fda7bf5c08ca23cf95c37",
+      "integrated_blob": "5671e4cd98afa724223fda7bf5c08ca23cf95c37",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING"
+    },
+    {
+      "path": "test/fixtures/els-matrix-reading/card-examples/failed-batch-errored.json",
+      "source_blob": "12a54b943bfc99d155134645ebc2c569ab7748bc",
+      "integrated_blob": "12a54b943bfc99d155134645ebc2c569ab7748bc",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING"
+    },
+    {
+      "path": "test/fixtures/els-matrix-reading/card-examples/incomplete-max-tokens.json",
+      "source_blob": "4667ea01cc10f9f6e44070ab8aeff38625bdff69",
+      "integrated_blob": "4667ea01cc10f9f6e44070ab8aeff38625bdff69",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING"
+    },
+    {
+      "path": "test/fixtures/els-matrix-reading/card-examples/preview.json",
+      "source_blob": "dd1220e5e78df3bd2a9665a35b7abd5c5e35da0b",
+      "integrated_blob": "dd1220e5e78df3bd2a9665a35b7abd5c5e35da0b",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING"
+    },
+    {
+      "path": "test/fixtures/els-matrix-reading/card-examples/refused-admin-only.json",
+      "source_blob": "58312eb9e143058e409b1be7c9ab573e02470371",
+      "integrated_blob": "58312eb9e143058e409b1be7c9ab573e02470371",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING"
+    },
+    {
+      "path": "test/fixtures/els-matrix-reading/card-examples/refused-not-enabled.json",
+      "source_blob": "5afb451e14634f205d3ff025abeea111c1a4e40d",
+      "integrated_blob": "5afb451e14634f205d3ff025abeea111c1a4e40d",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING"
+    },
+    {
+      "path": "test/fixtures/els-matrix-reading/card-examples/running-poll.json",
+      "source_blob": "b9145d9485d43cbf45c3939fb5aece5ac966fec9",
+      "integrated_blob": "b9145d9485d43cbf45c3939fb5aece5ac966fec9",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING"
+    },
+    {
+      "path": "test/fixtures/els-matrix-reading/card-examples/running-start.json",
+      "source_blob": "c054afa01917f7c7905c582a1de5c684a53869ad",
+      "integrated_blob": "c054afa01917f7c7905c582a1de5c684a53869ad",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING"
+    },
+    {
+      "path": "test/fixtures/els-matrix-reading/card-examples/session-progress.json",
+      "source_blob": "e8666531ff2f386e2dd2c4f4df8786394949ead1",
+      "integrated_blob": "e8666531ff2f386e2dd2c4f4df8786394949ead1",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING"
+    },
+    {
+      "path": "test/fixtures/els-matrix-reading/engine-replay-c3.json",
+      "source_blob": "2efeceb54e53cea7d067e7a95bec485e2107a7db",
+      "integrated_blob": "2efeceb54e53cea7d067e7a95bec485e2107a7db",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING"
+    },
+    {
+      "path": "test/fixtures/els-matrix-reading/harness-classified-c3.json",
+      "source_blob": "09f1c9db6d34b34785f6d875d62bf664346bb137",
+      "integrated_blob": "09f1c9db6d34b34785f6d875d62bf664346bb137",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING"
+    },
+    {
+      "path": "test/fixtures/els-matrix-reading/request-c2-general-cap60.json",
+      "source_blob": "76b1be568bec21cb08375eb3b9d6f0c365d7240e",
+      "integrated_blob": "76b1be568bec21cb08375eb3b9d6f0c365d7240e",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING"
+    },
+    {
+      "path": "test/fixtures/els-matrix-reading/request-c3-general-cap25.json",
+      "source_blob": "215c0fd8cec2f0c587896e7dab58e8f548eba73f",
+      "integrated_blob": "215c0fd8cec2f0c587896e7dab58e8f548eba73f",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING"
+    },
+    {
+      "path": "test/fixtures/els-matrix-reading/response-c3.json",
+      "source_blob": "f8fd18296dbc21f04c9f46b64d988eaec7aeccb9",
+      "integrated_blob": "f8fd18296dbc21f04c9f46b64d988eaec7aeccb9",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING"
+    },
+    {
+      "path": "test/fixtures/els-matrix-reading/window-c1.json",
+      "source_blob": "2a2debecb5def1e1833691ec01c10bd671ed5b2a",
+      "integrated_blob": "2a2debecb5def1e1833691ec01c10bd671ed5b2a",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING"
+    },
+    {
+      "path": "test/helpers/ai-analyze-handler.mjs",
+      "source_blob": "ef5dc9cfe72c40a92ff0bdb1824433983943bb23",
+      "integrated_blob": "ef5dc9cfe72c40a92ff0bdb1824433983943bb23",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING"
+    },
+    {
+      "path": "test/helpers/els-matrix-reading-card-examples.mjs",
+      "source_blob": "4893de870b7f2f4ccd631c8fa4a99b9ee9b29061",
+      "integrated_blob": "4893de870b7f2f4ccd631c8fa4a99b9ee9b29061",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING"
+    },
+    {
+      "path": "test/helpers/els-matrix-reading-durable-jobs-local-pg.mjs",
+      "source_blob": "04f50ac18fc732e8a4e73642a918cd7c96c89049",
+      "integrated_blob": "04f50ac18fc732e8a4e73642a918cd7c96c89049",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING"
+    },
+    {
+      "path": "test/helpers/els-matrix-reading-world.mjs",
+      "source_blob": "2d57e91304f50787a6fb2e487094b1fe27580598",
+      "integrated_blob": "d3d28ddec85db1197029272879747c35a0adb60f",
+      "disposition": "CENTRAL_ADAPTED",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING"
+    },
+    {
+      "path": "test/matrix-raziel-preview.test.mjs",
+      "source_blob": "69e13b6bdf058c82892fe7337cca2c1627980584",
+      "integrated_blob": null,
+      "disposition": "EXCLUDED_HISTORICAL_PREVIEW_TEST",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING"
+    },
+    {
+      "path": "test/raziel-account-preview.test.mjs",
+      "source_blob": "420350ba111290f76011c1b24119541ea8bd598a",
+      "integrated_blob": null,
+      "disposition": "EXCLUDED_HISTORICAL_PREVIEW_TEST",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING"
+    },
+    {
+      "path": "test/raziel-account-sync-map.browser.test.mjs",
+      "source_blob": "88a1fdc3a0114a575ee9598e7f2e232a9bc662a3",
+      "integrated_blob": "88a1fdc3a0114a575ee9598e7f2e232a9bc662a3",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING"
+    },
+    {
+      "path": "test/raziel-canonical-navigation-actions-2029.browser.test.mjs",
+      "source_blob": "5426c53569f370f3f3e3a3125b18e30ed43d0b76",
+      "integrated_blob": "5426c53569f370f3f3e3a3125b18e30ed43d0b76",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING"
+    },
+    {
+      "path": "test/raziel-content-comparison.test.mjs",
+      "source_blob": "37574b2cb63795ef7742f4ee56b7998dfad85d46",
+      "integrated_blob": "37574b2cb63795ef7742f4ee56b7998dfad85d46",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING"
+    },
+    {
+      "path": "test/raziel-personal-area-companion-seam.test.mjs",
+      "source_blob": "26a7236552ec20184964823cb80e2ad0c3ef3fc3",
+      "integrated_blob": "26a7236552ec20184964823cb80e2ad0c3ef3fc3",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "ACCEPTANCE_ADAPT_TO_CENTRAL_NO_WEAKENING"
+    },
+    {
+      "path": "tools/els/README.md",
+      "source_blob": "5c8ceab1499eef3192c394f680bacb9ba676cd7b",
+      "integrated_blob": "5c8ceab1499eef3192c394f680bacb9ba676cd7b",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK"
+    },
+    {
+      "path": "tools/els/els-code.template.html",
+      "source_blob": "b7cb44e929f23c06a84a0bfc843bcabb62f0ce46",
+      "integrated_blob": "b7cb44e929f23c06a84a0bfc843bcabb62f0ce46",
+      "disposition": "SOURCE_IDENTICAL",
+      "source_policy": "PORT_ELSSCOPED_DELTA_AFTER_TARGET_RECHECK"
+    }
+  ]
+}

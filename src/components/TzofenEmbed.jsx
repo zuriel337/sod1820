@@ -73,6 +73,8 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
   const navigate = useNavigate();
   const tier = isAdmin ? "admin" : verified ? "registered" : "anon";
   const iframeRef = useRef(null);
+  const readyDocumentRef = useRef(null);
+  const exactProbeRef = useRef(null);
   const engineRequestsRef = useRef(new Map());
   useEffect(() => () => { for (const controller of engineRequestsRef.current.values()) controller.abort(); engineRequestsRef.current.clear(); }, []);
   const lastKeyRef = useRef(null);   // זהות-הצופן שנטענה לאחרונה — מונע טעינה-חוזרת מיותרת (סרט חוזר) על שינויי-שדה
@@ -173,6 +175,18 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
         { source: "sod-host", ...msg }, window.location.origin);
     } catch { /* noop */ }
   }, []);
+
+  // Queue explicit probes until this iframe document has registered its listener.
+  // A retry uses a new requestId. Repeat ready pings are not new user actions.
+  const sendExactSkipProbe = useCallback((request) => {
+    if (!request) return;
+    const document = iframeRef.current?.contentDocument;
+    if (!document || readyDocumentRef.current !== document) return;
+    const key = JSON.stringify(request), previous = exactProbeRef.current;
+    if (previous?.key === key && (previous.completed || previous.document === document)) return;
+    exactProbeRef.current = { key, document, requestId: request.requestId, completed: false };
+    postToTool({ type: "probe-exact-skip", request });
+  }, [postToTool]);
 
   // 🖼️ שולף את מטריצות-הענן המאושרות (els_records published) ומזרים אותן לכלי לגלריה
   const pushSavedMatrices = useCallback(async () => {
@@ -350,7 +364,14 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
       const d = e.data;
       if (!d || d.source !== "tzofen") return;
       if (d.type === "forms-preview-result") { onFormsPreviewResult?.(d); return; }
-      if (d.type === "exact-skip-probe-result") { onExactSkipProbeResult?.(d); return; }
+      if (d.type === "exact-skip-probe-result") {
+        const probe = exactProbeRef.current;
+        if (!exactSkipProbe || !probe || probe.completed || probe.document !== toolWin.document
+          || probe.key !== JSON.stringify(exactSkipProbe) || d.requestId !== probe.requestId) return;
+        probe.completed = true;
+        onExactSkipProbeResult?.(d);
+        return;
+      }
       if (d.type === "engine-cancel") {
         for (const id of Array.isArray(d.requestIds) ? d.requestIds : []) engineRequestsRef.current.get(id)?.abort();
         return;
@@ -393,6 +414,11 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
       }
       if (d.type === "ready") {
         postTier();   // 🤝 הכלי מוכן — עונים לו בדרגת-המשתמש (סוגר את מרוץ-הטעינה: מנהל לא נחסם)
+        // The tool retries ready until tier arrives. Replaying one-shot commands
+        // on every ping can cancel the verification they just started. A real
+        // iframe reload has a new Document even though its WindowProxy is stable.
+        if (readyDocumentRef.current === toolWin.document) return;
+        readyDocumentRef.current = toolWin.document;
         pushSavedMatrices();   // 🖼️ מזרים את מטריצות-הענן לגלריה בכלי
         // 🧭 Research Journey exact-reopen (ELS continuity gap-close): journeyLoad is a one-shot
         //    action, but if it was already set BEFORE the iframe finished loading (e.g. a page
@@ -401,7 +427,7 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
         //    load race already handled for lensRequest just below. Resend it here too.
         if (journeyLoad) postToTool({ type: "load-matrix", item: journeyLoad });
         else if (matrix) postToTool({ type: "load-matrix", item: rowToItem(matrix) });   // 🔗 עמוד-צופן קנוני
-        if (exactSkipProbe) postToTool({ type: "probe-exact-skip", request: exactSkipProbe });
+        sendExactSkipProbe(exactSkipProbe);
         if (formsPreviewRequest) postToTool({ type: "preview-forms-batch", requestId: formsPreviewRequest.requestId, expressions: formsPreviewRequest.expressions });
         // 📜 בקשת-Lens פעילה (למשל Verse) שנוצרה לפני שה-iframe סיים לטעון — נשלחת שוב עכשיו,
         //    אחרת ה-postMessage הראשון היה עלול לרדת לפני שהמנוע רשם את המאזין שלו (אותו מרוץ-טעינה).
@@ -560,14 +586,10 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
     postToTool({ type: "load-matrix", item: journeyLoad });
   }, [journeyLoad, postToTool]);
 
-  const exactProbeKeyRef = useRef(null);
   useEffect(() => {
-    if (!exactSkipProbe) { exactProbeKeyRef.current = null; return; }
-    const key = JSON.stringify(exactSkipProbe);
-    if (exactProbeKeyRef.current === key) return;
-    exactProbeKeyRef.current = key;
-    postToTool({ type: "probe-exact-skip", request: exactSkipProbe });
-  }, [exactSkipProbe, postToTool]);
+    if (!exactSkipProbe) { exactProbeRef.current = null; return; }
+    sendExactSkipProbe(exactSkipProbe);
+  }, [exactSkipProbe, sendExactSkipProbe]);
 
   useEffect(() => {
     if (!formsPreviewRequest) return;

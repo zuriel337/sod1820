@@ -15,7 +15,8 @@ test("ELS opens the existing 2029 Raziel panel only from canonical MATCH-derived
   assert.match(page, /surfaceContext\?\.occurrence\?\.occurrenceRef/);
   assert.doesNotMatch(page, /surfaceContext\?\.occurrence\?\.occurrenceId/);
   assert.match(page, /disabled=\{!available \|\| shell\.razielLocked\}/);
-  assert.doesNotMatch(page, /includeText:\s*true/);
+  assert.match(page, /buildElsRazielSurfaceContext\(\{[^\n]*includeText:\s*true/,
+    "the explicit ELS entry carries the selected phrase for canonical server replay");
   assert.doesNotMatch(page, /askRazielAdvanced|askRaziel\s*\(/);
 });
 
@@ -28,7 +29,8 @@ test("canonical System Frame Raziel consumer accepts bounded ELS context without
   assert.match(frame, /result\?\.contract === "els_2029_projection_v1"/);
   assert.match(frame, /result\?\.status === "OK"/);
   assert.match(frame, /result\?\.presentationPolicy === "exact_replay_v1"/);
-  assert.match(frame, /Context בלבד · הצגה\/קרבה חזותית אינה חוזק ראיה/);
+  assert.match(frame, /האותיות והמיקומים אומתו במנוע\. קרבה חזותית אינה מדד לחוזק הממצא/);
+  assert.doesNotMatch(frame, /dependency ref ·| · skip | · dir |Context בלבד/);
   assert.equal((frame.match(/function RazielProjection\(/g) || []).length, 1);
   // The frame submits through the one shared session. Transport remains behind the lazy session request seam.
   assert.doesNotMatch(frame, /askRazielAdvanced|functions\.invoke\(['"]ai-analyze/);
@@ -36,7 +38,7 @@ test("canonical System Frame Raziel consumer accepts bounded ELS context without
   assert.equal((frame.match(/askRaziel\s*\(/g) || []).length, 0);
 });
 
-test("ELS Raziel panel stays context-only; native chat is user-initiated (no call on open) and sends no ELS text", () => {
+test("ELS Raziel panel stays context-only on open; native chat is user-initiated", () => {
   assert.match(frame, /data-raziel-native-chat="true"/);
   assert.doesNotMatch(frame, /השיחה המלאה עם רזיאל תחובר בהמשך/);
   assert.doesNotMatch(frame, /onClick=\{[^}]*askRaziel/);

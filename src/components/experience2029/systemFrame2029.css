@@ -1331,3 +1331,27 @@
   .sod29-root.surface-post:has(.sod29-glass-locator) .sod29-feed-chip{bottom:calc(var(--s29-island-clearance,104px) + 62px + env(safe-area-inset-bottom,0px))}
 }
 @media(max-width:980px){.sod29-glass-locator-step span{display:inline-block;transform:rotate(90deg)}}
+
+/* Scan presence stays inside the existing Raziel control/Companion. No second fixed bar. */
+.sod29-raziel-reading-badge{position:absolute;bottom:0;inset-inline:0;margin:auto;width:max-content;max-width:100%;padding:2px 5px;border-radius:8px;background:var(--s29-panel);color:var(--s29-ink);font-size:var(--s29-type-micro);line-height:1.2;pointer-events:none}
+.sod29-matrix-reading-activity{padding:12px;border:1px solid var(--s29-line);border-radius:14px;background:var(--s29-panel-soft);min-width:0;overflow-wrap:anywhere}
+.sod29-matrix-reading-activity p{margin:6px 0;font:var(--s29-type-body)/1.65 var(--s29-font-body)}
+.sod29-matrix-reading-activity>strong{font-size:var(--s29-type-ui)}
+.sod29-matrix-reading-activity>div{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.sod29-matrix-reading-activity button{min-height:44px;max-width:100%;white-space:normal}
+
+/* Design V2: the shared chat must wrap mixed Hebrew/English in either projection. */
+.sod29-raziel-chat :is(p,small,strong,b,span,details),
+.sod29-frame-panel[data-panel-kind="raziel"] .sod29-panel-context-card{min-inline-size:0;overflow-wrap:anywhere}
+.sod29-raziel-chat :is(button,a,input){font-size:var(--s29-type-ui);min-height:44px;min-width:44px;max-inline-size:100%;white-space:normal}
+.sod29-raziel-chat small,.sod29-matrix-reading-activity small{font-size:var(--s29-type-small)}
+.sod29-raziel-chat .sod29-raziel-composer{position:sticky;inset-block-end:0;z-index:1;padding-block:8px max(8px,env(safe-area-inset-bottom,0px));background:var(--s29-panel)}
+.sod29-frame-panel[data-panel-kind="raziel"]{scroll-padding-block:80px 24px}
+.sod29-raziel-composer input{scroll-margin-block-end:24px}
+.sod29-raziel-chat :is(.sod29-raziel-chat-user,.sod29-raziel-chat-raziel)>:is(span,details){font-family:var(--s29-font-body);font-size:var(--s29-type-body);white-space:pre-wrap;line-height:1.65;unicode-bidi:plaintext;text-align:start}
+.sod29-raziel-native-hero>div{min-inline-size:0;overflow-wrap:anywhere}
+[data-raziel-els-context]>:is(b,span){font-size:var(--s29-type-ui)}
+[data-raziel-els-context]>small{font-size:var(--s29-type-small)}
+@media(max-width:980px){
+  .sod29-frame-panel[data-panel-kind="raziel"]{height:82dvh;max-height:calc(100dvh - 12px)}
+}

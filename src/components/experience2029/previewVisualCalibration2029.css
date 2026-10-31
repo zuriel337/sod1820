@@ -231,7 +231,8 @@ html[data-sod-visual-option] .sod29-root .sod29-panel-lead p { font-size: 15px; 
 
 /* Layout differences use the same live components and reading state. */
 html:is([data-sod-visual-option="2"],[data-sod-visual-option="5"],[data-sod-visual-option="6"]) .sod29-root.surface-els .sod29-content > div:not([hidden]):has(> .els29-recent) { display: flex; flex-direction: column; }
-html:is([data-sod-visual-option="2"],[data-sod-visual-option="5"],[data-sod-visual-option="6"]) .sod29-root.surface-els .els29-recent { order: 2; margin-block: 14px; }
+/* The cipher folder precedes the mode selector in every review layout too. */
+html:is([data-sod-visual-option="2"],[data-sod-visual-option="5"],[data-sod-visual-option="6"]) .sod29-root.surface-els .els29-recent { order: 0; margin-block: 0 14px; }
 html[data-sod-visual-option="6"] .sod29-root :is(.sod29-focus-stage,.sod29-calc2029-command,.sod29-reading-hero) { border-color: transparent; background: transparent; box-shadow: none; }
 @media (min-width:1280px) {
   html:is([data-sod-visual-option="3"],[data-sod-visual-option="4"]) .sod29-root .sod29-calc2029 {
@@ -254,9 +255,9 @@ html[data-sod-visual-option="6"] .sod29-root :is(.sod29-focus-stage,.sod29-calc2
   html[data-sod-visual-option="2"] .sod29-root .els29-native-stage-column { grid-column: 2; grid-row: 1; }
   html:is([data-sod-visual-option="3"],[data-sod-visual-option="6"]) .sod29-root .els29-native-layout { grid-template-columns: minmax(0,1fr); }
   html[data-sod-visual-option="3"] .sod29-root .els29-native-workrail { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); }
-  html[data-sod-visual-option="4"] .sod29-root.surface-els .sod29-content > div:not([hidden]):has(> .els29-recent) { display: grid; grid-template-columns: 230px minmax(0,1fr); gap: 14px; align-items: start; }
+  html[data-sod-visual-option="4"] .sod29-root.surface-els .sod29-content > div:not([hidden]):has(> .els29-recent) { display: grid; grid-template-columns: minmax(0,1fr); gap: 14px; align-items: start; }
   html[data-sod-visual-option="4"] .sod29-root.surface-els .els29-recent { grid-column: 1; grid-row: 1; }
-  html[data-sod-visual-option="4"] .sod29-root.surface-els .sod29-focus-stage { grid-column: 2; grid-row: 1; }
+  html[data-sod-visual-option="4"] .sod29-root.surface-els .sod29-focus-stage { grid-column: 1; grid-row: auto; }
   html[data-sod-visual-option="4"] .sod29-root .els29-recent-head { grid-template-columns: 1fr; }
   html[data-sod-visual-option="4"] .sod29-root .els29-recent-grid { grid-template-columns: 1fr; max-height: 500px; }
   html[data-sod-visual-option="4"] .sod29-root .els29-saved-record { grid-column: 1 / -1; }

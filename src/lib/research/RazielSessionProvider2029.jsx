@@ -2,6 +2,7 @@ import React, { createContext, useCallback, useContext, useEffect, useMemo, useR
 import { askRaziel } from "../supabase.js";
 import { useResearch } from "./ResearchProvider.jsx";
 import { loadRazielSessionRequestBuilder2029 } from "./razielSessionRequestLoader2029.js";
+import { attachElsMatrixReadingHooks, buildElsMatrixReadingSubmission } from "./elsMatrixReadingSession.js";
 import {
   createInitialRazielSessionState,
   normalizeRazielQuestion,
@@ -13,6 +14,7 @@ const systemClock = () => new Date().toISOString();
 const systemTurnId = () => globalThis.crypto?.randomUUID?.() || `raziel-${Date.now()}`;
 const PERSONAL_AREA_COMPANION_ACTION = "personal_area_companion_v1";
 const PERSONAL_AREA_COMPANION_SUBJECT = "לווה אותי בצעד הבא באזור האישי";
+const ELS_GUIDED_PLANNING_ACTION = "els_guided_planning_v1";
 
 // Non-throwing read for hosts that may need to install the provider themselves. This is a plain,
 // unconditional context read so it follows the Rules of Hooks and never relies on catch-as-control-flow.
@@ -40,6 +42,7 @@ export function RazielSessionProvider2029({
   const stateRef = useRef(state);
   const inFlightRef = useRef(false);
   const activeRequestRef = useRef(null);
+  const activeCancelRef = useRef(null);
   const mountedRef = useRef(true);
   stateRef.current = state;
 
@@ -63,6 +66,8 @@ export function RazielSessionProvider2029({
     viewModeOverride = null,
     continuationTurnId = null,
     companionAction = null,
+    elsPlanningAction = null,
+    elsMatrixReadingAction = null,
   } = {}) => {
     if (inFlightRef.current || stateRef.current.busy) return { ok: false, error: "turn_pending" };
     const capturedQuestion = normalizeRazielQuestion(question);
@@ -94,6 +99,8 @@ export function RazielSessionProvider2029({
         viewModeOverride,
         continuationTurnId,
         companionAction,
+        elsPlanningAction,
+        elsMatrixReadingAction,
         startedAt,
         createTurnId: () => draftTurn.id,
       });
@@ -124,10 +131,13 @@ export function RazielSessionProvider2029({
         enumerable: false,
         configurable: true,
       });
+      // A reading takes minutes: progress flows back into the same session state, and the person can cancel explicitly (unmounting only stops the polling).
+      const readingHooks = attachElsMatrixReadingHooks(request, { turnId: turn.id, dispatch, isMounted: () => mountedRef.current });
+      if (readingHooks) activeCancelRef.current = readingHooks;
       const rawResponse = await transport(request);
       if (!mountedRef.current) return { ok: false, error: "session_unmounted" };
       const completedAt = clock();
-      const response = buildRazielSessionRequest.normalizeResponse(rawResponse, request.intelligenceLevel);
+      const response = buildRazielSessionRequest.normalizeResponse(rawResponse, request.intelligenceLevel, request);
       if (!response) {
         dispatch({ type: "turn_failed", completedAt, error: "unavailable" });
         return { ok: false, error: "unavailable" };
@@ -146,6 +156,7 @@ export function RazielSessionProvider2029({
       return { ok: false, error: failure };
     } finally {
       activeRequestRef.current = null;
+      activeCancelRef.current = null;
       inFlightRef.current = false;
     }
   }, [clock, createTurnId, loadRequestBuilder, research.context, transport]);
@@ -169,6 +180,35 @@ export function RazielSessionProvider2029({
       evidencePack,
     },
   }), [submit]);
+
+  // Guided ELS planning is one explicit turn in this SAME session and through the SAME request boundary.
+  // It proposes bounded terms only; the canonical ELS engine remains the sole search/verifier.
+  const submitElsGuidedPlan = useCallback(({ story, scope = "torah" } = {}) => submit({
+    question: story,
+    intelligenceLevel: "fast",
+    elsPlanningAction: {
+      id: ELS_GUIDED_PLANNING_ACTION,
+      surface: "els",
+      story,
+      scope: scope === "tanakh" ? "tanakh" : "torah",
+    },
+  }), [submit]);
+
+  // ONE explicit matrix reading in this SAME session and through the SAME request boundary (never automatic: only a call to this function can start one).
+  // context: the els_matrix_presentation_context_v1 the ELS screen already builds. Fable reads a bounded window the server takes from the canonical stream around the
+  // selected occurrence, and the canonical ELS engine verifies every proposal. The returned promise settles when the reading is no longer running (minutes);
+  // progress is in `currentTurn.progress`, and cancelActiveTurn() asks the provider to cancel. op: "start" (default, spends: the acknowledged upper bound is sent),
+  // "preview" (no model, no spend) or, with jobToken, "status" (resume) / "cancel".
+  const submitElsMatrixReading = useCallback((options = {}) => {
+    const built = buildElsMatrixReadingSubmission(options);
+    return built.ok ? submit(built.submission) : Promise.resolve(built);
+  }, [submit]);
+
+  // Explicit cancel of a running matrix reading. Returns false when no reading is running (an ordinary turn has nothing to cancel).
+  const cancelActiveTurn = useCallback(() => {
+    const hooks = activeCancelRef.current;
+    return inFlightRef.current && hooks ? hooks.cancel() : false;
+  }, []);
 
   // One-shot actions ("✨ הפתע אותי" = exploratory/deep, "🗺️ פתח מפת מחקר" = landscape/fast): a continuation of the LAST answer's
   // question over the same session and Bundle. It goes through submit() (the single AI boundary and the lazy request builder),
@@ -268,6 +308,9 @@ export function RazielSessionProvider2029({
     setViewMode,
     submitOneShot,
     submitPersonalAreaCompanion,
+    submitElsGuidedPlan,
+    submitElsMatrixReading,
+    cancelActiveTurn,
     saveCurrentSession,
     restoreSavedSession,
     removeSavedSession,
@@ -275,7 +318,7 @@ export function RazielSessionProvider2029({
     savedSessions,
     savedSessionsSyncStatus: research.syncStatus || "local_only",
     resetTemporarySession,
-  }), [state, submit, setViewMode, submitOneShot, submitPersonalAreaCompanion, saveCurrentSession, restoreSavedSession,
+  }), [state, submit, setViewMode, submitOneShot, submitPersonalAreaCompanion, submitElsGuidedPlan, submitElsMatrixReading, cancelActiveTurn, saveCurrentSession, restoreSavedSession,
     removeSavedSession, renameSavedSession, savedSessions, research.syncStatus, resetTemporarySession]);
 
   return (

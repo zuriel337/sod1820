@@ -2,6 +2,7 @@ import React, { useLayoutEffect, useMemo, useRef, useState } from "react";
 import { recordTimeLabel } from "../../lib/relativeTime2029.js";
 import { filterRazielTitles, projectRazielConversation, projectSavedRazielConversations, projectRazielDossier, razielGroundingCopy, workspaceCreditBalance } from "../../lib/research/razielWorkspaceProjection2029.js";
 import "./razielCenter2029.css";
+import { razielSavedSyncCopy, canRetryRazielSync, RAZIEL_LOCAL_SAVE_NOTICE } from "../../lib/research/razielSavedSync2029.js";
 
 const LOADING_STATES = new Set(["auth_loading", "loading"]);
 const ERROR_STATES = new Set(["conflict", "error", "local_error", "local_recovery_required"]);
@@ -11,14 +12,7 @@ function savedDate(value) {
   return recordTimeLabel(value, "bilingual", "תאריך לא זמין");
 }
 
-function syncCopy(status) {
-  if (status === "synced") return "פרטי ומסונכרן לחשבון";
-  if (status === "local_only") return "מקומי בדפדפן הזה";
-  if (["pending", "syncing", "resolving"].includes(status)) return "השינויים נשמרו מקומית והסנכרון ממשיך";
-  if (LOADING_STATES.has(status)) return "טוען את השיחות שלך…";
-  if (ERROR_STATES.has(status)) return "השיחות המקומיות נשמרו, אך הסנכרון אינו זמין כרגע";
-  return "מצב הסנכרון עדיין אינו זמין";
-}
+const syncCopy = razielSavedSyncCopy;
 
 function questionCountCopy(value) {
   if (!Number.isSafeInteger(value) || value < 0) return "מספר השאלות אינו זמין";
@@ -100,7 +94,7 @@ export default function RazielCenter2029({ session, research, credits, onBack, o
     setNotice(""); setPendingId("current");
     try {
       const result = await session?.saveCurrentSession?.();
-      setNotice(result?.ok ? "השיחה נשמרה. מצב הסנכרון מופיע למעלה." : "לא הצלחנו לשמור את השיחה כרגע.");
+      setNotice(result?.ok ? RAZIEL_LOCAL_SAVE_NOTICE : "לא הצלחנו לשמור את השיחה כרגע.");
     } catch { setNotice("לא הצלחנו לשמור את השיחה כרגע."); }
     finally { setPendingId(null); }
   };
@@ -172,6 +166,12 @@ export default function RazielCenter2029({ session, research, credits, onBack, o
       <div className="sod29-raziel-center-toolbar">
         <button type="button" className="sod29-action primary" disabled={session?.busy} data-raziel-center-new="true" onClick={startNewConversation}>שיחה חדשה</button>
         <small data-raziel-center-sync={syncStatus}>{syncCopy(syncStatus)}</small>
+        {canRetryRazielSync(syncStatus) ? <button type="button" className="sod29-action" disabled={pendingId != null} onClick={async () => {
+          setPendingId("sync");
+          try { await research?.retryResearchSync?.(); }
+          catch { setNotice("הסנכרון עדיין אינו זמין. השיחה לא הוצגה כמסונכרנת."); }
+          finally { setPendingId(null); }
+        }}>נסה לסנכרן שוב</button> : null}
       </div>
 
       <section className="sod29-raziel-center-state" data-current-conversation="true" aria-labelledby="raziel-current-title">
@@ -193,7 +193,7 @@ export default function RazielCenter2029({ session, research, credits, onBack, o
       </div>
 
       {loading && !savedSessions.length ? <div className="sod29-raziel-center-state" role="status"><strong>טוען את השיחות שלך…</strong><span>השיחות יוצגו כאן כשהטעינה תסתיים.</span></div> : null}
-      {error ? <div className="sod29-raziel-center-state is-error" role="status"><strong>הסנכרון אינו זמין כרגע</strong><span>אם קיימות שיחות מקומיות אפשר עדיין לפתוח אותן. לא נמחק דבר.</span></div> : null}
+      {error ? <div className="sod29-raziel-center-state is-error" role="status"><strong>הסנכרון אינו זמין כרגע</strong><span>אם קיימות שיחות מקומיות אפשר עדיין לפתוח אותן. הרשימה אינה הוכחה שאין שיחות בחשבון.</span></div> : null}
       {!loading && !error && !savedSessions.length ? <div className="sod29-raziel-center-state is-empty"><strong>אין עדיין שיחות שמורות</strong><span>אחרי שרזיאל עונה, אפשר לבחור „שמור שיחה” ולחזור אליה מכאן.</span></div> : null}
 
       {savedSessions.length ? <ul className="sod29-raziel-center-list" aria-label="השיחות השמורות שלי">

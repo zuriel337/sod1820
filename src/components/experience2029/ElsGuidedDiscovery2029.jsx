@@ -1,9 +1,9 @@
 import React, { useMemo, useRef, useState } from "react";
 import {
-  prepareElsCipherDiscoveryPlan,
   projectElsGuidedSearchStrategy,
   summarizeElsGuidedDiscoveryPlan,
 } from "../../lib/research/elsAutomaticResearchPlan.js";
+import { prepareElsGuidedPlanFromRaziel } from "../../lib/research/elsRazielGuidedPlanAdapter.js";
 
 const clean = (value) => String(value ?? "").trim();
 
@@ -11,13 +11,15 @@ function selectedAxis(plan, axisId) {
   return plan?.anchorCandidates?.find((candidate) => candidate.id === axisId) || null;
 }
 
-export default function ElsGuidedDiscovery2029({ disabled = false, onLoad, onPlanSummary, onReset }) {
+export default function ElsGuidedDiscovery2029({ disabled = false, onLoad, onPlan, onPlanSummary, onReset }) {
   const [story, setStory] = useState("");
   const [scope, setScope] = useState("torah");
   const [plan, setPlan] = useState(null);
   const [axisId, setAxisId] = useState(null);
   const [notice, setNotice] = useState("");
+  const [planning, setPlanning] = useState(false);
   const requestId = useRef(0);
+  const planningRequestId = useRef(0);
   const axis = useMemo(() => selectedAxis(plan, axisId), [plan, axisId]);
   const strategy = useMemo(() => projectElsGuidedSearchStrategy(plan, axisId), [plan, axisId]);
 
@@ -37,18 +39,43 @@ export default function ElsGuidedDiscovery2029({ disabled = false, onLoad, onPla
       researchCommand: true,
       guidedDiscovery: true,
       term: nextAxis.term,
+      searchMode: nextPlan.searchMode || "anchor_context",
+      axes: Array.isArray(nextPlan.axes) ? nextPlan.axes.slice(0, 3) : [nextAxis.term],
       scope: nextPlan.scope,
       contextTerms,
       discoveryGoal: nextPlan.goal,
       researchNonce: ++requestId.current,
       returnLabel: "גילוי מודרך",
     });
-    setNotice(`התוכנית נשלחה למנוע: ״${nextAxis.term}״ הוא הציר הראשון, והמילים שסביבו ייבדקו באותה מטריצה.`);
+    setNotice(["crossed_pair", "crossed_three"].includes(nextPlan.searchMode)
+      ? `רזיאל הציע לחפש אזור משותף ל־${nextPlan.axes.map(term => `״${term}״`).join(" · ")}. המנוע הקנוני בודק כעת את המפגש.`
+      : `רזיאל הציע את ״${nextAxis.term}״ כציר הראשון. המנוע הקנוני בודק כעת מופעים וקשרים.`);
   };
 
-  const submit = (event) => {
+  const submit = async (event) => {
     event.preventDefault();
-    const next = prepareElsCipherDiscoveryPlan({ text: story, scope });
+    if (planning || typeof onPlan !== "function") return;
+    const planRequest = ++planningRequestId.current;
+    setPlanning(true);
+    setNotice("רזיאל קורא את הבקשה ובונה תוכנית חיפוש קצרה…");
+    let planned = null;
+    try {
+      planned = await onPlan({ story, scope });
+    } catch {
+      planned = { ok: false, error: "planning_failed" };
+    }
+    if (planRequest !== planningRequestId.current) return;
+    setPlanning(false);
+    if (!planned?.ok) {
+      setPlan(null);
+      setAxisId(null);
+      onPlanSummary?.(null);
+      setNotice(planned?.error === "turn_pending"
+        ? "רזיאל משלים כרגע תשובה אחרת. נסו שוב מיד כשהיא מסתיימת."
+        : "רזיאל לא הצליח לבנות כרגע תוכנית בטוחה. שום חיפוש לא הופעל.");
+      return;
+    }
+    const next = prepareElsGuidedPlanFromRaziel({ story, scope, response: planned.response });
     if (next.error) {
       setPlan(null);
       setAxisId(null);
@@ -62,6 +89,8 @@ export default function ElsGuidedDiscovery2029({ disabled = false, onLoad, onPla
   };
 
   const resetProposal = () => {
+    planningRequestId.current += 1;
+    setPlanning(false);
     setPlan(null);
     setAxisId(null);
     setNotice("");
@@ -80,7 +109,7 @@ export default function ElsGuidedDiscovery2029({ disabled = false, onLoad, onPla
       <div className="els29-guided-studio-boundaries" aria-label="גבולות הגילוי המודרך">
         <span><b>01</b> בלי סריקה לפני שליחה</span>
         <span><b>02</b> בלי ערבוב עם קלאסי</span>
-        <span><b>03</b> בלי ניחוש של AI</span>
+        <span><b>03</b> רזיאל מתכנן · המנוע מאמת</span>
       </div>
     </div>
 
@@ -115,22 +144,26 @@ export default function ElsGuidedDiscovery2029({ disabled = false, onLoad, onPla
         </div>
       </details>
 
-      <button type="submit" className="sod29-action primary els29-guided-submit" disabled={disabled || !clean(story)}><span aria-hidden="true">✦</span> התחל גילוי מודרך</button>
-      <small className="els29-guided-boundary">החיפוש מתחיל רק בלחיצה. רזיאל יצטרף רק אחרי שהמנוע ימצא ויאמת מופע.</small>
+      <button type="submit" className="sod29-action primary els29-guided-submit" disabled={disabled || planning || !clean(story)}><span aria-hidden="true">✦</span> {planning ? "רזיאל בונה תוכנית…" : "התחל גילוי מודרך"}</button>
+      <small className="els29-guided-boundary">רק הלחיצה שולחת בקשה אחת לרזיאל. הוא מציע מה לחפש; המנוע הקנוני בלבד מחפש ומאמת.</small>
       {notice ? <p className="els29-guided-notice" role="status">{notice}</p> : null}
 
       {plan && axis ? <section className="els29-guided-plan" aria-label="תוכנית הגילוי שנשלחה">
         <header>
-          <div><small>הציר הראשון שהוצע</small><strong><bdi>{axis.term}</bdi></strong></div>
-          <span className="sod29-chip">הצעה · טרם ממצא</span>
+          <div><small>{["crossed_pair", "crossed_three"].includes(plan.searchMode) ? "ההצלבה שרזיאל הבין" : "הציר הראשון שרזיאל הציע"}</small><strong><bdi>{["crossed_pair", "crossed_three"].includes(plan.searchMode) ? plan.axes.join(" × ") : axis.term}</bdi></strong></div>
+          <span className="sod29-chip">תוכנית · טרם ממצא</span>
         </header>
-        <p className="els29-guided-axis-reason">למה הוא ראשון: {axis.reason}.</p>
+        <p className="els29-guided-axis-reason">למה כך: {axis.reason}.</p>
         {strategy ? <div className="els29-guided-strategy" data-els-guided-search-strategy={strategy.contract} aria-label="סדר החיפוש המודרך">
           {strategy.lanes.map(lane => <article key={lane.id} data-lane={lane.id}>
             <span>{lane.order}</span>
-            <div><strong>{lane.label}</strong><small>{lane.id === "exact-axis" ? `בודק את ״${axis.term}״ ומאמת כל מופע.`
-              : lane.id === "story-context" ? (lane.terms.length ? lane.terms.join(" · ") : "אין כרגע מילת סיפור נוספת; ממשיכים רק אחרי אימות הציר.")
-              : "מחפש מילים שלא נכתבו בסיפור רק בתוך המטריצה המאומתת, דרך אינדקס עצל ומוגבל."}</small></div>
+            <div><strong>{["crossed_pair", "crossed_three"].includes(plan.searchMode) && lane.id === "exact-axis" ? "צירים מדויקים" : lane.label}</strong><small>{lane.id === "exact-axis" ? (["crossed_pair", "crossed_three"].includes(plan.searchMode)
+              ? `בודק אזור משותף לכל המילים: ${plan.axes.join(" · ")}.`
+              : `בודק את ״${axis.term}״ ומאמת כל מופע.`)
+              : lane.id === "story-context" ? (lane.terms.length ? lane.terms.join(" · ") : ["crossed_pair", "crossed_three"].includes(plan.searchMode) ? "בלי מילים נוספות: מתחילים רק בצירים שנבחרו." : "אין כרגע מילת סיפור נוספת; ממשיכים רק אחרי אימות הציר.")
+              : ["crossed_pair", "crossed_three"].includes(plan.searchMode)
+                ? "הרחבת מילים נשארת כבויה; קודם רואים אם שני הצירים עצמם נפגשים."
+                : "מחפש מילים שלא נכתבו בסיפור רק בתוך המטריצה המאומתת, דרך אינדקס עצל ומוגבל."}</small></div>
           </article>)}
           <small>אין סריקה של כל האוצר. היפוכים, חלון רחב וגל נוסף נשארים כבויים עד פעולה מפורשת.</small>
         </div> : null}
@@ -144,7 +177,7 @@ export default function ElsGuidedDiscovery2029({ disabled = false, onLoad, onPla
               onClick={() => { setAxisId(candidate.id);runPlan(plan, candidate.id); }}><bdi>{candidate.term}</bdi></button>)}
           </div>
         </details> : null}
-        <small>הסיפור נשאר בזיכרון המסך. למנוע נשלחים רק הציר ועד שש מילות הקשר; אף אחת מהן אינה עובדה לפני אימות.</small>
+        <small>למנוע נשלחים רק הצירים ועד שש מילות הקשר. הצעת רזיאל אינה עובדה; ממצא מוצג רק אחרי אימות המנוע.</small>
       </section> : null}
     </form>
   </section>;

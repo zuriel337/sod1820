@@ -24,7 +24,9 @@ const clean = (value, limit = 80) => (value == null ? "" : String(value).replace
 // slug / key / camelCase identifiers (post-5107, surface_focus, sourceRef) — internal, never a visible label
 export const looksLikeInternalKey = (value) => {
   const text = clean(value, 4000);
-  return /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i.test(text)
+  return /^(?:els|anon|phrase):/i.test(text)
+    || /^[a-f0-9]{16,}$/i.test(text)
+    || /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i.test(text)
     || /^[\/#]\S+$/.test(text) || /^https?:\/\//i.test(text)
     || /^(?:topic|post|source|finding|surface|research|person|entity)[_:#/.-]\S+$/i.test(text)
     || /^[a-z0-9]+(?:[_:\-./#][a-z0-9]+)+$/.test(text)
@@ -69,6 +71,12 @@ export function contextDisplayPosition(context) {
   return visible(section?.label, 120);
 }
 const HEBREW = /[֐-׿]/;
+
+// Display only. Never translate model prose, rewrite a search term or mutate a locator.
+export function razielPublicLabel(value, fallback = "ההקשר הנבחר") {
+  const text = visible(value, 160);
+  return TYPE_NOUN_HE[text.toLowerCase()] || text || fallback;
+}
 
 export function razielSubjectLabel(subject) {
   if (!subject || typeof subject !== "object") return "";

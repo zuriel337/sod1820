@@ -1,0 +1,50 @@
+{
+ "run": "C3",
+ "request_sha256": "bf11fd473c12d23a396c4510f9dc10acc2a79e947e4c50c2e86e9dd05557ee34",
+ "lock_sha256": "2c67e34a2df753512cd7a33772ddbeac9fcbd24726d62fef479ecf2b45d307fa",
+ "batch": {
+  "id": "msgbatch_0149v7KvvCXFwtzJdJiv2S9k",
+  "created_at": "2026-10-29T02:15:40.182388+00:00",
+  "ended_at": "2026-10-29T02:18:49.082331+00:00",
+  "request_counts": {
+   "processing": 0,
+   "succeeded": 1,
+   "errored": 0,
+   "canceled": 0,
+   "expired": 0
+  }
+ },
+ "ms": 188900,
+ "cost": {
+  "usd": 0.39984,
+  "parts": {
+   "input": 0.16858,
+   "cacheWrite": 0,
+   "cacheRead": 0,
+   "output": 0.6311
+  },
+  "basis": "list prices, claude-api model table cached 2026-10-06; cache writes at 1.25x input; Message Batches at 50% of list"
+ },
+ "summary": {
+  "text": "{\"findings\":[{\"id\":\"F1\",\"line\":\"C21+\",\"text\":\"קולומביה\",\"parts\":[\"קולומביה\"],\"kind\":\"name\",\"story_related\":false,\"continue_from\":true,\"from_finding\":\"\",\"tier\":\"A\",\"note\":\"המופע הנבחר עצמו: שם המדינה/האוניברסיטה קולומביה בטור C21 שורות R11–R18.\"},{\"id\":\"F2\",\"line\":\"C21-\",\"text\":\"נמל\",\"parts\":[\"נמל\"],\"kind\":\"word\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"F1\",\"tier\":\"B\",\"note\":\"באותו טור בכיוון ההפוך, בקצה העליון: 'נמל'.\"},{\"id\":\"F3\",\"line\":\"C04+\",\"text\":\"ונתיבהליל\",\"parts\":[\"ונתיבה\",\"ליל\"],\"kind\":\"construct_or_phrase\",\"story_related\":false,\"continue_from\":true,\"from_finding\":\"\",\"tier\":\"A\",\"note\":\"צירוף 'ונתיבה ליל' בתחתית טור C04.\"},{\"id\":\"F4\",\"line\":\"C04-\",\"text\":\"לילהבית\",\"parts\":[\"לילה\",\"בית\"],\"kind\":\"construct_or_phrase\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"F3\",\"tier\":\"A\",\"note\":\"אותו אזור בכיוון ההפוך קורא 'לילה בית'.\"},{\"id\":\"F5\",\"line\":\"C07+\",\"text\":\"כעסתי\",\"parts\":[\"כעסתי\"],\"kind\":\"inflected_form\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"A\",\"note\":\"פועל בגוף ראשון 'כעסתי'.\"},{\"id\":\"F6\",\"line\":\"C08+\",\"text\":\"ונשוב\",\"parts\":[\"ונשוב\"],\"kind\":\"inflected_form\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"B\",\"note\":\"'ונשוב' בראש טור C08.\"},{\"id\":\"F7\",\"line\":\"C10-\",\"text\":\"אהבה\",\"parts\":[\"אהבה\"],\"kind\":\"word\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"A\",\"note\":\"'אהבה' בטור C10 בכיוון עולה.\"},{\"id\":\"F8\",\"line\":\"C11+\",\"text\":\"ומבקר\",\"parts\":[\"ומבקר\"],\"kind\":\"word\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"B\",\"note\":\"'ומבקר' בראש טור C11.\"},{\"id\":\"F9\",\"line\":\"C17+\",\"text\":\"שיזהב\",\"parts\":[\"שי\",\"זהב\"],\"kind\":\"construct_or_phrase\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"A\",\"note\":\"'שי זהב' בראש טור C17.\"},{\"id\":\"F10\",\"line\":\"C17+\",\"text\":\"כוח\",\"parts\":[\"כוח\"],\"kind\":\"word\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"F9\",\"tier\":\"B\",\"note\":\"אותו טור מסתיים ב'כוח'.\"},{\"id\":\"F11\",\"line\":\"C20-\",\"text\":\"זהסיר\",\"parts\":[\"זה\",\"סיר\"],\"kind\":\"construct_or_phrase\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"C\",\"note\":\"קריאה משעשעת 'זה סיר'.\"},{\"id\":\"F12\",\"line\":\"C24-\",\"text\":\"אישה\",\"parts\":[\"אישה\"],\"kind\":\"word\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"B\",\"note\":\"'אישה' בטור C24 בכיוון עולה.\"},{\"id\":\"F13\",\"line\":\"C32+\",\"text\":\"כתבה\",\"parts\":[\"כתבה\"],\"kind\":\"word\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"B\",\"note\":\"'כתבה' (שם עצם או פועל) בטור C32.\"},{\"id\":\"F14\",\"line\":\"C37-\",\"text\":\"בהמה\",\"parts\":[\"בהמה\"],\"kind\":\"word\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"B\",\"note\":\"'בהמה' בטור C37 בכיוון עולה.\"},{\"id\":\"F15\",\"line\":\"C31-\",\"text\":\"משמח\",\"parts\":[\"משמח\"],\"kind\":\"word\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"B\",\"note\":\"'משמח' בטור C31.\"},{\"id\":\"F16\",\"line\":\"D06-\",\"text\":\"לאהבת\",\"parts\":[\"לאהבת\"],\"kind\":\"inflected_form\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"B\",\"note\":\"'לאהבת' (נסמך עם למד) באלכסון D06.\"},{\"id\":\"F17\",\"line\":\"D32-\",\"text\":\"סוס\",\"parts\":[\"סוס\"],\"kind\":\"word\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"B\",\"note\":\"'סוס' בראש האלכסון הקצר D32.\"},{\"id\":\"F18\",\"line\":\"D43-\",\"text\":\"רמאי\",\"parts\":[\"רמאי\"],\"kind\":\"word\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"A\",\"note\":\"'רמאי' באלכסון D43.\"},{\"id\":\"F19\",\"line\":\"D44-\",\"text\":\"שומר\",\"parts\":[\"שומר\"],\"kind\":\"word\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"A\",\"note\":\"'שומר' בסוף האלכסון D44.\"},{\"id\":\"F20\",\"line\":\"D50+\",\"text\":\"צרח\",\"parts\":[\"צרח\"],\"kind\":\"word\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"C\",\"note\":\"'צרח' בראש D50.\"},{\"id\":\"F21\",\"line\":\"A05-\",\"text\":\"לירות\",\"parts\":[\"לירות\"],\"kind\":\"word\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"A\",\"note\":\"'לירות' (שם פועל או מטבע) באלכסון A05.\"},{\"id\":\"F22\",\"line\":\"A07-\",\"text\":\"הרגש\",\"parts\":[\"הרגש\"],\"kind\":\"word\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"A\",\"note\":\"'הרגש' בסוף האלכסון A07.\"},{\"id\":\"F23\",\"line\":\"A15-\",\"text\":\"זועמ\",\"parts\":[\"זועמ\"],\"kind\":\"word\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"B\",\"note\":\"'זועם' באלכסון A15.\"},{\"id\":\"F24\",\"line\":\"A26+\",\"text\":\"זהוב\",\"parts\":[\"זהוב\"],\"kind\":\"word\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"B\",\"note\":\"'זהוב' באלכסון A26.\"},{\"id\":\"F25\",\"line\":\"A51+\",\"text\":\"תמיר\",\"parts\":[\"תמיר\"],\"kind\":\"name\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"C\",\"note\":\"שם פרטי 'תמיר' בראש A51.\"}],\"observations\":\"השורות הן טקסט מקראי רציף ולכן לא הוצעו מהן מילים. בדקתי פחות לעומק את האלכסונים הקצרים בפינות ואת טורים C38–C41.\"}",
+  "stop_reason": "end_turn",
+  "model": "claude-fable-5-1",
+  "usage": {
+   "input_tokens": 16858,
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 0,
+   "cache_creation": {
+    "ephemeral_5m_input_tokens": 0,
+    "ephemeral_1h_input_tokens": 0
+   },
+   "output_tokens": 12622,
+   "output_tokens_details": {
+    "thinking_tokens": 10168
+   },
+   "service_tier": "batch",
+   "inference_geo": "global",
+   "speed": "standard"
+  },
+  "id": "msg_011CgViuJabZq9UdSK1qNkQr"
+ }
+}

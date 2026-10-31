@@ -7,6 +7,8 @@ import {
   normalizeRazielViewMode,
 } from "./razielViewMode2029.js";
 import { buildRazielSurfaceContext } from "./razielSurfaceContext.js";
+import { normalizeElsRazielMatrixContext } from "./elsRazielMatrixContext.js";
+import { ELS_RAZIEL_GROUNDING, normalizeElsRazielOccurrence, sameElsRazielOccurrence } from "../../../supabase/functions/_shared/elsRazielOccurrenceContext.js";
 import { isRegularMethodIdentity } from "./methodIdentity.js";
 import {
   isValidRazielNavigationNumber,
@@ -16,6 +18,17 @@ import {
   resolveRazielNavigationAction,
   resolveRazielNavigationFollowUp,
 } from "../../../supabase/functions/_shared/razielNavigationActions.js";
+import {
+  ELS_RAZIEL_PLANNING_SUBJECT,
+  normalizeElsRazielPlanningAction,
+  normalizeElsRazielSearchPlan,
+} from "./elsRazielPlanning.js";
+import {
+  ELS_MATRIX_READING_SUBJECT,
+  normalizeElsMatrixReadingAction,
+  normalizeElsMatrixReadingResult,
+  isElsReadingJobId,
+} from "../../../supabase/functions/_shared/elsMatrixReadingAction.js";
 
 const RAZIEL_CANONICAL_RESEARCH_CONTRACT = "public-number-research-run-v1";
 export const RAZIEL_PERSONAL_AREA_COMPANION_ACTION = "personal_area_companion_v1";
@@ -151,6 +164,15 @@ function createPersonalAreaCompanionSnapshot(action, capturedAt) {
   });
 }
 
+function createElsPlanningSnapshot(action, capturedAt) {
+  return Object.freeze({
+    v: 1,
+    surface: "els",
+    capturedAt: cleanInline(capturedAt, 40),
+    description: `תוכנית חיפוש ELS מוצעת · ${action.scope === "tanakh" ? "כל התנ״ך" : "תורה"}`,
+  });
+}
+
 function sourceName(value) {
   if (typeof value === "string") return cleanInline(value, 120);
   if (!isObject(value)) return null;
@@ -210,7 +232,8 @@ function normalizeElsFocus(value) {
   const occurrence = isObject(value.occurrence) ? value.occurrence : value;
   const direction = cleanInteger(occurrence.dir);
   const out = compactObject({
-    term: cleanInline(occurrence.term ?? value.term, 80),
+    term: cleanInline(occurrence.term ?? value.term ?? value.text?.term, 80),
+    scope: ["torah", "tanakh"].includes(occurrence.scope ?? value.scope) ? occurrence.scope ?? value.scope : null,
     occurrence: cleanInline(occurrence.occurrenceRef ?? occurrence.occurrence_id ?? occurrence.occurrence, 120),
     corpus: cleanInline(occurrence.corpusId ?? occurrence.corpus, 80),
     start: cleanInteger(occurrence.start),
@@ -218,6 +241,13 @@ function normalizeElsFocus(value) {
     skip: cleanInteger(occurrence.skip),
     dir: [-1, 1].includes(direction) ? direction : null,
   });
+  const replayReady = value.grounding === ELS_RAZIEL_GROUNDING || (value.surface === "els"
+    && value.result?.status === "OK" && value.result?.contract === "els_2029_projection_v1"
+    && value.result?.presentationPolicy === "exact_replay_v1");
+  if (replayReady && normalizeElsRazielOccurrence(out)) {
+    out.grounding = ELS_RAZIEL_GROUNDING;
+    if (isElsReadingJobId(value.readingJobId)) out.readingJobId = value.readingJobId;
+  }
   return Object.keys(out).length ? out : null;
 }
 
@@ -309,6 +339,7 @@ export function createRazielRequestContextSnapshot(context = null, view = {}, ca
     journey: journey && Object.keys(journey).length ? journey : null,
     sourceNames,
     capturedAt: cleanInline(capturedAt, 40),
+    ...(normalizeElsRazielMatrixContext(view.elsMatrixContext) ? { elsMatrixContext: normalizeElsRazielMatrixContext(view.elsMatrixContext) } : {}),
     ...(surfaceContext ? { surfaceContext } : {}),
   };
   return { ...snapshot, description: describeSnapshot({ subject, number, reading, els, sourceNames }) };
@@ -347,6 +378,7 @@ function normalizeContinuationContextSnapshot(value) {
     journey: journey && Object.keys(journey).length ? journey : null,
     sourceNames,
     capturedAt: cleanInline(value.capturedAt, 40),
+    ...(normalizeElsRazielMatrixContext(value.elsMatrixContext) ? { elsMatrixContext: normalizeElsRazielMatrixContext(value.elsMatrixContext) } : {}),
     ...(surfaceContext ? { surfaceContext } : {}),
   };
   const description = cleanInline(value.description, LIMITS.context)
@@ -405,6 +437,31 @@ function snapshotSurfaceSemantic(snapshot) {
   return Object.keys(semantic).length ? semantic : null;
 }
 
+// Reuse a completed reading by opaque job reference, never by replaying client
+// findings as facts. The server rechecks the principal, exact axis and receipts.
+function withElsReadingReference(snapshot, state) {
+  const focus = snapshot?.focus?.els;
+  const matrix = normalizeElsRazielMatrixContext(snapshot?.elsMatrixContext);
+  const axis = normalizeElsRazielOccurrence(focus);
+  if (!axis || (focus.grounding !== ELS_RAZIEL_GROUNDING && !sameElsRazielOccurrence(axis, matrix?.axis))) return snapshot;
+  let readingJobId = isElsReadingJobId(focus.readingJobId) ? focus.readingJobId : null;
+  const previous = state?.contextSnapshot?.focus?.els;
+  if (!readingJobId && sameElsRazielOccurrence(axis, previous) && isElsReadingJobId(previous?.readingJobId)) {
+    readingJobId = previous.readingJobId;
+  }
+  for (const message of (Array.isArray(state?.thread) ? state.thread.slice(-LIMITS.threadMessages) : []).reverse()) {
+    const result = message?.role === "raziel" ? message.elsMatrixReading : null;
+    if (result?.contract !== "els_matrix_reading_v1" || result.state !== "COMPLETE" || result.is_test_fixture === true
+      || result.provider?.kind !== "anthropic_live" || result.axis?.verification_state !== "MATCH"
+      || !isElsReadingJobId(result.job?.id)
+      || !sameElsRazielOccurrence(axis, { ...result.axis, corpusId: result.axis.corpus_id })) continue;
+    readingJobId = result.job.id;
+    break;
+  }
+  return { ...snapshot, focus: { ...snapshot.focus, els: { ...focus, grounding: ELS_RAZIEL_GROUNDING,
+    ...(readingJobId ? { readingJobId } : {}) } } };
+}
+
 // Loaded only after an explicit submit. Request composition, conversation resolution and response
 // projection are stateless adapters; the single session and its reducer remain eagerly mounted.
 export function buildRazielSessionRequest({
@@ -416,10 +473,32 @@ export function buildRazielSessionRequest({
   again = false,
   viewMode = RAZIEL_DEFAULT_VIEW_MODE,
   companionAction = null,
+  elsPlanningAction = null,
+  elsMatrixReadingAction = null,
 } = {}) {
   const subject = cleanInline(question, LIMITS.question);
   if (!subject) return null;
   const normalizedCompanionAction = normalizeRazielPersonalAreaCompanionAction(companionAction);
+  const normalizedElsPlanningAction = normalizeElsRazielPlanningAction(elsPlanningAction);
+  const normalizedElsMatrixReadingAction = normalizeElsMatrixReadingAction(elsMatrixReadingAction);
+  if (companionAction != null && elsPlanningAction != null) return null;
+  if (elsMatrixReadingAction != null) {
+    // One explicit matrix reading in this same session: it needs a valid matrix context (only its axis is used by the server), a fixed subject, deep level and no free facts.
+    const readingMatrix = normalizeElsRazielMatrixContext(contextSnapshot?.elsMatrixContext);
+    if (!normalizedElsMatrixReadingAction || !readingMatrix || companionAction != null || elsPlanningAction != null || subject !== ELS_MATRIX_READING_SUBJECT) return null;
+    return {
+      subject: ELS_MATRIX_READING_SUBJECT,
+      facts: "",
+      context: null,
+      again: false,
+      intelligenceLevel: "deep",
+      surfaceSemantic: snapshotSurfaceSemantic(contextSnapshot),
+      conversationResolution: null,
+      researchContract: RAZIEL_CANONICAL_RESEARCH_CONTRACT,
+      elsMatrixContext: readingMatrix,
+      elsMatrixReadingAction: normalizedElsMatrixReadingAction,
+    };
+  }
   if (companionAction != null) {
     if (!normalizedCompanionAction || subject !== RAZIEL_PERSONAL_AREA_COMPANION_SUBJECT) return null;
     return {
@@ -434,7 +513,23 @@ export function buildRazielSessionRequest({
       companionAction: normalizedCompanionAction,
     };
   }
+  if (elsPlanningAction != null) {
+    if (!normalizedElsPlanningAction || subject !== ELS_RAZIEL_PLANNING_SUBJECT) return null;
+    return {
+      subject: ELS_RAZIEL_PLANNING_SUBJECT,
+      facts: "",
+      context: null,
+      again: false,
+      intelligenceLevel: normalizedElsPlanningAction.locked_phrases.length
+        && normalizedElsPlanningAction.story.length <= 240 ? "fast" : "deep",
+      surfaceSemantic: { surface: "els" },
+      conversationResolution: null,
+      researchContract: RAZIEL_CANONICAL_RESEARCH_CONTRACT,
+      elsPlanningAction: normalizedElsPlanningAction,
+    };
+  }
   const surfaceSemantic = snapshotSurfaceSemantic(contextSnapshot);
+  const matrixContext = normalizeElsRazielMatrixContext(contextSnapshot?.elsMatrixContext);
   const resolvedTurn = resolveRazielConversationTurn({
     question: subject,
     thread: state?.thread,
@@ -450,13 +545,14 @@ export function buildRazielSessionRequest({
     .slice(0, LIMITS.context) || null;
   return {
     subject,
-    facts: cleanInline(facts, LIMITS.factPack) || "",
+    facts: matrixContext || surfaceSemantic?.els?.grounding === ELS_RAZIEL_GROUNDING ? "" : cleanInline(facts, LIMITS.factPack) || "",
     context: boundedContext,
     again: Boolean(again),
     intelligenceLevel: intelligenceLevel === "deep" ? "deep" : "fast",
     surfaceSemantic,
     conversationResolution: projectRazielConversationResolution(resolvedTurn),
     researchContract: RAZIEL_CANONICAL_RESEARCH_CONTRACT,
+    ...(matrixContext ? { elsMatrixContext: matrixContext } : {}),
     ...(normalizeRazielViewMode(viewMode) !== RAZIEL_DEFAULT_VIEW_MODE
       ? { viewMode: normalizeRazielViewMode(viewMode) }
       : {}),
@@ -590,25 +686,46 @@ export function prepareRazielSessionSubmission({
   viewModeOverride = null,
   continuationTurnId = null,
   companionAction = null,
+  elsPlanningAction = null,
+  elsMatrixReadingAction = null,
   startedAt,
   createTurnId,
 } = {}) {
   const normalizedCompanionAction = normalizeRazielPersonalAreaCompanionAction(companionAction);
+  const normalizedElsPlanningAction = normalizeElsRazielPlanningAction(elsPlanningAction);
+  const normalizedElsMatrixReadingAction = normalizeElsMatrixReadingAction(elsMatrixReadingAction);
   const subject = cleanInline(
-    normalizedCompanionAction ? RAZIEL_PERSONAL_AREA_COMPANION_SUBJECT : question,
+    normalizedCompanionAction
+      ? RAZIEL_PERSONAL_AREA_COMPANION_SUBJECT
+      : normalizedElsPlanningAction ? ELS_RAZIEL_PLANNING_SUBJECT
+        : normalizedElsMatrixReadingAction ? ELS_MATRIX_READING_SUBJECT : question,
     LIMITS.question,
   );
   if (!subject) return null;
+  if (view?.elsMatrixContext != null && !normalizeElsRazielMatrixContext(view.elsMatrixContext)) return null;
   if (companionAction != null && !normalizedCompanionAction) return null;
+  if (elsPlanningAction != null && !normalizedElsPlanningAction) return null;
+  if (companionAction != null && elsPlanningAction != null) return null;
+  // The reading is an explicit action of its own: it never rides with another action, never repeats/continues a turn, and always carries the matrix it reads around.
+  if (elsMatrixReadingAction != null && (!normalizedElsMatrixReadingAction || companionAction != null || elsPlanningAction != null || again
+    || continuationTurnId != null || viewModeOverride != null || !normalizeElsRazielMatrixContext(view?.elsMatrixContext))) return null;
+  const oldMatrix = normalizeElsRazielMatrixContext(state?.contextSnapshot?.elsMatrixContext);
+  const currentEls = normalizeElsFocus(view?.elsFocus);
+  const sameMatrix = sameElsRazielOccurrence(currentEls, oldMatrix?.axis);
+  const requestView = view?.elsMatrixContext || !sameMatrix ? view : { ...view, elsMatrixContext: oldMatrix };
   // Navigation is checked ONLY for an ordinary explicit request. The personal-area companion action, continuations
   // (deepen / one-shot / again) and per-request view-mode overrides are decided above and never routed as navigation.
   const ordinaryExplicitRequest = !normalizedCompanionAction
+    && !normalizedElsPlanningAction
+    && !normalizedElsMatrixReadingAction
     && companionAction == null
+    && elsPlanningAction == null
+    && elsMatrixReadingAction == null
     && !again
     && continuationTurnId == null
     && viewModeOverride == null;
   if (ordinaryExplicitRequest) {
-    const navContextSnapshot = createRazielRequestContextSnapshot(researchContext, view, startedAt);
+    const navContextSnapshot = createRazielRequestContextSnapshot(researchContext, requestView, startedAt);
     const navigation = resolveRazielNavigationTurn({ question: subject, state, contextSnapshot: navContextSnapshot });
     if (navigation) {
       return {
@@ -627,17 +744,25 @@ export function prepareRazielSessionSubmission({
         },
       };
     }
+    // An already-open companion can still carry occurrence A after the page
+    // selects B. Do not answer A as if it were B; reopen on the selected locus.
+    const selected = researchContext?.selection;
+    if ((currentEls?.grounding === ELS_RAZIEL_GROUNDING || sameMatrix) && selected?.entityType === "els"
+      && (selected.corpus !== currentEls.scope || String(selected.term || "").replace(/\s/gu, "") !== currentEls.term
+        || ["start", "skip", "dir"].some(key => selected[key] !== currentEls[key]))) return null;
   }
   const continuation = again ? selectRazielContinuation(state?.thread, {
     turnId: continuationTurnId,
     question: subject,
   }) : null;
   const contextSnapshot = continuation?.contextSnapshot
-    || createRazielRequestContextSnapshot(researchContext, view, startedAt);
+    || createRazielRequestContextSnapshot(researchContext, requestView, startedAt);
   const selectedFacts = continuation ? continuation.facts : facts;
   const selectedContextSnapshot = normalizedCompanionAction
     ? createPersonalAreaCompanionSnapshot(normalizedCompanionAction, startedAt)
-    : contextSnapshot;
+    : normalizedElsPlanningAction
+      ? createElsPlanningSnapshot(normalizedElsPlanningAction, startedAt)
+    : normalizedElsMatrixReadingAction ? contextSnapshot : withElsReadingReference(contextSnapshot, state);
   // A plain continuation (deepen) keeps the mode of the answer it extends. A one-shot per-request mode (the surprise)
   // replaces it for this request only; the stored answer and the session's own mode are not modified.
   const oneShotViewMode = viewModeOverride == null ? null : normalizeRazielViewMode(viewModeOverride);
@@ -648,22 +773,27 @@ export function prepareRazielSessionSubmission({
     question: subject,
     state,
     contextSnapshot: selectedContextSnapshot,
-    facts: normalizedCompanionAction ? "" : selectedFacts,
+    facts: normalizedCompanionAction || normalizedElsPlanningAction || normalizedElsMatrixReadingAction ? "" : selectedFacts,
     intelligenceLevel: normalizeRazielViewMode(selectedViewMode) === "exploratory" ? "deep" : intelligenceLevel,
     again,
     viewMode: selectedViewMode,
     companionAction: normalizedCompanionAction,
+    elsPlanningAction: normalizedElsPlanningAction,
+    elsMatrixReadingAction: normalizedElsMatrixReadingAction,
   });
   if (!request) return null;
   const turn = {
     id: createTurnId(),
-    question: request.subject,
+    question: normalizedElsPlanningAction
+      ? cleanInline(normalizedElsPlanningAction.story, LIMITS.question)
+      : request.subject,
     identityResolution: request.conversationResolution ? {
       identities: request.conversationResolution.identities,
       explicit_text_computation: false,
     } : null,
     intelligenceLevel: request.intelligenceLevel,
     again: request.again,
+    ...(normalizedElsMatrixReadingAction ? { kind: "els_matrix_reading", readingOp: normalizedElsMatrixReadingAction.op } : {}),
     projection: projection === "mobile" ? "mobile" : projection === "desktop" ? "desktop" : null,
     startedAt,
     continuation: createRazielContinuationSnapshot({
@@ -808,7 +938,7 @@ export function normalizeRazielSuggestedActions(value = null) {
   return actions;
 }
 
-export function normalizeRazielResponse(response, requestedLevel = "fast") {
+export function normalizeRazielResponse(response, requestedLevel = "fast", request = null) {
   if (!isObject(response)) return null;
   const answer = cleanAnswer(response.answer);
   if (!answer) return null;
@@ -818,6 +948,13 @@ export function normalizeRazielResponse(response, requestedLevel = "fast") {
   const viewModeReport = normalizeRazielViewModeReport(response);
   const evidenceSummary = normalizeRazielEvidenceSummary(response.evidence_summary);
   const suggestedActions = normalizeRazielSuggestedActions(response.suggested_paths);
+  const elsSearchPlan = request?.elsPlanningAction
+    ? normalizeElsRazielSearchPlan(response.els_search_plan, request.elsPlanningAction)
+    : null;
+  // A reading result is trusted only as the answer to a reading action that this session sent: otherwise an ordinary answer could never carry one.
+  const elsMatrixReading = request?.elsMatrixReadingAction
+    ? normalizeElsMatrixReadingResult(response.els_matrix_reading)
+    : null;
   // The conversation stays readable.  The full calculation/source appendix belongs to the
   // explicit Research Map action; ordinary and exploratory answers retain only a compact,
   // auditable pointer while keeping the structured evidence on the message object.
@@ -833,6 +970,8 @@ export function normalizeRazielResponse(response, requestedLevel = "fast") {
     ...(evidenceSummary ? { evidenceSummary } : {}),
     ...(suggestedActions.length ? { suggestedActions } : {}),
     ...(viewModeReport ? { viewMode: viewModeReport } : {}),
+    ...(elsSearchPlan ? { elsSearchPlan } : {}),
+    ...(elsMatrixReading ? { elsMatrixReading } : {}),
   };
 }
 
@@ -903,6 +1042,8 @@ export function createRazielTurnSucceededAction({ state, response, provenance, c
     ...(response.evidenceSummary ? { evidenceSummary: response.evidenceSummary } : {}),
     ...(response.suggestedActions?.length ? { suggestedActions: response.suggestedActions } : {}),
     ...(response.viewMode ? { viewMode: response.viewMode.requested, viewModeApplied: response.viewMode.applied } : {}),
+    ...(response.elsSearchPlan ? { elsSearchPlan: response.elsSearchPlan } : {}),
+    ...(response.elsMatrixReading ? { elsMatrixReading: response.elsMatrixReading } : {}),
   };
   return {
     type: "turn_succeeded",

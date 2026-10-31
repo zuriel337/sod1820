@@ -19,6 +19,7 @@ import { resolveExperienceContext } from "../../lib/experienceContext.js";
 import { useResearch } from "../../lib/research/ResearchProvider.jsx";
 import { buildExactReturnPatch, researchContextNumber } from "../../lib/research/researchContext.js";
 import { useAuth } from "../../lib/AuthContext.jsx";
+import { razielSavedSyncCopy, canRetryRazielSync, RAZIEL_LOCAL_SAVE_NOTICE } from "../../lib/research/razielSavedSync2029.js";
 import { useFeatureState } from "../MaintenanceLock.jsx";
 import { CORE_PUBLIC_LAUNCH_2029 } from "../../lib/publicLaunch2029.js";
 import { requestEmailOtp, verifyEmailOtp, signInWithPassword, signInWithGoogle } from "../../lib/auth.js";
@@ -47,6 +48,9 @@ import { workspaceResearchHref } from "../../lib/research/razielWorkspaceProject
 import { projectWorkspaceRazielPresence2029 } from "../../lib/research/workspaceRazielPresence2029.js";
 import RazielViewModeSelector2029 from "./RazielViewModeSelector2029.jsx";
 import RazielOneShotActions2029 from "./RazielOneShotActions2029.jsx";
+import ElsMatrixReadingActivity2029 from "./ElsMatrixReadingActivity2029.jsx";
+import ElsResearchActivity2029 from "./ElsResearchActivity2029.jsx";
+import { selectElsMatrixReadingActivity } from "../../lib/research/elsMatrixReadingActivity.js";
 import { publicContextLabel, contextDisplayTitle, contextDisplayPosition, entityTypeNounHe, razielContextParts, razielNavigationButton, razielStatusLabel } from "./razielSessionSeam2029.js";
 import { createRazielContextSnapshot, selectRazielDeepeningCandidate } from "../../lib/research/razielSession2029.js";
 import { razielViewModeLabel } from "../../lib/research/razielViewMode2029.js";
@@ -374,9 +378,10 @@ function NavGroup({ title, items, preserveReturnFor, onNavigate, onAction }) {
 // Typed "Now": what is happening in the world, for me, and what Raziel can continue.
 // Each tab opens an existing frame surface; no data is invented here.
 function NowTabs2029({ activeKind, onWorld, onMe, onRaziel, razielLocked = false }) {
+  const task = useResearch().elsResearchOperation?.task;
   const tabs = [
     { id: "world", label: "בעולם", hint: "מה חדש בעולם", on: onWorld, pressed: activeKind === TRANSIENT.ATTENTION },
-    { id: "me", label: "בשבילי", hint: "העדכונים והמסלול שלי", on: onMe, pressed: activeKind === TRANSIENT.WORKSPACE },
+    { id: "me", label: task ? task.status === "RUNNING" ? "סורק" : "תוצאות" : "בשבילי", hint: task ? `${task.phase} · ${task.origin.term}` : "העדכונים והמסלול שלי", on: onMe, pressed: activeKind === TRANSIENT.WORKSPACE },
     { id: "rz", label: razielLocked ? "רזיאל · נעול" : "רזיאל מציע", hint: razielLocked ? "רזיאל נעול זמנית" : "המשך עם רזיאל", on: onRaziel, pressed: activeKind === TRANSIENT.RAZIEL, disabled: razielLocked },
   ];
   return <div className="sod29-now" role="group" aria-label="עכשיו">
@@ -387,17 +392,22 @@ function NowTabs2029({ activeKind, onWorld, onMe, onRaziel, razielLocked = false
 }
 
 function RazielOrb({ compact = false, active = false, onClick, title = "פתח את רזיאל", locked = false }) {
+  const session = useOptionalRazielSession2029();
+  const reading = locked ? null : selectElsMatrixReadingActivity(session);
+  const readingTitle = reading ? `${reading.label} · ${reading.axis.term} · פתח את רזיאל` : title;
   return (
     <button
       type="button"
       className={`sod29-raziel-orb${compact ? " compact" : ""}${active ? " active" : ""}${locked ? " is-locked" : ""}`}
       onClick={onClick}
-      aria-label={locked ? "רזיאל · בבנייה" : title}
-      title={locked ? "רזיאל בבנייה" : title}
+      aria-label={locked ? "רזיאל · בבנייה" : readingTitle}
+      title={locked ? "רזיאל בבנייה" : readingTitle}
+      data-matrix-reading-status={reading?.phase}
       aria-pressed={active}
       disabled={locked}
     >
       <span className="sod29-raziel-orb-core" aria-hidden="true">{locked && compact ? "🚧" : null}</span>
+      {reading ? <span className="sod29-raziel-reading-badge" aria-hidden="true">{reading.active ? "סורק" : "סריקה"}</span> : null}
       {!compact ? <span className="sod29-raziel-orb-label">רזיאל</span> : null}
     </button>
   );
@@ -725,6 +735,7 @@ function savedRazielDate(value) {
 // One temporary Raziel conversation is shared by the desktop Companion and the mobile sheet.
 // Opening, navigating and changing view mode make no AI call; only an explicit submit crosses the transport.
 function RazielNativeChat({ context, label, numberFocus, readingFocus, elsFocus = null, primary = false, projection = "mobile", onSignup = null }) {
+  const researchSync = useResearch();
   const session = useOptionalRazielSession2029();
   const { user } = useAuth();
   const [text, setText] = useState("");
@@ -771,9 +782,7 @@ function RazielNativeChat({ context, label, numberFocus, readingFocus, elsFocus 
     setSavedNotice("");
     const result = await session.saveCurrentSession?.();
     setSavedNotice(result?.ok
-      ? (session.savedSessionsSyncStatus === "synced" ? "השיחה נשמרה באופן פרטי בחשבון."
-        : session.savedSessionsSyncStatus === "local_only" ? "השיחה נשמרה מקומית בדפדפן הזה. כניסה לחשבון תאפשר סנכרון פרטי."
-          : "השיחה נשמרה; הסנכרון הפרטי ממשיך דרך השיחות שלך.")
+      ? RAZIEL_LOCAL_SAVE_NOTICE
       : result?.error === "session_too_large" ? "השיחה ארוכה מדי לשמירה אחת. כדאי לפתוח שיחה חדשה ולשמור את החלק הבא בנפרד."
         : "לא הצלחנו לשמור את השיחה כרגע.");
   };
@@ -810,6 +819,7 @@ function RazielNativeChat({ context, label, numberFocus, readingFocus, elsFocus 
         <p>{contextParts.length ? contextParts.map((part, index) => <React.Fragment key={part.key}>{index ? <span aria-hidden="true"> · </span> : null}{part.prefix ? `${part.prefix}: ` : ""}<bdi>{part.label}</bdi></React.Fragment>) : "שאלה חופשית — או בחר מספר, ביטוי או קטע"}</p>
       </div>
       <RazielViewModeSelector2029 />
+      <ElsMatrixReadingActivity2029 />
       <div className="sod29-raziel-thread" role="log" aria-label="השיחה עם רזיאל">
         {thread.map((m, i) => (
           <div key={`${m.turnId || i}:${m.role}`} ref={i === thread.length - 1 ? lastTurnRef : undefined} className={m.role === "user" ? "sod29-raziel-chat-user" : "sod29-raziel-chat-raziel"}>
@@ -840,12 +850,14 @@ function RazielNativeChat({ context, label, numberFocus, readingFocus, elsFocus 
       </div> : null}
       <div className="sod29-raziel-session-actions" aria-label="שמירה והיסטוריה של שיחות רזיאל">
         <button className="sod29-action" type="button" disabled={busy || !lastRaziel} data-raziel-save-session="true" onClick={saveConversation}>♡ שמור שיחה</button>
-        <button className="sod29-action" type="button" disabled={busy || !session.savedSessions?.length} aria-expanded={savedOpen} data-raziel-saved-sessions="true" onClick={() => setSavedOpen((open) => !open)}>▤ השיחות שלי{session.savedSessions?.length ? ` · ${session.savedSessions.length}` : ""}</button>
+        <button className="sod29-action" type="button" aria-expanded={savedOpen} data-raziel-saved-sessions="true" onClick={() => setSavedOpen((open) => !open)}>▤ השיחות שלי{session.savedSessions?.length ? ` · ${session.savedSessions.length}` : ""}</button>
         <button className="sod29-action" type="button" disabled={busy || !thread.length} data-raziel-new-session="true" onClick={newConversation}>＋ שיחה חדשה</button>
       </div>
       {savedOpen ? <div className="sod29-raziel-saved-panel" data-raziel-saved-panel="true">
         <b>השיחות השמורות שלי</b>
-        <small>{session.savedSessionsSyncStatus === "synced" ? "פרטי ומסונכרן לחשבון" : session.savedSessionsSyncStatus === "local_only" ? "מקומי בדפדפן הזה" : "בסנכרון עם החשבון"}</small>
+        <small role="status" data-raziel-saved-sync={session.savedSessionsSyncStatus}>{razielSavedSyncCopy(session.savedSessionsSyncStatus)}</small>
+        {canRetryRazielSync(session.savedSessionsSyncStatus) ? <button className="sod29-action" type="button" onClick={() => researchSync.retryResearchSync?.()}>נסה לסנכרן שוב</button> : null}
+        {!session.savedSessions?.length ? <p>כאן יוצגו שיחות שנשמרו במפורש באמצעות „שמור שיחה”. שיחות שלא נשמרו אינן היסטוריה אוטומטית בחשבון.</p> : null}
         <ul>
           {session.savedSessions.map((saved) => <li key={saved.id}>
             <button type="button" className="sod29-raziel-saved-open" onClick={() => openConversation(saved)}>
@@ -857,6 +869,7 @@ function RazielNativeChat({ context, label, numberFocus, readingFocus, elsFocus 
         </ul>
       </div> : null}
       {savedNotice ? <small className="sod29-raziel-save-notice" role="status">{savedNotice}</small> : null}
+      {savedNotice && !savedOpen ? <small role="status" data-raziel-saved-sync={session.savedSessionsSyncStatus}>{razielSavedSyncCopy(session.savedSessionsSyncStatus)}</small> : null}
       {!user?.id && lastRaziel ? guestQuotaEnded ? <div className="sod29-raziel-deep-offer" data-raziel-quota-ended="guest" role="status">
         <p>שיחות הניסיון להיום הסתיימו. הרשמה חינמית תאפשר לך להמשיך לדבר עם רזיאל ולשמור את השיחות שלך.</p>
         {onSignup ? <button className="sod29-action primary" type="button" onClick={onSignup}>הרשמה בחינם</button> : null}
@@ -926,7 +939,7 @@ function RazielProjection({ target, context, numberCoreFocus = null, microIntent
     if (numberFocus.kind === "world") {
       return {
         title: `תגובה מהירה · ${numberFocus.world || "עולם"}`,
-        text: `העולם הזה מחובר כרגע ל־Root ${numberFocus.root} כהקשר עם ${numberFocus.count ?? 0} פריטים. הוא לא תוצאה של שיטת גימטריה. אפשר לפתוח את העולם המלא כדי לראות את הקשרים והמקורות סביב העוגן.`,
+        text: `העולם הזה מחובר כרגע למספר ${numberFocus.root} כהקשר עם ${numberFocus.count ?? 0} פריטים. הוא לא תוצאה של שיטת גימטריה. אפשר לפתוח את העולם המלא כדי לראות את הקשרים והמקורות סביב העוגן.`,
         boundary: "העולם מציג הקשר; הוא לא תוצאת חישוב.",
       };
     }
@@ -941,7 +954,7 @@ function RazielProjection({ target, context, numberCoreFocus = null, microIntent
     }
     return {
       title: `תגובה מהירה · ${intentLabel || "המספר"}`,
-      text: `רזיאל קיבל את ה־Root ${numberFocus.root}, הביטוי ${numberFocus.expression || numberFocus.root} והשיטה ${numberFocus.method || "הפעילה"}. אפשר להמשיך לחישוב, להשוואה או לעומק בלי לאבד את המקום.`,
+      text: `רזיאל קיבל את המספר ${numberFocus.root}, הביטוי ${numberFocus.expression || numberFocus.root} והשיטה ${numberFocus.method || "הפעילה"}. אפשר להמשיך לחישוב, להשוואה או לעומק בלי לאבד את המקום.`,
       boundary: "אותו הקשר, עומק שונה.",
     };
   })();
@@ -962,11 +975,11 @@ function RazielProjection({ target, context, numberCoreFocus = null, microIntent
         {readingFocus.signals?.length ? <small>{readingFocus.signals.slice(0, 3).join(" · ")}</small> : null}
       </section> : null}
       {elsFocus ? <section className="sod29-panel-context-card" data-raziel-els-context="true">
-        <b>{intentLabel || "ELS · occurrence context"}</b>
-        <span>מופע מאומת · {elsFocus.occurrence.corpusId || "corpus"} · skip {elsFocus.occurrence.skip ?? "—"} · dir {elsFocus.occurrence.dir ?? "—"}</span>
-        <small>start {elsFocus.occurrence.start ?? "—"} → end {elsFocus.occurrence.end ?? "—"} · {elsFocus.occurrence.positions?.length ?? 0} positions</small>
-        {elsFocus.occurrence.dependencyRef ? <small>dependency ref · {elsFocus.occurrence.dependencyRef}</small> : null}
-        <small>Context בלבד · הצגה/קרבה חזותית אינה חוזק ראיה.</small>
+        <b>{intentLabel || "המופע הנבחר"}</b>
+        <span><bdi>{elsFocus.text?.term || label}</bdi> · מופע מאומת</span>
+        <span>דילוג <bdi>{elsFocus.occurrence.skip ?? "—"}</bdi> · {elsFocus.occurrence.dir === -1 ? "לאחור" : elsFocus.occurrence.dir === 1 ? "קדימה" : "הכיוון לא צוין"}</span>
+        <small>מיקום התחלה <bdi>{elsFocus.occurrence.start ?? "—"}</bdi> · סיום <bdi>{elsFocus.occurrence.end ?? "—"}</bdi> · <bdi>{elsFocus.occurrence.positions?.length ?? 0}</bdi> אותיות</small>
+        <small>האותיות והמיקומים אומתו במנוע. קרבה חזותית אינה מדד לחוזק הממצא.</small>
       </section> : null}
       {elsGuide ? <section className="sod29-panel-context-card sod29-raziel-els-guide" data-raziel-els-guide={elsGuide.contract}>
         <b>{elsGuide.title}</b>
@@ -976,10 +989,10 @@ function RazielProjection({ target, context, numberCoreFocus = null, microIntent
         <span>{elsGuide.question}</span>
       </section> : null}
       {numberFocus ? <section className="sod29-panel-context-card">
-        <b>{intentLabel || "Number Core focus"}</b>
+        <b>{intentLabel || "המספר הנבחר"}</b>
         <span>{numberFocus.expression || numberFocus.root}{numberFocus.method ? ` · ${numberFocus.method}` : ""}{numberFocus.resultValue != null ? ` → ${numberFocus.resultValue}` : ""}</span>
         {numberFocus.crossingPartner ? <small>הצלבה · {numberFocus.crossingPartner}</small> : null}
-        {numberFocus.zeroScaleNext != null ? <small>Zero Scale · {numberFocus.root} → {numberFocus.zeroScaleNext}</small> : null}
+        {numberFocus.zeroScaleNext != null ? <small>סולם האפס · <bdi>{numberFocus.root} → {numberFocus.zeroScaleNext}</bdi></small> : null}
       </section> : !readingFocus && !elsFocus && !routeActionValid ? <FrameState title="אפשר להתחיל בשאלה">אין כרגע מוקד מחקר נבחר. אפשר לבחור מספר, ביטוי או קטע, או לשאול שאלה חופשית.</FrameState> : null}
       {quickInsight ? <section className="sod29-panel-context-card sod29-raziel-quick-insight">
         <b>{quickInsight.title}</b>
@@ -1028,6 +1041,7 @@ function ResearchStateSections({ research, go, onInspect, onOpenNumber, onOpenSa
   const saved = Array.isArray(research?.saved) ? research.saved : [];
   return (
     <div className="sod29-workspace-research-state" data-research-state-source="ResearchProvider" data-research-sync={syncStatus}>
+      <ElsResearchActivity2029 />
       <div className="sod29-workspace-pulse-stats" aria-label="המחקר שלי במספרים">
         {RESEARCH_SECTIONS.map((sec) => <span key={sec.key} data-count-for={sec.key}><b>{(research?.[sec.key] || []).length}</b><small>{sec.title}</small></span>)}
         <span data-count-for="collections"><b>{collections.length}</b><small>אוספים</small></span>
@@ -2510,13 +2524,13 @@ function SystemFrame2029Body({
             openNumber(value != null ? { id: String(value), type: "number", label: String(value) } : activeTarget);
           }} disabled={numberLocked} aria-label={numberLocked ? "מספר · נעול כרגע" : "מספר · פתח חלונית מספר"} aria-haspopup="dialog"><NavigationIcon2029 name="number" /><small>מספר</small></button>
           <RazielOrb compact active={!razielLocked && (transientKind === TRANSIENT.RAZIEL || (companionActive && surface !== "post" && companionMode !== "slim"))} onClick={companionActive && surface !== "post" ? focusCompanionRaziel : openRaziel} locked={razielLocked} />
-          <button type="button" onClick={openAttention} aria-label={feed.newCount > 0 ? `עכשיו · ${feed.newCount} חדשים` : "עכשיו"} aria-haspopup="dialog" aria-expanded={transientKind === TRANSIENT.ATTENTION}><NavigationIcon2029 name="now" /><small>עכשיו</small>{feed.newCount > 0 ? <span className="sod29-dock-unread" aria-hidden="true">{feed.newCount}</span> : null}</button>
+          <button type="button" onClick={research.elsResearchOperation?.task ? openWorkspace : openAttention} aria-label={research.elsResearchOperation?.task ? `עכשיו · ${research.elsResearchOperation.task.status === "RUNNING" ? "סורק" : "תוצאות"}` : feed.newCount > 0 ? `עכשיו · ${feed.newCount} חדשים` : "עכשיו"} aria-haspopup="dialog" aria-expanded={transientKind === (research.elsResearchOperation?.task ? TRANSIENT.WORKSPACE : TRANSIENT.ATTENTION)}><NavigationIcon2029 name="now" /><small>{research.elsResearchOperation?.task ? research.elsResearchOperation.task.status === "RUNNING" ? "סורק" : "תוצאות" : "עכשיו"}</small>{feed.newCount > 0 ? <span className="sod29-dock-unread" aria-hidden="true">{feed.newCount}</span> : null}</button>
           <button type="button" onClick={openTools} aria-label={ephemeralSelection ? "עוד · פעולות על הבחירה וכלים" : "עוד · פעולות וכלים"} aria-haspopup="dialog" aria-expanded={transientKind === TRANSIENT.TOOLS}><NavigationIcon2029 name="tools" /><small>עוד</small></button>
         </div> : <div className="sod29-command-island is-unified-bar" role="toolbar" aria-label="מסלול המחקר והפעולות הזמינות עכשיו" data-raziel-anchor="center" data-command-mode="tool" data-tool-owner={activeToolDock?.surface}>
           <div className="sod29-bar-zone is-context"><SystemToolDockActions2029 actions={activeToolDock.actions.slice(0, 2)} onInvoke={(action, trigger) => { setTransient(null); action.onSelect(trigger); }} /></div>
           <RazielOrb compact active={!razielLocked && (transientKind === TRANSIENT.RAZIEL || (companionActive && surface !== "post" && companionMode !== "slim"))} onClick={companionActive && surface !== "post" ? focusCompanionRaziel : openRaziel} locked={razielLocked} />
           <div className="sod29-bar-zone is-actions"><SystemToolDockActions2029 actions={activeToolDock.actions.slice(2, 4)} onInvoke={(action, trigger) => { setTransient(null); action.onSelect(trigger); }} />
-            <button type="button" onClick={() => { setTransient(null); setSystemDockMode(true); }} aria-label="פעולות המערכת"><NavigationIcon2029 name="tools" /><small>מערכת</small>{feed.newCount > 0 ? <span className="sod29-dock-unread" aria-hidden="true">{feed.newCount}</span> : null}</button>
+            <button type="button" onClick={() => { if (research.elsResearchOperation?.task) openTransient(TRANSIENT.WORKSPACE); else { setTransient(null); setSystemDockMode(true); } }} aria-label={research.elsResearchOperation?.task ? "פתח מעקב מחקר" : "פעולות המערכת"}><NavigationIcon2029 name="tools" /><small>{research.elsResearchOperation?.task ? research.elsResearchOperation.task.status === "RUNNING" ? "סורק" : "תוצאות" : "מערכת"}</small>{feed.newCount > 0 ? <span className="sod29-dock-unread" aria-hidden="true">{feed.newCount}</span> : null}</button>
           </div>
         </div>}
 

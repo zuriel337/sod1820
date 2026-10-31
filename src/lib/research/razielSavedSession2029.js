@@ -3,6 +3,7 @@
 // truth, conversation or database owner of its own.
 
 import { razielNavigationButton } from "../../components/experience2029/razielSessionSeam2029.js";
+import { projectSavedElsMatrixReading } from "./elsMatrixReadingSavedResult.js";
 
 export const RAZIEL_SAVED_SESSION_TYPE = "raziel_session";
 export const RAZIEL_SAVED_SESSION_SCHEMA = "raziel-saved-session-v1";
@@ -122,6 +123,11 @@ function normalizeMessage(message) {
   }
   const continuation = boundedObject(message.continuation, 30000);
   const evidenceSummary = boundedObject(message.evidenceSummary, 70000);
+  const elsSearchPlan = boundedObject(message.elsSearchPlan, 12000);
+  const elsMatrixReading = message.elsMatrixReading == null ? null
+    : projectSavedElsMatrixReading(message.elsMatrixReading, continuation?.contextSnapshot?.elsMatrixContext?.axis);
+  // Do not report a successful save that silently discarded the scan or attached it to another occurrence.
+  if (message.elsMatrixReading != null && !elsMatrixReading) return null;
   // An answer cannot simultaneously carry a link and await a number clarification.
   const navigationAction = !message.navigationClarify ? normalizeSavedNavigationAction(message.navigationAction) : null;
   const navigationClarify = !message.navigationAction ? normalizeSavedNavigationClarify(message.navigationClarify) : null;
@@ -135,6 +141,8 @@ function normalizeMessage(message) {
     sourceNames: normalizeSources(message.sourceNames),
     grounding: ["deterministic", "sourced", "interpretation"].includes(message.grounding) ? message.grounding : null,
     ...(evidenceSummary ? { evidenceSummary } : {}),
+    ...(elsSearchPlan ? { elsSearchPlan } : {}),
+    ...(elsMatrixReading ? { elsMatrixReading } : {}),
     ...(navigationAction ? { navigationAction } : {}),
     ...(navigationClarify ? { navigationClarify } : {}),
     viewMode: ["general", "landscape", "exploratory"].includes(message.viewMode) ? message.viewMode : null,

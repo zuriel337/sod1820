@@ -55,6 +55,7 @@ async function wire(page, counters) {
     if (request.method() === "OPTIONS") return route.fulfill({ status: 204, headers: CORS });
     if (url.pathname.endsWith("/functions/v1/ai-analyze")) {
       counters.ai += 1;
+      counters.requests.push(request.postDataJSON());
       return route.fulfill({ status: 200, contentType: "application/json", headers: CORS, body: JSON.stringify({ analysis: "תשובה רגילה מרזיאל.", intelligence_level: "fast" }) });
     }
     if (request.method() !== "GET" && request.method() !== "HEAD") return route.fulfill({ status: 200, contentType: "application/json", headers: CORS, body: "{}" });
@@ -91,7 +92,7 @@ test("built 2029 app: navigation turns are deterministic buttons with zero model
       const context = await browser.newContext({ viewport: { width, height: 960 }, reducedMotion: "reduce" });
       const page = await context.newPage();
       page.on("pageerror", (error) => errors.push(String(error)));
-      const counters = { ai: 0 };
+      const counters = { ai: 0, requests: [] };
       await wire(page, counters);
       await page.goto(`${base}/2029`);
       await page.locator(".sod29-root").waitFor();
@@ -147,11 +148,24 @@ test("built 2029 app: navigation turns are deterministic buttons with zero model
       await chat.getByText("תשובה רגילה מרזיאל.").waitFor();
       assert.equal(counters.ai, 1);
 
+      // Content comparisons stay in this same thread; a numeral inside a name is not a root.
+      for (const question of ["מה ההבדל בין מימד חמש לאור הגאולה?", "מה ההבדל בין סדרה 5 לערוץ הקהילה?"]) {
+        const before = counters.ai;
+        const response = page.waitForResponse(item => item.url().endsWith("/functions/v1/ai-analyze") && item.request().method() === "POST");
+        await ask(chat, question);
+        await response;
+        await chat.getByText("תשובה רגילה מרזיאל.", { exact: true }).nth(before).waitFor();
+        assert.equal(counters.ai, before + 1);
+        assert.equal(counters.requests.at(-1).subject, question);
+        assert.equal(counters.requests.at(-1).conversation_resolution ?? null, null);
+        assert.equal(counters.requests.at(-1).research_contract, "public-number-research-run-v1");
+      }
+
       // 7. the button navigates inside the app to the canonical page and closes the sheet
       await chat.locator('[data-raziel-navigation-action="number_page"]').first().click();
       await page.waitForURL(`${base}/2029/number/73`);
       assert.equal(new URL(page.url()).pathname, "/2029/number/73");
-      assert.equal(counters.ai, 1, "navigating does not call the model");
+      assert.equal(counters.ai, 3, "navigating does not call the model");
       await context.close();
     }
   } finally {

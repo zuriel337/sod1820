@@ -9,10 +9,12 @@ export const libraryDatabase = `
 export const SUPABASE_URL=location.origin;export const SUPABASE_ANON='fixture';
 window.__libraryRows=[];window.__libraryCalls=[];window.__libraryViewer='owner-a';
 window.__advancedCalls=[];
-export const supabase={functions:{async invoke(name,{body}){
+export const supabase={functions:{async invoke(name,{body,signal}){
  window.__advancedCalls.push({name,body});
+ if(signal)signal.addEventListener('abort',()=>{window.__advancedAborted=(window.__advancedAborted||0)+1;},{once:true});
  if(body.op==='page'&&window.__advancedHoldTerm===body.term)await new Promise(resolve=>{window.__releaseAdvanced=resolve;});
  if(body.op==='page'&&window.__advancedFailTerm===body.term)return {data:{error:'backend_error'},error:{message:'Edge Function returned a non-2xx status code',context:{status:503}}};
+ if(body.op==='page'&&window.__advancedEmptyTerm===body.term)return {data:{result:{contract:'els_search_page_v1',status:'EXECUTED_EMPTY',corpus_id:'fixture-torah',input:{normalized:body.term},hits:[],completion:{executed:true,returned_hits:0,has_more:false,truncated:false}}}};
  if(body.op==='page'&&body.term==='דפדוף'){
   const index=body.after_skip==null?0:body.after_skip-85;
   const skip=86+index,more=index<2;
@@ -57,14 +59,22 @@ export function libraryFixturePlugin() {
     'AuthContext.jsx': libraryAuth,
     'supabase.js': libraryDatabase,
     'ResearchProvider.jsx': `const research={context:null,updateResearchContext:()=>{}};export const useResearch=()=>research;`,
+    'RazielSessionMount2029.jsx': `import {normalizeElsRazielPlanningAction,deriveLockedElsSearchPlan} from '/src/lib/research/elsRazielPlanning.js';
+      window.__razielPlannerCalls=[];
+      const session={submitElsGuidedPlan:async({story,scope})=>{window.__razielPlannerCalls.push({story,scope});
+        const action=normalizeElsRazielPlanningAction({id:'els_guided_planning_v1',surface:'els',story,scope});
+        const plan=deriveLockedElsSearchPlan(action);return plan?{ok:true,response:{elsSearchPlan:plan}}:{ok:false,error:'invalid_plan'};}};
+      export const useOptionalRazielSession2029=()=>session;export default function Mount({children}){return children;}`,
     'Sod2029Shell.jsx': `import React from 'react';export default function Shell({children}){return React.createElement('main',{className:'sod29-root',style:{padding:16}},children);}
       export const FrameState=({title,children})=>React.createElement('section',null,React.createElement('h2',null,title),children);export const use2029Shell=()=>({});`,
-    'ElsNativeClassic2029.jsx': `import React,{useState,useEffect} from 'react';export default function Engine({matrix,researchLoad,researchProbe,onResearchProbeResult,formsPreviewRequest,onFormsPreviewResult,onSearchStart,onSaved}){
-      window.__libraryMatrix=matrix;window.__advancedLoad=researchLoad;const [query,setQuery]=useState('');
+    'ElsNativeClassic2029.jsx': `import React,{useState,useEffect} from 'react';export default function Engine({matrix,researchLoad,researchProbe,onResearchProbeResult,formsPreviewRequest,onFormsPreviewResult,onSearchStart,onSaved,advancedSearch,researchProfile,guidedProfile}){
+      window.__libraryMatrix=matrix;window.__advancedLoad=researchLoad;const [query,setQuery]=useState(''),[advanced,setAdvanced]=useState(false);
       useEffect(()=>{window.__libraryEngineMounts=(window.__libraryEngineMounts||0)+1;},[]);
       useEffect(()=>{if(researchProbe)onResearchProbeResult?.({requestId:researchProbe.requestId,ok:true,term:researchProbe.term,scope:researchProbe.scope,skip:researchProbe.skip,dir:1,start:50890,hitId:researchProbe.skip+'_1_50890',corpusId:'fixture-torah'});},[researchProbe?.requestId]);
       useEffect(()=>{if(formsPreviewRequest)onFormsPreviewResult?.({requestId:formsPreviewRequest.requestId,rows:formsPreviewRequest.expressions.filter(source=>source.includes(' ')).map(source=>({source,term:source.replace(/\\s/g,''),derivation:'A + B'}))});},[formsPreviewRequest?.requestId]);
       return React.createElement('div',{'data-fixture-matrix':matrix?.id||'new'},
+        researchProfile&&!guidedProfile?React.createElement('button',{onClick:()=>setAdvanced(true)},'חיפוש מתקדם'):null,
+        React.createElement('div',{hidden:!researchProfile||guidedProfile||!advanced},advancedSearch?React.cloneElement(advancedSearch,{active:researchProfile&&!guidedProfile&&advanced}):null),
         React.createElement('input',{'aria-label':'טיוטת חיפוש',value:query,onChange:e=>setQuery(e.target.value)}),
         React.createElement('button',{onClick:onSearchStart},'חיפוש לדוגמה'),
         React.createElement('button',{onClick:onSaved},'שמירה לדוגמה'));}`,

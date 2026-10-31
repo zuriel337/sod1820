@@ -1,0 +1,135 @@
+{
+  "_fixture": {
+    "name": "incomplete-max-tokens",
+    "is_test_fixture": true,
+    "source": "recorded EXP-18 run C3 (window, model answer, engine replays) served through fakes; the provider is a test double, not Fable",
+    "note": "a real reading has is_test_fixture:false and provider.live_model_call:true"
+  },
+  "response": {
+    "contract": "els_matrix_reading_v1",
+    "ok": true,
+    "model": {
+      "id": "claude-fable-5-1",
+      "verified_available": true,
+      "verified_at": "2026-10-29T10:00:30.000Z",
+      "source": "checked before the batch was created"
+    },
+    "job": {
+      "batch_id": "msgbatch_test01",
+      "created_at": "2026-10-29T10:00:00.000Z",
+      "expires_at": "2026-11-12T10:00:00.000Z",
+      "id": "00000000-0000-4000-9000-000000000001"
+    },
+    "request": {
+      "instruction": "general_v2_axis_marked_unnamed",
+      "sha256": "bf11fd473c12d23a396c4510f9dc10acc2a79e947e4c50c2e86e9dd05557ee34",
+      "lock_sha256": "2c67e34a2df753512cd7a33772ddbeac9fcbd24726d62fef479ecf2b45d307fa",
+      "window_sha256": "b188c130a813c3b7df8190f62eea35f08f153ac20efeb3e321adf380134e60e8",
+      "cap": 25
+    },
+    "axis": {
+      "term": "קולומביה",
+      "scope": "torah",
+      "skip": 4545,
+      "dir": 1,
+      "start": 248765,
+      "verification_state": "MATCH",
+      "occurrence_id": "els:0b022e8eef6f9c16:קולומביה:4545:1:248765",
+      "corpus_id": "0b022e8eef6f9c16"
+    },
+    "estimate": {
+      "upper_bound_usd": 1.7054,
+      "expected_usd": {
+        "low": 0.3998,
+        "high": 0.4927
+      },
+      "input_tokens": 16858
+    },
+    "notes": [
+      "verification = the letters at the claimed positions and (for skip >= 2) a replay in the canonical ELS engine; it is not meaning, and random windows give findings of the same kind",
+      "the model's notes and readings are UNVERIFIED_INTERPRETATION; AI does not canonicalize or publish",
+      "the cap on proposals is an output cap, not proof that nothing else exists in the window",
+      "experimental, admin only; no credits charged; no refund promised"
+    ],
+    "timing": {
+      "created_at": "2026-10-29T10:00:00.000Z",
+      "ended_at": "2026-10-29T10:03:09.000Z",
+      "elapsed_ms": 189000
+    },
+    "cost": {
+      "usd": 1.68429,
+      "ils": {
+        "amount": 5.0697,
+        "currency": "ILS",
+        "status": "ESTIMATED",
+        "fx": {
+          "ils_per_usd": 3.01,
+          "basis": "API_PRICING_RECORDED_NOT_VERIFIED_CURRENT",
+          "effective_at": "2026-09-01",
+          "source_ref": "api_pricing:pricing-row-1"
+        }
+      },
+      "list_price_parts_usd": {
+        "input": 0.16858,
+        "cacheWrite": 0,
+        "cacheRead": 0,
+        "output": 3.2
+      },
+      "batch_factor": 0.5,
+      "provider_currency": "USD",
+      "basis": "list prices, Message Batches at 50%; from the usage object; not an invoice",
+      "certainty": "ESTIMATED_FROM_USAGE_AND_LIST_PRICES",
+      "logged": true,
+      "ai_token_log_ref": "msgbatch_test01"
+    },
+    "output": {
+      "stop_reason": "max_tokens",
+      "output_tokens": 64000,
+      "thinking_tokens": 63990,
+      "input_tokens": 16858
+    },
+    "state": "INCOMPLETE",
+    "reason": "max_tokens",
+    "continuation_required": true,
+    "findings": [],
+    "summary": null,
+    "note": "the answer was cut off; nothing from it is shown; the cost was incurred",
+    "experimental": {
+      "admin_only": true,
+      "credits_charged": false,
+      "note": "experimental starting values (33x41, cap 60) are not fixed rules"
+    },
+    "provider": {
+      "name": "anthropic",
+      "route": "ai-analyze (the existing Raziel route)",
+      "kind": "test_double",
+      "live_model_call": false
+    },
+    "is_test_fixture": true,
+    "recovered": false
+  },
+  "raziel_answer": "הקריאה לא הושלמה: התשובה נקטעה (max_tokens). לא מוצגים ממצאים.\nהציר: קולומביה · דילוג 4545 · קדימה · התחלה 248765 (אומת במנוע הקנוני).\nזמן ריצה: 3:09 דקות. עלות שנגרמה: $1.68 (≈ ₪5.07, הערכה; לא חשבונית).\nהמודל הגיע לתקרת הפלט שלו לפני שסיים; חלון או תקרת הצעות קטנים יותר עשויים להסתיים (בניסויים תקרה של 25 הצעות הסתיימה בלי קטיעה), אך אין הבטחה.\nלא חויבו קרדיטים; החזר אוטומטי לא נבדק ואינו מובטח.",
+  "thread_message": {
+    "role": "raziel",
+    "text": "הקריאה לא הושלמה: התשובה נקטעה (max_tokens). לא מוצגים ממצאים.\nהציר: קולומביה · דילוג 4545 · קדימה · התחלה 248765 (אומת במנוע הקנוני).\nזמן ריצה: 3:09 דקות. עלות שנגרמה: $1.68 (≈ ₪5.07, הערכה; לא חשבונית).\nהמודל הגיע לתקרת הפלט שלו לפני שסיים; חלון או תקרת הצעות קטנים יותר עשויים להסתיים (בניסויים תקרה של 25 הצעות הסתיימה בלי קטיעה), אך אין הבטחה.\nלא חויבו קרדיטים; החזר אוטומטי לא נבדק ואינו מובטח.",
+    "level": "deep",
+    "question": "קרא את המטריצה סביב המופע שבחרתי",
+    "turnId": "example-turn",
+    "continuation": null,
+    "sourceNames": [],
+    "grounding": "interpretation",
+    "elsMatrixReading": "(the bounded copy of `response` that the session keeps on the message: same keys, strings cut at 700 characters, at most 120 findings)"
+  },
+  "thread_message_keys": [
+    "role",
+    "text",
+    "level",
+    "question",
+    "turnId",
+    "continuation",
+    "sourceNames",
+    "grounding",
+    "elsMatrixReading"
+  ],
+  "thread_message_reading_state": "INCOMPLETE"
+}

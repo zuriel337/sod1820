@@ -4,6 +4,7 @@ import { runElsAdaptiveScan } from "./els2029AdaptiveScanner.js";
 export const ELS_AUTOMATIC_PLAN_CONTRACT = "els_automatic_research_plan_v1";
 export const ELS_RESEARCH_BRIEF_CONTRACT = "els_research_brief_v1";
 export const ELS_CIPHER_DISCOVERY_PLAN_CONTRACT = "els_cipher_discovery_plan_v1";
+export const ELS_RELATIONSHIP_PLAN_CONTRACT = "els_relationship_research_plan_v1";
 export const ELS_GUIDED_PLAN_SUMMARY_CONTRACT = "els_guided_discovery_plan_summary_v1";
 export const ELS_GUIDED_SEARCH_STRATEGY_CONTRACT = "els_guided_search_strategy_v1";
 export const ELS_GUIDED_OCCURRENCE_COVERAGE_CONTRACT = "els_guided_occurrence_coverage_v1";
@@ -36,16 +37,47 @@ const briefPhrase = value => String(value || "").normalize("NFKD").replace(HEBRE
 const briefWords = value => briefPhrase(value).split(" ").filter(Boolean);
 const meaningfulBriefWord = word => canonicalKey(word).length >= 3 && !BRIEF_STOP_WORDS.has(word);
 
+// Restore the existing explicit primary-to-target planning contract; it does not execute a search.
+export function prepareElsRelationshipResearchPlan({ primaryTerm = "", secondTerm = "", additionalTerms = "", scope = "torah", radius = 18 } = {}) {
+  const primary = briefPhrase(primaryTerm), second = briefPhrase(secondTerm);
+  const additional = (Array.isArray(additionalTerms) ? additionalTerms : String(additionalTerms || "").split(/[,;\n]+/)).map(briefPhrase).filter(Boolean);
+  const validate = (term, label) => {
+    const length = canonicalKey(term).length;
+    if (!term || length < 2) return `${label} צריך לכלול לפחות שתי אותיות עבריות.`;
+    if (length > 16) return `${label} ארוך מדי. מחקר קשרים מיועד למילה או ביטוי קצר של עד 16 אותיות.`;
+    return null;
+  };
+  const primaryError = validate(primary, "הציר הראשי");
+  if (primaryError) return { error: primaryError };
+  if (!second && !additional.length) return { error: "הוסיפו שם משפחה, ציר שני או שם נוסף אחד לפחות." };
+  if (second) { const error = validate(second, "הציר השני"); if (error) return { error }; }
+  if (additional.length > 6) return { error: "אפשר להוסיף עד שישה שמות או צירים נוספים בכל תוכנית." };
+  for (const term of additional) { const error = validate(term, `״${term}״`); if (error) return { error }; }
+  const primaryKey = canonicalKey(primary), targets = [], seen = new Set([primaryKey]);
+  const add = (term, role, reason) => { const key = canonicalKey(term);if (!key || seen.has(key)) return;seen.add(key);targets.push({ term, canonicalTerm: key, role, reason }); };
+  if (second) add(second, "second-axis", "הציר השני שנכתב במפורש");
+  for (const term of additional) add(term, "additional-axis", "שם או ציר נוסף שנכתב במפורש");
+  if (!targets.length) return { error: "הצירים שנוספו זהים לציר הראשי. הוסיפו ציר אחר לבדיקה." };
+  const boundedRadius = Number.isSafeInteger(Number(radius)) ? Math.max(2, Math.min(20, Number(radius))) : 18;
+  const pairs = targets.map((target, index) => Object.freeze({ id: `pair:${primaryKey}:${target.canonicalTerm}`, rank: index + 1,
+    axis: primary, axisCanonical: primaryKey, term: target.term, termCanonical: target.canonicalTerm, targetRole: target.role,
+    reason: target.reason, searchKind: "cross", selected: index === 0 }));
+  return Object.freeze({ contract: ELS_RELATIONSHIP_PLAN_CONTRACT, status: "READY", mode: "primary-to-explicit-targets",
+    scope: scope === "tanakh" ? "tanakh" : "torah", radius: boundedRadius, primaryTerm: primary, pairs: Object.freeze(pairs),
+    pairLimit: 7, allPairsGenerated: false, explicitExecutionRequired: true, identityMerged: false, persisted: false, aiUsed: false, truthPromotion: false });
+}
+
 /**
  * A deterministic, local-only compiler from free context to bounded proposed terms.
  * It neither scans nor persists and it never promotes vocabulary into evidence.
  */
-export function prepareElsResearchBrief({ text, anchorTerm = "", requiredTerms = "", scope = "torah" } = {}) {
+export function prepareElsResearchBrief({ text, anchorTerm = "", requiredTerms = "", scope = "torah", minimumAnchorLetters = 3 } = {}) {
   const input = String(text || "");
+  const minimumAxisLetters = minimumAnchorLetters === 2 ? 2 : 3;
   if (input.length > MAX_BRIEF_LENGTH) return { error: "הסיפור ארוך מדי. חלקו אותו לשני הקשרים קצרים יותר." };
   const explicitAnchor = briefPhrase(anchorTerm);
   if (String(anchorTerm || "").length > 200) return { error: "הציר הראשי ארוך מדי. במצב הבסיסי בוחרים מילה או ביטוי קצר." };
-  if (explicitAnchor && canonicalKey(explicitAnchor).length < 3) return { error: "במצב הבסיסי הציר הראשי צריך לכלול לפחות שלוש אותיות." };
+  if (explicitAnchor && canonicalKey(explicitAnchor).length < minimumAxisLetters) return { error: `הציר הראשי צריך לכלול לפחות ${minimumAxisLetters === 2 ? "שתי" : "שלוש"} אותיות.` };
   if (canonicalKey(explicitAnchor).length > MAX_BASIC_AXIS_LENGTH) return { error: "הציר הראשי ארוך מ־12 אותיות. חיפוש ביטוי ארוך ומדויק זמין בהגדרות המתקדמות." };
   const requiredInput = String(requiredTerms || "");
   if (requiredInput.length > 1000) return { error: "רשימת המונחים המחייבים ארוכה מדי." };
@@ -54,7 +86,7 @@ export function prepareElsResearchBrief({ text, anchorTerm = "", requiredTerms =
   const anchorRows = new Map(), contextRows = new Map();
   const addAnchor = (term, kind, reason, priority, explicit = false) => {
     const label = briefPhrase(term), key = canonicalKey(label);
-    if (key.length < 3 || key.length > MAX_BASIC_AXIS_LENGTH) return;
+    if (key.length < minimumAxisLetters || key.length > MAX_BASIC_AXIS_LENGTH) return;
     const prior = anchorRows.get(key);
     const next = { id: `axis:${key}`, term: label, canonicalTerm: key, role: "axis", kind, reason, priority, explicit };
     if (!prior || explicit && !prior.explicit || priority > prior.priority) anchorRows.set(key, next);
@@ -162,8 +194,8 @@ const buildGuidedSearchStrategy = (plan, selectedAnchorId = null) => {
       stopOnStrongVerifiedStructure: true }),
     advanced: Object.freeze({ reverseForms: false, widerMatrix: false, extraOccurrenceBatch: false,
       broadVocabularyScan: false, requiresExplicitAction: true }),
-    modelCallsBeforeSearch: 0,
-    modelCallsTriggered: 0,
+    modelCallsBeforeSearch: Number.isSafeInteger(plan?.planningModelCalls) ? plan.planningModelCalls : 0,
+    modelCallsTriggered: Number.isSafeInteger(plan?.planningModelCalls) ? plan.planningModelCalls : 0,
     rawStoryIncluded: false,
     truthPromotion: false,
   });
@@ -175,8 +207,8 @@ export function projectElsGuidedSearchStrategy(plan, selectedAnchorId = null) {
   return buildGuidedSearchStrategy(plan, selectedAnchorId);
 }
 
-export function prepareElsCipherDiscoveryPlan({ text, anchorTerm = "", requiredTerms = "", scope = "torah" } = {}) {
-  const brief = prepareElsResearchBrief({ text, anchorTerm, requiredTerms, scope });
+export function prepareElsCipherDiscoveryPlan({ text, anchorTerm = "", requiredTerms = "", scope = "torah", minimumAnchorLetters = 3 } = {}) {
+  const brief = prepareElsResearchBrief({ text, anchorTerm, requiredTerms, scope, minimumAnchorLetters });
   if (brief.error) return brief;
   const selectedAxis = brief.anchorCandidates.find(candidate => candidate.id === brief.recommendedAnchorId);
   const axisKey = selectedAxis?.canonicalTerm || "";
@@ -213,6 +245,8 @@ export function summarizeElsGuidedDiscoveryPlan(plan, selectedAnchorId = null) {
     status: "PROPOSED_SEARCH_PLAN",
     scope: plan.scope,
     anchorTerm: anchor.term,
+    searchMode: plan.searchMode || "anchor_context",
+    axes: Object.freeze(Array.isArray(plan.axes) && plan.axes.length ? plan.axes.slice(0, 3) : [anchor.term]),
     targetTerms: Object.freeze(plan.contextCandidates.filter(candidate => candidate.selected).map(candidate => candidate.term).filter(Boolean).slice(0, 8)),
     occurrenceBatchSize: plan.limits.fullAxisOccurrences,
     maximumOccurrenceBatches: plan.limits.maximumOccurrenceBatches,
@@ -220,7 +254,7 @@ export function summarizeElsGuidedDiscoveryPlan(plan, selectedAnchorId = null) {
       laneOrder: Object.freeze(strategy.lanes.map(lane => lane.id)),
       localLanguageTrigger: strategy.lanes.find(lane => lane.id === "local-language")?.trigger || null,
       broadVocabularyScan: strategy.advanced.broadVocabularyScan }) : null,
-    modelCallsTriggered: 0,
+    modelCallsTriggered: Number.isSafeInteger(plan.planningModelCalls) ? plan.planningModelCalls : 0,
     rawStoryIncluded: false,
     evidencePromotion: false,
   });
