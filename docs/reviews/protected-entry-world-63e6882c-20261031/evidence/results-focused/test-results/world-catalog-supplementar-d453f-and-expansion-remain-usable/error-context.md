@@ -1,0 +1,656 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - generic [ref=e4]:
+    - generic [ref=e5]:
+      - banner [ref=e6]:
+        - generic [ref=e7]:
+          - button "פתח ניווט" [ref=e8] [cursor=pointer]:
+            - generic:
+              - img
+              - img
+          - generic [ref=e10]: העולם
+        - button "חיפוש" [ref=e11] [cursor=pointer]:
+          - generic [ref=e12] [cursor=pointer]: ⌕
+        - generic [ref=e13]:
+          - group "ערכת צבעים" [ref=e14]:
+            - 'button "מראה: לילה. בחר יום, קלף או לילה" [ref=e15] [cursor=pointer]':
+              - generic [ref=e16] [cursor=pointer]: ☾
+          - button "התחברות לאזור האישי" [ref=e17] [cursor=pointer]:
+            - img [ref=e19] [cursor=pointer]
+      - region "פס הגילויים החיים" [ref=e22]:
+        - generic [ref=e23]: ✦
+        - button "מסר שיהיה יותר חושך" [ref=e25] [cursor=pointer]:
+          - generic [ref=e26] [cursor=pointer]: מסר
+          - generic [ref=e27] [cursor=pointer]: שיהיה יותר חושך
+        - button "צמצם את פס הגילויים" [ref=e28] [cursor=pointer]: −
+        - button "השהה תנועה" [ref=e29] [cursor=pointer]: השהה
+    - main [ref=e31]:
+      - generic [ref=e32]:
+        - img [ref=e35]
+        - generic [ref=e39]:
+          - heading "העולם" [level=1] [ref=e40]
+          - group [ref=e41]
+      - region "כניסה לעולם" [ref=e43]:
+        - generic [ref=e44]:
+          - generic [ref=e45]: SOD1820 · עולם של חיבורים
+          - heading "מפת הידע של SOD1820" [level=2] [ref=e46]
+          - paragraph [ref=e47]: מספרים, מילים, אנשים, מקורות ותמונות מחוברים לפי קשרים מתועדים.
+          - button "חיפוש מספר או ביטוי" [ref=e48] [cursor=pointer]
+        - navigation "דרכים לגלות את העולם" [ref=e49]:
+          - button "התחלה מעט מהעולם, במקום אחד" [ref=e50] [cursor=pointer]:
+            - strong [ref=e51] [cursor=pointer]: התחלה
+            - generic [ref=e52] [cursor=pointer]: מעט מהעולם, במקום אחד
+          - button "מה חדש העדכונים האחרונים לפי זמן" [ref=e53] [cursor=pointer]:
+            - strong [ref=e54] [cursor=pointer]: מה חדש
+            - generic [ref=e55] [cursor=pointer]: העדכונים האחרונים לפי זמן
+          - button "נושאים וחיבורים לראות מה נפגש סביב רעיון" [pressed] [ref=e56] [cursor=pointer]:
+            - strong [ref=e57] [cursor=pointer]: נושאים וחיבורים
+            - generic [ref=e58] [cursor=pointer]: לראות מה נפגש סביב רעיון
+          - button "אנשים ומקורות לפתוח חומר לפי מי ומאיפה" [ref=e59] [cursor=pointer]:
+            - strong [ref=e60] [cursor=pointer]: אנשים ומקורות
+            - generic [ref=e61] [cursor=pointer]: לפתוח חומר לפי מי ומאיפה
+          - button "לפי סוג שפות, צפנים, מדיה, זמן וספרים" [ref=e62] [cursor=pointer]:
+            - strong [ref=e63] [cursor=pointer]: לפי סוג
+            - generic [ref=e64] [cursor=pointer]: שפות, צפנים, מדיה, זמן וספרים
+          - button "מסעות להמשיך בדרך מחקר שמורה" [ref=e65] [cursor=pointer]:
+            - strong [ref=e66] [cursor=pointer]: מסעות
+            - generic [ref=e67] [cursor=pointer]: להמשיך בדרך מחקר שמורה
+      - region "סיפור המטוס וכיווני הגילוי" [ref=e68]:
+        - generic [ref=e69]:
+          - button "הבית" [ref=e70] [cursor=pointer]
+          - generic [ref=e71]: /
+          - generic [ref=e72]: סיפור המטוס בעולם
+        - generic [ref=e74]:
+          - generic [ref=e75]: רמזי גאולה · מתוך המקור
+          - heading "לאן סיפור המטוס מוביל?" [level=2] [ref=e76]
+          - paragraph [ref=e77]: הסיפור והצילום מובילים אל חיבורים מתועדים, אל המקור ואל שכבות המחקר הקשורות אליו.
+          - paragraph [ref=e78]:
+            - strong [ref=e79]: 787 · השנה, החג וההודיה.
+            - text: לפי קריאת המערכת, המפגש בין השנה המסוימת, ״ושמחת בחגך״ ונוסח ההודיה מאיר את סיפור ההצלה בכמה רבדים. זו קריאה פרשנית של החיבור, ולא עדות שהברכה נאמרה בטיסה.
+          - generic [ref=e80]:
+            - generic "קטגוריות הפוסט" [ref=e81]:
+              - link "רמזים חזקים" [ref=e82] [cursor=pointer]:
+                - /url: /2029/posts?category=%D7%A8%D7%9E%D7%96%D7%99%D7%9D%20%D7%97%D7%96%D7%A7%D7%99%D7%9D
+              - link "תיעוד אירועים" [ref=e83] [cursor=pointer]:
+                - /url: /2029/posts?category=%D7%AA%D7%99%D7%A2%D7%95%D7%93%20%D7%90%D7%99%D7%A8%D7%95%D7%A2%D7%99%D7%9D
+            - generic [ref=e84]: FZ1073
+            - generic [ref=e85]: פורסם באתר · י״ט בתשרי · 30.09.2026
+          - button "לקריאת פוסט המטוס" [ref=e87] [cursor=pointer]:
+            - text: לקריאת פוסט המטוס
+            - generic [ref=e88] [cursor=pointer]: ←
+        - generic "שלושה כיווני גילוי" [ref=e89]:
+          - button "הודו האנשים והמקומות צילום המקור מזהה את הקפטן כאזרח הודי. מכאן נפתח התיעוד ההיסטורי של הודו. פתיחת המקורות ←" [ref=e90] [cursor=pointer]:
+            - img [ref=e92] [cursor=pointer]
+            - generic [ref=e95] [cursor=pointer]: הודו
+            - strong [ref=e96] [cursor=pointer]: האנשים והמקומות
+            - generic [ref=e97] [cursor=pointer]: צילום המקור מזהה את הקפטן כאזרח הודי. מכאן נפתח התיעוד ההיסטורי של הודו.
+            - emphasis [ref=e98] [cursor=pointer]: פתיחת המקורות ←
+          - button "1073 · 718 המספר והזמן מספר הטיסה, שני נוסחי תאריך והקריאה שמחברת אותם לשביעי באוקטובר. פתיחת המקורות ←" [ref=e99] [cursor=pointer]:
+            - img [ref=e101] [cursor=pointer]
+            - generic [ref=e104] [cursor=pointer]: 1073 · 718
+            - strong [ref=e105] [cursor=pointer]: המספר והזמן
+            - generic [ref=e106] [cursor=pointer]: מספר הטיסה, שני נוסחי תאריך והקריאה שמחברת אותם לשביעי באוקטובר.
+            - emphasis [ref=e107] [cursor=pointer]: פתיחת המקורות ←
+          - button "73 חכמה וירושלים חכמה מופיעה בסרטון. המילה נפתחת בשיטות שונות, לצד צילומי המקור מירושלים. פתיחת המקורות ←" [ref=e108] [cursor=pointer]:
+            - img [ref=e110] [cursor=pointer]:
+              - generic [ref=e111] [cursor=pointer]: "123"
+            - generic [ref=e112] [cursor=pointer]: "73"
+            - strong [ref=e113] [cursor=pointer]: חכמה וירושלים
+            - generic [ref=e114] [cursor=pointer]: חכמה מופיעה בסרטון. המילה נפתחת בשיטות שונות, לצד צילומי המקור מירושלים.
+            - emphasis [ref=e115] [cursor=pointer]: פתיחת המקורות ←
+        - group [ref=e116]
+      - region "תמונות שפותחות חיבורים" [ref=e118]:
+        - generic [ref=e119]:
+          - generic [ref=e120]: מה מתחבר
+          - heading "תמונה אחת יכולה לפתוח דרך." [level=2] [ref=e121]
+          - paragraph [ref=e122]: תיעוד מהגלריות, הסבר של המחבר וקריאה שאפשר להמשיך ממנה למקור ולמספר.
+        - generic [ref=e123]:
+          - article [ref=e124]:
+            - generic [ref=e125]:
+              - 'button "הגדלת המקור: הודו · 14 ו־45" [ref=e126]':
+                - 'img "הגדלת המקור: הודו · 14 ו־45" [ref=e127]'
+              - generic [ref=e128]:
+                - button "שתף קישור לתמונה" [ref=e129]:
+                  - img [ref=e130]
+                - status [ref=e135]
+            - generic [ref=e136]:
+              - heading "הודו · 14 ו־45" [level=3] [ref=e137]
+              - paragraph [ref=e138]: מהתיעוד בהודו אל דוד, גאולה ורכבת המים.
+              - link "לפתוח את החיבור ←" [ref=e139] [cursor=pointer]:
+                - /url: /world#world-discovery-rails--india-health
+          - article [ref=e140]:
+            - generic [ref=e141]:
+              - 'button "הגדלת המקור: 1237 · וראית את אחרי" [ref=e142]':
+                - 'img "הגדלת המקור: 1237 · וראית את אחרי" [ref=e143]'
+              - generic [ref=e144]:
+                - button "שתף קישור לתמונה" [ref=e145]:
+                  - img [ref=e146]
+                - status [ref=e151]
+            - generic [ref=e152]:
+              - heading "1237 · וראית את אחרי" [level=3] [ref=e153]
+              - paragraph [ref=e154]: מביטוי מצולם אל התגלות וסיפור המועמדות.
+              - link "לפתוח את החיבור ←" [ref=e155] [cursor=pointer]:
+                - /url: /world#world-discovery-wall--see-my-back
+          - article [ref=e156]:
+            - generic [ref=e157]:
+              - 'button "הגדלת המקור: 424 · מהכותל אל טראמפ" [ref=e158]':
+                - 'img "הגדלת המקור: 424 · מהכותל אל טראמפ" [ref=e159]'
+              - generic [ref=e160]:
+                - button "שתף קישור לתמונה" [ref=e161]:
+                  - img [ref=e162]
+                - status [ref=e167]
+            - generic [ref=e168]:
+              - heading "424 · מהכותל אל טראמפ" [level=3] [ref=e169]
+              - paragraph [ref=e170]: השעה, השם וההקשרים שכתב המחבר.
+              - link "לפתוח את החיבור ←" [ref=e171] [cursor=pointer]:
+                - /url: /world#world-discovery-wall--wall-clock
+          - article [ref=e172]:
+            - generic [ref=e173]:
+              - 'button "הגדלת המקור: 73 · לפתוח את החכמה" [ref=e174]':
+                - 'img "הגדלת המקור: 73 · לפתוח את החכמה" [ref=e175]'
+              - generic [ref=e176]:
+                - button "שתף קישור לתמונה" [ref=e177]:
+                  - img [ref=e178]
+                - status [ref=e183]
+            - generic [ref=e184]:
+              - heading "73 · לפתוח את החכמה" [level=3] [ref=e185]
+              - paragraph [ref=e186]: מאותה מילה אל המילויים והמקורות המחוברים.
+              - link "לפתוח את החיבור ←" [ref=e187] [cursor=pointer]:
+                - /url: /world#world-discovery-wisdom-set--wisdom-methods
+        - paragraph [ref=e188]: אלו קריאות מחוברות בחומר קיים. בכל תחנה נשמרים המקור, הכיתוב והדרך לגלריה; אפשר לפתוח את החישוב ולהמשיך למסע אישי.
+      - region "עיון לפי נושאים וחיבורים" [ref=e189]:
+        - generic [ref=e190]:
+          - generic [ref=e191]:
+            - generic [ref=e192]: עיון לפי נושא
+            - heading "לראות מה נפגש סביב רעיון." [level=2] [ref=e193]
+            - paragraph [ref=e194]: נושא הוא תחום רחב. התכנסות מסמנת כמה מסלולים שנפגשים בתוכו; היא אינה ציון אמת.
+          - generic [ref=e195]: 204 כרטיסים ציבוריים
+        - generic [ref=e196]:
+          - generic [ref=e197]:
+            - generic [ref=e198]: חיפוש בנושאים ובחיבורים
+            - textbox "חיפוש בנושאים ובחיבורים" [ref=e199]
+          - group "סינון נושאים וחיבורים לפי יוצר" [ref=e200]:
+            - button "הכול" [pressed] [ref=e201] [cursor=pointer]
+            - button "צבי (OPOC)" [ref=e202] [cursor=pointer]
+            - button "שמעון חיימוב" [ref=e203] [cursor=pointer]
+        - generic [ref=e204]:
+          - generic [ref=e205]:
+            - 'link "התכנסות עטרת תפארתכם = 1820 — הופעות שם הוי״ה בתורה הכתר שמתגלה כעטרה במציאות — הובא ע״י צבי מספרי הכרטיס: בולטים קודם לגלות את החיבורים ←" [ref=e206] [cursor=pointer]':
+              - /url: /topic/ateret-tiferetchem-1820
+              - generic [ref=e208] [cursor=pointer]: התכנסות
+              - strong [ref=e209] [cursor=pointer]: עטרת תפארתכם = 1820 — הופעות שם הוי״ה בתורה
+              - paragraph [ref=e210] [cursor=pointer]: הכתר שמתגלה כעטרה במציאות — הובא ע״י צבי
+              - 'generic "מספרי הכרטיס: בולטים קודם" [ref=e211] [cursor=pointer]':
+                - generic [ref=e212] [cursor=pointer]: "1820"
+                - generic [ref=e213] [cursor=pointer]: "786"
+              - generic [ref=e214] [cursor=pointer]: לגלות את החיבורים ←
+            - list "מדדי הכרטיס" [ref=e216]:
+              - listitem [ref=e217]:
+                - generic [ref=e218]: איכות
+                - img "דירוג איכות 5 מתוך 5" [ref=e219]: ★★★★★
+              - listitem [ref=e220]:
+                - generic [ref=e221]: חוזק
+                - generic "חוזק התכנסות 95 מתוך 100" [ref=e224]: "95"
+              - listitem [ref=e225]:
+                - button "מה המדדים האלה אומרים?" [ref=e226] [cursor=pointer]: "?"
+          - generic [ref=e227]:
+            - 'link "התכנסות חרבות ברזל = בראשית ברא אלהים = 1202 · התגלות המשיח שם המלחמה (מסתתר), יום פרוצה כ״ב בתשרי תשפ״ד (מסתתר), והפסוק שנקרא באותו שמחת-תורה — כולם 1202 = התגלות משיח. מספרי הכרטיס: בולטים קודם לגלות את החיבורים ←" [ref=e228] [cursor=pointer]':
+              - /url: /topic/charvot-barzel-1202
+              - generic [ref=e230] [cursor=pointer]: התכנסות
+              - strong [ref=e231] [cursor=pointer]: חרבות ברזל = בראשית ברא אלהים = 1202 · התגלות המשיח
+              - paragraph [ref=e232] [cursor=pointer]: שם המלחמה (מסתתר), יום פרוצה כ״ב בתשרי תשפ״ד (מסתתר), והפסוק שנקרא באותו שמחת-תורה — כולם 1202 = התגלות משיח.
+              - 'generic "מספרי הכרטיס: בולטים קודם" [ref=e233] [cursor=pointer]':
+                - generic [ref=e234] [cursor=pointer]: "1202"
+                - generic [ref=e235] [cursor=pointer]: "776"
+                - generic [ref=e236] [cursor=pointer]: "878"
+              - generic [ref=e237] [cursor=pointer]: לגלות את החיבורים ←
+            - list "מדדי הכרטיס" [ref=e239]:
+              - listitem [ref=e240]:
+                - generic [ref=e241]: איכות
+                - generic [ref=e242]: לא דורג
+              - listitem [ref=e243]:
+                - generic [ref=e244]: חוזק
+                - generic "חוזק התכנסות 92 מתוך 100" [ref=e247]: "92"
+              - listitem [ref=e248]:
+                - button "מה המדדים האלה אומרים?" [ref=e249] [cursor=pointer]: "?"
+          - generic [ref=e250]:
+            - 'link "התכנסות 644 — התכנסות מאגר (80 ביטויים) מספרי הכרטיס: בולטים קודם לגלות את החיבורים ←" [ref=e251] [cursor=pointer]':
+              - /url: /topic/gapfill-644
+              - generic [ref=e253] [cursor=pointer]: התכנסות
+              - strong [ref=e254] [cursor=pointer]: 644 — התכנסות מאגר (80 ביטויים)
+              - generic [ref=e256] [cursor=pointer]: "644"
+              - generic [ref=e257] [cursor=pointer]: לגלות את החיבורים ←
+            - list "מדדי הכרטיס" [ref=e259]:
+              - listitem [ref=e260]:
+                - generic [ref=e261]: איכות
+                - generic [ref=e262]: לא דורג
+              - listitem [ref=e263]:
+                - generic [ref=e264]: חוזק
+                - generic "חוזק התכנסות 90 מתוך 100" [ref=e267]: "90"
+              - listitem [ref=e268]:
+                - button "מה המדדים האלה אומרים?" [ref=e269] [cursor=pointer]: "?"
+          - generic [ref=e270]:
+            - 'link "התכנסות צבי (OPOC) 98 — עִכּוּב · ההשהיה שלפני הגאולה מספרי הכרטיס: בולטים קודם לגלות את החיבורים ←" [ref=e271] [cursor=pointer]':
+              - /url: /topic/98-ikuv-geula
+              - generic [ref=e272] [cursor=pointer]:
+                - generic [ref=e273] [cursor=pointer]: התכנסות
+                - generic [ref=e274] [cursor=pointer]: צבי (OPOC)
+              - strong [ref=e275] [cursor=pointer]: 98 — עִכּוּב · ההשהיה שלפני הגאולה
+              - generic [ref=e277] [cursor=pointer]: "98"
+              - generic [ref=e278] [cursor=pointer]: לגלות את החיבורים ←
+            - list "מדדי הכרטיס" [ref=e280]:
+              - listitem [ref=e281]:
+                - generic [ref=e282]: איכות
+                - generic [ref=e283]: לא דורג
+              - listitem [ref=e284]:
+                - generic [ref=e285]: חוזק
+                - generic "חוזק התכנסות 90 מתוך 100" [ref=e288]: "90"
+              - listitem [ref=e289]:
+                - button "מה המדדים האלה אומרים?" [ref=e290] [cursor=pointer]: "?"
+          - generic [ref=e291]:
+            - 'link "התכנסות ציר המצור → 2212 · י׳ טבת שלוש מעצמות שנסגרות על ישראל כמו מצור, מתכנסות בדיוק על המספר של היום שבו התחיל המצור על ירושלים — שהוא עצמו «זמן גאולתנו». המצור אינו הסוף;… מספרי הכרטיס: בולטים קודם לגלות את החיבורים ←" [ref=e292] [cursor=pointer]':
+              - /url: /topic/%D7%A6%D7%99%D7%A8-%D7%94%D7%9E%D7%A6%D7%95%D7%A8-2212
+              - generic [ref=e294] [cursor=pointer]: התכנסות
+              - strong [ref=e295] [cursor=pointer]: ציר המצור → 2212 · י׳ טבת
+              - paragraph [ref=e296] [cursor=pointer]: שלוש מעצמות שנסגרות על ישראל כמו מצור, מתכנסות בדיוק על המספר של היום שבו התחיל המצור על ירושלים — שהוא עצמו «זמן גאולתנו». המצור אינו הסוף;…
+              - 'generic "מספרי הכרטיס: בולטים קודם" [ref=e297] [cursor=pointer]':
+                - generic [ref=e298] [cursor=pointer]: "2212"
+                - generic [ref=e299] [cursor=pointer]: "669"
+                - generic [ref=e300] [cursor=pointer]: "663"
+                - generic [ref=e301] [cursor=pointer]: "666"
+              - generic [ref=e302] [cursor=pointer]: לגלות את החיבורים ←
+            - list "מדדי הכרטיס" [ref=e304]:
+              - listitem [ref=e305]:
+                - generic [ref=e306]: איכות
+                - img "דירוג איכות 5 מתוך 5" [ref=e307]: ★★★★★
+              - listitem [ref=e308]:
+                - generic [ref=e309]: חוזק
+                - generic "חוזק התכנסות 90 מתוך 100" [ref=e312]: "90"
+              - listitem [ref=e313]:
+                - button "מה המדדים האלה אומרים?" [ref=e314] [cursor=pointer]: "?"
+          - generic [ref=e315]:
+            - 'link "התכנסות עצירות — העיכוב שהוא הריון הגאולה עצירות = 776 = ביאת המשיח = שלמות. עובדה במנוע; העצירה מתגלה כהריון של הישועה, לא כהיעדרה. מספרי הכרטיס: בולטים קודם לגלות את החיבורים ←" [ref=e316] [cursor=pointer]':
+              - /url: /topic/atzirut-hageula
+              - generic [ref=e318] [cursor=pointer]: התכנסות
+              - strong [ref=e319] [cursor=pointer]: עצירות — העיכוב שהוא הריון הגאולה
+              - paragraph [ref=e320] [cursor=pointer]: עצירות = 776 = ביאת המשיח = שלמות. עובדה במנוע; העצירה מתגלה כהריון של הישועה, לא כהיעדרה.
+              - 'generic "מספרי הכרטיס: בולטים קודם" [ref=e321] [cursor=pointer]':
+                - generic [ref=e322] [cursor=pointer]: "776"
+                - generic [ref=e323] [cursor=pointer]: "254"
+                - generic [ref=e324] [cursor=pointer]: "878"
+                - generic [ref=e325] [cursor=pointer]: "1202"
+                - generic [ref=e326] [cursor=pointer]: "361"
+              - generic [ref=e327] [cursor=pointer]: לגלות את החיבורים ←
+            - list "מדדי הכרטיס" [ref=e329]:
+              - listitem [ref=e330]:
+                - generic [ref=e331]: איכות
+                - generic [ref=e332]: לא דורג
+              - listitem [ref=e333]:
+                - generic [ref=e334]: חוזק
+                - generic "חוזק התכנסות 90 מתוך 100" [ref=e337]: "90"
+              - listitem [ref=e338]:
+                - button "מה המדדים האלה אומרים?" [ref=e339] [cursor=pointer]: "?"
+          - generic [ref=e340]:
+            - 'link "התכנסות עשרה בטבת — יום התגלות המשיח משיח אינו שעון — הוא תֶּדֶר של גילוי. הצופן «משיח טבת עשירי» (דילוג 1820 בתורה) אינו נותן תאריך אלא מצביע על מצב: מלכות שבמלכות. אשכול שמתכנ… מספרי הכרטיס: בולטים קודם לגלות את החיבורים ←" [ref=e341] [cursor=pointer]':
+              - /url: /topic/tevet-asiri-hitgalut
+              - generic [ref=e343] [cursor=pointer]: התכנסות
+              - strong [ref=e344] [cursor=pointer]: עשרה בטבת — יום התגלות המשיח
+              - paragraph [ref=e345] [cursor=pointer]: "משיח אינו שעון — הוא תֶּדֶר של גילוי. הצופן «משיח טבת עשירי» (דילוג 1820 בתורה) אינו נותן תאריך אלא מצביע על מצב: מלכות שבמלכות. אשכול שמתכנ…"
+              - 'generic "מספרי הכרטיס: בולטים קודם" [ref=e346] [cursor=pointer]':
+                - generic [ref=e347] [cursor=pointer]: "1820"
+                - generic [ref=e348] [cursor=pointer]: "1359"
+                - generic [ref=e349] [cursor=pointer]: "604"
+                - generic [ref=e350] [cursor=pointer]: "2212"
+                - generic [ref=e351] [cursor=pointer]: "776"
+              - generic [ref=e352] [cursor=pointer]: לגלות את החיבורים ←
+            - list "מדדי הכרטיס" [ref=e354]:
+              - listitem [ref=e355]:
+                - generic [ref=e356]: איכות
+                - img "דירוג איכות 3 מתוך 5" [ref=e357]: ★★★☆☆
+              - listitem [ref=e358]:
+                - generic [ref=e359]: חוזק
+                - generic "חוזק התכנסות 90 מתוך 100" [ref=e362]: "90"
+              - listitem [ref=e363]:
+                - button "מה המדדים האלה אומרים?" [ref=e364] [cursor=pointer]: "?"
+          - generic [ref=e365]:
+            - 'link "התכנסות ירושלים = שומרים · 596·1156·2650·3210 (ארבע שיטות) ירושלים = שומרים בארבע שיטות גימטריה במקביל: רגיל 596 · גדול 1156 · ריבוע 2650 · ריבוע גדול 3210. עובדה גימטרית — לא פרשנות. מספרי הכרטיס: בולטים קודם לגלות את החיבורים ←" [ref=e366] [cursor=pointer]':
+              - /url: /topic/yerushalayim-shomrim
+              - generic [ref=e368] [cursor=pointer]: התכנסות
+              - strong [ref=e369] [cursor=pointer]: ירושלים = שומרים · 596·1156·2650·3210 (ארבע שיטות)
+              - paragraph [ref=e370] [cursor=pointer]: "ירושלים = שומרים בארבע שיטות גימטריה במקביל: רגיל 596 · גדול 1156 · ריבוע 2650 · ריבוע גדול 3210. עובדה גימטרית — לא פרשנות."
+              - 'generic "מספרי הכרטיס: בולטים קודם" [ref=e371] [cursor=pointer]':
+                - generic [ref=e372] [cursor=pointer]: "596"
+                - generic [ref=e373] [cursor=pointer]: "1156"
+                - generic [ref=e374] [cursor=pointer]: "2650"
+                - generic [ref=e375] [cursor=pointer]: "3210"
+              - generic [ref=e376] [cursor=pointer]: לגלות את החיבורים ←
+            - list "מדדי הכרטיס" [ref=e378]:
+              - listitem [ref=e379]:
+                - generic [ref=e380]: איכות
+                - img "דירוג איכות 5 מתוך 5" [ref=e381]: ★★★★★
+              - listitem [ref=e382]:
+                - generic [ref=e383]: חוזק
+                - generic "חוזק התכנסות 90 מתוך 100" [ref=e386]: "90"
+              - listitem [ref=e387]:
+                - button "מה המדדים האלה אומרים?" [ref=e388] [cursor=pointer]: "?"
+          - generic [ref=e389]:
+            - 'link "התכנסות 1234 — ממשלת משיח בן דוד · התגלות השכינה · קבלת שבת התכנסות אצורה · ערך 1234 (רגיל) · תמה משיחית מספרי הכרטיס: בולטים קודם לגלות את החיבורים ←" [ref=e390] [cursor=pointer]':
+              - /url: /topic/gapfill-1234
+              - generic [ref=e392] [cursor=pointer]: התכנסות
+              - strong [ref=e393] [cursor=pointer]: 1234 — ממשלת משיח בן דוד · התגלות השכינה · קבלת שבת
+              - paragraph [ref=e394] [cursor=pointer]: התכנסות אצורה · ערך 1234 (רגיל) · תמה משיחית
+              - generic [ref=e396] [cursor=pointer]: "1234"
+              - generic [ref=e397] [cursor=pointer]: לגלות את החיבורים ←
+            - list "מדדי הכרטיס" [ref=e399]:
+              - listitem [ref=e400]:
+                - generic [ref=e401]: איכות
+                - generic [ref=e402]: ערך לא תקין
+              - listitem [ref=e403]:
+                - generic [ref=e404]: חוזק
+                - generic "חוזק התכנסות 88 מתוך 100" [ref=e407]: "88"
+              - listitem [ref=e408]:
+                - button "מה המדדים האלה אומרים?" [ref=e409] [cursor=pointer]: "?"
+          - generic [ref=e410]:
+            - 'link "התכנסות 776 — הכל מתחבר כאן ביאת המשיח = שנת הויה = 776 — נקודת ההתכנסות שבה «הכל מתחבר»: «צירוף מקרים» = «נקודה אמצעית» = 776. מספרי הכרטיס: בולטים קודם לגלות את החיבורים ←" [ref=e411] [cursor=pointer]':
+              - /url: /topic/shnat-hageula-776
+              - generic [ref=e413] [cursor=pointer]: התכנסות
+              - strong [ref=e414] [cursor=pointer]: 776 — הכל מתחבר כאן
+              - paragraph [ref=e415] [cursor=pointer]: "ביאת המשיח = שנת הויה = 776 — נקודת ההתכנסות שבה «הכל מתחבר»: «צירוף מקרים» = «נקודה אמצעית» = 776."
+              - 'generic "מספרי הכרטיס: בולטים קודם" [ref=e416] [cursor=pointer]':
+                - generic [ref=e417] [cursor=pointer]: "776"
+                - generic [ref=e418] [cursor=pointer]: "358"
+                - generic [ref=e419] [cursor=pointer]: "424"
+                - generic [ref=e420] [cursor=pointer]: "137"
+                - generic [ref=e421] [cursor=pointer]: "37"
+              - generic [ref=e422] [cursor=pointer]: לגלות את החיבורים ←
+            - list "מדדי הכרטיס" [ref=e424]:
+              - listitem [ref=e425]:
+                - generic [ref=e426]: איכות
+                - img "דירוג איכות 3 מתוך 5" [ref=e427]: ★★★☆☆
+              - listitem [ref=e428]:
+                - generic [ref=e429]: חוזק
+                - generic "חוזק התכנסות 88 מתוך 100" [ref=e432]: "88"
+              - listitem [ref=e433]:
+                - button "מה המדדים האלה אומרים?" [ref=e434] [cursor=pointer]: "?"
+          - generic [ref=e435]:
+            - 'link "התכנסות הר הזיתים = מחזוריות · 677·92·344 (שלוש שיטות) הר הזיתים = מחזוריות בשלוש שיטות גימטריה במקביל: רגיל 677 · סידורי 92 · אתב״ש 344. צירוף מקרים מתמטי — או רמז שמזמין התבוננות? מספרי הכרטיס: בולטים קודם לגלות את החיבורים ←" [ref=e436] [cursor=pointer]':
+              - /url: /topic/har-hazeitim-machzoriut
+              - generic [ref=e438] [cursor=pointer]: התכנסות
+              - strong [ref=e439] [cursor=pointer]: הר הזיתים = מחזוריות · 677·92·344 (שלוש שיטות)
+              - paragraph [ref=e440] [cursor=pointer]: "הר הזיתים = מחזוריות בשלוש שיטות גימטריה במקביל: רגיל 677 · סידורי 92 · אתב״ש 344. צירוף מקרים מתמטי — או רמז שמזמין התבוננות?"
+              - 'generic "מספרי הכרטיס: בולטים קודם" [ref=e441] [cursor=pointer]':
+                - generic [ref=e442] [cursor=pointer]: "677"
+                - generic [ref=e443] [cursor=pointer]: "92"
+                - generic [ref=e444] [cursor=pointer]: "344"
+              - generic [ref=e445] [cursor=pointer]: לגלות את החיבורים ←
+            - list "מדדי הכרטיס" [ref=e447]:
+              - listitem [ref=e448]:
+                - generic [ref=e449]: איכות
+                - img "דירוג איכות 5 מתוך 5" [ref=e450]: ★★★★★
+              - listitem [ref=e451]:
+                - generic [ref=e452]: חוזק
+                - generic "חוזק התכנסות 88 מתוך 100" [ref=e455]: "88"
+              - listitem [ref=e456]:
+                - button "מה המדדים האלה אומרים?" [ref=e457] [cursor=pointer]: "?"
+          - generic [ref=e458]:
+            - 'link "התכנסות 112 · 1120 — איחוד השמות · משיח באתב״ש (×10) אלהים (86) + יהוה (26) = 112 — שני השמות מתאחדים. «יהוה אלהים» = 112 (רגיל), ובאתבש «משיח» = 112. הדין והרחמים נעשים אחד, וממנה מתגלה המשיח.… מספרי הכרטיס: בולטים קודם לגלות את החיבורים ←" [ref=e459] [cursor=pointer]':
+              - /url: /topic/ihud-hashemot-112
+              - generic [ref=e461] [cursor=pointer]: התכנסות
+              - strong [ref=e462] [cursor=pointer]: 112 · 1120 — איחוד השמות · משיח באתב״ש (×10)
+              - paragraph [ref=e463] [cursor=pointer]: אלהים (86) + יהוה (26) = 112 — שני השמות מתאחדים. «יהוה אלהים» = 112 (רגיל), ובאתבש «משיח» = 112. הדין והרחמים נעשים אחד, וממנה מתגלה המשיח.…
+              - 'generic "מספרי הכרטיס: בולטים קודם" [ref=e464] [cursor=pointer]':
+                - generic [ref=e465] [cursor=pointer]: "112"
+                - generic [ref=e466] [cursor=pointer]: "1120"
+                - generic [ref=e467] [cursor=pointer]: "86"
+                - generic [ref=e468] [cursor=pointer]: "26"
+                - generic [ref=e469] [cursor=pointer]: "358"
+              - generic [ref=e470] [cursor=pointer]: לגלות את החיבורים ←
+            - list "מדדי הכרטיס" [ref=e472]:
+              - listitem [ref=e473]:
+                - generic [ref=e474]: איכות
+                - img "דירוג איכות 3 מתוך 5" [ref=e475]: ★★★☆☆
+              - listitem [ref=e476]:
+                - generic [ref=e477]: חוזק
+                - generic "חוזק התכנסות 86 מתוך 100" [ref=e480]: "86"
+              - listitem [ref=e481]:
+                - button "מה המדדים האלה אומרים?" [ref=e482] [cursor=pointer]: "?"
+          - generic [ref=e483]:
+            - 'link "התכנסות 1010 — מפגש הצירים עשרות ביטויים נפגשים על 1010 — ובראשם החידוש של יניב: «מלחמת לינדזי גרהאם» (אותיות-לפני) = 1010, בדיוק כמו «ישראל ארהב אירן». מספרי הכרטיס: בולטים קודם לגלות את החיבורים ←" [ref=e484] [cursor=pointer]':
+              - /url: /topic/1010-%D7%9E%D7%A4%D7%92%D7%A9-%D7%94%D7%A6%D7%99%D7%A8%D7%99%D7%9D
+              - generic [ref=e486] [cursor=pointer]: התכנסות
+              - strong [ref=e487] [cursor=pointer]: 1010 — מפגש הצירים
+              - paragraph [ref=e488] [cursor=pointer]: "עשרות ביטויים נפגשים על 1010 — ובראשם החידוש של יניב: «מלחמת לינדזי גרהאם» (אותיות-לפני) = 1010, בדיוק כמו «ישראל ארהב אירן»."
+              - 'generic "מספרי הכרטיס: בולטים קודם" [ref=e489] [cursor=pointer]':
+                - generic [ref=e490] [cursor=pointer]: "1010"
+                - generic [ref=e491] [cursor=pointer]: "878"
+                - generic [ref=e492] [cursor=pointer]: "2588"
+                - generic [ref=e493] [cursor=pointer]: "588"
+                - generic [ref=e494] [cursor=pointer]: "5786"
+              - generic [ref=e495] [cursor=pointer]: לגלות את החיבורים ←
+            - list "מדדי הכרטיס" [ref=e497]:
+              - listitem [ref=e498]:
+                - generic [ref=e499]: איכות
+                - generic [ref=e500]: לא דורג
+              - listitem [ref=e501]:
+                - generic [ref=e502]: חוזק
+                - generic "חוזק התכנסות 82 מתוך 100" [ref=e505]: "82"
+              - listitem [ref=e506]:
+                - button "מה המדדים האלה אומרים?" [ref=e507] [cursor=pointer]: "?"
+          - generic [ref=e508]:
+            - 'link "התכנסות 2015 — התכנסות מאגר (52 ביטויים) מספרי הכרטיס: בולטים קודם לגלות את החיבורים ←" [ref=e509] [cursor=pointer]':
+              - /url: /topic/gapfill-2015
+              - generic [ref=e511] [cursor=pointer]: התכנסות
+              - strong [ref=e512] [cursor=pointer]: 2015 — התכנסות מאגר (52 ביטויים)
+              - generic [ref=e514] [cursor=pointer]: "2015"
+              - generic [ref=e515] [cursor=pointer]: לגלות את החיבורים ←
+            - list "מדדי הכרטיס" [ref=e517]:
+              - listitem [ref=e518]:
+                - generic [ref=e519]: איכות
+                - generic [ref=e520]: לא דורג
+              - listitem [ref=e521]:
+                - generic [ref=e522]: חוזק
+                - generic "חוזק התכנסות 82 מתוך 100" [ref=e525]: "82"
+              - listitem [ref=e526]:
+                - button "מה המדדים האלה אומרים?" [ref=e527] [cursor=pointer]: "?"
+          - generic [ref=e528]:
+            - 'link "התכנסות ציר הבבואה · 16→160→216 בבואה = זוג = 16 (השתקפות האחדות · הזוג האלוהי) · עץ = צלם = 160 (בצלם אלהים) · יראה = גבורה = ראיה = 216 (לראות את שלמות ירושלים). מספרי הכרטיס: בולטים קודם לגלות את החיבורים ←" [ref=e529] [cursor=pointer]':
+              - /url: /topic/tzir-bavua
+              - generic [ref=e531] [cursor=pointer]: התכנסות
+              - strong [ref=e532] [cursor=pointer]: ציר הבבואה · 16→160→216
+              - paragraph [ref=e533] [cursor=pointer]: בבואה = זוג = 16 (השתקפות האחדות · הזוג האלוהי) · עץ = צלם = 160 (בצלם אלהים) · יראה = גבורה = ראיה = 216 (לראות את שלמות ירושלים).
+              - 'generic "מספרי הכרטיס: בולטים קודם" [ref=e534] [cursor=pointer]':
+                - generic [ref=e535] [cursor=pointer]: "16"
+                - generic [ref=e536] [cursor=pointer]: "160"
+                - generic [ref=e537] [cursor=pointer]: "216"
+                - generic [ref=e538] [cursor=pointer]: "1600"
+                - generic [ref=e539] [cursor=pointer]: "36"
+              - generic [ref=e540] [cursor=pointer]: לגלות את החיבורים ←
+            - list "מדדי הכרטיס" [ref=e542]:
+              - listitem [ref=e543]:
+                - generic [ref=e544]: איכות
+                - img "דירוג איכות 5 מתוך 5" [ref=e545]: ★★★★★
+              - listitem [ref=e546]:
+                - generic [ref=e547]: חוזק
+                - generic "חוזק התכנסות 82 מתוך 100" [ref=e550]: "82"
+              - listitem [ref=e551]:
+                - button "מה המדדים האלה אומרים?" [ref=e552] [cursor=pointer]: "?"
+          - generic [ref=e553]:
+            - 'link "התכנסות 819 — דָּוִד מֶלֶךְ יִשְׂרָאֵל חַי וְקַיָּם מספרי הכרטיס: בולטים קודם לגלות את החיבורים ←" [ref=e554] [cursor=pointer]':
+              - /url: /topic/zahav-819
+              - generic [ref=e556] [cursor=pointer]: התכנסות
+              - strong [ref=e557] [cursor=pointer]: 819 — דָּוִד מֶלֶךְ יִשְׂרָאֵל חַי וְקַיָּם
+              - generic [ref=e559] [cursor=pointer]: "819"
+              - generic [ref=e560] [cursor=pointer]: לגלות את החיבורים ←
+            - list "מדדי הכרטיס" [ref=e562]:
+              - listitem [ref=e563]:
+                - generic [ref=e564]: איכות
+                - generic [ref=e565]: לא דורג
+              - listitem [ref=e566]:
+                - generic [ref=e567]: חוזק
+                - generic "חוזק התכנסות 80 מתוך 100" [ref=e570]: "80"
+              - listitem [ref=e571]:
+                - button "מה המדדים האלה אומרים?" [ref=e572] [cursor=pointer]: "?"
+          - generic [ref=e573]:
+            - 'link "התכנסות 1644 — זוהי שנת ביאת מלך המשיח · בית המקדש השלישי במועדו מספרי הכרטיס: בולטים קודם לגלות את החיבורים ←" [ref=e574] [cursor=pointer]':
+              - /url: /topic/zahav-1644
+              - generic [ref=e576] [cursor=pointer]: התכנסות
+              - strong [ref=e577] [cursor=pointer]: 1644 — זוהי שנת ביאת מלך המשיח · בית המקדש השלישי במועדו
+              - generic [ref=e579] [cursor=pointer]: "1644"
+              - generic [ref=e580] [cursor=pointer]: לגלות את החיבורים ←
+            - list "מדדי הכרטיס" [ref=e582]:
+              - listitem [ref=e583]:
+                - generic [ref=e584]: איכות
+                - generic [ref=e585]: לא דורג
+              - listitem [ref=e586]:
+                - generic [ref=e587]: חוזק
+                - generic "חוזק התכנסות 80 מתוך 100" [ref=e590]: "80"
+              - listitem [ref=e591]:
+                - button "מה המדדים האלה אומרים?" [ref=e592] [cursor=pointer]: "?"
+          - generic [ref=e593]:
+            - 'link "התכנסות 396 — התכנסות מאגר (50 ביטויים) מספרי הכרטיס: בולטים קודם לגלות את החיבורים ←" [ref=e594] [cursor=pointer]':
+              - /url: /topic/gapfill-396
+              - generic [ref=e596] [cursor=pointer]: התכנסות
+              - strong [ref=e597] [cursor=pointer]: 396 — התכנסות מאגר (50 ביטויים)
+              - generic [ref=e599] [cursor=pointer]: "396"
+              - generic [ref=e600] [cursor=pointer]: לגלות את החיבורים ←
+            - list "מדדי הכרטיס" [ref=e602]:
+              - listitem [ref=e603]:
+                - generic [ref=e604]: איכות
+                - generic [ref=e605]: לא דורג
+              - listitem [ref=e606]:
+                - generic [ref=e607]: חוזק
+                - generic "חוזק התכנסות 80 מתוך 100" [ref=e610]: "80"
+              - listitem [ref=e611]:
+                - button "מה המדדים האלה אומרים?" [ref=e612] [cursor=pointer]: "?"
+          - generic [ref=e613]:
+            - 'link "התכנסות צבי (OPOC) 448 — לְהַגִּיד בַּבֹּקֶר חַסְדֶּךָ מספרי הכרטיס: בולטים קודם לגלות את החיבורים ←" [ref=e614] [cursor=pointer]':
+              - /url: /topic/448-boker-chasdecha
+              - generic [ref=e615] [cursor=pointer]:
+                - generic [ref=e616] [cursor=pointer]: התכנסות
+                - generic [ref=e617] [cursor=pointer]: צבי (OPOC)
+              - strong [ref=e618] [cursor=pointer]: 448 — לְהַגִּיד בַּבֹּקֶר חַסְדֶּךָ
+              - generic [ref=e620] [cursor=pointer]: "448"
+              - generic [ref=e621] [cursor=pointer]: לגלות את החיבורים ←
+            - list "מדדי הכרטיס" [ref=e623]:
+              - listitem [ref=e624]:
+                - generic [ref=e625]: איכות
+                - generic [ref=e626]: לא דורג
+              - listitem [ref=e627]:
+                - generic [ref=e628]: חוזק
+                - generic "חוזק התכנסות 80 מתוך 100" [ref=e631]: "80"
+              - listitem [ref=e632]:
+                - button "מה המדדים האלה אומרים?" [ref=e633] [cursor=pointer]: "?"
+          - generic [ref=e634]:
+            - 'link "התכנסות 266 — התכנסות מאגר (48 ביטויים) מספרי הכרטיס: בולטים קודם לגלות את החיבורים ←" [ref=e635] [cursor=pointer]':
+              - /url: /topic/gapfill-266
+              - generic [ref=e637] [cursor=pointer]: התכנסות
+              - strong [ref=e638] [cursor=pointer]: 266 — התכנסות מאגר (48 ביטויים)
+              - generic [ref=e640] [cursor=pointer]: "266"
+              - generic [ref=e641] [cursor=pointer]: לגלות את החיבורים ←
+            - list "מדדי הכרטיס" [ref=e643]:
+              - listitem [ref=e644]:
+                - generic [ref=e645]: איכות
+                - generic [ref=e646]: לא דורג
+              - listitem [ref=e647]:
+                - generic [ref=e648]: חוזק
+                - generic "חוזק התכנסות 78 מתוך 100" [ref=e651]: "78"
+              - listitem [ref=e652]:
+                - button "מה המדדים האלה אומרים?" [ref=e653] [cursor=pointer]: "?"
+          - generic [ref=e654]:
+            - 'link "התכנסות 663 — קיבוץ גלויות · הברית שבלי הו״ו כשמורידים את וי״ו החיבור מ«סין רוסיה ואיראן», נשארת «סין רוסיה איראן» = 663 — ובאותו ערך בדיוק יושבים דווקא ביטויי גאולה: קיבוץ גלויות, דוד… מספרי הכרטיס: בולטים קודם לגלות את החיבורים ←" [ref=e655] [cursor=pointer]':
+              - /url: /topic/663-%D7%A7%D7%99%D7%91%D7%95%D7%A5-%D7%92%D7%9C%D7%95%D7%99%D7%95%D7%AA
+              - generic [ref=e657] [cursor=pointer]: התכנסות
+              - strong [ref=e658] [cursor=pointer]: 663 — קיבוץ גלויות · הברית שבלי הו״ו
+              - paragraph [ref=e659] [cursor=pointer]: "כשמורידים את וי״ו החיבור מ«סין רוסיה ואיראן», נשארת «סין רוסיה איראן» = 663 — ובאותו ערך בדיוק יושבים דווקא ביטויי גאולה: קיבוץ גלויות, דוד…"
+              - 'generic "מספרי הכרטיס: בולטים קודם" [ref=e660] [cursor=pointer]':
+                - generic [ref=e661] [cursor=pointer]: "663"
+                - generic [ref=e662] [cursor=pointer]: "666"
+                - generic [ref=e663] [cursor=pointer]: "669"
+              - generic [ref=e664] [cursor=pointer]: לגלות את החיבורים ←
+            - list "מדדי הכרטיס" [ref=e666]:
+              - listitem [ref=e667]:
+                - generic [ref=e668]: איכות
+                - img "דירוג איכות 4 מתוך 5" [ref=e669]: ★★★★☆
+              - listitem [ref=e670]:
+                - generic [ref=e671]: חוזק
+                - generic "חוזק התכנסות 78 מתוך 100" [ref=e674]: "78"
+              - listitem [ref=e675]:
+                - button "מה המדדים האלה אומרים?" [ref=e676] [cursor=pointer]: "?"
+          - generic [ref=e677]:
+            - 'link "התכנסות 669 — הברית הסגורה · מלחמת העולם «סין רוסיה ואיראן» — עם וי״ו החיבור שקושרת אותן לברית אחת — עולה 669, בדיוק כמו «מלחמת העולם». הו״ו (6) היא כל ההפרש מ-663. מספרי הכרטיס: בולטים קודם לגלות את החיבורים ←" [ref=e678] [cursor=pointer]':
+              - /url: /topic/669-%D7%9E%D7%9C%D7%97%D7%9E%D7%AA-%D7%94%D7%A2%D7%95%D7%9C%D7%9D
+              - generic [ref=e680] [cursor=pointer]: התכנסות
+              - strong [ref=e681] [cursor=pointer]: 669 — הברית הסגורה · מלחמת העולם
+              - paragraph [ref=e682] [cursor=pointer]: «סין רוסיה ואיראן» — עם וי״ו החיבור שקושרת אותן לברית אחת — עולה 669, בדיוק כמו «מלחמת העולם». הו״ו (6) היא כל ההפרש מ-663.
+              - 'generic "מספרי הכרטיס: בולטים קודם" [ref=e683] [cursor=pointer]':
+                - generic [ref=e684] [cursor=pointer]: "669"
+                - generic [ref=e685] [cursor=pointer]: "666"
+                - generic [ref=e686] [cursor=pointer]: "663"
+              - generic [ref=e687] [cursor=pointer]: לגלות את החיבורים ←
+            - list "מדדי הכרטיס" [ref=e689]:
+              - listitem [ref=e690]:
+                - generic [ref=e691]: איכות
+                - img "דירוג איכות 4 מתוך 5" [ref=e692]: ★★★★☆
+              - listitem [ref=e693]:
+                - generic [ref=e694]: חוזק
+                - generic "חוזק התכנסות 78 מתוך 100" [ref=e697]: "78"
+              - listitem [ref=e698]:
+                - button "מה המדדים האלה אומרים?" [ref=e699] [cursor=pointer]: "?"
+          - generic [ref=e700]:
+            - 'link "התכנסות צבי (OPOC) 530 — אָסֻרה נא ואראה · משה והמשיח מספרי הכרטיס: בולטים קודם לגלות את החיבורים ←" [ref=e701] [cursor=pointer]':
+              - /url: /topic/530-moshe-mashiach
+              - generic [ref=e702] [cursor=pointer]:
+                - generic [ref=e703] [cursor=pointer]: התכנסות
+                - generic [ref=e704] [cursor=pointer]: צבי (OPOC)
+              - strong [ref=e705] [cursor=pointer]: 530 — אָסֻרה נא ואראה · משה והמשיח
+              - generic [ref=e707] [cursor=pointer]: "530"
+              - generic [ref=e708] [cursor=pointer]: לגלות את החיבורים ←
+            - list "מדדי הכרטיס" [ref=e710]:
+              - listitem [ref=e711]:
+                - generic [ref=e712]: איכות
+                - generic [ref=e713]: לא דורג
+              - listitem [ref=e714]:
+                - generic [ref=e715]: חוזק
+                - generic "חוזק התכנסות 76 מתוך 100" [ref=e718]: "76"
+              - listitem [ref=e719]:
+                - button "מה המדדים האלה אומרים?" [ref=e720] [cursor=pointer]: "?"
+          - generic [ref=e721]:
+            - 'link "התכנסות צבי (OPOC) 696 — עַתִּיק יוֹמִין · הכתר מספרי הכרטיס: בולטים קודם לגלות את החיבורים ←" [ref=e722] [cursor=pointer]':
+              - /url: /topic/696-atik-yomin-keter
+              - generic [ref=e723] [cursor=pointer]:
+                - generic [ref=e724] [cursor=pointer]: התכנסות
+                - generic [ref=e725] [cursor=pointer]: צבי (OPOC)
+              - strong [ref=e726] [cursor=pointer]: 696 — עַתִּיק יוֹמִין · הכתר
+              - generic [ref=e728] [cursor=pointer]: "696"
+              - generic [ref=e729] [cursor=pointer]: לגלות את החיבורים ←
+            - list "מדדי הכרטיס" [ref=e731]:
+              - listitem [ref=e732]:
+                - generic [ref=e733]: איכות
+                - generic [ref=e734]: לא דורג
+              - listitem [ref=e735]:
+                - generic [ref=e736]: חוזק
+                - generic "חוזק התכנסות 76 מתוך 100" [ref=e739]: "76"
+              - listitem [ref=e740]:
+                - button "מה המדדים האלה אומרים?" [ref=e741] [cursor=pointer]: "?"
+        - generic [ref=e742]:
+          - button "הצג פחות" [expanded] [active] [ref=e743] [cursor=pointer]
+          - button "טען עוד" [ref=e744] [cursor=pointer]
+  - toolbar "מסלול המחקר והפעולות הזמינות עכשיו" [ref=e745]:
+    - button "כאן · מפת העמוד וההקשר" [ref=e746] [cursor=pointer]:
+      - img [ref=e747] [cursor=pointer]
+      - generic [ref=e750] [cursor=pointer]: כאן
+    - button "מספר · פתח חלונית מספר" [ref=e751] [cursor=pointer]:
+      - img [ref=e752] [cursor=pointer]:
+        - generic [ref=e753] [cursor=pointer]: "123"
+      - generic [ref=e754] [cursor=pointer]: מספר
+    - button "פתח את רזיאל" [ref=e755] [cursor=pointer]
+    - button "עכשיו · 6 חדשים" [ref=e757] [cursor=pointer]:
+      - img [ref=e758] [cursor=pointer]
+      - generic [ref=e761] [cursor=pointer]: עכשיו
+      - generic [ref=e762] [cursor=pointer]: "6"
+    - button "עוד · פעולות וכלים" [ref=e763] [cursor=pointer]:
+      - img [ref=e764] [cursor=pointer]
+      - generic [ref=e769] [cursor=pointer]: עוד
+```

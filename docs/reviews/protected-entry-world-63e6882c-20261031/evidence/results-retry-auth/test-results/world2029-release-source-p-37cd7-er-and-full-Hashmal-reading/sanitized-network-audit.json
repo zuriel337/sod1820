@@ -1,0 +1,9 @@
+{
+  "test": "source projector light 390: source-first writer and full Hashmal reading",
+  "blocked": [],
+  "reads": [],
+  "responses": [],
+  "localReads": [],
+  "transportErrors": [],
+  "staticReads": 0
+}

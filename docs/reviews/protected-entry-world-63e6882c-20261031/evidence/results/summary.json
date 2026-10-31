@@ -1,0 +1,449 @@
+{
+  "testSourceSha": "c2f2e9948dd119c96b69e377b33be2eb2a886efb",
+  "runtimeSha": "63e6882c3b7b4004d337927c7231728a7612d452",
+  "deployment": "dpl_Aa8o4Cr61VawivzJodti8KTsecB2",
+  "fullIsolationPassed": false,
+  "A3": "OPEN_NOT_RUN",
+  "officialWorld": {
+    "passed": 16,
+    "failed": 29
+  },
+  "supplementary": {
+    "passed": 1
+  },
+  "stats": {
+    "startTime": "2026-10-31T22:27:06.815Z",
+    "duration": 392014.18299999996,
+    "expected": 17,
+    "skipped": 0,
+    "unexpected": 29,
+    "flaky": 0
+  },
+  "network": {
+    "auditFiles": 33,
+    "actualLiveRpcGetRequests": 277,
+    "actualLiveRpcPostRequests": 0,
+    "liveWrites": 0,
+    "liveModels": 0,
+    "transportErrors": 0,
+    "blockedReasons": {
+      "only_postgrest_readonly_or_public_storage": 6
+    }
+  },
+  "cases": [
+    {
+      "title": "Supplementary: public Flight Post has a readable entry and contextual orientation at 390px",
+      "file": "public-post-entry-supplementary.spec.cjs",
+      "line": 4,
+      "status": "passed",
+      "durationMs": 9106,
+      "error": "",
+      "supplementary": true
+    },
+    {
+      "title": "Core Web Vitals CLS budget holds on /2029 at 390px",
+      "file": "world2029-release.spec.cjs",
+      "line": 137,
+      "status": "passed",
+      "durationMs": 8127,
+      "error": "",
+      "supplementary": false
+    },
+    {
+      "title": "Core Web Vitals CLS budget holds on /world at 390px",
+      "file": "world2029-release.spec.cjs",
+      "line": 137,
+      "status": "failed",
+      "durationMs": 6233,
+      "error": "Error: /world CLS=0.2229 exceeded 0.1; max-window sources: div[128→162;h614→614], section.sod29-world-overview.sod29-world-entry[742→776;h102→68], span.sod29-hero-symbol[103→120;h44→44], button.sod29-action.primary[840→0;h4→0], main.sod29-content[68→120;h776→724], i[387→387;h5→5], section.sod29-world-overview.sod29-world-entry[828→0;h16→0], div.sod29-flight-copy[369→556;h402→288]\n\nexpect(received).toBeLessThanOrEqual(expected)\n\nExpected: <= 0.1\nReceived:    0.22292780637650325",
+      "supplementary": false
+    },
+    {
+      "title": "Core Web Vitals CLS budget holds on /topic/888-yeshua at 390px",
+      "file": "world2029-release.spec.cjs",
+      "line": 137,
+      "status": "passed",
+      "durationMs": 6095,
+      "error": "",
+      "supplementary": false
+    },
+    {
+      "title": "Core Web Vitals CLS budget holds on /books at 390px",
+      "file": "world2029-release.spec.cjs",
+      "line": 137,
+      "status": "passed",
+      "durationMs": 6157,
+      "error": "",
+      "supplementary": false
+    },
+    {
+      "title": "Core Web Vitals CLS budget holds on /book/daat-tevunot at 390px",
+      "file": "world2029-release.spec.cjs",
+      "line": 137,
+      "status": "passed",
+      "durationMs": 5908,
+      "error": "",
+      "supplementary": false
+    },
+    {
+      "title": "Core Web Vitals CLS budget holds on /els at 390px",
+      "file": "world2029-release.spec.cjs",
+      "line": 137,
+      "status": "passed",
+      "durationMs": 6975,
+      "error": "",
+      "supplementary": false
+    },
+    {
+      "title": "Core Web Vitals CLS budget holds on /2029/number/1237 at 390px",
+      "file": "world2029-release.spec.cjs",
+      "line": 137,
+      "status": "passed",
+      "durationMs": 6463,
+      "error": "",
+      "supplementary": false
+    },
+    {
+      "title": "direct /world opens public composed World with aircraft story, real arrivals and source navigation",
+      "file": "world2029-release.spec.cjs",
+      "line": 225,
+      "status": "failed",
+      "durationMs": 6994,
+      "error": "Error: expect(locator).toBeVisible() failed\n\nLocator:  getByRole('heading', { name: 'מתחילים ממה שמסקרן אותך.' })\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  5000ms\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'מתחילים ממה שמסקרן אותך.' })\n",
+      "supplementary": false
+    },
+    {
+      "title": "public World catalog remains searchable and paginated inside the new composed presentation",
+      "file": "world2029-release.spec.cjs",
+      "line": 254,
+      "status": "failed",
+      "durationMs": 32604,
+      "error": "Error: expect(locator).toBeVisible() failed\n\nLocator:  locator('#world-all-convergences').locator('a[href=\"/topic/888-yeshua\"]')\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  30000ms\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 30000ms\n  - waiting for locator('#world-all-convergences').locator('a[href=\"/topic/888-yeshua\"]')\n",
+      "supplementary": false
+    },
+    {
+      "title": "native canonical Topic 2029 renders 888 with semantic links and SEO identity",
+      "file": "world2029-release.spec.cjs",
+      "line": 277,
+      "status": "failed",
+      "durationMs": 31565,
+      "error": "Error: expect(locator).toBeVisible() failed\n\nLocator:  locator('article[data-entity-type=\"convergence\"]')\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  30000ms\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 30000ms\n  - waiting for locator('article[data-entity-type=\"convergence\"]')\n",
+      "supplementary": false
+    },
+    {
+      "title": "Topic expression focus opens Number 2029 and survives World + Heichal transitions",
+      "file": "world2029-release.spec.cjs",
+      "line": 295,
+      "status": "failed",
+      "durationMs": 33517,
+      "error": "Error: expect(page).toHaveURL(expected) failed\n\nExpected pattern: /\\/2029\\/number\\/98\\?focus=.*method=/\nReceived string:  \"https://sod1820-26of53pw9-sod1820-s-projects.vercel.app/topic/98-ikuv-geula\"\nTimeout: 30000ms\n\nCall log:\n  - Expect \"toHaveURL\" with timeout 30000ms\n    34 × unexpected value \"https://sod1820-26of53pw9-sod1820-s-projects.vercel.app/topic/98-ikuv-geula\"\n",
+      "supplementary": false
+    },
+    {
+      "title": "Number 2029 preview opens 1237 with all available methods visible in one wrapped research stage",
+      "file": "world2029-release.spec.cjs",
+      "line": 337,
+      "status": "passed",
+      "durationMs": 7919,
+      "error": "",
+      "supplementary": false
+    },
+    {
+      "title": "Number 2029 596 keeps six methods visible and finds Jerusalem↔Shomrim as a live hidden crossing",
+      "file": "world2029-release.spec.cjs",
+      "line": 390,
+      "status": "passed",
+      "durationMs": 8775,
+      "error": "",
+      "supplementary": false
+    },
+    {
+      "title": "Number 2029 1118 uses canonical Hebrew verse refs and appends the gematria value after the verse",
+      "file": "world2029-release.spec.cjs",
+      "line": 431,
+      "status": "passed",
+      "durationMs": 6928,
+      "error": "",
+      "supplementary": false
+    },
+    {
+      "title": "Contextual Number Surface stays one desktop sidecar through focus → preview → back",
+      "file": "world2029-release.spec.cjs",
+      "line": 510,
+      "status": "failed",
+      "durationMs": 12586,
+      "error": "Error: expect(locator).toBeVisible() failed\n\nLocator:  locator('.sod29-command-island').getByRole('button', { name: 'פעולה', exact: true })\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  5000ms\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for locator('.sod29-command-island').getByRole('button', { name: 'פעולה', exact: true })\n",
+      "supplementary": false
+    },
+    {
+      "title": "Number 2029 Miluy switches the whole stage to 878 with language bridges and in-place explain",
+      "file": "world2029-release.spec.cjs",
+      "line": 541,
+      "status": "passed",
+      "durationMs": 9593,
+      "error": "",
+      "supplementary": false
+    },
+    {
+      "title": "Number 2029 878 keeps its general research path but no longer opens the locked Golden Journey",
+      "file": "world2029-release.spec.cjs",
+      "line": 584,
+      "status": "passed",
+      "durationMs": 7519,
+      "error": "",
+      "supplementary": false
+    },
+    {
+      "title": "Number 2029 golden visual calibration covers 878, 358 and the 1326 visual target in Page and Drawer",
+      "file": "world2029-release.spec.cjs",
+      "line": 608,
+      "status": "failed",
+      "durationMs": 12054,
+      "error": "Error: expect(locator).toBeVisible() failed\n\nLocator:  locator('.sod29-command-island').getByRole('button', { name: 'פעולה', exact: true })\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  5000ms\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for locator('.sod29-command-island').getByRole('button', { name: 'פעולה', exact: true })\n",
+      "supplementary": false
+    },
+    {
+      "title": "Golden World 878 journey stays closed while the public Number 878 and full images remain readable",
+      "file": "world2029-release.spec.cjs",
+      "line": 635,
+      "status": "passed",
+      "durationMs": 9800,
+      "error": "",
+      "supplementary": false
+    },
+    {
+      "title": "Public World story and source entry remain usable and overflow-free at 320px",
+      "file": "world2029-release.spec.cjs",
+      "line": 671,
+      "status": "failed",
+      "durationMs": 7962,
+      "error": "Error: expect(locator).toBeVisible() failed\n\nLocator:  getByRole('heading', { name: 'מתחילים ממה שמסקרן אותך.' })\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  5000ms\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'מתחילים ממה שמסקרן אותך.' })\n",
+      "supplementary": false
+    },
+    {
+      "title": "Public World story and source entry remain usable and overflow-free at 360px",
+      "file": "world2029-release.spec.cjs",
+      "line": 671,
+      "status": "failed",
+      "durationMs": 8488,
+      "error": "Error: expect(locator).toBeVisible() failed\n\nLocator:  getByRole('heading', { name: 'מתחילים ממה שמסקרן אותך.' })\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  5000ms\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'מתחילים ממה שמסקרן אותך.' })\n",
+      "supplementary": false
+    },
+    {
+      "title": "Public World story and source entry remain usable and overflow-free at 390px",
+      "file": "world2029-release.spec.cjs",
+      "line": 671,
+      "status": "failed",
+      "durationMs": 7189,
+      "error": "Error: expect(locator).toBeVisible() failed\n\nLocator:  getByRole('heading', { name: 'מתחילים ממה שמסקרן אותך.' })\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  5000ms\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'מתחילים ממה שמסקרן אותך.' })\n",
+      "supplementary": false
+    },
+    {
+      "title": "RICH live World 1820 is truthful and overflow-free at 320px",
+      "file": "world2029-release.spec.cjs",
+      "line": 685,
+      "status": "failed",
+      "durationMs": 11251,
+      "error": "Error: expect(locator).toBeVisible() failed\n\nLocator:  getByRole('heading', { name: 'מה אתה רוצה לראות עכשיו?' })\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  5000ms\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'מה אתה רוצה לראות עכשיו?' })\n",
+      "supplementary": false
+    },
+    {
+      "title": "RICH live World 1820 is truthful and overflow-free at 360px",
+      "file": "world2029-release.spec.cjs",
+      "line": 685,
+      "status": "failed",
+      "durationMs": 11339,
+      "error": "Error: expect(locator).toBeVisible() failed\n\nLocator:  getByRole('heading', { name: 'מה אתה רוצה לראות עכשיו?' })\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  5000ms\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'מה אתה רוצה לראות עכשיו?' })\n",
+      "supplementary": false
+    },
+    {
+      "title": "RICH live World 1820 is truthful and overflow-free at 390px",
+      "file": "world2029-release.spec.cjs",
+      "line": 685,
+      "status": "failed",
+      "durationMs": 11232,
+      "error": "Error: expect(locator).toBeVisible() failed\n\nLocator:  getByRole('heading', { name: 'מה אתה רוצה לראות עכשיו?' })\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  5000ms\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'מה אתה רוצה לראות עכשיו?' })\n",
+      "supplementary": false
+    },
+    {
+      "title": "RICH live World 1820 is truthful and overflow-free at 1440px",
+      "file": "world2029-release.spec.cjs",
+      "line": 685,
+      "status": "failed",
+      "durationMs": 12165,
+      "error": "Error: expect(locator).toBeVisible() failed\n\nLocator:  getByRole('heading', { name: 'מה אתה רוצה לראות עכשיו?' })\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  5000ms\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'מה אתה רוצה לראות עכשיו?' })\n",
+      "supplementary": false
+    },
+    {
+      "title": "RICH 1820 presents one anchor header before profile and exploration lanes",
+      "file": "world2029-release.spec.cjs",
+      "line": 696,
+      "status": "failed",
+      "durationMs": 11282,
+      "error": "Error: expect(locator).toContainText(expected) failed\n\nLocator: locator('.sod29-world-anchor-intro')\nExpected string: \"מתחילים במהות\"\nReceived string: \"מה מתחבר?1820החומר סביב העוגן מסודר לפי שכבות: תמונות, גימטריה, מקורות, קשרים, מחקר וזמן.מספר◌ חזרה לעולם\"\nTimeout: 5000ms\n\nCall log:\n  - Expect \"toContainText\" with timeout 5000ms\n  - waiting for locator('.sod29-world-anchor-intro')\n    9 × locator resolved to <section class=\"sod29-section sod29-world-anchor-intro\">…</section>\n      - unexpected value \"מה מתחבר?1820החומר סביב העוגן מסודר לפי שכבות: תמונות, גימטריה, מקורות, קשרים, מחקר וזמן.מספר◌ חזרה לעולם\"\n",
+      "supplementary": false
+    },
+    {
+      "title": "RICH 1820 opens human-first before raw research detail",
+      "file": "world2029-release.spec.cjs",
+      "line": 716,
+      "status": "passed",
+      "durationMs": 7281,
+      "error": "",
+      "supplementary": false
+    },
+    {
+      "title": "RICH 1820 projects real published media without legacy gallery UI",
+      "file": "world2029-release.spec.cjs",
+      "line": 756,
+      "status": "passed",
+      "durationMs": 6713,
+      "error": "",
+      "supplementary": false
+    },
+    {
+      "title": "RICH 1820 remains useful when research rows are access-filtered",
+      "file": "world2029-release.spec.cjs",
+      "line": 773,
+      "status": "passed",
+      "durationMs": 7880,
+      "error": "",
+      "supplementary": false
+    },
+    {
+      "title": "automatic filters, sorting and explain-why work without exposing admin research controls",
+      "file": "world2029-release.spec.cjs",
+      "line": 788,
+      "status": "passed",
+      "durationMs": 6304,
+      "error": "",
+      "supplementary": false
+    },
+    {
+      "title": "MEDIUM live World 314 remains medium instead of being visually inflated",
+      "file": "world2029-release.spec.cjs",
+      "line": 806,
+      "status": "failed",
+      "durationMs": 31000,
+      "error": "Error: expect(locator).toBeVisible() failed\n\nLocator:  locator('.sod29-world-native-projection')\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  30000ms\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 30000ms\n  - waiting for locator('.sod29-world-native-projection')\n",
+      "supplementary": false
+    },
+    {
+      "title": "SPARSE live World 122 stays honestly sparse with no fabricated research",
+      "file": "world2029-release.spec.cjs",
+      "line": 816,
+      "status": "failed",
+      "durationMs": 152,
+      "error": "Error: Protected Preview authentication/identity validation failed; credentials withheld",
+      "supplementary": false
+    },
+    {
+      "title": "World uses the shared Command, Inspect, Share and exact-return seams",
+      "file": "world2029-release.spec.cjs",
+      "line": 826,
+      "status": "failed",
+      "durationMs": 173,
+      "error": "Error: Protected Preview authentication/identity validation failed; credentials withheld",
+      "supplementary": false
+    },
+    {
+      "title": "loading and error states are honest and native",
+      "file": "world2029-release.spec.cjs",
+      "line": 877,
+      "status": "failed",
+      "durationMs": 279,
+      "error": "Error: Protected Preview authentication/identity validation failed; credentials withheld",
+      "supplementary": false
+    },
+    {
+      "title": "unavailable identity is not silently replaced by another anchor",
+      "file": "world2029-release.spec.cjs",
+      "line": 901,
+      "status": "failed",
+      "durationMs": 184,
+      "error": "Error: Protected Preview authentication/identity validation failed; credentials withheld",
+      "supplementary": false
+    },
+    {
+      "title": "reduced motion preserves the same World meaning and controls",
+      "file": "world2029-release.spec.cjs",
+      "line": 910,
+      "status": "failed",
+      "durationMs": 158,
+      "error": "Error: Protected Preview authentication/identity validation failed; credentials withheld",
+      "supplementary": false
+    },
+    {
+      "title": "320px RTL World survives 200% text zoom without horizontal overflow",
+      "file": "world2029-release.spec.cjs",
+      "line": 922,
+      "status": "failed",
+      "durationMs": 297,
+      "error": "Error: Protected Preview authentication/identity validation failed; credentials withheld",
+      "supplementary": false
+    },
+    {
+      "title": "private researcher corpus stays gated for non-admin 2029 sessions",
+      "file": "world2029-release.spec.cjs",
+      "line": 934,
+      "status": "failed",
+      "durationMs": 157,
+      "error": "Error: Protected Preview authentication/identity validation failed; credentials withheld",
+      "supplementary": false
+    },
+    {
+      "title": "source projector light 390: source-first writer and full Hashmal reading",
+      "file": "world2029-release.spec.cjs",
+      "line": 947,
+      "status": "failed",
+      "durationMs": 158,
+      "error": "Error: Protected Preview authentication/identity validation failed; credentials withheld",
+      "supplementary": false
+    },
+    {
+      "title": "source projector light 1440: source-first writer and full Hashmal reading",
+      "file": "world2029-release.spec.cjs",
+      "line": 947,
+      "status": "failed",
+      "durationMs": 128,
+      "error": "Error: Protected Preview authentication/identity validation failed; credentials withheld",
+      "supplementary": false
+    },
+    {
+      "title": "source projector parchment 390: source-first writer and full Hashmal reading",
+      "file": "world2029-release.spec.cjs",
+      "line": 947,
+      "status": "failed",
+      "durationMs": 163,
+      "error": "Error: Protected Preview authentication/identity validation failed; credentials withheld",
+      "supplementary": false
+    },
+    {
+      "title": "source projector parchment 1440: source-first writer and full Hashmal reading",
+      "file": "world2029-release.spec.cjs",
+      "line": 947,
+      "status": "failed",
+      "durationMs": 218,
+      "error": "Error: Protected Preview authentication/identity validation failed; credentials withheld",
+      "supplementary": false
+    },
+    {
+      "title": "source projector dark 390: source-first writer and full Hashmal reading",
+      "file": "world2029-release.spec.cjs",
+      "line": 947,
+      "status": "failed",
+      "durationMs": 156,
+      "error": "Error: Protected Preview authentication/identity validation failed; credentials withheld",
+      "supplementary": false
+    },
+    {
+      "title": "source projector dark 1440: source-first writer and full Hashmal reading",
+      "file": "world2029-release.spec.cjs",
+      "line": 947,
+      "status": "failed",
+      "durationMs": 227,
+      "error": "Error: Protected Preview authentication/identity validation failed; credentials withheld",
+      "supplementary": false
+    }
+  ]
+}

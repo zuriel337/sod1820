@@ -1,0 +1,30 @@
+{
+  "deploymentId": "dpl_Aa8o4Cr61VawivzJodti8KTsecB2",
+  "origin": "https://sod1820-26of53pw9-sod1820-s-projects.vercel.app",
+  "readyState": "READY",
+  "target": null,
+  "commit": "63e6882c3b7b4004d337927c7231728a7612d452",
+  "branch": "gpt/2029-home-loading-acceptance-20261031",
+  "protected": true,
+  "applicationIdentity": {
+    "sha": "63e6882c3b7b4004d337927c7231728a7612d452",
+    "branch": "gpt/2029-home-loading-acceptance-20261031",
+    "target": "preview",
+    "transport": "existing-live-ai-analyze",
+    "model_trigger": "explicit-user-turn",
+    "requires_existing_account": true,
+    "product_writes": true,
+    "edge_deploy": false,
+    "matrix_jobs": false,
+    "product_write_scope": [
+      "governed-community-actions",
+      "own-avatar",
+      "existing-verified-legacy-claim"
+    ],
+    "general_profile_writes": false,
+    "els_followup_server_contract": "pending",
+    "server_observed_version": 90
+  },
+  "testSourceSha": "c2f2e9948dd119c96b69e377b33be2eb2a886efb",
+  "testBranchMoved": false
+}

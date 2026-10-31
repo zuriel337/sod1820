@@ -1,0 +1,39 @@
+{
+  "passed": true,
+  "receivedWrites": 0,
+  "audit": {
+    "blocked": [
+      {
+        "method": "POST",
+        "origin": "http://127.0.0.1:37301",
+        "path": "/forbidden-write",
+        "serviceWorker": false,
+        "reason": "external_or_mutating_request"
+      },
+      {
+        "method": "POST",
+        "origin": "http://127.0.0.1:37301",
+        "path": "/forbidden-write",
+        "serviceWorker": true,
+        "reason": "external_or_mutating_request"
+      }
+    ],
+    "reads": [],
+    "localReads": [
+      {
+        "method": "GET",
+        "origin": "http://127.0.0.1:37301",
+        "path": "/",
+        "serviceWorker": false
+      },
+      {
+        "method": "GET",
+        "origin": "http://127.0.0.1:37301",
+        "path": "/sw.js",
+        "serviceWorker": true
+      }
+    ],
+    "transportErrors": [],
+    "staticReads": 0
+  }
+}

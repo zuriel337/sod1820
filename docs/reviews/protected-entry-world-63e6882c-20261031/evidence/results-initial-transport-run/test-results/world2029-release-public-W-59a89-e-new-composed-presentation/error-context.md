@@ -1,0 +1,130 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - generic [ref=e4]:
+    - generic [ref=e5]:
+      - banner [ref=e6]:
+        - generic [ref=e7]:
+          - button "פתח ניווט" [ref=e8] [cursor=pointer]:
+            - generic:
+              - img
+              - img
+          - generic [ref=e10]: העולם
+        - button "חיפוש" [ref=e11] [cursor=pointer]:
+          - generic [ref=e12] [cursor=pointer]: ⌕
+        - generic [ref=e13]:
+          - group "ערכת צבעים" [ref=e14]:
+            - 'button "מראה: לילה. בחר יום, קלף או לילה" [ref=e15] [cursor=pointer]':
+              - generic [ref=e16] [cursor=pointer]: ☾
+          - button "התחברות לאזור האישי" [ref=e17] [cursor=pointer]:
+            - img [ref=e19] [cursor=pointer]
+      - region "פס הגילויים החיים" [ref=e22]:
+        - generic [ref=e23]: ✦
+        - button "מסר הקדוש ברוך הוא מסדר" [ref=e25] [cursor=pointer]:
+          - generic [ref=e26] [cursor=pointer]: מסר
+          - generic [ref=e27] [cursor=pointer]: הקדוש ברוך הוא מסדר
+        - button "צמצם את פס הגילויים" [ref=e28] [cursor=pointer]: −
+        - button "השהה תנועה" [ref=e29] [cursor=pointer]: השהה
+    - main [ref=e31]:
+      - generic [ref=e32]:
+        - img [ref=e35]
+        - generic [ref=e39]:
+          - heading "העולם" [level=1] [ref=e40]
+          - group [ref=e41]
+      - region "כניסה לעולם" [ref=e43]:
+        - generic [ref=e44]:
+          - generic [ref=e45]: SOD1820 · עולם של חיבורים
+          - heading "מפת הידע של SOD1820" [level=2] [ref=e46]
+          - paragraph [ref=e47]: מספרים, מילים, אנשים, מקורות ותמונות מחוברים לפי קשרים מתועדים.
+          - button "חיפוש מספר או ביטוי" [ref=e48] [cursor=pointer]
+        - navigation "דרכים לגלות את העולם" [ref=e49]:
+          - button "התחלה מעט מהעולם, במקום אחד" [ref=e50] [cursor=pointer]:
+            - strong [ref=e51] [cursor=pointer]: התחלה
+            - generic [ref=e52] [cursor=pointer]: מעט מהעולם, במקום אחד
+          - button "מה חדש העדכונים האחרונים לפי זמן" [ref=e53] [cursor=pointer]:
+            - strong [ref=e54] [cursor=pointer]: מה חדש
+            - generic [ref=e55] [cursor=pointer]: העדכונים האחרונים לפי זמן
+          - button "נושאים וחיבורים לראות מה נפגש סביב רעיון" [active] [pressed] [ref=e56] [cursor=pointer]:
+            - strong [ref=e57] [cursor=pointer]: נושאים וחיבורים
+            - generic [ref=e58] [cursor=pointer]: לראות מה נפגש סביב רעיון
+          - button "אנשים ומקורות לפתוח חומר לפי מי ומאיפה" [ref=e59] [cursor=pointer]:
+            - strong [ref=e60] [cursor=pointer]: אנשים ומקורות
+            - generic [ref=e61] [cursor=pointer]: לפתוח חומר לפי מי ומאיפה
+          - button "לפי סוג שפות, צפנים, מדיה, זמן וספרים" [ref=e62] [cursor=pointer]:
+            - strong [ref=e63] [cursor=pointer]: לפי סוג
+            - generic [ref=e64] [cursor=pointer]: שפות, צפנים, מדיה, זמן וספרים
+          - button "מסעות להמשיך בדרך מחקר שמורה" [ref=e65] [cursor=pointer]:
+            - strong [ref=e66] [cursor=pointer]: מסעות
+            - generic [ref=e67] [cursor=pointer]: להמשיך בדרך מחקר שמורה
+      - region "סיפור המטוס נטען" [ref=e68]:
+        - status [ref=e69]:
+          - generic [ref=e70]:
+            - generic [ref=e74]: ◌
+            - generic [ref=e75]:
+              - generic [ref=e76]: המערכת עובדת עכשיו
+              - strong [ref=e77]: פותח את סיפור המטוס
+              - paragraph [ref=e78]: המקור והחיבורים נטענים.
+            - time [ref=e79]: 0 שנ׳
+          - progressbar "פותח את סיפור המטוס" [ref=e80]
+          - generic [ref=e83]: אין אחוז אמיתי לדווח — מציגים שלב חי במקום לנחש.
+      - region "תמונות שפותחות חיבורים" [ref=e84]:
+        - generic [ref=e85]:
+          - generic [ref=e86]: מה מתחבר
+          - heading "תמונה אחת יכולה לפתוח דרך." [level=2] [ref=e87]
+          - paragraph [ref=e88]: תיעוד מהגלריות, הסבר של המחבר וקריאה שאפשר להמשיך ממנה למקור ולמספר.
+        - generic [ref=e89]:
+          - article [ref=e90]:
+            - status [ref=e91]: פותח את תמונת המקור…
+            - generic [ref=e92]:
+              - heading "הודו · 14 ו־45" [level=3] [ref=e93]
+              - paragraph [ref=e94]: מהתיעוד בהודו אל דוד, גאולה ורכבת המים.
+          - article [ref=e95]:
+            - status [ref=e96]: פותח את תמונת המקור…
+            - generic [ref=e97]:
+              - heading "1237 · וראית את אחרי" [level=3] [ref=e98]
+              - paragraph [ref=e99]: מביטוי מצולם אל התגלות וסיפור המועמדות.
+          - article [ref=e100]:
+            - status [ref=e101]: פותח את תמונת המקור…
+            - generic [ref=e102]:
+              - heading "424 · מהכותל אל טראמפ" [level=3] [ref=e103]
+              - paragraph [ref=e104]: השעה, השם וההקשרים שכתב המחבר.
+          - article [ref=e105]:
+            - status [ref=e106]: פותח את תמונת המקור…
+            - generic [ref=e107]:
+              - heading "73 · לפתוח את החכמה" [level=3] [ref=e108]
+              - paragraph [ref=e109]: מאותה מילה אל המילויים והמקורות המחוברים.
+        - paragraph [ref=e110]: אלו קריאות מחוברות בחומר קיים. בכל תחנה נשמרים המקור, הכיתוב והדרך לגלריה; אפשר לפתוח את החישוב ולהמשיך למסע אישי.
+      - region "עיון לפי נושאים וחיבורים" [ref=e111]:
+        - generic [ref=e112]:
+          - generic [ref=e113]:
+            - generic [ref=e114]: עיון לפי נושא
+            - heading "לראות מה נפגש סביב רעיון." [level=2] [ref=e115]
+            - paragraph [ref=e116]: נושא הוא תחום רחב. התכנסות מסמנת כמה מסלולים שנפגשים בתוכו; היא אינה ציון אמת.
+          - generic [ref=e117]: 204 כרטיסים ציבוריים
+        - generic [ref=e118]:
+          - generic [ref=e119]:
+            - generic [ref=e120]: חיפוש בנושאים ובחיבורים
+            - textbox "חיפוש בנושאים ובחיבורים" [ref=e121]
+          - group "סינון נושאים וחיבורים לפי יוצר" [ref=e122]:
+            - button "הכול" [pressed] [ref=e123] [cursor=pointer]
+            - button "צבי (OPOC)" [ref=e124] [cursor=pointer]
+            - button "שמעון חיימוב" [ref=e125] [cursor=pointer]
+        - status [ref=e126]: פותח את הנושאים…
+  - toolbar "מסלול המחקר והפעולות הזמינות עכשיו" [ref=e127]:
+    - button "כאן · מפת העמוד וההקשר" [ref=e128] [cursor=pointer]:
+      - img [ref=e129] [cursor=pointer]
+      - generic [ref=e132] [cursor=pointer]: כאן
+    - button "מספר · פתח חלונית מספר" [ref=e133] [cursor=pointer]:
+      - img [ref=e134] [cursor=pointer]:
+        - generic [ref=e135] [cursor=pointer]: "123"
+      - generic [ref=e136] [cursor=pointer]: מספר
+    - button "פתח את רזיאל" [ref=e137] [cursor=pointer]
+    - button "עכשיו · 2 חדשים" [ref=e139] [cursor=pointer]:
+      - img [ref=e140] [cursor=pointer]
+      - generic [ref=e143] [cursor=pointer]: עכשיו
+      - generic [ref=e144] [cursor=pointer]: "2"
+    - button "עוד · פעולות וכלים" [ref=e145] [cursor=pointer]:
+      - img [ref=e146] [cursor=pointer]
+      - generic [ref=e151] [cursor=pointer]: עוד
+```

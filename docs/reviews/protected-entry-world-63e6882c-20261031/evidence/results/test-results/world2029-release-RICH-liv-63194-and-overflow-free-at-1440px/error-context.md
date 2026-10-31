@@ -1,0 +1,368 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - button "פתח את סרגל הניווט" [ref=e4] [cursor=pointer]
+  - complementary "ניווט SOD1820 2029" [ref=e5]:
+    - navigation "יעדים וכלי מחקר" [ref=e6]:
+      - generic [ref=e7]:
+        - link "בית" [ref=e8] [cursor=pointer]:
+          - /url: /2029
+          - img [ref=e10] [cursor=pointer]
+        - link "העולם" [ref=e12] [cursor=pointer]:
+          - /url: /world
+          - img [ref=e14] [cursor=pointer]
+        - link "היכל" [ref=e18] [cursor=pointer]:
+          - /url: /heichal
+          - img [ref=e20] [cursor=pointer]
+        - link "פוסטים" [ref=e22] [cursor=pointer]:
+          - /url: /2029/posts
+          - img [ref=e24] [cursor=pointer]
+        - link "מסע החיים" [ref=e26] [cursor=pointer]:
+          - /url: /2029/journey
+          - img [ref=e28] [cursor=pointer]
+        - link "קהילה" [ref=e32] [cursor=pointer]:
+          - /url: /community/chat
+          - img [ref=e34] [cursor=pointer]
+      - generic [ref=e39]:
+        - button "דף המספר" [ref=e40] [cursor=pointer]:
+          - img [ref=e42] [cursor=pointer]:
+            - generic [ref=e43] [cursor=pointer]: "123"
+        - link "ספרים ומקורות" [ref=e44] [cursor=pointer]:
+          - /url: /books
+          - img [ref=e46] [cursor=pointer]
+        - link "ELS · הצופן התנ״כי" [ref=e48] [cursor=pointer]:
+          - /url: /els
+          - img [ref=e50] [cursor=pointer]
+    - generic "פעולות נוספות" [ref=e60]:
+      - button "חזרה מדויקת" [disabled] [ref=e61]:
+        - img [ref=e63]
+      - button "דווח על בעיה" [ref=e65] [cursor=pointer]:
+        - img [ref=e67] [cursor=pointer]
+    - button "האזור האישי שלי" [ref=e70] [cursor=pointer]:
+      - img [ref=e72] [cursor=pointer]
+    - button "הרחב את סרגל הניווט" [ref=e75] [cursor=pointer]:
+      - generic [ref=e76] [cursor=pointer]: ›
+  - generic [ref=e77]:
+    - generic [ref=e78]:
+      - banner [ref=e79]:
+        - generic "איפה אני" [ref=e81]:
+          - generic [ref=e82]: SOD1820
+          - generic [ref=e83]: /
+          - generic [ref=e84]: העולם
+          - generic [ref=e85]:
+            - generic [ref=e86]: /
+            - generic [ref=e87]: "1820"
+        - button "חיפוש" [ref=e88] [cursor=pointer]:
+          - generic [ref=e89] [cursor=pointer]: ⌕
+          - generic [ref=e90] [cursor=pointer]: חיפוש
+          - generic [ref=e91] [cursor=pointer]: ⌘K
+        - generic [ref=e92]:
+          - group "ערכת צבעים" [ref=e93]:
+            - generic [ref=e94]:
+              - button "יום" [ref=e95] [cursor=pointer]:
+                - generic [ref=e96] [cursor=pointer]: ☀
+                - generic [ref=e97] [cursor=pointer]: יום
+              - button "קלף" [ref=e98] [cursor=pointer]:
+                - generic [ref=e99] [cursor=pointer]: ▤
+                - generic [ref=e100] [cursor=pointer]: קלף
+              - button "לילה" [pressed] [ref=e101] [cursor=pointer]:
+                - generic [ref=e102] [cursor=pointer]: ☾
+                - generic [ref=e103] [cursor=pointer]: לילה
+          - button "התחברות לאזור האישי" [ref=e104] [cursor=pointer]:
+            - img [ref=e106] [cursor=pointer]
+            - generic [ref=e109] [cursor=pointer]: התחברות
+      - region "פס הגילויים החיים" [ref=e110]:
+        - generic [ref=e111]: ✦
+        - marquee "גילויים ועדכונים" [ref=e113]:
+          - generic [ref=e114]:
+            - generic [ref=e115]:
+              - button "מסר הקדוש ברוך הוא מסדר" [ref=e116] [cursor=pointer]:
+                - generic [ref=e117] [cursor=pointer]: מסר
+                - generic [ref=e118] [cursor=pointer]: הקדוש ברוך הוא מסדר
+              - button "מסר שיהיה יותר חושך" [ref=e119] [cursor=pointer]:
+                - generic [ref=e120] [cursor=pointer]: מסר
+                - generic [ref=e121] [cursor=pointer]: שיהיה יותר חושך
+              - button "מסר כי שחה לעפר נפשנו" [ref=e122] [cursor=pointer]:
+                - generic [ref=e123] [cursor=pointer]: מסר
+                - generic [ref=e124] [cursor=pointer]: כי שחה לעפר נפשנו
+              - button "מסר קומה עזרתה לנו" [ref=e125] [cursor=pointer]:
+                - generic [ref=e126] [cursor=pointer]: מסר
+                - generic [ref=e127] [cursor=pointer]: קומה עזרתה לנו
+              - button "דופק העולם המבחן האחרון לפני פריצת הדרך — למה העבר חוזר דווקא עכשיו? | מימד חמש" [ref=e128] [cursor=pointer]:
+                - generic [ref=e129] [cursor=pointer]: דופק העולם
+                - generic [ref=e130] [cursor=pointer]: המבחן האחרון לפני פריצת הדרך — למה העבר חוזר דווקא עכשיו? | מימד חמש
+              - button "דופק העולם ציר הזמן הישן הושלם — אתה לא נכנס לפרק חדש, אלא לעצמי חדש | מימד חמש" [ref=e131] [cursor=pointer]:
+                - generic [ref=e132] [cursor=pointer]: דופק העולם
+                - generic [ref=e133] [cursor=pointer]: ציר הזמן הישן הושלם — אתה לא נכנס לפרק חדש, אלא לעצמי חדש | מימד חמש
+              - button "דופק העולם בחירות 26 לכנסת ה־26 — ״הֲיִפָּלֵא מֵה׳ דָּבָר?״ | 27.10.2026" [ref=e134] [cursor=pointer]:
+                - generic [ref=e135] [cursor=pointer]: דופק העולם
+                - generic [ref=e136] [cursor=pointer]: בחירות 26 לכנסת ה־26 — ״הֲיִפָּלֵא מֵה׳ דָּבָר?״ | 27.10.2026
+              - button "דופק העולם איך יוצאים מתת־המודע דרך עץ ישראל? | מדריך לריפוי 10 הספירות" [ref=e137] [cursor=pointer]:
+                - generic [ref=e138] [cursor=pointer]: דופק העולם
+                - generic [ref=e139] [cursor=pointer]: איך יוצאים מתת־המודע דרך עץ ישראל? | מדריך לריפוי 10 הספירות
+              - button "דופק העולם הודעת מקור לבדיקה" [ref=e140] [cursor=pointer]:
+                - generic [ref=e141] [cursor=pointer]: דופק העולם
+                - generic [ref=e142] [cursor=pointer]: הודעת מקור לבדיקה
+              - button "רצף החיבורים 974 — בינה מלאכותית" [ref=e143] [cursor=pointer]:
+                - generic [ref=e144] [cursor=pointer]: רצף החיבורים
+                - generic [ref=e145] [cursor=pointer]: 974 — בינה מלאכותית
+            - generic [ref=e146]:
+              - button [ref=e147] [cursor=pointer]:
+                - generic [ref=e148] [cursor=pointer]: מסר
+                - generic [ref=e149] [cursor=pointer]: הקדוש ברוך הוא מסדר
+              - button [ref=e150] [cursor=pointer]:
+                - generic [ref=e151] [cursor=pointer]: מסר
+                - generic [ref=e152] [cursor=pointer]: שיהיה יותר חושך
+              - button [ref=e153] [cursor=pointer]:
+                - generic [ref=e154] [cursor=pointer]: מסר
+                - generic [ref=e155] [cursor=pointer]: כי שחה לעפר נפשנו
+              - button [ref=e156] [cursor=pointer]:
+                - generic [ref=e157] [cursor=pointer]: מסר
+                - generic [ref=e158] [cursor=pointer]: קומה עזרתה לנו
+              - button [ref=e159] [cursor=pointer]:
+                - generic [ref=e160] [cursor=pointer]: דופק העולם
+                - generic [ref=e161] [cursor=pointer]: המבחן האחרון לפני פריצת הדרך — למה העבר חוזר דווקא עכשיו? | מימד חמש
+              - button [ref=e162] [cursor=pointer]:
+                - generic [ref=e163] [cursor=pointer]: דופק העולם
+                - generic [ref=e164] [cursor=pointer]: ציר הזמן הישן הושלם — אתה לא נכנס לפרק חדש, אלא לעצמי חדש | מימד חמש
+              - button [ref=e165] [cursor=pointer]:
+                - generic [ref=e166] [cursor=pointer]: דופק העולם
+                - generic [ref=e167] [cursor=pointer]: בחירות 26 לכנסת ה־26 — ״הֲיִפָּלֵא מֵה׳ דָּבָר?״ | 27.10.2026
+              - button [ref=e168] [cursor=pointer]:
+                - generic [ref=e169] [cursor=pointer]: דופק העולם
+                - generic [ref=e170] [cursor=pointer]: איך יוצאים מתת־המודע דרך עץ ישראל? | מדריך לריפוי 10 הספירות
+              - button [ref=e171] [cursor=pointer]:
+                - generic [ref=e172] [cursor=pointer]: דופק העולם
+                - generic [ref=e173] [cursor=pointer]: הודעת מקור לבדיקה
+              - button [ref=e174] [cursor=pointer]:
+                - generic [ref=e175] [cursor=pointer]: רצף החיבורים
+                - generic [ref=e176] [cursor=pointer]: 974 — בינה מלאכותית
+            - generic [ref=e177]:
+              - button [ref=e178] [cursor=pointer]:
+                - generic [ref=e179] [cursor=pointer]: מסר
+                - generic [ref=e180] [cursor=pointer]: הקדוש ברוך הוא מסדר
+              - button [ref=e181] [cursor=pointer]:
+                - generic [ref=e182] [cursor=pointer]: מסר
+                - generic [ref=e183] [cursor=pointer]: שיהיה יותר חושך
+              - button [ref=e184] [cursor=pointer]:
+                - generic [ref=e185] [cursor=pointer]: מסר
+                - generic [ref=e186] [cursor=pointer]: כי שחה לעפר נפשנו
+              - button [ref=e187] [cursor=pointer]:
+                - generic [ref=e188] [cursor=pointer]: מסר
+                - generic [ref=e189] [cursor=pointer]: קומה עזרתה לנו
+              - button [ref=e190] [cursor=pointer]:
+                - generic [ref=e191] [cursor=pointer]: דופק העולם
+                - generic [ref=e192] [cursor=pointer]: המבחן האחרון לפני פריצת הדרך — למה העבר חוזר דווקא עכשיו? | מימד חמש
+              - button [ref=e193] [cursor=pointer]:
+                - generic [ref=e194] [cursor=pointer]: דופק העולם
+                - generic [ref=e195] [cursor=pointer]: ציר הזמן הישן הושלם — אתה לא נכנס לפרק חדש, אלא לעצמי חדש | מימד חמש
+              - button [ref=e196] [cursor=pointer]:
+                - generic [ref=e197] [cursor=pointer]: דופק העולם
+                - generic [ref=e198] [cursor=pointer]: בחירות 26 לכנסת ה־26 — ״הֲיִפָּלֵא מֵה׳ דָּבָר?״ | 27.10.2026
+              - button [ref=e199] [cursor=pointer]:
+                - generic [ref=e200] [cursor=pointer]: דופק העולם
+                - generic [ref=e201] [cursor=pointer]: איך יוצאים מתת־המודע דרך עץ ישראל? | מדריך לריפוי 10 הספירות
+              - button [ref=e202] [cursor=pointer]:
+                - generic [ref=e203] [cursor=pointer]: דופק העולם
+                - generic [ref=e204] [cursor=pointer]: הודעת מקור לבדיקה
+              - button [ref=e205] [cursor=pointer]:
+                - generic [ref=e206] [cursor=pointer]: רצף החיבורים
+                - generic [ref=e207] [cursor=pointer]: 974 — בינה מלאכותית
+            - generic [ref=e208]:
+              - button [ref=e209] [cursor=pointer]:
+                - generic [ref=e210] [cursor=pointer]: מסר
+                - generic [ref=e211] [cursor=pointer]: הקדוש ברוך הוא מסדר
+              - button [ref=e212] [cursor=pointer]:
+                - generic [ref=e213] [cursor=pointer]: מסר
+                - generic [ref=e214] [cursor=pointer]: שיהיה יותר חושך
+              - button [ref=e215] [cursor=pointer]:
+                - generic [ref=e216] [cursor=pointer]: מסר
+                - generic [ref=e217] [cursor=pointer]: כי שחה לעפר נפשנו
+              - button [ref=e218] [cursor=pointer]:
+                - generic [ref=e219] [cursor=pointer]: מסר
+                - generic [ref=e220] [cursor=pointer]: קומה עזרתה לנו
+              - button [ref=e221] [cursor=pointer]:
+                - generic [ref=e222] [cursor=pointer]: דופק העולם
+                - generic [ref=e223] [cursor=pointer]: המבחן האחרון לפני פריצת הדרך — למה העבר חוזר דווקא עכשיו? | מימד חמש
+              - button [ref=e224] [cursor=pointer]:
+                - generic [ref=e225] [cursor=pointer]: דופק העולם
+                - generic [ref=e226] [cursor=pointer]: ציר הזמן הישן הושלם — אתה לא נכנס לפרק חדש, אלא לעצמי חדש | מימד חמש
+              - button [ref=e227] [cursor=pointer]:
+                - generic [ref=e228] [cursor=pointer]: דופק העולם
+                - generic [ref=e229] [cursor=pointer]: בחירות 26 לכנסת ה־26 — ״הֲיִפָּלֵא מֵה׳ דָּבָר?״ | 27.10.2026
+              - button [ref=e230] [cursor=pointer]:
+                - generic [ref=e231] [cursor=pointer]: דופק העולם
+                - generic [ref=e232] [cursor=pointer]: איך יוצאים מתת־המודע דרך עץ ישראל? | מדריך לריפוי 10 הספירות
+              - button [ref=e233] [cursor=pointer]:
+                - generic [ref=e234] [cursor=pointer]: דופק העולם
+                - generic [ref=e235] [cursor=pointer]: הודעת מקור לבדיקה
+              - button [ref=e236] [cursor=pointer]:
+                - generic [ref=e237] [cursor=pointer]: רצף החיבורים
+                - generic [ref=e238] [cursor=pointer]: 974 — בינה מלאכותית
+        - button "צמצם את פס הגילויים" [ref=e239] [cursor=pointer]: −
+        - button "השהה תנועה" [ref=e240] [cursor=pointer]: השהה
+    - main [ref=e242]:
+      - generic [ref=e243]:
+        - img [ref=e246]
+        - generic [ref=e250]:
+          - heading "העולם" [level=1] [ref=e251]
+          - group [ref=e252]
+      - generic [ref=e255]:
+        - generic [ref=e256]:
+          - generic [ref=e257]: מה מתחבר?
+          - heading "1820" [level=2] [ref=e258]
+          - generic [ref=e259]: "החומר סביב העוגן מסודר לפי שכבות: תמונות, גימטריה, מקורות, קשרים, מחקר וזמן."
+        - generic [ref=e260]:
+          - generic [ref=e261]: מספר
+          - button "◌ חזרה לעולם" [ref=e262] [cursor=pointer]
+      - generic [ref=e263]:
+        - region "סיפורים מחוברים לעץ" [ref=e264]:
+          - generic [ref=e265]:
+            - generic [ref=e266]:
+              - generic [ref=e267]: סיפורים בעץ המחקר
+              - heading "סיפורים מחוברים · 1820" [level=2] [ref=e268]
+            - button "פתח סיפורים מחוברים" [ref=e269] [cursor=pointer]
+          - paragraph [ref=e270]: פוסטים ציבוריים בעלי קשר מתועד לאותו הקשר. הסדר הוא סדר התצוגה השמור, לא ציר זמן או דירוג.
+          - status
+        - region "פרופיל עוגן 1820" [ref=e271]:
+          - generic [ref=e272]:
+            - generic [ref=e273]:
+              - generic [ref=e274]: פרופיל עוגן · אוצרות מחקרית מתפתחת
+              - heading "מה חשוב לדעת על 1820" [level=2] [ref=e275]
+            - button "לדף המספר ←" [ref=e276] [cursor=pointer]
+          - generic [ref=e277]:
+            - generic [ref=e278]:
+              - generic [ref=e279]: יסודות
+              - strong [ref=e280]: 1820 = יהוה × עמים (26×70) = מספר שמות יהוה בכל התורה
+              - paragraph [ref=e281]: "לב האתר: שם ה׳ מופיע בתורה 1820 פעם — המספר שסופר את שמות ה׳ הוא גם הגימטריה של «מספר שמות יהוה בכל התורה». הצופן: «משיח טבת עשירי» בדילוג 1820 בדיוק; «משיח יהוה יתגלה עשרה בטבת» = 1820 (גדול); «התגלות השם המפורש» = 1820; «לעשות נחת רוח ליוצרו» = 1820. אור הגנוז של פנימיות התורה."
+            - complementary [ref=e282]:
+              - generic [ref=e283]: איך לקרוא את זה?
+              - paragraph [ref=e284]: זהו תיאור אוצרות מחקרי שמתעדכן עם העבודה. חישובי המנוע, המקורות והאימותים מוצגים בנפרד. דף המספר נשאר הבית הייעודי לחישוב ולביטוי; העולם מציג את ההקשר סביב המספר.
+        - region "התמצאות בעולם" [ref=e285]:
+          - heading "שכבות המידע" [level=2] [ref=e288]
+          - group "בחירת שכבה בעולם" [ref=e289]:
+            - button "כללי 7" [pressed] [ref=e290] [cursor=pointer]:
+              - generic [ref=e291] [cursor=pointer]: כללי
+              - generic [ref=e292] [cursor=pointer]: "7"
+            - button "תמונות 17" [ref=e293] [cursor=pointer]:
+              - generic [ref=e294] [cursor=pointer]: תמונות
+              - generic [ref=e295] [cursor=pointer]: "17"
+            - button "גימטריה 185" [ref=e296] [cursor=pointer]:
+              - generic [ref=e297] [cursor=pointer]: גימטריה
+              - generic [ref=e298] [cursor=pointer]: "185"
+            - button "מקורות 6" [ref=e299] [cursor=pointer]:
+              - generic [ref=e300] [cursor=pointer]: מקורות
+              - generic [ref=e301] [cursor=pointer]: "6"
+            - button "קשרים 81" [ref=e302] [cursor=pointer]:
+              - generic [ref=e303] [cursor=pointer]: קשרים
+              - generic [ref=e304] [cursor=pointer]: "81"
+            - button "מחקר 8" [ref=e305] [cursor=pointer]:
+              - generic [ref=e306] [cursor=pointer]: מחקר
+              - generic [ref=e307] [cursor=pointer]: "8"
+            - button "זמן 82" [ref=e308] [cursor=pointer]:
+              - generic [ref=e309] [cursor=pointer]: זמן
+              - generic [ref=e310] [cursor=pointer]: "82"
+          - generic [ref=e311]: הבחירה משנה רק את מה שמוצג על המסך. היא לא משנה קשרים, דירוג אמת, אימות או מצב מחקר.
+        - region "העיקר סביב 1820" [ref=e312]:
+          - generic [ref=e313]:
+            - generic [ref=e314]:
+              - generic [ref=e315]: קודם מה שמשנה את התמונה
+              - heading "העיקר סביב 1820" [level=2] [ref=e316]
+              - paragraph [ref=e317]: עד שבע התכנסויות וקשרים בולטים שנבחרו בהקשר הזה אחרי סינון הרשאות וקיבוץ כפילויות ותלויות. הבולטות כאן היא רלוונטיות מחקרית — לא דירוג אמת.
+            - generic [ref=e318]: "7"
+          - generic [ref=e319]:
+            - article [ref=e320]:
+              - generic [ref=e321]:
+                - generic [ref=e322]:
+                  - generic [ref=e323]: ישות
+                  - generic [ref=e324]: אוצרות · כסף
+                - heading "סוד אלף שמונה מאות עשרים כי לה המלוכה" [level=3] [ref=e325]
+              - generic [ref=e326]:
+                - button "למה כאן?" [ref=e327] [cursor=pointer]
+                - button "בדוק" [ref=e328] [cursor=pointer]
+            - article [ref=e329]:
+              - generic [ref=e330]:
+                - generic [ref=e331]:
+                  - generic [ref=e332]: מספר
+                  - generic [ref=e333]: אוצרות · זהב
+                - heading "776" [level=3] [ref=e334]
+              - generic [ref=e335]:
+                - button "למה כאן?" [ref=e336] [cursor=pointer]
+                - button "בדוק" [ref=e337] [cursor=pointer]
+            - article [ref=e338]:
+              - button "צופן הגאולה בדילוג 1820 המרמז על משיח שיבוא בטבת עשירי (מלכות שבמלכות) חודש טבת ז…" [ref=e340]:
+                - img "צופן הגאולה בדילוג 1820 המרמז על משיח שיבוא בטבת עשירי (מלכות שבמלכות) חודש טבת ז…" [ref=e341]
+              - generic [ref=e342]:
+                - generic [ref=e344]: מדיה
+                - heading "תמונה" [level=3] [ref=e345]
+              - generic [ref=e346]:
+                - button "למה כאן?" [ref=e347] [cursor=pointer]
+                - button "בדוק" [ref=e348] [cursor=pointer]
+            - article [ref=e349]:
+              - generic [ref=e350]:
+                - generic [ref=e352]: ישות
+                - heading "כתל שריד בית מקדש" [level=3] [ref=e353]
+              - generic [ref=e354]:
+                - button "למה כאן?" [ref=e355] [cursor=pointer]
+                - button "בדוק" [ref=e356] [cursor=pointer]
+            - article [ref=e357]:
+              - generic [ref=e358]:
+                - generic [ref=e360]: ספר
+                - heading "אהבת תורה" [level=3] [ref=e361]
+              - generic [ref=e362]:
+                - button "למה כאן?" [ref=e363] [cursor=pointer]
+                - button "בדוק" [ref=e364] [cursor=pointer]
+            - article [ref=e365]:
+              - generic [ref=e366]:
+                - generic [ref=e368]: חיבור
+                - heading "חיבור" [level=3] [ref=e369]
+              - generic [ref=e370]:
+                - button "למה כאן?" [ref=e371] [cursor=pointer]
+                - button "בדוק" [ref=e372] [cursor=pointer]
+            - article [ref=e373]:
+              - generic [ref=e374]:
+                - generic [ref=e376]: מספר
+                - heading "182" [level=3] [ref=e377]
+              - generic [ref=e378]:
+                - button "למה כאן?" [ref=e379] [cursor=pointer]
+                - button "בדוק" [ref=e380] [cursor=pointer]
+  - complementary "עדכונים, הקשר ורצף האירועים" [ref=e381]:
+    - generic [ref=e382]:
+      - generic [ref=e383]:
+        - generic [ref=e384]: הקשר
+        - button "נעץ" [ref=e385] [cursor=pointer]
+      - 'group "תצוגת הפאנל: עדכונים, הקשר או רצף האירועים" [ref=e386]':
+        - button "עדכונים2" [ref=e387] [cursor=pointer]:
+          - text: עדכונים
+          - emphasis [ref=e388] [cursor=pointer]: "2"
+        - button "הקשר" [pressed] [ref=e389] [cursor=pointer]
+      - complementary "ההקשר הפעיל" [ref=e391]:
+        - generic [ref=e392]: מה מחובר עכשיו
+        - strong [ref=e393]: "1820"
+        - generic [ref=e394]: מספר
+        - generic [ref=e396]:
+          - button "פתח את 1820" [ref=e397] [cursor=pointer]
+          - button "✦ שאל את רזיאל" [ref=e398] [cursor=pointer]
+        - button "פתח לעומק" [ref=e399] [cursor=pointer]:
+          - text: פתח לעומק
+          - generic [ref=e400] [cursor=pointer]: ←
+    - button "הצג רמז מרזיאל" [ref=e401] [cursor=pointer]:
+      - generic [ref=e402] [cursor=pointer]: ✦
+  - toolbar "מסלול המחקר והפעולות הזמינות עכשיו" [ref=e403]:
+    - button "כאן · מפת העמוד וההקשר" [ref=e404] [cursor=pointer]:
+      - img [ref=e405] [cursor=pointer]
+      - generic [ref=e408] [cursor=pointer]: כאן
+    - button "מספר · פתח חלונית מספר" [ref=e409] [cursor=pointer]:
+      - img [ref=e410] [cursor=pointer]:
+        - generic [ref=e411] [cursor=pointer]: "123"
+      - generic [ref=e412] [cursor=pointer]: מספר
+    - button "פתח את רזיאל" [pressed] [ref=e413] [cursor=pointer]
+    - button "עכשיו · 2 חדשים" [ref=e415] [cursor=pointer]:
+      - img [ref=e416] [cursor=pointer]
+      - generic [ref=e419] [cursor=pointer]: עכשיו
+      - generic [ref=e420] [cursor=pointer]: "2"
+    - button "עוד · פעולות וכלים" [ref=e421] [cursor=pointer]:
+      - img [ref=e422] [cursor=pointer]
+      - generic [ref=e427] [cursor=pointer]: עוד
+```

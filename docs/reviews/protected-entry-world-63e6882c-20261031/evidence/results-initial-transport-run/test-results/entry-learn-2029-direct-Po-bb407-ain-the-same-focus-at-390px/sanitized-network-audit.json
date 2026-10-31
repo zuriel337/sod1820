@@ -1,0 +1,41 @@
+{
+  "test": "direct Post opens Number; contextual teaching and help retain the same focus at 390px",
+  "blocked": [
+    {
+      "method": "POST",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+      "serviceWorker": false,
+      "reason": "null_rpc_argument_needs_review"
+    }
+  ],
+  "reads": [
+    {
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/posts",
+      "serviceWorker": false
+    },
+    {
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/site_flags",
+      "serviceWorker": false
+    },
+    {
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/topic_cards_public",
+      "serviceWorker": false
+    },
+    {
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/posts",
+      "serviceWorker": false
+    }
+  ],
+  "localReads": [],
+  "transportErrors": [],
+  "staticReads": 72
+}

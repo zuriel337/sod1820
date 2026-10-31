@@ -1,0 +1,242 @@
+{
+  "config": {
+    "configFile": "/tmp/ci1185-protected-entry-world/playwright.focused.config.cjs",
+    "rootDir": "/tmp/ci1185-protected-entry-world/tests",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "line",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "./results-focused/playwright-results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "/tmp/ci1185-protected-entry-world/results-focused/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/tmp/ci1185-protected-entry-world/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.55.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "world-catalog-supplementary.spec.cjs",
+      "file": "world-catalog-supplementary.spec.cjs",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "Supplementary: current public World entry, real catalog search and expansion remain usable",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 12255,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveAttribute\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#world-all-convergences').getByRole('button', { name: 'עוד נושאים וחיבורים', exact: true })\nExpected string: \u001b[32m\"true\"\u001b[39m\nReceived: <element(s) not found>\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveAttribute\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('#world-all-convergences').getByRole('button', { name: 'עוד נושאים וחיבורים', exact: true })\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveAttribute\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#world-all-convergences').getByRole('button', { name: 'עוד נושאים וחיבורים', exact: true })\nExpected string: \u001b[32m\"true\"\u001b[39m\nReceived: <element(s) not found>\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveAttribute\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('#world-all-convergences').getByRole('button', { name: 'עוד נושאים וחיבורים', exact: true })\u001b[22m\n\n    at /tmp/ci1185-protected-entry-world/tests/world-catalog-supplementary.spec.cjs:21:95",
+                    "location": {
+                      "file": "/tmp/ci1185-protected-entry-world/tests/world-catalog-supplementary.spec.cjs",
+                      "column": 95,
+                      "line": 21
+                    },
+                    "snippet": "  19 |   await search.fill('');await expect(cards.first()).toBeVisible({timeout:30000});\n  20 |   const expand=catalog.getByRole('button',{name:'עוד נושאים וחיבורים',exact:true});\n> 21 |   await expect(expand).toBeVisible({timeout:30000});await expand.click();await expect(expand).toHaveAttribute('aria-expanded','true');\n     |                                                                                               ^\n  22 |   const after=await cards.count();expect(after).toBeGreaterThan(before);\n  23 |   expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBe(await page.evaluate(()=>document.documentElement.clientWidth));\n  24 |   fs.writeFileSync(testInfo.outputPath('catalog-observation.json'),JSON.stringify({before,after,searchUsedRealPublicLabel:true,syntheticRows:false},null,2));"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/tmp/ci1185-protected-entry-world/tests/world-catalog-supplementary.spec.cjs",
+                        "column": 95,
+                        "line": 21
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveAttribute\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#world-all-convergences').getByRole('button', { name: 'עוד נושאים וחיבורים', exact: true })\nExpected string: \u001b[32m\"true\"\u001b[39m\nReceived: <element(s) not found>\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveAttribute\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('#world-all-convergences').getByRole('button', { name: 'עוד נושאים וחיבורים', exact: true })\u001b[22m\n\n\n  19 |   await search.fill('');await expect(cards.first()).toBeVisible({timeout:30000});\n  20 |   const expand=catalog.getByRole('button',{name:'עוד נושאים וחיבורים',exact:true});\n> 21 |   await expect(expand).toBeVisible({timeout:30000});await expand.click();await expect(expand).toHaveAttribute('aria-expanded','true');\n     |                                                                                               ^\n  22 |   const after=await cards.count();expect(after).toBeGreaterThan(before);\n  23 |   expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBe(await page.evaluate(()=>document.documentElement.clientWidth));\n  24 |   fs.writeFileSync(testInfo.outputPath('catalog-observation.json'),JSON.stringify({before,after,searchUsedRealPublicLabel:true,syntheticRows:false},null,2));\n    at /tmp/ci1185-protected-entry-world/tests/world-catalog-supplementary.spec.cjs:21:95"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T22:34:45.635Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/tmp/ci1185-protected-entry-world/results-focused/test-results/world-catalog-supplementar-d453f-and-expansion-remain-usable/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/tmp/ci1185-protected-entry-world/tests/world-catalog-supplementary.spec.cjs",
+                    "column": 95,
+                    "line": 21
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "3ffa377a6878d094d859-39a745d2de0adcea442d",
+          "file": "world-catalog-supplementary.spec.cjs",
+          "line": 4,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "world2029-release.spec.cjs",
+      "file": "world2029-release.spec.cjs",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "Core Web Vitals CLS budget holds on /world at 390px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 7153,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T22:34:58.673Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "43d104987ee5472889e6-6139b795d45ce4dc5139",
+          "file": "world2029-release.spec.cjs",
+          "line": 137,
+          "column": 3
+        },
+        {
+          "title": "Number 2029 global drawer reuses the same method-first Core and carries Raziel context",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 73,
+                  "error": {
+                    "message": "Error: Protected Preview authentication/identity validation failed at access, HTTP 503; credentials withheld",
+                    "stack": "Error: Protected Preview authentication/identity validation failed at access, HTTP 503; credentials withheld\n    at authenticate (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:73:16)\n    at Object.context (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:80:7)",
+                    "location": {
+                      "file": "/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs",
+                      "column": 16,
+                      "line": 73
+                    },
+                    "snippet": "\u001b[90m   at \u001b[39msafe-preview-fixture.cjs:73\n\n  71 |     pw.expect(identity.sha).toBe('63e6882c3b7b4004d337927c7231728a7612d452');\n  72 |     pw.expect(identity.target).toBe('preview');\n> 73 |   }catch{throw new Error(`Protected Preview authentication/identity validation failed at ${phase}, HTTP ${lastStatus}; credentials withheld`);}\n     |                ^\n  74 | }\n  75 | const test=pw.test.extend({context:async({context},use,testInfo)=>{\n  76 |   if(process.env.PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS!=='1')throw new Error('Service Worker interception must be enabled');"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs",
+                        "column": 16,
+                        "line": 73
+                      },
+                      "message": "Error: Protected Preview authentication/identity validation failed at access, HTTP 503; credentials withheld\n\n   at safe-preview-fixture.cjs:73\n\n  71 |     pw.expect(identity.sha).toBe('63e6882c3b7b4004d337927c7231728a7612d452');\n  72 |     pw.expect(identity.target).toBe('preview');\n> 73 |   }catch{throw new Error(`Protected Preview authentication/identity validation failed at ${phase}, HTTP ${lastStatus}; credentials withheld`);}\n     |                ^\n  74 | }\n  75 | const test=pw.test.extend({context:async({context},use,testInfo)=>{\n  76 |   if(process.env.PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS!=='1')throw new Error('Service Worker interception must be enabled');\n    at authenticate (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:73:16)\n    at Object.context (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:80:7)"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T22:35:06.034Z",
+                  "annotations": [],
+                  "attachments": [],
+                  "errorLocation": {
+                    "file": "/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs",
+                    "column": 16,
+                    "line": 73
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "43d104987ee5472889e6-64c480b5e28c6a7686df",
+          "file": "world2029-release.spec.cjs",
+          "line": 448,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-31T22:34:45.052Z",
+    "duration": 21117.165,
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 2,
+    "flaky": 0
+  }
+}

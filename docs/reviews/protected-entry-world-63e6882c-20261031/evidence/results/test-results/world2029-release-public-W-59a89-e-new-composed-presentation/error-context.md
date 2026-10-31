@@ -1,0 +1,195 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - generic [ref=e4]:
+    - generic [ref=e5]:
+      - banner [ref=e6]:
+        - generic [ref=e7]:
+          - button "פתח ניווט" [ref=e8] [cursor=pointer]:
+            - generic:
+              - img
+              - img
+          - generic [ref=e10]: העולם
+        - button "חיפוש" [ref=e11] [cursor=pointer]:
+          - generic [ref=e12] [cursor=pointer]: ⌕
+        - generic [ref=e13]:
+          - group "ערכת צבעים" [ref=e14]:
+            - 'button "מראה: לילה. בחר יום, קלף או לילה" [ref=e15] [cursor=pointer]':
+              - generic [ref=e16] [cursor=pointer]: ☾
+          - button "התחברות לאזור האישי" [ref=e17] [cursor=pointer]:
+            - img [ref=e19] [cursor=pointer]
+      - region "פס הגילויים החיים" [ref=e22]:
+        - generic [ref=e23]: ✦
+        - button "מסר קומה עזרתה לנו" [ref=e25] [cursor=pointer]:
+          - generic [ref=e26] [cursor=pointer]: מסר
+          - generic [ref=e27] [cursor=pointer]: קומה עזרתה לנו
+        - button "צמצם את פס הגילויים" [ref=e28] [cursor=pointer]: −
+        - button "השהה תנועה" [ref=e29] [cursor=pointer]: השהה
+    - main [ref=e31]:
+      - generic [ref=e32]:
+        - img [ref=e35]
+        - generic [ref=e39]:
+          - heading "העולם" [level=1] [ref=e40]
+          - group [ref=e41]
+      - region "כניסה לעולם" [ref=e43]:
+        - generic [ref=e44]:
+          - generic [ref=e45]: SOD1820 · עולם של חיבורים
+          - heading "מפת הידע של SOD1820" [level=2] [ref=e46]
+          - paragraph [ref=e47]: מספרים, מילים, אנשים, מקורות ותמונות מחוברים לפי קשרים מתועדים.
+          - button "חיפוש מספר או ביטוי" [ref=e48] [cursor=pointer]
+        - navigation "דרכים לגלות את העולם" [ref=e49]:
+          - button "התחלה מעט מהעולם, במקום אחד" [ref=e50] [cursor=pointer]:
+            - strong [ref=e51] [cursor=pointer]: התחלה
+            - generic [ref=e52] [cursor=pointer]: מעט מהעולם, במקום אחד
+          - button "מה חדש העדכונים האחרונים לפי זמן" [ref=e53] [cursor=pointer]:
+            - strong [ref=e54] [cursor=pointer]: מה חדש
+            - generic [ref=e55] [cursor=pointer]: העדכונים האחרונים לפי זמן
+          - button "נושאים וחיבורים לראות מה נפגש סביב רעיון" [pressed] [ref=e56] [cursor=pointer]:
+            - strong [ref=e57] [cursor=pointer]: נושאים וחיבורים
+            - generic [ref=e58] [cursor=pointer]: לראות מה נפגש סביב רעיון
+          - button "אנשים ומקורות לפתוח חומר לפי מי ומאיפה" [ref=e59] [cursor=pointer]:
+            - strong [ref=e60] [cursor=pointer]: אנשים ומקורות
+            - generic [ref=e61] [cursor=pointer]: לפתוח חומר לפי מי ומאיפה
+          - button "לפי סוג שפות, צפנים, מדיה, זמן וספרים" [ref=e62] [cursor=pointer]:
+            - strong [ref=e63] [cursor=pointer]: לפי סוג
+            - generic [ref=e64] [cursor=pointer]: שפות, צפנים, מדיה, זמן וספרים
+          - button "מסעות להמשיך בדרך מחקר שמורה" [ref=e65] [cursor=pointer]:
+            - strong [ref=e66] [cursor=pointer]: מסעות
+            - generic [ref=e67] [cursor=pointer]: להמשיך בדרך מחקר שמורה
+      - region "סיפור המטוס וכיווני הגילוי" [ref=e68]:
+        - generic [ref=e69]:
+          - button "הבית" [ref=e70] [cursor=pointer]
+          - generic [ref=e71]: /
+          - generic [ref=e72]: סיפור המטוס בעולם
+        - generic [ref=e74]:
+          - generic [ref=e75]: רמזי גאולה · מתוך המקור
+          - heading "לאן סיפור המטוס מוביל?" [level=2] [ref=e76]
+          - paragraph [ref=e77]: הסיפור והצילום מובילים אל חיבורים מתועדים, אל המקור ואל שכבות המחקר הקשורות אליו.
+          - paragraph [ref=e78]:
+            - strong [ref=e79]: 787 · השנה, החג וההודיה.
+            - text: לפי קריאת המערכת, המפגש בין השנה המסוימת, ״ושמחת בחגך״ ונוסח ההודיה מאיר את סיפור ההצלה בכמה רבדים. זו קריאה פרשנית של החיבור, ולא עדות שהברכה נאמרה בטיסה.
+          - generic [ref=e80]:
+            - generic "קטגוריות הפוסט" [ref=e81]:
+              - link "רמזים חזקים" [ref=e82] [cursor=pointer]:
+                - /url: /2029/posts?category=%D7%A8%D7%9E%D7%96%D7%99%D7%9D%20%D7%97%D7%96%D7%A7%D7%99%D7%9D
+              - link "תיעוד אירועים" [ref=e83] [cursor=pointer]:
+                - /url: /2029/posts?category=%D7%AA%D7%99%D7%A2%D7%95%D7%93%20%D7%90%D7%99%D7%A8%D7%95%D7%A2%D7%99%D7%9D
+            - generic [ref=e84]: FZ1073
+            - generic [ref=e85]: פורסם באתר · י״ט בתשרי · 30.09.2026
+          - button "לקריאת פוסט המטוס" [ref=e87] [cursor=pointer]:
+            - text: לקריאת פוסט המטוס
+            - generic [ref=e88] [cursor=pointer]: ←
+        - generic "שלושה כיווני גילוי" [ref=e89]:
+          - button "הודו האנשים והמקומות צילום המקור מזהה את הקפטן כאזרח הודי. מכאן נפתח התיעוד ההיסטורי של הודו. פתיחת המקורות ←" [ref=e90] [cursor=pointer]:
+            - img [ref=e92] [cursor=pointer]
+            - generic [ref=e95] [cursor=pointer]: הודו
+            - strong [ref=e96] [cursor=pointer]: האנשים והמקומות
+            - generic [ref=e97] [cursor=pointer]: צילום המקור מזהה את הקפטן כאזרח הודי. מכאן נפתח התיעוד ההיסטורי של הודו.
+            - emphasis [ref=e98] [cursor=pointer]: פתיחת המקורות ←
+          - button "1073 · 718 המספר והזמן מספר הטיסה, שני נוסחי תאריך והקריאה שמחברת אותם לשביעי באוקטובר. פתיחת המקורות ←" [ref=e99] [cursor=pointer]:
+            - img [ref=e101] [cursor=pointer]
+            - generic [ref=e104] [cursor=pointer]: 1073 · 718
+            - strong [ref=e105] [cursor=pointer]: המספר והזמן
+            - generic [ref=e106] [cursor=pointer]: מספר הטיסה, שני נוסחי תאריך והקריאה שמחברת אותם לשביעי באוקטובר.
+            - emphasis [ref=e107] [cursor=pointer]: פתיחת המקורות ←
+          - button "73 חכמה וירושלים חכמה מופיעה בסרטון. המילה נפתחת בשיטות שונות, לצד צילומי המקור מירושלים. פתיחת המקורות ←" [ref=e108] [cursor=pointer]:
+            - img [ref=e110] [cursor=pointer]:
+              - generic [ref=e111] [cursor=pointer]: "123"
+            - generic [ref=e112] [cursor=pointer]: "73"
+            - strong [ref=e113] [cursor=pointer]: חכמה וירושלים
+            - generic [ref=e114] [cursor=pointer]: חכמה מופיעה בסרטון. המילה נפתחת בשיטות שונות, לצד צילומי המקור מירושלים.
+            - emphasis [ref=e115] [cursor=pointer]: פתיחת המקורות ←
+        - group [ref=e116]
+      - region "תמונות שפותחות חיבורים" [ref=e118]:
+        - generic [ref=e119]:
+          - generic [ref=e120]: מה מתחבר
+          - heading "תמונה אחת יכולה לפתוח דרך." [level=2] [ref=e121]
+          - paragraph [ref=e122]: תיעוד מהגלריות, הסבר של המחבר וקריאה שאפשר להמשיך ממנה למקור ולמספר.
+        - generic [ref=e123]:
+          - article [ref=e124]:
+            - generic [ref=e125]:
+              - 'button "הגדלת המקור: הודו · 14 ו־45" [ref=e126]':
+                - 'img "הגדלת המקור: הודו · 14 ו־45" [ref=e127]'
+              - generic [ref=e128]:
+                - button "שתף קישור לתמונה" [ref=e129]:
+                  - img [ref=e130]
+                - status [ref=e135]
+            - generic [ref=e136]:
+              - heading "הודו · 14 ו־45" [level=3] [ref=e137]
+              - paragraph [ref=e138]: מהתיעוד בהודו אל דוד, גאולה ורכבת המים.
+              - link "לפתוח את החיבור ←" [ref=e139] [cursor=pointer]:
+                - /url: /world#world-discovery-rails--india-health
+          - article [ref=e140]:
+            - generic [ref=e141]:
+              - 'button "הגדלת המקור: 1237 · וראית את אחרי" [ref=e142]':
+                - 'img "הגדלת המקור: 1237 · וראית את אחרי" [ref=e143]'
+              - generic [ref=e144]:
+                - button "שתף קישור לתמונה" [ref=e145]:
+                  - img [ref=e146]
+                - status [ref=e151]
+            - generic [ref=e152]:
+              - heading "1237 · וראית את אחרי" [level=3] [ref=e153]
+              - paragraph [ref=e154]: מביטוי מצולם אל התגלות וסיפור המועמדות.
+              - link "לפתוח את החיבור ←" [ref=e155] [cursor=pointer]:
+                - /url: /world#world-discovery-wall--see-my-back
+          - article [ref=e156]:
+            - generic [ref=e157]:
+              - 'button "הגדלת המקור: 424 · מהכותל אל טראמפ" [ref=e158]':
+                - 'img "הגדלת המקור: 424 · מהכותל אל טראמפ" [ref=e159]'
+              - generic [ref=e160]:
+                - button "שתף קישור לתמונה" [ref=e161]:
+                  - img [ref=e162]
+                - status [ref=e167]
+            - generic [ref=e168]:
+              - heading "424 · מהכותל אל טראמפ" [level=3] [ref=e169]
+              - paragraph [ref=e170]: השעה, השם וההקשרים שכתב המחבר.
+              - link "לפתוח את החיבור ←" [ref=e171] [cursor=pointer]:
+                - /url: /world#world-discovery-wall--wall-clock
+          - article [ref=e172]:
+            - generic [ref=e173]:
+              - 'button "הגדלת המקור: 73 · לפתוח את החכמה" [ref=e174]':
+                - 'img "הגדלת המקור: 73 · לפתוח את החכמה" [ref=e175]'
+              - generic [ref=e176]:
+                - button "שתף קישור לתמונה" [ref=e177]:
+                  - img [ref=e178]
+                - status [ref=e183]
+            - generic [ref=e184]:
+              - heading "73 · לפתוח את החכמה" [level=3] [ref=e185]
+              - paragraph [ref=e186]: מאותה מילה אל המילויים והמקורות המחוברים.
+              - link "לפתוח את החיבור ←" [ref=e187] [cursor=pointer]:
+                - /url: /world#world-discovery-wisdom-set--wisdom-methods
+        - paragraph [ref=e188]: אלו קריאות מחוברות בחומר קיים. בכל תחנה נשמרים המקור, הכיתוב והדרך לגלריה; אפשר לפתוח את החישוב ולהמשיך למסע אישי.
+      - region "עיון לפי נושאים וחיבורים" [ref=e189]:
+        - generic [ref=e190]:
+          - generic [ref=e191]:
+            - generic [ref=e192]: עיון לפי נושא
+            - heading "לראות מה נפגש סביב רעיון." [level=2] [ref=e193]
+            - paragraph [ref=e194]: נושא הוא תחום רחב. התכנסות מסמנת כמה מסלולים שנפגשים בתוכו; היא אינה ציון אמת.
+          - generic [ref=e195]: 0 כרטיסים ציבוריים
+        - generic [ref=e196]:
+          - generic [ref=e197]:
+            - generic [ref=e198]: חיפוש בנושאים ובחיבורים
+            - textbox "חיפוש בנושאים ובחיבורים" [active] [ref=e199]: "888"
+          - group "סינון נושאים וחיבורים לפי יוצר" [ref=e200]:
+            - button "הכול" [pressed] [ref=e201] [cursor=pointer]
+            - button "צבי (OPOC)" [ref=e202] [cursor=pointer]
+            - button "שמעון חיימוב" [ref=e203] [cursor=pointer]
+        - status [ref=e204]: לא נמצאו נושאים במסנן הזה.
+  - toolbar "מסלול המחקר והפעולות הזמינות עכשיו" [ref=e205]:
+    - button "כאן · מפת העמוד וההקשר" [ref=e206] [cursor=pointer]:
+      - img [ref=e207] [cursor=pointer]
+      - generic [ref=e210] [cursor=pointer]: כאן
+    - button "מספר · פתח חלונית מספר" [ref=e211] [cursor=pointer]:
+      - img [ref=e212] [cursor=pointer]:
+        - generic [ref=e213] [cursor=pointer]: "123"
+      - generic [ref=e214] [cursor=pointer]: מספר
+    - button "פתח את רזיאל" [ref=e215] [cursor=pointer]
+    - button "עכשיו · 2 חדשים" [ref=e217] [cursor=pointer]:
+      - img [ref=e218] [cursor=pointer]
+      - generic [ref=e221] [cursor=pointer]: עכשיו
+      - generic [ref=e222] [cursor=pointer]: "2"
+    - button "עוד · פעולות וכלים" [ref=e223] [cursor=pointer]:
+      - img [ref=e224] [cursor=pointer]
+      - generic [ref=e229] [cursor=pointer]: עוד
+```

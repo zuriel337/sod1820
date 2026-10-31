@@ -1,0 +1,650 @@
+{
+  "config": {
+    "configFile": "/tmp/ci1185-protected-entry-world/playwright.remaining.config.cjs",
+    "rootDir": "/tmp/ci1185-protected-entry-world/tests",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "line",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "./results-remaining/playwright-results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "/tmp/ci1185-protected-entry-world/results-remaining/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/tmp/ci1185-protected-entry-world/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.55.0",
+    "workers": 2,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "world2029-release.spec.cjs",
+      "file": "world2029-release.spec.cjs",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "SPARSE live World 122 stays honestly sparse with no fabricated research",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5124,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T22:38:43.184Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "43d104987ee5472889e6-0b30abc31e88c9bd5197",
+          "file": "world2029-release.spec.cjs",
+          "line": 816,
+          "column": 1
+        },
+        {
+          "title": "World uses the shared Command, Inspect, Share and exact-return seams",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 10864,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m failed\n\nLocator:  locator('.sod29-command-island button').filter({ hasText: 'חיפוש' })\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('.sod29-command-island button').filter({ hasText: 'חיפוש' })\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m failed\n\nLocator:  locator('.sod29-command-island button').filter({ hasText: 'חיפוש' })\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('.sod29-command-island button').filter({ hasText: 'חיפוש' })\u001b[22m\n\n    at /tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:830:25",
+                    "location": {
+                      "file": "/tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs",
+                      "column": 25,
+                      "line": 830
+                    },
+                    "snippet": "  828 |\n  829 |   const command = page.locator('.sod29-command-island button').filter({ hasText: 'חיפוש' });\n> 830 |   await expect(command).toBeVisible();\n      |                         ^\n  831 |   await command.click();\n  832 |   await expect(page.getByRole('dialog', { name: 'חיפוש' })).toBeVisible();\n  833 |   await page.keyboard.press('Escape');"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs",
+                        "column": 25,
+                        "line": 830
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m failed\n\nLocator:  locator('.sod29-command-island button').filter({ hasText: 'חיפוש' })\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('.sod29-command-island button').filter({ hasText: 'חיפוש' })\u001b[22m\n\n\n  828 |\n  829 |   const command = page.locator('.sod29-command-island button').filter({ hasText: 'חיפוש' });\n> 830 |   await expect(command).toBeVisible();\n      |                         ^\n  831 |   await command.click();\n  832 |   await expect(page.getByRole('dialog', { name: 'חיפוש' })).toBeVisible();\n  833 |   await page.keyboard.press('Escape');\n    at /tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:830:25"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T22:38:48.646Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/tmp/ci1185-protected-entry-world/results-remaining/test-results/world2029-release-World-us-75390-hare-and-exact-return-seams/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs",
+                    "column": 25,
+                    "line": 830
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "43d104987ee5472889e6-c4faee492703bf812e7a",
+          "file": "world2029-release.spec.cjs",
+          "line": 826,
+          "column": 1
+        },
+        {
+          "title": "loading and error states are honest and native",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 16331,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T22:39:00.107Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "43d104987ee5472889e6-0c9590b876869a6f9659",
+          "file": "world2029-release.spec.cjs",
+          "line": 877,
+          "column": 1
+        },
+        {
+          "title": "unavailable identity is not silently replaced by another anchor",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 15878,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m failed\n\nLocator:  getByText('אין חומר זמין לנקודה הזאת')\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  15000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 15000ms\u001b[22m\n\u001b[2m  - waiting for getByText('אין חומר זמין לנקודה הזאת')\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m failed\n\nLocator:  getByText('אין חומר זמין לנקודה הזאת')\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  15000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 15000ms\u001b[22m\n\u001b[2m  - waiting for getByText('אין חומר זמין לנקודה הזאת')\u001b[22m\n\n    at /tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:905:61",
+                    "location": {
+                      "file": "/tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs",
+                      "column": 61,
+                      "line": 905
+                    },
+                    "snippet": "  903 |   await seedWorldAnchor(page, 999999999);\n  904 |   await page.goto(`${BASE}${WORLD}?focus=context`, { waitUntil: 'domcontentloaded' });\n> 905 |   await expect(page.getByText('אין חומר זמין לנקודה הזאת')).toBeVisible({ timeout: 15_000 });\n      |                                                             ^\n  906 |   await expect(page.getByRole('heading', { name: '999999999', exact: true })).toBeVisible();\n  907 |   await page.screenshot({ path: 'test-results/release-visual/world-unavailable-390.png', fullPage: true });\n  908 | });"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs",
+                        "column": 61,
+                        "line": 905
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m failed\n\nLocator:  getByText('אין חומר זמין לנקודה הזאת')\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  15000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 15000ms\u001b[22m\n\u001b[2m  - waiting for getByText('אין חומר זמין לנקודה הזאת')\u001b[22m\n\n\n  903 |   await seedWorldAnchor(page, 999999999);\n  904 |   await page.goto(`${BASE}${WORLD}?focus=context`, { waitUntil: 'domcontentloaded' });\n> 905 |   await expect(page.getByText('אין חומר זמין לנקודה הזאת')).toBeVisible({ timeout: 15_000 });\n      |                                                             ^\n  906 |   await expect(page.getByRole('heading', { name: '999999999', exact: true })).toBeVisible();\n  907 |   await page.screenshot({ path: 'test-results/release-visual/world-unavailable-390.png', fullPage: true });\n  908 | });\n    at /tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:905:61"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T22:39:16.655Z",
+                  "annotations": [],
+                  "attachments": [],
+                  "errorLocation": {
+                    "file": "/tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs",
+                    "column": 61,
+                    "line": 905
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "43d104987ee5472889e6-a523d64cb0795f093c6b",
+          "file": "world2029-release.spec.cjs",
+          "line": 901,
+          "column": 1
+        },
+        {
+          "title": "reduced motion preserves the same World meaning and controls",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6148,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T22:39:33.144Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "43d104987ee5472889e6-c10b2bf6b7acca2ca115",
+          "file": "world2029-release.spec.cjs",
+          "line": 910,
+          "column": 1
+        },
+        {
+          "title": "320px RTL World survives 200% text zoom without horizontal overflow",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5944,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T22:39:39.523Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "43d104987ee5472889e6-7d05d8837ee1d244787f",
+          "file": "world2029-release.spec.cjs",
+          "line": 922,
+          "column": 1
+        },
+        {
+          "title": "private researcher corpus stays gated for non-admin 2029 sessions",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3171,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T22:39:45.494Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "43d104987ee5472889e6-7f59adc44a5a572377c5",
+          "file": "world2029-release.spec.cjs",
+          "line": 934,
+          "column": 1
+        },
+        {
+          "title": "source projector light 390: source-first writer and full Hashmal reading",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "timedOut",
+                  "duration": 60076,
+                  "error": {
+                    "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m",
+                    "stack": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
+                  },
+                  "errors": [
+                    {
+                      "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
+                    },
+                    {
+                      "location": {
+                        "file": "/tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs",
+                        "column": 63,
+                        "line": 982
+                      },
+                      "message": "Error: locator.click: Test timeout of 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'הודעות מקור' })\u001b[22m\n\n\n  980 |       await corpus.screenshot({ path: `test-results/release-visual/hashmal-projector-${preset}-${width}.png` });\n  981 |       await selectWorldLandingView(page, 'מה חדש');\n> 982 |       await page.getByRole('button', { name: 'הודעות מקור' }).click();\n      |                                                               ^\n  983 |       if (groupRows.length) await expect(page.locator('#world-sources details.sod29-world-group-source').first()).toBeVisible({ timeout: 20_000 });\n  984 |       await expect(page.getByText(/עדכוני תורת הרמז והגילוי היומי טרם חוברו/)).toHaveCount(0);\n  985 |     });\n    at /tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:982:63"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T22:39:48.682Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/tmp/ci1185-protected-entry-world/results-remaining/test-results/world2029-release-source-p-37cd7-er-and-full-Hashmal-reading/error-context.md"
+                    }
+                  ]
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "43d104987ee5472889e6-e1e90503dbe8103bdd8f",
+          "file": "world2029-release.spec.cjs",
+          "line": 947,
+          "column": 5
+        },
+        {
+          "title": "source projector light 1440: source-first writer and full Hashmal reading",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "timedOut",
+                  "duration": 60066,
+                  "error": {
+                    "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m",
+                    "stack": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
+                  },
+                  "errors": [
+                    {
+                      "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
+                    },
+                    {
+                      "location": {
+                        "file": "/tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs",
+                        "column": 63,
+                        "line": 982
+                      },
+                      "message": "Error: locator.click: Test timeout of 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'הודעות מקור' })\u001b[22m\n\n\n  980 |       await corpus.screenshot({ path: `test-results/release-visual/hashmal-projector-${preset}-${width}.png` });\n  981 |       await selectWorldLandingView(page, 'מה חדש');\n> 982 |       await page.getByRole('button', { name: 'הודעות מקור' }).click();\n      |                                                               ^\n  983 |       if (groupRows.length) await expect(page.locator('#world-sources details.sod29-world-group-source').first()).toBeVisible({ timeout: 20_000 });\n  984 |       await expect(page.getByText(/עדכוני תורת הרמז והגילוי היומי טרם חוברו/)).toHaveCount(0);\n  985 |     });\n    at /tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:982:63"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T22:40:49.485Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/tmp/ci1185-protected-entry-world/results-remaining/test-results/world2029-release-source-p-b9b7e-er-and-full-Hashmal-reading/error-context.md"
+                    }
+                  ]
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "43d104987ee5472889e6-799065a21cf8f6483727",
+          "file": "world2029-release.spec.cjs",
+          "line": 947,
+          "column": 5
+        },
+        {
+          "title": "source projector parchment 390: source-first writer and full Hashmal reading",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "timedOut",
+                  "duration": 60047,
+                  "error": {
+                    "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m",
+                    "stack": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
+                  },
+                  "errors": [
+                    {
+                      "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
+                    },
+                    {
+                      "location": {
+                        "file": "/tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs",
+                        "column": 63,
+                        "line": 982
+                      },
+                      "message": "Error: locator.click: Test timeout of 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'הודעות מקור' })\u001b[22m\n\n\n  980 |       await corpus.screenshot({ path: `test-results/release-visual/hashmal-projector-${preset}-${width}.png` });\n  981 |       await selectWorldLandingView(page, 'מה חדש');\n> 982 |       await page.getByRole('button', { name: 'הודעות מקור' }).click();\n      |                                                               ^\n  983 |       if (groupRows.length) await expect(page.locator('#world-sources details.sod29-world-group-source').first()).toBeVisible({ timeout: 20_000 });\n  984 |       await expect(page.getByText(/עדכוני תורת הרמז והגילוי היומי טרם חוברו/)).toHaveCount(0);\n  985 |     });\n    at /tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:982:63"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T22:41:50.447Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/tmp/ci1185-protected-entry-world/results-remaining/test-results/world2029-release-source-p-bbcff-er-and-full-Hashmal-reading/error-context.md"
+                    }
+                  ]
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "43d104987ee5472889e6-b4e2426d6dad7e1428ae",
+          "file": "world2029-release.spec.cjs",
+          "line": 947,
+          "column": 5
+        },
+        {
+          "title": "source projector parchment 1440: source-first writer and full Hashmal reading",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "timedOut",
+                  "duration": 60083,
+                  "error": {
+                    "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m",
+                    "stack": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
+                  },
+                  "errors": [
+                    {
+                      "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
+                    },
+                    {
+                      "location": {
+                        "file": "/tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs",
+                        "column": 63,
+                        "line": 982
+                      },
+                      "message": "Error: locator.click: Test timeout of 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'הודעות מקור' })\u001b[22m\n\n\n  980 |       await corpus.screenshot({ path: `test-results/release-visual/hashmal-projector-${preset}-${width}.png` });\n  981 |       await selectWorldLandingView(page, 'מה חדש');\n> 982 |       await page.getByRole('button', { name: 'הודעות מקור' }).click();\n      |                                                               ^\n  983 |       if (groupRows.length) await expect(page.locator('#world-sources details.sod29-world-group-source').first()).toBeVisible({ timeout: 20_000 });\n  984 |       await expect(page.getByText(/עדכוני תורת הרמז והגילוי היומי טרם חוברו/)).toHaveCount(0);\n  985 |     });\n    at /tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:982:63"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T22:42:51.303Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/tmp/ci1185-protected-entry-world/results-remaining/test-results/world2029-release-source-p-3e31a-er-and-full-Hashmal-reading/error-context.md"
+                    }
+                  ]
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "43d104987ee5472889e6-15188df6fbf2931da544",
+          "file": "world2029-release.spec.cjs",
+          "line": 947,
+          "column": 5
+        },
+        {
+          "title": "source projector dark 390: source-first writer and full Hashmal reading",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 6,
+                  "parallelIndex": 0,
+                  "status": "timedOut",
+                  "duration": 60056,
+                  "error": {
+                    "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m",
+                    "stack": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
+                  },
+                  "errors": [
+                    {
+                      "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
+                    },
+                    {
+                      "location": {
+                        "file": "/tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs",
+                        "column": 63,
+                        "line": 982
+                      },
+                      "message": "Error: locator.click: Test timeout of 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'הודעות מקור' })\u001b[22m\n\n\n  980 |       await corpus.screenshot({ path: `test-results/release-visual/hashmal-projector-${preset}-${width}.png` });\n  981 |       await selectWorldLandingView(page, 'מה חדש');\n> 982 |       await page.getByRole('button', { name: 'הודעות מקור' }).click();\n      |                                                               ^\n  983 |       if (groupRows.length) await expect(page.locator('#world-sources details.sod29-world-group-source').first()).toBeVisible({ timeout: 20_000 });\n  984 |       await expect(page.getByText(/עדכוני תורת הרמז והגילוי היומי טרם חוברו/)).toHaveCount(0);\n  985 |     });\n    at /tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:982:63"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T22:43:52.311Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/tmp/ci1185-protected-entry-world/results-remaining/test-results/world2029-release-source-p-3761c-er-and-full-Hashmal-reading/error-context.md"
+                    }
+                  ]
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "43d104987ee5472889e6-060d0c813eb6840dcf2f",
+          "file": "world2029-release.spec.cjs",
+          "line": 947,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-31T22:38:42.638Z",
+    "duration": 370223.576,
+    "expected": 5,
+    "skipped": 0,
+    "unexpected": 7,
+    "flaky": 0
+  }
+}

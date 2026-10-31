@@ -1,0 +1,254 @@
+Guard preflight PASS: page and actual Service Worker POSTs blocked; local sink received zero writes
+
+Running 47 tests using 2 workers
+
+[1A[2K(node:38740) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:38739) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:38739) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:38740) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[1/47] tests/entry-learn-2029.spec.cjs:32:1 › direct Post opens Number; contextual teaching and help retain the same focus at 390px
+[1A[2K[2/47] tests/world2029-release.spec.cjs:137:3 › Core Web Vitals CLS budget holds on /2029 at 390px
+[1A[2K[3/47] tests/world2029-release.spec.cjs:137:3 › Core Web Vitals CLS budget holds on /world at 390px
+[1A[2K  1) tests/world2029-release.spec.cjs:137:3 › Core Web Vitals CLS budget holds on /world at 390px ──
+
+    Error: /world CLS=0.2229 exceeded 0.1; max-window sources: div[128→162;h614→614], section.sod29-world-overview.sod29-world-entry[742→776;h102→68], span.sod29-hero-symbol[103→120;h44→44], button.sod29-action.primary[840→0;h4→0], i[335→335;h5→5], main.sod29-content[68→120;h776→724], i[387→387;h5→5], section.sod29-world-overview.sod29-world-entry[828→0;h16→0]
+
+    [2mexpect([22m[31mreceived[39m[2m).[22mtoBeLessThanOrEqual[2m([22m[32mexpected[39m[2m)[22m
+
+    Expected: <= [32m0.1[39m
+    Received:    [31m0.22292711177217794[39m
+
+      83 |     metric.value,
+      84 |     `${route} CLS=${metric.value.toFixed(4)} exceeded 0.1; max-window sources: ${metric.sources.join(', ') || 'unknown'}`,
+    > 85 |   ).toBeLessThanOrEqual(0.1);
+         |     ^
+      86 | }
+      87 |
+      88 | test.setTimeout(60_000);
+        at assertClsGood (/tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:85:5)
+        at /tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:143:5
+
+    Error Context: results/test-results/world2029-release-Core-Web-2147c-get-holds-on-world-at-390px/error-context.md
+
+
+[1A[2K(node:39072) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:39072) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[4/47] tests/world2029-release.spec.cjs:137:3 › Core Web Vitals CLS budget holds on /topic/888-yeshua at 390px
+[1A[2K[5/47] tests/world2029-release.spec.cjs:137:3 › Core Web Vitals CLS budget holds on /books at 390px
+[1A[2K[6/47] tests/world2029-release.spec.cjs:137:3 › Core Web Vitals CLS budget holds on /book/daat-tevunot at 390px
+[1A[2K[7/47] tests/world2029-release.spec.cjs:137:3 › Core Web Vitals CLS budget holds on /els at 390px
+[1A[2K  2) tests/entry-learn-2029.spec.cjs:32:1 › direct Post opens Number; contextual teaching and help retain the same focus at 390px 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m failed
+
+    Locator:  locator('[data-experience-surface="post-reading"]')
+    Expected: visible
+    Received: <element(s) not found>
+    Timeout:  30000ms
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 30000ms[22m
+    [2m  - waiting for locator('[data-experience-surface="post-reading"]')[22m
+
+
+      54 |   await page.goto(`${BASE}${POST_PATH}`, { waitUntil: 'networkidle' });
+      55 |   const post = page.locator('[data-experience-surface="post-reading"]');
+    > 56 |   await expect(post).toBeVisible({ timeout: 30_000 });
+         |                      ^
+      57 |
+      58 |   const orientation = page.locator('.sod29-entry-orientation-slot .sod29-learn-mark');
+      59 |   await expect(orientation).toBeVisible();
+        at /tmp/ci1185-protected-entry-world/tests/entry-learn-2029.spec.cjs:56:22
+
+    Error Context: results/test-results/entry-learn-2029-direct-Po-bb407-ain-the-same-focus-at-390px/error-context.md
+
+
+[1A[2K[8/47] tests/entry-learn-2029.spec.cjs:180:1 › completed Post entry stays compact after reload
+[1A[2K[9/47] tests/world2029-release.spec.cjs:137:3 › Core Web Vitals CLS budget holds on /2029/number/1237 at 390px
+[1A[2K[10/47] tests/world2029-release.spec.cjs:225:1 › direct /world opens public composed World with aircraft story, real arrivals and source navigation
+[1A[2K  3) tests/world2029-release.spec.cjs:225:1 › direct /world opens public composed World with aircraft story, real arrivals and source navigation 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m failed
+
+    Locator:  getByRole('heading', { name: 'מתחילים ממה שמסקרן אותך.' })
+    Expected: visible
+    Received: <element(s) not found>
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('heading', { name: 'מתחילים ממה שמסקרן אותך.' })[22m
+
+
+      229 |   await expect(page.getByRole('heading', { name: 'העולם', exact: true })).toBeVisible();
+      230 |   await expect(page.getByRole('region', { name: 'כניסה לעולם' })).toBeVisible({ timeout: 30_000 });
+    > 231 |   await expect(page.getByRole('heading', { name: 'מתחילים ממה שמסקרן אותך.' })).toBeVisible();
+          |                                                                                 ^
+      232 |   await expect(page.getByRole('heading', { name: 'מה מגיע עכשיו' })).toBeVisible({ timeout: 30_000 });
+      233 |   const postsFilter = page.getByRole('button', { name: 'פוסטים אחרונים' });
+      234 |   await postsFilter.click();
+        at /tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:231:81
+
+    Error Context: results/test-results/world2029-release-direct-w-2b61f-ivals-and-source-navigation/error-context.md
+
+
+[1A[2K(node:39435) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:39435) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[11/47] tests/world2029-release.spec.cjs:254:1 › public World catalog remains searchable and paginated inside the new composed presentation
+[1A[2K  4) tests/world2029-release.spec.cjs:254:1 › public World catalog remains searchable and paginated inside the new composed presentation 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeGreaterThan[2m([22m[32mexpected[39m[2m)[22m
+
+    Expected: > [32m0[39m
+    Received:   [31m0[39m
+
+      262 |   await expect(catalog.getByText(/כרטיסים ציבוריים/)).toBeVisible({ timeout: 30_000 });
+      263 |   const cards = catalog.locator('.sod29-world-catalog-card');
+    > 264 |   expect(await cards.count()).toBeGreaterThan(0);
+          |                               ^
+      265 |   const search = catalog.getByRole('textbox', { name: 'חיפוש בנושאים ובחיבורים' });
+      266 |   await search.fill('888');
+      267 |   await expect(catalog.locator('a[href="/topic/888-yeshua"]')).toBeVisible({ timeout: 30_000 });
+        at /tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:264:31
+
+    Error Context: results/test-results/world2029-release-public-W-59a89-e-new-composed-presentation/error-context.md
+
+
+[1A[2K(node:39585) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:39585) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[12/47] tests/world2029-release.spec.cjs:277:1 › native canonical Topic 2029 renders 888 with semantic links and SEO identity
+[1A[2K  5) tests/world2029-release.spec.cjs:277:1 › native canonical Topic 2029 renders 888 with semantic links and SEO identity 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m failed
+
+    Locator:  locator('article[data-entity-type="convergence"]')
+    Expected: visible
+    Received: <element(s) not found>
+    Timeout:  30000ms
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 30000ms[22m
+    [2m  - waiting for locator('article[data-entity-type="convergence"]')[22m
+
+
+      280 |
+      281 |   const article = page.locator('article[data-entity-type="convergence"]');
+    > 282 |   await expect(article).toBeVisible({ timeout: 30_000 });
+          |                         ^
+      283 |   const heroNumber = article.locator('a[href="/2029/number/888"]').first();
+      284 |   await expect(heroNumber).toBeVisible({ timeout: 20_000 });
+      285 |   await expect(heroNumber).toHaveText('888');
+        at /tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:282:25
+
+    Error Context: results/test-results/world2029-release-native-c-7719a-ntic-links-and-SEO-identity/error-context.md
+
+
+[1A[2K(node:39743) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:39743) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[13/47] tests/world2029-release.spec.cjs:295:1 › Topic expression focus opens Number 2029 and survives World + Heichal transitions
+[1A[2K  6) tests/world2029-release.spec.cjs:295:1 › Topic expression focus opens Number 2029 and survives World + Heichal transitions 
+
+    Error: [2mexpect([22m[31mpage[39m[2m).[22mtoHaveURL[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Expected pattern: [32m/\/2029\/number\/98\?focus=.*method=/[39m
+    Received string:  [31m"https://sod1820-26of53pw9-sod1820-s-projects.vercel.app/topic/98-ikuv-geula"[39m
+    Timeout: 30000ms
+
+    Call log:
+    [2m  - Expect "toHaveURL" with timeout 30000ms[22m
+    [2m    34 × unexpected value "https://sod1820-26of53pw9-sod1820-s-projects.vercel.app/topic/98-ikuv-geula"[22m
+
+
+      304 |   await chinam.click();
+      305 |
+    > 306 |   await expect(page).toHaveURL(/\/2029\/number\/98\?focus=.*method=/, { timeout: 30_000 });
+          |                      ^
+      307 |   const numberPage = page.locator('[data-experience-surface="number"]');
+      308 |   await expect(numberPage).toBeVisible({ timeout: 30_000 });
+      309 |   const focusRibbon = numberPage.locator('[data-expression-focus="true"]');
+        at /tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:306:22
+
+    Error Context: results/test-results/world2029-release-Topic-ex-aba33-s-World-Heichal-transitions/error-context.md
+
+
+[1A[2K(node:39897) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:39897) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[14/47] tests/world2029-release.spec.cjs:337:1 › Number 2029 preview opens 1237 with all available methods visible in one wrapped research stage
+[1A[2K  7) tests/world2029-release.spec.cjs:337:1 › Number 2029 preview opens 1237 with all available methods visible in one wrapped research stage 
+
+    Test was interrupted.
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m failed
+
+    Locator:  locator('[data-experience-surface="number"]')
+    Expected: visible
+    Received: <element(s) not found>
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 30000ms[22m
+    [2m  - waiting for locator('[data-experience-surface="number"]')[22m
+
+
+      340 |
+      341 |   const numberPage = page.locator('[data-experience-surface="number"]');
+    > 342 |   await expect(numberPage).toBeVisible({ timeout: 30_000 });
+          |                            ^
+      343 |   await expect(numberPage).toHaveAttribute('data-number-root', '1237');
+      344 |   await expect(numberPage.locator('.sod29-number-value')).toHaveText('1237');
+      345 |
+        at /tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:342:28
+
+
+[1A[2K  6 failed
+    tests/entry-learn-2029.spec.cjs:32:1 › direct Post opens Number; contextual teaching and help retain the same focus at 390px 
+    tests/world2029-release.spec.cjs:137:3 › Core Web Vitals CLS budget holds on /world at 390px ───
+    tests/world2029-release.spec.cjs:225:1 › direct /world opens public composed World with aircraft story, real arrivals and source navigation 
+    tests/world2029-release.spec.cjs:254:1 › public World catalog remains searchable and paginated inside the new composed presentation 
+    tests/world2029-release.spec.cjs:277:1 › native canonical Topic 2029 renders 888 with semantic links and SEO identity 
+    tests/world2029-release.spec.cjs:295:1 › Topic expression focus opens Number 2029 and survives World + Heichal transitions 
+  1 interrupted
+    tests/world2029-release.spec.cjs:337:1 › Number 2029 preview opens 1237 with all available methods visible in one wrapped research stage 
+  34 did not run
+  6 passed (2.3m)

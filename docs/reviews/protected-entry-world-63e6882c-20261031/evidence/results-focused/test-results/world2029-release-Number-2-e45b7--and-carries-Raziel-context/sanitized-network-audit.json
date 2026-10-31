@@ -1,0 +1,9 @@
+{
+  "test": "Number 2029 global drawer reuses the same method-first Core and carries Raziel context",
+  "blocked": [],
+  "reads": [],
+  "responses": [],
+  "localReads": [],
+  "transportErrors": [],
+  "staticReads": 0
+}

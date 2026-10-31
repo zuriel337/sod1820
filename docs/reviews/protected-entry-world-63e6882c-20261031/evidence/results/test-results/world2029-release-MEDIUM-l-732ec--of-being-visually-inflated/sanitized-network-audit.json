@@ -1,0 +1,17 @@
+{
+  "test": "MEDIUM live World 314 remains medium instead of being visually inflated",
+  "blocked": [],
+  "reads": [],
+  "responses": [
+    {
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/site_flags",
+      "status": 200,
+      "serviceWorker": false
+    }
+  ],
+  "localReads": [],
+  "transportErrors": [],
+  "staticReads": 90
+}

@@ -1,0 +1,135 @@
+{
+  "test": "public World catalog remains searchable and paginated inside the new composed presentation",
+  "blocked": [],
+  "reads": [
+    {
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/posts",
+      "serviceWorker": false
+    },
+    {
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/topic_cards_public",
+      "serviceWorker": false
+    },
+    {
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/contributors",
+      "serviceWorker": false
+    },
+    {
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/topic_cards_public",
+      "serviceWorker": false
+    },
+    {
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/topic_cards_public",
+      "serviceWorker": false
+    },
+    {
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/posts",
+      "serviceWorker": false
+    },
+    {
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/topic_cards_public",
+      "serviceWorker": false
+    },
+    {
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/posts",
+      "serviceWorker": false
+    },
+    {
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/topic_cards_public",
+      "serviceWorker": false
+    },
+    {
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/topic_cards_public",
+      "serviceWorker": false
+    },
+    {
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/topic_cards_public",
+      "serviceWorker": false
+    },
+    {
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/topic_cards_public",
+      "serviceWorker": false
+    },
+    {
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/topic_cards_public",
+      "serviceWorker": false
+    },
+    {
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/posts",
+      "serviceWorker": false
+    },
+    {
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/posts",
+      "serviceWorker": false
+    },
+    {
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/posts",
+      "serviceWorker": false
+    },
+    {
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/posts",
+      "serviceWorker": false
+    },
+    {
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/posts",
+      "serviceWorker": false
+    },
+    {
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/gallery_images",
+      "serviceWorker": false
+    },
+    {
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/topic_cards_public",
+      "serviceWorker": false
+    },
+    {
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/topic_cards_public",
+      "serviceWorker": false
+    }
+  ],
+  "localReads": [],
+  "transportErrors": [],
+  "staticReads": 92
+}

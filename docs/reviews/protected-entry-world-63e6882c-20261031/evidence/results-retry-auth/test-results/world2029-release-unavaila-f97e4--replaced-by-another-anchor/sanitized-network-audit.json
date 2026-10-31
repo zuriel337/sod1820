@@ -1,0 +1,9 @@
+{
+  "test": "unavailable identity is not silently replaced by another anchor",
+  "blocked": [],
+  "reads": [],
+  "responses": [],
+  "localReads": [],
+  "transportErrors": [],
+  "staticReads": 0
+}

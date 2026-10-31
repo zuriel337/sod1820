@@ -1,0 +1,9 @@
+{
+  "test": "World uses the shared Command, Inspect, Share and exact-return seams",
+  "blocked": [],
+  "reads": [],
+  "responses": [],
+  "localReads": [],
+  "transportErrors": [],
+  "staticReads": 0
+}

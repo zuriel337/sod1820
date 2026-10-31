@@ -1,0 +1,9 @@
+{
+  "test": "source projector parchment 1440: source-first writer and full Hashmal reading",
+  "blocked": [],
+  "reads": [],
+  "responses": [],
+  "localReads": [],
+  "transportErrors": [],
+  "staticReads": 0
+}

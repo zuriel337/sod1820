@@ -1,0 +1,956 @@
+Guard preflight PASS: page and actual Service Worker POSTs blocked; local sink received zero writes
+
+Running 46 tests using 2 workers
+
+[1A[2K(node:40257) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:40258) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:40257) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:40258) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[1/46] tests/public-post-entry-supplementary.spec.cjs:4:1 › Supplementary: public Flight Post has a readable entry and contextual orientation at 390px
+[1A[2K[2/46] tests/world2029-release.spec.cjs:137:3 › Core Web Vitals CLS budget holds on /2029 at 390px
+[1A[2K[3/46] tests/world2029-release.spec.cjs:137:3 › Core Web Vitals CLS budget holds on /world at 390px
+[1A[2K  1) tests/world2029-release.spec.cjs:137:3 › Core Web Vitals CLS budget holds on /world at 390px ──
+
+    Error: /world CLS=0.2229 exceeded 0.1; max-window sources: div[128→162;h614→614], section.sod29-world-overview.sod29-world-entry[742→776;h102→68], span.sod29-hero-symbol[103→120;h44→44], button.sod29-action.primary[840→0;h4→0], main.sod29-content[68→120;h776→724], i[387→387;h5→5], section.sod29-world-overview.sod29-world-entry[828→0;h16→0], div.sod29-flight-copy[369→556;h402→288]
+
+    [2mexpect([22m[31mreceived[39m[2m).[22mtoBeLessThanOrEqual[2m([22m[32mexpected[39m[2m)[22m
+
+    Expected: <= [32m0.1[39m
+    Received:    [31m0.22292780637650325[39m
+
+      83 |     metric.value,
+      84 |     `${route} CLS=${metric.value.toFixed(4)} exceeded 0.1; max-window sources: ${metric.sources.join(', ') || 'unknown'}`,
+    > 85 |   ).toBeLessThanOrEqual(0.1);
+         |     ^
+      86 | }
+      87 |
+      88 | test.setTimeout(60_000);
+        at assertClsGood (/tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:85:5)
+        at /tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:143:5
+
+    Error Context: results/test-results/world2029-release-Core-Web-2147c-get-holds-on-world-at-390px/error-context.md
+
+
+[1A[2K(node:40593) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:40593) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[4/46] tests/world2029-release.spec.cjs:137:3 › Core Web Vitals CLS budget holds on /topic/888-yeshua at 390px
+[1A[2K[5/46] tests/world2029-release.spec.cjs:137:3 › Core Web Vitals CLS budget holds on /books at 390px
+[1A[2K[6/46] tests/world2029-release.spec.cjs:137:3 › Core Web Vitals CLS budget holds on /book/daat-tevunot at 390px
+[1A[2K[7/46] tests/world2029-release.spec.cjs:137:3 › Core Web Vitals CLS budget holds on /els at 390px
+[1A[2K[8/46] tests/world2029-release.spec.cjs:137:3 › Core Web Vitals CLS budget holds on /2029/number/1237 at 390px
+[1A[2K[9/46] tests/world2029-release.spec.cjs:225:1 › direct /world opens public composed World with aircraft story, real arrivals and source navigation
+[1A[2K  2) tests/world2029-release.spec.cjs:225:1 › direct /world opens public composed World with aircraft story, real arrivals and source navigation 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m failed
+
+    Locator:  getByRole('heading', { name: 'מתחילים ממה שמסקרן אותך.' })
+    Expected: visible
+    Received: <element(s) not found>
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('heading', { name: 'מתחילים ממה שמסקרן אותך.' })[22m
+
+
+      229 |   await expect(page.getByRole('heading', { name: 'העולם', exact: true })).toBeVisible();
+      230 |   await expect(page.getByRole('region', { name: 'כניסה לעולם' })).toBeVisible({ timeout: 30_000 });
+    > 231 |   await expect(page.getByRole('heading', { name: 'מתחילים ממה שמסקרן אותך.' })).toBeVisible();
+          |                                                                                 ^
+      232 |   await expect(page.getByRole('heading', { name: 'מה מגיע עכשיו' })).toBeVisible({ timeout: 30_000 });
+      233 |   const postsFilter = page.getByRole('button', { name: 'פוסטים אחרונים' });
+      234 |   await postsFilter.click();
+        at /tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:231:81
+
+    Error Context: results/test-results/world2029-release-direct-w-2b61f-ivals-and-source-navigation/error-context.md
+
+
+[1A[2K(node:40944) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:40944) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[10/46] tests/world2029-release.spec.cjs:254:1 › public World catalog remains searchable and paginated inside the new composed presentation
+[1A[2K  3) tests/world2029-release.spec.cjs:254:1 › public World catalog remains searchable and paginated inside the new composed presentation 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m failed
+
+    Locator:  locator('#world-all-convergences').locator('a[href="/topic/888-yeshua"]')
+    Expected: visible
+    Received: <element(s) not found>
+    Timeout:  30000ms
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 30000ms[22m
+    [2m  - waiting for locator('#world-all-convergences').locator('a[href="/topic/888-yeshua"]')[22m
+
+
+      265 |   const search = catalog.getByRole('textbox', { name: 'חיפוש בנושאים ובחיבורים' });
+      266 |   await search.fill('888');
+    > 267 |   await expect(catalog.locator('a[href="/topic/888-yeshua"]')).toBeVisible({ timeout: 30_000 });
+          |                                                                ^
+      268 |   await search.fill('');
+      269 |   const expand = catalog.getByRole('button', { name: 'עוד נושאים וחיבורים' });
+      270 |   if (await expand.count()) {
+        at /tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:267:64
+
+    Error Context: results/test-results/world2029-release-public-W-59a89-e-new-composed-presentation/error-context.md
+
+
+[1A[2K(node:41119) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:41119) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[11/46] tests/world2029-release.spec.cjs:277:1 › native canonical Topic 2029 renders 888 with semantic links and SEO identity
+[1A[2K  4) tests/world2029-release.spec.cjs:277:1 › native canonical Topic 2029 renders 888 with semantic links and SEO identity 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m failed
+
+    Locator:  locator('article[data-entity-type="convergence"]')
+    Expected: visible
+    Received: <element(s) not found>
+    Timeout:  30000ms
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 30000ms[22m
+    [2m  - waiting for locator('article[data-entity-type="convergence"]')[22m
+
+
+      280 |
+      281 |   const article = page.locator('article[data-entity-type="convergence"]');
+    > 282 |   await expect(article).toBeVisible({ timeout: 30_000 });
+          |                         ^
+      283 |   const heroNumber = article.locator('a[href="/2029/number/888"]').first();
+      284 |   await expect(heroNumber).toBeVisible({ timeout: 20_000 });
+      285 |   await expect(heroNumber).toHaveText('888');
+        at /tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:282:25
+
+    Error Context: results/test-results/world2029-release-native-c-7719a-ntic-links-and-SEO-identity/error-context.md
+
+
+[1A[2K(node:41276) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:41276) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[12/46] tests/world2029-release.spec.cjs:295:1 › Topic expression focus opens Number 2029 and survives World + Heichal transitions
+[1A[2K  5) tests/world2029-release.spec.cjs:295:1 › Topic expression focus opens Number 2029 and survives World + Heichal transitions 
+
+    Error: [2mexpect([22m[31mpage[39m[2m).[22mtoHaveURL[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Expected pattern: [32m/\/2029\/number\/98\?focus=.*method=/[39m
+    Received string:  [31m"https://sod1820-26of53pw9-sod1820-s-projects.vercel.app/topic/98-ikuv-geula"[39m
+    Timeout: 30000ms
+
+    Call log:
+    [2m  - Expect "toHaveURL" with timeout 30000ms[22m
+    [2m    34 × unexpected value "https://sod1820-26of53pw9-sod1820-s-projects.vercel.app/topic/98-ikuv-geula"[22m
+
+
+      304 |   await chinam.click();
+      305 |
+    > 306 |   await expect(page).toHaveURL(/\/2029\/number\/98\?focus=.*method=/, { timeout: 30_000 });
+          |                      ^
+      307 |   const numberPage = page.locator('[data-experience-surface="number"]');
+      308 |   await expect(numberPage).toBeVisible({ timeout: 30_000 });
+      309 |   const focusRibbon = numberPage.locator('[data-expression-focus="true"]');
+        at /tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:306:22
+
+    Error Context: results/test-results/world2029-release-Topic-ex-aba33-s-World-Heichal-transitions/error-context.md
+
+
+[1A[2K(node:41476) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:41476) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[13/46] tests/world2029-release.spec.cjs:337:1 › Number 2029 preview opens 1237 with all available methods visible in one wrapped research stage
+[1A[2K[14/46] tests/world2029-release.spec.cjs:390:1 › Number 2029 596 keeps six methods visible and finds Jerusalem↔Shomrim as a live hidden crossing
+[1A[2K[15/46] tests/world2029-release.spec.cjs:431:1 › Number 2029 1118 uses canonical Hebrew verse refs and appends the gematria value after the verse
+[1A[2K[16/46] tests/world2029-release.spec.cjs:510:1 › Contextual Number Surface stays one desktop sidecar through focus → preview → back
+[1A[2K  6) tests/world2029-release.spec.cjs:510:1 › Contextual Number Surface stays one desktop sidecar through focus → preview → back 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m failed
+
+    Locator:  locator('.sod29-command-island').getByRole('button', { name: 'פעולה', exact: true })
+    Expected: visible
+    Received: <element(s) not found>
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for locator('.sod29-command-island').getByRole('button', { name: 'פעולה', exact: true })[22m
+
+
+      200 | async function openNumberCapabilityFromIsland(page) {
+      201 |   const action = page.locator('.sod29-command-island').getByRole('button', { name: 'פעולה', exact: true });
+    > 202 |   await expect(action).toBeVisible();
+          |                        ^
+      203 |   await action.click();
+      204 |   const actionDialog = page.getByRole('dialog', { name: /פעולה ·/ });
+      205 |   await expect(actionDialog).toBeVisible();
+        at openNumberCapabilityFromIsland (/tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:202:24)
+        at /tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:515:9
+
+    Error Context: results/test-results/world2029-release-Contextu-f6118-ough-focus-→-preview-→-back/error-context.md
+
+
+[1A[2K(node:41740) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:41740) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[17/46] tests/world2029-release.spec.cjs:541:1 › Number 2029 Miluy switches the whole stage to 878 with language bridges and in-place explain
+[1A[2K[18/46] tests/world2029-release.spec.cjs:584:1 › Number 2029 878 keeps its general research path but no longer opens the locked Golden Journey
+[1A[2K[19/46] tests/world2029-release.spec.cjs:608:1 › Number 2029 golden visual calibration covers 878, 358 and the 1326 visual target in Page and Drawer
+[1A[2K  7) tests/world2029-release.spec.cjs:608:1 › Number 2029 golden visual calibration covers 878, 358 and the 1326 visual target in Page and Drawer 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m failed
+
+    Locator:  locator('.sod29-command-island').getByRole('button', { name: 'פעולה', exact: true })
+    Expected: visible
+    Received: <element(s) not found>
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for locator('.sod29-command-island').getByRole('button', { name: 'פעולה', exact: true })[22m
+
+
+      200 | async function openNumberCapabilityFromIsland(page) {
+      201 |   const action = page.locator('.sod29-command-island').getByRole('button', { name: 'פעולה', exact: true });
+    > 202 |   await expect(action).toBeVisible();
+          |                        ^
+      203 |   await action.click();
+      204 |   const actionDialog = page.getByRole('dialog', { name: /פעולה ·/ });
+      205 |   await expect(actionDialog).toBeVisible();
+        at openNumberCapabilityFromIsland (/tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:202:24)
+        at /tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:620:11
+
+    Error Context: results/test-results/world2029-release-Number-2-065f8-l-target-in-Page-and-Drawer/error-context.md
+
+
+[1A[2K(node:41961) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:41961) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[20/46] tests/world2029-release.spec.cjs:635:1 › Golden World 878 journey stays closed while the public Number 878 and full images remain readable
+[1A[2K[21/46] tests/world2029-release.spec.cjs:671:3 › Public World story and source entry remain usable and overflow-free at 320px
+[1A[2K  8) tests/world2029-release.spec.cjs:671:3 › Public World story and source entry remain usable and overflow-free at 320px 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m failed
+
+    Locator:  getByRole('heading', { name: 'מתחילים ממה שמסקרן אותך.' })
+    Expected: visible
+    Received: <element(s) not found>
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('heading', { name: 'מתחילים ממה שמסקרן אותך.' })[22m
+
+
+      673 |     await page.goto(`${BASE}${WORLD}`, { waitUntil: 'domcontentloaded' });
+      674 |     await expect(page.locator('.sod29-world-overview')).toBeVisible({ timeout: 30_000 });
+    > 675 |     await expect(page.getByRole('heading', { name: 'מתחילים ממה שמסקרן אותך.' })).toBeVisible();
+          |                                                                                   ^
+      676 |     await expect(page.locator('#world-sources')).toBeVisible({ timeout: 30_000 });
+      677 |     await selectWorldLandingView(page, 'נושאים וחיבורים');
+      678 |     await expect(page.locator('#world-all-convergences')).toBeVisible();
+        at /tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:675:83
+
+    Error Context: results/test-results/world2029-release-Public-W-6d9bf--and-overflow-free-at-320px/error-context.md
+
+
+[1A[2K(node:42150) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:42150) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[22/46] tests/world2029-release.spec.cjs:671:3 › Public World story and source entry remain usable and overflow-free at 360px
+[1A[2K  9) tests/world2029-release.spec.cjs:671:3 › Public World story and source entry remain usable and overflow-free at 360px 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m failed
+
+    Locator:  getByRole('heading', { name: 'מתחילים ממה שמסקרן אותך.' })
+    Expected: visible
+    Received: <element(s) not found>
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('heading', { name: 'מתחילים ממה שמסקרן אותך.' })[22m
+
+
+      673 |     await page.goto(`${BASE}${WORLD}`, { waitUntil: 'domcontentloaded' });
+      674 |     await expect(page.locator('.sod29-world-overview')).toBeVisible({ timeout: 30_000 });
+    > 675 |     await expect(page.getByRole('heading', { name: 'מתחילים ממה שמסקרן אותך.' })).toBeVisible();
+          |                                                                                   ^
+      676 |     await expect(page.locator('#world-sources')).toBeVisible({ timeout: 30_000 });
+      677 |     await selectWorldLandingView(page, 'נושאים וחיבורים');
+      678 |     await expect(page.locator('#world-all-convergences')).toBeVisible();
+        at /tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:675:83
+
+    Error Context: results/test-results/world2029-release-Public-W-c8787--and-overflow-free-at-360px/error-context.md
+
+
+[1A[2K(node:42297) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:42297) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[23/46] tests/world2029-release.spec.cjs:671:3 › Public World story and source entry remain usable and overflow-free at 390px
+[1A[2K  10) tests/world2029-release.spec.cjs:671:3 › Public World story and source entry remain usable and overflow-free at 390px 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m failed
+
+    Locator:  getByRole('heading', { name: 'מתחילים ממה שמסקרן אותך.' })
+    Expected: visible
+    Received: <element(s) not found>
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('heading', { name: 'מתחילים ממה שמסקרן אותך.' })[22m
+
+
+      673 |     await page.goto(`${BASE}${WORLD}`, { waitUntil: 'domcontentloaded' });
+      674 |     await expect(page.locator('.sod29-world-overview')).toBeVisible({ timeout: 30_000 });
+    > 675 |     await expect(page.getByRole('heading', { name: 'מתחילים ממה שמסקרן אותך.' })).toBeVisible();
+          |                                                                                   ^
+      676 |     await expect(page.locator('#world-sources')).toBeVisible({ timeout: 30_000 });
+      677 |     await selectWorldLandingView(page, 'נושאים וחיבורים');
+      678 |     await expect(page.locator('#world-all-convergences')).toBeVisible();
+        at /tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:675:83
+
+    Error Context: results/test-results/world2029-release-Public-W-c8ec1--and-overflow-free-at-390px/error-context.md
+
+
+[1A[2K(node:42455) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:42455) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[24/46] tests/world2029-release.spec.cjs:685:3 › RICH live World 1820 is truthful and overflow-free at 320px
+[1A[2K  11) tests/world2029-release.spec.cjs:685:3 › RICH live World 1820 is truthful and overflow-free at 320px 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m failed
+
+    Locator:  getByRole('heading', { name: 'מה אתה רוצה לראות עכשיו?' })
+    Expected: visible
+    Received: <element(s) not found>
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('heading', { name: 'מה אתה רוצה לראות עכשיו?' })[22m
+
+
+      686 |     const projection = await openWorldAnchor(page, 1820, width);
+      687 |     await expect(projection).toHaveAttribute('data-world-density', 'rich');
+    > 688 |     await expect(page.getByRole('heading', { name: 'מה אתה רוצה לראות עכשיו?' })).toBeVisible();
+          |                                                                                   ^
+      689 |     await selectWorldLane(page, 'מקורות');
+      690 |     await expect(page.getByText('מאיפה החומר מגיע')).toBeVisible();
+      691 |     await assertNoHorizontalOverflow(page);
+        at /tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:688:83
+
+    Error Context: results/test-results/world2029-release-RICH-liv-a906c--and-overflow-free-at-320px/error-context.md
+
+
+[1A[2K(node:42602) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:42602) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[25/46] tests/world2029-release.spec.cjs:685:3 › RICH live World 1820 is truthful and overflow-free at 360px
+[1A[2K  12) tests/world2029-release.spec.cjs:685:3 › RICH live World 1820 is truthful and overflow-free at 360px 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m failed
+
+    Locator:  getByRole('heading', { name: 'מה אתה רוצה לראות עכשיו?' })
+    Expected: visible
+    Received: <element(s) not found>
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('heading', { name: 'מה אתה רוצה לראות עכשיו?' })[22m
+
+
+      686 |     const projection = await openWorldAnchor(page, 1820, width);
+      687 |     await expect(projection).toHaveAttribute('data-world-density', 'rich');
+    > 688 |     await expect(page.getByRole('heading', { name: 'מה אתה רוצה לראות עכשיו?' })).toBeVisible();
+          |                                                                                   ^
+      689 |     await selectWorldLane(page, 'מקורות');
+      690 |     await expect(page.getByText('מאיפה החומר מגיע')).toBeVisible();
+      691 |     await assertNoHorizontalOverflow(page);
+        at /tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:688:83
+
+    Error Context: results/test-results/world2029-release-RICH-liv-0189c--and-overflow-free-at-360px/error-context.md
+
+
+[1A[2K(node:42793) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:42793) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[26/46] tests/world2029-release.spec.cjs:685:3 › RICH live World 1820 is truthful and overflow-free at 390px
+[1A[2K  13) tests/world2029-release.spec.cjs:685:3 › RICH live World 1820 is truthful and overflow-free at 390px 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m failed
+
+    Locator:  getByRole('heading', { name: 'מה אתה רוצה לראות עכשיו?' })
+    Expected: visible
+    Received: <element(s) not found>
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('heading', { name: 'מה אתה רוצה לראות עכשיו?' })[22m
+
+
+      686 |     const projection = await openWorldAnchor(page, 1820, width);
+      687 |     await expect(projection).toHaveAttribute('data-world-density', 'rich');
+    > 688 |     await expect(page.getByRole('heading', { name: 'מה אתה רוצה לראות עכשיו?' })).toBeVisible();
+          |                                                                                   ^
+      689 |     await selectWorldLane(page, 'מקורות');
+      690 |     await expect(page.getByText('מאיפה החומר מגיע')).toBeVisible();
+      691 |     await assertNoHorizontalOverflow(page);
+        at /tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:688:83
+
+    Error Context: results/test-results/world2029-release-RICH-liv-74e5f--and-overflow-free-at-390px/error-context.md
+
+
+[1A[2K(node:42964) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:42964) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[27/46] tests/world2029-release.spec.cjs:685:3 › RICH live World 1820 is truthful and overflow-free at 1440px
+[1A[2K  14) tests/world2029-release.spec.cjs:685:3 › RICH live World 1820 is truthful and overflow-free at 1440px 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m failed
+
+    Locator:  getByRole('heading', { name: 'מה אתה רוצה לראות עכשיו?' })
+    Expected: visible
+    Received: <element(s) not found>
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('heading', { name: 'מה אתה רוצה לראות עכשיו?' })[22m
+
+
+      686 |     const projection = await openWorldAnchor(page, 1820, width);
+      687 |     await expect(projection).toHaveAttribute('data-world-density', 'rich');
+    > 688 |     await expect(page.getByRole('heading', { name: 'מה אתה רוצה לראות עכשיו?' })).toBeVisible();
+          |                                                                                   ^
+      689 |     await selectWorldLane(page, 'מקורות');
+      690 |     await expect(page.getByText('מאיפה החומר מגיע')).toBeVisible();
+      691 |     await assertNoHorizontalOverflow(page);
+        at /tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:688:83
+
+    Error Context: results/test-results/world2029-release-RICH-liv-63194-and-overflow-free-at-1440px/error-context.md
+
+
+[1A[2K(node:43119) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:43119) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[28/46] tests/world2029-release.spec.cjs:696:1 › RICH 1820 presents one anchor header before profile and exploration lanes
+[1A[2K  15) tests/world2029-release.spec.cjs:696:1 › RICH 1820 presents one anchor header before profile and exploration lanes 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoContainText[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator: locator('.sod29-world-anchor-intro')
+    Expected string: [32m"מ[7mתחילים במהות[27m"[39m
+    Received string: [31m"מ[7mה מתחבר?1820החומר סביב העוגן מסודר לפי שכבות: תמונות, גימטריה, מקורות, קשרים, מחקר וזמן.מספר◌ חזרה לעולם[27m"[39m
+    Timeout: 5000ms
+
+    Call log:
+    [2m  - Expect "toContainText" with timeout 5000ms[22m
+    [2m  - waiting for locator('.sod29-world-anchor-intro')[22m
+    [2m    9 × locator resolved to <section class="sod29-section sod29-world-anchor-intro">…</section>[22m
+    [2m      - unexpected value "מה מתחבר?1820החומר סביב העוגן מסודר לפי שכבות: תמונות, גימטריה, מקורות, קשרים, מחקר וזמן.מספר◌ חזרה לעולם"[22m
+
+
+      698 |
+      699 |   await expect(page.locator('.sod29-world-anchor-intro h2')).toHaveText('1820');
+    > 700 |   await expect(page.locator('.sod29-world-anchor-intro')).toContainText('מתחילים במהות');
+          |                                                           ^
+      701 |   await expect(page.getByText('מרכז העולם', { exact: true })).toHaveCount(0);
+      702 |   await expect(page.locator('.sod29-world-stage')).toHaveCount(0);
+      703 |   await expect(page.locator('.sod29-anchor-core')).toHaveCount(0);
+        at /tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:700:59
+
+    Error Context: results/test-results/world2029-release-RICH-182-10745-ofile-and-exploration-lanes/error-context.md
+
+
+[1A[2K(node:43273) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:43273) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[29/46] tests/world2029-release.spec.cjs:716:1 › RICH 1820 opens human-first before raw research detail
+[1A[2K[30/46] tests/world2029-release.spec.cjs:756:1 › RICH 1820 projects real published media without legacy gallery UI
+[1A[2K[31/46] tests/world2029-release.spec.cjs:773:1 › RICH 1820 remains useful when research rows are access-filtered
+[1A[2K[32/46] tests/world2029-release.spec.cjs:788:1 › automatic filters, sorting and explain-why work without exposing admin research controls
+[1A[2K[33/46] tests/world2029-release.spec.cjs:806:1 › MEDIUM live World 314 remains medium instead of being visually inflated
+[1A[2K  16) tests/world2029-release.spec.cjs:806:1 › MEDIUM live World 314 remains medium instead of being visually inflated 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m failed
+
+    Locator:  locator('.sod29-world-native-projection')
+    Expected: visible
+    Received: <element(s) not found>
+    Timeout:  30000ms
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 30000ms[22m
+    [2m  - waiting for locator('.sod29-world-native-projection')[22m
+
+
+      171 |   await page.goto(`${BASE}${WORLD}?focus=context`, { waitUntil: 'domcontentloaded' });
+      172 |   const projection = page.locator('.sod29-world-native-projection');
+    > 173 |   await expect(projection).toBeVisible({ timeout: 30_000 });
+          |                            ^
+      174 |   await expect(page.locator('.sod29-world-anchor-intro h2')).toContainText(String(value));
+      175 |   await expect(projection).toHaveAttribute('data-experience-surface', 'world');
+      176 |   await expect(projection).toHaveAttribute('data-experience-question', 'מה מתחבר?');
+        at openWorldAnchor (/tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:173:28)
+        at /tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:807:22
+
+
+[1A[2K(node:43651) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:43651) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[34/46] tests/world2029-release.spec.cjs:816:1 › SPARSE live World 122 stays honestly sparse with no fabricated research
+[1A[2K  17) tests/world2029-release.spec.cjs:816:1 › SPARSE live World 122 stays honestly sparse with no fabricated research 
+
+    Error: Protected Preview authentication/identity validation failed; credentials withheld
+
+       at safe-preview-fixture.cjs:71
+
+      69 |     pw.expect(identity.sha).toBe('63e6882c3b7b4004d337927c7231728a7612d452');
+      70 |     pw.expect(identity.target).toBe('preview');
+    > 71 |   }catch{throw new Error('Protected Preview authentication/identity validation failed; credentials withheld');}
+         |                ^
+      72 | }
+      73 | const test=pw.test.extend({context:async({context},use,testInfo)=>{
+      74 |   if(process.env.PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS!=='1')throw new Error('Service Worker interception must be enabled');
+        at authenticate (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:71:16)
+        at Object.context (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:76:60)
+
+
+[1A[2K(node:43748) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:43748) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[35/46] tests/world2029-release.spec.cjs:826:1 › World uses the shared Command, Inspect, Share and exact-return seams
+[1A[2K  18) tests/world2029-release.spec.cjs:826:1 › World uses the shared Command, Inspect, Share and exact-return seams 
+
+    Error: Protected Preview authentication/identity validation failed; credentials withheld
+
+       at safe-preview-fixture.cjs:71
+
+      69 |     pw.expect(identity.sha).toBe('63e6882c3b7b4004d337927c7231728a7612d452');
+      70 |     pw.expect(identity.target).toBe('preview');
+    > 71 |   }catch{throw new Error('Protected Preview authentication/identity validation failed; credentials withheld');}
+         |                ^
+      72 | }
+      73 | const test=pw.test.extend({context:async({context},use,testInfo)=>{
+      74 |   if(process.env.PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS!=='1')throw new Error('Service Worker interception must be enabled');
+        at authenticate (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:71:16)
+        at Object.context (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:76:60)
+
+
+[1A[2K(node:43842) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:43842) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[36/46] tests/world2029-release.spec.cjs:877:1 › loading and error states are honest and native
+[1A[2K  19) tests/world2029-release.spec.cjs:877:1 › loading and error states are honest and native ──────
+
+    Error: Protected Preview authentication/identity validation failed; credentials withheld
+
+       at safe-preview-fixture.cjs:71
+
+      69 |     pw.expect(identity.sha).toBe('63e6882c3b7b4004d337927c7231728a7612d452');
+      70 |     pw.expect(identity.target).toBe('preview');
+    > 71 |   }catch{throw new Error('Protected Preview authentication/identity validation failed; credentials withheld');}
+         |                ^
+      72 | }
+      73 | const test=pw.test.extend({context:async({context},use,testInfo)=>{
+      74 |   if(process.env.PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS!=='1')throw new Error('Service Worker interception must be enabled');
+        at authenticate (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:71:16)
+        at Object.context (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:76:60)
+
+
+[1A[2K(node:43939) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:43939) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[37/46] tests/world2029-release.spec.cjs:901:1 › unavailable identity is not silently replaced by another anchor
+[1A[2K  20) tests/world2029-release.spec.cjs:901:1 › unavailable identity is not silently replaced by another anchor 
+
+    Error: Protected Preview authentication/identity validation failed; credentials withheld
+
+       at safe-preview-fixture.cjs:71
+
+      69 |     pw.expect(identity.sha).toBe('63e6882c3b7b4004d337927c7231728a7612d452');
+      70 |     pw.expect(identity.target).toBe('preview');
+    > 71 |   }catch{throw new Error('Protected Preview authentication/identity validation failed; credentials withheld');}
+         |                ^
+      72 | }
+      73 | const test=pw.test.extend({context:async({context},use,testInfo)=>{
+      74 |   if(process.env.PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS!=='1')throw new Error('Service Worker interception must be enabled');
+        at authenticate (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:71:16)
+        at Object.context (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:76:60)
+
+
+[1A[2K(node:44035) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:44035) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[38/46] tests/world2029-release.spec.cjs:910:1 › reduced motion preserves the same World meaning and controls
+[1A[2K  21) tests/world2029-release.spec.cjs:910:1 › reduced motion preserves the same World meaning and controls 
+
+    Error: Protected Preview authentication/identity validation failed; credentials withheld
+
+       at safe-preview-fixture.cjs:71
+
+      69 |     pw.expect(identity.sha).toBe('63e6882c3b7b4004d337927c7231728a7612d452');
+      70 |     pw.expect(identity.target).toBe('preview');
+    > 71 |   }catch{throw new Error('Protected Preview authentication/identity validation failed; credentials withheld');}
+         |                ^
+      72 | }
+      73 | const test=pw.test.extend({context:async({context},use,testInfo)=>{
+      74 |   if(process.env.PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS!=='1')throw new Error('Service Worker interception must be enabled');
+        at authenticate (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:71:16)
+        at Object.context (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:76:60)
+
+
+[1A[2K(node:44131) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:44131) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[39/46] tests/world2029-release.spec.cjs:922:1 › 320px RTL World survives 200% text zoom without horizontal overflow
+[1A[2K  22) tests/world2029-release.spec.cjs:922:1 › 320px RTL World survives 200% text zoom without horizontal overflow 
+
+    Error: Protected Preview authentication/identity validation failed; credentials withheld
+
+       at safe-preview-fixture.cjs:71
+
+      69 |     pw.expect(identity.sha).toBe('63e6882c3b7b4004d337927c7231728a7612d452');
+      70 |     pw.expect(identity.target).toBe('preview');
+    > 71 |   }catch{throw new Error('Protected Preview authentication/identity validation failed; credentials withheld');}
+         |                ^
+      72 | }
+      73 | const test=pw.test.extend({context:async({context},use,testInfo)=>{
+      74 |   if(process.env.PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS!=='1')throw new Error('Service Worker interception must be enabled');
+        at authenticate (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:71:16)
+        at Object.context (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:76:60)
+
+
+[1A[2K(node:44228) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:44228) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[40/46] tests/world2029-release.spec.cjs:934:1 › private researcher corpus stays gated for non-admin 2029 sessions
+[1A[2K  23) tests/world2029-release.spec.cjs:934:1 › private researcher corpus stays gated for non-admin 2029 sessions 
+
+    Error: Protected Preview authentication/identity validation failed; credentials withheld
+
+       at safe-preview-fixture.cjs:71
+
+      69 |     pw.expect(identity.sha).toBe('63e6882c3b7b4004d337927c7231728a7612d452');
+      70 |     pw.expect(identity.target).toBe('preview');
+    > 71 |   }catch{throw new Error('Protected Preview authentication/identity validation failed; credentials withheld');}
+         |                ^
+      72 | }
+      73 | const test=pw.test.extend({context:async({context},use,testInfo)=>{
+      74 |   if(process.env.PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS!=='1')throw new Error('Service Worker interception must be enabled');
+        at authenticate (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:71:16)
+        at Object.context (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:76:60)
+
+
+[1A[2K(node:44323) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:44323) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[41/46] tests/world2029-release.spec.cjs:947:5 › source projector light 390: source-first writer and full Hashmal reading
+[1A[2K  24) tests/world2029-release.spec.cjs:947:5 › source projector light 390: source-first writer and full Hashmal reading 
+
+    Error: Protected Preview authentication/identity validation failed; credentials withheld
+
+       at safe-preview-fixture.cjs:71
+
+      69 |     pw.expect(identity.sha).toBe('63e6882c3b7b4004d337927c7231728a7612d452');
+      70 |     pw.expect(identity.target).toBe('preview');
+    > 71 |   }catch{throw new Error('Protected Preview authentication/identity validation failed; credentials withheld');}
+         |                ^
+      72 | }
+      73 | const test=pw.test.extend({context:async({context},use,testInfo)=>{
+      74 |   if(process.env.PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS!=='1')throw new Error('Service Worker interception must be enabled');
+        at authenticate (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:71:16)
+        at Object.context (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:76:60)
+
+
+[1A[2K(node:44418) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:44418) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[42/46] tests/world2029-release.spec.cjs:947:5 › source projector light 1440: source-first writer and full Hashmal reading
+[1A[2K  25) tests/world2029-release.spec.cjs:947:5 › source projector light 1440: source-first writer and full Hashmal reading 
+
+    Error: Protected Preview authentication/identity validation failed; credentials withheld
+
+       at safe-preview-fixture.cjs:71
+
+      69 |     pw.expect(identity.sha).toBe('63e6882c3b7b4004d337927c7231728a7612d452');
+      70 |     pw.expect(identity.target).toBe('preview');
+    > 71 |   }catch{throw new Error('Protected Preview authentication/identity validation failed; credentials withheld');}
+         |                ^
+      72 | }
+      73 | const test=pw.test.extend({context:async({context},use,testInfo)=>{
+      74 |   if(process.env.PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS!=='1')throw new Error('Service Worker interception must be enabled');
+        at authenticate (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:71:16)
+        at Object.context (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:76:60)
+
+
+[1A[2K(node:44519) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:44519) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[43/46] tests/world2029-release.spec.cjs:947:5 › source projector parchment 390: source-first writer and full Hashmal reading
+[1A[2K  26) tests/world2029-release.spec.cjs:947:5 › source projector parchment 390: source-first writer and full Hashmal reading 
+
+    Error: Protected Preview authentication/identity validation failed; credentials withheld
+
+       at safe-preview-fixture.cjs:71
+
+      69 |     pw.expect(identity.sha).toBe('63e6882c3b7b4004d337927c7231728a7612d452');
+      70 |     pw.expect(identity.target).toBe('preview');
+    > 71 |   }catch{throw new Error('Protected Preview authentication/identity validation failed; credentials withheld');}
+         |                ^
+      72 | }
+      73 | const test=pw.test.extend({context:async({context},use,testInfo)=>{
+      74 |   if(process.env.PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS!=='1')throw new Error('Service Worker interception must be enabled');
+        at authenticate (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:71:16)
+        at Object.context (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:76:60)
+
+
+[1A[2K(node:44618) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:44618) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[44/46] tests/world2029-release.spec.cjs:947:5 › source projector parchment 1440: source-first writer and full Hashmal reading
+[1A[2K  27) tests/world2029-release.spec.cjs:947:5 › source projector parchment 1440: source-first writer and full Hashmal reading 
+
+    Error: Protected Preview authentication/identity validation failed; credentials withheld
+
+       at safe-preview-fixture.cjs:71
+
+      69 |     pw.expect(identity.sha).toBe('63e6882c3b7b4004d337927c7231728a7612d452');
+      70 |     pw.expect(identity.target).toBe('preview');
+    > 71 |   }catch{throw new Error('Protected Preview authentication/identity validation failed; credentials withheld');}
+         |                ^
+      72 | }
+      73 | const test=pw.test.extend({context:async({context},use,testInfo)=>{
+      74 |   if(process.env.PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS!=='1')throw new Error('Service Worker interception must be enabled');
+        at authenticate (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:71:16)
+        at Object.context (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:76:60)
+
+
+[1A[2K(node:44713) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:44713) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[45/46] tests/world2029-release.spec.cjs:947:5 › source projector dark 390: source-first writer and full Hashmal reading
+[1A[2K  28) tests/world2029-release.spec.cjs:947:5 › source projector dark 390: source-first writer and full Hashmal reading 
+
+    Error: Protected Preview authentication/identity validation failed; credentials withheld
+
+       at safe-preview-fixture.cjs:71
+
+      69 |     pw.expect(identity.sha).toBe('63e6882c3b7b4004d337927c7231728a7612d452');
+      70 |     pw.expect(identity.target).toBe('preview');
+    > 71 |   }catch{throw new Error('Protected Preview authentication/identity validation failed; credentials withheld');}
+         |                ^
+      72 | }
+      73 | const test=pw.test.extend({context:async({context},use,testInfo)=>{
+      74 |   if(process.env.PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS!=='1')throw new Error('Service Worker interception must be enabled');
+        at authenticate (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:71:16)
+        at Object.context (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:76:60)
+
+
+[1A[2K(node:44807) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:44807) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[46/46] tests/world2029-release.spec.cjs:947:5 › source projector dark 1440: source-first writer and full Hashmal reading
+[1A[2K  29) tests/world2029-release.spec.cjs:947:5 › source projector dark 1440: source-first writer and full Hashmal reading 
+
+    Error: Protected Preview authentication/identity validation failed; credentials withheld
+
+       at safe-preview-fixture.cjs:71
+
+      69 |     pw.expect(identity.sha).toBe('63e6882c3b7b4004d337927c7231728a7612d452');
+      70 |     pw.expect(identity.target).toBe('preview');
+    > 71 |   }catch{throw new Error('Protected Preview authentication/identity validation failed; credentials withheld');}
+         |                ^
+      72 | }
+      73 | const test=pw.test.extend({context:async({context},use,testInfo)=>{
+      74 |   if(process.env.PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS!=='1')throw new Error('Service Worker interception must be enabled');
+        at authenticate (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:71:16)
+        at Object.context (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:76:60)
+
+
+[1A[2K  29 failed
+    tests/world2029-release.spec.cjs:137:3 › Core Web Vitals CLS budget holds on /world at 390px ───
+    tests/world2029-release.spec.cjs:225:1 › direct /world opens public composed World with aircraft story, real arrivals and source navigation 
+    tests/world2029-release.spec.cjs:254:1 › public World catalog remains searchable and paginated inside the new composed presentation 
+    tests/world2029-release.spec.cjs:277:1 › native canonical Topic 2029 renders 888 with semantic links and SEO identity 
+    tests/world2029-release.spec.cjs:295:1 › Topic expression focus opens Number 2029 and survives World + Heichal transitions 
+    tests/world2029-release.spec.cjs:510:1 › Contextual Number Surface stays one desktop sidecar through focus → preview → back 
+    tests/world2029-release.spec.cjs:608:1 › Number 2029 golden visual calibration covers 878, 358 and the 1326 visual target in Page and Drawer 
+    tests/world2029-release.spec.cjs:671:3 › Public World story and source entry remain usable and overflow-free at 320px 
+    tests/world2029-release.spec.cjs:671:3 › Public World story and source entry remain usable and overflow-free at 360px 
+    tests/world2029-release.spec.cjs:671:3 › Public World story and source entry remain usable and overflow-free at 390px 
+    tests/world2029-release.spec.cjs:685:3 › RICH live World 1820 is truthful and overflow-free at 320px 
+    tests/world2029-release.spec.cjs:685:3 › RICH live World 1820 is truthful and overflow-free at 360px 
+    tests/world2029-release.spec.cjs:685:3 › RICH live World 1820 is truthful and overflow-free at 390px 
+    tests/world2029-release.spec.cjs:685:3 › RICH live World 1820 is truthful and overflow-free at 1440px 
+    tests/world2029-release.spec.cjs:696:1 › RICH 1820 presents one anchor header before profile and exploration lanes 
+    tests/world2029-release.spec.cjs:806:1 › MEDIUM live World 314 remains medium instead of being visually inflated 
+    tests/world2029-release.spec.cjs:816:1 › SPARSE live World 122 stays honestly sparse with no fabricated research 
+    tests/world2029-release.spec.cjs:826:1 › World uses the shared Command, Inspect, Share and exact-return seams 
+    tests/world2029-release.spec.cjs:877:1 › loading and error states are honest and native ────────
+    tests/world2029-release.spec.cjs:901:1 › unavailable identity is not silently replaced by another anchor 
+    tests/world2029-release.spec.cjs:910:1 › reduced motion preserves the same World meaning and controls 
+    tests/world2029-release.spec.cjs:922:1 › 320px RTL World survives 200% text zoom without horizontal overflow 
+    tests/world2029-release.spec.cjs:934:1 › private researcher corpus stays gated for non-admin 2029 sessions 
+    tests/world2029-release.spec.cjs:947:5 › source projector light 390: source-first writer and full Hashmal reading 
+    tests/world2029-release.spec.cjs:947:5 › source projector light 1440: source-first writer and full Hashmal reading 
+    tests/world2029-release.spec.cjs:947:5 › source projector parchment 390: source-first writer and full Hashmal reading 
+    tests/world2029-release.spec.cjs:947:5 › source projector parchment 1440: source-first writer and full Hashmal reading 
+    tests/world2029-release.spec.cjs:947:5 › source projector dark 390: source-first writer and full Hashmal reading 
+    tests/world2029-release.spec.cjs:947:5 › source projector dark 1440: source-first writer and full Hashmal reading 
+  17 passed (6.5m)

@@ -1,0 +1,9 @@
+{
+  "test": "320px RTL World survives 200% text zoom without horizontal overflow",
+  "blocked": [],
+  "reads": [],
+  "responses": [],
+  "localReads": [],
+  "transportErrors": [],
+  "staticReads": 0
+}

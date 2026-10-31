@@ -1,0 +1,929 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - button "פתח את סרגל הניווט" [ref=e4] [cursor=pointer]
+  - complementary "ניווט SOD1820 2029" [ref=e5]:
+    - navigation "יעדים וכלי מחקר" [ref=e6]:
+      - generic [ref=e7]:
+        - link "בית" [ref=e8] [cursor=pointer]:
+          - /url: /2029
+          - img [ref=e10] [cursor=pointer]
+        - link "העולם" [ref=e12] [cursor=pointer]:
+          - /url: /world
+          - img [ref=e14] [cursor=pointer]
+        - link "היכל" [ref=e18] [cursor=pointer]:
+          - /url: /heichal
+          - img [ref=e20] [cursor=pointer]
+        - link "פוסטים" [ref=e22] [cursor=pointer]:
+          - /url: /2029/posts
+          - img [ref=e24] [cursor=pointer]
+        - link "מסע החיים" [ref=e26] [cursor=pointer]:
+          - /url: /2029/journey
+          - img [ref=e28] [cursor=pointer]
+        - link "קהילה" [ref=e32] [cursor=pointer]:
+          - /url: /community/chat
+          - img [ref=e34] [cursor=pointer]
+      - generic [ref=e39]:
+        - button "דף המספר" [ref=e40] [cursor=pointer]:
+          - img [ref=e42] [cursor=pointer]:
+            - generic [ref=e43] [cursor=pointer]: "123"
+        - link "ספרים ומקורות" [ref=e44] [cursor=pointer]:
+          - /url: /books
+          - img [ref=e46] [cursor=pointer]
+        - link "ELS · הצופן התנ״כי" [ref=e48] [cursor=pointer]:
+          - /url: /els
+          - img [ref=e50] [cursor=pointer]
+    - generic "פעולות נוספות" [ref=e60]:
+      - button "חזרה מדויקת" [disabled] [ref=e61]:
+        - img [ref=e63]
+      - button "דווח על בעיה" [ref=e65] [cursor=pointer]:
+        - img [ref=e67] [cursor=pointer]
+    - button "האזור האישי שלי" [ref=e70] [cursor=pointer]:
+      - img [ref=e72] [cursor=pointer]
+    - button "הרחב את סרגל הניווט" [ref=e75] [cursor=pointer]:
+      - generic [ref=e76] [cursor=pointer]: ›
+  - generic [ref=e77]:
+    - banner [ref=e79]:
+      - generic "איפה אני" [ref=e81]:
+        - generic [ref=e82]: SOD1820
+        - generic [ref=e83]: /
+        - generic [ref=e84]: "2029"
+        - generic [ref=e85]:
+          - generic [ref=e86]: /
+          - generic [ref=e87]: "1237"
+      - button "חיפוש" [ref=e88] [cursor=pointer]:
+        - generic [ref=e89] [cursor=pointer]: ⌕
+        - generic [ref=e90] [cursor=pointer]: חיפוש
+        - generic [ref=e91] [cursor=pointer]: ⌘K
+      - generic [ref=e92]:
+        - group "ערכת צבעים" [ref=e93]:
+          - generic [ref=e94]:
+            - button "יום" [ref=e95] [cursor=pointer]:
+              - generic [ref=e96] [cursor=pointer]: ☀
+              - generic [ref=e97] [cursor=pointer]: יום
+            - button "קלף" [ref=e98] [cursor=pointer]:
+              - generic [ref=e99] [cursor=pointer]: ▤
+              - generic [ref=e100] [cursor=pointer]: קלף
+            - button "לילה" [pressed] [ref=e101] [cursor=pointer]:
+              - generic [ref=e102] [cursor=pointer]: ☾
+              - generic [ref=e103] [cursor=pointer]: לילה
+        - button "התחברות לאזור האישי" [ref=e104] [cursor=pointer]:
+          - img [ref=e106] [cursor=pointer]
+          - generic [ref=e109] [cursor=pointer]: התחברות
+    - button "איך זה עובד? — מה אני רואה בדף המספר?" [ref=e112] [cursor=pointer]:
+      - generic [ref=e113] [cursor=pointer]: "?"
+      - generic [ref=e114] [cursor=pointer]: איך זה עובד?
+    - generic [ref=e115]:
+      - main [ref=e116]:
+        - generic [ref=e117]:
+          - generic [ref=e119]:
+            - generic [ref=e120]:
+              - generic [ref=e121]:
+                - generic [ref=e122]: ביטוי / מספר
+                - strong [ref=e124]: התגלות
+                - generic [ref=e125]: Root 1237 · השיטה הפעילה משנה את התוצאה, לא את זהות הביטוי
+              - generic [ref=e126]:
+                - generic [ref=e127]: המספר
+                - generic [ref=e129]: "1237"
+              - 'button "חיי המספר 1237: 9 שכבות פעילות, 4 התכנסויות, 4 מקורות, 4 עולמות, 112 פעילות. זהו כיסוי חומר, לא ציון אמת." [ref=e130] [cursor=pointer]':
+                - generic [ref=e133] [cursor=pointer]: חיים
+                - generic [ref=e134] [cursor=pointer]: 9 שכבות
+            - generic [ref=e135]:
+              - textbox "חפש מילה ביטוי או מספר" [ref=e136]
+              - button "חפש ✦" [ref=e137] [cursor=pointer]
+            - region "ביטויים רגילים על 1237" [ref=e138]:
+              - generic [ref=e139]:
+                - generic [ref=e140]:
+                  - generic [ref=e141]: רגיל = 1237
+                  - strong [ref=e142]: ביטויים רגילים על אותו מספר
+                - generic [ref=e143]: 29 ביטויים · ↔ גרור ימינה / שמאלה
+              - list [ref=e144]:
+                - listitem [ref=e145]:
+                  - button "בני ישמעאל אחרית הימים = 1237 · רגיל" [ref=e146] [cursor=pointer]:
+                    - strong [ref=e147] [cursor=pointer]: בני ישמעאל אחרית הימים
+                    - generic [ref=e148] [cursor=pointer]: = 1237 · רגיל
+                - listitem [ref=e149]:
+                  - button "כה אמר יהוה אלהי ישראל עליך ברוך = 1237 · רגיל" [ref=e150] [cursor=pointer]:
+                    - strong [ref=e151] [cursor=pointer]: כה אמר יהוה אלהי ישראל עליך ברוך
+                    - generic [ref=e152] [cursor=pointer]: = 1237 · רגיל
+                - listitem [ref=e153]:
+                  - button "תורת הצופן = 1237 · רגיל" [ref=e154] [cursor=pointer]:
+                    - strong [ref=e155] [cursor=pointer]: תורת הצופן
+                    - generic [ref=e156] [cursor=pointer]: = 1237 · רגיל
+                - listitem [ref=e157]:
+                  - button "תדר המשיח האחרון = 1237 · רגיל" [ref=e158] [cursor=pointer]:
+                    - strong [ref=e159] [cursor=pointer]: תדר המשיח האחרון
+                    - generic [ref=e160] [cursor=pointer]: = 1237 · רגיל
+                - listitem [ref=e161]:
+                  - button "וראית את אחרי = 1237 · רגיל" [ref=e162] [cursor=pointer]:
+                    - strong [ref=e163] [cursor=pointer]: וראית את אחרי
+                    - generic [ref=e164] [cursor=pointer]: = 1237 · רגיל
+                - listitem [ref=e165]:
+                  - button "מחץ ראש על ארץ רבה = 1237 · רגיל" [ref=e166] [cursor=pointer]:
+                    - strong [ref=e167] [cursor=pointer]: מחץ ראש על ארץ רבה
+                    - generic [ref=e168] [cursor=pointer]: = 1237 · רגיל
+                - listitem [ref=e169]:
+                  - button "אהבת דוד מלך ישראל חי וקיים = 1237 · רגיל" [ref=e170] [cursor=pointer]:
+                    - strong [ref=e171] [cursor=pointer]: אהבת דוד מלך ישראל חי וקיים
+                    - generic [ref=e172] [cursor=pointer]: = 1237 · רגיל
+                - listitem [ref=e173]:
+                  - button "משיח מוצפן בתורה = 1237 · רגיל" [ref=e174] [cursor=pointer]:
+                    - strong [ref=e175] [cursor=pointer]: משיח מוצפן בתורה
+                    - generic [ref=e176] [cursor=pointer]: = 1237 · רגיל
+                - listitem [ref=e177]:
+                  - button "כח המשיח השליטה בתודעה = 1237 · רגיל" [ref=e178] [cursor=pointer]:
+                    - strong [ref=e179] [cursor=pointer]: כח המשיח השליטה בתודעה
+                    - generic [ref=e180] [cursor=pointer]: = 1237 · רגיל
+                - listitem [ref=e181]:
+                  - button "נולדתי מתוך החורבן = 1237 · רגיל" [ref=e182] [cursor=pointer]:
+                    - strong [ref=e183] [cursor=pointer]: נולדתי מתוך החורבן
+                    - generic [ref=e184] [cursor=pointer]: = 1237 · רגיל
+                - listitem [ref=e185]:
+                  - button "אתר הגרעין בפורדו = 1237 · רגיל" [ref=e186] [cursor=pointer]:
+                    - strong [ref=e187] [cursor=pointer]: אתר הגרעין בפורדו
+                    - generic [ref=e188] [cursor=pointer]: = 1237 · רגיל
+                - listitem [ref=e189]:
+                  - button "שלש מאות כסף = 1237 · רגיל" [ref=e190] [cursor=pointer]:
+                    - strong [ref=e191] [cursor=pointer]: שלש מאות כסף
+                    - generic [ref=e192] [cursor=pointer]: = 1237 · רגיל
+                - listitem [ref=e193]:
+                  - button "שב לימיני עד אשית = 1237 · רגיל" [ref=e194] [cursor=pointer]:
+                    - strong [ref=e195] [cursor=pointer]: שב לימיני עד אשית
+                    - generic [ref=e196] [cursor=pointer]: = 1237 · רגיל
+                - listitem [ref=e197]:
+                  - button "מלך המשיח תשפד = 1237 · רגיל" [ref=e198] [cursor=pointer]:
+                    - strong [ref=e199] [cursor=pointer]: מלך המשיח תשפד
+                    - generic [ref=e200] [cursor=pointer]: = 1237 · רגיל
+                - listitem [ref=e201]:
+                  - button "נגיף חדש בתשפ = 1237 · רגיל" [ref=e202] [cursor=pointer]:
+                    - strong [ref=e203] [cursor=pointer]: נגיף חדש בתשפ
+                    - generic [ref=e204] [cursor=pointer]: = 1237 · רגיל
+                - listitem [ref=e205]:
+                  - button "מלחמת השחרור = 1237 · רגיל" [ref=e206] [cursor=pointer]:
+                    - strong [ref=e207] [cursor=pointer]: מלחמת השחרור
+                    - generic [ref=e208] [cursor=pointer]: = 1237 · רגיל
+                - listitem [ref=e209]:
+                  - button "יהודי אמיתי נלחם בקונספירציה = 1237 · רגיל" [ref=e210] [cursor=pointer]:
+                    - strong [ref=e211] [cursor=pointer]: יהודי אמיתי נלחם בקונספירציה
+                    - generic [ref=e212] [cursor=pointer]: = 1237 · רגיל
+                - listitem [ref=e213]:
+                  - button "יהוה ישמח במשיחיו בעתה = 1237 · רגיל" [ref=e214] [cursor=pointer]:
+                    - strong [ref=e215] [cursor=pointer]: יהוה ישמח במשיחיו בעתה
+                    - generic [ref=e216] [cursor=pointer]: = 1237 · רגיל
+                - listitem [ref=e217]:
+                  - button "תתגלה אלי משיח = 1237 · רגיל" [ref=e218] [cursor=pointer]:
+                    - strong [ref=e219] [cursor=pointer]: תתגלה אלי משיח
+                    - generic [ref=e220] [cursor=pointer]: = 1237 · רגיל
+                - listitem [ref=e221]:
+                  - button "מושיע ישראל האחרון = 1237 · רגיל" [ref=e222] [cursor=pointer]:
+                    - strong [ref=e223] [cursor=pointer]: מושיע ישראל האחרון
+                    - generic [ref=e224] [cursor=pointer]: = 1237 · רגיל
+                - listitem [ref=e225]:
+                  - button "במקדשך השלישי בזמן הזה = 1237 · רגיל" [ref=e226] [cursor=pointer]:
+                    - strong [ref=e227] [cursor=pointer]: במקדשך השלישי בזמן הזה
+                    - generic [ref=e228] [cursor=pointer]: = 1237 · רגיל
+                - listitem [ref=e229]:
+                  - button "נצחון או כשלון תבחרי = 1237 · רגיל" [ref=e230] [cursor=pointer]:
+                    - strong [ref=e231] [cursor=pointer]: נצחון או כשלון תבחרי
+                    - generic [ref=e232] [cursor=pointer]: = 1237 · רגיל
+                - listitem [ref=e233]:
+                  - button "מקדשך השלישי בימינו = 1237 · רגיל" [ref=e234] [cursor=pointer]:
+                    - strong [ref=e235] [cursor=pointer]: מקדשך השלישי בימינו
+                    - generic [ref=e236] [cursor=pointer]: = 1237 · רגיל
+                - listitem [ref=e237]:
+                  - button "יתנו לך כתר מלוכה = 1237 · רגיל" [ref=e238] [cursor=pointer]:
+                    - strong [ref=e239] [cursor=pointer]: יתנו לך כתר מלוכה
+                    - generic [ref=e240] [cursor=pointer]: = 1237 · רגיל
+                - listitem [ref=e241]:
+                  - button "מחשבה טובה מצרפה למעשה = 1237 · רגיל" [ref=e242] [cursor=pointer]:
+                    - strong [ref=e243] [cursor=pointer]: מחשבה טובה מצרפה למעשה
+                    - generic [ref=e244] [cursor=pointer]: = 1237 · רגיל
+                - listitem [ref=e245]:
+                  - button "כֹּה אָמַר יְהוָה אֱלֹהֵי יִשְׂרָאֵל עָלֶיךָ בָּרוּךְ. = 1237 · רגיל" [ref=e246] [cursor=pointer]:
+                    - strong [ref=e247] [cursor=pointer]: כֹּה אָמַר יְהוָה אֱלֹהֵי יִשְׂרָאֵל עָלֶיךָ בָּרוּךְ.
+                    - generic [ref=e248] [cursor=pointer]: = 1237 · רגיל
+                - listitem [ref=e249]:
+                  - button "כל נשמות שבגוף = 1237 · רגיל" [ref=e250] [cursor=pointer]:
+                    - strong [ref=e251] [cursor=pointer]: כל נשמות שבגוף
+                    - generic [ref=e252] [cursor=pointer]: = 1237 · רגיל
+                - listitem [ref=e253]:
+                  - button "עשיתם אותי = 1237 · רגיל" [ref=e254] [cursor=pointer]:
+                    - strong [ref=e255] [cursor=pointer]: עשיתם אותי
+                    - generic [ref=e256] [cursor=pointer]: = 1237 · רגיל
+                - listitem [ref=e257]:
+                  - button "משיח בן דוד יבוא בהתשפז = 1237 · רגיל" [ref=e258] [cursor=pointer]:
+                    - strong [ref=e259] [cursor=pointer]: משיח בן דוד יבוא בהתשפז
+                    - generic [ref=e260] [cursor=pointer]: = 1237 · רגיל
+            - region "כל שיטות הגימטריה הזמינות" [ref=e261]:
+              - generic [ref=e262]:
+                - generic [ref=e263]:
+                  - generic [ref=e264]: שש שיטות ראשיות · כל השאר בעומק
+                  - strong [ref=e265]: 32 שיטות זמינות · 6 גלויות מיד
+                - generic [ref=e266]: 6 מול העין · 26 בעומק
+              - generic [ref=e267]:
+                - button "רגיל 844" [ref=e268] [cursor=pointer]:
+                  - generic [ref=e269] [cursor=pointer]: רגיל
+                  - strong [ref=e270] [cursor=pointer]: "844"
+                - button "מילוי 1026" [ref=e271] [cursor=pointer]:
+                  - generic [ref=e272] [cursor=pointer]: מילוי
+                  - strong [ref=e273] [cursor=pointer]: "1026"
+                - button "מסתתר 1237" [pressed] [ref=e274] [cursor=pointer]:
+                  - generic [ref=e275] [cursor=pointer]: מסתתר
+                  - strong [ref=e276] [cursor=pointer]: "1237"
+                - button "משולש 3137" [ref=e277] [cursor=pointer]:
+                  - generic [ref=e278] [cursor=pointer]: משולש
+                  - strong [ref=e279] [cursor=pointer]: "3137"
+                - button "ריבוע 2544" [ref=e280] [cursor=pointer]:
+                  - generic [ref=e281] [cursor=pointer]: ריבוע
+                  - strong [ref=e282] [cursor=pointer]: "2544"
+                - button "גדול 844" [ref=e283] [cursor=pointer]:
+                  - generic [ref=e284] [cursor=pointer]: גדול
+                  - strong [ref=e285] [cursor=pointer]: "844"
+              - button "＋ עוד 26 שיטות ▼" [ref=e286] [cursor=pointer]:
+                - generic [ref=e287] [cursor=pointer]: ＋ עוד 26 שיטות
+                - generic [ref=e288] [cursor=pointer]: ▼
+            - generic [ref=e289]:
+              - generic [ref=e290]:
+                - generic [ref=e291]:
+                  - generic [ref=e292]: מסתתר · התוצאה הפעילה
+                  - strong [ref=e293]:
+                    - text: התגלות
+                    - emphasis [ref=e294]: →
+                    - text: "1237"
+                  - generic [ref=e295]: החלל שמתחת שייך עכשיו לתוצאה הזאת בלבד
+                - generic "9 שכבות חומר זמינות לתוצאה 1237" [ref=e296]:
+                  - strong [ref=e297]: "9"
+                  - generic [ref=e298]: שכבות
+                  - generic [ref=e299]: בתוצאה 1237
+              - generic [ref=e300]:
+                - generic [ref=e301]: 4 התכנסויות
+                - generic [ref=e302]: 4 מקורות
+                - generic [ref=e303]: 4 עולמות
+                - generic [ref=e304]: 112 פעילויות
+              - status [ref=e305]:
+                - generic [ref=e306]: ✓
+                - text: החיבורים של 1237 מעודכנים
+              - generic [ref=e307]:
+                - generic [ref=e308]:
+                  - generic [ref=e310]:
+                    - generic [ref=e311]: התכנסויות וחיבורים
+                    - generic [ref=e312]:
+                      - strong [ref=e313]: מה חי סביב 1237
+                      - generic [ref=e314]: "28"
+                  - generic [ref=e315]:
+                    - button "אהיה עבדך מילוי" [ref=e316] [cursor=pointer]:
+                      - strong [ref=e317] [cursor=pointer]: אהיה עבדך
+                      - generic [ref=e318] [cursor=pointer]: מילוי
+                    - button "אובססיבי מילוי" [ref=e319] [cursor=pointer]:
+                      - strong [ref=e320] [cursor=pointer]: אובססיבי
+                      - generic [ref=e321] [cursor=pointer]: מילוי
+                    - button "אלהים התהלך כאן מילוי" [ref=e322] [cursor=pointer]:
+                      - strong [ref=e323] [cursor=pointer]: אלהים התהלך כאן
+                      - generic [ref=e324] [cursor=pointer]: מילוי
+                    - button "אני אל השמש מילוי" [ref=e325] [cursor=pointer]:
+                      - strong [ref=e326] [cursor=pointer]: אני אל השמש
+                      - generic [ref=e327] [cursor=pointer]: מילוי
+                    - button "זוגיות אמת מילוי" [ref=e328] [cursor=pointer]:
+                      - strong [ref=e329] [cursor=pointer]: זוגיות אמת
+                      - generic [ref=e330] [cursor=pointer]: מילוי
+                    - button "כסא אליהו הנביא מילוי" [ref=e331] [cursor=pointer]:
+                      - strong [ref=e332] [cursor=pointer]: כסא אליהו הנביא
+                      - generic [ref=e333] [cursor=pointer]: מילוי
+                    - button "לוחם אור מילוי" [ref=e334] [cursor=pointer]:
+                      - strong [ref=e335] [cursor=pointer]: לוחם אור
+                      - generic [ref=e336] [cursor=pointer]: מילוי
+                    - button "עתי אדני מילוי" [ref=e337] [cursor=pointer]:
+                      - strong [ref=e338] [cursor=pointer]: עתי אדני
+                      - generic [ref=e339] [cursor=pointer]: מילוי
+                    - button "שלמי נזיר מילוי" [ref=e340] [cursor=pointer]:
+                      - strong [ref=e341] [cursor=pointer]: שלמי נזיר
+                      - generic [ref=e342] [cursor=pointer]: מילוי
+                    - button "שפך עליהם זעמך מילוי" [ref=e343] [cursor=pointer]:
+                      - strong [ref=e344] [cursor=pointer]: שפך עליהם זעמך
+                      - generic [ref=e345] [cursor=pointer]: מילוי
+                    - button "ארון יהוה בעתה מסתתר" [ref=e346] [cursor=pointer]:
+                      - strong [ref=e347] [cursor=pointer]: ארון יהוה בעתה
+                      - generic [ref=e348] [cursor=pointer]: מסתתר
+                    - button "אשרי עם ישראל מסתתר" [ref=e349] [cursor=pointer]:
+                      - strong [ref=e350] [cursor=pointer]: אשרי עם ישראל
+                      - generic [ref=e351] [cursor=pointer]: מסתתר
+                    - button "אתה הוא אחרון מסתתר" [ref=e352] [cursor=pointer]:
+                      - strong [ref=e353] [cursor=pointer]: אתה הוא אחרון
+                      - generic [ref=e354] [cursor=pointer]: מסתתר
+                    - button "דעאש בעת זאת מסתתר" [ref=e355] [cursor=pointer]:
+                      - strong [ref=e356] [cursor=pointer]: דעאש בעת זאת
+                      - generic [ref=e357] [cursor=pointer]: מסתתר
+                    - button "ההתגלות מסתתר" [ref=e358] [cursor=pointer]:
+                      - strong [ref=e359] [cursor=pointer]: ההתגלות
+                      - generic [ref=e360] [cursor=pointer]: מסתתר
+                    - button "התהוות בן דוד מסתתר" [ref=e361] [cursor=pointer]:
+                      - strong [ref=e362] [cursor=pointer]: התהוות בן דוד
+                      - generic [ref=e363] [cursor=pointer]: מסתתר
+                    - button "התחלת הגאולה מסתתר" [ref=e364] [cursor=pointer]:
+                      - strong [ref=e365] [cursor=pointer]: התחלת הגאולה
+                      - generic [ref=e366] [cursor=pointer]: מסתתר
+                    - button "התמוטטות יוון מסתתר" [ref=e367] [cursor=pointer]:
+                      - strong [ref=e368] [cursor=pointer]: התמוטטות יוון
+                      - generic [ref=e369] [cursor=pointer]: מסתתר
+                    - button "לך אלי תשוקתי מסתתר" [ref=e370] [cursor=pointer]:
+                      - strong [ref=e371] [cursor=pointer]: לך אלי תשוקתי
+                      - generic [ref=e372] [cursor=pointer]: מסתתר
+                    - button "מבצע שאגת הארי מסתתר" [ref=e373] [cursor=pointer]:
+                      - strong [ref=e374] [cursor=pointer]: מבצע שאגת הארי
+                      - generic [ref=e375] [cursor=pointer]: מסתתר
+                    - button "מסרים של המשיח מסתתר" [ref=e376] [cursor=pointer]:
+                      - strong [ref=e377] [cursor=pointer]: מסרים של המשיח
+                      - generic [ref=e378] [cursor=pointer]: מסתתר
+                    - button "אפרח משולש" [ref=e379] [cursor=pointer]:
+                      - strong [ref=e380] [cursor=pointer]: אפרח
+                      - generic [ref=e381] [cursor=pointer]: משולש
+                    - button "בן זקונים משולש" [ref=e382] [cursor=pointer]:
+                      - strong [ref=e383] [cursor=pointer]: בן זקונים
+                      - generic [ref=e384] [cursor=pointer]: משולש
+                    - button "כינור דויד משולש" [ref=e385] [cursor=pointer]:
+                      - strong [ref=e386] [cursor=pointer]: כינור דויד
+                      - generic [ref=e387] [cursor=pointer]: משולש
+                    - button "פרגוד משולש" [ref=e388] [cursor=pointer]:
+                      - strong [ref=e389] [cursor=pointer]: פרגוד
+                      - generic [ref=e390] [cursor=pointer]: משולש
+                    - button "רפואה משולש" [ref=e391] [cursor=pointer]:
+                      - strong [ref=e392] [cursor=pointer]: רפואה
+                      - generic [ref=e393] [cursor=pointer]: משולש
+                    - button "שאולה משולש" [ref=e394] [cursor=pointer]:
+                      - strong [ref=e395] [cursor=pointer]: שאולה
+                      - generic [ref=e396] [cursor=pointer]: משולש
+                    - button "אמריקא ריבוע" [ref=e397] [cursor=pointer]:
+                      - strong [ref=e398] [cursor=pointer]: אמריקא
+                      - generic [ref=e399] [cursor=pointer]: ריבוע
+                - generic [ref=e400]:
+                  - generic [ref=e402]:
+                    - generic [ref=e403]: הצלבה נסתרת
+                    - generic [ref=e404]:
+                      - strong [ref=e405]: התגלות ↔ תוחלת
+                      - generic [ref=e406]: "1"
+                  - button "ההצלבה המובילה התגלות = תוחלת התגלות · רגיל = 844 ↔ תוחלת · רגיל = 844 התגלות · סידורי = 70 ↔ תוחלת · סידורי = 70 אותן שיטות, אותם ערכים · נמצאה עכשיו מהמאגר המאומת" [ref=e407] [cursor=pointer]:
+                    - generic [ref=e408] [cursor=pointer]: ההצלבה המובילה
+                    - strong [ref=e409] [cursor=pointer]:
+                      - text: התגלות
+                      - generic [ref=e410] [cursor=pointer]: =
+                      - text: תוחלת
+                    - generic [ref=e411] [cursor=pointer]:
+                      - generic [ref=e412] [cursor=pointer]: התגלות · רגיל = 844 ↔ תוחלת · רגיל = 844
+                      - generic [ref=e413] [cursor=pointer]: התגלות · סידורי = 70 ↔ תוחלת · סידורי = 70
+                    - generic [ref=e414] [cursor=pointer]: אותן שיטות, אותם ערכים · נמצאה עכשיו מהמאגר המאומת
+                  - button "✦ רזיאל" [ref=e416] [cursor=pointer]
+                - generic [ref=e417]:
+                  - generic [ref=e419]:
+                    - generic [ref=e420]: מפגש בין שיטות
+                    - generic [ref=e421]:
+                      - strong [ref=e422]: אותו ערך 1237 משיטות שונות
+                      - generic [ref=e423]: "12"
+                  - generic [ref=e424]:
+                    - button "התגלות · מסתתר = 1237 ↔ אהבת דוד מלך ישראל חי וקיים · רגיל = 1237" [ref=e425] [cursor=pointer]:
+                      - strong [ref=e426] [cursor=pointer]: התגלות · מסתתר = 1237 ↔ אהבת דוד מלך ישראל חי וקיים · רגיל = 1237
+                    - button "התגלות · מסתתר = 1237 ↔ אתר הגרעין בפורדו · רגיל = 1237" [ref=e427] [cursor=pointer]:
+                      - strong [ref=e428] [cursor=pointer]: התגלות · מסתתר = 1237 ↔ אתר הגרעין בפורדו · רגיל = 1237
+                    - button "התגלות · מסתתר = 1237 ↔ במקדשך השלישי בזמן הזה · רגיל = 1237" [ref=e429] [cursor=pointer]:
+                      - strong [ref=e430] [cursor=pointer]: התגלות · מסתתר = 1237 ↔ במקדשך השלישי בזמן הזה · רגיל = 1237
+                    - button "התגלות · מסתתר = 1237 ↔ בני ישמעאל אחרית הימים · רגיל = 1237" [ref=e431] [cursor=pointer]:
+                      - strong [ref=e432] [cursor=pointer]: התגלות · מסתתר = 1237 ↔ בני ישמעאל אחרית הימים · רגיל = 1237
+                    - button "התגלות · מסתתר = 1237 ↔ וראית את אחרי · רגיל = 1237" [ref=e433] [cursor=pointer]:
+                      - strong [ref=e434] [cursor=pointer]: התגלות · מסתתר = 1237 ↔ וראית את אחרי · רגיל = 1237
+                    - button "התגלות · מסתתר = 1237 ↔ יהודי אמיתי נלחם בקונספירציה · רגיל = 1237" [ref=e435] [cursor=pointer]:
+                      - strong [ref=e436] [cursor=pointer]: התגלות · מסתתר = 1237 ↔ יהודי אמיתי נלחם בקונספירציה · רגיל = 1237
+                    - button "התגלות · מסתתר = 1237 ↔ יהוה ישמח במשיחיו בעתה · רגיל = 1237" [ref=e437] [cursor=pointer]:
+                      - strong [ref=e438] [cursor=pointer]: התגלות · מסתתר = 1237 ↔ יהוה ישמח במשיחיו בעתה · רגיל = 1237
+                    - button "התגלות · מסתתר = 1237 ↔ יתנו לך כתר מלוכה · רגיל = 1237" [ref=e439] [cursor=pointer]:
+                      - strong [ref=e440] [cursor=pointer]: התגלות · מסתתר = 1237 ↔ יתנו לך כתר מלוכה · רגיל = 1237
+                - generic [ref=e441]:
+                  - generic [ref=e443]:
+                    - generic [ref=e444]: שיטות המערכת
+                    - generic [ref=e445]:
+                      - strong [ref=e446]: נגזרות סביב 1237
+                      - generic [ref=e447]: "2"
+                  - generic [ref=e448]:
+                    - button "שיטת האפס · סדר הגודל 1237 → 12370 → 123700 → 1237000 → 12370000 אותו שורש ספרתי בסדר גודל אחר · נגזרת, לא שוויון" [ref=e449] [cursor=pointer]:
+                      - generic [ref=e450] [cursor=pointer]: שיטת האפס · סדר הגודל
+                      - strong [ref=e451] [cursor=pointer]: 1237 → 12370 → 123700 → 1237000 → 12370000
+                      - generic [ref=e452] [cursor=pointer]: אותו שורש ספרתי בסדר גודל אחר · נגזרת, לא שוויון
+                    - button "שיטת האחד 1237 → 1000 + 237 האלף המוביל כרמז לאחד · רמז משלים, לא שוויון" [ref=e453] [cursor=pointer]:
+                      - generic [ref=e454] [cursor=pointer]: שיטת האחד
+                      - strong [ref=e455] [cursor=pointer]: 1237 → 1000 + 237
+                      - generic [ref=e456] [cursor=pointer]: האלף המוביל כרמז לאחד · רמז משלים, לא שוויון
+                - generic [ref=e457]:
+                  - generic [ref=e458]:
+                    - generic [ref=e459]:
+                      - generic [ref=e460]: טעימה מהעולם
+                      - strong [ref=e461]: מה מתחבר לתוצאה 1237
+                    - button "פתח עולם ↗" [ref=e462] [cursor=pointer]
+                  - generic [ref=e463]:
+                    - button "גאולה 5" [ref=e464] [cursor=pointer]:
+                      - generic [ref=e465] [cursor=pointer]: גאולה
+                      - generic [ref=e466] [cursor=pointer]: "5"
+                    - button "מלחמה ותיקון 2" [ref=e467] [cursor=pointer]:
+                      - generic [ref=e468] [cursor=pointer]: מלחמה ותיקון
+                      - generic [ref=e469] [cursor=pointer]: "2"
+                    - button "תורה וקודש 1" [ref=e470] [cursor=pointer]:
+                      - generic [ref=e471] [cursor=pointer]: תורה וקודש
+                      - generic [ref=e472] [cursor=pointer]: "1"
+                    - button "12370 scale_x10" [ref=e473] [cursor=pointer]:
+                      - strong [ref=e474] [cursor=pointer]: "12370"
+                      - generic [ref=e475] [cursor=pointer]: scale_x10
+                    - button "45 cross" [ref=e476] [cursor=pointer]:
+                      - strong [ref=e477] [cursor=pointer]: "45"
+                      - generic [ref=e478] [cursor=pointer]: cross
+              - button "איך חישבנו? התגלות · מסתתר = 1237 פתח פירוט חישוב ▼" [ref=e479] [cursor=pointer]:
+                - generic [ref=e480] [cursor=pointer]: איך חישבנו?
+                - strong [ref=e481] [cursor=pointer]: התגלות · מסתתר = 1237
+                - generic [ref=e482] [cursor=pointer]: פתח פירוט חישוב ▼
+              - generic [ref=e483]:
+                - button "✦ שאל את רזיאל" [ref=e484] [cursor=pointer]
+                - button "◈ ניתוח AI" [ref=e485] [cursor=pointer]
+                - button "◇ חקור בהיכל" [ref=e486] [cursor=pointer]
+          - region "המסע שלי" [ref=e487]:
+            - heading "לאן הבחירה הזו מובילה?" [level=2] [ref=e488]
+            - paragraph [ref=e489]: המספר 1237
+            - paragraph [ref=e490]: אפשר להתחיל כאן מסע, לחזור למקור ולהמשיך לגלות.
+            - generic [ref=e491]:
+              - button "התחל מסע מהבחירה" [ref=e492] [cursor=pointer]
+              - button "שמירה וחידוש" [ref=e493] [cursor=pointer]
+            - generic [ref=e494]: השמירה בחשבון היא פרטית. הקריאה והבחירה זמינות גם בלי רזיאל.
+          - generic [ref=e495]:
+            - navigation "מפת דף המספר" [ref=e496]:
+              - button "אתה כאן עיקר" [ref=e497] [cursor=pointer]:
+                - generic [ref=e498] [cursor=pointer]: אתה כאן
+                - strong [ref=e499] [cursor=pointer]: עיקר
+              - list [ref=e502]:
+                - listitem [ref=e503] [cursor=pointer]: פסוקים
+                - listitem [ref=e504] [cursor=pointer]: עיקר
+                - listitem [ref=e505] [cursor=pointer]: עולמות
+                - listitem [ref=e506] [cursor=pointer]: קשרים
+                - listitem [ref=e507] [cursor=pointer]: מתמטיקה
+                - listitem [ref=e508] [cursor=pointer]: ביטויים
+                - listitem [ref=e509] [cursor=pointer]: מקורות
+                - listitem [ref=e510] [cursor=pointer]: ציר הזמן
+                - listitem [ref=e511] [cursor=pointer]: מסע
+                - listitem [ref=e512] [cursor=pointer]: מחקר
+            - generic [ref=e513]:
+              - generic [ref=e514]:
+                - generic [ref=e515]:
+                  - generic [ref=e516]: תנ״ך · גימטריה
+                  - heading "פסוקים בגימטריה של 1237" [level=2] [ref=e517]
+                  - paragraph [ref=e518]: פסוק שלם שנמצא דרך מנוע פסוקי-הערך הקנוני. מראה המקום מוצג באותיות עבריות; הערך מופיע רק אחרי הפסוק.
+                - generic [ref=e519]: 4 מתוך 4
+              - generic [ref=e520]:
+                - article [ref=e521]:
+                  - generic [ref=e522]: שמות א׳, כ׳
+                  - paragraph [ref=e523]:
+                    - generic [ref=e524]: וייטב אלהים למילדת וירב העם ויעצמו מאד
+                    - strong [ref=e525]: = 1,237
+                  - generic [ref=e526]: פסוק שלם · גימטריה רגילה
+                - article [ref=e527]:
+                  - generic [ref=e528]: ירמיהו מ״ה, ב׳
+                  - paragraph [ref=e529]:
+                    - generic [ref=e530]: כה אמר יהוה אלהי ישראל עליך ברוך
+                    - strong [ref=e531]: = 1,237
+                  - generic [ref=e532]: פסוק שלם · גימטריה רגילה
+                - article [ref=e533]:
+                  - generic [ref=e534]: משלי י״ח, ג׳
+                  - paragraph [ref=e535]:
+                    - generic [ref=e536]: בבוא רשע בא גם בוז ועם קלון חרפה
+                    - strong [ref=e537]: = 1,237
+                  - generic [ref=e538]: פסוק שלם · גימטריה רגילה
+              - button "פתח עוד 1 פסוקים" [ref=e539] [cursor=pointer]
+            - generic [ref=e541]:
+              - generic [ref=e542]:
+                - generic [ref=e543]:
+                  - generic [ref=e544]:
+                    - generic [ref=e545]: העיקר סביב 1237
+                    - heading "המספר 1237" [level=2] [ref=e546]
+                    - paragraph [ref=e547]: 1237 = התגלות (מסתתר)
+                    - generic [ref=e548]:
+                      - generic [ref=e549]: ביטוי פעיל · התגלות
+                      - generic [ref=e550]: שיטה · מסתתר
+                    - generic [ref=e551]:
+                      - button "פתח את העולם סביב 1237" [ref=e552] [cursor=pointer]
+                      - button "שאל את רזיאל" [ref=e553] [cursor=pointer]
+                      - button "קח אותי למסע" [ref=e554] [cursor=pointer]
+                  - generic [ref=e555]:
+                    - strong [ref=e559]: "1237"
+                    - generic [ref=e560]: מספר
+                - generic [ref=e561]:
+                  - generic [ref=e562]: קשרים בולטים
+                  - generic [ref=e563]: נקודות המשך מתוך המחקר הקיים
+                - generic "קשרים בולטים סביב המספר" [ref=e564]:
+                  - article [ref=e565]:
+                    - generic [ref=e566]: קשר 1
+                    - strong [ref=e567]: "776"
+                    - generic [ref=e568]: קשר
+                  - article [ref=e569]:
+                    - generic [ref=e570]: קשר 2
+                    - strong [ref=e571]: הציר ההודי
+                    - generic [ref=e572]: הודו מלשון יהודי · 424 שפות · וריאנט הודי 1237 · פסל 182 → 1820
+                  - article [ref=e573]:
+                    - generic [ref=e574]: קשר 3
+                    - strong [ref=e575]: וראית את אחרי
+                    - generic [ref=e576]: קשר
+                  - article [ref=e577]:
+                    - generic [ref=e578]: קשר 4
+                    - strong [ref=e579]: עדכון יום חמישי נוספה תמונה חדשה
+                    - generic [ref=e580]: קשר
+              - generic [ref=e581]:
+                - generic [ref=e582]:
+                  - generic [ref=e583]:
+                    - generic [ref=e584]: עולמות
+                    - heading "העולמות החיים של 1237" [level=2] [ref=e585]
+                    - paragraph [ref=e586]: רק עולמות עם חומר חי מצורף. בחירה בעולם משנה את הפוקוס, לא את האמת.
+                  - generic [ref=e587]: "4"
+                - generic [ref=e588]:
+                  - button "עולם 1 גאולה 5 פריטים" [ref=e589] [cursor=pointer]:
+                    - generic [ref=e590] [cursor=pointer]: עולם 1
+                    - strong [ref=e591] [cursor=pointer]: גאולה
+                    - generic [ref=e592] [cursor=pointer]: 5 פריטים
+                  - button "עולם 2 מלחמה ותיקון 2 פריטים" [ref=e593] [cursor=pointer]:
+                    - generic [ref=e594] [cursor=pointer]: עולם 2
+                    - strong [ref=e595] [cursor=pointer]: מלחמה ותיקון
+                    - generic [ref=e596] [cursor=pointer]: 2 פריטים
+                  - button "עולם 3 תורה וקודש 1 פריטים" [ref=e597] [cursor=pointer]:
+                    - generic [ref=e598] [cursor=pointer]: עולם 3
+                    - strong [ref=e599] [cursor=pointer]: תורה וקודש
+                    - generic [ref=e600] [cursor=pointer]: 1 פריטים
+                  - button "עולם 4 אקטואליה ואומות 1 פריטים" [ref=e601] [cursor=pointer]:
+                    - generic [ref=e602] [cursor=pointer]: עולם 4
+                    - strong [ref=e603] [cursor=pointer]: אקטואליה ואומות
+                    - generic [ref=e604] [cursor=pointer]: 1 פריטים
+                - generic [ref=e605]:
+                  - generic [ref=e606]:
+                    - generic [ref=e607]: העולם שנבחר
+                    - strong [ref=e608]: גאולה
+                  - button "פתח את העולם המלא" [ref=e609] [cursor=pointer]
+            - generic [ref=e610]:
+              - generic [ref=e611]:
+                - generic [ref=e612]:
+                  - generic [ref=e613]: חיבורים
+                  - heading "חיבורים ומספרים קשורים" [level=2] [ref=e614]
+                  - paragraph [ref=e615]: כל תחנה נושאת סיבה. שיטת האפס נשארת נגזרת מפורשת — ובמספר דל היא יכולה להפוך לחלק ראשון במעלה של הסיפור.
+                - generic [ref=e616]: "18"
+              - generic [ref=e617]:
+                - button "12370 קשר ×10 פתח דף מספר" [ref=e618] [cursor=pointer]:
+                  - strong [ref=e619] [cursor=pointer]: "12370"
+                  - generic [ref=e620] [cursor=pointer]: קשר ×10
+                  - generic [ref=e621] [cursor=pointer]: פתח דף מספר
+                - button "45 הצטלבות פתח דף מספר" [ref=e622] [cursor=pointer]:
+                  - strong [ref=e623] [cursor=pointer]: "45"
+                  - generic [ref=e624] [cursor=pointer]: הצטלבות
+                  - generic [ref=e625] [cursor=pointer]: פתח דף מספר
+                - button "424 הצטלבות פתח דף מספר" [ref=e626] [cursor=pointer]:
+                  - strong [ref=e627] [cursor=pointer]: "424"
+                  - generic [ref=e628] [cursor=pointer]: הצטלבות
+                  - generic [ref=e629] [cursor=pointer]: פתח דף מספר
+                - button "776 הצטלבות פתח דף מספר" [ref=e630] [cursor=pointer]:
+                  - strong [ref=e631] [cursor=pointer]: "776"
+                  - generic [ref=e632] [cursor=pointer]: הצטלבות
+                  - generic [ref=e633] [cursor=pointer]: פתח דף מספר
+                - button "450 קשור פתח דף מספר" [ref=e634] [cursor=pointer]:
+                  - strong [ref=e635] [cursor=pointer]: "450"
+                  - generic [ref=e636] [cursor=pointer]: קשור
+                  - generic [ref=e637] [cursor=pointer]: פתח דף מספר
+                - button "182 קשור פתח דף מספר" [ref=e638] [cursor=pointer]:
+                  - strong [ref=e639] [cursor=pointer]: "182"
+                  - generic [ref=e640] [cursor=pointer]: קשור
+                  - generic [ref=e641] [cursor=pointer]: פתח דף מספר
+                - button "1820 קשור פתח דף מספר" [ref=e642] [cursor=pointer]:
+                  - strong [ref=e643] [cursor=pointer]: "1820"
+                  - generic [ref=e644] [cursor=pointer]: קשור
+                  - generic [ref=e645] [cursor=pointer]: פתח דף מספר
+                - button "778 קשור פתח דף מספר" [ref=e646] [cursor=pointer]:
+                  - strong [ref=e647] [cursor=pointer]: "778"
+                  - generic [ref=e648] [cursor=pointer]: קשור
+                  - generic [ref=e649] [cursor=pointer]: פתח דף מספר
+                - button "1202 קשור פתח דף מספר" [ref=e650] [cursor=pointer]:
+                  - strong [ref=e651] [cursor=pointer]: "1202"
+                  - generic [ref=e652] [cursor=pointer]: קשור
+                  - generic [ref=e653] [cursor=pointer]: פתח דף מספר
+            - generic [ref=e654]:
+              - generic [ref=e655]:
+                - generic [ref=e656]:
+                  - generic [ref=e657]: מתמטיקה
+                  - heading "היקום המתמטי של 1237" [level=2] [ref=e658]
+                  - paragraph [ref=e659]: הפרופיל המתמטי, הרצפים והמעברים חיים באותו מרחב. החישוב דטרמיניסטי; המשמעות המחקרית נשארת שכבה נפרדת.
+                - generic [ref=e660]: "2"
+              - link "איך קוראים את הנתונים האלה?" [ref=e662] [cursor=pointer]:
+                - /url: /beit-midrash?section=numbers
+              - generic [ref=e663]:
+                - generic [ref=e664]:
+                  - generic [ref=e665]: מספר במתמטיקה
+                  - strong [ref=e666]: "1237"
+                  - paragraph [ref=e667]: φ(n) = 1236 · שורש ספרות 4 · סכום ספרות 13
+                - generic [ref=e668]:
+                  - generic [ref=e669]: מספר ראשוני
+                  - generic [ref=e670]: מספר חסר
+              - generic [ref=e671]:
+                - generic [ref=e672]:
+                  - strong [ref=e673]: "עדשת הראשוניים · #203"
+                  - paragraph [ref=e674]: ראשוני קודם 1231 · הבא 1249 · פערים 6 ו־12
+                  - generic [ref=e675]: קשר מתמטי מחושב; ביטויים ומשמעות נבדקים בדף המספר הנגזר.
+                - button "פתח את מספר 203" [ref=e676] [cursor=pointer]
+              - generic [ref=e677]:
+                - generic [ref=e678]:
+                  - button "מספרים קשורים" [ref=e679] [cursor=pointer]
+                  - button "ממצאים" [ref=e680] [cursor=pointer]
+                  - button "רצפים" [ref=e681] [cursor=pointer]
+                - slider "מד ניווט חי" [ref=e682]: "0"
+                - generic [ref=e683]:
+                  - button "12370" [ref=e684] [cursor=pointer]:
+                    - generic [ref=e686] [cursor=pointer]: "12370"
+                  - button "45" [ref=e687] [cursor=pointer]:
+                    - generic [ref=e689] [cursor=pointer]: "45"
+                  - button "424" [ref=e690] [cursor=pointer]:
+                    - generic [ref=e692] [cursor=pointer]: "424"
+                  - button "776" [ref=e693] [cursor=pointer]:
+                    - generic [ref=e695] [cursor=pointer]: "776"
+                  - button "450" [ref=e696] [cursor=pointer]:
+                    - generic [ref=e698] [cursor=pointer]: "450"
+                  - button "182" [ref=e699] [cursor=pointer]:
+                    - generic [ref=e701] [cursor=pointer]: "182"
+                  - button "1820" [ref=e702] [cursor=pointer]:
+                    - generic [ref=e704] [cursor=pointer]: "1820"
+                  - button "778" [ref=e705] [cursor=pointer]:
+                    - generic [ref=e707] [cursor=pointer]: "778"
+                  - button "1202" [ref=e708] [cursor=pointer]:
+                    - generic [ref=e710] [cursor=pointer]: "1202"
+                  - button "255" [ref=e711] [cursor=pointer]:
+                    - generic [ref=e713] [cursor=pointer]: "255"
+                  - button "2212" [ref=e714] [cursor=pointer]:
+                    - generic [ref=e716] [cursor=pointer]: "2212"
+                  - button "1359" [ref=e717] [cursor=pointer]:
+                    - generic [ref=e719] [cursor=pointer]: "1359"
+                  - button "0" [ref=e720] [cursor=pointer]:
+                    - generic [ref=e722] [cursor=pointer]: "0"
+                  - button "604" [ref=e723] [cursor=pointer]:
+                    - generic [ref=e725] [cursor=pointer]: "604"
+                  - button "988" [ref=e726] [cursor=pointer]:
+                    - generic [ref=e728] [cursor=pointer]: "988"
+                  - button "123700" [ref=e729] [cursor=pointer]:
+                    - generic [ref=e731] [cursor=pointer]: "123700"
+                  - button "1237000" [ref=e732] [cursor=pointer]:
+                    - generic [ref=e734] [cursor=pointer]: "1237000"
+                  - button "12370000" [ref=e735] [cursor=pointer]:
+                    - generic [ref=e737] [cursor=pointer]: "12370000"
+                - article [ref=e738]:
+                  - generic [ref=e739]:
+                    - generic [ref=e740]: מספר קשור
+                    - strong [ref=e741]: "12370"
+                    - paragraph [ref=e742]: קשר ×10
+                  - button "פתח את דף המספר" [ref=e744] [cursor=pointer]
+            - generic [ref=e745]:
+              - generic [ref=e746]:
+                - generic [ref=e747]:
+                  - generic [ref=e748]: ביטויים ושפות
+                  - heading "משפחת הביטויים" [level=2] [ref=e749]
+                  - paragraph [ref=e750]: ביטויים שווים, שיטות ושפות נוספות מוצגים בהדרגה. מספר לעולם לא מנותק מהשיטה שיצרה אותו.
+                - generic [ref=e751]: 124 נטענו
+              - generic [ref=e752]:
+                - button "בני ישמעאל אחרית הימים רגיל מאומת" [ref=e753] [cursor=pointer]:
+                  - strong [ref=e754] [cursor=pointer]: בני ישמעאל אחרית הימים
+                  - generic [ref=e755] [cursor=pointer]: רגיל
+                  - generic [ref=e756] [cursor=pointer]: מאומת
+                - button "כה אמר יהוה אלהי ישראל עליך ברוך רגיל מאומת" [ref=e757] [cursor=pointer]:
+                  - strong [ref=e758] [cursor=pointer]: כה אמר יהוה אלהי ישראל עליך ברוך
+                  - generic [ref=e759] [cursor=pointer]: רגיל
+                  - generic [ref=e760] [cursor=pointer]: מאומת
+                - button "תורת הצופן רגיל מאומת" [ref=e761] [cursor=pointer]:
+                  - strong [ref=e762] [cursor=pointer]: תורת הצופן
+                  - generic [ref=e763] [cursor=pointer]: רגיל
+                  - generic [ref=e764] [cursor=pointer]: מאומת
+                - button "תדר המשיח האחרון רגיל מאומת" [ref=e765] [cursor=pointer]:
+                  - strong [ref=e766] [cursor=pointer]: תדר המשיח האחרון
+                  - generic [ref=e767] [cursor=pointer]: רגיל
+                  - generic [ref=e768] [cursor=pointer]: מאומת
+                - button "וראית את אחרי רגיל מאומת" [ref=e769] [cursor=pointer]:
+                  - strong [ref=e770] [cursor=pointer]: וראית את אחרי
+                  - generic [ref=e771] [cursor=pointer]: רגיל
+                  - generic [ref=e772] [cursor=pointer]: מאומת
+              - button "פתח ביטויים נוספים" [ref=e773] [cursor=pointer]
+            - generic [ref=e774]:
+              - generic [ref=e775]:
+                - generic [ref=e776]:
+                  - generic [ref=e777]: מקורות ותוכן
+                  - heading "מקורות ותוכן" [level=2] [ref=e778]
+                  - paragraph [ref=e779]: המקור קודם לפרשנות. מדיה, ELS ו־3D נפתחים רק כשיש להם ערך מחקרי — לא כדי להכביד על הדף.
+                - generic [ref=e780]: "12"
+              - generic [ref=e781]:
+                - button "עדכון 7/9/2022 נוספה תמונה חדשה" [ref=e782] [cursor=pointer]:
+                  - img "עדכון 7/9/2022 נוספה תמונה חדשה"
+                  - generic [ref=e783] [cursor=pointer]:
+                    - generic [ref=e784] [cursor=pointer]: ייצוג מוביל
+                    - strong [ref=e785] [cursor=pointer]: עדכון 7/9/2022 נוספה תמונה חדשה
+                - generic [ref=e786]:
+                  - button "עדכון 9/8/2022 נוספה תמונה חדשה" [ref=e787] [cursor=pointer]:
+                    - img "עדכון 9/8/2022 נוספה תמונה חדשה" [ref=e788] [cursor=pointer]
+                    - generic [ref=e789] [cursor=pointer]: עדכון 9/8/2022 נוספה תמונה חדשה
+                  - button "עדכון תשעה באב תשפב 6/8/2022 נוספה תמונה חדשה" [ref=e790] [cursor=pointer]:
+                    - img "עדכון תשעה באב תשפב 6/8/2022 נוספה תמונה חדשה" [ref=e791] [cursor=pointer]
+                    - generic [ref=e792] [cursor=pointer]: עדכון תשעה באב תשפב 6/8/2022 נוספה תמונה חדשה
+                  - button "שימו לב אחד הממצאים החזקים ביותר שיש !!! ארבעים וחמישה בדיוק כמו - ה' השולט על כ…" [ref=e793] [cursor=pointer]:
+                    - img "שימו לב אחד הממצאים החזקים ביותר שיש !!! ארבעים וחמישה בדיוק כמו - ה' השולט על כ…" [ref=e794] [cursor=pointer]
+                    - generic [ref=e795] [cursor=pointer]: שימו לב אחד הממצאים החזקים ביותר שיש !!! ארבעים וחמישה בדיוק כמו - ה' השולט על כ…
+                - button "הצג עוד מדיה · 4 מתוך 8" [ref=e796] [cursor=pointer]
+              - generic [ref=e797]:
+                - button "שמות א׳, כ׳ — וייטב אלהים למילדת וירב העם ויעצמו מאד פסוק שלם = 1,237 פתח הקשר מקור" [ref=e798] [cursor=pointer]:
+                  - strong [ref=e799] [cursor=pointer]: שמות א׳, כ׳ — וייטב אלהים למילדת וירב העם ויעצמו מאד
+                  - generic [ref=e800] [cursor=pointer]: פסוק שלם = 1,237
+                  - generic [ref=e801] [cursor=pointer]: פתח הקשר מקור
+                - button "ירמיהו מ״ה, ב׳ — כה אמר יהוה אלהי ישראל עליך ברוך פסוק שלם = 1,237 פתח הקשר מקור" [ref=e802] [cursor=pointer]:
+                  - strong [ref=e803] [cursor=pointer]: ירמיהו מ״ה, ב׳ — כה אמר יהוה אלהי ישראל עליך ברוך
+                  - generic [ref=e804] [cursor=pointer]: פסוק שלם = 1,237
+                  - generic [ref=e805] [cursor=pointer]: פתח הקשר מקור
+                - button "משלי י״ח, ג׳ — בבוא רשע בא גם בוז ועם קלון חרפה פסוק שלם = 1,237 פתח הקשר מקור" [ref=e806] [cursor=pointer]:
+                  - strong [ref=e807] [cursor=pointer]: משלי י״ח, ג׳ — בבוא רשע בא גם בוז ועם קלון חרפה
+                  - generic [ref=e808] [cursor=pointer]: פסוק שלם = 1,237
+                  - generic [ref=e809] [cursor=pointer]: פתח הקשר מקור
+                - button "נחמיה י״ב, ט״ו — לחרם עדנא למריות חלקי פסוק שלם = 1,237 פתח הקשר מקור" [ref=e810] [cursor=pointer]:
+                  - strong [ref=e811] [cursor=pointer]: נחמיה י״ב, ט״ו — לחרם עדנא למריות חלקי
+                  - generic [ref=e812] [cursor=pointer]: פסוק שלם = 1,237
+                  - generic [ref=e813] [cursor=pointer]: פתח הקשר מקור
+              - region "ממצאים ציבוריים למספר" [ref=e814]:
+                - generic [ref=e815]:
+                  - heading "ממצאים ממקורות העולם" [level=3] [ref=e816]
+                  - paragraph [ref=e817]: ממצאים שבהם מופיע המספר. המקור ומצב הבדיקה זמינים בכל ממצא.
+                - button "הצגת ממצאים למספר" [ref=e818] [cursor=pointer]
+              - generic [ref=e819]:
+                - button "ELS / צפנים פתח ספריית צפנים שמורים פריטים מורשים בלבד" [ref=e820] [cursor=pointer]:
+                  - generic [ref=e821] [cursor=pointer]: ELS / צפנים
+                  - strong [ref=e822] [cursor=pointer]: פתח ספריית צפנים שמורים
+                  - generic [ref=e823] [cursor=pointer]: פריטים מורשים בלבד
+                - button "ELS / חקירה פתח חיפוש חדש חיפוש מתחיל רק בפעולה מפורשת" [ref=e824] [cursor=pointer]:
+                  - generic [ref=e825] [cursor=pointer]: ELS / חקירה
+                  - strong [ref=e826] [cursor=pointer]: פתח חיפוש חדש
+                  - generic [ref=e827] [cursor=pointer]: חיפוש מתחיל רק בפעולה מפורשת
+                - button "3D / מרחב פתח רק אם המבנה מוסיף הבנה נטען רק כשפותחים" [ref=e828] [cursor=pointer]:
+                  - generic [ref=e829] [cursor=pointer]: 3D / מרחב
+                  - strong [ref=e830] [cursor=pointer]: פתח רק אם המבנה מוסיף הבנה
+                  - generic [ref=e831] [cursor=pointer]: נטען רק כשפותחים
+            - region "ציר הזמן" [ref=e833]:
+              - generic [ref=e834]:
+                - heading "ציר הזמן" [level=2] [ref=e835]
+                - paragraph [ref=e836]: מה נוסף למחקר סביב המספר ומתי. זמן ההוספה נפרד מזמן האירוע בעולם.
+              - list [ref=e837]:
+                - listitem [ref=e838]:
+                  - generic [ref=e840]:
+                    - generic [ref=e841]:
+                      - time [ref=e842]:
+                        - generic [ref=e843]: י״ח בתשרי
+                        - generic [ref=e844]: ·
+                        - generic [ref=e845]: 29.09.2026
+                      - generic [ref=e846]: נוסף למחקר
+                    - strong [ref=e847] [cursor=pointer]: אופק אדנק · קשור
+                    - 'button "הקשר: אופק אדנק · קשור" [ref=e848] [cursor=pointer]': הקשר
+                - listitem [ref=e849]:
+                  - generic [ref=e851]:
+                    - generic [ref=e852]:
+                      - time [ref=e853]:
+                        - generic [ref=e854]: כ״ב באלול
+                        - generic [ref=e855]: ·
+                        - generic [ref=e856]: 04.09.2026
+                      - generic [ref=e857]: נוסף למחקר
+                    - strong [ref=e858] [cursor=pointer]: תמונה · מזכיר
+                    - 'button "הקשר: תמונה · מזכיר" [ref=e859] [cursor=pointer]': הקשר
+                - listitem [ref=e860]:
+                  - generic [ref=e862]:
+                    - generic [ref=e863]:
+                      - time [ref=e864]:
+                        - generic [ref=e865]: כ״ב באלול
+                        - generic [ref=e866]: ·
+                        - generic [ref=e867]: 04.09.2026
+                      - generic [ref=e868]: נוסף למחקר
+                    - strong [ref=e869] [cursor=pointer]: תמונה · מזכיר
+                    - 'button "הקשר: תמונה · מזכיר" [ref=e870] [cursor=pointer]': הקשר
+                - listitem [ref=e871]:
+                  - generic [ref=e873]:
+                    - generic [ref=e874]:
+                      - time [ref=e875]:
+                        - generic [ref=e876]: כ״ב באלול
+                        - generic [ref=e877]: ·
+                        - generic [ref=e878]: 04.09.2026
+                      - generic [ref=e879]: נוסף למחקר
+                    - strong [ref=e880] [cursor=pointer]: תמונה · מזכיר
+                    - 'button "הקשר: תמונה · מזכיר" [ref=e881] [cursor=pointer]': הקשר
+                - listitem [ref=e882]:
+                  - generic [ref=e884]:
+                    - generic [ref=e885]:
+                      - time [ref=e886]:
+                        - generic [ref=e887]: כ״ב באלול
+                        - generic [ref=e888]: ·
+                        - generic [ref=e889]: 04.09.2026
+                      - generic [ref=e890]: נוסף למחקר
+                    - strong [ref=e891] [cursor=pointer]: תמונה · מזכיר
+                    - 'button "הקשר: תמונה · מזכיר" [ref=e892] [cursor=pointer]': הקשר
+                - listitem [ref=e893]:
+                  - generic [ref=e895]:
+                    - generic [ref=e896]:
+                      - time [ref=e897]:
+                        - generic [ref=e898]: כ״ב באלול
+                        - generic [ref=e899]: ·
+                        - generic [ref=e900]: 04.09.2026
+                      - generic [ref=e901]: נוסף למחקר
+                    - strong [ref=e902] [cursor=pointer]: עדכון 4/2/2021 נוספו 2 תמונות חדשות · מזכיר
+                    - 'button "הקשר: עדכון 4/2/2021 נוספו 2 תמונות חדשות · מזכיר" [ref=e903] [cursor=pointer]': הקשר
+                - listitem [ref=e904]:
+                  - generic [ref=e906]:
+                    - generic [ref=e907]:
+                      - time [ref=e908]:
+                        - generic [ref=e909]: כ״ב באלול
+                        - generic [ref=e910]: ·
+                        - generic [ref=e911]: 04.09.2026
+                      - generic [ref=e912]: נוסף למחקר
+                    - strong [ref=e913] [cursor=pointer]: "## הקפצה # עדכון 18/6/2020 נוספו 2 תמונות חדשות · מזכיר"
+                    - 'button "הקשר: ## הקפצה # עדכון 18/6/2020 נוספו 2 תמונות חדשות · מזכיר" [ref=e914] [cursor=pointer]': הקשר
+                - listitem [ref=e915]:
+                  - generic [ref=e917]:
+                    - generic [ref=e918]:
+                      - time [ref=e919]:
+                        - generic [ref=e920]: כ״ב באלול
+                        - generic [ref=e921]: ·
+                        - generic [ref=e922]: 04.09.2026
+                      - generic [ref=e923]: נוסף למחקר
+                    - strong [ref=e924] [cursor=pointer]: עדכון 27-5-25 נוספה תמונה חדשה · מזכיר
+                    - 'button "הקשר: עדכון 27-5-25 נוספה תמונה חדשה · מזכיר" [ref=e925] [cursor=pointer]': הקשר
+              - button "הצג עוד 8 (8/132)" [ref=e927] [cursor=pointer]
+            - generic [ref=e928]:
+              - generic [ref=e930]:
+                - generic [ref=e931]: ABOUT
+                - heading "על המספר 1237" [level=2] [ref=e932]
+                - paragraph [ref=e933]: תמונה מרוכזת של הביטויים, הקשרים, המקורות והעולמות שכבר קיימים סביב המספר.
+              - paragraph [ref=e934]: 1237 מחבר כרגע 124 ביטויים שניתנים להצגה, 132 קשרים, 4 מקורות ו־4 עולמות מחקר. הסיפור מוביל קודם בחומר הישיר ורק אחר כך בהרחבות.
+            - generic [ref=e935]:
+              - generic [ref=e937]:
+                - generic [ref=e938]: מסע
+                - heading "לאן 1237 לוקח אותך?" [level=2] [ref=e939]
+                - paragraph [ref=e940]: המסע מחבר את מה שכבר חקרת למסלול אחד רציף. תיק אישי שומר את המחקר; המסע מוביל אותך בתוכו.
+              - generic [ref=e941]:
+                - button "מסע כללי צא למסע בעולם של 1237 עולמות · מספרים · מקורות · תחנות" [ref=e942] [cursor=pointer]:
+                  - generic [ref=e943] [cursor=pointer]: מסע כללי
+                  - strong [ref=e944] [cursor=pointer]: צא למסע בעולם של 1237
+                  - generic [ref=e945] [cursor=pointer]: עולמות · מספרים · מקורות · תחנות
+                - button "מסע אישי קח אדם דרך 1237 פרטי כברירת מחדל · בלי ליצור תיק אוטומטית" [ref=e946] [cursor=pointer]:
+                  - generic [ref=e947] [cursor=pointer]: מסע אישי
+                  - strong [ref=e948] [cursor=pointer]: קח אדם דרך 1237
+                  - generic [ref=e949] [cursor=pointer]: פרטי כברירת מחדל · בלי ליצור תיק אוטומטית
+                - button "המשך המשך מאיפה שהפסקת רזיאל מציע את הצעד הבא" [ref=e950] [cursor=pointer]:
+                  - generic [ref=e951] [cursor=pointer]: המשך
+                  - strong [ref=e952] [cursor=pointer]: המשך מאיפה שהפסקת
+                  - generic [ref=e953] [cursor=pointer]: רזיאל מציע את הצעד הבא
+            - generic [ref=e954]:
+              - generic [ref=e956]:
+                - generic [ref=e957]: מחקר עמוק
+                - heading "רזיאל והמחקר העמוק" [level=2] [ref=e958]
+                - paragraph [ref=e959]: דף המספר נשאר נקי ומהיר. חישוב מלא, הרצות חדשות, ELS, תלת־ממד והתאמות רבות נפתחים רק כשמבקשים.
+              - generic [ref=e960]:
+                - button "מה כדאי לבדוק עכשיו?" [ref=e961] [cursor=pointer]
+                - button "פתח בהיכל" [ref=e962] [cursor=pointer]
+                - button "מפת המחקר" [ref=e963] [cursor=pointer]
+              - generic [ref=e964]:
+                - generic [ref=e965]: חוזק מחקרי · 0
+                - generic [ref=e966]: אוצרות אנושית · Gold × 2
+                - generic [ref=e967]: פעילות · 112
+      - complementary "ההקשר הפעיל" [ref=e969]:
+        - generic [ref=e970]: הקשר פעיל
+        - strong [ref=e971]: "1237"
+        - generic [ref=e972]: מספר
+        - button "מה אנחנו חוקרים עכשיו?" [ref=e974] [cursor=pointer]:
+          - generic [ref=e975] [cursor=pointer]: "?"
+          - generic [ref=e976] [cursor=pointer]: מה אנחנו חוקרים עכשיו?
+        - generic [ref=e978]:
+          - button "פתח את 1237" [ref=e979] [cursor=pointer]
+          - button "✦ שאל את רזיאל" [ref=e980] [cursor=pointer]
+        - button "פתח לעומק" [ref=e981] [cursor=pointer]:
+          - text: פתח לעומק
+          - generic [ref=e982] [cursor=pointer]: ←
+  - complementary "עדכונים, הקשר ורצף האירועים" [ref=e983]:
+    - generic [ref=e984]:
+      - 'button "עדכונים: 2 חדשים" [ref=e985] [cursor=pointer]':
+        - generic [ref=e987] [cursor=pointer]: "2"
+      - generic "מקורות ציבוריים" [ref=e988]:
+        - button "אור הגאולה · צפייה בסטוריז" [ref=e989] [cursor=pointer]
+        - button "מקורות ציבוריים של צבי" [ref=e991] [cursor=pointer]:
+          - generic [ref=e992] [cursor=pointer]: צ
+        - button "ספריית סוד החשמל" [ref=e993] [cursor=pointer]:
+          - generic [ref=e994] [cursor=pointer]: ⚡
+    - button "הצג רמז מרזיאל" [ref=e995] [cursor=pointer]:
+      - generic [ref=e996] [cursor=pointer]: ✦
+  - toolbar "מסלול המחקר והפעולות הזמינות עכשיו" [ref=e997]:
+    - button "כאן · מפת העמוד וההקשר" [ref=e998] [cursor=pointer]:
+      - img [ref=e999] [cursor=pointer]
+      - generic [ref=e1002] [cursor=pointer]: כאן
+    - button "מספר · פתח חלונית מספר" [ref=e1003] [cursor=pointer]:
+      - img [ref=e1004] [cursor=pointer]:
+        - generic [ref=e1005] [cursor=pointer]: "123"
+      - generic [ref=e1006] [cursor=pointer]: מספר
+    - button "פתח את רזיאל" [ref=e1007] [cursor=pointer]
+    - button "עכשיו · 2 חדשים" [ref=e1009] [cursor=pointer]:
+      - img [ref=e1010] [cursor=pointer]
+      - generic [ref=e1013] [cursor=pointer]: עכשיו
+      - generic [ref=e1014] [cursor=pointer]: "2"
+    - button "עוד · פעולות וכלים" [ref=e1015] [cursor=pointer]:
+      - img [ref=e1016] [cursor=pointer]
+      - generic [ref=e1021] [cursor=pointer]: עוד
+```

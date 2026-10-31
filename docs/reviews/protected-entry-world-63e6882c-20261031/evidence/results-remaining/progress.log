@@ -1,0 +1,236 @@
+Protected Preview bootstrap PASS; deployment cookies retained in memory only
+
+Running 12 tests using 1 worker
+
+[1A[2K(node:46860) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:46860) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[1/12] tests/world2029-release.spec.cjs:816:1 › SPARSE live World 122 stays honestly sparse with no fabricated research
+[1A[2K[2/12] tests/world2029-release.spec.cjs:826:1 › World uses the shared Command, Inspect, Share and exact-return seams
+[1A[2K  1) tests/world2029-release.spec.cjs:826:1 › World uses the shared Command, Inspect, Share and exact-return seams 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m failed
+
+    Locator:  locator('.sod29-command-island button').filter({ hasText: 'חיפוש' })
+    Expected: visible
+    Received: <element(s) not found>
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for locator('.sod29-command-island button').filter({ hasText: 'חיפוש' })[22m
+
+
+      828 |
+      829 |   const command = page.locator('.sod29-command-island button').filter({ hasText: 'חיפוש' });
+    > 830 |   await expect(command).toBeVisible();
+          |                         ^
+      831 |   await command.click();
+      832 |   await expect(page.getByRole('dialog', { name: 'חיפוש' })).toBeVisible();
+      833 |   await page.keyboard.press('Escape');
+        at /tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:830:25
+
+    Error Context: results-remaining/test-results/world2029-release-World-us-75390-hare-and-exact-return-seams/error-context.md
+
+
+[1A[2K(node:47043) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:47043) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[3/12] tests/world2029-release.spec.cjs:877:1 › loading and error states are honest and native
+[1A[2K[4/12] tests/world2029-release.spec.cjs:901:1 › unavailable identity is not silently replaced by another anchor
+[1A[2K  2) tests/world2029-release.spec.cjs:901:1 › unavailable identity is not silently replaced by another anchor 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m failed
+
+    Locator:  getByText('אין חומר זמין לנקודה הזאת')
+    Expected: visible
+    Received: <element(s) not found>
+    Timeout:  15000ms
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 15000ms[22m
+    [2m  - waiting for getByText('אין חומר זמין לנקודה הזאת')[22m
+
+
+      903 |   await seedWorldAnchor(page, 999999999);
+      904 |   await page.goto(`${BASE}${WORLD}?focus=context`, { waitUntil: 'domcontentloaded' });
+    > 905 |   await expect(page.getByText('אין חומר זמין לנקודה הזאת')).toBeVisible({ timeout: 15_000 });
+          |                                                             ^
+      906 |   await expect(page.getByRole('heading', { name: '999999999', exact: true })).toBeVisible();
+      907 |   await page.screenshot({ path: 'test-results/release-visual/world-unavailable-390.png', fullPage: true });
+      908 | });
+        at /tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:905:61
+
+
+[1A[2K(node:47245) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:47245) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[5/12] tests/world2029-release.spec.cjs:910:1 › reduced motion preserves the same World meaning and controls
+[1A[2K[6/12] tests/world2029-release.spec.cjs:922:1 › 320px RTL World survives 200% text zoom without horizontal overflow
+[1A[2K[7/12] tests/world2029-release.spec.cjs:934:1 › private researcher corpus stays gated for non-admin 2029 sessions
+[1A[2K[8/12] tests/world2029-release.spec.cjs:947:5 › source projector light 390: source-first writer and full Hashmal reading
+[1A[2K  3) tests/world2029-release.spec.cjs:947:5 › source projector light 390: source-first writer and full Hashmal reading 
+
+    [31mTest timeout of 60000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 60000ms exceeded.
+    Call log:
+    [2m  - waiting for getByRole('button', { name: 'הודעות מקור' })[22m
+
+
+      980 |       await corpus.screenshot({ path: `test-results/release-visual/hashmal-projector-${preset}-${width}.png` });
+      981 |       await selectWorldLandingView(page, 'מה חדש');
+    > 982 |       await page.getByRole('button', { name: 'הודעות מקור' }).click();
+          |                                                               ^
+      983 |       if (groupRows.length) await expect(page.locator('#world-sources details.sod29-world-group-source').first()).toBeVisible({ timeout: 20_000 });
+      984 |       await expect(page.getByText(/עדכוני תורת הרמז והגילוי היומי טרם חוברו/)).toHaveCount(0);
+      985 |     });
+        at /tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:982:63
+
+    Error Context: results-remaining/test-results/world2029-release-source-p-37cd7-er-and-full-Hashmal-reading/error-context.md
+
+
+[1A[2K(node:47543) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:47543) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[9/12] tests/world2029-release.spec.cjs:947:5 › source projector light 1440: source-first writer and full Hashmal reading
+[1A[2K  4) tests/world2029-release.spec.cjs:947:5 › source projector light 1440: source-first writer and full Hashmal reading 
+
+    [31mTest timeout of 60000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 60000ms exceeded.
+    Call log:
+    [2m  - waiting for getByRole('button', { name: 'הודעות מקור' })[22m
+
+
+      980 |       await corpus.screenshot({ path: `test-results/release-visual/hashmal-projector-${preset}-${width}.png` });
+      981 |       await selectWorldLandingView(page, 'מה חדש');
+    > 982 |       await page.getByRole('button', { name: 'הודעות מקור' }).click();
+          |                                                               ^
+      983 |       if (groupRows.length) await expect(page.locator('#world-sources details.sod29-world-group-source').first()).toBeVisible({ timeout: 20_000 });
+      984 |       await expect(page.getByText(/עדכוני תורת הרמז והגילוי היומי טרם חוברו/)).toHaveCount(0);
+      985 |     });
+        at /tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:982:63
+
+    Error Context: results-remaining/test-results/world2029-release-source-p-b9b7e-er-and-full-Hashmal-reading/error-context.md
+
+
+[1A[2K(node:47702) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:47702) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[10/12] tests/world2029-release.spec.cjs:947:5 › source projector parchment 390: source-first writer and full Hashmal reading
+[1A[2K  5) tests/world2029-release.spec.cjs:947:5 › source projector parchment 390: source-first writer and full Hashmal reading 
+
+    [31mTest timeout of 60000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 60000ms exceeded.
+    Call log:
+    [2m  - waiting for getByRole('button', { name: 'הודעות מקור' })[22m
+
+
+      980 |       await corpus.screenshot({ path: `test-results/release-visual/hashmal-projector-${preset}-${width}.png` });
+      981 |       await selectWorldLandingView(page, 'מה חדש');
+    > 982 |       await page.getByRole('button', { name: 'הודעות מקור' }).click();
+          |                                                               ^
+      983 |       if (groupRows.length) await expect(page.locator('#world-sources details.sod29-world-group-source').first()).toBeVisible({ timeout: 20_000 });
+      984 |       await expect(page.getByText(/עדכוני תורת הרמז והגילוי היומי טרם חוברו/)).toHaveCount(0);
+      985 |     });
+        at /tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:982:63
+
+    Error Context: results-remaining/test-results/world2029-release-source-p-bbcff-er-and-full-Hashmal-reading/error-context.md
+
+
+[1A[2K(node:47915) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:47915) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[11/12] tests/world2029-release.spec.cjs:947:5 › source projector parchment 1440: source-first writer and full Hashmal reading
+[1A[2K  6) tests/world2029-release.spec.cjs:947:5 › source projector parchment 1440: source-first writer and full Hashmal reading 
+
+    [31mTest timeout of 60000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 60000ms exceeded.
+    Call log:
+    [2m  - waiting for getByRole('button', { name: 'הודעות מקור' })[22m
+
+
+      980 |       await corpus.screenshot({ path: `test-results/release-visual/hashmal-projector-${preset}-${width}.png` });
+      981 |       await selectWorldLandingView(page, 'מה חדש');
+    > 982 |       await page.getByRole('button', { name: 'הודעות מקור' }).click();
+          |                                                               ^
+      983 |       if (groupRows.length) await expect(page.locator('#world-sources details.sod29-world-group-source').first()).toBeVisible({ timeout: 20_000 });
+      984 |       await expect(page.getByText(/עדכוני תורת הרמז והגילוי היומי טרם חוברו/)).toHaveCount(0);
+      985 |     });
+        at /tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:982:63
+
+    Error Context: results-remaining/test-results/world2029-release-source-p-3e31a-er-and-full-Hashmal-reading/error-context.md
+
+
+[1A[2K(node:48061) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:48061) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[12/12] tests/world2029-release.spec.cjs:947:5 › source projector dark 390: source-first writer and full Hashmal reading
+[1A[2K  7) tests/world2029-release.spec.cjs:947:5 › source projector dark 390: source-first writer and full Hashmal reading 
+
+    [31mTest timeout of 60000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 60000ms exceeded.
+    Call log:
+    [2m  - waiting for getByRole('button', { name: 'הודעות מקור' })[22m
+
+
+      980 |       await corpus.screenshot({ path: `test-results/release-visual/hashmal-projector-${preset}-${width}.png` });
+      981 |       await selectWorldLandingView(page, 'מה חדש');
+    > 982 |       await page.getByRole('button', { name: 'הודעות מקור' }).click();
+          |                                                               ^
+      983 |       if (groupRows.length) await expect(page.locator('#world-sources details.sod29-world-group-source').first()).toBeVisible({ timeout: 20_000 });
+      984 |       await expect(page.getByText(/עדכוני תורת הרמז והגילוי היומי טרם חוברו/)).toHaveCount(0);
+      985 |     });
+        at /tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:982:63
+
+    Error Context: results-remaining/test-results/world2029-release-source-p-3761c-er-and-full-Hashmal-reading/error-context.md
+
+
+[1A[2K  7 failed
+    tests/world2029-release.spec.cjs:826:1 › World uses the shared Command, Inspect, Share and exact-return seams 
+    tests/world2029-release.spec.cjs:901:1 › unavailable identity is not silently replaced by another anchor 
+    tests/world2029-release.spec.cjs:947:5 › source projector light 390: source-first writer and full Hashmal reading 
+    tests/world2029-release.spec.cjs:947:5 › source projector light 1440: source-first writer and full Hashmal reading 
+    tests/world2029-release.spec.cjs:947:5 › source projector parchment 390: source-first writer and full Hashmal reading 
+    tests/world2029-release.spec.cjs:947:5 › source projector parchment 1440: source-first writer and full Hashmal reading 
+    tests/world2029-release.spec.cjs:947:5 › source projector dark 390: source-first writer and full Hashmal reading 
+  5 passed (6.2m)

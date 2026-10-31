@@ -1,0 +1,351 @@
+{
+  "test": "Core Web Vitals CLS budget holds on /2029/number/1237 at 390px",
+  "blocked": [
+    {
+      "method": "POST",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/rpc/posts_by_number_strict",
+      "serviceWorker": false,
+      "reason": "unexpected_rpc_argument"
+    },
+    {
+      "method": "POST",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/rpc/fn_number_lookup",
+      "serviceWorker": false,
+      "reason": "null_rpc_argument_needs_review"
+    }
+  ],
+  "reads": [
+    {
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/nodes",
+      "serviceWorker": false
+    },
+    {
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/gematria_words",
+      "serviceWorker": false
+    },
+    {
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/nodes",
+      "serviceWorker": false
+    },
+    {
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/nodes",
+      "serviceWorker": false
+    },
+    {
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/nodes",
+      "serviceWorker": false
+    },
+    {
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/topic_cards_public",
+      "serviceWorker": false
+    },
+    {
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/posts",
+      "serviceWorker": false
+    },
+    {
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/nodes",
+      "serviceWorker": false
+    },
+    {
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/entity_types",
+      "serviceWorker": false
+    },
+    {
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/nodes",
+      "serviceWorker": false
+    },
+    {
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/edges",
+      "serviceWorker": false
+    },
+    {
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/edges",
+      "serviceWorker": false
+    },
+    {
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/edges",
+      "serviceWorker": false
+    },
+    {
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/nodes",
+      "serviceWorker": false
+    },
+    {
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/nodes",
+      "serviceWorker": false
+    },
+    {
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/gallery_images",
+      "serviceWorker": false
+    },
+    {
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/gematria_words",
+      "serviceWorker": false
+    },
+    {
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/insights",
+      "serviceWorker": false
+    },
+    {
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/topic_cards_public",
+      "serviceWorker": false
+    },
+    {
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/gallery_images",
+      "serviceWorker": false
+    },
+    {
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/gallery_images",
+      "serviceWorker": false
+    },
+    {
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/nodes",
+      "serviceWorker": false
+    },
+    {
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/nodes",
+      "serviceWorker": false
+    },
+    {
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/number_anchors",
+      "serviceWorker": false
+    },
+    {
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/topic_cards_public",
+      "serviceWorker": false
+    },
+    {
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/topic_cards_public",
+      "serviceWorker": false
+    },
+    {
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/topic_cards_public",
+      "serviceWorker": false
+    },
+    {
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/topic_cards_public",
+      "serviceWorker": false
+    },
+    {
+      "method": "POST",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/rpc/number_neighbors",
+      "serviceWorker": false,
+      "transportMethod": "GET",
+      "rpc": "number_neighbors",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/rpc/fn_zero_scale",
+      "serviceWorker": false,
+      "transportMethod": "GET",
+      "rpc": "fn_zero_scale",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/nodes",
+      "serviceWorker": false
+    },
+    {
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/nodes",
+      "serviceWorker": false
+    },
+    {
+      "method": "POST",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/rpc/fn_number_journey",
+      "serviceWorker": false,
+      "transportMethod": "GET",
+      "rpc": "fn_number_journey",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/nodes",
+      "serviceWorker": false
+    },
+    {
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/nodes",
+      "serviceWorker": false
+    },
+    {
+      "method": "POST",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/rpc/fn_number_dossier",
+      "serviceWorker": false,
+      "transportMethod": "GET",
+      "rpc": "fn_number_dossier",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/rpc/fn_number_lookup",
+      "serviceWorker": false,
+      "transportMethod": "GET",
+      "rpc": "fn_number_lookup",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/edges",
+      "serviceWorker": false
+    },
+    {
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/nodes",
+      "serviceWorker": false
+    },
+    {
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/gematria_words",
+      "serviceWorker": false
+    },
+    {
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/edges",
+      "serviceWorker": false
+    },
+    {
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/edges",
+      "serviceWorker": false
+    },
+    {
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/nodes",
+      "serviceWorker": false
+    },
+    {
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/edges",
+      "serviceWorker": false
+    },
+    {
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/nodes",
+      "serviceWorker": false
+    },
+    {
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/nodes",
+      "serviceWorker": false
+    },
+    {
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/nodes",
+      "serviceWorker": false
+    },
+    {
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/gematria_methods",
+      "serviceWorker": false
+    },
+    {
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/nodes",
+      "serviceWorker": false
+    },
+    {
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/nodes",
+      "serviceWorker": false
+    },
+    {
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/nodes",
+      "serviceWorker": false
+    },
+    {
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/nodes",
+      "serviceWorker": false
+    }
+  ],
+  "localReads": [],
+  "transportErrors": [],
+  "staticReads": 78
+}

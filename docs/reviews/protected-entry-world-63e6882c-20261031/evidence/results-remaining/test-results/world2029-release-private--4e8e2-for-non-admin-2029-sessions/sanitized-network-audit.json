@@ -1,0 +1,72 @@
+{
+  "test": "private researcher corpus stays gated for non-admin 2029 sessions",
+  "blocked": [],
+  "reads": [
+    {
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/topic_cards_public",
+      "serviceWorker": false
+    },
+    {
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/posts",
+      "serviceWorker": false
+    }
+  ],
+  "responses": [
+    {
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/site_flags",
+      "status": 200,
+      "serviceWorker": false
+    },
+    {
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/site_flags",
+      "status": 200,
+      "serviceWorker": false
+    },
+    {
+      "method": "POST",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+      "status": 200,
+      "serviceWorker": false
+    },
+    {
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/topic_cards_public",
+      "status": 200,
+      "serviceWorker": false
+    },
+    {
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/posts",
+      "status": 200,
+      "serviceWorker": false
+    },
+    {
+      "method": "POST",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/rpc/convergence_meter",
+      "status": 403,
+      "serviceWorker": false
+    },
+    {
+      "method": "POST",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/rpc/convergence_meter",
+      "status": 403,
+      "serviceWorker": false
+    }
+  ],
+  "localReads": [],
+  "transportErrors": [],
+  "staticReads": 50
+}

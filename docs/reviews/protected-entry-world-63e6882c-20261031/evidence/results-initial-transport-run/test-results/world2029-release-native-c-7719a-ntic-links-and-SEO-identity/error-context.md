@@ -1,0 +1,46 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - generic [ref=e4]:
+    - banner [ref=e6]:
+      - generic [ref=e7]:
+        - button "פתח ניווט" [ref=e8] [cursor=pointer]:
+          - generic:
+            - img
+            - img
+        - generic [ref=e10]: טופיק
+      - button "חיפוש" [ref=e11] [cursor=pointer]:
+        - generic [ref=e12] [cursor=pointer]: ⌕
+      - generic [ref=e13]:
+        - group "ערכת צבעים" [ref=e14]:
+          - 'button "מראה: לילה. בחר יום, קלף או לילה" [ref=e15] [cursor=pointer]':
+            - generic [ref=e16] [cursor=pointer]: ☾
+        - button "התחברות לאזור האישי" [ref=e17] [cursor=pointer]:
+          - img [ref=e19] [cursor=pointer]
+    - main [ref=e23]:
+      - generic [ref=e24]:
+        - img [ref=e27]
+        - heading "טופיק" [level=1] [ref=e32]
+      - alert [ref=e33]:
+        - generic [ref=e34]: "!"
+        - generic [ref=e35]:
+          - strong [ref=e36]: הציר לא נמצא
+          - generic [ref=e37]: לא נציג תוכן משוער. אפשר לחזור לעולם ולבחור ציר קיים.
+  - toolbar "מסלול המחקר והפעולות הזמינות עכשיו" [ref=e38]:
+    - button "כאן · מפת העמוד וההקשר" [ref=e39] [cursor=pointer]:
+      - img [ref=e40] [cursor=pointer]
+      - generic [ref=e43] [cursor=pointer]: כאן
+    - button "מספר · פתח חלונית מספר" [ref=e44] [cursor=pointer]:
+      - img [ref=e45] [cursor=pointer]:
+        - generic [ref=e46] [cursor=pointer]: "123"
+      - generic [ref=e47] [cursor=pointer]: מספר
+    - button "פתח את רזיאל" [ref=e48] [cursor=pointer]
+    - button "עכשיו · 2 חדשים" [ref=e50] [cursor=pointer]:
+      - img [ref=e51] [cursor=pointer]
+      - generic [ref=e54] [cursor=pointer]: עכשיו
+      - generic [ref=e55] [cursor=pointer]: "2"
+    - button "עוד · פעולות וכלים" [ref=e56] [cursor=pointer]:
+      - img [ref=e57] [cursor=pointer]
+      - generic [ref=e62] [cursor=pointer]: עוד
+```

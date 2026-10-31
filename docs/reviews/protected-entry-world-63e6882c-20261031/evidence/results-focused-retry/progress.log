@@ -1,0 +1,44 @@
+Protected Preview bootstrap PASS; deployment cookies retained in memory only
+
+Running 2 tests using 1 worker
+
+[1A[2K(node:46640) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:46640) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[1/2] tests/world-catalog-supplementary.spec.cjs:4:1 › Supplementary: current public World entry, real catalog search and expansion remain usable
+[1A[2K[2/2] tests/world2029-release.spec.cjs:448:1 › Number 2029 global drawer reuses the same method-first Core and carries Raziel context
+[1A[2K  1) tests/world2029-release.spec.cjs:448:1 › Number 2029 global drawer reuses the same method-first Core and carries Raziel context 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m failed
+
+    Locator:  locator('.sod29-command-island').getByRole('button', { name: 'פעולה', exact: true })
+    Expected: visible
+    Received: <element(s) not found>
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for locator('.sod29-command-island').getByRole('button', { name: 'פעולה', exact: true })[22m
+
+
+      200 | async function openNumberCapabilityFromIsland(page) {
+      201 |   const action = page.locator('.sod29-command-island').getByRole('button', { name: 'פעולה', exact: true });
+    > 202 |   await expect(action).toBeVisible();
+          |                        ^
+      203 |   await action.click();
+      204 |   const actionDialog = page.getByRole('dialog', { name: /פעולה ·/ });
+      205 |   await expect(actionDialog).toBeVisible();
+        at openNumberCapabilityFromIsland (/tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:202:24)
+        at /tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:454:9
+
+    Error Context: results-focused-retry/test-results/world2029-release-Number-2-e45b7--and-carries-Raziel-context/error-context.md
+
+
+[1A[2K  1 failed
+    tests/world2029-release.spec.cjs:448:1 › Number 2029 global drawer reuses the same method-first Core and carries Raziel context 
+  1 passed (16.7s)

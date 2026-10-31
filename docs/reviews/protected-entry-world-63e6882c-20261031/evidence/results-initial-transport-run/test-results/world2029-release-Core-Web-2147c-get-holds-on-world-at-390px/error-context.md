@@ -1,0 +1,301 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - generic [ref=e4]:
+    - generic [ref=e5]:
+      - banner [ref=e6]:
+        - generic [ref=e7]:
+          - button "פתח ניווט" [ref=e8] [cursor=pointer]:
+            - generic:
+              - img
+              - img
+          - generic [ref=e10]: העולם
+        - button "חיפוש" [ref=e11] [cursor=pointer]:
+          - generic [ref=e12] [cursor=pointer]: ⌕
+        - generic [ref=e13]:
+          - group "ערכת צבעים" [ref=e14]:
+            - 'button "מראה: לילה. בחר יום, קלף או לילה" [ref=e15] [cursor=pointer]':
+              - generic [ref=e16] [cursor=pointer]: ☾
+          - button "התחברות לאזור האישי" [ref=e17] [cursor=pointer]:
+            - img [ref=e19] [cursor=pointer]
+      - region "פס הגילויים החיים" [ref=e22]:
+        - generic [ref=e23]: ✦
+        - button "מסר הקדוש ברוך הוא מסדר" [ref=e25] [cursor=pointer]:
+          - generic [ref=e26] [cursor=pointer]: מסר
+          - generic [ref=e27] [cursor=pointer]: הקדוש ברוך הוא מסדר
+        - button "צמצם את פס הגילויים" [ref=e28] [cursor=pointer]: −
+        - button "השהה תנועה" [ref=e29] [cursor=pointer]: השהה
+    - main [ref=e31]:
+      - generic [ref=e32]:
+        - img [ref=e35]
+        - generic [ref=e39]:
+          - heading "העולם" [level=1] [ref=e40]
+          - group [ref=e41]
+      - region "סיפור המטוס וכיווני הגילוי" [ref=e44]:
+        - generic [ref=e45]:
+          - button "הבית" [ref=e46] [cursor=pointer]
+          - generic [ref=e47]: /
+          - generic [ref=e48]: סיפור המטוס בעולם
+        - generic [ref=e49]:
+          - generic [ref=e50]:
+            - generic [ref=e51]: רמזי גאולה · מתוך המקור
+            - heading "לאן סיפור המטוס מוביל?" [level=2] [ref=e52]
+            - paragraph [ref=e53]: הסיפור והצילום מובילים אל חיבורים מתועדים, אל המקור ואל שכבות המחקר הקשורות אליו.
+            - paragraph [ref=e54]:
+              - strong [ref=e55]: 787 · השנה, החג וההודיה.
+              - text: לפי קריאת המערכת, המפגש בין השנה המסוימת, ״ושמחת בחגך״ ונוסח ההודיה מאיר את סיפור ההצלה בכמה רבדים. זו קריאה פרשנית של החיבור, ולא עדות שהברכה נאמרה בטיסה.
+            - generic [ref=e56]:
+              - generic "קטגוריות הפוסט" [ref=e57]:
+                - link "רמזים חזקים" [ref=e58] [cursor=pointer]:
+                  - /url: /2029/posts?category=%D7%A8%D7%9E%D7%96%D7%99%D7%9D%20%D7%97%D7%96%D7%A7%D7%99%D7%9D
+                - link "תיעוד אירועים" [ref=e59] [cursor=pointer]:
+                  - /url: /2029/posts?category=%D7%AA%D7%99%D7%A2%D7%95%D7%93%20%D7%90%D7%99%D7%A8%D7%95%D7%A2%D7%99%D7%9D
+              - generic [ref=e60]: FZ1073
+              - generic [ref=e61]: פורסם באתר · י״ט בתשרי · 30.09.2026
+            - button "לקריאת פוסט המטוס" [ref=e63] [cursor=pointer]:
+              - text: לקריאת פוסט המטוס
+              - generic [ref=e64] [cursor=pointer]: ←
+          - figure "מתוך פוסט המטוס · תמונת המקור בשלמותה" [ref=e65]:
+            - img "תמונת המקור מתוך פוסט טיסה 1073" [ref=e66]
+            - generic [ref=e67]: מתוך פוסט המטוס · תמונת המקור בשלמותה
+        - generic "שלושה כיווני גילוי" [ref=e68]:
+          - button "הודו האנשים והמקומות צילום המקור מזהה את הקפטן כאזרח הודי. מכאן נפתח התיעוד ההיסטורי של הודו. פתיחת המקורות ←" [ref=e69] [cursor=pointer]:
+            - img [ref=e71] [cursor=pointer]
+            - generic [ref=e74] [cursor=pointer]: הודו
+            - strong [ref=e75] [cursor=pointer]: האנשים והמקומות
+            - generic [ref=e76] [cursor=pointer]: צילום המקור מזהה את הקפטן כאזרח הודי. מכאן נפתח התיעוד ההיסטורי של הודו.
+            - emphasis [ref=e77] [cursor=pointer]: פתיחת המקורות ←
+          - button "1073 · 718 המספר והזמן מספר הטיסה, שני נוסחי תאריך והקריאה שמחברת אותם לשביעי באוקטובר. פתיחת המקורות ←" [ref=e78] [cursor=pointer]:
+            - img [ref=e80] [cursor=pointer]
+            - generic [ref=e83] [cursor=pointer]: 1073 · 718
+            - strong [ref=e84] [cursor=pointer]: המספר והזמן
+            - generic [ref=e85] [cursor=pointer]: מספר הטיסה, שני נוסחי תאריך והקריאה שמחברת אותם לשביעי באוקטובר.
+            - emphasis [ref=e86] [cursor=pointer]: פתיחת המקורות ←
+          - button "73 חכמה וירושלים חכמה מופיעה בסרטון. המילה נפתחת בשיטות שונות, לצד צילומי המקור מירושלים. פתיחת המקורות ←" [ref=e87] [cursor=pointer]:
+            - img [ref=e89] [cursor=pointer]:
+              - generic [ref=e90] [cursor=pointer]: "123"
+            - generic [ref=e91] [cursor=pointer]: "73"
+            - strong [ref=e92] [cursor=pointer]: חכמה וירושלים
+            - generic [ref=e93] [cursor=pointer]: חכמה מופיעה בסרטון. המילה נפתחת בשיטות שונות, לצד צילומי המקור מירושלים.
+            - emphasis [ref=e94] [cursor=pointer]: פתיחת המקורות ←
+        - group [ref=e95]
+      - region "כניסה לעולם" [ref=e97]:
+        - generic [ref=e98]:
+          - generic [ref=e99]: SOD1820 · עולם של חיבורים
+          - heading "לאן ממשיכים מכאן?" [level=2] [ref=e100]
+          - paragraph [ref=e101]: מספרים, מילים, אנשים, מקורות ותמונות מחוברים לפי קשרים מתועדים.
+          - button "חיפוש מספר או ביטוי" [ref=e102] [cursor=pointer]
+        - navigation "דרכים לגלות את העולם" [ref=e103]:
+          - button "התחלה מעט מהעולם, במקום אחד" [pressed] [ref=e104] [cursor=pointer]:
+            - strong [ref=e105] [cursor=pointer]: התחלה
+            - generic [ref=e106] [cursor=pointer]: מעט מהעולם, במקום אחד
+          - button "מה חדש העדכונים האחרונים לפי זמן" [ref=e107] [cursor=pointer]:
+            - strong [ref=e108] [cursor=pointer]: מה חדש
+            - generic [ref=e109] [cursor=pointer]: העדכונים האחרונים לפי זמן
+          - button "נושאים וחיבורים לראות מה נפגש סביב רעיון" [ref=e110] [cursor=pointer]:
+            - strong [ref=e111] [cursor=pointer]: נושאים וחיבורים
+            - generic [ref=e112] [cursor=pointer]: לראות מה נפגש סביב רעיון
+          - button "אנשים ומקורות לפתוח חומר לפי מי ומאיפה" [ref=e113] [cursor=pointer]:
+            - strong [ref=e114] [cursor=pointer]: אנשים ומקורות
+            - generic [ref=e115] [cursor=pointer]: לפתוח חומר לפי מי ומאיפה
+          - button "לפי סוג שפות, צפנים, מדיה, זמן וספרים" [ref=e116] [cursor=pointer]:
+            - strong [ref=e117] [cursor=pointer]: לפי סוג
+            - generic [ref=e118] [cursor=pointer]: שפות, צפנים, מדיה, זמן וספרים
+          - button "מסעות להמשיך בדרך מחקר שמורה" [ref=e119] [cursor=pointer]:
+            - strong [ref=e120] [cursor=pointer]: מסעות
+            - generic [ref=e121] [cursor=pointer]: להמשיך בדרך מחקר שמורה
+      - region "מה אפשר למצוא בעולם" [ref=e122]:
+        - generic [ref=e123]:
+          - generic [ref=e124]: מפה אחת · כמה דרכי עיון
+          - heading "תוכן ציבורי לפי נושא, מקור וסוג ידע" [level=2] [ref=e125]
+        - paragraph [ref=e126]: עדכונים, נושאים, אנשים ומקורות מוצגים באותה מפת ידע, עם קישור חזרה למקור המדויק.
+        - generic "סוגי ידע בעולם" [ref=e127]:
+          - button "מספרים ומילים" [ref=e128] [cursor=pointer]
+          - button "נושאים וחיבורים" [ref=e129] [cursor=pointer]
+          - button "אנשים ומקורות" [ref=e130] [cursor=pointer]
+          - button "תמונות ומדיה" [ref=e131] [cursor=pointer]
+          - link "כל הגלריות" [ref=e132] [cursor=pointer]:
+            - /url: /world?view=gallery
+          - button "שפות וגשרים" [ref=e133] [cursor=pointer]
+          - button "צפנים" [ref=e134] [cursor=pointer]
+          - button "אירועים וזמן" [ref=e135] [cursor=pointer]
+      - region "עדכונים ציבוריים אחרונים" [ref=e136]:
+        - generic [ref=e137]:
+          - generic [ref=e138]: עדכונים ציבוריים
+          - heading "חדש בעולם" [level=2] [ref=e139]
+          - paragraph [ref=e140]: מקורות, דפי כתבים, נושאים וממצאים ציבוריים לפי מועד הפרסום, העדכון או האישור המתועד.
+        - group "סינון העדכונים הציבוריים" [ref=e141]:
+          - button "הכול" [pressed] [ref=e142] [cursor=pointer]
+          - button "מקורות" [ref=e143] [cursor=pointer]
+          - button "מקורות שעודכנו" [ref=e144] [cursor=pointer]
+          - button "דפי כתבים" [ref=e145] [cursor=pointer]
+          - button "נושאים" [ref=e146] [cursor=pointer]
+          - button "ממצאים" [ref=e147] [cursor=pointer]
+        - paragraph [ref=e148]: מוצגים 8 מתוך 68 עדכונים ציבוריים
+        - generic [ref=e149]:
+          - article [ref=e150]:
+            - generic [ref=e151]:
+              - generic [ref=e152]: מקור עודכן
+              - time [ref=e153]: עודכן · כ׳ בחשוון · 31.10.2026
+            - heading "המבחן האחרון לפני פריצת הדרך — למה העבר חוזר דווקא עכשיו? | מימד חמש" [level=3] [ref=e154]
+            - paragraph [ref=e155]: יצירה באתר
+            - paragraph [ref=e156]: "כשהעבר חוזר ברגע של צמיחה: מסר על גבולות אישיים, בחירה והתמדה מול פיתויים ישנים."
+            - button "למקור ←" [ref=e157] [cursor=pointer]
+          - article [ref=e158]:
+            - generic [ref=e159]:
+              - generic [ref=e160]: מקור עודכן
+              - time [ref=e161]: עודכן · כ׳ בחשוון · 31.10.2026
+            - heading "ציר הזמן הישן הושלם — אתה לא נכנס לפרק חדש, אלא לעצמי חדש | מימד חמש" [level=3] [ref=e162]
+            - paragraph [ref=e163]: בדרך לנצח
+            - paragraph [ref=e164]: "סרטון מתורגם על שינוי זהות: ציר הזמן הישן הושלם, ובמקומו מתחיל שלב חדש של בהירות וצמיחה."
+            - button "למקור ←" [ref=e165] [cursor=pointer]
+          - article [ref=e166]:
+            - generic [ref=e167]:
+              - generic [ref=e168]: מקור עודכן
+              - time [ref=e169]: עודכן · י״ז בחשוון · 28.10.2026
+            - heading "בחירות 26 לכנסת ה־26 — ״הֲיִפָּלֵא מֵה׳ דָּבָר?״ | 27.10.2026" [level=3] [ref=e170]
+            - paragraph [ref=e171]: והאמת נהדרת
+            - paragraph [ref=e172]: בבחירות לכנסת ה־26, ביום שלישי 27.10.2026, יוצרת הסרטון מחברת את 26 לשם הוי״ה ולמילה ״אחד״ פעמיים, ואת פרשת וירא למסרים של אחדות ואמונה. כולל וידאו ותמלול מלא.
+            - button "למקור ←" [ref=e173] [cursor=pointer]
+          - article [ref=e174]:
+            - generic [ref=e175]:
+              - generic [ref=e176]: מקור פורסם
+              - time [ref=e177]: פורסם · י״ז בחשוון · 28.10.2026
+            - heading "איך יוצאים מתת־המודע דרך עץ ישראל? | מדריך לריפוי 10 הספירות" [level=3] [ref=e178]
+            - paragraph [ref=e179]: מדריך לריפוי 10 הספירות
+            - paragraph [ref=e180]: מדריך לריפוי 10 הספירות מציג תרשים ספירות ושואל כיצד יוצאים מתת־המודע דרך עץ ישראל. חיבור לסדרת מימד חמש, מפת ישראל, ספירת תפארת והפוסטים הקודמים.
+            - button "למקור ←" [ref=e181] [cursor=pointer]
+          - article [ref=e182]:
+            - generic [ref=e183]:
+              - generic [ref=e184]: מקור פורסם
+              - time [ref=e185]: פורסם · ט״ז בחשוון · 27.10.2026
+            - heading "הרב המקובל חושף מי ינצח בבחירות — ״בנימין זאב יטרף״ | הרב יוסף ביטון" [level=3] [ref=e186]
+            - paragraph [ref=e187]: יצירה באתר
+            - paragraph [ref=e188]: הרב המקובל יוסף ביטון מפרש את הפסוק ״בנימין זאב יטרף״ בהקשר לבחירות בישראל ומדבר על התחזית לגבי דונלד טראמפ.
+            - button "למקור ←" [ref=e189] [cursor=pointer]
+          - article [ref=e190]:
+            - generic [ref=e191]:
+              - generic [ref=e192]: מקור עודכן
+              - time [ref=e193]: עודכן · ט״ו בחשוון · 26.10.2026
+            - heading "הרב כדורי — הגאולה בתשפ״ז" [level=3] [ref=e194]
+            - paragraph [ref=e195]: יצירה באתר
+            - paragraph [ref=e196]: סרטון על מסר המיוחס לרב יצחק כדורי בנושא הגאולה בתשפ״ז.
+            - button "למקור ←" [ref=e197] [cursor=pointer]
+          - article [ref=e198]:
+            - generic [ref=e199]:
+              - generic [ref=e200]: מקור פורסם
+              - time [ref=e201]: פורסם · י״ד בחשוון · 25.10.2026
+            - heading "מנהיגות של אמת — התביעה הפנימית לשכל אלוקי | רות קדם" [level=3] [ref=e202]
+            - paragraph [ref=e203]: רות קדם
+            - paragraph [ref=e204]: מאמר דעה מאת רות קדם על אמת, אמונה, בירור עצמי ומנהיגות, ועל היחס שלה לשיח הציבורי והפוליטי.
+            - button "למקור ←" [ref=e205] [cursor=pointer]
+          - article [ref=e206]:
+            - generic [ref=e207]:
+              - generic [ref=e208]: מקור עודכן
+              - time [ref=e209]: עודכן · ט׳ בחשוון · 20.10.2026
+            - 'heading "אוסף סרטונים: שדוני ברקים מעל צרפת — ואתם באים על היהודים, אתם מפסידים" [level=3] [ref=e210]'
+            - paragraph [ref=e211]: יצירה באתר
+            - paragraph [ref=e212]: "שדוני ברקים תועדו מעל צרפת, ולצדו סרטון באנגלית בתרגום לעברית: „אתם באים על היהודים — אתם מפסידים”."
+            - button "למקור ←" [ref=e213] [cursor=pointer]
+        - button "עוד (60)" [ref=e214] [cursor=pointer]
+        - paragraph [ref=e215]: הסימון מתאר פעילות ותאריך בלבד; הוא אינו ציון אמת, איכות או חוזק מחקרי.
+      - region "חיבורים נבחרים" [ref=e216]:
+        - generic [ref=e218]:
+          - generic [ref=e219]: בחירה מערכתית
+          - heading "נושאים וחיבורים נבחרים" [level=2] [ref=e220]
+          - paragraph [ref=e221]: כרטיס הוא שער לממצאים, למספרים ולמקורות המחוברים אליו.
+        - generic [ref=e222]:
+          - generic [ref=e223]:
+            - 'link "התכנסות עטרת תפארתכם = 1820 — הופעות שם הוי״ה בתורה הכתר שמתגלה כעטרה במציאות — הובא ע״י צבי מספרי הכרטיס: בולטים קודם לגלות את החיבורים ←" [ref=e224] [cursor=pointer]':
+              - /url: /topic/ateret-tiferetchem-1820
+              - generic [ref=e226] [cursor=pointer]: התכנסות
+              - strong [ref=e227] [cursor=pointer]: עטרת תפארתכם = 1820 — הופעות שם הוי״ה בתורה
+              - paragraph [ref=e228] [cursor=pointer]: הכתר שמתגלה כעטרה במציאות — הובא ע״י צבי
+              - 'generic "מספרי הכרטיס: בולטים קודם" [ref=e229] [cursor=pointer]':
+                - generic [ref=e230] [cursor=pointer]: "1820"
+                - generic [ref=e231] [cursor=pointer]: "786"
+              - generic [ref=e232] [cursor=pointer]: לגלות את החיבורים ←
+            - list "מדדי הכרטיס" [ref=e234]:
+              - listitem [ref=e235]:
+                - generic [ref=e236]: איכות
+                - img "דירוג איכות 5 מתוך 5" [ref=e237]: ★★★★★
+              - listitem [ref=e238]:
+                - generic [ref=e239]: חוזק
+                - generic "חוזק התכנסות 95 מתוך 100" [ref=e242]: "95"
+              - listitem [ref=e243]:
+                - button "מה המדדים האלה אומרים?" [ref=e244] [cursor=pointer]: "?"
+          - generic [ref=e245]:
+            - 'link "התכנסות חרבות ברזל = בראשית ברא אלהים = 1202 · התגלות המשיח שם המלחמה (מסתתר), יום פרוצה כ״ב בתשרי תשפ״ד (מסתתר), והפסוק שנקרא באותו שמחת-תורה — כולם 1202 = התגלות משיח. מספרי הכרטיס: בולטים קודם לגלות את החיבורים ←" [ref=e246] [cursor=pointer]':
+              - /url: /topic/charvot-barzel-1202
+              - generic [ref=e248] [cursor=pointer]: התכנסות
+              - strong [ref=e249] [cursor=pointer]: חרבות ברזל = בראשית ברא אלהים = 1202 · התגלות המשיח
+              - paragraph [ref=e250] [cursor=pointer]: שם המלחמה (מסתתר), יום פרוצה כ״ב בתשרי תשפ״ד (מסתתר), והפסוק שנקרא באותו שמחת-תורה — כולם 1202 = התגלות משיח.
+              - 'generic "מספרי הכרטיס: בולטים קודם" [ref=e251] [cursor=pointer]':
+                - generic [ref=e252] [cursor=pointer]: "1202"
+                - generic [ref=e253] [cursor=pointer]: "776"
+                - generic [ref=e254] [cursor=pointer]: "878"
+              - generic [ref=e255] [cursor=pointer]: לגלות את החיבורים ←
+            - list "מדדי הכרטיס" [ref=e257]:
+              - listitem [ref=e258]:
+                - generic [ref=e259]: איכות
+                - generic [ref=e260]: לא דורג
+              - listitem [ref=e261]:
+                - generic [ref=e262]: חוזק
+                - generic "חוזק התכנסות 92 מתוך 100" [ref=e265]: "92"
+              - listitem [ref=e266]:
+                - button "מה המדדים האלה אומרים?" [ref=e267] [cursor=pointer]: "?"
+          - generic [ref=e268]:
+            - 'link "התכנסות 644 — התכנסות מאגר (80 ביטויים) מספרי הכרטיס: בולטים קודם לגלות את החיבורים ←" [ref=e269] [cursor=pointer]':
+              - /url: /topic/gapfill-644
+              - generic [ref=e271] [cursor=pointer]: התכנסות
+              - strong [ref=e272] [cursor=pointer]: 644 — התכנסות מאגר (80 ביטויים)
+              - generic [ref=e274] [cursor=pointer]: "644"
+              - generic [ref=e275] [cursor=pointer]: לגלות את החיבורים ←
+            - list "מדדי הכרטיס" [ref=e277]:
+              - listitem [ref=e278]:
+                - generic [ref=e279]: איכות
+                - generic [ref=e280]: לא דורג
+              - listitem [ref=e281]:
+                - generic [ref=e282]: חוזק
+                - generic "חוזק התכנסות 90 מתוך 100" [ref=e285]: "90"
+              - listitem [ref=e286]:
+                - button "מה המדדים האלה אומרים?" [ref=e287] [cursor=pointer]: "?"
+          - generic [ref=e288]:
+            - 'link "התכנסות צבי (OPOC) 98 — עִכּוּב · ההשהיה שלפני הגאולה מספרי הכרטיס: בולטים קודם לגלות את החיבורים ←" [ref=e289] [cursor=pointer]':
+              - /url: /topic/98-ikuv-geula
+              - generic [ref=e290] [cursor=pointer]:
+                - generic [ref=e291] [cursor=pointer]: התכנסות
+                - generic [ref=e292] [cursor=pointer]: צבי (OPOC)
+              - strong [ref=e293] [cursor=pointer]: 98 — עִכּוּב · ההשהיה שלפני הגאולה
+              - generic [ref=e295] [cursor=pointer]: "98"
+              - generic [ref=e296] [cursor=pointer]: לגלות את החיבורים ←
+            - list "מדדי הכרטיס" [ref=e298]:
+              - listitem [ref=e299]:
+                - generic [ref=e300]: איכות
+                - generic [ref=e301]: לא דורג
+              - listitem [ref=e302]:
+                - generic [ref=e303]: חוזק
+                - generic "חוזק התכנסות 90 מתוך 100" [ref=e306]: "90"
+              - listitem [ref=e307]:
+                - button "מה המדדים האלה אומרים?" [ref=e308] [cursor=pointer]: "?"
+        - generic [ref=e309]:
+          - button "לכל הנושאים והחיבורים" [ref=e310] [cursor=pointer]
+          - button "לאנשים ולמקורות" [ref=e311] [cursor=pointer]
+  - toolbar "מסלול המחקר והפעולות הזמינות עכשיו" [ref=e312]:
+    - button "כאן · מפת העמוד וההקשר" [ref=e313] [cursor=pointer]:
+      - img [ref=e314] [cursor=pointer]
+      - generic [ref=e317] [cursor=pointer]: כאן
+    - button "מספר · פתח חלונית מספר" [ref=e318] [cursor=pointer]:
+      - img [ref=e319] [cursor=pointer]:
+        - generic [ref=e320] [cursor=pointer]: "123"
+      - generic [ref=e321] [cursor=pointer]: מספר
+    - button "פתח את רזיאל" [ref=e322] [cursor=pointer]
+    - button "עכשיו · 2 חדשים" [ref=e324] [cursor=pointer]:
+      - img [ref=e325] [cursor=pointer]
+      - generic [ref=e328] [cursor=pointer]: עכשיו
+      - generic [ref=e329] [cursor=pointer]: "2"
+    - button "עוד · פעולות וכלים" [ref=e330] [cursor=pointer]:
+      - img [ref=e331] [cursor=pointer]
+      - generic [ref=e336] [cursor=pointer]: עוד
+```

@@ -1,0 +1,24 @@
+[
+  {
+    "file": "tests/entry-learn-2029.spec.cjs",
+    "testSourceSha": "c2f2e9948dd119c96b69e377b33be2eb2a886efb",
+    "sourceSha256": "b9d17776108538ac040470f00f74787b80005e39cc3af4afb4a57c7f65ee3304",
+    "adaptedSha256": "aee12ad2dc0a876d7a34ad09dd1cda966402e86f04e55ed571065a7db5fca1d6",
+    "onlyChanges": [
+      "BASE origin points to existing protected Preview",
+      "test fixture injects deny-by-default transport before context use"
+    ],
+    "assertionsChanged": false
+  },
+  {
+    "file": "tests/world2029-release.spec.cjs",
+    "testSourceSha": "c2f2e9948dd119c96b69e377b33be2eb2a886efb",
+    "sourceSha256": "7673e7b89038974000ca11c4ab0cfab90c07724f7fa184b1d8e919c89d133b42",
+    "adaptedSha256": "5b18a8d979ebe1e79c9fa8ceb7b3d5231de02a94e8754a325818971f2d858e63",
+    "onlyChanges": [
+      "BASE origin points to existing protected Preview",
+      "test fixture injects deny-by-default transport before context use"
+    ],
+    "assertionsChanged": false
+  }
+]

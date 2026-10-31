@@ -1,0 +1,9 @@
+{
+  "test": "private researcher corpus stays gated for non-admin 2029 sessions",
+  "blocked": [],
+  "reads": [],
+  "responses": [],
+  "localReads": [],
+  "transportErrors": [],
+  "staticReads": 0
+}

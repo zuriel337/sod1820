@@ -1,0 +1,56 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - generic [ref=e4]:
+    - generic [ref=e5]:
+      - banner [ref=e6]:
+        - generic [ref=e7]:
+          - button "פתח ניווט" [ref=e8] [cursor=pointer]:
+            - generic:
+              - img
+              - img
+          - generic [ref=e10]: פוסט
+        - button "חיפוש" [ref=e11] [cursor=pointer]:
+          - generic [ref=e12] [cursor=pointer]: ⌕
+        - generic [ref=e13]:
+          - group "ערכת צבעים" [ref=e14]:
+            - 'button "מראה: לילה. בחר יום, קלף או לילה" [ref=e15] [cursor=pointer]':
+              - generic [ref=e16] [cursor=pointer]: ☾
+          - button "התחברות לאזור האישי" [ref=e17] [cursor=pointer]:
+            - img [ref=e19] [cursor=pointer]
+      - region "פס הגילויים החיים" [ref=e22]:
+        - generic [ref=e23]: ✦
+        - button "מסר קומה עזרתה לנו" [ref=e25] [cursor=pointer]:
+          - generic [ref=e26] [cursor=pointer]: מסר
+          - generic [ref=e27] [cursor=pointer]: קומה עזרתה לנו
+        - button "צמצם את פס הגילויים" [ref=e28] [cursor=pointer]: −
+        - button "השהה תנועה" [ref=e29] [cursor=pointer]: השהה
+    - button "איך זה עובד? — חדש כאן? מה עושים בפוסט הזה?" [ref=e32] [cursor=pointer]:
+      - generic [ref=e33] [cursor=pointer]: "?"
+      - generic [ref=e34] [cursor=pointer]: איך זה עובד?
+    - main [ref=e36]:
+      - alert [ref=e37]:
+        - generic [ref=e38]: "!"
+        - generic [ref=e39]:
+          - strong [ref=e40]: לא הצלחתי לפתוח את הפוסט
+          - generic [ref=e41]:
+            - text: הפוסט לא נמצא
+            - button "ניסיון קריאה נוסף" [ref=e42]
+  - toolbar "מסלול המחקר והפעולות הזמינות עכשיו" [ref=e43]:
+    - button "כאן · מפת העמוד וההקשר" [ref=e44] [cursor=pointer]:
+      - img [ref=e45] [cursor=pointer]
+      - generic [ref=e48] [cursor=pointer]: כאן
+    - button "מספר · פתח חלונית מספר" [ref=e49] [cursor=pointer]:
+      - img [ref=e50] [cursor=pointer]:
+        - generic [ref=e51] [cursor=pointer]: "123"
+      - generic [ref=e52] [cursor=pointer]: מספר
+    - button "פתח את רזיאל" [ref=e53] [cursor=pointer]
+    - button "עכשיו · 2 חדשים" [ref=e55] [cursor=pointer]:
+      - img [ref=e56] [cursor=pointer]
+      - generic [ref=e59] [cursor=pointer]: עכשיו
+      - generic [ref=e60] [cursor=pointer]: "2"
+    - button "עוד · פעולות וכלים" [ref=e61] [cursor=pointer]:
+      - img [ref=e62] [cursor=pointer]
+      - generic [ref=e67] [cursor=pointer]: עוד
+```

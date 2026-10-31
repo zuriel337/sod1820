@@ -1,0 +1,27 @@
+{
+  "test": "Core Web Vitals CLS budget holds on /book/daat-tevunot at 390px",
+  "blocked": [],
+  "reads": [
+    {
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/nodes",
+      "serviceWorker": false
+    },
+    {
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/topic_cards_public",
+      "serviceWorker": false
+    },
+    {
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/posts",
+      "serviceWorker": false
+    }
+  ],
+  "localReads": [],
+  "transportErrors": [],
+  "staticReads": 55
+}

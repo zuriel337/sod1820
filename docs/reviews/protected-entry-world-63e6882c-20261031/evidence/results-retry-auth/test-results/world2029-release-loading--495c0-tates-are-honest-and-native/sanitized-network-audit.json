@@ -1,0 +1,9 @@
+{
+  "test": "loading and error states are honest and native",
+  "blocked": [],
+  "reads": [],
+  "responses": [],
+  "localReads": [],
+  "transportErrors": [],
+  "staticReads": 0
+}

@@ -1,0 +1,194 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - generic [ref=e4]:
+    - generic [ref=e5]:
+      - banner [ref=e6]:
+        - generic [ref=e7]:
+          - button "פתח ניווט" [ref=e8] [cursor=pointer]:
+            - generic:
+              - img
+              - img
+          - generic [ref=e10]: העולם
+        - button "חיפוש" [ref=e11] [cursor=pointer]:
+          - generic [ref=e12] [cursor=pointer]: ⌕
+        - generic [ref=e13]:
+          - group "ערכת צבעים" [ref=e14]:
+            - 'button "מראה: יום. בחר יום, קלף או לילה" [ref=e15] [cursor=pointer]':
+              - generic [ref=e16] [cursor=pointer]: ☀
+          - button "התחברות לאזור האישי" [ref=e17] [cursor=pointer]:
+            - img [ref=e19] [cursor=pointer]
+      - region "פס הגילויים החיים" [ref=e22]:
+        - generic [ref=e23]: ✦
+        - button "דופק העולם איך יוצאים מתת־המודע דרך עץ ישראל? | מדריך לריפוי 10 הספירות" [ref=e25] [cursor=pointer]:
+          - generic [ref=e26] [cursor=pointer]: דופק העולם
+          - generic [ref=e27] [cursor=pointer]: איך יוצאים מתת־המודע דרך עץ ישראל? | מדריך לריפוי 10 הספירות
+        - button "צמצם את פס הגילויים" [ref=e28] [cursor=pointer]: −
+        - button "השהה תנועה" [ref=e29] [cursor=pointer]: השהה
+    - main [ref=e31]:
+      - generic [ref=e32]:
+        - img [ref=e35]
+        - generic [ref=e39]:
+          - heading "העולם" [level=1] [ref=e40]
+          - group [ref=e41]
+      - region "כניסה לעולם" [ref=e43]:
+        - generic [ref=e44]:
+          - generic [ref=e45]: SOD1820 · עולם של חיבורים
+          - heading "מפת הידע של SOD1820" [level=2] [ref=e46]
+          - paragraph [ref=e47]: מספרים, מילים, אנשים, מקורות ותמונות מחוברים לפי קשרים מתועדים.
+          - button "חיפוש מספר או ביטוי" [ref=e48] [cursor=pointer]
+        - navigation "דרכים לגלות את העולם" [ref=e49]:
+          - button "התחלה מעט מהעולם, במקום אחד" [ref=e50] [cursor=pointer]:
+            - strong [ref=e51] [cursor=pointer]: התחלה
+            - generic [ref=e52] [cursor=pointer]: מעט מהעולם, במקום אחד
+          - button "מה חדש העדכונים האחרונים לפי זמן" [active] [pressed] [ref=e53] [cursor=pointer]:
+            - strong [ref=e54] [cursor=pointer]: מה חדש
+            - generic [ref=e55] [cursor=pointer]: העדכונים האחרונים לפי זמן
+          - button "נושאים וחיבורים לראות מה נפגש סביב רעיון" [ref=e56] [cursor=pointer]:
+            - strong [ref=e57] [cursor=pointer]: נושאים וחיבורים
+            - generic [ref=e58] [cursor=pointer]: לראות מה נפגש סביב רעיון
+          - button "אנשים ומקורות לפתוח חומר לפי מי ומאיפה" [ref=e59] [cursor=pointer]:
+            - strong [ref=e60] [cursor=pointer]: אנשים ומקורות
+            - generic [ref=e61] [cursor=pointer]: לפתוח חומר לפי מי ומאיפה
+          - button "לפי סוג שפות, צפנים, מדיה, זמן וספרים" [ref=e62] [cursor=pointer]:
+            - strong [ref=e63] [cursor=pointer]: לפי סוג
+            - generic [ref=e64] [cursor=pointer]: שפות, צפנים, מדיה, זמן וספרים
+          - button "מסעות להמשיך בדרך מחקר שמורה" [ref=e65] [cursor=pointer]:
+            - strong [ref=e66] [cursor=pointer]: מסעות
+            - generic [ref=e67] [cursor=pointer]: להמשיך בדרך מחקר שמורה
+      - region "עדכונים ציבוריים אחרונים" [ref=e68]:
+        - generic [ref=e69]:
+          - generic [ref=e70]: עדכונים ציבוריים
+          - heading "חדש בעולם" [level=2] [ref=e71]
+          - paragraph [ref=e72]: מקורות, דפי כתבים, נושאים וממצאים ציבוריים לפי מועד הפרסום, העדכון או האישור המתועד.
+        - group "סינון העדכונים הציבוריים" [ref=e73]:
+          - button "הכול" [pressed] [ref=e74] [cursor=pointer]
+          - button "מקורות" [ref=e75] [cursor=pointer]
+          - button "מקורות שעודכנו" [ref=e76] [cursor=pointer]
+          - button "דפי כתבים" [ref=e77] [cursor=pointer]
+          - button "נושאים" [ref=e78] [cursor=pointer]
+          - button "ממצאים" [ref=e79] [cursor=pointer]
+        - paragraph [ref=e80]: מוצגים 12 מתוך 68 עדכונים ציבוריים
+        - generic [ref=e81]:
+          - article [ref=e82]:
+            - generic [ref=e83]:
+              - generic [ref=e84]: מקור עודכן
+              - time [ref=e85]: עודכן · כ׳ בחשוון · 31.10.2026
+            - heading "המבחן האחרון לפני פריצת הדרך — למה העבר חוזר דווקא עכשיו? | מימד חמש" [level=3] [ref=e86]
+            - paragraph [ref=e87]: יצירה באתר
+            - paragraph [ref=e88]: "כשהעבר חוזר ברגע של צמיחה: מסר על גבולות אישיים, בחירה והתמדה מול פיתויים ישנים."
+            - button "למקור ←" [ref=e89] [cursor=pointer]
+          - article [ref=e90]:
+            - generic [ref=e91]:
+              - generic [ref=e92]: מקור עודכן
+              - time [ref=e93]: עודכן · כ׳ בחשוון · 31.10.2026
+            - heading "ציר הזמן הישן הושלם — אתה לא נכנס לפרק חדש, אלא לעצמי חדש | מימד חמש" [level=3] [ref=e94]
+            - paragraph [ref=e95]: בדרך לנצח
+            - paragraph [ref=e96]: "סרטון מתורגם על שינוי זהות: ציר הזמן הישן הושלם, ובמקומו מתחיל שלב חדש של בהירות וצמיחה."
+            - button "למקור ←" [ref=e97] [cursor=pointer]
+          - article [ref=e98]:
+            - generic [ref=e99]:
+              - generic [ref=e100]: מקור עודכן
+              - time [ref=e101]: עודכן · י״ז בחשוון · 28.10.2026
+            - heading "בחירות 26 לכנסת ה־26 — ״הֲיִפָּלֵא מֵה׳ דָּבָר?״ | 27.10.2026" [level=3] [ref=e102]
+            - paragraph [ref=e103]: והאמת נהדרת
+            - paragraph [ref=e104]: בבחירות לכנסת ה־26, ביום שלישי 27.10.2026, יוצרת הסרטון מחברת את 26 לשם הוי״ה ולמילה ״אחד״ פעמיים, ואת פרשת וירא למסרים של אחדות ואמונה. כולל וידאו ותמלול מלא.
+            - button "למקור ←" [ref=e105] [cursor=pointer]
+          - article [ref=e106]:
+            - generic [ref=e107]:
+              - generic [ref=e108]: מקור פורסם
+              - time [ref=e109]: פורסם · י״ז בחשוון · 28.10.2026
+            - heading "איך יוצאים מתת־המודע דרך עץ ישראל? | מדריך לריפוי 10 הספירות" [level=3] [ref=e110]
+            - paragraph [ref=e111]: מדריך לריפוי 10 הספירות
+            - paragraph [ref=e112]: מדריך לריפוי 10 הספירות מציג תרשים ספירות ושואל כיצד יוצאים מתת־המודע דרך עץ ישראל. חיבור לסדרת מימד חמש, מפת ישראל, ספירת תפארת והפוסטים הקודמים.
+            - button "למקור ←" [ref=e113] [cursor=pointer]
+          - article [ref=e114]:
+            - generic [ref=e115]:
+              - generic [ref=e116]: מקור פורסם
+              - time [ref=e117]: פורסם · ט״ז בחשוון · 27.10.2026
+            - heading "הרב המקובל חושף מי ינצח בבחירות — ״בנימין זאב יטרף״ | הרב יוסף ביטון" [level=3] [ref=e118]
+            - paragraph [ref=e119]: יצירה באתר
+            - paragraph [ref=e120]: הרב המקובל יוסף ביטון מפרש את הפסוק ״בנימין זאב יטרף״ בהקשר לבחירות בישראל ומדבר על התחזית לגבי דונלד טראמפ.
+            - button "למקור ←" [ref=e121] [cursor=pointer]
+          - article [ref=e122]:
+            - generic [ref=e123]:
+              - generic [ref=e124]: מקור עודכן
+              - time [ref=e125]: עודכן · ט״ו בחשוון · 26.10.2026
+            - heading "הרב כדורי — הגאולה בתשפ״ז" [level=3] [ref=e126]
+            - paragraph [ref=e127]: יצירה באתר
+            - paragraph [ref=e128]: סרטון על מסר המיוחס לרב יצחק כדורי בנושא הגאולה בתשפ״ז.
+            - button "למקור ←" [ref=e129] [cursor=pointer]
+          - article [ref=e130]:
+            - generic [ref=e131]:
+              - generic [ref=e132]: מקור פורסם
+              - time [ref=e133]: פורסם · י״ד בחשוון · 25.10.2026
+            - heading "מנהיגות של אמת — התביעה הפנימית לשכל אלוקי | רות קדם" [level=3] [ref=e134]
+            - paragraph [ref=e135]: רות קדם
+            - paragraph [ref=e136]: מאמר דעה מאת רות קדם על אמת, אמונה, בירור עצמי ומנהיגות, ועל היחס שלה לשיח הציבורי והפוליטי.
+            - button "למקור ←" [ref=e137] [cursor=pointer]
+          - article [ref=e138]:
+            - generic [ref=e139]:
+              - generic [ref=e140]: מקור עודכן
+              - time [ref=e141]: עודכן · ט׳ בחשוון · 20.10.2026
+            - 'heading "אוסף סרטונים: שדוני ברקים מעל צרפת — ואתם באים על היהודים, אתם מפסידים" [level=3] [ref=e142]'
+            - paragraph [ref=e143]: יצירה באתר
+            - paragraph [ref=e144]: "שדוני ברקים תועדו מעל צרפת, ולצדו סרטון באנגלית בתרגום לעברית: „אתם באים על היהודים — אתם מפסידים”."
+            - button "למקור ←" [ref=e145] [cursor=pointer]
+          - article [ref=e146]:
+            - generic [ref=e147]:
+              - generic [ref=e148]: מקור פורסם
+              - time [ref=e149]: פורסם · ט׳ בחשוון · 20.10.2026
+            - heading "מה קורה הבורא — צרפת, 17 באוקטובר ונבואת עובדיה | אלון לוי" [level=3] [ref=e150]
+            - paragraph [ref=e151]: אלון לוי
+            - paragraph [ref=e152]: אלון לוי מקשר בין המהומות בצרפת, 17 באוקטובר, נבואת עובדיה ועמנואל = עמנו אל = 197. סרטון מלא בפנים.
+            - button "למקור ←" [ref=e153] [cursor=pointer]
+          - article [ref=e154]:
+            - generic [ref=e155]:
+              - generic [ref=e156]: מקור פורסם
+              - time [ref=e157]: פורסם · ז׳ בחשוון · 18.10.2026
+            - heading "צרפת ונבואת עובדיה — המילים העתיקות שמעוררות התבוננות" [level=3] [ref=e158]
+            - paragraph [ref=e159]: יצירה באתר
+            - paragraph [ref=e160]: "גנבים, שודדים, אנשי ברית ואובדן תבונה: קריאה בנבואת עובדיה לצד תיעודי המהומות בצרפת, שמסתיימת במילים „והיתה לה׳ המלוכה”."
+            - button "למקור ←" [ref=e161] [cursor=pointer]
+          - article [ref=e162]:
+            - generic [ref=e163]:
+              - generic [ref=e164]: דף כתב עודכן
+              - time [ref=e165]: עודכן · ו׳ בחשוון · 17.10.2026
+            - heading "חזון צמח 138" [level=3] [ref=e166]
+            - paragraph [ref=e167]: חוקר וכותב
+            - button "לדף הכתב ←" [ref=e168] [cursor=pointer]
+          - article [ref=e169]:
+            - generic [ref=e170]:
+              - generic [ref=e171]: מקור פורסם
+              - time [ref=e172]: פורסם · ה׳ בחשוון · 16.10.2026
+            - 'heading "מה קורה הבורא — גוליית, נחלת בנימין וקריית גת: מתודעת שאול לתודעת דוד | אלון לוי" [level=3] [ref=e173]'
+            - paragraph [ref=e174]: אלון לוי
+            - paragraph [ref=e175]: וידאו עם כיתובים בעברית, תמלול מלא ובדיקת שלושה אירועים בחדשות מול שמואל א׳ י״ז. אלון לוי מציע מעבר מתודעת שאול לתודעת דוד.
+            - button "למקור ←" [ref=e176] [cursor=pointer]
+        - button "עוד (56)" [ref=e177] [cursor=pointer]
+        - paragraph [ref=e178]: הסימון מתאר פעילות ותאריך בלבד; הוא אינו ציון אמת, איכות או חוזק מחקרי.
+      - region "כל הודעות המקור של צבי" [ref=e179]:
+        - generic [ref=e180]:
+          - generic [ref=e181]:
+            - generic [ref=e182]: הודעות צבי · מקור חי
+            - heading "כל ההודעות בסדר הזמן" [level=2] [ref=e183]
+            - paragraph [ref=e184]: מהחדש לישן, גם לפני בדיקה. אפשר לקרוא ולהמשיך אחורה; שיוך לנושא אינו תנאי להצגה.
+          - button "פתח את הודעות צבי" [ref=e185] [cursor=pointer]
+  - toolbar "מסלול המחקר והפעולות הזמינות עכשיו" [ref=e186]:
+    - button "כאן · מפת העמוד וההקשר" [ref=e187] [cursor=pointer]:
+      - img [ref=e188] [cursor=pointer]
+      - generic [ref=e191] [cursor=pointer]: כאן
+    - button "מספר · פתח חלונית מספר" [ref=e192] [cursor=pointer]:
+      - img [ref=e193] [cursor=pointer]:
+        - generic [ref=e194] [cursor=pointer]: "123"
+      - generic [ref=e195] [cursor=pointer]: מספר
+    - button "פתח את רזיאל" [ref=e196] [cursor=pointer]
+    - button "עכשיו · 2 חדשים" [ref=e198] [cursor=pointer]:
+      - img [ref=e199] [cursor=pointer]
+      - generic [ref=e202] [cursor=pointer]: עכשיו
+      - generic [ref=e203] [cursor=pointer]: "2"
+    - button "עוד · פעולות וכלים" [ref=e204] [cursor=pointer]:
+      - img [ref=e205] [cursor=pointer]
+      - generic [ref=e210] [cursor=pointer]: עוד
+```

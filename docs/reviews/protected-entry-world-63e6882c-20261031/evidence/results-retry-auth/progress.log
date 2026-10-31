@@ -1,0 +1,352 @@
+
+Running 13 tests using 1 worker
+
+[1A[2K(node:45282) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:45282) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[1/13] tests/world2029-release.spec.cjs:816:1 › SPARSE live World 122 stays honestly sparse with no fabricated research
+[1A[2K  1) tests/world2029-release.spec.cjs:816:1 › SPARSE live World 122 stays honestly sparse with no fabricated research 
+
+    Error: Protected Preview authentication/identity validation failed at access, HTTP 503; credentials withheld
+
+       at safe-preview-fixture.cjs:80
+
+      78 |     pw.expect(identity.sha).toBe('63e6882c3b7b4004d337927c7231728a7612d452');
+      79 |     pw.expect(identity.target).toBe('preview');
+    > 80 |   }catch{throw new Error(`Protected Preview authentication/identity validation failed at ${phase}, HTTP ${lastStatus}; credentials withheld`);}
+         |                ^
+      81 | }
+      82 | const test=pw.test.extend({context:async({context},use,testInfo)=>{
+      83 |   if(process.env.PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS!=='1')throw new Error('Service Worker interception must be enabled');
+        at authenticate (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:80:16)
+        at Object.context (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:87:7)
+
+
+[1A[2K(node:45378) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:45378) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[2/13] tests/world2029-release.spec.cjs:826:1 › World uses the shared Command, Inspect, Share and exact-return seams
+[1A[2K  2) tests/world2029-release.spec.cjs:826:1 › World uses the shared Command, Inspect, Share and exact-return seams 
+
+    Error: Protected Preview authentication/identity validation failed at access, HTTP 503; credentials withheld
+
+       at safe-preview-fixture.cjs:80
+
+      78 |     pw.expect(identity.sha).toBe('63e6882c3b7b4004d337927c7231728a7612d452');
+      79 |     pw.expect(identity.target).toBe('preview');
+    > 80 |   }catch{throw new Error(`Protected Preview authentication/identity validation failed at ${phase}, HTTP ${lastStatus}; credentials withheld`);}
+         |                ^
+      81 | }
+      82 | const test=pw.test.extend({context:async({context},use,testInfo)=>{
+      83 |   if(process.env.PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS!=='1')throw new Error('Service Worker interception must be enabled');
+        at authenticate (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:80:16)
+        at Object.context (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:87:7)
+
+
+[1A[2K(node:45475) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:45475) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[3/13] tests/world2029-release.spec.cjs:877:1 › loading and error states are honest and native
+[1A[2K  3) tests/world2029-release.spec.cjs:877:1 › loading and error states are honest and native ───────
+
+    Error: Protected Preview authentication/identity validation failed at access, HTTP 503; credentials withheld
+
+       at safe-preview-fixture.cjs:80
+
+      78 |     pw.expect(identity.sha).toBe('63e6882c3b7b4004d337927c7231728a7612d452');
+      79 |     pw.expect(identity.target).toBe('preview');
+    > 80 |   }catch{throw new Error(`Protected Preview authentication/identity validation failed at ${phase}, HTTP ${lastStatus}; credentials withheld`);}
+         |                ^
+      81 | }
+      82 | const test=pw.test.extend({context:async({context},use,testInfo)=>{
+      83 |   if(process.env.PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS!=='1')throw new Error('Service Worker interception must be enabled');
+        at authenticate (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:80:16)
+        at Object.context (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:87:7)
+
+
+[1A[2K(node:45572) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:45572) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[4/13] tests/world2029-release.spec.cjs:901:1 › unavailable identity is not silently replaced by another anchor
+[1A[2K  4) tests/world2029-release.spec.cjs:901:1 › unavailable identity is not silently replaced by another anchor 
+
+    Error: Protected Preview authentication/identity validation failed at access, HTTP 503; credentials withheld
+
+       at safe-preview-fixture.cjs:80
+
+      78 |     pw.expect(identity.sha).toBe('63e6882c3b7b4004d337927c7231728a7612d452');
+      79 |     pw.expect(identity.target).toBe('preview');
+    > 80 |   }catch{throw new Error(`Protected Preview authentication/identity validation failed at ${phase}, HTTP ${lastStatus}; credentials withheld`);}
+         |                ^
+      81 | }
+      82 | const test=pw.test.extend({context:async({context},use,testInfo)=>{
+      83 |   if(process.env.PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS!=='1')throw new Error('Service Worker interception must be enabled');
+        at authenticate (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:80:16)
+        at Object.context (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:87:7)
+
+
+[1A[2K(node:45669) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:45669) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[5/13] tests/world2029-release.spec.cjs:910:1 › reduced motion preserves the same World meaning and controls
+[1A[2K  5) tests/world2029-release.spec.cjs:910:1 › reduced motion preserves the same World meaning and controls 
+
+    Error: Protected Preview authentication/identity validation failed at access, HTTP 503; credentials withheld
+
+       at safe-preview-fixture.cjs:80
+
+      78 |     pw.expect(identity.sha).toBe('63e6882c3b7b4004d337927c7231728a7612d452');
+      79 |     pw.expect(identity.target).toBe('preview');
+    > 80 |   }catch{throw new Error(`Protected Preview authentication/identity validation failed at ${phase}, HTTP ${lastStatus}; credentials withheld`);}
+         |                ^
+      81 | }
+      82 | const test=pw.test.extend({context:async({context},use,testInfo)=>{
+      83 |   if(process.env.PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS!=='1')throw new Error('Service Worker interception must be enabled');
+        at authenticate (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:80:16)
+        at Object.context (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:87:7)
+
+
+[1A[2K(node:45765) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:45765) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[6/13] tests/world2029-release.spec.cjs:922:1 › 320px RTL World survives 200% text zoom without horizontal overflow
+[1A[2K  6) tests/world2029-release.spec.cjs:922:1 › 320px RTL World survives 200% text zoom without horizontal overflow 
+
+    Error: Protected Preview authentication/identity validation failed at access, HTTP 503; credentials withheld
+
+       at safe-preview-fixture.cjs:80
+
+      78 |     pw.expect(identity.sha).toBe('63e6882c3b7b4004d337927c7231728a7612d452');
+      79 |     pw.expect(identity.target).toBe('preview');
+    > 80 |   }catch{throw new Error(`Protected Preview authentication/identity validation failed at ${phase}, HTTP ${lastStatus}; credentials withheld`);}
+         |                ^
+      81 | }
+      82 | const test=pw.test.extend({context:async({context},use,testInfo)=>{
+      83 |   if(process.env.PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS!=='1')throw new Error('Service Worker interception must be enabled');
+        at authenticate (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:80:16)
+        at Object.context (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:87:7)
+
+
+[1A[2K(node:45858) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:45858) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[7/13] tests/world2029-release.spec.cjs:934:1 › private researcher corpus stays gated for non-admin 2029 sessions
+[1A[2K  7) tests/world2029-release.spec.cjs:934:1 › private researcher corpus stays gated for non-admin 2029 sessions 
+
+    Error: Protected Preview authentication/identity validation failed at access, HTTP 503; credentials withheld
+
+       at safe-preview-fixture.cjs:80
+
+      78 |     pw.expect(identity.sha).toBe('63e6882c3b7b4004d337927c7231728a7612d452');
+      79 |     pw.expect(identity.target).toBe('preview');
+    > 80 |   }catch{throw new Error(`Protected Preview authentication/identity validation failed at ${phase}, HTTP ${lastStatus}; credentials withheld`);}
+         |                ^
+      81 | }
+      82 | const test=pw.test.extend({context:async({context},use,testInfo)=>{
+      83 |   if(process.env.PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS!=='1')throw new Error('Service Worker interception must be enabled');
+        at authenticate (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:80:16)
+        at Object.context (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:87:7)
+
+
+[1A[2K(node:45957) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:45957) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[8/13] tests/world2029-release.spec.cjs:947:5 › source projector light 390: source-first writer and full Hashmal reading
+[1A[2K  8) tests/world2029-release.spec.cjs:947:5 › source projector light 390: source-first writer and full Hashmal reading 
+
+    Error: Protected Preview authentication/identity validation failed at access, HTTP 503; credentials withheld
+
+       at safe-preview-fixture.cjs:80
+
+      78 |     pw.expect(identity.sha).toBe('63e6882c3b7b4004d337927c7231728a7612d452');
+      79 |     pw.expect(identity.target).toBe('preview');
+    > 80 |   }catch{throw new Error(`Protected Preview authentication/identity validation failed at ${phase}, HTTP ${lastStatus}; credentials withheld`);}
+         |                ^
+      81 | }
+      82 | const test=pw.test.extend({context:async({context},use,testInfo)=>{
+      83 |   if(process.env.PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS!=='1')throw new Error('Service Worker interception must be enabled');
+        at authenticate (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:80:16)
+        at Object.context (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:87:7)
+
+
+[1A[2K(node:46051) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:46051) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[9/13] tests/world2029-release.spec.cjs:947:5 › source projector light 1440: source-first writer and full Hashmal reading
+[1A[2K  9) tests/world2029-release.spec.cjs:947:5 › source projector light 1440: source-first writer and full Hashmal reading 
+
+    Error: Protected Preview authentication/identity validation failed at access, HTTP 503; credentials withheld
+
+       at safe-preview-fixture.cjs:80
+
+      78 |     pw.expect(identity.sha).toBe('63e6882c3b7b4004d337927c7231728a7612d452');
+      79 |     pw.expect(identity.target).toBe('preview');
+    > 80 |   }catch{throw new Error(`Protected Preview authentication/identity validation failed at ${phase}, HTTP ${lastStatus}; credentials withheld`);}
+         |                ^
+      81 | }
+      82 | const test=pw.test.extend({context:async({context},use,testInfo)=>{
+      83 |   if(process.env.PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS!=='1')throw new Error('Service Worker interception must be enabled');
+        at authenticate (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:80:16)
+        at Object.context (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:87:7)
+
+
+[1A[2K(node:46145) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:46145) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[10/13] tests/world2029-release.spec.cjs:947:5 › source projector parchment 390: source-first writer and full Hashmal reading
+[1A[2K  10) tests/world2029-release.spec.cjs:947:5 › source projector parchment 390: source-first writer and full Hashmal reading 
+
+    Error: Protected Preview authentication/identity validation failed at access, HTTP 503; credentials withheld
+
+       at safe-preview-fixture.cjs:80
+
+      78 |     pw.expect(identity.sha).toBe('63e6882c3b7b4004d337927c7231728a7612d452');
+      79 |     pw.expect(identity.target).toBe('preview');
+    > 80 |   }catch{throw new Error(`Protected Preview authentication/identity validation failed at ${phase}, HTTP ${lastStatus}; credentials withheld`);}
+         |                ^
+      81 | }
+      82 | const test=pw.test.extend({context:async({context},use,testInfo)=>{
+      83 |   if(process.env.PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS!=='1')throw new Error('Service Worker interception must be enabled');
+        at authenticate (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:80:16)
+        at Object.context (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:87:7)
+
+
+[1A[2K(node:46239) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:46239) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[11/13] tests/world2029-release.spec.cjs:947:5 › source projector parchment 1440: source-first writer and full Hashmal reading
+[1A[2K  11) tests/world2029-release.spec.cjs:947:5 › source projector parchment 1440: source-first writer and full Hashmal reading 
+
+    Error: Protected Preview authentication/identity validation failed at access, HTTP 503; credentials withheld
+
+       at safe-preview-fixture.cjs:80
+
+      78 |     pw.expect(identity.sha).toBe('63e6882c3b7b4004d337927c7231728a7612d452');
+      79 |     pw.expect(identity.target).toBe('preview');
+    > 80 |   }catch{throw new Error(`Protected Preview authentication/identity validation failed at ${phase}, HTTP ${lastStatus}; credentials withheld`);}
+         |                ^
+      81 | }
+      82 | const test=pw.test.extend({context:async({context},use,testInfo)=>{
+      83 |   if(process.env.PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS!=='1')throw new Error('Service Worker interception must be enabled');
+        at authenticate (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:80:16)
+        at Object.context (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:87:7)
+
+
+[1A[2K(node:46336) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:46336) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[12/13] tests/world2029-release.spec.cjs:947:5 › source projector dark 390: source-first writer and full Hashmal reading
+[1A[2K  12) tests/world2029-release.spec.cjs:947:5 › source projector dark 390: source-first writer and full Hashmal reading 
+
+    Error: Protected Preview authentication/identity validation failed at access, HTTP 503; credentials withheld
+
+       at safe-preview-fixture.cjs:80
+
+      78 |     pw.expect(identity.sha).toBe('63e6882c3b7b4004d337927c7231728a7612d452');
+      79 |     pw.expect(identity.target).toBe('preview');
+    > 80 |   }catch{throw new Error(`Protected Preview authentication/identity validation failed at ${phase}, HTTP ${lastStatus}; credentials withheld`);}
+         |                ^
+      81 | }
+      82 | const test=pw.test.extend({context:async({context},use,testInfo)=>{
+      83 |   if(process.env.PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS!=='1')throw new Error('Service Worker interception must be enabled');
+        at authenticate (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:80:16)
+        at Object.context (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:87:7)
+
+
+[1A[2K(node:46431) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:46431) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[13/13] tests/world2029-release.spec.cjs:947:5 › source projector dark 1440: source-first writer and full Hashmal reading
+[1A[2K  13) tests/world2029-release.spec.cjs:947:5 › source projector dark 1440: source-first writer and full Hashmal reading 
+
+    TimeoutError: page.waitForResponse: Timeout 30000ms exceeded while waiting for event "response"
+
+      948 |       await page.setViewportSize({ width, height: 900 });
+      949 |       await page.addInitScript((value) => localStorage.setItem('sod-theme', value), preset);
+    > 950 |       const groupResponse = page.waitForResponse((response) => response.url().includes('/rpc/world_group_source_arrivals_v2'), { timeout: 30_000 });
+          |                                  ^
+      951 |       await page.goto(`${BASE}${WORLD}`, { waitUntil: 'domcontentloaded' });
+      952 |       const response = await groupResponse;
+      953 |       expect(response.ok(), 'sanitized group reader is reachable').toBe(true);
+        at /tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:950:34
+
+
+[1A[2K  13 failed
+    tests/world2029-release.spec.cjs:816:1 › SPARSE live World 122 stays honestly sparse with no fabricated research 
+    tests/world2029-release.spec.cjs:826:1 › World uses the shared Command, Inspect, Share and exact-return seams 
+    tests/world2029-release.spec.cjs:877:1 › loading and error states are honest and native ────────
+    tests/world2029-release.spec.cjs:901:1 › unavailable identity is not silently replaced by another anchor 
+    tests/world2029-release.spec.cjs:910:1 › reduced motion preserves the same World meaning and controls 
+    tests/world2029-release.spec.cjs:922:1 › 320px RTL World survives 200% text zoom without horizontal overflow 
+    tests/world2029-release.spec.cjs:934:1 › private researcher corpus stays gated for non-admin 2029 sessions 
+    tests/world2029-release.spec.cjs:947:5 › source projector light 390: source-first writer and full Hashmal reading 
+    tests/world2029-release.spec.cjs:947:5 › source projector light 1440: source-first writer and full Hashmal reading 
+    tests/world2029-release.spec.cjs:947:5 › source projector parchment 390: source-first writer and full Hashmal reading 
+    tests/world2029-release.spec.cjs:947:5 › source projector parchment 1440: source-first writer and full Hashmal reading 
+    tests/world2029-release.spec.cjs:947:5 › source projector dark 390: source-first writer and full Hashmal reading 
+    tests/world2029-release.spec.cjs:947:5 › source projector dark 1440: source-first writer and full Hashmal reading 

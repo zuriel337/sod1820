@@ -1,0 +1,477 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - generic [ref=e4]:
+    - banner [ref=e6]:
+      - generic [ref=e7]:
+        - button "פתח ניווט" [ref=e8] [cursor=pointer]:
+          - generic:
+            - img
+            - img
+        - generic [ref=e10]: טופיק
+      - button "חיפוש" [ref=e11] [cursor=pointer]:
+        - generic [ref=e12] [cursor=pointer]: ⌕
+      - generic [ref=e13]:
+        - group "ערכת צבעים" [ref=e14]:
+          - 'button "מראה: לילה. בחר יום, קלף או לילה" [ref=e15] [cursor=pointer]':
+            - generic [ref=e16] [cursor=pointer]: ☾
+        - button "התחברות לאזור האישי" [ref=e17] [cursor=pointer]:
+          - img [ref=e19] [cursor=pointer]
+    - main [ref=e23]:
+      - generic [ref=e24]:
+        - img [ref=e27]
+        - generic [ref=e31]:
+          - heading "טופיק" [level=1] [ref=e32]
+          - group [ref=e33]:
+            - navigation "ההקשר שלך פעיל" [ref=e35]:
+              - link "כאן · טופיק" [ref=e36] [cursor=pointer]:
+                - /url: /topic/98-ikuv-geula
+              - link "במסלול · 98" [ref=e37] [cursor=pointer]:
+                - /url: /2029/number/98?focus=%D7%97%D7%A0%D7%9D&method=%D7%A8%D7%92%D7%99%D7%9C
+              - link "בחירה · חנם" [ref=e38] [cursor=pointer]:
+                - /url: /topic/98-ikuv-geula#topic-expression-findings.phrases%255B6%255D
+              - button "חזרה אל · 98 — עִכּוּב · ההשהיה שלפני הגאולה" [ref=e39] [cursor=pointer]
+      - article [ref=e40]:
+        - generic [ref=e42]:
+          - generic [ref=e43]: ציר
+          - link "98" [ref=e44] [cursor=pointer]:
+            - /url: /2029/number/98
+          - heading "עִכּוּב · ההשהיה שלפני הגאולה" [level=1] [ref=e45]
+          - paragraph [ref=e46]: "התכנסות של 14 ביטויים בערך 98 (רגיל). מקור: צבי (OPOC)."
+          - generic [ref=e48]: תרומה · צבי (OPOC)
+          - list "מדדי הכרטיס" [ref=e50]:
+            - listitem [ref=e51]:
+              - generic [ref=e52]: איכות
+              - generic [ref=e53]: לא דורג
+            - listitem [ref=e54]:
+              - generic [ref=e55]: חוזק
+              - generic "חוזק התכנסות 90 מתוך 100" [ref=e58]: "90"
+            - listitem [ref=e59]:
+              - button "מה המדדים האלה אומרים?" [ref=e60] [cursor=pointer]: "?"
+          - button "✦ שאל את רזיאל על הציר" [ref=e62] [cursor=pointer]
+        - navigation "ניווט בטופיק" [ref=e63]:
+          - button "עיקר" [ref=e64] [cursor=pointer]
+          - button "גימטריות" [ref=e65] [cursor=pointer]
+          - button "חיבורים" [ref=e66] [cursor=pointer]
+          - button "ממצאים דרך המספר" [ref=e67] [cursor=pointer]
+          - button "מקורות" [ref=e68] [cursor=pointer]
+          - button "סיפורים מחוברים" [ref=e69] [cursor=pointer]
+        - generic [ref=e70]:
+          - generic [ref=e71]: העיקר
+          - heading "מה מחבר את הציר הזה?" [level=2] [ref=e72]
+          - paragraph [ref=e73]: "התכנסות של 14 ביטויים בערך 98 (רגיל). מקור: צבי (OPOC)."
+        - generic [ref=e74]:
+          - generic [ref=e75]:
+            - generic [ref=e76]:
+              - generic [ref=e77]: ביטויים בציר
+              - heading "אותו מספר, מילים שונות" [level=2] [ref=e78]
+            - generic [ref=e79]: "14"
+          - generic [ref=e80]:
+            - button "עכוב פתח את החיבור ←" [ref=e81] [cursor=pointer]:
+              - strong [ref=e82] [cursor=pointer]: עכוב
+              - generic [ref=e83] [cursor=pointer]: פתח את החיבור ←
+            - button "כוכבים פתח את החיבור ←" [ref=e84] [cursor=pointer]:
+              - strong [ref=e85] [cursor=pointer]: כוכבים
+              - generic [ref=e86] [cursor=pointer]: פתח את החיבור ←
+            - button "נגהם פתח את החיבור ←" [ref=e87] [cursor=pointer]:
+              - strong [ref=e88] [cursor=pointer]: נגהם
+              - generic [ref=e89] [cursor=pointer]: פתח את החיבור ←
+            - button "נחם פתח את החיבור ←" [ref=e90] [cursor=pointer]:
+              - strong [ref=e91] [cursor=pointer]: נחם
+              - generic [ref=e92] [cursor=pointer]: פתח את החיבור ←
+            - button "צבאה פתח את החיבור ←" [ref=e93] [cursor=pointer]:
+              - strong [ref=e94] [cursor=pointer]: צבאה
+              - generic [ref=e95] [cursor=pointer]: פתח את החיבור ←
+            - button "סגלה פתח את החיבור ←" [ref=e96] [cursor=pointer]:
+              - strong [ref=e97] [cursor=pointer]: סגלה
+              - generic [ref=e98] [cursor=pointer]: פתח את החיבור ←
+            - button "חנם פתח את החיבור ←" [ref=e99] [cursor=pointer]:
+              - strong [ref=e100] [cursor=pointer]: חנם
+              - generic [ref=e101] [cursor=pointer]: פתח את החיבור ←
+            - button "סלח פתח את החיבור ←" [ref=e102] [cursor=pointer]:
+              - strong [ref=e103] [cursor=pointer]: סלח
+              - generic [ref=e104] [cursor=pointer]: פתח את החיבור ←
+            - button "לחיים פתח את החיבור ←" [ref=e105] [cursor=pointer]:
+              - strong [ref=e106] [cursor=pointer]: לחיים
+              - generic [ref=e107] [cursor=pointer]: פתח את החיבור ←
+            - button "נגילה פתח את החיבור ←" [ref=e108] [cursor=pointer]:
+              - strong [ref=e109] [cursor=pointer]: נגילה
+              - generic [ref=e110] [cursor=pointer]: פתח את החיבור ←
+            - button "כובע פתח את החיבור ←" [ref=e111] [cursor=pointer]:
+              - strong [ref=e112] [cursor=pointer]: כובע
+              - generic [ref=e113] [cursor=pointer]: פתח את החיבור ←
+            - button "חסד יהוה פתח את החיבור ←" [ref=e114] [cursor=pointer]:
+              - strong [ref=e115] [cursor=pointer]: חסד יהוה
+              - generic [ref=e116] [cursor=pointer]: פתח את החיבור ←
+            - button "בדוד עבדו פתח את החיבור ←" [ref=e117] [cursor=pointer]:
+              - strong [ref=e118] [cursor=pointer]: בדוד עבדו
+              - generic [ref=e119] [cursor=pointer]: פתח את החיבור ←
+            - button "מביא גאולה פתח את החיבור ←" [ref=e120] [cursor=pointer]:
+              - strong [ref=e121] [cursor=pointer]: מביא גאולה
+              - generic [ref=e122] [cursor=pointer]: פתח את החיבור ←
+        - generic [ref=e123]:
+          - generic [ref=e125]:
+            - generic [ref=e126]: הרמזים המרכזיים
+            - heading "החיבורים שמחזיקים את הציר" [level=2] [ref=e127]
+          - generic [ref=e128]: "התכנסות של 14 ביטויים בערך 98 (רגיל). מקור: צבי (OPOC)."
+        - region "ממצאים דרך המספר" [ref=e129]:
+          - generic [ref=e131]:
+            - generic [ref=e132]: עוד חומר למחקר
+            - heading "ממצאים דרך המספר" [level=2] [ref=e133]
+          - paragraph [ref=e134]: אפשר לחקור ממצאים שבהם מופיע אחד ממספרי הטופיק. זהו מסלול דרך המספר, ולא קשר ישיר מתועד בין הממצא לנושא.
+          - paragraph [ref=e135]: החיפוש כולל ממצאים ציבוריים ממקורות שונים, ככל שעברו בדיקת תצוגה ומקור. מקור וסטטוס נשמרים בכל ממצא; חומר שטרם הותר להצגה אינו נכלל.
+          - group [ref=e136]
+        - region "סיפורים מחוברים לעץ" [ref=e138]:
+          - generic [ref=e139]:
+            - generic [ref=e140]:
+              - generic [ref=e141]: סיפורים בעץ המחקר
+              - heading "סיפורים מחוברים · עִכּוּב · ההשהיה שלפני הגאולה" [level=2] [ref=e142]
+            - button "פתח סיפורים מחוברים" [ref=e143] [cursor=pointer]
+          - paragraph [ref=e144]: פוסטים ציבוריים בעלי קשר מתועד לאותו הקשר. הסדר הוא סדר התצוגה השמור, לא ציר זמן או דירוג.
+          - status
+        - generic [ref=e145]:
+          - generic [ref=e147]:
+            - generic [ref=e148]: מקורות
+            - heading "מאיפה מגיעים החיבורים?" [level=2] [ref=e149]
+          - paragraph [ref=e150]: 0 מקורות · 0 הופעות מתועדות. הרצף שומר את סדר השיוכים בטופיק; הוא אינו ציר זמן של האירועים.
+          - generic [ref=e152]: צבי (OPOC)
+        - generic [ref=e153]:
+          - generic [ref=e154]:
+            - generic [ref=e155]:
+              - generic [ref=e156]: בולט עכשיו
+              - heading "מה בולט סביב הציר?" [level=2] [ref=e157]
+            - generic [ref=e158]: "1"
+          - paragraph [ref=e159]: הבולטות כאן עוזרת להתמצא בציר; היא אינה משנה את המקורות או את האימות.
+          - article [ref=e161]:
+            - generic [ref=e162]: קשר
+            - strong [ref=e163]: "98"
+            - generic [ref=e165]: מקור מתועד
+        - generic [ref=e166]:
+          - generic [ref=e167]:
+            - generic [ref=e168]:
+              - generic [ref=e169]: קשרים חיים
+              - heading "מה עוד מתחבר לציר?" [level=2] [ref=e170]
+            - generic [ref=e171]: "1"
+          - link "מספר 98 מתכנס אל" [ref=e173] [cursor=pointer]:
+            - /url: /2029/number/98
+            - generic [ref=e174] [cursor=pointer]: מספר
+            - strong [ref=e175] [cursor=pointer]: "98"
+            - generic [ref=e176] [cursor=pointer]: מתכנס אל
+        - region "הסתייגויות וגבולות" [ref=e177]:
+          - generic [ref=e178]: הערה חשובה
+          - heading "בין שוויון מספרי לבין הרמז" [level=2] [ref=e179]
+          - paragraph [ref=e180]: עובדה = ערכי הגימטריה במנוע; פרשנות = רמז משלים.
+        - generic [ref=e181]:
+          - generic [ref=e183]:
+            - generic [ref=e184]: המשך
+            - heading "רוצה להעמיק?" [level=2] [ref=e185]
+          - paragraph [ref=e186]: אפשר לפתוח את המספר המוביל, לראות את הציר בעולם או לשאול את רזיאל על חיבור מסוים.
+          - generic [ref=e187]:
+            - link "פתח בעולם" [ref=e188] [cursor=pointer]:
+              - /url: /world
+            - link "פתח מספר מוביל" [ref=e189] [cursor=pointer]:
+              - /url: /2029/number/98
+            - button "✦ מה כדאי לבדוק עכשיו?" [ref=e190] [cursor=pointer]
+  - toolbar "מסלול המחקר והפעולות הזמינות עכשיו" [ref=e191]:
+    - 'button "כאן · מפת העמוד: חלק 2 מתוך 6" [ref=e192] [cursor=pointer]':
+      - img [ref=e193] [cursor=pointer]
+      - generic [ref=e196] [cursor=pointer]: כאן
+    - button "מספר · פתח חלונית מספר" [ref=e204] [cursor=pointer]:
+      - img [ref=e205] [cursor=pointer]:
+        - generic [ref=e206] [cursor=pointer]: "123"
+      - generic [ref=e207] [cursor=pointer]: מספר
+    - button "פתח את רזיאל" [ref=e208] [cursor=pointer]
+    - button "עכשיו · 2 חדשים" [ref=e210] [cursor=pointer]:
+      - img [ref=e211] [cursor=pointer]
+      - generic [ref=e214] [cursor=pointer]: עכשיו
+      - generic [ref=e215] [cursor=pointer]: "2"
+    - button "עוד · פעולות וכלים" [ref=e216] [cursor=pointer]:
+      - img [ref=e217] [cursor=pointer]
+      - generic [ref=e222] [cursor=pointer]: עוד
+  - dialog "מספר / ביטוי" [ref=e224]:
+    - banner [ref=e225]:
+      - generic [ref=e226]:
+        - generic [ref=e227]: "123"
+        - generic [ref=e228]:
+          - generic [ref=e229]: מספר / גימטריה
+          - strong [ref=e230]: מספר / ביטוי
+      - button "סגור" [active] [ref=e231] [cursor=pointer]: ×
+    - generic [ref=e233]:
+      - region "מצב חלונית המספר" [ref=e234]:
+        - generic [ref=e235]:
+          - generic [ref=e236]: FOCUS · איך זה מחושב
+          - strong [ref=e237]: חנם
+          - generic [ref=e238]: רגיל · אותה חלונית, אותו הקשר
+      - generic [ref=e239]:
+        - textbox "שם ביטוי או מספר" [ref=e240]: חנם
+        - button "פתח" [ref=e241] [cursor=pointer]
+      - generic [ref=e242]:
+        - generic [ref=e243]: חנם
+        - generic [ref=e244]: רגיל
+        - generic [ref=e245]: "98"
+      - generic [ref=e246]:
+        - generic [ref=e247]:
+          - generic [ref=e248]:
+            - generic [ref=e249]: ביטוי / מספר
+            - strong [ref=e251]: חנם
+            - generic [ref=e252]: Root 98 · השיטה הפעילה משנה את התוצאה, לא את זהות הביטוי
+          - generic [ref=e253]:
+            - generic [ref=e254]: המספר
+            - generic [ref=e256]: "98"
+          - button "פתח את רזיאל" [ref=e257] [cursor=pointer]:
+            - generic [ref=e259] [cursor=pointer]: רזיאל
+        - generic [ref=e260]:
+          - textbox "חפש מילה ביטוי או מספר" [ref=e261]
+          - button "חפש ✦" [ref=e262] [cursor=pointer]
+        - region "ביטויים רגילים על 98" [ref=e263]:
+          - generic [ref=e264]:
+            - generic [ref=e265]:
+              - generic [ref=e266]: רגיל = 98
+              - strong [ref=e267]: ביטויים רגילים על אותו מספר
+            - generic [ref=e268]: 25 ביטויים · ↔ גרור ימינה / שמאלה
+          - list [ref=e269]:
+            - listitem [ref=e270]:
+              - button "מייחל = 98 · רגיל" [ref=e271] [cursor=pointer]:
+                - strong [ref=e272] [cursor=pointer]: מייחל
+                - generic [ref=e273] [cursor=pointer]: = 98 · רגיל
+            - listitem [ref=e274]:
+              - button "חסד יהוה = 98 · רגיל" [ref=e275] [cursor=pointer]:
+                - strong [ref=e276] [cursor=pointer]: חסד יהוה
+                - generic [ref=e277] [cursor=pointer]: = 98 · רגיל
+            - listitem [ref=e278]:
+              - button "נגהם = 98 · רגיל" [ref=e279] [cursor=pointer]:
+                - strong [ref=e280] [cursor=pointer]: נגהם
+                - generic [ref=e281] [cursor=pointer]: = 98 · רגיל
+            - listitem [ref=e282]:
+              - button "נגילה = 98 · רגיל" [ref=e283] [cursor=pointer]:
+                - strong [ref=e284] [cursor=pointer]: נגילה
+                - generic [ref=e285] [cursor=pointer]: = 98 · רגיל
+            - listitem [ref=e286]:
+              - button "צבאה = 98 · רגיל" [ref=e287] [cursor=pointer]:
+                - strong [ref=e288] [cursor=pointer]: צבאה
+                - generic [ref=e289] [cursor=pointer]: = 98 · רגיל
+            - listitem [ref=e290]:
+              - button "נחם = 98 · רגיל" [ref=e291] [cursor=pointer]:
+                - strong [ref=e292] [cursor=pointer]: נחם
+                - generic [ref=e293] [cursor=pointer]: = 98 · רגיל
+            - listitem [ref=e294]:
+              - button "בדוד עבדו = 98 · רגיל" [ref=e295] [cursor=pointer]:
+                - strong [ref=e296] [cursor=pointer]: בדוד עבדו
+                - generic [ref=e297] [cursor=pointer]: = 98 · רגיל
+            - listitem [ref=e298]:
+              - button "חנם = 98 · רגיל" [pressed] [ref=e299] [cursor=pointer]:
+                - strong [ref=e300] [cursor=pointer]: חנם
+                - generic [ref=e301] [cursor=pointer]: = 98 · רגיל
+            - listitem [ref=e302]:
+              - button "יגיעה = 98 · רגיל" [ref=e303] [cursor=pointer]:
+                - strong [ref=e304] [cursor=pointer]: יגיעה
+                - generic [ref=e305] [cursor=pointer]: = 98 · רגיל
+            - listitem [ref=e306]:
+              - button "יחף = 98 · רגיל" [ref=e307] [cursor=pointer]:
+                - strong [ref=e308] [cursor=pointer]: יחף
+                - generic [ref=e309] [cursor=pointer]: = 98 · רגיל
+            - listitem [ref=e310]:
+              - button "כובע = 98 · רגיל" [ref=e311] [cursor=pointer]:
+                - strong [ref=e312] [cursor=pointer]: כובע
+                - generic [ref=e313] [cursor=pointer]: = 98 · רגיל
+            - listitem [ref=e314]:
+              - button "כוכבים = 98 · רגיל" [ref=e315] [cursor=pointer]:
+                - strong [ref=e316] [cursor=pointer]: כוכבים
+                - generic [ref=e317] [cursor=pointer]: = 98 · רגיל
+            - listitem [ref=e318]:
+              - button "לחיים = 98 · רגיל" [ref=e319] [cursor=pointer]:
+                - strong [ref=e320] [cursor=pointer]: לחיים
+                - generic [ref=e321] [cursor=pointer]: = 98 · רגיל
+            - listitem [ref=e322]:
+              - button "אלכוהול = 98 · רגיל" [ref=e323] [cursor=pointer]:
+                - strong [ref=e324] [cursor=pointer]: אלכוהול
+                - generic [ref=e325] [cursor=pointer]: = 98 · רגיל
+            - listitem [ref=e326]:
+              - button "מנהג = 98 · רגיל" [ref=e327] [cursor=pointer]:
+                - strong [ref=e328] [cursor=pointer]: מנהג
+                - generic [ref=e329] [cursor=pointer]: = 98 · רגיל
+            - listitem [ref=e330]:
+              - button "סגלה = 98 · רגיל" [ref=e331] [cursor=pointer]:
+                - strong [ref=e332] [cursor=pointer]: סגלה
+                - generic [ref=e333] [cursor=pointer]: = 98 · רגיל
+            - listitem [ref=e334]:
+              - button "סלח = 98 · רגיל" [ref=e335] [cursor=pointer]:
+                - strong [ref=e336] [cursor=pointer]: סלח
+                - generic [ref=e337] [cursor=pointer]: = 98 · רגיל
+            - listitem [ref=e338]:
+              - button "עכוב = 98 · רגיל" [ref=e339] [cursor=pointer]:
+                - strong [ref=e340] [cursor=pointer]: עכוב
+                - generic [ref=e341] [cursor=pointer]: = 98 · רגיל
+            - listitem [ref=e342]:
+              - button "פטדה = 98 · רגיל" [ref=e343] [cursor=pointer]:
+                - strong [ref=e344] [cursor=pointer]: פטדה
+                - generic [ref=e345] [cursor=pointer]: = 98 · רגיל
+            - listitem [ref=e346]:
+              - button "פיח = 98 · רגיל" [ref=e347] [cursor=pointer]:
+                - strong [ref=e348] [cursor=pointer]: פיח
+                - generic [ref=e349] [cursor=pointer]: = 98 · רגיל
+            - listitem [ref=e350]:
+              - button "דחוף = 98 · רגיל" [ref=e351] [cursor=pointer]:
+                - strong [ref=e352] [cursor=pointer]: דחוף
+                - generic [ref=e353] [cursor=pointer]: = 98 · רגיל
+            - listitem [ref=e354]:
+              - button "חץ = 98 · רגיל" [ref=e355] [cursor=pointer]:
+                - strong [ref=e356] [cursor=pointer]: חץ
+                - generic [ref=e357] [cursor=pointer]: = 98 · רגיל
+            - listitem [ref=e358]:
+              - button "צח = 98 · רגיל" [ref=e359] [cursor=pointer]:
+                - strong [ref=e360] [cursor=pointer]: צח
+                - generic [ref=e361] [cursor=pointer]: = 98 · רגיל
+            - listitem [ref=e362]:
+              - button "גלי הים = 98 · רגיל" [ref=e363] [cursor=pointer]:
+                - strong [ref=e364] [cursor=pointer]: גלי הים
+                - generic [ref=e365] [cursor=pointer]: = 98 · רגיל
+            - listitem [ref=e366]:
+              - button "מביא גאולה = 98 · רגיל" [ref=e367] [cursor=pointer]:
+                - strong [ref=e368] [cursor=pointer]: מביא גאולה
+                - generic [ref=e369] [cursor=pointer]: = 98 · רגיל
+        - region "כל שיטות הגימטריה הזמינות" [ref=e370]:
+          - generic [ref=e371]:
+            - generic [ref=e372]:
+              - generic [ref=e373]: שש שיטות מהירות
+              - strong [ref=e374]: נגיעה מחליפה את כל המחקר שמתחת
+            - generic [ref=e375]: 6 מול העין · 26 בעומק
+          - generic [ref=e376]:
+            - button "רגיל 98" [pressed] [ref=e377] [cursor=pointer]:
+              - generic [ref=e378] [cursor=pointer]: רגיל
+              - strong [ref=e379] [cursor=pointer]: "98"
+            - button "מילוי 604" [ref=e380] [cursor=pointer]:
+              - generic [ref=e381] [cursor=pointer]: מילוי
+              - strong [ref=e382] [cursor=pointer]: "604"
+            - button "מסתתר 52" [ref=e383] [cursor=pointer]:
+              - generic [ref=e384] [cursor=pointer]: מסתתר
+              - strong [ref=e385] [cursor=pointer]: "52"
+            - button "משולש 376" [ref=e386] [cursor=pointer]:
+              - generic [ref=e387] [cursor=pointer]: משולש
+              - strong [ref=e388] [cursor=pointer]: "376"
+            - button "ריבוע 164" [ref=e389] [cursor=pointer]:
+              - generic [ref=e390] [cursor=pointer]: ריבוע
+              - strong [ref=e391] [cursor=pointer]: "164"
+            - button "גדול 658" [ref=e392] [cursor=pointer]:
+              - generic [ref=e393] [cursor=pointer]: גדול
+              - strong [ref=e394] [cursor=pointer]: "658"
+          - button "＋ עוד 26 שיטות ▼" [ref=e395] [cursor=pointer]:
+            - generic [ref=e396] [cursor=pointer]: ＋ עוד 26 שיטות
+            - generic [ref=e397] [cursor=pointer]: ▼
+        - generic [ref=e398]:
+          - generic [ref=e399]:
+            - generic [ref=e400]:
+              - generic [ref=e401]: רגיל · התוצאה הפעילה
+              - strong [ref=e402]:
+                - text: חנם
+                - emphasis [ref=e403]: →
+                - button "פתח תצוגת מספר 98" [ref=e404] [cursor=pointer]: "98"
+              - generic [ref=e405]: החלל שמתחת שייך עכשיו לתוצאה הזאת בלבד
+            - generic "6 שכבות חומר זמינות לתוצאה 98" [ref=e406]:
+              - strong [ref=e407]: "6"
+              - generic [ref=e408]: שכבות
+              - generic [ref=e409]: בתוצאה 98
+          - generic [ref=e410]:
+            - generic [ref=e411]: 1 התכנסויות
+            - generic [ref=e412]: 6 פעילויות
+          - status [ref=e413]:
+            - generic [ref=e414]: ✓
+            - text: החיבורים של 98 מעודכנים
+          - generic [ref=e415]:
+            - generic [ref=e416]:
+              - generic [ref=e418]:
+                - generic [ref=e419]: התכנסויות וחיבורים
+                - generic [ref=e420]:
+                  - strong [ref=e421]: מה חי סביב 98
+                  - generic [ref=e422]: "22"
+              - generic [ref=e423]:
+                - button "אלוהים אוהב מסתתר" [ref=e424] [cursor=pointer]:
+                  - strong [ref=e425] [cursor=pointer]: אלוהים אוהב
+                  - generic [ref=e426] [cursor=pointer]: מסתתר
+                - button "אנא מסתתר" [ref=e427] [cursor=pointer]:
+                  - strong [ref=e428] [cursor=pointer]: אנא
+                  - generic [ref=e429] [cursor=pointer]: מסתתר
+                - button "בדק מסתתר" [ref=e430] [cursor=pointer]:
+                  - strong [ref=e431] [cursor=pointer]: בדק
+                  - generic [ref=e432] [cursor=pointer]: מסתתר
+                - button "בזק מסתתר" [ref=e433] [cursor=pointer]:
+                  - strong [ref=e434] [cursor=pointer]: בזק
+                  - generic [ref=e435] [cursor=pointer]: מסתתר
+                - button "בלעם מסתתר" [ref=e436] [cursor=pointer]:
+                  - strong [ref=e437] [cursor=pointer]: בלעם
+                  - generic [ref=e438] [cursor=pointer]: מסתתר
+                - button "בלק מסתתר" [ref=e439] [cursor=pointer]:
+                  - strong [ref=e440] [cursor=pointer]: בלק
+                  - generic [ref=e441] [cursor=pointer]: מסתתר
+            - generic [ref=e442]:
+              - generic [ref=e444]:
+                - generic [ref=e445]: הצלבה נסתרת
+                - generic [ref=e446]:
+                  - strong [ref=e447]: חנם ↔ סלח
+                  - generic [ref=e448]: "13"
+              - button "ההצלבה המובילה חנם = סלח חנם · רגיל = 98 ↔ סלח · רגיל = 98 חנם · מסתתר = 52 ↔ סלח · מסתתר = 52 חנם · סידורי = 35 ↔ סלח · סידורי = 35 חנם · אלבם = 105 ↔ סלח · אלבם = 105 אותן שיטות, אותם ערכים · נמצאה עכשיו מהמאגר המאומת" [ref=e449] [cursor=pointer]:
+                - generic [ref=e450] [cursor=pointer]: ההצלבה המובילה
+                - strong [ref=e451] [cursor=pointer]:
+                  - text: חנם
+                  - generic [ref=e452] [cursor=pointer]: =
+                  - text: סלח
+                - generic [ref=e453] [cursor=pointer]:
+                  - generic [ref=e454] [cursor=pointer]: חנם · רגיל = 98 ↔ סלח · רגיל = 98
+                  - generic [ref=e455] [cursor=pointer]: חנם · מסתתר = 52 ↔ סלח · מסתתר = 52
+                  - generic [ref=e456] [cursor=pointer]: חנם · סידורי = 35 ↔ סלח · סידורי = 35
+                  - generic [ref=e457] [cursor=pointer]: חנם · אלבם = 105 ↔ סלח · אלבם = 105
+                - generic [ref=e458] [cursor=pointer]: אותן שיטות, אותם ערכים · נמצאה עכשיו מהמאגר המאומת
+              - generic [ref=e459]:
+                - button "נגהם רגיל · גדול · סידורי" [ref=e460] [cursor=pointer]:
+                  - strong [ref=e461] [cursor=pointer]: נגהם
+                  - generic [ref=e462] [cursor=pointer]: רגיל · גדול · סידורי
+                - button "יחף רגיל · סידורי" [ref=e463] [cursor=pointer]:
+                  - strong [ref=e464] [cursor=pointer]: יחף
+                  - generic [ref=e465] [cursor=pointer]: רגיל · סידורי
+                - button "פיח רגיל · סידורי" [ref=e466] [cursor=pointer]:
+                  - strong [ref=e467] [cursor=pointer]: פיח
+                  - generic [ref=e468] [cursor=pointer]: רגיל · סידורי
+                - button "דחוף רגיל · סידורי" [ref=e469] [cursor=pointer]:
+                  - strong [ref=e470] [cursor=pointer]: דחוף
+                  - generic [ref=e471] [cursor=pointer]: רגיל · סידורי
+              - generic [ref=e472]:
+                - button "עוד 8 הצלבות" [ref=e473] [cursor=pointer]
+                - button "✦ רזיאל" [ref=e474] [cursor=pointer]
+            - generic [ref=e475]:
+              - generic [ref=e477]:
+                - generic [ref=e478]: מפגש בין שיטות
+                - generic [ref=e479]:
+                  - strong [ref=e480]: אותו ערך 98 משיטות שונות
+                  - generic [ref=e481]: "12"
+              - generic [ref=e482]:
+                - button "חנם · רגיל = 98 ↔ אלוהים אוהב · מסתתר = 98" [ref=e483] [cursor=pointer]:
+                  - strong [ref=e484] [cursor=pointer]: חנם · רגיל = 98 ↔ אלוהים אוהב · מסתתר = 98
+                - button "חנם · רגיל = 98 ↔ אנא · מסתתר = 98" [ref=e485] [cursor=pointer]:
+                  - strong [ref=e486] [cursor=pointer]: חנם · רגיל = 98 ↔ אנא · מסתתר = 98
+                - button "חנם · רגיל = 98 ↔ בדק · מסתתר = 98" [ref=e487] [cursor=pointer]:
+                  - strong [ref=e488] [cursor=pointer]: חנם · רגיל = 98 ↔ בדק · מסתתר = 98
+                - button "חנם · רגיל = 98 ↔ בזק · מסתתר = 98" [ref=e489] [cursor=pointer]:
+                  - strong [ref=e490] [cursor=pointer]: חנם · רגיל = 98 ↔ בזק · מסתתר = 98
+            - generic [ref=e491]:
+              - generic [ref=e492]:
+                - generic [ref=e493]:
+                  - generic [ref=e494]: סולם האפס
+                  - strong [ref=e495]: 98 → 980
+                - generic [ref=e496]: ◉
+              - paragraph [ref=e497]: אותו שורש ספרתי · סדר גודל אחר · נגזרת, לא שוויון.
+              - button "פתח 980" [ref=e498] [cursor=pointer]
+          - button "איך חישבנו? חנם · רגיל = 98 פתח פירוט חישוב ▼" [ref=e499] [cursor=pointer]:
+            - generic [ref=e500] [cursor=pointer]: איך חישבנו?
+            - strong [ref=e501] [cursor=pointer]: חנם · רגיל = 98
+            - generic [ref=e502] [cursor=pointer]: פתח פירוט חישוב ▼
+          - generic [ref=e503]:
+            - button "✦ שאל את רזיאל" [ref=e504] [cursor=pointer]
+            - button "◈ ניתוח AI" [ref=e505] [cursor=pointer]
+        - generic [ref=e506]:
+          - button "🗺 עולם" [ref=e507] [cursor=pointer]
+          - button "⚖ השווה" [ref=e508] [cursor=pointer]
+          - button "✨ רזיאל" [ref=e509] [cursor=pointer]
+          - button "פתח דף מלא ↗" [ref=e510] [cursor=pointer]
+        - button "Zero Scale · 98 → 980" [ref=e511] [cursor=pointer]
+```

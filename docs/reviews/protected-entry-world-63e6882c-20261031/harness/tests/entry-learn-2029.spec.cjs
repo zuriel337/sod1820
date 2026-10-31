@@ -1,0 +1,197 @@
+const { test, expect } = require('./safe-preview-fixture.cjs');
+const { installStorageEgressGuard } = require('./playwright-storage-egress-guard.cjs');
+
+const BASE = 'https://sod1820-26of53pw9-sod1820-s-projects.vercel.app';
+
+test.beforeEach(async ({ context }) => installStorageEgressGuard(context));
+const POST_PATH = '/post/bennett-melach-631-78';
+const FAMILIARITY_KEY = 'sod_entry_learn_2029_v1';
+
+async function routePostTo2029(page) {
+  await page.route('**/post/bennett-melach-631-78*', async (route) => {
+    const response = await page.request.get(`${BASE}/2029.html`);
+    await route.fulfill({
+      status: response.status(),
+      headers: response.headers(),
+      body: await response.body(),
+    });
+  });
+}
+
+async function noOverflow(page) {
+  const metrics = await page.evaluate(() => ({
+    clientWidth: document.documentElement.clientWidth,
+    scrollWidth: document.documentElement.scrollWidth,
+  }));
+  expect(metrics.scrollWidth).toBe(metrics.clientWidth);
+}
+
+test.setTimeout(60_000);
+test.describe.configure({ mode: 'serial' });
+
+test('direct Post opens Number; contextual teaching and help retain the same focus at 390px', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.addInitScript((key) => {
+    try { localStorage.removeItem(key); } catch {}
+    try { sessionStorage.removeItem('sod_entry_learn_2029_session_v1'); } catch {}
+  }, FAMILIARITY_KEY);
+  await routePostTo2029(page);
+
+  let traceRequests = 0;
+  let traceResponse = null;
+  page.on('request', (request) => {
+    if (request.url().includes('/rpc/gematria_method_trace')) traceRequests += 1;
+  });
+  page.on('response', async (response) => {
+    if (!response.url().includes('/rpc/gematria_method_trace')) return;
+    try {
+      traceResponse = { status: response.status(), body: await response.json() };
+    } catch {
+      traceResponse = { status: response.status(), body: null };
+    }
+  });
+
+  await page.goto(`${BASE}${POST_PATH}`, { waitUntil: 'networkidle' });
+  const post = page.locator('[data-experience-surface="post-reading"]');
+  await expect(post).toBeVisible({ timeout: 30_000 });
+
+  const orientation = page.locator('.sod29-entry-orientation-slot .sod29-learn-mark');
+  await expect(orientation).toBeVisible();
+  await expect(orientation).toHaveClass(/is-prominent/);
+  await expect(orientation.getByRole('button', { name: 'חדש כאן? מה עושים בפוסט הזה?' })).toBeVisible();
+
+  // The live authored Bennett source: an engine-verified saved equality (נפתלי בנט = 631) is the explicit focus control.
+  const focusControl = post.locator('.sod29-reading-source [data-contextual-number-focus="true"][data-expression="נפתלי בנט"]').first();
+  await expect(focusControl).toBeVisible({ timeout: 30_000 });
+  expect(traceRequests).toBe(0);
+
+  await focusControl.click();
+
+  const sidecar = page.locator('[data-experience-capability="contextual-sidecar"]');
+  await expect(sidecar).toBeVisible({ timeout: 30_000 });
+  await expect(sidecar).toHaveAttribute('data-mobile-projection', 'bottom-context-sheet');
+  await expect(sidecar).toContainText('נפתלי בנט');
+
+  // Explicit expression intent opens Number directly. Teaching is still available
+  // from the existing context sheet; it must not require a duplicate renderer.
+  const directDrawer = sidecar.locator('.sod29-number-drawer2029');
+  await expect(directDrawer).toBeVisible();
+  await expect(directDrawer).toHaveAttribute('data-contextual-number-mode', 'focus');
+  await expect(directDrawer.locator('.sod29-number-v10-expression strong')).toHaveText('נפתלי בנט', { timeout: 20_000 });
+  await expect.poll(() => traceRequests, { timeout: 10_000 }).toBeGreaterThan(0);
+  await page.keyboard.press('Escape');
+  await expect(directDrawer).toHaveCount(0);
+  await page.locator('.sod29-glass-locator-core').click();
+  await expect(sidecar).toBeVisible();
+  await expect(sidecar.locator('.sod29-number-drawer2029')).toHaveCount(0);
+  await expect(page.locator('.sod29-entry-orientation-slot .sod29-learn-mark')).toHaveClass(/is-compact/);
+
+  const learn = sidecar.locator('[data-learn-scope="concept"]');
+  await expect(learn).toBeVisible();
+  await expect(learn.getByRole('button', { name: 'איך זה עובד?' })).toBeVisible();
+  await learn.getByRole('button', { name: 'איך זה עובד?' }).click();
+  await expect(learn).toContainText('השיטה היא חלק מהטענה המספרית');
+  await expect(learn).toContainText('נפתלי בנט');
+  await expect(learn).toContainText('רגיל');
+  await expect(learn).toContainText('631');
+
+  // ASK: unresolved comprehension opens the already-live Contact Gateway, not a new help form.
+  await expect(learn.getByRole('button', { name: 'עדיין לא ברור?' })).toBeVisible();
+  await learn.getByRole('button', { name: 'עדיין לא ברור?' }).click();
+
+  const contact = page.locator('[data-contact-gateway="true"]');
+  await expect(contact).toBeVisible({ timeout: 10_000 });
+  await expect(contact).toHaveAttribute('data-contact-learn-context', 'true');
+  await expect(contact.locator('textarea')).toHaveValue(/פתחתי את ההסבר על שיטת הגימטריה ועדיין לא היה לי ברור/);
+  await expect(contact.locator('.sod29-contact-suggest strong')).toHaveText('משהו לא עובד');
+  await contact.locator('.sod29-contact-suggest').click();
+  await expect(page.locator('[data-issue-report="true"]')).toBeVisible();
+  await expect(page.locator('[data-issue-report="true"] textarea')).toHaveValue(/פתחתי את ההסבר על שיטת הגימטריה/);
+
+  await page.locator('.sod29-frame-panel-head button[aria-label="סגור"]').click();
+  await expect(page.locator('[data-contact-gateway="true"]')).toHaveCount(0);
+
+  // Reopen the context sheet; help preserves the explicit expression focus.
+  await page.locator('.sod29-glass-locator-core').click();
+  const sidecarAfterAsk = page.locator('[data-experience-capability="contextual-sidecar"]');
+  const learnAfterAsk = sidecarAfterAsk.locator('[data-learn-scope="concept"]');
+  await learnAfterAsk.getByRole('button', { name: 'איך זה עובד?' }).click();
+
+  // TRY uses the existing Number drawer / canonical trace path. Learn never calculates locally.
+  await learnAfterAsk.getByRole('button', { name: 'ראה את החישוב' }).click();
+  const drawer = sidecar.locator('.sod29-number-drawer2029');
+  await expect(drawer).toBeVisible({ timeout: 30_000 });
+  await expect(drawer.locator('.sod29-number-v10-expression strong')).toHaveText('נפתלי בנט', { timeout: 20_000 });
+
+  await expect.poll(async () => page.evaluate(() => {
+    const key = Object.keys(sessionStorage).find((name) => name.startsWith('sod_research_context_v2:'));
+    if (!key) return '';
+    const stored = JSON.parse(sessionStorage.getItem(key) || 'null');
+    const selection = stored?.selection || {};
+    return JSON.stringify([
+      selection.entityId || null,
+      selection.expression || null,
+      selection.method || null,
+      Number(selection.resultValue),
+    ]);
+  }), { timeout: 5_000 }).toBe(JSON.stringify(['bennett-631', 'נפתלי בנט', 'רגיל', 631]));
+
+  await expect.poll(() => traceRequests, { timeout: 10_000 }).toBeGreaterThan(0);
+
+  const calculation = drawer.locator('.sod29-number-v10-calculation-card');
+  await expect(calculation).toBeVisible({ timeout: 20_000 });
+  await expect(calculation).toContainText('רגיל');
+  await expect(calculation).toContainText('631');
+  await calculation.click();
+
+  const inspector = drawer.locator('.sod29-number-method-inspector');
+  await expect(inspector).toBeVisible({ timeout: 10_000 });
+  await expect(inspector).toHaveAttribute('data-method-inspector', 'רגיל');
+
+  const anySpatialStage = inspector.locator('[data-experience-capability="spatial-method-stage"]');
+  await expect(anySpatialStage).toBeVisible({ timeout: 10_000 });
+  // The loading placeholder and verified Stage share the same semantic capability.
+  // Wait for the canonical method identity instead of sampling the placeholder mid-transition.
+  await expect(anySpatialStage).toHaveAttribute('data-method-key', 'רגיל', { timeout: 10_000 });
+
+  const stored = await page.evaluate((key) => {
+    try { return JSON.parse(localStorage.getItem(key) || 'null'); } catch { return null; }
+  }, FAMILIARITY_KEY);
+  expect(stored?.surfaces?.post?.state).toBe('complete');
+  expect(['tried', 'complete']).toContain(stored?.concepts?.method?.stage);
+
+  await noOverflow(page);
+  await page.screenshot({ path: 'test-results/release-visual/entry-learn-post-390.png', fullPage: true });
+
+  await page.keyboard.press('Escape');
+  await expect(page.locator('.sod29-number-drawer2029')).toHaveCount(0);
+
+  await page.locator('.sod29-mobile-menu-trigger').click();
+  const mobileNav = page.locator('#sod29-mobile-navigation');
+  await expect(mobileNav).toBeVisible();
+  const exactReturn = mobileNav.getByRole('button', { name: /חזרה מדויקת/ });
+  await expect(exactReturn).toBeEnabled();
+  await exactReturn.click();
+  await expect(page).toHaveURL(/\/post\/bennett-melach-631-78#source-region-bennett-631/, { timeout: 20_000 });
+  await expect(page.locator('.sod29-entry-orientation-slot')).toHaveCount(0);
+  await noOverflow(page);
+});
+
+test('completed Post entry stays compact after reload', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.addInitScript((key) => {
+    localStorage.setItem(key, JSON.stringify({
+      version: 1,
+      surfaces: { post: { v: 1, state: 'complete', at: Date.now() } },
+      concepts: { method: { v: 1, stage: 'tried', at: Date.now() } },
+    }));
+  }, FAMILIARITY_KEY);
+  await routePostTo2029(page);
+
+  await page.goto(`${BASE}${POST_PATH}`, { waitUntil: 'networkidle' });
+  await expect(page.locator('[data-experience-surface="post-reading"]')).toBeVisible({ timeout: 30_000 });
+  const orientation = page.locator('.sod29-entry-orientation-slot .sod29-learn-mark');
+  await expect(orientation).toBeVisible();
+  await expect(orientation).toHaveClass(/is-compact/);
+  await noOverflow(page);
+});

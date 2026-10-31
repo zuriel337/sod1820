@@ -1,0 +1,980 @@
+{
+  "testSourceSha": "c2f2e9948dd119c96b69e377b33be2eb2a886efb",
+  "runtimeSha": "63e6882c3b7b4004d337927c7231728a7612d452",
+  "deploymentId": "dpl_Aa8o4Cr61VawivzJodti8KTsecB2",
+  "fullIsolationPassed": false,
+  "A3": "OPEN_NOT_RUN",
+  "worldCounts": {
+    "passed": 21,
+    "failed": 20,
+    "timedOut": 5
+  },
+  "worldClassifications": {
+    "PASSED": 21,
+    "CLS_THRESHOLD_FAILED_RETEST_RECORDED": 1,
+    "STALE_UI_EXPECTATION": 18,
+    "EXPECTED_PUBLIC_888_FIXTURE_ABSENT": 2,
+    "CONTEXTUAL_ROUTE_EXPECTATION_REQUIRES_RECONCILIATION": 1,
+    "BEHAVIOR_OR_FIXTURE_REQUIRES_REVIEW": 2,
+    "SOURCE_PROJECTOR_WAIT_OR_BEHAVIOR_OPEN": 1
+  },
+  "supplementaryCounts": {
+    "passed": 2
+  },
+  "world": [
+    {
+      "title": "Core Web Vitals CLS budget holds on /2029 at 390px",
+      "file": "world2029-release.spec.cjs",
+      "line": 137,
+      "status": "passed",
+      "durationMs": 8127,
+      "error": "",
+      "run": "results",
+      "classification": "PASSED",
+      "attempts": [
+        {
+          "run": "results",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "title": "Core Web Vitals CLS budget holds on /2029/number/1237 at 390px",
+      "file": "world2029-release.spec.cjs",
+      "line": 137,
+      "status": "passed",
+      "durationMs": 6463,
+      "error": "",
+      "run": "results",
+      "classification": "PASSED",
+      "attempts": [
+        {
+          "run": "results",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "title": "Core Web Vitals CLS budget holds on /book/daat-tevunot at 390px",
+      "file": "world2029-release.spec.cjs",
+      "line": 137,
+      "status": "passed",
+      "durationMs": 5908,
+      "error": "",
+      "run": "results",
+      "classification": "PASSED",
+      "attempts": [
+        {
+          "run": "results",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "title": "Core Web Vitals CLS budget holds on /books at 390px",
+      "file": "world2029-release.spec.cjs",
+      "line": 137,
+      "status": "passed",
+      "durationMs": 6157,
+      "error": "",
+      "run": "results",
+      "classification": "PASSED",
+      "attempts": [
+        {
+          "run": "results",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "title": "Core Web Vitals CLS budget holds on /els at 390px",
+      "file": "world2029-release.spec.cjs",
+      "line": 137,
+      "status": "passed",
+      "durationMs": 6975,
+      "error": "",
+      "run": "results",
+      "classification": "PASSED",
+      "attempts": [
+        {
+          "run": "results",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "title": "Core Web Vitals CLS budget holds on /topic/888-yeshua at 390px",
+      "file": "world2029-release.spec.cjs",
+      "line": 137,
+      "status": "passed",
+      "durationMs": 6095,
+      "error": "",
+      "run": "results",
+      "classification": "PASSED",
+      "attempts": [
+        {
+          "run": "results",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "title": "Core Web Vitals CLS budget holds on /world at 390px",
+      "file": "world2029-release.spec.cjs",
+      "line": 137,
+      "status": "failed",
+      "durationMs": 6233,
+      "error": "Error: /world CLS=0.2229 exceeded 0.1; max-window sources: div[128→162;h614→614], section.sod29-world-overview.sod29-world-entry[742→776;h102→68], span.sod29-hero-symbol[103→120;h44→44], button.sod29-action.primary[840→0;h4→0], main.sod29-content[68→120;h776→724], i[387→387;h5→5], section.sod29-world-overview.sod29-world-entry[828→0;h16→0], div.sod29-flight-copy[369→556;h402→288]\n\nexpect(received).toBeLessThanOrEqual(expected)\n\nExpected: <= 0.1\nReceived:    0.22292780637650325\n\nError: /world CLS=0.2229 exceeded 0.1; max-window sources: div[128→162;h614→614], section.sod29-world-overview.sod29-world-entry[742→776;h102→68], span.sod29-hero-symbol[103→120;h44→44], button.sod29-action.primary[840→0;h4→0], main.sod29-content[68→120;h776→724], i[387→387;h5→5], section.sod29-world-overview.sod29-world-entry[828→0;h16→0], div.sod29-flight-copy[369→556;h402→288]\n\nexpect(received).toBeLessThanOrEqual(expected)\n\nExpected: <= 0.1\nReceived:    0.22292780637650325\n\n  83 |     metric.value,\n  84 |     `${route} CLS=${metric.value.toFixed(4)} exceeded 0.1; max-window sources: ${metric.sources.join(', ') || 'unknown'}`,\n> 85 |   ).toBeLessThanOrEqual(0.1);\n     |     ^\n  86 | }\n  87 |\n  88 | test.setTimeout(60_000);\n    at assertClsGood (/tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:85:5)\n    at /tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:143:5",
+      "run": "results",
+      "classification": "CLS_THRESHOLD_FAILED_RETEST_RECORDED",
+      "attempts": [
+        {
+          "run": "results",
+          "status": "failed"
+        },
+        {
+          "run": "results-focused",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "title": "direct /world opens public composed World with aircraft story, real arrivals and source navigation",
+      "file": "world2029-release.spec.cjs",
+      "line": 225,
+      "status": "failed",
+      "durationMs": 6994,
+      "error": "Error: expect(locator).toBeVisible() failed\n\nLocator:  getByRole('heading', { name: 'מתחילים ממה שמסקרן אותך.' })\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  5000ms\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'מתחילים ממה שמסקרן אותך.' })\n\n\nError: expect(locator).toBeVisible() failed\n\nLocator:  getByRole('heading', { name: 'מתחילים ממה שמסקרן אותך.' })\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  5000ms\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'מתחילים ממה שמסקרן אותך.' })\n\n\n  229 |   await expect(page.getByRole('heading', { name: 'העולם', exact: true })).toBeVisible();\n  230 |   await expect(page.getByRole('region', { name: 'כניסה לעולם' })).toBeVisible({ timeout: 30_000 });\n> 231 |   await expect(page.getByRole('heading', { name: 'מתחילים ממה שמסקרן אותך.' })).toBeVisible();\n      |                                                                                 ^\n  232 |   await expect(page.getByRole('heading', { name: 'מה מגיע עכשיו' })).toBeVisible({ timeout: 30_000 });\n  233 |   const postsFilter = page.getByRole('button', { name: 'פוסטים אחרונים' });\n  234 |   await postsFilter.click();\n    at /tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:231:81",
+      "run": "results",
+      "classification": "STALE_UI_EXPECTATION",
+      "attempts": [
+        {
+          "run": "results",
+          "status": "failed"
+        }
+      ]
+    },
+    {
+      "title": "public World catalog remains searchable and paginated inside the new composed presentation",
+      "file": "world2029-release.spec.cjs",
+      "line": 254,
+      "status": "failed",
+      "durationMs": 32604,
+      "error": "Error: expect(locator).toBeVisible() failed\n\nLocator:  locator('#world-all-convergences').locator('a[href=\"/topic/888-yeshua\"]')\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  30000ms\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 30000ms\n  - waiting for locator('#world-all-convergences').locator('a[href=\"/topic/888-yeshua\"]')\n\n\nError: expect(locator).toBeVisible() failed\n\nLocator:  locator('#world-all-convergences').locator('a[href=\"/topic/888-yeshua\"]')\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  30000ms\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 30000ms\n  - waiting for locator('#world-all-convergences').locator('a[href=\"/topic/888-yeshua\"]')\n\n\n  265 |   const search = catalog.getByRole('textbox', { name: 'חיפוש בנושאים ובחיבורים' });\n  266 |   await search.fill('888');\n> 267 |   await expect(catalog.locator('a[href=\"/topic/888-yeshua\"]')).toBeVisible({ timeout: 30_000 });\n      |                                                                ^\n  268 |   await search.fill('');\n  269 |   const expand = catalog.getByRole('button', { name: 'עוד נושאים וחיבורים' });\n  270 |   if (await expand.count()) {\n    at /tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:267:64",
+      "run": "results",
+      "classification": "EXPECTED_PUBLIC_888_FIXTURE_ABSENT",
+      "attempts": [
+        {
+          "run": "results",
+          "status": "failed"
+        }
+      ]
+    },
+    {
+      "title": "native canonical Topic 2029 renders 888 with semantic links and SEO identity",
+      "file": "world2029-release.spec.cjs",
+      "line": 277,
+      "status": "failed",
+      "durationMs": 31565,
+      "error": "Error: expect(locator).toBeVisible() failed\n\nLocator:  locator('article[data-entity-type=\"convergence\"]')\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  30000ms\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 30000ms\n  - waiting for locator('article[data-entity-type=\"convergence\"]')\n\n\nError: expect(locator).toBeVisible() failed\n\nLocator:  locator('article[data-entity-type=\"convergence\"]')\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  30000ms\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 30000ms\n  - waiting for locator('article[data-entity-type=\"convergence\"]')\n\n\n  280 |\n  281 |   const article = page.locator('article[data-entity-type=\"convergence\"]');\n> 282 |   await expect(article).toBeVisible({ timeout: 30_000 });\n      |                         ^\n  283 |   const heroNumber = article.locator('a[href=\"/2029/number/888\"]').first();\n  284 |   await expect(heroNumber).toBeVisible({ timeout: 20_000 });\n  285 |   await expect(heroNumber).toHaveText('888');\n    at /tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:282:25",
+      "run": "results",
+      "classification": "EXPECTED_PUBLIC_888_FIXTURE_ABSENT",
+      "attempts": [
+        {
+          "run": "results",
+          "status": "failed"
+        }
+      ]
+    },
+    {
+      "title": "Topic expression focus opens Number 2029 and survives World + Heichal transitions",
+      "file": "world2029-release.spec.cjs",
+      "line": 295,
+      "status": "failed",
+      "durationMs": 33517,
+      "error": "Error: expect(page).toHaveURL(expected) failed\n\nExpected pattern: /\\/2029\\/number\\/98\\?focus=.*method=/\nReceived string:  \"https://sod1820-26of53pw9-sod1820-s-projects.vercel.app/topic/98-ikuv-geula\"\nTimeout: 30000ms\n\nCall log:\n  - Expect \"toHaveURL\" with timeout 30000ms\n    34 × unexpected value \"https://sod1820-26of53pw9-sod1820-s-projects.vercel.app/topic/98-ikuv-geula\"\n\n\nError: expect(page).toHaveURL(expected) failed\n\nExpected pattern: /\\/2029\\/number\\/98\\?focus=.*method=/\nReceived string:  \"https://sod1820-26of53pw9-sod1820-s-projects.vercel.app/topic/98-ikuv-geula\"\nTimeout: 30000ms\n\nCall log:\n  - Expect \"toHaveURL\" with timeout 30000ms\n    34 × unexpected value \"https://sod1820-26of53pw9-sod1820-s-projects.vercel.app/topic/98-ikuv-geula\"\n\n\n  304 |   await chinam.click();\n  305 |\n> 306 |   await expect(page).toHaveURL(/\\/2029\\/number\\/98\\?focus=.*method=/, { timeout: 30_000 });\n      |                      ^\n  307 |   const numberPage = page.locator('[data-experience-surface=\"number\"]');\n  308 |   await expect(numberPage).toBeVisible({ timeout: 30_000 });\n  309 |   const focusRibbon = numberPage.locator('[data-expression-focus=\"true\"]');\n    at /tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:306:22",
+      "run": "results",
+      "classification": "CONTEXTUAL_ROUTE_EXPECTATION_REQUIRES_RECONCILIATION",
+      "attempts": [
+        {
+          "run": "results",
+          "status": "failed"
+        }
+      ]
+    },
+    {
+      "title": "Number 2029 preview opens 1237 with all available methods visible in one wrapped research stage",
+      "file": "world2029-release.spec.cjs",
+      "line": 337,
+      "status": "passed",
+      "durationMs": 7919,
+      "error": "",
+      "run": "results",
+      "classification": "PASSED",
+      "attempts": [
+        {
+          "run": "results",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "title": "Number 2029 596 keeps six methods visible and finds Jerusalem↔Shomrim as a live hidden crossing",
+      "file": "world2029-release.spec.cjs",
+      "line": 390,
+      "status": "passed",
+      "durationMs": 8775,
+      "error": "",
+      "run": "results",
+      "classification": "PASSED",
+      "attempts": [
+        {
+          "run": "results",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "title": "Number 2029 1118 uses canonical Hebrew verse refs and appends the gematria value after the verse",
+      "file": "world2029-release.spec.cjs",
+      "line": 431,
+      "status": "passed",
+      "durationMs": 6928,
+      "error": "",
+      "run": "results",
+      "classification": "PASSED",
+      "attempts": [
+        {
+          "run": "results",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "title": "Number 2029 global drawer reuses the same method-first Core and carries Raziel context",
+      "file": "world2029-release.spec.cjs",
+      "line": 448,
+      "status": "failed",
+      "durationMs": 11183,
+      "error": "Error: expect(locator).toBeVisible() failed\n\nLocator:  locator('.sod29-command-island').getByRole('button', { name: 'פעולה', exact: true })\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  5000ms\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for locator('.sod29-command-island').getByRole('button', { name: 'פעולה', exact: true })\n\n\nError: expect(locator).toBeVisible() failed\n\nLocator:  locator('.sod29-command-island').getByRole('button', { name: 'פעולה', exact: true })\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  5000ms\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for locator('.sod29-command-island').getByRole('button', { name: 'פעולה', exact: true })\n\n\n  200 | async function openNumberCapabilityFromIsland(page) {\n  201 |   const action = page.locator('.sod29-command-island').getByRole('button', { name: 'פעולה', exact: true });\n> 202 |   await expect(action).toBeVisible();\n      |                        ^\n  203 |   await action.click();\n  204 |   const actionDialog = page.getByRole('dialog', { name: /פעולה ·/ });\n  205 |   await expect(actionDialog).toBeVisible();\n    at openNumberCapabilityFromIsland (/tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:202:24)\n    at /tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:454:9",
+      "run": "results-focused-retry",
+      "classification": "STALE_UI_EXPECTATION",
+      "attempts": [
+        {
+          "run": "results-focused",
+          "status": "failed"
+        },
+        {
+          "run": "results-focused-retry",
+          "status": "failed"
+        }
+      ]
+    },
+    {
+      "title": "Contextual Number Surface stays one desktop sidecar through focus → preview → back",
+      "file": "world2029-release.spec.cjs",
+      "line": 510,
+      "status": "failed",
+      "durationMs": 12586,
+      "error": "Error: expect(locator).toBeVisible() failed\n\nLocator:  locator('.sod29-command-island').getByRole('button', { name: 'פעולה', exact: true })\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  5000ms\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for locator('.sod29-command-island').getByRole('button', { name: 'פעולה', exact: true })\n\n\nError: expect(locator).toBeVisible() failed\n\nLocator:  locator('.sod29-command-island').getByRole('button', { name: 'פעולה', exact: true })\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  5000ms\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for locator('.sod29-command-island').getByRole('button', { name: 'פעולה', exact: true })\n\n\n  200 | async function openNumberCapabilityFromIsland(page) {\n  201 |   const action = page.locator('.sod29-command-island').getByRole('button', { name: 'פעולה', exact: true });\n> 202 |   await expect(action).toBeVisible();\n      |                        ^\n  203 |   await action.click();\n  204 |   const actionDialog = page.getByRole('dialog', { name: /פעולה ·/ });\n  205 |   await expect(actionDialog).toBeVisible();\n    at openNumberCapabilityFromIsland (/tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:202:24)\n    at /tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:515:9",
+      "run": "results",
+      "classification": "STALE_UI_EXPECTATION",
+      "attempts": [
+        {
+          "run": "results",
+          "status": "failed"
+        }
+      ]
+    },
+    {
+      "title": "Number 2029 Miluy switches the whole stage to 878 with language bridges and in-place explain",
+      "file": "world2029-release.spec.cjs",
+      "line": 541,
+      "status": "passed",
+      "durationMs": 9593,
+      "error": "",
+      "run": "results",
+      "classification": "PASSED",
+      "attempts": [
+        {
+          "run": "results",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "title": "Number 2029 878 keeps its general research path but no longer opens the locked Golden Journey",
+      "file": "world2029-release.spec.cjs",
+      "line": 584,
+      "status": "passed",
+      "durationMs": 7519,
+      "error": "",
+      "run": "results",
+      "classification": "PASSED",
+      "attempts": [
+        {
+          "run": "results",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "title": "Number 2029 golden visual calibration covers 878, 358 and the 1326 visual target in Page and Drawer",
+      "file": "world2029-release.spec.cjs",
+      "line": 608,
+      "status": "failed",
+      "durationMs": 12054,
+      "error": "Error: expect(locator).toBeVisible() failed\n\nLocator:  locator('.sod29-command-island').getByRole('button', { name: 'פעולה', exact: true })\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  5000ms\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for locator('.sod29-command-island').getByRole('button', { name: 'פעולה', exact: true })\n\n\nError: expect(locator).toBeVisible() failed\n\nLocator:  locator('.sod29-command-island').getByRole('button', { name: 'פעולה', exact: true })\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  5000ms\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for locator('.sod29-command-island').getByRole('button', { name: 'פעולה', exact: true })\n\n\n  200 | async function openNumberCapabilityFromIsland(page) {\n  201 |   const action = page.locator('.sod29-command-island').getByRole('button', { name: 'פעולה', exact: true });\n> 202 |   await expect(action).toBeVisible();\n      |                        ^\n  203 |   await action.click();\n  204 |   const actionDialog = page.getByRole('dialog', { name: /פעולה ·/ });\n  205 |   await expect(actionDialog).toBeVisible();\n    at openNumberCapabilityFromIsland (/tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:202:24)\n    at /tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:620:11",
+      "run": "results",
+      "classification": "STALE_UI_EXPECTATION",
+      "attempts": [
+        {
+          "run": "results",
+          "status": "failed"
+        }
+      ]
+    },
+    {
+      "title": "Golden World 878 journey stays closed while the public Number 878 and full images remain readable",
+      "file": "world2029-release.spec.cjs",
+      "line": 635,
+      "status": "passed",
+      "durationMs": 9800,
+      "error": "",
+      "run": "results",
+      "classification": "PASSED",
+      "attempts": [
+        {
+          "run": "results",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "title": "Public World story and source entry remain usable and overflow-free at 320px",
+      "file": "world2029-release.spec.cjs",
+      "line": 671,
+      "status": "failed",
+      "durationMs": 7962,
+      "error": "Error: expect(locator).toBeVisible() failed\n\nLocator:  getByRole('heading', { name: 'מתחילים ממה שמסקרן אותך.' })\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  5000ms\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'מתחילים ממה שמסקרן אותך.' })\n\n\nError: expect(locator).toBeVisible() failed\n\nLocator:  getByRole('heading', { name: 'מתחילים ממה שמסקרן אותך.' })\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  5000ms\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'מתחילים ממה שמסקרן אותך.' })\n\n\n  673 |     await page.goto(`${BASE}${WORLD}`, { waitUntil: 'domcontentloaded' });\n  674 |     await expect(page.locator('.sod29-world-overview')).toBeVisible({ timeout: 30_000 });\n> 675 |     await expect(page.getByRole('heading', { name: 'מתחילים ממה שמסקרן אותך.' })).toBeVisible();\n      |                                                                                   ^\n  676 |     await expect(page.locator('#world-sources')).toBeVisible({ timeout: 30_000 });\n  677 |     await selectWorldLandingView(page, 'נושאים וחיבורים');\n  678 |     await expect(page.locator('#world-all-convergences')).toBeVisible();\n    at /tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:675:83",
+      "run": "results",
+      "classification": "STALE_UI_EXPECTATION",
+      "attempts": [
+        {
+          "run": "results",
+          "status": "failed"
+        }
+      ]
+    },
+    {
+      "title": "Public World story and source entry remain usable and overflow-free at 360px",
+      "file": "world2029-release.spec.cjs",
+      "line": 671,
+      "status": "failed",
+      "durationMs": 8488,
+      "error": "Error: expect(locator).toBeVisible() failed\n\nLocator:  getByRole('heading', { name: 'מתחילים ממה שמסקרן אותך.' })\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  5000ms\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'מתחילים ממה שמסקרן אותך.' })\n\n\nError: expect(locator).toBeVisible() failed\n\nLocator:  getByRole('heading', { name: 'מתחילים ממה שמסקרן אותך.' })\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  5000ms\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'מתחילים ממה שמסקרן אותך.' })\n\n\n  673 |     await page.goto(`${BASE}${WORLD}`, { waitUntil: 'domcontentloaded' });\n  674 |     await expect(page.locator('.sod29-world-overview')).toBeVisible({ timeout: 30_000 });\n> 675 |     await expect(page.getByRole('heading', { name: 'מתחילים ממה שמסקרן אותך.' })).toBeVisible();\n      |                                                                                   ^\n  676 |     await expect(page.locator('#world-sources')).toBeVisible({ timeout: 30_000 });\n  677 |     await selectWorldLandingView(page, 'נושאים וחיבורים');\n  678 |     await expect(page.locator('#world-all-convergences')).toBeVisible();\n    at /tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:675:83",
+      "run": "results",
+      "classification": "STALE_UI_EXPECTATION",
+      "attempts": [
+        {
+          "run": "results",
+          "status": "failed"
+        }
+      ]
+    },
+    {
+      "title": "Public World story and source entry remain usable and overflow-free at 390px",
+      "file": "world2029-release.spec.cjs",
+      "line": 671,
+      "status": "failed",
+      "durationMs": 7189,
+      "error": "Error: expect(locator).toBeVisible() failed\n\nLocator:  getByRole('heading', { name: 'מתחילים ממה שמסקרן אותך.' })\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  5000ms\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'מתחילים ממה שמסקרן אותך.' })\n\n\nError: expect(locator).toBeVisible() failed\n\nLocator:  getByRole('heading', { name: 'מתחילים ממה שמסקרן אותך.' })\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  5000ms\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'מתחילים ממה שמסקרן אותך.' })\n\n\n  673 |     await page.goto(`${BASE}${WORLD}`, { waitUntil: 'domcontentloaded' });\n  674 |     await expect(page.locator('.sod29-world-overview')).toBeVisible({ timeout: 30_000 });\n> 675 |     await expect(page.getByRole('heading', { name: 'מתחילים ממה שמסקרן אותך.' })).toBeVisible();\n      |                                                                                   ^\n  676 |     await expect(page.locator('#world-sources')).toBeVisible({ timeout: 30_000 });\n  677 |     await selectWorldLandingView(page, 'נושאים וחיבורים');\n  678 |     await expect(page.locator('#world-all-convergences')).toBeVisible();\n    at /tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:675:83",
+      "run": "results",
+      "classification": "STALE_UI_EXPECTATION",
+      "attempts": [
+        {
+          "run": "results",
+          "status": "failed"
+        }
+      ]
+    },
+    {
+      "title": "RICH live World 1820 is truthful and overflow-free at 1440px",
+      "file": "world2029-release.spec.cjs",
+      "line": 685,
+      "status": "failed",
+      "durationMs": 12165,
+      "error": "Error: expect(locator).toBeVisible() failed\n\nLocator:  getByRole('heading', { name: 'מה אתה רוצה לראות עכשיו?' })\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  5000ms\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'מה אתה רוצה לראות עכשיו?' })\n\n\nError: expect(locator).toBeVisible() failed\n\nLocator:  getByRole('heading', { name: 'מה אתה רוצה לראות עכשיו?' })\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  5000ms\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'מה אתה רוצה לראות עכשיו?' })\n\n\n  686 |     const projection = await openWorldAnchor(page, 1820, width);\n  687 |     await expect(projection).toHaveAttribute('data-world-density', 'rich');\n> 688 |     await expect(page.getByRole('heading', { name: 'מה אתה רוצה לראות עכשיו?' })).toBeVisible();\n      |                                                                                   ^\n  689 |     await selectWorldLane(page, 'מקורות');\n  690 |     await expect(page.getByText('מאיפה החומר מגיע')).toBeVisible();\n  691 |     await assertNoHorizontalOverflow(page);\n    at /tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:688:83",
+      "run": "results",
+      "classification": "STALE_UI_EXPECTATION",
+      "attempts": [
+        {
+          "run": "results",
+          "status": "failed"
+        }
+      ]
+    },
+    {
+      "title": "RICH live World 1820 is truthful and overflow-free at 320px",
+      "file": "world2029-release.spec.cjs",
+      "line": 685,
+      "status": "failed",
+      "durationMs": 11251,
+      "error": "Error: expect(locator).toBeVisible() failed\n\nLocator:  getByRole('heading', { name: 'מה אתה רוצה לראות עכשיו?' })\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  5000ms\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'מה אתה רוצה לראות עכשיו?' })\n\n\nError: expect(locator).toBeVisible() failed\n\nLocator:  getByRole('heading', { name: 'מה אתה רוצה לראות עכשיו?' })\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  5000ms\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'מה אתה רוצה לראות עכשיו?' })\n\n\n  686 |     const projection = await openWorldAnchor(page, 1820, width);\n  687 |     await expect(projection).toHaveAttribute('data-world-density', 'rich');\n> 688 |     await expect(page.getByRole('heading', { name: 'מה אתה רוצה לראות עכשיו?' })).toBeVisible();\n      |                                                                                   ^\n  689 |     await selectWorldLane(page, 'מקורות');\n  690 |     await expect(page.getByText('מאיפה החומר מגיע')).toBeVisible();\n  691 |     await assertNoHorizontalOverflow(page);\n    at /tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:688:83",
+      "run": "results",
+      "classification": "STALE_UI_EXPECTATION",
+      "attempts": [
+        {
+          "run": "results",
+          "status": "failed"
+        }
+      ]
+    },
+    {
+      "title": "RICH live World 1820 is truthful and overflow-free at 360px",
+      "file": "world2029-release.spec.cjs",
+      "line": 685,
+      "status": "failed",
+      "durationMs": 11339,
+      "error": "Error: expect(locator).toBeVisible() failed\n\nLocator:  getByRole('heading', { name: 'מה אתה רוצה לראות עכשיו?' })\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  5000ms\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'מה אתה רוצה לראות עכשיו?' })\n\n\nError: expect(locator).toBeVisible() failed\n\nLocator:  getByRole('heading', { name: 'מה אתה רוצה לראות עכשיו?' })\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  5000ms\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'מה אתה רוצה לראות עכשיו?' })\n\n\n  686 |     const projection = await openWorldAnchor(page, 1820, width);\n  687 |     await expect(projection).toHaveAttribute('data-world-density', 'rich');\n> 688 |     await expect(page.getByRole('heading', { name: 'מה אתה רוצה לראות עכשיו?' })).toBeVisible();\n      |                                                                                   ^\n  689 |     await selectWorldLane(page, 'מקורות');\n  690 |     await expect(page.getByText('מאיפה החומר מגיע')).toBeVisible();\n  691 |     await assertNoHorizontalOverflow(page);\n    at /tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:688:83",
+      "run": "results",
+      "classification": "STALE_UI_EXPECTATION",
+      "attempts": [
+        {
+          "run": "results",
+          "status": "failed"
+        }
+      ]
+    },
+    {
+      "title": "RICH live World 1820 is truthful and overflow-free at 390px",
+      "file": "world2029-release.spec.cjs",
+      "line": 685,
+      "status": "failed",
+      "durationMs": 11232,
+      "error": "Error: expect(locator).toBeVisible() failed\n\nLocator:  getByRole('heading', { name: 'מה אתה רוצה לראות עכשיו?' })\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  5000ms\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'מה אתה רוצה לראות עכשיו?' })\n\n\nError: expect(locator).toBeVisible() failed\n\nLocator:  getByRole('heading', { name: 'מה אתה רוצה לראות עכשיו?' })\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  5000ms\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'מה אתה רוצה לראות עכשיו?' })\n\n\n  686 |     const projection = await openWorldAnchor(page, 1820, width);\n  687 |     await expect(projection).toHaveAttribute('data-world-density', 'rich');\n> 688 |     await expect(page.getByRole('heading', { name: 'מה אתה רוצה לראות עכשיו?' })).toBeVisible();\n      |                                                                                   ^\n  689 |     await selectWorldLane(page, 'מקורות');\n  690 |     await expect(page.getByText('מאיפה החומר מגיע')).toBeVisible();\n  691 |     await assertNoHorizontalOverflow(page);\n    at /tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:688:83",
+      "run": "results",
+      "classification": "STALE_UI_EXPECTATION",
+      "attempts": [
+        {
+          "run": "results",
+          "status": "failed"
+        }
+      ]
+    },
+    {
+      "title": "RICH 1820 presents one anchor header before profile and exploration lanes",
+      "file": "world2029-release.spec.cjs",
+      "line": 696,
+      "status": "failed",
+      "durationMs": 11282,
+      "error": "Error: expect(locator).toContainText(expected) failed\n\nLocator: locator('.sod29-world-anchor-intro')\nExpected string: \"מתחילים במהות\"\nReceived string: \"מה מתחבר?1820החומר סביב העוגן מסודר לפי שכבות: תמונות, גימטריה, מקורות, קשרים, מחקר וזמן.מספר◌ חזרה לעולם\"\nTimeout: 5000ms\n\nCall log:\n  - Expect \"toContainText\" with timeout 5000ms\n  - waiting for locator('.sod29-world-anchor-intro')\n    9 × locator resolved to <section class=\"sod29-section sod29-world-anchor-intro\">…</section>\n      - unexpected value \"מה מתחבר?1820החומר סביב העוגן מסודר לפי שכבות: תמונות, גימטריה, מקורות, קשרים, מחקר וזמן.מספר◌ חזרה לעולם\"\n\n\nError: expect(locator).toContainText(expected) failed\n\nLocator: locator('.sod29-world-anchor-intro')\nExpected string: \"מתחילים במהות\"\nReceived string: \"מה מתחבר?1820החומר סביב העוגן מסודר לפי שכבות: תמונות, גימטריה, מקורות, קשרים, מחקר וזמן.מספר◌ חזרה לעולם\"\nTimeout: 5000ms\n\nCall log:\n  - Expect \"toContainText\" with timeout 5000ms\n  - waiting for locator('.sod29-world-anchor-intro')\n    9 × locator resolved to <section class=\"sod29-section sod29-world-anchor-intro\">…</section>\n      - unexpected value \"מה מתחבר?1820החומר סביב העוגן מסודר לפי שכבות: תמונות, גימטריה, מקורות, קשרים, מחקר וזמן.מספר◌ חזרה לעולם\"\n\n\n  698 |\n  699 |   await expect(page.locator('.sod29-world-anchor-intro h2')).toHaveText('1820');\n> 700 |   await expect(page.locator('.sod29-world-anchor-intro')).toContainText('מתחילים במהות');\n      |                                                           ^\n  701 |   await expect(page.getByText('מרכז העולם', { exact: true })).toHaveCount(0);\n  702 |   await expect(page.locator('.sod29-world-stage')).toHaveCount(0);\n  703 |   await expect(page.locator('.sod29-anchor-core')).toHaveCount(0);\n    at /tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:700:59",
+      "run": "results",
+      "classification": "STALE_UI_EXPECTATION",
+      "attempts": [
+        {
+          "run": "results",
+          "status": "failed"
+        }
+      ]
+    },
+    {
+      "title": "RICH 1820 opens human-first before raw research detail",
+      "file": "world2029-release.spec.cjs",
+      "line": 716,
+      "status": "passed",
+      "durationMs": 7281,
+      "error": "",
+      "run": "results",
+      "classification": "PASSED",
+      "attempts": [
+        {
+          "run": "results",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "title": "RICH 1820 projects real published media without legacy gallery UI",
+      "file": "world2029-release.spec.cjs",
+      "line": 756,
+      "status": "passed",
+      "durationMs": 6713,
+      "error": "",
+      "run": "results",
+      "classification": "PASSED",
+      "attempts": [
+        {
+          "run": "results",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "title": "RICH 1820 remains useful when research rows are access-filtered",
+      "file": "world2029-release.spec.cjs",
+      "line": 773,
+      "status": "passed",
+      "durationMs": 7880,
+      "error": "",
+      "run": "results",
+      "classification": "PASSED",
+      "attempts": [
+        {
+          "run": "results",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "title": "automatic filters, sorting and explain-why work without exposing admin research controls",
+      "file": "world2029-release.spec.cjs",
+      "line": 788,
+      "status": "passed",
+      "durationMs": 6304,
+      "error": "",
+      "run": "results",
+      "classification": "PASSED",
+      "attempts": [
+        {
+          "run": "results",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "title": "MEDIUM live World 314 remains medium instead of being visually inflated",
+      "file": "world2029-release.spec.cjs",
+      "line": 806,
+      "status": "failed",
+      "durationMs": 31000,
+      "error": "Error: expect(locator).toBeVisible() failed\n\nLocator:  locator('.sod29-world-native-projection')\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  30000ms\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 30000ms\n  - waiting for locator('.sod29-world-native-projection')\n\n\nError: expect(locator).toBeVisible() failed\n\nLocator:  locator('.sod29-world-native-projection')\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  30000ms\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 30000ms\n  - waiting for locator('.sod29-world-native-projection')\n\n\n  171 |   await page.goto(`${BASE}${WORLD}?focus=context`, { waitUntil: 'domcontentloaded' });\n  172 |   const projection = page.locator('.sod29-world-native-projection');\n> 173 |   await expect(projection).toBeVisible({ timeout: 30_000 });\n      |                            ^\n  174 |   await expect(page.locator('.sod29-world-anchor-intro h2')).toContainText(String(value));\n  175 |   await expect(projection).toHaveAttribute('data-experience-surface', 'world');\n  176 |   await expect(projection).toHaveAttribute('data-experience-question', 'מה מתחבר?');\n    at openWorldAnchor (/tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:173:28)\n    at /tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:807:22",
+      "run": "results",
+      "classification": "BEHAVIOR_OR_FIXTURE_REQUIRES_REVIEW",
+      "attempts": [
+        {
+          "run": "results",
+          "status": "failed"
+        }
+      ]
+    },
+    {
+      "title": "SPARSE live World 122 stays honestly sparse with no fabricated research",
+      "file": "world2029-release.spec.cjs",
+      "line": 816,
+      "status": "passed",
+      "durationMs": 5124,
+      "error": "",
+      "run": "results-remaining",
+      "classification": "PASSED",
+      "attempts": [
+        {
+          "run": "results",
+          "status": "failed"
+        },
+        {
+          "run": "results-retry-auth",
+          "status": "failed"
+        },
+        {
+          "run": "results-remaining",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "title": "World uses the shared Command, Inspect, Share and exact-return seams",
+      "file": "world2029-release.spec.cjs",
+      "line": 826,
+      "status": "failed",
+      "durationMs": 10864,
+      "error": "Error: expect(locator).toBeVisible() failed\n\nLocator:  locator('.sod29-command-island button').filter({ hasText: 'חיפוש' })\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  5000ms\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for locator('.sod29-command-island button').filter({ hasText: 'חיפוש' })\n\n\nError: expect(locator).toBeVisible() failed\n\nLocator:  locator('.sod29-command-island button').filter({ hasText: 'חיפוש' })\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  5000ms\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for locator('.sod29-command-island button').filter({ hasText: 'חיפוש' })\n\n\n  828 |\n  829 |   const command = page.locator('.sod29-command-island button').filter({ hasText: 'חיפוש' });\n> 830 |   await expect(command).toBeVisible();\n      |                         ^\n  831 |   await command.click();\n  832 |   await expect(page.getByRole('dialog', { name: 'חיפוש' })).toBeVisible();\n  833 |   await page.keyboard.press('Escape');\n    at /tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:830:25",
+      "run": "results-remaining",
+      "classification": "STALE_UI_EXPECTATION",
+      "attempts": [
+        {
+          "run": "results",
+          "status": "failed"
+        },
+        {
+          "run": "results-retry-auth",
+          "status": "failed"
+        },
+        {
+          "run": "results-remaining",
+          "status": "failed"
+        }
+      ]
+    },
+    {
+      "title": "loading and error states are honest and native",
+      "file": "world2029-release.spec.cjs",
+      "line": 877,
+      "status": "passed",
+      "durationMs": 16331,
+      "error": "",
+      "run": "results-remaining",
+      "classification": "PASSED",
+      "attempts": [
+        {
+          "run": "results",
+          "status": "failed"
+        },
+        {
+          "run": "results-retry-auth",
+          "status": "failed"
+        },
+        {
+          "run": "results-remaining",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "title": "unavailable identity is not silently replaced by another anchor",
+      "file": "world2029-release.spec.cjs",
+      "line": 901,
+      "status": "failed",
+      "durationMs": 15878,
+      "error": "Error: expect(locator).toBeVisible() failed\n\nLocator:  getByText('אין חומר זמין לנקודה הזאת')\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  15000ms\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 15000ms\n  - waiting for getByText('אין חומר זמין לנקודה הזאת')\n\n\nError: expect(locator).toBeVisible() failed\n\nLocator:  getByText('אין חומר זמין לנקודה הזאת')\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  15000ms\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 15000ms\n  - waiting for getByText('אין חומר זמין לנקודה הזאת')\n\n\n  903 |   await seedWorldAnchor(page, 999999999);\n  904 |   await page.goto(`${BASE}${WORLD}?focus=context`, { waitUntil: 'domcontentloaded' });\n> 905 |   await expect(page.getByText('אין חומר זמין לנקודה הזאת')).toBeVisible({ timeout: 15_000 });\n      |                                                             ^\n  906 |   await expect(page.getByRole('heading', { name: '999999999', exact: true })).toBeVisible();\n  907 |   await page.screenshot({ path: 'test-results/release-visual/world-unavailable-390.png', fullPage: true });\n  908 | });\n    at /tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:905:61",
+      "run": "results-remaining",
+      "classification": "BEHAVIOR_OR_FIXTURE_REQUIRES_REVIEW",
+      "attempts": [
+        {
+          "run": "results",
+          "status": "failed"
+        },
+        {
+          "run": "results-retry-auth",
+          "status": "failed"
+        },
+        {
+          "run": "results-remaining",
+          "status": "failed"
+        }
+      ]
+    },
+    {
+      "title": "reduced motion preserves the same World meaning and controls",
+      "file": "world2029-release.spec.cjs",
+      "line": 910,
+      "status": "passed",
+      "durationMs": 6148,
+      "error": "",
+      "run": "results-remaining",
+      "classification": "PASSED",
+      "attempts": [
+        {
+          "run": "results",
+          "status": "failed"
+        },
+        {
+          "run": "results-retry-auth",
+          "status": "failed"
+        },
+        {
+          "run": "results-remaining",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "title": "320px RTL World survives 200% text zoom without horizontal overflow",
+      "file": "world2029-release.spec.cjs",
+      "line": 922,
+      "status": "passed",
+      "durationMs": 5944,
+      "error": "",
+      "run": "results-remaining",
+      "classification": "PASSED",
+      "attempts": [
+        {
+          "run": "results",
+          "status": "failed"
+        },
+        {
+          "run": "results-retry-auth",
+          "status": "failed"
+        },
+        {
+          "run": "results-remaining",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "title": "private researcher corpus stays gated for non-admin 2029 sessions",
+      "file": "world2029-release.spec.cjs",
+      "line": 934,
+      "status": "passed",
+      "durationMs": 3171,
+      "error": "",
+      "run": "results-remaining",
+      "classification": "PASSED",
+      "attempts": [
+        {
+          "run": "results",
+          "status": "failed"
+        },
+        {
+          "run": "results-retry-auth",
+          "status": "failed"
+        },
+        {
+          "run": "results-remaining",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "title": "source projector dark 1440: source-first writer and full Hashmal reading",
+      "file": "world2029-release.spec.cjs",
+      "line": 947,
+      "status": "failed",
+      "durationMs": 31600,
+      "error": "TimeoutError: page.waitForResponse: Timeout 30000ms exceeded while waiting for event \"response\"\n\nTimeoutError: page.waitForResponse: Timeout 30000ms exceeded while waiting for event \"response\"\n\n  948 |       await page.setViewportSize({ width, height: 900 });\n  949 |       await page.addInitScript((value) => localStorage.setItem('sod-theme', value), preset);\n> 950 |       const groupResponse = page.waitForResponse((response) => response.url().includes('/rpc/world_group_source_arrivals_v2'), { timeout: 30_000 });\n      |                                  ^\n  951 |       await page.goto(`${BASE}${WORLD}`, { waitUntil: 'domcontentloaded' });\n  952 |       const response = await groupResponse;\n  953 |       expect(response.ok(), 'sanitized group reader is reachable').toBe(true);\n    at /tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:950:34",
+      "run": "results-retry-auth",
+      "classification": "SOURCE_PROJECTOR_WAIT_OR_BEHAVIOR_OPEN",
+      "attempts": [
+        {
+          "run": "results",
+          "status": "failed"
+        },
+        {
+          "run": "results-retry-auth",
+          "status": "failed"
+        }
+      ]
+    },
+    {
+      "title": "source projector dark 390: source-first writer and full Hashmal reading",
+      "file": "world2029-release.spec.cjs",
+      "line": 947,
+      "status": "timedOut",
+      "durationMs": 60056,
+      "error": "Test timeout of 60000ms exceeded.\n\nError: locator.click: Test timeout of 60000ms exceeded.\nCall log:\n  - waiting for getByRole('button', { name: 'הודעות מקור' })\n\n\n  980 |       await corpus.screenshot({ path: `test-results/release-visual/hashmal-projector-${preset}-${width}.png` });\n  981 |       await selectWorldLandingView(page, 'מה חדש');\n> 982 |       await page.getByRole('button', { name: 'הודעות מקור' }).click();\n      |                                                               ^\n  983 |       if (groupRows.length) await expect(page.locator('#world-sources details.sod29-world-group-source').first()).toBeVisible({ timeout: 20_000 });\n  984 |       await expect(page.getByText(/עדכוני תורת הרמז והגילוי היומי טרם חוברו/)).toHaveCount(0);\n  985 |     });\n    at /tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:982:63",
+      "run": "results-remaining",
+      "classification": "STALE_UI_EXPECTATION",
+      "attempts": [
+        {
+          "run": "results",
+          "status": "failed"
+        },
+        {
+          "run": "results-retry-auth",
+          "status": "failed"
+        },
+        {
+          "run": "results-remaining",
+          "status": "timedOut"
+        }
+      ]
+    },
+    {
+      "title": "source projector light 1440: source-first writer and full Hashmal reading",
+      "file": "world2029-release.spec.cjs",
+      "line": 947,
+      "status": "timedOut",
+      "durationMs": 60066,
+      "error": "Test timeout of 60000ms exceeded.\n\nError: locator.click: Test timeout of 60000ms exceeded.\nCall log:\n  - waiting for getByRole('button', { name: 'הודעות מקור' })\n\n\n  980 |       await corpus.screenshot({ path: `test-results/release-visual/hashmal-projector-${preset}-${width}.png` });\n  981 |       await selectWorldLandingView(page, 'מה חדש');\n> 982 |       await page.getByRole('button', { name: 'הודעות מקור' }).click();\n      |                                                               ^\n  983 |       if (groupRows.length) await expect(page.locator('#world-sources details.sod29-world-group-source').first()).toBeVisible({ timeout: 20_000 });\n  984 |       await expect(page.getByText(/עדכוני תורת הרמז והגילוי היומי טרם חוברו/)).toHaveCount(0);\n  985 |     });\n    at /tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:982:63",
+      "run": "results-remaining",
+      "classification": "STALE_UI_EXPECTATION",
+      "attempts": [
+        {
+          "run": "results",
+          "status": "failed"
+        },
+        {
+          "run": "results-retry-auth",
+          "status": "failed"
+        },
+        {
+          "run": "results-remaining",
+          "status": "timedOut"
+        }
+      ]
+    },
+    {
+      "title": "source projector light 390: source-first writer and full Hashmal reading",
+      "file": "world2029-release.spec.cjs",
+      "line": 947,
+      "status": "timedOut",
+      "durationMs": 60076,
+      "error": "Test timeout of 60000ms exceeded.\n\nError: locator.click: Test timeout of 60000ms exceeded.\nCall log:\n  - waiting for getByRole('button', { name: 'הודעות מקור' })\n\n\n  980 |       await corpus.screenshot({ path: `test-results/release-visual/hashmal-projector-${preset}-${width}.png` });\n  981 |       await selectWorldLandingView(page, 'מה חדש');\n> 982 |       await page.getByRole('button', { name: 'הודעות מקור' }).click();\n      |                                                               ^\n  983 |       if (groupRows.length) await expect(page.locator('#world-sources details.sod29-world-group-source').first()).toBeVisible({ timeout: 20_000 });\n  984 |       await expect(page.getByText(/עדכוני תורת הרמז והגילוי היומי טרם חוברו/)).toHaveCount(0);\n  985 |     });\n    at /tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:982:63",
+      "run": "results-remaining",
+      "classification": "STALE_UI_EXPECTATION",
+      "attempts": [
+        {
+          "run": "results",
+          "status": "failed"
+        },
+        {
+          "run": "results-retry-auth",
+          "status": "failed"
+        },
+        {
+          "run": "results-remaining",
+          "status": "timedOut"
+        }
+      ]
+    },
+    {
+      "title": "source projector parchment 1440: source-first writer and full Hashmal reading",
+      "file": "world2029-release.spec.cjs",
+      "line": 947,
+      "status": "timedOut",
+      "durationMs": 60083,
+      "error": "Test timeout of 60000ms exceeded.\n\nError: locator.click: Test timeout of 60000ms exceeded.\nCall log:\n  - waiting for getByRole('button', { name: 'הודעות מקור' })\n\n\n  980 |       await corpus.screenshot({ path: `test-results/release-visual/hashmal-projector-${preset}-${width}.png` });\n  981 |       await selectWorldLandingView(page, 'מה חדש');\n> 982 |       await page.getByRole('button', { name: 'הודעות מקור' }).click();\n      |                                                               ^\n  983 |       if (groupRows.length) await expect(page.locator('#world-sources details.sod29-world-group-source').first()).toBeVisible({ timeout: 20_000 });\n  984 |       await expect(page.getByText(/עדכוני תורת הרמז והגילוי היומי טרם חוברו/)).toHaveCount(0);\n  985 |     });\n    at /tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:982:63",
+      "run": "results-remaining",
+      "classification": "STALE_UI_EXPECTATION",
+      "attempts": [
+        {
+          "run": "results",
+          "status": "failed"
+        },
+        {
+          "run": "results-retry-auth",
+          "status": "failed"
+        },
+        {
+          "run": "results-remaining",
+          "status": "timedOut"
+        }
+      ]
+    },
+    {
+      "title": "source projector parchment 390: source-first writer and full Hashmal reading",
+      "file": "world2029-release.spec.cjs",
+      "line": 947,
+      "status": "timedOut",
+      "durationMs": 60047,
+      "error": "Test timeout of 60000ms exceeded.\n\nError: locator.click: Test timeout of 60000ms exceeded.\nCall log:\n  - waiting for getByRole('button', { name: 'הודעות מקור' })\n\n\n  980 |       await corpus.screenshot({ path: `test-results/release-visual/hashmal-projector-${preset}-${width}.png` });\n  981 |       await selectWorldLandingView(page, 'מה חדש');\n> 982 |       await page.getByRole('button', { name: 'הודעות מקור' }).click();\n      |                                                               ^\n  983 |       if (groupRows.length) await expect(page.locator('#world-sources details.sod29-world-group-source').first()).toBeVisible({ timeout: 20_000 });\n  984 |       await expect(page.getByText(/עדכוני תורת הרמז והגילוי היומי טרם חוברו/)).toHaveCount(0);\n  985 |     });\n    at /tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:982:63",
+      "run": "results-remaining",
+      "classification": "STALE_UI_EXPECTATION",
+      "attempts": [
+        {
+          "run": "results",
+          "status": "failed"
+        },
+        {
+          "run": "results-retry-auth",
+          "status": "failed"
+        },
+        {
+          "run": "results-remaining",
+          "status": "timedOut"
+        }
+      ]
+    }
+  ],
+  "entry": [
+    {
+      "title": "direct Post opens Number; contextual teaching and help retain the same focus at 390px",
+      "file": "entry-learn-2029.spec.cjs",
+      "line": 32,
+      "status": "failed",
+      "durationMs": 35206,
+      "error": "Error: expect(locator).toBeVisible() failed\n\nLocator:  locator('[data-experience-surface=\"post-reading\"]')\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  30000ms\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 30000ms\n  - waiting for locator('[data-experience-surface=\"post-reading\"]')\n\n\nError: expect(locator).toBeVisible() failed\n\nLocator:  locator('[data-experience-surface=\"post-reading\"]')\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  30000ms\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 30000ms\n  - waiting for locator('[data-experience-surface=\"post-reading\"]')\n\n\n  54 |   await page.goto(`${BASE}${POST_PATH}`, { waitUntil: 'networkidle' });\n  55 |   const post = page.locator('[data-experience-surface=\"post-reading\"]');\n> 56 |   await expect(post).toBeVisible({ timeout: 30_000 });\n     |                      ^\n  57 |\n  58 |   const orientation = page.locator('.sod29-entry-orientation-slot .sod29-learn-mark');\n  59 |   await expect(orientation).toBeVisible();\n    at /tmp/ci1185-protected-entry-world/tests/entry-learn-2029.spec.cjs:56:22"
+    },
+    {
+      "title": "completed Post entry stays compact after reload",
+      "file": "entry-learn-2029.spec.cjs",
+      "line": 180,
+      "status": "skipped",
+      "durationMs": 0,
+      "error": ""
+    }
+  ],
+  "supplementary": [
+    {
+      "title": "Supplementary: current public World entry, real catalog search and expansion remain usable",
+      "file": "world-catalog-supplementary.spec.cjs",
+      "line": 4,
+      "status": "passed",
+      "durationMs": 4649,
+      "error": "",
+      "run": "results-focused-retry",
+      "classification": "PASSED",
+      "attempts": [
+        {
+          "run": "results-focused",
+          "status": "failed"
+        },
+        {
+          "run": "results-focused-retry",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "title": "Supplementary: public Flight Post has a readable entry and contextual orientation at 390px",
+      "file": "public-post-entry-supplementary.spec.cjs",
+      "line": 4,
+      "status": "passed",
+      "durationMs": 9106,
+      "error": "",
+      "run": "results",
+      "classification": "PASSED",
+      "attempts": [
+        {
+          "run": "results",
+          "status": "passed"
+        }
+      ]
+    }
+  ],
+  "runs": {
+    "results": {
+      "startTime": "2026-10-31T22:27:06.815Z",
+      "duration": 392014.18299999996,
+      "expected": 17,
+      "skipped": 0,
+      "unexpected": 29,
+      "flaky": 0
+    },
+    "results-retry-auth": {
+      "startTime": "2026-10-31T22:36:09.525Z",
+      "duration": 67097.815,
+      "expected": 0,
+      "skipped": 0,
+      "unexpected": 13,
+      "flaky": 0
+    },
+    "results-remaining": {
+      "startTime": "2026-10-31T22:38:42.638Z",
+      "duration": 370223.576,
+      "expected": 5,
+      "skipped": 0,
+      "unexpected": 7,
+      "flaky": 0
+    },
+    "results-focused": {
+      "startTime": "2026-10-31T22:34:45.052Z",
+      "duration": 21117.165,
+      "expected": 1,
+      "skipped": 0,
+      "unexpected": 2,
+      "flaky": 0
+    },
+    "results-focused-retry": {
+      "startTime": "2026-10-31T22:38:12.572Z",
+      "duration": 16719.37,
+      "expected": 1,
+      "skipped": 0,
+      "unexpected": 1,
+      "flaky": 0
+    }
+  },
+  "network": {
+    "auditFiles": 63,
+    "actualLiveRpcGet": 407,
+    "actualLiveRpcPost": 0,
+    "productWrites": 0,
+    "modelCalls": 0,
+    "blockedEdgeAttempts": [],
+    "transportErrors": 0,
+    "blockedPaths": {
+      "/rest/v1/rpc/canonical_follow_subject": 6
+    }
+  }
+}

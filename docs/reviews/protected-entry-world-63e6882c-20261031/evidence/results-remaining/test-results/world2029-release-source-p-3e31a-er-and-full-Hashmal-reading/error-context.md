@@ -1,0 +1,379 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - button "פתח את סרגל הניווט" [ref=e4] [cursor=pointer]
+  - complementary "ניווט SOD1820 2029" [ref=e5]:
+    - navigation "יעדים וכלי מחקר" [ref=e6]:
+      - generic [ref=e7]:
+        - link "בית" [ref=e8] [cursor=pointer]:
+          - /url: /2029
+          - img [ref=e10] [cursor=pointer]
+        - link "העולם" [ref=e12] [cursor=pointer]:
+          - /url: /world
+          - img [ref=e14] [cursor=pointer]
+        - link "היכל" [ref=e18] [cursor=pointer]:
+          - /url: /heichal
+          - img [ref=e20] [cursor=pointer]
+        - link "פוסטים" [ref=e22] [cursor=pointer]:
+          - /url: /2029/posts
+          - img [ref=e24] [cursor=pointer]
+        - link "מסע החיים" [ref=e26] [cursor=pointer]:
+          - /url: /2029/journey
+          - img [ref=e28] [cursor=pointer]
+        - link "קהילה" [ref=e32] [cursor=pointer]:
+          - /url: /community/chat
+          - img [ref=e34] [cursor=pointer]
+      - generic [ref=e39]:
+        - button "דף המספר" [ref=e40] [cursor=pointer]:
+          - img [ref=e42] [cursor=pointer]:
+            - generic [ref=e43] [cursor=pointer]: "123"
+        - link "ספרים ומקורות" [ref=e44] [cursor=pointer]:
+          - /url: /books
+          - img [ref=e46] [cursor=pointer]
+        - link "ELS · הצופן התנ״כי" [ref=e48] [cursor=pointer]:
+          - /url: /els
+          - img [ref=e50] [cursor=pointer]
+    - generic "פעולות נוספות" [ref=e60]:
+      - button "חזרה מדויקת" [disabled] [ref=e61]:
+        - img [ref=e63]
+      - button "דווח על בעיה" [ref=e65] [cursor=pointer]:
+        - img [ref=e67] [cursor=pointer]
+    - button "האזור האישי שלי" [ref=e70] [cursor=pointer]:
+      - img [ref=e72] [cursor=pointer]
+    - button "הרחב את סרגל הניווט" [ref=e75] [cursor=pointer]:
+      - generic [ref=e76] [cursor=pointer]: ›
+  - generic [ref=e77]:
+    - generic [ref=e78]:
+      - banner [ref=e79]:
+        - generic "איפה אני" [ref=e81]:
+          - generic [ref=e82]: SOD1820
+          - generic [ref=e83]: /
+          - generic [ref=e84]: העולם
+        - button "חיפוש" [ref=e85] [cursor=pointer]:
+          - generic [ref=e86] [cursor=pointer]: ⌕
+          - generic [ref=e87] [cursor=pointer]: חיפוש
+          - generic [ref=e88] [cursor=pointer]: ⌘K
+        - generic [ref=e89]:
+          - group "ערכת צבעים" [ref=e90]:
+            - generic [ref=e91]:
+              - button "יום" [ref=e92] [cursor=pointer]:
+                - generic [ref=e93] [cursor=pointer]: ☀
+                - generic [ref=e94] [cursor=pointer]: יום
+              - button "קלף" [pressed] [ref=e95] [cursor=pointer]:
+                - generic [ref=e96] [cursor=pointer]: ▤
+                - generic [ref=e97] [cursor=pointer]: קלף
+              - button "לילה" [ref=e98] [cursor=pointer]:
+                - generic [ref=e99] [cursor=pointer]: ☾
+                - generic [ref=e100] [cursor=pointer]: לילה
+          - button "התחברות לאזור האישי" [ref=e101] [cursor=pointer]:
+            - img [ref=e103] [cursor=pointer]
+            - generic [ref=e106] [cursor=pointer]: התחברות
+      - region "פס הגילויים החיים" [ref=e107]:
+        - generic [ref=e108]: ✦
+        - marquee "גילויים ועדכונים" [ref=e110]:
+          - generic [ref=e111]:
+            - generic [ref=e112]:
+              - button "מסר הקדוש ברוך הוא מסדר" [ref=e113] [cursor=pointer]:
+                - generic [ref=e114] [cursor=pointer]: מסר
+                - generic [ref=e115] [cursor=pointer]: הקדוש ברוך הוא מסדר
+              - button "מסר שיהיה יותר חושך" [ref=e116] [cursor=pointer]:
+                - generic [ref=e117] [cursor=pointer]: מסר
+                - generic [ref=e118] [cursor=pointer]: שיהיה יותר חושך
+              - button "מסר כי שחה לעפר נפשנו" [ref=e119] [cursor=pointer]:
+                - generic [ref=e120] [cursor=pointer]: מסר
+                - generic [ref=e121] [cursor=pointer]: כי שחה לעפר נפשנו
+              - button "מסר קומה עזרתה לנו" [ref=e122] [cursor=pointer]:
+                - generic [ref=e123] [cursor=pointer]: מסר
+                - generic [ref=e124] [cursor=pointer]: קומה עזרתה לנו
+              - button "דופק העולם המבחן האחרון לפני פריצת הדרך — למה העבר חוזר דווקא עכשיו? | מימד חמש" [ref=e125] [cursor=pointer]:
+                - generic [ref=e126] [cursor=pointer]: דופק העולם
+                - generic [ref=e127] [cursor=pointer]: המבחן האחרון לפני פריצת הדרך — למה העבר חוזר דווקא עכשיו? | מימד חמש
+              - button "דופק העולם ציר הזמן הישן הושלם — אתה לא נכנס לפרק חדש, אלא לעצמי חדש | מימד חמש" [ref=e128] [cursor=pointer]:
+                - generic [ref=e129] [cursor=pointer]: דופק העולם
+                - generic [ref=e130] [cursor=pointer]: ציר הזמן הישן הושלם — אתה לא נכנס לפרק חדש, אלא לעצמי חדש | מימד חמש
+              - button "דופק העולם בחירות 26 לכנסת ה־26 — ״הֲיִפָּלֵא מֵה׳ דָּבָר?״ | 27.10.2026" [ref=e131] [cursor=pointer]:
+                - generic [ref=e132] [cursor=pointer]: דופק העולם
+                - generic [ref=e133] [cursor=pointer]: בחירות 26 לכנסת ה־26 — ״הֲיִפָּלֵא מֵה׳ דָּבָר?״ | 27.10.2026
+              - button "דופק העולם איך יוצאים מתת־המודע דרך עץ ישראל? | מדריך לריפוי 10 הספירות" [ref=e134] [cursor=pointer]:
+                - generic [ref=e135] [cursor=pointer]: דופק העולם
+                - generic [ref=e136] [cursor=pointer]: איך יוצאים מתת־המודע דרך עץ ישראל? | מדריך לריפוי 10 הספירות
+              - button "דופק העולם הודעת מקור לבדיקה" [ref=e137] [cursor=pointer]:
+                - generic [ref=e138] [cursor=pointer]: דופק העולם
+                - generic [ref=e139] [cursor=pointer]: הודעת מקור לבדיקה
+              - button "רצף החיבורים 974 — בינה מלאכותית" [ref=e140] [cursor=pointer]:
+                - generic [ref=e141] [cursor=pointer]: רצף החיבורים
+                - generic [ref=e142] [cursor=pointer]: 974 — בינה מלאכותית
+            - generic [ref=e143]:
+              - button [ref=e144] [cursor=pointer]:
+                - generic [ref=e145] [cursor=pointer]: מסר
+                - generic [ref=e146] [cursor=pointer]: הקדוש ברוך הוא מסדר
+              - button [ref=e147] [cursor=pointer]:
+                - generic [ref=e148] [cursor=pointer]: מסר
+                - generic [ref=e149] [cursor=pointer]: שיהיה יותר חושך
+              - button [ref=e150] [cursor=pointer]:
+                - generic [ref=e151] [cursor=pointer]: מסר
+                - generic [ref=e152] [cursor=pointer]: כי שחה לעפר נפשנו
+              - button [ref=e153] [cursor=pointer]:
+                - generic [ref=e154] [cursor=pointer]: מסר
+                - generic [ref=e155] [cursor=pointer]: קומה עזרתה לנו
+              - button [ref=e156] [cursor=pointer]:
+                - generic [ref=e157] [cursor=pointer]: דופק העולם
+                - generic [ref=e158] [cursor=pointer]: המבחן האחרון לפני פריצת הדרך — למה העבר חוזר דווקא עכשיו? | מימד חמש
+              - button [ref=e159] [cursor=pointer]:
+                - generic [ref=e160] [cursor=pointer]: דופק העולם
+                - generic [ref=e161] [cursor=pointer]: ציר הזמן הישן הושלם — אתה לא נכנס לפרק חדש, אלא לעצמי חדש | מימד חמש
+              - button [ref=e162] [cursor=pointer]:
+                - generic [ref=e163] [cursor=pointer]: דופק העולם
+                - generic [ref=e164] [cursor=pointer]: בחירות 26 לכנסת ה־26 — ״הֲיִפָּלֵא מֵה׳ דָּבָר?״ | 27.10.2026
+              - button [ref=e165] [cursor=pointer]:
+                - generic [ref=e166] [cursor=pointer]: דופק העולם
+                - generic [ref=e167] [cursor=pointer]: איך יוצאים מתת־המודע דרך עץ ישראל? | מדריך לריפוי 10 הספירות
+              - button [ref=e168] [cursor=pointer]:
+                - generic [ref=e169] [cursor=pointer]: דופק העולם
+                - generic [ref=e170] [cursor=pointer]: הודעת מקור לבדיקה
+              - button [ref=e171] [cursor=pointer]:
+                - generic [ref=e172] [cursor=pointer]: רצף החיבורים
+                - generic [ref=e173] [cursor=pointer]: 974 — בינה מלאכותית
+            - generic [ref=e174]:
+              - button [ref=e175] [cursor=pointer]:
+                - generic [ref=e176] [cursor=pointer]: מסר
+                - generic [ref=e177] [cursor=pointer]: הקדוש ברוך הוא מסדר
+              - button [ref=e178] [cursor=pointer]:
+                - generic [ref=e179] [cursor=pointer]: מסר
+                - generic [ref=e180] [cursor=pointer]: שיהיה יותר חושך
+              - button [ref=e181] [cursor=pointer]:
+                - generic [ref=e182] [cursor=pointer]: מסר
+                - generic [ref=e183] [cursor=pointer]: כי שחה לעפר נפשנו
+              - button [ref=e184] [cursor=pointer]:
+                - generic [ref=e185] [cursor=pointer]: מסר
+                - generic [ref=e186] [cursor=pointer]: קומה עזרתה לנו
+              - button [ref=e187] [cursor=pointer]:
+                - generic [ref=e188] [cursor=pointer]: דופק העולם
+                - generic [ref=e189] [cursor=pointer]: המבחן האחרון לפני פריצת הדרך — למה העבר חוזר דווקא עכשיו? | מימד חמש
+              - button [ref=e190] [cursor=pointer]:
+                - generic [ref=e191] [cursor=pointer]: דופק העולם
+                - generic [ref=e192] [cursor=pointer]: ציר הזמן הישן הושלם — אתה לא נכנס לפרק חדש, אלא לעצמי חדש | מימד חמש
+              - button [ref=e193] [cursor=pointer]:
+                - generic [ref=e194] [cursor=pointer]: דופק העולם
+                - generic [ref=e195] [cursor=pointer]: בחירות 26 לכנסת ה־26 — ״הֲיִפָּלֵא מֵה׳ דָּבָר?״ | 27.10.2026
+              - button [ref=e196] [cursor=pointer]:
+                - generic [ref=e197] [cursor=pointer]: דופק העולם
+                - generic [ref=e198] [cursor=pointer]: איך יוצאים מתת־המודע דרך עץ ישראל? | מדריך לריפוי 10 הספירות
+              - button [ref=e199] [cursor=pointer]:
+                - generic [ref=e200] [cursor=pointer]: דופק העולם
+                - generic [ref=e201] [cursor=pointer]: הודעת מקור לבדיקה
+              - button [ref=e202] [cursor=pointer]:
+                - generic [ref=e203] [cursor=pointer]: רצף החיבורים
+                - generic [ref=e204] [cursor=pointer]: 974 — בינה מלאכותית
+            - generic [ref=e205]:
+              - button [ref=e206] [cursor=pointer]:
+                - generic [ref=e207] [cursor=pointer]: מסר
+                - generic [ref=e208] [cursor=pointer]: הקדוש ברוך הוא מסדר
+              - button [ref=e209] [cursor=pointer]:
+                - generic [ref=e210] [cursor=pointer]: מסר
+                - generic [ref=e211] [cursor=pointer]: שיהיה יותר חושך
+              - button [ref=e212] [cursor=pointer]:
+                - generic [ref=e213] [cursor=pointer]: מסר
+                - generic [ref=e214] [cursor=pointer]: כי שחה לעפר נפשנו
+              - button [ref=e215] [cursor=pointer]:
+                - generic [ref=e216] [cursor=pointer]: מסר
+                - generic [ref=e217] [cursor=pointer]: קומה עזרתה לנו
+              - button [ref=e218] [cursor=pointer]:
+                - generic [ref=e219] [cursor=pointer]: דופק העולם
+                - generic [ref=e220] [cursor=pointer]: המבחן האחרון לפני פריצת הדרך — למה העבר חוזר דווקא עכשיו? | מימד חמש
+              - button [ref=e221] [cursor=pointer]:
+                - generic [ref=e222] [cursor=pointer]: דופק העולם
+                - generic [ref=e223] [cursor=pointer]: ציר הזמן הישן הושלם — אתה לא נכנס לפרק חדש, אלא לעצמי חדש | מימד חמש
+              - button [ref=e224] [cursor=pointer]:
+                - generic [ref=e225] [cursor=pointer]: דופק העולם
+                - generic [ref=e226] [cursor=pointer]: בחירות 26 לכנסת ה־26 — ״הֲיִפָּלֵא מֵה׳ דָּבָר?״ | 27.10.2026
+              - button [ref=e227] [cursor=pointer]:
+                - generic [ref=e228] [cursor=pointer]: דופק העולם
+                - generic [ref=e229] [cursor=pointer]: איך יוצאים מתת־המודע דרך עץ ישראל? | מדריך לריפוי 10 הספירות
+              - button [ref=e230] [cursor=pointer]:
+                - generic [ref=e231] [cursor=pointer]: דופק העולם
+                - generic [ref=e232] [cursor=pointer]: הודעת מקור לבדיקה
+              - button [ref=e233] [cursor=pointer]:
+                - generic [ref=e234] [cursor=pointer]: רצף החיבורים
+                - generic [ref=e235] [cursor=pointer]: 974 — בינה מלאכותית
+        - button "צמצם את פס הגילויים" [ref=e236] [cursor=pointer]: −
+        - button "השהה תנועה" [ref=e237] [cursor=pointer]: השהה
+    - main [ref=e239]:
+      - generic [ref=e240]:
+        - img [ref=e243]
+        - generic [ref=e247]:
+          - heading "העולם" [level=1] [ref=e248]
+          - group [ref=e249]
+      - region "כניסה לעולם" [ref=e251]:
+        - generic [ref=e252]:
+          - generic [ref=e253]: SOD1820 · עולם של חיבורים
+          - heading "מפת הידע של SOD1820" [level=2] [ref=e254]
+          - paragraph [ref=e255]: מספרים, מילים, אנשים, מקורות ותמונות מחוברים לפי קשרים מתועדים.
+          - button "חיפוש מספר או ביטוי" [ref=e256] [cursor=pointer]
+        - navigation "דרכים לגלות את העולם" [ref=e257]:
+          - button "התחלה מעט מהעולם, במקום אחד" [ref=e258] [cursor=pointer]:
+            - strong [ref=e259] [cursor=pointer]: התחלה
+            - generic [ref=e260] [cursor=pointer]: מעט מהעולם, במקום אחד
+          - button "מה חדש העדכונים האחרונים לפי זמן" [active] [pressed] [ref=e261] [cursor=pointer]:
+            - strong [ref=e262] [cursor=pointer]: מה חדש
+            - generic [ref=e263] [cursor=pointer]: העדכונים האחרונים לפי זמן
+          - button "נושאים וחיבורים לראות מה נפגש סביב רעיון" [ref=e264] [cursor=pointer]:
+            - strong [ref=e265] [cursor=pointer]: נושאים וחיבורים
+            - generic [ref=e266] [cursor=pointer]: לראות מה נפגש סביב רעיון
+          - button "אנשים ומקורות לפתוח חומר לפי מי ומאיפה" [ref=e267] [cursor=pointer]:
+            - strong [ref=e268] [cursor=pointer]: אנשים ומקורות
+            - generic [ref=e269] [cursor=pointer]: לפתוח חומר לפי מי ומאיפה
+          - button "לפי סוג שפות, צפנים, מדיה, זמן וספרים" [ref=e270] [cursor=pointer]:
+            - strong [ref=e271] [cursor=pointer]: לפי סוג
+            - generic [ref=e272] [cursor=pointer]: שפות, צפנים, מדיה, זמן וספרים
+          - button "מסעות להמשיך בדרך מחקר שמורה" [ref=e273] [cursor=pointer]:
+            - strong [ref=e274] [cursor=pointer]: מסעות
+            - generic [ref=e275] [cursor=pointer]: להמשיך בדרך מחקר שמורה
+      - region "עדכונים ציבוריים אחרונים" [ref=e276]:
+        - generic [ref=e277]:
+          - generic [ref=e278]: עדכונים ציבוריים
+          - heading "חדש בעולם" [level=2] [ref=e279]
+          - paragraph [ref=e280]: מקורות, דפי כתבים, נושאים וממצאים ציבוריים לפי מועד הפרסום, העדכון או האישור המתועד.
+        - group "סינון העדכונים הציבוריים" [ref=e281]:
+          - button "הכול" [pressed] [ref=e282] [cursor=pointer]
+          - button "מקורות" [ref=e283] [cursor=pointer]
+          - button "מקורות שעודכנו" [ref=e284] [cursor=pointer]
+          - button "דפי כתבים" [ref=e285] [cursor=pointer]
+          - button "נושאים" [ref=e286] [cursor=pointer]
+          - button "ממצאים" [ref=e287] [cursor=pointer]
+        - paragraph [ref=e288]: מוצגים 12 מתוך 68 עדכונים ציבוריים
+        - generic [ref=e289]:
+          - article [ref=e290]:
+            - generic [ref=e291]:
+              - generic [ref=e292]: מקור עודכן
+              - time [ref=e293]: עודכן · כ׳ בחשוון · 31.10.2026
+            - heading "המבחן האחרון לפני פריצת הדרך — למה העבר חוזר דווקא עכשיו? | מימד חמש" [level=3] [ref=e294]
+            - paragraph [ref=e295]: יצירה באתר
+            - paragraph [ref=e296]: "כשהעבר חוזר ברגע של צמיחה: מסר על גבולות אישיים, בחירה והתמדה מול פיתויים ישנים."
+            - button "למקור ←" [ref=e297] [cursor=pointer]
+          - article [ref=e298]:
+            - generic [ref=e299]:
+              - generic [ref=e300]: מקור עודכן
+              - time [ref=e301]: עודכן · כ׳ בחשוון · 31.10.2026
+            - heading "ציר הזמן הישן הושלם — אתה לא נכנס לפרק חדש, אלא לעצמי חדש | מימד חמש" [level=3] [ref=e302]
+            - paragraph [ref=e303]: בדרך לנצח
+            - paragraph [ref=e304]: "סרטון מתורגם על שינוי זהות: ציר הזמן הישן הושלם, ובמקומו מתחיל שלב חדש של בהירות וצמיחה."
+            - button "למקור ←" [ref=e305] [cursor=pointer]
+          - article [ref=e306]:
+            - generic [ref=e307]:
+              - generic [ref=e308]: מקור עודכן
+              - time [ref=e309]: עודכן · י״ז בחשוון · 28.10.2026
+            - heading "בחירות 26 לכנסת ה־26 — ״הֲיִפָּלֵא מֵה׳ דָּבָר?״ | 27.10.2026" [level=3] [ref=e310]
+            - paragraph [ref=e311]: והאמת נהדרת
+            - paragraph [ref=e312]: בבחירות לכנסת ה־26, ביום שלישי 27.10.2026, יוצרת הסרטון מחברת את 26 לשם הוי״ה ולמילה ״אחד״ פעמיים, ואת פרשת וירא למסרים של אחדות ואמונה. כולל וידאו ותמלול מלא.
+            - button "למקור ←" [ref=e313] [cursor=pointer]
+          - article [ref=e314]:
+            - generic [ref=e315]:
+              - generic [ref=e316]: מקור פורסם
+              - time [ref=e317]: פורסם · י״ז בחשוון · 28.10.2026
+            - heading "איך יוצאים מתת־המודע דרך עץ ישראל? | מדריך לריפוי 10 הספירות" [level=3] [ref=e318]
+            - paragraph [ref=e319]: מדריך לריפוי 10 הספירות
+            - paragraph [ref=e320]: מדריך לריפוי 10 הספירות מציג תרשים ספירות ושואל כיצד יוצאים מתת־המודע דרך עץ ישראל. חיבור לסדרת מימד חמש, מפת ישראל, ספירת תפארת והפוסטים הקודמים.
+            - button "למקור ←" [ref=e321] [cursor=pointer]
+          - article [ref=e322]:
+            - generic [ref=e323]:
+              - generic [ref=e324]: מקור פורסם
+              - time [ref=e325]: פורסם · ט״ז בחשוון · 27.10.2026
+            - heading "הרב המקובל חושף מי ינצח בבחירות — ״בנימין זאב יטרף״ | הרב יוסף ביטון" [level=3] [ref=e326]
+            - paragraph [ref=e327]: יצירה באתר
+            - paragraph [ref=e328]: הרב המקובל יוסף ביטון מפרש את הפסוק ״בנימין זאב יטרף״ בהקשר לבחירות בישראל ומדבר על התחזית לגבי דונלד טראמפ.
+            - button "למקור ←" [ref=e329] [cursor=pointer]
+          - article [ref=e330]:
+            - generic [ref=e331]:
+              - generic [ref=e332]: מקור עודכן
+              - time [ref=e333]: עודכן · ט״ו בחשוון · 26.10.2026
+            - heading "הרב כדורי — הגאולה בתשפ״ז" [level=3] [ref=e334]
+            - paragraph [ref=e335]: יצירה באתר
+            - paragraph [ref=e336]: סרטון על מסר המיוחס לרב יצחק כדורי בנושא הגאולה בתשפ״ז.
+            - button "למקור ←" [ref=e337] [cursor=pointer]
+          - article [ref=e338]:
+            - generic [ref=e339]:
+              - generic [ref=e340]: מקור פורסם
+              - time [ref=e341]: פורסם · י״ד בחשוון · 25.10.2026
+            - heading "מנהיגות של אמת — התביעה הפנימית לשכל אלוקי | רות קדם" [level=3] [ref=e342]
+            - paragraph [ref=e343]: רות קדם
+            - paragraph [ref=e344]: מאמר דעה מאת רות קדם על אמת, אמונה, בירור עצמי ומנהיגות, ועל היחס שלה לשיח הציבורי והפוליטי.
+            - button "למקור ←" [ref=e345] [cursor=pointer]
+          - article [ref=e346]:
+            - generic [ref=e347]:
+              - generic [ref=e348]: מקור עודכן
+              - time [ref=e349]: עודכן · ט׳ בחשוון · 20.10.2026
+            - 'heading "אוסף סרטונים: שדוני ברקים מעל צרפת — ואתם באים על היהודים, אתם מפסידים" [level=3] [ref=e350]'
+            - paragraph [ref=e351]: יצירה באתר
+            - paragraph [ref=e352]: "שדוני ברקים תועדו מעל צרפת, ולצדו סרטון באנגלית בתרגום לעברית: „אתם באים על היהודים — אתם מפסידים”."
+            - button "למקור ←" [ref=e353] [cursor=pointer]
+          - article [ref=e354]:
+            - generic [ref=e355]:
+              - generic [ref=e356]: מקור פורסם
+              - time [ref=e357]: פורסם · ט׳ בחשוון · 20.10.2026
+            - heading "מה קורה הבורא — צרפת, 17 באוקטובר ונבואת עובדיה | אלון לוי" [level=3] [ref=e358]
+            - paragraph [ref=e359]: אלון לוי
+            - paragraph [ref=e360]: אלון לוי מקשר בין המהומות בצרפת, 17 באוקטובר, נבואת עובדיה ועמנואל = עמנו אל = 197. סרטון מלא בפנים.
+            - button "למקור ←" [ref=e361] [cursor=pointer]
+          - article [ref=e362]:
+            - generic [ref=e363]:
+              - generic [ref=e364]: מקור פורסם
+              - time [ref=e365]: פורסם · ז׳ בחשוון · 18.10.2026
+            - heading "צרפת ונבואת עובדיה — המילים העתיקות שמעוררות התבוננות" [level=3] [ref=e366]
+            - paragraph [ref=e367]: יצירה באתר
+            - paragraph [ref=e368]: "גנבים, שודדים, אנשי ברית ואובדן תבונה: קריאה בנבואת עובדיה לצד תיעודי המהומות בצרפת, שמסתיימת במילים „והיתה לה׳ המלוכה”."
+            - button "למקור ←" [ref=e369] [cursor=pointer]
+          - article [ref=e370]:
+            - generic [ref=e371]:
+              - generic [ref=e372]: דף כתב עודכן
+              - time [ref=e373]: עודכן · ו׳ בחשוון · 17.10.2026
+            - heading "חזון צמח 138" [level=3] [ref=e374]
+            - paragraph [ref=e375]: חוקר וכותב
+            - button "לדף הכתב ←" [ref=e376] [cursor=pointer]
+          - article [ref=e377]:
+            - generic [ref=e378]:
+              - generic [ref=e379]: מקור פורסם
+              - time [ref=e380]: פורסם · ה׳ בחשוון · 16.10.2026
+            - 'heading "מה קורה הבורא — גוליית, נחלת בנימין וקריית גת: מתודעת שאול לתודעת דוד | אלון לוי" [level=3] [ref=e381]'
+            - paragraph [ref=e382]: אלון לוי
+            - paragraph [ref=e383]: וידאו עם כיתובים בעברית, תמלול מלא ובדיקת שלושה אירועים בחדשות מול שמואל א׳ י״ז. אלון לוי מציע מעבר מתודעת שאול לתודעת דוד.
+            - button "למקור ←" [ref=e384] [cursor=pointer]
+        - button "עוד (56)" [ref=e385] [cursor=pointer]
+        - paragraph [ref=e386]: הסימון מתאר פעילות ותאריך בלבד; הוא אינו ציון אמת, איכות או חוזק מחקרי.
+      - region "כל הודעות המקור של צבי" [ref=e387]:
+        - generic [ref=e388]:
+          - generic [ref=e389]:
+            - generic [ref=e390]: הודעות צבי · מקור חי
+            - heading "כל ההודעות בסדר הזמן" [level=2] [ref=e391]
+            - paragraph [ref=e392]: מהחדש לישן, גם לפני בדיקה. אפשר לקרוא ולהמשיך אחורה; שיוך לנושא אינו תנאי להצגה.
+          - button "פתח את הודעות צבי" [ref=e393] [cursor=pointer]
+  - complementary "עדכונים, הקשר ורצף האירועים" [ref=e394]:
+    - generic [ref=e395]:
+      - 'button "עדכונים: 2 חדשים" [ref=e396] [cursor=pointer]':
+        - generic [ref=e398] [cursor=pointer]: "2"
+      - generic "מקורות ציבוריים" [ref=e399]:
+        - button "אור הגאולה · צפייה בסטוריז" [ref=e400] [cursor=pointer]
+        - button "מקורות ציבוריים של צבי" [ref=e402] [cursor=pointer]:
+          - generic [ref=e403] [cursor=pointer]: צ
+        - button "ספריית סוד החשמל" [ref=e404] [cursor=pointer]:
+          - generic [ref=e405] [cursor=pointer]: ⚡
+    - button "הצג רמז מרזיאל" [ref=e406] [cursor=pointer]:
+      - generic [ref=e407] [cursor=pointer]: ✦
+  - toolbar "מסלול המחקר והפעולות הזמינות עכשיו" [ref=e408]:
+    - button "כאן · מפת העמוד וההקשר" [ref=e409] [cursor=pointer]:
+      - img [ref=e410] [cursor=pointer]
+      - generic [ref=e413] [cursor=pointer]: כאן
+    - button "מספר · פתח חלונית מספר" [ref=e414] [cursor=pointer]:
+      - img [ref=e415] [cursor=pointer]:
+        - generic [ref=e416] [cursor=pointer]: "123"
+      - generic [ref=e417] [cursor=pointer]: מספר
+    - button "פתח את רזיאל" [ref=e418] [cursor=pointer]
+    - button "עכשיו · 2 חדשים" [ref=e420] [cursor=pointer]:
+      - img [ref=e421] [cursor=pointer]
+      - generic [ref=e424] [cursor=pointer]: עכשיו
+      - generic [ref=e425] [cursor=pointer]: "2"
+    - button "עוד · פעולות וכלים" [ref=e426] [cursor=pointer]:
+      - img [ref=e427] [cursor=pointer]
+      - generic [ref=e432] [cursor=pointer]: עוד
+```

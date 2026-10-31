@@ -1,0 +1,841 @@
+{
+  "testSourceSha": "c2f2e9948dd119c96b69e377b33be2eb2a886efb",
+  "runtimeSha": "63e6882c3b7b4004d337927c7231728a7612d452",
+  "files": [
+    {
+      "file": "README.md",
+      "bytes": 16944,
+      "sha256": "dbcb0f6d07bd4c8b97ecdc38ac6fe83cd5a9da21a80cf1c6c54e061428ebd3a7"
+    },
+    {
+      "file": "combined-summary.json",
+      "bytes": 58653,
+      "sha256": "d627c0281d4084a721a363edb9fdfd139d19d1091a64ff4adfb15c42f79d1b8a"
+    },
+    {
+      "file": "evidence/results/guard-preflight.json",
+      "bytes": 883,
+      "sha256": "e57b4022533a691a7455d0b2370ca0f98d05b01c10cee6ccfe5070891492d886"
+    },
+    {
+      "file": "evidence/results/playwright-results.json",
+      "bytes": 152756,
+      "sha256": "051d9901db3f89cd31b115b573b239b11f56561df565e53ffbb7e0026e87fff1"
+    },
+    {
+      "file": "evidence/results/progress.log",
+      "bytes": 55542,
+      "sha256": "d1d287d2b92c8bc6881c95641271a8d6a383f172a91906ec52f81f404f30485c"
+    },
+    {
+      "file": "evidence/results/summary-console.txt",
+      "bytes": 5325,
+      "sha256": "f99a19ae66f21cf0a9c992baeb50fde98914a8e08d794c02b8ff4bb3362593ec"
+    },
+    {
+      "file": "evidence/results/summary.json",
+      "bytes": 20638,
+      "sha256": "ad91f91477dc9ddcf01069cac6f414f61fe6c56d3268497d7ae47ee9785bf21e"
+    },
+    {
+      "file": "evidence/results/test-results/.last-run.json",
+      "bytes": 1468,
+      "sha256": "9daf3154fa3d13ef5341a4fa0bd26877223ca4ddb88942d37f4c981e740a889b"
+    },
+    {
+      "file": "evidence/results/test-results/public-post-entry-suppleme-ca28e-extual-orientation-at-390px/sanitized-network-audit.json",
+      "bytes": 14584,
+      "sha256": "87ba2866922b883ebd92ebdd2668f68219d74ed9e9099501528078b006419e89"
+    },
+    {
+      "file": "evidence/results/test-results/world2029-release-Contextu-f6118-ough-focus-\u2192-preview-\u2192-back/error-context.md",
+      "bytes": 67977,
+      "sha256": "e4febe5c1490e46b51ca60c7adf0e28a43f030a775d09eccdfeea6f22878c0e2"
+    },
+    {
+      "file": "evidence/results/test-results/world2029-release-Contextu-f6118-ough-focus-\u2192-preview-\u2192-back/sanitized-network-audit.json",
+      "bytes": 25965,
+      "sha256": "10c23e37e787d61cd60ad0a9c1690183bb8c553d1a62e34e6ba7f76e11545efd"
+    },
+    {
+      "file": "evidence/results/test-results/world2029-release-Core-Web-182f2-dget-holds-on-2029-at-390px/sanitized-network-audit.json",
+      "bytes": 18680,
+      "sha256": "4d9130d8e255b14bac44ecad24c83593a99ff439b1ee053486fb3850de023c2d"
+    },
+    {
+      "file": "evidence/results/test-results/world2029-release-Core-Web-1ecdb-udget-holds-on-els-at-390px/sanitized-network-audit.json",
+      "bytes": 2010,
+      "sha256": "dcd0eedf43742860c82ec381f58680486981dbad37e5f99e0036c354c1a9ef7c"
+    },
+    {
+      "file": "evidence/results/test-results/world2029-release-Core-Web-2147c-get-holds-on-world-at-390px/error-context.md",
+      "bytes": 23288,
+      "sha256": "96a8481698d3fb166b3f297b122d7d6ed44789261dbd34ad219f88837c8aba05"
+    },
+    {
+      "file": "evidence/results/test-results/world2029-release-Core-Web-2147c-get-holds-on-world-at-390px/sanitized-network-audit.json",
+      "bytes": 12900,
+      "sha256": "7eab72981f575f44c01c63fcf87a51cb4536a2f011af662a512927f0e02a784a"
+    },
+    {
+      "file": "evidence/results/test-results/world2029-release-Core-Web-8012f-n-2029-number-1237-at-390px/sanitized-network-audit.json",
+      "bytes": 21553,
+      "sha256": "536b4f43855e62ce822f41bffab0b62aa4f8304f963f9bda5d676d5fc394bd57"
+    },
+    {
+      "file": "evidence/results/test-results/world2029-release-Core-Web-944da-get-holds-on-books-at-390px/sanitized-network-audit.json",
+      "bytes": 2183,
+      "sha256": "230d250ee9e0d8403232eb7ff631df1f76575a4906047d9ee65a4923daeaf85b"
+    },
+    {
+      "file": "evidence/results/test-results/world2029-release-Core-Web-c7758--book-daat-tevunot-at-390px/sanitized-network-audit.json",
+      "bytes": 2805,
+      "sha256": "5157f08ca7f9cf2f63e91937a8cbea1233eec5315bf38e5a8f0f6a2850ea7678"
+    },
+    {
+      "file": "evidence/results/test-results/world2029-release-Core-Web-f6c3b-n-topic-888-yeshua-at-390px/sanitized-network-audit.json",
+      "bytes": 2220,
+      "sha256": "c10287e75148760b27d28ae34879c5e8c3a6721c796e3ca0ee3910358275a109"
+    },
+    {
+      "file": "evidence/results/test-results/world2029-release-Golden-W-566f7-full-images-remain-readable/sanitized-network-audit.json",
+      "bytes": 29505,
+      "sha256": "76727fbcc6643a5082f47be608e86ed351c0b746b75252ccd54c989247e05ed6"
+    },
+    {
+      "file": "evidence/results/test-results/world2029-release-MEDIUM-l-732ec--of-being-visually-inflated/sanitized-network-audit.json",
+      "bytes": 389,
+      "sha256": "b215e270b703b4f7f015861da6932656886fe93605d9948dd46d3ed991bd8633"
+    },
+    {
+      "file": "evidence/results/test-results/world2029-release-Number-2-01172-atria-value-after-the-verse/sanitized-network-audit.json",
+      "bytes": 21288,
+      "sha256": "e727eec504179c8a0914657edc790a0fd64ea1ace940307fd4598dabae35ed2c"
+    },
+    {
+      "file": "evidence/results/test-results/world2029-release-Number-2-065f8-l-target-in-Page-and-Drawer/error-context.md",
+      "bytes": 54371,
+      "sha256": "4af96aeb10f99ce8a8ed6883f0cd4beab452139e12cc72581fbc835f2b6c414a"
+    },
+    {
+      "file": "evidence/results/test-results/world2029-release-Number-2-065f8-l-target-in-Page-and-Drawer/sanitized-network-audit.json",
+      "bytes": 24358,
+      "sha256": "7cf9bc0c002de2cd8b28a835e4aa8537d10851afcd263922f7ffdd3d2d87ba4b"
+    },
+    {
+      "file": "evidence/results/test-results/world2029-release-Number-2-cc338-m-as-a-live-hidden-crossing/sanitized-network-audit.json",
+      "bytes": 23804,
+      "sha256": "0d612fc56f60e87647e776ae36df308305b1cd3084e4e64f39897aa1a4bc3d50"
+    },
+    {
+      "file": "evidence/results/test-results/world2029-release-Number-2-d0c78--one-wrapped-research-stage/sanitized-network-audit.json",
+      "bytes": 30276,
+      "sha256": "89fd9407311baefff833ff40335a0b94cdaf5a0334f2cdf2f9fd34801adf20df"
+    },
+    {
+      "file": "evidence/results/test-results/world2029-release-Number-2-d3661-ridges-and-in-place-explain/sanitized-network-audit.json",
+      "bytes": 37447,
+      "sha256": "31e83294095b389a843a7458648447f0b92207ab2095c20504ff3e5c5967f3e0"
+    },
+    {
+      "file": "evidence/results/test-results/world2029-release-Number-2-e67b3-s-the-locked-Golden-Journey/sanitized-network-audit.json",
+      "bytes": 24736,
+      "sha256": "6890e59b034ca7e2255d175bf06efdc3d367773c0835c93e04690aaa808a9e83"
+    },
+    {
+      "file": "evidence/results/test-results/world2029-release-Public-W-6d9bf--and-overflow-free-at-320px/error-context.md",
+      "bytes": 22440,
+      "sha256": "8d746ddc8d335964e0d658dd8668eef413027adf8eac6993e3d8a3ec6d3db990"
+    },
+    {
+      "file": "evidence/results/test-results/world2029-release-Public-W-6d9bf--and-overflow-free-at-320px/sanitized-network-audit.json",
+      "bytes": 12925,
+      "sha256": "233cbdb12a31ee4715c33155894ae5319c7c280d106bed975ae5cbee3f1b4644"
+    },
+    {
+      "file": "evidence/results/test-results/world2029-release-Public-W-c8787--and-overflow-free-at-360px/error-context.md",
+      "bytes": 23288,
+      "sha256": "96a8481698d3fb166b3f297b122d7d6ed44789261dbd34ad219f88837c8aba05"
+    },
+    {
+      "file": "evidence/results/test-results/world2029-release-Public-W-c8787--and-overflow-free-at-360px/sanitized-network-audit.json",
+      "bytes": 12925,
+      "sha256": "1b488d5947c8db1526e85739b48d0df425367bac34714bf54e1a63e4d5068b58"
+    },
+    {
+      "file": "evidence/results/test-results/world2029-release-Public-W-c8ec1--and-overflow-free-at-390px/error-context.md",
+      "bytes": 23288,
+      "sha256": "96a8481698d3fb166b3f297b122d7d6ed44789261dbd34ad219f88837c8aba05"
+    },
+    {
+      "file": "evidence/results/test-results/world2029-release-Public-W-c8ec1--and-overflow-free-at-390px/sanitized-network-audit.json",
+      "bytes": 12925,
+      "sha256": "b228b5e594d6f9861602f0ebcbac13585132707f938497536508661476c777da"
+    },
+    {
+      "file": "evidence/results/test-results/world2029-release-RICH-182-10745-ofile-and-exploration-lanes/error-context.md",
+      "bytes": 10327,
+      "sha256": "586c7ee8afa96d6e64d3be62543b91fa4a6f237668411d40e71067705820415f"
+    },
+    {
+      "file": "evidence/results/test-results/world2029-release-RICH-182-10745-ofile-and-exploration-lanes/sanitized-network-audit.json",
+      "bytes": 24534,
+      "sha256": "91f0b63f032f9879027808dae65e736198f1d1b3d987fa3b277f11800845eb1c"
+    },
+    {
+      "file": "evidence/results/test-results/world2029-release-RICH-182-2551f-ch-rows-are-access-filtered/sanitized-network-audit.json",
+      "bytes": 24524,
+      "sha256": "e2e11c48d5cea7e687274ec795b1faac8691764db3ea2e99cb5923ed7f3a50a3"
+    },
+    {
+      "file": "evidence/results/test-results/world2029-release-RICH-182-26f28--before-raw-research-detail/sanitized-network-audit.json",
+      "bytes": 24515,
+      "sha256": "36f3f36072c5496976a79a1e530004c18a33f1e6f9f8ef7b2a7ea71bdbfbfa40"
+    },
+    {
+      "file": "evidence/results/test-results/world2029-release-RICH-182-7739e-a-without-legacy-gallery-UI/sanitized-network-audit.json",
+      "bytes": 25240,
+      "sha256": "fa88b7ad0daf4ebff700742889c92a4c8e0dbe37c045ca8f78c1543b63730ee4"
+    },
+    {
+      "file": "evidence/results/test-results/world2029-release-RICH-liv-0189c--and-overflow-free-at-360px/error-context.md",
+      "bytes": 10327,
+      "sha256": "586c7ee8afa96d6e64d3be62543b91fa4a6f237668411d40e71067705820415f"
+    },
+    {
+      "file": "evidence/results/test-results/world2029-release-RICH-liv-0189c--and-overflow-free-at-360px/sanitized-network-audit.json",
+      "bytes": 24520,
+      "sha256": "c8ec7ceddccf5a8a1607db68566fe2ca5f3a27d97bf5234b3f07672877c6ba96"
+    },
+    {
+      "file": "evidence/results/test-results/world2029-release-RICH-liv-63194-and-overflow-free-at-1440px/error-context.md",
+      "bytes": 24761,
+      "sha256": "b45c66369fb698d130ff511ed532fdbc311eed1c0157633637cd56a62baafc7f"
+    },
+    {
+      "file": "evidence/results/test-results/world2029-release-RICH-liv-63194-and-overflow-free-at-1440px/sanitized-network-audit.json",
+      "bytes": 25110,
+      "sha256": "4d729f2ced2b1fbfc6db57bf6325ecf3c24b2993a004936e39e6d862c7e38001"
+    },
+    {
+      "file": "evidence/results/test-results/world2029-release-RICH-liv-74e5f--and-overflow-free-at-390px/error-context.md",
+      "bytes": 10327,
+      "sha256": "586c7ee8afa96d6e64d3be62543b91fa4a6f237668411d40e71067705820415f"
+    },
+    {
+      "file": "evidence/results/test-results/world2029-release-RICH-liv-74e5f--and-overflow-free-at-390px/sanitized-network-audit.json",
+      "bytes": 24520,
+      "sha256": "b261d837424072f01c9b023a0b5368cf16ae1b016fe2c06cb459fb82abc01b03"
+    },
+    {
+      "file": "evidence/results/test-results/world2029-release-RICH-liv-a906c--and-overflow-free-at-320px/error-context.md",
+      "bytes": 10327,
+      "sha256": "586c7ee8afa96d6e64d3be62543b91fa4a6f237668411d40e71067705820415f"
+    },
+    {
+      "file": "evidence/results/test-results/world2029-release-RICH-liv-a906c--and-overflow-free-at-320px/sanitized-network-audit.json",
+      "bytes": 24520,
+      "sha256": "269e37832c710d41ed5d8ab7ba2b0b879ef5eb97f699448d26ed1cdb1c9ceaa4"
+    },
+    {
+      "file": "evidence/results/test-results/world2029-release-Topic-ex-aba33-s-World-Heichal-transitions/error-context.md",
+      "bytes": 30345,
+      "sha256": "8afc9b049c751cd07710cb30d09d4615da0c15aebc6b5d3e26bc27996c850551"
+    },
+    {
+      "file": "evidence/results/test-results/world2029-release-Topic-ex-aba33-s-World-Heichal-transitions/sanitized-network-audit.json",
+      "bytes": 26175,
+      "sha256": "3e353b90651e3d9bbb30b4c0209581f128a40a728c7c80e3e328d309be09d149"
+    },
+    {
+      "file": "evidence/results/test-results/world2029-release-automati-a5014-ing-admin-research-controls/sanitized-network-audit.json",
+      "bytes": 24549,
+      "sha256": "e39bc37369f3b4b7d15079adad0e659c21f877b837984157831712ac16b4a098"
+    },
+    {
+      "file": "evidence/results/test-results/world2029-release-direct-w-2b61f-ivals-and-source-navigation/error-context.md",
+      "bytes": 23288,
+      "sha256": "96a8481698d3fb166b3f297b122d7d6ed44789261dbd34ad219f88837c8aba05"
+    },
+    {
+      "file": "evidence/results/test-results/world2029-release-direct-w-2b61f-ivals-and-source-navigation/sanitized-network-audit.json",
+      "bytes": 12947,
+      "sha256": "82254bfabc4fdbf4dc8d36ef3cc4d2dbe5a8fb76b2505e26a676d844d4b53223"
+    },
+    {
+      "file": "evidence/results/test-results/world2029-release-native-c-7719a-ntic-links-and-SEO-identity/error-context.md",
+      "bytes": 2078,
+      "sha256": "95ebe7abe943b3de6f306b33559813fe6a3951a7ba21d3869b227606676c4f1a"
+    },
+    {
+      "file": "evidence/results/test-results/world2029-release-native-c-7719a-ntic-links-and-SEO-identity/sanitized-network-audit.json",
+      "bytes": 2234,
+      "sha256": "2074cc3c275b626bdfee3cd293969ef77c826bd532c4b9838d57eddada7dfc0c"
+    },
+    {
+      "file": "evidence/results/test-results/world2029-release-public-W-59a89-e-new-composed-presentation/error-context.md",
+      "bytes": 13606,
+      "sha256": "bc43716820edc3bf32488000f06d28b2d1ff1b93e34de8066bb3280a6818823f"
+    },
+    {
+      "file": "evidence/results/test-results/world2029-release-public-W-59a89-e-new-composed-presentation/sanitized-network-audit.json",
+      "bytes": 25028,
+      "sha256": "3d52f34a793764d4aee1f59f43b108760906555e6bda60f49a138a25fb81ad4d"
+    },
+    {
+      "file": "evidence/results-focused/playwright-results.json",
+      "bytes": 13013,
+      "sha256": "d855235adfa4cd89e313fc95272021089c0175504494e077e4dc8bd08800c23a"
+    },
+    {
+      "file": "evidence/results-focused/progress.log",
+      "bytes": 4332,
+      "sha256": "66c7bb4783a1504fb702b78bf9c6b6d2e2f652148fdb3b6baac30bf40eba7d57"
+    },
+    {
+      "file": "evidence/results-focused/test-results/.last-run.json",
+      "bytes": 145,
+      "sha256": "9e6cbfafdadfae34c6b085f7838c4239bc2e7db71d1ff0cfd411b184d39e3971"
+    },
+    {
+      "file": "evidence/results-focused/test-results/world-catalog-supplementar-d453f-and-expansion-remain-usable/error-context.md",
+      "bytes": 51724,
+      "sha256": "c2a66599f6c6efb43bd06f2911826ac20ed93d98a2061a149f5b967153114a8b"
+    },
+    {
+      "file": "evidence/results-focused/test-results/world-catalog-supplementar-d453f-and-expansion-remain-usable/sanitized-network-audit.json",
+      "bytes": 31266,
+      "sha256": "565f284ea58809fe9065d892c3e1ac5bb139a75f85914d4ae719eb1e652387ce"
+    },
+    {
+      "file": "evidence/results-focused/test-results/world2029-release-Core-Web-2147c-get-holds-on-world-at-390px/sanitized-network-audit.json",
+      "bytes": 12900,
+      "sha256": "0cbe0afe392da1c2d1514b34302588adaa5c3842558d4603af153e1c11673d84"
+    },
+    {
+      "file": "evidence/results-focused/test-results/world2029-release-Number-2-e45b7--and-carries-Raziel-context/sanitized-network-audit.json",
+      "bytes": 218,
+      "sha256": "3861e5fce9207a44764ba40d5e9bbd91fb49c392f61643931b83da2e77837dfb"
+    },
+    {
+      "file": "evidence/results-focused-retry/playwright-results.json",
+      "bytes": 8134,
+      "sha256": "36efe0150c514d5cc0df7357c7ed47b602f4d182841324258a4617176d5d5464"
+    },
+    {
+      "file": "evidence/results-focused-retry/progress.log",
+      "bytes": 2335,
+      "sha256": "26196f9e29da1fd0c91ebe8514a7d5d1808e8678e9dd4909e510a833f1cabc55"
+    },
+    {
+      "file": "evidence/results-focused-retry/test-results/.last-run.json",
+      "bytes": 96,
+      "sha256": "14c6ee773ef007c29a1b020fde3f1255b7f91fc95a35c85484fef4b2b51cdc9e"
+    },
+    {
+      "file": "evidence/results-focused-retry/test-results/world-catalog-supplementar-d453f-and-expansion-remain-usable/catalog-observation.json",
+      "bytes": 95,
+      "sha256": "bbb2020b963fdae8cda4d79b81c0eb1f7b5c4873261f53af68ae31d81daa3e81"
+    },
+    {
+      "file": "evidence/results-focused-retry/test-results/world-catalog-supplementar-d453f-and-expansion-remain-usable/sanitized-network-audit.json",
+      "bytes": 29540,
+      "sha256": "5be326f2a2d90e0db095e341ee0e8960a02ca40f90a4c79d8f98b82ef9fca31e"
+    },
+    {
+      "file": "evidence/results-focused-retry/test-results/world2029-release-Number-2-e45b7--and-carries-Raziel-context/error-context.md",
+      "bytes": 62137,
+      "sha256": "627aa249fa3ed30e468b1449567942665836648be6df99cfbdf78c626a7be3c5"
+    },
+    {
+      "file": "evidence/results-focused-retry/test-results/world2029-release-Number-2-e45b7--and-carries-Raziel-context/sanitized-network-audit.json",
+      "bytes": 25376,
+      "sha256": "3fcbb2cb7aa4140171cebf3c0dfd11677b821943412718babf1cc39c4b0c6a77"
+    },
+    {
+      "file": "evidence/results-initial-transport-run/guard-preflight.json",
+      "bytes": 862,
+      "sha256": "db43a45344eee16b30d57fc562140694c9b21142290c54f42d1f7b8837acfbec"
+    },
+    {
+      "file": "evidence/results-initial-transport-run/playwright-results.json",
+      "bytes": 62686,
+      "sha256": "b42d18185e6b34181ba84bb9f9005372097f34c05748d4290b8e9425259184fe"
+    },
+    {
+      "file": "evidence/results-initial-transport-run/progress.log",
+      "bytes": 13867,
+      "sha256": "1ec0109ed0025e549336d78fcb366ccfc4c92211f47d855f76f2399c3ede3604"
+    },
+    {
+      "file": "evidence/results-initial-transport-run/test-results/.last-run.json",
+      "bytes": 346,
+      "sha256": "5548140ec40b090769ac11ae1e2679561a7871b56e714b3b2b742e5fe592a829"
+    },
+    {
+      "file": "evidence/results-initial-transport-run/test-results/entry-learn-2029-direct-Po-bb407-ain-the-same-focus-at-390px/error-context.md",
+      "bytes": 2766,
+      "sha256": "9b648fea294bbac83b85423bbcb9fc31a31f259e3d758f6ca0050768b8f07dfb"
+    },
+    {
+      "file": "evidence/results-initial-transport-run/test-results/entry-learn-2029-direct-Po-bb407-ain-the-same-focus-at-390px/sanitized-network-audit.json",
+      "bytes": 1086,
+      "sha256": "45b1ef1b714bc44b93ae274f5eccf6922c34c162857ac387049853707f366682"
+    },
+    {
+      "file": "evidence/results-initial-transport-run/test-results/world2029-release-Core-Web-182f2-dget-holds-on-2029-at-390px/sanitized-network-audit.json",
+      "bytes": 7759,
+      "sha256": "5766315fb43c58664b84eb69e73889c390611854c5ab9f4a805d8e2d4f0d6e07"
+    },
+    {
+      "file": "evidence/results-initial-transport-run/test-results/world2029-release-Core-Web-1ecdb-udget-holds-on-els-at-390px/sanitized-network-audit.json",
+      "bytes": 655,
+      "sha256": "061cd64b29276724aa1dfef95ea746deda36e419a1f47d234ac2c79b711ad06a"
+    },
+    {
+      "file": "evidence/results-initial-transport-run/test-results/world2029-release-Core-Web-2147c-get-holds-on-world-at-390px/error-context.md",
+      "bytes": 23288,
+      "sha256": "96a8481698d3fb166b3f297b122d7d6ed44789261dbd34ad219f88837c8aba05"
+    },
+    {
+      "file": "evidence/results-initial-transport-run/test-results/world2029-release-Core-Web-2147c-get-holds-on-world-at-390px/sanitized-network-audit.json",
+      "bytes": 5394,
+      "sha256": "bcb75249ec2cfa19d615b67c127415483482bf1a661021482f68d6dbeb09a03c"
+    },
+    {
+      "file": "evidence/results-initial-transport-run/test-results/world2029-release-Core-Web-8012f-n-2029-number-1237-at-390px/sanitized-network-audit.json",
+      "bytes": 9459,
+      "sha256": "b1b870c327d9b139c6b905834b7d2012a626cb43673ca2490c2fb24bf68196fa"
+    },
+    {
+      "file": "evidence/results-initial-transport-run/test-results/world2029-release-Core-Web-944da-get-holds-on-books-at-390px/sanitized-network-audit.json",
+      "bytes": 651,
+      "sha256": "ea1fe440f59cfc03c00976632b716ce5ac070452333e11f89906bb594c96531d"
+    },
+    {
+      "file": "evidence/results-initial-transport-run/test-results/world2029-release-Core-Web-c7758--book-daat-tevunot-at-390px/sanitized-network-audit.json",
+      "bytes": 663,
+      "sha256": "d558808dae661c788a756f2a9ec44327b0aec7c1a49c3f7b3b88b00f3afe7068"
+    },
+    {
+      "file": "evidence/results-initial-transport-run/test-results/world2029-release-Core-Web-f6c3b-n-topic-888-yeshua-at-390px/sanitized-network-audit.json",
+      "bytes": 675,
+      "sha256": "6b698a6a030891ee5c48d98a1027718d017d2b31e3ae7355e4e8937bf0a02e95"
+    },
+    {
+      "file": "evidence/results-initial-transport-run/test-results/world2029-release-Number-2-d0c78--one-wrapped-research-stage/sanitized-network-audit.json",
+      "bytes": 9492,
+      "sha256": "4b921deec8aa5f9fd1e416b88720b3775c2b307b48c58183e89a126b55142970"
+    },
+    {
+      "file": "evidence/results-initial-transport-run/test-results/world2029-release-Topic-ex-aba33-s-World-Heichal-transitions/error-context.md",
+      "bytes": 30345,
+      "sha256": "8afc9b049c751cd07710cb30d09d4615da0c15aebc6b5d3e26bc27996c850551"
+    },
+    {
+      "file": "evidence/results-initial-transport-run/test-results/world2029-release-Topic-ex-aba33-s-World-Heichal-transitions/sanitized-network-audit.json",
+      "bytes": 11531,
+      "sha256": "2c405c37365e4f2bc309d77eac02b8917b57d00294058a1ec0367fb8f4d3c213"
+    },
+    {
+      "file": "evidence/results-initial-transport-run/test-results/world2029-release-direct-w-2b61f-ivals-and-source-navigation/error-context.md",
+      "bytes": 23288,
+      "sha256": "96a8481698d3fb166b3f297b122d7d6ed44789261dbd34ad219f88837c8aba05"
+    },
+    {
+      "file": "evidence/results-initial-transport-run/test-results/world2029-release-direct-w-2b61f-ivals-and-source-navigation/sanitized-network-audit.json",
+      "bytes": 5441,
+      "sha256": "6b6ca978ae67bbd074e706e9cbf8fa9834c4166493eb12d01d196d0636fcf322"
+    },
+    {
+      "file": "evidence/results-initial-transport-run/test-results/world2029-release-native-c-7719a-ntic-links-and-SEO-identity/error-context.md",
+      "bytes": 2078,
+      "sha256": "95ebe7abe943b3de6f306b33559813fe6a3951a7ba21d3869b227606676c4f1a"
+    },
+    {
+      "file": "evidence/results-initial-transport-run/test-results/world2029-release-native-c-7719a-ntic-links-and-SEO-identity/sanitized-network-audit.json",
+      "bytes": 689,
+      "sha256": "c84a9a11682933060c0c6da7e61cafbcf408cdf4514365e950635c032d441500"
+    },
+    {
+      "file": "evidence/results-initial-transport-run/test-results/world2029-release-public-W-59a89-e-new-composed-presentation/error-context.md",
+      "bytes": 8305,
+      "sha256": "a18c8f1d6d2e168dacec6c3eb0d8257a2b76dccbb35cdd5aeef2e29566f26add"
+    },
+    {
+      "file": "evidence/results-initial-transport-run/test-results/world2029-release-public-W-59a89-e-new-composed-presentation/sanitized-network-audit.json",
+      "bytes": 3662,
+      "sha256": "9b9fd7fe5aaf6c454a4e8d356499869c3397156e5e99b53a575545f734704592"
+    },
+    {
+      "file": "evidence/results-remaining/playwright-results.json",
+      "bytes": 31371,
+      "sha256": "e8db6f458cb35a3b0e4929fc8a2ded10ab5b1a736f24a141c0a759960e1c062f"
+    },
+    {
+      "file": "evidence/results-remaining/progress.log",
+      "bytes": 13532,
+      "sha256": "f1932738bb75f32dc8050deac1684b9ac4da89655e5f731b4b9c4b1ebe1d48b8"
+    },
+    {
+      "file": "evidence/results-remaining/test-results/.last-run.json",
+      "bytes": 390,
+      "sha256": "b5fdf22b7649ac794432d61675f8296ce42ca8a1f4d2551596e9a982745cdaca"
+    },
+    {
+      "file": "evidence/results-remaining/test-results/world2029-release-320px-RT-4c19d-without-horizontal-overflow/sanitized-network-audit.json",
+      "bytes": 24528,
+      "sha256": "4eadb3e55092ff54e3fbe06623d4f5d66baf97f69dd052d7b17bb2e8c5ddce33"
+    },
+    {
+      "file": "evidence/results-remaining/test-results/world2029-release-SPARSE-l-50f45-with-no-fabricated-research/sanitized-network-audit.json",
+      "bytes": 14056,
+      "sha256": "359f99053ab56afe5dd7e32c874df48b081f4bddd2a0ff3b1843f1552717b069"
+    },
+    {
+      "file": "evidence/results-remaining/test-results/world2029-release-World-us-75390-hare-and-exact-return-seams/error-context.md",
+      "bytes": 10327,
+      "sha256": "586c7ee8afa96d6e64d3be62543b91fa4a6f237668411d40e71067705820415f"
+    },
+    {
+      "file": "evidence/results-remaining/test-results/world2029-release-World-us-75390-hare-and-exact-return-seams/sanitized-network-audit.json",
+      "bytes": 24529,
+      "sha256": "d0924c4c32a5e30dc2e410ee4e707962951317d53763519decad3d2e8d906046"
+    },
+    {
+      "file": "evidence/results-remaining/test-results/world2029-release-loading--495c0-tates-are-honest-and-native/sanitized-network-audit.json",
+      "bytes": 22086,
+      "sha256": "b3b23c61970b8a3e0ab9db72202f080f48d2bddea7c352a072287a47e0cbbcdc"
+    },
+    {
+      "file": "evidence/results-remaining/test-results/world2029-release-private--4e8e2-for-non-admin-2029-sessions/sanitized-network-audit.json",
+      "bytes": 1862,
+      "sha256": "a536ca8288a43b82090dbf1a3d5133ad0e519a3fa91e92f5d9929d46bbd257d1"
+    },
+    {
+      "file": "evidence/results-remaining/test-results/world2029-release-reduced--195b3--World-meaning-and-controls/sanitized-network-audit.json",
+      "bytes": 24521,
+      "sha256": "c1f30019f35faf864f2714e6c1bfbb95ea920176d5dfa00f25d26b9dd940b1d3"
+    },
+    {
+      "file": "evidence/results-remaining/test-results/world2029-release-source-p-3761c-er-and-full-Hashmal-reading/error-context.md",
+      "bytes": 14693,
+      "sha256": "56fbbee793c5e3c9612ed2fcdeeaf1c8187d26e86d028eb2a7a79cbb11d17ad3"
+    },
+    {
+      "file": "evidence/results-remaining/test-results/world2029-release-source-p-3761c-er-and-full-Hashmal-reading/sanitized-network-audit.json",
+      "bytes": 23418,
+      "sha256": "95269df015f0208acff5a3adad153f2eb033c46988b304a728f081f38d40858d"
+    },
+    {
+      "file": "evidence/results-remaining/test-results/world2029-release-source-p-37cd7-er-and-full-Hashmal-reading/error-context.md",
+      "bytes": 14691,
+      "sha256": "baa345c128d5cc24356cdc3512a3c8904d640132cf2dc4dd7dba28a62fc1133d"
+    },
+    {
+      "file": "evidence/results-remaining/test-results/world2029-release-source-p-37cd7-er-and-full-Hashmal-reading/sanitized-network-audit.json",
+      "bytes": 23419,
+      "sha256": "ea51868253ddbb8c517b460efa08d9fbea5aebea84657988ce66821514858b6c"
+    },
+    {
+      "file": "evidence/results-remaining/test-results/world2029-release-source-p-3e31a-er-and-full-Hashmal-reading/error-context.md",
+      "bytes": 28347,
+      "sha256": "95995179c6487f5ece3e05e309ac88deeded783fea48f591a2fb2a7e8166513f"
+    },
+    {
+      "file": "evidence/results-remaining/test-results/world2029-release-source-p-3e31a-er-and-full-Hashmal-reading/sanitized-network-audit.json",
+      "bytes": 25148,
+      "sha256": "5190afdec7b84b3e83d8fcd995be5080cf8449d72dbf73462abede62d5c7ce9f"
+    },
+    {
+      "file": "evidence/results-remaining/test-results/world2029-release-source-p-b9b7e-er-and-full-Hashmal-reading/error-context.md",
+      "bytes": 28347,
+      "sha256": "2f45b8fc8ae169f93e36962f956ab1c4f417e8bba1c018e16ce94b7e9fab36bd"
+    },
+    {
+      "file": "evidence/results-remaining/test-results/world2029-release-source-p-b9b7e-er-and-full-Hashmal-reading/sanitized-network-audit.json",
+      "bytes": 25144,
+      "sha256": "7a3d057bf3d49b4e8e334158ec5acd1ecf6ace212c5366a4c2a7ac4c6e6d147f"
+    },
+    {
+      "file": "evidence/results-remaining/test-results/world2029-release-source-p-bbcff-er-and-full-Hashmal-reading/error-context.md",
+      "bytes": 14691,
+      "sha256": "a19a61fd399a5bbfa31d32caa6ba8150a63e31de42c953604f39ffcd383ad2a6"
+    },
+    {
+      "file": "evidence/results-remaining/test-results/world2029-release-source-p-bbcff-er-and-full-Hashmal-reading/sanitized-network-audit.json",
+      "bytes": 24465,
+      "sha256": "975a0fb0a9a3d6e1807966d84708255abfa85cb89e36fa26d7995b1fdbeda082"
+    },
+    {
+      "file": "evidence/results-remaining/test-results/world2029-release-unavaila-f97e4--replaced-by-another-anchor/sanitized-network-audit.json",
+      "bytes": 196,
+      "sha256": "1519a5e9dc4f9f8c9aef74a10b8a820c2b33e0908f2272537441cd5536a5db24"
+    },
+    {
+      "file": "evidence/results-retry-auth/playwright-results.json",
+      "bytes": 51965,
+      "sha256": "6f6aa16edd169f4014892ed55db5ef3b05c549504f6df06d42a5d6dbefc8c8c7"
+    },
+    {
+      "file": "evidence/results-retry-auth/progress.log",
+      "bytes": 21256,
+      "sha256": "655e434ac2bf832bc200012f57ba1d5080931637305268d1a49b3c67a7f1ef6a"
+    },
+    {
+      "file": "evidence/results-retry-auth/test-results/.last-run.json",
+      "bytes": 684,
+      "sha256": "4f45a846a9a29376523d3b8a120d5158b1b1ea51313fc120c8f32387238281f1"
+    },
+    {
+      "file": "evidence/results-retry-auth/test-results/world2029-release-320px-RT-4c19d-without-horizontal-overflow/sanitized-network-audit.json",
+      "bytes": 199,
+      "sha256": "5b9174a36cf1bfbea7eb69bc573bf2f6578c80d43341c53abaeb2443128bc186"
+    },
+    {
+      "file": "evidence/results-retry-auth/test-results/world2029-release-SPARSE-l-50f45-with-no-fabricated-research/sanitized-network-audit.json",
+      "bytes": 203,
+      "sha256": "aabadcac3bf775104a67b89187fb21a16e45c31bfa8f2762ebdfa21e5e30b951"
+    },
+    {
+      "file": "evidence/results-retry-auth/test-results/world2029-release-World-us-75390-hare-and-exact-return-seams/sanitized-network-audit.json",
+      "bytes": 200,
+      "sha256": "8140acd9d4415a64a399ed096ff361be830b6563ac977fb425fdb589ca4d3053"
+    },
+    {
+      "file": "evidence/results-retry-auth/test-results/world2029-release-loading--495c0-tates-are-honest-and-native/sanitized-network-audit.json",
+      "bytes": 178,
+      "sha256": "83a49b63e55ca14382bb06171d782a8f7769888c680774cb2b4bc40f3e98c2a5"
+    },
+    {
+      "file": "evidence/results-retry-auth/test-results/world2029-release-private--4e8e2-for-non-admin-2029-sessions/sanitized-network-audit.json",
+      "bytes": 197,
+      "sha256": "60dc4742f196d12ce104b56d6cd23ae434ca6e73f6c539ecea339ff402b7c97f"
+    },
+    {
+      "file": "evidence/results-retry-auth/test-results/world2029-release-reduced--195b3--World-meaning-and-controls/sanitized-network-audit.json",
+      "bytes": 192,
+      "sha256": "1d233bcc51dff92e6d8ded1223528f5b355760971e8406a8fd9b5eb48d11bb02"
+    },
+    {
+      "file": "evidence/results-retry-auth/test-results/world2029-release-source-p-3761c-er-and-full-Hashmal-reading/sanitized-network-audit.json",
+      "bytes": 203,
+      "sha256": "999b077431d3021f4719629c4284530e230b16918175b88b483b8949c3396d72"
+    },
+    {
+      "file": "evidence/results-retry-auth/test-results/world2029-release-source-p-37cd7-er-and-full-Hashmal-reading/sanitized-network-audit.json",
+      "bytes": 204,
+      "sha256": "ed76f0885a4ea1bc5f1923d2c8d98422b9ff9606cb4f515901062ef0187d6d0a"
+    },
+    {
+      "file": "evidence/results-retry-auth/test-results/world2029-release-source-p-3e31a-er-and-full-Hashmal-reading/sanitized-network-audit.json",
+      "bytes": 209,
+      "sha256": "518d84760bd73cc61cbf7ece4d3e85d54cad6cbf8d92edf4a123e6731c1b7d41"
+    },
+    {
+      "file": "evidence/results-retry-auth/test-results/world2029-release-source-p-4f1b2-er-and-full-Hashmal-reading/sanitized-network-audit.json",
+      "bytes": 205,
+      "sha256": "93f7a4d5493d3e7043792bbe0f369b1a97e2779633fab1549c6c5915f65b6789"
+    },
+    {
+      "file": "evidence/results-retry-auth/test-results/world2029-release-source-p-b9b7e-er-and-full-Hashmal-reading/sanitized-network-audit.json",
+      "bytes": 205,
+      "sha256": "d00a7666e57b6c428b58a87d4f76f11db91f6e726fa5bbf411365682259aa5e6"
+    },
+    {
+      "file": "evidence/results-retry-auth/test-results/world2029-release-source-p-bbcff-er-and-full-Hashmal-reading/sanitized-network-audit.json",
+      "bytes": 208,
+      "sha256": "47868bed3112ceecf1d23a56c9497a266c403f574ede09977011883febd19433"
+    },
+    {
+      "file": "evidence/results-retry-auth/test-results/world2029-release-unavaila-f97e4--replaced-by-another-anchor/sanitized-network-audit.json",
+      "bytes": 195,
+      "sha256": "9c398bf18ce53832beae803ab3f7be364f538a27f808c43f1068d7cfa7184586"
+    },
+    {
+      "file": "harness/bootstrap-access.cjs",
+      "bytes": 1734,
+      "sha256": "1a596349f41575461b18bad20c7a70eb852b8bdd6ef06a0dfd3abdf2da19aa1c"
+    },
+    {
+      "file": "harness/combine.py",
+      "bytes": 4688,
+      "sha256": "03caaad0d0a171acaf7fc6821d0fccf32d395e4fc95ac14d5f0d334f3e84819d"
+    },
+    {
+      "file": "harness/guard-preflight.cjs",
+      "bytes": 2510,
+      "sha256": "594895b527202f2a27433fbca1a303c1a36b8c64867732c8740dd51a4bdb4449"
+    },
+    {
+      "file": "harness/playwright.config.cjs",
+      "bytes": 468,
+      "sha256": "6b33f96fbecc726f58b8c280ab80e296cf424242a205b6397786e52b9c16913d"
+    },
+    {
+      "file": "harness/playwright.focused-retry.config.cjs",
+      "bytes": 224,
+      "sha256": "b11b136a68b3907b8f49f8f5ecae2447dffa2fc1ae24bf198da0a881cf9bffea"
+    },
+    {
+      "file": "harness/playwright.focused.config.cjs",
+      "bytes": 212,
+      "sha256": "e9bc7a8a804cf77c0db2d44c93dab233113bca9143dec583affc70d193a76e2c"
+    },
+    {
+      "file": "harness/playwright.remaining.config.cjs",
+      "bytes": 206,
+      "sha256": "eee2fae1ceb45f3da15520f1e53eda17e96cc23f1fc416aa641f170d714c2dce"
+    },
+    {
+      "file": "harness/playwright.retry-auth.config.cjs",
+      "bytes": 208,
+      "sha256": "5e46c2cb50ba3993d22426da2059fd7103e1ce516573b930ddceeea90233d57e"
+    },
+    {
+      "file": "harness/preserve.py",
+      "bytes": 12904,
+      "sha256": "d8f62c5bdfd32a133fd53e5d112ce41551f177069350eb9d6d201c44b25f36cc"
+    },
+    {
+      "file": "harness/remaining-auth-titles.json",
+      "bytes": 884,
+      "sha256": "78c7d979de1592699804d50b795734821db4f967129dbf52add1233697eb189b"
+    },
+    {
+      "file": "harness/retry-auth-titles.json",
+      "bytes": 962,
+      "sha256": "87967dd6907dcbb81c4d256a8855c09c094dbe1fe8662e68bfbd82686e3a4ffa"
+    },
+    {
+      "file": "harness/rpc-read-inventory.json",
+      "bytes": 4749,
+      "sha256": "d9d9d4d4b053577e9bbfc1bdcad560f15a9260c0843f9fbc42a5adbaed22b94a"
+    },
+    {
+      "file": "harness/run-focused-retry.cjs",
+      "bytes": 1169,
+      "sha256": "12b0b3d13c215bf203951d1452a31a9ddecdc2ddba18741567f20ae88c4ccc18"
+    },
+    {
+      "file": "harness/run-focused.cjs",
+      "bytes": 1098,
+      "sha256": "8dbf8bc09373205f15bb97df2684cc3c216853fb1c0908b336c0e34c31c6a07f"
+    },
+    {
+      "file": "harness/run-remaining.cjs",
+      "bytes": 1185,
+      "sha256": "087fdbc429fc6554e76b4048a76298f2b0666a5376ec7238f7c7f92d3211d59c"
+    },
+    {
+      "file": "harness/run-retry-auth.cjs",
+      "bytes": 1068,
+      "sha256": "445f2b1ea2a16e7f8857ecd3cc07b9c29276a9c7463f676e13a650643602403a"
+    },
+    {
+      "file": "harness/run.cjs",
+      "bytes": 1273,
+      "sha256": "262e35246b4ab95e9f5c2840782780a6faa5465924209259953bea4206e15ac0"
+    },
+    {
+      "file": "harness/source-manifest.json",
+      "bytes": 982,
+      "sha256": "ca22b440ad806602bdc6af54206284a605d6d420a72188f12d75688ed21342b8"
+    },
+    {
+      "file": "harness/summarize.py",
+      "bytes": 2114,
+      "sha256": "0b157ebd62dc71f980a1feb4151208ee37c0eb31d607c06ebc1c6f74833bd364"
+    },
+    {
+      "file": "harness/target-identity.json",
+      "bytes": 1023,
+      "sha256": "a902135c25cff835f4315e044f4f0b8a65a1cc8aa1daf9e4900447b7caf14342"
+    },
+    {
+      "file": "harness/tests/entry-learn-2029.spec.cjs",
+      "bytes": 10131,
+      "sha256": "aee12ad2dc0a876d7a34ad09dd1cda966402e86f04e55ed571065a7db5fca1d6"
+    },
+    {
+      "file": "harness/tests/playwright-storage-egress-guard.cjs",
+      "bytes": 3274,
+      "sha256": "0aab3aaf5663a9402af985cf736e4c59d08cdadd6d288484ad09b2a7f5091eeb"
+    },
+    {
+      "file": "harness/tests/public-post-entry-supplementary.spec.cjs",
+      "bytes": 1239,
+      "sha256": "4da620d839d67c4652f314ce7b9dbaa5e8736d1f53becafbdf04092ba9e14a2e"
+    },
+    {
+      "file": "harness/tests/safe-preview-fixture.cjs",
+      "bytes": 6967,
+      "sha256": "61fbccaed95f824ae30b3123313dd58d8d7fef292e95efc2d74c4da4edca9c83"
+    },
+    {
+      "file": "harness/tests/world-catalog-supplementary.spec.cjs",
+      "bytes": 2142,
+      "sha256": "032d574522ff70153b6439da81d42f9eaa24fb7cfa65a4ca444a30b9170618cd"
+    },
+    {
+      "file": "harness/tests/world2029-release.spec.cjs",
+      "bytes": 55927,
+      "sha256": "5b18a8d979ebe1e79c9fa8ceb7b3d5231de02a94e8754a325818971f2d858e63"
+    },
+    {
+      "file": "rpc-read-inventory.json",
+      "bytes": 4749,
+      "sha256": "d9d9d4d4b053577e9bbfc1bdcad560f15a9260c0843f9fbc42a5adbaed22b94a"
+    },
+    {
+      "file": "screenshots/hashmal-projector-light-390.png",
+      "bytes": 6310775,
+      "sha256": "86e538bffebf52cbce4fc1259e9fd12bdb034a3a69631e7899d5ba048ef94c95"
+    },
+    {
+      "file": "screenshots/public-flight-post-entry-390.png",
+      "bytes": 1395521,
+      "sha256": "20855667d9ab02b93d3395846b206055b134598f19796b1be32abbab1386e640"
+    },
+    {
+      "file": "screenshots/researcher-corpus-gated-390.png",
+      "bytes": 71361,
+      "sha256": "9c8b124f19f83b54ec6c35b4515b3d0175985223f5c64e72a2751e4829d99712"
+    },
+    {
+      "file": "screenshots/world-current-public-catalog-390.png",
+      "bytes": 94243,
+      "sha256": "df49d63d82617054135c9b6a5465a1c45409268ab0307ca3af888aec556b3527"
+    },
+    {
+      "file": "screenshots/world-human-projection-1820-390.png",
+      "bytes": 349299,
+      "sha256": "e1dd399707c82067aacc4e6b6987434f3c6da69898aee4211cdd457fc276a816"
+    },
+    {
+      "file": "screenshots/world-partial-access-1820-390.png",
+      "bytes": 371164,
+      "sha256": "cf954973b33e67580a2c18386ba1de41120ca787f76300ddb9dfa540833eeb21"
+    },
+    {
+      "file": "screenshots/world-sparse-122-390.png",
+      "bytes": 169383,
+      "sha256": "79cf56766c32390ab7f506056dc1f8da3ca899bfa8cb5d371db50d6dc7685071"
+    },
+    {
+      "file": "screenshots/writer-projector-light-390.png",
+      "bytes": 91669,
+      "sha256": "218e28cc8b5d75fc30ee1086342b84421d1a9fc07d6c411b190ab10487be18ea"
+    },
+    {
+      "file": "source-manifest.json",
+      "bytes": 982,
+      "sha256": "ca22b440ad806602bdc6af54206284a605d6d420a72188f12d75688ed21342b8"
+    },
+    {
+      "file": "target-identity.json",
+      "bytes": 1023,
+      "sha256": "a902135c25cff835f4315e044f4f0b8a65a1cc8aa1daf9e4900447b7caf14342"
+    }
+  ]
+}

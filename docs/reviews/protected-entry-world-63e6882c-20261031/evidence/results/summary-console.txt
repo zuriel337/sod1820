@@ -1,0 +1,62 @@
+{
+  "testSourceSha": "c2f2e9948dd119c96b69e377b33be2eb2a886efb",
+  "runtimeSha": "63e6882c3b7b4004d337927c7231728a7612d452",
+  "deployment": "dpl_Aa8o4Cr61VawivzJodti8KTsecB2",
+  "fullIsolationPassed": false,
+  "A3": "OPEN_NOT_RUN",
+  "officialWorld": {
+    "passed": 16,
+    "failed": 29
+  },
+  "supplementary": {
+    "passed": 1
+  },
+  "stats": {
+    "startTime": "2026-10-31T22:27:06.815Z",
+    "duration": 392014.18299999996,
+    "expected": 17,
+    "skipped": 0,
+    "unexpected": 29,
+    "flaky": 0
+  },
+  "network": {
+    "auditFiles": 33,
+    "actualLiveRpcGetRequests": 277,
+    "actualLiveRpcPostRequests": 0,
+    "liveWrites": 0,
+    "liveModels": 0,
+    "transportErrors": 0,
+    "blockedReasons": {
+      "only_postgrest_readonly_or_public_storage": 6
+    }
+  }
+}
+failed Core Web Vitals CLS budget holds on /world at 390px Error: /world CLS=0.2229 exceeded 0.1; max-window sources: div[128→162;h614→614], section.sod29-world-overview.sod29-world-entry[742→776;h102→68], span.sod29-hero-symbol[103→120;h44→44], button.sod29-action.primary[840→0;h4→0], main.sod29-content[68→120;h776→724], i[387→387;h5→5], section.sod29-world-overview.sod29-world-entry[828→0;h16→0], div.sod29-flight-copy[369→556;h402→288]
+failed direct /world opens public composed World with aircraft story, real arrivals and source navigation Error: expect(locator).toBeVisible() failed
+failed public World catalog remains searchable and paginated inside the new composed presentation Error: expect(locator).toBeVisible() failed
+failed native canonical Topic 2029 renders 888 with semantic links and SEO identity Error: expect(locator).toBeVisible() failed
+failed Topic expression focus opens Number 2029 and survives World + Heichal transitions Error: expect(page).toHaveURL(expected) failed
+failed Contextual Number Surface stays one desktop sidecar through focus → preview → back Error: expect(locator).toBeVisible() failed
+failed Number 2029 golden visual calibration covers 878, 358 and the 1326 visual target in Page and Drawer Error: expect(locator).toBeVisible() failed
+failed Public World story and source entry remain usable and overflow-free at 320px Error: expect(locator).toBeVisible() failed
+failed Public World story and source entry remain usable and overflow-free at 360px Error: expect(locator).toBeVisible() failed
+failed Public World story and source entry remain usable and overflow-free at 390px Error: expect(locator).toBeVisible() failed
+failed RICH live World 1820 is truthful and overflow-free at 320px Error: expect(locator).toBeVisible() failed
+failed RICH live World 1820 is truthful and overflow-free at 360px Error: expect(locator).toBeVisible() failed
+failed RICH live World 1820 is truthful and overflow-free at 390px Error: expect(locator).toBeVisible() failed
+failed RICH live World 1820 is truthful and overflow-free at 1440px Error: expect(locator).toBeVisible() failed
+failed RICH 1820 presents one anchor header before profile and exploration lanes Error: expect(locator).toContainText(expected) failed
+failed MEDIUM live World 314 remains medium instead of being visually inflated Error: expect(locator).toBeVisible() failed
+failed SPARSE live World 122 stays honestly sparse with no fabricated research Error: Protected Preview authentication/identity validation failed; credentials withheld
+failed World uses the shared Command, Inspect, Share and exact-return seams Error: Protected Preview authentication/identity validation failed; credentials withheld
+failed loading and error states are honest and native Error: Protected Preview authentication/identity validation failed; credentials withheld
+failed unavailable identity is not silently replaced by another anchor Error: Protected Preview authentication/identity validation failed; credentials withheld
+failed reduced motion preserves the same World meaning and controls Error: Protected Preview authentication/identity validation failed; credentials withheld
+failed 320px RTL World survives 200% text zoom without horizontal overflow Error: Protected Preview authentication/identity validation failed; credentials withheld
+failed private researcher corpus stays gated for non-admin 2029 sessions Error: Protected Preview authentication/identity validation failed; credentials withheld
+failed source projector light 390: source-first writer and full Hashmal reading Error: Protected Preview authentication/identity validation failed; credentials withheld
+failed source projector light 1440: source-first writer and full Hashmal reading Error: Protected Preview authentication/identity validation failed; credentials withheld
+failed source projector parchment 390: source-first writer and full Hashmal reading Error: Protected Preview authentication/identity validation failed; credentials withheld
+failed source projector parchment 1440: source-first writer and full Hashmal reading Error: Protected Preview authentication/identity validation failed; credentials withheld
+failed source projector dark 390: source-first writer and full Hashmal reading Error: Protected Preview authentication/identity validation failed; credentials withheld
+failed source projector dark 1440: source-first writer and full Hashmal reading Error: Protected Preview authentication/identity validation failed; credentials withheld

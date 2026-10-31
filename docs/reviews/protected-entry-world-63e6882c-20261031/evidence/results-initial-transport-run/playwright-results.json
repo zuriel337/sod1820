@@ -1,0 +1,1426 @@
+{
+  "config": {
+    "configFile": "/tmp/ci1185-protected-entry-world/playwright.config.cjs",
+    "rootDir": "/tmp/ci1185-protected-entry-world/tests",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 2
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "line",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "./results/playwright-results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "/tmp/ci1185-protected-entry-world/results/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/tmp/ci1185-protected-entry-world/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.55.0",
+    "workers": 2,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "entry-learn-2029.spec.cjs",
+      "file": "entry-learn-2029.spec.cjs",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "direct Post opens Number; contextual teaching and help retain the same focus at 390px",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 35206,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m failed\n\nLocator:  locator('[data-experience-surface=\"post-reading\"]')\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  30000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 30000ms\u001b[22m\n\u001b[2m  - waiting for locator('[data-experience-surface=\"post-reading\"]')\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m failed\n\nLocator:  locator('[data-experience-surface=\"post-reading\"]')\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  30000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 30000ms\u001b[22m\n\u001b[2m  - waiting for locator('[data-experience-surface=\"post-reading\"]')\u001b[22m\n\n    at /tmp/ci1185-protected-entry-world/tests/entry-learn-2029.spec.cjs:56:22",
+                    "location": {
+                      "file": "/tmp/ci1185-protected-entry-world/tests/entry-learn-2029.spec.cjs",
+                      "column": 22,
+                      "line": 56
+                    },
+                    "snippet": "  54 |   await page.goto(`${BASE}${POST_PATH}`, { waitUntil: 'networkidle' });\n  55 |   const post = page.locator('[data-experience-surface=\"post-reading\"]');\n> 56 |   await expect(post).toBeVisible({ timeout: 30_000 });\n     |                      ^\n  57 |\n  58 |   const orientation = page.locator('.sod29-entry-orientation-slot .sod29-learn-mark');\n  59 |   await expect(orientation).toBeVisible();"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/tmp/ci1185-protected-entry-world/tests/entry-learn-2029.spec.cjs",
+                        "column": 22,
+                        "line": 56
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m failed\n\nLocator:  locator('[data-experience-surface=\"post-reading\"]')\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  30000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 30000ms\u001b[22m\n\u001b[2m  - waiting for locator('[data-experience-surface=\"post-reading\"]')\u001b[22m\n\n\n  54 |   await page.goto(`${BASE}${POST_PATH}`, { waitUntil: 'networkidle' });\n  55 |   const post = page.locator('[data-experience-surface=\"post-reading\"]');\n> 56 |   await expect(post).toBeVisible({ timeout: 30_000 });\n     |                      ^\n  57 |\n  58 |   const orientation = page.locator('.sod29-entry-orientation-slot .sod29-learn-mark');\n  59 |   await expect(orientation).toBeVisible();\n    at /tmp/ci1185-protected-entry-world/tests/entry-learn-2029.spec.cjs:56:22"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T22:23:57.620Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/tmp/ci1185-protected-entry-world/results/test-results/entry-learn-2029-direct-Po-bb407-ain-the-same-focus-at-390px/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/tmp/ci1185-protected-entry-world/tests/entry-learn-2029.spec.cjs",
+                    "column": 22,
+                    "line": 56
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "528447a1e8c67a041948-b4b95a52fbc6defb1a9b",
+          "file": "entry-learn-2029.spec.cjs",
+          "line": 32,
+          "column": 1
+        },
+        {
+          "title": "completed Post entry stays compact after reload",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": -1,
+                  "parallelIndex": -1,
+                  "status": "skipped",
+                  "duration": 0,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T22:24:33.209Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "528447a1e8c67a041948-3ec7a2567e5433350c4a",
+          "file": "entry-learn-2029.spec.cjs",
+          "line": 180,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "world2029-release.spec.cjs",
+      "file": "world2029-release.spec.cjs",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "Core Web Vitals CLS budget holds on /2029 at 390px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 7601,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T22:23:57.658Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "43d104987ee5472889e6-cc926ce3cdf94b2ee9c9",
+          "file": "world2029-release.spec.cjs",
+          "line": 137,
+          "column": 3
+        },
+        {
+          "title": "Core Web Vitals CLS budget holds on /world at 390px",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 1,
+                  "status": "failed",
+                  "duration": 7203,
+                  "error": {
+                    "message": "Error: /world CLS=0.2229 exceeded 0.1; max-window sources: div[128→162;h614→614], section.sod29-world-overview.sod29-world-entry[742→776;h102→68], span.sod29-hero-symbol[103→120;h44→44], button.sod29-action.primary[840→0;h4→0], i[335→335;h5→5], main.sod29-content[68→120;h776→724], i[387→387;h5→5], section.sod29-world-overview.sod29-world-entry[828→0;h16→0]\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m0.1\u001b[39m\nReceived:    \u001b[31m0.22292711177217794\u001b[39m",
+                    "stack": "Error: /world CLS=0.2229 exceeded 0.1; max-window sources: div[128→162;h614→614], section.sod29-world-overview.sod29-world-entry[742→776;h102→68], span.sod29-hero-symbol[103→120;h44→44], button.sod29-action.primary[840→0;h4→0], i[335→335;h5→5], main.sod29-content[68→120;h776→724], i[387→387;h5→5], section.sod29-world-overview.sod29-world-entry[828→0;h16→0]\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m0.1\u001b[39m\nReceived:    \u001b[31m0.22292711177217794\u001b[39m\n    at assertClsGood (/tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:85:5)\n    at /tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:143:5",
+                    "location": {
+                      "file": "/tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs",
+                      "column": 5,
+                      "line": 85
+                    },
+                    "snippet": "  83 |     metric.value,\n  84 |     `${route} CLS=${metric.value.toFixed(4)} exceeded 0.1; max-window sources: ${metric.sources.join(', ') || 'unknown'}`,\n> 85 |   ).toBeLessThanOrEqual(0.1);\n     |     ^\n  86 | }\n  87 |\n  88 | test.setTimeout(60_000);"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs",
+                        "column": 5,
+                        "line": 85
+                      },
+                      "message": "Error: /world CLS=0.2229 exceeded 0.1; max-window sources: div[128→162;h614→614], section.sod29-world-overview.sod29-world-entry[742→776;h102→68], span.sod29-hero-symbol[103→120;h44→44], button.sod29-action.primary[840→0;h4→0], i[335→335;h5→5], main.sod29-content[68→120;h776→724], i[387→387;h5→5], section.sod29-world-overview.sod29-world-entry[828→0;h16→0]\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m0.1\u001b[39m\nReceived:    \u001b[31m0.22292711177217794\u001b[39m\n\n  83 |     metric.value,\n  84 |     `${route} CLS=${metric.value.toFixed(4)} exceeded 0.1; max-window sources: ${metric.sources.join(', ') || 'unknown'}`,\n> 85 |   ).toBeLessThanOrEqual(0.1);\n     |     ^\n  86 | }\n  87 |\n  88 | test.setTimeout(60_000);\n    at assertClsGood (/tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:85:5)\n    at /tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:143:5"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T22:24:05.537Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/tmp/ci1185-protected-entry-world/results/test-results/world2029-release-Core-Web-2147c-get-holds-on-world-at-390px/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs",
+                    "column": 5,
+                    "line": 85
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "43d104987ee5472889e6-6139b795d45ce4dc5139",
+          "file": "world2029-release.spec.cjs",
+          "line": 137,
+          "column": 3
+        },
+        {
+          "title": "Core Web Vitals CLS budget holds on /topic/888-yeshua at 390px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 6171,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T22:24:13.343Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "43d104987ee5472889e6-c2b28bbee7a5d4b8622a",
+          "file": "world2029-release.spec.cjs",
+          "line": 137,
+          "column": 3
+        },
+        {
+          "title": "Core Web Vitals CLS budget holds on /books at 390px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 6000,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T22:24:19.763Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "43d104987ee5472889e6-2bdbf92b87f0f156888b",
+          "file": "world2029-release.spec.cjs",
+          "line": 137,
+          "column": 3
+        },
+        {
+          "title": "Core Web Vitals CLS budget holds on /book/daat-tevunot at 390px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 6857,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T22:24:25.780Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "43d104987ee5472889e6-99bd47072af06879cc40",
+          "file": "world2029-release.spec.cjs",
+          "line": 137,
+          "column": 3
+        },
+        {
+          "title": "Core Web Vitals CLS budget holds on /els at 390px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 5813,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T22:24:32.657Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "43d104987ee5472889e6-6cbee179380507393f32",
+          "file": "world2029-release.spec.cjs",
+          "line": 137,
+          "column": 3
+        },
+        {
+          "title": "Core Web Vitals CLS budget holds on /2029/number/1237 at 390px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 6235,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T22:24:38.484Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "43d104987ee5472889e6-864a6cf26fdf89815c12",
+          "file": "world2029-release.spec.cjs",
+          "line": 137,
+          "column": 3
+        },
+        {
+          "title": "direct /world opens public composed World with aircraft story, real arrivals and source navigation",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 1,
+                  "status": "failed",
+                  "duration": 9186,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m failed\n\nLocator:  getByRole('heading', { name: 'מתחילים ממה שמסקרן אותך.' })\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('heading', { name: 'מתחילים ממה שמסקרן אותך.' })\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m failed\n\nLocator:  getByRole('heading', { name: 'מתחילים ממה שמסקרן אותך.' })\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('heading', { name: 'מתחילים ממה שמסקרן אותך.' })\u001b[22m\n\n    at /tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:231:81",
+                    "location": {
+                      "file": "/tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs",
+                      "column": 81,
+                      "line": 231
+                    },
+                    "snippet": "  229 |   await expect(page.getByRole('heading', { name: 'העולם', exact: true })).toBeVisible();\n  230 |   await expect(page.getByRole('region', { name: 'כניסה לעולם' })).toBeVisible({ timeout: 30_000 });\n> 231 |   await expect(page.getByRole('heading', { name: 'מתחילים ממה שמסקרן אותך.' })).toBeVisible();\n      |                                                                                 ^\n  232 |   await expect(page.getByRole('heading', { name: 'מה מגיע עכשיו' })).toBeVisible({ timeout: 30_000 });\n  233 |   const postsFilter = page.getByRole('button', { name: 'פוסטים אחרונים' });\n  234 |   await postsFilter.click();"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs",
+                        "column": 81,
+                        "line": 231
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m failed\n\nLocator:  getByRole('heading', { name: 'מתחילים ממה שמסקרן אותך.' })\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('heading', { name: 'מתחילים ממה שמסקרן אותך.' })\u001b[22m\n\n\n  229 |   await expect(page.getByRole('heading', { name: 'העולם', exact: true })).toBeVisible();\n  230 |   await expect(page.getByRole('region', { name: 'כניסה לעולם' })).toBeVisible({ timeout: 30_000 });\n> 231 |   await expect(page.getByRole('heading', { name: 'מתחילים ממה שמסקרן אותך.' })).toBeVisible();\n      |                                                                                 ^\n  232 |   await expect(page.getByRole('heading', { name: 'מה מגיע עכשיו' })).toBeVisible({ timeout: 30_000 });\n  233 |   const postsFilter = page.getByRole('button', { name: 'פוסטים אחרונים' });\n  234 |   await postsFilter.click();\n    at /tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:231:81"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T22:24:44.734Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/tmp/ci1185-protected-entry-world/results/test-results/world2029-release-direct-w-2b61f-ivals-and-source-navigation/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs",
+                    "column": 81,
+                    "line": 231
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "43d104987ee5472889e6-68180cee35ed0b9a154d",
+          "file": "world2029-release.spec.cjs",
+          "line": 225,
+          "column": 1
+        },
+        {
+          "title": "public World catalog remains searchable and paginated inside the new composed presentation",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 4256,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m0\u001b[39m\nReceived:   \u001b[31m0\u001b[39m",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m0\u001b[39m\nReceived:   \u001b[31m0\u001b[39m\n    at /tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:264:31",
+                    "location": {
+                      "file": "/tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs",
+                      "column": 31,
+                      "line": 264
+                    },
+                    "snippet": "  262 |   await expect(catalog.getByText(/כרטיסים ציבוריים/)).toBeVisible({ timeout: 30_000 });\n  263 |   const cards = catalog.locator('.sod29-world-catalog-card');\n> 264 |   expect(await cards.count()).toBeGreaterThan(0);\n      |                               ^\n  265 |   const search = catalog.getByRole('textbox', { name: 'חיפוש בנושאים ובחיבורים' });\n  266 |   await search.fill('888');\n  267 |   await expect(catalog.locator('a[href=\"/topic/888-yeshua\"]')).toBeVisible({ timeout: 30_000 });"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs",
+                        "column": 31,
+                        "line": 264
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m0\u001b[39m\nReceived:   \u001b[31m0\u001b[39m\n\n  262 |   await expect(catalog.getByText(/כרטיסים ציבוריים/)).toBeVisible({ timeout: 30_000 });\n  263 |   const cards = catalog.locator('.sod29-world-catalog-card');\n> 264 |   expect(await cards.count()).toBeGreaterThan(0);\n      |                               ^\n  265 |   const search = catalog.getByRole('textbox', { name: 'חיפוש בנושאים ובחיבורים' });\n  266 |   await search.fill('888');\n  267 |   await expect(catalog.locator('a[href=\"/topic/888-yeshua\"]')).toBeVisible({ timeout: 30_000 });\n    at /tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:264:31"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T22:24:54.483Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/tmp/ci1185-protected-entry-world/results/test-results/world2029-release-public-W-59a89-e-new-composed-presentation/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs",
+                    "column": 31,
+                    "line": 264
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "43d104987ee5472889e6-707b75d3895ace91d8c1",
+          "file": "world2029-release.spec.cjs",
+          "line": 254,
+          "column": 1
+        },
+        {
+          "title": "native canonical Topic 2029 renders 888 with semantic links and SEO identity",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 31192,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m failed\n\nLocator:  locator('article[data-entity-type=\"convergence\"]')\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  30000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 30000ms\u001b[22m\n\u001b[2m  - waiting for locator('article[data-entity-type=\"convergence\"]')\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m failed\n\nLocator:  locator('article[data-entity-type=\"convergence\"]')\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  30000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 30000ms\u001b[22m\n\u001b[2m  - waiting for locator('article[data-entity-type=\"convergence\"]')\u001b[22m\n\n    at /tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:282:25",
+                    "location": {
+                      "file": "/tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs",
+                      "column": 25,
+                      "line": 282
+                    },
+                    "snippet": "  280 |\n  281 |   const article = page.locator('article[data-entity-type=\"convergence\"]');\n> 282 |   await expect(article).toBeVisible({ timeout: 30_000 });\n      |                         ^\n  283 |   const heroNumber = article.locator('a[href=\"/2029/number/888\"]').first();\n  284 |   await expect(heroNumber).toBeVisible({ timeout: 20_000 });\n  285 |   await expect(heroNumber).toHaveText('888');"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs",
+                        "column": 25,
+                        "line": 282
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m failed\n\nLocator:  locator('article[data-entity-type=\"convergence\"]')\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  30000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 30000ms\u001b[22m\n\u001b[2m  - waiting for locator('article[data-entity-type=\"convergence\"]')\u001b[22m\n\n\n  280 |\n  281 |   const article = page.locator('article[data-entity-type=\"convergence\"]');\n> 282 |   await expect(article).toBeVisible({ timeout: 30_000 });\n      |                         ^\n  283 |   const heroNumber = article.locator('a[href=\"/2029/number/888\"]').first();\n  284 |   await expect(heroNumber).toBeVisible({ timeout: 20_000 });\n  285 |   await expect(heroNumber).toHaveText('888');\n    at /tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:282:25"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T22:24:59.529Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/tmp/ci1185-protected-entry-world/results/test-results/world2029-release-native-c-7719a-ntic-links-and-SEO-identity/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs",
+                    "column": 25,
+                    "line": 282
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "43d104987ee5472889e6-49d5004cef1321225c4f",
+          "file": "world2029-release.spec.cjs",
+          "line": 277,
+          "column": 1
+        },
+        {
+          "title": "Topic expression focus opens Number 2029 and survives World + Heichal transitions",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 34770,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected pattern: \u001b[32m/\\/2029\\/number\\/98\\?focus=.*method=/\u001b[39m\nReceived string:  \u001b[31m\"https://sod1820-26of53pw9-sod1820-s-projects.vercel.app/topic/98-ikuv-geula\"\u001b[39m\nTimeout: 30000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveURL\" with timeout 30000ms\u001b[22m\n\u001b[2m    34 × unexpected value \"https://sod1820-26of53pw9-sod1820-s-projects.vercel.app/topic/98-ikuv-geula\"\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected pattern: \u001b[32m/\\/2029\\/number\\/98\\?focus=.*method=/\u001b[39m\nReceived string:  \u001b[31m\"https://sod1820-26of53pw9-sod1820-s-projects.vercel.app/topic/98-ikuv-geula\"\u001b[39m\nTimeout: 30000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveURL\" with timeout 30000ms\u001b[22m\n\u001b[2m    34 × unexpected value \"https://sod1820-26of53pw9-sod1820-s-projects.vercel.app/topic/98-ikuv-geula\"\u001b[22m\n\n    at /tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:306:22",
+                    "location": {
+                      "file": "/tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs",
+                      "column": 22,
+                      "line": 306
+                    },
+                    "snippet": "  304 |   await chinam.click();\n  305 |\n> 306 |   await expect(page).toHaveURL(/\\/2029\\/number\\/98\\?focus=.*method=/, { timeout: 30_000 });\n      |                      ^\n  307 |   const numberPage = page.locator('[data-experience-surface=\"number\"]');\n  308 |   await expect(numberPage).toBeVisible({ timeout: 30_000 });\n  309 |   const focusRibbon = numberPage.locator('[data-expression-focus=\"true\"]');"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs",
+                        "column": 22,
+                        "line": 306
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected pattern: \u001b[32m/\\/2029\\/number\\/98\\?focus=.*method=/\u001b[39m\nReceived string:  \u001b[31m\"https://sod1820-26of53pw9-sod1820-s-projects.vercel.app/topic/98-ikuv-geula\"\u001b[39m\nTimeout: 30000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveURL\" with timeout 30000ms\u001b[22m\n\u001b[2m    34 × unexpected value \"https://sod1820-26of53pw9-sod1820-s-projects.vercel.app/topic/98-ikuv-geula\"\u001b[22m\n\n\n  304 |   await chinam.click();\n  305 |\n> 306 |   await expect(page).toHaveURL(/\\/2029\\/number\\/98\\?focus=.*method=/, { timeout: 30_000 });\n      |                      ^\n  307 |   const numberPage = page.locator('[data-experience-surface=\"number\"]');\n  308 |   await expect(numberPage).toBeVisible({ timeout: 30_000 });\n  309 |   const focusRibbon = numberPage.locator('[data-expression-focus=\"true\"]');\n    at /tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:306:22"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T22:25:31.522Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/tmp/ci1185-protected-entry-world/results/test-results/world2029-release-Topic-ex-aba33-s-World-Heichal-transitions/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs",
+                    "column": 22,
+                    "line": 306
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "43d104987ee5472889e6-be419a9df4705d75b8c3",
+          "file": "world2029-release.spec.cjs",
+          "line": 295,
+          "column": 1
+        },
+        {
+          "title": "Number 2029 preview opens 1237 with all available methods visible in one wrapped research stage",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 6,
+                  "parallelIndex": 0,
+                  "status": "interrupted",
+                  "duration": 6628,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m failed\n\nLocator:  locator('[data-experience-surface=\"number\"]')\nExpected: visible\nReceived: <element(s) not found>\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 30000ms\u001b[22m\n\u001b[2m  - waiting for locator('[data-experience-surface=\"number\"]')\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m failed\n\nLocator:  locator('[data-experience-surface=\"number\"]')\nExpected: visible\nReceived: <element(s) not found>\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 30000ms\u001b[22m\n\u001b[2m  - waiting for locator('[data-experience-surface=\"number\"]')\u001b[22m\n\n    at /tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:342:28",
+                    "location": {
+                      "file": "/tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs",
+                      "column": 28,
+                      "line": 342
+                    },
+                    "snippet": "  340 |\n  341 |   const numberPage = page.locator('[data-experience-surface=\"number\"]');\n> 342 |   await expect(numberPage).toBeVisible({ timeout: 30_000 });\n      |                            ^\n  343 |   await expect(numberPage).toHaveAttribute('data-number-root', '1237');\n  344 |   await expect(numberPage.locator('.sod29-number-value')).toHaveText('1237');\n  345 |"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs",
+                        "column": 28,
+                        "line": 342
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m failed\n\nLocator:  locator('[data-experience-surface=\"number\"]')\nExpected: visible\nReceived: <element(s) not found>\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 30000ms\u001b[22m\n\u001b[2m  - waiting for locator('[data-experience-surface=\"number\"]')\u001b[22m\n\n\n  340 |\n  341 |   const numberPage = page.locator('[data-experience-surface=\"number\"]');\n> 342 |   await expect(numberPage).toBeVisible({ timeout: 30_000 });\n      |                            ^\n  343 |   await expect(numberPage).toHaveAttribute('data-number-root', '1237');\n  344 |   await expect(numberPage.locator('.sod29-number-value')).toHaveText('1237');\n  345 |\n    at /tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:342:28"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T22:26:07.211Z",
+                  "annotations": [],
+                  "attachments": [],
+                  "errorLocation": {
+                    "file": "/tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs",
+                    "column": 28,
+                    "line": 342
+                  }
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "43d104987ee5472889e6-4a61a0cc8c048885a713",
+          "file": "world2029-release.spec.cjs",
+          "line": 337,
+          "column": 1
+        },
+        {
+          "title": "Number 2029 596 keeps six methods visible and finds Jerusalem↔Shomrim as a live hidden crossing",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "43d104987ee5472889e6-005c33327280fe132d92",
+          "file": "world2029-release.spec.cjs",
+          "line": 390,
+          "column": 1
+        },
+        {
+          "title": "Number 2029 1118 uses canonical Hebrew verse refs and appends the gematria value after the verse",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "43d104987ee5472889e6-eaa7e330f5d4e15d076e",
+          "file": "world2029-release.spec.cjs",
+          "line": 431,
+          "column": 1
+        },
+        {
+          "title": "Contextual Number Surface stays one desktop sidecar through focus → preview → back",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "43d104987ee5472889e6-40c872f4aa847ee18f1c",
+          "file": "world2029-release.spec.cjs",
+          "line": 510,
+          "column": 1
+        },
+        {
+          "title": "Number 2029 Miluy switches the whole stage to 878 with language bridges and in-place explain",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "43d104987ee5472889e6-9b099c246ed1a7181208",
+          "file": "world2029-release.spec.cjs",
+          "line": 541,
+          "column": 1
+        },
+        {
+          "title": "Number 2029 878 keeps its general research path but no longer opens the locked Golden Journey",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "43d104987ee5472889e6-f031919960cf30f48a62",
+          "file": "world2029-release.spec.cjs",
+          "line": 584,
+          "column": 1
+        },
+        {
+          "title": "Number 2029 golden visual calibration covers 878, 358 and the 1326 visual target in Page and Drawer",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "43d104987ee5472889e6-dcd0c0018683a4ee34ce",
+          "file": "world2029-release.spec.cjs",
+          "line": 608,
+          "column": 1
+        },
+        {
+          "title": "Golden World 878 journey stays closed while the public Number 878 and full images remain readable",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "43d104987ee5472889e6-e0d37e34f20d56b9c780",
+          "file": "world2029-release.spec.cjs",
+          "line": 635,
+          "column": 1
+        },
+        {
+          "title": "Public World story and source entry remain usable and overflow-free at 320px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "43d104987ee5472889e6-446e8be50073e1529ff1",
+          "file": "world2029-release.spec.cjs",
+          "line": 671,
+          "column": 3
+        },
+        {
+          "title": "Public World story and source entry remain usable and overflow-free at 360px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "43d104987ee5472889e6-76c5b59e7d65556c75e5",
+          "file": "world2029-release.spec.cjs",
+          "line": 671,
+          "column": 3
+        },
+        {
+          "title": "Public World story and source entry remain usable and overflow-free at 390px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "43d104987ee5472889e6-74c5066f0ed2b02bf3fa",
+          "file": "world2029-release.spec.cjs",
+          "line": 671,
+          "column": 3
+        },
+        {
+          "title": "RICH live World 1820 is truthful and overflow-free at 320px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "43d104987ee5472889e6-033642b4df7c57a5ed1f",
+          "file": "world2029-release.spec.cjs",
+          "line": 685,
+          "column": 3
+        },
+        {
+          "title": "RICH live World 1820 is truthful and overflow-free at 360px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "43d104987ee5472889e6-556b66cbbc6acfa0e34c",
+          "file": "world2029-release.spec.cjs",
+          "line": 685,
+          "column": 3
+        },
+        {
+          "title": "RICH live World 1820 is truthful and overflow-free at 390px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "43d104987ee5472889e6-b9b6f6af0569e599ede0",
+          "file": "world2029-release.spec.cjs",
+          "line": 685,
+          "column": 3
+        },
+        {
+          "title": "RICH live World 1820 is truthful and overflow-free at 1440px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "43d104987ee5472889e6-24b6b74ff88d4e4c1e42",
+          "file": "world2029-release.spec.cjs",
+          "line": 685,
+          "column": 3
+        },
+        {
+          "title": "RICH 1820 presents one anchor header before profile and exploration lanes",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "43d104987ee5472889e6-e191ca4ab0cf0b985fca",
+          "file": "world2029-release.spec.cjs",
+          "line": 696,
+          "column": 1
+        },
+        {
+          "title": "RICH 1820 opens human-first before raw research detail",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "43d104987ee5472889e6-6d62156451daead4da70",
+          "file": "world2029-release.spec.cjs",
+          "line": 716,
+          "column": 1
+        },
+        {
+          "title": "RICH 1820 projects real published media without legacy gallery UI",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "43d104987ee5472889e6-f56c8b397c9a7eab8305",
+          "file": "world2029-release.spec.cjs",
+          "line": 756,
+          "column": 1
+        },
+        {
+          "title": "RICH 1820 remains useful when research rows are access-filtered",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "43d104987ee5472889e6-e7e805acaecdaa973849",
+          "file": "world2029-release.spec.cjs",
+          "line": 773,
+          "column": 1
+        },
+        {
+          "title": "automatic filters, sorting and explain-why work without exposing admin research controls",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "43d104987ee5472889e6-ca1c7780d48b1fc936ef",
+          "file": "world2029-release.spec.cjs",
+          "line": 788,
+          "column": 1
+        },
+        {
+          "title": "MEDIUM live World 314 remains medium instead of being visually inflated",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "43d104987ee5472889e6-9fb34f7471028260ec02",
+          "file": "world2029-release.spec.cjs",
+          "line": 806,
+          "column": 1
+        },
+        {
+          "title": "SPARSE live World 122 stays honestly sparse with no fabricated research",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "43d104987ee5472889e6-0b30abc31e88c9bd5197",
+          "file": "world2029-release.spec.cjs",
+          "line": 816,
+          "column": 1
+        },
+        {
+          "title": "World uses the shared Command, Inspect, Share and exact-return seams",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "43d104987ee5472889e6-c4faee492703bf812e7a",
+          "file": "world2029-release.spec.cjs",
+          "line": 826,
+          "column": 1
+        },
+        {
+          "title": "loading and error states are honest and native",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "43d104987ee5472889e6-0c9590b876869a6f9659",
+          "file": "world2029-release.spec.cjs",
+          "line": 877,
+          "column": 1
+        },
+        {
+          "title": "unavailable identity is not silently replaced by another anchor",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "43d104987ee5472889e6-a523d64cb0795f093c6b",
+          "file": "world2029-release.spec.cjs",
+          "line": 901,
+          "column": 1
+        },
+        {
+          "title": "reduced motion preserves the same World meaning and controls",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "43d104987ee5472889e6-c10b2bf6b7acca2ca115",
+          "file": "world2029-release.spec.cjs",
+          "line": 910,
+          "column": 1
+        },
+        {
+          "title": "320px RTL World survives 200% text zoom without horizontal overflow",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "43d104987ee5472889e6-7d05d8837ee1d244787f",
+          "file": "world2029-release.spec.cjs",
+          "line": 922,
+          "column": 1
+        },
+        {
+          "title": "private researcher corpus stays gated for non-admin 2029 sessions",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "43d104987ee5472889e6-7f59adc44a5a572377c5",
+          "file": "world2029-release.spec.cjs",
+          "line": 934,
+          "column": 1
+        },
+        {
+          "title": "source projector light 390: source-first writer and full Hashmal reading",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "43d104987ee5472889e6-e1e90503dbe8103bdd8f",
+          "file": "world2029-release.spec.cjs",
+          "line": 947,
+          "column": 5
+        },
+        {
+          "title": "source projector light 1440: source-first writer and full Hashmal reading",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "43d104987ee5472889e6-799065a21cf8f6483727",
+          "file": "world2029-release.spec.cjs",
+          "line": 947,
+          "column": 5
+        },
+        {
+          "title": "source projector parchment 390: source-first writer and full Hashmal reading",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "43d104987ee5472889e6-b4e2426d6dad7e1428ae",
+          "file": "world2029-release.spec.cjs",
+          "line": 947,
+          "column": 5
+        },
+        {
+          "title": "source projector parchment 1440: source-first writer and full Hashmal reading",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "43d104987ee5472889e6-15188df6fbf2931da544",
+          "file": "world2029-release.spec.cjs",
+          "line": 947,
+          "column": 5
+        },
+        {
+          "title": "source projector dark 390: source-first writer and full Hashmal reading",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "43d104987ee5472889e6-060d0c813eb6840dcf2f",
+          "file": "world2029-release.spec.cjs",
+          "line": 947,
+          "column": 5
+        },
+        {
+          "title": "source projector dark 1440: source-first writer and full Hashmal reading",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "43d104987ee5472889e6-c37346c693b1adf2fc4b",
+          "file": "world2029-release.spec.cjs",
+          "line": 947,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-31T22:23:57.085Z",
+    "duration": 137183.99,
+    "expected": 6,
+    "skipped": 35,
+    "unexpected": 6,
+    "flaky": 0
+  }
+}

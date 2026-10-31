@@ -1,0 +1,832 @@
+{
+  "config": {
+    "configFile": "/tmp/ci1185-protected-entry-world/playwright.retry-auth.config.cjs",
+    "rootDir": "/tmp/ci1185-protected-entry-world/tests",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "line",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "./results-retry-auth/playwright-results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "/tmp/ci1185-protected-entry-world/results-retry-auth/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/tmp/ci1185-protected-entry-world/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.55.0",
+    "workers": 2,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "world2029-release.spec.cjs",
+      "file": "world2029-release.spec.cjs",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "SPARSE live World 122 stays honestly sparse with no fabricated research",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 4021,
+                  "error": {
+                    "message": "Error: Protected Preview authentication/identity validation failed at access, HTTP 503; credentials withheld",
+                    "stack": "Error: Protected Preview authentication/identity validation failed at access, HTTP 503; credentials withheld\n    at authenticate (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:80:16)\n    at Object.context (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:87:7)",
+                    "location": {
+                      "file": "/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs",
+                      "column": 16,
+                      "line": 80
+                    },
+                    "snippet": "\u001b[90m   at \u001b[39msafe-preview-fixture.cjs:80\n\n  78 |     pw.expect(identity.sha).toBe('63e6882c3b7b4004d337927c7231728a7612d452');\n  79 |     pw.expect(identity.target).toBe('preview');\n> 80 |   }catch{throw new Error(`Protected Preview authentication/identity validation failed at ${phase}, HTTP ${lastStatus}; credentials withheld`);}\n     |                ^\n  81 | }\n  82 | const test=pw.test.extend({context:async({context},use,testInfo)=>{\n  83 |   if(process.env.PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS!=='1')throw new Error('Service Worker interception must be enabled');"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs",
+                        "column": 16,
+                        "line": 80
+                      },
+                      "message": "Error: Protected Preview authentication/identity validation failed at access, HTTP 503; credentials withheld\n\n   at safe-preview-fixture.cjs:80\n\n  78 |     pw.expect(identity.sha).toBe('63e6882c3b7b4004d337927c7231728a7612d452');\n  79 |     pw.expect(identity.target).toBe('preview');\n> 80 |   }catch{throw new Error(`Protected Preview authentication/identity validation failed at ${phase}, HTTP ${lastStatus}; credentials withheld`);}\n     |                ^\n  81 | }\n  82 | const test=pw.test.extend({context:async({context},use,testInfo)=>{\n  83 |   if(process.env.PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS!=='1')throw new Error('Service Worker interception must be enabled');\n    at authenticate (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:80:16)\n    at Object.context (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:87:7)"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T22:36:10.135Z",
+                  "annotations": [],
+                  "attachments": [],
+                  "errorLocation": {
+                    "file": "/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs",
+                    "column": 16,
+                    "line": 80
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "43d104987ee5472889e6-0b30abc31e88c9bd5197",
+          "file": "world2029-release.spec.cjs",
+          "line": 816,
+          "column": 1
+        },
+        {
+          "title": "World uses the shared Command, Inspect, Share and exact-return seams",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 1969,
+                  "error": {
+                    "message": "Error: Protected Preview authentication/identity validation failed at access, HTTP 503; credentials withheld",
+                    "stack": "Error: Protected Preview authentication/identity validation failed at access, HTTP 503; credentials withheld\n    at authenticate (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:80:16)\n    at Object.context (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:87:7)",
+                    "location": {
+                      "file": "/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs",
+                      "column": 16,
+                      "line": 80
+                    },
+                    "snippet": "\u001b[90m   at \u001b[39msafe-preview-fixture.cjs:80\n\n  78 |     pw.expect(identity.sha).toBe('63e6882c3b7b4004d337927c7231728a7612d452');\n  79 |     pw.expect(identity.target).toBe('preview');\n> 80 |   }catch{throw new Error(`Protected Preview authentication/identity validation failed at ${phase}, HTTP ${lastStatus}; credentials withheld`);}\n     |                ^\n  81 | }\n  82 | const test=pw.test.extend({context:async({context},use,testInfo)=>{\n  83 |   if(process.env.PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS!=='1')throw new Error('Service Worker interception must be enabled');"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs",
+                        "column": 16,
+                        "line": 80
+                      },
+                      "message": "Error: Protected Preview authentication/identity validation failed at access, HTTP 503; credentials withheld\n\n   at safe-preview-fixture.cjs:80\n\n  78 |     pw.expect(identity.sha).toBe('63e6882c3b7b4004d337927c7231728a7612d452');\n  79 |     pw.expect(identity.target).toBe('preview');\n> 80 |   }catch{throw new Error(`Protected Preview authentication/identity validation failed at ${phase}, HTTP ${lastStatus}; credentials withheld`);}\n     |                ^\n  81 | }\n  82 | const test=pw.test.extend({context:async({context},use,testInfo)=>{\n  83 |   if(process.env.PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS!=='1')throw new Error('Service Worker interception must be enabled');\n    at authenticate (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:80:16)\n    at Object.context (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:87:7)"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T22:36:14.936Z",
+                  "annotations": [],
+                  "attachments": [],
+                  "errorLocation": {
+                    "file": "/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs",
+                    "column": 16,
+                    "line": 80
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "43d104987ee5472889e6-c4faee492703bf812e7a",
+          "file": "world2029-release.spec.cjs",
+          "line": 826,
+          "column": 1
+        },
+        {
+          "title": "loading and error states are honest and native",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 1947,
+                  "error": {
+                    "message": "Error: Protected Preview authentication/identity validation failed at access, HTTP 503; credentials withheld",
+                    "stack": "Error: Protected Preview authentication/identity validation failed at access, HTTP 503; credentials withheld\n    at authenticate (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:80:16)\n    at Object.context (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:87:7)",
+                    "location": {
+                      "file": "/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs",
+                      "column": 16,
+                      "line": 80
+                    },
+                    "snippet": "\u001b[90m   at \u001b[39msafe-preview-fixture.cjs:80\n\n  78 |     pw.expect(identity.sha).toBe('63e6882c3b7b4004d337927c7231728a7612d452');\n  79 |     pw.expect(identity.target).toBe('preview');\n> 80 |   }catch{throw new Error(`Protected Preview authentication/identity validation failed at ${phase}, HTTP ${lastStatus}; credentials withheld`);}\n     |                ^\n  81 | }\n  82 | const test=pw.test.extend({context:async({context},use,testInfo)=>{\n  83 |   if(process.env.PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS!=='1')throw new Error('Service Worker interception must be enabled');"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs",
+                        "column": 16,
+                        "line": 80
+                      },
+                      "message": "Error: Protected Preview authentication/identity validation failed at access, HTTP 503; credentials withheld\n\n   at safe-preview-fixture.cjs:80\n\n  78 |     pw.expect(identity.sha).toBe('63e6882c3b7b4004d337927c7231728a7612d452');\n  79 |     pw.expect(identity.target).toBe('preview');\n> 80 |   }catch{throw new Error(`Protected Preview authentication/identity validation failed at ${phase}, HTTP ${lastStatus}; credentials withheld`);}\n     |                ^\n  81 | }\n  82 | const test=pw.test.extend({context:async({context},use,testInfo)=>{\n  83 |   if(process.env.PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS!=='1')throw new Error('Service Worker interception must be enabled');\n    at authenticate (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:80:16)\n    at Object.context (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:87:7)"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T22:36:17.657Z",
+                  "annotations": [],
+                  "attachments": [],
+                  "errorLocation": {
+                    "file": "/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs",
+                    "column": 16,
+                    "line": 80
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "43d104987ee5472889e6-0c9590b876869a6f9659",
+          "file": "world2029-release.spec.cjs",
+          "line": 877,
+          "column": 1
+        },
+        {
+          "title": "unavailable identity is not silently replaced by another anchor",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 1989,
+                  "error": {
+                    "message": "Error: Protected Preview authentication/identity validation failed at access, HTTP 503; credentials withheld",
+                    "stack": "Error: Protected Preview authentication/identity validation failed at access, HTTP 503; credentials withheld\n    at authenticate (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:80:16)\n    at Object.context (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:87:7)",
+                    "location": {
+                      "file": "/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs",
+                      "column": 16,
+                      "line": 80
+                    },
+                    "snippet": "\u001b[90m   at \u001b[39msafe-preview-fixture.cjs:80\n\n  78 |     pw.expect(identity.sha).toBe('63e6882c3b7b4004d337927c7231728a7612d452');\n  79 |     pw.expect(identity.target).toBe('preview');\n> 80 |   }catch{throw new Error(`Protected Preview authentication/identity validation failed at ${phase}, HTTP ${lastStatus}; credentials withheld`);}\n     |                ^\n  81 | }\n  82 | const test=pw.test.extend({context:async({context},use,testInfo)=>{\n  83 |   if(process.env.PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS!=='1')throw new Error('Service Worker interception must be enabled');"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs",
+                        "column": 16,
+                        "line": 80
+                      },
+                      "message": "Error: Protected Preview authentication/identity validation failed at access, HTTP 503; credentials withheld\n\n   at safe-preview-fixture.cjs:80\n\n  78 |     pw.expect(identity.sha).toBe('63e6882c3b7b4004d337927c7231728a7612d452');\n  79 |     pw.expect(identity.target).toBe('preview');\n> 80 |   }catch{throw new Error(`Protected Preview authentication/identity validation failed at ${phase}, HTTP ${lastStatus}; credentials withheld`);}\n     |                ^\n  81 | }\n  82 | const test=pw.test.extend({context:async({context},use,testInfo)=>{\n  83 |   if(process.env.PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS!=='1')throw new Error('Service Worker interception must be enabled');\n    at authenticate (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:80:16)\n    at Object.context (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:87:7)"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T22:36:20.346Z",
+                  "annotations": [],
+                  "attachments": [],
+                  "errorLocation": {
+                    "file": "/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs",
+                    "column": 16,
+                    "line": 80
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "43d104987ee5472889e6-a523d64cb0795f093c6b",
+          "file": "world2029-release.spec.cjs",
+          "line": 901,
+          "column": 1
+        },
+        {
+          "title": "reduced motion preserves the same World meaning and controls",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 1962,
+                  "error": {
+                    "message": "Error: Protected Preview authentication/identity validation failed at access, HTTP 503; credentials withheld",
+                    "stack": "Error: Protected Preview authentication/identity validation failed at access, HTTP 503; credentials withheld\n    at authenticate (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:80:16)\n    at Object.context (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:87:7)",
+                    "location": {
+                      "file": "/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs",
+                      "column": 16,
+                      "line": 80
+                    },
+                    "snippet": "\u001b[90m   at \u001b[39msafe-preview-fixture.cjs:80\n\n  78 |     pw.expect(identity.sha).toBe('63e6882c3b7b4004d337927c7231728a7612d452');\n  79 |     pw.expect(identity.target).toBe('preview');\n> 80 |   }catch{throw new Error(`Protected Preview authentication/identity validation failed at ${phase}, HTTP ${lastStatus}; credentials withheld`);}\n     |                ^\n  81 | }\n  82 | const test=pw.test.extend({context:async({context},use,testInfo)=>{\n  83 |   if(process.env.PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS!=='1')throw new Error('Service Worker interception must be enabled');"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs",
+                        "column": 16,
+                        "line": 80
+                      },
+                      "message": "Error: Protected Preview authentication/identity validation failed at access, HTTP 503; credentials withheld\n\n   at safe-preview-fixture.cjs:80\n\n  78 |     pw.expect(identity.sha).toBe('63e6882c3b7b4004d337927c7231728a7612d452');\n  79 |     pw.expect(identity.target).toBe('preview');\n> 80 |   }catch{throw new Error(`Protected Preview authentication/identity validation failed at ${phase}, HTTP ${lastStatus}; credentials withheld`);}\n     |                ^\n  81 | }\n  82 | const test=pw.test.extend({context:async({context},use,testInfo)=>{\n  83 |   if(process.env.PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS!=='1')throw new Error('Service Worker interception must be enabled');\n    at authenticate (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:80:16)\n    at Object.context (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:87:7)"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T22:36:23.079Z",
+                  "annotations": [],
+                  "attachments": [],
+                  "errorLocation": {
+                    "file": "/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs",
+                    "column": 16,
+                    "line": 80
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "43d104987ee5472889e6-c10b2bf6b7acca2ca115",
+          "file": "world2029-release.spec.cjs",
+          "line": 910,
+          "column": 1
+        },
+        {
+          "title": "320px RTL World survives 200% text zoom without horizontal overflow",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 1944,
+                  "error": {
+                    "message": "Error: Protected Preview authentication/identity validation failed at access, HTTP 503; credentials withheld",
+                    "stack": "Error: Protected Preview authentication/identity validation failed at access, HTTP 503; credentials withheld\n    at authenticate (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:80:16)\n    at Object.context (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:87:7)",
+                    "location": {
+                      "file": "/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs",
+                      "column": 16,
+                      "line": 80
+                    },
+                    "snippet": "\u001b[90m   at \u001b[39msafe-preview-fixture.cjs:80\n\n  78 |     pw.expect(identity.sha).toBe('63e6882c3b7b4004d337927c7231728a7612d452');\n  79 |     pw.expect(identity.target).toBe('preview');\n> 80 |   }catch{throw new Error(`Protected Preview authentication/identity validation failed at ${phase}, HTTP ${lastStatus}; credentials withheld`);}\n     |                ^\n  81 | }\n  82 | const test=pw.test.extend({context:async({context},use,testInfo)=>{\n  83 |   if(process.env.PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS!=='1')throw new Error('Service Worker interception must be enabled');"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs",
+                        "column": 16,
+                        "line": 80
+                      },
+                      "message": "Error: Protected Preview authentication/identity validation failed at access, HTTP 503; credentials withheld\n\n   at safe-preview-fixture.cjs:80\n\n  78 |     pw.expect(identity.sha).toBe('63e6882c3b7b4004d337927c7231728a7612d452');\n  79 |     pw.expect(identity.target).toBe('preview');\n> 80 |   }catch{throw new Error(`Protected Preview authentication/identity validation failed at ${phase}, HTTP ${lastStatus}; credentials withheld`);}\n     |                ^\n  81 | }\n  82 | const test=pw.test.extend({context:async({context},use,testInfo)=>{\n  83 |   if(process.env.PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS!=='1')throw new Error('Service Worker interception must be enabled');\n    at authenticate (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:80:16)\n    at Object.context (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:87:7)"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T22:36:25.776Z",
+                  "annotations": [],
+                  "attachments": [],
+                  "errorLocation": {
+                    "file": "/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs",
+                    "column": 16,
+                    "line": 80
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "43d104987ee5472889e6-7d05d8837ee1d244787f",
+          "file": "world2029-release.spec.cjs",
+          "line": 922,
+          "column": 1
+        },
+        {
+          "title": "private researcher corpus stays gated for non-admin 2029 sessions",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 6,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 1947,
+                  "error": {
+                    "message": "Error: Protected Preview authentication/identity validation failed at access, HTTP 503; credentials withheld",
+                    "stack": "Error: Protected Preview authentication/identity validation failed at access, HTTP 503; credentials withheld\n    at authenticate (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:80:16)\n    at Object.context (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:87:7)",
+                    "location": {
+                      "file": "/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs",
+                      "column": 16,
+                      "line": 80
+                    },
+                    "snippet": "\u001b[90m   at \u001b[39msafe-preview-fixture.cjs:80\n\n  78 |     pw.expect(identity.sha).toBe('63e6882c3b7b4004d337927c7231728a7612d452');\n  79 |     pw.expect(identity.target).toBe('preview');\n> 80 |   }catch{throw new Error(`Protected Preview authentication/identity validation failed at ${phase}, HTTP ${lastStatus}; credentials withheld`);}\n     |                ^\n  81 | }\n  82 | const test=pw.test.extend({context:async({context},use,testInfo)=>{\n  83 |   if(process.env.PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS!=='1')throw new Error('Service Worker interception must be enabled');"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs",
+                        "column": 16,
+                        "line": 80
+                      },
+                      "message": "Error: Protected Preview authentication/identity validation failed at access, HTTP 503; credentials withheld\n\n   at safe-preview-fixture.cjs:80\n\n  78 |     pw.expect(identity.sha).toBe('63e6882c3b7b4004d337927c7231728a7612d452');\n  79 |     pw.expect(identity.target).toBe('preview');\n> 80 |   }catch{throw new Error(`Protected Preview authentication/identity validation failed at ${phase}, HTTP ${lastStatus}; credentials withheld`);}\n     |                ^\n  81 | }\n  82 | const test=pw.test.extend({context:async({context},use,testInfo)=>{\n  83 |   if(process.env.PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS!=='1')throw new Error('Service Worker interception must be enabled');\n    at authenticate (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:80:16)\n    at Object.context (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:87:7)"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T22:36:28.470Z",
+                  "annotations": [],
+                  "attachments": [],
+                  "errorLocation": {
+                    "file": "/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs",
+                    "column": 16,
+                    "line": 80
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "43d104987ee5472889e6-7f59adc44a5a572377c5",
+          "file": "world2029-release.spec.cjs",
+          "line": 934,
+          "column": 1
+        },
+        {
+          "title": "source projector light 390: source-first writer and full Hashmal reading",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 7,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 1960,
+                  "error": {
+                    "message": "Error: Protected Preview authentication/identity validation failed at access, HTTP 503; credentials withheld",
+                    "stack": "Error: Protected Preview authentication/identity validation failed at access, HTTP 503; credentials withheld\n    at authenticate (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:80:16)\n    at Object.context (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:87:7)",
+                    "location": {
+                      "file": "/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs",
+                      "column": 16,
+                      "line": 80
+                    },
+                    "snippet": "\u001b[90m   at \u001b[39msafe-preview-fixture.cjs:80\n\n  78 |     pw.expect(identity.sha).toBe('63e6882c3b7b4004d337927c7231728a7612d452');\n  79 |     pw.expect(identity.target).toBe('preview');\n> 80 |   }catch{throw new Error(`Protected Preview authentication/identity validation failed at ${phase}, HTTP ${lastStatus}; credentials withheld`);}\n     |                ^\n  81 | }\n  82 | const test=pw.test.extend({context:async({context},use,testInfo)=>{\n  83 |   if(process.env.PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS!=='1')throw new Error('Service Worker interception must be enabled');"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs",
+                        "column": 16,
+                        "line": 80
+                      },
+                      "message": "Error: Protected Preview authentication/identity validation failed at access, HTTP 503; credentials withheld\n\n   at safe-preview-fixture.cjs:80\n\n  78 |     pw.expect(identity.sha).toBe('63e6882c3b7b4004d337927c7231728a7612d452');\n  79 |     pw.expect(identity.target).toBe('preview');\n> 80 |   }catch{throw new Error(`Protected Preview authentication/identity validation failed at ${phase}, HTTP ${lastStatus}; credentials withheld`);}\n     |                ^\n  81 | }\n  82 | const test=pw.test.extend({context:async({context},use,testInfo)=>{\n  83 |   if(process.env.PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS!=='1')throw new Error('Service Worker interception must be enabled');\n    at authenticate (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:80:16)\n    at Object.context (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:87:7)"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T22:36:31.179Z",
+                  "annotations": [],
+                  "attachments": [],
+                  "errorLocation": {
+                    "file": "/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs",
+                    "column": 16,
+                    "line": 80
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "43d104987ee5472889e6-e1e90503dbe8103bdd8f",
+          "file": "world2029-release.spec.cjs",
+          "line": 947,
+          "column": 5
+        },
+        {
+          "title": "source projector light 1440: source-first writer and full Hashmal reading",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 8,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 1957,
+                  "error": {
+                    "message": "Error: Protected Preview authentication/identity validation failed at access, HTTP 503; credentials withheld",
+                    "stack": "Error: Protected Preview authentication/identity validation failed at access, HTTP 503; credentials withheld\n    at authenticate (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:80:16)\n    at Object.context (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:87:7)",
+                    "location": {
+                      "file": "/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs",
+                      "column": 16,
+                      "line": 80
+                    },
+                    "snippet": "\u001b[90m   at \u001b[39msafe-preview-fixture.cjs:80\n\n  78 |     pw.expect(identity.sha).toBe('63e6882c3b7b4004d337927c7231728a7612d452');\n  79 |     pw.expect(identity.target).toBe('preview');\n> 80 |   }catch{throw new Error(`Protected Preview authentication/identity validation failed at ${phase}, HTTP ${lastStatus}; credentials withheld`);}\n     |                ^\n  81 | }\n  82 | const test=pw.test.extend({context:async({context},use,testInfo)=>{\n  83 |   if(process.env.PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS!=='1')throw new Error('Service Worker interception must be enabled');"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs",
+                        "column": 16,
+                        "line": 80
+                      },
+                      "message": "Error: Protected Preview authentication/identity validation failed at access, HTTP 503; credentials withheld\n\n   at safe-preview-fixture.cjs:80\n\n  78 |     pw.expect(identity.sha).toBe('63e6882c3b7b4004d337927c7231728a7612d452');\n  79 |     pw.expect(identity.target).toBe('preview');\n> 80 |   }catch{throw new Error(`Protected Preview authentication/identity validation failed at ${phase}, HTTP ${lastStatus}; credentials withheld`);}\n     |                ^\n  81 | }\n  82 | const test=pw.test.extend({context:async({context},use,testInfo)=>{\n  83 |   if(process.env.PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS!=='1')throw new Error('Service Worker interception must be enabled');\n    at authenticate (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:80:16)\n    at Object.context (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:87:7)"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T22:36:33.895Z",
+                  "annotations": [],
+                  "attachments": [],
+                  "errorLocation": {
+                    "file": "/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs",
+                    "column": 16,
+                    "line": 80
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "43d104987ee5472889e6-799065a21cf8f6483727",
+          "file": "world2029-release.spec.cjs",
+          "line": 947,
+          "column": 5
+        },
+        {
+          "title": "source projector parchment 390: source-first writer and full Hashmal reading",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 9,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 1958,
+                  "error": {
+                    "message": "Error: Protected Preview authentication/identity validation failed at access, HTTP 503; credentials withheld",
+                    "stack": "Error: Protected Preview authentication/identity validation failed at access, HTTP 503; credentials withheld\n    at authenticate (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:80:16)\n    at Object.context (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:87:7)",
+                    "location": {
+                      "file": "/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs",
+                      "column": 16,
+                      "line": 80
+                    },
+                    "snippet": "\u001b[90m   at \u001b[39msafe-preview-fixture.cjs:80\n\n  78 |     pw.expect(identity.sha).toBe('63e6882c3b7b4004d337927c7231728a7612d452');\n  79 |     pw.expect(identity.target).toBe('preview');\n> 80 |   }catch{throw new Error(`Protected Preview authentication/identity validation failed at ${phase}, HTTP ${lastStatus}; credentials withheld`);}\n     |                ^\n  81 | }\n  82 | const test=pw.test.extend({context:async({context},use,testInfo)=>{\n  83 |   if(process.env.PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS!=='1')throw new Error('Service Worker interception must be enabled');"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs",
+                        "column": 16,
+                        "line": 80
+                      },
+                      "message": "Error: Protected Preview authentication/identity validation failed at access, HTTP 503; credentials withheld\n\n   at safe-preview-fixture.cjs:80\n\n  78 |     pw.expect(identity.sha).toBe('63e6882c3b7b4004d337927c7231728a7612d452');\n  79 |     pw.expect(identity.target).toBe('preview');\n> 80 |   }catch{throw new Error(`Protected Preview authentication/identity validation failed at ${phase}, HTTP ${lastStatus}; credentials withheld`);}\n     |                ^\n  81 | }\n  82 | const test=pw.test.extend({context:async({context},use,testInfo)=>{\n  83 |   if(process.env.PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS!=='1')throw new Error('Service Worker interception must be enabled');\n    at authenticate (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:80:16)\n    at Object.context (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:87:7)"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T22:36:36.627Z",
+                  "annotations": [],
+                  "attachments": [],
+                  "errorLocation": {
+                    "file": "/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs",
+                    "column": 16,
+                    "line": 80
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "43d104987ee5472889e6-b4e2426d6dad7e1428ae",
+          "file": "world2029-release.spec.cjs",
+          "line": 947,
+          "column": 5
+        },
+        {
+          "title": "source projector parchment 1440: source-first writer and full Hashmal reading",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 10,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 1951,
+                  "error": {
+                    "message": "Error: Protected Preview authentication/identity validation failed at access, HTTP 503; credentials withheld",
+                    "stack": "Error: Protected Preview authentication/identity validation failed at access, HTTP 503; credentials withheld\n    at authenticate (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:80:16)\n    at Object.context (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:87:7)",
+                    "location": {
+                      "file": "/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs",
+                      "column": 16,
+                      "line": 80
+                    },
+                    "snippet": "\u001b[90m   at \u001b[39msafe-preview-fixture.cjs:80\n\n  78 |     pw.expect(identity.sha).toBe('63e6882c3b7b4004d337927c7231728a7612d452');\n  79 |     pw.expect(identity.target).toBe('preview');\n> 80 |   }catch{throw new Error(`Protected Preview authentication/identity validation failed at ${phase}, HTTP ${lastStatus}; credentials withheld`);}\n     |                ^\n  81 | }\n  82 | const test=pw.test.extend({context:async({context},use,testInfo)=>{\n  83 |   if(process.env.PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS!=='1')throw new Error('Service Worker interception must be enabled');"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs",
+                        "column": 16,
+                        "line": 80
+                      },
+                      "message": "Error: Protected Preview authentication/identity validation failed at access, HTTP 503; credentials withheld\n\n   at safe-preview-fixture.cjs:80\n\n  78 |     pw.expect(identity.sha).toBe('63e6882c3b7b4004d337927c7231728a7612d452');\n  79 |     pw.expect(identity.target).toBe('preview');\n> 80 |   }catch{throw new Error(`Protected Preview authentication/identity validation failed at ${phase}, HTTP ${lastStatus}; credentials withheld`);}\n     |                ^\n  81 | }\n  82 | const test=pw.test.extend({context:async({context},use,testInfo)=>{\n  83 |   if(process.env.PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS!=='1')throw new Error('Service Worker interception must be enabled');\n    at authenticate (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:80:16)\n    at Object.context (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:87:7)"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T22:36:39.313Z",
+                  "annotations": [],
+                  "attachments": [],
+                  "errorLocation": {
+                    "file": "/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs",
+                    "column": 16,
+                    "line": 80
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "43d104987ee5472889e6-15188df6fbf2931da544",
+          "file": "world2029-release.spec.cjs",
+          "line": 947,
+          "column": 5
+        },
+        {
+          "title": "source projector dark 390: source-first writer and full Hashmal reading",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 11,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 1935,
+                  "error": {
+                    "message": "Error: Protected Preview authentication/identity validation failed at access, HTTP 503; credentials withheld",
+                    "stack": "Error: Protected Preview authentication/identity validation failed at access, HTTP 503; credentials withheld\n    at authenticate (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:80:16)\n    at Object.context (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:87:7)",
+                    "location": {
+                      "file": "/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs",
+                      "column": 16,
+                      "line": 80
+                    },
+                    "snippet": "\u001b[90m   at \u001b[39msafe-preview-fixture.cjs:80\n\n  78 |     pw.expect(identity.sha).toBe('63e6882c3b7b4004d337927c7231728a7612d452');\n  79 |     pw.expect(identity.target).toBe('preview');\n> 80 |   }catch{throw new Error(`Protected Preview authentication/identity validation failed at ${phase}, HTTP ${lastStatus}; credentials withheld`);}\n     |                ^\n  81 | }\n  82 | const test=pw.test.extend({context:async({context},use,testInfo)=>{\n  83 |   if(process.env.PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS!=='1')throw new Error('Service Worker interception must be enabled');"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs",
+                        "column": 16,
+                        "line": 80
+                      },
+                      "message": "Error: Protected Preview authentication/identity validation failed at access, HTTP 503; credentials withheld\n\n   at safe-preview-fixture.cjs:80\n\n  78 |     pw.expect(identity.sha).toBe('63e6882c3b7b4004d337927c7231728a7612d452');\n  79 |     pw.expect(identity.target).toBe('preview');\n> 80 |   }catch{throw new Error(`Protected Preview authentication/identity validation failed at ${phase}, HTTP ${lastStatus}; credentials withheld`);}\n     |                ^\n  81 | }\n  82 | const test=pw.test.extend({context:async({context},use,testInfo)=>{\n  83 |   if(process.env.PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS!=='1')throw new Error('Service Worker interception must be enabled');\n    at authenticate (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:80:16)\n    at Object.context (/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs:87:7)"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T22:36:42.020Z",
+                  "annotations": [],
+                  "attachments": [],
+                  "errorLocation": {
+                    "file": "/tmp/ci1185-protected-entry-world/tests/safe-preview-fixture.cjs",
+                    "column": 16,
+                    "line": 80
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "43d104987ee5472889e6-060d0c813eb6840dcf2f",
+          "file": "world2029-release.spec.cjs",
+          "line": 947,
+          "column": 5
+        },
+        {
+          "title": "source projector dark 1440: source-first writer and full Hashmal reading",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 12,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 31600,
+                  "error": {
+                    "message": "TimeoutError: page.waitForResponse: Timeout 30000ms exceeded while waiting for event \"response\"",
+                    "stack": "TimeoutError: page.waitForResponse: Timeout 30000ms exceeded while waiting for event \"response\"\n    at /tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:950:34",
+                    "location": {
+                      "file": "/tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs",
+                      "column": 34,
+                      "line": 950
+                    },
+                    "snippet": "  948 |       await page.setViewportSize({ width, height: 900 });\n  949 |       await page.addInitScript((value) => localStorage.setItem('sod-theme', value), preset);\n> 950 |       const groupResponse = page.waitForResponse((response) => response.url().includes('/rpc/world_group_source_arrivals_v2'), { timeout: 30_000 });\n      |                                  ^\n  951 |       await page.goto(`${BASE}${WORLD}`, { waitUntil: 'domcontentloaded' });\n  952 |       const response = await groupResponse;\n  953 |       expect(response.ok(), 'sanitized group reader is reachable').toBe(true);"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs",
+                        "column": 34,
+                        "line": 950
+                      },
+                      "message": "TimeoutError: page.waitForResponse: Timeout 30000ms exceeded while waiting for event \"response\"\n\n  948 |       await page.setViewportSize({ width, height: 900 });\n  949 |       await page.addInitScript((value) => localStorage.setItem('sod-theme', value), preset);\n> 950 |       const groupResponse = page.waitForResponse((response) => response.url().includes('/rpc/world_group_source_arrivals_v2'), { timeout: 30_000 });\n      |                                  ^\n  951 |       await page.goto(`${BASE}${WORLD}`, { waitUntil: 'domcontentloaded' });\n  952 |       const response = await groupResponse;\n  953 |       expect(response.ok(), 'sanitized group reader is reachable').toBe(true);\n    at /tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs:950:34"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T22:36:44.732Z",
+                  "annotations": [],
+                  "attachments": [],
+                  "errorLocation": {
+                    "file": "/tmp/ci1185-protected-entry-world/tests/world2029-release.spec.cjs",
+                    "column": 34,
+                    "line": 950
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "43d104987ee5472889e6-c37346c693b1adf2fc4b",
+          "file": "world2029-release.spec.cjs",
+          "line": 947,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-31T22:36:09.525Z",
+    "duration": 67097.815,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 13,
+    "flaky": 0
+  }
+}

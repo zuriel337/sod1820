@@ -1,0 +1,158 @@
+{
+  "liveProductChanges": false,
+  "transport": "Allowlist; actual live HTTP GET only, PostgREST read-only transaction",
+  "functions": [
+    {
+      "proname": "community_feed_page",
+      "arguments": "p_offset integer DEFAULT 0, p_limit integer DEFAULT 40, p_sort text DEFAULT 'newest'::text",
+      "lanname": "plpgsql",
+      "provolatile": "s",
+      "prosecdef": true,
+      "source_md5": "efde0a89e182f0449c5cbd2cf99ecfde"
+    },
+    {
+      "proname": "community_message_context",
+      "arguments": "p_id uuid",
+      "lanname": "plpgsql",
+      "provolatile": "s",
+      "prosecdef": true,
+      "source_md5": "c5cde7b3e4e6111de392313f7e832a31"
+    },
+    {
+      "proname": "fn_all_methods",
+      "arguments": "p_word text",
+      "lanname": "plpgsql",
+      "provolatile": "s",
+      "prosecdef": true,
+      "source_md5": "3d63cb1eeab65ecd5822c6bcdaa6e5e5"
+    },
+    {
+      "proname": "fn_cross_research",
+      "arguments": "p_items text[]",
+      "lanname": "plpgsql",
+      "provolatile": "s",
+      "prosecdef": true,
+      "source_md5": "743465af0749dd011d003cf12a7c67ed"
+    },
+    {
+      "proname": "fn_method_profile",
+      "arguments": "p_phrase text, p_depth text DEFAULT 'value'::text",
+      "lanname": "plpgsql",
+      "provolatile": "s",
+      "prosecdef": false,
+      "source_md5": "f5dc0563bc259180f9303f0d12481f72"
+    },
+    {
+      "proname": "fn_method_value",
+      "arguments": "p_method_key text, p_phrase text",
+      "lanname": "plpgsql",
+      "provolatile": "s",
+      "prosecdef": false,
+      "source_md5": "6a00f4577cbc20b55b36ae70ffb9f9d3"
+    },
+    {
+      "proname": "fn_number_dossier",
+      "arguments": "p_value integer",
+      "lanname": "plpgsql",
+      "provolatile": "s",
+      "prosecdef": true,
+      "source_md5": "550124bd0c783d9243ac529824e3f136"
+    },
+    {
+      "proname": "fn_number_journey",
+      "arguments": "p_value integer",
+      "lanname": "plpgsql",
+      "provolatile": "s",
+      "prosecdef": true,
+      "source_md5": "bb546676bd0c93b3ee5a780febb9bcbb"
+    },
+    {
+      "proname": "fn_number_lookup",
+      "arguments": "p_value bigint, p_limit integer DEFAULT NULL::integer, p_after_bid_id text DEFAULT NULL::text",
+      "lanname": "sql",
+      "provolatile": "s",
+      "prosecdef": false,
+      "source_md5": "5fe4585944f7d5ce4eb44ac54b362cc4"
+    },
+    {
+      "proname": "fn_verses_by_gematria",
+      "arguments": "p_value integer, p_limit integer DEFAULT 12",
+      "lanname": "sql",
+      "provolatile": "s",
+      "prosecdef": true,
+      "source_md5": "7a13581907cf01396882cced546c22b0"
+    },
+    {
+      "proname": "fn_zero_scale",
+      "arguments": "p_value integer",
+      "lanname": "plpgsql",
+      "provolatile": "s",
+      "prosecdef": false,
+      "source_md5": "607565ba6dddf49c9511ef76f7d377f6"
+    },
+    {
+      "proname": "gematria_api",
+      "arguments": "p_text text",
+      "lanname": "plpgsql",
+      "provolatile": "s",
+      "prosecdef": false,
+      "source_md5": "b3212d135fd3c1bb47d04314431b0f32"
+    },
+    {
+      "proname": "gematria_method_trace",
+      "arguments": "p_method_key text, p_phrase text",
+      "lanname": "plpgsql",
+      "provolatile": "s",
+      "prosecdef": false,
+      "source_md5": "8a2eab7d5aadf9f10b79c478d09f1b14"
+    },
+    {
+      "proname": "get_reality_videos",
+      "arguments": "p_limit integer DEFAULT 40",
+      "lanname": "sql",
+      "provolatile": "s",
+      "prosecdef": false,
+      "source_md5": "1eebc0b65603773211e9aa8517248868"
+    },
+    {
+      "proname": "lang_links_list",
+      "arguments": "p_visitor text DEFAULT NULL::text",
+      "lanname": "sql",
+      "provolatile": "v",
+      "prosecdef": true,
+      "source_md5": "5ac5cd537e243ca661bd6194ba9ac0aa"
+    },
+    {
+      "proname": "number_neighbors",
+      "arguments": "p_value integer, p_limit integer DEFAULT 8",
+      "lanname": "sql",
+      "provolatile": "s",
+      "prosecdef": false,
+      "source_md5": "e05599255d4cb783e323c5f4d3fa75e1"
+    },
+    {
+      "proname": "posts_by_number_strict",
+      "arguments": "num integer, lim integer DEFAULT 3",
+      "lanname": "sql",
+      "provolatile": "s",
+      "prosecdef": false,
+      "source_md5": "321db41c7bf670b33bd95150ff979022"
+    },
+    {
+      "proname": "rd_is_admin",
+      "arguments": "",
+      "lanname": "sql",
+      "provolatile": "s",
+      "prosecdef": true,
+      "source_md5": "6e872aa5c69afb22afd15f7ee49eed12"
+    },
+    {
+      "proname": "world_group_source_arrivals_v2",
+      "arguments": "p_limit integer DEFAULT 12, p_before timestamp with time zone DEFAULT NULL::timestamp with time zone",
+      "lanname": "sql",
+      "provolatile": "s",
+      "prosecdef": true,
+      "source_md5": "4554660c5cf5ed6582bff5540e8ec3fc"
+    }
+  ]
+}

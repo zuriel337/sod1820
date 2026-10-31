@@ -1,0 +1,168 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - generic [ref=e4]:
+    - generic [ref=e5]:
+      - banner [ref=e6]:
+        - generic [ref=e7]:
+          - button "פתח ניווט" [ref=e8] [cursor=pointer]:
+            - generic:
+              - img
+              - img
+          - generic [ref=e10]: העולם
+        - button "חיפוש" [ref=e11] [cursor=pointer]:
+          - generic [ref=e12] [cursor=pointer]: ⌕
+        - generic [ref=e13]:
+          - group "ערכת צבעים" [ref=e14]:
+            - 'button "מראה: לילה. בחר יום, קלף או לילה" [ref=e15] [cursor=pointer]':
+              - generic [ref=e16] [cursor=pointer]: ☾
+          - button "התחברות לאזור האישי" [ref=e17] [cursor=pointer]:
+            - img [ref=e19] [cursor=pointer]
+      - region "פס הגילויים החיים" [ref=e22]:
+        - generic [ref=e23]: ✦
+        - button "מסר שיהיה יותר חושך" [ref=e25] [cursor=pointer]:
+          - generic [ref=e26] [cursor=pointer]: מסר
+          - generic [ref=e27] [cursor=pointer]: שיהיה יותר חושך
+        - button "צמצם את פס הגילויים" [ref=e28] [cursor=pointer]: −
+        - button "השהה תנועה" [ref=e29] [cursor=pointer]: השהה
+    - main [ref=e31]:
+      - generic [ref=e32]:
+        - img [ref=e35]
+        - generic [ref=e39]:
+          - heading "העולם" [level=1] [ref=e40]
+          - group [ref=e41]
+      - generic [ref=e44]:
+        - generic [ref=e45]:
+          - generic [ref=e46]: מה מתחבר?
+          - heading "1820" [level=2] [ref=e47]
+          - generic [ref=e48]: "החומר סביב העוגן מסודר לפי שכבות: תמונות, גימטריה, מקורות, קשרים, מחקר וזמן."
+        - generic [ref=e49]:
+          - generic [ref=e50]: מספר
+          - button "◌ חזרה לעולם" [ref=e51] [cursor=pointer]
+      - generic [ref=e52]:
+        - region "סיפורים מחוברים לעץ" [ref=e53]:
+          - generic [ref=e54]:
+            - generic [ref=e55]:
+              - generic [ref=e56]: סיפורים בעץ המחקר
+              - heading "סיפורים מחוברים · 1820" [level=2] [ref=e57]
+            - button "פתח סיפורים מחוברים" [ref=e58] [cursor=pointer]
+          - paragraph [ref=e59]: פוסטים ציבוריים בעלי קשר מתועד לאותו הקשר. הסדר הוא סדר התצוגה השמור, לא ציר זמן או דירוג.
+          - status
+        - region "פרופיל עוגן 1820" [ref=e60]:
+          - generic [ref=e61]:
+            - generic [ref=e62]:
+              - generic [ref=e63]: פרופיל עוגן · אוצרות מחקרית מתפתחת
+              - heading "מה חשוב לדעת על 1820" [level=2] [ref=e64]
+            - button "לדף המספר ←" [ref=e65] [cursor=pointer]
+          - generic [ref=e66]:
+            - generic [ref=e67]:
+              - generic [ref=e68]: יסודות
+              - strong [ref=e69]: 1820 = יהוה × עמים (26×70) = מספר שמות יהוה בכל התורה
+              - paragraph [ref=e70]: "לב האתר: שם ה׳ מופיע בתורה 1820 פעם — המספר שסופר את שמות ה׳ הוא גם הגימטריה של «מספר שמות יהוה בכל התורה». הצופן: «משיח טבת עשירי» בדילוג 1820 בדיוק; «משיח יהוה יתגלה עשרה בטבת» = 1820 (גדול); «התגלות השם המפורש» = 1820; «לעשות נחת רוח ליוצרו» = 1820. אור הגנוז של פנימיות התורה."
+            - complementary [ref=e71]:
+              - generic [ref=e72]: איך לקרוא את זה?
+              - paragraph [ref=e73]: זהו תיאור אוצרות מחקרי שמתעדכן עם העבודה. חישובי המנוע, המקורות והאימותים מוצגים בנפרד. דף המספר נשאר הבית הייעודי לחישוב ולביטוי; העולם מציג את ההקשר סביב המספר.
+        - region "התמצאות בעולם" [ref=e74]:
+          - heading "שכבות המידע" [level=2] [ref=e77]
+          - group "בחירת שכבה בעולם" [ref=e78]:
+            - button "כללי 7" [pressed] [ref=e79] [cursor=pointer]:
+              - generic [ref=e80] [cursor=pointer]: כללי
+              - generic [ref=e81] [cursor=pointer]: "7"
+            - button "תמונות 17" [ref=e82] [cursor=pointer]:
+              - generic [ref=e83] [cursor=pointer]: תמונות
+              - generic [ref=e84] [cursor=pointer]: "17"
+            - button "גימטריה 185" [ref=e85] [cursor=pointer]:
+              - generic [ref=e86] [cursor=pointer]: גימטריה
+              - generic [ref=e87] [cursor=pointer]: "185"
+            - button "מקורות 6" [ref=e88] [cursor=pointer]:
+              - generic [ref=e89] [cursor=pointer]: מקורות
+              - generic [ref=e90] [cursor=pointer]: "6"
+            - button "קשרים 81" [ref=e91] [cursor=pointer]:
+              - generic [ref=e92] [cursor=pointer]: קשרים
+              - generic [ref=e93] [cursor=pointer]: "81"
+            - button "מחקר 8" [ref=e94] [cursor=pointer]:
+              - generic [ref=e95] [cursor=pointer]: מחקר
+              - generic [ref=e96] [cursor=pointer]: "8"
+            - button "זמן 82" [ref=e97] [cursor=pointer]:
+              - generic [ref=e98] [cursor=pointer]: זמן
+              - generic [ref=e99] [cursor=pointer]: "82"
+          - generic [ref=e100]: הבחירה משנה רק את מה שמוצג על המסך. היא לא משנה קשרים, דירוג אמת, אימות או מצב מחקר.
+        - region "העיקר סביב 1820" [ref=e101]:
+          - generic [ref=e103]:
+            - generic [ref=e104]: קודם מה שמשנה את התמונה
+            - heading "העיקר סביב 1820" [level=2] [ref=e105]
+            - paragraph [ref=e106]: עד שבע התכנסויות וקשרים בולטים שנבחרו בהקשר הזה אחרי סינון הרשאות וקיבוץ כפילויות ותלויות. הבולטות כאן היא רלוונטיות מחקרית — לא דירוג אמת.
+          - generic [ref=e107]:
+            - article [ref=e108]:
+              - generic [ref=e109]:
+                - generic [ref=e110]:
+                  - generic [ref=e111]: ישות
+                  - generic [ref=e112]: אוצרות · כסף
+                - heading "סוד אלף שמונה מאות עשרים כי לה המלוכה" [level=3] [ref=e113]
+              - generic [ref=e114]:
+                - button "למה כאן?" [ref=e115] [cursor=pointer]
+                - button "בדוק" [ref=e116] [cursor=pointer]
+            - article [ref=e117]:
+              - generic [ref=e118]:
+                - generic [ref=e119]:
+                  - generic [ref=e120]: מספר
+                  - generic [ref=e121]: אוצרות · זהב
+                - heading "776" [level=3] [ref=e122]
+              - generic [ref=e123]:
+                - button "למה כאן?" [ref=e124] [cursor=pointer]
+                - button "בדוק" [ref=e125] [cursor=pointer]
+            - article [ref=e126]:
+              - button "צופן הגאולה בדילוג 1820 המרמז על משיח שיבוא בטבת עשירי (מלכות שבמלכות) חודש טבת ז…" [ref=e128]:
+                - img "צופן הגאולה בדילוג 1820 המרמז על משיח שיבוא בטבת עשירי (מלכות שבמלכות) חודש טבת ז…" [ref=e129]
+              - generic [ref=e130]:
+                - generic [ref=e132]: מדיה
+                - heading "תמונה" [level=3] [ref=e133]
+              - generic [ref=e134]:
+                - button "למה כאן?" [ref=e135] [cursor=pointer]
+                - button "בדוק" [ref=e136] [cursor=pointer]
+            - article [ref=e137]:
+              - generic [ref=e138]:
+                - generic [ref=e140]: ישות
+                - heading "כתל שריד בית מקדש" [level=3] [ref=e141]
+              - generic [ref=e142]:
+                - button "למה כאן?" [ref=e143] [cursor=pointer]
+                - button "בדוק" [ref=e144] [cursor=pointer]
+            - article [ref=e145]:
+              - generic [ref=e146]:
+                - generic [ref=e148]: ספר
+                - heading "אהבת תורה" [level=3] [ref=e149]
+              - generic [ref=e150]:
+                - button "למה כאן?" [ref=e151] [cursor=pointer]
+                - button "בדוק" [ref=e152] [cursor=pointer]
+            - article [ref=e153]:
+              - generic [ref=e154]:
+                - generic [ref=e156]: חיבור
+                - heading "חיבור" [level=3] [ref=e157]
+              - generic [ref=e158]:
+                - button "למה כאן?" [ref=e159] [cursor=pointer]
+                - button "בדוק" [ref=e160] [cursor=pointer]
+            - article [ref=e161]:
+              - generic [ref=e162]:
+                - generic [ref=e164]: מספר
+                - heading "182" [level=3] [ref=e165]
+              - generic [ref=e166]:
+                - button "למה כאן?" [ref=e167] [cursor=pointer]
+                - button "בדוק" [ref=e168] [cursor=pointer]
+  - toolbar "מסלול המחקר והפעולות הזמינות עכשיו" [ref=e169]:
+    - button "כאן · מפת העמוד וההקשר" [ref=e170] [cursor=pointer]:
+      - img [ref=e171] [cursor=pointer]
+      - generic [ref=e174] [cursor=pointer]: כאן
+    - button "מספר · פתח חלונית מספר" [ref=e175] [cursor=pointer]:
+      - img [ref=e176] [cursor=pointer]:
+        - generic [ref=e177] [cursor=pointer]: "123"
+      - generic [ref=e178] [cursor=pointer]: מספר
+    - button "פתח את רזיאל" [ref=e179] [cursor=pointer]
+    - button "עכשיו · 2 חדשים" [ref=e181] [cursor=pointer]:
+      - img [ref=e182] [cursor=pointer]
+      - generic [ref=e185] [cursor=pointer]: עכשיו
+      - generic [ref=e186] [cursor=pointer]: "2"
+    - button "עוד · פעולות וכלים" [ref=e187] [cursor=pointer]:
+      - img [ref=e188] [cursor=pointer]
+      - generic [ref=e193] [cursor=pointer]: עוד
+```

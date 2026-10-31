@@ -1,0 +1,9 @@
+{
+  "test": "reduced motion preserves the same World meaning and controls",
+  "blocked": [],
+  "reads": [],
+  "responses": [],
+  "localReads": [],
+  "transportErrors": [],
+  "staticReads": 0
+}
