@@ -53,6 +53,20 @@ Live-anonymous local-build examples69/73/105 and empty102 passed390/1440;
 not proof of all106 galleries. No catalog/SEO route decision, tree promotion,
 source publication, new hosted Preview or Production change. Existing gaps remain.
 
+**Public gallery catalog · 2026-10-31:** existing plan37 §12.13
+`GALLERY_2029_PUBLIC_CATALOG_20261031`, MD5
+`72ac7de9c70334c61512cbbd98b8bd19`, preserves the entire previous prefix
+`df72132b708c640239555dd4e4025866`. Catalog `/world?view=gallery` now lists87
+currently public galleries using original IDs/names, eligible covers/counts,
+search/sort and exact gallery return; no inferred series. Runtime
+`9ded00ae7f9f20471e0d7638f690d50da7ce36e0` is in protected READY Preview
+`dpl_5E97MgTU4T5grf4uyUZ55DRrRfCd` (target=null), live-anonymous verified at
+390/1440 in light/parchment/dark. This supersedes only the catalog/not-hosted
+gap for included bounded slices, not proof of all106 gallery bodies or final
+design. Separate Posts session untouched; cross-gallery series seam and other
+§12.10 gaps remain open. No main/Production/product publication change.
+Evidence and exact coverage: existing gallery receipt, not a new owner.
+
 Live reality is resolved from:
 
 `canonical Supabase + origin/main + production where behavior matters`.

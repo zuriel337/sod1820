@@ -642,3 +642,62 @@ slices. Cross-gallery series navigation remains pending the Posts source seam;
 ongoing work of the separate Posts session is NOT imported by this deployment.
 No main, Production, Edge, DB/RLS/migration/publication change. This receipt's
 later documentation-only commit is not a different deployed runtime SHA.
+
+## 31.10 public gallery catalog — protected hosted acceptance
+
+Task `GALLERY_2029_PUBLIC_CATALOG_20261031`, BEFORE
+`d264eda0-b739-45d3-a3c7-1237f5636c71`. Same continuation branch; base
+`ec6610ae4e481427fadcb66052e8e38dc356bf87`, runtime
+`9ded00ae7f9f20471e0d7638f690d50da7ce36e0` committed and pushed.
+
+Catalog uses existing `/world?view=gallery` with no gallery parameter. Original
+names/IDs, first stored-order eligible cover, admitted public image counts,
+search/sort retained in URL, refresh, partial/error states, gallery entry and
+Back. World has one existing-style entry link; gallery retains exact image
+steps/Number return. No router, Post, Frame/Provider/engine changes. Catalog
+uses CanonicalMediaImage2029 and existing semantic style tokens, whole images,
+responsive grid; no new theme or series chronology.
+
+Existing getGalleriesOverview gains opt-in publicSourceOnly/client support,
+bounded metadata/lightweight public image pagination, errors and coverage.
+Legacy default fields/order/cache/error behavior unchanged. Public mode never
+uses or populates Legacy cache. Existing source-context composition validates
+exact membership/public gates, safe HTTPS covers, counts admitted rows, rejects
+ambiguous memberships and signed/unsafe thumbnails. Refresh/withdrawal/error
+clears old catalog cards. Destination independently re-admits exact sources.
+
+Initial live read:106 metadata,2192 eligible image rows,87 public gallery cards.
+Final hosted read:2191 eligible rows, still87 cards; time snapshots, not a fixed
+inventory. No product mutation performed here. Metadata without admitted public
+media is not a card;102 absent. This is not a body/pixel audit of every gallery.
+Historical69=part5 and73=part7 preserved. Cross-gallery series navigation still
+awaits source-qualified occurrences from Posts owner, no title/ID inference.
+Separate Posts session reserved, not edited or imported.
+
+Verification:80 focused tests,3 registered browser tests and7 auth-guard cases
+pass, no skips. Browser fixtures320/390/1440 cover catalog return/reload,
+new-gallery refresh, withdrawal, error and partial coverage. Both builds,
+graph/lazy/isolation/World/Topic/hardening/Legacy lock/diff pass; inherited
+chunk/mixed-import warnings retained, eager gzip418261. Initial exact-label
+browser failure fixed by an explicit accessible select label; tests not weakened.
+
+Deployment `dpl_5E97MgTU4T5grf4uyUZ55DRrRfCd`, READY target=null, exact runtime
+above. URL:
+https://sod1820-jh5t39ta1-sod1820-s-projects.vercel.app/world?view=gallery
+Existing SSO retained; authorized temporary user share credential not persisted.
+Hosted390/1440 uses actual public anonymous readers and compares eligible IDs,
+names/counts; first cover loaded; search/sort/reload/gallery69/Back pass in
+light/parchment/dark. No overflow/pageerrors/model/blocked requests or observed
+product writes. Separate smoke verifies served SHA, read-only/mock-only flags,
+no-store/noindex and worker guard; gallery69 cross-window steps and Back/reload
+pass both widths. Evidence `/tmp/gallery-catalog-hosted.log`,
+`/tmp/gallery-catalog-hosted-identity.log`, screenshots
+`/tmp/gallery-catalog-hosted-20261031/`. Exact local integrated build passed.
+
+Plan37 status-only §12.13 CAS from `df72132b708c640239555dd4e4025866` to
+`72ac7de9c70334c61512cbbd98b8bd19`; independent readonly verifies entire old
+prefix, exact append and DRAFT. Canonical18 unchanged
+`05b73b416ab47804c9a0c807250b16f7`. Current main unchanged2195c978.
+IMPLEMENTED/TESTED/BRANCH_ONLY/PREVIEW_DEPLOYED_BOUNDED_VERIFIED, not main,
+Production, Edge, product DB/RLS/migration or publication. Later docs-only SHA
+is not the served runtime SHA. Other One Tree/final design gaps remain open.

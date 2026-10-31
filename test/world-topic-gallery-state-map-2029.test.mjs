@@ -42,3 +42,15 @@ test("gallery expansion is recorded without claiming migration of the whole arch
   assert.match(checkpoint,/Legacy defaults unchanged/);
   assert.match(checkpoint,/new hosted Preview or Production change/);
 });
+test("catalog checkpoint identifies bounded hosted coverage and preserves Posts boundary", () => {
+  const state = read("../SOD1820_MASTER_STATE.md");
+  const checkpoint = state.slice(state.indexOf("Public gallery catalog · 2026-10-31"),state.indexOf("Live reality is resolved from:"));
+  assert.match(checkpoint,/plan37 §12\.13/);
+  assert.match(checkpoint,/72ac7de9c70334c61512cbbd98b8bd19/);
+  assert.match(checkpoint,/9ded00ae7f9f20471e0d7638f690d50da7ce36e0/);
+  assert.match(checkpoint,/dpl_5E97MgTU4T5grf4uyUZ55DRrRfCd/);
+  assert.match(checkpoint,/currently public galleries/);
+  assert.match(checkpoint,/not proof of all106 gallery bodies/);
+  assert.match(checkpoint,/Separate Posts session untouched/);
+  assert.match(checkpoint,/No main\/Production\/product publication change/);
+});
