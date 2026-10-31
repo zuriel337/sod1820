@@ -180,7 +180,7 @@ def open_context(browser, theme="dark", width=390, guest=False):
 try:
     with sync_playwright() as p:
         browser = p.chromium.launch(executable_path="/usr/bin/chromium", headless=True, args=["--no-sandbox"])
-        for width in ([] if os.environ.get("WRITER_SKIP_CAPTURES") else [320, 390, 768, 1440]):
+        for width in ([] if os.environ.get("WRITER_SKIP_CAPTURES") else [320, 360, 390, 768, 1440]):
             for theme in ["light", "parchment", "dark"]:
                 context = open_context(browser, theme, width)
                 page = context.new_page()
@@ -229,7 +229,7 @@ try:
                 assert not panel_box["overflow"], (width, theme, panel_box)
                 assert abs(panel_box["left"] - panel_box["right"]) <= 2.5, (width, theme, panel_box)
                 expect(workspace.get_by_role("button", name="המחקר שלי", exact=False)).to_be_visible()
-                conversations = workspace.get_by_role("button", name="השיחות שלי", exact=False)
+                conversations = workspace.get_by_role("button", name="השיחות שלי", exact=True)
                 expect(conversations).to_be_visible()
                 conversations.click()
                 expect(workspace.get_by_role("heading", name="השיחות שלי", exact=True)).to_be_visible()

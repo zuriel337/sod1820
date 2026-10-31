@@ -55,6 +55,17 @@ def case_data(case=None):
 
 
 CASES = [case_data(case) for case in SQL_CASES] if SQL_CASES else [case_data()]
+if not SQL_CASES:
+    original = CASES[0]["rows"][0]
+    CASES[0]["rows"] = [{**original, "id": f"10000000-0000-4000-8000-{index:012d}",
+        "body": f"תגובת בדיקה חדשה {index}", "created_at": f"2026-10-30T00:{index:02d}:00Z"}
+        for index in reversed(range(50))] + [original]
+    other = case_data()
+    other.update(account=AUTHOR, reply_body="תגובה לחשבון השני בלבד")
+    other["rows"] = [{**original, "id": "55555555-5555-4555-8555-555555555555", "body": other["reply_body"]}]
+    ACCOUNT_CASES = CASES + [other]
+else:
+    ACCOUNT_CASES = CASES
 
 
 class StaticFiles(SimpleHTTPRequestHandler):
@@ -76,7 +87,7 @@ def session(account=ACCOUNT):
 
 
 def install(page, case):
-    state = {"calls": [], "errors": [], "writes": [], "blocked_telemetry": [], "hold_account": None, "held_reply": None}
+    state = {"calls": [], "errors": [], "writes": [], "blocked_telemetry": [], "hold_account": None, "held_reply": None, "fail_replies": False}
     page.on("pageerror", lambda error: state["errors"].append(str(error)))
 
     def route(handler):
@@ -90,7 +101,7 @@ def install(page, case):
         account = case["account"]
         if len(token) == 3 and token[2] == "synthetic":
             account = json.loads(base64.urlsafe_b64decode(token[1] + "=" * (-len(token[1]) % 4)))["sub"]
-        current = next((value for value in CASES if value["account"] == account), None)
+        current = next((value for value in ACCOUNT_CASES if value["account"] == account), None)
         if local and request.is_navigation_request() and request.resource_type == "document":
             return handler.fulfill(content_type="text/html", body=HTML)
         if local and url.path.startswith("/api/"):
@@ -122,7 +133,13 @@ def install(page, case):
         if url.path == "/auth/v1/user":
             data = session(account)["user"]
         elif name == "replies_to_me":
+            if state["fail_replies"]:
+                return handler.fulfill(status=503, json={"message": "synthetic read failure"})
             data = current["rows"] if current else []
+            args = request.post_data_json or {}
+            if args.get("p_before"):
+                data = [row for row in data if row["created_at"] < args["p_before"]]
+            data = data[:args.get("p_limit", 50)]
             if account == state["hold_account"]:
                 state["held_reply"] = (handler, data)
                 return
@@ -151,27 +168,36 @@ report = {"cases": [], "errors": [], "sql_backed": bool(SQL_CASES)}
 try:
     with sync_playwright() as playwright:
         browser = playwright.chromium.launch(executable_path="/usr/bin/chromium", headless=True, args=["--no-sandbox"])
-        for width, case in [(width, case) for width in (320, 390, 1440) for case in CASES]:
+        for width, theme, case in [(width, theme, case) for width in (320, 360, 390, 1440) for theme in ("light", "parchment", "dark") for case in CASES]:
             context = browser.new_context(viewport={"width": width, "height": 1000}, reduced_motion="reduce",
                                           has_touch=width <= 390, is_mobile=width <= 390)
-            context.add_init_script("localStorage.setItem('sod-theme','dark')")
+            context.add_init_script("localStorage.setItem('sod-theme'," + json.dumps(theme) + ")")
             context.add_init_script("if (!localStorage.getItem(" + json.dumps(AUTH_KEY) + ")) localStorage.setItem(" + json.dumps(AUTH_KEY) + "," + json.dumps(json.dumps(session(case["account"]))) + ")")
             page = context.new_page()
             state = install(page, case)
             page.goto(BASE + "/2029/me/messages")
             page.locator(".wp-layout[data-state=ready]").wait_for()
-            page.get_by_role("button", name="תגובות אליי", exact=False).click()
+            replies_tab = page.get_by_role("button", name="תגובות אליי", exact=False)
+            replies_tab.focus(); page.keyboard.press("Enter")
+            for button in [replies_tab, page.get_by_role("button", name="💬 הודעות", exact=True)]:
+                box = button.bounding_box()
+                assert box["width"] >= 44 and box["height"] >= 44, box
             expect(page.get_by_text("כאן מופיעות תגובות לפוסטים שלך בקהילה ולתרומות מחקריות. תגובות מהצ׳אט הוותיק יוצגו אחרי חיבור מאומת של הפרופיל הישן לחשבון.", exact=True)).to_be_visible()
             expect(page.get_by_text("הצ׳אט הוותיק", exact=True).first).to_be_visible()
             expect(page.get_by_text("תגובה בשיחה בקהילה", exact=False).first).to_be_visible()
-            expect(page.get_by_role("button", name="הצ׳אט הוותיק", exact=False)).to_have_count(len(case["rows"]))
+            expect(page.get_by_role("button", name="הצ׳אט הוותיק", exact=False)).to_have_count(min(50, len(case["rows"])))
+            if not SQL_CASES:
+                page.get_by_role("button", name="טען תגובות ותיקות יותר", exact=False).click()
+                expect(page.get_by_role("button", name="הצ׳אט הוותיק", exact=False)).to_have_count(51)
             for other in CASES:
                 if other != case:
                     expect(page.get_by_text(other["reply_body"], exact=True)).to_have_count(0)
             assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
-            prefix = f"{width}-account-{case['ordinality']}" if SQL_CASES else str(width)
+            prefix = f"{width}-{theme}-account-{case['ordinality']}"
             page.screenshot(path=str(OUT / f"{prefix}-personal-replies.png"), full_page=True)
             reply = page.get_by_role("button", name="הצ׳אט הוותיק", exact=False).filter(has_text=case["reply_body"])
+            reply.scroll_into_view_if_needed()
+            return_offset = reply.evaluate("element => Math.round(element.getBoundingClientRect().top)")
             reply.click()
             page.wait_for_url(lambda value: urlparse(value).path == "/2029" and parse_qs(urlparse(value).query).get("preview") == ["community"] and parse_qs(urlparse(value).query).get("thread") == [case["root"]])
             expect(page.get_by_role("heading", name="השיחה שבה התקבלה התגובה", exact=True)).to_be_visible()
@@ -179,7 +205,19 @@ try:
             target = page.locator(f"#message-{case['reply']}")
             expect(target).to_contain_text(case["reply_body"])
             assert "is-focused" in (target.get_attribute("class") or "")
-            expect(page.get_by_role("link", name="חזרה להודעות שלי", exact=True)).to_have_attribute("href", "/2029/me/messages")
+            back = page.get_by_role("link", name="חזרה להודעות שלי", exact=True)
+            return_href = back.get_attribute("href")
+            return_query = parse_qs(urlparse(return_href).query)
+            assert return_query["tab"] == ["replies"] and return_query["replyAnchor"] == [case["reply"]]
+            if not SQL_CASES: assert return_query["replyPages"] == ["2"]
+            author = page.locator(f"#message-{case['root']} > .sod29-community-author .sod29-community-author-link").first
+            author_query = parse_qs(urlparse(author.get_attribute("href")).query)
+            assert author_query["thread"] == [case["root"]] and author_query["returnTo"] == [return_href]
+            author.click()
+            expect(page.get_by_role("button", name="סגירת כרטיס הכותב", exact=True)).to_be_focused()
+            page.keyboard.press("Escape")
+            expect(page.get_by_role("button", name="סגירת כרטיס הכותב", exact=True)).to_have_count(0)
+            assert parse_qs(urlparse(page.url).query)["returnTo"] == [return_href]
             page.reload()
             expect(page.get_by_role("heading", name="השיחה שבה התקבלה התגובה", exact=True)).to_be_visible()
             target = page.locator(f"#message-{case['reply']}")
@@ -194,13 +232,21 @@ try:
             assert not any(any(token in path for token in ("dm_send", "watch_toggle", "add_contribution")) for path, _ in state["writes"]), state["writes"]
             page.screenshot(path=str(OUT / f"{prefix}-old-community-reply.png"), full_page=True)
             page.get_by_role("link", name="חזרה להודעות שלי", exact=True).click()
-            page.wait_for_url(BASE + "/2029/me/messages")
+            page.wait_for_url(BASE + return_href)
             page.locator(".wp-layout[data-state=ready]").wait_for()
-            if SQL_CASES:
+            returned = page.locator(f'[data-reply-id="{case["reply"]}"]')
+            expect(returned).to_be_focused()
+            expect(page.get_by_role("button", name="הצ׳אט הוותיק", exact=False)).to_have_count(len(case["rows"]))
+            assert abs(returned.evaluate("e=>Math.round(e.getBoundingClientRect().top)") - return_offset) <= 2
+            page.reload()
+            expect(page.locator(f'[data-reply-id="{case["reply"]}"]')).to_be_focused()
+            expect(page.get_by_role("button", name="הצ׳אט הוותיק", exact=False)).to_have_count(len(case["rows"]))
+            assert not any(name == "contributor-self" for name, _ in state["calls"]), "messages must use their own authenticated readers"
+            if ACCOUNT_CASES:
                 # Change the existing Auth principal in-place, while holding the
                 # second account's actual SQL response. Old replies must disappear
                 # before it arrives; no product bypass or live authentication.
-                next_case = CASES[(CASES.index(case) + 1) % len(CASES)]
+                next_case = ACCOUNT_CASES[(ACCOUNT_CASES.index(case) + 1) % len(ACCOUNT_CASES)]
                 state["hold_account"] = next_case["account"]
                 page.evaluate("""s => {
                     const key = 'sb-linswmnnkjxvweumprav-auth-token';
@@ -220,11 +266,28 @@ try:
                 handler.fulfill(json=rows)
                 expect(page.get_by_text(next_case["reply_body"], exact=True)).to_be_visible()
                 expect(page.get_by_text(case["reply_body"], exact=True)).to_have_count(0)
-                expect(page.get_by_role("button", name="הצ׳אט הוותיק", exact=False)).to_have_count(2)
+                expect(page.get_by_role("button", name="הצ׳אט הוותיק", exact=False)).to_have_count(len(next_case["rows"]))
+                state["fail_replies"] = True
+                page.get_by_role("button", name="💬 הודעות", exact=True).click()
+                page.get_by_role("button", name="תגובות אליי", exact=False).click()
+                expect(page.get_by_role("alert")).to_contain_text("לא ניתן לטעון")
+                expect(page.get_by_text("אין עדיין תגובות לפוסטים או לתרומות שלך", exact=False)).to_have_count(0)
+                state["fail_replies"] = False
+                state["hold_account"] = None
+                page.get_by_role("button", name="ניסיון נוסף", exact=True).click()
+                expect(page.get_by_text(next_case["reply_body"], exact=True)).to_be_visible()
+                page.evaluate("""() => {
+                    const key='sb-linswmnnkjxvweumprav-auth-token'; localStorage.removeItem(key);
+                    const channel=new BroadcastChannel(key); channel.postMessage({event:'SIGNED_OUT',session:null});
+                    setTimeout(()=>channel.close(),100);
+                }""")
+                expect(page.get_by_role("heading", name="צריך להתחבר כדי לראות את האזור האישי", exact=True)).to_be_visible()
+                expect(page.get_by_text(next_case["reply_body"], exact=True)).to_have_count(0)
             assert not any(any(name in path for name in ("ai-analyze", "research-run")) for path, _ in state["calls"] + state["writes"])
             assert not state["writes"], state["writes"]
-            report["cases"].append({"width": width, "account": case["ordinality"], "old_thread": True, "exact_reply": True,
-                                    "reload": True, "exact_return": True, "account_switch_pending_isolated": bool(SQL_CASES),
+            report["cases"].append({"width": width, "theme": theme, "account": case["ordinality"], "old_thread": True, "exact_reply": True,
+                                    "reload": True, "exact_return": True, "restored_pages": 1 if SQL_CASES else 2, "account_switch_pending_isolated": True,
+                                    "read_failure_retry": True, "logout_masks_private_data": True,
                                     "overflow": False, "model_calls": 0, "focused_body_width": body_width,
                                     "unexpected_writes": [], "blocked_background_writes": len(state["blocked_telemetry"])})
             report["errors"].extend(state["errors"])
