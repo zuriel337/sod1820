@@ -426,7 +426,7 @@ try {
     await through.waitFor();
     assert.match(await through.innerText(), /ולא קשר ישיר מתועד/);
     const lens = page.locator("#topic-number-research-1118");
-    await lens.getByRole("button", { name: "הצגת ממצאי צבי למספר", exact: true }).click();
+    await lens.getByRole("button", { name: "הצגת ממצאים למספר", exact: true }).click();
     const finding = lens.locator('a[href^="/world?finding="]').first();
     await finding.waitFor();
     const findingHref = await finding.getAttribute("href");
@@ -435,7 +435,7 @@ try {
     assert.equal(await page.evaluate(() => history.state.usr?.returnTo), "/topic/gapfill-1118#topic-number-research-1118");
     await page.getByRole("region", { name: "ממצא ציבורי בעולם", exact: true }).waitFor();
     await page.goBack();
-    await lens.getByRole("button", { name: "הצגת ממצאי צבי למספר", exact: true }).waitFor();
+    await lens.getByRole("button", { name: "הצגת ממצאים למספר", exact: true }).waitFor();
     await page.screenshot({ path: resolve(output, `topic-1118-${width}.png`) });
     await page.goto(origin + "/world?view=sources&source=tzvi-opoc");
     await page.getByRole("region", { name: "ממצאים הקשורים למקורות צבי", exact: true }).waitFor();

@@ -5,6 +5,12 @@ import { fileURLToPath } from "node:url";
 import { readFile, writeFile, copyFile, mkdir } from "node:fs/promises";
 import { COMMUNITY_UPLOAD_POLICY } from "../src/lib/community/communityUploadPolicy.js";
 import { AVATAR_UPLOAD_POLICY } from "../src/lib/userCenter/avatarPolicy.js";
+import { execFileSync } from "node:child_process";
+
+const END_TO_END_BRANCH = "gpt/2029-unified-end-to-end-preview-20261031";
+if (process.env.VERCEL_GIT_COMMIT_REF === END_TO_END_BRANCH && process.env.VERCEL_ENV === "production") {
+  throw new Error("unified_preview_is_never_production");
+}
 
 const POSTS_PREVIEW_BRANCH = "gpt/posts-integrated-backgrounds-20261030";
 if (process.env.VERCEL_GIT_COMMIT_REF === POSTS_PREVIEW_BRANCH && process.env.VERCEL_ENV === "production") {
@@ -14,6 +20,8 @@ if (process.env.VERCEL_GIT_COMMIT_REF === POSTS_PREVIEW_BRANCH && process.env.VE
 const root = fileURLToPath(new URL("../", import.meta.url));
 const output = resolve(root, "preview-deploy/dist");
 process.env.SOD_BUILD_TARGET = "2029";
+// Same source/content gate used by the regular builds; no Preview exemption.
+execFileSync(process.execPath, [resolve(root, "scripts/test-one-tree-content-contract.mjs")], { cwd: root, stdio: "inherit" });
 await build({ root, define: {
   "import.meta.env.VITE_INTEGRATED_PREVIEW": '"true"',
   "import.meta.env.VITE_KINGDOM_PREVIEW": '"true"',
@@ -22,6 +30,12 @@ await build({ root, define: {
 }, build: { outDir: output, emptyOutDir: true, manifest: true } });
 
 const allow = ["gematria_api", "fn_method_value", "fn_method_profile", "gematria_method_trace", "fn_zero_scale", "posts_by_number_strict", "fn_number_lookup", "fn_number_dossier", "fn_number_journey", "fn_verses_by_gematria", "lang_links_list", "number_neighbors", "fn_all_methods", "world_group_source_arrivals_v2", "rd_is_admin", "fn_list_family", "fn_name_protocol", "fn_cross_research"];
+// One explicit, authenticated user turn may reach the EXISTING live server.
+// This is not an Edge rollout, matrix job allowance or product-write exemption.
+const realRazielPreview = typeof process !== "undefined" && process.env.VERCEL_ENV === "preview"
+  && process.env.VERCEL_GIT_COMMIT_REF === "gpt/2029-unified-end-to-end-preview-20261031";
+const endToEndReadOnly = typeof process !== "undefined"
+  && process.env.VERCEL_GIT_COMMIT_REF === "gpt/2029-unified-end-to-end-preview-20261031";
 // The Preview is restricted to existing accounts. This identity RPC is forwarded so an
 // already-linked account can recover its canonical Person ref; every Person/Family upsert
 // remains blocked below. The approved owner's Person exists before this disposable build.
@@ -40,7 +54,8 @@ const communityPublishing = typeof process !== "undefined" && process.env.VERCEL
 const unifiedReadOnly = typeof process !== "undefined" && ["gpt/2029-central-unified-workspace-20261029", "gpt/2029-central-shell-alignment-20261029", "gpt/2029-central-topbar-menu-completion-20261029", "gpt/2029-central-ui-carry-restoration-20261029", "gpt/2029-central-community-filter-tiles-20261029", "gpt/2029-central-community-small-filters-20261029", "gpt/2029-central-single-command-bar-20261029", "gpt/2029-central-public-context-labels-20261029", "gpt/2029-central-zvi-public-material-20261029", "gpt/2029-central-zvi-research-experience-20261029", "gpt/2029-central-zvi-world-source-tree-20261030", "gpt/elections-world-seed-integration-20261030", "gpt/posts-integrated-backgrounds-20261030", "gpt/2029-central-posts-els-raziel-integration-20261031"].includes(process.env.VERCEL_GIT_COMMIT_REF);
 const worker = `const reads = new Set(${JSON.stringify(allow)});
 const existingPersonAccess=${JSON.stringify(existingPersonAccess)};
-const unifiedReadOnly=${JSON.stringify(unifiedReadOnly || communityMessageManagement)};
+const unifiedReadOnly=${JSON.stringify(unifiedReadOnly || communityMessageManagement || endToEndReadOnly)};
+const realRazielPreview=${JSON.stringify(realRazielPreview)};
 const communityMessageManagement=${JSON.stringify(communityMessageManagement)};
 const communityPublishing=${JSON.stringify(communityPublishing)};
 const uploadPolicy=${JSON.stringify(COMMUNITY_UPLOAD_POLICY)};
@@ -146,8 +161,26 @@ self.addEventListener('fetch',event=>{
   event.respondWith(Promise.resolve(new Response(JSON.stringify({error:'preview_read_only'}),{status:403,headers:{'Content-Type':'application/json','X-Preview-Write-Blocked':'true'}})));return;
  }
  const safe=(!u.pathname.startsWith('/auth/v1/')&&['GET','HEAD','OPTIONS'].includes(req.method))
-  ||(u.origin===authOrigin&&req.method==='POST'&&(reads.has(rpc)||communityProjection||(!unifiedReadOnly&&rpc===existingPersonAccess)));
+  ||(u.origin===authOrigin&&req.method==='POST'&&(reads.has(rpc)||communityProjection||(!unifiedReadOnly&&rpc===existingPersonAccess)
+    ||(realRazielPreview&&['research_state_snapshot_v1','fn_research_path_resume_v1','dm_inbox'].includes(rpc))));
  if(safe)return;
+ if(u.origin===authOrigin&&u.pathname==='/functions/v1/ai-analyze'&&req.method!=='GET'&&req.method!=='HEAD'){
+  event.respondWith((async()=>{
+   const denied=(error='preview_read_only')=>new Response(JSON.stringify({error}),{status:403,headers:{'Content-Type':'application/json','X-Preview-Write-Blocked':'true'}});
+   if(!realRazielPreview||req.method!=='POST'||u.search||!/^Bearer [A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+$/i.test(req.headers.get('Authorization')||''))return denied();
+   try{
+    const raw=await req.clone().text();if(raw.length>24000)return denied();
+    const b=JSON.parse(raw);
+    if(!b||Array.isArray(b)||b.kind!=='research'||b.persona!=='raziel'||b.research_contract!=='public-number-research-run-v1'||typeof b.subject!=='string'||!b.subject.trim()||Array.from(b.subject).length>300)return denied();
+    // Live v90 lacks the newest owned-occurrence receipt. Never silently run
+    // an expensive matrix action or turn an unsupported ELS action into chat.
+    if(b.els_matrix_context||b.els_matrix_reading_action||b.els_planning_action)return denied('preview_server_contract_pending');
+    const keys=new Set(['kind','persona','subject','facts','context','path','again','metatron','visitor_id','intelligence_level','surface_semantic','conversation_resolution','research_contract','interaction_id','companion_action','view_mode']);
+    if(Object.keys(b).some(k=>!keys.has(k)))return denied();
+    return fetch(req); // Existing server verifies Auth, availability and quota.
+   }catch{return denied();}
+  })());return;
+ }
  event.respondWith((async()=>{
   // Existing-account access only. No signup, account mutation or product writes.
   if(u.origin===authOrigin){
@@ -236,6 +269,15 @@ if (razielSafeActionsMock) {
 }
 await writeFile(resolve(output, "2029.html"), html);
 await writeFile(resolve(output, "index.html"), html);
+if (realRazielPreview) {
+  const sha = process.env.VERCEL_GIT_COMMIT_SHA || execFileSync("git", ["rev-parse", "HEAD"], { cwd: root, encoding: "utf8" }).trim();
+  await writeFile(resolve(output, "preview-identity.json"), JSON.stringify({
+    sha, branch: END_TO_END_BRANCH, target: "preview", transport: "existing-live-ai-analyze",
+    model_trigger: "explicit-user-turn", requires_existing_account: true,
+    product_writes: false, edge_deploy: false, matrix_jobs: false,
+    els_followup_server_contract: "pending", server_observed_version: 90,
+  }, null, 2));
+}
 // Exact Posts Preview identity; no project/Production settings or live writes.
 if (process.env.VERCEL_GIT_COMMIT_REF === POSTS_PREVIEW_BRANCH) {
   const { execFileSync } = await import("node:child_process");

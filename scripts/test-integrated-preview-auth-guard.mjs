@@ -91,7 +91,7 @@ test('Books publication review is preview-only and has no write RPC in the guard
 });
 
 test('Posts Preview blocks Person creation, product writes and model calls while admitting calculation reads', async () => {
-  const workerSource = vm.runInNewContext(`${source}\nworker;`, { process: { env: { VERCEL_GIT_COMMIT_REF: postsBranch } } });
+  const workerSource = vm.runInNewContext(`${source}\nworker;`, { COMMUNITY_UPLOAD_POLICY, AVATAR_UPLOAD_POLICY, process: { env: { VERCEL_GIT_COMMIT_REF: postsBranch } } });
   assert.match(workerSource, /const unifiedReadOnly=true/);
   for (const path of ['/rest/v1/rpc/fn_get_or_create_my_person', '/rest/v1/rpc/els_verify_batch_v1', '/rest/v1/rpc/admin_research_review', '/functions/v1/raziel_core_v1']) {
     assert.deepEqual(await request(path, { workerSource }), { status: 403, forwarded: 0, blocked: 'true' });
@@ -248,4 +248,24 @@ test('exact own-avatar Preview upload and self action keep all other writes clos
  assert.deepEqual(await request('/api/contributor-self',action),{status:200,forwarded:1,blocked:null});
  for(const body of [{...action.body,action:'create'},{...action.body,user_id:uid},{...action.body,publish:false},{...action.body,url:'https://evil.invalid/a.png'}])assert.equal((await request('/api/contributor-self',{...action,body})).status,403);
  assert.equal((await request('/api/contributor-self',{...action,workerSource:managementWorker()})).status,403);
+});
+
+test('unified real Raziel Preview forwards only explicit canonical chat to the existing server', async () => {
+  const branch='gpt/2029-unified-end-to-end-preview-20261031';
+  const makeWorker=env=>vm.runInNewContext(`${source}\nworker;`, { COMMUNITY_UPLOAD_POLICY, AVATAR_UPLOAD_POLICY, process:{env} });
+  const workerSource=makeWorker({VERCEL_GIT_COMMIT_REF:branch,VERCEL_ENV:'preview'});
+  const headers={Authorization:'Bearer synthetic.synthetic.synthetic','Content-Type':'application/json'};
+  const body={kind:'research',persona:'raziel',subject:'מה אפשר לחקור כאן?',research_contract:'public-number-research-run-v1',facts:'',context:'',path:[],again:false,metatron:false};
+  assert.deepEqual(await request('/functions/v1/ai-analyze',{headers,body,workerSource}),{status:200,forwarded:1,blocked:null});
+  for(const invalid of [{...body,els_matrix_context:{}},{...body,els_matrix_reading_action:{op:'start'}},{...body,els_planning_action:{}},{...body,persona:'other'},{...body,research_contract:null},{...body,subject:''},{...body,subject:'א'.repeat(301)},{...body,operation:'publish'},[]]) {
+    assert.deepEqual(await request('/functions/v1/ai-analyze',{headers,body:invalid,workerSource}),{status:403,forwarded:0,blocked:'true'});
+  }
+  for(const options of [{body},{body,headers:{Authorization:'Bearer invalid'}},{body,headers,method:'PUT'},{rawBody:'{bad',headers}])assert.equal((await request('/functions/v1/ai-analyze',{...options,workerSource})).status,403);
+  for(const env of [{VERCEL_GIT_COMMIT_REF:branch,VERCEL_ENV:'production'},{VERCEL_GIT_COMMIT_REF:branch},{VERCEL_GIT_COMMIT_REF:'gpt/unreviewed',VERCEL_ENV:'preview'}])assert.equal((await request('/functions/v1/ai-analyze',{headers,body,workerSource:makeWorker(env)})).status,403);
+  for(const path of ['/functions/v1/research-run','/functions/v1/wa-raziel','/functions/v1/els-live-reading','/rest/v1/rpc/research_state_apply_v1','/rest/v1/rpc/fn_get_or_create_my_person','/rest/v1/rpc/add_contribution','/api/contributor-self'])assert.equal((await request(path,{headers,body,workerSource})).status,403,path);
+  assert.equal((await request('/api/contributor-self',{headers,body:{action:'avatar',ack:true,publish:true,url:'synthetic'},origin:'https://preview.invalid',workerSource})).status,403);
+  for(const rpc of ['research_state_snapshot_v1','fn_research_path_resume_v1','dm_inbox'])assert.equal((await request('/rest/v1/rpc/'+rpc,{headers,body:{},workerSource})).status,200,rpc);
+  for(const rpc of ['research_state_apply_v1','fn_research_path_append_v1','dm_thread','dm_send'])assert.equal((await request('/rest/v1/rpc/'+rpc,{headers,body:{},workerSource})).status,403,rpc);
+  const prebuild=builder.slice(builder.indexOf('const END_TO_END_BRANCH'),builder.indexOf('const POSTS_PREVIEW_BRANCH'));
+  assert.throws(()=>vm.runInNewContext(prebuild,{process:{env:{VERCEL_GIT_COMMIT_REF:branch,VERCEL_ENV:'production'}}}),/unified_preview_is_never_production/);
 });

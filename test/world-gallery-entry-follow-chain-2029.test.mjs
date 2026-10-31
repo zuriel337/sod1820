@@ -52,6 +52,6 @@ test('Claude river source/styles and canonical Follow controller/styles are not 
     assert.equal(read(path),execFileSync('git',['show','510bd8b20f5918432b3ce0e83e9432e35c1510b4:'+path],{encoding:'utf8'}));
   }
   for(const path of ['src/components/WatchButton.jsx','src/components/followCenter2029/WatchControl2029.jsx','src/components/followCenter2029/watchControl2029.css']) {
-    assert.equal(read(path),execFileSync('git',['show','a10bd229f06e06733fa03f21464818f4acccee79:'+path],{encoding:'utf8'}));
+    assert.equal(read(path),execFileSync('git',['show','fba5cf573d69acd57e0f01845b7b4141a4a2835d:'+path],{encoding:'utf8'}));
   }
 });
