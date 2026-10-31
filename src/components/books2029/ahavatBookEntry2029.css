@@ -80,3 +80,52 @@
 /* Prominent PDF action: source column header, all widths. */
 .ahavat29-source .book-fullscreen29-button[data-book-reader-secondary]{background:var(--s29-accent-btn);color:var(--s29-on-accent);border-color:transparent}
 @media(max-width:650px){.ahavat29-source .ahavat29-source-actions>:is(a,button){flex:1 1 140px}}
+
+/* Compact entry: short opening, contents search on the first screen. */
+.ahavat29 .ahavat29-intro{min-height:0;padding:clamp(20px,3vw,38px);grid-template-columns:minmax(0,1fr) auto;gap:14px clamp(18px,3vw,40px);align-items:center}
+.ahavat29 .ahavat29-intro h1{margin:8px 0 10px;font:660 clamp(32px,4vw,54px)/1.08 var(--s29-font-display)}
+.ahavat29 .ahavat29-intro>div>p{margin:0;max-width:56ch}
+.ahavat29 .ahavat29-intro .books29-entry-actions{margin-block-start:14px}
+.ahavat29 .ahavat29-intro .ahavat29-cover img{width:clamp(150px,13vw,190px)}
+.ahavat29-recommended{margin-block-start:14px}
+.ahavat29-recommended .books29-entry-actions{margin-block-start:6px}
+.ahavat29-toc-all{margin-block-start:6px}
+.ahavat29-toc-all>summary{min-height:48px;display:flex;flex-wrap:wrap;align-items:center;gap:4px 12px;cursor:pointer;font:650 var(--s29-type-ui)/1.4 var(--s29-font-ui);color:var(--a29-ink)}
+.ahavat29-toc-all>summary small{color:var(--a29-muted);font:400 var(--s29-type-small)/1.4 var(--s29-font-ui)}
+.ahavat29-toc-all>summary:focus-visible{outline:3px solid var(--s29-focus-ring);outline-offset:3px}
+.ahavat29-toc-all[open]>summary{margin-block-end:10px}
+.ahavat29-toc{padding:clamp(14px,2.4vw,28px)}
+.ahavat29-toc h2{font-size:clamp(20px,2.2vw,28px)}
+.ahavat29-toc-search{margin-block:12px 6px}
+.ahavat29-to-explanation{display:none}
+.ahavat29-source-status .ahavat29-intro-identity{margin-block-start:10px}
+.ahavat29-source-status>p{margin:8px 0 0;color:var(--a29-muted);font:400 var(--s29-type-small)/1.7 var(--s29-font-body)}
+
+/* Reading order: the chosen unit and its explanation come first, beside the source. */
+.ahavat29-story>#ahavat29-selection{order:-2}
+.ahavat29-story>#ahavat29-full-reader{order:-1}
+
+@media(max-width:900px){
+  .ahavat29 .ahavat29-intro{grid-template-columns:minmax(0,1fr) clamp(76px,22vw,104px);gap:10px 14px;padding:18px 16px;align-items:start}
+  .ahavat29 .ahavat29-intro>div:first-child{display:contents}
+  .ahavat29 .ahavat29-intro>div>span{grid-column:1;grid-row:1}
+  .ahavat29 .ahavat29-intro>div>h1{grid-column:1;grid-row:2;margin:0;font-size:clamp(26px,8vw,34px);line-height:1.12}
+  .ahavat29 .ahavat29-intro>div>p{grid-column:1;grid-row:3;font-size:var(--s29-type-small);line-height:1.6}
+  .ahavat29 .ahavat29-intro>.ahavat29-cover{grid-column:2;grid-row:1/4;align-self:start}
+  .ahavat29 .ahavat29-intro>.ahavat29-cover{min-width:0}
+  .ahavat29 .ahavat29-intro>.ahavat29-cover img{width:100%}
+  .ahavat29 .ahavat29-intro>.ahavat29-cover figcaption{display:none}
+  .ahavat29 .ahavat29-intro>div>nav,.ahavat29 .ahavat29-intro>div>.ahavat29-recommended{grid-column:1/-1}
+  .ahavat29 .ahavat29-intro .books29-entry-actions{margin-block-start:4px;gap:6px}
+  .ahavat29 .ahavat29-intro .books29-entry-actions a{min-height:44px;padding:8px 12px;font-size:var(--s29-type-small)}
+  .ahavat29-recommended h2{font-size:var(--s29-type-small)}
+  .ahavat29-recommended{margin-block-start:6px}
+  .ahavat29-to-explanation{display:inline-flex}
+  .ahavat29-toc-search{margin-block:8px 4px}
+  .ahavat29-toc-search>span{font-size:var(--s29-type-small)}
+}
+@media(min-width:1024px){
+  /* Wide reading: the source takes the first row beside the explanation, no empty column under it. */
+  .ahavat29-layout.books29-reading-layout{align-items:start}
+  .ahavat29-source.book-fullscreen29-target{height:calc(100dvh - 92px);top:80px}
+}

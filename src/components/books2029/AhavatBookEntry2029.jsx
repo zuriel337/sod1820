@@ -18,6 +18,7 @@ export function AhavatBookFigure2029() {
 
 export function AhavatBookToc2029({ page, onOpenPage, onSelectDataset }) {
   const [query, setQuery] = useState("");
+  const [listOpen, setListOpen] = useState(() => typeof window !== "undefined" && window.matchMedia("(min-width: 901px)").matches);
   const hierarchy = useMemo(() => ahavatNavigationHierarchy(), []);
   const results = useMemo(() => ahavatNavigationSearch(query), [query]);
   const current = ahavatDivisionForPage(page);
@@ -28,8 +29,7 @@ export function AhavatBookToc2029({ page, onOpenPage, onSelectDataset }) {
 
   return <section className="ahavat29-toc" id="ahavat29-toc" aria-labelledby="ahavat29-toc-title">
     <header>
-      <div><span>תוכן עניינים</span><h2 id="ahavat29-toc-title">שבע חטיבות · אזורי המקור · הנושאים והטבלאות</h2></div>
-      <p>החטיבות הן סדר הקריאה. האזורים הם החלוקה לפי המקור. הנושאים והטבלאות פותחים את העמוד שבו הם נמצאים.</p>
+      <div><h2 id="ahavat29-toc-title">תוכן עניינים</h2></div>
     </header>
     <label className="ahavat29-toc-search"><span>חיפוש נושא בספר</span>
       <input type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder="למשל: שם ה׳, 1820, אותיות, אסתר" />
@@ -39,6 +39,8 @@ export function AhavatBookToc2029({ page, onOpenPage, onSelectDataset }) {
         <b>{result.label}</b><small><bdi>{result.detail}</bdi></small>
       </button>) : <p>לא נמצא נושא תואם. אפשר לדפדף בחטיבות או לפתוח עמוד ישירות.</p>}
     </div> : null}
+    <details className="ahavat29-toc-all" open={listOpen} onToggle={event => setListOpen(event.currentTarget.open)}>
+    <summary>שבע חטיבות · אזורי המקור · נושאים וטבלאות<small>החטיבות הן סדר קריאה; האזורים לפי עמודי המקור</small></summary>
     <ol className="ahavat29-toc-list">
       {hierarchy.map(division => <li key={division.id} className={division.id === current.id ? "is-current" : ""} data-toc-division={division.id}>
         <button type="button" className="ahavat29-toc-division" aria-current={division.id === current.id ? "true" : undefined} onClick={() => onOpenPage(division.from)}>
@@ -51,6 +53,7 @@ export function AhavatBookToc2029({ page, onOpenPage, onSelectDataset }) {
         </div>
       </li>)}
     </ol>
+    </details>
   </section>;
 }
 
@@ -101,7 +104,7 @@ export function AhavatSelectionPanel2029({ page, datasetId, onOpenPage }) {
   const row = divine ? active.rows.find(([name]) => name === parasha) : null;
   const selection = dataset ? { id: dataset.id, title: row ? `${dataset.title} · ${active.title} · ${row[0]}` : dataset.title, total: dataset.total, onSource: () => onOpenPage(page, dataset.id) } : { id: `page-${page}`, title: `${area.shortTitle} · PDF ${page}`, total: "", onSource: () => onOpenPage(page) };
 
-  return <section className="ahavat29-selection" id="ahavat29-selection" aria-labelledby="ahavat29-selection-title" data-selection-dataset={dataset?.id || ""}>
+  return <section className="ahavat29-selection" id="ahavat29-selection" tabIndex={-1} aria-labelledby="ahavat29-selection-title" data-selection-dataset={dataset?.id || ""}>
     <header>
       <div><span>הבחירה שלך · חטיבה {division.title} · {area.shortTitle}</span><h2 id="ahavat29-selection-title">{dataset ? dataset.title : `מקור והסבר · עמוד ${page}`}</h2></div>
       {dataset ? <b>{dataset.total}</b> : <b>PDF {page}</b>}

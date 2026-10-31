@@ -182,3 +182,49 @@ test("opening from research keeps its context and keyboard reaches every content
     await context.close();
   } finally { await app.close(); }
 });
+
+test("compact entry: contents search is on the first screen at 390×844 and reachable at 320; phone switches between PDF and explanation", { skip: !available, timeout: 600_000 }, async () => {
+  const app = await start();
+  try {
+    for (const theme of ["light", "parchment", "dark"]) {
+      for (const [width, height] of [[320, 700], [360, 760], [390, 844], [1440, 900]]) {
+        const { page, context, errors } = await app.open({ width, height, theme, path: "/2029/control?surface=ahavat-torah-system" });
+        await page.locator("#ahavat29-toc").waitFor();
+        await page.waitForTimeout(800);
+        const search = page.getByRole("searchbox", { name: "חיפוש נושא בספר" });
+        const box = await search.boundingBox();
+        if (width === 390 || width === 1440) assert.ok(box.y >= 0 && box.y + box.height <= height - 60, `search inside first screen at ${width}: ${box.y + box.height}`);
+        // A contents entry is always in the first screen of the opening, at every width.
+        const link = page.getByRole("link", { name: "תוכן עניינים", exact: true });
+        const linkBox = await link.boundingBox();
+        assert.ok(linkBox.y + linkBox.height <= height - 60, `contents link on first screen at ${width}`);
+        assert.ok(linkBox.width >= 44 && linkBox.height >= 44);
+        assert.equal(await page.locator(".ahavat29-intro").getByRole("heading", { level: 2, name: "קטעים מומלצים להתחלה" }).isVisible(), true);
+        assert.ok(await noOverflow(page), `overflow at ${width}`);
+        await page.screenshot({ path: join(out, `compact-first-${theme}-${width}.png`) });
+        if (width === 320) {
+          await link.click();
+          await settled(page, "ahavat29-toc");
+          await page.getByRole("searchbox", { name: "חיפוש נושא בספר" }).fill("1820");
+          await page.locator('.ahavat29-toc-results [data-toc-kind="topic"]').first().click();
+          await page.locator("#ahavat29-selection").getByRole("heading", { name: "מופעי שם ה׳ בתורה" }).waitFor();
+          await assertAhavatSourcePage(page.locator("#ahavat29-source"), 6);
+          // Phone: short hop from the source to the explanation and back, selection kept.
+          await page.locator("#ahavat29-source").getByRole("link", { name: "להסבר", exact: true }).click();
+          await settled(page, "ahavat29-selection");
+          assert.equal(await page.locator("#ahavat29-selection").getByRole("heading", { name: "מופעי שם ה׳ בתורה" }).isVisible(), true);
+          await page.locator("#ahavat29-selection").getByRole("button", { name: /שמות/ }).click();
+          await page.locator("#ahavat29-selection").getByRole("button", { name: /וארא/ }).click();
+          await page.locator("#ahavat29-selection").getByRole("link", { name: /המקור · PDF 6/ }).click();
+          await settled(page, "ahavat29-source");
+          await assertAhavatSourcePage(page.locator("#ahavat29-source"), 6);
+          await page.locator("#ahavat29-source").getByRole("link", { name: "להסבר", exact: true }).click();
+          await settled(page, "ahavat29-selection");
+          assert.equal(await page.locator("#ahavat29-selection").getByText("פרשת וארא: 73 מופעים").isVisible(), true, "selection survives the round trip");
+        }
+        assert.deepEqual(errors, []);
+        await context.close();
+      }
+    }
+  } finally { await app.close(); }
+});

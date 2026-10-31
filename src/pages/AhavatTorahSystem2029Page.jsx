@@ -167,7 +167,7 @@ function SourcePanel({ page, contextLabel, onPage, readerUnit, onReturnToUnit })
   return <aside ref={fullscreenRef} id="ahavat29-source" className="ahavat29-source book-fullscreen29-target" aria-labelledby="ahavat29-source-title">
     <header>
       <div><span>המקור נשאר פתוח</span><h2 id="ahavat29-source-title">עמוד PDF {page}</h2></div>
-      <div className="ahavat29-source-actions"><b>{contextLabel}</b><button type="button" className="ahavat29-book-view-toggle" aria-pressed={bookPresentation} aria-controls="ahavat29-pdf-frame" onClick={() => setBookPresentation(value => !value)} title="הצג את המקור במסגרת ספר או בתצוגה ישרה">תצוגת ספר</button><BookFullscreenButton2029 targetRef={fullscreenRef} fallbackHref={pdfUrl} controls="ahavat29-source" /><a className="book-fullscreen29-button" href={pdfUrl} target="_blank" rel="noreferrer" data-book-reader-secondary>קרא את ה־PDF · עמוד {page} ↗</a>{readerUnit ? <a className="book-fullscreen29-button" title={readerUnit.title} href={sourceReturnHref(readerUnit.id)} onClick={onReturnToUnit}>חזור ליחידת הקריאה</a> : null}</div>
+      <div className="ahavat29-source-actions"><b>{contextLabel}</b><button type="button" className="ahavat29-book-view-toggle" aria-pressed={bookPresentation} aria-controls="ahavat29-pdf-frame" onClick={() => setBookPresentation(value => !value)} title="הצג את המקור במסגרת ספר או בתצוגה ישרה">תצוגת ספר</button><a className="book-fullscreen29-button ahavat29-to-explanation" href="#ahavat29-selection" onClick={jumpOnClick}>להסבר</a><BookFullscreenButton2029 targetRef={fullscreenRef} fallbackHref={pdfUrl} controls="ahavat29-source" /><a className="book-fullscreen29-button" href={pdfUrl} target="_blank" rel="noreferrer" data-book-reader-secondary>קרא את ה־PDF · עמוד {page} ↗</a>{readerUnit ? <a className="book-fullscreen29-button" title={readerUnit.title} href={sourceReturnHref(readerUnit.id)} onClick={onReturnToUnit}>חזור ליחידת הקריאה</a> : null}</div>
     </header>
     <div id="ahavat29-pdf-frame" className="ahavat29-pdf-frame" data-book-pdf-frame data-book-presentation={bookPresentation ? "book" : "straight"}>
       <span className="ahavat29-book-page-edges" aria-hidden="true" />
@@ -779,26 +779,6 @@ function FullBookReader({ page, bundle, bundleState, pageTextBundle, pageTextSta
       <div><span>הספר מתחילתו ועד סופו</span><h2 id="ahavat29-depth-title">99 עמודים · קורא מלא וחיפוש</h2></div>
       <p>לכל עמוד יש מקור PDF והסבר עברי. {extractedPages || "כל"} עמודים זמינים גם כתעתיק לחיפוש.{expandedPages.length ? ` ב־${expandedPages.length} עמודים נוספו ${expandedPages.reduce((sum, item) => sum + ahavatCompanionReadingUnits(companion, item.pdf_page).length, 0)} יחידות לימוד נבחרות: השאלה, מהלך הקריאה והרעיון המרכזי.` : ""}</p>
     </header>
-    <div className="ahavat29-search">
-      <label htmlFor="ahavat29-search-input"><span>חיפוש בכל הספר</span><input id="ahavat29-search-input" type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder="לדוגמה: אברהם, אותיות, אלף תת״ך" /></label>
-      <small>החיפוש פותח כל תוצאה לצד עמוד המקור.</small>
-      {normalizedQuery.length >= 2 ? <div className="ahavat29-search-results" aria-live="polite">
-        <strong>{searchResults.length ? `${searchResults.length} תוצאות ראשונות` : "לא נמצאה התאמה"}</strong>
-        {searchResults.map(result => <button type="button" key={`${result.page}-${result.snippet}`} onClick={() => onPage(result.page)}><b>PDF {result.page}</b><span>{result.snippet}</span></button>)}
-      </div> : null}
-    </div>
-
-    <nav className="ahavat29-page-atlas" aria-label="כל 99 עמודי הספר">
-      {Array.from({ length: AHAVAT_TORAH_SOURCE.pdfPages }, (_, index) => index + 1).map(pageNumber => {
-        const deep = AHAVAT_TORAH_DEEP_PAGES.some(item => item.page === pageNumber);
-        const hasText = pageTextBundle?.pages?.some(item => item.pdf_page === pageNumber && item.extraction_status === "machine_candidate");
-        return <button type="button" key={pageNumber} className={`${pageNumber === page ? "is-active" : ""} ${deep ? "is-deep" : hasText ? "is-machine" : "is-source"}`} aria-pressed={pageNumber === page} onClick={() => onPage(pageNumber)} title={deep ? "קריאת עומק" : hasText ? "תעתיק מכונה" : "מקור בלבד"}>{pageNumber}</button>;
-      })}
-    </nav>
-    <div className="ahavat29-page-atlas-legend"><span className="is-deep">קריאת עומק</span><span className="is-machine">תעתיק מכונה</span><span className="is-source">מקור בלבד</span></div>
-
-    {expandedPages.length ? <nav className="ahavat29-companion-pages" aria-label="עמודים עם הסבר מורחב"><label><span>לימוד עם הסבר מורחב</span><select aria-label="בחר עמוד ללימוד מורחב" value={expandedPages.some(item => item.pdf_page === page) ? String(page) : ""} onChange={event => { const guide = expandedPages.find(item => item.pdf_page === Number(event.target.value)); if (guide) onSelectCompanion(guide.companion_units[0]); }}><option value="" disabled>בחר עמוד ללימוד</option>{expandedPages.map(item => <option key={item.pdf_page} value={String(item.pdf_page)}>עמוד {item.pdf_page} · {item.title}</option>)}</select></label></nav> : null}
-
     <article className="ahavat29-depth-reader">
       <header><div><span>PDF {page}{record?.printed ? ` · עמוד מודפס ${record.printed}` : ""}</span><h3>{pageGuide?.title || readingArc.title}</h3></div><StatusPill status={record ? "source_verified" : "machine_candidate"} /></header>
       <section className="ahavat29-ai-guide">
@@ -854,6 +834,28 @@ function FullBookReader({ page, bundle, bundleState, pageTextBundle, pageTextSta
       <a className="ahavat29-page-source-link" href={`${AHAVAT_TORAH_SOURCE.pdfUrl}#page=${page}&view=FitH`} target="_blank" rel="noreferrer">פתח את עמוד {page} ב־PDF המקורי ↗</a>
       <details className="ahavat29-source-details"><summary>פרטי הכיסוי וההסבר</summary><p>{AHAVAT_TORAH_SOURCE.deepReadPages} עמודי המחקר הקודמים נשמרים בנפרד. ההרחבה מוסיפה יחידות הסבר נבחרות ואינה תעתיק מלא או פירוש לכל פסקה. ה־OCR מסייע לאיתור; צילום העמוד הוא דברי הספר. המספרים והפערים נשארים במאגריהם הקיימים.</p></details>
     </article>
+
+    <div className="ahavat29-search">
+      <label htmlFor="ahavat29-search-input"><span>חיפוש בכל הספר</span><input id="ahavat29-search-input" type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder="לדוגמה: אברהם, אותיות, אלף תת״ך" /></label>
+      <small>החיפוש פותח כל תוצאה לצד עמוד המקור.</small>
+      {normalizedQuery.length >= 2 ? <div className="ahavat29-search-results" aria-live="polite">
+        <strong>{searchResults.length ? `${searchResults.length} תוצאות ראשונות` : "לא נמצאה התאמה"}</strong>
+        {searchResults.map(result => <button type="button" key={`${result.page}-${result.snippet}`} onClick={() => onPage(result.page)}><b>PDF {result.page}</b><span>{result.snippet}</span></button>)}
+      </div> : null}
+    </div>
+
+    <nav className="ahavat29-page-atlas" aria-label="כל 99 עמודי הספר">
+      {Array.from({ length: AHAVAT_TORAH_SOURCE.pdfPages }, (_, index) => index + 1).map(pageNumber => {
+        const deep = AHAVAT_TORAH_DEEP_PAGES.some(item => item.page === pageNumber);
+        const hasText = pageTextBundle?.pages?.some(item => item.pdf_page === pageNumber && item.extraction_status === "machine_candidate");
+        return <button type="button" key={pageNumber} className={`${pageNumber === page ? "is-active" : ""} ${deep ? "is-deep" : hasText ? "is-machine" : "is-source"}`} aria-pressed={pageNumber === page} onClick={() => onPage(pageNumber)} title={deep ? "קריאת עומק" : hasText ? "תעתיק מכונה" : "מקור בלבד"}>{pageNumber}</button>;
+      })}
+    </nav>
+    <div className="ahavat29-page-atlas-legend"><span className="is-deep">קריאת עומק</span><span className="is-machine">תעתיק מכונה</span><span className="is-source">מקור בלבד</span></div>
+
+    {expandedPages.length ? <nav className="ahavat29-companion-pages" aria-label="עמודים עם הסבר מורחב"><label><span>לימוד עם הסבר מורחב</span><select aria-label="בחר עמוד ללימוד מורחב" value={expandedPages.some(item => item.pdf_page === page) ? String(page) : ""} onChange={event => { const guide = expandedPages.find(item => item.pdf_page === Number(event.target.value)); if (guide) onSelectCompanion(guide.companion_units[0]); }}><option value="" disabled>בחר עמוד ללימוד</option>{expandedPages.map(item => <option key={item.pdf_page} value={String(item.pdf_page)}>עמוד {item.pdf_page} · {item.title}</option>)}</select></label></nav> : null}
+
+
   </section>;
 }
 
@@ -1080,23 +1082,22 @@ export default function AhavatTorahSystem2029Page() {
         <div>
           <span>ר׳ פנחס זלמן הורוויץ · תרס״ה</span>
           <h1 id="ahavat29-title">{letterFocus ? <>אהבת תורה <em>· מסע באותיות</em></> : <>אהבת תורה<br /><em>לקרוא, להבין ולחקור</em></>}</h1>
-          <p>מנייני התורה, אותיותיה וחידושי הפרשות — עם הסבר בהיר לצד צילום הספר. בוחרים קטע, מבינים את מהלכו וחוזרים אל המילים המקוריות.</p>
-          <div className="ahavat29-intro-identity" role="group" aria-label="זהות הספר"><span>{AHAVAT_TORAH_SOURCE.author}</span><span>{AHAVAT_TORAH_SOURCE.imprint}</span><span>{AHAVAT_TORAH_SOURCE.pdfPages} עמודי מקור</span></div>
-          <nav className="books29-entry-actions" aria-label="דרכי קריאה באהבת תורה"><a href="#ahavat29-source" onClick={jumpOnClick}>קרא את הספר</a><a href="#ahavat29-full-reader" onClick={jumpOnClick}>למד עם ההסברים</a><a href="#ahavat29-spatial-title" onClick={jumpOnClick}>גלה את המבנים</a></nav>
+          <p>מנייני התורה, אותיותיה וחידושי הפרשות — עם הסבר בהיר לצד צילום הספר.</p>
+          <nav className="books29-entry-actions" aria-label="דרכי קריאה באהבת תורה"><a href="#ahavat29-toc" onClick={jumpOnClick}>תוכן עניינים</a><a href="#ahavat29-source" onClick={jumpOnClick}>קרא את הספר</a><a href="#ahavat29-full-reader" onClick={jumpOnClick}>למד עם ההסברים</a><a href="#ahavat29-spatial-title" onClick={jumpOnClick}>גלה את המבנים</a></nav>
           <div className="ahavat29-recommended">
             <h2 id="ahavat29-recommended-title">קטעים מומלצים להתחלה</h2>
             <nav className="books29-entry-actions" aria-label="מאיפה מתחילים ללמוד"><a href={ahavatReaderUnitHref("ahavat-migdal-p006-01")}>להבין את מניין 1,820</a><a href={ahavatReaderUnitHref("ahavat-novellae-p046-02")}>אותיות ובניית בית</a><a href={ahavatReaderUnitHref("ahavat-novellae-p093-03")}>אסתר והאחריות לפעול</a></nav>
-            <p>שלושה קטעים שנבחרו כנקודת כניסה. תוכן העניינים המלא נמצא מתחת.</p>
           </div>
         </div>
         <AhavatBookFigure2029 />
-        <aside><strong>המקור לצד ההסבר</strong><p>הספר המלא זמין לדפדוף, חיפוש ומסך מלא. יחידות הלימוד מסבירות קטעים נבחרים; צילום העמוד נשאר נגיש לאורך הקריאה.</p></aside>
       </section>
 
       {letterFocus ? null : <AhavatBookToc2029 page={page} onOpenPage={nextPage => openPage(nextPage)} onSelectDataset={selectDataset} />}
 
       <details className="ahavat29-source-details ahavat29-source-status">
         <summary>פרטי המקור ומצב ההשלמה</summary>
+        <div className="ahavat29-intro-identity" role="group" aria-label="זהות הספר"><span>{AHAVAT_TORAH_SOURCE.author}</span><span>{AHAVAT_TORAH_SOURCE.imprint}</span><span>{AHAVAT_TORAH_SOURCE.pdfPages} עמודי מקור</span></div>
+        <p>הספר המלא זמין לדפדוף, חיפוש ומסך מלא. יחידות הלימוד מסבירות קטעים נבחרים; צילום העמוד נשאר נגיש לאורך הקריאה.</p>
         <section className="ahavat29-metrics" aria-label="מצב מערכת אהבת תורה">
           <article><strong>99</strong><span>עמודי מקור</span><small>PDF אחד וזהות מקור אחת</small></article>
           <article><strong>98</strong><span>עמודי תעתיק</span><small>ועמוד ריק אחד מתועד</small></article>
