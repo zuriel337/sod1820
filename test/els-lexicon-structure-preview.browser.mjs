@@ -11,8 +11,9 @@ assert.equal(supplied.protocol, 'https:');
 const expectedSha = process.env.ELS_PREVIEW_SHA;
 assert.match(expectedSha || '', /^[a-f0-9]{40}$/);
 const expectedBranch = process.env.ELS_PREVIEW_BRANCH || 'gpt/els-lexicon-structure-preview-20261030';
-assert.ok(['gpt/els-lexicon-structure-preview-20261030','gpt/els-search-clarity-preview-20261030','gpt/els-unified-research-preview-20261031'].includes(expectedBranch));
-const unified = expectedBranch === 'gpt/els-unified-research-preview-20261031';
+const planners = expectedBranch === 'gpt/els-search-planners-preview-20261031';
+assert.ok(['gpt/els-lexicon-structure-preview-20261030','gpt/els-search-clarity-preview-20261030','gpt/els-unified-research-preview-20261031','gpt/els-search-planners-preview-20261031'].includes(expectedBranch));
+const unified = planners || expectedBranch === 'gpt/els-unified-research-preview-20261031';
 const browser = await chromium.launch({ headless:true,
   executablePath:existsSync('/usr/bin/chromium')?'/usr/bin/chromium':chromium.executablePath(),
   args:['--no-sandbox'] });
@@ -46,6 +47,20 @@ try {
     for(const width of [320,390,1440]){
       await page.setViewportSize({width,height:900});
       assert.equal(await page.locator('html').getAttribute('data-theme-preset'),theme);
+      if(planners){
+        const prepare=page.getByText('הכנת זוגות לחיפוש',{exact:true});
+        await prepare.click();
+        const planner=page.getByRole('region',{name:'הכנת זוגות לחיפוש',exact:true});
+        await page.getByRole('textbox',{name:/^מונח(?: ראשון)?$/}).fill('שלום');
+        await planner.getByRole('textbox').fill('תורה\nברכה');
+        await planner.getByRole('button',{name:'הכן זוגות לחיפוש',exact:true}).click();
+        assert.equal(await planner.getByRole('radio').count(),2);
+        assert.ok(await planner.getByRole('button',{name:'חפש את הזוג שנבחר',exact:true}).isEnabled());
+        // Preparation is local only; never submit a search on the live backend.
+        assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+        if(process.env.ELS_PREVIEW_SCREENSHOTS){mkdirSync(process.env.ELS_PREVIEW_SCREENSHOTS,{recursive:true});await page.screenshot({path:process.env.ELS_PREVIEW_SCREENSHOTS+`/planner-${width}-${theme}.png`});}
+        await prepare.click();
+      }
       const words=page.getByText(unified?'גילוי וקשרים במטריצה · ללא AI':'מילים במטריצה · ללא AI',{exact:true});
       const structures=page.getByText(unified?'בדיקת הסימונים והשוואת מופעים':'מבנים והשוואת מופעים · ללא AI',{exact:true});
       assert.ok(await words.isVisible());
