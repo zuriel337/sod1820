@@ -1,0 +1,25 @@
+{
+  "branch": "gpt/2029-ci1185-acceptance-reconcile-20261031",
+  "sha": "c2f2e9948dd119c96b69e377b33be2eb2a886efb",
+  "node": "v24.21.0",
+  "offlineWorkflowSteps": 38,
+  "offlineWorkflowStepsPassed": 38,
+  "supplementaryA3MockedTests": {
+    "pass": 29,
+    "fail": 0,
+    "skip": 0
+  },
+  "browserStats": {
+    "startTime": "2026-10-31T22:06:57.075Z",
+    "duration": 3130.414,
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "fullIsolationRun": false,
+  "liveA3Invoked": false,
+  "sourceChanges": false,
+  "merge": false,
+  "deploy": false
+}

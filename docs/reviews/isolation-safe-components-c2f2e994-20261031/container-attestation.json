@@ -1,0 +1,132 @@
+[
+  {
+    "name": "ci1185-safe-isolation-c2f2e994",
+    "image": "node:24.21.0-bookworm-slim",
+    "imageID": "sha256:470015c1ab1577c19efce2e80cdad4afd9c682cf8f4dcf3dccae5abfd9113397",
+    "networkMode": "none",
+    "readOnlyRootfs": true,
+    "capDrop": [
+      "ALL"
+    ],
+    "securityOpt": [
+      "no-new-privileges"
+    ],
+    "user": "1000:1000",
+    "state": "exited",
+    "exitCode": 1,
+    "environmentNames": [
+      "LD_LIBRARY_PATH",
+      "SOD_CI_ESBUILD",
+      "HTTP_PROXY",
+      "HTTPS_PROXY",
+      "https_proxy",
+      "NO_PROXY",
+      "HOME",
+      "SOD_CI_ISOLATION",
+      "http_proxy",
+      "no_proxy",
+      "PATH",
+      "NODE_VERSION",
+      "YARN_VERSION"
+    ],
+    "productionServiceKeyProvided": false,
+    "dockerSocketMounted": false
+  },
+  {
+    "name": "ci1185-safe-isolation-c2f2e994-trixie",
+    "image": "node:24.21.0-trixie-slim",
+    "imageID": "sha256:04f59b17d8d39a8fdeb138fecb8fcbaa6e208ed7b6db929c7e98ad9005e0a52f",
+    "networkMode": "none",
+    "readOnlyRootfs": true,
+    "capDrop": [
+      "ALL"
+    ],
+    "securityOpt": [
+      "no-new-privileges"
+    ],
+    "user": "1000:1000",
+    "state": "exited",
+    "exitCode": 0,
+    "environmentNames": [
+      "HOME",
+      "PATH",
+      "LD_LIBRARY_PATH",
+      "SOD_CI_ISOLATION",
+      "SOD_CI_ESBUILD",
+      "HTTP_PROXY",
+      "HTTPS_PROXY",
+      "https_proxy",
+      "http_proxy",
+      "NO_PROXY",
+      "no_proxy",
+      "NODE_VERSION",
+      "YARN_VERSION"
+    ],
+    "productionServiceKeyProvided": false,
+    "dockerSocketMounted": false
+  },
+  {
+    "name": "ci1185-safe-isolation-private-browser",
+    "image": "node:24.21.0-trixie-slim",
+    "imageID": "sha256:04f59b17d8d39a8fdeb138fecb8fcbaa6e208ed7b6db929c7e98ad9005e0a52f",
+    "networkMode": "none",
+    "readOnlyRootfs": true,
+    "capDrop": [
+      "ALL"
+    ],
+    "securityOpt": [
+      "no-new-privileges"
+    ],
+    "user": "1000:1000",
+    "state": "exited",
+    "exitCode": 1,
+    "environmentNames": [
+      "SOD_WORLD_PRE_CUTOVER_FIXTURE",
+      "http_proxy",
+      "HOME",
+      "PATH",
+      "HTTP_PROXY",
+      "HTTPS_PROXY",
+      "https_proxy",
+      "NO_PROXY",
+      "no_proxy",
+      "LD_LIBRARY_PATH",
+      "NODE_VERSION",
+      "YARN_VERSION"
+    ],
+    "productionServiceKeyProvided": false,
+    "dockerSocketMounted": false
+  },
+  {
+    "name": "ci1185-safe-isolation-private-browser2",
+    "image": "node:24.21.0-trixie-slim",
+    "imageID": "sha256:04f59b17d8d39a8fdeb138fecb8fcbaa6e208ed7b6db929c7e98ad9005e0a52f",
+    "networkMode": "none",
+    "readOnlyRootfs": true,
+    "capDrop": [
+      "ALL"
+    ],
+    "securityOpt": [
+      "no-new-privileges"
+    ],
+    "user": "1000:1000",
+    "state": "exited",
+    "exitCode": 0,
+    "environmentNames": [
+      "HOME",
+      "SOD_WORLD_PRE_CUTOVER_FIXTURE",
+      "https_proxy",
+      "NO_PROXY",
+      "no_proxy",
+      "HTTP_PROXY",
+      "PATH",
+      "LD_LIBRARY_PATH",
+      "HTTPS_PROXY",
+      "http_proxy",
+      "NODE_VERSION",
+      "YARN_VERSION"
+    ],
+    "productionServiceKeyProvided": false,
+    "dockerSocketMounted": false
+  }
+]
