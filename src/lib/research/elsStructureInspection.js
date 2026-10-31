@@ -1,6 +1,7 @@
 import { parseElsHitKey } from "../elsJourney.js";
 import { captureElsResearchReturn, elsResearchReturnLoad, elsResearchSnapshotMatches } from "./elsResearchReturnSnapshot.js";
 import { extractElsVectorGeometry } from "./els2029VectorGeometry.js";
+import { isElsLexiconCandidate } from "./elsLexiconResearch.js";
 
 // Presentation adapter over canonical verified occurrence identities and the existing
 // vector geometry owner. No search, lexical generation, score or new result authority.
@@ -67,7 +68,7 @@ export function groupElsLexiconDiscoveries(state, result, settings = {}) {
   let excluded = 0;
   for (const item of result.items) {
     const positions = item?.positions, id = `${item?.term}:${item?.hitId}`;
-    if (!/^[א-ת]{3,10}$/.test(item?.term) || !Number.isSafeInteger(item.start) || !Number.isSafeInteger(item.skip)
+    if (!isElsLexiconCandidate(item, result) || !Number.isSafeInteger(item.start) || !Number.isSafeInteger(item.skip)
       || item.skip < 1 || ![-1, 1].includes(item.dir) || item.hitId !== `${item.skip}_${item.dir}_${item.start}`
       || !Array.isArray(positions) || positions.length !== item.term.length
       || positions.some((p, i) => p !== item.start + i * item.skip * item.dir || p < 0 || p >= state.corpusLetters

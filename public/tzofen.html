@@ -2477,12 +2477,52 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
   // Explicit Research S2: reuse the canonical ray builder and lazy lookup index. No term-by-corpus
   // sweep, morphology, model or Finding mutation. Admission remains the existing verified load.
   let _lexiconScanSeq=0,_lexiconScanRequest=null;
+  // Projection of the EXISTING bounded language reader, not a second scanner.
+  // Labels contain only exact canonical letters plus proposed spaces. A derived
+  // dictionary headword never replaces the letters admitted by canonical replay.
+  function projectMatrixLanguageInspection(inspection,axis,box,lexicon,plan,started){
+    if(!inspection)return null;
+    const items=[],seen=new Set(),axisCells=new Set(axis.positions);let axisFragments=0,outsidePlan=0,invalid=0;
+    for(const row of [...inspection.segmentations,...inspection.readings]){
+      const term=row.canonicalLetters,parts=row.tokens||[{exactLetters:row.exactLetters,baseTerm:row.baseTerm,relation:row.relation,lexiconSources:row.lexiconSources}];
+      const tokens=parts.map(token=>({letters:norm(token.exactLetters),baseTerm:token.baseTerm,relation:token.relation}));
+      if(!/^[א-ת]{5,16}$/.test(term)||tokens.map(token=>token.letters).join("")!==term||!Number.isSafeInteger(row.start)||!Number.isSafeInteger(row.step)||!row.step){invalid++;continue;}
+      const positions=Array.from(term,(_,i)=>row.start+i*row.step);
+      if(positions.some((p,i)=>p<0||p>=scopeN()||Math.floor(p/box.S)<box.r0||Math.floor(p/box.S)>box.r1||p%box.S<box.c0||p%box.S>box.c1||T[p]!==term[i]
+        ||i>0&&(Math.abs(Math.floor(p/box.S)-Math.floor(positions[i-1]/box.S))>1||Math.abs(p%box.S-positions[i-1]%box.S)>1))){invalid++;continue;}
+      const skip=Math.abs(row.step),dir=Math.sign(row.step),hitId=`${skip}_${dir}_${row.start}`,key=`${term}:${hitId}`;
+      if(seen.has(key))continue;seen.add(key);
+      if(positions.every(p=>axisCells.has(p))){axisFragments++;continue;}
+      const distance=guidedMatrixDistance(positions,axis,box);
+      if(distance>plan.maxDistance){outsidePlan++;continue;}
+      items.push({term,label:tokens.map(token=>guidedMatrixDisplayTerm(token.letters)).join(" "),hitId,start:row.start,skip,dir,positions,
+        kind:skip===1?"source":"els",status:"CANDIDATE",distance,orientation:row.orientation,
+        lexiconSources:[...new Set(parts.flatMap(token=>token.lexiconSources||[]))],
+        language:{exactLetters:term,relation:row.relation,tokens,segmentationVerified:false}});
+    }
+    items.sort((a,b)=>a.distance-b.distance||b.term.length-a.term.length||a.term.localeCompare(b.term,"he")||a.start-b.start);
+    const c=inspection.coverage;
+    return {items,plan,languageInspection:inspection,coverage:{stop:"BOUNDED_LANGUAGE_SAMPLE",complete:false,
+      completedRays:c.returnedRays,totalRays:c.totalRays,windows:c.candidatesExamined,axisFragments,outsidePlan,invalid,
+      maxWindows:c.maxCandidateWindows,maxResults:48,minLength:5,maxLength:16,directions:8,elapsedMs:Math.round(performance.now()-started)},
+      box,lexicon:lexicon.profile,selectionProtocol:"EXPLORATORY_DISCOVERY",modelCalls:0,findingMutation:false,truthPromotion:false};
+  }
   async function scanMatrixLexicon(axis,box,lexicon,cancelled,progress,requestedPlan){
     requestedPlan=requestedPlan||{};
     const started=performance.now(),maxWindows=100000,maxResults=300,maxWallMs=10000;
     // Explicit settings over this scanner, never another word-by-corpus search.
     // The current fingerprinted lexicon contains words up to ten letters.
     const bounded=(value,fallback,min,max)=>Number.isSafeInteger(value)?Math.max(min,Math.min(max,value)):fallback;
+    if(requestedPlan.mode==="language"){
+      if(cancelled())return null;
+      progress({completedRays:0,totalRays:null,windows:0});
+      await new Promise(resolve=>setTimeout(resolve,0));if(cancelled())return null;
+      const inspection=guidedMatrixLanguageInspection(axis,box,new Map(),lexicon);
+      // Deliver only after queued selection/cancel messages can invalidate this bounded computation.
+      await new Promise(resolve=>setTimeout(resolve,0));if(cancelled())return null;
+      return projectMatrixLanguageInspection(inspection,axis,box,lexicon,{mode:"language",minLength:5,maxLength:16,
+        maxDistance:bounded(requestedPlan.maxDistance,120,0,120),minMembers:bounded(requestedPlan.minMembers,2,2,6)},started);
+    }
     const minLength=bounded(requestedPlan.minLength,5,3,10),maxLength=bounded(requestedPlan.maxLength,10,minLength,10);
     const maxDistance=bounded(requestedPlan.maxDistance,120,0,120);
     const plan={minLength,maxLength,maxDistance,minMembers:bounded(requestedPlan.minMembers,2,2,6),

@@ -348,6 +348,60 @@ test('discovery plans and source-direction filtering stay explicit on the actual
   },{realHost:true,loadGolden:true});
  });
 
+test('Research language wizard reuses the canonical reader and admits exact phrases without auto work',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
+  await withNative({width:390,height:900},async page=>{
+    const ai=[];page.on('request',request=>{if(/ai-analyze/.test(request.url()))ai.push(request.url());});
+    await page.evaluate(()=>{window.__fixtureResearchProfile=true;window.__forceParentRender();});
+    await page.getByText('גילוי וקשרים במטריצה · ללא AI',{exact:true}).click();
+    const panel=page.getByRole('region',{name:'גילוי וקשרים במטריצה',exact:true});
+    await panel.getByLabel('מסלול הגילוי').selectOption('language');
+    assert.equal(page.__elsDynamicLexiconRequests.length,0,'choice/opening is not a scan');
+    assert.equal(await panel.getByLabel('תוצאות הסריקה המילונית').count(),0);
+    const before=await page.evaluate(()=>window.__state);
+    await panel.getByRole('button',{name:'בדוק ביטויים וחלוקת רצפים',exact:true}).evaluate(button=>{button.click();button.click();});
+    await panel.getByLabel('תוצאות הסריקה המילונית').waitFor({timeout:30000});
+    const scan=await page.evaluate(()=>window.__lens);
+    assert.equal(scan.plan.mode,'language');assert.equal(scan.coverage.complete,false);assert.equal(scan.modelCalls,0);
+    assert.equal(scan.languageInspection.contract,'els_matrix_language_inspection_v1');
+    assert.equal(page.__elsDynamicLexiconRequests.length,1);
+    const requests=await page.evaluate(()=>window.__hostLog.filter(m=>m.type==='request-lens'&&m.lens==='matrix-lexicon').length);
+    assert.equal(requests,1,'one existing operation even after double click');
+    assert.deepEqual((await page.evaluate(()=>window.__state)).findings,before.findings);
+    const candidates=scan.items.filter(item=>item.kind==='els'),phrase=candidates.slice(0,20).find(item=>item.language.tokens.length===2);
+    assert.ok(phrase,'actual bounded reader returns an exact two-token proposal');
+    const row=panel.locator(`[data-lexicon-hit="${phrase.hitId}"]`).filter({has:page.getByRole('button',{name:`בדוק והוסף ${phrase.label}`,exact:true})});
+    await row.getByText('האותיות והחלוקה המוצעת',{exact:true}).click();
+    assert.match(await row.innerText(),new RegExp(phrase.term));
+    await row.getByRole('button',{name:`בדוק והוסף ${phrase.label}`,exact:true}).click();
+    await page.waitForFunction(item=>window.__state?.status==='ok'&&window.__state.findings?.some(f=>f.t===item.term&&f.hits.some(h=>h.hitId===item.hitId&&h.selected&&h.verified)),phrase,{timeout:30000});
+    assert.deepEqual((await page.evaluate(()=>window.__state)).axis,before.axis);
+    assert.equal((await page.evaluate(()=>window.__state)).verification.state,'MATCH');
+    await panel.getByLabel('הסתר טקסט רגיל קדימה — דילוג 1',{exact:true}).check();
+    await panel.getByLabel('סוג התוצאות',{exact:true}).selectOption('source');
+    assert.equal(await panel.locator('[data-lexicon-hit^="1_1_"]').count(),0);
+    assert.deepEqual(await page.evaluate(()=>window.__lens.items),scan.items);
+    await panel.getByLabel('סוג התוצאות',{exact:true}).selectOption('els');
+    await panel.getByText('מתקדם · קווים גולמיים והשערות חלוקה',{exact:true}).click();
+    await panel.getByText('הקווים שנבדקו',{exact:true}).click();
+    for(const width of [320,390,1440])for(const theme of ['light','parchment','dark']){
+      await page.setViewportSize({width,height:900});await page.evaluate(theme=>window.__setThemePreset(theme),theme);
+      assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,`${width}/${theme}`);
+      assert.ok(await panel.locator('button:visible,select:visible,summary:visible').evaluateAll(nodes=>nodes.every(n=>n.getBoundingClientRect().height>=44)));
+      if(process.env.ELS_SCREENSHOT_DIR){mkdirSync(process.env.ELS_SCREENSHOT_DIR,{recursive:true});await panel.scrollIntoViewIfNeeded();await page.screenshot({path:join(process.env.ELS_SCREENSHOT_DIR,`language-${width}-${theme}.png`)});}
+    }
+    await page.evaluate(()=>{window.__fixtureResearchProfile=false;window.__forceParentRender();});
+    assert.equal(await panel.isVisible(),false,'Classic stays clean');
+    await page.evaluate(()=>{window.__fixtureResearchProfile=true;window.__forceParentRender();});
+    assert.equal(await panel.getByLabel('מסלול הגילוי').inputValue(),'language');
+    assert.equal(await page.evaluate(()=>window.__hostLog.filter(m=>m.type==='request-lens'&&m.lens==='matrix-lexicon').length),requests,'profile round trip never rescans');
+    await page.evaluate(item=>window.__loadResearch({...item,words:[],researchNonce:'language-new-axis'}),ELS_GOLDENS[2]);
+    await page.waitForFunction(()=>window.__state?.term==='אליהו'&&window.__state.status==='ok');
+    assert.ok(await panel.getByRole('button',{name:/בדוק והוסף/}).first().isDisabled(),'previous-axis candidates cannot leak into new matrix');
+    assert.deepEqual(ai,[]);assert.equal(await page.evaluate(()=>(window.__matrixSubmits||[]).length),0);
+  },{realHost:true});
+ });
+
 test('explicit Research lexicon is lazy, exact, cancellable and responsive without AI',
  {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
   for(const width of [320,390,1440])await withNative({width,height:900},async page=>{

@@ -301,3 +301,18 @@ test("language-pair ranking is geometry and context based, never skip based", as
   assert.match(source, /PARALLEL_AXIS_RAY/);
   assert.doesNotMatch(source, /axis|skip|10101|4545/);
 });
+
+test("Research projects the unchanged canonical language reader, without target hints or extra searches", async () => {
+  const [engine, corpus] = await Promise.all([readFile(ENGINE,"utf8"),readFile(CORPUS,"utf8")]);
+  const context=languageContext(engine,corpus,"קולומביה");
+  const inspection=inspectAxis(context,{skip:4545,dir:1,start:248765,length:8});
+  context.inspection=inspection;context.performance={now:()=>0};
+  context.distanceToAnchors=(positions,anchors,S)=>Math.min(...positions.flatMap(p=>anchors.map(a=>Math.abs(Math.floor(p/S)-a[0])+Math.abs(p%S-a[1]))));
+  vm.runInContext([functionSource(engine,"guidedMatrixDistance"),functionSource(engine,"projectMatrixLanguageInspection")].join("\n"),context);
+  const result=JSON.parse(JSON.stringify(vm.runInContext('projectMatrixLanguageInspection(inspection,axis,guidedMatrixBox(axis),dynamicLexicon,{mode:"language",maxDistance:120,minMembers:2},0)',context)));
+  assert.ok(result.items.length>0);assert.ok(result.items.some(item=>item.language.tokens.length===2));
+  assert.ok(result.items.every(item=>item.positions.map(p=>context.T[p]).join('')===item.term));
+  assert.equal(result.languageInspection.coverage.returnedRays,inspection.coverage.returnedRays);
+  assert.equal(result.modelCalls,0);assert.equal(result.truthPromotion,false);
+  assert.doesNotMatch(functionSource(engine,"projectMatrixLanguageInspection"),/קולומביה|ספינת|יכלאש|משיח/);
+});

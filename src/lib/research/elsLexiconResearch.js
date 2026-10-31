@@ -11,6 +11,18 @@ export function filterElsForwardSource(items, hideForwardSource) {
   return (items || []).filter(item => !hideForwardSource || !(item.skip === 1 && item.dir === 1));
 }
 
+// A phrase is an exact sequence with proposed spaces, not a rewritten headword.
+// Longer terms are admitted only from this explicit, bounded language projection.
+export function isElsLexiconCandidate(item, result) {
+  if (!/^[א-ת]{3,16}$/.test(item?.term)) return false;
+  if (result?.plan?.mode !== "language") return item.term.length <= 10;
+  const language = item.language, tokens = language?.tokens;
+  return item.term.length >= 5 && language?.exactLetters === item.term
+    && Array.isArray(tokens) && tokens.length >= 1 && tokens.length <= 2
+    && tokens.every(token => /^[א-ת]+$/.test(token.letters))
+    && tokens.map(token => token.letters).join("") === item.term;
+}
+
 export function expandElsLexiconPlan(plan) {
   const maxDistance = [12, 30, 40, 80, 120].find(value => value > plan.maxDistance);
   return maxDistance === undefined ? null : { ...plan, maxDistance };
@@ -36,7 +48,7 @@ export function prepareElsLexiconFindings(state, result, items, color) {
     || state.geometry?.r1 !== result.box.r1 || state.geometry?.c0 !== result.box.c0
     || state.geometry?.cw !== result.box.c1 - result.box.c0 + 1)) return null;
   for (const item of items) {
-    if (!result.items?.includes(item) || !/^[א-ת]{3,10}$/.test(item.term) || !Number.isSafeInteger(item.skip) || item.skip < 1
+    if (!result.items?.includes(item) || !isElsLexiconCandidate(item, result) || !Number.isSafeInteger(item.skip) || item.skip < 1
       || ![-1, 1].includes(item.dir) || !Number.isSafeInteger(item.start) || item.start < 0
       || item.hitId !== `${item.skip}_${item.dir}_${item.start}`) return null;
   }
