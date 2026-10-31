@@ -7,6 +7,7 @@ import RealityStreamFollow2029 from "../components/research/RealityStreamFollow2
 import { RealityRiver2029 } from "../components/research/RealityRiver2029.jsx";
 import { worldMediaPublicShare } from "../lib/research/worldFindingShare.js";
 import { SourceMethodResearch } from "../components/research/Revelation1237Gate2029.jsx";
+import WorldZviSourceFindings2029 from "../components/research/WorldZviSourceFindings2029.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { getImagesByGallery, getGalleriesOverview, getRealityHints, searchArchiveOcrIds } from "../lib/supabase.js";
 import { fetchGallerySourceContext } from "../lib/research/entityHubProjection.js";
@@ -152,6 +153,7 @@ function GalleryCatalogBody() {
 }
 
 function GalleryImageCard({ item, index, selected, opening, error, onRemember, onOpenExpression, onSelect }) {
+  const location = useLocation();
   const [captionExpanded, setCaptionExpanded] = useState(false);
   const p = item.legacyPlacement;
   const source = gateSourcePresentation(item);
@@ -185,6 +187,10 @@ function GalleryImageCard({ item, index, selected, opening, error, onRemember, o
       <details className="g29-depth" onToggle={(event) => { if (event.currentTarget.open) onSelect(item); }}>
         <summary><span>לגלות עוד</span><svg width="14" height="14" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.2" aria-hidden="true"><path d="m9 3-6 6M3 3v6h6" /></svg></summary>
         <div className="g29-depth-body">
+          <WorldZviSourceFindings2029 key={item.sourceRef} scope="all" sourceRef={item.sourceRef}
+            returnTo={new URLSearchParams(location.search).get('flow')==='1'
+              ?galleryReadingHref2029(location.search,{galleryId:p.wpGalleryId,imageId:item.galleryImageId})
+              :gallerySourceHref2029(p.wpGalleryId,item.galleryImageId)} onFindingOpen={()=>onRemember(item)} />
           {source.numbers.length ? <p className="g29-note">המספרים הם תיוגים שמורים של התמונה. אפשר לעיין בהם; הם אינם אישור לחישוב או לחיבור.</p> : null}
           <div className="rv"><SourceMethodResearch item={item} slotKey={slotKey} sectionId={slotKey} publicCopy
             readProfile={fetchNumberMethodProfile} onOpenExpression={(row, origin) => onOpenExpression(item, row, origin)}

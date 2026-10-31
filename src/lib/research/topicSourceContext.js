@@ -79,6 +79,21 @@ export function gallerySourceHref2029(wpGalleryId, galleryImageId = null) {
   return `${base}&image=${encodeURIComponent(galleryImageId)}#gallery-source-${galleryImageId}`;
 }
 
+// A return is an exact admitted source occurrence, not a number/topic match or
+// an arbitrary URL carried in navigation state. Original and filtered routes only.
+export function isExactGalleryFindingReturn2029(href, sourceRefs = []) {
+  if (typeof href !== 'string' || !href.startsWith('/world?')) return false;
+  const [query,hash] = href.slice('/world?'.length).split('#');
+  const p=new URLSearchParams(query),image=p.get('image'),gallery=Number(p.get('gallery'));
+  if(p.get('view')!=='gallery'||!image||hash!==`gallery-source-${image}`)return false;
+  if(p.has('take')&&(!/^\d+$/.test(p.get('take'))||Number(p.get('take'))<12||Number(p.get('take'))>120||Number(p.get('take'))%12))return false;
+  const native=gallerySourceHref2029(gallery,image);
+  if(!native || (href!==native&&href!==galleryReadingHref2029(query,{galleryId:gallery,imageId:image,
+    take:p.has('take')?Number(p.get('take')):null})))return false;
+  return Array.isArray(sourceRefs)&&sourceRefs.some(ref=>typeof ref==='string'
+    &&(ref===`gallery_images:${image}`||ref.startsWith(`gallery_images:${image}#`)));
+}
+
 export function buildPublicGalleryCatalog2029(overview = {}) {
   const galleries = new Map(), ambiguous = new Set();
   let incomplete = false;

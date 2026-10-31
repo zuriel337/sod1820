@@ -24,6 +24,9 @@ export async function fetchWorldContributorPublicMaterial(identity) {
  return {identity,items,total:items.length,partial:false,contentProjection,treeFindingTargets:[]};
 }'''
 READER='''import {universalFindingId} from "/src/lib/research/universalFinding.js";
+export const ZVI_SOURCE_CONTRIBUTOR_ID="c66f0464-0928-490e-be9b-66d8a87e7fc8";
+export async function publicResearchPresentationEligible(){throw new Error("unexpected all-source eligibility read")}
+export function projectPublicResearchFinding(){throw new Error("unexpected all-source projection")}
 window.__zviSourceCalls=[];
 const A="channel_updates:e720a119-00e7-4e27-8c8a-d8671ae7b474",B="channel_updates:f720a119-00e7-4e27-8c8a-d8671ae7b474",G="channel_updates:a720a119-00e7-4e27-8c8a-d8671ae7b474";
 const id=n=>"10000000-0000-4000-8000-"+String(n).padStart(12,"0");

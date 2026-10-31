@@ -18,7 +18,7 @@ import { EXPERIENCE_SURFACE, resolveExperienceContext } from "../lib/experienceC
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { fetchEntityHubProjection, fetchGallerySourceContext, fetchResearchSourceOccurrences, fetchTopicSourceContext } from "../lib/research/entityHubProjection.js";
 import { REVIEWED_SOURCE_WITNESSES, discoveryHref, witnessSource } from "../lib/research/worldSourceConnections.js";
-import { INDIA_CAPTAIN_SOURCE } from "../lib/research/topicSourceContext.js";
+import { INDIA_CAPTAIN_SOURCE, isExactGalleryFindingReturn2029 } from "../lib/research/topicSourceContext.js";
 import {
   fetchExplorerFacetDetail,
   fetchExplorerFacetPage,
@@ -580,6 +580,7 @@ export function PublicWorldFindingFocus({ finding, context, shell }) {
   const linkedFollow = worldFindingFollowTarget(finding);
   const returnHref = String(context?.returnTo?.href || "");
   const canReturnToBeitMidrash = /^\/beit-midrash(?:[/?#]|$)/.test(returnHref);
+  const canReturnToGallery = isExactGalleryFindingReturn2029(returnHref, sourceRefs);
   const findingAnchor = `finding-${encodeURIComponent(String(finding.sourceId))}`;
   const independentSources = finding?.independentSourceCount == null
     ? "אין נתון"
@@ -659,6 +660,9 @@ export function PublicWorldFindingFocus({ finding, context, shell }) {
           {finding.href?.startsWith("/") ? <Link className="sod29-action" to={finding.href}>פתח את מספר הממצא ←</Link> : null}
           {canReturnToBeitMidrash ? <button className="sod29-action" type="button" onClick={() => shell.returnExact()}>
             חזרה מדויקת אל {context.returnTo.label || "בית המדרש"}
+          </button> : null}
+          {canReturnToGallery ? <button className="sod29-action" type="button" onClick={() => shell.returnExact()}>
+            חזרה לתמונה בגלריה
           </button> : null}
         </div>
         {!finding.sourceHref ? <small>למקור הזה אין כתובת Web מאומתת; מזהה המקור נשמר בלי להמציא קישור.</small> : null}

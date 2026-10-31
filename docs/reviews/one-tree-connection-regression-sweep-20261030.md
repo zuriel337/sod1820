@@ -546,3 +546,77 @@ in Home and Gallery; identity/action may share foreground while backgrounds diff
 Raw real-data harness retained for provenance, not run against live services due
 to its broader independent request guard. No unrelated Showcase/calculator work
 imported. Final tests/protected hosted SHA and scoped release belong in AFTER.
+
+## 31 October — Gallery exact-source findings / One Tree implementation inventory
+
+BEFORE `e96c8e6d-ac51-45ce-9398-4da23fa3e713`, exact-return dependency
+`c859bf35-c82d-40c2-ac5c-beb2c9adfea9`, task
+`GALLERY_EXACT_SOURCE_FINDINGS_ONE_TREE_20261031`. Local basefaa94988904d3b5788f166c57d9dda59698c56a7,
+remote base9dfe088fb08801f2734cff0a88609c1913a0171e. Extends active codex18
+reality_graph_law v8; no new contract, corpus, graph, reader, store or provider.
+
+### Read-only inventory snapshot (not permanent totals or evidence strength)
+
+- Existing anonymous public catalog:87 galleries,2191 eligible HTTPS image
+  occurrences, coverage.partial=false at this read. SQL HTTPS/access metadata:
+  2182 have nonblank stored OCR,2190 have numeric tags. OCR presence is not its
+  correctness, nor is a tag a calculation or edge. The broader SQL nonnull-URL
+  count2192 includes one row rejected by the HTTPS source gate; it is not a
+  missing public gallery photo to bypass into view.
+- Explicit `gallery_images:<uuid>` research references:2 public canonical records
+  with promoted_node_id, but0 currently public eligible source images. They must
+  not appear solely because a research record is public.9 private candidates
+  refer to8 source occurrences; none are published or promoted by this work.
+- Another12 records identified through gallery/image/OCR source descriptions
+  lack that canonical gallery-occurrence reference:1 private approved alias,
+  1 private candidate,2 approved public_candidate and7 candidate public_candidate,
+  plus1 public candidate using a channel source. These are separate locator/status
+  repair/review work, not12 verified gallery findings. public_candidate!=public.
+- Anonymous exact-source sample for the recent public flight image returns0
+  public findings. Thus this slice exposes an honest gap, not an already populated
+  research graph. Existing curated source witnesses, Topic associations, numeric
+  tags and methods calculated on demand are distinct and not counted as stored
+  canonical findings. No private content or identifiers copied into this inventory.
+
+Priority public source cohorts (IDs are historical locators, not graph edges):
+
+| Gallery | Stored title | Eligible images | Nonblank ocr_text |
+| --- | --- | ---: | ---: |
+|29|גלרית לילה כיום יאיר|92|92|
+|81|2137-318 -1237|29|29|
+|105|גלרית דוד 24|10|4|
+
+These are source-intake review cohorts, not newly approved tree connections.
+An empty ocr_text field is not proof OCR processing never happened elsewhere.
+
+### Implementation and acceptance boundary
+
+The existing WorldZviSourceFindings2029 component now opts into the existing
+fetchWorldPublicFindingsPage for exact public sources; default Zvi path/manifests
+are unchanged. Gallery photo depth uses this same component/cards and exact source
+ref, never a contributor/number/title match. Nothing loads until clicked; pages
+are8 rows with explicit more/retry/coverage, and refresh re-reads from the start
+while clearing stale results. A newly admitted finding is discoverable on the
+next read, not through a new push/intake system.
+
+Finding click records the exact existing Gallery Research Context. World exposes
+return only when its source refs match that photo and the route is a canonical
+native/filtered locator. Gallery/image/hash/filter/order/range survive; offsite,
+admin/unknown parameters and unrelated sources cannot manufacture this return.
+No Frame/Provider changes. Source binding is explicitly not a verified tree edge.
+Existing finding detail owns any documented relations; no candidate is promoted.
+
+Synthetic finding responses over a real built app/public image test positive
+source->finding->exact return, private/wrong-source exclusion, pagination, future
+finding refresh, error/retry and source withdrawal. Synthetic rows are never
+written to the database. Real guest data separately tests honest empty state.
+The existing Zvi browser fixture lacked now-required exports from its mocked
+module; these exports were added as fail-on-unexpected-use stubs, keeping all
+source isolation/pagination/race/map/return assertions. No production admission
+gate was weakened. Final results/protected Preview identity are recorded in AFTER.
+
+Not complete: historical locator repair, source-native OCR interpretation and
+reviewed intake of the remaining gallery material; direct edge or Topic promotion;
+global novelty indicators. These require their existing owners/Human Gate, not
+automatic conversion of tags into claims. No product DB/RLS, publication,
+migration, engine, Claude River, main or Production changes.
