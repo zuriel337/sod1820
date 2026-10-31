@@ -12,6 +12,14 @@ test("exact series membership never becomes category, publisher or per-post Foll
   assert.deepEqual(postFollowCandidates2029({ scope: postsCatalogScope2029("series=unknown") }), []);
   assert.deepEqual(postFollowCandidates2029({ scope: postsCatalogScope2029("category=וידאו") }), []);
 });
+test("known series names are not offered again as new category follows", () => {
+  for (const name of ["מימד חמש", "סוד החשמל", "מה קורה הבורא"]) {
+    assert.deepEqual(postFollowCandidates2029({ scope: postsCatalogScope2029('category='+encodeURIComponent(name)) }), []);
+    assert.ok(!postFollowCandidates2029({ post: post({ author:'מפרסם אחר',categories:[name] }) }).some(item=>item.topic==='cat:'+name));
+  }
+  const targets=postFollowCandidates2029({post:post({author:'אלון לוי',tags:['מה קורה הבורא'],categories:['מה קורה הבורא','תיעוד אירועים']})});
+  assert.deepEqual(targets.filter(item=>item.entityType!=='author').map(item=>item.topic),['series:mah-kore-habora','cat:תיעוד אירועים']);
+});
 test("server-unsupported series remain explicit, without broadening to existing category", async () => {
   const calls = [];
   const client = { async rpc(name, args, options) { calls.push([name, args]); assert.deepEqual(options, { get: true }); return { data: args.p_entity_type === "series" ? "" : "cat:" + args.p_stable_id }; } };

@@ -1,0 +1,37 @@
+{
+  "scope": "REVIEW_ONLY_NOT_APPLIED",
+  "base_branch_sha": "015c0269c566804ae3d6933e96339a58f69afdb1",
+  "candidate_path": "supabase/migrations/20261031091248_follow_content_series_only_v1.sql",
+  "candidate_sha256": "fcdc20284b6d824b6b6b20aeaec7a63e517fb3a59dcde2adfda7e87178b7df19",
+  "supabase_cli_version": "2.122.0",
+  "preserve_legacy_category_functions": true,
+  "legacy_client_sha": "99249526e91f1d720fae1aa43e82bbbe51ee5c45",
+  "rollback_path": "docs/reviews/follow-series-release-20261031/rollback.sql",
+  "rollback_sha256": "b1b96654b4637d159e9b20e5a7fc0fe2055cb629e6604f5dcd482d8cdcd41bfc",
+  "preimage_md5": {
+    "canonical_follow_topic": "536e29febf235d1bc9f4157b337ac51a",
+    "follow_topic_aliases": "3b207f3b0a2e9e1049ce7487275c76f0",
+    "canonical_follow_subject": "a187331b0370bbd97b9985d8320d6fb1",
+    "notify_on_post_publish": "a680e77bf85a506588de457819b139be",
+    "resolve_topics": "2f34eb18e00a050d3931c37b25f8847d",
+    "dispatch": "c2bf5b273b5ef4644997786a95835553",
+    "watch_toggle": "fa41495b802bbd75155fc1ab74c5cb39"
+  },
+  "postimage_md5": {
+    "follow_topic_aliases": "3b207f3b0a2e9e1049ce7487275c76f0",
+    "canonical_follow_topic": "536e29febf235d1bc9f4157b337ac51a",
+    "notify_on_post_publish": "a89b9c85758f234aa80449377169bd8d",
+    "canonical_follow_subject": "d312134379229850c78d45a59846d112",
+    "post_content_series_keys_v1": "37c54532d9b38bf90475cdcf490a07da"
+  },
+  "trigger_before": "CREATE TRIGGER trg_posts_notify AFTER INSERT ON public.posts FOR EACH ROW EXECUTE FUNCTION notify_on_post_publish()",
+  "trigger_after": "CREATE TRIGGER trg_posts_notify AFTER INSERT OR UPDATE OF tags ON public.posts FOR EACH ROW EXECUTE FUNCTION notify_on_post_publish()",
+  "series": [
+    "dimension-five",
+    "mah-kore-habora",
+    "sod-hashmal"
+  ],
+  "external_delivery": false,
+  "preference_backfill": false,
+  "live_product_writes": 0
+}

@@ -93,8 +93,9 @@ export default function FollowCenter2029({ model, returnHref = null, readChange 
                 return <li key={entry.topic} className="fc-follow-row" data-change={entry.change} style={tv("action", entry.change === "pending" ? "loading" : "active")}>
                   <IconTile2029 name={entry.icon} purpose="action" state={entry.change === "pending" ? "loading" : "active"} />
                   {href ? <a className="fc-name" href={href}>{entry.label}</a> : <span className="fc-name">{entry.label}</span>}
-                  <button type="button" className="fc-btn" aria-label={`ביטול מעקב: ${entry.label}`} aria-busy={entry.change === "pending"} disabled={entry.change === "pending"} onClick={() => onUnfollow?.(entry.topic)}>
+                  <button type="button" className="fc-btn" aria-label={`${entry.topics?.length > 1 ? "ביטול כל המעקבים" : "ביטול מעקב"}: ${entry.label}`} aria-busy={entry.change === "pending"} disabled={entry.change === "pending"} onClick={() => onUnfollow?.(entry.topic)}>
                     {entry.change === "pending" ? "מבטל…" : <>עוקב <NavigationIcon2029 name="check" size={16} /></>}</button>
+                  {entry.note ? <p className="fc-row-note">{entry.note}</p> : null}
                   {entry.change === "failed" ? <p className="fc-row-error" role="alert">לא התקבל אישור ביטול. המעקב עדיין פעיל. רעננו ונסו שוב.</p> : null}
                   {!href && group.key === "כתב" ? <p className="fc-row-note">אין דף ציבורי יחיד ומאומת לכותב הזה, לכן אין קישור.</p> : null}
                 </li>;

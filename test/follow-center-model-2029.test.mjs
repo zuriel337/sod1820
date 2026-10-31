@@ -1,6 +1,20 @@
 import assert from "node:assert/strict";
 import { buildFollowCenterModel, followLifecycle } from "../src/components/followCenter2029/followCenterModel2029.js";
 
+// One visible series entry, while stored legacy scope remains explicit and unmodified.
+for (const [name,key] of [['מימד חמש','dimension-five'],['סוד החשמל','sod-hashmal'],['מה קורה הבורא','mah-kore-habora']]) {
+  const topics=[`cat:${name}`,`series:${key}`,`category:${name}`],snapshot=JSON.stringify(topics);
+  const model=buildFollowCenterModel({principal:'registered',follows:{state:'ready',topics,pending:{[`cat:${name}`]:'failed'}}});
+  assert.equal(JSON.stringify(topics),snapshot);
+  assert.equal(model.following.count,1);assert.equal(model.following.storedTopicCount,2);
+  assert.equal(model.following.groups.length,1);assert.equal(model.following.groups[0].key,'סדרה');
+  const item=model.following.groups[0].items[0];assert.equal(item.topic,`series:${key}`);
+  assert.deepEqual(item.topics,[`cat:${name}`,`series:${key}`]);assert.equal(item.change,'failed');assert.match(item.note,/שני המעקבים/);
+  const legacy=buildFollowCenterModel({follows:{state:'ready',topics:[`cat:${name}`]}});
+  assert.equal(legacy.following.groups[0].key,'קטגוריה');assert.equal(legacy.following.groups[0].items[0].topic,`cat:${name}`);
+  assert.match(legacy.following.groups[0].items[0].note,/לא הומר/);
+}
+
 const note = (over = {}) => ({ id: "n1", title: "כותרת", body: "גוף", link: "/post/x", read_at: null, created_at: "2026-10-20T10:00:00Z", source_topic: "author:יניב לוי", ...over });
 
 // A failed or loading read is never an empty list.

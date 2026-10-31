@@ -51,8 +51,8 @@ export function postClassification2029(post) {
     const spec = contentSeriesByKey(key);
     return { role: "series", name: spec.label, prefix: "סדרה", href: seriesHref(key), key, decisionId: spec.decisionId };
   });
-  const resolvedSeriesCategories = new Set(series.flatMap(item => contentSeriesByKey(item.key).membership
-    .filter(member => member.field === "categories").map(member => member.value)));
+  const resolvedSeriesCategories = new Set(series.flatMap(item => [item.name, ...contentSeriesByKey(item.key).membership
+    .filter(member => member.field === "categories").map(member => member.value)]));
   const categories = canonicalPostCategories(post.categories).filter(name => !resolvedSeriesCategories.has(name));
   const editorial = categories.filter(name => name === "רמזים חזקים" || name === "תיעוד אירועים")
     .map(name => ({ role: name === "רמזים חזקים" ? "editorial" : "content-family", name,
@@ -146,7 +146,9 @@ export function postFollowCandidates2029({ post = null, scope = null } = {}) {
   for (const item of series) candidates.push({ entityType: "series", stableId: item.key, topic: `series:${item.key}`, label: item.name, kind: "סדרה", icon: "layers" });
   const categories = post ? postClassification2029(post).items.filter(item => item.role !== "series" && item.role !== "legacy-media-label").map(item => item.name)
     : scope?.kind === "category" && scope.key !== "וידאו" ? [scope.key] : [];
-  for (const name of [...new Set(categories)].slice(0, 16)) candidates.push({ entityType: "category", stableId: name, topic: `cat:${name}`, label: name, kind: "סיווג במקור", icon: "layers" });
+  // The modern entry offers one series target. Old category choices stay
+  // readable/cancellable in the center; they are never silently converted.
+  for (const name of [...new Set(categories)].filter(name => !CONTENT_SERIES_2029.some(spec => spec.label === name)).slice(0, 16)) candidates.push({ entityType: "category", stableId: name, topic: `cat:${name}`, label: name, kind: "סיווג במקור", icon: "layers" });
   const author = typeof post?.author === "string" ? post.author : "";
   const publisher = series.some(item => contentSeriesByKey(item.key)?.publisherLabel === author);
   if (author && author === author.trim() && author !== "המערכת" && !publisher) candidates.push({ entityType: "author", stableId: author, topic: `author:${author}`, label: author, kind: "ייחוס במקור", icon: "posts" });
