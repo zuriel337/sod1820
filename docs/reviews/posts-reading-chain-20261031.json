@@ -1,5 +1,5 @@
 {
-  "status": "VISUAL_IMPLEMENTED_TESTED_READONLY_PREVIEW_PENDING",
+  "status": "VISUAL_IMPLEMENTED_TESTED_HOSTED_READONLY_PREVIEW_READY",
   "actor": "GPT",
   "handoff_to": "ZURIEL",
   "scope": "Existing Post occurrence reader, Post activation and existing source disclosure only; no shared Frame/Learn/Number/engine/CSS or product data change",
@@ -1470,6 +1470,61 @@
     "production_before": "dpl_AiKPHaoo5pxo9T5PFTpcBRG7LfMA",
     "production_after": "dpl_AiKPHaoo5pxo9T5PFTpcBRG7LfMA",
     "hosted_visual_browser": "Not asserted; authenticated hosted HTTP and local actual public-data browser were verified",
+    "access": "Existing Vercel authentication retained"
+  },
+  "hosted_preview": {
+    "deployment_id": "dpl_HchEzedm58HG7J7TrJoYYgbYHCfn",
+    "url": "https://sod1820-7ha0rk8ut-sod1820-s-projects.vercel.app",
+    "status": "READY",
+    "target": "preview",
+    "runtime_sha": "12684fa592f3de36c50bddd4fdfae18a58bc5edd",
+    "build_duration_ms": 25346,
+    "checks": [
+      {
+        "path": "/posts-preview-identity.json",
+        "status": 200,
+        "identity": {
+          "branch": "gpt/posts-integrated-backgrounds-20261030",
+          "sha": "12684fa592f3de36c50bddd4fdfae18a58bc5edd",
+          "target": "preview",
+          "readOnly": true,
+          "realModelCalls": false
+        },
+        "cacheControl": "public, max-age=0, must-revalidate",
+        "robots": "noindex"
+      },
+      {
+        "path": "/preview-readonly-sw.js",
+        "status": 200,
+        "readOnlyWorker": true,
+        "cacheControl": "public, max-age=0, must-revalidate",
+        "robots": "noindex"
+      },
+      {
+        "path": "/post/koach-hashtika-dim5",
+        "status": 200,
+        "readOnlyBootstrap": true,
+        "cacheControl": "public, max-age=0, must-revalidate",
+        "robots": "noindex"
+      },
+      {
+        "path": "/post/matrix-506",
+        "status": 200,
+        "readOnlyBootstrap": true,
+        "cacheControl": "public, max-age=0, must-revalidate",
+        "robots": "noindex"
+      },
+      {
+        "path": "/dimension-five-night-720-a608fa1bd777.webp",
+        "status": 200,
+        "cacheControl": "public, max-age=31536000, immutable",
+        "robots": "noindex"
+      }
+    ],
+    "production_unchanged": true,
+    "production_before": "dpl_AiKPHaoo5pxo9T5PFTpcBRG7LfMA",
+    "production_after": "dpl_AiKPHaoo5pxo9T5PFTpcBRG7LfMA",
+    "hosted_visual_browser": "Not asserted; actual local App2029 and authenticated hosted HTTP verified",
     "access": "Existing Vercel authentication retained"
   }
 }
