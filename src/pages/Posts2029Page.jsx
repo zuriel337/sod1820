@@ -7,29 +7,60 @@ import { stripHtml } from "../lib/format.js";
 import { bilingualDateLabel } from "../lib/relativeTime2029.js";
 import PostCategories2029 from "../components/experience2029/PostCategories2029.jsx";
 import { humanContentTitle } from "../lib/presentation/contentTitle.js";
+import { fetchContentSeriesCatalog2029 } from "../lib/research/contentSeries2029Projection.js";
+import { POST_BACKGROUND_ASSETS_2029 } from "../lib/research/postBackground2029.js";
 import "./posts2029.css";
 
-const numericSignals = (tags = []) => [...new Set(
-  (Array.isArray(tags) ? tags : [])
-    .map((tag) => String(tag || "").trim())
-    .filter((tag) => /^\d{1,6}$/.test(tag))
-)].slice(0, 4);
+function SeriesEntrances2029({ activeKey }) {
+  const [attempt, setAttempt] = useState(0);
+  const [state, setState] = useState({ loading: true, series: [], error: false });
+  useEffect(() => {
+    let live = true;
+    setState({ loading: true, series: [], error: false });
+    // Existing anonymous series reader: one metadata row per series, no bodies,
+    // Home-only exclusion, new membership list or media scan on library entry.
+    fetchContentSeriesCatalog2029({ limitPerSeries: 1, homeOnly: false })
+      .then(({ series }) => { if (live) setState({ loading: false, series, error: false }); })
+      .catch(() => { if (live) setState({ loading: false, series: [], error: true }); });
+    return () => { live = false; };
+  }, [attempt]);
 
-const isGoldenPost = (post) => Array.isArray(post?.tags)
-  && post.tags.some((tag) => String(tag).includes("2029-golden"));
+  return <section className="sod29-posts-series" aria-labelledby="posts-series-title" aria-busy={state.loading}>
+    <h2 id="posts-series-title">לגלות דרך הסדרות</h2>
+    {state.loading ? <p role="status">טוען את הסדרות…</p> : null}
+    {state.error ? <div className="sod29-posts-series-error" role="status">
+      <p>הסדרות לא נטענו. אפשר להמשיך לקרוא את הפוסטים.</p>
+      <button type="button" onClick={() => setAttempt(value => value + 1)}>לטעון שוב את הסדרות</button>
+    </div> : null}
+    {state.series.length ? <nav className="sod29-posts-series-grid" aria-label="סדרות הפוסטים">
+      {state.series.map(series => {
+        const image = series.items[0]?.imageUrl;
+        return <Link key={series.key} className="sod29-posts-series-card"
+          to={`/2029/posts?series=${encodeURIComponent(series.key)}`} aria-current={activeKey === series.key ? "page" : undefined}>
+          <div className="sod29-posts-series-image" aria-hidden="true" data-series-cover={image ? "post" : "illustration"}>
+            <span>✦</span>
+            {image || POST_BACKGROUND_ASSETS_2029[series.key] ? <img src={image || POST_BACKGROUND_ASSETS_2029[series.key].mobile} alt="" width="360" height="225" loading="eager" decoding="async" onError={event => { event.currentTarget.hidden = true; }} /> : null}
+          </div>
+          <div className="sod29-posts-series-copy">
+            <h3>{series.label}</h3>
+            {series.publisherLabel ? <p>מפרסם: {series.publisherLabel}</p> : series.writerLabel ? <p>מאת {series.writerLabel}</p> : null}
+            <span>לעיון בסדרה <span aria-hidden="true">←</span></span>
+          </div>
+        </Link>;
+      })}
+    </nav> : null}
+  </section>;
+}
 
 function PostIndexCard({ post, index }) {
-  const title = humanContentTitle(post?.title, { max: 92 });
+  const title = humanContentTitle(post?.title, { max: 0 });
   const excerpt = stripHtml(post?.excerpt || post?.content || "").slice(0, 180);
-  const numbers = numericSignals(post?.tags);
   const image = post?.thumb_url || post?.image_url || null;
-  const golden = isGoldenPost(post);
   const { credit } = postClassification2029(post);
 
   return <article
-    className={"sod29-post-index-card" + (golden ? " is-golden" : "")}
+    className="sod29-post-index-card"
     data-experience-capability="post-index-card"
-    data-post-golden={golden ? "true" : "false"}
     style={{ "--post-order": index }}
   >
     <Link className="sod29-post-index-card-link" to={"/post/" + encodeURIComponent(post.slug)}>
@@ -37,24 +68,18 @@ function PostIndexCard({ post, index }) {
         className={"sod29-post-index-visual" + (image ? " has-image" : "")}
         aria-hidden="true"
       >
-        {image ? <img className="sod29-post-index-cover" src={image} alt="" loading={index < 2 ? "eager" : "lazy"} decoding="async" width="640" height="360" /> : null}
-        {!image ? <div className="sod29-post-index-number-field">
-          {(numbers.length ? numbers : ["✦"]).map((value) => <span key={value}>{value}</span>)}
-        </div> : null}
-        <div className="sod29-post-index-visual-wash" />
+        <span className="sod29-post-index-cover-fallback">✦</span>
+        {image ? <img className="sod29-post-index-cover" src={image} alt="" loading="lazy" decoding="async" width="640" height="400" onError={event => { event.currentTarget.hidden = true; }} /> : null}
       </div>
 
       <div className="sod29-post-index-copy">
+        <h2>{title || "פוסט"}</h2>
+        {excerpt ? <p>{excerpt}</p> : null}
         <div className="sod29-post-index-meta">
           {credit ? <span>{credit.prefix}: {credit.name}</span> : null}
           <span>{post?.modified ? "עודכן " : "פורסם "}{bilingualDateLabel(post?.modified || post?.date, "תאריך לא צוין")}</span>
-          <PostCategories2029 post={post} max={3} compact nested />
+          <PostCategories2029 post={post} max={2} compact nested />
         </div>
-        <h2>{title || "פוסט"}</h2>
-        {excerpt ? <p>{excerpt}</p> : null}
-        {numbers.length ? <div className="sod29-post-index-signals" aria-label="מספרים מרכזיים">
-          {numbers.map((value) => <b key={value}>{value}</b>)}
-        </div> : null}
         <span className="sod29-post-index-open">פתח את הפוסט <b aria-hidden="true">←</b></span>
       </div>
     </Link>
@@ -63,7 +88,9 @@ function PostIndexCard({ post, index }) {
 
 export default function Posts2029Page() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const [attempt, setAttempt] = useState(0);
   const scope = postsCatalogScope2029(searchParams);
+  const title = scope.kind === "all" ? "פוסטים" : scope.label;
   const scopeKey = JSON.stringify([scope.kind, scope.key]);
   const requestedPage = Number(searchParams.get("page") || 1);
   const page = Number.isSafeInteger(requestedPage) && requestedPage > 0 && requestedPage <= 10000 ? requestedPage : 1;
@@ -91,7 +118,7 @@ export default function Posts2029Page() {
       });
 
     return () => { live = false; };
-  }, [page, scopeKey]);
+  }, [page, scopeKey, attempt]);
 
   const pages = Math.max(1, Math.ceil(state.total / 24));
   const sameScope = state.page === page && state.scopeKey === scopeKey;
@@ -106,13 +133,14 @@ export default function Posts2029Page() {
     document.getElementById("posts-catalog")?.scrollIntoView({ block: "start", behavior: "instant" });
   };
 
-  return <Sod2029Shell surface="post" title={scope.label} introVariant="none" symbol="✦" status="פוסטים">
+  return <Sod2029Shell surface="post" title={title} introVariant="none" symbol="✦" status="פוסטים">
     <main className="sod29-posts-index" data-experience-surface="posts-index">
       <header className="sod29-posts-index-hero" data-experience-capability="posts-index-hero">
-        <div className="sod29-posts-index-eyebrow">אירועים · סיפורים · רמזים</div>
+        {scope.kind !== "all" ? <Link className="sod29-posts-index-back" to="/2029/posts">לכל הפוסטים <span aria-hidden="true">←</span></Link> : null}
         <div className="sod29-posts-index-hero-grid">
           <div>
-            <h1>{scope.label}</h1>
+            <h1>{title}</h1>
+            {scope.kind === "all" ? <p className="sod29-posts-index-intro">סיפורים, רמזים וחיבורים שמעוררים התבוננות</p> : null}
             {scope.compatibilityNote ? <p>{scope.compatibilityNote} {scope.seriesLink ? <Link to={scope.seriesLink.href}>{scope.seriesLink.label} ←</Link> : null}</p> : null}
             <details className="sod29-post-details sod29-post-index-about">
               <summary>על הפוסטים <span aria-hidden="true">⌄</span></summary>
@@ -127,9 +155,12 @@ export default function Posts2029Page() {
         </div>
       </header>
 
+      {scope.kind === "all" || scope.kind === "series" ? <SeriesEntrances2029 activeKey={scope.kind === "series" ? scope.key : null} /> : null}
+
       {loading ? <FrameState kind="loading" title="פותח את הפוסטים">טוען את המקורות הציבוריים הקיימים.</FrameState> : null}
       {error ? <FrameState kind="error" title="לא הצלחתי לפתוח את הפוסטים">
         <p>{error}</p>
+        <button type="button" onClick={() => setAttempt(value => value + 1)}>ניסיון טעינה נוסף</button>
         {page > 1 ? <button type="button" onClick={() => goToPage(1)}>חזרה לפוסטים האחרונים</button> : null}
       </FrameState> : null}
       {!loading && !error && !posts.length
@@ -140,8 +171,9 @@ export default function Posts2029Page() {
 
       {posts.length ? <section id="posts-catalog" className="sod29-posts-index-stage" aria-label="פוסטים" data-posts-page={page}>
         <div className="sod29-posts-index-stage-head">
-          <span>{state.total ? `${state.total} פוסטים במקור` : "הפוסטים האחרונים"}</span>
-          <small>עמוד {page} מתוך {pages} · לפי עדכון הפוסט</small>
+          <h2>{scope.kind === "all" ? "כל הפוסטים" : "הפוסטים בבחירה"}</h2>
+          <span><bdi className="sod29-posts-numeric">{state.total}</bdi> פוסטים · עמוד <bdi className="sod29-posts-numeric">{page}</bdi> מתוך <bdi className="sod29-posts-numeric">{pages}</bdi></span>
+          <small>הפוסטים האחרונים · לפי עדכון הפוסט</small>
         </div>
         <div className="sod29-posts-index-grid">
           {posts.map((post, index) => <PostIndexCard key={post.id || post.slug} post={post} index={index} />)}
