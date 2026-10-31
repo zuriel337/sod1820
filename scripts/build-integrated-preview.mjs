@@ -68,6 +68,22 @@ self.addEventListener('activate',event=>event.waitUntil(self.clients.claim()));
 self.addEventListener('fetch',event=>{
  const req=event.request,u=new URL(req.url),rpc=u.pathname.match(/^\\/rest\\/v1\\/rpc\\/(.+)$/)?.[1];
  if(req.method==='OPTIONS')return;
+ if(u.origin===authOrigin&&rpc==='community_replies_page'&&communityPublishing){
+  event.respondWith((async()=>{
+   const blocked=()=>new Response(JSON.stringify({error:'preview_read_only'}),{status:403,headers:{'Content-Type':'application/json','X-Preview-Write-Blocked':'true'}});
+   if(req.method!=='POST'||u.searchParams.size!==1||u.searchParams.get('select')!==communityFields)return blocked();
+   try{
+    const b=await req.clone().json();
+    if(!b||Object.keys(b).sort().join(',')!=='p_limit,p_offset,p_parent'||!/^([0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$/i.test(b.p_parent)||!Number.isSafeInteger(b.p_offset)||b.p_offset<0||b.p_offset>1000000||!Number.isSafeInteger(b.p_limit)||b.p_limit<1||b.p_limit>100)return blocked();
+    const context=await fetch(authOrigin+'/rest/v1/rpc/community_message_context?select='+encodeURIComponent(communityFields),{method:'POST',headers:{apikey:req.headers.get('apikey')||'',Authorization:req.headers.get('Authorization')||'','Content-Type':'application/json'},body:JSON.stringify({p_id:b.p_parent}),credentials:'omit'});
+    if(!context.ok)return new Response(JSON.stringify({error:'public_reply_context_unavailable'}),{status:503,headers:{'Content-Type':'application/json'}});
+    const chain=await context.json();
+    if(!Array.isArray(chain))return blocked();
+    if(!chain.some(row=>row.id===b.p_parent))return new Response('[]',{status:200,headers:{'Content-Type':'application/json'}});
+    return fetch(req);
+   }catch{return blocked();}
+  })());return;
+ }
  const avatarStorage=u.origin===authOrigin&&u.pathname.startsWith('/storage/v1/object/gallery/avatars/')&&!['GET','HEAD'].includes(req.method);
  const avatarSave=u.origin===self.location?.origin&&u.pathname==='/api/contributor-self'&&req.method==='POST';
  if(avatarStorage||avatarSave){

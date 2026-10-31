@@ -33,6 +33,7 @@ export default function ShareActions({
   // Share Object (all optional, additive)
   entityId = null, sourceSurface = null, subtype = "share", locale = null, exactState = null, context = null,
   video = null, poster = null, onShare = null, variant = "default",
+  iconLabel = "שתף קישור לתמונה", iconCopiedLabel = "הקישור לתמונה הועתק",
 }) {
   const P = usePalette();
   const visualPalette = use2029Palette();
@@ -117,12 +118,12 @@ export default function ShareActions({
     <div className="sod-share-actions is-icon" dir="rtl" style={{ "--action-success": visualPalette.successText, "--action-danger": visualPalette.dangerText, ...style }}>
       <button type="button" data-action="share" data-share-variant="icon"
         data-state={copied ? "success" : copyFailed ? "error" : "idle"}
-        title={copied ? "הקישור הועתק" : "שתף קישור לתמונה"}
-        aria-label={copied ? "הקישור לתמונה הועתק" : copyFailed ? "ההעתקה נכשלה, נסה שוב" : "שתף קישור לתמונה"}
+        title={copied ? "הקישור הועתק" : iconLabel}
+        aria-label={copied ? iconCopiedLabel : copyFailed ? "ההעתקה נכשלה, נסה שוב" : iconLabel}
         onClick={(event) => { event.preventDefault(); event.stopPropagation(); if (canNative) void native(); else void copy(); }}>
         <NavigationIcon2029 name={copied ? "check" : "share"} size={16} />
       </button>
-      <span className="sod-action-announcement" role="status" aria-live="polite">{copied ? "הקישור לתמונה הועתק" : copyFailed ? "ההעתקה נכשלה. נסה שוב." : ""}</span>
+      <span className="sod-action-announcement" role="status" aria-live="polite">{copied ? iconCopiedLabel : copyFailed ? "ההעתקה נכשלה. נסה שוב." : ""}</span>
     </div>
   );
 

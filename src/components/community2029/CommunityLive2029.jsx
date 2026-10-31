@@ -22,6 +22,8 @@ import { MessageConfirm, MessageEditor } from "./CommunityMessageManage.jsx";
 import { useCommunityMessageActions2029 } from "./useCommunityMessageActions2029.js";
 import QuickProfileAvatar2029 from "../contributor2029/QuickProfileAvatar2029.jsx";
 import publicStats from "../../lib/community/communityPublicStats2029.json";
+import ShareActions from "../ShareActions.jsx";
+import { communityMessageShareUrl } from "../../lib/community/communityMessageShare.js";
 
 const dateFormat = new Intl.DateTimeFormat("he-IL", { dateStyle: "medium", timeStyle: "short" });
 const sinceFormat = new Intl.DateTimeFormat("he-IL", { day: "numeric", month: "long", year: "numeric" });
@@ -61,7 +63,7 @@ function LiveLike({ row }) {
   </div>;
 }
 
-function LiveMessage({ row: sourceRow, onReply, accountProfiles, showSource = false, formatDate, linkAuthor = true, showAuthorAvatar = true, focused = false, messageActions }) {
+function LiveMessage({ row: sourceRow, onReply, accountProfiles, showSource = false, formatDate, linkAuthor = true, showAuthorAvatar = true, focused = false, messageActions, sharePath }) {
   const row = { ...sourceRow, ...messageActions?.patches[sourceRow.id] };
   const permissions = messageActions?.items[row.id];
   const [selection, setSelection] = useState({ principalKey: null, mode: null });
@@ -73,6 +75,7 @@ function LiveMessage({ row: sourceRow, onReply, accountProfiles, showSource = fa
   const open = mode => setSelection({ principalKey: actor, mode });
   const close = () => { open(null); requestAnimationFrame(() => editButton.current?.focus()); };
   const canReply = typeof onReply === "function" && (row.origin === "openweb" || row.origin === "community_2029");
+  const shareUrl = communityMessageShareUrl(window.location.href, sharePath);
   const target = row.targetType === "number" && row.targetId ? `/number/${encodeURIComponent(row.targetId)}`
     : row.targetType === "els" && row.targetId ? `/codes/${encodeURIComponent(row.targetId)}`
     : row.targetType === "topic" && row.targetId ? `/topic/${encodeURIComponent(row.targetId)}` : null;
@@ -89,6 +92,7 @@ function LiveMessage({ row: sourceRow, onReply, accountProfiles, showSource = fa
     <div className="sod29-community-thread-actions">
       {canReply ? <button type="button" className="sod29-community-reply-action" onClick={() => onReply(row)}>השב</button> : null}
       <LiveLike row={row} />
+      {shareUrl ? <ShareActions type="community_message" entityId={row.id} url={shareUrl} title="הודעה בקהילת סוד 1820" sourceSurface="community_thread_2029" variant="icon" iconLabel="שיתוף הודעה" iconCopiedLabel="הקישור להודעה הועתק" force /> : null}
       {showSource && target ? <Link to={target}>לתרומה המלאה ←</Link> : null}
       {permissions?.state === "ready" && permissions.canEdit && mode !== "edit" ? <button type="button" ref={editButton} className="sod29-community-manage-action" onClick={() => open("edit")}>עריכה</button> : null}
       {permissions?.state === "ready" && permissions.canDelete && !mode ? <button type="button" className="sod29-community-manage-action" onClick={() => open("delete")}>מחיקה</button> : null}
@@ -161,7 +165,7 @@ function LiveThread({ row, onReply, accountProfiles, replyCounts, onRepliesLoade
   useLayoutEffect(() => { restoreCommunityScrollAnchor(replyAnchorRef.current); replyAnchorRef.current = null; }, [replies]);
 
   return <div className="sod29-community-thread-group">
-    <LiveMessage row={row} onReply={onReply} accountProfiles={accountProfiles} focused={focused} messageActions={messageActions} />
+    <LiveMessage row={row} onReply={onReply} accountProfiles={accountProfiles} focused={focused} messageActions={messageActions} sharePath={[...ancestors, row.id]} />
     {canExpand ? <button type="button" className="sod29-community-replies-toggle" aria-expanded={expanded} aria-controls={childrenId} onClick={toggleReplies}>{expanded ? "הסתר תגובות" : "הצג תגובות"}{count != null ? ` (${count.toLocaleString("he-IL")})` : ""}</button> : null}
     <div id={childrenId} className="sod29-community-replies" hidden={!expanded}>
       {replyError ? <p role="alert">{replyError} <button type="button" onClick={() => loadReplies(nextReplyOffset)}>ניסיון נוסף</button></p> : null}
@@ -209,7 +213,8 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
   const replyIdParam = params.get("reply") || "";
   const threadPathParam = params.get("path") || "";
   const threadFocus = useMemo(() => normalizeCommunityThreadFocus({ threadId: threadIdParam, replyId: replyIdParam, path: threadPathParam }), [threadIdParam, replyIdParam, threadPathParam]);
-  const threadReturnHref = personalMessagesReturnHref(params.get("returnTo")) || canonicalPath;
+  const personalThreadReturn = personalMessagesReturnHref(params.get("returnTo"));
+  const threadReturnHref = personalThreadReturn || canonicalPath;
   const fullThreadHref = `/2029?${new URLSearchParams({ preview: "community", data: "live", thread: threadFocus?.threadId || "", returnTo: threadReturnHref })}`;
   const [rows, setRows] = useState([]);
   const [nextOffset, setNextOffset] = useState(0);
@@ -515,8 +520,8 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
           {notice ? <p className="sod29-community-status" role="status">{notice}</p> : null}
         </section>
         {threadFocus ? <section className="sod29-community-focus" aria-labelledby="community-focus-title">
-          <header className="sod29-community-focus-head"><div><p>מתוך התגובות אליי</p><h2 id="community-focus-title">השיחה שבה התקבלה התגובה</h2></div><div>
-            <Link className="sod29-community-secondary" to={threadReturnHref}>חזרה להודעות שלי</Link>
+          <header className="sod29-community-focus-head"><div><p>{personalThreadReturn ? "מתוך התגובות אליי" : "הקהילה"}</p><h2 id="community-focus-title">{personalThreadReturn ? "השיחה שבה התקבלה התגובה" : "השיחה המלאה"}</h2></div><div>
+            <Link className="sod29-community-secondary" to={threadReturnHref}>{personalThreadReturn ? "חזרה להודעות שלי" : "חזרה לקהילה"}</Link>
             {threadFocus.replyId ? <Link className="sod29-community-secondary" to={fullThreadHref}>לשרשור המלא</Link> : null}
           </div></header>
           {focusedThreadState === "loading" ? <p role="status">טוען את השיחה…</p> : null}
