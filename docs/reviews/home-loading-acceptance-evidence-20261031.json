@@ -55,31 +55,33 @@
     }
   },
   "validation": {
-    "targeted_node_tests": {
-      "passed": 37,
-      "failed": 0,
-      "skipped": 0
-    },
-    "preview_guard_tests_including_proposed_patch": {
-      "passed": 31,
-      "failed": 0,
-      "skipped": 0,
-      "overlaps_targeted": true
-    },
-    "admission_browser_cases": 19,
+    "admission_browser_cases": 23,
     "paired_cold_runs": 12,
     "inherited_failure_and_interaction_cases": 6,
     "regular_builds": "both_pass",
     "integrated_preview_build": "pass",
     "clean_runtime_commit_rebuild_manifest": "identical",
-    "graph_isolation_hardening_legacy_lock": "pass"
+    "graph_isolation_hardening_legacy_lock": "pass",
+    "focused_post_backup_runner_tests": {
+      "passed": 61,
+      "failed": 0,
+      "skipped": 0,
+      "includes_proposed_patch_tests": 4
+    },
+    "post_backup_revalidation": true,
+    "node_log": "/tmp/sod1820-post-backup-node.log",
+    "browser_log": "/tmp/sod1820-home-post-backup-final.log",
+    "runtime_source_unchanged_since_measured_commit": true
   },
   "preview_binding": {
     "applied": false,
     "patch": "home-loading-preview-bindings-20261031.patch",
     "active_builder_owner_record": "412a0132-0b3f-43d9-bcab-74e414e98a11",
     "proposed_guard_vm_tests": 4,
-    "hosted_deployment": false
+    "hosted_deployment": false,
+    "ownership_checked_at": "2026-10-31T20:04:31.217826Z",
+    "owner_explicit_release_found": false,
+    "status": "PROPOSED_TESTED_NOT_APPLIED_WAITING_OWNERSHIP"
   },
   "coordination": {
     "reader_role": "supabase_read_only_user",
@@ -88,7 +90,12 @@
     "previous_scope_release": "aba15abf-5142-4c77-a2f6-ae5715c65672",
     "concurrent_read_only_review": "dcbc84a3-83ec-40cf-9743-4059abb9de6a",
     "river_retained_owner": "56d9506f-2e51-4be1-9bef-0573032e6f1f",
-    "live_before_after_inserted": false
+    "resumed_before_id": "e7d8ec5a-1a27-4b59-b706-02bf1b614638",
+    "resumed_before_at": "2026-10-31T20:02:48.909657Z",
+    "resumed_before_readback_verified": true,
+    "resumed_before_not_retroactive": true,
+    "coordination_writes": "Only explicit-user-authorized passive work_log receipts to ZURIEL; no dispatch",
+    "closing_receipt": "Same task_key HOME_LOADING_ACCEPTANCE_20261031 in work_log_current, recorded after final remote verification"
   },
   "limitations": [
     "Synthetic public API fixtures; external model and product writes intercepted",
@@ -5275,34 +5282,39 @@
             "method": "GET"
           },
           {
-            "path": "/rest/v1/topic_cards_public",
-            "query": "?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&order=meter_score.desc.nullslast%2Capproved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=5",
-            "method": "GET"
-          },
-          {
             "path": "/rest/v1/gematria_words",
             "query": "?select=phrase&is_verified=eq.true&is_published=eq.true&or=%28is_encrypted.is.null%2Cis_encrypted.eq.false%29",
             "method": "HEAD"
           },
           {
             "path": "/rest/v1/gematria_words",
-            "query": "?select=phrase&is_verified=eq.true&is_published=eq.true&or=%28is_encrypted.is.null%2Cis_encrypted.eq.false%29&created_at=gte.2026-10-24T19%3A43%3A59.926Z",
+            "query": "?select=phrase&is_verified=eq.true&is_published=eq.true&or=%28is_encrypted.is.null%2Cis_encrypted.eq.false%29&created_at=gte.2026-10-24T20%3A03%3A51.399Z",
             "method": "HEAD"
           },
           {
             "path": "/rest/v1/gematria_words",
-            "query": "?select=phrase&is_verified=eq.true&is_published=eq.true&or=%28is_encrypted.is.null%2Cis_encrypted.eq.false%29&visibility_changed_at=gte.2026-10-24T19%3A43%3A59.926Z",
+            "query": "?select=phrase&is_verified=eq.true&is_published=eq.true&or=%28is_encrypted.is.null%2Cis_encrypted.eq.false%29&visibility_changed_at=gte.2026-10-24T20%3A03%3A51.399Z",
             "method": "HEAD"
           },
           {
             "path": "/rest/v1/gematria_words",
-            "query": "?select=phrase&is_verified=eq.true&is_published=eq.true&or=%28is_encrypted.is.null%2Cis_encrypted.eq.false%29&created_at=gte.2026-10-24T19%3A43%3A59.926Z&visibility_changed_at=gte.2026-10-24T19%3A43%3A59.926Z",
+            "query": "?select=phrase&is_verified=eq.true&is_published=eq.true&or=%28is_encrypted.is.null%2Cis_encrypted.eq.false%29&created_at=gte.2026-10-24T20%3A03%3A51.399Z&visibility_changed_at=gte.2026-10-24T20%3A03%3A51.399Z",
             "method": "HEAD"
+          },
+          {
+            "path": "/rest/v1/topic_cards_public",
+            "query": "?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&order=meter_score.desc.nullslast%2Capproved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=5",
+            "method": "GET"
           },
           {
             "path": "/rest/v1/gematria_words",
             "query": "?select=phrase%2Cragil%2Ccreated_at%2Cvisibility_changed_at&is_verified=eq.true&is_published=eq.true&or=%28is_encrypted.is.null%2Cis_encrypted.eq.false%29&order=created_at.desc.nullslast&limit=3",
             "method": "GET"
+          },
+          {
+            "path": "/rest/v1/rpc/fn_method_value",
+            "query": "",
+            "method": "POST"
           },
           {
             "path": "/rest/v1/gematria_words",
@@ -5311,13 +5323,8 @@
           },
           {
             "path": "/rest/v1/research_contributions",
-            "query": "?select=id%2Cauthor_user_id%2Cauthor_contributor_id%2Cauthor_name%2Ccreated_at&status=eq.approved&created_at=gte.2026-10-24T19%3A43%3A59.926Z&order=created_at.desc&limit=1000",
+            "query": "?select=id%2Cauthor_user_id%2Cauthor_contributor_id%2Cauthor_name%2Ccreated_at&status=eq.approved&created_at=gte.2026-10-24T20%3A03%3A51.399Z&order=created_at.desc&limit=1000",
             "method": "GET"
-          },
-          {
-            "path": "/rest/v1/rpc/fn_method_value",
-            "query": "",
-            "method": "POST"
           },
           {
             "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
@@ -5335,23 +5342,18 @@
             "method": "GET"
           },
           {
-            "path": "/rest/v1/posts",
-            "query": "?select=id%2Cslug%2Cdate%2Cmodified%2Ccategories%2Csource%2Ctags%2Chome_hidden&slug=in.%28performance-public-fixture%29",
-            "method": "GET"
-          },
-          {
             "path": "/rest/v1/topic_cards_public",
             "query": "?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&order=approved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=41",
             "method": "GET"
           },
           {
             "path": "/rest/v1/posts",
-            "query": "?select=id%2Cslug%2Cdate%2Cmodified%2Ctags%2Ccategories%2Csource%2Chome_hidden&slug=eq.performance-public-fixture&limit=1",
+            "query": "?select=id%2Cslug%2Cdate%2Cmodified%2Ccategories%2Csource%2Ctags%2Chome_hidden&slug=in.%28performance-public-fixture%29",
             "method": "GET"
           },
           {
-            "path": "/rest/v1/topic_cards_public",
-            "query": "?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&order=approved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=25",
+            "path": "/rest/v1/posts",
+            "query": "?select=id%2Cslug%2Cdate%2Cmodified%2Ctags%2Ccategories%2Csource%2Chome_hidden&slug=eq.performance-public-fixture&limit=1",
             "method": "GET"
           },
           {
@@ -5365,14 +5367,19 @@
             "method": "POST"
           },
           {
-            "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
-            "query": "",
-            "method": "POST"
+            "path": "/rest/v1/topic_cards_public",
+            "query": "?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&order=approved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=25",
+            "method": "GET"
           },
           {
             "path": "/rest/v1/posts",
             "query": "?select=id%2Cslug%2Ctitle%2Cexcerpt%2Cauthor%2Csource%2Ctags%2Chome_hidden%2Cdate%2Cmodified%2Ccreated_at&home_hidden=eq.false&tags=not.cs.%7B%D7%98%D7%99%D7%95%D7%98%D7%94%7D&tags=not.cs.%7B%D7%A4%D7%95%D7%A8%D7%95%D7%9D%7D&source=in.%28wordpress%2CSOD1820%2Csod1820%2Csource_document%2Cai%2Cuploaded_file%29&order=modified.desc.nullslast&limit=32",
             "method": "GET"
+          },
+          {
+            "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+            "query": "",
+            "method": "POST"
           }
         ]
       },
@@ -5495,17 +5502,17 @@
           },
           {
             "path": "/rest/v1/gematria_words",
-            "query": "?select=phrase&is_verified=eq.true&is_published=eq.true&or=%28is_encrypted.is.null%2Cis_encrypted.eq.false%29&created_at=gte.2026-10-24T19%3A44%3A01.869Z",
+            "query": "?select=phrase&is_verified=eq.true&is_published=eq.true&or=%28is_encrypted.is.null%2Cis_encrypted.eq.false%29&created_at=gte.2026-10-24T20%3A03%3A53.820Z",
             "method": "HEAD"
           },
           {
             "path": "/rest/v1/gematria_words",
-            "query": "?select=phrase&is_verified=eq.true&is_published=eq.true&or=%28is_encrypted.is.null%2Cis_encrypted.eq.false%29&visibility_changed_at=gte.2026-10-24T19%3A44%3A01.869Z",
+            "query": "?select=phrase&is_verified=eq.true&is_published=eq.true&or=%28is_encrypted.is.null%2Cis_encrypted.eq.false%29&visibility_changed_at=gte.2026-10-24T20%3A03%3A53.820Z",
             "method": "HEAD"
           },
           {
             "path": "/rest/v1/gematria_words",
-            "query": "?select=phrase&is_verified=eq.true&is_published=eq.true&or=%28is_encrypted.is.null%2Cis_encrypted.eq.false%29&created_at=gte.2026-10-24T19%3A44%3A01.869Z&visibility_changed_at=gte.2026-10-24T19%3A44%3A01.869Z",
+            "query": "?select=phrase&is_verified=eq.true&is_published=eq.true&or=%28is_encrypted.is.null%2Cis_encrypted.eq.false%29&created_at=gte.2026-10-24T20%3A03%3A53.820Z&visibility_changed_at=gte.2026-10-24T20%3A03%3A53.820Z",
             "method": "HEAD"
           },
           {
@@ -5520,7 +5527,7 @@
           },
           {
             "path": "/rest/v1/research_contributions",
-            "query": "?select=id%2Cauthor_user_id%2Cauthor_contributor_id%2Cauthor_name%2Ccreated_at&status=eq.approved&created_at=gte.2026-10-24T19%3A44%3A01.869Z&order=created_at.desc&limit=1000",
+            "query": "?select=id%2Cauthor_user_id%2Cauthor_contributor_id%2Cauthor_name%2Ccreated_at&status=eq.approved&created_at=gte.2026-10-24T20%3A03%3A53.820Z&order=created_at.desc&limit=1000",
             "method": "GET"
           },
           {
@@ -5649,7 +5656,7 @@
         "reads": [
           {
             "path": "/rest/v1/channel_updates",
-            "query": "?select=id%2Ctext%2Cimage_url%2Cthumb_url%2Ccreated_at%2Cpriority%2Ccredit%2Cexpires_at%2Clink_url&channel=eq.or-geula&image_url=not.is.null&or=%28expires_at.is.null%2Cexpires_at.gt.2026-10-31T19%3A44%3A03.746Z%29&order=priority.desc%2Ccreated_at.desc&limit=12",
+            "query": "?select=id%2Ctext%2Cimage_url%2Cthumb_url%2Ccreated_at%2Cpriority%2Ccredit%2Cexpires_at%2Clink_url&channel=eq.or-geula&image_url=not.is.null&or=%28expires_at.is.null%2Cexpires_at.gt.2026-10-31T20%3A03%3A56.123Z%29&order=priority.desc%2Ccreated_at.desc&limit=12",
             "method": "GET"
           },
           {
@@ -5673,26 +5680,6 @@
             "method": "GET"
           },
           {
-            "path": "/rest/v1/gematria_words",
-            "query": "?select=phrase&is_verified=eq.true&is_published=eq.true&or=%28is_encrypted.is.null%2Cis_encrypted.eq.false%29",
-            "method": "HEAD"
-          },
-          {
-            "path": "/rest/v1/gematria_words",
-            "query": "?select=phrase&is_verified=eq.true&is_published=eq.true&or=%28is_encrypted.is.null%2Cis_encrypted.eq.false%29&created_at=gte.2026-10-24T19%3A44%3A03.741Z",
-            "method": "HEAD"
-          },
-          {
-            "path": "/rest/v1/gematria_words",
-            "query": "?select=phrase&is_verified=eq.true&is_published=eq.true&or=%28is_encrypted.is.null%2Cis_encrypted.eq.false%29&visibility_changed_at=gte.2026-10-24T19%3A44%3A03.741Z",
-            "method": "HEAD"
-          },
-          {
-            "path": "/rest/v1/gematria_words",
-            "query": "?select=phrase&is_verified=eq.true&is_published=eq.true&or=%28is_encrypted.is.null%2Cis_encrypted.eq.false%29&created_at=gte.2026-10-24T19%3A44%3A03.741Z&visibility_changed_at=gte.2026-10-24T19%3A44%3A03.741Z",
-            "method": "HEAD"
-          },
-          {
             "path": "/rest/v1/posts",
             "query": "?select=id%2Cslug%2Ctitle%2Cimage_url%2Cthumb_url%2Cdate&categories=ov.%7B%D7%A6%D7%A4%D7%95%D7%A0%D7%95%D7%AA+%D7%91%D7%AA%D7%95%D7%A8%D7%94%2C%D7%94%D7%A6%D7%95%D7%A4%D7%9F+%D7%91%D7%A1%D7%A8%D7%98%D7%99%D7%9D%7D&image_url=not.is.null&order=date.desc&limit=6",
             "method": "GET"
@@ -5714,6 +5701,26 @@
           },
           {
             "path": "/rest/v1/gematria_words",
+            "query": "?select=phrase&is_verified=eq.true&is_published=eq.true&or=%28is_encrypted.is.null%2Cis_encrypted.eq.false%29",
+            "method": "HEAD"
+          },
+          {
+            "path": "/rest/v1/gematria_words",
+            "query": "?select=phrase&is_verified=eq.true&is_published=eq.true&or=%28is_encrypted.is.null%2Cis_encrypted.eq.false%29&created_at=gte.2026-10-24T20%3A03%3A56.117Z",
+            "method": "HEAD"
+          },
+          {
+            "path": "/rest/v1/gematria_words",
+            "query": "?select=phrase&is_verified=eq.true&is_published=eq.true&or=%28is_encrypted.is.null%2Cis_encrypted.eq.false%29&visibility_changed_at=gte.2026-10-24T20%3A03%3A56.117Z",
+            "method": "HEAD"
+          },
+          {
+            "path": "/rest/v1/gematria_words",
+            "query": "?select=phrase&is_verified=eq.true&is_published=eq.true&or=%28is_encrypted.is.null%2Cis_encrypted.eq.false%29&created_at=gte.2026-10-24T20%3A03%3A56.117Z&visibility_changed_at=gte.2026-10-24T20%3A03%3A56.117Z",
+            "method": "HEAD"
+          },
+          {
+            "path": "/rest/v1/gematria_words",
             "query": "?select=phrase%2Cragil%2Ccreated_at%2Cvisibility_changed_at&is_verified=eq.true&is_published=eq.true&or=%28is_encrypted.is.null%2Cis_encrypted.eq.false%29&order=created_at.desc.nullslast&limit=3",
             "method": "GET"
           },
@@ -5724,7 +5731,7 @@
           },
           {
             "path": "/rest/v1/research_contributions",
-            "query": "?select=id%2Cauthor_user_id%2Cauthor_contributor_id%2Cauthor_name%2Ccreated_at&status=eq.approved&created_at=gte.2026-10-24T19%3A44%3A03.741Z&order=created_at.desc&limit=1000",
+            "query": "?select=id%2Cauthor_user_id%2Cauthor_contributor_id%2Cauthor_name%2Ccreated_at&status=eq.approved&created_at=gte.2026-10-24T20%3A03%3A56.117Z&order=created_at.desc&limit=1000",
             "method": "GET"
           },
           {
@@ -5758,24 +5765,24 @@
             "method": "GET"
           },
           {
-            "path": "/rest/v1/topic_cards_public",
-            "query": "?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&order=approved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=25",
-            "method": "GET"
-          },
-          {
             "path": "/rest/v1/posts",
             "query": "?select=id%2Cslug%2Cdate%2Cmodified%2Ctags%2Ccategories%2Csource%2Chome_hidden&slug=eq.performance-public-fixture&limit=1",
             "method": "GET"
           },
           {
-            "path": "/rest/v1/posts",
-            "query": "?select=id%2Cslug%2Ctitle%2Cexcerpt%2Cauthor%2Csource%2Ctags%2Chome_hidden%2Cdate%2Cmodified%2Ccreated_at&home_hidden=eq.false&tags=not.cs.%7B%D7%98%D7%99%D7%95%D7%98%D7%94%7D&tags=not.cs.%7B%D7%A4%D7%95%D7%A8%D7%95%D7%9D%7D&source=in.%28wordpress%2CSOD1820%2Csod1820%2Csource_document%2Cai%2Cuploaded_file%29&order=modified.desc.nullslast&limit=80",
+            "path": "/rest/v1/topic_cards_public",
+            "query": "?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&order=approved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=25",
             "method": "GET"
           },
           {
             "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
             "query": "",
             "method": "POST"
+          },
+          {
+            "path": "/rest/v1/posts",
+            "query": "?select=id%2Cslug%2Ctitle%2Cexcerpt%2Cauthor%2Csource%2Ctags%2Chome_hidden%2Cdate%2Cmodified%2Ccreated_at&home_hidden=eq.false&tags=not.cs.%7B%D7%98%D7%99%D7%95%D7%98%D7%94%7D&tags=not.cs.%7B%D7%A4%D7%95%D7%A8%D7%95%D7%9D%7D&source=in.%28wordpress%2CSOD1820%2Csod1820%2Csource_document%2Cai%2Cuploaded_file%29&order=modified.desc.nullslast&limit=80",
+            "method": "GET"
           },
           {
             "path": "/rest/v1/posts",
@@ -5878,7 +5885,7 @@
         "reads": [
           {
             "path": "/rest/v1/channel_updates",
-            "query": "?select=id%2Ctext%2Cimage_url%2Cthumb_url%2Ccreated_at%2Cpriority%2Ccredit%2Cexpires_at%2Clink_url&channel=eq.or-geula&image_url=not.is.null&or=%28expires_at.is.null%2Cexpires_at.gt.2026-10-31T19%3A44%3A05.781Z%29&order=priority.desc%2Ccreated_at.desc&limit=12",
+            "query": "?select=id%2Ctext%2Cimage_url%2Cthumb_url%2Ccreated_at%2Cpriority%2Ccredit%2Cexpires_at%2Clink_url&channel=eq.or-geula&image_url=not.is.null&or=%28expires_at.is.null%2Cexpires_at.gt.2026-10-31T20%3A03%3A58.578Z%29&order=priority.desc%2Ccreated_at.desc&limit=12",
             "method": "GET"
           },
           {
@@ -5913,17 +5920,17 @@
           },
           {
             "path": "/rest/v1/gematria_words",
-            "query": "?select=phrase&is_verified=eq.true&is_published=eq.true&or=%28is_encrypted.is.null%2Cis_encrypted.eq.false%29&created_at=gte.2026-10-24T19%3A44%3A05.776Z",
+            "query": "?select=phrase&is_verified=eq.true&is_published=eq.true&or=%28is_encrypted.is.null%2Cis_encrypted.eq.false%29&created_at=gte.2026-10-24T20%3A03%3A58.568Z",
             "method": "HEAD"
           },
           {
             "path": "/rest/v1/gematria_words",
-            "query": "?select=phrase&is_verified=eq.true&is_published=eq.true&or=%28is_encrypted.is.null%2Cis_encrypted.eq.false%29&visibility_changed_at=gte.2026-10-24T19%3A44%3A05.776Z",
+            "query": "?select=phrase&is_verified=eq.true&is_published=eq.true&or=%28is_encrypted.is.null%2Cis_encrypted.eq.false%29&visibility_changed_at=gte.2026-10-24T20%3A03%3A58.568Z",
             "method": "HEAD"
           },
           {
             "path": "/rest/v1/gematria_words",
-            "query": "?select=phrase&is_verified=eq.true&is_published=eq.true&or=%28is_encrypted.is.null%2Cis_encrypted.eq.false%29&created_at=gte.2026-10-24T19%3A44%3A05.776Z&visibility_changed_at=gte.2026-10-24T19%3A44%3A05.776Z",
+            "query": "?select=phrase&is_verified=eq.true&is_published=eq.true&or=%28is_encrypted.is.null%2Cis_encrypted.eq.false%29&created_at=gte.2026-10-24T20%3A03%3A58.568Z&visibility_changed_at=gte.2026-10-24T20%3A03%3A58.568Z",
             "method": "HEAD"
           },
           {
@@ -5938,7 +5945,7 @@
           },
           {
             "path": "/rest/v1/research_contributions",
-            "query": "?select=id%2Cauthor_user_id%2Cauthor_contributor_id%2Cauthor_name%2Ccreated_at&status=eq.approved&created_at=gte.2026-10-24T19%3A44%3A05.776Z&order=created_at.desc&limit=1000",
+            "query": "?select=id%2Cauthor_user_id%2Cauthor_contributor_id%2Cauthor_name%2Ccreated_at&status=eq.approved&created_at=gte.2026-10-24T20%3A03%3A58.568Z&order=created_at.desc&limit=1000",
             "method": "GET"
           },
           {
@@ -5967,14 +5974,14 @@
             "method": "GET"
           },
           {
-            "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
-            "query": "",
-            "method": "POST"
-          },
-          {
             "path": "/rest/v1/posts",
             "query": "?select=id%2Cslug%2Ctitle%2Cexcerpt%2Cauthor%2Csource%2Ctags%2Chome_hidden%2Cdate%2Cmodified%2Ccreated_at&home_hidden=eq.false&tags=not.cs.%7B%D7%98%D7%99%D7%95%D7%98%D7%94%7D&tags=not.cs.%7B%D7%A4%D7%95%D7%A8%D7%95%D7%9D%7D&source=in.%28wordpress%2CSOD1820%2Csod1820%2Csource_document%2Cai%2Cuploaded_file%29&order=modified.desc.nullslast&limit=80",
             "method": "GET"
+          },
+          {
+            "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+            "query": "",
+            "method": "POST"
           }
         ]
       },
@@ -5999,6 +6006,33 @@
       {
         "kind": "approach_return",
         "width": 320,
+        "theme": "dark",
+        "videoReads": 1,
+        "riverReads": 1,
+        "pageErrors": 0,
+        "animation": "20s"
+      },
+      {
+        "kind": "approach_return",
+        "width": 360,
+        "theme": "light",
+        "videoReads": 1,
+        "riverReads": 1,
+        "pageErrors": 0,
+        "animation": "20s"
+      },
+      {
+        "kind": "approach_return",
+        "width": 360,
+        "theme": "parchment",
+        "videoReads": 1,
+        "riverReads": 1,
+        "pageErrors": 0,
+        "animation": "20s"
+      },
+      {
+        "kind": "approach_return",
+        "width": 360,
         "theme": "dark",
         "videoReads": 1,
         "riverReads": 1,
@@ -6076,6 +6110,10 @@
         "pass": true
       },
       {
+        "kind": "unmount_before_primary_settlement",
+        "pass": true
+      },
+      {
         "kind": "direct_stream_fragment_intent",
         "pass": true
       },
@@ -6084,5 +6122,20 @@
         "pass": true
       }
     ]
+  },
+  "remote_wip_backup": {
+    "branch": "gpt/wip-unaccepted-home-loading-backup-20261031",
+    "sha": "9b15052c8104d63258d42dc722f3c8590bf68ff7",
+    "origin_sha_verified": true,
+    "status": "WIP_UNACCEPTED_FROZEN",
+    "snapshot_includes_all_pending_task_files": true,
+    "credential_pattern_hits": 0,
+    "task_paths_scanned": 12
+  },
+  "draft_reconciliation": {
+    "prior_backup_evidence_cases": 19,
+    "final_evidence_cases": 23,
+    "attribution_fix": "Exact Home select=*/tags/offset/limit, with positive destination compact author-reader assertion; no destination request suppressed",
+    "prior_draft_coordination_wording": "Replaced with explicit current resumption record; earlier unlogged edits acknowledged"
   }
 }

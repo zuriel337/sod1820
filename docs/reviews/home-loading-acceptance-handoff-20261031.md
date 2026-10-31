@@ -8,6 +8,10 @@ new plan, owner, deployment approval or replacement of canonical Plan37.
 - Branch: `gpt/2029-home-loading-acceptance-20261031`.
 - Exact base: `4cf3079342e82e73633d18a3ab37cda5479dce72`.
 - Runtime implementation: `f269775e248f31f842b0e2efdc21fd09a2bb1fc9`.
+- Frozen remote WIP_UNACCEPTED backup: `gpt/wip-unaccepted-home-loading-backup-20261031`
+  at `9b15052c8104d63258d42dc722f3c8590bf68ff7`. Origin equality verified before
+  any resumed acceptance run or draft reconciliation. It preserves the draft state,
+  including its then-stale evidence counts and coordination wording. It is not acceptance.
 - Delivery HEAD is the commit containing this receipt and its final test/evidence
   files. The user-facing handoff supplies its exact SHA and remote verification.
 - Base origin remains4cf3079. Main remains2195c978 with eight exclusive Legacy
@@ -17,7 +21,7 @@ new plan, owner, deployment approval or replacement of canonical Plan37.
 
 Home's existing video and Dimension Five readers now start on approach to their
 own existing sections. The existing World preview reader and Home river loader
-start on approach to the arrivals section. The shared hook admits once, at256px,
+start on approach to the arrivals section. The shared hook admits once, at 256px,
 or on focus/pointer intent/exact fragment; it disconnects its observer/listeners.
 Primary cards establish geometry before observation. Missing IntersectionObserver
 falls back to admission. No timer, polling, new cache or policy state was added.
@@ -32,14 +36,14 @@ The retained River owner is respected: `RealityRiver2029.jsx` and its CSS are
 unchanged. Home uses its existing pure loading renderer before mounting its
 existing loader, with the same canonical Follow component. No visual system,
 content, links, source/publication predicates or Legacy reader was replaced.
-The Home matrix implementation/CSS remain unchanged, including20s motion.
+The Home matrix implementation/CSS remain unchanged, including 20s motion.
 
 ## Three received acceptance gaps
 
 1. World: the real browser opens/closes the adopted source disclosure and asserts
    exact codes `f-public` and `channel_updates:source-1#a2`, including visibility.
    Public copy, public/private filters, source URL and exact return checks remain.
-2. ELS: the actual JSX seed expression is evaluated over all32 combinations of
+2. ELS: the actual JSX seed expression is evaluated over all 32 combinations of
    saved, legacy, shared and two exact-return guards, plus absent router state.
    The ordinary seed and exact matrix binding remain asserted; ELS runtime is unchanged.
 3. Control Plane: checks the current containment → passive-hardening → HTML sink
@@ -58,7 +62,7 @@ See [raw measurements and request traces](home-loading-acceptance-evidence-20261
 Both integrated artifacts use the same lockfile, builder, fixtures and profiles.
 The clean runtime-commit rebuild has the same manifest SHA-256 as the measured artifact.
 
-| Metric | Before4cf3079 | After runtimef269775e |
+| Metric | Before 4cf3079 | After runtime f269775e |
 |---|---:|---:|
 | Settled Home REST requests, no scroll,390px | 27 | 19 |
 | Settled Home REST requests, no scroll,1440px | 28 | 20 |
@@ -71,8 +75,8 @@ The clean runtime-commit rebuild has the same manifest SHA-256 as the measured a
 
 There is a demonstrated reduction in entry request demand, not a consistent
 latency improvement. Treat eager bytes as effectively unchanged. The normal
-build has421,588B eager JS and37,154B recovery against458,742B; the required
-recovery remains12,288B. No budget or threshold increased.
+build has 421,588 B eager JS and 37,154 B recovery against 458,742 B; the required
+recovery remains 12,288 B. No budget or threshold increased.
 
 Twelve interleaved cold lab runs: three per side/profile,390px with CPU×4 and
 1.6Mbps/150ms,1440px without throttle. All APIs are synthetic; external model and
@@ -84,22 +88,22 @@ temporary runner; its six failure/interaction cases also passed.
 
 ## Verification
 
--61 focused Node/browser-runner tests passed,0failed/0skipped. This includes
+- 61 focused Node/browser-runner tests passed, 0 failed / 0 skipped. This includes
   four explicitly proposed-patch checks, not four applied-guard acceptance claims.
--23 built-browser cases passed: no-scroll comparisons;320/360/390/1440 ×three
+- 23 built-browser cases passed: no-scroll comparisons;320/360/390/1440 ×three
   themes; approach/return; keyboard; no-observer/reduced-motion fallback; HTTP503
   failure and reload; slow primary; unmount before settlement; fragment intent;
-  actual Post passive media and explicit play. The matrix card's20s duration and
+  actual Post passive media and explicit play. The matrix card's 20s duration and
   no horizontal overflow are checked in the twelve width/theme combinations.
--Both regular builds and the integrated Preview build passed. Built graph/lazy
+- Both regular builds and the integrated Preview build passed. Built graph/lazy
   boundaries, isolation, cheap hardening, One Tree, Control Plane, Legacy lock,
   diff check and proposed `git apply --check` passed.
--The previous677 Raziel /435 ELS results belong to the received baseline and are
+- The previous 677 Raziel / 435 ELS results belong to the received baseline and are
   not claimed as reruns of this batch. The entire repository is not declared green.
 
-Reproduce with Node24, the locked dependencies, Chromium and Playwright available
+Reproduce with Node 24, the locked dependencies, Chromium and Playwright available
 to Node (this session installed Playwright under `/tmp/sod1820-browser`, not into
-the repository). Build base4cf3079 in a separate checkout using the same
+the repository). Build base 4cf3079 in a separate checkout using the same
 `node scripts/build-integrated-preview.mjs`, then run:
 
 ```sh
@@ -127,7 +131,8 @@ with the unadapted builder and describe missing capabilities as accepted behavio
 Live current ownership still includes claim
 `412a0132-0b3f-43d9-bcab-74e414e98a11`, task
 `ELS_MATRIX_DISCOVERY_RAZIEL_PREVIEW_20261028`, explicitly covering the builder.
-No explicit release was found. AGENTS.md requires **ONE FILE / SCOPE — ONE ACTIVE
+No explicit release was found in the separate post-backup check at
+2026-10-31 20:04:31 UTC. AGENTS.md requires **ONE FILE / SCOPE — ONE ACTIVE
 WRITER**; branch isolation is not ownership transfer. Recheck live ownership and
 source hashes before applying the patch; regenerate/review it if the builder moved.
 After release, apply both bindings, extend the actual guard tests to this branch,
@@ -136,16 +141,29 @@ and verify a protected exact-SHA Preview separately. No wildcard is proposed.
 ## Coordination and remaining gates
 
 The dedicated canonical reader reports `supabase_read_only_user` and
-`transaction_read_only=on`. Prior integration releaseaba15abf and current relevant
-ownership were checked. The concurrent read-only continuity reviewdcbc84a3 was
-read and incorporated. Canonical row37 still has the received MD5
+`transaction_read_only=on`. Prior integration release aba15abf and current relevant
+ownership were checked. The concurrent read-only continuity review dcbc84a3 was
+read and incorporated. Canonical row 37 still has the received MD5
 `a8dea68e59d883b296542bbf707bf217`; its Explain-Why request remains planning.
 
-This session has no authorized coordination write path: no live BEFORE/AFTER or
-ownership release was fabricated or inserted. This repository receipt is passive
-handoff evidence for ZURIEL, not a substitute live claim. Authorized coordination
-recording and the active builder owner's disposition remain prerequisites to
-governed Preview work. No other agent was activated or messaged.
+ZURIEL subsequently explicitly requested current ownership registration and a
+remote backup before further work. The canonical general Supabase connector was
+verified against project `linswmnnkjxvweumprav`; the work_log schema, constraints
+and dispatch triggers were inspected. A passive current resumption BEFORE was
+inserted and independently read back through the dedicated reader:
+`e7d8ec5a-1a27-4b59-b706-02bf1b614638`, 2026-10-31 20:02:48 UTC.
+This records the existing f269775e work honestly; it does not backdate ownership
+or fabricate a BEFORE for earlier unlogged edits. Actor GPT, recipient ZURIEL,
+WRITE scope bounded to this task, dispatch_kind/state NULL. The builder and River
+owners remain excluded. The closing AFTER records exact remote results and releases
+only this resumed scope. No other agent was activated or messaged.
+
+The four previously untracked task files were inspected and preserved in the
+frozen backup: this handoff; the paired evidence JSON; the proposed two-file
+Preview binding patch; and its VM continuity test. The already tracked admission
+test's pending changes were preserved too. All 12 task paths were checked for
+private-key/provider-key/JWT patterns before backup; none were found. No env,
+credential, unrelated workspace file or generated historical screenshot was added.
 
 Next measured boundaries remain World compact source/admission (F21/F31), source-first
 Post and media dimensions (F23/F34), shared ELS verse payload/offline parity (F24),
