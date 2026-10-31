@@ -116,18 +116,46 @@ try{
     assert.ok((await galleryRiver.boundingBox()).y<(await page.locator('#gallery-catalog').boundingBox()).y);
     const totalGalleries=await page.locator('[data-catalog-gallery]').count();
     assert.ok(totalGalleries>1);
+    const sort=page.getByRole('combobox',{name:'סדר הגלריות',exact:true});
+    const chooseSort=async value=>{
+      await sort.selectOption(value);
+      await page.waitForURL(url=>url.searchParams.get('sort')===value);
+      await page.waitForFunction(expected=>document.querySelector('select[aria-label="סדר הגלריות"]')?.value===expected,value);
+    };
+    assert.equal(await sort.inputValue(),'activity');
+    const streamGallery=new URL(exact,origin).searchParams.get('gallery');
+    const firstCard=page.locator('[data-catalog-gallery]').first();
+    assert.equal(await firstCard.getAttribute('data-catalog-gallery'),streamGallery,'current latest stream gallery leads the catalog too');
+    assert.match(await firstCard.innerText(),/נוסף לזרם/);
+    const activityDate=await firstCard.locator('.g29-catalog-copy time').getAttribute('datetime');
+    assert.match(activityDate,/^\d{4}-\d{2}-\d{2}T/);
+    await chooseSort('date');
+    assert.equal(await sort.inputValue(),'date');
+    assert.equal(await page.locator('[data-catalog-gallery] .g29-catalog-copy time').count(),0,'arrival date is not relabelled as an authored update; cover badges keep their independent authored dates');
+    await chooseSort('original');
+    const historicalIds=await page.locator('[data-catalog-gallery]').evaluateAll(els=>els.map(el=>Number(el.dataset.catalogGallery)));
+    assert.deepEqual(historicalIds,[...historicalIds].sort((a,b)=>b-a));
+    await chooseSort('activity');
+    assert.equal(await firstCard.getAttribute('data-catalog-gallery'),streamGallery);
+    await sort.scrollIntoViewIfNeeded();
+    await firstCard.locator('img').evaluate(im=>im.decode());
+    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,'activity labels and sort choices fit the viewport');
+    await page.screenshot({path:`${output}/gallery-activity-${width}.png`});
+    await firstCard.screenshot({path:`${output}/gallery-first-${width}.png`});
     await galleryRiver.locator('.r29-picture img').first().evaluate(im=>im.decode());
     await galleryRiver.screenshot({path:`${output}/gallery-stream-${width}.png`});
     await galleryRiver.locator('.r29-open').click();
     await page.locator(`[data-gallery-selected="${selected}"]`).waitFor({timeout:45000});
     await page.goBack({waitUntil:'domcontentloaded'});
     await galleryRiver.locator('[data-river-image]').first().waitFor({timeout:45000});
+    assert.equal(await sort.inputValue(),'activity','exact source Back preserves the chosen catalog ordering');
     await page.getByRole('searchbox',{name:'חיפוש בגלריות ובכיתובים'}).fill('1237');
     await page.waitForFunction(()=>document.querySelectorAll('[data-gallery-entry-stream]').length===0);
     await page.locator('[data-catalog-gallery]').first().waitFor({timeout:45000});
     assert.equal(await page.locator('.r29-follow').count(),1);
     assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
-    report.entryChain.push({width,storyFirst:true,sameLatestSource:true,totalGalleries,singleFollow:true,filterHidesUnrelatedStream:true});
+    report.entryChain.push({width,storyFirst:true,sameLatestSource:true,totalGalleries,singleFollow:true,filterHidesUnrelatedStream:true,
+      activityFirstGallery:streamGallery,activityDate,authoredAndHistoricalSortPreserved:true});
     await context.close();
   }
   assert.deepEqual(report.errors,[]);assert.deepEqual(report.modelRequests,[]);

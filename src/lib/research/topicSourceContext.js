@@ -107,7 +107,7 @@ export function buildPublicGalleryCatalog2029(overview = {}) {
       ocr_meta: { date_derived: coverRow.date_derived },
       thumb_url: safeCover(coverRow.thumb_url) ? coverRow.thumb_url : null }], galleries: [g] })[0] : null;
     // Candidate metadata for filtering only; never propagate signed/credential URLs.
-    const entryFields=['id','name','description','ordering','primary_value','all_values','related_values','image_type'];
+    const entryFields=['id','name','description','ordering','primary_value','all_values','related_values','image_type','source','stream_at'];
     const entries = ordered.map(id => Object.fromEntries(entryFields.map(key=>[key,byId.get(id)[key]])));
     const updatedAt = entries.map(row => galleryEditorialUpdate2029(row.name)?.dateTime).filter(Boolean).sort().at(-1) || null;
     return { galleryId: g.id, wpGalleryId, originalName: g.name, imageCount: rows.length, entries, updatedAt,
@@ -151,6 +151,21 @@ export function realityStreamDatePresentation2029(item) {
     description: 'מועד ההוספה לזרם המציאות לפי שעון ישראל; אינו תאריך האירוע או עדכון שנכתב במקור' } : null;
 }
 
+// Activity is a presentation lens over admitted rows, never an event date or an
+// authored update replacement. Inspect the full catalog, not the 12-photo river.
+export function galleryEntryActivity2029(row) {
+  const update = galleryEditorialUpdate2029(row?.name);
+  const authored = update ? { dateTime: update.dateTime, basis: update.basis,
+    kind: 'עדכון המקור', galleryImageId: row.id } : null;
+  const stamp = row?.stream_at;
+  const arrival = row?.source === 'update' && typeof stamp === 'string'
+    && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,6})?(?:Z|[+-]\d{2}:\d{2})$/.test(stamp)
+    && formatGregorianDate(stamp.slice(0,10))?.split('.').reverse().join('-') === stamp.slice(0,10)
+    && Number.isFinite(Date.parse(stamp))
+    ? { dateTime: stamp, basis: 'gallery_images.stream_at', kind: 'נוסף לזרם', galleryImageId: row.id } : null;
+  return arrival && (!authored || Date.parse(arrival.dateTime) > Date.parse(authored.dateTime)) ? arrival : authored;
+}
+
 export function galleryReadingFilters2029(search = '') {
   const p = new URLSearchParams(search);
   const day = key => { const d=p.get(key)||'';return /^\d{4}-\d{2}-\d{2}$/.test(d)&&formatGregorianDate(d)?.split('.').reverse().join('-')===d?d:null; };
@@ -159,7 +174,7 @@ export function galleryReadingFilters2029(search = '') {
     nums:[...new Set((p.get('nums')||'').split(/[,\s]+/).filter(s=>/^\d+$/.test(s)).map(Number).filter(Number.isSafeInteger))].slice(0,12),
     mode:p.get('mode')==='and'?'and':'or', primary:p.get('primary')==='1',
     kind:['hint','gematria','method','trail','event','gallery'].includes(p.get('kind'))?p.get('kind'):null,
-    order:['date','oldest','original','name','asc','desc'].includes(p.get('sort'))?p.get('sort'):'date',
+    order:['activity','date','oldest','original','name','asc','desc'].includes(p.get('sort'))?p.get('sort'):'activity',
     ocr:p.get('ocr')==='1', layout:p.get('layout')==='compact'?'compact':'reading' };
 }
 
@@ -183,10 +198,14 @@ export function projectGalleryReading2029(catalog, filters, { ocrIds = [], ocrPa
     if(!entries.length)return [];
     if(f.order!=='original')entries=[...entries].sort((a,b)=>byDate(a,b)||(a.ordering??Infinity)-(b.ordering??Infinity)||String(a.id).localeCompare(String(b.id)));
     const date=entries.map(row=>galleryEditorialUpdate2029(row.name)?.dateTime).filter(Boolean).sort().at(f.order==='oldest'?0:-1)||null;
-    return [{...g,entries,matchingCount:entries.length,updatedAt:date}];
+    const latestActivity=entries.map(galleryEntryActivity2029).filter(Boolean)
+      .sort((a,b)=>Date.parse(b.dateTime)-Date.parse(a.dateTime)||String(a.galleryImageId).localeCompare(String(b.galleryImageId)))[0]||null;
+    return [{...g,entries,matchingCount:entries.length,updatedAt:date,latestActivity}];
   });
   items.sort((a,b)=>f.order==='original'?b.wpGalleryId-a.wpGalleryId:['name','asc','desc'].includes(f.order)
     ?(f.order==='desc'?-1:1)*nameOrder.compare(a.originalName,b.originalName)||a.wpGalleryId-b.wpGalleryId
+    :f.order==='activity'?(a.latestActivity&&b.latestActivity?Date.parse(b.latestActivity.dateTime)-Date.parse(a.latestActivity.dateTime)
+      :a.latestActivity?-1:b.latestActivity?1:0)||a.wpGalleryId-b.wpGalleryId
     :a.updatedAt&&b.updatedAt?(f.order==='oldest'?a.updatedAt.localeCompare(b.updatedAt):b.updatedAt.localeCompare(a.updatedAt))||a.wpGalleryId-b.wpGalleryId:a.updatedAt?-1:b.updatedAt?1:a.wpGalleryId-b.wpGalleryId);
   return { items, coverage:{partial:catalog?.coverage?.partial===true||ocrPartial}, total:items.reduce((n,g)=>n+g.matchingCount,0) };
 }

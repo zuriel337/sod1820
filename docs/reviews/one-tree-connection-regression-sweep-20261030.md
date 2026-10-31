@@ -450,3 +450,52 @@ Claude River JSX/CSS and canonical Follow controller/styles remain byte-identica
 No Posts, Frame/Provider, builder/ELS, b30 projection, DB/RLS, privacy, source
 reassignment, publication, main or Production changes. Existing visual ownership
 and broad continuation are not released. Final visual adoption remains ZURIEL's.
+
+## 31 October — Gallery recent-activity default, distinct from source chronology
+
+ZURIEL approved a recent-activity default so a collection containing a newly added
+stream photo also rises in the catalog, without moving that photo to another
+collection. BEFORE `16f6750d-0582-46a1-9c65-ff06cf8c51e5`, task
+`GALLERY_RECENT_ACTIVITY_DEFAULT_20261031`. Local base
+`f42241be61776c2fab99b08c5c96cf44a027a7ce`, remote base
+`c3d772cce8a173257425b924c7353d4e9c7f6cf3`, identical tree
+`72bea7e59d5618a7deafc517ee539787befa8a50`.
+
+This consumes active `reality_stream_law` stream_at semantics and canonical18's
+existing distinction between source updates, arrivals and events. No separate
+contract, store, reader or graph identity is introduced; canonical18 is unchanged.
+The approved default is a presentation choice alongside the preserved authored
+and historical lenses, not a rewrite of historical ordering or dates.
+
+- Existing public-only overview additionally selects `source,stream_at`, with
+  its publication/tier/hidden/membership gates, pagination and partial coverage
+  unchanged. Legacy overview branch and session cache are unchanged.
+- Default `sort=activity` ranks each gallery by its latest qualifying authored
+  update or explicit source=update arrival. It inspects all admitted catalog
+  entries, not only the bounded12-item stream window. Invalid/missing arrival,
+  archive creation and event dates cannot fabricate activity. Stable ties and
+  unknown-last behavior are explicit. Active filters restrict eligible rows.
+- Authored-date sorts and original/name sorts remain available, including old
+  saved URLs. Image ordering, gallery membership, historical names, source
+  locators and original photo-date badges are preserved. Existing source open,
+  Back and reading-next navigation consume the same selected ordering.
+- Catalog copy labels arrivals as `נוסף לזרם` separately from `עדכון המקור האחרון`.
+  Date range/year filters still mean authored source updates, explained in UI.
+
+Verification:41/41 focused tests and7/7 Preview auth guards; both normal builds,
+integrated build, World/Topic, built graph/lazy, cheap hardening, isolation and
+Legacy lock pass. Full local static-app checks on public live data at320/390/1440
+show David24 (technical gallery105) first by activity; the actual source timestamp
+is2026-10-04T14:41:48.678998+00:00. Date/original selection, source open/Back and
+filtering pass with87 galleries/seven stream photos in this snapshot; zero page
+errors/model requests. A local test initially lacked the explicit mock-only build
+variant; rebuilding with the actual allowlisted branch fixed its missing identity
+file without editing the builder. Browser checks wait for controlled-select
+rendering and scope arrival assertions to card copy, not authored cover badges.
+Final hosted checks additionally assert no overflow, preserved sort on Back and
+capture the first gallery card, against the exact final remote SHA.
+
+No Claude River visual/controller edits, Posts, Frame, Providers, builder/ELS,
+b30, DB/RLS, product writes, privacy, publication, main or Production changes.
+Protected Preview identity/results and limited AFTER release are recorded after
+deployment; local dirty-build identity is not presented as hosted acceptance.

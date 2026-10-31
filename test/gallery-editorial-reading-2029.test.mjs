@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {galleryEditorialUpdate2029 as date,buildPublicGalleryCatalog2029 as catalog,galleryReadingFilters2029 as filters,
-  projectGalleryReading2029 as project,loadPublicGalleryReading2029 as read,buildGallerySourceContext,resolvePublicGallerySelection,galleryReadingHref2029} from '../src/lib/research/topicSourceContext.js';
+  projectGalleryReading2029 as project,loadPublicGalleryReading2029 as read,buildGallerySourceContext,resolvePublicGallerySelection,galleryReadingHref2029,galleryEntryActivity2029 as activity} from '../src/lib/research/topicSourceContext.js';
 import {searchArchiveOcrIds} from '../src/lib/supabase.js';
 const id=n=>`10000000-0000-4000-8000-${String(n).padStart(12,'0')}`;
 const gals=[{id:id(69),wp_gallery_id:69,name:'גלרית 14 - 5'},{id:id(73),wp_gallery_id:73,name:'גלרית 14 - 7'}];
@@ -19,6 +19,48 @@ test('chronology is authored updates, unknown last; original order remains byte-
   assert.equal(result.items[1].entries.at(-1).name,'בלי תאריך');assert.equal(JSON.stringify(raw),snapshot);
   assert.deepEqual(project(c,filters('?sort=original')).items[1].entries.map(r=>r.ordering),[1,2]);
   assert.equal(c.items[0].originalName,'גלרית 14 - 7');
+});
+test('default activity includes stream additions across the full catalog, keeping authored/original lenses separate',()=>{
+  const rows=[...Array.from({length:14},(_,i)=>row(i+1)),
+    {...row(20,73),name:'בלי תאריך מקור',source:'update',stream_at:'2026-10-04T14:41:48.678998+00:00',
+      occurred_at:'2000-01-01',created_at:'2099-01-01'}];
+  const snapshot=JSON.stringify(rows),c=catalog({gals,imgs:rows}),r=project(c,filters());
+  assert.equal(filters().order,'activity');assert.equal(filters('?sort=bad').order,'activity');
+  assert.equal(r.items[0].wpGalleryId,73);assert.equal(r.items[0].updatedAt,null);
+  assert.equal(r.items[0].latestActivity.basis,'gallery_images.stream_at');
+  assert.equal(r.items[0].latestActivity.dateTime,rows.at(-1).stream_at);
+  assert.equal(project(c,filters('?sort=date')).items[0].wpGalleryId,69);
+  assert.equal(project(c,filters('?sort=oldest')).items[0].wpGalleryId,69);
+  assert.deepEqual(project(c,filters('?sort=original')).items.map(g=>g.wpGalleryId),[73,69]);
+  assert.equal(JSON.stringify(rows),snapshot,'activity never rewrites source dates or memberships');
+  const href=galleryReadingHref2029('?sort=activity',{galleryId:73});
+  assert.equal(new URL(href,'https://example.test').searchParams.get('sort'),'activity');
+});
+test('only public source=update stream timestamps rank; archive/event dates and invalid timestamps do not',()=>{
+  const stamp='2026-10-04T14:41:48Z';
+  for(const patch of [{source:'manual',stream_at:stamp},{stream_at:stamp},{source:'update',stream_at:'2099-02-31T00:00:00Z'},
+    {source:'update',stream_at:'tomorrow'},{source:'update',stream_at:'2026-10-04'},{occurred_at:stamp,created_at:stamp}]){
+    assert.equal(activity({...row(1),name:'בלי תאריך',...patch}),null);
+  }
+  const updated={...row(1),source:'update',stream_at:'2020-01-01T00:00:00Z'};
+  assert.equal(activity(updated).basis,'original_update_heading');
+  const c=catalog({gals,imgs:[row(1),{...row(2,73),name:'בלי תאריך',source:'update',stream_at:stamp,published:0},
+    {...row(3,73),name:'בלי תאריך',source:'update',stream_at:stamp,min_tier:1},
+    {...row(4,73),name:'בלי תאריך',source:'update',stream_at:stamp,curator_hidden:true}]});
+  assert.deepEqual(project(c,filters()).items.map(g=>g.wpGalleryId),[69]);
+});
+test('activity is derived from matching rows only; equal/unknown dates have stable ordering without image reorder',()=>{
+  const rows=[row(2),row(1),{...row(3,73),name:'בלי תאריך',source:'update',stream_at:'2026-10-04T14:41:48Z',primary_value:99,all_values:[99]},row(4,73)];
+  const c=catalog({gals,imgs:rows}),filtered=project(c,filters('?nums=14'));
+  assert.equal(filtered.items[0].latestActivity.basis,'original_update_heading');
+  assert.equal(filtered.items[0].latestActivity.galleryImageId,row(4,73).id);
+  assert.equal(project(c,filters('?year=2026')).total,0,'date filtering remains authored dates only');
+  assert.deepEqual(project(c,filters()).items.find(g=>g.wpGalleryId===69).entries.map(r=>r.id),
+    project(c,filters('?sort=date')).items.find(g=>g.wpGalleryId===69).entries.map(r=>r.id));
+  const equal=catalog({gals,imgs:[{...row(1),name:'בלי תאריך'},{...row(2,73),name:'בלי תאריך'}]});
+  assert.deepEqual(project(equal,filters()).items.map(g=>g.wpGalleryId),[69,73]);
+  for(const r of equal.items)for(const entry of r.entries)Object.assign(entry,{source:'update',stream_at:'2026-10-04T14:41:48Z'});
+  assert.deepEqual(project(equal,filters()).items.map(g=>g.wpGalleryId),[69,73]);
 });
 test('AND/OR means the same image, dominant-only, year/range/type/text/OCR and partial coverage',()=>{
   const c=catalog({gals,imgs:[row(1),row(2),{...row(3,73),primary_value:45,all_values:[45]}]});

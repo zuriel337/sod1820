@@ -81,7 +81,7 @@ function GalleryReadingControls({reading,search,onChange,onRefresh}) {
   return <div className="g29-reading-controls">
     <div className="g29-catalog-controls"><label>חיפוש בגלריות ובכיתובים<input type="search" maxLength={200} value={(new URLSearchParams(search).get('q')||'').slice(0,200)} placeholder="שם, כיתוב או מספר" onChange={e=>patch('q',e.target.value)} /></label>
       <label>סדר הגלריות<select aria-label="סדר הגלריות" value={f.order} onChange={e=>patch('sort',e.target.value)}>
-        <option value="date">עדכונים חדשים למעלה</option><option value="oldest">עדכונים ישנים למעלה</option><option value="original">הסדר ההיסטורי</option><option value="name">לפי שם</option>
+        <option value="activity">פעילות אחרונה</option><option value="date">עדכוני המקור — חדשים למעלה</option><option value="oldest">עדכוני המקור — ישנים למעלה</option><option value="original">הסדר ההיסטורי</option><option value="name">לפי שם</option>
         {['asc','desc'].includes(f.order)?<option value={f.order}>לפי שם — {f.order==='asc'?'עולה':'יורד'}</option>:null}
       </select></label><button className="g29-page-link" type="button" onClick={onRefresh} disabled={reading.status==='loading'}>רענון הגלריות</button></div>
     <details className="g29-filter-panel"><summary>סינון ותצוגה</summary><div className="g29-filter-grid">
@@ -95,7 +95,7 @@ function GalleryReadingControls({reading,search,onChange,onRefresh}) {
       <label>אופן העיון<select aria-label="אופן העיון" value={f.layout} onChange={e=>patch('layout',e.target.value)}><option value="reading">תמונה והסבר</option><option value="compact">רצף תמונות קומפקטי</option></select></label>
       <label className="g29-check"><input type="checkbox" checked={f.ocr} onChange={e=>patch('ocr',e.target.checked?'1':'')} />גם בטקסט שזוהה בתמונות</label>
       <button type="button" className="g29-page-link" onClick={()=>{const p=new URLSearchParams({view:'gallery',flow:'1'}),id=new URLSearchParams(search).get('gallery');if(id)p.set('gallery',id);onChange('/world?'+p);}}>ניקוי הסינון</button>
-    </div><p className="g29-note">התאריכים הם העדכונים שנכתבו במקור, לא מועדי ההעברה לארכיון. מספרים משותפים הם סינון, לא אישור לקשר בעץ.</p></details>
+    </div><p className="g29-note">סינון התאריכים מתייחס לעדכונים שנכתבו במקור. במיון פעילות אחרונה נכללים גם מועדי ההוספה לזרם, שמוצגים בנפרד. מספרים משותפים הם סינון, לא אישור לקשר בעץ.</p></details>
   </div>;
 }
 
@@ -124,7 +124,7 @@ function GalleryCatalogBody() {
     </section> : null}
     <article className="g29-gallery g29-catalog" id="gallery-catalog" dir="rtl">
     <header className="g29-heading"><div className="g29-heading-line"><div><p className="g29-eyebrow">סוד 1820 · מבט בתמונות</p>
-      <h2>גלריות רמזי הגאולה</h2></div></div><p className="g29-intro">האוספים ההיסטוריים — סיפורים, מספרים ותמונות שנאספו לאורך השנים. אפשר לעיין לפי עדכוני המקור או לשמור את הסדר ההיסטורי.</p>
+      <h2>גלריות רמזי הגאולה</h2></div></div><p className="g29-intro">האוספים ההיסטוריים — סיפורים, מספרים ותמונות שנאספו לאורך השנים. כברירת מחדל, הפעילות האחרונה מופיעה ראשונה; אפשר לבחור גם בעדכוני המקור או בסדר ההיסטורי.</p>
       <Link className="g29-text-link" to="/world">חזרה לעולם ←</Link></header>
     <GalleryReadingControls reading={reading} search={location.search} onChange={href=>navigate(href,{replace:true})} onRefresh={()=>setRetry(n=>n+1)} />
     {state.status === 'loading' ? <FrameState kind="loading" title="פותחים את הגלריות">טוענים את הגלריות הזמינות לעיון.</FrameState> : null}
@@ -137,7 +137,8 @@ function GalleryCatalogBody() {
         <div className="g29-catalog-cover">{item.cover ? <span className="g29-image-surface"><CanonicalMediaImage2029 item={item.cover} alt={publicMediaCaption(item.originalName)} loading={index < 3 ? 'eager' : 'lazy'} /><GalleryImageDate item={item.cover} /></span> : <span>גלריה בתמונות</span>}</div>
         <div className="g29-catalog-copy">
           <h3>{publicMediaCaption(item.originalName)}</h3><p>{state.coverage?.partial ? 'לפחות ' : ''}{item.matchingCount} מתוך {item.imageCount} תמונות זמינות</p>
-          {item.updatedAt?<p>עדכון אחרון · {bilingualDateLabel(item.updatedAt)}</p>:<p>תאריך עדכון לא צוין</p>}<span className="g29-text-link">לפתיחת הגלריה ←</span></div>
+          {reading.filters.order==='activity'&&item.latestActivity?.basis==='gallery_images.stream_at'?<p>נוסף לזרם · <time dateTime={item.latestActivity.dateTime}>{bilingualDateLabel(item.latestActivity.dateTime)}</time></p>:null}
+          {item.updatedAt?<p>עדכון המקור האחרון · {bilingualDateLabel(item.updatedAt)}</p>:<p>תאריך עדכון במקור לא צוין</p>}<span className="g29-text-link">לפתיחת הגלריה ←</span></div>
       </Link>)}</div></> : null}
     {!showStream ? <RealityStreamFollow2029 source="gallery_catalog_2029" /> : null}
   </article></>;
