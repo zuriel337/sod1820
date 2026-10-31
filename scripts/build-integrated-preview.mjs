@@ -4,6 +4,11 @@ import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { readFile, writeFile, copyFile, mkdir } from "node:fs/promises";
 
+const POSTS_PREVIEW_BRANCH = "gpt/posts-integrated-backgrounds-20261030";
+if (process.env.VERCEL_GIT_COMMIT_REF === POSTS_PREVIEW_BRANCH && process.env.VERCEL_ENV === "production") {
+  throw new Error("posts_preview_is_never_production");
+}
+
 const root = fileURLToPath(new URL("../", import.meta.url));
 const output = resolve(root, "preview-deploy/dist");
 process.env.SOD_BUILD_TARGET = "2029";
@@ -23,7 +28,7 @@ const existingPersonAccess = "fn_get_or_create_my_person";
 // columns are deliberately excluded. Replies/counts await chain-visibility acceptance.
 const communityFields = "id,parent_id,author_name,author_user_id,author_contributor_id,title,body,reactions,origin,created_at,edited_at,is_deleted,total_count";
 // The unified working preview must not create Person records or record ELS traces.
-const unifiedReadOnly = typeof process !== "undefined" && ["gpt/2029-central-unified-workspace-20261029", "gpt/2029-central-shell-alignment-20261029", "gpt/2029-central-topbar-menu-completion-20261029", "gpt/2029-central-ui-carry-restoration-20261029", "gpt/2029-central-community-filter-tiles-20261029", "gpt/2029-central-community-small-filters-20261029", "gpt/2029-central-single-command-bar-20261029", "gpt/2029-central-public-context-labels-20261029", "gpt/2029-central-zvi-public-material-20261029", "gpt/2029-central-zvi-research-experience-20261029", "gpt/2029-central-zvi-world-source-tree-20261030", "gpt/elections-world-seed-integration-20261030"].includes(process.env.VERCEL_GIT_COMMIT_REF);
+const unifiedReadOnly = typeof process !== "undefined" && ["gpt/2029-central-unified-workspace-20261029", "gpt/2029-central-shell-alignment-20261029", "gpt/2029-central-topbar-menu-completion-20261029", "gpt/2029-central-ui-carry-restoration-20261029", "gpt/2029-central-community-filter-tiles-20261029", "gpt/2029-central-community-small-filters-20261029", "gpt/2029-central-single-command-bar-20261029", "gpt/2029-central-public-context-labels-20261029", "gpt/2029-central-zvi-public-material-20261029", "gpt/2029-central-zvi-research-experience-20261029", "gpt/2029-central-zvi-world-source-tree-20261030", "gpt/elections-world-seed-integration-20261030", "gpt/posts-integrated-backgrounds-20261030"].includes(process.env.VERCEL_GIT_COMMIT_REF);
 const worker = `const reads = new Set(${JSON.stringify(allow)});
 const existingPersonAccess=${JSON.stringify(existingPersonAccess)};
 const unifiedReadOnly=${JSON.stringify(unifiedReadOnly)};
@@ -132,6 +137,15 @@ if (razielSafeActionsMock) {
 }
 await writeFile(resolve(output, "2029.html"), html);
 await writeFile(resolve(output, "index.html"), html);
+// Exact Posts Preview identity; no project/Production settings or live writes.
+if (process.env.VERCEL_GIT_COMMIT_REF === POSTS_PREVIEW_BRANCH) {
+  const { execFileSync } = await import("node:child_process");
+  const sha = process.env.VERCEL_GIT_COMMIT_SHA || execFileSync("git", ["rev-parse", "HEAD"], { cwd: root, encoding: "utf8" }).trim();
+  await writeFile(resolve(output, "posts-preview-identity.json"), JSON.stringify({
+    branch: process.env.VERCEL_GIT_COMMIT_REF, sha, target: "preview",
+    readOnly: unifiedReadOnly, realModelCalls: false,
+  }, null, 2));
+}
 await mkdir(resolve(output, "preview-evidence"), { recursive: true });
 for (const name of ["corrected-answer.png", "fresh-session-next-question.png", "failed-save-reopens-question.png", "fresh-session-completes-pending-save.png"]) {
   await copyFile(resolve(root, "preview-deploy/evidence", name), resolve(output, "preview-evidence", name));

@@ -8,6 +8,7 @@ const builder = await readFile(new URL('./build-integrated-preview.mjs', import.
 const vercelConfig = JSON.parse(await readFile(new URL('../vercel.json', import.meta.url), 'utf8'));
 const source = builder.slice(builder.indexOf('const allow ='), builder.indexOf('await writeFile(resolve(output, "preview-readonly-sw.js")'));
 const worker = vm.runInNewContext(`${source}\nworker;`);
+const postsBranch = 'gpt/posts-integrated-backgrounds-20261030';
 async function request(path, { method = 'POST', body, origin = 'https://linswmnnkjxvweumprav.supabase.co', workerSource = worker } = {}) {
   let handler, response, forwarded = 0;
   vm.runInNewContext(workerSource, {
@@ -84,6 +85,23 @@ test('unified working preview blocks Person creation and trace-producing ELS bri
 test('Books publication review is preview-only and has no write RPC in the guard', () => {
   assert.match(builder, /VITE_BOOK_PUBLICATION_REVIEW_PREVIEW/);
   assert.doesNotMatch(builder, /admin_research_review|admin_research_set_publication_v1/);
+});
+
+test('Posts Preview blocks Person creation, product writes and model calls while admitting calculation reads', async () => {
+  const workerSource = vm.runInNewContext(`${source}\nworker;`, { process: { env: { VERCEL_GIT_COMMIT_REF: postsBranch } } });
+  assert.match(workerSource, /const unifiedReadOnly=true/);
+  for (const path of ['/rest/v1/rpc/fn_get_or_create_my_person', '/rest/v1/rpc/els_verify_batch_v1', '/rest/v1/rpc/admin_research_review', '/functions/v1/raziel_core_v1']) {
+    assert.deepEqual(await request(path, { workerSource }), { status: 403, forwarded: 0, blocked: 'true' });
+  }
+  for (const path of ['/rest/v1/rpc/fn_method_value', '/rest/v1/rpc/fn_method_profile', '/rest/v1/rpc/gematria_method_trace']) {
+    assert.equal((await request(path, { workerSource })).status, 200);
+  }
+});
+
+test('the Posts Preview build cannot target Production', () => {
+  const guard = builder.slice(builder.indexOf('const POSTS_PREVIEW_BRANCH ='), builder.indexOf('const root ='));
+  assert.throws(() => vm.runInNewContext(guard, { process: { env: { VERCEL_GIT_COMMIT_REF: postsBranch, VERCEL_ENV: 'production' } } }), /posts_preview_is_never_production/);
+  assert.doesNotThrow(() => vm.runInNewContext(guard, { process: { env: { VERCEL_GIT_COMMIT_REF: postsBranch, VERCEL_ENV: 'preview' } } }));
 });
 
 test('Community Preview reads use the existing closed public projection for GET and POST', async () => {

@@ -117,15 +117,19 @@ assert.doesNotMatch(rail, /GematriaReveal2029/);
 assert.match(rail, /interactive/);
 assert.match(postPage, /surfaceSections: regions\.map/);
 assert.match(postPage, /surfaceMapLabel: "בתוך הפוסט"/);
-// 4b148849 / original Claude36d7c6ea: explicit expression intent opens the
-// existing Number window directly; passive reading still does not fetch traces.
+// Explicit expression intent now goes through the source/version checker before
+// opening the same Number window. Passive reading still does not fetch traces.
 const postFocus = postPage.slice(postPage.indexOf('const openContextualNumberFocus'), postPage.indexOf('const handleSourceContextualFocus'));
-assert.match(postFocus, /shell\.openNumber\?\./);
-assert.match(postFocus, /source: "post-contextual-focus"/);
-assert.match(postFocus, /expression: cleanExpression/);
-assert.match(postFocus, /method: cleanMethodKey/);
-assert.match(postFocus, /resultValue: numericResult/);
-assert.match(postFocus, /returnTo: exactReturnForRegion\(targetRegion\)/);
+assert.match(postFocus, /openPostSourceClaim\(/);
+assert.match(postFocus, /expression, method: methodKey, methodVersion: null, value: numericResult/);
+assert.match(postFocus, /binding: "existing_reviewed_post_projection"/);
+const checkedFocus = postPage.slice(postPage.indexOf('const openCheckedPostCalculation'), postPage.indexOf('const openMeasureConnection'));
+assert.match(checkedFocus, /checkPostCalculation2029/);
+assert.match(checkedFocus, /result\.status !== "ready"/);
+assert.match(checkedFocus, /shell\.openNumber\?\./);
+assert.match(checkedFocus, /method: focus\.method, resultValue: focus\.resultValue/);
+assert.match(checkedFocus, /href: `\/post\/\$\{post\.slug\}\$\{claim\.locator\}`/);
+assert.match(checkedFocus, /exactReturnForRegion\(activeFocus\)/);
 assert.doesNotMatch(postFocus, /shell\.openInspect|shell\.openRaziel/);
 assert.doesNotMatch(postPage, /fetchGematriaMethodTrace/);
 assert.match(topicPage, /surface="topic"/);

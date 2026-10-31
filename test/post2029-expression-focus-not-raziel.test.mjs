@@ -16,10 +16,10 @@ const between = (src, start, end) => {
 };
 
 test("expression click opens Number focus directly in the existing Number window, not Raziel", () => {
-  const focus = between(page, "const openContextualNumberFocus", "const handleSourceContextualFocus");
+  const focus = between(page, "const openCheckedPostCalculation", "const openPostSourceClaim");
   assert.match(focus, /shell\.openNumber\?\.\(/);
-  assert.match(focus, /type: "gematria_expression"/);
-  assert.match(focus, /expression: cleanExpression/);
+  assert.match(focus, /entityType: "gematria_expression"/);
+  assert.match(focus, /expression: claim.expression/);
   assert.doesNotMatch(focus, /openRaziel|askRaziel/);
 
   const handler = between(page, "const handleSourceContextualFocus", "legacyNumber");
@@ -35,9 +35,11 @@ test("Raziel remains a separate optional action", () => {
 });
 
 test("exact back: focus records returnTo with the source-region locator", () => {
-  const focus = between(page, "const openContextualNumberFocus", "const handleSourceContextualFocus");
-  assert.match(focus, /const locator = `#source-region-\$\{targetRegion\.id\}`/);
-  assert.match(focus, /returnTo: exactReturnForRegion\(targetRegion\)/);
+  const focus = between(page, "const openCheckedPostCalculation", "const openPostSourceClaim");
+  assert.match(focus, /locator: claim.locator/);
+  assert.match(focus, /href: `\/post\/\$\{post.slug\}\$\{claim.locator\}`/);
+  assert.match(focus, /sourceRef: claim.sourceRef/);
+  assert.match(focus, /methodVersion/);
   assert.match(page, /const exactReturnForRegion/);
 });
 

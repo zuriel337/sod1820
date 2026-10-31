@@ -1,5 +1,9 @@
 -- THROWAWAY LOCAL POSTGRES ONLY. All accounts/data below are synthetic.
 \set ON_ERROR_STOP on
+\if :{?follow_series_only}
+\else
+\set follow_series_only false
+\endif
 create role anon nologin; create role authenticated nologin;
 create schema auth;
 create function auth.uid() returns uuid language sql stable as $$select nullif(current_setting('test.uid',true),'')::uuid$$;
@@ -41,13 +45,24 @@ create temp table pref_before as select * from notification_prefs;
 select pg_temp.ok(canonical_follow_subject('series','dimension-five')='', 'preimage really lacks series');
 select pg_temp.ok(canonical_follow_topic('cat:רמזי הגאולה')='cat:רמזי הגאולה','preimage really lacks rename');
 
+\if :follow_series_only
+\i :follow_series_migration
+\else
 \i supabase/migrations/20261026012207_follow_category_series_alignment_v1.sql
+\endif
 
 select pg_temp.ok(not exists((select * from notification_prefs except select * from pref_before)
   union all (select * from pref_before except select * from notification_prefs)), 'migration never rewrites saved choices/channels/mute');
 select pg_temp.ok((select count(*) from user_notifications)=0,'migration sends nothing/backfills nothing');
+\if :follow_series_only
+select pg_temp.ok(canonical_follow_topic('category:רמזי הגאולה')='cat:רמזי הגאולה','series-only release preserves Legacy category meaning');
+select pg_temp.ok(not(follow_topic_aliases('cat:רמזים חזקים') @> array['cat:רמזי הגאולה']),'series-only release does not introduce the client-incompatible rename');
+select pg_temp.ok(md5(pg_get_functiondef('public.canonical_follow_topic(text)'::regprocedure))='536e29febf235d1bc9f4157b337ac51a','Legacy canonical topic function stays byte-identical');
+select pg_temp.ok(md5(pg_get_functiondef('public.follow_topic_aliases(text)'::regprocedure))='3b207f3b0a2e9e1049ce7487275c76f0','Legacy aliases function stays byte-identical');
+\else
 select pg_temp.ok(canonical_follow_topic('category:רמזי הגאולה')='cat:רמזים חזקים','approved rename maps both namespaces');
 select pg_temp.ok(follow_topic_aliases('cat:רמזים חזקים') @> array['cat:רמזי הגאולה','category:רמזי הגאולה'],'old names remain matchable');
+\endif
 select pg_temp.ok(resolve_topics('series','dimension-five')=array['series:dimension-five'],'server resolves series');
 select pg_temp.ok(resolve_topics('series','unknown')='{}','unknown series is not invented');
 select pg_temp.ok(canonical_follow_subject('category','מימד חמש')<>canonical_follow_subject('series','dimension-five'),'category is not series');
@@ -64,10 +79,19 @@ select set_config('test.uid','00000000-0000-4000-8000-000000000001',false);
 select pg_temp.ok((follow_subject_state('category','רמזים חזקים')->>'following')::boolean,'old alias reads as following');
 select watch_toggle('cat:רמזים חזקים','synthetic',true,null);
 select pg_temp.ok((select count(*) from subscribe_events)=0,'representation reconciliation creates no invented Follow history');
+\if :follow_series_only
+select pg_temp.ok((select cardinality(topics) from notification_prefs where user_id=auth.uid())=5,'different Legacy category choices remain separate in storage');
+\else
 select pg_temp.ok((select cardinality(topics) from notification_prefs where user_id=auth.uid())=4,'duplicate category aliases canonicalized on explicit action only');
+\endif
 select pg_temp.ok((select channels from notification_prefs where user_id=auth.uid())=array['email'],'existing channels remain unchanged');
 select follow_subject_toggle('category','רמזי הגאולה','synthetic',false,null);
+\if :follow_series_only
+select pg_temp.ok(not (follow_subject_state('category','רמזי הגאולה')->>'following')::boolean
+  and (follow_subject_state('category','רמזים חזקים')->>'following')::boolean,'Legacy cancellation removes only the selected category');
+\else
 select pg_temp.ok(not (follow_subject_state('category','רמזים חזקים')->>'following')::boolean,'unfollow old/new removes same intent');
+\endif
 select pg_temp.ok((select count(*) from subscribe_events where action='unfollow')=1,'one explicit unfollow event');
 select watch_toggle('cat:רמזי הגאולה','synthetic',true,null);
 select pg_temp.ok((select count(*) from subscribe_events where action='follow')=1,'re-follow is one new event');

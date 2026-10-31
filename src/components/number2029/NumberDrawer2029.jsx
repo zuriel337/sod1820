@@ -1,6 +1,8 @@
 import { gematriaTraceLines, traceNumber, isVerifiedMethodTrace } from "../../lib/research/gematriaTracePresentation.js";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import NumberCore2029 from "./NumberCore2029.jsx";
+import EnglishGematriaLane2029 from "../gematria2029/EnglishGematriaLane2029.jsx";
+import { CALCULATOR_INPUT_KIND, classifyCalculatorInput, filterProfileRowsForInput } from "../../lib/research/calculator2029Input.js";
 import { fetchEntityHubProjection } from "../../lib/research/entityHubProjection.js";
 import { fetchGematriaMethodTrace } from "../../lib/research/gematriaTrace.js";
 import {
@@ -15,6 +17,7 @@ import { getAllValuePhrases, langLinksList } from "../../lib/supabase.js";
 import "./numberDrawer2029.css";
 
 const NUMBER_METHOD_RESULT_CACHE = new Map();
+const EMPTY_METHOD_PROFILE = Object.freeze([]);
 const clean = (value) => value == null ? "" : String(value).trim();
 const normalizedMethodName = (value) => clean(value).replace(/[\s"'״׳’‘\-_/]/g, "");
 const isRegularMethodIdentity = (value) => normalizedMethodName(value) === "רגיל";
@@ -73,7 +76,9 @@ export default function NumberDrawer2029({
     root: traceNumber(initialRoot),
   } : null);
   const [dataState, setDataState] = useState({ loading: false, data: null, error: null, key: null });
-  const [profileState, setProfileState] = useState({ loading: false, rows: [], error: null });
+  const [profileState, setProfileState] = useState({ loading: false, rows: [], error: null, expression: "" });
+  const inputInfo = useMemo(() => classifyCalculatorInput(expression), [expression]);
+  const profileRows = profileState.expression === clean(expression) ? profileState.rows : EMPTY_METHOD_PROFILE;
   const [selectedMethodKey, setSelectedMethodKey] = useState(initialMethodKey);
   const [traceState, setTraceState] = useState({ loading: false, finding: null, error: null });
   const [methodResultState, setMethodResultState] = useState({ loading: false, data: null, error: null, key: null });
@@ -166,40 +171,41 @@ export default function NumberDrawer2029({
 
   useEffect(() => {
     const expr = clean(expression);
-    if (!expr || /^\d+$/.test(expr)) {
-      setProfileState({ loading: false, rows: [], error: null });
+    if (!expr || /^\d+$/.test(expr) || (!inputInfo.hebrewApplicable && !inputInfo.englishApplicable)) {
+      setProfileState({ loading: false, rows: [], error: null, expression: expr });
       return undefined;
     }
     let alive = true;
-    setProfileState({ loading: true, rows: [], error: null });
+    setProfileState({ loading: true, rows: [], error: null, expression: expr });
     fetchNumberMethodProfile(expr)
       .then((rows) => {
         if (!alive) return;
-        setProfileState({ loading: false, rows, error: null });
+        const applicable = filterProfileRowsForInput(rows, classifyCalculatorInput(expr));
+        setProfileState({ loading: false, rows: applicable, error: null, expression: expr });
         const requested = clean(selectedMethodKey);
-        const selected = rows.find((row) => row.methodKey === requested) || rows[0] || null;
+        const selected = applicable.find((row) => row.methodKey === requested) || applicable[0] || null;
         if (selected && selected.methodKey !== requested) setSelectedMethodKey(selected.methodKey);
         if (!Number.isSafeInteger(root) && selected?.computedValue != null) setRoot(Number(selected.computedValue));
       })
       .catch((error) => {
-        if (alive) setProfileState({ loading: false, rows: [], error });
+        if (alive) setProfileState({ loading: false, rows: [], error, expression: expr });
       });
     return () => { alive = false; };
   }, [expression]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     const expr = clean(expression);
-    if (!expr || /^\d+$/.test(expr) || !profileState.rows.length) {
+    if (!expr || /^\d+$/.test(expr) || !profileRows.length) {
       setHiddenCrossState({ loading: false, rows: [] });
       return undefined;
     }
     let alive = true;
     setHiddenCrossState({ loading: true, rows: [] });
-    fetchNumberHiddenCrossings(expr, profileState.rows, { limit: 13 })
+    fetchNumberHiddenCrossings(expr, profileRows, { limit: 13 })
       .then((rows) => { if (alive) setHiddenCrossState({ loading: false, rows: Array.isArray(rows) ? rows : [] }); })
       .catch(() => { if (alive) setHiddenCrossState({ loading: false, rows: [] }); });
     return () => { alive = false; };
-  }, [expression, profileState.rows]);
+  }, [expression, profileRows]);
 
   useEffect(() => {
     const expr = clean(expression);
@@ -224,8 +230,8 @@ export default function NumberDrawer2029({
   }, [expression]);
 
   const selectedProfile = useMemo(
-    () => methodProfileEntry(profileState.rows, selectedMethodKey),
-    [profileState.rows, selectedMethodKey],
+    () => methodProfileEntry(profileRows, selectedMethodKey),
+    [profileRows, selectedMethodKey],
   );
 
   useEffect(() => {
@@ -247,16 +253,16 @@ export default function NumberDrawer2029({
     requestAnimationFrame(() => modeRef.current?.focus?.());
   }, [surfaceMode]);
   const regularProfile = useMemo(
-    () => profileState.rows.find((row) => (
+    () => profileRows.find((row) => (
       isRegularMethodIdentity(row?.methodKey) || isRegularMethodIdentity(row?.displayLabel)
     )) || null,
-    [profileState.rows],
+    [profileRows],
   );
 
   useEffect(() => {
     const expr = clean(expression);
     const key = selectedProfile?.methodKey || clean(selectedMethodKey);
-    if (!expr || !key) {
+    if (!expr || !key || inputInfo.englishApplicable && !inputInfo.hebrewApplicable && !selectedProfile) {
       setTraceState({ loading: false, finding: null, error: null });
       return undefined;
     }
@@ -331,7 +337,7 @@ export default function NumberDrawer2029({
       root,
       expression,
       selectedMethodKey,
-      methodProfile: profileState.rows,
+      methodProfile: profileRows,
       families,
       topics,
       relations,
@@ -346,7 +352,7 @@ export default function NumberDrawer2029({
       journeyAvailable: Number(root) === 878,
       heroMedia: media[0] || null,
     });
-  }, [root, expression, selectedMethodKey, profileState.rows, families, topics, relations, sources, worlds, findings, timeline, media, surface, zeroScale, activityCount]);
+  }, [root, expression, selectedMethodKey, profileRows, families, topics, relations, sources, worlds, findings, timeline, media, surface, zeroScale, activityCount]);
 
   const rawTrace = traceState.finding?.projection?.dimensions?.trace || null;
   const trace = isVerifiedMethodTrace(rawTrace, { expression: expression, methodKey: selectedProfile?.methodKey || selectedMethodKey }) ? rawTrace : null;
@@ -415,7 +421,7 @@ export default function NumberDrawer2029({
     root: stageRoot,
     expression,
     selectedMethodKey,
-    methodProfile: profileState.rows,
+    methodProfile: profileRows,
     families: stageFamilies,
     topics: stageTopics,
     relations: stageRelations,
@@ -429,7 +435,7 @@ export default function NumberDrawer2029({
     activityCount: stageActivityCount,
     journeyAvailable: stageRoot === 878,
     heroMedia: stageMedia[0] || null,
-  }), [stageRoot, expression, selectedMethodKey, profileState.rows, stageFamilies, stageTopics, stageRelations, stageSources, stageWorlds, stageFindings, stageTimeline, stageMedia, stageSurface, stageZeroScale, stageActivityCount]);
+  }), [stageRoot, expression, selectedMethodKey, profileRows, stageFamilies, stageTopics, stageRelations, stageSources, stageWorlds, stageFindings, stageTimeline, stageMedia, stageSurface, stageZeroScale, stageActivityCount]);
 
   const updateContext = (patch = {}, selectionOverride = null) => {
     if (!Number.isSafeInteger(root)) return;
@@ -474,13 +480,20 @@ export default function NumberDrawer2029({
     setExpression(raw);
     setSurfaceMode("focus");
     setTraceOpen(false);
+    setSelectedMethodKey("");
+    const language = classifyCalculatorInput(raw);
+    if (!language.hebrewApplicable) {
+      setRoot(null);
+      setOriginFocus({ expression: raw, methodKey: null, root: null });
+      return; // The existing profile effect owns the single canonical request.
+    }
     try {
-      const rows = await fetchNumberMethodProfile(raw);
+      const rows = filterProfileRowsForInput(await fetchNumberMethodProfile(raw), language);
       const regular = rows.find((row) => {
         const label = clean(row?.displayLabel || row?.methodKey).replace(/[\s"'״׳’‘\-_/]/g, "");
         return label === "רגיל" || clean(row?.methodKey) === "רגיל";
       }) || rows[0] || null;
-      setProfileState({ loading: false, rows, error: null });
+      setProfileState({ loading: false, rows, error: null, expression: raw });
       if (regular?.methodKey) setSelectedMethodKey(regular.methodKey);
       const next = traceNumber(regular?.computedValue);
       if (next != null) setRoot(next);
@@ -500,7 +513,7 @@ export default function NumberDrawer2029({
   };
 
   const selectMethod = (key) => {
-    const nextProfile = methodProfileEntry(profileState.rows, key);
+    const nextProfile = methodProfileEntry(profileRows, key);
     setSelectedMethodKey(key);
     setSurfaceMode("focus");
     setTraceOpen(false);
@@ -628,7 +641,7 @@ export default function NumberDrawer2029({
     </div>
 
     <form className="sod29-number-drawer-search" onSubmit={commitInput}>
-      <input value={input} onChange={(event) => setInput(event.target.value)} placeholder="שם · ביטוי · מספר" aria-label="שם ביטוי או מספר" />
+      <input value={input} onChange={(event) => setInput(event.target.value)} placeholder="שם · ביטוי · מספר" aria-label="שם ביטוי או מספר" dir="auto" />
       <button type="submit">פתח</button>
     </form>
 
@@ -638,7 +651,9 @@ export default function NumberDrawer2029({
 
     {surfaceMode === "focus" && clean(expression) && (traceNumber(activeResult) != null) ? <div className="sod29-surface-context-expression sod29-number-drawer-identity"><span>{clean(expression)}</span><small>{selectedProfile?.displayLabel || selectedProfile?.methodKey || clean(selectedMethodKey)}</small><b>{Number(activeResult)}</b></div> : null}
 
-    {projection ? <NumberCore2029
+    <EnglishGematriaLane2029 expression={expression} canonicalRows={profileRows} />
+    {[CALCULATOR_INPUT_KIND.MIXED, CALCULATOR_INPUT_KIND.UNSUPPORTED].includes(inputInfo.kind) ? <p className="sod29-number-drawer-status">{inputInfo.notice}</p> : null}
+    {projection && (inputInfo.hebrewApplicable || !inputInfo.englishApplicable || profileRows.length > 0) ? <NumberCore2029
       projection={projection}
       stageProjection={stageProjection}
       stageLoading={methodResultState.loading}

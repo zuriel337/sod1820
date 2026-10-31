@@ -1,5 +1,7 @@
 import { topicLabel, NOTIFICATION_CHANNELS } from "../../lib/notifications.js";
 import { bilingualDateLabel } from "../../lib/relativeTime2029.js";
+import { canonicalFollowTopic } from "../../lib/followIdentity.js";
+import { CONTENT_SERIES_2029 } from "../../lib/research/contentSeries2029Identity.js";
 
 // View model for the 2029 personal update center. It only arranges what the existing owners already supply
 // (notifications, explicit follows, resolver links, channel metadata). It stores nothing, sends nothing and
@@ -58,15 +60,29 @@ export function buildFollowCenterModel({ principal = "loading", notifications = 
       why: why ? { icon: KIND_ICON[why.kind] || "help", label: why.label, kind: why.kind } : null,
     };
   });
-  const topics = fState === "ready" && Array.isArray(follows.topics) ? follows.topics : [];
+  const topics = fState === "ready" && Array.isArray(follows.topics)
+    ? [...new Set(follows.topics.filter(topic => typeof topic === "string").map(canonicalFollowTopic).filter(Boolean))] : [];
   const links = follows.links || {}, pending = follows.pending || {};
-  const groups = new Map();
+  const entries = new Map(), groups = new Map();
   for (const topic of topics) {
-    const label = topicLabel(topic, { experience: "2029" }); if (!label) continue;
+    const legacySeries = topic.startsWith("cat:") ? CONTENT_SERIES_2029.find(spec => spec.label === topic.slice(4)) : null;
+    // Group presentation only when the series was ALSO explicitly selected.
+    // A category-only legacy intent remains a category, never a subscription to a series.
+    const container = legacySeries && topics.includes(`series:${legacySeries.key}`) ? `series:${legacySeries.key}` : topic;
+    if (entries.has(container)) { entries.get(container).topics.push(topic); continue; }
+    const label = topicLabel(container, { experience: "2029" }); if (!label) continue;
     const key = KIND_ORDER.includes(label.kind) ? label.kind : "";
-    const href = key === "כתב" ? safeInternal(links[topic]) : safeInternal(label.link);
+    const href = key === "כתב" ? safeInternal(links[container]) : safeInternal(label.link);
+    const entry = { topic: container, topics: [topic], icon: KIND_ICON[key], label: label.label, href,
+      note: legacySeries && container === topic ? "מעקב שנשמר לפי הסיווג הישן; הוא לא הומר למעקב סדרה." : null };
+    entries.set(container, entry);
     if (!groups.has(key)) groups.set(key, []);
-    groups.get(key).push({ topic, icon: KIND_ICON[key], label: label.label, href, change: pending[topic] || "idle" });
+    groups.get(key).push(entry);
+  }
+  for (const entry of entries.values()) {
+    entry.change = entry.topics.some(topic => pending[topic] === "pending") ? "pending"
+      : entry.topics.some(topic => pending[topic] === "failed") ? "failed" : "idle";
+    if (entry.topics.length > 1) entry.note = "נשמר גם מעקב בסיווג הישן. ביטול כאן יפסיק את שני המעקבים.";
   }
   const followGroups = KIND_ORDER.filter((key) => groups.has(key)).map((key) => ({ key, heading: KIND_HEADINGS[key], items: groups.get(key) }));
   const followCount = fState === "ready" ? followGroups.reduce((sum, group) => sum + group.items.length, 0) : null;
@@ -83,7 +99,7 @@ export function buildFollowCenterModel({ principal = "loading", notifications = 
   return {
     principal: kind,
     updates: { state: nState, items: updates, unread: nState === "ready" ? updates.filter((item) => item.unread).length : null },
-    following: { state: fState, groups: followGroups, count: followCount },
+    following: { state: fState, groups: followGroups, count: followCount, storedTopicCount: fState === "ready" ? topics.length : null },
     channels, lifecycle: followLifecycle({ principal: kind, followCount, channels, followReadState: fState, channelReadState, deliveryReadState }),
     // Inferred relevance and Raziel suggestions are different inputs from an explicit follow and are not active producers yet.
     inputs: [
