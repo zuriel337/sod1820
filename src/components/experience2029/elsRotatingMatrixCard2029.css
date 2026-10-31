@@ -33,7 +33,7 @@
 .els-hm__rig {
   position: absolute; inset: 0; transform-style: preserve-3d; will-change: transform;
   transform: rotateX(14deg) rotateY(-24deg) rotateZ(-6deg);
-  animation: els-sway 46s ease-in-out infinite alternate;
+  animation: els-sway 20s ease-in-out infinite alternate;
 }
 .els-hm__layer {
   position: absolute; inset: 0; display: grid; direction: rtl; place-items: center;

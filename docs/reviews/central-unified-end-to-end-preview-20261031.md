@@ -147,3 +147,20 @@ Preview builder. Its final exact-SHA Preview identity is rechecked and recorded
 in the passive coordination AFTER; the above deployment remains evidence for
 the complete matrix. Real authenticated model completion remains unverified
 and requires the user's own login; unsupported server contracts remain blocked.
+
+## User-approved Home matrix cadence follow-up
+
+ZURIEL explicitly approved changing the illustrative Home matrix from46 seconds
+to20 seconds per direction after reviewing the slow motion. Task
+`HOME_ELS_CARD_MOTION_20S_20261031`, BEFORE
+`f50a2175-6cb9-41db-a175-4232b1a69ed3`, base `0379af7a1340f7ee6daf95b4688f2ace2acf3b08`.
+This scoped GPT authorization changes only the duration in the existing
+`els-sway` declaration; it does not transfer Home/Claude visual ownership.
+The original source match documented above is historical acceptance evidence;
+this subsequent, explicitly approved one-property difference is intentional.
+Pause/resume, offscreen/hidden-tab stopping, reduced motion, keyframes, geometry,
+dark palette, copy, links and Preview backend guards remain unchanged.
+Focused11/11, Build2029, built graph/lazy, isolation, hardening, Legacy lock and
+diff check pass; eager JS remains442145 gzip bytes. Existing browser matrix and
+the exact-SHA hosted20-second/pause/resume/reduced-motion result, final deployment
+identity and release are recorded in the bounded passive AFTER.
