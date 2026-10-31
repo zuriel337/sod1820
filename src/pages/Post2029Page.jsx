@@ -64,6 +64,7 @@ function PostReadingBody() {
   const sourceRef = useRef(null);
   const researchRef = useRef(null);
   const [researchOpen, setResearchOpen] = useState(false);
+  const [researchStarted, setResearchStarted] = useState(false);
   const connectionsHeadingRef = useRef(null);
   const explicitGematriaFocusRef = useRef(null);
   const entryRef = useRef(null);
@@ -80,6 +81,7 @@ function PostReadingBody() {
     setMeasureSource({ claims: [], placements: [] });
     setCalculationNotice(null);
     setResearchOpen(false);
+    setResearchStarted(false);
     restoredRegionRef.current = null;
     setState({ loading: true, projection: null, error: null });
     fetchPost2029ReadingProjection(slug)
@@ -927,7 +929,11 @@ function PostReadingBody() {
     {calculationNotice ? <p role="status">{calculationNotice}</p> : null}
     <details ref={researchRef} open={researchOpen} className="sod29-post-research" id="post-research"
       data-experience-capability="post-sources-and-connections"
-      onToggle={event => { if (event.target === event.currentTarget) setResearchOpen(event.currentTarget.open); }}>
+      onToggle={event => {
+        if (event.target !== event.currentTarget) return;
+        setResearchOpen(event.currentTarget.open);
+        if (event.currentTarget.open) setResearchStarted(true);
+      }}>
       <summary>
         <span className="sod29-post-research-title">מקורות וקשרים</span>
         <span className="sod29-post-research-hint">מקור, חיבורים, ציר זמן ומדדים — בלי להעמיס על הקריאה</span>
@@ -935,7 +941,7 @@ function PostReadingBody() {
       </summary>
       <div className="sod29-post-research-body">
     {!projection.draft && !projection.privateStage && !projection.previewSnapshot ? <div id="post-measures">
-      {researchOpen ? <PostConvergenceMeasures2029 key={`${post.id}:${post.modified || ""}:${user?.id || "public"}`}
+      {researchStarted ? <PostConvergenceMeasures2029 key={`${post.id}:${post.modified || ""}:${user?.id || "public"}`}
         sourcePost={projection.sourcePost} sourceProjection={projection} claims={measureSource.claims} placements={measureSource.placements}
         initialCardId={research.context?.subject?.type === "post" && String(research.context.subject.id) === String(post.id)
           ? research.context?.dimensions?.postMeasureSelectedCardId || null : null}

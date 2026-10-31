@@ -146,6 +146,12 @@ test('built Post: adopted design, bounded backgrounds, lazy research, exact retu
       await page.locator('[data-convergence-strength]').waitFor();assert.match(await page.locator('[data-convergence-strength]').innerText(),/10 מתוך 100/);
       assert.equal(await page.locator('#native-heading').count(),1);
       assert.equal(await page.locator('[data-card-quality]').innerText(),'לא דורג');
+      const readsBeforeCollapse=await page.evaluate(()=>window.__reads.length);
+      await page.locator('#post-research > summary').click();
+      await page.waitForFunction(()=>!document.getElementById('post-research').open);
+      await openResearch(page);
+      assert.match(await page.locator('[data-convergence-strength]').innerText(),/10 מתוך 100/);
+      assert.equal(await page.evaluate(()=>window.__reads.length),readsBeforeCollapse,'Closing research retains the chosen card without another read');
       if(width===390&&theme==='light'){
         await page.getByRole('link',{name:'לכרטיס, למקור המדד ולהסבר'}).click();
         await page.getByRole('heading',{name:'כרטיס התכנסות',exact:true}).waitFor();

@@ -1,0 +1,120 @@
+{
+  "actor": "GPT",
+  "task_key": "POSTS_ADOPTED_DESIGN_SERIES_BACKGROUNDS_20261030",
+  "completed_at": "2026-10-31T00:02:17.419441+00:00",
+  "status": "IMPLEMENTED_LOCAL_TESTED_DRAFT_REVIEW",
+  "base": {
+    "branch": "gpt/elections-world-seed-integration-20261030",
+    "sha": "1b23e75ffc9542a74254db80b013cc553dc1f6c1"
+  },
+  "inputs": {
+    "claude_visual": "6d55338a57d9e009ec99d1671a84e1970691f434",
+    "source_bound_measures": "b2302df44f5295f70ed67b21a2f8bff199999648",
+    "bounded_background_assets": "5b8439f5f757d1f33c5d1424b29dd72b34456bba",
+    "approved_artwork": "User approved the four Night candidates in this conversation"
+  },
+  "canonical_context": {
+    "reality_graph_codex_id": 18,
+    "version": 8,
+    "body_md5": "05b73b416ab47804c9a0c807250b16f7",
+    "series_decisions_codex_id": 37,
+    "series_decisions_body_md5": "34fda94a4542343d4e864646d4e98ee1"
+  },
+  "ownership": {
+    "verdict": "EXTEND_EXISTING",
+    "visual": "Adopt Claude Post composition and existing POST_FX/MatrixRain; technical integration only",
+    "series": "Existing contentSeries2029Identity exact membership and author constraints",
+    "data": "Existing Post reader and Context Depth; shared Number sheet and Research Context unchanged",
+    "coordination": "Bounded live work_log_current check found no overlapping Post/background writer. Read-only connector cannot journal; no live BEFORE/AFTER is claimed."
+  },
+  "behavior": [
+    "One responsive Night background from exact series membership; general fallback for unknown or ambiguous membership",
+    "No title/slug/number guessing and no arbitrary source-row background URLs",
+    "Day/Parchment retain their existing appearance and request no Night background",
+    "Research reader mounts on first opening and retains selected card/check state on later collapse; source/viewer refresh resets it",
+    "Authored source retained, duplicate first cover hidden using adopted Claude presentation",
+    "Original one-tree measure, permission and method/version boundaries retained; no highest-score selection or card-quality inheritance"
+  ],
+  "unchanged_scopes": [
+    "World categories",
+    "World/Topic/Gallery pages",
+    "SystemFrame/rails/bars",
+    "Personal area",
+    "Global fonts/design tokens/palette",
+    "Database/RLS/publication",
+    "main",
+    "Production"
+  ],
+  "verification": {
+    "focused_node_tests": 53,
+    "built_browser_fixture": {
+      "tests": 1,
+      "skipped": 0,
+      "deep_flow_theme_width_cases": 9,
+      "responsive_background_cases": 36,
+      "missing_image_case": 1,
+      "exact_occurrence_round_trip": true,
+      "post_build_new_claim_and_card": true,
+      "closed_entry_no_measure_reader": true,
+      "selected_card_retained_after_collapse": true,
+      "source_revocation_removes_content": true
+    },
+    "native_app_public_data": {
+      "cases": 12,
+      "errors": 0,
+      "horizontal_overflow_cases": 0,
+      "correct_background_selection_cases": 12,
+      "covers_loaded_where_present": true,
+      "writes_and_model_calls": "Blocked before transport; only public reads and the explicit read-RPC allowlist permitted",
+      "scope": "Local production build with actual App2029/SystemFrame and anonymous public data; no hosted or signed-in acceptance asserted"
+    },
+    "builds": [
+      "Legacy PASS",
+      "2029 PASS"
+    ],
+    "gates": [
+      "Legacy Production lock PASS",
+      "Cheap hardening PASS",
+      "Experience Context PASS",
+      "Post character PASS",
+      "Built dependency graph PASS",
+      "Source isolation PASS"
+    ],
+    "image_budgets": {
+      "mobile_max_bytes": 30000,
+      "desktop_max_bytes": 60000,
+      "selected_requests_per_night_post": 1,
+      "selected_requests_in_day_or_parchment": 0,
+      "warm_requests_in_fixture": 0
+    }
+  },
+  "baseline_failures": [
+    {
+      "test": "scripts/test-public-2029-language.mjs",
+      "exit": 1,
+      "failures": [
+        "command label is gated: public says חיפוש, Heichal keeps פקודה"
+      ],
+      "log": "/workspace/scratch/posts-integrated-test-public-2029-language.tap"
+    },
+    {
+      "test": "test/post2029-living-tree-infra.test.mjs",
+      "exit": 1,
+      "failures": [
+        "Post 2029 page exposes stable semantic capability seams",
+        "Golden Post architecture wireframe exposes the full structural preview without inventing product truth",
+        "Research Path and commands share one physical System Frame bottom surface",
+        "Posts-first High-Fidelity Golden reconciles onto current 2029 shell"
+      ],
+      "log": "/workspace/scratch/posts-integrated-post2029-living-tree-infra.test.tap"
+    }
+  ],
+  "remaining": [
+    "Five inherited source-string assertions fail in shared-frame/catalog gates; unchanged shared files verified against the base; not weakened or repaired in this Post scope",
+    "Hosted Preview, signed-in/admin/RLS flows, physical phone frame-rate and final visual acceptance remain unverified",
+    "Existing generic prose and image calculations without exact source annotations are not newly decoded; absent native source anchors remain absent",
+    "No post-specific background field or new series taxonomy was invented"
+  ],
+  "release_advice": "DRAFT_PREVIEW_REVIEW_ONLY; no merge or Production authorization. Depends on the current elections/World integration base.",
+  "handoff_to": "ZURIEL"
+}
