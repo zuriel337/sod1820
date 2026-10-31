@@ -2,6 +2,7 @@
 // locator from handoff e04a35a0. No tagging registry, graph writes, Journey store or new truth.
 import { buildMediaEnvelope, buildStoredInterpretation, dedupeMediaEnvelopes } from "./galleryMediaEnvelope.js";
 import { canonicalMediaPresentation, canonicalMediaPublicLabel } from "../presentation/canonicalPresentation.js";
+import { formatGregorianDate } from "./timeline2029.js";
 
 export const TOPIC_SOURCE_LIMIT = 64;
 export const TOPIC_OCCURRENCE_LIMIT = 256;
@@ -101,11 +102,33 @@ export function buildPublicGalleryCatalog2029(overview = {}) {
     const ordered = storedGalleryOrderIds(rows);
     const coverRow = ordered.map(id => byId.get(id)).find(row => safeCover(row.image_url));
     const cover = coverRow ? buildGallerySourceContext({ images: [{ ...coverRow,
+      ocr_meta: { date_derived: coverRow.date_derived },
       thumb_url: safeCover(coverRow.thumb_url) ? coverRow.thumb_url : null }], galleries: [g] })[0] : null;
     return { galleryId: g.id, wpGalleryId, originalName: g.name, imageCount: rows.length,
       href: gallerySourceHref2029(wpGalleryId), cover: cover || null };
   }).sort((a, b) => b.wpGalleryId - a.wpGalleryId);
   return { items, coverage: { partial: overview.coverage?.partial === true || incomplete } };
+}
+
+// Compact Gregorian photo label requested by ZURIEL. Placement provenance only,
+// never an event/report date; a folder-derived day must not invent day precision.
+export function galleryImageDatePresentation(item) {
+  const p = item?.legacyPlacement;
+  const valid = value => {
+    if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}(?:$|[T ])/.test(value)) return null;
+    const label = formatGregorianDate(value);
+    return label && label.split('.').reverse().join('-') === value.slice(0,10) ? label : null;
+  };
+  const stored = valid(p?.occurredAt);
+  if (stored) {
+    const folder = p.dateProvenance?.occurredAt?.derivedFrom === 'path';
+    return { label: folder ? stored.slice(3) : stored, kind: folder ? 'תיקייה' : 'מקור',
+      dateTime: p.occurredAt.slice(0,folder ? 7 : 10),
+      description: folder ? 'חודש תיקיית המקור; יום האירוע אינו ידוע' : 'תאריך שנשמר עם התמונה; אינו תאריך אירוע מאומת' };
+  }
+  const archived = valid(p?.createdAt);
+  return archived ? { label: archived, kind: 'ארכיון', dateTime: p.createdAt.slice(0,10),
+    description: 'מועד ההוספה לארכיון; אינו תאריך אירוע או פרסום' } : null;
 }
 
 export function galleryOccurrenceItem(selected) {

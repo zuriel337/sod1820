@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { buildPublicGalleryCatalog2029 } from '../src/lib/research/topicSourceContext.js';
+import { buildPublicGalleryCatalog2029, galleryImageDatePresentation } from '../src/lib/research/topicSourceContext.js';
 import { getGalleriesOverview } from '../src/lib/supabase.js';
 const id=n=>`10000000-0000-4000-8000-${String(n).padStart(12,'0')}`;
 const gallery=(n=69)=>({id:id(n),wp_gallery_id:n,name:`גלרית 14 - ${n===69?5:7}`,img_count:9999});
@@ -44,7 +44,8 @@ test('public overview is lightweight, strictly gated, stable paged, cache-isolat
   const c=client();const r=await getGalleriesOverview({client:c,publicSourceOnly:true});
   for(const [key,value] of [['published',1],['min_tier',0]])assert.ok(c.calls.some(x=>x[1]==='eq'&&x[2]===key&&x[3]===value));
   assert.ok(c.calls.some(x=>x[1]==='not'&&x[2]==='curator_hidden'));
-  assert.ok(c.calls.filter(x=>x[1]==='select').every(x=>!String(x[2]).match(/description|ocr|img_count/)));
+  assert.ok(c.calls.filter(x=>x[1]==='select').every(x=>!String(x[2]).replace('date_derived:ocr_meta->>date_derived','').match(/description|ocr|img_count/)));
+  assert.ok(c.calls.some(x=>x[1]==='select'&&String(x[2]).includes('occurred_at,created_at,date_derived:ocr_meta->>date_derived')));
   assert.ok(c.calls.filter(x=>x[1]==='order').every(x=>x[2]==='id'));
   assert.equal(r.coverage.partial,false);
   await assert.rejects(getGalleriesOverview({client:client({errorTable:'galleries'}),publicSourceOnly:true}),/offline/);
@@ -65,4 +66,21 @@ test('public overview bounds corpus reads and reports truncation rather than com
   const r=await getGalleriesOverview({client:c,publicSourceOnly:true});
   assert.equal(c.calls.filter(x=>x[0]==='gallery_images'&&x[1]==='range').length,10);
   assert.equal(r.imgs.length,10000);assert.equal(r.coverage.partial,true);
+});
+test('photo date is provenance, preserves month precision, and never fabricates a day or event',()=>{
+  const item = (occurredAt,createdAt,derivedFrom)=>({legacyPlacement:{occurredAt,createdAt,dateProvenance:{occurredAt:{derivedFrom}}}});
+  assert.deepEqual(galleryImageDatePresentation(item('2021-05-05',null,'name')),{
+    label:'05.05.2021',kind:'מקור',dateTime:'2021-05-05',description:'תאריך שנשמר עם התמונה; אינו תאריך אירוע מאומת'});
+  assert.deepEqual(galleryImageDatePresentation(item('2021-05-01',null,'path')),{
+    label:'05.2021',kind:'תיקייה',dateTime:'2021-05',description:'חודש תיקיית המקור; יום האירוע אינו ידוע'});
+  assert.equal(galleryImageDatePresentation(item(null,'2026-06-12T23:02:06Z')).kind,'ארכיון');
+  assert.equal(galleryImageDatePresentation(item('2021-02-31','2026-06-12T23:02:06Z')).kind,'ארכיון');
+  assert.equal(galleryImageDatePresentation(item(null,null)),null);
+  assert.equal(galleryImageDatePresentation(item('bad','bad')),null);
+  assert.equal(galleryImageDatePresentation({occurredAt:'2021-05-05'}),null,'only exact placement dates');
+});
+test('catalog cover carries only selected public date provenance including the JSON date-derived leaf',()=>{
+  const r=buildPublicGalleryCatalog2029({gals:[gallery()],imgs:[{...image(1),occurred_at:'2021-05-01',date_derived:'path',created_at:'2026-06-12T23:02:06Z'}]});
+  assert.equal(galleryImageDatePresentation(r.items[0].cover).label,'05.2021');
+  assert.equal(galleryImageDatePresentation(r.items[0].cover).kind,'תיקייה');
 });

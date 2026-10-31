@@ -184,6 +184,8 @@ function fixturePlugin() {
       window.__reads=[];window.__sheetTargets=[];window.__galleryRequests=[];window.__traceReads=[];
       window.__nativeGalleryRow=id=>({id,wp_gallery_id:Math.floor(Number(id.slice(-12))/100),ordering:Number(id.slice(-12))%100,
         published:1,min_tier:0,image_type:'gematria',name:'עדכון **** נוספו 6 תמונות חדשות',
+        occurred_at:Number(id.slice(-12))%2?'2021-05-05':'2021-05-01',date_derived:Number(id.slice(-12))%2?'name':'path',
+        ocr_meta:{date_derived:Number(id.slice(-12))%2?'name':'path'},created_at:'2026-06-12T23:02:06Z',
         description:'כיתוב מדויק '+id+' '+String.fromCharCode(92).repeat(3)+'"וראית את אחרי'+String.fromCharCode(92).repeat(3)+'" = 1237',
         image_url:'https://example.test/storage/v1/object/public/media/'+id+'.png',
         all_values:[844,1237,3137],ocr_text:window.__sourceChanged?'טקסט השתנה':'טקסט שמור התגלות'});
@@ -256,6 +258,12 @@ test("native gallery uses exact public occurrences and canonical method navigati
       assert.equal(await exhibit.locator('h3').count(),0,'maintenance notices are not public image headlines');
       assert.ok(await exhibit.locator('.g29-depth').evaluate(el=>!el.open),"research stays behind an intentional action");
       assert.equal(await exhibit.locator(".g29-canvas img").getAttribute("data-media-fit"),"preserve-whole-image");
+      assert.match(await exhibit.locator('.g29-image-date').innerText(),/מקור\s+05\.05\.2021/);
+      assert.equal(await exhibit.locator('.g29-image-date time').getAttribute('datetime'),'2021-05-05');
+      const photoBox=await exhibit.locator('.g29-image-surface').boundingBox(),dateBox=await exhibit.locator('.g29-image-date').boundingBox();
+      assert.ok(dateBox.x>=photoBox.x&&dateBox.x<photoBox.x+photoBox.width/2,'badge stays physically left in RTL');
+      assert.ok(dateBox.y>=photoBox.y&&dateBox.y+dateBox.height<=photoBox.y+photoBox.height+1);
+      assert.equal(await exhibit.locator('.g29-image-date').evaluate(el=>getComputedStyle(el).pointerEvents),'none');
       await exhibit.locator('a[href="/2029/number/3137"]').click();
       await page.waitForURL(origin+"/2029/number/3137");
       assert.equal(await page.evaluate(()=>window.__researchContext.returnTo.selection.sourceRef),`gallery_images:${id}`);
@@ -361,8 +369,14 @@ test("gallery catalog: search/order URL, original names, source re-entry, refres
       await page.goto(origin+'/world?view=gallery');
       await page.locator('[data-catalog-gallery="69"]').waitFor();
       assert.deepEqual(await page.evaluate(()=>window.__catalogOptions),{force:true,publicSourceOnly:true});
-      assert.deepEqual(await page.locator('[data-catalog-gallery]').evaluateAll(nodes=>nodes.map(n=>Number(n.dataset.catalogGallery))),[81,73,69]);
-      await page.getByRole('searchbox',{name:'חיפוש בשם או במספר גלריה'}).fill('14');
+      assert.deepEqual(await page.locator('[data-catalog-gallery]').evaluateAll(nodes=>nodes.map(n=>Number(n.dataset.catalogGallery))),[73,69,81]);
+      const original=page.locator('[data-catalog-gallery="69"]');
+      assert.equal(await original.locator('h3').innerText(),'גלרית 14 - 5');
+      assert.equal(await original.locator('.g29-kind').count(),0,'technical69 is not a public gallery heading');
+      assert.match(await original.locator('.g29-image-date').innerText(),/תיקייה\s+05\.2021/);
+      await page.getByRole('searchbox',{name:'חיפוש בשם הגלריה'}).fill('69');
+      assert.equal(await page.locator('[data-catalog-gallery]').count(),0,'search matches original titles, not hidden IDs');
+      await page.getByRole('searchbox',{name:'חיפוש בשם הגלריה'}).fill('14');
       await page.getByLabel('סדר הגלריות',{exact:true}).selectOption('asc');
       assert.deepEqual(await page.locator('[data-catalog-gallery]').evaluateAll(nodes=>nodes.map(n=>Number(n.dataset.catalogGallery))),[69,73]);
       await page.reload();await page.locator('[data-catalog-gallery="69"]').waitFor();

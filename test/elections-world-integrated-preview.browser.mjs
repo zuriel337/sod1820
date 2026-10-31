@@ -11,7 +11,7 @@ import { resolve, extname, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createRequire } from "node:module";
 import { getImagesByGallery, getGalleriesOverview } from '../src/lib/supabase.js';
-import { buildPublicGalleryCatalog2029, storedGalleryOrderIds, gallerySourceHref2029 } from '../src/lib/research/topicSourceContext.js';
+import { buildPublicGalleryCatalog2029, galleryImageDatePresentation, storedGalleryOrderIds, gallerySourceHref2029 } from '../src/lib/research/topicSourceContext.js';
 
 const require = createRequire(import.meta.url);
 const { chromium } = require("playwright");
@@ -85,10 +85,19 @@ try {
     }
     if (process.env.PREVIEW_GALLERY_CATALOG_ONLY === 'true') {
       const expected=buildPublicGalleryCatalog2029(await getGalleriesOverview({force:true,publicSourceOnly:true}));
+      expected.items.sort((a,b)=>new Intl.Collator('he',{numeric:true}).compare(b.originalName,a.originalName)||a.wpGalleryId-b.wpGalleryId);
       await page.goto(origin+'/world?view=gallery');
       await page.locator('[data-catalog-gallery="69"]').waitFor();
       assert.deepEqual(await page.locator('[data-catalog-gallery]').evaluateAll(nodes=>nodes.map(n=>Number(n.dataset.catalogGallery))),expected.items.map(x=>x.wpGalleryId));
       assert.equal(await page.locator('[data-catalog-gallery="102"]').count(),0,'empty/private-only galleries are not available catalog cards');
+      for (const sample of expected.items.filter(x=>[69,73,81].includes(x.wpGalleryId))) {
+        const card=page.locator(`[data-catalog-gallery="${sample.wpGalleryId}"]`);
+        assert.equal(await card.locator('h3').innerText(),sample.originalName);
+        assert.equal(await card.locator('.g29-kind').count(),0);
+        const date=galleryImageDatePresentation(sample.cover);
+        if(date)assert.equal(await card.locator('.g29-image-date time').getAttribute('datetime'),date.dateTime);
+        else assert.match(await card.locator('.g29-image-date').innerText(),/תאריך לא צוין/);
+      }
       await page.waitForFunction(()=>{const image=document.querySelector('.g29-catalog-cover img');return image?.complete&&image.naturalWidth>0;});
       await page.screenshot({path:resolve(output,`gallery-catalog-${width}.png`)});
       for(const [preset,label] of [['light','יום'],['parchment','קלף'],['dark','לילה']]) {
@@ -99,14 +108,27 @@ try {
         assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
         await page.screenshot({path:resolve(output,`gallery-catalog-${preset}-${width}.png`)});
       }
-      await page.getByRole('searchbox',{name:'חיפוש בשם או במספר גלריה'}).fill('69');
+      await page.getByRole('searchbox',{name:'חיפוש בשם הגלריה'}).fill('14');
       await page.getByLabel('סדר הגלריות',{exact:true}).selectOption('asc');
       await page.reload();await page.locator('[data-catalog-gallery="69"]').waitFor();
-      assert.equal(await page.getByRole('searchbox').inputValue(),'69');
+      assert.equal(await page.getByRole('searchbox').inputValue(),'14');
       await page.locator('[data-catalog-gallery="69"]').click();await page.locator('.g29-exhibit').first().waitFor();
       assert.equal(new URL(page.url()).searchParams.get('gallery'),'69');
+      await page.waitForFunction(()=>{const image=document.querySelector('.g29-canvas img');return image?.complete&&image.naturalWidth>0;});
+      assert.equal(await page.locator('.g29-flow .g29-image-date').count(),await page.locator('.g29-exhibit').count());
+      assert.match(await page.locator('.g29-exhibit').first().locator('.g29-image-date').innerText(),/מקור\s+05\.05\.2021/);
+      assert.ok(await page.locator('.g29-flow .g29-image-date').evaluateAll(nodes=>nodes.every(el=>{
+        const badge=el.getBoundingClientRect(),frame=el.parentElement.getBoundingClientRect();
+        return badge.x>=frame.x&&badge.x<frame.x+frame.width/2&&badge.y>=frame.y&&badge.bottom<=frame.bottom+1;
+      })),'photo dates are physically left and within their uncropped image frames');
+      for(const [preset,label] of [['light','יום'],['parchment','קלף'],['dark','לילה']]) {
+        const control=page.locator('.sod29-theme-presets.is-header-control'),option=control.getByRole('button',{name:label,exact:true});
+        if(!await option.isVisible())await control.locator('.sod29-theme-trigger').click();
+        await option.click();await page.waitForFunction(value=>document.documentElement.dataset.themePreset===value,preset);
+        await page.screenshot({path:resolve(output,`gallery-date-${preset}-${width}.png`)});
+      }
       await page.goBack();await page.locator('[data-catalog-gallery="69"]').waitFor();
-      assert.equal(await page.getByRole('searchbox').inputValue(),'69');
+      assert.equal(await page.getByRole('searchbox').inputValue(),'14');
       assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
       report.catalog.push({width,count:expected.items.length,coverage:expected.coverage,sourceCount:expected.items.reduce((n,x)=>n+x.imageCount,0),search:true,sort:true,reload:true,galleryBack:true,presets:['light','parchment','dark']});
       report.widths.push(width);await context.close();continue;

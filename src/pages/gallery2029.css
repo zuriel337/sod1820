@@ -20,6 +20,10 @@
 .g29-exhibit:target{border-color:var(--s29-accent-text);box-shadow:0 0 0 2px color-mix(in srgb,var(--s29-accent) 15%,transparent)}
 .g29-canvas{display:grid;place-items:center;min-height:44px;padding:9px;text-decoration:none;border:1px solid color-mix(in srgb,var(--g29-warm) 40%,var(--s29-line));border-radius:12px;background:color-mix(in srgb,var(--g29-warm) 5%,var(--s29-panel));box-shadow:0 12px 32px color-mix(in srgb,var(--s29-ink) 6%,transparent);cursor:zoom-in}
 .g29-canvas .sod29-canonical-media-image.is-primary{max-height:440px;border-radius:5px;background:transparent}
+.g29-image-surface{display:grid;position:relative;min-width:0;max-width:100%;max-height:100%}
+/* Neutral photographic backing, not a quality/status color or a new theme. */
+.g29-image-date{position:absolute;left:8px;bottom:8px;display:flex;align-items:center;gap:6px;max-width:calc(100% - 16px);padding:4px 8px;border-radius:6px;background:color-mix(in srgb,black 80%,transparent);color:white;box-shadow:0 2px 10px color-mix(in srgb,black 32%,transparent);font:var(--s29-type-micro,14px)/1.4 var(--s29-font-ui);pointer-events:none}
+.g29-image-date time{font-family:var(--s29-font-numeric);font-variant-numeric:tabular-nums}
 .g29-placard{padding:4px 22px 0 0;min-width:0}
 .g29-card-heading{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:12px}
 .g29-kind{font-size:var(--s29-type-small,15px);color:var(--g29-warm);font-weight:500}
@@ -71,6 +75,7 @@
 .g29-catalog-card:hover{border-color:var(--s29-accent-text)}
 .g29-catalog-cover{display:grid;place-items:center;aspect-ratio:16/10;padding:12px;min-width:0;background:var(--s29-panel-soft);color:var(--s29-muted)}
 .g29-catalog-cover .sod29-canonical-media-image{width:100%;height:100%;max-height:220px;object-fit:contain}
+.g29-catalog-cover .g29-image-surface{width:100%;height:100%}
 .g29-catalog-copy{padding:20px;min-width:0}.g29-catalog-copy h3{margin:10px 0;font:600 var(--s29-type-lead,21px)/1.5 var(--s29-font-ui);overflow-wrap:anywhere}
 .g29-catalog-copy p{color:var(--s29-muted);margin:8px 0}.g29-catalog-copy .g29-text-link{margin-top:8px}
 @media(max-width:760px){

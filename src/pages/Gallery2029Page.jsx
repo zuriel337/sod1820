@@ -12,7 +12,7 @@ import { fetchNumberMethodProfile } from "../lib/research/numberCoreProjection.j
 import { resolveTopicExpressionFocus2029 } from "../lib/research/topicExpressionFocus2029.js";
 import { numberExpressionFocusHref } from "../lib/research/numberExpressionFocus.js";
 import { gatePublicMethodRows, gateSourcePresentation, gateSourceSelectionIsCurrent } from "../lib/research/revelation1237Gate2029.js";
-import { buildPublicGalleryCatalog2029, gallerySourceHref2029, galleryOccurrenceItem, loadPublicGallerySourceWindow, resolvePublicGallerySelection } from "../lib/research/topicSourceContext.js";
+import { buildPublicGalleryCatalog2029, galleryImageDatePresentation, gallerySourceHref2029, galleryOccurrenceItem, loadPublicGallerySourceWindow, resolvePublicGallerySelection } from "../lib/research/topicSourceContext.js";
 import { bilingualDateLabel } from "../lib/relativeTime2029.js";
 import { publicMediaCaption, publicMediaTitle } from "../lib/presentation/contentTitle.js";
 import { canonicalMediaPublicLabel } from "../lib/presentation/canonicalPresentation.js";
@@ -27,6 +27,13 @@ const readingLabel = (item) => canonicalMediaPublicLabel({
   title: publicMediaTitle(item?.legacyPlacement?.originalName),
   description: publicMediaCaption(item?.legacyPlacement?.originalCaption),
 }, { fallback: "תמונה מהגלריה" });
+
+function GalleryImageDate({ item }) {
+  const date = galleryImageDatePresentation(item);
+  return date ? <span className="g29-image-date" title={date.description} aria-label={`${date.kind}: ${date.label}. ${date.description}`}>
+    <span>{date.kind}</span><time dir="ltr" dateTime={date.dateTime}>{date.label}</time>
+  </span> : <span className="g29-image-date is-unknown">תאריך לא צוין</span>;
+}
 
 function GalleryCatalogBody() {
   const location = useLocation(), navigate = useNavigate(), research = useResearch();
@@ -52,8 +59,9 @@ function GalleryCatalogBody() {
         galleryImageId: null, wpGalleryId: null } });
   }, [href]);
   const needle = query.trim().normalize('NFC').toLocaleLowerCase('he');
-  const items = state.items.filter(item => !needle || item.originalName.normalize('NFC').toLocaleLowerCase('he').includes(needle)
-    || String(item.wpGalleryId).includes(needle)).sort((a,b) => ascending ? a.wpGalleryId-b.wpGalleryId : b.wpGalleryId-a.wpGalleryId);
+  const nameOrder = new Intl.Collator('he', { numeric: true });
+  const items = state.items.filter(item => !needle || item.originalName.normalize('NFC').toLocaleLowerCase('he').includes(needle))
+    .sort((a,b) => (ascending ? 1 : -1) * nameOrder.compare(a.originalName,b.originalName) || a.wpGalleryId-b.wpGalleryId);
   function filter(nextQuery, nextAscending = ascending) {
     navigate(`/world?${new URLSearchParams({ view: 'gallery', ...(nextQuery ? { q: nextQuery } : {}), ...(nextAscending ? { sort: 'asc' } : {}) })}`, { replace: true });
   }
@@ -61,10 +69,10 @@ function GalleryCatalogBody() {
     <header className="g29-heading"><div className="g29-heading-line"><div><p className="g29-eyebrow">סוד 1820 · מבט בתמונות</p>
       <h2>גלריות רמזי הגאולה</h2></div></div><p className="g29-intro">סיפורים, מספרים ותמונות שנאספו לאורך השנים.</p>
       <Link className="g29-text-link" to="/world">חזרה לעולם ←</Link></header>
-    <div className="g29-catalog-controls"><label>חיפוש בשם או במספר גלריה<input type="search" value={query} maxLength={200}
-      onChange={event => filter(event.target.value)} placeholder="למשל דוד או 69" /></label>
+    <div className="g29-catalog-controls"><label>חיפוש בשם הגלריה<input type="search" value={query} maxLength={200}
+      onChange={event => filter(event.target.value)} placeholder="למשל דוד או 14" /></label>
       <label>סדר הגלריות<select aria-label="סדר הגלריות" value={ascending ? 'asc' : 'desc'} onChange={event => filter(query,event.target.value === 'asc')}>
-        <option value="desc">מספר גלריה — יורד</option><option value="asc">מספר גלריה — עולה</option></select></label>
+        <option value="desc">לפי שם — יורד</option><option value="asc">לפי שם — עולה</option></select></label>
       <button className="g29-page-link" type="button" onClick={() => setRetry(n => n+1)} disabled={state.status === 'loading'}>רענון הגלריות</button></div>
     {state.status === 'loading' ? <FrameState kind="loading" title="פותחים את הגלריות">טוענים את הגלריות הזמינות לעיון.</FrameState> : null}
     {state.status === 'failed' ? <p className="g29-message" role="alert">לא הצלחנו לטעון את הגלריות כרגע. אפשר לנסות שוב באמצעות הרענון.</p> : null}
@@ -73,8 +81,8 @@ function GalleryCatalogBody() {
       {!items.length ? <p className="g29-message">{query ? 'לא נמצאו גלריות מתאימות לחיפוש.' : 'אין כרגע גלריות עם תמונות ציבוריות זמינות.'}</p> : null}
       <div className="g29-catalog-grid">{items.map((item, index) => <Link key={item.galleryId} className="g29-catalog-card" to={item.href}
         data-catalog-gallery={item.wpGalleryId} aria-label={`פתיחת ${publicMediaCaption(item.originalName)}`}>
-        <div className="g29-catalog-cover">{item.cover ? <CanonicalMediaImage2029 item={item.cover} alt={publicMediaCaption(item.originalName)} loading={index < 3 ? 'eager' : 'lazy'} /> : <span>גלריה בתמונות</span>}</div>
-        <div className="g29-catalog-copy"><span className="g29-kind">גלריה <bdi>{item.wpGalleryId}</bdi></span>
+        <div className="g29-catalog-cover">{item.cover ? <span className="g29-image-surface"><CanonicalMediaImage2029 item={item.cover} alt={publicMediaCaption(item.originalName)} loading={index < 3 ? 'eager' : 'lazy'} /><GalleryImageDate item={item.cover} /></span> : <span>גלריה בתמונות</span>}</div>
+        <div className="g29-catalog-copy">
           <h3>{publicMediaCaption(item.originalName)}</h3><p>{state.coverage?.partial ? 'לפחות ' : ''}{item.imageCount} תמונות זמינות</p><span className="g29-text-link">לפתיחת הגלריה ←</span></div>
       </Link>)}</div></> : null}
   </article>;
@@ -96,7 +104,7 @@ function GalleryImageCard({ item, index, selected, opening, error, onRemember, o
   return <section id={slotKey} tabIndex={-1} className="g29-exhibit" data-gallery-image-id={item.galleryImageId}
     data-gallery-selected={selected ? item.galleryImageId : undefined} aria-label={title || `תמונה ${index + 1}`}>
     <a className="g29-canvas" href={item.imageUrl} target="_blank" rel="noreferrer" aria-label={`הגדלת התמונה: ${title || "תמונה מהגלריה"}`}>
-      <CanonicalMediaImage2029 item={item} primary loading={index < 2 ? "eager" : "lazy"} alt={title || "תמונה מהגלריה"} />
+      <span className="g29-image-surface"><CanonicalMediaImage2029 item={item} primary loading={index < 2 ? "eager" : "lazy"} alt={title || "תמונה מהגלריה"} /><GalleryImageDate item={item} /></span>
     </a>
     <div className="g29-placard">
       <div className="g29-card-heading"><span className="g29-kind">{kind}</span><span className="g29-index" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
@@ -176,7 +184,7 @@ function GalleryBody() {
   const item = galleryOccurrenceItem(current.selected);
   const slotKey = item ? `gallery-source-${item.galleryImageId}` : null;
   const exactHref = item ? gallerySourceHref2029(wpGalleryId, item.galleryImageId) : null;
-  const title = item?.legacyPlacement?.galleryName || `גלריה ${galleryId}`;
+  const title = item?.legacyPlacement?.galleryName || "גלריה בתמונות";
   const subject = { id: String(wpGalleryId), type: "gallery", label: title, href: gallerySourceHref2029(wpGalleryId) };
 
   useEffect(() => {
