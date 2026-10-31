@@ -605,3 +605,40 @@ model with backend fixtures: no fresh live-anonymous or hosted image-step
 acceptance is claimed. No CSS, Post, Frame/Provider/engine, DB/RLS/migration,
 Edge/main/Production or source publication changes. No new hosted Preview.
 Evidence `/tmp/gallery-steps-browser.log`. Final SHA/tests in passive AFTER.
+
+## 31.10 hosted Preview — exact continuation SHA
+
+ZURIEL explicitly requested continuing and a link. Task
+`ELECTIONS_WORLD_GALLERY_PREVIEW_LINK_20261031`, BEFORE
+`38e34bcd-0c80-4bb3-acbc-0a5fcc54433e`. Exact remote/runtime SHA
+`1a7a7fe048db11df82f7cb967f662fbe5f14d395`, same continuation branch.
+Deployment `dpl_6Ta54KuFe6RogXtqsFk2CdtbdSBJ`, READY, target=null (Preview),
+project `prj_43q7k7QFAcWnin1tcBjce5xOi7Cq`, existing team unchanged.
+
+URL: https://sod1820-1bn0qxgtm-sod1820-s-projects.vercel.app/world?view=gallery&gallery=69
+
+SSO retained; authorized temporary share access generated for the user's link.
+Share credential/cookies are not stored here or in evidence logs. Same existing
+static preview-deploy builder/read-only worker/mock-only Raziel; no backend
+deployment, source edit, Post-session change or Production domain action.
+Initial API target='preview' was rejected without creating a deployment; current
+API docs define omitted target as Preview. Corrected request omitted target and
+returned target=null; never requested production/staging/promotion/alias changes.
+
+Hosted acceptance390/1440, actual public anonymous source readers:69/73/105
+exact source, original six-image window, Number page/Back/reload;102 empty public
+window. Six positive samples passed,0 pageerrors/model/blocked requests or
+observed product writes. Separate hosted smoke verifies exact preview-identity
+SHA, mock-only/product_writes=false/edge_deploy=false, no-store/noindex headers,
+unifiedReadOnly=true worker, gallery69 previous7->6->5 then next6->Back5->reload
+across the page boundary at both widths, no overflow/errors/blocked requests.
+Fresh auth-guard7/7 and Legacy Production lock pass; exact local integrated build
+passes. Logs `/tmp/gallery-hosted-20261031.log`,
+`/tmp/one-tree-hosted-smoke-20261031.log`; screenshots
+`/tmp/gallery-hosted-20261031/`. Not all galleries/site/server APIs accepted.
+
+This supersedes only the previous NOT_DEPLOYED label for the included bounded
+slices. Cross-gallery series navigation remains pending the Posts source seam;
+ongoing work of the separate Posts session is NOT imported by this deployment.
+No main, Production, Edge, DB/RLS/migration/publication change. This receipt's
+later documentation-only commit is not a different deployed runtime SHA.
