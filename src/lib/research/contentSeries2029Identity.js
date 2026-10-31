@@ -1,3 +1,5 @@
+import { isPost2029OnlyReleased } from "./publicPostBoundary.js";
+
 const clean = (value) => value == null ? "" : String(value).trim();
 
 // Approved series identities from PLAN37 decisions DEC-SERIES-003/004/005/006.
@@ -73,7 +75,15 @@ export function contentSeriesByKey(key) {
   return CONTENT_SERIES_2029.find(spec => spec.key === key) || null;
 }
 
+// Explicit Human-Gated 2029-only editorial release can admit an unattributed
+// source into the Dimension Five stream without falsely assigning its creator
+// or modifying the approved publisher identity of that series.
+export function hasExactSeriesPublisher2029(row, spec) {
+  return !spec?.exactAuthor || row?.author === spec.exactAuthor
+    || (spec.key === "dimension-five" && hasExactMembership(row, spec) && isPost2029OnlyReleased(row));
+}
+
 export function contentSeriesKeysForPost(row) {
   return CONTENT_SERIES_2029.filter(spec => hasExactMembership(row, spec)
-    && (!spec.exactAuthor || row?.author === spec.exactAuthor)).map(spec => spec.key);
+    && hasExactSeriesPublisher2029(row, spec)).map(spec => spec.key);
 }
