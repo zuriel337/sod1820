@@ -1,0 +1,17 @@
+.sod29-living-header-stack{position:sticky;top:0;z-index:18;min-width:0}
+.sod29-living-header-stack:has(.sod29-living-ribbon) .sod29-header{position:relative}
+.sod29-living-header-stack:not(:has(.sod29-living-ribbon)){display:contents}
+.sod29-living-ribbon{height:52px;display:flex;align-items:center;gap:8px;min-width:0;padding:0 12px;border-block-end:1px solid var(--s29-line-strong);background:color-mix(in srgb,var(--s29-panel) 94%,var(--s29-brand-gold) 6%);color:var(--s29-ink)}
+.sod29-root[data-frame-theme-preset="dark"] .sod29-living-ribbon{background:color-mix(in srgb,var(--s29-panel) 92%,var(--s29-brand-gold) 8%);border-color:var(--s29-line-strong);color:var(--s29-ink)}
+.sod29-root[data-frame-theme-preset="light"] .sod29-living-ribbon{background:var(--s29-panel);color:var(--s29-ink)}
+.sod29-root[data-frame-theme-preset="parchment"] .sod29-living-ribbon{background:color-mix(in srgb,var(--s29-panel) 94%,var(--s29-brand-gold) 6%);color:var(--s29-ink)}
+.sod29-living-mark{color:var(--s29-accent-text);font-size:20px}.sod29-living-desktop{flex:1;min-width:0;overflow:hidden}.sod29-living-item{height:44px;max-width:100%;display:inline-flex;align-items:center;gap:10px;padding:0 8px;border:0;background:transparent;color:inherit;font:inherit;cursor:pointer;text-align:start}.sod29-living-item span{flex:none;color:var(--s29-accent-text);font-size:14px}.sod29-living-item bdi{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:15px}.sod29-living-pause{flex:none;width:52px;font-size:14px;height:44px;border:0;border-radius:10px;background:transparent;color:inherit;cursor:pointer}.sod29-living-item:focus-visible,.sod29-living-pause:focus-visible{outline:2px solid var(--s29-accent-text);outline-offset:-2px}.sod29-living-mobile{display:none;min-width:0;flex:1}
+@media(min-width:701px){.sod29-living-ribbon{padding-inline-end:72px}}
+@keyframes sod29-living-mobile-enter{from{opacity:.45;transform:translateX(8px)}to{opacity:1;transform:none}}
+@media(max-width:700px){.sod29-living-desktop{display:none}.sod29-living-mobile{display:block;overflow:hidden;animation:sod29-living-mobile-enter .35s ease-out}.sod29-living-mobile .sod29-living-item{width:100%}}
+@media(prefers-reduced-motion:reduce){.sod29-living-ribbon *{scroll-behavior:auto}.sod29-living-mobile{animation:none}}
+
+.sod29-living-ribbon.is-quiet{height:44px;justify-content:flex-start}
+/* `overflow-x:hidden` creates an implicit vertical scroll container and breaks
+   sticky positioning. clip prevents sideways overflow without capturing scroll. */
+.sod29-root:has(.sod29-living-ribbon){overflow-x:clip;overflow-y:visible}

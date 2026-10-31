@@ -41,6 +41,7 @@ import CanonicalProgress from "../CanonicalProgress.jsx";
 import ContactGateway from "../ContactGateway.jsx";
 import SurfaceContextRail2029 from "./SurfaceContextRail2029.jsx";
 import CompanionPanel2029 from "./CompanionPanel2029.jsx";
+import GlobalLivingRibbon2029, { LivingRibbonDetail2029 } from "./GlobalLivingRibbon2029.jsx";
 import RazielSessionMount2029, { useOptionalRazielSession2029 } from "./RazielSessionMount2029.jsx";
 import RazielCenter2029 from "./RazielCenter2029.jsx";
 import { workspaceResearchHref } from "../../lib/research/razielWorkspaceProjection2029.js";
@@ -2080,7 +2081,7 @@ function SystemFrame2029Body({
       onNavigate={closeTransient}
       onNeedHelp={openIssueReport}
     /></PanelShell>;
-    if (transientKind === TRANSIENT.ATTENTION) return <PanelShell {...common} icon="◉" kicker="עכשיו" title="עכשיו"><NowTabs2029 activeKind={transientKind} onWorld={openAttention} onMe={openWorkspace} onRaziel={() => openRaziel()} razielLocked={razielLocked} />{corePublicViewer ? worldLocked
+    if (transientKind === TRANSIENT.ATTENTION) return <PanelShell {...common} icon="◉" kicker="עכשיו" title="עכשיו"><NowTabs2029 activeKind={transientKind} onWorld={openAttention} onMe={openWorkspace} onRaziel={() => openRaziel()} razielLocked={razielLocked} />{transient?.payload?.ribbonDetail ? <LivingRibbonDetail2029 detail={transient.payload.ribbonDetail} onOpen={go} feed={feed} /> : corePublicViewer ? worldLocked
       ? <FrameState kind="gated" title="העולם ייפתח בהמשך">כעת אפשר לקרוא פוסטים, לחקור ELS ולהשתמש במחשבון הגימטריה.</FrameState>
       : <FrameState title="העולם פתוח"><Link to="/world" onClick={closeTransient}>למקורות ולחיבורים בעולם ←</Link></FrameState>
       : <AttentionProjection context={context} onWorkspace={() => openTransient(TRANSIENT.WORKSPACE)} onOpen={go} feed={feed} timeMode={recordTimeMode} />}</PanelShell>;
@@ -2162,6 +2163,7 @@ function SystemFrame2029Body({
         </aside>
 
         <div className="sod29-main">
+          <div className="sod29-living-header-stack">
           <header className="sod29-header closed-orientation">
             <div className="sod29-header-leading">
               <button ref={mobileMenuRef} className="sod29-mobile-menu-trigger sod29-gate-trigger" type="button" onClick={() => navOpen ? closeMobileNav(true) : setNavOpen(true)} aria-label={navOpen ? "סגור ניווט" : "פתח ניווט"} aria-expanded={navOpen} aria-controls="sod29-mobile-navigation">
@@ -2185,6 +2187,8 @@ function SystemFrame2029Body({
               <button type="button" className={`sod29-header-workspace${user ? "" : " is-signed-out"}`} onClick={openWorkspace} aria-label={user ? "האזור האישי שלי" : "התחברות לאזור האישי"} title={user ? "האזור האישי שלי" : "התחברות או הרשמה"}><UserAvatar2029 user={user} profile={profile} size="header" /><span className="workspace-label">{user ? accountShortName(user, profile) : "התחברות"}</span></button>
             </div>
           </header>
+          {["home", "world", "posts", "post"].includes(surface) ? <GlobalLivingRibbon2029 feed={feed} preview={import.meta.env.VITE_INTEGRATED_PREVIEW === "true"} onOpen={(ribbonDetail) => openTransient(TRANSIENT.ATTENTION, { ribbonDetail })} /> : null}
+          </div>
 
           {orientation.mode !== "hidden" && orientation.manifest ? (() => {
             const mark = <LearnMark2029
