@@ -9,6 +9,13 @@ import { isDocumentedIndiaCaptainPost } from "./topicSourceContext.js";
 import { hasSuppressedPublicPostTag } from "./publicPostBoundary.js";
 import { projectTopicCardContent } from "./topicConvergence.js";
 import { decodePublicEntities } from "../presentation/contentTitle.js";
+import { classifyCalculatorInput, CALCULATOR_INPUT_KIND } from "./calculator2029Input.js";
+
+export function isPostEnglishExpression(expression) {
+  const info = classifyCalculatorInput(expression);
+  return info.kind === CALCULATOR_INPUT_KIND.LATIN && !info.hasDigits && !info.otherLetters
+    && /^[A-Za-z\s'’.-]+$/.test(String(expression || ""));
+}
 
 const clean = (value) => value == null ? "" : String(value).trim();
 
@@ -1219,7 +1226,8 @@ export async function collectPostLegacyOccurrences2029(sourcePost, root) {
   root.dataset.postSourceDigest = digest;
   const legacy = saved.flatMap((node, index) => {
     const expression = node.getAttribute("data-gem");
-    if (!expression?.trim() || node.textContent !== expression || /^\d[\d,]*$/.test(expression.trim())
+    const englishExpression = isPostEnglishExpression(expression) && node.textContent.includes(expression);
+    if (!expression?.trim() || (node.textContent !== expression && !englishExpression) || /^\d[\d,]*$/.test(expression.trim())
       || node.closest("script,style,template,pre,code,[hidden],[aria-hidden='true']")) return [];
     const target = rendered[index];
     // This is a presentation locator bound to the exact source snapshot, not a
@@ -1227,11 +1235,11 @@ export async function collectPostLegacyOccurrences2029(sourcePost, root) {
     const anchor = target.id || `post-legacy-${digest}-${index}`;
     if ([...root.querySelectorAll("[id]")].some(other => other !== target && other.id === anchor)) return [];
     if (!target.id) { target.id = anchor; target.dataset.postPresentationAnchor = "true"; }
-    const tuple = legacyCalculationTuple(node);
+    const tuple = englishExpression ? { method: null, value: null } : legacyCalculationTuple(node);
     return [{ id: `posts:${sourcePost.id}:${anchor}`, expression, ...tuple, methodVersion: null,
       sourceRef: `posts:${sourcePost.id}`, sourceVersion: clean(sourcePost.modified) || null,
       locator: `#${anchor}`, locatorPrecision: node.id && !target.dataset.postDuplicateNativeId ? "occurrence" : "snapshot_bound_occurrence",
-      sourceOrdinal: index, sourceDigest: digest, binding: "saved_legacy_marking", lang: sourcePost.lang || null }];
+      sourceOrdinal: index, sourceDigest: digest, binding: "saved_legacy_marking", lang: englishExpression ? "en" : sourcePost.lang || null }];
   });
   return [...legacy, ...collectAuthoredBoxOccurrences(sourcePost, template.content, root, digest),
     ...collectAuthoredEqualityOccurrences(sourcePost, root, digest)];

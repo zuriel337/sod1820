@@ -5,7 +5,7 @@ import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience
 import SurfaceSectionNav2029 from "../components/experience2029/SurfaceSectionNav2029.jsx";
 import PostEvidenceMedia2029 from "../components/experience2029/PostEvidenceMedia2029.jsx";
 import PostTimeline2029 from "../components/experience2029/PostTimeline2029.jsx";
-import { fetchPost2029ReadingProjection, resolvePostReadingRegion, collectPostCalculationOccurrences2029, collectPostLegacyOccurrences2029, collectPostSourcePlacements2029, checkPostCalculation2029, revalidatePostMeasureSource, postReadingHtml2029 } from "../lib/research/post2029ReadingProjection.js";
+import { fetchPost2029ReadingProjection, resolvePostReadingRegion, collectPostCalculationOccurrences2029, collectPostLegacyOccurrences2029, collectPostSourcePlacements2029, checkPostCalculation2029, revalidatePostMeasureSource, postReadingHtml2029, isPostEnglishExpression } from "../lib/research/post2029ReadingProjection.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { mergeContextPackWithConnections } from "../lib/research/goldenPostContextPacks.js";
 import { goldenPublicSurfaceFindings } from "../lib/research/goldenProjectorModes.js";
@@ -254,7 +254,7 @@ function PostReadingBody() {
     // non-link legacy markings keyboard reachable without rewriting the source.
     for (const node of sourceRef.current.querySelectorAll("[data-gem],[data-expression]")) {
       if (/^\d[\d,]*$/.test(String(node.textContent || "").trim())) node.classList.add("sod-numlink");
-      if (!node.matches("a,button") && !node.closest("a,button")) {
+      if (!node.matches("a[href],button") && !node.closest("a[href],button")) {
         node.setAttribute("role", "button");
         node.tabIndex = 0;
       }
@@ -625,8 +625,8 @@ function PostReadingBody() {
         : "לא ניתן לפתוח את הטענה בשיטה ובגרסה שנבחרו. אין מעבר לשיטה חלופית."); return; }
     setCalculationNotice(null); openCheckedPostCalculation(result);
   };
-  const openPostEngineExploration = async () => {
-    const occurrence = explorationOccurrence;
+  const openPostEngineExploration = async candidate => {
+    const occurrence = candidate?.binding ? candidate : explorationOccurrence;
     if (!occurrence) return;
     const ticket = ++calculationRequest.current;
     const access = await revalidatePostMeasureSource(projection.sourcePost);
@@ -634,6 +634,7 @@ function PostReadingBody() {
     if (access.status !== "ready") { invalidatePostSource(access.status); return; }
     const source = [...(sourceRef.current?.querySelectorAll("[id]") || [])].find(node => `#${node.id}` === occurrence.locator);
     if (!source) return;
+    if (occurrence.binding === "saved_legacy_marking" && source.getAttribute("data-gem") !== occurrence.expression) return;
     const dimensions = { ...(research.context?.dimensions || {}) };
     for (const key of Object.keys(dimensions)) if (key.startsWith("postClaim")) dimensions[key] = null;
     const selection = { entityId: occurrence.id, entityType: "post_occurrence", expression: occurrence.expression,
@@ -817,6 +818,9 @@ function PostReadingBody() {
           openHeroNumber(numericValue);
         } else {
           const occurrence = measureSource.legacyOccurrences?.find(row => row.locator === `#${legacyNumber.id}`);
+          if (occurrence && isPostEnglishExpression(term) && occurrence.expression.trim() === term) {
+            void openPostEngineExploration(occurrence); return;
+          }
           // Reuse the existing status feedback, next to the selected source line
           // so an incomplete/mismatched claim does not fail silently off-screen.
           for (const host of sourceRef.current.querySelectorAll("[data-post-calculation-feedback]")) host.remove();

@@ -24,12 +24,13 @@ async function openResearch(page){
 function fixturePlugin(){
   const aliases=new Map([
     ['Sod2029Shell.jsx','shell'],['ResearchProvider.jsx','context'],['AuthContext.jsx','auth'],
-    ['supabase.js','backend'],['entityHubProjection.js','hub'],['worldProminenceInputs.js','prominence'],
+    ['events.js','events'],['supabase.js','backend'],['entityHubProjection.js','hub'],['worldProminenceInputs.js','prominence'],
     ['worldSourceConnections.js','discovery'],['CanonicalMediaFigure2029.jsx','noop'],
     ['PostComments2029.jsx','noop'],['NumberAiAnalysis2029.jsx','noop'],['ShareActions.jsx','noop'],
     ['SpatialMethodStage2029.jsx','noop'],['WorldSourceStory.jsx','noop'],
   ]);
   const modules={
+    events:`export const emit=()=>{};`,
     noop:`export default function Noop(){return null;}`,
     auth:`export const useAuth=()=>({user:null,isAdmin:false,loading:false});`,
     hub:`export async function fetchEntityHubProjection(){return null;}export async function fetchGallerySourceContext(){return {items:[]};}`,
@@ -60,7 +61,7 @@ function fixturePlugin(){
             if(range)data=data.slice(range[0],range[1]+1);if(limit!=null)data=data.slice(0,limit);
             return Promise.resolve({data,error:window.__failTable===table?{message:'offline'}:null}).then(done,fail);}
         };return q;},
-        async rpc(name,args){window.__rpcs.push(name);if(name==='fn_method_profile'){if(window.__holdProfile)await new Promise(resolve=>{window.__releaseProfile=resolve;});return {error:null,data:window.__profiles?.[args.p_phrase]||[
+        async rpc(name,args){window.__rpcs.push(name);if(name==='fn_method_profile'){if(window.__holdProfile)await new Promise(resolve=>{window.__releaseProfile=resolve;});return {error:null,data:window.__profiles?.[args.p_phrase]||(/^[A-Za-z ]+$/.test(args.p_phrase)?[{method_key:'רגיל',computed_value:0,definition_version:1}]:null)||[
           {method_key:'רגיל',computed_value:args.p_phrase==='בן דוד'?66:844,definition_version:1},
           {method_key:'מסתתר',computed_value:1237,definition_version:window.__versionChanged?2:1},
           {method_key:'מילוי',computed_value:1026,definition_version:1}]};}
@@ -93,6 +94,7 @@ function fixturePlugin(){
       import React from 'react';import {createRoot} from 'react-dom/client';import {BrowserRouter,Routes,Route,useNavigate} from 'react-router-dom';
       import {Provider,useResearch} from '/src/lib/research/ResearchProvider.jsx';import {buildExactReturnPatch} from '/src/lib/research/researchContext.js';
       import PostCategories from '/src/components/experience2029/PostCategories2029.jsx';
+      import Calculator from '/src/pages/Calculator2029Page.jsx';
       import Post from '/src/pages/Post2029Page.jsx';import '/src/components/experience2029/sod2029.css';
       import '/src/components/experience2029/systemFrame2029.css';
       import Shell from '/src/components/experience2029/Sod2029Shell.jsx';import LearnMark from '/src/components/experience2029/LearnMark2029.jsx';
@@ -107,7 +109,7 @@ function fixturePlugin(){
       function LearningDestination(){const research=useResearch(),navigate=useNavigate();return <main><h1>לימוד שיטות בבית המדרש</h1><button onClick={()=>{const back=research.context.returnTo;research.updateResearchContext(buildExactReturnPatch(research.context));navigate(back.href,{state:{sodEntryArrival:'exact_return'}});}}>חזרה מהלימוד למקור</button></main>;}
       function Navigation(){window.__goFixture=useNavigate();return null;}
       const style=document.createElement('style');style.textContent='html,body{margin:0;padding:0}body{font-family:Arial,sans-serif}.sod29-root{display:block!important;padding:12px;box-sizing:border-box;min-height:100vh;background:var(--s29-page);color:var(--s29-ink)}.sod29-reading-post{max-width:100%;margin:auto}.fixture-sheet{position:fixed;inset:0;z-index:1000;overflow:auto;background:var(--s29-panel);padding:12px}button{min-height:44px}';document.head.append(style);
-      createRoot(document.getElementById('root')).render(<BrowserRouter><Provider><Navigation/><Routes><Route path='/post/:slug' element={<Post/>}/><Route path='/category-default' element={<Shell><PostCategories categories={['מימד חמש','וידאו']} /></Shell>}/><Route path='/learn-control' element={<Shell><LearnMark compact label='הסבר מושג'><p>הסבר מושג נגיש</p></LearnMark><LearnMark scope='surface' prominent label='הסבר ארוך על המסך ועל האפשרויות שעומדות לרשות הקורא'><p>הסבר על המסך</p></LearnMark></Shell>}/><Route path='/beit-midrash' element={<LearningDestination/>}/><Route path='/2029/number/:value' element={<NumberPage/>}/><Route path='/topic/:slug' element={<TopicDestination/>}/><Route path='*' element={<p>יעד המשך</p>}/></Routes></Provider></BrowserRouter>);
+      createRoot(document.getElementById('root')).render(<BrowserRouter><Provider><Navigation/><Routes><Route path='/post/:slug' element={<Post/>}/><Route path='/2029/gematria' element={<Shell><Calculator/></Shell>}/><Route path='/category-default' element={<Shell><PostCategories categories={['מימד חמש','וידאו']} /></Shell>}/><Route path='/learn-control' element={<Shell><LearnMark compact label='הסבר מושג'><p>הסבר מושג נגיש</p></LearnMark><LearnMark scope='surface' prominent label='הסבר ארוך על המסך ועל האפשרויות שעומדות לרשות הקורא'><p>הסבר על המסך</p></LearnMark></Shell>}/><Route path='/beit-midrash' element={<LearningDestination/>}/><Route path='/2029/number/:value' element={<NumberPage/>}/><Route path='/topic/:slug' element={<TopicDestination/>}/><Route path='*' element={<p>יעד המשך</p>}/></Routes></Provider></BrowserRouter>);
     `,
   };
   return {name:'posts-one-tree-fixture',enforce:'pre',resolveId(source){
@@ -468,6 +470,42 @@ test('built Post: adopted design, bounded backgrounds, lazy research, exact retu
     assert.equal(await defaults.locator('[data-post-classification]').count(),0,'shared consumers retain their default presentation');
     await defaults.close();
     writeFileSync(join(artifacts,'classification.json'),JSON.stringify({cases:classificationResults,sharedDefaultUnchanged:true},null,2));
+    const englishContext=await browser.newContext({viewport:{width:390,height:1000},reducedMotion:'reduce'});
+    await englishContext.addInitScript(()=>sessionStorage.setItem('fixture-post-overrides',JSON.stringify({slug:'language-source',title:'שבילי שפה · מקור בדיקה',tags:[],content:'<h2>English source words</h2><div class="sgx"><div class="sgx-out en"><i data-gem="G">G<small>7</small></i></div><p><a data-gem="God">God = 26</a></p><p><a data-gem="Elohim">Elohim = 62</a></p><p><a data-gem="Bereshit">Bereshit = 86</a></p><p><a data-gem="Godhood">Godhood = 68</a></p><p><a data-gem="70 x 26">70 x 26</a></p></div>'})));
+    const english=await englishContext.newPage(),englishErrors=[];english.on('pageerror',e=>englishErrors.push(e.message));
+    await english.goto(origin+'/post/language-source?theme=dark',{waitUntil:'networkidle'});
+    for(const [word,value] of [['God',26],['Elohim',62],['Bereshit',86],['Godhood',68],['G',7]]){
+      const source=english.locator('.sod29-reading-source [data-gem="'+word+'"]');await source.waitFor();
+      await english.waitForFunction(word=>!!document.querySelector('.sod29-reading-source [data-gem="'+word+'"]')?.id,word);
+      const anchor=await source.getAttribute('id');await source.focus();await english.keyboard.press('Enter');
+      const lane=english.locator('.fixture-sheet .sod29-english-lane2029');await lane.waitFor();
+      assert.equal(await lane.locator('.sod29-english-lane-expression').innerText(),word);
+      assert.equal(await lane.locator('[data-english-method="en_ordinal"] dd').innerText(),String(value));
+      assert.equal(await lane.getAttribute('data-calculation-authority'),'client-preview-only');
+      assert.equal(await lane.locator('button,a').count(),0,'English preview rows cannot create canonical/share/research actions');
+      assert.equal(await english.locator('.fixture-sheet .sod29-number-drawer-identity').count(),0,'No Hebrew zero or preview-as-verified identity');
+      const context=await english.evaluate(()=>window.__researchContext);assert.equal(context.selection.method,null);assert.equal(context.selection.resultValue,null);assert.ok(context.returnTo.href.endsWith('#'+anchor));
+      assert.equal(await english.evaluate(()=>window.__rpcs.filter(x=>x==='gematria_method_trace').length),0,'No inactive English trace request');
+      await english.getByRole('button',{name:'סגירה וחזרה למקור',exact:true}).click();await english.waitForURL(u=>u.pathname==='/post/language-source'&&u.hash==='#'+anchor);
+      await english.waitForFunction(anchor=>document.activeElement?.id===anchor,anchor);
+      assert.equal(await source.evaluate(n=>document.activeElement===n),true);
+    }
+    await english.screenshot({path:join(artifacts,'english-source-return-mobile.png')});
+    await english.locator('.sod29-reading-source [data-gem="God"]').click();
+    await english.locator('.fixture-sheet .sod29-english-lane2029').waitFor();
+    const drawerInput=english.getByRole('textbox',{name:'שם ביטוי או מספר'});
+    await drawerInput.fill('Привет');
+    await drawerInput.press('Enter');
+    await english.getByText('הכתב הזה עדיין לא נתמך במחשבון. נתמכים עברית ואנגלית.',{exact:true}).waitFor();
+    assert.equal(await english.locator('.fixture-sheet .sod29-english-lane2029').count(),0);
+    assert.equal(await english.locator('.fixture-sheet .sod29-number-drawer-identity').count(),0,'Unsupported script cannot keep the previous result');
+    await english.getByRole('button',{name:'סגירה וחזרה למקור',exact:true}).click();
+    await english.goto(origin+'/2029/gematria?q=God',{waitUntil:'networkidle'});
+    const mainEnglish=english.locator('.sod29-english-lane2029');await mainEnglish.waitFor();
+    assert.equal(await mainEnglish.locator('[data-english-method="en_ordinal"] dd').innerText(),'26');
+    assert.equal(await english.locator('[data-calculation-selection]').count(),0,'Preview-only English does not enable a verified selection');
+    await english.screenshot({path:join(artifacts,'english-calculator-mobile.png')});
+    assert.deepEqual(englishErrors,[]);await englishContext.close();
     failBackground=true;
     const fallbackContext=await browser.newContext({viewport:{width:390,height:900}}),fallbackPage=await fallbackContext.newPage();
     await fallbackPage.goto(origin+'/post/future-source?theme=dark',{waitUntil:'networkidle'});
