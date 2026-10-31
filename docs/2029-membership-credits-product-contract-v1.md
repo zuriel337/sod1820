@@ -410,6 +410,8 @@ Do not publish internal provider mechanics, raw token costs, Cardcom identifiers
 
 ## 12. Delivery gates
 
+**Approved sequencing decision (ZURIEL, 2026-10-31):** build the premium foundation now, but do not publish or sell the membership until one complete “golden path” works end to end. Launch SOD אישי to a closed cohort first. Enable SOD מחקר only after the credit meter, reserve/settle/refund behavior and real usage costs are proven. This sequencing approval is not authorization for a migration, Cardcom configuration, charge, deployment or public offer.
+
 ### Gate A — product decision
 
 - approve name;
@@ -427,17 +429,27 @@ Do not publish internal provider mechanics, raw token costs, Cardcom identifiers
 - provider decline test method confirmed;
 - real test plan agreed with Cardcom support.
 
-### Gate C — implementation
+### Gate C — premium foundation
 
 - canonical plan catalog;
 - subscription/payment/entitlement state model;
 - Cardcom checkout + encrypted token + guarded renewal worker;
 - webhook + reconciliation;
 - 2029 My Workspace subscription UI;
+- one total credit balance plus membership-cycle usage meter;
+- allowance-source, rollover, reservation, settlement and return accounting;
 - server-side capability gates before expensive IO;
 - credits/referrals integration.
 
-### Gate D — verification
+Premium labels and gates may be prepared during this phase, but no broad public paywall is activated.
+
+### Gate D — golden-path verification
+
+Prove one complete journey without manual repair:
+
+`register/login → choose plan → verified payment → active entitlement → monthly credits → priced premium action → ledger update → renewal/cancellation/failure state`
+
+Required verification:
 
 - monthly real low-value test and cancellation;
 - annual token-charge test or an approved accelerated simulation;
@@ -448,12 +460,28 @@ Do not publish internal provider mechanics, raw token costs, Cardcom identifiers
 - access removed/retained exactly according to period state;
 - no cross-account access, price manipulation or double grant.
 
-### Gate E — controlled launch
+### Gate E — SOD אישי closed pilot
 
 - internal/admin cohort;
-- small invited cohort;
-- observe cost, successful renewal, failure and support signals;
-- approve public wording and only then publish the offer.
+- then a small invited cohort on 600 monthly credits;
+- include the first coherent premium value set: member content, Raziel fast/deep, deterministic Bible Code and the metered deep matrix reading;
+- observe comprehension of the meter, provider cost, failure/refund behavior, support load and successful renewal;
+- do not require every planned 2029 capability to be finished before this pilot.
+
+### Gate F — SOD מחקר enablement
+
+- enable 3,000 monthly credits only after SOD אישי usage is measured;
+- verify that 6,000-credit rollover, simultaneous reservations and downgrade behavior cannot overspend or erase purchased credits;
+- verify hard operation budgets and alerts for unusually costly Raziel, Life Journey and Bible Code runs;
+- start with a small high-usage cohort and compare real cost per active subscriber with the pricing model.
+
+### Gate G — public launch
+
+- customer-facing plan comparison, credit explanation, cancellation/refund terms and privacy/payment wording approved;
+- receipts/invoices, support route and failed-payment messaging proven;
+- mobile and cross-device membership state verified;
+- public wording approved only after the closed-pilot evidence review;
+- publish deliberately; do not tie membership launch to the completion of every future 2029 feature.
 
 ## 13. Open Human-Gate decisions
 
