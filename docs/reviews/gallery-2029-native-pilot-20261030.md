@@ -1039,3 +1039,32 @@ legacy-comparison fixes after the visual review.
 - Tests: unit 6/6; frame browser pass (zero same-source commits, stable geometry, number chip, tray);
   real-data run 3 widths × 3 presets, no errors/writes, keyboard End/Home and touch drag; `npm run build`
   (both targets) and Legacy Production lock pass. Hosted Preview + integrated built-app run still open.
+
+### 31.10 — River colour roles aligned to the shared treatment (Claude)
+
+ZURIEL asked that numbers, links, share, Follow and the selected state read as one language in Day /
+Parchment / Night, using the existing palette, keeping gold/depth and readability, without removing motion
+or touching the ticker. Base: remote `gpt/elections-world-seed-integration-20261030` @ `fba5cf573`
+(ZURIEL-approved GPT integration of the earlier river snapshot). GPT's active claim `c24e1ce7` explicitly
+excludes River JSX/CSS and WatchButton edits; neither WatchButton nor the controller/CSS was touched.
+
+- Owner: contract §"Shared icon and surface color resolution" (25.10.2026) + `resolveTreatment` /
+  `treatmentVars`. The river no longer picks colours itself; it requests roles per element:
+  **action** (links, selection, Follow already) · **identity** (numeric tags: sapphire/gold wash, gold border) ·
+  **discovery** (share) . Gold stays on frames, handle, rail and plaque borders (bounded identity ornament).
+- Links ("לכל הגלריות", "למקור…", end link): one pill treatment. Share: teal discovery ring around the
+  canonical `ShareActions` (scoped override in river CSS; control untouched). Selected: action ring + selected
+  tint on the thumbnail and on the active picture's plaque; thumbnails no longer carry a competing gold frame.
+- No local hex remains in `realityRiver2029.css` (metal tones derive from `--s29-brand-gold`/`--s29-warm-accent`
+  plus `white`/`black` modifiers). Earlier debt (local `#2a1a00` etc.) is cleared for this file.
+- Phone tray: "למקור ולהקשר" shows "למקור ←" visually (full `aria-label`), tray chips lose the glow that the
+  scroll container clipped. Found only on the real built app, not in the isolated harness.
+- Contrast (resolved palette values, computed): link/selected/share ≥5.2 in Day/Parchment, ≥9 in Night; Follow text
+  5.74. Number text on the shared identity wash 4.24–4.36 in Day/Parchment (large bold text, ≥3:1; below 4.5:1 as
+  normal text) — observation for the palette owner; the shared treatment was not changed here.
+- Motion, ticker and Follow controller unchanged. Tests: unit 6/6; frame browser (adds owner-resolved role
+  assertions per preset/width); real-data harness 320/390/1440 × 3 presets with real shell tokens + `sod29-root`
+  (roles asserted, keyboard End==max, touch drag); built app (`test/reality-river-built-app.browser.mjs`) 320/390/1440 × 3
+  presets, no errors/writes; full integrated browser test (7 photos, exact source open/Back, no model calls); both builds + Legacy lock.
+- Preview Follow is read-only (guest-state read blocked), so the live Follow button there shows its muted state;
+  its active look (accent button) is the unchanged canonical `WatchControl2029`.

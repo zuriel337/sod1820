@@ -9,9 +9,10 @@ import { fetchGallerySourceContext } from '../../lib/research/entityHubProjectio
 import { realityStreamDatePresentation2029, loadPublicRealityStream2029 } from '../../lib/research/topicSourceContext.js';
 import { publicMediaCaption, publicMediaTitle } from '../../lib/presentation/contentTitle.js';
 import { numberExpressionFocusHref } from '../../lib/research/numberExpressionFocus.js';
+import { treatmentVars, use2029Palette } from '../../lib/palette.js';
 import './realityRiver2029.css';
 
-const RiverPicture = memo(function RiverPicture({ item, index, selected, registerCard }) {
+const RiverPicture = memo(function RiverPicture({ item, index, selected, registerCard, roles }) {
   const title = publicMediaTitle(item.legacyPlacement?.originalName) || 'תמונה מתוך הזרם';
   const date = realityStreamDatePresentation2029(item);
   const share = useMemo(() => worldMediaPublicShare(item, {
@@ -28,10 +29,10 @@ const RiverPicture = memo(function RiverPicture({ item, index, selected, registe
       </span>
     </Link>
     <div className="r29-picture-meta">
-      {tag ? <Link className="r29-num" to={numberExpressionFocusHref(tag)} aria-label={`לדף המספר ${tag}`}><bdi>{tag.toLocaleString('en-US')}</bdi></Link> : null}
+      {tag ? <Link className="r29-num" style={roles.identity} to={numberExpressionFocusHref(tag)} aria-label={`לדף המספר ${tag}`}><bdi>{tag.toLocaleString('en-US')}</bdi></Link> : null}
       <div className="r29-picture-copy"><p className="r29-picture-title">{title}</p>
       {item.legacyPlacement?.galleryName ? <p className="r29-gallery-name">מתוך: {publicMediaCaption(item.legacyPlacement.galleryName)}</p> : null}</div>
-      {share ? <ShareActions type="image" {...share} title={title} variant="icon" sourceSurface="home_reality_stream_2029" force /> : null}
+      {share ? <span className="r29-share" style={roles.share}><ShareActions type="image" {...share} title={title} variant="icon" sourceSurface="home_reality_stream_2029" force /></span> : null}
     </div>
   </article>;
 });
@@ -42,6 +43,11 @@ export function RealityRiver2029({ items = [], loading = false, failed = false, 
   const geometry = useRef({ max: 0, travel: 0, cards: [] }), frame = useRef(null), positionRef = useRef(0);
   const [position, setPosition] = useState(0);
   const regionId = useId();
+  // Colour comes from the shared treatment resolver (Design V2 §"Shared icon and surface color resolution"):
+  // actions/selection = action, numeric tags = identity, share = discovery. No local colour table.
+  const palette = use2029Palette();
+  const roles = useMemo(() => ({ action: treatmentVars(palette, { purpose: 'action' }),
+    identity: treatmentVars(palette, { purpose: 'identity' }), share: treatmentVars(palette, { purpose: 'discovery' }) }), [palette]);
   const current = items[position] || items[0];
   const currentTitle = publicMediaTitle(current?.legacyPlacement?.originalName) || 'תמונה מתוך הזרם';
   const currentCaption = publicMediaCaption(current?.legacyPlacement?.originalCaption);
@@ -120,7 +126,7 @@ export function RealityRiver2029({ items = [], loading = false, failed = false, 
       if (frame.current !== null) cancelAnimationFrame(frame.current); frame.current = null; };
   }, [items, loading, failed, schedule]); // Window progress only, never a viewed/follow signal.
 
-  return <section id="reality-stream" className="r29-river" dir="rtl" aria-label="זרם המציאות" data-reality-river>
+  return <section id="reality-stream" className="r29-river" style={roles.action} dir="rtl" aria-label="זרם המציאות" data-reality-river>
     <header className="r29-heading"><div><p className="r29-eyebrow">תמונה פותחת סיפור</p>
       <h2>זרם המציאות</h2><p>רגעים, מספרים וסיפורים. גוללים בתמונות, ופותחים את המקור כדי להעמיק.</p></div>
       <Link to="/world?view=gallery&flow=1" className="r29-link">לכל הגלריות ←</Link></header>
@@ -143,15 +149,15 @@ export function RealityRiver2029({ items = [], loading = false, failed = false, 
           </div>
           <div className="r29-detail-foot">
             {numbers.length ? <><p className="r29-number-label">מספרים שסומנו במקור</p><div className="r29-numbers">{numbers.map(n =>
-              <Link key={n} to={numberExpressionFocusHref(n)} aria-label={`לדף המספר ${n}`}><bdi>{n.toLocaleString('en-US')}</bdi>
+              <Link key={n} style={roles.identity} to={numberExpressionFocusHref(n)} aria-label={`לדף המספר ${n}`}><bdi>{n.toLocaleString('en-US')}</bdi>
                 <svg width="14" height="14" viewBox="0 0 12 12" fill="none" stroke="currentColor" aria-hidden="true"><path d="m3 9 6-6M3 3h6v6" /></svg></Link>)}</div></> : null}
-            <Link className="r29-open" to={current.streamHref}>למקור ולהקשר ←</Link>
+            <Link className="r29-open" to={current.streamHref} aria-label="למקור ולהקשר">למקור<span className="r29-open-more"> ולהקשר</span> ←</Link>
             <p className="r29-note">התיוגים במקור אינם כשלעצמם אימות חישוב או קשר בעץ.</p>
           </div>
         </div></aside>
         <div className="r29-window" id={regionId} ref={view} onScroll={schedule} tabIndex={0} role="region" aria-label="התמונות בזרם — אפשר לגלול">
           {items.map((item, index) => <RiverPicture key={item.galleryImageId} item={item} index={index}
-            selected={index === position} registerCard={registerCard} />)}
+            selected={index === position} registerCard={registerCard} roles={roles} />)}
           <Link className="r29-end" to="/world?view=gallery&flow=1">יש עוד מה לגלות · לכל הגלריות ←</Link>
         </div>
         <div className="r29-rod"><span aria-hidden="true">תחילה</span><div className="r29-rail" ref={rail}>
