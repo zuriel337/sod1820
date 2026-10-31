@@ -767,3 +767,99 @@ No whole-corpus pixel audit or final site-wide design acceptance is claimed.
 Posts session, b30, Frame/Provider/engine, canonical contract18/plan37, source
 publication, main/Production/aliases/Edge/DB product/RLS/migrations untouched.
 This later documentation-only commit does not change the deployed runtime SHA.
+
+## 31.10 authored chronology and continuous gallery parity — implementation chain
+
+Task `GALLERY_EDITORIAL_CHRONOLOGY_FLOW_FILTERS_20261031`, BEFORE
+`a13dca88-f410-418a-8e19-8cb5af017f54`; canonical dependency
+`d077e4bb-2836-44e0-9e14-a58ca15143d6`. Basec6a1a4372. Local runtime commit
+`377b092025fc142641d3f28abf8cfa8545172554`; approved GitHub connector runtime
+`18b49ed4cb10fa21a217221af7aadb9e1d031ae1`. These are distinct commits with the
+EXACT SAME tree `48a90b02dbffaffbb0678c514bbc801eaafdabfb`, same parentc6a1a4372,
+same nine scoped paths. Git CLI lost authentication; no credential was extracted
+or installed. GitHub connection verified push authority, created matching tree/
+commit and fast-forwarded only this branch with expected-head lease, force=false.
+Local commit/worktree preserved; do NOT import the patch twice or reset the tree.
+
+The dated original-name/source-date receipt above remains historical. This
+correction supersedes its badge date priority: the photo badge now uses only the
+explicit authored update heading, never archive time or a file-folder surrogate.
+Numeric D/M/YYYY, D.M.YYYY and D-M-YY headings retain exact source span/text and
+calendar validation. Conflicting/invalid/missing/Hebrew-only dates remain unknown.
+The real gallery29 header17-8-22 now projects17.08.2022 despite stored folder date
+2022-08-01. Raw names/occurred_at/created_at/OCR/ordering are NOT rewritten.
+
+Capability acceptance map (existing One Tree owner, no alternate system):
+
+| Capability | Current bounded implementation |
+|---|---|
+| Chronology | Gallery list by latest authored public update; unknown last; oldest/name/original alternatives |
+| Historic content | Original IDs/names/parts/order/text preserved, update notices visible again |
+| Filters | Year/date range, kind, numbers OR/AND on SAME image, dominant-only; name/caption search |
+| OCR | Explicit public opt-in on existing searchArchiveOcrIds; only IDs, strict access, escaped ILIKE, cap800/partial/error |
+| Continuous reading | Catalog links opt into flow=1,12 rows per bounded public read, append in-place12 at a time; cap120 then explicit next segment |
+| Existing deep links | Remain valid on original6-row reader, with entry to continuous mode; no canonical URL cutover |
+| Progress | Loaded count, remaining listed candidates, current-session reversible passed-by-scroll drawer; not durable read receipt/verification |
+| Gallery continuation | Previous/next from same filtered ordered public projection, cover/name/count/date; no hard-coded29/81 or universal1237 link |
+| Number/method return | Existing Number resolver/source re-admission; filter/sort/take/exact image retained on return/reload |
+| Presentation | Whole images,14px compact date, compact image-column option, collapsed gallery controls/mobile heading compaction |
+| Update groups/series | Original notices and source mapping retained; NO inferred sibling membership or invented series/edge |
+
+Missing-date sources remain reachable without a date filter; filtering an authored
+date never silently includes path/ingestion dates. OR/AND and frequencies are not
+research verification. Existing static14+45 historical grouping is provenance,
+not a new graph edge. Named saved series/sets with no source membership, full
+post-qualified cross-series navigation, Hebrew-only date interpretation, durable
+seen/resume, admin mutations and Home/Frame redesign remain OPEN, not silently
+declared transferred. Posts owner/extractor and b30 remain untouched.
+
+Reader changes are public opt-ins only, Legacy defaults preserved. Existing
+overview adds public caption/name/type/number fields for filters but never full
+OCR; projected candidate entries strip URLs. Exact source content is rendered
+only after the existing12-row occurrence reader admits it. Append re-reads the
+whole displayed prefix; stale/withdrawn sources cannot survive just to fill a
+counter. Every sequential range is capped; partial coverage/errors explicit.
+
+Canonical18 reality_graph_law v8 additive governance saved and independently
+read back: prefix05b73b416ab47804c9a0c807250b16f7 preserved in full; exact addition
+MD5 result69ad82ef952f6a882da629a2d89ff17e. Existing contract review contains the
+exact addition. Planning37/DRAFT unchanged. Contract adoption is not runtime proof.
+
+Verification:57 scoped unit/source/date/filter/reader regressions,7 authguard
+cases and3 registered browser cases pass, no skips. Browser320/390/1440 covers
+12->14 append/reload, filtered next gallery and Back, exact Number return with
+take/filter state, year/kind/AND/dominant controls, OCR failure, refresh/private
+withdrawal and partial coverage. Initial accessibility failure fixed by explicit
+select labels; async filter assertions now wait for rendered results, no gate
+or expectation removed. Shared-storage-object cross-batch occurrences retained
+and individually resolvable; no duplicate independent source invented.
+Both builds/graph/lazy/isolation/World/Topic/hardening/Legacy lock pass; existing
+large-chunk/mixed-import warnings retained. Integrated live-public-anonymous
+local build390/1440 passed3 themes, source dates/chronology, append/reload,
+gallery return and real17August source;87 galleries2191 rows at check time.
+Logs `/tmp/gallery-chain-release-units.log`, `/tmp/gallery-chain-release-browser.log`,
+`/tmp/gallery-chain-local.log`; not every source body/pixel audited.
+
+Protected Preview requested at exact remote18b49ed4; hosted final acceptance
+is recorded separately below. No Posts/Frame/Provider/engine/Legacy source,
+DB product/RLS/migration/Edge/main/Production/domain alias/publication change.
+
+### Hosted acceptance — exact remote tree / Preview only
+
+Deployment `dpl_DJsDFdsHa44u8zk868yGCxdjr6yG`, READY target=null, served runtime
+`18b49ed4cb10fa21a217221af7aadb9e1d031ae1` independently verified by identity
+smoke. Existing SSO unchanged, no-store/noindex headers, mock-only Raziel,
+product_writes=false/edge_deploy=false and read-only service worker verified.
+URL: https://sod1820-70ctr8s0k-sod1820-s-projects.vercel.app/world?view=gallery
+Temporary share access is not stored here or in evidence logs.
+
+Actual public-anonymous hosted390/1440:87 public galleries/2191 image rows at
+check time, complete within bounded overview (partial=false); chronology and
+source-header dates, name search/sort, covers loaded, append/reload retained
+prefix, gallery return and exact gallery29 source17August passed in all three
+presets. Separate original-gallery cross-window steps/Back/reload pass both
+widths. No pageerrors/model/blocked requests or observed productwrites. Screenshots
+and mobile catalog inspected. Logs `/tmp/gallery-chain-hosted.log`,
+`/tmp/gallery-chain-hosted-identity.log`; images `/tmp/gallery-chain-hosted-20261031/`.
+Main freshly verified through authorized GitHub connector as2195c9784c5c9f0b1ec3cd3c1137fbd76045845b.
+Later documentation-only local/API heads are not the served runtime SHA.
