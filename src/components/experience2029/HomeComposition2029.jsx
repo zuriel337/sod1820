@@ -90,7 +90,7 @@ function Section({ title, link, label, children, className = "" }) {
 }
 
 export default function HomeComposition2029({
-  projection, loading, nowHero, story, arrivals, calculator, entry, continuity,
+  projection, loading, nowHero, story, elsEntry, arrivals, calculator, entry, continuity,
   selectedSlug, onSelectPost, onOpenWorkspace, journeyLocked = false, corePublic = false, worldOpen = false,
 }) {
   const data = useHomeCompositionData({ includeWorld: !corePublic });
@@ -150,6 +150,8 @@ export default function HomeComposition2029({
     </Section> : null}
 
     {story ? <Reveal id="story">{story}</Reveal> : null}
+
+    {elsEntry ? <Reveal id="els-entry">{elsEntry}</Reveal> : null}
 
     <Section label="צפנים וסרטים">
       <div className="h29-strips">

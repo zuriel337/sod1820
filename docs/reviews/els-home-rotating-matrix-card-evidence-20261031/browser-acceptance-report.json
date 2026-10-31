@@ -1,0 +1,407 @@
+{
+  "widths": [
+    {
+      "tag": "320px light",
+      "rect": {
+        "x": 12,
+        "w": 296,
+        "h": 422.265625
+      },
+      "title": [
+        "Rubik, \"Noto Sans Hebrew\", Arial, sans-serif",
+        26,
+        700
+      ],
+      "sentence": [
+        "\"Noto Sans Hebrew\", Rubik, Arial, sans-serif",
+        16
+      ],
+      "cta": [
+        168.34375,
+        48
+      ],
+      "overflow": [
+        0,
+        0
+      ],
+      "file": "card-320-light.png"
+    },
+    {
+      "tag": "320px parchment",
+      "rect": {
+        "x": 12,
+        "w": 296,
+        "h": 422.265625
+      },
+      "title": [
+        "Rubik, \"Noto Sans Hebrew\", Arial, sans-serif",
+        26,
+        700
+      ],
+      "sentence": [
+        "\"Noto Sans Hebrew\", Rubik, Arial, sans-serif",
+        16
+      ],
+      "cta": [
+        168.34375,
+        48
+      ],
+      "overflow": [
+        0,
+        0
+      ],
+      "file": "card-320-parchment.png"
+    },
+    {
+      "tag": "320px dark",
+      "rect": {
+        "x": 12,
+        "w": 296,
+        "h": 422.265625
+      },
+      "title": [
+        "Rubik, \"Noto Sans Hebrew\", Arial, sans-serif",
+        26,
+        700
+      ],
+      "sentence": [
+        "\"Noto Sans Hebrew\", Rubik, Arial, sans-serif",
+        16
+      ],
+      "cta": [
+        168.34375,
+        48
+      ],
+      "overflow": [
+        0,
+        0
+      ],
+      "file": "card-320-dark.png"
+    },
+    {
+      "tag": "390px light",
+      "rect": {
+        "x": 12,
+        "w": 366,
+        "h": 488.0625
+      },
+      "title": [
+        "Rubik, \"Noto Sans Hebrew\", Arial, sans-serif",
+        30.576,
+        700
+      ],
+      "sentence": [
+        "\"Noto Sans Hebrew\", Rubik, Arial, sans-serif",
+        17.472
+      ],
+      "cta": [
+        168.34375,
+        48
+      ],
+      "overflow": [
+        0,
+        0
+      ],
+      "file": "card-390-light.png"
+    },
+    {
+      "tag": "390px parchment",
+      "rect": {
+        "x": 12,
+        "w": 366,
+        "h": 488.0625
+      },
+      "title": [
+        "Rubik, \"Noto Sans Hebrew\", Arial, sans-serif",
+        30.576,
+        700
+      ],
+      "sentence": [
+        "\"Noto Sans Hebrew\", Rubik, Arial, sans-serif",
+        17.472
+      ],
+      "cta": [
+        168.34375,
+        48
+      ],
+      "overflow": [
+        0,
+        0
+      ],
+      "file": "card-390-parchment.png"
+    },
+    {
+      "tag": "390px dark",
+      "rect": {
+        "x": 12,
+        "w": 366,
+        "h": 488.0625
+      },
+      "title": [
+        "Rubik, \"Noto Sans Hebrew\", Arial, sans-serif",
+        30.576,
+        700
+      ],
+      "sentence": [
+        "\"Noto Sans Hebrew\", Rubik, Arial, sans-serif",
+        17.472
+      ],
+      "cta": [
+        168.34375,
+        48
+      ],
+      "overflow": [
+        0,
+        0
+      ],
+      "file": "card-390-dark.png"
+    },
+    {
+      "tag": "768px light",
+      "rect": {
+        "x": 12,
+        "w": 744,
+        "h": 412
+      },
+      "title": [
+        "Rubik, \"Noto Sans Hebrew\", Arial, sans-serif",
+        32,
+        700
+      ],
+      "sentence": [
+        "\"Noto Sans Hebrew\", Rubik, Arial, sans-serif",
+        18
+      ],
+      "cta": [
+        168.34375,
+        48
+      ],
+      "overflow": [
+        0,
+        0
+      ],
+      "file": "card-768-light.png"
+    },
+    {
+      "tag": "768px parchment",
+      "rect": {
+        "x": 12,
+        "w": 744,
+        "h": 412
+      },
+      "title": [
+        "Rubik, \"Noto Sans Hebrew\", Arial, sans-serif",
+        32,
+        700
+      ],
+      "sentence": [
+        "\"Noto Sans Hebrew\", Rubik, Arial, sans-serif",
+        18
+      ],
+      "cta": [
+        168.34375,
+        48
+      ],
+      "overflow": [
+        0,
+        0
+      ],
+      "file": "card-768-parchment.png"
+    },
+    {
+      "tag": "768px dark",
+      "rect": {
+        "x": 12,
+        "w": 744,
+        "h": 412
+      },
+      "title": [
+        "Rubik, \"Noto Sans Hebrew\", Arial, sans-serif",
+        32,
+        700
+      ],
+      "sentence": [
+        "\"Noto Sans Hebrew\", Rubik, Arial, sans-serif",
+        18
+      ],
+      "cta": [
+        168.34375,
+        48
+      ],
+      "overflow": [
+        0,
+        0
+      ],
+      "file": "card-768-dark.png"
+    },
+    {
+      "tag": "1440px light",
+      "rect": {
+        "x": 166,
+        "w": 1112,
+        "h": 412
+      },
+      "title": [
+        "Rubik, \"Noto Sans Hebrew\", Arial, sans-serif",
+        43.29,
+        700
+      ],
+      "sentence": [
+        "\"Noto Sans Hebrew\", Rubik, Arial, sans-serif",
+        18
+      ],
+      "cta": [
+        168.34375,
+        48
+      ],
+      "overflow": [
+        0,
+        0
+      ],
+      "file": "card-1440-light.png"
+    },
+    {
+      "tag": "1440px parchment",
+      "rect": {
+        "x": 166,
+        "w": 1112,
+        "h": 412
+      },
+      "title": [
+        "Rubik, \"Noto Sans Hebrew\", Arial, sans-serif",
+        43.29,
+        700
+      ],
+      "sentence": [
+        "\"Noto Sans Hebrew\", Rubik, Arial, sans-serif",
+        18
+      ],
+      "cta": [
+        168.34375,
+        48
+      ],
+      "overflow": [
+        0,
+        0
+      ],
+      "file": "card-1440-parchment.png"
+    },
+    {
+      "tag": "1440px dark",
+      "rect": {
+        "x": 166,
+        "w": 1112,
+        "h": 412
+      },
+      "title": [
+        "Rubik, \"Noto Sans Hebrew\", Arial, sans-serif",
+        43.29,
+        700
+      ],
+      "sentence": [
+        "\"Noto Sans Hebrew\", Rubik, Arial, sans-serif",
+        18
+      ],
+      "cta": [
+        168.34375,
+        48
+      ],
+      "overflow": [
+        0,
+        0
+      ],
+      "file": "card-1440-dark.png"
+    }
+  ],
+  "reducedMotion": [
+    {
+      "width": 390,
+      "rig": "none",
+      "running": 0,
+      "pause": "absent"
+    },
+    {
+      "width": 1440,
+      "rig": "none",
+      "running": 0,
+      "pause": "absent"
+    }
+  ],
+  "motionGates": {
+    "visible": "running",
+    "offscreen": {
+      "motion": "paused",
+      "play": "paused"
+    },
+    "back": "running",
+    "hiddenTab": {
+      "motion": "paused",
+      "play": "paused"
+    },
+    "shown": "running"
+  },
+  "keyboard": {
+    "pause": true,
+    "cta": true,
+    "ctaFocusRing": "solid 3px",
+    "pauseToggled": {
+      "paused": {
+        "pressed": "true",
+        "motion": "paused",
+        "play": "paused"
+      },
+      "resumed": {
+        "pressed": "false",
+        "motion": "running",
+        "top": 178,
+        "bottom": 666,
+        "innerH": 844,
+        "vis": "visible"
+      }
+    },
+    "enterOpens": true
+  },
+  "availability": [
+    {
+      "name": "open (lock_els disabled)",
+      "availability": "open",
+      "tag": "A",
+      "label": "פתח את הצופן\n←",
+      "h": 488.0625
+    },
+    {
+      "name": "closed (lock_els enabled, mode all)",
+      "availability": "blocked",
+      "tag": "SPAN",
+      "label": "הצופן ייפתח בקרוב",
+      "h": 488.0625
+    },
+    {
+      "name": "registered only (mode anon, signed out)",
+      "availability": "blocked",
+      "tag": "SPAN",
+      "label": "פתוח למשתמשים רשומים",
+      "h": 488.0625
+    },
+    {
+      "name": "no flag row (default open)",
+      "availability": "open",
+      "tag": "A",
+      "label": "פתח את הצופן\n←",
+      "h": 488.0625
+    },
+    {
+      "name": "loading->open",
+      "loadingH": 488.0625,
+      "openH": 488.0625
+    }
+  ],
+  "requests": {
+    "before": 153,
+    "after": 154,
+    "added": [
+      "GET /rest/v1/site_flags +1"
+    ]
+  },
+  "failures": []
+}

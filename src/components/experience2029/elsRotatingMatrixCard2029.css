@@ -1,0 +1,141 @@
+/* Home entrance to the biblical cipher: a softly rotating illustrative letter matrix + a dark live panel.
+   - Colours come ONLY from the --els-* roles set by the component from the palette owner (Night preset) and
+     from the host --s29-* tokens. No local hex/rgba. A bounded "Night window" so the panel reads in Day/Parchment/Night.
+   - Motion: ONE transform animation (the rig sway). Paused off-screen / hidden tab / by the user (data-els-motion),
+     and absent under reduced motion (OS or frame). No filter/backdrop-filter (measured as the dominant paint cost
+     with large layers), no WebGL, no media. Glow is a static text-shadow painted once per layer. */
+
+.els-hm {
+  --els-away: left;       /* direction from the panel (start edge) towards the matrix; RTL default */
+  --els-gx: 26%;          /* physical x of the main sapphire glow */
+  position: relative; isolation: isolate; display: grid; grid-template-columns: minmax(0, 1fr);
+  container-type: inline-size; container-name: els-hm;
+  min-width: 0; overflow: hidden; border-radius: 22px;
+  border: 1px solid var(--s29-line-strong);
+  background: var(--els-bg); color: var(--els-ink);
+  box-shadow: 0 18px 48px -26px color-mix(in srgb, var(--els-sapphire) 60%, transparent);
+}
+.sod29-root[dir="ltr"] .els-hm { --els-away: right; --els-gx: 74%; }
+
+/* ── stage (decoration) ─────────────────────────────────────────────── */
+.els-hm__stage {
+  grid-row: 1; position: relative; overflow: hidden; aspect-ratio: 5 / 4; pointer-events: none;
+  background:
+    radial-gradient(58% 66% at var(--els-gx) 46%, color-mix(in srgb, var(--els-sapphire) 40%, transparent), transparent 72%),
+    radial-gradient(38% 46% at calc(var(--els-gx) + 22%) 84%, color-mix(in srgb, var(--els-violet) 24%, transparent), transparent 72%),
+    radial-gradient(34% 40% at calc(var(--els-gx) - 8%) 14%, color-mix(in srgb, var(--els-gold) 18%, transparent), transparent 72%),
+    var(--els-bg);
+}
+.els-hm__rigwrap {
+  position: absolute; container-type: inline-size; perspective: 760px; perspective-origin: 50% 46%;
+  inline-size: 116%; aspect-ratio: 3 / 2; inset-inline-start: -8%; inset-block-start: 50%; translate: 0 -50%;
+}
+.els-hm__rig {
+  position: absolute; inset: 0; transform-style: preserve-3d; will-change: transform;
+  transform: rotateX(14deg) rotateY(-24deg) rotateZ(-6deg);
+  animation: els-sway 46s ease-in-out infinite alternate;
+}
+.els-hm__layer {
+  position: absolute; inset: 0; display: grid; direction: rtl; place-items: center;
+  grid-template-columns: repeat(15, minmax(0, 1fr)); grid-template-rows: repeat(10, minmax(0, 1fr));
+  font: 500 22px/1 var(--s29-font-display); font-size: 4.2cqw; user-select: none;
+}
+/* far layer: dim gradient letters, no glow. It stays still behind the swaying near layer (parallax = depth)
+   and is flat, so only ONE layer is perspective-transformed per frame. */
+.els-hm__layer.is-back {
+  transform: scale(1.12); opacity: .36;
+  -webkit-background-clip: text; background-clip: text; color: transparent; -webkit-text-fill-color: transparent;
+  background-image: linear-gradient(115deg, var(--els-cyan), var(--els-blue) 34%, var(--els-violet) 66%, var(--els-gold));
+}
+/* near layer: lit letters in four palette tones with a static glow, the illustrative line and its four letters */
+.els-hm__layer.is-mid { transform: translateZ(0); font-weight: 600; }
+.els-hm__layer.is-mid > span { text-shadow: 0 0 .7em color-mix(in srgb, currentColor 70%, transparent); }
+.els-hm__layer.is-mid .t0 { color: var(--els-cyan); }
+.els-hm__layer.is-mid .t1 { color: var(--els-blue); }
+.els-hm__layer.is-mid .t2 { color: var(--els-violet); }
+.els-hm__layer.is-mid .t3 { color: var(--els-gold); }
+.els-hm__layer.is-mid .is-near { font-size: 1.42em; font-weight: 700; }
+.els-hm__layer.is-mid .is-path {
+  z-index: 1; font-size: 1.28em; font-weight: 700; color: var(--els-hero);
+  text-shadow: 0 0 .35em var(--els-gold), 0 0 .9em color-mix(in srgb, var(--els-gold) 75%, transparent);
+}
+.els-hm__line { position: absolute; inset: 0; inline-size: 100%; block-size: 100%; overflow: visible; fill: none; stroke-linecap: round; }
+.els-hm__line .is-halo { stroke: color-mix(in srgb, var(--els-gold) 30%, transparent); stroke-width: 7; }
+.els-hm__line .is-thread { stroke: var(--els-gold); stroke-width: 1.6; stroke-dasharray: 1 7; opacity: .85; }
+.els-hm__scrim {
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, var(--els-bg) 0, color-mix(in srgb, var(--els-bg) 55%, transparent) 26%, transparent 52%);
+}
+
+/* ── live panel ─────────────────────────────────────────────────────── */
+.els-hm__panel {
+  grid-row: 2; position: relative; z-index: 2; display: flex; flex-direction: column; align-items: flex-start; gap: 12px;
+  margin: -52px 12px 12px; padding: 20px 18px 16px; text-align: start; min-width: 0;
+  border-radius: 18px; border: 1px solid var(--els-line);
+  background: color-mix(in srgb, var(--els-surface) 90%, transparent);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--els-ink) 9%, transparent), 0 22px 44px -22px var(--els-bg);
+}
+.els-hm__title {
+  margin: 0; font: 700 clamp(26px, 8.4cqi, 34px)/1.15 var(--s29-font-display); letter-spacing: 0; text-wrap: balance; color: var(--els-ink);
+}
+.els-hm__sentence { margin: 0; font: 400 clamp(16px, 4.8cqi, 18px)/1.55 var(--s29-font-body); color: var(--els-ink-soft); text-wrap: pretty; }
+.els-hm__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 4px; min-height: 48px; }
+.els-hm .els-hm__cta {
+  min-height: 48px; padding: 0 24px; color: var(--els-on-accent); background: var(--els-btn);
+  border: 1px solid color-mix(in srgb, var(--els-ink) 24%, transparent);
+  font: 600 var(--s29-type-ui, 16px)/1.2 var(--s29-font-ui);
+  box-shadow: 0 10px 26px -12px color-mix(in srgb, var(--els-sapphire) 85%, transparent);
+  transition: transform 180ms ease, box-shadow 180ms ease;
+}
+.els-hm a.els-hm__cta:hover { transform: translateY(-1px); box-shadow: 0 14px 30px -12px color-mix(in srgb, var(--els-sapphire) 95%, transparent); }
+.els-hm a.els-hm__cta:active { transform: scale(.98); }
+.els-hm .els-hm__cta.is-closed {
+  cursor: default; color: var(--els-ink); background: color-mix(in srgb, var(--els-ink) 10%, transparent);
+  border-style: dashed; box-shadow: none; white-space: normal;
+}
+.els-hm .els-hm__cta:focus-visible, .els-hm__pause:focus-visible { outline: 3px solid var(--els-focus); outline-offset: 3px; }
+.els-hm__note { font: 400 var(--s29-type-micro, 14px)/1.4 var(--s29-font-ui); color: var(--els-ink-soft); }
+
+.els-hm__pause {
+  position: absolute; z-index: 4; inset-block-start: 10px; inset-inline-end: 10px; inline-size: 44px; block-size: 44px;
+  display: grid; place-items: center; padding: 0; border-radius: 50%; cursor: pointer; color: var(--els-ink);
+  border: 1px solid var(--els-line); background: color-mix(in srgb, var(--els-bg) 70%, transparent);
+}
+.els-hm__pause svg { fill: currentColor; }
+
+@keyframes els-sway {
+  from { transform: rotateX(18deg) rotateY(-30deg) rotateZ(-8deg); }
+  to   { transform: rotateX(8deg) rotateY(22deg) rotateZ(-3deg); }
+}
+
+.els-hm[data-els-motion="paused"] .els-hm__rig { animation-play-state: paused; }
+
+/* ── wide: panel on the start side, matrix glowing on the end side ───── */
+@container els-hm (min-width: 720px) {
+  .els-hm__stage { grid-area: 1 / 1; aspect-ratio: auto; min-block-size: 410px; }
+  .els-hm__rigwrap { inline-size: 62%; inset-inline-start: auto; inset-inline-end: -3%; }
+  .els-hm__scrim { background: linear-gradient(to var(--els-away), var(--els-bg) 0, color-mix(in srgb, var(--els-bg) 84%, transparent) 30%, color-mix(in srgb, var(--els-bg) 30%, transparent) 50%, transparent 66%); }
+  .els-hm__panel {
+    grid-area: 1 / 1; align-self: center; justify-self: start; inline-size: min(47%, 470px);
+    margin: 28px; margin-inline-start: clamp(24px, 4.5cqi, 52px); padding: 26px 28px 22px; gap: 14px;
+  }
+  .els-hm__title { font-size: clamp(32px, 3.9cqi, 44px); }
+  .els-hm__sentence { font-size: var(--s29-type-body, 18px); }
+  .els-hm__pause { inset-block-start: 14px; inset-inline-end: 14px; }
+}
+
+/* ── motion preferences: OS and frame ───────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .els-hm__rig { animation: none !important; }
+  .els-hm .els-hm__cta { transition: none; }
+  .els-hm a.els-hm__cta:hover, .els-hm a.els-hm__cta:active { transform: none; }
+  .els-hm__pause { display: none; }
+}
+.sod29-root[data-frame-reduced-motion="true"] .els-hm .els-hm__rig { animation: none !important; }
+.sod29-root[data-frame-reduced-motion="true"] .els-hm .els-hm__cta { transition: none; }
+.sod29-root[data-frame-reduced-motion="true"] .els-hm a.els-hm__cta:is(:hover, :active) { transform: none; }
+.sod29-root[data-frame-reduced-motion="true"] .els-hm__pause { display: none; }
+
+@media (forced-colors: active) {
+  .els-hm__panel, .els-hm .els-hm__cta, .els-hm__pause { border-color: CanvasText; }
+}
