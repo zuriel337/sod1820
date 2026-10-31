@@ -39,5 +39,5 @@ try {
     report.widths.push({ width, preset, errors, overflow: await page.evaluate(() => document.documentElement.scrollWidth > innerWidth) });
     await ctx.close();
   }
-  console.log(JSON.stringify(report)); 
+  console.log(JSON.stringify(report));
 } finally { await browser.close(); server.close(); }
