@@ -6,7 +6,7 @@
 **Scope:** the 2029 product runtime only. Legacy pages, labels and access behavior are not product truth for this contract.
 **Activation:** No public membership product exists. A limited admin-only ₪4 monthly pilot proved first charge, encrypted-token storage, server-initiated renewal, cancellation-at-period-end and isolated failure handling. It is not the launch product or public offer.
 **Authorization:** This draft records the proven pilot and product recommendations. It authorizes no additional migration, Cardcom action or configuration, Checkout, charge, live DB/RLS change, deployment or publication.
-**Pricing:** ₪30/₪300 for Membership and ₪79/₪790 for Research Wide are working hypotheses and are not approved for publication.
+**Pricing:** ₪30/₪300 for SOD אישי and ₪79/₪790 for SOD מחקר are working hypotheses and are not approved for publication.
 
 ## 1. Why this document exists
 
@@ -52,14 +52,14 @@ Exact limits are intentionally deferred to the Public Beta evidence window.
 
 ### 3.2 Two paid membership levels
 
-Working umbrella name: **SOD1820 Membership / בני ההיכל 2029**. Final Hebrew names require ZURIEL approval.
+Selected umbrella name: **מנויי SOD1820**. The two selected working level names are **SOD אישי** and **SOD מחקר**. “בני ההיכל” is not a membership-plan name in this contract.
 
 Keep one content membership and offer two usage levels:
 
 | Working level | Monthly | Annual | Monthly credits | Product role |
 |---|---:|---:|---:|---|
-| Membership / בני ההיכל | ₪30 | ₪300 | 600 | affordable access to all member content plus regular Raziel and research use |
-| Research Wide / מחקר רחב | ₪79 | ₪790 | 3,000 | the same member content with substantially more capacity for Raziel, Life Journey and Bible Code research |
+| SOD אישי | ₪30 | ₪300 | 600 | affordable access to all member content plus regular Raziel and research use |
+| SOD מחקר | ₪79 | ₪790 | 3,000 | the same member content with substantially more capacity for Raziel, Life Journey and Bible Code research |
 
 Both levels renew monthly or annually until cancelled. The annual price is equivalent to two months free. These prices are **working candidates**, not approved public pricing. Validate them against at least two full weekly Public Beta cycles and real cost-per-use evidence.
 
@@ -75,10 +75,10 @@ Candidate member value:
 - member pricing for additional credit packs;
 - early access to approved 2029 capabilities.
 
-The two levels share the same member-content entitlement. Research Wide sells greater usage capacity, not a claim to better truth and not an artificial lock on member articles. Recommended V1 allowance presentation:
+The two levels share the same member-content entitlement. SOD מחקר sells greater usage capacity, not a claim to better truth and not an artificial lock on member articles. Recommended V1 allowance presentation:
 
-- Membership: **600 credits every membership month**;
-- Research Wide: **3,000 credits every membership month**.
+- SOD אישי: **600 credits every membership month**;
+- SOD מחקר: **3,000 credits every membership month**.
 
 Monthly subscribers receive the applicable allowance after each verified renewal. Annual subscribers receive the same applicable allowance monthly throughout the paid annual period. Membership is sold for its content, continuity and tools as well as the allowance; credits are not advertised as a cash equivalent.
 
@@ -145,7 +145,7 @@ These are launch candidates, not published prices. The existing source-code cons
 Use one customer-facing currency named **credits**. The meter has two simple views:
 
 1. **Available now** — the total spendable balance across membership allowance, earned credits and purchased credits.
-2. **This membership cycle** — how much of the plan allowance was used, for example `215 / 600 used` for Membership or `1,240 / 3,000 used` for Research Wide.
+2. **This membership cycle** — how much of the plan allowance was used, for example `215 / 600 used` for SOD אישי or `1,240 / 3,000 used` for SOD מחקר.
 
 Before every paid action show all three facts together: the fixed action price, the available balance and the balance expected after completion. Example: `Raziel deep · 60 credits · 740 available · 680 after completion`.
 
@@ -161,9 +161,9 @@ Meter behavior:
 
 Internal balance policy required for Membership:
 
-- grant the plan allowance at the start of each successful monthly membership period: 600 for Membership or 3,000 for Research Wide;
+- grant the plan allowance at the start of each successful monthly membership period: 600 for SOD אישי or 3,000 for SOD מחקר;
 - grant annual subscribers their plan allowance each month, not 7,200 or 36,000 at purchase time;
-- let unused included credits roll forward up to two months of the current plan allowance: 1,200 for Membership or 6,000 for Research Wide, so one quiet month is not lost while business exposure remains bounded;
+- let unused included credits roll forward up to two months of the current plan allowance: 1,200 for SOD אישי or 6,000 for SOD מחקר, so one quiet month is not lost while business exposure remains bounded;
 - purchased credits do not expire under this draft; any expiry for earned/promotional credits requires explicit customer terms before launch;
 - consume the time-limited membership allowance first and purchased credits last;
 - preserve one displayed total while keeping source, expiry, reservation and settlement entries separately reconcilable on the server.
@@ -202,11 +202,11 @@ Product rules:
 - cache and reopen the completed reading without a new charge when the exact saved result is reused;
 - reprice or route to a cheaper sufficient model only after measured quality parity, never by silently reducing required research quality.
 
-Working allowance hypothesis: if the launch promise includes one deep matrix reading per month, the monthly Membership allowance must be at least 500 credits. A **600-credit monthly allowance** is the smallest coherent entry candidate because it can fund one reading plus, for example, six Raziel-fast answers and two short AI explanations. Alternatively it funds about 40 fast answers or 10 deep answers. The **3,000-credit Research Wide allowance** funds up to six completed readings at the fixed price, without calling the capability unlimited. The measured Raziel and matrix evidence supports both as V1 candidates, but they still require ZURIEL approval before publication or implementation.
+Working allowance hypothesis: if the launch promise includes one deep matrix reading per month, the monthly SOD אישי allowance must be at least 500 credits. A **600-credit monthly allowance** is the smallest coherent entry candidate because it can fund one reading plus, for example, six Raziel-fast answers and two short AI explanations. Alternatively it funds about 40 fast answers or 10 deep answers. The **3,000-credit SOD מחקר allowance** funds up to six completed readings at the fixed price, without calling the capability unlimited. The measured Raziel and matrix evidence supports both as V1 candidates, but they still require ZURIEL approval before publication or implementation.
 
 ### 3.4 Bible Code-only plan
 
-Do **not** launch a separate Bible Code-only subscription in V1. Research Wide already supplies a high-volume option for Bible Code users without fragmenting the content membership. Keep a code-only plan as an experiment candidate after Public Beta only if ELS users show strong standalone demand and low cross-use of the broader membership.
+Do **not** launch a separate Bible Code-only subscription in V1. SOD מחקר already supplies a high-volume option for Bible Code users without fragmenting the content membership. Keep a code-only plan as an experiment candidate after Public Beta only if ELS users show strong standalone demand and low cross-use of the broader membership.
 
 ## 4. 2029 capability allocation draft
 
@@ -457,7 +457,6 @@ Do not publish internal provider mechanics, raw token costs, Cardcom identifiers
 
 ## 13. Open Human-Gate decisions
 
-- [ ] Final membership name.
 - [ ] Approve or change the two working levels: ₪30/₪300 with 600 monthly credits and ₪79/₪790 with 3,000 monthly credits.
 - [ ] Approve, change or reject 500 credits per deep ELS matrix reading.
 - [ ] Approve, change or reject the initial 5 / 15 / 60 / 120 / 500 fixed operation-price bands.
