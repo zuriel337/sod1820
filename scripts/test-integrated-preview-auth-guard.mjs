@@ -8,14 +8,14 @@ const builder = await readFile(new URL('./build-integrated-preview.mjs', import.
 const vercelConfig = JSON.parse(await readFile(new URL('../vercel.json', import.meta.url), 'utf8'));
 const source = builder.slice(builder.indexOf('const allow ='), builder.indexOf('await writeFile(resolve(output, "preview-readonly-sw.js")'));
 const worker = vm.runInNewContext(`${source}\nworker;`);
-async function request(path, { method = 'POST', body, origin = 'https://linswmnnkjxvweumprav.supabase.co', workerSource = worker } = {}) {
+async function request(path, { method = 'POST', body, headers, origin = 'https://linswmnnkjxvweumprav.supabase.co', workerSource = worker } = {}) {
   let handler, response, forwarded = 0;
   vm.runInNewContext(workerSource, {
     self: { addEventListener: (name, fn) => { if (name === 'fetch') handler = fn; } },
     URL, Response,
     fetch: async () => { forwarded++; return new Response('{}', { status: 200 }); },
   });
-  handler({ request: new Request(origin + path, { method, ...(body === undefined ? {} : { body: JSON.stringify(body) }) }), respondWith: (value) => { response = value; } });
+  handler({ request: new Request(origin + path, { method, headers, ...(body === undefined ? {} : { body: JSON.stringify(body) }) }), respondWith: (value) => { response = value; } });
   const result = response ? await response : null;
   return { status: result?.status || 200, forwarded, blocked: result?.headers.get('X-Preview-Write-Blocked') };
 }
@@ -116,4 +116,57 @@ test('Life Journey Preview overrides the public catch-all with private no-store 
   );
   assert.equal(headers['cache-control'], 'private, no-store, max-age=0, must-revalidate');
   assert.equal(headers['x-robots-tag'], 'noindex, nofollow, noarchive');
+});
+
+const managementBranch = 'gpt/community-server-auth-20261031';
+const managementWorker = (branch = managementBranch, environment = 'preview') => vm.runInNewContext(`${source}\nworker;`, {
+  process: { env: { VERCEL_ENV: environment, VERCEL_GIT_COMMIT_REF: branch } },
+});
+const managementHeaders = { Authorization: 'Bearer synthetic.preview.signature' };
+const managementId = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
+const managementCalls = [
+  ['community_message_actions_v1', { p_ids: [managementId] }],
+  ['community_edit_message', { p_id: managementId, p_body: 'תוכן מתוקן' }],
+  ['community_delete_message', { p_id: managementId }],
+];
+
+test('only the explicitly authorized protected branch forwards exact Community management RPCs', async () => {
+  const authorized = managementWorker();
+  for (const [rpc, body] of managementCalls) {
+    assert.deepEqual(await request(`/rest/v1/rpc/${rpc}`, { body, headers: managementHeaders, workerSource: authorized }), { status: 200, forwarded: 1, blocked: null });
+    for (const other of [worker, managementWorker(managementBranch, 'production'), managementWorker(managementBranch, 'development'), managementWorker('gpt/community-liked-sort-20261031')]) {
+      assert.deepEqual(await request(`/rest/v1/rpc/${rpc}`, { body, headers: managementHeaders, workerSource: other }), { status: 403, forwarded: 0, blocked: 'true' });
+    }
+  }
+});
+
+test('Community management cannot widen arguments, methods, caller headers or transport paths', async () => {
+  const authorized = managementWorker();
+  for (const [rpc, body] of managementCalls) {
+    for (const headers of [undefined, {}, { Authorization: 'Basic synthetic' }]) {
+      assert.equal((await request(`/rest/v1/rpc/${rpc}`, { body, headers, workerSource: authorized })).status, 403);
+    }
+    for (const suffix of ['?select=*', '?p_id=' + managementId, '/']) {
+      assert.equal((await request(`/rest/v1/rpc/${rpc}${suffix}`, { body, headers: managementHeaders, workerSource: authorized })).status, 403);
+    }
+    for (const method of ['GET', 'HEAD', 'PUT', 'DELETE']) {
+      assert.equal((await request(`/rest/v1/rpc/${rpc}`, { method, headers: managementHeaders, workerSource: authorized })).status, 403);
+    }
+    for (const invalid of [null, [], { ...body, role: 'admin' }, { ...body, p_id: 'invalid' }]) {
+      assert.equal((await request(`/rest/v1/rpc/${rpc}`, { body: invalid, headers: managementHeaders, workerSource: authorized })).status, 403);
+    }
+  }
+  for (const body of [{ p_ids: [null] }, { p_ids: Array(101).fill(managementId) }, { p_ids: '*' }]) {
+    assert.equal((await request('/rest/v1/rpc/community_message_actions_v1', { body, headers: managementHeaders, workerSource: authorized })).status, 403);
+  }
+  for (const p_body of ['', '   ', 'x'.repeat(6001), 12]) {
+    assert.equal((await request('/rest/v1/rpc/community_edit_message', { body: { p_id: managementId, p_body }, headers: managementHeaders, workerSource: authorized })).status, 403);
+  }
+});
+
+test('Community management keeps unrelated writes, models and Person creation blocked', async () => {
+  const authorized = managementWorker();
+  for (const path of ['/rest/v1/rpc/edit_contribution', '/rest/v1/rpc/remove_contribution', '/rest/v1/rpc/fn_get_or_create_my_person', '/functions/v1/ai-analyze', '/functions/v1/els-search-bridge', '/storage/v1/object/gallery/community/test.jpg', '/api/contributor-self']) {
+    assert.deepEqual(await request(path, { body: { p_id: managementId }, headers: managementHeaders, workerSource: authorized }), { status: 403, forwarded: 0, blocked: 'true' });
+  }
 });
