@@ -89,6 +89,9 @@ test("both study modes preserve readable title/cover geometry and narrow desktop
         assert.ok(Math.abs(await page.locator("#ahavat29-full-reader").evaluate(el => el.getBoundingClientRect().top) - 92) <= 2, "late layout must preserve the chosen reading target");
         await page.evaluate(() => document.querySelector(".ahavat29-intro").style.removeProperty("padding-block-end"));
         // Real reader input wins over the temporary anchor tracking.
+        // Aim at the document gutter: a wheel over the reader's inner list may
+        // correctly scroll that list without moving the document heading.
+        await page.mouse.move(2, 400);
         await page.mouse.wheel(0, 400);
         await page.waitForTimeout(200);
         assert.ok(Math.abs(await page.locator("#ahavat29-full-reader").evaluate(el => el.getBoundingClientRect().top) - 92) > 100);
