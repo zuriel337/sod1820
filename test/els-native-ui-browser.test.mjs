@@ -709,7 +709,7 @@ const [matrix,setMatrix]=React.useState(null);window.__openSavedMatrix=setMatrix
 const [matrixReading,setMatrixReading]=React.useState(null);window.__setMatrixReading=setMatrixReading;
 const [researchLoad,setResearchLoad]=React.useState(null);window.__loadResearch=setResearchLoad;
 const restoreResearch=item=>setResearchLoad({...item,researchNonce:crypto.randomUUID()});
-const [researchProbe,setResearchProbe]=React.useState(null),pendingProbe=React.useRef(null);
+const [researchProbe,setResearchProbe]=React.useState(window.__fixtureInitialProbe||null),pendingProbe=React.useRef(window.__fixtureInitialProbe?.requestId??null);
 window.__probeResearch=request=>{pendingProbe.current=request?.requestId??null;setResearchProbe(request);};
 const palette=resolve2029Palette(useThemePreset(),'research_lab');
 const fields={page:'pageBg',panel:'card','panel-soft':'cardSoft',line:'border','line-strong':'borderStrong',accent:'accent','accent-text':'accentText','accent-secondary':'accentSecondary',ink:'ink',muted:'inkSoft','focus-ring':'focusRing','on-accent':'onAccent','accent-btn':'accentBtn','warm-accent':'warmAccent'};
@@ -846,7 +846,7 @@ const frameStubs = {
 };
 
 async function withNative(viewport, run, options = {}) {
-  const { realHost = false, loadGolden = true, onboarded = true, tier = 'admin', mobile = false, fullFrame = false, leavesMatrix = false, reentrantRender = false, guided = false, matrixAnalysis = false, researchProfile = true } = options;
+  const { realHost = false, loadGolden = true, onboarded = true, tier = 'admin', mobile = false, fullFrame = false, leavesMatrix = false, reentrantRender = false, guided = false, matrixAnalysis = false, researchProfile = true, initialProbe = null } = options;
   const fixture = {
     name: 'els-native-browser-fixture', enforce: 'pre',
     resolveId(id, importer) {
@@ -904,7 +904,8 @@ async function withNative(viewport, run, options = {}) {
     });
     if(process.env.ELS_SAVE_DIAGNOSTICS)page.on('response',async response=>{if(response.status()>=400)console.error('HTTP',response.status(),response.url(),(await response.text()).slice(0,700));});
     page.on('pageerror', (error) => {errors.push(error.message);if(process.env.ELS_SAVE_DIAGNOSTICS)console.error('BROWSER',error.message);});
-    await page.addInitScript(({ realHost, loadGolden, onboarded, tier, fullFrame, reentrantRender, guided, matrixAnalysis, researchProfile }) => {
+    await page.addInitScript(({ realHost, loadGolden, onboarded, tier, fullFrame, reentrantRender, guided, matrixAnalysis, researchProfile, initialProbe }) => {
+      window.__fixtureInitialProbe=initialProbe;
       window.__fixtureFullFrame=fullFrame;
       window.__fixtureGuided=guided;
       window.__fixtureMatrixAnalysis=matrixAnalysis;
@@ -938,7 +939,7 @@ async function withNative(viewport, run, options = {}) {
       if (window !== window.parent) addEventListener('message', (event) => {
         if (event.source === window.parent && event.data?.source === 'sod-host') (window.parent.__hostLog ||= []).push(event.data);
       });
-    }, { realHost, loadGolden, onboarded, tier, fullFrame, reentrantRender, guided, matrixAnalysis, researchProfile });
+    }, { realHost, loadGolden, onboarded, tier, fullFrame, reentrantRender, guided, matrixAnalysis, researchProfile, initialProbe });
     if (realHost && loadGolden) await page.addInitScript((item) => { window.__fixtureGolden = item; }, golden);
     await page.goto(`http://127.0.0.1:${server.httpServer.address().port}/fixture`);
     if (loadGolden) {
@@ -2782,6 +2783,87 @@ test('native form: a phrase and its split-and-cross action stay in one centered 
   assert.equal(await form.getByRole('textbox',{name:'מונח שני',exact:true}).inputValue(),'אמת');
   assert.equal(await form.locator('button[type=submit]:visible').textContent(),'חפש הצלבה');
  });
+});
+
+test('Research exact probe is one-shot across repeated ready before and after verification',
+ {skip:!canRun,timeout:90000},async()=>{
+ await withNative({width:390,height:844},async page=>{
+  await page.evaluate(()=>{
+   window.__fixtureHoldVerification=true;
+   window.__probeResearch({term:'תורה קדשה',scope:'torah',skip:10065,requestId:101});
+  });
+  await page.waitForFunction(()=>window.__fixtureHeld?.length===1);
+  const frame=page.frames().find(candidate=>candidate.url().includes('tzofen.html'));
+  const tiersBefore=await page.evaluate(()=>window.__hostLog.filter(message=>message.type==='tier').length);
+  await frame.evaluate(()=>parent.postMessage({source:'tzofen',type:'ready'},location.origin));
+  // A tier acknowledgement is the barrier: the host processed repeat readiness.
+  await page.waitForFunction(before=>window.__hostLog.filter(message=>message.type==='tier').length>before,tiersBefore);
+  await page.evaluate(()=>{
+   window.__fixtureHoldVerification=false;
+   // Release ONLY the original probe. Opening its verified matrix used to
+   // cancel a second probe that the ready replay had unnecessarily started.
+   window.__fixtureHeld.shift()();
+  });
+  await page.waitForFunction(()=>window.__state?.status==='ok'&&window.__state?.axis?.hitId==='10065_1_50890');
+  const evidence=await page.evaluate(()=>({
+   history:window.__probeHistory.filter(result=>result.requestId===101).map(result=>({ok:result.ok,reason:result.reason})),
+   requests:window.__hostLog.filter(message=>message.type==='probe-exact-skip'&&message.request.requestId===101).length,
+   cancelled:window.__log.filter(message=>message.type==='engine-cancel').length,
+  }));
+  assert.deepEqual(evidence.history,[{ok:true,reason:null}],JSON.stringify(evidence));
+  assert.equal(evidence.requests,1,'one explicit probe, no replay on a duplicate ready');
+  const before=await page.evaluate(()=>({tiers:window.__hostLog.filter(m=>m.type==='tier').length,
+   probes:window.__hostLog.filter(m=>m.type==='probe-exact-skip').length,
+   loads:window.__hostLog.filter(m=>m.type==='load-matrix').length}));
+  await frame.evaluate(()=>parent.postMessage({source:'tzofen',type:'ready'},location.origin));
+  await page.waitForFunction(n=>window.__hostLog.filter(m=>m.type==='tier').length>n,before.tiers);
+  const after=await page.evaluate(()=>({probes:window.__hostLog.filter(m=>m.type==='probe-exact-skip').length,
+   loads:window.__hostLog.filter(m=>m.type==='load-matrix').length}));
+  assert.equal(after.probes,before.probes,'completed probes do not repeat');
+  assert.equal(after.loads,before.loads,'repeat readiness must not reload the current matrix');
+  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+ },{realHost:true,loadGolden:false});
+});
+
+test('Research exact probe ignores delayed success after a newer no-hit request and allows explicit retry',
+ {skip:!canRun,timeout:90000},async()=>{
+ await withNative({width:320,height:844},async page=>{
+  await page.evaluate(()=>{
+   window.__fixtureHoldVerification=true;
+   window.__probeResearch({term:'תורה קדשה',scope:'torah',skip:10065,requestId:201});
+  });
+  await page.waitForFunction(()=>window.__fixtureHeld?.length===1);
+  await page.evaluate(()=>window.__probeResearch({term:'תורה קדשה',scope:'torah',skip:400000,requestId:202}));
+  await page.waitForFunction(()=>window.__probeResult?.requestId===202);
+  assert.equal(await page.evaluate(()=>window.__probeResult.ok),false);
+  await page.evaluate(()=>{window.__fixtureHoldVerification=false;window.__fixtureReleaseVerification();});
+  await page.waitForFunction(()=>window.__log.some(m=>m.type==='exact-skip-probe-result'&&m.requestId===201&&m.ok));
+  // Real verification of the old request succeeds, but must never reach the
+  // consumer for the new request or load the old axis into its empty matrix.
+  assert.deepEqual(await page.evaluate(()=>window.__probeHistory.map(m=>[m.requestId,m.ok])),[[202,false]]);
+  assert.equal(await page.evaluate(()=>window.__state?.status==='ok'),false);
+  await page.evaluate(()=>window.__probeResearch({term:'תורה קדשה',scope:'torah',skip:400000,requestId:203}));
+  await page.waitForFunction(()=>window.__probeResult?.requestId===203);
+  assert.deepEqual(await page.evaluate(()=>window.__probeHistory.map(m=>[m.requestId,m.ok])),[[202,false],[203,false]]);
+  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+ },{realHost:true,loadGolden:false});
+});
+
+test('Research exact probe queued before iframe readiness survives load without duplicate work on iframe reload',
+ {skip:!canRun,timeout:90000},async()=>{
+ await withNative({width:1440,height:1000},async page=>{
+  await page.waitForFunction(()=>window.__probeResult?.requestId===301&&window.__state?.status==='ok');
+  assert.equal(await page.evaluate(()=>window.__probeResult.ok),true);
+  assert.equal(await page.evaluate(()=>window.__hostLog.filter(m=>m.type==='probe-exact-skip').length),1);
+  const frame=page.frames().find(candidate=>candidate.url().includes('tzofen.html'));
+  const readyBefore=await page.evaluate(()=>window.__log.filter(m=>m.type==='ready').length);
+  await frame.evaluate(()=>location.reload());
+  await page.waitForFunction(n=>window.__log.filter(m=>m.type==='ready').length>n,readyBefore);
+  await page.waitForFunction(()=>window.__hostLog.filter(m=>m.type==='load-matrix').length>=2);
+  await page.waitForFunction(()=>window.__state?.status==='ok'&&window.__state?.axis?.hitId==='10065_1_50890');
+  assert.equal(await page.evaluate(()=>window.__hostLog.filter(m=>m.type==='probe-exact-skip').length),1,'reload restores the exact matrix but does not repeat a completed probe');
+  assert.deepEqual(await page.evaluate(()=>window.__probeHistory.map(m=>[m.requestId,m.ok])),[[301,true]]);
+ },{realHost:true,loadGolden:false,initialProbe:{term:'תורה קדשה',scope:'torah',skip:10065,requestId:301}});
 });
 
 test('Research exact skip above the page ceiling loads a canonical verified axis without remounting Classic',
