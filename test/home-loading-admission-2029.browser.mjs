@@ -96,7 +96,14 @@ const evidence = { scope: "built_local_synthetic_API_not_hosted_or_field", base:
 function record(result) { evidence.cases.push(result); console.log(JSON.stringify({ kind: result.kind, width: result.width, label: result.label, pass: true })); }
 const videos = page => page.locator('.h29-strip').filter({ has: page.getByRole('heading', { name: 'הסרטים האחרונים', exact: true }) });
 const world = page => page.locator('.h29-stream');
-const deferredReads = state => state.requests.filter(r => /\/(home_videos|contributors|gallery_images)$/.test(r.path) || decodeURIComponent(r.query || '').includes('מימד+חמש'));
+const homeDimensionRead = request => {
+  const query = new URLSearchParams(request.query);
+  return request.path.endsWith('/posts') && query.get('select') === '*'
+    && query.get('tags') === 'cs.{מימד חמש}' && query.get('limit') === '1' && query.get('offset') === '0';
+};
+// Attribute the exact Home reader. The destination Posts page has its own
+// compact, author-filtered Dimension Five read; that is not late Home work.
+const deferredReads = state => state.requests.filter(r => /\/(home_videos|contributors|gallery_images)$/.test(r.path) || homeDimensionRead(r));
 const count = (state, name) => state.requests.filter(r => r.path.endsWith('/' + name)).length;
 async function open(width, theme = 'parchment', options = {}, label = 'after', path = '/2029') {
   const context = await browser.newContext({ viewport: { width, height: 900 }, serviceWorkers: 'block', reducedMotion: options.reduce ? 'reduce' : 'no-preference' });
@@ -129,7 +136,7 @@ try {
     record({ label, width, kind: 'no_scroll', apiReads: reads.length, deferredReads: deferredReads(state).length, geometry, reads });
     await context.close();
   }
-  for (const width of [320, 390, 1440]) for (const theme of ['light', 'parchment', 'dark']) {
+  for (const width of [320, 360, 390, 1440]) for (const theme of ['light', 'parchment', 'dark']) {
     const { context, page, state } = await open(width, theme);
     await ready(page);
     assert.deepEqual(deferredReads(state), []);
@@ -143,7 +150,7 @@ try {
     assert.ok(count(state, 'contributors') > 0);
     await page.getByRole('region', { name: 'מוקדי זהות', exact: true }).scrollIntoViewIfNeeded();
     await page.waitForTimeout(500);
-    assert.ok(state.requests.some(r => decodeURIComponent(r.query || '').includes('מימד+חמש')));
+    assert.ok(state.requests.some(homeDimensionRead));
     await page.evaluate(() => scrollTo(0, 0));
     await videos(page).scrollIntoViewIfNeeded(); await world(page).scrollIntoViewIfNeeded();
     await page.waitForTimeout(300);
@@ -191,6 +198,20 @@ try {
     await page.waitForTimeout(800); assert.deepEqual(deferredReads(state), []);
     await ready(page); assert.deepEqual(deferredReads(state), []);
     clean(state); record({ kind: 'slow_primary_no_skeleton_admission', pass: true }); await context.close();
+  }
+  {
+    const { context, page, state } = await open(390, 'parchment', { primaryDelay: 2500 });
+    await page.locator('.h29-hero.is-loading').waitFor();
+    await page.locator('a[href="/2029/posts"]').first().evaluate(e => e.click());
+    await page.waitForFunction(() => !document.querySelector('.h29'));
+    await page.waitForTimeout(2600);
+    assert.ok(state.requests.some(request => {
+      const query = new URLSearchParams(request.query);
+      return request.path.endsWith('/posts') && query.get('author') === 'eq.בדרך לנצח'
+        && query.get('select') === 'id,slug,title,excerpt,author,categories,tags,image_url,thumb_url,date,modified,home_hidden';
+    }), 'the destination Posts reader must actually run; it is not counted as Home admission');
+    assert.deepEqual(deferredReads(state), [], 'a late primary response cannot admit readers after leaving Home');
+    clean(state); record({ kind: 'unmount_before_primary_settlement', pass: true }); await context.close();
   }
   {
     const { context, page, state } = await open(390, 'parchment', {}, 'after', '/2029#reality-stream');

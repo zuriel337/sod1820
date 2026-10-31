@@ -1,0 +1,6088 @@
+{
+  "base": "4cf3079342e82e73633d18a3ab37cda5479dce72",
+  "runtime_commit": "f269775e248f31f842b0e2efdc21fd09a2bb1fc9",
+  "branch": "gpt/2029-home-loading-acceptance-20261031",
+  "artifact_identity": {
+    "before": {
+      "manifest_sha256": "1595fbc3ce2a3cdedc08630ed597873451e6bd7f4aceb37bd49ce6962395252a"
+    },
+    "after": {
+      "manifest_sha256": "8cd0efa632fb4ea008cd6e126c99ea0b983ab41f3b7eb24a701075a7c5e8dc47"
+    }
+  },
+  "preview_eager_gzip_bytes": {
+    "before": 419411,
+    "after": 419386
+  },
+  "normal_eager_gzip_after": 421588,
+  "required_recovery_bytes": 12288,
+  "summary": {
+    "390": {
+      "before": {
+        "primary_ms": 5744.7,
+        "lcp": 5580,
+        "cls": 0.053,
+        "requestCount": 114,
+        "rest_requests_after_settle": 27,
+        "deferred_reader_requests_before_approach": 5
+      },
+      "after": {
+        "primary_ms": 5700.2,
+        "lcp": 5548,
+        "cls": 0.053,
+        "requestCount": 106,
+        "rest_requests_after_settle": 19,
+        "deferred_reader_requests_before_approach": 0
+      }
+    },
+    "1440": {
+      "before": {
+        "primary_ms": 826.7,
+        "lcp": 1016,
+        "cls": 0.083,
+        "requestCount": 116,
+        "rest_requests_after_settle": 28,
+        "deferred_reader_requests_before_approach": 5
+      },
+      "after": {
+        "primary_ms": 830.5,
+        "lcp": 1084,
+        "cls": 0.053,
+        "requestCount": 108,
+        "rest_requests_after_settle": 20,
+        "deferred_reader_requests_before_approach": 0
+      }
+    }
+  },
+  "validation": {
+    "targeted_node_tests": {
+      "passed": 37,
+      "failed": 0,
+      "skipped": 0
+    },
+    "preview_guard_tests_including_proposed_patch": {
+      "passed": 31,
+      "failed": 0,
+      "skipped": 0,
+      "overlaps_targeted": true
+    },
+    "admission_browser_cases": 19,
+    "paired_cold_runs": 12,
+    "inherited_failure_and_interaction_cases": 6,
+    "regular_builds": "both_pass",
+    "integrated_preview_build": "pass",
+    "clean_runtime_commit_rebuild_manifest": "identical",
+    "graph_isolation_hardening_legacy_lock": "pass"
+  },
+  "preview_binding": {
+    "applied": false,
+    "patch": "home-loading-preview-bindings-20261031.patch",
+    "active_builder_owner_record": "412a0132-0b3f-43d9-bcab-74e414e98a11",
+    "proposed_guard_vm_tests": 4,
+    "hosted_deployment": false
+  },
+  "coordination": {
+    "reader_role": "supabase_read_only_user",
+    "transaction_read_only": "on",
+    "canonical_plan_37_md5": "a8dea68e59d883b296542bbf707bf217",
+    "previous_scope_release": "aba15abf-5142-4c77-a2f6-ae5715c65672",
+    "concurrent_read_only_review": "dcbc84a3-83ec-40cf-9743-4059abb9de6a",
+    "river_retained_owner": "56d9506f-2e51-4be1-9bef-0573032e6f1f",
+    "live_before_after_inserted": false
+  },
+  "limitations": [
+    "Synthetic public API fixtures; external model and product writes intercepted",
+    "SW bootstrap replaced in-process for both artifacts; no hosted permission or latency acceptance",
+    "Three samples per side/profile, not field p75, INP, physical-device or site-wide latency proof",
+    "Native fragment scroll restoration remains baseline debt; exact fragment now admits stream data",
+    "Matching live Raziel/ELS backend and real-role/privacy/SEO/G4 acceptance remain separate"
+  ],
+  "paired_lab": {
+    "scope": "local_lab_synthetic_API_not_field_p75",
+    "base": "4cf3079342e82e73633d18a3ab37cda5479dce72",
+    "runs": [
+      {
+        "label": "before",
+        "run": 0,
+        "profile": {
+          "width": 390,
+          "cpu": 4,
+          "net": true
+        },
+        "primary_ms": 5760.099999999977,
+        "lcp": 5628,
+        "cls": 0.05341234567901234,
+        "longTasks": 4,
+        "longTaskMs": 702,
+        "resources": [
+          {
+            "name": "/assets/2029-B0iBjSWm.js",
+            "encoded": 221147,
+            "decoded": 731447
+          },
+          {
+            "name": "/assets/jsx-runtime-D3jfb0Ew.js",
+            "encoded": 3382,
+            "decoded": 8901
+          },
+          {
+            "name": "/assets/scheduler-l4uHkdFa.js",
+            "encoded": 1563,
+            "decoded": 3561
+          },
+          {
+            "name": "/assets/react-dom-DenslgJm.js",
+            "encoded": 1392,
+            "decoded": 3864
+          },
+          {
+            "name": "/assets/preload-helper-BZ1Pz5am.js",
+            "encoded": 688,
+            "decoded": 1218
+          },
+          {
+            "name": "/assets/format-DFlJicod.js",
+            "encoded": 748,
+            "decoded": 1659
+          },
+          {
+            "name": "/assets/chunk-OB3PAWPO-CVMmBO49.js",
+            "encoded": 13843,
+            "decoded": 38940
+          },
+          {
+            "name": "/assets/theme-B2UPacu4.js",
+            "encoded": 872,
+            "decoded": 1807
+          },
+          {
+            "name": "/assets/gematria-Ud5dslyW.js",
+            "encoded": 3039,
+            "decoded": 7546
+          },
+          {
+            "name": "/assets/supabase-DkpS7dgV.js",
+            "encoded": 50048,
+            "decoded": 194093
+          },
+          {
+            "name": "/assets/tracking-a59pzQGS.js",
+            "encoded": 3649,
+            "decoded": 8792
+          },
+          {
+            "name": "/assets/AuthContext-J9o2I7T_.js",
+            "encoded": 2115,
+            "decoded": 4741
+          },
+          {
+            "name": "/assets/elsResearchReturnSnapshot-B03Lyzta.js",
+            "encoded": 1589,
+            "decoded": 4135
+          },
+          {
+            "name": "/assets/methodIdentity-DM2yAcOz.js",
+            "encoded": 157,
+            "decoded": 153
+          },
+          {
+            "name": "/assets/numberExpressionFocus-BA7z8vP8.js",
+            "encoded": 1050,
+            "decoded": 2137
+          },
+          {
+            "name": "/assets/ResearchProvider-B_pVsxwJ.js",
+            "encoded": 13979,
+            "decoded": 42353
+          },
+          {
+            "name": "/assets/razielViewMode2029-EPrCdoW9.js",
+            "encoded": 408,
+            "decoded": 672
+          },
+          {
+            "name": "/assets/dayContext-DQm1CoPT.js",
+            "encoded": 54650,
+            "decoded": 158849
+          },
+          {
+            "name": "/assets/NavigationIcon2029-CH1qZpiS.js",
+            "encoded": 5369,
+            "decoded": 14796
+          },
+          {
+            "name": "/assets/themeMode-jUD92yIC.js",
+            "encoded": 422,
+            "decoded": 758
+          },
+          {
+            "name": "/assets/palette-CNyTr_3N.js",
+            "encoded": 3315,
+            "decoded": 8930
+          },
+          {
+            "name": "/assets/designTokens-B8JmV1rE.js",
+            "encoded": 1056,
+            "decoded": 2425
+          },
+          {
+            "name": "/assets/canonicalPresentation-DgNmWnf_.js",
+            "encoded": 2897,
+            "decoded": 7540
+          },
+          {
+            "name": "/assets/worldContextualProminence-DFYM9dQz.js",
+            "encoded": 5147,
+            "decoded": 14914
+          },
+          {
+            "name": "/assets/researchObjectPresentation-l0ubBFKY.js",
+            "encoded": 3453,
+            "decoded": 7566
+          },
+          {
+            "name": "/assets/universalFinding-DZVlmLqu.js",
+            "encoded": 1870,
+            "decoded": 4914
+          },
+          {
+            "name": "/assets/researchObjectFinding-bo3yYp1j.js",
+            "encoded": 2989,
+            "decoded": 8168
+          },
+          {
+            "name": "/assets/timeline2029-Dc49odMG.js",
+            "encoded": 2138,
+            "decoded": 4100
+          },
+          {
+            "name": "/assets/ShareActions-0g-w402r.js",
+            "encoded": 5808,
+            "decoded": 13147
+          },
+          {
+            "name": "/assets/postSourceUpdates2029-05vVMebH.js",
+            "encoded": 1609,
+            "decoded": 3631
+          },
+          {
+            "name": "/assets/gematriaTracePresentation-CX847u8G.js",
+            "encoded": 2742,
+            "decoded": 6488
+          },
+          {
+            "name": "/assets/numberCoreProjection-BsfKEyPA.js",
+            "encoded": 5373,
+            "decoded": 14039
+          },
+          {
+            "name": "/assets/NavigationIcon2029-CDR-JqlQ.css",
+            "encoded": 572,
+            "decoded": 2059
+          },
+          {
+            "name": "/assets/calculator2029Input-BbfftHdT.js",
+            "encoded": 904,
+            "decoded": 1606
+          },
+          {
+            "name": "/assets/ShareActions-DMXv2tqp.css",
+            "encoded": 1138,
+            "decoded": 4370
+          },
+          {
+            "name": "/assets/2029-CNbuPO77.css",
+            "encoded": 37283,
+            "decoded": 250985
+          },
+          {
+            "name": "/assets/previewVisualReview2029-BLLl4Wof.js",
+            "encoded": 2017,
+            "decoded": 5160
+          },
+          {
+            "name": "/assets/previewVisualReview2029-BvQ2FAL9.css",
+            "encoded": 4452,
+            "decoded": 27851
+          },
+          {
+            "name": "/assets/Home2029Page-DFKP5TTr.js",
+            "encoded": 16812,
+            "decoded": 56043
+          },
+          {
+            "name": "/assets/researchPlanV2-B2lRLxm3.js",
+            "encoded": 10154,
+            "decoded": 33629
+          },
+          {
+            "name": "/assets/CurationMark2029-CRcuZKya.js",
+            "encoded": 1918,
+            "decoded": 5364
+          },
+          {
+            "name": "/assets/CurationMark2029-CqI6kfN0.css",
+            "encoded": 1428,
+            "decoded": 5861
+          },
+          {
+            "name": "/assets/ConvergenceRatings2029-8qbRdNel.js",
+            "encoded": 2024,
+            "decoded": 5417
+          },
+          {
+            "name": "/assets/ConvergenceRatings2029-Bf7X875Q.css",
+            "encoded": 917,
+            "decoded": 2819
+          },
+          {
+            "name": "/assets/SourceRepeatInfo2029-CN54GpUm.js",
+            "encoded": 4595,
+            "decoded": 11705
+          },
+          {
+            "name": "/assets/topicConvergence-CHCPqQkw.js",
+            "encoded": 6162,
+            "decoded": 19991
+          },
+          {
+            "name": "/assets/entityHubProjection-BJ9yho2Q.js",
+            "encoded": 13688,
+            "decoded": 43998
+          },
+          {
+            "name": "/assets/entityGraphFinding-DPAvsxl6.js",
+            "encoded": 1849,
+            "decoded": 4659
+          },
+          {
+            "name": "/assets/numericResearch-DqZcmZHs.js",
+            "encoded": 7745,
+            "decoded": 23292
+          },
+          {
+            "name": "/assets/canonicalGematria-DSIyTFGn.js",
+            "encoded": 227,
+            "decoded": 275
+          },
+          {
+            "name": "/assets/canonicalGematriaProjection-B66_nJSZ.js",
+            "encoded": 660,
+            "decoded": 1244
+          },
+          {
+            "name": "/assets/bookResearchProjection-5tc4wXqQ.js",
+            "encoded": 3689,
+            "decoded": 9260
+          },
+          {
+            "name": "/assets/post2029ReadingProjection-VRTpbRWR.js",
+            "encoded": 56722,
+            "decoded": 190215
+          },
+          {
+            "name": "/assets/researchResultBundle-C_k0U3E0.js",
+            "encoded": 3436,
+            "decoded": 9315
+          },
+          {
+            "name": "/assets/gematriaRelationW2Executor-BfyK05J3.js",
+            "encoded": 3069,
+            "decoded": 8020
+          },
+          {
+            "name": "/assets/momentClockSystemMethod-DfaWpOyy.js",
+            "encoded": 6806,
+            "decoded": 19368
+          },
+          {
+            "name": "/assets/numberSystemMethods-C7ILjE6a.js",
+            "encoded": 5686,
+            "decoded": 17209
+          },
+          {
+            "name": "/assets/publicPostBoundary-DLBRu07Y.js",
+            "encoded": 214,
+            "decoded": 243
+          },
+          {
+            "name": "/assets/worldDiscoveryStream-Dh5Zjl1F.js",
+            "encoded": 4083,
+            "decoded": 10402
+          },
+          {
+            "name": "/assets/PostTimeline2029-HTi-_P5n.js",
+            "encoded": 245,
+            "decoded": 324
+          },
+          {
+            "name": "/assets/Timeline2029-DCEKqbCw.js",
+            "encoded": 828,
+            "decoded": 2138
+          },
+          {
+            "name": "/assets/Timeline2029-a6_QYh8e.css",
+            "encoded": 630,
+            "decoded": 2296
+          },
+          {
+            "name": "/assets/PostCategories2029-DDdr8_wC.js",
+            "encoded": 3941,
+            "decoded": 9246
+          },
+          {
+            "name": "/assets/PostCategories2029-DP5c8Fzv.css",
+            "encoded": 724,
+            "decoded": 2507
+          },
+          {
+            "name": "/assets/SourceRepeatInfo2029-DDIWPxqd.css",
+            "encoded": 1739,
+            "decoded": 7142
+          },
+          {
+            "name": "/assets/RealityRiver2029-UI-ahMZY.js",
+            "encoded": 4191,
+            "decoded": 11849
+          },
+          {
+            "name": "/assets/WatchButton-NOH-DPEz.js",
+            "encoded": 3978,
+            "decoded": 11371
+          },
+          {
+            "name": "/assets/EmailVerify-Cn5q0HQX.js",
+            "encoded": 2233,
+            "decoded": 5206
+          },
+          {
+            "name": "/assets/EmailVerify-DM0qVGWZ.css",
+            "encoded": 617,
+            "decoded": 2261
+          },
+          {
+            "name": "/assets/IconTile2029-JLOMl_ev.js",
+            "encoded": 509,
+            "decoded": 778
+          },
+          {
+            "name": "/assets/IconTile2029-x-yAGhlc.css",
+            "encoded": 227,
+            "decoded": 365
+          },
+          {
+            "name": "/assets/WatchButton-DFPG23U2.css",
+            "encoded": 776,
+            "decoded": 2243
+          },
+          {
+            "name": "/assets/RealityRiver2029-BzMsP3iY.css",
+            "encoded": 3880,
+            "decoded": 15719
+          },
+          {
+            "name": "/assets/home2029Projection-GryV-N5n.js",
+            "encoded": 3444,
+            "decoded": 8641
+          },
+          {
+            "name": "/assets/timeFlow-B3Pve8h-.js",
+            "encoded": 880,
+            "decoded": 1718
+          },
+          {
+            "name": "/assets/curationProjection2029-Cs2obozj.js",
+            "encoded": 1916,
+            "decoded": 4495
+          },
+          {
+            "name": "/assets/worldContributorLens-EjJnWZSP.js",
+            "encoded": 2426,
+            "decoded": 6479
+          },
+          {
+            "name": "/assets/Home2029Page-h2C-6HLd.css",
+            "encoded": 5013,
+            "decoded": 22545
+          },
+          {
+            "name": "/assets/livingRibbonPreview2029-BI1iUMB3.js",
+            "encoded": 461,
+            "decoded": 853
+          }
+        ],
+        "flagReads": 1,
+        "requestCount": 114,
+        "modelCalls": 0,
+        "blockedWriteAttempts": [
+          "/rest/v1/rpc/notification_prefs_guest_get_v1"
+        ]
+      },
+      {
+        "label": "after",
+        "run": 0,
+        "profile": {
+          "width": 390,
+          "cpu": 4,
+          "net": true
+        },
+        "primary_ms": 5560.599999999977,
+        "lcp": 5444,
+        "cls": 0.05341234567901234,
+        "longTasks": 4,
+        "longTaskMs": 561,
+        "resources": [
+          {
+            "name": "/assets/2029-DDew4Z7L.js",
+            "encoded": 221126,
+            "decoded": 731447
+          },
+          {
+            "name": "/assets/jsx-runtime-D3jfb0Ew.js",
+            "encoded": 3382,
+            "decoded": 8901
+          },
+          {
+            "name": "/assets/scheduler-l4uHkdFa.js",
+            "encoded": 1563,
+            "decoded": 3561
+          },
+          {
+            "name": "/assets/react-dom-DenslgJm.js",
+            "encoded": 1392,
+            "decoded": 3864
+          },
+          {
+            "name": "/assets/preload-helper-BZ1Pz5am.js",
+            "encoded": 688,
+            "decoded": 1218
+          },
+          {
+            "name": "/assets/chunk-OB3PAWPO-CVMmBO49.js",
+            "encoded": 13843,
+            "decoded": 38940
+          },
+          {
+            "name": "/assets/format-DFlJicod.js",
+            "encoded": 748,
+            "decoded": 1659
+          },
+          {
+            "name": "/assets/theme-B2UPacu4.js",
+            "encoded": 872,
+            "decoded": 1807
+          },
+          {
+            "name": "/assets/gematria-Ud5dslyW.js",
+            "encoded": 3039,
+            "decoded": 7546
+          },
+          {
+            "name": "/assets/supabase-Ca1yCZfZ.js",
+            "encoded": 50049,
+            "decoded": 194093
+          },
+          {
+            "name": "/assets/tracking-CAuLUUTt.js",
+            "encoded": 3649,
+            "decoded": 8792
+          },
+          {
+            "name": "/assets/AuthContext-DdJtHkX4.js",
+            "encoded": 2113,
+            "decoded": 4741
+          },
+          {
+            "name": "/assets/elsResearchReturnSnapshot-B03Lyzta.js",
+            "encoded": 1589,
+            "decoded": 4135
+          },
+          {
+            "name": "/assets/methodIdentity-DM2yAcOz.js",
+            "encoded": 157,
+            "decoded": 153
+          },
+          {
+            "name": "/assets/numberExpressionFocus-B6tt4hge.js",
+            "encoded": 1050,
+            "decoded": 2137
+          },
+          {
+            "name": "/assets/ResearchProvider-DOvURhbp.js",
+            "encoded": 13974,
+            "decoded": 42353
+          },
+          {
+            "name": "/assets/razielViewMode2029-EPrCdoW9.js",
+            "encoded": 408,
+            "decoded": 672
+          },
+          {
+            "name": "/assets/dayContext-DQm1CoPT.js",
+            "encoded": 54650,
+            "decoded": 158849
+          },
+          {
+            "name": "/assets/NavigationIcon2029-CH1qZpiS.js",
+            "encoded": 5369,
+            "decoded": 14796
+          },
+          {
+            "name": "/assets/themeMode-jUD92yIC.js",
+            "encoded": 422,
+            "decoded": 758
+          },
+          {
+            "name": "/assets/palette-CNyTr_3N.js",
+            "encoded": 3315,
+            "decoded": 8930
+          },
+          {
+            "name": "/assets/designTokens-B8JmV1rE.js",
+            "encoded": 1056,
+            "decoded": 2425
+          },
+          {
+            "name": "/assets/canonicalPresentation-DgNmWnf_.js",
+            "encoded": 2897,
+            "decoded": 7540
+          },
+          {
+            "name": "/assets/worldContextualProminence-DFYM9dQz.js",
+            "encoded": 5147,
+            "decoded": 14914
+          },
+          {
+            "name": "/assets/researchObjectPresentation-l0ubBFKY.js",
+            "encoded": 3453,
+            "decoded": 7566
+          },
+          {
+            "name": "/assets/universalFinding-DZVlmLqu.js",
+            "encoded": 1870,
+            "decoded": 4914
+          },
+          {
+            "name": "/assets/researchObjectFinding-bo3yYp1j.js",
+            "encoded": 2989,
+            "decoded": 8168
+          },
+          {
+            "name": "/assets/timeline2029-Dc49odMG.js",
+            "encoded": 2138,
+            "decoded": 4100
+          },
+          {
+            "name": "/assets/ShareActions-VMzRlrhh.js",
+            "encoded": 5810,
+            "decoded": 13147
+          },
+          {
+            "name": "/assets/postSourceUpdates2029-05vVMebH.js",
+            "encoded": 1609,
+            "decoded": 3631
+          },
+          {
+            "name": "/assets/gematriaTracePresentation-CX847u8G.js",
+            "encoded": 2742,
+            "decoded": 6488
+          },
+          {
+            "name": "/assets/numberCoreProjection-BBWYdulC.js",
+            "encoded": 5373,
+            "decoded": 14039
+          },
+          {
+            "name": "/assets/calculator2029Input-BbfftHdT.js",
+            "encoded": 904,
+            "decoded": 1606
+          },
+          {
+            "name": "/assets/NavigationIcon2029-CDR-JqlQ.css",
+            "encoded": 572,
+            "decoded": 2059
+          },
+          {
+            "name": "/assets/ShareActions-DMXv2tqp.css",
+            "encoded": 1138,
+            "decoded": 4370
+          },
+          {
+            "name": "/assets/2029-CNbuPO77.css",
+            "encoded": 37283,
+            "decoded": 250985
+          },
+          {
+            "name": "/assets/previewVisualReview2029-CNp-RIpL.js",
+            "encoded": 2017,
+            "decoded": 5160
+          },
+          {
+            "name": "/assets/previewVisualReview2029-BvQ2FAL9.css",
+            "encoded": 4452,
+            "decoded": 27851
+          },
+          {
+            "name": "/assets/Home2029Page-DPb2BIdg.js",
+            "encoded": 17370,
+            "decoded": 57876
+          },
+          {
+            "name": "/assets/researchPlanV2-3w8XYcGP.js",
+            "encoded": 10155,
+            "decoded": 33629
+          },
+          {
+            "name": "/assets/CurationMark2029-CRcuZKya.js",
+            "encoded": 1918,
+            "decoded": 5364
+          },
+          {
+            "name": "/assets/CurationMark2029-CqI6kfN0.css",
+            "encoded": 1428,
+            "decoded": 5861
+          },
+          {
+            "name": "/assets/ConvergenceRatings2029-BAIkA5W6.js",
+            "encoded": 2024,
+            "decoded": 5417
+          },
+          {
+            "name": "/assets/ConvergenceRatings2029-Bf7X875Q.css",
+            "encoded": 917,
+            "decoded": 2819
+          },
+          {
+            "name": "/assets/SourceRepeatInfo2029-pnIEt0cJ.js",
+            "encoded": 4599,
+            "decoded": 11705
+          },
+          {
+            "name": "/assets/topicConvergence-DjjmfNLy.js",
+            "encoded": 6162,
+            "decoded": 19991
+          },
+          {
+            "name": "/assets/entityHubProjection-BrQIjfLZ.js",
+            "encoded": 13686,
+            "decoded": 43998
+          },
+          {
+            "name": "/assets/entityGraphFinding-lamqBOiR.js",
+            "encoded": 1849,
+            "decoded": 4659
+          },
+          {
+            "name": "/assets/numericResearch-DqZcmZHs.js",
+            "encoded": 7745,
+            "decoded": 23292
+          },
+          {
+            "name": "/assets/canonicalGematria-DOWJ-lzs.js",
+            "encoded": 226,
+            "decoded": 275
+          },
+          {
+            "name": "/assets/canonicalGematriaProjection-B66_nJSZ.js",
+            "encoded": 660,
+            "decoded": 1244
+          },
+          {
+            "name": "/assets/bookResearchProjection-D_TXPSLW.js",
+            "encoded": 3690,
+            "decoded": 9260
+          },
+          {
+            "name": "/assets/post2029ReadingProjection-_-bo3Gz7.js",
+            "encoded": 56716,
+            "decoded": 190215
+          },
+          {
+            "name": "/assets/researchResultBundle-Boq8ysD6.js",
+            "encoded": 3436,
+            "decoded": 9315
+          },
+          {
+            "name": "/assets/gematriaRelationW2Executor-tdwwe1JL.js",
+            "encoded": 3070,
+            "decoded": 8020
+          },
+          {
+            "name": "/assets/momentClockSystemMethod-BI0Cjeqa.js",
+            "encoded": 6805,
+            "decoded": 19368
+          },
+          {
+            "name": "/assets/numberSystemMethods-nQEJu_oj.js",
+            "encoded": 5687,
+            "decoded": 17209
+          },
+          {
+            "name": "/assets/publicPostBoundary-DLBRu07Y.js",
+            "encoded": 214,
+            "decoded": 243
+          },
+          {
+            "name": "/assets/worldDiscoveryStream-CYR8Zpa7.js",
+            "encoded": 4084,
+            "decoded": 10402
+          },
+          {
+            "name": "/assets/PostTimeline2029-HTi-_P5n.js",
+            "encoded": 245,
+            "decoded": 324
+          },
+          {
+            "name": "/assets/Timeline2029-DCEKqbCw.js",
+            "encoded": 828,
+            "decoded": 2138
+          },
+          {
+            "name": "/assets/Timeline2029-a6_QYh8e.css",
+            "encoded": 630,
+            "decoded": 2296
+          },
+          {
+            "name": "/assets/PostCategories2029-C2I-R8ZX.js",
+            "encoded": 3941,
+            "decoded": 9246
+          },
+          {
+            "name": "/assets/PostCategories2029-DP5c8Fzv.css",
+            "encoded": 724,
+            "decoded": 2507
+          },
+          {
+            "name": "/assets/SourceRepeatInfo2029-DDIWPxqd.css",
+            "encoded": 1739,
+            "decoded": 7142
+          },
+          {
+            "name": "/assets/RealityRiver2029-BcQdNzFD.js",
+            "encoded": 4186,
+            "decoded": 11849
+          },
+          {
+            "name": "/assets/WatchButton-PTbPLmoA.js",
+            "encoded": 3980,
+            "decoded": 11371
+          },
+          {
+            "name": "/assets/EmailVerify-DzYwITH4.js",
+            "encoded": 2234,
+            "decoded": 5206
+          },
+          {
+            "name": "/assets/EmailVerify-DM0qVGWZ.css",
+            "encoded": 617,
+            "decoded": 2261
+          },
+          {
+            "name": "/assets/IconTile2029-M1nJfG83.js",
+            "encoded": 509,
+            "decoded": 778
+          },
+          {
+            "name": "/assets/IconTile2029-x-yAGhlc.css",
+            "encoded": 227,
+            "decoded": 365
+          },
+          {
+            "name": "/assets/WatchButton-DFPG23U2.css",
+            "encoded": 776,
+            "decoded": 2243
+          },
+          {
+            "name": "/assets/RealityRiver2029-BzMsP3iY.css",
+            "encoded": 3880,
+            "decoded": 15719
+          },
+          {
+            "name": "/assets/timeFlow-B3Pve8h-.js",
+            "encoded": 880,
+            "decoded": 1718
+          },
+          {
+            "name": "/assets/home2029Projection-DZ5YL9py.js",
+            "encoded": 3450,
+            "decoded": 8648
+          },
+          {
+            "name": "/assets/curationProjection2029-B2_yRTIO.js",
+            "encoded": 1915,
+            "decoded": 4495
+          },
+          {
+            "name": "/assets/worldContributorLens-D6VxnEJm.js",
+            "encoded": 2425,
+            "decoded": 6479
+          },
+          {
+            "name": "/assets/Home2029Page-h2C-6HLd.css",
+            "encoded": 5013,
+            "decoded": 22545
+          },
+          {
+            "name": "/assets/livingRibbonPreview2029-BI1iUMB3.js",
+            "encoded": 461,
+            "decoded": 853
+          }
+        ],
+        "flagReads": 1,
+        "requestCount": 106,
+        "modelCalls": 0,
+        "blockedWriteAttempts": [
+          "/rest/v1/rpc/notification_prefs_guest_get_v1"
+        ]
+      },
+      {
+        "label": "after",
+        "run": 1,
+        "profile": {
+          "width": 390,
+          "cpu": 4,
+          "net": true
+        },
+        "primary_ms": 5835.5,
+        "lcp": 5880,
+        "cls": 0.05341234567901234,
+        "longTasks": 5,
+        "longTaskMs": 729,
+        "resources": [
+          {
+            "name": "/assets/2029-DDew4Z7L.js",
+            "encoded": 221126,
+            "decoded": 731447
+          },
+          {
+            "name": "/assets/jsx-runtime-D3jfb0Ew.js",
+            "encoded": 3382,
+            "decoded": 8901
+          },
+          {
+            "name": "/assets/scheduler-l4uHkdFa.js",
+            "encoded": 1563,
+            "decoded": 3561
+          },
+          {
+            "name": "/assets/react-dom-DenslgJm.js",
+            "encoded": 1392,
+            "decoded": 3864
+          },
+          {
+            "name": "/assets/preload-helper-BZ1Pz5am.js",
+            "encoded": 688,
+            "decoded": 1218
+          },
+          {
+            "name": "/assets/chunk-OB3PAWPO-CVMmBO49.js",
+            "encoded": 13843,
+            "decoded": 38940
+          },
+          {
+            "name": "/assets/format-DFlJicod.js",
+            "encoded": 748,
+            "decoded": 1659
+          },
+          {
+            "name": "/assets/theme-B2UPacu4.js",
+            "encoded": 872,
+            "decoded": 1807
+          },
+          {
+            "name": "/assets/gematria-Ud5dslyW.js",
+            "encoded": 3039,
+            "decoded": 7546
+          },
+          {
+            "name": "/assets/supabase-Ca1yCZfZ.js",
+            "encoded": 50049,
+            "decoded": 194093
+          },
+          {
+            "name": "/assets/tracking-CAuLUUTt.js",
+            "encoded": 3649,
+            "decoded": 8792
+          },
+          {
+            "name": "/assets/AuthContext-DdJtHkX4.js",
+            "encoded": 2113,
+            "decoded": 4741
+          },
+          {
+            "name": "/assets/elsResearchReturnSnapshot-B03Lyzta.js",
+            "encoded": 1589,
+            "decoded": 4135
+          },
+          {
+            "name": "/assets/methodIdentity-DM2yAcOz.js",
+            "encoded": 157,
+            "decoded": 153
+          },
+          {
+            "name": "/assets/numberExpressionFocus-B6tt4hge.js",
+            "encoded": 1050,
+            "decoded": 2137
+          },
+          {
+            "name": "/assets/ResearchProvider-DOvURhbp.js",
+            "encoded": 13974,
+            "decoded": 42353
+          },
+          {
+            "name": "/assets/razielViewMode2029-EPrCdoW9.js",
+            "encoded": 408,
+            "decoded": 672
+          },
+          {
+            "name": "/assets/NavigationIcon2029-CH1qZpiS.js",
+            "encoded": 5369,
+            "decoded": 14796
+          },
+          {
+            "name": "/assets/dayContext-DQm1CoPT.js",
+            "encoded": 54650,
+            "decoded": 158849
+          },
+          {
+            "name": "/assets/themeMode-jUD92yIC.js",
+            "encoded": 422,
+            "decoded": 758
+          },
+          {
+            "name": "/assets/palette-CNyTr_3N.js",
+            "encoded": 3315,
+            "decoded": 8930
+          },
+          {
+            "name": "/assets/designTokens-B8JmV1rE.js",
+            "encoded": 1056,
+            "decoded": 2425
+          },
+          {
+            "name": "/assets/canonicalPresentation-DgNmWnf_.js",
+            "encoded": 2897,
+            "decoded": 7540
+          },
+          {
+            "name": "/assets/worldContextualProminence-DFYM9dQz.js",
+            "encoded": 5147,
+            "decoded": 14914
+          },
+          {
+            "name": "/assets/researchObjectPresentation-l0ubBFKY.js",
+            "encoded": 3453,
+            "decoded": 7566
+          },
+          {
+            "name": "/assets/universalFinding-DZVlmLqu.js",
+            "encoded": 1870,
+            "decoded": 4914
+          },
+          {
+            "name": "/assets/researchObjectFinding-bo3yYp1j.js",
+            "encoded": 2989,
+            "decoded": 8168
+          },
+          {
+            "name": "/assets/timeline2029-Dc49odMG.js",
+            "encoded": 2138,
+            "decoded": 4100
+          },
+          {
+            "name": "/assets/ShareActions-VMzRlrhh.js",
+            "encoded": 5810,
+            "decoded": 13147
+          },
+          {
+            "name": "/assets/postSourceUpdates2029-05vVMebH.js",
+            "encoded": 1609,
+            "decoded": 3631
+          },
+          {
+            "name": "/assets/gematriaTracePresentation-CX847u8G.js",
+            "encoded": 2742,
+            "decoded": 6488
+          },
+          {
+            "name": "/assets/numberCoreProjection-BBWYdulC.js",
+            "encoded": 5373,
+            "decoded": 14039
+          },
+          {
+            "name": "/assets/calculator2029Input-BbfftHdT.js",
+            "encoded": 904,
+            "decoded": 1606
+          },
+          {
+            "name": "/assets/NavigationIcon2029-CDR-JqlQ.css",
+            "encoded": 572,
+            "decoded": 2059
+          },
+          {
+            "name": "/assets/ShareActions-DMXv2tqp.css",
+            "encoded": 1138,
+            "decoded": 4370
+          },
+          {
+            "name": "/assets/2029-CNbuPO77.css",
+            "encoded": 37283,
+            "decoded": 250985
+          },
+          {
+            "name": "/assets/previewVisualReview2029-CNp-RIpL.js",
+            "encoded": 2017,
+            "decoded": 5160
+          },
+          {
+            "name": "/assets/previewVisualReview2029-BvQ2FAL9.css",
+            "encoded": 4452,
+            "decoded": 27851
+          },
+          {
+            "name": "/assets/Home2029Page-DPb2BIdg.js",
+            "encoded": 17370,
+            "decoded": 57876
+          },
+          {
+            "name": "/assets/researchPlanV2-3w8XYcGP.js",
+            "encoded": 10155,
+            "decoded": 33629
+          },
+          {
+            "name": "/assets/CurationMark2029-CRcuZKya.js",
+            "encoded": 1918,
+            "decoded": 5364
+          },
+          {
+            "name": "/assets/CurationMark2029-CqI6kfN0.css",
+            "encoded": 1428,
+            "decoded": 5861
+          },
+          {
+            "name": "/assets/ConvergenceRatings2029-BAIkA5W6.js",
+            "encoded": 2024,
+            "decoded": 5417
+          },
+          {
+            "name": "/assets/ConvergenceRatings2029-Bf7X875Q.css",
+            "encoded": 917,
+            "decoded": 2819
+          },
+          {
+            "name": "/assets/SourceRepeatInfo2029-pnIEt0cJ.js",
+            "encoded": 4599,
+            "decoded": 11705
+          },
+          {
+            "name": "/assets/topicConvergence-DjjmfNLy.js",
+            "encoded": 6162,
+            "decoded": 19991
+          },
+          {
+            "name": "/assets/entityHubProjection-BrQIjfLZ.js",
+            "encoded": 13686,
+            "decoded": 43998
+          },
+          {
+            "name": "/assets/entityGraphFinding-lamqBOiR.js",
+            "encoded": 1849,
+            "decoded": 4659
+          },
+          {
+            "name": "/assets/numericResearch-DqZcmZHs.js",
+            "encoded": 7745,
+            "decoded": 23292
+          },
+          {
+            "name": "/assets/canonicalGematria-DOWJ-lzs.js",
+            "encoded": 226,
+            "decoded": 275
+          },
+          {
+            "name": "/assets/canonicalGematriaProjection-B66_nJSZ.js",
+            "encoded": 660,
+            "decoded": 1244
+          },
+          {
+            "name": "/assets/bookResearchProjection-D_TXPSLW.js",
+            "encoded": 3690,
+            "decoded": 9260
+          },
+          {
+            "name": "/assets/post2029ReadingProjection-_-bo3Gz7.js",
+            "encoded": 56716,
+            "decoded": 190215
+          },
+          {
+            "name": "/assets/researchResultBundle-Boq8ysD6.js",
+            "encoded": 3436,
+            "decoded": 9315
+          },
+          {
+            "name": "/assets/gematriaRelationW2Executor-tdwwe1JL.js",
+            "encoded": 3070,
+            "decoded": 8020
+          },
+          {
+            "name": "/assets/momentClockSystemMethod-BI0Cjeqa.js",
+            "encoded": 6805,
+            "decoded": 19368
+          },
+          {
+            "name": "/assets/numberSystemMethods-nQEJu_oj.js",
+            "encoded": 5687,
+            "decoded": 17209
+          },
+          {
+            "name": "/assets/publicPostBoundary-DLBRu07Y.js",
+            "encoded": 214,
+            "decoded": 243
+          },
+          {
+            "name": "/assets/worldDiscoveryStream-CYR8Zpa7.js",
+            "encoded": 4084,
+            "decoded": 10402
+          },
+          {
+            "name": "/assets/PostTimeline2029-HTi-_P5n.js",
+            "encoded": 245,
+            "decoded": 324
+          },
+          {
+            "name": "/assets/Timeline2029-DCEKqbCw.js",
+            "encoded": 828,
+            "decoded": 2138
+          },
+          {
+            "name": "/assets/Timeline2029-a6_QYh8e.css",
+            "encoded": 630,
+            "decoded": 2296
+          },
+          {
+            "name": "/assets/PostCategories2029-C2I-R8ZX.js",
+            "encoded": 3941,
+            "decoded": 9246
+          },
+          {
+            "name": "/assets/PostCategories2029-DP5c8Fzv.css",
+            "encoded": 724,
+            "decoded": 2507
+          },
+          {
+            "name": "/assets/SourceRepeatInfo2029-DDIWPxqd.css",
+            "encoded": 1739,
+            "decoded": 7142
+          },
+          {
+            "name": "/assets/RealityRiver2029-BcQdNzFD.js",
+            "encoded": 4186,
+            "decoded": 11849
+          },
+          {
+            "name": "/assets/WatchButton-PTbPLmoA.js",
+            "encoded": 3980,
+            "decoded": 11371
+          },
+          {
+            "name": "/assets/EmailVerify-DzYwITH4.js",
+            "encoded": 2234,
+            "decoded": 5206
+          },
+          {
+            "name": "/assets/EmailVerify-DM0qVGWZ.css",
+            "encoded": 617,
+            "decoded": 2261
+          },
+          {
+            "name": "/assets/IconTile2029-M1nJfG83.js",
+            "encoded": 509,
+            "decoded": 778
+          },
+          {
+            "name": "/assets/IconTile2029-x-yAGhlc.css",
+            "encoded": 227,
+            "decoded": 365
+          },
+          {
+            "name": "/assets/WatchButton-DFPG23U2.css",
+            "encoded": 776,
+            "decoded": 2243
+          },
+          {
+            "name": "/assets/RealityRiver2029-BzMsP3iY.css",
+            "encoded": 3880,
+            "decoded": 15719
+          },
+          {
+            "name": "/assets/home2029Projection-DZ5YL9py.js",
+            "encoded": 3450,
+            "decoded": 8648
+          },
+          {
+            "name": "/assets/timeFlow-B3Pve8h-.js",
+            "encoded": 880,
+            "decoded": 1718
+          },
+          {
+            "name": "/assets/curationProjection2029-B2_yRTIO.js",
+            "encoded": 1915,
+            "decoded": 4495
+          },
+          {
+            "name": "/assets/worldContributorLens-D6VxnEJm.js",
+            "encoded": 2425,
+            "decoded": 6479
+          },
+          {
+            "name": "/assets/Home2029Page-h2C-6HLd.css",
+            "encoded": 5013,
+            "decoded": 22545
+          },
+          {
+            "name": "/assets/livingRibbonPreview2029-BI1iUMB3.js",
+            "encoded": 461,
+            "decoded": 853
+          }
+        ],
+        "flagReads": 1,
+        "requestCount": 106,
+        "modelCalls": 0,
+        "blockedWriteAttempts": [
+          "/rest/v1/rpc/notification_prefs_guest_get_v1"
+        ]
+      },
+      {
+        "label": "before",
+        "run": 1,
+        "profile": {
+          "width": 390,
+          "cpu": 4,
+          "net": true
+        },
+        "primary_ms": 5739.100000000093,
+        "lcp": 5580,
+        "cls": 0.05341234567901234,
+        "longTasks": 4,
+        "longTaskMs": 710,
+        "resources": [
+          {
+            "name": "/assets/2029-B0iBjSWm.js",
+            "encoded": 221147,
+            "decoded": 731447
+          },
+          {
+            "name": "/assets/jsx-runtime-D3jfb0Ew.js",
+            "encoded": 3382,
+            "decoded": 8901
+          },
+          {
+            "name": "/assets/scheduler-l4uHkdFa.js",
+            "encoded": 1563,
+            "decoded": 3561
+          },
+          {
+            "name": "/assets/react-dom-DenslgJm.js",
+            "encoded": 1392,
+            "decoded": 3864
+          },
+          {
+            "name": "/assets/preload-helper-BZ1Pz5am.js",
+            "encoded": 688,
+            "decoded": 1218
+          },
+          {
+            "name": "/assets/chunk-OB3PAWPO-CVMmBO49.js",
+            "encoded": 13843,
+            "decoded": 38940
+          },
+          {
+            "name": "/assets/format-DFlJicod.js",
+            "encoded": 748,
+            "decoded": 1659
+          },
+          {
+            "name": "/assets/theme-B2UPacu4.js",
+            "encoded": 872,
+            "decoded": 1807
+          },
+          {
+            "name": "/assets/gematria-Ud5dslyW.js",
+            "encoded": 3039,
+            "decoded": 7546
+          },
+          {
+            "name": "/assets/supabase-DkpS7dgV.js",
+            "encoded": 50048,
+            "decoded": 194093
+          },
+          {
+            "name": "/assets/tracking-a59pzQGS.js",
+            "encoded": 3649,
+            "decoded": 8792
+          },
+          {
+            "name": "/assets/AuthContext-J9o2I7T_.js",
+            "encoded": 2115,
+            "decoded": 4741
+          },
+          {
+            "name": "/assets/elsResearchReturnSnapshot-B03Lyzta.js",
+            "encoded": 1589,
+            "decoded": 4135
+          },
+          {
+            "name": "/assets/methodIdentity-DM2yAcOz.js",
+            "encoded": 157,
+            "decoded": 153
+          },
+          {
+            "name": "/assets/numberExpressionFocus-BA7z8vP8.js",
+            "encoded": 1050,
+            "decoded": 2137
+          },
+          {
+            "name": "/assets/ResearchProvider-B_pVsxwJ.js",
+            "encoded": 13979,
+            "decoded": 42353
+          },
+          {
+            "name": "/assets/razielViewMode2029-EPrCdoW9.js",
+            "encoded": 408,
+            "decoded": 672
+          },
+          {
+            "name": "/assets/NavigationIcon2029-CH1qZpiS.js",
+            "encoded": 5369,
+            "decoded": 14796
+          },
+          {
+            "name": "/assets/dayContext-DQm1CoPT.js",
+            "encoded": 54650,
+            "decoded": 158849
+          },
+          {
+            "name": "/assets/themeMode-jUD92yIC.js",
+            "encoded": 422,
+            "decoded": 758
+          },
+          {
+            "name": "/assets/designTokens-B8JmV1rE.js",
+            "encoded": 1056,
+            "decoded": 2425
+          },
+          {
+            "name": "/assets/palette-CNyTr_3N.js",
+            "encoded": 3315,
+            "decoded": 8930
+          },
+          {
+            "name": "/assets/canonicalPresentation-DgNmWnf_.js",
+            "encoded": 2897,
+            "decoded": 7540
+          },
+          {
+            "name": "/assets/worldContextualProminence-DFYM9dQz.js",
+            "encoded": 5147,
+            "decoded": 14914
+          },
+          {
+            "name": "/assets/researchObjectPresentation-l0ubBFKY.js",
+            "encoded": 3453,
+            "decoded": 7566
+          },
+          {
+            "name": "/assets/universalFinding-DZVlmLqu.js",
+            "encoded": 1870,
+            "decoded": 4914
+          },
+          {
+            "name": "/assets/researchObjectFinding-bo3yYp1j.js",
+            "encoded": 2989,
+            "decoded": 8168
+          },
+          {
+            "name": "/assets/timeline2029-Dc49odMG.js",
+            "encoded": 2138,
+            "decoded": 4100
+          },
+          {
+            "name": "/assets/ShareActions-0g-w402r.js",
+            "encoded": 5808,
+            "decoded": 13147
+          },
+          {
+            "name": "/assets/postSourceUpdates2029-05vVMebH.js",
+            "encoded": 1609,
+            "decoded": 3631
+          },
+          {
+            "name": "/assets/gematriaTracePresentation-CX847u8G.js",
+            "encoded": 2742,
+            "decoded": 6488
+          },
+          {
+            "name": "/assets/numberCoreProjection-BsfKEyPA.js",
+            "encoded": 5373,
+            "decoded": 14039
+          },
+          {
+            "name": "/assets/NavigationIcon2029-CDR-JqlQ.css",
+            "encoded": 572,
+            "decoded": 2059
+          },
+          {
+            "name": "/assets/calculator2029Input-BbfftHdT.js",
+            "encoded": 904,
+            "decoded": 1606
+          },
+          {
+            "name": "/assets/ShareActions-DMXv2tqp.css",
+            "encoded": 1138,
+            "decoded": 4370
+          },
+          {
+            "name": "/assets/2029-CNbuPO77.css",
+            "encoded": 37283,
+            "decoded": 250985
+          },
+          {
+            "name": "/assets/previewVisualReview2029-BLLl4Wof.js",
+            "encoded": 2017,
+            "decoded": 5160
+          },
+          {
+            "name": "/assets/previewVisualReview2029-BvQ2FAL9.css",
+            "encoded": 4452,
+            "decoded": 27851
+          },
+          {
+            "name": "/assets/Home2029Page-DFKP5TTr.js",
+            "encoded": 16812,
+            "decoded": 56043
+          },
+          {
+            "name": "/assets/researchPlanV2-B2lRLxm3.js",
+            "encoded": 10154,
+            "decoded": 33629
+          },
+          {
+            "name": "/assets/CurationMark2029-CRcuZKya.js",
+            "encoded": 1918,
+            "decoded": 5364
+          },
+          {
+            "name": "/assets/CurationMark2029-CqI6kfN0.css",
+            "encoded": 1428,
+            "decoded": 5861
+          },
+          {
+            "name": "/assets/ConvergenceRatings2029-8qbRdNel.js",
+            "encoded": 2024,
+            "decoded": 5417
+          },
+          {
+            "name": "/assets/ConvergenceRatings2029-Bf7X875Q.css",
+            "encoded": 917,
+            "decoded": 2819
+          },
+          {
+            "name": "/assets/SourceRepeatInfo2029-CN54GpUm.js",
+            "encoded": 4595,
+            "decoded": 11705
+          },
+          {
+            "name": "/assets/topicConvergence-CHCPqQkw.js",
+            "encoded": 6162,
+            "decoded": 19991
+          },
+          {
+            "name": "/assets/entityHubProjection-BJ9yho2Q.js",
+            "encoded": 13688,
+            "decoded": 43998
+          },
+          {
+            "name": "/assets/entityGraphFinding-DPAvsxl6.js",
+            "encoded": 1849,
+            "decoded": 4659
+          },
+          {
+            "name": "/assets/numericResearch-DqZcmZHs.js",
+            "encoded": 7745,
+            "decoded": 23292
+          },
+          {
+            "name": "/assets/canonicalGematria-DSIyTFGn.js",
+            "encoded": 227,
+            "decoded": 275
+          },
+          {
+            "name": "/assets/canonicalGematriaProjection-B66_nJSZ.js",
+            "encoded": 660,
+            "decoded": 1244
+          },
+          {
+            "name": "/assets/bookResearchProjection-5tc4wXqQ.js",
+            "encoded": 3689,
+            "decoded": 9260
+          },
+          {
+            "name": "/assets/post2029ReadingProjection-VRTpbRWR.js",
+            "encoded": 56722,
+            "decoded": 190215
+          },
+          {
+            "name": "/assets/researchResultBundle-C_k0U3E0.js",
+            "encoded": 3436,
+            "decoded": 9315
+          },
+          {
+            "name": "/assets/gematriaRelationW2Executor-BfyK05J3.js",
+            "encoded": 3069,
+            "decoded": 8020
+          },
+          {
+            "name": "/assets/momentClockSystemMethod-DfaWpOyy.js",
+            "encoded": 6806,
+            "decoded": 19368
+          },
+          {
+            "name": "/assets/numberSystemMethods-C7ILjE6a.js",
+            "encoded": 5686,
+            "decoded": 17209
+          },
+          {
+            "name": "/assets/publicPostBoundary-DLBRu07Y.js",
+            "encoded": 214,
+            "decoded": 243
+          },
+          {
+            "name": "/assets/worldDiscoveryStream-Dh5Zjl1F.js",
+            "encoded": 4083,
+            "decoded": 10402
+          },
+          {
+            "name": "/assets/PostTimeline2029-HTi-_P5n.js",
+            "encoded": 245,
+            "decoded": 324
+          },
+          {
+            "name": "/assets/Timeline2029-DCEKqbCw.js",
+            "encoded": 828,
+            "decoded": 2138
+          },
+          {
+            "name": "/assets/Timeline2029-a6_QYh8e.css",
+            "encoded": 630,
+            "decoded": 2296
+          },
+          {
+            "name": "/assets/PostCategories2029-DDdr8_wC.js",
+            "encoded": 3941,
+            "decoded": 9246
+          },
+          {
+            "name": "/assets/PostCategories2029-DP5c8Fzv.css",
+            "encoded": 724,
+            "decoded": 2507
+          },
+          {
+            "name": "/assets/SourceRepeatInfo2029-DDIWPxqd.css",
+            "encoded": 1739,
+            "decoded": 7142
+          },
+          {
+            "name": "/assets/RealityRiver2029-UI-ahMZY.js",
+            "encoded": 4191,
+            "decoded": 11849
+          },
+          {
+            "name": "/assets/WatchButton-NOH-DPEz.js",
+            "encoded": 3978,
+            "decoded": 11371
+          },
+          {
+            "name": "/assets/EmailVerify-Cn5q0HQX.js",
+            "encoded": 2233,
+            "decoded": 5206
+          },
+          {
+            "name": "/assets/EmailVerify-DM0qVGWZ.css",
+            "encoded": 617,
+            "decoded": 2261
+          },
+          {
+            "name": "/assets/IconTile2029-JLOMl_ev.js",
+            "encoded": 509,
+            "decoded": 778
+          },
+          {
+            "name": "/assets/IconTile2029-x-yAGhlc.css",
+            "encoded": 227,
+            "decoded": 365
+          },
+          {
+            "name": "/assets/WatchButton-DFPG23U2.css",
+            "encoded": 776,
+            "decoded": 2243
+          },
+          {
+            "name": "/assets/RealityRiver2029-BzMsP3iY.css",
+            "encoded": 3880,
+            "decoded": 15719
+          },
+          {
+            "name": "/assets/home2029Projection-GryV-N5n.js",
+            "encoded": 3444,
+            "decoded": 8641
+          },
+          {
+            "name": "/assets/timeFlow-B3Pve8h-.js",
+            "encoded": 880,
+            "decoded": 1718
+          },
+          {
+            "name": "/assets/curationProjection2029-Cs2obozj.js",
+            "encoded": 1916,
+            "decoded": 4495
+          },
+          {
+            "name": "/assets/worldContributorLens-EjJnWZSP.js",
+            "encoded": 2426,
+            "decoded": 6479
+          },
+          {
+            "name": "/assets/Home2029Page-h2C-6HLd.css",
+            "encoded": 5013,
+            "decoded": 22545
+          },
+          {
+            "name": "/assets/livingRibbonPreview2029-BI1iUMB3.js",
+            "encoded": 461,
+            "decoded": 853
+          }
+        ],
+        "flagReads": 1,
+        "requestCount": 114,
+        "modelCalls": 0,
+        "blockedWriteAttempts": [
+          "/rest/v1/rpc/notification_prefs_guest_get_v1"
+        ]
+      },
+      {
+        "label": "before",
+        "run": 2,
+        "profile": {
+          "width": 390,
+          "cpu": 4,
+          "net": true
+        },
+        "primary_ms": 5744.700000000186,
+        "lcp": 5540,
+        "cls": 0.05341234567901234,
+        "longTasks": 4,
+        "longTaskMs": 679,
+        "resources": [
+          {
+            "name": "/assets/2029-B0iBjSWm.js",
+            "encoded": 221147,
+            "decoded": 731447
+          },
+          {
+            "name": "/assets/jsx-runtime-D3jfb0Ew.js",
+            "encoded": 3382,
+            "decoded": 8901
+          },
+          {
+            "name": "/assets/scheduler-l4uHkdFa.js",
+            "encoded": 1563,
+            "decoded": 3561
+          },
+          {
+            "name": "/assets/react-dom-DenslgJm.js",
+            "encoded": 1392,
+            "decoded": 3864
+          },
+          {
+            "name": "/assets/preload-helper-BZ1Pz5am.js",
+            "encoded": 688,
+            "decoded": 1218
+          },
+          {
+            "name": "/assets/chunk-OB3PAWPO-CVMmBO49.js",
+            "encoded": 13843,
+            "decoded": 38940
+          },
+          {
+            "name": "/assets/format-DFlJicod.js",
+            "encoded": 748,
+            "decoded": 1659
+          },
+          {
+            "name": "/assets/theme-B2UPacu4.js",
+            "encoded": 872,
+            "decoded": 1807
+          },
+          {
+            "name": "/assets/gematria-Ud5dslyW.js",
+            "encoded": 3039,
+            "decoded": 7546
+          },
+          {
+            "name": "/assets/supabase-DkpS7dgV.js",
+            "encoded": 50048,
+            "decoded": 194093
+          },
+          {
+            "name": "/assets/tracking-a59pzQGS.js",
+            "encoded": 3649,
+            "decoded": 8792
+          },
+          {
+            "name": "/assets/AuthContext-J9o2I7T_.js",
+            "encoded": 2115,
+            "decoded": 4741
+          },
+          {
+            "name": "/assets/elsResearchReturnSnapshot-B03Lyzta.js",
+            "encoded": 1589,
+            "decoded": 4135
+          },
+          {
+            "name": "/assets/methodIdentity-DM2yAcOz.js",
+            "encoded": 157,
+            "decoded": 153
+          },
+          {
+            "name": "/assets/numberExpressionFocus-BA7z8vP8.js",
+            "encoded": 1050,
+            "decoded": 2137
+          },
+          {
+            "name": "/assets/ResearchProvider-B_pVsxwJ.js",
+            "encoded": 13979,
+            "decoded": 42353
+          },
+          {
+            "name": "/assets/razielViewMode2029-EPrCdoW9.js",
+            "encoded": 408,
+            "decoded": 672
+          },
+          {
+            "name": "/assets/dayContext-DQm1CoPT.js",
+            "encoded": 54650,
+            "decoded": 158849
+          },
+          {
+            "name": "/assets/NavigationIcon2029-CH1qZpiS.js",
+            "encoded": 5369,
+            "decoded": 14796
+          },
+          {
+            "name": "/assets/themeMode-jUD92yIC.js",
+            "encoded": 422,
+            "decoded": 758
+          },
+          {
+            "name": "/assets/palette-CNyTr_3N.js",
+            "encoded": 3315,
+            "decoded": 8930
+          },
+          {
+            "name": "/assets/designTokens-B8JmV1rE.js",
+            "encoded": 1056,
+            "decoded": 2425
+          },
+          {
+            "name": "/assets/canonicalPresentation-DgNmWnf_.js",
+            "encoded": 2897,
+            "decoded": 7540
+          },
+          {
+            "name": "/assets/worldContextualProminence-DFYM9dQz.js",
+            "encoded": 5147,
+            "decoded": 14914
+          },
+          {
+            "name": "/assets/researchObjectPresentation-l0ubBFKY.js",
+            "encoded": 3453,
+            "decoded": 7566
+          },
+          {
+            "name": "/assets/universalFinding-DZVlmLqu.js",
+            "encoded": 1870,
+            "decoded": 4914
+          },
+          {
+            "name": "/assets/researchObjectFinding-bo3yYp1j.js",
+            "encoded": 2989,
+            "decoded": 8168
+          },
+          {
+            "name": "/assets/timeline2029-Dc49odMG.js",
+            "encoded": 2138,
+            "decoded": 4100
+          },
+          {
+            "name": "/assets/ShareActions-0g-w402r.js",
+            "encoded": 5808,
+            "decoded": 13147
+          },
+          {
+            "name": "/assets/postSourceUpdates2029-05vVMebH.js",
+            "encoded": 1609,
+            "decoded": 3631
+          },
+          {
+            "name": "/assets/gematriaTracePresentation-CX847u8G.js",
+            "encoded": 2742,
+            "decoded": 6488
+          },
+          {
+            "name": "/assets/numberCoreProjection-BsfKEyPA.js",
+            "encoded": 5373,
+            "decoded": 14039
+          },
+          {
+            "name": "/assets/NavigationIcon2029-CDR-JqlQ.css",
+            "encoded": 572,
+            "decoded": 2059
+          },
+          {
+            "name": "/assets/calculator2029Input-BbfftHdT.js",
+            "encoded": 904,
+            "decoded": 1606
+          },
+          {
+            "name": "/assets/ShareActions-DMXv2tqp.css",
+            "encoded": 1138,
+            "decoded": 4370
+          },
+          {
+            "name": "/assets/2029-CNbuPO77.css",
+            "encoded": 37283,
+            "decoded": 250985
+          },
+          {
+            "name": "/assets/previewVisualReview2029-BLLl4Wof.js",
+            "encoded": 2017,
+            "decoded": 5160
+          },
+          {
+            "name": "/assets/previewVisualReview2029-BvQ2FAL9.css",
+            "encoded": 4452,
+            "decoded": 27851
+          },
+          {
+            "name": "/assets/Home2029Page-DFKP5TTr.js",
+            "encoded": 16812,
+            "decoded": 56043
+          },
+          {
+            "name": "/assets/researchPlanV2-B2lRLxm3.js",
+            "encoded": 10154,
+            "decoded": 33629
+          },
+          {
+            "name": "/assets/CurationMark2029-CRcuZKya.js",
+            "encoded": 1918,
+            "decoded": 5364
+          },
+          {
+            "name": "/assets/CurationMark2029-CqI6kfN0.css",
+            "encoded": 1428,
+            "decoded": 5861
+          },
+          {
+            "name": "/assets/ConvergenceRatings2029-8qbRdNel.js",
+            "encoded": 2024,
+            "decoded": 5417
+          },
+          {
+            "name": "/assets/ConvergenceRatings2029-Bf7X875Q.css",
+            "encoded": 917,
+            "decoded": 2819
+          },
+          {
+            "name": "/assets/SourceRepeatInfo2029-CN54GpUm.js",
+            "encoded": 4595,
+            "decoded": 11705
+          },
+          {
+            "name": "/assets/topicConvergence-CHCPqQkw.js",
+            "encoded": 6162,
+            "decoded": 19991
+          },
+          {
+            "name": "/assets/entityHubProjection-BJ9yho2Q.js",
+            "encoded": 13688,
+            "decoded": 43998
+          },
+          {
+            "name": "/assets/entityGraphFinding-DPAvsxl6.js",
+            "encoded": 1849,
+            "decoded": 4659
+          },
+          {
+            "name": "/assets/numericResearch-DqZcmZHs.js",
+            "encoded": 7745,
+            "decoded": 23292
+          },
+          {
+            "name": "/assets/canonicalGematria-DSIyTFGn.js",
+            "encoded": 227,
+            "decoded": 275
+          },
+          {
+            "name": "/assets/canonicalGematriaProjection-B66_nJSZ.js",
+            "encoded": 660,
+            "decoded": 1244
+          },
+          {
+            "name": "/assets/bookResearchProjection-5tc4wXqQ.js",
+            "encoded": 3689,
+            "decoded": 9260
+          },
+          {
+            "name": "/assets/post2029ReadingProjection-VRTpbRWR.js",
+            "encoded": 56722,
+            "decoded": 190215
+          },
+          {
+            "name": "/assets/researchResultBundle-C_k0U3E0.js",
+            "encoded": 3436,
+            "decoded": 9315
+          },
+          {
+            "name": "/assets/gematriaRelationW2Executor-BfyK05J3.js",
+            "encoded": 3069,
+            "decoded": 8020
+          },
+          {
+            "name": "/assets/momentClockSystemMethod-DfaWpOyy.js",
+            "encoded": 6806,
+            "decoded": 19368
+          },
+          {
+            "name": "/assets/numberSystemMethods-C7ILjE6a.js",
+            "encoded": 5686,
+            "decoded": 17209
+          },
+          {
+            "name": "/assets/publicPostBoundary-DLBRu07Y.js",
+            "encoded": 214,
+            "decoded": 243
+          },
+          {
+            "name": "/assets/worldDiscoveryStream-Dh5Zjl1F.js",
+            "encoded": 4083,
+            "decoded": 10402
+          },
+          {
+            "name": "/assets/PostTimeline2029-HTi-_P5n.js",
+            "encoded": 245,
+            "decoded": 324
+          },
+          {
+            "name": "/assets/Timeline2029-DCEKqbCw.js",
+            "encoded": 828,
+            "decoded": 2138
+          },
+          {
+            "name": "/assets/Timeline2029-a6_QYh8e.css",
+            "encoded": 630,
+            "decoded": 2296
+          },
+          {
+            "name": "/assets/PostCategories2029-DDdr8_wC.js",
+            "encoded": 3941,
+            "decoded": 9246
+          },
+          {
+            "name": "/assets/PostCategories2029-DP5c8Fzv.css",
+            "encoded": 724,
+            "decoded": 2507
+          },
+          {
+            "name": "/assets/SourceRepeatInfo2029-DDIWPxqd.css",
+            "encoded": 1739,
+            "decoded": 7142
+          },
+          {
+            "name": "/assets/RealityRiver2029-UI-ahMZY.js",
+            "encoded": 4191,
+            "decoded": 11849
+          },
+          {
+            "name": "/assets/WatchButton-NOH-DPEz.js",
+            "encoded": 3978,
+            "decoded": 11371
+          },
+          {
+            "name": "/assets/EmailVerify-Cn5q0HQX.js",
+            "encoded": 2233,
+            "decoded": 5206
+          },
+          {
+            "name": "/assets/EmailVerify-DM0qVGWZ.css",
+            "encoded": 617,
+            "decoded": 2261
+          },
+          {
+            "name": "/assets/IconTile2029-JLOMl_ev.js",
+            "encoded": 509,
+            "decoded": 778
+          },
+          {
+            "name": "/assets/IconTile2029-x-yAGhlc.css",
+            "encoded": 227,
+            "decoded": 365
+          },
+          {
+            "name": "/assets/WatchButton-DFPG23U2.css",
+            "encoded": 776,
+            "decoded": 2243
+          },
+          {
+            "name": "/assets/RealityRiver2029-BzMsP3iY.css",
+            "encoded": 3880,
+            "decoded": 15719
+          },
+          {
+            "name": "/assets/home2029Projection-GryV-N5n.js",
+            "encoded": 3444,
+            "decoded": 8641
+          },
+          {
+            "name": "/assets/timeFlow-B3Pve8h-.js",
+            "encoded": 880,
+            "decoded": 1718
+          },
+          {
+            "name": "/assets/curationProjection2029-Cs2obozj.js",
+            "encoded": 1916,
+            "decoded": 4495
+          },
+          {
+            "name": "/assets/worldContributorLens-EjJnWZSP.js",
+            "encoded": 2426,
+            "decoded": 6479
+          },
+          {
+            "name": "/assets/Home2029Page-h2C-6HLd.css",
+            "encoded": 5013,
+            "decoded": 22545
+          },
+          {
+            "name": "/assets/livingRibbonPreview2029-BI1iUMB3.js",
+            "encoded": 461,
+            "decoded": 853
+          }
+        ],
+        "flagReads": 1,
+        "requestCount": 114,
+        "modelCalls": 0,
+        "blockedWriteAttempts": [
+          "/rest/v1/rpc/notification_prefs_guest_get_v1"
+        ]
+      },
+      {
+        "label": "after",
+        "run": 2,
+        "profile": {
+          "width": 390,
+          "cpu": 4,
+          "net": true
+        },
+        "primary_ms": 5700.199999999953,
+        "lcp": 5548,
+        "cls": 0.05341234567901234,
+        "longTasks": 4,
+        "longTaskMs": 617,
+        "resources": [
+          {
+            "name": "/assets/2029-DDew4Z7L.js",
+            "encoded": 221126,
+            "decoded": 731447
+          },
+          {
+            "name": "/assets/jsx-runtime-D3jfb0Ew.js",
+            "encoded": 3382,
+            "decoded": 8901
+          },
+          {
+            "name": "/assets/scheduler-l4uHkdFa.js",
+            "encoded": 1563,
+            "decoded": 3561
+          },
+          {
+            "name": "/assets/react-dom-DenslgJm.js",
+            "encoded": 1392,
+            "decoded": 3864
+          },
+          {
+            "name": "/assets/preload-helper-BZ1Pz5am.js",
+            "encoded": 688,
+            "decoded": 1218
+          },
+          {
+            "name": "/assets/chunk-OB3PAWPO-CVMmBO49.js",
+            "encoded": 13843,
+            "decoded": 38940
+          },
+          {
+            "name": "/assets/format-DFlJicod.js",
+            "encoded": 748,
+            "decoded": 1659
+          },
+          {
+            "name": "/assets/theme-B2UPacu4.js",
+            "encoded": 872,
+            "decoded": 1807
+          },
+          {
+            "name": "/assets/gematria-Ud5dslyW.js",
+            "encoded": 3039,
+            "decoded": 7546
+          },
+          {
+            "name": "/assets/supabase-Ca1yCZfZ.js",
+            "encoded": 50049,
+            "decoded": 194093
+          },
+          {
+            "name": "/assets/tracking-CAuLUUTt.js",
+            "encoded": 3649,
+            "decoded": 8792
+          },
+          {
+            "name": "/assets/AuthContext-DdJtHkX4.js",
+            "encoded": 2113,
+            "decoded": 4741
+          },
+          {
+            "name": "/assets/elsResearchReturnSnapshot-B03Lyzta.js",
+            "encoded": 1589,
+            "decoded": 4135
+          },
+          {
+            "name": "/assets/methodIdentity-DM2yAcOz.js",
+            "encoded": 157,
+            "decoded": 153
+          },
+          {
+            "name": "/assets/numberExpressionFocus-B6tt4hge.js",
+            "encoded": 1050,
+            "decoded": 2137
+          },
+          {
+            "name": "/assets/razielViewMode2029-EPrCdoW9.js",
+            "encoded": 408,
+            "decoded": 672
+          },
+          {
+            "name": "/assets/NavigationIcon2029-CH1qZpiS.js",
+            "encoded": 5369,
+            "decoded": 14796
+          },
+          {
+            "name": "/assets/ResearchProvider-DOvURhbp.js",
+            "encoded": 13974,
+            "decoded": 42353
+          },
+          {
+            "name": "/assets/dayContext-DQm1CoPT.js",
+            "encoded": 54650,
+            "decoded": 158849
+          },
+          {
+            "name": "/assets/themeMode-jUD92yIC.js",
+            "encoded": 422,
+            "decoded": 758
+          },
+          {
+            "name": "/assets/palette-CNyTr_3N.js",
+            "encoded": 3315,
+            "decoded": 8930
+          },
+          {
+            "name": "/assets/designTokens-B8JmV1rE.js",
+            "encoded": 1056,
+            "decoded": 2425
+          },
+          {
+            "name": "/assets/canonicalPresentation-DgNmWnf_.js",
+            "encoded": 2897,
+            "decoded": 7540
+          },
+          {
+            "name": "/assets/worldContextualProminence-DFYM9dQz.js",
+            "encoded": 5147,
+            "decoded": 14914
+          },
+          {
+            "name": "/assets/researchObjectPresentation-l0ubBFKY.js",
+            "encoded": 3453,
+            "decoded": 7566
+          },
+          {
+            "name": "/assets/universalFinding-DZVlmLqu.js",
+            "encoded": 1870,
+            "decoded": 4914
+          },
+          {
+            "name": "/assets/researchObjectFinding-bo3yYp1j.js",
+            "encoded": 2989,
+            "decoded": 8168
+          },
+          {
+            "name": "/assets/timeline2029-Dc49odMG.js",
+            "encoded": 2138,
+            "decoded": 4100
+          },
+          {
+            "name": "/assets/ShareActions-VMzRlrhh.js",
+            "encoded": 5810,
+            "decoded": 13147
+          },
+          {
+            "name": "/assets/postSourceUpdates2029-05vVMebH.js",
+            "encoded": 1609,
+            "decoded": 3631
+          },
+          {
+            "name": "/assets/gematriaTracePresentation-CX847u8G.js",
+            "encoded": 2742,
+            "decoded": 6488
+          },
+          {
+            "name": "/assets/numberCoreProjection-BBWYdulC.js",
+            "encoded": 5373,
+            "decoded": 14039
+          },
+          {
+            "name": "/assets/calculator2029Input-BbfftHdT.js",
+            "encoded": 904,
+            "decoded": 1606
+          },
+          {
+            "name": "/assets/NavigationIcon2029-CDR-JqlQ.css",
+            "encoded": 572,
+            "decoded": 2059
+          },
+          {
+            "name": "/assets/ShareActions-DMXv2tqp.css",
+            "encoded": 1138,
+            "decoded": 4370
+          },
+          {
+            "name": "/assets/2029-CNbuPO77.css",
+            "encoded": 37283,
+            "decoded": 250985
+          },
+          {
+            "name": "/assets/previewVisualReview2029-CNp-RIpL.js",
+            "encoded": 2017,
+            "decoded": 5160
+          },
+          {
+            "name": "/assets/previewVisualReview2029-BvQ2FAL9.css",
+            "encoded": 4452,
+            "decoded": 27851
+          },
+          {
+            "name": "/assets/Home2029Page-DPb2BIdg.js",
+            "encoded": 17370,
+            "decoded": 57876
+          },
+          {
+            "name": "/assets/researchPlanV2-3w8XYcGP.js",
+            "encoded": 10155,
+            "decoded": 33629
+          },
+          {
+            "name": "/assets/CurationMark2029-CRcuZKya.js",
+            "encoded": 1918,
+            "decoded": 5364
+          },
+          {
+            "name": "/assets/CurationMark2029-CqI6kfN0.css",
+            "encoded": 1428,
+            "decoded": 5861
+          },
+          {
+            "name": "/assets/ConvergenceRatings2029-BAIkA5W6.js",
+            "encoded": 2024,
+            "decoded": 5417
+          },
+          {
+            "name": "/assets/ConvergenceRatings2029-Bf7X875Q.css",
+            "encoded": 917,
+            "decoded": 2819
+          },
+          {
+            "name": "/assets/SourceRepeatInfo2029-pnIEt0cJ.js",
+            "encoded": 4599,
+            "decoded": 11705
+          },
+          {
+            "name": "/assets/topicConvergence-DjjmfNLy.js",
+            "encoded": 6162,
+            "decoded": 19991
+          },
+          {
+            "name": "/assets/entityHubProjection-BrQIjfLZ.js",
+            "encoded": 13686,
+            "decoded": 43998
+          },
+          {
+            "name": "/assets/entityGraphFinding-lamqBOiR.js",
+            "encoded": 1849,
+            "decoded": 4659
+          },
+          {
+            "name": "/assets/numericResearch-DqZcmZHs.js",
+            "encoded": 7745,
+            "decoded": 23292
+          },
+          {
+            "name": "/assets/canonicalGematria-DOWJ-lzs.js",
+            "encoded": 226,
+            "decoded": 275
+          },
+          {
+            "name": "/assets/canonicalGematriaProjection-B66_nJSZ.js",
+            "encoded": 660,
+            "decoded": 1244
+          },
+          {
+            "name": "/assets/bookResearchProjection-D_TXPSLW.js",
+            "encoded": 3690,
+            "decoded": 9260
+          },
+          {
+            "name": "/assets/post2029ReadingProjection-_-bo3Gz7.js",
+            "encoded": 56716,
+            "decoded": 190215
+          },
+          {
+            "name": "/assets/researchResultBundle-Boq8ysD6.js",
+            "encoded": 3436,
+            "decoded": 9315
+          },
+          {
+            "name": "/assets/gematriaRelationW2Executor-tdwwe1JL.js",
+            "encoded": 3070,
+            "decoded": 8020
+          },
+          {
+            "name": "/assets/momentClockSystemMethod-BI0Cjeqa.js",
+            "encoded": 6805,
+            "decoded": 19368
+          },
+          {
+            "name": "/assets/numberSystemMethods-nQEJu_oj.js",
+            "encoded": 5687,
+            "decoded": 17209
+          },
+          {
+            "name": "/assets/publicPostBoundary-DLBRu07Y.js",
+            "encoded": 214,
+            "decoded": 243
+          },
+          {
+            "name": "/assets/worldDiscoveryStream-CYR8Zpa7.js",
+            "encoded": 4084,
+            "decoded": 10402
+          },
+          {
+            "name": "/assets/PostTimeline2029-HTi-_P5n.js",
+            "encoded": 245,
+            "decoded": 324
+          },
+          {
+            "name": "/assets/Timeline2029-DCEKqbCw.js",
+            "encoded": 828,
+            "decoded": 2138
+          },
+          {
+            "name": "/assets/Timeline2029-a6_QYh8e.css",
+            "encoded": 630,
+            "decoded": 2296
+          },
+          {
+            "name": "/assets/PostCategories2029-C2I-R8ZX.js",
+            "encoded": 3941,
+            "decoded": 9246
+          },
+          {
+            "name": "/assets/PostCategories2029-DP5c8Fzv.css",
+            "encoded": 724,
+            "decoded": 2507
+          },
+          {
+            "name": "/assets/SourceRepeatInfo2029-DDIWPxqd.css",
+            "encoded": 1739,
+            "decoded": 7142
+          },
+          {
+            "name": "/assets/RealityRiver2029-BcQdNzFD.js",
+            "encoded": 4186,
+            "decoded": 11849
+          },
+          {
+            "name": "/assets/WatchButton-PTbPLmoA.js",
+            "encoded": 3980,
+            "decoded": 11371
+          },
+          {
+            "name": "/assets/EmailVerify-DzYwITH4.js",
+            "encoded": 2234,
+            "decoded": 5206
+          },
+          {
+            "name": "/assets/EmailVerify-DM0qVGWZ.css",
+            "encoded": 617,
+            "decoded": 2261
+          },
+          {
+            "name": "/assets/IconTile2029-M1nJfG83.js",
+            "encoded": 509,
+            "decoded": 778
+          },
+          {
+            "name": "/assets/IconTile2029-x-yAGhlc.css",
+            "encoded": 227,
+            "decoded": 365
+          },
+          {
+            "name": "/assets/WatchButton-DFPG23U2.css",
+            "encoded": 776,
+            "decoded": 2243
+          },
+          {
+            "name": "/assets/RealityRiver2029-BzMsP3iY.css",
+            "encoded": 3880,
+            "decoded": 15719
+          },
+          {
+            "name": "/assets/home2029Projection-DZ5YL9py.js",
+            "encoded": 3450,
+            "decoded": 8648
+          },
+          {
+            "name": "/assets/timeFlow-B3Pve8h-.js",
+            "encoded": 880,
+            "decoded": 1718
+          },
+          {
+            "name": "/assets/curationProjection2029-B2_yRTIO.js",
+            "encoded": 1915,
+            "decoded": 4495
+          },
+          {
+            "name": "/assets/worldContributorLens-D6VxnEJm.js",
+            "encoded": 2425,
+            "decoded": 6479
+          },
+          {
+            "name": "/assets/Home2029Page-h2C-6HLd.css",
+            "encoded": 5013,
+            "decoded": 22545
+          },
+          {
+            "name": "/assets/livingRibbonPreview2029-BI1iUMB3.js",
+            "encoded": 461,
+            "decoded": 853
+          }
+        ],
+        "flagReads": 1,
+        "requestCount": 106,
+        "modelCalls": 0,
+        "blockedWriteAttempts": [
+          "/rest/v1/rpc/notification_prefs_guest_get_v1"
+        ]
+      },
+      {
+        "label": "before",
+        "run": 0,
+        "profile": {
+          "width": 1440,
+          "cpu": 1,
+          "net": false
+        },
+        "primary_ms": 871.3000000000466,
+        "lcp": 1016,
+        "cls": 0.08314830568415638,
+        "longTasks": 3,
+        "longTaskMs": 284,
+        "resources": [
+          {
+            "name": "/assets/2029-B0iBjSWm.js",
+            "encoded": 221147,
+            "decoded": 731447
+          },
+          {
+            "name": "/assets/jsx-runtime-D3jfb0Ew.js",
+            "encoded": 3382,
+            "decoded": 8901
+          },
+          {
+            "name": "/assets/scheduler-l4uHkdFa.js",
+            "encoded": 1563,
+            "decoded": 3561
+          },
+          {
+            "name": "/assets/react-dom-DenslgJm.js",
+            "encoded": 1392,
+            "decoded": 3864
+          },
+          {
+            "name": "/assets/preload-helper-BZ1Pz5am.js",
+            "encoded": 688,
+            "decoded": 1218
+          },
+          {
+            "name": "/assets/chunk-OB3PAWPO-CVMmBO49.js",
+            "encoded": 13843,
+            "decoded": 38940
+          },
+          {
+            "name": "/assets/format-DFlJicod.js",
+            "encoded": 748,
+            "decoded": 1659
+          },
+          {
+            "name": "/assets/theme-B2UPacu4.js",
+            "encoded": 872,
+            "decoded": 1807
+          },
+          {
+            "name": "/assets/gematria-Ud5dslyW.js",
+            "encoded": 3039,
+            "decoded": 7546
+          },
+          {
+            "name": "/assets/tracking-a59pzQGS.js",
+            "encoded": 3649,
+            "decoded": 8792
+          },
+          {
+            "name": "/assets/supabase-DkpS7dgV.js",
+            "encoded": 50048,
+            "decoded": 194093
+          },
+          {
+            "name": "/assets/AuthContext-J9o2I7T_.js",
+            "encoded": 2115,
+            "decoded": 4741
+          },
+          {
+            "name": "/assets/elsResearchReturnSnapshot-B03Lyzta.js",
+            "encoded": 1589,
+            "decoded": 4135
+          },
+          {
+            "name": "/assets/methodIdentity-DM2yAcOz.js",
+            "encoded": 157,
+            "decoded": 153
+          },
+          {
+            "name": "/assets/numberExpressionFocus-BA7z8vP8.js",
+            "encoded": 1050,
+            "decoded": 2137
+          },
+          {
+            "name": "/assets/ResearchProvider-B_pVsxwJ.js",
+            "encoded": 13979,
+            "decoded": 42353
+          },
+          {
+            "name": "/assets/razielViewMode2029-EPrCdoW9.js",
+            "encoded": 408,
+            "decoded": 672
+          },
+          {
+            "name": "/assets/dayContext-DQm1CoPT.js",
+            "encoded": 54650,
+            "decoded": 158849
+          },
+          {
+            "name": "/assets/NavigationIcon2029-CH1qZpiS.js",
+            "encoded": 5369,
+            "decoded": 14796
+          },
+          {
+            "name": "/assets/themeMode-jUD92yIC.js",
+            "encoded": 422,
+            "decoded": 758
+          },
+          {
+            "name": "/assets/palette-CNyTr_3N.js",
+            "encoded": 3315,
+            "decoded": 8930
+          },
+          {
+            "name": "/assets/designTokens-B8JmV1rE.js",
+            "encoded": 1056,
+            "decoded": 2425
+          },
+          {
+            "name": "/assets/canonicalPresentation-DgNmWnf_.js",
+            "encoded": 2897,
+            "decoded": 7540
+          },
+          {
+            "name": "/assets/worldContextualProminence-DFYM9dQz.js",
+            "encoded": 5147,
+            "decoded": 14914
+          },
+          {
+            "name": "/assets/researchObjectPresentation-l0ubBFKY.js",
+            "encoded": 3453,
+            "decoded": 7566
+          },
+          {
+            "name": "/assets/universalFinding-DZVlmLqu.js",
+            "encoded": 1870,
+            "decoded": 4914
+          },
+          {
+            "name": "/assets/researchObjectFinding-bo3yYp1j.js",
+            "encoded": 2989,
+            "decoded": 8168
+          },
+          {
+            "name": "/assets/timeline2029-Dc49odMG.js",
+            "encoded": 2138,
+            "decoded": 4100
+          },
+          {
+            "name": "/assets/ShareActions-0g-w402r.js",
+            "encoded": 5808,
+            "decoded": 13147
+          },
+          {
+            "name": "/assets/postSourceUpdates2029-05vVMebH.js",
+            "encoded": 1609,
+            "decoded": 3631
+          },
+          {
+            "name": "/assets/gematriaTracePresentation-CX847u8G.js",
+            "encoded": 2742,
+            "decoded": 6488
+          },
+          {
+            "name": "/assets/numberCoreProjection-BsfKEyPA.js",
+            "encoded": 5373,
+            "decoded": 14039
+          },
+          {
+            "name": "/assets/calculator2029Input-BbfftHdT.js",
+            "encoded": 904,
+            "decoded": 1606
+          },
+          {
+            "name": "/assets/NavigationIcon2029-CDR-JqlQ.css",
+            "encoded": 572,
+            "decoded": 2059
+          },
+          {
+            "name": "/assets/ShareActions-DMXv2tqp.css",
+            "encoded": 1138,
+            "decoded": 4370
+          },
+          {
+            "name": "/assets/2029-CNbuPO77.css",
+            "encoded": 37283,
+            "decoded": 250985
+          },
+          {
+            "name": "/assets/previewVisualReview2029-BLLl4Wof.js",
+            "encoded": 2017,
+            "decoded": 5160
+          },
+          {
+            "name": "/assets/previewVisualReview2029-BvQ2FAL9.css",
+            "encoded": 4452,
+            "decoded": 27851
+          },
+          {
+            "name": "/assets/Home2029Page-DFKP5TTr.js",
+            "encoded": 16812,
+            "decoded": 56043
+          },
+          {
+            "name": "/assets/researchPlanV2-B2lRLxm3.js",
+            "encoded": 10154,
+            "decoded": 33629
+          },
+          {
+            "name": "/assets/CurationMark2029-CRcuZKya.js",
+            "encoded": 1918,
+            "decoded": 5364
+          },
+          {
+            "name": "/assets/CurationMark2029-CqI6kfN0.css",
+            "encoded": 1428,
+            "decoded": 5861
+          },
+          {
+            "name": "/assets/ConvergenceRatings2029-8qbRdNel.js",
+            "encoded": 2024,
+            "decoded": 5417
+          },
+          {
+            "name": "/assets/ConvergenceRatings2029-Bf7X875Q.css",
+            "encoded": 917,
+            "decoded": 2819
+          },
+          {
+            "name": "/assets/SourceRepeatInfo2029-CN54GpUm.js",
+            "encoded": 4595,
+            "decoded": 11705
+          },
+          {
+            "name": "/assets/topicConvergence-CHCPqQkw.js",
+            "encoded": 6162,
+            "decoded": 19991
+          },
+          {
+            "name": "/assets/entityHubProjection-BJ9yho2Q.js",
+            "encoded": 13688,
+            "decoded": 43998
+          },
+          {
+            "name": "/assets/entityGraphFinding-DPAvsxl6.js",
+            "encoded": 1849,
+            "decoded": 4659
+          },
+          {
+            "name": "/assets/numericResearch-DqZcmZHs.js",
+            "encoded": 7745,
+            "decoded": 23292
+          },
+          {
+            "name": "/assets/canonicalGematria-DSIyTFGn.js",
+            "encoded": 227,
+            "decoded": 275
+          },
+          {
+            "name": "/assets/canonicalGematriaProjection-B66_nJSZ.js",
+            "encoded": 660,
+            "decoded": 1244
+          },
+          {
+            "name": "/assets/bookResearchProjection-5tc4wXqQ.js",
+            "encoded": 3689,
+            "decoded": 9260
+          },
+          {
+            "name": "/assets/post2029ReadingProjection-VRTpbRWR.js",
+            "encoded": 56722,
+            "decoded": 190215
+          },
+          {
+            "name": "/assets/researchResultBundle-C_k0U3E0.js",
+            "encoded": 3436,
+            "decoded": 9315
+          },
+          {
+            "name": "/assets/gematriaRelationW2Executor-BfyK05J3.js",
+            "encoded": 3069,
+            "decoded": 8020
+          },
+          {
+            "name": "/assets/momentClockSystemMethod-DfaWpOyy.js",
+            "encoded": 6806,
+            "decoded": 19368
+          },
+          {
+            "name": "/assets/numberSystemMethods-C7ILjE6a.js",
+            "encoded": 5686,
+            "decoded": 17209
+          },
+          {
+            "name": "/assets/publicPostBoundary-DLBRu07Y.js",
+            "encoded": 214,
+            "decoded": 243
+          },
+          {
+            "name": "/assets/worldDiscoveryStream-Dh5Zjl1F.js",
+            "encoded": 4083,
+            "decoded": 10402
+          },
+          {
+            "name": "/assets/PostTimeline2029-HTi-_P5n.js",
+            "encoded": 245,
+            "decoded": 324
+          },
+          {
+            "name": "/assets/Timeline2029-DCEKqbCw.js",
+            "encoded": 828,
+            "decoded": 2138
+          },
+          {
+            "name": "/assets/Timeline2029-a6_QYh8e.css",
+            "encoded": 630,
+            "decoded": 2296
+          },
+          {
+            "name": "/assets/PostCategories2029-DDdr8_wC.js",
+            "encoded": 3941,
+            "decoded": 9246
+          },
+          {
+            "name": "/assets/PostCategories2029-DP5c8Fzv.css",
+            "encoded": 724,
+            "decoded": 2507
+          },
+          {
+            "name": "/assets/SourceRepeatInfo2029-DDIWPxqd.css",
+            "encoded": 1739,
+            "decoded": 7142
+          },
+          {
+            "name": "/assets/RealityRiver2029-UI-ahMZY.js",
+            "encoded": 4191,
+            "decoded": 11849
+          },
+          {
+            "name": "/assets/WatchButton-NOH-DPEz.js",
+            "encoded": 3978,
+            "decoded": 11371
+          },
+          {
+            "name": "/assets/EmailVerify-Cn5q0HQX.js",
+            "encoded": 2233,
+            "decoded": 5206
+          },
+          {
+            "name": "/assets/EmailVerify-DM0qVGWZ.css",
+            "encoded": 617,
+            "decoded": 2261
+          },
+          {
+            "name": "/assets/IconTile2029-JLOMl_ev.js",
+            "encoded": 509,
+            "decoded": 778
+          },
+          {
+            "name": "/assets/IconTile2029-x-yAGhlc.css",
+            "encoded": 227,
+            "decoded": 365
+          },
+          {
+            "name": "/assets/WatchButton-DFPG23U2.css",
+            "encoded": 776,
+            "decoded": 2243
+          },
+          {
+            "name": "/assets/RealityRiver2029-BzMsP3iY.css",
+            "encoded": 3880,
+            "decoded": 15719
+          },
+          {
+            "name": "/assets/home2029Projection-GryV-N5n.js",
+            "encoded": 3444,
+            "decoded": 8641
+          },
+          {
+            "name": "/assets/timeFlow-B3Pve8h-.js",
+            "encoded": 880,
+            "decoded": 1718
+          },
+          {
+            "name": "/assets/curationProjection2029-Cs2obozj.js",
+            "encoded": 1916,
+            "decoded": 4495
+          },
+          {
+            "name": "/assets/worldContributorLens-EjJnWZSP.js",
+            "encoded": 2426,
+            "decoded": 6479
+          },
+          {
+            "name": "/assets/Home2029Page-h2C-6HLd.css",
+            "encoded": 5013,
+            "decoded": 22545
+          },
+          {
+            "name": "/assets/livingRibbonPreview2029-BI1iUMB3.js",
+            "encoded": 461,
+            "decoded": 853
+          }
+        ],
+        "flagReads": 1,
+        "requestCount": 116,
+        "modelCalls": 0,
+        "blockedWriteAttempts": [
+          "/rest/v1/rpc/notification_prefs_guest_get_v1"
+        ]
+      },
+      {
+        "label": "after",
+        "run": 0,
+        "profile": {
+          "width": 1440,
+          "cpu": 1,
+          "net": false
+        },
+        "primary_ms": 790.9000000001397,
+        "lcp": 1068,
+        "cls": 0.05278178369341563,
+        "longTasks": 3,
+        "longTaskMs": 259,
+        "resources": [
+          {
+            "name": "/assets/2029-DDew4Z7L.js",
+            "encoded": 221126,
+            "decoded": 731447
+          },
+          {
+            "name": "/assets/jsx-runtime-D3jfb0Ew.js",
+            "encoded": 3382,
+            "decoded": 8901
+          },
+          {
+            "name": "/assets/react-dom-DenslgJm.js",
+            "encoded": 1392,
+            "decoded": 3864
+          },
+          {
+            "name": "/assets/scheduler-l4uHkdFa.js",
+            "encoded": 1563,
+            "decoded": 3561
+          },
+          {
+            "name": "/assets/preload-helper-BZ1Pz5am.js",
+            "encoded": 688,
+            "decoded": 1218
+          },
+          {
+            "name": "/assets/chunk-OB3PAWPO-CVMmBO49.js",
+            "encoded": 13843,
+            "decoded": 38940
+          },
+          {
+            "name": "/assets/format-DFlJicod.js",
+            "encoded": 748,
+            "decoded": 1659
+          },
+          {
+            "name": "/assets/theme-B2UPacu4.js",
+            "encoded": 872,
+            "decoded": 1807
+          },
+          {
+            "name": "/assets/gematria-Ud5dslyW.js",
+            "encoded": 3039,
+            "decoded": 7546
+          },
+          {
+            "name": "/assets/supabase-Ca1yCZfZ.js",
+            "encoded": 50049,
+            "decoded": 194093
+          },
+          {
+            "name": "/assets/tracking-CAuLUUTt.js",
+            "encoded": 3649,
+            "decoded": 8792
+          },
+          {
+            "name": "/assets/AuthContext-DdJtHkX4.js",
+            "encoded": 2113,
+            "decoded": 4741
+          },
+          {
+            "name": "/assets/elsResearchReturnSnapshot-B03Lyzta.js",
+            "encoded": 1589,
+            "decoded": 4135
+          },
+          {
+            "name": "/assets/methodIdentity-DM2yAcOz.js",
+            "encoded": 157,
+            "decoded": 153
+          },
+          {
+            "name": "/assets/numberExpressionFocus-B6tt4hge.js",
+            "encoded": 1050,
+            "decoded": 2137
+          },
+          {
+            "name": "/assets/razielViewMode2029-EPrCdoW9.js",
+            "encoded": 408,
+            "decoded": 672
+          },
+          {
+            "name": "/assets/ResearchProvider-DOvURhbp.js",
+            "encoded": 13974,
+            "decoded": 42353
+          },
+          {
+            "name": "/assets/dayContext-DQm1CoPT.js",
+            "encoded": 54650,
+            "decoded": 158849
+          },
+          {
+            "name": "/assets/NavigationIcon2029-CH1qZpiS.js",
+            "encoded": 5369,
+            "decoded": 14796
+          },
+          {
+            "name": "/assets/themeMode-jUD92yIC.js",
+            "encoded": 422,
+            "decoded": 758
+          },
+          {
+            "name": "/assets/palette-CNyTr_3N.js",
+            "encoded": 3315,
+            "decoded": 8930
+          },
+          {
+            "name": "/assets/designTokens-B8JmV1rE.js",
+            "encoded": 1056,
+            "decoded": 2425
+          },
+          {
+            "name": "/assets/canonicalPresentation-DgNmWnf_.js",
+            "encoded": 2897,
+            "decoded": 7540
+          },
+          {
+            "name": "/assets/worldContextualProminence-DFYM9dQz.js",
+            "encoded": 5147,
+            "decoded": 14914
+          },
+          {
+            "name": "/assets/researchObjectPresentation-l0ubBFKY.js",
+            "encoded": 3453,
+            "decoded": 7566
+          },
+          {
+            "name": "/assets/universalFinding-DZVlmLqu.js",
+            "encoded": 1870,
+            "decoded": 4914
+          },
+          {
+            "name": "/assets/researchObjectFinding-bo3yYp1j.js",
+            "encoded": 2989,
+            "decoded": 8168
+          },
+          {
+            "name": "/assets/timeline2029-Dc49odMG.js",
+            "encoded": 2138,
+            "decoded": 4100
+          },
+          {
+            "name": "/assets/ShareActions-VMzRlrhh.js",
+            "encoded": 5810,
+            "decoded": 13147
+          },
+          {
+            "name": "/assets/postSourceUpdates2029-05vVMebH.js",
+            "encoded": 1609,
+            "decoded": 3631
+          },
+          {
+            "name": "/assets/gematriaTracePresentation-CX847u8G.js",
+            "encoded": 2742,
+            "decoded": 6488
+          },
+          {
+            "name": "/assets/NavigationIcon2029-CDR-JqlQ.css",
+            "encoded": 572,
+            "decoded": 2059
+          },
+          {
+            "name": "/assets/calculator2029Input-BbfftHdT.js",
+            "encoded": 904,
+            "decoded": 1606
+          },
+          {
+            "name": "/assets/numberCoreProjection-BBWYdulC.js",
+            "encoded": 5373,
+            "decoded": 14039
+          },
+          {
+            "name": "/assets/ShareActions-DMXv2tqp.css",
+            "encoded": 1138,
+            "decoded": 4370
+          },
+          {
+            "name": "/assets/2029-CNbuPO77.css",
+            "encoded": 37283,
+            "decoded": 250985
+          },
+          {
+            "name": "/assets/previewVisualReview2029-CNp-RIpL.js",
+            "encoded": 2017,
+            "decoded": 5160
+          },
+          {
+            "name": "/assets/previewVisualReview2029-BvQ2FAL9.css",
+            "encoded": 4452,
+            "decoded": 27851
+          },
+          {
+            "name": "/assets/Home2029Page-DPb2BIdg.js",
+            "encoded": 17370,
+            "decoded": 57876
+          },
+          {
+            "name": "/assets/researchPlanV2-3w8XYcGP.js",
+            "encoded": 10155,
+            "decoded": 33629
+          },
+          {
+            "name": "/assets/CurationMark2029-CRcuZKya.js",
+            "encoded": 1918,
+            "decoded": 5364
+          },
+          {
+            "name": "/assets/CurationMark2029-CqI6kfN0.css",
+            "encoded": 1428,
+            "decoded": 5861
+          },
+          {
+            "name": "/assets/ConvergenceRatings2029-BAIkA5W6.js",
+            "encoded": 2024,
+            "decoded": 5417
+          },
+          {
+            "name": "/assets/ConvergenceRatings2029-Bf7X875Q.css",
+            "encoded": 917,
+            "decoded": 2819
+          },
+          {
+            "name": "/assets/SourceRepeatInfo2029-pnIEt0cJ.js",
+            "encoded": 4599,
+            "decoded": 11705
+          },
+          {
+            "name": "/assets/topicConvergence-DjjmfNLy.js",
+            "encoded": 6162,
+            "decoded": 19991
+          },
+          {
+            "name": "/assets/entityHubProjection-BrQIjfLZ.js",
+            "encoded": 13686,
+            "decoded": 43998
+          },
+          {
+            "name": "/assets/entityGraphFinding-lamqBOiR.js",
+            "encoded": 1849,
+            "decoded": 4659
+          },
+          {
+            "name": "/assets/numericResearch-DqZcmZHs.js",
+            "encoded": 7745,
+            "decoded": 23292
+          },
+          {
+            "name": "/assets/canonicalGematria-DOWJ-lzs.js",
+            "encoded": 226,
+            "decoded": 275
+          },
+          {
+            "name": "/assets/canonicalGematriaProjection-B66_nJSZ.js",
+            "encoded": 660,
+            "decoded": 1244
+          },
+          {
+            "name": "/assets/bookResearchProjection-D_TXPSLW.js",
+            "encoded": 3690,
+            "decoded": 9260
+          },
+          {
+            "name": "/assets/post2029ReadingProjection-_-bo3Gz7.js",
+            "encoded": 56716,
+            "decoded": 190215
+          },
+          {
+            "name": "/assets/researchResultBundle-Boq8ysD6.js",
+            "encoded": 3436,
+            "decoded": 9315
+          },
+          {
+            "name": "/assets/gematriaRelationW2Executor-tdwwe1JL.js",
+            "encoded": 3070,
+            "decoded": 8020
+          },
+          {
+            "name": "/assets/momentClockSystemMethod-BI0Cjeqa.js",
+            "encoded": 6805,
+            "decoded": 19368
+          },
+          {
+            "name": "/assets/numberSystemMethods-nQEJu_oj.js",
+            "encoded": 5687,
+            "decoded": 17209
+          },
+          {
+            "name": "/assets/publicPostBoundary-DLBRu07Y.js",
+            "encoded": 214,
+            "decoded": 243
+          },
+          {
+            "name": "/assets/worldDiscoveryStream-CYR8Zpa7.js",
+            "encoded": 4084,
+            "decoded": 10402
+          },
+          {
+            "name": "/assets/PostTimeline2029-HTi-_P5n.js",
+            "encoded": 245,
+            "decoded": 324
+          },
+          {
+            "name": "/assets/Timeline2029-DCEKqbCw.js",
+            "encoded": 828,
+            "decoded": 2138
+          },
+          {
+            "name": "/assets/Timeline2029-a6_QYh8e.css",
+            "encoded": 630,
+            "decoded": 2296
+          },
+          {
+            "name": "/assets/PostCategories2029-C2I-R8ZX.js",
+            "encoded": 3941,
+            "decoded": 9246
+          },
+          {
+            "name": "/assets/PostCategories2029-DP5c8Fzv.css",
+            "encoded": 724,
+            "decoded": 2507
+          },
+          {
+            "name": "/assets/SourceRepeatInfo2029-DDIWPxqd.css",
+            "encoded": 1739,
+            "decoded": 7142
+          },
+          {
+            "name": "/assets/RealityRiver2029-BcQdNzFD.js",
+            "encoded": 4186,
+            "decoded": 11849
+          },
+          {
+            "name": "/assets/WatchButton-PTbPLmoA.js",
+            "encoded": 3980,
+            "decoded": 11371
+          },
+          {
+            "name": "/assets/EmailVerify-DzYwITH4.js",
+            "encoded": 2234,
+            "decoded": 5206
+          },
+          {
+            "name": "/assets/EmailVerify-DM0qVGWZ.css",
+            "encoded": 617,
+            "decoded": 2261
+          },
+          {
+            "name": "/assets/IconTile2029-M1nJfG83.js",
+            "encoded": 509,
+            "decoded": 778
+          },
+          {
+            "name": "/assets/IconTile2029-x-yAGhlc.css",
+            "encoded": 227,
+            "decoded": 365
+          },
+          {
+            "name": "/assets/WatchButton-DFPG23U2.css",
+            "encoded": 776,
+            "decoded": 2243
+          },
+          {
+            "name": "/assets/RealityRiver2029-BzMsP3iY.css",
+            "encoded": 3880,
+            "decoded": 15719
+          },
+          {
+            "name": "/assets/home2029Projection-DZ5YL9py.js",
+            "encoded": 3450,
+            "decoded": 8648
+          },
+          {
+            "name": "/assets/timeFlow-B3Pve8h-.js",
+            "encoded": 880,
+            "decoded": 1718
+          },
+          {
+            "name": "/assets/curationProjection2029-B2_yRTIO.js",
+            "encoded": 1915,
+            "decoded": 4495
+          },
+          {
+            "name": "/assets/worldContributorLens-D6VxnEJm.js",
+            "encoded": 2425,
+            "decoded": 6479
+          },
+          {
+            "name": "/assets/Home2029Page-h2C-6HLd.css",
+            "encoded": 5013,
+            "decoded": 22545
+          },
+          {
+            "name": "/assets/livingRibbonPreview2029-BI1iUMB3.js",
+            "encoded": 461,
+            "decoded": 853
+          }
+        ],
+        "flagReads": 1,
+        "requestCount": 108,
+        "modelCalls": 0,
+        "blockedWriteAttempts": [
+          "/rest/v1/rpc/notification_prefs_guest_get_v1"
+        ]
+      },
+      {
+        "label": "after",
+        "run": 1,
+        "profile": {
+          "width": 1440,
+          "cpu": 1,
+          "net": false
+        },
+        "primary_ms": 849.3999999999069,
+        "lcp": 1104,
+        "cls": 0.05278178369341563,
+        "longTasks": 3,
+        "longTaskMs": 280,
+        "resources": [
+          {
+            "name": "/assets/jsx-runtime-D3jfb0Ew.js",
+            "encoded": 3382,
+            "decoded": 8901
+          },
+          {
+            "name": "/assets/2029-DDew4Z7L.js",
+            "encoded": 221126,
+            "decoded": 731447
+          },
+          {
+            "name": "/assets/scheduler-l4uHkdFa.js",
+            "encoded": 1563,
+            "decoded": 3561
+          },
+          {
+            "name": "/assets/react-dom-DenslgJm.js",
+            "encoded": 1392,
+            "decoded": 3864
+          },
+          {
+            "name": "/assets/preload-helper-BZ1Pz5am.js",
+            "encoded": 688,
+            "decoded": 1218
+          },
+          {
+            "name": "/assets/chunk-OB3PAWPO-CVMmBO49.js",
+            "encoded": 13843,
+            "decoded": 38940
+          },
+          {
+            "name": "/assets/format-DFlJicod.js",
+            "encoded": 748,
+            "decoded": 1659
+          },
+          {
+            "name": "/assets/theme-B2UPacu4.js",
+            "encoded": 872,
+            "decoded": 1807
+          },
+          {
+            "name": "/assets/gematria-Ud5dslyW.js",
+            "encoded": 3039,
+            "decoded": 7546
+          },
+          {
+            "name": "/assets/supabase-Ca1yCZfZ.js",
+            "encoded": 50049,
+            "decoded": 194093
+          },
+          {
+            "name": "/assets/tracking-CAuLUUTt.js",
+            "encoded": 3649,
+            "decoded": 8792
+          },
+          {
+            "name": "/assets/AuthContext-DdJtHkX4.js",
+            "encoded": 2113,
+            "decoded": 4741
+          },
+          {
+            "name": "/assets/elsResearchReturnSnapshot-B03Lyzta.js",
+            "encoded": 1589,
+            "decoded": 4135
+          },
+          {
+            "name": "/assets/methodIdentity-DM2yAcOz.js",
+            "encoded": 157,
+            "decoded": 153
+          },
+          {
+            "name": "/assets/numberExpressionFocus-B6tt4hge.js",
+            "encoded": 1050,
+            "decoded": 2137
+          },
+          {
+            "name": "/assets/ResearchProvider-DOvURhbp.js",
+            "encoded": 13974,
+            "decoded": 42353
+          },
+          {
+            "name": "/assets/razielViewMode2029-EPrCdoW9.js",
+            "encoded": 408,
+            "decoded": 672
+          },
+          {
+            "name": "/assets/dayContext-DQm1CoPT.js",
+            "encoded": 54650,
+            "decoded": 158849
+          },
+          {
+            "name": "/assets/NavigationIcon2029-CH1qZpiS.js",
+            "encoded": 5369,
+            "decoded": 14796
+          },
+          {
+            "name": "/assets/themeMode-jUD92yIC.js",
+            "encoded": 422,
+            "decoded": 758
+          },
+          {
+            "name": "/assets/palette-CNyTr_3N.js",
+            "encoded": 3315,
+            "decoded": 8930
+          },
+          {
+            "name": "/assets/designTokens-B8JmV1rE.js",
+            "encoded": 1056,
+            "decoded": 2425
+          },
+          {
+            "name": "/assets/canonicalPresentation-DgNmWnf_.js",
+            "encoded": 2897,
+            "decoded": 7540
+          },
+          {
+            "name": "/assets/worldContextualProminence-DFYM9dQz.js",
+            "encoded": 5147,
+            "decoded": 14914
+          },
+          {
+            "name": "/assets/researchObjectPresentation-l0ubBFKY.js",
+            "encoded": 3453,
+            "decoded": 7566
+          },
+          {
+            "name": "/assets/universalFinding-DZVlmLqu.js",
+            "encoded": 1870,
+            "decoded": 4914
+          },
+          {
+            "name": "/assets/researchObjectFinding-bo3yYp1j.js",
+            "encoded": 2989,
+            "decoded": 8168
+          },
+          {
+            "name": "/assets/ShareActions-VMzRlrhh.js",
+            "encoded": 5810,
+            "decoded": 13147
+          },
+          {
+            "name": "/assets/timeline2029-Dc49odMG.js",
+            "encoded": 2138,
+            "decoded": 4100
+          },
+          {
+            "name": "/assets/postSourceUpdates2029-05vVMebH.js",
+            "encoded": 1609,
+            "decoded": 3631
+          },
+          {
+            "name": "/assets/gematriaTracePresentation-CX847u8G.js",
+            "encoded": 2742,
+            "decoded": 6488
+          },
+          {
+            "name": "/assets/calculator2029Input-BbfftHdT.js",
+            "encoded": 904,
+            "decoded": 1606
+          },
+          {
+            "name": "/assets/numberCoreProjection-BBWYdulC.js",
+            "encoded": 5373,
+            "decoded": 14039
+          },
+          {
+            "name": "/assets/NavigationIcon2029-CDR-JqlQ.css",
+            "encoded": 572,
+            "decoded": 2059
+          },
+          {
+            "name": "/assets/2029-CNbuPO77.css",
+            "encoded": 37283,
+            "decoded": 250985
+          },
+          {
+            "name": "/assets/ShareActions-DMXv2tqp.css",
+            "encoded": 1138,
+            "decoded": 4370
+          },
+          {
+            "name": "/assets/previewVisualReview2029-CNp-RIpL.js",
+            "encoded": 2017,
+            "decoded": 5160
+          },
+          {
+            "name": "/assets/previewVisualReview2029-BvQ2FAL9.css",
+            "encoded": 4452,
+            "decoded": 27851
+          },
+          {
+            "name": "/assets/Home2029Page-DPb2BIdg.js",
+            "encoded": 17370,
+            "decoded": 57876
+          },
+          {
+            "name": "/assets/researchPlanV2-3w8XYcGP.js",
+            "encoded": 10155,
+            "decoded": 33629
+          },
+          {
+            "name": "/assets/CurationMark2029-CRcuZKya.js",
+            "encoded": 1918,
+            "decoded": 5364
+          },
+          {
+            "name": "/assets/CurationMark2029-CqI6kfN0.css",
+            "encoded": 1428,
+            "decoded": 5861
+          },
+          {
+            "name": "/assets/ConvergenceRatings2029-BAIkA5W6.js",
+            "encoded": 2024,
+            "decoded": 5417
+          },
+          {
+            "name": "/assets/ConvergenceRatings2029-Bf7X875Q.css",
+            "encoded": 917,
+            "decoded": 2819
+          },
+          {
+            "name": "/assets/SourceRepeatInfo2029-pnIEt0cJ.js",
+            "encoded": 4599,
+            "decoded": 11705
+          },
+          {
+            "name": "/assets/topicConvergence-DjjmfNLy.js",
+            "encoded": 6162,
+            "decoded": 19991
+          },
+          {
+            "name": "/assets/entityHubProjection-BrQIjfLZ.js",
+            "encoded": 13686,
+            "decoded": 43998
+          },
+          {
+            "name": "/assets/entityGraphFinding-lamqBOiR.js",
+            "encoded": 1849,
+            "decoded": 4659
+          },
+          {
+            "name": "/assets/numericResearch-DqZcmZHs.js",
+            "encoded": 7745,
+            "decoded": 23292
+          },
+          {
+            "name": "/assets/canonicalGematria-DOWJ-lzs.js",
+            "encoded": 226,
+            "decoded": 275
+          },
+          {
+            "name": "/assets/canonicalGematriaProjection-B66_nJSZ.js",
+            "encoded": 660,
+            "decoded": 1244
+          },
+          {
+            "name": "/assets/bookResearchProjection-D_TXPSLW.js",
+            "encoded": 3690,
+            "decoded": 9260
+          },
+          {
+            "name": "/assets/post2029ReadingProjection-_-bo3Gz7.js",
+            "encoded": 56716,
+            "decoded": 190215
+          },
+          {
+            "name": "/assets/researchResultBundle-Boq8ysD6.js",
+            "encoded": 3436,
+            "decoded": 9315
+          },
+          {
+            "name": "/assets/gematriaRelationW2Executor-tdwwe1JL.js",
+            "encoded": 3070,
+            "decoded": 8020
+          },
+          {
+            "name": "/assets/momentClockSystemMethod-BI0Cjeqa.js",
+            "encoded": 6805,
+            "decoded": 19368
+          },
+          {
+            "name": "/assets/numberSystemMethods-nQEJu_oj.js",
+            "encoded": 5687,
+            "decoded": 17209
+          },
+          {
+            "name": "/assets/publicPostBoundary-DLBRu07Y.js",
+            "encoded": 214,
+            "decoded": 243
+          },
+          {
+            "name": "/assets/worldDiscoveryStream-CYR8Zpa7.js",
+            "encoded": 4084,
+            "decoded": 10402
+          },
+          {
+            "name": "/assets/PostTimeline2029-HTi-_P5n.js",
+            "encoded": 245,
+            "decoded": 324
+          },
+          {
+            "name": "/assets/Timeline2029-DCEKqbCw.js",
+            "encoded": 828,
+            "decoded": 2138
+          },
+          {
+            "name": "/assets/Timeline2029-a6_QYh8e.css",
+            "encoded": 630,
+            "decoded": 2296
+          },
+          {
+            "name": "/assets/PostCategories2029-C2I-R8ZX.js",
+            "encoded": 3941,
+            "decoded": 9246
+          },
+          {
+            "name": "/assets/PostCategories2029-DP5c8Fzv.css",
+            "encoded": 724,
+            "decoded": 2507
+          },
+          {
+            "name": "/assets/SourceRepeatInfo2029-DDIWPxqd.css",
+            "encoded": 1739,
+            "decoded": 7142
+          },
+          {
+            "name": "/assets/RealityRiver2029-BcQdNzFD.js",
+            "encoded": 4186,
+            "decoded": 11849
+          },
+          {
+            "name": "/assets/WatchButton-PTbPLmoA.js",
+            "encoded": 3980,
+            "decoded": 11371
+          },
+          {
+            "name": "/assets/EmailVerify-DzYwITH4.js",
+            "encoded": 2234,
+            "decoded": 5206
+          },
+          {
+            "name": "/assets/EmailVerify-DM0qVGWZ.css",
+            "encoded": 617,
+            "decoded": 2261
+          },
+          {
+            "name": "/assets/IconTile2029-M1nJfG83.js",
+            "encoded": 509,
+            "decoded": 778
+          },
+          {
+            "name": "/assets/IconTile2029-x-yAGhlc.css",
+            "encoded": 227,
+            "decoded": 365
+          },
+          {
+            "name": "/assets/WatchButton-DFPG23U2.css",
+            "encoded": 776,
+            "decoded": 2243
+          },
+          {
+            "name": "/assets/RealityRiver2029-BzMsP3iY.css",
+            "encoded": 3880,
+            "decoded": 15719
+          },
+          {
+            "name": "/assets/home2029Projection-DZ5YL9py.js",
+            "encoded": 3450,
+            "decoded": 8648
+          },
+          {
+            "name": "/assets/timeFlow-B3Pve8h-.js",
+            "encoded": 880,
+            "decoded": 1718
+          },
+          {
+            "name": "/assets/curationProjection2029-B2_yRTIO.js",
+            "encoded": 1915,
+            "decoded": 4495
+          },
+          {
+            "name": "/assets/worldContributorLens-D6VxnEJm.js",
+            "encoded": 2425,
+            "decoded": 6479
+          },
+          {
+            "name": "/assets/Home2029Page-h2C-6HLd.css",
+            "encoded": 5013,
+            "decoded": 22545
+          },
+          {
+            "name": "/assets/livingRibbonPreview2029-BI1iUMB3.js",
+            "encoded": 461,
+            "decoded": 853
+          }
+        ],
+        "flagReads": 1,
+        "requestCount": 108,
+        "modelCalls": 0,
+        "blockedWriteAttempts": [
+          "/rest/v1/rpc/notification_prefs_guest_get_v1"
+        ]
+      },
+      {
+        "label": "before",
+        "run": 1,
+        "profile": {
+          "width": 1440,
+          "cpu": 1,
+          "net": false
+        },
+        "primary_ms": 826.6999999999534,
+        "lcp": 1148,
+        "cls": 0.05278178369341563,
+        "longTasks": 3,
+        "longTaskMs": 269,
+        "resources": [
+          {
+            "name": "/assets/2029-B0iBjSWm.js",
+            "encoded": 221147,
+            "decoded": 731447
+          },
+          {
+            "name": "/assets/jsx-runtime-D3jfb0Ew.js",
+            "encoded": 3382,
+            "decoded": 8901
+          },
+          {
+            "name": "/assets/scheduler-l4uHkdFa.js",
+            "encoded": 1563,
+            "decoded": 3561
+          },
+          {
+            "name": "/assets/react-dom-DenslgJm.js",
+            "encoded": 1392,
+            "decoded": 3864
+          },
+          {
+            "name": "/assets/preload-helper-BZ1Pz5am.js",
+            "encoded": 688,
+            "decoded": 1218
+          },
+          {
+            "name": "/assets/chunk-OB3PAWPO-CVMmBO49.js",
+            "encoded": 13843,
+            "decoded": 38940
+          },
+          {
+            "name": "/assets/format-DFlJicod.js",
+            "encoded": 748,
+            "decoded": 1659
+          },
+          {
+            "name": "/assets/theme-B2UPacu4.js",
+            "encoded": 872,
+            "decoded": 1807
+          },
+          {
+            "name": "/assets/gematria-Ud5dslyW.js",
+            "encoded": 3039,
+            "decoded": 7546
+          },
+          {
+            "name": "/assets/supabase-DkpS7dgV.js",
+            "encoded": 50048,
+            "decoded": 194093
+          },
+          {
+            "name": "/assets/tracking-a59pzQGS.js",
+            "encoded": 3649,
+            "decoded": 8792
+          },
+          {
+            "name": "/assets/AuthContext-J9o2I7T_.js",
+            "encoded": 2115,
+            "decoded": 4741
+          },
+          {
+            "name": "/assets/elsResearchReturnSnapshot-B03Lyzta.js",
+            "encoded": 1589,
+            "decoded": 4135
+          },
+          {
+            "name": "/assets/methodIdentity-DM2yAcOz.js",
+            "encoded": 157,
+            "decoded": 153
+          },
+          {
+            "name": "/assets/numberExpressionFocus-BA7z8vP8.js",
+            "encoded": 1050,
+            "decoded": 2137
+          },
+          {
+            "name": "/assets/ResearchProvider-B_pVsxwJ.js",
+            "encoded": 13979,
+            "decoded": 42353
+          },
+          {
+            "name": "/assets/razielViewMode2029-EPrCdoW9.js",
+            "encoded": 408,
+            "decoded": 672
+          },
+          {
+            "name": "/assets/dayContext-DQm1CoPT.js",
+            "encoded": 54650,
+            "decoded": 158849
+          },
+          {
+            "name": "/assets/NavigationIcon2029-CH1qZpiS.js",
+            "encoded": 5369,
+            "decoded": 14796
+          },
+          {
+            "name": "/assets/themeMode-jUD92yIC.js",
+            "encoded": 422,
+            "decoded": 758
+          },
+          {
+            "name": "/assets/palette-CNyTr_3N.js",
+            "encoded": 3315,
+            "decoded": 8930
+          },
+          {
+            "name": "/assets/designTokens-B8JmV1rE.js",
+            "encoded": 1056,
+            "decoded": 2425
+          },
+          {
+            "name": "/assets/canonicalPresentation-DgNmWnf_.js",
+            "encoded": 2897,
+            "decoded": 7540
+          },
+          {
+            "name": "/assets/worldContextualProminence-DFYM9dQz.js",
+            "encoded": 5147,
+            "decoded": 14914
+          },
+          {
+            "name": "/assets/researchObjectPresentation-l0ubBFKY.js",
+            "encoded": 3453,
+            "decoded": 7566
+          },
+          {
+            "name": "/assets/universalFinding-DZVlmLqu.js",
+            "encoded": 1870,
+            "decoded": 4914
+          },
+          {
+            "name": "/assets/researchObjectFinding-bo3yYp1j.js",
+            "encoded": 2989,
+            "decoded": 8168
+          },
+          {
+            "name": "/assets/timeline2029-Dc49odMG.js",
+            "encoded": 2138,
+            "decoded": 4100
+          },
+          {
+            "name": "/assets/ShareActions-0g-w402r.js",
+            "encoded": 5808,
+            "decoded": 13147
+          },
+          {
+            "name": "/assets/postSourceUpdates2029-05vVMebH.js",
+            "encoded": 1609,
+            "decoded": 3631
+          },
+          {
+            "name": "/assets/gematriaTracePresentation-CX847u8G.js",
+            "encoded": 2742,
+            "decoded": 6488
+          },
+          {
+            "name": "/assets/NavigationIcon2029-CDR-JqlQ.css",
+            "encoded": 572,
+            "decoded": 2059
+          },
+          {
+            "name": "/assets/ShareActions-DMXv2tqp.css",
+            "encoded": 1138,
+            "decoded": 4370
+          },
+          {
+            "name": "/assets/calculator2029Input-BbfftHdT.js",
+            "encoded": 904,
+            "decoded": 1606
+          },
+          {
+            "name": "/assets/numberCoreProjection-BsfKEyPA.js",
+            "encoded": 5373,
+            "decoded": 14039
+          },
+          {
+            "name": "/assets/2029-CNbuPO77.css",
+            "encoded": 37283,
+            "decoded": 250985
+          },
+          {
+            "name": "/assets/previewVisualReview2029-BLLl4Wof.js",
+            "encoded": 2017,
+            "decoded": 5160
+          },
+          {
+            "name": "/assets/previewVisualReview2029-BvQ2FAL9.css",
+            "encoded": 4452,
+            "decoded": 27851
+          },
+          {
+            "name": "/assets/Home2029Page-DFKP5TTr.js",
+            "encoded": 16812,
+            "decoded": 56043
+          },
+          {
+            "name": "/assets/researchPlanV2-B2lRLxm3.js",
+            "encoded": 10154,
+            "decoded": 33629
+          },
+          {
+            "name": "/assets/CurationMark2029-CRcuZKya.js",
+            "encoded": 1918,
+            "decoded": 5364
+          },
+          {
+            "name": "/assets/CurationMark2029-CqI6kfN0.css",
+            "encoded": 1428,
+            "decoded": 5861
+          },
+          {
+            "name": "/assets/ConvergenceRatings2029-8qbRdNel.js",
+            "encoded": 2024,
+            "decoded": 5417
+          },
+          {
+            "name": "/assets/ConvergenceRatings2029-Bf7X875Q.css",
+            "encoded": 917,
+            "decoded": 2819
+          },
+          {
+            "name": "/assets/SourceRepeatInfo2029-CN54GpUm.js",
+            "encoded": 4595,
+            "decoded": 11705
+          },
+          {
+            "name": "/assets/topicConvergence-CHCPqQkw.js",
+            "encoded": 6162,
+            "decoded": 19991
+          },
+          {
+            "name": "/assets/entityHubProjection-BJ9yho2Q.js",
+            "encoded": 13688,
+            "decoded": 43998
+          },
+          {
+            "name": "/assets/entityGraphFinding-DPAvsxl6.js",
+            "encoded": 1849,
+            "decoded": 4659
+          },
+          {
+            "name": "/assets/numericResearch-DqZcmZHs.js",
+            "encoded": 7745,
+            "decoded": 23292
+          },
+          {
+            "name": "/assets/canonicalGematria-DSIyTFGn.js",
+            "encoded": 227,
+            "decoded": 275
+          },
+          {
+            "name": "/assets/canonicalGematriaProjection-B66_nJSZ.js",
+            "encoded": 660,
+            "decoded": 1244
+          },
+          {
+            "name": "/assets/bookResearchProjection-5tc4wXqQ.js",
+            "encoded": 3689,
+            "decoded": 9260
+          },
+          {
+            "name": "/assets/post2029ReadingProjection-VRTpbRWR.js",
+            "encoded": 56722,
+            "decoded": 190215
+          },
+          {
+            "name": "/assets/researchResultBundle-C_k0U3E0.js",
+            "encoded": 3436,
+            "decoded": 9315
+          },
+          {
+            "name": "/assets/gematriaRelationW2Executor-BfyK05J3.js",
+            "encoded": 3069,
+            "decoded": 8020
+          },
+          {
+            "name": "/assets/momentClockSystemMethod-DfaWpOyy.js",
+            "encoded": 6806,
+            "decoded": 19368
+          },
+          {
+            "name": "/assets/numberSystemMethods-C7ILjE6a.js",
+            "encoded": 5686,
+            "decoded": 17209
+          },
+          {
+            "name": "/assets/publicPostBoundary-DLBRu07Y.js",
+            "encoded": 214,
+            "decoded": 243
+          },
+          {
+            "name": "/assets/worldDiscoveryStream-Dh5Zjl1F.js",
+            "encoded": 4083,
+            "decoded": 10402
+          },
+          {
+            "name": "/assets/PostTimeline2029-HTi-_P5n.js",
+            "encoded": 245,
+            "decoded": 324
+          },
+          {
+            "name": "/assets/Timeline2029-DCEKqbCw.js",
+            "encoded": 828,
+            "decoded": 2138
+          },
+          {
+            "name": "/assets/Timeline2029-a6_QYh8e.css",
+            "encoded": 630,
+            "decoded": 2296
+          },
+          {
+            "name": "/assets/PostCategories2029-DDdr8_wC.js",
+            "encoded": 3941,
+            "decoded": 9246
+          },
+          {
+            "name": "/assets/PostCategories2029-DP5c8Fzv.css",
+            "encoded": 724,
+            "decoded": 2507
+          },
+          {
+            "name": "/assets/SourceRepeatInfo2029-DDIWPxqd.css",
+            "encoded": 1739,
+            "decoded": 7142
+          },
+          {
+            "name": "/assets/RealityRiver2029-UI-ahMZY.js",
+            "encoded": 4191,
+            "decoded": 11849
+          },
+          {
+            "name": "/assets/WatchButton-NOH-DPEz.js",
+            "encoded": 3978,
+            "decoded": 11371
+          },
+          {
+            "name": "/assets/EmailVerify-Cn5q0HQX.js",
+            "encoded": 2233,
+            "decoded": 5206
+          },
+          {
+            "name": "/assets/EmailVerify-DM0qVGWZ.css",
+            "encoded": 617,
+            "decoded": 2261
+          },
+          {
+            "name": "/assets/IconTile2029-JLOMl_ev.js",
+            "encoded": 509,
+            "decoded": 778
+          },
+          {
+            "name": "/assets/IconTile2029-x-yAGhlc.css",
+            "encoded": 227,
+            "decoded": 365
+          },
+          {
+            "name": "/assets/WatchButton-DFPG23U2.css",
+            "encoded": 776,
+            "decoded": 2243
+          },
+          {
+            "name": "/assets/RealityRiver2029-BzMsP3iY.css",
+            "encoded": 3880,
+            "decoded": 15719
+          },
+          {
+            "name": "/assets/home2029Projection-GryV-N5n.js",
+            "encoded": 3444,
+            "decoded": 8641
+          },
+          {
+            "name": "/assets/timeFlow-B3Pve8h-.js",
+            "encoded": 880,
+            "decoded": 1718
+          },
+          {
+            "name": "/assets/curationProjection2029-Cs2obozj.js",
+            "encoded": 1916,
+            "decoded": 4495
+          },
+          {
+            "name": "/assets/worldContributorLens-EjJnWZSP.js",
+            "encoded": 2426,
+            "decoded": 6479
+          },
+          {
+            "name": "/assets/Home2029Page-h2C-6HLd.css",
+            "encoded": 5013,
+            "decoded": 22545
+          },
+          {
+            "name": "/assets/livingRibbonPreview2029-BI1iUMB3.js",
+            "encoded": 461,
+            "decoded": 853
+          }
+        ],
+        "flagReads": 1,
+        "requestCount": 116,
+        "modelCalls": 0,
+        "blockedWriteAttempts": [
+          "/rest/v1/rpc/notification_prefs_guest_get_v1"
+        ]
+      },
+      {
+        "label": "before",
+        "run": 2,
+        "profile": {
+          "width": 1440,
+          "cpu": 1,
+          "net": false
+        },
+        "primary_ms": 810.2000000001863,
+        "lcp": 940,
+        "cls": 0.08314830568415638,
+        "longTasks": 3,
+        "longTaskMs": 258,
+        "resources": [
+          {
+            "name": "/assets/2029-B0iBjSWm.js",
+            "encoded": 221147,
+            "decoded": 731447
+          },
+          {
+            "name": "/assets/jsx-runtime-D3jfb0Ew.js",
+            "encoded": 3382,
+            "decoded": 8901
+          },
+          {
+            "name": "/assets/scheduler-l4uHkdFa.js",
+            "encoded": 1563,
+            "decoded": 3561
+          },
+          {
+            "name": "/assets/react-dom-DenslgJm.js",
+            "encoded": 1392,
+            "decoded": 3864
+          },
+          {
+            "name": "/assets/preload-helper-BZ1Pz5am.js",
+            "encoded": 688,
+            "decoded": 1218
+          },
+          {
+            "name": "/assets/chunk-OB3PAWPO-CVMmBO49.js",
+            "encoded": 13843,
+            "decoded": 38940
+          },
+          {
+            "name": "/assets/format-DFlJicod.js",
+            "encoded": 748,
+            "decoded": 1659
+          },
+          {
+            "name": "/assets/theme-B2UPacu4.js",
+            "encoded": 872,
+            "decoded": 1807
+          },
+          {
+            "name": "/assets/gematria-Ud5dslyW.js",
+            "encoded": 3039,
+            "decoded": 7546
+          },
+          {
+            "name": "/assets/tracking-a59pzQGS.js",
+            "encoded": 3649,
+            "decoded": 8792
+          },
+          {
+            "name": "/assets/supabase-DkpS7dgV.js",
+            "encoded": 50048,
+            "decoded": 194093
+          },
+          {
+            "name": "/assets/AuthContext-J9o2I7T_.js",
+            "encoded": 2115,
+            "decoded": 4741
+          },
+          {
+            "name": "/assets/elsResearchReturnSnapshot-B03Lyzta.js",
+            "encoded": 1589,
+            "decoded": 4135
+          },
+          {
+            "name": "/assets/methodIdentity-DM2yAcOz.js",
+            "encoded": 157,
+            "decoded": 153
+          },
+          {
+            "name": "/assets/numberExpressionFocus-BA7z8vP8.js",
+            "encoded": 1050,
+            "decoded": 2137
+          },
+          {
+            "name": "/assets/ResearchProvider-B_pVsxwJ.js",
+            "encoded": 13979,
+            "decoded": 42353
+          },
+          {
+            "name": "/assets/razielViewMode2029-EPrCdoW9.js",
+            "encoded": 408,
+            "decoded": 672
+          },
+          {
+            "name": "/assets/NavigationIcon2029-CH1qZpiS.js",
+            "encoded": 5369,
+            "decoded": 14796
+          },
+          {
+            "name": "/assets/dayContext-DQm1CoPT.js",
+            "encoded": 54650,
+            "decoded": 158849
+          },
+          {
+            "name": "/assets/themeMode-jUD92yIC.js",
+            "encoded": 422,
+            "decoded": 758
+          },
+          {
+            "name": "/assets/palette-CNyTr_3N.js",
+            "encoded": 3315,
+            "decoded": 8930
+          },
+          {
+            "name": "/assets/designTokens-B8JmV1rE.js",
+            "encoded": 1056,
+            "decoded": 2425
+          },
+          {
+            "name": "/assets/canonicalPresentation-DgNmWnf_.js",
+            "encoded": 2897,
+            "decoded": 7540
+          },
+          {
+            "name": "/assets/researchObjectPresentation-l0ubBFKY.js",
+            "encoded": 3453,
+            "decoded": 7566
+          },
+          {
+            "name": "/assets/worldContextualProminence-DFYM9dQz.js",
+            "encoded": 5147,
+            "decoded": 14914
+          },
+          {
+            "name": "/assets/universalFinding-DZVlmLqu.js",
+            "encoded": 1870,
+            "decoded": 4914
+          },
+          {
+            "name": "/assets/researchObjectFinding-bo3yYp1j.js",
+            "encoded": 2989,
+            "decoded": 8168
+          },
+          {
+            "name": "/assets/timeline2029-Dc49odMG.js",
+            "encoded": 2138,
+            "decoded": 4100
+          },
+          {
+            "name": "/assets/ShareActions-0g-w402r.js",
+            "encoded": 5808,
+            "decoded": 13147
+          },
+          {
+            "name": "/assets/postSourceUpdates2029-05vVMebH.js",
+            "encoded": 1609,
+            "decoded": 3631
+          },
+          {
+            "name": "/assets/gematriaTracePresentation-CX847u8G.js",
+            "encoded": 2742,
+            "decoded": 6488
+          },
+          {
+            "name": "/assets/numberCoreProjection-BsfKEyPA.js",
+            "encoded": 5373,
+            "decoded": 14039
+          },
+          {
+            "name": "/assets/calculator2029Input-BbfftHdT.js",
+            "encoded": 904,
+            "decoded": 1606
+          },
+          {
+            "name": "/assets/NavigationIcon2029-CDR-JqlQ.css",
+            "encoded": 572,
+            "decoded": 2059
+          },
+          {
+            "name": "/assets/ShareActions-DMXv2tqp.css",
+            "encoded": 1138,
+            "decoded": 4370
+          },
+          {
+            "name": "/assets/2029-CNbuPO77.css",
+            "encoded": 37283,
+            "decoded": 250985
+          },
+          {
+            "name": "/assets/previewVisualReview2029-BLLl4Wof.js",
+            "encoded": 2017,
+            "decoded": 5160
+          },
+          {
+            "name": "/assets/previewVisualReview2029-BvQ2FAL9.css",
+            "encoded": 4452,
+            "decoded": 27851
+          },
+          {
+            "name": "/assets/Home2029Page-DFKP5TTr.js",
+            "encoded": 16812,
+            "decoded": 56043
+          },
+          {
+            "name": "/assets/researchPlanV2-B2lRLxm3.js",
+            "encoded": 10154,
+            "decoded": 33629
+          },
+          {
+            "name": "/assets/CurationMark2029-CRcuZKya.js",
+            "encoded": 1918,
+            "decoded": 5364
+          },
+          {
+            "name": "/assets/CurationMark2029-CqI6kfN0.css",
+            "encoded": 1428,
+            "decoded": 5861
+          },
+          {
+            "name": "/assets/ConvergenceRatings2029-8qbRdNel.js",
+            "encoded": 2024,
+            "decoded": 5417
+          },
+          {
+            "name": "/assets/ConvergenceRatings2029-Bf7X875Q.css",
+            "encoded": 917,
+            "decoded": 2819
+          },
+          {
+            "name": "/assets/SourceRepeatInfo2029-CN54GpUm.js",
+            "encoded": 4595,
+            "decoded": 11705
+          },
+          {
+            "name": "/assets/topicConvergence-CHCPqQkw.js",
+            "encoded": 6162,
+            "decoded": 19991
+          },
+          {
+            "name": "/assets/entityHubProjection-BJ9yho2Q.js",
+            "encoded": 13688,
+            "decoded": 43998
+          },
+          {
+            "name": "/assets/entityGraphFinding-DPAvsxl6.js",
+            "encoded": 1849,
+            "decoded": 4659
+          },
+          {
+            "name": "/assets/numericResearch-DqZcmZHs.js",
+            "encoded": 7745,
+            "decoded": 23292
+          },
+          {
+            "name": "/assets/canonicalGematria-DSIyTFGn.js",
+            "encoded": 227,
+            "decoded": 275
+          },
+          {
+            "name": "/assets/canonicalGematriaProjection-B66_nJSZ.js",
+            "encoded": 660,
+            "decoded": 1244
+          },
+          {
+            "name": "/assets/bookResearchProjection-5tc4wXqQ.js",
+            "encoded": 3689,
+            "decoded": 9260
+          },
+          {
+            "name": "/assets/post2029ReadingProjection-VRTpbRWR.js",
+            "encoded": 56722,
+            "decoded": 190215
+          },
+          {
+            "name": "/assets/researchResultBundle-C_k0U3E0.js",
+            "encoded": 3436,
+            "decoded": 9315
+          },
+          {
+            "name": "/assets/gematriaRelationW2Executor-BfyK05J3.js",
+            "encoded": 3069,
+            "decoded": 8020
+          },
+          {
+            "name": "/assets/momentClockSystemMethod-DfaWpOyy.js",
+            "encoded": 6806,
+            "decoded": 19368
+          },
+          {
+            "name": "/assets/numberSystemMethods-C7ILjE6a.js",
+            "encoded": 5686,
+            "decoded": 17209
+          },
+          {
+            "name": "/assets/publicPostBoundary-DLBRu07Y.js",
+            "encoded": 214,
+            "decoded": 243
+          },
+          {
+            "name": "/assets/worldDiscoveryStream-Dh5Zjl1F.js",
+            "encoded": 4083,
+            "decoded": 10402
+          },
+          {
+            "name": "/assets/PostTimeline2029-HTi-_P5n.js",
+            "encoded": 245,
+            "decoded": 324
+          },
+          {
+            "name": "/assets/Timeline2029-DCEKqbCw.js",
+            "encoded": 828,
+            "decoded": 2138
+          },
+          {
+            "name": "/assets/Timeline2029-a6_QYh8e.css",
+            "encoded": 630,
+            "decoded": 2296
+          },
+          {
+            "name": "/assets/PostCategories2029-DDdr8_wC.js",
+            "encoded": 3941,
+            "decoded": 9246
+          },
+          {
+            "name": "/assets/PostCategories2029-DP5c8Fzv.css",
+            "encoded": 724,
+            "decoded": 2507
+          },
+          {
+            "name": "/assets/SourceRepeatInfo2029-DDIWPxqd.css",
+            "encoded": 1739,
+            "decoded": 7142
+          },
+          {
+            "name": "/assets/RealityRiver2029-UI-ahMZY.js",
+            "encoded": 4191,
+            "decoded": 11849
+          },
+          {
+            "name": "/assets/WatchButton-NOH-DPEz.js",
+            "encoded": 3978,
+            "decoded": 11371
+          },
+          {
+            "name": "/assets/EmailVerify-Cn5q0HQX.js",
+            "encoded": 2233,
+            "decoded": 5206
+          },
+          {
+            "name": "/assets/EmailVerify-DM0qVGWZ.css",
+            "encoded": 617,
+            "decoded": 2261
+          },
+          {
+            "name": "/assets/IconTile2029-JLOMl_ev.js",
+            "encoded": 509,
+            "decoded": 778
+          },
+          {
+            "name": "/assets/IconTile2029-x-yAGhlc.css",
+            "encoded": 227,
+            "decoded": 365
+          },
+          {
+            "name": "/assets/WatchButton-DFPG23U2.css",
+            "encoded": 776,
+            "decoded": 2243
+          },
+          {
+            "name": "/assets/RealityRiver2029-BzMsP3iY.css",
+            "encoded": 3880,
+            "decoded": 15719
+          },
+          {
+            "name": "/assets/home2029Projection-GryV-N5n.js",
+            "encoded": 3444,
+            "decoded": 8641
+          },
+          {
+            "name": "/assets/timeFlow-B3Pve8h-.js",
+            "encoded": 880,
+            "decoded": 1718
+          },
+          {
+            "name": "/assets/curationProjection2029-Cs2obozj.js",
+            "encoded": 1916,
+            "decoded": 4495
+          },
+          {
+            "name": "/assets/worldContributorLens-EjJnWZSP.js",
+            "encoded": 2426,
+            "decoded": 6479
+          },
+          {
+            "name": "/assets/Home2029Page-h2C-6HLd.css",
+            "encoded": 5013,
+            "decoded": 22545
+          },
+          {
+            "name": "/assets/livingRibbonPreview2029-BI1iUMB3.js",
+            "encoded": 461,
+            "decoded": 853
+          }
+        ],
+        "flagReads": 1,
+        "requestCount": 116,
+        "modelCalls": 0,
+        "blockedWriteAttempts": [
+          "/rest/v1/rpc/notification_prefs_guest_get_v1"
+        ]
+      },
+      {
+        "label": "after",
+        "run": 2,
+        "profile": {
+          "width": 1440,
+          "cpu": 1,
+          "net": false
+        },
+        "primary_ms": 830.5,
+        "lcp": 1084,
+        "cls": 0.05278178369341563,
+        "longTasks": 3,
+        "longTaskMs": 269,
+        "resources": [
+          {
+            "name": "/assets/2029-DDew4Z7L.js",
+            "encoded": 221126,
+            "decoded": 731447
+          },
+          {
+            "name": "/assets/scheduler-l4uHkdFa.js",
+            "encoded": 1563,
+            "decoded": 3561
+          },
+          {
+            "name": "/assets/jsx-runtime-D3jfb0Ew.js",
+            "encoded": 3382,
+            "decoded": 8901
+          },
+          {
+            "name": "/assets/react-dom-DenslgJm.js",
+            "encoded": 1392,
+            "decoded": 3864
+          },
+          {
+            "name": "/assets/preload-helper-BZ1Pz5am.js",
+            "encoded": 688,
+            "decoded": 1218
+          },
+          {
+            "name": "/assets/chunk-OB3PAWPO-CVMmBO49.js",
+            "encoded": 13843,
+            "decoded": 38940
+          },
+          {
+            "name": "/assets/format-DFlJicod.js",
+            "encoded": 748,
+            "decoded": 1659
+          },
+          {
+            "name": "/assets/theme-B2UPacu4.js",
+            "encoded": 872,
+            "decoded": 1807
+          },
+          {
+            "name": "/assets/gematria-Ud5dslyW.js",
+            "encoded": 3039,
+            "decoded": 7546
+          },
+          {
+            "name": "/assets/tracking-CAuLUUTt.js",
+            "encoded": 3649,
+            "decoded": 8792
+          },
+          {
+            "name": "/assets/supabase-Ca1yCZfZ.js",
+            "encoded": 50049,
+            "decoded": 194093
+          },
+          {
+            "name": "/assets/AuthContext-DdJtHkX4.js",
+            "encoded": 2113,
+            "decoded": 4741
+          },
+          {
+            "name": "/assets/elsResearchReturnSnapshot-B03Lyzta.js",
+            "encoded": 1589,
+            "decoded": 4135
+          },
+          {
+            "name": "/assets/methodIdentity-DM2yAcOz.js",
+            "encoded": 157,
+            "decoded": 153
+          },
+          {
+            "name": "/assets/numberExpressionFocus-B6tt4hge.js",
+            "encoded": 1050,
+            "decoded": 2137
+          },
+          {
+            "name": "/assets/ResearchProvider-DOvURhbp.js",
+            "encoded": 13974,
+            "decoded": 42353
+          },
+          {
+            "name": "/assets/razielViewMode2029-EPrCdoW9.js",
+            "encoded": 408,
+            "decoded": 672
+          },
+          {
+            "name": "/assets/NavigationIcon2029-CH1qZpiS.js",
+            "encoded": 5369,
+            "decoded": 14796
+          },
+          {
+            "name": "/assets/dayContext-DQm1CoPT.js",
+            "encoded": 54650,
+            "decoded": 158849
+          },
+          {
+            "name": "/assets/themeMode-jUD92yIC.js",
+            "encoded": 422,
+            "decoded": 758
+          },
+          {
+            "name": "/assets/palette-CNyTr_3N.js",
+            "encoded": 3315,
+            "decoded": 8930
+          },
+          {
+            "name": "/assets/designTokens-B8JmV1rE.js",
+            "encoded": 1056,
+            "decoded": 2425
+          },
+          {
+            "name": "/assets/canonicalPresentation-DgNmWnf_.js",
+            "encoded": 2897,
+            "decoded": 7540
+          },
+          {
+            "name": "/assets/researchObjectPresentation-l0ubBFKY.js",
+            "encoded": 3453,
+            "decoded": 7566
+          },
+          {
+            "name": "/assets/worldContextualProminence-DFYM9dQz.js",
+            "encoded": 5147,
+            "decoded": 14914
+          },
+          {
+            "name": "/assets/universalFinding-DZVlmLqu.js",
+            "encoded": 1870,
+            "decoded": 4914
+          },
+          {
+            "name": "/assets/researchObjectFinding-bo3yYp1j.js",
+            "encoded": 2989,
+            "decoded": 8168
+          },
+          {
+            "name": "/assets/timeline2029-Dc49odMG.js",
+            "encoded": 2138,
+            "decoded": 4100
+          },
+          {
+            "name": "/assets/ShareActions-VMzRlrhh.js",
+            "encoded": 5810,
+            "decoded": 13147
+          },
+          {
+            "name": "/assets/postSourceUpdates2029-05vVMebH.js",
+            "encoded": 1609,
+            "decoded": 3631
+          },
+          {
+            "name": "/assets/gematriaTracePresentation-CX847u8G.js",
+            "encoded": 2742,
+            "decoded": 6488
+          },
+          {
+            "name": "/assets/numberCoreProjection-BBWYdulC.js",
+            "encoded": 5373,
+            "decoded": 14039
+          },
+          {
+            "name": "/assets/NavigationIcon2029-CDR-JqlQ.css",
+            "encoded": 572,
+            "decoded": 2059
+          },
+          {
+            "name": "/assets/calculator2029Input-BbfftHdT.js",
+            "encoded": 904,
+            "decoded": 1606
+          },
+          {
+            "name": "/assets/ShareActions-DMXv2tqp.css",
+            "encoded": 1138,
+            "decoded": 4370
+          },
+          {
+            "name": "/assets/2029-CNbuPO77.css",
+            "encoded": 37283,
+            "decoded": 250985
+          },
+          {
+            "name": "/assets/previewVisualReview2029-CNp-RIpL.js",
+            "encoded": 2017,
+            "decoded": 5160
+          },
+          {
+            "name": "/assets/previewVisualReview2029-BvQ2FAL9.css",
+            "encoded": 4452,
+            "decoded": 27851
+          },
+          {
+            "name": "/assets/Home2029Page-DPb2BIdg.js",
+            "encoded": 17370,
+            "decoded": 57876
+          },
+          {
+            "name": "/assets/researchPlanV2-3w8XYcGP.js",
+            "encoded": 10155,
+            "decoded": 33629
+          },
+          {
+            "name": "/assets/CurationMark2029-CRcuZKya.js",
+            "encoded": 1918,
+            "decoded": 5364
+          },
+          {
+            "name": "/assets/CurationMark2029-CqI6kfN0.css",
+            "encoded": 1428,
+            "decoded": 5861
+          },
+          {
+            "name": "/assets/ConvergenceRatings2029-BAIkA5W6.js",
+            "encoded": 2024,
+            "decoded": 5417
+          },
+          {
+            "name": "/assets/ConvergenceRatings2029-Bf7X875Q.css",
+            "encoded": 917,
+            "decoded": 2819
+          },
+          {
+            "name": "/assets/SourceRepeatInfo2029-pnIEt0cJ.js",
+            "encoded": 4599,
+            "decoded": 11705
+          },
+          {
+            "name": "/assets/topicConvergence-DjjmfNLy.js",
+            "encoded": 6162,
+            "decoded": 19991
+          },
+          {
+            "name": "/assets/entityHubProjection-BrQIjfLZ.js",
+            "encoded": 13686,
+            "decoded": 43998
+          },
+          {
+            "name": "/assets/entityGraphFinding-lamqBOiR.js",
+            "encoded": 1849,
+            "decoded": 4659
+          },
+          {
+            "name": "/assets/numericResearch-DqZcmZHs.js",
+            "encoded": 7745,
+            "decoded": 23292
+          },
+          {
+            "name": "/assets/canonicalGematria-DOWJ-lzs.js",
+            "encoded": 226,
+            "decoded": 275
+          },
+          {
+            "name": "/assets/canonicalGematriaProjection-B66_nJSZ.js",
+            "encoded": 660,
+            "decoded": 1244
+          },
+          {
+            "name": "/assets/bookResearchProjection-D_TXPSLW.js",
+            "encoded": 3690,
+            "decoded": 9260
+          },
+          {
+            "name": "/assets/post2029ReadingProjection-_-bo3Gz7.js",
+            "encoded": 56716,
+            "decoded": 190215
+          },
+          {
+            "name": "/assets/researchResultBundle-Boq8ysD6.js",
+            "encoded": 3436,
+            "decoded": 9315
+          },
+          {
+            "name": "/assets/gematriaRelationW2Executor-tdwwe1JL.js",
+            "encoded": 3070,
+            "decoded": 8020
+          },
+          {
+            "name": "/assets/momentClockSystemMethod-BI0Cjeqa.js",
+            "encoded": 6805,
+            "decoded": 19368
+          },
+          {
+            "name": "/assets/numberSystemMethods-nQEJu_oj.js",
+            "encoded": 5687,
+            "decoded": 17209
+          },
+          {
+            "name": "/assets/publicPostBoundary-DLBRu07Y.js",
+            "encoded": 214,
+            "decoded": 243
+          },
+          {
+            "name": "/assets/worldDiscoveryStream-CYR8Zpa7.js",
+            "encoded": 4084,
+            "decoded": 10402
+          },
+          {
+            "name": "/assets/PostTimeline2029-HTi-_P5n.js",
+            "encoded": 245,
+            "decoded": 324
+          },
+          {
+            "name": "/assets/Timeline2029-DCEKqbCw.js",
+            "encoded": 828,
+            "decoded": 2138
+          },
+          {
+            "name": "/assets/Timeline2029-a6_QYh8e.css",
+            "encoded": 630,
+            "decoded": 2296
+          },
+          {
+            "name": "/assets/PostCategories2029-C2I-R8ZX.js",
+            "encoded": 3941,
+            "decoded": 9246
+          },
+          {
+            "name": "/assets/PostCategories2029-DP5c8Fzv.css",
+            "encoded": 724,
+            "decoded": 2507
+          },
+          {
+            "name": "/assets/SourceRepeatInfo2029-DDIWPxqd.css",
+            "encoded": 1739,
+            "decoded": 7142
+          },
+          {
+            "name": "/assets/RealityRiver2029-BcQdNzFD.js",
+            "encoded": 4186,
+            "decoded": 11849
+          },
+          {
+            "name": "/assets/WatchButton-PTbPLmoA.js",
+            "encoded": 3980,
+            "decoded": 11371
+          },
+          {
+            "name": "/assets/EmailVerify-DzYwITH4.js",
+            "encoded": 2234,
+            "decoded": 5206
+          },
+          {
+            "name": "/assets/EmailVerify-DM0qVGWZ.css",
+            "encoded": 617,
+            "decoded": 2261
+          },
+          {
+            "name": "/assets/IconTile2029-M1nJfG83.js",
+            "encoded": 509,
+            "decoded": 778
+          },
+          {
+            "name": "/assets/IconTile2029-x-yAGhlc.css",
+            "encoded": 227,
+            "decoded": 365
+          },
+          {
+            "name": "/assets/WatchButton-DFPG23U2.css",
+            "encoded": 776,
+            "decoded": 2243
+          },
+          {
+            "name": "/assets/RealityRiver2029-BzMsP3iY.css",
+            "encoded": 3880,
+            "decoded": 15719
+          },
+          {
+            "name": "/assets/home2029Projection-DZ5YL9py.js",
+            "encoded": 3450,
+            "decoded": 8648
+          },
+          {
+            "name": "/assets/timeFlow-B3Pve8h-.js",
+            "encoded": 880,
+            "decoded": 1718
+          },
+          {
+            "name": "/assets/curationProjection2029-B2_yRTIO.js",
+            "encoded": 1915,
+            "decoded": 4495
+          },
+          {
+            "name": "/assets/worldContributorLens-D6VxnEJm.js",
+            "encoded": 2425,
+            "decoded": 6479
+          },
+          {
+            "name": "/assets/Home2029Page-h2C-6HLd.css",
+            "encoded": 5013,
+            "decoded": 22545
+          },
+          {
+            "name": "/assets/livingRibbonPreview2029-BI1iUMB3.js",
+            "encoded": 461,
+            "decoded": 853
+          }
+        ],
+        "flagReads": 1,
+        "requestCount": 108,
+        "modelCalls": 0,
+        "blockedWriteAttempts": [
+          "/rest/v1/rpc/notification_prefs_guest_get_v1"
+        ]
+      }
+    ],
+    "acceptance": [
+      {
+        "theme": "light",
+        "unpinnedCompanionCanCollapseWhileLoading": true,
+        "canonicalStoryOpenedClosed": true,
+        "canonicalGatewayOpened": true,
+        "zeroPreopenChunks": true,
+        "zeroModelCalls": true
+      },
+      {
+        "theme": "parchment",
+        "unpinnedCompanionCanCollapseWhileLoading": true,
+        "canonicalStoryOpenedClosed": true,
+        "canonicalGatewayOpened": true,
+        "zeroPreopenChunks": true,
+        "zeroModelCalls": true
+      },
+      {
+        "theme": "dark",
+        "unpinnedCompanionCanCollapseWhileLoading": true,
+        "canonicalStoryOpenedClosed": true,
+        "canonicalGatewayOpened": true,
+        "zeroPreopenChunks": true,
+        "zeroModelCalls": true
+      },
+      {
+        "failedChunkVisible": true,
+        "escapeCloses": true,
+        "reloadRecovers": true
+      },
+      {
+        "failedContactChunkVisible": true,
+        "existingPanelEscapeCloses": true,
+        "contactReloadRecovers": true
+      },
+      {
+        "pendingLoadCanBeDismissed": true,
+        "noLateReopen": true,
+        "explicitReopenWorks": true
+      }
+    ]
+  },
+  "admission_browser": {
+    "scope": "built_local_synthetic_API_not_hosted_or_field",
+    "base": "4cf3079342e82e73633d18a3ab37cda5479dce72",
+    "cases": [
+      {
+        "label": "before",
+        "width": 390,
+        "kind": "no_scroll",
+        "apiReads": 27,
+        "deferredReads": 5,
+        "geometry": [
+          {
+            "label": "העדכון האחרון",
+            "className": "h29-hero h29-hero2 is-enter",
+            "top": 136,
+            "height": 540
+          },
+          {
+            "label": "עדכונים אחרונים",
+            "className": "h29-sec k29-reveal ",
+            "top": 704,
+            "height": 303
+          },
+          {
+            "label": null,
+            "className": "k29-reveal k29-rv-self",
+            "top": 1035,
+            "height": 347
+          },
+          {
+            "label": null,
+            "className": "k29-reveal k29-rv-self",
+            "top": 1410,
+            "height": 461
+          },
+          {
+            "label": "צפנים וסרטים",
+            "className": "h29-sec k29-reveal ",
+            "top": 1899,
+            "height": 449
+          },
+          {
+            "label": null,
+            "className": "h29-strip k29-rv",
+            "top": 1899,
+            "height": 254
+          },
+          {
+            "label": null,
+            "className": "h29-strip k29-rv",
+            "top": 2168,
+            "height": 181
+          },
+          {
+            "label": null,
+            "className": "k29-reveal k29-rv-self",
+            "top": 2376,
+            "height": 920
+          },
+          {
+            "label": "מוקדי זהות",
+            "className": "h29-sec k29-reveal ",
+            "top": 3324,
+            "height": 258
+          },
+          {
+            "label": "כלים וכניסות",
+            "className": "h29-sec k29-reveal ",
+            "top": 3610,
+            "height": 775
+          },
+          {
+            "label": "התחלה משלך",
+            "className": "sod29-home-review-entry",
+            "top": 4433,
+            "height": 321
+          },
+          {
+            "label": "רציפות אישית",
+            "className": "sod29-home-continuity",
+            "top": 4838,
+            "height": 489
+          },
+          {
+            "label": "דופק ומצב בנייה",
+            "className": "h29-quiet",
+            "top": 5355,
+            "height": 66
+          }
+        ],
+        "reads": [
+          {
+            "path": "/rest/v1/posts",
+            "query": "?select=*&slug=in.%28flydubai-fz1073-363-14000-remzei-geula%29&limit=1",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/site_flags",
+            "query": "?select=key%2Cenabled%2Cmessage%2Cmode",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/gallery_images",
+            "query": "?select=id%2Cimage_url%2Cthumb_url%2Cname%2Cdescription%2Cprimary_value%2Call_values%2Coccurred_at%2Ccreated_at%2Cstream_at%2Cimportance%2Cocr_meta%2Cimage_type&source=eq.update&image_url=not.is.null&curator_hidden=not.is.true&min_tier=eq.0&order=stream_at.desc.nullslast%2Ccreated_at.desc&limit=12",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/posts",
+            "query": "?select=id%2Cslug%2Ctitle%2Cimage_url%2Cthumb_url%2Cdate%2Cmodified%2Ctags&slug=not.is.null&order=modified.desc.nullslast&limit=9",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/posts",
+            "query": "?select=id%2Cslug%2Ctitle%2Cimage_url%2Cthumb_url%2Cdate&categories=ov.%7B%D7%A6%D7%A4%D7%95%D7%A0%D7%95%D7%AA+%D7%91%D7%AA%D7%95%D7%A8%D7%94%2C%D7%94%D7%A6%D7%95%D7%A4%D7%9F+%D7%91%D7%A1%D7%A8%D7%98%D7%99%D7%9D%7D&image_url=not.is.null&order=date.desc&limit=6",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/home_videos",
+            "query": "?select=yt%2Ctitle%2Cslug%2Cfeatured%2Cuploaded_at%2Cvideo_url%2Cposter_url%2Ccipher_slug%2Cpinned&is_active=eq.true&order=featured.desc%2Csort_order.asc%2Cid.asc&limit=6",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/posts",
+            "query": "?select=*&order=date.desc.nullslast&offset=0&limit=1&tags=cs.%7B%D7%9E%D7%99%D7%9E%D7%93+%D7%97%D7%9E%D7%A9%7D",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/topic_cards_public",
+            "query": "?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&order=meter_score.desc.nullslast%2Capproved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=5",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/gematria_words",
+            "query": "?select=phrase&is_verified=eq.true&is_published=eq.true&or=%28is_encrypted.is.null%2Cis_encrypted.eq.false%29",
+            "method": "HEAD"
+          },
+          {
+            "path": "/rest/v1/gematria_words",
+            "query": "?select=phrase&is_verified=eq.true&is_published=eq.true&or=%28is_encrypted.is.null%2Cis_encrypted.eq.false%29&created_at=gte.2026-10-24T19%3A43%3A59.926Z",
+            "method": "HEAD"
+          },
+          {
+            "path": "/rest/v1/gematria_words",
+            "query": "?select=phrase&is_verified=eq.true&is_published=eq.true&or=%28is_encrypted.is.null%2Cis_encrypted.eq.false%29&visibility_changed_at=gte.2026-10-24T19%3A43%3A59.926Z",
+            "method": "HEAD"
+          },
+          {
+            "path": "/rest/v1/gematria_words",
+            "query": "?select=phrase&is_verified=eq.true&is_published=eq.true&or=%28is_encrypted.is.null%2Cis_encrypted.eq.false%29&created_at=gte.2026-10-24T19%3A43%3A59.926Z&visibility_changed_at=gte.2026-10-24T19%3A43%3A59.926Z",
+            "method": "HEAD"
+          },
+          {
+            "path": "/rest/v1/gematria_words",
+            "query": "?select=phrase%2Cragil%2Ccreated_at%2Cvisibility_changed_at&is_verified=eq.true&is_published=eq.true&or=%28is_encrypted.is.null%2Cis_encrypted.eq.false%29&order=created_at.desc.nullslast&limit=3",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/gematria_words",
+            "query": "?select=phrase%2Cragil%2Ccreated_at%2Cvisibility_changed_at&is_verified=eq.true&is_published=eq.true&or=%28is_encrypted.is.null%2Cis_encrypted.eq.false%29&order=visibility_changed_at.desc.nullslast&limit=3",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/research_contributions",
+            "query": "?select=id%2Cauthor_user_id%2Cauthor_contributor_id%2Cauthor_name%2Ccreated_at&status=eq.approved&created_at=gte.2026-10-24T19%3A43%3A59.926Z&order=created_at.desc&limit=1000",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/rpc/fn_method_value",
+            "query": "",
+            "method": "POST"
+          },
+          {
+            "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+            "query": "",
+            "method": "POST"
+          },
+          {
+            "path": "/rest/v1/contributors",
+            "query": "?select=id%2Cslug%2Cdisplay_name%2Ckind%2Crole%2Cwa_names%2Ctrusted%2Cactive%2Cdossier_settings&slug=in.%28tzvi-opoc%2Cshimon-haimov%2Cyaniv-levi%2Cshachar-kandro%29",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/contributors",
+            "query": "?select=id%2Cslug%2Cdisplay_name%2Ckind%2Crole%2Cwa_names%2Ctrusted%2Cactive%2Cdossier_settings&active=eq.true&trusted=eq.true&kind=neq.external",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/posts",
+            "query": "?select=id%2Cslug%2Cdate%2Cmodified%2Ccategories%2Csource%2Ctags%2Chome_hidden&slug=in.%28performance-public-fixture%29",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/topic_cards_public",
+            "query": "?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&order=approved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=41",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/posts",
+            "query": "?select=id%2Cslug%2Cdate%2Cmodified%2Ctags%2Ccategories%2Csource%2Chome_hidden&slug=eq.performance-public-fixture&limit=1",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/topic_cards_public",
+            "query": "?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&order=approved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=25",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/posts",
+            "query": "?select=id%2Cslug%2Ctitle%2Cexcerpt%2Cauthor%2Csource%2Ctags%2Chome_hidden%2Cdate%2Cmodified%2Ccreated_at&home_hidden=eq.false&tags=not.cs.%7B%D7%98%D7%99%D7%95%D7%98%D7%94%7D&tags=not.cs.%7B%D7%A4%D7%95%D7%A8%D7%95%D7%9D%7D&source=in.%28wordpress%2CSOD1820%2Csod1820%2Csource_document%2Cai%2Cuploaded_file%29&order=modified.desc.nullslast&limit=80",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+            "query": "",
+            "method": "POST"
+          },
+          {
+            "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+            "query": "",
+            "method": "POST"
+          },
+          {
+            "path": "/rest/v1/posts",
+            "query": "?select=id%2Cslug%2Ctitle%2Cexcerpt%2Cauthor%2Csource%2Ctags%2Chome_hidden%2Cdate%2Cmodified%2Ccreated_at&home_hidden=eq.false&tags=not.cs.%7B%D7%98%D7%99%D7%95%D7%98%D7%94%7D&tags=not.cs.%7B%D7%A4%D7%95%D7%A8%D7%95%D7%9D%7D&source=in.%28wordpress%2CSOD1820%2Csod1820%2Csource_document%2Cai%2Cuploaded_file%29&order=modified.desc.nullslast&limit=32",
+            "method": "GET"
+          }
+        ]
+      },
+      {
+        "label": "after",
+        "width": 390,
+        "kind": "no_scroll",
+        "apiReads": 19,
+        "deferredReads": 0,
+        "geometry": [
+          {
+            "label": "העדכון האחרון",
+            "className": "h29-hero h29-hero2 is-enter",
+            "top": 136,
+            "height": 540
+          },
+          {
+            "label": "עדכונים אחרונים",
+            "className": "h29-sec k29-reveal ",
+            "top": 704,
+            "height": 303
+          },
+          {
+            "label": null,
+            "className": "k29-reveal k29-rv-self",
+            "top": 1035,
+            "height": 347
+          },
+          {
+            "label": null,
+            "className": "k29-reveal k29-rv-self",
+            "top": 1410,
+            "height": 461
+          },
+          {
+            "label": "צפנים וסרטים",
+            "className": "h29-sec k29-reveal ",
+            "top": 1899,
+            "height": 332
+          },
+          {
+            "label": null,
+            "className": "h29-strip k29-rv",
+            "top": 1899,
+            "height": 254
+          },
+          {
+            "label": null,
+            "className": "h29-strip k29-rv",
+            "top": 2168,
+            "height": 63
+          },
+          {
+            "label": null,
+            "className": "k29-reveal k29-rv-self",
+            "top": 2259,
+            "height": 1027
+          },
+          {
+            "label": "מוקדי זהות",
+            "className": "h29-sec k29-reveal ",
+            "top": 3314,
+            "height": 258
+          },
+          {
+            "label": "כלים וכניסות",
+            "className": "h29-sec k29-reveal ",
+            "top": 3600,
+            "height": 775
+          },
+          {
+            "label": "התחלה משלך",
+            "className": "sod29-home-review-entry",
+            "top": 4423,
+            "height": 321
+          },
+          {
+            "label": "רציפות אישית",
+            "className": "sod29-home-continuity",
+            "top": 4828,
+            "height": 489
+          },
+          {
+            "label": "דופק ומצב בנייה",
+            "className": "h29-quiet",
+            "top": 5345,
+            "height": 66
+          }
+        ],
+        "reads": [
+          {
+            "path": "/rest/v1/posts",
+            "query": "?select=*&slug=in.%28flydubai-fz1073-363-14000-remzei-geula%29&limit=1",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/site_flags",
+            "query": "?select=key%2Cenabled%2Cmessage%2Cmode",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/posts",
+            "query": "?select=id%2Cslug%2Ctitle%2Cimage_url%2Cthumb_url%2Cdate%2Cmodified%2Ctags&slug=not.is.null&order=modified.desc.nullslast&limit=9",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/posts",
+            "query": "?select=id%2Cslug%2Ctitle%2Cimage_url%2Cthumb_url%2Cdate&categories=ov.%7B%D7%A6%D7%A4%D7%95%D7%A0%D7%95%D7%AA+%D7%91%D7%AA%D7%95%D7%A8%D7%94%2C%D7%94%D7%A6%D7%95%D7%A4%D7%9F+%D7%91%D7%A1%D7%A8%D7%98%D7%99%D7%9D%7D&image_url=not.is.null&order=date.desc&limit=6",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/topic_cards_public",
+            "query": "?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&order=meter_score.desc.nullslast%2Capproved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=5",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/gematria_words",
+            "query": "?select=phrase&is_verified=eq.true&is_published=eq.true&or=%28is_encrypted.is.null%2Cis_encrypted.eq.false%29",
+            "method": "HEAD"
+          },
+          {
+            "path": "/rest/v1/gematria_words",
+            "query": "?select=phrase&is_verified=eq.true&is_published=eq.true&or=%28is_encrypted.is.null%2Cis_encrypted.eq.false%29&created_at=gte.2026-10-24T19%3A44%3A01.869Z",
+            "method": "HEAD"
+          },
+          {
+            "path": "/rest/v1/gematria_words",
+            "query": "?select=phrase&is_verified=eq.true&is_published=eq.true&or=%28is_encrypted.is.null%2Cis_encrypted.eq.false%29&visibility_changed_at=gte.2026-10-24T19%3A44%3A01.869Z",
+            "method": "HEAD"
+          },
+          {
+            "path": "/rest/v1/gematria_words",
+            "query": "?select=phrase&is_verified=eq.true&is_published=eq.true&or=%28is_encrypted.is.null%2Cis_encrypted.eq.false%29&created_at=gte.2026-10-24T19%3A44%3A01.869Z&visibility_changed_at=gte.2026-10-24T19%3A44%3A01.869Z",
+            "method": "HEAD"
+          },
+          {
+            "path": "/rest/v1/gematria_words",
+            "query": "?select=phrase%2Cragil%2Ccreated_at%2Cvisibility_changed_at&is_verified=eq.true&is_published=eq.true&or=%28is_encrypted.is.null%2Cis_encrypted.eq.false%29&order=created_at.desc.nullslast&limit=3",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/gematria_words",
+            "query": "?select=phrase%2Cragil%2Ccreated_at%2Cvisibility_changed_at&is_verified=eq.true&is_published=eq.true&or=%28is_encrypted.is.null%2Cis_encrypted.eq.false%29&order=visibility_changed_at.desc.nullslast&limit=3",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/research_contributions",
+            "query": "?select=id%2Cauthor_user_id%2Cauthor_contributor_id%2Cauthor_name%2Ccreated_at&status=eq.approved&created_at=gte.2026-10-24T19%3A44%3A01.869Z&order=created_at.desc&limit=1000",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/rpc/fn_method_value",
+            "query": "",
+            "method": "POST"
+          },
+          {
+            "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+            "query": "",
+            "method": "POST"
+          },
+          {
+            "path": "/rest/v1/posts",
+            "query": "?select=id%2Cslug%2Cdate%2Cmodified%2Ccategories%2Csource%2Ctags%2Chome_hidden&slug=in.%28performance-public-fixture%29",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/topic_cards_public",
+            "query": "?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&order=approved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=41",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/posts",
+            "query": "?select=id%2Cslug%2Cdate%2Cmodified%2Ctags%2Ccategories%2Csource%2Chome_hidden&slug=eq.performance-public-fixture&limit=1",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/posts",
+            "query": "?select=id%2Cslug%2Ctitle%2Cexcerpt%2Cauthor%2Csource%2Ctags%2Chome_hidden%2Cdate%2Cmodified%2Ccreated_at&home_hidden=eq.false&tags=not.cs.%7B%D7%98%D7%99%D7%95%D7%98%D7%94%7D&tags=not.cs.%7B%D7%A4%D7%95%D7%A8%D7%95%D7%9D%7D&source=in.%28wordpress%2CSOD1820%2Csod1820%2Csource_document%2Cai%2Cuploaded_file%29&order=modified.desc.nullslast&limit=80",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+            "query": "",
+            "method": "POST"
+          }
+        ]
+      },
+      {
+        "label": "before",
+        "width": 1440,
+        "kind": "no_scroll",
+        "apiReads": 28,
+        "deferredReads": 5,
+        "geometry": [
+          {
+            "label": "העדכון האחרון",
+            "className": "h29-hero h29-hero2 is-enter",
+            "top": 186,
+            "height": 211
+          },
+          {
+            "label": "עדכונים אחרונים",
+            "className": "h29-sec k29-reveal ",
+            "top": 425,
+            "height": 302
+          },
+          {
+            "label": null,
+            "className": "k29-reveal k29-rv-self",
+            "top": 755,
+            "height": 221
+          },
+          {
+            "label": null,
+            "className": "k29-reveal k29-rv-self",
+            "top": 1004,
+            "height": 412
+          },
+          {
+            "label": "צפנים וסרטים",
+            "className": "h29-sec k29-reveal ",
+            "top": 1444,
+            "height": 254
+          },
+          {
+            "label": null,
+            "className": "h29-strip k29-rv",
+            "top": 1444,
+            "height": 254
+          },
+          {
+            "label": null,
+            "className": "h29-strip k29-rv",
+            "top": 1444,
+            "height": 254
+          },
+          {
+            "label": null,
+            "className": "k29-reveal k29-rv-self",
+            "top": 1727,
+            "height": 793
+          },
+          {
+            "label": "מוקדי זהות",
+            "className": "h29-sec k29-reveal ",
+            "top": 2547,
+            "height": 78
+          },
+          {
+            "label": "כלים וכניסות",
+            "className": "h29-sec k29-reveal ",
+            "top": 2653,
+            "height": 414
+          },
+          {
+            "label": "התחלה משלך",
+            "className": "sod29-home-review-entry",
+            "top": 3115,
+            "height": 217
+          },
+          {
+            "label": "רציפות אישית",
+            "className": "sod29-home-continuity",
+            "top": 3415,
+            "height": 237
+          },
+          {
+            "label": "דופק ומצב בנייה",
+            "className": "h29-quiet",
+            "top": 3681,
+            "height": 39
+          }
+        ],
+        "reads": [
+          {
+            "path": "/rest/v1/channel_updates",
+            "query": "?select=id%2Ctext%2Cimage_url%2Cthumb_url%2Ccreated_at%2Cpriority%2Ccredit%2Cexpires_at%2Clink_url&channel=eq.or-geula&image_url=not.is.null&or=%28expires_at.is.null%2Cexpires_at.gt.2026-10-31T19%3A44%3A03.746Z%29&order=priority.desc%2Ccreated_at.desc&limit=12",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/posts",
+            "query": "?select=*&slug=in.%28flydubai-fz1073-363-14000-remzei-geula%29&limit=1",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/site_flags",
+            "query": "?select=key%2Cenabled%2Cmessage%2Cmode",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/gallery_images",
+            "query": "?select=id%2Cimage_url%2Cthumb_url%2Cname%2Cdescription%2Cprimary_value%2Call_values%2Coccurred_at%2Ccreated_at%2Cstream_at%2Cimportance%2Cocr_meta%2Cimage_type&source=eq.update&image_url=not.is.null&curator_hidden=not.is.true&min_tier=eq.0&order=stream_at.desc.nullslast%2Ccreated_at.desc&limit=12",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/posts",
+            "query": "?select=id%2Cslug%2Ctitle%2Cimage_url%2Cthumb_url%2Cdate%2Cmodified%2Ctags&slug=not.is.null&order=modified.desc.nullslast&limit=9",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/gematria_words",
+            "query": "?select=phrase&is_verified=eq.true&is_published=eq.true&or=%28is_encrypted.is.null%2Cis_encrypted.eq.false%29",
+            "method": "HEAD"
+          },
+          {
+            "path": "/rest/v1/gematria_words",
+            "query": "?select=phrase&is_verified=eq.true&is_published=eq.true&or=%28is_encrypted.is.null%2Cis_encrypted.eq.false%29&created_at=gte.2026-10-24T19%3A44%3A03.741Z",
+            "method": "HEAD"
+          },
+          {
+            "path": "/rest/v1/gematria_words",
+            "query": "?select=phrase&is_verified=eq.true&is_published=eq.true&or=%28is_encrypted.is.null%2Cis_encrypted.eq.false%29&visibility_changed_at=gte.2026-10-24T19%3A44%3A03.741Z",
+            "method": "HEAD"
+          },
+          {
+            "path": "/rest/v1/gematria_words",
+            "query": "?select=phrase&is_verified=eq.true&is_published=eq.true&or=%28is_encrypted.is.null%2Cis_encrypted.eq.false%29&created_at=gte.2026-10-24T19%3A44%3A03.741Z&visibility_changed_at=gte.2026-10-24T19%3A44%3A03.741Z",
+            "method": "HEAD"
+          },
+          {
+            "path": "/rest/v1/posts",
+            "query": "?select=id%2Cslug%2Ctitle%2Cimage_url%2Cthumb_url%2Cdate&categories=ov.%7B%D7%A6%D7%A4%D7%95%D7%A0%D7%95%D7%AA+%D7%91%D7%AA%D7%95%D7%A8%D7%94%2C%D7%94%D7%A6%D7%95%D7%A4%D7%9F+%D7%91%D7%A1%D7%A8%D7%98%D7%99%D7%9D%7D&image_url=not.is.null&order=date.desc&limit=6",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/home_videos",
+            "query": "?select=yt%2Ctitle%2Cslug%2Cfeatured%2Cuploaded_at%2Cvideo_url%2Cposter_url%2Ccipher_slug%2Cpinned&is_active=eq.true&order=featured.desc%2Csort_order.asc%2Cid.asc&limit=6",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/posts",
+            "query": "?select=*&order=date.desc.nullslast&offset=0&limit=1&tags=cs.%7B%D7%9E%D7%99%D7%9E%D7%93+%D7%97%D7%9E%D7%A9%7D",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/topic_cards_public",
+            "query": "?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&order=meter_score.desc.nullslast%2Capproved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=5",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/gematria_words",
+            "query": "?select=phrase%2Cragil%2Ccreated_at%2Cvisibility_changed_at&is_verified=eq.true&is_published=eq.true&or=%28is_encrypted.is.null%2Cis_encrypted.eq.false%29&order=created_at.desc.nullslast&limit=3",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/gematria_words",
+            "query": "?select=phrase%2Cragil%2Ccreated_at%2Cvisibility_changed_at&is_verified=eq.true&is_published=eq.true&or=%28is_encrypted.is.null%2Cis_encrypted.eq.false%29&order=visibility_changed_at.desc.nullslast&limit=3",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/research_contributions",
+            "query": "?select=id%2Cauthor_user_id%2Cauthor_contributor_id%2Cauthor_name%2Ccreated_at&status=eq.approved&created_at=gte.2026-10-24T19%3A44%3A03.741Z&order=created_at.desc&limit=1000",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/rpc/fn_method_value",
+            "query": "",
+            "method": "POST"
+          },
+          {
+            "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+            "query": "",
+            "method": "POST"
+          },
+          {
+            "path": "/rest/v1/contributors",
+            "query": "?select=id%2Cslug%2Cdisplay_name%2Ckind%2Crole%2Cwa_names%2Ctrusted%2Cactive%2Cdossier_settings&slug=in.%28tzvi-opoc%2Cshimon-haimov%2Cyaniv-levi%2Cshachar-kandro%29",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/contributors",
+            "query": "?select=id%2Cslug%2Cdisplay_name%2Ckind%2Crole%2Cwa_names%2Ctrusted%2Cactive%2Cdossier_settings&active=eq.true&trusted=eq.true&kind=neq.external",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/posts",
+            "query": "?select=id%2Cslug%2Cdate%2Cmodified%2Ccategories%2Csource%2Ctags%2Chome_hidden&slug=in.%28performance-public-fixture%29",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/topic_cards_public",
+            "query": "?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&order=approved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=41",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/topic_cards_public",
+            "query": "?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&order=approved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=25",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/posts",
+            "query": "?select=id%2Cslug%2Cdate%2Cmodified%2Ctags%2Ccategories%2Csource%2Chome_hidden&slug=eq.performance-public-fixture&limit=1",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/posts",
+            "query": "?select=id%2Cslug%2Ctitle%2Cexcerpt%2Cauthor%2Csource%2Ctags%2Chome_hidden%2Cdate%2Cmodified%2Ccreated_at&home_hidden=eq.false&tags=not.cs.%7B%D7%98%D7%99%D7%95%D7%98%D7%94%7D&tags=not.cs.%7B%D7%A4%D7%95%D7%A8%D7%95%D7%9D%7D&source=in.%28wordpress%2CSOD1820%2Csod1820%2Csource_document%2Cai%2Cuploaded_file%29&order=modified.desc.nullslast&limit=80",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+            "query": "",
+            "method": "POST"
+          },
+          {
+            "path": "/rest/v1/posts",
+            "query": "?select=id%2Cslug%2Ctitle%2Cexcerpt%2Cauthor%2Csource%2Ctags%2Chome_hidden%2Cdate%2Cmodified%2Ccreated_at&home_hidden=eq.false&tags=not.cs.%7B%D7%98%D7%99%D7%95%D7%98%D7%94%7D&tags=not.cs.%7B%D7%A4%D7%95%D7%A8%D7%95%D7%9D%7D&source=in.%28wordpress%2CSOD1820%2Csod1820%2Csource_document%2Cai%2Cuploaded_file%29&order=modified.desc.nullslast&limit=32",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+            "query": "",
+            "method": "POST"
+          }
+        ]
+      },
+      {
+        "label": "after",
+        "width": 1440,
+        "kind": "no_scroll",
+        "apiReads": 20,
+        "deferredReads": 0,
+        "geometry": [
+          {
+            "label": "העדכון האחרון",
+            "className": "h29-hero h29-hero2 is-enter",
+            "top": 186,
+            "height": 211
+          },
+          {
+            "label": "עדכונים אחרונים",
+            "className": "h29-sec k29-reveal ",
+            "top": 425,
+            "height": 302
+          },
+          {
+            "label": null,
+            "className": "k29-reveal k29-rv-self",
+            "top": 755,
+            "height": 221
+          },
+          {
+            "label": null,
+            "className": "k29-reveal k29-rv-self",
+            "top": 1004,
+            "height": 412
+          },
+          {
+            "label": "צפנים וסרטים",
+            "className": "h29-sec k29-reveal ",
+            "top": 1444,
+            "height": 254
+          },
+          {
+            "label": null,
+            "className": "h29-strip k29-rv",
+            "top": 1444,
+            "height": 254
+          },
+          {
+            "label": null,
+            "className": "h29-strip k29-rv",
+            "top": 1444,
+            "height": 254
+          },
+          {
+            "label": null,
+            "className": "k29-reveal k29-rv-self",
+            "top": 1727,
+            "height": 926
+          },
+          {
+            "label": "מוקדי זהות",
+            "className": "h29-sec k29-reveal ",
+            "top": 2680,
+            "height": 78
+          },
+          {
+            "label": "כלים וכניסות",
+            "className": "h29-sec k29-reveal ",
+            "top": 2786,
+            "height": 414
+          },
+          {
+            "label": "התחלה משלך",
+            "className": "sod29-home-review-entry",
+            "top": 3248,
+            "height": 217
+          },
+          {
+            "label": "רציפות אישית",
+            "className": "sod29-home-continuity",
+            "top": 3548,
+            "height": 237
+          },
+          {
+            "label": "דופק ומצב בנייה",
+            "className": "h29-quiet",
+            "top": 3814,
+            "height": 39
+          }
+        ],
+        "reads": [
+          {
+            "path": "/rest/v1/channel_updates",
+            "query": "?select=id%2Ctext%2Cimage_url%2Cthumb_url%2Ccreated_at%2Cpriority%2Ccredit%2Cexpires_at%2Clink_url&channel=eq.or-geula&image_url=not.is.null&or=%28expires_at.is.null%2Cexpires_at.gt.2026-10-31T19%3A44%3A05.781Z%29&order=priority.desc%2Ccreated_at.desc&limit=12",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/posts",
+            "query": "?select=*&slug=in.%28flydubai-fz1073-363-14000-remzei-geula%29&limit=1",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/site_flags",
+            "query": "?select=key%2Cenabled%2Cmessage%2Cmode",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/posts",
+            "query": "?select=id%2Cslug%2Ctitle%2Cimage_url%2Cthumb_url%2Cdate%2Cmodified%2Ctags&slug=not.is.null&order=modified.desc.nullslast&limit=9",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/posts",
+            "query": "?select=id%2Cslug%2Ctitle%2Cimage_url%2Cthumb_url%2Cdate&categories=ov.%7B%D7%A6%D7%A4%D7%95%D7%A0%D7%95%D7%AA+%D7%91%D7%AA%D7%95%D7%A8%D7%94%2C%D7%94%D7%A6%D7%95%D7%A4%D7%9F+%D7%91%D7%A1%D7%A8%D7%98%D7%99%D7%9D%7D&image_url=not.is.null&order=date.desc&limit=6",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/topic_cards_public",
+            "query": "?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&order=meter_score.desc.nullslast%2Capproved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=5",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/gematria_words",
+            "query": "?select=phrase&is_verified=eq.true&is_published=eq.true&or=%28is_encrypted.is.null%2Cis_encrypted.eq.false%29",
+            "method": "HEAD"
+          },
+          {
+            "path": "/rest/v1/gematria_words",
+            "query": "?select=phrase&is_verified=eq.true&is_published=eq.true&or=%28is_encrypted.is.null%2Cis_encrypted.eq.false%29&created_at=gte.2026-10-24T19%3A44%3A05.776Z",
+            "method": "HEAD"
+          },
+          {
+            "path": "/rest/v1/gematria_words",
+            "query": "?select=phrase&is_verified=eq.true&is_published=eq.true&or=%28is_encrypted.is.null%2Cis_encrypted.eq.false%29&visibility_changed_at=gte.2026-10-24T19%3A44%3A05.776Z",
+            "method": "HEAD"
+          },
+          {
+            "path": "/rest/v1/gematria_words",
+            "query": "?select=phrase&is_verified=eq.true&is_published=eq.true&or=%28is_encrypted.is.null%2Cis_encrypted.eq.false%29&created_at=gte.2026-10-24T19%3A44%3A05.776Z&visibility_changed_at=gte.2026-10-24T19%3A44%3A05.776Z",
+            "method": "HEAD"
+          },
+          {
+            "path": "/rest/v1/gematria_words",
+            "query": "?select=phrase%2Cragil%2Ccreated_at%2Cvisibility_changed_at&is_verified=eq.true&is_published=eq.true&or=%28is_encrypted.is.null%2Cis_encrypted.eq.false%29&order=created_at.desc.nullslast&limit=3",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/gematria_words",
+            "query": "?select=phrase%2Cragil%2Ccreated_at%2Cvisibility_changed_at&is_verified=eq.true&is_published=eq.true&or=%28is_encrypted.is.null%2Cis_encrypted.eq.false%29&order=visibility_changed_at.desc.nullslast&limit=3",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/research_contributions",
+            "query": "?select=id%2Cauthor_user_id%2Cauthor_contributor_id%2Cauthor_name%2Ccreated_at&status=eq.approved&created_at=gte.2026-10-24T19%3A44%3A05.776Z&order=created_at.desc&limit=1000",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/rpc/fn_method_value",
+            "query": "",
+            "method": "POST"
+          },
+          {
+            "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+            "query": "",
+            "method": "POST"
+          },
+          {
+            "path": "/rest/v1/posts",
+            "query": "?select=id%2Cslug%2Cdate%2Cmodified%2Ccategories%2Csource%2Ctags%2Chome_hidden&slug=in.%28performance-public-fixture%29",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/topic_cards_public",
+            "query": "?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&order=approved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=41",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/posts",
+            "query": "?select=id%2Cslug%2Cdate%2Cmodified%2Ctags%2Ccategories%2Csource%2Chome_hidden&slug=eq.performance-public-fixture&limit=1",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+            "query": "",
+            "method": "POST"
+          },
+          {
+            "path": "/rest/v1/posts",
+            "query": "?select=id%2Cslug%2Ctitle%2Cexcerpt%2Cauthor%2Csource%2Ctags%2Chome_hidden%2Cdate%2Cmodified%2Ccreated_at&home_hidden=eq.false&tags=not.cs.%7B%D7%98%D7%99%D7%95%D7%98%D7%94%7D&tags=not.cs.%7B%D7%A4%D7%95%D7%A8%D7%95%D7%9D%7D&source=in.%28wordpress%2CSOD1820%2Csod1820%2Csource_document%2Cai%2Cuploaded_file%29&order=modified.desc.nullslast&limit=80",
+            "method": "GET"
+          }
+        ]
+      },
+      {
+        "kind": "approach_return",
+        "width": 320,
+        "theme": "light",
+        "videoReads": 1,
+        "riverReads": 1,
+        "pageErrors": 0,
+        "animation": "20s"
+      },
+      {
+        "kind": "approach_return",
+        "width": 320,
+        "theme": "parchment",
+        "videoReads": 1,
+        "riverReads": 1,
+        "pageErrors": 0,
+        "animation": "20s"
+      },
+      {
+        "kind": "approach_return",
+        "width": 320,
+        "theme": "dark",
+        "videoReads": 1,
+        "riverReads": 1,
+        "pageErrors": 0,
+        "animation": "20s"
+      },
+      {
+        "kind": "approach_return",
+        "width": 390,
+        "theme": "light",
+        "videoReads": 1,
+        "riverReads": 1,
+        "pageErrors": 0,
+        "animation": "20s"
+      },
+      {
+        "kind": "approach_return",
+        "width": 390,
+        "theme": "parchment",
+        "videoReads": 1,
+        "riverReads": 1,
+        "pageErrors": 0,
+        "animation": "20s"
+      },
+      {
+        "kind": "approach_return",
+        "width": 390,
+        "theme": "dark",
+        "videoReads": 1,
+        "riverReads": 1,
+        "pageErrors": 0,
+        "animation": "20s"
+      },
+      {
+        "kind": "approach_return",
+        "width": 1440,
+        "theme": "light",
+        "videoReads": 1,
+        "riverReads": 1,
+        "pageErrors": 0,
+        "animation": "20s"
+      },
+      {
+        "kind": "approach_return",
+        "width": 1440,
+        "theme": "parchment",
+        "videoReads": 1,
+        "riverReads": 1,
+        "pageErrors": 0,
+        "animation": "20s"
+      },
+      {
+        "kind": "approach_return",
+        "width": 1440,
+        "theme": "dark",
+        "videoReads": 1,
+        "riverReads": 1,
+        "pageErrors": 0,
+        "animation": "20s"
+      },
+      {
+        "kind": "keyboard_intent",
+        "pass": true
+      },
+      {
+        "kind": "no_observer_reduced_motion_fallback",
+        "pass": true
+      },
+      {
+        "kind": "failed_reader_reload_recovery",
+        "pass": true
+      },
+      {
+        "kind": "slow_primary_no_skeleton_admission",
+        "pass": true
+      },
+      {
+        "kind": "direct_stream_fragment_intent",
+        "pass": true
+      },
+      {
+        "kind": "actual_post_passive_media_and_explicit_play",
+        "pass": true
+      }
+    ]
+  }
+}
