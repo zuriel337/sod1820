@@ -499,3 +499,27 @@ No Claude River visual/controller edits, Posts, Frame, Providers, builder/ELS,
 b30, DB/RLS, product writes, privacy, publication, main or Production changes.
 Protected Preview identity/results and limited AFTER release are recorded after
 deployment; local dirty-build identity is not presented as hosted acceptance.
+
+## 31 October — Activity cover and exact latest-photo entry
+
+Human Gate:ZURIEL approved the latest-stream cover/exact-photo entry while keeping
+historical gallery ordering. BEFORE `bf831c34-8958-44f0-81fe-36ff1a96314e`, task
+`GALLERY_ACTIVITY_COVER_EXACT_ENTRY_20261031`. Local base04b4582862666e1e395b1f8311e08b88bb65d4ea,
+remote basec0a103be2090f65464b488a9fe6446e35015bb51.
+
+The same public catalog builds a sanitized source-envelope cover only for eligible
+source=update rows with a valid arrival. The latest matching stream occurrence is
+selected independently of the gallery's authored-date activity winner. Activity
+view uses that photo as cover and its exact occurrence URL as the whole-card
+link, labelled `פתיחת התמונה האחרונה`. A separate sibling link opens the whole
+gallery; anchors are not nested. Other sort modes retain the historical cover
+and gallery entry. All source/date roles, stored order, filters, source re-admission
+and exact reading locators remain unchanged. New/withdrawn rows are re-projected
+on the existing refresh; no pinned list, new store, reader, provider or graph.
+
+Focused tests cover latest vs historical, filtering, withdrawn/private rows,
+signed URLs and same-gallery occurrence identity. The actual-app browser checks
+add latest-photo cover/link identity, exact opening and Back with activity sort.
+Tests/builds and final protected hosted SHA acceptance are recorded in AFTER.
+No River/CSS redesign, Posts, Frame, engines, DB/RLS/product writes, publication,
+main or Production changes. Existing tree/time contracts are consumed unchanged.

@@ -129,6 +129,16 @@ try{
     assert.match(await firstCard.innerText(),/נוסף לזרם/);
     const activityDate=await firstCard.locator('.g29-catalog-copy time').getAttribute('datetime');
     assert.match(activityDate,/^\d{4}-\d{2}-\d{2}T/);
+    const latestLink=firstCard;
+    const latestHref=await latestLink.getAttribute('href');
+    assert.equal(new URL(latestHref,origin).searchParams.get('image'),selected);
+    assert.match(await firstCard.getAttribute('aria-label'),/פתיחת התמונה האחרונה מתוך/);
+    assert.match(await firstCard.locator('img').getAttribute('src'),new RegExp(selected));
+    await latestLink.click();
+    await page.locator(`[data-gallery-selected="${selected}"]`).waitFor({timeout:45000});
+    await page.goBack({waitUntil:'domcontentloaded'});
+    await firstCard.waitFor({timeout:45000});
+    assert.equal(await sort.inputValue(),'activity');
     await chooseSort('date');
     assert.equal(await sort.inputValue(),'date');
     assert.equal(await page.locator('[data-catalog-gallery] .g29-catalog-copy time').count(),0,'arrival date is not relabelled as an authored update; cover badges keep their independent authored dates');

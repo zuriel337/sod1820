@@ -132,14 +132,21 @@ function GalleryCatalogBody() {
     {state.status === 'ready' ? <><p className="g29-catalog-status" role="status">{items.length} גלריות · {state.total} תמונות{query ? ' בתוצאות החיפוש' : ' לעיון'}</p>
       {state.coverage?.partial ? <p className="g29-message">התצוגה חלקית. ייתכן שיש גלריות או תמונות נוספות שאינן מוצגות בקריאה הזו.</p> : null}
       {!items.length ? <p className="g29-message">{query ? 'לא נמצאו גלריות מתאימות לחיפוש.' : 'אין כרגע גלריות עם תמונות ציבוריות זמינות.'}</p> : null}
-      <div className="g29-catalog-grid">{items.map((item, index) => <Link key={item.galleryId} className="g29-catalog-card" to={galleryReadingHref2029(location.search,{galleryId:item.wpGalleryId})}
-        data-catalog-gallery={item.wpGalleryId} aria-label={`פתיחת ${publicMediaCaption(item.originalName)}`}>
-        <div className="g29-catalog-cover">{item.cover ? <span className="g29-image-surface"><CanonicalMediaImage2029 item={item.cover} alt={publicMediaCaption(item.originalName)} loading={index < 3 ? 'eager' : 'lazy'} /><GalleryImageDate item={item.cover} /></span> : <span>גלריה בתמונות</span>}</div>
+      <div className="g29-catalog-grid">{items.map((item, index) => {
+        const latest=reading.filters.order==='activity'?item.activityCover:null;
+        const cover=latest||item.cover;
+        const galleryHref=galleryReadingHref2029(location.search,{galleryId:item.wpGalleryId});
+        const latestHref=latest?galleryReadingHref2029(location.search,{galleryId:item.wpGalleryId,imageId:latest.galleryImageId}):null;
+        return <div key={item.galleryId}><Link className="g29-catalog-card" data-catalog-gallery={item.wpGalleryId}
+          to={latestHref||galleryHref} aria-label={`${latest?'פתיחת התמונה האחרונה מתוך':'פתיחת'} ${publicMediaCaption(item.originalName)}`}>
+        <div className="g29-catalog-cover">
+          {cover ? <span className="g29-image-surface"><CanonicalMediaImage2029 item={cover} alt={publicMediaCaption(item.originalName)} loading={index < 3 ? 'eager' : 'lazy'} /><GalleryImageDate item={cover} /></span> : <span>גלריה בתמונות</span>}</div>
         <div className="g29-catalog-copy">
           <h3>{publicMediaCaption(item.originalName)}</h3><p>{state.coverage?.partial ? 'לפחות ' : ''}{item.matchingCount} מתוך {item.imageCount} תמונות זמינות</p>
-          {reading.filters.order==='activity'&&item.latestActivity?.basis==='gallery_images.stream_at'?<p>נוסף לזרם · <time dateTime={item.latestActivity.dateTime}>{bilingualDateLabel(item.latestActivity.dateTime)}</time></p>:null}
-          {item.updatedAt?<p>עדכון המקור האחרון · {bilingualDateLabel(item.updatedAt)}</p>:<p>תאריך עדכון במקור לא צוין</p>}<span className="g29-text-link">לפתיחת הגלריה ←</span></div>
-      </Link>)}</div></> : null}
+          {latest?<p>נוסף לזרם · <time dateTime={item.latestStreamAddition.dateTime}>{bilingualDateLabel(item.latestStreamAddition.dateTime)}</time></p>:null}
+          {item.updatedAt?<p>עדכון המקור האחרון · {bilingualDateLabel(item.updatedAt)}</p>:<p>תאריך עדכון במקור לא צוין</p>}
+          <span className="g29-text-link">{latestHref?'פתיחת התמונה האחרונה ←':'לפתיחת הגלריה ←'}</span></div>
+        </Link>{latestHref?<Link className="g29-text-link" to={galleryHref} aria-label={`פתיחת הגלריה המלאה ${publicMediaCaption(item.originalName)}`}>לפתיחת הגלריה כולה ←</Link>:null}</div>;})}</div></> : null}
     {!showStream ? <RealityStreamFollow2029 source="gallery_catalog_2029" /> : null}
   </article></>;
 }

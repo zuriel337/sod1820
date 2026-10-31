@@ -49,6 +49,22 @@ test('only public source=update stream timestamps rank; archive/event dates and 
     {...row(4,73),name:'בלי תאריך',source:'update',stream_at:stamp,curator_hidden:true}]});
   assert.deepEqual(project(c,filters()).items.map(g=>g.wpGalleryId),[69]);
 });
+test('activity cover and exact occurrence follow the latest admitted matching stream row, without changing historical cover/order',()=>{
+  const rows=[row(1),{...row(2),source:'update',stream_at:'2026-10-03T10:00:00Z'},
+    {...row(3),source:'update',stream_at:'2026-10-04T10:00:00Z',primary_value:99,all_values:[99]},
+    {...row(4),source:'update',stream_at:'2026-10-05T10:00:00Z',published:0}];
+  const c=catalog({gals,imgs:rows}),r=project(c,filters()).items[0];
+  assert.equal(r.cover.galleryImageId,rows[0].id);
+  assert.equal(r.activityCover.galleryImageId,rows[2].id);
+  assert.equal(r.activityCover.legacyPlacement.wpGalleryId,69);
+  assert.equal(project(c,filters('?nums=14')).items[0].activityCover.galleryImageId,rows[1].id);
+  assert.equal(project(c,filters('?sort=original')).items[0].cover.galleryImageId,rows[0].id);
+  const withdrawn=catalog({gals,imgs:rows.map(r=>r.id===rows[2].id?{...r,min_tier:1}:r)});
+  assert.equal(project(withdrawn,filters()).items[0].activityCover.galleryImageId,rows[1].id);
+  const signed=catalog({gals,imgs:[row(1),{...rows[2],image_url:'https://example.test/storage/v1/object/sign/a?token=secret'}]});
+  assert.equal(project(signed,filters()).items[0].activityCover,null);
+  assert.ok(!JSON.stringify(signed).includes('token='));
+});
 test('activity is derived from matching rows only; equal/unknown dates have stable ordering without image reorder',()=>{
   const rows=[row(2),row(1),{...row(3,73),name:'בלי תאריך',source:'update',stream_at:'2026-10-04T14:41:48Z',primary_value:99,all_values:[99]},row(4,73)];
   const c=catalog({gals,imgs:rows}),filtered=project(c,filters('?nums=14'));

@@ -103,12 +103,17 @@ export function buildPublicGalleryCatalog2029(overview = {}) {
     const g = galleries.get(wpGalleryId), rows = [...byId.values()];
     const ordered = storedGalleryOrderIds(rows);
     const coverRow = ordered.map(id => byId.get(id)).find(row => safeCover(row.image_url));
-    const cover = coverRow ? buildGallerySourceContext({ images: [{ ...coverRow,
-      ocr_meta: { date_derived: coverRow.date_derived },
-      thumb_url: safeCover(coverRow.thumb_url) ? coverRow.thumb_url : null }], galleries: [g] })[0] : null;
+    const makeCover = row => row && safeCover(row.image_url) ? buildGallerySourceContext({ images: [{ ...row,
+      ocr_meta: { date_derived: row.date_derived },
+      thumb_url: safeCover(row.thumb_url) ? row.thumb_url : null }], galleries: [g] })[0] || null : null;
+    const cover = makeCover(coverRow);
     // Candidate metadata for filtering only; never propagate signed/credential URLs.
     const entryFields=['id','name','description','ordering','primary_value','all_values','related_values','image_type','source','stream_at'];
-    const entries = ordered.map(id => Object.fromEntries(entryFields.map(key=>[key,byId.get(id)[key]])));
+    const entries = ordered.map(id => {
+      const row=byId.get(id);
+      return {...Object.fromEntries(entryFields.map(key=>[key,row[key]])),
+        streamCover: galleryStreamArrival2029(row) ? makeCover(row) : null};
+    });
     const updatedAt = entries.map(row => galleryEditorialUpdate2029(row.name)?.dateTime).filter(Boolean).sort().at(-1) || null;
     return { galleryId: g.id, wpGalleryId, originalName: g.name, imageCount: rows.length, entries, updatedAt,
       href: gallerySourceHref2029(wpGalleryId), cover: cover || null };
@@ -153,16 +158,19 @@ export function realityStreamDatePresentation2029(item) {
 
 // Activity is a presentation lens over admitted rows, never an event date or an
 // authored update replacement. Inspect the full catalog, not the 12-photo river.
-export function galleryEntryActivity2029(row) {
-  const update = galleryEditorialUpdate2029(row?.name);
-  const authored = update ? { dateTime: update.dateTime, basis: update.basis,
-    kind: 'עדכון המקור', galleryImageId: row.id } : null;
+function galleryStreamArrival2029(row) {
   const stamp = row?.stream_at;
-  const arrival = row?.source === 'update' && typeof stamp === 'string'
+  return row?.source === 'update' && typeof stamp === 'string'
     && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,6})?(?:Z|[+-]\d{2}:\d{2})$/.test(stamp)
     && formatGregorianDate(stamp.slice(0,10))?.split('.').reverse().join('-') === stamp.slice(0,10)
     && Number.isFinite(Date.parse(stamp))
     ? { dateTime: stamp, basis: 'gallery_images.stream_at', kind: 'נוסף לזרם', galleryImageId: row.id } : null;
+}
+export function galleryEntryActivity2029(row) {
+  const update = galleryEditorialUpdate2029(row?.name);
+  const authored = update ? { dateTime: update.dateTime, basis: update.basis,
+    kind: 'עדכון המקור', galleryImageId: row.id } : null;
+  const arrival = galleryStreamArrival2029(row);
   return arrival && (!authored || Date.parse(arrival.dateTime) > Date.parse(authored.dateTime)) ? arrival : authored;
 }
 
@@ -200,7 +208,10 @@ export function projectGalleryReading2029(catalog, filters, { ocrIds = [], ocrPa
     const date=entries.map(row=>galleryEditorialUpdate2029(row.name)?.dateTime).filter(Boolean).sort().at(f.order==='oldest'?0:-1)||null;
     const latestActivity=entries.map(galleryEntryActivity2029).filter(Boolean)
       .sort((a,b)=>Date.parse(b.dateTime)-Date.parse(a.dateTime)||String(a.galleryImageId).localeCompare(String(b.galleryImageId)))[0]||null;
-    return [{...g,entries,matchingCount:entries.length,updatedAt:date,latestActivity}];
+    const streamEntry=entries.filter(row=>row.streamCover&&galleryStreamArrival2029(row))
+      .sort((a,b)=>Date.parse(b.stream_at)-Date.parse(a.stream_at)||String(a.id).localeCompare(String(b.id)))[0];
+    return [{...g,entries,matchingCount:entries.length,updatedAt:date,latestActivity,
+      activityCover:streamEntry?.streamCover||null,latestStreamAddition:streamEntry?galleryStreamArrival2029(streamEntry):null}];
   });
   items.sort((a,b)=>f.order==='original'?b.wpGalleryId-a.wpGalleryId:['name','asc','desc'].includes(f.order)
     ?(f.order==='desc'?-1:1)*nameOrder.compare(a.originalName,b.originalName)||a.wpGalleryId-b.wpGalleryId
