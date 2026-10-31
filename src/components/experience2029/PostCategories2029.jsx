@@ -7,6 +7,7 @@ import { STRONG_HINT_CATEGORY } from "../StrongHintBadge.jsx";
 import { canonicalPostCategories } from "../../lib/postCategoryIdentity.js";
 import { postClassification2029 } from "../../lib/research/postsCatalog2029Projection.js";
 import "./postCategories2029.css";
+import NavigationIcon2029 from "./NavigationIcon2029.jsx";
 
 const categoryHref = (name) => `/2029/posts?category=${encodeURIComponent(name)}`;
 
@@ -14,7 +15,7 @@ function Chip({ name, nested, item }) {
   const strong = name === STRONG_HINT_CATEGORY;
   const className = `k29-cat${strong ? " is-strong" : ""}`;
   const title = item ? `${item.prefix}: ${name}` : strong ? "רמזים חזקים — לקטגוריה" : `${name} — לקטגוריה`;
-  const body = item ? <><span className="k29-post-role">{item.prefix}:</span> {name}</> : categoryLabel(name);
+  const body = item ? <><NavigationIcon2029 name={item.role === "legacy-media-label" ? "posts" : "layers"} size={16} /><span className="k29-post-role">{item.prefix}:</span> {name}</> : categoryLabel(name);
   const href = item?.href || categoryHref(name);
   if (!nested) return <a className={className} href={href} title={title} data-post-classification={item?.role}>{body}</a>;
   const go = (event) => { event.preventDefault(); event.stopPropagation(); window.location.assign(href); };

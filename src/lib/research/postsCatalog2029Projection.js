@@ -2,6 +2,7 @@ import { getPublicResearchClient } from "./researchViewMode.js";
 import { canonicalPostCategories, postCategoryFilterNames } from "../postCategoryIdentity.js";
 import { CONTENT_SERIES_2029, contentSeriesByKey, contentSeriesKeysForPost, contentSeriesMembershipFilter, hasExactMembership } from "./contentSeries2029Identity.js";
 import { hasSuppressedPublicPostTag, publicPostOnlyFilter } from "./publicPostBoundary.js";
+import { publicWriterFollowLinks } from "../userCenter/writerPersonal2029.js";
 
 // A bounded anonymous projection for the existing 2029 posts surface. No new content
 // store, inferred membership, follow, or permission decision is made by a URL filter.
@@ -60,7 +61,47 @@ export function postsCatalogScope2029(search = "") {
   return { kind: "all", key: "", label: "הפוסטים" };
 }
 
-export async function fetchPostsCatalog2029({ scope = postsCatalogScope2029(), page = 1, client = getPublicResearchClient() } = {}) {
+export function postsSearch2029(value = "") {
+  const text = String(value).trim().replace(/\s+/g, " ");
+  if (text.length > 120 || /[\u0000-\u001f\u007f]/.test(text)) throw new Error("החיפוש ארוך מדי או מכיל תווים לא נתמכים.");
+  return text;
+}
+
+// Presentation candidates only. The existing server resolver admits identity;
+// unsupported series never fall back to a category, author or post:<id>.
+export function postFollowCandidates2029({ post = null, scope = null } = {}) {
+  if (post && hasSuppressedPublicPostTag(post)) return [];
+  const candidates = [];
+  const series = post ? postClassification2029(post).series
+    : scope?.kind === "series" && contentSeriesByKey(scope.key)
+      ? [{ key: scope.key, name: contentSeriesByKey(scope.key).label }] : [];
+  for (const item of series) candidates.push({ entityType: "series", stableId: item.key, topic: `series:${item.key}`, label: item.name, kind: "סדרה", icon: "layers" });
+  const categories = post ? postClassification2029(post).items.filter(item => item.role !== "series" && item.role !== "legacy-media-label").map(item => item.name)
+    : scope?.kind === "category" && scope.key !== "וידאו" ? [scope.key] : [];
+  for (const name of [...new Set(categories)].slice(0, 16)) candidates.push({ entityType: "category", stableId: name, topic: `cat:${name}`, label: name, kind: "סיווג במקור", icon: "layers" });
+  const author = typeof post?.author === "string" ? post.author : "";
+  const publisher = series.some(item => contentSeriesByKey(item.key)?.publisherLabel === author);
+  if (author && author === author.trim() && author !== "המערכת" && !publisher) candidates.push({ entityType: "author", stableId: author, topic: `author:${author}`, label: author, kind: "ייחוס במקור", icon: "posts" });
+  return candidates;
+}
+
+export async function fetchPostFollowTargets2029({ post = null, scope = null, client = getPublicResearchClient(), writerLinks = publicWriterFollowLinks } = {}) {
+  const candidates = postFollowCandidates2029({ post, scope });
+  const authors = candidates.filter(item => item.entityType === "author").map(item => item.topic);
+  const links = authors.length ? Promise.resolve().then(() => writerLinks(authors, { client })) : Promise.resolve({});
+  return Promise.all(candidates.map(async item => {
+    try {
+      if (item.entityType === "author" && !(await links)?.[item.topic]) return { ...item, state: "unavailable" };
+      if (!client) throw new Error("Reader unavailable");
+      // Public IMMUTABLE identity resolver; resolve_topics is server-only live.
+      const { data, error } = await client.rpc("canonical_follow_subject", { p_entity_type: item.entityType, p_stable_id: item.stableId }, { get: true });
+      if (error || typeof data !== "string") throw error || new Error("Invalid resolver result");
+      return { ...item, ...(item.entityType === "author" ? { kind: "כתב", icon: "personal" } : {}), state: data === item.topic ? "ready" : data ? "unavailable" : "unsupported" };
+    } catch { return { ...item, state: "unavailable" }; }
+  }));
+}
+
+export async function fetchPostsCatalog2029({ scope = postsCatalogScope2029(), page = 1, search = "", client = getPublicResearchClient() } = {}) {
   if (!client || scope.kind === "invalid" || !["all", "category", "series"].includes(scope.kind)) throw new Error("בחירת התוכן אינה זמינה.");
   // Re-resolve a series by its owned key, never trust a caller-supplied spec/author/filter.
   const spec = scope.kind === "series" ? contentSeriesByKey(scope.key) : null;
@@ -78,6 +119,9 @@ export async function fetchPostsCatalog2029({ scope = postsCatalogScope2029(), p
     query = query.or(contentSeriesMembershipFilter(spec));
     if (spec.exactAuthor) query = query.eq("author", spec.exactAuthor);
   }
+  const term = postsSearch2029(search);
+  // One escaped column filter on the existing public catalog, not a second search index.
+  if (term) query = query.ilike("title", `%${term.replace(/[\\%_]/g, "\\$&")}%`);
   const { data, error, count } = await query.order("modified", { ascending: false, nullsFirst: false })
     .order("id", { ascending: true }).range((page - 1) * 24, page * 24 - 1);
   if (error) throw error;

@@ -46,7 +46,10 @@ function fixturePlugin(){
     `,
     backend:`
       import trace from '/test/fixtures/spatial/mistater-1237-trace.json';
-      export const SUPABASE_URL='http://127.0.0.1',SUPABASE_ANON='public-fixture-not-a-credential';
+      export const SUPABASE_URL=globalThis.location.origin,SUPABASE_ANON='public-fixture-not-a-credential';
+      export const contributorHref=row=>'/community/researcher/'+row.slug;
+      export const getNotificationPrefs=async()=>({topics:[],channels:[]});
+      export const subscribeEmail=async()=>{throw Error("Unexpected identity request");};
       export const logView=()=>{},logActivity=()=>{};
       export const getAllValuePhrases=async()=>[],langLinksList=async()=>[];
       export const getNumberLookup=async()=>null,getRelationCandidate=async()=>null;
@@ -61,7 +64,7 @@ function fixturePlugin(){
             if(range)data=data.slice(range[0],range[1]+1);if(limit!=null)data=data.slice(0,limit);
             return Promise.resolve({data,error:window.__failTable===table?{message:'offline'}:null}).then(done,fail);}
         };return q;},
-        async rpc(name,args){window.__rpcs.push(name);if(name==='fn_method_profile'){if(window.__holdProfile)await new Promise(resolve=>{window.__releaseProfile=resolve;});return {error:null,data:window.__profiles?.[args.p_phrase]||(/^[A-Za-z ]+$/.test(args.p_phrase)?[{method_key:'רגיל',computed_value:0,definition_version:1}]:null)||[
+        async rpc(name,args){window.__rpcs.push(name);if(name==='canonical_follow_subject')return {error:null,data:args.p_entity_type==='series'?'':'cat:'+args.p_stable_id};if(name==='fn_method_profile'){if(window.__holdProfile)await new Promise(resolve=>{window.__releaseProfile=resolve;});return {error:null,data:window.__profiles?.[args.p_phrase]||(/^[A-Za-z ]+$/.test(args.p_phrase)?[{method_key:'רגיל',computed_value:0,definition_version:1}]:null)||[
           {method_key:'רגיל',computed_value:args.p_phrase==='בן דוד'?66:844,definition_version:1},
           {method_key:'מסתתר',computed_value:1237,definition_version:window.__versionChanged?2:1},
           {method_key:'מילוי',computed_value:1026,definition_version:1}]};}
@@ -129,6 +132,11 @@ test('built Post: adopted design, bounded backgrounds, lazy research, exact retu
     const backgroundRequests=[];let failBackground=false;
     server=createServer((req,res)=>{
       const pathname=new URL(req.url,'http://test').pathname;
+      if(pathname==='/rest/v1/rpc/canonical_follow_subject'){
+        const params=new URL(req.url,'http://test').searchParams,type=params.get('p_entity_type'),id=params.get('p_stable_id');
+        res.setHeader('Content-Type','application/json');res.end(JSON.stringify(type==='series'?'':(type==='category'?'cat':type)+':'+id));return;
+      }
+      if(pathname==='/rest/v1/contributors'){res.setHeader('Content-Type','application/json');res.end('[]');return;}
       if(backgroundPaths.has(pathname)){
         const data=readFileSync(resolve(root,'public','.'+pathname));
         backgroundRequests.push({path:pathname,bytes:failBackground?0:data.length,status:failBackground?404:200});

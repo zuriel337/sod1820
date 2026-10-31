@@ -18,6 +18,14 @@ const executablePath = "/usr/bin/chromium";
 function libraryFixture() {
   const modules = {
     reader: `export const getPublicResearchClient=()=>window.__db;`,
+    backend: `export const contributorHref=row=>'/community/researcher/'+row.slug;
+      export const supabase={};export const getNotificationPrefs=async()=>({topics:window.__prefs||[],channels:[]});`,
+    auth: `export const useAuth=()=>({user:null,isAdmin:false,loading:false});`,
+    command: `export async function watchToggle(topic,source,on){window.__followCalls.push({topic,source,on});if(window.__followFails)return null;window.__prefs=on?[...new Set([...(window.__prefs||[]),topic])]:(window.__prefs||[]).filter(t=>t!==topic);return {ok:true};}`,
+    tracking: `export const getVisitorId=()=>'fixture-guest';`,
+    marketing: `export const trackConversion=()=>{};`,
+    push: `export const PUSH_CONFIGURED=false,pushSupported=()=>false,enablePush=async()=>({ok:false});`,
+    identity: `import React from 'react';export default function Identity(){return <div data-identity-fixture='true'>אימות זהות לדוגמה בלבד</div>;}`,
     shell: `
       import React from 'react';
       import {resolve2029Palette} from '/src/lib/palette.js';
@@ -30,13 +38,14 @@ function libraryFixture() {
       import React from 'react';import {createRoot} from 'react-dom/client';
       import {BrowserRouter,Routes,Route,useNavigate} from 'react-router-dom';
       import Posts from '/src/pages/Posts2029Page.jsx';
+      import PostFollowBox from '/src/components/PostFollowBox.jsx';
       import '/src/components/experience2029/sod2029.css';
       import '/src/components/experience2029/previewVisualCalibration2029.css';
       const seed=(id,over={})=>({id,slug:'post-'+id,title:'פוסט לקריאה '+id,excerpt:'פסקה קצרה שמזמינה לקרוא ולהתבונן בסיפור ובמקורות שלו.',author:'המערכת',categories:[],tags:[],image_url:'/cover.svg',thumb_url:'/cover.svg',date:'2026-10-20',modified:'2026-10-31',...over});
       window.__rows=[seed(1,{author:'בדרך לנצח',categories:['מימד חמש']}),seed(2,{author:'אלון לוי',tags:['מה קורה הבורא'],image_url:null,thumb_url:null}),seed(3,{author:'מחבר אורח',tags:['סוד החשמל']}),seed(4,{author:'מפרסם אחר',categories:['מימד חמש']}),seed(5,{title:'פוסט ללא סדרה',tags:['1237','2029-golden'],thumb_url:null,image_url:null}),...Array.from({length:30},(_,i)=>seed(i+6)),seed(90,{author:'בדרך לנצח',categories:['מימד חמש'],tags:['טיוטה']}),seed(91,{tags:['פורום']})];
-      window.__calls=[];window.__failSeries=false;window.__failPosts=false;window.__slowDimension=false;
-      window.__db={from(table){const calls={table,filters:[],columns:'',limit:null,range:null};
-        const q={select(columns){calls.columns=columns;return q;},or(filter){calls.filters.push(['or',filter]);return q;},eq(k,v){calls.filters.push(['eq',k,v]);return q;},overlaps(k,v){calls.filters.push(['overlaps',k,v]);return q;},order(){return q;},limit(n){calls.limit=n;return q;},range(a,b){calls.range=[a,b];return q;},
+      window.__calls=[];window.__followCalls=[];window.__failSeries=false;window.__failPosts=false;window.__slowDimension=false;window.__seriesReady=false;
+      window.__db={async rpc(name,args){if(name!=='canonical_follow_subject')throw Error('Unexpected RPC');if(window.__resolverFails)return {error:{message:'unavailable'},data:null};return {error:null,data:args.p_entity_type==='series'&&!window.__seriesReady?'':(args.p_entity_type==='category'?'cat':args.p_entity_type)+':'+args.p_stable_id};},from(table){const calls={table,filters:[],columns:'',limit:null,range:null};
+        const q={select(columns){calls.columns=columns;return q;},or(filter){calls.filters.push(['or',filter]);return q;},eq(k,v){calls.filters.push(['eq',k,v]);return q;},ilike(k,v){calls.filters.push(['ilike',k,v]);return q;},overlaps(k,v){calls.filters.push(['overlaps',k,v]);return q;},order(){return q;},limit(n){calls.limit=n;return q;},range(a,b){calls.range=[a,b];return q;},
           async then(done,fail){try{
             window.__calls.push(structuredClone(calls));
             const isSeries=calls.limit!==null;
@@ -44,6 +53,7 @@ function libraryFixture() {
             let rows=window.__rows.filter(row=>calls.filters.every(([op,k,v])=>{
               if(op==='eq')return row[k]===v;
               if(op==='overlaps')return row[k].some(x=>v.includes(x));
+              if(op==='ilike')return row[k].toLowerCase().includes(v.slice(1,-1).toLowerCase());
               if(k.includes('tags.is.null'))return !row.tags.some(x=>['טיוטה','פורום'].includes(x));
               const pairs=[...k.matchAll(/(tags|categories)\\.cs\\.\\{"([^\"]+)"\\}/g)];return pairs.some(([,field,value])=>row[field].includes(value));
             }));
@@ -56,12 +66,14 @@ function libraryFixture() {
         };return q;}};
       function Navigation(){window.__navigate=useNavigate();return null;}
       const style=document.createElement('style');style.textContent='html,body{margin:0;padding:0}.sod29-root{display:block!important;background:var(--s29-page);color:var(--s29-ink);min-height:100vh;padding:1px 0}*{box-sizing:border-box}';document.head.append(style);
-      createRoot(document.getElementById('root')).render(<BrowserRouter><Navigation/><Routes><Route path='/2029/posts' element={<Posts/>}/><Route path='/post/:slug' element={<h1>קריאת הפוסט</h1>}/></Routes></BrowserRouter>);`,
+      createRoot(document.getElementById('root')).render(<BrowserRouter><Navigation/><Routes><Route path='/2029/posts' element={<Posts/>}/><Route path='/post/:slug' element={<h1>קריאת הפוסט</h1>}/><Route path='/follow-post' element={<div className='sod29-root' style={{padding:16}}><PostFollowBox variant='2029' post={seed(1,{author:'בדרך לנצח',categories:['מימד חמש','תיעוד אירועים']})} source='post_footer_2029'/></div>}/></Routes></BrowserRouter>);`,
   };
   return { name: "posts-library-fixture", enforce: "pre", resolveId(source) {
     if (source === "virtual:posts-library.jsx") return "\0library:entry";
     if (source.endsWith("/researchViewMode.js")) return "\0library:reader";
     if (source.endsWith("/Sod2029Shell.jsx")) return "\0library:shell";
+    const mocks={'/supabase.js':'backend','/AuthContext.jsx':'auth','/commandCenter.js':'command','/tracking.js':'tracking','/marketing.js':'marketing','/push.js':'push','/EmailVerify.jsx':'identity'};
+    for(const [suffix,id] of Object.entries(mocks))if(source.endsWith(suffix))return '\0library:'+id;
   }, async load(id) {
     if (!id.startsWith("\0library:")) return;
     return transformWithOxc(modules[id.slice(9)], "fixture.jsx", { lang: "jsx", jsx: { runtime: "automatic" } });
@@ -126,6 +138,48 @@ test("Posts library: live series, general posts, scoped navigation, errors and r
       if (width === 1440 && theme === "dark") await page.screenshot({ path: join(artifacts, "library-dark-desktop.png"), fullPage: true });
       assert.deepEqual(errors, []); cases.push({ width, theme, geometry }); await context.close();
     }
+    const followPage=await browser.newPage({viewport:{width:320,height:1000}}),followErrors=[];
+    followPage.on('pageerror',error=>followErrors.push(error.message));
+    await followPage.goto(origin+'/2029/posts');
+    await followPage.getByRole('searchbox').fill('פוסט ללא סדרה');
+    await followPage.getByRole('button',{name:'חיפוש',exact:true}).click();
+    await followPage.waitForFunction(()=>document.querySelectorAll('.sod29-library-post-card').length===1);
+    assert.ok(new URL(followPage.url()).searchParams.has('q'));
+    assert.equal(await followPage.locator('.sod29-posts-series-card').count(),0);
+    await followPage.getByRole('button',{name:'ניקוי החיפוש',exact:true}).click();
+    await followPage.waitForFunction(()=>document.querySelectorAll('.sod29-library-post-card').length===24);
+    await followPage.getByRole('searchbox').fill('מימד חמש');
+    await followPage.getByRole('button',{name:'חיפוש',exact:true}).click();
+    await followPage.locator('.sod29-posts-series-card').waitFor();
+    assert.equal(await followPage.locator('.sod29-posts-series-card').count(),1);
+    await followPage.locator('.sod29-posts-series-card').click();
+    await followPage.locator('[data-follow-target="series:dimension-five"][data-follow-readiness="unsupported"]').waitFor();
+    assert.equal(await followPage.locator('[data-follow-target="series:dimension-five"] button').count(),0,'An unsupported series cannot promise alerts or substitute a category');
+    await followPage.goto(origin+'/follow-post');
+    const category=followPage.locator('[data-follow-target="cat:תיעוד אירועים"]');
+    const follow=category.getByRole('button',{name:'מעקב אחרי תיעוד אירועים',exact:true});
+    await follow.waitFor();await follow.click();
+    await category.getByText('שמרו את המעקב בזהות שלכם',{exact:true}).waitFor();
+    assert.equal(await followPage.getByRole('button',{name:'הפעלת התראות בדפדפן',exact:true}).count(),0);
+    assert.equal(await category.locator('[data-icon-name="check"]').count(),1);
+    await category.getByRole('button',{name:'עוקב אחרי תיעוד אירועים',exact:true}).click();
+    await follow.waitFor();
+    assert.deepEqual(await followPage.evaluate(()=>window.__followCalls),[{topic:'cat:תיעוד אירועים',source:'post_footer_2029',on:true},{topic:'cat:תיעוד אירועים',source:'post_footer_2029',on:false}]);
+    assert.equal(await followPage.locator('[data-follow-target="cat:מימד חמש"],[data-follow-target^="post:"]').count(),0);
+    await followPage.evaluate(()=>{window.__followFails=true;});await follow.click();
+    await category.getByRole('alert').waitFor();assert.equal(await follow.getAttribute('aria-pressed'),'false');
+    await followPage.screenshot({path:join(artifacts,'post-follow-mobile.png'),fullPage:true});
+    assert.equal(await followPage.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
+    await followPage.evaluate(()=>{window.__resolverFails=true;window.__rows[4].categories=['תיעוד אירועים'];window.__navigate('/2029/posts?category=תיעוד אירועים');});
+    await followPage.locator('[data-follow-readiness="unavailable"]').waitFor();
+    assert.equal(await followPage.locator('.sod29-watch-btn[aria-pressed]').count(),0);
+    await followPage.evaluate(()=>{window.__resolverFails=false;});
+    await followPage.getByRole('button',{name:'בדיקה נוספת של יעדי המעקב',exact:true}).click();
+    await followPage.locator('[data-follow-readiness="ready"]').waitFor();
+    await followPage.evaluate(()=>{window.__seriesReady=true;window.__navigate('/2029/posts?series=dimension-five');});
+    await followPage.locator('[data-follow-target="series:dimension-five"][data-follow-readiness="ready"]').waitFor();
+    assert.equal(await followPage.locator('[data-follow-target="series:dimension-five"] [data-icon-name="layers"]').count(),1);
+    assert.deepEqual(followErrors,[]);await followPage.close();
     const reviewCases=[];
     for(const width of [320,390,1440])for(const option of ['1','2','3','4','5','6','7','8']){
       const context=await browser.newContext({viewport:{width,height:1000},reducedMotion:'reduce'});
@@ -160,7 +214,7 @@ test("Posts library: live series, general posts, scoped navigation, errors and r
     await page.evaluate(() => { window.__failSeries = false; });
     await page.getByRole("button", { name: "לטעון שוב את הסדרות", exact: true }).click();
     await page.locator(".sod29-posts-series-card").nth(2).waitFor();
-    assert.equal(await page.locator('[href="/2029/posts?series=dimension-five"] img').getAttribute("src"), "/cover.svg?new", "new admitted source supplies its cover without a Post-ID list");
+    assert.equal(await page.locator('[href="/2029/posts?series=dimension-five"] .sod29-posts-series-image img').getAttribute("src"), "/cover.svg?new", "new admitted source supplies its cover without a Post-ID list");
     await page.evaluate(() => { window.__slowDimension = true; window.__navigate("/2029/posts?series=dimension-five"); });
     await page.waitForFunction(() => typeof window.__releaseDimension === "function");
     await page.evaluate(() => window.__navigate("/2029/posts?series=sod-hashmal"));
