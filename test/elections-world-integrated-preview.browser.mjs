@@ -16,7 +16,7 @@ const { chromium } = require("playwright");
 const root = fileURLToPath(new URL("..", import.meta.url));
 const output = process.env.PREVIEW_EVIDENCE_DIR || "/tmp/elections-world-preview-20261030";
 await mkdir(output, { recursive: true });
-const report = { widths: [], methodDepth: [], galleryMethodDepth: [], nativeGalleries: [], reads: {}, blocked: [], errors: [], modelRequests: [] };
+const report = { widths: [], storySequence: [], methodDepth: [], galleryMethodDepth: [], nativeGalleries: [], reads: {}, blocked: [], errors: [], modelRequests: [] };
 const publicHost = "linswmnnkjxvweumprav.supabase.co";
 // fn_zero_scale is an existing anonymous STABLE/security-invoker read (live
 // definition inspected); the unchanged Preview worker already admits it.
@@ -80,6 +80,27 @@ try {
       authenticationUrl.pathname = "/preview-identity.json";
       try { await page.goto(authenticationUrl.href); }
       catch { throw new Error("Protected Preview access failed; access URL withheld."); }
+    }
+    // Real default readers, real public source and existing edge. The fragment
+    // selects a return target; it cannot admit a source or manufacture a link.
+    const storyReturn = '/world#story-tree-78fe15e1-6fc5-4641-b1cd-831a75c5bab7--post-5112';
+    await page.goto(origin + storyReturn);
+    await page.locator('[data-story-source="posts:5112"]').waitFor();
+    await page.getByText('פרטי הקשר המתועד', { exact: true }).click();
+    assert.ok(await page.getByText('edge:20f3b1d0-78d2-474a-b481-85e078bc706f', { exact: true }).isVisible());
+    await page.getByRole('link', { name: 'לקריאת הפוסט', exact: true }).click();
+    await page.waitForURL(/\/post\/flydubai-fz1073-363-14000-remzei-geula/);
+    await page.locator('.sod29-reading-source').waitFor();
+    await page.goBack();
+    await page.locator('[data-story-source="posts:5112"]').waitFor();
+    assert.equal(new URL(page.url()).hash, storyReturn.slice(storyReturn.indexOf('#')));
+    await page.reload();
+    await page.locator('[data-story-source="posts:5112"]').waitFor();
+    assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1));
+    await page.screenshot({ path: resolve(output, `story-sequence-${width}.png`), fullPage: true });
+    report.storySequence.push({ width, sourceRef: 'posts:5112', edgeRef: 'edge:20f3b1d0-78d2-474a-b481-85e078bc706f', nativeBack: true, reload: true });
+    if (process.env.PREVIEW_STORY_SEQUENCE_ONLY === 'true') {
+      report.widths.push(width); await context.close(); continue;
     }
     await page.goto(origin + "/topic/1237");
     try { await page.locator(".rv [data-rv-hero]").waitFor(); }

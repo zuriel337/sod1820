@@ -67,7 +67,7 @@ function fixturePlugin() {
         }))};
       }`,
     prominence: "export async function fetchWorldProminenceInputs(){return {};}",
-    discovery: "export const DISCOVERY_TOPIC_SLUGS=[];",
+    discovery: "export const DISCOVERY_TOPIC_SLUGS=[];export const fetchStoryTreeSequence2029=async()=>({status:'empty',stories:[],coverage:{partial:false}});",
     context: `
       import React,{createContext,useContext,useState} from 'react';
       import {normalizeResearchContext,mergeResearchContext} from '/src/lib/research/researchContext.js';

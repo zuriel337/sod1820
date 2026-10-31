@@ -23,6 +23,7 @@ import { applySeo, clearConvergenceJsonLd, setConvergenceJsonLd } from "../lib/s
 import "./topic2029.css";
 import ConvergenceRatings2029 from "../components/experience2029/ConvergenceRatings2029.jsx";
 import TopicNumberResearch2029 from "../components/research/TopicNumberResearch2029.jsx";
+import StoryTreeSequence2029 from "../components/research/StoryTreeSequence2029.jsx";
 
 const clean = (value) => value == null ? "" : String(value).trim();
 const textOf = (row) => clean(row?.text || row?.title || row?.phrase || row?.note);
@@ -498,6 +499,10 @@ function TopicBody() {
     ...((golden?.sources?.length || golden?.media?.length || golden?.people?.length) ? [{ id: "topic-sources", label: "מקורות" }] : []),
     ...(projection.relatedConvergences.length ? [{ id: "topic-related", label: "המשך" }] : []),
   ];
+  const storyNodeId = projection?.entityRef?.replace(/^node:/, '');
+  if (!projection?.withheld && /^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(storyNodeId || '')) {
+    navItems.push({ id: `story-tree-${storyNodeId}`, label: 'סיפורים מחוברים' });
+  }
   const sectionMapSignature = JSON.stringify(navItems);
   const currentSection = navItems.find((item) => item.id === activeSectionId) || navItems[0];
   const currentSectionId = currentSection?.id || "topic-essential";
@@ -563,12 +568,16 @@ function TopicBody() {
   const openExpressionFocus = async (row, origin) => {
     if (!projection || projection.withheld) return false;
     const request = ++expressionRequestRef.current;
+    // Browser history changes before React's passive slug effect may run.
+    // A held source/profile result must not open a sheet on the next route.
+    const startedPath = window.location.pathname;
+    const isCurrentRequest = () => request === expressionRequestRef.current && window.location.pathname === startedPath;
     setExpressionOpenState({ key: origin.key, error: null });
     try {
       const fromSource = origin.kind === "gallery_text_selection";
       if (fromSource) {
         const currentSource = await fetchGallerySourceContext({ imageIds: [origin.galleryImageId] });
-        if (request !== expressionRequestRef.current) return false;
+        if (!isCurrentRequest()) return false;
         const item = currentSource.items?.find((entry) => entry.galleryImageId === origin.galleryImageId);
         if (!item) setUnavailableSourceIds((ids) => [...new Set([...ids, origin.galleryImageId])]);
         if (!gateSourceSelectionIsCurrent(item, origin)
@@ -578,7 +587,7 @@ function TopicBody() {
         }
       }
       const resolved = await resolveTopicExpressionFocus2029(row);
-      if (request !== expressionRequestRef.current) return false;
+      if (!isCurrentRequest()) return false;
       const focus = resolved.focus;
       if (resolved.status !== "ready" || !focus?.method) {
         setExpressionOpenState({ key: null, error: EXPRESSION_ERRORS[resolved.status] || EXPRESSION_ERRORS.profile_unavailable, errorKey: origin.key });
@@ -668,7 +677,7 @@ function TopicBody() {
       setExpressionOpenState({ key: null, error: null });
       return true;
     } catch {
-      if (request === expressionRequestRef.current) setExpressionOpenState({ key: null, error: EXPRESSION_ERRORS.profile_unavailable, errorKey: origin.key });
+      if (isCurrentRequest()) setExpressionOpenState({ key: null, error: EXPRESSION_ERRORS.profile_unavailable, errorKey: origin.key });
       return false;
     }
   };
@@ -720,6 +729,7 @@ function TopicBody() {
       {expressionOpenState.error && !/^rv-(?:method|source)-/.test(expressionOpenState.errorKey || "") ? <div className="sod29-topic-focus-error" role="status">{expressionOpenState.error}</div> : null}
       <TopicFindings projection={projection} onOpenExpression={openExpressionFocus} openingKey={expressionOpenState.key} />
       <TopicNumberResearch2029 key={projection.slug} projection={projection} />
+      <StoryTreeSequence2029 anchorNodeId={storyNodeId} anchorLabel={projection.displayTitle || projection.title} research={research} />
       <TopicAuthoredConnections projection={projection} />
       <TopicCaveats projection={projection} />
     </article>;
@@ -771,6 +781,7 @@ function TopicBody() {
       <TopicFindings projection={projection} onOpenExpression={openExpressionFocus} openingKey={expressionOpenState.key} />
       <TopicNumberResearch2029 key={projection.slug} projection={projection} />
       <TopicPosts projection={projection} />
+      <StoryTreeSequence2029 anchorNodeId={projection.entityRef?.replace(/^node:/, '')} anchorLabel={projection.displayTitle || projection.title} research={research} />
       <TopicAuthoredConnections projection={projection} />
       <TopicRelatedAxes projection={projection} />
       <TopicSourcesMedia golden={golden} projection={projection} />

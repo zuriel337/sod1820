@@ -1,12 +1,37 @@
 // Pure composition of already-public World post updates and canonical graph findings.
 // No reads, writes, publication decisions, inferred story-to-story edges or UI.
+import { normalizeOpenedRelations } from "./worldGraphRelationOpener2029.js";
+import { normalizeMediaPostSlug } from "./galleryMediaEnvelope.js";
 const clean = value => value == null ? "" : String(value).trim();
 const list = value => Array.isArray(value) ? value : [];
-const edgeRef = value => /^edge:[0-9a-f-]{36}$/i.test(clean(value)) ? clean(value) : null;
 function postPath(value) {
   const path = clean(value).split(/[?#]/, 1)[0];
-  if (!path.startsWith("/post/") || path.length <= 6) return null;
-  try { return decodeURIComponent(path); } catch { return null; }
+  if (!/^\/post\/[^/]+$/.test(path)) return null;
+  const slug = normalizeMediaPostSlug(path.slice(6));
+  return slug && !/[/?#\\]/.test(slug) ? `/post/${slug}` : null;
+}
+
+// These are already-documented graph endpoints, NOT publicly admitted stories.
+// The existing source reader must independently admit each exact post before UI.
+export function storyTreePostTargets2029({ anchorNodeId, graphFindings } = {}) {
+  const anchor = clean(anchorNodeId);
+  if (!anchor) return [];
+  const findings = list(graphFindings);
+  const opened = normalizeOpenedRelations(findings, { anchorNodeId: anchor }).relations;
+  return opened.flatMap(row => {
+    const finding = findings.find(f => f?.identity?.relationRef === row.edgeRef);
+    const relation = list(finding?.projection?.relations).find(r => r?.id === row.edgeRef.slice(5)
+      && r.fromNodeId === row.fromNodeId && r.toNodeId === row.toNodeId);
+    const endpoint = row.fromNodeId === anchor ? relation?.to : relation?.from;
+    const nodeId = row.fromNodeId === anchor ? row.toNodeId : row.fromNodeId;
+    const href = clean(endpoint?.href);
+    const path = postPath(href);
+    if (!endpoint || endpoint.id !== nodeId || nodeId === anchor || endpoint.type !== "post"
+        || !path || /[?#]/.test(href)) return [];
+    return [{ nodeId, href, slug: path.slice(6), path,
+      relation: { edgeRef: row.edgeRef, type: row.relationType, anchorNodeId: anchor,
+        fromNodeRef: `node:${row.fromNodeId}`, toNodeRef: `node:${row.toNodeId}` } }];
+  });
 }
 
 /**
@@ -31,25 +56,14 @@ export function buildStoryTreeSequence2029({ anchorNodeId, graphFindings, public
   if (!anchor) return { anchorNodeId: null, stories: [], currentIndex: -1, previous: null, next: null, ordering: "input_not_chronology" };
   const stories = [];
   const seen = new Set();
-  for (const finding of list(graphFindings)) {
-    if (finding?.kind !== "graph-relation") continue;
-    const ref = edgeRef(finding?.identity?.relationRef);
-    if (!ref || ref !== edgeRef(finding?.source?.sourceRef)) continue;
-    for (const relation of list(finding?.projection?.relations)) {
-      if (`edge:${clean(relation?.id)}` !== ref) continue;
-      const from = clean(relation.fromNodeId), to = clean(relation.toNodeId);
-      if (from !== anchor && to !== anchor) continue;
-      const endpoint = from === anchor ? relation.to : relation.from;
-      const endpointId = from === anchor ? to : from;
-      if (!endpointId || endpointId === anchor || clean(endpoint?.id) !== endpointId || endpoint?.type !== "post") continue;
-      const post = publicPosts.get(postPath(endpoint.href));
-      if (!post || seen.has(post.sourceRef)) continue;
-      seen.add(post.sourceRef);
-      stories.push({ sourceRef: post.sourceRef, nodeRef: `node:${endpointId}`, href: post.href,
-        title: clean(post.label), summary: clean(post.summary) || null, creator: clean(post.creator) || null,
-        publishedAt: post.sourcePublishedAt || null, relation: { edgeRef: ref, type: clean(relation.relationType) || "related", anchorNodeId: anchor },
-        relationshipMeaning: "shared_anchor_not_story_to_story_edge" });
-    }
+  for (const target of storyTreePostTargets2029({ anchorNodeId: anchor, graphFindings })) {
+    const post = publicPosts.get(target.path);
+    if (!post || seen.has(post.sourceRef)) continue;
+    seen.add(post.sourceRef);
+    stories.push({ sourceRef: post.sourceRef, nodeRef: `node:${target.nodeId}`, href: post.href,
+      title: clean(post.label), summary: clean(post.summary) || null, creator: clean(post.creator) || null,
+      publishedAt: post.sourcePublishedAt || null, relation: target.relation,
+      relationshipMeaning: "shared_anchor_not_story_to_story_edge" });
   }
   const currentIndex = stories.findIndex(story => story.sourceRef === clean(currentSourceRef));
   return { anchorNodeId: anchor, stories, currentIndex,

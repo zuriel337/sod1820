@@ -971,10 +971,18 @@ export async function fetchGallerySourceContext({ imageIds = [], client = supaba
     occurrencesTruncated: appearances.count > TOPIC_OCCURRENCE_LIMIT };
 }
 
-export async function fetchPublicWorldPostSource({ postId, client = supabase } = {}) {
-  if (!Number.isSafeInteger(postId)) return null;
-  const result = await client.from("posts").select("id,slug,title,content,tags,source,home_hidden,author,authors,date,modified")
-    .eq("id", postId).maybeSingle();
+export async function fetchPublicWorldPostSource({ postId, postSlug = null, includeContent = true, client = supabase } = {}) {
+  const byId = Number.isSafeInteger(postId);
+  const slug = postSlug == null ? null : normalizeMediaPostSlug(postSlug);
+  if ((!byId && !slug) || (postId != null && postSlug != null) || (postSlug != null && (!slug || /[/?#\\]/.test(slug)))) return null;
+  const fields = includeContent === false
+    ? "id,slug,title,excerpt,tags,source,home_hidden,author,authors,date,modified"
+    : "id,slug,title,content,tags,source,home_hidden,author,authors,date,modified";
+  let query = client.from("posts").select(fields);
+  if (byId) query = query.eq("id", postId);
+  else query = query.in("slug", [...new Set([String(postSlug).trim(), slug, encodeURIComponent(slug), encodeURIComponent(slug).toLowerCase()])]).limit(2);
+  // Ambiguous slug variants fail closed through maybeSingle, never first-row-wins.
+  const result = await query.maybeSingle();
   if (result.error) throw result.error;
   const { postRowToWorldUpdate } = await import("./worldDiscoveryStream.js");
   return postRowToWorldUpdate(result.data) ? result.data : null;

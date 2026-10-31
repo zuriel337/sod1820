@@ -8,6 +8,48 @@ import { supabase } from '../supabase.js';
 import { fetchGematriaMethodTrace } from './gematriaTrace.js';
 import { numberExpressionFocusHref } from './numberExpressionFocus.js';
 import { INDIA_CAPTAIN_SOURCE, buildPublicPostImageContext } from './topicSourceContext.js';
+import { fetchCanonicalGraphEntityFindings } from './entityGraphFinding.js';
+import { normalizeOpenedRelations } from './worldGraphRelationOpener2029.js';
+import { buildStoryTreeSequence2029, storyTreePostTargets2029 } from './storyTreeSequence2029.js';
+import { postRowToWorldUpdate } from './worldDiscoveryStream.js';
+
+// Bounded composition of EXISTING readers, on explicit open/refresh/return only.
+// No store, direct SQL, inferred relation, contributor inventory or body extraction.
+export async function fetchStoryTreeSequence2029({ anchorNodeId, graphReader = fetchCanonicalGraphEntityFindings,
+  postReader = fetchPublicWorldPostSource } = {}) {
+  const anchor = String(anchorNodeId || '').trim();
+  const empty = (status) => ({ status, ...buildStoryTreeSequence2029(), coverage: { partial: false, examined: 0 } });
+  if (!/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(anchor)) return empty('unavailable');
+  let findings;
+  try { findings = await graphReader(anchor, { relationLimit: 50 }); }
+  catch { return empty('error'); }
+  if (!Array.isArray(findings) || !findings.some(f => f?.kind === 'graph-entity'
+    && f.identity?.entityRef === `node:${anchor}` && f.source?.sourceRef === `node:${anchor}`
+    && f.identity?.sourceIdentity?.nodeId === anchor)) return empty('unavailable');
+  const normalized = normalizeOpenedRelations(findings, { anchorNodeId: anchor });
+  const targets = [...new Map(storyTreePostTargets2029({ anchorNodeId: anchor, graphFindings: findings })
+    .map(t => [t.path, t])).values()];
+  const selected = targets.slice(0, 8);
+  let sourceUnavailable = false;
+  const updates = await Promise.all(selected.map(async target => {
+    try {
+      const row = await postReader({ postSlug: target.slug, includeContent: false });
+      const update = postRowToWorldUpdate(row);
+      // A reader returned another slug/source, or publication was withdrawn.
+      const actual = update && buildStoryTreeSequence2029({ anchorNodeId: anchor,
+        graphFindings: findings, publicPostUpdates: [update] }).stories;
+      if (!actual?.some(story => story.nodeRef === `node:${target.nodeId}`)) { sourceUnavailable = true; return null; }
+      return update;
+    } catch { sourceUnavailable = true; return null; }
+  }));
+  const sequence = buildStoryTreeSequence2029({ anchorNodeId: anchor, graphFindings: findings, publicPostUpdates: updates.filter(Boolean) });
+  const partial = normalized.status !== 'ok' || targets.length > selected.length || sourceUnavailable;
+  const root = findings.find(f => f.kind === 'graph-entity' && f.identity?.entityRef === `node:${anchor}`);
+  return { ...sequence, anchorLabel: typeof root?.subject?.label === 'string' ? root.subject.label : null,
+    status: partial ? 'partial' : sequence.stories.length ? 'ready' : 'empty',
+    coverage: { partial, examined: selected.length, sourceUnavailable,
+      note: 'bounded_public_sources_not_complete_corpus_or_evidence_independence' } };
+}
 
 export const WORLD_SOURCE_DIRECTIONS = Object.freeze([
   { id: 'october', label: 'הקשר ל־7 באוקטובר', why: 'שני נוסחי תאריך בפוסט, אותו ערך, ומעבר מפורש לשביעי באוקטובר.' },

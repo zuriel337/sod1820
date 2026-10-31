@@ -1,4 +1,5 @@
 import WorldSourceConnections from '../components/research/WorldSourceConnections.jsx';
+import StoryTreeSequence2029, { storyTreeReturnSelection2029 } from '../components/research/StoryTreeSequence2029.jsx';
 import WorldConnectedDiscovery from '../components/research/WorldSourceStory.jsx';
 import WorldFlightStory2029 from '../components/research/WorldFlightStory2029.jsx';
 import WorldPublicUpdates2029 from '../components/research/WorldPublicUpdates2029.jsx';
@@ -1767,6 +1768,7 @@ function AnchoredWorld({ research, shell, subject, context }) {
       data-experience-question={WORLD_EXPERIENCE.experience.question}
       data-truth-safe={String(WORLD_EXPERIENCE.experience.truthSafe)}
     >
+      <StoryTreeSequence2029 anchorNodeId={data.identity.nodeId} anchorLabel={data.identity.label} research={research} />
       {anchorProfile ? <section className="sod29-section sod29-world-anchor-profile" aria-label={`פרופיל עוגן ${data.identity.label}`}>
         <div className="sod29-section-head">
           <div>
@@ -2208,6 +2210,10 @@ function WorldBody() {
   // whichever subject happened to be active on the previous surface. Context is
   // projected into Anchored World only after an explicit "open in World" action.
   const explicitContext = new URLSearchParams(location.search).get("focus") === "context";
+  // Exact URL return works after reload without depending on a previous Provider subject.
+  // The fragment is only a locator: the same canonical/public readers re-admit it.
+  const storyReturn = storyTreeReturnSelection2029(location.hash);
+  if (storyReturn) return <StoryTreeSequence2029 anchorNodeId={storyReturn.anchorNodeId} research={research} />;
   // Research Context still follows the reader for explicit continuation. A
   // Topic/Post subject can be current when browser Back returns here; it is not
   // an Entity Hub node unless a dedicated adapter says otherwise.
