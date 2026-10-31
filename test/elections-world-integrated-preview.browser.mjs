@@ -117,10 +117,12 @@ try {
       await page.waitForFunction(()=>{const image=document.querySelector('.g29-canvas img');return image?.complete&&image.naturalWidth>0;});
       assert.equal(await page.locator('.g29-flow .g29-image-date').count(),await page.locator('.g29-exhibit').count());
       assert.match(await page.locator('.g29-exhibit').first().locator('.g29-image-date').innerText(),/מקור\s+05\.05\.2021/);
-      assert.ok(await page.locator('.g29-flow .g29-image-date').evaluateAll(nodes=>nodes.every(el=>{
+      const badgeBounds=await page.locator('.g29-flow .g29-image-date').evaluateAll(nodes=>nodes.map(el=>{
         const badge=el.getBoundingClientRect(),frame=el.parentElement.getBoundingClientRect();
-        return badge.x>=frame.x&&badge.x<frame.x+frame.width/2&&badge.y>=frame.y&&badge.bottom<=frame.bottom+1;
-      })),'photo dates are physically left and within their uncropped image frames');
+        return {left:badge.x-frame.x,top:badge.y-frame.y,bottom:badge.bottom-frame.bottom,width:frame.width,height:frame.height};
+      }));
+      assert.ok(badgeBounds.every(b=>b.left>=0&&b.left<b.width/2&&b.top>=0&&b.bottom<=1),
+        'photo dates stay left within loaded or lazy image frames: '+JSON.stringify(badgeBounds));
       for(const [preset,label] of [['light','יום'],['parchment','קלף'],['dark','לילה']]) {
         const control=page.locator('.sod29-theme-presets.is-header-control'),option=control.getByRole('button',{name:label,exact:true});
         if(!await option.isVisible())await control.locator('.sod29-theme-trigger').click();
@@ -130,7 +132,7 @@ try {
       await page.goBack();await page.locator('[data-catalog-gallery="69"]').waitFor();
       assert.equal(await page.getByRole('searchbox').inputValue(),'14');
       assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
-      report.catalog.push({width,count:expected.items.length,coverage:expected.coverage,sourceCount:expected.items.reduce((n,x)=>n+x.imageCount,0),search:true,sort:true,reload:true,galleryBack:true,presets:['light','parchment','dark']});
+      report.catalog.push({width,count:expected.items.length,coverage:expected.coverage,sourceCount:expected.items.reduce((n,x)=>n+x.imageCount,0),search:true,sort:true,reload:true,galleryBack:true,originalHeadings:true,dateBadges:true,presets:['light','parchment','dark']});
       report.widths.push(width);await context.close();continue;
     }
     if (process.env.PREVIEW_GALLERY_EXPANSION_ONLY === 'true') {

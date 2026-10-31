@@ -264,6 +264,9 @@ test("native gallery uses exact public occurrences and canonical method navigati
       assert.ok(dateBox.x>=photoBox.x&&dateBox.x<photoBox.x+photoBox.width/2,'badge stays physically left in RTL');
       assert.ok(dateBox.y>=photoBox.y&&dateBox.y+dateBox.height<=photoBox.y+photoBox.height+1);
       assert.equal(await exhibit.locator('.g29-image-date').evaluate(el=>getComputedStyle(el).pointerEvents),'none');
+      assert.ok(await page.locator('.g29-flow .g29-image-surface').evaluateAll(nodes=>nodes.every(el=>{
+        const r=el.getBoundingClientRect();return r.width>=44&&r.height>=44;
+      })),'lazy photos reserve a frame so their date badge cannot float outside it');
       await exhibit.locator('a[href="/2029/number/3137"]').click();
       await page.waitForURL(origin+"/2029/number/3137");
       assert.equal(await page.evaluate(()=>window.__researchContext.returnTo.selection.sourceRef),`gallery_images:${id}`);

@@ -20,7 +20,7 @@
 .g29-exhibit:target{border-color:var(--s29-accent-text);box-shadow:0 0 0 2px color-mix(in srgb,var(--s29-accent) 15%,transparent)}
 .g29-canvas{display:grid;place-items:center;min-height:44px;padding:9px;text-decoration:none;border:1px solid color-mix(in srgb,var(--g29-warm) 40%,var(--s29-line));border-radius:12px;background:color-mix(in srgb,var(--g29-warm) 5%,var(--s29-panel));box-shadow:0 12px 32px color-mix(in srgb,var(--s29-ink) 6%,transparent);cursor:zoom-in}
 .g29-canvas .sod29-canonical-media-image.is-primary{max-height:440px;border-radius:5px;background:transparent}
-.g29-image-surface{display:grid;position:relative;min-width:0;max-width:100%;max-height:100%}
+.g29-image-surface{display:grid;position:relative;width:100%;min-width:0;min-height:44px;max-width:100%;max-height:100%}
 /* Neutral photographic backing, not a quality/status color or a new theme. */
 .g29-image-date{position:absolute;left:8px;bottom:8px;display:flex;align-items:center;gap:6px;max-width:calc(100% - 16px);padding:4px 8px;border-radius:6px;background:color-mix(in srgb,black 80%,transparent);color:white;box-shadow:0 2px 10px color-mix(in srgb,black 32%,transparent);font:var(--s29-type-micro,14px)/1.4 var(--s29-font-ui);pointer-events:none}
 .g29-image-date time{font-family:var(--s29-font-numeric);font-variant-numeric:tabular-nums}
