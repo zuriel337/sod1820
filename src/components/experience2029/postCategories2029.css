@@ -15,3 +15,24 @@
 .sod29-post-index-meta span.k29-cats, .sod29-reading-meta-line span.k29-cats { border: 0; padding: 0; min-height: 0; border-radius: 0; }
 .sod29-post-index-meta span.k29-cat, .sod29-reading-meta-line span.k29-cat, .sod29-reading-meta-line a.k29-cat { min-height: 28px; padding: 0 10px; border: 1px solid var(--s29-line-strong); border-radius: 999px; font-size: 12.5px; }
 .sod29-post-index-meta span.k29-cat.is-strong, .sod29-reading-meta-line span.k29-cat.is-strong, .sod29-reading-meta-line a.k29-cat.is-strong { border-color: var(--s29-brand-gold); }
+/* Post opt-in only: existing Home/World chips retain their contract and sizes. */
+.k29-cats.k29-post-classification { display: flex; gap: 8px; }
+.k29-post-classification .k29-cat,
+.sod29-post-index-meta .k29-post-classification .k29-cat,
+.sod29-reading-meta-line .k29-post-classification .k29-cat {
+  min-height: 44px; max-width: 100%; padding: 8px 12px;
+  font-size: var(--s29-type-micro, 14px); line-height: 1.45;
+  white-space: normal; overflow-wrap: anywhere;
+}
+.k29-post-classification .k29-post-role,
+.sod29-post-index-meta .k29-post-classification .k29-post-role {
+  display: contents; padding: 0; border: 0; font: inherit; color: var(--s29-muted);
+}
+.sod29-reading-hero-copy > .k29-post-classification { grid-column: 1 / -1; grid-row: 2; justify-content: center; margin-block: 8px; }
+.sod29-reading-hero-copy:has(> .k29-post-classification) > .sod29-post-details { grid-row: 3; }
+.sod29-reading-hero-copy:has(> .k29-post-classification) > .sod29-orientation-host .sod29-learn-mark-trigger { grid-row: 3; }
+.sod29-reading-hero-copy:has(> .k29-post-classification) > .sod29-orientation-host .sod29-learn-mark-disclosure { grid-row: 4; }
+@media (max-width: 360px) {
+  .sod29-reading-hero-copy:has(> .k29-post-classification) > .sod29-orientation-host .sod29-learn-mark-trigger { grid-row: 4; }
+  .sod29-reading-hero-copy:has(> .k29-post-classification) > .sod29-orientation-host .sod29-learn-mark-disclosure { grid-row: 5; }
+}

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import Sod2029Shell, { FrameState } from "../components/experience2029/Sod2029Shell.jsx";
-import { fetchPostsCatalog2029, postsCatalogScope2029 } from "../lib/research/postsCatalog2029Projection.js";
+import { fetchPostsCatalog2029, postClassification2029, postsCatalogScope2029 } from "../lib/research/postsCatalog2029Projection.js";
 import { applySeo } from "../lib/seo.js";
 import { stripHtml } from "../lib/format.js";
 import { bilingualDateLabel } from "../lib/relativeTime2029.js";
@@ -23,8 +23,8 @@ function PostIndexCard({ post, index }) {
   const excerpt = stripHtml(post?.excerpt || post?.content || "").slice(0, 180);
   const numbers = numericSignals(post?.tags);
   const image = post?.thumb_url || post?.image_url || null;
-  const categories = (Array.isArray(post?.categories) ? post.categories : []).slice(0, 3);
   const golden = isGoldenPost(post);
+  const { credit } = postClassification2029(post);
 
   return <article
     className={"sod29-post-index-card" + (golden ? " is-golden" : "")}
@@ -46,9 +46,9 @@ function PostIndexCard({ post, index }) {
 
       <div className="sod29-post-index-copy">
         <div className="sod29-post-index-meta">
-          {post.author ? <span>{post.author}</span> : null}
+          {credit ? <span>{credit.prefix}: {credit.name}</span> : null}
           <span>{post?.modified ? "עודכן " : "פורסם "}{bilingualDateLabel(post?.modified || post?.date, "תאריך לא צוין")}</span>
-          <PostCategories2029 categories={categories} max={3} nested />
+          <PostCategories2029 post={post} max={3} compact nested />
         </div>
         <h2>{title || "פוסט"}</h2>
         {excerpt ? <p>{excerpt}</p> : null}
@@ -113,6 +113,7 @@ export default function Posts2029Page() {
         <div className="sod29-posts-index-hero-grid">
           <div>
             <h1>{scope.label}</h1>
+            {scope.compatibilityNote ? <p>{scope.compatibilityNote} {scope.seriesLink ? <Link to={scope.seriesLink.href}>{scope.seriesLink.label} ←</Link> : null}</p> : null}
             <details className="sod29-post-details sod29-post-index-about">
               <summary>על הפוסטים <span aria-hidden="true">⌄</span></summary>
               <p>אירועים · סיפורים · רמזים</p>

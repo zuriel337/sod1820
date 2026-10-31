@@ -45,6 +45,7 @@ function fixturePlugin(){
     `,
     backend:`
       import trace from '/test/fixtures/spatial/mistater-1237-trace.json';
+      export const SUPABASE_URL='http://127.0.0.1',SUPABASE_ANON='public-fixture-not-a-credential';
       export const logView=()=>{},logActivity=()=>{};
       export const getAllValuePhrases=async()=>[],langLinksList=async()=>[];
       export const getNumberLookup=async()=>null,getRelationCandidate=async()=>null;
@@ -91,6 +92,7 @@ function fixturePlugin(){
     entry:`
       import React from 'react';import {createRoot} from 'react-dom/client';import {BrowserRouter,Routes,Route,useNavigate} from 'react-router-dom';
       import {Provider,useResearch} from '/src/lib/research/ResearchProvider.jsx';import {buildExactReturnPatch} from '/src/lib/research/researchContext.js';
+      import PostCategories from '/src/components/experience2029/PostCategories2029.jsx';
       import Post from '/src/pages/Post2029Page.jsx';import '/src/components/experience2029/sod2029.css';
       import '/src/components/experience2029/systemFrame2029.css';
       import Shell from '/src/components/experience2029/Sod2029Shell.jsx';import LearnMark from '/src/components/experience2029/LearnMark2029.jsx';
@@ -105,7 +107,7 @@ function fixturePlugin(){
       function LearningDestination(){const research=useResearch(),navigate=useNavigate();return <main><h1>לימוד שיטות בבית המדרש</h1><button onClick={()=>{const back=research.context.returnTo;research.updateResearchContext(buildExactReturnPatch(research.context));navigate(back.href,{state:{sodEntryArrival:'exact_return'}});}}>חזרה מהלימוד למקור</button></main>;}
       function Navigation(){window.__goFixture=useNavigate();return null;}
       const style=document.createElement('style');style.textContent='html,body{margin:0;padding:0}body{font-family:Arial,sans-serif}.sod29-root{display:block!important;padding:12px;box-sizing:border-box;min-height:100vh;background:var(--s29-page);color:var(--s29-ink)}.sod29-reading-post{max-width:100%;margin:auto}.fixture-sheet{position:fixed;inset:0;z-index:1000;overflow:auto;background:var(--s29-panel);padding:12px}button{min-height:44px}';document.head.append(style);
-      createRoot(document.getElementById('root')).render(<BrowserRouter><Provider><Navigation/><Routes><Route path='/post/:slug' element={<Post/>}/><Route path='/learn-control' element={<Shell><LearnMark compact label='הסבר מושג'><p>הסבר מושג נגיש</p></LearnMark><LearnMark scope='surface' prominent label='הסבר ארוך על המסך ועל האפשרויות שעומדות לרשות הקורא'><p>הסבר על המסך</p></LearnMark></Shell>}/><Route path='/beit-midrash' element={<LearningDestination/>}/><Route path='/2029/number/:value' element={<NumberPage/>}/><Route path='/topic/:slug' element={<TopicDestination/>}/><Route path='*' element={<p>יעד המשך</p>}/></Routes></Provider></BrowserRouter>);
+      createRoot(document.getElementById('root')).render(<BrowserRouter><Provider><Navigation/><Routes><Route path='/post/:slug' element={<Post/>}/><Route path='/category-default' element={<Shell><PostCategories categories={['מימד חמש','וידאו']} /></Shell>}/><Route path='/learn-control' element={<Shell><LearnMark compact label='הסבר מושג'><p>הסבר מושג נגיש</p></LearnMark><LearnMark scope='surface' prominent label='הסבר ארוך על המסך ועל האפשרויות שעומדות לרשות הקורא'><p>הסבר על המסך</p></LearnMark></Shell>}/><Route path='/beit-midrash' element={<LearningDestination/>}/><Route path='/2029/number/:value' element={<NumberPage/>}/><Route path='/topic/:slug' element={<TopicDestination/>}/><Route path='*' element={<p>יעד המשך</p>}/></Routes></Provider></BrowserRouter>);
     `,
   };
   return {name:'posts-one-tree-fixture',enforce:'pre',resolveId(source){
@@ -433,6 +435,39 @@ test('built Post: adopted design, bounded backgrounds, lazy research, exact retu
       if(theme==='dark'&&width===390)await page.screenshot({path:join(artifacts,'background-'+key+'-mobile.png'),fullPage:true});
       await context.close();
     }
+    const classificationResults=[];
+    for(const width of [320,390,1440]) for(const theme of ['light','parchment','dark']){
+      const context=await browser.newContext({viewport:{width,height:900},reducedMotion:'reduce'});
+      await context.addInitScript(()=>sessionStorage.setItem('fixture-post-overrides',JSON.stringify({author:'בדרך לנצח',categories:['מימד חמש','וידאו','שבילי שפה']})));
+      const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
+      await page.goto(origin+'/post/future-source?theme='+theme,{waitUntil:'networkidle'});
+      const hero=page.locator('.sod29-reading-hero-copy > .k29-post-classification');
+      const series=hero.getByRole('link',{name:'סדרה: מימד חמש',exact:true});
+      await series.waitFor({state:'visible'});
+      assert.equal(await series.getAttribute('href'),'/2029/posts?series=dimension-five');
+      const alignment=await hero.evaluate(node=>{const parent=node.parentElement.getBoundingClientRect(),box=node.getBoundingClientRect();return Math.abs((box.x+box.width/2)-(parent.x+parent.width/2));});
+      assert.ok(alignment<2,'Post classifications share the centered title axis');
+      assert.equal(await hero.locator('[data-post-classification="legacy-media-label"]').count(),0);
+      assert.ok(await hero.getByRole('link',{name:'סיווג במקור: שבילי שפה',exact:true}).isVisible());
+      const geometry=await series.evaluate(node=>({height:node.getBoundingClientRect().height,size:getComputedStyle(node).fontSize}));
+      assert.ok(geometry.height>=44);assert.equal(geometry.size,'14px');
+      await series.focus();assert.equal(await series.evaluate(node=>document.activeElement===node),true);
+      await page.locator('.sod29-post-details > summary').click();
+      assert.ok(await page.getByText('מפרסם: בדרך לנצח',{exact:true}).isVisible());
+      assert.equal(await page.locator('.sod29-post-details-body [data-post-classification="legacy-media-label"]').getAttribute('href'),'/2029/posts?category='+encodeURIComponent('וידאו'));
+      assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
+      if(width===390)await page.screenshot({path:join(artifacts,'classification-'+theme+'-mobile.png'),fullPage:true});
+      await page.locator('#post-next').getByRole('link',{name:'עוד ממימד חמש',exact:false}).click();
+      await page.waitForURL('**/2029/posts?series=dimension-five');
+      assert.match(await page.evaluate(()=>window.__researchContext.returnTo.href),/^\/post\/future-source/);
+      assert.deepEqual(errors,[]);classificationResults.push({width,theme,geometry,seriesFooter:true});
+      await context.close();
+    }
+    const defaults=await browser.newPage();await defaults.goto(origin+'/category-default');
+    assert.equal(await defaults.getByRole('link',{name:'וידאו',exact:true}).getAttribute('href'),'/2029/posts?category='+encodeURIComponent('וידאו'));
+    assert.equal(await defaults.locator('[data-post-classification]').count(),0,'shared consumers retain their default presentation');
+    await defaults.close();
+    writeFileSync(join(artifacts,'classification.json'),JSON.stringify({cases:classificationResults,sharedDefaultUnchanged:true},null,2));
     failBackground=true;
     const fallbackContext=await browser.newContext({viewport:{width:390,height:900}}),fallbackPage=await fallbackContext.newPage();
     await fallbackPage.goto(origin+'/post/future-source?theme=dark',{waitUntil:'networkidle'});
