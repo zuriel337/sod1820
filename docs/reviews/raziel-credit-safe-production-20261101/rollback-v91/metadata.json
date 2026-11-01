@@ -1,0 +1,14 @@
+{
+  "project_id": "linswmnnkjxvweumprav",
+  "version": 91,
+  "deployedBundleSha256": "2c8100726a5cdd353bd10efb7bec0ec1b30339995787c824d262707294cb57eb",
+  "verify_jwt": true,
+  "files": [
+    {
+      "name": "index.ts",
+      "chars": 592284
+    }
+  ],
+  "note": "Source-only artifact without environment values; deployed ezbr hash is not the plain source file hash. No deployment performed.",
+  "sourceSha256": "2ac19e112e77e71fbab61270338e126edf88128a786f3425b09157291494281f"
+}

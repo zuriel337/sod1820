@@ -1,0 +1,13 @@
+{
+  "productionVersion": 91,
+  "productionBundleSha256": "2c8100726a5cdd353bd10efb7bec0ec1b30339995787c824d262707294cb57eb",
+  "verify_jwt": true,
+  "creditsBefore": 35,
+  "creditsAfter": 35,
+  "ownerRole": "admin",
+  "todayLedgerEntries": 0,
+  "productionWritesPerformed": 0,
+  "migrationsApplied": [],
+  "sourceIntegrationImplemented": false,
+  "productionVariantAccepted": false
+}

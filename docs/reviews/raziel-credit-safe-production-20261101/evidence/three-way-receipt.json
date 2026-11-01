@@ -1,0 +1,17 @@
+{
+  "base_sha": "5408f8dd7e6d89b2b63a83375b325f60238b2959",
+  "head_package_sha256": "8939d15e018b1bdd78807d7a3100f81ca110ea3a1b1c65f037005c7696afefba",
+  "candidate_source_sha256": "8939d15e018b1bdd78807d7a3100f81ca110ea3a1b1c65f037005c7696afefba",
+  "head_package_equals_candidate": true,
+  "candidate_project_url_present": true,
+  "production_source_sha256": "2ac19e112e77e71fbab61270338e126edf88128a786f3425b09157291494281f",
+  "runtime_changed": false,
+  "production_changed": false,
+  "gates_passed": false,
+  "blockers": [
+    "HEAD package retains Candidate URL auto-enable",
+    "current charge eligibility targets ordinary users and excludes the admin owner; no owner-only pilot implementation",
+    "no owner-authenticated runtime session available for mandatory live acceptance",
+    "full production-shaped migration/idempotency and full regression/build gates not completed"
+  ]
+}
