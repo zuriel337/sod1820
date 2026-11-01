@@ -161,6 +161,17 @@ test("one World search covers words, public source text, writers, safe grouping 
       assert.equal(new URL(page.url()).searchParams.get("source"), "yaniv-levi");
       assert.equal(new URL(page.url()).searchParams.has("sourceRef"), false, "changing writers clears the old source identity");
       assert.equal(new URL(page.url()).hash, "", "changing writers clears the old source anchor");
+      const origins = page.getByRole("group", { name: "בחירה לפי מקור" });
+      await origins.getByRole("button", { name: "צבי", exact: true }).click();
+      assert.equal(new URL(page.url()).searchParams.get("source"), "tzvi-opoc",
+        "the Zvi shortcut also opens the existing writer source surface");
+      assert.equal(new URL(page.url()).searchParams.get("subjectSource"), "zvi");
+      await origins.getByRole("button", { name: "סוד החשמל", exact: true }).click();
+      assert.equal(new URL(page.url()).searchParams.get("source"), "sod-hashmal",
+        "the corpus shortcut opens its existing source reader");
+      await origins.getByRole("button", { name: "הכול", exact: true }).click();
+      assert.equal(new URL(page.url()).searchParams.has("source"), false);
+      assert.equal(new URL(page.url()).searchParams.has("subjectSource"), false);
       assert.deepEqual(errors, []);
       assert.ok(records.every((entry) => entry.method === "GET" || entry.path.endsWith("/rpc/world_group_source_arrivals_v2")),
         "only public GETs and the existing read-only group RPC are allowed");

@@ -158,8 +158,9 @@ export default function WorldPublicSourceSubjects2029({ peopleIndex = null }) {
     setOrigin(next); setVisibleItems(CHUNK);
     const params = new URLSearchParams(location.search);
     if (next === "all") params.delete("subjectSource"); else params.set("subjectSource", next);
-    if (next.startsWith("writer:")) {
-      const slug = next.slice("writer:".length);
+    const slug = next.startsWith("writer:") ? next.slice("writer:".length)
+      : next === "zvi" ? "tzvi-opoc" : next === "hashmal" ? "sod-hashmal" : null;
+    if (slug) {
       if (params.get("source") !== slug) params.delete("sourceRef");
       params.set("source", slug);
     } else {
