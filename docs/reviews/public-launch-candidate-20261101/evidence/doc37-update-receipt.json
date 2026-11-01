@@ -1,0 +1,21 @@
+{
+  "before": {
+    "id": 37,
+    "slug": "sod1820_reality_stream_os_master_v3_20261016_draft",
+    "length": 408550,
+    "md5": "28da91c8401904888c5d0c449d5354b5",
+    "tail": "צר, Auth/RLS, Edge או דגלים משותפים.\nעבודת Follow/Activity האישית ובעלותה המצומצמת על בדיקת personal_continue נפרדות\nממשימה זו ולא שונו. הבעלות הציבורית משתחררת ביומן בתום המסירה.\n"
+  },
+  "appendCharacters": 5411,
+  "result": [
+    {
+      "id": 37,
+      "slug": "sod1820_reality_stream_os_master_v3_20261016_draft",
+      "title": "SOD1820 — זרם המציאות · תוכנית־על תחומית V3 בתוך מפת האתר · DRAFT",
+      "updated_at": "2026-11-01 16:28:01.329142+00",
+      "new_length": 413961,
+      "new_md5": "2968a40ccc49d14a752620750b640b70",
+      "previous_prefix_md5": "28da91c8401904888c5d0c449d5354b5"
+    }
+  ]
+}

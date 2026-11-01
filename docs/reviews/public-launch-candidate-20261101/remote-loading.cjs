@@ -6,7 +6,7 @@ const db='https://linswmnnkjxvweumprav.supabase.co';
 const origins={before:'http://127.0.0.1:4231',after:'http://127.0.0.1:4251'};
 const allowed=new Set(require('../public-foundation-20261101/evidence/rpc-read-inventory.json').functions.map(r=>r.proname));
 for(const name of['convergence_meter','is_number_indexable','is_phrase_indexable'])allowed.add(name);
-const out=process.env.SOD_PUBLIC_METRICS||'/tmp/public-world-number-acceptance-20261101/public-loading.json';
+const out=process.env.SOD_PUBLIC_METRICS||'/tmp/public-launch-candidate-20261101/remote-loading.json';
 const observationMs=Number(process.env.SOD_PERF_OBSERVATION_MS??600);
 const snapshots=new Map(),results=[];let api,localApi,browser,matchedPostHref;
 // Home's seven-day pulse otherwise gets a new millisecond cutoff on every
