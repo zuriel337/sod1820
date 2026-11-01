@@ -68,11 +68,14 @@ function HomeEntry2029() {
     ? <Community2029Page />
     : <Home2029Page />;
 }
-// Ordinary Home does not need the historical Post document reader. Keep the
-// exact ?p= compatibility route without eagerly importing Post and its media.
+// The public launch profile retains its original Home/Post code admission:
+// deferring this reader shifted about1s into the first mobile Post. Its now
+// smaller dependency graph keeps the original first-Post behavior without a
+// speculative data read, personal cache, or admission of an off-screen reader.
+// Other profiles keep the bounded ?p= compatibility path.
 function PublicHomeEntry2029() {
   const { search } = useLocation();
-  return new URLSearchParams(search).get("p")
+  return PUBLIC_READING_RELEASE || new URLSearchParams(search).get("p")
     ? <PublicPostAddress2029Page home={<HomeEntry2029 />} />
     : <HomeEntry2029 />;
 }
