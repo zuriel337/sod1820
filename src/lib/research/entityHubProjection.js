@@ -195,8 +195,10 @@ async function fetchResearchFacetRegistry(rows = []) {
   }
 }
 
-export async function fetchResearchObjectsForEntity(node, { limit = 40, locale = "he" } = {}) {
-  if (!node?.id) return { rows: [], findings: [], access: { available: true, reason: null } };
+export async function fetchResearchObjectsForEntity(node, { limit = 40, locale = "he", allowUnstoredNumber = false } = {}) {
+  const numericInput = allowUnstoredNumber && node?.type === "number"
+    && /^\d+$/.test(clean(node.label)) && Number.isSafeInteger(Number(node.label));
+  if (!node?.id && !numericInput) return { rows: [], findings: [], access: { available: true, reason: null } };
   const cap = safeLimit(limit, 40, 120);
   const label = clean(node.label);
   const identityKey = clean(node.identity_key);
@@ -211,6 +213,9 @@ export async function fetchResearchObjectsForEntity(node, { limit = 40, locale =
   }
 
   for (const term of terms) {
+    // The numeric branch already requested these exact value terms. Preserve
+    // distinct labels/aliases, without sending the same bounded read twice.
+    if (node.type === "number" && Number.isSafeInteger(Number(label)) && term === String(Number(label))) continue;
     queries.push(runResearchQuery(supabase.from("research_objects").select(RESEARCH_FIELDS).contains("terms", [term]), cap));
     queries.push(runResearchQuery(supabase.from("research_objects").select(RESEARCH_FIELDS).contains("relates", [term]), cap));
   }
@@ -1124,14 +1129,20 @@ export async function fetchEntityHubProjection({
   includeScriptureDiscovery = true,
   includeScriptureTermDiscovery = true,
   topicSourceSlug = null,
+  allowUnstoredNumber = false,
 } = {}) {
-  const node = await resolveEntityHubNode({ nodeId, type, key });
+  let node = await resolveEntityHubNode({ nodeId, type, key });
+  // A canonical numeric result does not require a persisted graph node to be
+  // read. This explicit Number-page option never creates one, fabricates an id
+  // or changes the default World/other entity callers.
+  if (!node && allowUnstoredNumber && !nodeId && type === "number" && /^\d+$/.test(clean(key))
+    && Number.isSafeInteger(Number(key))) node = { id: null, type: "number", label: String(Number(key)), identity_key: String(Number(key)) };
   if (!node) return null;
 
   const [definition, graphFindings, research, topicSources] = await Promise.all([
     fetchEntityTypeDefinition(node.type),
-    fetchCanonicalGraphEntityFindings(node.id, { relationLimit: safeLimit(relationLimit, 100, 200) }),
-    fetchResearchObjectsForEntity(node, { limit: researchLimit, locale }),
+    node.id ? fetchCanonicalGraphEntityFindings(node.id, { relationLimit: safeLimit(relationLimit, 100, 200) }) : Promise.resolve([]),
+    fetchResearchObjectsForEntity(node, { limit: researchLimit, locale, allowUnstoredNumber }),
     topicSourceSlug ? fetchTopicSourceContext({ topicSlug: topicSourceSlug })
       .catch(() => ({ items: [], access: { available: false, reason: "topic_sources_unavailable" } })) : Promise.resolve(null),
   ]);
@@ -1184,7 +1195,7 @@ export async function fetchEntityHubProjection({
         lookupWindow: numberLookupLimit === 500
           ? DEFAULT_NUMBER_RESEARCH_OPTIONS.lookupWindow
           : { limit: safeLimit(numberLookupLimit, 500, 500) },
-        provenance: { requestSource: "entity-hub-projection-v2", inputRef: `node:${node.id}` },
+        provenance: { requestSource: "entity-hub-projection-v2", inputRef: node.id ? `node:${node.id}` : `number:${number}` },
       }),
       getEntityBundle({ term: String(number), value: number, isNumber: true }),
       getValueFamilies(number, 12),
@@ -1224,7 +1235,7 @@ export async function fetchEntityHubProjection({
   return {
     v: 3,
     identity: {
-      nodeId: String(node.id),
+      nodeId: node.id == null ? null : String(node.id),
       type: node.type,
       key: node.identity_key || String(node.id),
       label: node.label,

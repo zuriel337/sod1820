@@ -1,8 +1,18 @@
 import { isRegularMethodIdentity } from "./methodIdentity.js";
+import { publicPageShareUrl } from "../publicPostUrls.js";
 
 export { isRegularMethodIdentity } from "./methodIdentity.js";
 
 const clean = (value) => value == null ? "" : String(value).trim();
+
+// A return address is the document actually being read, including its source,
+// repeated query values and fragment. Reuse the existing credential sanitizer.
+export function numberReadingReturnHref(location = {}) {
+  const safe = publicPageShareUrl(location);
+  if (!safe) return null;
+  const url = new URL(safe);
+  return url.pathname + url.search + url.hash;
+}
 const exactNonnegativeInteger = (value) => {
   if (typeof value !== "number" && typeof value !== "string") return null;
   if (typeof value === "string" && !/^\d+$/.test(value.trim())) return null;
@@ -89,13 +99,23 @@ export async function resolvePublicNumberAddress(value, { search = "", profileRe
   const address = clean(value);
   if (!address || address.length > 500) throw new Error("invalid-number-address");
   const focus = parseNumberExpressionFocus(search);
-  if (/^\d+$/.test(address)) {
-    const root = exactNonnegativeInteger(address);
-    if (root == null) throw new Error("invalid-number-address");
-    return { root, address, focus, publicAddress: true };
-  }
+  const numeric = resolveNumericNumberAddress(address, search);
+  if (numeric) return numeric;
   const resolved = await resolveExpressionFocus(address, { preferredMethod: focus.method, profileReader });
   if (!resolved) throw new Error("expression-method-unavailable");
   return { root: resolved.root, address, publicAddress: true,
-    focus: { ...focus, expression: address, method: resolved.method, explicit: true } };
+    focus: { ...focus, expression: address, method: resolved.method, explicit: true },
+    // This is the execution just performed by the canonical resolver, not a
+    // second calculation or a caller-supplied URL/history-state result.
+    methodProfile: { expression: address, rows: resolved.rows } };
+}
+
+// Numeric addresses need no engine/network round trip or temporary frame
+// replacement. Expression addresses still resolve through the canonical engine.
+export function resolveNumericNumberAddress(value, search = "") {
+  const address = clean(value);
+  if (!/^\d+$/.test(address)) return null;
+  const root = exactNonnegativeInteger(address);
+  if (root == null || address.length > 500) throw new Error("invalid-number-address");
+  return { root, address, focus: parseNumberExpressionFocus(search), publicAddress: true };
 }

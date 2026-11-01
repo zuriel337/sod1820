@@ -2724,3 +2724,4 @@
 .sod29-number-ai-analysis section small{font-size:9px;font-weight:800;color:var(--s29-accent-text)}
 .sod29-number-ai-analysis section p{color:var(--s29-ink);white-space:pre-wrap}
 .sod29-number-ai-analysis button:disabled{opacity:.55;cursor:default}
+.sod29-number-root-open{display:inline-flex;align-items:center;justify-content:center;min-width:44px;min-height:44px;padding:0;border:0;background:none;color:inherit;font:inherit;cursor:pointer}

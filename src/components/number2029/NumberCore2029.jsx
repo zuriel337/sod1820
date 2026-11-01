@@ -335,7 +335,7 @@ export default function NumberCore2029({
       <div className="sod29-number-v10-root sod29-number-core2029-root">
         <small>המספר</small>
         <div className="sod29-number-v10-root-line">
-          <b className="sod29-number-value">{root}</b>
+          {!compact && onOpenResult ? <button type="button" className="sod29-number-root-open" onClick={() => onOpenResult(root)} aria-label={`פתח דף מספר ${root}`}><b className="sod29-number-value">{root}</b></button> : <b className="sod29-number-value">{root}</b>}
           {curation?.anchor ? <CurationMark2029
             item={curation.anchor}
             related={curation?.cores || []}
@@ -500,12 +500,12 @@ export default function NumberCore2029({
             <button type="button" className="sod29-number-v10-focus-reset" data-experience-action="crossing-focus-reset" onClick={() => setFocusedCrossingPartner(null)}>חזור ל־{stageRoot}</button>
           </> : <>
             <span>{publicMethodLabel(active)} · התוצאה הפעילה</span>
-            <strong>{projection.expression || root} <em>→</em> {compact && onOpenResult ? <button
+            <strong>{projection.expression || root} <em>→</em> {onOpenResult ? <button
               type="button"
               className="sod29-number-v10-stage-result-open"
-              data-experience-action="number-result-preview"
+              data-experience-action={compact ? "number-result-preview" : "number-result-page"}
               onClick={() => onOpenResult(stageRoot)}
-              aria-label={`פתח תצוגת מספר ${stageRoot}`}
+              aria-label={compact ? `פתח תצוגת מספר ${stageRoot}` : `פתח דף מספר ${stageRoot}`}
             >{stageRoot}</button> : stageRoot}</strong>
             <small>{stageLoading ? "מחבר את המחקר של התוצאה…" : "החלל שמתחת שייך עכשיו לתוצאה הזאת בלבד"}</small>
           </>}
@@ -560,7 +560,7 @@ export default function NumberCore2029({
                   className={`sod29-number-v10-crossing-lead${crossingFocusActive ? " is-active" : ""}`}
                   data-experience-action="crossing-focus"
                   aria-pressed={crossingFocusActive}
-                  onClick={() => setFocusedCrossingPartner(stageCrossing.partner)}
+                  onClick={() => compact ? setFocusedCrossingPartner(stageCrossing.partner) : onExpressionSelect?.(stageCrossing.partner, stageCrossing.methods.find(method => method.methodKey === active?.methodKey)?.methodKey || stageCrossing.methods[0]?.methodKey)}
                 >
                   <span>ההצלבה המובילה</span>
                   <strong>{activeExpressionText || root} <b>=</b> {stageCrossing.partner}</strong>
@@ -578,7 +578,7 @@ export default function NumberCore2029({
                     key={`${item.partner}:${index}`}
                     data-experience-action="crossing-focus-secondary"
                     aria-pressed={String(item.partner) === String(focusedCrossingPartner || "")}
-                    onClick={() => setFocusedCrossingPartner(item.partner)}
+                    onClick={() => compact ? setFocusedCrossingPartner(item.partner) : onExpressionSelect?.(item.partner, item.methods.find(method => method.methodKey === active?.methodKey)?.methodKey || item.methods[0]?.methodKey)}
                   >
                     <strong>{item.partner}</strong>
                     <small>{item.methods.map((method) => publicMethodLabel(method)).join(" · ")}</small>
@@ -686,7 +686,7 @@ export default function NumberCore2029({
           onRazielAction={onRazielAction}
           onExpandRaziel={onExpandRaziel}
           onOpenHeichal={onOpenHeichal}
-          onMethodLensExpression={(item) => onExpressionSelect?.(item?.phrase)}
+          onMethodLensExpression={(item) => onExpressionSelect?.(item?.phrase, inspectorMethod?.methodKey)}
           onOpenMethodLesson={onOpenMethodLesson}
           onClose={() => setShowCalculation(false)}
         /> : null}

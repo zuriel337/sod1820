@@ -17,6 +17,9 @@ import SurfaceMapBar2029 from "../experience2029/SurfaceMapBar2029.jsx";
 import CanonicalMediaFigure2029 from "../experience2029/CanonicalMediaFigure2029.jsx";
 import CanonicalVerseCards2029 from "../experience2029/CanonicalVerseCards2029.jsx";
 import NumberZviPublicResearch2029 from "./NumberZviPublicResearch2029.jsx";
+import { fetchWorldPublicFindingsPage } from "../../lib/research/worldPublicFindingReader.js";
+import { publicNumberSourceCards } from "../../lib/research/numberSourceCards.js";
+import { bilingualDateLabel } from "../../lib/relativeTime2029.js";
 import "./numberLivingWorld2029.css";
 
 const clean = (value) => value == null ? "" : String(value).trim();
@@ -220,6 +223,7 @@ export default function NumberLivingWorld2029({
   onOpenHeichal,
   onRazielAction,
   onOpenNumber,
+  onOpenPublicSource,
   onFocusContext,
   onJourney,
   onPersonalJourney,
@@ -235,6 +239,39 @@ export default function NumberLivingWorld2029({
   const [timelineSteps, setTimelineSteps] = useState(0);
   const [showAllVerses, setShowAllVerses] = useState(false);
   const [currentSection, setCurrentSection] = useState("עיקר");
+  const sourceSectionRef = useRef(null);
+  const sourceRequest = useRef(0);
+  const [publicSources, setPublicSources] = useState({ root, status: "idle", rows: [], nextCursor: null, hasMore: false });
+  const sourceStatus = publicSources.root === root ? publicSources.status : "idle";
+  const readPublicSources = async (append = false) => {
+    const request = ++sourceRequest.current;
+    setPublicSources(current => ({ ...current, root, status: "loading" }));
+    try {
+      const page = await fetchWorldPublicFindingsPage({ value: root, pageSize: 25,
+        cursor: append && publicSources.root === root ? publicSources.nextCursor : null });
+      if (request !== sourceRequest.current) return;
+      setPublicSources(current => ({ root, status: "ready",
+        rows: append && current.root === root ? [...current.rows, ...page.rows] : page.rows,
+        nextCursor: page.nextCursor, hasMore: page.hasMore, partial: page.coverage.partial }));
+    } catch {
+      if (request === sourceRequest.current) setPublicSources(current => ({ ...current, root, status: "error" }));
+    }
+  };
+  useEffect(() => {
+    sourceRequest.current += 1;
+    setPublicSources({ root, status: "idle", rows: [], nextCursor: null, hasMore: false });
+    let started = false;
+    const read = () => { if (!started) { started = true; void readPublicSources(); } };
+    const observer = typeof IntersectionObserver === "undefined" ? null
+      : new IntersectionObserver(entries => { if (entries.some(entry => entry.isIntersecting)) { observer.disconnect(); read(); } }, { rootMargin: "250px" });
+    if (observer && sourceSectionRef.current) observer.observe(sourceSectionRef.current);
+    else read();
+    return () => { sourceRequest.current += 1; observer?.disconnect(); };
+  }, [root]); // The source reader is the existing anonymous public-admission owner.
+  // Scripture keeps its complete existing CanonicalVerseCards section above.
+  // This list is the anonymously re-admitted human/public source material.
+  const sourceCards = useMemo(() => publicNumberSourceCards(publicSources.root === root ? publicSources.rows : []),
+    [publicSources.root, publicSources.rows, root]);
 
   const worldCards = useMemo(() => buildWorldCards(worlds, topics), [worlds, topics]);
   const relatedNumbers = useMemo(
@@ -345,7 +382,7 @@ export default function NumberLivingWorld2029({
 
   const jump = (id) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
   const expressionsShown = showAllExpressions ? expressionRows.slice(0, expressionLimit) : expressionRows.slice(0, 5);
-  const sourcesShown = showAllSources ? sources.slice(0, sourceLimit) : sources.slice(0, 5);
+  const sourcesShown = showAllSources ? sourceCards.slice(0, sourceLimit) : sourceCards.slice(0, 5);
   const timelineRows = numberTimelineToRows(timeline.filter(publicDiscovery), (item) => {
     if (item?.relation) return canonicalGraphRelationTitle(item.relation, { anchorId: data?.identity?.nodeId });
     if (["image", "media"].includes(clean(item?.type))) return canonicalMediaPublicLabel(item?.label, { fallback: "תמונה" });
@@ -572,12 +609,12 @@ export default function NumberLivingWorld2029({
       {showAllExpressions ? <DepthButton onClick={() => setShowAllExpressions(false)}>צמצם ביטויים</DepthButton> : null}
     </section>
 
-    <section className="sod29-lw-section" id="number-content-live" data-experience-capability="number-sources-content">
+    <section ref={sourceSectionRef} className="sod29-lw-section" id="number-content-live" data-experience-capability="number-sources-content">
       <SectionHead
         kicker="מקורות ותוכן"
         title="מקורות ותוכן"
         text="המקור קודם לפרשנות. מדיה, ELS ו־3D נפתחים רק כשיש להם ערך מחקרי — לא כדי להכביד על הדף."
-        aside={<span className="sod29-lw-count">{sources.length + mediaItems.length}</span>}
+        aside={<span className="sod29-lw-count">{sourceCards.length + mediaItems.length || (sourceStatus === "ready" ? 0 : "…")}</span>}
       />
       {mediaItems.length ? <div className="sod29-lw-feature-media">
         {(() => {
@@ -611,10 +648,19 @@ export default function NumberLivingWorld2029({
         {mediaLimit < mediaItems.length ? <DepthButton onClick={() => setMediaLimit((n) => n + 8)}>{`הצג עוד מדיה · ${Math.min(mediaLimit, mediaItems.length)} מתוך ${mediaItems.length}`}</DepthButton> : null}
       </div> : null}
       <div className="sod29-lw-source-list">
-        {sourcesShown.map((row, index) => <button type="button" key={row?.id || row?.ref || index} onClick={() => onFocusContext?.({ id: row?.id || row?.ref || `source-${index}`, type: "source", label: sourceLabel(row), primary: sourceLabel(row), sectionLabel: "מקורות", sourceLabel: sourceDetail(row) || "מקור", sourceRef: row?.sourceRef || row?.ref || null, locator: "#number-content-live", href: row?.href || row?.url || null })}><strong>{sourceLabel(row)}</strong>{sourceDetail(row) ? <small>{sourceDetail(row)}</small> : null}<span>פתח הקשר מקור</span></button>)}
-        {!sources.length ? <div className="sod29-lw-empty">אין כרגע מקור אנושי מספיק ברור להצגה.</div> : null}
+        {sourcesShown.map(row => <article key={row.id} id={`number-source-${row.id}`} data-public-source-card="true">
+          <div><strong>{row.title}</strong>{row.detail ? <small>{row.detail}</small> : null}
+            {row.contributor || row.createdAt ? <small>{[row.contributor, row.createdAt ? bilingualDateLabel(row.createdAt) : null].filter(Boolean).join(" · ")}</small> : null}</div>
+          {row.href ? <a href={row.href} onClick={event => {
+            if (!onOpenPublicSource || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || !row.href.startsWith("/")) return;
+            event.preventDefault();onOpenPublicSource(row);
+          }}>פתח מקור</a> : <span className="sod29-lw-source-unlinked">ללא קישור ציבורי למקור</span>}
+        </article>)}
+        {sourceStatus === "idle" || sourceStatus === "loading" ? <p role="status">טוען פרטי מקורות ציבוריים…</p> : null}
+        {sourceStatus === "error" ? <p role="alert">לא הצלחנו לבדוק את המקורות הציבוריים. <button type="button" onClick={() => readPublicSources()}>ניסיון נוסף</button></p> : null}
+        {sourceStatus === "ready" && !sourceCards.length ? <div className="sod29-lw-empty">אין כרגע פרטי מקור ציבוריים מספיקים להצגה.</div> : null}
       </div>
-      <NumberZviPublicResearch2029 value={root} />
+      {sourceStatus !== "idle" ? <NumberZviPublicResearch2029 value={root} /> : null}
       <div className="sod29-lw-depth-gates">
         {onOpenHeichal ? <>
           <button type="button" onClick={() => onOpenHeichal({ kind: "els_saved_from_number", root })}><span>ELS / צפנים</span><strong>פתח ספריית צפנים שמורים</strong><small>פריטים מורשים בלבד</small></button>
@@ -622,8 +668,9 @@ export default function NumberLivingWorld2029({
           <button type="button" onClick={() => onOpenHeichal({ kind: "spatial_from_number", root })}><span>3D / מרחב</span><strong>פתח רק אם המבנה מוסיף הבנה</strong><small>נטען רק כשפותחים</small></button>
         </> : null}
       </div>
-      {sources.length > 5 && !showAllSources ? <DepthButton onClick={() => setShowAllSources(true)}>ראה מקורות נוספים</DepthButton> : null}
-      {showAllSources && sourceLimit < sources.length ? <DepthButton onClick={() => setSourceLimit((n) => n + 24)}>{`הצג עוד מקורות · ${sourcesShown.length} מתוך ${sources.length}`}</DepthButton> : null}
+      {sourceCards.length > 5 && !showAllSources ? <DepthButton onClick={() => setShowAllSources(true)}>ראה מקורות נוספים</DepthButton> : null}
+      {showAllSources && sourceLimit < sourceCards.length ? <DepthButton onClick={() => setSourceLimit((n) => n + 24)}>{`הצג עוד מקורות · ${sourcesShown.length} מתוך ${sourceCards.length}`}</DepthButton> : null}
+      {publicSources.root === root && publicSources.hasMore && sourceStatus !== "loading" ? <DepthButton onClick={() => { setShowAllSources(true); setSourceLimit(n => n + 25); void readPublicSources(true); }}>טען מקורות ציבוריים נוספים</DepthButton> : null}
       {showAllSources ? <DepthButton onClick={() => setShowAllSources(false)}>צמצם מקורות</DepthButton> : null}
     </section>
 
