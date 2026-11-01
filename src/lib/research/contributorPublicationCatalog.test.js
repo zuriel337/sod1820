@@ -15,12 +15,12 @@ function clientFixture({ count = 123, broken = null } = {}) {
   return { calls, client: {
     from(table) {
       calls.push({ table });
-      const b = { select: () => b, or: (filter) => { calls.push({ table, filter }); return b; }, order: () => b, in: () => b,
+      const b = { select: (columns) => { calls.push({table, columns}); return b; }, or: (filter) => { calls.push({ table, filter }); return b; }, order: () => b, in: () => b,
         eq: (key, value) => { calls.push({ table, key, value }); return b; },
         range: async () => table === broken ? { error: new Error("offline") } : { data: table === "contributors" ? [identity] : table === "posts" ? [{ id: 1, slug: "post", title: "Article", author: "Writer" }] : [] } };
       return b;
     },
-    rpc: async (name, args) => { calls.push({ name, ...args }); return { data: contributions.slice(args.p_offset, args.p_offset + args.p_limit) }; },
+    rpc: async (name, args, options) => { calls.push({ name, ...args, options }); return { data: contributions.slice(args.p_offset, args.p_offset + args.p_limit) }; },
   } };
 }
 
@@ -29,6 +29,8 @@ test("all 123 published source records are reachable across RPC pages without lo
   const catalogue = await fetchContributorPublicationCatalog(identity, { client });
   assert.equal(catalogue.contributions.rows.length, 123);
   assert.deepEqual(calls.filter(c => c.name).map(c => c.p_offset), [0, 100]);
+  assert.ok(calls.filter(c => c.name).every(c => c.name === 'writer_public_contributions_page_v1' && c.options?.get === true), 'all pages use the same public STABLE GET reader, never a write allowance');
+  assert.ok(calls.some(c => c.table === 'posts' && c.columns?.includes('source,wp_id,link')), 'the existing Post address policy receives provenance, never a guessed date or slug-only address');
   assert.ok(calls.every(c => c.table !== "research_objects" && c.table !== "world_contributor_research_v1"));
   const result = appendContributorPublicationCatalog(view(), catalogue, identity);
   assert.equal(result.items.filter(i => i.label === "תרומה").length, 123);

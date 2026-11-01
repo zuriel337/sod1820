@@ -36,8 +36,13 @@ for(const width of[390,1440])test('Number full-page methods, precise return and 
  const sourceList=page.locator('.sod29-lw-source-list');await sourceList.scrollIntoViewIfNeeded();
  await expect(sourceList.getByRole('status')).toHaveCount(0,{timeout:60000});
  await expect(sourceList.getByRole('alert')).toHaveCount(0);
- const cards=await sourceList.locator(':scope>article').evaluateAll(nodes=>nodes.map(e=>({text:e.querySelector('strong')?.textContent,href:e.querySelector('a')?.getAttribute('href')||null,buttonCount:e.querySelectorAll('button').length})));
+ const cards=await sourceList.locator(':scope>article').evaluateAll(nodes=>nodes.map(e=>({text:e.querySelector('strong')?.textContent,sourceRef:e.dataset.sourceRef,href:e.querySelector('a')?.getAttribute('href')||null,buttonCount:e.querySelectorAll('button').length})));
+ expect(new Set(cards.map(card=>card.sourceRef)).size).toBe(cards.length);
  for(const card of cards){expect(card.text).toBeTruthy();expect(card.text).not.toBe('הודעות מקור');expect(card.buttonCount).toBe(0);if(card.href)expect(card.href).toMatch(/^(?:\/(?!\/)|https?:\/\/)/);}
+ const grouped=sourceList.locator('.sod29-lw-source-findings').first();if(await grouped.count()){
+  await grouped.locator('summary').click();expect(await grouped.locator('a.zvi-research__excerpt').count()).toBeGreaterThan(1);
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1)).toBe(false);await grouped.locator('summary').click();
+ }
  if(width===390&&cards.some(card=>card.href?.startsWith('/'))){
   const href=cards.find(card=>card.href?.startsWith('/')).href;
   await sourceList.locator('a').first().click();await expect(page).toHaveURL(origin+href);

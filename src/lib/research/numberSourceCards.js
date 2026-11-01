@@ -15,15 +15,25 @@ export function publicNumberSourceHref(value){
  }catch{return null;}
 }
 export function publicNumberSourceCards(findings=[]){
- const seen=new Set();return findings.flatMap(row=>{
+ const seen=new Set(),bySource=new Map();for(const row of findings){
   const id=clean(row?.id),title=clean(row?.title),ref=clean(row?.sourceRef);
   if(!new RegExp(`^${UUID}$`,'i').test(id)||seen.has(id)||!sourceRef.test(ref)||!title
    ||!['approved','canonical'].includes(row.publicationState)||(row.privacy_scope&&row.privacy_scope!=='public')
    ||clean(row.findingHref)!==`/world?finding=${id}`
-   ||/^(?:הודעות? מקור|מקור מחקר|מקורות?)$/.test(title)&&!publicNumberSourceHref(row.sourceHref))return [];
+   ||/^(?:הודעות? מקור|מקור מחקר|מקורות?)$/.test(title)&&!publicNumberSourceHref(row.sourceHref))continue;
   seen.add(id);
-  return [{id,sourceRef:ref,title,detail:[row.kindLabel,row.roleLabel].map(clean).filter(Boolean).join(' · '),
+  const card={id,sourceRef:ref,title,detail:[row.kindLabel,row.roleLabel].map(clean).filter(Boolean).join(' · '),
    contributor:clean(row.contributor)||null,createdAt:row.createdAt||null,
-   href:publicNumberSourceHref(row.sourceHref),findingHref:publicNumberSourceHref(row.findingHref)}];
- });
+   href:publicNumberSourceHref(row.sourceHref),findingHref:publicNumberSourceHref(row.findingHref)};
+  // Group the presentation by an already-admitted canonical source identity.
+  // Every distinct finding and its exact public occurrence link remain intact.
+  const finding={id,title,findingHref:card.findingHref,sourceHref:card.href,
+   contributor:card.contributor,createdAt:card.createdAt,publicationState:row.publicationState,
+   kindLabel:clean(row.kindLabel),roleLabel:clean(row.roleLabel),
+   summaryTruncated:row.summaryTruncated===true,ocrNeedsReview:row.ocrNeedsReview===true};
+  const existing=bySource.get(ref);
+  if(existing){existing.findings.push(finding);if(!existing.href&&card.href)existing.href=card.href;}
+  else bySource.set(ref,{...card,findings:[finding]});
+ }
+ return [...bySource.values()];
 }

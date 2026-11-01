@@ -140,7 +140,7 @@ export default function WorldPeopleSources2029({ index, loading = false, error =
   // A focus changes only the map's visible window. The complete base DTO and
   // the existing catalog stay intact; no relation is manufactured.
   const focusedZviMap = useMemo(() => {
-    if (!zviMapFocus || selected?.slug !== "tzvi-opoc" || !publicContent) return null;
+    if (!zviMapFocus || !selected || !publicContent) return null;
     const sourceRow = (publicContent.sources || []).find((row) => row.sourceRef === zviMapFocus.sourceRef);
     if (!sourceRow) return { unavailable: true };
     let merged;
@@ -184,7 +184,7 @@ export default function WorldPeopleSources2029({ index, loading = false, error =
   }, [publicContent, selected?.slug, zviMapFocus]);
 
   const showZviSourceOnMap = ({ sourceRef, page }) => {
-    if (selected?.slug !== "tzvi-opoc" || !publicContent?.sources?.some((row) => row.sourceRef === sourceRef)) {
+    if (!selected || !publicContent?.sources?.some((row) => row.sourceRef === sourceRef)) {
       setZviMapError(true);
       return;
     }
@@ -310,7 +310,9 @@ export default function WorldPeopleSources2029({ index, loading = false, error =
           {publicContent.metrics.corpusSources} זהויות מקור נפרדות · {publicContent.metrics.occurrences} הופעות מדויקות.
           ממצא, נושא או אשכול אינם נספרים כמקור נוסף.
         </p> : !selectedMaterial.data.researchLoading ? <p className="sod29-muted">זהויות המקור אינן זמינות כרגע; לא מוצג מספר חלופי.</p> : null}
-        {!orderedItems.length ? <p role="status">אין חומר ציבורי במסנן הזה.</p> : null}
+        {!selectedMaterial.loading && !selectedMaterial.data.researchLoading
+          && !selectedMaterial.data.publicationsLoading && !selectedMaterial.data.partial && !orderedItems.length
+          ? <p role="status">אין חומר ציבורי במסנן הזה.</p> : null}
         <div className="sod29-world-public-material-grid">
           {shownItems.map((row) => <article key={row.sourceRef} data-source-ref={row.sourceRef}
             ref={focusedSourceRef === row.sourceRef ? focusedCard : null}
@@ -327,9 +329,10 @@ export default function WorldPeopleSources2029({ index, loading = false, error =
             {occurrenceBySourceRef.get(row.sourceRef)?.length > 1 ? <small>{occurrenceBySourceRef.get(row.sourceRef).length} הופעות מדויקות של אותה זהות מקור.</small> : null}
             {row.meta?.sourceRecordCount > 1 ? <small>{row.meta.sourceRecordCount} רשומות מקור נשמרו ללא כפילות מקור.</small> : null}
             <MaterialLink href={sourceByRef.get(row.sourceRef)?.sourceHref || row.href}>{(sourceByRef.get(row.sourceRef)?.sourceHref || row.href) ? `${CANONICAL_PUBLIC_UI_COPY.action.source} ←` : "אין קישור ציבורי מאומת"}</MaterialLink>
-            {selected.slug === "tzvi-opoc" && channelUpdateOccurrenceId(row.sourceRef) ? <WorldZviSourceFindings2029
+            <WorldZviSourceFindings2029
               sourceRef={row.sourceRef} returnTo={`${location.pathname}${location.search}${location.hash}`}
-              onShowMap={showZviSourceOnMap} /> : null}
+              scope={selected.slug === "tzvi-opoc" && channelUpdateOccurrenceId(row.sourceRef) ? "zvi" : "all"}
+              onShowMap={channelUpdateOccurrenceId(row.sourceRef) ? showZviSourceOnMap : undefined} />
             {(treeTargetsBySourceRef.get(row.sourceRef) || []).map((target) => <DocumentedTreeRelations key={target.findingRef} target={target} />)}
           </article>)}
         </div>
@@ -352,7 +355,7 @@ export default function WorldPeopleSources2029({ index, loading = false, error =
             key={focusedZviMap?.projection ? `${zviMapFocus.sourceRef}:${focusedZviMap.offset}` : "overview"}
             projection={focusedZviMap?.projection || publicContent}
             window={focusedZviMap?.projection ? { sources: 1, occurrencesPerSource: 2, findingsPerSource: 6 } : undefined}
-            humanReadable={selected.slug === "tzvi-opoc"}
+            humanReadable
             findingLabelsByRef={focusedZviMap?.labels || {}}
             relationTargets={selectedMaterial.data.treeFindingTargets || []}
             openRelations={WORLD_MAP_RELATION_OPENER}

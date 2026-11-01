@@ -140,6 +140,8 @@ export default function WorldPublicSourceSubjects2029({ peopleIndex = null }) {
   const selectedWriter = writerSlug ? peopleIndex?.bySlug?.[writerSlug] || null : null;
   const selectedWriterName = selectedWriter && peopleIndex.people.filter((person) =>
     person.displayName === selectedWriter.displayName).length === 1 ? selectedWriter.displayName : "";
+  const queryPending = query.trim().replace(/\s+/g, " ") !== settledQuery
+    || (settledQuery.length >= 2 && search.term !== settledQuery);
   const results = useMemo(() => {
     const textMatches = search.term === settledQuery ? search.posts : [];
     const posts = canonicalSourceSubjectCards({ hashmalPosts: textMatches }).map((card) => ({ ...card,
@@ -250,7 +252,9 @@ export default function WorldPublicSourceSubjects2029({ peopleIndex = null }) {
       <h4>נושאים ומקורות</h4>
       <p>תוצאה יכולה להיות נושא, קטע או מקור לקריאה. חיפוש באותו נושא אינו יוצר קשר מאומת מעצמו.</p>
       <div className="sod29-world-source-subject-list">{results.slice(0, visibleItems).map(card)}</div>
-      {!state.loading && !search.loading && !results.length ? <p>לא נמצאו פריטים בחומר שנטען.</p> : null}
+      {!state.loading && !state.error && !search.loading && !search.errors && !queryPending && !results.length
+        ? <p>לא נמצאו פריטים בחומר שנטען.</p> : null}
+      {queryPending && query.trim().length >= 2 ? <p role="status">מעדכן את החיפוש…</p> : null}
       {results.length > visibleItems ? <button type="button" className="sod29-world-source-subject-more"
         onClick={() => setVisibleItems((n) => n + CHUNK)}>עוד תוצאות ({results.length - visibleItems})</button> : null}
       {search.term === settledQuery && search.loading ? <p role="status">מחפש גם בתוך מקורות…</p> : null}

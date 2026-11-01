@@ -1,0 +1,15 @@
+{
+  "checkedAt": "2026-11-01",
+  "project": "linswmnnkjxvweumprav",
+  "source": "read-only pg_proc/pg_get_functiondef",
+  "purpose": "Same existing public STABLE reader via GET, no worker/DB/RLS permission change",
+  "functions": [
+    {
+      "proname": "writer_public_contributions_page_v1",
+      "provolatile": "s",
+      "prosecdef": true,
+      "args": "p_contributor_id uuid, p_limit integer DEFAULT 100, p_offset integer DEFAULT 0",
+      "definition": "CREATE OR REPLACE FUNCTION public.writer_public_contributions_page_v1(p_contributor_id uuid, p_limit integer DEFAULT 100, p_offset integer DEFAULT 0)\n RETURNS TABLE(id uuid, created_at timestamp with time zone, author_contributor_id uuid, author_name text, intent text, origin text, research_state text, status text, target_type text, target_id text, title text, body text, image_url text, media jsonb, projected_insight_id uuid, graph_node_id uuid, convergence_slug text)\n LANGUAGE sql\n STABLE SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\n WITH writer AS (\n  SELECT c.id,c.user_id,c.display_name,c.wa_names FROM public.contributors c\n  WHERE c.id=p_contributor_id AND c.active\n    AND NOT coalesce(c.locked,false) AND NOT coalesce(c.building,false)\n    AND coalesce(c.dossier_settings->>'visibility','public')='public'\n )\n SELECT r.id,r.created_at,r.author_contributor_id,r.author_name,r.intent,r.origin,\n   r.research_state,r.status,r.target_type,r.target_id,r.title,r.body,r.image_url,r.media,\n   r.projected_insight_id,r.graph_node_id,r.convergence_slug\n FROM public.research_contributions r JOIN writer c ON\n   r.author_contributor_id=c.id\n   OR (r.author_contributor_id IS NULL AND r.author_user_id=c.user_id)\n   OR (r.author_contributor_id IS NULL AND r.author_user_id IS NULL\n     AND (r.author_name=c.display_name OR r.author_name=ANY(c.wa_names))\n     AND NOT EXISTS (SELECT 1 FROM public.contributors other WHERE other.id<>c.id\n       AND (other.display_name=r.author_name OR r.author_name=ANY(other.wa_names))))\n WHERE r.status IN ('approved','published') AND r.parent_id IS NULL\n ORDER BY r.created_at DESC,r.id DESC\n LIMIT greatest(1,least(coalesce(p_limit,100),200))\n OFFSET greatest(0,coalesce(p_offset,0));\n$function$\n"
+    }
+  ]
+}

@@ -32,6 +32,16 @@ test('only admitted public DTOs produce informative cards; a missing source URL 
  for(const change of [{sourceRef:'wa_bot_log:private'},{title:''},{title:'הודעות מקור'},{findingHref:'/2029/me'}])assert.deepEqual(publicNumberSourceCards([{...source,...change}]),[]);
  const post=publicNumberSourceCards([{...source,sourceRef:'posts:123',sourceHref:'/?p=123&part=7#source'}])[0];assert.equal(post.href,'/?p=123&part=7#source');
 });
+test('same source has one card while distinct findings and exact occurrences remain readable',()=>{
+ const other='10000000-0000-4000-8000-000000000003';
+ const shared=[{...source,sourceHref:'/world?sourceRef=one#first'},
+  {...source,id:other,title:'A distinct finding',findingHref:'/world?finding='+other,sourceHref:'/world?sourceRef=one#second'}];
+ const cards=publicNumberSourceCards([...shared,shared[1]]);
+ assert.equal(cards.length,1);assert.equal(cards[0].sourceRef,source.sourceRef);
+ assert.deepEqual(cards[0].findings.map(row=>row.id),[id,other]);
+ assert.deepEqual(cards[0].findings.map(row=>row.sourceHref),['/world?sourceRef=one#first','/world?sourceRef=one#second']);
+ const separate=publicNumberSourceCards([shared[0],{...shared[1],sourceRef:'posts:123'}]);assert.equal(separate.length,2,'shared wording or number cannot merge different source identities');
+});
 test('source links reject active schemes, credentials, private routes and grants',()=>{
  for(const href of ['javascript:alert(1)','//evil.invalid/path','https://user:password@example.invalid/','/2029/me/messages','/auth/callback','/admin','/post/read?_vercel_share=secret','https://example.invalid/file?token=secret'])assert.equal(publicNumberSourceHref(href),null,href);
  assert.equal(publicNumberSourceHref('https://example.invalid/public-source#part'),'https://example.invalid/public-source#part');

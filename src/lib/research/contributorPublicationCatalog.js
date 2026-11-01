@@ -52,7 +52,7 @@ export async function fetchContributorPublicationCatalog(identity, { client, att
       const { names } = await attribution();
       if (!names.length) throw new Error("public_author_credit_unresolved");
       const result = await pages((offset, size) => client.from("posts")
-      .select("id,slug,title,date,modified,created_at,image_url,thumb_url,author,authors")
+      .select("id,slug,title,date,modified,created_at,image_url,thumb_url,author,authors,source,wp_id,link")
       .or(names.flatMap((name) => [`author.eq.${quoted(name)}`, `authors.cs.{${quoted(name)}}`]).join(","))
       .order("date", { ascending: false }).order("id", { ascending: false })
       .range(offset, offset + size - 1));
@@ -98,7 +98,7 @@ export async function fetchContributorPublicationCatalog(identity, { client, att
     },
     contributions: () => pages((offset, size) => client.rpc("writer_public_contributions_page_v1", {
       p_contributor_id: identity.id, p_limit: size, p_offset: offset,
-    })),
+    }, { get: true })), // Existing STABLE public reader; no Preview write exemption.
   };
   const entries = await Promise.all(Object.entries(requests).filter(([key]) => families.includes(key)).map(async ([key, read]) => {
     try { return [key, { ...await read(), availability: "ok" }]; }

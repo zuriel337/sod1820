@@ -19,6 +19,8 @@ import CanonicalVerseCards2029 from "../experience2029/CanonicalVerseCards2029.j
 import NumberZviPublicResearch2029 from "./NumberZviPublicResearch2029.jsx";
 import { fetchWorldPublicFindingsPage } from "../../lib/research/worldPublicFindingReader.js";
 import { publicNumberSourceCards } from "../../lib/research/numberSourceCards.js";
+import { numberReadingReturnHref } from "../../lib/research/numberExpressionFocus.js";
+import ZviFindingCards2029 from "../research/ZviFindingCards2029.jsx";
 import { bilingualDateLabel } from "../../lib/relativeTime2029.js";
 import "./numberLivingWorld2029.css";
 
@@ -648,13 +650,19 @@ export default function NumberLivingWorld2029({
         {mediaLimit < mediaItems.length ? <DepthButton onClick={() => setMediaLimit((n) => n + 8)}>{`הצג עוד מדיה · ${Math.min(mediaLimit, mediaItems.length)} מתוך ${mediaItems.length}`}</DepthButton> : null}
       </div> : null}
       <div className="sod29-lw-source-list">
-        {sourcesShown.map(row => <article key={row.id} id={`number-source-${row.id}`} data-public-source-card="true">
-          <div><strong>{row.title}</strong>{row.detail ? <small>{row.detail}</small> : null}
+        {sourcesShown.map(row => <article key={row.sourceRef} id={`number-source-${row.id}`} data-public-source-card="true" data-source-ref={row.sourceRef}>
+          <div><small>מקור אחד · {row.findings.length} ממצאים ציבוריים בחלון שנקרא</small>
+            <strong>{row.title}</strong>{row.detail ? <small>תקציר ממצא · {row.detail}</small> : null}
             {row.contributor || row.createdAt ? <small>{[row.contributor, row.createdAt ? bilingualDateLabel(row.createdAt) : null].filter(Boolean).join(" · ")}</small> : null}</div>
           {row.href ? <a href={row.href} onClick={event => {
             if (!onOpenPublicSource || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || !row.href.startsWith("/")) return;
             event.preventDefault();onOpenPublicSource(row);
           }}>פתח מקור</a> : <span className="sod29-lw-source-unlinked">ללא קישור ציבורי למקור</span>}
+          {row.findings.length > 1 ? <details className="sod29-lw-source-findings">
+            <summary>כל הממצאים באותו מקור ({row.findings.length})</summary>
+            <ZviFindingCards2029 rows={row.findings} singleColumn
+              returnTo={typeof window === "undefined" ? null : numberReadingReturnHref(window.location)} />
+          </details> : null}
         </article>)}
         {sourceStatus === "idle" || sourceStatus === "loading" ? <p role="status">טוען פרטי מקורות ציבוריים…</p> : null}
         {sourceStatus === "error" ? <p role="alert">לא הצלחנו לבדוק את המקורות הציבוריים. <button type="button" onClick={() => readPublicSources()}>ניסיון נוסף</button></p> : null}

@@ -1,4 +1,5 @@
 import { humanContentTitle } from "../presentation/contentTitle.js";
+import { publicPostHref } from "../publicPostUrls.js";
 import { fetchContributorFindingsProjection, CONTRIBUTOR_LOAD_PROFILE } from "./contributorFindingsProjection.js";
 import {
   fetchContributorPublicationCatalog,
@@ -252,7 +253,7 @@ export function buildWorldContributorPublicMaterial({ identity, findings, source
     id: `post:${row.id}`, sourceRef: `posts:${row.id}`, type: "writings", label: "כתב או פוסט",
     title: humanContentTitle(row.title, { max: 0 }), date: contributorPublicationRecordTime(row),
     dateKind: contributorPublicationRecordTimeKind(row),
-    href: row.slug ? `/${encodeURIComponent(row.slug)}` : null, mediaUrl: row.thumb_url || row.image_url,
+    href: publicPostHref(row), mediaUrl: row.thumb_url || row.image_url,
   }));
   for (const row of publications?.ciphers?.rows || []) {
     if (row.status !== "published" || row.visibility !== "public") continue;

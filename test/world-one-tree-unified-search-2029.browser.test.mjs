@@ -207,3 +207,40 @@ test("public source messages open in place and an exact shared anchor opens even
     assert.deepEqual(errors, []);
   } finally { await browser.close(); await server.close(); }
 });
+
+test("World reader failures and pending search never claim measured emptiness; explicit retry can recover", { skip: !available, timeout: 45000 }, async () => {
+  const server = await vite.createServer({ root, configFile: false, plugins: [fixturePlugin(), reactPlugin()],
+    server: { host: "127.0.0.1", port: 0 }, logLevel: "silent" });
+  await server.listen();
+  const origin = `http://127.0.0.1:${server.httpServer.address().port}`;
+  const browser = await playwright.chromium.launch({ executablePath, headless: true, args: ["--no-sandbox"] });
+  try {
+    const context = await browser.newContext({ viewport: { width: 390, height: 900 } });
+    await routeData(context, []);
+    let mode = "index-failure";
+    await context.route("**/*", async route => {
+      const url = new URL(route.request().url()), table = url.pathname.split('/rest/v1/')[1];
+      if (mode === "index-failure" && ['posts','topic_cards_public'].includes(table)
+        || mode === "search-failure" && (table === 'rpc/world_group_source_arrivals_v2' || table === 'posts' && url.searchParams.has('content'))) {
+        return route.fulfill({status:503,contentType:'application/json',body:JSON.stringify({message:'controlled public-reader outage'})});
+      }
+      return route.fallback();
+    });
+    const page = await context.newPage();
+    await page.goto(origin + '/world?view=sources');
+    await page.getByText('הנושאים והמקורות אינם זמינים כרגע.',{exact:false}).waitFor();
+    assert.equal(await page.getByText('לא נמצאו פריטים בחומר שנטען.',{exact:true}).count(),0);
+    mode = 'ok';
+    await page.getByRole('button',{name:'נסה שוב',exact:true}).click();
+    await page.getByText('שער צבי',{exact:true}).waitFor();
+    mode = 'search-failure';
+    await page.getByRole('searchbox').fill('נומשהולאבמקור');
+    assert.equal(await page.getByText('לא נמצאו פריטים בחומר שנטען.',{exact:true}).count(),0);
+    await page.getByText('חלק מהמקורות לא נטענו.',{exact:false}).waitFor();
+    assert.equal(await page.getByText('לא נמצאו פריטים בחומר שנטען.',{exact:true}).count(),0);
+    mode = 'ok';
+    await page.getByRole('button',{name:'נסה שוב',exact:true}).click();
+    await page.getByText('לא נמצאו פריטים בחומר שנטען.',{exact:true}).waitFor();
+    await context.close();
+  } finally { await browser.close(); await server.close(); }
+});

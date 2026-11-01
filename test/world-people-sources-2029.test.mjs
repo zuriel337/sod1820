@@ -30,6 +30,18 @@ const publicPerson = (index, extra = {}) => ({
   updated_at: `2026-09-${String((index % 27) + 1).padStart(2, "0")}T00:00:00Z`,
   ...extra,
 });
+test("World writer material keeps old Post addresses and uses the shared native Post policy", () => {
+  const result = buildWorldContributorPublicMaterial({
+    identity: {id:'writer',slug:'writer',display_name:'Writer'},
+    findings: {mode:'public_view',availability:{research:'deferred'}},
+    publications: {posts: {rows: [
+      {id:1,slug:'old',title:'Old',source:'wordpress',wp_id:100,link:'https://sod1820.co.il/old/'},
+      {id:2,slug:'new',title:'New',source:'sod1820',wp_id:40000,link:'https://sod1820.co.il/new'},
+    ],complete:true,availability:'ok'}},
+  });
+  assert.equal(result.items.find(row=>row.sourceRef==='posts:1').href,'/old/');
+  assert.equal(result.items.find(row=>row.sourceRef==='posts:2').href,'/post/new');
+});
 test("public people index follows the writer-page contract and includes non-trusted people", () => {
   const rows = Array.from({ length: 27 }, (_, index) => publicPerson(index));
   rows.push(publicPerson(30, { slug: "private", public_visibility: "private" }));
