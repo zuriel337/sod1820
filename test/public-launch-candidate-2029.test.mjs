@@ -6,8 +6,19 @@ import {spawnSync} from 'node:child_process';
 import {COMMUNITY_UPLOAD_POLICY} from '../src/lib/community/communityUploadPolicy.js';
 import {AVATAR_UPLOAD_POLICY} from '../src/lib/userCenter/avatarPolicy.js';
 import {previewRazielHandler} from '../preview-deploy/api/preview-raziel.js';
+import {productionApp2029Source} from '../scripts/helpers/public-preview-route-scope.mjs';
 const branch='gpt/2029-public-launch-candidate-20261101';
 const builder=readFileSync(new URL('../scripts/build-integrated-preview.mjs',import.meta.url),'utf8');
+test('route scope projection rejects lost Preview guards and does not remove unrelated native routes',()=>{
+ const app=readFileSync(new URL('../src/App2029.jsx',import.meta.url),'utf8');
+ const projection=productionApp2029Source(app);
+ assert.ok(projection.includes('path="/world"'));assert.ok(projection.includes('path="/post/:slug"'));
+ assert.ok(!projection.includes('path="/posts"'));assert.ok(!projection.includes('path="/:slug"'));
+ assert.throws(()=>productionApp2029Source(app.replace('{publicFoundationPreview && <>','{true && <>')));
+ assert.throws(()=>productionApp2029Source(app.replace('=== "true" && <Route path="/posts"','=== "false" && <Route path="/posts"')));
+ assert.ok(productionApp2029Source(app+'\n<Route path="/unexpected-public-route" />').includes('path="/unexpected-public-route"'));
+ assert.throws(()=>productionApp2029Source(app.replace('<Route path="/gallery"','<Route path="/unexpected-preview-route"')));
+});
 test('only compiled assets receive a private immutable browser cache; HTML, APIs and worker stay no-store',()=>{
  const config=JSON.parse(readFileSync(new URL('../preview-deploy/vercel.json',import.meta.url)));
  assert.equal(config.rewrites.some(r=>'headers' in r),false);

@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import handler from "../api/og.js";
+import { productionApp2029Source } from "./helpers/public-preview-route-scope.mjs";
 
 const root = process.cwd();
 const read = (p) => fs.readFileSync(path.join(root, p), "utf8");
@@ -22,14 +23,17 @@ function routePattern(route) {
 for (const [flag, route] of [['integratedPreviewEnabled', '/2029/preview'], ['kingdomPreviewEnabled', '/2029/kingdom']]) {
   assert.ok(app2029.includes(`{${flag} && <Route path="${route}"`), `${route} must remain flag-gated`);
 }
-const appRoutes = [...app2029.matchAll(/<Route\s+path="([^"]+)"/g)]
+const appRoutes = [...productionApp2029Source(app2029).matchAll(/<Route\s+path="([^"]+)"/g)]
   .map((match) => match[1])
   .filter((route) => route !== "*")
   .map(routePattern)
   .sort();
 
 const hostedPreviewRoutes = ["/2029/kingdom"];
-const clientOnlyPreviewRoutes = ["/2029/preview"];
+const clientOnlyPreviewRoutes = ["/2029/preview", "/auth/callback"];
+assert.match(app2029, /path="\/auth\/callback" element=\{<OAuthCallback2029/);
+const protectedPreview = JSON.parse(read("preview-deploy/vercel.json"));
+assert.ok(protectedPreview.rewrites.some(row => row.source === "/((?!api(?:/|$)).*)" && row.destination === "/api/public-document?path=/$1"), "Preview-only public routes require the protected canonical metadata/document adapter");
 assert.match(app2029, /kingdomPreviewEnabled && <Route path="\/2029\/kingdom"/);
 assert.match(app2029, /integratedPreviewEnabled && <Route path="\/2029\/preview"/);
 // During the Legacy Production lock these canonical URLs intentionally
