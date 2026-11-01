@@ -41,11 +41,14 @@ elif command -v docker >/dev/null && docker image inspect postgres:17-alpine >/d
   trap 'docker rm -f "'"$CONTAINER"'" >/dev/null 2>&1 || true; rm -rf "'"$TMP_DIR"'"' EXIT
   docker run --name "$CONTAINER" --network none -e POSTGRES_PASSWORD=synthetic-only -d postgres:17-alpine >/dev/null
   for _ in $(seq 1 60); do
-    if docker exec "$CONTAINER" pg_isready -U postgres >/dev/null 2>&1; then break; fi
+    if docker logs "$CONTAINER" 2>&1 | grep -q 'PostgreSQL init process complete; ready for start up.' \
+       && docker exec "$CONTAINER" pg_isready -h 127.0.0.1 -U postgres >/dev/null 2>&1; then
+      break
+    fi
     sleep 0.25
   done
-  docker exec "$CONTAINER" pg_isready -U postgres >/dev/null
-  if ! docker exec -i "$CONTAINER" psql -X -U postgres -d postgres -v ON_ERROR_STOP=1 < "$APPLIED"; then
+  docker exec "$CONTAINER" pg_isready -h 127.0.0.1 -U postgres >/dev/null
+  if ! docker exec -i "$CONTAINER" psql -h 127.0.0.1 -X -U postgres -d postgres -v ON_ERROR_STOP=1 < "$APPLIED"; then
     echo 'Membership credit SQL acceptance failed.' >&2
     exit 1
   fi

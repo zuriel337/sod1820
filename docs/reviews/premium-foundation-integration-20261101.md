@@ -1,6 +1,6 @@
 # 2029 Premium Foundation Integration — branch receipt
 
-Status: INTERNAL FOUNDATION READY FOR REVIEW · INACTIVE · NOT DEPLOYED
+Status: ISOLATED CANDIDATE ACCEPTED · LIVE INACTIVE · NOT DEPLOYED
 
 Task: `PREMIUM_FOUNDATION_INTEGRATION_2029`
 
@@ -82,8 +82,9 @@ recorded.
 
 ## Still missing before any paid customer pilot
 
-1. Apply the migration in a controlled candidate database and rerun security
-   and performance advisors; it is not applied to the live project.
+1. Reconcile the cumulative implementation branch with current `main` before
+   creating an application Preview; the current branch is not a safe release
+   base for a direct deploy.
 2. Connect exactly one operation family, beginning with Raziel fast, so the
    server reserves before provider I/O and settles or returns afterward.
 3. Add the member credit meter and a fixed-cost confirmation surface; neither
@@ -98,6 +99,45 @@ recorded.
 
 ## Release boundary
 
-No migration applied. No live DB/RLS/grant change. No plan or action activated.
-No Edge, Preview or Production deployment. No Cardcom action. No charge. No
-merge or push to `main`. Legacy remains unchanged.
+No live migration or live DB/RLS/grant change. No live plan or action
+activated. No Edge, application Preview or Production deployment. No Cardcom
+action. No charge. No merge or push to `main`. Legacy remains unchanged.
+
+## Isolated Supabase candidate acceptance — 2026-11-01
+
+Candidate project ref: `srwpltjirwbqzcvuesmx`<br>
+Candidate branch: `membership-credit-candidate-20261101`<br>
+Production project ref: `linswmnnkjxvweumprav`
+
+- Supabase created the candidate without Production data. Its automatic
+  migration replay stops after the historical `create_page_content`
+  migration, so the branch reports `MIGRATIONS_FAILED` even though its preview
+  project is `ACTIVE_HEALTHY`. The same historical replay issue is visible on
+  the older development branches.
+- Because the replay did not create the live `profiles`, `credit_ledger` and
+  `credit_grant` dependencies, the candidate received a minimal isolated
+  prerequisite matching their read-only inspected live signatures. This
+  scaffold is candidate-only and is not a new product migration.
+- The real membership migration applied successfully. Only `raziel_fast` was
+  activated in `preview` state. Both membership plans remain inactive and
+  unpublished; every other action price remains inactive.
+- Hosted SQL acceptance passed for reserve, settle, return, insufficient
+  balance and replay/idempotency. The two synthetic users and their ledger
+  rows were removed afterward.
+- All five engine tables have RLS enabled. `anon` cannot reserve;
+  `authenticated` can reserve but cannot return; `service_role` can return.
+- Advisor-driven hardening added covering indexes for the three engine foreign
+  keys and changed both owner policies to evaluate `(select auth.uid())` once.
+  The Docker fallback runner was also corrected to wait for PostgreSQL's final
+  startup rather than its temporary initialization server. The focused
+  disposable SQL acceptance and `git diff --check` passed after the changes.
+- Remaining candidate advisor notices are either inherited (`page_content`),
+  produced by the isolated prerequisite scaffold (`credit_ledger`), or
+  intentional locked/server RPC design notices. Relevant remediation
+  references:
+  [RLS init plan](https://supabase.com/docs/guides/database/database-linter?lint=0003_auth_rls_initplan),
+  [unindexed foreign keys](https://supabase.com/docs/guides/database/database-linter?lint=0001_unindexed_foreign_keys),
+  [RLS with no policy](https://supabase.com/docs/guides/database/database-linter?lint=0008_rls_enabled_no_policy), and
+  [authenticated security-definer RPC](https://supabase.com/docs/guides/database/database-linter?lint=0029_authenticated_security_definer_function_executable).
+- A final read-only query against Production confirmed that all five engine
+  tables are still absent there.

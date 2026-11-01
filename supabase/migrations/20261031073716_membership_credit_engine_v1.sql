@@ -60,6 +60,9 @@ create index membership_credit_cycles_owner_active_idx
   on public.membership_credit_cycles (user_id, expires_at, created_at)
   where status = 'active' and remaining_credits > 0;
 
+create index membership_credit_cycles_plan_code_idx
+  on public.membership_credit_cycles (plan_code);
+
 create table public.credit_reservations (
   id uuid primary key default extensions.gen_random_uuid(),
   user_id uuid not null references auth.users(id) on delete cascade,
@@ -82,6 +85,9 @@ create index credit_reservations_expiry_idx
   on public.credit_reservations (expires_at, created_at)
   where status = 'reserved';
 
+create index credit_reservations_action_key_idx
+  on public.credit_reservations (action_key);
+
 create table public.credit_reservation_allocations (
   reservation_id uuid not null references public.credit_reservations(id) on delete cascade,
   cycle_id uuid not null references public.membership_credit_cycles(id) on delete restrict,
@@ -89,6 +95,9 @@ create table public.credit_reservation_allocations (
   restored_amount integer not null default 0 check (restored_amount >= 0 and restored_amount <= amount),
   primary key (reservation_id, cycle_id)
 );
+
+create index credit_reservation_allocations_cycle_id_idx
+  on public.credit_reservation_allocations (cycle_id);
 
 alter table public.membership_plans enable row level security;
 alter table public.credit_action_prices enable row level security;
@@ -109,13 +118,13 @@ create policy membership_credit_cycles_owner_read_v1
   on public.membership_credit_cycles
   for select
   to authenticated
-  using (user_id = auth.uid());
+  using (user_id = (select auth.uid()));
 
 create policy credit_reservations_owner_read_v1
   on public.credit_reservations
   for select
   to authenticated
-  using (user_id = auth.uid());
+  using (user_id = (select auth.uid()));
 
 insert into public.membership_plans (
   plan_code, display_name, monthly_price_ils, annual_price_ils,
