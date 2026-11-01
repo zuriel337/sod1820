@@ -29,15 +29,18 @@ const writeSeen = (seen) => { try { storage("localStorage")?.setItem(SEEN_KEY, J
 
 
 function useHeroData(lead, includeWorld) {
-  const [state, setState] = useState({ row: null, cards: [], loaded: false });
+  const [state, setState] = useState(() => ({ row: lead?.sourcePost || null, cards: [], loaded: false }));
   useEffect(() => {
     if (!lead?.slug || !supabase) { setState({ row: null, cards: [], loaded: true }); return undefined; }
     let live = true;
     (async () => {
       let row = null; let cards = [];
       try {
-        const { data } = await supabase.from("posts").select("id,slug,date,modified,tags,categories,source,home_hidden").eq("slug", lead.slug).limit(1);
-        row = data?.[0] || null;
+        row = lead.sourcePost || null;
+        if (!row) {
+          const { data } = await supabase.from("posts").select("id,slug,date,modified,tags,categories,source,home_hidden").eq("slug", lead.slug).limit(1);
+          row = data?.[0] || null;
+        }
         const numbers = postNumbers(row?.tags);
         if (includeWorld && numbers.length) {
           const result = await supabase.from("topic_cards_public").select(TOPIC_FIELDS).overlaps("numbers", numbers)
@@ -50,7 +53,7 @@ function useHeroData(lead, includeWorld) {
       if (live) setState({ row, cards, loaded: true });
     })();
     return () => { live = false; };
-  }, [lead?.slug, includeWorld]);
+  }, [lead?.slug, lead?.sourcePost, includeWorld]);
   return state;
 }
 

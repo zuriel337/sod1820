@@ -4,7 +4,7 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import NavigationIcon2029 from "./NavigationIcon2029.jsx";
-import { getLatestPostCards, getTzofonStories, getHomeVideos, getPostsFromSupabase, supabase } from "../../lib/supabase.js";
+import { getLatestPostCards, getTzofonStories, getHomeVideos, getPostsFromSupabase } from "../../lib/supabase.js";
 import { stripHtml } from "../../lib/format.js";
 import { fetchExplorerFacetPage } from "../../lib/research/explorerFacets.js";
 import { levelNumbers } from "../../lib/ratings2029.js";
@@ -41,24 +41,16 @@ function useHomeCompositionData({ includeWorld = true } = {}) {
   useEffect(() => {
     let live = true;
     const update = (patch) => { if (live) setState((current) => ({ ...current, ...patch })); };
-    getLatestPostCards({ limit: 4 }).then(async (posts) => {
+    getLatestPostCards({ limit: 4, includeMetadata: true }).then((posts) => {
       if (!live) return;
       const cards = Array.isArray(posts) ? posts : [];
-      update({ loading: false, posts: cards });
-      // Enrichment must not hold back the latest post and its hero.
-      const slugs = cards.map((post) => post.slug).filter(Boolean);
-      let rowsBySlug = {};
-      try {
-        if (supabase && slugs.length) {
-          const { data: rows } = await supabase.from("posts").select("id,slug,date,modified,categories,source,link,wp_id,tags,home_hidden").in("slug", slugs);
-          rowsBySlug = Object.fromEntries((rows || []).map((row) => [row.slug, row]));
-        }
-      } catch (_) { /* the cards simply show no mark */ }
-      update({ posts: cards.map((post) => ({
+      // One admitted public read supplies the cards and their exact source
+      // metadata. The hero need not re-read the same leading post afterwards.
+      update({ loading: false, posts: cards.map((post) => ({
         ...post,
-        number: titleNumber(post.title, rowsBySlug[post.slug]?.tags),
-        update: realUpdate(rowsBySlug[post.slug]),
-        categories: rowsBySlug[post.slug]?.categories || post.categories || [],
+        number: titleNumber(post.title, post.sourcePost?.tags),
+        update: realUpdate(post.sourcePost),
+        categories: post.sourcePost?.categories || post.categories || [],
       })) });
     }).catch(() => update({ loading: false, posts: [] }));
     getTzofonStories({ limit: 6 }).then((ciphers) => update({ ciphers: ciphers || [] })).catch(() => {});
@@ -137,7 +129,7 @@ export default function HomeComposition2029({
     const href = link?.getAttribute("href");
     if (link && !link.hasAttribute("download") && (!link.target || link.target === "_self") && href?.startsWith("/") && !href.startsWith("//") && event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) onNavigate?.(href);
   }}>
-    {nowHero || (lead ? <HomeHeroMotion2029 lead={lead} href={postHref(lead)} includeWorld={!corePublic} /> : <section className={`h29-hero${data.loading ? " is-loading" : ""}`} aria-busy={data.loading}><div className="h29-hero-copy"><div className="h29-kicker">עכשיו</div><h1>{data.loading ? "טוען את מה שחי עכשיו…" : "SOD1820"}</h1>{!data.loading ? <p>העדכונים אינם זמינים כרגע. אפשר להמשיך לצפנים, למחשבון או לצ׳אט.</p> : null}</div></section>)}
+    {nowHero || (lead ? <HomeHeroMotion2029 key={lead.slug} lead={lead} href={postHref(lead)} includeWorld={!corePublic} /> : <section className={`h29-hero${data.loading ? " is-loading" : ""}`} aria-busy={data.loading}><div className="h29-hero-copy"><div className="h29-kicker">עכשיו</div><h1>{data.loading ? "טוען את מה שחי עכשיו…" : "SOD1820"}</h1>{!data.loading ? <p>העדכונים אינם זמינים כרגע. אפשר להמשיך לצפנים, למחשבון או לצ׳אט.</p> : null}</div></section>)}
 
     {corePublic ? <section className="h29-quiet" aria-label="מצב האתר" data-home-launch-notice="gradual-opening">
       <strong>המערכת בבנייה, והחלקים נפתחים בהדרגה.</strong>

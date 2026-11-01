@@ -7,6 +7,7 @@ import NotFoundPage from "./NotFoundPage.jsx";
 import { NewsletterSignup2029 } from "../components/StayUpdatedCTA.jsx";
 import { applySeo } from "../lib/seo.js";
 import "./auth2029.css";
+import { PUBLIC_LAUNCH_READ_ONLY_PREVIEW } from "../lib/publicLaunch2029.js";
 
 const LABELS = { privacy: "פרטיות", unsubscribe: "הסרה מהדיוור", updates: "עדכונים במייל", map: "מפת האתר", "number-search": "מספר או ביטוי", "not-found": "העמוד לא נמצא" };
 function NumberEntry() {
@@ -23,11 +24,12 @@ export default function PublicServices2029Page({ kind }) {
     applySeo({ title: LABELS[kind], path: kind === "number-search" ? "/number" : `/${kind}`, noindex: kind === "updates" });
   }, [kind]);
   return <Sod2029Shell surface="community" title={LABELS[kind]} introVariant="none">
+    {PUBLIC_LAUNCH_READ_ONLY_PREVIEW && ["updates", "unsubscribe"].includes(kind) ? <section className="sod29-section"><h1>{LABELS[kind]}</h1><p>פעולות הדיוור אינן פעילות בגרסה זו. קישורי ההסרה הקיימים באתר הוותיק נשארים ללא שינוי.</p><Link to="/privacy">פרטיות ויצירת קשר</Link></section> : <>
     {kind === "privacy" ? <PrivacyPage /> : kind === "unsubscribe" ? <UnsubscribePage /> : kind === "number-search" ? <NumberEntry />
       : kind === "not-found" ? <NotFoundPage /> : kind === "updates" ? <>
         <h1>עדכונים במייל</h1><NewsletterSignup2029 /><p>להסרה: השתמשו בקישור האישי שבתחתית המייל שקיבלתם. <Link to="/unsubscribe">עזרה בהסרה</Link> · <Link to="/privacy">פרטיות ויצירת קשר</Link></p>
       </> : <section className="sod29-section"><h1>מפת האתר</h1><nav aria-label="דפי האתר" className="sod29-actions">
         {[["/", "בית"], ["/world", "העולם"], ["/post", "פוסטים"], ["/number", "מספר או ביטוי"], ["/gallery", "גלריה"], ["/login", "כניסה לחשבון"], ["/updates", "עדכונים במייל"], ["/privacy", "פרטיות ומחיקת נתונים"], ["/unsubscribe", "הסרה מהדיוור"]].map(([href, label]) => <Link key={href} className="sod29-action" to={href}>{label}</Link>)}
-      </nav></section>}
+      </nav></section>}</>}
   </Sod2029Shell>;
 }

@@ -8,6 +8,7 @@ import { safePreviewOAuthReturnPath } from "../../lib/oauthReturn.js";
 import { writerPersonalHref } from "../../lib/userCenter/writerPersonal2029.js";
 import { use2029Palette } from "../../lib/palette.js";
 import "../../pages/auth2029.css";
+import { PUBLIC_LAUNCH_READ_ONLY_PREVIEW } from "../../lib/publicLaunch2029.js";
 
 // Canonical shared entry. Variants change presentation, never enabled providers.
 export default function AccountEntry2029({ returnHref = "/2029", inline = false, variant = "default" }) {
@@ -17,7 +18,7 @@ export default function AccountEntry2029({ returnHref = "/2029", inline = false,
   const target = safePreviewOAuthReturnPath(returnHref);
   const returnTo = target;
   const preview = import.meta.env.VITE_INTEGRATED_PREVIEW === "true";
-  const methods = useAuthMethods(!loading && !user);
+  const methods = useAuthMethods(!PUBLIC_LAUNCH_READ_ONLY_PREVIEW && !loading && !user);
   const fieldId = useId();
   const [step, setStep] = useState("email"), [email, setEmail] = useState("");
   const [password, setPassword] = useState(""), [code, setCode] = useState("");
@@ -67,6 +68,7 @@ export default function AccountEntry2029({ returnHref = "/2029", inline = false,
     } catch { if (mounted.current) setError("לא הצלחנו לצאת מהחשבון. נסו שוב."); }
     finally { if (mounted.current) setBusy(false); }
   }
+  if (PUBLIC_LAUNCH_READ_ONLY_PREVIEW) return <section className="sod29-auth-card sod29-account-entry" data-auth-state="acceptance-pending"><h2>החשבון ייפתח בהמשך</h2><p>כרגע אפשר לקרוא ולגלות את התוכן הציבורי. כניסה ופעולות אישיות עדיין אינן זמינות בגרסה זו.</p><Link to={target}>חזרה לגלישה ←</Link></section>;
   return <section className="sod29-auth-card sod29-account-entry" data-auth-state={loading ? "loading" : user ? "signed-in" : "guest"} style={{ "--auth29-danger": palette.dangerText }} aria-labelledby={`${fieldId}-title`}>
         {loading ? <p role="status">בודקים את החיבור לחשבון…</p> : user ? <>
           {!inline ? <span className="sod29-auth-eyebrow">החשבון מחובר</span> : null}

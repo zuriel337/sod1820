@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback, useRef } from "react";
 import { Navigate, useLocation, useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { use2029Palette } from "../lib/palette.js";
+import { PUBLIC_LAUNCH_READ_ONLY_PREVIEW } from "../lib/publicLaunch2029.js";
 import { applySeo } from "../lib/seo.js";
 import { WRITER_PERSONAL_MODULES, personalMessagesState, personalReturnHref, writerPersonalHref, writerSelfRequest } from "../lib/userCenter/writerPersonal2029.js";
 import { use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
@@ -33,7 +34,8 @@ function useSelf(userId) {
 export function WriterMe2029Redirect() {
   const { user, loading } = useAuth();
   const location = useLocation();
-  const { data } = useSelf(loading ? null : user?.id);
+  const { data } = useSelf(PUBLIC_LAUNCH_READ_ONLY_PREVIEW || loading ? null : user?.id);
+  if (PUBLIC_LAUNCH_READ_ONLY_PREVIEW) return <Navigate replace to={writerPersonalHref("public-page")} />;
   if (user && data.state === "ready" && data.writer?.state === "ready" && data.writer.publicVisible) {
     const input = new URLSearchParams(location.search), output = new URLSearchParams();
     for (const key of ["view", "section", "item", "format", "page", "sort"]) if (input.has(key)) output.set(key, input.get(key));
@@ -48,6 +50,7 @@ export default function WriterPersonal2029Page() {
   const { module } = useParams();
   const { user, loading } = useAuth();
   useEffect(() => { applySeo({ title: "האזור האישי", description: "הדף שלי והפעילות האישית שלי.", path: writerPersonalHref(module), noindex: true }); }, [module]);
+  if (PUBLIC_LAUNCH_READ_ONLY_PREVIEW) return <WriterPersonalLayout2029 title="האזור האישי ייפתח בהמשך" state="acceptance-pending"><p>בגרסה זו זמינה קריאה ציבורית. פעולות החשבון נשמרו ואינן פעילות כרגע.</p></WriterPersonalLayout2029>;
   return <WriterPersonalController2029 key={user?.id || "guest"} module={module} user={user} authLoading={loading} />;
 }
 

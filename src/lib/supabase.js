@@ -231,11 +231,11 @@ export async function getRealityVideos({ limit = 40 } = {}) {
 }
 
 // 🆕 2 הפוסטים האחרונים (לפי זמן-עדכון) — לרצועת-הגילוי לנוחתים מגוגל. מחזיר slug/כותרת/כרזה/עדכון.
-export async function getLatestPostCards({ limit = 2, excludeSlug = null } = {}) {
+export async function getLatestPostCards({ limit = 2, excludeSlug = null, includeMetadata = false } = {}) {
   if (!supabase) return [];
   try {
     const { data, error } = await supabase.from("posts")
-      .select("id, slug, title, image_url, thumb_url, date, modified, tags, source, link, wp_id")
+      .select("id, slug, title, image_url, thumb_url, date, modified, tags, source, link, wp_id" + (includeMetadata ? ", categories, home_hidden" : ""))
       .not("slug", "is", null)
       .order("modified", { ascending: false, nullsFirst: false })
       .limit(limit + 5);
@@ -243,7 +243,9 @@ export async function getLatestPostCards({ limit = 2, excludeSlug = null } = {})
     return data
       .filter(p => p.slug && p.slug !== excludeSlug && !(Array.isArray(p.tags) && p.tags.some(tag => ["טיוטה", "פורום"].includes(tag))))
       .slice(0, limit)
-      .map(p => ({ id: p.id, slug: p.slug, source: p.source, link: p.link, wp_id: p.wp_id, title: stripHtml(p.title || ""), poster: p.thumb_url || p.image_url || null, modified: p.modified || p.date || null }));
+      .map(p => ({ id: p.id, slug: p.slug, source: p.source, link: p.link, wp_id: p.wp_id, title: stripHtml(p.title || ""), poster: p.thumb_url || p.image_url || null, modified: p.modified || p.date || null,
+        ...(includeMetadata ? { sourcePost: { id: p.id, slug: p.slug, date: p.date, modified: p.modified, tags: p.tags, categories: p.categories, source: p.source, home_hidden: p.home_hidden } } : {}),
+      }));
   } catch { return []; }
 }
 

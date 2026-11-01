@@ -8,7 +8,7 @@ const allowed=new Set(require('../docs/reviews/public-foundation-20261101/eviden
 for(const name of['convergence_meter','is_number_indexable','is_phrase_indexable'])allowed.add(name);
 const out=process.env.SOD_PUBLIC_METRICS||'/tmp/public-world-number-acceptance-20261101/public-loading.json';
 const observationMs=Number(process.env.SOD_PERF_OBSERVATION_MS??600);
-const snapshots=new Map(),results=[];let api,localApi,browser;
+const snapshots=new Map(),results=[];let api,localApi,browser,matchedPostHref;
 // Home's seven-day pulse otherwise gets a new millisecond cutoff on every
 // mount. Pin that same public read window for both clients, without changing
 // the app clock, data, calculations or permissions.
@@ -56,7 +56,7 @@ async function run(version,profile,{warmup=false,pair=0}={}){
    }
    Object.assign(record,{status:entry.status,bytes:entry.body.length,modeledWireBytes:cachedAsset?0:wireBytes,ms:Date.now()-start});
    await route.fulfill({status:entry.status,headers:h,body:entry.body});
-  }catch(error){audit.errors.push({phase,path:url.pathname,type:error.name});await route.abort();}
+  }catch(error){audit.errors.push({phase,path:url.pathname,type:error.name,message:String(error.message).split('\n')[0].slice(0,180)});await route.abort();}
  });
  const page=await context.newPage(),cdp=await context.newCDPSession(page);await cdp.send('Emulation.setCPUThrottlingRate',{rate:warmup?1:profile.cpu});
  page.on('pageerror',error=>audit.errors.push({phase,type:error.name,message:error.message.slice(0,300)}));page.setDefaultTimeout(30000);
@@ -87,7 +87,7 @@ async function run(version,profile,{warmup=false,pair=0}={}){
   for(const repeat of['first','repeat']){
    const steps=[];
    steps.push(await step('home-entry',async()=>{if(repeat==='first')await page.goto(origin+address);else await page.goBack();await expect(page).toHaveURL(origin+address);await readyHome();}));
-   steps.push(await step('home-post',async()=>{const link=page.locator('.h29-card-open').first();postHref=await link.getAttribute('href');await link.click();await expect(page.locator('.sod29-reading-source')).toBeVisible({timeout:60000});}));
+   steps.push(await step('home-post',async()=>{const link=page.locator('.h29-card-open').first();postHref=await link.getAttribute('href');if(matchedPostHref)expect(postHref).toBe(matchedPostHref);else matchedPostHref=postHref;await link.click();await expect(page.locator('.sod29-reading-source')).toBeVisible({timeout:60000});}));
    steps.push(await step('post-world',async()=>{await menu('העולם');await readyWorld();}));
    steps.push(await step('world-number-full-page',async()=>{
     await page.locator('.sod29-command-island').getByRole('button',{name:/^מספר/}).click();const panel=page.getByRole('dialog',{name:'מספר / ביטוי',exact:true});const input=panel.locator('input').first();await input.fill(expression);await input.press('Enter');
@@ -102,7 +102,7 @@ async function run(version,profile,{warmup=false,pair=0}={}){
    steps.push(await step('back-post-home',async()=>{await page.goBack();await expect(page).toHaveURL(origin+address);await readyHome();}));
    if(!warmup){
     const row={version,profile:profile.name,pair,repeat,postHref,steps,totalMs:steps.reduce((sum,s)=>sum+s.ms,0)};results.push(row);
-    fs.writeFileSync(out,JSON.stringify({baselineSha:'7649e46c199ade990fd75ea8400f60f93522ef82',candidateSha:process.env.SOD_CANDIDATE_SHA||'UNSPECIFIED',source:'actual compiled public clients and identical immutable real public response snapshots; same explicit Number operand/method and actual same Home Post',profiles,observationWindowMs:observationMs,thresholdCLS:0.1,clsDefinition:'largest standard 1s-gap/5s session window per measured route/action; timestamps exclude entries queued before action, document navigation uses new time origin',definition:'11 primary-ready transitions, World requires a real featured Topic card, Number requires matching operand and enabled canonical method. First is a fresh browser context; repeat returns from World in the same SPA. Other pages first visited along that cycle, not independently cold direct HTML.',networkModel:'shared RTT/bandwidth delivery, Brotli-equivalent sizes, 4x mobile CPU; server bodies pinned after warmup; not field LCP/RUM or live backend latency',results},null,2)+'\n');
+    fs.writeFileSync(out,JSON.stringify({baselineSha:process.env.SOD_BASELINE_SHA||'7649e46c199ade990fd75ea8400f60f93522ef82',candidateSha:process.env.SOD_CANDIDATE_SHA||'UNSPECIFIED',source:'actual compiled public clients and identical immutable real public response snapshots; same explicit Number operand/method and actual same Home Post',profiles,observationWindowMs:observationMs,thresholdCLS:0.1,clsDefinition:'largest standard 1s-gap/5s session window per measured route/action; timestamps exclude entries queued before action, document navigation uses new time origin',definition:'11 primary-ready transitions, World requires a real featured Topic card, Number requires matching operand and enabled canonical method. First is a fresh browser context; repeat returns from World in the same SPA. Other pages first visited along that cycle, not independently cold direct HTML.',networkModel:'shared RTT/bandwidth delivery, Brotli-equivalent sizes, 4x mobile CPU; server bodies pinned after warmup; not field LCP/RUM or live backend latency',results},null,2)+'\n');
     console.log(JSON.stringify({version,profile:profile.name,pair,repeat,totalMs:row.totalMs,maxStepCLS:Math.max(...steps.map(s=>s.cls))}));
    }
    phase='unmeasured-world-preparation';await menu('העולם');await readyWorld();

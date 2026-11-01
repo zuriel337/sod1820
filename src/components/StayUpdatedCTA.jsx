@@ -9,6 +9,7 @@ import { signupAttribution } from "../lib/acquisition.js";
 import { submitNewsletterSignup } from "../lib/newsletterSignup.js";
 import { trackSubscribe, trackConversion } from "../lib/marketing.js";
 import { PUSH_CONFIGURED, pushSupported, enablePush } from "../lib/push.js";
+import { PUBLIC_LAUNCH_READ_ONLY_PREVIEW } from "../lib/publicLaunch2029.js";
 
 // Native presentation of the same newsletter owner. Consent is separate from
 // login and following. Tests substitute the transport; never send a test email.
@@ -20,6 +21,7 @@ export function NewsletterSignup2029() {
   useEffect(() => () => pending.current?.abort(), []);
   async function submit(event) {
     event.preventDefault();
+    if (PUBLIC_LAUNCH_READ_ONLY_PREVIEW) return;
     if (pending.current || !consent) return;
     const controller = new AbortController();
     pending.current = controller; setState("loading");
@@ -31,6 +33,7 @@ export function NewsletterSignup2029() {
     } catch { if (!controller.signal.aborted) setState("error"); }
     finally { if (pending.current === controller) pending.current = null; }
   }
+  if (PUBLIC_LAUNCH_READ_ONLY_PREVIEW) return <section className="sod29-section sod29-auth-card"><p>הרשמה לעדכונים תיפתח בהמשך. התוכן הציבורי זמין לקריאה.</p></section>;
   return <section className="sod29-section sod29-auth-card" aria-label="הרשמה לעדכוני דואר אלקטרוני">
     <h2>הרמז הבא, אצלכם במייל</h2>
     <p>עדכונים מהאתר לפי בחירתכם. ההרשמה אינה יוצרת חשבון ואינה מפרסמת דבר.</p>

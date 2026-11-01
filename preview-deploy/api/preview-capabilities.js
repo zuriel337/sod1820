@@ -13,7 +13,7 @@ async function verifyPlatform(token){
 export function previewCapabilitiesHandler({env=process.env,verifyToken=verifyPlatform}={}){
   return async(req,res)=>{
     res.setHeader('Cache-Control','private, no-store');res.setHeader('X-Robots-Tag','noindex, nofollow');
-    if(env.VERCEL_ENV!=='preview'||!['gpt/2029-functional-unified-preview-20261031','gpt/2029-public-foundation-continuity-20261101', 'gpt/2029-public-frame-context-20261101', 'gpt/2029-community1187-unified-20261101', 'gpt/2029-number-fullpage-performance-20261101', 'gpt/2029-world-one-tree-sources-20261101', 'gpt/2029-public-world-number-acceptance-20261101'].includes(env.VERCEL_GIT_COMMIT_REF))return res.status(404).json({state:'unavailable'});
+    if(env.VERCEL_ENV!=='preview'||!['gpt/2029-functional-unified-preview-20261031','gpt/2029-public-foundation-continuity-20261101', 'gpt/2029-public-frame-context-20261101', 'gpt/2029-community1187-unified-20261101', 'gpt/2029-number-fullpage-performance-20261101', 'gpt/2029-world-one-tree-sources-20261101', 'gpt/2029-public-world-number-acceptance-20261101', 'gpt/2029-public-launch-candidate-20261101'].includes(env.VERCEL_GIT_COMMIT_REF))return res.status(404).json({state:'unavailable'});
     if(req.method!=='GET')return res.status(405).json({state:'method_not_allowed'});
     const token=req.headers['x-vercel-oidc-token'];
     const available=typeof token==='string'&&token.length<16384&&token.split('.').length===3;

@@ -21,7 +21,7 @@ import { buildExactReturnPatch, researchContextNumber } from "../../lib/research
 import { useAuth } from "../../lib/AuthContext.jsx";
 import { razielSavedSyncCopy, canRetryRazielSync, RAZIEL_LOCAL_SAVE_NOTICE } from "../../lib/research/razielSavedSync2029.js";
 import { useFeatureState } from "../MaintenanceLock.jsx";
-import { CORE_PUBLIC_LAUNCH_2029 } from "../../lib/publicLaunch2029.js";
+import { CORE_PUBLIC_LAUNCH_2029, PUBLIC_LAUNCH_READ_ONLY_PREVIEW } from "../../lib/publicLaunch2029.js";
 import AccountEntry2029 from "../auth2029/AccountEntry2029.jsx";
 import { makeEntity } from "../../lib/research/entity.js";
 import { getNotificationPrefs } from "../../lib/supabase.js";
@@ -1094,7 +1094,12 @@ function AccountConnection2029() {
   </section>;
 }
 
-function WorkspaceProjection({ context, go, onRaziel, onOpenPrivateHints, journeyLocked, razielLocked, elsLocked, research, onInspect, onOpenNumber, pathResume, onSavePath, onResumePath }) {
+function WorkspaceProjection(props) {
+  if (PUBLIC_LAUNCH_READ_ONLY_PREVIEW) return <FrameState kind="empty" title="האזור האישי ייפתח בהמשך">בגרסה זו זמינה קריאה ציבורית. שמירה ופעולות חשבון אינן פעילות כרגע.</FrameState>;
+  return <WorkspaceProjectionOpen {...props} />;
+}
+
+function WorkspaceProjectionOpen({ context, go, onRaziel, onOpenPrivateHints, journeyLocked, razielLocked, elsLocked, research, onInspect, onOpenNumber, pathResume, onSavePath, onResumePath }) {
   const subject = normalizeTarget(context?.subject, "research-context");
   const savedContext = pathResume?.latest?.representation?.context || null;
   const savedSubject = normalizeTarget(savedContext?.subject, "saved-research-path");
