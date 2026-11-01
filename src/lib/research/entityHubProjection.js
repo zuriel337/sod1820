@@ -123,7 +123,7 @@ export async function fetchEntityTypeDefinition(type) {
   return data || null;
 }
 
-export async function resolveEntityHubNode({ nodeId = null, type = null, key = null } = {}) {
+export async function resolveEntityHubNode({ nodeId = null, type = null, key = null, parallelNumeric = false } = {}) {
   const exactNodeId = clean(nodeId);
   if (exactNodeId) {
     const { data, error } = await supabase
@@ -139,6 +139,16 @@ export async function resolveEntityHubNode({ nodeId = null, type = null, key = n
   const entityKey = clean(key);
   if (!entityType || !entityKey) return null;
 
+  // Full Number pages also admit unstored canonical numeric roots. Their
+  // identity and label fallbacks are independent bounded reads; keep exact
+  // identity precedence and the original fail-closed error behavior. Nothing
+  // is cached, widened, inferred or created, and other callers stay serial.
+  const labelRead = () => supabase.from("nodes").select(NODE_FIELDS)
+    .eq("type", entityType).eq("label", entityKey).limit(1);
+  const earlyLabel = parallelNumeric && entityType === "number" && /^\d+$/.test(entityKey)
+    && Number.isSafeInteger(Number(entityKey))
+    ? Promise.resolve(labelRead()).then(value => ({ value }), error => ({ error })) : null;
+
   const { data: identityHit, error: identityError } = await supabase
     .from("nodes")
     .select(NODE_FIELDS)
@@ -148,12 +158,9 @@ export async function resolveEntityHubNode({ nodeId = null, type = null, key = n
   if (identityError) throw identityError;
   if (identityHit?.[0]) return identityHit[0];
 
-  const { data: labelHit, error: labelError } = await supabase
-    .from("nodes")
-    .select(NODE_FIELDS)
-    .eq("type", entityType)
-    .eq("label", entityKey)
-    .limit(1);
+  const labelOutcome = earlyLabel ? await earlyLabel : { value: await labelRead() };
+  if (labelOutcome.error) throw labelOutcome.error;
+  const { data: labelHit, error: labelError } = labelOutcome.value;
   if (labelError) throw labelError;
   return labelHit?.[0] || null;
 }
@@ -1132,7 +1139,7 @@ export async function fetchEntityHubProjection({
   allowUnstoredNumber = false,
   parallelNumberReads = false,
 } = {}) {
-  let node = await resolveEntityHubNode({ nodeId, type, key });
+  let node = await resolveEntityHubNode({ nodeId, type, key, parallelNumeric: parallelNumberReads && allowUnstoredNumber });
   // A canonical numeric result does not require a persisted graph node to be
   // read. This explicit Number-page option never creates one, fabricates an id
   // or changes the default World/other entity callers.
