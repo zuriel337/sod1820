@@ -137,7 +137,7 @@ export default function HomeComposition2029({
     </section> : null}
 
     <Section title="עדכונים אחרונים" link={<Link to="/2029/posts">כל העדכונים ←</Link>}>
-      <div className="h29-updates">
+      <div className="h29-updates" aria-busy={data.loading}>
         {data.posts.map((post, index) => {
           const unseen = Boolean(post.update) && !seen[post.update.key];
           // One pulse at a time: the first card repeats the main item (which pulses itself), so only the first other unseen update pulses.
@@ -152,7 +152,7 @@ export default function HomeComposition2029({
             <Link className="h29-card-open" to={post.update?.targetHref || postHref(post)}>{post.update?.targetHref ? "לקטע שעודכן ←" : "לקריאה ←"}</Link>
           </article>;
         })}
-        {data.loading ? <div className="h29-skel" aria-hidden="true" /> : null}
+        {data.loading ? Array.from({ length: 4 }, (_, index) => <div key={index} className="h29-card h29-skel" aria-hidden="true" />) : null}
         {!data.loading && !data.posts.length ? <p className="h29-empty">אין כרגע פוסטים להצגה.</p> : null}
       </div>
     </Section>

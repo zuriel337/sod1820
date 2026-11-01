@@ -146,3 +146,17 @@
   .h29 .sod29-flight-feature { grid-template-columns: minmax(0, 1fr); padding: 14px; }
 }
 .h29-card-cats { padding: 2px 12px 4px; }
+
+/* Native cold-load measurements: the actual desktop hero is246.25px and each
+   card's text/actions occupy176.75px beyond its16:10 media. Use the same floors
+   for pending and ready content; preserve all cards, links and entry motion. */
+.h29-hero { min-height:250px; }
+.h29-updates .h29-card { min-height:calc((100cqw - 36px)/4/1.6 + 180px); }
+@container h29 (max-width:900px) {
+  .h29-updates .h29-card { min-height:calc((100cqw - 12px)/2/1.6 + 180px); }
+}
+@container h29 (max-width:620px) {
+  .h29-hero { min-height:560px; }
+  .h29-updates .h29-card { min-height:calc(100cqw*.74/1.6 + 180px); }
+}
+@container h29 (max-width:340px) { .h29-hero { min-height:610px; } }
