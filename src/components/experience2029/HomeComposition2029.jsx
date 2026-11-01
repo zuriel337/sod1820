@@ -37,7 +37,7 @@ function titleNumber(title, tags) {
 }
 
 function useHomeCompositionData({ includeWorld = true } = {}) {
-  const [state, setState] = useState({ loading: true, posts: [], ciphers: [], notable: [] });
+  const [state, setState] = useState({ loading: true, posts: [], ciphers: [], notable: [], notableLoading: includeWorld });
   useEffect(() => {
     let live = true;
     const update = (patch) => { if (live) setState((current) => ({ ...current, ...patch })); };
@@ -55,7 +55,8 @@ function useHomeCompositionData({ includeWorld = true } = {}) {
     }).catch(() => update({ loading: false, posts: [] }));
     getTzofonStories({ limit: 6 }).then((ciphers) => update({ ciphers: ciphers || [] })).catch(() => {});
     if (includeWorld) {
-      fetchExplorerFacetPage("topic", { limit: 4 }).then((result) => update({ notable: result?.cards || [] })).catch(() => {});
+      fetchExplorerFacetPage("topic", { limit: 4 }).then((result) => update({ notable: result?.cards || [], notableLoading: false }))
+        .catch(() => update({ notableLoading: false }));
     }
     return () => { live = false; };
   }, [includeWorld]);
@@ -114,7 +115,7 @@ export default function HomeComposition2029({
   const [videosRef, videosAdmitted] = useApproach2029(!corePublic && !primary.loading);
   const [identityRef, identityAdmitted] = useApproach2029(!corePublic && !primary.loading);
   const [worldRef, worldAdmitted] = useApproach2029(!corePublic && !primary.loading);
-  const [storyRef, storyAdmitted] = useApproach2029(!corePublic && !primary.loading, { rootMargin: "0px" });
+  const [storyRef, storyAdmitted] = useApproach2029(!corePublic && !primary.loading && !primary.notableLoading, { rootMargin: "0px" });
   const deferred = useHomeDeferredData({ includeWorld: !corePublic, videosAdmitted, identityAdmitted });
   const data = { ...primary, ...deferred };
   useEffect(() => { if (worldAdmitted) onWorldApproach?.(true); }, [worldAdmitted, onWorldApproach]);
