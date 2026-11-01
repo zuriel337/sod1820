@@ -12,14 +12,15 @@ const lBlock = edge.slice(edge.indexOf("// ── Raziel Intelligence Core v1 Ph
 const callSite = edge.slice(edge.indexOf("// Phase L — personal research continuity READ"), edge.indexOf("// Phase E — one operational db_rpc/tool span"));
 
 // Load the REAL Phase L block (types stripped by Node). razielOperatorRpc is stubbed: it receives (bearer, call) and returns the stub result.
-function load(rpcImpl, spans = []) {
+function load(rpcImpl, spans = [], fetchImpl = async () => new Response("[]", { status: 200, headers: { "content-type": "application/json" } })) {
   const code = stripTypeScriptTypes(
     `type OperationalTraceHandle = any; type RazielOperatorResult = any; type RazielOperatorCall = any;\n` +
+    `const SB_URL = "https://db.test"; const SB_ANON = "anon-key";\n` +
     `const num = (v) => (typeof v === "number" && Number.isFinite(v) ? v : null);\n` +
     `const coordText = (v, max) => typeof v === "string" ? v.replace(/https?:\\/\\/\\S+/gi, "").replace(/[A-Za-z0-9_\\-]{32,}/g, "").replace(/\\s+/g, " ").trim().slice(0, max) : "";\n` +
     `async function razielOperatorRpc(bearer, call) { return await rpc(bearer, call); }\n${lBlock}\n`) +
-    "\nreturn { razielPersonalDescriptor, razielPersonalSnapshot, razielPersonalPath, razielPersonalProject, runRazielPersonal };";
-  return new Function("rpc", "recordOperationalSpan", "crypto", code)(rpcImpl, async (_t, s) => { spans.push(s); }, { randomUUID: () => "uuid" });
+    "\nreturn { razielPersonalDescriptor, razielPersonalSnapshot, razielPersonalPath, razielPersonalOwnerGet, razielPersonalSignalsProject, razielPersonalProject, runRazielPersonal };";
+  return new Function("rpc", "recordOperationalSpan", "crypto", "fetch", code)(rpcImpl, async (_t, s) => { spans.push(s); }, { randomUUID: () => "uuid" }, fetchImpl);
 }
 const ok = (data) => ({ ok: true, data, outcome: "success", ms: 1, error: null });
 const UID = "11111111-2222-3333-4444-555555555555";
@@ -68,8 +69,9 @@ test("Phase L: real handler denies personal RPCs to anonymous/forged identity an
   }
 });
 
-test("Phase L: caller JWT + uid derived from the validated JWT only; no service role, no client uid, no raw table access, no writes", () => {
-  assert.doesNotMatch(lBlock, /SB_SVC|svcHeaders|service_role|body\??\.(user_id|uid|userId|user_ref)|\/rest\/v1\/(?!rpc)|insert|update public|delete|upsert|user_research|research_items|research_paths/i);
+test("Phase L: caller JWT + uid derived from the validated JWT only; exact owner-read allowlist, no service role/client uid/writes", () => {
+  assert.doesNotMatch(lBlock, /SB_SVC|svcHeaders|service_role|body\??\.(user_id|uid|userId|user_ref)|insert|update public|delete|upsert|user_research|research_items|research_paths|visitor_events/i);
+  assert.deepEqual([...new Set([...lBlock.matchAll(/source === "(notification_prefs|subscribe_events|user_activity)"/g)].map((x) => x[1]))].sort(), ["notification_prefs", "subscribe_events", "user_activity"]);
   assert.match(callSite, /runRazielPersonal\(rPersDesc, rUserBearer, rVerifiedRef, activeTrace\)/);
   assert.match(edge, /const rVerifiedRef = identity\.startsWith\("u:"\) \? identity\.slice\(2\) : null/);   // identity comes from validated /auth/v1/user
   assert.deepEqual([...new Set([...lBlock.matchAll(/rpc: "(\w+)"/g)].map((x) => x[1]))].sort(), ["fn_research_path_resume_v1", "research_state_snapshot_v1"]);
@@ -150,18 +152,19 @@ test("Phase L: personal_continue → bounded pack (synthesis input, no answer); 
   const m = load(async (_b, call) => (call.rpc === "research_state_snapshot_v1" ? ok(snapshot()) : { ok: false, data: null, outcome: "access_filtered", ms: 1, error: "http_403" }), []);
   const r = await m.runRazielPersonal({ capability: "personal_continue" }, "jwt", UID, null);
   assert.equal(r.ok, true); assert.equal(r.answer, undefined);
-  assert.ok(r.pack.length <= 2400); assert.match(r.pack, /PERSONAL_RESEARCH_STATE/); assert.doesNotMatch(r.pack, /PRIVATE/);
+  assert.ok(r.pack.length <= 5400); assert.match(r.pack, /PERSONAL_RESEARCH_STATE/); assert.match(r.pack, /מעקב מפורש/); assert.doesNotMatch(r.pack, /PRIVATE/);
   const m2 = load(async (_b, call) => (call.rpc === "research_state_snapshot_v1" ? { ok: false, data: null, outcome: "tool_error", ms: 1, error: "http_500" } : ok(path())), []);
   const f = await m2.runRazielPersonal({ capability: "personal_continue" }, "jwt", UID, null);
   assert.equal(f.ok, false); assert.equal(f.pack, undefined);
 });
 
-test("Phase L: one db_rpc span per owner call; span detail carries no uid / payload / items; read_only + redaction flags", async () => {
+test("Phase L: one span per owner call/read; span detail carries no uid / payload / items; read_only + redaction flags", async () => {
   const spans = [];
   const m = load(async (_b, call) => ok(call.rpc === "research_state_snapshot_v1" ? snapshot() : path()), spans);
   await m.runRazielPersonal({ capability: "personal_continue" }, "caller-jwt", UID, null);
-  assert.equal(spans.length, 2);
-  for (const s of spans) { assert.equal(s.kind, "db_rpc"); assert.equal(s.detail.privacy.rawPrivatePayloadLogged, false); assert.match(s.detail.replay.parametersRef, /caller_jwt:true;read_only:true/); }
+  assert.equal(spans.length, 5);
+  assert.deepEqual(spans.map((s) => s.kind), ["db_rpc", "db_rpc", "network", "network", "network"]);
+  for (const s of spans) { assert.equal(s.detail.privacy.rawPrivatePayloadLogged, false); assert.match(s.detail.replay.parametersRef, /caller_jwt:true;.*read_only:true/); }
   assert.doesNotMatch(JSON.stringify(spans), /PRIVATE|"T\d"|11111111|caller-jwt|p_expected_user_id/);
 });
 

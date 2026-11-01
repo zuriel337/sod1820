@@ -2322,7 +2322,7 @@ async function runRazielCoordination(desc: { capability: string; days: number | 
 }
 
 // ── Raziel Intelligence Core v1 Phase L — personal research continuity READ (authenticated user only) ───────────────
-// Reads ONLY the existing owner RPCs research_state_snapshot_v1 (auth.uid principal check) and fn_research_path_resume_v1 (owner-only latest path) with
+// Reads the existing owner RPCs plus, for personal_continue only, bounded owner rows from notification_prefs, subscribe_events and user_activity with
 // the CALLER JWT — never the service role, never a client-supplied user id: the uid passed is the one validated from that same JWT in resolveIdentity.
 // Anonymous/public → descriptor null → zero personal RPC calls. Projection is allowlisted + bounded here (counts + max 6 items per bucket; type/ref/id/title/
 // link only; no arbitrary metadata, provenance, representation or private payload). Basis PERSONAL_RESEARCH_STATE — the user's own saved state, not Fact/Canonical.
@@ -2330,6 +2330,9 @@ async function runRazielCoordination(desc: { capability: string; days: number | 
 const RAZIEL_PERSONAL_OWNER = "research_workspace_law v5 + research_strategy_layer_law v17";
 const RAZIEL_PERSONAL_CAPS = ["personal_saved", "personal_now", "personal_recent", "personal_pinned", "personal_structure", "personal_resume", "personal_continue"];
 const RAZIEL_PERSONAL_MAX_ITEMS = 6;
+const RAZIEL_PERSONAL_MAX_TOPICS = 20;
+const RAZIEL_PERSONAL_MAX_FOLLOW_EVENTS = 100;
+const RAZIEL_PERSONAL_MAX_ACTIVITY = 12;
 const RAZIEL_PERSONAL_TRUTH = "מקור: מצב-המחקר האישי שלך (PERSONAL_RESEARCH_STATE) — מה ששמרת/פתחת, לא עובדה ולא קנוני.";
 const RAZIEL_UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -2395,7 +2398,88 @@ const persPathText = (p: RazielPersonalPathT) => !p.found ? "לא נמצא מס�
   : `המסלול האחרון שלך${p.subject ? ` · נושא: ${p.subject}${p.subjectType ? ` (${p.subjectType})` : ""}${p.subjectLink ? ` ${p.subjectLink}` : ""}` : ""}${p.lens ? ` · עדשה: ${p.lens}` : ""}${p.journey ? ` · מסע: ${p.journey}${p.journeyKind ? ` (${p.journeyKind})` : ""}${p.journeyPosition ? ` @${p.journeyPosition}` : ""}` : ""} · ${p.total} צעדים (מוצגים ${p.steps.length} אחרונים)` +
     `${p.steps.length ? "\n" + p.steps.map(persLine).join("\n") : ""}`;
 
-function razielPersonalProject(capability: string, datas: any[]): Omit<RazielOperatorResult, "ok" | "outcome" | "capability" | "owner" | "rpc"> | null {
+type RazielPersonalOwnerSource = "notification_prefs" | "subscribe_events" | "user_activity";
+type RazielPersonalOwnerRead = { source: RazielPersonalOwnerSource; ok: boolean; data: any[]; outcome: string; ms: number; error: string | null };
+type RazielPersonalSignalState = "measured" | "measured_empty" | "missing" | "access_filtered" | "failed";
+type RazielPersonalSignals = {
+  follow: { state: RazielPersonalSignalState; observedAt: string | null; topics: { topic: string; source: string | null; selectedAt: string | null; provenanceState: RazielPersonalSignalState }[] };
+  activity: { state: RazielPersonalSignalState; coverage: "last_30_days"; items: { kind: "post"; ref: string; title: string; createdAt: string }[] };
+};
+
+const persIso = (v: unknown): string | null => {
+  if (typeof v !== "string" || v.length > 40) return null;
+  const ms = Date.parse(v);
+  return Number.isFinite(ms) ? new Date(ms).toISOString() : null;
+};
+
+// Exact per-source allowlist. The explicit user_id filter is defense in depth; owner RLS remains authoritative.
+async function razielPersonalOwnerGet(bearer: string, uid: string, source: RazielPersonalOwnerSource): Promise<RazielPersonalOwnerRead> {
+  const t0 = Date.now();
+  if (!SB_URL || !SB_ANON || !bearer || !RAZIEL_UUID_RE.test(uid)) return { source, ok: false, data: [], outcome: "failed", ms: 0, error: "no_caller_credentials" };
+  const q = new URLSearchParams();
+  q.set("user_id", `eq.${uid}`);
+  if (source === "notification_prefs") { q.set("select", "topics,updated_at"); q.set("limit", "1"); }
+  if (source === "subscribe_events") { q.set("select", "topic,source,action,created_at"); q.set("order", "created_at.desc"); q.set("limit", String(RAZIEL_PERSONAL_MAX_FOLLOW_EVENTS)); }
+  if (source === "user_activity") {
+    q.set("select", "kind,ref,title,created_at"); q.set("kind", "eq.post");
+    q.set("created_at", `gte.${new Date(Date.now() - 30 * 86400000).toISOString()}`); q.set("order", "created_at.desc"); q.set("limit", String(RAZIEL_PERSONAL_MAX_ACTIVITY));
+  }
+  try {
+    const r = await fetch(`${SB_URL}/rest/v1/${source}?${q.toString()}`, {
+      method: "GET", headers: { apikey: SB_ANON, Authorization: `Bearer ${bearer}` }, signal: AbortSignal.timeout(8000),
+    });
+    const ms = Date.now() - t0;
+    if (!r.ok) {
+      const identity = r.status === 401;
+      return { source, ok: false, data: [], outcome: identity ? "identity_filtered" : r.status === 403 ? "access_filtered" : "failed", ms, error: `http_${r.status}` };
+    }
+    const data = await r.json();
+    return Array.isArray(data) ? { source, ok: true, data, outcome: "success", ms, error: null }
+      : { source, ok: false, data: [], outcome: "failed", ms, error: "invalid_payload" };
+  } catch (e) {
+    const timedOut = (e as Error)?.name === "TimeoutError";
+    return { source, ok: false, data: [], outcome: "failed", ms: Date.now() - t0, error: timedOut ? "timeout" : "fetch_failed" };
+  }
+}
+
+const persReadState = (r: RazielPersonalOwnerRead): RazielPersonalSignalState => r.outcome === "access_filtered" ? "access_filtered" : "failed";
+function razielPersonalSignalsProject(reads: RazielPersonalOwnerRead[]): RazielPersonalSignals {
+  const by = (source: RazielPersonalOwnerSource) => reads.find((r) => r.source === source);
+  const prefs = by("notification_prefs"), events = by("subscribe_events"), activity = by("user_activity");
+  let follow: RazielPersonalSignals["follow"];
+  if (!prefs?.ok) follow = { state: prefs ? persReadState(prefs) : "missing", observedAt: null, topics: [] };
+  else if (!prefs.data.length) follow = { state: "missing", observedAt: null, topics: [] };
+  else {
+    const row = persObj(prefs.data[0]);
+    const topics = (Array.isArray(row.topics) ? row.topics : []).map((x) => persTxt(x, 80)).filter(Boolean).filter((x, i, a) => a.indexOf(x) === i).slice(0, RAZIEL_PERSONAL_MAX_TOPICS);
+    follow = { state: topics.length ? "measured" : "measured_empty", observedAt: persIso(row.updated_at), topics: topics.map((topic) => {
+      if (!events?.ok) return { topic, source: null, selectedAt: null, provenanceState: events ? persReadState(events) : "missing" };
+      const ev = events.data.find((x) => persTxt(x?.topic, 80) === topic && x?.action === "follow");
+      return ev ? { topic, source: persTxt(ev.source, 60) || null, selectedAt: persIso(ev.created_at), provenanceState: "measured" as const }
+        : { topic, source: null, selectedAt: null, provenanceState: "missing" as const };
+    }) };
+  }
+  let activityOut: RazielPersonalSignals["activity"];
+  if (!activity?.ok) activityOut = { state: activity ? persReadState(activity) : "missing", coverage: "last_30_days", items: [] };
+  else {
+    const items = activity.data.map((x) => ({ kind: "post" as const, ref: persTxt(x?.ref, 120), title: persTxt(x?.title, 120), createdAt: persIso(x?.created_at) || "" }))
+      .filter((x) => x.ref && x.createdAt).slice(0, RAZIEL_PERSONAL_MAX_ACTIVITY);
+    activityOut = { state: items.length ? "measured" : "measured_empty", coverage: "last_30_days", items };
+  }
+  return { follow, activity: activityOut };
+}
+
+function razielPersonalSignalsText(s: RazielPersonalSignals): string {
+  const followRows = s.follow.topics.map((x) => `• ${x.topic} · מקור בחירה: ${x.source || x.provenanceState} · זמן בחירה: ${x.selectedAt || x.provenanceState}`);
+  const activityRows = s.activity.items.map((x) => `• ${x.title || x.ref} · ${x.ref} · ${x.createdAt}`);
+  return (`\nמעקב מפורש (notification_prefs; מצב: ${s.follow.state}; זמן מצב: ${s.follow.observedAt || s.follow.state}):` +
+    `${followRows.length ? "\n" + followRows.join("\n") : " אין נושאים להצגה."}` +
+    `\nפעילות תוכן נצפית (user_activity; פוסטים בלבד; 30 ימים; מצב: ${s.activity.state}):` +
+    `${activityRows.length ? "\n" + activityRows.join("\n") : " אין פעילות להצגה."}` +
+    "\nהפרדה מחייבת: פעילות אינה מעקב מפורש, אינה העדפה או עניין, ואינה המלצה; היעדר פעילות אינו חוסר עניין. אין הרשמה אוטומטית.").slice(0, 3000);
+}
+
+function razielPersonalProject(capability: string, datas: any[], signals: RazielPersonalSignals | null = null): Omit<RazielOperatorResult, "ok" | "outcome" | "capability" | "owner" | "rpc"> | null {
   const basis = "PERSONAL_RESEARCH_STATE";
   if (capability === "personal_resume") {
     const p = razielPersonalPath(datas[0]);
@@ -2415,7 +2499,7 @@ function razielPersonalProject(capability: string, datas: any[]): Omit<RazielOpe
     const p = razielPersonalPath(datas[1]);   // a missing latest path is not fatal for the saved-state synthesis
     return { basis, pack: (`מצב-מחקר אישי (PERSONAL_RESEARCH_STATE; ספירות + עד ${RAZIEL_PERSONAL_MAX_ITEMS} פריטים לקטגוריה):\n` +
       ["saved:שמורים", "pinned:מוצמד", "history:היסטוריה", "collections:אוספים", "journeys:מסעות"].map((x) => { const [k, l] = x.split(":"); return persBucketText(l, snap[k]); }).join("\n") +
-      `\n${p ? persPathText(p) : "מסלול אחרון: לא התקבל."}\n${RAZIEL_PERSONAL_TRUTH}`).slice(0, 2400) };
+      `\n${p ? persPathText(p) : "מסלול אחרון: לא התקבל."}\n${RAZIEL_PERSONAL_TRUTH}` + (signals ? razielPersonalSignalsText(signals) : "")).slice(0, 5400) };
   }
   return null;
 }
@@ -2436,10 +2520,21 @@ async function runRazielPersonal(desc: { capability: string }, bearer: string, u
   }
   const required = results.slice(0, 1);
   const allOk = required.every((x) => x.ok);
-  const proj = allOk ? razielPersonalProject(cap, results.map((x) => (x.ok ? x.data : null))) : null;
-  const ok = allOk && !!proj;
+  const signalReads: RazielPersonalOwnerRead[] = [];
+  const signalSpans: { spanId: string; startedAt: string; endedAt: string }[] = [];
+  if (cap === "personal_continue" && allOk) {
+    for (const source of ["notification_prefs", "subscribe_events", "user_activity"] as RazielPersonalOwnerSource[]) {
+      const spanId = crypto.randomUUID(), startedAt = new Date().toISOString();
+      signalReads.push(await razielPersonalOwnerGet(bearer, uid, source));
+      signalSpans.push({ spanId, startedAt, endedAt: new Date().toISOString() });
+    }
+  }
+  const identityChanged = signalReads.some((x) => x.outcome === "identity_filtered");
+  const signals = cap === "personal_continue" && !identityChanged ? razielPersonalSignalsProject(signalReads) : null;
+  const proj = allOk && !identityChanged ? razielPersonalProject(cap, results.map((x) => (x.ok ? x.data : null)), signals) : null;
+  const ok = allOk && !identityChanged && !!proj;
   const failed = required.find((x) => !x.ok);
-  const outcome = failed ? failed.outcome : (!proj ? "failed_with_reason" : "success");
+  const outcome = failed ? failed.outcome : identityChanged ? "access_filtered" : (!proj ? "failed_with_reason" : "success");
   for (let i = 0; i < results.length; i++) {
     const r = results[i], call = calls[i];
     const spanOk = r.ok && ok;
@@ -2455,7 +2550,20 @@ async function runRazielPersonal(desc: { capability: string }, bearer: string, u
       },
     });
   }
-  return { ok, outcome, capability: cap, owner: RAZIEL_PERSONAL_OWNER, rpc: calls.map((c) => c.rpc).join("+"), ...(proj || {}) };
+  for (let i = 0; i < signalReads.length; i++) {
+    const r = signalReads[i], used = ok && r.outcome !== "identity_filtered";
+    await recordOperationalSpan(trace, {
+      spanId: signalSpans[i].spanId, kind: "network", name: `ai-analyze:raziel:personal:${r.source}`, startedAt: signalSpans[i].startedAt, endedAt: signalSpans[i].endedAt,
+      outcome: r.outcome === "identity_filtered" ? "access_filtered" : r.outcome === "failed" ? "tool_error" : r.outcome,
+      detail: {
+        capability: `raziel_personal:${cap}`, owner_ref: RAZIEL_PERSONAL_OWNER, routing_reason: "raziel_personal_follow_activity_read",
+        output_use: used ? "used" : "not_applicable", stop_reason: used ? null : (r.error || "identity_changed"), resources: { latency_ms: r.ms, api_calls: 1 },
+        replay: { ownerRuleRefs: [RAZIEL_PERSONAL_OWNER], parametersRef: `source:${r.source};caller_jwt:true;explicit_owner_filter:true;read_only:true` },
+        privacy: { redactionApplied: true, rawPrivatePayloadLogged: false },
+      },
+    });
+  }
+  return { ok, outcome, capability: cap, owner: RAZIEL_PERSONAL_OWNER, rpc: calls.map((c) => c.rpc).join("+") + (signalReads.length ? "+personal_owner_reads" : ""), ...(proj || {}) };
 }
 
 // ── Raziel Intelligence Core v1 Phase J — on-demand READ of the CURRENT Post / Topic (Publication/Representation, NOT Fact/Canonical) ──────

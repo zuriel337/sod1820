@@ -259,7 +259,7 @@ test("M personal: personal_continue ⇒ L2 synthesis input (pack, no determinist
   const log = []; const { m } = load(log);
   const r = await m.runRazielPersonal(m.razielPersonalDescriptor(pdet("personal_continue"), "user", UID), "caller-jwt", UID, null);
   assert.equal(r.ok, true); assert.equal(r.answer, undefined); assert.ok(r.pack.length <= 2400); assert.doesNotMatch(r.pack, /PRIVATE/);
-  assert.deepEqual(log.map((c) => c.rpc), ["research_state_snapshot_v1", "fn_research_path_resume_v1"]);
+  assert.deepEqual(log.map((c) => c.rpc || c.table), ["research_state_snapshot_v1", "fn_research_path_resume_v1", "notification_prefs", "subscribe_events", "user_activity"]);
   const s = selectRazielIntelligence({ plan: PLAN("personal_research_state", L2), requested: null });
   assert.equal(s.selected_level, L2); assert.equal(s.may_run_model, true);
 });
