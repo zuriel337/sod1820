@@ -265,6 +265,7 @@ html[data-theme-preset="parchment"] .sod29-community--artwork{--community-art-op
 .sod29-community--full{width:min(1280px,calc(100% - 64px));padding-top:28px}
 .sod29-community--full .sod29-community-intro{padding:12px 0 28px;border-bottom:1px solid var(--s29-line);margin-bottom:22px}
 .sod29-community--full .sod29-community-intro h1{font-size:clamp(34px,5vw,52px);letter-spacing:-.025em;line-height:1.15;margin:0 0 10px}
+.sod29-community--full .sod29-community-intro .sod29-community-registration-note{margin:10px 0 0;color:var(--s29-muted);font:400 14px/1.7 var(--s29-font-ui);letter-spacing:0}
 .sod29-community--full .sod29-community-conversation-count{margin:0;color:var(--s29-muted);font-family:var(--s29-font-ui);font-size:17px;line-height:1.5;font-variant-numeric:tabular-nums}
 .sod29-community-conversation-count bdi{font-weight:650;color:var(--s29-ink)}
 .sod29-community-entry-tools{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px 20px;margin-bottom:18px}
@@ -345,3 +346,37 @@ html[data-theme-preset="parchment"] .sod29-community--artwork{--community-art-op
 .sod29-community-thread-actions>.sod-share-actions.is-icon{display:inline-flex;margin-inline-start:auto}
 .sod29-community-thread-actions>.sod-share-actions.is-icon button{display:inline-flex;align-items:center;justify-content:center;width:44px;min-width:44px;height:44px;padding:10px;background:transparent;color:var(--s29-muted);border:0;border-radius:10px}
 .sod29-community-thread-actions>.sod-share-actions.is-icon button:hover{color:var(--s29-accent-text);background:var(--s29-panel-soft)}
+
+/* Signed-in Community: the same account, inbox and composer in a compact presentation. */
+.sod29-community-entry-tools:has(.sod29-community-account-row){margin-bottom:8px}
+.sod29-community-account-row{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;min-width:0;min-height:44px}
+.sod29-community-account-name{display:inline-flex;align-items:center;min-height:44px;max-width:calc(100% - 104px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--s29-ink);font:650 17px/1.5 var(--s29-font-ui);text-decoration:none}
+.sod29-community-account-name:hover{text-decoration:underline;text-underline-offset:4px}
+.sod29-community-account-actions{display:flex;align-items:center;gap:4px;flex-shrink:0}
+.sod29-community-account-icon{position:relative;display:inline-flex;align-items:center;justify-content:center;width:44px;min-width:44px;height:44px;padding:10px;border:0;border-radius:12px;background:transparent;color:var(--s29-muted);list-style:none;cursor:pointer;text-decoration:none}
+.sod29-community-account-icon:hover{background:var(--s29-panel-soft);color:var(--s29-ink)}
+.sod29-community-account-icon::-webkit-details-marker{display:none}
+.sod29-community-unread-badge{position:absolute;top:1px;inset-inline-end:0;min-width:19px;height:19px;display:grid;place-items:center;padding:0 5px;border-radius:20px;background:var(--s29-accent);color:var(--s29-on-accent);font:700 11px/1 var(--s29-font-ui);border:2px solid var(--s29-page);font-variant-numeric:tabular-nums}
+.sod29-community-account-menu{position:relative}
+.sod29-community-account-options{position:absolute;top:calc(100% + 6px);inset-inline-end:0;z-index:16;display:grid;min-width:230px;max-width:calc(100vw - 28px);padding:8px;border:1px solid var(--s29-line-strong);border-radius:14px;background:var(--s29-panel);box-shadow:0 10px 30px color-mix(in srgb,var(--s29-ink) 12%,transparent)}
+.sod29-community-account-menu:not([open])>.sod29-community-account-options{display:none}
+.sod29-community-account-options>a,.sod29-community-account-options>.sod29-community-claim-entry{display:flex;align-items:center;width:100%;min-height:44px;padding:8px 10px;margin:0;border:0;border-radius:8px;font:400 14px/1.6 var(--s29-font-ui)!important;background:transparent;color:var(--s29-ink);text-decoration:none;text-align:start}
+.sod29-community-account-options>a:hover,.sod29-community-account-options>.sod29-community-claim-entry:hover{background:var(--s29-panel-soft)}
+.sod29-community--full .sod29-community-composer[data-compact="true"]{padding:0;margin:0 0 24px;border:0;border-radius:0;box-shadow:none;background:transparent}
+.sod29-community-compose-row{display:flex;align-items:flex-start;gap:10px;min-width:0}
+.sod29-community-compose-avatar{display:flex;align-items:center;justify-content:center;flex-shrink:0;width:44px;height:48px;text-decoration:none}
+.sod29-community-compose-avatar .sod-user-avatar{width:42px;height:42px;border-radius:50%;font-size:16px}
+.sod29-community-compose-input{display:flex;align-items:flex-end;min-width:0;flex:1;border:1px solid var(--s29-line-strong);border-radius:14px;background:color-mix(in srgb,var(--s29-panel-soft) 94%,transparent);padding-inline-end:2px}
+.sod29-community-compose-input:focus-within{outline:2px solid var(--s29-focus-ring);outline-offset:2px}
+.sod29-community--full .sod29-community-composer[data-compact="true"] textarea,.sod29-community--full .sod29-community-composer[data-compact="true"] textarea:focus{display:block;min-width:0;flex:1;width:100%;min-height:48px;max-height:224px;padding:11px 12px;margin:0;border:0;border-radius:14px;background:transparent;box-shadow:none;outline:0;font-size:16px;line-height:24px;resize:none;overflow-y:auto}
+.sod29-community-compose-attach{display:flex;align-items:center;justify-content:center;flex:0 0 44px;width:44px;height:46px;min-height:44px;padding:10px;border:0;border-radius:12px;background:transparent;color:var(--s29-muted)}
+.sod29-community-compose-attach:hover{color:var(--s29-accent-text);background:var(--s29-panel)}
+.sod29-community--full .sod29-community-composer[data-compact="true"] .sod29-community-composer-bottom{padding-top:10px;margin-top:10px;border:0;gap:12px;flex-wrap:wrap}
+.sod29-community-attachment-list li>div{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;min-width:0}
+.sod29-community-attachment-list .sod29-community-draft-image{display:grid;gap:0;width:min(400px,100%);padding:0;overflow:hidden;border-radius:14px}
+.sod29-community-draft-image>img{display:block;width:100%;height:300px;object-fit:contain;background:var(--s29-panel)}
+.sod29-community-attachment-list .sod29-community-draft-image>div{padding:0 10px;font-size:12px}
+.sod29-community-composer[data-compact="true"]>.sod29-community-attachment-list,.sod29-community-composer[data-compact="true"]>.sod29-community-link-previews{margin-inline-start:54px;margin-top:12px}
+@media(max-width:400px){.sod29-community-compose-row{gap:8px}.sod29-community-draft-image>img{height:260px}.sod29-community-composer[data-compact="true"]>.sod29-community-attachment-list{margin-inline-start:0}}
+
+.sod29-community-replies>.sod29-community-more-replies+.sod29-community-replies-toggle{margin-inline-start:14px}

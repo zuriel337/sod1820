@@ -35,6 +35,20 @@ function ConversationCount() {
     <span id={detailId} popover="auto" className="sod29-community-count-detail">כולל הצ׳אט הישן</span>
   </span>;
 }
+
+function DraftAttachment({ item, disabled, onRemove }) {
+  const [preview, setPreview] = useState(null);
+  useEffect(() => {
+    if (!item.file?.type?.startsWith("image/")) return;
+    const url = URL.createObjectURL(item.file);
+    setPreview(url);
+    return () => URL.revokeObjectURL(url);
+  }, [item.file]);
+  return <li className={preview ? "sod29-community-draft-image" : ""}>
+    {preview ? <img src={preview} alt={`תצוגה מקדימה של ${item.name}`} /> : null}
+    <div><span>{item.name}</span><button type="button" disabled={disabled} onClick={onRemove} aria-label={`הסרת ${item.name}`}>×</button></div>
+  </li>;
+}
 const sourceLabels = { openweb: "הצ׳אט הישן", community_2029: "הקהילה", number: "מספר", els: "צופן", forum: "דיון", community: "קהילה" };
 const PublicContributor2029Page = lazy(() => import("../../pages/PublicContributor2029Page.jsx"));
 
@@ -106,7 +120,8 @@ function LiveThread({ row, onReply, accountProfiles, replyCounts, onRepliesLoade
   const focusIndex = focusPath.indexOf(row.id);
   const focusChildId = focusIndex >= 0 ? focusPath[focusIndex + 1] || null : null;
   const focused = focusPath.length > 0 && focusPath[focusPath.length - 1] === row.id;
-  const [expanded, setExpanded] = useState(Boolean(focusChildId));
+  const rootPreview = ancestors.length === 0 && !focusChildId;
+  const [expanded, setExpanded] = useState(Boolean(focusChildId) || rootPreview);
   const [replies, setReplies] = useState([]);
   const [replyTotal, setReplyTotal] = useState(null);
   const [nextReplyOffset, setNextReplyOffset] = useState(0);
@@ -114,9 +129,10 @@ function LiveThread({ row, onReply, accountProfiles, replyCounts, onRepliesLoade
   const [replyError, setReplyError] = useState("");
   const replyReadRef = useRef(false);
   const replyAnchorRef = useRef(null);
+  const groupRef = useRef(null), previewRequested = useRef(false);
   const knownCount = replyCounts[row.id];
   const count = replyTotal ?? knownCount;
-  const canExpand = expanded || count == null || count > 0 || replies.length > 0;
+  const canExpand = (count == null ? !rootPreview : count > 0) || replies.length > 0;
   const childrenId = `community-replies-${row.id}`;
 
   useEffect(() => {
@@ -138,12 +154,12 @@ function LiveThread({ row, onReply, accountProfiles, replyCounts, onRepliesLoade
     target?.scrollIntoView({ block: "center", behavior: "auto" });
   }, [focused]);
 
-  const loadReplies = async (offset = 0) => {
+  const loadReplies = async (offset = 0, limitHint = null) => {
     if (replyReadRef.current) return;
     replyReadRef.current = true;
     setLoadingReplies(true); setReplyError("");
     try {
-      const page = await fetchCommunityReplies(row.id, { offset, limit: offset ? undefined : Math.max(20, Math.min(100, nextReplyOffset)) });
+      const page = await fetchCommunityReplies(row.id, { offset, limit: limitHint ?? (offset ? undefined : Math.max(20, Math.min(100, nextReplyOffset))) });
       const lineage = new Set([...ancestors, row.id]);
       const visible = page.rows.filter((item) => !lineage.has(item.id));
       replyAnchorRef.current = captureCommunityScrollAnchor(document.getElementById("community-new-chat"));
@@ -156,23 +172,35 @@ function LiveThread({ row, onReply, accountProfiles, replyCounts, onRepliesLoade
     finally { replyReadRef.current = false; setLoadingReplies(false); }
   };
 
+  // Two direct replies are public reading context. Only visible roots request
+  // this preview; nested and remaining replies keep the existing explicit flow.
+  useEffect(() => {
+    if (!rootPreview || previewRequested.current || knownCount === 0) return;
+    const show = () => { if (previewRequested.current) return; previewRequested.current = true; loadReplies(0, 2); };
+    if (typeof IntersectionObserver === "undefined") { show(); return; }
+    const observer = new IntersectionObserver(entries => { if (entries.some(entry => entry.isIntersecting)) { observer.disconnect(); show(); } }, { rootMargin: "200px" });
+    if (groupRef.current) observer.observe(groupRef.current);
+    return () => observer.disconnect();
+  }, [rootPreview, row.id, knownCount]);
+
   const toggleReplies = () => {
     if (expanded) { setExpanded(false); return; }
     setExpanded(true);
     if (replyTotal === null) loadReplies();
   };
-  useEffect(() => { if (expanded && !focusChildId && !document.hidden) loadReplies(0); }, [refreshToken, focusChildId]);
+  useEffect(() => { if (expanded && !focusChildId && !document.hidden && (!rootPreview || previewRequested.current)) loadReplies(0, rootPreview ? Math.max(2, Math.min(100, nextReplyOffset)) : null); }, [refreshToken, focusChildId]);
   useLayoutEffect(() => { restoreCommunityScrollAnchor(replyAnchorRef.current); replyAnchorRef.current = null; }, [replies]);
 
-  return <div className="sod29-community-thread-group">
+  return <div ref={groupRef} className="sod29-community-thread-group">
     <LiveMessage row={row} onReply={onReply} accountProfiles={accountProfiles} focused={focused} messageActions={messageActions} sharePath={[...ancestors, row.id]} />
-    {canExpand ? <button type="button" className="sod29-community-replies-toggle" aria-expanded={expanded} aria-controls={childrenId} onClick={toggleReplies}>{expanded ? "הסתר תגובות" : "הצג תגובות"}{count != null ? ` (${count.toLocaleString("he-IL")})` : ""}</button> : null}
-    <div id={childrenId} className="sod29-community-replies" hidden={!expanded}>
+    {canExpand && (!rootPreview || !expanded) ? <button type="button" className="sod29-community-replies-toggle" aria-expanded={expanded} aria-controls={childrenId} onClick={toggleReplies}>{expanded ? "הסתר תגובות" : "הצג תגובות"}{count != null ? ` (${count.toLocaleString("he-IL")})` : ""}</button> : null}
+    <div id={childrenId} className="sod29-community-replies" hidden={!expanded || rootPreview && !replies.length && !replyError}>
       {replyError ? <p role="alert">{replyError} <button type="button" onClick={() => loadReplies(nextReplyOffset)}>ניסיון נוסף</button></p> : null}
       {loadingReplies && !replies.length ? <p role="status">טוען תגובות…</p> : null}
       {replies.map((reply) => <LiveThread key={reply.id} row={reply} onReply={onReply} accountProfiles={accountProfiles} replyCounts={replyCounts} onRepliesLoaded={onRepliesLoaded} refreshToken={refreshToken} ancestors={[...ancestors, row.id]} focusPath={focusPath} messageActions={messageActions} />)}
-      {!loadingReplies && !replyError && replyTotal === 0 ? <p>אין תגובות גלויות.</p> : null}
-      {replyTotal != null && nextReplyOffset < replyTotal ? <button type="button" className="sod29-community-more-replies" disabled={loadingReplies} onClick={() => loadReplies(nextReplyOffset)}>{loadingReplies ? "טוען…" : "עוד תגובות"}</button> : null}
+      {!rootPreview && !loadingReplies && !replyError && replyTotal === 0 ? <p>אין תגובות גלויות.</p> : null}
+      {replyTotal != null && nextReplyOffset < replyTotal ? <button type="button" className="sod29-community-more-replies" disabled={loadingReplies} onClick={() => loadReplies(nextReplyOffset)}>{loadingReplies ? "טוען…" : `עוד תגובות (${replyTotal - nextReplyOffset})`}</button> : null}
+      {rootPreview && replies.length ? <button type="button" className="sod29-community-replies-toggle" aria-expanded="true" aria-controls={childrenId} onClick={toggleReplies}>הסתר תגובות</button> : null}
     </div>
   </div>;
 }
@@ -233,12 +261,14 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
   const [replyTo, setReplyTo] = useState(null);
   const [sending, setSending] = useState(false);
   const [notice, setNotice] = useState("");
+  const [composerExpanded, setComposerExpanded] = useState(false);
   const [publishedFeedRefresh, setPublishedFeedRefresh] = useState(0);
   const composerPrincipal = user?.id || null;
   const activeComposerPrincipal = useRef(composerPrincipal);
   activeComposerPrincipal.current = composerPrincipal;
-  useEffect(() => {
+  useLayoutEffect(() => {
     setDraft(""); setAttachments([]); setReplyTo(null); setNotice(""); setAttachmentError(""); setSending(false);
+    setComposerExpanded(false);
   }, [composerPrincipal]);
   const [profileRows, setProfileRows] = useState([]);
   const [profileNextOffset, setProfileNextOffset] = useState(0);
@@ -258,6 +288,14 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
   const [focusedThreadState, setFocusedThreadState] = useState("idle");
   const requestedReplyCounts = useRef(new Set());
   const composerRef = useRef(null);
+  const compactComposer = Boolean(user);
+  const composerOpen = composerExpanded || draft.length > 0 || attachments.length > 0 || Boolean(replyTo);
+  const composerProfile = profile?.id === user?.id ? profile : null;
+  useLayoutEffect(() => {
+    if (!user || !composerRef.current) return;
+    composerRef.current.style.height = "auto";
+    composerRef.current.style.height = `${Math.max(48, Math.min(composerRef.current.scrollHeight, 224))}px`;
+  }, [draft, user?.id]);
   const attachmentRef = useRef(null);
   const cardCloseRef = useRef(null);
   const streamRequestRef = useRef(0);
@@ -449,6 +487,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
   };
   const startReply = (row) => { setReplyTo(row); requestAnimationFrame(() => composerRef.current?.focus()); };
   const pickAttachments = (event) => {
+    setComposerExpanded(true);
     setAttachmentError("");
     const selected = Array.from(event.target.files || []);
     if (attachmentRef.current) attachmentRef.current.value = "";
@@ -481,7 +520,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
         setReplyCounts((current) => { const next = { ...current }; delete next[replyTo.id]; return next; });
         setThreadRefresh((current) => current + 1);
       }
-      setDraft(""); setAttachments([]); setReplyTo(null); setNotice(user ? "ההודעה פורסמה." : "ההודעה נשלחה לבדיקה.");
+      setDraft(""); setAttachments([]); setReplyTo(null); setComposerExpanded(false); setNotice(user ? "ההודעה פורסמה." : "ההודעה נשלחה לבדיקה.");
       if (user && !replyTo && !threadFocus) {
         // Show an accepted new root in the newest public window. A retained
         // search (including a different YouTube share token) or old/liked window
@@ -498,24 +537,32 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
     {!memberId ? leadingContent : null}
     <main id="community-new-chat" className={`sod29-community sod29-community--artwork${!memberId && !claimId ? " sod29-community--full" : ""}`} data-community-mode="connected-preview" dir="rtl" style={{ "--community-input": palette.mode === "dark" ? `color-mix(in srgb, ${palette.cardRaised} 82%, ${palette.ink})` : palette.cardRaised }}>
       {claimId ? <LegacyAccountClaim key={claimId} contributorId={claimId} palette={palette} /> : null}
-      {!memberId && !claimId ? <header className="sod29-community-intro"><h1>שיחה {!threadFocus ? <ConversationCount /> : null}</h1></header> : null}
+      {!memberId && !claimId ? <header className="sod29-community-intro"><h1>שיחה {!threadFocus ? <ConversationCount /> : null}</h1><p className="sod29-community-registration-note">כבר הייתם חלק מהשיחה? הירשמו עם המייל שלכם, ונעזור לכם לחבר את הפרופיל מהצ׳אט הישן לחשבון החדש.</p></header> : null}
       {claimId ? null : memberId ? <Suspense fallback={null}>
         <PublicContributor2029Page communityAuthorKey={memberId}
           entryReturnHref={communityPersonReturnHref(window.location.pathname, params.toString(), window.location.hash)}
           communityOwnProfileHref={isOwner ? writerPersonalHref("profile", { returnTo: window.location.pathname + window.location.search }) : null}
           onCommunityReply={(item) => { closeProfile(); startReply(item); }} />
       </Suspense> : <div className="sod29-community-layout"><section className="sod29-community-main" aria-label="מרחב הקהילה">
-        <div className="sod29-community-entry-tools"><CommunitySignIn compact /><LegacyAccountClaimEntry rows={rows} onClaimed={messageActions.retry} /></div>
+        <div className="sod29-community-entry-tools"><CommunitySignIn compact accountActions={<LegacyAccountClaimEntry rows={rows} onClaimed={messageActions.retry} />} />{!user ? <LegacyAccountClaimEntry rows={rows} onClaimed={messageActions.retry} /> : null}</div>
         {messageActions.principalKey && messageActions.state === "unavailable" ? <p role="status">אפשרויות העריכה אינן זמינות כרגע. <button type="button" className="sod29-community-secondary" onClick={messageActions.retry}>ניסיון נוסף</button></p> : null}
-        <section className="sod29-community-composer" aria-label="כתיבת הודעה">
-          <label htmlFor="community-live-draft">מה תרצו לשתף?</label>
+        <section className="sod29-community-composer" data-compact={compactComposer} data-expanded={composerOpen} aria-label="כתיבת הודעה">
+          <label className={compactComposer ? "sod29-community-sr-only" : undefined} htmlFor="community-live-draft">מה תרצו לשתף?</label>
           {replyTo ? <div className="sod29-community-reply-target"><span>תשובה ל{replyTo.authorName}</span><button type="button" onClick={() => setReplyTo(null)}>ביטול תשובה</button></div> : null}
-          <textarea ref={composerRef} id="community-live-draft" rows={2} maxLength={1500} value={draft} onChange={(event) => setDraft(event.target.value)} placeholder="כתבו משהו לקהילה…" />
+          <div className={compactComposer ? "sod29-community-compose-row" : undefined}>
+            {compactComposer ? <Link className="sod29-community-compose-avatar" to={writerPersonalHref("profile", { returnTo: window.location.pathname + window.location.search })} aria-label="הפרופיל שלי"><UserBadge avatarOnly name={composerProfile?.display_name || composerProfile?.username || "החשבון שלי"} avatarUrl={composerProfile?.avatar_url} /></Link> : null}
+            <div className={compactComposer ? "sod29-community-compose-input" : undefined}>
+              <textarea ref={composerRef} id="community-live-draft" rows={compactComposer ? 1 : 2} maxLength={1500} value={draft} onFocus={() => { if (user) setComposerExpanded(true); }} onKeyDown={event => { if (event.key === "Escape" && !draft && !attachments.length && !replyTo) { setComposerExpanded(false); composerRef.current?.blur(); } }} onChange={(event) => setDraft(event.target.value)} placeholder={compactComposer ? "הוסף תגובה…" : "כתבו משהו לקהילה…"} />
+              {compactComposer ? <button type="button" className="sod29-community-compose-attach" aria-label="צירוף קובץ או סרטון" title="צירוף קובץ או סרטון · עד 3 קבצים, תמונה עד 8MB וסרטון עד 50MB" aria-describedby="community-attachment-limits" disabled={sending || attachments.length >= COMMUNITY_ATTACHMENT_MAX_FILES} onClick={() => attachmentRef.current?.click()}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m21 11-8.5 8.5a6 6 0 0 1-8.5-8.5L14 1a4 4 0 0 1 5.7 5.7L9.5 16.9a2 2 0 0 1-2.8-2.8L16 4.8" /></svg></button> : null}
+            </div>
+          </div>
           <CommunityMessageContent text={draft} previewsOnly />
-          <div className="sod29-community-attachment-toolbar"><button type="button" className="sod29-community-text-action" disabled={sending || !user || attachments.length >= COMMUNITY_ATTACHMENT_MAX_FILES} title={!user ? "יש להתחבר כדי לצרף קבצים" : undefined} onClick={() => attachmentRef.current?.click()}>📎 צירוף קובץ או סרטון</button><input ref={attachmentRef} type="file" multiple accept={COMMUNITY_ATTACHMENT_ACCEPT} onChange={pickAttachments} hidden /><small>עד 3 קבצים · סרטון עד 50MB, קובץ אחר עד 8MB · גלויים לציבור</small></div>
-          {attachments.length ? <ul className="sod29-community-attachment-list">{attachments.map((item, index) => <li key={`${item.file.name}-${index}`}><span>{item.name}</span><button type="button" disabled={sending} onClick={() => setAttachments((current) => current.filter((_, itemIndex) => itemIndex !== index))} aria-label={`הסרת ${item.name}`}>×</button></li>)}</ul> : null}
+          {compactComposer ? <span id="community-attachment-limits" className="sod29-community-sr-only">עד 3 קבצים · תמונה עד 8MB · סרטון עד 50MB · גלויים לציבור</span> : null}
+          <input ref={attachmentRef} type="file" multiple accept={COMMUNITY_ATTACHMENT_ACCEPT} onChange={pickAttachments} hidden />
+          {!compactComposer ? <div className="sod29-community-attachment-toolbar"><button type="button" className="sod29-community-text-action" disabled={sending || !user || attachments.length >= COMMUNITY_ATTACHMENT_MAX_FILES} title={!user ? "יש להתחבר כדי לצרף קבצים" : undefined} onClick={() => attachmentRef.current?.click()}>📎 צירוף קובץ או סרטון</button><small>עד 3 קבצים · סרטון עד 50MB, קובץ אחר עד 8MB · גלויים לציבור</small></div> : null}
+          {attachments.length ? <ul className="sod29-community-attachment-list">{attachments.map((item, index) => <DraftAttachment key={`${item.file.name}-${index}`} item={item} disabled={sending} onRemove={() => setAttachments((current) => current.filter((_, itemIndex) => itemIndex !== index))} />)}</ul> : null}
           {attachmentError ? <p className="sod29-community-status" role="alert">{attachmentError}</p> : null}
-          <div className="sod29-community-composer-bottom"><small>{draft.length}/1500</small><button type="button" className="sod29-community-primary" disabled={(!draft.trim() && !attachments.length) || sending || import.meta.env.VITE_INTEGRATED_PREVIEW === "true" && !user} title={import.meta.env.VITE_INTEGRATED_PREVIEW === "true" && !user ? "יש להתחבר כדי לפרסם" : undefined} onClick={submit}>{sending ? "שולח…" : "פרסום"}</button></div>
+          {!compactComposer || composerOpen ? <div className="sod29-community-composer-bottom"><small>{draft.length}/1500</small><button type="button" className="sod29-community-primary" disabled={(!draft.trim() && !attachments.length) || sending || import.meta.env.VITE_INTEGRATED_PREVIEW === "true" && !user} title={import.meta.env.VITE_INTEGRATED_PREVIEW === "true" && !user ? "יש להתחבר כדי לפרסם" : undefined} onClick={submit}>{sending ? "שולח…" : "פרסום"}</button></div> : null}
           {import.meta.env.VITE_INTEGRATED_PREVIEW === "true" && !user ? <p className="sod29-community-feed-controls-note">התחברו כדי לפרסם הודעות, לצרף קבצים ולסמן אהבתי.</p> : null}
           {notice ? <p className="sod29-community-status" role="status">{notice}</p> : null}
         </section>

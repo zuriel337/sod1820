@@ -34,6 +34,8 @@ def install(context):
   actor=json.loads(base64.urlsafe_b64decode(token[1]+'='*(-len(token[1])%4)))['sub'] if len(token)==3 and token[2]=='synthetic' else None
   if u.path=='/auth/v1/settings':reply({'external':{'google':True,'facebook':True,'email':True}});return
   if u.path=='/auth/v1/user':reply({'id':actor,'email':'fixture@example.invalid'},200 if actor else 401);return
+  if u.path=='/rest/v1/user_notifications' and req.method=='HEAD':
+   h.fulfill(status=200,headers={'content-range':'*/0'},body='');return
   if u.path.startswith('/storage/v1/object/public/gallery/community/'):
    h.fulfill(status=200,content_type='video/mp4',body=(OUT/'clip.mp4').read_bytes());return
   if u.path.startswith('/storage/v1/object/gallery/community/') and req.method=='POST':
