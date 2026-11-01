@@ -1,7 +1,7 @@
 import { publicPostHref } from "../lib/publicPostUrls.js";
 import NavigationIcon2029 from "../components/experience2029/NavigationIcon2029.jsx";
 import React, { useEffect, useMemo, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { relativeTimeLabel } from "../lib/relativeTime2029.js";
 import Sod2029Shell, { use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import CurationMark2029 from "../components/experience2029/CurationMark2029.jsx";
@@ -314,6 +314,7 @@ const HOME_COMPOSED = CORE_PUBLIC_LAUNCH_2029 || import.meta.env.DEV || import.m
 
 function HomeBody() {
   const navigate = useNavigate();
+  const location = useLocation();
   const research = useResearch();
   const shell = use2029Shell();
   const journeyFeature = useFeatureState("lock_life_journey", { requireFlag: true });
@@ -473,7 +474,9 @@ function HomeBody() {
       subject: { id: String(post.slug), type: "post", label: post.title, href: publicPostHref(post) },
       selection: null,
       lens: "home",
-      returnTo: { href: "/2029", label: "דף הבית", subject: null, selection: null, lens: "home", dimensions: {}, journey: context?.journey || null },
+      journey: context?.journey || null,
+      dimensions: { surfaceContextHref: location.pathname + location.search },
+      returnTo: { href: location.pathname + location.search + location.hash, label: "דף הבית", subject: context?.subject || null, selection: context?.selection || null, lens: context?.lens || "home", dimensions: context?.dimensions || {}, journey: context?.journey || null },
     });
   };
 

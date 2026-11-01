@@ -17,12 +17,15 @@ test('Topic navigation adds provenance without changing authored facts, scores o
  const connected=buildTopic2029Projection(finding,{sourceContext:context});
  assert.equal(connected.relatedPosts.length,base.relatedPosts.length+1);
  assert.deepEqual(connected.relatedConvergences.map(t=>t.slug).sort(),['1237','hodu']);
+ assert.deepEqual(connected.publicConnections.map(item=>item.href).sort(),[...context.links.topics,...context.links.posts].map(item=>item.href).sort());
+ assert.equal(base.publicConnections.length,0,'unadmitted authored references do not become public sidecar links');
  assert.equal(connected.authoredFactsCount,base.authoredFactsCount);
  assert.equal(connected.quality,base.quality);
  assert.deepEqual(connected.sections,base.sections);
  assert.equal(JSON.stringify(finding),original);
  for(const sourceContext of [{...context,topicSlug:'unrelated'},{...context,access:{scope:'private'}},{...context,access:{scope:'public',available:false}}]){
   assert.deepEqual(buildTopic2029Projection(finding,{sourceContext}).relatedConvergences,base.relatedConvergences);
+  assert.deepEqual(buildTopic2029Projection(finding,{sourceContext}).publicConnections,[]);
  }
 });
 test('Post source link survives the real experience normalizer and live-public resolver',async()=>{

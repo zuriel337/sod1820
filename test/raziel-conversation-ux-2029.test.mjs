@@ -76,16 +76,15 @@ test("ordinary answer copy says what Raziel found; depth copy may explain source
   assert.doesNotMatch(expanded, /מנוע|engine|evidence|provenance|Result Bundle/i);
 });
 
-test("desktop Companion has three local presentation states and changing them never reaches submit or transport", () => {
+test("temporarily hidden Companion preserves three local preferences; desktop and mobile use the single existing sheet", () => {
   const frame = read("src/components/experience2029/SystemFrame2029.jsx");
   const companion = read("src/components/experience2029/CompanionPanel2029.jsx");
-  const chooserStart = frame.indexOf("const chooseRazielCompanionView");
-  const chooserEnd = frame.indexOf("// The logo opens", chooserStart);
-  const chooser = frame.slice(chooserStart, chooserEnd);
+  const chooser = read("src/lib/research/razielCompanionPreference2029.js");
 
-  assert.match(frame, /useState\(readRazielCompanionView\)/);
-  assert.match(chooser, /writeRazielCompanionView\(view\)/);
-  assert.match(chooser, /setRazielCompanionView\(next\)/);
+  assert.doesNotMatch(frame, /<CompanionPanel2029|readRazielCompanionView|writeRazielCompanionView/);
+  assert.match(chooser, /Object\.freeze\(\["quiet", "hints", "open"\]\)/);
+  assert.match(chooser, /function writeRazielCompanionView/);
+  assert.match(chooser, /storage\?\.setItem\?/);
   assert.doesNotMatch(chooser, /submit|askRaziel|fetch|invoke|transport|model/i);
   assert.match(companion, /razielView !== "quiet"/);
   assert.match(companion, /data-raziel-companion-quiet="true"/);
@@ -95,8 +94,6 @@ test("desktop Companion has three local presentation states and changing them ne
   assert.match(companion, /onRazielView\?\.\("quiet"\)/);
   assert.doesNotMatch(companion, /useOptionalRazielSession2029|RazielSessionProvider|ResearchProvider|askRaziel|submit\(/);
 
-  assert.match(frame, /const companionActive = companionWide && surface !== "control"/,
-    "the desktop Companion remains media-gated");
-  assert.match(frame, /onClick=\{companionActive && surface !== "post" \? focusCompanionRaziel : openRaziel\}/,
-    "mobile continues through the existing Raziel sheet");
+  assert.equal((frame.match(/<RazielOrb compact active=\{!razielLocked && transientKind === TRANSIENT\.RAZIEL\} onClick=\{openRaziel\}/g) || []).length, 2,
+    "global and tool docks both use the same existing sheet and feature gate");
 });

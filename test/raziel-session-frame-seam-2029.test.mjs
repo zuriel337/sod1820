@@ -45,12 +45,13 @@ test("one provider: App2029 mounts it once below ResearchProvider and above the 
   assert.doesNotMatch(mount + seam, /useReducer|createContext|razielSessionReducer/);
 });
 
-test("one conversation: desktop Companion and mobile sheet consume the same session without changing central shell markup", () => {
-  assert.equal((frame.match(/<RazielNativeChat /g) || []).length, 2);
-  assert.match(frame, /<RazielNativeChat[^>]*projection="desktop"/);
+test("one conversation: hidden Companion leaves one sheet shared by desktop and mobile over the same session", () => {
+  assert.equal((frame.match(/<RazielNativeChat /g) || []).length, 1);
+  assert.doesNotMatch(frame, /<RazielNativeChat[^>]*projection="desktop"|<CompanionPanel2029/);
   assert.match(frame, /<RazielNativeChat[^>]*projection="mobile"/);
   assert.equal((frame.match(/<RazielNativeChat[^>]*onSignup=\{onSignup\}/g) || []).length, 1);
-  assert.equal((frame.match(/<RazielNativeChat[^>]*onSignup=\{openWorkspace\}/g) || []).length, 1);
+  assert.equal((frame.match(/<RazielNativeChat[^>]*onSignup=\{openWorkspace\}/g) || []).length, 0);
+  assert.match(mount, /if \(accessRef\.current\.loading \|\| accessRef\.current\.blocked\)/);
   assert.match(chat, /const session = useOptionalRazielSession2029\(\);/);
   assert.doesNotMatch(chat, /useState\(\[\]\)|setThread|await askRaziel\s*\(/);
   assert.equal((frame.match(/askRaziel\s*\(/g) || []).length, 0);

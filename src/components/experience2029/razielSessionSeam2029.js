@@ -7,6 +7,29 @@ export function withRazielSurfaceContext(request) {
   return request;
 }
 
+// Current-document presentation over the existing Research Context. Stored work,
+// pending Path steps and exact return remain untouched when ordinary navigation
+// leaves a previously selected object. Only an explicit continuation reuses it.
+export function surfaceContextForRoute2029(context, {surface, pathname = "/", search = "", intent = null} = {}) {
+  if (!context) return null;
+  const neutral = () => ({...context, subject: null, selection: null, lens: surface, dimensions: {}});
+  const explicit = intent === "continue" || (surface === "world" && new URLSearchParams(search).get("focus") === "context");
+  if (explicit && ["world", "els"].includes(surface)) return context;
+  if (surface === "world" || surface === "els") return neutral();
+  const bound = context.dimensions?.surfaceContextHref;
+  if (bound) return bound === pathname + search ? context : neutral();
+  // Older saved contexts have no document binding. Match their real document
+  // identity, including historical Post aliases and the existing Number alias.
+  const path = value => {
+    if (typeof value !== "string" || !value.startsWith("/") || value.startsWith("//")) return null;
+    try {return decodeURIComponent(value.split(/[?#]/)[0]).replace(/^\/2029\/number\//,"/number/").replace(/\/$/,"");} catch {return null;}
+  };
+  const current = path(pathname), previous = path(context.subject?.href);
+  if (!current || !previous || surface === "home") return neutral();
+  const postPath = value => value?.replace(/^\/post\//,"/");
+  return current === previous || (surface === "post" && postPath(current) === postPath(previous)) ? context : neutral();
+}
+
 // Hebrew nouns for entity types. A raw type key is never shown to a person.
 const TYPE_NOUN_HE = Object.freeze({
   post: "פוסט", number: "מספר", phrase: "ביטוי", word: "מילה", book: "ספר", source: "מקור", topic: "נושא",

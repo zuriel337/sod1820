@@ -14,14 +14,14 @@ export function mergePublicDocumentMetadata(document, metadata) {
   return clean.replace(/<\/head>/i, head + "</head>");
 }
 
-const BRANCH = "gpt/2029-public-foundation-continuity-20261101";
+const BRANCHES = ["gpt/2029-public-foundation-continuity-20261101", "gpt/2029-public-frame-context-20261101"];
 // Same metadata owner as Legacy, same static 2029 entry, genuine HTTP missing
 // and source-failure status. No separate renderer, post store or indexability rule.
 export function publicDocumentHandler({ env = process.env, readDocument = () => readFile(new URL("../dist/2029.html", import.meta.url), "utf8"), metadataHandler = ogHandler } = {}) {
   return async (req, res) => {
     res.setHeader("Cache-Control", "private, no-store");
     res.setHeader("X-Robots-Tag", "noindex, nofollow, noarchive");
-    if (env.VERCEL_ENV !== "preview" || env.VERCEL_GIT_COMMIT_REF !== BRANCH) return res.status(404).send("unavailable");
+    if (env.VERCEL_ENV !== "preview" || !BRANCHES.includes(env.VERCEL_GIT_COMMIT_REF)) return res.status(404).send("unavailable");
     if (!["GET", "HEAD"].includes(req.method)) return res.status(405).send("method not allowed");
     try {
       const path = String(req.query?.path || "/");

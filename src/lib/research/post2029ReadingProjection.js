@@ -400,7 +400,7 @@ export async function resolvePostExperienceConnections(experience, { readPost = 
       if (!slug) return unavailable();
       decodeURIComponent(slug); // Validate before invoking the existing reader.
       const post = await readPost(slug);
-      return post?.id && post?.slug
+      return isPublicPostReadingSource(post)
         ? { ...connection, href: publicPostHref(post) }
         : unavailable();
     } catch { return unavailable(); }

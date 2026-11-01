@@ -10,6 +10,7 @@ import { fetchPost2029ReadingProjection, resolvePostReadingRegion, collectPostCa
 import { useAuth } from "../lib/AuthContext.jsx";
 import { mergeContextPackWithConnections } from "../lib/research/goldenPostContextPacks.js";
 import { goldenPublicSurfaceFindings } from "../lib/research/goldenProjectorModes.js";
+import { publicSurfaceFindingsFromConnections } from "../lib/research/post2029ExperienceProjection.js";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { applySeo } from "../lib/seo.js";
 import { publicPostHref, exactPostReadingHref } from "../lib/publicPostUrls.js";
@@ -426,6 +427,8 @@ function PostReadingBody({ resolvedSlug = null }) {
       lens: preserveExplicitGematriaFocus ? "gematria" : "reading",
       dimensions: {
         ...currentDimensions,
+        surfaceContextHref: location.pathname + location.search,
+        readingFocusSurfaceHref: location.pathname + location.search,
         bottomTrail: preserveExplicitGematriaFocus && Array.isArray(protectedBottomTrail)
           ? protectedBottomTrail
           : passiveTrail,
@@ -436,7 +439,7 @@ function PostReadingBody({ resolvedSlug = null }) {
         })),
         activeSectionId: activeFocus.id,
         surfaceMapLabel: "בתוך הפוסט",
-        surfaceFindings: post.slug === "bennett-melach-631-78"
+        surfaceFindings: state.projection.draft || state.projection.privateStage || state.projection.previewSnapshot ? [] : post.slug === "bennett-melach-631-78"
           ? (state.projection.experience?.connections || [])
             .filter((connection) => connection.id !== "bennett-631")
             .map((connection) => ({
@@ -456,7 +459,8 @@ function PostReadingBody({ resolvedSlug = null }) {
               exclude: (row) => row.id === activeFocus.id
                 || (activeFocus.number != null && row.value != null && String(row.value) === String(activeFocus.number)),
             })
-            : [],
+            : publicSurfaceFindingsFromConnections(state.projection.experience?.connections),
+        surfaceFindingsState: "ready",
         surfaceFocus: preserveExplicitGematriaFocus && protectedSurfaceFocus?.type === "gematria_expression"
           ? protectedSurfaceFocus
           : passiveSurfaceFocus,
@@ -473,7 +477,7 @@ function PostReadingBody({ resolvedSlug = null }) {
         },
       },
     });
-  }, [activeRegionFocus?.id, state.projection?.post?.id, Boolean(state.projection?.contextPack)]);
+  }, [activeRegionFocus?.id, state.projection?.post?.id, Boolean(state.projection?.contextPack), location.pathname, location.search]);
 
   useEffect(() => {
     if (research.context?.subject?.type === "post" && research.context?.selection?.entityType === "post_occurrence") {
@@ -1157,6 +1161,6 @@ export default function Post2029Page({ resolvedSlug = null } = {}) {
     symbol="✦"
     status="פוסט"
   >
-    <PostReadingBody resolvedSlug={slug} />
+    <PostReadingBody key={slug} resolvedSlug={slug} />
   </Sod2029Shell>;
 }

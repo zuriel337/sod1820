@@ -32,6 +32,7 @@ export default function SurfaceContextRail2029({
   onOpenContext,
   onOpenSheet,
   onNavigate,
+  onFollowConnection,
   sheet = false,
   onNeedHelp,
   compact = false,
@@ -244,7 +245,10 @@ export default function SurfaceContextRail2029({
         {hasMethodContext ? <p><strong>{subject.expression}</strong> מוצג כאן בשיטה <strong>{subject.method}</strong> עם תוצאה <strong>{subject.resultValue}</strong>. ההסבר רק מתאר את המוקד הפעיל; הוא אינו מחשב את הערך בעצמו.</p> : null}
       </LearnMark2029> : null}
       {focusedFinding && subject.reason ? <p className="sod29-surface-context-reason" data-sidecar-finding-reason="true">{subject.reason}</p> : null}
-      {focusedFinding && subject.href ? <a className="sod29-surface-context-deeplink" href={subject.href}>פתח את החיבור <span aria-hidden="true">←</span></a> : null}
+      {focusedFinding && subject.href ? <a className="sod29-surface-context-deeplink" href={subject.href} onClick={event => onFollowConnection?.(event, subject)}>פתח את החיבור <span aria-hidden="true">←</span></a> : null}
+      {!findings.length && ["post", "topic"].includes(surface) && context?.dimensions?.surfaceFindingsState === "loading" ? <p role="status">טוען את החיבורים הציבוריים…</p> : null}
+      {!findings.length && ["post", "topic"].includes(surface) && context?.dimensions?.surfaceFindingsState === "unavailable" ? <p role="status">החיבורים הנוספים אינם זמינים כרגע. המקור והמסלול שלך נשמרים.</p> : null}
+      {context?.dimensions?.surfaceFindingsState === "partial" ? <p role="status">חלק מהיעדים עדיין לא אומתו לקריאה ציבורית.</p> : null}
       {findings.length ? <div className="sod29-surface-context-findings" data-sidecar-state={focusedFinding ? "focus" : "rest"}>
         {focusedFinding ? <button type="button" className="sod29-surface-context-findings-back" onClick={restFromFinding}>← כל החיבורים</button> : <>
           <div className="sod29-context-inspector-kicker">חיבורים נוספים</div>

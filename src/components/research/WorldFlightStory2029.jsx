@@ -41,6 +41,9 @@ export default function WorldFlightStory2029({ surface = 'world', research, shel
     return () => { live = false; };
   }, [attempt]);
   useEffect(()=>{
+    // Home previews are invitations, not a research selection. In particular an
+    // observer must not install a source into an existing path or its return snapshot.
+    if(home)return;
     const projection=state.projection;
     if(!projection)return;
     const element=document.getElementById(anchor);
@@ -71,7 +74,7 @@ export default function WorldFlightStory2029({ surface = 'world', research, shel
     },{threshold:[0,.2]});
     if(observer)observer.observe(element);else show();
     return()=>{observer?.disconnect();hide();};
-  },[state.projection,anchor,location.pathname,location.search]);
+  },[home,state.projection,anchor,location.pathname,location.search]);
   useEffect(() => {
     if (state.loading || location.hash !== `#${anchor}`) return;
     const frame = requestAnimationFrame(() => document.getElementById(anchor)?.scrollIntoView({ block: 'start', behavior: 'instant' }));
@@ -88,8 +91,8 @@ export default function WorldFlightStory2029({ surface = 'world', research, shel
   const image = (home ? post.thumb_url : post.image_url) || post.image_url || media?.poster;
   const openWorld = () => {
     research.updateResearchContext?.({ subject: null, selection: null, lens: 'world',
-      returnTo: { href: '/2029#home-plane', label: 'סיפור המטוס בבית', subject: null,
-        selection: null, lens: 'home', dimensions: {}, journey: research.context?.journey || null } });
+      returnTo: { href: location.pathname + location.search + '#home-plane', label: 'סיפור המטוס בבית', subject: research.context?.subject || null,
+        selection: research.context?.selection || null, lens: research.context?.lens || 'home', dimensions: research.context?.dimensions || {}, journey: research.context?.journey || null } });
     shell.go('/world#world-plane-story', { preserve: false });
   };
   const openPost = () => {

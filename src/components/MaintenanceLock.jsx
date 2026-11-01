@@ -13,10 +13,14 @@ const DEFAULT_MSG = "🔒 האזור נעול זמנית לצורך שדרוגי
 // Review-only capability switch. It is compiled into an isolated Preview only
 // and never inferred from a URL, browser storage, identity or Production state.
 const unlockedPreview = import.meta.env.VITE_UNLOCKED_2029_PREVIEW === "true";
+// A restrictive ceiling for this isolated review, never a shared site_flags write.
+// The existing resolver still owns roles/loading and every consumer sees one state.
+const publicFramePreview = import.meta.env.VITE_PUBLIC_FRAME_PREVIEW === "true";
+const previewAdminOnly = new Set(["lock_els", "lock_life_journey", "lock_raziel_site"]);
 const LIFE_JOURNEY_PREVIEW_OPEN = import.meta.env?.VITE_LIFE_JOURNEY_PREVIEW_OPEN === "true";
 
 function applyPreviewFeatureState(flag, state) {
-  if (flag !== "lock_life_journey" || !LIFE_JOURNEY_PREVIEW_OPEN) return state;
+  if (publicFramePreview || flag !== "lock_life_journey" || !LIFE_JOURNEY_PREVIEW_OPEN) return state;
   return resolveFeatureState(null);
 }
 
@@ -113,7 +117,16 @@ export function resolveFeatureState(lock, {
   isAdmin = false,
   requireFlag = false,
   previewBypass = false,
+  adminOnly = false,
 } = {}) {
+  // A Preview restriction can narrow access, including a broad review bypass;
+  // it can never grant access or replace an explicit shared lock.
+  if (adminOnly && !isAdmin) return {
+    enabled: true, mode: "all", blocked: true, allowed: false,
+    adminBypass: false, registeredBypass: false, previewBypass: false,
+    publicState: "closed", viewerState: "closed", message: lock?.message || DEFAULT_MSG,
+    showLogin: false, status: "building",
+  };
   if (previewBypass) {
     return {
       enabled: !!lock?.enabled,
@@ -179,7 +192,8 @@ export function useFeatureState(flag, { requireFlag = false } = {}) {
       user,
       isAdmin,
       requireFlag,
-      previewBypass: unlockedPreview,
+      previewBypass: unlockedPreview && !(publicFramePreview && previewAdminOnly.has(flag)),
+      adminOnly: publicFramePreview && previewAdminOnly.has(flag),
     });
     return {
       flag,
@@ -191,9 +205,9 @@ export function useFeatureState(flag, { requireFlag = false } = {}) {
 }
 
 // עטיפה ברמת-הראוט. כל לוגיקת access מגיעה מה-resolver הקנוני — אין נוסחה מקומית.
-export default function Locked({ flag, children, requireFlag = false, homeHref = "/" }) {
+export default function Locked({ flag, children, requireFlag = false, homeHref = "/", renderBlocked = null }) {
   const state = useFeatureState(flag, { requireFlag });
   if (state.loading) return null;
-  if (state.blocked) return <MaintenanceLock message={state.message} showLogin={state.showLogin} homeHref={homeHref} />;
+  if (state.blocked) return renderBlocked ? renderBlocked(state) : <MaintenanceLock message={state.message} showLogin={state.showLogin} homeHref={homeHref} />;
   return children;
 }

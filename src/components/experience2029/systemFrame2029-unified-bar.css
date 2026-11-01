@@ -1,24 +1,26 @@
 /* SOD1820 2029 · Unified frame projection of the approved Home composition (reference fa0e26f).
-   Presentation only, on the single System Frame: full-width bottom bar (context / Raziel at the
+   Presentation only, on the single System Frame: compact centered bottom island (context / Raziel at the
    physical center / typed Now), visible account entry in the top bar, and the approved Night/Day
    atmosphere. Colors come only from the palette owner through --s29-* variables. */
 
-.sod29-root.native-frame { --s29-bar-height: 72px; --s29-island-clearance: 100px; --s29-bar-hue: var(--s29-brand-gold); }
+.sod29-root.native-frame { --s29-bar-height: 64px; --s29-island-clearance: 90px; --s29-bar-hue: var(--s29-brand-gold); }
 .sod29-root.native-frame[data-frame-theme-preset="light"] { --s29-bar-hue: var(--s29-discovery); }
 
-/* ZURIEL 29.10: one shared five-entry command bar. Tool Mode keeps its owner. */
-.sod29-root.native-frame:has(.is-single-command-bar) { --s29-bar-height: 72px !important; --s29-island-clearance: 92px !important; }
+/* ZURIEL 1.11: one small floating island, centered on phones and desktops.
+   Keep all five entries and 44px targets; no viewport-width strip. */
+.sod29-root.native-frame:has(.is-single-command-bar) { --s29-bar-height: 60px !important; --s29-island-clearance: 90px !important; }
 .sod29-root.native-frame .sod29-command-island.is-single-command-bar {
-  inset-inline: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important;
-  transform: none !important; width: auto !important; max-width: none !important;
+  inset-inline: auto !important; left: 50% !important; right: auto !important; bottom: calc(10px + env(safe-area-inset-bottom,0px)) !important;
+  transform: translateX(-50%) !important; width: min(330px,calc(100vw - 24px)) !important; max-width: calc(100vw - 24px) !important;
   display: grid !important; grid-template-columns: repeat(5,minmax(44px,1fr)) !important;
-  grid-template-rows: auto !important; gap: 4px !important; border-radius: 0 !important;
-  background: var(--s29-panel) !important; backdrop-filter: none !important;
-  padding: 4px max(8px,env(safe-area-inset-right,0px)) calc(4px + env(safe-area-inset-bottom,0px)) !important;
+  grid-template-rows: auto !important; gap: 2px !important; border-radius: 999px !important;
+  border: 1px solid var(--s29-line-strong) !important; box-sizing: border-box;
+  background: var(--s29-panel) !important;
+  padding: 4px 6px !important;
 }
 .sod29-root.native-frame .is-single-command-bar > button:not(.sod29-raziel-orb) {
   position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center;
-  min-width: 44px; min-height: 56px; height: auto; gap: 2px; padding: 3px;
+  min-width: 44px; min-height: 48px; height: auto; gap: 2px; padding: 3px;
   border: 0; border-radius: 10px; background: transparent; color: var(--s29-ink); cursor: pointer;
 }
 .is-single-command-bar > button > small { display: block !important; font-size: 14px; line-height: 1.2; }
@@ -31,6 +33,8 @@
 .sod29-command-island [aria-label="פעולות המערכת"] { position: relative; }
 .sod29-sheet-trail { padding-block: 8px; overflow-wrap: anywhere; }
 .sod29-frame-panel .sod29-now { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); width: 100%; gap: 4px; }
+/* A governed unavailable tool remains understandable instead of disappearing. */
+.sod29-root.native-frame .sod29-panel-actions-grid button[data-capability-state="locked"]:disabled { display: flex !important; }
 .sod29-root.native-frame .sod29-frame-panel .sod29-now-tab { width: auto; min-width: 0; min-height: 44px; padding: 4px; white-space: normal; }
 .sod29-root.native-frame .sod29-frame-panel .sod29-now-label { display: block !important; font-size: 14px !important; line-height: 1.3; }
 
@@ -48,15 +52,15 @@
 
 /* Bottom bar */
 .sod29-root.native-frame .sod29-command-island.is-unified-bar {
-  inset-inline: 0; inset-block-end: 0; transform: none; width: auto; max-width: none;
-  min-height: var(--s29-bar-height);
-  display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 10px;
-  padding: 6px clamp(8px, 2vw, 22px) calc(6px + env(safe-area-inset-bottom, 0px));
-  border: 0; border-top: 1px solid var(--s29-line-strong); border-radius: 0;
+  position: fixed; inset-inline: auto; left: 50%; right: auto; inset-block-end: calc(10px + env(safe-area-inset-bottom,0px)); transform: translateX(-50%); width: max-content; max-width: calc(100vw - 24px); box-sizing: border-box;
+  min-height: 58px;
+  display: grid; grid-template-columns: auto auto auto; align-items: center; gap: 2px;
+  padding: 4px 6px;
+  border: 1px solid var(--s29-line-strong); border-radius: 999px;
   background: color-mix(in srgb, var(--s29-panel) 97%, transparent);
   box-shadow: 0 -10px 30px color-mix(in srgb, var(--s29-page) 55%, transparent);
 }
-.sod29-root.number-page-route.native-frame .sod29-command-island.is-unified-bar { grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); }
+.sod29-root.number-page-route.native-frame .sod29-command-island.is-unified-bar:not(.is-single-command-bar) { grid-template-columns: auto auto auto; }
 .sod29-root.native-frame .sod29-bar-zone { display: flex; align-items: center; gap: 4px; min-width: 0; }
 .sod29-root.native-frame .sod29-bar-zone.is-context { justify-content: flex-start; }
 .sod29-root.native-frame .sod29-bar-zone.is-actions { justify-content: flex-end; }
@@ -66,7 +70,7 @@
 .sod29-root.native-frame .sod29-bar-zone > button,
 .sod29-root.native-frame .sod29-bar-zone .sod29-command-actions > button,
 .sod29-root.number-page-route .sod29-bar-zone .sod29-number-island-action {
-  min-width: 52px; height: 52px; padding: 3px 8px; border: 0; border-radius: 16px; background: transparent;
+  min-width: 44px; height: 48px; padding: 3px; border: 0; border-radius: 16px; background: transparent;
   color: var(--s29-muted); display: grid; place-items: center; align-content: center; gap: 1px; cursor: pointer; flex: 0 0 auto;
 }
 .sod29-root.native-frame .sod29-bar-zone > button > span,
@@ -85,7 +89,7 @@
 
 /* Raziel: physical center of the bar, raised slightly above it. */
 .sod29-root.native-frame .sod29-command-island.is-unified-bar .sod29-raziel-orb.compact {
-  margin-block: -16px 0; box-shadow: 0 0 0 4px var(--s29-panel);
+  min-width: 48px; width: 48px; height: 48px; margin-block: 0; box-shadow: none;
 }
 
 /* Typed Now */
@@ -137,7 +141,7 @@
   .sod29-root.native-frame .sod29-now-tab { min-width: 40px; width: 40px; justify-content: center; padding: 0; }
   .sod29-root.native-frame .sod29-now-tab[aria-pressed="true"] { width: auto; padding: 0 10px; }
   .sod29-root.native-frame .sod29-now-tab[aria-pressed="true"] .sod29-now-label { display: inline; font-size: 13px; }
-  .sod29-root.native-frame .sod29-command-island.is-unified-bar .sod29-raziel-orb.compact { min-width: 56px; width: 56px; height: 56px; }
+  .sod29-root.native-frame .sod29-command-island.is-unified-bar .sod29-raziel-orb.compact { min-width: 48px; width: 48px; height: 48px; }
 }
 /* Research-trail pages on phones: the trail gets its own full-width row above the bar. */
 @media (max-width: 620px) {

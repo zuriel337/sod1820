@@ -8,6 +8,7 @@ import React, { useCallback, useEffect, useRef } from "react";
 import { askRaziel } from "../../lib/supabase.js";
 import { useAuth } from "../../lib/AuthContext.jsx";
 import { useResearch } from "../../lib/research/ResearchProvider.jsx";
+import { useFeatureState } from "../MaintenanceLock.jsx";
 import {
   RazielSessionProvider2029,
   useOptionalRazielSession2029,
@@ -39,7 +40,13 @@ export default function RazielSessionMount2029({ children }) {
   const research = useResearch();
   const contextRef = useRef(research.context);
   contextRef.current = research.context;
-  const transport = useCallback((request) => askRaziel(withRazielSurfaceContext(request, contextRef.current)), []);
+  const feature = useFeatureState("lock_raziel_site", { requireFlag: true });
+  const accessRef = useRef(feature);
+  accessRef.current = feature;
+  const transport = useCallback((request) => {
+    if (accessRef.current.loading || accessRef.current.blocked) return Promise.resolve({ error: "feature_locked", status: 403 });
+    return askRaziel(withRazielSurfaceContext(request, contextRef.current));
+  }, []);
   // Auth resolution gets its own empty provider. A previous principal's in-memory thread is therefore
   // unmounted synchronously before a different uid (or anon) can paint, even through the frame fallback.
   const principalKey = loading ? "auth-loading" : (user?.id || "anon");

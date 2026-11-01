@@ -7,6 +7,7 @@ import SurfaceSectionNav2029 from "../components/experience2029/SurfaceSectionNa
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { fetchCanonicalTopicConvergenceFinding } from "../lib/research/topicConvergence.js";
 import { buildTopic2029Projection } from "../lib/research/topic2029Projection.js";
+import { publicSurfaceFindingsFromConnections } from "../lib/research/post2029ExperienceProjection.js";
 import { fetchEntityHubProjection, fetchGallerySourceContext, fetchTopicSourceContext as readTopicSourceContext } from "../lib/research/entityHubProjection.js";
 import { fetchNumberMethodProfile } from "../lib/research/numberCoreProjection.js";
 import { getImagesByGallery } from "../lib/supabase.js";
@@ -507,6 +508,27 @@ function TopicBody() {
   const currentSection = navItems.find((item) => item.id === activeSectionId) || navItems[0];
   const currentSectionId = currentSection?.id || "topic-essential";
   const currentSectionLabel = currentSection?.label || "עיקר";
+  const declaredConnections = JSON.stringify(projection?.withheld ? [] : [
+    ...(projection?.relatedPosts || []).map(row => ({id:`post:${row.slug}`,label:row.title || row.text,href:row.href || (row.slug ? `/post/${encodeURIComponent(row.slug)}` : null),reason:row.note,provenanceLabel:row.sourcePath,kind:"stored_reference"})),
+    ...(projection?.relatedConvergences || []).map(row => ({id:`topic:${row.slug}`,label:row.title || row.note,href:row.href || (row.slug ? `/topic/${encodeURIComponent(row.slug)}` : null),reason:row.note,provenanceLabel:row.sourcePath,kind:"stored_reference"})),
+  ].filter(row => row.href && !(projection?.publicConnections || []).some(item => item.href === row.href)).slice(0,8));
+  const connectionKey = slug + declaredConnections;
+  const [declaredState,setDeclaredState] = useState({key:null,items:[],status:"loading"});
+  useEffect(() => {
+    let alive=true;const connections=JSON.parse(declaredConnections);
+    if(!connections.length){setDeclaredState({key:connectionKey,items:[],status:"ready"});return;}
+    setDeclaredState({key:connectionKey,items:[],status:"loading"});
+    // Reuse the existing access-controlled Post/Topic URL resolver. No graph
+    // matching, numeric inference, publication or model request is introduced.
+    import("../lib/research/post2029ReadingProjection.js").then(({resolvePostExperienceConnections}) => resolvePostExperienceConnections({connections}))
+      .then(result => {if(alive)setDeclaredState({key:connectionKey,items:publicSurfaceFindingsFromConnections(result.connections),status:result.connections.some(row=>!row.href)?"partial":"ready"});})
+      .catch(() => {if(alive)setDeclaredState({key:connectionKey,items:[],status:"unavailable"});});
+    return () => {alive=false;};
+  },[connectionKey]);
+  const admittedDeclared = declaredState.key === connectionKey ? declaredState : {items:[],status:"loading"};
+  const publicConnections = publicSurfaceFindingsFromConnections([...(projection?.publicConnections || []),...admittedDeclared.items]);
+  const publicConnectionsSignature = JSON.stringify(publicConnections);
+  const publicConnectionsState = goldenState.loading || admittedDeclared.status === "loading" ? "loading" : admittedDeclared.status === "partial" || admittedDeclared.status === "unavailable" ? admittedDeclared.status : currentHub?.sourceContext?.access?.scope === "public" && currentHub.sourceContext.access.available !== false ? "ready" : "unavailable";
 
   useEffect(() => {
     if (!projection) return undefined;
@@ -520,6 +542,11 @@ function TopicBody() {
     const heroNumber = projection.heroNumber ?? projection.highlightNumbers?.[0] ?? projection.numbers?.[0] ?? null;
     const dimensions = {
       ...(research.context?.dimensions || {}),
+      surfaceContextHref: location.pathname + location.search,
+      readingFocusSurfaceHref: location.pathname + location.search,
+      readingFocus: { id: projection.slug, type: "topic", label: projection.displayTitle || projection.title, href: projection.canonicalPath, locator: "#" + (currentSection?.targetId || currentSectionId) },
+      surfaceFindings: projection.withheld ? [] : publicConnections,
+      surfaceFindingsState: projection.withheld ? "unavailable" : publicConnectionsState,
       bottomTrail: [
         { id: "topic", label: "טופיק" },
         { id: "section", label: currentSectionLabel },
@@ -547,7 +574,7 @@ function TopicBody() {
     if (!research.context?.subject) research.setResearchContext?.({ subject, selection, lens: "topic", dimensions });
     else research.updateResearchContext?.({ subject, selection, lens: "topic", dimensions });
     return undefined;
-  }, [projection?.slug, currentSectionId, sectionMapSignature]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [projection?.slug, currentSectionId, sectionMapSignature, publicConnectionsSignature, publicConnectionsState, location.pathname, location.search]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const rememberGallerySource = (item, slotKey, sectionId) => {
     if (!projection || projection.withheld || item?.access?.scope !== "public") return;

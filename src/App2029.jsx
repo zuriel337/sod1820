@@ -15,6 +15,7 @@ import { TYPEFACE } from "./lib/designTokens.js";
 import CalculatorPro2029Page from "./pages/CalculatorPro2029Page.jsx";
 import { parseCalculatorShareState } from "./lib/research/calculator2029Viral.js";
 import Locked from "./components/MaintenanceLock.jsx";
+import FeatureClosedNotice from "./components/FeatureClosedNotice.jsx";
 
 const Home2029Page = lazy(() => import("./pages/Home2029Page.jsx"));
 const World2029Page = lazy(() => import("./pages/World2029Page.jsx"));
@@ -202,6 +203,12 @@ function ControlEntry2029() {
   return <ControlPlane2029Page />;
 }
 
+function FramedGate2029({ flag, surface, title, children }) {
+  return <Locked flag={flag} requireFlag homeHref="/2029" renderBlocked={state =>
+    <PublicContributorFrame2029 surface={surface} title={title} introVariant="compact"><FeatureClosedNotice state={state} title={title} to="/world" /></PublicContributorFrame2029>
+  }>{children}</Locked>;
+}
+
 export default function App2029() {
   return (
     <AuthProvider>
@@ -247,13 +254,13 @@ export default function App2029() {
               <Route path="/login" element={<AuthPage />} />
               <Route path="/auth/callback" element={<OAuthCallback2029 />} />
               <Route path="/community/chat" element={<CommunityChatTransition2029Page />} />
-              <Route path="/2029/journey" element={<Locked flag="lock_life_journey" requireFlag homeHref="/2029"><LifeJourney2029Page /></Locked>} />
+              <Route path="/2029/journey" element={<FramedGate2029 flag="lock_life_journey" surface="journey" title="מסע החיים"><LifeJourney2029Page /></FramedGate2029>} />
               <Route path="/post/:slug" element={<Post2029Page />} />
               <Route path="/video/:assetId" element={<Video2029Page />} />
               <Route path="/books" element={<Locked flag="lock_books" requireFlag homeHref="/2029"><Books2029Page /></Locked>} />
               <Route path="/books/:slug" element={<CanonicalBookAlias2029 />} />
               <Route path="/book/:slug" element={<Locked flag="lock_books" requireFlag homeHref="/2029"><Books2029Page /></Locked>} />
-              <Route path="/code" element={<Els2029Page />} />
+              <Route path="/code" element={<FramedGate2029 flag="lock_els" surface="els" title="הצופן התנ״כי"><Els2029Page /></FramedGate2029>} />
               <Route path="/els" element={<ElsAddressAlias2029 />} />
               <Route path="/heichal" element={<Locked flag="lock_heichal" requireFlag homeHref="/2029"><Heichal2029Page /></Locked>} />
               <Route path="/היכל" element={<Locked flag="lock_heichal" requireFlag homeHref="/2029"><Heichal2029Page /></Locked>} />

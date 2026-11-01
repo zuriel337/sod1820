@@ -425,8 +425,13 @@ function PrincipalResearchProvider({ children, userId, disabled }) {
       && (current?.selection?.method || null) === (route.selection.method || null)
       && (current?.selection?.crossingPartner || null) === (route.selection.crossingPartner || null)
       && current?.lens === "number";
-    if (current?.subject && sameSelection) return;
-    const focusDimensions = { expressionFocusExplicit: Boolean(route.focusExplicit) };
+    const native2029 = typeof __SOD_2029_BUILD__ !== "undefined" && __SOD_2029_BUILD__;
+    if (current?.subject && sameSelection && (!native2029 || current.dimensions?.surfaceContextHref === pathname + search)) return;
+    const focusDimensions = { expressionFocusExplicit: Boolean(route.focusExplicit),
+      ...(native2029 ? { surfaceContextHref: pathname + search, surfaceFindings: [],
+        surfaceFocus: null, readingFocus: null, readingFocusSurfaceHref: null,
+        surfaceSections: [], bottomTrail: [], activeSectionId: null, surfaceMapLabel: null } : {}),
+    };
     // A 2029 Workspace departure may carry only returnTo. Preserve it when
     // establishing the first Number subject; Legacy route behavior is unchanged.
     const next = current?.subject || pathname.startsWith("/2029/number/")

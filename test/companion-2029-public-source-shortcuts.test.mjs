@@ -46,11 +46,13 @@ test("World source selector changes view only, never source authorizations", () 
   assert.match(css, /sod29-or-geula-shortcut\.is-new/);
 });
 
-test("public visitor sees the authorized context Inspector, but not the admin Projector or Event Sequence", () => {
+test("ZURIEL 1.11: Companion is unmounted, authorized context and shared feed stay independent", () => {
   const frame = read("src/components/experience2029/SystemFrame2029.jsx");
-  assert.match(frame, /companionActive = companionWide && surface !== "control"/);
+  assert.doesNotMatch(frame, /import CompanionPanel2029|<CompanionPanel2029|has-companion/);
+  assert.match(frame, /data-companion-visibility="temporarily-hidden"/);
   assert.match(frame, /feed = useSystemFeed2029\(\{ enabled: surface !== "control" \}\)/);
-  assert.match(frame, /companionHasContext = showContextRail && !numberPageRoute/);
-  assert.match(frame, /companionHasSequence = !corePublicViewer && hasEventSequence/);
-  assert.match(frame, /showContextRail && !\(companionActive && companionHasContext\)/);
+  assert.equal((frame.match(/feed = useSystemFeed2029\(/g) || []).length, 1);
+  assert.match(frame, /showContextRail \? <SurfaceContextRail2029/);
+  assert.doesNotMatch(frame, /<EventSequencePanel2029/);
+  assert.match(frame, /<GlobalLivingRibbon2029[\s\S]{0,600}feed=\{feed\}/);
 });

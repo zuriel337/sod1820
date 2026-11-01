@@ -90,6 +90,18 @@ export function canonicalPostShareUrl(currentUrl, canonicalUrl) {
 export function publicPostShareUrl(post, location = {}) {
   const canonical = publicPostUrl(post);
   if (!canonical) return null;
+  return publicPageShareUrl(location, canonical);
+}
+
+// Same reading-context sanitizer for the Frame's existing canonical share UI.
+// Private/account documents never become public share destinations.
+export function publicPageShareUrl(location = {}, canonicalUrl) {
+  let canonical;
+  try {
+    const url = new URL(canonicalUrl || location.pathname || "/", SITE);
+    if (url.origin !== SITE || /^\/(?:auth(?:\/|$)|login(?:\/|$)|unsubscribe(?:\/|$)|2029\/(?:me|journey|control)(?:\/|$))/.test(location.pathname || url.pathname)) return null;
+    canonical = url.origin + url.pathname;
+  } catch { return null; }
   const params = new URLSearchParams(location.search || "");
   for (const key of [...params.keys()]) if (/^(?:_vercel_share|_?vercel_protection_bypass|x-vercel-protection-bypass|x-vercel-set-bypass-cookie|access_token|refresh_token|id_token|token|secret|password|authorization)$/i.test(key)) params.delete(key);
   const search = params.toString();
