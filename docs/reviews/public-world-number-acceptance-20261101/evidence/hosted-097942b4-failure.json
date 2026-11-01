@@ -1,0 +1,56 @@
+{
+  "identity": {
+    "sha": "097942b4e4b1374368f6703e6941a98ebf71f8a0",
+    "branch": "gpt/2029-public-world-number-acceptance-20261101",
+    "target": "preview",
+    "transport": "authenticated-preview-server-to-canonical-ai-analyze",
+    "model_trigger": "explicit-user-turn",
+    "requires_existing_account": false,
+    "product_writes": true,
+    "edge_deploy": false,
+    "matrix_jobs": "admin-explicit-cost-ack",
+    "product_write_scope": [
+      "own-person-family",
+      "own-research-state",
+      "own-private-hints-media",
+      "governed-community-actions",
+      "own-avatar",
+      "existing-verified-legacy-claim"
+    ],
+    "public_preview_restrictions": [
+      "life-journey-admin-only",
+      "raziel-admin-only",
+      "els-admin-only"
+    ],
+    "companion": "temporarily-unmounted",
+    "production_flags_changed": false,
+    "general_profile_writes": false,
+    "els_followup_server_contract": "requires-approved-shared-artifact",
+    "expected_server_sha256": "2ac19e112e77e71fbab61270338e126edf88128a786f3425b09157291494281f"
+  },
+  "workerSha256": "989e1cc315d8b42ae1cc01c57f44bbe6cd2ff4b90b6eb4e9453090008d57f2fb",
+  "unauthenticatedRootStatus": 302,
+  "capabilities": {
+    "target": "preview",
+    "serverIdentityAvailable": true,
+    "serverIdentityVerified": true,
+    "userAuthenticationRequired": true,
+    "production": false
+  },
+  "ok": false,
+  "failedStage": "numberFullPage-390",
+  "failure": {
+    "stage": "numberFullPage-390",
+    "name": "Error",
+    "message": "expect(received).toBe(expected) // Object.is equality\n\nExpected: \"אחת ארבע שבע ושתיים\"\nReceived: null",
+    "url": "https://sod1820-mp9qlombf-sod1820-s-projects.vercel.app/number/1820",
+    "stack": [
+      "    at Object.numberFullPage (/workspace/sod1820-public-world-evidence/test/public-world-scenarios.cjs:109:168)",
+      "    at async Interface.<anonymous> (/workspace/sod1820-public-world-evidence/docs/reviews/public-world-number-acceptance-20261101/remote-public.cjs:52:8)"
+    ]
+  },
+  "writesForwarded": 0,
+  "modelCallsForwarded": 0,
+  "status": "SUPERSEDED_UNACCEPTED_PREVIEW_097942b4",
+  "resolution": "Product root/profile fix; requires acceptance against final056c50f9."
+}

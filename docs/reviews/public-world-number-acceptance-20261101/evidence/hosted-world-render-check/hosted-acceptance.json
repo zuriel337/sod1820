@@ -1,0 +1,4412 @@
+{
+  "actualDeployedClient": true,
+  "data": "real public material; synthetic cases identified separately",
+  "serviceWorker": "independent deny-default broker removes bootstrap only in test; exact deployed worker hash verified separately",
+  "cases": [
+    {
+      "width": 390,
+      "scenario": "worldWriter",
+      "passed": true,
+      "elapsedMs": 27849,
+      "data": "actual public data"
+    },
+    {
+      "width": 1440,
+      "scenario": "worldWriter",
+      "passed": true,
+      "elapsedMs": 25661,
+      "data": "actual public data"
+    }
+  ],
+  "reads": [
+    {
+      "stage": "worldWriter-390",
+      "path": "/world",
+      "status": 200,
+      "transport": "GET",
+      "ms": 423
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/scheduler-l4uHkdFa.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 398
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/react-dom-DenslgJm.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 469
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/preload-helper-BZ1Pz5am.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 471
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/fonts/Rubik-Latin.woff2",
+      "status": 200,
+      "transport": "GET",
+      "ms": 550
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/css2",
+      "status": 200,
+      "transport": "GET",
+      "ms": 563
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/fonts/NotoSansHebrew-Regular.ttf",
+      "status": 200,
+      "transport": "GET",
+      "ms": 571
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/chunk-OB3PAWPO-CVMmBO49.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 564
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/jsx-runtime-D3jfb0Ew.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 587
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/2029-o_nN21t8.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 603
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/publicPostUrls-YFBPKNgf.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 644
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/fonts/NotoSansHebrew-Bold.ttf",
+      "status": 200,
+      "transport": "GET",
+      "ms": 653
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/format-DFlJicod.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 670
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/AuthContext-BWbyKTrn.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 680
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/numberExpressionFocus-j3b11NtB.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 684
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/fonts/Rubik-Hebrew.woff2",
+      "status": 200,
+      "transport": "GET",
+      "ms": 742
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/theme-B2UPacu4.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 748
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/gematria-Ud5dslyW.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 748
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/tracking-CWVUmMEl.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 756
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/themeMode-jUD92yIC.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 830
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/canonicalPresentation-DgNmWnf_.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 832
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/designTokens-B8JmV1rE.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 839
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/elsResearchReturnSnapshot-B03Lyzta.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 847
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/supabase-MVQLWiWe.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 854
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/palette-CNyTr_3N.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 855
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/ResearchProvider-BPg_ogny.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 869
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/numberCoreProjection-8vg3_0nP.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 895
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/razielViewMode2029-EPrCdoW9.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 905
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/dayContext-DQm1CoPT.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 910
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/gematriaTracePresentation-CX847u8G.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 910
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/NavigationIcon2029-CH1qZpiS.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 933
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/NavigationIcon2029-CDR-JqlQ.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 955
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/worldContextualProminence-DFYM9dQz.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 960
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/universalFinding-DZVlmLqu.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 968
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/researchObjectFinding-bo3yYp1j.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 997
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/2029-Bdk_N1FJ.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 1001
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/methodIdentity-DM2yAcOz.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 1030
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/researchObjectPresentation-l0ubBFKY.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 1036
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/calculator2029Input-BbfftHdT.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 1072
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/timeline2029-Dc49odMG.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 1073
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/postSourceUpdates2029-DmZjuVxM.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 1105
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/previewVisualReview2029-BpFpb6ua.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 169
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/previewVisualReview2029-BvQ2FAL9.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 238
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/site_flags",
+      "status": 200,
+      "transport": "GET",
+      "ms": 412
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/SpatialMethodStage2029-BSh4MLoa.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 558
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/canonicalGematria-Da1sqizX.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 581
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/worldContributorSourceLocator-Cyr0YS9t.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 607
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/entityGraphFinding-eUtGOCR5.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 617
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/publicWorldContentProjectionV1-DVgRVLRF.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 612
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/numericResearch-DqZcmZHs.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 622
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/canonicalGematriaProjection-B66_nJSZ.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 625
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/SpatialMethodStage2029-C72jccAu.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 647
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/semanticSceneCompiler-51BHTuhx.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 665
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/researchResultBundle-DOvHbd8e.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 657
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/worldDiscoveryStream-Dfn_AAyS.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 706
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/post2029ReadingProjection-BJXInwjD.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 719
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/topicConvergence-CcH3OGhO.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 746
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/electionsIsrael21_26Seed2029-DHjFireG.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 739
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/gpuCapability-CgzeQuuF.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 757
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/SourceRepeatInfo2029-C0SrKxXw.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 768
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/gematriaRelationW2Executor-BKe0Bw2R.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 768
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/PostTimeline2029-HTi-_P5n.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 769
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/bookResearchProjection-afELmrkB.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 805
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/ConvergenceRatings2029-CkJf89BB.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 808
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/World2029Page-7YBVVIY3.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 837
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/ConvergenceRatings2029-Bf7X875Q.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 831
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/push-giVqP8pD.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 786
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/post2029ExperienceProjection-CPG92qMb.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 838
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/PostCategories2029-CQ4Kim3p.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 877
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/entityHubProjection-DCsJbpGn.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 898
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/publicPostBoundary-DLBRu07Y.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 891
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/researchPlanV2-gStvBWC1.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 903
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/worldPublicFindingReader-CpPsOO07.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 907
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/Timeline2029-DCEKqbCw.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 923
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/Timeline2029-a6_QYh8e.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 922
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/StoryTreeSequence2029-CmsIp1xd.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 922
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/EmailVerify-DM0qVGWZ.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 884
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/worldProminenceInputs-CiDYrdTP.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 886
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/WatchButton-DFPG23U2.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 915
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/numberSystemMethods-BWvswOhz.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 965
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/WatchButton-BlsZySEr.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 969
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/IconTile2029-x-yAGhlc.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 951
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/worldZviApprovedFindings2029-x3At9Dud.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 998
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/StoryTreeSequence2029-CmeGTnuu.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 1004
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/worldJourneyProjection-Ch2uuwYB.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 962
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/PostCategories2029-DP5c8Fzv.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 1012
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/worldContributorLens-oO0WF4FZ.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 987
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/IconTile2029-Bt6NupR-.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 1002
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/SourceRepeatInfo2029-DDIWPxqd.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 1104
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/EmailVerify-CVlicRjF.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 1109
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/World2029Page-CLP4Gbry.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 1130
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/brand/2029/canonical-lockup-128.webp",
+      "status": 200,
+      "transport": "GET",
+      "ms": 112
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/WorldPeopleSources2029-BRoxXZre.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 242
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/WorldZviSourceFindings2029-D9Vko8Vo.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 242
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/ZviFindingCards2029-CWYQoGmP.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 248
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/WorldPeopleSources2029-DxOe-atC.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 277
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/contributorSourceCatalogProjection-B9NPIi5y.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 286
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/livingRibbonPreview2029-BI1iUMB3.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 321
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/worldMapViewModel2029-DJMI18u1.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 345
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/ZviFindingCards2029-5A-AK-p-.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 373
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/WorldZviApprovedFindings2029-BMQqPo6S.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 373
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/site_flags",
+      "status": 200,
+      "transport": "GET",
+      "ms": 451
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/posts",
+      "status": 206,
+      "transport": "GET",
+      "ms": 459
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/contributors",
+      "status": 200,
+      "transport": "GET",
+      "ms": 523
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/posts",
+      "status": 200,
+      "transport": "GET",
+      "ms": 539
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/posts",
+      "status": 200,
+      "transport": "GET",
+      "ms": 572
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/posts",
+      "status": 200,
+      "transport": "GET",
+      "ms": 576
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+      "status": 200,
+      "transport": "GET",
+      "ms": 566
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/topic_cards_public",
+      "status": 200,
+      "transport": "GET",
+      "ms": 611
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/gallery_images",
+      "status": 200,
+      "transport": "GET",
+      "ms": 648
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/posts",
+      "status": 206,
+      "transport": "GET",
+      "ms": 269
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/topic_cards_public",
+      "status": 206,
+      "transport": "GET",
+      "ms": 761
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/posts",
+      "status": 200,
+      "transport": "GET",
+      "ms": 740
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/contributors",
+      "status": 200,
+      "transport": "GET",
+      "ms": 297
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/contributors",
+      "status": 200,
+      "transport": "GET",
+      "ms": 296
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/nodes",
+      "status": 200,
+      "transport": "GET",
+      "ms": 304
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/gallery_images",
+      "status": 200,
+      "transport": "GET",
+      "ms": 248
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/topic_cards_public",
+      "status": 206,
+      "transport": "GET",
+      "ms": 252
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/posts",
+      "status": 206,
+      "transport": "GET",
+      "ms": 291
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/channel_updates",
+      "status": 200,
+      "transport": "GET",
+      "ms": 317
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/els_records",
+      "status": 200,
+      "transport": "GET",
+      "ms": 354
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/channel_updates",
+      "status": 200,
+      "transport": "GET",
+      "ms": 370
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/posts",
+      "status": 200,
+      "transport": "GET",
+      "ms": 404
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/topic_cards_public",
+      "status": 200,
+      "transport": "GET",
+      "ms": 415
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/research_contributions",
+      "status": 200,
+      "transport": "GET",
+      "ms": 429
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/insights",
+      "status": 200,
+      "transport": "GET",
+      "ms": 517
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/galleries",
+      "status": 200,
+      "transport": "GET",
+      "ms": 439
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/topic_cards_public",
+      "status": 206,
+      "transport": "GET",
+      "ms": 392
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/topic_cards_public",
+      "status": 206,
+      "transport": "GET",
+      "ms": 251
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/insights",
+      "status": 200,
+      "transport": "GET",
+      "ms": 347
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/channel_updates",
+      "status": 206,
+      "transport": "GET",
+      "ms": 906
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/posts",
+      "status": 206,
+      "transport": "GET",
+      "ms": 802
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/posts",
+      "status": 206,
+      "transport": "GET",
+      "ms": 244
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/channel_updates",
+      "status": 200,
+      "transport": "GET",
+      "ms": 421
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/rpc/writer_public_contributions_page_v1",
+      "status": 200,
+      "transport": "GET",
+      "ms": 1681
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/posts",
+      "status": 206,
+      "transport": "GET",
+      "ms": 252
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/channel_updates",
+      "status": 200,
+      "transport": "GET",
+      "ms": 714
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/world_contributor_research_v1",
+      "status": 200,
+      "transport": "GET",
+      "ms": 1692
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/storage/v1/object/public/gallery/sod1820/broadcasts/AC568674E6CA8ECA41F919A7D47A2BC4.jpg",
+      "status": 200,
+      "transport": "GET",
+      "ms": 135
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/world_contributor_research_v1",
+      "status": 200,
+      "transport": "GET",
+      "ms": 627
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/channel_updates",
+      "status": 200,
+      "transport": "GET",
+      "ms": 247
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/research_objects",
+      "status": 200,
+      "transport": "GET",
+      "ms": 225
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/site_flags",
+      "status": 200,
+      "transport": "GET",
+      "ms": 244
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/channel_updates",
+      "status": 200,
+      "transport": "GET",
+      "ms": 229
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/topic_cards",
+      "status": 200,
+      "transport": "GET",
+      "ms": 264
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/world",
+      "status": 200,
+      "transport": "GET",
+      "ms": 2176
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/fonts/NotoSansHebrew-Regular.ttf",
+      "status": 200,
+      "transport": "GET",
+      "ms": 109
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/fonts/NotoSansHebrew-Bold.ttf",
+      "status": 200,
+      "transport": "GET",
+      "ms": 277
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/fonts/Rubik-Hebrew.woff2",
+      "status": 200,
+      "transport": "GET",
+      "ms": 424
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/publicPostUrls-YFBPKNgf.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 486
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/chunk-OB3PAWPO-CVMmBO49.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 510
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/fonts/Rubik-Latin.woff2",
+      "status": 200,
+      "transport": "GET",
+      "ms": 512
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/jsx-runtime-D3jfb0Ew.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 523
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/preload-helper-BZ1Pz5am.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 538
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/tracking-CWVUmMEl.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 529
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/theme-B2UPacu4.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 551
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/numberExpressionFocus-j3b11NtB.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 537
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/methodIdentity-DM2yAcOz.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 562
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/react-dom-DenslgJm.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 581
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/supabase-MVQLWiWe.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 615
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/AuthContext-BWbyKTrn.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 609
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/2029-o_nN21t8.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 638
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/format-DFlJicod.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 643
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/scheduler-l4uHkdFa.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 655
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/elsResearchReturnSnapshot-B03Lyzta.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 640
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/ResearchProvider-BPg_ogny.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 644
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/researchObjectPresentation-l0ubBFKY.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 645
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/gematria-Ud5dslyW.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 681
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/canonicalPresentation-DgNmWnf_.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 669
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/themeMode-jUD92yIC.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 686
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/designTokens-B8JmV1rE.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 690
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/razielViewMode2029-EPrCdoW9.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 698
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/css2",
+      "status": 200,
+      "transport": "GET",
+      "ms": 720
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/palette-CNyTr_3N.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 700
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/dayContext-DQm1CoPT.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 702
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/numberCoreProjection-8vg3_0nP.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 710
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/calculator2029Input-BbfftHdT.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 725
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/postSourceUpdates2029-DmZjuVxM.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 738
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/worldContextualProminence-DFYM9dQz.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 751
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/universalFinding-DZVlmLqu.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 753
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/gematriaTracePresentation-CX847u8G.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 757
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/timeline2029-Dc49odMG.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 774
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/NavigationIcon2029-CDR-JqlQ.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 790
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/NavigationIcon2029-CH1qZpiS.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 821
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/researchObjectFinding-bo3yYp1j.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 892
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/2029-Bdk_N1FJ.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 950
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/previewVisualReview2029-BvQ2FAL9.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 96
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/previewVisualReview2029-BpFpb6ua.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 136
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/site_flags",
+      "status": 200,
+      "transport": "GET",
+      "ms": 226
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/World2029Page-7YBVVIY3.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 445
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/gpuCapability-CgzeQuuF.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 447
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/semanticSceneCompiler-51BHTuhx.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 461
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/worldContributorSourceLocator-Cyr0YS9t.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 478
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/researchResultBundle-DOvHbd8e.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 491
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/ConvergenceRatings2029-CkJf89BB.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 529
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/electionsIsrael21_26Seed2029-DHjFireG.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 544
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/ConvergenceRatings2029-Bf7X875Q.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 564
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/PostCategories2029-CQ4Kim3p.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 553
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/worldDiscoveryStream-Dfn_AAyS.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 556
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/SpatialMethodStage2029-C72jccAu.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 571
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/SourceRepeatInfo2029-C0SrKxXw.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 571
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/researchPlanV2-gStvBWC1.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 610
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/SpatialMethodStage2029-BSh4MLoa.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 616
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/Timeline2029-DCEKqbCw.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 620
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/push-giVqP8pD.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 619
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/bookResearchProjection-afELmrkB.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 631
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/worldContributorLens-oO0WF4FZ.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 614
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/StoryTreeSequence2029-CmeGTnuu.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 690
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/worldPublicFindingReader-CpPsOO07.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 692
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/WatchButton-DFPG23U2.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 694
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/topicConvergence-CcH3OGhO.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 727
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/worldProminenceInputs-CiDYrdTP.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 706
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/worldJourneyProjection-Ch2uuwYB.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 712
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/entityHubProjection-DCsJbpGn.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 739
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/entityGraphFinding-eUtGOCR5.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 757
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/PostCategories2029-DP5c8Fzv.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 750
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/gematriaRelationW2Executor-BKe0Bw2R.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 762
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/World2029Page-CLP4Gbry.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 773
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/post2029ReadingProjection-BJXInwjD.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 807
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/publicPostBoundary-DLBRu07Y.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 828
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/PostTimeline2029-HTi-_P5n.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 842
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/publicWorldContentProjectionV1-DVgRVLRF.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 862
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/StoryTreeSequence2029-CmsIp1xd.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 862
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/Timeline2029-a6_QYh8e.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 884
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/canonicalGematriaProjection-B66_nJSZ.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 899
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/IconTile2029-x-yAGhlc.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 877
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/WatchButton-BlsZySEr.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 892
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/worldZviApprovedFindings2029-x3At9Dud.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 897
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/post2029ExperienceProjection-CPG92qMb.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 903
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/numericResearch-DqZcmZHs.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 915
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/numberSystemMethods-BWvswOhz.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 934
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/SourceRepeatInfo2029-DDIWPxqd.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 947
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/IconTile2029-Bt6NupR-.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 982
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/EmailVerify-DM0qVGWZ.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 1011
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/EmailVerify-CVlicRjF.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 1031
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/canonicalGematria-Da1sqizX.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 1145
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/brand/2029/canonical-lockup-128.webp",
+      "status": 200,
+      "transport": "GET",
+      "ms": 56
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/livingRibbonPreview2029-BI1iUMB3.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 117
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/research_objects",
+      "status": 200,
+      "transport": "GET",
+      "ms": 270
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/topic_cards_public",
+      "status": 200,
+      "transport": "GET",
+      "ms": 277
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/site_flags",
+      "status": 200,
+      "transport": "GET",
+      "ms": 298
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+      "status": 200,
+      "transport": "GET",
+      "ms": 300
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/posts",
+      "status": 200,
+      "transport": "GET",
+      "ms": 461
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/channel_updates",
+      "status": 200,
+      "transport": "GET",
+      "ms": 214
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/topic_cards",
+      "status": 200,
+      "transport": "GET",
+      "ms": 238
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/ZviFindingCards2029-CWYQoGmP.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 207
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/WorldZviApprovedFindings2029-BMQqPo6S.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 252
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/contributorSourceCatalogProjection-B9NPIi5y.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 257
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/ZviFindingCards2029-5A-AK-p-.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 267
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/worldMapViewModel2029-DJMI18u1.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 286
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/WorldZviSourceFindings2029-D9Vko8Vo.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 285
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/WorldPeopleSources2029-DxOe-atC.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 298
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/assets/WorldPeopleSources2029-BRoxXZre.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 308
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/site_flags",
+      "status": 200,
+      "transport": "GET",
+      "ms": 411
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/contributors",
+      "status": 200,
+      "transport": "GET",
+      "ms": 408
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/posts",
+      "status": 200,
+      "transport": "GET",
+      "ms": 410
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/topic_cards_public",
+      "status": 206,
+      "transport": "GET",
+      "ms": 447
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/posts",
+      "status": 200,
+      "transport": "GET",
+      "ms": 460
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/gallery_images",
+      "status": 200,
+      "transport": "GET",
+      "ms": 470
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/posts",
+      "status": 200,
+      "transport": "GET",
+      "ms": 471
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/posts",
+      "status": 206,
+      "transport": "GET",
+      "ms": 492
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/contributors",
+      "status": 200,
+      "transport": "GET",
+      "ms": 259
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/nodes",
+      "status": 200,
+      "transport": "GET",
+      "ms": 257
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/contributors",
+      "status": 200,
+      "transport": "GET",
+      "ms": 305
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/topic_cards_public",
+      "status": 206,
+      "transport": "GET",
+      "ms": 293
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/gallery_images",
+      "status": 200,
+      "transport": "GET",
+      "ms": 305
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/posts",
+      "status": 206,
+      "transport": "GET",
+      "ms": 324
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/channel_updates",
+      "status": 200,
+      "transport": "GET",
+      "ms": 363
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/channel_updates",
+      "status": 200,
+      "transport": "GET",
+      "ms": 365
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/research_contributions",
+      "status": 200,
+      "transport": "GET",
+      "ms": 364
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/els_records",
+      "status": 200,
+      "transport": "GET",
+      "ms": 339
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/insights",
+      "status": 200,
+      "transport": "GET",
+      "ms": 345
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/posts",
+      "status": 200,
+      "transport": "GET",
+      "ms": 370
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/galleries",
+      "status": 200,
+      "transport": "GET",
+      "ms": 438
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/topic_cards_public",
+      "status": 206,
+      "transport": "GET",
+      "ms": 488
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/topic_cards_public",
+      "status": 200,
+      "transport": "GET",
+      "ms": 569
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/posts",
+      "status": 206,
+      "transport": "GET",
+      "ms": 513
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/insights",
+      "status": 200,
+      "transport": "GET",
+      "ms": 263
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/topic_cards_public",
+      "status": 206,
+      "transport": "GET",
+      "ms": 206
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/channel_updates",
+      "status": 206,
+      "transport": "GET",
+      "ms": 807
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/posts",
+      "status": 206,
+      "transport": "GET",
+      "ms": 293
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/posts",
+      "status": 206,
+      "transport": "GET",
+      "ms": 231
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/channel_updates",
+      "status": 200,
+      "transport": "GET",
+      "ms": 370
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/rpc/writer_public_contributions_page_v1",
+      "status": 200,
+      "transport": "GET",
+      "ms": 1644
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/posts",
+      "status": 206,
+      "transport": "GET",
+      "ms": 226
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/channel_updates",
+      "status": 200,
+      "transport": "GET",
+      "ms": 718
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/world_contributor_research_v1",
+      "status": 200,
+      "transport": "GET",
+      "ms": 1824
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/storage/v1/object/public/gallery/sod1820/broadcasts/AC568674E6CA8ECA41F919A7D47A2BC4.jpg",
+      "status": 200,
+      "transport": "GET",
+      "ms": 85
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/site_flags",
+      "status": 200,
+      "transport": "GET",
+      "ms": 203
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/site_flags",
+      "status": 200,
+      "transport": "GET",
+      "ms": 241
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/nodes",
+      "status": 200,
+      "transport": "GET",
+      "ms": 240
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/contributors",
+      "status": 200,
+      "transport": "GET",
+      "ms": 256
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/contributors",
+      "status": 200,
+      "transport": "GET",
+      "ms": 263
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/channel_updates",
+      "status": 200,
+      "transport": "GET",
+      "ms": 349
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/posts",
+      "status": 200,
+      "transport": "GET",
+      "ms": 369
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/channel_updates",
+      "status": 200,
+      "transport": "GET",
+      "ms": 374
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/research_contributions",
+      "status": 200,
+      "transport": "GET",
+      "ms": 445
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/topic_cards_public",
+      "status": 200,
+      "transport": "GET",
+      "ms": 441
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/els_records",
+      "status": 200,
+      "transport": "GET",
+      "ms": 533
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/insights",
+      "status": 200,
+      "transport": "GET",
+      "ms": 688
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/insights",
+      "status": 200,
+      "transport": "GET",
+      "ms": 230
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/channel_updates",
+      "status": 206,
+      "transport": "GET",
+      "ms": 940
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/rpc/writer_public_contributions_page_v1",
+      "status": 200,
+      "transport": "GET",
+      "ms": 1512
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/channel_updates",
+      "status": 200,
+      "transport": "GET",
+      "ms": 368
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/channel_updates",
+      "status": 200,
+      "transport": "GET",
+      "ms": 671
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/world_contributor_research_v1",
+      "status": 200,
+      "transport": "GET",
+      "ms": 1759
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/storage/v1/object/public/gallery/sod1820/broadcasts/AC568674E6CA8ECA41F919A7D47A2BC4.jpg",
+      "status": 200,
+      "transport": "GET",
+      "ms": 97
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/world",
+      "status": 200,
+      "transport": "GET",
+      "ms": 798
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/fonts/Rubik-Hebrew.woff2",
+      "status": 200,
+      "transport": "GET",
+      "ms": 404
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/fonts/NotoSansHebrew-Bold.ttf",
+      "status": 200,
+      "transport": "GET",
+      "ms": 413
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/format-DFlJicod.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 445
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/css2",
+      "status": 200,
+      "transport": "GET",
+      "ms": 457
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/fonts/NotoSansHebrew-Regular.ttf",
+      "status": 200,
+      "transport": "GET",
+      "ms": 463
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/dayContext-DQm1CoPT.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 461
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/NavigationIcon2029-CH1qZpiS.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 484
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/2029-o_nN21t8.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 511
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/react-dom-DenslgJm.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 521
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/scheduler-l4uHkdFa.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 529
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/jsx-runtime-D3jfb0Ew.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 539
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/AuthContext-BWbyKTrn.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 542
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/fonts/Rubik-Latin.woff2",
+      "status": 200,
+      "transport": "GET",
+      "ms": 555
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/publicPostUrls-YFBPKNgf.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 557
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/chunk-OB3PAWPO-CVMmBO49.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 586
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/supabase-MVQLWiWe.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 601
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/elsResearchReturnSnapshot-B03Lyzta.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 604
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/methodIdentity-DM2yAcOz.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 646
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/preload-helper-BZ1Pz5am.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 669
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/ResearchProvider-BPg_ogny.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 668
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/gematria-Ud5dslyW.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 688
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/razielViewMode2029-EPrCdoW9.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 689
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/theme-B2UPacu4.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 693
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/tracking-CWVUmMEl.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 699
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/numberCoreProjection-8vg3_0nP.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 705
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/gematriaTracePresentation-CX847u8G.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 712
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/timeline2029-Dc49odMG.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 727
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/palette-CNyTr_3N.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 729
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/2029-Bdk_N1FJ.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 729
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/universalFinding-DZVlmLqu.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 737
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/researchObjectFinding-bo3yYp1j.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 738
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/canonicalPresentation-DgNmWnf_.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 742
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/worldContextualProminence-DFYM9dQz.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 757
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/NavigationIcon2029-CDR-JqlQ.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 761
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/designTokens-B8JmV1rE.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 766
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/calculator2029Input-BbfftHdT.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 773
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/numberExpressionFocus-j3b11NtB.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 784
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/researchObjectPresentation-l0ubBFKY.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 810
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/postSourceUpdates2029-DmZjuVxM.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 810
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/themeMode-jUD92yIC.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 867
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/previewVisualReview2029-BpFpb6ua.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 70
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/previewVisualReview2029-BvQ2FAL9.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 72
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/site_flags",
+      "status": 200,
+      "transport": "GET",
+      "ms": 206
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/World2029Page-7YBVVIY3.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 142
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/SpatialMethodStage2029-BSh4MLoa.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 390
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/topicConvergence-CcH3OGhO.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 437
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/entityGraphFinding-eUtGOCR5.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 491
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/canonicalGematria-Da1sqizX.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 497
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/canonicalGematriaProjection-B66_nJSZ.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 513
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/semanticSceneCompiler-51BHTuhx.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 518
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/publicWorldContentProjectionV1-DVgRVLRF.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 534
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/ConvergenceRatings2029-Bf7X875Q.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 534
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/SpatialMethodStage2029-C72jccAu.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 567
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/electionsIsrael21_26Seed2029-DHjFireG.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 572
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/bookResearchProjection-afELmrkB.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 574
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/researchPlanV2-gStvBWC1.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 577
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/researchResultBundle-DOvHbd8e.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 590
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/SourceRepeatInfo2029-C0SrKxXw.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 591
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/worldContributorSourceLocator-Cyr0YS9t.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 597
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/entityHubProjection-DCsJbpGn.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 612
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/worldDiscoveryStream-Dfn_AAyS.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 629
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/post2029ExperienceProjection-CPG92qMb.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 654
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/numberSystemMethods-BWvswOhz.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 656
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/ConvergenceRatings2029-CkJf89BB.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 679
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/numericResearch-DqZcmZHs.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 684
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/publicPostBoundary-DLBRu07Y.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 674
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/SourceRepeatInfo2029-DDIWPxqd.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 675
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/Timeline2029-a6_QYh8e.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 683
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/gpuCapability-CgzeQuuF.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 713
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/PostCategories2029-CQ4Kim3p.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 725
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/Timeline2029-DCEKqbCw.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 733
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/gematriaRelationW2Executor-BKe0Bw2R.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 738
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/worldZviApprovedFindings2029-x3At9Dud.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 739
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/EmailVerify-DM0qVGWZ.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 742
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/EmailVerify-CVlicRjF.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 755
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/PostTimeline2029-HTi-_P5n.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 765
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/WatchButton-BlsZySEr.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 782
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/PostCategories2029-DP5c8Fzv.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 792
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/IconTile2029-Bt6NupR-.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 784
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/push-giVqP8pD.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 787
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/post2029ReadingProjection-BJXInwjD.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 808
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/StoryTreeSequence2029-CmsIp1xd.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 810
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/worldPublicFindingReader-CpPsOO07.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 816
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/worldProminenceInputs-CiDYrdTP.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 817
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/IconTile2029-x-yAGhlc.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 835
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/worldJourneyProjection-Ch2uuwYB.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 839
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/World2029Page-CLP4Gbry.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 844
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/StoryTreeSequence2029-CmeGTnuu.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 850
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/WatchButton-DFPG23U2.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 851
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/worldContributorLens-oO0WF4FZ.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 945
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/brand/2029/canonical-lockup-128.webp",
+      "status": 200,
+      "transport": "GET",
+      "ms": 118
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/WorldPeopleSources2029-BRoxXZre.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 179
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/worldMapViewModel2029-DJMI18u1.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 212
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/ZviFindingCards2029-5A-AK-p-.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 253
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/WorldZviApprovedFindings2029-BMQqPo6S.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 293
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/site_flags",
+      "status": 200,
+      "transport": "GET",
+      "ms": 329
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/WorldPeopleSources2029-DxOe-atC.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 367
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/ZviFindingCards2029-CWYQoGmP.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 364
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/WorldZviSourceFindings2029-D9Vko8Vo.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 371
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/livingRibbonPreview2029-BI1iUMB3.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 358
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/s/ibmplexmono/v20/-F63fjptAgt5VM-kVkqdyU8n1i8q1w.woff2",
+      "status": 200,
+      "transport": "GET",
+      "ms": 387
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/contributors",
+      "status": 200,
+      "transport": "GET",
+      "ms": 438
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/posts",
+      "status": 206,
+      "transport": "GET",
+      "ms": 396
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/contributorSourceCatalogProjection-B9NPIi5y.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 495
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/topic_cards_public",
+      "status": 206,
+      "transport": "GET",
+      "ms": 453
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/posts",
+      "status": 200,
+      "transport": "GET",
+      "ms": 496
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/posts",
+      "status": 200,
+      "transport": "GET",
+      "ms": 506
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+      "status": 200,
+      "transport": "GET",
+      "ms": 515
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/posts",
+      "status": 200,
+      "transport": "GET",
+      "ms": 532
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/topic_cards_public",
+      "status": 200,
+      "transport": "GET",
+      "ms": 538
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/gallery_images",
+      "status": 200,
+      "transport": "GET",
+      "ms": 574
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/posts",
+      "status": 206,
+      "transport": "GET",
+      "ms": 256
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/posts",
+      "status": 200,
+      "transport": "GET",
+      "ms": 714
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/contributors",
+      "status": 200,
+      "transport": "GET",
+      "ms": 257
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/nodes",
+      "status": 200,
+      "transport": "GET",
+      "ms": 277
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/topic_cards_public",
+      "status": 206,
+      "transport": "GET",
+      "ms": 281
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/contributors",
+      "status": 200,
+      "transport": "GET",
+      "ms": 319
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/posts",
+      "status": 206,
+      "transport": "GET",
+      "ms": 270
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/gallery_images",
+      "status": 200,
+      "transport": "GET",
+      "ms": 285
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/channel_updates",
+      "status": 200,
+      "transport": "GET",
+      "ms": 361
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/channel_updates",
+      "status": 200,
+      "transport": "GET",
+      "ms": 386
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/posts",
+      "status": 200,
+      "transport": "GET",
+      "ms": 359
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/els_records",
+      "status": 200,
+      "transport": "GET",
+      "ms": 365
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/topic_cards_public",
+      "status": 206,
+      "transport": "GET",
+      "ms": 420
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/research_contributions",
+      "status": 200,
+      "transport": "GET",
+      "ms": 461
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/insights",
+      "status": 200,
+      "transport": "GET",
+      "ms": 476
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/topic_cards_public",
+      "status": 200,
+      "transport": "GET",
+      "ms": 512
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/galleries",
+      "status": 200,
+      "transport": "GET",
+      "ms": 430
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/insights",
+      "status": 200,
+      "transport": "GET",
+      "ms": 230
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/channel_updates",
+      "status": 206,
+      "transport": "GET",
+      "ms": 772
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/topic_cards_public",
+      "status": 206,
+      "transport": "GET",
+      "ms": 349
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/posts",
+      "status": 206,
+      "transport": "GET",
+      "ms": 673
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/posts",
+      "status": 206,
+      "transport": "GET",
+      "ms": 236
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/channel_updates",
+      "status": 200,
+      "transport": "GET",
+      "ms": 428
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/posts",
+      "status": 206,
+      "transport": "GET",
+      "ms": 224
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/rpc/writer_public_contributions_page_v1",
+      "status": 200,
+      "transport": "GET",
+      "ms": 1646
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/channel_updates",
+      "status": 200,
+      "transport": "GET",
+      "ms": 783
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/world_contributor_research_v1",
+      "status": 200,
+      "transport": "GET",
+      "ms": 1812
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/storage/v1/object/public/gallery/sod1820/broadcasts/AC568674E6CA8ECA41F919A7D47A2BC4.jpg",
+      "status": 200,
+      "transport": "GET",
+      "ms": 101
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/world_contributor_research_v1",
+      "status": 200,
+      "transport": "GET",
+      "ms": 613
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/channel_updates",
+      "status": 200,
+      "transport": "GET",
+      "ms": 233
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/site_flags",
+      "status": 200,
+      "transport": "GET",
+      "ms": 218
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/research_objects",
+      "status": 200,
+      "transport": "GET",
+      "ms": 238
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/channel_updates",
+      "status": 200,
+      "transport": "GET",
+      "ms": 221
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/topic_cards",
+      "status": 200,
+      "transport": "GET",
+      "ms": 235
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/world",
+      "status": 200,
+      "transport": "GET",
+      "ms": 1842
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/fonts/NotoSansHebrew-Regular.ttf",
+      "status": 200,
+      "transport": "GET",
+      "ms": 360
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/chunk-OB3PAWPO-CVMmBO49.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 368
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/publicPostUrls-YFBPKNgf.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 405
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/react-dom-DenslgJm.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 406
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/gematria-Ud5dslyW.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 433
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/css2",
+      "status": 200,
+      "transport": "GET",
+      "ms": 436
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/jsx-runtime-D3jfb0Ew.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 441
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/fonts/Rubik-Hebrew.woff2",
+      "status": 200,
+      "transport": "GET",
+      "ms": 474
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/format-DFlJicod.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 475
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/AuthContext-BWbyKTrn.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 474
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/fonts/NotoSansHebrew-Bold.ttf",
+      "status": 200,
+      "transport": "GET",
+      "ms": 506
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/fonts/Rubik-Latin.woff2",
+      "status": 200,
+      "transport": "GET",
+      "ms": 520
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/tracking-CWVUmMEl.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 557
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/scheduler-l4uHkdFa.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 559
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/methodIdentity-DM2yAcOz.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 557
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/elsResearchReturnSnapshot-B03Lyzta.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 568
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/preload-helper-BZ1Pz5am.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 574
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/ResearchProvider-BPg_ogny.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 603
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/designTokens-B8JmV1rE.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 608
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/numberExpressionFocus-j3b11NtB.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 612
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/supabase-MVQLWiWe.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 619
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/themeMode-jUD92yIC.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 657
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/worldContextualProminence-DFYM9dQz.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 664
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/razielViewMode2029-EPrCdoW9.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 669
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/NavigationIcon2029-CDR-JqlQ.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 659
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/researchObjectPresentation-l0ubBFKY.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 672
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/NavigationIcon2029-CH1qZpiS.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 693
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/timeline2029-Dc49odMG.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 681
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/theme-B2UPacu4.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 703
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/palette-CNyTr_3N.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 704
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/2029-Bdk_N1FJ.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 693
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/canonicalPresentation-DgNmWnf_.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 717
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/researchObjectFinding-bo3yYp1j.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 709
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/universalFinding-DZVlmLqu.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 715
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/postSourceUpdates2029-DmZjuVxM.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 719
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/calculator2029Input-BbfftHdT.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 719
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/numberCoreProjection-8vg3_0nP.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 724
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/gematriaTracePresentation-CX847u8G.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 725
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/dayContext-DQm1CoPT.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 759
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/2029-o_nN21t8.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 1695
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/previewVisualReview2029-BvQ2FAL9.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 69
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/previewVisualReview2029-BpFpb6ua.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 187
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/site_flags",
+      "status": 200,
+      "transport": "GET",
+      "ms": 239
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/semanticSceneCompiler-51BHTuhx.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 109
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/SpatialMethodStage2029-C72jccAu.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 302
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/entityGraphFinding-eUtGOCR5.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 516
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/canonicalGematriaProjection-B66_nJSZ.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 529
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/gpuCapability-CgzeQuuF.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 551
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/SpatialMethodStage2029-BSh4MLoa.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 554
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/ConvergenceRatings2029-Bf7X875Q.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 549
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/SourceRepeatInfo2029-C0SrKxXw.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 588
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/IconTile2029-Bt6NupR-.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 591
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/PostCategories2029-CQ4Kim3p.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 593
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/electionsIsrael21_26Seed2029-DHjFireG.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 617
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/World2029Page-7YBVVIY3.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 647
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/publicPostBoundary-DLBRu07Y.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 700
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/bookResearchProjection-afELmrkB.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 710
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/gematriaRelationW2Executor-BKe0Bw2R.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 717
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/StoryTreeSequence2029-CmsIp1xd.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 739
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/WatchButton-DFPG23U2.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 725
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/worldContributorSourceLocator-Cyr0YS9t.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 747
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/researchResultBundle-DOvHbd8e.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 763
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/numberSystemMethods-BWvswOhz.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 762
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/EmailVerify-DM0qVGWZ.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 771
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/entityHubProjection-DCsJbpGn.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 775
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/numericResearch-DqZcmZHs.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 783
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/worldContributorLens-oO0WF4FZ.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 780
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/topicConvergence-CcH3OGhO.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 800
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/worldZviApprovedFindings2029-x3At9Dud.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 797
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/Timeline2029-a6_QYh8e.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 799
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/ConvergenceRatings2029-CkJf89BB.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 809
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/canonicalGematria-Da1sqizX.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 843
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/post2029ReadingProjection-BJXInwjD.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 851
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/post2029ExperienceProjection-CPG92qMb.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 854
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/researchPlanV2-gStvBWC1.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 860
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/publicWorldContentProjectionV1-DVgRVLRF.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 888
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/PostCategories2029-DP5c8Fzv.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 889
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/Timeline2029-DCEKqbCw.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 890
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/worldDiscoveryStream-Dfn_AAyS.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 892
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/worldPublicFindingReader-CpPsOO07.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 930
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/SourceRepeatInfo2029-DDIWPxqd.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 939
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/StoryTreeSequence2029-CmeGTnuu.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 948
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/PostTimeline2029-HTi-_P5n.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 962
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/WatchButton-BlsZySEr.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 964
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/EmailVerify-CVlicRjF.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 965
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/IconTile2029-x-yAGhlc.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 966
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/worldProminenceInputs-CiDYrdTP.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 952
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/push-giVqP8pD.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 973
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/worldJourneyProjection-Ch2uuwYB.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 964
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/World2029Page-CLP4Gbry.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 1098
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/brand/2029/canonical-lockup-128.webp",
+      "status": 200,
+      "transport": "GET",
+      "ms": 65
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/livingRibbonPreview2029-BI1iUMB3.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 72
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/s/ibmplexmono/v20/-F63fjptAgt5VM-kVkqdyU8n1i8q1w.woff2",
+      "status": 200,
+      "transport": "GET",
+      "ms": 91
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/site_flags",
+      "status": 200,
+      "transport": "GET",
+      "ms": 263
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/research_objects",
+      "status": 200,
+      "transport": "GET",
+      "ms": 268
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/topic_cards_public",
+      "status": 200,
+      "transport": "GET",
+      "ms": 309
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+      "status": 200,
+      "transport": "GET",
+      "ms": 306
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/posts",
+      "status": 200,
+      "transport": "GET",
+      "ms": 428
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/topic_cards",
+      "status": 200,
+      "transport": "GET",
+      "ms": 216
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/channel_updates",
+      "status": 200,
+      "transport": "GET",
+      "ms": 236
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/ZviFindingCards2029-CWYQoGmP.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 185
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/WorldZviApprovedFindings2029-BMQqPo6S.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 209
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/worldMapViewModel2029-DJMI18u1.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 218
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/WorldPeopleSources2029-BRoxXZre.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 221
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/WorldPeopleSources2029-DxOe-atC.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 248
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/WorldZviSourceFindings2029-D9Vko8Vo.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 286
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/ZviFindingCards2029-5A-AK-p-.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 295
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/assets/contributorSourceCatalogProjection-B9NPIi5y.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 313
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/contributors",
+      "status": 200,
+      "transport": "GET",
+      "ms": 341
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/site_flags",
+      "status": 200,
+      "transport": "GET",
+      "ms": 361
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/posts",
+      "status": 200,
+      "transport": "GET",
+      "ms": 439
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/topic_cards_public",
+      "status": 206,
+      "transport": "GET",
+      "ms": 448
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/posts",
+      "status": 200,
+      "transport": "GET",
+      "ms": 445
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/gallery_images",
+      "status": 200,
+      "transport": "GET",
+      "ms": 450
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/posts",
+      "status": 206,
+      "transport": "GET",
+      "ms": 458
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/posts",
+      "status": 200,
+      "transport": "GET",
+      "ms": 460
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/contributors",
+      "status": 200,
+      "transport": "GET",
+      "ms": 235
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/contributors",
+      "status": 200,
+      "transport": "GET",
+      "ms": 241
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/nodes",
+      "status": 200,
+      "transport": "GET",
+      "ms": 253
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/topic_cards_public",
+      "status": 206,
+      "transport": "GET",
+      "ms": 232
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/gallery_images",
+      "status": 200,
+      "transport": "GET",
+      "ms": 287
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/channel_updates",
+      "status": 200,
+      "transport": "GET",
+      "ms": 293
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/posts",
+      "status": 200,
+      "transport": "GET",
+      "ms": 312
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/els_records",
+      "status": 200,
+      "transport": "GET",
+      "ms": 333
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/topic_cards_public",
+      "status": 200,
+      "transport": "GET",
+      "ms": 338
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/insights",
+      "status": 200,
+      "transport": "GET",
+      "ms": 362
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/posts",
+      "status": 206,
+      "transport": "GET",
+      "ms": 442
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/research_contributions",
+      "status": 200,
+      "transport": "GET",
+      "ms": 437
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/channel_updates",
+      "status": 200,
+      "transport": "GET",
+      "ms": 497
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/topic_cards_public",
+      "status": 206,
+      "transport": "GET",
+      "ms": 362
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/galleries",
+      "status": 200,
+      "transport": "GET",
+      "ms": 334
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/insights",
+      "status": 200,
+      "transport": "GET",
+      "ms": 223
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/posts",
+      "status": 206,
+      "transport": "GET",
+      "ms": 276
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/topic_cards_public",
+      "status": 206,
+      "transport": "GET",
+      "ms": 208
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/channel_updates",
+      "status": 206,
+      "transport": "GET",
+      "ms": 803
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/posts",
+      "status": 206,
+      "transport": "GET",
+      "ms": 405
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/channel_updates",
+      "status": 200,
+      "transport": "GET",
+      "ms": 420
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/posts",
+      "status": 206,
+      "transport": "GET",
+      "ms": 220
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/rpc/writer_public_contributions_page_v1",
+      "status": 200,
+      "transport": "GET",
+      "ms": 1570
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/posts",
+      "status": 206,
+      "transport": "GET",
+      "ms": 227
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/channel_updates",
+      "status": 200,
+      "transport": "GET",
+      "ms": 736
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/world_contributor_research_v1",
+      "status": 200,
+      "transport": "GET",
+      "ms": 1983
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/storage/v1/object/public/gallery/sod1820/broadcasts/AC568674E6CA8ECA41F919A7D47A2BC4.jpg",
+      "status": 200,
+      "transport": "GET",
+      "ms": 100
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/site_flags",
+      "status": 200,
+      "transport": "GET",
+      "ms": 216
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/site_flags",
+      "status": 200,
+      "transport": "GET",
+      "ms": 211
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/contributors",
+      "status": 200,
+      "transport": "GET",
+      "ms": 269
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/nodes",
+      "status": 200,
+      "transport": "GET",
+      "ms": 277
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/contributors",
+      "status": 200,
+      "transport": "GET",
+      "ms": 286
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/channel_updates",
+      "status": 200,
+      "transport": "GET",
+      "ms": 307
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/channel_updates",
+      "status": 200,
+      "transport": "GET",
+      "ms": 315
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/insights",
+      "status": 200,
+      "transport": "GET",
+      "ms": 328
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/els_records",
+      "status": 200,
+      "transport": "GET",
+      "ms": 354
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/posts",
+      "status": 200,
+      "transport": "GET",
+      "ms": 365
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/research_contributions",
+      "status": 200,
+      "transport": "GET",
+      "ms": 430
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/topic_cards_public",
+      "status": 200,
+      "transport": "GET",
+      "ms": 476
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/insights",
+      "status": 200,
+      "transport": "GET",
+      "ms": 224
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/channel_updates",
+      "status": 206,
+      "transport": "GET",
+      "ms": 792
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/channel_updates",
+      "status": 200,
+      "transport": "GET",
+      "ms": 254
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/rpc/writer_public_contributions_page_v1",
+      "status": 200,
+      "transport": "GET",
+      "ms": 1559
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/channel_updates",
+      "status": 200,
+      "transport": "GET",
+      "ms": 703
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/world_contributor_research_v1",
+      "status": 200,
+      "transport": "GET",
+      "ms": 1809
+    }
+  ],
+  "blocked": [
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+      "method": "POST"
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+      "method": "POST"
+    },
+    {
+      "stage": "worldWriter-390",
+      "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+      "method": "POST"
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+      "method": "POST"
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+      "method": "POST"
+    },
+    {
+      "stage": "worldWriter-1440",
+      "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+      "method": "POST"
+    }
+  ],
+  "errors": [],
+  "cleanupAborts": [],
+  "writesForwarded": 0,
+  "modelCallsForwarded": 0,
+  "identity": {
+    "sha": "056c50f9ac1f9cbc7203027d3fe7ce814ac9c36d",
+    "branch": "gpt/2029-public-world-number-acceptance-20261101",
+    "target": "preview",
+    "transport": "authenticated-preview-server-to-canonical-ai-analyze",
+    "model_trigger": "explicit-user-turn",
+    "requires_existing_account": false,
+    "product_writes": true,
+    "edge_deploy": false,
+    "matrix_jobs": "admin-explicit-cost-ack",
+    "product_write_scope": [
+      "own-person-family",
+      "own-research-state",
+      "own-private-hints-media",
+      "governed-community-actions",
+      "own-avatar",
+      "existing-verified-legacy-claim"
+    ],
+    "public_preview_restrictions": [
+      "life-journey-admin-only",
+      "raziel-admin-only",
+      "els-admin-only"
+    ],
+    "companion": "temporarily-unmounted",
+    "production_flags_changed": false,
+    "general_profile_writes": false,
+    "els_followup_server_contract": "requires-approved-shared-artifact",
+    "expected_server_sha256": "2ac19e112e77e71fbab61270338e126edf88128a786f3425b09157291494281f"
+  },
+  "workerSha256": "989e1cc315d8b42ae1cc01c57f44bbe6cd2ff4b90b6eb4e9453090008d57f2fb",
+  "unauthenticatedRootStatus": 302,
+  "capabilities": {
+    "target": "preview",
+    "serverIdentityAvailable": true,
+    "serverIdentityVerified": true,
+    "userAuthenticationRequired": true,
+    "production": false
+  },
+  "runScope": {
+    "widths": [
+      390,
+      1440
+    ],
+    "caseNames": [
+      "worldWriter"
+    ]
+  },
+  "ok": true
+}

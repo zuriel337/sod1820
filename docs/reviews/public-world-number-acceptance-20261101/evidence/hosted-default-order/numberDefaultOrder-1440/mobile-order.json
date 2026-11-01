@@ -1,0 +1,920 @@
+{
+  "phase": "after",
+  "width": 1440,
+  "readyMs": 6861,
+  "expression": "אין סוף אין קץ אין תכלית אין מספר",
+  "publicOrder": [
+    {
+      "phrase": "אין סוף אין קץ אין תכלית אין מספר",
+      "rank": 1
+    },
+    {
+      "phrase": "מספר שמות יהוה בכל התורה",
+      "rank": 2
+    },
+    {
+      "phrase": "יעלז שדי וכל אשר בו אז ירננו כל עצי יער",
+      "rank": 3
+    },
+    {
+      "phrase": "סוד אלף שמונה מאות עשרים כי לה המלוכה",
+      "rank": null
+    },
+    {
+      "phrase": "תורתי אמת המשיח",
+      "rank": null
+    },
+    {
+      "phrase": "הקדוש ברוך הוא תורה ישראל אחד",
+      "rank": null
+    },
+    {
+      "phrase": "אחת ארבע שבע ושתיים",
+      "rank": null
+    },
+    {
+      "phrase": "משיח בן דוד מרחשון התשפז",
+      "rank": null
+    }
+  ],
+  "displayedOrder": [
+    "אין סוף אין קץ אין תכלית אין מספר",
+    "מספר שמות יהוה בכל התורה",
+    "יעלז שדי וכל אשר בו אז ירננו כל עצי יער",
+    "סוד אלף שמונה מאות עשרים כי לה המלוכה",
+    "תורתי אמת המשיח",
+    "הקדוש ברוך הוא תורה ישראל אחד",
+    "אחת ארבע שבע ושתיים",
+    "משיח בן דוד מרחשון התשפז"
+  ],
+  "geometry": {
+    "header": {
+      "x": 371,
+      "y": 201,
+      "width": 948,
+      "height": 134.796875,
+      "right": 1319,
+      "bottom": 335.796875
+    },
+    "expression": {
+      "x": 830.921875,
+      "y": 231.109375,
+      "width": 473.078125,
+      "height": 76.578125,
+      "right": 1304,
+      "bottom": 307.6875
+    },
+    "text": {
+      "x": 1024.4375,
+      "y": 253.734375,
+      "width": 279.5625,
+      "height": 30.953125,
+      "right": 1304,
+      "bottom": 284.6875
+    },
+    "number": {
+      "x": 509,
+      "y": 232,
+      "width": 309.921875,
+      "height": 98.796875,
+      "right": 818.921875,
+      "bottom": 330.796875
+    },
+    "life": {
+      "x": 386,
+      "y": 231.390625,
+      "width": 76,
+      "height": 76,
+      "right": 462,
+      "bottom": 307.390625
+    },
+    "fontSize": "104px",
+    "overflow": false
+  },
+  "overlap": {
+    "textNumber": 0,
+    "textLife": 0
+  },
+  "reads": [
+    {
+      "path": "/number/1820",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/assets/format-DFlJicod.js",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/fonts/NotoSansHebrew-Bold.ttf",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/fonts/Rubik-Hebrew.woff2",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/assets/jsx-runtime-D3jfb0Ew.js",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/fonts/NotoSansHebrew-Regular.ttf",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/assets/chunk-OB3PAWPO-CVMmBO49.js",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/css2",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/assets/scheduler-l4uHkdFa.js",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/assets/palette-CNyTr_3N.js",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/assets/worldContextualProminence-DFYM9dQz.js",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/assets/razielViewMode2029-EPrCdoW9.js",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/assets/NavigationIcon2029-CDR-JqlQ.css",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/fonts/Rubik-Latin.woff2",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/assets/NavigationIcon2029-CH1qZpiS.js",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/assets/postSourceUpdates2029-DmZjuVxM.js",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/assets/react-dom-DenslgJm.js",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/assets/designTokens-B8JmV1rE.js",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/assets/supabase-MVQLWiWe.js",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/assets/ResearchProvider-BPg_ogny.js",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/assets/2029-o_nN21t8.js",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/assets/timeline2029-Dc49odMG.js",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/assets/preload-helper-BZ1Pz5am.js",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/assets/numberCoreProjection-8vg3_0nP.js",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/assets/2029-Bdk_N1FJ.css",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/assets/calculator2029Input-BbfftHdT.js",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/assets/publicPostUrls-YFBPKNgf.js",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/assets/elsResearchReturnSnapshot-B03Lyzta.js",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/assets/AuthContext-BWbyKTrn.js",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/assets/gematriaTracePresentation-CX847u8G.js",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/assets/gematria-Ud5dslyW.js",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/assets/researchObjectFinding-bo3yYp1j.js",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/assets/researchObjectPresentation-l0ubBFKY.js",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/assets/dayContext-DQm1CoPT.js",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/assets/methodIdentity-DM2yAcOz.js",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/assets/canonicalPresentation-DgNmWnf_.js",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/assets/theme-B2UPacu4.js",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/assets/tracking-CWVUmMEl.js",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/assets/universalFinding-DZVlmLqu.js",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/assets/themeMode-jUD92yIC.js",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/assets/numberExpressionFocus-j3b11NtB.js",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/assets/previewVisualReview2029-BvQ2FAL9.css",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/assets/previewVisualReview2029-BpFpb6ua.js",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/rest/v1/site_flags",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/assets/NumberAddress2029Page-BtIKjPXn.js",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/assets/Number2029Page-d-98CVnH.js",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/assets/semanticSceneCompiler-51BHTuhx.js",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/assets/gpuCapability-CgzeQuuF.js",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/assets/SignatureResearchIcon-COpmmd5o.css",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/assets/canonicalGematria-Da1sqizX.js",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/assets/worldContributorSourceLocator-Cyr0YS9t.js",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/assets/entityGraphFinding-eUtGOCR5.js",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/assets/canonicalGematriaProjection-B66_nJSZ.js",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/assets/SpatialMethodStage2029-BSh4MLoa.js",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/assets/CurationMark2029-CRcuZKya.js",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/assets/worldPublicFindingReader-CpPsOO07.js",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/assets/CurationMark2029-CqI6kfN0.css",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/assets/SignatureResearchIcon-DYnuhf6V.js",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/assets/ZviFindingCards2029-CWYQoGmP.js",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/assets/NumberZviPublicResearch2029-1yf3znMg.js",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/assets/numericResearch-DqZcmZHs.js",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/assets/SpatialMethodStage2029-C72jccAu.css",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/assets/NumberCore2029-DoOroEE7.css",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/assets/ZviFindingCards2029-5A-AK-p-.css",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/assets/topicConvergence-CcH3OGhO.js",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/assets/curationProjection2029-Dhf0XNrF.js",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/assets/Timeline2029-a6_QYh8e.css",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/assets/researchPlanV2-gStvBWC1.js",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/assets/Timeline2029-DCEKqbCw.js",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/assets/CanonicalVerseCards2029-CPRZOX-b.css",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/assets/researchResultBundle-DOvHbd8e.js",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/assets/NumberCore2029-1Fw5Xvq9.js",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/assets/worldZviApprovedFindings2029-x3At9Dud.js",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/assets/worldProminenceInputs-CiDYrdTP.js",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/assets/CanonicalVerseCards2029-BXh5ncYP.js",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/assets/Number2029Page-CmYcHBHM.css",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/assets/numberSystemMethods-BWvswOhz.js",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/assets/worldJourneyProjection-Ch2uuwYB.js",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/assets/entityHubProjection-DCsJbpGn.js",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/assets/worldDiscoveryStream-Dfn_AAyS.js",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/brand/2029/canonical-lockup-128.webp",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/s/ibmplexmono/v20/-F63fjptAgt5VM-kVkqdyU8n1i8q1w.woff2",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/rest/v1/nodes",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/rest/v1/gematria_words",
+      "ms": -1,
+      "status": 206
+    },
+    {
+      "path": "/rest/v1/site_flags",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/rest/v1/rpc/is_number_indexable",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/rest/v1/nodes",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/rest/v1/nodes",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/rest/v1/nodes",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/rest/v1/topic_cards_public",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/rest/v1/nodes",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/rest/v1/rpc/lang_links_list",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/rest/v1/rpc/fn_method_profile",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/rest/v1/posts",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/rest/v1/rpc/posts_by_number_strict",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/rest/v1/gematria_words",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/rest/v1/rpc/fn_zero_scale",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/rest/v1/insights",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/rest/v1/entity_types",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/rest/v1/nodes",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/rest/v1/topic_cards_public",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/rest/v1/gallery_images",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/rest/v1/rpc/fn_number_lookup",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/rest/v1/nodes",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/rest/v1/gallery_images",
+      "ms": -1,
+      "status": 206
+    },
+    {
+      "path": "/rest/v1/number_anchors",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/rest/v1/research_objects",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/rest/v1/gematria_methods",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/rest/v1/nodes",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/rest/v1/research_objects",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/rest/v1/research_objects",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/rest/v1/edges",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/rest/v1/edges",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/rest/v1/topic_cards_public",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/rest/v1/topic_cards_public",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/rest/v1/topic_cards_public",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/rest/v1/topic_cards_public",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/rest/v1/topic_cards_public",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/rest/v1/topic_cards_public",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/rest/v1/edges",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/rest/v1/topic_cards_public",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/rest/v1/gematria_methods",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/rest/v1/nodes",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/rest/v1/nodes",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/rest/v1/nodes",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/rest/v1/nodes",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/rest/v1/nodes",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/rest/v1/nodes",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/rest/v1/nodes",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/rest/v1/gematria_words",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/rest/v1/nodes",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/rest/v1/nodes",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/rest/v1/edges",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/rest/v1/edges",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/rest/v1/gematria_methods",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/rest/v1/edges",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/rest/v1/edges",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/rest/v1/edges",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/rest/v1/edges",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/rest/v1/edges",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/rest/v1/nodes",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/rest/v1/rpc/fn_number_dossier",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/rest/v1/nodes",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/rest/v1/nodes",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/rest/v1/rpc/number_neighbors",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/rest/v1/rpc/fn_number_journey",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/rest/v1/nodes",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/rest/v1/nodes",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/rest/v1/nodes",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/rest/v1/nodes",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/rest/v1/nodes",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/rest/v1/rpc/fn_number_lookup",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/rest/v1/gallery_images",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/rest/v1/nodes",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/rest/v1/nodes",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/rest/v1/gematria_methods",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/rest/v1/nodes",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/rest/v1/nodes",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/rest/v1/rpc/fn_verses_by_gematria",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/rest/v1/rpc/gematria_method_trace",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/rest/v1/nodes",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/rest/v1/gematria_words",
+      "ms": -1,
+      "status": 200
+    },
+    {
+      "path": "/rest/v1/rpc/fn_zero_scale",
+      "ms": -1,
+      "status": 200
+    }
+  ]
+}

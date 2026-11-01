@@ -49,7 +49,13 @@ input.once('line',async line=>{
    });
    const page=await context.newPage();page.on('pageerror',error=>audit.errors.push({stage:thisStage,type:error.name,message:error.message.slice(0,250)}));
    const dir=path.join(out,thisStage);fs.mkdirSync(dir,{recursive:true});const start=Date.now();
-   try{await scenarios[name](page,width,{outputPath:file=>path.join(dir,file)},origin);audit.cases.push({width,scenario:name,passed:true,elapsedMs:Date.now()-start,data:name==='galleryPrivacyFault'?'real public image plus explicitly synthetic privacy/failure/dedup controls':'actual public data'});console.log(JSON.stringify({scenario:name,width,passed:true}));}
+   try{await scenarios[name](page,width,{outputPath:file=>path.join(dir,file)},origin);
+    if(process.env.SOD_REMOTE_DIAGNOSTIC==='1'){
+     const samples=[];
+     for(const delay of[0,250,750]){if(delay)await page.waitForTimeout(delay);samples.push(await page.evaluate(()=>({y:scrollY,height:innerHeight,documentHeight:document.documentElement.scrollHeight,viewport:visualViewport&&{top:visualViewport.offsetTop,height:visualViewport.height},nodes:['html','body','.sod29-root','.sod29-header','.sod29-world-public-material-grid'].map(selector=>{const e=document.querySelector(selector);if(!e)return{selector};const r=e.getBoundingClientRect(),s=getComputedStyle(e);return{selector,x:r.x,y:r.y,width:r.width,height:r.height,position:s.position,top:s.top,transform:s.transform,contain:s.contain,overflow:s.overflow};})})));}
+     fs.writeFileSync(path.join(dir,'settled-geometry.json'),JSON.stringify(samples,null,2)+'\n');await page.screenshot({path:path.join(dir,'settled.png')});
+    }
+    audit.cases.push({width,scenario:name,passed:true,elapsedMs:Date.now()-start,data:name==='galleryPrivacyFault'?'real public image plus explicitly synthetic privacy/failure/dedup controls':'actual public data'});console.log(JSON.stringify({scenario:name,width,passed:true}));}
    catch(error){
     const safe=String(error.message).replace(/eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+/g,'[JWT]').replace(/_vercel_share=[^\s"')&]+/g,'_vercel_share=[REDACTED]');
     audit.failure={stage:thisStage,name:error.name,message:safe.slice(0,4000),url:page.url(),stack:String(error.stack).split('\n').filter(line=>line.includes('/workspace/')).slice(0,4)};

@@ -1,0 +1,53 @@
+{
+  "deployment": {
+    "id": "dpl_8NJ2ZvpuWSWzNwvLVyZsZGGgtYEc",
+    "url": "sod1820-jumycyd68-sod1820-s-projects.vercel.app",
+    "readyState": "READY",
+    "target": "staging",
+    "meta": {
+      "githubCommitRef": "gpt/2029-public-world-number-acceptance-20261101",
+      "githubCommitSha": "056c50f9ac1f9cbc7203027d3fe7ce814ac9c36d",
+      "githubCommitMessage": "docs(2029): normalize preserved regression output",
+      "githubRepo": "sod1820",
+      "githubOrg": "zuriel337"
+    },
+    "alias": [
+      "sod1820-git-gpt-2029-public-world-num-5046c1-sod1820-s-projects.vercel.app"
+    ]
+  },
+  "production": {
+    "id": "dpl_BFpwZGiYL3Qpdy9nCuGKGb9Xmko2",
+    "url": "sod1820-3mp87hq22-sod1820-s-projects.vercel.app",
+    "readyState": "READY",
+    "target": "production",
+    "meta": {
+      "githubCommitRef": "gpt/legacy-ticker-only-livebase-20261031",
+      "githubCommitSha": "d1837efcf5a978d10a514010f3695680f231e116",
+      "githubCommitMessage": "fix(legacy): make message static larger and more prominent",
+      "githubRepo": "sod1820",
+      "githubOrg": "zuriel337"
+    }
+  },
+  "productionAliases": [
+    {
+      "alias": "www.sod1820.co.il",
+      "deploymentId": "dpl_BFpwZGiYL3Qpdy9nCuGKGb9Xmko2"
+    },
+    {
+      "alias": "sod1820.co.il",
+      "deploymentId": "dpl_BFpwZGiYL3Qpdy9nCuGKGb9Xmko2"
+    }
+  ],
+  "protection": {
+    "id": "prj_43q7k7QFAcWnin1tcBjce5xOi7Cq",
+    "ssoProtection": {
+      "enabled": true,
+      "deploymentType": "all_except_custom_domains"
+    },
+    "passwordProtectionConfigured": true
+  },
+  "publicLaunchFlagRead": "No matching CORE_PUBLIC_LAUNCH_2029 site_flags row found; no flag was written. Production-denial build tests passed; this receipt does not claim a live false flag value.",
+  "mainBeforeAndAfter": "2195c9784c5c9f0b1ec3cd3c1137fbd76045845b",
+  "worldBeforeAndAfter": "b2f18b366bc80628a5b83a7749a49f355caee0a9",
+  "note": "Canonical Legacy alias and resolved deployment unchanged from pre-task read; do not apply the older literal deployment in AGENTS as a rollback instruction."
+}

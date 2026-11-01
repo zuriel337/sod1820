@@ -1,0 +1,52 @@
+{
+  "width": 1440,
+  "data": "real public read-only",
+  "canonicalExample": {
+    "expression": "אחת ארבע שבע ושתיים",
+    "regular": 1820,
+    "milui": 3928
+  },
+  "miluiMs": 2246,
+  "preciseReturn": "/number/1820?focus=%D7%90%D7%97%D7%AA%20%D7%90%D7%A8%D7%91%D7%A2%20%D7%A9%D7%91%D7%A2%20%D7%95%D7%A9%D7%AA%D7%99%D7%99%D7%9D&method=%D7%A8%D7%92%D7%99%D7%9C&source=post&part=2&part=7#number-essential",
+  "fullPageNoDrawer": true,
+  "cards": [
+    {
+      "text": "הסכום (שרית+שרית) שווה למכפלה (סוד×י-הוה) — שניהם 1820",
+      "sourceRef": "channel_updates:bc0aa8ce-30fc-4a22-b42d-113a456f5e58",
+      "href": "/world?view=sources&source=tzvi-opoc&sourceRef=channel_updates%3Abc0aa8ce-30fc-4a22-b42d-113a456f5e58#source-occurrence-bc0aa8ce-30fc-4a22-b42d-113a456f5e58",
+      "buttonCount": 0
+    },
+    {
+      "text": "1820 מתקבל ממכפלת 70 (סוד) ב-26 (הויה)",
+      "sourceRef": "channel_updates:01d2a7a9-5c38-41e7-adc0-59bbb46e201a",
+      "href": "/world?view=sources&source=tzvi-opoc&sourceRef=channel_updates%3A01d2a7a9-5c38-41e7-adc0-59bbb46e201a#source-occurrence-01d2a7a9-5c38-41e7-adc0-59bbb46e201a",
+      "buttonCount": 0
+    },
+    {
+      "text": "«שרית»+«שרית» = 1820 = «סוד»×«י-הוה»",
+      "sourceRef": "channel_updates:a6805e30-21e0-4315-8f35-70b1bfdb0d14",
+      "href": "/world?view=sources&source=tzvi-opoc&sourceRef=channel_updates%3Aa6805e30-21e0-4315-8f35-70b1bfdb0d14#source-occurrence-a6805e30-21e0-4315-8f35-70b1bfdb0d14",
+      "buttonCount": 0
+    },
+    {
+      "text": "גימטריית הפסוק על קרבן התמיד ↔ מספר הופעות שם הוי\"ה בתורה (אותו ערך 1820)",
+      "sourceRef": "channel_updates:8352ac10-83cd-4864-b620-b538c2b55dda",
+      "href": "/world?view=sources&source=tzvi-opoc&sourceRef=channel_updates%3A8352ac10-83cd-4864-b620-b538c2b55dda#source-occurrence-8352ac10-83cd-4864-b620-b538c2b55dda",
+      "buttonCount": 0
+    },
+    {
+      "text": "911 + 909 = 1820 = 1820",
+      "sourceRef": "channel_updates:6c3e5e16-de8c-4708-9700-78f91f558297",
+      "href": "/world?view=sources&source=tzvi-opoc&sourceRef=channel_updates%3A6c3e5e16-de8c-4708-9700-78f91f558297#source-occurrence-6c3e5e16-de8c-4708-9700-78f91f558297",
+      "buttonCount": 0
+    }
+  ],
+  "profileReads": [
+    "אחת ארבע שבע ושתיים",
+    "אין סוף אין קץ אין תכלית אין מספר",
+    "אחת ארבע שבע ושתיים"
+  ],
+  "errors": [],
+  "productWritesForwarded": 0,
+  "modelCallsForwarded": 0
+}

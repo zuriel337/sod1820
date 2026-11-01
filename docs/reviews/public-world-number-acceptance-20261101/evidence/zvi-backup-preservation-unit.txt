@@ -1,0 +1,12 @@
+✔ public Zvi multi-value findings remain separate strong review groups (2.152354ms)
+✔ multi-value rows link each existing number separately and never invent target 1563 (0.364739ms)
+✔ private or unavailable rows never become public placeholder findings (0.460419ms)
+✔ the public projection performs one bounded RLS read (0.415369ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 144.865714

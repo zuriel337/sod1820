@@ -1,0 +1,23 @@
+{
+  "before": {
+    "id": 37,
+    "slug": "sod1820_reality_stream_os_master_v3_20261016_draft",
+    "body_md5": "3adc85371de31868cca4565244b67324",
+    "body_length": 404251,
+    "updated_at": "2026-10-31 20:41:01.807042+00",
+    "same_addendum_at": 0
+  },
+  "after": {
+    "id": 37,
+    "slug": "sod1820_reality_stream_os_master_v3_20261016_draft",
+    "title": "SOD1820 — זרם המציאות · תוכנית־על תחומית V3 בתוך מפת האתר · DRAFT",
+    "updated_at": "2026-11-01 12:51:57.308289+00",
+    "body_length": 408550,
+    "body_md5": "28da91c8401904888c5d0c449d5354b5",
+    "preserved_prefix_md5": "3adc85371de31868cca4565244b67324",
+    "final_sha_in_append": 437
+  },
+  "appendFile": "doc37-addendum.md",
+  "method": "additive conditional update, original prefix MD5 verified",
+  "scope": "Planning document only; no product data/schema/RLS/auth mutation"
+}

@@ -1,0 +1,215 @@
+[
+  {
+    "y": 3078,
+    "height": 900,
+    "documentHeight": 7170,
+    "viewport": {
+      "top": 0,
+      "height": 900
+    },
+    "nodes": [
+      {
+        "selector": "html",
+        "x": 0,
+        "y": -3078,
+        "width": 1440,
+        "height": 7169.625,
+        "position": "static",
+        "top": "auto",
+        "transform": "none",
+        "contain": "none",
+        "overflow": "clip visible"
+      },
+      {
+        "selector": "body",
+        "x": 0,
+        "y": -3078,
+        "width": 1440,
+        "height": 7169.625,
+        "position": "static",
+        "top": "auto",
+        "transform": "none",
+        "contain": "none",
+        "overflow": "clip visible"
+      },
+      {
+        "selector": ".sod29-root",
+        "x": 0,
+        "y": -3078,
+        "width": 1440,
+        "height": 7169.625,
+        "position": "relative",
+        "top": "0px",
+        "transform": "none",
+        "contain": "none",
+        "overflow": "clip visible"
+      },
+      {
+        "selector": ".sod29-header",
+        "x": 10,
+        "y": 10,
+        "width": 1358,
+        "height": 56,
+        "position": "sticky",
+        "top": "10px",
+        "transform": "none",
+        "contain": "none",
+        "overflow": "visible"
+      },
+      {
+        "selector": ".sod29-world-public-material-grid",
+        "x": 155,
+        "y": -3.046875,
+        "width": 1058,
+        "height": 3108.71875,
+        "position": "static",
+        "top": "auto",
+        "transform": "none",
+        "contain": "none",
+        "overflow": "visible"
+      }
+    ]
+  },
+  {
+    "y": 3078,
+    "height": 900,
+    "documentHeight": 7170,
+    "viewport": {
+      "top": 0,
+      "height": 900
+    },
+    "nodes": [
+      {
+        "selector": "html",
+        "x": 0,
+        "y": -3078,
+        "width": 1440,
+        "height": 7169.625,
+        "position": "static",
+        "top": "auto",
+        "transform": "none",
+        "contain": "none",
+        "overflow": "clip visible"
+      },
+      {
+        "selector": "body",
+        "x": 0,
+        "y": -3078,
+        "width": 1440,
+        "height": 7169.625,
+        "position": "static",
+        "top": "auto",
+        "transform": "none",
+        "contain": "none",
+        "overflow": "clip visible"
+      },
+      {
+        "selector": ".sod29-root",
+        "x": 0,
+        "y": -3078,
+        "width": 1440,
+        "height": 7169.625,
+        "position": "relative",
+        "top": "0px",
+        "transform": "none",
+        "contain": "none",
+        "overflow": "clip visible"
+      },
+      {
+        "selector": ".sod29-header",
+        "x": 10,
+        "y": 10,
+        "width": 1358,
+        "height": 56,
+        "position": "sticky",
+        "top": "10px",
+        "transform": "none",
+        "contain": "none",
+        "overflow": "visible"
+      },
+      {
+        "selector": ".sod29-world-public-material-grid",
+        "x": 155,
+        "y": -3.046875,
+        "width": 1058,
+        "height": 3108.71875,
+        "position": "static",
+        "top": "auto",
+        "transform": "none",
+        "contain": "none",
+        "overflow": "visible"
+      }
+    ]
+  },
+  {
+    "y": 3078,
+    "height": 900,
+    "documentHeight": 7170,
+    "viewport": {
+      "top": 0,
+      "height": 900
+    },
+    "nodes": [
+      {
+        "selector": "html",
+        "x": 0,
+        "y": -3078,
+        "width": 1440,
+        "height": 7169.625,
+        "position": "static",
+        "top": "auto",
+        "transform": "none",
+        "contain": "none",
+        "overflow": "clip visible"
+      },
+      {
+        "selector": "body",
+        "x": 0,
+        "y": -3078,
+        "width": 1440,
+        "height": 7169.625,
+        "position": "static",
+        "top": "auto",
+        "transform": "none",
+        "contain": "none",
+        "overflow": "clip visible"
+      },
+      {
+        "selector": ".sod29-root",
+        "x": 0,
+        "y": -3078,
+        "width": 1440,
+        "height": 7169.625,
+        "position": "relative",
+        "top": "0px",
+        "transform": "none",
+        "contain": "none",
+        "overflow": "clip visible"
+      },
+      {
+        "selector": ".sod29-header",
+        "x": 10,
+        "y": 10,
+        "width": 1358,
+        "height": 56,
+        "position": "sticky",
+        "top": "10px",
+        "transform": "none",
+        "contain": "none",
+        "overflow": "visible"
+      },
+      {
+        "selector": ".sod29-world-public-material-grid",
+        "x": 155,
+        "y": -3.046875,
+        "width": 1058,
+        "height": 3108.71875,
+        "position": "static",
+        "top": "auto",
+        "transform": "none",
+        "contain": "none",
+        "overflow": "visible"
+      }
+    ]
+  }
+]

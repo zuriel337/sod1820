@@ -1,0 +1,494 @@
+[
+  {
+    "run": "final-public-loading-after-desktop-1-audit.json",
+    "reads": 887,
+    "measuredSnapshotMisses": 0,
+    "transportErrors": [],
+    "forwardedWrites": 0,
+    "forwardedModels": 0,
+    "blocked": [
+      {
+        "phase": "home-entry",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "home-entry",
+        "path": "/els-icon.png",
+        "method": "GET"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/els-icon.png",
+        "method": "GET"
+      },
+      {
+        "phase": "home-entry",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "home-entry",
+        "path": "/els-icon.png",
+        "method": "GET"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/els-icon.png",
+        "method": "GET"
+      }
+    ],
+    "non2xx": []
+  },
+  {
+    "run": "final-public-loading-after-desktop-2-audit.json",
+    "reads": 900,
+    "measuredSnapshotMisses": 0,
+    "transportErrors": [],
+    "forwardedWrites": 0,
+    "forwardedModels": 0,
+    "blocked": [
+      {
+        "phase": "home-entry",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "home-entry",
+        "path": "/els-icon.png",
+        "method": "GET"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/els-icon.png",
+        "method": "GET"
+      },
+      {
+        "phase": "home-entry",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "home-entry",
+        "path": "/els-icon.png",
+        "method": "GET"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/els-icon.png",
+        "method": "GET"
+      }
+    ],
+    "non2xx": []
+  },
+  {
+    "run": "final-public-loading-after-desktop-3-audit.json",
+    "reads": 892,
+    "measuredSnapshotMisses": 0,
+    "transportErrors": [],
+    "forwardedWrites": 0,
+    "forwardedModels": 0,
+    "blocked": [
+      {
+        "phase": "home-entry",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "home-entry",
+        "path": "/els-icon.png",
+        "method": "GET"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/els-icon.png",
+        "method": "GET"
+      },
+      {
+        "phase": "home-entry",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "home-entry",
+        "path": "/els-icon.png",
+        "method": "GET"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/els-icon.png",
+        "method": "GET"
+      }
+    ],
+    "non2xx": []
+  },
+  {
+    "run": "final-public-loading-after-mobile-slow-1-audit.json",
+    "reads": 886,
+    "measuredSnapshotMisses": 0,
+    "transportErrors": [],
+    "forwardedWrites": 0,
+    "forwardedModels": 0,
+    "blocked": [
+      {
+        "phase": "home-entry",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "home-entry",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      }
+    ],
+    "non2xx": []
+  },
+  {
+    "run": "final-public-loading-after-mobile-slow-2-audit.json",
+    "reads": 883,
+    "measuredSnapshotMisses": 0,
+    "transportErrors": [],
+    "forwardedWrites": 0,
+    "forwardedModels": 0,
+    "blocked": [
+      {
+        "phase": "home-entry",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "home-entry",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      }
+    ],
+    "non2xx": []
+  },
+  {
+    "run": "final-public-loading-after-mobile-slow-3-audit.json",
+    "reads": 892,
+    "measuredSnapshotMisses": 0,
+    "transportErrors": [],
+    "forwardedWrites": 0,
+    "forwardedModels": 0,
+    "blocked": [
+      {
+        "phase": "home-entry",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "home-entry",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      }
+    ],
+    "non2xx": []
+  },
+  {
+    "run": "final-public-loading-before-desktop-1-audit.json",
+    "reads": 904,
+    "measuredSnapshotMisses": 0,
+    "transportErrors": [],
+    "forwardedWrites": 0,
+    "forwardedModels": 0,
+    "blocked": [
+      {
+        "phase": "home-entry",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "home-entry",
+        "path": "/els-icon.png",
+        "method": "GET"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/els-icon.png",
+        "method": "GET"
+      },
+      {
+        "phase": "home-entry",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "home-entry",
+        "path": "/els-icon.png",
+        "method": "GET"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/els-icon.png",
+        "method": "GET"
+      }
+    ],
+    "non2xx": []
+  },
+  {
+    "run": "final-public-loading-before-desktop-2-audit.json",
+    "reads": 895,
+    "measuredSnapshotMisses": 0,
+    "transportErrors": [],
+    "forwardedWrites": 0,
+    "forwardedModels": 0,
+    "blocked": [
+      {
+        "phase": "home-entry",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "home-entry",
+        "path": "/els-icon.png",
+        "method": "GET"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/els-icon.png",
+        "method": "GET"
+      },
+      {
+        "phase": "home-entry",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "home-entry",
+        "path": "/els-icon.png",
+        "method": "GET"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/els-icon.png",
+        "method": "GET"
+      }
+    ],
+    "non2xx": []
+  },
+  {
+    "run": "final-public-loading-before-desktop-3-audit.json",
+    "reads": 894,
+    "measuredSnapshotMisses": 0,
+    "transportErrors": [],
+    "forwardedWrites": 0,
+    "forwardedModels": 0,
+    "blocked": [
+      {
+        "phase": "home-entry",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "home-entry",
+        "path": "/els-icon.png",
+        "method": "GET"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/els-icon.png",
+        "method": "GET"
+      },
+      {
+        "phase": "home-entry",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "home-entry",
+        "path": "/els-icon.png",
+        "method": "GET"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/els-icon.png",
+        "method": "GET"
+      }
+    ],
+    "non2xx": []
+  },
+  {
+    "run": "final-public-loading-before-mobile-slow-1-audit.json",
+    "reads": 887,
+    "measuredSnapshotMisses": 0,
+    "transportErrors": [],
+    "forwardedWrites": 0,
+    "forwardedModels": 0,
+    "blocked": [
+      {
+        "phase": "home-entry",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "home-entry",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      }
+    ],
+    "non2xx": []
+  },
+  {
+    "run": "final-public-loading-before-mobile-slow-2-audit.json",
+    "reads": 887,
+    "measuredSnapshotMisses": 0,
+    "transportErrors": [],
+    "forwardedWrites": 0,
+    "forwardedModels": 0,
+    "blocked": [
+      {
+        "phase": "home-entry",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "home-entry",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      }
+    ],
+    "non2xx": []
+  },
+  {
+    "run": "final-public-loading-before-mobile-slow-3-audit.json",
+    "reads": 888,
+    "measuredSnapshotMisses": 0,
+    "transportErrors": [],
+    "forwardedWrites": 0,
+    "forwardedModels": 0,
+    "blocked": [
+      {
+        "phase": "home-entry",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "home-entry",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      }
+    ],
+    "non2xx": []
+  }
+]
