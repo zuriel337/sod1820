@@ -27,7 +27,10 @@ input.once('line',async line=>{
   assert.equal((await api.get(origin+'/api/contributor-self')).status(),401);assert.equal((await api.get(origin+'/api/preview-raziel')).status(),405);
   const robots=await api.get(origin+'/robots.txt');assert.match(await robots.text(),/Disallow:\s*\//);
   browser=await chromium.launch({executablePath:'/usr/bin/chromium',headless:true,args:['--no-sandbox','--disable-dev-shm-usage']});
-  for(const width of[390,1440])for(const name of['numberFullPage','worldWriter','worldCorpus','riverGallery','postNumberReturn','directPublicAddresses','galleryPrivacyFault']){
+  const widths=process.env.SOD_REMOTE_WIDTHS?process.env.SOD_REMOTE_WIDTHS.split(',').map(Number):[390,1440];
+  const caseNames=process.env.SOD_REMOTE_CASES?process.env.SOD_REMOTE_CASES.split(','):['numberFullPage','worldWriter','worldCorpus','riverGallery','postNumberReturn','directPublicAddresses','galleryPrivacyFault'];
+  audit.runScope={widths,caseNames};
+  for(const width of widths)for(const name of caseNames){
    stage=name+'-'+width;const thisStage=stage;let closing=false;
    const context=await browser.newContext({serviceWorkers:'block',locale:'he-IL',viewport:{width,height:900}});await context.routeWebSocket('**/*',socket=>socket.close());
    await context.route('**/*',async route=>{
@@ -47,6 +50,11 @@ input.once('line',async line=>{
    const page=await context.newPage();page.on('pageerror',error=>audit.errors.push({stage:thisStage,type:error.name,message:error.message.slice(0,250)}));
    const dir=path.join(out,thisStage);fs.mkdirSync(dir,{recursive:true});const start=Date.now();
    try{await scenarios[name](page,width,{outputPath:file=>path.join(dir,file)},origin);audit.cases.push({width,scenario:name,passed:true,elapsedMs:Date.now()-start,data:name==='galleryPrivacyFault'?'real public image plus explicitly synthetic privacy/failure/dedup controls':'actual public data'});console.log(JSON.stringify({scenario:name,width,passed:true}));}
+   catch(error){
+    const safe=String(error.message).replace(/eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+/g,'[JWT]').replace(/_vercel_share=[^\s"')&]+/g,'_vercel_share=[REDACTED]');
+    audit.failure={stage:thisStage,name:error.name,message:safe.slice(0,4000),url:page.url(),stack:String(error.stack).split('\n').filter(line=>line.includes('/workspace/')).slice(0,4)};
+    await page.screenshot({path:path.join(dir,'failure.png'),fullPage:false}).catch(()=>{});throw error;
+   }
    finally{closing=true;await context.close();}
   }
   assert.deepEqual(audit.errors,[]);audit.ok=true;
