@@ -26,6 +26,9 @@ test("credit charging is reserve-settle-return and clients never submit a cost",
   assert.match(sql, /unique \(user_id, action_key, operation_ref\)/);
   assert.match(sql, /create or replace function public\.credit_settle_v1/);
   assert.match(sql, /create or replace function public\.credit_return_v1/);
+  assert.match(sql, /greatest\(v_reservation\.cost - v_allocated, 0\)/);
+  assert.match(sql, /v_refund := v_refund \+ v_allocation\.amount/);
+  assert.match(sql, /v_reservation\.user_id::text \|\| ':membership-credit'/);
   assert.match(sql, /create or replace function public\.credit_release_expired_v1/);
 });
 

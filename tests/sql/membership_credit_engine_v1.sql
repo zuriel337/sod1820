@@ -109,10 +109,12 @@ select public.credit_test_assert(
 
 insert into auth.users(id) values
   ('11111111-1111-4111-8111-111111111111'),
-  ('22222222-2222-4222-8222-222222222222');
+  ('22222222-2222-4222-8222-222222222222'),
+  ('33333333-3333-4333-8333-333333333333');
 insert into public.profiles(user_id, credits) values
   ('11111111-1111-4111-8111-111111111111', 100),
-  ('22222222-2222-4222-8222-222222222222', 10);
+  ('22222222-2222-4222-8222-222222222222', 10),
+  ('33333333-3333-4333-8333-333333333333', 0);
 
 update public.credit_action_prices
 set active = true, launch_state = 'preview'
@@ -273,9 +275,41 @@ select public.credit_test_assert(
   public.credit_release_expired_v1(10)->>'returned' = '0',
   'reservation sweeper is replay-safe');
 
+-- A reservation must not turn expired membership allowance into permanent
+-- general credit when a provider failure is reported after the source cycle
+-- expired.
+set request.jwt.claim.role = 'service_role';
+select public.membership_credit_cycle_grant_v1(
+  '33333333-3333-4333-8333-333333333333', 'sod_personal', 'late-return-period-0001',
+  now() - interval '10 days', now() + interval '20 days'
+);
+set role authenticated;
+set request.jwt.claim.role = 'authenticated';
+set request.jwt.claim.sub = '33333333-3333-4333-8333-333333333333';
+select public.credit_reserve_v1('raziel_fast', 'late-return-op-0001');
+reset role;
+update public.membership_credit_cycles
+set period_start = now() - interval '63 days',
+    period_end = now() - interval '32 days',
+    expires_at = now() - interval '1 day'
+where user_id = '33333333-3333-4333-8333-333333333333';
+set role authenticated;
+select public.membership_credit_summary_v1();
+reset role;
+set request.jwt.claim.role = 'service_role';
 select public.credit_test_assert(
-  (select count(*) = 4 from public.credit_ledger where reason = 'credit_reserve')
+  public.credit_return_v1(
+    (select id from public.credit_reservations where operation_ref = 'late-return-op-0001'),
+    'late_provider_failure'
+  )->>'refunded' = '0',
+  'late return does not revive expired membership allowance');
+select public.credit_test_assert(
+  (select credits = 0 from public.profiles where user_id = '33333333-3333-4333-8333-333333333333'),
+  'expired reserved allowance stays expired after a late return');
+
+select public.credit_test_assert(
+  (select count(*) = 5 from public.credit_ledger where reason = 'credit_reserve')
   and (select count(*) = 3 from public.credit_ledger where reason = 'credit_return'),
-  'ledger records each debit and refund exactly once');
+  'ledger records each debit and only valid refunds exactly once');
 
 select 'MEMBERSHIP CREDIT ENGINE SQL ACCEPTANCE PASS' as result;

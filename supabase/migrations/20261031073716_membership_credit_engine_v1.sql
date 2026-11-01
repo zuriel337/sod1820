@@ -161,6 +161,8 @@ declare
   v_deduct integer;
   v_total integer := 0;
 begin
+  perform pg_advisory_xact_lock(hashtextextended(p_user_id::text || ':membership-credit', 0));
+
   for v_cycle in
     select id, remaining_credits
     from public.membership_credit_cycles
@@ -515,6 +517,8 @@ as $$
 declare
   v_reservation public.credit_reservations%rowtype;
   v_allocation record;
+  v_allocated integer;
+  v_refund integer;
 begin
   perform public._membership_credit_require_service_v1();
 
@@ -533,6 +537,24 @@ begin
     raise exception 'reservation_not_returnable' using errcode = 'P0001';
   end if;
 
+  -- Keep profile and cycle mutations in the same per-user lock order used by
+  -- grant, reserve and expiry paths. This avoids profile/cycle lock inversion
+  -- when a return races another operation for the same member.
+  perform pg_advisory_xact_lock(
+    hashtextextended(v_reservation.user_id::text || ':membership-credit', 0)
+  );
+
+  select coalesce(sum(amount), 0)::integer
+  into v_allocated
+  from public.credit_reservation_allocations
+  where reservation_id = v_reservation.id;
+
+  -- Credits not backed by a membership cycle are general balance and remain
+  -- refundable. Cycle-backed credits are refundable only while that source
+  -- cycle is still valid; otherwise a late failure could revive expired
+  -- membership allowance as permanent general credit.
+  v_refund := greatest(v_reservation.cost - v_allocated, 0);
+
   for v_allocation in
     select a.cycle_id, a.amount, c.status, c.expires_at
     from public.credit_reservation_allocations a
@@ -550,20 +572,23 @@ begin
       update public.credit_reservation_allocations
       set restored_amount = v_allocation.amount
       where reservation_id = v_reservation.id and cycle_id = v_allocation.cycle_id;
+      v_refund := v_refund + v_allocation.amount;
     end if;
   end loop;
 
-  perform public.credit_grant(
-    v_reservation.user_id,
-    v_reservation.cost,
-    'credit_return',
-    jsonb_build_object(
-      'reservation_id', v_reservation.id,
-      'action_key', v_reservation.action_key,
-      'error_code', nullif(p_error_code, ''),
-      'engine', 'membership_credit_v1'
-    )
-  );
+  if v_refund > 0 then
+    perform public.credit_grant(
+      v_reservation.user_id,
+      v_refund,
+      'credit_return',
+      jsonb_build_object(
+        'reservation_id', v_reservation.id,
+        'action_key', v_reservation.action_key,
+        'error_code', nullif(p_error_code, ''),
+        'engine', 'membership_credit_v1'
+      )
+    );
+  end if;
 
   update public.credit_reservations
   set status = 'returned',
@@ -572,7 +597,12 @@ begin
       updated_at = now()
   where id = v_reservation.id;
 
-  return jsonb_build_object('reservation_id', v_reservation.id, 'status', 'returned', 'already', false);
+  return jsonb_build_object(
+    'reservation_id', v_reservation.id,
+    'status', 'returned',
+    'already', false,
+    'refunded', v_refund
+  );
 end;
 $$;
 
