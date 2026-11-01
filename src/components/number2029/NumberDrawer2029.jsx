@@ -652,7 +652,7 @@ export default function NumberDrawer2029({
     {dataState.error ? <div className="sod29-number-drawer-status error">ה־Root לא נטען כרגע. לא נעשה fallback ל־Legacy.</div> : null}
     {profileState.error ? <div className="sod29-number-drawer-status error">השיטות לא נטענו כרגע מהמנוע הקנוני.</div> : null}
 
-    {surfaceMode === "focus" && clean(expression) && (traceNumber(activeResult) != null) ? <div className="sod29-surface-context-expression sod29-number-drawer-identity"><span>{clean(expression)}</span><small>{selectedProfile?.displayLabel || selectedProfile?.methodKey || clean(selectedMethodKey)}</small><b>{Number(activeResult)}</b></div> : null}
+    {surfaceMode === "focus" && clean(expression) && (traceNumber(activeResult) != null) ? <div role="group" aria-label="מיקוד הביטוי הנבחר" className="sod29-surface-context-expression sod29-number-drawer-identity"><span>{clean(expression)}</span><small>{selectedProfile?.displayLabel || selectedProfile?.methodKey || clean(selectedMethodKey)}</small><b>{Number(activeResult)}</b></div> : null}
 
     <EnglishGematriaLane2029 expression={expression} canonicalRows={profileRows} />
     {[CALCULATOR_INPUT_KIND.MIXED, CALCULATOR_INPUT_KIND.UNSUPPORTED].includes(inputInfo.kind) ? <p className="sod29-number-drawer-status">{inputInfo.notice}</p> : null}

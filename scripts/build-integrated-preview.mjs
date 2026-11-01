@@ -454,4 +454,4 @@ await mkdir(resolve(output, "preview-evidence"), { recursive: true });
 for (const name of ["corrected-answer.png", "fresh-session-next-question.png", "failed-save-reopens-question.png", "fresh-session-completes-pending-save.png"]) {
   await copyFile(resolve(root, "preview-deploy/evidence", name), resolve(output, "preview-evidence", name));
 }
-console.log("Static integrated Preview built; read-only guard runs before App2029.");
+console.log("Static integrated Preview built; request guard runs before App2029.");

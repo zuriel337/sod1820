@@ -3,6 +3,7 @@ import fs from "node:fs";
 import { deriveLeadingCrossing, deriveZeroScale } from "../src/lib/research/numberCoreProjection.js";
 import { buildNumberDeepViewProjection } from "../src/lib/research/numberDeepViewProjection.js";
 import { humanSystemMethodCard } from "../src/lib/research/numberSystemMethods.js";
+import { GOLDEN_WORLD_JOURNEY_878 } from "../src/lib/research/worldJourneyProjection.js";
 
 const read = (path) => fs.readFileSync(path, "utf8");
 const page = read("src/pages/Number2029Page.jsx");
@@ -179,7 +180,8 @@ assert.match(page, /import \{ GOLDEN_WORLD_JOURNEY_878 \} from "\.\.\/lib\/resea
 assert.match(page, /GOLDEN_878_JOURNEY_ID\s*=\s*GOLDEN_WORLD_JOURNEY_878\.id/);
 assert.match(page, /GOLDEN_878_JOURNEY_OPEN\s*=\s*GOLDEN_WORLD_JOURNEY_878\.locked !== true/);
 assert.match(page, /if \(GOLDEN_878_JOURNEY_OPEN && root === GOLDEN_WORLD_JOURNEY_878\.rootValue/, "locked Golden 878 must not be preset from Number");
-assert.match(fs.readFileSync("src/lib/research/worldJourneyProjection.js", "utf8"), /id: "golden:878:v1"[\s\S]*locked: true/);
+assert.match(fs.readFileSync("src/lib/research/worldJourneyProjection.js", "utf8"), /id: "golden:878:v1"[\s\S]*locked: import\.meta\.env\?\.VITE_FUNCTIONAL_UNIFIED_PREVIEW !== "true"/);
+assert.equal(GOLDEN_WORLD_JOURNEY_878.locked, true, "non-functional builds retain the historical availability profile");
 assert.match(page, /journeySemanticId:\s*GOLDEN_878_JOURNEY_ID/);
 assert.match(page, /navigate\("\/world\?focus=context"\)/);
 assert.match(app, /path="\/2029\/number\/:value"/);

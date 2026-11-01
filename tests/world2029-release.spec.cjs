@@ -5,6 +5,7 @@ const { installStorageEgressGuard } = require('./playwright-storage-egress-guard
 const BASE = 'http://127.0.0.1:4173';
 const WORLD = '/world';
 const PRE_CUTOVER_FIXTURE = process.env.SOD_WORLD_PRE_CUTOVER_FIXTURE === '1';
+const FUNCTIONAL_PREVIEW_FIXTURE = process.env.SOD_FUNCTIONAL_PREVIEW_FIXTURE === '1';
 const POSITIVE_ACCEPTANCE_FLAGS = ['lock_world', 'lock_number'];
 const CONTEXT_KEY = 'sod_research_context_session_v1';
 const MOBILE_WIDTHS = [320, 360, 390];
@@ -318,8 +319,8 @@ test('Topic expression focus opens Number 2029 and survives World + Heichal tran
   await expect(page).toHaveURL(`${BASE}/topic/98-ikuv-geula`);
   const drawer=page.locator('[data-contextual-number-surface="v1"]');
   await expect(drawer).toBeVisible({timeout:30000});
-  await expect(drawer.locator('.sod29-number-drawer-identity')).toContainText('חנם');
-  await expect(drawer.locator('.sod29-number-drawer-identity')).toContainText('98');
+  await expect(drawer.getByRole('group',{name:'מיקוד הביטוי הנבחר',exact:true})).toContainText('חנם');
+  await expect(drawer.getByRole('group',{name:'מיקוד הביטוי הנבחר',exact:true})).toContainText('98');
   await expect(page.locator('[data-contextual-number-surface="v1"]')).toHaveCount(1);
   await drawer.getByRole('button',{name:/פתח דף מלא/}).click();
   await expect(page).toHaveURL(/\/2029\/number\/98\?focus=.*method=/, { timeout: 30_000 });
@@ -600,7 +601,7 @@ test('Number 2029 Miluy switches the whole stage to 878 with language bridges an
   await page.screenshot({ path: 'test-results/release-visual/number-2029-v10-miluy-358-390.png', fullPage: true });
 });
 
-test('Number 2029 878 keeps its general research path but no longer opens the locked Golden Journey', async ({ page }) => {
+test('Number 2029 878 follows the approved release profile and preserves its journey identity', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(`${BASE}/2029/number/878`, { waitUntil: 'domcontentloaded' });
 
@@ -610,6 +611,14 @@ test('Number 2029 878 keeps its general research path but no longer opens the lo
   const journeyGate = numberPage.locator('[data-experience-capability="number-journey-gate"]');
   await expect(journeyGate).toBeVisible();
   await expect(journeyGate).toContainText('878');
+  if (FUNCTIONAL_PREVIEW_FIXTURE) {
+    await journeyGate.getByRole('button', { name: /צא למסע 878/ }).click();
+    await expect(page).toHaveURL(`${BASE}/world?focus=context`, {timeout:30_000});
+    await expect(page.locator('.sod29-world-journey-rail')).toBeVisible({timeout:30_000});
+    await expect.poll(()=>page.evaluate(()=>JSON.parse(sessionStorage.getItem('sod_research_context_v2:guest')||'null')?.dimensions?.journeySemanticId)).toBe('golden:878:v1');
+    await assertNoHorizontalOverflow(page);
+    return;
+  }
   const generalPath = journeyGate.getByRole('button', { name: /צא למסע בעולם של 878/ });
   await expect(generalPath).toBeVisible();
   await expect(page.getByRole('button', { name: /צא למסע 878/ })).toHaveCount(0);
@@ -651,22 +660,29 @@ test('Number 2029 golden visual calibration covers 878, 358 and the 1326 visual 
   }
 });
 
-test('Golden World 878 journey stays closed while the public Number 878 and full images remain readable', async ({ page }) => {
+test('Golden World 878 release profile preserves public Number, whole images and explicit journey entry', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(`${BASE}${WORLD}`, { waitUntil: 'domcontentloaded' });
   await selectWorldLandingView(page, 'מסעות');
   const locked = page.locator('[data-world-journey-locked="878"]');
+  if (FUNCTIONAL_PREVIEW_FIXTURE) {
+    await expect(locked).toHaveCount(0);
+    await page.getByRole('button',{name:'פתח 878 והתחל מסע',exact:true}).click({timeout:30_000});
+    await expect(page).toHaveURL(`${BASE}/world?focus=context`,{timeout:30_000});
+    await expect(page.locator('.sod29-world-journey-rail')).toBeVisible({timeout:30_000});
+  } else {
   await expect(locked).toBeVisible({ timeout: 30_000 });
   await expect(locked).toContainText('מסע 878 · נעול');
   await expect(page.getByRole('button', { name: 'פתח 878 והתחל מסע' })).toHaveCount(0);
   await expect(page.getByRole('button', { name: 'המשך את מסע 878' })).toHaveCount(0);
   await expect(page.locator('.sod29-world-journey-path-preview')).toHaveCount(0);
+  }
 
   // The landing visit already wrote this tab's scoped research context; start the anchored
   // read from a clean tab session so the seeded 878 subject is the one that is restored.
   await page.evaluate(() => sessionStorage.clear());
   await openWorldAnchor(page, 878, 390);
-  await expect(page.locator('.sod29-world-journey-rail')).toHaveCount(0);
+  await expect(page.locator('.sod29-world-journey-rail')).toHaveCount(FUNCTIONAL_PREVIEW_FIXTURE ? 1 : 0);
   await expect(page.getByRole('heading', { name: 'העיקר סביב 878' })).toBeVisible();
   const attached = page.locator('.sod29-world-primary-item.has-media .sod29-world-primary-media').first();
   await expect(attached).toBeVisible({ timeout: 30_000 });
