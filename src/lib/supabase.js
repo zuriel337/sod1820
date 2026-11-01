@@ -1371,7 +1371,7 @@ export async function searchPostFacts(query) {
 //    path = מסלול-מחקר שהמשתמש בחר (המוח מחליט אילו מסלולים קיימים; ה-UI רק מציג). context = הקשר-המשתמש.
 // The nested Raziel contract may be model-authored. Operational provenance is authoritative only
 // when it comes from the Edge response envelope, so nested lookalike fields are always removed.
-const RAZIEL_TRANSPORT_METADATA_KEYS = new Set(['trace_id', 'engine', 'model', 'usage', 'evidence_summary']);
+const RAZIEL_TRANSPORT_METADATA_KEYS = new Set(['trace_id', 'engine', 'model', 'usage', 'evidence_summary', 'credit_usage']);
 
 function razielContractWithoutTransportMetadata(contract) {
   if (!contract || typeof contract !== 'object' || Array.isArray(contract)) return {};
@@ -1396,6 +1396,15 @@ function razielTransportMetadata(data) {
     if (Number.isSafeInteger(inputTokens) && inputTokens >= 0) usage.input_tokens = inputTokens;
     if (Number.isSafeInteger(outputTokens) && outputTokens >= 0) usage.output_tokens = outputTokens;
     if (Object.keys(usage).length) out.usage = usage;
+  }
+  if (top.credit_usage && typeof top.credit_usage === 'object' && !Array.isArray(top.credit_usage)) {
+    const actionKey = top.credit_usage.action_key;
+    const cost = top.credit_usage.cost;
+    const status = top.credit_usage.status;
+    if (actionKey === 'raziel_fast' && Number.isSafeInteger(cost) && cost > 0 && cost <= 100000
+      && (status === 'settled' || status === 'returned')) {
+      out.credit_usage = { action_key: actionKey, cost, status };
+    }
   }
   return out;
 }

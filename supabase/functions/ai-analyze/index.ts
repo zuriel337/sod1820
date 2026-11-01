@@ -1042,6 +1042,76 @@ async function checkQuota(identity: string, tier: string, limitOverride: number 
   } catch { return { allowed: true, used: 0, limit: null, tier }; }
 }
 
+type RazielCreditReservation = {
+  id: string;
+  actionKey: "raziel_fast";
+  operationRef: string;
+  cost: number;
+};
+
+type RazielCreditRpcResult = {
+  ok: boolean;
+  reservation: RazielCreditReservation | null;
+  already: boolean;
+  reason: "insufficient_credits" | "action_not_active" | "operation_replay" | "unavailable" | null;
+};
+
+const razielCreditReason = (payload: any): RazielCreditRpcResult["reason"] => {
+  const message = String(payload?.message || payload?.error || "");
+  if (message.includes("insufficient_credits")) return "insufficient_credits";
+  if (message.includes("action_not_active")) return "action_not_active";
+  return "unavailable";
+};
+
+async function reserveRazielFastCredits(bearer: string, interactionId: string): Promise<RazielCreditRpcResult> {
+  const operationRef = `raziel-fast:${interactionId}`;
+  try {
+    const response = await fetch(`${SB_URL}/rest/v1/rpc/credit_reserve_v1`, {
+      method: "POST",
+      headers: { apikey: SB_ANON, Authorization: `Bearer ${bearer}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ p_action_key: "raziel_fast", p_operation_ref: operationRef }),
+      signal: AbortSignal.timeout(8000),
+    });
+    const payload = await response.json().catch(() => null);
+    if (!response.ok) return { ok: false, reservation: null, already: false, reason: razielCreditReason(payload) };
+    const id = safeTraceUuid(payload?.reservation_id);
+    const cost = Number(payload?.cost);
+    const already = payload?.already === true;
+    if (!id || !Number.isSafeInteger(cost) || cost <= 0 || cost > 100000) {
+      return { ok: false, reservation: null, already, reason: "unavailable" };
+    }
+    // Replays must never launch another paid provider call. Durable result
+    // replay is a separate product seam and is intentionally not invented here.
+    if (already) return { ok: false, reservation: null, already: true, reason: "operation_replay" };
+    return { ok: true, reservation: { id, actionKey: "raziel_fast", operationRef, cost }, already: false, reason: null };
+  } catch {
+    return { ok: false, reservation: null, already: false, reason: "unavailable" };
+  }
+}
+
+async function finalizeRazielCredits(
+  reservation: RazielCreditReservation,
+  outcome: "settle" | "return",
+  resultRef: string | null,
+  errorCode: string | null,
+): Promise<boolean> {
+  const rpc = outcome === "settle" ? "credit_settle_v1" : "credit_return_v1";
+  const body = outcome === "settle"
+    ? { p_reservation_id: reservation.id, p_result_ref: resultRef }
+    : { p_reservation_id: reservation.id, p_error_code: errorCode };
+  try {
+    const response = await fetch(`${SB_URL}/rest/v1/rpc/${rpc}`, {
+      method: "POST",
+      headers: svcHeaders(),
+      body: JSON.stringify(body),
+      signal: AbortSignal.timeout(8000),
+    });
+    return response.ok;
+  } catch {
+    return false;
+  }
+}
+
 // ===== 🌳 מטטרון (שלב 1b) — המוח-המשותף: חוקים+עובדות דרך metatron_context =====
 // נתיב-הגימטריה הגנרי (number/compare/verse...) שולף את חוקי-המערכת החיים (ctx.rules) ואת
 // הקשר-הגרף (ctx.canonical) ומזריק לפרומפט — במקום SYSTEM קבוע ועיוור. מקור-אמת יחיד: חוק
@@ -2685,6 +2755,7 @@ async function runRazielCurrentContent(desc: { kind: "post" | "topic"; slug: str
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
   let activeTrace: OperationalTraceHandle | null = null;
+  let activeCreditReservation: RazielCreditReservation | null = null;
   try {
     const body = await req.json().catch(() => ({}));
     const engine = String(body?.engine || "claude").toLowerCase() === "gemini" ? "gemini" : "claude";
@@ -3966,6 +4037,43 @@ Deno.serve(async (req: Request) => {
           (rTrusted ? whatsappSurfaceProfileText(rTrusted.depth) : "")) +
         `\n\nכתוב את מענה-רזיאל לפי חוקי הברזל והחוזה. כל ספרה בתשובה חייבת להופיע במפורש בחומר שסופק; אל תמספר רשימות בספרות. החזר JSON בלבד.`;
 
+      // First paid-family seam: authenticated 2029 ordinary FAST synthesis
+      // only. The environment switch and inactive server catalog keep this
+      // inert until a reviewed candidate explicitly enables both. All
+      // deterministic, deep, special-view, classifier, Legacy, WhatsApp,
+      // companion and admin traffic preserves its current quota-only path.
+      const rFastCreditEligible = Deno.env.get("RAZIEL_CREDIT_METER_ENABLED") === "on"
+        && rCanonicalResearchOptIn
+        && rFast
+        && rViewMode === "general"
+        && tier === "user"
+        && !!rVerifiedRef
+        && !!rUserBearer
+        && !rSemanticEligible
+        && !rPersonalAreaCompanion
+        && !rMatrix
+        && !rTrusted;
+      let rCreditUsage: { action_key: "raziel_fast"; cost: number; status: "settled" | "returned" } | null = null;
+      if (rFastCreditEligible) {
+        const interactionId = safeTraceUuid(body?.interaction_id);
+        if (!interactionId) {
+          await finishOperationalTrace(activeTrace, "failed_with_reason", "credit_operation_ref_required");
+          return rzJson({ analysis: null, error: "credit_operation_ref_required", intelligence_level: rLevel }, 400);
+        }
+        const credit = await reserveRazielFastCredits(rUserBearer, interactionId);
+        if (!credit.ok || !credit.reservation) {
+          await finishOperationalTrace(activeTrace, "failed_with_reason", credit.reason || "credit_unavailable");
+          return rzJson({
+            analysis: null,
+            error: "credits",
+            reason: credit.reason || "unavailable",
+            intelligence_level: rLevel,
+            trace_id: activeTrace?.traceId || null,
+          }, credit.reason === "operation_replay" ? 409 : 402);
+        }
+        activeCreditReservation = credit.reservation;
+      }
+
       const razielModelSpanId = crypto.randomUUID();
       const razielModelStartedAt = new Date().toISOString();
       // מעטפת-reliability הקנונית (retry/timeout/backoff) — רק לקריאת-המודל של persona=raziel. never_silent:
@@ -4159,6 +4267,28 @@ Deno.serve(async (req: Request) => {
       const out = { text: truthFallbackUsed ? truthFallback : finalRel.text };
       const responseDegraded = finalRel.degraded || truthFallbackUsed;
       const finalOutcome = finalRel.degraded ? "provider_error" : finalTruthRejected ? "failed_with_reason" : "success";
+      if (activeCreditReservation) {
+        const reservation = activeCreditReservation;
+        const creditOutcome = responseDegraded ? "return" : "settle";
+        const finalized = await finalizeRazielCredits(
+          reservation,
+          creditOutcome,
+          responseDegraded ? null : activeTrace?.traceId || razielModelSpanId,
+          responseDegraded ? (finalRel.reason || (finalTruthRejected ? "output_rejected" : "provider_degraded")) : null,
+        );
+        if (!finalized) {
+          // Never deliver a result whose debit could later be swept back as an
+          // abandoned reservation. Best-effort return keeps the member whole.
+          if (creditOutcome === "settle") {
+            await finalizeRazielCredits(reservation, "return", null, "settlement_failed");
+          }
+          activeCreditReservation = null;
+          await finishOperationalTrace(activeTrace, "failed_with_reason", "credit_finalize_failed");
+          return rzJson({ analysis: null, error: "credit_finalize_failed", intelligence_level: rLevel }, 503);
+        }
+        rCreditUsage = { action_key: reservation.actionKey, cost: reservation.cost, status: responseDegraded ? "returned" : "settled" };
+        activeCreditReservation = null;
+      }
       if (responseDegraded) await finishOperationalTrace(activeTrace, finalOutcome,
         finalRel.degraded
           ? (finalRel.reason || "degraded")
@@ -4217,11 +4347,11 @@ Deno.serve(async (req: Request) => {
           contract.context_sources = { canonical: !!rzMtxVersion, personal: !!(userRef && ctx), surface: !!surfaceText };
         }
         if (!responseDegraded) await finishOperationalTrace(activeTrace, "success");
-        return rzJson({ raziel: contract, ...elsOccurrenceReceipt, ...(rMatrix && !responseDegraded ? { els_matrix_status: "verified_axis_unverified_presentation_v1" } : {}), evidence_summary: rCanonicalEvidenceSummary, engine: "claude", model: rModel, intelligence_level: rLevel, intelligence_selection: rSelMeta, degraded: responseDegraded || undefined, context_version: rzMtxVersion, trace_id: activeTrace?.traceId || null });
+        return rzJson({ raziel: contract, ...elsOccurrenceReceipt, ...(rMatrix && !responseDegraded ? { els_matrix_status: "verified_axis_unverified_presentation_v1" } : {}), ...(rCreditUsage ? { credit_usage: rCreditUsage } : {}), evidence_summary: rCanonicalEvidenceSummary, engine: "claude", model: rModel, intelligence_level: rLevel, intelligence_selection: rSelMeta, degraded: responseDegraded || undefined, context_version: rzMtxVersion, trace_id: activeTrace?.traceId || null });
       }
       // נפילה-בחן: מחרוזת → הפרונט עוטף כ-{answer}.
       if (!responseDegraded) await finishOperationalTrace(activeTrace, "success");
-      return rzJson({ analysis: rMatrix ? `${matrixAxisText}\n\nממצאים לבדיקה במנוע:\n${out.text}` : out.text, ...(rMatrix && !responseDegraded ? { els_matrix_status: "verified_axis_unverified_presentation_v1" } : {}), evidence_summary: rCanonicalEvidenceSummary, engine: "claude", model: rModel, intelligence_level: rLevel, intelligence_selection: rSelMeta, plan_meta: rPlanMeta || undefined, degraded: responseDegraded || undefined, context_version: rzMtxVersion, trace_id: activeTrace?.traceId || null });
+      return rzJson({ analysis: rMatrix ? `${matrixAxisText}\n\nממצאים לבדיקה במנוע:\n${out.text}` : out.text, ...(rMatrix && !responseDegraded ? { els_matrix_status: "verified_axis_unverified_presentation_v1" } : {}), ...(rCreditUsage ? { credit_usage: rCreditUsage } : {}), evidence_summary: rCanonicalEvidenceSummary, engine: "claude", model: rModel, intelligence_level: rLevel, intelligence_selection: rSelMeta, plan_meta: rPlanMeta || undefined, degraded: responseDegraded || undefined, context_version: rzMtxVersion, trace_id: activeTrace?.traceId || null });
     }
 
     const isCollection = kind === "research";
@@ -4629,6 +4759,10 @@ Deno.serve(async (req: Request) => {
     await finishOperationalTrace(activeTrace, fallbackUsed ? "degraded_fallback" : "success", fallbackUsed ? "numeric_truth_guard_fallback" : null);
     return json(responseBody);
   } catch (e) {
+    if (activeCreditReservation) {
+      await finalizeRazielCredits(activeCreditReservation, "return", null, "request_failed");
+      activeCreditReservation = null;
+    }
     await finishOperationalTrace(activeTrace, "failed_with_reason", "unhandled_exception");
     return json({ analysis: null, error: String(e).slice(0, 200), trace_id: activeTrace?.traceId || null }, 200);
   }
