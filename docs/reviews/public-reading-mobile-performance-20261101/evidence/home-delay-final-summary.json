@@ -1,0 +1,31 @@
+{
+  "sha": "11e8fc037d5a5cc40537ba50846ef97dcb092725",
+  "controlledTopicDelayMs": 1200,
+  "notAnAcceptanceTimingRun": true,
+  "rows": [
+    {
+      "iteration": 0,
+      "beforeScrollY": 634,
+      "afterScrollY": 634,
+      "largestShift": 0.0004045863999683444
+    },
+    {
+      "iteration": 1,
+      "beforeScrollY": 634,
+      "afterScrollY": 634,
+      "largestShift": 0.0005064273702120924
+    },
+    {
+      "iteration": 2,
+      "beforeScrollY": 636,
+      "afterScrollY": 634,
+      "largestShift": 5.537971866096866e-05
+    },
+    {
+      "iteration": 3,
+      "beforeScrollY": 634,
+      "afterScrollY": 634,
+      "largestShift": 4.052310857866413e-05
+    }
+  ]
+}
