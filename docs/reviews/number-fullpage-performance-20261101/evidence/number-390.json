@@ -1,0 +1,50 @@
+{
+  "width": 390,
+  "data": "real public read-only",
+  "canonicalExample": {
+    "expression": "אחת ארבע שבע ושתיים",
+    "regular": 1820,
+    "milui": 3928
+  },
+  "miluiMs": 3864,
+  "preciseReturn": "/number/1820?source=post&part=2&part=7#number-essential",
+  "fullPageNoDrawer": true,
+  "cards": [
+    {
+      "text": "הסכום (שרית+שרית) שווה למכפלה (סוד×י-הוה) — שניהם 1820",
+      "href": "/world?view=sources&source=tzvi-opoc&sourceRef=channel_updates%3Abc0aa8ce-30fc-4a22-b42d-113a456f5e58#source-occurrence-bc0aa8ce-30fc-4a22-b42d-113a456f5e58",
+      "buttonCount": 0
+    },
+    {
+      "text": "המכפלה \"סוד\"×\"י-הוה\" שווה בגימטריה ל-1820",
+      "href": "/world?view=sources&source=tzvi-opoc&sourceRef=channel_updates%3Abc0aa8ce-30fc-4a22-b42d-113a456f5e58#source-occurrence-bc0aa8ce-30fc-4a22-b42d-113a456f5e58",
+      "buttonCount": 0
+    },
+    {
+      "text": "הצירוף \"שרית\"+\"שרית\" שווה בגימטריה ל-1820",
+      "href": "/world?view=sources&source=tzvi-opoc&sourceRef=channel_updates%3Abc0aa8ce-30fc-4a22-b42d-113a456f5e58#source-occurrence-bc0aa8ce-30fc-4a22-b42d-113a456f5e58",
+      "buttonCount": 0
+    },
+    {
+      "text": "1820 מתקבל ממכפלת 70 (סוד) ב-26 (הויה)",
+      "href": "/world?view=sources&source=tzvi-opoc&sourceRef=channel_updates%3A01d2a7a9-5c38-41e7-adc0-59bbb46e201a#source-occurrence-01d2a7a9-5c38-41e7-adc0-59bbb46e201a",
+      "buttonCount": 0
+    },
+    {
+      "text": "הביטוי «תשרי+תשרי» בגימטריה = 1820",
+      "href": "/world?view=sources&source=tzvi-opoc&sourceRef=channel_updates%3A01d2a7a9-5c38-41e7-adc0-59bbb46e201a#source-occurrence-01d2a7a9-5c38-41e7-adc0-59bbb46e201a",
+      "buttonCount": 0
+    }
+  ],
+  "profileReads": [
+    "אחת ארבע שבע ושתיים",
+    "אחת ארבע שבע ושתיים",
+    "אחת ארבע שבע ושתיים",
+    "אין סוף אין קץ אין תכלית אין מספר",
+    "אחת ארבע שבע ושתיים",
+    "אחת ארבע שבע ושתיים"
+  ],
+  "errors": [],
+  "productWritesForwarded": 0,
+  "modelCallsForwarded": 0
+}

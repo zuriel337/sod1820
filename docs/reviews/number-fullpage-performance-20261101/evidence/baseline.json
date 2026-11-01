@@ -1,0 +1,951 @@
+{
+  "baselineSha": "dbbe91de46d21a37110664dc732473de6d9cc6ca",
+  "actualCompiledClient": true,
+  "transport": "existing independent allowlisted RPC-to-GET public read barrier, fresh worker; no live write/model/Auth operation",
+  "pageMs": 8850,
+  "method": {
+    "label": "מילוי\n3928",
+    "before": "http://127.0.0.1:4197/number/1820?source=number-acceptance#number-essential",
+    "after": "http://127.0.0.1:4197/number/1820?focus=%D7%90%D7%97%D7%AA+%D7%90%D7%A8%D7%91%D7%A2+%D7%A9%D7%91%D7%A2+%D7%95%D7%A9%D7%AA%D7%99%D7%99%D7%9D&method=%D7%9E%D7%99%D7%9C%D7%95%D7%99",
+    "pageRoot": "1820",
+    "dialogs": 0
+  },
+  "methods": [
+    "רגיל1820",
+    "מילוי3928",
+    "מסתתר2044",
+    "משולש6945",
+    "ריבוע5297",
+    "גדול2380"
+  ],
+  "sources": [
+    {
+      "tag": "BUTTON",
+      "text": "הודעות מקורפתח הקשר מקור",
+      "href": null
+    },
+    {
+      "tag": "BUTTON",
+      "text": "הודעות מקורפתח הקשר מקור",
+      "href": null
+    },
+    {
+      "tag": "BUTTON",
+      "text": "הודעות מקורפתח הקשר מקור",
+      "href": null
+    },
+    {
+      "tag": "BUTTON",
+      "text": "הודעות מקורפתח הקשר מקור",
+      "href": null
+    },
+    {
+      "tag": "BUTTON",
+      "text": "הודעות מקורפתח הקשר מקור",
+      "href": null
+    }
+  ],
+  "resources": [
+    {
+      "path": "/rest/v1/gallery_images",
+      "ms": 1054,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/rpc/fn_number_lookup",
+      "ms": 1028,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/research_objects",
+      "ms": 997,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/research_objects",
+      "ms": 996,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/posts",
+      "ms": 965,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/nodes",
+      "ms": 887,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/gallery_images",
+      "ms": 879,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/gematria_words",
+      "ms": 875,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/research_objects",
+      "ms": 864,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/research_objects",
+      "ms": 855,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/research_objects",
+      "ms": 854,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/rpc/is_number_indexable",
+      "ms": 833,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/topic_cards_public",
+      "ms": 825,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+      "ms": 812,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/rpc/number_neighbors",
+      "ms": 807,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/nodes",
+      "ms": 800,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/gematria_words",
+      "ms": 793,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/topic_cards_public",
+      "ms": 788,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/nodes",
+      "ms": 777,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/nodes",
+      "ms": 760,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/topic_cards_public",
+      "ms": 748,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/rpc/fn_number_journey",
+      "ms": 735,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/nodes",
+      "ms": 683,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/insights",
+      "ms": 682,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/rpc/fn_number_lookup",
+      "ms": 649,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/number_anchors",
+      "ms": 648,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/nodes",
+      "ms": 633,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/edges",
+      "ms": 633,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/edges",
+      "ms": 627,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/topic_cards_public",
+      "ms": 626,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/edges",
+      "ms": 600,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/edges",
+      "ms": 600,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/nodes",
+      "ms": 590,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/nodes",
+      "ms": 580,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/edges",
+      "ms": 580,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/rpc/fn_number_dossier",
+      "ms": 574,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/entity_types",
+      "ms": 557,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/nodes",
+      "ms": 551,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/topic_cards_public",
+      "ms": 519,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/nodes",
+      "ms": 518,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/gematria_methods",
+      "ms": 517,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/edges",
+      "ms": 503,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/topic_cards_public",
+      "ms": 500,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/topic_cards_public",
+      "ms": 489,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/topic_cards_public",
+      "ms": 452,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/rpc/fn_zero_scale",
+      "ms": 449,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/nodes",
+      "ms": 437,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/nodes",
+      "ms": 434,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/nodes",
+      "ms": 409,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/gematria_words",
+      "ms": 380,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/nodes",
+      "ms": 374,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/topic_cards_public",
+      "ms": 373,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/nodes",
+      "ms": 370,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/nodes",
+      "ms": 311,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/rpc/posts_by_number_strict",
+      "ms": 300,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/nodes",
+      "ms": 297,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/gematria_methods",
+      "ms": 293,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/site_flags",
+      "ms": 285,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/nodes",
+      "ms": 274,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/edges",
+      "ms": 268,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/edges",
+      "ms": 267,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/nodes",
+      "ms": 263,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/rpc/gematria_method_trace",
+      "ms": 261,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/rpc/fn_method_profile",
+      "ms": 257,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/nodes",
+      "ms": 253,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/edges",
+      "ms": 253,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/nodes",
+      "ms": 252,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/gematria_methods",
+      "ms": 247,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/rpc/lang_links_list",
+      "ms": 242,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/nodes",
+      "ms": 241,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/nodes",
+      "ms": 238,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/nodes",
+      "ms": 237,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/nodes",
+      "ms": 236,
+      "bytes": 0
+    },
+    {
+      "path": "/css2",
+      "ms": 235,
+      "bytes": 888
+    },
+    {
+      "path": "/rest/v1/rpc/gematria_method_trace",
+      "ms": 235,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/nodes",
+      "ms": 234,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/gallery_images",
+      "ms": 233,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/nodes",
+      "ms": 232,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/gematria_methods",
+      "ms": 230,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/rpc/fn_verses_by_gematria",
+      "ms": 227,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/nodes",
+      "ms": 223,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/rpc/fn_zero_scale",
+      "ms": 223,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/edges",
+      "ms": 220,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/gematria_words",
+      "ms": 220,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/nodes",
+      "ms": 219,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/nodes",
+      "ms": 217,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/nodes",
+      "ms": 216,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/nodes",
+      "ms": 213,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/rpc/gematria_method_trace",
+      "ms": 148,
+      "bytes": 0
+    },
+    {
+      "path": "/assets/numberCoreProjection-Beh3DNQv.js",
+      "ms": 141,
+      "bytes": 14047
+    },
+    {
+      "path": "/assets/calculator2029Input-BbfftHdT.js",
+      "ms": 141,
+      "bytes": 1606
+    },
+    {
+      "path": "/assets/gematriaTracePresentation-CX847u8G.js",
+      "ms": 139,
+      "bytes": 6488
+    },
+    {
+      "path": "/assets/postSourceUpdates2029-BECQ9gi5.js",
+      "ms": 138,
+      "bytes": 3646
+    },
+    {
+      "path": "/assets/worldContextualProminence-DFYM9dQz.js",
+      "ms": 137,
+      "bytes": 14914
+    },
+    {
+      "path": "/assets/universalFinding-DZVlmLqu.js",
+      "ms": 137,
+      "bytes": 4914
+    },
+    {
+      "path": "/assets/researchObjectFinding-bo3yYp1j.js",
+      "ms": 137,
+      "bytes": 8168
+    },
+    {
+      "path": "/assets/timeline2029-BJD2DVkF.js",
+      "ms": 137,
+      "bytes": 4108
+    },
+    {
+      "path": "/assets/researchObjectPresentation-l0ubBFKY.js",
+      "ms": 131,
+      "bytes": 7566
+    },
+    {
+      "path": "/assets/canonicalPresentation-DgNmWnf_.js",
+      "ms": 129,
+      "bytes": 7540
+    },
+    {
+      "path": "/assets/designTokens-B8JmV1rE.js",
+      "ms": 128,
+      "bytes": 2425
+    },
+    {
+      "path": "/assets/2029-Bdk_N1FJ.css",
+      "ms": 126,
+      "bytes": 245716
+    },
+    {
+      "path": "/assets/NavigationIcon2029-CDR-JqlQ.css",
+      "ms": 125,
+      "bytes": 2059
+    },
+    {
+      "path": "/assets/dayContext-DQm1CoPT.js",
+      "ms": 123,
+      "bytes": 158849
+    },
+    {
+      "path": "/assets/razielViewMode2029-EPrCdoW9.js",
+      "ms": 122,
+      "bytes": 672
+    },
+    {
+      "path": "/assets/NavigationIcon2029-CH1qZpiS.js",
+      "ms": 122,
+      "bytes": 14796
+    },
+    {
+      "path": "/assets/themeMode-jUD92yIC.js",
+      "ms": 122,
+      "bytes": 758
+    },
+    {
+      "path": "/assets/palette-CNyTr_3N.js",
+      "ms": 122,
+      "bytes": 8930
+    },
+    {
+      "path": "/assets/ResearchProvider-Bvdo8q7v.js",
+      "ms": 121,
+      "bytes": 42576
+    },
+    {
+      "path": "/assets/2029-BpbpBjQf.js",
+      "ms": 110,
+      "bytes": 727192
+    },
+    {
+      "path": "/assets/methodIdentity-DM2yAcOz.js",
+      "ms": 105,
+      "bytes": 153
+    },
+    {
+      "path": "/assets/numberExpressionFocus-DslpAFTO.js",
+      "ms": 105,
+      "bytes": 2652
+    },
+    {
+      "path": "/assets/Timeline2029-B-jqCV98.js",
+      "ms": 103,
+      "bytes": 2138
+    },
+    {
+      "path": "/assets/supabase-CjD6zqNz.js",
+      "ms": 102,
+      "bytes": 194402
+    },
+    {
+      "path": "/assets/CanonicalVerseCards2029-BXh5ncYP.js",
+      "ms": 102,
+      "bytes": 1138
+    },
+    {
+      "path": "/assets/worldProminenceInputs-ClRGcLIR.js",
+      "ms": 102,
+      "bytes": 3411
+    },
+    {
+      "path": "/assets/worldJourneyProjection--z6u9qJT.js",
+      "ms": 102,
+      "bytes": 1929
+    },
+    {
+      "path": "/assets/AuthContext-DLJmYnBL.js",
+      "ms": 101,
+      "bytes": 5537
+    },
+    {
+      "path": "/assets/elsResearchReturnSnapshot-B03Lyzta.js",
+      "ms": 101,
+      "bytes": 4135
+    },
+    {
+      "path": "/assets/numberSystemMethods-B4Ed6NCd.js",
+      "ms": 101,
+      "bytes": 17209
+    },
+    {
+      "path": "/assets/researchPlanV2-BSxqDxXT.js",
+      "ms": 101,
+      "bytes": 33629
+    },
+    {
+      "path": "/assets/curationProjection2029-BQ7tH9g-.js",
+      "ms": 99,
+      "bytes": 4503
+    },
+    {
+      "path": "/assets/tracking-ChWb-GaC.js",
+      "ms": 98,
+      "bytes": 8785
+    },
+    {
+      "path": "/assets/worldContributorSourceLocator-Cyr0YS9t.js",
+      "ms": 98,
+      "bytes": 693
+    },
+    {
+      "path": "/assets/ZviFindingCards2029-qxkWWp60.js",
+      "ms": 98,
+      "bytes": 1719
+    },
+    {
+      "path": "/assets/researchResultBundle-CkuSPlHC.js",
+      "ms": 98,
+      "bytes": 9315
+    },
+    {
+      "path": "/assets/entityGraphFinding-ChIPlA3o.js",
+      "ms": 96,
+      "bytes": 4659
+    },
+    {
+      "path": "/assets/topicConvergence-DDm667Y4.js",
+      "ms": 95,
+      "bytes": 19991
+    },
+    {
+      "path": "/assets/NumberZviPublicResearch2029-BOCEhMaZ.js",
+      "ms": 95,
+      "bytes": 7009
+    },
+    {
+      "path": "/assets/canonicalGematria-Bi6jOPsW.js",
+      "ms": 94,
+      "bytes": 275
+    },
+    {
+      "path": "/assets/canonicalGematriaProjection-B66_nJSZ.js",
+      "ms": 94,
+      "bytes": 1244
+    },
+    {
+      "path": "/assets/gematria-Ud5dslyW.js",
+      "ms": 93,
+      "bytes": 7546
+    },
+    {
+      "path": "/assets/publicPostUrls-BI2Edx4q.js",
+      "ms": 91,
+      "bytes": 4498
+    },
+    {
+      "path": "/assets/theme-B2UPacu4.js",
+      "ms": 90,
+      "bytes": 1807
+    },
+    {
+      "path": "/assets/CurationMark2029-CRcuZKya.js",
+      "ms": 87,
+      "bytes": 5364
+    },
+    {
+      "path": "/assets/numericResearch-DqZcmZHs.js",
+      "ms": 87,
+      "bytes": 23292
+    },
+    {
+      "path": "/assets/entityHubProjection-LAEPe8IS.js",
+      "ms": 87,
+      "bytes": 43971
+    },
+    {
+      "path": "/assets/CanonicalVerseCards2029-CPRZOX-b.css",
+      "ms": 87,
+      "bytes": 1217
+    },
+    {
+      "path": "/assets/Number2029Page-B95P0jzX.css",
+      "ms": 87,
+      "bytes": 66649
+    },
+    {
+      "path": "/assets/preload-helper-BZ1Pz5am.js",
+      "ms": 86,
+      "bytes": 1218
+    },
+    {
+      "path": "/assets/chunk-OB3PAWPO-CVMmBO49.js",
+      "ms": 86,
+      "bytes": 38940
+    },
+    {
+      "path": "/assets/jsx-runtime-D3jfb0Ew.js",
+      "ms": 85,
+      "bytes": 8901
+    },
+    {
+      "path": "/assets/scheduler-l4uHkdFa.js",
+      "ms": 85,
+      "bytes": 3561
+    },
+    {
+      "path": "/assets/react-dom-DenslgJm.js",
+      "ms": 85,
+      "bytes": 3864
+    },
+    {
+      "path": "/assets/ZviFindingCards2029-5A-AK-p-.css",
+      "ms": 84,
+      "bytes": 2730
+    },
+    {
+      "path": "/assets/CurationMark2029-CqI6kfN0.css",
+      "ms": 83,
+      "bytes": 5861
+    },
+    {
+      "path": "/assets/NumberCore2029-Ci7bu8lZ.css",
+      "ms": 83,
+      "bytes": 75429
+    },
+    {
+      "path": "/assets/Timeline2029-a6_QYh8e.css",
+      "ms": 83,
+      "bytes": 2296
+    },
+    {
+      "path": "/assets/SignatureResearchIcon-COpmmd5o.css",
+      "ms": 82,
+      "bytes": 6937
+    },
+    {
+      "path": "/fonts/Rubik-Latin.woff2",
+      "ms": 69,
+      "bytes": 35348
+    },
+    {
+      "path": "/fonts/NotoSansHebrew-Bold.ttf",
+      "ms": 68,
+      "bytes": 27156
+    },
+    {
+      "path": "/fonts/Rubik-Hebrew.woff2",
+      "ms": 68,
+      "bytes": 9348
+    },
+    {
+      "path": "/assets/SignatureResearchIcon-DYnuhf6V.js",
+      "ms": 31,
+      "bytes": 1130
+    },
+    {
+      "path": "/assets/gpuCapability-CgzeQuuF.js",
+      "ms": 30,
+      "bytes": 825
+    },
+    {
+      "path": "/assets/semanticSceneCompiler-51BHTuhx.js",
+      "ms": 30,
+      "bytes": 34451
+    },
+    {
+      "path": "/assets/Number2029Page-4_xW_Tla.js",
+      "ms": 29,
+      "bytes": 83890
+    },
+    {
+      "path": "/assets/NumberCore2029-BGDuVJUL.js",
+      "ms": 28,
+      "bytes": 36400
+    },
+    {
+      "path": "/assets/SpatialMethodStage2029-CcEUriJY.js",
+      "ms": 28,
+      "bytes": 43021
+    },
+    {
+      "path": "/assets/SpatialMethodStage2029-C72jccAu.css",
+      "ms": 26,
+      "bytes": 18760
+    },
+    {
+      "path": "/assets/previewVisualReview2029-C7uzzqvZ.js",
+      "ms": 24,
+      "bytes": 5160
+    },
+    {
+      "path": "/assets/previewVisualReview2029-BvQ2FAL9.css",
+      "ms": 24,
+      "bytes": 27851
+    },
+    {
+      "path": "/fonts/NotoSansHebrew-Regular.ttf",
+      "ms": 19,
+      "bytes": 26892
+    },
+    {
+      "path": "/assets/NumberAddress2029Page-DxdEfbu1.js",
+      "ms": 17,
+      "bytes": 1360
+    },
+    {
+      "path": "/rest/v1/site_flags",
+      "ms": 17,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/posts",
+      "ms": 17,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/gematria_methods",
+      "ms": 17,
+      "bytes": 0
+    },
+    {
+      "path": "/assets/worldDiscoveryStream-CTrOLvKr.js",
+      "ms": 14,
+      "bytes": 10400
+    },
+    {
+      "path": "/rest/v1/site_flags",
+      "ms": 10,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/rpc/fn_verses_by_gematria",
+      "ms": 10,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/rpc/lang_links_list",
+      "ms": 10,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/site_flags",
+      "ms": 8,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/rpc/fn_method_profile",
+      "ms": 8,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/rpc/gematria_method_trace",
+      "ms": 8,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+      "ms": 7,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "ms": 6,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/rpc/fn_zero_scale",
+      "ms": 6,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/topic_cards_public",
+      "ms": 6,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/rpc/is_number_indexable",
+      "ms": 5,
+      "bytes": 0
+    },
+    {
+      "path": "/rest/v1/nodes",
+      "ms": 5,
+      "bytes": 0
+    },
+    {
+      "path": "/brand/2029/canonical-lockup-128.webp",
+      "ms": 4,
+      "bytes": 16134
+    },
+    {
+      "path": "/rest/v1/rpc/gematria_method_trace",
+      "ms": 4,
+      "bytes": 0
+    }
+  ],
+  "errors": []
+}

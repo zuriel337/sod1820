@@ -1,0 +1,24 @@
+{
+  "productSha": "7649e46c199ade990fd75ea8400f60f93522ef82",
+  "baselineSha": "dbbe91de46d21a37110664dc732473de6d9cc6ca",
+  "checkedUnchangedPaths": [
+    "src/pages/World2029Page.jsx",
+    "src/components/world2029",
+    "src/lib/research/worldPublicFindingReader.js",
+    "src/lib/research/worldSourceCorpus.js",
+    "src/lib/research/topicConvergence.js",
+    "src/pages/Home2029Page.jsx",
+    "src/pages/Post2029Page.jsx",
+    "src/lib/publicPostUrls.js",
+    "src/components/experience2029/SystemFrame2029.jsx",
+    "src/App2029.jsx"
+  ],
+  "changesInThosePaths": [],
+  "worldRemoteRead": "620381c9868a0bc64b097332341bb1b28e0a33e5",
+  "worldReaderInterfaceReadOnlyComparison": "The later World reader only adds opt-in groupByExactText=false and an optional fingerprint. Existing DTO identity/public admission/sourceHref fields remain compatible. Nothing imported.",
+  "productionAliases": {
+    "sod1820.co.il": "dpl_BFpwZGiYL3Qpdy9nCuGKGb9Xmko2",
+    "www.sod1820.co.il": "dpl_BFpwZGiYL3Qpdy9nCuGKGb9Xmko2",
+    "sod1820.vercel.app": "dpl_BFpwZGiYL3Qpdy9nCuGKGb9Xmko2"
+  }
+}

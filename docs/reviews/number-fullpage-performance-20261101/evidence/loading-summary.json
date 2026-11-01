@@ -1,0 +1,1512 @@
+{
+  "baselineSha": "dbbe91de46d21a37110664dc732473de6d9cc6ca",
+  "source": "actual compiled clients and frozen actual public read responses; not field telemetry",
+  "profiles": [
+    {
+      "name": "desktop",
+      "width": 1440,
+      "cpu": 1,
+      "rtt": 0,
+      "bytesPerSecond": 0
+    },
+    {
+      "name": "mobile-slow",
+      "width": 390,
+      "cpu": 4,
+      "rtt": 150,
+      "bytesPerSecond": 200000
+    }
+  ],
+  "homePulseSince": "2026-10-25T06:27:38.642Z",
+  "networkModel": "shared RTT/bandwidth response delivery; Brotli-equivalent text sizes; tab asset reuse; identical seven-day public Home pulse window; real server variation excluded after unmeasured snapshot warmup; misses explicitly audited",
+  "firstVsRepeat": "first is a fresh tab, repeat returns within the same SPA after one complete cycle",
+  "worldImplementation": "unchanged dbbe product, separate World source branch not imported",
+  "samples": 24,
+  "aggregation": "Median of three counterbalanced pairs per viewport and first/repeat condition; milliseconds. Small controlled lab sample, not field latency.",
+  "conditions": [
+    {
+      "profile": "desktop",
+      "repeat": "first",
+      "versions": {
+        "before": {
+          "n": 3,
+          "totalMedianMs": 9523,
+          "totalRangeMs": [
+            9055,
+            10097
+          ],
+          "totalMedianRequests": 694,
+          "steps": [
+            {
+              "name": "first-home-entry",
+              "medianMs": 1486,
+              "rangeMs": [
+                1409,
+                1487
+              ],
+              "medianRequests": 150,
+              "maxObservedCLS": 0.03984564364711934
+            },
+            {
+              "name": "home-post",
+              "medianMs": 393,
+              "rangeMs": [
+                374,
+                478
+              ],
+              "medianRequests": 15,
+              "maxObservedCLS": 0.038669753086419754
+            },
+            {
+              "name": "post-world",
+              "medianMs": 496,
+              "rangeMs": [
+                472,
+                511
+              ],
+              "medianRequests": 24,
+              "maxObservedCLS": 0
+            },
+            {
+              "name": "world-number-full-page",
+              "medianMs": 2161,
+              "rangeMs": [
+                2154,
+                2306
+              ],
+              "medianRequests": 181,
+              "maxObservedCLS": 0.05995247046702193
+            },
+            {
+              "name": "number-phrase-full-page",
+              "medianMs": 568,
+              "rangeMs": [
+                448,
+                576
+              ],
+              "medianRequests": 62,
+              "maxObservedCLS": 0
+            },
+            {
+              "name": "phrase-number-full-page",
+              "medianMs": 1101,
+              "rangeMs": [
+                1026,
+                1119
+              ],
+              "medianRequests": 13,
+              "maxObservedCLS": 0.0011584319524150163
+            },
+            {
+              "name": "back-number-phrase",
+              "medianMs": 379,
+              "rangeMs": [
+                320,
+                484
+              ],
+              "medianRequests": 12,
+              "maxObservedCLS": 0
+            },
+            {
+              "name": "back-phrase-number",
+              "medianMs": 572,
+              "rangeMs": [
+                374,
+                583
+              ],
+              "medianRequests": 11,
+              "maxObservedCLS": 0
+            },
+            {
+              "name": "back-number-world",
+              "medianMs": 151,
+              "rangeMs": [
+                122,
+                214
+              ],
+              "medianRequests": 11,
+              "maxObservedCLS": 0
+            },
+            {
+              "name": "back-world-post",
+              "medianMs": 194,
+              "rangeMs": [
+                103,
+                299
+              ],
+              "medianRequests": 28,
+              "maxObservedCLS": 0
+            },
+            {
+              "name": "back-post-home",
+              "medianMs": 300,
+              "rangeMs": [
+                289,
+                372
+              ],
+              "medianRequests": 30,
+              "maxObservedCLS": 0
+            },
+            {
+              "name": "home-number-full-page",
+              "medianMs": 1246,
+              "rangeMs": [
+                945,
+                1408
+              ],
+              "medianRequests": 121,
+              "maxObservedCLS": 0.038669753086419754
+            },
+            {
+              "name": "number-home",
+              "medianMs": 580,
+              "rangeMs": [
+                493,
+                682
+              ],
+              "medianRequests": 36,
+              "maxObservedCLS": 0
+            }
+          ]
+        },
+        "after": {
+          "n": 3,
+          "totalMedianMs": 9839,
+          "totalRangeMs": [
+            9077,
+            10811
+          ],
+          "totalMedianRequests": 665,
+          "steps": [
+            {
+              "name": "first-home-entry",
+              "medianMs": 1389,
+              "rangeMs": [
+                1310,
+                1482
+              ],
+              "medianRequests": 152,
+              "maxObservedCLS": 0.47593999164094647
+            },
+            {
+              "name": "home-post",
+              "medianMs": 380,
+              "rangeMs": [
+                368,
+                594
+              ],
+              "medianRequests": 13,
+              "maxObservedCLS": 0
+            },
+            {
+              "name": "post-world",
+              "medianMs": 475,
+              "rangeMs": [
+                451,
+                498
+              ],
+              "medianRequests": 24,
+              "maxObservedCLS": 0
+            },
+            {
+              "name": "world-number-full-page",
+              "medianMs": 1966,
+              "rangeMs": [
+                1892,
+                2397
+              ],
+              "medianRequests": 181,
+              "maxObservedCLS": 0.06022086326484
+            },
+            {
+              "name": "number-phrase-full-page",
+              "medianMs": 595,
+              "rangeMs": [
+                583,
+                601
+              ],
+              "medianRequests": 48,
+              "maxObservedCLS": 0
+            },
+            {
+              "name": "phrase-number-full-page",
+              "medianMs": 959,
+              "rangeMs": [
+                746,
+                1168
+              ],
+              "medianRequests": 10,
+              "maxObservedCLS": 0.0009730764464913409
+            },
+            {
+              "name": "back-number-phrase",
+              "medianMs": 579,
+              "rangeMs": [
+                397,
+                906
+              ],
+              "medianRequests": 7,
+              "maxObservedCLS": 0.007091963469998499
+            },
+            {
+              "name": "back-phrase-number",
+              "medianMs": 584,
+              "rangeMs": [
+                543,
+                602
+              ],
+              "medianRequests": 7,
+              "maxObservedCLS": 0
+            },
+            {
+              "name": "back-number-world",
+              "medianMs": 135,
+              "rangeMs": [
+                131,
+                146
+              ],
+              "medianRequests": 7,
+              "maxObservedCLS": 0
+            },
+            {
+              "name": "back-world-post",
+              "medianMs": 292,
+              "rangeMs": [
+                148,
+                322
+              ],
+              "medianRequests": 29,
+              "maxObservedCLS": 0
+            },
+            {
+              "name": "back-post-home",
+              "medianMs": 448,
+              "rangeMs": [
+                311,
+                471
+              ],
+              "medianRequests": 39,
+              "maxObservedCLS": 0
+            },
+            {
+              "name": "home-number-full-page",
+              "medianMs": 909,
+              "rangeMs": [
+                885,
+                1211
+              ],
+              "medianRequests": 117,
+              "maxObservedCLS": 0.038669753086419754
+            },
+            {
+              "name": "number-home",
+              "medianMs": 1027,
+              "rangeMs": [
+                596,
+                1230
+              ],
+              "medianRequests": 36,
+              "maxObservedCLS": 0.19025488020029577
+            }
+          ]
+        }
+      }
+    },
+    {
+      "profile": "desktop",
+      "repeat": "repeat",
+      "versions": {
+        "before": {
+          "n": 3,
+          "totalMedianMs": 8517,
+          "totalRangeMs": [
+            7114,
+            8649
+          ],
+          "totalMedianRequests": 433,
+          "steps": [
+            {
+              "name": "repeat-home-entry",
+              "medianMs": 774,
+              "rangeMs": [
+                604,
+                993
+              ],
+              "medianRequests": 67,
+              "maxObservedCLS": 0.0035089281121399173
+            },
+            {
+              "name": "home-post",
+              "medianMs": 477,
+              "rangeMs": [
+                387,
+                592
+              ],
+              "medianRequests": 13,
+              "maxObservedCLS": 0.4462847222222222
+            },
+            {
+              "name": "post-world",
+              "medianMs": 197,
+              "rangeMs": [
+                66,
+                242
+              ],
+              "medianRequests": 9,
+              "maxObservedCLS": 0
+            },
+            {
+              "name": "world-number-full-page",
+              "medianMs": 1340,
+              "rangeMs": [
+                1064,
+                1413
+              ],
+              "medianRequests": 112,
+              "maxObservedCLS": 0
+            },
+            {
+              "name": "number-phrase-full-page",
+              "medianMs": 1059,
+              "rangeMs": [
+                907,
+                1308
+              ],
+              "medianRequests": 19,
+              "maxObservedCLS": 0.008889615885416667
+            },
+            {
+              "name": "phrase-number-full-page",
+              "medianMs": 887,
+              "rangeMs": [
+                698,
+                921
+              ],
+              "medianRequests": 12,
+              "maxObservedCLS": 0.0009730764464913409
+            },
+            {
+              "name": "back-number-phrase",
+              "medianMs": 658,
+              "rangeMs": [
+                466,
+                728
+              ],
+              "medianRequests": 12,
+              "maxObservedCLS": 0.0006765938715679655
+            },
+            {
+              "name": "back-phrase-number",
+              "medianMs": 368,
+              "rangeMs": [
+                361,
+                634
+              ],
+              "medianRequests": 11,
+              "maxObservedCLS": 0
+            },
+            {
+              "name": "back-number-world",
+              "medianMs": 138,
+              "rangeMs": [
+                137,
+                190
+              ],
+              "medianRequests": 6,
+              "maxObservedCLS": 0
+            },
+            {
+              "name": "back-world-post",
+              "medianMs": 114,
+              "rangeMs": [
+                103,
+                211
+              ],
+              "medianRequests": 25,
+              "maxObservedCLS": 0
+            },
+            {
+              "name": "back-post-home",
+              "medianMs": 414,
+              "rangeMs": [
+                356,
+                483
+              ],
+              "medianRequests": 34,
+              "maxObservedCLS": 0
+            },
+            {
+              "name": "home-number-full-page",
+              "medianMs": 1084,
+              "rangeMs": [
+                1040,
+                1281
+              ],
+              "medianRequests": 92,
+              "maxObservedCLS": 0.04864782785172325
+            },
+            {
+              "name": "number-home",
+              "medianMs": 562,
+              "rangeMs": [
+                366,
+                657
+              ],
+              "medianRequests": 22,
+              "maxObservedCLS": 0
+            }
+          ]
+        },
+        "after": {
+          "n": 3,
+          "totalMedianMs": 7558,
+          "totalRangeMs": [
+            7432,
+            7590
+          ],
+          "totalMedianRequests": 406,
+          "steps": [
+            {
+              "name": "repeat-home-entry",
+              "medianMs": 973,
+              "rangeMs": [
+                700,
+                974
+              ],
+              "medianRequests": 68,
+              "maxObservedCLS": 0
+            },
+            {
+              "name": "home-post",
+              "medianMs": 365,
+              "rangeMs": [
+                303,
+                607
+              ],
+              "medianRequests": 12,
+              "maxObservedCLS": 0.4462847222222222
+            },
+            {
+              "name": "post-world",
+              "medianMs": 235,
+              "rangeMs": [
+                64,
+                261
+              ],
+              "medianRequests": 28,
+              "maxObservedCLS": 0
+            },
+            {
+              "name": "world-number-full-page",
+              "medianMs": 1001,
+              "rangeMs": [
+                890,
+                1469
+              ],
+              "medianRequests": 87,
+              "maxObservedCLS": 0.0009730764464913409
+            },
+            {
+              "name": "number-phrase-full-page",
+              "medianMs": 930,
+              "rangeMs": [
+                674,
+                1040
+              ],
+              "medianRequests": 7,
+              "maxObservedCLS": 0
+            },
+            {
+              "name": "phrase-number-full-page",
+              "medianMs": 456,
+              "rangeMs": [
+                422,
+                524
+              ],
+              "medianRequests": 7,
+              "maxObservedCLS": 0
+            },
+            {
+              "name": "back-number-phrase",
+              "medianMs": 594,
+              "rangeMs": [
+                447,
+                709
+              ],
+              "medianRequests": 7,
+              "maxObservedCLS": 0
+            },
+            {
+              "name": "back-phrase-number",
+              "medianMs": 454,
+              "rangeMs": [
+                344,
+                541
+              ],
+              "medianRequests": 7,
+              "maxObservedCLS": 0
+            },
+            {
+              "name": "back-number-world",
+              "medianMs": 146,
+              "rangeMs": [
+                131,
+                153
+              ],
+              "medianRequests": 16,
+              "maxObservedCLS": 0
+            },
+            {
+              "name": "back-world-post",
+              "medianMs": 256,
+              "rangeMs": [
+                176,
+                261
+              ],
+              "medianRequests": 13,
+              "maxObservedCLS": 0
+            },
+            {
+              "name": "back-post-home",
+              "medianMs": 313,
+              "rangeMs": [
+                274,
+                453
+              ],
+              "medianRequests": 36,
+              "maxObservedCLS": 0
+            },
+            {
+              "name": "home-number-full-page",
+              "medianMs": 1242,
+              "rangeMs": [
+                1086,
+                1256
+              ],
+              "medianRequests": 86,
+              "maxObservedCLS": 0.038669753086419754
+            },
+            {
+              "name": "number-home",
+              "medianMs": 491,
+              "rangeMs": [
+                463,
+                902
+              ],
+              "medianRequests": 23,
+              "maxObservedCLS": 0.029373181503986625
+            }
+          ]
+        }
+      }
+    },
+    {
+      "profile": "mobile-slow",
+      "repeat": "first",
+      "versions": {
+        "before": {
+          "n": 3,
+          "totalMedianMs": 31558,
+          "totalRangeMs": [
+            29821,
+            32119
+          ],
+          "totalMedianRequests": 647,
+          "steps": [
+            {
+              "name": "first-home-entry",
+              "medianMs": 6366,
+              "rangeMs": [
+                6354,
+                6417
+              ],
+              "medianRequests": 140,
+              "maxObservedCLS": 0.01719395061728395
+            },
+            {
+              "name": "home-post",
+              "medianMs": 2115,
+              "rangeMs": [
+                2099,
+                2126
+              ],
+              "medianRequests": 17,
+              "maxObservedCLS": 0.00046931213398227286
+            },
+            {
+              "name": "post-world",
+              "medianMs": 2616,
+              "rangeMs": [
+                2532,
+                2626
+              ],
+              "medianRequests": 45,
+              "maxObservedCLS": 0.000297997190566635
+            },
+            {
+              "name": "world-number-full-page",
+              "medianMs": 6315,
+              "rangeMs": [
+                5769,
+                6375
+              ],
+              "medianRequests": 169,
+              "maxObservedCLS": 0.07287924897119341
+            },
+            {
+              "name": "number-phrase-full-page",
+              "medianMs": 4248,
+              "rangeMs": [
+                4197,
+                4276
+              ],
+              "medianRequests": 64,
+              "maxObservedCLS": 0.20149894374208607
+            },
+            {
+              "name": "phrase-number-full-page",
+              "medianMs": 1821,
+              "rangeMs": [
+                1801,
+                1887
+              ],
+              "medianRequests": 12,
+              "maxObservedCLS": 0.0041371821581196585
+            },
+            {
+              "name": "back-number-phrase",
+              "medianMs": 1011,
+              "rangeMs": [
+                959,
+                1508
+              ],
+              "medianRequests": 12,
+              "maxObservedCLS": 0.0037618693613485285
+            },
+            {
+              "name": "back-phrase-number",
+              "medianMs": 1076,
+              "rangeMs": [
+                962,
+                1537
+              ],
+              "medianRequests": 11,
+              "maxObservedCLS": 0.0034006732747704975
+            },
+            {
+              "name": "back-number-world",
+              "medianMs": 544,
+              "rangeMs": [
+                389,
+                557
+              ],
+              "medianRequests": 9,
+              "maxObservedCLS": 0
+            },
+            {
+              "name": "back-world-post",
+              "medianMs": 489,
+              "rangeMs": [
+                450,
+                503
+              ],
+              "medianRequests": 27,
+              "maxObservedCLS": 0
+            },
+            {
+              "name": "back-post-home",
+              "medianMs": 706,
+              "rangeMs": [
+                599,
+                780
+              ],
+              "medianRequests": 24,
+              "maxObservedCLS": 0.022166864761396014
+            },
+            {
+              "name": "home-number-full-page",
+              "medianMs": 2512,
+              "rangeMs": [
+                2340,
+                2733
+              ],
+              "medianRequests": 65,
+              "maxObservedCLS": 0.05717404291310542
+            },
+            {
+              "name": "number-home",
+              "medianMs": 1121,
+              "rangeMs": [
+                1007,
+                1775
+              ],
+              "medianRequests": 52,
+              "maxObservedCLS": 0.011494425451092118
+            }
+          ]
+        },
+        "after": {
+          "n": 3,
+          "totalMedianMs": 27310,
+          "totalRangeMs": [
+            27309,
+            27473
+          ],
+          "totalMedianRequests": 611,
+          "steps": [
+            {
+              "name": "first-home-entry",
+              "medianMs": 6280,
+              "rangeMs": [
+                6257,
+                6390
+              ],
+              "medianRequests": 141,
+              "maxObservedCLS": 0.01719395061728395
+            },
+            {
+              "name": "home-post",
+              "medianMs": 2050,
+              "rangeMs": [
+                2030,
+                2051
+              ],
+              "medianRequests": 16,
+              "maxObservedCLS": 0.000442690279756252
+            },
+            {
+              "name": "post-world",
+              "medianMs": 2487,
+              "rangeMs": [
+                2437,
+                2501
+              ],
+              "medianRequests": 45,
+              "maxObservedCLS": 0.00016738732589427033
+            },
+            {
+              "name": "world-number-full-page",
+              "medianMs": 5381,
+              "rangeMs": [
+                5326,
+                5444
+              ],
+              "medianRequests": 161,
+              "maxObservedCLS": 0.07292316550925924
+            },
+            {
+              "name": "number-phrase-full-page",
+              "medianMs": 3324,
+              "rangeMs": [
+                3306,
+                3483
+              ],
+              "medianRequests": 51,
+              "maxObservedCLS": 0.0009494074469768914
+            },
+            {
+              "name": "phrase-number-full-page",
+              "medianMs": 949,
+              "rangeMs": [
+                939,
+                1017
+              ],
+              "medianRequests": 7,
+              "maxObservedCLS": 0.0034006732747704975
+            },
+            {
+              "name": "back-number-phrase",
+              "medianMs": 751,
+              "rangeMs": [
+                738,
+                777
+              ],
+              "medianRequests": 7,
+              "maxObservedCLS": 0.0008798533950617284
+            },
+            {
+              "name": "back-phrase-number",
+              "medianMs": 788,
+              "rangeMs": [
+                783,
+                804
+              ],
+              "medianRequests": 7,
+              "maxObservedCLS": 0.0034006732747704975
+            },
+            {
+              "name": "back-number-world",
+              "medianMs": 408,
+              "rangeMs": [
+                402,
+                420
+              ],
+              "medianRequests": 9,
+              "maxObservedCLS": 0
+            },
+            {
+              "name": "back-world-post",
+              "medianMs": 479,
+              "rangeMs": [
+                462,
+                507
+              ],
+              "medianRequests": 27,
+              "maxObservedCLS": 0
+            },
+            {
+              "name": "back-post-home",
+              "medianMs": 745,
+              "rangeMs": [
+                727,
+                752
+              ],
+              "medianRequests": 38,
+              "maxObservedCLS": 0.0002027119935106046
+            },
+            {
+              "name": "home-number-full-page",
+              "medianMs": 2263,
+              "rangeMs": [
+                2242,
+                2294
+              ],
+              "medianRequests": 50,
+              "maxObservedCLS": 0.0468278529597974
+            },
+            {
+              "name": "number-home",
+              "medianMs": 1391,
+              "rangeMs": [
+                1258,
+                1449
+              ],
+              "medianRequests": 52,
+              "maxObservedCLS": 0
+            }
+          ]
+        }
+      }
+    },
+    {
+      "profile": "mobile-slow",
+      "repeat": "repeat",
+      "versions": {
+        "before": {
+          "n": 3,
+          "totalMedianMs": 17678,
+          "totalRangeMs": [
+            17575,
+            18485
+          ],
+          "totalMedianRequests": 399,
+          "steps": [
+            {
+              "name": "repeat-home-entry",
+              "medianMs": 1173,
+              "rangeMs": [
+                1115,
+                1224
+              ],
+              "medianRequests": 43,
+              "maxObservedCLS": 9.28275364039253e-06
+            },
+            {
+              "name": "home-post",
+              "medianMs": 1029,
+              "rangeMs": [
+                1025,
+                1098
+              ],
+              "medianRequests": 25,
+              "maxObservedCLS": 0.011553950320512821
+            },
+            {
+              "name": "post-world",
+              "medianMs": 956,
+              "rangeMs": [
+                955,
+                1023
+              ],
+              "medianRequests": 11,
+              "maxObservedCLS": 0
+            },
+            {
+              "name": "world-number-full-page",
+              "medianMs": 2605,
+              "rangeMs": [
+                2341,
+                2893
+              ],
+              "medianRequests": 68,
+              "maxObservedCLS": 0.004186165716999051
+            },
+            {
+              "name": "number-phrase-full-page",
+              "medianMs": 2088,
+              "rangeMs": [
+                2022,
+                2261
+              ],
+              "medianRequests": 54,
+              "maxObservedCLS": 0.20431142568850902
+            },
+            {
+              "name": "phrase-number-full-page",
+              "medianMs": 1839,
+              "rangeMs": [
+                1728,
+                1979
+              ],
+              "medianRequests": 12,
+              "maxObservedCLS": 0.0041371821581196585
+            },
+            {
+              "name": "back-number-phrase",
+              "medianMs": 1022,
+              "rangeMs": [
+                1001,
+                1492
+              ],
+              "medianRequests": 12,
+              "maxObservedCLS": 0.0037618693613485285
+            },
+            {
+              "name": "back-phrase-number",
+              "medianMs": 1035,
+              "rangeMs": [
+                1005,
+                1500
+              ],
+              "medianRequests": 11,
+              "maxObservedCLS": 0.0034006732747704975
+            },
+            {
+              "name": "back-number-world",
+              "medianMs": 552,
+              "rangeMs": [
+                383,
+                606
+              ],
+              "medianRequests": 9,
+              "maxObservedCLS": 0
+            },
+            {
+              "name": "back-world-post",
+              "medianMs": 461,
+              "rangeMs": [
+                442,
+                495
+              ],
+              "medianRequests": 18,
+              "maxObservedCLS": 0
+            },
+            {
+              "name": "back-post-home",
+              "medianMs": 716,
+              "rangeMs": [
+                391,
+                754
+              ],
+              "medianRequests": 38,
+              "maxObservedCLS": 0.021026680911680914
+            },
+            {
+              "name": "home-number-full-page",
+              "medianMs": 3190,
+              "rangeMs": [
+                2314,
+                3366
+              ],
+              "medianRequests": 35,
+              "maxObservedCLS": 0.09283828085430515
+            },
+            {
+              "name": "number-home",
+              "medianMs": 1239,
+              "rangeMs": [
+                1178,
+                1242
+              ],
+              "medianRequests": 54,
+              "maxObservedCLS": 0
+            }
+          ]
+        },
+        "after": {
+          "n": 3,
+          "totalMedianMs": 14703,
+          "totalRangeMs": [
+            13531,
+            14832
+          ],
+          "totalMedianRequests": 373,
+          "steps": [
+            {
+              "name": "repeat-home-entry",
+              "medianMs": 1038,
+              "rangeMs": [
+                968,
+                1657
+              ],
+              "medianRequests": 43,
+              "maxObservedCLS": 0.011505889225229503
+            },
+            {
+              "name": "home-post",
+              "medianMs": 836,
+              "rangeMs": [
+                704,
+                949
+              ],
+              "medianRequests": 26,
+              "maxObservedCLS": 0.011514086538461539
+            },
+            {
+              "name": "post-world",
+              "medianMs": 942,
+              "rangeMs": [
+                899,
+                956
+              ],
+              "medianRequests": 11,
+              "maxObservedCLS": 0
+            },
+            {
+              "name": "world-number-full-page",
+              "medianMs": 2253,
+              "rangeMs": [
+                2044,
+                2407
+              ],
+              "medianRequests": 50,
+              "maxObservedCLS": 0.004173572976020893
+            },
+            {
+              "name": "number-phrase-full-page",
+              "medianMs": 1092,
+              "rangeMs": [
+                1084,
+                1235
+              ],
+              "medianRequests": 45,
+              "maxObservedCLS": 0.00043574311490978155
+            },
+            {
+              "name": "phrase-number-full-page",
+              "medianMs": 994,
+              "rangeMs": [
+                966,
+                1006
+              ],
+              "medianRequests": 13,
+              "maxObservedCLS": 0.0034006732747704975
+            },
+            {
+              "name": "back-number-phrase",
+              "medianMs": 797,
+              "rangeMs": [
+                777,
+                800
+              ],
+              "medianRequests": 7,
+              "maxObservedCLS": 0.0008798533950617284
+            },
+            {
+              "name": "back-phrase-number",
+              "medianMs": 803,
+              "rangeMs": [
+                799,
+                807
+              ],
+              "medianRequests": 7,
+              "maxObservedCLS": 0.0034006732747704975
+            },
+            {
+              "name": "back-number-world",
+              "medianMs": 409,
+              "rangeMs": [
+                394,
+                437
+              ],
+              "medianRequests": 9,
+              "maxObservedCLS": 0
+            },
+            {
+              "name": "back-world-post",
+              "medianMs": 444,
+              "rangeMs": [
+                444,
+                459
+              ],
+              "medianRequests": 27,
+              "maxObservedCLS": 0
+            },
+            {
+              "name": "back-post-home",
+              "medianMs": 609,
+              "rangeMs": [
+                589,
+                707
+              ],
+              "medianRequests": 29,
+              "maxObservedCLS": 0.02107039678300095
+            },
+            {
+              "name": "home-number-full-page",
+              "medianMs": 2837,
+              "rangeMs": [
+                2344,
+                2867
+              ],
+              "medianRequests": 32,
+              "maxObservedCLS": 0.12597589036285214
+            },
+            {
+              "name": "number-home",
+              "medianMs": 1235,
+              "rangeMs": [
+                1075,
+                1403
+              ],
+              "medianRequests": 54,
+              "maxObservedCLS": 0
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "audits": [
+    {
+      "file": "transitions-controlled-accepted-after-desktop-1-audit.json",
+      "readCountIncludingUnmeasuredPreparation": 1105,
+      "measuredSnapshotMisses": 0,
+      "rpcCounts": {
+        "fn_method_value": 6,
+        "convergence_meter": 4,
+        "world_group_source_arrivals_v2": 24,
+        "gematria_method_trace": 81,
+        "fn_zero_scale": 30,
+        "posts_by_number_strict": 7,
+        "fn_number_lookup": 14,
+        "fn_number_dossier": 7,
+        "fn_number_journey": 7,
+        "number_neighbors": 7,
+        "is_number_indexable": 12,
+        "fn_verses_by_gematria": 12,
+        "lang_links_list": 15,
+        "fn_method_profile": 15
+      },
+      "blockedCounts": {
+        "/rest/v1/rpc/notification_prefs_guest_get_v1": 6,
+        "/els-icon.png": 6
+      },
+      "transportErrors": [],
+      "productWritesForwarded": 0,
+      "modelsForwarded": 0
+    },
+    {
+      "file": "transitions-controlled-accepted-after-desktop-2-audit.json",
+      "readCountIncludingUnmeasuredPreparation": 1149,
+      "measuredSnapshotMisses": 0,
+      "rpcCounts": {
+        "fn_method_value": 6,
+        "convergence_meter": 4,
+        "world_group_source_arrivals_v2": 26,
+        "gematria_method_trace": 87,
+        "fn_zero_scale": 32,
+        "posts_by_number_strict": 7,
+        "fn_number_lookup": 14,
+        "fn_number_dossier": 7,
+        "fn_number_journey": 7,
+        "number_neighbors": 7,
+        "is_number_indexable": 12,
+        "fn_verses_by_gematria": 12,
+        "lang_links_list": 15,
+        "fn_method_profile": 15
+      },
+      "blockedCounts": {
+        "/rest/v1/rpc/notification_prefs_guest_get_v1": 6,
+        "/els-icon.png": 6
+      },
+      "transportErrors": [],
+      "productWritesForwarded": 0,
+      "modelsForwarded": 0
+    },
+    {
+      "file": "transitions-controlled-accepted-after-desktop-3-audit.json",
+      "readCountIncludingUnmeasuredPreparation": 1105,
+      "measuredSnapshotMisses": 0,
+      "rpcCounts": {
+        "fn_method_value": 6,
+        "world_group_source_arrivals_v2": 24,
+        "convergence_meter": 4,
+        "gematria_method_trace": 79,
+        "fn_zero_scale": 30,
+        "posts_by_number_strict": 7,
+        "fn_number_lookup": 14,
+        "fn_number_dossier": 7,
+        "fn_number_journey": 7,
+        "number_neighbors": 7,
+        "is_number_indexable": 12,
+        "fn_verses_by_gematria": 12,
+        "lang_links_list": 13,
+        "fn_method_profile": 13
+      },
+      "blockedCounts": {
+        "/rest/v1/rpc/notification_prefs_guest_get_v1": 6,
+        "/els-icon.png": 6
+      },
+      "transportErrors": [],
+      "productWritesForwarded": 0,
+      "modelsForwarded": 0
+    },
+    {
+      "file": "transitions-controlled-accepted-after-mobile-slow-1-audit.json",
+      "readCountIncludingUnmeasuredPreparation": 1058,
+      "measuredSnapshotMisses": 0,
+      "rpcCounts": {
+        "fn_method_value": 6,
+        "world_group_source_arrivals_v2": 25,
+        "convergence_meter": 4,
+        "gematria_method_trace": 78,
+        "fn_zero_scale": 30,
+        "is_number_indexable": 12,
+        "posts_by_number_strict": 6,
+        "fn_number_lookup": 12,
+        "fn_number_dossier": 6,
+        "fn_number_journey": 6,
+        "number_neighbors": 6,
+        "fn_verses_by_gematria": 12,
+        "lang_links_list": 12,
+        "fn_method_profile": 12
+      },
+      "blockedCounts": {
+        "/rest/v1/rpc/notification_prefs_guest_get_v1": 6
+      },
+      "transportErrors": [],
+      "productWritesForwarded": 0,
+      "modelsForwarded": 0
+    },
+    {
+      "file": "transitions-controlled-accepted-after-mobile-slow-2-audit.json",
+      "readCountIncludingUnmeasuredPreparation": 1053,
+      "measuredSnapshotMisses": 0,
+      "rpcCounts": {
+        "fn_method_value": 6,
+        "world_group_source_arrivals_v2": 24,
+        "convergence_meter": 4,
+        "gematria_method_trace": 78,
+        "fn_zero_scale": 29,
+        "is_number_indexable": 12,
+        "posts_by_number_strict": 6,
+        "fn_number_lookup": 12,
+        "fn_number_dossier": 6,
+        "fn_number_journey": 6,
+        "number_neighbors": 6,
+        "fn_verses_by_gematria": 12,
+        "lang_links_list": 12,
+        "fn_method_profile": 12
+      },
+      "blockedCounts": {
+        "/rest/v1/rpc/notification_prefs_guest_get_v1": 6
+      },
+      "transportErrors": [],
+      "productWritesForwarded": 0,
+      "modelsForwarded": 0
+    },
+    {
+      "file": "transitions-controlled-accepted-after-mobile-slow-3-audit.json",
+      "readCountIncludingUnmeasuredPreparation": 1063,
+      "measuredSnapshotMisses": 0,
+      "rpcCounts": {
+        "fn_method_value": 6,
+        "world_group_source_arrivals_v2": 25,
+        "convergence_meter": 4,
+        "gematria_method_trace": 78,
+        "fn_zero_scale": 30,
+        "is_number_indexable": 12,
+        "posts_by_number_strict": 6,
+        "fn_number_lookup": 12,
+        "fn_number_dossier": 6,
+        "fn_number_journey": 6,
+        "number_neighbors": 6,
+        "fn_verses_by_gematria": 12,
+        "lang_links_list": 12,
+        "fn_method_profile": 12
+      },
+      "blockedCounts": {
+        "/rest/v1/rpc/notification_prefs_guest_get_v1": 6
+      },
+      "transportErrors": [],
+      "productWritesForwarded": 0,
+      "modelsForwarded": 0
+    },
+    {
+      "file": "transitions-controlled-accepted-before-desktop-1-audit.json",
+      "readCountIncludingUnmeasuredPreparation": 1176,
+      "measuredSnapshotMisses": 0,
+      "rpcCounts": {
+        "fn_method_value": 6,
+        "convergence_meter": 4,
+        "gematria_method_trace": 96,
+        "world_group_source_arrivals_v2": 32,
+        "fn_zero_scale": 30,
+        "posts_by_number_strict": 7,
+        "fn_number_lookup": 14,
+        "fn_number_dossier": 7,
+        "fn_number_journey": 7,
+        "number_neighbors": 7,
+        "is_number_indexable": 12,
+        "fn_verses_by_gematria": 12,
+        "lang_links_list": 16,
+        "fn_method_profile": 18
+      },
+      "blockedCounts": {
+        "/rest/v1/rpc/notification_prefs_guest_get_v1": 6,
+        "/els-icon.png": 6
+      },
+      "transportErrors": [],
+      "productWritesForwarded": 0,
+      "modelsForwarded": 0
+    },
+    {
+      "file": "transitions-controlled-accepted-before-desktop-2-audit.json",
+      "readCountIncludingUnmeasuredPreparation": 1175,
+      "measuredSnapshotMisses": 0,
+      "rpcCounts": {
+        "fn_method_value": 6,
+        "convergence_meter": 4,
+        "world_group_source_arrivals_v2": 32,
+        "gematria_method_trace": 97,
+        "fn_zero_scale": 31,
+        "posts_by_number_strict": 7,
+        "fn_number_lookup": 14,
+        "fn_number_dossier": 7,
+        "fn_number_journey": 7,
+        "number_neighbors": 7,
+        "is_number_indexable": 12,
+        "fn_verses_by_gematria": 12,
+        "lang_links_list": 17,
+        "fn_method_profile": 19
+      },
+      "blockedCounts": {
+        "/rest/v1/rpc/notification_prefs_guest_get_v1": 6,
+        "/els-icon.png": 6
+      },
+      "transportErrors": [],
+      "productWritesForwarded": 0,
+      "modelsForwarded": 0
+    },
+    {
+      "file": "transitions-controlled-accepted-before-desktop-3-audit.json",
+      "readCountIncludingUnmeasuredPreparation": 1182,
+      "measuredSnapshotMisses": 0,
+      "rpcCounts": {
+        "fn_method_value": 6,
+        "convergence_meter": 4,
+        "gematria_method_trace": 96,
+        "world_group_source_arrivals_v2": 32,
+        "fn_zero_scale": 31,
+        "posts_by_number_strict": 7,
+        "fn_number_lookup": 14,
+        "fn_number_dossier": 7,
+        "fn_number_journey": 7,
+        "number_neighbors": 7,
+        "is_number_indexable": 12,
+        "fn_verses_by_gematria": 12,
+        "lang_links_list": 16,
+        "fn_method_profile": 18
+      },
+      "blockedCounts": {
+        "/rest/v1/rpc/notification_prefs_guest_get_v1": 6,
+        "/els-icon.png": 6
+      },
+      "transportErrors": [],
+      "productWritesForwarded": 0,
+      "modelsForwarded": 0
+    },
+    {
+      "file": "transitions-controlled-accepted-before-mobile-slow-1-audit.json",
+      "readCountIncludingUnmeasuredPreparation": 1125,
+      "measuredSnapshotMisses": 0,
+      "rpcCounts": {
+        "fn_method_value": 6,
+        "world_group_source_arrivals_v2": 33,
+        "convergence_meter": 4,
+        "gematria_method_trace": 94,
+        "fn_zero_scale": 30,
+        "is_number_indexable": 12,
+        "posts_by_number_strict": 6,
+        "fn_number_lookup": 12,
+        "fn_number_dossier": 6,
+        "fn_number_journey": 6,
+        "number_neighbors": 6,
+        "fn_verses_by_gematria": 12,
+        "lang_links_list": 14,
+        "fn_method_profile": 16
+      },
+      "blockedCounts": {
+        "/rest/v1/rpc/notification_prefs_guest_get_v1": 6
+      },
+      "transportErrors": [],
+      "productWritesForwarded": 0,
+      "modelsForwarded": 0
+    },
+    {
+      "file": "transitions-controlled-accepted-before-mobile-slow-2-audit.json",
+      "readCountIncludingUnmeasuredPreparation": 1130,
+      "measuredSnapshotMisses": 0,
+      "rpcCounts": {
+        "fn_method_value": 6,
+        "world_group_source_arrivals_v2": 33,
+        "convergence_meter": 4,
+        "gematria_method_trace": 94,
+        "fn_zero_scale": 30,
+        "is_number_indexable": 12,
+        "posts_by_number_strict": 6,
+        "fn_number_lookup": 12,
+        "fn_number_dossier": 6,
+        "fn_number_journey": 6,
+        "number_neighbors": 6,
+        "fn_verses_by_gematria": 12,
+        "lang_links_list": 14,
+        "fn_method_profile": 16
+      },
+      "blockedCounts": {
+        "/rest/v1/rpc/notification_prefs_guest_get_v1": 6
+      },
+      "transportErrors": [],
+      "productWritesForwarded": 0,
+      "modelsForwarded": 0
+    },
+    {
+      "file": "transitions-controlled-accepted-before-mobile-slow-3-audit.json",
+      "readCountIncludingUnmeasuredPreparation": 1129,
+      "measuredSnapshotMisses": 0,
+      "rpcCounts": {
+        "fn_method_value": 6,
+        "world_group_source_arrivals_v2": 33,
+        "convergence_meter": 4,
+        "gematria_method_trace": 94,
+        "fn_zero_scale": 30,
+        "is_number_indexable": 12,
+        "posts_by_number_strict": 6,
+        "fn_number_lookup": 12,
+        "fn_number_dossier": 6,
+        "fn_number_journey": 6,
+        "number_neighbors": 6,
+        "fn_verses_by_gematria": 12,
+        "lang_links_list": 14,
+        "fn_method_profile": 16
+      },
+      "blockedCounts": {
+        "/rest/v1/rpc/notification_prefs_guest_get_v1": 6
+      },
+      "transportErrors": [],
+      "productWritesForwarded": 0,
+      "modelsForwarded": 0
+    }
+  ]
+}

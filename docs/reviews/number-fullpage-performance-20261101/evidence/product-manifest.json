@@ -1,0 +1,32 @@
+{
+  "branch": "gpt/2029-number-fullpage-performance-20261101",
+  "verifiedRemoteSha": "7649e46c199ade990fd75ea8400f60f93522ef82",
+  "baselineSha": "dbbe91de46d21a37110664dc732473de6d9cc6ca",
+  "worldBranchHeadReadOnly": "620381c9868a0bc64b097332341bb1b28e0a33e5",
+  "worldImported": false,
+  "mainReadOnlySha": "2195c9784c5c9f0b1ec3cd3c1137fbd76045845b",
+  "nodeTests": {
+    "pass": 52,
+    "fail": 0,
+    "skip": 0
+  },
+  "browserTests": {
+    "finalCodeScenarios": 5,
+    "strengthenedLiteralClickAndSemanticBackRerun": 2,
+    "widths": [
+      390,
+      1440
+    ],
+    "realAccount": false
+  },
+  "historicalFixtureTests": {
+    "pass": 1,
+    "fail": 5,
+    "weakened": false,
+    "baselineReproductions": [
+      "gallery missing getRealityHints export (one representative test)",
+      "both stale finding-button expectations"
+    ]
+  },
+  "noMainOrProductionChange": true
+}

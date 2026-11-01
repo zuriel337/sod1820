@@ -9,8 +9,8 @@ for(const name of['convergence_meter','is_number_indexable','is_phrase_indexable
 const out=process.env.SOD_NUMBER_REMOTE_EVIDENCE||'/tmp/number-fullpage-performance-20261101/remote-number.json';
 const input=require('node:readline').createInterface({input:process.stdin});
 input.once('line',async line=>{
- input.close();let browser,api,anonymous,stage='setup';
- const audit={actualDeployedClient:true,data:'existing public data, no synthetic rows',serviceWorker:'independent browser barrier replaces bootstrap only in test; deployed worker hash checked separately',cases:[],reads:[],blocked:[],errors:[],writesForwarded:0,modelCallsForwarded:0};
+ input.close();let browser,api,anonymous,stage='setup',closing=false;
+ const audit={actualDeployedClient:true,data:'existing public data, no synthetic rows',serviceWorker:'independent browser barrier replaces bootstrap only in test; deployed worker hash checked separately',cases:[],reads:[],blocked:[],errors:[],cleanupAborts:[],writesForwarded:0,modelCallsForwarded:0};
  try{
   const {origin,accessUrl,sha}=JSON.parse(line);assert.equal(new URL(accessUrl).origin,origin);
   const proxy=process.env.HTTPS_PROXY?{proxy:{server:process.env.HTTPS_PROXY}}:{};
@@ -35,9 +35,11 @@ input.once('line',async line=>{
     const response=await api.fetch(target.href,{method:method==='HEAD'?'HEAD':'GET',headers,maxRedirects:0,timeout:30000});const h=response.headers();delete h['content-encoding'];delete h['content-length'];let body=await response.body();
     if(same&&(h['content-type']||'').includes('text/html')){const html=body.toString(),entry=html.match(/await import\('([^']+)'\)/)?.[1];if(entry)body=Buffer.from(html.replace(/<script type="module">if\(!\('serviceWorker'[\s\S]*?<\/script>/,`<script type="module" src="${entry}"></script>`));}
     audit.reads.push({stage,path:url.pathname,status:response.status(),transport:method==='HEAD'?'HEAD':'GET'});await route.fulfill({status:response.status(),headers:h,body});
-   }catch(error){audit.errors.push({stage,path:url.pathname,type:error.name});await route.abort();}
+   }catch(error){(closing?audit.cleanupAborts:audit.errors).push({stage,path:url.pathname,type:error.name});await route.abort();}
   });
-  const page=await context.newPage();page.on('pageerror',error=>audit.errors.push({stage,type:error.name}));await page.goto(accessUrl,{waitUntil:'domcontentloaded'});
+  // The API context already holds the protected-access cookie. Proxy the
+  // application directly; do not load the unrelated Vercel login UI in-browser.
+  const page=await context.newPage();page.on('pageerror',error=>audit.errors.push({stage,type:error.name}));
   for(const width of[390,1440]){
    stage='number-'+width;await page.setViewportSize({width,height:900});const original=origin+'/number/1820?source=post&part=2&part=7#number-essential';await page.goto(original);
    const milui=page.locator('.sod29-number-v10-method-card').filter({has:page.getByText('מילוי',{exact:true})}).first();await expect(milui).toBeEnabled({timeout:60000});expect(await milui.locator('strong').textContent()).toMatch(/3,?928/);
@@ -48,5 +50,5 @@ input.once('line',async line=>{
   }
   assert.deepEqual(audit.errors,[]);audit.ok=true;
  }catch(error){audit.ok=false;audit.failedStage=stage;audit.errorType=error.name;}
- finally{await browser?.close();await api?.dispose();await anonymous?.dispose();fs.writeFileSync(out,JSON.stringify(audit,null,2)+'\n');console.log(JSON.stringify({ok:audit.ok,cases:audit.cases.length,reads:audit.reads.length,blocked:audit.blocked.length,failedStage:audit.failedStage,errorType:audit.errorType}));process.exitCode=audit.ok?0:1;}
+ finally{closing=true;await browser?.close();await api?.dispose();await anonymous?.dispose();fs.writeFileSync(out,JSON.stringify(audit,null,2)+'\n');console.log(JSON.stringify({ok:audit.ok,cases:audit.cases.length,reads:audit.reads.length,blocked:audit.blocked.length,errors:audit.errors.length,cleanupAborts:audit.cleanupAborts.length,failedStage:audit.failedStage,errorType:audit.errorType}));process.exitCode=audit.ok?0:1;}
 });

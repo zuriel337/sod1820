@@ -1,0 +1,2162 @@
+{
+  "baselineSha": "dbbe91de46d21a37110664dc732473de6d9cc6ca",
+  "source": "actual compiled clients and frozen actual public read responses; not field telemetry",
+  "profiles": [
+    {
+      "name": "desktop",
+      "width": 1440,
+      "cpu": 1,
+      "rtt": 0,
+      "bytesPerSecond": 0
+    },
+    {
+      "name": "mobile-slow",
+      "width": 390,
+      "cpu": 4,
+      "rtt": 150,
+      "bytesPerSecond": 200000
+    }
+  ],
+  "homePulseSince": "2026-10-25T06:27:38.642Z",
+  "networkModel": "shared RTT/bandwidth response delivery; Brotli-equivalent text sizes; tab asset reuse; identical seven-day public Home pulse window; real server variation excluded after unmeasured snapshot warmup; misses explicitly audited",
+  "firstVsRepeat": "first is a fresh tab, repeat returns within the same SPA after one complete cycle",
+  "worldImplementation": "unchanged dbbe product, separate World source branch not imported",
+  "results": [
+    {
+      "version": "before",
+      "profile": "desktop",
+      "width": 1440,
+      "pair": 1,
+      "repeat": "first",
+      "postHref": "/post/mivchan-acharon-lifney-hapriza-dim5-20261031",
+      "steps": [
+        {
+          "name": "first-home-entry",
+          "ms": 1409,
+          "requests": 150,
+          "cls": 0.03963334418402777
+        },
+        {
+          "name": "home-post",
+          "ms": 478,
+          "requests": 14,
+          "cls": 0
+        },
+        {
+          "name": "post-world",
+          "ms": 472,
+          "requests": 21,
+          "cls": 0
+        },
+        {
+          "name": "world-number-full-page",
+          "ms": 2161,
+          "requests": 186,
+          "cls": 0.0418733391153469
+        },
+        {
+          "name": "number-phrase-full-page",
+          "ms": 568,
+          "requests": 62,
+          "cls": 0
+        },
+        {
+          "name": "phrase-number-full-page",
+          "ms": 1026,
+          "requests": 13,
+          "cls": 0.0011584319524150163
+        },
+        {
+          "name": "back-number-phrase",
+          "ms": 484,
+          "requests": 12,
+          "cls": 0
+        },
+        {
+          "name": "back-phrase-number",
+          "ms": 374,
+          "requests": 11,
+          "cls": 0
+        },
+        {
+          "name": "back-number-world",
+          "ms": 151,
+          "requests": 28,
+          "cls": 0
+        },
+        {
+          "name": "back-world-post",
+          "ms": 194,
+          "requests": 5,
+          "cls": 0
+        },
+        {
+          "name": "back-post-home",
+          "ms": 300,
+          "requests": 30,
+          "cls": 0
+        },
+        {
+          "name": "home-number-full-page",
+          "ms": 945,
+          "requests": 84,
+          "cls": 0.038669753086419754
+        },
+        {
+          "name": "number-home",
+          "ms": 493,
+          "requests": 22,
+          "cls": 0
+        }
+      ],
+      "totalMs": 9055
+    },
+    {
+      "version": "before",
+      "profile": "desktop",
+      "width": 1440,
+      "pair": 1,
+      "repeat": "repeat",
+      "postHref": "/post/mivchan-acharon-lifney-hapriza-dim5-20261031",
+      "steps": [
+        {
+          "name": "repeat-home-entry",
+          "ms": 604,
+          "requests": 27,
+          "cls": 0
+        },
+        {
+          "name": "home-post",
+          "ms": 592,
+          "requests": 13,
+          "cls": 0
+        },
+        {
+          "name": "post-world",
+          "ms": 242,
+          "requests": 28,
+          "cls": 0
+        },
+        {
+          "name": "world-number-full-page",
+          "ms": 1064,
+          "requests": 121,
+          "cls": 0
+        },
+        {
+          "name": "number-phrase-full-page",
+          "ms": 907,
+          "requests": 18,
+          "cls": 0.00024522179288301614
+        },
+        {
+          "name": "phrase-number-full-page",
+          "ms": 698,
+          "requests": 12,
+          "cls": 0.0009730764464913409
+        },
+        {
+          "name": "back-number-phrase",
+          "ms": 466,
+          "requests": 12,
+          "cls": 0
+        },
+        {
+          "name": "back-phrase-number",
+          "ms": 368,
+          "requests": 11,
+          "cls": 0
+        },
+        {
+          "name": "back-number-world",
+          "ms": 137,
+          "requests": 14,
+          "cls": 0
+        },
+        {
+          "name": "back-world-post",
+          "ms": 103,
+          "requests": 8,
+          "cls": 0
+        },
+        {
+          "name": "back-post-home",
+          "ms": 483,
+          "requests": 50,
+          "cls": 0
+        },
+        {
+          "name": "home-number-full-page",
+          "ms": 1084,
+          "requests": 90,
+          "cls": 0.038669753086419754
+        },
+        {
+          "name": "number-home",
+          "ms": 366,
+          "requests": 19,
+          "cls": 0
+        }
+      ],
+      "totalMs": 7114
+    },
+    {
+      "version": "after",
+      "profile": "desktop",
+      "width": 1440,
+      "pair": 1,
+      "repeat": "first",
+      "postHref": "/post/mivchan-acharon-lifney-hapriza-dim5-20261031",
+      "steps": [
+        {
+          "name": "first-home-entry",
+          "ms": 1310,
+          "requests": 152,
+          "cls": 0.0858400563432356
+        },
+        {
+          "name": "home-post",
+          "ms": 594,
+          "requests": 13,
+          "cls": 0
+        },
+        {
+          "name": "post-world",
+          "ms": 451,
+          "requests": 24,
+          "cls": 0
+        },
+        {
+          "name": "world-number-full-page",
+          "ms": 2397,
+          "requests": 175,
+          "cls": 0.06022086326484
+        },
+        {
+          "name": "number-phrase-full-page",
+          "ms": 595,
+          "requests": 50,
+          "cls": 0
+        },
+        {
+          "name": "phrase-number-full-page",
+          "ms": 1168,
+          "requests": 8,
+          "cls": 0.0009730764464913409
+        },
+        {
+          "name": "back-number-phrase",
+          "ms": 906,
+          "requests": 7,
+          "cls": 0.007091963469998499
+        },
+        {
+          "name": "back-phrase-number",
+          "ms": 584,
+          "requests": 7,
+          "cls": 0
+        },
+        {
+          "name": "back-number-world",
+          "ms": 131,
+          "requests": 7,
+          "cls": 0
+        },
+        {
+          "name": "back-world-post",
+          "ms": 292,
+          "requests": 30,
+          "cls": 0
+        },
+        {
+          "name": "back-post-home",
+          "ms": 471,
+          "requests": 23,
+          "cls": 0
+        },
+        {
+          "name": "home-number-full-page",
+          "ms": 885,
+          "requests": 117,
+          "cls": 0.038669753086419754
+        },
+        {
+          "name": "number-home",
+          "ms": 1027,
+          "requests": 36,
+          "cls": 0
+        }
+      ],
+      "totalMs": 10811
+    },
+    {
+      "version": "after",
+      "profile": "desktop",
+      "width": 1440,
+      "pair": 1,
+      "repeat": "repeat",
+      "postHref": "/post/mivchan-acharon-lifney-hapriza-dim5-20261031",
+      "steps": [
+        {
+          "name": "repeat-home-entry",
+          "ms": 974,
+          "requests": 68,
+          "cls": 0
+        },
+        {
+          "name": "home-post",
+          "ms": 303,
+          "requests": 12,
+          "cls": 0
+        },
+        {
+          "name": "post-world",
+          "ms": 261,
+          "requests": 28,
+          "cls": 0
+        },
+        {
+          "name": "world-number-full-page",
+          "ms": 890,
+          "requests": 87,
+          "cls": 0
+        },
+        {
+          "name": "number-phrase-full-page",
+          "ms": 930,
+          "requests": 7,
+          "cls": 0
+        },
+        {
+          "name": "phrase-number-full-page",
+          "ms": 456,
+          "requests": 7,
+          "cls": 0
+        },
+        {
+          "name": "back-number-phrase",
+          "ms": 709,
+          "requests": 7,
+          "cls": 0
+        },
+        {
+          "name": "back-phrase-number",
+          "ms": 454,
+          "requests": 7,
+          "cls": 0
+        },
+        {
+          "name": "back-number-world",
+          "ms": 153,
+          "requests": 20,
+          "cls": 0
+        },
+        {
+          "name": "back-world-post",
+          "ms": 256,
+          "requests": 12,
+          "cls": 0
+        },
+        {
+          "name": "back-post-home",
+          "ms": 313,
+          "requests": 21,
+          "cls": 0
+        },
+        {
+          "name": "home-number-full-page",
+          "ms": 1242,
+          "requests": 94,
+          "cls": 0.038669753086419754
+        },
+        {
+          "name": "number-home",
+          "ms": 491,
+          "requests": 19,
+          "cls": 0
+        }
+      ],
+      "totalMs": 7432
+    },
+    {
+      "version": "after",
+      "profile": "desktop",
+      "width": 1440,
+      "pair": 2,
+      "repeat": "first",
+      "postHref": "/post/mivchan-acharon-lifney-hapriza-dim5-20261031",
+      "steps": [
+        {
+          "name": "first-home-entry",
+          "ms": 1482,
+          "requests": 151,
+          "cls": 0.03963334418402777
+        },
+        {
+          "name": "home-post",
+          "ms": 368,
+          "requests": 15,
+          "cls": 0
+        },
+        {
+          "name": "post-world",
+          "ms": 475,
+          "requests": 24,
+          "cls": 0
+        },
+        {
+          "name": "world-number-full-page",
+          "ms": 1966,
+          "requests": 181,
+          "cls": 0.04183275143972641
+        },
+        {
+          "name": "number-phrase-full-page",
+          "ms": 583,
+          "requests": 48,
+          "cls": 0
+        },
+        {
+          "name": "phrase-number-full-page",
+          "ms": 746,
+          "requests": 10,
+          "cls": 0.0009730764464913409
+        },
+        {
+          "name": "back-number-phrase",
+          "ms": 397,
+          "requests": 7,
+          "cls": 0
+        },
+        {
+          "name": "back-phrase-number",
+          "ms": 602,
+          "requests": 7,
+          "cls": 0
+        },
+        {
+          "name": "back-number-world",
+          "ms": 146,
+          "requests": 22,
+          "cls": 0
+        },
+        {
+          "name": "back-world-post",
+          "ms": 322,
+          "requests": 13,
+          "cls": 0
+        },
+        {
+          "name": "back-post-home",
+          "ms": 311,
+          "requests": 45,
+          "cls": 0
+        },
+        {
+          "name": "home-number-full-page",
+          "ms": 1211,
+          "requests": 117,
+          "cls": 0.038669753086419754
+        },
+        {
+          "name": "number-home",
+          "ms": 1230,
+          "requests": 40,
+          "cls": 0.19025488020029577
+        }
+      ],
+      "totalMs": 9839
+    },
+    {
+      "version": "after",
+      "profile": "desktop",
+      "width": 1440,
+      "pair": 2,
+      "repeat": "repeat",
+      "postHref": "/post/mivchan-acharon-lifney-hapriza-dim5-20261031",
+      "steps": [
+        {
+          "name": "repeat-home-entry",
+          "ms": 973,
+          "requests": 69,
+          "cls": 0
+        },
+        {
+          "name": "home-post",
+          "ms": 365,
+          "requests": 12,
+          "cls": 0.4462847222222222
+        },
+        {
+          "name": "post-world",
+          "ms": 235,
+          "requests": 28,
+          "cls": 0
+        },
+        {
+          "name": "world-number-full-page",
+          "ms": 1001,
+          "requests": 87,
+          "cls": 0
+        },
+        {
+          "name": "number-phrase-full-page",
+          "ms": 1040,
+          "requests": 7,
+          "cls": 0
+        },
+        {
+          "name": "phrase-number-full-page",
+          "ms": 422,
+          "requests": 7,
+          "cls": 0
+        },
+        {
+          "name": "back-number-phrase",
+          "ms": 594,
+          "requests": 7,
+          "cls": 0
+        },
+        {
+          "name": "back-phrase-number",
+          "ms": 344,
+          "requests": 7,
+          "cls": 0
+        },
+        {
+          "name": "back-number-world",
+          "ms": 146,
+          "requests": 16,
+          "cls": 0
+        },
+        {
+          "name": "back-world-post",
+          "ms": 176,
+          "requests": 13,
+          "cls": 0
+        },
+        {
+          "name": "back-post-home",
+          "ms": 274,
+          "requests": 36,
+          "cls": 0
+        },
+        {
+          "name": "home-number-full-page",
+          "ms": 1086,
+          "requests": 86,
+          "cls": 0
+        },
+        {
+          "name": "number-home",
+          "ms": 902,
+          "requests": 38,
+          "cls": 0.029373181503986625
+        }
+      ],
+      "totalMs": 7558
+    },
+    {
+      "version": "before",
+      "profile": "desktop",
+      "width": 1440,
+      "pair": 2,
+      "repeat": "first",
+      "postHref": "/post/mivchan-acharon-lifney-hapriza-dim5-20261031",
+      "steps": [
+        {
+          "name": "first-home-entry",
+          "ms": 1486,
+          "requests": 146,
+          "cls": 0.03963334418402777
+        },
+        {
+          "name": "home-post",
+          "ms": 393,
+          "requests": 15,
+          "cls": 0
+        },
+        {
+          "name": "post-world",
+          "ms": 511,
+          "requests": 24,
+          "cls": 0
+        },
+        {
+          "name": "world-number-full-page",
+          "ms": 2306,
+          "requests": 179,
+          "cls": 0.05995247046702193
+        },
+        {
+          "name": "number-phrase-full-page",
+          "ms": 448,
+          "requests": 62,
+          "cls": 0
+        },
+        {
+          "name": "phrase-number-full-page",
+          "ms": 1119,
+          "requests": 13,
+          "cls": 0.0009730764464913409
+        },
+        {
+          "name": "back-number-phrase",
+          "ms": 379,
+          "requests": 12,
+          "cls": 0
+        },
+        {
+          "name": "back-phrase-number",
+          "ms": 572,
+          "requests": 11,
+          "cls": 0
+        },
+        {
+          "name": "back-number-world",
+          "ms": 122,
+          "requests": 11,
+          "cls": 0
+        },
+        {
+          "name": "back-world-post",
+          "ms": 299,
+          "requests": 28,
+          "cls": 0
+        },
+        {
+          "name": "back-post-home",
+          "ms": 372,
+          "requests": 35,
+          "cls": 0
+        },
+        {
+          "name": "home-number-full-page",
+          "ms": 1408,
+          "requests": 121,
+          "cls": 0.009978074765303498
+        },
+        {
+          "name": "number-home",
+          "ms": 682,
+          "requests": 37,
+          "cls": 0
+        }
+      ],
+      "totalMs": 10097
+    },
+    {
+      "version": "before",
+      "profile": "desktop",
+      "width": 1440,
+      "pair": 2,
+      "repeat": "repeat",
+      "postHref": "/post/mivchan-acharon-lifney-hapriza-dim5-20261031",
+      "steps": [
+        {
+          "name": "repeat-home-entry",
+          "ms": 774,
+          "requests": 67,
+          "cls": 0
+        },
+        {
+          "name": "home-post",
+          "ms": 387,
+          "requests": 12,
+          "cls": 0.4462847222222222
+        },
+        {
+          "name": "post-world",
+          "ms": 197,
+          "requests": 9,
+          "cls": 0
+        },
+        {
+          "name": "world-number-full-page",
+          "ms": 1413,
+          "requests": 107,
+          "cls": 0
+        },
+        {
+          "name": "number-phrase-full-page",
+          "ms": 1308,
+          "requests": 21,
+          "cls": 0.00024522179288301614
+        },
+        {
+          "name": "phrase-number-full-page",
+          "ms": 921,
+          "requests": 13,
+          "cls": 0.0009730764464913409
+        },
+        {
+          "name": "back-number-phrase",
+          "ms": 658,
+          "requests": 12,
+          "cls": 0.0006765938715679655
+        },
+        {
+          "name": "back-phrase-number",
+          "ms": 634,
+          "requests": 11,
+          "cls": 0
+        },
+        {
+          "name": "back-number-world",
+          "ms": 190,
+          "requests": 6,
+          "cls": 0
+        },
+        {
+          "name": "back-world-post",
+          "ms": 114,
+          "requests": 29,
+          "cls": 0
+        },
+        {
+          "name": "back-post-home",
+          "ms": 356,
+          "requests": 24,
+          "cls": 0
+        },
+        {
+          "name": "home-number-full-page",
+          "ms": 1040,
+          "requests": 100,
+          "cls": 0.04864782785172325
+        },
+        {
+          "name": "number-home",
+          "ms": 657,
+          "requests": 22,
+          "cls": 0
+        }
+      ],
+      "totalMs": 8649
+    },
+    {
+      "version": "before",
+      "profile": "desktop",
+      "width": 1440,
+      "pair": 3,
+      "repeat": "first",
+      "postHref": "/post/mivchan-acharon-lifney-hapriza-dim5-20261031",
+      "steps": [
+        {
+          "name": "first-home-entry",
+          "ms": 1487,
+          "requests": 150,
+          "cls": 0.03984564364711934
+        },
+        {
+          "name": "home-post",
+          "ms": 374,
+          "requests": 15,
+          "cls": 0.038669753086419754
+        },
+        {
+          "name": "post-world",
+          "ms": 496,
+          "requests": 24,
+          "cls": 0
+        },
+        {
+          "name": "world-number-full-page",
+          "ms": 2154,
+          "requests": 181,
+          "cls": 0.04196669104723937
+        },
+        {
+          "name": "number-phrase-full-page",
+          "ms": 576,
+          "requests": 62,
+          "cls": 0
+        },
+        {
+          "name": "phrase-number-full-page",
+          "ms": 1101,
+          "requests": 17,
+          "cls": 0.0009730764464913409
+        },
+        {
+          "name": "back-number-phrase",
+          "ms": 320,
+          "requests": 13,
+          "cls": 0
+        },
+        {
+          "name": "back-phrase-number",
+          "ms": 583,
+          "requests": 11,
+          "cls": 0
+        },
+        {
+          "name": "back-number-world",
+          "ms": 214,
+          "requests": 6,
+          "cls": 0
+        },
+        {
+          "name": "back-world-post",
+          "ms": 103,
+          "requests": 30,
+          "cls": 0
+        },
+        {
+          "name": "back-post-home",
+          "ms": 289,
+          "requests": 22,
+          "cls": 0
+        },
+        {
+          "name": "home-number-full-page",
+          "ms": 1246,
+          "requests": 129,
+          "cls": 0.038669753086419754
+        },
+        {
+          "name": "number-home",
+          "ms": 580,
+          "requests": 36,
+          "cls": 0
+        }
+      ],
+      "totalMs": 9523
+    },
+    {
+      "version": "before",
+      "profile": "desktop",
+      "width": 1440,
+      "pair": 3,
+      "repeat": "repeat",
+      "postHref": "/post/mivchan-acharon-lifney-hapriza-dim5-20261031",
+      "steps": [
+        {
+          "name": "repeat-home-entry",
+          "ms": 993,
+          "requests": 68,
+          "cls": 0.0035089281121399173
+        },
+        {
+          "name": "home-post",
+          "ms": 477,
+          "requests": 13,
+          "cls": 0.4462847222222222
+        },
+        {
+          "name": "post-world",
+          "ms": 66,
+          "requests": 1,
+          "cls": 0
+        },
+        {
+          "name": "world-number-full-page",
+          "ms": 1340,
+          "requests": 112,
+          "cls": 0
+        },
+        {
+          "name": "number-phrase-full-page",
+          "ms": 1059,
+          "requests": 19,
+          "cls": 0.008889615885416667
+        },
+        {
+          "name": "phrase-number-full-page",
+          "ms": 887,
+          "requests": 12,
+          "cls": 0.0009730764464913409
+        },
+        {
+          "name": "back-number-phrase",
+          "ms": 728,
+          "requests": 12,
+          "cls": 0
+        },
+        {
+          "name": "back-phrase-number",
+          "ms": 361,
+          "requests": 11,
+          "cls": 0
+        },
+        {
+          "name": "back-number-world",
+          "ms": 138,
+          "requests": 6,
+          "cls": 0
+        },
+        {
+          "name": "back-world-post",
+          "ms": 211,
+          "requests": 25,
+          "cls": 0
+        },
+        {
+          "name": "back-post-home",
+          "ms": 414,
+          "requests": 34,
+          "cls": 0
+        },
+        {
+          "name": "home-number-full-page",
+          "ms": 1281,
+          "requests": 92,
+          "cls": 0.04864782785172325
+        },
+        {
+          "name": "number-home",
+          "ms": 562,
+          "requests": 36,
+          "cls": 0
+        }
+      ],
+      "totalMs": 8517
+    },
+    {
+      "version": "after",
+      "profile": "desktop",
+      "width": 1440,
+      "pair": 3,
+      "repeat": "first",
+      "postHref": "/post/mivchan-acharon-lifney-hapriza-dim5-20261031",
+      "steps": [
+        {
+          "name": "first-home-entry",
+          "ms": 1389,
+          "requests": 152,
+          "cls": 0.47593999164094647
+        },
+        {
+          "name": "home-post",
+          "ms": 380,
+          "requests": 13,
+          "cls": 0
+        },
+        {
+          "name": "post-world",
+          "ms": 498,
+          "requests": 23,
+          "cls": 0
+        },
+        {
+          "name": "world-number-full-page",
+          "ms": 1892,
+          "requests": 181,
+          "cls": 0.041724572779023604
+        },
+        {
+          "name": "number-phrase-full-page",
+          "ms": 601,
+          "requests": 48,
+          "cls": 0
+        },
+        {
+          "name": "phrase-number-full-page",
+          "ms": 959,
+          "requests": 11,
+          "cls": 0.0009730764464913409
+        },
+        {
+          "name": "back-number-phrase",
+          "ms": 579,
+          "requests": 7,
+          "cls": 0
+        },
+        {
+          "name": "back-phrase-number",
+          "ms": 543,
+          "requests": 7,
+          "cls": 0
+        },
+        {
+          "name": "back-number-world",
+          "ms": 135,
+          "requests": 2,
+          "cls": 0
+        },
+        {
+          "name": "back-world-post",
+          "ms": 148,
+          "requests": 29,
+          "cls": 0
+        },
+        {
+          "name": "back-post-home",
+          "ms": 448,
+          "requests": 39,
+          "cls": 0
+        },
+        {
+          "name": "home-number-full-page",
+          "ms": 909,
+          "requests": 117,
+          "cls": 0.038669753086419754
+        },
+        {
+          "name": "number-home",
+          "ms": 596,
+          "requests": 36,
+          "cls": 0
+        }
+      ],
+      "totalMs": 9077
+    },
+    {
+      "version": "after",
+      "profile": "desktop",
+      "width": 1440,
+      "pair": 3,
+      "repeat": "repeat",
+      "postHref": "/post/mivchan-acharon-lifney-hapriza-dim5-20261031",
+      "steps": [
+        {
+          "name": "repeat-home-entry",
+          "ms": 700,
+          "requests": 66,
+          "cls": 0
+        },
+        {
+          "name": "home-post",
+          "ms": 607,
+          "requests": 13,
+          "cls": 0.04864782785172325
+        },
+        {
+          "name": "post-world",
+          "ms": 64,
+          "requests": 1,
+          "cls": 0
+        },
+        {
+          "name": "world-number-full-page",
+          "ms": 1469,
+          "requests": 109,
+          "cls": 0.0009730764464913409
+        },
+        {
+          "name": "number-phrase-full-page",
+          "ms": 674,
+          "requests": 7,
+          "cls": 0
+        },
+        {
+          "name": "phrase-number-full-page",
+          "ms": 524,
+          "requests": 7,
+          "cls": 0
+        },
+        {
+          "name": "back-number-phrase",
+          "ms": 447,
+          "requests": 7,
+          "cls": 0
+        },
+        {
+          "name": "back-phrase-number",
+          "ms": 541,
+          "requests": 7,
+          "cls": 0
+        },
+        {
+          "name": "back-number-world",
+          "ms": 131,
+          "requests": 7,
+          "cls": 0
+        },
+        {
+          "name": "back-world-post",
+          "ms": 261,
+          "requests": 31,
+          "cls": 0
+        },
+        {
+          "name": "back-post-home",
+          "ms": 453,
+          "requests": 46,
+          "cls": 0
+        },
+        {
+          "name": "home-number-full-page",
+          "ms": 1256,
+          "requests": 82,
+          "cls": 0.038669753086419754
+        },
+        {
+          "name": "number-home",
+          "ms": 463,
+          "requests": 23,
+          "cls": 0
+        }
+      ],
+      "totalMs": 7590
+    },
+    {
+      "version": "before",
+      "profile": "mobile-slow",
+      "width": 390,
+      "pair": 1,
+      "repeat": "first",
+      "postHref": "/post/mivchan-acharon-lifney-hapriza-dim5-20261031",
+      "steps": [
+        {
+          "name": "first-home-entry",
+          "ms": 6354,
+          "requests": 140,
+          "cls": 0.01719395061728395
+        },
+        {
+          "name": "home-post",
+          "ms": 2099,
+          "requests": 17,
+          "cls": 0.0004426860754985755
+        },
+        {
+          "name": "post-world",
+          "ms": 2532,
+          "requests": 45,
+          "cls": 0.00029656972143083255
+        },
+        {
+          "name": "world-number-full-page",
+          "ms": 6375,
+          "requests": 169,
+          "cls": 0.07287924897119341
+        },
+        {
+          "name": "number-phrase-full-page",
+          "ms": 4248,
+          "requests": 64,
+          "cls": 0.0009535904360557139
+        },
+        {
+          "name": "phrase-number-full-page",
+          "ms": 1801,
+          "requests": 12,
+          "cls": 0.0041371821581196585
+        },
+        {
+          "name": "back-number-phrase",
+          "ms": 959,
+          "requests": 12,
+          "cls": 0.00041657323322253877
+        },
+        {
+          "name": "back-phrase-number",
+          "ms": 1076,
+          "requests": 11,
+          "cls": 0.0034006732747704975
+        },
+        {
+          "name": "back-number-world",
+          "ms": 544,
+          "requests": 9,
+          "cls": 0
+        },
+        {
+          "name": "back-world-post",
+          "ms": 503,
+          "requests": 13,
+          "cls": 0
+        },
+        {
+          "name": "back-post-home",
+          "ms": 780,
+          "requests": 39,
+          "cls": 0.017192993975546057
+        },
+        {
+          "name": "home-number-full-page",
+          "ms": 2512,
+          "requests": 36,
+          "cls": 0.026864963348765432
+        },
+        {
+          "name": "number-home",
+          "ms": 1775,
+          "requests": 86,
+          "cls": 0.011494425451092118
+        }
+      ],
+      "totalMs": 31558
+    },
+    {
+      "version": "before",
+      "profile": "mobile-slow",
+      "width": 390,
+      "pair": 1,
+      "repeat": "repeat",
+      "postHref": "/post/mivchan-acharon-lifney-hapriza-dim5-20261031",
+      "steps": [
+        {
+          "name": "repeat-home-entry",
+          "ms": 1224,
+          "requests": 43,
+          "cls": 0
+        },
+        {
+          "name": "home-post",
+          "ms": 1098,
+          "requests": 25,
+          "cls": 0.011553950320512821
+        },
+        {
+          "name": "post-world",
+          "ms": 1023,
+          "requests": 10,
+          "cls": 0
+        },
+        {
+          "name": "world-number-full-page",
+          "ms": 2893,
+          "requests": 68,
+          "cls": 0.004186165716999051
+        },
+        {
+          "name": "number-phrase-full-page",
+          "ms": 2088,
+          "requests": 54,
+          "cls": 0.20431142568850902
+        },
+        {
+          "name": "phrase-number-full-page",
+          "ms": 1979,
+          "requests": 12,
+          "cls": 0.0041371821581196585
+        },
+        {
+          "name": "back-number-phrase",
+          "ms": 1492,
+          "requests": 12,
+          "cls": 0.0037618693613485285
+        },
+        {
+          "name": "back-phrase-number",
+          "ms": 1500,
+          "requests": 11,
+          "cls": 0.0034006732747704975
+        },
+        {
+          "name": "back-number-world",
+          "ms": 383,
+          "requests": 9,
+          "cls": 0
+        },
+        {
+          "name": "back-world-post",
+          "ms": 495,
+          "requests": 18,
+          "cls": 0
+        },
+        {
+          "name": "back-post-home",
+          "ms": 754,
+          "requests": 38,
+          "cls": 0.0002228491512345679
+        },
+        {
+          "name": "home-number-full-page",
+          "ms": 2314,
+          "requests": 35,
+          "cls": 0.044197607282763535
+        },
+        {
+          "name": "number-home",
+          "ms": 1242,
+          "requests": 55,
+          "cls": 0
+        }
+      ],
+      "totalMs": 18485
+    },
+    {
+      "version": "after",
+      "profile": "mobile-slow",
+      "width": 390,
+      "pair": 1,
+      "repeat": "first",
+      "postHref": "/post/mivchan-acharon-lifney-hapriza-dim5-20261031",
+      "steps": [
+        {
+          "name": "first-home-entry",
+          "ms": 6390,
+          "requests": 141,
+          "cls": 0.01719395061728395
+        },
+        {
+          "name": "home-post",
+          "ms": 2051,
+          "requests": 16,
+          "cls": 0.00042579361546375434
+        },
+        {
+          "name": "post-world",
+          "ms": 2437,
+          "requests": 45,
+          "cls": 0.00016184759813232035
+        },
+        {
+          "name": "world-number-full-page",
+          "ms": 5326,
+          "requests": 161,
+          "cls": 0.07291959881489395
+        },
+        {
+          "name": "number-phrase-full-page",
+          "ms": 3306,
+          "requests": 51,
+          "cls": 0.0009493970599873377
+        },
+        {
+          "name": "phrase-number-full-page",
+          "ms": 939,
+          "requests": 7,
+          "cls": 0.0034006732747704975
+        },
+        {
+          "name": "back-number-phrase",
+          "ms": 777,
+          "requests": 7,
+          "cls": 0.0008798533950617284
+        },
+        {
+          "name": "back-phrase-number",
+          "ms": 783,
+          "requests": 7,
+          "cls": 0.0034006732747704975
+        },
+        {
+          "name": "back-number-world",
+          "ms": 420,
+          "requests": 9,
+          "cls": 0
+        },
+        {
+          "name": "back-world-post",
+          "ms": 462,
+          "requests": 13,
+          "cls": 0
+        },
+        {
+          "name": "back-post-home",
+          "ms": 727,
+          "requests": 51,
+          "cls": 0.0001925470876859766
+        },
+        {
+          "name": "home-number-full-page",
+          "ms": 2242,
+          "requests": 51,
+          "cls": 0.0468278529597974
+        },
+        {
+          "name": "number-home",
+          "ms": 1449,
+          "requests": 49,
+          "cls": 0
+        }
+      ],
+      "totalMs": 27309
+    },
+    {
+      "version": "after",
+      "profile": "mobile-slow",
+      "width": 390,
+      "pair": 1,
+      "repeat": "repeat",
+      "postHref": "/post/mivchan-acharon-lifney-hapriza-dim5-20261031",
+      "steps": [
+        {
+          "name": "repeat-home-entry",
+          "ms": 968,
+          "requests": 43,
+          "cls": 0
+        },
+        {
+          "name": "home-post",
+          "ms": 836,
+          "requests": 26,
+          "cls": 0.011505020180436847
+        },
+        {
+          "name": "post-world",
+          "ms": 899,
+          "requests": 11,
+          "cls": 0
+        },
+        {
+          "name": "world-number-full-page",
+          "ms": 2253,
+          "requests": 65,
+          "cls": 0.004173572976020893
+        },
+        {
+          "name": "number-phrase-full-page",
+          "ms": 1084,
+          "requests": 37,
+          "cls": 0
+        },
+        {
+          "name": "phrase-number-full-page",
+          "ms": 1006,
+          "requests": 13,
+          "cls": 0.0034006732747704975
+        },
+        {
+          "name": "back-number-phrase",
+          "ms": 777,
+          "requests": 7,
+          "cls": 0.0008798533950617284
+        },
+        {
+          "name": "back-phrase-number",
+          "ms": 799,
+          "requests": 7,
+          "cls": 0.0034006732747704975
+        },
+        {
+          "name": "back-number-world",
+          "ms": 437,
+          "requests": 9,
+          "cls": 0
+        },
+        {
+          "name": "back-world-post",
+          "ms": 444,
+          "requests": 27,
+          "cls": 0
+        },
+        {
+          "name": "back-post-home",
+          "ms": 609,
+          "requests": 23,
+          "cls": 0
+        },
+        {
+          "name": "home-number-full-page",
+          "ms": 2344,
+          "requests": 63,
+          "cls": 0.04688942827041785
+        },
+        {
+          "name": "number-home",
+          "ms": 1075,
+          "requests": 52,
+          "cls": 0
+        }
+      ],
+      "totalMs": 13531
+    },
+    {
+      "version": "after",
+      "profile": "mobile-slow",
+      "width": 390,
+      "pair": 2,
+      "repeat": "first",
+      "postHref": "/post/mivchan-acharon-lifney-hapriza-dim5-20261031",
+      "steps": [
+        {
+          "name": "first-home-entry",
+          "ms": 6280,
+          "requests": 141,
+          "cls": 0
+        },
+        {
+          "name": "home-post",
+          "ms": 2030,
+          "requests": 16,
+          "cls": 0.0004064127295030073
+        },
+        {
+          "name": "post-world",
+          "ms": 2487,
+          "requests": 45,
+          "cls": 0.00016738732589427033
+        },
+        {
+          "name": "world-number-full-page",
+          "ms": 5444,
+          "requests": 161,
+          "cls": 0.07292316550925924
+        },
+        {
+          "name": "number-phrase-full-page",
+          "ms": 3483,
+          "requests": 51,
+          "cls": 0.0009494074469768914
+        },
+        {
+          "name": "phrase-number-full-page",
+          "ms": 1017,
+          "requests": 7,
+          "cls": 0.0034006732747704975
+        },
+        {
+          "name": "back-number-phrase",
+          "ms": 738,
+          "requests": 7,
+          "cls": 0.0008798533950617284
+        },
+        {
+          "name": "back-phrase-number",
+          "ms": 788,
+          "requests": 7,
+          "cls": 0.0034006732747704975
+        },
+        {
+          "name": "back-number-world",
+          "ms": 402,
+          "requests": 9,
+          "cls": 0
+        },
+        {
+          "name": "back-world-post",
+          "ms": 507,
+          "requests": 27,
+          "cls": 0
+        },
+        {
+          "name": "back-post-home",
+          "ms": 745,
+          "requests": 38,
+          "cls": 0.0002027119935106046
+        },
+        {
+          "name": "home-number-full-page",
+          "ms": 2294,
+          "requests": 50,
+          "cls": 0.026792430011475153
+        },
+        {
+          "name": "number-home",
+          "ms": 1258,
+          "requests": 52,
+          "cls": 0
+        }
+      ],
+      "totalMs": 27473
+    },
+    {
+      "version": "after",
+      "profile": "mobile-slow",
+      "width": 390,
+      "pair": 2,
+      "repeat": "repeat",
+      "postHref": "/post/mivchan-acharon-lifney-hapriza-dim5-20261031",
+      "steps": [
+        {
+          "name": "repeat-home-entry",
+          "ms": 1038,
+          "requests": 43,
+          "cls": 0
+        },
+        {
+          "name": "home-post",
+          "ms": 949,
+          "requests": 26,
+          "cls": 0.011514086538461539
+        },
+        {
+          "name": "post-world",
+          "ms": 942,
+          "requests": 11,
+          "cls": 0
+        },
+        {
+          "name": "world-number-full-page",
+          "ms": 2407,
+          "requests": 50,
+          "cls": 0.0035294479562361513
+        },
+        {
+          "name": "number-phrase-full-page",
+          "ms": 1235,
+          "requests": 52,
+          "cls": 0.00043574311490978155
+        },
+        {
+          "name": "phrase-number-full-page",
+          "ms": 994,
+          "requests": 12,
+          "cls": 0.0034006732747704975
+        },
+        {
+          "name": "back-number-phrase",
+          "ms": 797,
+          "requests": 7,
+          "cls": 0.0008798533950617284
+        },
+        {
+          "name": "back-phrase-number",
+          "ms": 803,
+          "requests": 7,
+          "cls": 0.0034006732747704975
+        },
+        {
+          "name": "back-number-world",
+          "ms": 394,
+          "requests": 9,
+          "cls": 0
+        },
+        {
+          "name": "back-world-post",
+          "ms": 444,
+          "requests": 27,
+          "cls": 0
+        },
+        {
+          "name": "back-post-home",
+          "ms": 589,
+          "requests": 29,
+          "cls": 0.00015873051202912311
+        },
+        {
+          "name": "home-number-full-page",
+          "ms": 2837,
+          "requests": 32,
+          "cls": 0.12597589036285214
+        },
+        {
+          "name": "number-home",
+          "ms": 1403,
+          "requests": 55,
+          "cls": 0
+        }
+      ],
+      "totalMs": 14832
+    },
+    {
+      "version": "before",
+      "profile": "mobile-slow",
+      "width": 390,
+      "pair": 2,
+      "repeat": "first",
+      "postHref": "/post/mivchan-acharon-lifney-hapriza-dim5-20261031",
+      "steps": [
+        {
+          "name": "first-home-entry",
+          "ms": 6417,
+          "requests": 140,
+          "cls": 0.01719395061728395
+        },
+        {
+          "name": "home-post",
+          "ms": 2115,
+          "requests": 17,
+          "cls": 0.00045709777619499847
+        },
+        {
+          "name": "post-world",
+          "ms": 2626,
+          "requests": 45,
+          "cls": 0.00029392623258942707
+        },
+        {
+          "name": "world-number-full-page",
+          "ms": 6315,
+          "requests": 169,
+          "cls": 0.07286856471589111
+        },
+        {
+          "name": "number-phrase-full-page",
+          "ms": 4276,
+          "requests": 64,
+          "cls": 0.0009587485656062045
+        },
+        {
+          "name": "phrase-number-full-page",
+          "ms": 1887,
+          "requests": 12,
+          "cls": 0.0041371821581196585
+        },
+        {
+          "name": "back-number-phrase",
+          "ms": 1508,
+          "requests": 12,
+          "cls": 0.0037618693613485285
+        },
+        {
+          "name": "back-phrase-number",
+          "ms": 1537,
+          "requests": 11,
+          "cls": 0.0034006732747704975
+        },
+        {
+          "name": "back-number-world",
+          "ms": 389,
+          "requests": 9,
+          "cls": 0
+        },
+        {
+          "name": "back-world-post",
+          "ms": 489,
+          "requests": 27,
+          "cls": 0
+        },
+        {
+          "name": "back-post-home",
+          "ms": 706,
+          "requests": 24,
+          "cls": 0.022166864761396014
+        },
+        {
+          "name": "home-number-full-page",
+          "ms": 2733,
+          "requests": 65,
+          "cls": 0.049060210658040525
+        },
+        {
+          "name": "number-home",
+          "ms": 1121,
+          "requests": 52,
+          "cls": 0
+        }
+      ],
+      "totalMs": 32119
+    },
+    {
+      "version": "before",
+      "profile": "mobile-slow",
+      "width": 390,
+      "pair": 2,
+      "repeat": "repeat",
+      "postHref": "/post/mivchan-acharon-lifney-hapriza-dim5-20261031",
+      "steps": [
+        {
+          "name": "repeat-home-entry",
+          "ms": 1173,
+          "requests": 43,
+          "cls": 0.00000928275364039253
+        },
+        {
+          "name": "home-post",
+          "ms": 1025,
+          "requests": 26,
+          "cls": 0.01154066907051282
+        },
+        {
+          "name": "post-world",
+          "ms": 955,
+          "requests": 11,
+          "cls": 0
+        },
+        {
+          "name": "world-number-full-page",
+          "ms": 2605,
+          "requests": 53,
+          "cls": 0.003456132627018044
+        },
+        {
+          "name": "number-phrase-full-page",
+          "ms": 2261,
+          "requests": 69,
+          "cls": 0.20431142568850902
+        },
+        {
+          "name": "phrase-number-full-page",
+          "ms": 1839,
+          "requests": 12,
+          "cls": 0.0041371821581196585
+        },
+        {
+          "name": "back-number-phrase",
+          "ms": 1001,
+          "requests": 12,
+          "cls": 0.0037618693613485285
+        },
+        {
+          "name": "back-phrase-number",
+          "ms": 1005,
+          "requests": 11,
+          "cls": 0.0034006732747704975
+        },
+        {
+          "name": "back-number-world",
+          "ms": 552,
+          "requests": 9,
+          "cls": 0
+        },
+        {
+          "name": "back-world-post",
+          "ms": 442,
+          "requests": 13,
+          "cls": 0
+        },
+        {
+          "name": "back-post-home",
+          "ms": 391,
+          "requests": 38,
+          "cls": 0
+        },
+        {
+          "name": "home-number-full-page",
+          "ms": 3190,
+          "requests": 51,
+          "cls": 0.09283828085430515
+        },
+        {
+          "name": "number-home",
+          "ms": 1239,
+          "requests": 51,
+          "cls": 0
+        }
+      ],
+      "totalMs": 17678
+    },
+    {
+      "version": "before",
+      "profile": "mobile-slow",
+      "width": 390,
+      "pair": 3,
+      "repeat": "first",
+      "postHref": "/post/mivchan-acharon-lifney-hapriza-dim5-20261031",
+      "steps": [
+        {
+          "name": "first-home-entry",
+          "ms": 6366,
+          "requests": 140,
+          "cls": 0.01719395061728395
+        },
+        {
+          "name": "home-post",
+          "ms": 2126,
+          "requests": 17,
+          "cls": 0.00046931213398227286
+        },
+        {
+          "name": "post-world",
+          "ms": 2616,
+          "requests": 45,
+          "cls": 0.000297997190566635
+        },
+        {
+          "name": "world-number-full-page",
+          "ms": 5769,
+          "requests": 167,
+          "cls": 0.07285807509298828
+        },
+        {
+          "name": "number-phrase-full-page",
+          "ms": 4197,
+          "requests": 66,
+          "cls": 0.20149894374208607
+        },
+        {
+          "name": "phrase-number-full-page",
+          "ms": 1821,
+          "requests": 12,
+          "cls": 0.0041371821581196585
+        },
+        {
+          "name": "back-number-phrase",
+          "ms": 1011,
+          "requests": 12,
+          "cls": 0.0037618693613485285
+        },
+        {
+          "name": "back-phrase-number",
+          "ms": 962,
+          "requests": 11,
+          "cls": 0.0034006732747704975
+        },
+        {
+          "name": "back-number-world",
+          "ms": 557,
+          "requests": 9,
+          "cls": 0
+        },
+        {
+          "name": "back-world-post",
+          "ms": 450,
+          "requests": 27,
+          "cls": 0
+        },
+        {
+          "name": "back-post-home",
+          "ms": 599,
+          "requests": 23,
+          "cls": 0.00005102237654320988
+        },
+        {
+          "name": "home-number-full-page",
+          "ms": 2340,
+          "requests": 66,
+          "cls": 0.05717404291310542
+        },
+        {
+          "name": "number-home",
+          "ms": 1007,
+          "requests": 44,
+          "cls": 0
+        }
+      ],
+      "totalMs": 29821
+    },
+    {
+      "version": "before",
+      "profile": "mobile-slow",
+      "width": 390,
+      "pair": 3,
+      "repeat": "repeat",
+      "postHref": "/post/mivchan-acharon-lifney-hapriza-dim5-20261031",
+      "steps": [
+        {
+          "name": "repeat-home-entry",
+          "ms": 1115,
+          "requests": 40,
+          "cls": 0
+        },
+        {
+          "name": "home-post",
+          "ms": 1029,
+          "requests": 25,
+          "cls": 0.011544450676638176
+        },
+        {
+          "name": "post-world",
+          "ms": 956,
+          "requests": 11,
+          "cls": 0
+        },
+        {
+          "name": "world-number-full-page",
+          "ms": 2341,
+          "requests": 68,
+          "cls": 0.003437084124723014
+        },
+        {
+          "name": "number-phrase-full-page",
+          "ms": 2022,
+          "requests": 53,
+          "cls": 0.20431142568850902
+        },
+        {
+          "name": "phrase-number-full-page",
+          "ms": 1728,
+          "requests": 12,
+          "cls": 0.0041371821581196585
+        },
+        {
+          "name": "back-number-phrase",
+          "ms": 1022,
+          "requests": 12,
+          "cls": 0.0037618693613485285
+        },
+        {
+          "name": "back-phrase-number",
+          "ms": 1035,
+          "requests": 11,
+          "cls": 0
+        },
+        {
+          "name": "back-number-world",
+          "ms": 606,
+          "requests": 9,
+          "cls": 0
+        },
+        {
+          "name": "back-world-post",
+          "ms": 461,
+          "requests": 27,
+          "cls": 0
+        },
+        {
+          "name": "back-post-home",
+          "ms": 716,
+          "requests": 43,
+          "cls": 0.021026680911680914
+        },
+        {
+          "name": "home-number-full-page",
+          "ms": 3366,
+          "requests": 35,
+          "cls": 0.07188064399335233
+        },
+        {
+          "name": "number-home",
+          "ms": 1178,
+          "requests": 54,
+          "cls": 0
+        }
+      ],
+      "totalMs": 17575
+    },
+    {
+      "version": "after",
+      "profile": "mobile-slow",
+      "width": 390,
+      "pair": 3,
+      "repeat": "first",
+      "postHref": "/post/mivchan-acharon-lifney-hapriza-dim5-20261031",
+      "steps": [
+        {
+          "name": "first-home-entry",
+          "ms": 6257,
+          "requests": 141,
+          "cls": 0.01719395061728395
+        },
+        {
+          "name": "home-post",
+          "ms": 2050,
+          "requests": 16,
+          "cls": 0.000442690279756252
+        },
+        {
+          "name": "post-world",
+          "ms": 2501,
+          "requests": 45,
+          "cls": 0.00016205212290281733
+        },
+        {
+          "name": "world-number-full-page",
+          "ms": 5381,
+          "requests": 161,
+          "cls": 0.07291109211775877
+        },
+        {
+          "name": "number-phrase-full-page",
+          "ms": 3324,
+          "requests": 51,
+          "cls": 0.0009494020061728395
+        },
+        {
+          "name": "phrase-number-full-page",
+          "ms": 949,
+          "requests": 7,
+          "cls": 0.0034006732747704975
+        },
+        {
+          "name": "back-number-phrase",
+          "ms": 751,
+          "requests": 7,
+          "cls": 0.0008798533950617284
+        },
+        {
+          "name": "back-phrase-number",
+          "ms": 804,
+          "requests": 7,
+          "cls": 0.0034006732747704975
+        },
+        {
+          "name": "back-number-world",
+          "ms": 408,
+          "requests": 9,
+          "cls": 0
+        },
+        {
+          "name": "back-world-post",
+          "ms": 479,
+          "requests": 27,
+          "cls": 0
+        },
+        {
+          "name": "back-post-home",
+          "ms": 752,
+          "requests": 38,
+          "cls": 0.0001980769230769231
+        },
+        {
+          "name": "home-number-full-page",
+          "ms": 2263,
+          "requests": 50,
+          "cls": 0.026087151590693254
+        },
+        {
+          "name": "number-home",
+          "ms": 1391,
+          "requests": 52,
+          "cls": 0
+        }
+      ],
+      "totalMs": 27310
+    },
+    {
+      "version": "after",
+      "profile": "mobile-slow",
+      "width": 390,
+      "pair": 3,
+      "repeat": "repeat",
+      "postHref": "/post/mivchan-acharon-lifney-hapriza-dim5-20261031",
+      "steps": [
+        {
+          "name": "repeat-home-entry",
+          "ms": 1657,
+          "requests": 59,
+          "cls": 0.011505889225229503
+        },
+        {
+          "name": "home-post",
+          "ms": 704,
+          "requests": 11,
+          "cls": 0
+        },
+        {
+          "name": "post-world",
+          "ms": 956,
+          "requests": 9,
+          "cls": 0
+        },
+        {
+          "name": "world-number-full-page",
+          "ms": 2044,
+          "requests": 50,
+          "cls": 0.0034090901986388103
+        },
+        {
+          "name": "number-phrase-full-page",
+          "ms": 1092,
+          "requests": 45,
+          "cls": 0.00043574311490978155
+        },
+        {
+          "name": "phrase-number-full-page",
+          "ms": 966,
+          "requests": 20,
+          "cls": 0.0034006732747704975
+        },
+        {
+          "name": "back-number-phrase",
+          "ms": 800,
+          "requests": 7,
+          "cls": 0.0008798533950617284
+        },
+        {
+          "name": "back-phrase-number",
+          "ms": 807,
+          "requests": 7,
+          "cls": 0.0034006732747704975
+        },
+        {
+          "name": "back-number-world",
+          "ms": 409,
+          "requests": 9,
+          "cls": 0
+        },
+        {
+          "name": "back-world-post",
+          "ms": 459,
+          "requests": 27,
+          "cls": 0
+        },
+        {
+          "name": "back-post-home",
+          "ms": 707,
+          "requests": 43,
+          "cls": 0.02107039678300095
+        },
+        {
+          "name": "home-number-full-page",
+          "ms": 2867,
+          "requests": 32,
+          "cls": 0.07192401145536562
+        },
+        {
+          "name": "number-home",
+          "ms": 1235,
+          "requests": 54,
+          "cls": 0
+        }
+      ],
+      "totalMs": 14703
+    }
+  ]
+}

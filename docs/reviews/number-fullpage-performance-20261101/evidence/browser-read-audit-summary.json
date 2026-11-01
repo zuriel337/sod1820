@@ -1,0 +1,99 @@
+{
+  "tests": 5,
+  "actualPublicReads": 833,
+  "forwardedMethods": [
+    "GET",
+    "HEAD"
+  ],
+  "blocked": [
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co"
+    },
+    {
+      "path": "/rest/v1/rpc/canonical_follow_subject",
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co"
+    },
+    {
+      "path": "/rest/v1/rpc/canonical_follow_subject",
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co"
+    },
+    {
+      "path": "/rest/v1/rpc/canonical_follow_subject",
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co"
+    },
+    {
+      "path": "/rest/v1/rpc/canonical_follow_subject",
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co"
+    },
+    {
+      "path": "/rest/v1/rpc/canonical_follow_subject",
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co"
+    },
+    {
+      "path": "/rest/v1/rpc/canonical_follow_subject",
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co"
+    },
+    {
+      "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+      "method": "POST",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co"
+    },
+    {
+      "path": "/rest/v1/rpc/writer_public_contributions_page_v1",
+      "method": "POST",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co"
+    },
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co"
+    }
+  ],
+  "transportErrors": [],
+  "syntheticFaults": "two tests inject 503/delay locally; no synthetic rows are used for public navigation acceptance",
+  "productWritesForwarded": 0,
+  "modelCallsForwarded": 0
+}

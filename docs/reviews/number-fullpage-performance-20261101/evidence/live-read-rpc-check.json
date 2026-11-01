@@ -1,0 +1,117 @@
+{
+  "checkedProject": "linswmnnkjxvweumprav",
+  "readOnly": true,
+  "functions": [
+    {
+      "proname": "community_feed_page",
+      "provolatile": "s",
+      "prosecdef": true
+    },
+    {
+      "proname": "community_message_context",
+      "provolatile": "s",
+      "prosecdef": true
+    },
+    {
+      "proname": "convergence_meter",
+      "provolatile": "s",
+      "prosecdef": false
+    },
+    {
+      "proname": "fn_all_methods",
+      "provolatile": "s",
+      "prosecdef": true
+    },
+    {
+      "proname": "fn_cross_research",
+      "provolatile": "s",
+      "prosecdef": true
+    },
+    {
+      "proname": "fn_method_profile",
+      "provolatile": "s",
+      "prosecdef": false
+    },
+    {
+      "proname": "fn_method_value",
+      "provolatile": "s",
+      "prosecdef": false
+    },
+    {
+      "proname": "fn_number_dossier",
+      "provolatile": "s",
+      "prosecdef": true
+    },
+    {
+      "proname": "fn_number_journey",
+      "provolatile": "s",
+      "prosecdef": true
+    },
+    {
+      "proname": "fn_number_lookup",
+      "provolatile": "s",
+      "prosecdef": false
+    },
+    {
+      "proname": "fn_verses_by_gematria",
+      "provolatile": "s",
+      "prosecdef": true
+    },
+    {
+      "proname": "fn_zero_scale",
+      "provolatile": "s",
+      "prosecdef": false
+    },
+    {
+      "proname": "gematria_api",
+      "provolatile": "s",
+      "prosecdef": false
+    },
+    {
+      "proname": "gematria_method_trace",
+      "provolatile": "s",
+      "prosecdef": false
+    },
+    {
+      "proname": "get_reality_videos",
+      "provolatile": "s",
+      "prosecdef": false
+    },
+    {
+      "proname": "is_number_indexable",
+      "provolatile": "s",
+      "prosecdef": false
+    },
+    {
+      "proname": "is_phrase_indexable",
+      "provolatile": "s",
+      "prosecdef": false
+    },
+    {
+      "proname": "lang_links_list",
+      "provolatile": "v",
+      "prosecdef": true
+    },
+    {
+      "proname": "number_neighbors",
+      "provolatile": "s",
+      "prosecdef": false
+    },
+    {
+      "proname": "posts_by_number_strict",
+      "provolatile": "s",
+      "prosecdef": false
+    },
+    {
+      "proname": "rd_is_admin",
+      "provolatile": "s",
+      "prosecdef": true
+    },
+    {
+      "proname": "world_group_source_arrivals_v2",
+      "provolatile": "s",
+      "prosecdef": true
+    }
+  ],
+  "note": "21 functions are STABLE/IMMUTABLE. lang_links_list is declared VOLATILE but its live SQL definition was reviewed: SELECT approved language_links or the existing visitor's entries, ordered/limited; no mutations. The independent browser transport forwards GET/HEAD only and blocks unknown RPCs and all model/Edge/write endpoints. No function or database definition was changed."
+}

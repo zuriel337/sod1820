@@ -1,0 +1,34 @@
+{
+  "identity": {
+    "sha": "7649e46c199ade990fd75ea8400f60f93522ef82",
+    "branch": "gpt/2029-number-fullpage-performance-20261101",
+    "target": "preview",
+    "transport": "authenticated-preview-server-to-canonical-ai-analyze",
+    "model_trigger": "explicit-user-turn",
+    "requires_existing_account": false,
+    "product_writes": true,
+    "edge_deploy": false,
+    "matrix_jobs": "admin-explicit-cost-ack",
+    "product_write_scope": [
+      "own-person-family",
+      "own-research-state",
+      "own-private-hints-media",
+      "governed-community-actions",
+      "own-avatar",
+      "existing-verified-legacy-claim"
+    ],
+    "public_preview_restrictions": [
+      "life-journey-admin-only",
+      "raziel-admin-only",
+      "els-admin-only"
+    ],
+    "companion": "temporarily-unmounted",
+    "production_flags_changed": false,
+    "general_profile_writes": false,
+    "els_followup_server_contract": "requires-approved-shared-artifact",
+    "expected_server_sha256": "2ac19e112e77e71fbab61270338e126edf88128a786f3425b09157291494281f"
+  },
+  "workerSha256": "989e1cc315d8b42ae1cc01c57f44bbe6cd2ff4b90b6eb4e9453090008d57f2fb",
+  "unauthenticatedRootStatus": 302,
+  "ok": true
+}

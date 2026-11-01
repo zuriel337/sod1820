@@ -1,0 +1,2067 @@
+{
+  "actualDeployedClient": true,
+  "data": "existing public data, no synthetic rows",
+  "serviceWorker": "independent browser barrier replaces bootstrap only in test; deployed worker hash checked separately",
+  "cases": [
+    {
+      "width": 390,
+      "method": "מילוי",
+      "result": 3928,
+      "fullPageNoDrawer": true,
+      "publicSourceHref": "/world?view=sources&source=tzvi-opoc&sourceRef=channel_updates%3Abc0aa8ce-30fc-4a22-b42d-113a456f5e58#source-occurrence-bc0aa8ce-30fc-4a22-b42d-113a456f5e58",
+      "sourceReturn": true,
+      "overflow": false
+    },
+    {
+      "width": 1440,
+      "method": "מילוי",
+      "result": 3928,
+      "fullPageNoDrawer": true,
+      "publicSourceHref": "/world?view=sources&source=tzvi-opoc&sourceRef=channel_updates%3Abc0aa8ce-30fc-4a22-b42d-113a456f5e58#source-occurrence-bc0aa8ce-30fc-4a22-b42d-113a456f5e58",
+      "sourceReturn": true,
+      "overflow": false
+    }
+  ],
+  "reads": [
+    {
+      "stage": "number-390",
+      "path": "/number/1820",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/fonts/NotoSansHebrew-Regular.ttf",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/AuthContext-Baw7optw.js",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/methodIdentity-DM2yAcOz.js",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/fonts/Rubik-Latin.woff2",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/fonts/Rubik-Hebrew.woff2",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/fonts/NotoSansHebrew-Bold.ttf",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/css2",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/jsx-runtime-D3jfb0Ew.js",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/scheduler-l4uHkdFa.js",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/preload-helper-BZ1Pz5am.js",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/researchObjectPresentation-l0ubBFKY.js",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/numberExpressionFocus-BfHrMr4D.js",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/tracking-DOkC06Hg.js",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/NavigationIcon2029-CH1qZpiS.js",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/canonicalPresentation-DgNmWnf_.js",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/2029-CRSecll3.js",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/react-dom-DenslgJm.js",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/theme-B2UPacu4.js",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/researchObjectFinding-bo3yYp1j.js",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/universalFinding-DZVlmLqu.js",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/numberCoreProjection-DQ8Ai8xA.js",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/format-DFlJicod.js",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/gematria-Ud5dslyW.js",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/supabase-Cz7fbTnw.js",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/dayContext-DQm1CoPT.js",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/postSourceUpdates2029-DmZjuVxM.js",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/ResearchProvider-CaVah84F.js",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/publicPostUrls-YFBPKNgf.js",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/chunk-OB3PAWPO-CVMmBO49.js",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/palette-CNyTr_3N.js",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/designTokens-B8JmV1rE.js",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/razielViewMode2029-EPrCdoW9.js",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/elsResearchReturnSnapshot-B03Lyzta.js",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/timeline2029-Dc49odMG.js",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/2029-Bdk_N1FJ.css",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/themeMode-jUD92yIC.js",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/worldContextualProminence-DFYM9dQz.js",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/calculator2029Input-BbfftHdT.js",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/gematriaTracePresentation-CX847u8G.js",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/NavigationIcon2029-CDR-JqlQ.css",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/previewVisualReview2029-BXyFhZHo.js",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/previewVisualReview2029-BvQ2FAL9.css",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/site_flags",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/NumberAddress2029Page-dkSuhldy.js",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/gpuCapability-CgzeQuuF.js",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/CurationMark2029-CRcuZKya.js",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/Number2029Page-DpZbzzqs.js",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/SignatureResearchIcon-COpmmd5o.css",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/entityGraphFinding-fVozQmOH.js",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/SpatialMethodStage2029-C72jccAu.css",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/SpatialMethodStage2029-BVYRmTDV.js",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/semanticSceneCompiler-51BHTuhx.js",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/entityHubProjection-B20HUeF2.js",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/researchResultBundle-CflS2rn1.js",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/NumberZviPublicResearch2029-Dv4BnG7D.js",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/worldZviApprovedFindings2029-D0UwUMLH.js",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/NumberCore2029-BwAXhW08.js",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/researchPlanV2-CdfbhF3X.js",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/SignatureResearchIcon-DYnuhf6V.js",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/ZviFindingCards2029-5A-AK-p-.css",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/CanonicalVerseCards2029-BXh5ncYP.js",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/worldPublicFindingReader-D0mToH4Y.js",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/worldProminenceInputs-4HyMPd6B.js",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/numericResearch-DqZcmZHs.js",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/topicConvergence-BpuJLgzC.js",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/NumberCore2029-DoOroEE7.css",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/canonicalGematriaProjection-B66_nJSZ.js",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/CurationMark2029-CqI6kfN0.css",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/Timeline2029-DCEKqbCw.js",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/CanonicalVerseCards2029-CPRZOX-b.css",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/numberSystemMethods-vKYbPV9h.js",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/Timeline2029-a6_QYh8e.css",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/ZviFindingCards2029-qxkWWp60.js",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/worldContributorSourceLocator-Cyr0YS9t.js",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/Number2029Page-D3BIBjoI.css",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/canonicalGematria-CfLyabvn.js",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/curationProjection2029-Bi8e99K7.js",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/worldJourneyProjection-D9ba_4QK.js",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/brand/2029/canonical-lockup-128.webp",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/worldDiscoveryStream-c7OYXZHx.js",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/nodes",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/nodes",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/site_flags",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/gematria_words",
+      "status": 206,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/nodes",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/nodes",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/rpc/is_number_indexable",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/topic_cards_public",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/nodes",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/posts",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/entity_types",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/research_objects",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/research_objects",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/nodes",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/research_objects",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/edges",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/edges",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/edges",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/gematria_methods",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/gematria_methods",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/nodes",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/nodes",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/gallery_images",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/rpc/posts_by_number_strict",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/gallery_images",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/insights",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/nodes",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/rpc/number_neighbors",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/rpc/fn_number_journey",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/gallery_images",
+      "status": 206,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/nodes",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/rpc/fn_number_dossier",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/rpc/fn_zero_scale",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/topic_cards_public",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/number_anchors",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/gematria_words",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/rpc/fn_number_lookup",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/rpc/fn_number_lookup",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/topic_cards_public",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/topic_cards_public",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/topic_cards_public",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/topic_cards_public",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/topic_cards_public",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/topic_cards_public",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/topic_cards_public",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/nodes",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/nodes",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/nodes",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/nodes",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/nodes",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/nodes",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/nodes",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/gematria_words",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/edges",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/edges",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/edges",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/edges",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/edges",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/edges",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/nodes",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/nodes",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/nodes",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/nodes",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/nodes",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/nodes",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/edges",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/nodes",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/nodes",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/nodes",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/nodes",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/gematria_methods",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/nodes",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/nodes",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/rpc/fn_verses_by_gematria",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/rpc/lang_links_list",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/rpc/fn_method_profile",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/gematria_methods",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/rpc/gematria_method_trace",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/gematria_words",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/nodes",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/rpc/fn_zero_scale",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/site_flags",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/nodes",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/gematria_words",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/rpc/is_number_indexable",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/nodes",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/entity_types",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/research_objects",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/research_objects",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/research_objects",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/gallery_images",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/rpc/posts_by_number_strict",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/gematria_words",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/rpc/fn_number_dossier",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/insights",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/rpc/fn_number_lookup",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/rpc/number_neighbors",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/rpc/fn_number_lookup",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/rpc/fn_number_journey",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/nodes",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/gallery_images",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/number_anchors",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/topic_cards_public",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/nodes",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/rpc/fn_zero_scale",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/gematria_words",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/nodes",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/nodes",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/gematria_methods",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/rpc/fn_verses_by_gematria",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/rpc/gematria_method_trace",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/nodes",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/rpc/fn_zero_scale",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/rpc/lang_links_list",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/site_flags",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/rpc/fn_verses_by_gematria",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/rpc/fn_method_profile",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/rpc/is_number_indexable",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/gematria_methods",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/rpc/gematria_method_trace",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/storage/v1/object/public/media/_thumb/d85affee-2b2f-4dd4-ac9f-eb98e2dc6cbd.jpg",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/storage/v1/object/public/media/uploads/2021/05/hasvn-bmyrvn.png",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/storage/v1/object/public/media/uploads/2023/11/nkmt-h-tshpd.jpg",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/world_contributor_research_v1",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/channel_updates",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/site_flags",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/World2029Page-TTxOQlbD.css",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/ConvergenceRatings2029-Dy_4Nmzw.js",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/PostCategories2029-QcvAqBZE.js",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/publicWorldContentProjectionV1-DVgRVLRF.js",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/electionsIsrael21_26Seed2029-DprO4PPz.js",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/push-Dc3PsgpD.js",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/SourceRepeatInfo2029-DDIWPxqd.css",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/WatchButton-DFPG23U2.css",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/gematriaRelationW2Executor-BPPF95v4.js",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/bookResearchProjection-CoVSfrxQ.js",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/PostTimeline2029-HTi-_P5n.js",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/ConvergenceRatings2029-Bf7X875Q.css",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/SourceRepeatInfo2029-DuvlWQf5.js",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/post2029ExperienceProjection-CG_cIb45.js",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/post2029ReadingProjection-U-fGGBxn.js",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/StoryTreeSequence2029-CmeGTnuu.css",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/PostCategories2029-DP5c8Fzv.css",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/IconTile2029-x-yAGhlc.css",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/World2029Page-s2xgpWhs.js",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/WatchButton-BywZc5Ce.js",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/worldContributorLens-Bb4dSeR9.js",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/EmailVerify-Fi2oLWa1.js",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/EmailVerify-DM0qVGWZ.css",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/IconTile2029-Bt6NupR-.js",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/publicPostBoundary-DLBRu07Y.js",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/StoryTreeSequence2029-7SZyLW6P.js",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/WorldPeopleSources2029-BRoxXZre.css",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/worldMapViewModel2029-DJMI18u1.js",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/WorldZviSourceFindings2029-CsA-7Ayi.js",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/contributorSourceCatalogProjection-WwppDGSu.js",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/WorldPeopleSources2029-DzershvM.js",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/assets/livingRibbonPreview2029-BI1iUMB3.js",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/contributors",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/posts",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/posts",
+      "status": 206,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/site_flags",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/topic_cards_public",
+      "status": 206,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/gallery_images",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/posts",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/topic_cards_public",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/posts",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/posts",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/nodes",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/contributors",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/contributors",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/topic_cards_public",
+      "status": 206,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/posts",
+      "status": 206,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/gallery_images",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/channel_updates",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/channel_updates",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/research_contributions",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/posts",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/els_records",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/posts",
+      "status": 206,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/topic_cards_public",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/galleries",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/topic_cards_public",
+      "status": 206,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/insights",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/posts",
+      "status": 206,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/channel_updates",
+      "status": 206,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/topic_cards_public",
+      "status": 206,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/insights",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/posts",
+      "status": 206,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/channel_updates",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/posts",
+      "status": 206,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/channel_updates",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/world_contributor_research_v1",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/storage/v1/object/public/gallery/sod1820/broadcasts/AC568674E6CA8ECA41F919A7D47A2BC4.jpg",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/site_flags",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/brand/2029/canonical-lockup-128.webp",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/rpc/fn_verses_by_gematria",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/site_flags",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/rpc/is_number_indexable",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/rpc/lang_links_list",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-1440",
+      "path": "/rest/v1/topic_cards_public",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-1440",
+      "path": "/s/ibmplexmono/v20/-F63fjptAgt5VM-kVkqdyU8n1i8q1w.woff2",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-1440",
+      "path": "/rest/v1/rpc/fn_method_profile",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-1440",
+      "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-1440",
+      "path": "/rest/v1/site_flags",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-1440",
+      "path": "/rest/v1/posts",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-1440",
+      "path": "/rest/v1/gematria_methods",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-1440",
+      "path": "/rest/v1/rpc/gematria_method_trace",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-1440",
+      "path": "/rest/v1/site_flags",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-1440",
+      "path": "/rest/v1/rpc/fn_verses_by_gematria",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-1440",
+      "path": "/rest/v1/rpc/gematria_method_trace",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-1440",
+      "path": "/rest/v1/rpc/is_number_indexable",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-1440",
+      "path": "/rest/v1/rpc/lang_links_list",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-1440",
+      "path": "/rest/v1/site_flags",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-1440",
+      "path": "/rest/v1/rpc/fn_verses_by_gematria",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-1440",
+      "path": "/rest/v1/rpc/is_number_indexable",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-1440",
+      "path": "/rest/v1/rpc/fn_method_profile",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-1440",
+      "path": "/rest/v1/gematria_methods",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-1440",
+      "path": "/rest/v1/rpc/gematria_method_trace",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-1440",
+      "path": "/storage/v1/object/public/media/uploads/2021/05/hasvn-bmyrvn.png",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-1440",
+      "path": "/storage/v1/object/public/media/_thumb/d85affee-2b2f-4dd4-ac9f-eb98e2dc6cbd.jpg",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-1440",
+      "path": "/storage/v1/object/public/media/uploads/2023/11/nkmt-h-tshpd.jpg",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-1440",
+      "path": "/storage/v1/object/public/media/uploads/2020/12/mshych-tbt.png",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-1440",
+      "path": "/rest/v1/world_contributor_research_v1",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-1440",
+      "path": "/rest/v1/channel_updates",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-1440",
+      "path": "/rest/v1/site_flags",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-1440",
+      "path": "/rest/v1/site_flags",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-1440",
+      "path": "/rest/v1/contributors",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-1440",
+      "path": "/rest/v1/topic_cards_public",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-1440",
+      "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-1440",
+      "path": "/rest/v1/contributors",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-1440",
+      "path": "/rest/v1/posts",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-1440",
+      "path": "/rest/v1/nodes",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-1440",
+      "path": "/rest/v1/contributors",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-1440",
+      "path": "/rest/v1/channel_updates",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-1440",
+      "path": "/rest/v1/channel_updates",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-1440",
+      "path": "/rest/v1/posts",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-1440",
+      "path": "/rest/v1/els_records",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-1440",
+      "path": "/rest/v1/insights",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-1440",
+      "path": "/rest/v1/topic_cards_public",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-1440",
+      "path": "/rest/v1/research_contributions",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-1440",
+      "path": "/rest/v1/insights",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-1440",
+      "path": "/rest/v1/channel_updates",
+      "status": 206,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-1440",
+      "path": "/rest/v1/channel_updates",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-1440",
+      "path": "/rest/v1/channel_updates",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "stage": "number-1440",
+      "path": "/rest/v1/world_contributor_research_v1",
+      "status": 200,
+      "transport": "GET"
+    }
+  ],
+  "blocked": [
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "stage": "number-390",
+      "path": "/rest/v1/rpc/writer_public_contributions_page_v1",
+      "method": "POST"
+    },
+    {
+      "stage": "number-1440",
+      "path": "/rest/v1/rpc/writer_public_contributions_page_v1",
+      "method": "POST"
+    }
+  ],
+  "errors": [],
+  "cleanupAborts": [
+    {
+      "stage": "number-1440",
+      "path": "/rest/v1/site_flags",
+      "type": "Error"
+    }
+  ],
+  "writesForwarded": 0,
+  "modelCallsForwarded": 0,
+  "identity": {
+    "sha": "7649e46c199ade990fd75ea8400f60f93522ef82",
+    "branch": "gpt/2029-number-fullpage-performance-20261101",
+    "target": "preview",
+    "transport": "authenticated-preview-server-to-canonical-ai-analyze",
+    "model_trigger": "explicit-user-turn",
+    "requires_existing_account": false,
+    "product_writes": true,
+    "edge_deploy": false,
+    "matrix_jobs": "admin-explicit-cost-ack",
+    "product_write_scope": [
+      "own-person-family",
+      "own-research-state",
+      "own-private-hints-media",
+      "governed-community-actions",
+      "own-avatar",
+      "existing-verified-legacy-claim"
+    ],
+    "public_preview_restrictions": [
+      "life-journey-admin-only",
+      "raziel-admin-only",
+      "els-admin-only"
+    ],
+    "companion": "temporarily-unmounted",
+    "production_flags_changed": false,
+    "general_profile_writes": false,
+    "els_followup_server_contract": "requires-approved-shared-artifact",
+    "expected_server_sha256": "2ac19e112e77e71fbab61270338e126edf88128a786f3425b09157291494281f"
+  },
+  "workerSha256": "989e1cc315d8b42ae1cc01c57f44bbe6cd2ff4b90b6eb4e9453090008d57f2fb",
+  "unauthenticatedRootStatus": 302,
+  "capabilities": {
+    "target": "preview",
+    "serverIdentityAvailable": true,
+    "serverIdentityVerified": true,
+    "userAuthenticationRequired": true,
+    "production": false
+  },
+  "ok": true
+}
