@@ -680,10 +680,15 @@ export function buildTopicListQuery({
 export async function fetchTopicCardList(params = {}) {
   const q = buildTopicListQuery(params);
   const includeTotal = Boolean(params?.includeTotal);
+  // Search terms are only requested by the bounded public World index.  The
+  // default list and its server-side search contract remain unchanged.
+  const fields = params?.includeSearchTerms === true
+    ? `${TOPIC_LIST_FIELDS},search_terms`
+    : TOPIC_LIST_FIELDS;
   if (q.invalid) return includeTotal ? { rows: [], hasMore: false, total: 0 } : { rows: [], hasMore: false };
   let query = includeTotal
-    ? supabase.from("topic_cards_public").select(TOPIC_LIST_FIELDS, { count: "exact" })
-    : supabase.from("topic_cards_public").select(TOPIC_LIST_FIELDS);
+    ? supabase.from("topic_cards_public").select(fields, { count: "exact" })
+    : supabase.from("topic_cards_public").select(fields);
   if (q.search) query = query.or(`title.ilike.%${q.search}%,subtitle.ilike.%${q.search}%`);
   if (q.creator) query = query.eq("created_by", q.creator);
   if (q.number != null) query = query.contains("numbers", [q.number]);

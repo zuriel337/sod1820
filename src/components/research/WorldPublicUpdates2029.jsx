@@ -67,9 +67,15 @@ function actionLabel(item) {
   return CANONICAL_PUBLIC_UI_COPY.action.source;
 }
 
+function groupSourceAnchor(item) {
+  if (item?.sourceKind !== "group_message" || !item.fullText) return null;
+  const match = /^\/world#(group-source-[a-z0-9%-]+)$/i.exec(item.href || "");
+  return match?.[1] || null;
+}
+
 /** One public activity projection over readers already used by World. No reader, cache or truth state is created here. */
 export default function WorldPublicUpdates2029({
-  items = EMPTY_ROWS, arrivals = EMPTY_ROWS, people = EMPTY_ROWS, loading = false, error = null, availability = null, onOpen, initialLimit = 12,
+  items = EMPTY_ROWS, arrivals = EMPTY_ROWS, people = EMPTY_ROWS, loading = false, error = null, availability = null, onOpen, initialLimit = 12, selectedSourceHash = "",
 }) {
   const [filter, setFilter] = useState("all");
   const [limit, setLimit] = useState(initialLimit);
@@ -77,6 +83,8 @@ export default function WorldPublicUpdates2029({
   const filtered = activity.filter((row) => filter === "all" || activityType(row.item, row.activity) === filter
     || (filter === "sources" && row.item.kind === "source"));
   const visible = filtered.slice(0, limit);
+  const selected = filtered.find(({ item }) => `#${groupSourceAnchor(item)}` === selectedSourceHash && groupSourceAnchor(item));
+  if (selected && !visible.includes(selected)) visible.push(selected);
 
   return <section className="sod29-world-public-updates" id="world-public-updates" aria-label="עדכונים ציבוריים אחרונים">
     <header>
@@ -107,7 +115,15 @@ export default function WorldPublicUpdates2029({
           <h3>{item.label}</h3>
           {item.creator ? <p className="sod29-world-update-creator">{item.creator}</p> : null}
           {item.summary ? <p>{item.summary}</p> : null}
-          <button type="button" onClick={() => onOpen?.(item)}>{actionLabel(item)} ←</button>
+          {groupSourceAnchor(item) ? <details className="sod29-world-group-source" id={groupSourceAnchor(item)}
+            onToggle={(event) => { if (event.currentTarget.open) onOpen?.(item, { inline: true }); }}
+            open={selectedSourceHash === `#${groupSourceAnchor(item)}` || undefined}>
+            <summary>קריאת הודעת המקור</summary>
+            <p>{item.fullText}</p>
+            {item.fullText.length >= 1200 ? <p>ההודעה מוצגת כאן באופן חלקי.</p> : null}
+            {item.occurrenceCount > 1 ? <p>{item.occurrenceCount} הופעות בנוסח המוצג.</p> : null}
+            <p>הודעת מקור שטרם נבדקה.</p>
+          </details> : <button type="button" onClick={() => onOpen?.(item)}>{actionLabel(item)} ←</button>}
         </article>)}
       </div>
       {visible.length < filtered.length ? <button type="button" className="sod29-action"

@@ -92,13 +92,6 @@ export default function WorldPeopleSources2029({ index, loading = false, error =
   const mapArea = useRef(null);
 
   useEffect(() => { setQuery(params.get("q") || ""); }, [params]);
-  const updateQuery = (value) => {
-    setQuery(value);
-    const next = new URLSearchParams(location.search);
-    if (value) next.set("q", value); else next.delete("q");
-    navigate(`${location.pathname}?${next.toString()}${location.hash}`, { replace: true });
-  };
-
   const chooseSource = (slug) => {
     const next = new URLSearchParams(location.search);
     next.set("view", "sources");
@@ -253,8 +246,6 @@ export default function WorldPeopleSources2029({ index, loading = false, error =
       <header><div className="sod29-kicker">דפי כותבים שהתעדכנו לאחרונה</div><h2>העדכניים ביותר תחילה</h2>
         <p>מוצגים תחילה עד 20 דפים ציבוריים לפי מועד העדכון. רשומות פרטיות, נעולות או בבנייה אינן נכנסות לאינדקס.</p></header>
       <div className="sod29-world-source-controls">
-        <label><span>{CANONICAL_PUBLIC_UI_COPY.search.personTitleNumber}</span>
-          <input value={query} maxLength={160} onChange={(event) => updateQuery(event.target.value)} placeholder="שם, כותרת או מספר…" /></label>
         <div role="group" aria-label="סינון אנשים ומקורות">
           {WORLD_SOURCE_FILTERS.map(([key, label]) => <button type="button" key={key} aria-pressed={filter === key}
             onClick={() => setFilter(key)}>{label}</button>)}
@@ -296,8 +287,6 @@ export default function WorldPeopleSources2029({ index, loading = false, error =
 
     {source && focusedSourceRef && !selected && !corpus && !loading && !error
       ? <p role="status">המקור שבקישור אינו זמין בתצוגה הציבורית.</p> : null}
-
-    <WorldZviApprovedFindings2029 key={`all-findings:${query}`} scope="all" query={query} />
 
     {selected ? <section className="sod29-section sod29-world-selected-source" aria-label={`החומר הציבורי של ${selected.displayName}`}>
       <header className="sod29-section-head"><div><div className="sod29-kicker">החומר הציבורי שנבחר</div>

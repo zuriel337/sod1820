@@ -1023,14 +1023,14 @@ function LiveWorldLanding({ research, shell, context }) {
       card.open = true;
       card.scrollIntoView({ block: "nearest" });
     }
-  }, [location.hash, discoveryItems]);
+  }, [location.hash, discoveryItems, landing.discovery?.arrivals, activeView]);
 
-  const openDiscoveryItem = (item) => {
+  const openDiscoveryItem = (item, options = {}) => {
     if (!item) return;
     const publicUpdatesReturnHref = `${location.pathname}${location.search}#world-public-updates`;
     if (item.sourceKind === "group_message") {
       research.updateResearchContext?.({ subject: null, selection: { entityId: item.sourceRef, entityType: 'source', sourceRef: item.sourceRef }, lens: 'world' });
-      shell.go(item.href, { preserve: false });
+      if (!options.inline) shell.go(item.href, { preserve: false });
       return;
     }
     if (item.kind === "source" && item.sourceKind === "post" && item.href) {
@@ -1172,7 +1172,7 @@ function LiveWorldLanding({ research, shell, context }) {
       <WorldPublicUpdates2029 loading={landing.discoveryLoading} error={landing.discoveryError}
         items={discoveryItems} arrivals={landing.discovery?.arrivals || []}
         people={landing.contributors?.people || []} availability={landing.discovery?.groupArrivals}
-        initialLimit={8} onOpen={openDiscoveryItem} />
+        selectedSourceHash={location.hash} initialLimit={8} onOpen={openDiscoveryItem} />
       <section className="sod29-section sod29-world-featured-connections" aria-label="חיבורים נבחרים">
         <div className="sod29-section-head"><div><div className="sod29-kicker">בחירה מערכתית</div><h2>נושאים וחיבורים נבחרים</h2>
           <p className="sod29-muted">כרטיס הוא שער לממצאים, למספרים ולמקורות המחוברים אליו.</p></div></div>
@@ -1186,17 +1186,17 @@ function LiveWorldLanding({ research, shell, context }) {
       <WorldPublicUpdates2029 loading={landing.discoveryLoading} error={landing.discoveryError}
         items={discoveryItems} arrivals={landing.discovery?.arrivals || []}
         people={landing.contributors?.people || []} availability={landing.discovery?.groupArrivals}
-        initialLimit={12} onOpen={openDiscoveryItem} />
+        selectedSourceHash={location.hash} initialLimit={12} onOpen={openDiscoveryItem} />
       <ZviGroupTimeline2029 recentItems={landing.discovery?.items || []} />
     </> : null}
 
     {activeView === WORLD_LANDING_VIEW.SOURCES ? <>
+      <WorldPublicSourceSubjects2029 peopleIndex={landing.contributors} />
       <React.Suspense fallback={<p role="status">פותח אנשים ומקורות…</p>}>
         <WorldPeopleSources2029 index={landing.contributors} loading={landing.contributorLoading}
           error={landing.contributorError} recentCounts={landing.discovery?.recentCounts || {}}
           focusedSourceRef={focusedContributorSourceRef} />
       </React.Suspense>
-      <WorldPublicSourceSubjects2029 peopleIndex={landing.contributors} />
     </> : null}
 
     {activeView === WORLD_LANDING_VIEW.CONNECTIONS ? <>

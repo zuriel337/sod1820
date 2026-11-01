@@ -9,7 +9,7 @@ import { readableSourceTitle } from "../src/lib/research/contributorFindingsProj
 test("only approved Topic identities are subjects; Hashmal post is a source work", () => {
   const cards = canonicalSourceSubjectCards({
     topics: [{ id: "t1", slug: "zvi-topic", title: "שער נון", approved_at: "2026-10-01", numbers: [1234], created_by: "צבי (OPOC)" }],
-    hashmalPosts: [{ id: 8, slug: "source-8", title: "שער נון", categories: ["סוד החשמל", "גימטריות"] }],
+    hashmalPosts: [{ id: 8, slug: "source-8", title: "שער נון", source: "sod1820", categories: ["סוד החשמל", "גימטריות"] }],
   });
   assert.equal(cards.length, 2);
   assert.deepEqual(cards.map((c) => c.type), ["approved_topic", "source_work"]);
@@ -92,8 +92,10 @@ test("the single public World layout uses one category-free subject reader and k
   assert.match(ui, /אנשים ציבוריים/);
   assert.match(ui, /מקורות שנטענו בעדשה זו/);
   assert.match(ui, /נושאים קיימים בעץ/);
-  assert.match(ui, /צבי הוא מסנן משנה/);
-  assert.match(ui, /סדרת מקורות · סוד החשמל/);
+  assert.match(ui, /aria-label="נושאים ומקורות"/);
+  assert.match(ui, /searchPublicGroupSourcePage/);
+  assert.match(ui, /interleavePublicSubjectCards/);
+  assert.doesNotMatch(ui, /78 נושאי צבי נשארים/);
   assert.match(ui, /חוזק תצוגה:.*טרם דורג/);
   const reader = readFileSync(new URL("../src/lib/research/worldPublicSourceSubjects2029.js", import.meta.url), "utf8");
   assert.doesNotMatch(reader, /posts\.categories|\.map\(.*categories|category\s*=/);

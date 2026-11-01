@@ -18,6 +18,15 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const findingPromiseCache = new Map();
 const clean = (value) => value == null ? "" : String(value).trim();
 
+async function exactDisplayedTextFingerprint(value) {
+  const text = clean(value).replace(/\s+/g, " ");
+  if (!text || !globalThis.crypto?.subtle || typeof TextEncoder === "undefined") return null;
+  try {
+    const bytes = await globalThis.crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
+    return Array.from(new Uint8Array(bytes), (byte) => byte.toString(16).padStart(2, "0")).join("");
+  } catch { return null; }
+}
+
 function verifiedWebUrl(value) {
   const text = clean(value);
   if (!/^https?:\/\//i.test(text)) return null;
@@ -217,6 +226,7 @@ async function publicDiscoverySources(client, rows) {
  */
 export async function fetchWorldPublicFindingsPage({ client = getPublicResearchClient(),
   value = null, query = "", sourceRef = null, contributorId = null, cursor = null, pageSize = 25,
+  groupByExactText = false,
 } = {}) {
   const q = clean(query).replace(/\s+/g, " ");
   const source = sourceRef == null ? null : exactPublicSource(sourceRef);
@@ -260,7 +270,9 @@ export async function fetchWorldPublicFindingsPage({ client = getPublicResearchC
     const finding = projectPublicResearchFinding(row, { ...source, sourceHref });
     if (!finding || seen.has(finding.id)) continue;
     seen.add(finding.id);
+    const exactTextFingerprint = groupByExactText ? await exactDisplayedTextFingerprint(row.statement) : null;
     rows.push(Object.freeze({ ...finding, ...(value == null ? {} : { claimedNumber: value }),
+      ...(exactTextFingerprint ? { exactTextFingerprint } : {}),
       sourceOccurrenceRef: clean(row.source_ref),
       sourceRoutePrecision: source.sourceRef.startsWith("posts:") ? "post_only_with_stored_source_locator"
         : source.sourceRef.startsWith("gallery_images:") ? "exact_gallery_occurrence"

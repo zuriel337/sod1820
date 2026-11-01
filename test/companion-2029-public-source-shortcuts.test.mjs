@@ -37,8 +37,8 @@ test("World source selector changes view only, never source authorizations", () 
   assert.match(world, /activeView === WORLD_LANDING_VIEW\.SOURCES/);
   assert.match(world, /<WorldPublicSourceSubjects2029/);
   assert.match(sourceMap, /new URLSearchParams\(location\.search\)\.get\("subjectSource"\)/);
-  assert.match(sourceMap, /requested === "zvi" \|\| requested === "hashmal"/);
-  assert.match(sourceMap, /setOrigin\(requested\)/);
+  assert.match(sourceMap, /\["zvi", "hashmal", "topic"\]\.includes\(requested\)/);
+  assert.match(sourceMap, /setOrigin\(\["zvi", "hashmal", "topic"\]\.includes\(requested\)/);
   assert.match(sourceMap, /source=tzvi-opoc#world-contributor-material/);
   assert.match(sourceMap, /source=sod-hashmal#world-corpus-sod-hashmal/);
   const css = read("src/components/experience2029/companionPanel2029.css");

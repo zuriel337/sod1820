@@ -7,7 +7,7 @@ import "./WorldZviApprovedFindings2029.css";
 import { fetchWorldPublicFindingsPage } from "../../lib/research/worldPublicFindingReader.js";
 
 // Each list has its own cursor, retry state and explicit visitor action.
-function useFindingPages(fetchPage) {
+function useFindingPages(fetchPage, autoOpen = false) {
   const [state, setState] = useState({ opened: false, loading: false, rows: [], cursor: null, hasMore: false, error: false, omittedUnavailable: false, omittedForReview: false });
   const pending = useRef(false);
   const mounted = useRef(true);
@@ -35,10 +35,14 @@ function useFindingPages(fetchPage) {
     }
   }
 
+  // The parent remounts this bounded reader when the debounced query changes.
+  // A visitor's text search opens only this reader, never the other list.
+  useEffect(() => { if (autoOpen) void load(); }, [autoOpen]);
+
   return { state, load };
 }
 
-function FindingList({ state, load, returnTo, initialLabel, moreLabel, loadingLabel }) {
+function FindingList({ state, load, returnTo, initialLabel, moreLabel, loadingLabel, groupExactWording = false }) {
   return <>
     {!state.opened ? <button className="sod29-action zvi-research__button" type="button" onClick={load}>{initialLabel}</button> : null}
     {state.loading ? <p className="zvi-research__status" role="status">{loadingLabel}</p> : null}
@@ -47,32 +51,32 @@ function FindingList({ state, load, returnTo, initialLabel, moreLabel, loadingLa
     {state.omittedForReview ? <p className="zvi-research__status">חלק מהחומר ממתין לעיון.</p> : null}
     {state.opened && !state.loading && !state.error && !state.rows.length && !state.hasMore && !state.omittedUnavailable && !state.omittedForReview
       ? <p className="zvi-research__status">לא נמצאו ממצאים ציבוריים מאושרים במקורות אלו.</p> : null}
-    {state.rows.length ? <ZviFindingCards2029 rows={state.rows} returnTo={returnTo} /> : null}
+    {state.rows.length ? <ZviFindingCards2029 rows={state.rows} returnTo={returnTo} groupExactWording={groupExactWording} /> : null}
     {state.opened && !state.loading && (state.hasMore || state.error)
       ? <button className="sod29-action zvi-research__button" type="button" onClick={load}>{state.error ? "נסה שוב" : moreLabel}</button> : null}
   </>;
 }
 
 // Opening one list does not trigger the other or create a graph relation.
-export default function WorldZviApprovedFindings2029({ scope = "zvi", query = "" }) {
+export default function WorldZviApprovedFindings2029({ scope = "zvi", query = "", autoOpen = false, contributorId = null }) {
   const location = useLocation();
   const allSources = scope === "all";
   const numericQuery = /^(0|[1-9]\d*)$/.test(query) && Number.isSafeInteger(Number(query)) ? Number(query) : null;
   const publicReader = useCallback((options) => fetchWorldPublicFindingsPage({ ...options,
-    value: numericQuery, query: numericQuery == null ? query : "" }), [query, numericQuery]);
-  const main = useFindingPages(allSources ? publicReader : fetchZviApprovedFindingsPage);
+    value: numericQuery, query: numericQuery == null ? query : "", contributorId, groupByExactText: true }), [query, numericQuery, contributorId]);
+  const main = useFindingPages(allSources ? publicReader : fetchZviApprovedFindingsPage, allSources && autoOpen);
   const reviewed = useFindingPages(fetchZviReviewedFindingsPage);
   const returnTo = `${location.pathname}${location.search}${location.hash}`;
   return <section className="zvi-research" aria-label={allSources ? "ממצאים בכל המקורות" : "ממצאים הקשורים למקורות צבי"} dir="rtl">
     <header className="zvi-research__header">
-      <span className="zvi-research__eyebrow">ספריית המחקר</span>
-      <h3 className="zvi-research__title">{allSources ? "ממצאים בכל המקורות" : "ממצאים הקשורים למקורות צבי"}</h3>
+      <span className="zvi-research__eyebrow">{allSources ? "מתוך המקורות" : "ספריית המחקר"}</span>
+      <h3 className="zvi-research__title">{allSources ? "קטעים מכל המקורות" : "ממצאים הקשורים למקורות צבי"}</h3>
       <p className="zvi-research__intro">ממצאים, שאלות ורעיונות מתוך המקורות הציבוריים. אפשר לפתוח כל ממצא ולהגיע למקור המדויק שלו.</p>
       <p className="zvi-research__coverage">רשימה חלקית של חומר ציבורי מאושר שעבר סינון; יתר החומר ממתין לעיון. ייחוס המקור אינו קובע מי כתב כל ממצא; מצב הבדיקה מוצג בממצא עצמו.</p>
       {allSources ? <p className="zvi-research__coverage">{query ? `${numericQuery == null ? "חיפוש בטקסט הממצאים" : "חיפוש לפי מספר שמור"}: ${query}` : "חיפוש ללא הגבלה לכותב מסוים."} הכיסוי הוא ממצאים ציבוריים שסווגו להצגה ומקורם זמין; תוצאות מספריות אינן קשר ישיר לטופיק.</p>
         : <a className="zvi-research__action" href="#zvi-reviewed-research">לחומר נוסף שנבדק ↓</a>}
     </header>
-    <FindingList {...main} returnTo={returnTo} initialLabel="הצגת הממצאים המאושרים" moreLabel="עוד ממצאים" loadingLabel="טוען ממצאים…" />
+    <FindingList {...main} returnTo={returnTo} initialLabel={allSources ? "פתיחת קטעים" : "הצגת הממצאים המאושרים"} moreLabel="עוד ממצאים" loadingLabel="טוען ממצאים…" groupExactWording={allSources} />
     {!allSources ? <section id="zvi-reviewed-research" className="zvi-research" aria-label="חומר נוסף שנבדק">
       <header className="zvi-research__header">
         <h3 className="zvi-research__title">חומר נוסף שנבדק</h3>
