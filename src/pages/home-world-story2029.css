@@ -50,5 +50,12 @@
 /* Public World: reserve the above-the-fold flight slot while its authorized
    post/source reader settles. Prevent the arrival rail jumping into the viewport
    and then offscreen during async hydration (CLS /world <= 0.1). */
-.sod29-flight-story.is-world.is-loading{min-height:380px;display:flex;align-items:flex-start}
-@media(max-width:760px){.sod29-flight-story.is-world.is-loading{min-height:560px}}
+/* Measured real public story: 573px at 1440/1920, 624px at 981,
+   806px at 760, 920px at 390, 1002px at 320. Reserve the same floor
+   through loading/success/failure; larger text can still grow without clipping. */
+.sod29-flight-story.is-world{min-height:580px}
+.sod29-flight-story.is-world.is-loading{display:flex;align-items:flex-start}
+@media(max-width:1100px){.sod29-flight-story.is-world{min-height:640px}}
+@media(max-width:760px){.sod29-flight-story.is-world{min-height:820px}}
+@media(max-width:480px){.sod29-flight-story.is-world{min-height:930px}}
+@media(max-width:350px){.sod29-flight-story.is-world{min-height:1010px}}

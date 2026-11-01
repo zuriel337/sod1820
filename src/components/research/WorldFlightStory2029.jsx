@@ -83,9 +83,9 @@ export default function WorldFlightStory2029({ surface = 'world', research, shel
   if (state.loading) return <section id={anchor} className={home ? 'sod29-flight-story is-home is-loading' : 'sod29-flight-story is-world is-loading'} aria-label="סיפור המטוס נטען">
     <FrameState kind="loading" title="פותח את סיפור המטוס">המקור והחיבורים נטענים.</FrameState>
   </section>;
-  if (!state.projection) return <FrameState kind="unavailable" title="סיפור המטוס אינו זמין כרגע">
+  if (!state.projection) return <section id={anchor} className={`sod29-flight-story is-${surface} is-unavailable`}><FrameState kind="unavailable" title="סיפור המטוס אינו זמין כרגע">
     <button className="sod29-action" onClick={() => setAttempt(n => n + 1)}>נסה שוב את המקור</button>
-  </FrameState>;
+  </FrameState></section>;
   const { post, identity, experience } = state.projection;
   const media = experience.media?.highlight;
   const image = (home ? post.thumb_url : post.image_url) || post.image_url || media?.poster;
