@@ -9,6 +9,12 @@ BEFORE: `632e948d-acb0-4c6c-b1b8-fe63331eac71` (including photo/reply addenda).
 
 ## Public behavior
 
+Approved copy follow-up: a small muted public line beneath the conversation
+heading reads: ״כבר הייתם חלק מהשיחה? הירשמו עם המייל שלכם, ונעזור לכם לחבר את
+הפרופיל מהצ׳אט הישן לחשבון החדש.״ It wraps on mobile, and does not appear inside
+individual profiles or claim screens. This is copy only; existing verification
+and account-linking requirements remain unchanged.
+
 Signed-in visitors see their own verified profile name, a small notification bell
 and an account settings menu. A single 48px comment row contains the existing
 avatar link and an accessible 44px attachment action. Publish and the character
