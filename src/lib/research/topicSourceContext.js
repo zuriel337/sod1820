@@ -80,6 +80,17 @@ export function gallerySourceHref2029(wpGalleryId, galleryImageId = null) {
   return `${base}&image=${encodeURIComponent(galleryImageId)}#gallery-source-${galleryImageId}`;
 }
 
+// A shared image can have several historical appearances. Open the requested
+// admitted occurrence, never whichever gallery happens to be first in the array.
+export function galleryItemSourceHref2029(item, imageId = item?.galleryImageId) {
+  if (item?.access?.scope !== 'public' || item.access.available === false || !imageId) return null;
+  const targets = new Set((item.occurrences || []).filter(occurrence =>
+    occurrence.legacyPlacement?.galleryImageId === imageId
+    && occurrence.provenance?.sourceRef === `gallery_images:${imageId}`)
+    .map(occurrence => gallerySourceHref2029(occurrence.legacyPlacement.wpGalleryId, imageId)).filter(Boolean));
+  return targets.size === 1 ? [...targets][0] : null;
+}
+
 // A return is an exact admitted source occurrence, not a number/topic match or
 // an arbitrary URL carried in navigation state. Original and filtered routes only.
 export function isExactGalleryFindingReturn2029(href, sourceRefs = []) {
@@ -518,10 +529,11 @@ function attachReopen(item, topic) {
       postRoutePrecision: item.postPlacement ? "post_only_with_source_region_locator" : null,
       galleries: item.occurrences.filter((entry) => entry.legacyPlacement).map(({ legacyPlacement: p }) => ({
         sourceRef: `gallery_images:${p.galleryImageId}`,
-        href: p.wpGalleryId != null ? `/archive?tab=galleries&gal=${encodeURIComponent(p.wpGalleryId)}` : null,
-        // The current Archive route opens the gallery, not a selected image. Consumers must
-        // preserve this exact target without pretending an unsupported image query works.
-        routePrecision: "gallery_only",
+        href: gallerySourceHref2029(p.wpGalleryId, p.galleryImageId),
+        // Keep the historical address as provenance; navigation uses the existing
+        // native reader, which independently re-admits the exact public occurrence.
+        legacyHref: p.wpGalleryId != null ? `/archive?tab=galleries&gal=${encodeURIComponent(p.wpGalleryId)}` : null,
+        routePrecision: gallerySourceHref2029(p.wpGalleryId, p.galleryImageId) ? "exact_gallery_image" : "unavailable",
         selection: { galleryId: p.galleryId, wpGalleryId: p.wpGalleryId, galleryImageId: p.galleryImageId, wpImageId: p.wpImageId, ordering: p.ordering },
       })),
     },

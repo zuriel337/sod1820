@@ -10,6 +10,15 @@ import {
   WORLD_LANDING_VIEW,
 } from "./worldLandingNavigation.js";
 
+test("direct source and direction links return to Connections while source homes keep their own view", () => {
+  for (const hash of ['#world-source-water-train','#world-direction-india','#world-discovery-wall--wall-clock']) {
+    assert.equal(resolveWorldLandingView({hash}),WORLD_LANDING_VIEW.CONNECTIONS);
+  }
+  assert.equal(resolveWorldLandingView({hash:'#world-source-homes'}),WORLD_LANDING_VIEW.SOURCES);
+  assert.equal(resolveWorldLandingView({hash:''}),WORLD_LANDING_VIEW.START);
+  assert.equal(resolveWorldLandingView({search:'?view=sources',hash:'#world-source-water-train'}),WORLD_LANDING_VIEW.SOURCES);
+});
+
 test("World knowledge navigation accepts the spatial lens", () => {
   assert.equal(resolveWorldKnowledgeKind("?view=explore&kind=spatial"), WORLD_KNOWLEDGE_KIND.SPATIAL);
   assert.equal(

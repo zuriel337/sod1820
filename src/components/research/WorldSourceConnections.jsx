@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import SpatialMethodStage2029 from '../gematria2029/SpatialMethodStage2029.jsx';
 import CanonicalMediaFigure2029 from '../experience2029/CanonicalMediaFigure2029.jsx';
 import { WORLD_SOURCE_DIRECTIONS, REVIEWED_SOURCE_WITNESSES, fetchWorldSourceConnections, worldWitnessContext } from '../../lib/research/worldSourceConnections.js';
@@ -93,8 +93,12 @@ function Witness({ witness, research, shell, select }) {
               <h4>{p.galleryName || `גלריה ${p.wpGalleryId}`} · מיקום שמור {p.ordering}</h4>
               <p>{p.originalName}</p><p className="sod29-world-original-caption">{p.originalCaption}</p>
               <p>{Object.values(p.originalCredit || {}).filter(Boolean).join(' · ')}</p>
-              {route?.href ? <a className="sod29-action" href={route.href} target="_blank" rel="noreferrer" onClick={() => remember()}>פתח את הגלריה המקורית בשלמותה</a> : null}
-              <small>הגלריה נפתחת בסדרה המקורי; מיקום התמונה נשמר כאן. תאריכי העלאה ותיקייה אינם תאריכי אירוע מאומתים.</small>
+              {route?.href ? <Link className="sod29-action" to={route.href} onClick={(event) => {
+                if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+                event.preventDefault();
+                leave(route.href, { id: p.galleryImageId, type: 'image', label: p.originalName || witness.title, href: route.href });
+              }}>לתמונה המדויקת בגלריה ב־2029</Link> : <small>לא נשמר מיקום גלריה תקין לפתיחה.</small>}
+              <small>הסדר, הכיתוב והקרדיט המקוריים נשמרים. תאריכי העלאה ותיקייה אינם תאריכי אירוע מאומתים.</small>
             </section> : null;
           })}
         </details>
