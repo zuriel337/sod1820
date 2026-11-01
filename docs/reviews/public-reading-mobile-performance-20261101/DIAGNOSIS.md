@@ -63,3 +63,16 @@ truthful pending/empty/error messages, and use responsive floors220/330/240/260p
 through the existing container breakpoints. All real cards, ratings, links and
 motion remain; no maximum height or clipping. Re-run both the controlled delay
 and unmodified matched native comparison on the final deployment.
+
+The complete three-pair mobile11e8fc03 comparison confirms a tradeoff that is
+not accepted as an all-route performance improvement: Home median6919→5900ms,
+firstPost1105→2118ms, milui4115→3274ms; candidate document CLS0.028175 in all
+three contexts. Post source data is already available~567ms into pair1 while
+its29,398-byte projection chunk takes1176ms; this is code admission, not a
+proven slow-server regression. Test the smallest reversal of that harmful
+scheduling change: the public-reading root again uses its original existing
+PublicPostAddress reader, so Post code is admitted with Home as in4e6239c6.
+Keep the smaller Golden/witness dependencies, source-invitation bounds and all
+other fixes. This creates no speculative data request or new personal cache;
+non-public-reading profiles retain the earlier bounded route optimization.
+Measure the Home cost explicitly before selecting a final candidate.
