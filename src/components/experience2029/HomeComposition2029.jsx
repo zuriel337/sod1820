@@ -115,7 +115,9 @@ export default function HomeComposition2029({
   const [videosRef, videosAdmitted] = useApproach2029(!corePublic && !primary.loading);
   const [identityRef, identityAdmitted] = useApproach2029(!corePublic && !primary.loading);
   const [worldRef, worldAdmitted] = useApproach2029(!corePublic && !primary.loading);
-  const [storyRef, storyAdmitted] = useApproach2029(!corePublic && !primary.loading && !primary.notableLoading, { rootMargin: "0px" });
+  const [storyRef, storyAdmitted] = useApproach2029(!corePublic, {
+    rootMargin: "0px", layoutReady: !primary.loading && !primary.notableLoading,
+  });
   const deferred = useHomeDeferredData({ includeWorld: !corePublic, videosAdmitted, identityAdmitted });
   const data = { ...primary, ...deferred };
   useEffect(() => { if (worldAdmitted) onWorldApproach?.(true); }, [worldAdmitted, onWorldApproach]);
