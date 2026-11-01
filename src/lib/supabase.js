@@ -527,16 +527,18 @@ export async function getGalleryNumberTags() {
   return data ?? [];
 }
 
-export async function getPostBySlug(slug, { throwOnError = false } = {}) {
+export async function getPostBySlug(slug, { throwOnError = false, signal = null } = {}) {
   if (!supabase) return null;
   const decoded = decodePostSlug(slug);
   const encoded = encodeURIComponent(decoded).toLowerCase();
   const slugs = [...new Set([slug, decoded, encoded])];
-  const { data, error } = await supabase
+  let query = supabase
     .from('posts')
     .select('*')
     .in('slug', slugs)
     .limit(1);
+  if (signal) query = query.abortSignal(signal);
+  const { data, error } = await query;
   if (error) { if (throwOnError) throw error; return null; }
   if (!data?.length) return null;
   return data[0];

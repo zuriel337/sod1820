@@ -363,13 +363,15 @@ function buildFz1073Experience(post, topic363 = null) {
   };
 }
 
-async function fetchFz1073Topic363() {
-  const { data, error } = await supabase
+async function fetchFz1073Topic363(signal = null) {
+  let query = supabase
     .from("topic_cards_public")
     .select("slug,title")
     .eq("slug", FZ1073_TOPIC_363_SLUG)
     .limit(1)
     .maybeSingle();
+  if (signal) query = query.abortSignal(signal);
+  const { data, error } = await query;
   if (error) return null;
   return data || null;
 }
@@ -826,8 +828,9 @@ export async function fetchGoldenContextPackBySlug(slug) {
   return post ? fetchGoldenContextPack(post) : null;
 }
 
-export async function fetchPost2029ReadingProjection(slug) {
-  const publicPost = await getPostBySlug(slug, { throwOnError: true });
+export async function fetchPost2029ReadingProjection(slug, { sourceInvitation = false, signal = null } = {}) {
+  const publicPost = await getPostBySlug(slug, { throwOnError: true, signal });
+  if (sourceInvitation && !publicPost) return null;
   if (publicPost && !isPublicPostReadingSource(publicPost)) return null;
   const privateStage = publicPost ? null : await fetchPrivateGoldenStage(slug);
   const previewSnapshot = !publicPost && !privateStage && slug === GOLDEN_SLUG ? POST2029_PREVIEW_SNAPSHOT : null;
@@ -842,7 +845,8 @@ export async function fetchPost2029ReadingProjection(slug) {
   const yearVerification = isGolden ? await verifyTashpaz() : null;
   const bennettSaltVerification = isBennettSaltPilot ? await verifyBennettSaltFocus() : null;
   const bennettStoryClaims = isBennettSaltPilot ? await verifyBennettStoryClaims(post.content) : new Set();
-  const topic363 = isFz1073Pilot ? await fetchFz1073Topic363() : null;
+  const topic363 = isFz1073Pilot ? await fetchFz1073Topic363(signal) : null;
+  if (signal?.aborted) throw new DOMException("Source read cancelled", "AbortError");
   const presentationPost = isFz1073Pilot
     ? {
         ...post,
@@ -893,8 +897,12 @@ export async function fetchPost2029ReadingProjection(slug) {
       ? buildPost2029ArchitectureWireframe()
       : projectedExperience;
   const [experience, contextPack] = await Promise.all([
-    resolvePostExperienceConnections(baseExperience),
-    fetchGoldenContextPack(post),
+    // Home/World's source invitation renders the source, media and fixed
+    // directions only. Its unused full Post context must not run six traces
+    // and reopen every related Post/Topic while the user opens another page.
+    // Full Post readers keep their complete, access-revalidated enrichment.
+    sourceInvitation ? Promise.resolve({ ...baseExperience, connections: [] }) : resolvePostExperienceConnections(baseExperience),
+    sourceInvitation ? Promise.resolve(null) : fetchGoldenContextPack(post),
   ]);
   const sourceRegions = regions.length ? regions : [{ id: "post-story", heading: post.title, label: "הסיפור", primary: post.title, signals: [] }];
   const readingRegions = experience.connections.some((connection) => connection.href)

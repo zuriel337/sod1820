@@ -67,6 +67,14 @@ function HomeEntry2029() {
     ? <Community2029Page />
     : <Home2029Page />;
 }
+// Ordinary Home does not need the historical Post document reader. Keep the
+// exact ?p= compatibility route without eagerly importing Post and its media.
+function PublicHomeEntry2029() {
+  const { search } = useLocation();
+  return new URLSearchParams(search).get("p")
+    ? <PublicPostAddress2029Page home={<HomeEntry2029 />} />
+    : <HomeEntry2029 />;
+}
 const HomePreview2029Page = lazy(() => import("./pages/HomePreview2029Page.jsx"));
 
 // Branch-only prototype. Production builds do not register or import this surface
@@ -230,7 +238,7 @@ export default function App2029() {
               <PublicReadingBoundary><Routes>
               <Route path="/2029" element={<HomeEntry2029 />} />
               {publicFoundationPreview && <>
-                <Route path="/" element={<PublicPostAddress2029Page home={<HomeEntry2029 />} />} />
+                <Route path="/" element={<PublicHomeEntry2029 />} />
                 <Route path="/post" element={<Posts2029Page />} />
                 <Route path="/number" element={<PublicServices2029Page kind="number-search" />} />
                 <Route path="/number/:value" element={<Locked flag="lock_number" requireFlag homeHref="/2029"><NumberAddress2029Page /></Locked>} />

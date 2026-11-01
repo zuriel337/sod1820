@@ -31,14 +31,15 @@ export default function WorldFlightStory2029({ surface = 'world', research, shel
   const researchRef=useRef(research);researchRef.current=research;
   useEffect(() => {
     let live = true;
+    const controller = new AbortController();
     setState({ loading: true, projection: null });
-    fetchPost2029ReadingProjection(slug).then((projection) => {
+    fetchPost2029ReadingProjection(slug, { sourceInvitation: true, signal: controller.signal }).then((projection) => {
       // This consumer never adopts a private stage or preview snapshot as public material.
       const admitted = projection && !projection.draft && !projection.privateStage && !projection.previewSnapshot
         && postRowToWorldUpdate(projection.post);
       if (live) setState({ loading: false, projection: admitted ? projection : null });
     }).catch(() => { if (live) setState({ loading: false, projection: null }); });
-    return () => { live = false; };
+    return () => { live = false; controller.abort(); };
   }, [attempt]);
   useEffect(()=>{
     // Home previews are invitations, not a research selection. In particular an
