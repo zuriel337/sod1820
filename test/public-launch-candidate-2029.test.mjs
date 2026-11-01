@@ -8,6 +8,14 @@ import {AVATAR_UPLOAD_POLICY} from '../src/lib/userCenter/avatarPolicy.js';
 import {previewRazielHandler} from '../preview-deploy/api/preview-raziel.js';
 const branch='gpt/2029-public-launch-candidate-20261101';
 const builder=readFileSync(new URL('../scripts/build-integrated-preview.mjs',import.meta.url),'utf8');
+test('only compiled assets receive a private immutable browser cache; HTML, APIs and worker stay no-store',()=>{
+ const config=JSON.parse(readFileSync(new URL('../preview-deploy/vercel.json',import.meta.url)));
+ assert.equal(config.rewrites.some(r=>'headers' in r),false);
+ const rules=config.headers.filter(r=>r.headers.some(h=>h.key.toLowerCase()==='cache-control'));
+ assert.equal(rules.length,2);assert.equal(rules[0].source,'/(.*)');
+ assert.equal(rules[0].headers.find(h=>h.key==='Cache-Control').value,'no-store');
+ assert.equal(rules[1].source,'/assets/(.*)');assert.equal(rules[1].headers[0].value,'private, max-age=31536000, immutable');
+});
 function generatedWorker(){return vm.runInNewContext(builder.slice(builder.indexOf('const allow ='),builder.indexOf('await writeFile(resolve(output, "preview-readonly-sw.js")'))+';worker;',{
  COMMUNITY_UPLOAD_POLICY,AVATAR_UPLOAD_POLICY,process:{env:{VERCEL_ENV:'preview',VERCEL_GIT_COMMIT_REF:branch}},
 });}

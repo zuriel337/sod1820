@@ -50,6 +50,15 @@
           "value": "connect-src 'self' https://linswmnnkjxvweumprav.supabase.co https://linswmnnkjxvweumprav.storage.supabase.co wss://linswmnnkjxvweumprav.supabase.co https://sod1820.co.il; form-action 'none'; frame-ancestors 'self'"
         }
       ]
+    },
+    {
+      "source": "/assets/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "private, max-age=31536000, immutable"
+        }
+      ]
     }
   ],
   "functions": {

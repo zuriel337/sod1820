@@ -8,6 +8,22 @@ MIGRATION=supabase/migrations/20261031073716_membership_credit_engine_v1.sql
 FIXTURE=tests/sql/membership_credit_engine_v1.sql
 APPLIED="$TMP_DIR/applied.sql"
 
+if [ "${SOD_CREDIT_PRODUCTION_SHAPE:-0}" = 1 ]; then
+  # Same synthetic rows/assertions, but the real read-only-observed canonical
+  # credit_grant definition, including its UUID return and updated_at behavior.
+  awk -v canonical=tests/sql/fixtures/canonical_credit_grant_20261101.sql '
+    /^create function public.credit_grant\(/ {
+      print "alter table public.profiles add column updated_at timestamptz not null default now();"
+      while ((getline line < canonical) > 0) print line
+      close(canonical)
+      skipping=1; next
+    }
+    skipping && /^\$\$;/ { skipping=0; next }
+    !skipping { print }
+  ' "$FIXTURE" > "$TMP_DIR/existing-shape.sql"
+  FIXTURE="$TMP_DIR/existing-shape.sql"
+fi
+
 awk -v migration="$MIGRATION" '
   /-- APPLY_MEMBERSHIP_CREDIT_MIGRATION_HERE/ {
     while ((getline line < migration) > 0) print line
