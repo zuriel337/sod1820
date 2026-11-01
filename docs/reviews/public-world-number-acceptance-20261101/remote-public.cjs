@@ -7,7 +7,7 @@ const db='https://linswmnnkjxvweumprav.supabase.co';
 const allowed=new Set(require('../public-foundation-20261101/evidence/rpc-read-inventory.json').functions.map(row=>row.proname));
 for(const name of['convergence_meter','is_number_indexable','is_phrase_indexable'])allowed.add(name);
 allowed.add('writer_public_contributions_page_v1'); // Reviewed existing STABLE public SELECT; actual client must send GET.
-const scenarios=require('../../../test/public-world-scenarios.cjs');
+const scenarios=require(process.env.SOD_REMOTE_SCENARIOS||'../../../test/public-world-scenarios.cjs');
 const path=require('node:path');
 const out=process.env.SOD_PUBLIC_REMOTE_EVIDENCE||'/tmp/public-world-number-acceptance-20261101/hosted';
 fs.mkdirSync(out,{recursive:true});

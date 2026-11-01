@@ -1,0 +1,37 @@
+{
+  "productBranch": "gpt/2029-public-world-number-acceptance-20261101",
+  "productSha": "be8f86ad55dfbc625d218a5917a97c260331c27b",
+  "deployment": {
+    "id": "dpl_9XSE467wnZ4H8i3rvsaq3NJXFV7d",
+    "url": "https://sod1820-2qtqpmfuj-sod1820-s-projects.vercel.app",
+    "readyState": "READY",
+    "target": "staging",
+    "sourceSha": "be8f86ad55dfbc625d218a5917a97c260331c27b",
+    "branch": "gpt/2029-public-world-number-acceptance-20261101"
+  },
+  "protection": {
+    "sso": {
+      "enabled": true,
+      "deploymentType": "all_except_custom_domains"
+    },
+    "passwordProtectionConfigured": true
+  },
+  "workerSha256": "989e1cc315d8b42ae1cc01c57f44bbe6cd2ff4b90b6eb4e9453090008d57f2fb",
+  "productionAliases": [
+    {
+      "alias": "www.sod1820.co.il",
+      "deploymentId": "dpl_BFpwZGiYL3Qpdy9nCuGKGb9Xmko2"
+    },
+    {
+      "alias": "sod1820.co.il",
+      "deploymentId": "dpl_BFpwZGiYL3Qpdy9nCuGKGb9Xmko2"
+    }
+  ],
+  "resolvedLegacy": {
+    "id": "dpl_BFpwZGiYL3Qpdy9nCuGKGb9Xmko2",
+    "sha": "d1837efcf5a978d10a514010f3695680f231e116",
+    "target": "production"
+  },
+  "main": "2195c9784c5c9f0b1ec3cd3c1137fbd76045845b",
+  "note": "Preview only; canonical Legacy aliases and resolved deployment match previous handoff. No main/Production/promotion/domain/DB/Auth/RLS/Edge/site_flags operation."
+}

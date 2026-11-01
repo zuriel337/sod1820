@@ -1,0 +1,30 @@
+{
+  "width": 390,
+  "data": "actual public source and eligible findings",
+  "sourceRef": "channel_updates:bc0aa8ce-30fc-4a22-b42d-113a456f5e58",
+  "findingHref": "/world?finding=2388a21f-4361-4b3a-bfc1-1bee84c3e59b",
+  "uniqueSourceRefs": [
+    "channel_updates:bc0aa8ce-30fc-4a22-b42d-113a456f5e58",
+    "channel_updates:0fa955f9-3c3e-4816-90a0-ca0e5fc8a88a",
+    "channel_updates:0d670f5c-89c6-4d54-a4c7-f261ade14545",
+    "channel_updates:22429b5d-6561-4ab7-ac94-cb38aa26305e",
+    "channel_updates:3bb64587-6478-49f0-b97f-63bf712681cb",
+    "channel_updates:ca97d172-6ef8-4ee1-9916-207fb2a8cb17",
+    "channel_updates:fba194c6-5437-41d4-aa9d-d1fe62f559ae",
+    "channel_updates:07aae160-7286-4563-be10-9f844b622069",
+    "channel_updates:ece77314-b6ca-4828-9ac0-aee6dc9e6e3d",
+    "channel_updates:c80dec0d-d5f7-40f8-9fec-8da38e1e834b",
+    "channel_updates:daf4b062-ed98-40bc-bbf5-97cbada4ef44",
+    "channel_updates:8db69f24-fc3b-4fbd-8e4f-8a9345106877",
+    "channel_updates:8ded1ef4-0730-4002-97a3-bb2de3f17ca2"
+  ],
+  "writerReaderMethods": [
+    "GET",
+    "GET",
+    "GET"
+  ],
+  "reloadBackForward": true,
+  "errors": [],
+  "productWritesForwarded": 0,
+  "modelCallsForwarded": 0
+}

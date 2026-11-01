@@ -1,0 +1,36 @@
+{
+  "width": 390,
+  "visits": [
+    {
+      "sourceAddress": "/world#world-discovery-wall--wall-clock",
+      "href": "/world?view=gallery&gallery=25&image=62ffc447-fd91-4027-9fe9-4a19d09679fd#gallery-source-62ffc447-fd91-4027-9fe9-4a19d09679fd",
+      "imageId": "62ffc447-fd91-4027-9fe9-4a19d09679fd",
+      "realPublic": true,
+      "imagePixelsLoaded": true,
+      "reloadBackForwardAndPreciseReturn": true
+    },
+    {
+      "sourceAddress": "/world#world-discovery-rails--david-rail-caption",
+      "href": "/world?view=gallery&gallery=95&image=563069a0-8f0c-46ee-94a1-6085b36c9339#gallery-source-563069a0-8f0c-46ee-94a1-6085b36c9339",
+      "imageId": "563069a0-8f0c-46ee-94a1-6085b36c9339",
+      "realPublic": true,
+      "imagePixelsLoaded": true,
+      "reloadBackForwardAndPreciseReturn": true
+    },
+    {
+      "sourceAddress": "/world#world-discovery-wisdom-set--jerusalem-cable",
+      "href": "/world?view=gallery&gallery=39&image=46987aba-4da8-4b57-bef8-3ed5bef0e48d#gallery-source-46987aba-4da8-4b57-bef8-3ed5bef0e48d",
+      "imageId": "46987aba-4da8-4b57-bef8-3ed5bef0e48d",
+      "realPublic": true,
+      "imagePixelsLoaded": true,
+      "reloadBackForwardAndPreciseReturn": true
+    }
+  ],
+  "allRenderedGalleryLinks": [
+    "/world?view=gallery&gallery=25&image=62ffc447-fd91-4027-9fe9-4a19d09679fd#gallery-source-62ffc447-fd91-4027-9fe9-4a19d09679fd",
+    "/world?view=gallery&gallery=95&image=563069a0-8f0c-46ee-94a1-6085b36c9339#gallery-source-563069a0-8f0c-46ee-94a1-6085b36c9339",
+    "/world?view=gallery&gallery=39&image=46987aba-4da8-4b57-bef8-3ed5bef0e48d#gallery-source-46987aba-4da8-4b57-bef8-3ed5bef0e48d"
+  ],
+  "writesForwarded": 0,
+  "modelsForwarded": 0
+}

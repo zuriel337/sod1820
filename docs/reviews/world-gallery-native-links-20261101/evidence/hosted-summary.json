@@ -1,0 +1,38 @@
+[
+  {
+    "set": "hosted-native-pixels",
+    "sha": "be8f86ad55dfbc625d218a5917a97c260331c27b",
+    "cases": 4,
+    "ok": true,
+    "reads": 2929,
+    "errors": [],
+    "cleanupAbortCount": 0,
+    "non2xx": [],
+    "writesForwarded": 0,
+    "modelCallsForwarded": 0
+  },
+  {
+    "set": "hosted-link-audit-six-views",
+    "sha": "be8f86ad55dfbc625d218a5917a97c260331c27b",
+    "cases": 2,
+    "ok": true,
+    "reads": 1146,
+    "errors": [],
+    "cleanupAbortCount": 1,
+    "non2xx": [],
+    "writesForwarded": 0,
+    "modelCallsForwarded": 0
+  },
+  {
+    "set": "hosted-regression",
+    "sha": "be8f86ad55dfbc625d218a5917a97c260331c27b",
+    "cases": 14,
+    "ok": true,
+    "reads": 5098,
+    "errors": [],
+    "cleanupAbortCount": 0,
+    "non2xx": [],
+    "writesForwarded": 0,
+    "modelCallsForwarded": 0
+  }
+]

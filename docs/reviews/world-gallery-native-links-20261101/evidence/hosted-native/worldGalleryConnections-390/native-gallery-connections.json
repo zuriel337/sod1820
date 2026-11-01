@@ -1,0 +1,24 @@
+{
+  "width": 390,
+  "visit": {
+    "sourceAddress": "/world#world-source-water-train",
+    "href": "/world?view=gallery&gallery=54&image=4d0b8d36-0801-449b-a0a6-0c7ff543c5b0#gallery-source-4d0b8d36-0801-449b-a0a6-0c7ff543c5b0",
+    "imageId": "4d0b8d36-0801-449b-a0a6-0c7ff543c5b0",
+    "realPublic": true,
+    "reloadBackForwardAndPreciseReturn": true
+  },
+  "hrefs": [
+    "/world?view=gallery&gallery=28&image=8940efb2-8423-4a27-a10a-d3fdd07cf595#gallery-source-8940efb2-8423-4a27-a10a-d3fdd07cf595",
+    "/world?view=gallery&gallery=54&image=4d0b8d36-0801-449b-a0a6-0c7ff543c5b0#gallery-source-4d0b8d36-0801-449b-a0a6-0c7ff543c5b0"
+  ],
+  "allWorldGalleryLinks": [
+    "/world?view=gallery&gallery=61&image=6232be42-82a3-41ac-b4d3-004a21e48c7f#gallery-source-6232be42-82a3-41ac-b4d3-004a21e48c7f",
+    "/world?view=gallery&gallery=28&image=8940efb2-8423-4a27-a10a-d3fdd07cf595#gallery-source-8940efb2-8423-4a27-a10a-d3fdd07cf595",
+    "/world?view=gallery&gallery=54&image=4d0b8d36-0801-449b-a0a6-0c7ff543c5b0#gallery-source-4d0b8d36-0801-449b-a0a6-0c7ff543c5b0",
+    "/world?view=gallery&gallery=88&image=96207e5d-ac80-4344-9e50-f50a8cc0a726#gallery-source-96207e5d-ac80-4344-9e50-f50a8cc0a726",
+    "/world?view=gallery&gallery=79&image=fcbcfb23-90ed-4b71-afd8-14cf7d1d4c3e#gallery-source-fcbcfb23-90ed-4b71-afd8-14cf7d1d4c3e"
+  ],
+  "sharedSourceAppearancesPreserved": 2,
+  "writesForwarded": 0,
+  "modelsForwarded": 0
+}
