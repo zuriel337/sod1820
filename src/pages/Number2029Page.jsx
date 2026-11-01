@@ -257,7 +257,11 @@ function NumberPageBody({ resolvedAddress = null }) {
     }
     let alive = true;
     const sameContextRoot = research.context?.subject?.type === "number" && String(research.context.subject.id) === String(root);
-    const contextExplicit = sameContextRoot && research.context?.dimensions?.expressionFocusExplicit === true;
+    // Public addresses are replayable: Back to a plain numeric URL must not
+    // inherit the phrase from a later visit to the same number. Old internal
+    // teaching routes keep their established context-only continuation.
+    const contextExplicit = !resolvedAddress?.publicAddress && sameContextRoot
+      && research.context?.dimensions?.expressionFocusExplicit === true;
     const contextExpression = contextExplicit ? clean(research.context?.selection?.expression) : "";
     const contextMethod = contextExplicit ? clean(research.context?.selection?.method) : "";
     const contextCrossing = contextExplicit ? clean(research.context?.selection?.crossingPartner) : "";
@@ -305,7 +309,7 @@ function NumberPageBody({ resolvedAddress = null }) {
         if (alive) setState({ root, readerIdentity, loading: false, data: null, error });
       });
     return () => { alive = false; };
-  }, [root, urlFocus.expression, urlFocus.method, urlFocus.crossingPartner, urlFocus.explicit, readerIdentity, authLoading]);
+  }, [root, urlFocus.expression, urlFocus.method, urlFocus.crossingPartner, urlFocus.explicit, resolvedAddress?.publicAddress, readerIdentity, authLoading]);
 
   const data = state.root === root && state.readerIdentity === readerIdentity ? state.data : null;
   const currentMethodRows = methodProfileState.expression === clean(activeExpression)

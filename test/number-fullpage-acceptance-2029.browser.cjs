@@ -20,6 +20,7 @@ for(const width of[390,1440])test('Number full-page methods, precise return and 
  let url=new URL(page.url());expect(url.pathname).toBe('/number/'+result);expect(url.searchParams.get('focus')).toBe(expression);expect(url.searchParams.get('method')).toBe('מילוי');
  await expect(page.getByRole('dialog')).toHaveCount(0);await expect(page.locator('.sod29-number-drawer2029')).toHaveCount(0);
  await expect(page.locator('.sod29-number-v10-method-card.is-active').locator('span').first()).toHaveText('מילוי');
+ const focusedResultUrl=page.url();await page.locator('.sod29-number-v10-stage-result-open').click();await expect(page).toHaveURL(focusedResultUrl);await expect(page.getByRole('dialog')).toHaveCount(0);
  await page.goBack();await expect(page).toHaveURL(origin+address);await expect(page.locator('.sod29-number-page')).toHaveAttribute('data-number-root','1820',{timeout:60000});
  await expect(milui()).toBeEnabled({timeout:30000});await milui().click();await expect(page.locator('.sod29-number-page')).toHaveAttribute('data-number-root','3928',{timeout:60000});
  await page.getByRole('region',{name:'מיקוד ביטוי פעיל',exact:true}).getByRole('button',{name:'↩ דף 1820',exact:true}).click();
@@ -27,6 +28,8 @@ for(const width of[390,1440])test('Number full-page methods, precise return and 
  const rail=page.locator('.sod29-number-v11-regular-track button').first();await expect(rail).toBeVisible({timeout:30000});const phrase=await rail.locator('strong').textContent();
  await rail.click();await expect.poll(()=>new URL(page.url()).searchParams.get('focus')).toBe(phrase);expect(new URL(page.url()).searchParams.get('method')).toBe('רגיל');
  await expect(page.getByRole('dialog')).toHaveCount(0);await page.goBack();await expect(page).toHaveURL(origin+address);
+ await expect(page.locator('.sod29-number-v10-expression-line>strong')).toHaveText(expression);
+ await page.locator('.sod29-number-root-open').click();await expect(page).toHaveURL(origin+'/number/1820');await expect(page.getByRole('dialog')).toHaveCount(0);await page.goBack();await expect(page).toHaveURL(origin+address);
  const sourceList=page.locator('.sod29-lw-source-list');await sourceList.scrollIntoViewIfNeeded();
  await expect(sourceList.getByRole('status')).toHaveCount(0,{timeout:60000});
  await expect(sourceList.getByRole('alert')).toHaveCount(0);
