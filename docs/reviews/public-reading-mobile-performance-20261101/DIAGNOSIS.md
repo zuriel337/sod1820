@@ -31,3 +31,23 @@ Automatic viewport admission waits for stable preceding geometry; explicit sourc
 Six additional controlled local browser cases passed390/1440 with the Topic response deliberately kept pending: explicit scroll, direct fragment and source503→retry. The source starts once on intent without waiting for that unrelated reader; no external request or model call escapes the fixture. These are lifecycle controls, separate from real deployed acceptance. The native timing runner also retains whole-document standard CLS alongside each measured stage; the unchanged0.1 budget is checked on both.
 
 A stronger native exact-return check found a pre-existing viewport failure: after Post→Number→exact return→reload at #post-gematria, baseline4e6239c6 retained scrollY3312 while its target was y=-2918.91 (390px). The old assertion checked only URL/DOM visibility, not viewport position. The hero Number anchor is outside sourceRef and was not handled by the source-anchor effect. Add a bounded anchor restoration for that existing ID, matching the existing source-update ResizeObserver/user-input-release pattern and existing scroll margin. No global history policy, IDs, post addresses, text or calculations change. Final real-SW checks must prove viewport placement and that user scroll releases restoration.
+# First public Post: unrelated historical witness on its code critical path
+
+The complete three-pair native-SW comparison of4e6239c6→e4dc324c kept a mobile
+first-Post regression (median1262→2103ms). In pair1 the canonical source read
+already overlapped code (238→618ms), while the51,601-byte compressed
+`post2029ReadingProjection` chunk took1540ms and delayed source rendering.
+That module statically included the75,459-byte authored historical preview
+witness, although it is consulted only after a missing exact Golden source
+and the existing private-stage read. Load that unchanged witness dynamically
+only on that same fallback. Ordinary Posts and public invitations never need
+it. A controlled regression verifies unchanged exact-witness identity/content,
+ordinary missing-source rejection and invitation refusal to enter the fallback.
+
+The e4dc324c comparison is **not a CLS pass**: one of three mobile contexts
+scored0.117548 (repeat Home entry0.117256); other mobile contexts0.028175.
+Baseline mobile documents scored0.145032,0.142862,0.095195. All failures and
+raw timings are retained; the0.1 budget remains unchanged. Native diagnostic
+observers now capture source-node rectangles to attribute the movement before
+any further layout correction.
+

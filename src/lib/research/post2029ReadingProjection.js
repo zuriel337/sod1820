@@ -1,7 +1,6 @@
 import { publicPostHref, postAddressSlug, decodePostSlug } from "../publicPostUrls.js";
 import { getPostBySlug, supabase } from "../supabase.js";
 import { buildGoldenPostContextPack, goldenContextPackClaims } from "./goldenPostContextPacks.js";
-import { POST2029_PREVIEW_SNAPSHOT } from "./post2029PreviewSnapshot.js";
 import { formatBilingualDate } from "./timeline2029.js";
 import { buildPost2029ArchitectureWireframe, projectPost2029Experience } from "./post2029ExperienceProjection.js";
 import { isDocumentedIndiaCaptainPost } from "./topicSourceContext.js";
@@ -839,7 +838,12 @@ export async function fetchPost2029ReadingProjection(slug, { sourceInvitation = 
   if (sourceInvitation && !publicPost) return null;
   if (publicPost && !isPublicPostReadingSource(publicPost)) return null;
   const privateStage = publicPost ? null : await fetchPrivateGoldenStage(slug);
-  const previewSnapshot = !publicPost && !privateStage && slug === GOLDEN_SLUG ? POST2029_PREVIEW_SNAPSHOT : null;
+  // The historical preview witness is needed only for this explicit fallback.
+  // Ordinary public Posts must not download its75KB authored document before
+  // they can render their own, already-read source. Keep the same fallback and
+  // never substitute it for a missing ordinary/public invitation source.
+  const previewSnapshot = !publicPost && !privateStage && slug === GOLDEN_SLUG
+    ? (await import("./post2029PreviewSnapshot.js")).POST2029_PREVIEW_SNAPSHOT : null;
   const post = publicPost || privateStage || previewSnapshot;
   if (!post) return null;
 
