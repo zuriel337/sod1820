@@ -2,9 +2,10 @@
 c91b42670c5c18808154958cf1261af2263505b8e71d2498247c2cd7e4222697  docs/reviews/public-reading-release-20261101/ELS-SCOPE.md
 11888591df94182ca64d3b994264500bbbfcb0a4df0d1338187dda01c0dc8bce  docs/reviews/public-reading-release-20261101/PERFORMANCE.md
 8d501fab5546186c82f77f26bbdee30f10c28fc075afde5c958c9f6c22d76b29  docs/reviews/public-reading-release-20261101/PRODUCTION-CONFIGURATION.md
-b602cc5961a20dec802d219ff395dfa645131b9dd1fac249c369985ab9210543  docs/reviews/public-reading-release-20261101/README.md
+e27008c60d5223316ee701f83382473aba575e75dc8eec3f8fe1f8615d76753e  docs/reviews/public-reading-release-20261101/README.md
 cd9c279fabe44e5577379633cc53d5ec9bdde413feb9fcb837b4acd0ef059fed  docs/reviews/public-reading-release-20261101/RECOVERY.md
 0e5cdacaf54b9d5c3564c015690e7dcbae7aeb5300bda4b8b5841303d1ef7e5a  docs/reviews/public-reading-release-20261101/RUN-ACCEPTANCE.md
+74f199be894ca8c9d9e71cdca63ea6e5bd9bfcc132a6b2c0d82ed061495b98ce  docs/reviews/public-reading-release-20261101/evidence/FINAL-HANDOFF.json
 64f0490cb1fd40758b3a0bbff5f5042ebade6b83d103f3a6dbf80a365e69cd0c  docs/reviews/public-reading-release-20261101/evidence/browser-c297584b.log.gz
 d11a68db48c2e8f557143178977e134198b4251a7334c51bbafec982f167d8b2  docs/reviews/public-reading-release-20261101/evidence/browser-final.log.gz
 91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903  docs/reviews/public-reading-release-20261101/evidence/browser-final/.last-run.json

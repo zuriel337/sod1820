@@ -1,0 +1,53 @@
+{
+  "product": {
+    "branch": "gpt/2029-public-reading-release-configuration-20261101",
+    "sha": "4e6239c6d26e00b70ee10b341529491bd5b0b43c",
+    "remoteVerified": true
+  },
+  "evidenceCheckpoint": {
+    "branch": "gpt/2029-public-reading-release-acceptance-20261101",
+    "sha": "e40191ab181de518df78ce693cfc4eed7a4d7024",
+    "remoteVerified": true,
+    "finalCommitIncludesThisReceipt": true
+  },
+  "deployment": {
+    "id": "dpl_GXXscrmUS1toefyxoCDhwmcASQxD",
+    "url": "sod1820-cnporwdqk-sod1820-s-projects.vercel.app",
+    "readyState": "READY",
+    "target": "staging",
+    "sourceSha": "4e6239c6d26e00b70ee10b341529491bd5b0b43c"
+  },
+  "legacyAliases": [
+    {
+      "alias": "sod1820.co.il",
+      "deploymentId": "dpl_BFpwZGiYL3Qpdy9nCuGKGb9Xmko2",
+      "redirect": null,
+      "updatedAt": 1793557568514
+    },
+    {
+      "alias": "www.sod1820.co.il",
+      "deploymentId": "dpl_BFpwZGiYL3Qpdy9nCuGKGb9Xmko2",
+      "redirect": null,
+      "updatedAt": 1793482735272
+    },
+    {
+      "alias": "sod1820.vercel.app",
+      "deploymentId": "dpl_BFpwZGiYL3Qpdy9nCuGKGb9Xmko2",
+      "redirect": null,
+      "updatedAt": 1793482735265
+    }
+  ],
+  "scopeRelease": {
+    "id": "12ae0a7f-6593-4616-a6cc-215ffd9b9b37",
+    "task_key": "PUBLIC_READING_RELEASE_CONFIGURATION_20261101",
+    "status": "AFTER_PUBLIC_READING_TESTED_OPEN_GATES_SCOPE_RELEASED",
+    "assignment_mode": "WRITE",
+    "assignment_scope": "RELEASED all bounded public release configuration, calculator/routing/metadata/XML, shared Frame dock, measured World/Home geometry, test/performance/isolation evidence and Doc37 append scope claimed by BEFORE bec5d27d-4ba1-4fd7-ad9d-24cffd1f3bf1. No retained writer under this task. Separate personal/PhaseL ownership untouched. Sole implementer; no agents activated. Passive GPT to ZURIEL dispatchNULL.",
+    "parent_assignment_id": "bec5d27d-4ba1-4fd7-ad9d-24cffd1f3bf1",
+    "created_at": "2026-11-01 18:54:23.083047+00",
+    "to_actor": "ZURIEL",
+    "dispatch_kind": null,
+    "dispatch_state": null
+  },
+  "mainSha": "2195c9784c5c9f0b1ec3cd3c1137fbd76045845b"
+}

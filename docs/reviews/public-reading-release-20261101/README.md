@@ -63,3 +63,10 @@ Production/Edge deploy, alias reassignment, מודל, מייל או כתיבת �
 קראו PERFORMANCE.md, PRODUCTION-CONFIGURATION.md, production-profile.proposed.json,
 RECOVERY.md ו־RUN-ACCEPTANCE.md. הראיות הפעילות הן אלו שמזהות4e6239c6 בתוך
 ה־receipt; קבצים ישנים/ניסויי אבחון נשמרים כהיסטוריה ולא משמשים כהצלחה חדשה.
+
+מסמך37 עודכן בנספח12.19; hash של כל התוכן הקודם נשמר. הבעלות שוחררה
+ב־AFTER12ae0a7f-6593-4616-a6cc-215ffd9b9b37, בהמשך ל־BEFOREbec5d27d.
+נקודת ראיות ראשונה נשמרה ואומתה מרחוק ב־e40191ab181de518df78ce693cfc4eed7a4d7024;
+הקומיט המסיים מוסיף קבלת שחרור זו בלבד. קוד המוצר נשאר4e6239c6.
+לוגים מקוריים נשמרו ללא שינוי תוכן בקובצי .log.gz; קבצי .log המקומיים
+הם עותקים זהים ונותרו מחוץ ל־Git. אין בהם סודות לפי הסריקה המתועדת.
