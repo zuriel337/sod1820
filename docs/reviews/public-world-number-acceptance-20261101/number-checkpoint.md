@@ -29,11 +29,18 @@ Validation at this checkpoint:
   Its two exact-return failures were then reproduced, corrected in the helper
   and rerun successfully at 390 and 1440 pixels. This is not a claim that the
   earlier 14-case run was entirely green.
-- A complete matched first/repeat Number timing run is in progress. It uses the
+- The complete matched first/repeat Number timing run produced 24 cycles. It uses the
   actual two compiled clients and immutable real public responses, a modeled
   150 ms/1.6 Mb/s/4x CPU mobile profile, three counterbalanced pairs, and the
-  same explicit operand. Results and CLS limitations must be recorded before
-  final acceptance; request counts alone are not evidence of faster loading.
+  same explicit operand. No measured snapshot misses or transport errors occurred.
+  Median five-step totals (milliseconds), before → after:
+  desktop first 4017 → 4036; repeat 2727 → 2506;
+  mobile first 16152 → 14467; repeat 6766 → 6384.
+  These are controlled interaction timings, not field/server latency. The
+  per-step observer also recorded large shifts around an unmeasured Home mount
+  and Back. This is not CLS acceptance: timestamped attribution and a complete
+  public-route retest remain required at the unchanged 0.1 threshold.
+  Evidence: `evidence/number-phase/number-loading.json` and audit summary.
 - Builder and `git diff --check` passed. Current local build uses the accepted
   Number branch's flags; new unified-branch Preview bindings are not yet added.
 

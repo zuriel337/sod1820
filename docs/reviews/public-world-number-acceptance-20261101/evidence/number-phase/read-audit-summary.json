@@ -1,0 +1,347 @@
+[
+  {
+    "file": "number-loading-after-desktop-1-audit.json",
+    "reads": 421,
+    "measuredSnapshotMisses": [],
+    "errors": [],
+    "blocked": [
+      {
+        "phase": "number-entry",
+        "path": "/rest/v1/rpc/ingest_event",
+        "method": "POST"
+      },
+      {
+        "phase": "unmeasured-home-preparation",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "unmeasured-home-preparation",
+        "path": "/els-icon.png",
+        "method": "GET"
+      },
+      {
+        "phase": "unmeasured-home-preparation",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "unmeasured-home-preparation",
+        "path": "/els-icon.png",
+        "method": "GET"
+      }
+    ],
+    "models": 0,
+    "writes": 0
+  },
+  {
+    "file": "number-loading-after-desktop-2-audit.json",
+    "reads": 421,
+    "measuredSnapshotMisses": [],
+    "errors": [],
+    "blocked": [
+      {
+        "phase": "number-entry",
+        "path": "/rest/v1/rpc/ingest_event",
+        "method": "POST"
+      },
+      {
+        "phase": "unmeasured-home-preparation",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "unmeasured-home-preparation",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "unmeasured-home-preparation",
+        "path": "/els-icon.png",
+        "method": "GET"
+      }
+    ],
+    "models": 0,
+    "writes": 0
+  },
+  {
+    "file": "number-loading-after-desktop-3-audit.json",
+    "reads": 405,
+    "measuredSnapshotMisses": [],
+    "errors": [],
+    "blocked": [
+      {
+        "phase": "number-entry",
+        "path": "/rest/v1/rpc/ingest_event",
+        "method": "POST"
+      },
+      {
+        "phase": "unmeasured-home-preparation",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "unmeasured-home-preparation",
+        "path": "/els-icon.png",
+        "method": "GET"
+      },
+      {
+        "phase": "unmeasured-home-preparation",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      }
+    ],
+    "models": 0,
+    "writes": 0
+  },
+  {
+    "file": "number-loading-after-mobile-slow-1-audit.json",
+    "reads": 416,
+    "measuredSnapshotMisses": [],
+    "errors": [],
+    "blocked": [
+      {
+        "phase": "number-entry",
+        "path": "/rest/v1/rpc/ingest_event",
+        "method": "POST"
+      },
+      {
+        "phase": "unmeasured-home-preparation",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "unmeasured-home-preparation",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      }
+    ],
+    "models": 0,
+    "writes": 0
+  },
+  {
+    "file": "number-loading-after-mobile-slow-2-audit.json",
+    "reads": 398,
+    "measuredSnapshotMisses": [],
+    "errors": [],
+    "blocked": [
+      {
+        "phase": "number-entry",
+        "path": "/rest/v1/rpc/ingest_event",
+        "method": "POST"
+      },
+      {
+        "phase": "unmeasured-home-preparation",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "unmeasured-home-preparation",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      }
+    ],
+    "models": 0,
+    "writes": 0
+  },
+  {
+    "file": "number-loading-after-mobile-slow-3-audit.json",
+    "reads": 414,
+    "measuredSnapshotMisses": [],
+    "errors": [],
+    "blocked": [
+      {
+        "phase": "number-entry",
+        "path": "/rest/v1/rpc/ingest_event",
+        "method": "POST"
+      },
+      {
+        "phase": "unmeasured-home-preparation",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "unmeasured-home-preparation",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      }
+    ],
+    "models": 0,
+    "writes": 0
+  },
+  {
+    "file": "number-loading-before-desktop-1-audit.json",
+    "reads": 401,
+    "measuredSnapshotMisses": [],
+    "errors": [],
+    "blocked": [
+      {
+        "phase": "number-entry",
+        "path": "/rest/v1/rpc/ingest_event",
+        "method": "POST"
+      },
+      {
+        "phase": "unmeasured-home-preparation",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "unmeasured-home-preparation",
+        "path": "/els-icon.png",
+        "method": "GET"
+      },
+      {
+        "phase": "unmeasured-home-preparation",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "unmeasured-home-preparation",
+        "path": "/els-icon.png",
+        "method": "GET"
+      }
+    ],
+    "models": 0,
+    "writes": 0
+  },
+  {
+    "file": "number-loading-before-desktop-2-audit.json",
+    "reads": 407,
+    "measuredSnapshotMisses": [],
+    "errors": [],
+    "blocked": [
+      {
+        "phase": "number-entry",
+        "path": "/rest/v1/rpc/ingest_event",
+        "method": "POST"
+      },
+      {
+        "phase": "unmeasured-home-preparation",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "number-entry",
+        "path": "/els-icon.png",
+        "method": "GET"
+      },
+      {
+        "phase": "unmeasured-home-preparation",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "unmeasured-home-preparation",
+        "path": "/els-icon.png",
+        "method": "GET"
+      }
+    ],
+    "models": 0,
+    "writes": 0
+  },
+  {
+    "file": "number-loading-before-desktop-3-audit.json",
+    "reads": 421,
+    "measuredSnapshotMisses": [],
+    "errors": [],
+    "blocked": [
+      {
+        "phase": "number-entry",
+        "path": "/rest/v1/rpc/ingest_event",
+        "method": "POST"
+      },
+      {
+        "phase": "unmeasured-home-preparation",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "unmeasured-home-preparation",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "unmeasured-home-preparation",
+        "path": "/els-icon.png",
+        "method": "GET"
+      }
+    ],
+    "models": 0,
+    "writes": 0
+  },
+  {
+    "file": "number-loading-before-mobile-slow-1-audit.json",
+    "reads": 395,
+    "measuredSnapshotMisses": [],
+    "errors": [],
+    "blocked": [
+      {
+        "phase": "number-entry",
+        "path": "/rest/v1/rpc/ingest_event",
+        "method": "POST"
+      },
+      {
+        "phase": "unmeasured-home-preparation",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "unmeasured-home-preparation",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      }
+    ],
+    "models": 0,
+    "writes": 0
+  },
+  {
+    "file": "number-loading-before-mobile-slow-2-audit.json",
+    "reads": 415,
+    "measuredSnapshotMisses": [],
+    "errors": [],
+    "blocked": [
+      {
+        "phase": "number-entry",
+        "path": "/rest/v1/rpc/ingest_event",
+        "method": "POST"
+      },
+      {
+        "phase": "unmeasured-home-preparation",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "unmeasured-home-preparation",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      }
+    ],
+    "models": 0,
+    "writes": 0
+  },
+  {
+    "file": "number-loading-before-mobile-slow-3-audit.json",
+    "reads": 416,
+    "measuredSnapshotMisses": [],
+    "errors": [],
+    "blocked": [
+      {
+        "phase": "number-entry",
+        "path": "/rest/v1/rpc/ingest_event",
+        "method": "POST"
+      },
+      {
+        "phase": "unmeasured-home-preparation",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "unmeasured-home-preparation",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      }
+    ],
+    "models": 0,
+    "writes": 0
+  }
+]
