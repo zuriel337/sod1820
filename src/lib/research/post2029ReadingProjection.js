@@ -1,8 +1,6 @@
 import { publicPostHref, postAddressSlug, decodePostSlug } from "../publicPostUrls.js";
 import { getPostBySlug, supabase } from "../supabase.js";
 import { buildGoldenPostContextPack, goldenContextPackClaims } from "./goldenPostContextPacks.js";
-import { createCanonicalNumberW2Executors } from "./researchW2Executors.js";
-import { fetchLiveNumericRuleVersions } from "./numberSystemMethods.js";
 import { POST2029_PREVIEW_SNAPSHOT } from "./post2029PreviewSnapshot.js";
 import { formatBilingualDate } from "./timeline2029.js";
 import { buildPost2029ArchitectureWireframe, projectPost2029Experience } from "./post2029ExperienceProjection.js";
@@ -813,10 +811,18 @@ async function fetchGoldenPackTraces(postId) {
 // Governed owners are injected with live dependencies; the pack adapter itself never touches the DB.
 export async function fetchGoldenContextPack(post) {
   if (!goldenContextPackClaims(post?.id).length) return null;
+  // Plain Posts and bounded source invitations do not execute System Methods.
+  // Load their existing engine adapters only for a real governed Golden pack;
+  // overlap that code download with the same mandatory canonical trace reads.
+  const [{ createCanonicalNumberW2Executors }, { fetchLiveNumericRuleVersions }, traces] = await Promise.all([
+    import("./researchW2Executors.js"),
+    import("./numberSystemMethods.js"),
+    fetchGoldenPackTraces(post.id),
+  ]);
   return buildGoldenPostContextPack({
     postId: post.id,
     post: { id: post.id, slug: post.slug, date: post.date },
-    traces: await fetchGoldenPackTraces(post.id),
+    traces,
     numericOperators: createCanonicalNumberW2Executors({ supabase, numericRuleVersions: fetchLiveNumericRuleVersions }).numeric_operators,
     ruleVersions: fetchLiveNumericRuleVersions,
   });
@@ -828,8 +834,8 @@ export async function fetchGoldenContextPackBySlug(slug) {
   return post ? fetchGoldenContextPack(post) : null;
 }
 
-export async function fetchPost2029ReadingProjection(slug, { sourceInvitation = false, signal = null } = {}) {
-  const publicPost = await getPostBySlug(slug, { throwOnError: true, signal });
+export async function fetchPost2029ReadingProjection(slug, { sourceInvitation = false, signal = null, readPost = getPostBySlug } = {}) {
+  const publicPost = await readPost(slug, { throwOnError: true, signal });
   if (sourceInvitation && !publicPost) return null;
   if (publicPost && !isPublicPostReadingSource(publicPost)) return null;
   const privateStage = publicPost ? null : await fetchPrivateGoldenStage(slug);

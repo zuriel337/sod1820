@@ -16,20 +16,8 @@ try{
   if(c.accessUrl)await context.request.get(c.accessUrl);
   assert.equal((await (await context.request.get(origin+'/preview-identity.json')).json()).sha,c.sha);
   const workerResponse=await context.request.get(origin+'/preview-readonly-sw.js');assert.equal(workerResponse.status(),200);const workerHash=crypto.createHash('sha256').update(await workerResponse.body()).digest('hex');
-  await context.addInitScript(({db,allowed,origin})=>{
-   const reads=new Set(allowed),nativeFetch=window.fetch.bind(window);window.__safetyReads=[];window.__safetyDenied=[];window.__nativeShifts=[];window.__nativeLCP=[];new PerformanceObserver(list=>{for(const e of list.getEntries())window.__nativeLCP.push({time:e.startTime,size:e.size});}).observe({type:'largest-contentful-paint',buffered:true});new PerformanceObserver(list=>{for(const e of list.getEntries())window.__nativeShifts.push({time:e.startTime,value:e.value,hadRecentInput:e.hadRecentInput});}).observe({type:'layout-shift',buffered:true});
-   window.fetch=(input,init)=>{const req=new Request(input instanceof Request?input:new URL(input,location.href),init),u=new URL(req.url),rpc=u.pathname.match(/^\/rest\/v1\/rpc\/([a-z_][a-z0-9_]*)$/)?.[1];
-    const safeRead=u.origin===db&&((u.pathname.startsWith('/rest/v1/')&&(!rpc||reads.has(rpc))&&(['GET','HEAD'].includes(req.method)||rpc&&req.method==='POST'))||req.method==='GET'&&['/auth/v1/user','/auth/v1/settings'].includes(u.pathname)||req.method==='GET'&&u.pathname.startsWith('/storage/v1/object/public/'));
-    const local=req.method==='GET'&&u.origin===origin&&!u.pathname.startsWith('/api/')||req.method==='GET'&&u.origin===origin&&/^\/api\/(?:preview-capabilities|public-document|public-sitemap|contributor-self)(?:$|\/)/.test(u.pathname);
-    if(!safeRead&&!local){window.__safetyDenied.push({path:u.pathname,method:req.method});return Promise.reject(new Error('independent_read_only_guard'));}
-    const row={path:u.pathname,query:u.search,method:req.method,start:performance.now()};if(req.method==='POST')req.clone().text().then(t=>row.args=t).catch(()=>{});window.__safetyReads.push(row);return nativeFetch(req).then(response=>{row.end=performance.now();row.ms=row.end-row.start;row.status=response.status;if(!response.ok)response.clone().text().then(t=>row.error=t.slice(0,350)).catch(()=>{});return response;},error=>{row.end=performance.now();row.ms=row.end-row.start;row.error=error.name;throw error;});
-   };
-   const open=XMLHttpRequest.prototype.open;XMLHttpRequest.prototype.open=function(method,...args){if(!['GET','HEAD'].includes(String(method).toUpperCase()))throw Error('independent_read_only_guard');return open.call(this,method,...args);};
-   navigator.sendBeacon=()=>false;const NativeSocket=window.WebSocket;
-   window.WebSocket=class extends NativeSocket{constructor(url,protocols){const u=new URL(url);if(u.origin!==db.replace('https:','wss:'))throw Error('independent_read_only_guard');super(url,protocols);}send(data){const m=JSON.parse(data),event=Array.isArray(m)?m[3]:m.event;if(!['phx_join','phx_leave','heartbeat','access_token'].includes(event))throw Error('independent_read_only_guard');return super.send(data);}};
-  },{db,allowed,origin});
-
-  await context.addInitScript(()=>{window.__perfTasks=[];window.__perfInputs=[];document.addEventListener('click',e=>window.__perfInputs.push({time:performance.now(),tag:e.target.tagName,cls:String(e.target.className).slice(0,180)}),true);new PerformanceObserver(l=>{for(const e of l.getEntries())window.__perfTasks.push({start:e.startTime,duration:e.duration});}).observe({type:'longtask',buffered:true});});
+  await require('./native-read-only-guard.cjs')(context,origin);
+  await context.addInitScript(()=>{window.__shellReadyMs=null;const watch=new MutationObserver(()=>{if(document.querySelector('.sod29-command-island button')&&document.querySelector('.sod29-mobile-menu-trigger,.sod29-sidebar a')){window.__shellReadyMs=performance.now();watch.disconnect();}});watch.observe(document,{childList:true,subtree:true});window.__perfTasks=[];window.__perfInputs=[];document.addEventListener('click',e=>window.__perfInputs.push({time:performance.now(),tag:e.target.tagName,cls:String(e.target.className).slice(0,180)}),true);new PerformanceObserver(l=>{for(const e of l.getEntries())window.__perfTasks.push({start:e.startTime,duration:e.duration});}).observe({type:'longtask',buffered:true});});
   const page=active=await context.newPage();page.setDefaultTimeout(30000);const errors=[],network=[],metrics=[];let phase='setup';
   page.on('pageerror',e=>{if(!e.message.includes('independent_read_only_guard'))errors.push({phase,name:e.name,message:e.message.slice(0,250)});});
   const cdp=await context.newCDPSession(page);await cdp.send('Network.enable');await cdp.send('Performance.enable');
@@ -49,7 +37,7 @@ try{
    const data=await page.evaluate(()=>({origin:performance.timeOrigin,now:performance.now(),shifts:window.__nativeShifts||[],tasks:window.__perfTasks||[],resources:performance.getEntriesByType('resource').map(x=>({name:new URL(x.name).pathname,type:x.initiatorType,start:x.startTime,duration:x.duration,responseStart:x.responseStart,transfer:x.transferSize,encoded:x.encodedBodySize})),reads:window.__safetyReads,denied:window.__safetyDenied,inputs:window.__perfInputs}));
    const since=data.origin===stamp.origin?stamp.now:0,shifts=data.shifts.filter(x=>x.time>=since),tasks=data.tasks.filter(x=>x.start>=since);
    const afterMetrics=(await cdp.send('Performance.getMetrics')).metrics;const previous=Object.fromEntries(beforeMetrics.map(x=>[x.name,x.value]));const cpu=Object.fromEntries(afterMetrics.filter(x=>/Duration$/.test(x.name)).map(x=>[x.name,(x.value-(previous[x.name]||0))*1000]));
-   const result={name,ms,inputs:data.inputs?.filter(x=>x.time>=since),cls:cls(shifts),shifts,tasks,cpu,reads:data.reads?.filter(x=>x.start>=since),resources:data.resources.filter(x=>x.start>=since),denied:data.denied};metrics.push(result);return result;
+   const result={name,ms,startTime:stamp.now,timeOrigin:stamp.origin,shellReadyMs:await page.evaluate(()=>window.__shellReadyMs),inputs:data.inputs?.filter(x=>x.time>=since),cls:cls(shifts),shifts,tasks,cpu,reads:data.reads?.filter(x=>x.start>=since),resources:data.resources.filter(x=>x.start>=since),denied:data.denied};metrics.push(result);return result;
   };
   const expr='אחת ארבע שבע ושתיים',address='/?measure=native-public-mobile-cycle';let numberAddress,postHref;
   for(const repeat of['first','repeat']){
@@ -67,13 +55,13 @@ try{
    steps.push(await step('back-number-world',async()=>{await page.goBack();await readyWorld();}));
    steps.push(await step('back-world-post',async()=>{await page.goBack();await expect(page.locator('.sod29-reading-source')).toBeVisible({timeout:60000});assert.equal(new URL(page.url()).pathname,new URL(postHref,origin).pathname);}));
    steps.push(await step('back-post-home',async()=>{await page.goBack();await expect(page).toHaveURL(origin+address);await readyHome();}));
-   const row={version,sha:c.sha,width,pair,repeat,postHref,workerHash,steps,totalMs:steps.reduce((n,s)=>n+s.ms,0)};out.results.push(row);console.log(JSON.stringify({version,width,pair,repeat,totalMs:Math.round(row.totalMs),maxCLS:Math.max(...steps.map(s=>s.cls))}));
+   const row={version,sha:c.sha,width,pair,repeat,postHref,workerHash,steps,totalMs:steps.reduce((n,s)=>n+s.ms,0)};out.results.push(row);fs.writeFileSync(outDir+'/native-cycle-progress.json',JSON.stringify(out,null,2)+'\n');console.log(JSON.stringify({version,width,pair,repeat,totalMs:Math.round(row.totalMs),maxCLS:Math.max(...steps.map(s=>s.cls))}));
    phase='unmeasured-world-preparation';await menu();await readyWorld();
   }
   if(cfg.profileCpu){const {profile}=await cdp.send('Profiler.stop');fs.writeFileSync(`${outDir}/cpu-${version}-${width}-${pair}.json`,JSON.stringify(profile));}
   fs.writeFileSync(`${outDir}/network-${version}-${width}-${pair}.json`,JSON.stringify({network,errors},null,2)+'\n');assert.deepEqual(errors,[]);await page.screenshot({path:`${outDir}/cycle-${version}-${width}-${pair}.png`});await context.close();
  }
- out.ok=true;
+ out.functionalOk=true;out.candidateClsPass=!out.results.some(c=>c.version==='after'&&c.steps.some(s=>s.cls>out.thresholdCLS));out.ok=out.candidateClsPass;if(!out.ok)out.error={name:'CLS',message:'candidate exceeds unchanged0.1 budget; all samples retained'};
 }catch(e){out.ok=false;out.error={name:e.name,message:String(e.message).replace(/_vercel_share=[^\s"')&]+/g,'_vercel_share=[REDACTED]').slice(0,700)};if(active)try{out.failure=await active.evaluate(()=>({path:location.pathname+location.search,reads:window.__safetyReads,rootButton:document.querySelector('.sod29-number-root-open')?.outerHTML}));await active.screenshot({path:outDir+'/failure.png'});}catch{}}
 finally{await browser?.close();fs.writeFileSync(outDir+'/native-cycle.json',JSON.stringify(out,null,2)+'\n');console.log(JSON.stringify({ok:out.ok,cycles:out.results.length,error:out.error}));process.exitCode=out.ok?0:1;}
 });

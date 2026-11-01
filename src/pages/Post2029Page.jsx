@@ -59,7 +59,7 @@ function revealReadingAnchor(node) {
   return node;
 }
 
-function PostReadingBody({ resolvedSlug = null }) {
+function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
   const { slug: routeSlug } = useParams();
   const slug = resolvedSlug || routeSlug;
   const location = useLocation();
@@ -100,7 +100,7 @@ function PostReadingBody({ resolvedSlug = null }) {
     setResearchStarted(false);
     restoredRegionRef.current = null;
     setState({ loading: true, projection: null, error: null });
-    fetchPost2029ReadingProjection(slug)
+    fetchPost2029ReadingProjection(slug, sourceReader && reloadTick === 0 ? { readPost: sourceReader } : {})
       .then((projection) => {
         if (!live) return;
         setState({
@@ -116,7 +116,7 @@ function PostReadingBody({ resolvedSlug = null }) {
         if (live) setState({ loading: false, projection: null, error: error?.message || "טעינת הפוסט נכשלה" });
       });
     return () => { live = false; ++calculationRequest.current; };
-  }, [slug, user?.id, reloadTick]);
+  }, [slug, user?.id, reloadTick, sourceReader]);
 
   useEffect(() => {
     if (!state.projection?.post) return;
@@ -1139,7 +1139,7 @@ function PostReadingBody({ resolvedSlug = null }) {
   </article>;
 }
 
-export default function Post2029Page({ resolvedSlug = null } = {}) {
+export default function Post2029Page({ resolvedSlug = null, sourceReader = null } = {}) {
   const { slug: routeSlug } = useParams();
   const slug = resolvedSlug || routeSlug;
   const location = useLocation();
@@ -1161,6 +1161,6 @@ export default function Post2029Page({ resolvedSlug = null } = {}) {
     symbol="✦"
     status="פוסט"
   >
-    <PostReadingBody key={slug} resolvedSlug={slug} />
+    <PostReadingBody key={slug} resolvedSlug={slug} sourceReader={sourceReader} />
   </Sod2029Shell>;
 }
