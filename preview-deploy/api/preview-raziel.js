@@ -1,5 +1,3 @@
-import { SUPABASE_URL, SUPABASE_ANON } from '../../src/lib/supabase.js';
-
 // Same ai-analyze, same caller JWT, same budget. Platform identity never reaches
 // the browser and never becomes a Supabase service-role token.
 export function previewRazielHandler({fetchImpl=fetch,env=process.env}={}) {
@@ -14,13 +12,16 @@ export function previewRazielHandler({fetchImpl=fetch,env=process.env}={}) {
     if(site.origin!==origin||site.protocol!=='https:'||site.host!==host)return fail(403,'origin_denied');
     const authorization=req.headers.authorization||'';
     if(!/^Bearer [A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/i.test(authorization))return fail(401,'authentication_required');
-    const platform=req.headers['x-vercel-oidc-token'];
+    const supabaseUrl=String(env.VITE_SUPABASE_URL||'').trim();
+    const supabaseKey=String(env.VITE_SUPABASE_PUBLISHABLE_KEY||'').trim();
+    if(!/^https:\/\/[a-z0-9]{20}\.supabase\.co$/.test(supabaseUrl)||!/^sb_publishable_[A-Za-z0-9_-]{20,}$/.test(supabaseKey))return fail(503,'preview_backend_unavailable');
+    const platform=env.VERCEL_OIDC_TOKEN;
     if(typeof platform!=='string'||platform.length>16384||platform.split('.').length!==3)return fail(503,'preview_server_identity_unavailable');
     const body=req.body;
     if(!body||Array.isArray(body)||body.kind!=='research'||body.persona!=='raziel'||body.research_contract!=='public-number-research-run-v1')return fail(400,'research_contract_required');
     const raw=JSON.stringify(body);if(raw.length>48000)return fail(413,'payload_too_large');
     try {
-      const auth=await fetchImpl(SUPABASE_URL+'/auth/v1/user',{headers:{apikey:SUPABASE_ANON,Authorization:authorization},redirect:'error'});
+      const auth=await fetchImpl(supabaseUrl+'/auth/v1/user',{headers:{apikey:supabaseKey,Authorization:authorization},redirect:'error'});
       if(!auth.ok)return fail(401,'authentication_required');
       const user=await auth.json();if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(user?.id||''))return fail(401,'authentication_required');
       // This review is admin-only. Verify with the existing caller-scoped server
@@ -31,7 +32,7 @@ export function previewRazielHandler({fetchImpl=fetch,env=process.env}={}) {
         if(await role.json()!==true)return fail(403,'admin_required');
       }
       // No retry: ambiguous paid requests must never turn into a second model/batch.
-      const result=await fetchImpl(SUPABASE_URL+'/functions/v1/ai-analyze',{method:'POST',headers:{apikey:SUPABASE_ANON,Authorization:authorization,'Content-Type':'application/json','x-sod-preview-identity':platform},body:raw,redirect:'error'});
+      const result=await fetchImpl(supabaseUrl+'/functions/v1/ai-analyze',{method:'POST',headers:{apikey:supabaseKey,Authorization:authorization,'Content-Type':'application/json','x-sod-preview-identity':platform},body:raw,redirect:'error'});
       const data=await result.json();return res.status(result.status).json(data);
     } catch{return fail(502,'preview_research_transport_failed');}
   };
