@@ -66,6 +66,48 @@ export async function getMyProfile({ strict = false, userId = null } = {}) {
   } catch (error) { if (strict) throw error; return null; }
 }
 
+// ◆ מד-מנוי וקרדיטים — projection read-only from the server-owned engine.
+// The RPC itself derives auth.uid(); userId is used only to reject an account
+// switch that races the read. No plan, entitlement or balance is inferred.
+export async function getMembershipCreditSummary({ strict = false, userId = null } = {}) {
+  if (!supabase) { if (strict) throw new Error("Membership credit reader unavailable"); return null; }
+  try {
+    const checkAccount = async () => {
+      const { data, error } = await supabase.auth.getSession();
+      if (error || !userId || data?.session?.user?.id !== userId) throw new Error("Membership credit account changed");
+    };
+    if (strict) await checkAccount();
+    const { data, error } = await supabase.rpc("membership_credit_summary_v1");
+    if (error) throw error;
+    const raw = data && typeof data === "object" && !Array.isArray(data) ? data : null;
+    if (!raw) throw new Error("Membership credit summary unavailable");
+    const integer = value => Number.isSafeInteger(value) && value >= 0 ? value : null;
+    const balance = integer(raw.balance);
+    const includedRemaining = integer(raw.included_remaining);
+    const reserved = integer(raw.reserved);
+    const monthlyAllowance = raw.monthly_allowance == null ? null : integer(raw.monthly_allowance);
+    const usedThisCycle = raw.used_this_cycle == null ? null : integer(raw.used_this_cycle);
+    if (balance == null || includedRemaining == null || reserved == null
+      || (raw.monthly_allowance != null && monthlyAllowance == null)
+      || (raw.used_this_cycle != null && usedThisCycle == null)) {
+      throw new Error("Membership credit summary invalid");
+    }
+    const summary = {
+      balance,
+      includedRemaining,
+      reserved,
+      planCode: typeof raw.plan_code === "string" ? raw.plan_code.slice(0, 80) : null,
+      planName: typeof raw.plan_name === "string" ? raw.plan_name.slice(0, 120) : null,
+      monthlyAllowance,
+      usedThisCycle,
+      periodStart: typeof raw.period_start === "string" ? raw.period_start : null,
+      periodEnd: typeof raw.period_end === "string" ? raw.period_end : null,
+    };
+    if (strict) await checkAccount();
+    return summary;
+  } catch (error) { if (strict) throw error; return null; }
+}
+
 // 🎁 תביעת מענקי-מייסד ממתינים לפי המייל המאומת (idempotent). מחזיר את הסכום שנוסף (0 אם אין).
 export async function claimFoundingGrants() {
   if (!supabase) return 0;

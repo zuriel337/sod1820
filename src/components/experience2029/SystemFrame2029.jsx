@@ -26,7 +26,7 @@ import AccountEntry2029 from "../auth2029/AccountEntry2029.jsx";
 import { makeEntity } from "../../lib/research/entity.js";
 import { getNotificationPrefs } from "../../lib/supabase.js";
 import { getUnreadCount } from "../../lib/notifications.js";
-import { getMyProfile } from "../../lib/commandCenter.js";
+import { getMembershipCreditSummary, getMyProfile } from "../../lib/commandCenter.js";
 import { WRITER_PERSONAL_MODULES, writerPersonalHref } from "../../lib/userCenter/writerPersonal2029.js";
 import { followTopics } from "../../lib/userCenter/followCenter2029.js";
 import { getVisitorId } from "../../lib/tracking.js";
@@ -1104,9 +1104,12 @@ function WorkspaceProjection({ context, go, onRaziel, onOpenPrivateHints, journe
   const [follows, setFollows] = useState({ status: "loading", topics: [] });
   const [inbox, setInbox] = useState({ status: "loading", unread: null });
   const [stats, setStats] = useState(null);
+  const [membershipCredits, setMembershipCredits] = useState({ status: "hidden", summary: null });
   const razielSession = useOptionalRazielSession2029();
   const [workspaceSection, setWorkspaceSection] = useState("home");
   const [summaryAttempt, setSummaryAttempt] = useState(0);
+  const [creditSummaryAttempt, setCreditSummaryAttempt] = useState(0);
+  const creditMeterEnabled = import.meta.env.VITE_MEMBERSHIP_CREDIT_METER_ENABLED === "true";
 
   // Follow = canonical notification_prefs seam (user or approved guest getter); no new store.
   useEffect(() => {
@@ -1119,6 +1122,41 @@ function WorkspaceProjection({ context, go, onRaziel, onOpenPrivateHints, journe
       .catch(() => { if (alive) setFollows({ status: "error", topics: [] }); });
     return () => { alive = false; };
   }, [userId, authLoading, summaryAttempt]);
+
+  // Paid membership state is a separate, explicitly enabled owner projection.
+  // When disabled it performs no RPC and adds no membership claim to the UI.
+  useEffect(() => {
+    let alive = true;
+    if (!creditMeterEnabled) {
+      setMembershipCredits({ status: "hidden", summary: null });
+      return () => { alive = false; };
+    }
+    if (authLoading) {
+      setMembershipCredits({ status: "loading", summary: null });
+      return () => { alive = false; };
+    }
+    if (!userId) {
+      setMembershipCredits({ status: "signed-out", summary: null });
+      return () => { alive = false; };
+    }
+    setMembershipCredits({ status: "loading", summary: null });
+    getMembershipCreditSummary({ strict: true, userId })
+      .then(summary => { if (alive) setMembershipCredits({ status: "ready", summary }); })
+      .catch(() => { if (alive) setMembershipCredits({ status: "error", summary: null }); });
+    return () => { alive = false; };
+  }, [userId, authLoading, creditMeterEnabled, creditSummaryAttempt]);
+
+  useEffect(() => {
+    if (!creditMeterEnabled || typeof window === "undefined") return undefined;
+    const refresh = event => {
+      const usage = event?.detail;
+      if (usage?.action_key === "raziel_fast" && (usage.status === "settled" || usage.status === "returned")) {
+        setCreditSummaryAttempt(value => value + 1);
+      }
+    };
+    window.addEventListener("sod:credit-usage", refresh);
+    return () => window.removeEventListener("sod:credit-usage", refresh);
+  }, [creditMeterEnabled]);
 
   // Notifications / profile are RLS-scoped to the signed-in user only.
   useEffect(() => {
@@ -1137,6 +1175,7 @@ function WorkspaceProjection({ context, go, onRaziel, onOpenPrivateHints, journe
   }, [userId, authLoading, summaryAttempt]);
 
   const displayName = String(profile?.display_name || profile?.full_name || user?.user_metadata?.full_name || user?.email || "").trim();
+  const membershipSummary = membershipCredits.status === "ready" ? membershipCredits.summary : null;
 
   const savePath = async () => {
     if (!onSavePath || pathResume?.loading) return;
@@ -1302,8 +1341,25 @@ function WorkspaceProjection({ context, go, onRaziel, onOpenPrivateHints, journe
 
       <AccountConnection2029 user={user} profile={profile} signOut={signOut} />
 
-      <section data-workspace-section="access-membership" aria-label="גישה ומנוי">
-        <FrameState kind="unavailable" title="גישה ומנוי · בהכנה">מידע על גישה ומנוי יוצג כאן בהמשך. ההצטרפות למסלול בתשלום אינה זמינה כאן כרגע.</FrameState>
+      <section data-workspace-section="access-membership" aria-label="גישה ומנוי" data-membership-credit-meter={creditMeterEnabled ? membershipCredits.status : "disabled"}>
+        {!creditMeterEnabled ? <FrameState kind="unavailable" title="גישה ומנוי · בהכנה">מידע על גישה ומנוי יוצג כאן בהמשך. ההצטרפות למסלול בתשלום אינה זמינה כאן כרגע.</FrameState> : null}
+        {creditMeterEnabled && membershipCredits.status === "loading" ? <FrameState title="טוען את מד הקרדיטים">בודק את המסלול והיתרה בחשבון הזה.</FrameState> : null}
+        {creditMeterEnabled && membershipCredits.status === "signed-out" ? <FrameState kind="unavailable" title="מד הקרדיטים זמין אחרי התחברות">היתרה ומחזור המנוי שייכים לחשבון ואינם מוצגים לאורח.</FrameState> : null}
+        {creditMeterEnabled && membershipCredits.status === "error" ? <FrameState kind="unavailable" title="מד הקרדיטים אינו זמין כרגע">לא מוצגת יתרה משוערת. אפשר לנסות שוב מאוחר יותר.</FrameState> : null}
+        {creditMeterEnabled && membershipSummary ? <div className="sod29-workspace-research-state" data-membership-plan={membershipSummary.planCode || "none"}>
+          <div className="sod29-workspace-section-head">
+            <strong>{membershipSummary.planName || "הקרדיטים שלי"}</strong>
+            <small>{membershipSummary.planCode ? "מחזור נוכחי" : "אין מסלול מנוי פעיל"}</small>
+          </div>
+          <div className="sod29-workspace-pulse-stats" aria-label="מד הקרדיטים שלי">
+            <span><b>{membershipSummary.balance.toLocaleString("he-IL")}</b><small>יתרה זמינה</small></span>
+            <span><b>{membershipSummary.includedRemaining.toLocaleString("he-IL")}</b><small>כלולים שנותרו</small></span>
+            <span><b>{membershipSummary.reserved.toLocaleString("he-IL")}</b><small>שמורים לפעולה</small></span>
+            {membershipSummary.monthlyAllowance != null ? <span><b>{membershipSummary.monthlyAllowance.toLocaleString("he-IL")}</b><small>הקצאה חודשית</small></span> : null}
+            {membershipSummary.usedThisCycle != null ? <span><b>{membershipSummary.usedThisCycle.toLocaleString("he-IL")}</b><small>נוצלו במחזור</small></span> : null}
+          </div>
+          <small className="sod29-workspace-sync-note">החיוב לכל פעולה מוצג רק אחרי קבלה מאומתת מהשרת. שמירה וצפייה בתוצאה קיימת אינן פעולה חדשה.</small>
+        </div> : null}
       </section>
 
       <section className="sod29-workspace-home" aria-label="הדברים שלי">

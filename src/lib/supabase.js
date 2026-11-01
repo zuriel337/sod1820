@@ -1471,11 +1471,15 @@ export async function askRaziel({ subject, facts, context = null, path = null, a
     // Same rule for a reading: an older ai-analyze that ignores the action must never have its ordinary answer shown as a reading.
     if (elsMatrixReadingAction && data?.els_matrix_reading?.contract !== 'els_matrix_reading_v1') return null;
     const c = data?.raziel || data?.contract;   // המוח מחזיר את החוזה כשמוכן
+    const transportMetadata = razielTransportMetadata(data);
+    if (transportMetadata.credit_usage) {
+      try { window.dispatchEvent(new CustomEvent('sod:credit-usage', { detail: transportMetadata.credit_usage })); } catch { /* non-browser */ }
+    }
     // intelligence_level = תווית-מצב כנה מאותו transport (deterministic|fast|deep) — additive, לא API שני.
-    if (c && typeof c === 'object') return { v: 1, ...razielContractWithoutTransportMetadata(c), ...(elsMatrixReadingAction && data?.els_matrix_reading ? { els_matrix_reading: data.els_matrix_reading } : {}), ...(data?.evidence_summary ? { evidence_summary: data.evidence_summary } : {}), ...razielTransportMetadata(data), ...(data?.intelligence_level ? { intelligence_level: data.intelligence_level } : {}), ...(data?.plan_meta && !c.plan_meta ? { plan_meta: data.plan_meta } : {}), ...(data?.intelligence_selection && !c.intelligence_selection ? { intelligence_selection: data.intelligence_selection } : {}) };
+    if (c && typeof c === 'object') return { v: 1, ...razielContractWithoutTransportMetadata(c), ...(elsMatrixReadingAction && data?.els_matrix_reading ? { els_matrix_reading: data.els_matrix_reading } : {}), ...(data?.evidence_summary ? { evidence_summary: data.evidence_summary } : {}), ...transportMetadata, ...(data?.intelligence_level ? { intelligence_level: data.intelligence_level } : {}), ...(data?.plan_meta && !c.plan_meta ? { plan_meta: data.plan_meta } : {}), ...(data?.intelligence_selection && !c.intelligence_selection ? { intelligence_selection: data.intelligence_selection } : {}) };
     if (data?.analysis) {   // fallback — עוטף את המחרוזת הנוכחית כחוזה מינימלי
       try { logAiAnalysis({ kind: 'research', subject, styleKey: data.style_key, engine: data.engine, model: data.model, content: data.analysis }); } catch { /* noop */ }
-      return { v: 1, answer: data.analysis, ...(data?.evidence_summary ? { evidence_summary: data.evidence_summary } : {}), ...razielTransportMetadata(data) };
+      return { v: 1, answer: data.analysis, ...(data?.evidence_summary ? { evidence_summary: data.evidence_summary } : {}), ...transportMetadata };
     }
     return null;
   } catch { return null; }

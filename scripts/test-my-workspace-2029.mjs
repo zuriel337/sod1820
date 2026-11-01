@@ -72,7 +72,9 @@ assert.match(frame, /אחרי מה אני עוקב/);
 assert.doesNotMatch(frame, /supabase\.from\(|\.rpc\(/);
 const membership = frame.slice(frame.indexOf('<section data-workspace-section="access-membership"'), frame.indexOf('<section className="sod29-workspace-home"'));
 assert.match(membership, /גישה ומנוי · בהכנה/);
-assert.doesNotMatch(membership, /₪|checkout|cardcom|entitlement|active|monthly|annually|onClick|href=/i);
+assert.match(frame, /VITE_MEMBERSHIP_CREDIT_METER_ENABLED === "true"/);
+assert.match(membership, /data-membership-credit-meter=\{creditMeterEnabled \? membershipCredits\.status : "disabled"\}/);
+assert.doesNotMatch(membership, /₪|checkout|cardcom|entitlement|annually|onClick|href=|monthly_price|annual_price|publish|activate/i);
 // follow list sits after research section; summary count near top
 assert.ok(frame.indexOf('data-workspace-section="follow"') > frame.indexOf('<section data-workspace-section="research"'));
 assert.ok(frame.indexOf('data-workspace-section="pulse"') < frame.indexOf('<section data-workspace-section="research"'));
