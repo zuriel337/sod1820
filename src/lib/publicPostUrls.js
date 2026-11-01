@@ -2,6 +2,9 @@
 // Source publication dates can be backdated; they are never an address clock.
 const SITE = "https://sod1820.co.il";
 const OWN_HOSTS = new Set(["sod1820.co.il", "www.sod1820.co.il", "sod1820.vercel.app"]);
+// Verified immutable import boundary, not a publication-date cutoff: the last
+// imported WordPress id is36935; the native sequence starts at36936 (14 June).
+const LAST_IMPORTED_WORDPRESS_ID = 36935;
 // Live provenance review: two AI and two document publications have an old
 // root-form link field. Keep those root URLs as readable aliases, prefer /post/.
 // Original imported WordPress records (including AI-revised4756) stay at root.
@@ -35,8 +38,12 @@ export function publicPostAddress(post) {
   const segment = postSlugSegment(row.slug);
   if (!segment) return null;
   const stored = storedPostPath(row), source = clean(row.source).toLowerCase();
-  if (source === "wordpress") return { path: stored && !stored.modern ? stored.path : `/${segment}`, kind: "legacy", basis: "wordpress_origin" };
-  if (stored && !stored.modern && !REVIEWED_MODERN_ROOT_IDS.has(String(row.id))) return { path: stored.path, kind: "legacy", basis: "preserved_original_address" };
+  const wpId = Number(row.wp_id);
+  const importedWordpress = Number.isSafeInteger(wpId) && wpId > 0 && wpId <= LAST_IMPORTED_WORDPRESS_ID;
+  if (source === "wordpress" || importedWordpress) return { path: stored && !stored.modern ? stored.path : `/${segment}`, kind: "legacy", basis: "wordpress_origin" };
+  const nativeProvenance = ["sod1820", "source_document", "uploaded_file"].includes(source)
+    || source === "ai" && (Number.isSafeInteger(wpId) && wpId > LAST_IMPORTED_WORDPRESS_ID || REVIEWED_MODERN_ROOT_IDS.has(String(row.id)));
+  if (stored && !stored.modern && !nativeProvenance) return { path: stored.path, kind: "legacy", basis: "preserved_original_address" };
   if (["ai", "sod1820", "source_document", "uploaded_file"].includes(source) || stored?.modern) return { path: `/post/${segment}`, kind: "modern", basis: "native_publication_provenance" };
   // Missing/other provenance never authorizes moving an existing durable URL.
   return { path: `/${segment}`, kind: "legacy", basis: "conservative_existing_address" };

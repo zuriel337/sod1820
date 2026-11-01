@@ -61,7 +61,7 @@ test('accepted Home worker is byte-identical; current old branches differ only b
   for(const ref of [branch,base]){
     const current=worker(builder,ref),start=current.indexOf('const functionalPreview=false;'),end=current.indexOf('const existingPersonAccess=');
     assert.ok(start>0&&end>start);
-    assert.ok(current.slice(start,end).startsWith('const functionalPreview=false;\nfunction interceptFunctionalPreview('));
+    assert.ok(current.slice(start,end).startsWith('const functionalPreview=false;\nconst publicFoundationPreview=false;\nif(publicFoundationPreview){reads.add("is_number_indexable");reads.add("is_phrase_indexable");}\nfunction interceptFunctionalPreview('));
     const inactiveCall=' if(functionalPreview&&interceptFunctionalPreview(event,{req,u,rpc,authOrigin}))return;\n';
     assert.equal(current.split(inactiveCall).length,2);
     const withoutInactive=current.slice(0,start)+current.slice(end);

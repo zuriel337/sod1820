@@ -33,7 +33,7 @@
     "quiet": false,
     "projects": [
       {
-        "outputDir": "/tmp/public-foundation-20261101/browser/final-acceptance",
+        "outputDir": "/tmp/public-foundation-20261101/browser/product-final",
         "repeatEach": 1,
         "retries": 0,
         "metadata": {
@@ -79,12 +79,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 15058,
+                  "duration": 11241,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-11-01T01:20:31.571Z",
+                  "startTime": "2026-11-01T01:43:05.398Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -113,12 +113,12 @@
                   "workerIndex": 1,
                   "parallelIndex": 1,
                   "status": "passed",
-                  "duration": 18581,
+                  "duration": 14536,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-11-01T01:20:31.665Z",
+                  "startTime": "2026-11-01T01:43:05.427Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -147,12 +147,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 6179,
+                  "duration": 6274,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-11-01T01:20:46.985Z",
+                  "startTime": "2026-11-01T01:43:17.101Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -162,7 +162,7 @@
           ],
           "id": "5aca964ee66ea25d9921-d91e572225015c1eafd1",
           "file": "public-foundation.spec.cjs",
-          "line": 31,
+          "line": 32,
           "column": 2
         },
         {
@@ -181,12 +181,12 @@
                   "workerIndex": 1,
                   "parallelIndex": 1,
                   "status": "passed",
-                  "duration": 2604,
+                  "duration": 2819,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-11-01T01:20:50.706Z",
+                  "startTime": "2026-11-01T01:43:20.354Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -196,7 +196,7 @@
           ],
           "id": "5aca964ee66ea25d9921-23e27eedb70ddd6be532",
           "file": "public-foundation.spec.cjs",
-          "line": 41,
+          "line": 42,
           "column": 2
         },
         {
@@ -212,15 +212,15 @@
               "projectName": "",
               "results": [
                 {
-                  "workerIndex": 0,
-                  "parallelIndex": 0,
+                  "workerIndex": 1,
+                  "parallelIndex": 1,
                   "status": "passed",
-                  "duration": 10817,
+                  "duration": 13426,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-11-01T01:20:53.178Z",
+                  "startTime": "2026-11-01T01:43:23.191Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -246,15 +246,15 @@
               "projectName": "",
               "results": [
                 {
-                  "workerIndex": 1,
-                  "parallelIndex": 1,
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 6983,
+                  "duration": 15443,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-11-01T01:20:53.334Z",
+                  "startTime": "2026-11-01T01:43:23.389Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -283,12 +283,12 @@
                   "workerIndex": 1,
                   "parallelIndex": 1,
                   "status": "passed",
-                  "duration": 7318,
+                  "duration": 8661,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-11-01T01:21:00.336Z",
+                  "startTime": "2026-11-01T01:43:36.637Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -298,7 +298,7 @@
           ],
           "id": "5aca964ee66ea25d9921-c60b2e859c289be729e5",
           "file": "public-foundation.spec.cjs",
-          "line": 31,
+          "line": 32,
           "column": 2
         },
         {
@@ -317,12 +317,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 2996,
+                  "duration": 3368,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-11-01T01:21:04.010Z",
+                  "startTime": "2026-11-01T01:43:38.858Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -332,7 +332,7 @@
           ],
           "id": "5aca964ee66ea25d9921-895c7eb03f67fa210472",
           "file": "public-foundation.spec.cjs",
-          "line": 41,
+          "line": 42,
           "column": 2
         },
         {
@@ -351,12 +351,18 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 8342,
+                  "duration": 8514,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-11-01T01:21:07.035Z",
+                  "steps": [
+                    {
+                      "title": "Expect \"poll toBe\"",
+                      "duration": 9
+                    }
+                  ],
+                  "startTime": "2026-11-01T01:43:42.264Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -366,7 +372,7 @@
           ],
           "id": "5aca964ee66ea25d9921-efc1d0c276cd2cfdc9d1",
           "file": "public-foundation.spec.cjs",
-          "line": 46,
+          "line": 47,
           "column": 31
         },
         {
@@ -385,12 +391,18 @@
                   "workerIndex": 1,
                   "parallelIndex": 1,
                   "status": "passed",
-                  "duration": 10168,
+                  "duration": 9087,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-11-01T01:21:07.673Z",
+                  "steps": [
+                    {
+                      "title": "Expect \"poll toBe\"",
+                      "duration": 6
+                    }
+                  ],
+                  "startTime": "2026-11-01T01:43:45.336Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -400,7 +412,7 @@
           ],
           "id": "5aca964ee66ea25d9921-d8e95a7f527de0bb55d5",
           "file": "public-foundation.spec.cjs",
-          "line": 46,
+          "line": 47,
           "column": 31
         },
         {
@@ -419,12 +431,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 1820,
+                  "duration": 1881,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-11-01T01:21:15.399Z",
+                  "startTime": "2026-11-01T01:43:50.858Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -434,7 +446,7 @@
           ],
           "id": "5aca964ee66ea25d9921-86f83d9f2d24614ed6b5",
           "file": "public-foundation.spec.cjs",
-          "line": 57,
+          "line": 58,
           "column": 1
         },
         {
@@ -453,12 +465,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 2349,
+                  "duration": 1957,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-11-01T01:21:17.234Z",
+                  "startTime": "2026-11-01T01:43:52.763Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -468,7 +480,7 @@
           ],
           "id": "5aca964ee66ea25d9921-c65380a1e59ea114be8c",
           "file": "public-foundation.spec.cjs",
-          "line": 63,
+          "line": 64,
           "column": 1
         },
         {
@@ -487,12 +499,12 @@
                   "workerIndex": 1,
                   "parallelIndex": 1,
                   "status": "passed",
-                  "duration": 1491,
+                  "duration": 1759,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-11-01T01:21:17.859Z",
+                  "startTime": "2026-11-01T01:43:54.445Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -502,7 +514,7 @@
           ],
           "id": "5aca964ee66ea25d9921-4f5f220b9ab08814f6c2",
           "file": "public-foundation.spec.cjs",
-          "line": 69,
+          "line": 70,
           "column": 32
         },
         {
@@ -518,15 +530,15 @@
               "projectName": "",
               "results": [
                 {
-                  "workerIndex": 1,
-                  "parallelIndex": 1,
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 1927,
+                  "duration": 1690,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-11-01T01:21:19.370Z",
+                  "startTime": "2026-11-01T01:43:54.736Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -536,7 +548,7 @@
           ],
           "id": "5aca964ee66ea25d9921-1f7108f6098036cc6210",
           "file": "public-foundation.spec.cjs",
-          "line": 69,
+          "line": 70,
           "column": 32
         },
         {
@@ -552,10 +564,10 @@
               "projectName": "",
               "results": [
                 {
-                  "workerIndex": 0,
-                  "parallelIndex": 0,
+                  "workerIndex": 1,
+                  "parallelIndex": 1,
                   "status": "passed",
-                  "duration": 2005,
+                  "duration": 2112,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
@@ -563,10 +575,10 @@
                   "steps": [
                     {
                       "title": "Expect \"poll toBeTruthy\"",
-                      "duration": 4
+                      "duration": 21
                     }
                   ],
-                  "startTime": "2026-11-01T01:21:19.611Z",
+                  "startTime": "2026-11-01T01:43:56.225Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -576,7 +588,115 @@
           ],
           "id": "5aca964ee66ea25d9921-b3a67006acc3dceef998",
           "file": "public-foundation.spec.cjs",
-          "line": 76,
+          "line": 77,
+          "column": 1
+        },
+        {
+          "title": "real public post hidden from Home stays readable through its unchanged historical address",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1964,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-01T01:43:56.442Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "5aca964ee66ea25d9921-368a627fffce0bf0a24f",
+          "file": "public-foundation.spec.cjs",
+          "line": 84,
+          "column": 1
+        },
+        {
+          "title": "real WordPress numeric id address retains id, parameters and source document on refresh",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 4472,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-01T01:43:58.360Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "5aca964ee66ea25d9921-ec6e150770b200b96865",
+          "file": "public-foundation.spec.cjs",
+          "line": 90,
+          "column": 1
+        },
+        {
+          "title": "synthetic in-flight expression read cannot replace the next document after cancellation",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1812,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "steps": [
+                    {
+                      "title": "Expect \"poll toBe\"",
+                      "duration": 857
+                    }
+                  ],
+                  "startTime": "2026-11-01T01:43:58.430Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "5aca964ee66ea25d9921-6aeca14fb9eb63cf0ef8",
+          "file": "public-foundation.spec.cjs",
+          "line": 97,
           "column": 1
         }
       ]
@@ -584,9 +704,9 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-11-01T01:20:30.862Z",
-    "duration": 50875.28999999999,
-    "expected": 15,
+    "startTime": "2026-11-01T01:43:04.802Z",
+    "duration": 58174.662,
+    "expected": 18,
     "skipped": 0,
     "unexpected": 0,
     "flaky": 0

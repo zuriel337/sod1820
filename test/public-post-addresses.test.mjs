@@ -12,6 +12,7 @@ test('imported WordPress keeps its exact original path, encoding and trailing sl
 test('AI revision of an old WordPress record preserves the address despite its source flag',()=>{
  const post={id:1342,wp_id:4756,source:'ai',date:'2015-05-28',created_at:'2026-06-07',slug:'old',link:'https://sod1820.co.il/old/'};
  assert.equal(publicPostHref(post),'/old/');
+ assert.equal(publicPostHref({...post,date:'2090-01-01',link:null}),'/old');
 });
 test('native AI and SOD1820 posts use /post without relying on a rolling date',()=>{
  for(const date of ['2024-08-08','2026-10-01','2090-01-01',null]){
@@ -25,6 +26,7 @@ test('reviewed modern records keep root aliases readable while preferring native
  for(const id of [2601,5084,5104,5110])assert.equal(publicPostHref({id,source:'ai',slug:'native',link:'https://sod1820.co.il/native'}),'/post/native');
  assert.equal(postAddressSlug('/native'),'native');
  assert.equal(postAddressSlug('/post/native'),'native');
+ assert.equal(publicPostHref({id:99999,wp_id:40000,source:'ai',slug:'future-native',link:'/future-native/',date:'2010-01-01'}),'/post/future-native');
 });
 test('unresolved provenance preserves existing addresses; a link is not indexation evidence',()=>{
  assert.equal(publicPostHref({source:'unknown_migration',slug:'source'}),'/source');

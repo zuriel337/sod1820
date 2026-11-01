@@ -1,3 +1,4 @@
+import { PUBLIC_HOME_SEO } from "../src/lib/seo.js";
 import { publicPostUrl } from "../src/lib/publicPostUrls.js";
 import { hasSuppressedPublicPostTag } from "../src/lib/research/publicPostBoundary.js";
 // Vercel Serverless Function — הזרקת תגיות Open Graph לכל עמוד עבור רובוטי הרשתות.
@@ -42,8 +43,8 @@ const STATIC = {
   // ⛔ SEO_BRAND_HOMEPAGE_IDENTITY_ADDENDUM (Human Gate ZURIEL, 2026-09-07). זה מה שרובוטי-
   // תצוגה שלא מריצים JS (וואטסאפ/פייסבוק/טלגרם, דרך ה-UA-rewrite ב-vercel.json) רואים בפועל —
   // חייב לשאת את אותה זהות-מותג עברית מאושרת כמו index.html/routes.jsx ROUTE_META["/"].
-  '/': { title: "כי לה' המלוכה — סוד 1820 · לגלות את המציאות בשפת המספרים",
-    desc: "מחקר חי של מספרים, גימטריה, צפנים בתורה, קוד המציאות, מקורות ומסעות גילוי — מערכת SOD1820 מחברת בין מספרים, מילים, פסוקים, אנשים ואירועים.",
+  '/': { title: PUBLIC_HOME_SEO.fullTitle,
+    desc: PUBLIC_HOME_SEO.description,
     card: { w: 'סוד 1820', sub: "כי לה' המלוכה · לגלות את המציאות בשפת המספרים", cap: 'מה המספרים יודעים עליך?' } },
   '/2029': { title: "SOD1820 2029 — מערכת המחקר החדשה",
     desc: "שער הכניסה למערכת SOD1820 החדשה — עולם, מספרים, מקורות, ELS, היכל ורזיאל על עץ ידע אחד.",
@@ -666,7 +667,7 @@ export default async function handler(req, res) {
         if (!r.ok) throw new Error('post-source-unavailable');
         const rows = await r.json();
         if (Array.isArray(rows) && rows[0]) {
-          if (hasSuppressedPublicPostTag(rows[0])) break;
+          if (hasSuppressedPublicPostTag(rows[0]) || !publicPostUrl(rows[0])) break;
           post = rows[0];
           canonical = publicPostUrl(post);
           title = stripHtml(post.title) + ' · ' + SITE_NAME;

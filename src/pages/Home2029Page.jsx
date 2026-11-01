@@ -9,7 +9,7 @@ import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { fetchHome2029Projection, fetchHomeWorldPreview2029 } from "../lib/research/home2029Projection.js";
 import { buildCalculator2029FastPreview } from "../lib/research/calculator2029FastPreview.js";
 import { buildUnifiedResearchEntry } from "../lib/research/unifiedResearchEntry.js";
-import { applySeo } from "../lib/seo.js";
+import { applySeo, PUBLIC_HOME_SEO } from "../lib/seo.js";
 import WorldFlightStory2029 from "../components/research/WorldFlightStory2029.jsx";
 import SourceArrivalList2029 from "../components/research/SourceArrivalList2029.jsx";
 import HomeRealityRiver2029, { RealityRiver2029 } from "../components/research/RealityRiver2029.jsx";
@@ -580,7 +580,7 @@ function HomeBody() {
 
 export default function Home2029Page() {
   useEffect(() => {
-    applySeo(CORE_PUBLIC_LAUNCH_2029
+    applySeo(import.meta.env.VITE_PUBLIC_FOUNDATION_PREVIEW === "true" ? PUBLIC_HOME_SEO : CORE_PUBLIC_LAUNCH_2029
       ? { title: "SOD1820 · פוסטים, צפנים, גימטריה וצ׳אט", description: "פוסטים, חיפוש ELS, מחשבון גימטריה ושיחות הקהילה באתר SOD1820.", path: import.meta.env.VITE_PUBLIC_FOUNDATION_PREVIEW === "true" ? "/" : "/2029" }
       : { title: "SOD1820 · העולם החדש", description: "מה מתגלה עכשיו ב-SOD1820 — שער לעולם אחד של רמזים, מקורות וחיבורים.", path: import.meta.env.VITE_PUBLIC_FOUNDATION_PREVIEW === "true" ? "/" : "/2029" });
   }, []);

@@ -1,0 +1,33 @@
+✔ native gallery locators preserve historical IDs without a pilot-only inventory (2.544094ms)
+✔ native gallery deep selection fetches one bounded stored-order window, never scans the corpus (13.817767ms)
+✔ same-object gallery placements keep exact OCR, tags and caption without another source identity (0.696417ms)
+✖ native gallery wiring adds only a lazy 2029 route and reuses the existing public readers (1.912165ms)
+✔ gallery selection keeps the exact occurrence even when a public storage object is shared (0.401755ms)
+✔ shared gallery pager is the same pilot implementation, bounded and advancing over withheld positions (16.043823ms)
+✔ India pilot: all 13 public memberships + independently labelled public post figure; no graph inference (5.92166ms)
+✔ Hodu: two historical occurrences, one storage object, both original texts and memberships retained (0.835648ms)
+✔ same image in India and 1237 retains identical intrinsic/source identity, different documented contexts (4.436572ms)
+✔ extra occurrences preserve lineage without acquiring a Topic relation (1.210726ms)
+✔ privacy: public-view admission and all image gates also hold against over-permissive rows (2.105775ms)
+✔ captain admission fails closed for changed sources, wrong slug/id, drafts, forum, absent post (3.189583ms)
+✔ object equivalence never follows a shared filename, OCR, numbers, a signed URL or transformed image (0.376039ms)
+✔ historical dates retain their basis; Lightbox does not relabel derived/upload dates as events (0.282339ms)
+✔ exact source reopen survives the existing context normalization; archive precision is explicit (2.45958ms)
+✔ Topic Golden keeps every requested source and complete envelope; empty/error cannot fall back to graph (3.332013ms)
+✔ actual Entity Hub reader: public Topic view, bounded exact IDs/objects, explicit public gates, no ROs (1.857222ms)
+✔ reader failures are explicit; absent/nonpublic Topic never reads sources; a failed captain read keeps galleries (0.654578ms)
+✔ large memberships stay bounded and report incomplete coverage; no Post query for 1237 (0.617768ms)
+✔ shared-object navigation joins stored memberships, retains exact return and counts each object once (1.081572ms)
+✔ shared numbers, inaccessible occurrences and unapproved Topics cannot grant shared-source links (0.536707ms)
+✔ reader joins only admitted image occurrence IDs; failed related read preserves source and Post (0.984302ms)
+ℹ tests 22
+ℹ suites 0
+ℹ pass 21
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 362.35256
+✖ failing tests:
+test at src/lib/research/topicSourceContext.test.js:60:1
+✖ native gallery wiring adds only a lazy 2029 route and reuses the existing public readers (1.912165ms)

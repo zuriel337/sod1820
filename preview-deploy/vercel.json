@@ -10,23 +10,23 @@
     },
     {
       "source": "/2029/:path*",
-      "destination": "/index.html"
+      "destination": "/2029.html"
     },
     {
       "source": "/community/:path*",
-      "destination": "/index.html"
+      "destination": "/2029.html"
     },
     {
       "source": "/books/:path*",
-      "destination": "/index.html"
+      "destination": "/2029.html"
     },
     {
       "source": "/book/:path*",
-      "destination": "/index.html"
+      "destination": "/2029.html"
     },
     {
       "source": "/beit-midrash/:path*",
-      "destination": "/index.html"
+      "destination": "/2029.html"
     },
     {
       "source": "/((?!api(?:/|$)).*)",
@@ -54,7 +54,7 @@
   ],
   "functions": {
     "api/public-document.js": {
-      "includeFiles": "dist/index.html"
+      "includeFiles": "dist/2029.html"
     }
   }
 }

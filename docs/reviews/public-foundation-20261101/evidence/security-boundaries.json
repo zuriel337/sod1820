@@ -1,0 +1,12 @@
+{
+  "initialPreviewWithoutVercelGrantHttpStatus": 302,
+  "legacyProductionDeployment": "dpl_BFpwZGiYL3Qpdy9nCuGKGb9Xmko2",
+  "mainAtStart": "2195c9784c5c9f0b1ec3cd3c1137fbd76045845b",
+  "productWritesForwardedByAcceptance": 0,
+  "liveModelCalls": 0,
+  "liveEmailMessages": 0,
+  "existingAuthSettingsChanged": false,
+  "googleFacebookAcceptance": "user explicitly deferred",
+  "protectionTokensCommitted": false,
+  "rootVercelJsonChanged": false
+}

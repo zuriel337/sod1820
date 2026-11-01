@@ -1,3 +1,5 @@
+import ogHandler from "../api/og.js";
+import { mergePublicDocumentMetadata } from "../preview-deploy/api/public-document.js";
 // Disposable static Preview output. It never deploys Edge functions or live migrations.
 import { build } from "vite";
 import { resolve } from "node:path";
@@ -37,7 +39,7 @@ await build({ root, define: {
   "import.meta.env.VITE_FUNCTIONAL_UNIFIED_PREVIEW": JSON.stringify(functionalPreviewBuild ? "true" : "false"),
 }, build: { outDir: output, emptyOutDir: true, manifest: true } });
 
-const allow = ["gematria_api", "fn_method_value", "fn_method_profile", "gematria_method_trace", "fn_zero_scale", "posts_by_number_strict", "fn_number_lookup", "fn_number_dossier", "fn_number_journey", "fn_verses_by_gematria", "lang_links_list", "number_neighbors", "fn_all_methods", "world_group_source_arrivals_v2", "rd_is_admin", "fn_list_family", "fn_name_protocol", "fn_cross_research", "is_number_indexable", "is_phrase_indexable"];
+const allow = ["gematria_api", "fn_method_value", "fn_method_profile", "gematria_method_trace", "fn_zero_scale", "posts_by_number_strict", "fn_number_lookup", "fn_number_dossier", "fn_number_journey", "fn_verses_by_gematria", "lang_links_list", "number_neighbors", "fn_all_methods", "world_group_source_arrivals_v2", "rd_is_admin", "fn_list_family", "fn_name_protocol", "fn_cross_research"];
 const functionalPreview = typeof process !== "undefined" && process.env.VERCEL_ENV === "preview"
   && ["gpt/2029-functional-unified-preview-20261031", "gpt/2029-public-foundation-continuity-20261101"].includes(process.env.VERCEL_GIT_COMMIT_REF);
 // This is a transport boundary, never an alternative to canonical server Auth/RLS.
@@ -215,6 +217,7 @@ const unifiedReadOnly = typeof process !== "undefined" && ["gpt/2029-central-uni
 const worker = `const reads = new Set(${JSON.stringify(allow)});
 const functionalPreview=${JSON.stringify(functionalPreview)};
 const publicFoundationPreview=${JSON.stringify(functionalPreview && process.env.VERCEL_GIT_COMMIT_REF === "gpt/2029-public-foundation-continuity-20261101")};
+if(publicFoundationPreview){reads.add("is_number_indexable");reads.add("is_phrase_indexable");}
 ${interceptFunctionalPreview.toString()}
 const existingPersonAccess=${JSON.stringify(existingPersonAccess)};
 const unifiedReadOnly=${JSON.stringify((unifiedReadOnly || communityMessageManagement || endToEndReadOnly) && !functionalPreview)};
@@ -447,8 +450,19 @@ if (razielSafeActionsMock) {
   const notice = '<style>body:has(#sod29-mobile-navigation,.sod29-frame-panel,[data-raziel-companion-view="open"]) > [data-raziel-preview-transport="mock-only"]{display:none}[data-raziel-preview-disclosure="mock-only"]{margin:6px 12px;padding:6px 8px;border:1px solid var(--s29-line-strong);border-radius:8px;background:var(--s29-panel-soft);color:var(--s29-ink);font:14px/1.4 var(--s29-font-ui);overflow-wrap:anywhere}</style><aside data-raziel-preview-transport="mock-only" role="note" dir="rtl" style="position:fixed;z-index:2147483000;inset-inline:8px;bottom:82px;padding:6px 10px;border:1px solid #98783e;border-radius:8px;background:#fff5de;color:#231b12;font:14px/1.4 Arial;text-align:center;pointer-events:none">פריוויו בדיקה · תשובות דמה בלבד · אין קריאות מודל או כתיבה חיה. אפשר לשאול על משיח, או לכתוב „שמור שיחה”.</aside>';
   html = html.replace("</body>", notice + "</body>");
 }
+if (publicFoundationBuild) {
+  let metadata = "";
+  // / is served as index.html by the platform filesystem before fallback rewrites.
+  // The existing root OG owner is static; no product/server read or write occurs.
+  await ogHandler({ query: { path: "/" }, publicFoundationPreview: true }, {
+    setHeader() {}, status() { return this; }, send(value) { metadata = value; },
+  });
+  html = mergePublicDocumentMetadata(html, metadata);
+}
 await writeFile(resolve(output, "2029.html"), html);
-await writeFile(resolve(output, "index.html"), html);
+// Public documents use the existing 2029 entry through their metadata/status adapter.
+// An index.html would shadow / and /?p=... before platform fallback rewrites.
+if (!publicFoundationBuild) await writeFile(resolve(output, "index.html"), html);
 if (realRazielPreview) {
   const sha = process.env.VERCEL_GIT_COMMIT_SHA || execFileSync("git", ["rev-parse", "HEAD"], { cwd: root, encoding: "utf8" }).trim();
   await writeFile(resolve(output, "preview-identity.json"), JSON.stringify({

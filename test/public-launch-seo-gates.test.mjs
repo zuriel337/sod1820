@@ -260,7 +260,7 @@ test('forum and transitional chat are noindex with a canonical chat link and no 
 test('public Post metadata remains independent of launch gates and retains Article structured data', async () => {
   const result = await invoke(ogHandler, async url => {
     assert.ok(url.includes('/posts?slug=eq.public-post'), `post made unrelated request: ${url}`);
-    return flagResponse([{ title: 'פוסט ציבורי', excerpt: 'תיאור', content: '<p>תוכן</p>', author: 'SOD1820', date: '2026-10-13T08:00:00Z' }]);
+    return flagResponse([{ id: 900002, slug: 'public-post', source: 'ai', title: 'פוסט ציבורי', excerpt: 'תיאור', content: '<p>תוכן</p>', author: 'SOD1820', date: '2026-10-13T08:00:00Z' }]);
   }, { path: '/post/public-post', crawler: 'search' });
   assert.equal(result.headers.get('x-robots-tag'), 'index, follow');
   assert.match(result.body, /"@type":"Article"/);

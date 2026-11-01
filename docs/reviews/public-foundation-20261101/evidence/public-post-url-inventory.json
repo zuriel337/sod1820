@@ -1,5 +1,5 @@
 {
-  "capturedAt": "2026-11-01T01:22:22.771Z",
+  "capturedAt": "2026-11-01T01:40:04.005Z",
   "transport": "two anonymous public REST GET pages; explicit existing draft/forum exclusion; no product writes",
   "total": 1304,
   "counts": {
@@ -55,7 +55,7 @@
       "home_hidden": false,
       "path": "/%d7%a8%d7%a9%d7%99%d7%9e%d7%aa-%d7%9b%d7%9c-%d7%94%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-1820-%d7%a1%d7%95%d7%93-%d7%94/",
       "kind": "legacy",
-      "basis": "preserved_original_address"
+      "basis": "wordpress_origin"
     },
     {
       "id": 2601,
@@ -135,5 +135,13 @@
       "kind": "modern",
       "basis": "native_publication_provenance"
     }
-  ]
+  ],
+  "verifiedImportBoundary": {
+    "lastImportedWordPressId": 36935,
+    "firstNativeWordPressSequenceId": 36936,
+    "firstNativeAiCreatedAt": "2026-06-14T18:59:20.785944Z",
+    "basis": "immutable import/publication provenance; not a date window or evidence of Google indexing"
+  },
+  "wordPressOriginalPathMismatches": [],
+  "publicHomeHiddenPostsStillReadable": 21
 }

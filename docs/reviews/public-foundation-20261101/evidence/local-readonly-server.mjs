@@ -17,7 +17,7 @@ globalThis.fetch = async (input, options = {}) => {
   return nativeFetch(url, { ...options, redirect: "error" });
 };
 async function rawEntry() {
-  const html = await readFile(resolve(root, "index.html"), "utf8");
+  const html = await readFile(resolve(root, "2029.html"), "utf8");
   const entry = html.match(/await import\('([^']+)'\)/)?.[1];
   if (!entry) throw Error("missing-built-entry");
   return html.replace(/<script type="module">if\(!\('serviceWorker'[\s\S]*?<\/script>/, `<script type="module" src="${entry}"></script>`);

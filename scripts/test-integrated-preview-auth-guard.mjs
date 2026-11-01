@@ -384,5 +384,8 @@ test('public-foundation Preview retains identity/write boundaries and permits on
  for(const path of ['/rest/v1/profiles','/rest/v1/posts','/rest/v1/subscribers','/rest/v1/rpc/admin_set_role']) {
   const result=await request(path,{body:{role:'admin'},workerSource:current});assert.equal(result.status,403);assert.equal(result.forwarded,0);
  }
- for(const rpc of ['is_number_indexable','is_phrase_indexable'])assert.equal((await request('/rest/v1/rpc/'+rpc,{body:{},workerSource:current})).status,200);
+ for(const rpc of ['is_number_indexable','is_phrase_indexable']){
+  assert.equal((await request('/rest/v1/rpc/'+rpc,{body:{},workerSource:current})).status,200);
+  assert.equal((await request('/rest/v1/rpc/'+rpc,{body:{},workerSource:managementWorker(functionalBranch)})).status,403);
+ }
 });
