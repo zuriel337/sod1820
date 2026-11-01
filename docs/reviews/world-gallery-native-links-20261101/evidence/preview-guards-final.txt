@@ -1,0 +1,11 @@
+✔ new exact branch inherits the complete accepted worker without widening any principal or operation (20.01564ms)
+✔ the new branch cannot build for Production or an unspecified environment (463.566408ms)
+✔ new Preview proxy keeps verified-admin denial, caller identity, cost boundaries and no paid retry (5.134278ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 664.746448

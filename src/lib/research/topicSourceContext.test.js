@@ -64,7 +64,23 @@ test("native gallery wiring adds only a lazy 2029 route and reuses the existing 
   assert.match(app,/<WorldEntry2029 \/>/);assert.doesNotMatch(app,/path="\/2029\/gallery/);
   assert.match(page,/loadPublicGallerySourceWindow/);assert.match(page,/SourceMethodResearch/);
   assert.doesNotMatch(page,/from ["'][^"']*(?:MuseumGallery|GalleryPage|ArchivePage|Lightbox|AuthContext)/);
-  assert.doesNotMatch(page,/setImageCuration|bulkSet|\.insert\(|\.upsert\(|\.update\(|\.delete\(/);
+  // URLSearchParams.delete edits navigation, not stored data. Keep the mutation
+  // prohibition for everything else, and require the exact existing read imports.
+  assert.deepEqual(page.match(/import \{ ([^}]+) \} from "\.\.\/lib\/supabase.js"/)[1].split(',').map(s=>s.trim()).sort(),
+    ['getGalleriesOverview','getImagesByGallery','getRealityHints','searchArchiveOcrIds']);
+  assert.match(page,/const p=new URLSearchParams\(search\)/);
+  assert.match(page,/const set=new Set\(old\)/);
+  const noWrites = source => {
+    assert.doesNotMatch(source,/\.from\(|\.rpc\(|\bfetch\s*\(/);
+    assert.doesNotMatch(source.replace(/\bp\.delete\((?:key|'image'|'offset'|'take')\)/g,'URLSearchParams parameter removal')
+      .replace(/\bset\.delete\(id\)/g,'Set member removal'),
+      /setImageCuration|bulkSet|\.insert\(|\.upsert\(|\.update\(|\.delete\(/);
+  };
+  noWrites(page);
+  for (const operation of ['client.insert({})','client.upsert({})','client.update({})','client.delete()',
+    "supabase.from('gallery_images')",'supabase.rpc("mutation")','fetch("/write")']) {
+    assert.throws(()=>noWrites(page+'\n'+operation),assert.AssertionError,'must still reject '+operation);
+  }
 });
 
 test("gallery selection keeps the exact occurrence even when a public storage object is shared", () => {
@@ -218,7 +234,7 @@ test("historical dates retain their basis; Lightbox does not relabel derived/upl
   assert.equal(image.created_at, null);
 });
 
-test("exact source reopen survives the existing context normalization; archive precision is explicit", () => {
+test("exact source reopen survives normalization and every gallery occurrence uses the native reader", () => {
   const item = project("hodu").items[0];
   const patch = topicSourceContextPatch(item, topicOf("hodu"));
   const context = normalizeResearchContext({ ...patch, returnTo: { href: item.reopen.topicHref, selection: patch.selection, dimensions: patch.dimensions } });
@@ -227,8 +243,9 @@ test("exact source reopen survives the existing context normalization; archive p
   assert.equal(context.returnTo.href, `/topic/hodu#topic-source-${railImage}`);
   assert.equal(context.dimensions.surfaceFocus.reference, item.sourceIdentity.ref);
   assert.equal(context.journey, null, "selection alone creates no Journey");
-  assert.deepEqual(item.reopen.galleries.map((g) => g.href), ["/archive?tab=galleries&gal=28", "/archive?tab=galleries&gal=54"]);
-  assert.ok(item.reopen.galleries.every((g) => g.routePrecision === "gallery_only" && g.selection.galleryImageId));
+  assert.deepEqual(item.reopen.galleries.map((g) => g.href), item.reopen.galleries.map(g => gallerySourceHref2029(g.selection.wpGalleryId, g.selection.galleryImageId)));
+  assert.deepEqual(item.reopen.galleries.map((g) => g.legacyHref), ["/archive?tab=galleries&gal=28", "/archive?tab=galleries&gal=54"]);
+  assert.ok(item.reopen.galleries.every((g) => g.routePrecision === "exact_gallery_image" && g.selection.galleryImageId));
   const orientation = topicSourceContextPatch(item, { slug: "hodu", title: "הודו", heroNumber: 21 });
   assert.equal(orientation.selection.entityType, "image");
   assert.equal(orientation.dimensions.surfaceFocus.type, "topic");

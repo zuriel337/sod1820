@@ -1,4 +1,5 @@
 import { publicPostHref } from "../publicPostUrls.js";
+import { galleryItemSourceHref2029 } from "./topicSourceContext.js";
 // Election branch → World public-content projection.
 //
 // This is a consumer of the generic One Tree branch and existing public
@@ -34,7 +35,7 @@ function exactSourceRef(source, galleryById, postById) {
 
 function sourceHref(source, galleryById, postById) {
   const galleryImageId = galleryId(source?.canonicalRef);
-  if (galleryImageId) return galleryById.get(galleryImageId)?.reopen?.galleries?.[0]?.href || null;
+  if (galleryImageId) return galleryItemSourceHref2029(galleryById.get(galleryImageId), galleryImageId);
   const id = postId(source?.canonicalRef);
   if (id != null) {
     const post = postById.get(id);

@@ -3,6 +3,7 @@
 // they already admitted; a knowledge kind is not a new corpus or tree.
 
 import { buildPublicWorldContentProjectionV1 } from "./publicWorldContentProjectionV1.js";
+import { galleryItemSourceHref2029 } from "./topicSourceContext.js";
 
 const list = (value) => Array.isArray(value) ? value : [];
 const clean = (value) => value == null ? "" : String(value).trim();
@@ -42,7 +43,7 @@ export function buildPublicMediaContentProjection(items = []) {
     return [{
       sourceRef,
       title: clean(item?.presentation?.label || item?.label) || "פריט מדיה",
-      sourceHref: item?.reopen?.galleries?.[0]?.href || null,
+      sourceHref: galleryItemSourceHref2029(item),
       publisher: { key: "public-media", label: "מדיה ציבורית" },
       media: item?.imageUrl ? [{ mediaRef: clean(item?.mediaId) || sourceRef, kind: "image", href: item.imageUrl, alt: clean(item?.presentation?.label || item?.label) || null, provenance: sourceRef }] : [],
     }];

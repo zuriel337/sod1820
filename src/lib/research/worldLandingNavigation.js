@@ -63,7 +63,8 @@ export function resolveWorldLandingView({ search = "", hash = "" } = {}) {
   if (anchor === "world-source-homes" || anchor === "world-contributor-material" || anchor.startsWith("world-corpus-")) {
     return WORLD_LANDING_VIEW.SOURCES;
   }
-  if (anchor === "world-all-convergences" || anchor === "world-connections" || anchor.startsWith("world-discovery-")) {
+  if (anchor === "world-all-convergences" || anchor === "world-connections" || anchor.startsWith("world-discovery-")
+    || anchor.startsWith("world-direction-") || anchor.startsWith("world-source-")) {
     return WORLD_LANDING_VIEW.CONNECTIONS;
   }
   if (anchor === "world-sources" || anchor.startsWith("group-source-")) return WORLD_LANDING_VIEW.LIVE;
