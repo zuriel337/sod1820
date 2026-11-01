@@ -26,7 +26,7 @@ notice = subprocess.check_output(["node", "--input-type=module", "-e", "import v
 assert 'data-raziel-preview-transport="mock-only"' in notice
 HTML = (ROOT / "dist/2029.html").read_text().replace("</body>", notice + "</body>")
 FLAGS = ["lock_world", "lock_heichal", "lock_raziel_site", "lock_life_journey", "lock_books", "lock_number"]
-READ_RPCS = {"world_group_source_arrivals_v2", "rd_is_admin", "fn_method_profile", "fn_method_value", "writer_public_contributions_page_v1", "community_reply_counts", "notification_prefs_guest_get_v1", "notification_prefs_get_v1"}
+READ_RPCS = {"world_group_source_arrivals_v2", "rd_is_admin", "fn_method_profile", "fn_method_value", "writer_public_contributions_page_v1", "community_reply_counts", "community_replies_page", "notification_prefs_guest_get_v1", "notification_prefs_get_v1"}
 BLOCKED_TELEMETRY = {"link_identity", "ingest_event", "track_visit"}
 ROWS = [
     {"id":"11111111-1111-4111-8111-111111111111", "author_user_id":"11111111-1111-4111-8111-111111111111", "author_name":"אלף בדיקה", "body":"הודעת זית", "origin":"community_2029", "created_at":"2026-10-28T12:00:00Z", "reactions":{"likes":4}, "total_count":2},
