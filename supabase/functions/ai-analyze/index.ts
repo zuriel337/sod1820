@@ -11,6 +11,7 @@ import { normalizeElsMatrixReadingAction } from "../_shared/elsMatrixReadingActi
 import { ELS_RAZIEL_GROUNDING, normalizeElsRazielOccurrence, sameElsRazielOccurrence } from "../_shared/elsRazielOccurrenceContext.js";
 import { readElsRazielReadingContext, elsRazielReadingText } from "../_shared/elsRazielReadingContext.js";
 import { verifyFunctionalPreviewIdentity } from "../_shared/functionalPreviewIdentity.js";
+import { isRazielCreditPilot } from "../_shared/razielCreditPilot.js";
 // ai-analyze — ניתוח AI גנרי. fast=true → Haiku (מהיר, לכלים אינטראקטיביים); אחרת Sonnet (עומק).
 // יושר: מפרש רק עובדות שסופקו, לא מחשב גימטריה, מפריד עובדה מפרשנות, בלי נבואות.
 //
@@ -905,11 +906,8 @@ async function runGemini(user: string, maxTokens: number, system: string = SYSTE
 // ===== 📏 מכסת-AI (ai_quota_law) — אכיפה אמיתית בשרת =====
 // עומק (Sonnet) 2/יום לכולם (אדמין פטור) · מהיר 30/200 · מלווה 40/300. הזהות: משתמש מאומת > visitor_id > IP.
 const SB_URL = Deno.env.get("SUPABASE_URL") || "";
-const RAZIEL_CREDIT_METER_PREVIEW_PROJECT_URL = "https://srwpltjirwbqzcvuesmx.supabase.co";
-
 function razielCreditMeterEnabled(): boolean {
-  return Deno.env.get("RAZIEL_CREDIT_METER_ENABLED") === "on"
-    || SB_URL === RAZIEL_CREDIT_METER_PREVIEW_PROJECT_URL;
+  return Deno.env.get("RAZIEL_CREDIT_METER_ENABLED") === "on";
 }
 const SB_SVC = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
 const SB_ANON = (Deno.env.get("SUPABASE_ANON_KEY") || "").trim();
@@ -4047,12 +4045,11 @@ Deno.serve(async (req: Request) => {
       // only. The environment switch and inactive server catalog keep this
       // inert until a reviewed candidate explicitly enables both. All
       // deterministic, deep, special-view, classifier, Legacy, WhatsApp,
-      // companion and admin traffic preserves its current quota-only path.
-      const rFastCreditEligible = razielCreditMeterEnabled()
+      // Companion traffic and non-pilot admins retain the quota-only path.
+      const rFastCreditEligible = isRazielCreditPilot({ enabled: razielCreditMeterEnabled(), verifiedUserId: rVerifiedRef, verifiedRole: tier })
         && rCanonicalResearchOptIn
         && rFast
         && rViewMode === "general"
-        && tier === "user"
         && !!rVerifiedRef
         && !!rUserBearer
         && !rSemanticEligible

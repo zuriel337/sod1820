@@ -15,7 +15,7 @@ test("Raziel fast credit metering is a two-key, authenticated 2029-only pilot", 
   assert.match(gate, /razielCreditMeterEnabled\(\)/);
   assert.match(gate, /&& rCanonicalResearchOptIn/);
   assert.match(gate, /&& rFast/);
-  assert.match(gate, /&& tier === "user"/);
+  assert.match(gate, /isRazielCreditPilot\(\{ enabled: razielCreditMeterEnabled\(\), verifiedUserId: rVerifiedRef, verifiedRole: tier \}\)/);
   assert.match(gate, /&& !!rVerifiedRef/);
   assert.match(gate, /&& !!rUserBearer/);
   assert.match(gate, /&& !rSemanticEligible/);
@@ -25,15 +25,14 @@ test("Raziel fast credit metering is a two-key, authenticated 2029-only pilot", 
   assert.match(gate, /reserveRazielFastCredits\(rUserBearer, interactionId\)/);
 });
 
-test("Raziel credit meter can auto-enable only on the isolated preview project", async () => {
+test("Production credit meter requires explicit enable and contains no Candidate auto-enable", async () => {
   const source = await readFile(sourceUrl, "utf8");
   const start = source.indexOf("function razielCreditMeterEnabled");
   const end = source.indexOf("function ", start + 10);
   const helper = source.slice(start, end);
 
   assert.match(helper, /RAZIEL_CREDIT_METER_ENABLED"\) === "on"/);
-  assert.match(helper, /SB_URL === RAZIEL_CREDIT_METER_PREVIEW_PROJECT_URL/);
-  assert.match(source, /RAZIEL_CREDIT_METER_PREVIEW_PROJECT_URL = "https:\/\/srwpltjirwbqzcvuesmx\.supabase\.co"/);
+  assert.doesNotMatch(source, /srwpltjirwbqzcvuesmx|RAZIEL_CREDIT_METER_PREVIEW_PROJECT_URL/);
   assert.doesNotMatch(helper, /includes|startsWith|endsWith/);
 });
 

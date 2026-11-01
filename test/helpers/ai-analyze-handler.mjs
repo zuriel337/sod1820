@@ -6,6 +6,7 @@ import { runInNewContext } from "node:vm";
 import { selectRazielIntelligence, RAZIEL_LEVELS } from "../../supabase/functions/_shared/razielIntelligence.js";
 import { whatsappSurfaceProfileText, continuationHrefFromSurface } from "../../supabase/functions/_shared/waRazielRender.ts";
 import { supabaseServiceHeaders } from "../../supabase/functions/_shared/supabaseServiceHeaders.js";
+import { isRazielCreditPilot } from "../../supabase/functions/_shared/razielCreditPilot.js";
 import { buildRazielResultBundleConsumer } from "../../src/lib/research/razielResultBundleConsumer.js";
 import { buildRazielGroundedSourceComposer, razielMethodLayerNumbers } from "../../src/lib/research/razielGroundedSourceComposer.js";
 import {
@@ -160,7 +161,8 @@ export async function runAiAnalyze({
     ...envOverrides,
   };
   const imports = [...source.matchAll(/^import .*;$/gm)].map(([line]) => line);
-  assert.equal(imports.length, 13, "review any new handler dependency before mocking it");
+  assert.equal(imports.length, 14, "review any new handler dependency before mocking it");
+  assert.equal(imports[13], 'import { isRazielCreditPilot } from "../_shared/razielCreditPilot.js";');
   assert.ok(imports[0].includes('import { callClaudeReliable }'));
   assert.ok(imports[1].includes('import { selectRazielIntelligence, RAZIEL_LEVELS }'));
   assert.ok(imports[2].includes('import { whatsappSurfaceProfileText, continuationHrefFromSurface }'));
@@ -186,7 +188,7 @@ export async function runAiAnalyze({
     fetch, Request, Response, Headers, URL, AbortSignal, TextEncoder, TextDecoder,
     crypto: { randomUUID }, selectRazielIntelligence, RAZIEL_LEVELS,
     whatsappSurfaceProfileText, continuationHrefFromSurface,
-    supabaseServiceHeaders,
+    supabaseServiceHeaders, isRazielCreditPilot,
     verifyFunctionalPreviewIdentity: previewVerifier,
     buildRazielResultBundleConsumer,
     buildRazielGroundedSourceComposer,
