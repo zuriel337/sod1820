@@ -1,0 +1,6 @@
+2029 built dependency graph: PASS
+reachable manifest records: 184
+eager manifest records: 31
+eager JS gzip: 418139 bytes (40603 recovered)
+Raziel submit adapter/resolver: lazy (assets/razielSessionRequest2029-uJQQcXar.js)
+Raziel Research Plan: lazy (assets/researchPlanV2-DMjYFG5S.js)

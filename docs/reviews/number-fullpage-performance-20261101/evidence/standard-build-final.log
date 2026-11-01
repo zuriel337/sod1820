@@ -1,0 +1,631 @@
+
+> sod1820@1.0.0 prebuild
+> node scripts/test-legacy-production-lock.mjs && npm run test:one-tree-content
+
+Legacy Production lock: PASS
+
+> sod1820@1.0.0 test:one-tree-content
+> node scripts/test-one-tree-content-contract.mjs
+
+✔ authored dates validate calendars, exact offsets and ambiguity; no caption or missing-year inference (1.710949ms)
+✔ chronology is authored updates, unknown last; original order remains byte-preserved (5.638439ms)
+✔ default activity includes stream additions across the full catalog, keeping authored/original lenses separate (5.729014ms)
+✔ only public source=update stream timestamps rank; archive/event dates and invalid timestamps do not (0.771984ms)
+✔ activity cover and exact occurrence follow the latest admitted matching stream row, without changing historical cover/order (1.805831ms)
+✔ activity is derived from matching rows only; equal/unknown dates have stable ordering without image reorder (1.131361ms)
+✔ AND/OR means the same image, dominant-only, year/range/type/text/OCR and partial coverage (0.966863ms)
+✔ progressive reading uses existing 12-row public gates; whole prefix is refreshed on append/withdrawal (3.98697ms)
+✔ shared source across two batches retains each exact occurrence once (3.68566ms)
+✔ reading links preserve only public filters and exact locator, never share credential or private return parameters (0.56689ms)
+✔ public OCR lookup gates publication/access, caps results, throws errors, never fetches text (0.843263ms)
+✔ exact gallery return preserves original/filtered locator only for this finding source (1.598905ms)
+✔ Gallery consumes existing source component and existing anonymous reader, not number matching or another corpus (1.851262ms)
+✔ one generic contract accepts a wide cross-domain branch (14.214275ms)
+✔ public projection filters private and personal evidence, entities and relations (7.001083ms)
+✔ unattested access claims never widen a projection (3.55754ms)
+✔ verified boundaries may project only their explicitly attested tiers (1.419929ms)
+✔ a private branch is completely withheld from a public consumer (1.12876ms)
+✔ Raziel receives the same generic context without canonical or publishing authority (1.696164ms)
+✔ all declared consumer families share the same branch identity contract (2.549366ms)
+✔ the same candidate evidence retains one finding and source identity across World, Topic and Number (2.048153ms)
+✔ a later input appears in projections only after recompiling the branch snapshot (2.424423ms)
+✔ dangling refs, dependency cycles, visual payload and canonical states fail closed (2.006747ms)
+✔ compiled branch and all nested evidence are immutable (1.49311ms)
+✔ news milestones and governed system methods compile as site-wide layers (1.758771ms)
+✔ special layers fail closed on overwrite semantics, unknown rules or lost raw identity (1.773644ms)
+✔ a Topic cannot inherit another Topic's media, source context, relations or prominence (1.768421ms)
+✔ a relation reference must agree with the exact source and projected edge id (0.481748ms)
+✔ the existing opener rejects unrelated endpoints and deduplicates exact repeated edges (0.510007ms)
+✔ missing or unavailable anchor is not an invented empty graph (0.456059ms)
+✔ conflicting copies of an edge and disagreeing endpoint identity fail closed (0.409182ms)
+✔ Topic connections use only exact edges adjacent to the current Topic, not a fallback endpoint (0.437273ms)
+✔ the unchanged canonical graph adapters satisfy the tightened opener contract (1.247402ms)
+✔ existing npm builds and isolation CI invoke the same acceptance command without weakening the Legacy lock (2.932189ms)
+✔ acceptance includes behavioral readers, exact source return, graph, method and privacy tests; not only a branch compiler (0.275818ms)
+✔ nonzero exit, signal and unavailable runner fail closed rather than passing a build (2.651534ms)
+✔ fixture acceptance rejects an accidental network call before it can leave the process (41.823846ms)
+✔ exact spellings and methods are fixed: התגלות במסתתר, וראית את אחרי ברגיל (2.131122ms)
+✔ a method card is confirmed only when the engine returned 1237 for that method; never computed locally (0.460188ms)
+✔ a failing reader yields 'failed', never a zero or a confirmation (0.50721ms)
+✔ a gate profile opens exact shared depth using a rendered slot, not an invented authored source path (0.509296ms)
+✔ missing, blank or boolean method values are not coerced to zero; a real zero remains valid (0.329503ms)
+✔ pagination advances over withheld and duplicate source rows instead of displayed item count (0.968602ms)
+✔ gallery pages use stored order (not importance) and keep only rows the public gate re-admitted (0.644384ms)
+✔ report time, event time, archive time and final result are separate fields (0.236917ms)
+✔ stored gallery dates stay provenance even for gematria and mixed hint sources (0.789086ms)
+✔ an explicit stored OCR selection keeps its exact range and cannot be replayed against changed or private source (0.937525ms)
+✔ public method depth keeps canonical identity, equal-value methods and zero; conflicting or unavailable rows are withheld (0.902263ms)
+✔ gate source number links use the existing 2029 address helper, not the legacy document handoff (0.891133ms)
+✔ a reviewed statement counts only while the live caption still contains the exact text (0.51294ms)
+✔ only evidence makes a tree relation: shared source, statement and candidate are not edges (0.662125ms)
+✔ Trump: report, calculation and interpretation stay separate and 1,237 is not the electors count (0.384344ms)
+✔ Israel elections: read from the owner bundle as an interpretation, not as the topic's parent (0.258224ms)
+✔ unified contract: one source keeps all its occurrences; no finding or tree edge is invented (0.920128ms)
+✔ isolation: gate files import no reader of their own and make no writes; CSS is scoped to .rv (1.780944ms)
+✔ hero keeps accessible structure: heading under the shell h1, spoken numeral, no raster dependency (1.424565ms)
+✔ authored single method and value retain expression, source path and exact destination (1.9724ms)
+✔ missing method with a numeric claim or a multi-expression row never guesses (0.210809ms)
+✔ unregistered mixed methods or value mismatch are explicitly unavailable (0.152953ms)
+✔ plain phrase with no numeric claim may use existing regular-first focus (0.219821ms)
+✔ profile failure and real zero are distinguished from absence (0.277946ms)
+✔ a later admitted finding appears through number and exact source on re-read without editing a contributor list (7.640423ms)
+✔ all-source number lookup admits different and unassigned contributors without changing identity (11.563172ms)
+✔ untrusted upstream cannot bypass privacy, review, exact value or contact guards (2.20796ms)
+✔ an unavailable, excluded or unsupported source never becomes public through an approved finding (1.313008ms)
+✔ keyset pagination survives empty review pages, has no duplicates and binds filters (2.712213ms)
+✔ literal text search cannot inject PostgREST selectors or broaden wildcards (0.535286ms)
+✔ exact source and explicit contributor filters remain narrow (0.503248ms)
+✔ zero is explicit, inputs bounded and unavailable readers do not claim an empty corpus (0.948824ms)
+✔ public gallery and post findings reuse exact source owners, never another occurrence or draft (29.243703ms)
+✔ exact public finding reader uses one row and at most two bounded enrichments (26.891781ms)
+✔ candidate and recorded attachment remain separately navigable in strength order; nonpublic topics stay out (1.715146ms)
+✔ reader fails closed for person-only, old-chat and Or Geula material (0.955906ms)
+✔ reader performs no fuzzy fallback and a rejected cached read can retry (0.723502ms)
+✔ public World transport never invokes the admin candidate RPC and narrows before transfer (1.295608ms)
+✔ guest DTO removes private, candidate, triage and search carriers without losing provenance (1.791658ms)
+✔ guest DTO never invents a source URL (0.189247ms)
+✔ public focused finding lookup is exact and fails closed (0.50236ms)
+ℹ tests 78
+ℹ suites 0
+ℹ pass 78
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 472.35064
+
+> sod1820@1.0.0 build
+> SOD_BUILD_TARGET=legacy vite build && SOD_BUILD_TARGET=2029 vite build
+
+vite v8.3.0 building client environment for production...
+transforming...
+✓ 1036 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                                            11.96 kB │ gzip:   3.16 kB
+dist/assets/Heichal2029Page-D0TmUesQ.css                    2.00 kB │ gzip:   0.65 kB
+dist/assets/NavigationIcon2029-CDR-JqlQ.css                 2.05 kB │ gzip:   0.57 kB
+dist/assets/EmailVerify-DM0qVGWZ.css                        2.26 kB │ gzip:   0.61 kB
+dist/assets/WatchButton-CGHE0eC_.css                        2.60 kB │ gzip:   0.86 kB
+dist/assets/LifeJourneyPicture2029-C2w5_9Wu.css             3.41 kB │ gzip:   1.01 kB
+dist/assets/ShareActions-DMXv2tqp.css                       4.37 kB │ gzip:   1.13 kB
+dist/assets/CurationMark2029-CqI6kfN0.css                   5.86 kB │ gzip:   1.41 kB
+dist/assets/LifeJourneyTimeMap2029-B0GStlK2.css             7.94 kB │ gzip:   1.70 kB
+dist/assets/WorldPeopleSources2029-DUOrQHGy.css            13.83 kB │ gzip:   3.57 kB
+dist/assets/SourceRepeatInfo2029-88DaStex.css              14.76 kB │ gzip:   3.08 kB
+dist/assets/SpatialMethodStage2029-C72jccAu.css            18.76 kB │ gzip:   3.53 kB
+dist/assets/BirthMapStudio2029-CSCyem6T.css                27.47 kB │ gzip:   4.93 kB
+dist/assets/EntityHubPreviewPage-B9LxMaLD.css              35.69 kB │ gzip:   8.47 kB
+dist/assets/LifeJourneyMaps2029-B8wdgier.css               37.40 kB │ gzip:   5.20 kB
+dist/assets/Home2029Page-BIyuRebh.css                      38.26 kB │ gzip:   8.08 kB
+dist/assets/NumberDrawer2029-Dpo0j-ZN.css                  81.65 kB │ gzip:  10.83 kB
+dist/assets/index-CfKGVYE6.css                             95.86 kB │ gzip:  14.02 kB
+dist/assets/World2029Page-C2qfexPj.css                    128.15 kB │ gzip:  17.78 kB
+dist/assets/Sod2029Shell-Isb_5JS-.css                     203.02 kB │ gzip:  29.91 kB
+dist/assets/ConvergenceGalaxy-Dc97ohbf.js                   0.09 kB │ gzip:   0.10 kB
+dist/assets/GematriaCalculator3D-Dc97ohbf.js                0.09 kB │ gzip:   0.10 kB
+dist/assets/worldPublicFindingReader-D7TPIohU.js            0.09 kB │ gzip:   0.10 kB
+dist/assets/razielRouteAction-BxSwUOfz.js                   0.12 kB │ gzip:   0.13 kB
+dist/assets/emailOtp-5JZExih-.js                            0.15 kB │ gzip:   0.13 kB
+dist/assets/methodIdentity-DM2yAcOz.js                      0.15 kB │ gzip:   0.15 kB
+dist/assets/galleryName-1Xu85ZpM.js                         0.16 kB │ gzip:   0.15 kB
+dist/assets/publicPostBoundary-loJKVlYR.js                  0.17 kB │ gzip:   0.17 kB
+dist/assets/heglyph-05D5-LOb6HEKZ.js                        0.21 kB │ gzip:   0.18 kB
+dist/assets/ExperiencePage-DxmCjGt_.js                      0.22 kB │ gzip:   0.18 kB
+dist/assets/HintRoomPage-DxmCjGt_.js                        0.22 kB │ gzip:   0.18 kB
+dist/assets/RoomEnter-DxmCjGt_.js                           0.22 kB │ gzip:   0.18 kB
+dist/assets/RoomsExperience-DxmCjGt_.js                     0.22 kB │ gzip:   0.18 kB
+dist/assets/heglyph-05D9-B_YrX9HN.js                        0.22 kB │ gzip:   0.18 kB
+dist/assets/heglyph-05DF-DQP8LRFM.js                        0.22 kB │ gzip:   0.18 kB
+dist/assets/NumbersPage-B83YrXEK.js                         0.22 kB │ gzip:   0.19 kB
+dist/assets/heglyph-05DA-BXs11XmZ.js                        0.22 kB │ gzip:   0.19 kB
+dist/assets/GalaxyPage-DdYCp5Pm.js                          0.23 kB │ gzip:   0.19 kB
+dist/assets/GalaxyRoom-DdYCp5Pm.js                          0.23 kB │ gzip:   0.19 kB
+dist/assets/Gematria3DPage-DdYCp5Pm.js                      0.23 kB │ gzip:   0.19 kB
+dist/assets/GematriaRevealPage-DdYCp5Pm.js                  0.23 kB │ gzip:   0.19 kB
+dist/assets/LaddersDemo-DdYCp5Pm.js                         0.23 kB │ gzip:   0.19 kB
+dist/assets/TorahOccurrenceScenePage-DdYCp5Pm.js            0.23 kB │ gzip:   0.19 kB
+dist/assets/heglyph-05D3-6YFcwobd.js                        0.24 kB │ gzip:   0.19 kB
+dist/assets/heglyph-05D6-DaXxehxk.js                        0.24 kB │ gzip:   0.20 kB
+dist/assets/heglyph-05DD-L8I6N5TY.js                        0.25 kB │ gzip:   0.20 kB
+dist/assets/researchViewMode-C4jXwaqF.js                    0.26 kB │ gzip:   0.23 kB
+dist/assets/heglyph-05DC-C69lWI1o.js                        0.28 kB │ gzip:   0.22 kB
+dist/assets/heglyph-05E6-FlRx0Rvh.js                        0.30 kB │ gzip:   0.23 kB
+dist/assets/topicCards-CRvr4T1r.js                          0.32 kB │ gzip:   0.27 kB
+dist/assets/heglyph-05E8-edNTbbZu.js                        0.33 kB │ gzip:   0.24 kB
+dist/assets/heglyph-05D7-CX8SPsAQ.js                        0.35 kB │ gzip:   0.25 kB
+dist/assets/heglyph-05D0-CKGBtLR5.js                        0.37 kB │ gzip:   0.28 kB
+dist/assets/heglyph-05E5-C21GLSbc.js                        0.38 kB │ gzip:   0.28 kB
+dist/assets/heglyph-05D1-B1gFy3cg.js                        0.40 kB │ gzip:   0.28 kB
+dist/assets/img--mXbSule.js                                 0.42 kB │ gzip:   0.29 kB
+dist/assets/heglyph-05E0-Bx-H3dv1.js                        0.42 kB │ gzip:   0.29 kB
+dist/assets/jsx-runtime-BtH0gOTJ.js                         0.42 kB │ gzip:   0.29 kB
+dist/assets/heglyph-05DB-ivUO1o9Z.js                        0.45 kB │ gzip:   0.31 kB
+dist/assets/heglyph-05D4-GYf9FmI6.js                        0.48 kB │ gzip:   0.32 kB
+dist/assets/razielOneShotGate2029-BGQ5wKgZ.js               0.50 kB │ gzip:   0.34 kB
+dist/assets/heglyph-05E7-BXwM3J1C.js                        0.54 kB │ gzip:   0.34 kB
+dist/assets/heglyph-05D2-DrL4oJOW.js                        0.57 kB │ gzip:   0.36 kB
+dist/assets/heglyph-05E3-BKTOkPHl.js                        0.58 kB │ gzip:   0.37 kB
+dist/assets/heglyph-05E2-BS0mo4Hy.js                        0.62 kB │ gzip:   0.39 kB
+dist/assets/razielViewMode2029-EPrCdoW9.js                  0.67 kB │ gzip:   0.41 kB
+dist/assets/heglyph-05DE-DJmFlPBJ.js                        0.68 kB │ gzip:   0.43 kB
+dist/assets/worldContributorSourceLocator-Cyr0YS9t.js       0.69 kB │ gzip:   0.38 kB
+dist/assets/heglyph-05EA-B9bd-MsZ.js                        0.69 kB │ gzip:   0.41 kB
+dist/assets/heglyph-05E9-YEIeGL5m.js                        0.69 kB │ gzip:   0.42 kB
+dist/assets/heglyph-05D8-DSJuZ8zj.js                        0.73 kB │ gzip:   0.42 kB
+dist/assets/heglyph-05E4-IjZvukfw.js                        0.79 kB │ gzip:   0.47 kB
+dist/assets/gpuCapability-CgzeQuuF.js                       0.82 kB │ gzip:   0.45 kB
+dist/assets/push-tEXk7xZK.js                                0.83 kB │ gzip:   0.47 kB
+dist/assets/followIdentity-ClCTfRcd.js                      0.93 kB │ gzip:   0.49 kB
+dist/assets/entity-fji0NCI5.js                              0.98 kB │ gzip:   0.54 kB
+dist/assets/journeyGuard-NHN6t9hs.js                        1.02 kB │ gzip:   0.53 kB
+dist/assets/crossesNew-BFsXfRNq.js                          1.03 kB │ gzip:   0.45 kB
+dist/assets/heglyph-05E1-C5Ty0rrC.js                        1.09 kB │ gzip:   0.59 kB
+dist/assets/NamePage-CODHn3hH.js                            1.19 kB │ gzip:   0.73 kB
+dist/assets/SearchTabs-DNIt5MLh.js                          1.19 kB │ gzip:   0.77 kB
+dist/assets/preload-helper-BZ1Pz5am.js                      1.21 kB │ gzip:   0.69 kB
+dist/assets/feedRanking-Dzisn5ek.js                         1.22 kB │ gzip:   0.67 kB
+dist/assets/canonicalGematriaProjection-D8CX2Gwq.js         1.24 kB │ gzip:   0.66 kB
+dist/assets/NotFoundPage-DG3ACUlS.js                        1.25 kB │ gzip:   0.73 kB
+dist/assets/propagation-DFEnZ-Ns.js                         1.26 kB │ gzip:   0.59 kB
+dist/assets/feedback-DCIrksSX.js                            1.41 kB │ gzip:   0.70 kB
+dist/assets/community-7QLYRzaK.js                           1.51 kB │ gzip:   0.62 kB
+dist/assets/SubscribeGate-BBqvkbM1.js                       1.52 kB │ gzip:   0.88 kB
+dist/assets/calculator2029Input-BbfftHdT.js                 1.60 kB │ gzip:   0.90 kB
+dist/assets/ReporterLink-CHMeZ7L7.js                        1.74 kB │ gzip:   0.97 kB
+dist/assets/CollectiveBadge-yu4tr-N_.js                     1.85 kB │ gzip:   1.05 kB
+dist/assets/worlds-KYnsBYfj.js                              1.86 kB │ gzip:   0.79 kB
+dist/assets/SiteUpdatesPage-B0p4GGrj.js                     1.92 kB │ gzip:   0.95 kB
+dist/assets/PulseRing-Dl6gYMJu.js                           1.92 kB │ gzip:   0.97 kB
+dist/assets/gematriaTrace-BIWS3Wmo.js                       1.94 kB │ gzip:   0.85 kB
+dist/assets/crossRarity-CnhxUtqn.js                         2.07 kB │ gzip:   1.00 kB
+dist/assets/RazielOneShotOffer2029-ZBzj4bKf.js              2.23 kB │ gzip:   1.02 kB
+dist/assets/designTokens-B8JmV1rE.js                        2.42 kB │ gzip:   1.05 kB
+dist/assets/ui-Cf7KS60I.js                                  2.49 kB │ gzip:   1.06 kB
+dist/assets/SiteUpdatesFeed-WrwHbvvt.js                     2.52 kB │ gzip:   1.14 kB
+dist/assets/elsMatrixReadingTransport-CeijFcO8.js           2.70 kB │ gzip:   1.47 kB
+dist/assets/AuthContext-LhADQc_G.js                         2.78 kB │ gzip:   1.30 kB
+dist/assets/reality-D6AZFzAI.js                             2.81 kB │ gzip:   1.26 kB
+dist/assets/worldLanguageTriageProjection-Bvms6ump.js       2.83 kB │ gzip:   1.28 kB
+dist/assets/StreamGate-C2t6tIS4.js                          2.91 kB │ gzip:   1.35 kB
+dist/assets/CommunityShadowPreview2029Page-Dc5umFVX.js      2.99 kB │ gzip:   1.37 kB
+dist/assets/beitMidrashMethodDefinition-Q3JEwaEe.js         3.03 kB │ gzip:   1.46 kB
+dist/assets/ProfilePage-C8Z6q-Hu.js                         3.12 kB │ gzip:   1.50 kB
+dist/assets/VerifiedPostsPage-BYIHCsdq.js                   3.28 kB │ gzip:   1.57 kB
+dist/assets/curationProjection2029-CSrHi2E9.js              3.38 kB │ gzip:   1.51 kB
+dist/assets/timeline2029-Bxb8eWzT.js                        3.47 kB │ gzip:   1.87 kB
+dist/assets/translit-BlnQJqbJ.js                            3.49 kB │ gzip:   1.70 kB
+dist/assets/UnsubscribePage-BJy_dyqX.js                     3.66 kB │ gzip:   1.66 kB
+dist/assets/LabIndex-Bsl3qmLP.js                            3.76 kB │ gzip:   1.71 kB
+dist/assets/react-dom-6cEjSHVw.js                           3.85 kB │ gzip:   1.39 kB
+dist/assets/englishGematria-mkHt3pC8.js                     3.88 kB │ gzip:   1.72 kB
+dist/assets/worldElsTriageProjection-C3dWrYEO.js            3.90 kB │ gzip:   1.69 kB
+dist/assets/ForumPage-CESY4gbm.js                           3.92 kB │ gzip:   1.68 kB
+dist/assets/ThemePage-B2egHkoW.js                           3.99 kB │ gzip:   1.80 kB
+dist/assets/researchRepresentations-DxY0_7iZ.js             4.14 kB │ gzip:   1.65 kB
+dist/assets/elsMatrixReadingAction-ByWAFNiU.js              4.31 kB │ gzip:   1.81 kB
+dist/assets/ForumThreadPage-DFbWAPWJ.js                     4.31 kB │ gzip:   1.90 kB
+dist/assets/publicPostUrls-Xx1oxHnD.js                      4.31 kB │ gzip:   1.89 kB
+dist/assets/zviMultiValueWorldProjection-BiL6BTUZ.js        4.37 kB │ gzip:   1.93 kB
+dist/assets/ResearchersIndexPage-lfe6Zn7a.js                4.52 kB │ gzip:   2.06 kB
+dist/assets/WaInboxPage-CylWvS-A.js                         4.53 kB │ gzip:   1.89 kB
+dist/assets/writerPersonal2029-DEF8FqiL.js                  4.54 kB │ gzip:   2.11 kB
+dist/assets/auth-DGUKS9gv.js                                4.57 kB │ gzip:   1.95 kB
+dist/assets/WaChatWindow-Dm9YKOFm.js                        4.65 kB │ gzip:   2.05 kB
+dist/assets/entityGraphFinding-lh7ZfHZF.js                  4.66 kB │ gzip:   1.86 kB
+dist/assets/lifeJourneySynthesisPack-CXTk3-TB.js            4.66 kB │ gzip:   1.91 kB
+dist/assets/numberExpressionFocus-DJEPwHzg.js               4.66 kB │ gzip:   2.28 kB
+dist/assets/contributorPublicationCatalog-C8FSOlQ3.js       4.73 kB │ gzip:   1.81 kB
+dist/assets/ResearchCodesPage-D-b3umGg.js                   4.87 kB │ gzip:   1.97 kB
+dist/assets/universalFinding-DZVlmLqu.js                    4.91 kB │ gzip:   1.87 kB
+dist/assets/tanakhVerseResultAdapter-C8LxS_sw.js            4.92 kB │ gzip:   1.92 kB
+dist/assets/share-qubjTGPY.js                               5.03 kB │ gzip:   2.61 kB
+dist/assets/AskRaziel-3XsD0A03.js                           5.22 kB │ gzip:   2.10 kB
+dist/assets/EmailVerify-C1UQSSKW.js                         5.23 kB │ gzip:   2.24 kB
+dist/assets/CurationMark2029-BjXQG6Cp.js                    5.39 kB │ gzip:   1.94 kB
+dist/assets/StartConcierge-D7hAiAcw.js                      5.39 kB │ gzip:   2.29 kB
+dist/assets/explorerFacets-9hOQ29tl.js                      5.49 kB │ gzip:   2.42 kB
+dist/assets/worldGalleryTriageProjection-k3XEvH5G.js        5.60 kB │ gzip:   2.31 kB
+dist/assets/commandCenter-Dy-MPtY_.js                       5.67 kB │ gzip:   1.99 kB
+dist/assets/AdminModerate-BntsLtPa.js                       5.79 kB │ gzip:   2.54 kB
+dist/assets/MaintenanceLock-dEhrdc0G.js                     6.07 kB │ gzip:   2.45 kB
+dist/assets/elsMatrices-DZzn-Zye.js                         6.18 kB │ gzip:   1.86 kB
+dist/assets/LifeJourneyTimeMap2029-B6YejgNw.js              6.34 kB │ gzip:   2.05 kB
+dist/assets/MethodAnalyze-CdE2czZQ.js                       6.45 kB │ gzip:   2.91 kB
+dist/assets/gematriaTracePresentation-gAt66jzM.js           6.48 kB │ gzip:   2.74 kB
+dist/assets/ActivityPulse-DgSEQ8sL.js                       6.65 kB │ gzip:   2.49 kB
+dist/assets/VideoAssetPage-Dlzuwm3a.js                      6.68 kB │ gzip:   2.91 kB
+dist/assets/PrivacyPage-lP5kdCXE.js                         6.75 kB │ gzip:   2.39 kB
+dist/assets/notifications-CN7wM7OC.js                       6.88 kB │ gzip:   2.68 kB
+dist/assets/BirthMapScene3D2029-Bmolos5C.js                 6.90 kB │ gzip:   2.35 kB
+dist/assets/canonicalPresentation-BIMBIep-.js               6.97 kB │ gzip:   2.70 kB
+dist/assets/researchObjectPresentation-l0ubBFKY.js          7.56 kB │ gzip:   3.44 kB
+dist/assets/deepAnalysis-DuYesapr.js                        7.68 kB │ gzip:   3.49 kB
+dist/assets/NumberSearchPage-DUhjgPx_.js                    7.68 kB │ gzip:   2.67 kB
+dist/assets/LifeJourneyPicture2029-CC5jffQ1.js              7.92 kB │ gzip:   2.64 kB
+dist/assets/ShareActions-B7_kb5TY.js                        8.01 kB │ gzip:   3.27 kB
+dist/assets/researchObjectFinding-bo3yYp1j.js               8.16 kB │ gzip:   3.01 kB
+dist/assets/numberDrawer-uXnNG4qF.js                        8.24 kB │ gzip:   3.17 kB
+dist/assets/react-DB-4Zxce.js                               8.52 kB │ gzip:   3.28 kB
+dist/assets/VerseGematriaPage-DmX40Eoi.js                   8.86 kB │ gzip:   3.22 kB
+dist/assets/timeFlow-Dj0TXFWT.js                            8.91 kB │ gzip:   4.11 kB
+dist/assets/JoinPage-DBPQbi8x.js                            9.01 kB │ gzip:   3.36 kB
+dist/assets/razielSavedSession2029-ZESM7j6i.js              9.11 kB │ gzip:   3.74 kB
+dist/assets/palette-CPjhY90V.js                             9.77 kB │ gzip:   3.67 kB
+dist/assets/CodePage-Ra10u_9-.js                            9.90 kB │ gzip:   3.71 kB
+dist/assets/worldDiscoveryStream-Bt3kZtkY.js               10.35 kB │ gzip:   4.08 kB
+dist/assets/OnboardingRitual-BSFlxDQ-.js                   10.38 kB │ gzip:   3.69 kB
+dist/assets/astrology-tySM8GSj.js                          10.41 kB │ gzip:   4.09 kB
+dist/assets/WelcomePage-DEi2gAqr.js                        11.00 kB │ gzip:   3.49 kB
+dist/assets/OrGeulaPage-ExYfgsrH.js                        11.07 kB │ gzip:   4.00 kB
+dist/assets/EntityHubRails-ARAa54nH.js                     11.19 kB │ gzip:   4.86 kB
+dist/assets/HomeReality-D6nFeQ30.js                        11.43 kB │ gzip:   4.64 kB
+dist/assets/WatchButton-B9I1cF7k.js                        11.75 kB │ gzip:   4.14 kB
+dist/assets/contributions-c8g1KmQ_.js                      11.76 kB │ gzip:   3.93 kB
+dist/assets/tracking-CIrBYerI.js                           11.81 kB │ gzip:   4.66 kB
+dist/assets/gematria-BAl9SHcH.js                           12.01 kB │ gzip:   4.44 kB
+dist/assets/ExplorerPreviewPage-CjW7KMqc.js                12.02 kB │ gzip:   4.52 kB
+dist/assets/MeaningLabPage-CTmqirZK.js                     12.83 kB │ gzip:   4.47 kB
+dist/assets/GalleryPage-JGl2gXFi.js                        12.89 kB │ gzip:   4.44 kB
+dist/assets/seo-BXW_IDPe.js                                12.92 kB │ gzip:   4.17 kB
+dist/assets/CreditsBuyPage-owdAmFi_.js                     13.31 kB │ gzip:   4.50 kB
+dist/assets/ContactGateway-DqzUe6pb.js                     14.09 kB │ gzip:   4.61 kB
+dist/assets/zviSpatialWorldProjection-BsjdEyx9.js          14.10 kB │ gzip:   5.25 kB
+dist/assets/Lightbox-BK2bZNk-.js                           14.25 kB │ gzip:   5.04 kB
+dist/assets/NavigationIcon2029-y1_MyjHv.js                 14.82 kB │ gzip:   5.38 kB
+dist/assets/worldContextualProminence-xdQd14gz.js          14.91 kB │ gzip:   5.17 kB
+dist/assets/BroadcastsPage-BmaKMDsM.js                     15.34 kB │ gzip:   5.71 kB
+dist/assets/TimelinePage-8TIWIrOZ.js                       15.97 kB │ gzip:   5.04 kB
+dist/assets/StartHerePage-ChtomQae.js                      16.73 kB │ gzip:   5.60 kB
+dist/assets/gematriaRelationW2Executor-DlZ0CdsS.js         17.18 kB │ gzip:   5.92 kB
+dist/assets/NavigationCenterPage-MBCGOTOa.js               18.63 kB │ gzip:   6.21 kB
+dist/assets/LanguagesPage-BOdGHqky.js                      18.91 kB │ gzip:   5.66 kB
+dist/assets/contributorFindingsProjection-BACm7EMT.js      19.11 kB │ gzip:   6.62 kB
+dist/assets/lifeJourneyFamilyAnalysis-CPmQ4sTr.js          19.66 kB │ gzip:   6.40 kB
+dist/assets/EntityHubPreviewPage-Dj2LN5T3.js               19.66 kB │ gzip:   5.85 kB
+dist/assets/topicConvergence-CJtJpC-s.js                   19.99 kB │ gzip:   6.19 kB
+dist/assets/CiphersLibraryPage-DNjzkuqJ.js                 21.03 kB │ gzip:   6.15 kB
+dist/assets/worldAllResearchProjection-BoBNHexq.js         21.28 kB │ gzip:   6.88 kB
+dist/assets/ThemePreviewPage-B_XgG7C_.js                   21.44 kB │ gzip:   6.41 kB
+dist/assets/elsBackgroundResearch-D2tSlvOY.js              22.32 kB │ gzip:   8.04 kB
+dist/assets/numericResearch-DEomXKWN.js                    22.50 kB │ gzip:   7.46 kB
+dist/assets/SourceRepeatInfo2029-BZQ-_ZVr.js               24.17 kB │ gzip:   8.49 kB
+dist/assets/JourneyPage-98sGeedr.js                        27.29 kB │ gzip:   7.76 kB
+dist/assets/theme-HcHo5R2L.js                              28.32 kB │ gzip:   7.35 kB
+dist/assets/WorldKnowledgeTypes2029-DPsLMMQA.js            29.07 kB │ gzip:   8.88 kB
+dist/assets/CipherPage-B9NX4FrZ.js                         29.61 kB │ gzip:   8.28 kB
+dist/assets/Heichal2029Page-DVGQWnNb.js                    30.88 kB │ gzip:   9.78 kB
+dist/assets/researchPlanV2-Bwmoi09-.js                     33.64 kB │ gzip:  10.21 kB
+dist/assets/semanticSceneCompiler-51BHTuhx.js              34.45 kB │ gzip:   9.23 kB
+dist/assets/MistaterScene3D2029-BsTg5DbV.js                34.48 kB │ gzip:  11.76 kB
+dist/assets/ResearchViewerV0Page-UtbyYOgH.js               34.70 kB │ gzip:  10.65 kB
+dist/assets/topicSourceContext-I9deOJhd.js                 35.09 kB │ gzip:  12.07 kB
+dist/assets/humandesign-DuBgKimA.js                        35.59 kB │ gzip:  12.47 kB
+dist/assets/ForumFeed-DzWhMN7A.js                          37.69 kB │ gzip:   9.97 kB
+dist/assets/CrossMethodPage-DwuK1G9s.js                    38.68 kB │ gzip:  10.64 kB
+dist/assets/Home2029Page-DQagGzjG.js                       38.81 kB │ gzip:  12.90 kB
+dist/assets/JourneyPageV2-CI3fkG7a.js                      38.83 kB │ gzip:   9.98 kB
+dist/assets/chunk-OB3PAWPO-nfuFZCfA.js                     39.09 kB │ gzip:  14.00 kB
+dist/assets/HomePage-VbxakcXp.js                           39.91 kB │ gzip:   9.54 kB
+dist/assets/GematriaCalculator-Ca1gvJFu.js                 40.92 kB │ gzip:  11.29 kB
+dist/assets/entityHubProjection-e159W6ZX.js                43.50 kB │ gzip:  13.44 kB
+dist/assets/SpatialMethodStage2029-Cx0AW9cF.js             43.97 kB │ gzip:  13.38 kB
+dist/assets/ResearchProvider-DQqOjA3d.js                   47.46 kB │ gzip:  16.22 kB
+dist/assets/PostEditorPage-CoDpEOft.js                     47.58 kB │ gzip:  14.53 kB
+dist/assets/razielSessionRequest2029--obhdrIj.js           48.85 kB │ gzip:  15.73 kB
+dist/assets/astronomy-DTJDghmj.js                          49.76 kB │ gzip:  21.78 kB
+dist/assets/BirthMapStudio2029-qgVpDb3w.js                 52.63 kB │ gzip:  17.79 kB
+dist/assets/NumberDrawer2029-Btos-CBM.js                   62.49 kB │ gzip:  17.21 kB
+dist/assets/BeitMidrashPage-CI-UI7bD.js                    78.32 kB │ gzip:  19.95 kB
+dist/assets/WorldPeopleSources2029-S2dyacr0.js             86.40 kB │ gzip:  27.05 kB
+dist/assets/LifeJourneyMaps2029-Cl9CBkPq.js                99.79 kB │ gzip:  27.89 kB
+dist/assets/WorldAllResearchTable-Bpmk6EeM.js             109.90 kB │ gzip:  22.69 kB
+dist/assets/ArchivePage-SAqQ06bk.js                       117.49 kB │ gzip:  28.55 kB
+dist/assets/ContributorPage-eOepF0Ps.js                   142.56 kB │ gzip:  35.72 kB
+dist/assets/EntityPage-DHyZIjLn.js                        143.40 kB │ gzip:  36.41 kB
+dist/assets/esm-BEypp4Te.js                               157.59 kB │ gzip:  54.43 kB
+dist/assets/post2029ReadingProjection-Cl-huPUp.js         228.58 kB │ gzip:  67.30 kB
+dist/assets/Sod2029Shell-C-vdN6z8.js                      257.32 kB │ gzip:  77.34 kB
+dist/assets/World2029Page-CwJhXIsy.js                     328.31 kB │ gzip: 100.15 kB
+dist/assets/supabase-4nFvhG_O.js                          334.30 kB │ gzip:  88.85 kB
+dist/assets/xlsx-BKER4Xe2.js                              423.91 kB │ gzip: 141.25 kB
+dist/assets/AdminPage-M8Jfo4xg.js                         825.61 kB │ gzip: 207.12 kB
+dist/assets/OrbitControls-ChJe_MUB.js                     927.32 kB │ gzip: 244.42 kB
+dist/assets/index-Bjp78ORA.js                           1,689.82 kB │ gzip: 464.09 kB
+
+[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+[33m[INEFFECTIVE_DYNAMIC_IMPORT] [0msrc/pages/AuthPage.jsx is dynamically imported by src/App.jsx but also statically imported by src/components/layout/Navbar.jsx, dynamic import will not move module into another chunk.
+
+[33m[INEFFECTIVE_DYNAMIC_IMPORT] [0msrc/pages/NameLabPage.jsx is dynamically imported by src/App.jsx but also statically imported by src/pages/NamePage.jsx, src/pages/ResearchPage.jsx, dynamic import will not move module into another chunk.
+
+✓ built in 1.54s
+vite v8.3.0 building client environment for production...
+transforming...
+✓ 911 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/2029.html                                                  5.13 kB │ gzip:   1.60 kB
+dist/assets/FoxitSymbol-BVtbc20u.pfb                           16.72 kB
+dist/assets/FoxitFixed-Dyd5Nipw.pfb                            17.59 kB
+dist/assets/FoxitFixedBold-D5TuYRwj.pfb                        18.05 kB
+dist/assets/FoxitFixedItalic-DqjQkmbS.pfb                      18.74 kB
+dist/assets/FoxitFixedBoldItalic-BqlXQ_Yv.pfb                  19.15 kB
+dist/assets/FoxitSerifBold-DZZ4CclT.pfb                        19.39 kB
+dist/assets/FoxitSerif-qbgiDIe-.pfb                            19.46 kB
+dist/assets/FoxitSerifBoldItalic-DSQtwd_X.pfb                  20.73 kB
+dist/assets/FoxitSerifItalic-CQs5lx9Y.pfb                      21.22 kB
+dist/assets/FoxitDingbats-BaQLufoW.pfb                         29.51 kB
+dist/.vite/manifest.json                                       79.10 kB │ gzip:   9.79 kB
+dist/assets/jbig2-BUnLb-NU.wasm                               103.67 kB │ gzip:  41.64 kB
+dist/assets/LiberationSans-BoldItalic-Bj53-jFw.ttf            135.12 kB
+dist/assets/LiberationSans-Bold-BPt4bU5Z.ttf                  137.05 kB
+dist/assets/LiberationSans-Regular-cbskN6YR.ttf               139.51 kB
+dist/assets/jbig2_nowasm_fallback-DHGs-rAY.js                 152.00 kB
+dist/assets/LiberationSans-Italic-5QhGB3P9.ttf                162.03 kB
+dist/assets/pdf.worker.min-CjEcRF4W.mjs                     1,264.34 kB
+dist/assets/IconTile2029-x-yAGhlc.css                           0.36 kB │ gzip:   0.22 kB
+dist/assets/CommunityChatTransition2029Page-DmiGmPl3.css        0.82 kB │ gzip:   0.45 kB
+dist/assets/postBackground2029-BdHzcWMl.css                     0.90 kB │ gzip:   0.38 kB
+dist/assets/CanonicalVerseCards2029-CPRZOX-b.css                1.21 kB │ gzip:   0.49 kB
+dist/assets/BookPdfPage2029-BuqFZgpH.css                        1.47 kB │ gzip:   0.50 kB
+dist/assets/Heichal2029Page-D0TmUesQ.css                        2.00 kB │ gzip:   0.65 kB
+dist/assets/NavigationIcon2029-CDR-JqlQ.css                     2.05 kB │ gzip:   0.57 kB
+dist/assets/WatchButton-DFPG23U2.css                            2.24 kB │ gzip:   0.77 kB
+dist/assets/EmailVerify-DM0qVGWZ.css                            2.26 kB │ gzip:   0.61 kB
+dist/assets/Timeline2029-a6_QYh8e.css                           2.29 kB │ gzip:   0.62 kB
+dist/assets/PostCategories2029-DP5c8Fzv.css                     2.50 kB │ gzip:   0.72 kB
+dist/assets/NumberDrawer2029-3cg9HINI.css                       2.65 kB │ gzip:   0.76 kB
+dist/assets/ZviFindingCards2029-5A-AK-p-.css                    2.73 kB │ gzip:   0.81 kB
+dist/assets/ConvergenceRatings2029-Bf7X875Q.css                 2.81 kB │ gzip:   0.91 kB
+dist/assets/LifeJourneyPicture2029-C2w5_9Wu.css                 3.41 kB │ gzip:   1.01 kB
+dist/assets/Researcher2029Page-D4T_P01o.css                     3.83 kB │ gzip:   1.09 kB
+dist/assets/ElsLexiconResearch2029-DqSBsmK1.css                 4.43 kB │ gzip:   1.01 kB
+dist/assets/ElsGuidedMatrixSnapshot2029-BnCaeKU4.css            4.48 kB │ gzip:   1.08 kB
+dist/assets/EarlyAccess2029Page-C98Kr9ay.css                    5.69 kB │ gzip:   1.59 kB
+dist/assets/CurationMark2029-CqI6kfN0.css                       5.86 kB │ gzip:   1.41 kB
+dist/assets/MaamarEstherInternalMap2029-DFtvBgPv.css            6.57 kB │ gzip:   1.56 kB
+dist/assets/SignatureResearchIcon-COpmmd5o.css                  6.93 kB │ gzip:   1.45 kB
+dist/assets/SourceRepeatInfo2029-DDIWPxqd.css                   7.14 kB │ gzip:   1.73 kB
+dist/assets/LifeJourneyTimeMap2029-B0GStlK2.css                 7.94 kB │ gzip:   1.70 kB
+dist/assets/Posts2029Page-D5SKG4Uo.css                          8.12 kB │ gzip:   1.84 kB
+dist/assets/Campaign718Page2029-BMzWO2mW.css                    9.56 kB │ gzip:   2.09 kB
+dist/assets/WorldPeopleSources2029-BRoxXZre.css                11.10 kB │ gzip:   3.06 kB
+dist/assets/Gallery2029Page-DZF05mHq.css                       11.62 kB │ gzip:   2.71 kB
+dist/assets/Revelation1237Gate2029-CyyXTMQp.css                12.23 kB │ gzip:   3.49 kB
+dist/assets/WriterPersonal2029Page-BNlMy8uG.css                14.57 kB │ gzip:   3.02 kB
+dist/assets/RealityRiver2029-BzMsP3iY.css                      15.71 kB │ gzip:   3.88 kB
+dist/assets/Books2029Page-i0_aj6TH.css                         16.97 kB │ gzip:   3.31 kB
+dist/assets/HomePreview2029Page-DTom73Gj.css                   17.51 kB │ gzip:   3.73 kB
+dist/assets/SpatialMethodStage2029-C72jccAu.css                18.76 kB │ gzip:   3.53 kB
+dist/assets/Home2029Page-h2C-6HLd.css                          22.54 kB │ gzip:   5.00 kB
+dist/assets/PublicContributor2029Page-sLg5GFFE.css             24.44 kB │ gzip:   5.08 kB
+dist/assets/StoryTreeSequence2029-CmeGTnuu.css                 26.81 kB │ gzip:   4.94 kB
+dist/assets/BirthMapStudio2029-CSCyem6T.css                    27.47 kB │ gzip:   4.93 kB
+dist/assets/BeitMidrash2029Page-Cuot8mpR.css                   30.65 kB │ gzip:   5.63 kB
+dist/assets/EntityHubPreviewPage-B9LxMaLD.css                  35.69 kB │ gzip:   8.47 kB
+dist/assets/LifeJourneyMaps2029-B8wdgier.css                   37.40 kB │ gzip:   5.20 kB
+dist/assets/CommunityLive2029-mqPzt_Lz.css                     49.00 kB │ gzip:   7.91 kB
+dist/assets/LifeJourney2029Page-12yJ-sXF.css                   64.59 kB │ gzip:   8.80 kB
+dist/assets/Number2029Page-D3BIBjoI.css                        66.81 kB │ gzip:   9.63 kB
+dist/assets/NumberCore2029-DoOroEE7.css                        75.62 kB │ gzip:   9.94 kB
+dist/assets/Post2029Page-C8QKdY7Q.css                          80.40 kB │ gzip:  13.13 kB
+dist/assets/Els2029Page-Z0ZqtOUq.css                           94.36 kB │ gzip:  13.89 kB
+dist/assets/World2029Page-TTxOQlbD.css                        101.34 kB │ gzip:  13.81 kB
+dist/assets/2029-Bdk_N1FJ.css                                 245.71 kB │ gzip:  36.17 kB
+dist/assets/methodIdentity-DM2yAcOz.js                          0.15 kB │ gzip:   0.15 kB
+dist/assets/heglyph-05D5-LOb6HEKZ.js                            0.21 kB │ gzip:   0.18 kB
+dist/assets/heglyph-05D9-B_YrX9HN.js                            0.22 kB │ gzip:   0.18 kB
+dist/assets/heglyph-05DF-DQP8LRFM.js                            0.22 kB │ gzip:   0.18 kB
+dist/assets/interactionCorrelation-FQ0p8I44.js                  0.22 kB │ gzip:   0.17 kB
+dist/assets/heglyph-05DA-BXs11XmZ.js                            0.22 kB │ gzip:   0.19 kB
+dist/assets/publicPostBoundary-DLBRu07Y.js                      0.24 kB │ gzip:   0.21 kB
+dist/assets/heglyph-05D3-6YFcwobd.js                            0.24 kB │ gzip:   0.19 kB
+dist/assets/heglyph-05D6-DaXxehxk.js                            0.24 kB │ gzip:   0.20 kB
+dist/assets/heglyph-05DD-L8I6N5TY.js                            0.25 kB │ gzip:   0.20 kB
+dist/assets/canonicalGematria-BqSfczk-.js                       0.27 kB │ gzip:   0.22 kB
+dist/assets/push-C2pn3F7l.js                                    0.28 kB │ gzip:   0.23 kB
+dist/assets/heglyph-05DC-C69lWI1o.js                            0.28 kB │ gzip:   0.22 kB
+dist/assets/heglyph-05E6-FlRx0Rvh.js                            0.30 kB │ gzip:   0.23 kB
+dist/assets/PostTimeline2029-N_-uYK16.js                        0.32 kB │ gzip:   0.24 kB
+dist/assets/heglyph-05E8-edNTbbZu.js                            0.33 kB │ gzip:   0.24 kB
+dist/assets/heglyph-05D7-CX8SPsAQ.js                            0.35 kB │ gzip:   0.25 kB
+dist/assets/heglyph-05D0-CKGBtLR5.js                            0.37 kB │ gzip:   0.28 kB
+dist/assets/heglyph-05E5-C21GLSbc.js                            0.38 kB │ gzip:   0.28 kB
+dist/assets/heglyph-05D1-B1gFy3cg.js                            0.40 kB │ gzip:   0.28 kB
+dist/assets/img--mXbSule.js                                     0.42 kB │ gzip:   0.29 kB
+dist/assets/heglyph-05E0-Bx-H3dv1.js                            0.42 kB │ gzip:   0.29 kB
+dist/assets/contributions--6OlB45R.js                           0.43 kB │ gzip:   0.29 kB
+dist/assets/heglyph-05DB-ivUO1o9Z.js                            0.45 kB │ gzip:   0.31 kB
+dist/assets/heglyph-05D4-GYf9FmI6.js                            0.48 kB │ gzip:   0.32 kB
+dist/assets/IconTile2029-C10WQ2TG.js                            0.49 kB │ gzip:   0.34 kB
+dist/assets/razielOneShotGate2029-DQ3LR88g.js                   0.50 kB │ gzip:   0.34 kB
+dist/assets/heglyph-05E7-BXwM3J1C.js                            0.54 kB │ gzip:   0.34 kB
+dist/assets/heglyph-05D2-DrL4oJOW.js                            0.57 kB │ gzip:   0.36 kB
+dist/assets/heglyph-05E3-BKTOkPHl.js                            0.58 kB │ gzip:   0.37 kB
+dist/assets/SurfaceSectionNav2029-Dcy7JKj5.js                   0.61 kB │ gzip:   0.45 kB
+dist/assets/heglyph-05E2-BS0mo4Hy.js                            0.62 kB │ gzip:   0.39 kB
+dist/assets/razielViewMode2029-EPrCdoW9.js                      0.67 kB │ gzip:   0.41 kB
+dist/assets/heglyph-05DE-DJmFlPBJ.js                            0.68 kB │ gzip:   0.43 kB
+dist/assets/worldContributorSourceLocator-Cyr0YS9t.js           0.69 kB │ gzip:   0.38 kB
+dist/assets/heglyph-05EA-B9bd-MsZ.js                            0.69 kB │ gzip:   0.41 kB
+dist/assets/heglyph-05E9-YEIeGL5m.js                            0.69 kB │ gzip:   0.42 kB
+dist/assets/heglyph-05D8-DSJuZ8zj.js                            0.73 kB │ gzip:   0.42 kB
+dist/assets/heglyph-05E4-IjZvukfw.js                            0.79 kB │ gzip:   0.47 kB
+dist/assets/gpuCapability-CgzeQuuF.js                           0.82 kB │ gzip:   0.45 kB
+dist/assets/OAuthCallback2029-DmxPhfiq.js                       1.00 kB │ gzip:   0.63 kB
+dist/assets/heglyph-05E1-C5Ty0rrC.js                            1.09 kB │ gzip:   0.59 kB
+dist/assets/SignatureResearchIcon-DYnuhf6V.js                   1.13 kB │ gzip:   0.51 kB
+dist/assets/CanonicalVerseCards2029-BXh5ncYP.js                 1.13 kB │ gzip:   0.64 kB
+dist/assets/NotFoundPage-D0eLh91i.js                            1.21 kB │ gzip:   0.71 kB
+dist/assets/preload-helper-BZ1Pz5am.js                          1.21 kB │ gzip:   0.69 kB
+dist/assets/canonicalGematriaProjection-B66_nJSZ.js             1.24 kB │ gzip:   0.66 kB
+dist/assets/Auth2029Page-Clr19rRG.js                            1.38 kB │ gzip:   0.76 kB
+dist/assets/PublicPostAddress2029Page-CyeTQjfX.js               1.50 kB │ gzip:   0.83 kB
+dist/assets/format-DZ_iukPG.js                                  1.50 kB │ gzip:   0.72 kB
+dist/assets/calculator2029Input-BbfftHdT.js                     1.60 kB │ gzip:   0.90 kB
+dist/assets/timeFlow-B3Pve8h-.js                                1.71 kB │ gzip:   0.88 kB
+dist/assets/ZviFindingCards2029-qxkWWp60.js                     1.71 kB │ gzip:   0.84 kB
+dist/assets/NumberAddress2029Page-cI0KL_nQ.js                   1.75 kB │ gzip:   0.93 kB
+dist/assets/theme-B2UPacu4.js                                   1.80 kB │ gzip:   0.87 kB
+dist/assets/worldJourneyProjection-Bezonf-p.js                  1.95 kB │ gzip:   1.10 kB
+dist/assets/Timeline2029-BUxnDzGl.js                            2.13 kB │ gzip:   0.82 kB
+dist/assets/ElsPairPlanner2029-Cyx-h1SG.js                      2.14 kB │ gzip:   1.13 kB
+dist/assets/RazielOneShotOffer2029-tlXSM04U.js                  2.20 kB │ gzip:   1.01 kB
+dist/assets/elsMatrixReadingTransport-acsns80I.js               2.69 kB │ gzip:   1.48 kB
+dist/assets/AuthContext-CkPOqA6x.js                             2.79 kB │ gzip:   1.31 kB
+dist/assets/worldLanguageTriageProjection-ChskvB8n.js           2.83 kB │ gzip:   1.27 kB
+dist/assets/publicPostUrls-YFBPKNgf.js                          2.83 kB │ gzip:   1.29 kB
+dist/assets/elsBackgroundResearch-4VaFcT7v.js                   2.98 kB │ gzip:   1.52 kB
+dist/assets/numberExpressionFocus-BTJ_6H0G.js                   3.00 kB │ gzip:   1.36 kB
+dist/assets/hints-fTsjTnel.js                                   3.06 kB │ gzip:   1.25 kB
+dist/assets/elsMatrices-BrtdFBMK.js                             3.23 kB │ gzip:   1.39 kB
+dist/assets/worldProminenceInputs-sOfTCSBC.js                   3.41 kB │ gzip:   1.25 kB
+dist/assets/postSourceUpdates2029-DmZjuVxM.js                   3.64 kB │ gzip:   1.65 kB
+dist/assets/CommunityChatTransition2029Page-CwMH9eUX.js         3.85 kB │ gzip:   1.87 kB
+dist/assets/react-dom-DenslgJm.js                               3.86 kB │ gzip:   1.39 kB
+dist/assets/worldElsTriageProjection-BHWBy0XF.js                3.90 kB │ gzip:   1.69 kB
+dist/assets/timeline2029-udVpuVjW.js                            4.10 kB │ gzip:   2.14 kB
+dist/assets/elsResearchReturnSnapshot-B03Lyzta.js               4.13 kB │ gzip:   1.59 kB
+dist/assets/zviMultiValueWorldProjection-Bzij2f_x.js            4.36 kB │ gzip:   1.93 kB
+dist/assets/auth-DNlzJ-ro.js                                    4.47 kB │ gzip:   1.96 kB
+dist/assets/curationProjection2029-Hbh_QSoa.js                  4.53 kB │ gzip:   1.95 kB
+dist/assets/lifeJourneySynthesisPack-mP1UC7mH.js                4.67 kB │ gzip:   1.92 kB
+dist/assets/elsRazielPlanning-CIfQ3lmJ.js                       4.81 kB │ gzip:   2.00 kB
+dist/assets/publicWorldContentProjectionV1-DVgRVLRF.js          4.86 kB │ gzip:   1.59 kB
+dist/assets/universalFinding-DZVlmLqu.js                        4.91 kB │ gzip:   1.87 kB
+dist/assets/ElsOccurrencePlanner2029-6zrfYl7e.js                5.11 kB │ gzip:   2.15 kB
+dist/assets/EmailVerify-jxY6x8bc.js                             5.19 kB │ gzip:   2.23 kB
+dist/assets/CurationMark2029-CIHOzu2x.js                        5.36 kB │ gzip:   1.93 kB
+dist/assets/ConvergenceRatings2029-Bl4NCLEt.js                  5.41 kB │ gzip:   2.02 kB
+dist/assets/worldGalleryTriageProjection-C38gig0W.js            5.60 kB │ gzip:   2.31 kB
+dist/assets/WorldZviSourceFindings2029-BeKzvIbN.js              5.92 kB │ gzip:   2.61 kB
+dist/assets/ElsGuidedMatrixSnapshot2029-zPWqpr2W.js             6.22 kB │ gzip:   2.24 kB
+dist/assets/LifeJourneyTimeMap2029-Ca3uK1E8.js                  6.31 kB │ gzip:   2.03 kB
+dist/assets/gematriaTracePresentation-CX847u8G.js               6.48 kB │ gzip:   2.75 kB
+dist/assets/worldContributorLens-D7C09SmV.js                    6.51 kB │ gzip:   2.45 kB
+dist/assets/BirthMapScene3D2029-DCYMAPib.js                     6.87 kB │ gzip:   2.33 kB
+dist/assets/NumberZviPublicResearch2029-DmkZpj64.js             6.97 kB │ gzip:   2.82 kB
+dist/assets/Video2029Page-DfmwU9rD.js                           7.03 kB │ gzip:   3.07 kB
+dist/assets/worldMapViewModel2029-DJMI18u1.js                   7.36 kB │ gzip:   2.90 kB
+dist/assets/MaamarEstherInternalMap2029-BBkoOGws.js             7.46 kB │ gzip:   2.66 kB
+dist/assets/canonicalPresentation-DgNmWnf_.js                   7.54 kB │ gzip:   2.90 kB
+dist/assets/gematria-Ud5dslyW.js                                7.54 kB │ gzip:   3.06 kB
+dist/assets/researchObjectPresentation-l0ubBFKY.js              7.56 kB │ gzip:   3.44 kB
+dist/assets/postBackground2029-BcJThemJ.js                      7.71 kB │ gzip:   3.33 kB
+dist/assets/LifeJourneyPicture2029-DPn8EFow.js                  7.89 kB │ gzip:   2.62 kB
+dist/assets/gematriaRelationW2Executor-D-cGF1B2.js              8.02 kB │ gzip:   3.07 kB
+dist/assets/researchObjectFinding-bo3yYp1j.js                   8.16 kB │ gzip:   3.01 kB
+dist/assets/EarlyAccess2029Page-Dx5oX8F0.js                     8.26 kB │ gzip:   3.10 kB
+dist/assets/ReportHint-CbyZJ0c4.js                              8.44 kB │ gzip:   3.25 kB
+dist/assets/ProfileSettings-pgLBXr5h.js                         8.45 kB │ gzip:   3.74 kB
+dist/assets/home2029Projection-DRpCSE6d.js                      8.69 kB │ gzip:   3.48 kB
+dist/assets/jsx-runtime-D3jfb0Ew.js                             8.90 kB │ gzip:   3.38 kB
+dist/assets/razielSavedSession2029-BjveZbuD.js                  9.05 kB │ gzip:   3.71 kB
+dist/assets/bookResearchProjection-BN0v7Ys4.js                  9.24 kB │ gzip:   3.69 kB
+dist/assets/researchResultBundle-DlkBAyNc.js                    9.31 kB │ gzip:   3.44 kB
+dist/assets/palette-1YiE1zgV.js                                 9.55 kB │ gzip:   3.59 kB
+dist/assets/tracking-9lU82h_h.js                                9.75 kB │ gzip:   3.94 kB
+dist/assets/worldPublicFindingReader-BtTSxVuQ.js               10.02 kB │ gzip:   4.22 kB
+dist/assets/PostCategories2029-D0sDda4v.js                     10.04 kB │ gzip:   4.22 kB
+dist/assets/topicExpressionFocus2029-DtX-CFCZ.js               10.35 kB │ gzip:   4.36 kB
+dist/assets/astrology-tySM8GSj.js                              10.41 kB │ gzip:   4.09 kB
+dist/assets/worldDiscoveryStream-BlI2fjpM.js                   10.46 kB │ gzip:   4.13 kB
+dist/assets/Campaign718Page2029-Cz_XGjfc.js                    11.19 kB │ gzip:   4.14 kB
+dist/assets/WatchButton-BomrTazI.js                            11.39 kB │ gzip:   4.00 kB
+dist/assets/RealityRiver2029-BiQxJNTE.js                       11.67 kB │ gzip:   4.14 kB
+dist/assets/SourceRepeatInfo2029-Cu-fYqxh.js                   11.85 kB │ gzip:   4.66 kB
+dist/assets/Posts2029Page-CxOuKJVG.js                          13.32 kB │ gzip:   4.78 kB
+dist/assets/ContactGateway-wgwigShb.js                         14.07 kB │ gzip:   4.59 kB
+dist/assets/numberCoreProjection-DfoB7YjY.js                   14.07 kB │ gzip:   5.42 kB
+dist/assets/ControlPlane2029Page-GrjdeNc2.js                   14.08 kB │ gzip:   4.56 kB
+dist/assets/zviSpatialWorldProjection-DrRxm1mW.js              14.10 kB │ gzip:   5.25 kB
+dist/assets/NavigationIcon2029-CH1qZpiS.js                     14.79 kB │ gzip:   5.37 kB
+dist/assets/worldContextualProminence-DFYM9dQz.js              14.91 kB │ gzip:   5.17 kB
+dist/assets/PublicServices2029Page-ChfNBIdl.js                 15.38 kB │ gzip:   5.26 kB
+dist/assets/NumberDrawer2029-PR6KDVrx.js                       15.64 kB │ gzip:   5.38 kB
+dist/assets/Community2029Page-CRgOPh5t.js                      15.98 kB │ gzip:   5.15 kB
+dist/assets/Researcher2029Page-CbUnW4Zg.js                     16.54 kB │ gzip:   5.72 kB
+dist/assets/numberSystemMethods-B3R9fQH-.js                    17.20 kB │ gzip:   5.71 kB
+dist/assets/HomePreview2029Page-DNf0dM9S.js                    19.60 kB │ gzip:   5.77 kB
+dist/assets/EntityHubPreviewPage-BQSdiJiB.js                   19.65 kB │ gzip:   5.84 kB
+dist/assets/topicConvergence-CZ3gJk_x.js                       19.99 kB │ gzip:   6.19 kB
+dist/assets/els2029ReplayClient-DPA8f4nQ.js                    20.37 kB │ gzip:   7.29 kB
+dist/assets/lifeJourneyFamilyAnalysis-B8Dvbmmy.js              21.55 kB │ gzip:   7.06 kB
+dist/assets/numericResearch-DqZcmZHs.js                        23.29 kB │ gzip:   7.77 kB
+dist/assets/post2029ExperienceProjection-BM0gO7jI.js           23.47 kB │ gzip:   8.26 kB
+dist/assets/Heichal2029Page-Bwt3iwz-.js                        24.78 kB │ gzip:   7.77 kB
+dist/assets/WorldKnowledgeTypes2029-BBdygnMK.js                26.69 kB │ gzip:   7.70 kB
+dist/assets/contributorSourceCatalogProjection-HemI30n3.js     26.94 kB │ gzip:   9.08 kB
+dist/assets/Home2029Page-B_Gg7G_k.js                           27.21 kB │ gzip:   8.93 kB
+dist/assets/Revelation1237Gate2029-BKJjQKJF.js                 28.49 kB │ gzip:   8.81 kB
+dist/assets/Gallery2029Page-Ct4kOE2U.js                        32.65 kB │ gzip:   9.90 kB
+dist/assets/researchPlanV2-DMjYFG5S.js                         33.62 kB │ gzip:  10.20 kB
+dist/assets/semanticSceneCompiler-51BHTuhx.js                  34.45 kB │ gzip:   9.23 kB
+dist/assets/MistaterScene3D2029-DCJmxvmP.js                    34.45 kB │ gzip:  11.75 kB
+dist/assets/humandesign-DuBgKimA.js                            35.59 kB │ gzip:  12.47 kB
+dist/assets/NumberCore2029-BqaLUiMs.js                         36.86 kB │ gzip:   9.99 kB
+dist/assets/chunk-OB3PAWPO-CVMmBO49.js                         38.94 kB │ gzip:  13.96 kB
+dist/assets/ElsLexiconResearch2029-DPGrK8sE.js                 39.58 kB │ gzip:  12.30 kB
+dist/assets/worldZviApprovedFindings2029-DN_ZhowX.js           40.12 kB │ gzip:  18.49 kB
+dist/assets/ResearchProvider-DiXWQrdR.js                       42.60 kB │ gzip:  14.19 kB
+dist/assets/razielSessionRequest2029-uJQQcXar.js               43.99 kB │ gzip:  14.23 kB
+dist/assets/SpatialMethodStage2029-CEKi1XsC.js                 44.09 kB │ gzip:  13.17 kB
+dist/assets/Topic2029Page-CrIwMCvU.js                          46.51 kB │ gzip:  14.19 kB
+dist/assets/entityHubProjection-CnZrxkMn.js                    48.93 kB │ gzip:  15.11 kB
+dist/assets/astronomy-DTJDghmj.js                              49.76 kB │ gzip:  21.78 kB
+dist/assets/BirthMapStudio2029-DvOE_dWv.js                     50.98 kB │ gzip:  16.97 kB
+dist/assets/electionsIsrael21_26Seed2029-BcAmm04s.js           55.70 kB │ gzip:  15.80 kB
+dist/assets/module-Dut4nRCB.js                                 56.73 kB │ gzip:  16.49 kB
+dist/assets/WriterPersonal2029Page-OZnLQoEl.js                 57.38 kB │ gzip:  18.12 kB
+dist/assets/Post2029Page-kQ_l5d6_.js                           58.52 kB │ gzip:  18.61 kB
+dist/assets/WorldPeopleSources2029-Db5eDKqt.js                 61.63 kB │ gzip:  18.85 kB
+dist/assets/BeitMidrash2029Page-C49_PbsW.js                    62.74 kB │ gzip:  18.48 kB
+dist/assets/StoryTreeSequence2029-Di6ssMJh.js                  63.40 kB │ gzip:  19.83 kB
+dist/assets/LifeJourneyMaps2029-B1mdSOxe.js                    65.93 kB │ gzip:  17.72 kB
+dist/assets/CommunityLive2029-4ON0hUFt.js                      84.56 kB │ gzip:  26.48 kB
+dist/assets/Number2029Page-DXCz3vsn.js                         89.14 kB │ gzip:  27.21 kB
+dist/assets/PublicContributor2029Page-D2SIHkxs.js              94.97 kB │ gzip:  28.64 kB
+dist/assets/WorldAllResearchTable-1LJIiNiP.js                 109.91 kB │ gzip:  22.69 kB
+dist/assets/Books2029Page-CnAaHT-I.js                         132.44 kB │ gzip:  39.80 kB
+dist/assets/dayContext-DQm1CoPT.js                            158.84 kB │ gzip:  54.99 kB
+dist/assets/World2029Page-DJD-_j8R.js                         161.87 kB │ gzip:  43.16 kB
+dist/assets/LifeJourney2029Page-BKortn-e.js                   184.07 kB │ gzip:  49.85 kB
+dist/assets/post2029ReadingProjection-Bz1KO05C.js             186.78 kB │ gzip:  55.87 kB
+dist/assets/supabase-vKy-fIFQ.js                              194.27 kB │ gzip:  50.45 kB
+dist/assets/Els2029Page-Bisp48zW.js                           277.99 kB │ gzip:  82.80 kB
+dist/assets/BookPdfPage2029-Dzx1DCeK.js                       436.55 kB │ gzip: 131.59 kB
+dist/assets/2029-BkIGpzJZ.js                                  737.47 kB │ gzip: 226.94 kB
+dist/assets/OrbitControls-Cw_nS8k2.js                         927.28 kB │ gzip: 244.40 kB
+
+[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+[33m[INEFFECTIVE_DYNAMIC_IMPORT] [0msrc/components/experience2029/Sod2029Shell.jsx is dynamically imported by src/App2029.jsx but also statically imported by src/components/beitMidrash2029/BeitMidrashGuided.jsx, src/components/beitMidrash2029/BeitMidrashMethods.jsx, src/components/beitMidrash2029/BeitMidrashParticipate.jsx, src/components/community2029/CommunityLive2029.jsx, src/components/contributor2029/ContributorActionsController2029.jsx, ..., dynamic import will not move module into another chunk.
+
+✓ built in 1.20s

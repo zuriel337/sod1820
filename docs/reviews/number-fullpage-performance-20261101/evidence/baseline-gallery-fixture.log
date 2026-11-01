@@ -1,0 +1,23 @@
+6:20:44 AM [vite] (client) [Unhandled error] SyntaxError: The requested module '/@id/__x00__topic-sheet:backend.jsx' does not provide an export named 'getRealityHints'
+
+✖ native gallery uses exact public occurrences and canonical method navigation with return (12691.584449ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 13303.183011
+
+✖ failing tests:
+
+test at test/topic-number-sheet-2029.browser.test.mjs:227:1
+✖ native gallery uses exact public occurrences and canonical method navigation with return (12691.584449ms)
+  locator.waitFor: Timeout 10000ms exceeded.
+  Call log:
+  [2m  - waiting for locator('[data-gallery-image-id="10000000-0000-4000-8000-000000008107"]') to be visible[22m
+  
+      at TestContext.<anonymous> (/workspace/sod1820-community1187-unified/test/topic-number-sheet-2029.browser.test.mjs:245:83) {
+    name: 'TimeoutError'
+  }

@@ -1,0 +1,33 @@
+✔ Topic mounts the same public number lens only in its public body (2.646274ms)
+✖ Topic number lens preserves public gates, pagination, new findings and exact source return (16762.312371ms)
+✖ World all-source text discovery is explicit, public and preserves query on exact return (17397.335248ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 1
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 34818.597545
+
+✖ failing tests:
+
+test at test/topic-public-findings-via-number-2029.browser.test.mjs:118:1
+✖ Topic number lens preserves public gates, pagination, new findings and exact source return (16762.312371ms)
+  locator.waitFor: Timeout 10000ms exceeded.
+  Call log:
+  [2m  - waiting for locator('#topic-number-research-1118').getByRole('button', { name: 'הצגת ממצאים למספר', exact: true }) to be visible[22m
+  
+      at TestContext.<anonymous> (/workspace/sod1820-community1187-unified/test/topic-public-findings-via-number-2029.browser.test.mjs:173:39) {
+    name: 'TimeoutError'
+  }
+
+test at test/topic-public-findings-via-number-2029.browser.test.mjs:217:1
+✖ World all-source text discovery is explicit, public and preserves query on exact return (17397.335248ms)
+  locator.click: Timeout 15000ms exceeded.
+  Call log:
+  [2m  - waiting for getByRole('region', { name: 'ממצאים בכל המקורות', exact: true }).getByRole('button', { name: 'הצגת הממצאים המאושרים', exact: true })[22m
+  
+      at TestContext.<anonymous> (/workspace/sod1820-community1187-unified/test/topic-public-findings-via-number-2029.browser.test.mjs:253:89) {
+    name: 'TimeoutError'
+  }
