@@ -20,16 +20,22 @@ export function useApproach2029(enabled = true, { rootMargin = "256px 0px", layo
         if (target && element.contains(target)) admit();
       } catch { /* A malformed fragment is not intent for this section. */ }
     };
+    const admitScrolledSection = () => {
+      const rect = element.getBoundingClientRect();
+      if (rect.top < window.innerHeight && rect.bottom > 0) admit();
+    };
     observer?.observe(element);
     element.addEventListener("focusin", admit);
     element.addEventListener("pointerenter", admit);
     window.addEventListener("hashchange", admitFragment);
+    if (!layoutReady) window.addEventListener("scroll", admitScrolledSection, { passive: true });
     admitFragment();
     return () => {
       observer?.disconnect();
       element.removeEventListener("focusin", admit);
       element.removeEventListener("pointerenter", admit);
       window.removeEventListener("hashchange", admitFragment);
+      window.removeEventListener("scroll", admitScrolledSection);
     };
   }, [enabled, admitted, rootMargin, layoutReady]);
   return [ref, admitted];

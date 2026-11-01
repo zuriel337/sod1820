@@ -58,10 +58,11 @@ try{
    const row={version,sha:c.sha,width,pair,repeat,postHref,workerHash,steps,totalMs:steps.reduce((n,s)=>n+s.ms,0)};out.results.push(row);fs.writeFileSync(outDir+'/native-cycle-progress.json',JSON.stringify(out,null,2)+'\n');console.log(JSON.stringify({version,width,pair,repeat,totalMs:Math.round(row.totalMs),maxCLS:Math.max(...steps.map(s=>s.cls))}));
    phase='unmeasured-world-preparation';await menu();await readyWorld();
   }
+  const documentCls=cls(await page.evaluate(()=>window.__nativeShifts||[]));for(const row of out.results.filter(r=>r.version===version&&r.width===width&&r.pair===pair))row.documentCls=documentCls;
   if(cfg.profileCpu){const {profile}=await cdp.send('Profiler.stop');fs.writeFileSync(`${outDir}/cpu-${version}-${width}-${pair}.json`,JSON.stringify(profile));}
   fs.writeFileSync(`${outDir}/network-${version}-${width}-${pair}.json`,JSON.stringify({network,errors},null,2)+'\n');assert.deepEqual(errors,[]);await page.screenshot({path:`${outDir}/cycle-${version}-${width}-${pair}.png`});await context.close();
  }
- out.functionalOk=true;out.candidateClsPass=!out.results.some(c=>c.version==='after'&&c.steps.some(s=>s.cls>out.thresholdCLS));out.ok=out.candidateClsPass;if(!out.ok)out.error={name:'CLS',message:'candidate exceeds unchanged0.1 budget; all samples retained'};
+ out.functionalOk=true;out.candidateClsPass=!out.results.some(c=>c.version==='after'&&(c.documentCls>out.thresholdCLS||c.steps.some(s=>s.cls>out.thresholdCLS)));out.ok=out.candidateClsPass;if(!out.ok)out.error={name:'CLS',message:'candidate exceeds unchanged0.1 budget; all samples retained'};
 }catch(e){out.ok=false;out.error={name:e.name,message:String(e.message).replace(/_vercel_share=[^\s"')&]+/g,'_vercel_share=[REDACTED]').slice(0,700)};if(active)try{out.failure=await active.evaluate(()=>({path:location.pathname+location.search,reads:window.__safetyReads,rootButton:document.querySelector('.sod29-number-root-open')?.outerHTML}));await active.screenshot({path:outDir+'/failure.png'});}catch{}}
 finally{await browser?.close();fs.writeFileSync(outDir+'/native-cycle.json',JSON.stringify(out,null,2)+'\n');console.log(JSON.stringify({ok:out.ok,cycles:out.results.length,error:out.error}));process.exitCode=out.ok?0:1;}
 });
