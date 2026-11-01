@@ -7,6 +7,7 @@ import CurationMark2029 from "../experience2029/CurationMark2029.jsx";
 import MethodLens2029 from "../gematria2029/MethodLens2029.jsx";
 import SpatialMethodStage2029 from "../gematria2029/SpatialMethodStage2029.jsx";
 import NumberAiAnalysis2029 from "./NumberAiAnalysis2029.jsx";
+import { numberConnectionLocator } from "../../lib/research/numberReadingOrder.js";
 import "./numberCore2029.css";
 
 // The embedded Number window inherits the same semantic palette as its Frame.
@@ -316,7 +317,7 @@ export default function NumberCore2029({
   const lifeCoverageValue = Math.max(0, Math.min(100, Number(rootCoverage.percent) || 0));
   const lifeAria = `חיי המספר ${root}: ${Number(rootCoverage.present) || 0} שכבות פעילות, ${lifeChannels.map((item) => `${item.count} ${item.label}`).join(", ")}. זהו כיסוי חומר, לא ציון אמת.`;
 
-  return <section className={`sod29-number-core2029 sod29-number-v10 ${compact ? "is-drawer" : "is-page"}`} data-number-core-root={root}>
+  return <section className={`sod29-number-core2029 sod29-number-v10 ${compact ? "is-drawer" : "is-page"}`} data-number-core-root={root} style={{ "--sod29-number-digits": Math.max(4, String(root).length) }}>
     <header className="sod29-number-v10-identity">
       <div className="sod29-number-v10-expression">
         <span>ביטוי / מספר</span>
@@ -537,8 +538,14 @@ export default function NumberCore2029({
                 type="button"
                 key={`${item.label}:${index}`}
                 className={item.world ? "has-world" : "no-world"}
+                id={!compact ? numberConnectionLocator(item.label, item.methodKey) : undefined}
+                data-experience-action={compact ? "number-connection-explain" : "number-connection-page"}
+                data-number-method={item.methodKey || undefined}
+                disabled={!compact && (!item.methodKey || !onExpressionSelect)}
                 style={item.world ? { "--world-color": worldColor(item.world) } : undefined}
-                onClick={() => onRazielAction?.("explain_connection", { kind: item.kind, label: item.label, note: item.note, resultValue: stageRoot })}
+                onClick={() => compact
+                  ? onRazielAction?.("explain_connection", { kind: item.kind, label: item.label, note: item.note, resultValue: stageRoot })
+                  : onExpressionSelect?.(item.label, item.methodKey, { returnLocator: `#${numberConnectionLocator(item.label, item.methodKey)}` })}
               >
                 <strong>{item.label}</strong>
                 {item.world ? <em className="sod29-number-v10-world-tag">{item.world}</em> : <small>{item.note}</small>}

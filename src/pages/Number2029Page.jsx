@@ -27,6 +27,7 @@ import { applySeo } from "../lib/seo.js";
 import { getValuePhrasesPage, langLinksList, supabase } from "../lib/supabase.js";
 import { canonicalMethodPublicLabel, canonicalResearchPublicLabel } from "../lib/presentation/canonicalPresentation.js";
 import { numberExpressionFocusHref, numberReadingReturnHref, parseNumberExpressionFocus, resolveExpressionFocus } from "../lib/research/numberExpressionFocus.js";
+import { defaultNumberReadingExpression } from "../lib/research/numberReadingOrder.js";
 import { buildNumberCuration2029, fetchCurationCatalog2029 } from "../lib/research/curationProjection2029.js";
 import { DEFAULT_VERSE_GEMATRIA_LIMIT, fetchVersesByGematria } from "../lib/research/verseGematriaSources.js";
 import { GOLDEN_WORLD_JOURNEY_878 } from "../lib/research/worldJourneyProjection.js";
@@ -42,6 +43,7 @@ const NUMBER_REGULAR_PHRASE_CACHE = new Map();
 const NUMBER_HIDDEN_CROSS_CACHE = new Map();
 const NUMBER_SYSTEM_METHODS_CACHE = new Map();
 const EMPTY_METHOD_PROFILE_ROWS = Object.freeze([]);
+const PENDING_REGULAR_PHRASES = Object.freeze({ loading: true, rows: EMPTY_METHOD_PROFILE_ROWS, count: 0, error: null });
 const clean = (value) => value == null ? "" : String(value).trim();
 
 function rememberBounded(cache, key, value, max = 36) {
@@ -228,7 +230,10 @@ function NumberPageBody({ resolvedAddress = null }) {
     ? storedMethodProfileState : { loading: true, rows: EMPTY_METHOD_PROFILE_ROWS, error: null };
   const [methodResultState, setMethodResultState] = useState({ loading: false, data: null, error: null, key: null });
   const [languageBridgeState, setLanguageBridgeState] = useState({ loading: false, rows: [] });
-  const [regularPhraseState, setRegularPhraseState] = useState({ loading: false, rows: [], count: 0, error: null });
+  const [storedRegularPhraseState, setRegularPhraseState] = useState({ root, readerIdentity, ...PENDING_REGULAR_PHRASES });
+  const [regularReadAttempt, setRegularReadAttempt] = useState(0);
+  const regularPhraseState = storedRegularPhraseState.root === root && storedRegularPhraseState.readerIdentity === readerIdentity
+    ? storedRegularPhraseState : PENDING_REGULAR_PHRASES;
   const [traceOpen, setTraceOpen] = useState(false);
   const [deepViewInputState, setDeepViewInputState] = useState({ loading: false, data: null, error: null });
   const [hiddenCrossState, setHiddenCrossState] = useState({ loading: false, rows: [], error: null });
@@ -295,6 +300,7 @@ function NumberPageBody({ resolvedAddress = null }) {
       researchLimit: 80,
       topicLimit: 24,
       allowUnstoredNumber: true,
+      parallelNumberReads: true,
     });
     if (!cached?.promise) rememberBounded(NUMBER_PAGE_PROJECTION_CACHE, cacheKey, { promise: pending }, 20);
 
@@ -451,25 +457,25 @@ function NumberPageBody({ resolvedAddress = null }) {
   useEffect(() => {
     if (authLoading) return undefined;
     if (!Number.isSafeInteger(root) || root < 1) {
-      setRegularPhraseState({ loading: false, rows: [], count: 0, error: null });
+      setRegularPhraseState({ root, readerIdentity, loading: false, rows: [], count: 0, error: null });
       return undefined;
     }
     let alive = true;
     const cacheKey = `${readerIdentity}:${root}`;
     const cached = NUMBER_REGULAR_PHRASE_CACHE.get(cacheKey);
     if (cached) {
-      setRegularPhraseState({ loading: false, ...cached, error: null });
+      setRegularPhraseState({ root, readerIdentity, loading: false, ...cached, error: null });
       return () => { alive = false; };
     }
-    setRegularPhraseState({ loading: true, rows: [], count: 0, error: null });
+    setRegularPhraseState({ root, readerIdentity, loading: true, rows: [], count: 0, error: null });
     getValuePhrasesPage(root, { limit: 30 })
       .then((page) => {
         rememberBounded(NUMBER_REGULAR_PHRASE_CACHE, cacheKey, page, 40);
-        if (alive) setRegularPhraseState({ loading: false, ...page, error: null });
+        if (alive) setRegularPhraseState({ root, readerIdentity, loading: false, ...page, error: null });
       })
-      .catch((error) => { if (alive) setRegularPhraseState({ loading: false, rows: [], count: 0, error }); });
+      .catch((error) => { if (alive) setRegularPhraseState({ root, readerIdentity, loading: false, rows: [], count: 0, error }); });
     return () => { alive = false; };
-  }, [root, readerIdentity, authLoading]);
+  }, [root, readerIdentity, authLoading, regularReadAttempt]);
 
   const loadMoreRegularPhrases = async () => {
     if (regularPhraseState.loading || regularPhraseState.rows.length >= regularPhraseState.count) return;
@@ -479,7 +485,7 @@ function NumberPageBody({ resolvedAddress = null }) {
       const page = await getValuePhrasesPage(root, { offset: regularPhraseState.rows.length, limit: 30 });
       if (request !== navigationRequest.current) return;
       setRegularPhraseState((current) => {
-        const next = { loading: false, rows: [...current.rows, ...page.rows], count: page.count, error: null };
+        const next = { root, readerIdentity, loading: false, rows: [...current.rows, ...page.rows], count: page.count, error: null };
         rememberBounded(NUMBER_REGULAR_PHRASE_CACHE, `${readerIdentity}:${root}`, next, 40);
         return next;
       });
@@ -490,17 +496,23 @@ function NumberPageBody({ resolvedAddress = null }) {
   };
 
   useEffect(() => {
-    if (!families.length) return;
+    if (authLoading || urlFocus.explicit || focusExplicit) return;
     if (activeExpression && (selectedMethodKey || focusExplicit)) return;
 
     const anchorFamily = anchorPhrase
       ? families.find((group) => (group?.phrases || []).some((item) => phraseOf(item) === anchorPhrase))
       : null;
     const first = anchorFamily || families[0];
-    const phrase = activeExpression || anchorPhrase || phraseOf(first?.phrases?.[0]) || String(root);
-    if (!selectedMethodKey) setSelectedMethodKey(methodKey(first));
+    const ordered = regularPhraseState.rows.length ? regularPhraseState.rows : data?.surface?.phrases || [];
+    const phrase = activeExpression || defaultNumberReadingExpression({ rows: ordered,
+      loading: regularPhraseState.loading, error: regularPhraseState.error,
+      fallback: anchorPhrase || phraseOf(first?.phrases?.[0]),
+    });
+    if (!phrase) return;
+    const regular = families.find(group => isRegularMethodIdentity(methodKey(group)) || isRegularMethodIdentity(methodLabel(group)));
+    if (!selectedMethodKey) setSelectedMethodKey(ordered.length ? methodKey(regular) || "רגיל" : methodKey(first));
     if (!activeExpression) setActiveExpression(phrase);
-  }, [families, root, selectedMethodKey, activeExpression, anchorPhrase, focusExplicit]);
+  }, [families, root, selectedMethodKey, activeExpression, anchorPhrase, focusExplicit, urlFocus.explicit, authLoading, regularPhraseState, data?.surface?.phrases]);
 
   useEffect(() => {
     if (authLoading) return undefined;
@@ -605,11 +617,6 @@ function NumberPageBody({ resolvedAddress = null }) {
       });
     }
 
-    // During the bounded read only, keep the old projection as an honest fallback.
-    if (!rows.length && regularPhraseState.loading) {
-      for (const raw of Array.isArray(regularGroup?.phrases) ? regularGroup.phrases : []) add(phraseOf(raw), "family");
-    }
-
     // A searched expression may be valid by the canonical Regular engine before it is stored/published.
     // Preserve it without reordering an already-curated public row.
     if (
@@ -617,7 +624,7 @@ function NumberPageBody({ resolvedAddress = null }) {
       && regularMethodProfile
       && Number(regularMethodProfile.computedValue) === root
       && !seen.has(clean(activeExpression))
-    ) rows.unshift({ phrase: clean(activeExpression), value: root, source: "active_unstored", leadRank: null, verified: null });
+    ) rows.push({ phrase: clean(activeExpression), value: root, source: "active_unstored", leadRank: null, verified: null });
 
     return rows;
   }, [activeExpression, regularMethodProfile, regularGroup, regularPhraseState, root]);
@@ -921,7 +928,7 @@ function NumberPageBody({ resolvedAddress = null }) {
     navigate(href);
   };
 
-  const navigateExpression = async (expression, preferredMethod = null) => {
+  const navigateExpression = async (expression, preferredMethod = null, { returnLocator = null } = {}) => {
     const expr = clean(expression);
     if (!expr) return;
     const request = ++navigationRequest.current;
@@ -935,6 +942,11 @@ function NumberPageBody({ resolvedAddress = null }) {
       if (request !== navigationRequest.current) return;
       if (!focus?.href) { setNavigationError("לא התקבלה תוצאה בשיטה שנבחרה. הדף והבחירה הקודמים נשמרו."); return; }
       if (focus.href === currentNumberHref) return;
+      const returnHref = /^#number-connection-[a-f0-9-]+$/.test(returnLocator || "")
+        ? numberReadingReturnHref({ ...location, hash: returnLocator }) || currentNumberHref : currentNumberHref;
+      if (returnHref !== currentNumberHref) {
+        try { window.history.replaceState(window.history.state, "", returnHref); } catch { /* Typed return retains the locator. */ }
+      }
       setMethodProfileState({ readerIdentity, loading: false, expression: focus.expression, rows: focus.rows, error: null });
       const current = research.context || {};
       research.setResearchContext?.({
@@ -944,8 +956,8 @@ function NumberPageBody({ resolvedAddress = null }) {
           resultValue: focus.resultValue, focusKind: "expression" },
         lens: "number", journey: current.journey || null, locale: current.locale || "he",
         dimensions: { ...(current.dimensions || {}), expressionFocusExplicit: true, focusOrigin: "number-page-selection" },
-        returnTo: { href: currentNumberHref, label: focusExpression ? `${focusExpression} · ${root}` : `דף ${root}`,
-          subject: { id: String(root), type: "number", label: String(root), href: currentNumberHref },
+        returnTo: { href: returnHref, label: focusExpression ? `${focusExpression} · ${root}` : `דף ${root}`,
+          subject: { id: String(root), type: "number", label: String(root), href: returnHref },
           selection: focusSelection(root), lens: "number", dimensions: current.dimensions || {}, journey: current.journey || null },
       });
       setNavigationError(null);
@@ -957,7 +969,7 @@ function NumberPageBody({ resolvedAddress = null }) {
     }
   };
 
-  const activateExpressionFocus = (expression, preferredMethod = null) => navigateExpression(expression, preferredMethod);
+  const activateExpressionFocus = (expression, preferredMethod = null, options = {}) => navigateExpression(expression, preferredMethod, options);
 
   const activateMethodFocus = (methodKey) => {
     const key = clean(methodKey);
@@ -1208,6 +1220,7 @@ function NumberPageBody({ resolvedAddress = null }) {
   }
   return <div className="sod29-number-page" data-experience-surface="number" data-experience-question="מה זה?" data-number-root={root} data-truth-safe="true">
     {navigationError ? <p role="alert">{navigationError}</p> : null}
+    {regularPhraseState.error ? <p role="alert">סדר הביטויים השמור לא נטען כרגע. <button type="button" className="sod29-action" onClick={() => regularPhraseState.rows.length ? loadMoreRegularPhrases() : setRegularReadAttempt(n => n + 1)}>נסה שוב את הסדר השמור</button></p> : null}
     {focusExplicit && focusExpression ? <section className="sod29-number-focus-ribbon" aria-label="מיקוד ביטוי פעיל" data-expression-focus="true">
       <div>
         <span>מיקוד פעיל</span>
@@ -1239,7 +1252,7 @@ function NumberPageBody({ resolvedAddress = null }) {
         languageBridges={languageBridgeState.rows}
         regularExpressions={regularExpressions}
         regularExpressionsLoading={regularPhraseState.loading}
-        onExpressionSelect={(phrase, method = null) => activateExpressionFocus(phrase, method || regularMethodProfile?.methodKey || null)}
+        onExpressionSelect={(phrase, method = null, options = {}) => activateExpressionFocus(phrase, method || regularMethodProfile?.methodKey || null, options)}
         onResolveQuery={resolveNumberQuery}
         onMethodSelect={activateMethodFocus}
         onToggleTrace={() => setTraceOpen((value) => !value)}

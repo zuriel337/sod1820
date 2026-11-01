@@ -6,7 +6,10 @@ const origin=process.env.SOD_ACCEPTANCE_ORIGIN||'http://127.0.0.1:4231';
 for(const width of[390,1440])test('Number full-page methods, precise return and informative public sources '+width,async({page},info)=>{
  test.setTimeout(180000);await page.setViewportSize({width,height:900});
  const errors=[],profileReads=[];page.on('pageerror',e=>errors.push(e.name));page.on('request',r=>{if(r.url().includes('/rpc/fn_method_profile'))profileReads.push(r.postDataJSON()?.p_phrase);});
- const address='/number/1820?source=post&part=2&part=7#number-essential';
+ // Default reading now follows the user's saved Legacy order. This scenario
+ // deliberately selects the original canonical operand to retain its exact
+ // 1820 -> 3928 assertion, independently of that editorial default.
+ const address='/number/1820?focus='+encodeURIComponent('אחת ארבע שבע ושתיים')+'&method='+encodeURIComponent('רגיל')+'&source=post&part=2&part=7#number-essential';
  await page.goto(origin+address);await expect(page.locator('.sod29-number-page[data-number-root="1820"]')).toBeVisible({timeout:60000});
  const milui=()=>page.locator('.sod29-number-v10-method-card').filter({has:page.getByText('מילוי',{exact:true})}).first();
  await expect(milui()).toBeEnabled({timeout:30000});
@@ -29,7 +32,7 @@ for(const width of[390,1440])test('Number full-page methods, precise return and 
  await rail.click();await expect.poll(()=>new URL(page.url()).searchParams.get('focus')).toBe(phrase);expect(new URL(page.url()).searchParams.get('method')).toBe('רגיל');
  await expect(page.getByRole('dialog')).toHaveCount(0);await page.goBack();await expect(page).toHaveURL(origin+address);
  await expect(page.locator('.sod29-number-v10-expression-line>strong')).toHaveText(expression);
- await page.locator('.sod29-number-root-open').click();await expect(page).toHaveURL(origin+'/number/1820');await expect(page.getByRole('dialog')).toHaveCount(0);await page.goBack();await expect(page).toHaveURL(origin+address);
+ await page.locator('.sod29-number-root-open').click();expect(new URL(page.url()).pathname).toBe('/number/1820');expect(new URL(page.url()).searchParams.get('focus')).toBe(expression);expect(new URL(page.url()).searchParams.get('method')).toBe('רגיל');await expect(page.getByRole('dialog')).toHaveCount(0);await page.goBack();await expect(page).toHaveURL(origin+address);
  const sourceList=page.locator('.sod29-lw-source-list');await sourceList.scrollIntoViewIfNeeded();
  await expect(sourceList.getByRole('status')).toHaveCount(0,{timeout:60000});
  await expect(sourceList.getByRole('alert')).toHaveCount(0);
@@ -40,7 +43,7 @@ for(const width of[390,1440])test('Number full-page methods, precise return and 
   await sourceList.locator('a').first().click();await expect(page).toHaveURL(origin+href);
   const anchor=new URL(page.url()).hash.slice(1);if(anchor)await expect(page.locator('[id="'+anchor+'"]')).toBeVisible({timeout:30000});
   await page.locator('.sod29-mobile-menu-trigger').click();await page.locator('#sod29-mobile-navigation').getByRole('button',{name:'חזרה מדויקת',exact:true}).click();
-  await expect(page).toHaveURL(origin+'/number/1820?source=post&part=2&part=7#number-content-live');
+  await expect(page).toHaveURL(origin+address.replace('#number-essential','#number-content-live'));
   await expect(page.locator('.sod29-number-page')).toHaveAttribute('data-number-root','1820',{timeout:60000});
  }
  expect(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1)).toBe(false);

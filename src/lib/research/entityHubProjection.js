@@ -1130,6 +1130,7 @@ export async function fetchEntityHubProjection({
   includeScriptureTermDiscovery = true,
   topicSourceSlug = null,
   allowUnstoredNumber = false,
+  parallelNumberReads = false,
 } = {}) {
   let node = await resolveEntityHubNode({ nodeId, type, key });
   // A canonical numeric result does not require a persisted graph node to be
@@ -1139,46 +1140,14 @@ export async function fetchEntityHubProjection({
     && Number.isSafeInteger(Number(key))) node = { id: null, type: "number", label: String(Number(key)), identity_key: String(Number(key)) };
   if (!node) return null;
 
-  const [definition, graphFindings, research, topicSources] = await Promise.all([
-    fetchEntityTypeDefinition(node.type),
-    node.id ? fetchCanonicalGraphEntityFindings(node.id, { relationLimit: safeLimit(relationLimit, 100, 200) }) : Promise.resolve([]),
-    fetchResearchObjectsForEntity(node, { limit: researchLimit, locale, allowUnstoredNumber }),
-    topicSourceSlug ? fetchTopicSourceContext({ topicSlug: topicSourceSlug })
-      .catch(() => ({ items: [], access: { available: false, reason: "topic_sources_unavailable" } })) : Promise.resolve(null),
-  ]);
-
-  const entityFinding = graphFindings.find(finding => finding?.kind === "graph-entity") || null;
-  const relationFindings = graphFindings.filter(finding => finding?.kind === "graph-relation");
-  const media = includeMedia
-    ? await fetchWorldMediaProjection(relationFindings, { limit: mediaLimit })
-    : { items: [], access: { available: true, reason: "deferred_by_projection_profile" } };
-  let topics = { rows: [], findings: [] };
-  let numberResearch = null;
-  let numberJourney = null;
-  let publicSurface = null;
-  let gematriaFamilies = [];
-  let methodRegistry = [];
-  let worlds = [];
-  let signatures = [];
-  let zeroScale = null;
-  let anchorProfile = { row: null, finding: null, access: { available: true, reason: null } };
-  let phraseEntities = {};
-  let methodBridge = { identity: null, results: [], engineFindings: [] };
-
   const isNumberNode = node.type === "number" && Number.isSafeInteger(Number(node.label));
-  if (!isNumberNode) {
-    // Entity → Number bridge (generic: any node with a canonical gematria identity).
-    [methodBridge, topics] = await Promise.all([
-      fetchMethodResultBridge(node),
-      fetchTopicFindingsForTerm(node.label, { limit: topicLimit }),
-    ]);
-  }
-
-  if (isNumberNode) {
+  const parallel = parallelNumberReads && isNumberNode;
+  const researchPromise = fetchResearchObjectsForEntity(node, { limit: researchLimit, locale, allowUnstoredNumber });
+  const readNumberData = () => {
     const number = Number(node.label);
-    [topics, numberResearch, publicSurface, gematriaFamilies, worlds, signatures, zeroScale, anchorProfile] = await Promise.all([
+    return Promise.all([
       fetchTopicFindingsForNumber(number, { limit: topicLimit }),
-      researchNumber(number, {
+      researchPromise.then(research => researchNumber(number, {
         lenses: Array.isArray(numberResearchLenses) && numberResearchLenses.length
           ? numberResearchLenses
           : ["number_lookup", "number_dossier", "number_journey", "neighbors", "research_objects"],
@@ -1196,7 +1165,7 @@ export async function fetchEntityHubProjection({
           ? DEFAULT_NUMBER_RESEARCH_OPTIONS.lookupWindow
           : { limit: safeLimit(numberLookupLimit, 500, 500) },
         provenance: { requestSource: "entity-hub-projection-v2", inputRef: node.id ? `node:${node.id}` : `number:${number}` },
-      }),
+      })),
       getEntityBundle({ term: String(number), value: number, isNumber: true }),
       getValueFamilies(number, 12),
       fetchNumberWorlds(number),
@@ -1204,6 +1173,56 @@ export async function fetchEntityHubProjection({
       fetchZeroScale(number),
       fetchNumberAnchorProfile(number),
     ]);
+  };
+  // Full Number-page opt-in: overlap existing independent readers. Results
+  // remain complete, and early rejection is observed even if a sibling fails.
+  const earlyNumberOutcome = parallel ? readNumberData().then(
+    value => ({ ok: true, value }), error => ({ ok: false, error }),
+  ) : null;
+
+  const [definition, graphFindings, research, topicSources] = await Promise.all([
+    fetchEntityTypeDefinition(node.type),
+    node.id ? fetchCanonicalGraphEntityFindings(node.id, { relationLimit: safeLimit(relationLimit, 100, 200) }) : Promise.resolve([]),
+    researchPromise,
+    topicSourceSlug ? fetchTopicSourceContext({ topicSlug: topicSourceSlug })
+      .catch(() => ({ items: [], access: { available: false, reason: "topic_sources_unavailable" } })) : Promise.resolve(null),
+  ]);
+
+  const entityFinding = graphFindings.find(finding => finding?.kind === "graph-entity") || null;
+  const relationFindings = graphFindings.filter(finding => finding?.kind === "graph-relation");
+  const mediaRead = includeMedia
+    ? fetchWorldMediaProjection(relationFindings, { limit: mediaLimit })
+    : Promise.resolve({ items: [], access: { available: true, reason: "deferred_by_projection_profile" } });
+  const mediaOutcome = parallel ? mediaRead.then(
+    value => ({ ok: true, value }), error => ({ ok: false, error }),
+  ) : null;
+  let media = parallel ? null : await mediaRead;
+  let topics = { rows: [], findings: [] };
+  let numberResearch = null;
+  let numberJourney = null;
+  let publicSurface = null;
+  let gematriaFamilies = [];
+  let methodRegistry = [];
+  let worlds = [];
+  let signatures = [];
+  let zeroScale = null;
+  let anchorProfile = { row: null, finding: null, access: { available: true, reason: null } };
+  let phraseEntities = {};
+  let methodBridge = { identity: null, results: [], engineFindings: [] };
+
+  if (!isNumberNode) {
+    // Entity → Number bridge (generic: any node with a canonical gematria identity).
+    [methodBridge, topics] = await Promise.all([
+      fetchMethodResultBridge(node),
+      fetchTopicFindingsForTerm(node.label, { limit: topicLimit }),
+    ]);
+  }
+
+  if (isNumberNode) {
+    const number = Number(node.label);
+    const outcome = earlyNumberOutcome ? await earlyNumberOutcome : { ok: true, value: await readNumberData() };
+    if (!outcome.ok) throw outcome.error;
+    [topics, numberResearch, publicSurface, gematriaFamilies, worlds, signatures, zeroScale, anchorProfile] = outcome.value;
     // Number → Entity bridge: phrases already shown in the families resolve to EXISTING entity nodes
     // (bounded to the shown phrases; nothing is created). This is what makes
     // "<phrase> · <method> = <number>" clickable into the canonical entity hub.
@@ -1231,6 +1250,12 @@ export async function fetchEntityHubProjection({
           : Promise.resolve(null),
       ])
     : [null, null];
+
+  if (mediaOutcome) {
+    const outcome = await mediaOutcome;
+    if (!outcome.ok) throw outcome.error;
+    media = outcome.value;
+  }
 
   return {
     v: 3,
