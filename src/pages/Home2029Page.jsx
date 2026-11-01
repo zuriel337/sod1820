@@ -310,7 +310,7 @@ function HomeWorldPreview({ preview, loading, onOpenItem, onOpenResearcher, onOp
 
 const CONTEXT_TYPE_LABEL = Object.freeze({ post: "פוסט", number: "מספר", topic: "נושא", world: "עולם", phrase: "ביטוי", researcher: "כותב", book: "ספר" });
 // Release the adopted Home independently of preview-only tools and disabled telemetry.
-const HOME_COMPOSED = CORE_PUBLIC_LAUNCH_2029 || import.meta.env.DEV || import.meta.env.VITE_INTEGRATED_PREVIEW === "true" || import.meta.env.VITE_HOME_2029_ENABLED === "true";
+const HOME_COMPOSED = import.meta.env.VITE_PUBLIC_READING_RELEASE === "public-reading-20261101" || CORE_PUBLIC_LAUNCH_2029 || import.meta.env.DEV || import.meta.env.VITE_INTEGRATED_PREVIEW === "true" || import.meta.env.VITE_HOME_2029_ENABLED === "true";
 
 function HomeBody() {
   const navigate = useNavigate();
@@ -588,9 +588,9 @@ function HomeBody() {
 
 export default function Home2029Page() {
   useEffect(() => {
-    applySeo(import.meta.env.VITE_PUBLIC_FOUNDATION_PREVIEW === "true" ? PUBLIC_HOME_SEO : CORE_PUBLIC_LAUNCH_2029
-      ? { title: "SOD1820 · פוסטים, צפנים, גימטריה וצ׳אט", description: "פוסטים, חיפוש ELS, מחשבון גימטריה ושיחות הקהילה באתר SOD1820.", path: import.meta.env.VITE_PUBLIC_FOUNDATION_PREVIEW === "true" ? "/" : "/2029" }
-      : { title: "SOD1820 · העולם החדש", description: "מה מתגלה עכשיו ב-SOD1820 — שער לעולם אחד של רמזים, מקורות וחיבורים.", path: import.meta.env.VITE_PUBLIC_FOUNDATION_PREVIEW === "true" ? "/" : "/2029" });
+    applySeo((import.meta.env.VITE_PUBLIC_FOUNDATION_PREVIEW === "true" || import.meta.env.VITE_PUBLIC_READING_RELEASE === "public-reading-20261101") ? PUBLIC_HOME_SEO : CORE_PUBLIC_LAUNCH_2029
+      ? { title: "SOD1820 · פוסטים, צפנים, גימטריה וצ׳אט", description: "פוסטים, חיפוש ELS, מחשבון גימטריה ושיחות הקהילה באתר SOD1820.", path: (import.meta.env.VITE_PUBLIC_FOUNDATION_PREVIEW === "true" || import.meta.env.VITE_PUBLIC_READING_RELEASE === "public-reading-20261101") ? "/" : "/2029" }
+      : { title: "SOD1820 · העולם החדש", description: "מה מתגלה עכשיו ב-SOD1820 — שער לעולם אחד של רמזים, מקורות וחיבורים.", path: (import.meta.env.VITE_PUBLIC_FOUNDATION_PREVIEW === "true" || import.meta.env.VITE_PUBLIC_READING_RELEASE === "public-reading-20261101") ? "/" : "/2029" });
   }, []);
   return <Sod2029Shell surface="home" introVariant={HOME_COMPOSED ? "none" : undefined} symbol={<NavigationIcon2029 name="home" />} eyebrow="גלה · עכשיו · המשך" title={CORE_PUBLIC_LAUNCH_2029 ? "SOD1820" : "SOD1820 · העולם החדש"} description={CORE_PUBLIC_LAUNCH_2029 ? "פוסטים, ELS, גימטריה ושיחות הקהילה." : "מה מתגלה עכשיו, מה נפתח בעולם, ואיך ממשיכים מאותה נקודה."}><HomeBody /></Sod2029Shell>;
 }

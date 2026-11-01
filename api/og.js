@@ -1,3 +1,4 @@
+import { PUBLIC_READING_PROFILE_ID, publicReadingFeatureLock } from "../src/lib/publicReadingRelease2029.js";
 import { PUBLIC_HOME_SEO } from "../src/lib/seo.js";
 import { publicPostUrl } from "../src/lib/publicPostUrls.js";
 import { hasSuppressedPublicPostTag } from "../src/lib/research/publicPostBoundary.js";
@@ -255,13 +256,17 @@ export default async function handler(req, res) {
   const flagKeys = launchGate ? [launchGate.key] : key === '/code' || key === '/els' ? ['lock_els'] : [];
   const legacyNumbersAlias = /^\/numbers(?:\/|$)/.test(decodedKey);
   if (legacyNumbersAlias) flagKeys.push('lock_convergence_tree');
-  const flagState = flagKeys.length ? await publicSiteFlags(flagKeys, ogHeaders) : null;
+  const flagState = req.publicReadingRelease === PUBLIC_READING_PROFILE_ID
+    ? { failed: false, flags: new Map(flagKeys.map(key => [key, { ...publicReadingFeatureLock(key), found: true }])) }
+    : flagKeys.length ? await publicSiteFlags(flagKeys, ogHeaders) : null;
   const routeFlag = flagKeys.length ? flagState.flags.get(flagKeys[0]) : null;
   const convergenceFlag = legacyNumbersAlias ? flagState.flags.get('lock_convergence_tree') : null;
   const convergenceClosed = legacyNumbersAlias && (flagState.failed || flagState.flags.has('lock_convergence_tree') && convergenceFlag?.enabled !== false);
   const launchClosed = launchGate && (launchGate.key === 'lock_world'
     ? routeFlag?.enabled === true
     : !routeFlag?.found || routeFlag.enabled || convergenceClosed);
+  if (req.publicReadingRelease === PUBLIC_READING_PROFILE_ID && decodedKey === "/gematria"
+    && ["q", "w", "calc", "m", "v", "n", "s"].some(key => req.query?.[key] != null)) robots = "noindex, follow";
   // deep-link לסרטון ספציפי (?v=<id>) — נשלף מ-req.query.v וגם מתוך path כגיבוי
   let vParam = (req.query && req.query.v) ? String(req.query.v) : '';
   if (!vParam) {
@@ -377,7 +382,7 @@ export default async function handler(req, res) {
     // 🔬 מעבדת-השם — עמוד-התוצאה שאותו משתפים (?w=<שם>). זו הלולאה הוויראלית:
     //    מישהו מחפש את שמו ומשתף → הצופה רואה «<שם> = <ערך>» + «מה מסתתר בשם שלך?» → מחפש את שלו.
     const w = String((req.query && req.query.w) || '').trim();
-    if (w) {
+    if (w && req.publicReadingRelease !== PUBLIC_READING_PROFILE_ID) {
       const val = ragil(w);
       title = `${w} = ${val} · ${SITE_NAME}`;
       desc = `הסוד שמאחורי השם "${w}" — ${w} = ${val} בגימטריה. מה מסתתר בשם שלך? גלו במעבדת-השם של סוד 1820.`;

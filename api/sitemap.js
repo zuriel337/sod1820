@@ -1,3 +1,4 @@
+import { PUBLIC_READING_PROFILE_ID } from "../src/lib/publicReadingRelease2029.js";
 import { publicPostHref, publicPostUrl, postAddressSlug } from "../src/lib/publicPostUrls.js";
 import { publicPostOnlyFilter } from "../src/lib/research/publicPostBoundary.js";
 // Vercel Serverless Function — sitemap.xml דינמי (מפת אתר חיה).
@@ -189,8 +190,10 @@ async function fetchAll(path) {
 export default async function handler(req, res) {
   const foundation = req.publicFoundationPreview === true;
   const foundationStatics = new Set(["/", "/world", "/post", "/map", "/privacy", "/number"]);
+  if (req.publicReadingRelease === PUBLIC_READING_PROFILE_ID) foundationStatics.add("/gematria");
   const urls = foundation ? STATIC.filter(row => foundationStatics.has(row.loc)) : [...STATIC];
   if (foundation && !urls.some(row => row.loc === "/number")) urls.push({ loc: "/number", priority: "0.6", changefreq: "monthly" });
+  if (req.publicReadingRelease === PUBLIC_READING_PROFILE_ID && !urls.some(row => row.loc === "/gallery")) urls.push({ loc: "/gallery", priority: "0.6", changefreq: "weekly" });
   let foundationSourceFailed = false;
   let posts;
   try { posts = await fetchAll(`posts?select=id,slug,source,link,wp_id,modified,date${POST_PUBLISHED_FILTER}&order=date.desc`); }

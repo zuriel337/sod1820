@@ -124,7 +124,7 @@ const ShellContext = createContext({
 
 export const use2029Shell = () => useContext(ShellContext);
 
-const publicFoundationPreview = import.meta.env.VITE_PUBLIC_FOUNDATION_PREVIEW === "true";
+const publicFoundationPreview = (import.meta.env.VITE_PUBLIC_FOUNDATION_PREVIEW === "true" || import.meta.env.VITE_PUBLIC_READING_RELEASE === "public-reading-20261101");
 const HOME_NAV = [
   { to: publicFoundationPreview ? "/" : "/2029", label: "בית", icon: "⌂", exact: true },
   { to: "/world", label: "העולם", icon: "◌" },

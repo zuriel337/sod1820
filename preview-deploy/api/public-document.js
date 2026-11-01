@@ -14,7 +14,7 @@ export function mergePublicDocumentMetadata(document, metadata) {
   return clean.replace(/<\/head>/i, head + "</head>");
 }
 
-const BRANCHES = ["gpt/2029-public-foundation-continuity-20261101", "gpt/2029-public-frame-context-20261101", "gpt/2029-community1187-unified-20261101", "gpt/2029-number-fullpage-performance-20261101", "gpt/2029-world-one-tree-sources-20261101", "gpt/2029-public-world-number-acceptance-20261101", "gpt/2029-public-launch-candidate-20261101"];
+const BRANCHES = ["gpt/2029-public-foundation-continuity-20261101", "gpt/2029-public-frame-context-20261101", "gpt/2029-community1187-unified-20261101", "gpt/2029-number-fullpage-performance-20261101", "gpt/2029-world-one-tree-sources-20261101", "gpt/2029-public-world-number-acceptance-20261101", "gpt/2029-public-launch-candidate-20261101", "gpt/2029-public-reading-release-configuration-20261101"];
 // Same metadata owner as Legacy, same static 2029 entry, genuine HTTP missing
 // and source-failure status. No separate renderer, post store or indexability rule.
 export function publicDocumentHandler({ env = process.env, readDocument = () => readFile(new URL("../dist/2029.html", import.meta.url), "utf8"), metadataHandler = ogHandler } = {}) {
@@ -27,7 +27,7 @@ export function publicDocumentHandler({ env = process.env, readDocument = () => 
       const path = String(req.query?.path || "/");
       if (!path.startsWith("/") || path.startsWith("//")) return res.status(400).send("invalid path");
       let metadata = "", status = 200;
-      await metadataHandler({ ...req, publicFoundationPreview: true, query: { ...req.query, path } }, {
+      await metadataHandler({ ...req, publicFoundationPreview: true, publicReadingRelease: env.VERCEL_GIT_COMMIT_REF === "gpt/2029-public-reading-release-configuration-20261101" ? "public-reading-20261101" : null, query: { ...req.query, path } }, {
         setHeader() {}, status(code) { status = code; return this; }, send(body) { metadata = String(body); },
       });
       const html = mergePublicDocumentMetadata(await readDocument(), metadata);

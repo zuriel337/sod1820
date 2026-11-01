@@ -395,3 +395,20 @@
 @media (max-width: 620px) {
   .sod29-root.native-frame .sod29-command-island.has-context-trail .sod29-reading-progress { grid-column: 1 / -1; grid-row: 1; justify-self: end; }
 }
+
+/* 1.11.2026: Tool/global mode share the physical center. Unequal action groups
+   wrap inside equal side columns; retain every labelled 44px target. */
+.sod29-root.native-frame .sod29-command-island.is-unified-bar[data-tool-owner] {
+  width: min(330px,calc(100vw - 24px));
+  grid-template-columns: minmax(0,1fr) 48px minmax(0,1fr);
+}
+.sod29-root.native-frame .sod29-command-island[data-tool-owner] .sod29-bar-zone {
+  display: grid; grid-template-columns: repeat(2,minmax(44px,1fr)); gap: 2px;
+}
+.sod29-root.native-frame .sod29-command-island[data-tool-owner] .sod29-bar-zone > button {
+  min-width: 44px; width: 100%; height: auto; min-height: 48px;
+}
+.sod29-root.native-frame .sod29-command-island[data-tool-owner] .sod29-bar-zone > button > small {
+  white-space: normal; overflow-wrap: anywhere;
+}
+.sod29-root.native-frame.has-tool-dock { --s29-island-clearance: 142px; }

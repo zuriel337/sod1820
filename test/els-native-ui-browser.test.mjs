@@ -1437,28 +1437,25 @@ test('native UI: actual SystemFrame dock owns search, tools, Raziel and registra
     const bounds=await panel.boundingBox(),bar=await dock.boundingBox();assert.ok(bounds.y+bounds.height<bar.y,'inline tools clear the one dock');
    }
    await orb().click();
-   if(width<981){
-    await page.getByRole('dialog',{name:'רזיאל',exact:true}).waitFor();
-    assert.equal(await page.getByRole('dialog').count(),1);
-   }else{
-    const raziel=page.locator('.sod29-companion-raziel');
-    await raziel.waitFor({state:'visible'});
-    await page.waitForFunction(()=>document.querySelector('.sod29-companion-raziel input')===document.activeElement);
-    assert.equal(await page.getByRole('dialog').count(),0,'desktop Raziel uses the existing companion without a second dialog');
-   }
+   await page.getByRole('dialog',{name:'רזיאל',exact:true}).waitFor();
+   assert.equal(await page.getByRole('dialog').count(),1,'the approved Frame uses one contextual sidecar/sheet on every viewport');
+   assert.equal(await page.locator('.sod29-companion-raziel:visible').count(),0,'the retired sources companion stays hidden');
+
    assert.ok(await dock.evaluate(el=>{const b=el.getBoundingClientRect();return el.contains(document.elementFromPoint(b.x+b.width/2,b.y+b.height/2));}),'Raziel keeps the dock reachable');
    await dock.getByRole('button',{name:'שמירה',exact:true}).click();
    assert.equal(await page.getByRole('dialog').count(),0,'a native action dismisses the shared transient');
    await dock.getByRole('button',{name:'פעולות המערכת',exact:true}).click();
    assert.equal(await dock.getAttribute('data-command-mode'),'global');
-   assert.ok(Math.abs((await orb().boundingBox()).x-orbX)<1,'Raziel keeps its stable slot');
+   const globalOrb=await orb().boundingBox();
+   assert.ok(Math.abs(globalOrb.x-orbX)<1,`Raziel keeps its stable slot: ${JSON.stringify({width,toolX:orbX,globalX:globalOrb.x})}`);
    // The central single command bar keeps global search and return-to-tool in More.
-   await dock.getByRole('button',{name:'עוד · פעולות וכלים',exact:true}).click();
-   const more=page.getByRole('dialog',{name:'פעולות וכלים',exact:true});
-   await more.getByRole('button',{name:'חיפוש',exact:true}).click();
+   await dock.getByRole('button',{name:'עוד · פעולות, כלים ושיתוף',exact:true}).click();
+   const more=page.getByRole('dialog',{name:'עוד',exact:true});
+   await more.getByRole('button',{name:'כלים',exact:true}).click();
+   await page.getByRole('dialog',{name:'כלים',exact:true}).getByRole('button',{name:'חיפוש',exact:true}).click();
    await page.getByRole('dialog',{name:'חיפוש',exact:true}).waitFor();
    await page.keyboard.press('Escape');assert.equal(await page.getByRole('dialog').count(),0);
-   await dock.getByRole('button',{name:'עוד · פעולות וכלים',exact:true}).click();
+   await dock.getByRole('button',{name:'עוד · פעולות, כלים ושיתוף',exact:true}).click();
    await more.getByRole('button',{name:'חזור לכלי הצופן',exact:true}).click();
    assert.equal(await dock.getAttribute('data-command-mode'),'tool');
    assert.deepEqual((await identity(page)).axis,before.axis);

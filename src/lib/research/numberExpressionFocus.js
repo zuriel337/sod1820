@@ -50,7 +50,7 @@ export function numberExpressionFocusHref(root, {
   if (methodKey) params.set("method", methodKey);
   if (crossing) params.set("cross", crossing);
   const query = params.toString();
-  const prefix = import.meta.env?.VITE_PUBLIC_FOUNDATION_PREVIEW === "true" ? "/number" : "/2029/number";
+  const prefix = (import.meta.env?.VITE_PUBLIC_FOUNDATION_PREVIEW === "true" || import.meta.env?.VITE_PUBLIC_READING_RELEASE === "public-reading-20261101") ? "/number" : "/2029/number";
   return `${prefix}/${numeric}${query ? `?${query}` : ""}`;
 }
 

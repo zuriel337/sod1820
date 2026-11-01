@@ -9,13 +9,14 @@ import { trackVisit } from "./lib/visits.js";
 import { startPageEngagement } from "./lib/engagement.js";
 import { ensureIdentity } from "./lib/identity.js";
 import { startWebVitals2029 } from "./lib/webVitals2029.js";
-import Calculator2029Page from "./pages/Calculator2029Page.jsx";
+const Calculator2029Page = lazy(() => import("./pages/Calculator2029Page.jsx"));
 import { use2029Palette } from "./lib/palette.js";
 import { TYPEFACE } from "./lib/designTokens.js";
-import CalculatorPro2029Page from "./pages/CalculatorPro2029Page.jsx";
+const CalculatorPro2029Page = lazy(() => import("./pages/CalculatorPro2029Page.jsx"));
 import { parseCalculatorShareState } from "./lib/research/calculator2029Viral.js";
 import Locked from "./components/MaintenanceLock.jsx";
 import FeatureClosedNotice from "./components/FeatureClosedNotice.jsx";
+import { PUBLIC_READING_RELEASE, publicReadingPath } from "./lib/publicReadingRelease2029.js";
 
 const Home2029Page = lazy(() => import("./pages/Home2029Page.jsx"));
 const World2029Page = lazy(() => import("./pages/World2029Page.jsx"));
@@ -45,7 +46,7 @@ const Community2029Page = lazy(() => import("./pages/Community2029Page.jsx"));
 const CommunityChatTransition2029Page = lazy(() => import("./pages/CommunityChatTransition2029Page.jsx"));
 const AuthPage = lazy(() => import("./pages/Auth2029Page.jsx"));
 const OAuthCallback2029 = lazy(() => import("./pages/OAuthCallback2029.jsx"));
-const publicFoundationPreview = import.meta.env.VITE_PUBLIC_FOUNDATION_PREVIEW === "true";
+const publicFoundationPreview = import.meta.env.VITE_PUBLIC_FOUNDATION_PREVIEW === "true" || PUBLIC_READING_RELEASE;
 const PublicPostAddress2029Page = lazy(() => import("./pages/PublicPostAddress2029Page.jsx"));
 const NumberAddress2029Page = lazy(() => import("./pages/NumberAddress2029Page.jsx"));
 const PublicServices2029Page = lazy(() => import("./pages/PublicServices2029Page.jsx"));
@@ -62,7 +63,7 @@ function WorldEntry2029() {
 // navigation or require a competing edit to the deployment rewrite configuration.
 function HomeEntry2029() {
   const { search } = useLocation();
-  return new URLSearchParams(search).get("preview") === "community"
+  return !PUBLIC_READING_RELEASE && new URLSearchParams(search).get("preview") === "community"
     ? <Community2029Page />
     : <Home2029Page />;
 }
@@ -108,7 +109,7 @@ function RouteEffects2029() {
   const { pathname } = useLocation();
 
   useEffect(() => {
-    if (integratedPreviewEnabled || (kingdomPreviewEnabled && pathname === "/2029/kingdom")) return undefined;
+    if (PUBLIC_READING_RELEASE || integratedPreviewEnabled || (kingdomPreviewEnabled && pathname === "/2029/kingdom")) return undefined;
     initGA();
     initMarketing();
     ensureIdentity();
@@ -117,7 +118,7 @@ function RouteEffects2029() {
   }, []);
 
   useEffect(() => {
-    if (integratedPreviewEnabled || (kingdomPreviewEnabled && pathname === "/2029/kingdom")) return undefined;
+    if (PUBLIC_READING_RELEASE || integratedPreviewEnabled || (kingdomPreviewEnabled && pathname === "/2029/kingdom")) return undefined;
     // Internal Control Plane is operational/admin traffic, not public product analytics.
     if (pathname.startsWith("/2029/control")) return undefined;
     const timer = setTimeout(() => {
@@ -209,6 +210,14 @@ function FramedGate2029({ flag, surface, title, children }) {
   }>{children}</Locked>;
 }
 
+function PublicReadingBoundary({ children }) {
+  const location = useLocation();
+  const state = PUBLIC_READING_RELEASE ? publicReadingPath(location.pathname) : null;
+  if (state === "closed") return <PublicServices2029Page kind="launch-closed" />;
+  if (state === "missing") return <PublicServices2029Page kind="not-found" />;
+  return children;
+}
+
 export default function App2029() {
   return (
     <AuthProvider>
@@ -218,7 +227,7 @@ export default function App2029() {
           {/* One temporary in-memory Raziel session is projected by both desktop and mobile chrome. */}
           <RazielSessionMount2029>
             <Suspense fallback={<Loading2029 />}>
-              <Routes>
+              <PublicReadingBoundary><Routes>
               <Route path="/2029" element={<HomeEntry2029 />} />
               {publicFoundationPreview && <>
                 <Route path="/" element={<PublicPostAddress2029Page home={<HomeEntry2029 />} />} />
@@ -226,6 +235,7 @@ export default function App2029() {
                 <Route path="/number" element={<PublicServices2029Page kind="number-search" />} />
                 <Route path="/number/:value" element={<Locked flag="lock_number" requireFlag homeHref="/2029"><NumberAddress2029Page /></Locked>} />
                 <Route path="/gallery" element={<Locked flag="lock_world" homeHref="/2029"><Gallery2029Page /></Locked>} />
+                <Route path="/gematria" element={<GematriaEntry2029 />} />
                 {["privacy", "unsubscribe", "updates", "map"].map(kind => <Route key={kind} path={`/${kind}`} element={<PublicServices2029Page kind={kind} />} />)}
                 <Route path="/:slug" element={<PublicPostAddress2029Page />} />
               </>}
@@ -272,7 +282,7 @@ export default function App2029() {
               <Route path="/entity-hub-preview/:type/:key" element={<EntityHubPreviewPage />} />
               <Route path="/2029/control" element={<ControlEntry2029 />} />
               <Route path="*" element={publicFoundationPreview ? <PublicServices2029Page kind="not-found" /> : <LegacyDocumentHandoff />} />
-              </Routes>
+              </Routes></PublicReadingBoundary>
             </Suspense>
           </RazielSessionMount2029>
         </ResearchProvider>

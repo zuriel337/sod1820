@@ -1,6 +1,6 @@
 import { canonicalMethodPublicLabel, sortMethodsByCanonicalOrder } from "../presentation/canonicalPresentation.js";
 import { isReportableValue } from "./calculator2029Input.js";
-import { numberExpressionFocusHref } from "./numberExpressionFocus.js";
+import { numberExpressionFocusHref, numberReadingReturnHref } from "./numberExpressionFocus.js";
 
 const clean = (value) => value == null ? "" : String(value).trim();
 
@@ -86,4 +86,14 @@ export function buildCalculatorResearchContext(selection, extraDimensions = {}) 
       ...extraDimensions,
     },
   };
+}
+
+export function buildCalculatorNumberNavigation(selection, location, current = {}) {
+  if (!selection || !isReportableValue(selection.resultValue)) return null;
+  const href = numberExpressionFocusHref(selection.resultValue, { expression: selection.expression, method: selection.methodKey });
+  const returnHref = numberReadingReturnHref(location);
+  if (!href || !returnHref) return null;
+  return { href, context: { ...buildCalculatorResearchContext(selection), lens: "number",
+    returnTo: { href: returnHref, label: "מחשבון גימטריה", subject: current.subject || null,
+      selection: current.selection || null, lens: "gematria", dimensions: current.dimensions || {}, journey: current.journey || null } } };
 }

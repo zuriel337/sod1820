@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { getSiteFlags } from "../lib/supabase.js";
 import { LOGO_URL } from "../theme.js";
+import { PUBLIC_READING_RELEASE, publicReadingFeatureLock } from "../lib/publicReadingRelease2029.js";
 
 // ===== מצב-יכולת קנוני (site_flags_lock_law v3) =====
 // ONE CAPABILITY → ONE STATE → MANY PROJECTIONS.
@@ -20,7 +21,7 @@ const previewAdminOnly = new Set(["lock_els", "lock_life_journey", "lock_raziel_
 const LIFE_JOURNEY_PREVIEW_OPEN = import.meta.env?.VITE_LIFE_JOURNEY_PREVIEW_OPEN === "true";
 
 function applyPreviewFeatureState(flag, state) {
-  if (publicFramePreview || flag !== "lock_life_journey" || !LIFE_JOURNEY_PREVIEW_OPEN) return state;
+  if (PUBLIC_READING_RELEASE || publicFramePreview || flag !== "lock_life_journey" || !LIFE_JOURNEY_PREVIEW_OPEN) return state;
   return resolveFeatureState(null);
 }
 
@@ -97,16 +98,17 @@ export function LockTeaser({ message, showLogin = false }) {
 }
 
 // hook בסיסי לשליפת דגל בודד. זהו reader בלבד; סמנטיקת-הגישה נפתרת ב-useFeatureState.
-export function useSiteFlag(flag, { pendingScope = null } = {}) {
+export function useSiteFlag(flag, { pendingScope = null, enabled = true } = {}) {
   const readKey = pendingScope === null ? null : `${pendingScope}\u0000${flag}`;
   const [st, setSt] = useState({ loading: true, lock: null, readKey });
   useEffect(() => {
+    if (!enabled) return;
     let alive = true;
     getSiteFlags({ pendingScope })
       .then(f => { if (alive) setSt({ loading: false, lock: f[flag] || null, readKey }); })
       .catch(() => { if (alive) setSt({ loading: false, lock: null, readKey }); });
     return () => { alive = false; };
-  }, [flag, pendingScope]);
+  }, [flag, pendingScope, enabled]);
   return readKey !== null && st.readKey !== readKey ? { loading: true, lock: null } : st;
 }
 
@@ -186,18 +188,18 @@ export function useFeatureState(flag, { requireFlag = false } = {}) {
   const pendingScope = typeof __SOD_2029_BUILD__ !== "undefined" && __SOD_2029_BUILD__
     ? JSON.stringify([user?.id || "anon", typeof window !== "undefined" ? [window.location.pathname, window.location.search, window.location.hash, window.history.state?.key || "initial"] : []])
     : null;
-  const { loading, lock } = useSiteFlag(flag, { pendingScope });
+  const { loading, lock } = useSiteFlag(flag, { pendingScope, enabled: !PUBLIC_READING_RELEASE });
   return useMemo(() => {
-    const resolved = resolveFeatureState(lock, {
-      user,
-      isAdmin,
+    const resolved = resolveFeatureState(PUBLIC_READING_RELEASE ? publicReadingFeatureLock(flag) : lock, {
+      user: PUBLIC_READING_RELEASE ? null : user,
+      isAdmin: PUBLIC_READING_RELEASE ? false : isAdmin,
       requireFlag,
-      previewBypass: unlockedPreview && !(publicFramePreview && previewAdminOnly.has(flag)),
-      adminOnly: publicFramePreview && previewAdminOnly.has(flag),
+      previewBypass: !PUBLIC_READING_RELEASE && unlockedPreview && !(publicFramePreview && previewAdminOnly.has(flag)),
+      adminOnly: !PUBLIC_READING_RELEASE && publicFramePreview && previewAdminOnly.has(flag),
     });
     return {
       flag,
-      loading: loading || authLoading,
+      loading: PUBLIC_READING_RELEASE ? false : loading || authLoading,
       lock,
       ...applyPreviewFeatureState(flag, resolved),
     };

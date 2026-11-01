@@ -16,6 +16,7 @@ import { numberExpressionFocusHref } from "../lib/research/numberExpressionFocus
 import {
   buildCalculationSelection,
   buildCalculatorResearchContext,
+  buildCalculatorNumberNavigation,
   calculationAvailabilityLabel,
   splitCalculatorMethods,
 } from "../lib/research/calculator2029Model.js";
@@ -31,6 +32,7 @@ import {
   parseCalculatorShareState,
   pickVerifiedShareDiscovery,
 } from "../lib/research/calculator2029Viral.js";
+import { PUBLIC_LAUNCH_READ_ONLY_PREVIEW } from "../lib/publicLaunch2029.js";
 import { applySeo } from "../lib/seo.js";
 import "./calculator2029.css";
 
@@ -398,7 +400,7 @@ function CalculatorExperience() {
     setShowOpening(false);
     setShareDiscovery(null);
     setSharedRestored(false);
-    if (location.search) navigate("/2029/gematria/viral", { replace: true });
+    if (location.search) navigate({ pathname: location.pathname, search: "", hash: location.hash }, { replace: true });
   }, [location.search, navigate]);
 
   const settleFastExpression = useCallback((raw) => {
@@ -429,13 +431,11 @@ function CalculatorExperience() {
     }
   };
 
-  const openNumber = () => {
-    if (!selection || selection.resultValue == null) return;
-    const href = numberExpressionFocusHref(selection.resultValue, {
-      expression: selection.expression,
-      method: selection.methodKey,
-    });
-    if (href) navigate(href);
+  const openNumber = (expression = selection?.expression) => {
+    const destination = buildCalculatorNumberNavigation({ ...selection, expression }, location, research.context);
+    if (!destination) return;
+    research.setResearchContext?.(destination.context);
+    navigate(destination.href, { state: { sodResearchIntent: "continue" } });
   };
 
   const openHeichal = () => {
@@ -468,7 +468,7 @@ function CalculatorExperience() {
     return buildCalculatorShareUrl(selection, {
       discovery: shareDiscovery,
       shareId,
-      baseUrl: origin + "/2029/gematria/viral",
+      baseUrl: origin + (import.meta.env?.VITE_PUBLIC_READING_RELEASE === "public-reading-20261101" ? "/gematria" : "/2029/gematria/viral"),
     });
   }, [selection, shareDiscovery, shareId]);
 
@@ -498,7 +498,7 @@ function CalculatorExperience() {
     setShowCompare(false);
     setShowOpening(false);
     setSharedRestored(false);
-    if (location.search) navigate("/2029/gematria/viral", { replace: true });
+    if (location.search) navigate({ pathname: location.pathname, search: "", hash: location.hash }, { replace: true });
     requestAnimationFrame(() => inputRef.current?.focus?.());
   };
 
@@ -542,8 +542,8 @@ function CalculatorExperience() {
             <button type="button" onClick={loadTrace} disabled={selection.resultValue == null}>
               {trace.finding ? "סגור חישוב" : trace.loading ? "טוען…" : "איך מחשבים?"}
             </button>
-            <button type="button" onClick={openNumber} disabled={selection.resultValue == null}>פתח דף מספר</button>
-            <button type="button" className="is-raziel" onClick={openRaziel} disabled={selection.resultValue == null}>
+            <button type="button" onClick={() => openNumber()} disabled={selection.resultValue == null}>פתח דף מספר</button>
+            <button type="button" className="is-raziel" disabled={PUBLIC_LAUNCH_READ_ONLY_PREVIEW} onClick={openRaziel} disabled={selection.resultValue == null}>
               ✦ רזיאל · תסביר לי
             </button>
             <Link
@@ -560,7 +560,7 @@ function CalculatorExperience() {
           {showMore ? (
             <div className="sod29-calc2029-actions is-more">
               <Link to={"/beit-midrash/" + encodeURIComponent(selection.methodKey)}>למד את השיטה</Link>
-              <button type="button" onClick={openHeichal}>חקור בהיכל</button>
+              <button type="button" disabled={PUBLIC_LAUNCH_READ_ONLY_PREVIEW} onClick={openHeichal}>חקור בהיכל</button>
               <button type="button" onClick={() => setShowCompare((value) => !value)} aria-expanded={showCompare}>
                 {showCompare ? "סגור השוואה" : "השווה"}
               </button>
@@ -598,14 +598,7 @@ function CalculatorExperience() {
             autoOpen={sharedState.isShared}
             onOpened={() => emit("calculator_2029", "method_opened", { props: eventProps(selection) })}
             onProjection={handleLensProjection}
-            onOpenExpression={(item) => {
-              if (!item?.phrase || selection.resultValue == null) return;
-              const href = numberExpressionFocusHref(selection.resultValue, {
-                expression: item.phrase,
-                method: selection.methodKey,
-              });
-              if (href) navigate(href);
-            }}
+            onOpenExpression={(item) => { if (item?.phrase) openNumber(item.phrase); }}
           />
 
           {shareUrl ? (

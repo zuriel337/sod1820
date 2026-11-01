@@ -40,6 +40,15 @@ export function buildCalculatorShareUrl(selection, {
   return url.toString();
 }
 
+export function calculatorEntryParams(search = "") {
+  const params = new URLSearchParams(String(search || "").replace(/^\?/, ""));
+  if (!params.get("q")) {
+    const expression = params.get("w") || params.get("calc");
+    if (expression) params.set("q", expression);
+  }
+  return params;
+}
+
 export function parseCalculatorShareState(search = "") {
   const params = search instanceof URLSearchParams ? search : new URLSearchParams(String(search || "").replace(/^\?/, ""));
   const expression = clean(params.get(CALCULATOR_VIRAL_PARAM.EXPRESSION));

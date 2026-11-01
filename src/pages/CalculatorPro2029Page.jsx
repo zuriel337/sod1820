@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams, useLocation } from "react-router-dom";
 import Sod2029Shell, { use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import ShareActions from "../components/ShareActions.jsx";
 import MethodLens2029 from "../components/gematria2029/MethodLens2029.jsx";
@@ -16,9 +16,11 @@ import { CALCULATOR_INPUT_KIND, isEnglishMethodKey, isReportableValue } from "..
 import {
   buildCalculationSelection,
   buildCalculatorResearchContext,
+  buildCalculatorNumberNavigation,
   calculationAvailabilityLabel,
 } from "../lib/research/calculator2029Model.js";
-import { buildCalculatorShareUrl, makeCalculatorShareId } from "../lib/research/calculator2029Viral.js";
+import { buildCalculatorShareUrl, makeCalculatorShareId, calculatorEntryParams } from "../lib/research/calculator2029Viral.js";
+import { PUBLIC_LAUNCH_READ_ONLY_PREVIEW } from "../lib/publicLaunch2029.js";
 import { applySeo } from "../lib/seo.js";
 import "./calculatorPro2029.css";
 
@@ -166,8 +168,9 @@ function ProExperience() {
   const navigate = useNavigate();
   const research = useResearch();
   const shell = use2029Shell();
-  const [params, setParams] = useSearchParams();
-  const seedExpression = clean(params.get("q"));
+  const [params] = useSearchParams();
+  const location = useLocation();
+  const seedExpression = clean(calculatorEntryParams(params.toString()).get("q"));
   const seedMethod = clean(params.get("m"));
   const inputRef = useRef(null);
   const row = useCalculatorRow(seedExpression);
@@ -272,14 +275,15 @@ function ProExperience() {
   // Only the settled expression is written, so typing never churns the router.
   const urlExpression = clean(row.profile.expression) || (info.expression === seedExpression ? seedExpression : "");
   useEffect(() => {
-    const next = new URLSearchParams();
+    const next = calculatorEntryParams(params.toString());
+    for (const key of ["q", "m", "tab", "mode", "view", "w", "calc", "n"]) next.delete(key);
     if (urlExpression) next.set("q", urlExpression);
     if (canonicalSelection?.methodKey) next.set("m", canonicalSelection.methodKey);
     else if (selectedKey && isEnglishMethodKey(selectedKey)) next.set("m", selectedKey);
     if (view === "ledger") next.set("tab", "ledger");
     if (advanced) next.set("mode", "adv");
     if (wideRequested) next.set("view", "wide");
-    if (next.toString() !== params.toString()) setParams(next, { replace: true });
+    if (next.toString() !== params.toString()) navigate({ pathname: location.pathname, search: next.toString() ? `?${next}` : "", hash: location.hash }, { replace: true });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [urlExpression, canonicalSelection?.methodKey, selectedKey, view, advanced, wideRequested]);
 
@@ -292,16 +296,14 @@ function ProExperience() {
   const shareUrl = useMemo(() => {
     if (!canonicalSelection) return null;
     const origin = typeof window !== "undefined" ? window.location.origin : "https://sod1820.co.il";
-    return buildCalculatorShareUrl(canonicalSelection, { discovery: shareDiscovery, shareId, baseUrl: origin + "/2029/gematria/viral" });
+    return buildCalculatorShareUrl(canonicalSelection, { discovery: shareDiscovery, shareId, baseUrl: origin + (import.meta.env?.VITE_PUBLIC_READING_RELEASE === "public-reading-20261101" ? "/gematria" : "/2029/gematria/viral") });
   }, [canonicalSelection, shareDiscovery, shareId]);
 
-  const openNumber = () => {
-    if (!canonicalSelection || canonicalSelection.resultValue == null) return;
-    const href = numberExpressionFocusHref(canonicalSelection.resultValue, {
-      expression: canonicalSelection.expression,
-      method: canonicalSelection.methodKey,
-    });
-    if (href) navigate(href);
+  const openNumber = (expression = canonicalSelection?.expression) => {
+    const destination = buildCalculatorNumberNavigation({ ...canonicalSelection, expression }, location, research.context);
+    if (!destination) return;
+    research.setResearchContext?.(destination.context);
+    navigate(destination.href, { state: { sodResearchIntent: "continue" } });
   };
 
   const openHeichal = () => {
@@ -532,19 +534,19 @@ function ProExperience() {
             <section className="sod29-calcpro-inspector" data-calculation-selection={canonicalSelection.methodKey}>
               <h4>הבחירה שלך · {canonicalSelection.expression} · {canonicalSelection.methodLabel}</h4>
               <div className="sod29-calcpro-actions">
-                <button type="button" className="is-primary" onClick={openNumber}>גלה הכל על {fmt(canonicalSelection.resultValue)} ←</button>
+                <button type="button" className="is-primary" onClick={() => openNumber()}>גלה הכל על {fmt(canonicalSelection.resultValue)} ←</button>
                 <button type="button" onClick={() => setShowOpening((value) => !value)} aria-expanded={showOpening}>
                   {showOpening ? "סגור פתיחה" : "ראה פתיחה"}
                 </button>
                 <Link to={"/beit-midrash/" + encodeURIComponent(canonicalSelection.methodKey)}>למד את השיטה</Link>
-                <button type="button" onClick={openHeichal}>חקור בהיכל</button>
-                <button type="button" className="is-raziel" onClick={openRaziel}>✦ שאל את רזיאל</button>
+                <button type="button" onClick={openHeichal} disabled={PUBLIC_LAUNCH_READ_ONLY_PREVIEW}>חקור בהיכל</button>
+                <button type="button" className="is-raziel" onClick={openRaziel} disabled={PUBLIC_LAUNCH_READ_ONLY_PREVIEW}>✦ שאל את רזיאל</button>
               </div>
               <CalculatorOpening2029 selection={canonicalSelection} open={showOpening} onClose={() => setShowOpening(false)} />
             </section>
           ) : null}
 
-          {canonicalSelection ? (
+          {canonicalSelection && !PUBLIC_LAUNCH_READ_ONLY_PREVIEW ? (
             <CalculatorAiAnalysis2029
               selection={canonicalSelection}
               ledger={ledgerState?.ledger || null}
@@ -558,11 +560,7 @@ function ProExperience() {
               compact
               onOpened={() => emit("calculator_2029", "method_opened", { props: { surface: "professional", expression: canonicalSelection.expression, method: canonicalSelection.methodKey } })}
               onProjection={handleLensProjection}
-              onOpenExpression={(item) => {
-                if (!item?.phrase || canonicalSelection.resultValue == null) return;
-                const href = numberExpressionFocusHref(canonicalSelection.resultValue, { expression: item.phrase, method: canonicalSelection.methodKey });
-                if (href) navigate(href);
-              }}
+              onOpenExpression={(item) => { if (item?.phrase) openNumber(item.phrase); }}
             />
           ) : null}
 
@@ -592,14 +590,15 @@ function ProExperience() {
 }
 
 export default function CalculatorPro2029Page() {
+  const location = useLocation();
   useEffect(() => {
     applySeo({
       title: "מחשבון גימטריה מקצועי · SOD1820",
       description: "כל שיטות הגימטריה במבט אחד, עם פנקס פירוק אותיות מהמנוע הקנוני, מצב מתקדם להשוואה ומצב מורחב.",
-      path: window.location.pathname,
-      noindex: true,
+      path: import.meta.env?.VITE_PUBLIC_READING_RELEASE === "public-reading-20261101" ? "/gematria" : location.pathname,
+      noindex: import.meta.env?.VITE_PUBLIC_READING_RELEASE !== "public-reading-20261101" || Boolean(location.search),
     });
-  }, []);
+  }, [location.pathname, location.search]);
 
   return (
     <Sod2029Shell
