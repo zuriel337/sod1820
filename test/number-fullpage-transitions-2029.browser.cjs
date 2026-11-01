@@ -8,6 +8,10 @@ const allowed=new Set(require('../docs/reviews/public-foundation-20261101/eviden
 for(const name of['convergence_meter','is_number_indexable','is_phrase_indexable'])allowed.add(name);
 const out=process.env.SOD_NUMBER_METRICS||'/tmp/number-fullpage-performance-20261101/transitions.json';
 const snapshots=new Map(),results=[];let api,localApi,browser;
+// Home's seven-day pulse otherwise gets a new millisecond cutoff on every
+// mount. Pin that same public read window for both clients, without changing
+// the app clock, data, calculations or permissions.
+const homePulseSince=new Date(Date.now()-7*86400000).toISOString();
 const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 const profiles=process.env.SOD_NUMBER_PERF_SMOKE==='1'?[{name:'desktop',width:1440,cpu:1,rtt:0,bytesPerSecond:0}]:[
  {name:'desktop',width:1440,cpu:1,rtt:0,bytesPerSecond:0},
@@ -29,10 +33,14 @@ async function run(version,profile,{warmup=false,pair=0}={}){
   if(method==='POST')for(const[key,value]of Object.entries(req.postDataJSON()||{})){
    if(value==null)continue;target.searchParams.set(key,Array.isArray(value)?'{'+value.map(v=>typeof v==='string'?'"'+v.replaceAll('"','\\"')+'"':String(v)).join(',')+'}':typeof value==='object'?JSON.stringify(value):String(value));
   }
+  if(url.origin===db&&['/rest/v1/gematria_words','/rest/v1/research_contributions'].includes(url.pathname)){
+   for(const key of['created_at','visibility_changed_at'])if(/^gte\.\d{4}-\d\d-\d\dT/.test(target.searchParams.get(key)||''))target.searchParams.set(key,'gte.'+homePulseSince);
+  }
   const incoming=req.headers(),headers={};for(const key of['apikey','authorization','accept','range','range-unit','prefer','origin','user-agent'])if(incoming[key])headers[key]=incoming[key];
   // Public body snapshots are shared between variants. CORS varies by the
   // current origin, not the first variant that read an identical public body.
   const key=(method==='HEAD'?'HEAD ':'GET ')+target.href+JSON.stringify({accept:headers.accept,range:headers.range,prefer:headers.prefer});
+  record.primed=snapshots.has(key);
   try{
    if(!snapshots.has(key)){
     const pending=(async()=>{const response=await (local?localApi:api).fetch(target.href,{method:method==='HEAD'?'HEAD':'GET',headers,maxRedirects:0,timeout:30000});const h=response.headers();delete h['content-encoding'];delete h['content-length'];delete h['transfer-encoding'];const body=await response.body();const wireBytes=/javascript|json|text|svg/.test(h['content-type']||'')?zlib.brotliCompressSync(body,{params:{[zlib.constants.BROTLI_PARAM_QUALITY]:5}}).length:body.length;return {status:response.status(),headers:h,body,wireBytes};})();
@@ -51,7 +59,12 @@ async function run(version,profile,{warmup=false,pair=0}={}){
  });
  const page=await context.newPage(),cdp=await context.newCDPSession(page);await cdp.send('Emulation.setCPUThrottlingRate',{rate:warmup?1:profile.cpu});
  page.on('pageerror',error=>audit.errors.push({phase,type:error.name,message:error.message.slice(0,300)}));page.setDefaultTimeout(30000);
- const readyNumber=async root=>{await expect(page.locator('.sod29-number-page')).toHaveAttribute('data-number-root',String(root),{timeout:60000});await expect(page.locator('.sod29-number-core2029.is-page')).toHaveAttribute('data-number-core-root',String(root));};
+ const readyNumber=async root=>{
+  await expect(page.locator('.sod29-number-page')).toHaveAttribute('data-number-root',String(root),{timeout:60000});await expect(page.locator('.sod29-number-core2029.is-page')).toHaveAttribute('data-number-core-root',String(root));
+  // Both variants must show an actionable canonical method result, rather
+  // than counting the old client's still-loading method placeholders as ready.
+  const method=page.locator('.sod29-number-v10-method-card').filter({has:page.getByText('מילוי',{exact:true})}).first();await expect(method).toBeEnabled({timeout:60000});await expect(method.locator('strong')).toHaveText(/[0-9]/,{timeout:60000});
+ };
  const readyHome=async()=>{await expect(page.locator('.h29-hero')).not.toContainText('טוען',{timeout:60000});await expect(page.locator('.h29-card-open').first()).toBeVisible({timeout:60000});};
  const menu=async label=>{
   if(profile.width<981){await page.locator('.sod29-mobile-menu-trigger').click();await page.locator('#sod29-mobile-navigation').getByRole('link',{name:label,exact:true}).click();}
@@ -83,7 +96,7 @@ async function run(version,profile,{warmup=false,pair=0}={}){
    steps.push(await step('back-post-home',async()=>{await page.goBack();await readyHome();}));
    steps.push(await step('home-number-full-page',openNumber));
    steps.push(await step('number-home',async()=>{await menu('בית');await readyHome();}));
-   if(!warmup){const row={version,profile:profile.name,width:profile.width,pair,repeat,postHref,steps,totalMs:steps.reduce((sum,s)=>sum+s.ms,0)};results.push(row);fs.writeFileSync(out,JSON.stringify({baselineSha:'dbbe91de46d21a37110664dc732473de6d9cc6ca',source:'actual compiled clients and frozen actual public read responses; not field telemetry',profiles,networkModel:'shared RTT/bandwidth response delivery; Brotli-equivalent text sizes; tab asset reuse; real server variation excluded after unmeasured snapshot warmup',firstVsRepeat:'first is a fresh tab, repeat returns within the same SPA after one complete cycle',worldImplementation:'unchanged dbbe product, separate World source branch not imported',results},null,2)+'\n');console.log(JSON.stringify({version,profile:profile.name,pair,repeat,totalMs:row.totalMs,requests:steps.reduce((sum,s)=>sum+s.requests,0)}));}
+   if(!warmup){const row={version,profile:profile.name,width:profile.width,pair,repeat,postHref,steps,totalMs:steps.reduce((sum,s)=>sum+s.ms,0)};results.push(row);fs.writeFileSync(out,JSON.stringify({baselineSha:'dbbe91de46d21a37110664dc732473de6d9cc6ca',source:'actual compiled clients and frozen actual public read responses; not field telemetry',profiles,homePulseSince,networkModel:'shared RTT/bandwidth response delivery; Brotli-equivalent text sizes; tab asset reuse; identical seven-day public Home pulse window; real server variation excluded after unmeasured snapshot warmup; misses explicitly audited',firstVsRepeat:'first is a fresh tab, repeat returns within the same SPA after one complete cycle',worldImplementation:'unchanged dbbe product, separate World source branch not imported',results},null,2)+'\n');console.log(JSON.stringify({version,profile:profile.name,pair,repeat,totalMs:row.totalMs,requests:steps.reduce((sum,s)=>sum+s.requests,0)}));}
    phase='unmeasured-world-preparation';await menu('העולם');await expect(page.locator('.sod29-world-entry-grid button').first()).toBeEnabled({timeout:60000});
   }
   assert.deepEqual(audit.errors,[]);assert.equal(audit.models,0);assert.equal(audit.writes,0);

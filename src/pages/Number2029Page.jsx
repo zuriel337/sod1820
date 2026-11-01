@@ -409,6 +409,7 @@ function NumberPageBody({ resolvedAddress = null }) {
 
   const loadMoreVerseGematria = async () => {
     if (!Number.isSafeInteger(root) || root < 0 || expandedVerseState.loading) return;
+    const request = navigationRequest.current;
     const loaded = verseGematriaRows.length;
     const total = Math.max(verseGematriaCount, loaded);
     const nextLimit = Math.min(total || loaded + 18, Math.max(expandedVerseState.limit + 18, loaded + 1));
@@ -416,6 +417,7 @@ function NumberPageBody({ resolvedAddress = null }) {
     setExpandedVerseState((current) => ({ ...current, loading: true, error: null }));
     try {
       const result = await fetchVersesByGematria(root, { limit: nextLimit });
+      if (request !== navigationRequest.current) return;
       setExpandedVerseState({
         loading: false,
         rows: result.verses,
@@ -424,6 +426,7 @@ function NumberPageBody({ resolvedAddress = null }) {
         error: null,
       });
     } catch (error) {
+      if (request !== navigationRequest.current) return;
       setExpandedVerseState((current) => ({ ...current, loading: false, error }));
     }
   };
@@ -466,15 +469,18 @@ function NumberPageBody({ resolvedAddress = null }) {
 
   const loadMoreRegularPhrases = async () => {
     if (regularPhraseState.loading || regularPhraseState.rows.length >= regularPhraseState.count) return;
+    const request = navigationRequest.current;
     setRegularPhraseState((current) => ({ ...current, loading: true, error: null }));
     try {
       const page = await getValuePhrasesPage(root, { offset: regularPhraseState.rows.length, limit: 30 });
+      if (request !== navigationRequest.current) return;
       setRegularPhraseState((current) => {
         const next = { loading: false, rows: [...current.rows, ...page.rows], count: page.count, error: null };
         rememberBounded(NUMBER_REGULAR_PHRASE_CACHE, `${readerIdentity}:${root}`, next, 40);
         return next;
       });
     } catch (error) {
+      if (request !== navigationRequest.current) return;
       setRegularPhraseState((current) => ({ ...current, loading: false, error }));
     }
   };
