@@ -51,3 +51,15 @@ raw timings are retained; the0.1 budget remains unchanged. Native diagnostic
 observers now capture source-node rectangles to attribute the movement before
 any further layout correction.
 
+
+The intermittent Home return CLS is now attributed. A separate real-SW/public-response
+experiment delays **consumption** of Topic replies1200ms (no fake body, explicitly
+not an acceptance timing run). Four returns each inserted the previously absent
+notable section above the source card: source y452.66→695–719px, individual
+shift0.133764/0.134316/0.147008/0.134316. The section itself is238.39px at390
+and adds its28px gap. Native geometry at other widths: desktop216.78px,
+760px323.89px,320px255.98px. Keep that same existing section mounted with
+truthful pending/empty/error messages, and use responsive floors220/330/240/260px
+through the existing container breakpoints. All real cards, ratings, links and
+motion remain; no maximum height or clipping. Re-run both the controlled delay
+and unmodified matched native comparison on the final deployment.

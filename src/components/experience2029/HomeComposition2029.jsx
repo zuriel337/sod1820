@@ -37,7 +37,7 @@ function titleNumber(title, tags) {
 }
 
 function useHomeCompositionData({ includeWorld = true } = {}) {
-  const [state, setState] = useState({ loading: true, posts: [], ciphers: [], notable: [], notableLoading: includeWorld });
+  const [state, setState] = useState({ loading: true, posts: [], ciphers: [], notable: [], notableLoading: includeWorld, notableError: null });
   useEffect(() => {
     let live = true;
     const update = (patch) => { if (live) setState((current) => ({ ...current, ...patch })); };
@@ -56,7 +56,7 @@ function useHomeCompositionData({ includeWorld = true } = {}) {
     getTzofonStories({ limit: 6 }).then((ciphers) => update({ ciphers: ciphers || [] })).catch(() => {});
     if (includeWorld) {
       fetchExplorerFacetPage("topic", { limit: 4 }).then((result) => update({ notable: result?.cards || [], notableLoading: false }))
-        .catch(() => update({ notableLoading: false }));
+        .catch(() => update({ notableLoading: false, notableError: "לא ניתן לטעון כרגע את ההתכנסויות. אפשר להמשיך לעולם." }));
     }
     return () => { live = false; };
   }, [includeWorld]);
@@ -161,9 +161,11 @@ export default function HomeComposition2029({
       </div>
     </Section>
 
-    {!corePublic && data.notable.length ? <Section title="התכנסויות בולטות" link={<Link to="/world#world-all-convergences">כל ההתכנסויות ←</Link>}>
+    {!corePublic ? <Section className="h29-notable-section" title="התכנסויות בולטות" link={<Link to="/world#world-all-convergences">כל ההתכנסויות ←</Link>}>
       <p className="h29-note">מסודרות לפי מד ההתכנסות הקיים. המדדים נפרדים: איכות, חוזק וסימוני זהב ויהלום.</p>
-      <div className="h29-notable">
+      <div className="h29-notable" aria-busy={data.notableLoading}>
+        {data.notableLoading ? <p className="h29-note" role="status">טוען את ההתכנסויות הבולטות…</p>
+          : !data.notable.length ? <p className="h29-note" role="status">{data.notableError || "אין כרגע התכנסויות בולטות להצגה."}</p> : null}
         {data.notable.map((card, index) => {
           const fresh = recentConvergence(card.approvedAt);
           const freshKey = `topic:${card.id}:approved:${card.approvedAt}`;
