@@ -41,12 +41,16 @@ test("multi-value rows link each existing number separately and never invent tar
 test("private or unavailable rows never become public placeholder findings", async () => {
   const projection = buildZviMultiValueWorldProjection([{ ...rows[0], privacy_scope: "private" }]);
   assert.equal(projection.cards.length, 0);
+  for(const status of ["candidate","draft","hidden",""]){
+    assert.equal(buildZviMultiValueWorldProjection([{...rows[0],status}]).cards.length,0);
+  }
 
   const client = {
     from() {
       const builder = {
         select() { return builder; },
-        in() { return Promise.resolve({ data: null, error: { message: "denied" } }); },
+        eq() { return builder; },in() { return builder; },
+        then(resolve,reject) { return Promise.resolve({data:null,error:{message:"denied"}}).then(resolve,reject); },
       };
       return builder;
     },
@@ -61,11 +65,13 @@ test("the public projection performs one bounded RLS read", async () => {
   const calls = [];
   const client = {
     from(table) {
-      const call = { table, fields: null, ids: null };
+      const call = { table, fields: null, ids: null, filters:[] };
       calls.push(call);
       const builder = {
         select(fields) { call.fields = fields; return builder; },
-        in(column, ids) { call.column = column; call.ids = ids; return Promise.resolve({ data: rows, error: null }); },
+        eq(column,value) { call.filters.push([column,value]);return builder; },
+        in(column, ids) { call.filters.push([column,ids]);if(column==="id"){call.column=column;call.ids=ids;}return builder; },
+        then(resolve,reject) { return Promise.resolve({data:rows,error:null}).then(resolve,reject); },
       };
       return builder;
     },
@@ -75,4 +81,5 @@ test("the public projection performs one bounded RLS read", async () => {
   assert.equal(calls.length, 1);
   assert.equal(calls[0].table, "world_contributor_research_v1");
   assert.equal(calls[0].ids.length, 5);
+  assert.deepEqual(calls[0].filters.slice(0,2),[["privacy_scope","public"],["status",["approved","canonical"]]]);
 });

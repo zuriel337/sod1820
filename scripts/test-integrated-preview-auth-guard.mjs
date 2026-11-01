@@ -86,6 +86,12 @@ test('functional private resumable uploads require the signed canonical image ca
  const guard=builder.slice(builder.indexOf('const POSTS_PREVIEW_BRANCH ='),builder.indexOf('const root ='));
  for(const target of ['production','development',undefined])assert.throws(()=>vm.runInNewContext(guard,{process:{env:{VERCEL_GIT_COMMIT_REF:functionalBranch,VERCEL_ENV:target}}}),/functional_preview_requires_preview_environment/);
 });
+test('functional Heichal reaches only its existing bounded public numeric Result Bundle contract',async()=>{
+ const headers={Authorization:'Bearer synthetic.user.jwt'},body={number:'18',question:'18',visitor_id:null,interaction_id:'11111111-1111-4111-8111-111111111111',requested_capabilities:['numeric','numeric_operators'],surface:'heichal'};
+ assert.equal((await request('/functions/v1/research-run',{workerSource:functionalWorker,headers,body})).forwarded,1);
+ for(const override of [{surface:'admin'},{number:'2147483648'},{requested_capabilities:['numeric','personal']},{user_ref:'forged'},{model:'another-provider'}])assert.equal((await request('/functions/v1/research-run',{workerSource:functionalWorker,headers,body:{...body,...override}})).status,403);
+ assert.equal((await request('/functions/v1/research-run',{headers,body})).status,403);
+});
 test('signup, global logout, account mutation, other grants and origins stay blocked', async () => {
   for (const [path, options] of [
     ['/auth/v1/signup', {}], ['/auth/v1/recover', {}], ['/auth/v1/user', { method: 'PUT' }],

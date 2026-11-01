@@ -251,7 +251,7 @@ function MediaShelf({ items, hasMore, access }) {
       <CanonicalMediaFigure2029 item={item} thumbnail alt={item.presentation?.label || "פתח תמונת מקור"} contextNote="פריט ציבורי במאגר המדיה" />
       <div><strong>{item.presentation?.label || "פריט מדיה"}</strong><small>{item.sourceRef}</small></div>
     </article>)}</div> : <p className="sod29-muted">לא נמצאו כרגע פריטי מדיה ציבוריים.</p>}
-    <div className="sod29-actions"><Link className="sod29-action" to="/gallery">למאגר המדיה הציבורי</Link></div>
+    <div className="sod29-actions"><Link className="sod29-action" to="/world?view=gallery">למאגר המדיה הציבורי</Link></div>
   </section>;
 }
 

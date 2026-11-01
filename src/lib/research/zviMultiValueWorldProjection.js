@@ -57,6 +57,7 @@ export function buildZviMultiValueWorldProjection(rows = []) {
   const cards = (Array.isArray(rows) ? rows : [])
     .filter((row) => SPEC_BY_ID.has(String(row?.id || "")))
     .filter((row) => String(row?.privacy_scope || "").trim() === "public")
+    .filter((row) => ["approved", "canonical"].includes(String(row?.status || "").trim()))
     .map((row) => {
       const spec = SPEC_BY_ID.get(String(row.id));
       return {
@@ -109,6 +110,8 @@ export async function fetchZviMultiValueWorldProjection({ publicClient = getPubl
     const { data, error } = await client
       .from("world_contributor_research_v1")
       .select("id,statement,terms,value,source_ref,contributor,engine_verified,status,privacy_scope")
+      .eq("privacy_scope", "public")
+      .in("status", ["approved", "canonical"])
       .in("id", ZVI_MULTI_VALUE_SPECS.map((item) => item.id));
     if (error) throw error;
     return { ...buildZviMultiValueWorldProjection(data), access: { available: true, reader: "public_rls" } };

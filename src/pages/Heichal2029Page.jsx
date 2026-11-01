@@ -13,7 +13,7 @@ import GematriaOpeningProjection from "../components/heichal/GematriaOpeningProj
 import { fetchTanachVerseByOrdinal, TANACH_ORDINAL_SCOPE } from "../lib/research/tanachOrdinalSources.js";
 
 const ACTIONS = [
-  { id: "calculate", label: "חשב", detail: "Gematria Calculator", to: "/research?tool=gematria", live: true },
+  { id: "calculate", label: "חשב", detail: "Gematria Calculator", to: "/2029/gematria", live: true },
   { id: "sources", label: "חפש במקורות", detail: "Books / Sources", to: "/books", live: true },
   { id: "text", label: "חקור טקסט", detail: "ELS / Biblical Cipher", to: "/els", live: true },
   { id: "world", label: "פתח בעולם", detail: "Research World", to: "/world", live: true },
@@ -378,7 +378,7 @@ function ActiveResearchEnvironment() {
     <section className="sod29-section">
       <div className="sod29-section-head"><div><div className="sod29-kicker">NEXT BEST ACTIONS</div><h2>מה אפשר לעשות עכשיו</h2><div className="sod29-muted">הפעולות נגזרות מההקשר ומהיכולות שכבר מחוברות; לא Toolbar קבוע של כל הכלים.</div></div></div>
       <div className="sod29-actions">
-        <Link className="sod29-action primary" to="/research?tool=gematria">חשב / בדוק שיטה</Link>
+        <Link className="sod29-action primary" to="/2029/gematria">חשב / בדוק שיטה</Link>
         {data?.sources?.length ? <Link className="sod29-action" to="/books">פתח מקורות</Link> : null}
         {canProbeTorahOrdinal ? (
           <button className="sod29-action" onClick={runOrdinalDiscovery} disabled={ordinalState.loading}>

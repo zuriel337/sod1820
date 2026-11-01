@@ -266,16 +266,18 @@ test('public World catalog remains searchable and paginated inside the new compo
   await search.fill('888');
   await expect(catalog.locator('a[href="/topic/888-yeshua"]')).toBeVisible({ timeout: 30_000 });
   await search.fill('');
+  await expect.poll(()=>cards.count()).toBe(8);
   const expand = catalog.getByRole('button', { name: 'עוד נושאים וחיבורים' });
-  if (await expand.count()) {
-    await expand.click();
-    await expect(expand).toHaveAttribute('aria-expanded', 'true');
-  }
-  const before=await cards.count();
+  await expect(expand).toBeVisible();
+  await expand.click();
+  await expect(catalog.getByRole('button',{name:'הצג פחות',exact:true})).toHaveAttribute('aria-expanded', 'true');
+  // The accepted composed catalog fetches 24 per page (8 while collapsed).
+  await expect.poll(()=>cards.count()).toBe(24);
   const more=catalog.getByRole('button',{name:'טען עוד',exact:true});
   await expect(more).toBeVisible();
   await more.click();
-  await expect.poll(()=>cards.count()).toBeGreaterThan(before);
+  await expect.poll(()=>cards.count()).toBe(45);
+  await expect(catalog.getByRole('button',{name:'טען עוד',exact:true})).toHaveCount(0);
   await assertNoHorizontalOverflow(page);
 });
 
@@ -290,7 +292,9 @@ test('native canonical Topic 2029 renders 888 with semantic links and SEO identi
   await expect(heroNumber).toHaveText('888');
   await expect(article.locator('h1')).toHaveText('ציר בדיקה');
   await expect(article).toContainText('מה מחבר את הציר הזה?');
-  await expect(article).toContainText('בין שוויון מספרי לבין הרמז');
+  await expect(article).toHaveAttribute('data-topic-density','sparse');
+  await expect(article).toContainText('יש כאן כרגע מעט חומר ישיר');
+  await expect(article.getByText('בין שוויון מספרי לבין הרמז')).toHaveCount(0);
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://sod1820.co.il/topic/888-yeshua');
   await expect(page.locator('script#sod-convergence-ld[type="application/ld+json"]')).toHaveCount(1);
   await assertNoHorizontalOverflow(page);
@@ -304,6 +308,7 @@ test('Topic expression focus opens Number 2029 and survives World + Heichal tran
 
   const topic = page.locator('article[data-entity-type="convergence"]');
   await expect(topic).toBeVisible({ timeout: 30_000 });
+  await expect(topic).toContainText('בין שוויון מספרי לבין הרמז');
   const chinam = topic.getByRole('button', { name: /חנם/ }).first();
   await expect(chinam).toBeVisible({ timeout: 20_000 });
   await chinam.click();

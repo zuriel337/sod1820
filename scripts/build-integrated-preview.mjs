@@ -63,13 +63,14 @@ function interceptFunctionalPreview(event, { req, u, rpc, authOrigin }) {
   };
   const hintMedia = u.origin === authOrigin && u.pathname === "/functions/v1/media-upload-intent";
   const els = u.origin === authOrigin && u.pathname === "/functions/v1/els-search-bridge";
+  const heichalResearch = u.origin === authOrigin && u.pathname === "/functions/v1/research-run";
   const researchItems = u.origin === authOrigin && u.pathname === "/rest/v1/research_items" && mutating;
   const signup = u.origin === authOrigin && req.method === "POST" && ["/auth/v1/otp", "/auth/v1/signup"].includes(u.pathname);
   const razielProxy = u.origin === self.location?.origin && u.pathname === "/api/preview-raziel";
   const ownSelf = u.origin === self.location?.origin && u.pathname === "/api/contributor-self" && mutating;
   const ownProfile = u.origin === authOrigin && u.pathname === "/rest/v1/users" && mutating;
   const privateTus = u.origin === "https://linswmnnkjxvweumprav.storage.supabase.co" && /^\/storage\/v1\/upload\/resumable(?:\/[^/?#]+)?$/.test(u.pathname) && mutating;
-  if (!(signup || hintMedia || els || privateTus || researchItems || razielProxy || ownSelf || ownProfile || (u.origin === authOrigin && (personRpcs.has(rpc) || stateRpcs.has(rpc) || Object.hasOwn(ownRpcKeys,rpc))))) return false;
+  if (!(signup || hintMedia || els || heichalResearch || privateTus || researchItems || razielProxy || ownSelf || ownProfile || (u.origin === authOrigin && (personRpcs.has(rpc) || stateRpcs.has(rpc) || Object.hasOwn(ownRpcKeys,rpc))))) return false;
   event.respondWith((async () => {
     const denied = reason => new Response(JSON.stringify({ error: reason || "preview_operation_denied" }), { status: 403, headers: { "Content-Type": "application/json", "X-Preview-Write-Blocked": "true" } });
     try {
@@ -96,6 +97,12 @@ function interceptFunctionalPreview(event, { req, u, rpc, authOrigin }) {
         const body=JSON.parse(raw);
         if(!body||!["page","verify","verify_batch"].includes(body.op)||u.search)return denied();
         return fetch(req); // Canonical bridge explicitly supports guest/user quotas; no role is elevated.
+      }
+      if(heichalResearch){
+        const raw=await req.clone().text();if(raw.length>48000)return denied();
+        const b=JSON.parse(raw),keys=["number","question","visitor_id","interaction_id","requested_capabilities","surface"];
+        if(!b||Array.isArray(b)||Object.keys(b).some(k=>!keys.includes(k))||u.search||b.surface!=="heichal"||!/^[0-9]{1,10}$/.test(b.number)||Number(b.number)>2147483647||typeof b.question!=="string"||Array.from(b.question).length>300||!Array.isArray(b.requested_capabilities)||b.requested_capabilities.join(",")!=="numeric,numeric_operators")return denied();
+        return fetch(req); // Same public numeric Result Bundle gate, trace and budget; never a second model transport.
       }
       const authResponse = await fetch(authOrigin + "/auth/v1/user", { headers: { apikey: req.headers.get("apikey") || "", Authorization: bearer }, credentials: "omit" });
       if (!authResponse.ok) return denied("authentication_required");

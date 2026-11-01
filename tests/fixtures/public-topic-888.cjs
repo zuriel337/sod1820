@@ -13,7 +13,7 @@ async function installPublicTopicFixture(page, { available = true, onlyMatchingR
       created_at: '2026-10-12T00:00:00Z', approved_at: '2026-10-12T00:00:00Z',
     }] : [];
     await route.fulfill({ status: 200, contentType: 'application/json',
-      headers: { 'content-range': rows.length ? '0-0/1' : '*/0' }, body: JSON.stringify(rows) });
+      headers: { 'content-range': rows.length ? '0-0/1' : '*/0','access-control-allow-origin':'*','access-control-expose-headers':'Content-Range' }, body: JSON.stringify(rows) });
   });
 }
 
@@ -34,7 +34,7 @@ async function installSyntheticWorldCatalogFixture(page){
     const matching=slug||query.includes('888')?rows.filter(row=>row.slug==='888-yeshua'):rows;
     const offset=Number(url.searchParams.get('offset')||0),limit=Number(url.searchParams.get('limit')||45);
     const pageRows=matching.slice(offset,offset+limit);
-    await route.fulfill({status:200,contentType:'application/json',headers:{'content-range':pageRows.length?offset+'-'+(offset+pageRows.length-1)+'/'+matching.length:'*/'+matching.length},body:JSON.stringify(pageRows)});
+    await route.fulfill({status:200,contentType:'application/json',headers:{'content-range':pageRows.length?offset+'-'+(offset+pageRows.length-1)+'/'+matching.length:'*/'+matching.length,'access-control-allow-origin':'*','access-control-expose-headers':'Content-Range'},body:JSON.stringify(pageRows)});
   });
 }
 module.exports={installPublicTopicFixture,installSyntheticWorldCatalogFixture};

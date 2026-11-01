@@ -142,9 +142,16 @@ function ElsAddressAlias2029() {
 function LegacyDocumentHandoff() {
   const location = useLocation();
   const href = `${location.pathname}${location.search || ""}${location.hash || ""}`;
+  const functionalPreview = import.meta.env.VITE_FUNCTIONAL_UNIFIED_PREVIEW === "true";
   useEffect(() => {
-    window.location.assign(href);
-  }, [href]);
+    if(!functionalPreview)window.location.assign(href);
+  }, [href,functionalPreview]);
+  if(functionalPreview)return <PublicContributorFrame2029 surface="community" title="העמוד באתר הוותיק" introVariant="none">
+    <main dir="rtl" className="sod29-section"><h1>העמוד הזה זמין באתר הוותיק</h1>
+      <p>אפשר להמשיך אליו או לחזור לבית.</p>
+      <div className="sod29-actions"><a className="sod29-action" href={"https://sod1820.co.il"+href}>פתיחת העמוד באתר הוותיק</a><a className="sod29-action" href="/2029">חזרה לבית</a></div>
+    </main>
+  </PublicContributorFrame2029>;
   return <Loading2029 />;
 }
 
@@ -222,6 +229,8 @@ export default function App2029() {
               <Route path="/world" element={<Locked flag="lock_world" homeHref="/2029"><WorldEntry2029 /></Locked>} />
               <Route path="/topic/:slug" element={<Locked flag="lock_world" homeHref="/2029"><Topic2029Page /></Locked>} />
               <Route path="/2029/posts" element={<Posts2029Page />} />
+              {import.meta.env.VITE_FUNCTIONAL_UNIFIED_PREVIEW === "true" && <Route path="/posts" element={<Posts2029Page />} />}
+              {import.meta.env.VITE_FUNCTIONAL_UNIFIED_PREVIEW === "true" && <Route path="/research" element={<GematriaEntry2029 />} />}
               <Route path="/login" element={<AuthPage />} />
               <Route path="/auth/callback" element={<OAuthCallback2029 />} />
               <Route path="/community/chat" element={<CommunityChatTransition2029Page />} />

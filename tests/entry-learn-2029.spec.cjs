@@ -70,6 +70,9 @@ test('direct Post opens Number; contextual teaching and help retain the same foc
   // The synthetic Bennett fixture uses the unchanged authored contextual renderer: an engine-verified saved equality (נפתלי בנט = 631) is the explicit focus control.
   const focusControl = post.locator('.sod29-reading-source [data-contextual-number-focus="true"][data-expression="נפתלי בנט"]').first();
   await expect(focusControl).toBeVisible({ timeout: 30_000 });
+  const focusAnchor=await focusControl.getAttribute('id');
+  expect(focusAnchor).toMatch(/^post-annotation-[0-9a-f]{64}-[0-9]+$/);
+  const occurrenceKey=JSON.stringify(['posts:900000631','#'+focusAnchor,'נפתלי בנט','רגיל',null,631]);
   expect(traceRequests).toBe(0);
 
   await focusControl.click();
@@ -141,7 +144,7 @@ test('direct Post opens Number; contextual teaching and help retain the same foc
       selection.method || null,
       Number(selection.resultValue),
     ]);
-  }), { timeout: 5_000 }).toBe(JSON.stringify(['bennett-631', 'נפתלי בנט', 'רגיל', 631]));
+  }), { timeout: 5_000 }).toBe(JSON.stringify([occurrenceKey, 'נפתלי בנט', 'רגיל', 631]));
 
   await expect.poll(() => traceRequests, { timeout: 10_000 }).toBeGreaterThan(0);
 
@@ -179,7 +182,7 @@ test('direct Post opens Number; contextual teaching and help retain the same foc
   const exactReturn = mobileNav.getByRole('button', { name: /חזרה מדויקת/ });
   await expect(exactReturn).toBeEnabled();
   await exactReturn.click();
-  await expect(page).toHaveURL(/\/post\/bennett-melach-631-78#source-region-bennett-631/, { timeout: 20_000 });
+  await expect(page).toHaveURL(BASE+POST_PATH+'#'+focusAnchor, { timeout: 20_000 });
   await expect(page.locator('.sod29-entry-orientation-slot')).toHaveCount(0);
   await noOverflow(page);
 });

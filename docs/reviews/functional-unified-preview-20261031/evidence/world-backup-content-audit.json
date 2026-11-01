@@ -1,0 +1,66 @@
+[
+  {
+    "path": "src/components/research/WorldKnowledgeTypes2029.jsx",
+    "backupBlob": "01c81094e74a46f1ee8f4742d8011f817532c2c4",
+    "baseBlob": "4d631a1c07e80dba62419cfc633c93f1f861973d",
+    "currentBlob": "4d631a1c07e80dba62419cfc633c93f1f861973d",
+    "baseEqual": false,
+    "currentEqual": false
+  },
+  {
+    "path": "src/components/research/WorldPeopleSources2029.jsx",
+    "backupBlob": "76a8d9d393dc265099664d20625f19ccb72e49a3",
+    "baseBlob": "d325d79b8659ee0fc5c39f90212b3a840e0ddbb5",
+    "currentBlob": "d325d79b8659ee0fc5c39f90212b3a840e0ddbb5",
+    "baseEqual": false,
+    "currentEqual": false
+  },
+  {
+    "path": "src/components/research/WorldSourceConnections.jsx",
+    "backupBlob": "57642843a1db98135360c64583a5967f1855fe13",
+    "baseBlob": "266502f82264f110a79d13e6ebe1804e199a6ef2",
+    "currentBlob": "266502f82264f110a79d13e6ebe1804e199a6ef2",
+    "baseEqual": false,
+    "currentEqual": false
+  },
+  {
+    "path": "src/components/research/WorldSourceInspector2029.jsx",
+    "backupBlob": "afa114b2b175583e6f477cdec594f302d764a7fe",
+    "baseBlob": "d9328713384f309a0407005b9642f525c6fee5b2",
+    "currentBlob": "d9328713384f309a0407005b9642f525c6fee5b2",
+    "baseEqual": false,
+    "currentEqual": false
+  },
+  {
+    "path": "src/components/research/WorldSourceStory.jsx",
+    "backupBlob": "e6dd5a36c8b6f4aa551875086233fb8574c95f07",
+    "baseBlob": "a88042a89606a2867e2020b3ac645105dd01b2fe",
+    "currentBlob": "a88042a89606a2867e2020b3ac645105dd01b2fe",
+    "baseEqual": false,
+    "currentEqual": false
+  },
+  {
+    "path": "src/lib/research/zviMultiValueWorldProjection.js",
+    "backupBlob": "be2d33949cdc4d51b18a4b2776585203854ba364",
+    "baseBlob": "fccc55a868da57da9cc197b9c6ba30a5bdba3a9a",
+    "currentBlob": "fccc55a868da57da9cc197b9c6ba30a5bdba3a9a",
+    "baseEqual": false,
+    "currentEqual": false
+  },
+  {
+    "path": "test/world-knowledge-types-2029.test.mjs",
+    "backupBlob": "a6e8c511d5e830a1bb2531efdf1d16075cde1b65",
+    "baseBlob": "6839429261601c1fac9732876442e2a3c52eeff0",
+    "currentBlob": "6839429261601c1fac9732876442e2a3c52eeff0",
+    "baseEqual": false,
+    "currentEqual": false
+  },
+  {
+    "path": "test/world-writer-source-focus-2029.browser.py",
+    "backupBlob": "602c701297b09964819f24b8cebee16c323e84d3",
+    "baseBlob": "857562133a3bb2b1dfa30ae1d820434518901c00",
+    "currentBlob": "857562133a3bb2b1dfa30ae1d820434518901c00",
+    "baseEqual": false,
+    "currentEqual": false
+  }
+]
