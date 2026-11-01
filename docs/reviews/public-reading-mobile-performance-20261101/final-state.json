@@ -1,0 +1,41 @@
+{
+  "productBranch": "gpt/2029-public-reading-release-configuration-20261101",
+  "productSha": "1bd9fe91c874f6ce578934afb45f9c9257891040",
+  "baselineSha": "4e6239c6d26e00b70ee10b341529491bd5b0b43c",
+  "mainBeforeAndAfter": "2195c9784c5c9f0b1ec3cd3c1137fbd76045845b",
+  "evidenceBranch": "gpt/2029-public-reading-release-acceptance-20261101",
+  "evidenceCompletionCheckpoint": "cba15ce2b061c294d8184bf914a0ee7e3ec77df3",
+  "preview": {
+    "id": "dpl_CZWJMQvvET9ZMAHquWNaU9AUF1nT",
+    "url": "https://sod1820-egj34owpy-sod1820-s-projects.vercel.app",
+    "target": "staging",
+    "readyState": "READY",
+    "identityVerifiedInBrowser": true
+  },
+  "productionAliases": [
+    {
+      "alias": "sod1820.co.il",
+      "deploymentId": "dpl_BFpwZGiYL3Qpdy9nCuGKGb9Xmko2"
+    },
+    {
+      "alias": "www.sod1820.co.il",
+      "deploymentId": "dpl_BFpwZGiYL3Qpdy9nCuGKGb9Xmko2"
+    },
+    {
+      "alias": "sod1820.vercel.app",
+      "deploymentId": "dpl_BFpwZGiYL3Qpdy9nCuGKGb9Xmko2"
+    }
+  ],
+  "scopeReleased": true,
+  "afterId": "18fb4f13-82d5-488c-8e73-f7d402cbc0eb",
+  "noProductDataWrites": true,
+  "sharedSchemaServerAuthRlsFlagsChanged": false,
+  "productionDeployment": false,
+  "mainMergePush": false,
+  "productWorktreeUntrackedNotTask": [
+    "node_modules (pre-existing dependency link, excluded)"
+  ],
+  "realAccountModelWritesTested": false,
+  "doc37LiveEdited": false,
+  "runtimeSourceTreeMatchesProduct": true
+}

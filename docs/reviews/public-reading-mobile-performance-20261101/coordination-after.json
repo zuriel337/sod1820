@@ -1,0 +1,10 @@
+{
+  "id": "18fb4f13-82d5-488c-8e73-f7d402cbc0eb",
+  "task_key": "PUBLIC_READING_MOBILE_PERFORMANCE_20261101",
+  "status": "AFTER_NATIVE_PERFORMANCE_TESTED_REGRESSIONS_DOCUMENTED_SCOPE_RELEASED",
+  "parent_assignment_id": "2004bcf6-a0e5-48bf-9684-3a45ad0368a7",
+  "to_actor": "ZURIEL",
+  "dispatch_kind": null,
+  "dispatch_state": null,
+  "created_at": "2026-11-01T23:35:39.332991Z"
+}
