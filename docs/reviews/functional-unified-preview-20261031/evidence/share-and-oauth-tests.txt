@@ -1,0 +1,31 @@
+✔ public root share strips every private and view parameter, retaining current protected host (1.780652ms)
+✔ a nested reply shares the complete established path for direct opening and refresh (0.338346ms)
+✔ unknown, cyclic, malformed and overly deep ancestry and unsafe origins never produce a link (0.449669ms)
+✔ portable link preserves exact backward occurrence, selected findings/source and presentation (4.951905ms)
+✔ both corpora; no private metadata or unselected candidate; no implied verification (0.785814ms)
+✔ reject unverified, malformed and oversized inputs without truncating selections (0.70177ms)
+✔ foreign fragments ignored; malformed share fails closed (0.561772ms)
+✔ recipient whitelist discards injected commands, paths, record identity and trust flags (3.207999ms)
+✔ new selection produces different link and never mutates the captured old one (0.617608ms)
+✔ functional OAuth has one exact verified callback for both providers and preserves local research context separately (1.795406ms)
+✔ returns to the initiating local route including its query, without an auth fragment (2.083054ms)
+✔ external, encoded, malformed and control-character targets cannot change origin (0.387052ms)
+✔ unverified previews fail before an OAuth request can be built (0.856276ms)
+share-attribution-boundary: ok
+✔ test/share-attribution-boundary.test.mjs (40.015827ms)
+▶ copy reports actual browser outcome and removes its temporary field
+  ✔ fallback true (0.6771ms)
+  ✔ fallback false (0.139956ms)
+  ✔ fallback throws (0.166837ms)
+  ✔ native clipboard succeeds without fallback (0.256428ms)
+✔ copy reports actual browser outcome and removes its temporary field (3.561784ms)
+share-object-foundation: ok
+✔ test/share-object-foundation.test.mjs (41.571908ms)
+ℹ tests 20
+ℹ suites 0
+ℹ pass 20
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 164.532173

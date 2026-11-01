@@ -1,0 +1,46 @@
+
+Running 3 tests using 1 worker
+
+(node:70771) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:70771) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1/3] ../../tmp/functional-unified-preview/browser-reopened/tests/world2029-release.spec.cjs:305:1 › Topic expression focus opens Number 2029 and survives World + Heichal transitions
+[2/3] ../../tmp/functional-unified-preview/browser-reopened/tests/world2029-release.spec.cjs:604:1 › Number 2029 878 follows the approved release profile and preserves its journey identity
+  1) ../../tmp/functional-unified-preview/browser-reopened/tests/world2029-release.spec.cjs:604:1 › Number 2029 878 follows the approved release profile and preserves its journey identity 
+
+    Test timeout of 60000ms exceeded.
+
+    Error: locator.click: Test timeout of 60000ms exceeded.
+    Call log:
+      - waiting for locator('[data-experience-surface="number"]').locator('[data-experience-capability="number-journey-gate"]').getByRole('button', { name: /צא למסע 878/ })
+
+
+      613 |   await expect(journeyGate).toContainText('878');
+      614 |   if (FUNCTIONAL_PREVIEW_FIXTURE) {
+    > 615 |     await journeyGate.getByRole('button', { name: /צא למסע 878/ }).click();
+          |                                                                    ^
+      616 |     await expect(page).toHaveURL(`${BASE}/world?focus=context`, {timeout:30_000});
+      617 |     await expect(page.locator('.sod29-world-journey-rail')).toBeVisible({timeout:30_000});
+      618 |     await expect.poll(()=>page.evaluate(()=>JSON.parse(sessionStorage.getItem('sod_research_context_v2:guest')||'null')?.dimensions?.journeySemanticId)).toBe('golden:878:v1');
+        at /tmp/functional-unified-preview/browser-reopened/tests/world2029-release.spec.cjs:615:68
+
+    Error Context: ../../tmp/functional-unified-preview/browser-reopened/results/world2029-release-Number-2-98759-serves-its-journey-identity/error-context.md
+
+
+(node:71012) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:71012) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[3/3] ../../tmp/functional-unified-preview/browser-reopened/tests/world2029-release.spec.cjs:663:1 › Golden World 878 release profile preserves public Number, whole images and explicit journey entry
+  1 failed
+    ../../tmp/functional-unified-preview/browser-reopened/tests/world2029-release.spec.cjs:604:1 › Number 2029 878 follows the approved release profile and preserves its journey identity 
+  2 passed (1.4m)

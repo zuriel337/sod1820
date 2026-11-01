@@ -1,0 +1,925 @@
+{
+  "compiledProductSHA": "88595d35344bbb78ff21b76f3c2e78a458e81673",
+  "stats": {
+    "startTime": "2026-11-01T00:06:10.710Z",
+    "duration": 436436.67000000004,
+    "expected": 48,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "scenarios": [
+    {
+      "file": "entry-learn-2029.spec.cjs",
+      "line": 39,
+      "title": "direct Post opens Number; contextual teaching and help retain the same focus at 390px",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "expectedStatus": "passed",
+          "results": [
+            {
+              "status": "passed",
+              "durationMs": 7571,
+              "errors": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "entry-learn-2029.spec.cjs",
+      "line": 190,
+      "title": "completed Post entry stays compact after reload",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "expectedStatus": "passed",
+          "results": [
+            {
+              "status": "passed",
+              "durationMs": 1529,
+              "errors": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "world2029-release.spec.cjs",
+      "line": 139,
+      "title": "Core Web Vitals CLS budget holds on /2029 at 390px",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "expectedStatus": "passed",
+          "results": [
+            {
+              "status": "passed",
+              "durationMs": 6187,
+              "errors": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "world2029-release.spec.cjs",
+      "line": 139,
+      "title": "Core Web Vitals CLS budget holds on /world at 390px",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "expectedStatus": "passed",
+          "results": [
+            {
+              "status": "passed",
+              "durationMs": 5572,
+              "errors": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "world2029-release.spec.cjs",
+      "line": 139,
+      "title": "Core Web Vitals CLS budget holds on /topic/888-yeshua at 390px",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "expectedStatus": "passed",
+          "results": [
+            {
+              "status": "passed",
+              "durationMs": 5244,
+              "errors": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "world2029-release.spec.cjs",
+      "line": 139,
+      "title": "Core Web Vitals CLS budget holds on /books at 390px",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "expectedStatus": "passed",
+          "results": [
+            {
+              "status": "passed",
+              "durationMs": 5212,
+              "errors": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "world2029-release.spec.cjs",
+      "line": 139,
+      "title": "Core Web Vitals CLS budget holds on /book/daat-tevunot at 390px",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "expectedStatus": "passed",
+          "results": [
+            {
+              "status": "passed",
+              "durationMs": 5288,
+              "errors": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "world2029-release.spec.cjs",
+      "line": 139,
+      "title": "Core Web Vitals CLS budget holds on /els at 390px",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "expectedStatus": "passed",
+          "results": [
+            {
+              "status": "passed",
+              "durationMs": 4741,
+              "errors": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "world2029-release.spec.cjs",
+      "line": 139,
+      "title": "Core Web Vitals CLS budget holds on /2029/number/1237 at 390px",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "expectedStatus": "passed",
+          "results": [
+            {
+              "status": "passed",
+              "durationMs": 5233,
+              "errors": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "world2029-release.spec.cjs",
+      "line": 222,
+      "title": "direct /world opens public composed World with aircraft story, real arrivals and source navigation",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "expectedStatus": "passed",
+          "results": [
+            {
+              "status": "passed",
+              "durationMs": 2338,
+              "errors": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "world2029-release.spec.cjs",
+      "line": 253,
+      "title": "public World catalog remains searchable and paginated inside the new composed presentation",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "expectedStatus": "passed",
+          "results": [
+            {
+              "status": "passed",
+              "durationMs": 4522,
+              "errors": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "world2029-release.spec.cjs",
+      "line": 284,
+      "title": "native canonical Topic 2029 renders 888 with semantic links and SEO identity",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "expectedStatus": "passed",
+          "results": [
+            {
+              "status": "passed",
+              "durationMs": 1436,
+              "errors": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "world2029-release.spec.cjs",
+      "line": 304,
+      "title": "Topic expression focus opens Number 2029 and survives World + Heichal transitions",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "expectedStatus": "passed",
+          "results": [
+            {
+              "status": "passed",
+              "durationMs": 7939,
+              "errors": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "world2029-release.spec.cjs",
+      "line": 356,
+      "title": "Number 2029 preview opens 1237 with all available methods visible in one wrapped research stage",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "expectedStatus": "passed",
+          "results": [
+            {
+              "status": "passed",
+              "durationMs": 12953,
+              "errors": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "world2029-release.spec.cjs",
+      "line": 409,
+      "title": "Number 2029 596 keeps six methods visible and finds Jerusalem↔Shomrim as a live hidden crossing",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "expectedStatus": "passed",
+          "results": [
+            {
+              "status": "passed",
+              "durationMs": 6786,
+              "errors": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "world2029-release.spec.cjs",
+      "line": 450,
+      "title": "Number 2029 1118 uses canonical Hebrew verse refs and appends the gematria value after the verse",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "expectedStatus": "passed",
+          "results": [
+            {
+              "status": "passed",
+              "durationMs": 6065,
+              "errors": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "world2029-release.spec.cjs",
+      "line": 467,
+      "title": "Number 2029 global drawer reuses the same method-first Core and carries Raziel context",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "expectedStatus": "passed",
+          "results": [
+            {
+              "status": "passed",
+              "durationMs": 22698,
+              "errors": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "world2029-release.spec.cjs",
+      "line": 529,
+      "title": "Contextual Number Surface stays one desktop sidecar through focus → preview → back",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "expectedStatus": "passed",
+          "results": [
+            {
+              "status": "passed",
+              "durationMs": 22658,
+              "errors": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "world2029-release.spec.cjs",
+      "line": 560,
+      "title": "Number 2029 Miluy switches the whole stage to 878 with language bridges and in-place explain",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "expectedStatus": "passed",
+          "results": [
+            {
+              "status": "passed",
+              "durationMs": 8003,
+              "errors": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "world2029-release.spec.cjs",
+      "line": 603,
+      "title": "Number 2029 878 keeps its general research path but no longer opens the locked Golden Journey",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "expectedStatus": "passed",
+          "results": [
+            {
+              "status": "passed",
+              "durationMs": 14408,
+              "errors": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "world2029-release.spec.cjs",
+      "line": 627,
+      "title": "Number 2029 golden visual calibration covers 878, 358 and the 1326 visual target in Page and Drawer",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "expectedStatus": "passed",
+          "results": [
+            {
+              "status": "passed",
+              "durationMs": 34456,
+              "errors": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "world2029-release.spec.cjs",
+      "line": 654,
+      "title": "Golden World 878 journey stays closed while the public Number 878 and full images remain readable",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "expectedStatus": "passed",
+          "results": [
+            {
+              "status": "passed",
+              "durationMs": 12851,
+              "errors": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "world2029-release.spec.cjs",
+      "line": 690,
+      "title": "Public World story and source entry remain usable and overflow-free at 320px",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "expectedStatus": "passed",
+          "results": [
+            {
+              "status": "passed",
+              "durationMs": 1810,
+              "errors": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "world2029-release.spec.cjs",
+      "line": 690,
+      "title": "Public World story and source entry remain usable and overflow-free at 360px",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "expectedStatus": "passed",
+          "results": [
+            {
+              "status": "passed",
+              "durationMs": 1759,
+              "errors": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "world2029-release.spec.cjs",
+      "line": 690,
+      "title": "Public World story and source entry remain usable and overflow-free at 390px",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "expectedStatus": "passed",
+          "results": [
+            {
+              "status": "passed",
+              "durationMs": 1701,
+              "errors": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "world2029-release.spec.cjs",
+      "line": 704,
+      "title": "RICH live World 1820 is truthful and overflow-free at 320px",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "expectedStatus": "passed",
+          "results": [
+            {
+              "status": "passed",
+              "durationMs": 13585,
+              "errors": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "world2029-release.spec.cjs",
+      "line": 704,
+      "title": "RICH live World 1820 is truthful and overflow-free at 360px",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "expectedStatus": "passed",
+          "results": [
+            {
+              "status": "passed",
+              "durationMs": 11562,
+              "errors": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "world2029-release.spec.cjs",
+      "line": 704,
+      "title": "RICH live World 1820 is truthful and overflow-free at 390px",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "expectedStatus": "passed",
+          "results": [
+            {
+              "status": "passed",
+              "durationMs": 11661,
+              "errors": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "world2029-release.spec.cjs",
+      "line": 704,
+      "title": "RICH live World 1820 is truthful and overflow-free at 1440px",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "expectedStatus": "passed",
+          "results": [
+            {
+              "status": "passed",
+              "durationMs": 11881,
+              "errors": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "world2029-release.spec.cjs",
+      "line": 715,
+      "title": "RICH 1820 presents one anchor header before profile and exploration lanes",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "expectedStatus": "passed",
+          "results": [
+            {
+              "status": "passed",
+              "durationMs": 11310,
+              "errors": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "world2029-release.spec.cjs",
+      "line": 735,
+      "title": "RICH 1820 opens human-first before raw research detail",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "expectedStatus": "passed",
+          "results": [
+            {
+              "status": "passed",
+              "durationMs": 12343,
+              "errors": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "world2029-release.spec.cjs",
+      "line": 775,
+      "title": "RICH 1820 projects real published media without legacy gallery UI",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "expectedStatus": "passed",
+          "results": [
+            {
+              "status": "passed",
+              "durationMs": 11982,
+              "errors": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "world2029-release.spec.cjs",
+      "line": 792,
+      "title": "RICH 1820 remains useful when research rows are access-filtered",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "expectedStatus": "passed",
+          "results": [
+            {
+              "status": "passed",
+              "durationMs": 11767,
+              "errors": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "world2029-release.spec.cjs",
+      "line": 807,
+      "title": "automatic filters, sorting and explain-why work without exposing admin research controls",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "expectedStatus": "passed",
+          "results": [
+            {
+              "status": "passed",
+              "durationMs": 11844,
+              "errors": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "world2029-release.spec.cjs",
+      "line": 825,
+      "title": "MEDIUM live World 314 remains medium instead of being visually inflated",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "expectedStatus": "passed",
+          "results": [
+            {
+              "status": "passed",
+              "durationMs": 5390,
+              "errors": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "world2029-release.spec.cjs",
+      "line": 835,
+      "title": "SPARSE live World 122 stays honestly sparse with no fabricated research",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "expectedStatus": "passed",
+          "results": [
+            {
+              "status": "passed",
+              "durationMs": 4383,
+              "errors": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "world2029-release.spec.cjs",
+      "line": 845,
+      "title": "World uses the shared Command, Inspect, Share and exact-return seams",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "expectedStatus": "passed",
+          "results": [
+            {
+              "status": "passed",
+              "durationMs": 24190,
+              "errors": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "world2029-release.spec.cjs",
+      "line": 897,
+      "title": "loading and error states are honest and native",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "expectedStatus": "passed",
+          "results": [
+            {
+              "status": "passed",
+              "durationMs": 21574,
+              "errors": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "world2029-release.spec.cjs",
+      "line": 921,
+      "title": "unavailable identity is not silently replaced by another anchor",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "expectedStatus": "passed",
+          "results": [
+            {
+              "status": "passed",
+              "durationMs": 2351,
+              "errors": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "world2029-release.spec.cjs",
+      "line": 930,
+      "title": "reduced motion preserves the same World meaning and controls",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "expectedStatus": "passed",
+          "results": [
+            {
+              "status": "passed",
+              "durationMs": 11584,
+              "errors": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "world2029-release.spec.cjs",
+      "line": 942,
+      "title": "320px RTL World survives 200% text zoom without horizontal overflow",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "expectedStatus": "passed",
+          "results": [
+            {
+              "status": "passed",
+              "durationMs": 11486,
+              "errors": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "world2029-release.spec.cjs",
+      "line": 954,
+      "title": "private researcher corpus stays gated for non-admin 2029 sessions",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "expectedStatus": "passed",
+          "results": [
+            {
+              "status": "passed",
+              "durationMs": 1358,
+              "errors": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "world2029-release.spec.cjs",
+      "line": 967,
+      "title": "source projector light 390: source-first writer and full Hashmal reading",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "expectedStatus": "passed",
+          "results": [
+            {
+              "status": "passed",
+              "durationMs": 8135,
+              "errors": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "world2029-release.spec.cjs",
+      "line": 967,
+      "title": "source projector light 1440: source-first writer and full Hashmal reading",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "expectedStatus": "passed",
+          "results": [
+            {
+              "status": "passed",
+              "durationMs": 8538,
+              "errors": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "world2029-release.spec.cjs",
+      "line": 967,
+      "title": "source projector parchment 390: source-first writer and full Hashmal reading",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "expectedStatus": "passed",
+          "results": [
+            {
+              "status": "passed",
+              "durationMs": 7408,
+              "errors": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "world2029-release.spec.cjs",
+      "line": 967,
+      "title": "source projector parchment 1440: source-first writer and full Hashmal reading",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "expectedStatus": "passed",
+          "results": [
+            {
+              "status": "passed",
+              "durationMs": 7576,
+              "errors": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "world2029-release.spec.cjs",
+      "line": 967,
+      "title": "source projector dark 390: source-first writer and full Hashmal reading",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "expectedStatus": "passed",
+          "results": [
+            {
+              "status": "passed",
+              "durationMs": 5928,
+              "errors": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "world2029-release.spec.cjs",
+      "line": 967,
+      "title": "source projector dark 1440: source-first writer and full Hashmal reading",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "expectedStatus": "passed",
+          "results": [
+            {
+              "status": "passed",
+              "durationMs": 6518,
+              "errors": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

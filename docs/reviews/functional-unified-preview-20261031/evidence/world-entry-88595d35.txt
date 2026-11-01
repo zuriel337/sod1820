@@ -1,0 +1,70 @@
+
+Running 48 tests using 2 workers
+
+(node:67709) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:67710) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:67710) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:67709) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1/48] ../../tmp/functional-unified-preview/browser-final/tests/entry-learn-2029.spec.cjs:39:1 › direct Post opens Number; contextual teaching and help retain the same focus at 390px
+[2/48] ../../tmp/functional-unified-preview/browser-final/tests/world2029-release.spec.cjs:139:3 › Core Web Vitals CLS budget holds on /2029 at 390px
+[3/48] ../../tmp/functional-unified-preview/browser-final/tests/world2029-release.spec.cjs:139:3 › Core Web Vitals CLS budget holds on /world at 390px
+[4/48] ../../tmp/functional-unified-preview/browser-final/tests/entry-learn-2029.spec.cjs:190:1 › completed Post entry stays compact after reload
+[5/48] ../../tmp/functional-unified-preview/browser-final/tests/world2029-release.spec.cjs:139:3 › Core Web Vitals CLS budget holds on /topic/888-yeshua at 390px
+[6/48] ../../tmp/functional-unified-preview/browser-final/tests/world2029-release.spec.cjs:139:3 › Core Web Vitals CLS budget holds on /books at 390px
+[7/48] ../../tmp/functional-unified-preview/browser-final/tests/world2029-release.spec.cjs:139:3 › Core Web Vitals CLS budget holds on /book/daat-tevunot at 390px
+[8/48] ../../tmp/functional-unified-preview/browser-final/tests/world2029-release.spec.cjs:139:3 › Core Web Vitals CLS budget holds on /els at 390px
+[9/48] ../../tmp/functional-unified-preview/browser-final/tests/world2029-release.spec.cjs:139:3 › Core Web Vitals CLS budget holds on /2029/number/1237 at 390px
+[10/48] ../../tmp/functional-unified-preview/browser-final/tests/world2029-release.spec.cjs:222:1 › direct /world opens public composed World with aircraft story, real arrivals and source navigation
+[11/48] ../../tmp/functional-unified-preview/browser-final/tests/world2029-release.spec.cjs:253:1 › public World catalog remains searchable and paginated inside the new composed presentation
+[12/48] ../../tmp/functional-unified-preview/browser-final/tests/world2029-release.spec.cjs:284:1 › native canonical Topic 2029 renders 888 with semantic links and SEO identity
+[13/48] ../../tmp/functional-unified-preview/browser-final/tests/world2029-release.spec.cjs:304:1 › Topic expression focus opens Number 2029 and survives World + Heichal transitions
+[14/48] ../../tmp/functional-unified-preview/browser-final/tests/world2029-release.spec.cjs:356:1 › Number 2029 preview opens 1237 with all available methods visible in one wrapped research stage
+[15/48] ../../tmp/functional-unified-preview/browser-final/tests/world2029-release.spec.cjs:409:1 › Number 2029 596 keeps six methods visible and finds Jerusalem↔Shomrim as a live hidden crossing
+[16/48] ../../tmp/functional-unified-preview/browser-final/tests/world2029-release.spec.cjs:450:1 › Number 2029 1118 uses canonical Hebrew verse refs and appends the gematria value after the verse
+[17/48] ../../tmp/functional-unified-preview/browser-final/tests/world2029-release.spec.cjs:467:1 › Number 2029 global drawer reuses the same method-first Core and carries Raziel context
+[18/48] ../../tmp/functional-unified-preview/browser-final/tests/world2029-release.spec.cjs:529:1 › Contextual Number Surface stays one desktop sidecar through focus → preview → back
+[19/48] ../../tmp/functional-unified-preview/browser-final/tests/world2029-release.spec.cjs:560:1 › Number 2029 Miluy switches the whole stage to 878 with language bridges and in-place explain
+[20/48] ../../tmp/functional-unified-preview/browser-final/tests/world2029-release.spec.cjs:603:1 › Number 2029 878 keeps its general research path but no longer opens the locked Golden Journey
+[21/48] ../../tmp/functional-unified-preview/browser-final/tests/world2029-release.spec.cjs:627:1 › Number 2029 golden visual calibration covers 878, 358 and the 1326 visual target in Page and Drawer
+[22/48] ../../tmp/functional-unified-preview/browser-final/tests/world2029-release.spec.cjs:654:1 › Golden World 878 journey stays closed while the public Number 878 and full images remain readable
+[23/48] ../../tmp/functional-unified-preview/browser-final/tests/world2029-release.spec.cjs:690:3 › Public World story and source entry remain usable and overflow-free at 320px
+[24/48] ../../tmp/functional-unified-preview/browser-final/tests/world2029-release.spec.cjs:690:3 › Public World story and source entry remain usable and overflow-free at 360px
+[25/48] ../../tmp/functional-unified-preview/browser-final/tests/world2029-release.spec.cjs:690:3 › Public World story and source entry remain usable and overflow-free at 390px
+[26/48] ../../tmp/functional-unified-preview/browser-final/tests/world2029-release.spec.cjs:704:3 › RICH live World 1820 is truthful and overflow-free at 320px
+[27/48] ../../tmp/functional-unified-preview/browser-final/tests/world2029-release.spec.cjs:704:3 › RICH live World 1820 is truthful and overflow-free at 360px
+[28/48] ../../tmp/functional-unified-preview/browser-final/tests/world2029-release.spec.cjs:704:3 › RICH live World 1820 is truthful and overflow-free at 390px
+[29/48] ../../tmp/functional-unified-preview/browser-final/tests/world2029-release.spec.cjs:704:3 › RICH live World 1820 is truthful and overflow-free at 1440px
+[30/48] ../../tmp/functional-unified-preview/browser-final/tests/world2029-release.spec.cjs:715:1 › RICH 1820 presents one anchor header before profile and exploration lanes
+[31/48] ../../tmp/functional-unified-preview/browser-final/tests/world2029-release.spec.cjs:735:1 › RICH 1820 opens human-first before raw research detail
+[32/48] ../../tmp/functional-unified-preview/browser-final/tests/world2029-release.spec.cjs:775:1 › RICH 1820 projects real published media without legacy gallery UI
+[33/48] ../../tmp/functional-unified-preview/browser-final/tests/world2029-release.spec.cjs:792:1 › RICH 1820 remains useful when research rows are access-filtered
+[34/48] ../../tmp/functional-unified-preview/browser-final/tests/world2029-release.spec.cjs:807:1 › automatic filters, sorting and explain-why work without exposing admin research controls
+[35/48] ../../tmp/functional-unified-preview/browser-final/tests/world2029-release.spec.cjs:825:1 › MEDIUM live World 314 remains medium instead of being visually inflated
+[36/48] ../../tmp/functional-unified-preview/browser-final/tests/world2029-release.spec.cjs:835:1 › SPARSE live World 122 stays honestly sparse with no fabricated research
+[37/48] ../../tmp/functional-unified-preview/browser-final/tests/world2029-release.spec.cjs:845:1 › World uses the shared Command, Inspect, Share and exact-return seams
+[38/48] ../../tmp/functional-unified-preview/browser-final/tests/world2029-release.spec.cjs:897:1 › loading and error states are honest and native
+[39/48] ../../tmp/functional-unified-preview/browser-final/tests/world2029-release.spec.cjs:921:1 › unavailable identity is not silently replaced by another anchor
+[40/48] ../../tmp/functional-unified-preview/browser-final/tests/world2029-release.spec.cjs:930:1 › reduced motion preserves the same World meaning and controls
+[41/48] ../../tmp/functional-unified-preview/browser-final/tests/world2029-release.spec.cjs:942:1 › 320px RTL World survives 200% text zoom without horizontal overflow
+[42/48] ../../tmp/functional-unified-preview/browser-final/tests/world2029-release.spec.cjs:954:1 › private researcher corpus stays gated for non-admin 2029 sessions
+[43/48] ../../tmp/functional-unified-preview/browser-final/tests/world2029-release.spec.cjs:967:5 › source projector light 390: source-first writer and full Hashmal reading
+[44/48] ../../tmp/functional-unified-preview/browser-final/tests/world2029-release.spec.cjs:967:5 › source projector light 1440: source-first writer and full Hashmal reading
+[45/48] ../../tmp/functional-unified-preview/browser-final/tests/world2029-release.spec.cjs:967:5 › source projector parchment 390: source-first writer and full Hashmal reading
+[46/48] ../../tmp/functional-unified-preview/browser-final/tests/world2029-release.spec.cjs:967:5 › source projector parchment 1440: source-first writer and full Hashmal reading
+[47/48] ../../tmp/functional-unified-preview/browser-final/tests/world2029-release.spec.cjs:967:5 › source projector dark 390: source-first writer and full Hashmal reading
+[48/48] ../../tmp/functional-unified-preview/browser-final/tests/world2029-release.spec.cjs:967:5 › source projector dark 1440: source-first writer and full Hashmal reading
+  Slow test file: ../../tmp/functional-unified-preview/browser-final/tests/world2029-release.spec.cjs (7.2m)
+  Consider running tests from slow files in parallel. See: https://playwright.dev/docs/test-parallel
+  48 passed (7.3m)

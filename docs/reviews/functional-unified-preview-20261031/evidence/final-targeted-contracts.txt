@@ -1,0 +1,45 @@
+✔ existing accounts can sign in, refresh, read identity and sign out locally (50.415282ms)
+✔ functional Preview admits verified own Person, state and item writes without widening old previews (33.149362ms)
+✔ functional Preview permits deliberate signup, never phone signup or arbitrary media operations (10.064967ms)
+✔ functional Preview public meter stays a bounded canonical read; private hints retain their actual typed payload (12.489203ms)
+✔ functional owned profile, page, save and inbox actions require verified identity and preserve forbidden fields (29.147037ms)
+✔ functional private resumable uploads require the signed canonical image capability (9.983881ms)
+✔ functional Heichal reaches only its existing bounded public numeric Result Bundle contract (37.426524ms)
+✔ signup, global logout, account mutation, other grants and origins stay blocked (17.023218ms)
+✔ profile/product/storage/model writes remain blocked; governed readers still work (20.056932ms)
+✔ unified working preview blocks Person creation and trace-producing ELS bridge (136.016655ms)
+✔ Books publication review is preview-only and has no write RPC in the guard (0.381099ms)
+✔ Posts Preview blocks Person creation, product writes and model calls while admitting calculation reads (6.995127ms)
+✔ the Posts Preview build cannot target Production (1.683226ms)
+✔ Community Preview reads use the existing closed public projection for GET and POST (40.392801ms)
+✔ Life Journey Preview overrides the public catch-all with private no-store headers (0.277186ms)
+✔ only the explicitly authorized protected branch forwards exact Community management RPCs (23.897422ms)
+✔ Community management cannot widen arguments, methods, caller headers or transport paths (52.781049ms)
+✔ Community management keeps unrelated writes, models and Person creation blocked (8.164722ms)
+✔ the exact publishing Preview admits only canonical Community posts and reactions (29.331824ms)
+✔ account-scoped media uploads validate the file and server-authenticated owner without allowing overwrite (42.307606ms)
+✔ legacy claim transport requires exact branch, confirmed server identity and only a source ID (26.142034ms)
+✔ exact own-avatar Preview upload and self action keep all other writes closed (29.129559ms)
+✔ unified real Raziel Preview forwards only explicit canonical chat to the existing server (42.680089ms)
+✔ reviewed public reply reads require exact projection and a server-confirmed visible parent chain (19.648689ms)
+✔ exact unified branch gpt/2029-unified-community-latest-integration-20261031 composes reviewed actions with central Raziel without widening other previews (45.484927ms)
+✔ exact unified branch gpt/2029-unified-performance-consolidation-20261031 composes reviewed actions with central Raziel without widening other previews (48.198809ms)
+✔ exact unified branch gpt/2029-home-loading-acceptance-20261031 composes reviewed actions with central Raziel without widening other previews (48.6771ms)
+✔ public Zvi multi-value findings remain separate strong review groups (1.966906ms)
+✔ multi-value rows link each existing number separately and never invent target 1563 (0.389333ms)
+✔ private or unavailable rows never become public placeholder findings (0.347694ms)
+✔ the public projection performs one bounded RLS read (0.371465ms)
+12:05:08 AM [vite] (client) [optimizer] scanning dependencies...
+✔ the reserved ribbon slot distinguishes loading, failed/partial reads and a genuinely empty settled feed (1315.286545ms)
+✔ accepted Home patch changes only the reviewed exact branch bindings at its immutable receipt SHA (6.63279ms)
+✔ accepted Home worker is byte-identical; current old branches differ only by an inactive functional Preview extension (3.450935ms)
+✔ applied binding denies Production and leaves other branches and missing environment closed (10.597957ms)
+✔ applied own-avatar wrapper keeps canonical read-only/ownership behavior and exact Preview scope (3.102365ms)
+ℹ tests 36
+ℹ suites 0
+ℹ pass 36
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1684.254196

@@ -13,6 +13,7 @@ Coordination: BEFORE `dd6f964c-58fb-4996-98d6-e3fb0666cfaa`; separate shared-act
 - Home left Companion/context rail is suppressed as requested. Shared ribbon/Now feed, cipher timing and navigation remain. Loading, partial failure and genuine empty feed states are distinct. World images and the pending ribbon reserve space; expression focus and precise contextual return are retained.
 - Google/Facebook callback route and one-time local return handling are implemented. The actual callback allowlist must still pass independent verification before the providers are presented as ready.
 - Broken internal calculator/gallery links use existing native routes. Unsupported legacy-only paths show an explicit link to the live reader instead of reloading the Preview indefinitely.
+- The historical UI hold on Golden World journey 878 is lifted in this functional Preview, following the user's current direction. Other builds retain their prior availability profile. The journey still derives routes only from canonical public Topic rows; no path, public source or publication is invented.
 
 ## Approved shared activation — applied
 

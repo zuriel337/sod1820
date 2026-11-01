@@ -1,0 +1,363 @@
+
+Running 5 tests using 2 workers
+
+(node:65597) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:65598) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:65597) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:65598) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1/5] ../../tmp/functional-unified-preview/browser-focused/tests/entry-learn-2029.spec.cjs:39:1 › direct Post opens Number; contextual teaching and help retain the same focus at 390px
+[2/5] ../../tmp/functional-unified-preview/browser-focused/tests/world2029-release.spec.cjs:253:1 › public World catalog remains searchable and paginated inside the new composed presentation
+[3/5] ../../tmp/functional-unified-preview/browser-focused/tests/entry-learn-2029.spec.cjs:190:1 › completed Post entry stays compact after reload
+  1) ../../tmp/functional-unified-preview/browser-focused/tests/world2029-release.spec.cjs:253:1 › public World catalog remains searchable and paginated inside the new composed presentation 
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator: locator('#world-all-convergences').getByRole('button', { name: 'עוד נושאים וחיבורים' })
+    Expected string: "true"
+    Received: <element(s) not found>
+    Timeout: 5000ms
+
+    Call log:
+      - Expect "toHaveAttribute" with timeout 5000ms
+      - waiting for locator('#world-all-convergences').getByRole('button', { name: 'עוד נושאים וחיבורים' })
+
+
+      271 |   await expect(expand).toBeVisible();
+      272 |   await expand.click();
+    > 273 |   await expect(expand).toHaveAttribute('aria-expanded', 'true');
+          |                        ^
+      274 |   await expect.poll(()=>cards.count()).toBe(40);
+      275 |   const before=await cards.count();
+      276 |   const more=catalog.getByRole('button',{name:'טען עוד',exact:true});
+        at /tmp/functional-unified-preview/browser-focused/tests/world2029-release.spec.cjs:273:24
+
+    Error Context: ../../tmp/functional-unified-preview/repaired-case-results/world2029-release-public-W-59a89-e-new-composed-presentation/error-context.md
+
+
+(node:65948) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:65948) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[4/5] ../../tmp/functional-unified-preview/browser-focused/tests/world2029-release.spec.cjs:283:1 › native canonical Topic 2029 renders 888 with semantic links and SEO identity
+[5/5] ../../tmp/functional-unified-preview/browser-focused/tests/world2029-release.spec.cjs:303:1 › Topic expression focus opens Number 2029 and survives World + Heichal transitions
+  1 failed
+    ../../tmp/functional-unified-preview/browser-focused/tests/world2029-release.spec.cjs:253:1 › public World catalog remains searchable and paginated inside the new composed presentation 
+  4 passed (21.3s)
+{
+  "config": {
+    "configFile": "/tmp/functional-unified-preview/browser-focused/playwright.config.cjs",
+    "rootDir": "/tmp/functional-unified-preview/browser-focused/tests",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 2
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "line"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "/tmp/functional-unified-preview/repaired-case-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/tmp/functional-unified-preview/browser-focused/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.55.0",
+    "workers": 2,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "entry-learn-2029.spec.cjs",
+      "file": "entry-learn-2029.spec.cjs",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "direct Post opens Number; contextual teaching and help retain the same focus at 390px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 7295,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "steps": [
+                    {
+                      "title": "Expect \"poll toBeGreaterThan\"",
+                      "duration": 2
+                    },
+                    {
+                      "title": "Expect \"poll toBe\"",
+                      "duration": 39
+                    },
+                    {
+                      "title": "Expect \"poll toBeGreaterThan\"",
+                      "duration": 0
+                    }
+                  ],
+                  "startTime": "2026-10-31T23:57:36.194Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "528447a1e8c67a041948-b4b95a52fbc6defb1a9b",
+          "file": "entry-learn-2029.spec.cjs",
+          "line": 39,
+          "column": 1
+        },
+        {
+          "title": "completed Post entry stays compact after reload",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1615,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T23:57:43.916Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "528447a1e8c67a041948-3ec7a2567e5433350c4a",
+          "file": "entry-learn-2029.spec.cjs",
+          "line": 190,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "world2029-release.spec.cjs",
+      "file": "world2029-release.spec.cjs",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "public World catalog remains searchable and paginated inside the new composed presentation",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 1,
+                  "status": "failed",
+                  "duration": 7984,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveAttribute\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#world-all-convergences').getByRole('button', { name: 'עוד נושאים וחיבורים' })\nExpected string: \u001b[32m\"true\"\u001b[39m\nReceived: <element(s) not found>\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveAttribute\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('#world-all-convergences').getByRole('button', { name: 'עוד נושאים וחיבורים' })\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveAttribute\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#world-all-convergences').getByRole('button', { name: 'עוד נושאים וחיבורים' })\nExpected string: \u001b[32m\"true\"\u001b[39m\nReceived: <element(s) not found>\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveAttribute\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('#world-all-convergences').getByRole('button', { name: 'עוד נושאים וחיבורים' })\u001b[22m\n\n    at /tmp/functional-unified-preview/browser-focused/tests/world2029-release.spec.cjs:273:24",
+                    "location": {
+                      "file": "/tmp/functional-unified-preview/browser-focused/tests/world2029-release.spec.cjs",
+                      "column": 24,
+                      "line": 273
+                    },
+                    "snippet": "  271 |   await expect(expand).toBeVisible();\n  272 |   await expand.click();\n> 273 |   await expect(expand).toHaveAttribute('aria-expanded', 'true');\n      |                        ^\n  274 |   await expect.poll(()=>cards.count()).toBe(40);\n  275 |   const before=await cards.count();\n  276 |   const more=catalog.getByRole('button',{name:'טען עוד',exact:true});"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/tmp/functional-unified-preview/browser-focused/tests/world2029-release.spec.cjs",
+                        "column": 24,
+                        "line": 273
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveAttribute\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#world-all-convergences').getByRole('button', { name: 'עוד נושאים וחיבורים' })\nExpected string: \u001b[32m\"true\"\u001b[39m\nReceived: <element(s) not found>\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveAttribute\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('#world-all-convergences').getByRole('button', { name: 'עוד נושאים וחיבורים' })\u001b[22m\n\n\n  271 |   await expect(expand).toBeVisible();\n  272 |   await expand.click();\n> 273 |   await expect(expand).toHaveAttribute('aria-expanded', 'true');\n      |                        ^\n  274 |   await expect.poll(()=>cards.count()).toBe(40);\n  275 |   const before=await cards.count();\n  276 |   const more=catalog.getByRole('button',{name:'טען עוד',exact:true});\n    at /tmp/functional-unified-preview/browser-focused/tests/world2029-release.spec.cjs:273:24"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "steps": [
+                    {
+                      "title": "Expect \"poll toBe\"",
+                      "duration": 34
+                    }
+                  ],
+                  "startTime": "2026-10-31T23:57:36.200Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/tmp/functional-unified-preview/repaired-case-results/world2029-release-public-W-59a89-e-new-composed-presentation/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/tmp/functional-unified-preview/browser-focused/tests/world2029-release.spec.cjs",
+                    "column": 24,
+                    "line": 273
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "43d104987ee5472889e6-707b75d3895ace91d8c1",
+          "file": "world2029-release.spec.cjs",
+          "line": 253,
+          "column": 1
+        },
+        {
+          "title": "native canonical Topic 2029 renders 888 with semantic links and SEO identity",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 2713,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T23:57:45.259Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "43d104987ee5472889e6-49d5004cef1321225c4f",
+          "file": "world2029-release.spec.cjs",
+          "line": 283,
+          "column": 1
+        },
+        {
+          "title": "Topic expression focus opens Number 2029 and survives World + Heichal transitions",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 8361,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T23:57:48.222Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "43d104987ee5472889e6-be419a9df4705d75b8c3",
+          "file": "world2029-release.spec.cjs",
+          "line": 303,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-31T23:57:35.358Z",
+    "duration": 21332.986,
+    "expected": 4,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

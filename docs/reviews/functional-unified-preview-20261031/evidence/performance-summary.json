@@ -1,0 +1,69 @@
+{
+  "baseProductSHA": "c2f2e9948dd119c96b69e377b33be2eb2a886efb",
+  "geometryAfterCheckpoint": "2564105d2222647e4b96b88c717799cf03339acf",
+  "conditions": {
+    "surface": "/world",
+    "timingSamplesEach": 3,
+    "width": 390,
+    "browser": "Chromium154; fresh browser context per navigation",
+    "data": "same live public payloads replayed from a shared API response cache; model/auth/product writes blocked",
+    "image": "actual public aircraft image, not a placeholder",
+    "observedAtMs": 8000,
+    "qualification": "controlled geometry comparison; not an end-to-end production backend-latency benchmark"
+  },
+  "timing": {
+    "before": {
+      "fcpMs": [
+        708,
+        308,
+        332
+      ],
+      "lcpMs": [
+        3164,
+        880,
+        936
+      ],
+      "medianFcpMs": 332,
+      "medianLcpMs": 936
+    },
+    "after": {
+      "fcpMs": [
+        336,
+        328,
+        324
+      ],
+      "lcpMs": [
+        948,
+        940,
+        924
+      ],
+      "medianFcpMs": 328,
+      "medianLcpMs": 940
+    }
+  },
+  "cls": {
+    "before": {
+      "samples": 8,
+      "maximum": 0.23730977380344564,
+      "passedAtUnchangedPointOne": 1,
+      "errors": 0
+    },
+    "after": {
+      "samples": 8,
+      "maximum": 0.07262236701564019,
+      "passedAtUnchangedPointOne": 8,
+      "errors": 0
+    }
+  },
+  "eagerBundle": {
+    "baseGzipBytes": 419386,
+    "checkpoint88595d35GzipBytes": 419927,
+    "deltaBytes": 541,
+    "eagerRecordsBeforeAndAfter": 33,
+    "acceptance": "PASS unchanged built-graph budget; resolver and Research Plan remain lazy",
+    "checkpointA355e097GzipBytes": 419951,
+    "currentDeltaBytes": 565
+  },
+  "conclusion": "Clear CLS improvement. No demonstrated material median FCP/LCP improvement from three timing samples; avoid claiming the first cold run is a stable speedup.",
+  "qualification": "Timing build isolates the World geometry fix; final functional deployment has additional authenticated capabilities. Median timings are not claimed as a speedup."
+}

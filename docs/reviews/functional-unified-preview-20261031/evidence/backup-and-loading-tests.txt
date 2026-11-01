@@ -1,0 +1,14 @@
+✔ public Zvi multi-value findings remain separate strong review groups (2.115229ms)
+✔ multi-value rows link each existing number separately and never invent target 1563 (0.391393ms)
+✔ private or unavailable rows never become public placeholder findings (0.353522ms)
+✔ the public projection performs one bounded RLS read (0.351341ms)
+11:54:28 PM [vite] (client) Re-optimizing dependencies because vite config has changed
+✔ the reserved ribbon slot distinguishes loading, failed/partial reads and a genuinely empty settled feed (1237.769211ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1713.095752

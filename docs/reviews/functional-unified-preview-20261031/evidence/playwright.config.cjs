@@ -1,0 +1,1 @@
+module.exports={testDir:'./tests',workers:2,retries:0,timeout:60000,outputDir:'./results',reporter:[['line'],['json',{outputFile:'./world-results.json'}]],use:{headless:true,locale:'he-IL',serviceWorkers:'allow',launchOptions:{executablePath:'/usr/bin/chromium',args:['--no-sandbox','--disable-dev-shm-usage']}}};
