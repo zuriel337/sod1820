@@ -10,7 +10,7 @@ Running 1 test using 1 worker
 
 
 [1/1] test/number-root-profile-race-2029.browser.cjs:4:71 › root action preserves the restored operand while its profile is delay 390
-  1) test/number-root-profile-race-2029.browser.cjs:4:71 › root action preserves the restored operand while its profile is delay 390 
+  1) test/number-root-profile-race-2029.browser.cjs:4:71 › root action preserves the restored operand while its profile is delay 390
 
     Error: expect(locator).toBeDisabled() failed
 
@@ -39,4 +39,4 @@ Running 1 test using 1 worker
 
 
   1 failed
-    test/number-root-profile-race-2029.browser.cjs:4:71 › root action preserves the restored operand while its profile is delay 390 
+    test/number-root-profile-race-2029.browser.cjs:4:71 › root action preserves the restored operand while its profile is delay 390
