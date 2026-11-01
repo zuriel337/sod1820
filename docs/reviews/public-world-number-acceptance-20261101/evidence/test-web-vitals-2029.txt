@@ -1,0 +1,2 @@
+G3 2029 Web Vitals core: PASS
+G3 2029 Web Vitals wiring: PASS

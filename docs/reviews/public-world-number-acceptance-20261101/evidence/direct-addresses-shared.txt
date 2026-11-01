@@ -1,0 +1,13 @@
+
+Running 1 test using 1 worker
+
+(node:165786) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:165786) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1/1] test/number-fullpage-acceptance-2029.browser.cjs:32:1 › direct phrase with exact method survives reload; legacy and new Post addresses retain canonical links
+  1 passed (16.7s)

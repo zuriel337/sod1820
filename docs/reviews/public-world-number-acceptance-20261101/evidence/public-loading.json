@@ -1,0 +1,3491 @@
+{
+  "baselineSha": "7649e46c199ade990fd75ea8400f60f93522ef82",
+  "candidateSha": "06751b7277232c11400988192d4a3738432675ad",
+  "source": "actual compiled public clients and identical immutable real public response snapshots; same explicit Number operand/method and actual same Home Post",
+  "profiles": [
+    {
+      "name": "desktop",
+      "width": 1440,
+      "cpu": 1,
+      "rtt": 0,
+      "bytesPerSecond": 0
+    },
+    {
+      "name": "mobile-slow",
+      "width": 390,
+      "cpu": 4,
+      "rtt": 150,
+      "bytesPerSecond": 200000
+    }
+  ],
+  "observationWindowMs": 600,
+  "thresholdCLS": 0.1,
+  "clsDefinition": "largest standard 1s-gap/5s session window per measured route/action; timestamps exclude entries queued before action, document navigation uses new time origin",
+  "definition": "11 primary-ready transitions, World requires a real featured Topic card, Number requires matching operand and enabled canonical method. First is a fresh browser context; repeat returns from World in the same SPA. Other pages first visited along that cycle, not independently cold direct HTML.",
+  "networkModel": "shared RTT/bandwidth delivery, Brotli-equivalent sizes, 4x mobile CPU; server bodies pinned after warmup; not field LCP/RUM or live backend latency",
+  "results": [
+    {
+      "version": "before",
+      "profile": "desktop",
+      "pair": 1,
+      "repeat": "first",
+      "postHref": "/post/mivchan-acharon-lifney-hapriza-dim5-20261031",
+      "steps": [
+        {
+          "name": "home-entry",
+          "ms": 1359,
+          "observedMs": 1964,
+          "requests": 155,
+          "cls": 0.07830309727044753,
+          "shiftEntries": 4,
+          "largestUnexpectedShift": {
+            "time": 1338.4000000059605,
+            "value": 0.038669753086419754,
+            "nodes": [
+              "DIV  sod-mq-track sod-mq "
+            ]
+          }
+        },
+        {
+          "name": "home-post",
+          "ms": 234,
+          "observedMs": 838,
+          "requests": 11,
+          "cls": 0,
+          "shiftEntries": 1,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "post-world",
+          "ms": 459,
+          "observedMs": 1063,
+          "requests": 48,
+          "cls": 0.05695358580287102,
+          "shiftEntries": 4,
+          "largestUnexpectedShift": {
+            "time": 3411.4000000059605,
+            "value": 0.03875848765432099,
+            "nodes": [
+              "DIV  sod-mq-track sod-mq ",
+              "I   sod-canonical-progress-meter is-indeterminate"
+            ]
+          }
+        },
+        {
+          "name": "world-number-full-page",
+          "ms": 1668,
+          "observedMs": 2275,
+          "requests": 168,
+          "cls": 1.3836016870820473e-05,
+          "shiftEntries": 5,
+          "largestUnexpectedShift": {
+            "time": 5179.30000000447,
+            "value": 6.310022089870541e-06,
+            "nodes": [
+              "I   sod-canonical-progress-meter is-indeterminate"
+            ]
+          }
+        },
+        {
+          "name": "number-method-full-page",
+          "ms": 312,
+          "observedMs": 916,
+          "requests": 32,
+          "cls": 0,
+          "shiftEntries": 2,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "back-method-number",
+          "ms": 110,
+          "observedMs": 712,
+          "requests": 4,
+          "cls": 0,
+          "shiftEntries": 0,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "number-phrase-full-page",
+          "ms": 780,
+          "observedMs": 1384,
+          "requests": 51,
+          "cls": 0,
+          "shiftEntries": 3,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "back-phrase-number",
+          "ms": 252,
+          "observedMs": 856,
+          "requests": 7,
+          "cls": 0,
+          "shiftEntries": 3,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "back-number-world",
+          "ms": 158,
+          "observedMs": 761,
+          "requests": 33,
+          "cls": 0,
+          "shiftEntries": 4,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "back-world-post",
+          "ms": 163,
+          "observedMs": 766,
+          "requests": 8,
+          "cls": 0,
+          "shiftEntries": 1,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "back-post-home",
+          "ms": 283,
+          "observedMs": 887,
+          "requests": 50,
+          "cls": 0.038669753086419754,
+          "shiftEntries": 4,
+          "largestUnexpectedShift": {
+            "time": 12211.10000000149,
+            "value": 0.038669753086419754,
+            "nodes": [
+              "DIV  sod-mq-track sod-mq "
+            ]
+          }
+        }
+      ],
+      "totalMs": 5778
+    },
+    {
+      "version": "before",
+      "profile": "desktop",
+      "pair": 1,
+      "repeat": "repeat",
+      "postHref": "/post/mivchan-acharon-lifney-hapriza-dim5-20261031",
+      "steps": [
+        {
+          "name": "home-entry",
+          "ms": 360,
+          "observedMs": 964,
+          "requests": 56,
+          "cls": 0.038669753086419754,
+          "shiftEntries": 4,
+          "largestUnexpectedShift": {
+            "time": 13350.5,
+            "value": 0.038669753086419754,
+            "nodes": [
+              "DIV  sod-mq-track sod-mq "
+            ]
+          }
+        },
+        {
+          "name": "home-post",
+          "ms": 171,
+          "observedMs": 773,
+          "requests": 8,
+          "cls": 0,
+          "shiftEntries": 1,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "post-world",
+          "ms": 217,
+          "observedMs": 823,
+          "requests": 32,
+          "cls": 0,
+          "shiftEntries": 4,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "world-number-full-page",
+          "ms": 732,
+          "observedMs": 1336,
+          "requests": 84,
+          "cls": 0,
+          "shiftEntries": 2,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "number-method-full-page",
+          "ms": 378,
+          "observedMs": 981,
+          "requests": 4,
+          "cls": 0,
+          "shiftEntries": 2,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "back-method-number",
+          "ms": 391,
+          "observedMs": 993,
+          "requests": 4,
+          "cls": 0,
+          "shiftEntries": 0,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "number-phrase-full-page",
+          "ms": 569,
+          "observedMs": 1174,
+          "requests": 7,
+          "cls": 0,
+          "shiftEntries": 3,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "back-phrase-number",
+          "ms": 319,
+          "observedMs": 922,
+          "requests": 7,
+          "cls": 0,
+          "shiftEntries": 2,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "back-number-world",
+          "ms": 150,
+          "observedMs": 753,
+          "requests": 33,
+          "cls": 0,
+          "shiftEntries": 5,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "back-world-post",
+          "ms": 135,
+          "observedMs": 737,
+          "requests": 8,
+          "cls": 0,
+          "shiftEntries": 1,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "back-post-home",
+          "ms": 272,
+          "observedMs": 877,
+          "requests": 50,
+          "cls": 0.038669753086419754,
+          "shiftEntries": 4,
+          "largestUnexpectedShift": {
+            "time": 22676,
+            "value": 0.038669753086419754,
+            "nodes": [
+              "DIV  sod-mq-track sod-mq "
+            ]
+          }
+        }
+      ],
+      "totalMs": 3694
+    },
+    {
+      "version": "after",
+      "profile": "desktop",
+      "pair": 1,
+      "repeat": "first",
+      "postHref": "/post/mivchan-acharon-lifney-hapriza-dim5-20261031",
+      "steps": [
+        {
+          "name": "home-entry",
+          "ms": 927,
+          "observedMs": 1531,
+          "requests": 155,
+          "cls": 0.07830309727044753,
+          "shiftEntries": 4,
+          "largestUnexpectedShift": {
+            "time": 1326.1999999955297,
+            "value": 0.038669753086419754,
+            "nodes": [
+              "DIV  sod-mq-track sod-mq "
+            ]
+          }
+        },
+        {
+          "name": "home-post",
+          "ms": 261,
+          "observedMs": 864,
+          "requests": 11,
+          "cls": 0,
+          "shiftEntries": 2,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "post-world",
+          "ms": 481,
+          "observedMs": 1085,
+          "requests": 48,
+          "cls": 0.05693419901948571,
+          "shiftEntries": 4,
+          "largestUnexpectedShift": {
+            "time": 3019.1999999955297,
+            "value": 0.038739197530864196,
+            "nodes": [
+              "DIV  sod-mq-track sod-mq ",
+              "I   sod-canonical-progress-meter is-indeterminate"
+            ]
+          }
+        },
+        {
+          "name": "world-number-full-page",
+          "ms": 1523,
+          "observedMs": 2126,
+          "requests": 168,
+          "cls": 2.48975714538323e-06,
+          "shiftEntries": 4,
+          "largestUnexpectedShift": {
+            "time": 4664.39999999851,
+            "value": 1.3919197155778463e-06,
+            "nodes": [
+              "I   sod-canonical-progress-meter is-indeterminate"
+            ]
+          }
+        },
+        {
+          "name": "number-method-full-page",
+          "ms": 228,
+          "observedMs": 832,
+          "requests": 32,
+          "cls": 0,
+          "shiftEntries": 2,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "back-method-number",
+          "ms": 402,
+          "observedMs": 1003,
+          "requests": 4,
+          "cls": 0,
+          "shiftEntries": 0,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "number-phrase-full-page",
+          "ms": 645,
+          "observedMs": 1248,
+          "requests": 51,
+          "cls": 0,
+          "shiftEntries": 3,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "back-phrase-number",
+          "ms": 237,
+          "observedMs": 840,
+          "requests": 7,
+          "cls": 0,
+          "shiftEntries": 3,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "back-number-world",
+          "ms": 144,
+          "observedMs": 753,
+          "requests": 33,
+          "cls": 0,
+          "shiftEntries": 6,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "back-world-post",
+          "ms": 149,
+          "observedMs": 752,
+          "requests": 8,
+          "cls": 0,
+          "shiftEntries": 2,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "back-post-home",
+          "ms": 446,
+          "observedMs": 1049,
+          "requests": 40,
+          "cls": 0.038669753086419754,
+          "shiftEntries": 4,
+          "largestUnexpectedShift": {
+            "time": 11637.19999999553,
+            "value": 0.038669753086419754,
+            "nodes": [
+              "DIV  sod-mq-track sod-mq "
+            ]
+          }
+        }
+      ],
+      "totalMs": 5443
+    },
+    {
+      "version": "after",
+      "profile": "desktop",
+      "pair": 1,
+      "repeat": "repeat",
+      "postHref": "/post/mivchan-acharon-lifney-hapriza-dim5-20261031",
+      "steps": [
+        {
+          "name": "home-entry",
+          "ms": 620,
+          "observedMs": 1224,
+          "requests": 45,
+          "cls": 0.04864782785172325,
+          "shiftEntries": 4,
+          "largestUnexpectedShift": {
+            "time": 13106,
+            "value": 0.038669753086419754,
+            "nodes": [
+              "DIV  sod-mq-track sod-mq "
+            ]
+          }
+        },
+        {
+          "name": "home-post",
+          "ms": 207,
+          "observedMs": 811,
+          "requests": 9,
+          "cls": 0,
+          "shiftEntries": 2,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "post-world",
+          "ms": 282,
+          "observedMs": 885,
+          "requests": 33,
+          "cls": 0,
+          "shiftEntries": 3,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "world-number-full-page",
+          "ms": 626,
+          "observedMs": 1230,
+          "requests": 85,
+          "cls": 0,
+          "shiftEntries": 3,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "number-method-full-page",
+          "ms": 468,
+          "observedMs": 1071,
+          "requests": 4,
+          "cls": 0,
+          "shiftEntries": 2,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "back-method-number",
+          "ms": 90,
+          "observedMs": 693,
+          "requests": 4,
+          "cls": 0,
+          "shiftEntries": 0,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "number-phrase-full-page",
+          "ms": 647,
+          "observedMs": 1251,
+          "requests": 7,
+          "cls": 0,
+          "shiftEntries": 3,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "back-phrase-number",
+          "ms": 356,
+          "observedMs": 960,
+          "requests": 7,
+          "cls": 0,
+          "shiftEntries": 2,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "back-number-world",
+          "ms": 145,
+          "observedMs": 751,
+          "requests": 33,
+          "cls": 0,
+          "shiftEntries": 4,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "back-world-post",
+          "ms": 142,
+          "observedMs": 751,
+          "requests": 8,
+          "cls": 0,
+          "shiftEntries": 1,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "back-post-home",
+          "ms": 289,
+          "observedMs": 894,
+          "requests": 50,
+          "cls": 0,
+          "shiftEntries": 3,
+          "largestUnexpectedShift": null
+        }
+      ],
+      "totalMs": 3872
+    },
+    {
+      "version": "after",
+      "profile": "desktop",
+      "pair": 2,
+      "repeat": "first",
+      "postHref": "/post/mivchan-acharon-lifney-hapriza-dim5-20261031",
+      "steps": [
+        {
+          "name": "home-entry",
+          "ms": 1438,
+          "observedMs": 2048,
+          "requests": 155,
+          "cls": 0.07851539673353909,
+          "shiftEntries": 4,
+          "largestUnexpectedShift": {
+            "time": 1456.3999999985099,
+            "value": 0.038669753086419754,
+            "nodes": [
+              "DIV  sod-mq-track sod-mq "
+            ]
+          }
+        },
+        {
+          "name": "home-post",
+          "ms": 236,
+          "observedMs": 838,
+          "requests": 11,
+          "cls": 0,
+          "shiftEntries": 1,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "post-world",
+          "ms": 951,
+          "observedMs": 1554,
+          "requests": 48,
+          "cls": 0.05701395459587191,
+          "shiftEntries": 6,
+          "largestUnexpectedShift": {
+            "time": 3499.60000000149,
+            "value": 0.03880478395061728,
+            "nodes": [
+              "DIV  sod-mq-track sod-mq ",
+              "I   sod-canonical-progress-meter is-indeterminate"
+            ]
+          }
+        },
+        {
+          "name": "world-number-full-page",
+          "ms": 1553,
+          "observedMs": 2157,
+          "requests": 168,
+          "cls": 2.1400817954818243e-06,
+          "shiftEntries": 3,
+          "largestUnexpectedShift": {
+            "time": 5621.10000000149,
+            "value": 1.385556654020919e-06,
+            "nodes": [
+              "I   sod-canonical-progress-meter is-indeterminate"
+            ]
+          }
+        },
+        {
+          "name": "number-method-full-page",
+          "ms": 237,
+          "observedMs": 844,
+          "requests": 32,
+          "cls": 0,
+          "shiftEntries": 2,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "back-method-number",
+          "ms": 159,
+          "observedMs": 763,
+          "requests": 4,
+          "cls": 0,
+          "shiftEntries": 0,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "number-phrase-full-page",
+          "ms": 937,
+          "observedMs": 1544,
+          "requests": 51,
+          "cls": 0,
+          "shiftEntries": 3,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "back-phrase-number",
+          "ms": 331,
+          "observedMs": 935,
+          "requests": 7,
+          "cls": 0,
+          "shiftEntries": 3,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "back-number-world",
+          "ms": 170,
+          "observedMs": 775,
+          "requests": 33,
+          "cls": 0,
+          "shiftEntries": 6,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "back-world-post",
+          "ms": 152,
+          "observedMs": 754,
+          "requests": 8,
+          "cls": 0,
+          "shiftEntries": 2,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "back-post-home",
+          "ms": 327,
+          "observedMs": 932,
+          "requests": 40,
+          "cls": 0.038669753086419754,
+          "shiftEntries": 4,
+          "largestUnexpectedShift": {
+            "time": 12855.10000000149,
+            "value": 0.038669753086419754,
+            "nodes": [
+              "DIV  sod-mq-track sod-mq "
+            ]
+          }
+        }
+      ],
+      "totalMs": 6491
+    },
+    {
+      "version": "after",
+      "profile": "desktop",
+      "pair": 2,
+      "repeat": "repeat",
+      "postHref": "/post/mivchan-acharon-lifney-hapriza-dim5-20261031",
+      "steps": [
+        {
+          "name": "home-entry",
+          "ms": 531,
+          "observedMs": 1136,
+          "requests": 45,
+          "cls": 0.038669753086419754,
+          "shiftEntries": 5,
+          "largestUnexpectedShift": {
+            "time": 14056.79999999702,
+            "value": 0.038669753086419754,
+            "nodes": [
+              "DIV  sod-mq-track sod-mq "
+            ]
+          }
+        },
+        {
+          "name": "home-post",
+          "ms": 183,
+          "observedMs": 787,
+          "requests": 9,
+          "cls": 0,
+          "shiftEntries": 1,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "post-world",
+          "ms": 300,
+          "observedMs": 904,
+          "requests": 33,
+          "cls": 0,
+          "shiftEntries": 4,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "world-number-full-page",
+          "ms": 644,
+          "observedMs": 1248,
+          "requests": 85,
+          "cls": 0,
+          "shiftEntries": 1,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "number-method-full-page",
+          "ms": 101,
+          "observedMs": 707,
+          "requests": 4,
+          "cls": 0,
+          "shiftEntries": 2,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "back-method-number",
+          "ms": 140,
+          "observedMs": 743,
+          "requests": 4,
+          "cls": 0,
+          "shiftEntries": 0,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "number-phrase-full-page",
+          "ms": 178,
+          "observedMs": 784,
+          "requests": 7,
+          "cls": 0,
+          "shiftEntries": 3,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "back-phrase-number",
+          "ms": 324,
+          "observedMs": 928,
+          "requests": 7,
+          "cls": 0,
+          "shiftEntries": 2,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "back-number-world",
+          "ms": 222,
+          "observedMs": 826,
+          "requests": 32,
+          "cls": 0,
+          "shiftEntries": 4,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "back-world-post",
+          "ms": 142,
+          "observedMs": 745,
+          "requests": 7,
+          "cls": 0,
+          "shiftEntries": 1,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "back-post-home",
+          "ms": 273,
+          "observedMs": 877,
+          "requests": 41,
+          "cls": 0.038669753086419754,
+          "shiftEntries": 4,
+          "largestUnexpectedShift": {
+            "time": 22769.5,
+            "value": 0.038669753086419754,
+            "nodes": [
+              "DIV  sod-mq-track sod-mq "
+            ]
+          }
+        }
+      ],
+      "totalMs": 3038
+    },
+    {
+      "version": "before",
+      "profile": "desktop",
+      "pair": 2,
+      "repeat": "first",
+      "postHref": "/post/mivchan-acharon-lifney-hapriza-dim5-20261031",
+      "steps": [
+        {
+          "name": "home-entry",
+          "ms": 1557,
+          "observedMs": 2161,
+          "requests": 155,
+          "cls": 0.07830309727044753,
+          "shiftEntries": 4,
+          "largestUnexpectedShift": {
+            "time": 1569.1000000014901,
+            "value": 0.038669753086419754,
+            "nodes": [
+              "DIV  sod-mq-track sod-mq "
+            ]
+          }
+        },
+        {
+          "name": "home-post",
+          "ms": 210,
+          "observedMs": 812,
+          "requests": 11,
+          "cls": 0,
+          "shiftEntries": 2,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "post-world",
+          "ms": 458,
+          "observedMs": 1061,
+          "requests": 48,
+          "cls": 0.056999691667805316,
+          "shiftEntries": 3,
+          "largestUnexpectedShift": {
+            "time": 3578,
+            "value": 0.03880478395061728,
+            "nodes": [
+              "DIV  sod-mq-track sod-mq ",
+              "I   sod-canonical-progress-meter is-indeterminate"
+            ]
+          }
+        },
+        {
+          "name": "world-number-full-page",
+          "ms": 1585,
+          "observedMs": 2189,
+          "requests": 168,
+          "cls": 5.338190023791153e-06,
+          "shiftEntries": 4,
+          "largestUnexpectedShift": {
+            "time": 5259.79999999702,
+            "value": 4.240813078703704e-06,
+            "nodes": [
+              "I   sod-canonical-progress-meter is-indeterminate"
+            ]
+          }
+        },
+        {
+          "name": "number-method-full-page",
+          "ms": 504,
+          "observedMs": 1110,
+          "requests": 32,
+          "cls": 0,
+          "shiftEntries": 2,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "back-method-number",
+          "ms": 481,
+          "observedMs": 1083,
+          "requests": 4,
+          "cls": 0,
+          "shiftEntries": 0,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "number-phrase-full-page",
+          "ms": 804,
+          "observedMs": 1411,
+          "requests": 51,
+          "cls": 0,
+          "shiftEntries": 5,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "back-phrase-number",
+          "ms": 597,
+          "observedMs": 1200,
+          "requests": 7,
+          "cls": 0,
+          "shiftEntries": 2,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "back-number-world",
+          "ms": 158,
+          "observedMs": 770,
+          "requests": 33,
+          "cls": 0,
+          "shiftEntries": 6,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "back-world-post",
+          "ms": 148,
+          "observedMs": 752,
+          "requests": 8,
+          "cls": 0,
+          "shiftEntries": 2,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "back-post-home",
+          "ms": 349,
+          "observedMs": 957,
+          "requests": 50,
+          "cls": 0.04864782785172325,
+          "shiftEntries": 4,
+          "largestUnexpectedShift": {
+            "time": 13271.19999999553,
+            "value": 0.038669753086419754,
+            "nodes": [
+              "DIV  sod-mq-track sod-mq "
+            ]
+          }
+        }
+      ],
+      "totalMs": 6851
+    },
+    {
+      "version": "before",
+      "profile": "desktop",
+      "pair": 2,
+      "repeat": "repeat",
+      "postHref": "/post/mivchan-acharon-lifney-hapriza-dim5-20261031",
+      "steps": [
+        {
+          "name": "home-entry",
+          "ms": 739,
+          "observedMs": 1344,
+          "requests": 63,
+          "cls": 0.05215675596386317,
+          "shiftEntries": 4,
+          "largestUnexpectedShift": {
+            "time": 14627.79999999702,
+            "value": 0.038669753086419754,
+            "nodes": [
+              "DIV  sod-mq-track sod-mq "
+            ]
+          }
+        },
+        {
+          "name": "home-post",
+          "ms": 195,
+          "observedMs": 798,
+          "requests": 8,
+          "cls": 0,
+          "shiftEntries": 1,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "post-world",
+          "ms": 216,
+          "observedMs": 820,
+          "requests": 32,
+          "cls": 0,
+          "shiftEntries": 3,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "world-number-full-page",
+          "ms": 687,
+          "observedMs": 1292,
+          "requests": 85,
+          "cls": 0,
+          "shiftEntries": 3,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "number-method-full-page",
+          "ms": 436,
+          "observedMs": 1039,
+          "requests": 4,
+          "cls": 0,
+          "shiftEntries": 2,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "back-method-number",
+          "ms": 385,
+          "observedMs": 987,
+          "requests": 4,
+          "cls": 0,
+          "shiftEntries": 0,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "number-phrase-full-page",
+          "ms": 287,
+          "observedMs": 890,
+          "requests": 7,
+          "cls": 0,
+          "shiftEntries": 3,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "back-phrase-number",
+          "ms": 278,
+          "observedMs": 882,
+          "requests": 7,
+          "cls": 0,
+          "shiftEntries": 2,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "back-number-world",
+          "ms": 153,
+          "observedMs": 757,
+          "requests": 32,
+          "cls": 0,
+          "shiftEntries": 5,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "back-world-post",
+          "ms": 150,
+          "observedMs": 752,
+          "requests": 8,
+          "cls": 0,
+          "shiftEntries": 1,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "back-post-home",
+          "ms": 460,
+          "observedMs": 1066,
+          "requests": 50,
+          "cls": 0.04864782785172325,
+          "shiftEntries": 4,
+          "largestUnexpectedShift": {
+            "time": 23894.89999999851,
+            "value": 0.038669753086419754,
+            "nodes": [
+              "DIV  sod-mq-track sod-mq "
+            ]
+          }
+        }
+      ],
+      "totalMs": 3986
+    },
+    {
+      "version": "before",
+      "profile": "desktop",
+      "pair": 3,
+      "repeat": "first",
+      "postHref": "/post/mivchan-acharon-lifney-hapriza-dim5-20261031",
+      "steps": [
+        {
+          "name": "home-entry",
+          "ms": 1477,
+          "observedMs": 2082,
+          "requests": 155,
+          "cls": 0.07830309727044753,
+          "shiftEntries": 4,
+          "largestUnexpectedShift": {
+            "time": 1528.7999999970198,
+            "value": 0.038669753086419754,
+            "nodes": [
+              "DIV  sod-mq-track sod-mq "
+            ]
+          }
+        },
+        {
+          "name": "home-post",
+          "ms": 229,
+          "observedMs": 831,
+          "requests": 11,
+          "cls": 0,
+          "shiftEntries": 2,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "post-world",
+          "ms": 463,
+          "observedMs": 1068,
+          "requests": 48,
+          "cls": 0.05695330524209105,
+          "shiftEntries": 3,
+          "largestUnexpectedShift": {
+            "time": 3527.5999999940395,
+            "value": 0.03875848765432099,
+            "nodes": [
+              "DIV  sod-mq-track sod-mq ",
+              "I   sod-canonical-progress-meter is-indeterminate"
+            ]
+          }
+        },
+        {
+          "name": "world-number-full-page",
+          "ms": 1581,
+          "observedMs": 2186,
+          "requests": 168,
+          "cls": 1.283927676772548e-05,
+          "shiftEntries": 7,
+          "largestUnexpectedShift": {
+            "time": 5266.79999999702,
+            "value": 4.746592747985254e-06,
+            "nodes": [
+              "I   sod-canonical-progress-meter is-indeterminate"
+            ]
+          }
+        },
+        {
+          "name": "number-method-full-page",
+          "ms": 391,
+          "observedMs": 994,
+          "requests": 32,
+          "cls": 0,
+          "shiftEntries": 2,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "back-method-number",
+          "ms": 111,
+          "observedMs": 714,
+          "requests": 4,
+          "cls": 0,
+          "shiftEntries": 0,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "number-phrase-full-page",
+          "ms": 649,
+          "observedMs": 1253,
+          "requests": 51,
+          "cls": 0,
+          "shiftEntries": 3,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "back-phrase-number",
+          "ms": 343,
+          "observedMs": 948,
+          "requests": 7,
+          "cls": 0,
+          "shiftEntries": 2,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "back-number-world",
+          "ms": 131,
+          "observedMs": 735,
+          "requests": 33,
+          "cls": 0,
+          "shiftEntries": 4,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "back-world-post",
+          "ms": 72,
+          "observedMs": 674,
+          "requests": 8,
+          "cls": 0,
+          "shiftEntries": 1,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "back-post-home",
+          "ms": 294,
+          "observedMs": 899,
+          "requests": 50,
+          "cls": 0.04864782785172325,
+          "shiftEntries": 4,
+          "largestUnexpectedShift": {
+            "time": 12063.59999999404,
+            "value": 0.038669753086419754,
+            "nodes": [
+              "DIV  sod-mq-track sod-mq "
+            ]
+          }
+        }
+      ],
+      "totalMs": 5741
+    },
+    {
+      "version": "before",
+      "profile": "desktop",
+      "pair": 3,
+      "repeat": "repeat",
+      "postHref": "/post/mivchan-acharon-lifney-hapriza-dim5-20261031",
+      "steps": [
+        {
+          "name": "home-entry",
+          "ms": 378,
+          "observedMs": 989,
+          "requests": 44,
+          "cls": 0.038669753086419754,
+          "shiftEntries": 4,
+          "largestUnexpectedShift": {
+            "time": 13343.69999999553,
+            "value": 0.038669753086419754,
+            "nodes": [
+              "DIV  sod-mq-track sod-mq "
+            ]
+          }
+        },
+        {
+          "name": "home-post",
+          "ms": 201,
+          "observedMs": 806,
+          "requests": 8,
+          "cls": 0,
+          "shiftEntries": 2,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "post-world",
+          "ms": 275,
+          "observedMs": 880,
+          "requests": 32,
+          "cls": 0,
+          "shiftEntries": 5,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "world-number-full-page",
+          "ms": 646,
+          "observedMs": 1249,
+          "requests": 85,
+          "cls": 0,
+          "shiftEntries": 1,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "number-method-full-page",
+          "ms": 504,
+          "observedMs": 1110,
+          "requests": 4,
+          "cls": 0,
+          "shiftEntries": 2,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "back-method-number",
+          "ms": 476,
+          "observedMs": 1078,
+          "requests": 4,
+          "cls": 0,
+          "shiftEntries": 0,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "number-phrase-full-page",
+          "ms": 290,
+          "observedMs": 893,
+          "requests": 7,
+          "cls": 0,
+          "shiftEntries": 3,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "back-phrase-number",
+          "ms": 514,
+          "observedMs": 1119,
+          "requests": 7,
+          "cls": 0,
+          "shiftEntries": 2,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "back-number-world",
+          "ms": 250,
+          "observedMs": 854,
+          "requests": 33,
+          "cls": 0,
+          "shiftEntries": 5,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "back-world-post",
+          "ms": 167,
+          "observedMs": 770,
+          "requests": 8,
+          "cls": 0,
+          "shiftEntries": 1,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "back-post-home",
+          "ms": 291,
+          "observedMs": 898,
+          "requests": 40,
+          "cls": 0.04864782785172325,
+          "shiftEntries": 4,
+          "largestUnexpectedShift": {
+            "time": 22928.09999999404,
+            "value": 0.038669753086419754,
+            "nodes": [
+              "DIV  sod-mq-track sod-mq "
+            ]
+          }
+        }
+      ],
+      "totalMs": 3992
+    },
+    {
+      "version": "after",
+      "profile": "desktop",
+      "pair": 3,
+      "repeat": "first",
+      "postHref": "/post/mivchan-acharon-lifney-hapriza-dim5-20261031",
+      "steps": [
+        {
+          "name": "home-entry",
+          "ms": 1529,
+          "observedMs": 2134,
+          "requests": 155,
+          "cls": 0.07851539673353909,
+          "shiftEntries": 4,
+          "largestUnexpectedShift": {
+            "time": 1601.7000000029802,
+            "value": 0.038669753086419754,
+            "nodes": [
+              "DIV  sod-mq-track sod-mq "
+            ]
+          }
+        },
+        {
+          "name": "home-post",
+          "ms": 245,
+          "observedMs": 848,
+          "requests": 10,
+          "cls": 0,
+          "shiftEntries": 1,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "post-world",
+          "ms": 463,
+          "observedMs": 1069,
+          "requests": 48,
+          "cls": 0.05713463240258487,
+          "shiftEntries": 3,
+          "largestUnexpectedShift": {
+            "time": 3724.60000000149,
+            "value": 0.038939814814814816,
+            "nodes": [
+              "DIV  sod-mq-track sod-mq ",
+              "I   sod-canonical-progress-meter is-indeterminate"
+            ]
+          }
+        },
+        {
+          "name": "world-number-full-page",
+          "ms": 1613,
+          "observedMs": 2220,
+          "requests": 168,
+          "cls": 8.801370000643003e-06,
+          "shiftEntries": 6,
+          "largestUnexpectedShift": {
+            "time": 5323.30000000447,
+            "value": 6.310022089870541e-06,
+            "nodes": [
+              "I   sod-canonical-progress-meter is-indeterminate"
+            ]
+          }
+        },
+        {
+          "name": "number-method-full-page",
+          "ms": 497,
+          "observedMs": 1100,
+          "requests": 32,
+          "cls": 0,
+          "shiftEntries": 2,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "back-method-number",
+          "ms": 421,
+          "observedMs": 1027,
+          "requests": 4,
+          "cls": 0,
+          "shiftEntries": 0,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "number-phrase-full-page",
+          "ms": 711,
+          "observedMs": 1321,
+          "requests": 51,
+          "cls": 0,
+          "shiftEntries": 3,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "back-phrase-number",
+          "ms": 368,
+          "observedMs": 972,
+          "requests": 7,
+          "cls": 0,
+          "shiftEntries": 2,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "back-number-world",
+          "ms": 136,
+          "observedMs": 739,
+          "requests": 33,
+          "cls": 0,
+          "shiftEntries": 5,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "back-world-post",
+          "ms": 159,
+          "observedMs": 762,
+          "requests": 8,
+          "cls": 0,
+          "shiftEntries": 2,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "back-post-home",
+          "ms": 261,
+          "observedMs": 865,
+          "requests": 40,
+          "cls": 0.038669753086419754,
+          "shiftEntries": 4,
+          "largestUnexpectedShift": {
+            "time": 12808.80000000447,
+            "value": 0.038669753086419754,
+            "nodes": [
+              "DIV  sod-mq-track sod-mq "
+            ]
+          }
+        }
+      ],
+      "totalMs": 6403
+    },
+    {
+      "version": "after",
+      "profile": "desktop",
+      "pair": 3,
+      "repeat": "repeat",
+      "postHref": "/post/mivchan-acharon-lifney-hapriza-dim5-20261031",
+      "steps": [
+        {
+          "name": "home-entry",
+          "ms": 754,
+          "observedMs": 1359,
+          "requests": 45,
+          "cls": 0.038669753086419754,
+          "shiftEntries": 5,
+          "largestUnexpectedShift": {
+            "time": 14060.40000000596,
+            "value": 0.038669753086419754,
+            "nodes": [
+              "DIV  sod-mq-track sod-mq "
+            ]
+          }
+        },
+        {
+          "name": "home-post",
+          "ms": 187,
+          "observedMs": 790,
+          "requests": 9,
+          "cls": 0,
+          "shiftEntries": 1,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "post-world",
+          "ms": 278,
+          "observedMs": 882,
+          "requests": 33,
+          "cls": 0,
+          "shiftEntries": 4,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "world-number-full-page",
+          "ms": 729,
+          "observedMs": 1331,
+          "requests": 85,
+          "cls": 0,
+          "shiftEntries": 2,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "number-method-full-page",
+          "ms": 125,
+          "observedMs": 728,
+          "requests": 4,
+          "cls": 0,
+          "shiftEntries": 2,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "back-method-number",
+          "ms": 350,
+          "observedMs": 951,
+          "requests": 4,
+          "cls": 0,
+          "shiftEntries": 0,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "number-phrase-full-page",
+          "ms": 551,
+          "observedMs": 1156,
+          "requests": 7,
+          "cls": 0,
+          "shiftEntries": 3,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "back-phrase-number",
+          "ms": 276,
+          "observedMs": 880,
+          "requests": 7,
+          "cls": 0,
+          "shiftEntries": 3,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "back-number-world",
+          "ms": 135,
+          "observedMs": 744,
+          "requests": 32,
+          "cls": 0,
+          "shiftEntries": 5,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "back-world-post",
+          "ms": 161,
+          "observedMs": 764,
+          "requests": 7,
+          "cls": 0,
+          "shiftEntries": 2,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "back-post-home",
+          "ms": 272,
+          "observedMs": 876,
+          "requests": 41,
+          "cls": 0.038669753086419754,
+          "shiftEntries": 4,
+          "largestUnexpectedShift": {
+            "time": 23491.80000000447,
+            "value": 0.038669753086419754,
+            "nodes": [
+              "DIV  sod-mq-track sod-mq "
+            ]
+          }
+        }
+      ],
+      "totalMs": 3818
+    },
+    {
+      "version": "before",
+      "profile": "mobile-slow",
+      "pair": 1,
+      "repeat": "first",
+      "postHref": "/post/mivchan-acharon-lifney-hapriza-dim5-20261031",
+      "steps": [
+        {
+          "name": "home-entry",
+          "ms": 6359,
+          "observedMs": 6970,
+          "requests": 141,
+          "cls": 0.01719395061728395,
+          "shiftEntries": 1,
+          "largestUnexpectedShift": {
+            "time": 6070.10000000149,
+            "value": 0.01719395061728395,
+            "nodes": [
+              "DIV  h29-hero-copy h29-hero h29-hero2 is-enter",
+              "IMG  h29-hero-img k29-in h29-hero h29-hero2 is-enter",
+              "SECTION  h29-sec k29-reveal  h29"
+            ]
+          }
+        },
+        {
+          "name": "home-post",
+          "ms": 1133,
+          "observedMs": 1754,
+          "requests": 17,
+          "cls": 0.0004513727148622982,
+          "shiftEntries": 33,
+          "largestUnexpectedShift": {
+            "time": 8513.60000000149,
+            "value": 0.00013128205128205129,
+            "nodes": [
+              "undefined undefined undefined undefined"
+            ]
+          }
+        },
+        {
+          "name": "post-world",
+          "ms": 2528,
+          "observedMs": 3143,
+          "requests": 49,
+          "cls": 0.00018895294199113642,
+          "shiftEntries": 28,
+          "largestUnexpectedShift": {
+            "time": 11001.20000000298,
+            "value": 3.1578674026590694e-05,
+            "nodes": [
+              "I   sod-canonical-progress-meter is-indeterminate"
+            ]
+          }
+        },
+        {
+          "name": "world-number-full-page",
+          "ms": 6851,
+          "observedMs": 7566,
+          "requests": 169,
+          "cls": 0.02373288802825261,
+          "shiftEntries": 77,
+          "largestUnexpectedShift": {
+            "time": 14102.70000000298,
+            "value": 0.023719278252611584,
+            "nodes": [
+              "SECTION  sod29-number-core2029 sod29-number-v10 is-drawer sod29-number-drawer2029",
+              "DIV  sod29-surface-context-expression sod29-number-drawer-identity sod29-number-drawer2029"
+            ]
+          }
+        },
+        {
+          "name": "number-method-full-page",
+          "ms": 2334,
+          "observedMs": 2952,
+          "requests": 32,
+          "cls": 0.0004719744183285851,
+          "shiftEntries": 39,
+          "largestUnexpectedShift": {
+            "time": 20363.60000000149,
+            "value": 5.041547958214625e-05,
+            "nodes": [
+              "I   sod-canonical-progress-meter is-indeterminate"
+            ]
+          }
+        },
+        {
+          "name": "back-method-number",
+          "ms": 545,
+          "observedMs": 1148,
+          "requests": 4,
+          "cls": 0,
+          "shiftEntries": 0,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "number-phrase-full-page",
+          "ms": 3150,
+          "observedMs": 3818,
+          "requests": 51,
+          "cls": 0.0009494128877809434,
+          "shiftEntries": 77,
+          "largestUnexpectedShift": {
+            "time": 24643.10000000149,
+            "value": 2.3370726495726497e-05,
+            "nodes": [
+              "I   sod-canonical-progress-meter is-indeterminate"
+            ]
+          }
+        },
+        {
+          "name": "back-phrase-number",
+          "ms": 910,
+          "observedMs": 1513,
+          "requests": 7,
+          "cls": 0.0349175482747705,
+          "shiftEntries": 1,
+          "largestUnexpectedShift": {
+            "time": 28134.5,
+            "value": 0.0349175482747705,
+            "nodes": [
+              "SECTION  sod29-number-v10-stage sod29-number-core2029 sod29-number-v10 is-page",
+              "STRONG   ",
+              "SMALL   sod29-number-v10-method-head"
+            ]
+          }
+        },
+        {
+          "name": "back-number-world",
+          "ms": 913,
+          "observedMs": 1529,
+          "requests": 32,
+          "cls": 0.00018660498773345998,
+          "shiftEntries": 29,
+          "largestUnexpectedShift": {
+            "time": 29578.80000000447,
+            "value": 4.294673947451725e-05,
+            "nodes": [
+              "I   sod-canonical-progress-meter is-indeterminate"
+            ]
+          }
+        },
+        {
+          "name": "back-world-post",
+          "ms": 442,
+          "observedMs": 1046,
+          "requests": 8,
+          "cls": 0,
+          "shiftEntries": 3,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "back-post-home",
+          "ms": 687,
+          "observedMs": 1294,
+          "requests": 41,
+          "cls": 0.043755029677113005,
+          "shiftEntries": 22,
+          "largestUnexpectedShift": {
+            "time": 32237.60000000149,
+            "value": 0.022572374762583093,
+            "nodes": [
+              "SECTION  h29-sec k29-reveal  h29",
+              "SECTION  h29-sec k29-reveal  h29",
+              "DIV  k29-reveal k29-rv-self h29",
+              "DIV  h29-hero-copy h29-hero h29-hero2 is-enter"
+            ]
+          }
+        }
+      ],
+      "totalMs": 25852
+    },
+    {
+      "version": "before",
+      "profile": "mobile-slow",
+      "pair": 1,
+      "repeat": "repeat",
+      "postHref": "/post/mivchan-acharon-lifney-hapriza-dim5-20261031",
+      "steps": [
+        {
+          "name": "home-entry",
+          "ms": 396,
+          "observedMs": 1010,
+          "requests": 54,
+          "cls": 0.045306341257122504,
+          "shiftEntries": 16,
+          "largestUnexpectedShift": {
+            "time": 34944.10000000149,
+            "value": 0.044953402975625195,
+            "nodes": [
+              "SECTION  h29-sec k29-reveal  h29",
+              "DIV  k29-reveal k29-rv-self h29",
+              "SECTION  h29-sec k29-reveal  h29",
+              "A  h29-card-open h29-card k29-rv",
+              "A  h29-card-open h29-card k29-rv"
+            ]
+          }
+        },
+        {
+          "name": "home-post",
+          "ms": 729,
+          "observedMs": 1340,
+          "requests": 14,
+          "cls": 1.9552271288382402e-05,
+          "shiftEntries": 15,
+          "largestUnexpectedShift": {
+            "time": 35244.80000000447,
+            "value": 7.266441120607787e-06,
+            "nodes": [
+              "I   sod-canonical-progress-meter is-indeterminate"
+            ]
+          }
+        },
+        {
+          "name": "post-world",
+          "ms": 1502,
+          "observedMs": 2119,
+          "requests": 32,
+          "cls": 0.00018037971866096867,
+          "shiftEntries": 31,
+          "largestUnexpectedShift": {
+            "time": 37767,
+            "value": 1.910835113960114e-05,
+            "nodes": [
+              "I   sod-canonical-progress-meter is-indeterminate"
+            ]
+          }
+        },
+        {
+          "name": "world-number-full-page",
+          "ms": 3682,
+          "observedMs": 4295,
+          "requests": 58,
+          "cls": 0.0005721351693573916,
+          "shiftEntries": 5,
+          "largestUnexpectedShift": {
+            "time": 42298.89999999851,
+            "value": 0.0005721351693573916,
+            "nodes": [
+              "undefined undefined undefined "
+            ]
+          }
+        },
+        {
+          "name": "number-method-full-page",
+          "ms": 683,
+          "observedMs": 1287,
+          "requests": 32,
+          "cls": 0,
+          "shiftEntries": 1,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "back-method-number",
+          "ms": 593,
+          "observedMs": 1198,
+          "requests": 4,
+          "cls": 0,
+          "shiftEntries": 0,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "number-phrase-full-page",
+          "ms": 1239,
+          "observedMs": 1847,
+          "requests": 7,
+          "cls": 0,
+          "shiftEntries": 1,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "back-phrase-number",
+          "ms": 989,
+          "observedMs": 1593,
+          "requests": 7,
+          "cls": 0.03522905824628046,
+          "shiftEntries": 1,
+          "largestUnexpectedShift": {
+            "time": 48173.89999999851,
+            "value": 0.03522905824628046,
+            "nodes": [
+              "SECTION  sod29-number-v10-stage sod29-number-core2029 sod29-number-v10 is-page",
+              "STRONG   ",
+              "SMALL   sod29-number-v10-method-head"
+            ]
+          }
+        },
+        {
+          "name": "back-number-world",
+          "ms": 921,
+          "observedMs": 1544,
+          "requests": 32,
+          "cls": 0.0001850523801044634,
+          "shiftEntries": 30,
+          "largestUnexpectedShift": {
+            "time": 49602.10000000149,
+            "value": 3.0314429012345676e-05,
+            "nodes": [
+              "I   sod-canonical-progress-meter is-indeterminate"
+            ]
+          }
+        },
+        {
+          "name": "back-world-post",
+          "ms": 443,
+          "observedMs": 1049,
+          "requests": 8,
+          "cls": 0,
+          "shiftEntries": 2,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "back-post-home",
+          "ms": 523,
+          "observedMs": 1145,
+          "requests": 41,
+          "cls": 0.022669521060857865,
+          "shiftEntries": 15,
+          "largestUnexpectedShift": {
+            "time": 52223.39999999851,
+            "value": 0.022336676163342832,
+            "nodes": [
+              "DIV  k29-reveal k29-rv-self h29",
+              "SECTION  h29-sec k29-reveal  h29",
+              "A  h29-card-open h29-card k29-rv",
+              "SECTION  els-hm k29-reveal k29-rv-self",
+              "A  h29-card-open h29-card k29-rv"
+            ]
+          }
+        }
+      ],
+      "totalMs": 11700
+    },
+    {
+      "version": "after",
+      "profile": "mobile-slow",
+      "pair": 1,
+      "repeat": "first",
+      "postHref": "/post/mivchan-acharon-lifney-hapriza-dim5-20261031",
+      "steps": [
+        {
+          "name": "home-entry",
+          "ms": 6506,
+          "observedMs": 7115,
+          "requests": 141,
+          "cls": 0.01719395061728395,
+          "shiftEntries": 1,
+          "largestUnexpectedShift": {
+            "time": 6231.89999999851,
+            "value": 0.01719395061728395,
+            "nodes": [
+              "DIV  h29-hero-copy h29-hero h29-hero2 is-enter",
+              "IMG  h29-hero-img k29-in h29-hero h29-hero2 is-enter",
+              "SECTION  h29-sec k29-reveal  h29"
+            ]
+          }
+        },
+        {
+          "name": "home-post",
+          "ms": 1154,
+          "observedMs": 1782,
+          "requests": 17,
+          "cls": 0.001355738218186135,
+          "shiftEntries": 30,
+          "largestUnexpectedShift": {
+            "time": 8690.70000000298,
+            "value": 0.0010338461538461539,
+            "nodes": [
+              "undefined undefined undefined undefined",
+              "undefined undefined undefined undefined"
+            ]
+          }
+        },
+        {
+          "name": "post-world",
+          "ms": 2559,
+          "observedMs": 3179,
+          "requests": 49,
+          "cls": 0.0001793625356125356,
+          "shiftEntries": 28,
+          "largestUnexpectedShift": {
+            "time": 11252.70000000298,
+            "value": 2.9549254115226336e-05,
+            "nodes": [
+              "I   sod-canonical-progress-meter is-indeterminate"
+            ]
+          }
+        },
+        {
+          "name": "world-number-full-page",
+          "ms": 6107,
+          "observedMs": 6799,
+          "requests": 169,
+          "cls": 0.02373288802825261,
+          "shiftEntries": 73,
+          "largestUnexpectedShift": {
+            "time": 14338.29999999702,
+            "value": 0.023719278252611584,
+            "nodes": [
+              "SECTION  sod29-number-core2029 sod29-number-v10 is-drawer sod29-number-drawer2029",
+              "DIV  sod29-surface-context-expression sod29-number-drawer-identity sod29-number-drawer2029"
+            ]
+          }
+        },
+        {
+          "name": "number-method-full-page",
+          "ms": 2184,
+          "observedMs": 2820,
+          "requests": 32,
+          "cls": 0.0004244462745330802,
+          "shiftEntries": 37,
+          "largestUnexpectedShift": {
+            "time": 19570.39999999851,
+            "value": 2.3370726495726497e-05,
+            "nodes": [
+              "I   sod-canonical-progress-meter is-indeterminate"
+            ]
+          }
+        },
+        {
+          "name": "back-method-number",
+          "ms": 426,
+          "observedMs": 1033,
+          "requests": 4,
+          "cls": 0,
+          "shiftEntries": 0,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "number-phrase-full-page",
+          "ms": 3076,
+          "observedMs": 3705,
+          "requests": 51,
+          "cls": 0.0005343950320512821,
+          "shiftEntries": 45,
+          "largestUnexpectedShift": {
+            "time": 23874.5,
+            "value": 8.165756568534346e-05,
+            "nodes": [
+              "I   sod-canonical-progress-meter is-indeterminate"
+            ]
+          }
+        },
+        {
+          "name": "back-phrase-number",
+          "ms": 824,
+          "observedMs": 1428,
+          "requests": 7,
+          "cls": 0.034810930278569165,
+          "shiftEntries": 1,
+          "largestUnexpectedShift": {
+            "time": 27101.89999999851,
+            "value": 0.034810930278569165,
+            "nodes": [
+              "SECTION  sod29-number-v10-stage sod29-number-core2029 sod29-number-v10 is-page",
+              "STRONG   ",
+              "SMALL   sod29-number-v10-method-head"
+            ]
+          }
+        },
+        {
+          "name": "back-number-world",
+          "ms": 911,
+          "observedMs": 1526,
+          "requests": 31,
+          "cls": 0.000173928903529598,
+          "shiftEntries": 29,
+          "largestUnexpectedShift": {
+            "time": 28590.29999999702,
+            "value": 3.0336934156378603e-05,
+            "nodes": [
+              "I   sod-canonical-progress-meter is-indeterminate"
+            ]
+          }
+        },
+        {
+          "name": "back-world-post",
+          "ms": 443,
+          "observedMs": 1047,
+          "requests": 9,
+          "cls": 0,
+          "shiftEntries": 2,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "back-post-home",
+          "ms": 525,
+          "observedMs": 1140,
+          "requests": 37,
+          "cls": 0.06213383319484014,
+          "shiftEntries": 12,
+          "largestUnexpectedShift": {
+            "time": 31246,
+            "value": 0.044807989870212096,
+            "nodes": [
+              "SECTION  h29-sec k29-reveal  h29",
+              "SECTION  h29-sec k29-reveal  h29",
+              "DIV  k29-reveal k29-rv-self h29",
+              "A  h29-card-open h29-card k29-rv",
+              "DIV  h29-hero-copy h29-hero h29-hero2 is-enter"
+            ]
+          }
+        }
+      ],
+      "totalMs": 24715
+    },
+    {
+      "version": "after",
+      "profile": "mobile-slow",
+      "pair": 1,
+      "repeat": "repeat",
+      "postHref": "/post/mivchan-acharon-lifney-hapriza-dim5-20261031",
+      "steps": [
+        {
+          "name": "home-entry",
+          "ms": 751,
+          "observedMs": 1371,
+          "requests": 41,
+          "cls": 0.04528565037393162,
+          "shiftEntries": 17,
+          "largestUnexpectedShift": {
+            "time": 34119.29999999702,
+            "value": 0.044953402975625195,
+            "nodes": [
+              "SECTION  h29-sec k29-reveal  h29",
+              "DIV  k29-reveal k29-rv-self h29",
+              "SECTION  h29-sec k29-reveal  h29",
+              "A  h29-card-open h29-card k29-rv",
+              "A  h29-card-open h29-card k29-rv"
+            ]
+          }
+        },
+        {
+          "name": "home-post",
+          "ms": 608,
+          "observedMs": 1218,
+          "requests": 11,
+          "cls": 0,
+          "shiftEntries": 6,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "post-world",
+          "ms": 1468,
+          "observedMs": 2097,
+          "requests": 32,
+          "cls": 0.00016919169436530547,
+          "shiftEntries": 31,
+          "largestUnexpectedShift": {
+            "time": 37090,
+            "value": 1.912937242798354e-05,
+            "nodes": [
+              "I   sod-canonical-progress-meter is-indeterminate"
+            ]
+          }
+        },
+        {
+          "name": "world-number-full-page",
+          "ms": 3791,
+          "observedMs": 4398,
+          "requests": 60,
+          "cls": 0.02373288802825261,
+          "shiftEntries": 6,
+          "largestUnexpectedShift": {
+            "time": 40141.70000000298,
+            "value": 0.023719278252611584,
+            "nodes": [
+              "SECTION  sod29-number-core2029 sod29-number-v10 is-drawer sod29-number-drawer2029",
+              "DIV  sod29-surface-context-expression sod29-number-drawer-identity sod29-number-drawer2029"
+            ]
+          }
+        },
+        {
+          "name": "number-method-full-page",
+          "ms": 849,
+          "observedMs": 1452,
+          "requests": 30,
+          "cls": 0,
+          "shiftEntries": 1,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "back-method-number",
+          "ms": 376,
+          "observedMs": 981,
+          "requests": 4,
+          "cls": 0,
+          "shiftEntries": 0,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "number-phrase-full-page",
+          "ms": 1112,
+          "observedMs": 1716,
+          "requests": 7,
+          "cls": 0,
+          "shiftEntries": 1,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "back-phrase-number",
+          "ms": 839,
+          "observedMs": 1444,
+          "requests": 7,
+          "cls": 0.03533011356441912,
+          "shiftEntries": 1,
+          "largestUnexpectedShift": {
+            "time": 47275.5,
+            "value": 0.03533011356441912,
+            "nodes": [
+              "SECTION  sod29-number-v10-stage sod29-number-core2029 sod29-number-v10 is-page",
+              "STRONG   ",
+              "SMALL   sod29-number-v10-method-head"
+            ]
+          }
+        },
+        {
+          "name": "back-number-world",
+          "ms": 901,
+          "observedMs": 1521,
+          "requests": 31,
+          "cls": 0.00017144245607787274,
+          "shiftEntries": 27,
+          "largestUnexpectedShift": {
+            "time": 48727.10000000149,
+            "value": 2.70877849002849e-05,
+            "nodes": [
+              "I   sod-canonical-progress-meter is-indeterminate"
+            ]
+          }
+        },
+        {
+          "name": "back-world-post",
+          "ms": 465,
+          "observedMs": 1074,
+          "requests": 8,
+          "cls": 0,
+          "shiftEntries": 2,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "back-post-home",
+          "ms": 433,
+          "observedMs": 1047,
+          "requests": 37,
+          "cls": 0.04562911443494777,
+          "shiftEntries": 10,
+          "largestUnexpectedShift": {
+            "time": 51300.29999999702,
+            "value": 0.04533002849002849,
+            "nodes": [
+              "SECTION  h29-sec k29-reveal  h29",
+              "DIV  k29-reveal k29-rv-self h29",
+              "SECTION  h29-sec k29-reveal  h29",
+              "A  h29-card-open h29-card k29-rv",
+              "SECTION  els-hm k29-reveal k29-rv-self"
+            ]
+          }
+        }
+      ],
+      "totalMs": 11593
+    },
+    {
+      "version": "after",
+      "profile": "mobile-slow",
+      "pair": 2,
+      "repeat": "first",
+      "postHref": "/post/mivchan-acharon-lifney-hapriza-dim5-20261031",
+      "steps": [
+        {
+          "name": "home-entry",
+          "ms": 6364,
+          "observedMs": 6974,
+          "requests": 141,
+          "cls": 0,
+          "shiftEntries": 0,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "home-post",
+          "ms": 1094,
+          "observedMs": 1718,
+          "requests": 16,
+          "cls": 0.0004644140748654638,
+          "shiftEntries": 33,
+          "largestUnexpectedShift": {
+            "time": 8565.80000000447,
+            "value": 0.00013128205128205129,
+            "nodes": [
+              "undefined undefined undefined undefined"
+            ]
+          }
+        },
+        {
+          "name": "post-world",
+          "ms": 2453,
+          "observedMs": 3070,
+          "requests": 49,
+          "cls": 0.00017499431188667297,
+          "shiftEntries": 31,
+          "largestUnexpectedShift": {
+            "time": 10891.30000000447,
+            "value": 1.9609647040202594e-05,
+            "nodes": [
+              "I   sod-canonical-progress-meter is-indeterminate"
+            ]
+          }
+        },
+        {
+          "name": "world-number-full-page",
+          "ms": 5871,
+          "observedMs": 6510,
+          "requests": 169,
+          "cls": 0.02373288802825261,
+          "shiftEntries": 72,
+          "largestUnexpectedShift": {
+            "time": 13986.39999999851,
+            "value": 0.023719278252611584,
+            "nodes": [
+              "SECTION  sod29-number-core2029 sod29-number-v10 is-drawer sod29-number-drawer2029",
+              "DIV  sod29-surface-context-expression sod29-number-drawer-identity sod29-number-drawer2029"
+            ]
+          }
+        },
+        {
+          "name": "number-method-full-page",
+          "ms": 2198,
+          "observedMs": 2813,
+          "requests": 32,
+          "cls": 0.0004201515016619184,
+          "shiftEntries": 35,
+          "largestUnexpectedShift": {
+            "time": 18977.80000000447,
+            "value": 2.3370726495726497e-05,
+            "nodes": [
+              "I   sod-canonical-progress-meter is-indeterminate"
+            ]
+          }
+        },
+        {
+          "name": "back-method-number",
+          "ms": 316,
+          "observedMs": 918,
+          "requests": 4,
+          "cls": 0,
+          "shiftEntries": 0,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "number-phrase-full-page",
+          "ms": 2983,
+          "observedMs": 3603,
+          "requests": 51,
+          "cls": 0.0005080986368312758,
+          "shiftEntries": 43,
+          "largestUnexpectedShift": {
+            "time": 22995.20000000298,
+            "value": 2.3370726495726497e-05,
+            "nodes": [
+              "I   sod-canonical-progress-meter is-indeterminate"
+            ]
+          }
+        },
+        {
+          "name": "back-phrase-number",
+          "ms": 784,
+          "observedMs": 1389,
+          "requests": 7,
+          "cls": 0.03533011356441912,
+          "shiftEntries": 1,
+          "largestUnexpectedShift": {
+            "time": 26264,
+            "value": 0.03533011356441912,
+            "nodes": [
+              "SECTION  sod29-number-v10-stage sod29-number-core2029 sod29-number-v10 is-page",
+              "STRONG   ",
+              "SMALL   sod29-number-v10-method-head"
+            ]
+          }
+        },
+        {
+          "name": "back-number-world",
+          "ms": 895,
+          "observedMs": 1510,
+          "requests": 32,
+          "cls": 0.00016466148306426082,
+          "shiftEntries": 30,
+          "largestUnexpectedShift": {
+            "time": 27663.60000000149,
+            "value": 1.910835113960114e-05,
+            "nodes": [
+              "I   sod-canonical-progress-meter is-indeterminate"
+            ]
+          }
+        },
+        {
+          "name": "back-world-post",
+          "ms": 438,
+          "observedMs": 1042,
+          "requests": 8,
+          "cls": 0,
+          "shiftEntries": 3,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "back-post-home",
+          "ms": 672,
+          "observedMs": 1294,
+          "requests": 41,
+          "cls": 0.02078449192782526,
+          "shiftEntries": 23,
+          "largestUnexpectedShift": {
+            "time": 30208.70000000298,
+            "value": 0.020405811965811968,
+            "nodes": [
+              "SECTION  h29-sec k29-reveal  h29",
+              "DIV  k29-reveal k29-rv-self h29",
+              "A  h29-card-open h29-card k29-rv",
+              "A  h29-card-open h29-card k29-rv"
+            ]
+          }
+        }
+      ],
+      "totalMs": 24068
+    },
+    {
+      "version": "after",
+      "profile": "mobile-slow",
+      "pair": 2,
+      "repeat": "repeat",
+      "postHref": "/post/mivchan-acharon-lifney-hapriza-dim5-20261031",
+      "steps": [
+        {
+          "name": "home-entry",
+          "ms": 582,
+          "observedMs": 1196,
+          "requests": 43,
+          "cls": 0.0433300734508547,
+          "shiftEntries": 24,
+          "largestUnexpectedShift": {
+            "time": 33003.20000000298,
+            "value": 0.022530719966761634,
+            "nodes": [
+              "SECTION  h29-sec k29-reveal  h29",
+              "SECTION  h29-sec k29-reveal  h29",
+              "DIV  k29-reveal k29-rv-self h29",
+              "DIV  h29-hero-copy h29-hero h29-hero2 is-enter"
+            ]
+          }
+        },
+        {
+          "name": "home-post",
+          "ms": 541,
+          "observedMs": 1146,
+          "requests": 11,
+          "cls": 0,
+          "shiftEntries": 6,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "post-world",
+          "ms": 1379,
+          "observedMs": 1993,
+          "requests": 32,
+          "cls": 0.00016428483103830325,
+          "shiftEntries": 31,
+          "largestUnexpectedShift": {
+            "time": 35748.5,
+            "value": 1.950775561886673e-05,
+            "nodes": [
+              "I   sod-canonical-progress-meter is-indeterminate"
+            ]
+          }
+        },
+        {
+          "name": "world-number-full-page",
+          "ms": 3310,
+          "observedMs": 3917,
+          "requests": 51,
+          "cls": 0.009472398504273505,
+          "shiftEntries": 5,
+          "largestUnexpectedShift": {
+            "time": 36701.89999999851,
+            "value": 0.009472398504273505,
+            "nodes": [
+              "SECTION  sod29-world-overview sod29-world-entry sod29-content"
+            ]
+          }
+        },
+        {
+          "name": "number-method-full-page",
+          "ms": 651,
+          "observedMs": 1258,
+          "requests": 39,
+          "cls": 0,
+          "shiftEntries": 1,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "back-method-number",
+          "ms": 365,
+          "observedMs": 980,
+          "requests": 4,
+          "cls": 0,
+          "shiftEntries": 0,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "number-phrase-full-page",
+          "ms": 1086,
+          "observedMs": 1691,
+          "requests": 7,
+          "cls": 0,
+          "shiftEntries": 1,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "back-phrase-number",
+          "ms": 735,
+          "observedMs": 1343,
+          "requests": 7,
+          "cls": 0.03533011356441912,
+          "shiftEntries": 1,
+          "largestUnexpectedShift": {
+            "time": 45155.39999999851,
+            "value": 0.03533011356441912,
+            "nodes": [
+              "SECTION  sod29-number-v10-stage sod29-number-core2029 sod29-number-v10 is-page",
+              "STRONG   ",
+              "SMALL   sod29-number-v10-method-head"
+            ]
+          }
+        },
+        {
+          "name": "back-number-world",
+          "ms": 902,
+          "observedMs": 1516,
+          "requests": 31,
+          "cls": 0.00016919293091168091,
+          "shiftEntries": 30,
+          "largestUnexpectedShift": {
+            "time": 46558.89999999851,
+            "value": 1.910835113960114e-05,
+            "nodes": [
+              "I   sod-canonical-progress-meter is-indeterminate"
+            ]
+          }
+        },
+        {
+          "name": "back-world-post",
+          "ms": 436,
+          "observedMs": 1048,
+          "requests": 9,
+          "cls": 0,
+          "shiftEntries": 3,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "back-post-home",
+          "ms": 444,
+          "observedMs": 1063,
+          "requests": 41,
+          "cls": 0.0348985084283001,
+          "shiftEntries": 14,
+          "largestUnexpectedShift": {
+            "time": 49153.10000000149,
+            "value": 0.02116136752136752,
+            "nodes": [
+              "SECTION  h29-sec k29-reveal  h29",
+              "DIV  k29-reveal k29-rv-self h29",
+              "A  h29-card-open h29-card k29-rv",
+              "A  h29-card-open h29-card k29-rv"
+            ]
+          }
+        }
+      ],
+      "totalMs": 10431
+    },
+    {
+      "version": "before",
+      "profile": "mobile-slow",
+      "pair": 2,
+      "repeat": "first",
+      "postHref": "/post/mivchan-acharon-lifney-hapriza-dim5-20261031",
+      "steps": [
+        {
+          "name": "home-entry",
+          "ms": 6287,
+          "observedMs": 6894,
+          "requests": 141,
+          "cls": 0,
+          "shiftEntries": 0,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "home-post",
+          "ms": 1153,
+          "observedMs": 1778,
+          "requests": 17,
+          "cls": 0.0013526513038144984,
+          "shiftEntries": 33,
+          "largestUnexpectedShift": {
+            "time": 8461.89999999851,
+            "value": 0.0010338461538461539,
+            "nodes": [
+              "undefined undefined undefined undefined",
+              "undefined undefined undefined undefined"
+            ]
+          }
+        },
+        {
+          "name": "post-world",
+          "ms": 2521,
+          "observedMs": 3141,
+          "requests": 49,
+          "cls": 0.00018837893716365937,
+          "shiftEntries": 32,
+          "largestUnexpectedShift": {
+            "time": 10885.60000000149,
+            "value": 1.910835113960114e-05,
+            "nodes": [
+              "I   sod-canonical-progress-meter is-indeterminate"
+            ]
+          }
+        },
+        {
+          "name": "world-number-full-page",
+          "ms": 7214,
+          "observedMs": 7899,
+          "requests": 169,
+          "cls": 0.02373288802825261,
+          "shiftEntries": 81,
+          "largestUnexpectedShift": {
+            "time": 14129.30000000447,
+            "value": 0.023719278252611584,
+            "nodes": [
+              "SECTION  sod29-number-core2029 sod29-number-v10 is-drawer sod29-number-drawer2029",
+              "DIV  sod29-surface-context-expression sod29-number-drawer-identity sod29-number-drawer2029"
+            ]
+          }
+        },
+        {
+          "name": "number-method-full-page",
+          "ms": 2461,
+          "observedMs": 3093,
+          "requests": 32,
+          "cls": 0.0005192525324469768,
+          "shiftEntries": 41,
+          "largestUnexpectedShift": {
+            "time": 20813.80000000447,
+            "value": 7.44539411206078e-05,
+            "nodes": [
+              "I   sod-canonical-progress-meter is-indeterminate"
+            ]
+          }
+        },
+        {
+          "name": "back-method-number",
+          "ms": 516,
+          "observedMs": 1118,
+          "requests": 4,
+          "cls": 0,
+          "shiftEntries": 0,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "number-phrase-full-page",
+          "ms": 4055,
+          "observedMs": 4699,
+          "requests": 51,
+          "cls": 0.0009493898880183602,
+          "shiftEntries": 77,
+          "largestUnexpectedShift": {
+            "time": 25071.10000000149,
+            "value": 2.3370726495726497e-05,
+            "nodes": [
+              "I   sod-canonical-progress-meter is-indeterminate"
+            ]
+          }
+        },
+        {
+          "name": "back-phrase-number",
+          "ms": 918,
+          "observedMs": 1521,
+          "requests": 7,
+          "cls": 0.035125221589110474,
+          "shiftEntries": 1,
+          "largestUnexpectedShift": {
+            "time": 29448.20000000298,
+            "value": 0.035125221589110474,
+            "nodes": [
+              "SECTION  sod29-number-v10-stage sod29-number-core2029 sod29-number-v10 is-page",
+              "STRONG   ",
+              "SMALL   sod29-number-v10-method-head"
+            ]
+          }
+        },
+        {
+          "name": "back-number-world",
+          "ms": 917,
+          "observedMs": 1536,
+          "requests": 31,
+          "cls": 0.0001900344254510921,
+          "shiftEntries": 28,
+          "largestUnexpectedShift": {
+            "time": 30875.20000000298,
+            "value": 4.1237090455840455e-05,
+            "nodes": [
+              "I   sod-canonical-progress-meter is-indeterminate"
+            ]
+          }
+        },
+        {
+          "name": "back-world-post",
+          "ms": 443,
+          "observedMs": 1049,
+          "requests": 9,
+          "cls": 0,
+          "shiftEntries": 3,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "back-post-home",
+          "ms": 455,
+          "observedMs": 1074,
+          "requests": 41,
+          "cls": 0.020760697807850587,
+          "shiftEntries": 13,
+          "largestUnexpectedShift": {
+            "time": 33508.39999999851,
+            "value": 0.020405811965811968,
+            "nodes": [
+              "SECTION  h29-sec k29-reveal  h29",
+              "DIV  k29-reveal k29-rv-self h29",
+              "A  h29-card-open h29-card k29-rv",
+              "A  h29-card-open h29-card k29-rv"
+            ]
+          }
+        }
+      ],
+      "totalMs": 26940
+    },
+    {
+      "version": "before",
+      "profile": "mobile-slow",
+      "pair": 2,
+      "repeat": "repeat",
+      "postHref": "/post/mivchan-acharon-lifney-hapriza-dim5-20261031",
+      "steps": [
+        {
+          "name": "home-entry",
+          "ms": 703,
+          "observedMs": 1323,
+          "requests": 39,
+          "cls": 0.045074706493352344,
+          "shiftEntries": 21,
+          "largestUnexpectedShift": {
+            "time": 36998.70000000298,
+            "value": 0.04472720481164926,
+            "nodes": [
+              "SECTION  h29-sec k29-reveal  h29",
+              "SECTION  h29-sec k29-reveal  h29",
+              "DIV  k29-reveal k29-rv-self h29",
+              "A  h29-card-open h29-card k29-rv",
+              "DIV  h29-hero-copy h29-hero h29-hero2 is-enter"
+            ]
+          }
+        },
+        {
+          "name": "home-post",
+          "ms": 578,
+          "observedMs": 1184,
+          "requests": 11,
+          "cls": 0,
+          "shiftEntries": 7,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "post-world",
+          "ms": 1428,
+          "observedMs": 2048,
+          "requests": 32,
+          "cls": 0.000183886316872428,
+          "shiftEntries": 29,
+          "largestUnexpectedShift": {
+            "time": 39990.10000000149,
+            "value": 4.1261079455523904e-05,
+            "nodes": [
+              "I   sod-canonical-progress-meter is-indeterminate"
+            ]
+          }
+        },
+        {
+          "name": "world-number-full-page",
+          "ms": 3755,
+          "observedMs": 4362,
+          "requests": 58,
+          "cls": 0.02373288802825261,
+          "shiftEntries": 6,
+          "largestUnexpectedShift": {
+            "time": 42917,
+            "value": 0.023719278252611584,
+            "nodes": [
+              "SECTION  sod29-number-core2029 sod29-number-v10 is-drawer sod29-number-drawer2029",
+              "DIV  sod29-surface-context-expression sod29-number-drawer-identity sod29-number-drawer2029"
+            ]
+          }
+        },
+        {
+          "name": "number-method-full-page",
+          "ms": 724,
+          "observedMs": 1328,
+          "requests": 32,
+          "cls": 0,
+          "shiftEntries": 1,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "back-method-number",
+          "ms": 475,
+          "observedMs": 1077,
+          "requests": 4,
+          "cls": 0,
+          "shiftEntries": 0,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "number-phrase-full-page",
+          "ms": 1215,
+          "observedMs": 1818,
+          "requests": 7,
+          "cls": 0,
+          "shiftEntries": 1,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "back-phrase-number",
+          "ms": 852,
+          "observedMs": 1457,
+          "requests": 7,
+          "cls": 0.030556408673630894,
+          "shiftEntries": 1,
+          "largestUnexpectedShift": {
+            "time": 50081.5,
+            "value": 0.030556408673630894,
+            "nodes": [
+              "SECTION  sod29-number-v10-stage sod29-number-core2029 sod29-number-v10 is-page",
+              "STRONG   ",
+              "SMALL   sod29-number-v10-method-head"
+            ]
+          }
+        },
+        {
+          "name": "back-number-world",
+          "ms": 912,
+          "observedMs": 1531,
+          "requests": 31,
+          "cls": 0.00018442025759734095,
+          "shiftEntries": 29,
+          "largestUnexpectedShift": {
+            "time": 51615.5,
+            "value": 3.067030705919595e-05,
+            "nodes": [
+              "I   sod-canonical-progress-meter is-indeterminate"
+            ]
+          }
+        },
+        {
+          "name": "back-world-post",
+          "ms": 458,
+          "observedMs": 1061,
+          "requests": 9,
+          "cls": 0,
+          "shiftEntries": 2,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "back-post-home",
+          "ms": 521,
+          "observedMs": 1136,
+          "requests": 37,
+          "cls": 0.05246111412828426,
+          "shiftEntries": 11,
+          "largestUnexpectedShift": {
+            "time": 54325.80000000447,
+            "value": 0.022605698599240266,
+            "nodes": [
+              "SECTION  h29-sec k29-reveal  h29",
+              "SECTION  h29-sec k29-reveal  h29",
+              "DIV  k29-reveal k29-rv-self h29",
+              "DIV  h29-hero-copy h29-hero h29-hero2 is-enter"
+            ]
+          }
+        }
+      ],
+      "totalMs": 11621
+    },
+    {
+      "version": "before",
+      "profile": "mobile-slow",
+      "pair": 3,
+      "repeat": "first",
+      "postHref": "/post/mivchan-acharon-lifney-hapriza-dim5-20261031",
+      "steps": [
+        {
+          "name": "home-entry",
+          "ms": 6489,
+          "observedMs": 7098,
+          "requests": 141,
+          "cls": 0,
+          "shiftEntries": 0,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "home-post",
+          "ms": 1179,
+          "observedMs": 1812,
+          "requests": 16,
+          "cls": 0.00047847088675213677,
+          "shiftEntries": 33,
+          "largestUnexpectedShift": {
+            "time": 8742.70000000298,
+            "value": 0.00013128205128205129,
+            "nodes": [
+              "undefined undefined undefined undefined"
+            ]
+          }
+        },
+        {
+          "name": "post-world",
+          "ms": 2563,
+          "observedMs": 3183,
+          "requests": 49,
+          "cls": 0.00018666360003165557,
+          "shiftEntries": 32,
+          "largestUnexpectedShift": {
+            "time": 11216,
+            "value": 1.846806742640076e-05,
+            "nodes": [
+              "I   sod-canonical-progress-meter is-indeterminate"
+            ]
+          }
+        },
+        {
+          "name": "world-number-full-page",
+          "ms": 6625,
+          "observedMs": 7353,
+          "requests": 169,
+          "cls": 0.02373288802825261,
+          "shiftEntries": 85,
+          "largestUnexpectedShift": {
+            "time": 14312.39999999851,
+            "value": 0.023719278252611584,
+            "nodes": [
+              "SECTION  sod29-number-core2029 sod29-number-v10 is-drawer sod29-number-drawer2029",
+              "DIV  sod29-surface-context-expression sod29-number-drawer-identity sod29-number-drawer2029"
+            ]
+          }
+        },
+        {
+          "name": "number-method-full-page",
+          "ms": 2350,
+          "observedMs": 2974,
+          "requests": 32,
+          "cls": 0.0005080847875118708,
+          "shiftEntries": 43,
+          "largestUnexpectedShift": {
+            "time": 20269.89999999851,
+            "value": 2.3370726495726497e-05,
+            "nodes": [
+              "I   sod-canonical-progress-meter is-indeterminate"
+            ]
+          }
+        },
+        {
+          "name": "back-method-number",
+          "ms": 470,
+          "observedMs": 1074,
+          "requests": 4,
+          "cls": 0,
+          "shiftEntries": 0,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "number-phrase-full-page",
+          "ms": 3225,
+          "observedMs": 3898,
+          "requests": 51,
+          "cls": 0.0009493901353276352,
+          "shiftEntries": 77,
+          "largestUnexpectedShift": {
+            "time": 24637.39999999851,
+            "value": 2.3370726495726497e-05,
+            "nodes": [
+              "I   sod-canonical-progress-meter is-indeterminate"
+            ]
+          }
+        },
+        {
+          "name": "back-phrase-number",
+          "ms": 940,
+          "observedMs": 1543,
+          "requests": 7,
+          "cls": 0.035125221589110474,
+          "shiftEntries": 1,
+          "largestUnexpectedShift": {
+            "time": 28223.39999999851,
+            "value": 0.035125221589110474,
+            "nodes": [
+              "SECTION  sod29-number-v10-stage sod29-number-core2029 sod29-number-v10 is-page",
+              "STRONG   ",
+              "SMALL   sod29-number-v10-method-head"
+            ]
+          }
+        },
+        {
+          "name": "back-number-world",
+          "ms": 955,
+          "observedMs": 1572,
+          "requests": 32,
+          "cls": 0.00018152228751187085,
+          "shiftEntries": 29,
+          "largestUnexpectedShift": {
+            "time": 29647.10000000149,
+            "value": 3.0336934156378603e-05,
+            "nodes": [
+              "I   sod-canonical-progress-meter is-indeterminate"
+            ]
+          }
+        },
+        {
+          "name": "back-world-post",
+          "ms": 424,
+          "observedMs": 1029,
+          "requests": 8,
+          "cls": 0,
+          "shiftEntries": 3,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "back-post-home",
+          "ms": 403,
+          "observedMs": 1021,
+          "requests": 41,
+          "cls": 0.046644159197926555,
+          "shiftEntries": 14,
+          "largestUnexpectedShift": {
+            "time": 32351.10000000149,
+            "value": 0.02594446541627097,
+            "nodes": [
+              "SECTION  h29-sec k29-reveal  h29",
+              "SECTION  h29-sec k29-reveal  h29",
+              "DIV  k29-reveal k29-rv-self h29",
+              "DIV  h29-hero-copy h29-hero h29-hero2 is-enter"
+            ]
+          }
+        }
+      ],
+      "totalMs": 25623
+    },
+    {
+      "version": "before",
+      "profile": "mobile-slow",
+      "pair": 3,
+      "repeat": "repeat",
+      "postHref": "/post/mivchan-acharon-lifney-hapriza-dim5-20261031",
+      "steps": [
+        {
+          "name": "home-entry",
+          "ms": 348,
+          "observedMs": 959,
+          "requests": 38,
+          "cls": 0.0450836174916904,
+          "shiftEntries": 15,
+          "largestUnexpectedShift": {
+            "time": 35645,
+            "value": 0.04487261791706236,
+            "nodes": [
+              "SECTION  h29-sec k29-reveal  h29",
+              "SECTION  h29-sec k29-reveal  h29",
+              "DIV  k29-reveal k29-rv-self h29",
+              "A  h29-card-open h29-card k29-rv",
+              "DIV  h29-hero-copy h29-hero h29-hero2 is-enter"
+            ]
+          }
+        },
+        {
+          "name": "home-post",
+          "ms": 556,
+          "observedMs": 1163,
+          "requests": 12,
+          "cls": 0,
+          "shiftEntries": 11,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "post-world",
+          "ms": 1443,
+          "observedMs": 2066,
+          "requests": 31,
+          "cls": 0.00019020160652105097,
+          "shiftEntries": 28,
+          "largestUnexpectedShift": {
+            "time": 38429,
+            "value": 4.7983192861665085e-05,
+            "nodes": [
+              "I   sod-canonical-progress-meter is-indeterminate"
+            ]
+          }
+        },
+        {
+          "name": "world-number-full-page",
+          "ms": 3960,
+          "observedMs": 4564,
+          "requests": 75,
+          "cls": 0.0005721351693573916,
+          "shiftEntries": 5,
+          "largestUnexpectedShift": {
+            "time": 42685.70000000298,
+            "value": 0.0005721351693573916,
+            "nodes": [
+              "undefined undefined undefined "
+            ]
+          }
+        },
+        {
+          "name": "number-method-full-page",
+          "ms": 676,
+          "observedMs": 1279,
+          "requests": 16,
+          "cls": 0,
+          "shiftEntries": 1,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "back-method-number",
+          "ms": 530,
+          "observedMs": 1134,
+          "requests": 4,
+          "cls": 0,
+          "shiftEntries": 0,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "number-phrase-full-page",
+          "ms": 1180,
+          "observedMs": 1783,
+          "requests": 7,
+          "cls": 0,
+          "shiftEntries": 1,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "back-phrase-number",
+          "ms": 1021,
+          "observedMs": 1639,
+          "requests": 7,
+          "cls": 0.03169861190250079,
+          "shiftEntries": 1,
+          "largestUnexpectedShift": {
+            "time": 48708.79999999702,
+            "value": 0.03169861190250079,
+            "nodes": [
+              "SECTION  sod29-number-v10-stage sod29-number-core2029 sod29-number-v10 is-page",
+              "STRONG   ",
+              "SMALL   sod29-number-v10-method-head"
+            ]
+          }
+        },
+        {
+          "name": "back-number-world",
+          "ms": 975,
+          "observedMs": 1588,
+          "requests": 31,
+          "cls": 0.0001908562341722064,
+          "shiftEntries": 28,
+          "largestUnexpectedShift": {
+            "time": 50441.79999999702,
+            "value": 3.0336934156378603e-05,
+            "nodes": [
+              "I   sod-canonical-progress-meter is-indeterminate"
+            ]
+          }
+        },
+        {
+          "name": "back-world-post",
+          "ms": 420,
+          "observedMs": 1024,
+          "requests": 9,
+          "cls": 0,
+          "shiftEntries": 4,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "back-post-home",
+          "ms": 388,
+          "observedMs": 998,
+          "requests": 41,
+          "cls": 0.022288503531576447,
+          "shiftEntries": 11,
+          "largestUnexpectedShift": {
+            "time": 52934.60000000149,
+            "value": 0.021916923076923077,
+            "nodes": [
+              "SECTION  h29-sec k29-reveal  h29",
+              "DIV  k29-reveal k29-rv-self h29",
+              "A  h29-card-open h29-card k29-rv",
+              "A  h29-card-open h29-card k29-rv"
+            ]
+          }
+        }
+      ],
+      "totalMs": 11497
+    },
+    {
+      "version": "after",
+      "profile": "mobile-slow",
+      "pair": 3,
+      "repeat": "first",
+      "postHref": "/post/mivchan-acharon-lifney-hapriza-dim5-20261031",
+      "steps": [
+        {
+          "name": "home-entry",
+          "ms": 6416,
+          "observedMs": 7021,
+          "requests": 141,
+          "cls": 0,
+          "shiftEntries": 0,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "home-post",
+          "ms": 1099,
+          "observedMs": 1716,
+          "requests": 16,
+          "cls": 0.0004583587072649573,
+          "shiftEntries": 33,
+          "largestUnexpectedShift": {
+            "time": 8617.39999999851,
+            "value": 0.00013128205128205129,
+            "nodes": [
+              "undefined undefined undefined undefined"
+            ]
+          }
+        },
+        {
+          "name": "post-world",
+          "ms": 2457,
+          "observedMs": 3076,
+          "requests": 49,
+          "cls": 0.0001744707581513137,
+          "shiftEntries": 31,
+          "largestUnexpectedShift": {
+            "time": 10952.5,
+            "value": 1.868792537195315e-05,
+            "nodes": [
+              "I   sod-canonical-progress-meter is-indeterminate"
+            ]
+          }
+        },
+        {
+          "name": "world-number-full-page",
+          "ms": 6081,
+          "observedMs": 6750,
+          "requests": 169,
+          "cls": 0.0009535516084995249,
+          "shiftEntries": 73,
+          "largestUnexpectedShift": {
+            "time": 15475.30000000447,
+            "value": 5.041547958214625e-05,
+            "nodes": [
+              "I   sod-canonical-progress-meter is-indeterminate"
+            ]
+          }
+        },
+        {
+          "name": "number-method-full-page",
+          "ms": 2222,
+          "observedMs": 2846,
+          "requests": 32,
+          "cls": 0.0004259160335549225,
+          "shiftEntries": 36,
+          "largestUnexpectedShift": {
+            "time": 19312,
+            "value": 2.3370726495726497e-05,
+            "nodes": [
+              "I   sod-canonical-progress-meter is-indeterminate"
+            ]
+          }
+        },
+        {
+          "name": "back-method-number",
+          "ms": 378,
+          "observedMs": 980,
+          "requests": 4,
+          "cls": 0,
+          "shiftEntries": 0,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "number-phrase-full-page",
+          "ms": 3111,
+          "observedMs": 3743,
+          "requests": 51,
+          "cls": 0.0005212357055238999,
+          "shiftEntries": 45,
+          "largestUnexpectedShift": {
+            "time": 23441.60000000149,
+            "value": 5.112476258309592e-05,
+            "nodes": [
+              "I   sod-canonical-progress-meter is-indeterminate"
+            ]
+          }
+        },
+        {
+          "name": "back-phrase-number",
+          "ms": 803,
+          "observedMs": 1408,
+          "requests": 7,
+          "cls": 0.03533011356441912,
+          "shiftEntries": 1,
+          "largestUnexpectedShift": {
+            "time": 26832.5,
+            "value": 0.03533011356441912,
+            "nodes": [
+              "SECTION  sod29-number-v10-stage sod29-number-core2029 sod29-number-v10 is-page",
+              "STRONG   ",
+              "SMALL   sod29-number-v10-method-head"
+            ]
+          }
+        },
+        {
+          "name": "back-number-world",
+          "ms": 929,
+          "observedMs": 1555,
+          "requests": 32,
+          "cls": 0.000177786928220956,
+          "shiftEntries": 28,
+          "largestUnexpectedShift": {
+            "time": 28251.30000000447,
+            "value": 3.0336934156378603e-05,
+            "nodes": [
+              "I   sod-canonical-progress-meter is-indeterminate"
+            ]
+          }
+        },
+        {
+          "name": "back-world-post",
+          "ms": 491,
+          "observedMs": 1096,
+          "requests": 8,
+          "cls": 0,
+          "shiftEntries": 3,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "back-post-home",
+          "ms": 451,
+          "observedMs": 1066,
+          "requests": 37,
+          "cls": 0.0480751237040994,
+          "shiftEntries": 13,
+          "largestUnexpectedShift": {
+            "time": 30940.20000000298,
+            "value": 0.027325480620845204,
+            "nodes": [
+              "SECTION  h29-sec k29-reveal  h29",
+              "SECTION  h29-sec k29-reveal  h29",
+              "DIV  k29-reveal k29-rv-self h29",
+              "DIV  h29-hero-copy h29-hero h29-hero2 is-enter"
+            ]
+          }
+        }
+      ],
+      "totalMs": 24438
+    },
+    {
+      "version": "after",
+      "profile": "mobile-slow",
+      "pair": 3,
+      "repeat": "repeat",
+      "postHref": "/post/mivchan-acharon-lifney-hapriza-dim5-20261031",
+      "steps": [
+        {
+          "name": "home-entry",
+          "ms": 402,
+          "observedMs": 1027,
+          "requests": 40,
+          "cls": 0.045193418852880654,
+          "shiftEntries": 14,
+          "largestUnexpectedShift": {
+            "time": 33689.20000000298,
+            "value": 0.04487261791706236,
+            "nodes": [
+              "SECTION  h29-sec k29-reveal  h29",
+              "SECTION  h29-sec k29-reveal  h29",
+              "DIV  k29-reveal k29-rv-self h29",
+              "A  h29-card-open h29-card k29-rv",
+              "DIV  h29-hero-copy h29-hero h29-hero2 is-enter"
+            ]
+          }
+        },
+        {
+          "name": "home-post",
+          "ms": 689,
+          "observedMs": 1302,
+          "requests": 12,
+          "cls": 6.710415677429567e-05,
+          "shiftEntries": 15,
+          "largestUnexpectedShift": {
+            "time": 34153.60000000149,
+            "value": 1.0921177587844255e-05,
+            "nodes": [
+              "I   sod-canonical-progress-meter is-indeterminate"
+            ]
+          }
+        },
+        {
+          "name": "post-world",
+          "ms": 1579,
+          "observedMs": 2195,
+          "requests": 32,
+          "cls": 0.00016825043526432417,
+          "shiftEntries": 30,
+          "largestUnexpectedShift": {
+            "time": 36610.60000000149,
+            "value": 1.912937242798354e-05,
+            "nodes": [
+              "I   sod-canonical-progress-meter is-indeterminate"
+            ]
+          }
+        },
+        {
+          "name": "world-number-full-page",
+          "ms": 3806,
+          "observedMs": 4425,
+          "requests": 60,
+          "cls": 0.02373288802825261,
+          "shiftEntries": 6,
+          "largestUnexpectedShift": {
+            "time": 39658.39999999851,
+            "value": 0.023719278252611584,
+            "nodes": [
+              "SECTION  sod29-number-core2029 sod29-number-v10 is-drawer sod29-number-drawer2029",
+              "DIV  sod29-surface-context-expression sod29-number-drawer-identity sod29-number-drawer2029"
+            ]
+          }
+        },
+        {
+          "name": "number-method-full-page",
+          "ms": 723,
+          "observedMs": 1325,
+          "requests": 30,
+          "cls": 0,
+          "shiftEntries": 1,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "back-method-number",
+          "ms": 369,
+          "observedMs": 971,
+          "requests": 4,
+          "cls": 0,
+          "shiftEntries": 0,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "number-phrase-full-page",
+          "ms": 1027,
+          "observedMs": 1630,
+          "requests": 7,
+          "cls": 0,
+          "shiftEntries": 1,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "back-phrase-number",
+          "ms": 739,
+          "observedMs": 1342,
+          "requests": 7,
+          "cls": 0.034395583649889205,
+          "shiftEntries": 1,
+          "largestUnexpectedShift": {
+            "time": 46471.60000000149,
+            "value": 0.034395583649889205,
+            "nodes": [
+              "SECTION  sod29-number-v10-stage sod29-number-core2029 sod29-number-v10 is-page",
+              "STRONG   ",
+              "SMALL   sod29-number-v10-method-head"
+            ]
+          }
+        },
+        {
+          "name": "back-number-world",
+          "ms": 896,
+          "observedMs": 1514,
+          "requests": 32,
+          "cls": 0.0001678312460430516,
+          "shiftEntries": 27,
+          "largestUnexpectedShift": {
+            "time": 47890.10000000149,
+            "value": 3.0336934156378603e-05,
+            "nodes": [
+              "I   sod-canonical-progress-meter is-indeterminate"
+            ]
+          }
+        },
+        {
+          "name": "back-world-post",
+          "ms": 441,
+          "observedMs": 1053,
+          "requests": 9,
+          "cls": 0,
+          "shiftEntries": 3,
+          "largestUnexpectedShift": null
+        },
+        {
+          "name": "back-post-home",
+          "ms": 424,
+          "observedMs": 1037,
+          "requests": 41,
+          "cls": 0.06379149053300096,
+          "shiftEntries": 13,
+          "largestUnexpectedShift": {
+            "time": 50592.30000000447,
+            "value": 0.041534380688113326,
+            "nodes": [
+              "SECTION  h29-sec k29-reveal  h29",
+              "DIV  k29-reveal k29-rv-self h29",
+              "SECTION  h29-sec k29-reveal  h29",
+              "DIV  h29-hero-copy h29-hero h29-hero2 is-enter"
+            ]
+          }
+        }
+      ],
+      "totalMs": 11095
+    }
+  ],
+  "sourceCandidateSha": "06751b7277232c11400988192d4a3738432675ad",
+  "fullAttributionArtifact": "public-loading-full.json.gz",
+  "fullAttributionSha256": "aca64be95028cf33165b851be13b1c6e0faeb0c4b99b52fe399a8bab4b9d8a90"
+}

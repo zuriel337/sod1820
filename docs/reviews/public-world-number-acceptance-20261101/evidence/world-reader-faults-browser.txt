@@ -1,0 +1,11 @@
+✔ one World search covers words, public source text, writers, safe grouping and return at mobile and desktop widths (9274.56771ms)
+✔ public source messages open in place and an exact shared anchor opens even beyond the first page (1993.210328ms)
+✔ World reader failures and pending search never claim measured emptiness; explicit retry can recover (17481.596014ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 29144.485647

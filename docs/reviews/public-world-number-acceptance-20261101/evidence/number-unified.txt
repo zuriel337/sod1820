@@ -1,0 +1,26 @@
+
+Running 14 tests using 1 worker
+
+(node:161975) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:161975) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1/14] test/number-connections-route-2029.browser.cjs:4:30 › public connection opens its canonical Number/method and returns to the same row 390
+[2/14] test/number-connections-route-2029.browser.cjs:4:30 › public connection opens its canonical Number/method and returns to the same row 1440
+[3/14] test/number-connections-route-2029.browser.cjs:20:29 › Number prose at 150 percent remains readable 320
+[4/14] test/number-connections-route-2029.browser.cjs:20:29 › Number prose at 150 percent remains readable 390
+[5/14] test/number-fullpage-acceptance-2029.browser.cjs:6:30 › Number full-page methods, precise return and informative public sources 390
+[6/14] test/number-fullpage-acceptance-2029.browser.cjs:6:30 › Number full-page methods, precise return and informative public sources 1440
+[7/14] test/number-fullpage-acceptance-2029.browser.cjs:60:1 › synthetic profile failure preserves the prior page, retry opens the canonical page, and late resolution cannot hijack Home
+[8/14] test/number-fullpage-acceptance-2029.browser.cjs:81:1 › direct phrase with exact method survives reload; legacy and new Post addresses retain canonical links
+[9/14] test/number-fullpage-acceptance-2029.browser.cjs:98:1 › synthetic public-source outage stays an error, never empty success, and retry reads public data
+[10/14] test/number-mobile-order-2029.browser.cjs:7:27 › Number mobile geometry and inherited public order 320
+[11/14] test/number-mobile-order-2029.browser.cjs:7:27 › Number mobile geometry and inherited public order 360
+[12/14] test/number-mobile-order-2029.browser.cjs:7:27 › Number mobile geometry and inherited public order 390
+[13/14] test/number-mobile-order-2029.browser.cjs:7:27 › Number mobile geometry and inherited public order 768
+[14/14] test/number-mobile-order-2029.browser.cjs:7:27 › Number mobile geometry and inherited public order 1440
+  14 passed (1.2m)

@@ -1,0 +1,4882 @@
+[
+  {
+    "run": "public-loading-after-desktop-1-audit.json",
+    "phases": {
+      "back-method-number": {
+        "reads": 8,
+        "statuses": {
+          "200": 8
+        },
+        "modeledWireBytes": 4150,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/rpc/is_number_indexable",
+            "ms": 2,
+            "modeledWireBytes": 8
+          },
+          {
+            "path": "/rest/v1/site_flags",
+            "ms": 2,
+            "modeledWireBytes": 1126
+          },
+          {
+            "path": "/rest/v1/rpc/fn_verses_by_gematria",
+            "ms": 2,
+            "modeledWireBytes": 332
+          },
+          {
+            "path": "/rest/v1/rpc/gematria_method_trace",
+            "ms": 2,
+            "modeledWireBytes": 609
+          }
+        ]
+      },
+      "back-number-world": {
+        "reads": 66,
+        "statuses": {
+          "200": 64,
+          "206": 2
+        },
+        "modeledWireBytes": 786862,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/rpc/gematria_method_trace",
+            "ms": 6,
+            "modeledWireBytes": 538
+          },
+          {
+            "path": "/rest/v1/rpc/gematria_method_trace",
+            "ms": 6,
+            "modeledWireBytes": 495
+          },
+          {
+            "path": "/rest/v1/rpc/gematria_method_trace",
+            "ms": 5,
+            "modeledWireBytes": 476
+          },
+          {
+            "path": "/rest/v1/research_objects",
+            "ms": 4,
+            "modeledWireBytes": 3857
+          }
+        ]
+      },
+      "back-phrase-number": {
+        "reads": 14,
+        "statuses": {
+          "200": 14
+        },
+        "modeledWireBytes": 21592,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/rpc/is_number_indexable",
+            "ms": 5,
+            "modeledWireBytes": 8
+          },
+          {
+            "path": "/rest/v1/site_flags",
+            "ms": 5,
+            "modeledWireBytes": 1126
+          },
+          {
+            "path": "/rest/v1/rpc/fn_verses_by_gematria",
+            "ms": 3,
+            "modeledWireBytes": 332
+          },
+          {
+            "path": "/rest/v1/rpc/is_number_indexable",
+            "ms": 2,
+            "modeledWireBytes": 8
+          }
+        ]
+      },
+      "back-post-home": {
+        "reads": 90,
+        "statuses": {
+          "200": 88,
+          "206": 2
+        },
+        "modeledWireBytes": 876509,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/storage/v1/object/public/media/_thumb/p/5004.jpg",
+            "ms": 9,
+            "modeledWireBytes": 64850
+          },
+          {
+            "path": "/rest/v1/rpc/gematria_method_trace",
+            "ms": 9,
+            "modeledWireBytes": 538
+          },
+          {
+            "path": "/rest/v1/rpc/gematria_method_trace",
+            "ms": 9,
+            "modeledWireBytes": 535
+          },
+          {
+            "path": "/rest/v1/rpc/gematria_method_trace",
+            "ms": 9,
+            "modeledWireBytes": 514
+          }
+        ]
+      },
+      "back-world-post": {
+        "reads": 16,
+        "statuses": {
+          "200": 16
+        },
+        "modeledWireBytes": 73834,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/comments",
+            "ms": 3,
+            "modeledWireBytes": 6
+          },
+          {
+            "path": "/rest/v1/site_flags",
+            "ms": 2,
+            "modeledWireBytes": 1126
+          },
+          {
+            "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+            "ms": 2,
+            "modeledWireBytes": 10253
+          },
+          {
+            "path": "/rest/v1/site_flags",
+            "ms": 2,
+            "modeledWireBytes": 1126
+          }
+        ]
+      },
+      "home-entry": {
+        "reads": 200,
+        "statuses": {
+          "200": 198,
+          "206": 2
+        },
+        "modeledWireBytes": 1733395,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/assets/razielViewMode2029-EPrCdoW9.js",
+            "ms": 20,
+            "modeledWireBytes": 363
+          },
+          {
+            "path": "/assets/NavigationIcon2029-CH1qZpiS.js",
+            "ms": 20,
+            "modeledWireBytes": 4999
+          },
+          {
+            "path": "/assets/themeMode-jUD92yIC.js",
+            "ms": 20,
+            "modeledWireBytes": 377
+          },
+          {
+            "path": "/assets/palette-CNyTr_3N.js",
+            "ms": 20,
+            "modeledWireBytes": 2961
+          }
+        ]
+      },
+      "home-post": {
+        "reads": 20,
+        "statuses": {
+          "200": 20
+        },
+        "modeledWireBytes": 220826,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/site_flags",
+            "ms": 4,
+            "modeledWireBytes": 1126
+          },
+          {
+            "path": "/rest/v1/site_flags",
+            "ms": 2,
+            "modeledWireBytes": 1126
+          },
+          {
+            "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+            "ms": 2,
+            "modeledWireBytes": 10253
+          },
+          {
+            "path": "/rest/v1/comments",
+            "ms": 2,
+            "modeledWireBytes": 6
+          }
+        ]
+      },
+      "number-method-full-page": {
+        "reads": 36,
+        "statuses": {
+          "200": 36
+        },
+        "modeledWireBytes": 13656,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/gematria_words",
+            "ms": 7,
+            "modeledWireBytes": 6
+          },
+          {
+            "path": "/rest/v1/insights",
+            "ms": 7,
+            "modeledWireBytes": 6
+          },
+          {
+            "path": "/rest/v1/research_objects",
+            "ms": 7,
+            "modeledWireBytes": 6
+          },
+          {
+            "path": "/rest/v1/rpc/posts_by_number_strict",
+            "ms": 5,
+            "modeledWireBytes": 6
+          }
+        ]
+      },
+      "number-phrase-full-page": {
+        "reads": 58,
+        "statuses": {
+          "200": 58
+        },
+        "modeledWireBytes": 73848,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/gematria_words",
+            "ms": 3,
+            "modeledWireBytes": 466
+          },
+          {
+            "path": "/rest/v1/topic_cards_public",
+            "ms": 3,
+            "modeledWireBytes": 399
+          },
+          {
+            "path": "/rest/v1/gallery_images",
+            "ms": 3,
+            "modeledWireBytes": 897
+          },
+          {
+            "path": "/rest/v1/rpc/fn_number_lookup",
+            "ms": 3,
+            "modeledWireBytes": 8067
+          }
+        ]
+      },
+      "post-world": {
+        "reads": 81,
+        "statuses": {
+          "200": 79,
+          "206": 2
+        },
+        "modeledWireBytes": 931711,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+            "ms": 5,
+            "modeledWireBytes": 10253
+          },
+          {
+            "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+            "ms": 5,
+            "modeledWireBytes": 7229
+          },
+          {
+            "path": "/rest/v1/topic_cards_public",
+            "ms": 5,
+            "modeledWireBytes": 97
+          },
+          {
+            "path": "/rest/v1/posts",
+            "ms": 5,
+            "modeledWireBytes": 769
+          }
+        ]
+      },
+      "unmeasured-world-preparation": {
+        "reads": 56,
+        "statuses": {
+          "200": 54,
+          "206": 2
+        },
+        "modeledWireBytes": 191784,
+        "measuredSnapshotMisses": null,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/rpc/gematria_method_trace",
+            "ms": 6,
+            "modeledWireBytes": 535
+          },
+          {
+            "path": "/rest/v1/rpc/gematria_method_trace",
+            "ms": 6,
+            "modeledWireBytes": 514
+          },
+          {
+            "path": "/rest/v1/rpc/gematria_method_trace",
+            "ms": 6,
+            "modeledWireBytes": 476
+          },
+          {
+            "path": "/rest/v1/rpc/gematria_method_trace",
+            "ms": 6,
+            "modeledWireBytes": 495
+          }
+        ]
+      },
+      "world-number-full-page": {
+        "reads": 253,
+        "statuses": {
+          "200": 249,
+          "206": 4
+        },
+        "modeledWireBytes": 578211,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/topic_cards_public",
+            "ms": 4,
+            "modeledWireBytes": 2245
+          },
+          {
+            "path": "/rest/v1/gallery_images",
+            "ms": 4,
+            "modeledWireBytes": 4237
+          },
+          {
+            "path": "/rest/v1/rpc/fn_zero_scale",
+            "ms": 4,
+            "modeledWireBytes": 324
+          },
+          {
+            "path": "/assets/NumberDrawer2029-3cg9HINI.css",
+            "ms": 3,
+            "modeledWireBytes": 676
+          }
+        ]
+      }
+    },
+    "errors": [],
+    "blocked": [
+      {
+        "phase": "home-entry",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "home-entry",
+        "path": "/els-icon.png",
+        "method": "GET"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/els-icon.png",
+        "method": "GET"
+      },
+      {
+        "phase": "home-entry",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "home-entry",
+        "path": "/els-icon.png",
+        "method": "GET"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/els-icon.png",
+        "method": "GET"
+      }
+    ],
+    "forwardedWrites": 0,
+    "forwardedModels": 0
+  },
+  {
+    "run": "public-loading-after-desktop-2-audit.json",
+    "phases": {
+      "back-method-number": {
+        "reads": 8,
+        "statuses": {
+          "200": 8
+        },
+        "modeledWireBytes": 4150,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/site_flags",
+            "ms": 5,
+            "modeledWireBytes": 1126
+          },
+          {
+            "path": "/rest/v1/rpc/gematria_method_trace",
+            "ms": 2,
+            "modeledWireBytes": 609
+          },
+          {
+            "path": "/rest/v1/rpc/gematria_method_trace",
+            "ms": 2,
+            "modeledWireBytes": 609
+          },
+          {
+            "path": "/rest/v1/rpc/is_number_indexable",
+            "ms": 1,
+            "modeledWireBytes": 8
+          }
+        ]
+      },
+      "back-number-world": {
+        "reads": 65,
+        "statuses": {
+          "200": 63,
+          "206": 2
+        },
+        "modeledWireBytes": 490091,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/topic_cards_public",
+            "ms": 5,
+            "modeledWireBytes": 98
+          },
+          {
+            "path": "/rest/v1/posts",
+            "ms": 5,
+            "modeledWireBytes": 3222
+          },
+          {
+            "path": "/rest/v1/posts",
+            "ms": 5,
+            "modeledWireBytes": 769
+          },
+          {
+            "path": "/rest/v1/rpc/gematria_method_trace",
+            "ms": 5,
+            "modeledWireBytes": 538
+          }
+        ]
+      },
+      "back-phrase-number": {
+        "reads": 14,
+        "statuses": {
+          "200": 14
+        },
+        "modeledWireBytes": 21592,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/site_flags",
+            "ms": 3,
+            "modeledWireBytes": 1126
+          },
+          {
+            "path": "/rest/v1/rpc/fn_verses_by_gematria",
+            "ms": 2,
+            "modeledWireBytes": 332
+          },
+          {
+            "path": "/rest/v1/rpc/lang_links_list",
+            "ms": 2,
+            "modeledWireBytes": 2237
+          },
+          {
+            "path": "/rest/v1/rpc/gematria_method_trace",
+            "ms": 2,
+            "modeledWireBytes": 609
+          }
+        ]
+      },
+      "back-post-home": {
+        "reads": 81,
+        "statuses": {
+          "200": 79,
+          "206": 2
+        },
+        "modeledWireBytes": 169673,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/rpc/gematria_method_trace",
+            "ms": 5,
+            "modeledWireBytes": 535
+          },
+          {
+            "path": "/rest/v1/rpc/gematria_method_trace",
+            "ms": 5,
+            "modeledWireBytes": 514
+          },
+          {
+            "path": "/rest/v1/rpc/gematria_method_trace",
+            "ms": 5,
+            "modeledWireBytes": 476
+          },
+          {
+            "path": "/rest/v1/rpc/gematria_method_trace",
+            "ms": 5,
+            "modeledWireBytes": 495
+          }
+        ]
+      },
+      "back-world-post": {
+        "reads": 15,
+        "statuses": {
+          "200": 15
+        },
+        "modeledWireBytes": 73834,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/site_flags",
+            "ms": 2,
+            "modeledWireBytes": 1126
+          },
+          {
+            "path": "/rest/v1/topic_cards_public",
+            "ms": 2,
+            "modeledWireBytes": 2898
+          },
+          {
+            "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+            "ms": 2,
+            "modeledWireBytes": 10253
+          },
+          {
+            "path": "/rest/v1/posts",
+            "ms": 1,
+            "modeledWireBytes": 3714
+          }
+        ]
+      },
+      "home-entry": {
+        "reads": 200,
+        "statuses": {
+          "200": 198,
+          "206": 2
+        },
+        "modeledWireBytes": 1733395,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/assets/NavigationIcon2029-CH1qZpiS.js",
+            "ms": 18,
+            "modeledWireBytes": 4999
+          },
+          {
+            "path": "/assets/themeMode-jUD92yIC.js",
+            "ms": 18,
+            "modeledWireBytes": 377
+          },
+          {
+            "path": "/assets/palette-CNyTr_3N.js",
+            "ms": 18,
+            "modeledWireBytes": 2961
+          },
+          {
+            "path": "/assets/elsResearchReturnSnapshot-B03Lyzta.js",
+            "ms": 10,
+            "modeledWireBytes": 1515
+          }
+        ]
+      },
+      "home-post": {
+        "reads": 20,
+        "statuses": {
+          "200": 20
+        },
+        "modeledWireBytes": 220826,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/storage/v1/object/public/media/sod1820/2029/video/2026/10/23e813b7-2a15-4429-b035-bf4203028016/captions/he.vtt",
+            "ms": 4,
+            "modeledWireBytes": 2358
+          },
+          {
+            "path": "/rest/v1/comments",
+            "ms": 3,
+            "modeledWireBytes": 6
+          },
+          {
+            "path": "/rest/v1/site_flags",
+            "ms": 2,
+            "modeledWireBytes": 1126
+          },
+          {
+            "path": "/rest/v1/topic_cards_public",
+            "ms": 2,
+            "modeledWireBytes": 2898
+          }
+        ]
+      },
+      "number-method-full-page": {
+        "reads": 36,
+        "statuses": {
+          "200": 36
+        },
+        "modeledWireBytes": 13656,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/rpc/is_number_indexable",
+            "ms": 3,
+            "modeledWireBytes": 9
+          },
+          {
+            "path": "/rest/v1/research_objects",
+            "ms": 2,
+            "modeledWireBytes": 6
+          },
+          {
+            "path": "/rest/v1/research_objects",
+            "ms": 2,
+            "modeledWireBytes": 6
+          },
+          {
+            "path": "/rest/v1/gematria_methods",
+            "ms": 2,
+            "modeledWireBytes": 828
+          }
+        ]
+      },
+      "number-phrase-full-page": {
+        "reads": 58,
+        "statuses": {
+          "200": 58
+        },
+        "modeledWireBytes": 73848,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/nodes",
+            "ms": 5,
+            "modeledWireBytes": 6
+          },
+          {
+            "path": "/rest/v1/gallery_images",
+            "ms": 2,
+            "modeledWireBytes": 4289
+          },
+          {
+            "path": "/rest/v1/rpc/fn_method_profile",
+            "ms": 1,
+            "modeledWireBytes": 779
+          },
+          {
+            "path": "/rest/v1/gematria_methods",
+            "ms": 1,
+            "modeledWireBytes": 5674
+          }
+        ]
+      },
+      "post-world": {
+        "reads": 81,
+        "statuses": {
+          "200": 79,
+          "206": 2
+        },
+        "modeledWireBytes": 931711,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/posts",
+            "ms": 6,
+            "modeledWireBytes": 16761
+          },
+          {
+            "path": "/rest/v1/rpc/gematria_method_trace",
+            "ms": 4,
+            "modeledWireBytes": 535
+          },
+          {
+            "path": "/rest/v1/rpc/gematria_method_trace",
+            "ms": 4,
+            "modeledWireBytes": 514
+          },
+          {
+            "path": "/rest/v1/rpc/gematria_method_trace",
+            "ms": 4,
+            "modeledWireBytes": 476
+          }
+        ]
+      },
+      "unmeasured-world-preparation": {
+        "reads": 56,
+        "statuses": {
+          "200": 54,
+          "206": 2
+        },
+        "modeledWireBytes": 191784,
+        "measuredSnapshotMisses": null,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+            "ms": 4,
+            "modeledWireBytes": 7229
+          },
+          {
+            "path": "/rest/v1/rpc/gematria_method_trace",
+            "ms": 4,
+            "modeledWireBytes": 514
+          },
+          {
+            "path": "/rest/v1/posts",
+            "ms": 4,
+            "modeledWireBytes": 1310
+          },
+          {
+            "path": "/rest/v1/rpc/gematria_method_trace",
+            "ms": 4,
+            "modeledWireBytes": 476
+          }
+        ]
+      },
+      "world-number-full-page": {
+        "reads": 253,
+        "statuses": {
+          "200": 249,
+          "206": 4
+        },
+        "modeledWireBytes": 578211,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/gallery_images",
+            "ms": 12,
+            "modeledWireBytes": 7368
+          },
+          {
+            "path": "/rest/v1/topic_cards_public",
+            "ms": 7,
+            "modeledWireBytes": 2245
+          },
+          {
+            "path": "/rest/v1/gallery_images",
+            "ms": 6,
+            "modeledWireBytes": 4237
+          },
+          {
+            "path": "/rest/v1/number_anchors",
+            "ms": 5,
+            "modeledWireBytes": 348
+          }
+        ]
+      }
+    },
+    "errors": [],
+    "blocked": [
+      {
+        "phase": "home-entry",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "home-entry",
+        "path": "/els-icon.png",
+        "method": "GET"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/els-icon.png",
+        "method": "GET"
+      },
+      {
+        "phase": "home-entry",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "home-entry",
+        "path": "/els-icon.png",
+        "method": "GET"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/els-icon.png",
+        "method": "GET"
+      }
+    ],
+    "forwardedWrites": 0,
+    "forwardedModels": 0
+  },
+  {
+    "run": "public-loading-after-desktop-3-audit.json",
+    "phases": {
+      "back-method-number": {
+        "reads": 8,
+        "statuses": {
+          "200": 8
+        },
+        "modeledWireBytes": 4150,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/rpc/fn_verses_by_gematria",
+            "ms": 2,
+            "modeledWireBytes": 332
+          },
+          {
+            "path": "/rest/v1/rpc/gematria_method_trace",
+            "ms": 2,
+            "modeledWireBytes": 609
+          },
+          {
+            "path": "/rest/v1/rpc/gematria_method_trace",
+            "ms": 2,
+            "modeledWireBytes": 609
+          },
+          {
+            "path": "/rest/v1/rpc/is_number_indexable",
+            "ms": 1,
+            "modeledWireBytes": 8
+          }
+        ]
+      },
+      "back-number-world": {
+        "reads": 65,
+        "statuses": {
+          "200": 63,
+          "206": 2
+        },
+        "modeledWireBytes": 490091,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/rpc/gematria_method_trace",
+            "ms": 6,
+            "modeledWireBytes": 504
+          },
+          {
+            "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+            "ms": 4,
+            "modeledWireBytes": 7229
+          },
+          {
+            "path": "/rest/v1/posts",
+            "ms": 4,
+            "modeledWireBytes": 7980
+          },
+          {
+            "path": "/rest/v1/posts",
+            "ms": 3,
+            "modeledWireBytes": 10447
+          }
+        ]
+      },
+      "back-phrase-number": {
+        "reads": 14,
+        "statuses": {
+          "200": 14
+        },
+        "modeledWireBytes": 21592,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/site_flags",
+            "ms": 7,
+            "modeledWireBytes": 1126
+          },
+          {
+            "path": "/rest/v1/rpc/fn_verses_by_gematria",
+            "ms": 2,
+            "modeledWireBytes": 332
+          },
+          {
+            "path": "/rest/v1/rpc/lang_links_list",
+            "ms": 2,
+            "modeledWireBytes": 2237
+          },
+          {
+            "path": "/rest/v1/rpc/fn_method_profile",
+            "ms": 2,
+            "modeledWireBytes": 810
+          }
+        ]
+      },
+      "back-post-home": {
+        "reads": 81,
+        "statuses": {
+          "200": 79,
+          "206": 2
+        },
+        "modeledWireBytes": 169673,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/posts",
+            "ms": 9,
+            "modeledWireBytes": 16761
+          },
+          {
+            "path": "/rest/v1/posts",
+            "ms": 9,
+            "modeledWireBytes": 3222
+          },
+          {
+            "path": "/rest/v1/rpc/gematria_method_trace",
+            "ms": 9,
+            "modeledWireBytes": 535
+          },
+          {
+            "path": "/rest/v1/rpc/gematria_method_trace",
+            "ms": 7,
+            "modeledWireBytes": 514
+          }
+        ]
+      },
+      "back-world-post": {
+        "reads": 15,
+        "statuses": {
+          "200": 15
+        },
+        "modeledWireBytes": 73834,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/site_flags",
+            "ms": 16,
+            "modeledWireBytes": 1126
+          },
+          {
+            "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+            "ms": 3,
+            "modeledWireBytes": 10253
+          },
+          {
+            "path": "/rest/v1/site_flags",
+            "ms": 2,
+            "modeledWireBytes": 1126
+          },
+          {
+            "path": "/rest/v1/posts",
+            "ms": 1,
+            "modeledWireBytes": 3714
+          }
+        ]
+      },
+      "home-entry": {
+        "reads": 200,
+        "statuses": {
+          "200": 198,
+          "206": 2
+        },
+        "modeledWireBytes": 1733395,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/assets/AuthContext-Dbr3qUls.js",
+            "ms": 13,
+            "modeledWireBytes": 2264
+          },
+          {
+            "path": "/assets/NavigationIcon2029-CH1qZpiS.js",
+            "ms": 13,
+            "modeledWireBytes": 4999
+          },
+          {
+            "path": "/assets/tracking-DP2OnhsP.js",
+            "ms": 12,
+            "modeledWireBytes": 3486
+          },
+          {
+            "path": "/assets/elsResearchReturnSnapshot-B03Lyzta.js",
+            "ms": 12,
+            "modeledWireBytes": 1515
+          }
+        ]
+      },
+      "home-post": {
+        "reads": 19,
+        "statuses": {
+          "200": 19
+        },
+        "modeledWireBytes": 219700,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/storage/v1/object/public/media/sod1820/2029/video/2026/10/23e813b7-2a15-4429-b035-bf4203028016/derivatives/reading-v2.jpg",
+            "ms": 3,
+            "modeledWireBytes": 65447
+          },
+          {
+            "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+            "ms": 2,
+            "modeledWireBytes": 10253
+          },
+          {
+            "path": "/storage/v1/object/public/media/sod1820/2029/video/2026/10/23e813b7-2a15-4429-b035-bf4203028016/captions/he.vtt",
+            "ms": 2,
+            "modeledWireBytes": 2358
+          },
+          {
+            "path": "/rest/v1/site_flags",
+            "ms": 2,
+            "modeledWireBytes": 1126
+          }
+        ]
+      },
+      "number-method-full-page": {
+        "reads": 36,
+        "statuses": {
+          "200": 36
+        },
+        "modeledWireBytes": 13656,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/entity_types",
+            "ms": 5,
+            "modeledWireBytes": 196
+          },
+          {
+            "path": "/rest/v1/gallery_images",
+            "ms": 4,
+            "modeledWireBytes": 368
+          },
+          {
+            "path": "/rest/v1/gematria_words",
+            "ms": 3,
+            "modeledWireBytes": 6
+          },
+          {
+            "path": "/rest/v1/insights",
+            "ms": 3,
+            "modeledWireBytes": 6
+          }
+        ]
+      },
+      "number-phrase-full-page": {
+        "reads": 58,
+        "statuses": {
+          "200": 58
+        },
+        "modeledWireBytes": 73848,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/research_objects",
+            "ms": 8,
+            "modeledWireBytes": 2286
+          },
+          {
+            "path": "/rest/v1/rpc/fn_verses_by_gematria",
+            "ms": 8,
+            "modeledWireBytes": 210
+          },
+          {
+            "path": "/rest/v1/research_objects",
+            "ms": 7,
+            "modeledWireBytes": 6
+          },
+          {
+            "path": "/rest/v1/nodes",
+            "ms": 4,
+            "modeledWireBytes": 6
+          }
+        ]
+      },
+      "post-world": {
+        "reads": 81,
+        "statuses": {
+          "200": 79,
+          "206": 2
+        },
+        "modeledWireBytes": 931711,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/rpc/gematria_method_trace",
+            "ms": 6,
+            "modeledWireBytes": 514
+          },
+          {
+            "path": "/rest/v1/rpc/gematria_method_trace",
+            "ms": 6,
+            "modeledWireBytes": 476
+          },
+          {
+            "path": "/assets/World2029Page-CLP4Gbry.css",
+            "ms": 5,
+            "modeledWireBytes": 13212
+          },
+          {
+            "path": "/rest/v1/rpc/gematria_method_trace",
+            "ms": 5,
+            "modeledWireBytes": 538
+          }
+        ]
+      },
+      "unmeasured-world-preparation": {
+        "reads": 43,
+        "statuses": {
+          "200": 41,
+          "206": 2
+        },
+        "modeledWireBytes": 166395,
+        "measuredSnapshotMisses": null,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/topic_cards_public",
+            "ms": 4,
+            "modeledWireBytes": 312
+          },
+          {
+            "path": "/rest/v1/site_flags",
+            "ms": 4,
+            "modeledWireBytes": 1126
+          },
+          {
+            "path": "/rest/v1/rpc/gematria_method_trace",
+            "ms": 4,
+            "modeledWireBytes": 504
+          },
+          {
+            "path": "/rest/v1/contributors",
+            "ms": 3,
+            "modeledWireBytes": 2253
+          }
+        ]
+      },
+      "world-number-full-page": {
+        "reads": 253,
+        "statuses": {
+          "200": 249,
+          "206": 4
+        },
+        "modeledWireBytes": 578211,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/entity_types",
+            "ms": 7,
+            "modeledWireBytes": 196
+          },
+          {
+            "path": "/rest/v1/nodes",
+            "ms": 7,
+            "modeledWireBytes": 237
+          },
+          {
+            "path": "/rest/v1/nodes",
+            "ms": 7,
+            "modeledWireBytes": 807
+          },
+          {
+            "path": "/rest/v1/gallery_images",
+            "ms": 5,
+            "modeledWireBytes": 10972
+          }
+        ]
+      }
+    },
+    "errors": [],
+    "blocked": [
+      {
+        "phase": "home-entry",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "home-entry",
+        "path": "/els-icon.png",
+        "method": "GET"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/els-icon.png",
+        "method": "GET"
+      },
+      {
+        "phase": "home-entry",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "home-entry",
+        "path": "/els-icon.png",
+        "method": "GET"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/els-icon.png",
+        "method": "GET"
+      }
+    ],
+    "forwardedWrites": 0,
+    "forwardedModels": 0
+  },
+  {
+    "run": "public-loading-after-mobile-slow-1-audit.json",
+    "phases": {
+      "back-method-number": {
+        "reads": 8,
+        "statuses": {
+          "200": 8
+        },
+        "modeledWireBytes": 4150,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/rpc/gematria_method_trace",
+            "ms": 161,
+            "modeledWireBytes": 609
+          },
+          {
+            "path": "/rest/v1/rpc/gematria_method_trace",
+            "ms": 160,
+            "modeledWireBytes": 609
+          },
+          {
+            "path": "/rest/v1/rpc/fn_verses_by_gematria",
+            "ms": 157,
+            "modeledWireBytes": 332
+          },
+          {
+            "path": "/rest/v1/rpc/fn_verses_by_gematria",
+            "ms": 157,
+            "modeledWireBytes": 332
+          }
+        ]
+      },
+      "back-number-world": {
+        "reads": 62,
+        "statuses": {
+          "200": 60,
+          "206": 2
+        },
+        "modeledWireBytes": 192734,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+            "ms": 308,
+            "modeledWireBytes": 10253
+          },
+          {
+            "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+            "ms": 304,
+            "modeledWireBytes": 10253
+          },
+          {
+            "path": "/rest/v1/rpc/gematria_method_trace",
+            "ms": 275,
+            "modeledWireBytes": 504
+          },
+          {
+            "path": "/rest/v1/rpc/gematria_method_trace",
+            "ms": 273,
+            "modeledWireBytes": 495
+          }
+        ]
+      },
+      "back-phrase-number": {
+        "reads": 14,
+        "statuses": {
+          "200": 14
+        },
+        "modeledWireBytes": 21592,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/gematria_methods",
+            "ms": 178,
+            "modeledWireBytes": 5674
+          },
+          {
+            "path": "/rest/v1/gematria_methods",
+            "ms": 178,
+            "modeledWireBytes": 5674
+          },
+          {
+            "path": "/rest/v1/rpc/lang_links_list",
+            "ms": 168,
+            "modeledWireBytes": 2237
+          },
+          {
+            "path": "/rest/v1/rpc/lang_links_list",
+            "ms": 167,
+            "modeledWireBytes": 2237
+          }
+        ]
+      },
+      "back-post-home": {
+        "reads": 74,
+        "statuses": {
+          "200": 72,
+          "206": 2
+        },
+        "modeledWireBytes": 144470,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+            "ms": 281,
+            "modeledWireBytes": 10253
+          },
+          {
+            "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+            "ms": 281,
+            "modeledWireBytes": 10253
+          },
+          {
+            "path": "/rest/v1/topic_cards_public",
+            "ms": 275,
+            "modeledWireBytes": 70
+          },
+          {
+            "path": "/rest/v1/rpc/gematria_method_trace",
+            "ms": 274,
+            "modeledWireBytes": 504
+          }
+        ]
+      },
+      "back-world-post": {
+        "reads": 17,
+        "statuses": {
+          "200": 17
+        },
+        "modeledWireBytes": 74420,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+            "ms": 291,
+            "modeledWireBytes": 10253
+          },
+          {
+            "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+            "ms": 290,
+            "modeledWireBytes": 10253
+          },
+          {
+            "path": "/rest/v1/posts",
+            "ms": 244,
+            "modeledWireBytes": 16562
+          },
+          {
+            "path": "/rest/v1/posts",
+            "ms": 240,
+            "modeledWireBytes": 16562
+          }
+        ]
+      },
+      "home-entry": {
+        "reads": 182,
+        "statuses": {
+          "200": 180,
+          "206": 2
+        },
+        "modeledWireBytes": 1284396,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/assets/2029-Bdk_N1FJ.css",
+            "ms": 2755,
+            "modeledWireBytes": 34598
+          },
+          {
+            "path": "/assets/NavigationIcon2029-CDR-JqlQ.css",
+            "ms": 2582,
+            "modeledWireBytes": 508
+          },
+          {
+            "path": "/assets/calculator2029Input-BbfftHdT.js",
+            "ms": 2580,
+            "modeledWireBytes": 830
+          },
+          {
+            "path": "/assets/numberCoreProjection-C88l2Mjs.js",
+            "ms": 2576,
+            "modeledWireBytes": 5189
+          }
+        ]
+      },
+      "home-post": {
+        "reads": 28,
+        "statuses": {
+          "200": 28
+        },
+        "modeledWireBytes": 231262,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/storage/v1/object/public/media/sod1820/2029/video/2026/10/23e813b7-2a15-4429-b035-bf4203028016/captions/he.vtt",
+            "ms": 823,
+            "modeledWireBytes": 2358
+          },
+          {
+            "path": "/storage/v1/object/public/media/sod1820/2029/video/2026/10/23e813b7-2a15-4429-b035-bf4203028016/derivatives/reading-v2.jpg",
+            "ms": 820,
+            "modeledWireBytes": 65447
+          },
+          {
+            "path": "/rest/v1/rpc/fn_zero_scale",
+            "ms": 690,
+            "modeledWireBytes": 287
+          },
+          {
+            "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+            "ms": 623,
+            "modeledWireBytes": 10253
+          }
+        ]
+      },
+      "number-method-full-page": {
+        "reads": 62,
+        "statuses": {
+          "200": 62
+        },
+        "modeledWireBytes": 26737,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/rpc/fn_number_journey",
+            "ms": 168,
+            "modeledWireBytes": 802
+          },
+          {
+            "path": "/rest/v1/rpc/number_neighbors",
+            "ms": 167,
+            "modeledWireBytes": 102
+          },
+          {
+            "path": "/rest/v1/rpc/fn_number_dossier",
+            "ms": 165,
+            "modeledWireBytes": 638
+          },
+          {
+            "path": "/rest/v1/rpc/fn_number_lookup",
+            "ms": 164,
+            "modeledWireBytes": 2572
+          }
+        ]
+      },
+      "number-phrase-full-page": {
+        "reads": 58,
+        "statuses": {
+          "200": 58
+        },
+        "modeledWireBytes": 73848,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/nodes",
+            "ms": 290,
+            "modeledWireBytes": 153
+          },
+          {
+            "path": "/rest/v1/nodes",
+            "ms": 289,
+            "modeledWireBytes": 6
+          },
+          {
+            "path": "/rest/v1/entity_types",
+            "ms": 289,
+            "modeledWireBytes": 196
+          },
+          {
+            "path": "/rest/v1/nodes",
+            "ms": 288,
+            "modeledWireBytes": 6
+          }
+        ]
+      },
+      "post-world": {
+        "reads": 81,
+        "statuses": {
+          "200": 79,
+          "206": 2
+        },
+        "modeledWireBytes": 338556,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/assets/World2029Page-CLP4Gbry.css",
+            "ms": 871,
+            "modeledWireBytes": 13212
+          },
+          {
+            "path": "/assets/worldJourneyProjection-CRl0k17l.js",
+            "ms": 805,
+            "modeledWireBytes": 1042
+          },
+          {
+            "path": "/assets/worldProminenceInputs-CZfrd_Pp.js",
+            "ms": 799,
+            "modeledWireBytes": 1154
+          },
+          {
+            "path": "/assets/worldZviApprovedFindings2029-CsMeCmYy.js",
+            "ms": 794,
+            "modeledWireBytes": 18027
+          }
+        ]
+      },
+      "unmeasured-world-preparation": {
+        "reads": 64,
+        "statuses": {
+          "200": 53,
+          "206": 2,
+          "null": 9
+        },
+        "modeledWireBytes": 193267,
+        "measuredSnapshotMisses": null,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+            "ms": 329,
+            "modeledWireBytes": 10253
+          },
+          {
+            "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+            "ms": 325,
+            "modeledWireBytes": 10253
+          },
+          {
+            "path": "/rest/v1/posts",
+            "ms": 279,
+            "modeledWireBytes": 16562
+          },
+          {
+            "path": "/rest/v1/posts",
+            "ms": 273,
+            "modeledWireBytes": 16562
+          }
+        ]
+      },
+      "world-number-full-page": {
+        "reads": 229,
+        "statuses": {
+          "200": 225,
+          "206": 4
+        },
+        "modeledWireBytes": 1158672,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+            "ms": 1689,
+            "modeledWireBytes": 296771
+          },
+          {
+            "path": "/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+            "ms": 1633,
+            "modeledWireBytes": 296771
+          },
+          {
+            "path": "/rest/v1/rpc/lang_links_list",
+            "ms": 1426,
+            "modeledWireBytes": 2237
+          },
+          {
+            "path": "/rest/v1/rpc/fn_method_profile",
+            "ms": 1400,
+            "modeledWireBytes": 810
+          }
+        ]
+      }
+    },
+    "errors": [],
+    "blocked": [
+      {
+        "phase": "home-entry",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "home-entry",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      }
+    ],
+    "forwardedWrites": 0,
+    "forwardedModels": 0
+  },
+  {
+    "run": "public-loading-after-mobile-slow-2-audit.json",
+    "phases": {
+      "back-method-number": {
+        "reads": 8,
+        "statuses": {
+          "200": 8
+        },
+        "modeledWireBytes": 4150,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/rpc/gematria_method_trace",
+            "ms": 160,
+            "modeledWireBytes": 609
+          },
+          {
+            "path": "/rest/v1/rpc/gematria_method_trace",
+            "ms": 160,
+            "modeledWireBytes": 609
+          },
+          {
+            "path": "/rest/v1/rpc/fn_verses_by_gematria",
+            "ms": 157,
+            "modeledWireBytes": 332
+          },
+          {
+            "path": "/rest/v1/rpc/fn_verses_by_gematria",
+            "ms": 157,
+            "modeledWireBytes": 332
+          }
+        ]
+      },
+      "back-number-world": {
+        "reads": 63,
+        "statuses": {
+          "200": 61,
+          "206": 2
+        },
+        "modeledWireBytes": 193027,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+            "ms": 328,
+            "modeledWireBytes": 10253
+          },
+          {
+            "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+            "ms": 318,
+            "modeledWireBytes": 10253
+          },
+          {
+            "path": "/rest/v1/posts",
+            "ms": 280,
+            "modeledWireBytes": 16562
+          },
+          {
+            "path": "/rest/v1/rpc/gematria_method_trace",
+            "ms": 274,
+            "modeledWireBytes": 504
+          }
+        ]
+      },
+      "back-phrase-number": {
+        "reads": 14,
+        "statuses": {
+          "200": 14
+        },
+        "modeledWireBytes": 21592,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/gematria_methods",
+            "ms": 179,
+            "modeledWireBytes": 5674
+          },
+          {
+            "path": "/rest/v1/gematria_methods",
+            "ms": 178,
+            "modeledWireBytes": 5674
+          },
+          {
+            "path": "/rest/v1/rpc/lang_links_list",
+            "ms": 168,
+            "modeledWireBytes": 2237
+          },
+          {
+            "path": "/rest/v1/rpc/lang_links_list",
+            "ms": 167,
+            "modeledWireBytes": 2237
+          }
+        ]
+      },
+      "back-post-home": {
+        "reads": 82,
+        "statuses": {
+          "200": 80,
+          "206": 2
+        },
+        "modeledWireBytes": 792222,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/storage/v1/object/public/media/_thumb/p/5033.jpg",
+            "ms": 1799,
+            "modeledWireBytes": 141648
+          },
+          {
+            "path": "/rest/v1/posts",
+            "ms": 1784,
+            "modeledWireBytes": 231
+          },
+          {
+            "path": "/storage/v1/object/public/media/_thumb/p/5033.jpg",
+            "ms": 1747,
+            "modeledWireBytes": 141648
+          },
+          {
+            "path": "/rest/v1/gematria_words",
+            "ms": 1734,
+            "modeledWireBytes": 352
+          }
+        ]
+      },
+      "back-world-post": {
+        "reads": 17,
+        "statuses": {
+          "200": 17
+        },
+        "modeledWireBytes": 74127,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+            "ms": 294,
+            "modeledWireBytes": 10253
+          },
+          {
+            "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+            "ms": 286,
+            "modeledWireBytes": 10253
+          },
+          {
+            "path": "/rest/v1/posts",
+            "ms": 245,
+            "modeledWireBytes": 16562
+          },
+          {
+            "path": "/rest/v1/posts",
+            "ms": 237,
+            "modeledWireBytes": 16562
+          }
+        ]
+      },
+      "home-entry": {
+        "reads": 184,
+        "statuses": {
+          "200": 182,
+          "206": 2
+        },
+        "modeledWireBytes": 1284783,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/assets/2029-Bdk_N1FJ.css",
+            "ms": 2759,
+            "modeledWireBytes": 34598
+          },
+          {
+            "path": "/assets/NavigationIcon2029-CDR-JqlQ.css",
+            "ms": 2585,
+            "modeledWireBytes": 508
+          },
+          {
+            "path": "/assets/calculator2029Input-BbfftHdT.js",
+            "ms": 2583,
+            "modeledWireBytes": 830
+          },
+          {
+            "path": "/assets/numberCoreProjection-C88l2Mjs.js",
+            "ms": 2580,
+            "modeledWireBytes": 5189
+          }
+        ]
+      },
+      "home-post": {
+        "reads": 27,
+        "statuses": {
+          "200": 27
+        },
+        "modeledWireBytes": 230136,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/storage/v1/object/public/media/sod1820/2029/video/2026/10/23e813b7-2a15-4429-b035-bf4203028016/captions/he.vtt",
+            "ms": 904,
+            "modeledWireBytes": 2358
+          },
+          {
+            "path": "/storage/v1/object/public/media/sod1820/2029/video/2026/10/23e813b7-2a15-4429-b035-bf4203028016/derivatives/reading-v2.jpg",
+            "ms": 894,
+            "modeledWireBytes": 65447
+          },
+          {
+            "path": "/rest/v1/rpc/fn_zero_scale",
+            "ms": 808,
+            "modeledWireBytes": 287
+          },
+          {
+            "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+            "ms": 673,
+            "modeledWireBytes": 10253
+          }
+        ]
+      },
+      "number-method-full-page": {
+        "reads": 71,
+        "statuses": {
+          "200": 71
+        },
+        "modeledWireBytes": 37065,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/site_flags",
+            "ms": 314,
+            "modeledWireBytes": 1126
+          },
+          {
+            "path": "/rest/v1/topic_cards_public",
+            "ms": 180,
+            "modeledWireBytes": 1275
+          },
+          {
+            "path": "/rest/v1/topic_cards_public",
+            "ms": 174,
+            "modeledWireBytes": 773
+          },
+          {
+            "path": "/rest/v1/topic_cards_public",
+            "ms": 173,
+            "modeledWireBytes": 1402
+          }
+        ]
+      },
+      "number-phrase-full-page": {
+        "reads": 58,
+        "statuses": {
+          "200": 58
+        },
+        "modeledWireBytes": 73848,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/entity_types",
+            "ms": 290,
+            "modeledWireBytes": 196
+          },
+          {
+            "path": "/rest/v1/nodes",
+            "ms": 290,
+            "modeledWireBytes": 153
+          },
+          {
+            "path": "/rest/v1/rpc/fn_zero_scale",
+            "ms": 287,
+            "modeledWireBytes": 353
+          },
+          {
+            "path": "/rest/v1/number_anchors",
+            "ms": 287,
+            "modeledWireBytes": 6
+          }
+        ]
+      },
+      "post-world": {
+        "reads": 81,
+        "statuses": {
+          "200": 79,
+          "206": 2
+        },
+        "modeledWireBytes": 338556,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/assets/World2029Page-CLP4Gbry.css",
+            "ms": 872,
+            "modeledWireBytes": 13212
+          },
+          {
+            "path": "/assets/worldJourneyProjection-CRl0k17l.js",
+            "ms": 805,
+            "modeledWireBytes": 1042
+          },
+          {
+            "path": "/assets/worldProminenceInputs-CZfrd_Pp.js",
+            "ms": 799,
+            "modeledWireBytes": 1154
+          },
+          {
+            "path": "/assets/worldZviApprovedFindings2029-CsMeCmYy.js",
+            "ms": 794,
+            "modeledWireBytes": 18027
+          }
+        ]
+      },
+      "unmeasured-world-preparation": {
+        "reads": 66,
+        "statuses": {
+          "200": 63,
+          "206": 2,
+          "null": 1
+        },
+        "modeledWireBytes": 193408,
+        "measuredSnapshotMisses": null,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/site_flags",
+            "ms": 680,
+            "modeledWireBytes": 1126
+          },
+          {
+            "path": "/rest/v1/site_flags",
+            "ms": 384,
+            "modeledWireBytes": 1126
+          },
+          {
+            "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+            "ms": 317,
+            "modeledWireBytes": 10253
+          },
+          {
+            "path": "/rest/v1/rpc/fn_zero_scale",
+            "ms": 314,
+            "modeledWireBytes": 287
+          }
+        ]
+      },
+      "world-number-full-page": {
+        "reads": 220,
+        "statuses": {
+          "200": 216,
+          "206": 4
+        },
+        "modeledWireBytes": 1148344,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+            "ms": 1720,
+            "modeledWireBytes": 296771
+          },
+          {
+            "path": "/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+            "ms": 1633,
+            "modeledWireBytes": 296771
+          },
+          {
+            "path": "/rest/v1/rpc/lang_links_list",
+            "ms": 1498,
+            "modeledWireBytes": 2237
+          },
+          {
+            "path": "/rest/v1/rpc/fn_method_profile",
+            "ms": 1487,
+            "modeledWireBytes": 810
+          }
+        ]
+      }
+    },
+    "errors": [],
+    "blocked": [
+      {
+        "phase": "home-entry",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "home-entry",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      }
+    ],
+    "forwardedWrites": 0,
+    "forwardedModels": 0
+  },
+  {
+    "run": "public-loading-after-mobile-slow-3-audit.json",
+    "phases": {
+      "back-method-number": {
+        "reads": 8,
+        "statuses": {
+          "200": 8
+        },
+        "modeledWireBytes": 4150,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/rpc/gematria_method_trace",
+            "ms": 159,
+            "modeledWireBytes": 609
+          },
+          {
+            "path": "/rest/v1/rpc/gematria_method_trace",
+            "ms": 159,
+            "modeledWireBytes": 609
+          },
+          {
+            "path": "/rest/v1/rpc/fn_verses_by_gematria",
+            "ms": 156,
+            "modeledWireBytes": 332
+          },
+          {
+            "path": "/rest/v1/rpc/fn_verses_by_gematria",
+            "ms": 156,
+            "modeledWireBytes": 332
+          }
+        ]
+      },
+      "back-number-world": {
+        "reads": 64,
+        "statuses": {
+          "200": 62,
+          "206": 2
+        },
+        "modeledWireBytes": 193320,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+            "ms": 322,
+            "modeledWireBytes": 10253
+          },
+          {
+            "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+            "ms": 317,
+            "modeledWireBytes": 10253
+          },
+          {
+            "path": "/rest/v1/rpc/gematria_method_trace",
+            "ms": 274,
+            "modeledWireBytes": 504
+          },
+          {
+            "path": "/rest/v1/rpc/gematria_method_trace",
+            "ms": 273,
+            "modeledWireBytes": 504
+          }
+        ]
+      },
+      "back-phrase-number": {
+        "reads": 14,
+        "statuses": {
+          "200": 14
+        },
+        "modeledWireBytes": 21592,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/gematria_methods",
+            "ms": 178,
+            "modeledWireBytes": 5674
+          },
+          {
+            "path": "/rest/v1/gematria_methods",
+            "ms": 178,
+            "modeledWireBytes": 5674
+          },
+          {
+            "path": "/rest/v1/rpc/lang_links_list",
+            "ms": 168,
+            "modeledWireBytes": 2237
+          },
+          {
+            "path": "/rest/v1/rpc/lang_links_list",
+            "ms": 167,
+            "modeledWireBytes": 2237
+          }
+        ]
+      },
+      "back-post-home": {
+        "reads": 78,
+        "statuses": {
+          "200": 76,
+          "206": 2
+        },
+        "modeledWireBytes": 468346,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/posts",
+            "ms": 1764,
+            "modeledWireBytes": 745
+          },
+          {
+            "path": "/rest/v1/gematria_words",
+            "ms": 1764,
+            "modeledWireBytes": 352
+          },
+          {
+            "path": "/rest/v1/research_contributions",
+            "ms": 1761,
+            "modeledWireBytes": 277
+          },
+          {
+            "path": "/storage/v1/object/public/media/_thumb/p/5033.jpg",
+            "ms": 1759,
+            "modeledWireBytes": 141648
+          }
+        ]
+      },
+      "back-world-post": {
+        "reads": 17,
+        "statuses": {
+          "200": 17
+        },
+        "modeledWireBytes": 74960,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+            "ms": 290,
+            "modeledWireBytes": 10253
+          },
+          {
+            "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+            "ms": 288,
+            "modeledWireBytes": 10253
+          },
+          {
+            "path": "/rest/v1/posts",
+            "ms": 241,
+            "modeledWireBytes": 16562
+          },
+          {
+            "path": "/rest/v1/posts",
+            "ms": 240,
+            "modeledWireBytes": 16562
+          }
+        ]
+      },
+      "home-entry": {
+        "reads": 181,
+        "statuses": {
+          "200": 179,
+          "206": 2
+        },
+        "modeledWireBytes": 1284109,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/assets/2029-Bdk_N1FJ.css",
+            "ms": 2752,
+            "modeledWireBytes": 34598
+          },
+          {
+            "path": "/assets/NavigationIcon2029-CDR-JqlQ.css",
+            "ms": 2579,
+            "modeledWireBytes": 508
+          },
+          {
+            "path": "/assets/calculator2029Input-BbfftHdT.js",
+            "ms": 2577,
+            "modeledWireBytes": 830
+          },
+          {
+            "path": "/assets/numberCoreProjection-C88l2Mjs.js",
+            "ms": 2573,
+            "modeledWireBytes": 5189
+          }
+        ]
+      },
+      "home-post": {
+        "reads": 28,
+        "statuses": {
+          "200": 28
+        },
+        "modeledWireBytes": 230423,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/storage/v1/object/public/media/sod1820/2029/video/2026/10/23e813b7-2a15-4429-b035-bf4203028016/captions/he.vtt",
+            "ms": 894,
+            "modeledWireBytes": 2358
+          },
+          {
+            "path": "/storage/v1/object/public/media/sod1820/2029/video/2026/10/23e813b7-2a15-4429-b035-bf4203028016/derivatives/reading-v2.jpg",
+            "ms": 893,
+            "modeledWireBytes": 65447
+          },
+          {
+            "path": "/rest/v1/rpc/fn_zero_scale",
+            "ms": 780,
+            "modeledWireBytes": 287
+          },
+          {
+            "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+            "ms": 684,
+            "modeledWireBytes": 10253
+          }
+        ]
+      },
+      "number-method-full-page": {
+        "reads": 62,
+        "statuses": {
+          "200": 62
+        },
+        "modeledWireBytes": 26737,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/rpc/fn_number_journey",
+            "ms": 170,
+            "modeledWireBytes": 802
+          },
+          {
+            "path": "/rest/v1/rpc/number_neighbors",
+            "ms": 170,
+            "modeledWireBytes": 102
+          },
+          {
+            "path": "/rest/v1/rpc/fn_number_dossier",
+            "ms": 166,
+            "modeledWireBytes": 638
+          },
+          {
+            "path": "/rest/v1/nodes",
+            "ms": 165,
+            "modeledWireBytes": 6
+          }
+        ]
+      },
+      "number-phrase-full-page": {
+        "reads": 58,
+        "statuses": {
+          "200": 58
+        },
+        "modeledWireBytes": 73848,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/rpc/fn_zero_scale",
+            "ms": 290,
+            "modeledWireBytes": 353
+          },
+          {
+            "path": "/rest/v1/number_anchors",
+            "ms": 290,
+            "modeledWireBytes": 6
+          },
+          {
+            "path": "/rest/v1/entity_types",
+            "ms": 290,
+            "modeledWireBytes": 196
+          },
+          {
+            "path": "/rest/v1/nodes",
+            "ms": 290,
+            "modeledWireBytes": 153
+          }
+        ]
+      },
+      "post-world": {
+        "reads": 81,
+        "statuses": {
+          "200": 79,
+          "206": 2
+        },
+        "modeledWireBytes": 338556,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/assets/World2029Page-CLP4Gbry.css",
+            "ms": 873,
+            "modeledWireBytes": 13212
+          },
+          {
+            "path": "/assets/worldJourneyProjection-CRl0k17l.js",
+            "ms": 806,
+            "modeledWireBytes": 1042
+          },
+          {
+            "path": "/assets/worldProminenceInputs-CZfrd_Pp.js",
+            "ms": 800,
+            "modeledWireBytes": 1154
+          },
+          {
+            "path": "/assets/worldZviApprovedFindings2029-CsMeCmYy.js",
+            "ms": 795,
+            "modeledWireBytes": 18027
+          }
+        ]
+      },
+      "unmeasured-world-preparation": {
+        "reads": 67,
+        "statuses": {
+          "200": 64,
+          "206": 2,
+          "null": 1
+        },
+        "modeledWireBytes": 193701,
+        "measuredSnapshotMisses": null,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/site_flags",
+            "ms": 736,
+            "modeledWireBytes": 1126
+          },
+          {
+            "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+            "ms": 320,
+            "modeledWireBytes": 10253
+          },
+          {
+            "path": "/rest/v1/rpc/fn_zero_scale",
+            "ms": 307,
+            "modeledWireBytes": 287
+          },
+          {
+            "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+            "ms": 306,
+            "modeledWireBytes": 10253
+          }
+        ]
+      },
+      "world-number-full-page": {
+        "reads": 229,
+        "statuses": {
+          "200": 225,
+          "206": 4
+        },
+        "modeledWireBytes": 1158672,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+            "ms": 1717,
+            "modeledWireBytes": 296771
+          },
+          {
+            "path": "/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+            "ms": 1633,
+            "modeledWireBytes": 296771
+          },
+          {
+            "path": "/rest/v1/rpc/lang_links_list",
+            "ms": 1456,
+            "modeledWireBytes": 2237
+          },
+          {
+            "path": "/rest/v1/rpc/fn_method_profile",
+            "ms": 1399,
+            "modeledWireBytes": 810
+          }
+        ]
+      }
+    },
+    "errors": [],
+    "blocked": [
+      {
+        "phase": "home-entry",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "home-entry",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      }
+    ],
+    "forwardedWrites": 0,
+    "forwardedModels": 0
+  },
+  {
+    "run": "public-loading-before-desktop-1-audit.json",
+    "phases": {
+      "back-method-number": {
+        "reads": 8,
+        "statuses": {
+          "200": 8
+        },
+        "modeledWireBytes": 4150,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/site_flags",
+            "ms": 2,
+            "modeledWireBytes": 1126
+          },
+          {
+            "path": "/rest/v1/rpc/gematria_method_trace",
+            "ms": 2,
+            "modeledWireBytes": 609
+          },
+          {
+            "path": "/rest/v1/site_flags",
+            "ms": 2,
+            "modeledWireBytes": 1126
+          },
+          {
+            "path": "/rest/v1/rpc/fn_verses_by_gematria",
+            "ms": 2,
+            "modeledWireBytes": 332
+          }
+        ]
+      },
+      "back-number-world": {
+        "reads": 66,
+        "statuses": {
+          "200": 64,
+          "206": 2
+        },
+        "modeledWireBytes": 786862,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/rpc/gematria_method_trace",
+            "ms": 8,
+            "modeledWireBytes": 476
+          },
+          {
+            "path": "/rest/v1/rpc/gematria_method_trace",
+            "ms": 7,
+            "modeledWireBytes": 495
+          },
+          {
+            "path": "/rest/v1/rpc/gematria_method_trace",
+            "ms": 5,
+            "modeledWireBytes": 535
+          },
+          {
+            "path": "/rest/v1/topic_cards_public",
+            "ms": 4,
+            "modeledWireBytes": 70
+          }
+        ]
+      },
+      "back-phrase-number": {
+        "reads": 14,
+        "statuses": {
+          "200": 14
+        },
+        "modeledWireBytes": 21592,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/gematria_methods",
+            "ms": 6,
+            "modeledWireBytes": 5674
+          },
+          {
+            "path": "/rest/v1/rpc/is_number_indexable",
+            "ms": 2,
+            "modeledWireBytes": 8
+          },
+          {
+            "path": "/rest/v1/rpc/fn_verses_by_gematria",
+            "ms": 2,
+            "modeledWireBytes": 332
+          },
+          {
+            "path": "/rest/v1/rpc/lang_links_list",
+            "ms": 2,
+            "modeledWireBytes": 2237
+          }
+        ]
+      },
+      "back-post-home": {
+        "reads": 100,
+        "statuses": {
+          "200": 98,
+          "206": 2
+        },
+        "modeledWireBytes": 1607200,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/storage/v1/object/public/media/_thumb/p/5004.jpg",
+            "ms": 10,
+            "modeledWireBytes": 64850
+          },
+          {
+            "path": "/storage/v1/object/public/gallery/sod1820/heichal-1820-banner.webp",
+            "ms": 8,
+            "modeledWireBytes": 276836
+          },
+          {
+            "path": "/rest/v1/rpc/gematria_method_trace",
+            "ms": 6,
+            "modeledWireBytes": 535
+          },
+          {
+            "path": "/rest/v1/rpc/gematria_method_trace",
+            "ms": 6,
+            "modeledWireBytes": 495
+          }
+        ]
+      },
+      "back-world-post": {
+        "reads": 16,
+        "statuses": {
+          "200": 16
+        },
+        "modeledWireBytes": 73834,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/posts",
+            "ms": 2,
+            "modeledWireBytes": 3714
+          },
+          {
+            "path": "/rest/v1/site_flags",
+            "ms": 2,
+            "modeledWireBytes": 1126
+          },
+          {
+            "path": "/rest/v1/topic_cards_public",
+            "ms": 2,
+            "modeledWireBytes": 2898
+          },
+          {
+            "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+            "ms": 2,
+            "modeledWireBytes": 10253
+          }
+        ]
+      },
+      "home-entry": {
+        "reads": 211,
+        "statuses": {
+          "200": 209,
+          "206": 2
+        },
+        "modeledWireBytes": 1734641,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/assets/2029-Bdk_N1FJ.css",
+            "ms": 15,
+            "modeledWireBytes": 34598
+          },
+          {
+            "path": "/assets/canonicalPresentation-DgNmWnf_.js",
+            "ms": 14,
+            "modeledWireBytes": 2759
+          },
+          {
+            "path": "/assets/worldContextualProminence-DFYM9dQz.js",
+            "ms": 14,
+            "modeledWireBytes": 4956
+          },
+          {
+            "path": "/assets/researchObjectPresentation-l0ubBFKY.js",
+            "ms": 14,
+            "modeledWireBytes": 3214
+          }
+        ]
+      },
+      "home-post": {
+        "reads": 19,
+        "statuses": {
+          "200": 19
+        },
+        "modeledWireBytes": 220826,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/site_flags",
+            "ms": 3,
+            "modeledWireBytes": 1126
+          },
+          {
+            "path": "/rest/v1/posts",
+            "ms": 2,
+            "modeledWireBytes": 16562
+          },
+          {
+            "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+            "ms": 2,
+            "modeledWireBytes": 10253
+          },
+          {
+            "path": "/storage/v1/object/public/media/sod1820/2029/video/2026/10/23e813b7-2a15-4429-b035-bf4203028016/derivatives/reading-v2.jpg",
+            "ms": 2,
+            "modeledWireBytes": 65447
+          }
+        ]
+      },
+      "number-method-full-page": {
+        "reads": 36,
+        "statuses": {
+          "200": 36
+        },
+        "modeledWireBytes": 13656,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/insights",
+            "ms": 3,
+            "modeledWireBytes": 6
+          },
+          {
+            "path": "/rest/v1/topic_cards_public",
+            "ms": 3,
+            "modeledWireBytes": 6
+          },
+          {
+            "path": "/rest/v1/rpc/fn_number_lookup",
+            "ms": 3,
+            "modeledWireBytes": 2572
+          },
+          {
+            "path": "/rest/v1/site_flags",
+            "ms": 3,
+            "modeledWireBytes": 1126
+          }
+        ]
+      },
+      "number-phrase-full-page": {
+        "reads": 58,
+        "statuses": {
+          "200": 58
+        },
+        "modeledWireBytes": 73848,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/rpc/gematria_method_trace",
+            "ms": 6,
+            "modeledWireBytes": 443
+          },
+          {
+            "path": "/rest/v1/rpc/fn_verses_by_gematria",
+            "ms": 5,
+            "modeledWireBytes": 210
+          },
+          {
+            "path": "/rest/v1/research_objects",
+            "ms": 4,
+            "modeledWireBytes": 6
+          },
+          {
+            "path": "/rest/v1/rpc/is_number_indexable",
+            "ms": 3,
+            "modeledWireBytes": 8
+          }
+        ]
+      },
+      "post-world": {
+        "reads": 80,
+        "statuses": {
+          "200": 78,
+          "206": 2
+        },
+        "modeledWireBytes": 631864,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/topic_cards_public",
+            "ms": 8,
+            "modeledWireBytes": 98
+          },
+          {
+            "path": "/rest/v1/posts",
+            "ms": 8,
+            "modeledWireBytes": 769
+          },
+          {
+            "path": "/rest/v1/rpc/gematria_method_trace",
+            "ms": 8,
+            "modeledWireBytes": 514
+          },
+          {
+            "path": "/rest/v1/rpc/gematria_method_trace",
+            "ms": 8,
+            "modeledWireBytes": 476
+          }
+        ]
+      },
+      "unmeasured-world-preparation": {
+        "reads": 39,
+        "statuses": {
+          "200": 36,
+          "206": 2,
+          "null": 1
+        },
+        "modeledWireBytes": 163403,
+        "measuredSnapshotMisses": null,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/posts",
+            "ms": 6,
+            "modeledWireBytes": 769
+          },
+          {
+            "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+            "ms": 5,
+            "modeledWireBytes": 7229
+          },
+          {
+            "path": "/rest/v1/topic_cards_public",
+            "ms": 5,
+            "modeledWireBytes": 70
+          },
+          {
+            "path": "/rest/v1/topic_cards_public",
+            "ms": 4,
+            "modeledWireBytes": 2297
+          }
+        ]
+      },
+      "world-number-full-page": {
+        "reads": 252,
+        "statuses": {
+          "200": 248,
+          "206": 4
+        },
+        "modeledWireBytes": 574541,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/research_objects",
+            "ms": 7,
+            "modeledWireBytes": 13785
+          },
+          {
+            "path": "/rest/v1/gematria_methods",
+            "ms": 6,
+            "modeledWireBytes": 233
+          },
+          {
+            "path": "/rest/v1/gematria_methods",
+            "ms": 6,
+            "modeledWireBytes": 6
+          },
+          {
+            "path": "/rest/v1/rpc/fn_number_journey",
+            "ms": 6,
+            "modeledWireBytes": 731
+          }
+        ]
+      }
+    },
+    "errors": [],
+    "blocked": [
+      {
+        "phase": "home-entry",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "home-entry",
+        "path": "/els-icon.png",
+        "method": "GET"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/els-icon.png",
+        "method": "GET"
+      },
+      {
+        "phase": "home-entry",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "home-entry",
+        "path": "/els-icon.png",
+        "method": "GET"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/els-icon.png",
+        "method": "GET"
+      }
+    ],
+    "forwardedWrites": 0,
+    "forwardedModels": 0
+  },
+  {
+    "run": "public-loading-before-desktop-2-audit.json",
+    "phases": {
+      "back-method-number": {
+        "reads": 8,
+        "statuses": {
+          "200": 8
+        },
+        "modeledWireBytes": 4150,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/rpc/is_number_indexable",
+            "ms": 2,
+            "modeledWireBytes": 8
+          },
+          {
+            "path": "/rest/v1/site_flags",
+            "ms": 1,
+            "modeledWireBytes": 1126
+          },
+          {
+            "path": "/rest/v1/rpc/fn_verses_by_gematria",
+            "ms": 1,
+            "modeledWireBytes": 332
+          },
+          {
+            "path": "/rest/v1/rpc/gematria_method_trace",
+            "ms": 1,
+            "modeledWireBytes": 609
+          }
+        ]
+      },
+      "back-number-world": {
+        "reads": 65,
+        "statuses": {
+          "200": 63,
+          "206": 2
+        },
+        "modeledWireBytes": 490091,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/rpc/gematria_method_trace",
+            "ms": 9,
+            "modeledWireBytes": 476
+          },
+          {
+            "path": "/rest/v1/rpc/gematria_method_trace",
+            "ms": 9,
+            "modeledWireBytes": 495
+          },
+          {
+            "path": "/rest/v1/posts",
+            "ms": 6,
+            "modeledWireBytes": 16761
+          },
+          {
+            "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+            "ms": 4,
+            "modeledWireBytes": 10253
+          }
+        ]
+      },
+      "back-phrase-number": {
+        "reads": 14,
+        "statuses": {
+          "200": 14
+        },
+        "modeledWireBytes": 21592,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/rpc/fn_verses_by_gematria",
+            "ms": 3,
+            "modeledWireBytes": 332
+          },
+          {
+            "path": "/rest/v1/rpc/is_number_indexable",
+            "ms": 2,
+            "modeledWireBytes": 8
+          },
+          {
+            "path": "/rest/v1/site_flags",
+            "ms": 2,
+            "modeledWireBytes": 1126
+          },
+          {
+            "path": "/rest/v1/rpc/fn_verses_by_gematria",
+            "ms": 2,
+            "modeledWireBytes": 332
+          }
+        ]
+      },
+      "back-post-home": {
+        "reads": 100,
+        "statuses": {
+          "200": 98,
+          "206": 2
+        },
+        "modeledWireBytes": 1607200,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/storage/v1/object/public/media/_thumb/p/5004.jpg",
+            "ms": 15,
+            "modeledWireBytes": 64850
+          },
+          {
+            "path": "/rest/v1/posts",
+            "ms": 10,
+            "modeledWireBytes": 231
+          },
+          {
+            "path": "/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5107-cover-20261012/thumb-fast-v1.jpg",
+            "ms": 9,
+            "modeledWireBytes": 29754
+          },
+          {
+            "path": "/storage/v1/object/public/media/_thumb/p/5078.jpg",
+            "ms": 9,
+            "modeledWireBytes": 41455
+          }
+        ]
+      },
+      "back-world-post": {
+        "reads": 16,
+        "statuses": {
+          "200": 16
+        },
+        "modeledWireBytes": 73834,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/posts",
+            "ms": 4,
+            "modeledWireBytes": 16562
+          },
+          {
+            "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+            "ms": 3,
+            "modeledWireBytes": 10253
+          },
+          {
+            "path": "/rest/v1/posts",
+            "ms": 2,
+            "modeledWireBytes": 3714
+          },
+          {
+            "path": "/rest/v1/comments",
+            "ms": 2,
+            "modeledWireBytes": 6
+          }
+        ]
+      },
+      "home-entry": {
+        "reads": 218,
+        "statuses": {
+          "200": 216,
+          "206": 2
+        },
+        "modeledWireBytes": 1783116,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/assets/themeMode-jUD92yIC.js",
+            "ms": 18,
+            "modeledWireBytes": 377
+          },
+          {
+            "path": "/assets/designTokens-B8JmV1rE.js",
+            "ms": 18,
+            "modeledWireBytes": 995
+          },
+          {
+            "path": "/assets/canonicalPresentation-DgNmWnf_.js",
+            "ms": 18,
+            "modeledWireBytes": 2759
+          },
+          {
+            "path": "/assets/NavigationIcon2029-CH1qZpiS.js",
+            "ms": 17,
+            "modeledWireBytes": 4999
+          }
+        ]
+      },
+      "home-post": {
+        "reads": 19,
+        "statuses": {
+          "200": 19
+        },
+        "modeledWireBytes": 220826,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/comments",
+            "ms": 5,
+            "modeledWireBytes": 6
+          },
+          {
+            "path": "/rest/v1/posts",
+            "ms": 3,
+            "modeledWireBytes": 3714
+          },
+          {
+            "path": "/rest/v1/site_flags",
+            "ms": 3,
+            "modeledWireBytes": 1126
+          },
+          {
+            "path": "/rest/v1/posts",
+            "ms": 3,
+            "modeledWireBytes": 16562
+          }
+        ]
+      },
+      "number-method-full-page": {
+        "reads": 36,
+        "statuses": {
+          "200": 36
+        },
+        "modeledWireBytes": 13656,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/nodes",
+            "ms": 6,
+            "modeledWireBytes": 6
+          },
+          {
+            "path": "/rest/v1/nodes",
+            "ms": 5,
+            "modeledWireBytes": 6
+          },
+          {
+            "path": "/rest/v1/rpc/fn_zero_scale",
+            "ms": 4,
+            "modeledWireBytes": 224
+          },
+          {
+            "path": "/rest/v1/research_objects",
+            "ms": 2,
+            "modeledWireBytes": 6
+          }
+        ]
+      },
+      "number-phrase-full-page": {
+        "reads": 58,
+        "statuses": {
+          "200": 58
+        },
+        "modeledWireBytes": 73848,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/gematria_methods",
+            "ms": 9,
+            "modeledWireBytes": 1357
+          },
+          {
+            "path": "/rest/v1/rpc/fn_verses_by_gematria",
+            "ms": 5,
+            "modeledWireBytes": 210
+          },
+          {
+            "path": "/rest/v1/rpc/gematria_method_trace",
+            "ms": 5,
+            "modeledWireBytes": 443
+          },
+          {
+            "path": "/rest/v1/rpc/lang_links_list",
+            "ms": 5,
+            "modeledWireBytes": 2237
+          }
+        ]
+      },
+      "post-world": {
+        "reads": 80,
+        "statuses": {
+          "200": 78,
+          "206": 2
+        },
+        "modeledWireBytes": 631864,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/topic_cards_public",
+            "ms": 6,
+            "modeledWireBytes": 2297
+          },
+          {
+            "path": "/rest/v1/research_objects",
+            "ms": 6,
+            "modeledWireBytes": 3857
+          },
+          {
+            "path": "/assets/StoryTreeSequence2029-BItbiCjT.js",
+            "ms": 5,
+            "modeledWireBytes": 18750
+          },
+          {
+            "path": "/assets/worldJourneyProjection-BRHxkAbf.js",
+            "ms": 5,
+            "modeledWireBytes": 1040
+          }
+        ]
+      },
+      "unmeasured-world-preparation": {
+        "reads": 26,
+        "statuses": {
+          "200": 23,
+          "206": 2,
+          "null": 1
+        },
+        "modeledWireBytes": 92671,
+        "measuredSnapshotMisses": null,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/posts",
+            "ms": 5,
+            "modeledWireBytes": 10447
+          },
+          {
+            "path": "/rest/v1/contributors",
+            "ms": 2,
+            "modeledWireBytes": 2253
+          },
+          {
+            "path": "/rest/v1/topic_cards_public",
+            "ms": 2,
+            "modeledWireBytes": 4036
+          },
+          {
+            "path": "/rest/v1/topic_cards_public",
+            "ms": 2,
+            "modeledWireBytes": 2898
+          }
+        ]
+      },
+      "world-number-full-page": {
+        "reads": 253,
+        "statuses": {
+          "200": 249,
+          "206": 4
+        },
+        "modeledWireBytes": 576795,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/nodes",
+            "ms": 6,
+            "modeledWireBytes": 237
+          },
+          {
+            "path": "/rest/v1/gallery_images",
+            "ms": 5,
+            "modeledWireBytes": 10972
+          },
+          {
+            "path": "/rest/v1/rpc/fn_number_lookup",
+            "ms": 5,
+            "modeledWireBytes": 14114
+          },
+          {
+            "path": "/rest/v1/rpc/fn_verses_by_gematria",
+            "ms": 5,
+            "modeledWireBytes": 332
+          }
+        ]
+      }
+    },
+    "errors": [],
+    "blocked": [
+      {
+        "phase": "home-entry",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "home-entry",
+        "path": "/els-icon.png",
+        "method": "GET"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/els-icon.png",
+        "method": "GET"
+      },
+      {
+        "phase": "home-entry",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "home-entry",
+        "path": "/els-icon.png",
+        "method": "GET"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/els-icon.png",
+        "method": "GET"
+      }
+    ],
+    "forwardedWrites": 0,
+    "forwardedModels": 0
+  },
+  {
+    "run": "public-loading-before-desktop-3-audit.json",
+    "phases": {
+      "back-method-number": {
+        "reads": 8,
+        "statuses": {
+          "200": 8
+        },
+        "modeledWireBytes": 4150,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/rpc/fn_verses_by_gematria",
+            "ms": 7,
+            "modeledWireBytes": 332
+          },
+          {
+            "path": "/rest/v1/site_flags",
+            "ms": 3,
+            "modeledWireBytes": 1126
+          },
+          {
+            "path": "/rest/v1/rpc/gematria_method_trace",
+            "ms": 3,
+            "modeledWireBytes": 609
+          },
+          {
+            "path": "/rest/v1/rpc/is_number_indexable",
+            "ms": 1,
+            "modeledWireBytes": 8
+          }
+        ]
+      },
+      "back-number-world": {
+        "reads": 66,
+        "statuses": {
+          "200": 64,
+          "206": 2
+        },
+        "modeledWireBytes": 786862,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/rpc/gematria_method_trace",
+            "ms": 5,
+            "modeledWireBytes": 514
+          },
+          {
+            "path": "/rest/v1/research_objects",
+            "ms": 5,
+            "modeledWireBytes": 3857
+          },
+          {
+            "path": "/rest/v1/posts",
+            "ms": 5,
+            "modeledWireBytes": 10447
+          },
+          {
+            "path": "/rest/v1/rpc/gematria_method_trace",
+            "ms": 5,
+            "modeledWireBytes": 538
+          }
+        ]
+      },
+      "back-phrase-number": {
+        "reads": 14,
+        "statuses": {
+          "200": 14
+        },
+        "modeledWireBytes": 21592,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/rpc/fn_verses_by_gematria",
+            "ms": 2,
+            "modeledWireBytes": 332
+          },
+          {
+            "path": "/rest/v1/gematria_methods",
+            "ms": 2,
+            "modeledWireBytes": 5674
+          },
+          {
+            "path": "/rest/v1/rpc/fn_verses_by_gematria",
+            "ms": 2,
+            "modeledWireBytes": 332
+          },
+          {
+            "path": "/rest/v1/rpc/lang_links_list",
+            "ms": 2,
+            "modeledWireBytes": 2237
+          }
+        ]
+      },
+      "back-post-home": {
+        "reads": 90,
+        "statuses": {
+          "200": 88,
+          "206": 2
+        },
+        "modeledWireBytes": 876509,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/storage/v1/object/public/media/_thumb/p/5004.jpg",
+            "ms": 16,
+            "modeledWireBytes": 64850
+          },
+          {
+            "path": "/storage/v1/object/public/gallery/sod1820/heichal-1820-banner.webp",
+            "ms": 14,
+            "modeledWireBytes": 276836
+          },
+          {
+            "path": "/rest/v1/rpc/gematria_method_trace",
+            "ms": 7,
+            "modeledWireBytes": 514
+          },
+          {
+            "path": "/rest/v1/rpc/gematria_method_trace",
+            "ms": 7,
+            "modeledWireBytes": 476
+          }
+        ]
+      },
+      "back-world-post": {
+        "reads": 16,
+        "statuses": {
+          "200": 16
+        },
+        "modeledWireBytes": 73834,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/posts",
+            "ms": 5,
+            "modeledWireBytes": 16562
+          },
+          {
+            "path": "/storage/v1/object/public/media/sod1820/2029/video/2026/10/23e813b7-2a15-4429-b035-bf4203028016/captions/he.vtt",
+            "ms": 3,
+            "modeledWireBytes": 2358
+          },
+          {
+            "path": "/rest/v1/comments",
+            "ms": 3,
+            "modeledWireBytes": 6
+          },
+          {
+            "path": "/rest/v1/posts",
+            "ms": 2,
+            "modeledWireBytes": 3714
+          }
+        ]
+      },
+      "home-entry": {
+        "reads": 199,
+        "statuses": {
+          "200": 197,
+          "206": 2
+        },
+        "modeledWireBytes": 1709322,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/assets/PostTimeline2029-HTi-_P5n.js",
+            "ms": 14,
+            "modeledWireBytes": 211
+          },
+          {
+            "path": "/assets/Timeline2029-DCEKqbCw.js",
+            "ms": 14,
+            "modeledWireBytes": 752
+          },
+          {
+            "path": "/assets/Timeline2029-a6_QYh8e.css",
+            "ms": 14,
+            "modeledWireBytes": 550
+          },
+          {
+            "path": "/assets/chunk-OB3PAWPO-CVMmBO49.js",
+            "ms": 13,
+            "modeledWireBytes": 13479
+          }
+        ]
+      },
+      "home-post": {
+        "reads": 19,
+        "statuses": {
+          "200": 19
+        },
+        "modeledWireBytes": 220826,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/posts",
+            "ms": 2,
+            "modeledWireBytes": 3714
+          },
+          {
+            "path": "/rest/v1/topic_cards_public",
+            "ms": 2,
+            "modeledWireBytes": 2898
+          },
+          {
+            "path": "/legacy-dark-bg-post-1280-6ca0167e2dda.webp",
+            "ms": 2,
+            "modeledWireBytes": 13846
+          },
+          {
+            "path": "/storage/v1/object/public/media/sod1820/2029/video/2026/10/23e813b7-2a15-4429-b035-bf4203028016/captions/he.vtt",
+            "ms": 2,
+            "modeledWireBytes": 2358
+          }
+        ]
+      },
+      "number-method-full-page": {
+        "reads": 36,
+        "statuses": {
+          "200": 36
+        },
+        "modeledWireBytes": 13656,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/number_anchors",
+            "ms": 6,
+            "modeledWireBytes": 6
+          },
+          {
+            "path": "/rest/v1/site_flags",
+            "ms": 2,
+            "modeledWireBytes": 1126
+          },
+          {
+            "path": "/rest/v1/gematria_words",
+            "ms": 2,
+            "modeledWireBytes": 6
+          },
+          {
+            "path": "/rest/v1/research_objects",
+            "ms": 2,
+            "modeledWireBytes": 6
+          }
+        ]
+      },
+      "number-phrase-full-page": {
+        "reads": 58,
+        "statuses": {
+          "200": 58
+        },
+        "modeledWireBytes": 73848,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/rpc/fn_method_profile",
+            "ms": 5,
+            "modeledWireBytes": 779
+          },
+          {
+            "path": "/rest/v1/research_objects",
+            "ms": 3,
+            "modeledWireBytes": 2286
+          },
+          {
+            "path": "/rest/v1/rpc/fn_number_dossier",
+            "ms": 3,
+            "modeledWireBytes": 951
+          },
+          {
+            "path": "/rest/v1/nodes",
+            "ms": 3,
+            "modeledWireBytes": 6
+          }
+        ]
+      },
+      "post-world": {
+        "reads": 80,
+        "statuses": {
+          "200": 78,
+          "206": 2
+        },
+        "modeledWireBytes": 631864,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/topic_cards_public",
+            "ms": 5,
+            "modeledWireBytes": 98
+          },
+          {
+            "path": "/assets/StoryTreeSequence2029-CmeGTnuu.css",
+            "ms": 4,
+            "modeledWireBytes": 4687
+          },
+          {
+            "path": "/assets/worldPublicFindingReader-BII2G58t.js",
+            "ms": 4,
+            "modeledWireBytes": 4133
+          },
+          {
+            "path": "/assets/worldContributorSourceLocator-Cyr0YS9t.js",
+            "ms": 4,
+            "modeledWireBytes": 344
+          }
+        ]
+      },
+      "unmeasured-world-preparation": {
+        "reads": 56,
+        "statuses": {
+          "200": 54,
+          "206": 2
+        },
+        "modeledWireBytes": 191784,
+        "measuredSnapshotMisses": null,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/rpc/gematria_method_trace",
+            "ms": 6,
+            "modeledWireBytes": 514
+          },
+          {
+            "path": "/rest/v1/rpc/gematria_method_trace",
+            "ms": 5,
+            "modeledWireBytes": 538
+          },
+          {
+            "path": "/rest/v1/rpc/gematria_method_trace",
+            "ms": 5,
+            "modeledWireBytes": 535
+          },
+          {
+            "path": "/rest/v1/topic_cards_public",
+            "ms": 4,
+            "modeledWireBytes": 70
+          }
+        ]
+      },
+      "world-number-full-page": {
+        "reads": 253,
+        "statuses": {
+          "200": 249,
+          "206": 4
+        },
+        "modeledWireBytes": 576795,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/rpc/posts_by_number_strict",
+            "ms": 4,
+            "modeledWireBytes": 338
+          },
+          {
+            "path": "/rest/v1/rpc/number_neighbors",
+            "ms": 4,
+            "modeledWireBytes": 153
+          },
+          {
+            "path": "/rest/v1/gallery_images",
+            "ms": 4,
+            "modeledWireBytes": 4237
+          },
+          {
+            "path": "/rest/v1/gallery_images",
+            "ms": 4,
+            "modeledWireBytes": 10972
+          }
+        ]
+      }
+    },
+    "errors": [],
+    "blocked": [
+      {
+        "phase": "home-entry",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "home-entry",
+        "path": "/els-icon.png",
+        "method": "GET"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/els-icon.png",
+        "method": "GET"
+      },
+      {
+        "phase": "home-entry",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "home-entry",
+        "path": "/els-icon.png",
+        "method": "GET"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/els-icon.png",
+        "method": "GET"
+      }
+    ],
+    "forwardedWrites": 0,
+    "forwardedModels": 0
+  },
+  {
+    "run": "public-loading-before-mobile-slow-1-audit.json",
+    "phases": {
+      "back-method-number": {
+        "reads": 8,
+        "statuses": {
+          "200": 8
+        },
+        "modeledWireBytes": 4150,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/rpc/fn_verses_by_gematria",
+            "ms": 170,
+            "modeledWireBytes": 332
+          },
+          {
+            "path": "/rest/v1/rpc/gematria_method_trace",
+            "ms": 170,
+            "modeledWireBytes": 609
+          },
+          {
+            "path": "/rest/v1/site_flags",
+            "ms": 169,
+            "modeledWireBytes": 1126
+          },
+          {
+            "path": "/rest/v1/rpc/gematria_method_trace",
+            "ms": 159,
+            "modeledWireBytes": 609
+          }
+        ]
+      },
+      "back-number-world": {
+        "reads": 64,
+        "statuses": {
+          "200": 62,
+          "206": 2
+        },
+        "modeledWireBytes": 193320,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+            "ms": 313,
+            "modeledWireBytes": 10253
+          },
+          {
+            "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+            "ms": 311,
+            "modeledWireBytes": 10253
+          },
+          {
+            "path": "/rest/v1/rpc/gematria_method_trace",
+            "ms": 275,
+            "modeledWireBytes": 504
+          },
+          {
+            "path": "/rest/v1/rpc/gematria_method_trace",
+            "ms": 275,
+            "modeledWireBytes": 504
+          }
+        ]
+      },
+      "back-phrase-number": {
+        "reads": 14,
+        "statuses": {
+          "200": 14
+        },
+        "modeledWireBytes": 21592,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/gematria_methods",
+            "ms": 179,
+            "modeledWireBytes": 5674
+          },
+          {
+            "path": "/rest/v1/gematria_methods",
+            "ms": 178,
+            "modeledWireBytes": 5674
+          },
+          {
+            "path": "/rest/v1/rpc/lang_links_list",
+            "ms": 168,
+            "modeledWireBytes": 2237
+          },
+          {
+            "path": "/rest/v1/rpc/lang_links_list",
+            "ms": 167,
+            "modeledWireBytes": 2237
+          }
+        ]
+      },
+      "back-post-home": {
+        "reads": 82,
+        "statuses": {
+          "200": 80,
+          "206": 2
+        },
+        "modeledWireBytes": 792222,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/storage/v1/object/public/media/_thumb/p/5033.jpg",
+            "ms": 1796,
+            "modeledWireBytes": 141648
+          },
+          {
+            "path": "/rest/v1/posts",
+            "ms": 1766,
+            "modeledWireBytes": 231
+          },
+          {
+            "path": "/rest/v1/rpc/gematria_method_trace",
+            "ms": 1696,
+            "modeledWireBytes": 504
+          },
+          {
+            "path": "/rest/v1/rpc/gematria_method_trace",
+            "ms": 1694,
+            "modeledWireBytes": 476
+          }
+        ]
+      },
+      "back-world-post": {
+        "reads": 16,
+        "statuses": {
+          "200": 16
+        },
+        "modeledWireBytes": 73834,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+            "ms": 287,
+            "modeledWireBytes": 10253
+          },
+          {
+            "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+            "ms": 284,
+            "modeledWireBytes": 10253
+          },
+          {
+            "path": "/rest/v1/posts",
+            "ms": 239,
+            "modeledWireBytes": 16562
+          },
+          {
+            "path": "/rest/v1/posts",
+            "ms": 235,
+            "modeledWireBytes": 16562
+          }
+        ]
+      },
+      "home-entry": {
+        "reads": 195,
+        "statuses": {
+          "200": 193,
+          "206": 2
+        },
+        "modeledWireBytes": 1309337,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/assets/2029-Bdk_N1FJ.css",
+            "ms": 2753,
+            "modeledWireBytes": 34598
+          },
+          {
+            "path": "/assets/NavigationIcon2029-CDR-JqlQ.css",
+            "ms": 2581,
+            "modeledWireBytes": 508
+          },
+          {
+            "path": "/assets/calculator2029Input-BbfftHdT.js",
+            "ms": 2580,
+            "modeledWireBytes": 830
+          },
+          {
+            "path": "/assets/numberCoreProjection-DKZZGwC-.js",
+            "ms": 2574,
+            "modeledWireBytes": 5188
+          }
+        ]
+      },
+      "home-post": {
+        "reads": 31,
+        "statuses": {
+          "200": 31
+        },
+        "modeledWireBytes": 231936,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/storage/v1/object/public/media/sod1820/2029/video/2026/10/23e813b7-2a15-4429-b035-bf4203028016/captions/he.vtt",
+            "ms": 835,
+            "modeledWireBytes": 2358
+          },
+          {
+            "path": "/storage/v1/object/public/media/sod1820/2029/video/2026/10/23e813b7-2a15-4429-b035-bf4203028016/derivatives/reading-v2.jpg",
+            "ms": 828,
+            "modeledWireBytes": 65447
+          },
+          {
+            "path": "/rest/v1/rpc/fn_zero_scale",
+            "ms": 733,
+            "modeledWireBytes": 287
+          },
+          {
+            "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+            "ms": 630,
+            "modeledWireBytes": 10253
+          }
+        ]
+      },
+      "number-method-full-page": {
+        "reads": 64,
+        "statuses": {
+          "200": 64
+        },
+        "modeledWireBytes": 29390,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/nodes",
+            "ms": 185,
+            "modeledWireBytes": 6
+          },
+          {
+            "path": "/rest/v1/nodes",
+            "ms": 185,
+            "modeledWireBytes": 6
+          },
+          {
+            "path": "/rest/v1/rpc/fn_zero_scale",
+            "ms": 185,
+            "modeledWireBytes": 224
+          },
+          {
+            "path": "/rest/v1/number_anchors",
+            "ms": 185,
+            "modeledWireBytes": 6
+          }
+        ]
+      },
+      "number-phrase-full-page": {
+        "reads": 58,
+        "statuses": {
+          "200": 58
+        },
+        "modeledWireBytes": 73848,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/rpc/fn_zero_scale",
+            "ms": 274,
+            "modeledWireBytes": 353
+          },
+          {
+            "path": "/rest/v1/nodes",
+            "ms": 273,
+            "modeledWireBytes": 6
+          },
+          {
+            "path": "/rest/v1/nodes",
+            "ms": 273,
+            "modeledWireBytes": 6
+          },
+          {
+            "path": "/rest/v1/number_anchors",
+            "ms": 273,
+            "modeledWireBytes": 6
+          }
+        ]
+      },
+      "post-world": {
+        "reads": 81,
+        "statuses": {
+          "200": 79,
+          "206": 2
+        },
+        "modeledWireBytes": 335480,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/assets/World2029Page-TTxOQlbD.css",
+            "ms": 857,
+            "modeledWireBytes": 13197
+          },
+          {
+            "path": "/assets/worldJourneyProjection-BRHxkAbf.js",
+            "ms": 791,
+            "modeledWireBytes": 1040
+          },
+          {
+            "path": "/assets/worldProminenceInputs-BoQT5a5N.js",
+            "ms": 786,
+            "modeledWireBytes": 1154
+          },
+          {
+            "path": "/assets/worldZviApprovedFindings2029-i0RXjtH9.js",
+            "ms": 780,
+            "modeledWireBytes": 18028
+          }
+        ]
+      },
+      "unmeasured-world-preparation": {
+        "reads": 52,
+        "statuses": {
+          "200": 49,
+          "206": 2,
+          "null": 1
+        },
+        "modeledWireBytes": 167962,
+        "measuredSnapshotMisses": null,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/site_flags",
+            "ms": 641,
+            "modeledWireBytes": 1126
+          },
+          {
+            "path": "/rest/v1/site_flags",
+            "ms": 418,
+            "modeledWireBytes": 1126
+          },
+          {
+            "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+            "ms": 329,
+            "modeledWireBytes": 10253
+          },
+          {
+            "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+            "ms": 321,
+            "modeledWireBytes": 10253
+          }
+        ]
+      },
+      "world-number-full-page": {
+        "reads": 227,
+        "statuses": {
+          "200": 223,
+          "206": 4
+        },
+        "modeledWireBytes": 1154603,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+            "ms": 1719,
+            "modeledWireBytes": 296771
+          },
+          {
+            "path": "/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+            "ms": 1633,
+            "modeledWireBytes": 296771
+          },
+          {
+            "path": "/rest/v1/rpc/lang_links_list",
+            "ms": 1472,
+            "modeledWireBytes": 2237
+          },
+          {
+            "path": "/rest/v1/rpc/fn_method_profile",
+            "ms": 1412,
+            "modeledWireBytes": 810
+          }
+        ]
+      }
+    },
+    "errors": [],
+    "blocked": [
+      {
+        "phase": "home-entry",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "home-entry",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      }
+    ],
+    "forwardedWrites": 0,
+    "forwardedModels": 0
+  },
+  {
+    "run": "public-loading-before-mobile-slow-2-audit.json",
+    "phases": {
+      "back-method-number": {
+        "reads": 8,
+        "statuses": {
+          "200": 8
+        },
+        "modeledWireBytes": 4150,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/rpc/gematria_method_trace",
+            "ms": 161,
+            "modeledWireBytes": 609
+          },
+          {
+            "path": "/rest/v1/rpc/gematria_method_trace",
+            "ms": 160,
+            "modeledWireBytes": 609
+          },
+          {
+            "path": "/rest/v1/rpc/fn_verses_by_gematria",
+            "ms": 157,
+            "modeledWireBytes": 332
+          },
+          {
+            "path": "/rest/v1/rpc/fn_verses_by_gematria",
+            "ms": 157,
+            "modeledWireBytes": 332
+          }
+        ]
+      },
+      "back-number-world": {
+        "reads": 62,
+        "statuses": {
+          "200": 60,
+          "206": 2
+        },
+        "modeledWireBytes": 192734,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+            "ms": 312,
+            "modeledWireBytes": 10253
+          },
+          {
+            "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+            "ms": 310,
+            "modeledWireBytes": 10253
+          },
+          {
+            "path": "/rest/v1/rpc/gematria_method_trace",
+            "ms": 275,
+            "modeledWireBytes": 495
+          },
+          {
+            "path": "/rest/v1/rpc/gematria_method_trace",
+            "ms": 274,
+            "modeledWireBytes": 495
+          }
+        ]
+      },
+      "back-phrase-number": {
+        "reads": 14,
+        "statuses": {
+          "200": 14
+        },
+        "modeledWireBytes": 21592,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/gematria_methods",
+            "ms": 178,
+            "modeledWireBytes": 5674
+          },
+          {
+            "path": "/rest/v1/gematria_methods",
+            "ms": 178,
+            "modeledWireBytes": 5674
+          },
+          {
+            "path": "/rest/v1/rpc/lang_links_list",
+            "ms": 168,
+            "modeledWireBytes": 2237
+          },
+          {
+            "path": "/rest/v1/rpc/lang_links_list",
+            "ms": 167,
+            "modeledWireBytes": 2237
+          }
+        ]
+      },
+      "back-post-home": {
+        "reads": 78,
+        "statuses": {
+          "200": 76,
+          "206": 2
+        },
+        "modeledWireBytes": 468346,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/gematria_words",
+            "ms": 1775,
+            "modeledWireBytes": 352
+          },
+          {
+            "path": "/rest/v1/posts",
+            "ms": 1774,
+            "modeledWireBytes": 745
+          },
+          {
+            "path": "/rest/v1/research_contributions",
+            "ms": 1772,
+            "modeledWireBytes": 277
+          },
+          {
+            "path": "/storage/v1/object/public/media/_thumb/p/5033.jpg",
+            "ms": 1771,
+            "modeledWireBytes": 141648
+          }
+        ]
+      },
+      "back-world-post": {
+        "reads": 18,
+        "statuses": {
+          "200": 18
+        },
+        "modeledWireBytes": 74420,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+            "ms": 292,
+            "modeledWireBytes": 10253
+          },
+          {
+            "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+            "ms": 291,
+            "modeledWireBytes": 10253
+          },
+          {
+            "path": "/rest/v1/posts",
+            "ms": 242,
+            "modeledWireBytes": 16562
+          },
+          {
+            "path": "/rest/v1/posts",
+            "ms": 241,
+            "modeledWireBytes": 16562
+          }
+        ]
+      },
+      "home-entry": {
+        "reads": 180,
+        "statuses": {
+          "200": 178,
+          "206": 2
+        },
+        "modeledWireBytes": 1283797,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/assets/2029-Bdk_N1FJ.css",
+            "ms": 2755,
+            "modeledWireBytes": 34598
+          },
+          {
+            "path": "/assets/NavigationIcon2029-CDR-JqlQ.css",
+            "ms": 2582,
+            "modeledWireBytes": 508
+          },
+          {
+            "path": "/assets/calculator2029Input-BbfftHdT.js",
+            "ms": 2581,
+            "modeledWireBytes": 830
+          },
+          {
+            "path": "/assets/numberCoreProjection-DKZZGwC-.js",
+            "ms": 2575,
+            "modeledWireBytes": 5188
+          }
+        ]
+      },
+      "home-post": {
+        "reads": 28,
+        "statuses": {
+          "200": 28
+        },
+        "modeledWireBytes": 231262,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/storage/v1/object/public/media/sod1820/2029/video/2026/10/23e813b7-2a15-4429-b035-bf4203028016/captions/he.vtt",
+            "ms": 831,
+            "modeledWireBytes": 2358
+          },
+          {
+            "path": "/storage/v1/object/public/media/sod1820/2029/video/2026/10/23e813b7-2a15-4429-b035-bf4203028016/derivatives/reading-v2.jpg",
+            "ms": 827,
+            "modeledWireBytes": 65447
+          },
+          {
+            "path": "/rest/v1/rpc/fn_zero_scale",
+            "ms": 705,
+            "modeledWireBytes": 287
+          },
+          {
+            "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+            "ms": 588,
+            "modeledWireBytes": 10253
+          }
+        ]
+      },
+      "number-method-full-page": {
+        "reads": 64,
+        "statuses": {
+          "200": 64
+        },
+        "modeledWireBytes": 29390,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/nodes",
+            "ms": 185,
+            "modeledWireBytes": 6
+          },
+          {
+            "path": "/rest/v1/nodes",
+            "ms": 185,
+            "modeledWireBytes": 6
+          },
+          {
+            "path": "/rest/v1/rpc/fn_zero_scale",
+            "ms": 185,
+            "modeledWireBytes": 224
+          },
+          {
+            "path": "/rest/v1/number_anchors",
+            "ms": 185,
+            "modeledWireBytes": 6
+          }
+        ]
+      },
+      "number-phrase-full-page": {
+        "reads": 58,
+        "statuses": {
+          "200": 58
+        },
+        "modeledWireBytes": 73848,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/nodes",
+            "ms": 269,
+            "modeledWireBytes": 6
+          },
+          {
+            "path": "/rest/v1/nodes",
+            "ms": 269,
+            "modeledWireBytes": 6
+          },
+          {
+            "path": "/rest/v1/rpc/fn_zero_scale",
+            "ms": 269,
+            "modeledWireBytes": 353
+          },
+          {
+            "path": "/rest/v1/number_anchors",
+            "ms": 269,
+            "modeledWireBytes": 6
+          }
+        ]
+      },
+      "post-world": {
+        "reads": 81,
+        "statuses": {
+          "200": 79,
+          "206": 2
+        },
+        "modeledWireBytes": 335480,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/assets/World2029Page-TTxOQlbD.css",
+            "ms": 855,
+            "modeledWireBytes": 13197
+          },
+          {
+            "path": "/assets/worldJourneyProjection-BRHxkAbf.js",
+            "ms": 789,
+            "modeledWireBytes": 1040
+          },
+          {
+            "path": "/assets/worldProminenceInputs-BoQT5a5N.js",
+            "ms": 784,
+            "modeledWireBytes": 1154
+          },
+          {
+            "path": "/assets/worldZviApprovedFindings2029-i0RXjtH9.js",
+            "ms": 778,
+            "modeledWireBytes": 18028
+          }
+        ]
+      },
+      "unmeasured-world-preparation": {
+        "reads": 67,
+        "statuses": {
+          "200": 57,
+          "206": 2,
+          "null": 8
+        },
+        "modeledWireBytes": 210503,
+        "measuredSnapshotMisses": null,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/site_flags",
+            "ms": 676,
+            "modeledWireBytes": 1126
+          },
+          {
+            "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+            "ms": 326,
+            "modeledWireBytes": 10253
+          },
+          {
+            "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+            "ms": 322,
+            "modeledWireBytes": 10253
+          },
+          {
+            "path": "/rest/v1/rpc/fn_zero_scale",
+            "ms": 307,
+            "modeledWireBytes": 287
+          }
+        ]
+      },
+      "world-number-full-page": {
+        "reads": 227,
+        "statuses": {
+          "200": 223,
+          "206": 4
+        },
+        "modeledWireBytes": 1154603,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+            "ms": 1717,
+            "modeledWireBytes": 296771
+          },
+          {
+            "path": "/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+            "ms": 1633,
+            "modeledWireBytes": 296771
+          },
+          {
+            "path": "/rest/v1/rpc/lang_links_list",
+            "ms": 1434,
+            "modeledWireBytes": 2237
+          },
+          {
+            "path": "/rest/v1/rpc/fn_method_profile",
+            "ms": 1394,
+            "modeledWireBytes": 810
+          }
+        ]
+      }
+    },
+    "errors": [],
+    "blocked": [
+      {
+        "phase": "home-entry",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "home-entry",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      }
+    ],
+    "forwardedWrites": 0,
+    "forwardedModels": 0
+  },
+  {
+    "run": "public-loading-before-mobile-slow-3-audit.json",
+    "phases": {
+      "back-method-number": {
+        "reads": 8,
+        "statuses": {
+          "200": 8
+        },
+        "modeledWireBytes": 4150,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/rpc/gematria_method_trace",
+            "ms": 159,
+            "modeledWireBytes": 609
+          },
+          {
+            "path": "/rest/v1/rpc/gematria_method_trace",
+            "ms": 158,
+            "modeledWireBytes": 609
+          },
+          {
+            "path": "/rest/v1/rpc/fn_verses_by_gematria",
+            "ms": 157,
+            "modeledWireBytes": 332
+          },
+          {
+            "path": "/rest/v1/site_flags",
+            "ms": 157,
+            "modeledWireBytes": 1126
+          }
+        ]
+      },
+      "back-number-world": {
+        "reads": 63,
+        "statuses": {
+          "200": 61,
+          "206": 2
+        },
+        "modeledWireBytes": 193027,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+            "ms": 321,
+            "modeledWireBytes": 10253
+          },
+          {
+            "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+            "ms": 316,
+            "modeledWireBytes": 10253
+          },
+          {
+            "path": "/rest/v1/rpc/gematria_method_trace",
+            "ms": 276,
+            "modeledWireBytes": 504
+          },
+          {
+            "path": "/rest/v1/posts",
+            "ms": 275,
+            "modeledWireBytes": 16562
+          }
+        ]
+      },
+      "back-phrase-number": {
+        "reads": 14,
+        "statuses": {
+          "200": 14
+        },
+        "modeledWireBytes": 21592,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/gematria_methods",
+            "ms": 179,
+            "modeledWireBytes": 5674
+          },
+          {
+            "path": "/rest/v1/gematria_methods",
+            "ms": 178,
+            "modeledWireBytes": 5674
+          },
+          {
+            "path": "/rest/v1/rpc/lang_links_list",
+            "ms": 167,
+            "modeledWireBytes": 2237
+          },
+          {
+            "path": "/rest/v1/rpc/lang_links_list",
+            "ms": 167,
+            "modeledWireBytes": 2237
+          }
+        ]
+      },
+      "back-post-home": {
+        "reads": 82,
+        "statuses": {
+          "200": 80,
+          "206": 2
+        },
+        "modeledWireBytes": 792222,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/storage/v1/object/public/media/_thumb/p/5033.jpg",
+            "ms": 1755,
+            "modeledWireBytes": 141648
+          },
+          {
+            "path": "/rest/v1/posts",
+            "ms": 1751,
+            "modeledWireBytes": 231
+          },
+          {
+            "path": "/storage/v1/object/public/media/_thumb/p/5033.jpg",
+            "ms": 1703,
+            "modeledWireBytes": 141648
+          },
+          {
+            "path": "/rest/v1/rpc/gematria_method_trace",
+            "ms": 1615,
+            "modeledWireBytes": 504
+          }
+        ]
+      },
+      "back-world-post": {
+        "reads": 17,
+        "statuses": {
+          "200": 17
+        },
+        "modeledWireBytes": 74127,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+            "ms": 293,
+            "modeledWireBytes": 10253
+          },
+          {
+            "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+            "ms": 293,
+            "modeledWireBytes": 10253
+          },
+          {
+            "path": "/rest/v1/posts",
+            "ms": 248,
+            "modeledWireBytes": 16562
+          },
+          {
+            "path": "/rest/v1/posts",
+            "ms": 242,
+            "modeledWireBytes": 16562
+          }
+        ]
+      },
+      "home-entry": {
+        "reads": 179,
+        "statuses": {
+          "200": 177,
+          "206": 2
+        },
+        "modeledWireBytes": 1283510,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/assets/2029-Bdk_N1FJ.css",
+            "ms": 2731,
+            "modeledWireBytes": 34598
+          },
+          {
+            "path": "/assets/NavigationIcon2029-CDR-JqlQ.css",
+            "ms": 2560,
+            "modeledWireBytes": 508
+          },
+          {
+            "path": "/assets/calculator2029Input-BbfftHdT.js",
+            "ms": 2557,
+            "modeledWireBytes": 830
+          },
+          {
+            "path": "/assets/numberCoreProjection-DKZZGwC-.js",
+            "ms": 2552,
+            "modeledWireBytes": 5188
+          }
+        ]
+      },
+      "home-post": {
+        "reads": 28,
+        "statuses": {
+          "200": 28
+        },
+        "modeledWireBytes": 230423,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/storage/v1/object/public/media/sod1820/2029/video/2026/10/23e813b7-2a15-4429-b035-bf4203028016/derivatives/reading-v2.jpg",
+            "ms": 903,
+            "modeledWireBytes": 65447
+          },
+          {
+            "path": "/rest/v1/rpc/fn_zero_scale",
+            "ms": 771,
+            "modeledWireBytes": 287
+          },
+          {
+            "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+            "ms": 634,
+            "modeledWireBytes": 10253
+          },
+          {
+            "path": "/rest/v1/posts",
+            "ms": 585,
+            "modeledWireBytes": 16562
+          }
+        ]
+      },
+      "number-method-full-page": {
+        "reads": 48,
+        "statuses": {
+          "200": 48
+        },
+        "modeledWireBytes": 20969,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/nodes",
+            "ms": 185,
+            "modeledWireBytes": 6
+          },
+          {
+            "path": "/rest/v1/nodes",
+            "ms": 185,
+            "modeledWireBytes": 6
+          },
+          {
+            "path": "/rest/v1/rpc/fn_zero_scale",
+            "ms": 185,
+            "modeledWireBytes": 224
+          },
+          {
+            "path": "/rest/v1/number_anchors",
+            "ms": 185,
+            "modeledWireBytes": 6
+          }
+        ]
+      },
+      "number-phrase-full-page": {
+        "reads": 58,
+        "statuses": {
+          "200": 58
+        },
+        "modeledWireBytes": 73848,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/number_anchors",
+            "ms": 266,
+            "modeledWireBytes": 6
+          },
+          {
+            "path": "/rest/v1/rpc/fn_zero_scale",
+            "ms": 265,
+            "modeledWireBytes": 353
+          },
+          {
+            "path": "/rest/v1/nodes",
+            "ms": 264,
+            "modeledWireBytes": 6
+          },
+          {
+            "path": "/rest/v1/nodes",
+            "ms": 264,
+            "modeledWireBytes": 6
+          }
+        ]
+      },
+      "post-world": {
+        "reads": 80,
+        "statuses": {
+          "200": 78,
+          "206": 2
+        },
+        "modeledWireBytes": 335187,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/assets/World2029Page-TTxOQlbD.css",
+            "ms": 855,
+            "modeledWireBytes": 13197
+          },
+          {
+            "path": "/assets/worldJourneyProjection-BRHxkAbf.js",
+            "ms": 789,
+            "modeledWireBytes": 1040
+          },
+          {
+            "path": "/assets/worldProminenceInputs-BoQT5a5N.js",
+            "ms": 784,
+            "modeledWireBytes": 1154
+          },
+          {
+            "path": "/assets/worldZviApprovedFindings2029-i0RXjtH9.js",
+            "ms": 778,
+            "modeledWireBytes": 18028
+          }
+        ]
+      },
+      "unmeasured-world-preparation": {
+        "reads": 69,
+        "statuses": {
+          "200": 66,
+          "206": 2,
+          "null": 1
+        },
+        "modeledWireBytes": 193889,
+        "measuredSnapshotMisses": null,
+        "slowestDeliveries": [
+          {
+            "path": "/rest/v1/site_flags",
+            "ms": 739,
+            "modeledWireBytes": 1126
+          },
+          {
+            "path": "/rest/v1/site_flags",
+            "ms": 703,
+            "modeledWireBytes": 1126
+          },
+          {
+            "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+            "ms": 330,
+            "modeledWireBytes": 10253
+          },
+          {
+            "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+            "ms": 329,
+            "modeledWireBytes": 10253
+          }
+        ]
+      },
+      "world-number-full-page": {
+        "reads": 244,
+        "statuses": {
+          "200": 240,
+          "206": 4
+        },
+        "modeledWireBytes": 1163317,
+        "measuredSnapshotMisses": 0,
+        "slowestDeliveries": [
+          {
+            "path": "/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+            "ms": 1724,
+            "modeledWireBytes": 296771
+          },
+          {
+            "path": "/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+            "ms": 1633,
+            "modeledWireBytes": 296771
+          },
+          {
+            "path": "/rest/v1/gematria_methods",
+            "ms": 1528,
+            "modeledWireBytes": 5674
+          },
+          {
+            "path": "/rest/v1/gematria_methods",
+            "ms": 1505,
+            "modeledWireBytes": 5674
+          }
+        ]
+      }
+    },
+    "errors": [],
+    "blocked": [
+      {
+        "phase": "home-entry",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "home-entry",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      }
+    ],
+    "forwardedWrites": 0,
+    "forwardedModels": 0
+  }
+]

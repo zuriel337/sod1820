@@ -129,7 +129,10 @@ assert.match(checkedFocus, /checkPostCalculation2029/);
 assert.match(checkedFocus, /result\.status !== "ready"/);
 assert.match(checkedFocus, /shell\.openNumber\?\./);
 assert.match(checkedFocus, /method: focus\.method, resultValue: focus\.resultValue/);
-assert.match(checkedFocus, /href: `\/post\/\$\{post\.slug\}\$\{claim\.locator\}`/);
+// The accepted Post address policy preserves old URLs, queries and this exact
+// source occurrence. A blanket /post/slug return would break that contract.
+assert.match(checkedFocus, /href: exactPostReadingHref\(post, location, `\$\{claim\.locator\}`\)/);
+assert.doesNotMatch(checkedFocus, /href: `\/post\/\$\{post\.slug\}/);
 assert.match(checkedFocus, /exactReturnForRegion\(activeFocus\)/);
 assert.doesNotMatch(postFocus, /shell\.openInspect|shell\.openRaziel/);
 assert.doesNotMatch(postPage, /fetchGematriaMethodTrace/);

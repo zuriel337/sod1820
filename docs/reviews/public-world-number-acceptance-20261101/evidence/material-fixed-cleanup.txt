@@ -1,0 +1,16 @@
+
+Running 4 tests using 1 worker
+
+(node:159393) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:159393) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1/4] test/public-world-material-2029.browser.cjs:7:30 › real World writer source, findings, map and exact replay 390
+[2/4] test/public-world-material-2029.browser.cjs:7:30 › real World writer source, findings, map and exact replay 1440
+[3/4] test/public-world-material-2029.browser.cjs:29:30 › real corpus text, unified word search, Topic and Number return 390
+[4/4] test/public-world-material-2029.browser.cjs:29:30 › real corpus text, unified word search, Topic and Number return 1440
+  4 passed (52.8s)
