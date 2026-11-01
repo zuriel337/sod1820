@@ -14,7 +14,7 @@ export function mergePublicDocumentMetadata(document, metadata) {
   return clean.replace(/<\/head>/i, head + "</head>");
 }
 
-const BRANCHES = ["gpt/2029-public-foundation-continuity-20261101", "gpt/2029-public-frame-context-20261101", "gpt/2029-community1187-unified-20261101"];
+const BRANCHES = ["gpt/2029-public-foundation-continuity-20261101", "gpt/2029-public-frame-context-20261101", "gpt/2029-community1187-unified-20261101", "gpt/2029-world-one-tree-sources-20261101"];
 // Same metadata owner as Legacy, same static 2029 entry, genuine HTTP missing
 // and source-failure status. No separate renderer, post store or indexability rule.
 export function publicDocumentHandler({ env = process.env, readDocument = () => readFile(new URL("../dist/2029.html", import.meta.url), "utf8"), metadataHandler = ogHandler } = {}) {

@@ -64,3 +64,24 @@ permissions, production configuration or site deployment is changed here.
 The public message reader's existing proof, redaction and eligibility rules
 remain authoritative. Preview, end-to-end acceptance, and the previously open
 Isolation and gallery issues require separate verification.
+
+## Protected Preview continuation
+
+The user requested continuation. The exact branch now inherits the accepted
+community Preview bindings in the builder and five existing API entry points.
+All generated worker permissions are byte-identical to the accepted community
+worker. Earlier and unrelated branches retain their prior behavior. Production
+and unspecified-environment builds of this branch are rejected; public
+Journey/Raziel/ELS restrictions are unchanged. Focused Preview checks passed
+32 tests and the integrated build/One Tree and Legacy lock passed. The final
+remote SHA and hosted acceptance results belong in the coordination AFTER.
+
+Additional anonymous, read-only source reconciliation found 80 `converges_on`
+edges from the 78 Zvi topic nodes to number nodes, covering all 78 topics.
+No eligible public research-view row was joined to these topic nodes through
+`promoted_node_id`. In their sanitized public findings, 77 cards have generic
+contributor attribution and phrase lists, and one has bullets; none has an
+exact-looking posts/channel_updates/gallery_images source reference there.
+This does not exclude relations recorded elsewhere. A broad text-overlap query
+was canceled at the 15-second limit; no match counts were inferred. No graph
+edges, sources or records were deleted, relabeled or published.
