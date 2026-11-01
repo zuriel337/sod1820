@@ -7,7 +7,7 @@ export function previewRazielHandler({fetchImpl=fetch,env=process.env}={}) {
     res.setHeader('Cache-Control','private, no-store');res.setHeader('Vary','Authorization');
     res.setHeader('X-Robots-Tag','noindex, nofollow, noarchive');
     const fail=(status,error)=>res.status(status).json({error});
-    if(env.VERCEL_ENV!=='preview'||!['gpt/2029-functional-unified-preview-20261031','gpt/2029-public-foundation-continuity-20261101', 'gpt/2029-public-frame-context-20261101', 'gpt/2029-community1187-unified-20261101', 'gpt/2029-number-fullpage-performance-20261101'].includes(env.VERCEL_GIT_COMMIT_REF))return fail(404,'unavailable');
+    if(env.VERCEL_ENV!=='preview'||!['gpt/2029-functional-unified-preview-20261031','gpt/2029-public-foundation-continuity-20261101', 'gpt/2029-public-frame-context-20261101', 'gpt/2029-community1187-unified-20261101', 'gpt/2029-number-fullpage-performance-20261101', 'gpt/2029-membership-credit-meter-ui-20261101'].includes(env.VERCEL_GIT_COMMIT_REF))return fail(404,'unavailable');
     if(req.method!=='POST')return fail(405,'method_not_allowed');
     const origin=req.headers.origin,host=req.headers.host;
     let site;try{site=new URL(origin);}catch{return fail(403,'origin_denied');}

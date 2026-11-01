@@ -22,6 +22,7 @@ test('actual RSA signatures bind authenticated users to this Vercel project and 
  assert.throws(()=>functionalPreviewJwtOptions('https://attacker.invalid'));
 });
 const env={VERCEL_ENV:'preview',VERCEL_GIT_COMMIT_REF:'gpt/2029-functional-unified-preview-20261031'};
+const membershipPreviewEnv={VERCEL_ENV:'preview',VERCEL_GIT_COMMIT_REF:'gpt/2029-membership-credit-meter-ui-20261101'};
 const body={kind:'research',persona:'raziel',subject:'fixture',research_contract:'public-number-research-run-v1'};
 function response(){return {code:0,headers:{},setHeader(k,v){this.headers[k]=v;},status(n){this.code=n;return this;},json(value){this.value=value;return this;}};}
 test('server proof health exposes only signature-verification booleans, never a token or identity claims',async()=>{
@@ -38,6 +39,11 @@ test('Preview proxy verifies the actual caller then forwards one unchanged canon
  for(const change of [{headers:{...req.headers,origin:'https://foreign.invalid'}},{headers:{...req.headers,origin:'bad'}},{headers:{...req.headers,authorization:'Bearer service-key'}},{headers:{...req.headers,'x-vercel-oidc-token':undefined}},{method:'GET'},{body:{...body,persona:'another'}}]){const count=calls.length;const out=response();await handler({...req,...change},out);assert.ok(out.code>=400);assert.equal(calls.length,count);}
  const denied=response();await previewRazielHandler({env:{...env,VERCEL_ENV:'production'},fetchImpl:()=>{throw Error('must not fetch');}})(req,denied);assert.equal(denied.code,404);
  let count=0;const failed=response();await previewRazielHandler({env,fetchImpl:async()=>{count++;if(count===1)return new Response(JSON.stringify({id:UID}));throw Error('ambiguous provider response');}})(req,failed);assert.equal(failed.code,502);assert.equal(count,2);
+});
+test('membership credit Preview branch is explicitly allowed to use the signed Raziel proxy',async()=>{
+ const calls=[];const handler=previewRazielHandler({env:membershipPreviewEnv,fetchImpl:async(url,init)=>{calls.push({url,init});return new Response(JSON.stringify(url.endsWith('/user')?{id:UID}:{status:'ok'}));}});
+ const req={method:'POST',headers:{host:'preview.vercel.app',origin:'https://preview.vercel.app',authorization:'Bearer a.b.c','x-vercel-oidc-token':'signed.platform.proof'},body};const res=response();await handler(req,res);
+ assert.equal(res.code,200);assert.equal(calls.length,2);assert.equal(calls[1].init.headers['x-sod-preview-identity'],'signed.platform.proof');
 });
 test('complete Edge handler keeps user budget and cost gates when signed Preview availability is accepted',async()=>{
  const token=await sign();const previewVerifier=(raw,options)=>verifyFunctionalPreviewIdentity(raw,{...options,verifyToken});
