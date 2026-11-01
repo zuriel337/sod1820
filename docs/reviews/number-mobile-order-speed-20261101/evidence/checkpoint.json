@@ -1,0 +1,24 @@
+{
+  "status": "PAUSED_UNACCEPTED_WIP",
+  "codeCheckpoint": "c06211e1e565206d4b0be13b4d202dcbc617dcf9",
+  "latestFocusedUnitTests": {
+    "pass": 5,
+    "fail": 0,
+    "skip": 0
+  },
+  "geometryPhase": "earlier CSS/order acceptance, before later parallel-projection and connection changes; current code needs full rerun",
+  "beforeWidths": [
+    360,
+    390,
+    1440
+  ],
+  "initialAfterWidths": [
+    320,
+    360,
+    390,
+    768,
+    1440
+  ],
+  "currentPreviewCreated": false,
+  "personalTaskCodeEdited": false
+}
