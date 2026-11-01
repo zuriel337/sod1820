@@ -471,9 +471,9 @@ if (!publicFoundationBuild) await writeFile(resolve(output, "index.html"), html)
 if (realRazielPreview) {
   const sha = process.env.VERCEL_GIT_COMMIT_SHA || execFileSync("git", ["rev-parse", "HEAD"], { cwd: root, encoding: "utf8" }).trim();
   await writeFile(resolve(output, "preview-identity.json"), JSON.stringify({
-    sha, branch: process.env.VERCEL_GIT_COMMIT_REF, target: "preview", transport: functionalPreview ? "authenticated-preview-server-to-canonical-ai-analyze" : "existing-live-ai-analyze",
-    model_trigger: "explicit-user-turn", requires_existing_account: !functionalPreview,
-    product_writes: !launchReadOnlyPreview && (functionalPreview || communityPublishing), edge_deploy: false, matrix_jobs: functionalPreview ? "admin-explicit-cost-ack" : false,
+    sha, branch: process.env.VERCEL_GIT_COMMIT_REF, target: "preview", transport: launchReadOnlyPreview ? "public-reading-only" : functionalPreview ? "authenticated-preview-server-to-canonical-ai-analyze" : "existing-live-ai-analyze",
+    model_trigger: launchReadOnlyPreview ? "disabled" : "explicit-user-turn", requires_existing_account: !functionalPreview,
+    product_writes: !launchReadOnlyPreview && (functionalPreview || communityPublishing), edge_deploy: false, matrix_jobs: launchReadOnlyPreview ? false : functionalPreview ? "admin-explicit-cost-ack" : false,
     launch_scope: launchReadOnlyPreview ? "public-reading-only-account-and-mail-pending" : "existing-preview",
     product_write_scope: launchReadOnlyPreview ? [] : functionalPreview ? ["own-person-family","own-research-state","own-private-hints-media","governed-community-actions","own-avatar","existing-verified-legacy-claim"] : communityPublishing ? ["governed-community-actions", "own-avatar", "existing-verified-legacy-claim"] : [],
     ...(["gpt/2029-public-frame-context-20261101", "gpt/2029-community1187-unified-20261101", "gpt/2029-number-fullpage-performance-20261101", "gpt/2029-world-one-tree-sources-20261101", "gpt/2029-public-world-number-acceptance-20261101", "gpt/2029-public-launch-candidate-20261101"].includes(process.env.VERCEL_GIT_COMMIT_REF) ? { public_preview_restrictions: ["life-journey-admin-only", "raziel-admin-only", "els-admin-only"], companion: "temporarily-unmounted", production_flags_changed: false } : {}),
