@@ -1,0 +1,14 @@
+✖ askRaziel: view_mode is additive, sent only under the canonical 2029 contract and only when non-general; intelligence_level untouched (1.262489ms)
+✖ the real transport drops cancelled late quota/answers before global events or telemetry (1.902191ms)
+ℹ tests 687
+ℹ suites 0
+ℹ pass 685
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 6968.089517
+✖ failing tests:
+✖ askRaziel: view_mode is additive, sent only under the canonical 2029 contract and only when non-general; intelligence_level untouched (1.262489ms)
+✖ the real transport drops cancelled late quota/answers before global events or telemetry (1.902191ms)
+  SyntaxError: Cannot use 'import.meta' outside a module

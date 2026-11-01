@@ -1,0 +1,3 @@
+Packaged supabase/functions/ai-analyze/index.ts -> supabase/functions/ai-analyze/.build/index.ts (604814 bytes, 17 committed sources, verify_jwt=true).
+Manifest: supabase/functions/ai-analyze/.build/manifest.json
+git HEAD: 4e12f50c5d7121e7a1513d0565eff1d05130f7dc

@@ -2,9 +2,10 @@
 
 Base: `5408f8dd7e6d89b2b63a83375b325f60238b2959`.
 Branch: `gpt/2029-raziel-credit-safe-integration-20261101`.
-No runtime source edited. No deployment, migration, flag/config/role change or
-provider request. This is a preserved audit/rollback checkpoint, not completed
-Production integration. The user's conditional release permission is unused.
+Local AI-server source prototype prepared; not accepted for deployment. No
+deployment, migration, flag/config/role change or provider request. The original
+audit checkpoint is6eb047ce; later local work is described below. The user's
+conditional Production release permission is unused.
 
 ## Rollback
 
@@ -45,10 +46,13 @@ Changes compared with Production v91:
   explicitly requires tier=user; it therefore exempts the approved admin owner
   and could charge ordinary members if enabled. Neither is the requested pilot.
 
-No Production-ready merged variant is accepted at this checkpoint. Removal of
-Candidate auto-enable and a verified-owner-only pilot with an immediate server
-kill switch remain unimplemented. Existing v91 capabilities must be preserved
-when that implementation resumes. Do not enable the current branch's meter.
+No Production-ready merged variant is accepted. The local source now removes
+Candidate auto-enable and adds a non-secret owner allowlist over the server's
+verified UID and role; it preserves all other v91/Candidate behaviors. Guests,
+ordinary users and other admins fail the AI-side pilot gate. The environment
+switch still defaults off, and an inactive action catalogue prevents reservation
+before provider I/O. However this does NOT constrain direct database RPC calls;
+the required database pilot-isolation gate below fails. Do not enable the meter.
 
 ## Canonical funds and model
 
@@ -75,9 +79,8 @@ created for the real owner. Exact real-owner35→20 remains untested.
 - HEAD packaging passed from16 committed sources; verify_jwt=true.
 - Rollback packaging and Legacy Production lock passed. No secrets were found
   in downloaded source credential-pattern scans; no environment values copied.
-- Production-package Candidate exclusion gate **fails** on current HEAD.
-- Owner-only pilot/runtime tests **not passed**: the implementation still targets
-  ordinary members; no authenticated owner session is attached for live checks.
+- Production-package Candidate exclusion gate failed on original BASE5408; the later local prototype passes that exclusion gate.
+- Owner-only pilot/runtime tests **not passed**: the original base targeted ordinary members; the local AI gate fixes that, but database pilot isolation fails and no authenticated owner session is attached for live checks.
 - Full Production-shaped migration/reapply acceptance, all Raziel/WhatsApp/
   numeric/personal/matrix regressions, both builds and provider-backed acceptance
   are **not completed**. Existing focused/static tests do not prove these gates.
@@ -88,3 +91,40 @@ commercial activation, homepage/root/cutover, main push/merge or destructive
 rollback occurred. No Preview was deployed. Obtaining a real owner session
 requires a secure authenticated browser/runtime connection, never a password,
 provider key or JWT pasted into chat. No session was forged on the owner's behalf.
+
+## Final local prototype acceptance — mandatory gate is RED
+
+Local code commit4e12f50c extends the repository source incrementally. No v93
+blob replaced the handler. Only credit enable/eligibility and a pure owner-gate
+helper changed. Phase L/personal, Legacy, numeric truth, WhatsApp and matrix
+logic were retained. The handler test fixture now imports the actual new pure
+helper, checks its exact14th import and retains all prior dependency checks.
+
+-12 focused credit/meter/owner-gate tests passed, including wrong UID/role,
+  forged body identity, ordinary users, other admins and default-off states.
+- Broad61-file Raziel/numeric/personal/WhatsApp-related regression:685/687 passed.
+  Two unchanged client-test failures remain: one stale exact metadata whitelist
+  expectation, and one VM harness that does not transform import.meta. Neither
+  test nor client was weakened/changed. This is not a full green regression.
+- build:2029 and full dual build passed with both requested client flags false.
+- Packaging passed from17 committed sources with verify_jwt=true. New prototype
+  source hash80f84cb3fa3c5983db2158f940b412221d0a27e84e643415c0ef5bddfc8beac9;
+  no Candidate project reference exists in this server package. The older
+  three-way receipt describes the initial base, not this later artifact.
+- Existing generic credit SQL tests passed on isolated PostgreSQL17.
+- **Required non-pilot database acceptance FAILS.** Appending
+  `non-pilot-database-gate.sql` to the same disposable fixture enables the
+  existing action and calls credit_reserve_v1 as an authenticated synthetic
+  non-pilot user. Its balance changes35→20. The assertion
+  NON_PILOT_MUST_NOT_BE_CHARGED fails. This is synthetic only; no real balance
+  was used. The AI allowlist alone is insufficient while the RPC is exposed
+  to authenticated users. A database-enforced action scope/configuration must
+  be designed and accepted before any catalogue activation or deployment.
+
+Stopped fail-closed on that mandatory financial gate. No ad-hoc financial
+backfill, cycle grant, wallet, role change or ledger adjustment was attempted.
+An owner-authenticated live acceptance session is also unavailable. No live
+smoke/fast/deterministic/failure call was made. Exact35→20/one-debit/settled live
+acceptance is NOT proved. Full Production-shaped migration/idempotency and
+remaining complete-system gates remain open. Production is stillv91,35credits,
+admin, zero ledger entries today; no migration or pilot activation performed.

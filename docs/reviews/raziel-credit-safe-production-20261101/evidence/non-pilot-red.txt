@@ -1,0 +1,338 @@
+DO
+CREATE SCHEMA
+CREATE SCHEMA
+CREATE EXTENSION
+CREATE TABLE
+CREATE FUNCTION
+GRANT
+GRANT
+CREATE TABLE
+CREATE TABLE
+CREATE FUNCTION
+REVOKE
+ALTER DEFAULT PRIVILEGES
+ALTER DEFAULT PRIVILEGES
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE INDEX
+CREATE INDEX
+CREATE TABLE
+CREATE INDEX
+CREATE INDEX
+CREATE TABLE
+CREATE INDEX
+ALTER TABLE
+ALTER TABLE
+ALTER TABLE
+ALTER TABLE
+ALTER TABLE
+REVOKE
+REVOKE
+REVOKE
+REVOKE
+REVOKE
+GRANT
+GRANT
+CREATE POLICY
+CREATE POLICY
+INSERT 0 2
+INSERT 0 6
+CREATE FUNCTION
+CREATE FUNCTION
+CREATE FUNCTION
+CREATE FUNCTION
+CREATE FUNCTION
+CREATE FUNCTION
+CREATE FUNCTION
+CREATE FUNCTION
+REVOKE
+REVOKE
+REVOKE
+REVOKE
+REVOKE
+REVOKE
+REVOKE
+REVOKE
+GRANT
+GRANT
+GRANT
+GRANT
+GRANT
+GRANT
+CREATE FUNCTION
+CREATE FUNCTION
+ credit_test_assert
+--------------------
+
+(1 row)
+
+ credit_test_assert
+--------------------
+
+(1 row)
+
+ credit_test_assert
+--------------------
+
+(1 row)
+
+ credit_test_assert
+--------------------
+
+(1 row)
+
+ credit_test_assert
+--------------------
+
+(1 row)
+
+INSERT 0 3
+INSERT 0 3
+UPDATE 1
+SET
+ credit_test_throws
+--------------------
+
+(1 row)
+
+RESET
+SET
+SET
+SET
+ credit_test_throws
+--------------------
+
+(1 row)
+
+ credit_test_assert
+--------------------
+
+(1 row)
+
+ credit_test_assert
+--------------------
+
+(1 row)
+
+ credit_test_assert
+--------------------
+
+(1 row)
+
+ credit_test_assert
+--------------------
+
+(1 row)
+
+ credit_test_throws
+--------------------
+
+(1 row)
+
+SET
+ credit_test_assert
+--------------------
+
+(1 row)
+
+ credit_test_throws
+--------------------
+
+(1 row)
+
+RESET
+SET
+ credit_test_assert
+--------------------
+
+(1 row)
+
+ credit_test_assert
+--------------------
+
+(1 row)
+
+SET
+SET
+SET
+                                                       credit_reserve_v1
+-------------------------------------------------------------------------------------------------------------------------------
+ {"cost": 15, "status": "reserved", "already": false, "balance": 70, "reservation_id": "b624561f-ad6a-439f-97e6-594496adbc45"}
+(1 row)
+
+RESET
+SET
+ credit_test_assert
+--------------------
+
+(1 row)
+
+ credit_test_assert
+--------------------
+
+(1 row)
+
+ credit_test_assert
+--------------------
+
+(1 row)
+
+UPDATE 1
+ credit_test_assert
+--------------------
+
+(1 row)
+
+ credit_test_assert
+--------------------
+
+(1 row)
+
+ credit_test_assert
+--------------------
+
+(1 row)
+
+SET
+SET
+SET
+                                                       credit_reserve_v1
+--------------------------------------------------------------------------------------------------------------------------------
+ {"cost": 15, "status": "reserved", "already": false, "balance": 670, "reservation_id": "4f8e256c-a2cf-460b-98fc-735cff6fdcf0"}
+(1 row)
+
+ credit_test_assert
+--------------------
+
+(1 row)
+
+RESET
+SET
+                                                  credit_return_v1
+--------------------------------------------------------------------------------------------------------------------
+ {"status": "returned", "already": false, "refunded": 15, "reservation_id": "4f8e256c-a2cf-460b-98fc-735cff6fdcf0"}
+(1 row)
+
+ credit_test_assert
+--------------------
+
+(1 row)
+
+                                        membership_credit_cycle_grant_v1
+----------------------------------------------------------------------------------------------------------------
+ {"already": false, "cycle_id": "43da9bf8-3547-478a-9dbb-9f61d6d0e86b", "allowance": 600, "trimmed_for_cap": 0}
+(1 row)
+
+                                         membership_credit_cycle_grant_v1
+------------------------------------------------------------------------------------------------------------------
+ {"already": false, "cycle_id": "340d24a6-9ab9-4b46-8f52-615c27805ae4", "allowance": 600, "trimmed_for_cap": 600}
+(1 row)
+
+ credit_test_assert
+--------------------
+
+(1 row)
+
+UPDATE 1
+SET
+SET
+SET
+                                                                                  membership_credit_summary_v1
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ {"balance": 685, "reserved": 0, "plan_code": null, "plan_name": null, "period_end": null, "period_start": null, "used_this_cycle": null, "monthly_allowance": null, "included_remaining": 600}
+(1 row)
+
+RESET
+ credit_test_assert
+--------------------
+
+(1 row)
+
+SET
+SET
+SET
+                                                       credit_reserve_v1
+--------------------------------------------------------------------------------------------------------------------------------
+ {"cost": 15, "status": "reserved", "already": false, "balance": 670, "reservation_id": "401ad652-a650-49e1-8d5e-5deabd40257c"}
+(1 row)
+
+RESET
+UPDATE 1
+SET
+ credit_test_assert
+--------------------
+
+(1 row)
+
+ credit_test_assert
+--------------------
+
+(1 row)
+
+SET
+                                        membership_credit_cycle_grant_v1
+----------------------------------------------------------------------------------------------------------------
+ {"already": false, "cycle_id": "1a9cf7fd-f050-4a1b-9728-42989e02b799", "allowance": 600, "trimmed_for_cap": 0}
+(1 row)
+
+SET
+SET
+SET
+                                                       credit_reserve_v1
+--------------------------------------------------------------------------------------------------------------------------------
+ {"cost": 15, "status": "reserved", "already": false, "balance": 585, "reservation_id": "4c804319-0d94-4b3c-b260-6244cee13b67"}
+(1 row)
+
+RESET
+UPDATE 1
+SET
+                                                                                membership_credit_summary_v1
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ {"balance": 0, "reserved": 15, "plan_code": null, "plan_name": null, "period_end": null, "period_start": null, "used_this_cycle": null, "monthly_allowance": null, "included_remaining": 0}
+(1 row)
+
+RESET
+SET
+ credit_test_assert
+--------------------
+
+(1 row)
+
+ credit_test_assert
+--------------------
+
+(1 row)
+
+ credit_test_assert
+--------------------
+
+(1 row)
+
+                    result
+----------------------------------------------
+ MEMBERSHIP CREDIT ENGINE SQL ACCEPTANCE PASS
+(1 row)
+
+RESET
+UPDATE 1
+              set_config
+--------------------------------------
+ 22222222-2222-4222-8222-222222222222
+(1 row)
+
+  set_config
+---------------
+ authenticated
+(1 row)
+
+SET
+                                                       credit_reserve_v1
+-------------------------------------------------------------------------------------------------------------------------------
+ {"cost": 15, "status": "reserved", "already": false, "balance": 20, "reservation_id": "2de2236f-f767-4f7e-ab0a-dc9d3f315b7f"}
+(1 row)
+
+RESET
+ERROR:  FAIL: NON_PILOT_MUST_NOT_BE_CHARGED
+CONTEXT:  PL/pgSQL function credit_test_assert(boolean,text) line 3 at RAISE
+Membership credit SQL acceptance failed.

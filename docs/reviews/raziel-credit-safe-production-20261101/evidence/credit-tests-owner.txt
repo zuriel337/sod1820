@@ -1,0 +1,20 @@
+✔ membership catalog is an inactive internal draft with fixed server prices (11.388226ms)
+✔ credit charging is reserve-settle-return and clients never submit a cost (2.173368ms)
+✔ public tables use RLS and privileged functions have narrow grants (2.465255ms)
+✔ membership summary is an owner RPC with account-switch rejection and bounded numbers (4.927466ms)
+✔ the 2029 meter performs no membership read while its build flag is off (3.215156ms)
+✔ a bounded server credit receipt refreshes the owner meter (3.515807ms)
+✔ only enabled verified owner admin can be metered (1.225956ms)
+✔ Raziel fast credit metering is a two-key, authenticated 2029-only pilot (6.581985ms)
+✔ Production credit meter requires explicit enable and contains no Candidate auto-enable (4.069117ms)
+✔ server-owned fixed price is reserved before provider I/O (2.081465ms)
+✔ accepted output settles; degraded, failed and thrown paths return the reservation (1.913775ms)
+✔ the client accepts only the bounded server credit receipt (2.038066ms)
+ℹ tests 12
+ℹ suites 0
+ℹ pass 12
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 142.818568

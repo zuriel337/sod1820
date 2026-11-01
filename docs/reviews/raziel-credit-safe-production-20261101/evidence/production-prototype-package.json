@@ -1,0 +1,7 @@
+{
+  "sourceSha256": "80f84cb3fa3c5983db2158f940b412221d0a27e84e643415c0ef5bddfc8beac9",
+  "candidate_project_reference_present": false,
+  "source_gate_only": true,
+  "production_accepted": false,
+  "database_pilot_gate": "FAIL"
+}
