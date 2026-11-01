@@ -1,0 +1,117 @@
+{
+  "aliases": [
+    {
+      "domain": "sod1820.co.il",
+      "deploymentId": "dpl_BFpwZGiYL3Qpdy9nCuGKGb9Xmko2"
+    },
+    {
+      "domain": "www.sod1820.co.il",
+      "deploymentId": "dpl_BFpwZGiYL3Qpdy9nCuGKGb9Xmko2"
+    },
+    {
+      "domain": "sod1820.vercel.app",
+      "deploymentId": "dpl_BFpwZGiYL3Qpdy9nCuGKGb9Xmko2"
+    }
+  ],
+  "deployment": {
+    "id": "dpl_99NZXozNdt2ryTg6ZbNRm35zkJ9K",
+    "url": "https://sod1820-qym16otcb-sod1820-s-projects.vercel.app",
+    "state": "READY",
+    "target": "staging",
+    "sha": "cf1f8f1a35eb90c10a3a84a310f8616b2121f965"
+  },
+  "rpcVolatility": [
+    {
+      "proname": "community_feed_page",
+      "volatility": "s"
+    },
+    {
+      "proname": "community_message_context",
+      "volatility": "s"
+    },
+    {
+      "proname": "convergence_meter",
+      "volatility": "s"
+    },
+    {
+      "proname": "fn_all_methods",
+      "volatility": "s"
+    },
+    {
+      "proname": "fn_cross_research",
+      "volatility": "s"
+    },
+    {
+      "proname": "fn_method_profile",
+      "volatility": "s"
+    },
+    {
+      "proname": "fn_method_value",
+      "volatility": "s"
+    },
+    {
+      "proname": "fn_number_dossier",
+      "volatility": "s"
+    },
+    {
+      "proname": "fn_number_journey",
+      "volatility": "s"
+    },
+    {
+      "proname": "fn_number_lookup",
+      "volatility": "s"
+    },
+    {
+      "proname": "fn_verses_by_gematria",
+      "volatility": "s"
+    },
+    {
+      "proname": "fn_zero_scale",
+      "volatility": "s"
+    },
+    {
+      "proname": "gematria_api",
+      "volatility": "s"
+    },
+    {
+      "proname": "gematria_method_trace",
+      "volatility": "s"
+    },
+    {
+      "proname": "get_reality_videos",
+      "volatility": "s"
+    },
+    {
+      "proname": "is_number_indexable",
+      "volatility": "s"
+    },
+    {
+      "proname": "is_phrase_indexable",
+      "volatility": "s"
+    },
+    {
+      "proname": "lang_links_list",
+      "volatility": "v"
+    },
+    {
+      "proname": "number_neighbors",
+      "volatility": "s"
+    },
+    {
+      "proname": "posts_by_number_strict",
+      "volatility": "s"
+    },
+    {
+      "proname": "rd_is_admin",
+      "volatility": "s"
+    },
+    {
+      "proname": "world_group_source_arrivals_v2",
+      "volatility": "s"
+    },
+    {
+      "proname": "writer_public_contributions_page_v1",
+      "volatility": "s"
+    }
+  ]
+}

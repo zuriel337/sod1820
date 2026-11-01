@@ -1,0 +1,51 @@
+{
+  "observed": "2026-11-01",
+  "mainSha": "2195c9784c5c9f0b1ec3cd3c1137fbd76045845b",
+  "publicBaseSha": "be8f86ad55dfbc625d218a5917a97c260331c27b",
+  "candidateSha": "cf1f8f1a35eb90c10a3a84a310f8616b2121f965",
+  "creditBranchSha": "fcc135e884bf4e706218212a66ad47a9acafa2f8",
+  "liveLegacyDeployment": "dpl_BFpwZGiYL3Qpdy9nCuGKGb9Xmko2",
+  "liveLegacySha": "d1837efcf5a978d10a514010f3695680f231e116",
+  "canonicalDomainsUnchanged": [
+    "sod1820.co.il",
+    "www.sod1820.co.il",
+    "sod1820.vercel.app"
+  ],
+  "productionFlagChanges": false,
+  "flags": {
+    "lock_number": {
+      "enabled": true,
+      "mode": "all"
+    },
+    "lock_els": {
+      "enabled": false,
+      "mode": "all"
+    },
+    "lock_world": {
+      "enabled": false,
+      "mode": "all"
+    },
+    "lock_raziel_site": {
+      "enabled": true,
+      "mode": "all"
+    },
+    "lock_life_journey": {
+      "enabled": true,
+      "mode": "all"
+    },
+    "lock_heichal": {
+      "enabled": true,
+      "mode": "all"
+    },
+    "lock_books": {
+      "enabled": true,
+      "mode": "all"
+    }
+  },
+  "ownerCredits": 35,
+  "ownerRole": "admin",
+  "todayLedgerEntries": 0,
+  "liveCreditCatalogPresent": false,
+  "liveCreditReservationsPresent": false,
+  "productionDbBackupRestore": "UNVERIFIED; GitHub daily-backup is code-only; synthetic financial restore passed separately"
+}

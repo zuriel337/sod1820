@@ -1,32 +1,123 @@
-# Public launch candidate — in progress, not release acceptance
+# מועמד ציבורי אחד — קבלת קריאה, ללא אישור מעבר לאתר החי
 
-Task PUBLIC_LAUNCH_CANDIDATE_ACCEPTANCE_20261101. BEFORE845ae2a9.
-Base public product be8f86ad55dfbc625d218a5917a97c260331c27b; branch
-`gpt/2029-public-launch-candidate-20261101`. No main/Production/cutover.
+TASK: PUBLIC_LAUNCH_CANDIDATE_ACCEPTANCE_20261101.
+BASE: be8f86ad55dfbc625d218a5917a97c260331c27b.
+PRODUCT: `gpt/2029-public-launch-candidate-20261101`.
+SHA: `cf1f8f1a35eb90c10a3a84a310f8616b2121f965` — שמור ומאומת מרחוק.
+PREVIEW: https://sod1820-qym16otcb-sod1820-s-projects.vercel.app
+DEPLOYMENT: `dpl_99NZXozNdt2ryTg6ZbNRm35zkJ9K`, READY, staging/Preview מוגן.
 
-The new protected Preview is scoped to public reading. Unaccepted account,
-community writing, newsletter and model actions are closed in its UI and
-transport; owned Preview API mutation/model entrypoints reject direct calls.
-Existing functional Preview branches and shared Auth/RLS/site flags are preserved.
-Login/basic personal are excluded from this launch scope pending real-account
-acceptance, not presented as working. Legacy URLs and behavior are preserved.
+ענף מסמך זה `gpt/2029-public-launch-candidate-evidence-20261101` הוא **ראיות בלבד**,
+לא בסיס מוצר ולא מועמד נוסף. runtime/src/APIs/מיגרציות זהים למוצרcf1f8f1a;
+רק מסמכים ורתמות קבלה נוספו. מסמך ה־WIP במוצר הוא נקודת שמירה היסטורית;
+דוח זה והעדכון המצורף למסמך37 הם המסירה המסכמת.
 
-Home opts in to bounded metadata on the existing latest-card query. This removes
-separate per-card enrichment and leading-post rereads. The legacy default query
-and return shape are preserved. No global cache, new reader or public data write.
+## מה נסגר בקוד
 
-Credit branch fcc135e8 diverges from this public product at7649e46c; a wholesale
-merge would discard newer Number, World and gallery fixes. No AI handler, client
-meter or personal/PhaseL code is imported. Only its identical existing engine
-migration, synthetic SQL fixture and isolated runner are carried for a separately
-disabled financial prerequisite. New additive owner-pilot guard extends the
-private price catalogue, defaults OFF, validates auth.uid against the fixed
-approved owner and stored admin role before any expiry/debit/replay side effect.
-Direct RPC by another user/admin is denied. Return/settle remain available to the
-existing service. One canonical balance/ledger, no grant or duplicated wallet.
-The guard and original accounting tests passed on network-none PostgreSQL17;
-restore and final exact-SHA acceptance are still pending at this checkpoint.
-No live migration, Edge deployment, charge, email or model call occurred.
+- נשמר הבסיס הציבורי המאוחד: עולם/קהילה/מספר/ביטוי/גלריות והכתובות הקיימות.
+  לא הוחלפו קבצים בגרסה ישנה ולא יובא ענף רזיאל/קרדיטים על גבי המוצר.
+- בבית, מטא־נתוני הכרטיסים והפוסט המוביל מגיעים בקריאה הקיימת, בלי שתי
+  קריאות העשרה חוזרות. ברירת המחדל של קורא Legacy נשארה באותה צורה.
+- מטמון דפדפן פרטי לקבצי build מגובבים בלבד; HTML/API/worker ומידע אישי
+  נשארו no-store. ההגנה וה־noindex של Preview לא הוסרו.
+- המועמד מיועד לקריאה ציבורית. כניסה, אזור אישי, כתיבה בקהילה ודיוור
+  שלא קיבלו חשבון אמיתי סגורים ב־UI ובתעבורה. גם POST ישיר לנתיבי שרת
+  הפריוויו של פרופיל/רזיאל נדחה לפני יציאה לשרת הקנוני. אין שינוי Auth,
+  RLS, roles או flags משותפים. היכולות נשמרו בקוד ובפריוויו ההיסטורי המלא.
+- בדיקות הנתיבים מבחינות במפורש בין routes של Preview לבין rewrites של
+  Legacy Production; אין עקיפה של חסם Legacy. בדיקת המספר מאמתת גם חלונית
+  בצרכן המוטמע וגם דף מלא בצרכן המלא, בהתאם להחלטת צוריאל. נוספו בדיקות
+  שלילה להסרת guard, נתיב חדש ולא מוכר ומצב Preview שאינו מורשה.
 
-Final evidence, measurements, publication/recovery plan and blockers will be
-added after the final exact-source run. This checkpoint is NOT launch approval.
+## חיוב — תוקן ונבדק במסד מבודד; לא הופעל
+
+נבדקה דלתת fcc135e8 מול הבסיס; ענף זה אינו superset של תיקוני העולם/המספר.
+יובאו רק מיגרציית מנוע הקרדיטים הקיימת, fixture ו־runner לצורך תיקון המסד.
+לא יובאו ai-analyze, personal/PhaseL, meter או שינויי shell ישנים.
+
+מיגרציית20261101151621 מוסיפה לקטלוג המחירים הפרטי pilot_user_id ו־pilot_enabled
+ברירת מחדלFALSE, ובודקת ב־credit_reserve_v1 את auth.uid, הבעלים המפורש ו־admin
+מהמסד לפני כל שינוי יתרה/expiry/replay. משתמש רגיל ומנהל אחר אינם יכולים
+להזמין חיוב ישירות ב־RPC, גם אם ממשק או שרת AI שוגים. אין ארנק/הקצאה/
+מענק נוספים, מחיקת נתונים, מנוי או שינוי Cardcom. ההחזר/settle נשמרו לשירות.
+
+עברו PostgreSQL17 ב־--network none: accounting הישן, חסימת non-pilot/spoof,
+35→20 פעם אחת, replay, חוסר יתרה, החזר ללא חיוב נוסף, כיבוי בזמן שיש הזמנה,
+שמירת admin, החלה חוזרת של guard ושחזור dump סינתטי. הורץ גם fixture עם
+הגדרת credit_grant שנקראה מ־Production וההתנהגות הקיימת שלה. אין בכך שחזור
+של כל סכמת Production, קבלת HTTP/JWT אמיתית או ניסוי בעלים חי.
+
+לא הוחלה מיגרציה חיה ולא נפרסה פונקציה. בפרויקט הראשי טרם קיימות טבלאות
+החיוב החדשות; היתרה35, role=admin וללא תנועת ledger חדשה ביום הבדיקה.
+אריזת ai-analyze מהמוצרcf זהה byte-for-byte למקור שרתv91:
+`2ac19e112e77e71fbab61270338e126edf88128a786f3425b09157291494281f`, verify_jwt=true.
+אין Candidate URL בשרת. שאר תנאי הפיילוט הקודם, ובפרט קבלת בעלים אמיתית,
+עדיין לא נסגרו; ההרשאה המותנית להפעלה חיה לא נוצלה.
+
+## בדיקות וקבלה
+
+-38 שלבי Isolation הבטוחים עברו בעותק SHAcf מבודד ב־Docker ללא רשת,
+ root לקריאה בלבד, capabilities מוסרים, ללא socket/מפתחות שירות. נוסף להם:
+ 29 בדיקות A3 עם תעבורה/שמירה מדומות ובדיקות ממוקדות של כתובות/פרסום/
+ הרשאות. **זה אינו מעבר שער Isolation המלא; A3 אמיתי לא הורץ.**
+- build כפול, גרף תלות, One Tree, Legacy lock ואריזות עברו; סף הבנייה ו־CLS
+ לא הונמכו. diff check וסריקת סודות חדשים עברו. לא הועתקו secrets/env.
+- G4 מלא עלcf: https://github.com/zuriel337/sod1820/actions/runs/41322445696
+- Research Sync מלא עלcf: https://github.com/zuriel337/sod1820/actions/runs/41322448219
+- Observability/SEO מלא עלcf: https://github.com/zuriel337/sod1820/actions/runs/41322443500
+- ELS מלא נכשל על checkpointdd89, שקוד ELS/Frame שלו זהה למוצרcf:
+ https://github.com/zuriel337/sod1820/actions/runs/41321923636 . הכשל הוא
+ `Raziel keeps its stable slot` במעבר tool→global; לא הוחלף ב־assert חלש.
+ ELS אינו נכלל בקבלת הציבור הזו. לא נטען שהשער עבר עלcf. Canary של
+ Preview דולג כמצופה; אין בכך הוכחת canary של Production.
+-15 בדיקות HTTP אמיתיות על הפריוויו: פוסט WordPress ישן ופוסט AI/native,
+ canonical/OG, שירותים ומפה, XML עם14541 כתובות ייחודיות, HTTP404 אמיתי,
+ noindex והגנה, מטמון מוגבל ושתי חסימות POST ישירות בפריוויו. ה־XML אינו
+ הוכחת אינדוקס בגוגל. 503, שגיאת inventory ופרטיות נבדקו בנפרד בבקרות.
+
+עברו24 תרחישי דפדפן ייחודיים ב־390/1440 על הפריוויו המדויק:22 עם תוכן
+ציבורי אמיתי או סגירת שירות, ועוד2 בקרות פרטיות/כשל סינתטיות מסומנות.
+כולל שורות ביטוי/מספר/מילוי לדף מלא וחזרה, סדר Legacy, פוסט↔מספר,
+צבי→מקור→ממצא, סוד החשמל→מקור מלא, בית→גלריה, תמונה מדויקת/חזרה,
+רענון ו־Back/Forward, כתובות ישנות וחדשות, היעדר כרטיס מקור ריק,
+סגירת חשבון/קהילה/דיוור ומפת המערכת. ביקורת6 תצוגות עולם בכל רוחב לא
+מצאה קישורי גלריה Legacy ברשימות שנדגמו; אינה סריקה של כל ההיסטוריה.
+
+זו קבלה מצטברת בתתי־הרצות מתועדות, לא ריצה מלאה אחת: שתי תקלות ראשונות
+נשמרו, timeout בהורדת נכסים ומאתר בדיקה עמום לשני קישורי חזרה תקינים.
+אותן ציפיות, אותו SHA ואותם timeouts עברו בבדיקות החוזרות; שום תקלה לא
+נמחקה מהראיות. ברתמה נשמרים רק נכסי JS/CSS מגובבים ו־immutable בתוך
+אותו context; API/HTML/מידע פרטי אינם נשמרים. רתמת GET זו אינה הוכחת
+OAuth, RLS של חשבון, cache טבעי או שרת מודל. מטמון טבעי נבדק בנפרד.
+
+בנוסף עברו2 מסלולי smoke ב־390/1440 עם הלקוח ו־service worker האמיתיים,
+ללא יירוט נכסי הדפדפן או תגובות מדומות: בית→פוסט→עולם, מספר/מילוי/ביטוי
+וחזרה. חסם fetch/XHR/beacon/WS עצמאי מאפשר רק קריאות ולא פעולות מוצר;
+רשימת RPC מסוגSTABLE אומתה במסד, כולל מקור העדכונים המשותף.
+קריאות telemetry, העדפות אורח ו־lang_links_list נחסמו ב־smoke העצמאי;
+אינן מוצגות כפעולות שהתקבלו. זו הוכחת מסלול קריאה עם worker ומטמון
+טבעיים, לא קבלת כתיבה/Realtime broadcast או חשבון. ראיות ב־evidence/native-public.
+
+ללא משתמש אמיתי, כתיבות מוצר, דיוור, ספק AI או job בתשלום.
+סיכום לכל מקרה והפניה להרצה: evidence/hosted-summary.json.
+
+## מצב להשקה
+
+| קטגוריה | מצב |
+|---|---|
+| עובד ונבדק | קריאה בבית/עולם/פוסט/מספר/ביטוי/גלריה וחזרה; כתובות ישנות/חדשות; פרסום Preview מוגן; gates כמפורט |
+| סגור במכוון | כניסה/אישי/כתיבה בקהילה/דיוור שלא התקבלו; רזיאל/מסע ציבוריים; היכל; הפעלה מחויבת |
+| חסם העלאה | artifact ותצורת Production נפרדים, ובפרט מצב מספר/צופן קנוני תוך שמירת Legacy; אישור cutover מדויק טרם ניתן |
+| קבלה שאינה נסגרת כאן | Isolation/A3 מלאים; כשל dock ב־ELS לפני קבלת ELS; OAuth/חשבון חי; גיבוי ושחזור מסד/מדיה אמיתיים לפני פתיחת כתיבות |
+| אחרי ההשקה המצומצמת | cold-load, מדיה, fanout ומדידות מכשיר/RUM; מניפסטים/מקורות היסטוריים ללא הפניה מדויקת נשמרים בלי קשרים מומצאים |
+
+המלצה: המועמד מתאים לבדיקת צוריאל של **קריאה ציבורית**, אך **אינו מוכן
+לקידום ישיר לאתר החי**. התצורה הציבורית עדיין תלויה בהחלטה קנונית: במסד
+החי Number נעול ו־ELS פתוח; Preview מתאם אותם במכוון. לא משנים מצב
+משותף או מעתיקים דגל פתיחה של Preview ל־Production כדי לדלג על תלות זו.
+
+תוצאות ביצועים וגבולותיהן: [PERFORMANCE.md](PERFORMANCE.md).
+תוכנית מעבר וחזרה ותלות התצורה המדויקת: [CUTOVER-ROLLBACK.md](CUTOVER-ROLLBACK.md).
+main נשאר2195c978, וכל שלושת הדומיינים נשארו ב־Legacy deployment
+`dpl_BFpwZGiYL3Qpdy9nCuGKGb9Xmko2`, SHA d1837efc. לא בוצעו merge, main push,
+Production/Edge deploy, שינוי flags/מסד מוצר/Auth/RLS או מחיקה/איפוס של עבודה.

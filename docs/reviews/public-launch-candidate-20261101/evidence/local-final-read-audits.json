@@ -1,0 +1,494 @@
+[
+  {
+    "file": "final-loading-after-mobile-slow-3-audit.json",
+    "reads": 881,
+    "errors": [],
+    "blocked": [
+      {
+        "phase": "home-entry",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "home-entry",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      }
+    ],
+    "writes": 0,
+    "models": 0,
+    "snapshotMisses": 0,
+    "non2xx": 0
+  },
+  {
+    "file": "final-loading-before-mobile-slow-3-audit.json",
+    "reads": 887,
+    "errors": [],
+    "blocked": [
+      {
+        "phase": "home-entry",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "home-entry",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      }
+    ],
+    "writes": 0,
+    "models": 0,
+    "snapshotMisses": 0,
+    "non2xx": 0
+  },
+  {
+    "file": "final-loading-before-mobile-slow-2-audit.json",
+    "reads": 879,
+    "errors": [],
+    "blocked": [
+      {
+        "phase": "home-entry",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "home-entry",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      }
+    ],
+    "writes": 0,
+    "models": 0,
+    "snapshotMisses": 0,
+    "non2xx": 0
+  },
+  {
+    "file": "final-loading-after-mobile-slow-2-audit.json",
+    "reads": 878,
+    "errors": [],
+    "blocked": [
+      {
+        "phase": "home-entry",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "home-entry",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      }
+    ],
+    "writes": 0,
+    "models": 0,
+    "snapshotMisses": 0,
+    "non2xx": 0
+  },
+  {
+    "file": "final-loading-after-mobile-slow-1-audit.json",
+    "reads": 879,
+    "errors": [],
+    "blocked": [
+      {
+        "phase": "home-entry",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "home-entry",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      }
+    ],
+    "writes": 0,
+    "models": 0,
+    "snapshotMisses": 0,
+    "non2xx": 0
+  },
+  {
+    "file": "final-loading-before-mobile-slow-1-audit.json",
+    "reads": 887,
+    "errors": [],
+    "blocked": [
+      {
+        "phase": "home-entry",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "home-entry",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      }
+    ],
+    "writes": 0,
+    "models": 0,
+    "snapshotMisses": 0,
+    "non2xx": 0
+  },
+  {
+    "file": "final-loading-after-desktop-3-audit.json",
+    "reads": 878,
+    "errors": [],
+    "blocked": [
+      {
+        "phase": "home-entry",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "home-entry",
+        "path": "/els-icon.png",
+        "method": "GET"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/els-icon.png",
+        "method": "GET"
+      },
+      {
+        "phase": "home-entry",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "home-entry",
+        "path": "/els-icon.png",
+        "method": "GET"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/els-icon.png",
+        "method": "GET"
+      }
+    ],
+    "writes": 0,
+    "models": 0,
+    "snapshotMisses": 0,
+    "non2xx": 0
+  },
+  {
+    "file": "final-loading-before-desktop-3-audit.json",
+    "reads": 886,
+    "errors": [],
+    "blocked": [
+      {
+        "phase": "home-entry",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "home-entry",
+        "path": "/els-icon.png",
+        "method": "GET"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/els-icon.png",
+        "method": "GET"
+      },
+      {
+        "phase": "home-entry",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "home-entry",
+        "path": "/els-icon.png",
+        "method": "GET"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/els-icon.png",
+        "method": "GET"
+      }
+    ],
+    "writes": 0,
+    "models": 0,
+    "snapshotMisses": 0,
+    "non2xx": 0
+  },
+  {
+    "file": "final-loading-before-desktop-2-audit.json",
+    "reads": 896,
+    "errors": [],
+    "blocked": [
+      {
+        "phase": "home-entry",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "home-entry",
+        "path": "/els-icon.png",
+        "method": "GET"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/els-icon.png",
+        "method": "GET"
+      },
+      {
+        "phase": "home-entry",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "home-entry",
+        "path": "/els-icon.png",
+        "method": "GET"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/els-icon.png",
+        "method": "GET"
+      }
+    ],
+    "writes": 0,
+    "models": 0,
+    "snapshotMisses": 0,
+    "non2xx": 0
+  },
+  {
+    "file": "final-loading-after-desktop-2-audit.json",
+    "reads": 874,
+    "errors": [],
+    "blocked": [
+      {
+        "phase": "home-entry",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "home-entry",
+        "path": "/els-icon.png",
+        "method": "GET"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/els-icon.png",
+        "method": "GET"
+      },
+      {
+        "phase": "home-entry",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "home-entry",
+        "path": "/els-icon.png",
+        "method": "GET"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/els-icon.png",
+        "method": "GET"
+      }
+    ],
+    "writes": 0,
+    "models": 0,
+    "snapshotMisses": 0,
+    "non2xx": 0
+  },
+  {
+    "file": "final-loading-after-desktop-1-audit.json",
+    "reads": 879,
+    "errors": [],
+    "blocked": [
+      {
+        "phase": "home-entry",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "home-entry",
+        "path": "/els-icon.png",
+        "method": "GET"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/els-icon.png",
+        "method": "GET"
+      },
+      {
+        "phase": "home-entry",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "home-entry",
+        "path": "/els-icon.png",
+        "method": "GET"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/els-icon.png",
+        "method": "GET"
+      }
+    ],
+    "writes": 0,
+    "models": 0,
+    "snapshotMisses": 0,
+    "non2xx": 0
+  },
+  {
+    "file": "final-loading-before-desktop-1-audit.json",
+    "reads": 894,
+    "errors": [],
+    "blocked": [
+      {
+        "phase": "home-entry",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "home-entry",
+        "path": "/els-icon.png",
+        "method": "GET"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/els-icon.png",
+        "method": "GET"
+      },
+      {
+        "phase": "home-entry",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "home-entry",
+        "path": "/els-icon.png",
+        "method": "GET"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "method": "POST"
+      },
+      {
+        "phase": "back-post-home",
+        "path": "/els-icon.png",
+        "method": "GET"
+      }
+    ],
+    "writes": 0,
+    "models": 0,
+    "snapshotMisses": 0,
+    "non2xx": 0
+  }
+]

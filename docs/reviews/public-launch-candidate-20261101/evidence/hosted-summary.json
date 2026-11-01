@@ -1,0 +1,231 @@
+{
+  "sha": "cf1f8f1a35eb90c10a3a84a310f8616b2121f965",
+  "preview": "https://sod1820-qym16otcb-sod1820-s-projects.vercel.app",
+  "workerSha256": "c3436d48371f517874c76d0396fe1c973a625c85845b7d33a6636001fb82c871",
+  "uniqueCasesPassed": 24,
+  "realPublicOrClosedUiCases": 22,
+  "syntheticPrivacyFailureCases": 2,
+  "aggregation": "controlled split runs on identical exact deployment/worker; passing cases in an interrupted invocation are identified; initial failures preserved, not relabeled as successful full runs",
+  "cases": [
+    {
+      "width": 390,
+      "scenario": "directPublicAddresses",
+      "passed": true,
+      "elapsedMs": 27223,
+      "data": "actual public data",
+      "receipt": "hosted-direct-cache/hosted-acceptance.json",
+      "invocationOk": true
+    },
+    {
+      "width": 390,
+      "scenario": "galleryPrivacyFault",
+      "passed": true,
+      "elapsedMs": 18359,
+      "data": "real public image plus explicitly synthetic privacy/failure/dedup controls",
+      "receipt": "hosted-final/hosted-acceptance.json",
+      "invocationOk": false
+    },
+    {
+      "width": 390,
+      "scenario": "launchScope",
+      "passed": true,
+      "elapsedMs": 6984,
+      "data": "actual public data",
+      "receipt": "hosted-closure/hosted-acceptance.json",
+      "invocationOk": true
+    },
+    {
+      "width": 390,
+      "scenario": "numberDefaultOrder",
+      "passed": true,
+      "elapsedMs": 6788,
+      "data": "actual public data",
+      "receipt": "hosted-final/hosted-acceptance.json",
+      "invocationOk": false
+    },
+    {
+      "width": 390,
+      "scenario": "numberFullPage",
+      "passed": true,
+      "elapsedMs": 24781,
+      "data": "actual public data",
+      "receipt": "hosted-final/hosted-acceptance.json",
+      "invocationOk": false
+    },
+    {
+      "width": 390,
+      "scenario": "postNumberReturn",
+      "passed": true,
+      "elapsedMs": 17899,
+      "data": "actual public data",
+      "receipt": "hosted-final/hosted-acceptance.json",
+      "invocationOk": false
+    },
+    {
+      "width": 390,
+      "scenario": "riverGallery",
+      "passed": true,
+      "elapsedMs": 15446,
+      "data": "actual public data",
+      "receipt": "hosted-final/hosted-acceptance.json",
+      "invocationOk": false
+    },
+    {
+      "width": 390,
+      "scenario": "worldCorpus",
+      "passed": true,
+      "elapsedMs": 20651,
+      "data": "actual public data",
+      "receipt": "hosted-final/hosted-acceptance.json",
+      "invocationOk": false
+    },
+    {
+      "width": 390,
+      "scenario": "worldGalleryConnections",
+      "passed": true,
+      "elapsedMs": 22216,
+      "data": "actual public data",
+      "receipt": "hosted-final/hosted-acceptance.json",
+      "invocationOk": false
+    },
+    {
+      "width": 390,
+      "scenario": "worldGalleryLinkAudit",
+      "passed": true,
+      "elapsedMs": 20362,
+      "data": "actual public data",
+      "receipt": "hosted-mobile-audit/hosted-acceptance.json",
+      "invocationOk": true
+    },
+    {
+      "width": 390,
+      "scenario": "worldGalleryStories",
+      "passed": true,
+      "elapsedMs": 40841,
+      "data": "actual public data",
+      "receipt": "hosted-final/hosted-acceptance.json",
+      "invocationOk": false
+    },
+    {
+      "width": 390,
+      "scenario": "worldWriter",
+      "passed": true,
+      "elapsedMs": 24048,
+      "data": "actual public data",
+      "receipt": "hosted-final/hosted-acceptance.json",
+      "invocationOk": false
+    },
+    {
+      "width": 1440,
+      "scenario": "directPublicAddresses",
+      "passed": true,
+      "elapsedMs": 24846,
+      "data": "actual public data",
+      "receipt": "hosted-direct-cache/hosted-acceptance.json",
+      "invocationOk": true
+    },
+    {
+      "width": 1440,
+      "scenario": "galleryPrivacyFault",
+      "passed": true,
+      "elapsedMs": 19373,
+      "data": "real public image plus explicitly synthetic privacy/failure/dedup controls",
+      "receipt": "hosted-desktop/hosted-acceptance.json",
+      "invocationOk": true
+    },
+    {
+      "width": 1440,
+      "scenario": "launchScope",
+      "passed": true,
+      "elapsedMs": 7431,
+      "data": "actual public data",
+      "receipt": "hosted-closure/hosted-acceptance.json",
+      "invocationOk": true
+    },
+    {
+      "width": 1440,
+      "scenario": "numberDefaultOrder",
+      "passed": true,
+      "elapsedMs": 7219,
+      "data": "actual public data",
+      "receipt": "hosted-desktop/hosted-acceptance.json",
+      "invocationOk": true
+    },
+    {
+      "width": 1440,
+      "scenario": "numberFullPage",
+      "passed": true,
+      "elapsedMs": 16363,
+      "data": "actual public data",
+      "receipt": "hosted-desktop/hosted-acceptance.json",
+      "invocationOk": true
+    },
+    {
+      "width": 1440,
+      "scenario": "postNumberReturn",
+      "passed": true,
+      "elapsedMs": 16910,
+      "data": "actual public data",
+      "receipt": "hosted-desktop/hosted-acceptance.json",
+      "invocationOk": true
+    },
+    {
+      "width": 1440,
+      "scenario": "riverGallery",
+      "passed": true,
+      "elapsedMs": 15379,
+      "data": "actual public data",
+      "receipt": "hosted-desktop/hosted-acceptance.json",
+      "invocationOk": true
+    },
+    {
+      "width": 1440,
+      "scenario": "worldCorpus",
+      "passed": true,
+      "elapsedMs": 20841,
+      "data": "actual public data",
+      "receipt": "hosted-desktop/hosted-acceptance.json",
+      "invocationOk": true
+    },
+    {
+      "width": 1440,
+      "scenario": "worldGalleryConnections",
+      "passed": true,
+      "elapsedMs": 22058,
+      "data": "actual public data",
+      "receipt": "hosted-desktop/hosted-acceptance.json",
+      "invocationOk": true
+    },
+    {
+      "width": 1440,
+      "scenario": "worldGalleryLinkAudit",
+      "passed": true,
+      "elapsedMs": 21812,
+      "data": "actual public data",
+      "receipt": "hosted-desktop/hosted-acceptance.json",
+      "invocationOk": true
+    },
+    {
+      "width": 1440,
+      "scenario": "worldGalleryStories",
+      "passed": true,
+      "elapsedMs": 37876,
+      "data": "actual public data",
+      "receipt": "hosted-desktop/hosted-acceptance.json",
+      "invocationOk": true
+    },
+    {
+      "width": 1440,
+      "scenario": "worldWriter",
+      "passed": true,
+      "elapsedMs": 22301,
+      "data": "actual public data",
+      "receipt": "hosted-desktop/hosted-acceptance.json",
+      "invocationOk": true
+    }
+  ],
+  "productWritesForwarded": 0,
+  "modelCallsForwarded": 0,
+  "fullIsolationPassed": false,
+  "liveAccountAccepted": false
+}

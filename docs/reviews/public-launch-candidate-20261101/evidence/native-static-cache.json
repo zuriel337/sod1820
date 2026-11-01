@@ -1,0 +1,108 @@
+{
+  "scope": "native browser cache for compiled bytes only, not app navigation/LCP",
+  "modelCalls": 0,
+  "productWrites": 0,
+  "results": [
+    {
+      "variant": "before",
+      "sha": "be8f86ad55dfbc625d218a5917a97c260331c27b",
+      "path": "/assets/2029-BjZpWTqS.js",
+      "readings": [
+        {
+          "visit": "first",
+          "status": 200,
+          "bytes": 727858,
+          "ms": 1286.2000000029802,
+          "cacheControl": "no-store",
+          "transferSize": 224863,
+          "encodedBodySize": 224563
+        },
+        {
+          "visit": "repeat",
+          "status": 200,
+          "bytes": 727858,
+          "ms": 1548.7000000029802,
+          "cacheControl": "no-store",
+          "transferSize": 224863,
+          "encodedBodySize": 224563
+        }
+      ]
+    },
+    {
+      "variant": "before",
+      "sha": "be8f86ad55dfbc625d218a5917a97c260331c27b",
+      "path": "/assets/supabase-DdwFfbl4.js",
+      "readings": [
+        {
+          "visit": "first",
+          "status": 200,
+          "bytes": 194472,
+          "ms": 411.90000000596046,
+          "cacheControl": "no-store",
+          "transferSize": 52053,
+          "encodedBodySize": 51753
+        },
+        {
+          "visit": "repeat",
+          "status": 200,
+          "bytes": 194472,
+          "ms": 455.90000000596046,
+          "cacheControl": "no-store",
+          "transferSize": 52053,
+          "encodedBodySize": 51753
+        }
+      ]
+    },
+    {
+      "variant": "after",
+      "sha": "cf1f8f1a35eb90c10a3a84a310f8616b2121f965",
+      "path": "/assets/2029-Drfp8bX8.js",
+      "readings": [
+        {
+          "visit": "first",
+          "status": 200,
+          "bytes": 684878,
+          "ms": 1268.2000000029802,
+          "cacheControl": "private, max-age=31536000, immutable",
+          "transferSize": 213958,
+          "encodedBodySize": 213658
+        },
+        {
+          "visit": "repeat",
+          "status": 200,
+          "bytes": 684878,
+          "ms": 14.300000011920929,
+          "cacheControl": "private, max-age=31536000, immutable",
+          "transferSize": 0,
+          "encodedBodySize": 213658
+        }
+      ]
+    },
+    {
+      "variant": "after",
+      "sha": "cf1f8f1a35eb90c10a3a84a310f8616b2121f965",
+      "path": "/assets/supabase-Db9Wnp5B.js",
+      "readings": [
+        {
+          "visit": "first",
+          "status": 200,
+          "bytes": 194681,
+          "ms": 438.29999999701977,
+          "cacheControl": "private, max-age=31536000, immutable",
+          "transferSize": 52131,
+          "encodedBodySize": 51831
+        },
+        {
+          "visit": "repeat",
+          "status": 200,
+          "bytes": 194681,
+          "ms": 3.2000000029802322,
+          "cacheControl": "private, max-age=31536000, immutable",
+          "transferSize": 0,
+          "encodedBodySize": 51831
+        }
+      ]
+    }
+  ],
+  "ok": true
+}

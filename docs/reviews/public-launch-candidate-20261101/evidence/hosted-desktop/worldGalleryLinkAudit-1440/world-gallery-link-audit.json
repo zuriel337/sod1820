@@ -1,0 +1,89 @@
+{
+  "width": 1440,
+  "pages": [
+    {
+      "href": "/world#world-direction-india",
+      "linksExamined": 23,
+      "nativeGalleryLinks": [
+        {
+          "href": "/world?view=gallery&gallery=61&image=6232be42-82a3-41ac-b4d3-004a21e48c7f#gallery-source-6232be42-82a3-41ac-b4d3-004a21e48c7f",
+          "text": "לתמונה המדויקת בגלריה ב־2029"
+        },
+        {
+          "href": "/world?view=gallery&gallery=28&image=8940efb2-8423-4a27-a10a-d3fdd07cf595#gallery-source-8940efb2-8423-4a27-a10a-d3fdd07cf595",
+          "text": "לתמונה המדויקת בגלריה ב־2029"
+        },
+        {
+          "href": "/world?view=gallery&gallery=54&image=4d0b8d36-0801-449b-a0a6-0c7ff543c5b0#gallery-source-4d0b8d36-0801-449b-a0a6-0c7ff543c5b0",
+          "text": "לתמונה המדויקת בגלריה ב־2029"
+        },
+        {
+          "href": "/world?view=gallery&gallery=88&image=96207e5d-ac80-4344-9e50-f50a8cc0a726#gallery-source-96207e5d-ac80-4344-9e50-f50a8cc0a726",
+          "text": "לתמונה המדויקת בגלריה ב־2029"
+        },
+        {
+          "href": "/world?view=gallery&gallery=79&image=fcbcfb23-90ed-4b71-afd8-14cf7d1d4c3e#gallery-source-fcbcfb23-90ed-4b71-afd8-14cf7d1d4c3e",
+          "text": "לתמונה המדויקת בגלריה ב־2029"
+        }
+      ],
+      "legacyGalleryLinks": [],
+      "realPublicData": true
+    },
+    {
+      "href": "/world#world-direction-wisdom",
+      "linksExamined": 21,
+      "nativeGalleryLinks": [
+        {
+          "href": "/world?view=gallery&gallery=39&image=c502fa89-96f1-495b-aeb7-b16deaaa96b3#gallery-source-c502fa89-96f1-495b-aeb7-b16deaaa96b3",
+          "text": "לתמונה המדויקת בגלריה ב־2029"
+        },
+        {
+          "href": "/world?view=gallery&gallery=39&image=5dfe5a87-702c-42da-aa36-46351dd70c4e#gallery-source-5dfe5a87-702c-42da-aa36-46351dd70c4e",
+          "text": "לתמונה המדויקת בגלריה ב־2029"
+        },
+        {
+          "href": "/world?view=gallery&gallery=39&image=46987aba-4da8-4b57-bef8-3ed5bef0e48d#gallery-source-46987aba-4da8-4b57-bef8-3ed5bef0e48d",
+          "text": "לתמונה המדויקת בגלריה ב־2029"
+        }
+      ],
+      "legacyGalleryLinks": [],
+      "realPublicData": true
+    },
+    {
+      "href": "/world#world-direction-october",
+      "linksExamined": 18,
+      "nativeGalleryLinks": [],
+      "legacyGalleryLinks": [],
+      "realPublicData": true
+    },
+    {
+      "href": "/world?view=explore&kind=media",
+      "linksExamined": 2,
+      "nativeGalleryLinks": [
+        {
+          "href": "/world?view=gallery",
+          "text": "למאגר המדיה הציבורי"
+        }
+      ],
+      "legacyGalleryLinks": [],
+      "realPublicData": true
+    },
+    {
+      "href": "/world?view=sources&source=tzvi-opoc",
+      "linksExamined": 55,
+      "nativeGalleryLinks": [],
+      "legacyGalleryLinks": [],
+      "realPublicData": true
+    },
+    {
+      "href": "/world?view=sources&source=sod-hashmal&subjectSource=hashmal&q=%D7%99%D7%A8%D7%95%D7%A9%D7%9C%D7%99%D7%9D",
+      "linksExamined": 4,
+      "nativeGalleryLinks": [],
+      "legacyGalleryLinks": [],
+      "realPublicData": true
+    }
+  ],
+  "scope": "rendered links in six populated public World views, not every historical database row or admin-only view",
+  "writes": 0,
+  "models": 0
+}
