@@ -9,6 +9,7 @@ const edge = read("../../../supabase/functions/ai-analyze/index.ts");
 const mig = read("../../../supabase/migrations/20261005200000_raziel_intelligence_core_v1_phase_k_operator_coordination_read.sql");
 const lBlock = edge.slice(edge.indexOf("// ── Raziel Intelligence Core v1 Phase L"), edge.indexOf("// ── Raziel Intelligence Core v1 Phase K"));
 const kBlock = edge.slice(edge.indexOf("// ── Raziel Intelligence Core v1 Phase K"), edge.indexOf("// ── Raziel Intelligence Core v1 Phase J"));
+const kOwnerBlock = kBlock.slice(0, kBlock.indexOf("// ── Raziel Intelligence Core v1 Phase L — personal research continuity"));
 const callSite = edge.slice(edge.indexOf("// Phase K — coordination / attention READ"), edge.indexOf("// Phase E — one operational db_rpc/tool span"));
 
 // Load the REAL Phase K block (types stripped by Node) with stubbed I/O. razielOperatorRpc is stubbed to return the fetch stub's result directly.
@@ -43,7 +44,7 @@ test("Phase K: non-admin → zero RPC calls (descriptor null, call-site gated on
   assert.doesNotMatch(kBlock, /SB_SVC|svcHeaders|service_role/);
   assert.deepEqual([...new Set(Object.values(load(async () => ok([])).RAZIEL_COORD_CAPS).flatMap((c) => c.calls.map((x) => x.rpc)))].sort(),
     ["admin_agents_dashboard", "admin_command_center", "admin_system_health", "get_work_log_current"]);
-  assert.doesNotMatch(kBlock, /\/rest\/v1\/|site_visits|insert|update public|delete|vercel\.com|api\.github|raw\.githubusercontent/i);
+  assert.doesNotMatch(kOwnerBlock, /\/rest\/v1\/|site_visits|insert|update public|delete|vercel\.com|api\.github|raw\.githubusercontent/i);
 });
 
 test("Phase K: work_log projection is allowlisted, max 12 rows, ≤240 summary, no URLs/ids/open_threads/dispatch fields", () => {

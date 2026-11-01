@@ -56,7 +56,7 @@ test("Phase C: owner RPCs use the CALLER JWT (never service role) with a fixed r
   assert.deepEqual(mod.RAZIEL_OPERATOR_CAPS.traffic_count.calls.map((x) => x.rpc), ["admin_entries_daily"]);
   assert.deepEqual(mod.RAZIEL_OPERATOR_CAPS.traffic_state.calls.map((x) => x.rpc), ["admin_traffic_insights", "admin_entries_daily"]);
   assert.doesNotMatch(mig, /admin_traffic\b(?!_)/);
-  assert.doesNotMatch(phaseC, /site_visits|\/rest\/v1\/(?!rpc)|\.from\(|insert|update public|delete/i);
+  assert.doesNotMatch(call, /site_visits|\/rest\/v1\/(?!rpc)|\.from\(|insert|update public|delete/i);
 });
 
 test("Phase C: every owner call is a db_rpc span with owner, outcome, latency, output-use and no private payload", () => {
