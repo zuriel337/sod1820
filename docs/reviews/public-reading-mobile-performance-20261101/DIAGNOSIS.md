@@ -90,3 +90,9 @@ Direct source entry/reload/Back and the actual engine stage must still work.
 The driver-visible regression is larger than the isolated resource/CPU delta;
 no claim that all860ms is proven server or download time. Retain all timings
 and remeasure the same criterion after this bounded code-admission change.
+The graph also has a second static importer of the same spatial Stage:
+WorldSourceConnections, rendered only inside the explicitly selected source
+story. Defer that existing consumer at its original mount point as well;
+otherwise deferring only WorldConnectedDiscovery would not remove the Stage
+from ordinary World. Both readers retain their own source/trace admission and
+are enclosed in local Suspense, not a new top-level loading/navigation policy.

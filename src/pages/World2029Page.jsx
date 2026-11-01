@@ -1,4 +1,3 @@
-import WorldSourceConnections from '../components/research/WorldSourceConnections.jsx';
 import StoryTreeSequence2029, { storyTreeReturnSelection2029 } from '../components/research/StoryTreeSequence2029.jsx';
 import WorldFlightStory2029 from '../components/research/WorldFlightStory2029.jsx';
 import WorldPublicUpdates2029 from '../components/research/WorldPublicUpdates2029.jsx';
@@ -82,6 +81,7 @@ const WorldPeopleSources2029 = React.lazy(() => import("../components/research/W
 // This reader (including its spatial calculation stage) is used only by an
 // explicit source-discovery address, not by ordinary World entry.
 const WorldConnectedDiscovery = React.lazy(() => import("../components/research/WorldSourceStory.jsx"));
+const WorldSourceConnections = React.lazy(() => import("../components/research/WorldSourceConnections.jsx"));
 
 const WORLD_EXPERIENCE = resolveExperienceContext({
   surface: EXPERIENCE_SURFACE.WORLD,
@@ -555,7 +555,9 @@ function WorldSourceStory({ research, shell, compact = false }) {
           <p className="sod29-world-story-note">בציר ההודי אפשר לפגוש גם תיעוד היסטורי מן הגלריות, עם ההסבר והמקור של כל חיבור.</p>
         </div>
       </div> : null}
-      <WorldSourceConnections india={state.projection} research={research} shell={shell} showDirectionChoices={!compact} />
+      <React.Suspense fallback={<FrameState kind="loading" title="פותח את חיבורי המקור">טוען את החיבורים והחישובים.</FrameState>}>
+        <WorldSourceConnections india={state.projection} research={research} shell={shell} showDirectionChoices={!compact} />
+      </React.Suspense>
     </>}
   </section>;
 }
