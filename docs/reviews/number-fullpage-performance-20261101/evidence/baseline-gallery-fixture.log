@@ -16,8 +16,8 @@ test at test/topic-number-sheet-2029.browser.test.mjs:227:1
 ✖ native gallery uses exact public occurrences and canonical method navigation with return (12691.584449ms)
   locator.waitFor: Timeout 10000ms exceeded.
   Call log:
-  [2m  - waiting for locator('[data-gallery-image-id="10000000-0000-4000-8000-000000008107"]') to be visible[22m
-  
+    - waiting for locator('[data-gallery-image-id="10000000-0000-4000-8000-000000008107"]') to be visible
+
       at TestContext.<anonymous> (/workspace/sod1820-community1187-unified/test/topic-number-sheet-2029.browser.test.mjs:245:83) {
     name: 'TimeoutError'
   }

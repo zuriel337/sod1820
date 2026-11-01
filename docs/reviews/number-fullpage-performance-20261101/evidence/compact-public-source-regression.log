@@ -25,8 +25,8 @@ test at test/topic-number-sheet-2029.browser.test.mjs:227:1
 ✖ native gallery uses exact public occurrences and canonical method navigation with return (14538.958733ms)
   locator.waitFor: Timeout 10000ms exceeded.
   Call log:
-  [2m  - waiting for locator('[data-gallery-image-id="10000000-0000-4000-8000-000000008107"]') to be visible[22m
-  
+    - waiting for locator('[data-gallery-image-id="10000000-0000-4000-8000-000000008107"]') to be visible
+
       at TestContext.<anonymous> (/workspace/sod1820-number-fullpage-performance/test/topic-number-sheet-2029.browser.test.mjs:245:83) {
     name: 'TimeoutError'
   }
@@ -35,8 +35,8 @@ test at test/topic-number-sheet-2029.browser.test.mjs:361:1
 ✖ gallery catalog: search/order URL, original names, source re-entry, refresh/privacy/error (18522.755609ms)
   locator.waitFor: Timeout 15000ms exceeded.
   Call log:
-  [2m  - waiting for locator('[data-catalog-gallery="69"]') to be visible[22m
-  
+    - waiting for locator('[data-catalog-gallery="69"]') to be visible
+
       at TestContext.<anonymous> (/workspace/sod1820-number-fullpage-performance/test/topic-number-sheet-2029.browser.test.mjs:375:57) {
     name: 'TimeoutError'
   }
@@ -45,9 +45,9 @@ test at test/topic-number-sheet-2029.browser.test.mjs:448:1
 ✖ Topic opens the existing Number sheet with method/value/source and exact return (12623.024921ms)
   Error: locator.waitFor: Timeout 10000ms exceeded.
   Call log:
-  [2m  - waiting for locator('.sod29-topic-equation').first() to be visible[22m
-  
-  Page: 
+    - waiting for locator('.sod29-topic-equation').first() to be visible
+
+  Page:
   Errors: ["The requested module '/@id/__x00__topic-sheet:backend.jsx' does not provide an export named 'getRealityHints'"]
       at openTopic (file:///workspace/sod1820-number-fullpage-performance/test/topic-number-sheet-2029.browser.test.mjs:471:33)
       at async TestContext.<anonymous> (file:///workspace/sod1820-number-fullpage-performance/test/topic-number-sheet-2029.browser.test.mjs:474:7)
@@ -58,8 +58,8 @@ test at test/topic-public-findings-via-number-2029.browser.test.mjs:118:1
 ✖ Topic number lens preserves public gates, pagination, new findings and exact source return (15953.624327ms)
   locator.waitFor: Timeout 10000ms exceeded.
   Call log:
-  [2m  - waiting for locator('#topic-number-research-1118').getByRole('button', { name: 'הצגת ממצאים למספר', exact: true }) to be visible[22m
-  
+    - waiting for locator('#topic-number-research-1118').getByRole('button', { name: 'הצגת ממצאים למספר', exact: true }) to be visible
+
       at TestContext.<anonymous> (/workspace/sod1820-number-fullpage-performance/test/topic-public-findings-via-number-2029.browser.test.mjs:173:39) {
     name: 'TimeoutError'
   }
@@ -68,8 +68,8 @@ test at test/topic-public-findings-via-number-2029.browser.test.mjs:217:1
 ✖ World all-source text discovery is explicit, public and preserves query on exact return (19843.890994ms)
   locator.click: Timeout 15000ms exceeded.
   Call log:
-  [2m  - waiting for getByRole('region', { name: 'ממצאים בכל המקורות', exact: true }).getByRole('button', { name: 'הצגת הממצאים המאושרים', exact: true })[22m
-  
+    - waiting for getByRole('region', { name: 'ממצאים בכל המקורות', exact: true }).getByRole('button', { name: 'הצגת הממצאים המאושרים', exact: true })
+
       at TestContext.<anonymous> (/workspace/sod1820-number-fullpage-performance/test/topic-public-findings-via-number-2029.browser.test.mjs:253:89) {
     name: 'TimeoutError'
   }

@@ -1,17 +1,17 @@
 
 Running 5 tests using 1 worker
 
-[1A[2K(node:144708) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(node:144708) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 (Use `node --trace-warnings ...` to show where the warning was created)
 
 
-[1A[2K(node:144708) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(node:144708) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 (Use `node --trace-warnings ...` to show where the warning was created)
 
 
-[1A[2K[1/5] test/number-fullpage-acceptance-2029.browser.cjs:6:30 › Number full-page methods, precise return and informative public sources 390
-[1A[2K[2/5] test/number-fullpage-acceptance-2029.browser.cjs:6:30 › Number full-page methods, precise return and informative public sources 1440
-[1A[2K[3/5] test/number-fullpage-acceptance-2029.browser.cjs:49:1 › synthetic profile failure preserves the prior page, retry opens the canonical page, and late resolution cannot hijack Home
-[1A[2K[4/5] test/number-fullpage-acceptance-2029.browser.cjs:70:1 › direct phrase with exact method survives reload; legacy and new Post addresses retain canonical links
-[1A[2K[5/5] test/number-fullpage-acceptance-2029.browser.cjs:87:1 › synthetic public-source outage stays an error, never empty success, and retry reads public data
-[1A[2K  5 passed (1.0m)
+[1/5] test/number-fullpage-acceptance-2029.browser.cjs:6:30 › Number full-page methods, precise return and informative public sources 390
+[2/5] test/number-fullpage-acceptance-2029.browser.cjs:6:30 › Number full-page methods, precise return and informative public sources 1440
+[3/5] test/number-fullpage-acceptance-2029.browser.cjs:49:1 › synthetic profile failure preserves the prior page, retry opens the canonical page, and late resolution cannot hijack Home
+[4/5] test/number-fullpage-acceptance-2029.browser.cjs:70:1 › direct phrase with exact method survives reload; legacy and new Post addresses retain canonical links
+[5/5] test/number-fullpage-acceptance-2029.browser.cjs:87:1 › synthetic public-source outage stays an error, never empty success, and retry reads public data
+  5 passed (1.0m)

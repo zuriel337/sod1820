@@ -353,14 +353,14 @@ dist/assets/AdminPage-M8Jfo4xg.js                         825.61 kB │ gzip: 20
 dist/assets/OrbitControls-ChJe_MUB.js                     927.32 kB │ gzip: 244.42 kB
 dist/assets/index-Bjp78ORA.js                           1,689.82 kB │ gzip: 464.09 kB
 
-[plugin builtin:vite-reporter] 
+[plugin builtin:vite-reporter]
 (!) Some chunks are larger than 500 kB after minification. Consider:
 - Using dynamic import() to code-split the application
 - Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
 - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
-[33m[INEFFECTIVE_DYNAMIC_IMPORT] [0msrc/pages/AuthPage.jsx is dynamically imported by src/App.jsx but also statically imported by src/components/layout/Navbar.jsx, dynamic import will not move module into another chunk.
+[INEFFECTIVE_DYNAMIC_IMPORT] src/pages/AuthPage.jsx is dynamically imported by src/App.jsx but also statically imported by src/components/layout/Navbar.jsx, dynamic import will not move module into another chunk.
 
-[33m[INEFFECTIVE_DYNAMIC_IMPORT] [0msrc/pages/NameLabPage.jsx is dynamically imported by src/App.jsx but also statically imported by src/pages/NamePage.jsx, src/pages/ResearchPage.jsx, dynamic import will not move module into another chunk.
+[INEFFECTIVE_DYNAMIC_IMPORT] src/pages/NameLabPage.jsx is dynamically imported by src/App.jsx but also statically imported by src/pages/NamePage.jsx, src/pages/ResearchPage.jsx, dynamic import will not move module into another chunk.
 
 ✓ built in 1.54s
 vite v8.3.0 building client environment for production...
@@ -621,11 +621,11 @@ dist/assets/BookPdfPage2029-Dzx1DCeK.js                       436.55 kB │ gzip
 dist/assets/2029-BkIGpzJZ.js                                  737.47 kB │ gzip: 226.94 kB
 dist/assets/OrbitControls-Cw_nS8k2.js                         927.28 kB │ gzip: 244.40 kB
 
-[plugin builtin:vite-reporter] 
+[plugin builtin:vite-reporter]
 (!) Some chunks are larger than 500 kB after minification. Consider:
 - Using dynamic import() to code-split the application
 - Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
 - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
-[33m[INEFFECTIVE_DYNAMIC_IMPORT] [0msrc/components/experience2029/Sod2029Shell.jsx is dynamically imported by src/App2029.jsx but also statically imported by src/components/beitMidrash2029/BeitMidrashGuided.jsx, src/components/beitMidrash2029/BeitMidrashMethods.jsx, src/components/beitMidrash2029/BeitMidrashParticipate.jsx, src/components/community2029/CommunityLive2029.jsx, src/components/contributor2029/ContributorActionsController2029.jsx, ..., dynamic import will not move module into another chunk.
+[INEFFECTIVE_DYNAMIC_IMPORT] src/components/experience2029/Sod2029Shell.jsx is dynamically imported by src/App2029.jsx but also statically imported by src/components/beitMidrash2029/BeitMidrashGuided.jsx, src/components/beitMidrash2029/BeitMidrashMethods.jsx, src/components/beitMidrash2029/BeitMidrashParticipate.jsx, src/components/community2029/CommunityLive2029.jsx, src/components/contributor2029/ContributorActionsController2029.jsx, ..., dynamic import will not move module into another chunk.
 
 ✓ built in 1.20s

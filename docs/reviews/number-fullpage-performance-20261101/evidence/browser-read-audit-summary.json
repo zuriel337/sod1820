@@ -95,5 +95,7 @@
   "transportErrors": [],
   "syntheticFaults": "two tests inject 503/delay locally; no synthetic rows are used for public navigation acceptance",
   "productWritesForwarded": 0,
-  "modelCallsForwarded": 0
+  "modelCallsForwarded": 0,
+  "phase": "Initial five-scenario diagnostic before the final plain-public-Back fix; final-SHA hosted acceptance is remote-number-accepted.json",
+  "finalShaAcceptance": false
 }
