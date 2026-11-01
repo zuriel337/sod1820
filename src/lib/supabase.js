@@ -12,8 +12,25 @@ import { decodePostSlug, publicPostHref } from './publicPostUrls.js';
 // 🔑 מיוצאים כדי לאפשר fetch ישיר ל-PostgREST במקומות שדורשים עקיפת-קאש (cache:no-store) —
 // למשל עמוד-הצופן הקנוני, שאחרי עריכה/שמירה-מחדש חייב תמיד את הרשומה הטרייה (התגובה מ-PostgREST
 // חוזרת בלי Cache-Control → הדפדפן חופשי להגיש JSON ישן). ראה getMatrixBySlug.
-export const SUPABASE_URL = 'https://linswmnnkjxvweumprav.supabase.co';
-export const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxpbnN3bW5ua2p4dndldW1wcmF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2Mjg3NjIsImV4cCI6MjA5NjIwNDc2Mn0.R6Zz1PCdGdCDnZ0Ltza4OMFOc146zCIOQrBtTWpujiM';
+const CANONICAL_SUPABASE_URL = 'https://linswmnnkjxvweumprav.supabase.co';
+const CANONICAL_SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJIUzI1NiIsInJlZiI6ImxpbnN3bW5ua2p4dndldW1wcmF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2Mjg3NjIsImV4cCI6MjA5NjIwNDc2Mn0.R6Zz1PCdGdCDnZ0Ltza4OMFOc146zCIOQrBtTWpujiM';
+
+const publicSupabaseEnv = import.meta.env || {};
+const previewSupabaseUrl = String(publicSupabaseEnv.VITE_SUPABASE_URL || '').trim();
+const previewSupabaseKey = String(publicSupabaseEnv.VITE_SUPABASE_PUBLISHABLE_KEY || '').trim();
+const previewSupabaseUrlAllowed = /^https:\/\/[a-z0-9]{20}\.supabase\.co$/u.test(previewSupabaseUrl);
+const previewSupabaseKeyAllowed = /^sb_publishable_[A-Za-z0-9_-]{20,}$/u.test(previewSupabaseKey)
+  || /^eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/u.test(previewSupabaseKey);
+
+// A Vercel Preview may bind both values to an isolated Supabase branch. They
+// are accepted only as a complete, well-formed pair; every other build keeps
+// the canonical project. Never place a service-role/secret key in VITE_*.
+export const SUPABASE_URL = previewSupabaseUrlAllowed && previewSupabaseKeyAllowed
+  ? previewSupabaseUrl
+  : CANONICAL_SUPABASE_URL;
+export const SUPABASE_ANON = previewSupabaseUrlAllowed && previewSupabaseKeyAllowed
+  ? previewSupabaseKey
+  : CANONICAL_SUPABASE_ANON;
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON);
 
