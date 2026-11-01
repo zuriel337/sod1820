@@ -14,5 +14,5 @@ begin
     on conflict (user_id) do update set credits = coalesce(profiles.credits,0) + p_amount, updated_at = now();
   end if;
   return v_id;
-end $function$
+end $function$;
 
