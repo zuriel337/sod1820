@@ -35,3 +35,17 @@ test('invitation cancellation reaches the existing SDK source query and cannot r
  const controller=new AbortController();controller.abort();
  await withSource(source,async calls=>{await assert.rejects(fetchPost2029ReadingProjection(source.slug,{sourceInvitation:true,signal:controller.signal}),e=>e.name==='AbortError');assert.equal(calls.some(c=>c.signal===controller.signal),true);assert.equal(calls.some(c=>c.rpc),false);});
 });
+test('lazy historical witness remains an exact fallback, never an ordinary Post or invitation',async()=>{
+ await withSource(null,async calls=>{
+  assert.equal(await fetchPost2029ReadingProjection('missing-ordinary-public-post'),null);
+  assert.equal(calls.some(c=>c.rpc==='admin_research_feed'),false);
+  const slug='remzei-geula-ai-sod-hashir';
+  assert.equal(await fetchPost2029ReadingProjection(slug,{sourceInvitation:true}),null);
+  assert.equal(calls.some(c=>c.rpc==='admin_research_feed'),false);
+  const p=await fetchPost2029ReadingProjection(slug);
+  const {POST2029_PREVIEW_SNAPSHOT}=await import('../src/lib/research/post2029PreviewSnapshot.js');
+  assert.equal(p.sourcePost,POST2029_PREVIEW_SNAPSHOT);assert.equal(p.previewSnapshot,true);
+  assert.equal(p.sourcePost.content,POST2029_PREVIEW_SNAPSHOT.content);
+  assert.ok(calls.some(c=>c.rpc==='admin_research_feed'));
+ });
+});

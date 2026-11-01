@@ -105,4 +105,21 @@ try{for(const width of[390,1440])for(const intent of['scroll','fragment','failur
  if(failSource){const retry=page.getByRole('button',{name:'נסה שוב את המקור',exact:true});await retry.waitFor();failSource=false;await retry.click();}
  await page.locator('[data-flight-story="home"]').waitFor({timeout:5000});assert.ok(sourceReads().length>=1);assert.equal(state.modelCalls.length,0);assert.deepEqual(state.pageErrors,[]);cases.push({width,intent,passed:true,topicReaderStillPending:true,sourceReads:sourceReads().length});console.log(JSON.stringify(cases.at(-1)));
  }finally{await Promise.all(releases.map(f=>f()));await context.close();}
- }await writeFile(resolve(OUT,'source-intent.json'),JSON.stringify({source:'controlled local fixture, no external calls',cases},null,2));}finally{await browser.close();await new Promise(r=>served.server.close(r));}
+ }
+ const stableSections=[];
+ for(const width of[320,390,760,1440])for(const outcome of['ready','empty','failure']){
+  const context=await browser.newContext({viewport:{width,height:900},serviceWorkers:'block'});const fixtureState=await install(context,served.origin,'parchment');const releases=[];let requested,repliesReleased=false;const topicRequested=new Promise(resolve=>{requested=resolve;});
+  const topics=Array.from({length:4},(_,i)=>({id:'fixture-topic-'+i,slug:'fixture-topic-'+i,title:'נושא ציבורי מבוקר',numbers:[1820],highlight_numbers:[],quality:6,meter_score:50}));
+  await context.route('**/rest/v1/topic_cards_public**',route=>new Promise(resolve=>{const reply=async()=>{await route.fulfill({status:outcome==='failure'?503:200,contentType:'application/json',body:JSON.stringify(outcome==='failure'?{message:'controlled Topic failure'}:outcome==='ready'?topics:[])}).catch(()=>{});resolve();};if(repliesReleased)void reply();else releases.push(reply);requested();}));
+  const page=await context.newPage();
+  try{
+   await page.goto(served.origin+'/2029');await page.locator('.h29-card-open').first().waitFor();await page.locator('.h29-notable[aria-busy="true"]').waitFor();
+   const sourceTop=()=>page.locator('#home-plane').evaluate(e=>e.getBoundingClientRect().top+scrollY);
+   const before=await sourceTop();await Promise.race([topicRequested,new Promise((_r,reject)=>setTimeout(()=>reject(Error('Topic fixture never requested: '+JSON.stringify(fixtureState.requests.map(r=>r.path)))),5000))]);repliesReleased=true;await Promise.all(releases.map(f=>f()));await page.locator('.h29-notable[aria-busy="false"]').waitFor();await page.waitForTimeout(350);
+   if(outcome==='ready')assert.equal(await page.locator('.h29-notable-card').count(),4);
+   else assert.match(await page.locator('.h29-notable').innerText(),outcome==='failure'?/לא ניתן לטעון/:/אין כרגע/);
+   const after=await sourceTop();assert.ok(Math.abs(after-before)<1,`${width}/${outcome}: delayed Topic section moved source by${after-before}px`);
+   stableSections.push({width,outcome,before,after,passed:true});
+  }finally{await Promise.all(releases.map(f=>f()));await context.close();}
+ }
+ await writeFile(resolve(OUT,'source-intent.json'),JSON.stringify({source:'controlled local fixture, no external calls',cases,stableSections},null,2));}finally{await browser.close();await new Promise(r=>served.server.close(r));}

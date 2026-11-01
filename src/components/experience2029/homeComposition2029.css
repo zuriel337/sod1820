@@ -106,6 +106,14 @@
 }
 
 /* Notable convergences with their separate ratings */
+/* Native public content measures216.78px desktop,323.89px in the two-row
+   layout,238.39px at390 and255.98px at320. Reserve the same section during
+   pending/ready/empty/failure, rather than inserting it above a returning
+   reader's viewport. No maximum height or clipping: real content can grow. */
+.h29-notable-section { min-height:220px; }
+@container h29 (max-width:900px) { .h29-notable-section { min-height:330px; } }
+@container h29 (max-width:620px) { .h29-notable-section { min-height:240px; } }
+@container h29 (max-width:340px) { .h29-notable-section { min-height:260px; } }
 .h29-note { margin: -4px 0 0; font: 400 13px/1.5 var(--s29-font-ui); color: var(--s29-muted); }
 .h29-notable { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; align-items: start; }
 .h29-notable-card { display: flex; flex-direction: column; gap: 8px; padding: 12px; border-radius: 14px; border: 1px solid var(--s29-line); background: var(--s29-panel); min-width: 0; }
