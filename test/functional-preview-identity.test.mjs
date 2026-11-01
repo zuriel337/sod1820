@@ -5,6 +5,7 @@ import {FUNCTIONAL_PREVIEW_IDENTITY as policy,functionalPreviewJwtOptions,verify
 import {previewRazielHandler} from '../preview-deploy/api/preview-raziel.js';
 import {previewCapabilitiesHandler} from '../preview-deploy/api/preview-capabilities.js';
 import {runAiAnalyze,UID,USER_JWT} from './helpers/ai-analyze-handler.mjs';
+import previewRazielEntrypoint from '../api/preview-raziel.js';
 
 const {privateKey,publicKey}=await generateKeyPair('RS256');
 const claims={iss:policy.issuers[0],aud:policy.audience,sub:policy.subject,project_id:policy.projectId,owner_id:policy.ownerId,environment:'preview'};
@@ -24,6 +25,7 @@ test('actual RSA signatures bind authenticated users to this Vercel project and 
 const env={VERCEL_ENV:'preview',VERCEL_GIT_COMMIT_REF:'gpt/2029-functional-unified-preview-20261031'};
 const membershipPreviewEnv={VERCEL_ENV:'preview',VERCEL_GIT_COMMIT_REF:'gpt/2029-membership-credit-meter-ui-20261101'};
 const body={kind:'research',persona:'raziel',subject:'fixture',research_contract:'public-number-research-run-v1'};
+assert.equal(typeof previewRazielEntrypoint,'function');
 function response(){return {code:0,headers:{},setHeader(k,v){this.headers[k]=v;},status(n){this.code=n;return this;},json(value){this.value=value;return this;}};}
 test('server proof health exposes only signature-verification booleans, never a token or identity claims',async()=>{
  const token=await sign(),handler=previewCapabilitiesHandler({env,verifyToken:async raw=>{await verifyToken(raw);return true;}});
