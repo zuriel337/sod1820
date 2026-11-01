@@ -37,7 +37,7 @@ test("Raziel remains a separate optional action", () => {
 test("exact back: focus records returnTo with the source-region locator", () => {
   const focus = between(page, "const openCheckedPostCalculation", "const openPostSourceClaim");
   assert.match(focus, /locator: claim.locator/);
-  assert.match(focus, /href: `\/post\/\$\{post.slug\}\$\{claim.locator\}`/);
+  assert.match(focus, /href: exactPostReadingHref\(post, location, `\$\{claim.locator\}`\)/);
   assert.match(focus, /sourceRef: claim.sourceRef/);
   assert.match(focus, /methodVersion/);
   assert.match(page, /const exactReturnForRegion/);

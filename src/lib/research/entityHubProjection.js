@@ -976,8 +976,8 @@ export async function fetchPublicWorldPostSource({ postId, postSlug = null, incl
   const slug = postSlug == null ? null : normalizeMediaPostSlug(postSlug);
   if ((!byId && !slug) || (postId != null && postSlug != null) || (postSlug != null && (!slug || /[/?#\\]/.test(slug)))) return null;
   const fields = includeContent === false
-    ? "id,slug,title,excerpt,tags,source,home_hidden,author,authors,date,modified"
-    : "id,slug,title,content,tags,source,home_hidden,author,authors,date,modified";
+    ? "id,slug,title,excerpt,tags,source,link,wp_id,home_hidden,author,authors,date,modified"
+    : "id,slug,title,content,tags,source,link,wp_id,home_hidden,author,authors,date,modified";
   let query = client.from("posts").select(fields);
   if (byId) query = query.eq("id", postId);
   else query = query.in("slug", [...new Set([String(postSlug).trim(), slug, encodeURIComponent(slug), encodeURIComponent(slug).toLowerCase()])]).limit(2);

@@ -1,0 +1,19 @@
+{
+  "capturedAt": "2026-11-01",
+  "httpStatus": 200,
+  "urls": 14541,
+  "uniqueUrls": 14541,
+  "sha256": "fd7d2c5db27d78f0b57f876b00201480571e9b0748cb6cb20170d633294a0f1d",
+  "modernPostUrls": 127,
+  "publishedExpressionUrls": 12584,
+  "nonFoundationLargeSystemsPresent": false,
+  "examples": [
+    "https://sod1820.co.il/post/eikh-yotzim-mehatat-moda-sefirot-yisrael-20261028",
+    "https://sod1820.co.il/post/manhigut-shel-emet-rut-kedem-20261026",
+    "https://sod1820.co.il/post/sprites-lightning-over-france",
+    "https://sod1820.co.il/number/10",
+    "https://sod1820.co.il/number/11",
+    "https://sod1820.co.il/number/12"
+  ],
+  "indexation": "XML membership only; Google indexing was not inspected."
+}

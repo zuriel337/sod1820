@@ -2,14 +2,14 @@ import React, { useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import Sod2029Shell from "../components/experience2029/Sod2029Shell.jsx";
 import AccountEntry2029 from "../components/auth2029/AccountEntry2029.jsx";
-import { safeOAuthReturnPath } from "../lib/oauthReturn.js";
+import { safePreviewOAuthReturnPath } from "../lib/oauthReturn.js";
 import { applySeo } from "../lib/seo.js";
 import "./auth2029.css";
 
 export default function Auth2029Page() {
   const location = useLocation();
-  const target = safeOAuthReturnPath(new URLSearchParams(location.search).get("returnTo") || "/2029");
-  const returnTo = target === "/" ? "/2029" : target;
+  const target = safePreviewOAuthReturnPath(new URLSearchParams(location.search).get("returnTo") || "/2029");
+  const returnTo = target;
   useEffect(() => { applySeo({ title: "כניסה לחשבון", description: "כניסה לחשבון הקיים, לקהילה ולאזור האישי.", path: "/login", noindex: true }); }, []);
   return <Sod2029Shell surface="community" title="כניסה לחשבון" introVariant="none" status="חשבון" symbol="◎">
     <main className="sod29-auth" data-experience-surface="auth-2029" dir="rtl">

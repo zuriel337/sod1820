@@ -75,7 +75,8 @@ export function applySeo(o = {}) {
 
   document.title = title;
   upsertMeta("name", "description", description);
-  upsertMeta("name", "robots", o.noindex ? "noindex, nofollow" : "index, follow");
+  const protectedPreview = import.meta.env?.VITE_INTEGRATED_PREVIEW === "true";
+  upsertMeta("name", "robots", (o.noindex || protectedPreview) ? "noindex, nofollow" : "index, follow");
   upsertLink("canonical", canonical);
 
   upsertMeta("property", "og:site_name", SITE_NAME);

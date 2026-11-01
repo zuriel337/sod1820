@@ -207,8 +207,8 @@ test("Posts-first High-Fidelity Golden reconciles onto current 2029 shell", () =
 
   assert.match(app, /path="\/2029\/posts" element={<Posts2029Page/);
   assert.match(app, /path="\/post\/:slug" element={<Post2029Page/);
-  assert.doesNotMatch(app, /path="\/post" element={<Posts2029Page/);
-  assert.match(frame, /to: "\/2029\/posts", label: "פוסטים"/);
+  assert.match(app, /publicFoundationPreview && <>[\s\S]*path="\/post" element={<Posts2029Page/);
+  assert.match(frame, /to: publicFoundationPreview \? "\/post" : "\/2029\/posts", label: "פוסטים"/);
 
   assert.match(index, /<Sod2029Shell surface="post"/);
   assert.doesNotMatch(index, /<Sod2029Shell surface="posts"/);
@@ -280,7 +280,7 @@ test("Post Master Bennett fixture opens canonical contextual number focus withou
   assert.match(page, /type: "phrase"/);
   assert.match(page, /source: "post-exact-source-claim"/);
   assert.match(page, /checkPostCalculation2029\(projection.sourcePost, claim/);
-  assert.match(page, /href: `\/post\/\$\{post.slug\}\$\{claim.locator\}`/);
+  assert.match(page, /href: exactPostReadingHref\(post, location, `\$\{claim.locator\}`\)/);
   assert.doesNotMatch(page, /SpatialMethodStage2029/);
   assert.doesNotMatch(page, /fetchGematriaMethodTrace/);
 });

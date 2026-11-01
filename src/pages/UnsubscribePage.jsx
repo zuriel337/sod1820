@@ -14,6 +14,7 @@ export default function UnsubscribePage() {
   const [sp] = useSearchParams();
   const [state, setState] = useState("loading"); // loading | done | invalid
   const [email, setEmail] = useState("");
+  const [attempt, setAttempt] = useState(0);
 
   useEffect(() => { applySeo({ title: "הסרה מרשימת התפוצה · סוד 1820", description: "הסרה מרשימת הדיוור של סוד 1820.", path: "/unsubscribe", noindex: true }); }, []);
 
@@ -21,12 +22,15 @@ export default function UnsubscribePage() {
     const e = sp.get("e") || "";
     const t = sp.get("t") || "";
     if (!e || !t) { setState("invalid"); return; }
+    const controller = new AbortController();
+    setState("loading");
     const url = `${SUPABASE_URL}/functions/v1/newsletter-unsubscribe?e=${encodeURIComponent(e)}&t=${encodeURIComponent(t)}&format=json`;
-    fetch(url, { headers: { apikey: SUPABASE_ANON, Authorization: `Bearer ${SUPABASE_ANON}`, accept: "application/json" } })
-      .then(r => r.json().catch(() => ({ ok: false })))
-      .then(d => { if (d?.ok) { setEmail(d.email || ""); setState("done"); } else setState("invalid"); })
-      .catch(() => setState("invalid"));
-  }, [sp]);
+    fetch(url, { signal: controller.signal, headers: { apikey: SUPABASE_ANON, Authorization: `Bearer ${SUPABASE_ANON}`, accept: "application/json" } })
+      .then(async r => { if (r.status >= 500) throw new Error("temporarily-unavailable"); return r.json(); })
+      .then(d => { if (controller.signal.aborted) return; if (d?.ok) { setEmail(d.email || ""); setState("done"); } else setState("invalid"); })
+      .catch(() => { if (!controller.signal.aborted) setState("error"); });
+    return () => controller.abort();
+  }, [sp, attempt]);
 
   const wrap = { direction: "rtl", minHeight: "70vh", display: "flex", alignItems: "center", justifyContent: "center", padding: "40px 18px", position: "relative", zIndex: 1 };
   const cardS = { maxWidth: 440, width: "100%", background: P.cardGrad, border: `1px solid ${P.borderStrong}`, borderRadius: 20, padding: "40px 30px", textAlign: "center", boxShadow: "0 24px 70px rgba(0,0,0,0.28)" };
@@ -50,6 +54,11 @@ export default function UnsubscribePage() {
             </p>
           </>
         )}
+        {state === "error" && <>
+          <h1 style={{ color: P.accentText }}>הבקשה לא הושלמה</h1>
+          <p style={{ color: P.inkSoft }}>לא התקבל אישור הסרה. אפשר לנסות שוב כשהחיבור זמין.</p>
+          <button type="button" onClick={() => setAttempt(n => n + 1)}>לנסות שוב</button>
+        </>}
         {state === "invalid" && (
           <>
             <div style={{ fontSize: 46, marginBottom: 12 }}>✋</div>

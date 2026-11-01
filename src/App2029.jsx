@@ -44,6 +44,10 @@ const Community2029Page = lazy(() => import("./pages/Community2029Page.jsx"));
 const CommunityChatTransition2029Page = lazy(() => import("./pages/CommunityChatTransition2029Page.jsx"));
 const AuthPage = lazy(() => import("./pages/Auth2029Page.jsx"));
 const OAuthCallback2029 = lazy(() => import("./pages/OAuthCallback2029.jsx"));
+const publicFoundationPreview = import.meta.env.VITE_PUBLIC_FOUNDATION_PREVIEW === "true";
+const PublicPostAddress2029Page = lazy(() => import("./pages/PublicPostAddress2029Page.jsx"));
+const NumberAddress2029Page = lazy(() => import("./pages/NumberAddress2029Page.jsx"));
+const PublicServices2029Page = lazy(() => import("./pages/PublicServices2029Page.jsx"));
 
 // Gallery pilot reuses the existing World document route and lock. No parallel
 // document rewrite, global navigation change or Legacy route is introduced.
@@ -209,6 +213,15 @@ export default function App2029() {
             <Suspense fallback={<Loading2029 />}>
               <Routes>
               <Route path="/2029" element={<HomeEntry2029 />} />
+              {publicFoundationPreview && <>
+                <Route path="/" element={<PublicPostAddress2029Page home={<HomeEntry2029 />} />} />
+                <Route path="/post" element={<Posts2029Page />} />
+                <Route path="/number" element={<PublicServices2029Page kind="number-search" />} />
+                <Route path="/number/:value" element={<Locked flag="lock_number" requireFlag homeHref="/2029"><NumberAddress2029Page /></Locked>} />
+                <Route path="/gallery" element={<Locked flag="lock_world" homeHref="/2029"><Gallery2029Page /></Locked>} />
+                {["privacy", "unsubscribe", "updates", "map"].map(kind => <Route key={kind} path={`/${kind}`} element={<PublicServices2029Page kind={kind} />} />)}
+                <Route path="/:slug" element={<PublicPostAddress2029Page />} />
+              </>}
               {integratedPreviewEnabled && <Route path="/2029/preview" element={<IntegratedPreview2029Page />} />}
               {followCenterPreviewEnabled && <Route path="/2029/preview/follow-center" element={<PublicContributorFrame2029 surface="community" title="מרכז עדכונים" introVariant="none"><FollowCenterPreview2029Page /></PublicContributorFrame2029>} />}
               <Route path="/2029/home-preview" element={<HomePreview2029Page />} />
@@ -248,10 +261,10 @@ export default function App2029() {
               <Route path="/2029/me/:module" element={<PublicContributorFrame2029 surface="community" title="האזור האישי" introVariant="none"><WriterPersonal2029Page /></PublicContributorFrame2029>} />
               <Route path="/community/researcher/:slug" element={<PublicContributorFrame2029 surface="community" title="דף כותב" introVariant="none"><PublicContributor2029Page /></PublicContributorFrame2029>} />
               <Route path="/researcher/:slug" element={<Locked flag="lock_world" homeHref="/2029"><Researcher2029Page /></Locked>} />
-              <Route path="/2029/number/:value" element={<Locked flag="lock_number" requireFlag homeHref="/2029"><Number2029Page /></Locked>} />
+              <Route path="/2029/number/:value" element={<Locked flag="lock_number" requireFlag homeHref="/2029">{publicFoundationPreview ? <NumberAddress2029Page /> : <Number2029Page />}</Locked>} />
               <Route path="/entity-hub-preview/:type/:key" element={<EntityHubPreviewPage />} />
               <Route path="/2029/control" element={<ControlEntry2029 />} />
-              <Route path="*" element={<LegacyDocumentHandoff />} />
+              <Route path="*" element={publicFoundationPreview ? <PublicServices2029Page kind="not-found" /> : <LegacyDocumentHandoff />} />
               </Routes>
             </Suspense>
           </RazielSessionMount2029>

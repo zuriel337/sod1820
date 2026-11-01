@@ -4,7 +4,7 @@
 // Projection infrastructure, Research Context state and findings semantics are untouched.
 export const PROJECTOR_PILOT_POST_IDS = Object.freeze(["5112", "92"]);
 
-const ROUTE_RE = /^\/post\/([^/]+)\/?$/;
+const ROUTE_RE = /^\/(?:post\/)?([^/]+)\/?$/;
 
 // One representation for every slug we compare: fully decoded. A DB slug may be stored
 // percent-encoded (Post 92 Hebrew slug) while the router hands us the decoded segment; both

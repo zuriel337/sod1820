@@ -12,6 +12,9 @@ import { mergeContextPackWithConnections } from "../lib/research/goldenPostConte
 import { goldenPublicSurfaceFindings } from "../lib/research/goldenProjectorModes.js";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { applySeo } from "../lib/seo.js";
+import { publicPostHref, exactPostReadingHref } from "../lib/publicPostUrls.js";
+import { publicPostShareUrl } from "../lib/publicPostUrls.js";
+import ShareActions from "../components/ShareActions.jsx";
 import { logView, logActivity } from "../lib/supabase.js";
 import { track } from "../lib/tracking.js";
 import { hardenPassiveMediaHtml } from "../lib/mediaEgressGuard.js";
@@ -55,8 +58,9 @@ function revealReadingAnchor(node) {
   return node;
 }
 
-function PostReadingBody() {
-  const { slug } = useParams();
+function PostReadingBody({ resolvedSlug = null }) {
+  const { slug: routeSlug } = useParams();
+  const slug = resolvedSlug || routeSlug;
   const location = useLocation();
   const shell = use2029Shell();
   const research = useResearch();
@@ -119,7 +123,7 @@ function PostReadingBody() {
     applySeo({
       title: projection.post.title,
       description: projection.excerpt,
-      path: `/post/${projection.post.slug}`,
+      path: publicPostHref(projection.sourcePost || projection.post),
       type: "article",
       noindex: projection.draft || projection.privateStage || projection.previewSnapshot,
     });
@@ -149,7 +153,7 @@ function PostReadingBody() {
     applySeo({
       title: "הפוסט לא נמצא",
       description: "המקור המבוקש אינו זמין ב-SOD1820 2029.",
-      path: `/post/${slug || ""}`,
+      path: location.pathname,
       noindex: true,
     });
   }, [state.loading, state.projection, slug]);
@@ -416,7 +420,7 @@ function PostReadingBody() {
         id: String(post.id),
         type: "post",
         label: post.title,
-        href: `/post/${post.slug}`,
+        href: publicPostHref(post),
       },
       selection: preserveExplicitGematriaFocus ? protectedSelection : passiveSelection,
       lens: preserveExplicitGematriaFocus ? "gematria" : "reading",
@@ -561,9 +565,9 @@ function PostReadingBody() {
   ));
   const contextualConnections = (experience.connections || []).filter((connection) => connection.href);
   const exactReturnForRegion = (region) => ({
-    href: `/post/${post.slug}#source-region-${region?.id || projection.defaultRegionId}`,
+    href: exactPostReadingHref(post, location, `#source-region-${region?.id || projection.defaultRegionId}`),
     label: post.title,
-    subject: { id: String(post.id), type: "post", label: post.title, href: `/post/${post.slug}` },
+    subject: { id: String(post.id), type: "post", label: post.title, href: publicPostHref(post) },
     selection: region ? {
       entityId: region.id,
       entityType: "post_region",
@@ -607,7 +611,7 @@ function PostReadingBody() {
       postClaimSourceRef: claim.sourceRef, postClaimSourceVersion: claim.sourceVersion,
       postClaimLocator: claim.locator, postClaimMethodVersion: methodVersion,
       postClaimSteps: result.steps, postClaimSourceMethodVersion: claim.methodVersion, postClaimLanguage: claim.lang },
-      returnTo: { ...exactReturnForRegion(activeFocus), href: `/post/${post.slug}${claim.locator}`,
+      returnTo: { ...exactReturnForRegion(activeFocus), href: exactPostReadingHref(post, location, `${claim.locator}`),
         selection: { ...selection, entityType: "post_occurrence" }, lens: "reading" } };
     // Browser Back from the full Number page must name the current occurrence,
     // even when a different calculation was opened earlier in this same Post.
@@ -617,7 +621,7 @@ function PostReadingBody() {
     // after the shared activation's generic selection, in the same React batch.
     shell.openNumber?.({ id: claim.id, type: "phrase", label: claim.expression, expression: claim.expression,
       method: focus.method, resultValue: focus.resultValue, number: focus.root,
-      href: `/post/${post.slug}${claim.locator}`, locator: claim.locator, sourceLabel: projection.sourceLabel, source: "post-exact-source-claim" });
+      href: exactPostReadingHref(post, location, `${claim.locator}`), locator: claim.locator, sourceLabel: projection.sourceLabel, source: "post-exact-source-claim" });
     research.updateResearchContext?.(patch);
   };
   const openPostSourceClaim = async claim => {
@@ -656,14 +660,14 @@ function PostReadingBody() {
       selection, lens: "gematria", dimensions: { ...dimensions, postEngineExploration: true,
         surfaceFocus: { id: occurrence.id, type: "phrase", label: occurrence.expression, expression: occurrence.expression,
           locator: occurrence.locator, sourceLabel: "בדיקה חדשה במנוע; אינה אימות של חישוב המקור" } },
-      returnTo: { ...exactReturnForRegion(activeFocus), href: `/post/${post.slug}${occurrence.locator}`, selection,
+      returnTo: { ...exactReturnForRegion(activeFocus), href: exactPostReadingHref(post, location, `${occurrence.locator}`), selection,
         dimensions: { ...dimensions, postEngineExploration: false,
           surfaceFocus: { id: occurrence.id, type: "post_occurrence", label: occurrence.expression, locator: occurrence.locator } } } };
     explicitGematriaFocusRef.current = null;
     try { window.history.replaceState(window.history.state, "", `${location.pathname}${location.search}${occurrence.locator}`); }
     catch { /* Existing Research Context remains the return target. */ }
     shell.openNumber?.({ id: occurrence.id, type: "phrase", label: occurrence.expression, expression: occurrence.expression,
-      href: `/post/${post.slug}${occurrence.locator}`, locator: occurrence.locator,
+      href: exactPostReadingHref(post, location, `${occurrence.locator}`), locator: occurrence.locator,
       sourceLabel: "בדיקה חדשה במנוע; השיטה לא הושלמה מהמקור", source: "post-engine-exploration" });
     research.updateResearchContext?.(patch);
   };
@@ -671,7 +675,7 @@ function PostReadingBody() {
     if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     event.preventDefault();
     research.updateResearchContext?.({ returnTo: { ...exactReturnForRegion(activeFocus),
-      href: `/post/${post.slug}#post-measures`, selection: { entityId: String(post.id), entityType: "post_region",
+      href: exactPostReadingHref(post, location, `#post-measures`), selection: { entityId: String(post.id), entityType: "post_region",
         sourceRef: `posts:${post.id}`, locator: "#post-measures", versionRef: projection.sourcePost.modified || null },
       dimensions: { ...(research.context?.dimensions || {}), postMeasureSelectedCardId: card?.id || null } } });
     shell.go(href, { preserve: false });
@@ -725,7 +729,7 @@ function PostReadingBody() {
     updateFocusContext();
     const subject = activeFocus.number
       ? { id: String(activeFocus.number), type: "number", label: String(activeFocus.number), href: `/2029/number/${activeFocus.number}` }
-      : { id: String(post.id), type: "post", label: post.title, href: `/post/${post.slug}` };
+      : { id: String(post.id), type: "post", label: post.title, href: publicPostHref(post) };
     research.updateResearchContext?.({
       subject,
       selection: {
@@ -787,7 +791,7 @@ function PostReadingBody() {
       id: activeFocus.number ? String(activeFocus.number) : activeFocus.id,
       type: activeFocus.number ? "number" : "post_region",
       label: activeFocus.primary,
-      href: `/post/${post.slug}#source-region-${activeFocus.id}`,
+      href: exactPostReadingHref(post, location, `#source-region-${activeFocus.id}`),
     });
   };
 
@@ -867,7 +871,7 @@ function PostReadingBody() {
           id: String(post.id),
           type: "post",
           label: post.title,
-          href: `/post/${post.slug}`,
+          href: publicPostHref(post),
         },
         selection: {
           entityId: targetRegion.id,
@@ -945,6 +949,10 @@ function PostReadingBody() {
               <div className="sod29-reading-meta-line">
                 <PostCategories2029 post={projection.sourcePost} max={Infinity} />
               </div>
+              {!projection.draft && !projection.privateStage && !projection.previewSnapshot ? <ShareActions
+                type="post" url={publicPostShareUrl(post, location)}
+                title={post.title} channels={["native", "copy"]} compact force sourceSurface="post_2029"
+              /> : null}
               {classification.legacyMediaLabels.length ? <p>„וידאו” נשמר כסיווג ישן. סוג המדיה נקבע מהמדיה עצמה, ולא מהתווית.</p> : null}
 
               {projection.excerpt ? <p>{projection.excerpt}</p> : null}
@@ -1093,7 +1101,7 @@ function PostReadingBody() {
       </div>)}
     </section> : null}
 
-    <PostTimeline2029 items={visibleTimeline} currentHref={`/post/${post.slug}`} />
+    <PostTimeline2029 items={visibleTimeline} currentHref={publicPostHref(post)} />
 
       {!projection.draft && !projection.privateStage && !projection.previewSnapshot ? <section id="post-classification" className="sod29-post-continuations">
         <header><h2>איך הפוסט משתלב?</h2>
@@ -1127,18 +1135,20 @@ function PostReadingBody() {
   </article>;
 }
 
-export default function Post2029Page() {
-  const { slug } = useParams();
+export default function Post2029Page({ resolvedSlug = null } = {}) {
+  const { slug: routeSlug } = useParams();
+  const slug = resolvedSlug || routeSlug;
+  const location = useLocation();
 
   useEffect(() => {
     applySeo({
       title: "SOD1820 · פוסט",
       description: "פוסט ורמזים בתוך SOD1820.",
-      path: `/post/${slug || ""}`,
+      path: location.pathname,
       type: "article",
       noindex: true,
     });
-  }, [slug]);
+  }, [slug, location.pathname]);
 
   return <Sod2029Shell
     surface="post"
@@ -1147,6 +1157,6 @@ export default function Post2029Page() {
     symbol="✦"
     status="פוסט"
   >
-    <PostReadingBody />
+    <PostReadingBody resolvedSlug={slug} />
   </Sod2029Shell>;
 }

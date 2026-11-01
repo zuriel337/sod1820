@@ -1,3 +1,4 @@
+import { publicPostHref } from "../publicPostUrls.js";
 // World subject discovery: existing public Topic identities are not editorial
 // categories or source works. Keep both kinds in the SAME World surface, with
 // distinct links and no inferred joins. No new taxonomy, Topic, relation, store
@@ -40,7 +41,7 @@ export function canonicalSourceSubjectCards({ topics = [], hashmalPosts = [] } =
     sourceWorks.push({
       id: `posts:${id}`, type: "source_work", origin: "hashmal",
       title, description: clean(row.excerpt), at: row.date || null,
-      values: [], href: `/post/${encodeURIComponent(slug)}`,
+      values: [], href: publicPostHref(row),
       // Source title is NOT a new subject identity. No source-only post is
       // asserted to share a Topic without a verified source relation.
       linkedTopicSlugs: [],
@@ -96,8 +97,8 @@ function legacySourceSubjectContentProjection({ topics = [], hashmalPosts = [], 
     sourceRef: row?.id == null ? null : `posts:${row.id}`,
     occurrenceRef: row?.id == null ? null : `legacy-source-subject:posts:${row.id}`,
     title: row?.title,
-    sourceHref: row?.slug ? `/post/${encodeURIComponent(row.slug)}` : null,
-    occurrenceHref: row?.slug ? `/post/${encodeURIComponent(row.slug)}` : null,
+    sourceHref: row?.slug ? publicPostHref(row) : null,
+    occurrenceHref: row?.slug ? publicPostHref(row) : null,
     publisher: { key: "sod-hashmal", label: "סוד החשמל" },
     times: { occurredAt: null, publishedAt: row?.date || null, updatedAt: row?.modified || null },
   })));

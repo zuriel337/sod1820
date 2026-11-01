@@ -1,3 +1,4 @@
+import { publicPostHref } from "../publicPostUrls.js";
 import { fetchTopicCardList } from "./topicConvergence.js";
 import { canonicalResearchPublicLabel } from "../presentation/canonicalPresentation.js";
 import { stripHtml } from "../format.js";
@@ -86,7 +87,7 @@ export function postRowToWorldUpdate(row, { publicPeople = [] } = {}) {
     sourceUpdatedAt: safeDate(row.modified),
     researchUpdatedAt: null,
     sourceRef: `posts:${row.id}`,
-    href: sourceUpdate?.targetHref || `/post/${encodeURIComponent(clean(row.slug))}`,
+    href: sourceUpdate?.targetHref || publicPostHref(row),
     value: null,
     numbers: [],
     researchCount: 0,
@@ -248,7 +249,7 @@ export async function fetchWorldDiscoveryStream({ limit = 18, publicPeople = [],
   const postsPromise = import("../supabase.js").then(async ({ supabase }) => {
     const { data, error } = await supabase
       .from("posts")
-      .select("id,slug,title,excerpt,author,source,tags,home_hidden,date,modified,created_at")
+      .select("id,slug,title,excerpt,author,source,link,wp_id,tags,home_hidden,date,modified,created_at")
       .eq("home_hidden", false)
       .not("tags", "cs", "{טיוטה}")
       .not("tags", "cs", "{פורום}")

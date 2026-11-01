@@ -32,7 +32,8 @@ export function numberExpressionFocusHref(root, {
   if (methodKey) params.set("method", methodKey);
   if (crossing) params.set("cross", crossing);
   const query = params.toString();
-  return `/2029/number/${numeric}${query ? `?${query}` : ""}`;
+  const prefix = import.meta.env?.VITE_PUBLIC_FOUNDATION_PREVIEW === "true" ? "/number" : "/2029/number";
+  return `${prefix}/${numeric}${query ? `?${query}` : ""}`;
 }
 
 export function parseNumberExpressionFocus(search = "") {
@@ -81,3 +82,20 @@ export async function resolveExpressionFocus(expression, {
 }
 
 export default resolveExpressionFocus;
+
+// Address adaptation only. Expressions still go through the canonical profile
+// reader; opening an address neither publishes nor creates a research record.
+export async function resolvePublicNumberAddress(value, { search = "", profileReader = null } = {}) {
+  const address = clean(value);
+  if (!address || address.length > 500) throw new Error("invalid-number-address");
+  const focus = parseNumberExpressionFocus(search);
+  if (/^\d+$/.test(address)) {
+    const root = exactNonnegativeInteger(address);
+    if (root == null) throw new Error("invalid-number-address");
+    return { root, address, focus, publicAddress: true };
+  }
+  const resolved = await resolveExpressionFocus(address, { preferredMethod: focus.method, profileReader });
+  if (!resolved) throw new Error("expression-method-unavailable");
+  return { root: resolved.root, address, publicAddress: true,
+    focus: { ...focus, expression: address, method: resolved.method, explicit: true } };
+}

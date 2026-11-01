@@ -78,7 +78,7 @@ function useGalleryReading(search,retry,enabled=true,includeStream=false) {
 
 function GalleryReadingControls({reading,search,onChange,onRefresh}) {
   const {filters:f,years}=reading;
-  const patch=(key,value)=>{const p=new URLSearchParams(search);value?p.set(key,value):p.delete(key);p.delete('image');p.delete('offset');p.delete('take');p.set('flow','1');onChange('/world?'+p);};
+  const patch=(key,value)=>{const p=new URLSearchParams(search);value?p.set(key,value):p.delete(key);p.delete('image');p.delete('offset');p.delete('take');p.set('flow','1');p.set('view','gallery');onChange('/world?'+p);};
   return <div className="g29-reading-controls">
     <div className="g29-catalog-controls"><label>חיפוש בגלריות ובכיתובים<input type="search" maxLength={200} value={(new URLSearchParams(search).get('q')||'').slice(0,200)} placeholder="שם, כיתוב או מספר" onChange={e=>patch('q',e.target.value)} /></label>
       <label>סדר הגלריות<select aria-label="סדר הגלריות" value={f.order} onChange={e=>patch('sort',e.target.value)}>

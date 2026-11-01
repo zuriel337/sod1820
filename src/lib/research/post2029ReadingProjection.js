@@ -1,3 +1,4 @@
+import { publicPostHref, postAddressSlug, decodePostSlug } from "../publicPostUrls.js";
 import { getPostBySlug, supabase } from "../supabase.js";
 import { buildGoldenPostContextPack, goldenContextPackClaims } from "./goldenPostContextPacks.js";
 import { createCanonicalNumberW2Executors } from "./researchW2Executors.js";
@@ -275,7 +276,7 @@ export function resolvePostReadingRegion(projection, context, hash = "") {
   const post = projection?.post;
   const samePost = post && context?.subject?.type === "post"
     && String(context.subject.id) === String(post.id)
-    && (!context.subject.href || context.subject.href.split("#")[0] === `/post/${post.slug}`);
+    && (!context.subject.href || postAddressSlug(context.subject.href.split(/[?#]/)[0]) === decodePostSlug(post.slug));
   if (!samePost) return null;
   return byLocator(context.selection?.locator);
 }
@@ -400,7 +401,7 @@ export async function resolvePostExperienceConnections(experience, { readPost = 
       decodeURIComponent(slug); // Validate before invoking the existing reader.
       const post = await readPost(slug);
       return post?.id && post?.slug
-        ? { ...connection, href: `/post/${encodeURIComponent(post.slug)}` }
+        ? { ...connection, href: publicPostHref(post) }
         : unavailable();
     } catch { return unavailable(); }
   }));
@@ -826,8 +827,8 @@ export async function fetchGoldenContextPackBySlug(slug) {
 }
 
 export async function fetchPost2029ReadingProjection(slug) {
-  const publicPost = await getPostBySlug(slug);
-  if (publicPost && !isPublicPostMeasureSource(publicPost)) return null;
+  const publicPost = await getPostBySlug(slug, { throwOnError: true });
+  if (publicPost && !isPublicPostReadingSource(publicPost)) return null;
   const privateStage = publicPost ? null : await fetchPrivateGoldenStage(slug);
   const previewSnapshot = !publicPost && !privateStage && slug === GOLDEN_SLUG ? POST2029_PREVIEW_SNAPSHOT : null;
   const post = publicPost || privateStage || previewSnapshot;
@@ -910,7 +911,7 @@ export async function fetchPost2029ReadingProjection(slug) {
       type: "post",
       id: String(post.id),
       slug: post.slug,
-      href: `/post/${post.slug}`,
+      href: publicPostHref(post),
     },
     sourceLine: isGolden
       ? "סוד החשמל · גליון חג הסוכות · „תשית לראשו עטרת פז”"
@@ -945,10 +946,16 @@ export async function fetchPost2029ReadingProjection(slug) {
 
 // Post measures compose the existing public Post, Topic and canonical method
 // readers. No cache, graph edge, score or publication decision is created here.
-export function isPublicPostMeasureSource(post) {
-  return Boolean(post?.id != null && clean(post.slug) && post.home_hidden !== true
+export function isPublicPostReadingSource(post) {
+  // Home placement is distinct from publication/access. The existing public
+  // catalogue and XML include home-hidden posts; RLS and publication gates apply.
+  return Boolean(post?.id != null && clean(post.slug)
     && !post._privateStage && !post._previewSnapshot && !hasSuppressedPublicPostTag(post)
     && !["gpt-draft", "web"].includes(clean(post.source).toLowerCase()));
+}
+
+export function isPublicPostMeasureSource(post) {
+  return isPublicPostReadingSource(post) && post.home_hidden !== true;
 }
 
 export async function revalidatePostMeasureSource(sourcePost, { client = supabase } = {}) {

@@ -8,6 +8,7 @@ import { usePalette, use2029Palette } from "../lib/palette.js";
 import { CHANNELS as CH, SHARE_SITE as SITE, canNativeShare, nativeShare, copyLink, floatingShareShown, canShareFile, shareImageFile } from "../lib/share.js";
 import { createShareIntent, resolveModality } from "../lib/share/shareObject.js";
 import { emitShare, shareSlug, attributedShareUrl } from "../lib/share/shareTelemetry.js";
+import { canonicalPostShareUrl } from "../lib/publicPostUrls.js";
 
 // 🔗 ShareActions — רכיב-השיתוף הקנוני היחיד באתר (canonical_ui_components_law).
 // כל מסך (מספר/צופן/פוסט/גלריה/כל ישות) מעביר פרמטרים בלבד — לא משכפל קוד שיתוף.
@@ -42,7 +43,9 @@ export default function ShareActions({
   useEffect(() => () => clearTimeout(copyTimer.current), []);
   const { pathname } = useLocation();
   const [copied, setCopied] = useState(false);
-  const fullUrl = url || (typeof window !== "undefined" ? window.location.href : SITE);
+  const currentUrl = typeof window !== "undefined" ? window.location.href : SITE;
+  const fullUrl = url || (type === "post" && typeof document !== "undefined"
+    ? canonicalPostShareUrl(currentUrl, document.querySelector('link[rel="canonical"]')?.href) : currentUrl);
   const text = title || (typeof document !== "undefined" ? document.title : "SOD1820");
   const canNative = canNativeShare();
 

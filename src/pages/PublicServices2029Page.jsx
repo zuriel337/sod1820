@@ -1,0 +1,33 @@
+import React, { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import Sod2029Shell from "../components/experience2029/Sod2029Shell.jsx";
+import PrivacyPage from "./PrivacyPage.jsx";
+import UnsubscribePage from "./UnsubscribePage.jsx";
+import NotFoundPage from "./NotFoundPage.jsx";
+import { NewsletterSignup2029 } from "../components/StayUpdatedCTA.jsx";
+import { applySeo } from "../lib/seo.js";
+import "./auth2029.css";
+
+const LABELS = { privacy: "פרטיות", unsubscribe: "הסרה מהדיוור", updates: "עדכונים במייל", map: "מפת האתר", "number-search": "מספר או ביטוי", "not-found": "העמוד לא נמצא" };
+function NumberEntry() {
+  const [term, setTerm] = useState(""); const navigate = useNavigate();
+  return <section className="sod29-section sod29-auth-card"><h1>מספר או ביטוי</h1><p>המספרים, הביטויים והמקורות במנוע הקיים. חיפוש אינו פרסום ציבורי.</p>
+    <form className="sod29-actions" onSubmit={e => { e.preventDefault(); if (term.trim()) navigate(`/number/${encodeURIComponent(term.trim())}`); }}>
+      <label>מה מחפשים? <input required maxLength={500} value={term} onChange={e => setTerm(e.target.value)} placeholder="למשל 1820 או בראשית" /></label>
+      <button type="submit" className="sod29-action">פתיחה</button>
+    </form></section>;
+}
+export default function PublicServices2029Page({ kind }) {
+  useEffect(() => {
+    if (["privacy", "unsubscribe", "not-found"].includes(kind)) return;
+    applySeo({ title: LABELS[kind], path: kind === "number-search" ? "/number" : `/${kind}`, noindex: kind === "updates" });
+  }, [kind]);
+  return <Sod2029Shell surface="community" title={LABELS[kind]} introVariant="none">
+    {kind === "privacy" ? <PrivacyPage /> : kind === "unsubscribe" ? <UnsubscribePage /> : kind === "number-search" ? <NumberEntry />
+      : kind === "not-found" ? <NotFoundPage /> : kind === "updates" ? <>
+        <h1>עדכונים במייל</h1><NewsletterSignup2029 /><p>להסרה: השתמשו בקישור האישי שבתחתית המייל שקיבלתם. <Link to="/unsubscribe">עזרה בהסרה</Link> · <Link to="/privacy">פרטיות ויצירת קשר</Link></p>
+      </> : <section className="sod29-section"><h1>מפת האתר</h1><nav aria-label="דפי האתר" className="sod29-actions">
+        {[["/", "בית"], ["/world", "העולם"], ["/post", "פוסטים"], ["/number", "מספר או ביטוי"], ["/gallery", "גלריה"], ["/login", "כניסה לחשבון"], ["/updates", "עדכונים במייל"], ["/privacy", "פרטיות ומחיקת נתונים"], ["/unsubscribe", "הסרה מהדיוור"]].map(([href, label]) => <Link key={href} className="sod29-action" to={href}>{label}</Link>)}
+      </nav></section>}
+  </Sod2029Shell>;
+}

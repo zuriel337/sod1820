@@ -14,6 +14,7 @@ import HomeHeroMotion2029 from "./HomeHeroMotion2029.jsx";
 import { useReveal } from "./useReveal2029.js";
 import { useApproach2029 } from "./useApproach2029.js";
 import { realUpdate } from "../../lib/heroUpdate2029.js";
+import { publicPostHref } from "../../lib/publicPostUrls.js";
 import { recentConvergence, readSeen, markSeen } from "../../lib/homeMotion2029.js";
 import PostCategories2029 from "./PostCategories2029.jsx";
 import "./homeMotion2029.css";
@@ -22,9 +23,9 @@ import "./homeComposition2029.css";
 const clean = (value) => stripHtml(value == null ? "" : String(value)).trim();
 
 
-function postHref(slugOrPath) {
-  const slug = String(slugOrPath || "").replace(/^\/+/, "");
-  return slug ? `/post/${slug}` : "/2029/posts";
+function postHref(postOrPath) {
+  if (typeof postOrPath === "string" && /^\/(?!\/)/.test(postOrPath)) return postOrPath;
+  return publicPostHref(postOrPath) || "/2029/posts";
 }
 
 function titleNumber(title, tags) {
@@ -49,7 +50,7 @@ function useHomeCompositionData({ includeWorld = true } = {}) {
       let rowsBySlug = {};
       try {
         if (supabase && slugs.length) {
-          const { data: rows } = await supabase.from("posts").select("id,slug,date,modified,categories,source,tags,home_hidden").in("slug", slugs);
+          const { data: rows } = await supabase.from("posts").select("id,slug,date,modified,categories,source,link,wp_id,tags,home_hidden").in("slug", slugs);
           rowsBySlug = Object.fromEntries((rows || []).map((row) => [row.slug, row]));
         }
       } catch (_) { /* the cards simply show no mark */ }
@@ -131,7 +132,7 @@ export default function HomeComposition2029({
   const see = (key) => setSeen((current) => (current[key] ? current : markSeen(key, current)));
 
   return <div className="h29" data-experience-capability="home-composition">
-    {nowHero || (lead ? <HomeHeroMotion2029 lead={lead} href={postHref(lead.slug)} includeWorld={!corePublic} /> : <section className={`h29-hero${data.loading ? " is-loading" : ""}`} aria-busy={data.loading}><div className="h29-hero-copy"><div className="h29-kicker">עכשיו</div><h1>{data.loading ? "טוען את מה שחי עכשיו…" : "SOD1820"}</h1>{!data.loading ? <p>העדכונים אינם זמינים כרגע. אפשר להמשיך לצפנים, למחשבון או לצ׳אט.</p> : null}</div></section>)}
+    {nowHero || (lead ? <HomeHeroMotion2029 lead={lead} href={postHref(lead)} includeWorld={!corePublic} /> : <section className={`h29-hero${data.loading ? " is-loading" : ""}`} aria-busy={data.loading}><div className="h29-hero-copy"><div className="h29-kicker">עכשיו</div><h1>{data.loading ? "טוען את מה שחי עכשיו…" : "SOD1820"}</h1>{!data.loading ? <p>העדכונים אינם זמינים כרגע. אפשר להמשיך לצפנים, למחשבון או לצ׳אט.</p> : null}</div></section>)}
 
     {corePublic ? <section className="h29-quiet" aria-label="מצב האתר" data-home-launch-notice="gradual-opening">
       <strong>המערכת בבנייה, והחלקים נפתחים בהדרגה.</strong>
@@ -151,7 +152,7 @@ export default function HomeComposition2029({
                 {post.update ? <span className="h29-upd"><i className={`h29-dot${unseen ? " is-new" : ""}`} aria-hidden="true" />עודכן {relativeTimeLabel(post.update.at)} · {post.update.label}</span> : null}</span>
             </button>
             <PostCategories2029 categories={post.categories} max={3} className="h29-card-cats" />
-            <Link className="h29-card-open" to={post.update?.targetHref || postHref(post.slug)}>{post.update?.targetHref ? "לקטע שעודכן ←" : "לקריאה ←"}</Link>
+            <Link className="h29-card-open" to={post.update?.targetHref || postHref(post)}>{post.update?.targetHref ? "לקטע שעודכן ←" : "לקריאה ←"}</Link>
           </article>;
         })}
         {data.loading ? <div className="h29-skel" aria-hidden="true" /> : null}
@@ -212,7 +213,7 @@ export default function HomeComposition2029({
       <div className="h29-anchors">
         <Link className="h29-anchor k29-rv" to="/world"><span className="h29-glyph is-people"><NavigationIcon2029 name="community" /></span>
           <span><b>הכותבים</b><small>{people.length ? people.map((person) => person.displayName).join(" · ") : "הכותבים שמקורותיהם בעולם"}</small></span></Link>
-        <Link className="h29-anchor k29-rv" to={data.dimensionPost?.slug ? postHref(data.dimensionPost.slug) : "/2029/posts"}><span className="h29-glyph is-dim"><NavigationIcon2029 name="cosmos" /></span>
+        <Link className="h29-anchor k29-rv" to={data.dimensionPost?.slug ? postHref(data.dimensionPost) : "/2029/posts"}><span className="h29-glyph is-dim"><NavigationIcon2029 name="cosmos" /></span>
           <span><b>מימד חמש</b><small>{data.dimensionPost ? clean(data.dimensionPost.title) : "עשר הספירות, מפת ישראל ותודעה"}</small></span></Link>
         <a className="h29-anchor k29-rv" href="/or-geula"><span className="h29-glyph is-geula"><NavigationIcon2029 name="spark" /></span>
           <span><b>אור הגאולה</b><small>רמזי הגאולה לאורך השנים</small></span></a>

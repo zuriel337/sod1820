@@ -1,3 +1,5 @@
+import { publicPostUrl } from "../src/lib/publicPostUrls.js";
+import { hasSuppressedPublicPostTag } from "../src/lib/research/publicPostBoundary.js";
 // Vercel Serverless Function — הזרקת תגיות Open Graph לכל עמוד עבור רובוטי הרשתות.
 import { resolveResearchObjectPresentation } from '../src/lib/research/researchObjectPresentation.js';
 import { worldFindingShareCard } from '../src/lib/research/worldFindingShare.js';
@@ -31,6 +33,12 @@ const ragil = (s) => Array.from(String(s || '')).reduce((a, c) => a + (RAGIL[c] 
 
 // עמודים סטטיים — כותרת/תיאור + כרטיס שיתוף ייעודי (card) כדי שכל לינק יביא תמונה יפה ומסבירה
 const STATIC = {
+  '/login': { title: 'כניסה לחשבון · סוד 1820', desc: 'כניסה לחשבון הקיים וחזרה לגלישה.' },
+  '/auth/callback': { title: 'משלימים כניסה · סוד 1820', desc: 'השלמת הכניסה לחשבון.' },
+  '/posts': { title: 'פוסטים · סוד 1820', desc: 'הפוסטים, המקורות והסיפורים של סוד 1820.' },
+  '/privacy': { title: 'מדיניות פרטיות · סוד 1820', desc: 'מדיניות הפרטיות ומחיקת נתונים באתר סוד 1820.' },
+  '/unsubscribe': { title: 'הסרה מהדיוור · סוד 1820', desc: 'הסרה מרשימת העדכונים של סוד 1820.' },
+  '/updates': { title: 'עדכונים במייל · סוד 1820', desc: 'הרשמה מפורשת לעדכוני סוד 1820 בדואר אלקטרוני.' },
   // ⛔ SEO_BRAND_HOMEPAGE_IDENTITY_ADDENDUM (Human Gate ZURIEL, 2026-09-07). זה מה שרובוטי-
   // תצוגה שלא מריצים JS (וואטסאפ/פייסבוק/טלגרם, דרך ה-UA-rewrite ב-vercel.json) רואים בפועל —
   // חייב לשאת את אותה זהות-מותג עברית מאושרת כמו index.html/routes.jsx ROUTE_META["/"].
@@ -211,12 +219,16 @@ export default async function handler(req, res) {
   let type = 'website';
   let robots = 'index, follow';
   let convergenceLd = null;
+  let documentStatus = 200;
+  let postLookupFailed = false;
   let post = null;  // נתוני הפוסט (לתגיות article ו-JSON-LD)
   let orgeulaVid = null;   // 🎬 payload משותף ל-VideoObject server-side
   let videoCanonical = null;
   let canonical = SITE + (path === '/' ? '' : path);
 
   const key = path.replace(/\/$/, '') || '/';
+  const wpValue = String(req.query?.p || new URLSearchParams(String(req.query?.path || '').split('?').slice(1).join('?')).get('p') || '');
+  const wpId = key === '/' && /^[1-9][0-9]*$/.test(wpValue) ? wpValue : null;
   // Vercel rewrites preserve unmatched request query params. Also accept the
   // path query in direct /api/og calls; fragments never arrive over HTTP.
   const queryInPath = String(req.query?.path || '').split('?').slice(1).join('?');
@@ -478,7 +490,9 @@ export default async function handler(req, res) {
         }
       } catch { /* Fail closed; never substitute admin data or expose the requested id. */ }
     }
-  } else if (STATIC[staticKey]) {
+  } else if (STATIC[staticKey] && !wpId) {
+    if (["/unsubscribe", "/updates", "/login", "/auth/callback"].includes(key)) robots = "noindex, nofollow";
+    if (key === "/posts") canonical = SITE + "/post";
     title = STATIC[staticKey].title;
     desc = STATIC[staticKey].desc;
     if (STATIC[staticKey].card) image = cardUrl(STATIC[staticKey].card);
@@ -643,14 +657,18 @@ export default async function handler(req, res) {
     const variants = [slug];
     const encLower = encodeURIComponent(slug).replace(/%[0-9A-Fa-f]{2}/g, m => m.toLowerCase());
     if (encLower !== slug) variants.push(encLower);
-    const SEL = 'select=title,excerpt,content,image_url,date,modified,tags,categories,author&limit=1';
+    const SEL = 'select=id,slug,source,link,wp_id,title,excerpt,content,image_url,date,modified,tags,categories,author&limit=1';
     for (const v of variants) {
       try {
-        const url = `${SUPABASE_URL}/rest/v1/posts?slug=eq.${encodeURIComponent(v)}&${SEL}`;
+        const identityFilter = wpId ? `wp_id=eq.${wpId}` : `slug=eq.${encodeURIComponent(v)}`;
+        const url = `${SUPABASE_URL}/rest/v1/posts?${identityFilter}&${SEL}`;
         const r = await fetch(url, { headers: { apikey: ANON, Authorization: 'Bearer ' + ANON } });
+        if (!r.ok) throw new Error('post-source-unavailable');
         const rows = await r.json();
         if (Array.isArray(rows) && rows[0]) {
+          if (hasSuppressedPublicPostTag(rows[0])) break;
           post = rows[0];
+          canonical = publicPostUrl(post);
           title = stripHtml(post.title) + ' · ' + SITE_NAME;
           desc = cleanDesc(post.excerpt || post.content) || DEFAULT_DESC;
           // 🛡 post_og_image_law: og:image חייב רסטר (זחלנים לא מציגים SVG, ולא raw.githubusercontent).
@@ -669,9 +687,10 @@ export default async function handler(req, res) {
           type = 'article';
           break;
         }
-      } catch { /* try next variant */ }
+      } catch { postLookupFailed = true; /* try next variant */ }
     }
-    if (key.startsWith('/post/') && !post) {
+    if (!post) {
+      documentStatus = postLookupFailed ? 503 : 404;
       robots = 'noindex, follow';
       title = 'הפוסט לא נמצא · ' + SITE_NAME;
       desc = 'המקור המבוקש אינו זמין ב-SOD1820 2029.';
@@ -793,5 +812,5 @@ ${searchCrawlerDocument ? '' : `<meta http-equiv="refresh" content="0; url=${esc
     res.setHeader('X-Robots-Tag', robots);
     res.setHeader('Vary', 'User-Agent');
   }
-  res.status(200).send(html);
+  res.status(req.publicFoundationPreview === true ? documentStatus : 200).send(html);
 }

@@ -367,3 +367,22 @@ for (const branch of ['gpt/2029-unified-community-latest-integration-20261031', 
  const productionGuard=builder.slice(builder.indexOf('const END_TO_END_BRANCH'),builder.indexOf('const POSTS_PREVIEW_BRANCH'));
  assert.throws(()=>vm.runInNewContext(productionGuard,{process:{env:{VERCEL_GIT_COMMIT_REF:branch,VERCEL_ENV:'production'}}}),/unified_preview_is_never_production/);
 });
+
+
+test('public-foundation Preview retains identity/write boundaries and permits only the existing exact newsletter contract', async () => {
+ const branch='gpt/2029-public-foundation-continuity-20261101';
+ const current=managementWorker(branch);
+ const signup={email:'reader@example.invalid',source:'2029-public-updates'};
+ assert.equal((await request('/functions/v1/newsletter-signup?format=json',{body:signup,workerSource:current})).forwarded,1);
+ for(const body of [{...signup,source:'other'},{...signup,email:'bad'},{...signup,active:true},[],null]) {
+  const result=await request('/functions/v1/newsletter-signup?format=json',{body,workerSource:current});assert.equal(result.status,403);assert.equal(result.forwarded,0);
+ }
+ for(const path of ['/functions/v1/newsletter-signup','/functions/v1/newsletter-signup?format=json&extra=1']) assert.equal((await request(path,{body:signup,workerSource:current})).status,403);
+ for(const [ref,env] of [[branch,'production'],[branch,'development'],[branch,undefined],[branch+'-other','preview'],[functionalBranch,'preview']]) {
+  const result=await request('/functions/v1/newsletter-signup?format=json',{body:signup,workerSource:managementWorker(ref,env ?? "")});assert.equal(result.status,403);assert.equal(result.forwarded,0);
+ }
+ for(const path of ['/rest/v1/profiles','/rest/v1/posts','/rest/v1/subscribers','/rest/v1/rpc/admin_set_role']) {
+  const result=await request(path,{body:{role:'admin'},workerSource:current});assert.equal(result.status,403);assert.equal(result.forwarded,0);
+ }
+ for(const rpc of ['is_number_indexable','is_phrase_indexable'])assert.equal((await request('/rest/v1/rpc/'+rpc,{body:{},workerSource:current})).status,200);
+});

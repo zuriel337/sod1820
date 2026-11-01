@@ -13,7 +13,7 @@ if ([END_TO_END_BRANCH, "gpt/2029-unified-performance-consolidation-20261031", "
 }
 
 const POSTS_PREVIEW_BRANCH = "gpt/posts-integrated-backgrounds-20261030";
-if (process.env.VERCEL_GIT_COMMIT_REF === "gpt/2029-functional-unified-preview-20261031" && process.env.VERCEL_ENV !== "preview") {
+if (["gpt/2029-functional-unified-preview-20261031", "gpt/2029-public-foundation-continuity-20261101"].includes(process.env.VERCEL_GIT_COMMIT_REF) && process.env.VERCEL_ENV !== "preview") {
   throw new Error("functional_preview_requires_preview_environment");
 }
 if (process.env.VERCEL_GIT_COMMIT_REF === POSTS_PREVIEW_BRANCH && process.env.VERCEL_ENV === "production") {
@@ -23,11 +23,13 @@ if (process.env.VERCEL_GIT_COMMIT_REF === POSTS_PREVIEW_BRANCH && process.env.VE
 const root = fileURLToPath(new URL("../", import.meta.url));
 const output = resolve(root, "preview-deploy/dist");
 const functionalPreviewBuild = process.env.VERCEL_ENV === "preview"
-  && process.env.VERCEL_GIT_COMMIT_REF === "gpt/2029-functional-unified-preview-20261031";
+  && ["gpt/2029-functional-unified-preview-20261031", "gpt/2029-public-foundation-continuity-20261101"].includes(process.env.VERCEL_GIT_COMMIT_REF);
+const publicFoundationBuild = process.env.VERCEL_ENV === "preview" && process.env.VERCEL_GIT_COMMIT_REF === "gpt/2029-public-foundation-continuity-20261101";
 process.env.SOD_BUILD_TARGET = "2029";
 // Same source/content gate used by the regular builds; no Preview exemption.
 execFileSync(process.execPath, [resolve(root, "scripts/test-one-tree-content-contract.mjs")], { cwd: root, stdio: "inherit" });
 await build({ root, define: {
+  "import.meta.env.VITE_PUBLIC_FOUNDATION_PREVIEW": JSON.stringify(publicFoundationBuild ? "true" : "false"),
   "import.meta.env.VITE_INTEGRATED_PREVIEW": '"true"',
   "import.meta.env.VITE_KINGDOM_PREVIEW": '"true"',
   "import.meta.env.VITE_BOOK_PUBLICATION_REVIEW_PREVIEW": '"true"',
@@ -35,12 +37,28 @@ await build({ root, define: {
   "import.meta.env.VITE_FUNCTIONAL_UNIFIED_PREVIEW": JSON.stringify(functionalPreviewBuild ? "true" : "false"),
 }, build: { outDir: output, emptyOutDir: true, manifest: true } });
 
-const allow = ["gematria_api", "fn_method_value", "fn_method_profile", "gematria_method_trace", "fn_zero_scale", "posts_by_number_strict", "fn_number_lookup", "fn_number_dossier", "fn_number_journey", "fn_verses_by_gematria", "lang_links_list", "number_neighbors", "fn_all_methods", "world_group_source_arrivals_v2", "rd_is_admin", "fn_list_family", "fn_name_protocol", "fn_cross_research"];
+const allow = ["gematria_api", "fn_method_value", "fn_method_profile", "gematria_method_trace", "fn_zero_scale", "posts_by_number_strict", "fn_number_lookup", "fn_number_dossier", "fn_number_journey", "fn_verses_by_gematria", "lang_links_list", "number_neighbors", "fn_all_methods", "world_group_source_arrivals_v2", "rd_is_admin", "fn_list_family", "fn_name_protocol", "fn_cross_research", "is_number_indexable", "is_phrase_indexable"];
 const functionalPreview = typeof process !== "undefined" && process.env.VERCEL_ENV === "preview"
-  && process.env.VERCEL_GIT_COMMIT_REF === "gpt/2029-functional-unified-preview-20261031";
+  && ["gpt/2029-functional-unified-preview-20261031", "gpt/2029-public-foundation-continuity-20261101"].includes(process.env.VERCEL_GIT_COMMIT_REF);
 // This is a transport boundary, never an alternative to canonical server Auth/RLS.
 // New functionality belongs only to the explicitly authorized Preview branch.
 function interceptFunctionalPreview(event, { req, u, rpc, authOrigin }) {
+  if (u.origin === authOrigin && u.pathname === "/functions/v1/newsletter-signup") {
+    event.respondWith((async () => {
+      const denied = () => new Response(JSON.stringify({ error: "preview_operation_denied" }), { status: 403 });
+      if (!publicFoundationPreview || req.method !== "POST" || u.search !== "?format=json") return denied();
+      try {
+        const raw = await req.clone().text(); if (raw.length > 12000) return denied();
+        const body = JSON.parse(raw);
+        if (!body || Array.isArray(body) || Object.keys(body).some(key => !["email", "source", "acquisition"].includes(key))
+          || body.source !== "2029-public-updates" || typeof body.email !== "string" || body.email.length > 120
+          || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(body.email)
+          || (body.acquisition != null && (typeof body.acquisition !== "object" || Array.isArray(body.acquisition)))) return denied();
+        return fetch(req); // Existing public signup validates/stores/sends only on explicit submit.
+      } catch { return denied(); }
+    })());
+    return true;
+  }
   const mutating = !["GET", "HEAD", "OPTIONS"].includes(req.method);
   if(u.origin===authOrigin && rpc==="convergence_meter") {
     event.respondWith((async()=>{
@@ -174,7 +192,7 @@ function interceptFunctionalPreview(event, { req, u, rpc, authOrigin }) {
 // One explicit, authenticated user turn may reach the EXISTING live server.
 // This is not an Edge rollout, matrix job allowance or product-write exemption.
 const realRazielPreview = typeof process !== "undefined" && process.env.VERCEL_ENV === "preview"
-  && ["gpt/2029-unified-end-to-end-preview-20261031", "gpt/2029-unified-community-latest-integration-20261031", "gpt/2029-unified-performance-consolidation-20261031", "gpt/2029-home-loading-acceptance-20261031", "gpt/2029-functional-unified-preview-20261031"].includes(process.env.VERCEL_GIT_COMMIT_REF);
+  && ["gpt/2029-unified-end-to-end-preview-20261031", "gpt/2029-unified-community-latest-integration-20261031", "gpt/2029-unified-performance-consolidation-20261031", "gpt/2029-home-loading-acceptance-20261031", "gpt/2029-functional-unified-preview-20261031", "gpt/2029-public-foundation-continuity-20261101"].includes(process.env.VERCEL_GIT_COMMIT_REF);
 const endToEndReadOnly = typeof process !== "undefined"
   && ["gpt/2029-unified-end-to-end-preview-20261031", "gpt/2029-unified-community-latest-integration-20261031", "gpt/2029-unified-performance-consolidation-20261031", "gpt/2029-home-loading-acceptance-20261031"].includes(process.env.VERCEL_GIT_COMMIT_REF);
 // The Preview is restricted to existing accounts. This identity RPC is forwarded so an
@@ -189,13 +207,14 @@ const communityFields = "id,parent_id,author_name,author_user_id,author_contribu
 // messages through the reviewed server RPCs. No general write or model allowance.
 const communityMessageManagement = typeof process !== "undefined"
   && process.env.VERCEL_ENV === "preview"
-  && ["gpt/community-server-auth-20261031", "gpt/community-auth-publish-media-20261031", "gpt/2029-unified-community-latest-integration-20261031", "gpt/2029-unified-performance-consolidation-20261031", "gpt/2029-home-loading-acceptance-20261031", "gpt/2029-functional-unified-preview-20261031"].includes(process.env.VERCEL_GIT_COMMIT_REF);
+  && ["gpt/community-server-auth-20261031", "gpt/community-auth-publish-media-20261031", "gpt/2029-unified-community-latest-integration-20261031", "gpt/2029-unified-performance-consolidation-20261031", "gpt/2029-home-loading-acceptance-20261031", "gpt/2029-functional-unified-preview-20261031", "gpt/2029-public-foundation-continuity-20261101"].includes(process.env.VERCEL_GIT_COMMIT_REF);
 const communityPublishing = typeof process !== "undefined" && process.env.VERCEL_ENV === "preview"
-  && ["gpt/community-auth-publish-media-20261031", "gpt/2029-unified-community-latest-integration-20261031", "gpt/2029-unified-performance-consolidation-20261031", "gpt/2029-home-loading-acceptance-20261031", "gpt/2029-functional-unified-preview-20261031"].includes(process.env.VERCEL_GIT_COMMIT_REF);
+  && ["gpt/community-auth-publish-media-20261031", "gpt/2029-unified-community-latest-integration-20261031", "gpt/2029-unified-performance-consolidation-20261031", "gpt/2029-home-loading-acceptance-20261031", "gpt/2029-functional-unified-preview-20261031", "gpt/2029-public-foundation-continuity-20261101"].includes(process.env.VERCEL_GIT_COMMIT_REF);
 // The unified working preview must not create Person records or record ELS traces.
 const unifiedReadOnly = typeof process !== "undefined" && ["gpt/2029-central-unified-workspace-20261029", "gpt/2029-central-shell-alignment-20261029", "gpt/2029-central-topbar-menu-completion-20261029", "gpt/2029-central-ui-carry-restoration-20261029", "gpt/2029-central-community-filter-tiles-20261029", "gpt/2029-central-community-small-filters-20261029", "gpt/2029-central-single-command-bar-20261029", "gpt/2029-central-public-context-labels-20261029", "gpt/2029-central-zvi-public-material-20261029", "gpt/2029-central-zvi-research-experience-20261029", "gpt/2029-central-zvi-world-source-tree-20261030", "gpt/elections-world-seed-integration-20261030", "gpt/posts-integrated-backgrounds-20261030", "gpt/2029-central-posts-els-raziel-integration-20261031"].includes(process.env.VERCEL_GIT_COMMIT_REF);
 const worker = `const reads = new Set(${JSON.stringify(allow)});
 const functionalPreview=${JSON.stringify(functionalPreview)};
+const publicFoundationPreview=${JSON.stringify(functionalPreview && process.env.VERCEL_GIT_COMMIT_REF === "gpt/2029-public-foundation-continuity-20261101")};
 ${interceptFunctionalPreview.toString()}
 const existingPersonAccess=${JSON.stringify(existingPersonAccess)};
 const unifiedReadOnly=${JSON.stringify((unifiedReadOnly || communityMessageManagement || endToEndReadOnly) && !functionalPreview)};
@@ -455,3 +474,5 @@ for (const name of ["corrected-answer.png", "fresh-session-next-question.png", "
   await copyFile(resolve(root, "preview-deploy/evidence", name), resolve(output, "preview-evidence", name));
 }
 console.log("Static integrated Preview built; request guard runs before App2029.");
+
+if (publicFoundationBuild) await writeFile(resolve(output, "robots.txt"), "User-agent: *\nDisallow: /\n");

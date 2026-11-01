@@ -1,3 +1,4 @@
+import { publicPostHref } from "../publicPostUrls.js";
 import { supabase } from "../supabase.js";
 import { getCurrentTemporalContext } from "../timeFlow.js";
 import { fetchCurationCatalog2029 } from "./curationProjection2029.js";
@@ -241,7 +242,7 @@ async function fetchApprovedContributions(value) {
 async function fetchPublicPostFindings(value) {
   const { data, error } = await supabase
     .from("posts")
-    .select("id,title,slug,link,modified,date,author,ai_addition,space,home_hidden")
+    .select("id,title,slug,link,source,wp_id,modified,date,author,ai_addition,space,home_hidden")
     .eq("space", "core")
     .eq("home_hidden", false)
     .not("ai_addition", "is", null)
@@ -261,7 +262,7 @@ async function fetchPublicPostFindings(value) {
         value: Number(value),
         attribution: finding.contributor || clean(post.author) || "מקור הפוסט",
         sourceTitle: clean(post.title),
-        sourceHref: post.slug ? `/${post.slug}` : clean(post.link) || null,
+        sourceHref: post.slug ? publicPostHref(post) : null,
         occurredAt: post.modified || post.date || null,
       });
     }

@@ -125,11 +125,12 @@ const ShellContext = createContext({
 
 export const use2029Shell = () => useContext(ShellContext);
 
+const publicFoundationPreview = import.meta.env.VITE_PUBLIC_FOUNDATION_PREVIEW === "true";
 const HOME_NAV = [
-  { to: "/2029", label: "בית", icon: "⌂", exact: true },
+  { to: publicFoundationPreview ? "/" : "/2029", label: "בית", icon: "⌂", exact: true },
   { to: "/world", label: "העולם", icon: "◌" },
   { to: "/heichal", label: "היכל", icon: "◇" },
-  { to: "/2029/posts", label: "פוסטים", icon: "↟" },
+  { to: publicFoundationPreview ? "/post" : "/2029/posts", label: "פוסטים", icon: "↟" },
   { to: "/2029/journey", label: "מסע החיים", icon: "↝" },
   { to: "/community/chat", label: "קהילה", icon: "◉" },
 ];
@@ -138,11 +139,16 @@ const DIRECT_NAV = [
   { action: "number-search", label: "דף המספר", icon: "123" },
   { to: "/books", label: "ספרים ומקורות", icon: "▤" },
   { to: "/els", label: "ELS · הצופן התנ״כי", icon: "✦" },
+  ...(publicFoundationPreview ? [
+    { to: "/map", label: "מפת האתר", icon: "◌" },
+    { to: "/updates", label: "עדכונים במייל", icon: "✉" },
+    { to: "/privacy", label: "פרטיות", icon: "◇" },
+  ] : []),
 ];
 
 const CORE_HOME_NAV = [
-  { to: "/2029", label: "בית", icon: "⌂", exact: true },
-  { to: "/2029/posts", label: "פוסטים", icon: "↟" },
+  { to: publicFoundationPreview ? "/" : "/2029", label: "בית", icon: "⌂", exact: true },
+  { to: publicFoundationPreview ? "/post" : "/2029/posts", label: "פוסטים", icon: "↟" },
   { to: "/community/chat", label: "קהילה", icon: "◉" },
   HOME_NAV[1],
   { to: "/heichal", label: "היכל", icon: "◇" },

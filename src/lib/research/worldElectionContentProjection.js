@@ -1,3 +1,4 @@
+import { publicPostHref } from "../publicPostUrls.js";
 // Election branch → World public-content projection.
 //
 // This is a consumer of the generic One Tree branch and existing public
@@ -37,7 +38,7 @@ function sourceHref(source, galleryById, postById) {
   const id = postId(source?.canonicalRef);
   if (id != null) {
     const post = postById.get(id);
-    return post?.slug ? `/post/${encodeURIComponent(post.slug)}` : null;
+    return post?.slug ? publicPostHref(post) : null;
   }
   return clean(source?.locator) || null;
 }

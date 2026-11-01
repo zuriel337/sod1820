@@ -1,12 +1,48 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { F } from "../theme.js";
 import { useThemeMode } from "../lib/themeMode.js";
 import { chromeColors } from "../lib/chromeTheme.js";
 import { usePalette } from "../lib/palette.js";
 import { useAuth } from "../lib/AuthContext.jsx";
-import { subscribeEmail } from "../lib/supabase.js";
+import { subscribeEmail, SUPABASE_URL } from "../lib/supabase.js";
+import { signupAttribution } from "../lib/acquisition.js";
+import { submitNewsletterSignup } from "../lib/newsletterSignup.js";
 import { trackSubscribe, trackConversion } from "../lib/marketing.js";
 import { PUSH_CONFIGURED, pushSupported, enablePush } from "../lib/push.js";
+
+// Native presentation of the same newsletter owner. Consent is separate from
+// login and following. Tests substitute the transport; never send a test email.
+export function NewsletterSignup2029() {
+  const [email, setEmail] = useState("");
+  const [consent, setConsent] = useState(false);
+  const [state, setState] = useState("idle");
+  const pending = useRef(null);
+  useEffect(() => () => pending.current?.abort(), []);
+  async function submit(event) {
+    event.preventDefault();
+    if (pending.current || !consent) return;
+    const controller = new AbortController();
+    pending.current = controller; setState("loading");
+    try {
+      const result = await submitNewsletterSignup({ email, consent, acquisition: signupAttribution() }, {
+        endpoint: `${SUPABASE_URL}/functions/v1/newsletter-signup`, signal: controller.signal,
+      });
+      if (!controller.signal.aborted) setState(result.status);
+    } catch { if (!controller.signal.aborted) setState("error"); }
+    finally { if (pending.current === controller) pending.current = null; }
+  }
+  return <section className="sod29-section sod29-auth-card" aria-label="הרשמה לעדכוני דואר אלקטרוני">
+    <h2>הרמז הבא, אצלכם במייל</h2>
+    <p>עדכונים מהאתר לפי בחירתכם. ההרשמה אינה יוצרת חשבון ואינה מפרסמת דבר.</p>
+    {state === "new" ? <p role="status">ההרשמה נקלטה. אפשר להסיר את ההרשמה בקישור שבתחתית כל מייל.</p> : <form onSubmit={submit} className="sod29-actions" aria-busy={state === "loading"}>
+      <label>כתובת דוא״ל <input type="email" autoComplete="email" dir="ltr" required maxLength={120} value={email} onChange={e => setEmail(e.target.value)} disabled={state === "loading"} /></label>
+      <label><input type="checkbox" checked={consent} onChange={e => setConsent(e.target.checked)} disabled={state === "loading"} style={{ width: "auto", minHeight: "auto", accentColor: "var(--s29-accent)" }} /> אני רוצה לקבל עדכונים בדוא״ל. אפשר להסיר בכל עת.</label>
+      <button type="submit" className="sod29-action" disabled={!consent || state === "loading"}>{state === "loading" ? "רושמים…" : "הרשמה לעדכונים"}</button>
+    </form>}
+    {state === "exists" ? <p role="status">הכתובת כבר קיימת במערכת. אם הסרתם בעבר את ההרשמה, הבקשה הזו לא חידשה אותה; אפשר לפנות אלינו דרך דף הפרטיות.</p> : null}
+    {state === "error" ? <p role="alert">ההרשמה לא הושלמה. אפשר לבדוק את הכתובת ולנסות שוב.</p> : null}
+  </section>;
+}
 
 // "הישאר מעודכן" — מייל הוא הקריאה הראשית והישירה (שדה גלוי, בלי מודאל).
 // Push = אופציה משנית קטנה מתחת (רק אם מוגדר VAPID). בלי popup אוטומטי.

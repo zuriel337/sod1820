@@ -14,16 +14,29 @@ export function safeOAuthReturnPath(returnTo) {
 }
 
 export const PREVIEW_OAUTH_RETURN_KEY = 'sod2029_oauth_return';
+// Keep only inert document anchors. OAuth credential/error fragments always
+// stay outside the stored return destination and are removed by the callback.
+export function safePreviewOAuthReturnPath(value) {
+  const path = safeOAuthReturnPath(value);
+  if (typeof value !== 'string') return path;
+  try {
+    const url = new URL(value, 'https://oauth-return.invalid');
+    if (url.origin !== 'https://oauth-return.invalid' || path !== url.pathname + url.search) return path;
+    const anchor = decodeURIComponent(url.hash);
+    return path + (/^#[\p{L}\p{N}_:.-]{1,250}$/u.test(anchor) ? url.hash : '');
+  } catch { return path; }
+}
 export function rememberPreviewOAuthReturn(returnTo, storage = globalThis.sessionStorage, now = Date.now()) {
-  storage?.setItem(PREVIEW_OAUTH_RETURN_KEY, JSON.stringify({path:safeOAuthReturnPath(returnTo),createdAt:now}));
+  storage?.setItem(PREVIEW_OAUTH_RETURN_KEY, JSON.stringify({path:safePreviewOAuthReturnPath(returnTo),createdAt:now}));
 }
 export function consumePreviewOAuthReturn(storage = globalThis.sessionStorage, now = Date.now()) {
   try {
     const raw=storage?.getItem(PREVIEW_OAUTH_RETURN_KEY);storage?.removeItem(PREVIEW_OAUTH_RETURN_KEY);
     const value=JSON.parse(raw||'null');
     if(!value||!Number.isFinite(value.createdAt)||now-value.createdAt<0||now-value.createdAt>10*60*1000)return '/2029';
-    const path=safeOAuthReturnPath(value.path);
-    return path==='/'||path.startsWith('/auth/callback')?'/2029':path;
+    const path=safePreviewOAuthReturnPath(value.path);
+    const home=import.meta.env?.VITE_PUBLIC_FOUNDATION_PREVIEW === 'true' ? '/' : '/2029';
+    return path==='/'||path.startsWith('/auth/callback')?home:path;
   } catch{return '/2029';}
 }
 

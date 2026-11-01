@@ -1,0 +1,11 @@
+import sitemapHandler from "../../api/sitemap.js";
+export default async function publicSitemap(req, res) {
+  res.setHeader("X-Robots-Tag", "noindex, nofollow, noarchive");
+  if (process.env.VERCEL_ENV !== "preview" || process.env.VERCEL_GIT_COMMIT_REF !== "gpt/2029-public-foundation-continuity-20261101") return res.status(404).send("unavailable");
+  if (!["GET", "HEAD"].includes(req.method)) return res.status(405).send("method not allowed");
+  return sitemapHandler({ ...req, publicFoundationPreview: true }, {
+    setHeader(key, value) { res.setHeader(key, key.toLowerCase() === "cache-control" ? "private, no-store" : value); },
+    status(code) { res.status(code); return this; },
+    send(body) { return res.send(body); },
+  });
+}

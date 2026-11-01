@@ -1,3 +1,4 @@
+import { publicPostHref } from "../lib/publicPostUrls.js";
 import NavigationIcon2029 from "../components/experience2029/NavigationIcon2029.jsx";
 import React, { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
@@ -469,7 +470,7 @@ function HomeBody() {
 
   const selectPost = (post) => {
     research.setResearchContext?.({
-      subject: { id: String(post.slug), type: "post", label: post.title, href: `/post/${post.slug}` },
+      subject: { id: String(post.slug), type: "post", label: post.title, href: publicPostHref(post) },
       selection: null,
       lens: "home",
       returnTo: { href: "/2029", label: "דף הבית", subject: null, selection: null, lens: "home", dimensions: {}, journey: context?.journey || null },
@@ -580,8 +581,8 @@ function HomeBody() {
 export default function Home2029Page() {
   useEffect(() => {
     applySeo(CORE_PUBLIC_LAUNCH_2029
-      ? { title: "SOD1820 · פוסטים, צפנים, גימטריה וצ׳אט", description: "פוסטים, חיפוש ELS, מחשבון גימטריה ושיחות הקהילה באתר SOD1820.", path: "/2029" }
-      : { title: "SOD1820 · העולם החדש", description: "מה מתגלה עכשיו ב-SOD1820 — שער לעולם אחד של רמזים, מקורות וחיבורים.", path: "/2029" });
+      ? { title: "SOD1820 · פוסטים, צפנים, גימטריה וצ׳אט", description: "פוסטים, חיפוש ELS, מחשבון גימטריה ושיחות הקהילה באתר SOD1820.", path: import.meta.env.VITE_PUBLIC_FOUNDATION_PREVIEW === "true" ? "/" : "/2029" }
+      : { title: "SOD1820 · העולם החדש", description: "מה מתגלה עכשיו ב-SOD1820 — שער לעולם אחד של רמזים, מקורות וחיבורים.", path: import.meta.env.VITE_PUBLIC_FOUNDATION_PREVIEW === "true" ? "/" : "/2029" });
   }, []);
   return <Sod2029Shell surface="home" introVariant={HOME_COMPOSED ? "none" : undefined} symbol={<NavigationIcon2029 name="home" />} eyebrow="גלה · עכשיו · המשך" title={CORE_PUBLIC_LAUNCH_2029 ? "SOD1820" : "SOD1820 · העולם החדש"} description={CORE_PUBLIC_LAUNCH_2029 ? "פוסטים, ELS, גימטריה ושיחות הקהילה." : "מה מתגלה עכשיו, מה נפתח בעולם, ואיך ממשיכים מאותה נקודה."}><HomeBody /></Sod2029Shell>;
 }

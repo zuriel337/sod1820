@@ -1,3 +1,4 @@
+import { publicPostHref } from "../publicPostUrls.js";
 import { getPublicResearchClient } from "./researchViewMode.js";
 import { canonicalPostCategories, postCategoryFilterNames } from "../postCategoryIdentity.js";
 import { CONTENT_SERIES_2029, contentSeriesByKey, contentSeriesKeysForPost, contentSeriesMembershipFilter, hasExactMembership } from "./contentSeries2029Identity.js";
@@ -83,7 +84,7 @@ export function postHierarchyContext2029(post, { seriesKey = null } = {}) {
     ? `${spec.label}: סדרת תוכן.${spec.writerLabel ? ` ${spec.writerLabel}: כתב.` : spec.publisherLabel && post.author === spec.publisherLabel ? ` ${spec.publisherLabel}: מפרסם.` : " ייחוס המחבר נשאר כפי שנרשם במקור."}`
     : classification.series.length ? "הפוסט הוא סיפור; שיוכיו לסדרות מוצגים בנפרד בפרטי הפוסט."
       : "בהיטל הנוכחי לא אומת שיוך לסדרה; סיווג שמור אינו חברות בסדרה.";
-  const id = String(post.id), href = `/post/${post.slug}`, locator = "#post-classification";
+  const id = String(post.id), href = publicPostHref(post), locator = "#post-classification";
   const subject = { type: "post", id, label: post.title, href };
   const selection = { entityType: "post_classification", entityId: selected?.key || id, sourceRef: `posts:${id}`, locator };
   const readingFocus = {
@@ -178,7 +179,7 @@ export async function fetchPostsCatalog2029({ scope = postsCatalogScope2029(), p
   if (scope.kind === "series" && !spec) throw new Error("הסדרה אינה זמינה.");
   if (!Number.isSafeInteger(page) || page < 1 || page > 10000) throw new Error("עמוד לא תקין.");
   let query = client.from("posts")
-    .select("id,slug,title,excerpt,author,categories,tags,image_url,thumb_url,date,modified", { count: "exact" })
+    .select("id,wp_id,source,link,slug,title,excerpt,author,categories,tags,image_url,thumb_url,date,modified", { count: "exact" })
     .or(publicPostOnlyFilter());
   if (scope.kind === "category") {
     const names = postCategoryFilterNames(scope.key);

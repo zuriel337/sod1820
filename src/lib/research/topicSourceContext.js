@@ -1,3 +1,4 @@
+import { publicPostHref } from "../publicPostUrls.js";
 // Read-time source context over admitted Topic memberships + the bounded, reviewed post
 // locator from handoff e04a35a0. No tagging registry, graph writes, Journey store or new truth.
 import { buildMediaEnvelope, buildStoredInterpretation, dedupeMediaEnvelopes } from "./galleryMediaEnvelope.js";
@@ -393,7 +394,7 @@ function captainSourceEnvelope(topic, post) {
     storedMediaKindBasis: "public_post_figure_caption", author: post.author || null,
   };
   const postPlacement = {
-    postId: post.id, postSlug: post.slug, regionId: source.regionId,
+    postId: post.id, postSlug: post.slug, postHref: publicPostHref(post), regionId: source.regionId,
     originalTitle: post.title, originalCaption: caption,
     originalCredit: { author: post.author ?? null, authors: post.authors ?? null },
     publishedAt: post.date || null, modifiedAt: post.modified || null,
@@ -489,7 +490,7 @@ export function buildPublicPostImageContext(post, locator) {
     presentation: canonicalMediaPresentation({ ...intrinsic, provenance }),
     imageUrl: locator.imageUrl, thumbUrl: locator.imageUrl, sourceRef,
     access: { scope: "public", basis: "fresh_public_post_exact_html_image" }, dateUse: "provenance_only",
-    postPlacement: { postId: post.id, postSlug: post.slug, originalTitle: post.title, originalCaption,
+    postPlacement: { postId: post.id, postSlug: post.slug, postHref: publicPostHref(post), originalTitle: post.title, originalCaption,
       originalAlt: image.match(/\balt=["']([^"']*)["']/i)?.[1] ?? null,
       originalCredit: { author: post.author ?? null, authors: post.authors ?? null },
       publishedAt: post.date || null, dateBasis: "posts.date_publication_not_event_date",
@@ -497,7 +498,7 @@ export function buildPublicPostImageContext(post, locator) {
   }], { bySourceObject: true })[0];
   const routed = attachReopen(item, { slug: "" });
   return { ...routed, reopen: { ...routed.reopen, topicHref: null,
-    postHref: `/post/${encodeURIComponent(post.slug)}`, postRoutePrecision: "post_only_exact_image_in_source_html" } };
+    postHref: publicPostHref(post), postRoutePrecision: "post_only_exact_image_in_source_html" } };
 }
 
 function attachReopen(item, topic) {
@@ -511,7 +512,7 @@ function attachReopen(item, topic) {
     ...item, id: item.mediaId,
     reopen: {
       topicHref, selection, imageHref: item.imageUrl,
-      postHref: item.postPlacement ? `/post/${encodeURIComponent(item.postPlacement.postSlug)}#${item.postPlacement.regionId}` : null,
+      postHref: item.postPlacement ? `${item.postPlacement.postHref || publicPostHref(item.postPlacement.postSlug)}#${item.postPlacement.regionId}` : null,
       // main currently hides the original Post body containing this exact region anchor.
       // Preserve the locator for its owner; do not advertise a visible-region reopen PASS.
       postRoutePrecision: item.postPlacement ? "post_only_with_source_region_locator" : null,

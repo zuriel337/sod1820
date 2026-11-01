@@ -23,7 +23,7 @@ import NumberLivingWorld2029 from "../components/number2029/NumberLivingWorld202
 import NumberPathContinuation2029 from "../components/number2029/NumberPathContinuation2029.jsx";
 import { selectedTopicSourceReturn, resolveJourneySourceReturn } from "../lib/research/journeySourceReturn.js";
 import { applySeo } from "../lib/seo.js";
-import { getValuePhrasesPage, langLinksList } from "../lib/supabase.js";
+import { getValuePhrasesPage, langLinksList, supabase } from "../lib/supabase.js";
 import { canonicalMethodPublicLabel, canonicalResearchPublicLabel } from "../lib/presentation/canonicalPresentation.js";
 import { numberExpressionFocusHref, parseNumberExpressionFocus, resolveExpressionFocus } from "../lib/research/numberExpressionFocus.js";
 import { buildNumberCuration2029, fetchCurationCatalog2029 } from "../lib/research/curationProjection2029.js";
@@ -206,14 +206,14 @@ function factorizationText(profile) {
   return factors.map((item) => item.exponent > 1 ? `${item.prime}^${item.exponent}` : String(item.prime)).join(" × ");
 }
 
-function NumberPageBody() {
+function NumberPageBody({ resolvedAddress = null }) {
   const { value } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
   const shell = use2029Shell();
   const research = useResearch();
-  const root = Number(value);
-  const urlFocus = useMemo(() => parseNumberExpressionFocus(location.search), [location.search]);
+  const root = resolvedAddress?.root ?? Number(value);
+  const urlFocus = useMemo(() => resolvedAddress?.focus || parseNumberExpressionFocus(location.search), [location.search, resolvedAddress]);
 
   const [state, setState] = useState({ loading: true, data: null, error: null });
   const [selectedMethodKey, setSelectedMethodKey] = useState("");
@@ -1358,23 +1358,36 @@ function NumberPageBody() {
   </div>;
 }
 
-export default function Number2029Page() {
+export default function Number2029Page({ resolvedAddress = null } = {}) {
   const { value } = useParams();
+  const [admitted, setAdmitted] = useState(false);
+  const address = resolvedAddress?.address || value || "";
+  useEffect(() => {
+    let live = true;
+    setAdmitted(false);
+    if (resolvedAddress?.publicAddress) {
+      const numeric = /^\d+$/.test(address);
+      const request = numeric ? supabase.rpc("is_number_indexable", { p_value: resolvedAddress.root })
+        : supabase.rpc("is_phrase_indexable", { p_phrase: address });
+      request.then(({ data, error }) => { if (live && !error) setAdmitted(data === true); }).catch(() => {});
+    }
+    return () => { live = false; };
+  }, [address, resolvedAddress?.publicAddress, resolvedAddress?.root]);
 
   useEffect(() => {
     applySeo({
-      title: `${value || "מספר"} · דף המספר`,
+      title: `${address || "מספר"} · דף המספר`,
       description: "דף המספר — עולמות, קשרים, מתמטיקה, מקורות ומסע סביב המספר.",
-      path: `/2029/number/${value || ""}`,
-      noindex: true,
+      path: resolvedAddress?.publicAddress ? `/number/${encodeURIComponent(address)}` : `/2029/number/${value || ""}`,
+      noindex: !admitted,
     });
-  }, [value]);
+  }, [value, address, admitted, resolvedAddress?.publicAddress]);
 
   return <Sod2029Shell
     surface="number"
     symbol={<NavigationIcon2029 name="number" />}
-    status="LIVING NUMBER · DESIGN PREVIEW"
+    status="דף המספר והביטוי"
   >
-    <NumberPageBody />
+    <NumberPageBody resolvedAddress={resolvedAddress} />
   </Sod2029Shell>;
 }

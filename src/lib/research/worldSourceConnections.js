@@ -5,6 +5,7 @@ import { fetchGallerySourceContext, fetchPublicWorldPostSource, fetchTopicSource
 import { fetchNumberSystemMethods, fetchLiveNumericRuleVersions } from './numberSystemMethods.js';
 import { applyMomentClockLaw } from './momentClockSystemMethod.js';
 import { supabase } from '../supabase.js';
+import { publicPostHref } from '../publicPostUrls.js';
 import { fetchGematriaMethodTrace } from './gematriaTrace.js';
 import { numberExpressionFocusHref } from './numberExpressionFocus.js';
 import { INDIA_CAPTAIN_SOURCE, buildPublicPostImageContext } from './topicSourceContext.js';
@@ -244,7 +245,7 @@ export function witnessSource(spec, { gallery, india, post, topic } = {}) {
     return { item, text, sourceRef: item.sourceRef, href: item.reopen.postHref, postTitle: post.title, author: post.author,
       topicHref: null, topicSlug: null, routePrecision: item.reopen.postRoutePrecision };
   }
-  return { text, sourceRef: `posts:${post.id}#${spec.postMarker || `quote-${spec.id}`}`, href: `/post/${encodeURIComponent(post.slug)}`,
+  return { text, sourceRef: `posts:${post.id}#${spec.postMarker || `quote-${spec.id}`}`, href: publicPostHref(post),
     topicHref: spec.topicSlug && topic?.topicSlug === spec.topicSlug ? `/topic/${encodeURIComponent(topic.topicSlug)}` : null,
     topicSlug: spec.topicSlug && topic?.topicSlug === spec.topicSlug ? topic.topicSlug : null,
     postTitle: post.title, author: post.author,

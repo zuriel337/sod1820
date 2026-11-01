@@ -3,10 +3,58 @@
   "installCommand": "npm ci --prefix .. --no-audit --no-fund",
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
-  "rewrites": [{ "source": "/((?!api(?:/|$)).*)", "destination": "/index.html" }],
-  "headers": [{ "source": "/(.*)", "headers": [
-    { "key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive" },
-    { "key": "Cache-Control", "value": "no-store" },
-    { "key": "Content-Security-Policy", "value": "connect-src 'self' https://linswmnnkjxvweumprav.supabase.co https://linswmnnkjxvweumprav.storage.supabase.co wss://linswmnnkjxvweumprav.supabase.co https://sod1820.co.il; form-action 'none'; frame-ancestors 'self'" }
-  ]}]
+  "rewrites": [
+    {
+      "source": "/sitemap.xml",
+      "destination": "/api/public-sitemap"
+    },
+    {
+      "source": "/2029/:path*",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/community/:path*",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/books/:path*",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/book/:path*",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/beit-midrash/:path*",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/((?!api(?:/|$)).*)",
+      "destination": "/api/public-document?path=/$1"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow, noarchive"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "no-store"
+        },
+        {
+          "key": "Content-Security-Policy",
+          "value": "connect-src 'self' https://linswmnnkjxvweumprav.supabase.co https://linswmnnkjxvweumprav.storage.supabase.co wss://linswmnnkjxvweumprav.supabase.co https://sod1820.co.il; form-action 'none'; frame-ancestors 'self'"
+        }
+      ]
+    }
+  ],
+  "functions": {
+    "api/public-document.js": {
+      "includeFiles": "dist/index.html"
+    }
+  }
 }

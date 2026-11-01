@@ -7,6 +7,7 @@ import { AUTHORS } from './authors.js';
 import { stripHtml } from './format.js';
 import { METHOD_DB_COLS } from './gematria.js';
 import { postCategoryFilterNames } from './postCategoryIdentity.js';
+import { decodePostSlug, publicPostHref } from './publicPostUrls.js';
 
 // 🔑 מיוצאים כדי לאפשר fetch ישיר ל-PostgREST במקומות שדורשים עקיפת-קאש (cache:no-store) —
 // למשל עמוד-הצופן הקנוני, שאחרי עריכה/שמירה-מחדש חייב תמיד את הרשומה הטרייה (התגובה מ-PostgREST
@@ -234,15 +235,15 @@ export async function getLatestPostCards({ limit = 2, excludeSlug = null } = {})
   if (!supabase) return [];
   try {
     const { data, error } = await supabase.from("posts")
-      .select("id, slug, title, image_url, thumb_url, date, modified, tags")
+      .select("id, slug, title, image_url, thumb_url, date, modified, tags, source, link, wp_id")
       .not("slug", "is", null)
       .order("modified", { ascending: false, nullsFirst: false })
       .limit(limit + 5);
     if (error || !data) return [];
     return data
-      .filter(p => p.slug && p.slug !== excludeSlug && !(Array.isArray(p.tags) && p.tags.includes("טיוטה")))
+      .filter(p => p.slug && p.slug !== excludeSlug && !(Array.isArray(p.tags) && p.tags.some(tag => ["טיוטה", "פורום"].includes(tag))))
       .slice(0, limit)
-      .map(p => ({ slug: p.slug, title: stripHtml(p.title || ""), poster: p.thumb_url || p.image_url || null, modified: p.modified || p.date || null }));
+      .map(p => ({ id: p.id, slug: p.slug, source: p.source, link: p.link, wp_id: p.wp_id, title: stripHtml(p.title || ""), poster: p.thumb_url || p.image_url || null, modified: p.modified || p.date || null }));
   } catch { return []; }
 }
 
@@ -298,18 +299,18 @@ export async function getTzofonStories({ limit = 30 } = {}) {
   try {
     const { data, error } = await supabase
       .from("posts")
-      .select("id, slug, title, image_url, thumb_url, date")
+      .select("id, slug, title, image_url, thumb_url, date, source, link, wp_id, tags")
       .overlaps("categories", ["צפונות בתורה", "הצופן בסרטים"])
       .not("image_url", "is", null)
       .order("date", { ascending: false })
       .limit(limit);
     if (error || !data) return [];
-    return data.map(r => ({
+    return data.filter(r => !(r.tags || []).some(tag => ["טיוטה", "פורום"].includes(tag))).map(r => ({
       id: r.id,
       text: stripHtml(r.title || ""),
       image_url: r.thumb_url || r.image_url,   // כרזה (תמונה) — התצוגה מציגה אותה; הניגון בפוסט
       thumb_url: r.thumb_url || r.image_url,
-      link_url: "/" + r.slug,
+      link_url: publicPostHref(r),
       is_video: true,                          // כרטיס-וידאו (מסמן ▶) — הסרטון מתנגן בפוסט
       created_at: r.date,
       priority: 100,
@@ -520,9 +521,9 @@ export async function getGalleryNumberTags() {
   return data ?? [];
 }
 
-export async function getPostBySlug(slug) {
+export async function getPostBySlug(slug, { throwOnError = false } = {}) {
   if (!supabase) return null;
-  const decoded = decodeURIComponent(slug);
+  const decoded = decodePostSlug(slug);
   const encoded = encodeURIComponent(decoded).toLowerCase();
   const slugs = [...new Set([slug, decoded, encoded])];
   const { data, error } = await supabase
@@ -530,7 +531,8 @@ export async function getPostBySlug(slug) {
     .select('*')
     .in('slug', slugs)
     .limit(1);
-  if (error || !data?.length) return null;
+  if (error) { if (throwOnError) throw error; return null; }
+  if (!data?.length) return null;
   return data[0];
 }
 

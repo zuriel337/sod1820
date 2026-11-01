@@ -13,6 +13,7 @@ import { POST_BACKGROUND_ASSETS_2029 } from "../lib/research/postBackground2029.
 import NavigationIcon2029 from "../components/experience2029/NavigationIcon2029.jsx";
 import PostFollowBox from "../components/PostFollowBox.jsx";
 import { AUTHORS } from "../lib/authors.js";
+import { publicPostHref } from "../lib/publicPostUrls.js";
 import "./posts2029.css";
 
 function SeriesEntrances2029({ activeKey, search = "" }) {
@@ -70,7 +71,7 @@ function PostIndexCard({ post, index }) {
     data-experience-capability="post-index-card"
     style={{ "--post-order": index }}
   >
-    <Link className="sod29-library-post-card-link" to={"/post/" + encodeURIComponent(post.slug)}>
+    <Link className="sod29-library-post-card-link" to={publicPostHref(post)}>
       <div
         className={"sod29-library-post-visual" + (image ? " has-image" : "")}
         aria-hidden="true"
@@ -123,8 +124,8 @@ export default function Posts2029Page() {
     applySeo({
       title: `${scope.label} · SOD1820 2029`,
       description: "אינדקס הפוסטים של SOD1820.",
-      path: "/2029/posts",
-      noindex: true,
+      path: import.meta.env.VITE_PUBLIC_FOUNDATION_PREVIEW === "true" ? "/post" : "/2029/posts",
+      noindex: import.meta.env.VITE_PUBLIC_FOUNDATION_PREVIEW !== "true" || scope.kind !== "all" || Boolean(search) || page > 1,
     });
 
     let live = true;

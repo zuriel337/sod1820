@@ -1,3 +1,4 @@
+import { publicPostHref } from "../publicPostUrls.js";
 import { getPublicResearchClient } from "./researchViewMode.js";
 import { stripHtml } from "../format.js";
 
@@ -50,11 +51,14 @@ export function classifyCorpusRows(rows = []) {
     items.push({
       id: String(row.id),
       slug: clean(row.slug),
+      source: row.source || null,
+      link: row.link || null,
+      wp_id: row.wp_id || null,
       title,
       excerpt: excerpt || null,
       date: row.date || null,
       homeHidden: row.home_hidden === true,
-      href: `/post/${encodeURIComponent(clean(row.slug))}`,
+      href: publicPostHref(row),
     });
   }
   return { items, excluded };
@@ -66,7 +70,7 @@ export async function fetchCorpusPage(spec, page = 0, { client = getPublicResear
   const from = page * CORPUS_PAGE_SIZE;
   const { data, error, count } = await client
     .from("posts")
-    .select("id,slug,title,excerpt,date,home_hidden,tags", { count: "exact" })
+    .select("id,slug,title,excerpt,date,source,link,wp_id,home_hidden,tags", { count: "exact" })
     .or(filter)
     .or(publicOnlyFilter())
     .order("date", { ascending: false, nullsFirst: false })
@@ -89,7 +93,7 @@ export async function fetchCorpusSource(spec, id, { client = getPublicResearchCl
   const filter = corpusOrFilter(spec);
   if (!filter || !id) throw new Error("source_unavailable");
   const { data, error } = await client.from("posts")
-    .select("id,slug,title,content,tags").eq("id", id)
+    .select("id,slug,title,content,source,link,wp_id,tags").eq("id", id)
     .or(filter).or(publicOnlyFilter()).maybeSingle();
   if (error) throw error;
   if (!data || isDraft(data) || !clean(data.content)) throw new Error("source_unavailable");

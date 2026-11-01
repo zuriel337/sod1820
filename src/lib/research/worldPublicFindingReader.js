@@ -1,3 +1,4 @@
+import { publicPostHref } from "../publicPostUrls.js";
 import { getPublicResearchClient } from "./researchViewMode.js";
 import { publicResearchPresentationEligible, projectPublicResearchFinding,
   ZVI_SOURCE_CONTRIBUTOR_ID } from "./worldZviApprovedFindings2029.js";
@@ -203,7 +204,7 @@ async function publicDiscoverySources(client, rows) {
     for (let offset = 0; offset < posts.length; offset += 4) {
       await Promise.all(posts.slice(offset, offset + 4).map(async (source) => {
         const post = await fetchPublicWorldPostSource({ postId: source.id, includeContent: false, client });
-        if (post?.id === source.id && clean(post.slug)) admitted.set(source.ref, { sourceRef: source.ref, sourceHref: `/post/${encodeURIComponent(post.slug)}` });
+        if (post?.id === source.id && clean(post.slug)) admitted.set(source.ref, { sourceRef: source.ref, sourceHref: publicPostHref(post) });
       }));
     }
   }
