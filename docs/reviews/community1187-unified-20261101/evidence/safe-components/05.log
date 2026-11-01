@@ -1,0 +1,5 @@
+
+> sod1820@1.0.0 test:my-workspace-2029
+> node scripts/test-my-workspace-2029.mjs
+
+My Workspace 2029 native home contract: PASS

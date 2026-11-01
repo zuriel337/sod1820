@@ -1,3 +1,5 @@
+import { publicPageShareUrl } from "../publicPostUrls.js";
+
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export function validCommunityAuthorKey(value) {
@@ -26,4 +28,13 @@ export function communityPersonReturnHref(pathname, search, hash = "") {
   const params = new URLSearchParams(search);
   for (const key of ["member", "memberCard", "claim", "section", "item", "page", "format", "returnTo"]) params.delete(key);
   return `${pathname}${params.size ? `?${params}` : ""}${hash}`;
+}
+
+// The account trip stays local and keeps the complete reading position. Reuse
+// the existing context sanitizer so a Preview grant cannot enter return URLs.
+export function communityAccountReturnHref(location) {
+  const safe = publicPageShareUrl(location);
+  if (!safe) return "/community/chat";
+  const url = new URL(safe);
+  return url.pathname + url.search + url.hash;
 }

@@ -1,0 +1,24 @@
+{
+  "sourceTree": "integrated Community tree, exact immutable final SHA in final work_log receipt",
+  "node": {
+    "passed": 120,
+    "failed": 0,
+    "skipped": 0
+  },
+  "syntheticBrowser": {
+    "compact": 20,
+    "share": 18,
+    "mediaReactions": 11,
+    "realAccounts": false,
+    "realWrites": 0,
+    "models": 0
+  },
+  "localG4": {
+    "browserCasesPassedInPhases": 14,
+    "fullSingleFinalRun": "GitHub dispatch pending; do not infer passed from phased local cases"
+  },
+  "fullIsolationPassed": false,
+  "liveA3Invoked": false,
+  "productionChanged": false,
+  "testArtifactTransport": "Python suites use compiled Preview flags, direct-entry HTML and intercepted synthetic HTTP; actual deployed worker proven separately"
+}

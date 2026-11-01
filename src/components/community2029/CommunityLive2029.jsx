@@ -13,7 +13,7 @@ import CommunitySignIn from "./CommunitySignIn.jsx";
 import LegacyAccountClaim, { LegacyAccountClaimEntry } from "./LegacyAccountClaim.jsx";
 import { isLegacyContributorId } from "../../lib/community/legacyClaim.js";
 import { communityWriterHref, resolveCommunityWriter } from "../../lib/community/communityWriterLink.js";
-import { communityPersonReturnHref } from "../../lib/community/communityPersonNavigation.js";
+import { communityAccountReturnHref, communityPersonReturnHref } from "../../lib/community/communityPersonNavigation.js";
 import { personalMessagesReturnHref, writerPersonalHref } from "../../lib/userCenter/writerPersonal2029.js";
 import "../../pages/community2029.css";
 import ReactionBar from "../ReactionBar.jsx";
@@ -129,7 +129,7 @@ function LiveThread({ row, onReply, accountProfiles, replyCounts, onRepliesLoade
   const [replyError, setReplyError] = useState("");
   const replyReadRef = useRef(false);
   const replyAnchorRef = useRef(null);
-  const groupRef = useRef(null), previewRequested = useRef(false);
+  const groupRef = useRef(null), previewRequested = useRef(false), previewInRange = useRef(false);
   const knownCount = replyCounts[row.id];
   const count = replyTotal ?? knownCount;
   const canExpand = (count == null ? !rootPreview : count > 0) || replies.length > 0;
@@ -175,10 +175,13 @@ function LiveThread({ row, onReply, accountProfiles, replyCounts, onRepliesLoade
   // Two direct replies are public reading context. Only visible roots request
   // this preview; nested and remaining replies keep the existing explicit flow.
   useEffect(() => {
-    if (!rootPreview || previewRequested.current || knownCount === 0) return;
+    if (!rootPreview || knownCount === 0 && !previewRequested.current) return;
     const show = () => { if (previewRequested.current) return; previewRequested.current = true; loadReplies(0, 2); };
-    if (typeof IntersectionObserver === "undefined") { show(); return; }
-    const observer = new IntersectionObserver(entries => { if (entries.some(entry => entry.isIntersecting)) { observer.disconnect(); show(); } }, { rootMargin: "200px" });
+    if (typeof IntersectionObserver === "undefined") { previewInRange.current = true; show(); return; }
+    const observer = new IntersectionObserver(entries => {
+      previewInRange.current = entries.some(entry => entry.isIntersecting);
+      if (previewInRange.current) show();
+    }, { rootMargin: "200px" });
     if (groupRef.current) observer.observe(groupRef.current);
     return () => observer.disconnect();
   }, [rootPreview, row.id, knownCount]);
@@ -188,7 +191,7 @@ function LiveThread({ row, onReply, accountProfiles, replyCounts, onRepliesLoade
     setExpanded(true);
     if (replyTotal === null) loadReplies();
   };
-  useEffect(() => { if (expanded && !focusChildId && !document.hidden && (!rootPreview || previewRequested.current)) loadReplies(0, rootPreview ? Math.max(2, Math.min(100, nextReplyOffset)) : null); }, [refreshToken, focusChildId]);
+  useEffect(() => { if (expanded && !focusChildId && !document.hidden && (!rootPreview || previewRequested.current && previewInRange.current)) loadReplies(0, rootPreview ? Math.max(2, Math.min(100, nextReplyOffset)) : null); }, [refreshToken, focusChildId]);
   useLayoutEffect(() => { restoreCommunityScrollAnchor(replyAnchorRef.current); replyAnchorRef.current = null; }, [replies]);
 
   return <div ref={groupRef} className="sod29-community-thread-group">
@@ -387,9 +390,11 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
         if (page.count != null) setTotal(page.count);
         // Open threads refresh through the same approved-reply reader. Closed
         // threads need only one bounded count read for this public feed page.
-        const counts = await fetchCommunityReplyCounts(page.rows.map((item) => item.id));
+        let counts = null;
+        try { counts = await fetchCommunityReplyCounts(page.rows.map((item) => item.id)); }
+        catch { /* An unavailable count is unknown; visible approved replies can still refresh. */ }
         if (!active || document.hidden || request !== streamRequestRef.current) return;
-        setReplyCounts((existing) => Object.keys(counts).every((id) => existing[id] === counts[id]) ? existing : { ...existing, ...counts });
+        if (counts) setReplyCounts((existing) => Object.keys(counts).every((id) => existing[id] === counts[id]) ? existing : { ...existing, ...counts });
         setThreadRefresh((value) => value + 1);
       } finally { if (feedReadRef.current === read) feedReadRef.current = null; }
     }});
@@ -550,7 +555,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
           <label className={compactComposer ? "sod29-community-sr-only" : undefined} htmlFor="community-live-draft">מה תרצו לשתף?</label>
           {replyTo ? <div className="sod29-community-reply-target"><span>תשובה ל{replyTo.authorName}</span><button type="button" onClick={() => setReplyTo(null)}>ביטול תשובה</button></div> : null}
           <div className={compactComposer ? "sod29-community-compose-row" : undefined}>
-            {compactComposer ? <Link className="sod29-community-compose-avatar" to={writerPersonalHref("profile", { returnTo: window.location.pathname + window.location.search })} aria-label="הפרופיל שלי"><UserBadge avatarOnly name={composerProfile?.display_name || composerProfile?.username || "החשבון שלי"} avatarUrl={composerProfile?.avatar_url} /></Link> : null}
+            {compactComposer ? <Link className="sod29-community-compose-avatar" to={writerPersonalHref("profile", { returnTo: communityAccountReturnHref(window.location) })} aria-label="הפרופיל שלי"><UserBadge avatarOnly name={composerProfile?.display_name || composerProfile?.username || "החשבון שלי"} avatarUrl={composerProfile?.avatar_url} /></Link> : null}
             <div className={compactComposer ? "sod29-community-compose-input" : undefined}>
               <textarea ref={composerRef} id="community-live-draft" rows={compactComposer ? 1 : 2} maxLength={1500} value={draft} onFocus={() => { if (user) setComposerExpanded(true); }} onKeyDown={event => { if (event.key === "Escape" && !draft && !attachments.length && !replyTo) { setComposerExpanded(false); composerRef.current?.blur(); } }} onChange={(event) => setDraft(event.target.value)} placeholder={compactComposer ? "הוסף תגובה…" : "כתבו משהו לקהילה…"} />
               {compactComposer ? <button type="button" className="sod29-community-compose-attach" aria-label="צירוף קובץ או סרטון" title="צירוף קובץ או סרטון · עד 3 קבצים, תמונה עד 8MB וסרטון עד 50MB" aria-describedby="community-attachment-limits" disabled={sending || attachments.length >= COMMUNITY_ATTACHMENT_MAX_FILES} onClick={() => attachmentRef.current?.click()}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m21 11-8.5 8.5a6 6 0 0 1-8.5-8.5L14 1a4 4 0 0 1 5.7 5.7L9.5 16.9a2 2 0 0 1-2.8-2.8L16 4.8" /></svg></button> : null}

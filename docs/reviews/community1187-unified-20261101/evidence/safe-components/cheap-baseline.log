@@ -1,0 +1,129 @@
+
+> sod1820@1.0.0 test:2029-cheap-hardening
+> node scripts/test-2029-cheap-hardening.mjs
+
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: every explicit App2029 route must have exactly one isolated /2029.html document rewrite and vice versa
++ actual - expected
+... Skipped lines
+
+  [
+-   '/',
+-   '/(.*)',
+    '/2029',
+    '/2029/calculator',
+    '/2029/control',
+    '/2029/gematria',
+    '/2029/gematria/viral',
+...
+    '/2029/preview/follow-center',
+-   '/auth/callback',
+    '/beit-midrash',
+    '/beit-midrash/(.*)',
+    '/book/(.*)',
+    '/books',
+    '/books/(.*)',
+...
+    '/entity-hub-preview/(.*)/(.*)',
+-   '/gallery',
+    '/heichal',
+    '/melech-hamisparim/718',
+-   '/number',
+-   '/number/(.*)',
+-   '/post',
+    '/post/(.*)',
+-   '/posts',
+-   '/research',
+    '/researcher/(.*)',
+    '/topic/(.*)',
+    '/video/(.*)',
+    '/world',
+    '/היכל'
+
+    at file:///workspace/sod1820-public-frame-context/scripts/test-2029-cheap-hardening.mjs:46:8
+    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)
+    at async node:internal/modules/esm/loader:643:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: [
+    '/2029',
+    '/2029/calculator',
+    '/2029/control',
+    '/2029/gematria',
+    '/2029/gematria/viral',
+    '/2029/home-preview',
+    '/2029/journey',
+    '/2029/kingdom',
+    '/2029/me/(.*)',
+    '/2029/number/(.*)',
+    '/2029/posts',
+    '/2029/preview/follow-center',
+    '/beit-midrash',
+    '/beit-midrash/(.*)',
+    '/book/(.*)',
+    '/books',
+    '/books/(.*)',
+    '/community/researcher/(.*)',
+    '/community/researcher/me',
+    '/early-access',
+    '/els',
+    '/entity-hub-preview/(.*)/(.*)',
+    '/heichal',
+    '/melech-hamisparim/718',
+    '/post/(.*)',
+    '/researcher/(.*)',
+    '/topic/(.*)',
+    '/video/(.*)',
+    '/world',
+    '/היכל'
+  ],
+  expected: [
+    '/',
+    '/(.*)',
+    '/2029',
+    '/2029/calculator',
+    '/2029/control',
+    '/2029/gematria',
+    '/2029/gematria/viral',
+    '/2029/home-preview',
+    '/2029/journey',
+    '/2029/kingdom',
+    '/2029/me/(.*)',
+    '/2029/number/(.*)',
+    '/2029/posts',
+    '/2029/preview/follow-center',
+    '/auth/callback',
+    '/beit-midrash',
+    '/beit-midrash/(.*)',
+    '/book/(.*)',
+    '/books',
+    '/books/(.*)',
+    '/community/researcher/(.*)',
+    '/community/researcher/me',
+    '/early-access',
+    '/els',
+    '/entity-hub-preview/(.*)/(.*)',
+    '/gallery',
+    '/heichal',
+    '/melech-hamisparim/718',
+    '/number',
+    '/number/(.*)',
+    '/post',
+    '/post/(.*)',
+    '/posts',
+    '/research',
+    '/researcher/(.*)',
+    '/topic/(.*)',
+    '/video/(.*)',
+    '/world',
+    '/היכל'
+  ],
+  operator: 'deepStrictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.19.0

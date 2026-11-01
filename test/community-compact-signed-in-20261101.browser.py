@@ -2,7 +2,7 @@
 import base64,functools,json,os,threading,time
 from pathlib import Path
 from http.server import SimpleHTTPRequestHandler,ThreadingHTTPServer
-from urllib.parse import urlparse,parse_qs
+from urllib.parse import urlparse,parse_qs,urlencode
 from playwright.sync_api import sync_playwright,expect
 ROOT=Path(__file__).resolve().parents[1];OUT=Path('/tmp/community-compact-signed-in-20261101');OUT.mkdir(exist_ok=True)
 A='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';B='bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';R='11111111-1111-4111-8111-111111111111';C1='22222222-2222-4222-8222-222222222222';C2='33333333-3333-4333-8333-333333333333';C3='44444444-4444-4444-8444-444444444444';NEW='55555555-5555-4555-8555-555555555555';KEY='sb-linswmnnkjxvweumprav-auth-token'
@@ -80,6 +80,7 @@ with sync_playwright() as p:
    for theme in ['light','parchment','dark']:
     context=browser.new_context(viewport={'width':width,'height':1000});state=install(context,theme);page=context.new_page();page.on('pageerror',lambda e:state['errors'].append(str(e)));page.goto(BASE+'/community/chat')
     account=page.locator('.sod29-community-account-row');expect(account).to_contain_text('משתמש לדוגמה');expect(account.locator('.sod29-community-unread-badge')).to_have_text('6')
+    expect(page.locator('.sod29-community-registration-note')).to_have_text('כבר הייתם חלק מהשיחה? הירשמו עם המייל שלכם, ונעזור לכם לחבר את הפרופיל מהצ׳אט הישן לחשבון החדש.')
     composer=page.get_by_role('region',name='כתיבת הודעה',exact=True);expect(composer).to_have_attribute('data-compact','true');expect(composer.get_by_role('button',name='פרסום',exact=True)).to_have_count(0)
     assert composer.locator('textarea').bounding_box()['height']<=58;assert composer.bounding_box()['height']<90
     expect(page.locator('#message-'+C1)).to_be_visible();expect(page.locator('#message-'+C2)).to_be_visible();expect(page.locator('#message-'+C3)).to_have_count(0)
@@ -107,5 +108,17 @@ with sync_playwright() as p:
   expect(account).to_contain_text('חבר מהקהילה');expect(account.locator('.sod29-community-unread-badge')).to_have_text('2');expect(composer.locator('textarea')).to_have_value('');expect(composer.locator('.sod29-community-draft-image')).to_have_count(0)
   for h in state['held_counts']:h.fulfill(status=200,headers={'content-range':'*/6'},body='')
   expect(account.locator('.sod29-community-unread-badge')).to_have_text('2');switch(page,None);expect(account).to_have_count(0);expect(page.get_by_role('button',name='הצטרפו לשיחה')).to_be_visible();cases.append({'account_switch_ignores_old_count_clears_text_and_photo_logout':True});context.close()
+  for width in [390,1440]:
+   for destination in ['notifications','profile']:
+    context=browser.new_context(viewport={'width':width,'height':1000});state=install(context);page=context.new_page();page.on('pageerror',lambda e:state['errors'].append(str(e)))
+    address='/community/chat?'+urlencode({'thread':R,'reply':C2,'path':R+','+C2,'sort':'oldest'})+'#message-'+C2
+    page.goto(BASE+address.replace('#','&_vercel_share=synthetic-grant#'));expect(page.locator('#message-'+C2)).to_be_visible()
+    link=page.locator('.sod29-community-account-row').get_by_role('link',name='ההתראות שלי',exact=False) if destination=='notifications' else page.locator('.sod29-community-compose-avatar')
+    href=link.get_attribute('href');assert parse_qs(urlparse(href).query)['returnTo']==[address];assert '_vercel_share' not in href
+    # The account-switch destination uses the same safe exact local return.
+    page.locator('.sod29-community-account-menu summary').click();switch_link=page.get_by_role('link',name='כניסה עם חשבון אחר',exact=True);assert parse_qs(urlparse(switch_link.get_attribute('href')).query)['returnTo']==[address];page.keyboard.press('Escape')
+    link.click();expect(page).to_have_url(BASE+href);back=page.locator('.wp-head-actions').get_by_role('link',name='חזרה מדויקת',exact=True);expect(back).to_have_attribute('href',address);back.click()
+    expect(page).to_have_url(BASE+address);expect(page.locator('#message-'+C2)).to_be_visible();expect(page.locator('#message-'+C2)).to_be_focused();assert not state['posts'] and not state['uploads'] and not state['writes'] and not state['errors'],state
+    cases.append({'width':width,'account_destination':destination,'exact_thread_query_hash_return':True,'preview_grant_removed':True,'synthetic_account_only':True});context.close()
  finally:browser.close();server.shutdown()
 (OUT/'results.json').write_text(json.dumps({'cases':cases,'data':'synthetic account names, counts and media; no live product writes','real_model_calls':0,'real_product_writes':0},ensure_ascii=False,indent=2));print(json.dumps({'pass':True,'cases':len(cases),'real_product_writes':0}))

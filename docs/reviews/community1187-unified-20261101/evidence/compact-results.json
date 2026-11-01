@@ -1,0 +1,177 @@
+{
+  "cases": [
+    {
+      "width": 320,
+      "theme": "light",
+      "compact_account_notification6": true,
+      "composer_single_line": true,
+      "two_replies_automatic_third_deferred": true,
+      "image_preview_below_text_no_upload": true,
+      "touch44": true,
+      "no_overflow": true
+    },
+    {
+      "width": 320,
+      "theme": "parchment",
+      "compact_account_notification6": true,
+      "composer_single_line": true,
+      "two_replies_automatic_third_deferred": true,
+      "image_preview_below_text_no_upload": true,
+      "touch44": true,
+      "no_overflow": true
+    },
+    {
+      "width": 320,
+      "theme": "dark",
+      "compact_account_notification6": true,
+      "composer_single_line": true,
+      "two_replies_automatic_third_deferred": true,
+      "image_preview_below_text_no_upload": true,
+      "touch44": true,
+      "no_overflow": true
+    },
+    {
+      "width": 360,
+      "theme": "light",
+      "compact_account_notification6": true,
+      "composer_single_line": true,
+      "two_replies_automatic_third_deferred": true,
+      "image_preview_below_text_no_upload": true,
+      "touch44": true,
+      "no_overflow": true
+    },
+    {
+      "width": 360,
+      "theme": "parchment",
+      "compact_account_notification6": true,
+      "composer_single_line": true,
+      "two_replies_automatic_third_deferred": true,
+      "image_preview_below_text_no_upload": true,
+      "touch44": true,
+      "no_overflow": true
+    },
+    {
+      "width": 360,
+      "theme": "dark",
+      "compact_account_notification6": true,
+      "composer_single_line": true,
+      "two_replies_automatic_third_deferred": true,
+      "image_preview_below_text_no_upload": true,
+      "touch44": true,
+      "no_overflow": true
+    },
+    {
+      "width": 390,
+      "theme": "light",
+      "compact_account_notification6": true,
+      "composer_single_line": true,
+      "two_replies_automatic_third_deferred": true,
+      "image_preview_below_text_no_upload": true,
+      "touch44": true,
+      "no_overflow": true
+    },
+    {
+      "width": 390,
+      "theme": "parchment",
+      "compact_account_notification6": true,
+      "composer_single_line": true,
+      "two_replies_automatic_third_deferred": true,
+      "image_preview_below_text_no_upload": true,
+      "touch44": true,
+      "no_overflow": true
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "compact_account_notification6": true,
+      "composer_single_line": true,
+      "two_replies_automatic_third_deferred": true,
+      "image_preview_below_text_no_upload": true,
+      "touch44": true,
+      "no_overflow": true
+    },
+    {
+      "width": 1440,
+      "theme": "light",
+      "compact_account_notification6": true,
+      "composer_single_line": true,
+      "two_replies_automatic_third_deferred": true,
+      "image_preview_below_text_no_upload": true,
+      "touch44": true,
+      "no_overflow": true
+    },
+    {
+      "width": 1440,
+      "theme": "parchment",
+      "compact_account_notification6": true,
+      "composer_single_line": true,
+      "two_replies_automatic_third_deferred": true,
+      "image_preview_below_text_no_upload": true,
+      "touch44": true,
+      "no_overflow": true
+    },
+    {
+      "width": 1440,
+      "theme": "dark",
+      "compact_account_notification6": true,
+      "composer_single_line": true,
+      "two_replies_automatic_third_deferred": true,
+      "image_preview_below_text_no_upload": true,
+      "touch44": true,
+      "no_overflow": true
+    },
+    {
+      "width": 390,
+      "failure_retry_upload_reuse": true,
+      "published_image_below_text": true,
+      "compact_after_publish": true,
+      "blob_revoked": true,
+      "gear_keyboard": true
+    },
+    {
+      "width": 1440,
+      "failure_retry_upload_reuse": true,
+      "published_image_below_text": true,
+      "compact_after_publish": true,
+      "blob_revoked": true,
+      "gear_keyboard": true
+    },
+    {
+      "notification_failure_no_fake_badge_retry": true
+    },
+    {
+      "account_switch_ignores_old_count_clears_text_and_photo_logout": true
+    },
+    {
+      "width": 390,
+      "account_destination": "notifications",
+      "exact_thread_query_hash_return": true,
+      "preview_grant_removed": true,
+      "synthetic_account_only": true
+    },
+    {
+      "width": 390,
+      "account_destination": "profile",
+      "exact_thread_query_hash_return": true,
+      "preview_grant_removed": true,
+      "synthetic_account_only": true
+    },
+    {
+      "width": 1440,
+      "account_destination": "notifications",
+      "exact_thread_query_hash_return": true,
+      "preview_grant_removed": true,
+      "synthetic_account_only": true
+    },
+    {
+      "width": 1440,
+      "account_destination": "profile",
+      "exact_thread_query_hash_return": true,
+      "preview_grant_removed": true,
+      "synthetic_account_only": true
+    }
+  ],
+  "data": "synthetic account names, counts and media; no live product writes",
+  "real_model_calls": 0,
+  "real_product_writes": 0
+}

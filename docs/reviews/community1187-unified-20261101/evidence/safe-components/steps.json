@@ -1,0 +1,158 @@
+[
+  {
+    "name": "One Tree content contract acceptance",
+    "command": "npm run test:one-tree-content"
+  },
+  {
+    "name": "Experience Context 2029 acceptance",
+    "command": "npm run test:experience-context"
+  },
+  {
+    "name": "Entry Orientation + Contextual Learn 2029 acceptance",
+    "command": "npm run test:entry-learn-2029"
+  },
+  {
+    "name": "Contact Gateway canonical owner acceptance",
+    "command": "npm run test:issue-report"
+  },
+  {
+    "name": "My Workspace 2029 native home acceptance",
+    "command": "npm run test:my-workspace-2029"
+  },
+  {
+    "name": "No Black Box operational trace acceptance",
+    "command": "npm run test:operational-trace"
+  },
+  {
+    "name": "Web Vitals metric core acceptance",
+    "command": "node scripts/test-web-vitals-2029.mjs"
+  },
+  {
+    "name": "Operational Trace Runtime persistence acceptance",
+    "command": "npm run test:operational-trace-runtime"
+  },
+  {
+    "name": "AI-Analyze early paid paths trace coverage acceptance",
+    "command": "node test/ai-analyze-early-trace-coverage.test.mjs\nnode scripts/test-ai-analyze-service-headers.mjs\nnode --test test/raziel-quota-trace.test.mjs\n"
+  },
+  {
+    "name": "Replayable Golden No-Black-Box acceptance",
+    "command": "npm run test:replayable-golden"
+  },
+  {
+    "name": "Server capability execution gate acceptance",
+    "command": "npm run test:server-capability-gate"
+  },
+  {
+    "name": "W2 public Number research runtime acceptance",
+    "command": "npm run test:research-run"
+  },
+  {
+    "name": "Package W2 research-run Edge transport",
+    "command": "npm run package:research-run"
+  },
+  {
+    "name": "2029 server SEO / AI metadata parity",
+    "command": "npm run test:2029-server-seo-ai"
+  },
+  {
+    "name": "Research Path resumability runtime acceptance",
+    "command": "npm run test:research-path-resume"
+  },
+  {
+    "name": "Home 2029 System Pulse acceptance",
+    "command": "npm run test:home-2029-pulse"
+  },
+  {
+    "name": "2029 cheap route/test/least-privilege hardening",
+    "command": "npm run test:2029-cheap-hardening"
+  },
+  {
+    "name": "Legacy Research containment + unopened Heichal entrypoint acceptance",
+    "command": "npm run test:legacy-research-containment"
+  },
+  {
+    "name": "Source isolation regression",
+    "command": "node scripts/test-2029-isolation.mjs"
+  },
+  {
+    "name": "G4 source-section update / World / Companion public-read acceptance",
+    "command": "node --test src/lib/research/postSourceUpdates2029.test.js src/lib/research/worldDiscoveryStream.test.js src/lib/systemFeed2029.test.js src/lib/heroUpdate2029.test.js"
+  },
+  {
+    "name": "Native System Frame acceptance",
+    "command": "node scripts/test-2029-system-frame.mjs"
+  },
+  {
+    "name": "Raziel server-gated Result Bundle consumer acceptance",
+    "command": "node --test src/lib/research/razielServerGatedConsumer.currentMain.test.js"
+  },
+  {
+    "name": "Canonical 2029 contract wiring acceptance",
+    "command": "node scripts/test-2029-canonical-contract-wiring.mjs"
+  },
+  {
+    "name": "Person identity bridge foundation acceptance",
+    "command": "node test/person-identity-bridge-foundation.test.mjs"
+  },
+  {
+    "name": "Account Person completeness foundation acceptance",
+    "command": "node test/account-person-completeness-foundation.test.mjs"
+  },
+  {
+    "name": "Person public resolver foundation acceptance",
+    "command": "node test/person-public-resolver-foundation.test.mjs"
+  },
+  {
+    "name": "People identity projection acceptance",
+    "command": "node test/people-identity-review-2029-contract.test.mjs"
+  },
+  {
+    "name": "Person Profile 2029 projection acceptance",
+    "command": "node test/person-profile-2029-projection.test.mjs"
+  },
+  {
+    "name": "People Directory 2029 projection acceptance",
+    "command": "node test/people-directory-2029-projection.test.mjs"
+  },
+  {
+    "name": "Native World surface acceptance",
+    "command": "node scripts/test-2029-world-surface.mjs"
+  },
+  {
+    "name": "World Convergence PR591 focused acceptance",
+    "command": "npm run test:world-convergence-pr591"
+  },
+  {
+    "name": "Native Topic surface acceptance",
+    "command": "node scripts/test-2029-topic-surface.mjs"
+  },
+  {
+    "name": "Native Researcher corpus acceptance",
+    "command": "node scripts/test-2029-researcher-corpus.mjs"
+  },
+  {
+    "name": "Native Number preview acceptance",
+    "command": "node scripts/test-2029-number-preview.mjs"
+  },
+  {
+    "name": "Native 2029 Control Plane trace drill-down acceptance",
+    "command": "node scripts/test-2029-control-plane.mjs"
+  },
+  {
+    "name": "Production build",
+    "command": "npm run build"
+  },
+  {
+    "name": "Built dependency graph isolation",
+    "command": "node scripts/test-2029-built-graph.mjs"
+  },
+  {
+    "name": "Verify isolated HTML artifact",
+    "command": "test -f dist/2029.html\n! grep -q \"site.webmanifest\" dist/2029.html\n! grep -q \"/logo.png\" dist/2029.html\n"
+  },
+  {
+    "name": "Supplementary A3 existing correlation and actual-handler mocked persistence tests",
+    "command": "node --test test/g3-client-correlation.test.mjs test/research-run-trace-finish.test.mjs"
+  }
+]

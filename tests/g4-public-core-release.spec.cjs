@@ -147,9 +147,11 @@ test('a phrase in the Number drawer opens its calculated full page, never a miss
     const drawer = page.locator('.sod29-number-drawer2029');
     await expect(drawer.locator('.sod29-number-core2029-root b')).toHaveText('376', { timeout: 30_000 });
     await drawer.getByRole('button', { name: 'פתח דף מלא ↗' }).click();
-    await expect(page).toHaveURL(`${BASE}/2029/number/376`);
+    const focusedNumber = `${BASE}/2029/number/376?focus=${encodeURIComponent('שלום')}&method=${encodeURIComponent('רגיל')}`;
+    await expect(page).toHaveURL(focusedNumber);
     await expect(page.locator('[data-number-core-root="376"]')).toBeVisible({ timeout: 30_000 });
     await page.reload({ waitUntil: 'domcontentloaded' });
+    await expect(page).toHaveURL(focusedNumber);
     await expect(page.locator('[data-number-core-root="376"]')).toBeVisible({ timeout: 30_000 });
     const type = await page.locator('.sod29-number-core2029.is-page').evaluate((core) => ({
       regular: parseFloat(getComputedStyle(core.querySelector('.sod29-number-v11-regular-track button strong')).fontSize),
@@ -319,10 +321,16 @@ test('Heichal and the other unopened areas stay closed', async ({ page }) => {
   await page.route(`${BASE}/heichal`, async (route) => route.fulfill({
     status: 200, contentType: 'text/html', body: await shell.text(),
   }));
+  const privateReads = [];
+  page.on('request', request => { if (/\/rpc\/(?:fn_get_or_create_my_person|fn_list_family|private_research_item)/.test(request.url())) privateReads.push(new URL(request.url()).pathname); });
   for (const route of ['/books', '/book/daat-tevunot', '/heichal', '/2029/journey']) {
     await page.goto(`${BASE}${route}`, { waitUntil: 'domcontentloaded' });
-    await expect(page.locator('.mlock'), route).toBeVisible();
+    if (route === '/2029/journey') {
+      await expect(page.getByRole('status').filter({ hasText: /סגור · בבנייה/ })).toBeVisible();
+      await expect(page.locator('.sod29-command-island')).toBeVisible();
+    } else await expect(page.locator('.mlock'), route).toBeVisible();
   }
+  expect(privateReads).toEqual([]);
 });
 
 test('the existing public World stays open when no lock flag has been installed', async ({ page }) => {

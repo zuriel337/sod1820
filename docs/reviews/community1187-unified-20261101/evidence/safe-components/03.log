@@ -1,0 +1,179 @@
+
+> sod1820@1.0.0 test:entry-learn-2029
+> node scripts/test-entry-contextual-learn-2029.mjs
+
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: The input did not match the regular expression /href: `\/post\/\$\{post\.slug\}\$\{claim\.locator\}`/. Input:
+
+'const openCheckedPostCalculation = result => {\n' +
+  '    const { claim, focus, methodVersion } = result;\n' +
+  '    const current = research.context || {};\n' +
+  '    const selection = { entityId: claim.id, entityType: "gematria_expression", sourceRef: claim.sourceRef,\n' +
+  '      locator: claim.locator, versionRef: claim.sourceVersion, expression: claim.expression,\n' +
+  '      method: focus.method, methodVersion, resultValue: focus.resultValue, focusKind: "expression" };\n' +
+  '    const subject = { id: String(focus.root), type: "number", label: String(focus.root), href: focus.href };\n' +
+  '    const surfaceFocus = { id: claim.id, type: "gematria_expression", label: claim.expression,\n' +
+  '      primary: claim.expression, expression: claim.expression, method: focus.method,\n' +
+  '      number: focus.resultValue, resultValue: focus.resultValue, locator: claim.locator, sourceLabel: projection.sourceLabel };\n' +
+  '    const bottomTrail = [{ id: "post", label: "פוסט" }, { id: "calculation", label: "טענת חישוב" }, { id: "number", label: String(focus.root), active: true }];\n' +
+  '    explicitGematriaFocusRef.current = { postId: String(post.id), subject, selection, surfaceFocus, bottomTrail };\n' +
+  '    const patch = { subject, selection, lens: "gematria", dimensions: { ...(current.dimensions || {}),\n' +
+  '      surfaceFocus, bottomTrail, postEngineExploration: false, postClaimBinding: claim.binding, postClaimResultMatch: result.resultMatch,\n' +
+  '      postClaimSourceRef: claim.sourceRef, postClaimSourceVersion: claim.sourceVersion,\n' +
+  '      postClaimLocator: claim.locator, postClaimMethodVersion: methodVersion,\n' +
+  '      postClaimSteps: result.steps, postClaimSourceMethodVersion: claim.methodVersion, postClaimLanguage: claim.lang },\n' +
+  '      returnTo: { ...exactReturnForRegion(activeFocus), href: exactPostReadingHref(post, location, `${claim.locator}`),\n' +
+  '        selection: { ...selection, entityType: "post_occurrence" }, lens: "reading" } };\n' +
+  '    // Browser Back from the full Number page must name the current occurrence,\n' +
+  '    // even when a different calculation was opened earlier in this same Post.\n' +
+  '    try { window.history.replaceState(window.history.state, "", `${location.pathname}${location.search}${claim.locator}`); }\n' +
+  '    catch { /* Research Context still carries the explicit return target. */ }\n' +
+  '    // Same existing activation seam as Topic: commit rich source/version context\n' +
+  "    // after the shared activation's generic selection, in the same React batch.\n" +
+  '    shell.openNumber?.({ id: claim.id, type: "phrase", label: claim.expression, expression: claim.expression,\n' +
+  '      method: focus.method, resultValue: focus.resultValue, number: focus.root,\n' +
+  '      href: exactPostReadingHref(post, location, `${claim.locator}`), locator: claim.locator, sourceLabel: projection.sourceLabel, source: "post-exact-source-claim" });\n' +
+  '    research.updateResearchContext?.(patch);\n' +
+  '  };\n' +
+  '  const openPostSourceClaim = async claim => {\n' +
+  '    const ticket = ++calculationRequest.current;\n' +
+  '    setExplorationOccurrence(null);\n' +
+  '    setCalculationNotice("בודק את הביטוי, השיטה והמקור…");\n' +
+  '    const result = await checkPostCalculation2029(projection.sourcePost, claim, {\n' +
+  '      sourceProjection: projection, sourceDocument: sourceRef.current?.ownerDocument,\n' +
+  '    });\n' +
+  '    if (ticket !== calculationRequest.current) return;\n' +
+  '    if (result.status === "incomplete_claim" && claim?.expression && claim?.locator) setExplorationOccurrence(claim);\n' +
+  '    if (result.status.startsWith("source_")) { invalidatePostSource(result.status); return; }\n' +
+  '    if (result.status !== "ready") { setCalculationNotice(result.status === "incomplete_claim"\n' +
+  '      ? "להופעה הזאת אין ביטוי, שיטה ותוצאה מתועדים במלואם. לא נבחרה שיטה אוטומטית."\n' +
+  '      : result.status === "mismatch"\n' +
+  '        ? "התוצאה במקור אינה תואמת לתוצאת המנוע בשיטה המתועדת. לא נבחרה שיטה חלופית."\n' +
+  '        : "לא ניתן לפתוח את הטענה בשיטה ובגרסה שנבחרו. אין מעבר לשיטה חלופית."); return; }\n' +
+  '    setCalculationNotice(null); openCheckedPostCalculation(result);\n' +
+  '  };\n' +
+  '  const openPostEngineExploration = async candidate => {\n' +
+  '    const occurrence = candidate?.binding ? candidate : explorationOccurrence;\n' +
+  '    if (!occurrence) return;\n' +
+  '    const ticket = ++calculationRequest.current;\n' +
+  '    const access = await revalidatePostMeasureSource(projection.sourcePost);\n' +
+  '    if (ticket !== calculationRequest.current) return;\n' +
+  '    if (access.status !== "ready") { invalidatePostSource(access.status); return; }\n' +
+  '    const source = [...(sourceRef.current?.querySelectorAll("[id]") || [])].find(node => `#${node.id}` === occurrence.locator);\n' +
+  '    if (!source) return;\n' +
+  '    if (occurrence.binding === "saved_legacy_marking" && source.getAttribute("data-gem") !== occurrence.expression) return;\n' +
+  '    const dimensions = { ...(research.context?.dimensions || {}) };\n' +
+  '    for (const key of Object.keys(dimensions)) if (key.startsWith("postClaim")) dimensions[key] = null;\n' +
+  '    const selection = { entityId: occurrence.id, entityType: "post_occurrence", expression: occurrence.expression,\n' +
+  '      method: null, methodVersion: null, resultValue: null,\n' +
+  '      sourceRef: occurrence.sourceRef, locator: occurrence.locator, versionRef: occurrence.sourceVersion };\n' +
+  '    const patch = { subject: { id: occurrence.id, type: "phrase", label: occurrence.expression },\n' +
+  '      selection, lens: "gematria", dimensions: { ...dimensions, postEngineExploration: true,\n' +
+  '        surfaceFocus: { id: occurrence.id, type: "phrase", label: occurrence.expression, expression: occurrence.expression,\n' +
+  '          locator: occurrence.locator, sourceLabel: "בדיקה חדשה במנוע; אינה אימות של חישוב המקור" } },\n' +
+  '      returnTo: { ...exactReturnForRegion(activeFocus), href: exactPostReadingHref(post, location, `${occurrence.locator}`), selection,\n' +
+  '        dimensions: { ...dimensions, postEngineExploration: false,\n' +
+  '          surfaceFocus: { id: occurrence.id, type: "post_occurrence", label: occurrence.expression, locator: occurrence.locator } } } };\n' +
+  '    explicitGematriaFocusRef.current = null;\n' +
+  '    try { window.history.replaceState(window.history.state, "", `${location.pathname}${location.search}${occurrence.locator}`); }\n' +
+  '    catch { /* Existing Research Context remains the return target. */ }\n' +
+  '    shell.openNumber?.({ id: occurrence.id, type: "phrase", label: occurrence.expression, expression: occurrence.expression,\n' +
+  '      href: exactPostReadingHref(post, location, `${occurrence.locator}`), locator: occurrence.locator,\n' +
+  '      sourceLabel: "בדיקה חדשה במנוע; השיטה לא הושלמה מהמקור", source: "post-engine-exploration" });\n' +
+  '    research.updateResearchContext?.(patch);\n' +
+  '  };\n' +
+  '  '
+
+    at file:///workspace/sod1820-community1187-unified/scripts/test-entry-contextual-learn-2029.mjs:132:8
+    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)
+    at async node:internal/modules/esm/loader:643:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: 'const openCheckedPostCalculation = result => {\n' +
+    '    const { claim, focus, methodVersion } = result;\n' +
+    '    const current = research.context || {};\n' +
+    '    const selection = { entityId: claim.id, entityType: "gematria_expression", sourceRef: claim.sourceRef,\n' +
+    '      locator: claim.locator, versionRef: claim.sourceVersion, expression: claim.expression,\n' +
+    '      method: focus.method, methodVersion, resultValue: focus.resultValue, focusKind: "expression" };\n' +
+    '    const subject = { id: String(focus.root), type: "number", label: String(focus.root), href: focus.href };\n' +
+    '    const surfaceFocus = { id: claim.id, type: "gematria_expression", label: claim.expression,\n' +
+    '      primary: claim.expression, expression: claim.expression, method: focus.method,\n' +
+    '      number: focus.resultValue, resultValue: focus.resultValue, locator: claim.locator, sourceLabel: projection.sourceLabel };\n' +
+    '    const bottomTrail = [{ id: "post", label: "פוסט" }, { id: "calculation", label: "טענת חישוב" }, { id: "number", label: String(focus.root), active: true }];\n' +
+    '    explicitGematriaFocusRef.current = { postId: String(post.id), subject, selection, surfaceFocus, bottomTrail };\n' +
+    '    const patch = { subject, selection, lens: "gematria", dimensions: { ...(current.dimensions || {}),\n' +
+    '      surfaceFocus, bottomTrail, postEngineExploration: false, postClaimBinding: claim.binding, postClaimResultMatch: result.resultMatch,\n' +
+    '      postClaimSourceRef: claim.sourceRef, postClaimSourceVersion: claim.sourceVersion,\n' +
+    '      postClaimLocator: claim.locator, postClaimMethodVersion: methodVersion,\n' +
+    '      postClaimSteps: result.steps, postClaimSourceMethodVersion: claim.methodVersion, postClaimLanguage: claim.lang },\n' +
+    '      returnTo: { ...exactReturnForRegion(activeFocus), href: exactPostReadingHref(post, location, `${claim.locator}`),\n' +
+    '        selection: { ...selection, entityType: "post_occurrence" }, lens: "reading" } };\n' +
+    '    // Browser Back from the full Number page must name the current occurrence,\n' +
+    '    // even when a different calculation was opened earlier in this same Post.\n' +
+    '    try { window.history.replaceState(window.history.state, "", `${location.pathname}${location.search}${claim.locator}`); }\n' +
+    '    catch { /* Research Context still carries the explicit return target. */ }\n' +
+    '    // Same existing activation seam as Topic: commit rich source/version context\n' +
+    "    // after the shared activation's generic selection, in the same React batch.\n" +
+    '    shell.openNumber?.({ id: claim.id, type: "phrase", label: claim.expression, expression: claim.expression,\n' +
+    '      method: focus.method, resultValue: focus.resultValue, number: focus.root,\n' +
+    '      href: exactPostReadingHref(post, location, `${claim.locator}`), locator: claim.locator, sourceLabel: projection.sourceLabel, source: "post-exact-source-claim" });\n' +
+    '    research.updateResearchContext?.(patch);\n' +
+    '  };\n' +
+    '  const openPostSourceClaim = async claim => {\n' +
+    '    const ticket = ++calculationRequest.current;\n' +
+    '    setExplorationOccurrence(null);\n' +
+    '    setCalculationNotice("בודק את הביטוי, השיטה והמקור…");\n' +
+    '    const result = await checkPostCalculation2029(projection.sourcePost, claim, {\n' +
+    '      sourceProjection: projection, sourceDocument: sourceRef.current?.ownerDocument,\n' +
+    '    });\n' +
+    '    if (ticket !== calculationRequest.current) return;\n' +
+    '    if (result.status === "incomplete_claim" && claim?.expression && claim?.locator) setExplorationOccurrence(claim);\n' +
+    '    if (result.status.startsWith("source_")) { invalidatePostSource(result.status); return; }\n' +
+    '    if (result.status !== "ready") { setCalculationNotice(result.status === "incomplete_claim"\n' +
+    '      ? "להופעה הזאת אין ביטוי, שיטה ותוצאה מתועדים במלואם. לא נבחרה שיטה אוטומטית."\n' +
+    '      : result.status === "mismatch"\n' +
+    '        ? "התוצאה במקור אינה תואמת לתוצאת המנוע בשיטה המתועדת. לא נבחרה שיטה חלופית."\n' +
+    '        : "לא ניתן לפתוח את הטענה בשיטה ובגרסה שנבחרו. אין מעבר לשיטה חלופית."); return; }\n' +
+    '    setCalculationNotice(null); openCheckedPostCalculation(result);\n' +
+    '  };\n' +
+    '  const openPostEngineExploration = async candidate => {\n' +
+    '    const occurrence = candidate?.binding ? candidate : explorationOccurrence;\n' +
+    '    if (!occurrence) return;\n' +
+    '    const ticket = ++calculationRequest.current;\n' +
+    '    const access = await revalidatePostMeasureSource(projection.sourcePost);\n' +
+    '    if (ticket !== calculationRequest.current) return;\n' +
+    '    if (access.status !== "ready") { invalidatePostSource(access.status); return; }\n' +
+    '    const source = [...(sourceRef.current?.querySelectorAll("[id]") || [])].find(node => `#${node.id}` === occurrence.locator);\n' +
+    '    if (!source) return;\n' +
+    '    if (occurrence.binding === "saved_legacy_marking" && source.getAttribute("data-gem") !== occurrence.expression) return;\n' +
+    '    const dimensions = { ...(research.context?.dimensions || {}) };\n' +
+    '    for (const key of Object.keys(dimensions)) if (key.startsWith("postClaim")) dimensions[key] = null;\n' +
+    '    const selection = { entityId: occurrence.id, entityType: "post_occurrence", expression: occurrence.expression,\n' +
+    '      method: null, methodVersion: null, resultValue: null,\n' +
+    '      sourceRef: occurrence.sourceRef, locator: occurrence.locator, versionRef: occurrence.sourceVersion };\n' +
+    '    const patch = { subject: { id: occurrence.id, type: "phrase", label: occurrence.expression },\n' +
+    '      selection, lens: "gematria", dimensions: { ...dimensions, postEngineExploration: true,\n' +
+    '        surfaceFocus: { id: occurrence.id, type: "phrase", label: occurrence.expression, expression: occurrence.expression,\n' +
+    '          locator: occurrence.locator, sourceLabel: "בדיקה חדשה במנוע; אינה אימות של חישוב המקור" } },\n' +
+    '      returnTo: { ...exactReturnForRegion(activeFocus), href: exactPostReadingHref(post, location, `${occurrence.locator}`), selection,\n' +
+    '        dimensions: { ...dimensions, postEngineExploration: false,\n' +
+    '          surfaceFocus: { id: occurrence.id, type: "post_occurrence", label: occurrence.expression, locator: occurrence.locator } } } };\n' +
+    '    explicitGematriaFocusRef.current = null;\n' +
+    '    try { window.history.replaceState(window.history.state, "", `${location.pathname}${location.search}${occurrence.locator}`); }\n' +
+    '    catch { /* Existing Research Context remains the return target. */ }\n' +
+    '    shell.openNumber?.({ id: occurrence.id, type: "phrase", label: occurrence.expression, expression: occurrence.expression,\n' +
+    '      href: exactPostReadingHref(post, location, `${occurrence.locator}`), locator: occurrence.locator,\n' +
+    '      sourceLabel: "בדיקה חדשה במנוע; השיטה לא הושלמה מהמקור", source: "post-engine-exploration" });\n' +
+    '    research.updateResearchContext?.(patch);\n' +
+    '  };\n' +
+    '  ',
+  expected: /href: `\/post\/\$\{post\.slug\}\$\{claim\.locator\}`/,
+  operator: 'match',
+  diff: 'simple'
+}
+
+Node.js v24.19.0

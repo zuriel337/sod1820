@@ -49,7 +49,7 @@ with sync_playwright() as p:
  try:
   for width in [320,360,390,1440]:
    for theme in ['light','parchment','dark']:
-    context=browser.new_context(viewport={'width':width,'height':1000});state=install(context,theme);page=context.new_page();page.on('pageerror',lambda e:state['errors'].append(str(e)));page.goto(BASE+'/community/chat');button=share(page,R);expect(button).to_be_visible();expect(button).to_have_attribute('aria-label','שיתוף הודעה');assert button.bounding_box()['width']>=44 and button.bounding_box()['height']>=44
+    context=browser.new_context(viewport={'width':width,'height':1000});state=install(context,theme);page=context.new_page();page.on('pageerror',lambda e:state['errors'].append(str(e)));page.goto(BASE+'/community/chat');button=share(page,R);expect(button).to_be_visible();expect(button).to_have_attribute('aria-label','שיתוף הודעה');expect(button).to_have_css('width','44px');expect(button).to_have_css('height','44px');assert button.bounding_box()['width']>=44 and button.bounding_box()['height']>=44
     assert page.evaluate('window.__copies.length+window.__native.length')==0;assert not page.evaluate('document.documentElement.scrollWidth>innerWidth+1');assert not state['writes'] and not state['errors'];cases.append({'width':width,'theme':theme,'quiet_share_icon44':True,'no_automatic_share':True});context.close()
   for width in [390,1440]:
    for mode in ['copy','native','failure']:

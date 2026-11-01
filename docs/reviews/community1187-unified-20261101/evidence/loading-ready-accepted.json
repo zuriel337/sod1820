@@ -1,0 +1,167 @@
+{
+  "fixture": "synthetic 40-thread public workload; independent deny-default transport; actual compiled clients; SW validated separately",
+  "baselineSha": "6df07087eabd78f7d1b56438b147e2d957ff0ac8",
+  "results": [
+    {
+      "version": "after",
+      "pair": 1,
+      "origin": "http://127.0.0.1:4197",
+      "width": 390,
+      "countsMode": "ready",
+      "cpuThrottle": 4,
+      "syntheticReadLatencyMs": 120,
+      "syntheticRootCount": 40,
+      "firstRootMs": 1750,
+      "initialCLS": 0,
+      "initialReplyReads": 2,
+      "initialTaskDurationSeconds": 2.042355,
+      "afterScrollReplyReads": 14,
+      "refreshReplyReads": 3,
+      "offscreenRefreshReplyReads": 0,
+      "nearRootCount": 3,
+      "totalReplyBytes": 11899,
+      "taskDurationSeconds": 3.753946,
+      "requests": [
+        {
+          "phase": "initial",
+          "parent": "20000000-0000-4000-8000-000000000001",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 699
+        },
+        {
+          "phase": "initial",
+          "parent": "20000000-0000-4000-8000-000000000002",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 699
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000003",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 699
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000006",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 699
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000004",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 699
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000005",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 699
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000007",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 699
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000008",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 699
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000009",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 699
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000010",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 701
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000012",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 701
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000013",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 701
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000014",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 701
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000011",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 701
+        },
+        {
+          "phase": "refresh",
+          "parent": "20000000-0000-4000-8000-000000000012",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 701
+        },
+        {
+          "phase": "refresh",
+          "parent": "20000000-0000-4000-8000-000000000013",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 701
+        },
+        {
+          "phase": "refresh",
+          "parent": "20000000-0000-4000-8000-000000000014",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 701
+        }
+      ],
+      "errors": [],
+      "productWritesForwarded": 0,
+      "modelCallsForwarded": 0
+    }
+  ]
+}

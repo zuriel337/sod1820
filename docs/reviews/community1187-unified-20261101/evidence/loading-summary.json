@@ -1,0 +1,227 @@
+{
+  "baselineSha": "6df07087eabd78f7d1b56438b147e2d957ff0ac8",
+  "comparedSource": "integrated tree on gpt/2029-community1187-unified-20261101; final immutable SHA recorded by receipt",
+  "synthetic": true,
+  "counterbalancedPairsPerWidth": 4,
+  "widths": [
+    390,
+    1440
+  ],
+  "cpuThrottle": 4,
+  "readLatencyMs": 120,
+  "fixtureRoots": 40,
+  "fixtureRepliesPerRoot": 3,
+  "rawCountsMode": "preview-denied",
+  "workerParentVerificationMeasured": false,
+  "noLiveCallsOrWrites": true,
+  "rows": [
+    {
+      "width": 390,
+      "version": "before",
+      "runs": 4,
+      "metrics": {
+        "firstRootMs": {
+          "median": 1710.5,
+          "min": 1667,
+          "max": 1823
+        },
+        "initialReplyReads": {
+          "median": 0.0,
+          "min": 0,
+          "max": 0
+        },
+        "initialTaskDurationSeconds": {
+          "median": 1.5141965,
+          "min": 1.443972,
+          "max": 1.663982
+        },
+        "afterScrollReplyReads": {
+          "median": 0.0,
+          "min": 0,
+          "max": 0
+        },
+        "refreshReplyReads": {
+          "median": 0.0,
+          "min": 0,
+          "max": 0
+        },
+        "offscreenRefreshReplyReads": {
+          "median": 0.0,
+          "min": 0,
+          "max": 0
+        },
+        "totalReplyBytes": {
+          "median": 0.0,
+          "min": 0,
+          "max": 0
+        },
+        "taskDurationSeconds": {
+          "median": 1.7814055,
+          "min": 1.681465,
+          "max": 1.961013
+        },
+        "initialCLS": {
+          "median": 0.04622222222222222,
+          "min": 0.04622222222222222,
+          "max": 0.04622222222222222
+        }
+      }
+    },
+    {
+      "width": 390,
+      "version": "after",
+      "runs": 4,
+      "metrics": {
+        "firstRootMs": {
+          "median": 1758.5,
+          "min": 1684,
+          "max": 1787
+        },
+        "initialReplyReads": {
+          "median": 2.0,
+          "min": 2,
+          "max": 2
+        },
+        "initialTaskDurationSeconds": {
+          "median": 1.8009555,
+          "min": 1.557537,
+          "max": 1.87934
+        },
+        "afterScrollReplyReads": {
+          "median": 14.0,
+          "min": 14,
+          "max": 14
+        },
+        "refreshReplyReads": {
+          "median": 2.0,
+          "min": 2,
+          "max": 2
+        },
+        "offscreenRefreshReplyReads": {
+          "median": 0.0,
+          "min": 0,
+          "max": 0
+        },
+        "totalReplyBytes": {
+          "median": 11198.0,
+          "min": 11198,
+          "max": 11198
+        },
+        "taskDurationSeconds": {
+          "median": 3.2693395,
+          "min": 3.098525,
+          "max": 3.491785
+        },
+        "initialCLS": {
+          "median": 0.0,
+          "min": 0,
+          "max": 0
+        }
+      }
+    },
+    {
+      "width": 1440,
+      "version": "before",
+      "runs": 4,
+      "metrics": {
+        "firstRootMs": {
+          "median": 1726.0,
+          "min": 1675,
+          "max": 1840
+        },
+        "initialReplyReads": {
+          "median": 0.0,
+          "min": 0,
+          "max": 0
+        },
+        "initialTaskDurationSeconds": {
+          "median": 1.5377269999999998,
+          "min": 1.41336,
+          "max": 1.809306
+        },
+        "afterScrollReplyReads": {
+          "median": 0.0,
+          "min": 0,
+          "max": 0
+        },
+        "refreshReplyReads": {
+          "median": 0.0,
+          "min": 0,
+          "max": 0
+        },
+        "offscreenRefreshReplyReads": {
+          "median": 0.0,
+          "min": 0,
+          "max": 0
+        },
+        "totalReplyBytes": {
+          "median": 0.0,
+          "min": 0,
+          "max": 0
+        },
+        "taskDurationSeconds": {
+          "median": 1.803703,
+          "min": 1.663856,
+          "max": 2.079125
+        },
+        "initialCLS": {
+          "median": 0.023450617283950616,
+          "min": 0.023450617283950616,
+          "max": 0.023450617283950616
+        }
+      }
+    },
+    {
+      "width": 1440,
+      "version": "after",
+      "runs": 4,
+      "metrics": {
+        "firstRootMs": {
+          "median": 1807.5,
+          "min": 1721,
+          "max": 1918
+        },
+        "initialReplyReads": {
+          "median": 2.0,
+          "min": 2,
+          "max": 2
+        },
+        "initialTaskDurationSeconds": {
+          "median": 1.801934,
+          "min": 1.679786,
+          "max": 2.06494
+        },
+        "afterScrollReplyReads": {
+          "median": 14.0,
+          "min": 14,
+          "max": 14
+        },
+        "refreshReplyReads": {
+          "median": 2.0,
+          "min": 2,
+          "max": 2
+        },
+        "offscreenRefreshReplyReads": {
+          "median": 0.0,
+          "min": 0,
+          "max": 0
+        },
+        "totalReplyBytes": {
+          "median": 11198.0,
+          "min": 11198,
+          "max": 11198
+        },
+        "taskDurationSeconds": {
+          "median": 3.4496260000000003,
+          "min": 3.062459,
+          "max": 4.135903
+        },
+        "initialCLS": {
+          "median": 0.0,
+          "min": 0,
+          "max": 0
+        }
+      }
+    }
+  ]
+}

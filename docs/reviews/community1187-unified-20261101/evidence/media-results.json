@@ -1,0 +1,83 @@
+{
+  "cases": [
+    {
+      "width": 390,
+      "like_toggle": true,
+      "like_failure_rollback": true,
+      "legacy_dislikes_preserved": 3,
+      "video_upload_failure_retry": true,
+      "publish_failure_reuses_upload": true,
+      "native_video_controls": true,
+      "account_switch_pending_like": true,
+      "no_overflow": true
+    },
+    {
+      "width": 1440,
+      "like_toggle": true,
+      "like_failure_rollback": true,
+      "legacy_dislikes_preserved": 3,
+      "video_upload_failure_retry": true,
+      "publish_failure_reuses_upload": true,
+      "native_video_controls": true,
+      "account_switch_pending_like": true,
+      "no_overflow": true
+    },
+    {
+      "width": 390,
+      "successful_publish_visible_after": "newest",
+      "stale_search_cleared": true,
+      "failed_publish_retains_context": true,
+      "reload_visible": true
+    },
+    {
+      "width": 390,
+      "successful_publish_visible_after": "oldest",
+      "stale_search_cleared": true,
+      "failed_publish_retains_context": true,
+      "reload_visible": true
+    },
+    {
+      "width": 390,
+      "successful_publish_visible_after": "liked",
+      "stale_search_cleared": true,
+      "failed_publish_retains_context": true,
+      "reload_visible": true
+    },
+    {
+      "width": 1440,
+      "successful_publish_visible_after": "newest",
+      "stale_search_cleared": true,
+      "failed_publish_retains_context": true,
+      "reload_visible": true
+    },
+    {
+      "width": 1440,
+      "successful_publish_visible_after": "oldest",
+      "stale_search_cleared": true,
+      "failed_publish_retains_context": true,
+      "reload_visible": true
+    },
+    {
+      "width": 1440,
+      "successful_publish_visible_after": "liked",
+      "stale_search_cleared": true,
+      "failed_publish_retains_context": true,
+      "reload_visible": true
+    },
+    {
+      "width": 390,
+      "reply_preserves_existing_search_sort_and_parent": true
+    },
+    {
+      "width": 1440,
+      "reply_preserves_existing_search_sort_and_parent": true
+    },
+    {
+      "guest": "methods-share-one-entry-and-disabled-writes"
+    }
+  ],
+  "real_auth": false,
+  "real_message_writes": 0,
+  "real_uploads": 0,
+  "model_calls": 0
+}

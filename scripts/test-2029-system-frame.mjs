@@ -71,7 +71,9 @@ assert.match(frame, /יום/);
 assert.match(frame, /קלף/);
 assert.match(frame, /לילה/);
 assert.doesNotMatch(frame, /GematriaReveal2029/);
-assert.match(frame, /surface !== "control"[\s\S]*Boolean\(activeTarget \|\| context\?\.subject\)/, "meaningful context should project the same left rail across public 2029 surfaces");
+assert.match(frame, /surface !== "control"[\s\S]*Boolean\(activeTarget \|\| pageContext\?\.subject\)/, "current-document context should project the independent rail without reviving a previous document");
+assert.match(frame, /surfaceContextForRoute2029\(context/);
+assert.doesNotMatch(frame, /<CompanionPanel2029/);
 
 // Experience Context is resolved once at the native System Frame seam and exposed
 // through the same shell context to all native 2029 surfaces.
@@ -145,11 +147,12 @@ assert.equal(frame.includes("shareOrCopy"), false, "2029 Frame must not bypass c
 assert.match(frame, /channels=\{\["native", "copy"\]\}/);
 assert.match(frame, /force/);
 
-// Navigation + the explicitly opened "מה חדש בעולם" panel may route to World.
-// The panel has a public-core link when World is open and the full-feed action.
-// Generic inspect/search/tool actions must still never force navigation to World.
+// Main navigation and opened updates remain ordinary World entries. The two
+// approved user-invoked contextual actions explicitly mark their continuation.
 const worldLiteralCount = [...frame.matchAll(/"\/world"/g)].length;
-assert.equal(worldLiteralCount, 3, "Only main navigation and the user-opened World updates panel may link to World");
+assert.equal(worldLiteralCount, 5, "World destinations stay limited to navigation, opened updates and explicit contextual actions");
+assert.match(frame, /target && action\.href === "\/world" \? "\/world\?focus=context" : action\.href/);
+assert.match(frame, /go\(finding\.href === "\/world" \? "\/world\?focus=context" : finding\.href, \{ preserve: false, state: \{ sodResearchIntent: "continue" \} \}\)/);
 assert.match(frame, /function AttentionProjection[\s\S]*onOpen\?\.\("\/world"\)/);
 
 // Raziel route-action consumer is fail-closed and presentation-only.
@@ -240,7 +243,7 @@ for (const preferredPublicCopy of [
 // Adaptive Command Island is an action surface, not a fixed global-navigation bar.
 assert.match(frame, /sod29-command-island/);
 assert.match(frame, /role="toolbar"/);
-assert.match(frame, /aria-label="כלי מחקר וחיפוש"/);
+assert.match(frame, /aria-label="מסלול המחקר והפעולות הזמינות עכשיו"/);
 assert.match(frame, /<ActionProjection surface=\{surface\} target=\{inspectTarget\}/);
 assert.match(frame, /<ToolsProjection surface=\{surface\} target=\{inspectTarget\}/);
 // ZURIEL 29.10 approved the five-entry shared launcher; Number still uses the existing capability.

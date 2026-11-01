@@ -4,6 +4,7 @@ import { useAuth } from "../../lib/AuthContext.jsx";
 import { supabase } from "../../lib/supabase.js";
 import { getUnreadCount } from "../../lib/notifications.js";
 import { writerPersonalHref } from "../../lib/userCenter/writerPersonal2029.js";
+import { communityAccountReturnHref } from "../../lib/community/communityPersonNavigation.js";
 import NavigationIcon2029 from "../experience2029/NavigationIcon2029.jsx";
 
 // A presentation of the existing account and notification reader, not another inbox.
@@ -13,7 +14,7 @@ export default function CommunitySignedInControls2029({ children }) {
   const principal = user?.id || null, active = useRef(principal); active.current = principal;
   const [snapshot, setSnapshot] = useState({ owner: null, state: "loading", count: null });
   const ownProfile = profile?.id === principal ? profile : null;
-  const returnTo = location.pathname + location.search;
+  const returnTo = communityAccountReturnHref(location);
   useEffect(() => {
     if (!principal || loading) return;
     let alive = true, pending = false;

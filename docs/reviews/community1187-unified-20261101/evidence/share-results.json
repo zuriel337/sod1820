@@ -1,0 +1,126 @@
+{
+  "cases": [
+    {
+      "width": 320,
+      "theme": "light",
+      "quiet_share_icon44": true,
+      "no_automatic_share": true
+    },
+    {
+      "width": 320,
+      "theme": "parchment",
+      "quiet_share_icon44": true,
+      "no_automatic_share": true
+    },
+    {
+      "width": 320,
+      "theme": "dark",
+      "quiet_share_icon44": true,
+      "no_automatic_share": true
+    },
+    {
+      "width": 360,
+      "theme": "light",
+      "quiet_share_icon44": true,
+      "no_automatic_share": true
+    },
+    {
+      "width": 360,
+      "theme": "parchment",
+      "quiet_share_icon44": true,
+      "no_automatic_share": true
+    },
+    {
+      "width": 360,
+      "theme": "dark",
+      "quiet_share_icon44": true,
+      "no_automatic_share": true
+    },
+    {
+      "width": 390,
+      "theme": "light",
+      "quiet_share_icon44": true,
+      "no_automatic_share": true
+    },
+    {
+      "width": 390,
+      "theme": "parchment",
+      "quiet_share_icon44": true,
+      "no_automatic_share": true
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "quiet_share_icon44": true,
+      "no_automatic_share": true
+    },
+    {
+      "width": 1440,
+      "theme": "light",
+      "quiet_share_icon44": true,
+      "no_automatic_share": true
+    },
+    {
+      "width": 1440,
+      "theme": "parchment",
+      "quiet_share_icon44": true,
+      "no_automatic_share": true
+    },
+    {
+      "width": 1440,
+      "theme": "dark",
+      "quiet_share_icon44": true,
+      "no_automatic_share": true
+    },
+    {
+      "width": 390,
+      "mode": "copy",
+      "nested_three_levels": true,
+      "exact_root_and_reply_link": true,
+      "refresh_context": true,
+      "public_return_copy": true
+    },
+    {
+      "width": 390,
+      "mode": "native",
+      "nested_three_levels": true,
+      "exact_root_and_reply_link": true,
+      "refresh_context": true,
+      "public_return_copy": true
+    },
+    {
+      "width": 390,
+      "mode": "failure",
+      "nested_three_levels": true,
+      "exact_root_and_reply_link": true,
+      "refresh_context": true,
+      "public_return_copy": true
+    },
+    {
+      "width": 1440,
+      "mode": "copy",
+      "nested_three_levels": true,
+      "exact_root_and_reply_link": true,
+      "refresh_context": true,
+      "public_return_copy": true
+    },
+    {
+      "width": 1440,
+      "mode": "native",
+      "nested_three_levels": true,
+      "exact_root_and_reply_link": true,
+      "refresh_context": true,
+      "public_return_copy": true
+    },
+    {
+      "width": 1440,
+      "mode": "failure",
+      "nested_three_levels": true,
+      "exact_root_and_reply_link": true,
+      "refresh_context": true,
+      "public_return_copy": true
+    }
+  ],
+  "real_shares": 0,
+  "real_product_writes": 0
+}
