@@ -1,6 +1,5 @@
 import WorldSourceConnections from '../components/research/WorldSourceConnections.jsx';
 import StoryTreeSequence2029, { storyTreeReturnSelection2029 } from '../components/research/StoryTreeSequence2029.jsx';
-import WorldConnectedDiscovery from '../components/research/WorldSourceStory.jsx';
 import WorldFlightStory2029 from '../components/research/WorldFlightStory2029.jsx';
 import WorldPublicUpdates2029 from '../components/research/WorldPublicUpdates2029.jsx';
 import ZviGroupTimeline2029 from '../components/research/ZviGroupTimeline2029.jsx';
@@ -80,6 +79,9 @@ import {
 const WorldAllResearchTable = React.lazy(() => import("../components/research/WorldAllResearchTable.jsx"));
 const WorldKnowledgeTypes2029 = React.lazy(() => import("../components/research/WorldKnowledgeTypes2029.jsx"));
 const WorldPeopleSources2029 = React.lazy(() => import("../components/research/WorldPeopleSources2029.jsx"));
+// This reader (including its spatial calculation stage) is used only by an
+// explicit source-discovery address, not by ordinary World entry.
+const WorldConnectedDiscovery = React.lazy(() => import("../components/research/WorldSourceStory.jsx"));
 
 const WORLD_EXPERIENCE = resolveExperienceContext({
   surface: EXPERIENCE_SURFACE.WORLD,
@@ -1202,7 +1204,9 @@ function LiveWorldLanding({ research, shell, context }) {
     {activeView === WORLD_LANDING_VIEW.CONNECTIONS ? <>
       <WorldFlightStory2029 research={research} shell={shell} />
       {/^#world-(?:direction|source)-/.test(location.hash) ? <WorldSourceStory research={research} shell={shell} compact /> : null}
-      {location.hash.startsWith("#world-discovery-") ? <WorldConnectedDiscovery research={research} shell={shell} /> : null}
+      {location.hash.startsWith("#world-discovery-") ? <React.Suspense fallback={<FrameState kind="loading" title="פותח את המקור">טוען את הקריאה והחישובים של המקור.</FrameState>}>
+        <WorldConnectedDiscovery research={research} shell={shell} />
+      </React.Suspense> : null}
       <WorldDiscoveryDoors />
       <section className="sod29-section sod29-world-all-convergences" id="world-all-convergences" aria-label="עיון לפי נושאים וחיבורים">
         <div className="sod29-section-head"><div><div className="sod29-kicker">עיון לפי נושא</div><h2>לראות מה נפגש סביב רעיון.</h2>

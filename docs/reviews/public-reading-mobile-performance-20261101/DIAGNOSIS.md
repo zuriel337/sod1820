@@ -76,3 +76,17 @@ Keep the smaller Golden/witness dependencies, source-invitation bounds and all
 other fixes. This creates no speculative data request or new personal cache;
 non-public-reading profiles retain the earlier bounded route optimization.
 Measure the Home cost explicitly before selecting a final candidate.
+
+The full b839a81724-cycle run passed functional/CLS checks, but retained a
+first-mobile-World regression: median2601→3461ms (after2596/3498/3461).
+Keep that regression and its complete transport trace. World entry downloads
+SpatialMethodStage(~13.5kB compressed), semanticSceneCompiler(~9.3kB) and GPU/
+anatomy helpers even though WorldConnectedDiscovery is rendered only for an
+explicit#world-discovery-* address. Its static import pulls that otherwise
+closed reader into ordinary World. Lazy-load that existing component at its
+unchanged explicit address, with a local loading state. Do not change the
+reader, source, calculation, identity, source-tree/return parser or permissions.
+Direct source entry/reload/Back and the actual engine stage must still work.
+The driver-visible regression is larger than the isolated resource/CPU delta;
+no claim that all860ms is proven server or download time. Retain all timings
+and remeasure the same criterion after this bounded code-admission change.
