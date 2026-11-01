@@ -1,0 +1,208 @@
+{
+  "originalRuntimeSHA": "63e6882c3b7b4004d337927c7231728a7612d452",
+  "originalTestSHA": "c2f2e9948dd119c96b69e377b33be2eb2a886efb",
+  "originalEvidenceSHA": "070ddbc29b8c14b6d1facd95f97f979fadc711ae",
+  "currentCompiledProductSHA": "5dece6da03a39dd791f56265343cf271856d070a",
+  "rows": [
+    {
+      "title": "Core Web Vitals CLS budget holds on /world at 390px",
+      "originalStatus": "failed",
+      "originalClassification": "CLS_THRESHOLD_FAILED_RETEST_RECORDED",
+      "currentStatus": "passed",
+      "currentLine": 140,
+      "resolution": "Runtime fix: reserve pending shared ribbon geometry and intrinsic aircraft image dimensions. Unchanged CLS<=0.1; matched repeated measurements also pass."
+    },
+    {
+      "title": "direct /world opens public composed World with aircraft story, real arrivals and source navigation",
+      "originalStatus": "failed",
+      "originalClassification": "STALE_UI_EXPECTATION",
+      "currentStatus": "passed",
+      "currentLine": 223,
+      "resolution": "Use approved World lanes, shared public updates and current Command/Number controls. Retain source/privacy/content, focus, overflow and exact-return checks."
+    },
+    {
+      "title": "public World catalog remains searchable and paginated inside the new composed presentation",
+      "originalStatus": "failed",
+      "originalClassification": "EXPECTED_PUBLIC_888_FIXTURE_ABSENT",
+      "currentStatus": "passed",
+      "currentLine": 254,
+      "resolution": "Explicit synthetic public888/catalog fixtures; unchanged absence negative. No live draft/topic publication. Catalog verifies8->24->45 and complete pagination."
+    },
+    {
+      "title": "native canonical Topic 2029 renders 888 with semantic links and SEO identity",
+      "originalStatus": "failed",
+      "originalClassification": "EXPECTED_PUBLIC_888_FIXTURE_ABSENT",
+      "currentStatus": "passed",
+      "currentLine": 285,
+      "resolution": "Explicit synthetic public888/catalog fixtures; unchanged absence negative. No live draft/topic publication. Catalog verifies8->24->45 and complete pagination."
+    },
+    {
+      "title": "Topic expression focus opens Number 2029 and survives World + Heichal transitions",
+      "originalStatus": "failed",
+      "originalClassification": "CONTEXTUAL_ROUTE_EXPECTATION_REQUIRES_RECONCILIATION",
+      "currentStatus": "passed",
+      "currentLine": 305,
+      "resolution": "Approved first action is an in-place Number surface; explicit full-page action now preserves expression+method. World context return preserves exact anchor URL."
+    },
+    {
+      "title": "Number 2029 global drawer reuses the same method-first Core and carries Raziel context",
+      "originalStatus": "failed",
+      "originalClassification": "STALE_UI_EXPECTATION",
+      "currentStatus": "passed",
+      "currentLine": 468,
+      "resolution": "Use approved World lanes, shared public updates and current Command/Number controls. Retain source/privacy/content, focus, overflow and exact-return checks."
+    },
+    {
+      "title": "Contextual Number Surface stays one desktop sidecar through focus → preview → back",
+      "originalStatus": "failed",
+      "originalClassification": "STALE_UI_EXPECTATION",
+      "currentStatus": "passed",
+      "currentLine": 530,
+      "resolution": "Use approved World lanes, shared public updates and current Command/Number controls. Retain source/privacy/content, focus, overflow and exact-return checks."
+    },
+    {
+      "title": "Number 2029 golden visual calibration covers 878, 358 and the 1326 visual target in Page and Drawer",
+      "originalStatus": "failed",
+      "originalClassification": "STALE_UI_EXPECTATION",
+      "currentStatus": "passed",
+      "currentLine": 637,
+      "resolution": "Use approved World lanes, shared public updates and current Command/Number controls. Retain source/privacy/content, focus, overflow and exact-return checks."
+    },
+    {
+      "title": "Public World story and source entry remain usable and overflow-free at 320px",
+      "originalStatus": "failed",
+      "originalClassification": "STALE_UI_EXPECTATION",
+      "currentStatus": "passed",
+      "currentLine": 707,
+      "resolution": "Use approved World lanes, shared public updates and current Command/Number controls. Retain source/privacy/content, focus, overflow and exact-return checks."
+    },
+    {
+      "title": "Public World story and source entry remain usable and overflow-free at 360px",
+      "originalStatus": "failed",
+      "originalClassification": "STALE_UI_EXPECTATION",
+      "currentStatus": "passed",
+      "currentLine": 707,
+      "resolution": "Use approved World lanes, shared public updates and current Command/Number controls. Retain source/privacy/content, focus, overflow and exact-return checks."
+    },
+    {
+      "title": "Public World story and source entry remain usable and overflow-free at 390px",
+      "originalStatus": "failed",
+      "originalClassification": "STALE_UI_EXPECTATION",
+      "currentStatus": "passed",
+      "currentLine": 707,
+      "resolution": "Use approved World lanes, shared public updates and current Command/Number controls. Retain source/privacy/content, focus, overflow and exact-return checks."
+    },
+    {
+      "title": "RICH live World 1820 is truthful and overflow-free at 1440px",
+      "originalStatus": "failed",
+      "originalClassification": "STALE_UI_EXPECTATION",
+      "currentStatus": "passed",
+      "currentLine": 721,
+      "resolution": "Use approved World lanes, shared public updates and current Command/Number controls. Retain source/privacy/content, focus, overflow and exact-return checks."
+    },
+    {
+      "title": "RICH live World 1820 is truthful and overflow-free at 320px",
+      "originalStatus": "failed",
+      "originalClassification": "STALE_UI_EXPECTATION",
+      "currentStatus": "passed",
+      "currentLine": 721,
+      "resolution": "Use approved World lanes, shared public updates and current Command/Number controls. Retain source/privacy/content, focus, overflow and exact-return checks."
+    },
+    {
+      "title": "RICH live World 1820 is truthful and overflow-free at 360px",
+      "originalStatus": "failed",
+      "originalClassification": "STALE_UI_EXPECTATION",
+      "currentStatus": "passed",
+      "currentLine": 721,
+      "resolution": "Use approved World lanes, shared public updates and current Command/Number controls. Retain source/privacy/content, focus, overflow and exact-return checks."
+    },
+    {
+      "title": "RICH live World 1820 is truthful and overflow-free at 390px",
+      "originalStatus": "failed",
+      "originalClassification": "STALE_UI_EXPECTATION",
+      "currentStatus": "passed",
+      "currentLine": 721,
+      "resolution": "Use approved World lanes, shared public updates and current Command/Number controls. Retain source/privacy/content, focus, overflow and exact-return checks."
+    },
+    {
+      "title": "RICH 1820 presents one anchor header before profile and exploration lanes",
+      "originalStatus": "failed",
+      "originalClassification": "STALE_UI_EXPECTATION",
+      "currentStatus": "passed",
+      "currentLine": 732,
+      "resolution": "Use approved World lanes, shared public updates and current Command/Number controls. Retain source/privacy/content, focus, overflow and exact-return checks."
+    },
+    {
+      "title": "MEDIUM live World 314 remains medium instead of being visually inflated",
+      "originalStatus": "failed",
+      "originalClassification": "BEHAVIOR_OR_FIXTURE_REQUIRES_REVIEW",
+      "currentStatus": "passed",
+      "currentLine": 842,
+      "resolution": "Same actual public projection assertions pass with current controlled reads; no density or identity fabrication. Original hosted readiness timeout not attributed to an invented source fix."
+    },
+    {
+      "title": "World uses the shared Command, Inspect, Share and exact-return seams",
+      "originalStatus": "failed",
+      "originalClassification": "STALE_UI_EXPECTATION",
+      "currentStatus": "passed",
+      "currentLine": 862,
+      "resolution": "Use approved World lanes, shared public updates and current Command/Number controls. Retain source/privacy/content, focus, overflow and exact-return checks."
+    },
+    {
+      "title": "unavailable identity is not silently replaced by another anchor",
+      "originalStatus": "failed",
+      "originalClassification": "BEHAVIOR_OR_FIXTURE_REQUIRES_REVIEW",
+      "currentStatus": "passed",
+      "currentLine": 938,
+      "resolution": "Same actual public projection assertions pass with current controlled reads; no density or identity fabrication. Original hosted readiness timeout not attributed to an invented source fix."
+    },
+    {
+      "title": "source projector dark 1440: source-first writer and full Hashmal reading",
+      "originalStatus": "failed",
+      "originalClassification": "SOURCE_PROJECTOR_WAIT_OR_BEHAVIOR_OPEN",
+      "currentStatus": "passed",
+      "currentLine": 984,
+      "resolution": "Public source readiness and exact full-source assertions retained. All six theme/width cases pass; native shared source filter replaces retired filter controls."
+    },
+    {
+      "title": "source projector dark 390: source-first writer and full Hashmal reading",
+      "originalStatus": "timedOut",
+      "originalClassification": "STALE_UI_EXPECTATION",
+      "currentStatus": "passed",
+      "currentLine": 984,
+      "resolution": "Use approved World lanes, shared public updates and current Command/Number controls. Retain source/privacy/content, focus, overflow and exact-return checks."
+    },
+    {
+      "title": "source projector light 1440: source-first writer and full Hashmal reading",
+      "originalStatus": "timedOut",
+      "originalClassification": "STALE_UI_EXPECTATION",
+      "currentStatus": "passed",
+      "currentLine": 984,
+      "resolution": "Use approved World lanes, shared public updates and current Command/Number controls. Retain source/privacy/content, focus, overflow and exact-return checks."
+    },
+    {
+      "title": "source projector light 390: source-first writer and full Hashmal reading",
+      "originalStatus": "timedOut",
+      "originalClassification": "STALE_UI_EXPECTATION",
+      "currentStatus": "passed",
+      "currentLine": 984,
+      "resolution": "Use approved World lanes, shared public updates and current Command/Number controls. Retain source/privacy/content, focus, overflow and exact-return checks."
+    },
+    {
+      "title": "source projector parchment 1440: source-first writer and full Hashmal reading",
+      "originalStatus": "timedOut",
+      "originalClassification": "STALE_UI_EXPECTATION",
+      "currentStatus": "passed",
+      "currentLine": 984,
+      "resolution": "Use approved World lanes, shared public updates and current Command/Number controls. Retain source/privacy/content, focus, overflow and exact-return checks."
+    },
+    {
+      "title": "source projector parchment 390: source-first writer and full Hashmal reading",
+      "originalStatus": "timedOut",
+      "originalClassification": "STALE_UI_EXPECTATION",
+      "currentStatus": "passed",
+      "currentLine": 984,
+      "resolution": "Use approved World lanes, shared public updates and current Command/Number controls. Retain source/privacy/content, focus, overflow and exact-return checks."
+    }
+  ]
+}

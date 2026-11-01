@@ -612,7 +612,7 @@ test('Number 2029 878 follows the approved release profile and preserves its jou
   await expect(journeyGate).toBeVisible();
   await expect(journeyGate).toContainText('878');
   if (FUNCTIONAL_PREVIEW_FIXTURE) {
-    await expect(page.getByRole('button', { name: /צא למסע 878/ })).toBeVisible();
+    await expect(journeyGate.getByRole('button', { name: /צא למסע בעולם של 878/ })).toBeEnabled();
     await journeyGate.getByRole('button', { name: /צא למסע בעולם של 878/ }).click();
     await expect(page).toHaveURL(`${BASE}/world?focus=context`, {timeout:30_000});
     await expect(page.locator('.sod29-world-journey-rail')).toBeVisible({timeout:30_000});

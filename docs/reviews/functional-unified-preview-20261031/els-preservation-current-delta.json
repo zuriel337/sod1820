@@ -1,6 +1,6 @@
 {
   "baseline": "c2f2e9948dd119c96b69e377b33be2eb2a886efb",
-  "productCheckpoint": "88595d35344bbb78ff21b76f3c2e78a458e81673",
+  "productCheckpoint": "5dece6da03a39dd791f56265343cf271856d070a",
   "originalBaselineCounts": {
     "identical": 165,
     "adapted": 9,
@@ -38,7 +38,7 @@
         {
           "path": "scripts/build-integrated-preview.mjs",
           "sourceBlob": "2b0e8bdbce526f645750de35da0bf5ad1132c876",
-          "currentBlob": "e8dbe7a65f3c1c0cfd142bd31c6a66212f4d9713"
+          "currentBlob": "73d474c487f7d5628cf155a2be2d3a56f9a13fb4"
         },
         {
           "path": "src/components/experience2029/ElsNativeClassic2029.jsx",
@@ -178,7 +178,7 @@
         {
           "path": "scripts/build-integrated-preview.mjs",
           "sourceBlob": "2b0e8bdbce526f645750de35da0bf5ad1132c876",
-          "currentBlob": "e8dbe7a65f3c1c0cfd142bd31c6a66212f4d9713"
+          "currentBlob": "73d474c487f7d5628cf155a2be2d3a56f9a13fb4"
         },
         {
           "path": "src/components/experience2029/SystemFrame2029.jsx",

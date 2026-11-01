@@ -1,0 +1,29 @@
+{
+  "compiledProductSHA": "5dece6da03a39dd791f56265343cf271856d070a",
+  "nodeOptions": "--max-http-header-size=65536",
+  "sourceSHA256": {
+    "playwright-storage-egress-guard.cjs": "0aab3aaf5663a9402af985cf736e4c59d08cdadd6d288484ad09b2a7f5091eeb",
+    "safe-local-fixture.cjs": "6713a7b3cec42e8bb7e5ccda050d2469de5a556c93315bc6ea6cf3b58f49a0ce",
+    "entry-learn-2029.spec.cjs": "0e6cc4b3b510a85d8f22d7d534fe130bc713ad46620662861bf1b4ede3f4157e",
+    "world2029-release.spec.cjs": "223a117da5e805c44219ee1a5404138617b6fcfd32d4976e3026282f56723d8e",
+    "public-topic-888.cjs": "e2148b6d9e909e7ca68d5cc5181eaa62932d90fe9149421acaf100a07d64beee"
+  },
+  "methodChanges": [
+    "bounded public HEAD reads permitted as read-only metadata",
+    "HEAD and GET have separate response-cache keys",
+    "preserve original browser Origin",
+    "remove compressed-response length/encoding after API client decompression",
+    "sanitize exception summaries; never persist request headers/cookies"
+  ],
+  "policyChanges": "none; model/private writes and websockets remain blocked; existing assertions/CLS0.1 unchanged",
+  "previousRunLimitations": {
+    "source": "88595d35",
+    "passedScenarios": 48,
+    "headerOverflowEvents": 183,
+    "paths": [
+      "/rest/v1/gematria_words",
+      "/rest/v1/nodes"
+    ],
+    "blockedReadOnlyHeads": 12
+  }
+}

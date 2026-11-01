@@ -1,0 +1,78 @@
+{
+  "shaExpected": "5dece6da03a39dd791f56265343cf271856d070a",
+  "origin": "https://sod1820-git-gpt-2029-functional-unifi-18c668-sod1820-s-projects.vercel.app",
+  "readOnlyExecution": false,
+  "publicResearchOnly": true,
+  "modelCalls": 0,
+  "publications": 0,
+  "authenticatedUser": false,
+  "liveComputations": [],
+  "interactions": [
+    {
+      "surface": "world sources",
+      "preset": "dark",
+      "width": 1440,
+      "publicGroupRows": 40,
+      "realGroupProofFieldsVerified": true,
+      "writerOpened": "public Yaniv Levy",
+      "fullHashmalSourceCharacters": 38540,
+      "sourceFilter": true,
+      "syntheticRows": false
+    },
+    {
+      "surface": "world",
+      "value": 314,
+      "result": "actual medium public projection",
+      "syntheticServerRows": false,
+      "onlyBrowserNavigationContextSeeded": true
+    },
+    {
+      "surface": "world",
+      "value": 999999999,
+      "result": "honest unavailable identity, no replacement",
+      "syntheticServerRows": false,
+      "onlyBrowserNavigationContextSeeded": true
+    }
+  ],
+  "pages": [],
+  "blocked": [],
+  "errors": [],
+  "identity": {
+    "sha": "5dece6da03a39dd791f56265343cf271856d070a",
+    "branch": "gpt/2029-functional-unified-preview-20261031",
+    "target": "preview",
+    "transport": "authenticated-preview-server-to-canonical-ai-analyze",
+    "model_trigger": "explicit-user-turn",
+    "requires_existing_account": false,
+    "product_writes": true,
+    "edge_deploy": false,
+    "matrix_jobs": "admin-explicit-cost-ack",
+    "product_write_scope": [
+      "own-person-family",
+      "own-research-state",
+      "own-private-hints-media",
+      "governed-community-actions",
+      "own-avatar",
+      "existing-verified-legacy-claim"
+    ],
+    "general_profile_writes": false,
+    "els_followup_server_contract": "requires-approved-shared-artifact",
+    "expected_server_sha256": "2ac19e112e77e71fbab61270338e126edf88128a786f3425b09157291494281f"
+  },
+  "capabilities": {
+    "status": 200,
+    "body": {
+      "target": "preview",
+      "serverIdentityAvailable": true,
+      "serverIdentityVerified": true,
+      "userAuthenticationRequired": true,
+      "production": false
+    }
+  },
+  "guestRaziel": {
+    "status": 401,
+    "body": {
+      "error": "authentication_required"
+    }
+  }
+}

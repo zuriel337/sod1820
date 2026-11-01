@@ -1,0 +1,46 @@
+{
+  "testedCompiledRuntimeSHA": "5dece6da03a39dd791f56265343cf271856d070a",
+  "unchangedRuntimeGitObjects": [
+    {
+      "path": "src",
+      "gitObject": "b1b0983d5daea0f02139ed07dab5fe4bf7cf38a7"
+    },
+    {
+      "path": "public",
+      "gitObject": "fd6e738886c59b96dc207fbefeb7687596c10504"
+    },
+    {
+      "path": "preview-deploy",
+      "gitObject": "c4cd1b282f086acaf09542b88aa07f89e7d8537b"
+    },
+    {
+      "path": "scripts/build-integrated-preview.mjs",
+      "gitObject": "73d474c487f7d5628cf155a2be2d3a56f9a13fb4"
+    },
+    {
+      "path": "package.json",
+      "gitObject": "d530b91a8271e4a797c1cb5b9f2f03b7dfd17308"
+    },
+    {
+      "path": "package-lock.json",
+      "gitObject": "39a352ad0d33059005f765f4fa525b30828766ba"
+    },
+    {
+      "path": "vite.config.js",
+      "gitObject": "c6b55f18633429d0e59c04f91324b05a9809b3c1"
+    },
+    {
+      "path": "2029.html",
+      "gitObject": "5d0b092f8a39befefdca3bc28a7121d2fc019e99"
+    },
+    {
+      "path": "vercel.json",
+      "gitObject": "9cfd3bf5b1f7449dc43a5d6bf51d72a1a1ffe614"
+    }
+  ],
+  "finalTestInputsMatchRunAfterRecordedHarnessAdaptation": {
+    "world2029-release.spec.cjs": true,
+    "entry-learn-2029.spec.cjs": true
+  },
+  "deliveryDiffPolicy": "Only docs/reviews/functional-unified-preview-20261031 and tests/world2029-release.spec.cjs change after tested runtime. No source/public/build/API/dependency/configuration change."
+}
