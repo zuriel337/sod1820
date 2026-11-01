@@ -614,7 +614,9 @@ export default function NumberDrawer2029({
     go?.("/world", { preserve: false });
   };
 
-  if (!target && !context?.subject) {
+  // A plain page has no selected subject. Its deliberate local calculation is
+  // still usable without first turning the page into saved research context.
+  if (!target && !context?.subject && root == null && !clean(expression)) {
     return <div className="sod29-number-drawer-empty">
       <strong>מספר / ביטוי</strong>
       <p>בחר מספר או ביטוי בעמוד, או הקלד כאן.</p>

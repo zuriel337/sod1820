@@ -70,7 +70,7 @@ test('More shares existing canonical addresses and repeated reading context with
  assert.equal(url,'https://sod1820.co.il/post/native?part=1&part=2#source');
  assert.equal(publicPostShareUrl({slug:'old',source:'wordpress',link:'https://sod1820.co.il/old/'},location),'https://sod1820.co.il/old/?part=1&part=2#source');
  assert.equal(publicPageShareUrl({...location,pathname:'/number/1820'},'https://sod1820.co.il/number/1820'),'https://sod1820.co.il/number/1820?part=1&part=2#source');
- for(const pathname of ['/2029/me/profile','/2029/journey','/auth/callback','/unsubscribe'])assert.equal(publicPageShareUrl({...location,pathname},'https://sod1820.co.il/'),null);
+ for(const pathname of ['/2029/me/profile','/2029/journey','/auth/callback','/unsubscribe','/code','/els'])assert.equal(publicPageShareUrl({...location,pathname},'https://sod1820.co.il/'),null);
  assert.equal(publicPageShareUrl(location,'https://foreign.invalid/post/native'),null);
 });
 test('exact new branch keeps the complete accepted read/write worker byte-identical; default and historical branches unchanged',()=>{

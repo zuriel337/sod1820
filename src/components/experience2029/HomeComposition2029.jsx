@@ -114,6 +114,7 @@ export default function HomeComposition2029({
   projection, loading, nowHero, story, elsEntry, arrivals, calculator, entry, continuity,
   selectedSlug, onSelectPost, onOpenWorkspace, journeyLocked = false, corePublic = false, worldOpen = false,
   onWorldApproach,
+  onNavigate,
 }) {
   const primary = useHomeCompositionData({ includeWorld: !corePublic });
   // Wait for the primary cards to establish section geometry. A short loading
@@ -131,7 +132,11 @@ export default function HomeComposition2029({
   const [seen, setSeen] = useState(readSeen);
   const see = (key) => setSeen((current) => (current[key] ? current : markSeen(key, current)));
 
-  return <div className="h29" data-experience-capability="home-composition">
+  return <div className="h29" data-experience-capability="home-composition" onClickCapture={event => {
+    const link = event.target.closest?.("a[href]");
+    const href = link?.getAttribute("href");
+    if (link && !link.hasAttribute("download") && (!link.target || link.target === "_self") && href?.startsWith("/") && !href.startsWith("//") && event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) onNavigate?.(href);
+  }}>
     {nowHero || (lead ? <HomeHeroMotion2029 lead={lead} href={postHref(lead)} includeWorld={!corePublic} /> : <section className={`h29-hero${data.loading ? " is-loading" : ""}`} aria-busy={data.loading}><div className="h29-hero-copy"><div className="h29-kicker">עכשיו</div><h1>{data.loading ? "טוען את מה שחי עכשיו…" : "SOD1820"}</h1>{!data.loading ? <p>העדכונים אינם זמינים כרגע. אפשר להמשיך לצפנים, למחשבון או לצ׳אט.</p> : null}</div></section>)}
 
     {corePublic ? <section className="h29-quiet" aria-label="מצב האתר" data-home-launch-notice="gradual-opening">

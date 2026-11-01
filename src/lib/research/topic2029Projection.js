@@ -101,8 +101,8 @@ export function buildTopic2029Projection(finding, { sourceContext = null } = {})
     // Only links re-admitted by the existing public source reader enter the
     // sidecar. Authored references in sections are not assumed to be readable.
     publicConnections: publicSurfaceFindingsFromConnections([
-      ...(links?.topics || []).map(row => ({...row,id:`topic:${row.id || row.slug}`,kind:"topic"})),
-      ...(links?.posts || []).map(row => ({...row,id:`post:${row.id || row.slug}`,kind:"post"})),
+      ...(links?.topics || []).map(row => ({...row,id:`topic:${row.id || row.slug}`,label:row.title || "נושא מקושר",kind:"topic"})),
+      ...(links?.posts || []).map(row => ({...row,id:`post:${row.id || row.slug}`,label:row.title || "פוסט המקור",kind:"post"})),
     ]),
     phrases: Array.isArray(sections.phrases) ? sections.phrases : [],
     numericClaims: Array.isArray(sections.numericClaims) ? sections.numericClaims : [],

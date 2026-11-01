@@ -84,8 +84,10 @@ test("no ELS engine, scan, AI, Supabase or result reader is imported by the card
   assert.match(code, /import "\.\/elsRotatingMatrixCard2029\.css";/);
 });
 
-test("/code is the existing 2029 route of the cipher", () => {
-  assert.match(app, /<Route path="\/code" element={<Els2029Page \/>} \/>/);
+test("/code keeps the existing cipher inside the canonical framed feature gate", () => {
+  assert.match(app, /<Route path="\/code" element=\{<FramedGate2029 flag="lock_els" surface="els"[^>]*><Els2029Page \/><\/FramedGate2029>\} \/>/);
+  assert.match(app, /return <Locked flag=\{flag\} requireFlag/);
+  assert.doesNotMatch(app, /<Route path="\/code" element=\{<Els2029Page/);
 });
 
 test("integration is one optional slot and one callsite; hero, posts and stream are untouched", () => {

@@ -485,6 +485,11 @@ function HomeBody() {
   if (HOME_COMPOSED) return <HomeComposition2029
     projection={{ ...homeState.projection, worldPreview }}
     onWorldApproach={setWorldRequested}
+    onNavigate={() => research.updateResearchContext?.({ returnTo: {
+      href: location.pathname + location.search + location.hash, label: "דף הבית",
+      subject: context?.subject || null, selection: context?.selection || null,
+      lens: context?.lens || "home", dimensions: context?.dimensions || {}, journey: context?.journey || null,
+    } })}
     loading={homeState.loading}
     corePublic={CORE_PUBLIC_LAUNCH_2029}
     onOpenWorkspace={shell.openWorkspace}

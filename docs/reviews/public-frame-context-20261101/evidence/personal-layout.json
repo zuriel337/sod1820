@@ -1,0 +1,57 @@
+[
+  {
+    "case": "public-frame-context-2029.-55691-w-panel-on-wide-screen-1440",
+    "data": [
+      {
+        "panelWidth": null,
+        "cardWidth": 422,
+        "copyWidth": 332,
+        "actionsTop": 448.51263427734375,
+        "copyBottom": 436.51263427734375,
+        "overflow": false
+      },
+      {
+        "panelWidth": 480,
+        "cardWidth": 442,
+        "copyWidth": 352,
+        "actionsTop": 447.2191467285156,
+        "copyBottom": 435.2191467285156,
+        "overflow": false
+      },
+      {
+        "panelWidth": 360,
+        "cardWidth": 322,
+        "copyWidth": 232,
+        "actionsTop": 517.37939453125,
+        "copyBottom": 505.3793640136719,
+        "overflow": false
+      }
+    ]
+  },
+  {
+    "case": "public-frame-context-2029.-d160f-ow-panel-on-wide-screen-390",
+    "data": [
+      {
+        "panelWidth": null,
+        "cardWidth": 344,
+        "copyWidth": 258,
+        "actionsTop": 688.197021484375,
+        "copyBottom": 676.197021484375,
+        "overflow": false
+      }
+    ]
+  },
+  {
+    "case": "public-frame-context-2029.-b436a-ow-panel-on-wide-screen-320",
+    "data": [
+      {
+        "panelWidth": null,
+        "cardWidth": 278,
+        "copyWidth": 192,
+        "actionsTop": 745.597412109375,
+        "copyBottom": 733.597412109375,
+        "overflow": false
+      }
+    ]
+  }
+]

@@ -923,7 +923,7 @@ export async function fetchTopicSourceContext({ topicSlug, client = supabase } =
         .order("gallery_id").order("ordering").order("id").limit(TOPIC_OCCURRENCE_LIMIT)
       : Promise.resolve({ data: [], count: 0 }),
     slug === INDIA_CAPTAIN_SOURCE.topicSlug
-      ? client.from("posts").select("id,slug,title,content,tags,author,authors,date,modified")
+      ? client.from("posts").select("id,slug,title,content,tags,author,authors,date,modified,source,link,wp_id")
         .eq("id", INDIA_CAPTAIN_SOURCE.postId).eq("slug", INDIA_CAPTAIN_SOURCE.postSlug).maybeSingle()
       : Promise.resolve({ data: null }),
   ]);

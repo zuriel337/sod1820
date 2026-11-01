@@ -625,7 +625,7 @@ function ContextualActionButtons({ actions, target, onInspect, onCapability, onR
       return <button key={action.id} className={className} type="button" onClick={() => onCapability?.(action.capability, target)}>{action.label}</button>;
     }
     if (action.kind === CONTEXT_ACTION_KIND.RAZIEL) {
-      return <button key={action.id} className={className} type="button" onClick={() => onRaziel?.()} disabled={razielLocked}>{razielLocked ? `${action.label} · נעול` : action.label}</button>;
+      return <button key={action.id} className={className} type="button" onClick={() => onRaziel?.()} disabled={razielLocked} data-capability-state={razielLocked ? "locked" : undefined}>{razielLocked ? `${action.label} · נעול` : action.label}</button>;
     }
     if (action.kind === CONTEXT_ACTION_KIND.ROUTE) {
       const locked = ["/els", "/code"].includes(action.href) && (elsState.loading || elsState.blocked);

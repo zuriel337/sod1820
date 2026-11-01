@@ -1,0 +1,30 @@
+
+Running 18 tests using 1 worker
+
+(node:106070) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:106070) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1/18] ../../tmp/public-frame-context-20261101/regression-suite/regression.spec.cjs:9:2 › real public posts preserve historical/native URL, query, canonical and refresh at 390
+[2/18] ../../tmp/public-frame-context-20261101/regression-suite/regression.spec.cjs:20:2 › real number and expression direct addresses and selected method at 390
+[3/18] ../../tmp/public-frame-context-20261101/regression-suite/regression.spec.cjs:32:2 › home menu, public index, world and service navigation at 390
+[4/18] ../../tmp/public-frame-context-20261101/regression-suite/regression.spec.cjs:42:2 › unknown and malformed direct routes return an honest missing state at 390
+[5/18] ../../tmp/public-frame-context-20261101/regression-suite/regression.spec.cjs:9:2 › real public posts preserve historical/native URL, query, canonical and refresh at 1440
+[6/18] ../../tmp/public-frame-context-20261101/regression-suite/regression.spec.cjs:20:2 › real number and expression direct addresses and selected method at 1440
+[7/18] ../../tmp/public-frame-context-20261101/regression-suite/regression.spec.cjs:32:2 › home menu, public index, world and service navigation at 1440
+[8/18] ../../tmp/public-frame-context-20261101/regression-suite/regression.spec.cjs:42:2 › unknown and malformed direct routes return an honest missing state at 1440
+[9/18] ../../tmp/public-frame-context-20261101/regression-suite/regression.spec.cjs:47:31 › real historical post to canonical Number and exact original address/query/anchor back at 390
+[10/18] ../../tmp/public-frame-context-20261101/regression-suite/regression.spec.cjs:47:31 › real historical post to canonical Number and exact original address/query/anchor back at 1440
+[11/18] ../../tmp/public-frame-context-20261101/regression-suite/regression.spec.cjs:58:1 › newsletter and signed unsubscribe UI use synthetic intercepted responses, never live delivery or subscriber writes
+[12/18] ../../tmp/public-frame-context-20261101/regression-suite/regression.spec.cjs:64:1 › expression loading failure and cancellation remain separate from an empty result
+[13/18] ../../tmp/public-frame-context-20261101/regression-suite/regression.spec.cjs:70:32 › gallery filtering retains the native gallery view at 390
+[14/18] ../../tmp/public-frame-context-20261101/regression-suite/regression.spec.cjs:70:32 › gallery filtering retains the native gallery view at 1440
+[15/18] ../../tmp/public-frame-context-20261101/regression-suite/regression.spec.cjs:77:1 › post copy uses its canonical address and exact reading context without sending a social message
+[16/18] ../../tmp/public-frame-context-20261101/regression-suite/regression.spec.cjs:84:1 › real public post hidden from Home stays readable through its unchanged historical address
+[17/18] ../../tmp/public-frame-context-20261101/regression-suite/regression.spec.cjs:90:1 › real WordPress numeric id address retains id, parameters and source document on refresh
+[18/18] ../../tmp/public-frame-context-20261101/regression-suite/regression.spec.cjs:97:1 › synthetic in-flight expression read cannot replace the next document after cancellation
+  18 passed (1.3m)

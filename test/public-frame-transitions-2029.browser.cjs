@@ -1,4 +1,4 @@
-const {test,expect}=require('../docs/reviews/public-foundation-20261101/evidence/safe-local-fixture.cjs');
+const {test,expect}=require('./public-frame-readonly-fixture.cjs');
 const fs=require('node:fs');
 const before='http://127.0.0.1:4195',after=process.env.SOD_ACCEPTANCE_ORIGIN||'http://127.0.0.1:4196';
 const now=()=>Number(process.hrtime.bigint())/1e6;
@@ -15,8 +15,8 @@ async function run(page,origin,width){
  await step('home-post',async()=>{const link=page.locator('.h29-card-open').first();postHref=await link.getAttribute('href');await link.click();await expect(page.locator('.sod29-reading-source')).toBeVisible({timeout:30000});});
  await step('post-world',()=>worldMenu(page,width));
  await step('world-number-via-existing-drawer',async()=>{
-  await page.locator('.sod29-command-island').getByRole('button',{name:/^מספר/}).click();const drawer=page.locator('.sod29-number-drawer2029');await expect(drawer).toBeVisible({timeout:30000});
-  await drawer.locator('input').first().fill('1820');await drawer.locator('input').first().press('Enter');await expect(drawer.locator('[data-number-core-root="1820"]')).toBeVisible({timeout:30000});
+  await page.locator('.sod29-command-island').getByRole('button',{name:/^מספר/}).click();const panel=page.getByRole('dialog',{name:'מספר / ביטוי',exact:true});await expect(panel).toBeVisible({timeout:30000});
+  await panel.locator('input').first().fill('1820');await panel.locator('input').first().press('Enter');const drawer=panel.locator('.sod29-number-drawer2029');await expect(drawer).toBeVisible({timeout:30000});await expect(drawer.locator('[data-number-core-root="1820"]')).toBeVisible({timeout:30000});
   await drawer.getByRole('button',{name:'פתח דף מלא ↗',exact:true}).click();await expect(page.locator('.sod29-number-page[data-number-root="1820"]')).toBeVisible({timeout:30000});
  });
  await step('back-number-world',async()=>{await page.goBack();await expect(page.locator('.sod29-world-entry')).toBeVisible({timeout:30000});});
@@ -27,7 +27,7 @@ async function run(page,origin,width){
 }
 test('counterbalanced matched public route cycles; real reads, no model or product write',async({page},info)=>{
  test.setTimeout(900000);page.setDefaultTimeout(30000);await page.route(before+'/**',r=>r.request().method()==='GET'?r.continue():r.abort());
- const results=[];for(const width of [390,1440]){
+ const results=[],corsErrors=[];page.on('console',message=>{if(message.type()==='error'&&/CORS policy/.test(message.text()))corsErrors.push('origin-dependent response rejected');});for(const width of [390,1440]){
   await page.setViewportSize({width,height:900});
   // Warm the same immutable public-read transport and both routes first. The
   // read fixture caches responses; these are local interaction measurements.
@@ -35,7 +35,8 @@ test('counterbalanced matched public route cycles; real reads, no model or produ
   for(let pair=1;pair<=4;pair++){
    const order=pair%2?[['before',before],['after',after]]:[['after',after],['before',before]];
    for(const [version,origin]of order)results.push({version,width,pair,...await run(page,origin,width)});
-   fs.writeFileSync(info.outputPath('matched-transitions.json'),JSON.stringify({baselineSha:'4987d7a12167fbcdc37467b21930f18156438908',viewportHeight:900,throttling:'none',publicTransport:'reviewed GET/HEAD and read-only RPC-to-GET; first response cached per worker',definition:'click to visible primary reader/World entry; Number includes existing drawer; browser history return',results},null,2));
+   expect(new Set(results.map(result=>result.postHref)).size).toBe(1);expect(corsErrors).toEqual([]);
+   fs.writeFileSync(info.outputPath('matched-transitions.json'),JSON.stringify({baselineSha:'4987d7a12167fbcdc37467b21930f18156438908',viewportHeight:900,throttling:'none',publicTransport:'reviewed GET/HEAD and read-only RPC-to-GET; first response cached per worker, varying by Origin',definition:'click to visible primary reader/World entry; Number includes existing drawer; browser history return',corsErrors,results},null,2));
   }
  }
 });

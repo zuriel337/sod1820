@@ -99,7 +99,7 @@ export function publicPageShareUrl(location = {}, canonicalUrl) {
   let canonical;
   try {
     const url = new URL(canonicalUrl || location.pathname || "/", SITE);
-    if (url.origin !== SITE || /^\/(?:auth(?:\/|$)|login(?:\/|$)|unsubscribe(?:\/|$)|2029\/(?:me|journey|control)(?:\/|$))/.test(location.pathname || url.pathname)) return null;
+    if (url.origin !== SITE || /^\/(?:auth(?:\/|$)|login(?:\/|$)|unsubscribe(?:\/|$)|code(?:\/|$)|els(?:\/|$)|2029\/(?:me|journey|control)(?:\/|$))/.test(location.pathname || url.pathname)) return null;
     canonical = url.origin + url.pathname;
   } catch { return null; }
   const params = new URLSearchParams(location.search || "");
