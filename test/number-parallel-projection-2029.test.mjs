@@ -6,13 +6,13 @@ import {fetchEntityHubProjection} from '../src/lib/research/entityHubProjection.
 
 // Actual projection/composition, SDK transport replaced with a local empty-read
 // fixture. No live network, graph creation, engine-result fabrication or writes.
-async function fixture(parallel,{failMaterial=false}={}){
+async function fixture(parallel,{failMaterial=false,holdResearch=false}={}){
  const original={from:supabase.from,rpc:supabase.rpc},calls=[];let release;
  const gate=new Promise(resolve=>{release=resolve;});
  const readOps=new Set(['select','eq','neq','is','in','contains','overlaps','or','not','ilike','like','gt','gte','lt','lte','order','limit','range','filter','match']);
  supabase.from=table=>{
   calls.push({table});let query;
-  const result=single=>table==='entity_types'?gate.then(()=>({data:{type:'number',label:'fixture',tabs:[]},error:null})):Promise.resolve({data:single?null:[],count:0,error:null});
+  const result=single=>table==='entity_types'?gate.then(()=>({data:{type:'number',label:'fixture',tabs:[]},error:null})):holdResearch&&table==='research_objects'?gate.then(()=>({data:[],error:null})):Promise.resolve({data:single?null:[],count:0,error:null});
   query=new Proxy({}, {get(_target,key){
    if(key==='then')return(resolve,reject)=>result(false).then(resolve,reject);
    if(key==='maybeSingle'||key==='single')return()=>result(true);
@@ -28,6 +28,7 @@ async function fixture(parallel,{failMaterial=false}={}){
   const observed=pending.then(value=>{settled=true;return {value};},error=>{settled=true;return {error};});
   await tick();await tick();
   assert.equal(calls.some(call=>call.rpc==='fn_zero_scale'),parallel,'only the explicit Number-page option starts material reads before the type/graph phase');
+  if(holdResearch) assert.equal(calls.some(call=>call.rpc==='fn_number_dossier'),parallel,'independent canonical numeric lenses start while research rows are pending');
   assert.equal(settled,false,'a complete projection still waits for its required metadata');
   release();const outcome=await observed;
   if(failMaterial){assert.equal(outcome.error?.message,'synthetic material outage');assert.equal('value' in outcome,false);return;}
@@ -42,4 +43,7 @@ test('opt-in overlaps the existing reads while preserving complete output and th
 });
 test('early material failure is observed and propagated, never a successful empty projection',async()=>{
  await fixture(true,{failMaterial:true});
+});
+test('slow research rows do not serialize the other canonical lenses and complete output stays identical',async()=>{
+ const serial=await fixture(false,{holdResearch:true}),parallel=await fixture(true,{holdResearch:true});assert.deepEqual(parallel,serial);
 });

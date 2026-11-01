@@ -1,6 +1,7 @@
-import React, { Suspense, lazy, useEffect } from "react";
+import React, { Suspense, lazy, useEffect, useState } from "react";
 import { BrowserRouter, Navigate, Route, Routes, useLocation, useParams } from "react-router-dom";
-import { AuthProvider } from "./lib/AuthContext.jsx";
+import { AuthProvider, useAuth } from "./lib/AuthContext.jsx";
+import { beginPostReadingSource } from "./lib/supabase.js";
 import ResearchProvider from "./lib/research/ResearchProvider.jsx";
 import RazielSessionMount2029 from "./components/experience2029/RazielSessionMount2029.jsx";
 import { initGA, trackPageview } from "./lib/analytics.js";
@@ -66,6 +67,29 @@ function HomeEntry2029() {
   return !PUBLIC_READING_RELEASE && new URLSearchParams(search).get("preview") === "community"
     ? <Community2029Page />
     : <Home2029Page />;
+}
+// Ordinary Home does not need the historical Post document reader. Keep the
+// exact ?p= compatibility route without eagerly importing Post and its media.
+function PublicHomeEntry2029() {
+  const { search } = useLocation();
+  return new URLSearchParams(search).get("p")
+    ? <PublicPostAddress2029Page home={<HomeEntry2029 />} />
+    : <HomeEntry2029 />;
+}
+function PostEntry2029() {
+  const { slug } = useParams();
+  const { user, loading } = useAuth();
+  const identity = user?.id || "guest";
+  const [source, setSource] = useState(null);
+  useEffect(() => {
+    if (!PUBLIC_READING_RELEASE || loading) return undefined;
+    const request = beginPostReadingSource(slug);
+    setSource({ slug, identity, read: request.read });
+    return () => request.cancel();
+  }, [slug, identity, loading]);
+  if (!PUBLIC_READING_RELEASE) return <Post2029Page />;
+  if (loading || source?.slug !== slug || source.identity !== identity) return <Loading2029 />;
+  return <Post2029Page sourceReader={source.read} />;
 }
 const HomePreview2029Page = lazy(() => import("./pages/HomePreview2029Page.jsx"));
 
@@ -230,7 +254,7 @@ export default function App2029() {
               <PublicReadingBoundary><Routes>
               <Route path="/2029" element={<HomeEntry2029 />} />
               {publicFoundationPreview && <>
-                <Route path="/" element={<PublicPostAddress2029Page home={<HomeEntry2029 />} />} />
+                <Route path="/" element={<PublicHomeEntry2029 />} />
                 <Route path="/post" element={<Posts2029Page />} />
                 <Route path="/number" element={<PublicServices2029Page kind="number-search" />} />
                 <Route path="/number/:value" element={<Locked flag="lock_number" requireFlag homeHref="/2029"><NumberAddress2029Page /></Locked>} />
@@ -265,7 +289,7 @@ export default function App2029() {
               <Route path="/auth/callback" element={<OAuthCallback2029 />} />
               <Route path="/community/chat" element={<CommunityChatTransition2029Page />} />
               <Route path="/2029/journey" element={<FramedGate2029 flag="lock_life_journey" surface="journey" title="מסע החיים"><LifeJourney2029Page /></FramedGate2029>} />
-              <Route path="/post/:slug" element={<Post2029Page />} />
+              <Route path="/post/:slug" element={<PostEntry2029 />} />
               <Route path="/video/:assetId" element={<Video2029Page />} />
               <Route path="/books" element={<Locked flag="lock_books" requireFlag homeHref="/2029"><Books2029Page /></Locked>} />
               <Route path="/books/:slug" element={<CanonicalBookAlias2029 />} />

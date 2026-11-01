@@ -123,7 +123,7 @@ export async function fetchEntityTypeDefinition(type) {
   return data || null;
 }
 
-export async function resolveEntityHubNode({ nodeId = null, type = null, key = null } = {}) {
+export async function resolveEntityHubNode({ nodeId = null, type = null, key = null, parallelNumeric = false } = {}) {
   const exactNodeId = clean(nodeId);
   if (exactNodeId) {
     const { data, error } = await supabase
@@ -139,6 +139,16 @@ export async function resolveEntityHubNode({ nodeId = null, type = null, key = n
   const entityKey = clean(key);
   if (!entityType || !entityKey) return null;
 
+  // Full Number pages also admit unstored canonical numeric roots. Their
+  // identity and label fallbacks are independent bounded reads; keep exact
+  // identity precedence and the original fail-closed error behavior. Nothing
+  // is cached, widened, inferred or created, and other callers stay serial.
+  const labelRead = () => supabase.from("nodes").select(NODE_FIELDS)
+    .eq("type", entityType).eq("label", entityKey).limit(1);
+  const earlyLabel = parallelNumeric && entityType === "number" && /^\d+$/.test(entityKey)
+    && Number.isSafeInteger(Number(entityKey))
+    ? Promise.resolve(labelRead()).then(value => ({ value }), error => ({ error })) : null;
+
   const { data: identityHit, error: identityError } = await supabase
     .from("nodes")
     .select(NODE_FIELDS)
@@ -148,12 +158,9 @@ export async function resolveEntityHubNode({ nodeId = null, type = null, key = n
   if (identityError) throw identityError;
   if (identityHit?.[0]) return identityHit[0];
 
-  const { data: labelHit, error: labelError } = await supabase
-    .from("nodes")
-    .select(NODE_FIELDS)
-    .eq("type", entityType)
-    .eq("label", entityKey)
-    .limit(1);
+  const labelOutcome = earlyLabel ? await earlyLabel : { value: await labelRead() };
+  if (labelOutcome.error) throw labelOutcome.error;
+  const { data: labelHit, error: labelError } = labelOutcome.value;
   if (labelError) throw labelError;
   return labelHit?.[0] || null;
 }
@@ -1132,7 +1139,7 @@ export async function fetchEntityHubProjection({
   allowUnstoredNumber = false,
   parallelNumberReads = false,
 } = {}) {
-  let node = await resolveEntityHubNode({ nodeId, type, key });
+  let node = await resolveEntityHubNode({ nodeId, type, key, parallelNumeric: parallelNumberReads && allowUnstoredNumber });
   // A canonical numeric result does not require a persisted graph node to be
   // read. This explicit Number-page option never creates one, fabricates an id
   // or changes the default World/other entity callers.
@@ -1143,11 +1150,22 @@ export async function fetchEntityHubProjection({
   const isNumberNode = node.type === "number" && Number.isSafeInteger(Number(node.label));
   const parallel = parallelNumberReads && isNumberNode;
   const researchPromise = fetchResearchObjectsForEntity(node, { limit: researchLimit, locale, allowUnstoredNumber });
+  let earlyFamilyOutcome = null;
+  const readFamilyDetails = async (groups) => {
+    const shownPhrases = groups.flatMap(group => (group.phrases || []).slice(0, SHOWN_PHRASES_PER_FAMILY).map(item => typeof item === "string" ? item : item?.phrase || item?.label));
+    const [registryRows, entityNodes] = await Promise.all([
+      fetchMethodRegistry(groups.map(group => group.method)),
+      fetchNodesByLabels("entity", shownPhrases),
+    ]);
+    return { registryRows, entityNodes };
+  };
   const readNumberData = () => {
     const number = Number(node.label);
-    return Promise.all([
-      fetchTopicFindingsForNumber(number, { limit: topicLimit }),
-      researchPromise.then(research => researchNumber(number, {
+    const familiesRead = getValueFamilies(number, 12);
+    if (parallel) earlyFamilyOutcome = familiesRead.then(readFamilyDetails).then(
+      value => ({ ok: true, value }), error => ({ ok: false, error }),
+    );
+    const readResearch = (research) => researchNumber(number, {
         lenses: Array.isArray(numberResearchLenses) && numberResearchLenses.length
           ? numberResearchLenses
           : ["number_lookup", "number_dossier", "number_journey", "neighbors", "research_objects"],
@@ -1156,18 +1174,20 @@ export async function fetchEntityHubProjection({
           Array.isArray(numberResearchLenses) && numberResearchLenses.length ? numberResearchLenses.length : 5,
         )), depth: 1 },
         rpc: (name, args) => supabase.rpc(name, args),
-        fetchResearchObjects: async () => ({ data: research.rows }),
+        // These independent canonical lenses need not wait for the research
+        // rows. Only their own research_objects adapter awaits that read.
+        fetchResearchObjects: async () => ({ data: (research || await researchPromise).rows }),
         researchObjectLimit: researchLimit,
-        // World deep view must be able to show the complete canonical reverse-lookup source
-        // population. Numeric Research still owns the bounded/source-exhaustive contract and caps
-        // this at 500 rows; World does not implement a parallel lookup or ordering rule.
         lookupWindow: numberLookupLimit === 500
           ? DEFAULT_NUMBER_RESEARCH_OPTIONS.lookupWindow
           : { limit: safeLimit(numberLookupLimit, 500, 500) },
         provenance: { requestSource: "entity-hub-projection-v2", inputRef: node.id ? `node:${node.id}` : `number:${number}` },
-      })),
+      });
+    return Promise.all([
+      fetchTopicFindingsForNumber(number, { limit: topicLimit }),
+      parallel ? readResearch(null) : researchPromise.then(readResearch),
       getEntityBundle({ term: String(number), value: number, isNumber: true }),
-      getValueFamilies(number, 12),
+      familiesRead,
       fetchNumberWorlds(number),
       fetchNumberSignatures(number),
       fetchZeroScale(number),
@@ -1226,11 +1246,10 @@ export async function fetchEntityHubProjection({
     // Number → Entity bridge: phrases already shown in the families resolve to EXISTING entity nodes
     // (bounded to the shown phrases; nothing is created). This is what makes
     // "<phrase> · <method> = <number>" clickable into the canonical entity hub.
-    const shownPhrases = gematriaFamilies.flatMap(group => (group.phrases || []).slice(0, SHOWN_PHRASES_PER_FAMILY).map(item => typeof item === "string" ? item : item?.phrase || item?.label));
-    const [registryRows, entityNodes] = await Promise.all([
-      fetchMethodRegistry(gematriaFamilies.map(group => group.method)),
-      fetchNodesByLabels("entity", shownPhrases),
-    ]);
+    const familyOutcome = earlyFamilyOutcome ? await earlyFamilyOutcome
+      : { ok: true, value: await readFamilyDetails(gematriaFamilies) };
+    if (!familyOutcome.ok) throw familyOutcome.error;
+    const { registryRows, entityNodes } = familyOutcome.value;
     methodRegistry = registryRows;
     gematriaFamilies = enrichGematriaFamilies(gematriaFamilies, methodRegistry);
     phraseEntities = buildPhraseEntityLinks(entityNodes);

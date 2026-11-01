@@ -527,19 +527,40 @@ export async function getGalleryNumberTags() {
   return data ?? [];
 }
 
-export async function getPostBySlug(slug, { throwOnError = false } = {}) {
+export async function getPostBySlug(slug, { throwOnError = false, signal = null } = {}) {
   if (!supabase) return null;
   const decoded = decodePostSlug(slug);
   const encoded = encodeURIComponent(decoded).toLowerCase();
   const slugs = [...new Set([slug, decoded, encoded])];
-  const { data, error } = await supabase
+  let query = supabase
     .from('posts')
     .select('*')
     .in('slug', slugs)
     .limit(1);
+  if (signal) query = query.abortSignal(signal);
+  const { data, error } = await query;
   if (error) { if (throwOnError) throw error; return null; }
   if (!data?.length) return null;
   return data[0];
+}
+
+// One route-owned read, started while the Post component code downloads. No
+// shared data cache: its caller cancels it on route/identity change or unmount.
+export function beginPostReadingSource(slug, { readPost = getPostBySlug } = {}) {
+  const controller = new AbortController();
+  // Observe early rejection even while the lazy component has not mounted.
+  const result = Promise.resolve().then(() => readPost(slug, { throwOnError: true, signal: controller.signal }))
+    .then(data => ({ data }), error => ({ error }));
+  return {
+    async read(requestedSlug) {
+      if (requestedSlug !== slug) throw new Error("post_source_identity_mismatch");
+      const outcome = await result;
+      if (controller.signal.aborted) throw new DOMException("Source read cancelled", "AbortError");
+      if (outcome.error) throw outcome.error;
+      return outcome.data;
+    },
+    cancel() { controller.abort(); },
+  };
 }
 
 export async function getGematriaByPhrases(phrases) {

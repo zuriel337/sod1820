@@ -206,7 +206,10 @@ test("Posts-first High-Fidelity Golden reconciles onto current 2029 shell", () =
   const config = JSON.parse(readFileSync(new URL("../vercel.json", import.meta.url), "utf8"));
 
   assert.match(app, /path="\/2029\/posts" element={<Posts2029Page/);
-  assert.match(app, /path="\/post\/:slug" element={<Post2029Page/);
+  assert.match(app, /path="\/post\/:slug" element={<PostEntry2029/);
+  assert.match(app, /if \(!PUBLIC_READING_RELEASE\) return <Post2029Page \/>/);
+  assert.match(app, /source\?\.slug !== slug \|\| source\.identity !== identity/);
+  assert.match(app, /<Post2029Page sourceReader=\{source\.read\}/);
   assert.match(app, /publicFoundationPreview && <>[\s\S]*path="\/post" element={<Posts2029Page/);
   assert.match(frame, /to: publicFoundationPreview \? "\/post" : "\/2029\/posts", label: "פוסטים"/);
 
