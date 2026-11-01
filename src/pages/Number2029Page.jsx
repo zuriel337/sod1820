@@ -226,6 +226,7 @@ function NumberPageBody({ resolvedAddress = null }) {
   const [activeExpression, setActiveExpression] = useState("");
   const [traceState, setTraceState] = useState({ loading: false, finding: null, error: null });
   const [storedMethodProfileState, setMethodProfileState] = useState({ readerIdentity, loading: false, rows: [], error: null });
+  const [methodReadAttempt, setMethodReadAttempt] = useState(0);
   const methodProfileState = storedMethodProfileState.readerIdentity === readerIdentity
     ? storedMethodProfileState : { loading: true, rows: EMPTY_METHOD_PROFILE_ROWS, error: null };
   const [methodResultState, setMethodResultState] = useState({ loading: false, data: null, error: null, key: null });
@@ -539,7 +540,7 @@ function NumberPageBody({ resolvedAddress = null }) {
         if (alive) setMethodProfileState({ readerIdentity, loading: false, rows: [], error });
       });
     return () => { alive = false; };
-  }, [activeExpression, readerIdentity, authLoading]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [activeExpression, readerIdentity, authLoading, methodReadAttempt]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const selectedMethodProfile = useMemo(
     () => methodProfileEntry(currentMethodRows, selectedMethodKey),
@@ -1175,6 +1176,14 @@ function NumberPageBody({ resolvedAddress = null }) {
   const openNumberRoot = (nextValue, { preserveFocus = false } = {}) => {
     const next = Number(nextValue);
     if (!Number.isSafeInteger(next) || next < 0) return;
+    // Back can restore the operand before its matching canonical profile.
+    // An unknown result must never silently turn this action into clear-focus.
+    if (preserveFocus && next === root && focusExplicit && focusExpression && focusResult == null) {
+      setNavigationError(methodProfileState.error
+        ? "תוצאת השיטה אינה זמינה כרגע. הביטוי והכתובת נשמרו."
+        : "תוצאת השיטה עדיין נטענת. הביטוי והכתובת נשמרו.");
+      return;
+    }
     navigationRequest.current += 1;
     setNavigationError(null);
     const keepFocus = Boolean(preserveFocus && focusExplicit && focusExpression && focusResult != null && Number(focusResult) === next);
@@ -1249,6 +1258,8 @@ function NumberPageBody({ resolvedAddress = null }) {
         stageProjection={stageProjection}
         stageLoading={methodResultState.loading}
         methodsLoading={methodProfileState.loading}
+        methodsError={Boolean(methodProfileState.error)}
+        onRetryMethods={() => setMethodReadAttempt(n => n + 1)}
         languageBridges={languageBridgeState.rows}
         regularExpressions={regularExpressions}
         regularExpressionsLoading={regularPhraseState.loading}
@@ -1287,6 +1298,8 @@ function NumberPageBody({ resolvedAddress = null }) {
         }}
         onOpenZero={(next) => openNumberRoot(next, { preserveFocus: false })}
         onOpenResult={(next) => openNumberRoot(next, { preserveFocus: true })}
+        rootOpeningState={focusExplicit && focusExpression && focusResult == null
+          ? methodProfileState.error ? "failed" : "pending" : "ready"}
         onOpenWorld={() => openWorld()}
         onOpenHeichal={() => shell.go("/heichal")}
         onOpenMethodLesson={openMethodLesson}

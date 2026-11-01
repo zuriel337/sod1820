@@ -2,7 +2,10 @@
 
 Source candidate: `06751b7277232c11400988192d4a3738432675ad`.
 Comparison: `7649e46c199ade990fd75ea8400f60f93522ef82`.
-Later test/receipt commits do not change these application sources.
+The subsequent097942b4 checkpoint differs only in tests/receipts. Hosted checking
+then found the root/profile race documented in `root-profile-race-fix.md`.
+The measurements below remain evidence for this checkpoint; final fixed-source
+measurements must be recorded separately and must not be inferred from them.
 
 The complete client runs against immutable real public response snapshots shared
 between both variants. No product writes, model requests, emails or live follow

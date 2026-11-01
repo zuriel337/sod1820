@@ -1,0 +1,22 @@
+✔ a phrase address passes the single canonical execution into its page; exact method/value cannot silently fall back (4.477436ms)
+✔ numeric destinations resolve synchronously without fake graph identity or network, including zero; invalid bounds fail closed (0.879822ms)
+✔ Number return uses the actual public address with repeated source values and anchor, excluding credentials (1.767961ms)
+✔ only admitted public DTOs produce informative cards; a missing source URL remains a nonlink (2.599497ms)
+✔ same source has one card while distinct findings and exact occurrences remain readable (1.311247ms)
+✔ source links reject active schemes, credentials, private routes and grants (0.383287ms)
+✔ opt-in overlaps the existing reads while preserving complete output and the default scheduling boundary (11.723191ms)
+✔ early material failure is observed and propagated, never a successful empty projection (1.216579ms)
+✔ default reading inherits server order without sorting by a fact, title, score or curatorial badge (1.651508ms)
+✔ connection return locators replay exact operand/method without collisions from spaces or URI encoding (0.425835ms)
+✔ pending and failed ordering remain unknown; only a successful empty read may use the existing engine fallback (0.205262ms)
+✔ new exact branch inherits the complete accepted worker without widening any principal or operation (23.475464ms)
+✔ the new branch cannot build for Production or an unspecified environment (349.415814ms)
+✔ new Preview proxy keeps verified-admin denial, caller identity, cost boundaries and no paid retry (5.415904ms)
+ℹ tests 14
+ℹ suites 0
+ℹ pass 14
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 628.569039

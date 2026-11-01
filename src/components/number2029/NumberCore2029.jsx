@@ -174,6 +174,8 @@ export default function NumberCore2029({
   stageProjection = null,
   stageLoading = false,
   methodsLoading = false,
+  methodsError = false,
+  onRetryMethods,
   languageBridges = [],
   regularExpressions = [],
   regularExpressionsLoading = false,
@@ -196,6 +198,7 @@ export default function NumberCore2029({
   onOpenLife,
   onOpenHeichal,
   onOpenResult,
+  rootOpeningState = "ready",
   onResolveQuery,
   onExpressionSelect,
   journeyLabel = null,
@@ -217,7 +220,7 @@ export default function NumberCore2029({
   const root = projection.root;
   const active = projection.selectedMethod;
   const needsMethodContext = active?.executionKind === "context_activated";
-  const methods = Array.isArray(projection.methods) ? projection.methods : [];
+  const methods = !methodsError && Array.isArray(projection.methods) ? projection.methods : [];
   const stage = stageProjection || projection;
   const stageRoot = Number.isSafeInteger(Number(stage?.root)) ? Number(stage.root) : root;
   const stageWorlds = Array.isArray(stage?.worlds) ? stage.worlds : [];
@@ -336,7 +339,10 @@ export default function NumberCore2029({
       <div className="sod29-number-v10-root sod29-number-core2029-root">
         <small>המספר</small>
         <div className="sod29-number-v10-root-line">
-          {!compact && onOpenResult ? <button type="button" className="sod29-number-root-open" onClick={() => onOpenResult(root)} aria-label={`פתח דף מספר ${root}`}><b className="sod29-number-value">{root}</b></button> : <b className="sod29-number-value">{root}</b>}
+          {!compact && onOpenResult ? <button type="button" className="sod29-number-root-open" onClick={() => onOpenResult(root)} aria-label={`פתח דף מספר ${root}`}
+            disabled={rootOpeningState !== "ready"} aria-busy={rootOpeningState === "pending" || undefined}
+            title={rootOpeningState === "pending" ? "ממתין לתוצאת השיטה; הביטוי נשמר" : rootOpeningState === "failed" ? "תוצאת השיטה אינה זמינה; הביטוי נשמר" : undefined}>
+            <b className="sod29-number-value">{root}</b></button> : <b className="sod29-number-value">{root}</b>}
           {curation?.anchor ? <CurationMark2029
             item={curation.anchor}
             related={curation?.cores || []}
@@ -435,11 +441,13 @@ export default function NumberCore2029({
 
     <section className="sod29-number-v10-method-switcher" aria-label="כל שיטות הגימטריה הזמינות">
       <div className="sod29-number-v10-method-head">
-        <div><span>{compact ? "שש שיטות מהירות" : "שש שיטות ראשיות · כל השאר בעומק"}</span><strong>{methodsLoading ? "מחשב את השיטות של הביטוי החדש…" : compact ? "נגיעה מחליפה את כל המחקר שמתחת" : `${methods.length} שיטות זמינות · 6 גלויות מיד`}</strong></div>
+        <div><span>{compact ? "שש שיטות מהירות" : "שש שיטות ראשיות · כל השאר בעומק"}</span><strong>{methodsError ? "השיטות אינן זמינות כרגע; הביטוי נשמר" : methodsLoading ? "מחשב את השיטות של הביטוי החדש…" : compact ? "נגיעה מחליפה את כל המחקר שמתחת" : `${methods.length} שיטות זמינות · 6 גלויות מיד`}</strong></div>
         {methodsLoading ? <small className="is-loading">מתעדכן…</small>
           : methods.length > primaryMethods.length ? <small>6 מול העין · {methods.length - primaryMethods.length} בעומק</small>
           : null}
       </div>
+      {methodsError ? <p role="alert">לא הצלחנו לקרוא את תוצאות השיטות. {onRetryMethods
+        ? <button type="button" className="sod29-action" onClick={onRetryMethods}>נסה שוב את השיטות</button> : null}</p> : null}
       <div className="sod29-number-v10-method-grid" data-experience-capability="number-method-glance">
         {primaryMethods.map((method) => {
           const selected = method.methodKey === active?.methodKey;
@@ -506,6 +514,8 @@ export default function NumberCore2029({
               className="sod29-number-v10-stage-result-open"
               data-experience-action={compact ? "number-result-preview" : "number-result-page"}
               onClick={() => onOpenResult(stageRoot)}
+              disabled={!compact && stageRoot === root && rootOpeningState !== "ready"}
+              aria-busy={!compact && stageRoot === root && rootOpeningState === "pending" || undefined}
               aria-label={compact ? `פתח תצוגת מספר ${stageRoot}` : `פתח דף מספר ${stageRoot}`}
             >{stageRoot}</button> : stageRoot}</strong>
             <small>{stageLoading ? "מחבר את המחקר של התוצאה…" : "החלל שמתחת שייך עכשיו לתוצאה הזאת בלבד"}</small>

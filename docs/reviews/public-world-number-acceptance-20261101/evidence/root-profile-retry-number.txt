@@ -1,0 +1,29 @@
+
+Running 17 tests using 1 worker
+
+(node:167958) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:167958) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1/17] test/number-connections-route-2029.browser.cjs:4:30 › public connection opens its canonical Number/method and returns to the same row 390
+[2/17] test/number-connections-route-2029.browser.cjs:4:30 › public connection opens its canonical Number/method and returns to the same row 1440
+[3/17] test/number-connections-route-2029.browser.cjs:20:29 › Number prose at 150 percent remains readable 320
+[4/17] test/number-connections-route-2029.browser.cjs:20:29 › Number prose at 150 percent remains readable 390
+[5/17] test/number-fullpage-acceptance-2029.browser.cjs:7:30 › Number full-page methods, precise return and informative public sources 390
+[6/17] test/number-fullpage-acceptance-2029.browser.cjs:7:30 › Number full-page methods, precise return and informative public sources 1440
+[7/17] test/number-fullpage-acceptance-2029.browser.cjs:11:1 › synthetic profile failure preserves the prior page, retry opens the canonical page, and late resolution cannot hijack Home
+[8/17] test/number-fullpage-acceptance-2029.browser.cjs:32:1 › direct phrase with exact method survives reload; legacy and new Post addresses retain canonical links
+[9/17] test/number-fullpage-acceptance-2029.browser.cjs:36:1 › synthetic public-source outage stays an error, never empty success, and retry reads public data
+[10/17] test/number-mobile-order-2029.browser.cjs:7:27 › Number mobile geometry and inherited public order 320
+[11/17] test/number-mobile-order-2029.browser.cjs:7:27 › Number mobile geometry and inherited public order 360
+[12/17] test/number-mobile-order-2029.browser.cjs:7:27 › Number mobile geometry and inherited public order 390
+[13/17] test/number-mobile-order-2029.browser.cjs:7:27 › Number mobile geometry and inherited public order 768
+[14/17] test/number-mobile-order-2029.browser.cjs:7:27 › Number mobile geometry and inherited public order 1440
+[15/17] test/number-root-profile-race-2029.browser.cjs:4:71 › root action preserves the restored operand while its profile is delay 390
+[16/17] test/number-root-profile-race-2029.browser.cjs:4:71 › root action preserves the restored operand while its profile is delay 1440
+[17/17] test/number-root-profile-race-2029.browser.cjs:4:71 › root action preserves the restored operand while its profile is failed 390
+  17 passed (1.5m)
