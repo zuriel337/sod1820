@@ -75,7 +75,7 @@ export default function WorldZviSourceFindings2029({ sourceRef, returnTo, onShow
       const link=event.target.closest?.('a.zvi-research__excerpt');
       if(link && event.button===0 && !event.ctrlKey && !event.metaKey && !event.shiftKey && !event.altKey) onFindingOpen();
     } : undefined}>
-    {allSources ? <p>ממצאים המשויכים למקור התמונה. שיוך למקור אינו כשלעצמו קשר מאומת לנושא; את מצב החישוב והקשרים רואים בפרטי הממצא.</p> : null}
+    {allSources ? <p>ממצאים המשויכים למקור הזה. שיוך למקור אינו כשלעצמו קשר מאומת לנושא; את מצב החישוב והקשרים רואים בפרטי הממצא.</p> : null}
     {!state.opened ? <button className="sod29-action" type="button" onClick={load}
       style={{ minHeight: 44 }}>ממצאים במקור</button> : null}
     {state.loading ? <span role="status">טוען ממצאים מהמקור…</span> : null}

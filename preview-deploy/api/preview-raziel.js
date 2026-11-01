@@ -7,7 +7,7 @@ export function previewRazielHandler({fetchImpl=fetch,env=process.env}={}) {
     res.setHeader('Cache-Control','private, no-store');res.setHeader('Vary','Authorization');
     res.setHeader('X-Robots-Tag','noindex, nofollow, noarchive');
     const fail=(status,error)=>res.status(status).json({error});
-    if(env.VERCEL_ENV!=='preview'||!['gpt/2029-functional-unified-preview-20261031','gpt/2029-public-foundation-continuity-20261101', 'gpt/2029-public-frame-context-20261101', 'gpt/2029-community1187-unified-20261101', 'gpt/2029-number-fullpage-performance-20261101'].includes(env.VERCEL_GIT_COMMIT_REF))return fail(404,'unavailable');
+    if(env.VERCEL_ENV!=='preview'||!['gpt/2029-functional-unified-preview-20261031','gpt/2029-public-foundation-continuity-20261101', 'gpt/2029-public-frame-context-20261101', 'gpt/2029-community1187-unified-20261101', 'gpt/2029-number-fullpage-performance-20261101', 'gpt/2029-world-one-tree-sources-20261101', 'gpt/2029-public-world-number-acceptance-20261101'].includes(env.VERCEL_GIT_COMMIT_REF))return fail(404,'unavailable');
     if(req.method!=='POST')return fail(405,'method_not_allowed');
     const origin=req.headers.origin,host=req.headers.host;
     let site;try{site=new URL(origin);}catch{return fail(403,'origin_denied');}
@@ -25,7 +25,7 @@ export function previewRazielHandler({fetchImpl=fetch,env=process.env}={}) {
       const user=await auth.json();if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(user?.id||''))return fail(401,'authentication_required');
       // This review is admin-only. Verify with the existing caller-scoped server
       // role RPC; user_metadata, request bodies and browser UI are not authority.
-      if(['gpt/2029-public-frame-context-20261101', 'gpt/2029-community1187-unified-20261101', 'gpt/2029-number-fullpage-performance-20261101'].includes(env.VERCEL_GIT_COMMIT_REF)){
+      if(['gpt/2029-public-frame-context-20261101', 'gpt/2029-community1187-unified-20261101', 'gpt/2029-number-fullpage-performance-20261101', 'gpt/2029-world-one-tree-sources-20261101', 'gpt/2029-public-world-number-acceptance-20261101'].includes(env.VERCEL_GIT_COMMIT_REF)){
         const role=await fetchImpl(SUPABASE_URL+'/rest/v1/rpc/rd_is_admin',{headers:{apikey:SUPABASE_ANON,Authorization:authorization},redirect:'error'});
         if(!role.ok)return fail(503,'permission_unavailable');
         if(await role.json()!==true)return fail(403,'admin_required');

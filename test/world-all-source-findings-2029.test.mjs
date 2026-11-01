@@ -11,6 +11,23 @@ const finding = (n, changes = {}) => ({ id: id(n), created_at: "2026-10-30T12:00
   privacy_scope: "public", status: "approved", value: 1118,
   meta: { ext: { presentation: { statement_role: "research_statement" } } }, ...changes });
 
+test("identical full public wording groups across pages without losing source occurrences", async () => {
+  const common = `ירושלים ${"א".repeat(260)}`;
+  const rows = [finding(3, { statement: common }), finding(2, { statement: common }),
+    finding(1, { statement: `${common} שונה` }), finding(4, { statement: common, privacy_scope: "private" })];
+  const { client } = backend(rows);
+  const first = await fetchWorldPublicFindingsPage({ client, query: "ירושלים", pageSize: 2, groupByExactText: true });
+  const second = await fetchWorldPublicFindingsPage({ client, query: "ירושלים", pageSize: 2, groupByExactText: true, cursor: first.nextCursor });
+  const visible = [...first.rows, ...second.rows];
+  const repeated = visible.filter((row) => row.title === visible[0].title && row.exactTextFingerprint === visible[0].exactTextFingerprint);
+  assert.equal(repeated.length, 2);
+  assert.equal(new Set(repeated.map((item) => item.id)).size, 2);
+  assert.equal(new Set(repeated.map((item) => item.sourceOccurrenceRef)).size, 2);
+  assert.equal(new Set(visible.map((row) => row.exactTextFingerprint)).size, 2,
+    "same 240-character prefix but a different full text receives a different fingerprint");
+  assert.ok(visible.every((item) => item.id !== id(4)), "private rows do not enter a group");
+});
+
 function backend(rows, { sources = [{ id: sourceId, status: "live", channel: "public" }],
   media = [], galleries = [], posts = [], faulty = false, errorTable = null } = {}) {
   const calls = [];

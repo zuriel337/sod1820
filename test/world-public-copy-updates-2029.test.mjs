@@ -29,7 +29,7 @@ test("one bounded public activity projection reuses World readers without person
 });
 
 test("World search and action labels consume canonical public copy", () => {
-  assert.match(people, /CANONICAL_PUBLIC_UI_COPY\.search\.personTitleNumber/);
+  assert.match(people, /params\.get\("q"\)/, "people use the same URL search as the unified content map");
   assert.match(people, /CANONICAL_PUBLIC_UI_COPY\.action\.writer/);
   assert.match(subjects, /CANONICAL_PUBLIC_UI_COPY\.search\.subjectSourceNumber/);
   assert.match(updates, /CANONICAL_PUBLIC_UI_COPY\.action\.source/);
