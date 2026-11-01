@@ -2,9 +2,10 @@ import React, { useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { useAuth } from "../../lib/AuthContext.jsx";
 import AccountEntry2029 from "../auth2029/AccountEntry2029.jsx";
+import CommunitySignedInControls2029 from "./CommunitySignedInControls2029.jsx";
 
-export default function CommunitySignIn({ compact = false }) {
-  const { user } = useAuth(), location = useLocation();
+export default function CommunitySignIn({ compact = false, accountActions }) {
+  const { user, loading } = useAuth(), location = useLocation();
   const [expanded, setExpanded] = useState(false);
   const join = useRef(null);
   const form = useRef(null);
@@ -20,6 +21,7 @@ export default function CommunitySignIn({ compact = false }) {
     if (form.current) observer.observe(form.current, { childList: true, subtree: true });
     return () => observer.disconnect();
   }, [expanded, user?.id]);
+  if (compact && user && !loading) return <CommunitySignedInControls2029 key={user.id}>{accountActions}</CommunitySignedInControls2029>;
   const className = `sod29-community-sign-in${compact ? " sod29-community-sign-in--compact" : ""}`;
   return <section className={`${className}${collapsed ? " sod29-community-sign-in--collapsed" : ""}`} aria-label="התחברות לקהילה" onKeyDown={event => { if (compact && expanded && !user && event.key === "Escape") { event.preventDefault(); close(); } }}>
     {collapsed ? <button ref={join} type="button" className="sod29-community-secondary" aria-expanded="false" aria-controls="community-sign-in-form" onClick={() => setExpanded(true)}>הצטרפו לשיחה</button> : null}
