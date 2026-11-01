@@ -1,0 +1,543 @@
+{
+  "task": "COMMUNITY_1187_UNIFIED_ACCEPTANCE_20261101",
+  "actor": "GPT",
+  "handoffTo": "ZURIEL",
+  "before": "4548ed40-e056-4f1b-983b-f9fcf9ac9d21",
+  "branch": "gpt/2029-community1187-unified-20261101",
+  "remoteSha": "dbbe91de46d21a37110664dc732473de6d9cc6ca",
+  "remoteVerified": true,
+  "baseSha": "6df07087eabd78f7d1b56438b147e2d957ff0ac8",
+  "sourcePR": 1187,
+  "sourceSha": "70c30e96bbbd5da8bad0a9e2acfa5c33efc58f3a",
+  "previewUrl": "https://sod1820-9fvnfmezu-sod1820-s-projects.vercel.app/",
+  "deploymentId": "dpl_J7AVTx7ozbkFmMEuauGUG9p14bwM",
+  "previewRuntime": {
+    "identity": {
+      "sha": "dbbe91de46d21a37110664dc732473de6d9cc6ca",
+      "branch": "gpt/2029-community1187-unified-20261101",
+      "target": "preview",
+      "transport": "authenticated-preview-server-to-canonical-ai-analyze",
+      "model_trigger": "explicit-user-turn",
+      "requires_existing_account": false,
+      "product_writes": true,
+      "edge_deploy": false,
+      "matrix_jobs": "admin-explicit-cost-ack",
+      "product_write_scope": [
+        "own-person-family",
+        "own-research-state",
+        "own-private-hints-media",
+        "governed-community-actions",
+        "own-avatar",
+        "existing-verified-legacy-claim"
+      ],
+      "public_preview_restrictions": [
+        "life-journey-admin-only",
+        "raziel-admin-only",
+        "els-admin-only"
+      ],
+      "companion": "temporarily-unmounted",
+      "production_flags_changed": false,
+      "general_profile_writes": false,
+      "els_followup_server_contract": "requires-approved-shared-artifact",
+      "expected_server_sha256": "2ac19e112e77e71fbab61270338e126edf88128a786f3425b09157291494281f"
+    },
+    "workerSha256": "989e1cc315d8b42ae1cc01c57f44bbe6cd2ff4b90b6eb4e9453090008d57f2fb",
+    "unauthenticatedRootStatus": 302,
+    "ok": true
+  },
+  "realPublicBrowser": {
+    "actualDeployedClient": true,
+    "data": "real existing approved public Community messages",
+    "serviceWorkers": "blocked only for independent read-only browser barrier; deployed worker verified separately",
+    "cases": [
+      {
+        "width": 390,
+        "passed": true,
+        "root": "f495ccca-9e08-423f-a1ee-652238a1cf13",
+        "automaticDirectReplies": 2,
+        "rawCountsAllowed": false
+      },
+      {
+        "width": 1440,
+        "passed": true,
+        "root": "f495ccca-9e08-423f-a1ee-652238a1cf13",
+        "automaticDirectReplies": 2,
+        "rawCountsAllowed": false
+      }
+    ],
+    "publicReads": [
+      {
+        "rpc": "community_message_context",
+        "status": 200,
+        "bytes": 449
+      },
+      {
+        "rpc": "community_message_context",
+        "purpose": "public-parent-verification",
+        "status": 200
+      },
+      {
+        "rpc": "community_replies_page",
+        "status": 200,
+        "bytes": 1041,
+        "offset": 0,
+        "limit": 2,
+        "rows": 2,
+        "ids": [
+          "65d56950-08bd-43e9-b9d3-77aaede71bfc",
+          "4b0ded20-e9fc-4956-8049-325ef7f35248"
+        ]
+      },
+      {
+        "rpc": "community_message_context",
+        "status": 200,
+        "bytes": 449
+      },
+      {
+        "rpc": "community_message_context",
+        "purpose": "public-parent-verification",
+        "status": 200
+      },
+      {
+        "rpc": "community_replies_page",
+        "status": 200,
+        "bytes": 1041,
+        "offset": 0,
+        "limit": 2,
+        "rows": 2,
+        "ids": [
+          "65d56950-08bd-43e9-b9d3-77aaede71bfc",
+          "4b0ded20-e9fc-4956-8049-325ef7f35248"
+        ]
+      }
+    ],
+    "blocked": [
+      {
+        "path": "/rest/v1/site_flags",
+        "method": "GET"
+      },
+      {
+        "path": "/rest/v1/users",
+        "method": "GET"
+      },
+      {
+        "path": "/rest/v1/topic_cards_public",
+        "method": "GET"
+      },
+      {
+        "path": "/rest/v1/posts",
+        "method": "GET"
+      },
+      {
+        "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+        "method": "POST"
+      },
+      {
+        "path": "/rest/v1/site_flags",
+        "method": "GET"
+      },
+      {
+        "path": "/rest/v1/rpc/community_reply_counts",
+        "method": "POST"
+      },
+      {
+        "path": "/rest/v1/users",
+        "method": "GET"
+      },
+      {
+        "path": "/rest/v1/topic_cards_public",
+        "method": "GET"
+      },
+      {
+        "path": "/rest/v1/posts",
+        "method": "GET"
+      },
+      {
+        "path": "/rest/v1/rpc/community_reply_counts",
+        "method": "POST"
+      },
+      {
+        "path": "/rest/v1/site_flags",
+        "method": "GET"
+      },
+      {
+        "path": "/rest/v1/users",
+        "method": "GET"
+      },
+      {
+        "path": "/rest/v1/topic_cards_public",
+        "method": "GET"
+      },
+      {
+        "path": "/rest/v1/posts",
+        "method": "GET"
+      },
+      {
+        "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+        "method": "POST"
+      },
+      {
+        "path": "/rest/v1/rpc/community_reply_counts",
+        "method": "POST"
+      },
+      {
+        "path": "/rest/v1/site_flags",
+        "method": "GET"
+      },
+      {
+        "path": "/rest/v1/users",
+        "method": "GET"
+      },
+      {
+        "path": "/rest/v1/topic_cards_public",
+        "method": "GET"
+      },
+      {
+        "path": "/rest/v1/posts",
+        "method": "GET"
+      },
+      {
+        "path": "/rest/v1/rpc/community_reply_counts",
+        "method": "POST"
+      }
+    ],
+    "writesForwarded": 0,
+    "modelCallsForwarded": 0,
+    "verifiedSha": "dbbe91de46d21a37110664dc732473de6d9cc6ca",
+    "ok": true
+  },
+  "githubRuns": [
+    {
+      "conclusion": "success",
+      "databaseId": 41273505656,
+      "headSha": "dbbe91de46d21a37110664dc732473de6d9cc6ca",
+      "status": "completed",
+      "url": "https://github.com/zuriel337/sod1820/actions/runs/41273505656",
+      "workflowName": "Legacy Production Lock"
+    },
+    {
+      "conclusion": "success",
+      "databaseId": 41273503634,
+      "headSha": "dbbe91de46d21a37110664dc732473de6d9cc6ca",
+      "status": "completed",
+      "url": "https://github.com/zuriel337/sod1820/actions/runs/41273503634",
+      "workflowName": "Community Reaction Visibility"
+    },
+    {
+      "conclusion": "success",
+      "databaseId": 41273501713,
+      "headSha": "dbbe91de46d21a37110664dc732473de6d9cc6ca",
+      "status": "completed",
+      "url": "https://github.com/zuriel337/sod1820/actions/runs/41273501713",
+      "workflowName": "Research Sync Acceptance"
+    },
+    {
+      "conclusion": "failure",
+      "databaseId": 41273500252,
+      "headSha": "dbbe91de46d21a37110664dc732473de6d9cc6ca",
+      "status": "completed",
+      "url": "https://github.com/zuriel337/sod1820/actions/runs/41273500252",
+      "workflowName": "ELS Core Compatibility Gate"
+    },
+    {
+      "conclusion": "success",
+      "databaseId": 41273498773,
+      "headSha": "dbbe91de46d21a37110664dc732473de6d9cc6ca",
+      "status": "completed",
+      "url": "https://github.com/zuriel337/sod1820/actions/runs/41273498773",
+      "workflowName": "G4 Public Core Gate"
+    }
+  ],
+  "focusedNode": {
+    "passed": 120,
+    "failed": 0,
+    "skipped": 0
+  },
+  "syntheticBrowser": {
+    "compact": 20,
+    "share": 18,
+    "mediaReactions": 11,
+    "realAccount": false
+  },
+  "safeIsolation": {
+    "commandsPassedAfterToolResolution": 37,
+    "commands": 39,
+    "workflowCommandsPassed": 36,
+    "workflowCommands": 38,
+    "supplementaryMockedA3Tests": 29,
+    "preexistingFailuresReproducedOn6df": [
+      3,
+      17
+    ],
+    "canonicalRequestsAttempted": 0,
+    "fullGatePassed": false,
+    "liveA3Invoked": false
+  },
+  "loading": {
+    "baselineSha": "6df07087eabd78f7d1b56438b147e2d957ff0ac8",
+    "comparedSource": "integrated tree on gpt/2029-community1187-unified-20261101; final immutable SHA recorded by receipt",
+    "synthetic": true,
+    "counterbalancedPairsPerWidth": 4,
+    "widths": [
+      390,
+      1440
+    ],
+    "cpuThrottle": 4,
+    "readLatencyMs": 120,
+    "fixtureRoots": 40,
+    "fixtureRepliesPerRoot": 3,
+    "rawCountsMode": "preview-denied",
+    "workerParentVerificationMeasured": false,
+    "noLiveCallsOrWrites": true,
+    "rows": [
+      {
+        "width": 390,
+        "version": "before",
+        "runs": 4,
+        "metrics": {
+          "firstRootMs": {
+            "median": 1710.5,
+            "min": 1667,
+            "max": 1823
+          },
+          "initialReplyReads": {
+            "median": 0.0,
+            "min": 0,
+            "max": 0
+          },
+          "initialTaskDurationSeconds": {
+            "median": 1.5141965,
+            "min": 1.443972,
+            "max": 1.663982
+          },
+          "afterScrollReplyReads": {
+            "median": 0.0,
+            "min": 0,
+            "max": 0
+          },
+          "refreshReplyReads": {
+            "median": 0.0,
+            "min": 0,
+            "max": 0
+          },
+          "offscreenRefreshReplyReads": {
+            "median": 0.0,
+            "min": 0,
+            "max": 0
+          },
+          "totalReplyBytes": {
+            "median": 0.0,
+            "min": 0,
+            "max": 0
+          },
+          "taskDurationSeconds": {
+            "median": 1.7814055,
+            "min": 1.681465,
+            "max": 1.961013
+          },
+          "initialCLS": {
+            "median": 0.04622222222222222,
+            "min": 0.04622222222222222,
+            "max": 0.04622222222222222
+          }
+        }
+      },
+      {
+        "width": 390,
+        "version": "after",
+        "runs": 4,
+        "metrics": {
+          "firstRootMs": {
+            "median": 1758.5,
+            "min": 1684,
+            "max": 1787
+          },
+          "initialReplyReads": {
+            "median": 2.0,
+            "min": 2,
+            "max": 2
+          },
+          "initialTaskDurationSeconds": {
+            "median": 1.8009555,
+            "min": 1.557537,
+            "max": 1.87934
+          },
+          "afterScrollReplyReads": {
+            "median": 14.0,
+            "min": 14,
+            "max": 14
+          },
+          "refreshReplyReads": {
+            "median": 2.0,
+            "min": 2,
+            "max": 2
+          },
+          "offscreenRefreshReplyReads": {
+            "median": 0.0,
+            "min": 0,
+            "max": 0
+          },
+          "totalReplyBytes": {
+            "median": 11198.0,
+            "min": 11198,
+            "max": 11198
+          },
+          "taskDurationSeconds": {
+            "median": 3.2693395,
+            "min": 3.098525,
+            "max": 3.491785
+          },
+          "initialCLS": {
+            "median": 0.0,
+            "min": 0,
+            "max": 0
+          }
+        }
+      },
+      {
+        "width": 1440,
+        "version": "before",
+        "runs": 4,
+        "metrics": {
+          "firstRootMs": {
+            "median": 1726.0,
+            "min": 1675,
+            "max": 1840
+          },
+          "initialReplyReads": {
+            "median": 0.0,
+            "min": 0,
+            "max": 0
+          },
+          "initialTaskDurationSeconds": {
+            "median": 1.5377269999999998,
+            "min": 1.41336,
+            "max": 1.809306
+          },
+          "afterScrollReplyReads": {
+            "median": 0.0,
+            "min": 0,
+            "max": 0
+          },
+          "refreshReplyReads": {
+            "median": 0.0,
+            "min": 0,
+            "max": 0
+          },
+          "offscreenRefreshReplyReads": {
+            "median": 0.0,
+            "min": 0,
+            "max": 0
+          },
+          "totalReplyBytes": {
+            "median": 0.0,
+            "min": 0,
+            "max": 0
+          },
+          "taskDurationSeconds": {
+            "median": 1.803703,
+            "min": 1.663856,
+            "max": 2.079125
+          },
+          "initialCLS": {
+            "median": 0.023450617283950616,
+            "min": 0.023450617283950616,
+            "max": 0.023450617283950616
+          }
+        }
+      },
+      {
+        "width": 1440,
+        "version": "after",
+        "runs": 4,
+        "metrics": {
+          "firstRootMs": {
+            "median": 1807.5,
+            "min": 1721,
+            "max": 1918
+          },
+          "initialReplyReads": {
+            "median": 2.0,
+            "min": 2,
+            "max": 2
+          },
+          "initialTaskDurationSeconds": {
+            "median": 1.801934,
+            "min": 1.679786,
+            "max": 2.06494
+          },
+          "afterScrollReplyReads": {
+            "median": 14.0,
+            "min": 14,
+            "max": 14
+          },
+          "refreshReplyReads": {
+            "median": 2.0,
+            "min": 2,
+            "max": 2
+          },
+          "offscreenRefreshReplyReads": {
+            "median": 0.0,
+            "min": 0,
+            "max": 0
+          },
+          "totalReplyBytes": {
+            "median": 11198.0,
+            "min": 11198,
+            "max": 11198
+          },
+          "taskDurationSeconds": {
+            "median": 3.4496260000000003,
+            "min": 3.062459,
+            "max": 4.135903
+          },
+          "initialCLS": {
+            "median": 0.0,
+            "min": 0,
+            "max": 0
+          }
+        }
+      }
+    ],
+    "accountMode": "guest public workload; signed-in verification and unread HEAD are outside these timing measurements"
+  },
+  "sourceDoc": "docs/reviews/community1187-unified-20261101/README.md",
+  "trackedTreeClean": true,
+  "excludedLocalRuntime": [
+    "node_modules symlink to existing dependencies",
+    "test-results from initial local Playwright infrastructure attempt"
+  ],
+  "liveProductWrites": 0,
+  "realUploads": 0,
+  "emailsSent": 0,
+  "modelCalls": 0,
+  "mainMergedOrPushed": false,
+  "productionChanged": false,
+  "sharedConfigurationChanged": false,
+  "remaining": [
+    "Full Isolation/live A3 require a truly disposable server/DB/Auth/trace environment; unchanged workflow would invoke canonical live research-run.",
+    "Two source-only Isolation assertions also fail unchanged exact6df base (Entry Learn old post literal and cheap-hardening pre-public-routing rewrite comparison).",
+    "Real account unread bell/delivery/mark-read, actual account switch, upload/publication/edit/delete/reaction/legacy binding and Google/Facebook completion not exercised.",
+    "Automatic replies add measurable rendering/CPU load; synthetic four-pair timings do not establish significance, field capacity or cellular behavior; worker parent-check latency not included.",
+    "ELS complete gate failed its preexisting old fixed-orb-position expectation; the final migration SQL step did not run."
+  ],
+  "elsFailure": {
+    "classification": "preexisting UI expectation mismatch, reproduced independently on exact6df and integrated source",
+    "test": "native UI: actual SystemFrame dock owns search, tools, Raziel and registration cleanup",
+    "file": "test/els-native-ui-browser.test.mjs",
+    "line": 1454,
+    "assertion": "Raziel keeps its stable slot",
+    "executableStep": {
+      "tests": 105,
+      "passed": 104,
+      "failed": 1,
+      "skipped": 0
+    },
+    "finalMigrationSqlStep": "not executed because the preceding executable step failed",
+    "currentAndBaseTestAndSystemFrameByteIdentical": true,
+    "targetedLocalCaseRan": true,
+    "guardOrTestChanged": false
+  },
+  "evidenceBranch": "gpt/2029-community1187-evidence-20261101",
+  "evidenceBranchIsProductBaseline": false
+}

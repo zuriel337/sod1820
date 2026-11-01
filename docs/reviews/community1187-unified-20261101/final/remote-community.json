@@ -1,0 +1,161 @@
+{
+  "actualDeployedClient": true,
+  "data": "real existing approved public Community messages",
+  "serviceWorkers": "blocked only for independent read-only browser barrier; deployed worker verified separately",
+  "cases": [
+    {
+      "width": 390,
+      "passed": true,
+      "root": "f495ccca-9e08-423f-a1ee-652238a1cf13",
+      "automaticDirectReplies": 2,
+      "rawCountsAllowed": false
+    },
+    {
+      "width": 1440,
+      "passed": true,
+      "root": "f495ccca-9e08-423f-a1ee-652238a1cf13",
+      "automaticDirectReplies": 2,
+      "rawCountsAllowed": false
+    }
+  ],
+  "publicReads": [
+    {
+      "rpc": "community_message_context",
+      "status": 200,
+      "bytes": 449
+    },
+    {
+      "rpc": "community_message_context",
+      "purpose": "public-parent-verification",
+      "status": 200
+    },
+    {
+      "rpc": "community_replies_page",
+      "status": 200,
+      "bytes": 1041,
+      "offset": 0,
+      "limit": 2,
+      "rows": 2,
+      "ids": [
+        "65d56950-08bd-43e9-b9d3-77aaede71bfc",
+        "4b0ded20-e9fc-4956-8049-325ef7f35248"
+      ]
+    },
+    {
+      "rpc": "community_message_context",
+      "status": 200,
+      "bytes": 449
+    },
+    {
+      "rpc": "community_message_context",
+      "purpose": "public-parent-verification",
+      "status": 200
+    },
+    {
+      "rpc": "community_replies_page",
+      "status": 200,
+      "bytes": 1041,
+      "offset": 0,
+      "limit": 2,
+      "rows": 2,
+      "ids": [
+        "65d56950-08bd-43e9-b9d3-77aaede71bfc",
+        "4b0ded20-e9fc-4956-8049-325ef7f35248"
+      ]
+    }
+  ],
+  "blocked": [
+    {
+      "path": "/rest/v1/site_flags",
+      "method": "GET"
+    },
+    {
+      "path": "/rest/v1/users",
+      "method": "GET"
+    },
+    {
+      "path": "/rest/v1/topic_cards_public",
+      "method": "GET"
+    },
+    {
+      "path": "/rest/v1/posts",
+      "method": "GET"
+    },
+    {
+      "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/site_flags",
+      "method": "GET"
+    },
+    {
+      "path": "/rest/v1/rpc/community_reply_counts",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/users",
+      "method": "GET"
+    },
+    {
+      "path": "/rest/v1/topic_cards_public",
+      "method": "GET"
+    },
+    {
+      "path": "/rest/v1/posts",
+      "method": "GET"
+    },
+    {
+      "path": "/rest/v1/rpc/community_reply_counts",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/site_flags",
+      "method": "GET"
+    },
+    {
+      "path": "/rest/v1/users",
+      "method": "GET"
+    },
+    {
+      "path": "/rest/v1/topic_cards_public",
+      "method": "GET"
+    },
+    {
+      "path": "/rest/v1/posts",
+      "method": "GET"
+    },
+    {
+      "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/rpc/community_reply_counts",
+      "method": "POST"
+    },
+    {
+      "path": "/rest/v1/site_flags",
+      "method": "GET"
+    },
+    {
+      "path": "/rest/v1/users",
+      "method": "GET"
+    },
+    {
+      "path": "/rest/v1/topic_cards_public",
+      "method": "GET"
+    },
+    {
+      "path": "/rest/v1/posts",
+      "method": "GET"
+    },
+    {
+      "path": "/rest/v1/rpc/community_reply_counts",
+      "method": "POST"
+    }
+  ],
+  "writesForwarded": 0,
+  "modelCallsForwarded": 0,
+  "verifiedSha": "dbbe91de46d21a37110664dc732473de6d9cc6ca",
+  "ok": true
+}

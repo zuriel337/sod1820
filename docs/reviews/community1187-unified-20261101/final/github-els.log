@@ -1,0 +1,851 @@
+els-core-compatibility	Set up job	﻿2026-11-01T04:32:44.4197814Z Current runner version: '2.338.2'
+els-core-compatibility	Set up job	2026-11-01T04:32:44.4224191Z ##[group]Runner Image Provisioner
+els-core-compatibility	Set up job	2026-11-01T04:32:44.4225236Z Hosted Compute Agent
+els-core-compatibility	Set up job	2026-11-01T04:32:44.4225849Z Version: 20261021.618
+els-core-compatibility	Set up job	2026-11-01T04:32:44.4226448Z Commit: 21505ad2541d5be6135ed84fc33697146cf75b8e
+els-core-compatibility	Set up job	2026-11-01T04:32:44.4227278Z Build Date: 2026-10-21T00:45:21Z
+els-core-compatibility	Set up job	2026-11-01T04:32:44.4227954Z Worker ID: {0e1993ba-a6de-44fd-893b-78289997aa3d}
+els-core-compatibility	Set up job	2026-11-01T04:32:44.4228631Z Region: northcentralus
+els-core-compatibility	Set up job	2026-11-01T04:32:44.4229197Z Cloud: Azure
+els-core-compatibility	Set up job	2026-11-01T04:32:44.4229712Z ##[endgroup]
+els-core-compatibility	Set up job	2026-11-01T04:32:44.4230967Z ##[group]Operating System
+els-core-compatibility	Set up job	2026-11-01T04:32:44.4231943Z Ubuntu
+els-core-compatibility	Set up job	2026-11-01T04:32:44.4232468Z 24.04.5
+els-core-compatibility	Set up job	2026-11-01T04:32:44.4232967Z LTS
+els-core-compatibility	Set up job	2026-11-01T04:32:44.4233479Z ##[endgroup]
+els-core-compatibility	Set up job	2026-11-01T04:32:44.4234013Z ##[group]Runner Image
+els-core-compatibility	Set up job	2026-11-01T04:32:44.4234776Z Image: ubuntu-24.04
+els-core-compatibility	Set up job	2026-11-01T04:32:44.4235368Z Version: 20261025.353.1
+els-core-compatibility	Set up job	2026-11-01T04:32:44.4236383Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261025.353/images/ubuntu/Ubuntu2404-Readme.md
+els-core-compatibility	Set up job	2026-11-01T04:32:44.4238016Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261025.353
+els-core-compatibility	Set up job	2026-11-01T04:32:44.4238930Z ##[endgroup]
+els-core-compatibility	Set up job	2026-11-01T04:32:44.4240003Z ##[group]GITHUB_TOKEN Permissions
+els-core-compatibility	Set up job	2026-11-01T04:32:44.4242581Z Contents: read
+els-core-compatibility	Set up job	2026-11-01T04:32:44.4243136Z Metadata: read
+els-core-compatibility	Set up job	2026-11-01T04:32:44.4243975Z Packages: read
+els-core-compatibility	Set up job	2026-11-01T04:32:44.4244586Z ##[endgroup]
+els-core-compatibility	Set up job	2026-11-01T04:32:44.4246588Z Secret source: Actions
+els-core-compatibility	Set up job	2026-11-01T04:32:44.4247531Z Cache mode: write
+els-core-compatibility	Set up job	2026-11-01T04:32:44.4248231Z Prepare workflow directory
+els-core-compatibility	Set up job	2026-11-01T04:32:44.4580924Z Prepare all required actions
+els-core-compatibility	Set up job	2026-11-01T04:32:44.4631997Z Getting action download info
+els-core-compatibility	Set up job	2026-11-01T04:32:44.7103416Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+els-core-compatibility	Set up job	2026-11-01T04:32:44.8333565Z Download action repository 'actions/setup-node@v4' (SHA:49933ea5288caeca8642d1e84afbd3f7d6820020)
+els-core-compatibility	Set up job	2026-11-01T04:32:45.0412132Z Complete job name: els-core-compatibility
+els-core-compatibility	Run actions/checkout@v4	﻿2026-11-01T04:32:45.1227219Z ##[group]Run actions/checkout@v4
+els-core-compatibility	Run actions/checkout@v4	2026-11-01T04:32:45.1228070Z with:
+els-core-compatibility	Run actions/checkout@v4	2026-11-01T04:32:45.1228627Z   repository: zuriel337/sod1820
+els-core-compatibility	Run actions/checkout@v4	2026-11-01T04:32:45.1232832Z   token: ***
+els-core-compatibility	Run actions/checkout@v4	2026-11-01T04:32:45.1233333Z   ssh-strict: true
+els-core-compatibility	Run actions/checkout@v4	2026-11-01T04:32:45.1233890Z   ssh-user: git
+els-core-compatibility	Run actions/checkout@v4	2026-11-01T04:32:45.1234394Z   persist-credentials: true
+els-core-compatibility	Run actions/checkout@v4	2026-11-01T04:32:45.1234937Z   clean: true
+els-core-compatibility	Run actions/checkout@v4	2026-11-01T04:32:45.1235479Z   sparse-checkout-cone-mode: true
+els-core-compatibility	Run actions/checkout@v4	2026-11-01T04:32:45.1236052Z   fetch-depth: 1
+els-core-compatibility	Run actions/checkout@v4	2026-11-01T04:32:45.1236550Z   fetch-tags: false
+els-core-compatibility	Run actions/checkout@v4	2026-11-01T04:32:45.1237075Z   show-progress: true
+els-core-compatibility	Run actions/checkout@v4	2026-11-01T04:32:45.1237579Z   lfs: false
+els-core-compatibility	Run actions/checkout@v4	2026-11-01T04:32:45.1238086Z   submodules: false
+els-core-compatibility	Run actions/checkout@v4	2026-11-01T04:32:45.1238585Z   set-safe-directory: true
+els-core-compatibility	Run actions/checkout@v4	2026-11-01T04:32:45.1239153Z   allow-unsafe-pr-checkout: false
+els-core-compatibility	Run actions/checkout@v4	2026-11-01T04:32:45.1239899Z ##[endgroup]
+els-core-compatibility	Run actions/checkout@v4	2026-11-01T04:32:45.3799784Z Syncing repository: zuriel337/sod1820
+els-core-compatibility	Run actions/checkout@v4	2026-11-01T04:32:45.3803305Z ##[group]Getting Git version info
+els-core-compatibility	Run actions/checkout@v4	2026-11-01T04:32:45.3804742Z Working directory is '/home/runner/work/sod1820/sod1820'
+els-core-compatibility	Run actions/checkout@v4	2026-11-01T04:32:45.3806723Z [command]/usr/bin/git version
+els-core-compatibility	Run actions/checkout@v4	2026-11-01T04:32:45.3913239Z git version 2.56.0
+els-core-compatibility	Run actions/checkout@v4	2026-11-01T04:32:45.3918008Z ##[endgroup]
+els-core-compatibility	Run actions/checkout@v4	2026-11-01T04:32:45.3934707Z Temporarily overriding HOME='/home/runner/work/_temp/d7a94755-acb4-4170-acff-cbe7bad18d6d' before making global git config changes
+els-core-compatibility	Run actions/checkout@v4	2026-11-01T04:32:45.3937993Z Adding repository directory to the temporary git global config as a safe directory
+els-core-compatibility	Run actions/checkout@v4	2026-11-01T04:32:45.3942266Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/sod1820/sod1820
+els-core-compatibility	Run actions/checkout@v4	2026-11-01T04:32:45.3997605Z Deleting the contents of '/home/runner/work/sod1820/sod1820'
+els-core-compatibility	Run actions/checkout@v4	2026-11-01T04:32:45.4001316Z ##[group]Initializing the repository
+els-core-compatibility	Run actions/checkout@v4	2026-11-01T04:32:45.4005081Z [command]/usr/bin/git init /home/runner/work/sod1820/sod1820
+els-core-compatibility	Run actions/checkout@v4	2026-11-01T04:32:45.4125710Z hint: Using 'master' as the name for the initial branch. This default branch name
+els-core-compatibility	Run actions/checkout@v4	2026-11-01T04:32:45.4127767Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+els-core-compatibility	Run actions/checkout@v4	2026-11-01T04:32:45.4129694Z hint: to use in all of your new repositories, which will suppress this warning,
+els-core-compatibility	Run actions/checkout@v4	2026-11-01T04:32:45.4131052Z hint: call:
+els-core-compatibility	Run actions/checkout@v4	2026-11-01T04:32:45.4132002Z hint:
+els-core-compatibility	Run actions/checkout@v4	2026-11-01T04:32:45.4132983Z hint: 	git config --global init.defaultBranch <name>
+els-core-compatibility	Run actions/checkout@v4	2026-11-01T04:32:45.4134295Z hint:
+els-core-compatibility	Run actions/checkout@v4	2026-11-01T04:32:45.4135387Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+els-core-compatibility	Run actions/checkout@v4	2026-11-01T04:32:45.4137138Z hint: 'development'. The just-created branch can be renamed via this command:
+els-core-compatibility	Run actions/checkout@v4	2026-11-01T04:32:45.4138487Z hint:
+els-core-compatibility	Run actions/checkout@v4	2026-11-01T04:32:45.4139299Z hint: 	git branch -m <name>
+els-core-compatibility	Run actions/checkout@v4	2026-11-01T04:32:45.4140299Z hint:
+els-core-compatibility	Run actions/checkout@v4	2026-11-01T04:32:45.4141765Z hint: Disable this message with "git config set advice.defaultBranchName false"
+els-core-compatibility	Run actions/checkout@v4	2026-11-01T04:32:45.4158487Z Initialized empty Git repository in /home/runner/work/sod1820/sod1820/.git/
+els-core-compatibility	Run actions/checkout@v4	2026-11-01T04:32:45.4170024Z [command]/usr/bin/git remote add origin https://github.com/zuriel337/sod1820
+els-core-compatibility	Run actions/checkout@v4	2026-11-01T04:32:45.4223581Z ##[endgroup]
+els-core-compatibility	Run actions/checkout@v4	2026-11-01T04:32:45.4225377Z ##[group]Disabling automatic garbage collection
+els-core-compatibility	Run actions/checkout@v4	2026-11-01T04:32:45.4226671Z [command]/usr/bin/git config --local gc.auto 0
+els-core-compatibility	Run actions/checkout@v4	2026-11-01T04:32:45.4262613Z ##[endgroup]
+els-core-compatibility	Run actions/checkout@v4	2026-11-01T04:32:45.4263979Z ##[group]Setting up auth
+els-core-compatibility	Run actions/checkout@v4	2026-11-01T04:32:45.4269980Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+els-core-compatibility	Run actions/checkout@v4	2026-11-01T04:32:45.4313303Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+els-core-compatibility	Run actions/checkout@v4	2026-11-01T04:32:45.4725624Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+els-core-compatibility	Run actions/checkout@v4	2026-11-01T04:32:45.4759700Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+els-core-compatibility	Run actions/checkout@v4	2026-11-01T04:32:45.4990098Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+els-core-compatibility	Run actions/checkout@v4	2026-11-01T04:32:45.5031070Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+els-core-compatibility	Run actions/checkout@v4	2026-11-01T04:32:45.5233136Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+els-core-compatibility	Run actions/checkout@v4	2026-11-01T04:32:45.5276175Z ##[endgroup]
+els-core-compatibility	Run actions/checkout@v4	2026-11-01T04:32:45.5277831Z ##[group]Fetching the repository
+els-core-compatibility	Run actions/checkout@v4	2026-11-01T04:32:45.5293534Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +dbbe91de46d21a37110664dc732473de6d9cc6ca:refs/remotes/origin/gpt/2029-community1187-unified-20261101
+els-core-compatibility	Run actions/checkout@v4	2026-11-01T04:32:51.6829195Z From https://github.com/zuriel337/sod1820
+els-core-compatibility	Run actions/checkout@v4	2026-11-01T04:32:51.6833178Z  * [new ref]         dbbe91de46d21a37110664dc732473de6d9cc6ca -> origin/gpt/2029-community1187-unified-20261101
+els-core-compatibility	Run actions/checkout@v4	2026-11-01T04:32:51.6838327Z ##[endgroup]
+els-core-compatibility	Run actions/checkout@v4	2026-11-01T04:32:51.6839977Z ##[group]Determining the checkout info
+els-core-compatibility	Run actions/checkout@v4	2026-11-01T04:32:51.6842639Z ##[endgroup]
+els-core-compatibility	Run actions/checkout@v4	2026-11-01T04:32:51.6843832Z [command]/usr/bin/git sparse-checkout disable
+els-core-compatibility	Run actions/checkout@v4	2026-11-01T04:32:51.6898341Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+els-core-compatibility	Run actions/checkout@v4	2026-11-01T04:32:51.6930628Z ##[group]Checking out the ref
+els-core-compatibility	Run actions/checkout@v4	2026-11-01T04:32:51.6936671Z [command]/usr/bin/git checkout --progress --force -B gpt/2029-community1187-unified-20261101 refs/remotes/origin/gpt/2029-community1187-unified-20261101
+els-core-compatibility	Run actions/checkout@v4	2026-11-01T04:32:52.6942177Z Switched to a new branch 'gpt/2029-community1187-unified-20261101'
+els-core-compatibility	Run actions/checkout@v4	2026-11-01T04:32:52.6946821Z branch 'gpt/2029-community1187-unified-20261101' set up to track 'origin/gpt/2029-community1187-unified-20261101'.
+els-core-compatibility	Run actions/checkout@v4	2026-11-01T04:32:52.6973605Z ##[endgroup]
+els-core-compatibility	Run actions/checkout@v4	2026-11-01T04:32:52.7024932Z [command]/usr/bin/git log -1 --format=%H
+els-core-compatibility	Run actions/checkout@v4	2026-11-01T04:32:52.7049750Z dbbe91de46d21a37110664dc732473de6d9cc6ca
+els-core-compatibility	Run actions/setup-node@v4	﻿2026-11-01T04:32:52.7325057Z ##[group]Run actions/setup-node@v4
+els-core-compatibility	Run actions/setup-node@v4	2026-11-01T04:32:52.7325482Z with:
+els-core-compatibility	Run actions/setup-node@v4	2026-11-01T04:32:52.7325808Z   node-version-file: .nvmrc
+els-core-compatibility	Run actions/setup-node@v4	2026-11-01T04:32:52.7326370Z   always-auth: false
+els-core-compatibility	Run actions/setup-node@v4	2026-11-01T04:32:52.7326686Z   check-latest: false
+els-core-compatibility	Run actions/setup-node@v4	2026-11-01T04:32:52.7329225Z   token: ***
+els-core-compatibility	Run actions/setup-node@v4	2026-11-01T04:32:52.7329575Z ##[endgroup]
+els-core-compatibility	Run actions/setup-node@v4	2026-11-01T04:32:52.8751112Z Node version file is not JSON file
+els-core-compatibility	Run actions/setup-node@v4	2026-11-01T04:32:52.8752417Z Resolved .nvmrc as 24.21.0
+els-core-compatibility	Run actions/setup-node@v4	2026-11-01T04:32:52.8774569Z Attempting to download 24.21.0...
+els-core-compatibility	Run actions/setup-node@v4	2026-11-01T04:32:52.8921814Z (node:2314) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+els-core-compatibility	Run actions/setup-node@v4	2026-11-01T04:32:52.8922934Z (Use `node --trace-deprecation ...` to show where the warning was created)
+els-core-compatibility	Run actions/setup-node@v4	2026-11-01T04:32:53.5306075Z Acquiring 24.21.0 - x64 from https://github.com/actions/node-versions/releases/download/24.21.0-34304089047/node-24.21.0-linux-x64.tar.gz
+els-core-compatibility	Run actions/setup-node@v4	2026-11-01T04:32:53.9076352Z Extracting ...
+els-core-compatibility	Run actions/setup-node@v4	2026-11-01T04:32:53.9179885Z [command]/usr/bin/tar xz --strip 1 --warning=no-unknown-keyword --overwrite -C /home/runner/work/_temp/15bb4b8e-8d66-456f-8184-f7d68d3897f3 -f /home/runner/work/_temp/e9382883-3542-43ef-be96-673e4c33e333
+els-core-compatibility	Run actions/setup-node@v4	2026-11-01T04:32:55.2830847Z Adding to the cache ...
+els-core-compatibility	Run actions/setup-node@v4	2026-11-01T04:32:57.2517202Z ##[group]Environment details
+els-core-compatibility	Run actions/setup-node@v4	2026-11-01T04:32:57.4820788Z node: v24.21.0
+els-core-compatibility	Run actions/setup-node@v4	2026-11-01T04:32:57.4821588Z npm: 11.19.0
+els-core-compatibility	Run actions/setup-node@v4	2026-11-01T04:32:57.4821957Z yarn: 1.22.22
+els-core-compatibility	Run actions/setup-node@v4	2026-11-01T04:32:57.4822800Z ##[endgroup]
+els-core-compatibility	Static one-engine contract tests	﻿2026-11-01T04:32:57.4976228Z ##[group]Run node --test test/els-core-compatibility.test.mjs
+els-core-compatibility	Static one-engine contract tests	2026-11-01T04:32:57.4976862Z node --test test/els-core-compatibility.test.mjs
+els-core-compatibility	Static one-engine contract tests	2026-11-01T04:32:57.4997503Z shell: /usr/bin/bash -e {0}
+els-core-compatibility	Static one-engine contract tests	2026-11-01T04:32:57.4997980Z ##[endgroup]
+els-core-compatibility	Static one-engine contract tests	2026-11-01T04:32:57.5923347Z ✔ C2 extends one ELS engine without a new corpus/store/table (1.21823ms)
+els-core-compatibility	Static one-engine contract tests	2026-11-01T04:32:57.5924977Z ✔ all occurrence-producing server projections delegate to the same internal generator (0.730884ms)
+els-core-compatibility	Static one-engine contract tests	2026-11-01T04:32:57.5926026Z ✔ truncation is explicit and non-representative with an exhaustive continuation contract (0.229013ms)
+els-core-compatibility	Static one-engine contract tests	2026-11-01T04:32:57.5928237Z ✔ replay mismatch keeps requested coordinates separate from verified occurrence (0.168193ms)
+els-core-compatibility	Static one-engine contract tests	2026-11-01T04:32:57.5929885Z ✔ geometry executes explicit sparse skips only and invalid geometry is context-required (0.201158ms)
+els-core-compatibility	Static one-engine contract tests	2026-11-01T04:32:57.5931337Z ✔ legacy SQL projection has deterministic forward-before-back exact ties (0.152876ms)
+els-core-compatibility	Static one-engine contract tests	2026-11-01T04:32:57.5932529Z ✔ Tanakh remains fail-closed MISSING_ADAPTER (0.139518ms)
+els-core-compatibility	Static one-engine contract tests	2026-11-01T04:32:57.5933612Z ✔ service-only cores and bounded public wrappers have explicit grants (0.960052ms)
+els-core-compatibility	Static one-engine contract tests	2026-11-01T04:32:57.6009500Z ℹ tests 8
+els-core-compatibility	Static one-engine contract tests	2026-11-01T04:32:57.6010232Z ℹ suites 0
+els-core-compatibility	Static one-engine contract tests	2026-11-01T04:32:57.6010772Z ℹ pass 8
+els-core-compatibility	Static one-engine contract tests	2026-11-01T04:32:57.6011227Z ℹ fail 0
+els-core-compatibility	Static one-engine contract tests	2026-11-01T04:32:57.6012434Z ℹ cancelled 0
+els-core-compatibility	Static one-engine contract tests	2026-11-01T04:32:57.6012867Z ℹ skipped 0
+els-core-compatibility	Static one-engine contract tests	2026-11-01T04:32:57.6013382Z ℹ todo 0
+els-core-compatibility	Static one-engine contract tests	2026-11-01T04:32:57.6013834Z ℹ duration_ms 64.494431
+els-core-compatibility	Tanakh canonical stream oracle + admission contract	﻿2026-11-01T04:32:57.6097756Z ##[group]Run node --test test/els-tanakh-canonical-stream.test.mjs
+els-core-compatibility	Tanakh canonical stream oracle + admission contract	2026-11-01T04:32:57.6098365Z node --test test/els-tanakh-canonical-stream.test.mjs
+els-core-compatibility	Tanakh canonical stream oracle + admission contract	2026-11-01T04:32:57.6113139Z shell: /usr/bin/bash -e {0}
+els-core-compatibility	Tanakh canonical stream oracle + admission contract	2026-11-01T04:32:57.6113587Z ##[endgroup]
+els-core-compatibility	Tanakh canonical stream oracle + admission contract	2026-11-01T04:33:44.2677747Z ✔ canonical tk-letters witness hashes match the assignment admission constants (15.342214ms)
+els-core-compatibility	Tanakh canonical stream oracle + admission contract	2026-11-01T04:33:44.2682318Z ✔ bounded Tanakh Goldens are fixed (canonical tk-letters oracle) and reach past the Torah boundary (0.858374ms)
+els-core-compatibility	Tanakh canonical stream oracle + admission contract	2026-11-01T04:33:44.2684390Z ✔ migration: derived relation shape, RLS, service-only, hard admission before function replacement (0.556965ms)
+els-core-compatibility	Tanakh canonical stream oracle + admission contract	2026-11-01T04:33:44.2685937Z ✔ migration: MISSING_ADAPTER removed from executable code; one generator; no duplicated search semantics (0.910348ms)
+els-core-compatibility	Tanakh canonical stream oracle + admission contract	2026-11-01T04:33:44.2687283Z ✔ migration: helper/generator grants are service-only (0.355531ms)
+els-core-compatibility	Tanakh canonical stream oracle + admission contract	2026-11-01T04:33:44.2688596Z ✔ executable: migration admits derived stream and Tanakh runs through the one engine (46141.747772ms)
+els-core-compatibility	Tanakh canonical stream oracle + admission contract	2026-11-01T04:33:44.2887115Z ℹ tests 6
+els-core-compatibility	Tanakh canonical stream oracle + admission contract	2026-11-01T04:33:44.2887867Z ℹ suites 0
+els-core-compatibility	Tanakh canonical stream oracle + admission contract	2026-11-01T04:33:44.2888532Z ℹ pass 6
+els-core-compatibility	Tanakh canonical stream oracle + admission contract	2026-11-01T04:33:44.2889175Z ℹ fail 0
+els-core-compatibility	Tanakh canonical stream oracle + admission contract	2026-11-01T04:33:44.2890070Z ℹ cancelled 0
+els-core-compatibility	Tanakh canonical stream oracle + admission contract	2026-11-01T04:33:44.2890552Z ℹ skipped 0
+els-core-compatibility	Tanakh canonical stream oracle + admission contract	2026-11-01T04:33:44.2890940Z ℹ todo 0
+els-core-compatibility	Tanakh canonical stream oracle + admission contract	2026-11-01T04:33:44.2891606Z ℹ duration_ms 46642.526118
+els-core-compatibility	Deterministic template -> public/tzofen.html build sync	﻿2026-11-01T04:33:44.2970594Z ##[group]Run python3 tools/els/build.py
+els-core-compatibility	Deterministic template -> public/tzofen.html build sync	2026-11-01T04:33:44.2971036Z python3 tools/els/build.py
+els-core-compatibility	Deterministic template -> public/tzofen.html build sync	2026-11-01T04:33:44.2971604Z git diff --exit-code -- public/tzofen.html
+els-core-compatibility	Deterministic template -> public/tzofen.html build sync	2026-11-01T04:33:44.2986407Z shell: /usr/bin/bash -e {0}
+els-core-compatibility	Deterministic template -> public/tzofen.html build sync	2026-11-01T04:33:44.2986791Z ##[endgroup]
+els-core-compatibility	Deterministic template -> public/tzofen.html build sync	2026-11-01T04:33:48.5454331Z wrote /home/runner/work/sod1820/sod1820/public/tzofen.html | KB: 2507 | lazy lexicon KB: 339
+els-core-compatibility	Adaptive router + browser truth-authority census	﻿2026-11-01T04:33:49.0068668Z ##[group]Run node --test test/els-adaptive-router.test.mjs test/els-browser-truth-census.test.mjs test/els-window-directions.test.mjs test/els-search-parity-repairs.test.mjs
+els-core-compatibility	Adaptive router + browser truth-authority census	2026-11-01T04:33:49.0070165Z node --test test/els-adaptive-router.test.mjs test/els-browser-truth-census.test.mjs test/els-window-directions.test.mjs test/els-search-parity-repairs.test.mjs
+els-core-compatibility	Adaptive router + browser truth-authority census	2026-11-01T04:33:49.0085172Z shell: /usr/bin/bash -e {0}
+els-core-compatibility	Adaptive router + browser truth-authority census	2026-11-01T04:33:49.0085589Z ##[endgroup]
+els-core-compatibility	Adaptive router + browser truth-authority census	2026-11-01T04:34:40.2753008Z ✔ spec constants: 8 bands, 500k then 2M candidate-pair budget (1.123051ms)
+els-core-compatibility	Adaptive router + browser truth-authority census	2026-11-01T04:34:40.2758150Z ✔ adChoose: 0 -> ANCHOR_FAST, >=2 -> HYBRID_COVERAGE, exactly 1 -> extend then Hybrid only if signal strengthens (1.063415ms)
+els-core-compatibility	Adaptive router + browser truth-authority census	2026-11-01T04:34:40.2762734Z ✔ stratified probe: every reported hit is exact; budget is respected; probe work is resumable (reuse on extension) (1637.650827ms)
+els-core-compatibility	Adaptive router + browser truth-authority census	2026-11-01T04:34:40.2765124Z ✔ independent-challenge cases: ירושלים detected by the stratified probe (prefix-only probes miss it); זזזזז stays zero -> ANCHOR (838.481175ms)
+els-core-compatibility	Adaptive router + browser truth-authority census	2026-11-01T04:34:40.2767350Z ✔ skip=1 (plain text) is never a router signal and never a governed-eligible probe hit (1139.320096ms)
+els-core-compatibility	Adaptive router + browser truth-authority census	2026-11-01T04:34:40.2769048Z ✔ HYBRID primary path: complete enumeration == exact anchor set (no loss), every hit exact (41184.15962ms)
+els-core-compatibility	Adaptive router + browser truth-authority census	2026-11-01T04:34:40.2774243Z ✔ HYBRID primary path: capped result is band- and direction-spread, exact, and exactly cap governed-eligible candidates (265.164235ms)
+els-core-compatibility	Adaptive router + browser truth-authority census	2026-11-01T04:34:40.2776022Z ✔ routedDiscover HYBRID branch never invokes the full anchor collector (findAll / findAllAdaptive) (0.4603ms)
+els-core-compatibility	Adaptive router + browser truth-authority census	2026-11-01T04:34:40.2803281Z ✔ routedDiscover end-to-end: common -> HYBRID (capped, exact); sparse/no-hit -> ANCHOR_FAST (6016.526379ms)
+els-core-compatibility	Adaptive router + browser truth-authority census	2026-11-01T04:34:40.3135483Z ✔ only canonical verifier and ordered core replies promote a hit (2.209168ms)
+els-core-compatibility	Adaptive router + browser truth-authority census	2026-11-01T04:34:40.3136925Z ✔ every st.res assignment is census-classified (verified-eager, cache-verified, or scratch+restore) (1.215271ms)
+els-core-compatibility	Adaptive router + browser truth-authority census	2026-11-01T04:34:40.3138158Z ✔ regular/cross/FORMS/free-cross/load prefetch no longer call the raw discovery kernels directly (1.187871ms)
+els-core-compatibility	Adaptive router + browser truth-authority census	2026-11-01T04:34:40.3139066Z ✔ governed exits are gated on isGov / verification (0.962209ms)
+els-core-compatibility	Adaptive router + browser truth-authority census	2026-11-01T04:34:40.3140143Z ✔ every host message type is classified (coordinate-bearing ones are gated above) (1.375538ms)
+els-core-compatibility	Adaptive router + browser truth-authority census	2026-11-01T04:34:40.3141253Z ✔ iframe accepts every sod-host command only from the exact parent window (0.288903ms)
+els-core-compatibility	Adaptive router + browser truth-authority census	2026-11-01T04:34:40.3142568Z ✔ sampled/local no-hit is never emitted as a canonical negative (0.985137ms)
+els-core-compatibility	Adaptive router + browser truth-authority census	2026-11-01T04:34:40.3143794Z ✔ corpus identity is injected by build.py from the exact tk-letters source (13.100138ms)
+els-core-compatibility	Adaptive router + browser truth-authority census	2026-11-01T04:34:40.3145024Z ✔ deterministic template -> public/tzofen.html and lazy lexicon asset build sync (4508.002475ms)
+els-core-compatibility	Adaptive router + browser truth-authority census	2026-11-01T04:34:40.3146465Z ✔ saved legacy skip 15 is recovered independently of the capped discovery sample (165.721411ms)
+els-core-compatibility	Adaptive router + browser truth-authority census	2026-11-01T04:34:40.3147702Z ✔ the single canonical engine finds an exact skip above the page bridge ceiling (147.53101ms)
+els-core-compatibility	Adaptive router + browser truth-authority census	2026-11-01T04:34:40.3149129Z ✔ axis dictionary scan finds both reading directions with correct displayed offsets and no palindrome duplicates (3.317265ms)
+els-core-compatibility	Adaptive router + browser truth-authority census	2026-11-01T04:34:40.3150730Z ✔ pending scope changes publish only the committed snapshot and rollback emits a consistent state (6.045645ms)
+els-core-compatibility	Adaptive router + browser truth-authority census	2026-11-01T04:34:40.3152378Z ✔ finding projection pages after applying radius and keeps late selected hits available (2.917916ms)
+els-core-compatibility	Adaptive router + browser truth-authority census	2026-11-01T04:34:40.3154302Z ✔ canonical ordered pages reject failed, foreign, malformed and incomplete replies (1.78474ms)
+els-core-compatibility	Adaptive router + browser truth-authority census	2026-11-01T04:34:40.3155599Z ✔ palindrome deduplication keeps the exact selected reverse axis through continuation (1.147239ms)
+els-core-compatibility	Adaptive router + browser truth-authority census	2026-11-01T04:34:40.3157018Z ✔ cross window finds source, vertical and diagonal words on all eight sides and reading directions (64.116468ms)
+els-core-compatibility	Adaptive router + browser truth-authority census	2026-11-01T04:34:40.3158546Z ✔ Torah window cannot read a secondary word beyond its scope, including a partial final row (15.56092ms)
+els-core-compatibility	Adaptive router + browser truth-authority census	2026-11-01T04:34:40.3159766Z ✔ source context requires an exact contiguous corpus match and an explicit source target (7.532171ms)
+els-core-compatibility	Adaptive router + browser truth-authority census	2026-11-01T04:34:40.3160918Z ℹ tests 28
+els-core-compatibility	Adaptive router + browser truth-authority census	2026-11-01T04:34:40.3161363Z ℹ suites 0
+els-core-compatibility	Adaptive router + browser truth-authority census	2026-11-01T04:34:40.3162596Z ℹ pass 28
+els-core-compatibility	Adaptive router + browser truth-authority census	2026-11-01T04:34:40.3163051Z ℹ fail 0
+els-core-compatibility	Adaptive router + browser truth-authority census	2026-11-01T04:34:40.3163502Z ℹ cancelled 0
+els-core-compatibility	Adaptive router + browser truth-authority census	2026-11-01T04:34:40.3164187Z ℹ skipped 0
+els-core-compatibility	Adaptive router + browser truth-authority census	2026-11-01T04:34:40.3164815Z ℹ todo 0
+els-core-compatibility	Adaptive router + browser truth-authority census	2026-11-01T04:34:40.3165500Z ℹ duration_ms 51272.85472
+els-core-compatibility	Exact replay and 2029 projection acceptance	﻿2026-11-01T04:34:40.3235302Z ##[group]Run node --test \
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.3235788Z node --test \
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.3236150Z   test/els-2029-presentation.test.mjs \
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.3236580Z   test/els-host-bridge.test.mjs \
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.3237007Z   test/els-search-bridge.test.mjs \
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.3237425Z   test/els-2029-semantic-surface.test.mjs \
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.3237863Z   test/els-2029-result-projection.test.mjs \
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.3238309Z   test/els-2029-layered-projection.test.mjs \
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.3238761Z   test/els-2029-vector-geometry.test.mjs \
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.3239223Z   test/els-2029-spatial-depth.test.mjs \
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.3239628Z   test/els-2029-matrix-volume.test.mjs \
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.3240039Z   test/els-2029-matrix-mode.test.mjs \
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.3240500Z   test/els-2029-matrix-profile-switch.test.mjs \
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.3241003Z   test/els-2029-classic-faithful-port.test.mjs \
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.3241852Z   test/els-2029-visual-representation.test.mjs \
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.3242333Z   test/els-2029-exact-replay-visual-feed.test.mjs \
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.3242806Z   test/els-2029-raziel-consumer.test.mjs \
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.3243243Z   test/els-2029-explain-guidance.test.mjs \
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.3243687Z   test/els-raziel-context.test.mjs
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.3257632Z shell: /usr/bin/bash -e {0}
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.3258010Z ##[endgroup]
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.4228896Z ELS Native Classic 2029 matrix parity slice: PASS
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.4551855Z ✔ Classic 2029 mounts a native workspace instead of exposing the old full iframe by default (2.223955ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.4587533Z ✔ Native Classic is projection-only and keeps one canonical Tzofen engine instance as parity fallback (2.961393ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.4603338Z ✔ Native scope and simple cross search delegate to the canonical search path (2.867217ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.4613363Z ✔ Native finding editor delegates normalization, recompute and colors to canonical st.words (1.239564ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.4615043Z ✔ Native matrix controls reuse the canonical Tzofen presentation helpers (1.856525ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.4616369Z ✔ Native letter click uses a bounded read-only canonical source lens (1.533376ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.4617625Z ✔ one unified scan action uses the exact selected, visible and verified occurrence (0.868694ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.4619021Z ✔ native search progress follows request-correlated canonical operation acknowledgements (1.207347ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.4620306Z ✔ Native matrix keeps governed rows/marks, RTL parity, pan and fit without ELS calculation (0.876849ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.4641728Z ✔ Native empty and candidate states remain truth-safe (0.357197ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.4643550Z ✔ Native matrix is keyboard-scrollable and exposes an accessible source path (0.304097ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.4645669Z ✔ Classic engine stays mounted across Classic/Research profile switches so working state can be preserved (0.394448ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.4647352Z ✔ canonical tzofen state still feeds the shared Research Context replay selection (1.361184ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.4694162Z ELS 2029 exact replay visual feed contract: PASS
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.4695855Z ✔ Research Context preserves bounded ELS replay intent without creating truth state (5.111966ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.4697373Z ✔ exact replay request fails closed until full locus is present (1.228147ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.4698604Z ✔ only canonical MATCH becomes a successful replay envelope (5.206288ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.4699532Z ✔ replay client never opens free-search/page behavior (0.705401ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.4700371Z ✔ legacy ELS state is stored only as replay intent before server verification (2.316461ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.4701022Z ELS 2029 explain guidance V1 contract: PASS
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.4702432Z ✔ guided explanation is deterministic structural projection of exact replay only (3.798072ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.4704567Z ✔ guided/spoken representation does not leak raw ELS text when includeText is false (0.415132ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.4705990Z ✔ an explicit matrix request does not claim the separate analysis is inactive (0.454653ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.4707809Z ✔ guide refuses non-exact or non-OK projection context (0.23257ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.4709124Z ✔ Raziel voice shape stays calm/bounded and prepares spoken reuse without executing TTS (2.937262ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.4995762Z ELS 2029 layered projection: PASS
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.5113362Z ✔ selected occurrence becomes axis layer without changing occurrence truth (1.984166ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.5141330Z ✔ layer cells preserve corpus positions but do not mint glyph identity or rendering truth (0.204981ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.5144246Z ✔ projection preserves dependency groups and refuses proximity/evidence inference (1.090666ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.5307404Z ✔ Guided Discovery is the 2029 default and entry itself is low-cost (1.308657ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.5320172Z ✔ Classic is a direct 2D/manual profile over the same engine (0.262305ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.5363526Z ✔ Research progressively enables deeper capabilities without forcing 3D or AI (0.239209ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.5373005Z ✔ Guided Discovery can expose Raziel only for an available verified surface (0.343457ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.5404848Z ✔ Classic -> Research -> Classic preserves the exact same state object (0.481962ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.5424360Z ✔ AI availability never changes the profile identity (0.245656ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.5425139Z ✔ capability sets preserve Classic baseline and extend it in Research (0.315449ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.5426185Z ✔ unknown profile normalizes to Guided Discovery (0.161277ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.5466316Z ✔ Guided/Research/Classic switch stays controlled and uses one profile model (7.167986ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.5468253Z ✔ ELS 2029 opens in Guided Discovery and mode changes do not own replay or search (2.948393ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.5469790Z ✔ Classic representation remains a flat projection of the same canonical layers (5.442571ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.5792343Z ✔ true volume Z is independent from the +S slice shift (2.163852ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.5825653Z ✔ large-skip true volume uses the same basis law (0.290927ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.5826867Z ✔ all 3D directions normalize to one primitive vector contract (1.487397ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.5843659Z ✔ a cold box does not scan short tokens merely because one exists (0.496548ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.5845339Z ✔ the 1820 long continuation heats the box and enables structural short-token follow-up (0.304012ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.5847015Z ✔ a short seed may survive when it deterministically extends into a longer expression (0.200787ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.5876174Z ✔ adaptive expansion can be asymmetric instead of widening the whole volume (0.271499ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.5877730Z ✔ three/four-letter terms do not gain truth by entering a hot box (0.165109ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.5992699Z ✔ verse words use canonical inclusive positions, niqqud and maqaf without filling mismatches (1.966142ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.5994569Z ✔ presenter preserves first reveal at overlapping cells and excludes hidden/unverified hits (0.488881ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.6133171Z ELS 2029 Raziel consumer V1 contract: PASS
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.6143277Z ✔ ELS opens the existing 2029 Raziel panel only from canonical MATCH-derived layers (1.452379ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.6145034Z ✔ canonical System Frame Raziel consumer accepts bounded ELS context without creating a second Raziel component (1.372941ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.6146814Z ✔ ELS Raziel panel stays context-only on open; native chat is user-initiated (0.681949ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.6148306Z ✔ ELS Raziel surface context remains text-private by default and carries no truth/evidence score (0.795028ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.6396009Z ELS 2029 result projection: PASS
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.6543937Z ✔ search result projection preserves canonical occurrence identity and coordinates (1.568126ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.6546760Z ✔ sampling is presentation metadata and never mutates occurrence truth (0.315466ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.6548375Z ✔ exact replay projects only a canonical MATCH occurrence (0.301652ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.6549865Z ✔ missing optional coordinates remain null rather than coercing to corpus index zero (1.646881ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.6594388Z ✔ unsupported input fails closed and projection never creates glyph truth (0.278011ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.6663089Z ELS 2029 semantic surface contract: PASS
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.6693179Z ✔ ELS 2029 consumes the existing Research Context and live availability gate (0.932532ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.6695144Z ✔ ELS 2029 exact replay is fail-closed through the canonical replay request boundary (1.111673ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.6708112Z ✔ ELS 2029 Research stays projection-only while Native Classic projects the one canonical tool (0.879321ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.6733471Z ✔ deep ELS Intelligence extensions remain BUILDING while Raziel is only a verified-context consumer (0.31663ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.6930372Z ✔ Torah/50 maps the same local cell through corpus-native depth (2.627892ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.6953259Z ✔ whole window shifts together and preserves relative geometry (0.403683ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.6994919Z ✔ large skip uses the same depth law (1.367676ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.6996640Z ✔ negative depth is allowed only while corpus coordinates stay in bounds (0.251331ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.7023353Z ✔ depth-shifting an occurrence preserves vector geometry and does not mint new truth (0.873915ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.7052886Z ✔ depth numbering is relative to the declared base window origin (0.262423ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.7274413Z ✔ Torah Kedosha scale-equivalent diagonals reduce to one direction family (5.417932ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.7316321Z ✔ Torah Kedosha exposes a three-member parallel cluster plus transversal (0.833703ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.7318147Z ✔ reverse traversal preserves orientation-independent primitive direction (0.292768ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.7344253Z ✔ cyclic wrap preserves the topological line step (0.212745ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.7383671Z ✔ non-parallel negative control does not create an exact parallel relation (0.324053ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.7458151Z ✔ 2029 Layers carries renderer-neutral vector geometry without truth promotion (1.756835ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.7511099Z ELS 2029 visual representation V1 contract: PASS
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.7539611Z ✔ 2D/2.5D representation preserves semantic identity and only maps coordinates (2.706158ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.7542307Z ✔ representation never promotes visual proximity, glyph identity, font outline or render instance into truth (2.519627ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.7543969Z ✔ representation fails closed when layered projection is absent (0.301997ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.7545383Z ✔ DOM renderer exposes semantic acceptance and accessible fallback without Canvas/WebGL/engine code (1.001573ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.7547693Z ✔ /els Research profile composes canonical replay projection/layers while Native Classic projects the canonical tool (2.868438ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.7674584Z els-host-bridge contract: PASS
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.7960253Z ✔ Tzofen host bridge allowlists only canonical ELS page and verify operations (1.131428ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.8002643Z ✔ Tzofen host bridge preserves browser trust boundary (0.343128ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.8024435Z ✔ host save/state only accept a canonical MATCH from the tool (defense in depth) (0.151008ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.8058458Z ✔ host bridge does not replace local ELS execution in this slice (0.275628ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.8060240Z ✔ host bridge rejects same-origin spoof: e.source must be the exact iframe contentWindow (0.277518ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.8062174Z ✔ operation progress comes only from the mounted canonical iframe and preserves request correlation (1.94103ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.8063709Z ✔ exact probe waits for readiness and ignores duplicate handshakes and duplicate effects (1.104537ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.8064883Z ✔ exact probe responses require the current request, document and trusted sender, once (2.609269ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.8066429Z ✔ a new iframe document resumes a pending probe but never replays a completed probe (1.157939ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.8067423Z ✔ queued primary and secondary searches keep their request IDs when the engine becomes ready (1.501267ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.8068365Z ✔ 2029 access notifications use the parent account entry while legacy hosts retain their gate (1.892941ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.8069279Z ✔ 2029 engine scope stays stable when switching projections and never changes auth tier (4.617014ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.8070259Z ✔ deduplicated state still drains verification work selected during an in-flight request (3.773799ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.8135319Z ELS Raziel surface context adapter: PASS
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.8136762Z ✔ Raziel ELS context defaults to refs/coordinates without raw term or subject label (1.935575ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.8152995Z ✔ authorized caller may explicitly include bounded visible text (1.244195ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.8154338Z ✔ Raziel context preserves Journey and exact locus without creating evidence or truth state (1.116585ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.8155331Z ✔ Raziel adapter keeps absent exact fields null instead of inventing zero (0.299484ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.8203380Z ✔ Raziel receives only bounded automatic-plan coverage beside an exact verified occurrence (0.615676ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.8285648Z els-search-bridge contract: PASS
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.8294301Z ✔ ELS server bridge delegates occurrence truth to canonical RPCs only (3.05894ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.8295616Z ✔ ELS server bridge reuses canonical abuse protection and Operational Trace (0.340676ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.8297204Z ✔ B0: capability gate precedes every canonical engine RPC, names lock_els, is traced and fails closed (0.505145ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.8306759Z ✔ B0: page search is explicitly bounded; verify keeps large exact skips (0.352417ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.8309109Z ✔ B0: trace root stays server-issued; interaction_id correlation preserved (0.294894ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.8310974Z ✔ Tanakh remains delegated to the canonical core without local corpus logic (0.250313ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.8319274Z ✔ G3 verify_batch: delegates to the canonical batch verifier only, gate/rate/trace precede the RPC (0.373919ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.8320453Z ✔ G3 verify_batch: trace input hash binds term/scope/corpus_id/full candidate list/strategy (0.241102ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.8322295Z ✔ G3 verify_batch: separate rate bucket, strategy is allowlisted provenance only (0.321901ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.8323696Z ✔ edge payload cap uses UTF-8 byte length (1.486034ms)
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.8378667Z ℹ tests 105
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.8379142Z ℹ suites 0
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.8379569Z ℹ pass 105
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.8379922Z ℹ fail 0
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.8380205Z ℹ cancelled 0
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.8380560Z ℹ skipped 0
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.8380900Z ℹ todo 0
+els-core-compatibility	Exact replay and 2029 projection acceptance	2026-11-01T04:34:40.8381765Z ℹ duration_ms 476.303754
+els-core-compatibility	Install PostgreSQL server + client	﻿2026-11-01T04:34:40.8484316Z ##[group]Run set -euo pipefail
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:40.8484959Z set -euo pipefail
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:40.8485462Z sudo apt-get update
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:40.8486093Z sudo apt-get install -y postgresql postgresql-client
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:40.8486784Z sudo service postgresql start
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:40.8487585Z sudo -u postgres psql -v ON_ERROR_STOP=1 -c "ALTER ROLE postgres WITH PASSWORD 'postgres'"
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:40.8488512Z sudo -u postgres createdb sod1820_els_compat
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:40.8489468Z PGPASSWORD=postgres psql -h localhost -U postgres -d sod1820_els_compat -v ON_ERROR_STOP=1 -Atqc 'select version()'
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:40.8510200Z shell: /usr/bin/bash -e {0}
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:40.8510751Z ##[endgroup]
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:40.9343413Z Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:40.9543875Z Get:6 https://packages.microsoft.com/ubuntu/24.04/prod noble InRelease [3600 B]
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:40.9766588Z Hit:2 http://azure.archive.ubuntu.com/ubuntu noble InRelease
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:40.9808231Z Get:3 http://azure.archive.ubuntu.com/ubuntu noble-updates InRelease [126 kB]
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:40.9915730Z Get:4 http://azure.archive.ubuntu.com/ubuntu noble-backports InRelease [126 kB]
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:40.9959534Z Get:5 http://azure.archive.ubuntu.com/ubuntu noble-security InRelease [126 kB]
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:41.0319527Z Get:7 https://packages.microsoft.com/ubuntu/24.04/prod noble/main arm64 Packages [617 kB]
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:41.0563350Z Get:8 https://packages.microsoft.com/ubuntu/24.04/prod noble/main amd64 Packages [682 kB]
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:41.1299373Z Get:9 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 Packages [1408 kB]
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:41.1369403Z Get:10 http://azure.archive.ubuntu.com/ubuntu noble-updates/main Translation-en [311 kB]
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:41.1424121Z Get:11 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe amd64 Packages [1708 kB]
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:41.1491629Z Get:12 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe Translation-en [343 kB]
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:41.1543824Z Get:13 http://azure.archive.ubuntu.com/ubuntu noble-updates/restricted amd64 Packages [1813 kB]
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:41.1630007Z Get:14 http://azure.archive.ubuntu.com/ubuntu noble-updates/restricted Translation-en [412 kB]
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:41.1653243Z Get:15 http://azure.archive.ubuntu.com/ubuntu noble-updates/multiverse Translation-en [14.3 kB]
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:41.2248077Z Get:16 http://azure.archive.ubuntu.com/ubuntu noble-security/main amd64 Packages [1146 kB]
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:41.2301219Z Get:17 http://azure.archive.ubuntu.com/ubuntu noble-security/main Translation-en [231 kB]
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:41.2320776Z Get:18 http://azure.archive.ubuntu.com/ubuntu noble-security/universe amd64 Packages [1223 kB]
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:41.2800490Z Get:19 http://azure.archive.ubuntu.com/ubuntu noble-security/universe Translation-en [246 kB]
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:44.4535647Z Fetched 10.5 MB in 1s (9012 kB/s)
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:45.5455428Z Reading package lists...
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:45.5853326Z Reading package lists...
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:45.8240145Z Building dependency tree...
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:45.8247405Z Reading state information...
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:46.0043749Z Suggested packages:
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:46.0044519Z   postgresql-doc
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:46.0227535Z The following NEW packages will be installed:
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:46.0228682Z   postgresql postgresql-client
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:46.0420470Z 0 upgraded, 2 newly installed, 0 to remove and 6 not upgraded.
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:46.0421329Z Need to get 23.2 kB of archives.
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:46.0422123Z After this operation, 34.8 kB of additional disk space will be used.
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:46.0422811Z Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:46.0905567Z Get:2 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 postgresql all 16+257build1.1 [11.6 kB]
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:46.1124724Z Get:3 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 postgresql-client all 16+257build1.1 [11.6 kB]
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:46.3876794Z Fetched 23.2 kB in 0s (285 kB/s)
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:46.4115503Z Selecting previously unselected package postgresql.
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:46.4322577Z (Reading database ...
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:46.4323084Z (Reading database ... 5%
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:46.4323428Z (Reading database ... 10%
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:46.4323987Z (Reading database ... 15%
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:46.4324433Z (Reading database ... 20%
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:46.4324948Z (Reading database ... 25%
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:46.4325335Z (Reading database ... 30%
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:46.4325652Z (Reading database ... 35%
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:46.4326050Z (Reading database ... 40%
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:46.4326373Z (Reading database ... 45%
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:46.4326707Z (Reading database ... 50%
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:46.4368957Z (Reading database ... 55%
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:46.5615097Z (Reading database ... 60%
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:46.7622954Z (Reading database ... 65%
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:46.9678490Z (Reading database ... 70%
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:47.1766282Z (Reading database ... 75%
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:47.3598333Z (Reading database ... 80%
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:47.4796390Z (Reading database ... 85%
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:47.5811134Z (Reading database ... 90%
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:47.7582732Z (Reading database ... 95%
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:47.7583522Z (Reading database ... 100%
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:47.7584050Z (Reading database ... 215504 files and directories currently installed.)
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:47.7630565Z Preparing to unpack .../postgresql_16+257build1.1_all.deb ...
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:47.7733493Z Unpacking postgresql (16+257build1.1) ...
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:47.7944027Z Selecting previously unselected package postgresql-client.
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:47.8077779Z Preparing to unpack .../postgresql-client_16+257build1.1_all.deb ...
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:47.8092353Z Unpacking postgresql-client (16+257build1.1) ...
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:47.8501872Z Setting up postgresql-client (16+257build1.1) ...
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:47.8529743Z Setting up postgresql (16+257build1.1) ...
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:48.4460080Z
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:48.4460829Z Running kernel seems to be up-to-date.
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:48.4461173Z
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:48.4461397Z No services need to be restarted.
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:48.4461900Z
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:48.4462118Z No containers need to be restarted.
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:48.4462376Z
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:48.4462575Z No user sessions are running outdated binaries.
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:48.4462903Z
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:48.4463207Z No VM guests are running outdated hypervisor (qemu) binaries on this host.
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:53.2070684Z ALTER ROLE
+els-core-compatibility	Install PostgreSQL server + client	2026-11-01T04:34:54.7759511Z PostgreSQL 16.15 (Ubuntu 16.15-1.pgdg24.04+2) on x86_64-pc-linux-gnu, compiled by gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0, 64-bit
+els-core-compatibility	Install Playwright Chromium	﻿2026-11-01T04:34:54.7821266Z ##[group]Run npm install --no-save --prefix "$RUNNER_TEMP/pw" playwright
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:54.7822260Z npm install --no-save --prefix "$RUNNER_TEMP/pw" playwright
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:54.7822785Z echo "NODE_PATH=$RUNNER_TEMP/pw/node_modules" >> "$GITHUB_ENV"
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:54.7823721Z "$RUNNER_TEMP/pw/node_modules/.bin/playwright" install --with-deps chromium
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:54.7837468Z shell: /usr/bin/bash -e {0}
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:54.7837814Z env:
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:54.7838128Z   PLAYWRIGHT_BROWSERS_PATH: 0
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:54.7838499Z ##[endgroup]
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:56.2065000Z
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:56.2065755Z added 2 packages in 1s
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:56.6880260Z Installing dependencies...
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:56.6957621Z Switching to root user to install dependencies...
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:56.7595287Z Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:56.7946752Z Hit:2 http://azure.archive.ubuntu.com/ubuntu noble InRelease
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:56.7948558Z Hit:6 https://packages.microsoft.com/ubuntu/24.04/prod noble InRelease
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:56.7964499Z Hit:3 http://azure.archive.ubuntu.com/ubuntu noble-updates InRelease
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:56.7976327Z Hit:4 http://azure.archive.ubuntu.com/ubuntu noble-backports InRelease
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:56.7988180Z Hit:5 http://azure.archive.ubuntu.com/ubuntu noble-security InRelease
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:58.1598469Z Reading package lists...
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:58.1899426Z Reading package lists...
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:58.4159007Z Building dependency tree...
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:58.4166054Z Reading state information...
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:58.5918422Z libasound2t64 is already the newest version (1.2.11-1ubuntu0.3).
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:58.5919282Z libasound2t64 set to manually installed.
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:58.5920202Z libatk-bridge2.0-0t64 is already the newest version (2.52.0-1build1).
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:58.5920732Z libatk-bridge2.0-0t64 set to manually installed.
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:58.5921315Z libatk1.0-0t64 is already the newest version (2.52.0-1build1).
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:58.5922302Z libatk1.0-0t64 set to manually installed.
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:58.5922956Z libatspi2.0-0t64 is already the newest version (2.52.0-1build1).
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:58.5923508Z libatspi2.0-0t64 set to manually installed.
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:58.5923991Z libcairo2 is already the newest version (1.18.0-3build1).
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:58.5924578Z libcairo2 set to manually installed.
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:58.5925305Z libcups2t64 is already the newest version (2.4.7-1.2ubuntu7.14).
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:58.5925810Z libcups2t64 set to manually installed.
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:58.5926330Z libdbus-1-3 is already the newest version (1.14.10-4ubuntu4.1).
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:58.5926791Z libdbus-1-3 set to manually installed.
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:58.5927300Z libdrm2 is already the newest version (2.4.125-1ubuntu0.1~24.04.2).
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:58.5927771Z libdrm2 set to manually installed.
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:58.5928239Z libgbm1 is already the newest version (25.2.8-0ubuntu0.24.04.4).
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:58.5928706Z libgbm1 set to manually installed.
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:58.5929240Z libglib2.0-0t64 is already the newest version (2.80.0-6ubuntu3.10).
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:58.5929749Z libglib2.0-0t64 set to manually installed.
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:58.5930236Z libnspr4 is already the newest version (2:4.35-1.1build1).
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:58.5930681Z libnspr4 set to manually installed.
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:58.5931147Z libnss3 is already the newest version (2:3.98-1ubuntu0.3).
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:58.5931782Z libnss3 set to manually installed.
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:58.5932276Z libpango-1.0-0 is already the newest version (1.52.1+ds-1build1).
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:58.5932750Z libpango-1.0-0 set to manually installed.
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:58.5933207Z libx11-6 is already the newest version (2:1.8.7-1ubuntu0.1).
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:58.5933648Z libx11-6 set to manually installed.
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:58.5934130Z libxcb1 is already the newest version (1.15-1ubuntu2).
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:58.5934545Z libxcb1 set to manually installed.
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:58.5935008Z libxcomposite1 is already the newest version (1:0.4.5-1build3).
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:58.5935854Z libxcomposite1 set to manually installed.
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:58.5936337Z libxdamage1 is already the newest version (1:1.1.6-1build1).
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:58.5936807Z libxdamage1 set to manually installed.
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:58.5937290Z libxext6 is already the newest version (2:1.3.4-1build2).
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:58.5937736Z libxext6 set to manually installed.
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:58.5938168Z libxfixes3 is already the newest version (1:6.0.0-2build1).
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:58.5938621Z libxfixes3 set to manually installed.
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:58.5939100Z libxkbcommon0 is already the newest version (1.6.0-1build1).
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:58.5939588Z libxkbcommon0 set to manually installed.
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:58.5940056Z libxrandr2 is already the newest version (2:1.5.2-2build1).
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:58.5940492Z libxrandr2 set to manually installed.
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:58.5940951Z xvfb is already the newest version (2:21.1.12-1ubuntu1.9).
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:58.5941635Z fonts-noto-color-emoji is already the newest version (2.047-0ubuntu0.24.04.1).
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:58.5942235Z libfontconfig1 is already the newest version (2.15.0-1.1ubuntu2).
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:58.5942781Z libfontconfig1 set to manually installed.
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:58.5943281Z libfreetype6 is already the newest version (2.13.2+dfsg-1ubuntu0.2).
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:58.5943996Z libfreetype6 set to manually installed.
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:58.5944472Z fonts-liberation is already the newest version (1:2.1.5-3).
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:58.5944919Z fonts-liberation set to manually installed.
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:58.5945452Z The following additional packages will be installed:
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:58.5945877Z   xfonts-encodings xfonts-utils
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:58.5946294Z Recommended packages:
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:58.5946650Z   fonts-ipafont-mincho fonts-tlwg-loma
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:58.6090851Z The following NEW packages will be installed:
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:58.6091960Z   fonts-freefont-ttf fonts-ipafont-gothic fonts-tlwg-loma-otf fonts-unifont
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:58.6099693Z   fonts-wqy-zenhei xfonts-cyrillic xfonts-encodings xfonts-scalable
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:58.6100389Z   xfonts-utils
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:58.6280952Z 0 upgraded, 9 newly installed, 0 to remove and 6 not upgraded.
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:58.6281875Z Need to get 21.1 MB of archives.
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:58.6282416Z After this operation, 79.5 MB of additional disk space will be used.
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:58.6283012Z Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:58.6741942Z Get:2 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 fonts-ipafont-gothic all 00303-21ubuntu1 [3513 kB]
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:58.7297167Z Get:3 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 fonts-freefont-ttf all 20211204+svn4273-2 [5641 kB]
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:58.8204391Z Get:4 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 fonts-tlwg-loma-otf all 1:0.7.3-1 [107 kB]
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:58.8425827Z Get:5 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 fonts-unifont all 1:15.1.01-1build1 [2993 kB]
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:58.8906595Z Get:6 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 fonts-wqy-zenhei all 0.9.45-8 [7472 kB]
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:58.9759561Z Get:7 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 xfonts-encodings all 1:1.0.5-0ubuntu2 [578 kB]
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:59.0016999Z Get:8 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 xfonts-utils amd64 1:7.7+6build3 [94.4 kB]
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:59.0234262Z Get:9 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 xfonts-cyrillic all 1:1.0.5+nmu1 [384 kB]
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:59.0480445Z Get:10 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 xfonts-scalable all 1:1.0.3-1.3 [304 kB]
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:59.3125116Z Fetched 21.1 MB in 0s (48.6 MB/s)
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:59.3384488Z Selecting previously unselected package fonts-ipafont-gothic.
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:59.3416111Z (Reading database ...
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:59.3416828Z (Reading database ... 5%
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:59.3417309Z (Reading database ... 10%
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:59.3417753Z (Reading database ... 15%
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:59.3418786Z (Reading database ... 20%
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:59.3419643Z (Reading database ... 25%
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:59.3420118Z (Reading database ... 30%
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:59.3420631Z (Reading database ... 35%
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:59.3421058Z (Reading database ... 40%
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:59.3421977Z (Reading database ... 45%
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:59.3422437Z (Reading database ... 50%
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:59.3432634Z (Reading database ... 55%
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:59.3477032Z (Reading database ... 60%
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:59.3521299Z (Reading database ... 65%
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:59.3537980Z (Reading database ... 70%
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:59.3559915Z (Reading database ... 75%
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:59.3684916Z (Reading database ... 80%
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:59.3710004Z (Reading database ... 85%
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:59.3924446Z (Reading database ... 90%
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:59.4212898Z (Reading database ... 95%
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:59.4213394Z (Reading database ... 100%
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:59.4214030Z (Reading database ... 215510 files and directories currently installed.)
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:59.4260168Z Preparing to unpack .../0-fonts-ipafont-gothic_00303-21ubuntu1_all.deb ...
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:59.4333093Z Unpacking fonts-ipafont-gothic (00303-21ubuntu1) ...
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:59.7194543Z Selecting previously unselected package fonts-freefont-ttf.
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:59.7328462Z Preparing to unpack .../1-fonts-freefont-ttf_20211204+svn4273-2_all.deb ...
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:59.7340698Z Unpacking fonts-freefont-ttf (20211204+svn4273-2) ...
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:59.8323913Z Selecting previously unselected package fonts-tlwg-loma-otf.
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:59.8457817Z Preparing to unpack .../2-fonts-tlwg-loma-otf_1%3a0.7.3-1_all.deb ...
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:59.8469923Z Unpacking fonts-tlwg-loma-otf (1:0.7.3-1) ...
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:59.8682852Z Selecting previously unselected package fonts-unifont.
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:59.8817340Z Preparing to unpack .../3-fonts-unifont_1%3a15.1.01-1build1_all.deb ...
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:34:59.8830463Z Unpacking fonts-unifont (1:15.1.01-1build1) ...
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:35:00.0553802Z Selecting previously unselected package fonts-wqy-zenhei.
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:35:00.0687051Z Preparing to unpack .../4-fonts-wqy-zenhei_0.9.45-8_all.deb ...
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:35:00.0785676Z Unpacking fonts-wqy-zenhei (0.9.45-8) ...
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:35:00.6666082Z Selecting previously unselected package xfonts-encodings.
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:35:00.6800275Z Preparing to unpack .../5-xfonts-encodings_1%3a1.0.5-0ubuntu2_all.deb ...
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:35:00.6811642Z Unpacking xfonts-encodings (1:1.0.5-0ubuntu2) ...
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:35:00.7093257Z Selecting previously unselected package xfonts-utils.
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:35:00.7227522Z Preparing to unpack .../6-xfonts-utils_1%3a7.7+6build3_amd64.deb ...
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:35:00.7240820Z Unpacking xfonts-utils (1:7.7+6build3) ...
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:35:00.8185644Z Selecting previously unselected package xfonts-cyrillic.
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:35:00.8321207Z Preparing to unpack .../7-xfonts-cyrillic_1%3a1.0.5+nmu1_all.deb ...
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:35:00.8334503Z Unpacking xfonts-cyrillic (1:1.0.5+nmu1) ...
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:35:00.8648417Z Selecting previously unselected package xfonts-scalable.
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:35:00.8785293Z Preparing to unpack .../8-xfonts-scalable_1%3a1.0.3-1.3_all.deb ...
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:35:00.8797786Z Unpacking xfonts-scalable (1:1.0.3-1.3) ...
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:35:00.9295803Z Setting up fonts-wqy-zenhei (0.9.45-8) ...
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:35:00.9430922Z Setting up fonts-freefont-ttf (20211204+svn4273-2) ...
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:35:00.9457919Z Setting up fonts-tlwg-loma-otf (1:0.7.3-1) ...
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:35:00.9481045Z Setting up xfonts-encodings (1:1.0.5-0ubuntu2) ...
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:35:00.9506387Z Setting up fonts-ipafont-gothic (00303-21ubuntu1) ...
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:35:00.9570069Z update-alternatives: using /usr/share/fonts/opentype/ipafont-gothic/ipag.ttf to provide /usr/share/fonts/truetype/fonts-japanese-gothic.ttf (fonts-japanese-gothic.ttf) in auto mode
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:35:00.9588415Z Setting up fonts-unifont (1:15.1.01-1build1) ...
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:35:00.9611907Z Setting up xfonts-utils (1:7.7+6build3) ...
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:35:00.9657555Z Setting up xfonts-cyrillic (1:1.0.5+nmu1) ...
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:35:00.9978810Z Setting up xfonts-scalable (1:1.0.3-1.3) ...
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:35:01.0229843Z Processing triggers for man-db (2.12.0-4build2) ...
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:35:01.0253199Z Not building database; man-db/auto-update is not 'true'.
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:35:01.0269395Z Processing triggers for fontconfig (2.15.0-1.1ubuntu2) ...
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:35:01.6380495Z
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:35:01.6381371Z Running kernel seems to be up-to-date.
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:35:01.6381977Z
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:35:01.6382293Z No services need to be restarted.
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:35:01.6382596Z
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:35:01.6382923Z No containers need to be restarted.
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:35:01.6383165Z
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:35:01.6383357Z No user sessions are running outdated binaries.
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:35:01.6383620Z
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:35:01.6383953Z No VM guests are running outdated hypervisor (qemu) binaries on this host.
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:35:02.6287241Z Downloading Chrome for Testing 156.0.8078.4 (playwright chromium v1248) from https://cdn.playwright.dev/builds/cft/156.0.8078.4/linux64/chrome-linux64.zip
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:35:03.0455398Z |                                                                                |   0% of 191.1 MiB
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:35:03.2093193Z |■■■■■■■■                                                                        |  10% of 191.1 MiB
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:35:03.2965236Z |■■■■■■■■■■■■■■■■                                                                |  20% of 191.1 MiB
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:35:03.3839975Z |■■■■■■■■■■■■■■■■■■■■■■■■                                                        |  30% of 191.1 MiB
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:35:03.4933887Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                                |  40% of 191.1 MiB
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:35:03.5962041Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                        |  50% of 191.1 MiB
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:35:03.6977095Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                |  60% of 191.1 MiB
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:35:03.7956293Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                        |  70% of 191.1 MiB
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:35:03.9222140Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                |  80% of 191.1 MiB
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:35:03.9881741Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■        |  90% of 191.1 MiB
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:35:04.0954502Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■| 100% of 191.1 MiB
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:35:07.6328215Z Chrome for Testing 156.0.8078.4 (playwright chromium v1248) downloaded to /home/runner/work/_temp/pw/node_modules/playwright-core/.local-browsers/chromium-1248
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:35:07.6333381Z Downloading FFmpeg (playwright ffmpeg v1013) from https://cdn.playwright.dev/dbazure/download/playwright/builds/ffmpeg/1013/ffmpeg-linux.zip
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:35:08.0137045Z |                                                                                |   0% of 2.2 MiB
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:35:08.0171946Z |■■■■■■■■                                                                        |  10% of 2.2 MiB
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:35:08.0186116Z |■■■■■■■■■■■■■■■■                                                                |  20% of 2.2 MiB
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:35:08.0202507Z |■■■■■■■■■■■■■■■■■■■■■■■■                                                        |  30% of 2.2 MiB
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:35:08.0216708Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                                |  40% of 2.2 MiB
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:35:08.0223643Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                        |  50% of 2.2 MiB
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:35:08.0234508Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                |  60% of 2.2 MiB
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:35:08.0245479Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                        |  70% of 2.2 MiB
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:35:08.0269855Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                |  80% of 2.2 MiB
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:35:08.0274417Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■        |  90% of 2.2 MiB
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:35:08.0279041Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■| 100% of 2.2 MiB
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:35:08.0837351Z FFmpeg (playwright ffmpeg v1013) downloaded to /home/runner/work/_temp/pw/node_modules/playwright-core/.local-browsers/ffmpeg-1013
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:35:08.0839939Z Downloading Chrome Headless Shell 156.0.8078.4 (playwright chromium-headless-shell v1248) from https://cdn.playwright.dev/builds/cft/156.0.8078.4/linux64/chrome-headless-shell-linux64.zip
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:35:08.4893848Z |                                                                                |   0% of 120 MiB
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:35:08.6084387Z |■■■■■■■■                                                                        |  10% of 120 MiB
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:35:08.6890323Z |■■■■■■■■■■■■■■■■                                                                |  20% of 120 MiB
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:35:08.7557667Z |■■■■■■■■■■■■■■■■■■■■■■■■                                                        |  30% of 120 MiB
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:35:08.8337299Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                                |  40% of 120 MiB
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:35:08.8804893Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                        |  50% of 120 MiB
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:35:08.9522442Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                |  60% of 120 MiB
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:35:09.0310670Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                        |  70% of 120 MiB
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:35:09.0820988Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                |  80% of 120 MiB
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:35:09.1437467Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■        |  90% of 120 MiB
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:35:09.2236546Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■| 100% of 120 MiB
+els-core-compatibility	Install Playwright Chromium	2026-11-01T04:35:11.7593620Z Chrome Headless Shell 156.0.8078.4 (playwright chromium-headless-shell v1248) downloaded to /home/runner/work/_temp/pw/node_modules/playwright-core/.local-browsers/chromium_headless_shell-1248
+els-core-compatibility	Install application dependencies for native UI acceptance	﻿2026-11-01T04:35:11.7805271Z ##[group]Run npm ci
+els-core-compatibility	Install application dependencies for native UI acceptance	2026-11-01T04:35:11.7805615Z npm ci
+els-core-compatibility	Install application dependencies for native UI acceptance	2026-11-01T04:35:11.7820014Z shell: /usr/bin/bash -e {0}
+els-core-compatibility	Install application dependencies for native UI acceptance	2026-11-01T04:35:11.7820481Z env:
+els-core-compatibility	Install application dependencies for native UI acceptance	2026-11-01T04:35:11.7820888Z   NODE_PATH: /home/runner/work/_temp/pw/node_modules
+els-core-compatibility	Install application dependencies for native UI acceptance	2026-11-01T04:35:11.7821661Z ##[endgroup]
+els-core-compatibility	Install application dependencies for native UI acceptance	2026-11-01T04:35:16.9336590Z
+els-core-compatibility	Install application dependencies for native UI acceptance	2026-11-01T04:35:16.9337691Z added 199 packages, and audited 200 packages in 5s
+els-core-compatibility	Install application dependencies for native UI acceptance	2026-11-01T04:35:16.9338239Z
+els-core-compatibility	Install application dependencies for native UI acceptance	2026-11-01T04:35:16.9339466Z 59 packages are looking for funding
+els-core-compatibility	Install application dependencies for native UI acceptance	2026-11-01T04:35:16.9340177Z   run `npm fund` for details
+els-core-compatibility	Install application dependencies for native UI acceptance	2026-11-01T04:35:16.9525262Z
+els-core-compatibility	Install application dependencies for native UI acceptance	2026-11-01T04:35:16.9527161Z 6 vulnerabilities (1 moderate, 5 high)
+els-core-compatibility	Install application dependencies for native UI acceptance	2026-11-01T04:35:16.9527735Z
+els-core-compatibility	Install application dependencies for native UI acceptance	2026-11-01T04:35:16.9528114Z To address issues that do not require attention, run:
+els-core-compatibility	Install application dependencies for native UI acceptance	2026-11-01T04:35:16.9528713Z   npm audit fix
+els-core-compatibility	Install application dependencies for native UI acceptance	2026-11-01T04:35:16.9529039Z
+els-core-compatibility	Install application dependencies for native UI acceptance	2026-11-01T04:35:16.9529486Z To address all issues possible (including breaking changes), run:
+els-core-compatibility	Install application dependencies for native UI acceptance	2026-11-01T04:35:16.9530162Z   npm audit fix --force
+els-core-compatibility	Install application dependencies for native UI acceptance	2026-11-01T04:35:16.9530480Z
+els-core-compatibility	Install application dependencies for native UI acceptance	2026-11-01T04:35:16.9531067Z Some issues need review, and may require choosing
+els-core-compatibility	Install application dependencies for native UI acceptance	2026-11-01T04:35:16.9532049Z a different dependency.
+els-core-compatibility	Install application dependencies for native UI acceptance	2026-11-01T04:35:16.9532791Z
+els-core-compatibility	Install application dependencies for native UI acceptance	2026-11-01T04:35:16.9533096Z Run `npm audit` for details.
+els-core-compatibility	Install application dependencies for native UI acceptance	2026-11-01T04:35:16.9540080Z npm warn install-scripts 1 package has install scripts not yet covered by allowScripts:
+els-core-compatibility	Install application dependencies for native UI acceptance	2026-11-01T04:35:16.9541339Z npm warn install-scripts   sharp@0.34.5 (install: node install/check.js || npm run build)
+els-core-compatibility	Install application dependencies for native UI acceptance	2026-11-01T04:35:16.9542542Z npm warn install-scripts
+els-core-compatibility	Install application dependencies for native UI acceptance	2026-11-01T04:35:16.9543535Z npm warn install-scripts Run `npm install-scripts ls` to review, or `npm install-scripts approve <pkg>` to allow.
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	﻿2026-11-01T04:35:17.0107827Z ##[group]Run node --test --test-concurrency=1 test/els-tanakh-canonical-stream.test.mjs test/els-verify-batch.test.mjs test/els-browser-cutover.test.mjs test/els-native-ui-browser.test.mjs
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:35:17.0109321Z node --test --test-concurrency=1 test/els-tanakh-canonical-stream.test.mjs test/els-verify-batch.test.mjs test/els-browser-cutover.test.mjs test/els-native-ui-browser.test.mjs
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:35:17.0124097Z shell: /usr/bin/bash -e {0}
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:35:17.0124508Z env:
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:35:17.0124868Z   NODE_PATH: /home/runner/work/_temp/pw/node_modules
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:35:17.0125267Z   ELS_REQUIRE_EXECUTABLE: 1
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:35:17.0125700Z   PLAYWRIGHT_BROWSERS_PATH: 0
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:35:17.0126144Z ##[endgroup]
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:35:17.4299842Z ✔ CI: browser acceptance must not be skipped (1.143911ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:35:18.3161932Z ✔ browser: regular Torah search → verified via canonical batch → governed state carries MATCH + provenance (900.76261ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:35:19.7599120Z ✔ browser: bridge unavailable → fail closed (candidate label, no ok state, no save, no skip leak) (1444.648926ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:35:22.6412891Z ✔ browser: canonical MISMATCH is never promoted (rejected candidate absent from st.res / state) (2881.554434ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:35:23.9817769Z ✔ browser: local no-hit is never a canonical negative (1340.079061ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:35:25.0252058Z ✔ browser: save posts only after canonical verification and carries only verified finding ids (1043.421248ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:35:33.1485060Z ✔ browser: cross-simple prefetches BOTH axes through the canonical verifier; governed state stays verified (8123.277151ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:35:34.4342420Z ✔ browser: FORMS occurrence prefetch goes through the canonical verifier (projection only) (1285.802016ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:35:35.1546646Z ✔ browser render: MATCH -> normal «נמצא» result UI (719.693274ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:35:36.8909560Z ✔ browser render: LOCAL_NO_HIT is explicitly partial/local and never a definitive negative or «נמצא» (1736.722524ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:35:38.3317188Z ✔ browser render: verifier failure -> candidate/unverified UI (no «נמצא», no governed header) (1440.723845ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:35:39.5579267Z ✔ browser trust: same-origin non-parent cannot spoof sod-host tier or load commands (1226.19439ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:35:41.3347750Z ✔ browser: a fresh hidden native first search runs without a persisted onboarding acknowledgement and preserves anonymous gates (1776.72885ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:35:42.8108077Z ✔ browser: visible first-visit onboarding still blocks the requested search until acknowledged (1475.974273ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:35:48.3437755Z ✔ browser: anonymous 2029 searches remain open beyond the legacy allowance without changing identity or its counter (5533.006431ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:35:50.8832042Z ✔ browser: native search operations correlate progress, canonical completion, verifier failure and partial empty results (2539.212149ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:35:52.0858003Z ✔ browser: findings operation completion follows canonical verification and an older request cannot complete a newer edit (1202.602875ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:35:53.3785242Z ✔ browser: loading an exact matrix cancels pending native search and same-axis finding operations without late completion (1292.556449ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:35:54.3207864Z ✔ browser: a rejected newer search cancels pending verification without relabeling or replacing the original matrix (941.886265ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:35:58.2276566Z ✔ browser: native finding radius filters marks, heat and scan targets without losing selections or verifying again (3889.432443ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:36:00.8749204Z ✔ browser: native and classic niqqud use aligned Torah marks without changing selection, findings, geometry or verifier I/O (2664.588328ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:36:02.3779612Z ✔ browser: optional native heat reflects verified display density, excludes candidates and preserves research state without I/O (1502.901919ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:36:03.1672847Z ✔ browser: axis word scan reads the canonical line, matches literal corpus text and preserves research state (788.283048ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:36:05.2054241Z ✔ browser: native color and reorder preserve selected hits, axis and geometry without verification I/O; line lens is bounded (2039.067032ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:36:07.1527602Z ✔ browser: native finding can show three verified occurrences then hide exactly one; stale candidate handles are rejected (1947.322443ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:36:08.8547041Z ✔ browser: saved literal source selection restores separately from verified ELS ids (1702.233752ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:36:10.4204962Z 4:36:10 AM [vite] (client) [optimizer] scanning dependencies...
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:36:42.6419463Z ✔ Research tools have their own full-width entry below the matrix without adding side actions or automatic work (33309.223386ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:37:18.8271943Z ✔ matrix toolbar is compact, preserves every display action and clears the real dock in all presets (36184.707547ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:37:53.6054638Z ✔ manual letter selection uses canonical UI state, survives profiles, rejects stale controls and never scans (34779.017597ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:37:58.6362231Z ✔ letter occurrence actions choose the same verified scan target and open its exact matrix (5030.610975ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:38:08.9182330Z ✔ matrix share: explicit, private-safe and exact canonical replay across all profiles (10281.944548ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:38:22.5578976Z ✔ Research has one regular/cross/advanced search surface with preserved drafts and no automatic work (13639.240429ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:38:31.4900323Z ✔ unchecked third term preserves pairs, checked third requires three, and verified optional matches reach the matrix (8932.409372ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:38:47.6284255Z ✔ Research pair preparation is explicit, uses canonical crossed search and leaves Classic clean (16137.861145ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:38:53.0003686Z ✔ Research occurrence inspection uses exact loaded axes, is explicit and preserves the matrix (5372.141518ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:38:59.2634616Z ✔ Research occurrence queue caps selection, cancels late work and resets on a new results page (6262.70736ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:38:59.2635897Z ✔ CI: native UI browser regression must not be skipped when required (0.393214ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:39:05.2207908Z ✔ background return restores verified manual findings and view through the existing engine load (5957.054538ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:39:29.6681032Z ✔ research structures are explicit, preserve Classic and compare exact snapshots without lexicon or AI (24447.336933ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:39:39.4063468Z ✔ discovery plans and source-direction filtering stay explicit on the actual canonical scan (9737.963894ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:39:51.0779174Z ✔ Research language wizard reuses the canonical reader and admits exact phrases without auto work (11671.447143ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:40:25.6662798Z ✔ explicit Research lexicon is lazy, exact, cancellable and responsive without AI (34588.633657ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:40:31.0209799Z ✔ explicit lexicon cancellation discards late download and permits a fresh explicit run (5353.756472ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:40:44.4477312Z ✔ completed phrase has no redundant skip continuation in Classic or Research; a lone axis explains pairs (13427.083003ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:40:51.7788661Z ✔ Fable existing results project exact letters without search, AI, manual-finding mutation or axis loss (7331.41359ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:40:57.0416768Z ✔ Classic opens on unmarked Genesis letters, right aligned, with no sample cipher (5262.748783ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:41:03.2554553Z ✔ native UI: one unified rail scans exact primary and secondary targets without moving the matrix (6213.638648ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:41:11.5743078Z ✔ native UI: selected targets are invalidated by radius, hiding, removal and a new main axis (8318.850552ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:41:17.9397481Z ✔ native UI: inline mobile tools and wide 90% panels preserve geometry, pan and reachable height controls (6365.010361ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:41:31.8763309Z ✔ native UI: mobile scan is inline below the matrix and supports native clipboard paste (13936.486724ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:41:37.6990413Z ✖ native UI: actual SystemFrame dock owns search, tools, Raziel and registration cleanup (5821.635011ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:41:46.8464941Z ✔ native UI: vivid colors and exact finding focus stay readable in every theme without changing research (9148.543913ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:41:51.2677441Z ✔ native UI: unified scan recovers from Classic; heat paints only unmarked cells without changing research state (4420.792582ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:41:57.0374000Z ✔ native UI: fresh anonymous 2029 searches bypass legacy demo gates while canonical verification remains required (5769.817745ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:42:05.3801634Z ✔ native UI: compact findings, vowels and classic letters retain exact base letters and source indices (8342.598417ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:42:18.8802731Z ✔ native UI: cross meetings have exact numbered navigation, real compact bounds and adaptive expansion (13499.948147ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:42:24.7807197Z ✔ native transition: minus-two reading layout preserves exact cells and opens names cross without refresh (5900.473502ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:42:31.1224553Z ✔ native transition: a failed cross labels the retained result and retry replaces it in the same tab (6341.639368ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:42:40.9132006Z ✔ native reliability: both user examples, reversed roles, literal source inspection and compact cross geometry (9790.72772ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:42:46.9778127Z ✔ native reliability: cancel aborts verification, rolls back secondary edits and rejects late progress after replacement (6064.572291ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:42:54.2400354Z ✔ native save: private retry, same-record update and exact restore preserve findings without legacy dialogs or public uploads (7262.000395ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:42:57.0945941Z ✔ native fixture handshake loads its Golden once and never replays it over a user-selected axis (2854.34995ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:43:02.6795313Z ✔ an opened personal cipher updates its exact saved record after findings change (5585.225489ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:43:09.4565977Z ✔ privacy F4: real Classic save of opened private row and native-to-Classic keep images private; failed update never publishes (6776.869552ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:43:12.8677810Z ✔ privacy F4: explicit private targets, missing access, lookup failures and account changes fail before public uploads (3411.247401ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:43:19.0412444Z ✔ privacy F4: public heuristic re-save by another member or guest keeps the existing pending-variant path (6173.225632ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:43:22.7636275Z ✔ privacy F4: new and existing public Classic saves retain permitted uploads and update flow (3722.440878ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:43:30.1603239Z ✔ native reliability: cancellation terminates discovery and cross workers; partial progress belongs only to its request (7396.162595ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:43:30.1755485Z 4:43:30 AM [vite] (client) Re-optimizing dependencies because vite config has changed
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:43:31.3774341Z 4:43:31 AM [vite] (client) [optimizer] scanning dependencies...
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:43:33.4617212Z ✔ native library: paginated existing records, legacy disclosure and account changes remain scoped (3301.440609ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:43:33.4739479Z 4:43:33 AM [vite] (client) Re-optimizing dependencies because vite config has changed
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:43:34.6163959Z 4:43:34 AM [vite] (client) [optimizer] scanning dependencies...
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:43:45.9394566Z ✔ native presentation: verse words alternate from either entry and camera reveals admitted findings without engine changes (12477.101596ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:43:52.0429045Z ✔ guided discovery inspects at most four exact occurrences, keeps raw runs advanced and fits 320px (6103.895783ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:43:56.9516798Z ✔ guided golden: מקדש ירד keeps two exact axes and recognizes the general defective spelling ירושלם (4908.819573ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:44:05.7212207Z ✔ guided three-term cross stays bounded and never promotes a partial result (8769.489757ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:44:10.2280424Z ✔ guided three-term cross displays only canonically replayed complete meetings (4506.384619ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:44:21.3739863Z ✔ native results: regular and crossed searches expose selectable results in Torah and Tanakh, with terminal recovery (11146.242291ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:44:23.8765768Z ✔ native bridge: parent research updates during a state message cannot discard the completed result (2502.519894ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:44:31.2891907Z ✔ native form: crossing terms stay adjacent before the shared submit on mobile and desktop (7412.080515ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:44:39.2629680Z ✔ matrix analysis submits only on explicit action and keeps successive axis identities separate (7974.068178ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:44:55.4844153Z ✔ shared matrix AI card is available across profiles without automatic submission (16221.614013ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:45:01.6960708Z ✔ Research removes the redundant unified button but regular search still accepts the complete phrase (6211.469613ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:45:15.1199470Z ✔ research form: optional third axis uses the existing verified triple or the original pair path (13423.841811ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:45:20.8240651Z ✔ three-term research can continue the available axes after a bounded first wave (5703.974042ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:45:20.8242093Z ℹ {"first":"empty","second":"empty","firstScanned":450,"secondScanned":900,"available":9859}
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:45:24.8708696Z ✔ research keeps the additional third-axis tool hidden while its engine contract stays verified (4046.652789ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:45:30.6306258Z ✔ matrix pinch zoom changes only presentation on mobile (5759.627462ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:45:54.9151638Z ✔ connected cross results expose only adjacent letters (24283.977252ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:45:54.9154278Z ℹ {"width":320,"scope":"torah","status":"done","items":2}
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:45:54.9154885Z ℹ {"width":320,"scope":"torah","gap":20,"status":"done","items":3}
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:45:54.9155560Z ℹ {"width":320,"scope":"tanakh","status":"empty","items":0}
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:45:54.9156177Z ℹ {"width":320,"scope":"tanakh","gap":20,"status":"done","items":3}
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:45:54.9156809Z ℹ {"width":1440,"scope":"torah","status":"done","items":2}
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:45:54.9157423Z ℹ {"width":1440,"scope":"torah","gap":20,"status":"done","items":3}
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:45:54.9157981Z ℹ {"width":1440,"scope":"tanakh","status":"empty","items":0}
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:45:54.9158602Z ℹ {"width":1440,"scope":"tanakh","gap":20,"status":"done","items":3}
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:46:01.1843582Z ✔ native form: a phrase and its split-and-cross action stay in one centered search bundle (6269.558162ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:46:03.7416891Z ✔ Research exact probe is one-shot across repeated ready before and after verification (2557.213649ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:46:05.8838280Z ✔ Research exact probe ignores delayed success after a newer no-hit request and allows explicit retry (2141.979069ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:46:09.1620164Z ✔ Research exact probe queued before iframe readiness survives load without duplicate work on iframe reload (3278.206522ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:46:12.1229388Z ✔ Research exact skip above the page ceiling loads a canonical verified axis without remounting Classic (2960.638093ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:46:12.1375395Z 4:46:12 AM [vite] (client) Re-optimizing dependencies because vite config has changed
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:46:13.2541372Z 4:46:13 AM [vite] (client) [optimizer] scanning dependencies...
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:46:15.0969451Z ✔ native folder: bounded recent cards, collapse, save refresh and library return preserve the workspace (2974.083007ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:46:15.1085628Z 4:46:15 AM [vite] (client) Re-optimizing dependencies because vite config has changed
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:46:16.2752686Z 4:46:16 AM [vite] (client) [optimizer] scanning dependencies...
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:46:22.8598925Z ✔ historical search repairs: pending identity, saved skip, ordered continuation and finding pages (7762.833891ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:46:27.8120894Z ✔ historical cross repairs: every found meeting is pageable and continuation advances the unscanned tail (4951.941531ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:46:53.6688613Z ✔ design integration: royal controls preserve matrix identity and stable touch targets in all presets and widths (25857.937308ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:47:32.1869635Z ✔ canonical tk-letters witness hashes match the assignment admission constants (15.49423ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:47:32.1885088Z ✔ bounded Tanakh Goldens are fixed (canonical tk-letters oracle) and reach past the Torah boundary (0.85393ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:47:32.1887067Z ✔ migration: derived relation shape, RLS, service-only, hard admission before function replacement (0.56069ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:47:32.1889019Z ✔ migration: MISSING_ADAPTER removed from executable code; one generator; no duplicated search semantics (0.93492ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:47:32.1890413Z ✔ migration: helper/generator grants are service-only (0.355291ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:47:32.1892048Z ✔ executable: migration admits derived stream and Tanakh runs through the one engine (37721.783116ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:48:15.7955655Z ✔ static: one set-wise verifier, service-only ACL, caps, corpus binding before verification (1.137752ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:48:15.7957680Z ✔ CI: executable SQL gate must not be skipped (0.148662ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:48:15.7962953Z ✔ saved record projection preserves zero/backward anchors and marks historical records without inventing identity (0.823873ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:48:15.7964491Z ✔ executable: native private saves preserve ownership, RLS, updates and existing publication gates (1106.59439ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:48:15.7975141Z ✔ executable: batch verifier parity with single verifier + tk-letters oracle (Torah + Tanakh) (42411.896867ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:48:15.8145173Z ℹ tests 105
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:48:15.8145963Z ℹ suites 0
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:48:15.8146282Z ℹ pass 104
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:48:15.8146579Z ℹ fail 1
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:48:15.8146921Z ℹ cancelled 0
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:48:15.8147254Z ℹ skipped 0
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:48:15.8147582Z ℹ todo 0
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:48:15.8147980Z ℹ duration_ms 778762.163137
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:48:15.8153754Z
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:48:15.8154181Z ✖ failing tests:
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:48:15.8154475Z
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:48:15.8154843Z test at test/els-native-ui-browser.test.mjs:1406:1
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:48:15.8156028Z ✖ native UI: actual SystemFrame dock owns search, tools, Raziel and registration cleanup (5821.635011ms)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:48:15.8157109Z   AssertionError [ERR_ASSERTION]: Raziel keeps its stable slot
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:48:15.8158200Z       at withNative.fullFrame (file:///home/runner/work/sod1820/sod1820/test/els-native-ui-browser.test.mjs:1454:11)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:48:15.8159846Z       at async withNative (file:///home/runner/work/sod1820/sod1820/test/els-native-ui-browser.test.mjs:1025:5)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:48:15.8161185Z       at async TestContext.<anonymous> (file:///home/runner/work/sod1820/sod1820/test/els-native-ui-browser.test.mjs:1408:37)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:48:15.8162297Z       at async Test.run (node:internal/test_runner/test:1409:7)
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:48:15.8162929Z       at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:48:15.8163476Z     generatedMessage: false,
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:48:15.8163868Z     code: 'ERR_ASSERTION',
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:48:15.8164227Z     actual: false,
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:48:15.8164624Z     expected: true,
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:48:15.8164960Z     operator: '==',
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:48:15.8165279Z     diff: 'simple'
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:48:15.8165615Z   }
+els-core-compatibility	Executable batch verifier (Postgres) + browser acceptance (Chromium) - skips are failures	2026-11-01T04:48:15.8220129Z ##[error]Process completed with exit code 1.
+els-core-compatibility	Post Run actions/checkout@v4	﻿2026-11-01T04:48:15.8378860Z Post job cleanup.
+els-core-compatibility	Post Run actions/checkout@v4	2026-11-01T04:48:15.9245039Z [command]/usr/bin/git version
+els-core-compatibility	Post Run actions/checkout@v4	2026-11-01T04:48:15.9285329Z git version 2.56.0
+els-core-compatibility	Post Run actions/checkout@v4	2026-11-01T04:48:15.9467694Z Temporarily overriding HOME='/home/runner/work/_temp/97466f02-c235-4085-bbe4-8eb4b5a745ea' before making global git config changes
+els-core-compatibility	Post Run actions/checkout@v4	2026-11-01T04:48:15.9469008Z Adding repository directory to the temporary git global config as a safe directory
+els-core-compatibility	Post Run actions/checkout@v4	2026-11-01T04:48:15.9470180Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/sod1820/sod1820
+els-core-compatibility	Post Run actions/checkout@v4	2026-11-01T04:48:15.9472022Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+els-core-compatibility	Post Run actions/checkout@v4	2026-11-01T04:48:15.9474400Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+els-core-compatibility	Post Run actions/checkout@v4	2026-11-01T04:48:15.9648937Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+els-core-compatibility	Post Run actions/checkout@v4	2026-11-01T04:48:15.9677285Z http.https://github.com/.extraheader
+els-core-compatibility	Post Run actions/checkout@v4	2026-11-01T04:48:15.9688005Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+els-core-compatibility	Post Run actions/checkout@v4	2026-11-01T04:48:15.9731070Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+els-core-compatibility	Post Run actions/checkout@v4	2026-11-01T04:48:15.9962896Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+els-core-compatibility	Post Run actions/checkout@v4	2026-11-01T04:48:15.9989160Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+els-core-compatibility	Complete job	﻿2026-11-01T04:48:16.0427507Z Cleaning up orphan processes
+els-core-compatibility	Complete job	2026-11-01T04:48:16.0767399Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-node@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

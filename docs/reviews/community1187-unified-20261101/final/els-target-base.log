@@ -1,0 +1,29 @@
+4:49:22 AM [vite] (client) [optimizer] scanning dependencies...
+4:49:24 AM [vite] (client) [optimizer] bundling dependencies...
+✖ native UI: actual SystemFrame dock owns search, tools, Raziel and registration cleanup (12038.746824ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 12483.076093
+
+✖ failing tests:
+
+test at test/els-native-ui-browser.test.mjs:1406:1
+✖ native UI: actual SystemFrame dock owns search, tools, Raziel and registration cleanup (12038.746824ms)
+  AssertionError [ERR_ASSERTION]: Raziel keeps its stable slot
+      at withNative.fullFrame (file:///workspace/sod1820-public-frame-context/test/els-native-ui-browser.test.mjs:1454:11)
+      at async withNative (file:///workspace/sod1820-public-frame-context/test/els-native-ui-browser.test.mjs:1025:5)
+      at async TestContext.<anonymous> (file:///workspace/sod1820-public-frame-context/test/els-native-ui-browser.test.mjs:1408:37)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }

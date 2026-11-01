@@ -172,3 +172,10 @@ actions knowing that they affect shared live data.
 No main merge/push, source/evidence branch movement, Production deployment,
 promotion, alias change, shared database/Auth/RLS/Edge change, reset or deletion.
 Only this branch is saved remotely and deployed as a protected Preview.
+
+## Final post-deployment receipt (evidence branch only)
+
+The product remains dbbe91de46d21a37110664dc732473de6d9cc6ca on its original
+remote branch. [Final results](final-results.md) record all completed GitHub
+runs, actual public Preview reads and the independently reproduced ELS failure.
+This evidence-only branch is not a new product baseline.
