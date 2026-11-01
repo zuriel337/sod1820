@@ -18,6 +18,9 @@ test('numeric destinations resolve synchronously without fake graph identity or 
 });
 test('Number return uses the actual public address with repeated source values and anchor, excluding credentials',()=>{
  assert.equal(numberReadingReturnHref({pathname:'/number/1820',search:'?source=post&part=2&part=7&_vercel_share=private',hash:'#number-source-original'}),'/number/1820?source=post&part=2&part=7#number-source-original');
+ const original='?focus=%D7%90%20%D7%91&part=2&part=7&note=a+b%20c';
+ assert.equal(numberReadingReturnHref({pathname:'/number/1820',search:original,hash:'#number-essential'}),'/number/1820'+original+'#number-essential');
+ assert.equal(numberReadingReturnHref({pathname:'/number/1820',search:original+'&%61ccess_token=private',hash:'#number-essential'}),'/number/1820?focus=%D7%90+%D7%91&part=2&part=7&note=a+b+c#number-essential');
  assert.equal(numberReadingReturnHref({pathname:'/number/בראשית',search:'?method=קטן',hash:'#access_token=secret'}),'/number/%D7%91%D7%A8%D7%90%D7%A9%D7%99%D7%AA?method=%D7%A7%D7%98%D7%9F');
  assert.equal(numberReadingReturnHref({pathname:'/2029/me/messages'}),null);
 });

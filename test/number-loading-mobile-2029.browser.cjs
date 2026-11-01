@@ -3,7 +3,7 @@
 const {chromium,request,expect}=require('@playwright/test');
 const fs=require('node:fs'),zlib=require('node:zlib'),assert=require('node:assert/strict');
 const db='https://linswmnnkjxvweumprav.supabase.co';
-const origins={before:'http://127.0.0.1:4231',after:'http://127.0.0.1:4241'};
+const origins={before:'http://127.0.0.1:4231',after:'http://127.0.0.1:4251'};
 const allowed=new Set(require('../docs/reviews/public-foundation-20261101/evidence/rpc-read-inventory.json').functions.map(r=>r.proname));
 for(const name of['convergence_meter','is_number_indexable','is_phrase_indexable'])allowed.add(name);
 const out=process.env.SOD_NUMBER_METRICS||'/tmp/number-mobile-order-speed-20261101/loading.json';

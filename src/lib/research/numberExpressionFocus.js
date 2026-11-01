@@ -11,6 +11,14 @@ export function numberReadingReturnHref(location = {}) {
   const safe = publicPageShareUrl(location);
   if (!safe) return null;
   const url = new URL(safe);
+  // Sharing sanitizes credentials and serializes URLSearchParams. Preserve the
+  // actual document's harmless query encoding as well as repeated values when
+  // that query contains exactly the same sanitized pairs. Never restore a
+  // query from which the sanitizer removed credentials.
+  if (typeof location.search === "string"
+    && new URLSearchParams(location.search).toString() === url.searchParams.toString()) {
+    url.search = location.search;
+  }
   return url.pathname + url.search + url.hash;
 }
 const exactNonnegativeInteger = (value) => {

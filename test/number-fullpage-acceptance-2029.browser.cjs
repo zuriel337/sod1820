@@ -26,7 +26,7 @@ for(const width of[390,1440])test('Number full-page methods, precise return and 
  const focusedResultUrl=page.url();await page.locator('.sod29-number-v10-stage-result-open').click();await expect(page).toHaveURL(focusedResultUrl);await expect(page.getByRole('dialog')).toHaveCount(0);
  await page.goBack();await expect(page).toHaveURL(origin+address);await expect(page.locator('.sod29-number-page')).toHaveAttribute('data-number-root','1820',{timeout:60000});
  await expect(milui()).toBeEnabled({timeout:30000});await milui().click();await expect(page.locator('.sod29-number-page')).toHaveAttribute('data-number-root','3928',{timeout:60000});
- await page.getByRole('region',{name:'מיקוד ביטוי פעיל',exact:true}).getByRole('button',{name:'↩ דף 1820',exact:true}).click();
+ await page.getByRole('region',{name:'מיקוד ביטוי פעיל',exact:true}).getByRole('button',{name:'↩ '+expression+' · 1820',exact:true}).click();
  await expect(page).toHaveURL(origin+address);await expect(page.locator('.sod29-number-page')).toHaveAttribute('data-number-root','1820',{timeout:60000});
  const rail=page.locator('.sod29-number-v11-regular-track button').first();await expect(rail).toBeVisible({timeout:30000});const phrase=await rail.locator('strong').textContent();
  await rail.click();await expect.poll(()=>new URL(page.url()).searchParams.get('focus')).toBe(phrase);expect(new URL(page.url()).searchParams.get('method')).toBe('רגיל');
