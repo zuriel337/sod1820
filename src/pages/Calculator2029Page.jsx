@@ -32,6 +32,7 @@ import {
   parseCalculatorShareState,
   pickVerifiedShareDiscovery,
 } from "../lib/research/calculator2029Viral.js";
+import { PUBLIC_READING_RELEASE } from "../lib/publicReadingRelease2029.js";
 import { PUBLIC_LAUNCH_READ_ONLY_PREVIEW } from "../lib/publicLaunch2029.js";
 import { applySeo } from "../lib/seo.js";
 import "./calculator2029.css";
@@ -646,7 +647,7 @@ export default function Calculator2029Page() {
     applySeo({
       title: "מחשבון גימטריה 2029 · SOD1820",
       description: "חשבו שם, מילה או ביטוי דרך מנוע הגימטריה הקנוני של SOD1820 ופתחו מסע גילוי.",
-      path: "/2029/gematria/viral",
+      path: PUBLIC_READING_RELEASE ? "/gematria" : "/2029/gematria/viral",
       noindex: true,
     });
   }, []);

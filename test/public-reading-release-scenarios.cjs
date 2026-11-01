@@ -20,7 +20,7 @@ async function calculator(page,width,info,origin){
  await expect(page.locator('#calculator-pro-input')).toHaveValue('דוד');expect(new URL(page.url()).hash).toBe('#calc-result');
  await page.goto(share);await expect(page.locator('[data-experience-surface="calculator-2029"]')).toBeVisible();
  await expect(page.locator('[data-share-url]')).toHaveAttribute('data-share-url',/v=14/,{timeout:60000});
- await page.reload();await expect(page.locator('[data-share-url]')).toHaveAttribute('data-share-url',/v=14/,{timeout:60000});
+ await page.reload();await expect(page.locator('[data-share-url]')).toHaveAttribute('data-share-url',/v=14/,{timeout:60000});await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href','https://sod1820.co.il/gematria');
  await page.goto(origin+'/gematria?calc='+encodeURIComponent('דוד')+'&source=legacy');await expect(page.locator('.sod29-calcpro-hero-value')).toHaveText('14',{timeout:60000});
  await page.locator('#calculator-pro-input').fill('משיח');await expect(page.locator('.sod29-calcpro-hero-value')).toHaveText('358',{timeout:60000});
  const overflow=await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth);expect(overflow).toBeLessThanOrEqual(1);
