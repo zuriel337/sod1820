@@ -1,0 +1,5 @@
+{
+  "originalRunnerSha256": "581a84249972bb1447920db3dbd942195e879af3bb0377231b7b30b9ae248413",
+  "portableRunnerSha256": "06e0af3a0fe4994792f6a5bf2ae8097f94906b15e002f0e0556c73f3757d32e7",
+  "changes": "Only two absolute require paths replaced with repository-relative paths. Receipt SHA overridden by mandatory input cfg.sha."
+}

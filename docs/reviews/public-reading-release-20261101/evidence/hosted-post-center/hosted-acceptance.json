@@ -1,0 +1,2977 @@
+{
+  "actualDeployedClient": true,
+  "data": "real public material; synthetic cases identified separately",
+  "serviceWorker": "independent deny-default broker removes bootstrap only in test; exact deployed worker hash verified separately",
+  "cases": [
+    {
+      "width": 1440,
+      "scenario": "desktopPostCenter",
+      "passed": true,
+      "elapsedMs": 7325,
+      "data": "actual public data"
+    },
+    {
+      "width": 1440,
+      "scenario": "bennettFixtureCenter",
+      "passed": true,
+      "elapsedMs": 5632,
+      "data": "actual public data"
+    },
+    {
+      "width": 1920,
+      "scenario": "desktopPostCenter",
+      "passed": true,
+      "elapsedMs": 7710,
+      "data": "actual public data"
+    },
+    {
+      "width": 1920,
+      "scenario": "bennettFixtureCenter",
+      "passed": true,
+      "elapsedMs": 4348,
+      "data": "actual public data"
+    }
+  ],
+  "reads": [
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/post/flydubai-fz1073-363-14000-remzei-geula",
+      "status": 200,
+      "transport": "GET",
+      "ms": 807,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/assets/theme-B2UPacu4.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 290,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/assets/auth-DkwXZByI.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 323,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/fonts/NotoSansHebrew-Bold.ttf",
+      "status": 200,
+      "transport": "GET",
+      "ms": 340,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/assets/2029-BPyfd1jD.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 339,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/fonts/NotoSansHebrew-Regular.ttf",
+      "status": 200,
+      "transport": "GET",
+      "ms": 348,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/assets/AuthContext-BGhaFiv8.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 361,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/assets/jsx-runtime-D3jfb0Ew.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 400,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/assets/ResearchProvider-ngd8Jm1R.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 407,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/fonts/Rubik-Hebrew.woff2",
+      "status": 200,
+      "transport": "GET",
+      "ms": 420,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/assets/methodIdentity-DM2yAcOz.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 414,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/assets/tracking-C3Uorq4p.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 426,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/fonts/Rubik-Latin.woff2",
+      "status": 200,
+      "transport": "GET",
+      "ms": 454,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/assets/calculator2029Input-BbfftHdT.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 457,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/assets/gematria-Ud5dslyW.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 470,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/assets/format-DZ_iukPG.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 472,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/assets/razielViewMode2029-EPrCdoW9.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 486,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/assets/numberExpressionFocus-Bdt8yCoq.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 504,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/assets/elsResearchReturnSnapshot-B03Lyzta.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 506,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/assets/publicPostUrls-YFBPKNgf.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 511,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/assets/supabase-D_HxNqkO.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 545,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/assets/preload-helper-BZ1Pz5am.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 609,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/assets/chunk-OB3PAWPO-CVMmBO49.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 617,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/css2",
+      "status": 200,
+      "transport": "GET",
+      "ms": 620,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/assets/palette-1YiE1zgV.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 666,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/assets/dayContext-DQm1CoPT.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 684,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/assets/sourceBundleProjection-CDR-JqlQ.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 406,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/assets/canonicalPresentation-DgNmWnf_.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 414,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/assets/researchObjectFinding-C3Qn4Ouk.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 416,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/assets/sourceBundleProjection-4FTDB1J8.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 431,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/assets/Sod2029Shell-Bnh3khlG.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 432,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/assets/Post2029Page-BWbKTrdn.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 455,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/assets/elsRazielMatrixContext-VrY8J75T.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 460,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/assets/publicPostBoundary-DLBRu07Y.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 474,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/assets/brandAssets2029-BfF7R4AL.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 500,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/assets/WatchButton-DVjO2oxq.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 495,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/assets/Sod2029Shell-CUzOJART.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 519,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/assets/timeline2029-udVpuVjW.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 515,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/assets/push-B_2FByf_.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 535,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/assets/post2029ExperienceProjection-BiTOUpMO.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 565,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/assets/EmailVerify-DLhRr1fK.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 581,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/assets/IconTile2029-NgyYBqgn.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 585,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/assets/IconTile2029-x-yAGhlc.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 584,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/assets/EmailVerify-DM0qVGWZ.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 587,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/assets/researchPlanV2-cuSv7XoL.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 602,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/assets/gematriaRelationW2Executor-8Zm9CqQk.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 612,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/assets/postBackground2029-BdHzcWMl.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 616,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/assets/WatchButton-DFPG23U2.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 641,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/assets/postBackground2029-Bb2ZCifW.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 689,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/assets/PostCategories2029-DP5c8Fzv.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 664,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/assets/numberSystemMethods-BdOBCtgN.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 700,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/assets/topicConvergence-CBdvoqTR.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 700,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/assets/researchResultBundle-CWNZszHV.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 717,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/assets/Timeline2029-a6_QYh8e.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 707,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/assets/canonicalGematriaProjection-C_LxxaCw.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 733,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/assets/seo-BuSaJ8E2.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 723,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/assets/gematriaTrace-Bgoty-_m.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 744,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/assets/post2029ReadingProjection-CtKrsgG9.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 776,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/assets/numericResearch-DTf8jUtZ.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 781,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/assets/SurfaceSectionNav2029-Dcy7JKj5.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 768,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/assets/Post2029Page-C8QKdY7Q.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 769,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/assets/PostTimeline2029-N_-uYK16.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 774,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/assets/gematriaTracePresentation-CX847u8G.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 830,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/assets/Timeline2029-BUxnDzGl.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 880,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/assets/PostCategories2029-D-Pb8p7H.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 976,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/brand/2029/canonical-lockup-128.webp",
+      "status": 200,
+      "transport": "GET",
+      "ms": 165,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/s/ibmplexmono/v20/-F63fjptAgt5VM-kVkqdyU8n1i8q1w.woff2",
+      "status": 200,
+      "transport": "GET",
+      "ms": 122,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/assets/worldDiscoveryStream-DnOnwOER.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 132,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/rest/v1/posts",
+      "status": 200,
+      "transport": "GET",
+      "ms": 262,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/rest/v1/topic_cards_public",
+      "status": 200,
+      "transport": "GET",
+      "ms": 254,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+      "status": 200,
+      "transport": "GET",
+      "ms": 255,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/rest/v1/topic_cards_public",
+      "status": 200,
+      "transport": "GET",
+      "ms": 218,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/rest/v1/posts",
+      "status": 200,
+      "transport": "GET",
+      "ms": 381,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/rest/v1/topic_cards_public",
+      "status": 200,
+      "transport": "GET",
+      "ms": 382,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/rest/v1/rpc/gematria_method_trace",
+      "status": 200,
+      "transport": "GET",
+      "ms": 375,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/rest/v1/topic_cards_public",
+      "status": 200,
+      "transport": "GET",
+      "ms": 393,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/rest/v1/rpc/gematria_method_trace",
+      "status": 200,
+      "transport": "GET",
+      "ms": 393,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/rest/v1/topic_cards_public",
+      "status": 200,
+      "transport": "GET",
+      "ms": 400,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/rest/v1/topic_cards_public",
+      "status": 200,
+      "transport": "GET",
+      "ms": 460,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/rest/v1/rpc/gematria_method_trace",
+      "status": 200,
+      "transport": "GET",
+      "ms": 459,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/rest/v1/posts",
+      "status": 200,
+      "transport": "GET",
+      "ms": 470,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/rest/v1/posts",
+      "status": 200,
+      "transport": "GET",
+      "ms": 577,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/rest/v1/rpc/gematria_method_trace",
+      "status": 200,
+      "transport": "GET",
+      "ms": 586,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/rest/v1/rpc/gematria_method_trace",
+      "status": 200,
+      "transport": "GET",
+      "ms": 580,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/rest/v1/posts",
+      "status": 200,
+      "transport": "GET",
+      "ms": 580,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/rest/v1/rpc/gematria_method_trace",
+      "status": 200,
+      "transport": "GET",
+      "ms": 588,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/rest/v1/posts",
+      "status": 200,
+      "transport": "GET",
+      "ms": 596,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/rest/v1/nodes",
+      "status": 200,
+      "transport": "GET",
+      "ms": 231,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/rest/v1/rpc/fn_zero_scale",
+      "status": 200,
+      "transport": "GET",
+      "ms": 207,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/rest/v1/nodes",
+      "status": 200,
+      "transport": "GET",
+      "ms": 592,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/rest/v1/rpc/fn_zero_scale",
+      "status": 200,
+      "transport": "GET",
+      "ms": 216,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/s/ibmplexmono/v20/-F6qfjptAgt5VM-kVkqdyU8n3pQPwlBFgg.woff2",
+      "status": 200,
+      "transport": "GET",
+      "ms": 1207,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/legacy-dark-bg-post-1280-6ca0167e2dda.webp",
+      "status": 200,
+      "transport": "GET",
+      "ms": 1227,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/storage/v1/object/public/gallery/sod1820/channel-thumbs/b9be2ae0-1d08-40a2-bdcf-346ea7ffbbbb.jpg",
+      "status": 200,
+      "transport": "GET",
+      "ms": 1266,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+      "status": 200,
+      "transport": "GET",
+      "ms": 1234,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/storage/v1/object/public/gallery/sod1820/posts/fz1073/assaf-rajuan-evidence-frame-20261001.jpg",
+      "status": 200,
+      "transport": "GET",
+      "ms": 1339,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/rest/v1/comments",
+      "status": 200,
+      "transport": "GET",
+      "ms": 1374,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/storage/v1/object/public/gallery/sod1820/posts/fz1073/plane-363-hamashiach-card-20261001.png",
+      "status": 200,
+      "transport": "GET",
+      "ms": 1403,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/storage/v1/object/public/media/sod1820/2029/image/2026/10/plane-14000-14-75/poster-final-20261001-v3.jpg",
+      "status": 200,
+      "transport": "GET",
+      "ms": 1414,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/storage/v1/object/public/gallery/sod1820/posts/fz1073/smit-machchhar-source-20261001.jpg",
+      "status": 200,
+      "transport": "GET",
+      "ms": 1430,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1440",
+      "path": "/post/bennett-melach-631-78",
+      "status": 404,
+      "transport": "GET",
+      "ms": 1104,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1440",
+      "path": "/fonts/NotoSansHebrew-Regular.ttf",
+      "status": 200,
+      "transport": "GET",
+      "ms": 365,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1440",
+      "path": "/fonts/Rubik-Latin.woff2",
+      "status": 200,
+      "transport": "GET",
+      "ms": 385,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1440",
+      "path": "/fonts/NotoSansHebrew-Bold.ttf",
+      "status": 200,
+      "transport": "GET",
+      "ms": 400,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1440",
+      "path": "/fonts/Rubik-Hebrew.woff2",
+      "status": 200,
+      "transport": "GET",
+      "ms": 423,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1440",
+      "path": "/assets/jsx-runtime-D3jfb0Ew.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 459,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1440",
+      "path": "/assets/publicPostUrls-YFBPKNgf.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 470,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1440",
+      "path": "/assets/ResearchProvider-ngd8Jm1R.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 478,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1440",
+      "path": "/assets/preload-helper-BZ1Pz5am.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 488,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1440",
+      "path": "/assets/chunk-OB3PAWPO-CVMmBO49.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 490,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1440",
+      "path": "/assets/auth-DkwXZByI.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 493,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1440",
+      "path": "/assets/elsResearchReturnSnapshot-B03Lyzta.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 502,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1440",
+      "path": "/assets/format-DZ_iukPG.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 512,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1440",
+      "path": "/assets/razielViewMode2029-EPrCdoW9.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 522,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1440",
+      "path": "/assets/gematria-Ud5dslyW.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 539,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1440",
+      "path": "/assets/tracking-C3Uorq4p.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 558,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1440",
+      "path": "/assets/numberExpressionFocus-Bdt8yCoq.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 552,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1440",
+      "path": "/assets/AuthContext-BGhaFiv8.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 584,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1440",
+      "path": "/assets/supabase-D_HxNqkO.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 593,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1440",
+      "path": "/assets/methodIdentity-DM2yAcOz.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 594,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1440",
+      "path": "/css2",
+      "status": 200,
+      "transport": "GET",
+      "ms": 631,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1440",
+      "path": "/assets/palette-1YiE1zgV.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 619,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1440",
+      "path": "/assets/calculator2029Input-BbfftHdT.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 626,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1440",
+      "path": "/assets/dayContext-DQm1CoPT.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 632,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1440",
+      "path": "/assets/theme-B2UPacu4.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 672,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1440",
+      "path": "/assets/2029-BPyfd1jD.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 952,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1440",
+      "path": "/assets/postBackground2029-Bb2ZCifW.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 581,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1440",
+      "path": "/assets/sourceBundleProjection-CDR-JqlQ.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 662,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1440",
+      "path": "/assets/Post2029Page-BWbKTrdn.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 677,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1440",
+      "path": "/assets/Sod2029Shell-CUzOJART.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 680,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1440",
+      "path": "/assets/elsRazielMatrixContext-VrY8J75T.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 737,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1440",
+      "path": "/assets/timeline2029-udVpuVjW.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 752,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1440",
+      "path": "/assets/researchObjectFinding-C3Qn4Ouk.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 764,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1440",
+      "path": "/assets/EmailVerify-DLhRr1fK.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 772,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1440",
+      "path": "/assets/WatchButton-DVjO2oxq.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 796,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1440",
+      "path": "/assets/canonicalPresentation-DgNmWnf_.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 807,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1440",
+      "path": "/assets/post2029ExperienceProjection-BiTOUpMO.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 830,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1440",
+      "path": "/assets/researchResultBundle-CWNZszHV.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 831,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1440",
+      "path": "/assets/Timeline2029-BUxnDzGl.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 833,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1440",
+      "path": "/assets/researchPlanV2-cuSv7XoL.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 838,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1440",
+      "path": "/assets/Sod2029Shell-Bnh3khlG.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 845,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1440",
+      "path": "/assets/sourceBundleProjection-4FTDB1J8.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 857,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1440",
+      "path": "/assets/brandAssets2029-BfF7R4AL.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 873,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1440",
+      "path": "/assets/Timeline2029-a6_QYh8e.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 866,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1440",
+      "path": "/assets/postBackground2029-BdHzcWMl.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 871,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1440",
+      "path": "/assets/IconTile2029-NgyYBqgn.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 884,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1440",
+      "path": "/assets/gematriaRelationW2Executor-8Zm9CqQk.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 887,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1440",
+      "path": "/assets/Post2029Page-C8QKdY7Q.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 887,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1440",
+      "path": "/assets/gematriaTrace-Bgoty-_m.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 889,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1440",
+      "path": "/assets/publicPostBoundary-DLBRu07Y.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 892,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1440",
+      "path": "/assets/PostTimeline2029-N_-uYK16.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 890,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1440",
+      "path": "/assets/WatchButton-DFPG23U2.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 894,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1440",
+      "path": "/assets/post2029ReadingProjection-CtKrsgG9.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 895,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1440",
+      "path": "/assets/EmailVerify-DM0qVGWZ.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 908,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1440",
+      "path": "/assets/numericResearch-DTf8jUtZ.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 914,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1440",
+      "path": "/assets/IconTile2029-x-yAGhlc.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 922,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1440",
+      "path": "/assets/canonicalGematriaProjection-C_LxxaCw.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 922,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1440",
+      "path": "/assets/push-B_2FByf_.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 937,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1440",
+      "path": "/assets/topicConvergence-CBdvoqTR.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 940,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1440",
+      "path": "/assets/PostCategories2029-DP5c8Fzv.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 942,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1440",
+      "path": "/assets/gematriaTracePresentation-CX847u8G.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 944,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1440",
+      "path": "/assets/numberSystemMethods-BdOBCtgN.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 946,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1440",
+      "path": "/assets/SurfaceSectionNav2029-Dcy7JKj5.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 972,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1440",
+      "path": "/assets/PostCategories2029-D-Pb8p7H.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 1034,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1440",
+      "path": "/assets/seo-BuSaJ8E2.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 1056,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1440",
+      "path": "/brand/2029/canonical-lockup-128.webp",
+      "status": 200,
+      "transport": "GET",
+      "ms": 53,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1440",
+      "path": "/assets/worldDiscoveryStream-DnOnwOER.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 116,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1440",
+      "path": "/s/ibmplexmono/v20/-F63fjptAgt5VM-kVkqdyU8n1i8q1w.woff2",
+      "status": 200,
+      "transport": "GET",
+      "ms": 194,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1440",
+      "path": "/rest/v1/rpc/fn_method_value",
+      "status": 200,
+      "transport": "GET",
+      "ms": 319,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1440",
+      "path": "/rest/v1/topic_cards_public",
+      "status": 200,
+      "transport": "GET",
+      "ms": 314,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1440",
+      "path": "/rest/v1/rpc/fn_method_value",
+      "status": 200,
+      "transport": "GET",
+      "ms": 332,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1440",
+      "path": "/rest/v1/rpc/fn_method_value",
+      "status": 200,
+      "transport": "GET",
+      "ms": 351,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1440",
+      "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+      "status": 200,
+      "transport": "GET",
+      "ms": 360,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1440",
+      "path": "/rest/v1/posts",
+      "status": 200,
+      "transport": "GET",
+      "ms": 261,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1440",
+      "path": "/rest/v1/posts",
+      "status": 200,
+      "transport": "GET",
+      "ms": 273,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1440",
+      "path": "/rest/v1/posts",
+      "status": 200,
+      "transport": "GET",
+      "ms": 957,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1440",
+      "path": "/legacy-dark-bg-post-1280-6ca0167e2dda.webp",
+      "status": 200,
+      "transport": "GET",
+      "ms": 269,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/post/flydubai-fz1073-363-14000-remzei-geula",
+      "status": 200,
+      "transport": "GET",
+      "ms": 1359,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/fonts/NotoSansHebrew-Regular.ttf",
+      "status": 200,
+      "transport": "GET",
+      "ms": 177,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/assets/chunk-OB3PAWPO-CVMmBO49.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 278,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/assets/2029-BPyfd1jD.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 328,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/assets/format-DZ_iukPG.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 338,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/assets/theme-B2UPacu4.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 344,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/assets/dayContext-DQm1CoPT.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 351,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/assets/numberExpressionFocus-Bdt8yCoq.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 365,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/assets/palette-1YiE1zgV.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 386,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/assets/auth-DkwXZByI.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 434,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/assets/AuthContext-BGhaFiv8.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 448,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/fonts/NotoSansHebrew-Bold.ttf",
+      "status": 200,
+      "transport": "GET",
+      "ms": 457,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/assets/tracking-C3Uorq4p.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 466,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/fonts/Rubik-Latin.woff2",
+      "status": 200,
+      "transport": "GET",
+      "ms": 481,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/fonts/Rubik-Hebrew.woff2",
+      "status": 200,
+      "transport": "GET",
+      "ms": 488,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/assets/gematria-Ud5dslyW.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 509,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/assets/preload-helper-BZ1Pz5am.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 515,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/assets/supabase-D_HxNqkO.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 524,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/assets/jsx-runtime-D3jfb0Ew.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 546,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/assets/elsResearchReturnSnapshot-B03Lyzta.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 549,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/assets/publicPostUrls-YFBPKNgf.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 566,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/css2",
+      "status": 200,
+      "transport": "GET",
+      "ms": 593,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/assets/calculator2029Input-BbfftHdT.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 646,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/assets/ResearchProvider-ngd8Jm1R.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 666,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/assets/methodIdentity-DM2yAcOz.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 685,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/assets/razielViewMode2029-EPrCdoW9.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 697,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/assets/postBackground2029-Bb2ZCifW.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 433,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/assets/sourceBundleProjection-CDR-JqlQ.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 447,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/assets/Sod2029Shell-Bnh3khlG.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 452,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/assets/Post2029Page-BWbKTrdn.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 495,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/assets/sourceBundleProjection-4FTDB1J8.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 488,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/assets/IconTile2029-x-yAGhlc.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 503,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/assets/timeline2029-udVpuVjW.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 533,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/assets/WatchButton-DVjO2oxq.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 536,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/assets/WatchButton-DFPG23U2.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 561,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/assets/canonicalGematriaProjection-C_LxxaCw.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 541,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/assets/canonicalPresentation-DgNmWnf_.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 587,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/assets/IconTile2029-NgyYBqgn.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 589,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/assets/seo-BuSaJ8E2.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 567,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/assets/researchResultBundle-CWNZszHV.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 594,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/assets/post2029ExperienceProjection-BiTOUpMO.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 595,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/assets/researchPlanV2-cuSv7XoL.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 596,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/assets/postBackground2029-BdHzcWMl.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 653,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/assets/PostTimeline2029-N_-uYK16.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 648,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/assets/EmailVerify-DM0qVGWZ.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 692,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/assets/PostCategories2029-D-Pb8p7H.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 694,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/assets/elsRazielMatrixContext-VrY8J75T.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 710,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/assets/push-B_2FByf_.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 716,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/assets/brandAssets2029-BfF7R4AL.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 740,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/assets/researchObjectFinding-C3Qn4Ouk.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 743,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/assets/EmailVerify-DLhRr1fK.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 743,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/assets/numberSystemMethods-BdOBCtgN.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 746,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/assets/Sod2029Shell-CUzOJART.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 761,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/assets/topicConvergence-CBdvoqTR.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 747,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/assets/Post2029Page-C8QKdY7Q.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 770,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/assets/numericResearch-DTf8jUtZ.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 862,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/assets/post2029ReadingProjection-CtKrsgG9.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 866,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/assets/Timeline2029-a6_QYh8e.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 846,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/assets/publicPostBoundary-DLBRu07Y.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 896,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/assets/SurfaceSectionNav2029-Dcy7JKj5.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 869,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/assets/gematriaRelationW2Executor-8Zm9CqQk.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 897,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/assets/PostCategories2029-DP5c8Fzv.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 900,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/assets/gematriaTrace-Bgoty-_m.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 873,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/assets/gematriaTracePresentation-CX847u8G.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 873,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/assets/Timeline2029-BUxnDzGl.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 883,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/brand/2029/canonical-lockup-128.webp",
+      "status": 200,
+      "transport": "GET",
+      "ms": 88,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/s/ibmplexmono/v20/-F63fjptAgt5VM-kVkqdyU8n1i8q1w.woff2",
+      "status": 200,
+      "transport": "GET",
+      "ms": 143,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/assets/worldDiscoveryStream-DnOnwOER.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 126,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/rest/v1/posts",
+      "status": 200,
+      "transport": "GET",
+      "ms": 312,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/rest/v1/topic_cards_public",
+      "status": 200,
+      "transport": "GET",
+      "ms": 240,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/rest/v1/topic_cards_public",
+      "status": 200,
+      "transport": "GET",
+      "ms": 211,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/rest/v1/posts",
+      "status": 200,
+      "transport": "GET",
+      "ms": 486,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/rest/v1/topic_cards_public",
+      "status": 200,
+      "transport": "GET",
+      "ms": 363,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+      "status": 200,
+      "transport": "GET",
+      "ms": 802,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/rest/v1/topic_cards_public",
+      "status": 200,
+      "transport": "GET",
+      "ms": 377,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/rest/v1/topic_cards_public",
+      "status": 200,
+      "transport": "GET",
+      "ms": 378,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/rest/v1/posts",
+      "status": 200,
+      "transport": "GET",
+      "ms": 391,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/rest/v1/rpc/gematria_method_trace",
+      "status": 200,
+      "transport": "GET",
+      "ms": 397,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/rest/v1/topic_cards_public",
+      "status": 200,
+      "transport": "GET",
+      "ms": 546,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/rest/v1/posts",
+      "status": 200,
+      "transport": "GET",
+      "ms": 531,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/rest/v1/rpc/gematria_method_trace",
+      "status": 200,
+      "transport": "GET",
+      "ms": 545,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/rest/v1/posts",
+      "status": 200,
+      "transport": "GET",
+      "ms": 565,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/rest/v1/posts",
+      "status": 200,
+      "transport": "GET",
+      "ms": 569,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/rest/v1/rpc/gematria_method_trace",
+      "status": 200,
+      "transport": "GET",
+      "ms": 574,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/rest/v1/rpc/gematria_method_trace",
+      "status": 200,
+      "transport": "GET",
+      "ms": 585,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/rest/v1/rpc/gematria_method_trace",
+      "status": 200,
+      "transport": "GET",
+      "ms": 678,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/rest/v1/rpc/gematria_method_trace",
+      "status": 200,
+      "transport": "GET",
+      "ms": 742,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/rest/v1/nodes",
+      "status": 200,
+      "transport": "GET",
+      "ms": 206,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/rest/v1/rpc/fn_zero_scale",
+      "status": 200,
+      "transport": "GET",
+      "ms": 251,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/rest/v1/nodes",
+      "status": 200,
+      "transport": "GET",
+      "ms": 265,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/rest/v1/rpc/fn_zero_scale",
+      "status": 200,
+      "transport": "GET",
+      "ms": 219,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/legacy-dark-bg-post-1280-6ca0167e2dda.webp",
+      "status": 200,
+      "transport": "GET",
+      "ms": 464,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/storage/v1/object/public/gallery/sod1820/posts/fz1073/smit-machchhar-source-20261001.jpg",
+      "status": 200,
+      "transport": "GET",
+      "ms": 523,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/storage/v1/object/public/gallery/sod1820/channel-thumbs/b9be2ae0-1d08-40a2-bdcf-346ea7ffbbbb.jpg",
+      "status": 200,
+      "transport": "GET",
+      "ms": 529,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/s/ibmplexmono/v20/-F6qfjptAgt5VM-kVkqdyU8n3pQPwlBFgg.woff2",
+      "status": 200,
+      "transport": "GET",
+      "ms": 540,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/storage/v1/object/public/media/sod1820/2029/image/2026/10/plane-14000-14-75/poster-final-20261001-v3.jpg",
+      "status": 200,
+      "transport": "GET",
+      "ms": 560,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+      "status": 200,
+      "transport": "GET",
+      "ms": 550,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/storage/v1/object/public/gallery/sod1820/posts/fz1073/plane-363-hamashiach-card-20261001.png",
+      "status": 200,
+      "transport": "GET",
+      "ms": 651,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/storage/v1/object/public/gallery/sod1820/posts/fz1073/assaf-rajuan-evidence-frame-20261001.jpg",
+      "status": 200,
+      "transport": "GET",
+      "ms": 810,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/rest/v1/comments",
+      "status": 200,
+      "transport": "GET",
+      "ms": 796,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1920",
+      "path": "/post/bennett-melach-631-78",
+      "status": 404,
+      "transport": "GET",
+      "ms": 335,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1920",
+      "path": "/assets/format-DZ_iukPG.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 316,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1920",
+      "path": "/fonts/NotoSansHebrew-Regular.ttf",
+      "status": 200,
+      "transport": "GET",
+      "ms": 359,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1920",
+      "path": "/fonts/NotoSansHebrew-Bold.ttf",
+      "status": 200,
+      "transport": "GET",
+      "ms": 417,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1920",
+      "path": "/assets/2029-BPyfd1jD.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 438,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1920",
+      "path": "/assets/jsx-runtime-D3jfb0Ew.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 451,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1920",
+      "path": "/fonts/Rubik-Latin.woff2",
+      "status": 200,
+      "transport": "GET",
+      "ms": 459,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1920",
+      "path": "/assets/chunk-OB3PAWPO-CVMmBO49.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 490,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1920",
+      "path": "/assets/auth-DkwXZByI.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 485,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1920",
+      "path": "/fonts/Rubik-Hebrew.woff2",
+      "status": 200,
+      "transport": "GET",
+      "ms": 506,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1920",
+      "path": "/assets/preload-helper-BZ1Pz5am.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 507,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1920",
+      "path": "/assets/publicPostUrls-YFBPKNgf.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 550,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1920",
+      "path": "/assets/tracking-C3Uorq4p.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 565,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1920",
+      "path": "/css2",
+      "status": 200,
+      "transport": "GET",
+      "ms": 610,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1920",
+      "path": "/assets/methodIdentity-DM2yAcOz.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 615,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1920",
+      "path": "/assets/theme-B2UPacu4.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 628,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1920",
+      "path": "/assets/razielViewMode2029-EPrCdoW9.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 641,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1920",
+      "path": "/assets/gematria-Ud5dslyW.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 700,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1920",
+      "path": "/assets/palette-1YiE1zgV.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 745,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1920",
+      "path": "/assets/AuthContext-BGhaFiv8.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 747,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1920",
+      "path": "/assets/elsResearchReturnSnapshot-B03Lyzta.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 747,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1920",
+      "path": "/assets/numberExpressionFocus-Bdt8yCoq.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 747,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1920",
+      "path": "/assets/ResearchProvider-ngd8Jm1R.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 758,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1920",
+      "path": "/assets/supabase-D_HxNqkO.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 772,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1920",
+      "path": "/assets/calculator2029Input-BbfftHdT.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 796,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1920",
+      "path": "/assets/dayContext-DQm1CoPT.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 1028,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1920",
+      "path": "/assets/postBackground2029-Bb2ZCifW.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 155,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1920",
+      "path": "/assets/Post2029Page-BWbKTrdn.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 368,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1920",
+      "path": "/assets/WatchButton-DVjO2oxq.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 574,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1920",
+      "path": "/assets/canonicalPresentation-DgNmWnf_.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 595,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1920",
+      "path": "/assets/Sod2029Shell-CUzOJART.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 604,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1920",
+      "path": "/assets/SurfaceSectionNav2029-Dcy7JKj5.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 567,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1920",
+      "path": "/assets/sourceBundleProjection-4FTDB1J8.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 606,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1920",
+      "path": "/assets/seo-BuSaJ8E2.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 596,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1920",
+      "path": "/assets/researchObjectFinding-C3Qn4Ouk.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 623,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1920",
+      "path": "/assets/Sod2029Shell-Bnh3khlG.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 634,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1920",
+      "path": "/assets/PostTimeline2029-N_-uYK16.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 617,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1920",
+      "path": "/assets/timeline2029-udVpuVjW.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 644,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1920",
+      "path": "/assets/publicPostBoundary-DLBRu07Y.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 649,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1920",
+      "path": "/assets/EmailVerify-DLhRr1fK.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 654,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1920",
+      "path": "/assets/sourceBundleProjection-CDR-JqlQ.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 658,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1920",
+      "path": "/assets/IconTile2029-NgyYBqgn.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 664,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1920",
+      "path": "/assets/postBackground2029-BdHzcWMl.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 679,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1920",
+      "path": "/assets/post2029ExperienceProjection-BiTOUpMO.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 687,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1920",
+      "path": "/assets/brandAssets2029-BfF7R4AL.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 698,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1920",
+      "path": "/assets/researchPlanV2-cuSv7XoL.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 694,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1920",
+      "path": "/assets/numericResearch-DTf8jUtZ.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 701,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1920",
+      "path": "/assets/push-B_2FByf_.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 714,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1920",
+      "path": "/assets/PostCategories2029-D-Pb8p7H.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 711,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1920",
+      "path": "/assets/IconTile2029-x-yAGhlc.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 719,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1920",
+      "path": "/assets/post2029ReadingProjection-CtKrsgG9.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 713,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1920",
+      "path": "/assets/EmailVerify-DM0qVGWZ.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 723,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1920",
+      "path": "/assets/PostCategories2029-DP5c8Fzv.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 722,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1920",
+      "path": "/assets/WatchButton-DFPG23U2.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 745,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1920",
+      "path": "/assets/gematriaTracePresentation-CX847u8G.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 739,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1920",
+      "path": "/assets/Post2029Page-C8QKdY7Q.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 740,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1920",
+      "path": "/assets/gematriaTrace-Bgoty-_m.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 755,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1920",
+      "path": "/assets/numberSystemMethods-BdOBCtgN.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 776,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1920",
+      "path": "/assets/researchResultBundle-CWNZszHV.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 783,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1920",
+      "path": "/assets/canonicalGematriaProjection-C_LxxaCw.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 764,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1920",
+      "path": "/assets/gematriaRelationW2Executor-8Zm9CqQk.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 782,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1920",
+      "path": "/assets/elsRazielMatrixContext-VrY8J75T.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 792,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1920",
+      "path": "/assets/Timeline2029-a6_QYh8e.css",
+      "status": 200,
+      "transport": "GET",
+      "ms": 765,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1920",
+      "path": "/assets/topicConvergence-CBdvoqTR.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 802,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1920",
+      "path": "/assets/Timeline2029-BUxnDzGl.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 810,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1920",
+      "path": "/brand/2029/canonical-lockup-128.webp",
+      "status": 200,
+      "transport": "GET",
+      "ms": 129,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1920",
+      "path": "/s/ibmplexmono/v20/-F63fjptAgt5VM-kVkqdyU8n1i8q1w.woff2",
+      "status": 200,
+      "transport": "GET",
+      "ms": 114,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1920",
+      "path": "/assets/worldDiscoveryStream-DnOnwOER.js",
+      "status": 200,
+      "transport": "GET",
+      "ms": 107,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1920",
+      "path": "/rest/v1/rpc/fn_method_value",
+      "status": 200,
+      "transport": "GET",
+      "ms": 232,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1920",
+      "path": "/rest/v1/rpc/fn_method_value",
+      "status": 200,
+      "transport": "GET",
+      "ms": 241,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1920",
+      "path": "/rest/v1/rpc/fn_method_value",
+      "status": 200,
+      "transport": "GET",
+      "ms": 252,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1920",
+      "path": "/rest/v1/topic_cards_public",
+      "status": 200,
+      "transport": "GET",
+      "ms": 263,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1920",
+      "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+      "status": 200,
+      "transport": "GET",
+      "ms": 320,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1920",
+      "path": "/rest/v1/posts",
+      "status": 200,
+      "transport": "GET",
+      "ms": 208,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1920",
+      "path": "/rest/v1/posts",
+      "status": 200,
+      "transport": "GET",
+      "ms": 225,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1920",
+      "path": "/rest/v1/posts",
+      "status": 200,
+      "transport": "GET",
+      "ms": 429,
+      "immutableAssetCacheHit": false
+    },
+    {
+      "stage": "bennettFixtureCenter-1920",
+      "path": "/legacy-dark-bg-post-1280-6ca0167e2dda.webp",
+      "status": 200,
+      "transport": "GET",
+      "ms": 98,
+      "immutableAssetCacheHit": false
+    }
+  ],
+  "blocked": [
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/rest/v1/rpc/canonical_follow_subject",
+      "method": "GET"
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/rest/v1/rpc/canonical_follow_subject",
+      "method": "GET"
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/rest/v1/rpc/canonical_follow_subject",
+      "method": "GET"
+    },
+    {
+      "stage": "desktopPostCenter-1440",
+      "path": "/rest/v1/rpc/canonical_follow_subject",
+      "method": "GET"
+    },
+    {
+      "stage": "bennettFixtureCenter-1440",
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/rest/v1/rpc/canonical_follow_subject",
+      "method": "GET"
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/rest/v1/rpc/canonical_follow_subject",
+      "method": "GET"
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/rest/v1/rpc/canonical_follow_subject",
+      "method": "GET"
+    },
+    {
+      "stage": "desktopPostCenter-1920",
+      "path": "/rest/v1/rpc/canonical_follow_subject",
+      "method": "GET"
+    },
+    {
+      "stage": "bennettFixtureCenter-1920",
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST"
+    }
+  ],
+  "errors": [],
+  "cleanupAborts": [],
+  "writesForwarded": 0,
+  "modelCallsForwarded": 0,
+  "identity": {
+    "sha": "4e6239c6d26e00b70ee10b341529491bd5b0b43c",
+    "branch": "gpt/2029-public-reading-release-configuration-20261101",
+    "target": "preview",
+    "transport": "public-reading-only",
+    "model_trigger": "disabled",
+    "requires_existing_account": false,
+    "product_writes": false,
+    "edge_deploy": false,
+    "matrix_jobs": false,
+    "launch_scope": "public-reading-only-account-and-mail-pending",
+    "product_write_scope": [],
+    "public_preview_restrictions": [
+      "life-journey-closed",
+      "raziel-closed",
+      "els-closed",
+      "account-and-mail-closed"
+    ],
+    "companion": "temporarily-unmounted",
+    "production_flags_changed": false,
+    "general_profile_writes": false,
+    "els_followup_server_contract": "requires-approved-shared-artifact",
+    "expected_server_sha256": "2ac19e112e77e71fbab61270338e126edf88128a786f3425b09157291494281f"
+  },
+  "workerSha256": "c3436d48371f517874c76d0396fe1c973a625c85845b7d33a6636001fb82c871",
+  "unauthenticatedRootStatus": 302,
+  "capabilities": {
+    "status": 404,
+    "state": "closed outside accepted public reading scope"
+  },
+  "runScope": {
+    "widths": [
+      1440,
+      1920
+    ],
+    "caseNames": [
+      "desktopPostCenter",
+      "bennettFixtureCenter"
+    ],
+    "assetCache": "per-context hashed immutable JS/CSS only, fetched from exact Preview; compensates for Playwright interception disabling native cache; no API/HTML/private cache; all assertion timeouts unchanged"
+  },
+  "ok": true
+}

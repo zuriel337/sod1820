@@ -37,3 +37,16 @@ not executed on Production. The public profile's transport must reject that call
 network I/O; that is a scoped denial test, not A3 correlation success. Full isolated A3
 requires compatible DB schema + real local Auth/JWT, PostgREST, Edge runtime and trace
 persistence. Mock handler tests alone do not satisfy it. Keep the original workflow intact.
+
+Inventory observation (metadata only, no object names or bytes exported): public
+Storage buckets gallery1359, media19164, magar0; private submission-inbox184.
+These20,707 Storage metadata rows do not prove a backup exists, or cover external
+owned media. No private object was made public. Current backup availability and
+RPO/RTO remain unverified. Relevant dashboard entry to inspect availability:
+https://supabase.com/dashboard/project/linswmnnkjxvweumprav/database/backups .
+
+Before a future cutover, retain the already accepted Legacy opt-out endpoints and
+signed unsubscribe URLs. The protected reading profile's `/unsubscribe` is an
+informational closed service, not a replacement for those live opt-outs. Their
+Production handoff needs acceptance without sending test messages or using a live
+unsubscribe token. The current Legacy site and its email endpoints are unchanged.

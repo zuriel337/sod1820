@@ -1,0 +1,25 @@
+{
+  "width": 1440,
+  "data": "synthetic Bennett layout fixture; real post 5113 remains draft, not published, not claimed publicly accepted",
+  "content": {
+    "x": 450,
+    "y": 513.46875,
+    "width": 790,
+    "height": 179.171875,
+    "top": 513.46875,
+    "right": 1240,
+    "bottom": 692.640625,
+    "left": 450
+  },
+  "main": {
+    "x": 322,
+    "y": 130,
+    "width": 1046,
+    "height": 1018.15625,
+    "top": 130,
+    "right": 1368,
+    "bottom": 1148.15625,
+    "left": 322
+  },
+  "overflow": 0
+}

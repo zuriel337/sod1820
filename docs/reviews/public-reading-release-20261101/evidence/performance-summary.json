@@ -1,0 +1,240 @@
+{
+  "sourceSha": "4e6239c6d26e00b70ee10b341529491bd5b0b43c",
+  "baselineSha": "cf1f8f1a35eb90c10a3a84a310f8616b2121f965",
+  "cycles": 24,
+  "steps": [
+    {
+      "step": "home-entry",
+      "desktop_first": [
+        1287,
+        1158
+      ],
+      "desktop_repeat": [
+        433,
+        240
+      ],
+      "mobile-slow_first": [
+        6267,
+        5530
+      ],
+      "mobile-slow_repeat": [
+        555,
+        627
+      ]
+    },
+    {
+      "step": "home-post",
+      "desktop_first": [
+        216,
+        259
+      ],
+      "desktop_repeat": [
+        189,
+        205
+      ],
+      "mobile-slow_first": [
+        1081,
+        2090
+      ],
+      "mobile-slow_repeat": [
+        560,
+        521
+      ]
+    },
+    {
+      "step": "post-world",
+      "desktop_first": [
+        465,
+        197
+      ],
+      "desktop_repeat": [
+        197,
+        288
+      ],
+      "mobile-slow_first": [
+        2484,
+        2567
+      ],
+      "mobile-slow_repeat": [
+        1536,
+        1021
+      ]
+    },
+    {
+      "step": "world-number-full-page",
+      "desktop_first": [
+        1606,
+        1386
+      ],
+      "desktop_repeat": [
+        759,
+        715
+      ],
+      "mobile-slow_first": [
+        6050,
+        6084
+      ],
+      "mobile-slow_repeat": [
+        3679,
+        3406
+      ]
+    },
+    {
+      "step": "number-method-full-page",
+      "desktop_first": [
+        230,
+        460
+      ],
+      "desktop_repeat": [
+        414,
+        375
+      ],
+      "mobile-slow_first": [
+        2133,
+        3043
+      ],
+      "mobile-slow_repeat": [
+        715,
+        1484
+      ]
+    },
+    {
+      "step": "back-method-number",
+      "desktop_first": [
+        110,
+        166
+      ],
+      "desktop_repeat": [
+        106,
+        96
+      ],
+      "mobile-slow_first": [
+        380,
+        342
+      ],
+      "mobile-slow_repeat": [
+        333,
+        374
+      ]
+    },
+    {
+      "step": "number-phrase-full-page",
+      "desktop_first": [
+        441,
+        727
+      ],
+      "desktop_repeat": [
+        306,
+        367
+      ],
+      "mobile-slow_first": [
+        3091,
+        3062
+      ],
+      "mobile-slow_repeat": [
+        1056,
+        1135
+      ]
+    },
+    {
+      "step": "back-phrase-number",
+      "desktop_first": [
+        517,
+        461
+      ],
+      "desktop_repeat": [
+        305,
+        398
+      ],
+      "mobile-slow_first": [
+        732,
+        945
+      ],
+      "mobile-slow_repeat": [
+        829,
+        942
+      ]
+    },
+    {
+      "step": "back-number-world",
+      "desktop_first": [
+        153,
+        192
+      ],
+      "desktop_repeat": [
+        164,
+        192
+      ],
+      "mobile-slow_first": [
+        950,
+        543
+      ],
+      "mobile-slow_repeat": [
+        957,
+        521
+      ]
+    },
+    {
+      "step": "back-world-post",
+      "desktop_first": [
+        149,
+        177
+      ],
+      "desktop_repeat": [
+        144,
+        157
+      ],
+      "mobile-slow_first": [
+        448,
+        449
+      ],
+      "mobile-slow_repeat": [
+        444,
+        426
+      ]
+    },
+    {
+      "step": "back-post-home",
+      "desktop_first": [
+        250,
+        143
+      ],
+      "desktop_repeat": [
+        264,
+        132
+      ],
+      "mobile-slow_first": [
+        452,
+        351
+      ],
+      "mobile-slow_repeat": [
+        419,
+        403
+      ]
+    }
+  ],
+  "maxCLS": {
+    "before": 0.08141234246399177,
+    "after": 0.028175203584995253
+  },
+  "native": [
+    {
+      "width": 390,
+      "medianSeconds": 6.8055,
+      "range": [
+        6.7342999999970194,
+        7.05120000000298
+      ],
+      "maxCLS": 0
+    },
+    {
+      "width": 1440,
+      "medianSeconds": 3.4105999999940395,
+      "range": [
+        2.565699999988079,
+        3.6600999999940393
+      ],
+      "maxCLS": 0
+    }
+  ]
+}

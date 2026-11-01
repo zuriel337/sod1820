@@ -1,0 +1,1 @@
+module.exports={testDir:__dirname,testMatch:'world-stability.cjs',workers:1,outputDir:'/tmp/public-reading-release-20261101/stability',use:{headless:true,serviceWorkers:'block',launchOptions:{executablePath:'/usr/bin/chromium',args:['--no-sandbox','--disable-dev-shm-usage']}}};

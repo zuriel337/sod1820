@@ -1,0 +1,10 @@
+{
+  "width": 390,
+  "data": "real canonical public engine responses; old n=999999 deliberately untrusted",
+  "regular": 14,
+  "calculation": 358,
+  "share": "http://127.0.0.1:4251/gematria?q=%D7%93%D7%95%D7%93&m=%D7%A8%D7%92%D7%99%D7%9C&v=14&s=e19765f649484f47",
+  "return": "/gematria?source=map&part=2&part=7&q=%D7%93%D7%95%D7%93&m=%D7%A8%D7%92%D7%99%D7%9C#calc-result",
+  "overflow": 0,
+  "postedOrModelCallsForwarded": 0
+}

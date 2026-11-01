@@ -1,0 +1,76 @@
+{
+  "status": "PROPOSED_NOT_ACTIVATED",
+  "reviewedSourceSha": "4e6239c6d26e00b70ee10b341529491bd5b0b43c",
+  "protectedReviewDeployment": "dpl_GXXscrmUS1toefyxoCDhwmcASQxD",
+  "profile": "public-reading-20261101",
+  "buildTarget": "2029",
+  "clientEnv": {
+    "VITE_PUBLIC_READING_RELEASE": "public-reading-20261101",
+    "VITE_PUBLIC_FRAME_PREVIEW": "false",
+    "VITE_PUBLIC_FOUNDATION_PREVIEW": "false",
+    "VITE_PUBLIC_LAUNCH_READ_ONLY_PREVIEW": "false",
+    "VITE_INTEGRATED_PREVIEW": "false",
+    "VITE_KINGDOM_PREVIEW": "false",
+    "VITE_BOOK_PUBLICATION_REVIEW_PREVIEW": "false",
+    "VITE_UNLOCKED_2029_PREVIEW": "false",
+    "VITE_FUNCTIONAL_UNIFIED_PREVIEW": "false"
+  },
+  "effectiveAccess": {
+    "public": [
+      "Home",
+      "World and embedded public source readers",
+      "published Posts with both existing URL families",
+      "Number",
+      "phrase",
+      "Gematria calculator",
+      "public galleries and eligible videos",
+      "Map",
+      "Privacy"
+    ],
+    "closed": [
+      "Auth/login/personal",
+      "community writes",
+      "mail signup/unsubscribe UI in this profile",
+      "Raziel",
+      "Journey",
+      "ELS",
+      "Heichal",
+      "standalone Books and control/review surfaces"
+    ]
+  },
+  "authMode": "ephemeral anonymous SDK; preserve the Legacy session storage key",
+  "sharedSiteFlagsChanges": [],
+  "canonicalOrigin": "https://sod1820.co.il",
+  "canonicalPostOwner": "src/lib/publicPostUrls.js (unchanged)",
+  "metadataOwner": "api/og.js with trusted internal profile only",
+  "xmlOwner": "api/sitemap.js with the same profile and existing publication/indexability boundaries",
+  "indexing": {
+    "eligiblePublicPages": true,
+    "calculationAndShareQueries": false,
+    "closedPrivateUnknown": false,
+    "xmlIsIndexingEvidence": false
+  },
+  "transport": {
+    "mode": "public-reading-only",
+    "testedWorkerSha256": "c3436d48371f517874c76d0396fe1c973a625c85845b7d33a6636001fb82c871",
+    "models": false,
+    "productWrites": false,
+    "accountAndMailMutations": false
+  },
+  "rootLegacyConfigChanged": false,
+  "CORE_PUBLIC_LAUNCH_2029": false,
+  "activation": {
+    "currentAuthorization": false,
+    "productionAdapterAccepted": false,
+    "databaseAndMediaRestoreAccepted": false,
+    "mustRetainOriginalProductionLock": true,
+    "requiredReview": "Separate explicit approval for deployment guard adjustment; new staged Production artifact acceptance and exact SHA/deployment-ID cutover approval. Do not promote the protected Preview."
+  },
+  "rollback": {
+    "lastObservedLegacyDeployment": "dpl_BFpwZGiYL3Qpdy9nCuGKGb9Xmko2",
+    "legacySha": "d1837efcf5a978d10a514010f3695680f231e116",
+    "recheckAliasesBeforeAnyAction": true,
+    "rollbackExecuted": false,
+    "dataRestoreExecuted": false
+  }
+}

@@ -1,0 +1,2890 @@
+{
+  "sha": "4e6239c6d26e00b70ee10b341529491bd5b0b43c",
+  "realServiceWorker": true,
+  "networkInterception": false,
+  "mockResponses": false,
+  "liveProductWrites": 0,
+  "models": 0,
+  "cases": [
+    {
+      "width": 390,
+      "passed": true,
+      "postHref": "/post/mivchan-acharon-lifney-hapriza-dim5-20261031",
+      "actualWorkerControlled": true,
+      "homeTiming": {
+        "navigation": [
+          {
+            "responseStart": 243.90000000596046,
+            "domContentLoaded": 797.7000000029802,
+            "load": 1598.300000011921
+          }
+        ],
+        "lcp": [
+          {
+            "time": 2540,
+            "size": 2552
+          },
+          {
+            "time": 5520,
+            "size": 5325
+          },
+          {
+            "time": 7052,
+            "size": 76640
+          }
+        ],
+        "shifts": [],
+        "primaryReadyMs": 6904.9000000059605,
+        "observationAfterPrimaryMs": 6000,
+        "conditions": "cold real protected deployment, real SW/data; CDP150ms/1.6Mbps/4xCPU"
+      },
+      "states": [
+        {
+          "name": "home-post",
+          "url": "https://sod1820-cnporwdqk-sod1820-s-projects.vercel.app/post/mivchan-acharon-lifney-hapriza-dim5-20261031",
+          "reads": [
+            {
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/gematria_words",
+              "method": "HEAD",
+              "status": 206
+            },
+            {
+              "path": "/rest/v1/gematria_words",
+              "method": "HEAD",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/gematria_words",
+              "method": "HEAD",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/gematria_words",
+              "method": "HEAD",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/gematria_words",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/gematria_words",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/research_contributions",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/fn_method_value",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/convergence_meter",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/convergence_meter",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/convergence_meter",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/convergence_meter",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/research_contributions",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/gematria_words",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/fn_zero_scale",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/fn_zero_scale",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/comments",
+              "method": "GET",
+              "status": 200
+            }
+          ],
+          "denied": [
+            {
+              "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+              "method": "POST"
+            }
+          ]
+        },
+        {
+          "name": "post-world",
+          "url": "https://sod1820-cnporwdqk-sod1820-s-projects.vercel.app/world",
+          "reads": [
+            {
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/gematria_words",
+              "method": "HEAD",
+              "status": 206
+            },
+            {
+              "path": "/rest/v1/gematria_words",
+              "method": "HEAD",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/gematria_words",
+              "method": "HEAD",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/gematria_words",
+              "method": "HEAD",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/gematria_words",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/gematria_words",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/research_contributions",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/fn_method_value",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/convergence_meter",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/convergence_meter",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/convergence_meter",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/convergence_meter",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/research_contributions",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/gematria_words",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/fn_zero_scale",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/fn_zero_scale",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/comments",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/contributors",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET",
+              "status": 206
+            },
+            {
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET"
+            },
+            {
+              "path": "/rest/v1/research_objects",
+              "method": "GET"
+            },
+            {
+              "path": "/rest/v1/posts",
+              "method": "GET"
+            },
+            {
+              "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+              "method": "POST"
+            },
+            {
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET"
+            },
+            {
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET"
+            },
+            {
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET"
+            },
+            {
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET"
+            },
+            {
+              "path": "/rest/v1/posts",
+              "method": "GET"
+            },
+            {
+              "path": "/rest/v1/posts",
+              "method": "GET"
+            },
+            {
+              "path": "/rest/v1/posts",
+              "method": "GET"
+            },
+            {
+              "path": "/rest/v1/posts",
+              "method": "GET"
+            },
+            {
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "method": "POST"
+            },
+            {
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "method": "POST"
+            },
+            {
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "method": "POST"
+            },
+            {
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "method": "POST"
+            },
+            {
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "method": "POST"
+            },
+            {
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "method": "POST"
+            }
+          ],
+          "denied": [
+            {
+              "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+              "method": "POST"
+            }
+          ]
+        },
+        {
+          "name": "number-method-phrase-return",
+          "url": "https://sod1820-cnporwdqk-sod1820-s-projects.vercel.app/number/1820?focus=%D7%90%D7%97%D7%AA%20%D7%90%D7%A8%D7%91%D7%A2%20%D7%A9%D7%91%D7%A2%20%D7%95%D7%A9%D7%AA%D7%99%D7%99%D7%9D&method=%D7%A8%D7%92%D7%99%D7%9C&source=post&part=2&part=7#number-content-live",
+          "reads": [
+            {
+              "path": "/rest/v1/rpc/is_number_indexable",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/gematria_words",
+              "method": "GET",
+              "status": 206
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/fn_method_profile",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/gematria_methods",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/posts_by_number_strict",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/gematria_words",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/insights",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/research_objects",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/research_objects",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/research_objects",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/gallery_images",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/gallery_images",
+              "method": "GET",
+              "status": 206
+            },
+            {
+              "path": "/rest/v1/rpc/fn_number_lookup",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/fn_zero_scale",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/number_anchors",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/entity_types",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/edges",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/edges",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/edges",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/edges",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/edges",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/edges",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/edges",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/edges",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/edges",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/edges",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/gematria_words",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/gematria_methods",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/gematria_methods",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/fn_number_lookup",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/fn_number_dossier",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/fn_number_journey",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/number_neighbors",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/gallery_images",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/gematria_methods",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/fn_verses_by_gematria",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/gematria_words",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/fn_zero_scale",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/is_number_indexable",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/gematria_words",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/posts_by_number_strict",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/gematria_words",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/insights",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/research_objects",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/research_objects",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/research_objects",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/gallery_images",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/gallery_images",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/fn_number_lookup",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/fn_zero_scale",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/number_anchors",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/entity_types",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/gematria_words",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/fn_number_lookup",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/fn_number_dossier",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/fn_number_journey",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/number_neighbors",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/gematria_methods",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/fn_verses_by_gematria",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/fn_zero_scale",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/is_number_indexable",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/fn_verses_by_gematria",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/is_number_indexable",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/fn_verses_by_gematria",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/is_number_indexable",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/fn_verses_by_gematria",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/fn_method_profile",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/gematria_methods",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/fn_method_profile",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/gematria_methods",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/world_contributor_research_v1",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/channel_updates",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/contributors",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET",
+              "status": 206
+            },
+            {
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 206
+            },
+            {
+              "path": "/rest/v1/gallery_images",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/contributors",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/contributors",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/writer_public_contributions_page_v1",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/gallery_images",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 206
+            },
+            {
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET",
+              "status": 206
+            },
+            {
+              "path": "/rest/v1/world_contributor_research_v1",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/channel_updates",
+              "method": "GET",
+              "status": 206
+            },
+            {
+              "path": "/rest/v1/channel_updates",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/channel_updates",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/research_contributions",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/els_records",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/insights",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/galleries",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 206
+            },
+            {
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET",
+              "status": 206
+            },
+            {
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET",
+              "status": 206
+            },
+            {
+              "path": "/rest/v1/insights",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 206
+            },
+            {
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 206
+            },
+            {
+              "path": "/rest/v1/channel_updates",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/channel_updates",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 206
+            },
+            {
+              "path": "/rest/v1/rpc/is_number_indexable",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/fn_verses_by_gematria",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/fn_method_profile",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/posts",
+              "method": "GET"
+            },
+            {
+              "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+              "method": "POST"
+            },
+            {
+              "path": "/rest/v1/gematria_methods",
+              "method": "GET"
+            }
+          ],
+          "denied": [
+            {
+              "path": "/rest/v1/rpc/ingest_event",
+              "method": "POST"
+            },
+            {
+              "path": "/rest/v1/rpc/lang_links_list",
+              "method": "POST"
+            },
+            {
+              "path": "/rest/v1/rpc/ingest_event",
+              "method": "POST"
+            },
+            {
+              "path": "/rest/v1/rpc/lang_links_list",
+              "method": "POST"
+            },
+            {
+              "path": "/rest/v1/rpc/lang_links_list",
+              "method": "POST"
+            },
+            {
+              "path": "/rest/v1/rpc/ingest_event",
+              "method": "POST"
+            },
+            {
+              "path": "/rest/v1/rpc/lang_links_list",
+              "method": "POST"
+            }
+          ]
+        }
+      ],
+      "errors": []
+    },
+    {
+      "width": 1440,
+      "passed": true,
+      "postHref": "/post/mivchan-acharon-lifney-hapriza-dim5-20261031",
+      "actualWorkerControlled": true,
+      "homeTiming": {
+        "navigation": [
+          {
+            "responseStart": 148.1000000089407,
+            "domContentLoaded": 623.2999999970198,
+            "load": 625.1000000089407
+          }
+        ],
+        "lcp": [
+          {
+            "time": 948,
+            "size": 2552
+          },
+          {
+            "time": 1860,
+            "size": 8184
+          },
+          {
+            "time": 2720,
+            "size": 17712
+          }
+        ],
+        "shifts": [],
+        "primaryReadyMs": 2521.2999999970198,
+        "observationAfterPrimaryMs": 6000,
+        "conditions": "cold real protected deployment, real SW/data, unthrottled desktop"
+      },
+      "states": [
+        {
+          "name": "home-post",
+          "url": "https://sod1820-cnporwdqk-sod1820-s-projects.vercel.app/post/mivchan-acharon-lifney-hapriza-dim5-20261031",
+          "reads": [
+            {
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/gematria_words",
+              "method": "HEAD",
+              "status": 206
+            },
+            {
+              "path": "/rest/v1/gematria_words",
+              "method": "HEAD",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/gematria_words",
+              "method": "HEAD",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/gematria_words",
+              "method": "HEAD",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/gematria_words",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/gematria_words",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/research_contributions",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/fn_method_value",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/convergence_meter",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/convergence_meter",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/convergence_meter",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/convergence_meter",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/research_contributions",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/gematria_words",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/fn_zero_scale",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/fn_zero_scale",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/comments",
+              "method": "GET"
+            }
+          ],
+          "denied": [
+            {
+              "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+              "method": "POST"
+            }
+          ]
+        },
+        {
+          "name": "post-world",
+          "url": "https://sod1820-cnporwdqk-sod1820-s-projects.vercel.app/world",
+          "reads": [
+            {
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/gematria_words",
+              "method": "HEAD",
+              "status": 206
+            },
+            {
+              "path": "/rest/v1/gematria_words",
+              "method": "HEAD",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/gematria_words",
+              "method": "HEAD",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/gematria_words",
+              "method": "HEAD",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/gematria_words",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/gematria_words",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/research_contributions",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/fn_method_value",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/convergence_meter",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/convergence_meter",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/convergence_meter",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/convergence_meter",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/research_contributions",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/gematria_words",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/fn_zero_scale",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/fn_zero_scale",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/comments",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/contributors",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET",
+              "status": 206
+            },
+            {
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET"
+            },
+            {
+              "path": "/rest/v1/research_objects",
+              "method": "GET"
+            },
+            {
+              "path": "/rest/v1/posts",
+              "method": "GET"
+            },
+            {
+              "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+              "method": "POST"
+            },
+            {
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET"
+            },
+            {
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET"
+            },
+            {
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET"
+            },
+            {
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET"
+            },
+            {
+              "path": "/rest/v1/posts",
+              "method": "GET"
+            },
+            {
+              "path": "/rest/v1/posts",
+              "method": "GET"
+            },
+            {
+              "path": "/rest/v1/posts",
+              "method": "GET"
+            },
+            {
+              "path": "/rest/v1/posts",
+              "method": "GET"
+            },
+            {
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "method": "POST"
+            },
+            {
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "method": "POST"
+            },
+            {
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "method": "POST"
+            },
+            {
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "method": "POST"
+            },
+            {
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "method": "POST"
+            },
+            {
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "method": "POST"
+            }
+          ],
+          "denied": [
+            {
+              "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+              "method": "POST"
+            }
+          ]
+        },
+        {
+          "name": "number-method-phrase-return",
+          "url": "https://sod1820-cnporwdqk-sod1820-s-projects.vercel.app/number/1820?focus=%D7%90%D7%97%D7%AA%20%D7%90%D7%A8%D7%91%D7%A2%20%D7%A9%D7%91%D7%A2%20%D7%95%D7%A9%D7%AA%D7%99%D7%99%D7%9D&method=%D7%A8%D7%92%D7%99%D7%9C&source=post&part=2&part=7#number-essential",
+          "reads": [
+            {
+              "path": "/rest/v1/rpc/is_number_indexable",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/gematria_words",
+              "method": "GET",
+              "status": 206
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/fn_method_profile",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/gematria_methods",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/posts_by_number_strict",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/gematria_words",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/insights",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/research_objects",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/research_objects",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/research_objects",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/gallery_images",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/gallery_images",
+              "method": "GET",
+              "status": 206
+            },
+            {
+              "path": "/rest/v1/rpc/fn_number_lookup",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/fn_zero_scale",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/number_anchors",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/entity_types",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/edges",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/edges",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/edges",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/gematria_words",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/gematria_methods",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/gematria_methods",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/fn_number_lookup",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/fn_number_dossier",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/fn_number_journey",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/number_neighbors",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/edges",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/edges",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/edges",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/edges",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/edges",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/edges",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/edges",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/gallery_images",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/gematria_methods",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/fn_verses_by_gematria",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/gematria_words",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/fn_zero_scale",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/is_number_indexable",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/gematria_words",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/posts_by_number_strict",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/gematria_words",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/insights",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/research_objects",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/research_objects",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/research_objects",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/gallery_images",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/gallery_images",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/fn_number_lookup",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/fn_zero_scale",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/number_anchors",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/entity_types",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/gematria_words",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/fn_number_lookup",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/fn_number_dossier",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/fn_number_journey",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/number_neighbors",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/gematria_methods",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/fn_verses_by_gematria",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/nodes",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/fn_zero_scale",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/is_number_indexable",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/fn_verses_by_gematria",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/is_number_indexable",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/fn_verses_by_gematria",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/is_number_indexable",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/fn_verses_by_gematria",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/fn_method_profile",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/gematria_methods",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/fn_method_profile",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/gematria_methods",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/world_contributor_research_v1",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "path": "/rest/v1/channel_updates",
+              "method": "GET",
+              "status": 200
+            }
+          ],
+          "denied": [
+            {
+              "path": "/rest/v1/rpc/ingest_event",
+              "method": "POST"
+            },
+            {
+              "path": "/rest/v1/rpc/lang_links_list",
+              "method": "POST"
+            },
+            {
+              "path": "/rest/v1/rpc/ingest_event",
+              "method": "POST"
+            },
+            {
+              "path": "/rest/v1/rpc/lang_links_list",
+              "method": "POST"
+            },
+            {
+              "path": "/rest/v1/rpc/lang_links_list",
+              "method": "POST"
+            }
+          ]
+        }
+      ],
+      "errors": []
+    }
+  ],
+  "ok": true
+}

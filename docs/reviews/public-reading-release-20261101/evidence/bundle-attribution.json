@@ -1,0 +1,29 @@
+[
+  {
+    "dir": "/tmp/public-reading-release-20261101/before-dist",
+    "eagerFiles": 33,
+    "gzip": 405109,
+    "calculatorKeys": []
+  },
+  {
+    "dir": "/tmp/public-reading-release-20261101/profile-before-lazy-dist",
+    "eagerFiles": 31,
+    "gzip": 404061,
+    "calculatorKeys": []
+  },
+  {
+    "dir": "preview-deploy/dist",
+    "eagerFiles": 20,
+    "gzip": 242645,
+    "calculatorKeys": [
+      {
+        "key": "src/pages/Calculator2029Page.jsx",
+        "eager": false
+      },
+      {
+        "key": "src/pages/CalculatorPro2029Page.jsx",
+        "eager": false
+      }
+    ]
+  }
+]

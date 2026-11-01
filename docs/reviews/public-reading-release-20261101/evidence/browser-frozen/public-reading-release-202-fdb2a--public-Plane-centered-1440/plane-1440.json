@@ -1,0 +1,27 @@
+{
+  "data": "actual public Plane Post",
+  "path": "/post/flydubai-fz1073-363-14000-remzei-geula",
+  "width": 1440,
+  "content": {
+    "x": 450,
+    "y": 1814.21875,
+    "width": 790,
+    "height": 11093.71875,
+    "top": 1814.21875,
+    "right": 1240,
+    "bottom": 12907.9375,
+    "left": 450
+  },
+  "main": {
+    "x": 322,
+    "y": 130,
+    "width": 1046,
+    "height": 13564.03125,
+    "top": 130,
+    "right": 1368,
+    "bottom": 13694.03125,
+    "left": 322
+  },
+  "viewport": 1440,
+  "overflow": 0
+}

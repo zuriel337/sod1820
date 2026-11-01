@@ -1,0 +1,5 @@
+{
+  "reader": "writer_public_contributions_page_v1",
+  "review": "live pg_proc STABLE SQL SELECT, public active/unlocked writer and approved/published roots only, 2026-11-01",
+  "reads": []
+}

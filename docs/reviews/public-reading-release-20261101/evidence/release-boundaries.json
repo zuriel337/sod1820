@@ -1,0 +1,82 @@
+{
+  "productSha": "4e6239c6d26e00b70ee10b341529491bd5b0b43c",
+  "legacy": {
+    "status": 200,
+    "scriptPaths": [
+      "/assets/index-BmhWOTbZ.js"
+    ],
+    "title": "כי לה' המלוכה — סוד 1820 · לגלות את המציאות בשפת המספרים",
+    "legacyEntry": true,
+    "has2029Entry": false
+  },
+  "sharedFlagsUnchanged": [
+    {
+      "key": "lock_books",
+      "enabled": true,
+      "mode": "all",
+      "updated_at": "2026-10-13 08:13:53.282948+00"
+    },
+    {
+      "key": "lock_els",
+      "enabled": false,
+      "mode": "all",
+      "updated_at": "2026-10-05 21:45:33.160614+00"
+    },
+    {
+      "key": "lock_heichal",
+      "enabled": true,
+      "mode": "all",
+      "updated_at": "2026-10-13 08:13:53.282948+00"
+    },
+    {
+      "key": "lock_life_journey",
+      "enabled": true,
+      "mode": "all",
+      "updated_at": "2026-10-13 08:13:53.282948+00"
+    },
+    {
+      "key": "lock_number",
+      "enabled": true,
+      "mode": "all",
+      "updated_at": "2026-10-13 08:13:53.282948+00"
+    },
+    {
+      "key": "lock_raziel_site",
+      "enabled": true,
+      "mode": "all",
+      "updated_at": "2026-10-13 08:13:53.282948+00"
+    },
+    {
+      "key": "lock_world",
+      "enabled": false,
+      "mode": "all",
+      "updated_at": "2026-10-13 08:13:53.282948+00"
+    }
+  ],
+  "storageMetadataOnly": [
+    {
+      "id": "gallery",
+      "public": true,
+      "object_count": 1359
+    },
+    {
+      "id": "magar",
+      "public": true,
+      "object_count": 0
+    },
+    {
+      "id": "media",
+      "public": true,
+      "object_count": 19164
+    },
+    {
+      "id": "submission-inbox",
+      "public": false,
+      "object_count": 184
+    }
+  ],
+  "storageBytesExported": false,
+  "databaseBackupRestored": false,
+  "mediaBackupRestored": false,
+  "mainSha": "2195c9784c5c9f0b1ec3cd3c1137fbd76045845b"
+}

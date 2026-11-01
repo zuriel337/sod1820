@@ -1,0 +1,63 @@
+{
+  "readOnlyTransport": true,
+  "reads": [
+    {
+      "path": "/css2",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "path": "/s/ibmplexmono/v20/-F63fjptAgt5VM-kVkqdyU8n5ig.ttf",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "path": "/rest/v1/topic_cards_public",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "path": "/rest/v1/posts",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "path": "/rest/v1/rpc/fn_method_value",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "path": "/rest/v1/rpc/fn_method_value",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "path": "/rest/v1/rpc/fn_method_value",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "path": "/rest/v1/posts",
+      "status": 200,
+      "transport": "GET"
+    },
+    {
+      "path": "/rest/v1/posts",
+      "status": 200,
+      "transport": "GET"
+    }
+  ],
+  "blocked": [
+    {
+      "path": "/rest/v1/rpc/ingest_event",
+      "method": "POST",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co"
+    }
+  ],
+  "errors": []
+}

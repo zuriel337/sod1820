@@ -1,0 +1,750 @@
+{
+  "sha": "c297584bda2633b47d1d88b835462c66c257e37f",
+  "realServiceWorker": true,
+  "networkInterception": false,
+  "mockResponses": false,
+  "liveProductWrites": 0,
+  "models": 0,
+  "cases": [
+    {
+      "width": 1440,
+      "homeTiming": {
+        "navigation": [
+          {
+            "responseStart": 155.1000000089407,
+            "domContentLoaded": 531.3000000119209,
+            "load": 617.9000000059605
+          }
+        ],
+        "lcp": [
+          {
+            "time": 828,
+            "size": 2552
+          },
+          {
+            "time": 2124,
+            "size": 8184
+          },
+          {
+            "time": 2924,
+            "size": 44589
+          }
+        ],
+        "shifts": [
+          {
+            "time": 2341.7000000029802,
+            "value": 0.000017378567668145575,
+            "hadRecentInput": false,
+            "sources": [
+              {
+                "node": "I   sod-canonical-progress-meter is-indeterminate",
+                "previous": {
+                  "x": 1039.03125,
+                  "y": 681.6256103515625,
+                  "width": 182.96875,
+                  "height": 5,
+                  "top": 681.6256103515625,
+                  "right": 1222,
+                  "bottom": 686.6256103515625,
+                  "left": 1039.03125
+                },
+                "current": {
+                  "x": 1008.578125,
+                  "y": 681.6256103515625,
+                  "width": 213.421875,
+                  "height": 5,
+                  "top": 681.6256103515625,
+                  "right": 1222,
+                  "bottom": 686.6256103515625,
+                  "left": 1008.578125
+                }
+              }
+            ]
+          },
+          {
+            "time": 2361.5,
+            "value": 0.00002094326359417867,
+            "hadRecentInput": false,
+            "sources": [
+              {
+                "node": "I   sod-canonical-progress-meter is-indeterminate",
+                "previous": {
+                  "x": 1008.578125,
+                  "y": 680.5402221679688,
+                  "width": 213.421875,
+                  "height": 5,
+                  "top": 680.5402221679688,
+                  "right": 1222,
+                  "bottom": 685.5402221679688,
+                  "left": 1008.578125
+                },
+                "current": {
+                  "x": 976.671875,
+                  "y": 680.5402221679688,
+                  "width": 245.328125,
+                  "height": 5,
+                  "top": 680.5402221679688,
+                  "right": 1222,
+                  "bottom": 685.5402221679688,
+                  "left": 976.671875
+                }
+              }
+            ]
+          },
+          {
+            "time": 2376.800000011921,
+            "value": 0.000025146107614776234,
+            "hadRecentInput": false,
+            "sources": [
+              {
+                "node": "I   sod-canonical-progress-meter is-indeterminate",
+                "previous": {
+                  "x": 976.671875,
+                  "y": 679.5983276367188,
+                  "width": 245.328125,
+                  "height": 5,
+                  "top": 679.5983276367188,
+                  "right": 1222,
+                  "bottom": 684.5983276367188,
+                  "left": 976.671875
+                },
+                "current": {
+                  "x": 943.03125,
+                  "y": 679.5983276367188,
+                  "width": 278.96875,
+                  "height": 5,
+                  "top": 679.5983276367188,
+                  "right": 1222,
+                  "bottom": 684.5983276367188,
+                  "left": 943.03125
+                }
+              }
+            ]
+          },
+          {
+            "time": 2392,
+            "value": 0.000029391651127400546,
+            "hadRecentInput": false,
+            "sources": [
+              {
+                "node": "I   sod-canonical-progress-meter is-indeterminate",
+                "previous": {
+                  "x": 943.03125,
+                  "y": 678.8407592773438,
+                  "width": 278.96875,
+                  "height": 5,
+                  "top": 678.8407592773438,
+                  "right": 1222,
+                  "bottom": 683.8407592773438,
+                  "left": 943.03125
+                },
+                "current": {
+                  "x": 908.09375,
+                  "y": 678.8407592773438,
+                  "width": 313.90625,
+                  "height": 5,
+                  "top": 678.8407592773438,
+                  "right": 1222,
+                  "bottom": 683.8407592773438,
+                  "left": 908.09375
+                }
+              }
+            ]
+          },
+          {
+            "time": 2408.300000011921,
+            "value": 0.00003358189461162551,
+            "hadRecentInput": false,
+            "sources": [
+              {
+                "node": "I   sod-canonical-progress-meter is-indeterminate",
+                "previous": {
+                  "x": 908.09375,
+                  "y": 678.2530517578125,
+                  "width": 313.90625,
+                  "height": 5,
+                  "top": 678.2530517578125,
+                  "right": 1222,
+                  "bottom": 683.2530517578125,
+                  "left": 908.09375
+                },
+                "current": {
+                  "x": 872.28125,
+                  "y": 678.2530517578125,
+                  "width": 349.71875,
+                  "height": 5,
+                  "top": 678.2530517578125,
+                  "right": 1222,
+                  "bottom": 683.2530517578125,
+                  "left": 872.28125
+                }
+              }
+            ]
+          },
+          {
+            "time": 2432.7000000029802,
+            "value": 0.000038168824749228396,
+            "hadRecentInput": false,
+            "sources": [
+              {
+                "node": "I   sod-canonical-progress-meter is-indeterminate",
+                "previous": {
+                  "x": 872.28125,
+                  "y": 677.7925415039062,
+                  "width": 349.71875,
+                  "height": 5,
+                  "top": 677.7925415039062,
+                  "right": 1222,
+                  "bottom": 682.7925415039062,
+                  "left": 872.28125
+                },
+                "current": {
+                  "x": 835.46875,
+                  "y": 677.7925415039062,
+                  "width": 365.828125,
+                  "height": 5,
+                  "top": 677.7925415039062,
+                  "right": 1201.296875,
+                  "bottom": 682.7925415039062,
+                  "left": 835.46875
+                }
+              }
+            ]
+          },
+          {
+            "time": 2445.7000000029802,
+            "value": 0.00004010114421242713,
+            "hadRecentInput": false,
+            "sources": [
+              {
+                "node": "I   sod-canonical-progress-meter is-indeterminate",
+                "previous": {
+                  "x": 835.46875,
+                  "y": 677.4324340820312,
+                  "width": 365.828125,
+                  "height": 5,
+                  "top": 677.4324340820312,
+                  "right": 1201.296875,
+                  "bottom": 682.4324340820312,
+                  "left": 835.46875
+                },
+                "current": {
+                  "x": 798.328125,
+                  "y": 677.4324340820312,
+                  "width": 365.828125,
+                  "height": 5,
+                  "top": 677.4324340820312,
+                  "right": 1164.15625,
+                  "bottom": 682.4324340820312,
+                  "left": 798.328125
+                }
+              }
+            ]
+          },
+          {
+            "time": 2570.7000000029802,
+            "value": 0.10591807270233196,
+            "hadRecentInput": false,
+            "sources": [
+              {
+                "node": "SECTION  h29-sec k29-reveal  h29",
+                "previous": {
+                  "x": 128,
+                  "y": 321.5,
+                  "width": 1112,
+                  "height": 233.390625,
+                  "top": 321.5,
+                  "right": 1240,
+                  "bottom": 554.890625,
+                  "left": 128
+                },
+                "current": {
+                  "x": 128,
+                  "y": 460.25,
+                  "width": 1112,
+                  "height": 378.265625,
+                  "top": 460.25,
+                  "right": 1240,
+                  "bottom": 838.515625,
+                  "left": 128
+                }
+              },
+              {
+                "node": "DIV  k29-reveal k29-rv-self h29",
+                "previous": {
+                  "x": 56,
+                  "y": 529.7373046875,
+                  "width": 1256,
+                  "height": 322,
+                  "top": 529.7373046875,
+                  "right": 1312,
+                  "bottom": 851.7373046875,
+                  "left": 56
+                },
+                "current": {
+                  "x": 56,
+                  "y": 813.7373046875,
+                  "width": 1256,
+                  "height": 86.2626953125,
+                  "top": 813.7373046875,
+                  "right": 1312,
+                  "bottom": 900,
+                  "left": 56
+                }
+              }
+            ]
+          },
+          {
+            "time": 2837,
+            "value": 0.014228125000000001,
+            "hadRecentInput": false,
+            "sources": [
+              {
+                "node": "DIV  k29-reveal k29-rv-self h29",
+                "previous": {
+                  "x": 56,
+                  "y": 813.296875,
+                  "width": 1256,
+                  "height": 86.703125,
+                  "top": 813.296875,
+                  "right": 1312,
+                  "bottom": 900,
+                  "left": 56
+                },
+                "current": {
+                  "x": 0,
+                  "y": 0,
+                  "width": 0,
+                  "height": 0,
+                  "top": 0,
+                  "right": 0,
+                  "bottom": 0,
+                  "left": 0
+                }
+              }
+            ]
+          }
+        ],
+        "primaryReadyMs": 3451.9000000059605,
+        "observationAfterPrimaryMs": 6000,
+        "conditions": "cold real protected deployment, real SW/data, unthrottled desktop",
+        "fonts": {
+          "status": "loaded",
+          "resources": [
+            {
+              "url": "https://sod1820-olm3ofm18-sod1820-s-projects.vercel.app/fonts/NotoSansHebrew-Regular.ttf",
+              "start": 185.5,
+              "end": 403.40000000596046
+            },
+            {
+              "url": "https://sod1820-olm3ofm18-sod1820-s-projects.vercel.app/fonts/NotoSansHebrew-Bold.ttf",
+              "start": 194.70000000298023,
+              "end": 367.30000001192093
+            },
+            {
+              "url": "https://sod1820-olm3ofm18-sod1820-s-projects.vercel.app/fonts/Rubik-Hebrew.woff2",
+              "start": 194.80000001192093,
+              "end": 547.6000000089407
+            },
+            {
+              "url": "https://sod1820-olm3ofm18-sod1820-s-projects.vercel.app/fonts/Rubik-Latin.woff2",
+              "start": 194.80000001192093,
+              "end": 616.3000000119209
+            },
+            {
+              "url": "https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap",
+              "start": 195,
+              "end": 529.9000000059605
+            }
+          ]
+        }
+      },
+      "errors": []
+    },
+    {
+      "width": 1440,
+      "homeTiming": {
+        "navigation": [
+          {
+            "responseStart": 172.59999999403954,
+            "domContentLoaded": 661,
+            "load": 661.2000000029802
+          }
+        ],
+        "lcp": [
+          {
+            "time": 960,
+            "size": 2552
+          },
+          {
+            "time": 2160,
+            "size": 8184
+          },
+          {
+            "time": 2440,
+            "size": 8190
+          },
+          {
+            "time": 2800,
+            "size": 44589
+          }
+        ],
+        "shifts": [
+          {
+            "time": 2322.2000000029802,
+            "value": 0.000011017724810313786,
+            "hadRecentInput": false,
+            "sources": [
+              {
+                "node": "I   sod-canonical-progress-meter is-indeterminate",
+                "previous": {
+                  "x": 1093.90625,
+                  "y": 681.6258544921875,
+                  "width": 128.09375,
+                  "height": 5,
+                  "top": 681.6258544921875,
+                  "right": 1222,
+                  "bottom": 686.6258544921875,
+                  "left": 1093.90625
+                },
+                "current": {
+                  "x": 1067.375,
+                  "y": 681.6258544921875,
+                  "width": 154.625,
+                  "height": 5,
+                  "top": 681.6258544921875,
+                  "right": 1222,
+                  "bottom": 686.6258544921875,
+                  "left": 1067.375
+                }
+              }
+            ]
+          },
+          {
+            "time": 2339.5,
+            "value": 0.000013896675266846707,
+            "hadRecentInput": false,
+            "sources": [
+              {
+                "node": "I   sod-canonical-progress-meter is-indeterminate",
+                "previous": {
+                  "x": 1067.375,
+                  "y": 680.5404663085938,
+                  "width": 154.625,
+                  "height": 5,
+                  "top": 680.5404663085938,
+                  "right": 1222,
+                  "bottom": 685.5404663085938,
+                  "left": 1067.375
+                },
+                "current": {
+                  "x": 1039.03125,
+                  "y": 680.5404663085938,
+                  "width": 182.96875,
+                  "height": 5,
+                  "top": 680.5404663085938,
+                  "right": 1222,
+                  "bottom": 685.5404663085938,
+                  "left": 1039.03125
+                }
+              }
+            ]
+          },
+          {
+            "time": 2356.5,
+            "value": 0.000017342901033629114,
+            "hadRecentInput": false,
+            "sources": [
+              {
+                "node": "I   sod-canonical-progress-meter is-indeterminate",
+                "previous": {
+                  "x": 1039.03125,
+                  "y": 679.5985107421875,
+                  "width": 182.96875,
+                  "height": 5,
+                  "top": 679.5985107421875,
+                  "right": 1222,
+                  "bottom": 684.5985107421875,
+                  "left": 1039.03125
+                },
+                "current": {
+                  "x": 1008.640625,
+                  "y": 679.5985107421875,
+                  "width": 213.359375,
+                  "height": 5,
+                  "top": 679.5985107421875,
+                  "right": 1222,
+                  "bottom": 684.5985107421875,
+                  "left": 1008.640625
+                }
+              }
+            ]
+          },
+          {
+            "time": 2397.7999999970198,
+            "value": 0.06043100137174212,
+            "hadRecentInput": false,
+            "sources": [
+              {
+                "node": "DIV  k29-reveal k29-rv-self h29",
+                "previous": {
+                  "x": 56,
+                  "y": 531.59228515625,
+                  "width": 1256,
+                  "height": 322,
+                  "top": 531.59228515625,
+                  "right": 1312,
+                  "bottom": 853.59228515625,
+                  "left": 56
+                },
+                "current": {
+                  "x": 56,
+                  "y": 775.59228515625,
+                  "width": 1256,
+                  "height": 124.40771484375,
+                  "top": 775.59228515625,
+                  "right": 1312,
+                  "bottom": 900,
+                  "left": 56
+                }
+              }
+            ]
+          },
+          {
+            "time": 2461.9000000059605,
+            "value": 0.10046739024723508,
+            "hadRecentInput": false,
+            "sources": [
+              {
+                "node": "SECTION  h29-sec k29-reveal  h29",
+                "previous": {
+                  "x": 128,
+                  "y": 321.5,
+                  "width": 1112,
+                  "height": 233.390625,
+                  "top": 321.5,
+                  "right": 1240,
+                  "bottom": 554.890625,
+                  "left": 128
+                },
+                "current": {
+                  "x": 128,
+                  "y": 460.25,
+                  "width": 1112,
+                  "height": 378.265625,
+                  "top": 460.25,
+                  "right": 1240,
+                  "bottom": 838.515625,
+                  "left": 128
+                }
+              },
+              {
+                "node": "SECTION  h29-sec k29-reveal  h29",
+                "previous": {
+                  "x": 128,
+                  "y": 582.890625,
+                  "width": 1113.1875,
+                  "height": 215.78125,
+                  "top": 582.890625,
+                  "right": 1241.1875,
+                  "bottom": 798.671875,
+                  "left": 128
+                },
+                "current": {
+                  "x": 128,
+                  "y": 866.515625,
+                  "width": 1113.1875,
+                  "height": 33.484375,
+                  "top": 866.515625,
+                  "right": 1241.1875,
+                  "bottom": 900,
+                  "left": 128
+                }
+              },
+              {
+                "node": "DIV  k29-reveal k29-rv-self h29",
+                "previous": {
+                  "x": 56,
+                  "y": 774.2860107421875,
+                  "width": 1256,
+                  "height": 125.7139892578125,
+                  "top": 774.2860107421875,
+                  "right": 1312,
+                  "bottom": 900,
+                  "left": 56
+                },
+                "current": {
+                  "x": 0,
+                  "y": 0,
+                  "width": 0,
+                  "height": 0,
+                  "top": 0,
+                  "right": 0,
+                  "bottom": 0,
+                  "left": 0
+                }
+              }
+            ]
+          }
+        ],
+        "primaryReadyMs": 2558.7000000029802,
+        "observationAfterPrimaryMs": 6000,
+        "conditions": "cold real protected deployment, real SW/data, unthrottled desktop",
+        "fonts": {
+          "status": "loaded",
+          "resources": [
+            {
+              "url": "https://sod1820-olm3ofm18-sod1820-s-projects.vercel.app/fonts/NotoSansHebrew-Regular.ttf",
+              "start": 186,
+              "end": 402.5
+            },
+            {
+              "url": "https://sod1820-olm3ofm18-sod1820-s-projects.vercel.app/fonts/NotoSansHebrew-Bold.ttf",
+              "start": 186.5,
+              "end": 274.29999999701977
+            },
+            {
+              "url": "https://sod1820-olm3ofm18-sod1820-s-projects.vercel.app/fonts/Rubik-Hebrew.woff2",
+              "start": 186.59999999403954,
+              "end": 450.29999999701977
+            },
+            {
+              "url": "https://sod1820-olm3ofm18-sod1820-s-projects.vercel.app/fonts/Rubik-Latin.woff2",
+              "start": 186.79999999701977,
+              "end": 448.5
+            },
+            {
+              "url": "https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap",
+              "start": 188.09999999403954,
+              "end": 657.2000000029802
+            }
+          ]
+        }
+      },
+      "errors": []
+    },
+    {
+      "width": 1440,
+      "homeTiming": {
+        "navigation": [
+          {
+            "responseStart": 159.1000000089407,
+            "domContentLoaded": 564.9000000059605,
+            "load": 565.9000000059605
+          }
+        ],
+        "lcp": [
+          {
+            "time": 812,
+            "size": 2552
+          },
+          {
+            "time": 1948,
+            "size": 8184
+          },
+          {
+            "time": 2404,
+            "size": 44589
+          }
+        ],
+        "shifts": [
+          {
+            "time": 2133.7000000029802,
+            "value": 0.04274258937757202,
+            "hadRecentInput": false,
+            "sources": [
+              {
+                "node": "SECTION  h29-sec k29-reveal  h29",
+                "previous": {
+                  "x": 128,
+                  "y": 321.5,
+                  "width": 1112,
+                  "height": 233.390625,
+                  "top": 321.5,
+                  "right": 1240,
+                  "bottom": 554.890625,
+                  "left": 128
+                },
+                "current": {
+                  "x": 128,
+                  "y": 460.25,
+                  "width": 1112,
+                  "height": 378.265625,
+                  "top": 460.25,
+                  "right": 1240,
+                  "bottom": 838.515625,
+                  "left": 128
+                }
+              }
+            ]
+          },
+          {
+            "time": 2203.1000000089407,
+            "value": 0.013246875000000002,
+            "hadRecentInput": false,
+            "sources": [
+              {
+                "node": "DIV  k29-reveal k29-rv-self h29",
+                "previous": {
+                  "x": 56,
+                  "y": 819.00341796875,
+                  "width": 1256,
+                  "height": 80.99658203125,
+                  "top": 819.00341796875,
+                  "right": 1312,
+                  "bottom": 900,
+                  "left": 56
+                },
+                "current": {
+                  "x": 0,
+                  "y": 0,
+                  "width": 0,
+                  "height": 0,
+                  "top": 0,
+                  "right": 0,
+                  "bottom": 0,
+                  "left": 0
+                }
+              }
+            ]
+          }
+        ],
+        "primaryReadyMs": 2460.1000000089407,
+        "observationAfterPrimaryMs": 6000,
+        "conditions": "cold real protected deployment, real SW/data, unthrottled desktop",
+        "fonts": {
+          "status": "loaded",
+          "resources": [
+            {
+              "url": "https://sod1820-olm3ofm18-sod1820-s-projects.vercel.app/fonts/NotoSansHebrew-Regular.ttf",
+              "start": 167.70000000298023,
+              "end": 262.40000000596046
+            },
+            {
+              "url": "https://sod1820-olm3ofm18-sod1820-s-projects.vercel.app/fonts/NotoSansHebrew-Bold.ttf",
+              "start": 167.90000000596046,
+              "end": 340
+            },
+            {
+              "url": "https://sod1820-olm3ofm18-sod1820-s-projects.vercel.app/fonts/Rubik-Hebrew.woff2",
+              "start": 168.1000000089407,
+              "end": 342.90000000596046
+            },
+            {
+              "url": "https://sod1820-olm3ofm18-sod1820-s-projects.vercel.app/fonts/Rubik-Latin.woff2",
+              "start": 168.1000000089407,
+              "end": 394.90000000596046
+            },
+            {
+              "url": "https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap",
+              "start": 168.20000000298023,
+              "end": 559.1000000089407
+            }
+          ]
+        }
+      },
+      "errors": []
+    }
+  ],
+  "ok": true
+}

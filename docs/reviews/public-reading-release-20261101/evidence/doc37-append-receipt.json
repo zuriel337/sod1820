@@ -1,0 +1,19 @@
+{
+  "before": {
+    "id": 37,
+    "slug": "sod1820_reality_stream_os_master_v3_20261016_draft",
+    "updated_at": "2026-11-01 16:28:01.329142+00",
+    "body_length": 413961,
+    "body_md5": "2968a40ccc49d14a752620750b640b70"
+  },
+  "after": {
+    "id": 37,
+    "slug": "sod1820_reality_stream_os_master_v3_20261016_draft",
+    "body_length": 418641,
+    "body_md5": "e2e187c803a4c8c4da22f9edda036448",
+    "preserved_prefix_md5": "2968a40ccc49d14a752620750b640b70",
+    "updated_at": "2026-11-01 18:50:15.94+00"
+  },
+  "appendOnly": true,
+  "otherContentPreserved": true
+}

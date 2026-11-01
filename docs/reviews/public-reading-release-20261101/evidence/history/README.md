@@ -1,0 +1,1 @@
+Historical and diagnostic evidence only. browser-c297584b and native-home-recheck/native-home-geometry predate the final Home geometry fix. Read each receipt identity. They are not acceptance of final4e6239c6. The historical native samples demonstrate the measured Home shift before that fix.

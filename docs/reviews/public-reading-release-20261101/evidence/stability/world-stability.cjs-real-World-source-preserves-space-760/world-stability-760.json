@@ -1,0 +1,24 @@
+{
+  "width": 760,
+  "pending": {
+    "x": 12,
+    "y": 315.09375,
+    "width": 736,
+    "height": 820
+  },
+  "success": {
+    "x": 12,
+    "y": 315.09375,
+    "width": 736,
+    "height": 820
+  },
+  "failed": {
+    "x": 12,
+    "y": 315.09375,
+    "width": 736,
+    "height": 820
+  },
+  "data": "real public Post success, controlled 403 and retry; no private/draft substitute",
+  "writes": 0,
+  "models": 0
+}

@@ -1,0 +1,116 @@
+{
+  "sha": "4e6239c6d26e00b70ee10b341529491bd5b0b43c",
+  "checks": [
+    {
+      "name": "protected document/header",
+      "path": "/",
+      "status": 200,
+      "cacheControl": "private, no-store",
+      "robots": "noindex, nofollow, noarchive"
+    },
+    {
+      "name": "protected document/header",
+      "path": "/assets/2029-BPyfd1jD.js",
+      "status": 200,
+      "cacheControl": "private, max-age=31536000, immutable",
+      "robots": "noindex, nofollow, noarchive"
+    },
+    {
+      "name": "protected document/header",
+      "path": "/preview-readonly-sw.js",
+      "status": 200,
+      "cacheControl": "no-store",
+      "robots": "noindex, nofollow, noarchive"
+    },
+    {
+      "name": "protected document/header",
+      "path": "/robots.txt",
+      "status": 200,
+      "cacheControl": "no-store",
+      "robots": "noindex, nofollow, noarchive"
+    },
+    {
+      "name": "protected document/header",
+      "path": "/login",
+      "status": 200,
+      "cacheControl": "private, no-store",
+      "robots": "noindex, nofollow, noarchive"
+    },
+    {
+      "name": "protected document/header",
+      "path": "/privacy",
+      "status": 200,
+      "cacheControl": "private, no-store",
+      "robots": "noindex, nofollow, noarchive"
+    },
+    {
+      "name": "protected document/header",
+      "path": "/updates",
+      "status": 200,
+      "cacheControl": "private, no-store",
+      "robots": "noindex, nofollow, noarchive"
+    },
+    {
+      "name": "protected document/header",
+      "path": "/unsubscribe",
+      "status": 200,
+      "cacheControl": "private, no-store",
+      "robots": "noindex, nofollow, noarchive"
+    },
+    {
+      "name": "protected document/header",
+      "path": "/map",
+      "status": 200,
+      "cacheControl": "private, no-store",
+      "robots": "noindex, nofollow, noarchive"
+    },
+    {
+      "name": "real post canonical",
+      "id": 92,
+      "source": "wordpress",
+      "path": "/%d7%97%d7%99%d7%a1%d7%95%d7%9c-%d7%a0%d7%a1%d7%a8%d7%90%d7%9c%d7%9c%d7%94-%d7%94%d7%aa%d7%a8%d7%97%d7%a9-%d7%91%d7%99%d7%95%d7%9d-%d7%94358-%d7%9c%d7%9c%d7%97%d7%99%d7%9e%d7%94-%d7%9e%d7%a9%d7%99/",
+      "canonical": "https://sod1820.co.il/%d7%97%d7%99%d7%a1%d7%95%d7%9c-%d7%a0%d7%a1%d7%a8%d7%90%d7%9c%d7%9c%d7%94-%d7%94%d7%aa%d7%a8%d7%97%d7%a9-%d7%91%d7%99%d7%95%d7%9d-%d7%94358-%d7%9c%d7%9c%d7%97%d7%99%d7%9e%d7%94-%d7%9e%d7%a9%d7%99/",
+      "status": 200
+    },
+    {
+      "name": "real post canonical",
+      "id": 5112,
+      "source": "ai",
+      "path": "/post/flydubai-fz1073-363-14000-remzei-geula",
+      "canonical": "https://sod1820.co.il/post/flydubai-fz1073-363-14000-remzei-geula",
+      "status": 200
+    },
+    {
+      "name": "actual Bennett draft remains unpublished",
+      "status": 404
+    },
+    {
+      "name": "real HTTP404",
+      "status": 404
+    },
+    {
+      "name": "canonical XML",
+      "count": 14543,
+      "unique": true,
+      "historicalAndNativePosts": true,
+      "noPrivateOrDeferredRoutes": true,
+      "indexingProven": false
+    },
+    {
+      "name": "direct Preview API write denial",
+      "path": "/api/contributor-self",
+      "status": 403,
+      "callerCredentials": false
+    },
+    {
+      "name": "direct Preview API write denial",
+      "path": "/api/preview-raziel",
+      "status": 404,
+      "callerCredentials": false
+    }
+  ],
+  "liveProductWrites": 0,
+  "models": 0,
+  "origin": "https://sod1820-cnporwdqk-sod1820-s-projects.vercel.app",
+  "ok": true
+}

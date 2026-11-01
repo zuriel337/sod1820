@@ -1,0 +1,579 @@
+{
+  "sha": "4e6239c6d26e00b70ee10b341529491bd5b0b43c",
+  "realServiceWorker": true,
+  "networkInterception": false,
+  "mockResponses": false,
+  "liveProductWrites": 0,
+  "models": 0,
+  "cases": [
+    {
+      "width": 390,
+      "homeTiming": {
+        "navigation": [
+          {
+            "responseStart": 333.1000000089407,
+            "domContentLoaded": 991.4000000059605,
+            "load": 1775.7000000029802
+          }
+        ],
+        "lcp": [
+          {
+            "time": 2688,
+            "size": 2552
+          },
+          {
+            "time": 5812,
+            "size": 5325
+          },
+          {
+            "time": 7604,
+            "size": 76639
+          }
+        ],
+        "shifts": [],
+        "primaryReadyMs": 7051.20000000298,
+        "observationAfterPrimaryMs": 6000,
+        "conditions": "cold real protected deployment, real SW/data; CDP150ms/1.6Mbps/4xCPU",
+        "primaryPostHref": "/post/mivchan-acharon-lifney-hapriza-dim5-20261031",
+        "geometry": {
+          ".h29-hero": {
+            "x": 12,
+            "y": 136,
+            "width": 366,
+            "height": 560,
+            "top": 136,
+            "right": 378,
+            "bottom": 696,
+            "left": 12
+          },
+          ".h29-updates": {
+            "x": 12,
+            "y": 757.390625,
+            "width": 366,
+            "height": 349.265625,
+            "top": 757.390625,
+            "right": 378,
+            "bottom": 1106.65625,
+            "left": 12
+          },
+          ".h29-card": {
+            "x": 107.171875,
+            "y": 757.390625,
+            "width": 270.828125,
+            "height": 349.265625,
+            "top": 757.390625,
+            "right": 378,
+            "bottom": 1106.65625,
+            "left": 107.171875
+          }
+        },
+        "fonts": {
+          "status": "loaded",
+          "resources": [
+            {
+              "url": "https://sod1820-cnporwdqk-sod1820-s-projects.vercel.app/fonts/NotoSansHebrew-Regular.ttf",
+              "start": 363.5,
+              "end": 1352.4000000059605
+            },
+            {
+              "url": "https://sod1820-cnporwdqk-sod1820-s-projects.vercel.app/fonts/NotoSansHebrew-Bold.ttf",
+              "start": 365,
+              "end": 1194.6000000089407
+            },
+            {
+              "url": "https://sod1820-cnporwdqk-sod1820-s-projects.vercel.app/fonts/Rubik-Hebrew.woff2",
+              "start": 365.1000000089407,
+              "end": 1224.7999999970198
+            },
+            {
+              "url": "https://sod1820-cnporwdqk-sod1820-s-projects.vercel.app/fonts/Rubik-Latin.woff2",
+              "start": 365.20000000298023,
+              "end": 1771.9000000059605
+            },
+            {
+              "url": "https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap",
+              "start": 365.29999999701977,
+              "end": 985.1000000089407
+            }
+          ]
+        }
+      },
+      "errors": []
+    },
+    {
+      "width": 1440,
+      "homeTiming": {
+        "navigation": [
+          {
+            "responseStart": 195,
+            "domContentLoaded": 631.7999999970198,
+            "load": 635.5999999940395
+          }
+        ],
+        "lcp": [
+          {
+            "time": 860,
+            "size": 2552
+          },
+          {
+            "time": 1740,
+            "size": 8184
+          },
+          {
+            "time": 2540,
+            "size": 44484
+          }
+        ],
+        "shifts": [],
+        "primaryReadyMs": 2565.699999988079,
+        "observationAfterPrimaryMs": 6000,
+        "conditions": "cold real protected deployment, real SW/data, unthrottled desktop",
+        "primaryPostHref": "/post/mivchan-acharon-lifney-hapriza-dim5-20261031",
+        "geometry": {
+          ".h29-hero": {
+            "x": 128,
+            "y": 186,
+            "width": 1112,
+            "height": 250,
+            "top": 186,
+            "right": 1240,
+            "bottom": 436,
+            "left": 128
+          },
+          ".h29-updates": {
+            "x": 128,
+            "y": 497.390625,
+            "width": 1112,
+            "height": 348.125,
+            "top": 497.390625,
+            "right": 1240,
+            "bottom": 845.515625,
+            "left": 128
+          },
+          ".h29-card": {
+            "x": 971,
+            "y": 497.390625,
+            "width": 269,
+            "height": 348.125,
+            "top": 497.390625,
+            "right": 1240,
+            "bottom": 845.515625,
+            "left": 971
+          }
+        },
+        "fonts": {
+          "status": "loaded",
+          "resources": [
+            {
+              "url": "https://sod1820-cnporwdqk-sod1820-s-projects.vercel.app/fonts/NotoSansHebrew-Regular.ttf",
+              "start": 205.3999999910593,
+              "end": 390.3999999910593
+            },
+            {
+              "url": "https://sod1820-cnporwdqk-sod1820-s-projects.vercel.app/fonts/NotoSansHebrew-Bold.ttf",
+              "start": 205.69999998807907,
+              "end": 391.09999999403954
+            },
+            {
+              "url": "https://sod1820-cnporwdqk-sod1820-s-projects.vercel.app/fonts/Rubik-Hebrew.woff2",
+              "start": 206.79999999701977,
+              "end": 395
+            },
+            {
+              "url": "https://sod1820-cnporwdqk-sod1820-s-projects.vercel.app/fonts/Rubik-Latin.woff2",
+              "start": 206.8999999910593,
+              "end": 368.19999998807907
+            },
+            {
+              "url": "https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap",
+              "start": 207.8999999910593,
+              "end": 630.5
+            }
+          ]
+        }
+      },
+      "errors": []
+    },
+    {
+      "width": 390,
+      "homeTiming": {
+        "navigation": [
+          {
+            "responseStart": 157.70000000298023,
+            "domContentLoaded": 821.5,
+            "load": 1537.800000011921
+          }
+        ],
+        "lcp": [
+          {
+            "time": 2420,
+            "size": 2552
+          },
+          {
+            "time": 5408,
+            "size": 5325
+          },
+          {
+            "time": 7136,
+            "size": 76640
+          }
+        ],
+        "shifts": [],
+        "primaryReadyMs": 6805.5,
+        "observationAfterPrimaryMs": 6000,
+        "conditions": "cold real protected deployment, real SW/data; CDP150ms/1.6Mbps/4xCPU",
+        "primaryPostHref": "/post/mivchan-acharon-lifney-hapriza-dim5-20261031",
+        "geometry": {
+          ".h29-hero": {
+            "x": 12,
+            "y": 136,
+            "width": 366,
+            "height": 560,
+            "top": 136,
+            "right": 378,
+            "bottom": 696,
+            "left": 12
+          },
+          ".h29-updates": {
+            "x": 12,
+            "y": 757.390625,
+            "width": 366,
+            "height": 349.265625,
+            "top": 757.390625,
+            "right": 378,
+            "bottom": 1106.65625,
+            "left": 12
+          },
+          ".h29-card": {
+            "x": 107.171875,
+            "y": 757.390625,
+            "width": 270.828125,
+            "height": 349.265625,
+            "top": 757.390625,
+            "right": 378,
+            "bottom": 1106.65625,
+            "left": 107.171875
+          }
+        },
+        "fonts": {
+          "status": "loaded",
+          "resources": [
+            {
+              "url": "https://sod1820-cnporwdqk-sod1820-s-projects.vercel.app/fonts/NotoSansHebrew-Regular.ttf",
+              "start": 202.6000000089407,
+              "end": 1159.9000000059605
+            },
+            {
+              "url": "https://sod1820-cnporwdqk-sod1820-s-projects.vercel.app/fonts/NotoSansHebrew-Bold.ttf",
+              "start": 205.6000000089407,
+              "end": 859.3000000119209
+            },
+            {
+              "url": "https://sod1820-cnporwdqk-sod1820-s-projects.vercel.app/fonts/Rubik-Hebrew.woff2",
+              "start": 211.1000000089407,
+              "end": 574.5
+            },
+            {
+              "url": "https://sod1820-cnporwdqk-sod1820-s-projects.vercel.app/fonts/Rubik-Latin.woff2",
+              "start": 211.30000001192093,
+              "end": 1534.5
+            },
+            {
+              "url": "https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap",
+              "start": 212.70000000298023,
+              "end": 815.1000000089407
+            }
+          ]
+        }
+      },
+      "errors": []
+    },
+    {
+      "width": 1440,
+      "homeTiming": {
+        "navigation": [
+          {
+            "responseStart": 226.70000000298023,
+            "domContentLoaded": 765.5,
+            "load": 768.7999999970198
+          }
+        ],
+        "lcp": [
+          {
+            "time": 1112,
+            "size": 2552
+          },
+          {
+            "time": 2940,
+            "size": 8184
+          },
+          {
+            "time": 3600,
+            "size": 17712
+          },
+          {
+            "time": 3612,
+            "size": 44484
+          }
+        ],
+        "shifts": [],
+        "primaryReadyMs": 3660.0999999940395,
+        "observationAfterPrimaryMs": 6000,
+        "conditions": "cold real protected deployment, real SW/data, unthrottled desktop",
+        "primaryPostHref": "/post/mivchan-acharon-lifney-hapriza-dim5-20261031",
+        "geometry": {
+          ".h29-hero": {
+            "x": 128,
+            "y": 186,
+            "width": 1112,
+            "height": 250,
+            "top": 186,
+            "right": 1240,
+            "bottom": 436,
+            "left": 128
+          },
+          ".h29-updates": {
+            "x": 128,
+            "y": 497.390625,
+            "width": 1112,
+            "height": 348.125,
+            "top": 497.390625,
+            "right": 1240,
+            "bottom": 845.515625,
+            "left": 128
+          },
+          ".h29-card": {
+            "x": 971,
+            "y": 497.390625,
+            "width": 269,
+            "height": 348.125,
+            "top": 497.390625,
+            "right": 1240,
+            "bottom": 845.515625,
+            "left": 971
+          }
+        },
+        "fonts": {
+          "status": "loaded",
+          "resources": [
+            {
+              "url": "https://sod1820-cnporwdqk-sod1820-s-projects.vercel.app/fonts/NotoSansHebrew-Regular.ttf",
+              "start": 235.09999999403954,
+              "end": 512.2999999970198
+            },
+            {
+              "url": "https://sod1820-cnporwdqk-sod1820-s-projects.vercel.app/fonts/NotoSansHebrew-Bold.ttf",
+              "start": 235.5,
+              "end": 508.29999999701977
+            },
+            {
+              "url": "https://sod1820-cnporwdqk-sod1820-s-projects.vercel.app/fonts/Rubik-Hebrew.woff2",
+              "start": 235.59999999403954,
+              "end": 502.8999999910593
+            },
+            {
+              "url": "https://sod1820-cnporwdqk-sod1820-s-projects.vercel.app/fonts/Rubik-Latin.woff2",
+              "start": 235.70000000298023,
+              "end": 532.0999999940395
+            },
+            {
+              "url": "https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap",
+              "start": 235.79999999701977,
+              "end": 764.2999999970198
+            }
+          ]
+        }
+      },
+      "errors": []
+    },
+    {
+      "width": 390,
+      "homeTiming": {
+        "navigation": [
+          {
+            "responseStart": 139.20000000298023,
+            "domContentLoaded": 758.3999999910593,
+            "load": 1487.3999999910593
+          }
+        ],
+        "lcp": [
+          {
+            "time": 2468,
+            "size": 2552
+          },
+          {
+            "time": 5528,
+            "size": 5325
+          },
+          {
+            "time": 7188,
+            "size": 76640
+          }
+        ],
+        "shifts": [],
+        "primaryReadyMs": 6734.29999999702,
+        "observationAfterPrimaryMs": 6000,
+        "conditions": "cold real protected deployment, real SW/data; CDP150ms/1.6Mbps/4xCPU",
+        "primaryPostHref": "/post/mivchan-acharon-lifney-hapriza-dim5-20261031",
+        "geometry": {
+          ".h29-hero": {
+            "x": 12,
+            "y": 136,
+            "width": 366,
+            "height": 560,
+            "top": 136,
+            "right": 378,
+            "bottom": 696,
+            "left": 12
+          },
+          ".h29-updates": {
+            "x": 12,
+            "y": 757.390625,
+            "width": 366,
+            "height": 349.265625,
+            "top": 757.390625,
+            "right": 378,
+            "bottom": 1106.65625,
+            "left": 12
+          },
+          ".h29-card": {
+            "x": 107.171875,
+            "y": 757.390625,
+            "width": 270.828125,
+            "height": 349.265625,
+            "top": 757.390625,
+            "right": 378,
+            "bottom": 1106.65625,
+            "left": 107.171875
+          }
+        },
+        "fonts": {
+          "status": "loaded",
+          "resources": [
+            {
+              "url": "https://sod1820-cnporwdqk-sod1820-s-projects.vercel.app/fonts/NotoSansHebrew-Regular.ttf",
+              "start": 206.8999999910593,
+              "end": 1023
+            },
+            {
+              "url": "https://sod1820-cnporwdqk-sod1820-s-projects.vercel.app/fonts/NotoSansHebrew-Bold.ttf",
+              "start": 208,
+              "end": 911.0999999940395
+            },
+            {
+              "url": "https://sod1820-cnporwdqk-sod1820-s-projects.vercel.app/fonts/Rubik-Hebrew.woff2",
+              "start": 208.79999999701977,
+              "end": 791.0999999940395
+            },
+            {
+              "url": "https://sod1820-cnporwdqk-sod1820-s-projects.vercel.app/fonts/Rubik-Latin.woff2",
+              "start": 208.79999999701977,
+              "end": 1480.7000000029802
+            },
+            {
+              "url": "https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap",
+              "start": 209.59999999403954,
+              "end": 753.8999999910593
+            }
+          ]
+        }
+      },
+      "errors": []
+    },
+    {
+      "width": 1440,
+      "homeTiming": {
+        "navigation": [
+          {
+            "responseStart": 116.8999999910593,
+            "domContentLoaded": 515.5999999940395,
+            "load": 518.2000000029802
+          }
+        ],
+        "lcp": [
+          {
+            "time": 1224,
+            "size": 2552
+          },
+          {
+            "time": 2384,
+            "size": 8184
+          },
+          {
+            "time": 3016,
+            "size": 44484
+          }
+        ],
+        "shifts": [],
+        "primaryReadyMs": 3410.5999999940395,
+        "observationAfterPrimaryMs": 6000,
+        "conditions": "cold real protected deployment, real SW/data, unthrottled desktop",
+        "primaryPostHref": "/post/mivchan-acharon-lifney-hapriza-dim5-20261031",
+        "geometry": {
+          ".h29-hero": {
+            "x": 128,
+            "y": 186,
+            "width": 1112,
+            "height": 250,
+            "top": 186,
+            "right": 1240,
+            "bottom": 436,
+            "left": 128
+          },
+          ".h29-updates": {
+            "x": 128,
+            "y": 497.390625,
+            "width": 1112,
+            "height": 348.125,
+            "top": 497.390625,
+            "right": 1240,
+            "bottom": 845.515625,
+            "left": 128
+          },
+          ".h29-card": {
+            "x": 971,
+            "y": 497.390625,
+            "width": 269,
+            "height": 348.125,
+            "top": 497.390625,
+            "right": 1240,
+            "bottom": 845.515625,
+            "left": 971
+          }
+        },
+        "fonts": {
+          "status": "loaded",
+          "resources": [
+            {
+              "url": "https://sod1820-cnporwdqk-sod1820-s-projects.vercel.app/fonts/NotoSansHebrew-Regular.ttf",
+              "start": 126.3999999910593,
+              "end": 175.8999999910593
+            },
+            {
+              "url": "https://sod1820-cnporwdqk-sod1820-s-projects.vercel.app/fonts/Rubik-Hebrew.woff2",
+              "start": 126.79999999701977,
+              "end": 171.8999999910593
+            },
+            {
+              "url": "https://sod1820-cnporwdqk-sod1820-s-projects.vercel.app/fonts/NotoSansHebrew-Bold.ttf",
+              "start": 126.79999999701977,
+              "end": 325.59999999403954
+            },
+            {
+              "url": "https://sod1820-cnporwdqk-sod1820-s-projects.vercel.app/fonts/Rubik-Latin.woff2",
+              "start": 128.20000000298023,
+              "end": 324.59999999403954
+            },
+            {
+              "url": "https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap",
+              "start": 128.59999999403954,
+              "end": 514
+            }
+          ]
+        }
+      },
+      "errors": []
+    }
+  ],
+  "ok": true
+}

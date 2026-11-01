@@ -71,3 +71,15 @@ The launch profile performs no product data writes, and no migrations are propos
 That reduces rollback coupling but is **not** evidence of a recoverable data backup.
 A separate consistent database backup + actual media object backup must be restored and
 verified in an egress-disabled disposable environment before claiming disaster recovery.
+
+Machine-readable review configuration: production-profile.proposed.json. Its
+Preview switches are OFF; the public profile itself enforces reading-only mode.
+The protected compiler's legacy-named READ_ONLY_PREVIEW switch is currently also
+ON as a redundant restriction, and is not a prerequisite for the profile's OR
+restriction. Production activation must use the explicit profile, not copy broad
+Preview bypass flags. This JSON is a proposed configuration, not an active deploy
+file or evidence that the Production adapter/indexing/guard was accepted.
+
+AGENTS.md line11 explicitly says: "שינוי השער עצמו דורש אישור מפורש נפרד של ZURIEL".
+The original legacy-production-lock was not edited. The user currently forbids
+live transition; therefore Production headers/guards/traffic remain unactivated.
