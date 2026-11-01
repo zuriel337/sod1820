@@ -114,6 +114,7 @@ export default function HomeComposition2029({
   const [videosRef, videosAdmitted] = useApproach2029(!corePublic && !primary.loading);
   const [identityRef, identityAdmitted] = useApproach2029(!corePublic && !primary.loading);
   const [worldRef, worldAdmitted] = useApproach2029(!corePublic && !primary.loading);
+  const [storyRef, storyAdmitted] = useApproach2029(!corePublic && !primary.loading);
   const deferred = useHomeDeferredData({ includeWorld: !corePublic, videosAdmitted, identityAdmitted });
   const data = { ...primary, ...deferred };
   useEffect(() => { if (worldAdmitted) onWorldApproach?.(true); }, [worldAdmitted, onWorldApproach]);
@@ -176,7 +177,8 @@ export default function HomeComposition2029({
       </div>
     </Section> : null}
 
-    {story ? <Reveal id="story">{story}</Reveal> : null}
+    {story ? <Reveal id="story" admissionRef={storyRef}>{storyAdmitted ? story
+      : <section id="home-plane" className="sod29-flight-story is-home is-loading" aria-label="סיפור המטוס נטען"><p role="status">סיפור המטוס וכיווני הגילוי</p></section>}</Reveal> : null}
 
     {elsEntry ? <Reveal id="els-entry">{elsEntry}</Reveal> : null}
 

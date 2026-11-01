@@ -1143,11 +1143,22 @@ export async function fetchEntityHubProjection({
   const isNumberNode = node.type === "number" && Number.isSafeInteger(Number(node.label));
   const parallel = parallelNumberReads && isNumberNode;
   const researchPromise = fetchResearchObjectsForEntity(node, { limit: researchLimit, locale, allowUnstoredNumber });
+  let earlyFamilyOutcome = null;
+  const readFamilyDetails = async (groups) => {
+    const shownPhrases = groups.flatMap(group => (group.phrases || []).slice(0, SHOWN_PHRASES_PER_FAMILY).map(item => typeof item === "string" ? item : item?.phrase || item?.label));
+    const [registryRows, entityNodes] = await Promise.all([
+      fetchMethodRegistry(groups.map(group => group.method)),
+      fetchNodesByLabels("entity", shownPhrases),
+    ]);
+    return { registryRows, entityNodes };
+  };
   const readNumberData = () => {
     const number = Number(node.label);
-    return Promise.all([
-      fetchTopicFindingsForNumber(number, { limit: topicLimit }),
-      researchPromise.then(research => researchNumber(number, {
+    const familiesRead = getValueFamilies(number, 12);
+    if (parallel) earlyFamilyOutcome = familiesRead.then(readFamilyDetails).then(
+      value => ({ ok: true, value }), error => ({ ok: false, error }),
+    );
+    const readResearch = (research) => researchNumber(number, {
         lenses: Array.isArray(numberResearchLenses) && numberResearchLenses.length
           ? numberResearchLenses
           : ["number_lookup", "number_dossier", "number_journey", "neighbors", "research_objects"],
@@ -1156,18 +1167,20 @@ export async function fetchEntityHubProjection({
           Array.isArray(numberResearchLenses) && numberResearchLenses.length ? numberResearchLenses.length : 5,
         )), depth: 1 },
         rpc: (name, args) => supabase.rpc(name, args),
-        fetchResearchObjects: async () => ({ data: research.rows }),
+        // These independent canonical lenses need not wait for the research
+        // rows. Only their own research_objects adapter awaits that read.
+        fetchResearchObjects: async () => ({ data: (research || await researchPromise).rows }),
         researchObjectLimit: researchLimit,
-        // World deep view must be able to show the complete canonical reverse-lookup source
-        // population. Numeric Research still owns the bounded/source-exhaustive contract and caps
-        // this at 500 rows; World does not implement a parallel lookup or ordering rule.
         lookupWindow: numberLookupLimit === 500
           ? DEFAULT_NUMBER_RESEARCH_OPTIONS.lookupWindow
           : { limit: safeLimit(numberLookupLimit, 500, 500) },
         provenance: { requestSource: "entity-hub-projection-v2", inputRef: node.id ? `node:${node.id}` : `number:${number}` },
-      })),
+      });
+    return Promise.all([
+      fetchTopicFindingsForNumber(number, { limit: topicLimit }),
+      parallel ? readResearch(null) : researchPromise.then(readResearch),
       getEntityBundle({ term: String(number), value: number, isNumber: true }),
-      getValueFamilies(number, 12),
+      familiesRead,
       fetchNumberWorlds(number),
       fetchNumberSignatures(number),
       fetchZeroScale(number),
@@ -1226,11 +1239,10 @@ export async function fetchEntityHubProjection({
     // Number → Entity bridge: phrases already shown in the families resolve to EXISTING entity nodes
     // (bounded to the shown phrases; nothing is created). This is what makes
     // "<phrase> · <method> = <number>" clickable into the canonical entity hub.
-    const shownPhrases = gematriaFamilies.flatMap(group => (group.phrases || []).slice(0, SHOWN_PHRASES_PER_FAMILY).map(item => typeof item === "string" ? item : item?.phrase || item?.label));
-    const [registryRows, entityNodes] = await Promise.all([
-      fetchMethodRegistry(gematriaFamilies.map(group => group.method)),
-      fetchNodesByLabels("entity", shownPhrases),
-    ]);
+    const familyOutcome = earlyFamilyOutcome ? await earlyFamilyOutcome
+      : { ok: true, value: await readFamilyDetails(gematriaFamilies) };
+    if (!familyOutcome.ok) throw familyOutcome.error;
+    const { registryRows, entityNodes } = familyOutcome.value;
     methodRegistry = registryRows;
     gematriaFamilies = enrichGematriaFamilies(gematriaFamilies, methodRegistry);
     phraseEntities = buildPhraseEntityLinks(entityNodes);

@@ -1,6 +1,6 @@
 import { publicPostHref } from "../lib/publicPostUrls.js";
 import NavigationIcon2029 from "../components/experience2029/NavigationIcon2029.jsx";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { relativeTimeLabel } from "../lib/relativeTime2029.js";
 import Sod2029Shell, { use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
@@ -10,7 +10,8 @@ import { fetchHome2029Projection, fetchHomeWorldPreview2029 } from "../lib/resea
 import { buildCalculator2029FastPreview } from "../lib/research/calculator2029FastPreview.js";
 import { buildUnifiedResearchEntry } from "../lib/research/unifiedResearchEntry.js";
 import { applySeo, PUBLIC_HOME_SEO } from "../lib/seo.js";
-import WorldFlightStory2029 from "../components/research/WorldFlightStory2029.jsx";
+const WorldFlightStory2029 = lazy(() => import("../components/research/WorldFlightStory2029.jsx"));
+import "./home-world-story2029.css";
 import SourceArrivalList2029 from "../components/research/SourceArrivalList2029.jsx";
 import HomeRealityRiver2029, { RealityRiver2029 } from "../components/research/RealityRiver2029.jsx";
 import RealityStreamFollow2029 from "../components/research/RealityStreamFollow2029.jsx";
@@ -495,7 +496,7 @@ function HomeBody() {
     onOpenWorkspace={shell.openWorkspace}
     worldOpen={worldOpen}
     nowHero={!homeState.loading && temporalNow ? <TemporalNowCard item={temporalNow} onOpen={openTemporalNow} /> : null}
-    story={CORE_PUBLIC_LAUNCH_2029 ? null : <WorldFlightStory2029 surface="home" research={research} shell={shell} />}
+    story={CORE_PUBLIC_LAUNCH_2029 ? null : <Suspense fallback={<section id="home-plane" className="sod29-flight-story is-home is-loading" aria-label="סיפור המטוס נטען"><p role="status">פותח את סיפור המטוס…</p></section>}><WorldFlightStory2029 surface="home" research={research} shell={shell} /></Suspense>}
     elsEntry={<ElsRotatingMatrixCard2029 />}
     arrivals={CORE_PUBLIC_LAUNCH_2029 ? null : <div className="h29-stream">
       {worldRequested ? <HomeRealityRiver2029 />
