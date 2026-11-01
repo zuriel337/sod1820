@@ -507,6 +507,39 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
   }, [state.projection]);
 
   useEffect(() => {
+    // The hero's Number stage is outside sourceRef. Restore its existing
+    // public anchor after async source hydration, including browser reload.
+    let id;
+    try { id = decodeURIComponent(location.hash.slice(1)); } catch { return undefined; }
+    if (id !== "post-gematria" || !state.projection) return undefined;
+    const target = document.getElementById(id);
+    const root = target?.closest(".sod29-reading-post");
+    if (!target || !root) return undefined;
+    let released = false, frame = null;
+    const land = () => {
+      if (released) return;
+      target.scrollIntoView({ block: "start", behavior: "instant" });
+    };
+    const schedule = () => {
+      if (frame != null) cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(land);
+    };
+    target.setAttribute("tabindex", "-1");
+    target.focus({ preventScroll: true });
+    schedule();
+    const observer = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(schedule);
+    observer?.observe(root);
+    const release = () => { released = true; observer?.disconnect(); };
+    const events = ["wheel", "touchstart", "pointerdown", "keydown"];
+    for (const name of events) window.addEventListener(name, release, { passive: true, once: true });
+    return () => {
+      release();
+      if (frame != null) cancelAnimationFrame(frame);
+      for (const name of events) window.removeEventListener(name, release);
+    };
+  }, [state.projection?.post?.id, location.pathname, location.search, location.hash]);
+
+  useEffect(() => {
     // Native IDs and snapshot-bound presentation locators survive refresh/Back.
     // Legacy locators are admitted only after mapping to the unchanged source.
     let id;

@@ -662,6 +662,7 @@
   font-weight:760;
 }
 .sod29-reading-number-stage{
+  scroll-margin-top:max(130px,18vh);
   position:relative;
   min-height:330px;
   display:grid;
