@@ -1,0 +1,80 @@
+{
+  "sourceSha": "979c25aa2a91fa96de3a50db8fc93425a183c694",
+  "actualSW": true,
+  "source": "native-clean-979c/results.json; retained evidence c63850d9",
+  "scope": "fresh 390 only, 4x CPU/150ms latency/200000Bps down/100000Bps up",
+  "rows": [
+    {
+      "label": "fresh-1",
+      "ok": true,
+      "homeDomUsefulMs": 4919.6,
+      "homeDriverMs": 5070.2,
+      "fontFetches": 4,
+      "fontLastNetworkEndMs": 1585.3,
+      "primaryPostsRead": {
+        "startMs": 2411.1,
+        "endMs": 3251.6,
+        "durationMs": 840.5
+      },
+      "primaryReadEndToUsefulMs": 1668,
+      "initialReads": 24,
+      "readsStartingAfterUseful": 13,
+      "exactDuplicateReadSignatures": 0,
+      "cls": 0.00038553389126305795,
+      "errors": 0,
+      "firstStep": 7211.0999999940395
+    },
+    {
+      "label": "fresh-2",
+      "ok": true,
+      "homeDomUsefulMs": 4911.6,
+      "homeDriverMs": 5095,
+      "fontFetches": 4,
+      "fontLastNetworkEndMs": 1542.2,
+      "primaryPostsRead": {
+        "startMs": 2480.2,
+        "endMs": 3292.3,
+        "durationMs": 812.1
+      },
+      "primaryReadEndToUsefulMs": 1619.3,
+      "initialReads": 24,
+      "readsStartingAfterUseful": 13,
+      "exactDuplicateReadSignatures": 0,
+      "cls": 0.0003855005045109212,
+      "errors": 0,
+      "firstStep": 7060.5
+    },
+    {
+      "label": "fresh-3",
+      "ok": true,
+      "homeDomUsefulMs": 4817.2,
+      "homeDriverMs": 4953.3,
+      "fontFetches": 4,
+      "fontLastNetworkEndMs": 1561.8,
+      "primaryPostsRead": {
+        "startMs": 2416.2,
+        "endMs": 3207.2,
+        "durationMs": 791
+      },
+      "primaryReadEndToUsefulMs": 1610,
+      "initialReads": 24,
+      "readsStartingAfterUseful": 13,
+      "exactDuplicateReadSignatures": 0,
+      "cls": 0.00037158218581829697,
+      "errors": 0,
+      "firstStep": 6998.5
+    }
+  ],
+  "median": {
+    "homeDomUsefulMs": 4911.6,
+    "fontLastNetworkEndMs": 1561.8,
+    "primaryReadEndToUsefulMs": 1619.3
+  },
+  "limits": [
+    "Network completion is not font activation or await completion.",
+    "Script resource timings do not measure JavaScript evaluation.",
+    "Gap between primary read and useful DOM is observed, not causally attributed.",
+    "Different query signatures may overlap rows; no identical request duplication is not proof of zero overlap.",
+    "Concurrent request durations must not be added into saved wall time."
+  ]
+}
