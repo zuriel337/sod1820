@@ -81,7 +81,7 @@ profiles are not used as proof of hosted asset equality.
 
 ## Retained evidence and next pass
 
-`native-3da9-evidence.zip` and manifest retain25 sanitized JSON/image artifacts,
+`native-3da9-evidence.zip` and manifest retain23 sanitized JSON/image artifacts,
 native successes followed by reload failures, returnfaults, the wheel diagnostic
 and both Home smokes. Perfile hashes and0secret-scan findings; no cookies,
 temporary access URL, credentials, headers or browserprofile. All browsersclosed
