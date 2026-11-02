@@ -1,6 +1,7 @@
 const { test, expect } = require('@playwright/test');
 const { installPublicTopicFixture, installSyntheticWorldCatalogFixture } = require('./fixtures/public-topic-888.cjs');
 const { installStorageEgressGuard } = require('./playwright-storage-egress-guard.cjs');
+const { installPublicReadOnlyEgress, disposePublicReadOnlyEgress, installSyntheticPublicLanguageFixture } = require('./fixtures/public-readonly-egress.cjs');
 
 const BASE = 'http://127.0.0.1:4173';
 const WORLD = '/world';
@@ -93,13 +94,14 @@ test.setTimeout(60_000);
 test.describe.configure({ mode: 'default' });
 test.beforeEach(async ({ context, page }) => {
   await installPublicTopicFixture(page,{onlyMatchingRequests:true});
-  await installStorageEgressGuard(context);
   // Preserve real read-only engine/data requests while keeping browser acceptance
   // visits, metrics and identity events out of the canonical product database.
   await context.route(/https:\/\/linswmnnkjxvweumprav\.supabase\.co\/rest\/v1\/(?:rpc\/(?:track_visit|ingest_event|link_identity)|visitor_events|page_views|user_activity)(?:\?.*)?$/, async (route) => {
     if (['GET', 'HEAD'].includes(route.request().method())) return route.fallback();
     return route.fulfill({ status: 204, body: '' });
   });
+  await installPublicReadOnlyEgress(context, { baseUrl: BASE });
+  await installStorageEgressGuard(context);
   if (!PRE_CUTOVER_FIXTURE) return;
 
   // Exercise the positive World/Number capability contracts without changing live
@@ -126,6 +128,7 @@ test.beforeEach(async ({ context, page }) => {
     }]),
   }));
 });
+test.afterEach(async ({ context }) => disposePublicReadOnlyEgress(context));
 
 async function openLaunchFlagForAcceptance(page, key) {
   await page.route('**/rest/v1/site_flags*', async (route) => route.fulfill({
@@ -368,6 +371,9 @@ test('Number 2029 preview opens 1237 with all available methods visible in one w
   await expect(core.locator('.sod29-number-v10-method-switcher')).toBeVisible();
   await expect(core.locator('.sod29-number-v10-stage')).toBeVisible();
   await expect(core.locator('[data-experience-action="number-life-seal"]')).toBeVisible();
+  // Canonical primary content is usable before the existing material reader.
+  // Keep every material assertion, but wait for its explicit ready boundary.
+  await expect(numberPage).toHaveAttribute('data-material-state', 'ready', { timeout: 30_000 });
   await expect(core.locator('[data-experience-capability="number-result-summary"]')).toBeVisible();
   await expect(core.locator('[data-experience-capability="number-result-summary"]')).toContainText('שכבות');
 
@@ -429,18 +435,61 @@ test('Number 2029 596 keeps six methods visible and finds Jerusalem↔Shomrim as
   const crossing = core.locator('[data-experience-capability="number-hidden-crossing"]');
   await expect(crossing).toContainText('שומרים', { timeout: 20_000 });
   await expect(crossing).toContainText('הצלבה נסתרת');
+  const jerusalemHref = page.url();
 
   const shomrimFocus = crossing.locator('[data-experience-action="crossing-focus"], [data-experience-action="crossing-focus-secondary"]').filter({ hasText: 'שומרים' }).first();
   await expect(shomrimFocus).toBeVisible();
   await shomrimFocus.click();
-  const focusedStage = core.locator('[data-experience-state="crossing-focus"]');
+  // Full Page opens a replayable expression address. Only compact Drawer keeps
+  // internal crossing-focus state; do not require Drawer behavior on the Page.
+  await expect.poll(() => {
+    const url = new URL(page.url());
+    return [url.pathname, url.searchParams.get('focus'), url.searchParams.get('method')];
+  }, { timeout: 20_000 }).toEqual(['/2029/number/596', 'שומרים', 'רגיל']);
+  await expect(numberPage).toHaveAttribute('data-number-root', '596');
+  await expect(core.locator('.sod29-number-v10-expression-line > strong')).toHaveText('שומרים');
+  await expect(numberPage.getByRole('region', { name: 'מיקוד ביטוי פעיל' })).toContainText('שומרים');
+  await expect(numberPage.getByRole('button', { name: '↩ ירושלים · 596', exact: true })).toBeVisible();
+  const typedReturn = await page.evaluate(() => JSON.parse(sessionStorage.getItem('sod_research_context_v2:guest') || 'null')?.returnTo);
+  const previous = new URL(jerusalemHref);
+  expect(typedReturn?.href).toBe(previous.pathname + previous.search + previous.hash);
+  expect(typedReturn?.selection?.expression).toBe('ירושלים');
+  expect(typedReturn?.selection?.method).toBe('רגיל');
+  expect(Number(typedReturn?.selection?.resultValue)).toBe(596);
+  await expect(numberPage).toHaveAttribute('data-material-state', 'ready', { timeout: 30_000 });
+  const reverseCrossing = core.locator('[data-experience-capability="number-hidden-crossing"]');
+  await expect(reverseCrossing).toContainText('ירושלים');
+  for (const value of ['596', '2650', '1156', '3210']) await expect(reverseCrossing).toContainText(value);
+  await page.goBack();
+  await expect(page).toHaveURL(jerusalemHref);
+  await expect(core.locator('.sod29-number-v10-expression-line > strong')).toHaveText('ירושלים');
+  await expect(core.locator('.sod29-number-v10-method-card').filter({ hasText: 'רגיל' }).first()).toHaveAttribute('aria-pressed', 'true');
+  await expect(numberPage).toHaveAttribute('data-number-root', '596');
+  await expect(numberPage).toHaveAttribute('data-material-state', 'ready', { timeout: 30_000 });
+  await expect(core.locator('[data-experience-state="number-result"]')).toBeVisible();
+  await expect(crossing).toContainText('רגיל = 596');
+  await expect(crossing).toContainText('ריבוע = 2650');
+
+  // Preserve the original internal-focus/reset contract on its actual owner:
+  // the compact Number Drawer. Page navigation above must remain unchanged.
+  await openNumberCapabilityFromIsland(page);
+  const drawer = page.locator('.sod29-number-drawer2029');
+  await expect(drawer).toBeVisible({ timeout: 30_000 });
+  await drawer.getByLabel('חפש מילה ביטוי או מספר').fill('ירושלים');
+  await drawer.getByRole('button', { name: 'חפש ✦' }).click();
+  await expect(drawer.locator('.sod29-number-v10-expression-line > strong')).toHaveText('ירושלים', { timeout: 20_000 });
+  const drawerCrossing = drawer.locator('[data-experience-capability="number-hidden-crossing"]');
+  await expect(drawerCrossing).toContainText('שומרים', { timeout: 20_000 });
+  await drawerCrossing.locator('[data-experience-action="crossing-focus"], [data-experience-action="crossing-focus-secondary"]').filter({ hasText: 'שומרים' }).first().click();
+  const focusedStage = drawer.locator('[data-experience-state="crossing-focus"]');
   await expect(focusedStage).toContainText('ירושלים');
   await expect(focusedStage).toContainText('שומרים');
   await expect(focusedStage).toContainText('Root 596 נשאר העוגן');
   await focusedStage.locator('[data-experience-action="crossing-focus-reset"]').click();
-  await expect(core.locator('[data-experience-state="number-result"]')).toBeVisible();
-  await expect(crossing).toContainText('רגיל = 596');
-  await expect(crossing).toContainText('ריבוע = 2650');
+  await expect(drawer.locator('[data-experience-state="number-result"]')).toBeVisible();
+  expect(page.url()).toBe(jerusalemHref);
+  await page.keyboard.press('Escape');
+  await expect(drawer).toHaveCount(0);
 
   // 596 has no whole-verse gematria hits in the canonical verse-value engine.
   await expect(numberPage.locator('[data-experience-capability="number-verses"]')).toHaveCount(0);
@@ -559,6 +608,9 @@ test('Contextual Number Surface stays one desktop sidecar through focus → prev
 
 
 test('Number 2029 Miluy switches the whole stage to 878 with language bridges and in-place explain', async ({ page }) => {
+  // Language rendering is fixture evidence; the live volatile/visitor RPC is
+  // denied by the independent guard, never forwarded with rewritten arguments.
+  const languageFixture = await installSyntheticPublicLanguageFixture(page);
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(`${BASE}/2029/number/358`, { waitUntil: 'domcontentloaded' });
 
@@ -577,8 +629,21 @@ test('Number 2029 Miluy switches the whole stage to 878 with language bridges an
   await expect(miluy).toBeEnabled();
   await miluy.click();
 
+  const numberPage = page.locator('[data-experience-surface="number"]');
+  await expect.poll(() => page.evaluate(() => {
+    const number = document.querySelector('[data-experience-surface="number"]');
+    const selected = number?.querySelector('.sod29-number-v10-method-card[aria-pressed="true"]');
+    const url = new URL(location.href);
+    return { root: number?.getAttribute('data-number-root'),
+      expression: number?.querySelector('.sod29-number-v10-expression-line > strong')?.textContent?.trim(),
+      method: url.searchParams.get('method'), focus: url.searchParams.get('focus'), pathname: url.pathname,
+      selected: selected?.querySelector('span')?.textContent?.trim(), value: number?.querySelector('.sod29-number-value')?.textContent?.trim(),
+      drawers: document.querySelectorAll('.sod29-number-drawer2029').length };
+  }), { timeout: 1_500 }).toEqual({ root: '878', expression: 'משיח', method: 'מילוי', focus: 'משיח',
+    pathname: '/2029/number/878', selected: 'מילוי', value: '878', drawers: 0 });
+  await expect(numberPage).toHaveAttribute('data-material-state', 'ready', { timeout: 30_000 });
   const stage = core.locator('.sod29-number-v10-stage');
-  await expect(stage).toHaveAttribute('data-stage-root', '878', { timeout: 1_500 });
+  await expect(stage).toHaveAttribute('data-stage-root', '878');
   await expect(stage).toContainText('משיח');
   await expect(stage.locator('.sod29-number-v10-calculation-card')).toContainText('878');
   await expect(stage.locator('[data-experience-capability="number-result-summary"]')).toBeVisible();
@@ -587,6 +652,7 @@ test('Number 2029 Miluy switches the whole stage to 878 with language bridges an
   await expect(language).toBeVisible({ timeout: 15_000 });
   await expect(language).toContainText('Messiah');
   await expect(language).toContainText('мессия');
+  expect(languageFixture.served, 'language content is explicitly synthetic public-only fixture evidence').toBeGreaterThan(0);
 
   await stage.getByRole('button', { name: /איך חישבנו/ }).click();
   const explain = stage.locator('[data-experience-capability="spatial-method-stage"][data-method-key="מילוי"]');
@@ -608,6 +674,7 @@ test('Number 2029 878 follows the approved release profile and preserves its jou
   const numberPage = page.locator('[data-experience-surface="number"]');
   await expect(numberPage).toBeVisible({ timeout: 30_000 });
   await expect(numberPage.locator('.sod29-number-value')).toHaveText('878');
+  await expect(numberPage).toHaveAttribute('data-material-state', 'ready', { timeout: 30_000 });
   const journeyGate = numberPage.locator('[data-experience-capability="number-journey-gate"]');
   await expect(journeyGate).toBeVisible();
   await expect(journeyGate).toContainText('878');
@@ -999,16 +1066,33 @@ for (const preset of ['light', 'parchment', 'dark']) {
       await selectWorldLandingView(page, 'אנשים ומקורות');
       const people = page.getByRole('region', { name: 'כל האנשים הציבוריים בעולם' });
       await expect(people).toBeVisible({ timeout: 30_000 });
-      await people.getByRole('textbox', { name: 'חיפוש לפי אדם, כותרת או מספר' }).fill('יניב לוי');
-      const writer = people.locator('article').filter({ hasText: 'יניב לוי' }).getByRole('button', { name: 'החומר בעולם' });
+      // The approved unified search owns q for both content and the existing
+      // people/source index. The former second local textbox is not a renderer.
+      const unifiedSearch = page.locator('[data-world-public-source-subjects]').getByRole('searchbox', { name: 'חיפוש לפי נושא, מקור או מספר', exact: true });
+      await expect(unifiedSearch).toBeVisible();
+      await unifiedSearch.fill('יניב לוי');
+      await expect.poll(() => new URL(page.url()).searchParams.get('q')).toBe('יניב לוי');
+      const writerArticle = people.locator('article').filter({ hasText: 'יניב לוי' });
+      const writer = writerArticle.getByRole('button', { name: 'החומר בעולם' });
       await expect(writer).toBeVisible({ timeout: 30_000 });
+      const writerHref = await writerArticle.getByRole('link').getAttribute('href');
+      expect(writerHref).toMatch(/^\/community\/researcher\//);
       await writer.click();
+      await expect.poll(() => {
+        const url = new URL(page.url());
+        return { view: url.searchParams.get('view'), query: url.searchParams.get('q'), source: !!url.searchParams.get('source'), hash: url.hash };
+      }).toEqual({ view: 'sources', query: 'יניב לוי', source: true, hash: '#world-source-selection' });
+      await expect(writer).toHaveAttribute('aria-pressed', 'true');
       const lens = page.getByRole('region', { name: 'החומר הציבורי של יניב לוי' });
       await expect(lens.getByRole('heading', { name: 'יניב לוי' })).toBeVisible({ timeout: 20_000 });
       await expect(lens).not.toContainText(/private|candidate|CONTRIBUTOR FINDINGS/i);
       await assertNoHorizontalOverflow(page);
       await lens.screenshot({ path: `test-results/release-visual/writer-projector-${preset}-${width}.png` });
+      // A whole-library read must not inherit the previous writer query.
+      await unifiedSearch.fill('');
+      await expect.poll(() => new URL(page.url()).searchParams.has('q')).toBe(false);
       await page.getByRole('region', { name: 'ספריות ומקורות בולטים' }).getByRole('button', { name: /סוד החשמל/ }).click();
+      await expect.poll(() => new URL(page.url()).searchParams.get('source')).toBe('sod-hashmal');
       const corpus = page.locator('[data-experience-capability="world-source-corpus"]');
       await expect(corpus.getByRole('combobox')).toBeVisible();
       await expect(corpus.locator('[data-experience-capability="corpus-full-source"]')).toBeVisible({ timeout: 20_000 });

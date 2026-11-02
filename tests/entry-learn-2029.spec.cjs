@@ -1,9 +1,14 @@
 const { test, expect } = require('@playwright/test');
 const { installStorageEgressGuard } = require('./playwright-storage-egress-guard.cjs');
+const { installPublicReadOnlyEgress, disposePublicReadOnlyEgress } = require('./fixtures/public-readonly-egress.cjs');
 
 const BASE = 'http://127.0.0.1:4173';
 
-test.beforeEach(async ({ context }) => installStorageEgressGuard(context));
+test.beforeEach(async ({ context }) => {
+  await installPublicReadOnlyEgress(context, { baseUrl: BASE });
+  await installStorageEgressGuard(context);
+});
+test.afterEach(async ({ context }) => disposePublicReadOnlyEgress(context));
 const POST_PATH = '/post/bennett-melach-631-78';
 const FAMILIARITY_KEY = 'sod_entry_learn_2029_v1';
 
@@ -42,6 +47,13 @@ test('direct Post opens Number; contextual teaching and help retain the same foc
     try { localStorage.removeItem(key); } catch {}
     try { sessionStorage.removeItem('sod_entry_learn_2029_session_v1'); } catch {}
   }, FAMILIARITY_KEY);
+  // Positive Number/teaching contract in this generic 2029 build. Keep the
+  // launch's real flag unchanged and its negative/no-engine tests intact.
+  await page.route('**/rest/v1/site_flags*', route => route.fulfill({
+    status: 200, contentType: 'application/json',
+    headers: { 'x-sod-acceptance-fixture': 'positive-number-only' },
+    body: JSON.stringify([{ key: 'lock_number', enabled: false, mode: 'all', message: '' }]),
+  }));
   await routePostTo2029(page);
 
   let traceRequests = 0;
