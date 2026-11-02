@@ -1,5 +1,5 @@
 // Pure admission checks for this existing artifact's protected review only.
-// The operator pins a clean Git SHA in this deployment's build command; the
+// The operator pins an exact Git SHA in this deployment's build command; the
 // compiler records its own platform identity, which runtime must match exactly.
 // No user request/header/query or shared site flag selects this mode.
 export const REVIEW_PROJECT_ID = "prj_43q7k7QFAcWnin1tcBjce5xOi7Cq";
@@ -17,6 +17,32 @@ function previewPlatform(env) {
     && deploymentPattern.test(env.VERCEL_DEPLOYMENT_ID || "")
     && hostPattern.test(env.VERCEL_URL || "");
 }
+
+// Vercel materializes the selected nested vercel.json at repository root.
+// Accept that one unstaged replacement only when its complete parsed value
+// matches the nested config read from the pinned Git commit. Array order counts;
+// the ordinary file mode must also remain 100644 in Git's raw worktree diff.
+// This does not ignore dirty files or authorize any platform/runtime identity.
+export function protectedReviewConfigMaterialization({ reviewMode, env, trackedStatus, trackedDiff,
+  committedConfig, workingConfig }) {
+  if (reviewMode !== true || !previewPlatform(env) || trackedStatus !== " M vercel.json\0"
+    || !/^:100644 100644 [0-9a-f]{40} 0{40} M\0vercel\.json\0$/.test(trackedDiff || "")
+    || typeof committedConfig !== "string" || typeof workingConfig !== "string") return false;
+  function equal(left, right) {
+    if (Object.is(left, right)) return true;
+    if (!left || !right || typeof left !== "object" || typeof right !== "object"
+      || Array.isArray(left) !== Array.isArray(right)) return false;
+    const keys = Object.keys(left);
+    return keys.length === Object.keys(right).length && keys.every(key =>
+      Object.prototype.hasOwnProperty.call(right, key) && equal(left[key], right[key]));
+  }
+  try {
+    const committed = JSON.parse(committedConfig), working = JSON.parse(workingConfig);
+    return committed !== null && typeof committed === "object" && !Array.isArray(committed)
+      && equal(committed, working);
+  } catch { return false; }
+}
+
 export function protectedReviewBuildIdentity({ env, sourceSha, sourceDirty, requestedSourceSha }) {
   if (!previewPlatform(env) || sourceDirty || !sourceShaPattern.test(sourceSha || "")
     || requestedSourceSha !== sourceSha || env.VERCEL_GIT_COMMIT_SHA !== sourceSha)

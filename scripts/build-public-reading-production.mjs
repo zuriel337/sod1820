@@ -6,11 +6,12 @@ import { execFileSync } from "node:child_process";
 import { buildPublicReadingWorker, publicReadingBootstrap, PUBLIC_READING_POLICY_ID } from "../public-reading-deploy/transport.js";
 import { PUBLIC_READING_PROFILE_ID } from "../src/lib/publicReadingRelease2029.js";
 import { PUBLIC_READING_DEPLOYMENT_AUTHORIZATION } from "../public-reading-deploy/deployment-policy.js";
-import { protectedReviewBuildIdentity } from "../public-reading-deploy/review-admission.js";
+import { protectedReviewBuildIdentity, protectedReviewConfigMaterialization } from "../public-reading-deploy/review-admission.js";
 
 // Default artifact stays dormant. A separate explicit deployment-scoped review
-// command may admit only an exact clean Git source on the existing protected
-// Vercel Preview project. Never clear/fake platform environment variables.
+// command may admit only an exact Git source with no application edits on the
+// existing protected Vercel Preview project. Its verified config materialization
+// remains recorded as dirty. Never clear/fake platform environment variables.
 const args = process.argv.slice(2);
 const reviewMode = args.includes("--protected-review");
 const pins = args.filter(value => value.startsWith("--review-source="));
@@ -26,9 +27,21 @@ const templates = resolve(root, "public-reading-deploy/.generated");
 for (const gate of ["test-legacy-production-lock.mjs", "test-one-tree-content-contract.mjs"])
   execFileSync(process.execPath, [resolve(root, "scripts", gate)], { cwd: root, stdio: "inherit" });
 const sha = execFileSync("git", ["rev-parse", "HEAD"], { cwd: root, encoding: "utf8" }).trim();
-const dirty = execFileSync("git", ["status", "--porcelain", "--untracked-files=no"], { cwd: root, encoding: "utf8" }).trim().length > 0;
+const trackedStatus = execFileSync("git", ["status", "--porcelain=v1", "-z", "--untracked-files=no"], { cwd: root, encoding: "utf8" });
+const dirty = trackedStatus.length > 0;
+let platformConfigMaterialization = null;
+if (reviewMode && trackedStatus === " M vercel.json\0") {
+  // Read committed bytes, never a mutable worktree baseline; never reset/copy
+  // the materialized file. Any other tracked/index change still fails closed.
+  const committedConfig = execFileSync("git", ["show", `${sha}:public-reading-deploy/vercel.json`], { cwd: root, encoding: "utf8" });
+  const workingConfig = await readFile(resolve(root, "vercel.json"), "utf8");
+  const trackedDiff = execFileSync("git", ["diff", "--raw", "-z", "--no-abbrev", "--no-ext-diff", "--no-textconv", "--", "vercel.json"], { cwd: root, encoding: "utf8" });
+  if (protectedReviewConfigMaterialization({ reviewMode, env: process.env, trackedStatus, trackedDiff,
+    committedConfig, workingConfig })) platformConfigMaterialization = { committedConfig, workingConfig, trackedDiff };
+}
 const protectedReview = reviewMode ? protectedReviewBuildIdentity({ env: process.env,
-  sourceSha: sha, sourceDirty: dirty, requestedSourceSha: pins[0].slice("--review-source=".length) }) : null;
+  sourceSha: sha, sourceDirty: dirty && !platformConfigMaterialization,
+  requestedSourceSha: pins[0].slice("--review-source=".length) }) : null;
 // Generate for both modes, replacing stale review authority with null locally.
 // Builder imports only the static policy; handlers import this generated module
 // after the build. It must be included in each traced Node/Edge handler bundle.
@@ -72,8 +85,20 @@ async function inventory(directory, prefix = "") {
 await inventory(output);
 await writeFile(resolve(output, "public-reading-artifact.json"), JSON.stringify({
   schema: 1, sourceSha: sha, sourceDirty: dirty, buildTarget: "2029", releaseProfile: PUBLIC_READING_PROFILE_ID,
+  applicationSourceDirty: dirty && !platformConfigMaterialization,
   policy: PUBLIC_READING_POLICY_ID, activation: PUBLIC_READING_DEPLOYMENT_AUTHORIZATION,
   protectedReview,
+  // sourceDirty above is the raw Git observation and stays true on Vercel.
+  // This separate receipt proves only the known nested-config materialization.
+  platformConfigMaterialization: platformConfigMaterialization ? {
+    kind: "vercel-selected-nested-config-at-root", sourceSha: sha,
+    committedPath: "public-reading-deploy/vercel.json", materializedPath: "vercel.json",
+    trackedStatus: " M vercel.json", completeJsonEquivalent: true, arrayOrderPreserved: true,
+    committedMode: "100644", materializedMode: "100644",
+    gitRawDiff: platformConfigMaterialization.trackedDiff,
+    committedConfigSha256: hash(platformConfigMaterialization.committedConfig),
+    materializedConfigSha256: hash(platformConfigMaterialization.workingConfig),
+  } : null,
   deploymentConfigSha256: hash(await readFile(resolve(root, "public-reading-deploy/vercel.json"))),
   documentTemplateSha256: hash(document), documentTemplatePublic: false,
   deployed: false, productionReady: false, generalProductWrites: false,
