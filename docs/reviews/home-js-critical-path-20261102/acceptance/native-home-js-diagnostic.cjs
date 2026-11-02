@@ -17,7 +17,7 @@ const frame = f => ({ functionName:f.functionName, url:url(f.url), scriptId:f.sc
 function stack(s) { return s ? { callFrames:(s.callFrames || []).map(frame), parent:stack(s.parent) } : null; }
 require('node:readline').createInterface({ input:process.stdin }).once('line', async line => {
  const cfg = JSON.parse(line), width = cfg.diagnosticWidth || 390;
- const report = { sha:cfg.sha, origin:cfg.origin, diagnostic:true, latencyComparable:false, actualSW:true, realPublicData:true, width, productWrites:0, modelCalls:0, playbackAttempts:0, network:[], scripts:[], trace:[], errors:[] };
+ const report = { sha:cfg.sha, origin:cfg.origin, diagnostic:true, latencyComparable:false, actualSW:true,externalToolbarBlocked:Boolean(cfg.blockExternalVercelToolbar), realPublicData:true, width, productWrites:0, modelCalls:0, playbackAttempts:0, network:[], scripts:[], trace:[], errors:[] };
  const flush = () => fs.writeFileSync(out + '/diagnostic.json', JSON.stringify(report,null,2)+'\n');
  let browser, context, cdp, tracing = false, profiling = false;
  try {
@@ -40,7 +40,7 @@ require('node:readline').createInterface({ input:process.stdin }).once('line', a
   page.on('pageerror',e=>report.errors.push({name:e.name,message:String(e.message).replace(/https?:\/\/[^\s)]+/g,url).slice(0,600)}));
   cdp = await context.newCDPSession(page);
   await cdp.send('Network.enable'); await cdp.send('Performance.enable'); await cdp.send('Debugger.enable');
-  await cdp.send('Network.setBlockedURLs',{urls:['*://*.google-analytics.com/*','*://*.googletagmanager.com/*','*://www.facebook.com/tr*','*://connect.facebook.net/*','*://*.clarity.ms/*']});
+  await cdp.send('Network.setBlockedURLs',{urls:['*://*.google-analytics.com/*','*://*.googletagmanager.com/*','*://www.facebook.com/tr*','*://connect.facebook.net/*','*://*.clarity.ms/*',...(cfg.blockExternalVercelToolbar?['https://vercel.live/_next-live/feedback/feedback.js']:[])]});
   if(width<=390) { await cdp.send('Emulation.setCPUThrottlingRate',{rate:4}); await cdp.send('Network.emulateNetworkConditions',{offline:false,latency:150,downloadThroughput:200000,uploadThroughput:100000,connectionType:'cellular3g'}); }
   const rows=new Map();cdp.on('Network.requestWillBeSent',e=>{const row={id:e.requestId,url:url(e.request.url),method:e.request.method,type:e.type,at:e.timestamp,wallTime:e.wallTime,initiator:{type:e.initiator.type,url:url(e.initiator.url),lineNumber:e.initiator.lineNumber,stack:stack(e.initiator.stack)}};rows.set(e.requestId,row);report.network.push(row);});
   cdp.on('Network.responseReceived',e=>{const r=rows.get(e.requestId);if(r)Object.assign(r,{status:e.response.status,mime:e.response.mimeType,headersAt:e.timestamp,fromSW:e.response.fromServiceWorker,fromCache:e.response.fromDiskCache,protocol:e.response.protocol,timing:e.response.timing});});

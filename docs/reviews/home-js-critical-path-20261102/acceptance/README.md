@@ -1,5 +1,11 @@
 # Home JavaScript critical-path evidence
 
+Current comparison: [25709d70 acceptance](candidate-2570-report.md) and
+[all-stage before/after tables](matched-tables.md). The baseline sections below
+are historical, retained evidence; their provisional medians are not the final
+paired aggregate. Both final targets use the explicitly matched external-toolbar
+control documented in the acceptance report.
+
 Task: `PUBLIC_HOME_JS_CRITICAL_PATH_20261102`.
 Evidence BEFORE: `151e786a-c442-4e66-966d-6f973188ccd4`.
 Product baseline: `0d4ad83644a74abe5d990f7a628dd955fd0c638a`.
@@ -60,10 +66,10 @@ modules despite their consumers being outside initial primary content. Post
 prefetch is asynchronous and begins after Home import resolution; its cost must
 not be confused with a direct Home import prerequisite.
 
-At primary readiness, instrumented CDP ScriptDuration is0.911s, TaskDuration2.115s,
+At the instrumented driver checkpoint after primary DOM, CDP ScriptDuration is0.911s, TaskDuration2.115s,
 LayoutDuration0.251s and RecalcStyleDuration0.119s. These counters overlap and must
 not be added as independent time buckets. CPU-profile self samples include entry
-/React327ms, numberTierSignals59ms, Shell38ms and dayContext21ms; sampled idle is
+(runtime plus application)327ms, numberTierSignals59ms, Shell38ms and dayContext21ms; sampled idle is
 3.055s. Native/program and observer/tool work are retained, not attributed to a
 product module without evidence. This does not prove five seconds of JavaScript
 execution or slow database CPU. Font warming takes about6ms in this diagnostic.
@@ -130,5 +136,32 @@ functional timeout as the existing acceptance harness. This does not weaken the
 separate performance goal or convert either prior attempt into a passing run.
 
 Baseline browser window is released and all browser processes are closed.
-Candidate comparison, source-boundary failure/cancellation checks if affected,
-and the predetermined clean desktop warm replacement remain pending.
+Candidate comparison, the prescribed replacement, and the three bounded import
+admission/failure/cancellation checks are complete. See the current acceptance
+report; the final fresh paired cohort supersedes the provisional aggregation.
+
+
+## Final exact-source smoke and evidence reproduction
+
+[Final c8 product and protected Production-config review](final-c8-release-smoke.md)
+records the final exact SHA, URLs, actual served asset parity, active worker
+identity and public route/calculator/gallery results. Its functional smoke is
+not relabeled as the earlier measured257 performance series.
+
+`comparison-0d4a-2570-final-c8-evidence.zip` contains the new raw sanitized JSON,
+screenshots, failed platform diagnostic, paired cohorts, interrupted visible
+attempt and resumed pair, controlled import checks, exact final smoke, and
+bounded Number-chain diagnostic. `comparison-evidence-manifest.json` hashes
+every member and records the secret scan. The earlier baseline archive remains
+separate, including its failed setups and confounded historical sample.
+
+To reproduce summaries after extracting the comparison archive to a directory:
+
+```sh
+python3 analyze-paired.py EXTRACTED_EVIDENCE_DIR OUTPUT_DIR
+python3 verify-cpu-summary.py EXTRACTED_EVIDENCE_DIR cpu-summary-0d4a-2570.json
+```
+
+All browser processes for this lane are closed. Root owns final integration,
+remote preservation and coordination release. No product files, shared settings,
+server/database resources or Production deployment were changed by this lane.
