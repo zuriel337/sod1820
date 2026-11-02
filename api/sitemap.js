@@ -188,6 +188,7 @@ async function fetchAll(path) {
 }
 
 export default async function handler(req, res) {
+  const productionReading = req.publicReadingProductionArtifact === true && req.publicReadingRelease === PUBLIC_READING_PROFILE_ID;
   const foundation = req.publicFoundationPreview === true;
   const foundationStatics = new Set(["/", "/world", "/post", "/map", "/privacy", "/number"]);
   if (req.publicReadingRelease === PUBLIC_READING_PROFILE_ID) foundationStatics.add("/gematria");
@@ -204,7 +205,8 @@ export default async function handler(req, res) {
       const url = new URL(raw); if (url.origin !== SITE) return null;
       const post = postBySlug.get(postAddressSlug(url.pathname));
       if (post) return publicPostUrl(post);
-      if (foundation && !/^\/(?:number|topic)(?:\/|$)/.test(url.pathname) && !foundationStatics.has(url.pathname)) return null;
+      if (foundation && !/^\/(?:number|topic)(?:\/|$)/.test(url.pathname) && !foundationStatics.has(url.pathname)
+        && !(productionReading && /^\/video\/[0-9a-f]{32}$/i.test(url.pathname))) return null;
       return url.origin + url.pathname;
     } catch { return null; }
   };
@@ -224,7 +226,7 @@ export default async function handler(req, res) {
       const path = canonicalVideoPath(pageUrl);
       if (path) videoPrimaryPaths.add(path);
     }
-  } catch (e) { /* ממשיכים גם בלי Projection וידאו */ }
+  } catch (e) { if (productionReading) foundationSourceFailed = true; }
   const unifiedVideoUrls = [...unifiedVideoPages.entries()].map(([pageUrl, assets]) => unifiedVideoPageTag(pageUrl, assets));
 
   // ── פוסטים → /<slug> (מדלגים על עמודים שכבר נכנסים עם video:video מה-Projection) ──
@@ -285,7 +287,7 @@ export default async function handler(req, res) {
       const lastmod = (t.approved_at || t.created_at || '').slice(0, 10) || undefined;
       urls.push({ loc: '/topic/' + encodeURIComponent(t.slug), lastmod, changefreq: 'weekly', priority: '0.7' });
     }
-  } catch (e) { /* ממשיכים גם בלי התכנסויות */ }
+  } catch (e) { if (productionReading) foundationSourceFailed = true; }
 
   // ── פתילי פורום מאושרים → /forum/:id (research_contributions ברמה-עליונה) ──
   // כל פתיל = עמוד DiscussionForumPosting עצמאי; בלי זה גוגל בקושי מגלה דיונים בודדים.
@@ -327,8 +329,9 @@ export default async function handler(req, res) {
   // ── דפי הכתבים → /community/researcher/:slug (contributors עם slug/code) ──
   // המשטח הציבורי/SEO של כל חוקר — קיר-ההצלבות, האוצרות והרמזים שלו. אותו slug שה-OG מזהה (code||slug).
   try {
-    if (foundation) throw new Error("outside-public-foundation");
-    const cons = await fetchAll('contributors?select=slug,code');
+    if (foundation && !productionReading) throw new Error("outside-public-foundation");
+    const cons = await fetchAll('contributors?select=slug,code' + (productionReading
+      ? '&active=eq.true&locked=not.is.true&building=not.is.true&or=(dossier_settings->>visibility.is.null,dossier_settings->>visibility.eq.public)' : ''));
     const seen = new Set();
     for (const c of cons) {
       const slug = c.code || c.slug;
@@ -337,7 +340,7 @@ export default async function handler(req, res) {
       seen.add(slug);
       urls.push({ loc: '/community/researcher/' + encodeURIComponent(slug), changefreq: 'weekly', priority: '0.6' });
     }
-  } catch (e) { /* ממשיכים גם בלי דפי-כתבים */ }
+  } catch (e) { if (productionReading) foundationSourceFailed = true; }
 
   if (foundationSourceFailed) { res.setHeader("Cache-Control", "no-store"); return res.status(503).send("sitemap source unavailable"); }
   const xml = [

@@ -4,6 +4,11 @@
 export const PUBLIC_READING_PROFILE_ID = "public-reading-20261101";
 export const PUBLIC_READING_RELEASE = typeof __SOD_2029_BUILD__ !== "undefined" && __SOD_2029_BUILD__
   && import.meta.env?.VITE_PUBLIC_READING_RELEASE === PUBLIC_READING_PROFILE_ID;
+// Only the separate, dormant Production artifact preserves signed Legacy
+// unsubscribe. Preview and Legacy cannot acquire this service exception.
+export const PUBLIC_READING_PRODUCTION_ARTIFACT = PUBLIC_READING_RELEASE
+  && typeof __SOD_PUBLIC_READING_PRODUCTION_ARTIFACT__ !== "undefined"
+  && __SOD_PUBLIC_READING_PRODUCTION_ARTIFACT__ === true;
 
 const openFlags = new Set(["lock_world", "lock_number", "lock_gematria"]);
 export function publicReadingFeatureLock(flag) {
@@ -14,6 +19,7 @@ export function publicReadingPath(pathname) {
   let path;
   try { path = decodeURIComponent(pathname).replace(/\/+$/, "") || "/"; } catch { return "missing"; }
   if (/^\/(?:api|admin|login|auth|community\/chat|2029\/me|community\/researcher\/me|code|els|heichal|היכל|journey|2029\/journey|raziel|2029\/raziel|books?|beit-midrash|research)(?:\/|$)/.test(path)) return "closed";
+  if (path === "/unsubscribe" && PUBLIC_READING_PRODUCTION_ARTIFACT) return "public";
   if (["/updates", "/unsubscribe"].includes(path)) return "service-closed";
   if (["/", "/world", "/post", "/posts", "/number", "/gematria", "/gallery", "/map", "/privacy", "/2029", "/2029/posts", "/2029/gematria", "/2029/gematria/viral", "/2029/calculator"].includes(path)) return "public";
   if (/^\/(?:post|number|topic|researcher|video)\/[^/]+$/.test(path) || /^\/2029\/number\/[^/]+$/.test(path) || /^\/community\/researcher\/[^/]+$/.test(path)) return "public";
