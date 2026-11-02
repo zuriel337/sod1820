@@ -83,6 +83,19 @@ require('node:readline').createInterface({input:process.stdin}).once('line',asyn
        assert.equal(reads.filter(r=>r.path==='/rest/v1/video_media_assets_v1'&&r.query?.includes(ASSET)).length,1);
        assert.ok(item.selectedReads.filter(r=>r.path==='/rest/v1/video_media_assets_v1').every(r=>!r.query.includes('placements')));
        item.checks.push('one-source-plus-one-minimal-asset-read/bounded-rank-HEAD');
+       const older=page.getByRole('button',{name:'פוסטים קודמים',exact:true});
+       if(await older.isEnabled()){
+        const firstRefs=item.cards.map(row=>row.ref);await older.click();
+        await expect(page.locator('#posts-catalog')).toHaveAttribute('data-posts-page','2');
+        await expect(page.getByText('טוען את המקור הנוסף בסדרה…',{exact:true})).toHaveCount(0);
+        await expect(card).toHaveCount(0);
+        const secondRefs=await page.locator('#posts-catalog [data-series-source]').evaluateAll(rows=>rows.map(row=>row.dataset.seriesSource));
+        assert.ok(secondRefs.length>0&&secondRefs.length<=24,'second page bounded and nonempty');
+        assert.equal(new Set(secondRefs).size,secondRefs.length);assert.deepEqual(secondRefs.filter(ref=>firstRefs.includes(ref)),[],'no duplicated identity across adjacent pages');
+        item.pagination={firstRefs,secondRefs};await page.goBack();
+        await expect(page.locator('#posts-catalog')).toHaveAttribute('data-posts-page','1');await expect(card).toBeVisible();
+        item.checks.push('real-page2/bounded/distinct-identities/exact-page1-back');
+       }
        await card.scrollIntoViewIfNeeded();await page.waitForTimeout(250);const before={url:page.url(),scroll:await page.evaluate(()=>scrollY)};await page.screenshot({path:`${out}/source-${width}.png`});
        await card.locator('a').first().click();await expect(page.getByRole('button',{name:'נגן סרטון',exact:true})).toBeVisible({timeout:30000});
        assert.equal(new URL(page.url()).pathname,'/video/'+ASSET);await expect(page.locator('.sod29-root')).toBeVisible();await expect(page.locator('video,iframe')).toHaveCount(0);
@@ -90,11 +103,17 @@ require('node:readline').createInterface({input:process.stdin}).once('line',asyn
        await page.goBack();await expect(card).toBeVisible();await page.waitForTimeout(600);item.return={before,after:{url:page.url(),scroll:await page.evaluate(()=>scrollY)}};
        assert.equal(item.return.after.url,before.url);assert.ok(Math.abs(item.return.after.scroll-before.scroll)<=2,'exact series scroll return');
        item.checks.push('real2029-video-ready/no-autoplay/exact-series-return');
+       await page.goForward();await expect(page.getByRole('button',{name:'נגן סרטון',exact:true})).toBeVisible({timeout:30000});assert.equal(new URL(page.url()).pathname,'/video/'+ASSET);
+       await page.goBack();await expect(card).toBeVisible();await page.waitForTimeout(600);assert.equal(page.url(),before.url);assert.ok(Math.abs(await page.evaluate(()=>scrollY)-before.scroll)<=2,'exact return after forward');item.checks.push('browser-forward/video/back-restoration');
+       item.preReloadCls=cls(await page.evaluate(()=>window.__nativeShifts));assert.ok(item.preReloadCls<=.1,'whole native journey CLS<=0.1 before reload');
        const response=await page.reload({waitUntil:'domcontentloaded'});assert.equal(response.status(),200);await expect(card).toHaveCount(1);await expect(postCards.first()).toBeVisible();item.checks.push('direct-refresh-native-series');
       }
      }
     }
     item.snapshot=await page.evaluate(()=>({controller:navigator.serviceWorker.controller?.scriptURL?new URL(navigator.serviceWorker.controller.scriptURL).pathname:null,denied:window.__safetyDenied,reads:(window.__safetyReads||[]).map(r=>({path:r.path,query:r.query,method:r.method,status:r.status,error:r.error?String(r.error).slice(0,120):null})),faults:window.__seriesFaults||[],shifts:window.__nativeShifts,geometry:{client:document.documentElement.clientWidth,scroll:document.documentElement.scrollWidth}}));
+    if(mode)assert.ok(item.snapshot.faults.some(row=>row.mode===mode),'requested controlled fixture actually triggered');
+    if(mode==='duplicate-post')assert.ok(item.snapshot.faults.some(row=>row.path==='/rest/v1/posts'&&row.duplicates===1),'duplicate Post fixture actually delivered');
+    if(['source-failed','private','expired'].includes(mode))assert.ok(!item.snapshot.reads.some(row=>row.path==='/rest/v1/video_media_assets_v1'&&row.query?.includes(ASSET)),'source denial stops before asset read');
     item.cls=cls(item.snapshot.shifts);assert.ok(item.cls<=.1,'CLS<=0.1');assert.ok(item.snapshot.geometry.scroll<=item.snapshot.geometry.client,'no horizontal overflow');assert.match(item.snapshot.controller||'',/preview-readonly-sw/);assert.deepEqual(errors,[]);item.errors=errors;item.ok=true;
     await page.screenshot({path:`${out}/${mode||'native'}-${width}.png`,fullPage:true});
    }catch(error){item.ok=false;item.failure={name:error.name,message:safeText(error.message)};if(page){await page.screenshot({path:`${out}/failure-${mode||'native'}-${width}.png`,fullPage:true}).catch(()=>{});item.failureState=await page.evaluate(()=>({path:location.pathname+location.search,heads:[...document.querySelectorAll('h1')].map(x=>x.textContent),source:document.querySelector('[data-series-kind="channel_update"]')?.textContent,statuses:[...document.querySelectorAll('[role=status]')].map(x=>x.textContent),denied:window.__safetyDenied,reads:window.__safetyReads?.map(r=>({path:r.path,query:r.query,method:r.method,status:r.status,error:r.error})),faults:window.__seriesFaults||[]})).catch(()=>null);}}
