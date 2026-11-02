@@ -9,18 +9,19 @@ import { writerPersonalHref } from "../../lib/userCenter/writerPersonal2029.js";
 import { use2029Palette } from "../../lib/palette.js";
 import "../../pages/auth2029.css";
 import { PUBLIC_LAUNCH_READ_ONLY_PREVIEW } from "../../lib/publicLaunch2029.js";
+import { PUBLIC_READING_RELEASE } from "../../lib/publicReadingRelease2029.js";
 
 // Canonical shared entry. Variants change presentation, never enabled providers.
 export default function AccountEntry2029({ returnHref = "/2029", inline = false, variant = "default" }) {
-  const { user, profile, loading, signOut } = useAuth();
+  const { user, profile, isAdmin, loading, signOut } = useAuth();
   const palette = use2029Palette();
   const navigate = useNavigate();
   const target = safePreviewOAuthReturnPath(returnHref);
   const returnTo = target;
   const preview = import.meta.env.VITE_INTEGRATED_PREVIEW === "true";
-  const methods = useAuthMethods(!PUBLIC_LAUNCH_READ_ONLY_PREVIEW && !loading && !user);
+  const methods = useAuthMethods((!PUBLIC_LAUNCH_READ_ONLY_PREVIEW || PUBLIC_READING_RELEASE) && !loading && !user);
   const fieldId = useId();
-  const [step, setStep] = useState("email"), [email, setEmail] = useState("");
+  const [step, setStep] = useState(PUBLIC_READING_RELEASE ? "password" : "email"), [email, setEmail] = useState("");
   const [password, setPassword] = useState(""), [code, setCode] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [busy, setBusy] = useState(false), [error, setError] = useState("");
@@ -32,7 +33,7 @@ export default function AccountEntry2029({ returnHref = "/2029", inline = false,
   function changeStep(next) { if (busy) return; attempt.current++; setStep(next); setPassword(""); setShowPassword(false); setCode(""); setError(""); }
   async function submit(event) {
     event.preventDefault();
-    if (busy) return;
+    if (busy || (PUBLIC_READING_RELEASE && step !== "password")) return;
     const address = email.trim(), action = step;
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(address)) { setError("הזינו כתובת מייל תקינה."); return; }
     if (action === "code" && !isValidEmailOtp(code)) { setError("הזינו את הקוד המלא מהמייל, 6–10 ספרות."); return; }
@@ -51,11 +52,11 @@ export default function AccountEntry2029({ returnHref = "/2029", inline = false,
         }
       }
     } catch {
-      if (current() && !principal.current) setError(action === "email" ? "לא הצלחנו לשלוח קוד. בדקו את כתובת המייל ונסו שוב." : action === "code" ? "הקוד שגוי או שפג תוקפו. אפשר לבקש קוד חדש." : "המייל או הסיסמה אינם נכונים. אפשר להיכנס גם עם קוד למייל.");
+      if (current() && !principal.current) setError(action === "email" ? "לא הצלחנו לשלוח קוד. בדקו את כתובת המייל ונסו שוב." : action === "code" ? "הקוד שגוי או שפג תוקפו. אפשר לבקש קוד חדש." : PUBLIC_READING_RELEASE ? "לא הצלחנו להיכנס לחשבון הקיים. בדקו את הפרטים ונסו שוב." : "המייל או הסיסמה אינם נכונים. אפשר להיכנס גם עם קוד למייל.");
     } finally { if (current()) setBusy(false); }
   }
   async function federated(provider) {
-    if (busy || !methods.oauth.some(method => method.id === provider && method.available)) return;
+    if (PUBLIC_READING_RELEASE || busy || !methods.oauth.some(method => method.id === provider && method.available)) return;
     const requestId = ++attempt.current; setBusy(true); setError("");
     try { const result = await signInWithConfiguredProvider(provider, { returnTo }); if (result?.error) throw result.error; }
     catch { if (mounted.current && requestId === attempt.current) { setError("לא הצלחנו לפתוח את הכניסה. אפשר להיכנס עם קוד למייל או סיסמה."); setBusy(false); } }
@@ -64,23 +65,23 @@ export default function AccountEntry2029({ returnHref = "/2029", inline = false,
     attempt.current++; setBusy(true); setError("");
     try {
       await signOut({ scope: "local" });
-      if (mounted.current) { setEmail(""); setPassword(""); setCode(""); setStep("email"); }
+      if (mounted.current) { setEmail(""); setPassword(""); setCode(""); setStep(PUBLIC_READING_RELEASE ? "password" : "email"); }
     } catch { if (mounted.current) setError("לא הצלחנו לצאת מהחשבון. נסו שוב."); }
     finally { if (mounted.current) setBusy(false); }
   }
-  if (PUBLIC_LAUNCH_READ_ONLY_PREVIEW) return <section className="sod29-auth-card sod29-account-entry" data-auth-state="acceptance-pending"><h2>החשבון ייפתח בהמשך</h2><p>כרגע אפשר לקרוא ולגלות את התוכן הציבורי. כניסה ופעולות אישיות עדיין אינן זמינות בגרסה זו.</p><Link to={target}>חזרה לגלישה ←</Link></section>;
+  if (PUBLIC_LAUNCH_READ_ONLY_PREVIEW && !PUBLIC_READING_RELEASE) return <section className="sod29-auth-card sod29-account-entry" data-auth-state="acceptance-pending"><h2>החשבון ייפתח בהמשך</h2><p>כרגע אפשר לקרוא ולגלות את התוכן הציבורי. כניסה ופעולות אישיות עדיין אינן זמינות בגרסה זו.</p><Link to={target}>חזרה לגלישה ←</Link></section>;
   return <section className="sod29-auth-card sod29-account-entry" data-auth-state={loading ? "loading" : user ? "signed-in" : "guest"} style={{ "--auth29-danger": palette.dangerText }} aria-labelledby={`${fieldId}-title`}>
         {loading ? <p role="status">בודקים את החיבור לחשבון…</p> : user ? <>
           {!inline ? <span className="sod29-auth-eyebrow">החשבון מחובר</span> : null}
           <h2 id={`${fieldId}-title`}>שלום, {profile?.display_name || profile?.username || "חבר הקהילה"}</h2>
           {variant === "account" ? <small dir="ltr">{user.email || ""}</small> : null}
-          {!inline ? <p>אפשר להמשיך מהמקום שבו עצרתם.</p> : null}
+          {PUBLIC_READING_RELEASE ? <p>{isAdmin ? "תצוגת מנהל · אזורים מסומנים סגורים לציבור. הכניסה אינה מפעילה פעולות מחקר או חיוב." : "החשבון מחובר. בגרסה זו זמינה הקריאה הציבורית; תצוגת האזורים הסגורים דורשת הרשאת מנהל."}</p> : !inline ? <p>אפשר להמשיך מהמקום שבו עצרתם.</p> : null}
           {!inline ? <Link className="sod29-auth-primary" to={returnTo}>{nextLabel} ←</Link> : null}
-          {!inline ? <Link className="sod29-auth-secondary" to={writerPersonalHref("public-page")}>האזור האישי שלי</Link> : null}
+          {!inline && !PUBLIC_READING_RELEASE ? <Link className="sod29-auth-secondary" to={writerPersonalHref("public-page")}>האזור האישי שלי</Link> : null}
           <button className="sod29-auth-link" type="button" disabled={busy} onClick={switchAccount}>{variant === "account" ? "התנתקות" : "כניסה עם חשבון אחר"}</button>
         </> : <>
-          <h2 id={`${fieldId}-title`}>{step === "code" ? "הקוד בדרך אליכם" : step === "password" ? "כניסה עם סיסמה" : "כניסה לחשבון"}</h2>
-          <p>{step === "code" ? <>הזינו את הקוד שנשלח אל <b dir="ltr">{email}</b>.</> : step === "password" ? "השתמשו במייל ובסיסמה של החשבון שלכם." : "בחרו כיצד להיכנס לחשבון שלכם."}</p>
+          <h2 id={`${fieldId}-title`}>{PUBLIC_READING_RELEASE ? "כניסת מנהל לחשבון קיים" : step === "code" ? "הקוד בדרך אליכם" : step === "password" ? "כניסה עם סיסמה" : "כניסה לחשבון"}</h2>
+          <p>{PUBLIC_READING_RELEASE ? "הכניסה מאפשרת תצוגת מנהל לפי הרשאות החשבון. הרשמה לחשבון חדש וכניסה חברתית אינן פתוחות בגרסה זו." : step === "code" ? <>הזינו את הקוד שנשלח אל <b dir="ltr">{email}</b>.</> : step === "password" ? "השתמשו במייל ובסיסמה של החשבון שלכם." : "בחרו כיצד להיכנס לחשבון שלכם."}</p>
           {methods.state === "loading" ? <p role="status">טוענים אפשרויות כניסה…</p> : methods.state === "unavailable" ? <div role="alert"><p>לא הצלחנו לטעון את אפשרויות הכניסה.</p><button type="button" className="sod29-auth-secondary" onClick={methods.retry}>נסו שוב</button></div> : null}
           {methods.state === "ready" && methods.email ? <form onSubmit={submit} aria-busy={busy}>
             {step !== "code" ? <><label htmlFor={`${fieldId}-email`}>כתובת מייל</label><input id={`${fieldId}-email`} name="email" type="email" autoComplete="username" dir="ltr" placeholder="you@example.com" value={email} disabled={busy} required onChange={e => { setEmail(e.target.value); setError(""); }} /></> : null}
@@ -90,9 +91,9 @@ export default function AccountEntry2029({ returnHref = "/2029", inline = false,
             <button className="sod29-auth-primary" type="submit" disabled={busy}>{busy ? "רגע, מתחברים…" : step === "email" ? "שלחו לי קוד כניסה" : "כניסה לחשבון ←"}</button>
           </form> : null}
           <div className="sod29-auth-alternatives">
-            {methods.state === "ready" && methods.email ? <button className="sod29-auth-link" type="button" disabled={busy} onClick={() => changeStep(step === "email" ? "password" : "email")}>{step === "email" ? "כניסה עם סיסמה" : step === "code" ? "שינוי כתובת או בקשת קוד חדש" : "כניסה עם קוד למייל"}</button> : null}
-            {methods.oauth.map(method => <button key={method.id} className="sod29-auth-secondary" type="button" disabled={busy || !method.available} aria-describedby={!method.available ? `${fieldId}-oauth-state` : undefined} onClick={() => federated(method.id)}>המשך עם {method.label}</button>)}
-            {methods.oauth.some(method => !method.available) ? <p id={`${fieldId}-oauth-state`} className="sod29-auth-method-note">כניסה חברתית אינה זמינה בכתובת הזו כרגע. אפשר להיכנס עם מייל וסיסמה או קוד למייל.</p> : null}
+            {!PUBLIC_READING_RELEASE && methods.state === "ready" && methods.email ? <button className="sod29-auth-link" type="button" disabled={busy} onClick={() => changeStep(step === "email" ? "password" : "email")}>{step === "email" ? "כניסה עם סיסמה" : step === "code" ? "שינוי כתובת או בקשת קוד חדש" : "כניסה עם קוד למייל"}</button> : null}
+            {!PUBLIC_READING_RELEASE && methods.oauth.map(method => <button key={method.id} className="sod29-auth-secondary" type="button" disabled={busy || !method.available} aria-describedby={!method.available ? `${fieldId}-oauth-state` : undefined} onClick={() => federated(method.id)}>המשך עם {method.label}</button>)}
+            {!PUBLIC_READING_RELEASE && methods.oauth.some(method => !method.available) ? <p id={`${fieldId}-oauth-state`} className="sod29-auth-method-note">כניסה חברתית אינה זמינה בכתובת הזו כרגע. אפשר להיכנס עם מייל וסיסמה או קוד למייל.</p> : null}
           </div>
         </>}
         {user && error ? <p className="sod29-auth-error" role="alert">{error}</p> : null}

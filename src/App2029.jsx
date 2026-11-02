@@ -75,7 +75,7 @@ function HomeEntry2029() {
   const [source, setSource] = useState(null);
   useEffect(() => {
     if (!PUBLIC_READING_RELEASE || loading) return undefined;
-    const request = beginHomeReadingSource();
+    const request = beginHomeReadingSource({ readCards: options => import("./lib/research/homeLaunchPosts2029.js").then(module => module.getHomeLaunchPostCards(options)) });
     setSource({ key: location.key, identity, read: request.read });
     return () => request.cancel();
   }, [location.key, identity, loading]);
@@ -241,16 +241,24 @@ function ControlEntry2029() {
 }
 
 function FramedGate2029({ flag, surface, title, children }) {
-  return <Locked flag={flag} requireFlag homeHref="/2029" renderBlocked={state =>
+  return <Locked flag={flag} requireFlag allowAdminView homeHref="/2029" renderBlocked={state =>
     <PublicContributorFrame2029 surface={surface} title={title} introVariant="compact"><FeatureClosedNotice state={state} title={title} to="/world" /></PublicContributorFrame2029>
   }>{children}</Locked>;
 }
 
 function PublicReadingBoundary({ children }) {
   const location = useLocation();
-  const state = PUBLIC_READING_RELEASE ? publicReadingPath(location.pathname) : null;
-  if (state === "closed") return <PublicServices2029Page kind="launch-closed" />;
+  const { isAdmin, loading } = useAuth();
+  const state = PUBLIC_READING_RELEASE ? publicReadingPath(location.pathname, { isAdmin }) : null;
+  if (state === "closed") return <>
+    {isAdmin && <aside role="status" className="sod29-card" data-admin-view="service-unavailable" dir="rtl">🔒 תצוגת מנהל · סגור לציבור. השירות באזור זה עדיין אינו זמין בגרסת הקריאה.</aside>}
+    <PublicServices2029Page kind="launch-closed" />
+  </>;
   if (state === "missing") return <PublicServices2029Page kind="not-found" />;
+  if (state === "admin-view") return <div key={loading ? "loading" : "admin"}>
+    <aside role="status" className="sod29-card" data-admin-view="read-only" dir="rtl">🔒 תצוגת מנהל · סגור לציבור. צפייה בלבד; פעולות מחקר, שמירה וחיוב אינן מופעלות בגרסה זו.</aside>
+    {children}
+  </div>;
   return children;
 }
 
@@ -303,13 +311,13 @@ export default function App2029() {
               <Route path="/2029/journey" element={<FramedGate2029 flag="lock_life_journey" surface="journey" title="מסע החיים"><LifeJourney2029Page /></FramedGate2029>} />
               <Route path="/post/:slug" element={<PostEntry2029 />} />
               <Route path="/video/:assetId" element={<Video2029Page />} />
-              <Route path="/books" element={<Locked flag="lock_books" requireFlag homeHref="/2029"><Books2029Page /></Locked>} />
+              <Route path="/books" element={<Locked flag="lock_books" requireFlag allowAdminView homeHref="/2029"><Books2029Page /></Locked>} />
               <Route path="/books/:slug" element={<CanonicalBookAlias2029 />} />
-              <Route path="/book/:slug" element={<Locked flag="lock_books" requireFlag homeHref="/2029"><Books2029Page /></Locked>} />
+              <Route path="/book/:slug" element={<Locked flag="lock_books" requireFlag allowAdminView homeHref="/2029"><Books2029Page /></Locked>} />
               <Route path="/code" element={<FramedGate2029 flag="lock_els" surface="els" title="הצופן התנ״כי"><Els2029Page /></FramedGate2029>} />
               <Route path="/els" element={<ElsAddressAlias2029 />} />
-              <Route path="/heichal" element={<Locked flag="lock_heichal" requireFlag homeHref="/2029"><Heichal2029Page /></Locked>} />
-              <Route path="/היכל" element={<Locked flag="lock_heichal" requireFlag homeHref="/2029"><Heichal2029Page /></Locked>} />
+              <Route path="/heichal" element={<Locked flag="lock_heichal" requireFlag allowAdminView homeHref="/2029"><Heichal2029Page /></Locked>} />
+              <Route path="/היכל" element={<Locked flag="lock_heichal" requireFlag allowAdminView homeHref="/2029"><Heichal2029Page /></Locked>} />
               <Route path="/community/researcher/me" element={<PublicContributorFrame2029 surface="community" title="הדף שלי" introVariant="none"><WriterMe2029Redirect /></PublicContributorFrame2029>} />
               <Route path="/2029/me/:module" element={<PublicContributorFrame2029 surface="community" title="האזור האישי" introVariant="none"><WriterPersonal2029Page /></PublicContributorFrame2029>} />
               <Route path="/community/researcher/:slug" element={<PublicContributorFrame2029 surface="community" title="דף כותב" introVariant="none"><PublicContributor2029Page /></PublicContributorFrame2029>} />

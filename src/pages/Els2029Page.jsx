@@ -19,6 +19,7 @@ import { projectEls2029Result } from "../lib/research/els2029Projection.js";
 import { projectEls2029Layers } from "../lib/research/els2029Layers.js";
 import { buildElsRazielSurfaceContext } from "../lib/research/elsRazielContext.js";
 import { ELS_MATRIX_PROFILE, projectElsMatrixProfile } from "../lib/research/els2029MatrixMode.js";
+import { PUBLIC_READING_RELEASE } from "../lib/publicReadingRelease2029.js";
 import { applySeo } from "../lib/seo.js";
 import FeatureClosedNotice from "../components/FeatureClosedNotice.jsx";
 import { useFeatureState } from "../components/MaintenanceLock.jsx";
@@ -152,7 +153,22 @@ function ElsNativeWithRaziel({ razielSession, researchContext, projection, layer
     locked: shell.razielLocked, onCancel: razielSession?.cancelActiveTurn }} />;
 }
 
-export default function Els2029Page({ previewAdvanced = false }) {
+// The read-only admin screen does not mount operational hooks, saved-record
+// readers or replay/engine controls. It is an honest service-readiness view.
+export default function Els2029Page(props) {
+  return PUBLIC_READING_RELEASE ? <ElsReadingAvailability /> : <OperationalEls2029Page {...props} />;
+}
+function ElsReadingAvailability() {
+  const state = useFeatureState("lock_els", { requireFlag: true });
+  return <Sod2029Shell wide surface="els" symbol="✦" title="הצופן התנ״כי" introVariant="compact">
+    <section className="sod29-card" data-els-view="read-only-availability" dir="rtl">
+      <h2>מצב הצופן בגרסת הקריאה</h2>
+      <p>הסריקה, פתיחת מטריצות ושמירת ממצאים עדיין אינן מופעלות בגרסה זו. החומר הקיים נשמר.</p>
+      <FeatureClosedNotice state={state} title="הצופן התנ״כי" to="/world" />
+    </section>
+  </Sod2029Shell>;
+}
+function OperationalEls2029Page({ previewAdvanced = false }) {
   const research = useResearch();
   const razielSession = useOptionalRazielSession2029();
   const location = useLocation();

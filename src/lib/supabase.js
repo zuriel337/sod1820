@@ -1,4 +1,5 @@
 import { PUBLIC_READING_RELEASE } from "./publicReadingRelease2029.js";
+import { readingSessionOptions } from "./publicReadingAuthSession.js";
 import { createClient } from '@supabase/supabase-js';
 import { sideEffectAllowed } from "./botVerdict.js"; // 🤖 BOT_READ_NO_SIDE_EFFECT_V1 — קריאה של בוט לא מייצרת תופעת-לוואי
 import { signupAttribution } from './acquisition.js';
@@ -16,9 +17,11 @@ import { decodePostSlug, publicPostHref } from './publicPostUrls.js';
 export const SUPABASE_URL = 'https://linswmnnkjxvweumprav.supabase.co';
 export const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxpbnN3bW5ua2p4dndldW1wcmF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2Mjg3NjIsImV4cCI6MjA5NjIwNDc2Mn0.R6Zz1PCdGdCDnZ0Ltza4OMFOc146zCIOQrBtTWpujiM';
 
+let readingStorage;
+if (PUBLIC_READING_RELEASE) { try { readingStorage = globalThis.sessionStorage; } catch { /* Private mode: memory-only session. */ } }
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON,
   PUBLIC_READING_RELEASE
-    ? { auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false, storageKey: "sod-public-reading-anonymous" } }
+    ? { auth: readingSessionOptions(readingStorage) }
     : undefined);
 
 export default supabase;

@@ -15,6 +15,7 @@ import {
   parseSourceRefLocator,
   buildBookResearchPresentation,
 } from "../lib/research/bookResearchProjection.js";
+import { PUBLIC_READING_RELEASE } from "../lib/publicReadingRelease2029.js";
 import { applySeo } from "../lib/seo.js";
 import { getBookReaderManifest } from "../data/bookReader2029.js";
 import { bookPreparation } from "../data/bookPreparation2029.js";
@@ -103,8 +104,8 @@ function SaveBookItemAction({ item, research }) {
   return <>
     <button type="button" className="sod29-action" data-action="save"
       style={{ "--action-success": palette.successText, "--action-danger": palette.dangerText }}
-      data-state={failed ? "error" : saved ? "success" : "idle"} aria-pressed={saved && !failed} disabled={!item}
-      onClick={() => { try { setFailed(!research.saveItem?.(item)); } catch { setFailed(true); } }}>
+      data-state={failed ? "error" : saved ? "success" : "idle"} aria-pressed={saved && !failed} disabled={PUBLIC_READING_RELEASE || !item}
+      onClick={() => { if (PUBLIC_READING_RELEASE) return; try { setFailed(!research.saveItem?.(item)); } catch { setFailed(true); } }}>
       <NavigationIcon2029 name={failed ? "issue" : saved ? "check" : "save"} />{failed ? "נסה לשמור שוב" : saved ? "נשמר" : "שמור"}
     </button>
     <span className="sod-action-announcement" role="status">{failed ? "השמירה לא הושלמה. נסה שוב." : saved ? "הפריט שמור בספרייה" : ""}</span>
@@ -276,7 +277,7 @@ function BookDetail({ slug, previewOnly = false }) {
   if (state.error) return <section className="sod29-section"><div className="sod29-state error">לא ניתן לפתוח את הספר: {String(state.error?.message || state.error)}</div></section>;
   if (!book) return <section className="sod29-section"><div className="sod29-state warn">הספר אינו פעיל/נגיש כרגע. לא מציגים snapshot קשיח במקום זהות חיה.</div><div className="sod29-actions"><Link className="sod29-action" to="/books">חזרה לספרייה</Link></div></section>;
 
-  const addBook = () => { const item = bookToWorkspaceItem(book); if (item) research.addToResearch?.(item); };
+  const addBook = () => { if (PUBLIC_READING_RELEASE) return; const item = bookToWorkspaceItem(book); if (item) research.addToResearch?.(item); };
 
   return <>
     <section className="sod29-focus-stage">
@@ -286,7 +287,7 @@ function BookDetail({ slug, previewOnly = false }) {
           <div className="sod29-kicker">ספר · מקור · מחקר</div>
           <h2>{book.label}</h2>
           <p className="sod29-muted">מתחילים מהעיקר: מה כבר מופה, מה נמצא במחקר, מאיזה מקור זה מגיע ומה עדיין דורש המשך בדיקה. שכבות העדות נשמרות בנפרד מאחורי התצוגה האנושית.</p>
-          <div className="sod29-actions">{readerManifest ? <a className="sod29-action" href="#book-reader29-source"><span aria-hidden="true">▤</span> קרא את ה־PDF</a> : null}<SaveBookItemAction key={book.id} item={bookToWorkspaceItem(book)} research={research} /><button type="button" className="sod29-action" data-action="research" onClick={addBook}><NavigationIcon2029 name="add" /> הוסף למחקר</button><button className="sod29-action" onClick={() => shell.openRaziel()} disabled={shell.razielLocked}>{shell.razielLocked ? "✦ רזיאל · נעול" : "✦ שאל את רזיאל"}</button></div>
+          <div className="sod29-actions">{readerManifest ? <a className="sod29-action" href="#book-reader29-source"><span aria-hidden="true">▤</span> קרא את ה־PDF</a> : null}<SaveBookItemAction key={book.id} item={bookToWorkspaceItem(book)} research={research} /><button type="button" className="sod29-action" data-action="research" disabled={PUBLIC_READING_RELEASE} onClick={addBook}><NavigationIcon2029 name="add" /> הוסף למחקר</button><button className="sod29-action" onClick={() => shell.openRaziel()} disabled={shell.razielLocked}>{shell.razielLocked ? "✦ רזיאל · נעול" : "✦ שאל את רזיאל"}</button></div>
         </div>
       </div>
     </section>

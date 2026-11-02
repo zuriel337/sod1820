@@ -11,7 +11,8 @@ const branch='gpt/2029-public-reading-release-configuration-20261101';
 const read=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
 test('one release scope opens only the approved readers; closed aliases cannot enter product routes',()=>{
  for(const path of ['/','/world','/post','/post/existing','/old-post','/number/1820','/number/בראשית','/gematria','/gallery','/map','/topic/existing','/community/researcher/zvi'])assert.ok(['public','post-lookup'].includes(publicReadingPath(path)),path);
- for(const path of ['/code','/els','/journey','/2029/journey','/raziel','/2029/raziel','/2029/me','/login','/auth/callback','/admin','/books','/heichal','/היכל','/community/chat'])assert.equal(publicReadingPath(path),'closed',path);
+ for(const path of ['/code','/els','/journey','/2029/journey','/raziel','/2029/raziel','/2029/me','/auth/callback','/admin','/books','/heichal','/היכל','/community/chat'])assert.equal(publicReadingPath(path),'closed',path);
+ assert.equal(publicReadingPath('/login'),'account');
  for(const path of ['/2029/control','/2029/kingdom','/entity-hub-preview/topic/example','/%ZZ'])assert.equal(publicReadingPath(path),'missing',path);
  for(const flag of ['lock_world','lock_number','lock_gematria'])assert.equal(publicReadingFeatureLock(flag).enabled,false);
  for(const flag of ['lock_els','lock_life_journey','lock_raziel_site','lock_heichal','unknown'])assert.equal(publicReadingFeatureLock(flag).enabled,true);
@@ -52,5 +53,6 @@ test('a stray public profile variable cannot change the Legacy capability or SDK
  const source=read('src/lib/publicReadingRelease2029.js').replaceAll('export ', '').replace('import.meta.env?.VITE_PUBLIC_READING_RELEASE',JSON.stringify(PUBLIC_READING_PROFILE_ID));
  assert.equal(vm.runInNewContext(source+';PUBLIC_READING_RELEASE;', {__SOD_2029_BUILD__:false}),false);
  assert.equal(vm.runInNewContext(source+';PUBLIC_READING_RELEASE;', {__SOD_2029_BUILD__:true}),true);
- assert.match(read('src/lib/supabase.js'),/PUBLIC_READING_RELEASE[\s\S]*?persistSession: false[\s\S]*?: undefined/);
+ assert.match(read('src/lib/supabase.js'),/PUBLIC_READING_RELEASE[\s\S]*?readingSessionOptions\(readingStorage\)[\s\S]*?: undefined/);
+ assert.match(read('src/lib/publicReadingAuthSession.js'),/storageKey: "sod-public-reading-account"/);
 });

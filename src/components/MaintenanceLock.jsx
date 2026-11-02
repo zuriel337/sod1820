@@ -188,7 +188,7 @@ export function useFeatureState(flag, { requireFlag = false } = {}) {
   const pendingScope = typeof __SOD_2029_BUILD__ !== "undefined" && __SOD_2029_BUILD__
     ? JSON.stringify([user?.id || "anon", typeof window !== "undefined" ? [window.location.pathname, window.location.search, window.location.hash, window.history.state?.key || "initial"] : []])
     : null;
-  const { loading, lock } = useSiteFlag(flag, { pendingScope, enabled: !PUBLIC_READING_RELEASE });
+  const { loading, lock } = useSiteFlag(flag, { pendingScope, enabled: !PUBLIC_READING_RELEASE || isAdmin });
   return useMemo(() => {
     const resolved = resolveFeatureState(PUBLIC_READING_RELEASE ? publicReadingFeatureLock(flag) : lock, {
       user: PUBLIC_READING_RELEASE ? null : user,
@@ -202,14 +202,17 @@ export function useFeatureState(flag, { requireFlag = false } = {}) {
       loading: PUBLIC_READING_RELEASE ? false : loading || authLoading,
       lock,
       ...applyPreviewFeatureState(flag, resolved),
+      // Read-only screen inspection never opens the operation/AI gates above.
+      // A missing live capability record remains unavailable even to admin.
+      adminViewAllowed: PUBLIC_READING_RELEASE && !authLoading && !loading && isAdmin && !!lock,
     };
   }, [flag, loading, authLoading, lock, user, isAdmin, requireFlag]);
 }
 
 // עטיפה ברמת-הראוט. כל לוגיקת access מגיעה מה-resolver הקנוני — אין נוסחה מקומית.
-export default function Locked({ flag, children, requireFlag = false, homeHref = "/", renderBlocked = null }) {
+export default function Locked({ flag, children, requireFlag = false, homeHref = "/", renderBlocked = null, allowAdminView = false }) {
   const state = useFeatureState(flag, { requireFlag });
   if (state.loading) return null;
-  if (state.blocked) return renderBlocked ? renderBlocked(state) : <MaintenanceLock message={state.message} showLogin={state.showLogin} homeHref={homeHref} />;
+  if (state.blocked && !(allowAdminView && state.adminViewAllowed)) return renderBlocked ? renderBlocked(state) : <MaintenanceLock message={state.message} showLogin={state.showLogin} homeHref={homeHref} />;
   return children;
 }
