@@ -7,7 +7,7 @@
     "pass": 102,
     "fail": 0,
     "skip": 0,
-    "log": "final-32d-tests.log"
+    "log": "final-32d-tests.txt"
   },
   "legacy_lock": "PASS",
   "git_diff_check": "PASS",

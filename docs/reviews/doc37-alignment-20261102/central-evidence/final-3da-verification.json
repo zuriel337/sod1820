@@ -1,0 +1,505 @@
+{
+  "source_sha": "3da93559352f605059dca231c2e152745701b061",
+  "sourceDirty": false,
+  "full_build": "PASS Legacy+2029",
+  "dormant_production_build": "PASS, NOT HOSTED OR AUTHORIZED",
+  "focused_tests": {
+    "pass": 107,
+    "fail": 0,
+    "skip": 0,
+    "log": "final-3da-tests.txt"
+  },
+  "legacy_lock": "PASS",
+  "git_diff_check": "PASS",
+  "workerSha256": "3b8cbdd5694b7cd306bbbd8b935aaa849ddfc16206af5312e1bbaaf940f086a2",
+  "legacyRollbackWorkerSha256": "6f5a514678d95230332ba2d92c35e6581ee592123833f206142a003e45e5cbd0",
+  "build_logs_sha256": {
+    "doc37-final-mixed-full-build.log": "b3d0e302d6c0492756ef742e6afdba92513ac04f2c44d199187f5c902f1565e9",
+    "doc37-final-mixed-production-build.log": "206238157dfc3f509040614fa28fe61c6ec862d7109f026a5f7bea5572c91543"
+  },
+  "preview": {
+    "url": "https://sod1820-qxqf7wli0-sod1820-s-projects.vercel.app",
+    "deployment_id": "dpl_CNLo6s8fPghSqrD9QtwV8Zzfbvx5",
+    "state": "READY",
+    "target": "staging"
+  },
+  "browser_acceptance": {
+    "status": "PARTIAL; firstpage restored reload CLS needs correction",
+    "page2_and_native_sequence_cls": {
+      "mobile": 0.03461,
+      "desktop": 0.04415
+    },
+    "firstpage_restored_reload_cls": {
+      "mobile": 0.44035,
+      "desktop": 0.1328
+    },
+    "threshold": 0.1,
+    "return_failure_cancel_home": "remaining controlled acceptance underway"
+  },
+  "ci": [
+    {
+      "conclusion": "success",
+      "headSha": "3da93559352f605059dca231c2e152745701b061",
+      "jobs": [
+        {
+          "completedAt": "2026-11-02T17:31:27Z",
+          "conclusion": "success",
+          "databaseId": 125433720267,
+          "name": "hard-isolation",
+          "startedAt": "2026-11-02T17:25:25Z",
+          "status": "completed",
+          "steps": [
+            {
+              "conclusion": "success",
+              "name": "Set up job",
+              "number": 1,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run actions/checkout@v4",
+              "number": 2,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run actions/setup-node@v4",
+              "number": 3,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run npm ci",
+              "number": 4,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "One Tree content contract acceptance",
+              "number": 5,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Experience Context 2029 acceptance",
+              "number": 6,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Entry Orientation + Contextual Learn 2029 acceptance",
+              "number": 7,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Contact Gateway canonical owner acceptance",
+              "number": 8,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "My Workspace 2029 native home acceptance",
+              "number": 9,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "No Black Box operational trace acceptance",
+              "number": 10,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Web Vitals metric core acceptance",
+              "number": 11,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Operational Trace Runtime persistence acceptance",
+              "number": 12,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "AI-Analyze early paid paths trace coverage acceptance",
+              "number": 13,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Replayable Golden No-Black-Box acceptance",
+              "number": 14,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Server capability execution gate acceptance",
+              "number": 15,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "W2 public Number research runtime acceptance",
+              "number": 16,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Package W2 research-run Edge transport",
+              "number": 17,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "2029 server SEO / AI metadata parity",
+              "number": 18,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Research Path resumability runtime acceptance",
+              "number": 19,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Home 2029 System Pulse acceptance",
+              "number": 20,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "2029 cheap route/test/least-privilege hardening",
+              "number": 21,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Legacy Research containment + unopened Heichal entrypoint acceptance",
+              "number": 22,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Source isolation regression",
+              "number": 23,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "G4 source-section update / World / Companion public-read acceptance",
+              "number": 24,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Native System Frame acceptance",
+              "number": 25,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Raziel server-gated Result Bundle consumer acceptance",
+              "number": 26,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Canonical 2029 contract wiring acceptance",
+              "number": 27,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Person identity bridge foundation acceptance",
+              "number": 28,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Account Person completeness foundation acceptance",
+              "number": 29,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Person public resolver foundation acceptance",
+              "number": 30,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "People identity projection acceptance",
+              "number": 31,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Person Profile 2029 projection acceptance",
+              "number": 32,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "People Directory 2029 projection acceptance",
+              "number": 33,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Native World surface acceptance",
+              "number": 34,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "World Convergence PR591 focused acceptance",
+              "number": 35,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Native Topic surface acceptance",
+              "number": 36,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Native Researcher corpus acceptance",
+              "number": 37,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Native Number preview acceptance",
+              "number": 38,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Native 2029 Control Plane trace drill-down acceptance",
+              "number": 39,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "A3 real isolated client-to-trace correlation acceptance",
+              "number": 40,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Public-reading verified admin screen and closed-action acceptance",
+              "number": 41,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Production build",
+              "number": 42,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Built dependency graph isolation",
+              "number": 43,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Verify isolated HTML artifact",
+              "number": 44,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Install browser acceptance runner",
+              "number": 45,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Start isolated 2029 preview",
+              "number": 46,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Entry Orientation + Contextual Learn browser acceptance",
+              "number": 47,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "World browser acceptance on pre-cutover preview",
+              "number": 48,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Upload native World screenshots",
+              "number": 49,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Upload sanitized isolated A3 receipt",
+              "number": 50,
+              "status": "completed"
+            },
+            {
+              "conclusion": "skipped",
+              "name": "Show isolated preview log on failure",
+              "number": 51,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Post Run actions/setup-node@v4",
+              "number": 101,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Post Run actions/checkout@v4",
+              "number": 102,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Complete job",
+              "number": 103,
+              "status": "completed"
+            }
+          ],
+          "url": "https://github.com/zuriel337/sod1820/actions/runs/41491021589/job/125433720267"
+        }
+      ],
+      "status": "completed",
+      "url": "https://github.com/zuriel337/sod1820/actions/runs/41491021589"
+    },
+    {
+      "conclusion": "success",
+      "headSha": "3da93559352f605059dca231c2e152745701b061",
+      "jobs": [
+        {
+          "completedAt": "2026-11-02T17:27:53Z",
+          "conclusion": "success",
+          "databaseId": 125433738688,
+          "name": "public-core",
+          "startedAt": "2026-11-02T17:25:38Z",
+          "status": "completed",
+          "steps": [
+            {
+              "conclusion": "success",
+              "name": "Set up job",
+              "number": 1,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run actions/checkout@v4",
+              "number": 2,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run actions/setup-node@v4",
+              "number": 3,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run npm ci",
+              "number": 4,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run npm run build",
+              "number": 5,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Public capability metadata and Community reader acceptance",
+              "number": 6,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run node --test src/lib/research/worldGroupSource.test.js",
+              "number": 7,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Group source v3 real HTTP role acceptance on disposable fixtures",
+              "number": 8,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run node scripts/test-2029-system-frame.mjs",
+              "number": 9,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run npm install --no-save --no-package-lock @playwright/test@1.55.0",
+              "number": 10,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run npx playwright install --with-deps chromium",
+              "number": 11,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Start isolated 2029 preview",
+              "number": 12,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Public core browser acceptance",
+              "number": 13,
+              "status": "completed"
+            },
+            {
+              "conclusion": "skipped",
+              "name": "Show preview log on failure",
+              "number": 14,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Post Run actions/setup-node@v4",
+              "number": 27,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Post Run actions/checkout@v4",
+              "number": 28,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Complete job",
+              "number": 29,
+              "status": "completed"
+            }
+          ],
+          "url": "https://github.com/zuriel337/sod1820/actions/runs/41491026546/job/125433738688"
+        }
+      ],
+      "status": "completed",
+      "url": "https://github.com/zuriel337/sod1820/actions/runs/41491026546"
+    }
+  ]
+}

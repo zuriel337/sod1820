@@ -1,0 +1,317 @@
+{
+  "artifact_id": 13165572699,
+  "workflow_run": 41494096846,
+  "source_sha": "0d4ad83644a74abe5d990f7a628dd955fd0c638a",
+  "archive_sha256": "25deae2d8e8456c4d261966d2c87ca4960fb0d832ab8c5bb2995c4c43adf529a",
+  "receipt": {
+    "runId": "sod-a3-mvzjvpks-9c0855",
+    "startedAt": "2026-11-02T17:46:10.876Z",
+    "scope": "original A3 plus persisted local correlation; not entire 2029 workflow",
+    "images": {
+      "db": "postgres:17@sha256:31ba9c94a03ada9988f2bb493a22a75eef3a185884533e5cdbcd498ea835b08f",
+      "auth": "supabase/gotrue:v2.197.0@sha256:1736a63078f5922b198c4cbe50f80ab9a2d3b54fe8b7b6cfb2e9dc5dbbc12c6b",
+      "rest": "postgrest/postgrest:v14.18@sha256:c7cd7e265a85b05248abf53f4473fcec7e327c282d0bd0cf60f1551996d09fcf",
+      "edge": "supabase/edge-runtime:v1.77.4@sha256:ad45164b7548bf5820ed7be714789c17ac2865edce79a09cfb4c3756c3d365a8",
+      "gateway": "node:24.21.0-bookworm-slim@sha256:d6aa754f16b3197301076f047b5def2f02ea1dbbc2ca920407d46d7ec7f87b20"
+    },
+    "checks": {
+      "stackIsolationInspectedBeforeA3": true,
+      "realAuthUserAndJwt": true,
+      "invalidJwtRejectedByAuthPostgrestAndEdge": true,
+      "originalA3Assertions": true,
+      "persistedInteractionTraceCorrelationBothIdentities": true,
+      "fullRootGateComposerCapabilitySpanTree": true,
+      "traceTablesDenyCallerReads": true,
+      "noModelProviderSpansAndAllCostNotBillable": true,
+      "runtimeEgressDenied": true,
+      "noAiTokenOrQuotaWrites": true,
+      "tracesSurviveDatabaseRestart": true,
+      "ownedResourcesCleaned": true
+    },
+    "sourceHead": "0d4ad83644a74abe5d990f7a628dd955fd0c638a",
+    "bundleSha256": "f68274b819928291b348be49e81960d69ae75869ec8b5870142331e795720992",
+    "sources": [
+      {
+        "file": "src/lib/gematria.js",
+        "sha256": "25297be7d4d7619b54b2c35cadd021e375e2b27d926fd3cf22cd243ec0ff6f5d"
+      },
+      {
+        "file": "src/lib/research/fibonacciSequence.js",
+        "sha256": "1399453ba78be348a23eeaabda8a2a42a8313e19da8d51e78277a5924ab1ccb7"
+      },
+      {
+        "file": "src/lib/research/gematriaCorpusCrossingW2Executor.js",
+        "sha256": "fc30521d05db69297f9a4837bcaf32066446e819af56b79247606d64dfd8cc31"
+      },
+      {
+        "file": "src/lib/research/gematriaMethodProfileW2Executor.js",
+        "sha256": "7602a62bbddb065f0abfeb794c8bc26289e592441d57ee94b64e9b8a7fbfd991"
+      },
+      {
+        "file": "src/lib/research/gematriaRelationW2Executor.js",
+        "sha256": "c93fa5a8517ef2c93900f2fe1f2c2150783bcaf2465d8d853e0e470801bdaf19"
+      },
+      {
+        "file": "src/lib/research/methodIdentity.js",
+        "sha256": "8137be0b80a0d5b278661411a1e02d7655112401b9d0432e8b069ddedc2c17fa"
+      },
+      {
+        "file": "src/lib/research/numberPhrasePresentationOrder.js",
+        "sha256": "2204717a6d2836830d38d9761735195dc6f13b8d221d955a4a70e80fed95abf9"
+      },
+      {
+        "file": "src/lib/research/numericResearch.js",
+        "sha256": "8944c57dfc95c9bcf892109c764cb231d93e998a4a6fb6251fc4d514f2a98a79"
+      },
+      {
+        "file": "src/lib/research/numericResearchBase.js",
+        "sha256": "503191f773aa8378199048dad130ec9ceeb6575e158ebcaa1be7399878a7e3e8"
+      },
+      {
+        "file": "src/lib/research/piSequence.js",
+        "sha256": "9d6c6deb23f30a05b1589e49aa9a5686ad7b9ddbed624d75a99408fe5357d90d"
+      },
+      {
+        "file": "src/lib/research/razielActionContract.js",
+        "sha256": "3d15ba16243c75abed9ce2d26e3e0c26bc656aac132f8e539a4b3e400b15fdb0"
+      },
+      {
+        "file": "src/lib/research/razielRouteAction.js",
+        "sha256": "4a6b0f7cab1029417a4f91b995d02c06277272679422e9670425da24c5cb4066"
+      },
+      {
+        "file": "src/lib/research/razielRouteGrammar.js",
+        "sha256": "4c208edd328eaace5fba6f04c5e3c77ad882097021c5f8b50a130e3f692ed2ef"
+      },
+      {
+        "file": "src/lib/research/razielSemanticIntentGate.js",
+        "sha256": "d0ff8b2f30017932782ed4ff301b3ced67557b886d41a9efd6b9b68a9bb213fc"
+      },
+      {
+        "file": "src/lib/research/researchComposerW2.js",
+        "sha256": "b25f50b6b77d3978e859aad650d673541798c54f851383e0a92cb47dc34bddfa"
+      },
+      {
+        "file": "src/lib/research/researchIdentityResolver.js",
+        "sha256": "1a40962d8718a3dadfe9db3cfc09f99a9538bc8d7d49afa1e5b7cf2b995be839"
+      },
+      {
+        "file": "src/lib/research/researchIntakeTransport.js",
+        "sha256": "ed710338ed4b154a4da85cd2b0bd87d99c8f3fec8febcb7e19876bd7edb9753d"
+      },
+      {
+        "file": "src/lib/research/researchObjectFinding.js",
+        "sha256": "f2727c60edcf2e22aeb9145d44a6dd8084801b18dbfb62566391fd0bf01916e4"
+      },
+      {
+        "file": "src/lib/research/researchObjectPresentation.js",
+        "sha256": "4a6be88256a040d42ae9c529d71bff53f3f9e4e37d2093bf1af0551c41637617"
+      },
+      {
+        "file": "src/lib/research/researchPlanV2.js",
+        "sha256": "869b3c5adb14af483ed4673d4a9d8625cce6c20869c7d2109132ca7213d50192"
+      },
+      {
+        "file": "src/lib/research/researchRepresentations.js",
+        "sha256": "ffa6b61584afc986d52e05d6b8344ba0237c34c5459c27e141b181db17036558"
+      },
+      {
+        "file": "src/lib/research/researchResultBundle.js",
+        "sha256": "6f9518b275b9641c8bb2249dadf86d06e91c066541e1fd4144f410a1f28d9247"
+      },
+      {
+        "file": "src/lib/research/researchRunRequest.js",
+        "sha256": "e1eacea68d512f36bb7ba8857255efbcd8a5cdd892ff2cc57353f6796ac0dc07"
+      },
+      {
+        "file": "src/lib/research/researchSynthesis.js",
+        "sha256": "ffb23fff57859b6471476c6ec6dd1ea3e52e43bc3f7302c8524b72824bb83f2b"
+      },
+      {
+        "file": "src/lib/research/researchW2ExecutorsBase.js",
+        "sha256": "64a10d11239b85e407a9229e360b7d4154746cbb69dcddd99c10d5b46cf82801"
+      },
+      {
+        "file": "src/lib/research/sequenceLens.js",
+        "sha256": "4a9caa0b00a928a956104152b9c48335fe78ba3031dee1b3d158057d086ede4a"
+      },
+      {
+        "file": "src/lib/research/universalFinding.js",
+        "sha256": "2fe40eb91876594f2c348237debdb32267330de59ea1cf20dc152eb796cb7d7e"
+      },
+      {
+        "file": "src/theme.js",
+        "sha256": "1c6d14f01c6f16df59def1508d2361f19c455f938cd7e3ede824fe141689a7fa"
+      },
+      {
+        "file": "supabase/functions/research-run/index.ts",
+        "sha256": "4e0acd2289ebb211e0b551aa2cede0d166fd288a979c8e1b14910abe0974f1d6"
+      }
+    ],
+    "clientBundleSha256": "6b89776b3ed813bdf50be5bb9900975be6d665ea5652b4114c18fe7cf3c2d6e1",
+    "network": {
+      "internal": true,
+      "onlyNetwork": true,
+      "publishedBindings": "127.0.0.1 only",
+      "proxyEnvironmentEmpty": true,
+      "clientLocation": "original A3 CLI bundled from current source, running on gateway container loopback",
+      "egressProbe": {
+        "blocked": [
+          "linswmnnkjxvweumprav.supabase.co",
+          "api.openai.com",
+          "api.resend.com",
+          "1.1.1.1"
+        ],
+        "noDefaultRoute": true
+      }
+    },
+    "witnesses": [
+      {
+        "identityClass": "public_user",
+        "interactionId": "deeea49c-3cde-4da4-b81a-f111d841d1d6",
+        "traceId": "29478b51-9d33-44ac-ac1e-45fd938d2f62",
+        "outcome": "success",
+        "spans": [
+          {
+            "name": "research-run",
+            "kind": "root_interaction",
+            "outcome": "success",
+            "hasParent": false,
+            "spanId": "13128e07-5cf2-4d8e-ba13-b95fc3c9d350"
+          },
+          {
+            "name": "fn_capability_execution_gate_v1",
+            "kind": "db_rpc",
+            "outcome": "success",
+            "hasParent": true,
+            "spanId": "8665edfd-c1bb-474e-9e96-9d60e69a01c1"
+          },
+          {
+            "name": "composeResearchW2",
+            "kind": "router_plan",
+            "outcome": "success",
+            "hasParent": true,
+            "spanId": "3776857c-3d27-402e-849e-80efb2a36dfe"
+          },
+          {
+            "name": "w2:numeric",
+            "kind": "engine",
+            "outcome": "success",
+            "hasParent": true,
+            "spanId": "33892aca-83cc-4389-983c-eb3964877f0a"
+          },
+          {
+            "name": "w2:numeric_operators",
+            "kind": "engine",
+            "outcome": "success",
+            "hasParent": true,
+            "spanId": "8cc93332-60d7-4061-9acc-02d81c100758"
+          }
+        ]
+      },
+      {
+        "identityClass": "authenticated_user",
+        "interactionId": "4f43ec95-777d-4850-b7f7-c30bd564b9eb",
+        "traceId": "69400399-d7a0-4e49-8356-69add890bf2c",
+        "outcome": "success",
+        "spans": [
+          {
+            "name": "research-run",
+            "kind": "root_interaction",
+            "outcome": "success",
+            "hasParent": false,
+            "spanId": "dfa185dd-b8aa-43f0-a7b9-5a6def8c51f7"
+          },
+          {
+            "name": "fn_capability_execution_gate_v1",
+            "kind": "db_rpc",
+            "outcome": "success",
+            "hasParent": true,
+            "spanId": "518c271b-3c56-4acb-9bac-544e6fcbfb8a"
+          },
+          {
+            "name": "composeResearchW2",
+            "kind": "router_plan",
+            "outcome": "success",
+            "hasParent": true,
+            "spanId": "7273e88c-f294-4b23-b452-64566189a6d7"
+          },
+          {
+            "name": "w2:numeric",
+            "kind": "engine",
+            "outcome": "success",
+            "hasParent": true,
+            "spanId": "ca525a5d-ba57-4c3e-b1af-a28ef4b49272"
+          },
+          {
+            "name": "w2:numeric_operators",
+            "kind": "engine",
+            "outcome": "success",
+            "hasParent": true,
+            "spanId": "27a2c5b3-30d4-438f-bbdd-08718b9872c0"
+          }
+        ]
+      }
+    ],
+    "sqlProvenance": [
+      {
+        "file": "supabase/migrations/20260829151530_engine_governance_predicates_and_composite_engine.sql",
+        "name": "fn_method_is_executable",
+        "sha256": "7e39fc743f772ad6d95a6b676dc3603597725684045c61be092dc639e0d3f748"
+      },
+      {
+        "file": "supabase/migrations/20260829151530_engine_governance_predicates_and_composite_engine.sql",
+        "name": "fn_method_is_engine_verified",
+        "sha256": "a53b3fca29a1d47705c39d7d0d4cafce63ae3085b262123d20fec78f3a3f6ab4"
+      },
+      {
+        "file": "supabase/migrations/20260829151530_engine_governance_predicates_and_composite_engine.sql",
+        "name": "fn_method_is_scannable",
+        "sha256": "34a6cf6b1ac180637bda0ceb8f4e44965dad92ce2ae9d17698e30a770bf0b9a5"
+      },
+      {
+        "file": "supabase/migrations/20260829151530_engine_governance_predicates_and_composite_engine.sql",
+        "name": "fn_composite_calc",
+        "sha256": "635fc8a906ee78a84b80bf7d12f02b7eea6b3080ec084ad7a64f7a82fedeb61c"
+      },
+      {
+        "file": "supabase/migrations/20260829172431_blocker_eg1_public_read_governance_rank_dont_hide.sql",
+        "name": "fn_method_evidence_class",
+        "sha256": "8bfb8a0e0d91df29a1aadb62f709d223c78257b8e5deb80583585423d9a0ce91"
+      },
+      {
+        "file": "supabase/migrations/20260829172431_blocker_eg1_public_read_governance_rank_dont_hide.sql",
+        "name": "fn_method_is_governed_evidence",
+        "sha256": "77086c7f734126503b9fd8b866eddf715fd060938c361ab1c73b9938fdabc773"
+      },
+      {
+        "file": "supabase/migrations/20260911134000_w2_2d_number_lookup_keyset_and_gematria_controls_v1.sql",
+        "name": "fn_number_lookup",
+        "sha256": "79ea25d4b58dbd2fa7cb642f8de9b2028dd33cbb6e4ecbf159baf217090dff72"
+      },
+      {
+        "file": "supabase/migrations/20260913154800_g2_p0_number_dossier_root_of_trust_v1.sql",
+        "name": "fn_number_dossier",
+        "sha256": "9b5f594a123805a0d7034daed7112a9e917293bf21c7eeee0e9d4211c4c27aec"
+      },
+      {
+        "file": "supabase/migrations/20260911113557_w2_2b_publication_boundary_hardening_v1.sql",
+        "name": "fn_number_journey",
+        "sha256": "890af7c6d18a0df168fed3f759e0597379dfb292a5ed5d75a52acd7911eb423a"
+      },
+      {
+        "file": "supabase/migrations/20260922191500_operational_trace_runtime_v1.sql",
+        "name": "complete migration",
+        "sha256": "0de92fa73ce34c5457868398c62c6f8627281957b5f581993204905749c791ac"
+      },
+      {
+        "file": "supabase/migrations/20260922194500_server_capability_execution_gate_v1.sql",
+        "name": "complete migration",
+        "sha256": "076873f30c0f3ecbcd12ef26fb621f455d14df589aca4bc9f92e4bda50757e96"
+      }
+    ],
+    "status": "PASS",
+    "priorHarnessFailures": "docs/reviews/public-launch-closure-20261102/a3/startup-history.json",
+    "finishedAt": "2026-11-02T17:46:18.909Z"
+  }
+}

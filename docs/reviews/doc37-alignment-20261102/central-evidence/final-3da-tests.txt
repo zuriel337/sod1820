@@ -1,0 +1,132 @@
+✔ only the exact approved source joins the existing reading identity (21.985721ms)
+✔ public gate rejects hidden, private, expired, wrong channel and malformed occurrence (0.704626ms)
+✔ a route requires exact public asset and occurrence, never a title or channel-only match (0.929541ms)
+✔ reader issues only exact metadata GETs and forwards cancellation to both stages (1.982313ms)
+✔ denied/absent sources never initiate media lookup; failure stays distinct from empty (0.840108ms)
+✔ cancellation before, between and after reads never returns stale or partial sources (0.858478ms)
+✔ mixed series retains both source kinds and keeps Posts when the channel fails (2.747473ms)
+✔ Home and series entrances do not fetch approved media until its series is selected (0.969255ms)
+✔ same source or media occurrence groups once, but distinct authored Posts remain distinct (0.75388ms)
+✔ series publication order changes neither ordinary modified ordering nor numeric tie order (4.305361ms)
+✔ source before, inside, after and exactly at a page boundary matches global bounded pagination (8.270279ms)
+✔ one source can create a real last page, including the empty-Post 416 response (1.135292ms)
+✔ search exclusion and source failure do not invent a source or another rank request (0.591363ms)
+✔ HEAD failure and cancellation preserve the already-readable Post result (1.494721ms)
+✔ existing-account password, refresh, identity and local logout only reach canonical Auth (54.737409ms)
+✔ account creation, alternate grants, mutation, query ambiguity and spoof fields fail before network (18.474104ms)
+✔ screen authentication grants no model, mail, credit, profile or research write transport (10.755398ms)
+✔ alignment branch rejects Production and unspecified environment before build (569.921804ms)
+✔ Preview and dormant Production workers admit only explicitly consented opening mail, never general mailing or delivery (46.27389ms)
+✔ closed Follow never mounts its controller, creates identity or reads preferences (6.054563ms)
+✔ reading profile suppresses both telemetry sinks, marketing and sharing credits before attempted IO (0.45526ms)
+✔ reading errors remain locally visible, sanitized and deduplicated with zero telemetry IO (1.162011ms)
+✔ Legacy tracking retains its existing two sinks (0.949234ms)
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+✔ page2 waits for rank/predecessor assignment, then mounts only the canonical24 without changing requests (46.910469ms)
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+✔ page1 retains already-readable Posts while source and rank are pending (27.809133ms)
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+✔ failed or access-filtered source preserves available page2 Posts without claiming measured empty (59.41519ms)
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+✔ rank failure returns available Posts; successful empty is shown only after assignment completion (19.459491ms)
+✔ late page2 completion cannot display under a later page and unmount aborts remaining readers (15.860255ms)
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+✔ closed post Follow preserves existing classification labels without resolver reads (13.195852ms)
+✔ existing non-reading Follow still validates its targets through the canonical resolver (7.275605ms)
+✔ capture keeps router/history fields and exact encoded query/hash, storing layout metadata only (3.896145ms)
+✔ modifier/new-tab/download/external/local-anchor/canceled actions never capture departure (8.282405ms)
+✔ wrong current key/path or malformed coordinates cannot create or replay a viewport (2.66721ms)
+✔ native initial entry without a key uses Router default, while PUSH/REPLACE never replay (0.758884ms)
+✔ POP waits for admitted mixed-page completion and repairs native short-document clamping exactly (1.334155ms)
+✔ wheel/touch/pointer/key intent cancels even while source data is pending (1.924434ms)
+✔ route changes and time limits disconnect correction and cannot steal a later viewport (1.475376ms)
+✔ failed/short results settle with real height and stop without invented content or infinite retries (2.217453ms)
+✔ settled scrolling keeps repeat returns fresh without recording initial clamp or per-scroll updates (0.968043ms)
+✔ ordinary shared-menu links/buttons capture the departing Posts entry, and tracking is route-scoped (0.791472ms)
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+✔ admin reading does not hydrate, resume, sync, observe ELS or emit telemetry; principal context stays exact (21.429414ms)
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+✔ closed Now never fetches details; opening, closing and reopening preserve one ticker watcher (20.61759ms)
+✔ close aborts in-flight details and stale completion cannot overwrite a reopened request (5.02084ms)
+✔ authenticated reading keeps principal-local context without cloud reads, writes or new upload batches (2.728901ms)
+✔ existing research journals are retained when cloud admission is closed (0.920406ms)
+✔ font failure or a never-settling font cannot prevent requesting the app render (11.113345ms)
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+✔ all canonical entrances are usable before metadata, and metadata adds no new navigation cards (33.760865ms)
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+✔ failure retains canonical links, exposes one retry, and aborts the old reader on retry (15.577349ms)
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+✔ known series search is independent of source loading and remains stable after it completes (6.361385ms)
+✔ pending, failure and completion retain intrinsic geometry and expose only the meaningful current message/action (2.642252ms)
+✔ latest external series never replaces editorial documentation, including event-category series (1.847078ms)
+✔ documentation retains URL provenance and never promotes draft/hidden rows or modified time (0.260736ms)
+✔ lead reader constrains public source before reading and propagates failure/cancellation (0.83096ms)
+✔ Messages righteous is explicit post membership, OrGeula channel never becomes a series by name (0.649431ms)
+✔ series reads keep independent failures distinct from measured-empty; signal forwarded (1.271118ms)
+✔ Home summary admission suppresses all seven reads, and admitted summary preserves existing reader (0.929139ms)
+✔ old server cannot silently convert opening-only request into general newsletter (37.904158ms)
+✔ opening consent is explicit, sends no marketing acquisition and requires server purpose receipt (3.493208ms)
+✔ fresh opening-only consent writes exactly one existing subscriber row; no welcome/referral/follow/identity/telemetry (24.563477ms)
+✔ missing consent/unknown purpose/reserved source without purpose produce no DB write (9.126572ms)
+✔ duplicate opening consent is idempotent; general/suppressed/missing evidence never change subscriptions (31.00218ms)
+✔ failed insert/read never returns signup success (6.986097ms)
+✔ mail cohorts remain separate; unsubscribe overrides every purpose (0.493359ms)
+✔ actual admin send handler filters purpose, denies non-admin and fails closed on schema/read error (33.133008ms)
+✔ existing other mail consumers require general purpose and opening-only cannot reactivate through tracking (2.963845ms)
+✔ actual welcome cron reader excludes opening-only and returns read failure honestly (15.659437ms)
+✔ actual tracking resolve cannot reactivate opening-only suppressed address (6.03312ms)
+✔ opening announcement content keeps signed unsubscribe and omits marketing tracking (9.625352ms)
+✔ server verifies JWT and same principal; local metadata never admits a mismatched account (1.476625ms)
+✔ reading account storage is separate, tab scoped, and does not consume OAuth URL sessions (0.267557ms)
+✔ admin screen projection never opens public paths, missing services, or operation gates (0.853314ms)
+✔ real AuthProvider reading mode verifies admin role without credits, marketing, visitor, avatar or referral side effects (18.0574ms)
+✔ account switch revokes old admin immediately; stale profile cannot grant role to replacement (4.303617ms)
+✔ token verification failure clears prior admin and prevents profile fetch (6.111365ms)
+✔ same-principal token refresh preserves local navigation identity but revokes admin until server revalidation (3.62528ms)
+✔ canonical feature state keeps operations closed while projecting verified admin screen availability (18.75109ms)
+✔ Heichal admin view disables controls and rejects direct handler invocation before model, telemetry or write (11.795761ms)
+✔ Book save remains disabled and handler does not save in public-reading admin view (5.737637ms)
+✔ ELS read-only admin inspection never mounts operational readers, replay or engine (7.182006ms)
+✔ dormant default cannot be activated by environment, forged request or production branch name (137.00288ms)
+✔ only dedicated 2029 compiler target can enable the signed service; default, Preview and stray Legacy flags cannot (3.336137ms)
+✔ Production document uses canonical owner, preserves old/native/encoded/wp addresses and genuine missing/failure status (25.757987ms)
+✔ closed, private and unknown routes remain noindex without product lookups; service metadata preserves signed unsubscribe (1.527848ms)
+✔ public aliases reuse metadata owner while old static tool names resolve through the actual Post boundary (1.884081ms)
+✔ HTTP origin, path and method boundaries cannot select metadata profile or enter private readers (1.019469ms)
+✔ Numbers/phrases use the same canonical indexability readers; source failure is 503, false is noindex (3.457216ms)
+✔ public topic/writer/video missing and failed source responses keep 404 and 503 distinct (2.677007ms)
+✔ sitemap reuses eligible publication owner for both Post families, Numbers, phrases, topic, public writer and verified video (4.460168ms)
+✔ robots follows Production canonical sitemap while dormant mode fails closed; public GET APIs strip Legacy authority and reject POST (0.584715ms)
+✔ exact emitted worker denies A3/models/Auth/credits/writes through GET/POST/PATCH/DELETE and proxy paths before network (8.837812ms)
+✔ emitted worker retains public calculator/STABLE GET/community projection reads and context checks, never raw replies (4.503093ms)
+✔ language-link reader admits approved-only scope and denies visitor drafts before any network call (2.549425ms)
+✔ signed Legacy unsubscribe alone can reach its unchanged HMAC server from exact controlled service document (3.155581ms)
+✔ bootstrap bounds every worker phase, rejects redundant/wrong policy and never imports after a late timeout (53.257953ms)
+✔ actual local artifact retains font fix, compiler isolation, no index shadow, no-store worker and byte-exact Legacy rollback worker (34.416685ms)
+✔ public video re-admits its exact source before loading playable metadata; no other placements (2.74559ms)
+✔ hidden, page-only, expired and different source cannot trigger playable asset read (0.635923ms)
+✔ missing, denied and failed remain distinct; invalid address never reads (0.944555ms)
+✔ source mismatch, changed primary and private media fail closed (0.6002ms)
+✔ cancellation before, between and after reads discards partial data (0.987555ms)
+✔ authored Post keeps its old public URL and rejects suppressed tags (0.896831ms)
+✔ existing Home video and Story publication gates remain required (0.554235ms)
+✔ 2029 uses the existing world media surface and shared Player, never the Legacy broad reader (0.514961ms)
+✔ public-reading metadata uses the same source gate and preserves 404 versus 503 (33.868599ms)
+✔ Legacy video metadata keeps its existing single asset read (1.083013ms)
+✔ XML shares the exact public source gate, rejects stale aggregate claims and propagates outages (0.98292ms)
+✔ XML source reads batch and deduplicate exact IDs, without per-asset HTTP or persistent cache (3.851696ms)
+ℹ tests 107
+ℹ suites 0
+ℹ pass 107
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1399.401704

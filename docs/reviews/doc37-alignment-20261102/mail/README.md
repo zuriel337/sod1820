@@ -1,4 +1,6 @@
-# Opening-parts email consent — source implementation, shared change NOT deployed
+# Opening-parts email consent — proposal and authorized shared application
+
+Current application status: the exact proposal was approved by ZURIEL and applied. See [the applied receipt](#applied-receipt--supersedes-the-proposal-only-runtime-status-above), `shared-apply-receipt.json`, and [central acceptance](../ACCEPTANCE.md). The proposal-stage evidence below is retained as history; it is not a pending authorization request. No live positive signup, send or unsubscribe was performed.
 
 Base `979c25aa2a91fa96de3a50db8fc93425a183c694`; passive BEFORE
 `5ce04c53-2a9e-46ce-a36d-e6be51e7de71`; owner subscription_funnel_law v21,
