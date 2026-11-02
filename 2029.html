@@ -14,7 +14,11 @@
     <link rel="preload" href="/fonts/Rubik-Latin.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <!-- Numeric font is progressive presentation. A pending third-party CSS
+         response must not block the module that installs the read-only worker
+         and opens the application. The family/weights and local fonts stay the same. -->
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.onload=null;this.media='all'" />
+    <noscript><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" /></noscript>
     <link rel="stylesheet" href="/src/components/experience2029/opening2029.css" />
     <style>
       @font-face { font-family:'Noto Sans Hebrew'; src:url('/fonts/NotoSansHebrew-Regular.ttf') format('truetype'); font-style:normal; font-weight:400; font-display:swap; }
