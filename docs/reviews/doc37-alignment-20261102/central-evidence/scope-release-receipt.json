@@ -1,0 +1,72 @@
+{
+  "task_key": "PUBLIC_DOC37_ALIGNMENT_20261102",
+  "source_sha": "0d4ad83644a74abe5d990f7a628dd955fd0c638a",
+  "released_count": 12,
+  "releases": [
+    {
+      "id": "f74e6ff4-e796-42b7-a408-276b8b8450ad",
+      "status": "AFTER_DOC37_ALIGNMENT_SCOPE_RELEASED",
+      "parent_assignment_id": "d57137fb-1305-455f-a7f0-a984dfd9c0a2"
+    },
+    {
+      "id": "6fb41364-9918-4de2-bd3c-e1e0fe6baa5d",
+      "status": "AFTER_DOC37_ALIGNMENT_SCOPE_RELEASED",
+      "parent_assignment_id": "a58c3d4e-e83a-4614-ada0-e77e05b9dcd9"
+    },
+    {
+      "id": "71051171-edd9-43fc-8cdc-0990819db1a6",
+      "status": "AFTER_DOC37_ALIGNMENT_SCOPE_RELEASED",
+      "parent_assignment_id": "501ef820-ed3f-46b4-854c-7c83768f39ec"
+    },
+    {
+      "id": "dd98f46d-e802-4629-8555-5fda46928563",
+      "status": "AFTER_DOC37_ALIGNMENT_SCOPE_RELEASED",
+      "parent_assignment_id": "c9be548e-4874-44b1-a67a-bc78c6ad18fe"
+    },
+    {
+      "id": "16b2da99-3fe3-453d-ae9c-dec1db273380",
+      "status": "AFTER_DOC37_ALIGNMENT_SCOPE_RELEASED",
+      "parent_assignment_id": "d104b017-d763-4e19-b431-d8932cc045fa"
+    },
+    {
+      "id": "9d6ab79d-af8b-46e2-a73c-ff0122a4eb0c",
+      "status": "AFTER_DOC37_ALIGNMENT_SCOPE_RELEASED",
+      "parent_assignment_id": "93fca3d5-b43b-4ea2-a041-81c55b4cd0ee"
+    },
+    {
+      "id": "7ac22519-de53-4afc-801c-29a5ed8e8434",
+      "status": "AFTER_DOC37_ALIGNMENT_SCOPE_RELEASED",
+      "parent_assignment_id": "1637938c-32e9-4d7e-837b-8c2508720cf5"
+    },
+    {
+      "id": "05a7ece8-b826-4a0a-83d3-7bb66eca04f2",
+      "status": "AFTER_DOC37_ALIGNMENT_SCOPE_RELEASED",
+      "parent_assignment_id": "9d23ab12-0bf3-4d12-8614-0024c3ac8d8f"
+    },
+    {
+      "id": "945ef0ad-a16e-4008-bc31-891937382f9a",
+      "status": "AFTER_DOC37_ALIGNMENT_SCOPE_RELEASED",
+      "parent_assignment_id": "02284728-2bde-4106-b5b2-2f0125a3a7bb"
+    },
+    {
+      "id": "86eed0f1-15e3-4cf6-8f22-ca654f44088e",
+      "status": "AFTER_DOC37_ALIGNMENT_SCOPE_RELEASED",
+      "parent_assignment_id": "63dd5799-701a-452e-852d-d2a3fd96291a"
+    },
+    {
+      "id": "ea289ec9-64e4-4e13-bd47-0ca1670e9239",
+      "status": "AFTER_DOC37_ALIGNMENT_SCOPE_RELEASED",
+      "parent_assignment_id": "641d04d4-3d65-4fd7-b9f3-b608ed7bff4d"
+    },
+    {
+      "id": "e24df6a6-ff30-460d-8360-707dc3547286",
+      "status": "AFTER_DOC37_ALIGNMENT_SCOPE_RELEASED",
+      "parent_assignment_id": "5ce04c53-2a9e-46ce-a36d-e6be51e7de71"
+    }
+  ],
+  "verification": {
+    "remaining_before": 0,
+    "released_after": 12,
+    "dispatch_rows": 0
+  }
+}
