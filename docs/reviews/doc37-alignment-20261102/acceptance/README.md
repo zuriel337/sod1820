@@ -132,3 +132,33 @@ Legacy benchmark therefore is not a claim about unrestricted production telemetr
 cost. Browser screenshots and raw reports remain at `/tmp/doc37-acceptance/` for
 the central integrator's safe archival. Private access inputs are separate and
 excluded. The exclusive window was released after the blocked Legacy batch.
+
+## Headed access diagnosis and candidate acceptance preparation
+
+Exact Legacy `middleware-core.js` equals979c source and explicitly classifies
+`headless` as BAD_BOT, which can lead to the observed403. Country blocking shares
+that response, so source matching alone is not sole-cause live proof. Root
+separately fetched Legacy successfully through the platform tool. No protection
+change or User-Agent spoof is proposed. An existing Xorg dummy driver provides an
+isolated display: run Chromium with `headed:true` and `DISPLAY=:99`. Compare
+Legacy,979c and candidate in this same headed mode; keep earlier headless samples
+separate. Root must grant a new exclusive window before browser execution.
+
+The reusable display config is `xorg-dummy.conf`; it listens on no TCP socket.
+Only the task-owned Xorg process/display may be stopped during cleanup.
+Automatic server access/crawl logging cannot be suppressed by a browser guard;
+that is distinct from intentionally issuing product-data writes in a test.
+
+Prepared, syntax-checked only until exact-candidate runs:
+
+- `native-home-functional.cjs`:320/390/1440 first viewport and full-page evidence,
+  primary event ready, top-only public closure, three public series links with
+  publication times, availability map, no horizontal overflow, multiple real
+  content cards in first mobile viewport, compact centered desktop dock, Now
+  open/close/reopen and absence of guest-follow/telemetry/credit attempted writes.
+- `native-journeys.cjs`: original exact-return public journey/calculator assertions
+  fromc638 retained, explicit primary-Home readiness added, headed support.
+
+Use the same stdin private config convention and distinct `SOD_COLD_OUT` folders.
+Full-page screenshots, real-data results and synthetic admin proofs remain
+separate. Neither prepared scripts nor a syntax check establish browser acceptance.
