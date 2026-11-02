@@ -1,0 +1,34 @@
+{
+  "cases": [
+    {
+      "name": "before",
+      "identityStatus": 200,
+      "sha": "7c8d3bed9ebfa21d0db86f3420134d9f7a8e79a2",
+      "documentStatus": 200,
+      "documentOrigin": "https://sod1820-azikjragt-sod1820-s-projects.vercel.app",
+      "workerStatus": 200,
+      "workerSha256": "c3436d48371f517874c76d0396fe1c973a625c85845b7d33a6636001fb82c871",
+      "progressiveFont": false,
+      "noindex": true
+    },
+    {
+      "name": "after",
+      "identityStatus": 200,
+      "sha": "6cd64a79598aaa38de4596f2506beb167447bf1c",
+      "documentStatus": 200,
+      "documentOrigin": "https://sod1820-iotxrnao2-sod1820-s-projects.vercel.app",
+      "workerStatus": 200,
+      "workerSha256": "c3436d48371f517874c76d0396fe1c973a625c85845b7d33a6636001fb82c871",
+      "progressiveFont": true,
+      "noindex": true
+    }
+  ],
+  "singleNoGrantAccessProbe": {
+    "status": 200,
+    "contentType": "text/html; charset=utf-8",
+    "finalHostname": "vercel.com",
+    "expectedVercelProtection": true
+  },
+  "byteIdenticalWorker": true,
+  "ok": true
+}

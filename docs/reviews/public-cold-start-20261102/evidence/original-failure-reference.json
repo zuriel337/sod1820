@@ -1,0 +1,8 @@
+{
+  "sourceSha": "7c8d3bed9ebfa21d0db86f3420134d9f7a8e79a2",
+  "originEvidenceSha": "9b9cd81b817980e87974594d80bdd56bdccc05bb",
+  "file": "docs/reviews/home-light-reading-now-20261102/evidence/native-raw-evidence.zip",
+  "member": "final-matched/native-cycle.json",
+  "symptom": "60s static opening, zero content reads; no complete failed-bootstrap network trace",
+  "attribution": "NOT_RETROSPECTIVELY_PROVEN"
+}

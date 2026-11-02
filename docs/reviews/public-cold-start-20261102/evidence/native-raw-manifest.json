@@ -1,0 +1,51 @@
+{
+  "files": [
+    {
+      "path": "baseline-font-held/results.json",
+      "bytes": 118296,
+      "sha256": "005117cda6e21f2a7c96bc61fd8ae198efb2345452f9f606ea73e1dcd57186f8"
+    },
+    {
+      "path": "baseline-native/results.json",
+      "bytes": 2404325,
+      "sha256": "425f408869b1ece8211ae30a537e1d81856d9c050474e2d7ef3155ad1d3ed9f2"
+    },
+    {
+      "path": "baseline-native-verified/results.json",
+      "bytes": 2408626,
+      "sha256": "9369c352331e2ff69dec8a82c64a6f75a0c693ef2387a380c908c233f89da617"
+    },
+    {
+      "path": "candidate-native/results.json",
+      "bytes": 2409663,
+      "sha256": "205ecf5ee09f1a6782d084be08140331d6fc9201b80478d87de0ac5d8fbb9d1d"
+    },
+    {
+      "path": "candidate-font-held/results.json",
+      "bytes": 240818,
+      "sha256": "c6f2d333500c95f1d956a9091295a6d8718ab2b8102461d20389358cd71bf6dc"
+    },
+    {
+      "path": "candidate-font-failed/results.json",
+      "bytes": 240912,
+      "sha256": "250f7f933a7cd0f745d948a9df7dbc53fdebae101b18d1c5fe6c3779bab515ae"
+    },
+    {
+      "path": "candidate-journeys/journeys.json",
+      "bytes": 476,
+      "sha256": "4e67e37e7d83107a33ee307ec2060d5ee8ecd8df586910cab3f9311ab655f661"
+    },
+    {
+      "path": "candidate-journeys-verified/journeys.json",
+      "bytes": 2595,
+      "sha256": "0335d94bf213899f035bb26e38c2b3105f3c31267dd4bb22bb525948d86f2afc"
+    },
+    {
+      "path": "access-worker.json",
+      "bytes": 1050,
+      "sha256": "20b4eb1fb7e168dffec186c1286b32eb9f4c9f5be49bdbc2067a4f693a9c079a"
+    }
+  ],
+  "excluded": "ALL PRIVATE-browser-profile directories, cookies, HAR, headers, response bodies",
+  "secretsScan": "PASS"
+}
