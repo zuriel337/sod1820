@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
+import { execFileSync } from "node:child_process";
 import { savedMatrixWorkspaceHref } from "../src/lib/elsSavedMatrix.js";
 import { providerOAuthRequest } from "../src/lib/oauthReturn.js";
 
@@ -159,3 +160,14 @@ assert.match(sw, /data\.url\s*\|\|\s*["']\/["']/, "this pass must not silently c
 
 // PR #564 final release trigger: semantic assertions above are the gate.
 console.log("2029 hard-isolation source regression: PASS");
+
+// Additive, explicit local runtime acceptance. All original source assertions
+// above still execute. This mode covers SOURCE + A3 only; the remaining original
+// workflow steps (build, graph, browser, contracts) remain independent gates.
+if (process.argv.includes("--with-isolated-a3")) {
+  const receiptIndex = process.argv.indexOf("--receipt");
+  execFileSync(process.execPath, ["scripts/isolation-a3/run.mjs",
+    ...(receiptIndex >= 0 ? ["--receipt", process.argv[receiptIndex + 1]] : []),
+  ], { cwd: root, stdio: "inherit" });
+  console.log("2029 source + isolated A3 acceptance: PASS (not the complete workflow)");
+}

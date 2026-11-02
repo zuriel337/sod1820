@@ -1,0 +1,106 @@
+{
+  "scope": "Harness development failures, not successful A3 acceptance",
+  "allFailedRunsRetainedOutsideGit": true,
+  "productionOrCandidateWrites": false,
+  "attempts": [
+    {
+      "runId": "sod-a3-mvz2rxzv-d2062b",
+      "status": "FAIL",
+      "phase": "SQL delivery",
+      "evidence": "Docker cp rejected read-only rootfs",
+      "resolution": "Stream SQL to psql stdin."
+    },
+    {
+      "runId": "sod-a3-mvz2sfi1-57a83c",
+      "status": "FAIL",
+      "phase": "SQL initialization",
+      "evidence": "Missing semicolon between copied pg_get_functiondef and original migration",
+      "resolution": "Terminate schema definition before applying original SQL."
+    },
+    {
+      "runId": "sod-a3-mvz2swj6-4419b5",
+      "status": "FAIL",
+      "phase": "PostgreSQL readiness",
+      "evidence": "Initialization-only socket accepted connections before final server start",
+      "resolution": "Wait for final TCP listener."
+    },
+    {
+      "runId": "sod-a3-mvz2t8sj-0abba4",
+      "status": "FAIL",
+      "phase": "Auth/code initialization",
+      "evidence": "Auth functions had wrong owner; managed daemon bind paths were empty",
+      "resolution": "Assign auth function ownership to auth migration role; use offline code volume delivery."
+    },
+    {
+      "runId": "sod-a3-mvz2uwm6-a8c51d",
+      "status": "FAIL",
+      "phase": "Executor to Docker transport",
+      "evidence": "Daemon loopback publication not reachable from executor",
+      "resolution": "Run original A3 CLI inside internal gateway container."
+    },
+    {
+      "runId": "sod-a3-mvz2wq2b-4b54e4",
+      "status": "FAIL",
+      "phase": "Real Auth signup",
+      "evidence": "GoTrue signup500: identities relation not found",
+      "resolution": "Investigate real Auth logs; no fake Auth fallback."
+    },
+    {
+      "runId": "sod-a3-mvz2xk4r-ce912d",
+      "status": "FAIL",
+      "phase": "Real Auth signup diagnostics",
+      "evidence": "Confirmed GoTrue DB role lacked required auth search_path",
+      "resolution": "Set local auth role search_path=auth,public."
+    },
+    {
+      "runId": "sod-a3-mvz2yd5p-573ff5",
+      "status": "FAIL",
+      "phase": "Negative JWT assertion",
+      "evidence": "Actual GoTrue invalid JWT denial was403; harness expected401",
+      "resolution": "Accept actual401/403 denial in additive negative assertion."
+    },
+    {
+      "runId": "sod-a3-mvz2zc0w-c53a25",
+      "status": "FAIL",
+      "phase": "Original A3",
+      "evidence": "Original CLI failed on non-2xx; trace unavailable",
+      "resolution": "Add bounded local HTTP error-code diagnostics."
+    },
+    {
+      "runId": "sod-a3-mvz30tci-94308a",
+      "status": "FAIL",
+      "phase": "Original A3 diagnostics",
+      "evidence": "Confirmed actual handler503 trace_unavailable",
+      "resolution": "Isolate PostgREST service trace RPC."
+    },
+    {
+      "runId": "sod-a3-mvz320pl-247045",
+      "status": "FAIL",
+      "phase": "Edge to PostgREST",
+      "evidence": "Real PostgREST trace RPC preflight200; Edge still503",
+      "resolution": "Probe internal Edge gateway transport."
+    },
+    {
+      "runId": "sod-a3-mvz337ll-9c1bf6",
+      "status": "FAIL",
+      "phase": "Edge networking",
+      "evidence": "Edge main-worker internal fetch network unreachable",
+      "resolution": "Check numeric gateway IP and both proxy variable cases."
+    },
+    {
+      "runId": "sod-a3-mvz3573g-9b7194",
+      "status": "FAIL",
+      "phase": "Edge networking",
+      "evidence": "Numeric internal gateway IP still unreachable",
+      "resolution": "Inspect exact container proxy variable state and routes."
+    },
+    {
+      "runId": "sod-a3-mvz36lp7-1f53d3",
+      "status": "FAIL",
+      "phase": "Docker client proxy injection",
+      "evidence": "Docker appended nonempty default proxies after --env-file blanks",
+      "resolution": "Pass explicit blank --env proxy flags; preserve internal-only network. Owned debug resources subsequently cleaned."
+    }
+  ],
+  "firstGenuinePassRunId": "sod-a3-mvz386xu-b82ff2"
+}
