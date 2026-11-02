@@ -93,7 +93,8 @@ on:
 
 jobs:
   hard-isolation:
-    runs-on: ubuntu-latest
+    # Playwright 1.55 supports Ubuntu 24.04; latest can select unsupported 26.04.
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
@@ -191,6 +192,8 @@ jobs:
           NODE
           node --test tests/isolation-a3/client.test.mjs
           node scripts/test-2029-isolation.mjs --with-isolated-a3 --receipt "$RUNNER_TEMP/isolated-a3-receipt.json"
+      - name: Public-reading verified admin screen and closed-action acceptance
+        run: node --test test/public-reading-admin-admission.test.mjs
       - name: Production build
         run: npm run build
       - name: Built dependency graph isolation

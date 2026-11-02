@@ -4,6 +4,7 @@ import path from "node:path";
 import { execFileSync } from "node:child_process";
 import { savedMatrixWorkspaceHref } from "../src/lib/elsSavedMatrix.js";
 import { providerOAuthRequest } from "../src/lib/oauthReturn.js";
+import { publicReadingPath, publicReadingFeatureLock } from "../src/lib/publicReadingRelease2029.js";
 
 const root = process.cwd();
 const read = (p) => fs.readFileSync(path.join(root, p), "utf8");
@@ -90,8 +91,17 @@ for (const source of ["/", "/post", "/community/chat", "/code"]) {
 
 // Canonical Book routing: /books is the library home; /book/:slug is the individual identity.
 // The plural detail path survives only as a compatibility alias and must never become a second canonical.
-assert.equal(app2029.includes('path="/book/:slug" element={<Locked flag="lock_books" requireFlag homeHref="/2029"><Books2029Page /></Locked>}' ), true, "canonical Book detail must render natively behind the launch gate in App2029");
-assert.equal(app2029.includes('path="/books" element={<Locked flag="lock_books" requireFlag homeHref="/2029"><Books2029Page /></Locked>}' ), true, "Book library must share the launch gate");
+assert.equal(app2029.includes('path="/book/:slug" element={<Locked flag="lock_books" requireFlag allowAdminView homeHref="/2029"><Books2029Page /></Locked>}' ), true, "canonical Book detail must retain its launch gate with explicit admin screen admission");
+assert.equal(app2029.includes('path="/books" element={<Locked flag="lock_books" requireFlag allowAdminView homeHref="/2029"><Books2029Page /></Locked>}' ), true, "Book library must share the same gated admin screen admission");
+for (const route of ["/books", "/book/existing", "/books/existing"]) {
+  assert.equal(publicReadingPath(route), "closed", "Book screen remains closed to the public");
+  assert.equal(publicReadingPath(route, { isAdmin: false }), "closed", "ordinary account cannot inspect Book screens");
+  assert.equal(publicReadingPath(route, { isAdmin: true }), "admin-view", "admin screen inspection is not operation admission");
+}
+assert.equal(publicReadingFeatureLock("lock_books").enabled, true, "Book operations remain locked in the reading profile");
+const maintenanceLock = read("src/components/MaintenanceLock.jsx");
+assert.ok(maintenanceLock.includes("adminViewAllowed: PUBLIC_READING_RELEASE && !authLoading && !loading && isAdmin && !!lock"), "admin view requires resolved identity and an existing capability");
+assert.ok(maintenanceLock.includes("state.blocked && !(allowAdminView && state.adminViewAllowed)"), "closed screens require explicit validated admin-view admission");
 assert.equal(app2029.includes('path="/books/:slug" element={<CanonicalBookAlias2029 />}' ), true, "plural Book detail must remain alias-only");
 assert.equal(books2029.includes('to={slug ? `/book/${slug}` : "/books"}' ), true, "Book cards must link to canonical singular detail URL");
 assert.equal(books2029.includes('path: slug ? `/book/${slug}` : "/books"' ), true, "Book detail SEO must use canonical singular path");
