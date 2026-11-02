@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigationType, useSearchParams } from "react-router-dom";
 import Sod2029Shell, { FrameState } from "../components/experience2029/Sod2029Shell.jsx";
 import { fetchPostsCatalog2029, completeMixedSeriesPostsPage2029, postClassification2029, postsCatalogScope2029, postContentEntry2029 } from "../lib/research/postsCatalog2029Projection.js";
@@ -14,7 +14,7 @@ import NavigationIcon2029 from "../components/experience2029/NavigationIcon2029.
 import PostFollowBox from "../components/PostFollowBox.jsx";
 import { AUTHORS } from "../lib/authors.js";
 import { publicPostHref } from "../lib/publicPostUrls.js";
-import { capturePostsCatalogDeparture2029, rememberPostsCatalogViewport2029, startPostsCatalogViewportRestore2029, trackPostsCatalogViewport2029 } from "../lib/research/postsCatalogViewport2029.js";
+import { capturePostsCatalogDeparture2029, readPostsCatalogViewport2029, rememberPostsCatalogViewport2029, startPostsCatalogViewportRestore2029, trackPostsCatalogViewport2029 } from "../lib/research/postsCatalogViewport2029.js";
 import "./posts2029.css";
 
 // The actual messages participate in intrinsic sizing. Only the active message
@@ -128,6 +128,9 @@ export default function Posts2029Page() {
   const location = useLocation();
   const navigationType = useNavigationType();
   const currentHref = `${location.pathname}${location.search}${location.hash}`;
+  const arrivedAtSavedViewport = useMemo(() =>
+    (readPostsCatalogViewport2029({ entryKey: location.key, href: currentHref, navigationType })?.y || 0) > 0,
+  [location.key, currentHref, navigationType]);
   const catalogRootRef = useRef(null);
   const viewportRestoreRef = useRef(null);
   const [searchParams, setSearchParams] = useSearchParams();
@@ -222,9 +225,10 @@ export default function Posts2029Page() {
     && (seriesReading.error || state.mixedError || selectedSeries?.sourceStates.some(source => source.state !== "measured"));
   // Beyond page1, a source on an earlier page requires the preceding Post to
   // become this page's first item. The provisional24 are not its assigned page
-  // members yet. Keep page1's readable Posts; on source/rank failure retain the
-  // available Post-only page with the existing truthful partial-read notice.
-  const awaitingPageAssignment = mixedSeries && page > 1 && sourcePending && !sourceFailed && !error;
+  // members yet. A scrolled POP/reload of page1 also needs its final insertion
+  // order before restoring the visible card. Fresh/top page1 stays incremental;
+  // source/rank failure keeps available Posts with the truthful partial notice.
+  const awaitingPageAssignment = mixedSeries && (page > 1 || arrivedAtSavedViewport) && sourcePending && !sourceFailed && !error;
   const hasItems = !awaitingPageAssignment && (mixedSeries ? mixedItems.length > 0 : posts.length > 0);
   useEffect(() => {
     // Failed reads also settle: retain available Posts and the real document

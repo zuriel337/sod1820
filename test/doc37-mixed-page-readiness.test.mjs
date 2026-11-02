@@ -14,12 +14,13 @@ globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 const pageSource = (await readFile(new URL("../src/pages/Posts2029Page.jsx", import.meta.url), "utf8")).replace(/^import[^\n]*\n/gm, "");
 const outfile = resolve(`.test-mixed-page-${process.pid}.mjs`);
 await build({ stdin: { contents: `
-  import React, {useEffect,useRef,useState} from 'react';
+  import React, {useEffect,useMemo,useRef,useState} from 'react';
   import {CONTENT_SERIES_2029,contentSeriesByKey} from './src/lib/research/contentSeries2029Identity.js';
   import {mergeContentSeriesItems,projectContentSeriesItems} from './src/lib/research/contentSeries2029Projection.js';
   import {publicPostHref} from './src/lib/publicPostUrls.js';
+  import * as viewport2029 from './src/lib/research/postsCatalogViewport2029.js';
   const useLocation=()=>globalThis.__mixedPage.location;
-  const useNavigationType=()=>'PUSH';
+  const useNavigationType=()=>globalThis.__mixedPage.navigationType;
   const useSearchParams=()=>[new URLSearchParams(globalThis.__mixedPage.location.search),()=>{}];
   const postsCatalogScope2029=params=>{const key=params.get('series'),spec=contentSeriesByKey(key);return {kind:'series',key,spec,label:spec.label}};
   const fetchPostsCatalog2029=options=>globalThis.__mixedPage.readPosts(options);
@@ -29,6 +30,7 @@ await build({ stdin: { contents: `
   const trackPostsCatalogViewport2029=()=>()=>{};
   const capturePostsCatalogDeparture2029=()=>{};
   const rememberPostsCatalogViewport2029=()=>{};
+  const readPostsCatalogViewport2029=options=>viewport2029.readPostsCatalogViewport2029({...options,win:globalThis.__mixedPage.win});
   const applySeo=()=>{},track=()=>{},postContentEntry2029=()=>null;
   const humanContentTitle=value=>value,stripHtml=value=>value,bilingualDateLabel=value=>value;
   const postClassification2029=()=>({credit:null});
@@ -53,12 +55,16 @@ const packet = (sourceState = "measured") => ({ series: CONTENT_SERIES_2029.map(
   sourceItems: spec.key === KEY && sourceState === "measured" ? [source] : [],
 })) });
 function deferred() { let resolve, reject; const promise = new Promise((a, b) => { resolve = a; reject = b; }); return { promise, resolve, reject }; }
-function fixture(page = 2) {
+function fixture(page = 2, { navigationType = "PUSH", savedY, savedPatch = {} } = {}) {
   const f = { location: { pathname: "/2029/posts", search: `?series=${KEY}&page=${page}`, hash: "", key: `entry-${page}` }, posts: [], series: [], completions: [],
+    navigationType,
     readPosts(options) { const d = deferred(); f.posts.push({ ...d, ...options }); return d.promise; },
     readSeries(options) { const d = deferred(); f.series.push({ ...d, ...options }); return d.promise; },
     complete(options) { const d = deferred(); f.completions.push({ ...d, ...options }); return d.promise; },
   };
+  const href = `${f.location.pathname}${f.location.search}${f.location.hash}`;
+  f.win = { location: new URL(href, "https://preview.example"), history: { state: { key: f.location.key } } };
+  if (savedY !== undefined) f.win.history.state.sodPostsViewport2029 = { entryKey: f.location.key, href, x: 0, y: savedY, ...savedPatch };
   globalThis.__mixedPage = f;
   return f;
 }
@@ -93,16 +99,51 @@ test("page1 retains already-readable Posts while source and rank are pending", a
   assert.equal(f.completions[0].signal.aborted, true);
 });
 
-test("failed or access-filtered source preserves available page2 Posts without claiming measured empty", async () => {
-  for (const outcome of ["failed", "access_filtered", "catalog_failure"]) {
-    const f = fixture(), root = await mounted(f);
-    await act(async () => { f.posts[0].resolve({ posts: posts(25), total: 60 }); });
+test("page1 POP/reload at a saved positive viewport waits for stable insertion order", async () => {
+  const f = fixture(1, { navigationType: "POP", savedY: 2500 }), root = await mounted(f);
+  // A tracker update after arrival must not change the arrival's readiness rule.
+  f.win.history.state.sodPostsViewport2029.y = 0;
+  await act(async () => { f.posts[0].resolve({ posts: posts(1), total: 60 }); });
+  assert.equal(cards(root).length, 0, "deep-return readers must not see their visible card move after source insertion");
+  assert.equal(follow(root).length, 0); assert.equal(frames(root, "loading").length, 1);
+  await act(async () => { f.series[0].resolve(packet()); });
+  assert.equal(cards(root).length, 0, "rank completion, not source metadata alone, fixes the order");
+  await act(async () => { f.completions[0].resolve({ posts: posts(1, 23), postTotal: 60, sourceItems: [source], sourceTotal: 1, total: 61 }); });
+  assert.deepEqual(ids(root), [REF, ...posts(1, 23).map(post => `posts:${post.id}`)]);
+  assert.equal(frames(root, "loading").length, 0); assert.equal(follow(root).length, 1);
+  assert.equal(f.posts.length, 1); assert.equal(f.series.length, 1); assert.equal(f.completions.length, 1);
+  await act(async () => { root.unmount(); });
+});
+
+test("fresh/top page1 and invalid saved entries stay incremental, even after later tracking", async () => {
+  for (const options of [
+    { navigationType: "POP", savedY: 0 },
+    { navigationType: "PUSH", savedY: 2500 },
+    { navigationType: "POP", savedY: 2500, savedPatch: { entryKey: "another-entry" } },
+    { navigationType: "POP", savedY: 2500, savedPatch: { href: "/2029/posts?series=another-series" } },
+    { navigationType: "POP" },
+  ]) {
+    const f = fixture(1, options), root = await mounted(f);
+    if (options.savedY === undefined) f.win.history.state.sodPostsViewport2029 = {
+      entryKey: f.location.key, href: `${f.location.pathname}${f.location.search}`, x: 0, y: 2500,
+    };
+    await act(async () => { f.posts[0].resolve({ posts: posts(1), total: 60 }); });
+    assert.deepEqual(ids(root), posts(1).map(post => `posts:${post.id}`));
+    assert.equal(frames(root, "loading").length, 0);
+    await act(async () => { root.unmount(); });
+  }
+});
+
+test("failed or access-filtered source preserves available held-page Posts without claiming measured empty", async () => {
+  for (const page of [1, 2]) for (const outcome of ["failed", "access_filtered", "catalog_failure"]) {
+    const f = fixture(page, { navigationType: "POP", savedY: 2500 }), root = await mounted(f), start = page === 1 ? 1 : 25;
+    await act(async () => { f.posts[0].resolve({ posts: posts(start), total: 60 }); });
     assert.equal(cards(root).length, 0);
     await act(async () => {
       if (outcome === "catalog_failure") f.series[0].reject(Error("controlled source read failure"));
       else f.series[0].resolve(packet(outcome));
     });
-    assert.deepEqual(ids(root), posts(25).map(post => `posts:${post.id}`));
+    assert.deepEqual(ids(root), posts(start).map(post => `posts:${post.id}`));
     assert.equal(frames(root, "empty").length, 0);
     const failedMessage = root.root.findAll(node => node.type === "p" && node.children.join("") === "המקור הנוסף בסדרה לא זמין כרגע.")[0];
     assert.equal(failedMessage.parent.props["aria-hidden"], false);
@@ -111,13 +152,15 @@ test("failed or access-filtered source preserves available page2 Posts without c
 });
 
 test("rank failure returns available Posts; successful empty is shown only after assignment completion", async () => {
-  const f = fixture(), root = await mounted(f);
-  await act(async () => { f.posts[0].resolve({ posts: posts(25), total: 60 }); f.series[0].resolve(packet()); });
-  assert.equal(cards(root).length, 0);
-  await act(async () => { f.completions[0].reject(Error("controlled HEAD failure")); });
-  assert.deepEqual(ids(root), posts(25).map(post => `posts:${post.id}`));
-  assert.equal(frames(root, "empty").length, 0);
-  await act(async () => { root.unmount(); });
+  for (const page of [1, 2]) {
+    const f = fixture(page, { navigationType: "POP", savedY: 2500 }), root = await mounted(f), start = page === 1 ? 1 : 25;
+    await act(async () => { f.posts[0].resolve({ posts: posts(start), total: 60 }); f.series[0].resolve(packet()); });
+    assert.equal(cards(root).length, 0);
+    await act(async () => { f.completions[0].reject(Error("controlled HEAD failure")); });
+    assert.deepEqual(ids(root), posts(start).map(post => `posts:${post.id}`));
+    assert.equal(frames(root, "empty").length, 0);
+    await act(async () => { root.unmount(); });
+  }
   const empty = fixture(), emptyRoot = await mounted(empty);
   await act(async () => { empty.posts[0].resolve({ posts: [], total: 0 }); empty.series[0].resolve(packet()); });
   assert.equal(frames(emptyRoot, "empty").length, 0);

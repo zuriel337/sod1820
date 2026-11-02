@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { capturePostsCatalogDeparture2029, rememberPostsCatalogViewport2029,
+import { capturePostsCatalogDeparture2029, readPostsCatalogViewport2029, rememberPostsCatalogViewport2029,
   startPostsCatalogViewportRestore2029, trackPostsCatalogViewport2029 } from "../src/lib/research/postsCatalogViewport2029.js";
 
 const HREF = "/2029/posts?series=messages-from-righteous&page=2&q=%D7%9E%D7%A1%D7%A8#posts-catalog";
@@ -54,6 +54,24 @@ test("capture keeps router/history fields and exact encoded query/hash, storing 
   assert.deepEqual(f.win.history.state.sodPostsViewport2029, { entryKey: "catalog-key", href: HREF, x: 0, y: 2500 });
   assert.equal(f.replacements[0].url, HREF);
   assert.equal(f.nativeChanges(), 0);
+});
+
+test("saved-entry selector is read-only, POP-only, exact-entry validated and detached from later tracking", () => {
+  const f = fixture(); f.snapshot();
+  const saved = readPostsCatalogViewport2029(f.options);
+  assert.deepEqual(saved, { entryKey: "catalog-key", href: HREF, x: 0, y: 2500 });
+  assert.equal(f.replacements.length, 1); assert.equal(f.win.count(), 0); assert.equal(f.timers.size, 0);
+  f.win.history.state.sodPostsViewport2029.y = 0;
+  assert.equal(saved.y, 2500, "a captured arrival is not the mutable history object");
+  assert.equal(readPostsCatalogViewport2029(f.options).y, 0, "zero is a valid top viewport");
+  for (const patch of [{ navigationType: "PUSH" }, { navigationType: "REPLACE" }, { entryKey: "wrong" }, { href: HREF + "-changed" }]) {
+    assert.equal(readPostsCatalogViewport2029({ ...f.options, ...patch }), null);
+  }
+  for (const patch of [{ entryKey: "wrong" }, { href: HREF + "-changed" }, { y: -1 }, { y: NaN }, { x: Infinity }]) {
+    f.win.history.state.sodPostsViewport2029 = { ...saved, ...patch };
+    assert.equal(readPostsCatalogViewport2029(f.options), null);
+  }
+  assert.equal(f.replacements.length, 1); assert.equal(f.nativeChanges(), 0);
 });
 
 test("modifier/new-tab/download/external/local-anchor/canceled actions never capture departure", () => {
@@ -122,8 +140,34 @@ test("wheel/touch/pointer/key intent cancels even while source data is pending",
     const restore = startPostsCatalogViewportRestore2029(f.options);
     if (!pending) restore.setReady(true, {});
     f.win.fire(event); restore.setReady(true, {}); f.flushFrames(); f.resize(); f.doc.fire("load"); f.flushFrames();
-    assert.equal(f.scrolls.length, 0, `${event}/${pending}: reader intent wins over late readiness`);
+    assert.deepEqual(f.scrolls, [{ left: 0, top: 925, behavior: "instant" }], `${event}/${pending}: halt native motion at the current pixel, never replay the saved2500`);
     assert.equal(f.win.count(), 0); assert.equal(f.doc.count(), 0); assert.equal(f.frames.size, 0);
+  }
+});
+
+test("input interrupts an in-flight native smooth restore and lets the user's default scroll win", () => {
+  const f = fixture(); f.snapshot(); f.win.scrollY = 170;
+  let nativeTarget = 925;
+  const scrollTo = f.win.scrollTo;
+  f.win.scrollTo = options => { if (options.behavior === "instant") nativeTarget = null; scrollTo(options); };
+  const restore = startPostsCatalogViewportRestore2029(f.options);
+  f.win.fire("wheel", { deltaY: -10000, preventDefault() { assert.fail("the reader's wheel must retain its default action"); } });
+  f.win.scrollY = 0; // Browser's default wheel action after the listener.
+  if (nativeTarget !== null) f.win.scrollY = nativeTarget; // Remaining native animation, unless interrupted.
+  restore.setReady(true, {}); f.flushFrames(); f.resize(); f.doc.fire("load"); f.flushFrames();
+  assert.equal(f.win.scrollY, 0, "neither native925 nor the saved2500 may replace the user's new position");
+  assert.deepEqual(f.scrolls, [{ left: 0, top: 170, behavior: "instant" }]);
+  assert.equal(f.nativeChanges(), 0); assert.equal(f.win.count(), 0); assert.equal(f.doc.count(), 0);
+});
+
+test("an input on a different history entry never interrupts that entry's viewport", () => {
+  for (const changed of ["key", "href"]) {
+    const f = fixture(); f.snapshot();
+    const restore = startPostsCatalogViewportRestore2029(f.options);
+    if (changed === "key") f.win.history.state.key = "new-entry";
+    else f.win.location = new URL("https://preview.example/world");
+    f.win.fire("wheel"); restore.setReady(true, {}); f.flushFrames();
+    assert.equal(f.scrolls.length, 0); assert.equal(f.win.count(), 0); assert.equal(f.doc.count(), 0);
   }
 });
 

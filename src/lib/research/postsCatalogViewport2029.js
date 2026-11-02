@@ -13,6 +13,17 @@ function sameEntry(win, entryKey, href) {
   return ["/post", "/2029/posts", "/posts"].includes(win.location.pathname.replace(/\/$/, ""));
 }
 
+// Read the existing entry without recording or changing its viewport. Callers
+// can snapshot arrival readiness before this entry's scroll tracking starts.
+export function readPostsCatalogViewport2029({ entryKey, href, navigationType, win = globalThis.window } = {}) {
+  try {
+    if (navigationType !== "POP" || !sameEntry(win, entryKey, href)) return null;
+    const saved = win.history.state?.[FIELD];
+    if (saved?.entryKey !== entryKey || saved?.href !== href || !coordinate(saved.x) || !coordinate(saved.y) || saved.y < 0) return null;
+    return { entryKey, href, x: saved.x, y: saved.y };
+  } catch { return null; }
+}
+
 export function rememberPostsCatalogViewport2029({ entryKey, href, win = globalThis.window } = {}) {
   try {
     if (!sameEntry(win, entryKey, href) || !coordinate(win.scrollX) || !coordinate(win.scrollY) || win.scrollY < 0) return false;
@@ -64,12 +75,8 @@ export function trackPostsCatalogViewport2029({ entryKey, href, win = globalThis
 
 export function startPostsCatalogViewportRestore2029({ entryKey, href, navigationType,
   win = globalThis.window, doc = globalThis.document } = {}) {
-  let saved;
-  try {
-    if (navigationType !== "POP" || !sameEntry(win, entryKey, href)) return inert();
-    saved = win.history.state?.[FIELD];
-    if (saved?.entryKey !== entryKey || saved?.href !== href || !coordinate(saved.x) || !coordinate(saved.y) || saved.y < 0) return inert();
-  } catch { return inert(); }
+  const saved = readPostsCatalogViewport2029({ entryKey, href, navigationType, win });
+  if (!saved) return inert();
   const target = { x: saved.x, y: saved.y };
   let stopped = false, ready = false, frame = null, observer = null, timer = null, hasSettled = false;
 
@@ -81,7 +88,7 @@ export function startPostsCatalogViewportRestore2029({ entryKey, href, navigatio
     win.clearTimeout(timer);
     doc.removeEventListener("load", align, true);
     win.removeEventListener("popstate", stop);
-    for (const event of INPUT_EVENTS) win.removeEventListener(event, stop, true);
+    for (const event of INPUT_EVENTS) win.removeEventListener(event, stopForInput, true);
   };
   const align = () => {
     if (stopped || !ready || frame != null) return;
@@ -95,9 +102,18 @@ export function startPostsCatalogViewportRestore2029({ entryKey, href, navigatio
       }
     });
   };
+  const stopForInput = () => {
+    const cancelNativeMotion = !stopped && sameEntry(win, entryKey, href);
+    const x = win.scrollX, y = win.scrollY;
+    stop();
+    // CSS smooth scrolling can keep a native POP animation moving after our
+    // own replay is canceled. Halt it at the current pixel, then let the input's
+    // default action choose the new viewport. Cleanup/timeout/POP never do this.
+    if (cancelNativeMotion && coordinate(x) && coordinate(y)) win.scrollTo({ left: x, top: y, behavior: "instant" });
+  };
   // Cancellation starts while data is pending, so later completion cannot undo
   // a reader's intentional scroll/click. Existing source-return semantics apply.
-  for (const event of INPUT_EVENTS) win.addEventListener(event, stop, { capture: true, passive: true, once: true });
+  for (const event of INPUT_EVENTS) win.addEventListener(event, stopForInput, { capture: true, passive: true, once: true });
   win.addEventListener("popstate", stop);
   doc.addEventListener("load", align, true);
   timer = win.setTimeout(stop, 30_000);
