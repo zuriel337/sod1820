@@ -1,0 +1,62 @@
+{
+  "sha": "d1837efcf5a978d10a514010f3695680f231e116",
+  "origin": "https://sod1820.co.il",
+  "identityPreflight": {
+    "deploymentId": "dpl_BFpwZGiYL3Qpdy9nCuGKGb9Xmko2",
+    "verifiedAt": "2026-11-02T12:48:13.198Z",
+    "source": "root Vercel alias/deployment verification"
+  },
+  "status": "BLOCKED_DOCUMENT_403",
+  "validPerformanceTrials": 0,
+  "trials": [
+    {
+      "label": "fresh-1",
+      "document": {
+        "status": 403,
+        "host": "sod1820.co.il",
+        "path": "/?startup=acceptance"
+      },
+      "controller": null,
+      "requests": 2,
+      "error": "TimeoutError",
+      "bodyObserved": "Access denied"
+    },
+    {
+      "label": "warm-1",
+      "document": {
+        "status": 403,
+        "host": "sod1820.co.il",
+        "path": "/?startup=acceptance"
+      },
+      "controller": null,
+      "requests": 2,
+      "error": "TimeoutError",
+      "bodyObserved": "Access denied"
+    },
+    {
+      "label": "fresh-2",
+      "document": {
+        "status": 403,
+        "host": "sod1820.co.il",
+        "path": "/?startup=acceptance"
+      },
+      "controller": null,
+      "requests": 2,
+      "error": "TimeoutError",
+      "bodyObserved": "Access denied"
+    },
+    {
+      "label": "warm-2",
+      "document": {
+        "status": 403,
+        "host": "sod1820.co.il",
+        "path": "/?startup=acceptance"
+      },
+      "controller": null,
+      "requests": 2,
+      "error": "Error",
+      "bodyObserved": "Access denied"
+    }
+  ],
+  "interpretation": "Three navigations completed with403beforeapplication; finalwarmattemptinterruptedtoavoidrepeatingknownaccessfailure. NoappresourceorSWstartobserved. These arenotapplicationlatencymeasurements. NoLegacycode orprotectionchanged."
+}

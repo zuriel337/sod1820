@@ -1,0 +1,185 @@
+{
+  "sha": "979c25aa2a91fa96de3a50db8fc93425a183c694",
+  "actualSW": true,
+  "trials": 1,
+  "purpose": "missing chronology diagnostic, not before/after acceptance",
+  "native": true,
+  "homeDomUsefulMs": 4791.0999999940395,
+  "homeDriverMs": 4901.64136,
+  "fontCalls": [
+    {
+      "font": "400 16px \"Noto Sans Hebrew\"",
+      "start": 2324.5,
+      "end": 2326.5999999940395,
+      "ok": true
+    },
+    {
+      "font": "700 16px \"Noto Sans Hebrew\"",
+      "start": 2324.699999988079,
+      "end": 2326.5999999940395,
+      "ok": true
+    },
+    {
+      "font": "700 16px Rubik",
+      "start": 2324.699999988079,
+      "end": 2326.5999999940395,
+      "ok": true
+    },
+    {
+      "font": "700 16px Rubik",
+      "start": 2324.699999988079,
+      "end": 2326.5999999940395,
+      "ok": true
+    }
+  ],
+  "homeMetrics": [
+    {
+      "name": "Nodes",
+      "value": 1381
+    },
+    {
+      "name": "LayoutDuration",
+      "value": 0.200668
+    },
+    {
+      "name": "RecalcStyleDuration",
+      "value": 0.087635
+    },
+    {
+      "name": "ScriptDuration",
+      "value": 0.555553
+    },
+    {
+      "name": "TaskDuration",
+      "value": 1.380751
+    },
+    {
+      "name": "JSHeapUsedSize",
+      "value": 8352400
+    }
+  ],
+  "readiness": [
+    {
+      "time": 337.09999999403954,
+      "legacyControls": false,
+      "legacyContent": false,
+      "legacyHeroImage": false,
+      "path": "/?startup=acceptance",
+      "shell": false,
+      "primary": null,
+      "opening": false,
+      "home": false,
+      "post": false,
+      "world": false,
+      "number": null,
+      "methodReady": false,
+      "calculator": false
+    },
+    {
+      "time": 390,
+      "legacyControls": false,
+      "legacyContent": false,
+      "legacyHeroImage": false,
+      "path": "/?startup=acceptance",
+      "shell": false,
+      "primary": null,
+      "opening": true,
+      "home": false,
+      "post": false,
+      "world": false,
+      "number": null,
+      "methodReady": false,
+      "calculator": false
+    },
+    {
+      "time": 4481,
+      "legacyControls": false,
+      "legacyContent": false,
+      "legacyHeroImage": false,
+      "path": "/?startup=acceptance",
+      "shell": true,
+      "primary": null,
+      "opening": false,
+      "home": false,
+      "post": false,
+      "world": false,
+      "number": null,
+      "methodReady": false,
+      "calculator": false
+    },
+    {
+      "time": 4791.0999999940395,
+      "legacyControls": false,
+      "legacyContent": false,
+      "legacyHeroImage": false,
+      "path": "/?startup=acceptance",
+      "shell": true,
+      "primary": null,
+      "opening": false,
+      "home": true,
+      "post": false,
+      "world": false,
+      "number": null,
+      "methodReady": false,
+      "calculator": false
+    }
+  ],
+  "resources": [
+    {
+      "path": "/assets/ResearchProvider-CYYBVFuL.js",
+      "start": 304.19999998807907,
+      "duration": 1041.6000000238419,
+      "type": "other",
+      "bytes": 14736
+    },
+    {
+      "path": "/assets/dayContext-DQm1CoPT.js",
+      "start": 304.90000000596046,
+      "duration": 1738.5,
+      "type": "other",
+      "bytes": 56291
+    },
+    {
+      "path": "/assets/Home2029Page-DtxIJKro.js",
+      "start": 2433.300000011921,
+      "duration": 1260.5999999940395,
+      "type": "script",
+      "bytes": 18050
+    },
+    {
+      "path": "/assets/Sod2029Shell-BidlzkCb.js",
+      "start": 2435.800000011921,
+      "duration": 1827.7999999821186,
+      "type": "script",
+      "bytes": 102993
+    },
+    {
+      "path": "/assets/Sod2029Shell-D5jYqFFB.css",
+      "start": 2447.9000000059605,
+      "duration": 1493.4000000059605,
+      "type": "link",
+      "bytes": 36287
+    },
+    {
+      "path": "/assets/Home2029Page-BwJJ_mvh.css",
+      "start": 2500.5999999940395,
+      "duration": 1005.0999999940395,
+      "type": "link",
+      "bytes": 5723
+    }
+  ],
+  "denied": [
+    {
+      "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+      "method": "POST"
+    }
+  ],
+  "errors": [],
+  "cls": 0.00018235398860398858,
+  "interpretation": [
+    "Actualfontawait2.1ms in this diagnostic; doesnot establishallcoldfontcases.",
+    "Sharedshelllate network download lies onobserved criticalchain; wholechunknotallclosedfeature.",
+    "CDP executiondurations are cumulative; notadditive exclusivewallclockbuckets.",
+    "Early deniedguestFollowRPC isrecorded, notforwarded orsilentlytreated success."
+  ]
+}
