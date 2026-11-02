@@ -6,11 +6,14 @@ as `0d4ad83644a74abe5d990f7a628dd955fd0c638a`; remote main remains
 `2195c9784c5c9f0b1ec3cd3c1137fbd76045845b`. Evidence-only handoff
 `6e9870a977f9ad28d869a6846b0b3558be8e2f6c` was read, not substituted as product.
 
-This lane writes only this documentation directory on
-`gpt/2029-home-js-transition-proposals-20261102`. The patch is **PROPOSED**, not
-applied to application or deployment source. No build, test, browser, deployment,
-shared configuration change, backup export or restore was performed by this lane.
-Root owns implementation, validation, deployment and the combined acceptance.
+The original proposal was documentation-only. Root subsequently accepted the
+bounded implementation under BEFORE `fa893a43-c29a-4710-92d9-0116a8dbdd2c`.
+The nine source targets and focused tests are implemented and locally tested in
+`83d437ddc55d690a196362c85fe32699ad50d579` on
+`gpt/2029-home-js-transition-proposals-20261102`. See
+`IMPLEMENTATION-VALIDATION.md`; the proposal patch is retained as the pre-implementation
+review record. No hosted deployment, shared configuration change, backup export or
+restore was performed by this lane. Root owns integration and hosted acceptance.
 
 ## Decision and actual blockers
 
@@ -116,7 +119,7 @@ must be reported as a hosting blocker, not worked around by substituting an env 
 | Gate | Evidence / next action |
 |---|---|
 | Exact 0d4 A3 / Isolation / G4 | Already accepted in the prior handoff; no repeat for this proposal and no claim of backup recovery |
-| Protected hosted artifact | Concrete patch/payload/test/rollback documents prepared; implementation and all validation still pending |
+| Protected hosted artifact | Implementation and local dormant/admission/lifecycle validation passed on83d437dd; actual protected Vercel hosting still pending |
 | Canonical Production activation | Still dormant and separately gated; no cutover request is ready |
 | Real DB and media recovery | Actual dated sets and approved destination remain unidentified; see `BACKUP-ACCESS.md` |
 | Actual admin use / mail | Prior limitations remain; no real login, subscription, unsubscribe or mail test by this lane |

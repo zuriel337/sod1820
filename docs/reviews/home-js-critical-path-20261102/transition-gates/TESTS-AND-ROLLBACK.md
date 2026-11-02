@@ -1,7 +1,9 @@
 # Required validation and rollback for protected artifact review
 
-Status: **test plan, not tests run**. Do not run builds or browsers during the
-exclusive Home performance window. Root schedules these after that window.
+This is the validation requirement list, not a claim that every hosted scenario
+ran. Completed local checks and exact source are in `IMPLEMENTATION-VALIDATION.md`;
+hosted Vercel checks remain pending. Do not run builds or browsers during the
+exclusive Home performance window. Root schedules them separately.
 
 ## Before a hosted review
 
