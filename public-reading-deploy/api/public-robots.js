@@ -1,4 +1,4 @@
-import { CANONICAL_ORIGIN, deploymentAuthorized } from "../authorization.js";
+import { CANONICAL_ORIGIN, deploymentAuthorized, protectedReviewOrigin } from "../authorization.js";
 import { requestOrigin } from "./public-document.js";
 export function publicReadingRobotsHandler({ authorized = deploymentAuthorized } = {}) {
   return (req, res) => {
@@ -7,6 +7,10 @@ export function publicReadingRobotsHandler({ authorized = deploymentAuthorized }
     if (!authorized()) return res.status(503).send("User-agent: *\nDisallow: /\n");
     if (!requestOrigin(req)) return res.status(421).send("User-agent: *\nDisallow: /\n");
     if (!["GET", "HEAD"].includes(req.method)) return res.status(405).send("");
+    if (protectedReviewOrigin()) {
+      res.setHeader("X-Robots-Tag", "noindex, nofollow, noarchive");
+      return res.status(200).send(req.method === "HEAD" ? "" : "User-agent: *\nDisallow: /\n");
+    }
     // Indexability is decided by canonical page metadata/publication readers.
     // Let crawlers fetch closed URLs to observe noindex; never hide it behind a
     // robots disallow. API and signed service addresses are never crawl targets.

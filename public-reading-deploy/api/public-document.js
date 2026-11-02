@@ -1,11 +1,11 @@
 import { readFile } from "node:fs/promises";
 import ogHandler from "../../api/og.js";
 import { PUBLIC_READING_PROFILE_ID, publicReadingPath } from "../../src/lib/publicReadingRelease2029.js";
-import { CANONICAL_ORIGIN, PUBLIC_READING_ORIGINS, deploymentAuthorized } from "../authorization.js";
+import { CANONICAL_ORIGIN, publicReadingOriginAllowed, protectedReviewOrigin, deploymentAuthorized } from "../authorization.js";
 
 export function requestOrigin(req) {
   const host = req.headers?.host;
-  if (typeof host !== "string" || !PUBLIC_READING_ORIGINS.includes(`https://${host}`)) return null;
+  if (typeof host !== "string" || !publicReadingOriginAllowed(`https://${host}`)) return null;
   if (req.headers?.["x-forwarded-proto"] && req.headers["x-forwarded-proto"] !== "https") return null;
   return `https://${host}`;
 }
@@ -14,16 +14,16 @@ export function mergeProductionDocumentMetadata(document, metadata, { noindex = 
   let head = metadata.match(/<head\b[^>]*>([\s\S]*?)<\/head>/i)?.[1];
   if (!head) throw new Error("public_metadata_unavailable");
   head = head.replace(/<meta\b[^>]*http-equiv=["']refresh["'][^>]*>/gi, "");
-  if (noindex) head = head.replace(/<meta\b[^>]*name=["']robots["'][^>]*>/gi,
-    '<meta name="robots" content="noindex, nofollow"/>');
+  if (noindex) head = head.replace(/<meta\b[^>]*name=["']robots["'][^>]*>/gi, "")
+    + '<meta name="robots" content="noindex, nofollow, noarchive"/>';
   const clean = document.replace(/<title>[\s\S]*?<\/title>/gi, "")
     .replace(/<meta\b[^>]*(?:name=["'](?:description|robots|twitter:[^"']+)["']|property=["'](?:og:[^"']+|article:[^"']+)["'])[^>]*>/gi, "")
     .replace(/<link\b[^>]*rel=["']canonical["'][^>]*>/gi, "");
   return clean.replace(/<\/head>/i, head + "</head>");
 }
 
-// Dependency injection is for the local synthetic acceptance server. The hosted
-// default always uses the disabled authorization above; no request selects it.
+// Dependency injection remains a local synthetic test seam. Hosted admission
+// uses only the exact generated protected-review receipt; no request selects it.
 export function publicReadingDocumentHandler({ authorized = deploymentAuthorized,
   readDocument = () => readFile(new URL("../.generated/2029.html", import.meta.url), "utf8"),
   metadataHandler = ogHandler } = {}) {
@@ -47,7 +47,7 @@ export function publicReadingDocumentHandler({ authorized = deploymentAuthorized
       const decoded = decodeURIComponent(path);
       if (/[\\\u0000-\u001f\u007f]/.test(decoded) || decoded.startsWith("//")) return res.status(400).send("invalid path");
     } catch { return res.status(400).send("invalid path"); }
-    if (origin !== CANONICAL_ORIGIN && originalDocument) {
+    if (origin !== CANONICAL_ORIGIN && origin !== protectedReviewOrigin() && originalDocument) {
       // URL.search preserves the original bytes, repeated parameters and the
       // legitimate user key `path`. Never reconstruct it from rewrite query.
       res.setHeader("Location", CANONICAL_ORIGIN + path + original.search);
@@ -67,7 +67,7 @@ export function publicReadingDocumentHandler({ authorized = deploymentAuthorized
         query: { ...req.query, path: metadataPath, crawler: "search" },
       }, { setHeader() {}, status(code) { if (!closed) status = code; return this; }, send(value) { metadata = String(value); } });
       if (status >= 500) throw new Error("public_source_unavailable");
-      const noindex = closed || status !== 200;
+      const noindex = Boolean(protectedReviewOrigin()) || closed || status !== 200;
       const html = mergeProductionDocumentMetadata(await readDocument(), metadata, { noindex });
       const robots = html.match(/<meta\b[^>]*name=["']robots["'][^>]*content=["']([^"']+)/i)?.[1];
       if (!robots) throw new Error("public_robots_unavailable");

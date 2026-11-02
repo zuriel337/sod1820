@@ -1,15 +1,20 @@
-// Deliberately dormant. No environment variable, request/query/header, branch
-// name or injected VERCEL_ENV can enable a hosted build or these entrypoints.
-// Activation requires a separate reviewed authorization/guard change after
-// ZURIEL names the exact 2029 Production cutover SHA and deployment ID.
-export const PUBLIC_READING_DEPLOYMENT_AUTHORIZATION = Object.freeze({
-  state: "dormant",
-  approvedSourceSha: null,
-  approvedDeploymentId: null,
-  approvedAt: null,
-});
-export const CANONICAL_ORIGIN = "https://sod1820.co.il";
-export const PUBLIC_READING_ORIGINS = Object.freeze([
-  CANONICAL_ORIGIN, "https://www.sod1820.co.il", "https://sod1820.vercel.app",
-]);
-export function deploymentAuthorized() { return false; }
+import { PROTECTED_REVIEW_BUILD } from "./.generated/protected-review-build.js";
+import { protectedReviewRuntimeAuthorized } from "./review-admission.js";
+import { PUBLIC_READING_ORIGINS } from "./deployment-policy.js";
+export { PUBLIC_READING_DEPLOYMENT_AUTHORIZATION, CANONICAL_ORIGIN,
+  PUBLIC_READING_ORIGINS } from "./deployment-policy.js";
+
+// The generated receipt is null for the ordinary dormant local build. A hosted
+// review build is bound to this exact immutable deployment, source SHA and host.
+// Production is denied in every case; this is not cutover authorization.
+export function deploymentAuthorized() {
+  const env = typeof process === "undefined" ? undefined : process?.env;
+  return protectedReviewRuntimeAuthorized(PROTECTED_REVIEW_BUILD, env);
+}
+export function protectedReviewOrigin() {
+  return deploymentAuthorized() ? `https://${PROTECTED_REVIEW_BUILD.host}` : null;
+}
+export function publicReadingOriginAllowed(origin) {
+  const review = protectedReviewOrigin();
+  return review ? origin === review : PUBLIC_READING_ORIGINS.includes(origin);
+}
