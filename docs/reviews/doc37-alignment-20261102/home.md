@@ -30,3 +30,11 @@ The fourth reading identity does not activate the pending Follow SQL release. Fa
 ## Not done
 
 No DB writes, migration changes, live mail/sign-up, new flags/store/engine, model calls, deployment, Production/main change or claim of measured time saved. Combined candidate tests and exact Preview acceptance belong to root.
+
+## Follow-up: existing Or Geula source relation verified read-only
+
+A bounded follow-up found a real approved publication/source relation already included by the new series reader: public Post `5006`, dated2026-06-29, has category `רמזים מצדיקים`, tag `אור הגאולה`, and an explicit body credit `ערוץ «אור הגאולה»`. Its source video is `https://www.youtube.com/shorts/vAA5KVSnWXw`; the existing public video placement view independently projects `asset_key=youtube:vAA5KVSnWXw`. It remains a Post representation with original source credit, not an invented channel-update occurrence.
+
+The comparison covered80 currently published Posts in the two righteous-message categories and220 currently public, live, non-page-only, non-expired Or Geula updates (2026-07-05 through2026-11-02). Those counts are scan coverage, not counts of missing associations. Exact YouTube IDs, exact public Storage URLs, the specific recent TikTok/TV2000 source identifiers, and full normalized quotes of at least120characters produced no matching channel-update occurrence. This does not rule out differently hosted media, partial quotations, or untranscribed video content.
+
+Therefore the statement that all Or Geula-to-series relations are missing would be false. Post5006 is already connected. The remaining F5 mixed-list acceptance case requires one verified, approved channel-update identity; it is not satisfied by duplicating Post5006 or by mapping the entire channel. No source/data changes, test run, or live publication occurred in this follow-up.
