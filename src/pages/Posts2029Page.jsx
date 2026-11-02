@@ -63,7 +63,7 @@ function SeriesEntrances2029({ activeKey, search = "", onRead, refreshKey = 0 })
   </section>;
 }
 
-function PostIndexCard({ post, index, seriesItem = null }) {
+function PostIndexCard({ post, index, seriesItem = null, publicationOrder = false }) {
   const title = humanContentTitle(seriesItem?.title || post?.title, { max: 0 });
   const excerpt = stripHtml(seriesItem?.excerpt || post?.excerpt || post?.content || "").slice(0, 180);
   const image = seriesItem?.imageUrl || post?.thumb_url || post?.image_url || null;
@@ -92,7 +92,7 @@ function PostIndexCard({ post, index, seriesItem = null }) {
         {excerpt ? <p>{excerpt}</p> : null}
         <div className="sod29-library-post-meta">
           {sourceItem ? <><span>מקור: {seriesItem.credit || "המקור הציבורי"}</span>{seriesItem.author ? <span>דובר: {seriesItem.author}</span> : null}</> : credit ? <span>{credit.prefix}: {credit.name}</span> : null}
-          <span>{seriesItem ? "פורסם " : post?.modified ? "עודכן " : "פורסם "}{bilingualDateLabel(seriesItem?.publishedAt || post?.modified || post?.date, "תאריך לא צוין")}</span>
+          <span>{seriesItem || publicationOrder ? "פורסם " : post?.modified ? "עודכן " : "פורסם "}{bilingualDateLabel(seriesItem?.publishedAt || (publicationOrder ? post?.date : post?.modified || post?.date), "תאריך לא צוין")}</span>
           {!sourceItem ? <PostCategories2029 post={post} max={2} compact nested /> : null}
         </div>
         <span className="sod29-library-post-open">{sourceItem ? "לצפייה במקור" : "פתח את הפוסט"} <b aria-hidden="true">←</b></span>
@@ -257,7 +257,7 @@ export default function Posts2029Page() {
         </div>
         <div className="sod29-posts-library-grid">
           {mixedSeries ? mixedItems.map((item, index) => <PostIndexCard key={item.sourceRef} post={posts.find(post => `posts:${post.id}` === item.sourceRef)} seriesItem={item} index={index} />)
-            : posts.map((post, index) => <PostIndexCard key={post.id || post.slug} post={post} index={index} />)}
+            : posts.map((post, index) => <PostIndexCard key={post.id || post.slug} post={post} index={index} publicationOrder={scope.kind === "series"} />)}
         </div>
       </section> : null}
       {!loading && !error && hasItems ? <nav className="sod29-posts-pagination" aria-label="עמודי הפוסטים">
