@@ -1,3 +1,4 @@
+import { interceptOpeningMail } from "../preview-deploy/opening-mail-transport.js";
 import { interceptPublicReadingAdminAuth } from "../preview-deploy/admin-readonly-auth.js";
 // Deployment transport for the existing public-reading profile. This is not
 // an Auth/RLS policy: canonical public readers and server permissions still own
@@ -43,7 +44,7 @@ function installPublicReadingWorker(policy) {
   self.addEventListener("fetch", event => {
     const req = event.request, url = new URL(req.url);
     const rpc = /^\/rest\/v1\/rpc\/([a-z_][a-z0-9_]*)$/.exec(url.pathname)?.[1];
-    if (interceptPublicReadingAdminAuth(event, authOrigin)) return;
+    if (interceptPublicReadingAdminAuth(event, authOrigin) || interceptOpeningMail(event, authOrigin)) return;
     // Canonical schema-only review: this existing SECURITY DEFINER reader can
     // include visitor drafts when p_visitor is supplied. Public launch admits
     // approved links only, without changing the shared function or Preview.
@@ -138,7 +139,7 @@ function installPublicReadingWorker(policy) {
 
 export function buildPublicReadingWorker(sourceSha) {
   if (!/^[a-f0-9]{40}$/.test(sourceSha)) throw new Error("exact_source_sha_required");
-  return `${interceptPublicReadingAdminAuth.toString()}\n(${installPublicReadingWorker.toString()})(${JSON.stringify({ id: PUBLIC_READING_POLICY_ID,
+  return `${interceptPublicReadingAdminAuth.toString()}\n${interceptOpeningMail.toString()}\n(${installPublicReadingWorker.toString()})(${JSON.stringify({ id: PUBLIC_READING_POLICY_ID,
     sourceSha, reads: PUBLIC_READING_READ_RPCS, getReads: PUBLIC_READING_GET_RPCS, communityFields: COMMUNITY_PUBLIC_FIELDS })});\n`;
 }
 

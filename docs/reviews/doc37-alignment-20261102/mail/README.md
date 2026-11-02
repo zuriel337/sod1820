@@ -113,3 +113,17 @@ or an exact Production PostgreSQL-version reproduction.
 Shared migration/function deployment, existing-email verified-owner preference
 change, and exact hosted signup/opt-out acceptance remain open.
 No claim that this launch requirement is complete while the form is closed.
+
+## Applied receipt — supersedes the proposal-only runtime status above
+
+ZURIEL explicitly approved the immutable e8a72b22 proposal. Root applied the
+additive migration `20261102130833_newsletter_opening_parts_consent`, then the
+four delivery guards, then signup last. Existing JWT settings were preserved.
+Exact versions/hashes and safe live negative checks are in
+`shared-apply-receipt.json`. OPTIONS returned opening-parts-v1; missing consent
+and invalid address returned400. Subscriber rows remained1021, opening-only
+rows0, consent timestamps0 before/after. No successful live test registration,
+unsubscribe or email send occurred. Controlled positive tests are not live proof.
+The client is enabled by deliberate contract probing, with the exact opening-only
+worker allowance; it makes no startup probe. Existing-address verified preference
+change remains open. Website Production/Legacy deployment did not change.
