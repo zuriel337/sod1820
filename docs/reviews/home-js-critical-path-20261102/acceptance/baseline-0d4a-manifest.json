@@ -1,0 +1,60 @@
+{
+  "sha": "0d4ad83644a74abe5d990f7a628dd955fd0c638a",
+  "fileCount": 8,
+  "privacyScanFindings": [],
+  "privateConfigIncluded": false,
+  "requestHeadersOrCookiesIncluded": false,
+  "files": [
+    {
+      "path": "baseline-0d4a-diagnostic/diagnostic.json",
+      "bytes": 680,
+      "sha256": "354dafbe329eae3443670e880f66176b789386e67dde198ad90250de17312204"
+    },
+    {
+      "path": "baseline-0d4a-diagnostic-run2/diagnostic.json",
+      "bytes": 228591,
+      "sha256": "dd7b8717d2132f9e6051eade792f6a5d4175e9ce3db5465b0986c85a6589432b"
+    },
+    {
+      "path": "baseline-0d4a-diagnostic-run3/diagnostic.json",
+      "bytes": 2813683,
+      "sha256": "e3107a50fa21d60d791fa61e452a51ce442135fa52ea3ae45ac660fcea49cd63"
+    },
+    {
+      "path": "baseline-0d4a-diagnostic-run3/home.png",
+      "bytes": 154037,
+      "sha256": "720d079e3484ab30f82589a5632e0f27d0e3bc61cc3e36e58a40496a8b49ec97"
+    },
+    {
+      "path": "baseline-0d4a-matched/stage-timings.json",
+      "bytes": 5038522,
+      "sha256": "863c6ac1cbb226a0da53f420ba998b2f0eb81b3d79efc2d78582df1770be01f4"
+    },
+    {
+      "path": "baseline-0d4a-motion/home-1440.png",
+      "bytes": 509019,
+      "sha256": "53914bf3aa1af8658e2ea79e6286a2b8489bb098a43febfe083d8f1e3d0c6ffe"
+    },
+    {
+      "path": "baseline-0d4a-motion/home-390.png",
+      "bytes": 133858,
+      "sha256": "8bf989c5914592e15543bca9776537a7cb71f45793640206d4df29c9ea56a630"
+    },
+    {
+      "path": "baseline-0d4a-motion/motion.json",
+      "bytes": 65729,
+      "sha256": "ffe2c25ab33dfc2724d6382da7b90a00d079b9fa28ee85bf51b45edcb87b3ee5"
+    }
+  ],
+  "archive": {
+    "path": "baseline-0d4a-evidence.zip",
+    "bytes": 1412579,
+    "sha256": "11e16703347e9197a690c750d340028caa8df3a3688218b19b23529f87d9999c"
+  },
+  "limits": [
+    "Final desktop warm loop overlapped root filesystem checkout; retain and exclude from clean timing until predetermined repeat.",
+    "Diagnostic latency with Profiler/Debugger/Tracing/coverage never enters native timing series.",
+    "48 lang_links_list RPC attempts denied during later Number transitions; not forwarded.",
+    "Primary DOM is not full-opacity readable paint; separate motion diagnostic recorded."
+  ]
+}
