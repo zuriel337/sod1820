@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { PUBLIC_READING_RELEASE } from "../lib/publicReadingRelease2029.js";
 import WatchButton from "./WatchButton.jsx";
 import { F } from "../theme.js";
 import { usePalette, PALETTES } from "../lib/palette.js";
@@ -9,7 +10,22 @@ import "./postFollow2029.css";
 
 // An opt-in composition of the same WatchButton, without its own preferences,
 // toggle, identity or channel logic. Legacy defaults below are preserved.
-function PostFollow2029({ post, scope, source }) {
+function PostFollow2029(props) {
+  if (PUBLIC_READING_RELEASE) {
+    const candidates = postFollowCandidates2029(props);
+    if (!candidates.length) return null;
+    return <section className="sod29-post-follow" aria-label="מעקב אחרי סדרה ותחום" data-follow-source={props.source} data-follow-state="unavailable">
+      <h2><NavigationIcon2029 name="add" size={22} /> להישאר בקשר</h2>
+      <p>המעקבים ייפתחו בהמשך. אפשר להמשיך לקרוא את הסדרות והתכנים הציבוריים.</p>
+      {candidates.map(item => <div key={item.topic} className="sod29-post-follow-target">
+        <h3><NavigationIcon2029 name={item.icon} size={20} /><span>{item.kind}: {item.label}</span></h3>
+      </div>)}
+    </section>;
+  }
+  return <PostFollowOpen2029 {...props} />;
+}
+
+function PostFollowOpen2029({ post, scope, source }) {
   const key = JSON.stringify(postFollowCandidates2029({ post, scope }));
   const [attempt, setAttempt] = useState(0);
   const [view, setView] = useState({ key: "", items: [], error: false });
