@@ -2,17 +2,10 @@ diff --git a/public-reading-deploy/review-admission.js b/public-reading-deploy/r
 index 7240f04f..ee837208 100644
 --- a/public-reading-deploy/review-admission.js
 +++ b/public-reading-deploy/review-admission.js
-@@ -1,5 +1,5 @@
- // Pure admission checks for this existing artifact's protected review only.
+@@ -2 +2 @@
 -// The operator pins a clean Git SHA in this deployment's build command; the
 +// The operator pins an exact Git SHA in this deployment's build command; the
- // compiler records its own platform identity, which runtime must match exactly.
- // No user request/header/query or shared site flag selects this mode.
- export const REVIEW_PROJECT_ID = "prj_43q7k7QFAcWnin1tcBjce5xOi7Cq";
-@@ -17,6 +17,32 @@ function previewPlatform(env) {
-     && deploymentPattern.test(env.VERCEL_DEPLOYMENT_ID || "")
-     && hostPattern.test(env.VERCEL_URL || "");
- }
+@@ -19,0 +20,26 @@ function previewPlatform(env) {
 +
 +// Vercel materializes the selected nested vercel.json at repository root.
 +// Accept that one unstaged replacement only when its complete parsed value
@@ -39,33 +32,20 @@ index 7240f04f..ee837208 100644
 +  } catch { return false; }
 +}
 +
- export function protectedReviewBuildIdentity({ env, sourceSha, sourceDirty, requestedSourceSha }) {
-   if (!previewPlatform(env) || sourceDirty || !sourceShaPattern.test(sourceSha || "")
-     || requestedSourceSha !== sourceSha || env.VERCEL_GIT_COMMIT_SHA !== sourceSha)
 diff --git a/scripts/build-public-reading-production.mjs b/scripts/build-public-reading-production.mjs
 index cbf21937..9654a69a 100644
 --- a/scripts/build-public-reading-production.mjs
 +++ b/scripts/build-public-reading-production.mjs
-@@ -6,11 +6,12 @@ import { execFileSync } from "node:child_process";
- import { buildPublicReadingWorker, publicReadingBootstrap, PUBLIC_READING_POLICY_ID } from "../public-reading-deploy/transport.js";
- import { PUBLIC_READING_PROFILE_ID } from "../src/lib/publicReadingRelease2029.js";
- import { PUBLIC_READING_DEPLOYMENT_AUTHORIZATION } from "../public-reading-deploy/deployment-policy.js";
+@@ -9 +9 @@ import { PUBLIC_READING_DEPLOYMENT_AUTHORIZATION } from "../public-reading-deplo
 -import { protectedReviewBuildIdentity } from "../public-reading-deploy/review-admission.js";
 +import { protectedReviewBuildIdentity, protectedReviewConfigMaterialization } from "../public-reading-deploy/review-admission.js";
- 
- // Default artifact stays dormant. A separate explicit deployment-scoped review
+@@ -12,2 +12,3 @@ import { protectedReviewBuildIdentity } from "../public-reading-deploy/review-ad
 -// command may admit only an exact clean Git source on the existing protected
 -// Vercel Preview project. Never clear/fake platform environment variables.
 +// command may admit only an exact Git source with no application edits on the
 +// existing protected Vercel Preview project. Its verified config materialization
 +// remains recorded as dirty. Never clear/fake platform environment variables.
- const args = process.argv.slice(2);
- const reviewMode = args.includes("--protected-review");
- const pins = args.filter(value => value.startsWith("--review-source="));
-@@ -26,9 +27,21 @@ const templates = resolve(root, "public-reading-deploy/.generated");
- for (const gate of ["test-legacy-production-lock.mjs", "test-one-tree-content-contract.mjs"])
-   execFileSync(process.execPath, [resolve(root, "scripts", gate)], { cwd: root, stdio: "inherit" });
- const sha = execFileSync("git", ["rev-parse", "HEAD"], { cwd: root, encoding: "utf8" }).trim();
+@@ -29 +30,12 @@ const sha = execFileSync("git", ["rev-parse", "HEAD"], { cwd: root, encoding: "u
 -const dirty = execFileSync("git", ["status", "--porcelain", "--untracked-files=no"], { cwd: root, encoding: "utf8" }).trim().length > 0;
 +const trackedStatus = execFileSync("git", ["status", "--porcelain=v1", "-z", "--untracked-files=no"], { cwd: root, encoding: "utf8" });
 +const dirty = trackedStatus.length > 0;
@@ -79,20 +59,13 @@ index cbf21937..9654a69a 100644
 +  if (protectedReviewConfigMaterialization({ reviewMode, env: process.env, trackedStatus, trackedDiff,
 +    committedConfig, workingConfig })) platformConfigMaterialization = { committedConfig, workingConfig, trackedDiff };
 +}
- const protectedReview = reviewMode ? protectedReviewBuildIdentity({ env: process.env,
+@@ -31 +43,2 @@ const protectedReview = reviewMode ? protectedReviewBuildIdentity({ env: process
 -  sourceSha: sha, sourceDirty: dirty, requestedSourceSha: pins[0].slice("--review-source=".length) }) : null;
 +  sourceSha: sha, sourceDirty: dirty && !platformConfigMaterialization,
 +  requestedSourceSha: pins[0].slice("--review-source=".length) }) : null;
- // Generate for both modes, replacing stale review authority with null locally.
- // Builder imports only the static policy; handlers import this generated module
- // after the build. It must be included in each traced Node/Edge handler bundle.
-@@ -72,8 +85,20 @@ async function inventory(directory, prefix = "") {
- await inventory(output);
- await writeFile(resolve(output, "public-reading-artifact.json"), JSON.stringify({
-   schema: 1, sourceSha: sha, sourceDirty: dirty, buildTarget: "2029", releaseProfile: PUBLIC_READING_PROFILE_ID,
+@@ -74,0 +88 @@ await writeFile(resolve(output, "public-reading-artifact.json"), JSON.stringify(
 +  applicationSourceDirty: dirty && !platformConfigMaterialization,
-   policy: PUBLIC_READING_POLICY_ID, activation: PUBLIC_READING_DEPLOYMENT_AUTHORIZATION,
-   protectedReview,
+@@ -76,0 +91,11 @@ await writeFile(resolve(output, "public-reading-artifact.json"), JSON.stringify(
 +  // sourceDirty above is the raw Git observation and stays true on Vercel.
 +  // This separate receipt proves only the known nested-config materialization.
 +  platformConfigMaterialization: platformConfigMaterialization ? {
@@ -104,26 +77,14 @@ index cbf21937..9654a69a 100644
 +    committedConfigSha256: hash(platformConfigMaterialization.committedConfig),
 +    materializedConfigSha256: hash(platformConfigMaterialization.workingConfig),
 +  } : null,
-   deploymentConfigSha256: hash(await readFile(resolve(root, "public-reading-deploy/vercel.json"))),
-   documentTemplateSha256: hash(document), documentTemplatePublic: false,
-   deployed: false, productionReady: false, generalProductWrites: false,
 diff --git a/test/public-reading-protected-review.test.mjs b/test/public-reading-protected-review.test.mjs
 index 133af88b..bb3fb04b 100644
 --- a/test/public-reading-protected-review.test.mjs
 +++ b/test/public-reading-protected-review.test.mjs
-@@ -7,7 +7,7 @@ import { fileURLToPath } from "node:url";
- import { spawnSync } from "node:child_process";
- import vm from "node:vm";
- import { build } from "esbuild";
+@@ -10 +10 @@ import { build } from "esbuild";
 -import { protectedReviewBuildIdentity, protectedReviewRuntimeAuthorized,
 +import { protectedReviewBuildIdentity, protectedReviewRuntimeAuthorized, protectedReviewConfigMaterialization,
-   REVIEW_BRANCH, REVIEW_PROJECT_ID } from "../public-reading-deploy/review-admission.js";
- 
- // All platform identities and responses in this file are synthetic. Real Vercel
-@@ -62,6 +62,48 @@ test("runtime receipt cannot be activated by environment alone, Production or co
-     assert.equal(protectedReviewRuntimeAuthorized(fixtureIdentity, env), false);
- });
- 
+@@ -64,0 +65,42 @@ test("runtime receipt cannot be activated by environment alone, Production or co
 +test("only Preview's sole unstaged root config may equal the complete committed nested config", () => {
 +  const config = { framework: null, redirects: [{ source: "/old", destination: "/post/new", permanent: true },
 +    { source: "/posts", destination: "/post", permanent: true }], headers: [{ source: "/(.*)",
@@ -166,13 +127,7 @@ index 133af88b..bb3fb04b 100644
 +      sourceDirty: false, requestedSourceSha: sha, ...extra }), /identity_rejected/);
 +});
 +
- test("compiler rejects an absent, duplicate or malformed review mode/pin before compiling", () => {
-   for (const args of [["--protected-review"], ["--review-source=" + sha],
-     ["--protected-review", "--protected-review", "--review-source=" + sha],
-@@ -221,3 +263,12 @@ test("artifact root config cannot shadow the pinned review command; default pack
-   assert.equal(config.buildCommand, undefined);
-   assert.equal(pkg.scripts.build, "node ../scripts/build-public-reading-production.mjs");
- });
+@@ -223,0 +266,9 @@ test("artifact root config cannot shadow the pinned review command; default pack
 +
 +test("default artifact records raw dirtiness without any platform materialization authority", async () => {
 +  const artifact = JSON.parse(await readFile(resolve(root, "public-reading-deploy/dist/public-reading-artifact.json"), "utf8"));

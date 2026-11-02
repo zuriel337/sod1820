@@ -56,16 +56,46 @@ worktree clean and does not embed configuration contents or secrets in the recei
 
 ## Validation and rollback
 
-At this document's initial preparation the static patch was reviewed, and
-`git diff --check` passed. New tests/builds have **not yet run** because the main
-candidate's performance window is exclusive. Existing successful results on83d/257
-are not reported as acceptance of this new patch.
+After the main performance window was explicitly released, the reviewed source was
+committed as `93564ec0a14c462879730e27071c1c38af9ac6f5` and validated locally:
+
+| Check on exact93564ec0 | Result |
+|---|---|
+| Default dormant application build | PASS; Vite reported1.62s; existing chunk-size warning retained |
+| Protected-review, artifact, release, SEO, old-URL and World-OG tests | 59 PASS;0 failed, skipped or cancelled |
+| Existing Chromium/actual SW lifecycle test | 1 PASS;0 failed, skipped or cancelled |
+| Full-change `git diff --check` | PASS after normalizing blank context lines in the stored proposal patch |
+| Three changed source/test paths, added-line secret pattern check |0 matches; bounded patterns, not an exhaustive secret proof |
+| Legacy root config, App.jsx, Legacy lock, existing Legacy SW and artifact SW transport | Unchanged by this delta |
+
+The local default artifact correctly records `sourceDirty:false`,
+`applicationSourceDirty:false`, `platformConfigMaterialization:null`,
+`protectedReview:null` and `productionReady:false`: this was a clean, ordinary
+local build. It is not the future hosted artifact receipt. Actual hosted receipt
+must report `sourceDirty:true` when Vercel replaces root configuration, alongside
+the separate attestation; no hosted success is inferred from the fixture tests.
+
+Commands:
+
+```sh
+node scripts/build-public-reading-production.mjs
+node --test test/public-reading-protected-review.test.mjs test/public-reading-production-artifact.test.mjs test/public-reading-release-2029.test.mjs test/public-launch-seo-gates.test.mjs test/public-post-reading-boundary.test.mjs test/world-finding-share-og-2029.test.mjs
+node --test test/public-reading-production-artifact.browser.mjs
+git diff --check 42e26cbb5c58a3c48ec3742b6b0dc543b0157e3b
+```
+
+The receipt and full focused test outputs are preserved in
+`validation/materialization-artifact-receipt.json`,
+`validation/materialization-unit-and-regression.log` and
+`validation/materialization-local-worker-browser.log`. Test/build durations are
+not measurements of Home load time. The proposal patch is stored without context
+lines; `git apply --check --reverse --unidiff-zero` verifies it against this source.
 
 The focused tests cover full-value changes, redirect order/destination, added keys,
 changed cache headers, malformed JSON, extra/staged/nested files, mode/type changes,
-wrong pins and Production. Re-run the existing protected-review, dormant artifact,
-release, SEO and old-URL tests plus the default build after the window is released.
-No fake platform values may be used outside isolated tests. Root then deploys the
+wrong pins and Production. The SW check uses loopback fixtures with outbound denial;
+it does not submit live service requests or restore data. Synthetic platform values
+were used only in isolated tests, never the actual build. Root next deploys the
 new exact integrated SHA only as a protected Preview and checks the actual emitted
 receipt, private access boundary, canonical/noindex behavior, routes and SW. If any
 predicate still fails, retain that failure rather than relaxing the gate.

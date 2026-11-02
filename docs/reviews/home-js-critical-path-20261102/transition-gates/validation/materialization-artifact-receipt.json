@@ -1,0 +1,61 @@
+{
+  "schema": 1,
+  "testedSourceSha": "93564ec0a14c462879730e27071c1c38af9ac6f5",
+  "sourceBranch": "gpt/2029-home-js-transition-proposals-20261102",
+  "validationDateUtc": "2026-11-02",
+  "coordinationBefore": "fa893a43-c29a-4710-92d9-0116a8dbdd2c",
+  "coordinationRecheckedAt": "2026-11-02T19:47:38.547499Z",
+  "activeOverlappingWriters": 1,
+  "activeOverlap": "own delegated scope only",
+  "build": {
+    "kind": "actual-source default dormant",
+    "passed": true,
+    "viteReportedSeconds": 1.62,
+    "sourceSha": "93564ec0a14c462879730e27071c1c38af9ac6f5",
+    "sourceDirty": false,
+    "applicationSourceDirty": false,
+    "platformConfigMaterialization": null,
+    "protectedReview": null,
+    "productionReady": false,
+    "deployed": false,
+    "artifactSha256": "b29239df224a932ffdd8f78f99511926a2f64e34e79b35967cb0b494926e13fa",
+    "workerSha256": "fce72f326b4f73d3c100bcd6d7c386bfd93c24428ebf10b8af9e05cad19905be",
+    "configSha256": "bd4688e33c12649a12b5eacb561e87b9a99df49399512fdf7921fdb250726533"
+  },
+  "tests": {
+    "focusedAndRegression": {
+      "pass": 59,
+      "fail": 0,
+      "skip": 0,
+      "cancelled": 0,
+      "durationMs": 776.974022
+    },
+    "localWorkerLifecycle": {
+      "pass": 1,
+      "fail": 0,
+      "skip": 0,
+      "cancelled": 0,
+      "durationMs": 5246.449967
+    }
+  },
+  "fixtureBoundary": "Synthetic platform identities, responses and signed-service tokens stay in isolated tests. Local real Chromium/compiled SW uses loopback fixtures and outbound denial; no live write or hosted acceptance is inferred.",
+  "legacyBoundaryChangedPaths": [],
+  "addedSourceSecretPatternMatches": 0,
+  "secretScanScope": "Added lines in the three source/test paths; private-key, provider/GitHub token and JWT patterns. Bounded check, not an exhaustive secret proof.",
+  "sourceHashes": {
+    "public-reading-deploy/review-admission.js": "15fa631806d6d089767938836fd7d7e09b76b67566cddfd17c7f695cc26ebaa7",
+    "scripts/build-public-reading-production.mjs": "49dc930d321cab5908a30dd79814ec6b35132a526ef99ba835c179c99204f8ed",
+    "test/public-reading-protected-review.test.mjs": "c67cd1f685f1801fa77b011a77eadfbeb5429bbde550780f092291c7356d2ed7"
+  },
+  "productionChanged": false,
+  "legacyLockChanged": false,
+  "sharedSettingsChanged": false,
+  "platformEnvironmentMutated": false,
+  "remoteDeploymentsByThisAgent": 0,
+  "hostedAcceptance": "PENDING on integrated exact source",
+  "notes": [
+    "No new Home performance samples were taken. Build/test durations are not user-facing latency.",
+    "A3 full Isolation already passed on exact integrated257; it is not a DB/media backup restore.",
+    "Proposal patch is a zero-context review artifact; use --unidiff-zero for an apply check."
+  ]
+}
