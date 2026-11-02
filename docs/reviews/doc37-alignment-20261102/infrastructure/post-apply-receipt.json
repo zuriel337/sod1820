@@ -343,5 +343,11 @@
     }
   ],
   "captured_after_migration_version": "20261102130753",
-  "scope": "Read-only verification of root-applied user-approved cron and views changes; no mail verification; no child live writes. Source history exists; structural-only migration plus no DELETE/TRUNCATE, not a global snapshot diff."
+  "scope": "Read-only verification of root-applied user-approved cron and views changes; no mail verification; no child live writes. Source history exists; structural-only migration plus no DELETE/TRUNCATE, not a global snapshot diff.",
+  "migration_executable_statement_scan": {
+    "comments_removed": true,
+    "has_delete_or_truncate": false,
+    "has_insert_or_update": false,
+    "note": "Initial unstripped keyword scan matched the No DELETE SQL comment; executable SQL contains no such DML."
+  }
 }

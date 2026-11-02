@@ -19,7 +19,7 @@ This lane performed read-only post-verification, recorded in
   releases; none are projected into `work_log_current`.
 - Both views retain their owners/options/ACL and their6/32 columns respectively.
 - Migration statements contain no DELETE/TRUNCATE/INSERT/UPDATE. The source
-  work-log still spans June2November and rule history remains present. This is
+  work-log still spans June–November and rule history remains present. This is
   structural verification, not a before/after full-data backup comparison.
 - No newsletter or email deployment acceptance is claimed by this receipt.
 
