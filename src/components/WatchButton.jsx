@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback, useRef } from "react";
+import { PUBLIC_READING_RELEASE } from "../lib/publicReadingRelease2029.js";
 import { F } from "../theme.js";
 import { usePalette, PALETTES } from "../lib/palette.js";
 import { useAuth } from "../lib/AuthContext.jsx";
@@ -26,7 +27,15 @@ const DEFAULT_FOLLOW_IO = Object.freeze({
   track: (detail) => trackConversion("follow", detail),
 });
 
-export default function WatchButton({ topic, source = "unknown", explainer = "", label = "עקוב אחרי הנושא הזה", followLabel = null, heading = "רוצה לדעת כשיש חדש?", gate = false, compact = false, paletteMode = null, icon = "🔔", ghost = false, checkbox = false, noPush = false, variant = null, followIO = null, onVerifyIdentity = null }) {
+export default function WatchButton(props) {
+  // A closed capability must not mount the controller or create a visitor identity.
+  // Keep a truthful, inert affordance; existing Follow data is neither read nor changed.
+  if (PUBLIC_READING_RELEASE) return props.topic ? <button type="button" className="sod29-action"
+    data-follow-state="unavailable" disabled title="מעקבים והתראות אינם פעילים בגרסת הקריאה">מעקב ייפתח בהמשך</button> : null;
+  return <WatchButtonOpen {...props} />;
+}
+
+function WatchButtonOpen({ topic, source = "unknown", explainer = "", label = "עקוב אחרי הנושא הזה", followLabel = null, heading = "רוצה לדעת כשיש חדש?", gate = false, compact = false, paletteMode = null, icon = "🔔", ghost = false, checkbox = false, noPush = false, variant = null, followIO = null, onVerifyIdentity = null }) {
   const auto = usePalette();
   const P = paletteMode ? (PALETTES[paletteMode] || auto) : auto;
   const { user } = useAuth();

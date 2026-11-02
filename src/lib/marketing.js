@@ -1,3 +1,4 @@
+import { PUBLIC_READING_RELEASE } from "./publicReadingRelease2029.js";
 // ===== שכבת שיווק — Meta Pixel (פייסבוק/אינסטגרם/וואטסאפ) + Google Ads =====
 // נטענת בפועל רק אם הוגדרו ה-IDs ב-env. בלי ID — כל הפונקציות הן no-op מוחלט
 // (לא טוענת סקריפט, לא שוברת כלום). כך אפשר לפרוס עכשיו, ולהדליק מאוחר יותר
@@ -26,6 +27,7 @@ let adsInited = false;
 
 // ── אתחול (פעם אחת, בעליית האפליקציה) ──
 export function initMarketing() {
+  if (PUBLIC_READING_RELEASE) return;
   initMetaPixel();
   initGoogleAds();
 }
@@ -64,6 +66,7 @@ function initGoogleAds() {
 // ── צפיית עמוד (SPA) — נקרא בכל מעבר route, אחרי שהכותרת מתעדכנת ──
 // בונה את קהלי הרימרקטינג והקהלים-הדומים (lookalike) — הלב של "עוד תנועה".
 export function trackMarketingPageview() {
+  if (PUBLIC_READING_RELEASE) return;
   if (typeof window === "undefined") return;
   // 🤖 BOT_READ_NO_SIDE_EFFECT_V1 — צפיית-בוט לא בונה קהלי-רימרקטינג. הפונקציה הזו שולחת
   // PageView לפיקסל ול-CAPI בצד-שרת, וזו attribution חיצונית שנבנית מ«עצם הקריאה».
@@ -121,6 +124,7 @@ function sendCAPI(eventName, eventId, params = {}) {
 
 // ── אירוע המרה אחיד — משדר ל-GA4 + מטא (פיקסל+CAPI) + Google Ads בקריאה אחת ──
 export function trackConversion(name, params = {}) {
+  if (PUBLIC_READING_RELEASE) return;
   if (typeof window === "undefined") return;
   // GA4 (תמיד — אם פעיל)
   if (window.gtag) window.gtag("event", name, params);

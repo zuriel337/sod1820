@@ -1,3 +1,4 @@
+import { PUBLIC_READING_RELEASE } from "./publicReadingRelease2029.js";
 // ===== פליטת אירועים אחידה (events) — שלב 1 =====
 // כותב ל-events דרך RPC ingest_event, במקביל למערכת הישנה (dual-write). fire-and-forget.
 import { supabase } from "./supabase.js";
@@ -63,6 +64,7 @@ function expCtx() {
 
 // emit(surface, eventType, opts?) — opts: {path, via, journeyId, depth, props}
 export function emit(surface, eventType, opts = {}) {
+  if (PUBLIC_READING_RELEASE) return;
   if (!supabase) return;
   try {
     const country = vcCountry();
