@@ -277,7 +277,7 @@ fixtures remained safe. Root must fix the demonstrated route/stability issues
 and obtain focused exact-Preview acceptance. The old f420 card-return timing
 has an explicit semantic correction; primaryreturn is measured separately here.
 
-##51ad route fixes accepted, exact scroll return remains open
+## 51ad route fixes accepted, exact scroll return remains open
 
 [Focused report](candidate-51ad-report.md) and [manifest](native-51ad-manifest.json)
 retain the fixed video crash, six passing seriesprivacy/stability cases, real
@@ -285,3 +285,11 @@ page2 boundaries, directvideo denial/retry and one brief authorized playback.
 Two Home smoke checks passed. Video→series scroll restoration still fails on
 mobile/desktop; one diagnostic identifies restoration while the list is too
 short. Overall affected-route acceptance is not yet complete.
+
+## 32d exact return accepted; mixed page2 completion CLS still fails
+
+[Focused report](candidate-32d0-report.md) and [manifest](native-32d0-manifest.json)
+separate the corrected early harness measurement from actual successful return
+at the click position. Directvideo stability/privacy passes without anotherplay.
+The full sequence still fails0.1 because the delayed predecessor Post insertion
+shifts a visible page2 card; that precise source and all failed runs are retained.

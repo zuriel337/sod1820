@@ -45,8 +45,14 @@ require('node:readline').createInterface({input:process.stdin}).once('line',asyn
     context=await browser.newContext({viewport:{width,height:900},locale:'he-IL'});if(cfg.accessUrl)await context.request.get(cfg.accessUrl);
     const identity=await context.request.get(cfg.origin+'/preview-identity.json');assert.equal(identity.status(),200);assert.equal((await identity.json()).sha,cfg.sha);
     await require('./native-home-read-only-guard.cjs')(context,cfg.origin);await fault(context,mode);
+    await context.addInitScript(()=>{
+     window.__seriesDepartureClicks=[];document.addEventListener('click',event=>{
+      const source=event.target.closest('a[href^="/video/"]'),older=event.target.closest('button');
+      if(source||older?.textContent.trim()==='פוסטים קודמים')window.__seriesDepartureClicks.push({kind:source?'video':'page2',href:location.pathname+location.search+location.hash,y:scrollY});
+     },true);
+    });
     if(cfg.scrollDiagnostic)await context.addInitScript(()=>{
-     window.__seriesScroll=[];let last='';const mark=event=>{const row={event,time:performance.now(),path:location.pathname+location.search,y:scrollY,height:document.documentElement.scrollHeight,sourceTop:document.querySelector('[data-series-kind="channel_update"]')?.getBoundingClientRect().top};const key=JSON.stringify([row.path,row.y,row.height]);if(event!=='sample'||key!==last){window.__seriesScroll.push(row);last=key;}};
+     window.__seriesScroll=[];let last='';const mark=event=>{const row={event,time:performance.now(),path:location.pathname+location.search,y:scrollY,height:document.documentElement.scrollHeight,sourceTop:document.querySelector('[data-series-kind="channel_update"]')?.getBoundingClientRect().top,postCount:document.querySelectorAll('[data-series-kind="post"]').length,notices:[...document.querySelectorAll('.sod29-series-reading-notice .is-current')].map(el=>el.textContent.trim())};const key=JSON.stringify([row.path,row.y,row.height,row.sourceTop,row.postCount,row.notices]);if(event!=='sample'||key!==last){window.__seriesScroll.push(row);last=key;}};
      document.addEventListener('click',e=>{if(e.target.closest('a[href^="/video/"]'))mark('video-link-click-capture');},true);addEventListener('popstate',()=>mark('popstate'));setInterval(()=>mark('sample'),100);
     });
     page=await context.newPage();page.setDefaultTimeout(30000);const errors=[];item.errors=errors;page.on('pageerror',e=>errors.push(safeText(e.message)));
@@ -98,12 +104,18 @@ require('node:readline').createInterface({input:process.stdin}).once('line',asyn
         const secondRefs=await page.locator('#posts-catalog [data-series-source]').evaluateAll(rows=>rows.map(row=>row.dataset.seriesSource));
         assert.ok(secondRefs.length>0&&secondRefs.length<=24,'second page bounded and nonempty');
         assert.equal(new Set(secondRefs).size,secondRefs.length);assert.deepEqual(secondRefs.filter(ref=>firstRefs.includes(ref)),[],'no duplicated identity across adjacent pages');
-        item.pagination={firstRefs,secondRefs};await page.goBack();
+        const departure=await page.evaluate(()=>window.__seriesDepartureClicks.filter(row=>row.kind==='page2').at(-1));
+        item.pagination={firstRefs,secondRefs,departure};await page.goBack();
         await expect(page.locator('#posts-catalog')).toHaveAttribute('data-posts-page','1');await expect(card).toBeVisible();
+        await page.waitForTimeout(600);item.pagination.returnY=await page.evaluate(()=>scrollY);assert.ok(Math.abs(item.pagination.returnY-departure.y)<=2,'page2 back restores exact departing page1 viewport');
         item.checks.push('real-page2/bounded/distinct-identities/exact-page1-back');
        }
+       // A reader's actual wheel intent cancels the just-completed POP restore.
+       // scrollIntoView alone is a driver operation, not such user intent.
+       await page.mouse.move(width/2,450);await page.mouse.wheel(0,-120);await page.waitForTimeout(200);
        await card.scrollIntoViewIfNeeded();await page.waitForTimeout(250);const before={url:page.url(),scroll:await page.evaluate(()=>scrollY)};await page.screenshot({path:`${out}/source-${width}.png`});
        await card.locator('a').first().click();await expect(page.getByRole('button',{name:'נגן סרטון',exact:true})).toBeVisible({timeout:30000});
+       const departure=await page.evaluate(()=>window.__seriesDepartureClicks.filter(row=>row.kind==='video').at(-1));item.departure=departure;assert.equal(departure.y,before.scroll,'pre-click measurement equals actual click-capture scroll');
        assert.equal(new URL(page.url()).pathname,'/video/'+ASSET);await expect(page.locator('.sod29-root')).toBeVisible();await expect(page.locator('video,iframe')).toHaveCount(0);
        item.video={url:new URL(page.url()).pathname,titles:await page.locator('h1').allTextContents(),playbackStarted:false};await page.screenshot({path:`${out}/video-${width}.png`});
        await page.goBack();await expect(card).toBeVisible();await page.waitForTimeout(600);item.return={before,after:{url:page.url(),scroll:await page.evaluate(()=>scrollY)}};
@@ -111,7 +123,7 @@ require('node:readline').createInterface({input:process.stdin}).once('line',asyn
        item.checks.push('real2029-video-ready/no-autoplay/exact-series-return');
        await page.goForward();await expect(page.getByRole('button',{name:'נגן סרטון',exact:true})).toBeVisible({timeout:30000});assert.equal(new URL(page.url()).pathname,'/video/'+ASSET);
        await page.goBack();await expect(card).toBeVisible();await page.waitForTimeout(600);assert.equal(page.url(),before.url);assert.ok(Math.abs(await page.evaluate(()=>scrollY)-before.scroll)<=2,'exact return after forward');item.checks.push('browser-forward/video/back-restoration');
-       item.preReloadCls=cls(await page.evaluate(()=>window.__nativeShifts));assert.ok(item.preReloadCls<=.1,'whole native journey CLS<=0.1 before reload');
+       item.preReloadShifts=await page.evaluate(()=>window.__nativeShifts);item.preReloadCls=cls(item.preReloadShifts);assert.ok(item.preReloadCls<=.1,'whole native journey CLS<=0.1 before reload');
        const response=await page.reload({waitUntil:'domcontentloaded'});assert.equal(response.status(),200);await expect(card).toHaveCount(1);await expect(postCards.first()).toBeVisible();item.checks.push('direct-refresh-native-series');
       }
      }

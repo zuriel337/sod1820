@@ -37,7 +37,9 @@ require('node:readline').createInterface({input:process.stdin}).once('line',asyn
      await expect(play).toBeVisible({timeout:30000});await expect(main).toContainText('אור הגאולה');await expect(main).toContainText('הרב אלדד שמואלי');await expect(main).toContainText('04.08.2026');await expect(page.locator('video,iframe')).toHaveCount(0);item.checks.push('native-direct/public-source-credit-date/no-autoplay');
      const reads=await page.evaluate(()=>window.__safetyReads.filter(r=>r.path==='/rest/v1/video_media_assets_v1'||r.path==='/rest/v1/channel_updates').map(r=>({path:r.path,query:r.query,method:r.method,status:r.status})));
      item.firstReads=reads;const assets=reads.filter(r=>r.path==='/rest/v1/video_media_assets_v1');assert.equal(assets.length,2);assert.equal(reads.filter(r=>r.path==='/rest/v1/channel_updates').length,1);assert.ok(assets.every(r=>!/[?&,](placements|topics|source_types|series_keys)/.test(decodeURIComponent(r.query))));item.checks.push('three-bounded-reads/no-broad-placements');
+     await page.waitForTimeout(600);item.initialDirectCls=cls(await page.evaluate(()=>window.__nativeShifts));assert.ok(item.initialDirectCls<=.1,'first direct video CLS<=0.1');
      await page.reload({waitUntil:'domcontentloaded'});await expect(play).toBeVisible({timeout:30000});await expect(page.locator('video,iframe')).toHaveCount(0);item.checks.push('direct-refresh/no-autoplay');
+     await page.waitForTimeout(600);item.reloadCls=cls(await page.evaluate(()=>window.__nativeShifts));assert.ok(item.reloadCls<=.1,'reloaded video CLS<=0.1');
      if(cfg.skipPlayback){item.play={attempts:0,confirmed:null,reason:'Approved single playback already recorded on51ad; no new attempt.'};}
      else{
      // Root explicitly authorizes ONE play of this verified public self-hosted

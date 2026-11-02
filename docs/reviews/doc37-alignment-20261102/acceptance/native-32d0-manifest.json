@@ -1,0 +1,178 @@
+{
+  "sha": "32d0719a9ad2ae97ea6ef1d6ac1a01ce041babb5",
+  "privacyScanFindings": [],
+  "privateConfigIncluded": false,
+  "requestHeadersOrCookiesIncluded": false,
+  "files": [
+    {
+      "path": "final-approved-series-32d0/cancel-390.png",
+      "bytes": 2236797,
+      "sha256": "006ae0a16bc5ddfcd24aea77e0662e447f139aebf9c4b7031ef6512fd17e227f"
+    },
+    {
+      "path": "final-approved-series-32d0/duplicate-post-390.png",
+      "bytes": 1944025,
+      "sha256": "5aa1b5412ea3fc9f171b63b6c4a6347d29f3a33e93a579ffa72d81908a97eaa1"
+    },
+    {
+      "path": "final-approved-series-32d0/expired-390.png",
+      "bytes": 1956365,
+      "sha256": "ee75c9b90eb6fed3bc504215d07fb6b11105cd6be7fee114ddd76f4490ae50d8"
+    },
+    {
+      "path": "final-approved-series-32d0/private-390.png",
+      "bytes": 1956012,
+      "sha256": "b29be23b6fee85960ca6e790bb789908f977cbe8cf7afb0409c56923b0a1afd4"
+    },
+    {
+      "path": "final-approved-series-32d0/source-failed-390.png",
+      "bytes": 1955995,
+      "sha256": "9eac36246fd19dfd0df10d7056b1df3b89b4045b0c374b7e1daa58dbf1a9070d"
+    },
+    {
+      "path": "final-approved-series-32d0/pending-390.png",
+      "bytes": 1944137,
+      "sha256": "c1631e8ba202ee1914e5b91ff3d1b3924a6fbdf56b792a6b30458d42e9ce6735"
+    },
+    {
+      "path": "final-approved-series-32d0/failure-native-1440.png",
+      "bytes": 3429346,
+      "sha256": "bb94eb11845838ac954a5808b5a63ccc4c705dea696673e9a40f33ebcf81626c"
+    },
+    {
+      "path": "final-approved-series-32d0/video-1440.png",
+      "bytes": 254628,
+      "sha256": "82a51a1322aaaeeb8c9332751f5ce5c993a43d0ee05bf682afd150c0446915dc"
+    },
+    {
+      "path": "final-approved-series-32d0/source-1440.png",
+      "bytes": 191740,
+      "sha256": "ddab21144fd56cead64b8b7027eda2d9f1d9d0b662db7573b6aef33156e3bfea"
+    },
+    {
+      "path": "final-approved-series-32d0/series.json",
+      "bytes": 157024,
+      "sha256": "0963e0d7bb2b7165a2f96dc13d3d7f569acf0a953575aae3f8f7a02c2baf6e72"
+    },
+    {
+      "path": "final-approved-series-32d0/failure-native-390.png",
+      "bytes": 2573742,
+      "sha256": "19673b85b4e19936416705a1f33159e9b55a41c0d93852a01f18d1b8e4db076c"
+    },
+    {
+      "path": "final-approved-series-32d0/video-390.png",
+      "bytes": 86822,
+      "sha256": "1798bab4a4a311a0575e6e05bc1f84ed998a065edd9e4a343b2637d273540857"
+    },
+    {
+      "path": "final-approved-series-32d0/source-390.png",
+      "bytes": 60097,
+      "sha256": "da6ec570b13aa3a4fc5aa41a57dd99214e63d3252c2513a51dd372e77429aa7c"
+    },
+    {
+      "path": "series-return-diagnostic-32d0/series.json",
+      "bytes": 51732,
+      "sha256": "aa248d6ea805fad16e31e664fdc3e716bf2168ddddb756dab06dfbb05826a8d2"
+    },
+    {
+      "path": "series-return-diagnostic-32d0/failure-native-390.png",
+      "bytes": 2573780,
+      "sha256": "73a131a745713d9bf78600d50077ae64a137deee93e02671420533ba7636580f"
+    },
+    {
+      "path": "series-return-diagnostic-32d0/video-390.png",
+      "bytes": 86799,
+      "sha256": "fceafedf1bb681576ea14dd636a4af26794fe31f49d3f01d1c5dabb74e86121c"
+    },
+    {
+      "path": "series-return-diagnostic-32d0/source-390.png",
+      "bytes": 60010,
+      "sha256": "0f6e6b29181003d19af2afae2c644c82429deff2c4452bef4dfcda7e87c74b10"
+    },
+    {
+      "path": "final-approved-series-32d0-native-intent/failure-native-1440.png",
+      "bytes": 3429368,
+      "sha256": "9ab89a41790529d66e8f83dab9421923e872b5ab91fd401378122dfa9fcb2aab"
+    },
+    {
+      "path": "final-approved-series-32d0-native-intent/video-1440.png",
+      "bytes": 254833,
+      "sha256": "8335633067b5950fdd7c03536aa1f21e52599d64e05f026e02f16aec56882188"
+    },
+    {
+      "path": "final-approved-series-32d0-native-intent/source-1440.png",
+      "bytes": 610674,
+      "sha256": "c790099fa030000cd6f105cb76c41e07a0e5e03a7bda2c12edc0c898242d546a"
+    },
+    {
+      "path": "final-approved-series-32d0-native-intent/series.json",
+      "bytes": 106677,
+      "sha256": "d730e9876ad761989d188eeff09f16fd26d4ef5e4b211055778b42b6ce423634"
+    },
+    {
+      "path": "final-approved-series-32d0-native-intent/failure-native-390.png",
+      "bytes": 2437358,
+      "sha256": "752b6325044097abb7f0ba2f9c96131ff2385b6257b3fddfe634eb62a0c4d167"
+    },
+    {
+      "path": "final-approved-series-32d0-native-intent/video-390.png",
+      "bytes": 86799,
+      "sha256": "fceafedf1bb681576ea14dd636a4af26794fe31f49d3f01d1c5dabb74e86121c"
+    },
+    {
+      "path": "final-approved-series-32d0-native-intent/source-390.png",
+      "bytes": 133442,
+      "sha256": "5f6a7e7ac73d51425facf3bf012552feb9f9ca80be6d58ddd577cdf2ac4dd5b0"
+    },
+    {
+      "path": "final-video-boundary-32d0/expired.png",
+      "bytes": 76143,
+      "sha256": "002afcffd175717af4a2fdc9750b1d6bc98589c9b2fb788e53562d8fa41847c7"
+    },
+    {
+      "path": "final-video-boundary-32d0/private.png",
+      "bytes": 76177,
+      "sha256": "18860d15e65bab7437342bb0a5e2da168eb2dbfd44e5eeccd2d88d89c489e391"
+    },
+    {
+      "path": "final-video-boundary-32d0/failed.png",
+      "bytes": 109170,
+      "sha256": "b9cc29e182e96e53e20455f37f0902338d065eb80fbbaca23a38496e46716d8a"
+    },
+    {
+      "path": "final-video-boundary-32d0/video-boundary.json",
+      "bytes": 399558,
+      "sha256": "1afd82093e0d8182d77272f8f78707328382d28f1b6b734940619df1043a4136"
+    },
+    {
+      "path": "final-video-boundary-32d0/native.png",
+      "bytes": 109098,
+      "sha256": "7210f453812bda495406edb54bd47625f4a217ed28c62ce9938f4d83d161304f"
+    },
+    {
+      "path": "series-cls-diagnostic-32d0/series.json",
+      "bytes": 330172,
+      "sha256": "68185743ba17bf49bc0a0667b5e7dac8ecd5eeadaeb2fa7175bfb59b62883b22"
+    },
+    {
+      "path": "series-cls-diagnostic-32d0/failure-native-390.png",
+      "bytes": 2437500,
+      "sha256": "7318c818794be126ff858ec9e583fa964db4e9bd97490188dd98a800e8e9b515"
+    },
+    {
+      "path": "series-cls-diagnostic-32d0/video-390.png",
+      "bytes": 86980,
+      "sha256": "0f497b3ffd30e899d717811e9b63570ff64c2baac1103d0f3e7338fefba2f4ec"
+    },
+    {
+      "path": "series-cls-diagnostic-32d0/source-390.png",
+      "bytes": 133627,
+      "sha256": "c86ce2dedf9ba174c3d44b295fa30680ba632d98c51a33d71124f4868ca73dea"
+    }
+  ],
+  "archive": {
+    "path": "native-32d0-evidence.zip",
+    "bytes": 30878332,
+    "sha256": "4f77bf1ae9120a2ac2942fd773a42a85d312e40a35399b54f8ca6e86357b384d"
+  }
+}
