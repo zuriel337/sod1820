@@ -1,0 +1,18 @@
+{
+  "task": "PUBLIC_HOME_JS_CRITICAL_PATH_20261102",
+  "previousLength": 461421,
+  "previousMd5": "aadb5cb8becd74b8b826a22f73dacbbd",
+  "updated": {
+    "id": 37,
+    "slug": "sod1820_reality_stream_os_master_v3_20261016_draft",
+    "updated_at": "2026-11-02 20:21:35.247643+00",
+    "body_length": 467208,
+    "body_md5": "0376c0484b3dbd037d6ce7e962a2925c",
+    "preserved_prefix_md5": "aadb5cb8becd74b8b826a22f73dacbbd",
+    "appended_chars": 5787,
+    "actual_newlines": true
+  },
+  "productSha": "c8e05790fe68c8f548e22a7c02e5094ddc5b8755",
+  "handoffEvidenceSha": "d8c538de19a3d7b5a6de1524b98f0a62f9984c12",
+  "method": "compare-and-swap append only; existing full prefix preserved"
+}
