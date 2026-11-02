@@ -41,6 +41,25 @@ function mediaAddress(value) {
   return null;
 }
 
+// One query specification reused by the single-page reader and the existing
+// server sitemap's bounded batches. This is not a second publication policy.
+export function publicVideoSourceQuery2029(kind, id, now = Date.now()) {
+  if (kind === "post") return { table: "posts", params: {
+    select: "id,slug,title,tags,source,link,wp_id,date", id: `eq.${id}`, or: `(${publicPostOnlyFilter()})`,
+  } };
+  if (kind === "channel_update") return { table: "channel_updates", params: {
+    select: "id,channel,status,page_only,expires_at,created_at,text,seo_title,speaker,credit,image_url,thumb_url",
+    id: `eq.${id}`, status: "eq.live", page_only: "eq.false", or: `(expires_at.is.null,expires_at.gt.${new Date(now).toISOString()})`,
+  } };
+  if (kind === "home_video") return { table: "home_videos", params: {
+    select: "id,is_active,title,video_url,yt,poster_url,created_at", id: `eq.${id}`, is_active: "eq.true",
+  } };
+  if (kind === "story") return { table: "stories", params: {
+    select: "id,active,title,video_url,image_url,created_at", id: `eq.${id}`, active: "eq.true",
+  } };
+  return null;
+}
+
 export async function fetchPublicVideo2029(assetId, { readRows = readPublicVideoRows2029, signal, now = Date.now() } = {}) {
   canceled(signal);
   if (!/^[0-9a-f]{32}$/i.test(assetId || "")) return null;
@@ -57,30 +76,29 @@ export async function fetchPublicVideo2029(assetId, { readRows = readPublicVideo
   if (!identity || identity.public_id !== assetId) return null;
   const id = String(identity.primary_source_id || ""), kind = identity.primary_source_type;
   if (!id || id.length > 64) return null;
+  const query = publicVideoSourceQuery2029(kind, id, now);
+  const readSource = () => one(query.table, query.params);
   let source, sourceTitle, sourceMedia, sourceTime, credit, author;
   if (kind === "post") {
     if (!/^\d+$/.test(id)) return null;
-    source = await one("posts", { select: "id,slug,title,tags,source,link,wp_id,date", id: `eq.${id}`, or: `(${publicPostOnlyFilter()})` });
+    source = await readSource();
     if (!source || String(source.id) !== id || hasSuppressedPublicPostTag(source) || !source.slug) return null;
-    return { public_id: assetId, title: clean(source.title), redirectHref: publicPostHref(source) };
+    return { public_id: assetId, title: clean(source.title), first_seen_at: source.date, redirectHref: publicPostHref(source) };
   }
   if (kind === "channel_update") {
     if (!/^[0-9a-f-]{36}$/i.test(id)) return null;
-    source = await one("channel_updates", {
-      select: "id,channel,status,page_only,expires_at,created_at,text,seo_title,speaker,credit,image_url,thumb_url",
-      id: `eq.${id}`, status: "eq.live", page_only: "eq.false", or: `(expires_at.is.null,expires_at.gt.${new Date(now).toISOString()})`,
-    });
+    source = await readSource();
     if (!source || String(source.id) !== id || source.status !== "live" || source.page_only !== false
       || source.expires_at && (!validTime(source.expires_at) || Date.parse(source.expires_at) <= now)) return null;
     sourceTitle = source.seo_title || source.text; sourceMedia = source.image_url; sourceTime = source.created_at;
     credit = clean(source.credit); author = clean(source.speaker);
   } else if (kind === "home_video") {
-    source = await one("home_videos", { select: "id,is_active,title,video_url,yt,poster_url,created_at", id: `eq.${id}`, is_active: "eq.true" });
+    source = await readSource();
     if (!source || String(source.id) !== id || source.is_active !== true) return null;
     sourceTitle = source.title; sourceTime = source.created_at;
     sourceMedia = source.video_url || (source.yt ? `https://www.youtube.com/watch?v=${source.yt}` : null);
   } else if (kind === "story") {
-    source = await one("stories", { select: "id,active,title,video_url,image_url,created_at", id: `eq.${id}`, active: "eq.true" });
+    source = await readSource();
     if (!source || String(source.id) !== id || source.active !== true) return null;
     sourceTitle = source.title; sourceTime = source.created_at; sourceMedia = source.video_url;
   } else return null;
@@ -97,4 +115,40 @@ export async function fetchPublicVideo2029(assetId, { readRows = readPublicVideo
     youtube_id: asset.youtube_id, thumb_url: publicNowMediaHref(source.thumb_url || source.poster_url || (kind === "story" ? source.image_url : null)) || publicNowMediaHref(asset.thumb_url || asset.poster_url),
     first_seen_at: sourceTime, google_indexable: asset.google_indexable === true, credit, author,
     sourceRef: `${kind}:${id}`, uses_generic_page: true };
+}
+
+// Server-only use by the existing XML owner. Per-request maps are discarded;
+// at most 40 distinct source IDs per GET, never one HTTP request per asset.
+export async function publicVideoSitemapAssets2029(assets, { readRows, now = Date.now() }) {
+  const eligible = assets.filter(v => /^[0-9a-f]{32}$/i.test(v.public_id || "") && v.google_indexable === true
+    && /^[0-9a-f-]{1,64}$/i.test(String(v.primary_source_id || "")) && publicVideoSourceQuery2029(v.primary_source_type, v.primary_source_id, now));
+  const sources = new Map();
+  for (const kind of new Set(eligible.map(v => v.primary_source_type))) {
+    const ids = [...new Set(eligible.filter(v => v.primary_source_type === kind).map(v => String(v.primary_source_id)))];
+    const spec = publicVideoSourceQuery2029(kind, ids[0], now), tableRows = new Map();
+    for (let offset = 0; offset < ids.length; offset += 40) {
+      const batch = ids.slice(offset, offset + 40);
+      const rows = await readRows(spec.table, { ...spec.params, id: `in.(${batch.join(",")})`, limit: String(batch.length) });
+      if (!Array.isArray(rows)) throw new Error("invalid_video_source_response");
+      for (const row of rows) if (batch.includes(String(row.id))) tableRows.set(String(row.id), row);
+    }
+    sources.set(spec.table, tableRows);
+  }
+  const result = [];
+  for (const original of eligible) {
+    const item = await fetchPublicVideo2029(original.public_id, { now, readRows: async (table, params) => {
+      if (table === "video_media_assets_v1") return [original];
+      const row = sources.get(table)?.get(params.id.slice(3));
+      return row ? [row] : [];
+    } });
+    if (!item) continue;
+    const media = item.redirectHref ? mediaAddress(original.media_url) : item.media_url;
+    if (!media) continue;
+    result.push({ public_id: item.public_id, title: item.title, media_url: media,
+      video_kind: original.video_kind, youtube_id: original.youtube_id,
+      thumb_url: item.thumb_url || publicNowMediaHref(original.thumb_url || original.poster_url),
+      first_seen_at: item.first_seen_at,
+      primary_page_url: `https://sod1820.co.il${item.redirectHref || `/video/${item.public_id}`}` });
+  }
+  return result;
 }

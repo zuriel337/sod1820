@@ -159,7 +159,15 @@ test("sitemap reuses eligible publication owner for both Post families, Numbers,
     if (value.includes("/topic_cards_public?")) return json([{ slug: "subject" }]);
     if (value.includes("/contributors?")) { assert.match(value, /active=eq.true.*visibility.eq.public/); return json([{ slug: "writer", code: "2042" }]); }
     if (value.includes("/video_media_assets_v1?")) return json([{ public_id: assetId, title: "Video", google_indexable: true,
-      media_url: "https://example.invalid/movie.mp4", video_kind: "video", primary_page_url: SITE + "/video/" + assetId }]);
+      primary_source_type: "channel_update", primary_source_id: "00000000-0000-4000-8000-000000000001",
+      media_url: API + "/storage/v1/object/public/gallery/movie.mp4", video_kind: "selfhost", primary_page_url: SITE + "/video/" + assetId }]);
+    if (value.includes("/channel_updates?")) {
+      const params = new URL(value).searchParams;
+      assert.equal(params.get("status"), "eq.live"); assert.equal(params.get("page_only"), "eq.false");
+      assert.match(params.get("or"), /expires_at.gt/);
+      return json([{ id: "00000000-0000-4000-8000-000000000001", status: "live", page_only: false,
+        text: "Video", image_url: API + "/storage/v1/object/public/gallery/movie.mp4", created_at: "2026-01-01", expires_at: null }]);
+    }
     throw Error("unexpected public source " + new URL(value).pathname);
   };
   await withFetch(fetcher, async () => {

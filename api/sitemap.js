@@ -1,6 +1,7 @@
 import { PUBLIC_READING_PROFILE_ID } from "../src/lib/publicReadingRelease2029.js";
 import { publicPostHref, publicPostUrl, postAddressSlug } from "../src/lib/publicPostUrls.js";
 import { publicPostOnlyFilter } from "../src/lib/research/publicPostBoundary.js";
+import { publicVideoSitemapAssets2029 } from "../src/lib/research/publicVideo2029Reading.js";
 // Vercel Serverless Function — sitemap.xml דינמי (מפת אתר חיה).
 // בונה את מפת האתר ישירות מהגרף ב-Supabase בכל בקשה, כך שכל פוסט/מספר/התכנסות
 // חדשים נכללים במפה; הימצאות במפה אינה הוכחה לאינדוקס — בלי להריץ סקריפט ובלי לדחוף קובץ.
@@ -216,7 +217,16 @@ export default async function handler(req, res) {
   const unifiedVideoPages = new Map();
   const videoPrimaryPaths = new Set();
   try {
-    const assets = await fetchAll('video_media_assets_v1?select=public_id,title,video_kind,media_url,youtube_id,poster_url,thumb_url,primary_page_url,google_indexable,first_seen_at,last_seen_at&google_indexable=eq.true&order=last_seen_at.desc');
+    const readingProfile = req.publicReadingRelease === PUBLIC_READING_PROFILE_ID;
+    let assets = await fetchAll('video_media_assets_v1?select=public_id,title,video_kind,media_url,youtube_id,poster_url,thumb_url,primary_page_url,google_indexable,first_seen_at,last_seen_at'
+      + (readingProfile ? ',primary_source_type,primary_source_id' : '') + '&google_indexable=eq.true&order=last_seen_at.desc');
+    if (readingProfile) assets = await publicVideoSitemapAssets2029(assets, { readRows: async (table, params) => {
+      const response = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${new URLSearchParams(params)}`, { headers: HEADERS });
+      if (!response.ok) throw new Error('sitemap-source-unavailable');
+      const rows = await response.json();
+      if (!Array.isArray(rows)) throw new Error('sitemap-source-invalid');
+      return rows;
+    } });
     for (const v of assets) {
       if (!v.primary_page_url || !v.media_url) continue;
       const pageUrl = videoPage(v.primary_page_url); if (!pageUrl) continue;
@@ -226,7 +236,7 @@ export default async function handler(req, res) {
       const path = canonicalVideoPath(pageUrl);
       if (path) videoPrimaryPaths.add(path);
     }
-  } catch (e) { if (productionReading) foundationSourceFailed = true; }
+  } catch (e) { if (req.publicReadingRelease === PUBLIC_READING_PROFILE_ID) foundationSourceFailed = true; }
   const unifiedVideoUrls = [...unifiedVideoPages.entries()].map(([pageUrl, assets]) => unifiedVideoPageTag(pageUrl, assets));
 
   // ── פוסטים → /<slug> (מדלגים על עמודים שכבר נכנסים עם video:video מה-Projection) ──

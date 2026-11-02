@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { fetchPublicVideo2029 } from "../src/lib/research/publicVideo2029Reading.js";
+import { fetchPublicVideo2029, publicVideoSitemapAssets2029 } from "../src/lib/research/publicVideo2029Reading.js";
 import ogHandler from "../api/og.js";
 
 const ID = "25e378462b55298219e5f7562698bfa7", SOURCE = "9d4e6b80-f52b-4461-9231-ca30f37f0db9";
@@ -127,4 +127,37 @@ test("Legacy video metadata keeps its existing single asset read", async () => {
     await ogHandler({ method: "GET", url: `/video/${ID}`, query: { path: `/video/${ID}` }, headers: {} }, res);
     assert.equal(res.code, 200); assert.match(res.body, /Legacy video/); assert.equal(calls.length, 1);
   } finally { globalThis.fetch = original; }
+});
+
+test("XML shares the exact public source gate, rejects stale aggregate claims and propagates outages", async () => {
+  for (const patch of [{ page_only: true }, { status: "hidden" }, { expires_at: "2026-10-31" }]) {
+    const result = await publicVideoSitemapAssets2029([asset({ title: "Unqualified aggregate title" })], {
+      now: NOW, readRows: async () => [channel(patch)],
+    });
+    assert.deepEqual(result, []);
+  }
+  const result = await publicVideoSitemapAssets2029([asset({ title: "Unqualified aggregate title" })], {
+    now: NOW, readRows: async (table, params) => {
+      assert.equal(table, "channel_updates"); assert.equal(params.id, `in.(${SOURCE})`);
+      assert.equal(params.page_only, "eq.false"); assert.equal(params.limit, "1");
+      return [channel()];
+    },
+  });
+  assert.equal(result[0].title, "מסר ציבורי"); assert.equal(result[0].primary_page_url, `https://sod1820.co.il/video/${ID}`);
+  await assert.rejects(publicVideoSitemapAssets2029([asset()], { readRows: async () => { throw Error("outage"); } }), /outage/);
+});
+
+test("XML source reads batch and deduplicate exact IDs, without per-asset HTTP or persistent cache", async () => {
+  const assets = Array.from({ length: 81 }, (_, i) => asset({ public_id: (i + 1).toString(16).padStart(32, "0"),
+    primary_source_id: `00000000-0000-4000-8000-${(i + 1).toString().padStart(12, "0")}` }));
+  const batches = [];
+  const result = await publicVideoSitemapAssets2029(assets, { now: NOW, readRows: async (table, params) => {
+    const ids = params.id.slice(4, -1).split(","); batches.push(ids);
+    assert.ok(ids.length <= 40); assert.equal(params.limit, String(ids.length));
+    return ids.map(id => channel({ id }));
+  } });
+  assert.equal(result.length, 81); assert.deepEqual(batches.map(b => b.length), [40, 40, 1]);
+  assert.equal(new Set(result.map(r => r.public_id)).size, 81);
+  const deniedOnNextRead = await publicVideoSitemapAssets2029(assets, { now: NOW, readRows: async () => [] });
+  assert.deepEqual(deniedOnNextRead, []);
 });
