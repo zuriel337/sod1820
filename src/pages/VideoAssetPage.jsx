@@ -31,7 +31,7 @@ function internalPath(url) {
   return null;
 }
 
-function Player({ asset, poster }) {
+export function Player({ asset, poster }) {
   const [play, setPlay] = useState(false);
   const yt = asset.youtube_id || (asset.video_kind === "youtube"
     ? String(asset.media_url || "").match(/[?&]v=([A-Za-z0-9_-]{11})/)?.[1]

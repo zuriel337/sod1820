@@ -2,6 +2,7 @@ import { PUBLIC_READING_PROFILE_ID, publicReadingFeatureLock, publicReadingPath 
 import { PUBLIC_HOME_SEO } from "../src/lib/seo.js";
 import { publicPostUrl } from "../src/lib/publicPostUrls.js";
 import { hasSuppressedPublicPostTag } from "../src/lib/research/publicPostBoundary.js";
+import { fetchPublicVideo2029 } from "../src/lib/research/publicVideo2029Reading.js";
 // Vercel Serverless Function — הזרקת תגיות Open Graph לכל עמוד עבור רובוטי הרשתות.
 import { resolveResearchObjectPresentation } from '../src/lib/research/researchObjectPresentation.js';
 import { worldFindingShareCard } from '../src/lib/research/worldFindingShare.js';
@@ -482,11 +483,21 @@ export default async function handler(req, res) {
     const assetId = key.slice('/video/'.length).trim();
     if (/^[0-9a-f]{32}$/i.test(assetId)) {
       try {
-        const r = await fetch(`${SUPABASE_URL}/rest/v1/video_media_assets_v1?public_id=eq.${encodeURIComponent(assetId)}&select=public_id,title,video_kind,media_url,youtube_id,poster_url,thumb_url,topics,google_indexable,first_seen_at,last_seen_at&limit=1`, { headers: ogHeaders });
-        if (productionReading && !r.ok) throw new Error('video-source-unavailable');
-        const rows = await r.json();
-        if (productionReading && !Array.isArray(rows)) throw new Error('video-source-invalid');
-        const v = Array.isArray(rows) && rows[0];
+        let v;
+        if (req.publicReadingRelease === PUBLIC_READING_PROFILE_ID) {
+          v = await fetchPublicVideo2029(assetId, { readRows: async (table, params) => {
+            const response = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${new URLSearchParams(params)}`, { headers: ogHeaders });
+            if (!response.ok) throw new Error('video-source-unavailable');
+            const rows = await response.json();
+            if (!Array.isArray(rows)) throw new Error('video-source-invalid');
+            return rows;
+          } });
+        } else {
+          // Legacy metadata retains its existing reader and behavior.
+          const r = await fetch(`${SUPABASE_URL}/rest/v1/video_media_assets_v1?public_id=eq.${encodeURIComponent(assetId)}&select=public_id,title,video_kind,media_url,youtube_id,poster_url,thumb_url,topics,google_indexable,first_seen_at,last_seen_at&limit=1`, { headers: ogHeaders });
+          const rows = await r.json();
+          v = Array.isArray(rows) && rows[0];
+        }
         if (v) {
           const nm = stripHtml(v.title || 'וידאו').trim();
           title = `${nm || 'וידאו'} · ${SITE_NAME}`;
@@ -495,15 +506,15 @@ export default async function handler(req, res) {
           image = waSafeImage(safeVideoThumb(v.thumb_url, safeVideoThumb(v.poster_url, DEFAULT_IMAGE)));
           type = 'video.other';
           robots = v.google_indexable === true ? 'index, follow' : 'noindex, follow';
-          canonical = `${SITE}/video/${assetId}`;
+          canonical = v.redirectHref ? `${SITE}${v.redirectHref}` : `${SITE}/video/${assetId}`;
           videoCanonical = canonical;
-          orgeulaVid = {
+          orgeulaVid = v.media_url ? {
             contentUrl: v.media_url,
             thumb: image,
             name: nm || 'וידאו',
             desc,
             uploadDate: v.first_seen_at || v.last_seen_at,
-          };
+          } : null;
         } else {
           if (productionReading) documentStatus = 404;
           robots = 'noindex, follow';
