@@ -6,7 +6,7 @@ const round=x=>Number.isFinite(x)?Math.round(x*10000)/10000:null;
 function stats(xs){xs=xs.filter(Number.isFinite);return xs.length?{n:xs.length,median:round(median(xs)/1000),min:round(Math.min(...xs)/1000),max:round(Math.max(...xs)/1000)}:null;}
 function ready(t,key,start=0){return t.snapshot?.readiness?.find(r=>r.time>=start&&(key==='primary'?r.primary==='ready':r[key]))?.time;}
 const output={conditions:{browser:'genuine headed Chromium; Xorg dummy; unchanged User-Agent',viewportHeight:900,mobile:{width:390,cpu:4,rttMs:150,downloadBps:200000,uploadBps:100000},desktop:{width:1440,throttled:false},liveWrites:'independent deny-only guard; automatic server access logging not suppressed'},runs:{}};
-for(const [kind,dir] of Object.entries({legacy:'headed-legacy',baseline:'headed-baseline',candidate:'headed-candidate-4798'})){
+for(const [kind,dir] of Object.entries({legacy:'headed-legacy',baseline:'headed-baseline',candidate:process.argv[3]||'headed-candidate-4798'})){
  const r=JSON.parse(fs.readFileSync(`${root}/${dir}/results.json`,'utf8'));
  output.runs[kind]={sha:r.sha,origin:r.origin,browserMode:r.browserMode,trials:r.trials.length,failed:r.trials.filter(x=>!x.ok).length,maxCls:Math.max(...r.trials.map(x=>x.documentCls||0)),controllerObserved:[...new Set(r.trials.map(x=>x.snapshot?.controller))],groups:[]};
  for(const width of [...new Set(r.trials.map(x=>x.width))])for(const state of ['fresh','warm']){

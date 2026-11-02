@@ -233,3 +233,14 @@ Focused actual-public-data acceptance on4798:
 `native-4798-manifest.json` pins every included file. Private configs/profiles are
 excluded; rawJSON scan found no JWT or share-token value. All browser processes
 closed before root resumed work; isolated display remains for final candidate.
+
+## Follow-up1195: completed navigation with a real stability failure
+
+See [candidate1195 report](candidate-1195-report.md), matched
+[summary](headed-summary-1195.json), and retained
+[artifact manifest](native-1195-manifest.json). The12 visits completed, but one
+desktop Home→Post transition reachedCLS0.30972 and was not accepted. A genuine
+Post response delayed800ms reproduced it; a separately labeled stable-gutter
+experiment reduced it below0.1. Original failures are retained. No production
+source was changed by this evidence lane. Root is integrating the narrow fix
+and image-error fallback; final acceptance is still pending.
