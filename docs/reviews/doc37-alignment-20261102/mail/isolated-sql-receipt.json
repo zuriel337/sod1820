@@ -1,0 +1,29 @@
+{
+  "environment": "isolated in-memory PGlite PostgreSQL; synthetic data only",
+  "package": "@electric-sql/pglite@0.5.14",
+  "version": "PostgreSQL 18.6 (PGlite 0.5.14) on wasm32-unknown-emscripten, compiled by emcc (Emscripten gcc/clang-like replacement + linker emulating GNU ld) 6.0.5 (1db513782be24469589d7cb8a1f1834e9a33f271), 32-bit",
+  "checks": [
+    "clean: twice-applied proposal preserves all existing subscriber fields",
+    "clean: idempotent constraint",
+    "clean: anon legacy insert allowed; opening envelope and update denied by actual SQL roles/RLS",
+    "clean: authenticated legacy insert allowed; opening envelope and update denied by actual SQL roles/RLS",
+    "clean: existing server role inserts opening-only; general selector excludes",
+    "clean: missing opening consent time denied",
+    "clean: unchanged global unsubscribe removes opening recipients",
+    "clean: transaction rollback preserves consent and existing rows",
+    "existing: twice-applied proposal preserves all existing subscriber fields",
+    "existing: idempotent constraint",
+    "existing: legacy purpose semantics preserved; no opening consent invented",
+    "existing: anon legacy insert allowed; opening envelope and update denied by actual SQL roles/RLS",
+    "existing: authenticated legacy insert allowed; opening envelope and update denied by actual SQL roles/RLS",
+    "existing: existing server role inserts opening-only; general selector excludes",
+    "existing: missing opening consent time denied",
+    "existing: unchanged global unsubscribe removes opening recipients",
+    "existing: transaction rollback preserves consent and existing rows"
+  ],
+  "passed": 17,
+  "failed": 0,
+  "liveDatabaseTouched": false,
+  "emailSent": false,
+  "productionAcceptance": false
+}

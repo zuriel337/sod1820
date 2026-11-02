@@ -1,0 +1,50 @@
+[
+  {
+    "function": "newsletter-signup",
+    "saved_source_sha256": "1ad070a0bbb8d39c06782fac1542328f6b5d52de1593ea530c7f09465b77968c",
+    "base_equal_ignoring_trailing_newline": false,
+    "base_source_sha256": "2e24e249212325e1ae0873f40aa0caed8c22b476993107d59198dfb1172b50d0",
+    "differences": "comments/formatting; newsletter-signup base also retains existing HTML error sanitization",
+    "source_artifact_normalization": "trailing newlines normalized; deployment bundle hash preserved separately"
+  },
+  {
+    "function": "newsletter-unsubscribe",
+    "saved_source_sha256": "13101bb6374057625d05414d216af2eab173c7fb4ad45d39f6f075578bc1d2c4",
+    "base_equal_ignoring_trailing_newline": true,
+    "base_source_sha256": "13101bb6374057625d05414d216af2eab173c7fb4ad45d39f6f075578bc1d2c4",
+    "differences": "none except EOF",
+    "source_artifact_normalization": "trailing newlines normalized; deployment bundle hash preserved separately"
+  },
+  {
+    "function": "nl-track",
+    "saved_source_sha256": "4a4bb3d12ac7bb37ee34d00a501a3415fbf55b9fb9b1b7ee666386208f06805f",
+    "base_equal_ignoring_trailing_newline": false,
+    "base_source_sha256": "00c656a64da7c1e1077187328b2a763c095645b057e09dc57601a2d9c8bb4e2e",
+    "differences": "comments/formatting; newsletter-signup base also retains existing HTML error sanitization",
+    "source_artifact_normalization": "trailing newlines normalized; deployment bundle hash preserved separately"
+  },
+  {
+    "function": "send-newsletter",
+    "saved_source_sha256": "5f63bde811163e36c16d7fb88b61630e6b3f86e8a74b484d76da0ad677840454",
+    "base_equal_ignoring_trailing_newline": true,
+    "base_source_sha256": "c27540535e6a5b380c0c8bd8529323b2e24bd2bcfbe3be50b3c5d89103b0c50b",
+    "differences": "none except EOF",
+    "source_artifact_normalization": "trailing newlines normalized; deployment bundle hash preserved separately"
+  },
+  {
+    "function": "send-reengage",
+    "saved_source_sha256": "136c0cad23ee0ab4c98bd8a54f8872c9f3b4573f6e4e38e676c9798bdd82c7b1",
+    "base_equal_ignoring_trailing_newline": false,
+    "base_source_sha256": "e611666faa67e0c49c5022bede2d9a3ba05cf6e98fda180784a0e0a3a18f3079",
+    "differences": "comments/formatting; newsletter-signup base also retains existing HTML error sanitization",
+    "source_artifact_normalization": "trailing newlines normalized; deployment bundle hash preserved separately"
+  },
+  {
+    "function": "welcome-backfill",
+    "saved_source_sha256": "fdbcaf03a9f2df86f2791426642e4e1ec6de5da67a49fd5d0f117904f7421d26",
+    "base_equal_ignoring_trailing_newline": false,
+    "base_source_sha256": "5be81c8c3ee5203153c3154eb63618b14e3bfda08e204e0804266572a56f6f20",
+    "differences": "comments/formatting; newsletter-signup base also retains existing HTML error sanitization",
+    "source_artifact_normalization": "trailing newlines normalized; deployment bundle hash preserved separately"
+  }
+]

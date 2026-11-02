@@ -96,7 +96,8 @@ Deno.serve(async (req) => {
     const dryRun = !!body.dry_run;
     if (!source || !campaign) return json({ error: "missing_source_or_campaign" }, 400);
 
-    const { data: subs } = await admin.from("subscribers").select("email,source").eq("source", source);
+    const { data: subs, error: subscriberError } = await admin.from("subscribers").select("email,source").eq("source", source).contains("email_purposes", ["general"]);
+    if (subscriberError) return json({ error: "subscriber_read_failed" }, 503);
     const all = (subs || []).filter((s: { email: string }) => s.email);
     const { data: done } = await admin.from("newsletter_sends").select("email").eq("campaign", campaign).not("sent_at", "is", null);
     const doneSet = new Set((done || []).map((d: { email: string }) => (d.email || "").toLowerCase()));

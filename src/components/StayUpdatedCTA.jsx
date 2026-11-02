@@ -5,7 +5,6 @@ import { chromeColors } from "../lib/chromeTheme.js";
 import { usePalette } from "../lib/palette.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { subscribeEmail, SUPABASE_URL } from "../lib/supabase.js";
-import { signupAttribution } from "../lib/acquisition.js";
 import { submitNewsletterSignup } from "../lib/newsletterSignup.js";
 import { trackSubscribe, trackConversion } from "../lib/marketing.js";
 import { PUSH_CONFIGURED, pushSupported, enablePush } from "../lib/push.js";
@@ -26,24 +25,25 @@ export function NewsletterSignup2029() {
     const controller = new AbortController();
     pending.current = controller; setState("loading");
     try {
-      const result = await submitNewsletterSignup({ email, consent, acquisition: signupAttribution() }, {
+      const result = await submitNewsletterSignup({ email, consent, purpose: "site-openings" }, {
         endpoint: `${SUPABASE_URL}/functions/v1/newsletter-signup`, signal: controller.signal,
       });
       if (!controller.signal.aborted) setState(result.status);
-    } catch { if (!controller.signal.aborted) setState("error"); }
+    } catch (error) { if (!controller.signal.aborted) setState(error?.message === "newsletter-verification-required" ? "verification-required" : error?.message === "newsletter-purpose-unavailable" ? "unavailable" : "error"); }
     finally { if (pending.current === controller) pending.current = null; }
   }
-  if (PUBLIC_LAUNCH_READ_ONLY_PREVIEW) return <section className="sod29-section sod29-auth-card"><p>הרשמה לעדכונים תיפתח בהמשך. התוכן הציבורי זמין לקריאה.</p></section>;
-  return <section className="sod29-section sod29-auth-card" aria-label="הרשמה לעדכוני דואר אלקטרוני">
-    <h2>הרמז הבא, אצלכם במייל</h2>
-    <p>עדכונים מהאתר לפי בחירתכם. ההרשמה אינה יוצרת חשבון ואינה מפרסמת דבר.</p>
-    {state === "new" ? <p role="status">ההרשמה נקלטה. אפשר להסיר את ההרשמה בקישור שבתחתית כל מייל.</p> : <form onSubmit={submit} className="sod29-actions" aria-busy={state === "loading"}>
+  return <section className="sod29-section sod29-opening-updates" aria-label="עדכוני פתיחת חלקים">
+    <h2>רוצים לדעת כשנפתחים חלקים חדשים?</h2>
+    <p>עדכוני פתיחה בלבד, ללא הצטרפות לדיוור כללי או לסדרות. אפשר להסיר בכל עת.</p>
+    {PUBLIC_LAUNCH_READ_ONLY_PREVIEW ? <p role="status">ההרשמה לעדכוני פתיחה עדיין אינה פעילה. בינתיים אפשר לעקוב במפת החלקים.</p> : state === "new" || state === "exists" ? <p role="status">ההרשמה לעדכוני פתיחת חלקים נשמרה. קישור להסרה יופיע בכל מייל.</p> : <form onSubmit={submit} className="sod29-actions" aria-busy={state === "loading"}>
       <label>כתובת דוא״ל <input type="email" autoComplete="email" dir="ltr" required maxLength={120} value={email} onChange={e => setEmail(e.target.value)} disabled={state === "loading"} /></label>
-      <label><input type="checkbox" checked={consent} onChange={e => setConsent(e.target.checked)} disabled={state === "loading"} style={{ width: "auto", minHeight: "auto", accentColor: "var(--s29-accent)" }} /> אני רוצה לקבל עדכונים בדוא״ל. אפשר להסיר בכל עת.</label>
-      <button type="submit" className="sod29-action" disabled={!consent || state === "loading"}>{state === "loading" ? "רושמים…" : "הרשמה לעדכונים"}</button>
+      <label><input type="checkbox" checked={consent} onChange={e => setConsent(e.target.checked)} disabled={state === "loading"} style={{ width: "auto", minHeight: "auto", accentColor: "var(--s29-accent)" }} /> אני רוצה לקבל במייל עדכוני פתיחת חלקים בלבד.</label>
+      <button type="submit" className="sod29-action" disabled={!consent || state === "loading"}>{state === "loading" ? "רושמים…" : "עדכנו אותי כשנפתח"}</button>
     </form>}
-    {state === "exists" ? <p role="status">הכתובת כבר קיימת במערכת. אם הסרתם בעבר את ההרשמה, הבקשה הזו לא חידשה אותה; אפשר לפנות אלינו דרך דף הפרטיות.</p> : null}
+    {state === "verification-required" ? <p role="alert">הבקשה לא שינתה הרשמה קיימת או הסרה קודמת. נדרש אימות בעלות על הכתובת לפני שינוי העדפות.</p> : null}
+    {state === "unavailable" ? <p role="alert">הרשמה ייעודית לעדכוני פתיחה עדיין אינה זמינה. הכתובת לא נשלחה להרשמה כללית.</p> : null}
     {state === "error" ? <p role="alert">ההרשמה לא הושלמה. אפשר לבדוק את הכתובת ולנסות שוב.</p> : null}
+    <a href="/privacy">פרטיות והסרה מהדיוור</a>
   </section>;
 }
 
