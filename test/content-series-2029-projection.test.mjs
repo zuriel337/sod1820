@@ -35,6 +35,7 @@ test("approved content map keeps series distinct from topic and channel identiti
     "mah-kore-habora",
     "dimension-five",
     "sod-hashmal",
+    "messages-from-righteous",
   ]);
   assert.equal(CONTENT_SERIES_2029.some((spec) => spec.key === "cipher"), false);
   assert.equal(CONTENT_SERIES_2029.some((spec) => spec.key === "or-geula"), false);

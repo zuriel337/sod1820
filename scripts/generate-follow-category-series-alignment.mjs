@@ -3,6 +3,13 @@ import { createHash } from "node:crypto";
 import { fileURLToPath } from "node:url";
 import { CONTENT_SERIES_2029 } from "../src/lib/research/contentSeries2029Identity.js";
 
+// This generator reproduces the already reviewed release, not every future
+// reading identity. Preserve its SQL/preimage hashes until a new Follow release
+// is independently reviewed. The existing manifest is the release input.
+const release = JSON.parse(readFileSync(new URL("../docs/reviews/follow-series-release-20261031/manifest.json", import.meta.url), "utf8"));
+export const REVIEWED_FOLLOW_SERIES = CONTENT_SERIES_2029.filter(spec => release.series.includes(spec.key));
+if (REVIEWED_FOLLOW_SERIES.length !== release.series.length) throw new Error("Reviewed Follow identity is missing; preserve/reconcile the release before generating");
+
 // A reproducible SQL build artifact of the same exact compatibility descriptors.
 // Never connects to a database. Applying the migration is a separate release gate.
 export const migrationPath = "supabase/migrations/20261026012207_follow_category_series_alignment_v1.sql";
@@ -16,9 +23,9 @@ export function generatedMigration() {
   const topic = preimages.canonical_follow_topic.replace("return 'cat:' || v_label;",
     "return 'cat:' || case when v_label = 'רמזי הגאולה' then 'רמזים חזקים' else v_label end;");
   const aliases = preimages.follow_topic_aliases.replace("'category:' || v_straight\n", "'category:' || v_straight,\n        case when v_label = 'רמזים חזקים' then 'cat:רמזי הגאולה' end,\n        case when v_label = 'רמזים חזקים' then 'category:רמזי הגאולה' end\n");
-  const keys = CONTENT_SERIES_2029.map(spec => quote(spec.key)).join(", ");
+  const keys = REVIEWED_FOLLOW_SERIES.map(spec => quote(spec.key)).join(", ");
   const subject = preimages.canonical_follow_subject.replace("    when 'cipher_feed'", `    when 'series'         then case when v_id in (${keys}) then 'series:' || v_id else '' end\n    when 'cipher_feed'`);
-  const matches = CONTENT_SERIES_2029.map(spec => {
+  const matches = REVIEWED_FOLLOW_SERIES.map(spec => {
     const membership = spec.membership.map(({ field, value }) => `${quote(value)} = any(coalesce(p_${field}, '{}'::text[]))`).join(" or ");
     const author = spec.exactAuthor ? ` and coalesce(p_author, '') = ${quote(spec.exactAuthor)}` : "";
     return `    (${quote(spec.key)}, (${membership})${author})`;

@@ -1,6 +1,7 @@
 import { stripHtml } from "../format.js";
 import { getPublicResearchClient } from "./researchViewMode.js";
 import { hasSuppressedPublicPostTag, publicPostOnlyFilter } from "./publicPostBoundary.js";
+import { publicPostHref } from "../publicPostUrls.js";
 
 const clean = (value) => value == null ? "" : String(value).trim();
 
@@ -15,6 +16,7 @@ function isSuppressedPost(row) {
 export function projectContentSeriesItems(rows = [], spec = {}) {
   const items = [];
   const excluded = [];
+  const seen = new Set();
   for (const row of Array.isArray(rows) ? rows : []) {
     if (!hasExactMembership(row, spec)) {
       excluded.push({ id: row?.id == null ? null : String(row.id), reason: "membership_not_exact" });
@@ -34,6 +36,8 @@ export function projectContentSeriesItems(rows = [], spec = {}) {
       excluded.push({ id: row?.id == null ? null : String(row.id), reason: !slug ? "no_slug" : "no_title" });
       continue;
     }
+    if (seen.has(String(row.id))) continue;
+    seen.add(String(row.id));
     items.push({
       id: String(row.id),
       slug,
@@ -43,10 +47,12 @@ export function projectContentSeriesItems(rows = [], spec = {}) {
       imageUrl: clean(row?.thumb_url || row?.image_url) || null,
       publishedAt: row?.date || null,
       updatedAt: row?.modified || row?.date || null,
-      href: `/post/${encodeURIComponent(slug)}`,
+      href: publicPostHref(row),
+      sourceRef: `posts:${row.id}`,
+      kind: "post",
     });
   }
-  return { items, excluded };
+  return { items: items.sort((a, b) => (Date.parse(b.publishedAt) || 0) - (Date.parse(a.publishedAt) || 0)), excluded };
 }
 
 export function buildContentSeriesCatalog2029(results = [], { homeOnly = false } = {}) {
@@ -69,6 +75,7 @@ export function buildContentSeriesCatalog2029(results = [], { homeOnly = false }
       total,
       items: projected.items,
       excluded: projected.excluded,
+      readState: !byKey.has(spec.key) ? "not_loaded" : result.failed ? "failed" : projected.items.length ? "measured" : "measured_empty",
     };
   });
   return {
@@ -78,18 +85,19 @@ export function buildContentSeriesCatalog2029(results = [], { homeOnly = false }
   };
 }
 
-async function fetchSeriesPreview(spec, { client, limit, homeOnly }) {
+async function fetchSeriesPreview(spec, { client, limit, homeOnly, signal }) {
   const filter = contentSeriesMembershipFilter(spec);
-  if (!client || !filter) return { key: spec.key, rows: [], total: null };
+  if (!client || !filter) return { key: spec.key, rows: [], total: null, failed: true };
   let query = client
     .from("posts")
-    .select("id,slug,title,excerpt,author,categories,tags,image_url,thumb_url,date,modified,home_hidden", { count: "exact" })
+    .select("id,slug,title,excerpt,author,categories,tags,image_url,thumb_url,date,modified,home_hidden,source,link,wp_id", { count: "exact" })
     .or(filter)
     .or(publicPostOnlyFilter());
   if (spec.exactAuthor) query = query.eq("author", spec.exactAuthor);
   if (homeOnly) query = query.eq("home_hidden", false);
+  if (signal) query = query.abortSignal(signal);
   const { data, error, count } = await query
-    .order("modified", { ascending: false, nullsFirst: false })
+    .order("date", { ascending: false, nullsFirst: false })
     .order("id", { ascending: true })
     .limit(limit);
   if (error) throw error;
@@ -104,10 +112,14 @@ export async function fetchContentSeriesCatalog2029({
   client = getPublicResearchClient(),
   limitPerSeries = 4,
   homeOnly = false,
+  signal,
 } = {}) {
   const limit = Math.max(1, Math.min(Number(limitPerSeries) || 4, 12));
   const results = await Promise.all(CONTENT_SERIES_2029.map((spec) => (
-    fetchSeriesPreview(spec, { client, limit, homeOnly })
+    fetchSeriesPreview(spec, { client, limit, homeOnly, signal }).catch(error => {
+      if (signal?.aborted) throw error;
+      return { key: spec.key, rows: [], total: null, failed: true };
+    })
   )));
   return buildContentSeriesCatalog2029(results, { homeOnly });
 }

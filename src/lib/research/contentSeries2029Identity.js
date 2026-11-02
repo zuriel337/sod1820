@@ -45,6 +45,20 @@ export const CONTENT_SERIES_2029 = Object.freeze([
     exactAuthor: null,
     relationNote: "מקור/מפרסם וסדרת פרסומים הם שני תפקידים מקושרים. חברות בסדרה אינה ממציאה מחבר לפריט.",
   }),
+  Object.freeze({
+    key: "messages-from-righteous",
+    label: "מסרים מצדיקים",
+    decisionId: "CONTENT-AUDIENCES-HYBRID-NOW-20261102/SERIES-01",
+    writerLabel: null,
+    publisherLabel: null,
+    priorityLane: "second_ring",
+    membership: Object.freeze([
+      Object.freeze({ field: "categories", value: "מסרים מצדיקים" }),
+      Object.freeze({ field: "categories", value: "רמזים מצדיקים" }),
+    ]),
+    exactAuthor: null,
+    relationNote: "סדרה משותפת. אור הגאולה נשאר מקור; עדכונים ממנו מצטרפים רק לאחר אישור ושיוך לפריט, לא מכוח שם הערוץ.",
+  }),
 ]);
 
 function postgrestValue(value) {

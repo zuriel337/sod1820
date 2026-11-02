@@ -44,7 +44,7 @@ function mergeLatestPublicWords(...groups) {
     .slice(0, PULSE_LATEST_LIMIT);
 }
 
-async function fetchHomeSystemPulse2029() {
+async function fetchHomeSystemPulse2029({ signal } = {}) {
   const since = new Date(Date.now() - PULSE_WINDOW_DAYS * 86400000).toISOString();
 
   const [
@@ -73,7 +73,7 @@ async function fetchHomeSystemPulse2029() {
       .gte("created_at", since)
       .order("created_at", { ascending: false })
       .limit(1000),
-  ]);
+  ].map(query => signal ? query.abortSignal(signal) : query));
 
   const hasCorpusError = [totalResult, createdResult, visibilityResult, overlapResult]
     .some((result) => Boolean(result?.error));
@@ -348,15 +348,17 @@ async function fetchTemporalTreasures(catalog) {
   return out.slice(0, 3);
 }
 
-export async function fetchHome2029Projection({ includeWorld = true, includeTemporal = true } = {}) {
-  const pulsePromise = fetchHomeSystemPulse2029().catch(() => null);
+export async function fetchHome2029Projection({ includeWorld = true, includeTemporal = true, includePulse = true, signal } = {}) {
+  const pulsePromise = includePulse ? fetchHomeSystemPulse2029({ signal }).catch(() => null) : Promise.resolve(null);
   const worldPreviewPromise = includeWorld ? fetchHomeWorldPreview2029().catch(() => null) : Promise.resolve(null);
   if (!includeTemporal) return { temporalNow: null, systemPulse: await pulsePromise, worldPreview: await worldPreviewPromise };
   const temporalContext = getCurrentTemporalContext();
   const value = Number(temporalContext?.hebrew?.year_value);
   if (!Number.isSafeInteger(value)) return { temporalNow: null, systemPulse: await pulsePromise, worldPreview: await worldPreviewPromise };
 
+  if (signal?.aborted) throw new DOMException("Home summary canceled", "AbortError");
   const yearVerification = await verifyCurrentYear(temporalContext);
+  if (signal?.aborted) throw new DOMException("Home summary canceled", "AbortError");
   if (!yearVerification.verified) return { temporalNow: null, systemPulse: await pulsePromise, worldPreview: await worldPreviewPromise };
 
   const curationCatalog = await fetchCurationCatalog2029().catch(() => null);

@@ -327,25 +327,28 @@ function HomeBody({ primaryReader = null } = {}) {
   const [query, setQuery] = useState("");
   const [homeState, setHomeState] = useState({ loading: true, projection: null });
   const [worldRequested, setWorldRequested] = useState(false);
+  const [summaryRequested, setSummaryRequested] = useState(false);
   const [homeWorldState, setHomeWorldState] = useState({ loading: true, projection: null });
   const context = research.context || null;
 
   useEffect(() => {
+    if (HOME_COMPOSED && !summaryRequested) return undefined;
     let live = true;
-    fetchHome2029Projection({ includeWorld: !CORE_PUBLIC_LAUNCH_2029 && !HOME_COMPOSED, includeTemporal: !CORE_PUBLIC_LAUNCH_2029 })
+    const controller = new AbortController();
+    fetchHome2029Projection({ signal: controller.signal, includePulse: true, includeWorld: !CORE_PUBLIC_LAUNCH_2029 && !HOME_COMPOSED, includeTemporal: !CORE_PUBLIC_LAUNCH_2029 })
       .then((projection) => { if (live) setHomeState({ loading: false, projection }); })
       .catch(() => { if (live) setHomeState({ loading: false, projection: null }); });
-    return () => { live = false; };
-  }, []);
+    return () => { live = false; controller.abort(); };
+  }, [summaryRequested]);
 
   useEffect(() => {
-    if (!HOME_COMPOSED || CORE_PUBLIC_LAUNCH_2029 || !worldRequested) return undefined;
+    if (!HOME_COMPOSED || CORE_PUBLIC_LAUNCH_2029 || !worldOpen || !worldRequested) return undefined;
     let live = true;
     fetchHomeWorldPreview2029()
       .then(projection => { if (live) setHomeWorldState({ loading: false, projection }); })
       .catch(() => { if (live) setHomeWorldState({ loading: false, projection: null }); });
     return () => { live = false; };
-  }, [worldRequested]);
+  }, [worldRequested, worldOpen]);
 
   const start = (e) => {
     e?.preventDefault?.();
@@ -487,6 +490,7 @@ function HomeBody({ primaryReader = null } = {}) {
     primaryReader={primaryReader}
     projection={{ ...homeState.projection, worldPreview }}
     onWorldApproach={setWorldRequested}
+    onSummaryApproach={setSummaryRequested}
     onNavigate={() => research.updateResearchContext?.({ returnTo: {
       href: location.pathname + location.search + location.hash, label: "דף הבית",
       subject: context?.subject || null, selection: context?.selection || null,

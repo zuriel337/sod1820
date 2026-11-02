@@ -4,6 +4,7 @@ import {readFileSync} from 'node:fs';
 import {createHash} from 'node:crypto';
 import {generatedMigration,migrationPath} from '../scripts/generate-follow-content-series-only.mjs';
 import {CONTENT_SERIES_2029} from '../src/lib/research/contentSeries2029Identity.js';
+import {REVIEWED_FOLLOW_SERIES} from '../scripts/generate-follow-category-series-alignment.mjs';
 const read=path=>readFileSync(new URL('../'+path,import.meta.url),'utf8');
 const sha=text=>createHash('sha256').update(text).digest('hex');
 const manifest=JSON.parse(read('docs/reviews/follow-series-release-20261031/manifest.json'));
@@ -12,7 +13,11 @@ const candidate=read(migrationPath),rollback=read(manifest.rollback_path);
 test('exact reviewed artifacts match the shared descriptor build and release hashes',()=>{
   assert.equal(candidate,generatedMigration());assert.equal(manifest.candidate_path,migrationPath);
   assert.equal(sha(candidate),manifest.candidate_sha256);assert.equal(sha(rollback),manifest.rollback_sha256);
-  assert.deepEqual([...CONTENT_SERIES_2029.map(item=>item.key)].sort(),[...manifest.series].sort());
+  assert.deepEqual([...REVIEWED_FOLLOW_SERIES.map(item=>item.key)].sort(),[...manifest.series].sort());
+  assert.ok(REVIEWED_FOLLOW_SERIES.every(item=>CONTENT_SERIES_2029.includes(item)), 'release retains the exact shared identities');
+  const pending=CONTENT_SERIES_2029.filter(item=>!manifest.series.includes(item.key));
+  assert.deepEqual(pending.map(item=>item.key), ['messages-from-righteous']);
+  assert.ok(pending.every(item=>!candidate.includes(item.key)), 'new reading identity must not activate historical Follow SQL');
 });
 test('series release preserves Legacy category normalization and existing authorization primitives',()=>{
   assert.equal(manifest.preserve_legacy_category_functions,true);

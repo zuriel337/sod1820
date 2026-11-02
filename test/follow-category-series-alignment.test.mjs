@@ -26,7 +26,9 @@ test("approved category rename recognizes both stored namespaces, without wideni
 });
 
 test("series membership is exact and keeps author, publisher and topic separate", () => {
-  assert.equal(CONTENT_SERIES_2029.length, 3);
+  assert.equal(CONTENT_SERIES_2029.length, 4);
+  assert.deepEqual(contentSeriesKeysForPost(post({ categories: ["רמזים מצדיקים"] })), ["messages-from-righteous"]);
+  assert.deepEqual(contentSeriesKeysForPost(post({ categories: ["אור הגאולה"] })), [], "a source channel is not blanket series membership");
   assert.deepEqual(contentSeriesKeysForPost(post({ author: "אלון לוי", tags: ["מה קורה הבורא"] })), ["mah-kore-habora"]);
   assert.deepEqual(contentSeriesKeysForPost(post({ author: "אלון לוי", title: "מה קורה הבורא" })), []);
   assert.deepEqual(contentSeriesKeysForPost(post({ author: null, categories: ["מימד חמש", "הצופן בסרטים"] })), []);
