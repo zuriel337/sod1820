@@ -1,0 +1,252 @@
+{
+  "sourceSha": "c8e05790fe68c8f548e22a7c02e5094ddc5b8755",
+  "observedAt": "2026-11-02T20:01:50Z",
+  "deploymentId": "dpl_BN3p9bEC4mGuUSoMC4BqXfy2PiCy",
+  "origin": "https://sod1820-edca56j3h-sod1820-s-projects.vercel.app",
+  "sourceDirty": true,
+  "applicationSourceDirty": false,
+  "protectedReview": {
+    "schema": 1,
+    "mode": "protected-preview-review",
+    "target": "preview",
+    "sourceSha": "c8e05790fe68c8f548e22a7c02e5094ddc5b8755",
+    "branch": "gpt/2029-doc37-unified-alignment-20261102",
+    "projectId": "prj_43q7k7QFAcWnin1tcBjce5xOi7Cq",
+    "deploymentId": "dpl_BN3p9bEC4mGuUSoMC4BqXfy2PiCy",
+    "host": "sod1820-edca56j3h-sod1820-s-projects.vercel.app",
+    "productionAuthorized": false,
+    "indexingAuthorized": false
+  },
+  "platformConfigMaterialization": {
+    "kind": "vercel-selected-nested-config-at-root",
+    "sourceSha": "c8e05790fe68c8f548e22a7c02e5094ddc5b8755",
+    "committedPath": "public-reading-deploy/vercel.json",
+    "materializedPath": "vercel.json",
+    "trackedStatus": " M vercel.json",
+    "completeJsonEquivalent": true,
+    "arrayOrderPreserved": true,
+    "committedMode": "100644",
+    "materializedMode": "100644",
+    "gitRawDiff": ":100644 100644 9cfd3bf5b1f7449dc43a5d6bf51d72a1a1ffe614 0000000000000000000000000000000000000000 M\u0000vercel.json\u0000",
+    "committedConfigSha256": "bd4688e33c12649a12b5eacb561e87b9a99df49399512fdf7921fdb250726533",
+    "materializedConfigSha256": "3e915e6925a7b8e6ec5b444d0125500524b9b2c9f2d10757f4263a2df77a092e"
+  },
+  "policy": "public-reading-production-20261102",
+  "workerSha256": "abbbdc3b97b473fcafe0d47083eff2d0c58b4e74e9df58b04ca7dc36b9a44baa",
+  "legacyRollbackWorkerSha256": "6f5a514678d95230332ba2d92c35e6581ee592123833f206142a003e45e5cbd0",
+  "productionReady": false,
+  "observations": [
+    {
+      "path": "/",
+      "status": 200,
+      "headers": {
+        "content-type": "text/html; charset=utf-8",
+        "cache-control": "no-store",
+        "x-robots-tag": "noindex, nofollow, noarchive",
+        "service-worker-allowed": null,
+        "referrer-policy": "strict-origin-when-cross-origin"
+      },
+      "textLength": 10922,
+      "canonical": "https://sod1820.co.il",
+      "title": "כי לה' המלוכה — סוד 1820 · לגלות את המציאות בשפת המספרים"
+    },
+    {
+      "path": "/robots.txt",
+      "status": 200,
+      "headers": {
+        "content-type": "text/plain; charset=utf-8",
+        "cache-control": "no-store",
+        "x-robots-tag": "noindex, nofollow, noarchive",
+        "service-worker-allowed": null,
+        "referrer-policy": "strict-origin-when-cross-origin"
+      },
+      "textLength": 26,
+      "canonical": null,
+      "title": null
+    },
+    {
+      "path": "/sitemap.xml",
+      "status": 200,
+      "headers": {
+        "content-type": "application/xml; charset=utf-8",
+        "cache-control": "no-store",
+        "x-robots-tag": "noindex, nofollow, noarchive",
+        "service-worker-allowed": null,
+        "referrer-policy": "strict-origin-when-cross-origin"
+      },
+      "textLength": 3762570,
+      "canonical": null,
+      "title": null
+    },
+    {
+      "path": "/.generated/2029.html",
+      "status": 404,
+      "headers": {
+        "content-type": "text/html; charset=utf-8",
+        "cache-control": "no-store",
+        "x-robots-tag": "noindex, nofollow, noarchive",
+        "service-worker-allowed": null,
+        "referrer-policy": "strict-origin-when-cross-origin"
+      },
+      "textLength": 10520,
+      "canonical": "https://sod1820.co.il/.generated/2029.html",
+      "title": "העמוד לא נמצא · SOD1820"
+    },
+    {
+      "path": "/.generated/protected-review-build.js",
+      "status": 404,
+      "headers": {
+        "content-type": "text/html; charset=utf-8",
+        "cache-control": "no-store",
+        "x-robots-tag": "noindex, nofollow, noarchive",
+        "service-worker-allowed": null,
+        "referrer-policy": "strict-origin-when-cross-origin"
+      },
+      "textLength": 10389,
+      "canonical": "https://sod1820.co.il/.generated/protected-review-build.js",
+      "title": "העמוד לא נמצא · SOD1820"
+    },
+    {
+      "path": "/index.html",
+      "status": 404,
+      "headers": {
+        "content-type": "text/html; charset=utf-8",
+        "cache-control": "no-store",
+        "x-robots-tag": "noindex, nofollow, noarchive",
+        "service-worker-allowed": null,
+        "referrer-policy": "strict-origin-when-cross-origin"
+      },
+      "textLength": 10545,
+      "canonical": "https://sod1820.co.il/index.html",
+      "title": "הפוסט לא נמצא · SOD1820"
+    },
+    {
+      "path": "/privacy",
+      "status": 200,
+      "headers": {
+        "content-type": "text/html; charset=utf-8",
+        "cache-control": "no-store",
+        "x-robots-tag": "noindex, nofollow, noarchive",
+        "service-worker-allowed": null,
+        "referrer-policy": "strict-origin-when-cross-origin"
+      },
+      "textLength": 10400,
+      "canonical": "https://sod1820.co.il/privacy",
+      "title": "מדיניות פרטיות · סוד 1820"
+    },
+    {
+      "path": "/unsubscribe",
+      "status": 200,
+      "headers": {
+        "content-type": "text/html; charset=utf-8",
+        "cache-control": "no-store",
+        "x-robots-tag": "noindex, nofollow, noarchive",
+        "service-worker-allowed": null,
+        "referrer-policy": "no-referrer"
+      },
+      "textLength": 10369,
+      "canonical": "https://sod1820.co.il/unsubscribe",
+      "title": "הסרה מהדיוור · סוד 1820"
+    },
+    {
+      "path": "/acceptance-missing-20261102-9fa2",
+      "status": 404,
+      "headers": {
+        "content-type": "text/html; charset=utf-8",
+        "cache-control": "no-store",
+        "x-robots-tag": "noindex, nofollow, noarchive",
+        "service-worker-allowed": null,
+        "referrer-policy": "strict-origin-when-cross-origin"
+      },
+      "textLength": 10426,
+      "canonical": "https://sod1820.co.il/acceptance-missing-20261102-9fa2",
+      "title": "הפוסט לא נמצא · SOD1820"
+    },
+    {
+      "path": "/post/sprites-lightning-over-france",
+      "status": 200,
+      "headers": {
+        "content-type": "text/html; charset=utf-8",
+        "cache-control": "no-store",
+        "x-robots-tag": "noindex, nofollow, noarchive",
+        "service-worker-allowed": null,
+        "referrer-policy": "strict-origin-when-cross-origin"
+      },
+      "textLength": 11463,
+      "canonical": "https://sod1820.co.il/post/sprites-lightning-over-france",
+      "title": "אוסף סרטונים: שדוני ברקים מעל צרפת — ואתם באים על היהודים, אתם מפסידים · SOD1820"
+    },
+    {
+      "path": "/gematria?calc=%D7%93%D7%95%D7%93",
+      "status": 200,
+      "headers": {
+        "content-type": "text/html; charset=utf-8",
+        "cache-control": "no-store",
+        "x-robots-tag": "noindex, nofollow, noarchive",
+        "service-worker-allowed": null,
+        "referrer-policy": "strict-origin-when-cross-origin"
+      },
+      "textLength": 10891,
+      "canonical": "https://sod1820.co.il/gematria",
+      "title": "מחשבון גימטריה חינם — חשבו כל מילה, שם או ביטוי · SOD1820"
+    },
+    {
+      "path": "/assets/2029-CmgIJgfh.js",
+      "status": 200,
+      "headers": {
+        "content-type": "application/javascript; charset=utf-8",
+        "cache-control": "public, max-age=31536000, immutable",
+        "x-robots-tag": "noindex",
+        "service-worker-allowed": null,
+        "referrer-policy": "strict-origin-when-cross-origin"
+      },
+      "textLength": 268720,
+      "canonical": null,
+      "title": null
+    },
+    {
+      "path": "/sw.js",
+      "status": 200,
+      "headers": {
+        "content-type": "application/javascript; charset=utf-8",
+        "cache-control": "no-store",
+        "x-robots-tag": "noindex",
+        "service-worker-allowed": "/",
+        "referrer-policy": "strict-origin-when-cross-origin"
+      },
+      "textLength": 12690,
+      "canonical": null,
+      "title": null
+    },
+    {
+      "path": "/%d7%90%d7%95%d7%91%d7%90%d7%9e%d7%94-%d7%a0%d7%97%d7%a9-%d7%98%d7%a8%d7%99%d7%99%d7%9c%d7%a8-3-%d7%93%d7%a7%d7%95%d7%aa/?source=legacy&part=2&part=7",
+      "status": 200,
+      "canonical": "https://sod1820.co.il/%d7%90%d7%95%d7%91%d7%90%d7%9e%d7%94-%d7%a0%d7%97%d7%a9-%d7%98%d7%a8%d7%99%d7%99%d7%9c%d7%a8-3-%d7%93%d7%a7%d7%95%d7%aa/",
+      "title": "אובאמה נחש טריילר 3 דקות · SOD1820",
+      "sameOriginRedirectsFollowedByConnector": true
+    },
+    {
+      "path": "/api/card?w=1820",
+      "status": 200,
+      "headers": {
+        "content-type": "image/png",
+        "cache-control": "no-store",
+        "x-robots-tag": "noindex, nofollow, noarchive"
+      },
+      "realPublicRender": true,
+      "productWrites": 0,
+      "modelCalls": 0
+    }
+  ],
+  "sitemap": {
+    "urls": 14689,
+    "uniqueUrls": 14689,
+    "nonCanonical": 0,
+    "closedCanonicalPaths": 0,
+    "indexedByGoogle": "not_measured"
+  },
+  "forwardedProductWrites": 0,
+  "modelCalls": 0,
+  "liveAuthOrMailAcceptance": false,
+  "observationsCompletedBy": "2026-11-02 20:18:30 UTC"
+}

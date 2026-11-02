@@ -1,0 +1,79 @@
+{
+  "sourceSha": "c8e05790fe68c8f548e22a7c02e5094ddc5b8755",
+  "origin": "https://sod1820-edca56j3h-sod1820-s-projects.vercel.app",
+  "productWrites": 0,
+  "checks": [
+    {
+      "path": "/",
+      "method": "HEAD",
+      "status": 200,
+      "headers": {
+        "content-type": "text/html; charset=utf-8",
+        "cache-control": "no-store",
+        "x-robots-tag": "noindex, nofollow, noarchive",
+        "service-worker-allowed": null,
+        "referrer-policy": "strict-origin-when-cross-origin"
+      },
+      "bodyBytes": 0
+    },
+    {
+      "path": "/post/sprites-lightning-over-france",
+      "method": "HEAD",
+      "status": 200,
+      "headers": {
+        "content-type": "text/html; charset=utf-8",
+        "cache-control": "no-store",
+        "x-robots-tag": "noindex, nofollow, noarchive",
+        "service-worker-allowed": null,
+        "referrer-policy": "strict-origin-when-cross-origin"
+      },
+      "bodyBytes": 0
+    },
+    {
+      "path": "/privacy",
+      "method": "HEAD",
+      "status": 200,
+      "headers": {
+        "content-type": "text/html; charset=utf-8",
+        "cache-control": "no-store",
+        "x-robots-tag": "noindex, nofollow, noarchive",
+        "service-worker-allowed": null,
+        "referrer-policy": "strict-origin-when-cross-origin"
+      },
+      "bodyBytes": 0
+    },
+    {
+      "path": "/unsubscribe",
+      "method": "HEAD",
+      "status": 200,
+      "headers": {
+        "content-type": "text/html; charset=utf-8",
+        "cache-control": "no-store",
+        "x-robots-tag": "noindex, nofollow, noarchive",
+        "service-worker-allowed": null,
+        "referrer-policy": "no-referrer"
+      },
+      "bodyBytes": 0
+    },
+    {
+      "path": "/sw.js",
+      "method": "HEAD",
+      "status": 200,
+      "headers": {
+        "content-type": "application/javascript; charset=utf-8",
+        "cache-control": "no-store",
+        "x-robots-tag": "noindex",
+        "service-worker-allowed": "/",
+        "referrer-policy": "strict-origin-when-cross-origin"
+      },
+      "bodyBytes": 0
+    }
+  ],
+  "anonymousStatus": 302,
+  "anonymousRedirect": {
+    "scheme": "https",
+    "host": "vercel.com",
+    "path": "/sso-api"
+  },
+  "ok": true
+}
