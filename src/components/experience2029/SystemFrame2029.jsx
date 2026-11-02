@@ -1109,7 +1109,7 @@ function ResearchStateSections({ research, go, onInspect, onOpenNumber, onOpenSa
 function AccountConnection2029() {
   const location = useLocation();
   return <section className="sod29-workspace-account" data-workspace-section="account" aria-label="חיבור לחשבון">
-    <AccountEntry2029 inline variant="account" returnHref={location.pathname + location.search} />
+    <AccountEntry2029 inline variant="account" returnHref={location.pathname + location.search + location.hash} />
   </section>;
 }
 
