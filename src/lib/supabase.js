@@ -235,22 +235,25 @@ export async function getRealityVideos({ limit = 40 } = {}) {
 }
 
 // 🆕 2 הפוסטים האחרונים (לפי זמן-עדכון) — לרצועת-הגילוי לנוחתים מגוגל. מחזיר slug/כותרת/כרזה/עדכון.
-export async function getLatestPostCards({ limit = 2, excludeSlug = null, includeMetadata = false } = {}) {
+export async function getLatestPostCards({ limit = 2, excludeSlug = null, includeMetadata = false, signal = null, throwOnError = false } = {}) {
   if (!supabase) return [];
   try {
-    const { data, error } = await supabase.from("posts")
+    let query = supabase.from("posts")
       .select("id, slug, title, image_url, thumb_url, date, modified, tags, source, link, wp_id" + (includeMetadata ? ", categories, home_hidden" : ""))
       .not("slug", "is", null)
       .order("modified", { ascending: false, nullsFirst: false })
       .limit(limit + 5);
-    if (error || !data) return [];
+    if (signal) query = query.abortSignal(signal);
+    const { data, error } = await query;
+    if (error) { if (throwOnError) throw error; return []; }
+    if (!data) return [];
     return data
       .filter(p => p.slug && p.slug !== excludeSlug && !(Array.isArray(p.tags) && p.tags.some(tag => ["טיוטה", "פורום"].includes(tag))))
       .slice(0, limit)
       .map(p => ({ id: p.id, slug: p.slug, source: p.source, link: p.link, wp_id: p.wp_id, title: stripHtml(p.title || ""), poster: p.thumb_url || p.image_url || null, modified: p.modified || p.date || null,
         ...(includeMetadata ? { sourcePost: { id: p.id, slug: p.slug, date: p.date, modified: p.modified, tags: p.tags, categories: p.categories, source: p.source, home_hidden: p.home_hidden } } : {}),
       }));
-  } catch { return []; }
+  } catch (error) { if (throwOnError) throw error; return []; }
 }
 
 // 🎬 סטוריז-הסרטונים שלנו — **כל מה שעולה לקטגוריית וידאו** (החומר שלנו: צפנים + מציאות + מספרים,
@@ -542,6 +545,24 @@ export async function getPostBySlug(slug, { throwOnError = false, signal = null 
   if (error) { if (throwOnError) throw error; return null; }
   if (!data?.length) return null;
   return data[0];
+}
+
+// Route-owned primary Home cards overlap the component code download. This
+// preserves one existing bounded reader; no global data/promise cache exists.
+export function beginHomeReadingSource({ readCards = getLatestPostCards } = {}) {
+  const controller = new AbortController();
+  const result = Promise.resolve().then(() => readCards({ limit: 4, includeMetadata: true,
+    throwOnError: true, signal: controller.signal }))
+    .then(data => ({ data }), error => ({ error }));
+  return {
+    async read() {
+      const outcome = await result;
+      if (controller.signal.aborted) throw new DOMException("Home read canceled", "AbortError");
+      if (outcome.error) throw outcome.error;
+      return outcome.data;
+    },
+    cancel() { controller.abort(); },
+  };
 }
 
 // One route-owned read, started while the Post component code downloads. No

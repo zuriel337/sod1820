@@ -1,7 +1,7 @@
 import React, { Suspense, lazy, useEffect, useState } from "react";
 import { BrowserRouter, Navigate, Route, Routes, useLocation, useParams } from "react-router-dom";
 import { AuthProvider, useAuth } from "./lib/AuthContext.jsx";
-import { beginPostReadingSource } from "./lib/supabase.js";
+import { beginPostReadingSource, beginHomeReadingSource } from "./lib/supabase.js";
 import ResearchProvider from "./lib/research/ResearchProvider.jsx";
 import RazielSessionMount2029 from "./components/experience2029/RazielSessionMount2029.jsx";
 import { initGA, trackPageview } from "./lib/analytics.js";
@@ -70,10 +70,22 @@ function WorldEntry2029() {
 // Design review on an existing document route; does not open public Community
 // navigation or require a competing edit to the deployment rewrite configuration.
 function HomeEntry2029() {
-  const { search } = useLocation();
-  return !PUBLIC_READING_RELEASE && new URLSearchParams(search).get("preview") === "community"
-    ? <Community2029Page />
-    : <Home2029Page />;
+  const location = useLocation();
+  const { user, loading } = useAuth();
+  const identity = user?.id || "guest";
+  const [source, setSource] = useState(null);
+  useEffect(() => {
+    if (!PUBLIC_READING_RELEASE || loading) return undefined;
+    const request = beginHomeReadingSource();
+    setSource({ key: location.key, identity, read: request.read });
+    return () => request.cancel();
+  }, [location.key, identity, loading]);
+  if (!PUBLIC_READING_RELEASE) return new URLSearchParams(location.search).get("preview") === "community"
+    ? <Community2029Page /> : <Home2029Page />;
+  // Commit the route-owned read before suspending on Home/Shell component code.
+  // No previous route or identity's promise is ever handed to the composition.
+  if (loading || source?.key !== location.key || source?.identity !== identity) return <Loading2029 />;
+  return <Home2029Page primaryReader={source.read} />;
 }
 // Only a real WordPress ?p= address needs its document identity adapter.
 function PublicHomeEntry2029() {

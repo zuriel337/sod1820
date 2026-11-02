@@ -36,12 +36,12 @@ function titleNumber(title, tags) {
   return null;
 }
 
-function useHomeCompositionData({ includeWorld = true } = {}) {
+function useHomeCompositionData({ includeWorld = true, primaryReader = null } = {}) {
   const [state, setState] = useState({ loading: true, posts: [], ciphers: [], notable: [], notableLoading: includeWorld, notableError: null });
   useEffect(() => {
     let live = true;
     const update = (patch) => { if (live) setState((current) => ({ ...current, ...patch })); };
-    getLatestPostCards({ limit: 4, includeMetadata: true }).then((posts) => {
+    Promise.resolve().then(() => primaryReader ? primaryReader() : getLatestPostCards({ limit: 4, includeMetadata: true })).then((posts) => {
       if (!live) return;
       const cards = Array.isArray(posts) ? posts : [];
       // One admitted public read supplies the cards and their exact source
@@ -59,7 +59,7 @@ function useHomeCompositionData({ includeWorld = true } = {}) {
         .catch(() => update({ notableLoading: false, notableError: "לא ניתן לטעון כרגע את ההתכנסויות. אפשר להמשיך לעולם." }));
     }
     return () => { live = false; };
-  }, [includeWorld]);
+  }, [includeWorld, primaryReader]);
   return state;
 }
 
@@ -104,12 +104,12 @@ function Section({ title, link, label, children, className = "", admissionRef })
 }
 
 export default function HomeComposition2029({
-  projection, loading, nowHero, story, elsEntry, arrivals, calculator, entry, continuity,
+  projection, loading, nowHero, story, elsEntry, arrivals, calculator, entry, continuity, primaryReader = null,
   selectedSlug, onSelectPost, onOpenWorkspace, journeyLocked = false, corePublic = false, worldOpen = false,
   onWorldApproach,
   onNavigate,
 }) {
-  const primary = useHomeCompositionData({ includeWorld: !corePublic });
+  const primary = useHomeCompositionData({ includeWorld: !corePublic, primaryReader });
   // Wait for the primary cards to establish section geometry. A short loading
   // skeleton must not admit distant readers before the real content arrives.
   const [videosRef, videosAdmitted] = useApproach2029(!corePublic && !primary.loading);
