@@ -447,7 +447,7 @@ test('Number 2029 596 keeps six methods visible and finds Jerusalem↔Shomrim as
     return [url.pathname, url.searchParams.get('focus'), url.searchParams.get('method')];
   }, { timeout: 20_000 }).toEqual(['/2029/number/596', 'שומרים', 'רגיל']);
   await expect(numberPage).toHaveAttribute('data-number-root', '596');
-  await expect(core.locator('.sod29-number-v10-expression-line > strong')).toHaveText('שומרים');
+  await expect(core.locator('.sod29-number-v10-expression > div > strong')).toHaveText('שומרים');
   await expect(numberPage.getByRole('region', { name: 'מיקוד ביטוי פעיל' })).toContainText('שומרים');
   await expect(numberPage.getByRole('button', { name: '↩ ירושלים · 596', exact: true })).toBeVisible();
   const typedReturn = await page.evaluate(() => JSON.parse(sessionStorage.getItem('sod_research_context_v2:guest') || 'null')?.returnTo);
@@ -462,7 +462,7 @@ test('Number 2029 596 keeps six methods visible and finds Jerusalem↔Shomrim as
   for (const value of ['596', '2650', '1156', '3210']) await expect(reverseCrossing).toContainText(value);
   await page.goBack();
   await expect(page).toHaveURL(jerusalemHref);
-  await expect(core.locator('.sod29-number-v10-expression-line > strong')).toHaveText('ירושלים');
+  await expect(core.locator('.sod29-number-v10-expression > div > strong')).toHaveText('ירושלים');
   await expect(core.locator('.sod29-number-v10-method-card').filter({ hasText: 'רגיל' }).first()).toHaveAttribute('aria-pressed', 'true');
   await expect(numberPage).toHaveAttribute('data-number-root', '596');
   await expect(numberPage).toHaveAttribute('data-material-state', 'ready', { timeout: 30_000 });
@@ -477,7 +477,7 @@ test('Number 2029 596 keeps six methods visible and finds Jerusalem↔Shomrim as
   await expect(drawer).toBeVisible({ timeout: 30_000 });
   await drawer.getByLabel('חפש מילה ביטוי או מספר').fill('ירושלים');
   await drawer.getByRole('button', { name: 'חפש ✦' }).click();
-  await expect(drawer.locator('.sod29-number-v10-expression-line > strong')).toHaveText('ירושלים', { timeout: 20_000 });
+  await expect(drawer.locator('.sod29-number-v10-expression > div > strong')).toHaveText('ירושלים', { timeout: 20_000 });
   const drawerCrossing = drawer.locator('[data-experience-capability="number-hidden-crossing"]');
   await expect(drawerCrossing).toContainText('שומרים', { timeout: 20_000 });
   await drawerCrossing.locator('[data-experience-action="crossing-focus"], [data-experience-action="crossing-focus-secondary"]').filter({ hasText: 'שומרים' }).first().click();
@@ -635,7 +635,7 @@ test('Number 2029 Miluy switches the whole stage to 878 with language bridges an
     const selected = number?.querySelector('.sod29-number-v10-method-card[aria-pressed="true"]');
     const url = new URL(location.href);
     return { root: number?.getAttribute('data-number-root'),
-      expression: number?.querySelector('.sod29-number-v10-expression-line > strong')?.textContent?.trim(),
+      expression: number?.querySelector('.sod29-number-v10-expression > div > strong')?.textContent?.trim(),
       method: url.searchParams.get('method'), focus: url.searchParams.get('focus'), pathname: url.pathname,
       selected: selected?.querySelector('span')?.textContent?.trim(), value: number?.querySelector('.sod29-number-value')?.textContent?.trim(),
       drawers: document.querySelectorAll('.sod29-number-drawer2029').length };
