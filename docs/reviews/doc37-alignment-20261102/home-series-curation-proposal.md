@@ -13,3 +13,7 @@ Proposed decision: include only this attributed, already-public message in the e
 After approval, extend the existing series membership descriptor and reader with the exact typed source reference and decision provenance. Recheck publication/access/expiry on every read; preserve title, credit and date. Deduplicate identity/asset while retaining source occurrences; never turn read failure into an empty result. No database mutation, new flag/store/taxonomy, Follow activation or public content publication.
 
 Validation before integration: exact inclusion, unrelated channel exclusion, hidden/page-only/expired denial, cancellation, identity/asset duplicate grouping, date ordering, partial-source failure with Posts retained; existing series and frozen historical Follow tests unchanged. Reversal removes only this reading association; original public item and all history remain.
+
+## Subsequent explicit decision
+
+ZURIEL approved this exact single item in the active conversation. The reading association is implemented in product5bbd5d47 and its verified successors. The proposal above is retained as provenance; approval is no longer pending. No database publication or Follow change was made. Implementation: `home-approved-source-receipt.md`; exact browser acceptance and subsequent fixes: `ACCEPTANCE.md`.

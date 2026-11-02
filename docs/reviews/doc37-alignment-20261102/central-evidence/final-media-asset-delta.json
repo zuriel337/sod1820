@@ -1,0 +1,817 @@
+{
+  "source_sha": "51ad71f466988c32368ab06013e8422d3363c624",
+  "baseline": "5bbd5d47e64cb049fa82156681a918acccb13a3e",
+  "changed": [
+    {
+      "module": "HomePreview2029Page.js",
+      "before": 19658,
+      "after": 19658,
+      "gzip_delta": 1
+    },
+    {
+      "module": "Els2029Page.js",
+      "before": 33119,
+      "after": 33119,
+      "gzip_delta": 3
+    },
+    {
+      "module": "numberCoreProjection.js",
+      "before": 14079,
+      "after": 14079,
+      "gzip_delta": 0
+    },
+    {
+      "module": "Home2029Page.js",
+      "before": 56627,
+      "after": 56627,
+      "gzip_delta": 7
+    },
+    {
+      "module": "contentSeries2029Identity.js",
+      "before": 3428,
+      "after": 3428,
+      "gzip_delta": 0
+    },
+    {
+      "module": "AccountEntry2029.js",
+      "before": 7216,
+      "after": 7216,
+      "gzip_delta": 0
+    },
+    {
+      "module": "contributorSourceCatalogProjection.js",
+      "before": 26958,
+      "after": 26958,
+      "gzip_delta": -4
+    },
+    {
+      "module": "WatchButton.js",
+      "before": 764,
+      "after": 764,
+      "gzip_delta": 2
+    },
+    {
+      "module": "NumberDrawer2029.js",
+      "before": 15701,
+      "after": 15701,
+      "gzip_delta": 1
+    },
+    {
+      "module": "RazielOneShotOffer2029.js",
+      "before": 2200,
+      "after": 2200,
+      "gzip_delta": 0
+    },
+    {
+      "module": "WorldAllResearchTable.js",
+      "before": 109929,
+      "after": 109929,
+      "gzip_delta": 0
+    },
+    {
+      "module": "MethodLens2029.js",
+      "before": 9459,
+      "after": 9459,
+      "gzip_delta": 0
+    },
+    {
+      "module": "bookResearchProjection.js",
+      "before": 9243,
+      "after": 9243,
+      "gzip_delta": 0
+    },
+    {
+      "module": "Sod2029Shell.js",
+      "before": 210711,
+      "after": 210724,
+      "gzip_delta": -11
+    },
+    {
+      "module": "PostCategories2029.js",
+      "before": 12431,
+      "after": 12431,
+      "gzip_delta": 0
+    },
+    {
+      "module": "researchResultBundle.js",
+      "before": 9335,
+      "after": 9335,
+      "gzip_delta": -2
+    },
+    {
+      "module": "LifeJourneyMaps2029.js",
+      "before": 65939,
+      "after": 65939,
+      "gzip_delta": 3
+    },
+    {
+      "module": "worldDiscoveryStream.js",
+      "before": 8200,
+      "after": 8200,
+      "gzip_delta": 1
+    },
+    {
+      "module": "EntityHubPreviewPage.js",
+      "before": 19661,
+      "after": 19661,
+      "gzip_delta": -1
+    },
+    {
+      "module": "razielSavedSession2029.js",
+      "before": 9057,
+      "after": 9057,
+      "gzip_delta": 1
+    },
+    {
+      "module": "CommunityLive2029.js",
+      "before": 84852,
+      "after": 84852,
+      "gzip_delta": 1
+    },
+    {
+      "module": "razielSessionRequest2029.js",
+      "before": 44039,
+      "after": 44039,
+      "gzip_delta": 0
+    },
+    {
+      "module": "PublicServices2029Page.js",
+      "before": 13592,
+      "after": 13592,
+      "gzip_delta": 0
+    },
+    {
+      "module": "entityHubProjection.js",
+      "before": 48833,
+      "after": 48833,
+      "gzip_delta": -4
+    },
+    {
+      "module": "homeLaunchPosts2029.js",
+      "before": 1980,
+      "after": 1980,
+      "gzip_delta": 0
+    },
+    {
+      "module": "useGematriaOpeningOperation.js",
+      "before": 6204,
+      "after": 6204,
+      "gzip_delta": 2
+    },
+    {
+      "module": "Community2029Page.js",
+      "before": 16022,
+      "after": 16022,
+      "gzip_delta": 0
+    },
+    {
+      "module": "NumberZviPublicResearch2029.js",
+      "before": 6327,
+      "after": 6327,
+      "gzip_delta": 1
+    },
+    {
+      "module": "BirthMapScene3D2029.js",
+      "before": 6873,
+      "after": 6873,
+      "gzip_delta": 0
+    },
+    {
+      "module": "zviSpatialWorldProjection.js",
+      "before": 14127,
+      "after": 14127,
+      "gzip_delta": -1
+    },
+    {
+      "module": "postBackground2029.js",
+      "before": 6288,
+      "after": 6288,
+      "gzip_delta": 0
+    },
+    {
+      "module": "Heichal2029Page.js",
+      "before": 21105,
+      "after": 21105,
+      "gzip_delta": 2
+    },
+    {
+      "module": "Topic2029Page.js",
+      "before": 46510,
+      "after": 46510,
+      "gzip_delta": 7
+    },
+    {
+      "module": "home2029Projection.js",
+      "before": 9018,
+      "after": 9018,
+      "gzip_delta": -2
+    },
+    {
+      "module": "ContactGateway.js",
+      "before": 14074,
+      "after": 14074,
+      "gzip_delta": 2
+    },
+    {
+      "module": "Campaign718Page2029.js",
+      "before": 11256,
+      "after": 11256,
+      "gzip_delta": 5
+    },
+    {
+      "module": "ZviFindingCards2029.js",
+      "before": 2871,
+      "after": 2871,
+      "gzip_delta": -1
+    },
+    {
+      "module": "SpatialMethodStage2029.js",
+      "before": 43581,
+      "after": 43581,
+      "gzip_delta": 6
+    },
+    {
+      "module": "RazielOneShotActions2029.js",
+      "before": 3085,
+      "after": 3085,
+      "gzip_delta": 4
+    },
+    {
+      "module": "gematriaTrace.js",
+      "before": 1950,
+      "after": 1950,
+      "gzip_delta": 0
+    },
+    {
+      "module": "ElsResearchActivity2029.js",
+      "before": 3801,
+      "after": 3801,
+      "gzip_delta": 0
+    },
+    {
+      "module": "researchW2Executors.js",
+      "before": 28100,
+      "after": 28100,
+      "gzip_delta": 1
+    },
+    {
+      "module": "elsMatrices.js",
+      "before": 3232,
+      "after": 3232,
+      "gzip_delta": 0
+    },
+    {
+      "module": "SourceRepeatInfo2029.js",
+      "before": 3914,
+      "after": 3914,
+      "gzip_delta": 1
+    },
+    {
+      "module": "topicConvergence.js",
+      "before": 20048,
+      "after": 20048,
+      "gzip_delta": 0
+    },
+    {
+      "module": "worldPublicFindingReader.js",
+      "before": 9785,
+      "after": 9785,
+      "gzip_delta": -2
+    },
+    {
+      "module": "gematriaRelationW2Executor.js",
+      "before": 8041,
+      "after": 8041,
+      "gzip_delta": 1
+    },
+    {
+      "module": "WorldFlightStory2029.js",
+      "before": 8325,
+      "after": 8325,
+      "gzip_delta": 1
+    },
+    {
+      "module": "lifeJourneySynthesisPack.js",
+      "before": 4675,
+      "after": 4675,
+      "gzip_delta": 1
+    },
+    {
+      "module": "OrbitControls.js",
+      "before": 927279,
+      "after": 927279,
+      "gzip_delta": 0
+    },
+    {
+      "module": "RazielCenter2029.js",
+      "before": 12766,
+      "after": 12766,
+      "gzip_delta": -1
+    },
+    {
+      "module": "ResearchProvider.js",
+      "before": 32148,
+      "after": 32148,
+      "gzip_delta": 2
+    },
+    {
+      "module": "Timeline2029.js",
+      "before": 2148,
+      "after": 2148,
+      "gzip_delta": 1
+    },
+    {
+      "module": "Post2029Page.js",
+      "before": 59499,
+      "after": 59499,
+      "gzip_delta": 4
+    },
+    {
+      "module": "worldJourneyProjection.js",
+      "before": 2058,
+      "after": 2058,
+      "gzip_delta": -3
+    },
+    {
+      "module": "WorldSourceStory.js",
+      "before": 16106,
+      "after": 16106,
+      "gzip_delta": -1
+    },
+    {
+      "module": "StayUpdatedCTA.js",
+      "before": 5111,
+      "after": 5111,
+      "gzip_delta": 2
+    },
+    {
+      "module": "worldLanguageTriageProjection.js",
+      "before": 2832,
+      "after": 2832,
+      "gzip_delta": 1
+    },
+    {
+      "module": "electionsIsrael21_26Seed2029.js",
+      "before": 55712,
+      "after": 55712,
+      "gzip_delta": 0
+    },
+    {
+      "module": "Calculator2029Page.js",
+      "before": 22049,
+      "after": 22049,
+      "gzip_delta": 3
+    },
+    {
+      "module": "CommunityChatTransition2029Page.js",
+      "before": 4328,
+      "after": 4328,
+      "gzip_delta": 0
+    },
+    {
+      "module": "worldElsTriageProjection.js",
+      "before": 3901,
+      "after": 3901,
+      "gzip_delta": 0
+    },
+    {
+      "module": "ProfileSettings.js",
+      "before": 8452,
+      "after": 8452,
+      "gzip_delta": 1
+    },
+    {
+      "module": "EarlyAccess2029Page.js",
+      "before": 8279,
+      "after": 8279,
+      "gzip_delta": 1
+    },
+    {
+      "module": "canonicalGematria.js",
+      "before": 275,
+      "after": 275,
+      "gzip_delta": -1
+    },
+    {
+      "module": "post2029ReadingProjection.js",
+      "before": 86075,
+      "after": 86075,
+      "gzip_delta": 2
+    },
+    {
+      "module": "Posts2029Page.css",
+      "before": 8127,
+      "after": 8590,
+      "gzip_delta": 101
+    },
+    {
+      "module": "RealityRiver2029.js",
+      "before": 11692,
+      "after": 11692,
+      "gzip_delta": 2
+    },
+    {
+      "module": "PublicContributor2029Page.js",
+      "before": 95118,
+      "after": 95118,
+      "gzip_delta": -1
+    },
+    {
+      "module": "elsMatrixReadingTransport.js",
+      "before": 2690,
+      "after": 2690,
+      "gzip_delta": 1
+    },
+    {
+      "module": "hints.js",
+      "before": 3067,
+      "after": 3067,
+      "gzip_delta": 1
+    },
+    {
+      "module": "WorldPeopleSources2029.js",
+      "before": 56512,
+      "after": 56512,
+      "gzip_delta": 0
+    },
+    {
+      "module": "WorldKnowledgeTypes2029.js",
+      "before": 25640,
+      "after": 25640,
+      "gzip_delta": 4
+    },
+    {
+      "module": "push.js",
+      "before": 282,
+      "after": 282,
+      "gzip_delta": 2
+    },
+    {
+      "module": "CalculatorOpening2029.js",
+      "before": 5822,
+      "after": 5822,
+      "gzip_delta": -1
+    },
+    {
+      "module": "Number2029Page.js",
+      "before": 92674,
+      "after": 92674,
+      "gzip_delta": 3
+    },
+    {
+      "module": "researchW2ExecutorsBase.js",
+      "before": 14614,
+      "after": 14614,
+      "gzip_delta": -1
+    },
+    {
+      "module": "worldZviApprovedFindings2029.js",
+      "before": 40142,
+      "after": 40142,
+      "gzip_delta": 2
+    },
+    {
+      "module": "BookPdfPage2029.js",
+      "before": 436564,
+      "after": 436564,
+      "gzip_delta": 0
+    },
+    {
+      "module": "worldProminenceInputs.js",
+      "before": 3411,
+      "after": 3411,
+      "gzip_delta": 1
+    },
+    {
+      "module": "ElsLexiconResearch2029.js",
+      "before": 39594,
+      "after": 39594,
+      "gzip_delta": -1
+    },
+    {
+      "module": "Researcher2029Page.js",
+      "before": 16580,
+      "after": 16580,
+      "gzip_delta": 2
+    },
+    {
+      "module": "Revelation1237Gate2029.js",
+      "before": 28552,
+      "after": 28552,
+      "gzip_delta": 3
+    },
+    {
+      "module": "ElsOccurrencePlanner2029.js",
+      "before": 5126,
+      "after": 5126,
+      "gzip_delta": -2
+    },
+    {
+      "module": "worldGraphRelationOpener2029.js",
+      "before": 1602,
+      "after": 1602,
+      "gzip_delta": 3
+    },
+    {
+      "module": "ElsPairPlanner2029.js",
+      "before": 2147,
+      "after": 2147,
+      "gzip_delta": -1
+    },
+    {
+      "module": "tracking.js",
+      "before": 5063,
+      "after": 5063,
+      "gzip_delta": 0
+    },
+    {
+      "module": "WriterPersonal2029Page.js",
+      "before": 57829,
+      "after": 57829,
+      "gzip_delta": -1
+    },
+    {
+      "module": "EmailVerify.js",
+      "before": 5201,
+      "after": 5201,
+      "gzip_delta": 2
+    },
+    {
+      "module": "Gallery2029Page.js",
+      "before": 32714,
+      "after": 32714,
+      "gzip_delta": 4
+    },
+    {
+      "module": "ReportHint.js",
+      "before": 8444,
+      "after": 8444,
+      "gzip_delta": 2
+    },
+    {
+      "module": "zviMultiValueWorldProjection.js",
+      "before": 4381,
+      "after": 4381,
+      "gzip_delta": 0
+    },
+    {
+      "module": "World2029Page.js",
+      "before": 161193,
+      "after": 161193,
+      "gzip_delta": 9
+    },
+    {
+      "module": "MistaterScene3D2029.js",
+      "before": 34458,
+      "after": 34458,
+      "gzip_delta": 0
+    },
+    {
+      "module": "CalculatorPro2029Page.js",
+      "before": 39033,
+      "after": 39033,
+      "gzip_delta": 7
+    },
+    {
+      "module": "WorldZviSourceFindings2029.js",
+      "before": 5264,
+      "after": 5264,
+      "gzip_delta": 0
+    },
+    {
+      "module": "contentSeries2029Projection.js",
+      "before": 8248,
+      "after": 8261,
+      "gzip_delta": 6
+    },
+    {
+      "module": "BirthMapStudio2029.js",
+      "before": 50456,
+      "after": 50456,
+      "gzip_delta": 7
+    },
+    {
+      "module": "Books2029Page.js",
+      "before": 131834,
+      "after": 131834,
+      "gzip_delta": 3
+    },
+    {
+      "module": "RazielViewModeSelector2029.js",
+      "before": 1008,
+      "after": 1008,
+      "gzip_delta": 0
+    },
+    {
+      "module": "Auth2029Page.js",
+      "before": 1508,
+      "after": 1508,
+      "gzip_delta": -3
+    },
+    {
+      "module": "NumberAddress2029Page.js",
+      "before": 1798,
+      "after": 1798,
+      "gzip_delta": 0
+    },
+    {
+      "module": "post2029ExperienceProjection.js",
+      "before": 23478,
+      "after": 23478,
+      "gzip_delta": 2
+    },
+    {
+      "module": "numberSystemMethods.js",
+      "before": 2853,
+      "after": 2853,
+      "gzip_delta": 0
+    },
+    {
+      "module": "worldContributorLens.js",
+      "before": 6519,
+      "after": 6519,
+      "gzip_delta": 0
+    },
+    {
+      "module": "LifeJourney2029Page.js",
+      "before": 184146,
+      "after": 184146,
+      "gzip_delta": 0
+    },
+    {
+      "module": "numberExpressionFocus.js",
+      "before": 3120,
+      "after": 3120,
+      "gzip_delta": 2
+    },
+    {
+      "module": "worldGroupSource.js",
+      "before": 2667,
+      "after": 2667,
+      "gzip_delta": 0
+    },
+    {
+      "module": "AuthContext.js",
+      "before": 1636,
+      "after": 1636,
+      "gzip_delta": 2
+    },
+    {
+      "module": "lifeJourneyFamilyAnalysis.js",
+      "before": 21554,
+      "after": 21554,
+      "gzip_delta": 0
+    },
+    {
+      "module": "numberTierSignals.js",
+      "before": 109183,
+      "after": 109183,
+      "gzip_delta": 0
+    },
+    {
+      "module": "contributions.js",
+      "before": 437,
+      "after": 437,
+      "gzip_delta": 0
+    },
+    {
+      "module": "razielOneShotGate2029.js",
+      "before": 499,
+      "after": 499,
+      "gzip_delta": 0
+    },
+    {
+      "module": "CurationMark2029.js",
+      "before": 5359,
+      "after": 5359,
+      "gzip_delta": 0
+    },
+    {
+      "module": "PostTimeline2029.js",
+      "before": 334,
+      "after": 334,
+      "gzip_delta": 0
+    },
+    {
+      "module": "PublicPostAddress2029Page.js",
+      "before": 1512,
+      "after": 1512,
+      "gzip_delta": -2
+    },
+    {
+      "module": "BeitMidrash2029Page.js",
+      "before": 62929,
+      "after": 62929,
+      "gzip_delta": -2
+    },
+    {
+      "module": "WorldZviApprovedFindings2029.js",
+      "before": 5339,
+      "after": 5339,
+      "gzip_delta": 1
+    },
+    {
+      "module": "WorldSourceConnections.js",
+      "before": 10266,
+      "after": 10266,
+      "gzip_delta": 0
+    },
+    {
+      "module": "CanonicalMediaFigure2029.js",
+      "before": 31384,
+      "after": 31384,
+      "gzip_delta": 2
+    },
+    {
+      "module": "OAuthCallback2029.js",
+      "before": 1008,
+      "after": 1008,
+      "gzip_delta": 2
+    },
+    {
+      "module": "systemFeedPublicSources2029.js",
+      "before": 4562,
+      "after": 4757,
+      "gzip_delta": 86
+    },
+    {
+      "module": "NumberCore2029.js",
+      "before": 38871,
+      "after": 38871,
+      "gzip_delta": 0
+    },
+    {
+      "module": "ConvergenceRatings2029.js",
+      "before": 5425,
+      "after": 5425,
+      "gzip_delta": -2
+    },
+    {
+      "module": "topicExpressionFocus2029.js",
+      "before": 10367,
+      "after": 10367,
+      "gzip_delta": 0
+    },
+    {
+      "module": "2029.js",
+      "before": 270271,
+      "after": 270330,
+      "gzip_delta": 47
+    },
+    {
+      "module": "curationProjection2029.js",
+      "before": 4530,
+      "after": 4530,
+      "gzip_delta": 0
+    },
+    {
+      "module": "Video2029Page.js",
+      "before": 7078,
+      "after": 8748,
+      "gzip_delta": 657
+    },
+    {
+      "module": "auth.js",
+      "before": 4476,
+      "after": 4476,
+      "gzip_delta": 1
+    },
+    {
+      "module": "supabase.js",
+      "before": 196486,
+      "after": 196486,
+      "gzip_delta": 6
+    },
+    {
+      "module": "StoryTreeSequence2029.js",
+      "before": 46279,
+      "after": 46279,
+      "gzip_delta": -1
+    },
+    {
+      "module": "worldGalleryTriageProjection.js",
+      "before": 5608,
+      "after": 5608,
+      "gzip_delta": -1
+    },
+    {
+      "module": "ControlPlane2029Page.js",
+      "before": 14117,
+      "after": 14117,
+      "gzip_delta": 0
+    },
+    {
+      "module": "ElsMatrixReadingActivity2029.js",
+      "before": 1548,
+      "after": 1548,
+      "gzip_delta": 0
+    },
+    {
+      "module": "Posts2029Page.js",
+      "before": 14139,
+      "after": 14632,
+      "gzip_delta": 201
+    }
+  ],
+  "limitation": "compiled bytes include hash-reference churn; not timing proof"
+}
