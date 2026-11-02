@@ -200,7 +200,9 @@ async function assertNoHorizontalOverflow(page) {
   const metrics = await layoutMetrics(page);
   expect(metrics.bodyText).toBeGreaterThan(100);
   expect(metrics.direction).toBe('rtl');
-  expect(metrics.scrollWidth).toBe(metrics.clientWidth);
+  // Stable scrollbar space may remain unused; no horizontal overflow is allowed.
+  expect(metrics.scrollWidth).toBeGreaterThan(0);
+  expect(metrics.scrollWidth).toBeLessThanOrEqual(metrics.clientWidth);
 }
 
 async function openNumberCapabilityFromIsland(page) {

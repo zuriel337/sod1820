@@ -35,7 +35,10 @@ async function noOverflow(page) {
     clientWidth: document.documentElement.clientWidth,
     scrollWidth: document.documentElement.scrollWidth,
   }));
-  expect(metrics.scrollWidth).toBe(metrics.clientWidth);
+  // A reserved scrollbar gutter can make scrollWidth smaller than clientWidth.
+  // The contract is zero horizontal overflow, not mandatory gutter filling.
+  expect(metrics.scrollWidth).toBeGreaterThan(0);
+  expect(metrics.scrollWidth).toBeLessThanOrEqual(metrics.clientWidth);
 }
 
 test.setTimeout(60_000);
