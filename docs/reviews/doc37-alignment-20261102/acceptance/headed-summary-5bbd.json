@@ -1,0 +1,679 @@
+{
+  "conditions": {
+    "browser": "genuine headed Chromium; Xorg dummy; unchanged User-Agent",
+    "viewportHeight": 900,
+    "mobile": {
+      "width": 390,
+      "cpu": 4,
+      "rttMs": 150,
+      "downloadBps": 200000,
+      "uploadBps": 100000
+    },
+    "desktop": {
+      "width": 1440,
+      "throttled": false
+    },
+    "liveWrites": "independent deny-only guard; automatic server access logging not suppressed"
+  },
+  "runs": {
+    "legacy": {
+      "sha": "d1837efcf5a978d10a514010f3695680f231e116",
+      "origin": "https://sod1820.co.il",
+      "browserMode": "headed",
+      "trials": 6,
+      "failed": 0,
+      "maxCls": 0.0038703703703703704,
+      "controllerObserved": [
+        null
+      ],
+      "groups": [
+        {
+          "width": 390,
+          "state": "fresh",
+          "n": 3,
+          "metrics": {
+            "heroContent": null,
+            "primaryReady": null,
+            "firstPostCard": null,
+            "heroImageComplete": null,
+            "legacyControls": {
+              "n": 3,
+              "median": 4.8923,
+              "min": 4.8231,
+              "max": 5.4235
+            },
+            "legacyFirstUpdate": {
+              "n": 3,
+              "median": 8.9418,
+              "min": 8.4916,
+              "max": 9.2623
+            },
+            "legacyHeroImageComplete": null,
+            "initialAdmittedReadsEnd": {
+              "n": 3,
+              "median": 11.4319,
+              "min": 11.3779,
+              "max": 11.7413
+            },
+            "homePost": null,
+            "backHome": null,
+            "backPrimaryHome": null
+          },
+          "clickedHrefs": [],
+          "deniedPaths": [
+            "/rest/v1/visitor_events",
+            "/rest/v1/rpc/ingest_event",
+            "/rest/v1/rpc/community_share_count",
+            "/functions/v1/live-whatsapp-feed",
+            "/rest/v1/rpc/track_visit",
+            "/rest/v1/rpc/get_category_videos",
+            "/rest/v1/rpc/notification_prefs_guest_get_v1",
+            "/rest/v1/rpc/site_pulse_today",
+            "/rest/v1/rpc/one_tree_stats",
+            "/rest/v1/rpc/hot_posts_live",
+            "/rest/v1/rpc/top_primary_values",
+            "/rest/v1/rpc/forum_feed_contributions",
+            "/functions/v1/meta-capi"
+          ],
+          "pageErrors": [],
+          "unfinishedHeroImages": 3
+        },
+        {
+          "width": 390,
+          "state": "warm",
+          "n": 3,
+          "metrics": {
+            "heroContent": null,
+            "primaryReady": null,
+            "firstPostCard": null,
+            "heroImageComplete": null,
+            "legacyControls": {
+              "n": 3,
+              "median": 1.0887,
+              "min": 1.0825,
+              "max": 1.1242
+            },
+            "legacyFirstUpdate": {
+              "n": 3,
+              "median": 3.7591,
+              "min": 3.7248,
+              "max": 3.8009
+            },
+            "legacyHeroImageComplete": {
+              "n": 3,
+              "median": 1.3762,
+              "min": 1.3357,
+              "max": 1.3851
+            },
+            "initialAdmittedReadsEnd": {
+              "n": 3,
+              "median": 6.2964,
+              "min": 6.2822,
+              "max": 6.5824
+            },
+            "homePost": null,
+            "backHome": null,
+            "backPrimaryHome": null
+          },
+          "clickedHrefs": [],
+          "deniedPaths": [
+            "/rest/v1/rpc/community_share_count",
+            "/rest/v1/visitor_events",
+            "/rest/v1/rpc/ingest_event",
+            "/functions/v1/live-whatsapp-feed",
+            "/rest/v1/rpc/track_visit",
+            "/rest/v1/rpc/get_category_videos",
+            "/rest/v1/rpc/notification_prefs_guest_get_v1",
+            "/rest/v1/rpc/site_pulse_today",
+            "/rest/v1/rpc/one_tree_stats",
+            "/rest/v1/rpc/hot_posts_live",
+            "/rest/v1/rpc/top_primary_values",
+            "/rest/v1/rpc/forum_feed_contributions",
+            "/functions/v1/meta-capi"
+          ],
+          "pageErrors": [],
+          "unfinishedHeroImages": 0
+        }
+      ]
+    },
+    "baseline": {
+      "sha": "979c25aa2a91fa96de3a50db8fc93425a183c694",
+      "origin": "https://sod1820-git-gpt-2029-public-launch-cl-ef8784-sod1820-s-projects.vercel.app",
+      "browserMode": "headed",
+      "trials": 12,
+      "failed": 0,
+      "maxCls": 0.05333696333887306,
+      "controllerObserved": [
+        "/preview-readonly-sw.js"
+      ],
+      "groups": [
+        {
+          "width": 390,
+          "state": "fresh",
+          "n": 3,
+          "metrics": {
+            "heroContent": {
+              "n": 3,
+              "median": 4.8801,
+              "min": 4.7997,
+              "max": 4.8868
+            },
+            "primaryReady": null,
+            "firstPostCard": {
+              "n": 3,
+              "median": 4.8801,
+              "min": 4.7997,
+              "max": 4.8868
+            },
+            "heroImageComplete": {
+              "n": 3,
+              "median": 5.4618,
+              "min": 5.3098,
+              "max": 5.5401
+            },
+            "legacyControls": null,
+            "legacyFirstUpdate": null,
+            "legacyHeroImageComplete": null,
+            "initialAdmittedReadsEnd": {
+              "n": 3,
+              "median": 6.4391,
+              "min": 6.3527,
+              "max": 6.5308
+            },
+            "homePost": {
+              "n": 3,
+              "median": 1.3295,
+              "min": 1.2872,
+              "max": 1.363
+            },
+            "backHome": {
+              "n": 3,
+              "median": 0.7607,
+              "min": 0.447,
+              "max": 0.8176
+            },
+            "backPrimaryHome": {
+              "n": 3,
+              "median": 0.7607,
+              "min": 0.447,
+              "max": 0.8176
+            }
+          },
+          "clickedHrefs": [
+            "/post/mah-kore-elections-mutual-responsibility"
+          ],
+          "deniedPaths": [
+            "/rest/v1/rpc/notification_prefs_guest_get_v1",
+            "/rest/v1/rpc/canonical_follow_subject"
+          ],
+          "pageErrors": [],
+          "unfinishedHeroImages": 0
+        },
+        {
+          "width": 390,
+          "state": "warm",
+          "n": 3,
+          "metrics": {
+            "heroContent": {
+              "n": 3,
+              "median": 1.4121,
+              "min": 1.4071,
+              "max": 1.4661
+            },
+            "primaryReady": null,
+            "firstPostCard": {
+              "n": 3,
+              "median": 1.4121,
+              "min": 1.4071,
+              "max": 1.4661
+            },
+            "heroImageComplete": {
+              "n": 3,
+              "median": 1.6765,
+              "min": 1.6646,
+              "max": 1.7228
+            },
+            "legacyControls": null,
+            "legacyFirstUpdate": null,
+            "legacyHeroImageComplete": null,
+            "initialAdmittedReadsEnd": {
+              "n": 3,
+              "median": 2.4159,
+              "min": 2.2856,
+              "max": 2.6038
+            },
+            "homePost": {
+              "n": 3,
+              "median": 0.7007,
+              "min": 0.6764,
+              "max": 0.7468
+            },
+            "backHome": {
+              "n": 3,
+              "median": 0.6711,
+              "min": 0.4477,
+              "max": 0.7844
+            },
+            "backPrimaryHome": {
+              "n": 3,
+              "median": 0.6711,
+              "min": 0.4477,
+              "max": 0.7844
+            }
+          },
+          "clickedHrefs": [
+            "/post/mah-kore-elections-mutual-responsibility"
+          ],
+          "deniedPaths": [
+            "/rest/v1/rpc/notification_prefs_guest_get_v1",
+            "/rest/v1/rpc/canonical_follow_subject"
+          ],
+          "pageErrors": [],
+          "unfinishedHeroImages": 0
+        },
+        {
+          "width": 1440,
+          "state": "fresh",
+          "n": 3,
+          "metrics": {
+            "heroContent": {
+              "n": 3,
+              "median": 1.3715,
+              "min": 1.3693,
+              "max": 1.379
+            },
+            "primaryReady": null,
+            "firstPostCard": {
+              "n": 3,
+              "median": 1.3715,
+              "min": 1.3693,
+              "max": 1.379
+            },
+            "heroImageComplete": {
+              "n": 3,
+              "median": 1.7834,
+              "min": 1.7084,
+              "max": 1.8502
+            },
+            "legacyControls": null,
+            "legacyFirstUpdate": null,
+            "legacyHeroImageComplete": null,
+            "initialAdmittedReadsEnd": {
+              "n": 3,
+              "median": 2.6532,
+              "min": 2.6484,
+              "max": 2.6622
+            },
+            "homePost": {
+              "n": 3,
+              "median": 0.4953,
+              "min": 0.4664,
+              "max": 0.5128
+            },
+            "backHome": {
+              "n": 3,
+              "median": 0.3887,
+              "min": 0.3538,
+              "max": 0.4188
+            },
+            "backPrimaryHome": {
+              "n": 3,
+              "median": 0.3887,
+              "min": 0.3538,
+              "max": 0.4188
+            }
+          },
+          "clickedHrefs": [
+            "/post/mah-kore-elections-mutual-responsibility"
+          ],
+          "deniedPaths": [
+            "/rest/v1/rpc/notification_prefs_guest_get_v1",
+            "/rest/v1/rpc/canonical_follow_subject"
+          ],
+          "pageErrors": [],
+          "unfinishedHeroImages": 0
+        },
+        {
+          "width": 1440,
+          "state": "warm",
+          "n": 3,
+          "metrics": {
+            "heroContent": {
+              "n": 3,
+              "median": 0.5692,
+              "min": 0.5529,
+              "max": 0.6941
+            },
+            "primaryReady": null,
+            "firstPostCard": {
+              "n": 3,
+              "median": 0.5692,
+              "min": 0.5529,
+              "max": 0.6941
+            },
+            "heroImageComplete": {
+              "n": 3,
+              "median": 0.8121,
+              "min": 0.7523,
+              "max": 0.9154
+            },
+            "legacyControls": null,
+            "legacyFirstUpdate": null,
+            "legacyHeroImageComplete": null,
+            "initialAdmittedReadsEnd": {
+              "n": 3,
+              "median": 1.4661,
+              "min": 1.4377,
+              "max": 1.6147
+            },
+            "homePost": {
+              "n": 3,
+              "median": 0.4461,
+              "min": 0.4364,
+              "max": 0.473
+            },
+            "backHome": {
+              "n": 3,
+              "median": 0.3909,
+              "min": 0.3895,
+              "max": 0.3909
+            },
+            "backPrimaryHome": {
+              "n": 3,
+              "median": 0.3909,
+              "min": 0.3895,
+              "max": 0.3909
+            }
+          },
+          "clickedHrefs": [
+            "/post/mah-kore-elections-mutual-responsibility"
+          ],
+          "deniedPaths": [
+            "/rest/v1/rpc/notification_prefs_guest_get_v1",
+            "/rest/v1/rpc/canonical_follow_subject"
+          ],
+          "pageErrors": [],
+          "unfinishedHeroImages": 0
+        }
+      ]
+    },
+    "candidate": {
+      "sha": "5bbd5d47e64cb049fa82156681a918acccb13a3e",
+      "origin": "https://sod1820-pxu012kjj-sod1820-s-projects.vercel.app",
+      "browserMode": "headed",
+      "trials": 12,
+      "failed": 0,
+      "maxCls": 0.04622747803893638,
+      "controllerObserved": [
+        "/preview-readonly-sw.js"
+      ],
+      "groups": [
+        {
+          "width": 390,
+          "state": "fresh",
+          "n": 3,
+          "metrics": {
+            "heroContent": {
+              "n": 3,
+              "median": 4.7803,
+              "min": 4.7508,
+              "max": 5.0579
+            },
+            "primaryReady": {
+              "n": 3,
+              "median": 4.7803,
+              "min": 4.7508,
+              "max": 5.0579
+            },
+            "firstPostCard": {
+              "n": 3,
+              "median": 5.2345,
+              "min": 5.1134,
+              "max": 5.9282
+            },
+            "heroImageComplete": {
+              "n": 3,
+              "median": 5.6013,
+              "min": 5.538,
+              "max": 5.6313
+            },
+            "legacyControls": null,
+            "legacyFirstUpdate": null,
+            "legacyHeroImageComplete": null,
+            "initialAdmittedReadsEnd": {
+              "n": 3,
+              "median": 6.1275,
+              "min": 5.8372,
+              "max": 7.116
+            },
+            "homePost": {
+              "n": 3,
+              "median": 0.8413,
+              "min": 0.7806,
+              "max": 0.8568
+            },
+            "backHome": {
+              "n": 3,
+              "median": 0.5622,
+              "min": 0.493,
+              "max": 0.6742
+            },
+            "backPrimaryHome": {
+              "n": 3,
+              "median": 0.6336,
+              "min": 0.5195,
+              "max": 0.7424
+            }
+          },
+          "clickedHrefs": [
+            "/post/mah-kore-elections-mutual-responsibility"
+          ],
+          "deniedPaths": [],
+          "pageErrors": [],
+          "unfinishedHeroImages": 0
+        },
+        {
+          "width": 390,
+          "state": "warm",
+          "n": 3,
+          "metrics": {
+            "heroContent": {
+              "n": 3,
+              "median": 1.0118,
+              "min": 0.9596,
+              "max": 1.0765
+            },
+            "primaryReady": {
+              "n": 3,
+              "median": 1.0118,
+              "min": 0.9596,
+              "max": 1.0765
+            },
+            "firstPostCard": {
+              "n": 3,
+              "median": 1.2366,
+              "min": 1.1058,
+              "max": 1.3092
+            },
+            "heroImageComplete": {
+              "n": 3,
+              "median": 1.2782,
+              "min": 1.2366,
+              "max": 1.3092
+            },
+            "legacyControls": null,
+            "legacyFirstUpdate": null,
+            "legacyHeroImageComplete": null,
+            "initialAdmittedReadsEnd": {
+              "n": 3,
+              "median": 1.7139,
+              "min": 1.6751,
+              "max": 2.0002
+            },
+            "homePost": {
+              "n": 3,
+              "median": 0.7024,
+              "min": 0.6215,
+              "max": 0.7221
+            },
+            "backHome": {
+              "n": 3,
+              "median": 0.4655,
+              "min": 0.4224,
+              "max": 0.7087
+            },
+            "backPrimaryHome": {
+              "n": 3,
+              "median": 0.6964,
+              "min": 0.545,
+              "max": 0.7163
+            }
+          },
+          "clickedHrefs": [
+            "/post/mah-kore-elections-mutual-responsibility"
+          ],
+          "deniedPaths": [],
+          "pageErrors": [],
+          "unfinishedHeroImages": 0
+        },
+        {
+          "width": 1440,
+          "state": "fresh",
+          "n": 3,
+          "metrics": {
+            "heroContent": {
+              "n": 3,
+              "median": 1.7009,
+              "min": 1.6106,
+              "max": 1.8787
+            },
+            "primaryReady": {
+              "n": 3,
+              "median": 1.7009,
+              "min": 1.6106,
+              "max": 1.8787
+            },
+            "firstPostCard": {
+              "n": 3,
+              "median": 2.0715,
+              "min": 1.8528,
+              "max": 2.1794
+            },
+            "heroImageComplete": {
+              "n": 3,
+              "median": 1.8925,
+              "min": 1.863,
+              "max": 2.0531
+            },
+            "legacyControls": null,
+            "legacyFirstUpdate": null,
+            "legacyHeroImageComplete": null,
+            "initialAdmittedReadsEnd": {
+              "n": 3,
+              "median": 2.6457,
+              "min": 2.5622,
+              "max": 2.6731
+            },
+            "homePost": {
+              "n": 3,
+              "median": 0.534,
+              "min": 0.4835,
+              "max": 0.7935
+            },
+            "backHome": {
+              "n": 3,
+              "median": 0.3528,
+              "min": 0.3024,
+              "max": 0.7111
+            },
+            "backPrimaryHome": {
+              "n": 3,
+              "median": 0.6176,
+              "min": 0.5202,
+              "max": 0.634
+            }
+          },
+          "clickedHrefs": [
+            "/post/mah-kore-elections-mutual-responsibility"
+          ],
+          "deniedPaths": [],
+          "pageErrors": [],
+          "unfinishedHeroImages": 0
+        },
+        {
+          "width": 1440,
+          "state": "warm",
+          "n": 3,
+          "metrics": {
+            "heroContent": {
+              "n": 3,
+              "median": 0.5455,
+              "min": 0.4723,
+              "max": 0.5714
+            },
+            "primaryReady": {
+              "n": 3,
+              "median": 0.5455,
+              "min": 0.4723,
+              "max": 0.5714
+            },
+            "firstPostCard": {
+              "n": 3,
+              "median": 0.9342,
+              "min": 0.8204,
+              "max": 1.3187
+            },
+            "heroImageComplete": {
+              "n": 3,
+              "median": 0.7404,
+              "min": 0.7304,
+              "max": 0.7949
+            },
+            "legacyControls": null,
+            "legacyFirstUpdate": null,
+            "legacyHeroImageComplete": null,
+            "initialAdmittedReadsEnd": {
+              "n": 3,
+              "median": 1.4253,
+              "min": 1.3844,
+              "max": 1.5142
+            },
+            "homePost": {
+              "n": 3,
+              "median": 0.4482,
+              "min": 0.4292,
+              "max": 0.4528
+            },
+            "backHome": {
+              "n": 3,
+              "median": 0.3631,
+              "min": 0.3626,
+              "max": 0.7563
+            },
+            "backPrimaryHome": {
+              "n": 3,
+              "median": 0.6142,
+              "min": 0.5299,
+              "max": 0.7855
+            }
+          },
+          "clickedHrefs": [
+            "/post/mah-kore-elections-mutual-responsibility"
+          ],
+          "deniedPaths": [],
+          "pageErrors": [],
+          "unfinishedHeroImages": 0
+        }
+      ]
+    }
+  },
+  "limits": [
+    "Legacy first update/search/hero and new Home series/primary are explicitly separate semantics.",
+    "Legacy unreviewed RPCs, WhatsApp function and telemetry writes were denied; not unrestricted Production completion.",
+    "Cold Legacy hero images did not finish within observation windows; null is unknown, not zero.",
+    "Candidate primary-source hook is new; compare common heroContent as well rather than silently changing the baseline metric.",
+    "Matched Home→Post used the same public URL on all baseline/candidate samples.",
+    "No A3 rerun or new full gate pass is asserted.",
+    "All failed access/geometry attempts preserved separately."
+  ]
+}

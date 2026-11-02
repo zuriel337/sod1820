@@ -22,6 +22,14 @@ Isolation/A3, real-account login, backup/recovery and Production activation are 
 
 ## Matched native timing: before and after
 
+**Metric correction (retained history, final review):** the original table's
+“Post→Home exactreturn” rows below time the first `.h29-card-open`. In the older
+Home that was primary content; in the newHome it is a secondaryseries card.
+URL/scroll return assertions remain valid, but those rows are not equivalent
+primary-content latency and must not support a primary-return improvement claim.
+Use `stage-report-979c-9e1d.md` for matched full-route primaryreturn, or
+`candidate-5bbd-report.md` for new explicit native `backPrimaryHome` measurements.
+
 Seconds, median of3 per cell; all ranges and outliers are in `headed-summary-f420.json`. Mobile390×900: CPU4×, RTT150ms, download200000B/s/upload100000B/s. Desktop1440×900 is unthrottled. Same public Post URL on all baseline/final samples: `/post/mah-kore-elections-mutual-responsibility`.
 
 ### Mobile390

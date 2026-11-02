@@ -265,3 +265,14 @@ statement that no new route durations existed. All24 loops complete; before has
 one desktopCLS failure, after max0.050441. PrimaryHome-return regressions and
 1.5s target misses are explicit. The second same-document Home entry is excluded;
 actual-reload Home evidence remains separately valid.
+
+## Approved source checkpoint5bbd: Home passes, affected series route fails
+
+[Checkpoint report](candidate-5bbd-report.md), [matched timing](headed-summary-5bbd.json)
+and [archive manifest](native-5bbd-manifest.json) retain12/12 native Home runs,
+three-width Home/form acceptance, and the newly proven video-surface crash and
+direct-seriesCLS failures. Overall affected-route acceptance is **not passed**.
+The source identity, rank, credit and narrow reads worked; privacy/failure/cancel
+fixtures remained safe. Root must fix the demonstrated route/stability issues
+and obtain focused exact-Preview acceptance. The old f420 card-return timing
+has an explicit semantic correction; primaryreturn is measured separately here.
