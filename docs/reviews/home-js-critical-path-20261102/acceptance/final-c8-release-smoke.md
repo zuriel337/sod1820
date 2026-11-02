@@ -62,3 +62,9 @@ No account was authenticated; no positive signup, model, mail, publication,
 subscription, billing, private-data operation or media playback occurred. We did
 not change flags, credentials, deployed server functions or live product data.
 Root owns the separate HTTP/canonical/robots/XML/raw-template/protection checks.
+
+
+Additional acceptance: [nonzero Home return](final-c8-nonzero-home-return.md)
+subsequently verifies actual clickY400 → settled/finalY400 at390/1440, with
+unchanged2px tolerance and no corrective return scrolling. The earlier Y0
+receipts above remain unchanged.

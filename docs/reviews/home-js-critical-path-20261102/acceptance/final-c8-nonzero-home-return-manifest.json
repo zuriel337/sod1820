@@ -1,0 +1,40 @@
+{
+  "sourceSHA": "c8e05790fe68c8f548e22a7c02e5094ddc5b8755",
+  "origin": "https://sod1820-nd7st17o8-sod1820-s-projects.vercel.app",
+  "fileCount": 5,
+  "archive": "final-c8-nonzero-home-return-evidence.zip",
+  "archiveBytes": 1598648,
+  "archiveSha256": "095558591f2abda044425c96eba5f80289b43526acf03e052d2498b25d8ce01c",
+  "secretScan": {
+    "status": "PASS",
+    "findings": 0,
+    "scope": "JSON token/private-key patterns; all bytes checked against exact private access grant; no configs/headers/cookies/profiles archived"
+  },
+  "files": [
+    {
+      "path": "departure-1440.png",
+      "bytes": 578410,
+      "sha256": "54158019b56ec137b9b8c7e58f41ee6f92773165de91dfeb9a9fe4ccf1c019a3"
+    },
+    {
+      "path": "departure-390.png",
+      "bytes": 236117,
+      "sha256": "f459486cee87eec503869feccd01a03626c6fb34fcb721fb7f9f2cc26b40127f"
+    },
+    {
+      "path": "nonzero-home-return.json",
+      "bytes": 56407,
+      "sha256": "2ef9c896d069aa343b42b5b59c6113518e4833ebfb2f55499dafb58a2ba82dfa"
+    },
+    {
+      "path": "returned-1440.png",
+      "bytes": 546302,
+      "sha256": "58af9a7aaf8ae02774a4b1232e07bc1a64c1175f668e6aa7c761ce31555daeef"
+    },
+    {
+      "path": "returned-390.png",
+      "bytes": 235646,
+      "sha256": "a0b1d02e15e133a7404f94aaace942f203dacb5c2180c49422c179de4142f5e7"
+    }
+  ]
+}
