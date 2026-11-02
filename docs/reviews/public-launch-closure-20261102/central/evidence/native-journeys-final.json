@@ -1,0 +1,86 @@
+{
+  "sha": "979c25aa2a91fa96de3a50db8fc93425a183c694",
+  "realSW": true,
+  "mocks": false,
+  "modelCalls": 0,
+  "productWrites": 0,
+  "cases": [
+    {
+      "width": 390,
+      "postHref": "/post/mah-kore-elections-mutual-responsibility",
+      "worldAddress": "/world",
+      "numberAddress": "/number/1820?focus=%D7%90%D7%97%D7%AA+%D7%90%D7%A8%D7%91%D7%A2+%D7%A9%D7%91%D7%A2+%D7%95%D7%A9%D7%AA%D7%99%D7%99%D7%9D&method=%D7%A8%D7%92%D7%99%D7%9C",
+      "homeExactUrl": true,
+      "homeScroll": 634,
+      "restoredHomeScroll": 633,
+      "calculatorCanonical913": true,
+      "calculatorNumberExactBack": true,
+      "shareUrlVerifiedLocallyNotSent": true,
+      "legacyCalculatorParamsPreserved": true,
+      "legacyClaimedN1Ignored": true,
+      "workerHash": "c3436d48371f517874c76d0396fe1c973a625c85845b7d33a6636001fb82c871",
+      "errors": [],
+      "denied": [
+        {
+          "path": "/rest/v1/rpc/ingest_event",
+          "method": "POST"
+        },
+        {
+          "path": "/rest/v1/rpc/ingest_event",
+          "method": "POST"
+        },
+        {
+          "path": "/rest/v1/rpc/lang_links_list",
+          "method": "POST"
+        },
+        {
+          "path": "/rest/v1/rpc/ingest_event",
+          "method": "POST"
+        },
+        {
+          "path": "/rest/v1/rpc/ingest_event",
+          "method": "POST"
+        }
+      ]
+    },
+    {
+      "width": 1440,
+      "postHref": "/post/mah-kore-elections-mutual-responsibility",
+      "worldAddress": "/world",
+      "numberAddress": "/number/1820?focus=%D7%90%D7%97%D7%AA+%D7%90%D7%A8%D7%91%D7%A2+%D7%A9%D7%91%D7%A2+%D7%95%D7%A9%D7%AA%D7%99%D7%99%D7%9D&method=%D7%A8%D7%92%D7%99%D7%9C",
+      "homeExactUrl": true,
+      "homeScroll": 0,
+      "restoredHomeScroll": 0,
+      "calculatorCanonical913": true,
+      "calculatorNumberExactBack": true,
+      "shareUrlVerifiedLocallyNotSent": true,
+      "legacyCalculatorParamsPreserved": true,
+      "legacyClaimedN1Ignored": true,
+      "workerHash": "c3436d48371f517874c76d0396fe1c973a625c85845b7d33a6636001fb82c871",
+      "errors": [],
+      "denied": [
+        {
+          "path": "/rest/v1/rpc/ingest_event",
+          "method": "POST"
+        },
+        {
+          "path": "/rest/v1/rpc/ingest_event",
+          "method": "POST"
+        },
+        {
+          "path": "/rest/v1/rpc/lang_links_list",
+          "method": "POST"
+        },
+        {
+          "path": "/rest/v1/rpc/ingest_event",
+          "method": "POST"
+        },
+        {
+          "path": "/rest/v1/rpc/ingest_event",
+          "method": "POST"
+        }
+      ]
+    }
+  ],
+  "ok": true
+}

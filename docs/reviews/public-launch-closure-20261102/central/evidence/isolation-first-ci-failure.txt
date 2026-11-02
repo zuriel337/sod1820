@@ -1,0 +1,26 @@
+hard-isolation	Native Number preview acceptance	﻿2026-11-02T10:35:02.2028752Z ##[group]Run node scripts/test-2029-number-preview.mjs
+hard-isolation	Native Number preview acceptance	2026-11-02T10:35:02.2028988Z [36;1mnode scripts/test-2029-number-preview.mjs[0m
+hard-isolation	Native Number preview acceptance	2026-11-02T10:35:02.2044585Z shell: /usr/bin/bash -e {0}
+hard-isolation	Native Number preview acceptance	2026-11-02T10:35:02.2044726Z ##[endgroup]
+hard-isolation	Native Number preview acceptance	2026-11-02T10:35:02.2811639Z node:internal/modules/run_main:107
+hard-isolation	Native Number preview acceptance	2026-11-02T10:35:02.2812283Z     triggerUncaughtException(
+hard-isolation	Native Number preview acceptance	2026-11-02T10:35:02.2812591Z     ^
+hard-isolation	Native Number preview acceptance	2026-11-02T10:35:02.2812695Z 
+hard-isolation	Native Number preview acceptance	2026-11-02T10:35:02.2813507Z AssertionError [ERR_ASSERTION]: Replaceable Number presentation must use semantic acceptance hooks, not CSS selector: .sod29-number-v10-expression-line
+hard-isolation	Native Number preview acceptance	2026-11-02T10:35:02.2814141Z 
+hard-isolation	Native Number preview acceptance	2026-11-02T10:35:02.2814223Z false !== true
+hard-isolation	Native Number preview acceptance	2026-11-02T10:35:02.2814332Z 
+hard-isolation	Native Number preview acceptance	2026-11-02T10:35:02.2814626Z     at file:///home/runner/work/sod1820/sod1820/scripts/test-2029-number-preview.mjs:350:10
+hard-isolation	Native Number preview acceptance	2026-11-02T10:35:02.2815131Z     at ModuleJob.run (node:internal/modules/esm/module_job:561:25)
+hard-isolation	Native Number preview acceptance	2026-11-02T10:35:02.2815512Z     at async node:internal/modules/esm/loader:647:26
+hard-isolation	Native Number preview acceptance	2026-11-02T10:35:02.2816001Z     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {
+hard-isolation	Native Number preview acceptance	2026-11-02T10:35:02.2816397Z   generatedMessage: false,
+hard-isolation	Native Number preview acceptance	2026-11-02T10:35:02.2816607Z   code: 'ERR_ASSERTION',
+hard-isolation	Native Number preview acceptance	2026-11-02T10:35:02.2816811Z   actual: false,
+hard-isolation	Native Number preview acceptance	2026-11-02T10:35:02.2816987Z   expected: true,
+hard-isolation	Native Number preview acceptance	2026-11-02T10:35:02.2817178Z   operator: 'strictEqual',
+hard-isolation	Native Number preview acceptance	2026-11-02T10:35:02.2817376Z   diff: 'simple'
+hard-isolation	Native Number preview acceptance	2026-11-02T10:35:02.2817550Z }
+hard-isolation	Native Number preview acceptance	2026-11-02T10:35:02.2817644Z 
+hard-isolation	Native Number preview acceptance	2026-11-02T10:35:02.2817717Z Node.js v24.21.0
+hard-isolation	Native Number preview acceptance	2026-11-02T10:35:02.2869710Z ##[error]Process completed with exit code 1.

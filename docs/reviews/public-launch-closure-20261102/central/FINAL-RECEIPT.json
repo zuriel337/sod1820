@@ -1,0 +1,99 @@
+{
+  "task": "PUBLIC_LAUNCH_CLOSURE_THREE_LANES_20261102",
+  "status": "PUBLIC_CANDIDATE_TESTED_RECOVERY_AND_HOSTED_ACTIVATION_OPEN",
+  "baseSha": "6cd64a79598aaa38de4596f2506beb167447bf1c",
+  "productBranch": "gpt/2029-public-launch-closure-20261102",
+  "productSha": "979c25aa2a91fa96de3a50db8fc93425a183c694",
+  "remoteVerified": true,
+  "evidenceOnlyBranch": "gpt/2029-public-launch-closure-evidence-20261102",
+  "preview": "https://sod1820-prkkgp8rv-sod1820-s-projects.vercel.app",
+  "deploymentId": "dpl_6QTxDNRv5Q4AjQQnt2u1BQouvETE",
+  "target": "staging",
+  "legacyDeployment": "dpl_BFpwZGiYL3Qpdy9nCuGKGb9Xmko2",
+  "legacySha": "d1837efcf5a978d10a514010f3695680f231e116",
+  "mainSha": "2195c9784c5c9f0b1ec3cd3c1137fbd76045845b",
+  "fullIsolation": {
+    "run": 41430257419,
+    "conclusion": "success",
+    "url": "https://github.com/zuriel337/sod1820/actions/runs/41430257419",
+    "entryBrowserPassed": 2,
+    "worldBrowserPassed": 46,
+    "genuineIsolatedA3": true,
+    "productionTestWrites": 0
+  },
+  "g4": {
+    "run": 41430257095,
+    "conclusion": "success",
+    "url": "https://github.com/zuriel337/sod1820/actions/runs/41430257095"
+  },
+  "a3": {
+    "sourceHead": "979c25aa2a91fa96de3a50db8fc93425a183c694",
+    "status": "PASS",
+    "checks": {
+      "stackIsolationInspectedBeforeA3": true,
+      "realAuthUserAndJwt": true,
+      "invalidJwtRejectedByAuthPostgrestAndEdge": true,
+      "originalA3Assertions": true,
+      "persistedInteractionTraceCorrelationBothIdentities": true,
+      "fullRootGateComposerCapabilitySpanTree": true,
+      "traceTablesDenyCallerReads": true,
+      "noModelProviderSpansAndAllCostNotBillable": true,
+      "runtimeEgressDenied": true,
+      "noAiTokenOrQuotaWrites": true,
+      "tracesSurviveDatabaseRestart": true,
+      "ownedResourcesCleaned": true
+    }
+  },
+  "productionArtifact": {
+    "locallyBuilt": true,
+    "sourceDirty": false,
+    "casesPassed": 51,
+    "dormant": true,
+    "hostedActivated": false,
+    "platformRoutingAcceptance": "OPEN_SEPARATE_GUARD_REVIEW_REQUIRED",
+    "signedUnsubscribe": "synthetic_local_UI_and_worker_tests_only_no_live_mutation"
+  },
+  "independentGuardCasesPassed": 9,
+  "native": {
+    "cleanTrials": 14,
+    "failed": 0,
+    "pageErrors": 0,
+    "maxCls": 0.04622309695512821,
+    "budget": 0.1,
+    "initialOverlappingCITrials": 14,
+    "initialTrialsUsedForTiming": false,
+    "journeyWidths": [
+      390,
+      1440
+    ],
+    "publicRouteCases": 18,
+    "actualWorkerSha256": "c3436d48371f517874c76d0396fe1c973a625c85845b7d33a6636001fb82c871",
+    "anonymousReturningProfileOnly": true,
+    "mocks": false
+  },
+  "historicalOriginalStallExactCause": "UNPROVEN",
+  "provenFontBootBlock": "FIXED_IN_6cd_PRESERVED",
+  "distinctNewProductionWorkerIssue": "ACTIVE_LEGACY_REGISTRATION_REUSED_FIXED_BY_BOUNDED_EXPLICIT_UPDATE_AND_POLICY_HANDSHAKE",
+  "recovery": {
+    "datedManagedBackupList": "UNKNOWN_ACCESS_NOT_AVAILABLE",
+    "independentMediaRecoverySet": "UNKNOWN",
+    "privateExport": false,
+    "realRestoreExecuted": false,
+    "rpo": "UNMEASURED",
+    "rto": "UNMEASURED",
+    "request": "../recovery/RESTORE-REQUEST.md"
+  },
+  "productionEdgeAliasMainMergePush": false,
+  "sharedDbServerRlsAuthFlagsChanged": false,
+  "productTestWrites": 0,
+  "modelCalls": 0,
+  "designContentChanges": false,
+  "coordinationBefore": [
+    "67bfdcf5-f303-4d60-a11b-58fc16bd607e",
+    "d1ebb445-f115-4929-a286-719330521d72",
+    "ce0094e6-c699-4511-97c7-de766e9673fb",
+    "1a9e557d-23f8-4dcf-9a3e-de9ddedd7a0a"
+  ],
+  "ownershipRelease": "Final passive AFTER will be recorded in canonical work_log_current after report storage; inspect that ledger for final release IDs.",
+  "newDoc37ProductBrief": "PRESERVED_NOT_IMPLEMENTED_DESIGN_SIGNUP_ADMIN_VISIBILITY_REQUIRES_SEPARATE_PRODUCT_ACCEPTANCE"
+}

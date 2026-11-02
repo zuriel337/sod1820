@@ -1,0 +1,129 @@
+{
+  "sha": "979c25aa2a91fa96de3a50db8fc93425a183c694",
+  "actualSW": true,
+  "trials": 14,
+  "failed": 0,
+  "maxCls": 0.04622309695512821,
+  "groups": [
+    {
+      "width": 390,
+      "kind": "fresh",
+      "n": 3,
+      "homeDriverSeconds": {
+        "median": 5.070200949,
+        "min": 4.953298104000002,
+        "max": 5.094980911999999
+      },
+      "homeDomUsefulSeconds": {
+        "median": 4.911599999994039,
+        "min": 4.817200000017881,
+        "max": 4.919599999994039
+      },
+      "postSeconds": {
+        "median": 1.2587000000178814,
+        "min": 1.2392999999821186,
+        "max": 1.267
+      },
+      "initialHomeReadsSettledSeconds": {
+        "median": 6.183899999976158,
+        "min": 6.123400000005961,
+        "max": 6.32259999999404
+      },
+      "backHomeSeconds": {
+        "median": 0.5860999999940395,
+        "min": 0.521800000011921,
+        "max": 0.6258000000119209
+      }
+    },
+    {
+      "width": 390,
+      "kind": "warm",
+      "n": 3,
+      "homeDriverSeconds": {
+        "median": 1.5561326629999968,
+        "min": 1.4358640219999943,
+        "max": 3.285694522000002
+      },
+      "homeDomUsefulSeconds": {
+        "median": 1.4270999999940395,
+        "min": 1.3485,
+        "max": 3.163
+      },
+      "postSeconds": {
+        "median": 0.6959000000059604,
+        "min": 0.6755999999940395,
+        "max": 0.7425
+      },
+      "initialHomeReadsSettledSeconds": {
+        "median": 2.2834000000059604,
+        "min": 2.2532000000178813,
+        "max": 4.6319000000059605
+      },
+      "backHomeSeconds": {
+        "median": 0.5450999999940396,
+        "min": 0.5085999999940395,
+        "max": 0.5815999999940396
+      }
+    },
+    {
+      "width": 1440,
+      "kind": "fresh",
+      "n": 3,
+      "homeDriverSeconds": {
+        "median": 1.3980454699999973,
+        "min": 1.3176845759999996,
+        "max": 1.6014785470000061
+      },
+      "homeDomUsefulSeconds": {
+        "median": 1.3593000000119209,
+        "min": 1.2750999999940396,
+        "max": 1.4805999999940396
+      },
+      "postSeconds": {
+        "median": 0.46689999997615816,
+        "min": 0.455,
+        "max": 0.4847000000178814
+      },
+      "initialHomeReadsSettledSeconds": {
+        "median": 2.552699999988079,
+        "min": 2.475,
+        "max": 2.735
+      },
+      "backHomeSeconds": {
+        "median": 0.3894000000059605,
+        "min": 0.3565,
+        "max": 0.4382000000178814
+      }
+    },
+    {
+      "width": 1440,
+      "kind": "warm",
+      "n": 3,
+      "homeDriverSeconds": {
+        "median": 0.6169980230000074,
+        "min": 0.6033107970000128,
+        "max": 0.6215186069999982
+      },
+      "homeDomUsefulSeconds": {
+        "median": 0.5469000000059605,
+        "min": 0.5425,
+        "max": 0.5500999999940396
+      },
+      "postSeconds": {
+        "median": 0.43039999997615813,
+        "min": 0.4255999999940395,
+        "max": 0.44989999997615815
+      },
+      "initialHomeReadsSettledSeconds": {
+        "median": 1.4100999999940396,
+        "min": 1.3393000000119208,
+        "max": 1.4125999999940395
+      },
+      "backHomeSeconds": {
+        "median": 0.433,
+        "min": 0.3229000000059605,
+        "max": 0.44
+      }
+    }
+  ]
+}

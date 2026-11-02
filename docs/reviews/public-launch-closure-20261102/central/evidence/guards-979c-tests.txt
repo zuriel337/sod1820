@@ -1,0 +1,17 @@
+✔ Isolation browser guard rejects live writes, models, visitor drafts and unknown transports before I/O (249.342337ms)
+✔ integration branch inherits byte-identical accepted public reading worker; old/foreign branches are unchanged (15.450378ms)
+✔ integration branch continues to reject Production and missing environment before building (326.097249ms)
+✔ public document uses trusted same reading profile, genuine status, noindex and no-store; forged activation cannot bypass branch/env (1.355005ms)
+✔ closed model/platform APIs remain unavailable before identity or network work (5.1095ms)
+✔ isolated mode validates destination and local-only token lineage before SDK import (4.507323ms)
+✔ isolated transport denies alternate origins before I/O and disables redirects (26.212251ms)
+✔ partial/unknown isolated configuration fails before canonical SDK import (1.275567ms)
+✔ original A3 payload and trace assertions remain intact (unit contract only) (2.510952ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 826.283613

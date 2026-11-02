@@ -1,0 +1,130 @@
+{
+  "sha": "979c25aa2a91fa96de3a50db8fc93425a183c694",
+  "realData": true,
+  "realSW": true,
+  "productWrites": 0,
+  "modelCalls": 0,
+  "cases": [
+    {
+      "width": 390,
+      "path": "/%d7%97%d7%99%d7%a1%d7%95%d7%9c-%d7%a0%d7%a1%d7%a8%d7%90%d7%9c%d7%9c%d7%94-%d7%94%d7%aa%d7%a8%d7%97%d7%a9-%d7%91%d7%99%d7%95%d7%9d-%d7%94358-%d7%9c%d7%9c%d7%97%d7%99%d7%9e%d7%94-%d7%9e%d7%a9%d7%99/",
+      "wordpressAlias": false,
+      "status": 200,
+      "exactQueryHashAndRefresh": true,
+      "canonical": "https://sod1820.co.il/%d7%97%d7%99%d7%a1%d7%95%d7%9c-%d7%a0%d7%a1%d7%a8%d7%90%d7%9c%d7%9c%d7%94-%d7%94%d7%aa%d7%a8%d7%97%d7%a9-%d7%91%d7%99%d7%95%d7%9d-%d7%94358-%d7%9c%d7%9c%d7%97%d7%99%d7%9e%d7%94-%d7%9e%d7%a9%d7%99/"
+    },
+    {
+      "width": 390,
+      "path": "/post/flydubai-fz1073-363-14000-remzei-geula",
+      "wordpressAlias": false,
+      "status": 200,
+      "exactQueryHashAndRefresh": true,
+      "canonical": "https://sod1820.co.il/post/flydubai-fz1073-363-14000-remzei-geula"
+    },
+    {
+      "width": 390,
+      "path": "/",
+      "wordpressAlias": true,
+      "status": 200,
+      "exactQueryHashAndRefresh": true,
+      "canonical": "https://sod1820.co.il/%d7%97%d7%99%d7%a1%d7%95%d7%9c-%d7%a0%d7%a1%d7%a8%d7%90%d7%9c%d7%9c%d7%94-%d7%94%d7%aa%d7%a8%d7%97%d7%a9-%d7%91%d7%99%d7%95%d7%9d-%d7%94358-%d7%9c%d7%9c%d7%97%d7%99%d7%9e%d7%94-%d7%9e%d7%a9%d7%99/"
+    },
+    {
+      "width": 390,
+      "path": "/map",
+      "status": 200,
+      "serviceClosureChecked": true
+    },
+    {
+      "width": 390,
+      "path": "/privacy",
+      "status": 200,
+      "serviceClosureChecked": true
+    },
+    {
+      "width": 390,
+      "path": "/updates",
+      "status": 200,
+      "serviceClosureChecked": true
+    },
+    {
+      "width": 390,
+      "path": "/unsubscribe",
+      "status": 200,
+      "serviceClosureChecked": true
+    },
+    {
+      "width": 390,
+      "path": "/login",
+      "status": 200,
+      "serviceClosureChecked": true
+    },
+    {
+      "width": 390,
+      "path": "/code",
+      "status": 200,
+      "serviceClosureChecked": true
+    },
+    {
+      "width": 1440,
+      "path": "/%d7%97%d7%99%d7%a1%d7%95%d7%9c-%d7%a0%d7%a1%d7%a8%d7%90%d7%9c%d7%9c%d7%94-%d7%94%d7%aa%d7%a8%d7%97%d7%a9-%d7%91%d7%99%d7%95%d7%9d-%d7%94358-%d7%9c%d7%9c%d7%97%d7%99%d7%9e%d7%94-%d7%9e%d7%a9%d7%99/",
+      "wordpressAlias": false,
+      "status": 200,
+      "exactQueryHashAndRefresh": true,
+      "canonical": "https://sod1820.co.il/%d7%97%d7%99%d7%a1%d7%95%d7%9c-%d7%a0%d7%a1%d7%a8%d7%90%d7%9c%d7%9c%d7%94-%d7%94%d7%aa%d7%a8%d7%97%d7%a9-%d7%91%d7%99%d7%95%d7%9d-%d7%94358-%d7%9c%d7%9c%d7%97%d7%99%d7%9e%d7%94-%d7%9e%d7%a9%d7%99/"
+    },
+    {
+      "width": 1440,
+      "path": "/post/flydubai-fz1073-363-14000-remzei-geula",
+      "wordpressAlias": false,
+      "status": 200,
+      "exactQueryHashAndRefresh": true,
+      "canonical": "https://sod1820.co.il/post/flydubai-fz1073-363-14000-remzei-geula"
+    },
+    {
+      "width": 1440,
+      "path": "/",
+      "wordpressAlias": true,
+      "status": 200,
+      "exactQueryHashAndRefresh": true,
+      "canonical": "https://sod1820.co.il/%d7%97%d7%99%d7%a1%d7%95%d7%9c-%d7%a0%d7%a1%d7%a8%d7%90%d7%9c%d7%9c%d7%94-%d7%94%d7%aa%d7%a8%d7%97%d7%a9-%d7%91%d7%99%d7%95%d7%9d-%d7%94358-%d7%9c%d7%9c%d7%97%d7%99%d7%9e%d7%94-%d7%9e%d7%a9%d7%99/"
+    },
+    {
+      "width": 1440,
+      "path": "/map",
+      "status": 200,
+      "serviceClosureChecked": true
+    },
+    {
+      "width": 1440,
+      "path": "/privacy",
+      "status": 200,
+      "serviceClosureChecked": true
+    },
+    {
+      "width": 1440,
+      "path": "/updates",
+      "status": 200,
+      "serviceClosureChecked": true
+    },
+    {
+      "width": 1440,
+      "path": "/unsubscribe",
+      "status": 200,
+      "serviceClosureChecked": true
+    },
+    {
+      "width": 1440,
+      "path": "/login",
+      "status": 200,
+      "serviceClosureChecked": true
+    },
+    {
+      "width": 1440,
+      "path": "/code",
+      "status": 200,
+      "serviceClosureChecked": true
+    }
+  ],
+  "ok": true
+}
