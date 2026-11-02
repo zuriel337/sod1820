@@ -1,0 +1,116 @@
+{
+  "ok": true,
+  "syntheticOnly": true,
+  "results": [
+    {
+      "mode": "success",
+      "width": 390,
+      "extraReads": 5,
+      "initial": {
+        "dock": {
+          "x": 30,
+          "y": 830,
+          "width": 330,
+          "height": 60,
+          "top": 830,
+          "right": 360,
+          "bottom": 890,
+          "left": 30
+        },
+        "viewport": 390,
+        "overflow": 0,
+        "background": "url(\"http://127.0.0.1:36825/backgrounds/2029/home-cosmos-mobile-8eaaeef46082.webp\")",
+        "backgroundHeight": "900px",
+        "homeHeight": 5517.484375
+      },
+      "openingNavigation": true,
+      "noFullscreenLoadingText": true,
+      "zeroRemoteForwarded": true,
+      "errors": []
+    },
+    {
+      "mode": "success",
+      "width": 1440,
+      "extraReads": 5,
+      "initial": {
+        "dock": {
+          "x": 555,
+          "y": 828,
+          "width": 330,
+          "height": 62,
+          "top": 828,
+          "right": 885,
+          "bottom": 890,
+          "left": 555
+        },
+        "viewport": 1440,
+        "overflow": 0,
+        "background": "url(\"http://127.0.0.1:36825/backgrounds/2029/home-cosmos-desktop-5113c94ba6e5.webp\")",
+        "backgroundHeight": "900px",
+        "homeHeight": 3929.359375
+      },
+      "openingNavigation": true,
+      "noFullscreenLoadingText": true,
+      "zeroRemoteForwarded": true,
+      "errors": []
+    },
+    {
+      "mode": "failed",
+      "width": 390,
+      "extraReads": 10,
+      "initial": {
+        "dock": {
+          "x": 30,
+          "y": 830,
+          "width": 330,
+          "height": 60,
+          "top": 830,
+          "right": 360,
+          "bottom": 890,
+          "left": 30
+        },
+        "viewport": 390,
+        "overflow": 0,
+        "background": "url(\"http://127.0.0.1:36825/backgrounds/2029/home-cosmos-mobile-8eaaeef46082.webp\")",
+        "backgroundHeight": "900px",
+        "homeHeight": 5517.484375
+      },
+      "openingNavigation": true,
+      "noFullscreenLoadingText": true,
+      "zeroRemoteForwarded": true,
+      "errors": []
+    },
+    {
+      "mode": "cancel",
+      "width": 390,
+      "extraReads": 5,
+      "initial": {
+        "dock": {
+          "x": 30,
+          "y": 830,
+          "width": 330,
+          "height": 60,
+          "top": 830,
+          "right": 360,
+          "bottom": 890,
+          "left": 30
+        },
+        "viewport": 390,
+        "overflow": 0,
+        "background": "url(\"http://127.0.0.1:36825/backgrounds/2029/home-cosmos-mobile-8eaaeef46082.webp\")",
+        "backgroundHeight": "900px",
+        "homeHeight": 5517.484375
+      },
+      "openingNavigation": true,
+      "noFullscreenLoadingText": true,
+      "zeroRemoteForwarded": true,
+      "errors": []
+    },
+    {
+      "mode": "primary-failed",
+      "width": 390,
+      "publicReadFailure": true,
+      "extraReads": 0
+    }
+  ]
+}

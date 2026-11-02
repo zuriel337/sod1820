@@ -1,0 +1,39 @@
+✔ labels and hrefs follow the item kind (1.209144ms)
+✔ new = recent window and unseen (0.599696ms)
+✔ updates chronological: curated older strength never hides a fresh public source (2.041777ms)
+✔ a burst of one kind does not drown the others (bucket caps) (0.681748ms)
+✔ the same source revision remains unseen until its exact version is read (0.31908ms)
+✔ the public feed reserves four bounded slots for recent post sources (0.377309ms)
+✔ accepted Home patch changes only the reviewed exact branch bindings at its immutable receipt SHA (7.559647ms)
+✔ accepted Home worker is byte-identical; current old branches differ only by an inactive functional Preview extension (4.163719ms)
+✔ applied binding denies Production and leaves other branches and missing environment closed (9.223067ms)
+✔ applied own-avatar wrapper keeps canonical read-only/ownership behavior and exact Preview scope (3.461907ms)
+✔ one route-owned primary read starts before its component consumes it, with the same bounded metadata request (1.308089ms)
+✔ route/identity cancellation aborts I/O and rejects a late success instead of publishing partial data (0.945218ms)
+✔ failure before code admission is observed and remains a failed read; another route never reuses it (4.45782ms)
+✔ the legacy card reader keeps its failure fallback and projection; only an explicit route-owned call gets abort/error propagation (1.000088ms)
+✔ one release scope opens only the approved readers; closed aliases cannot enter product routes (1.304464ms)
+✔ legacy calculator parameters seed the existing engine, never trust claimed old n, preserve extra context (0.897065ms)
+✔ canonical selection and exact calculator return survive both Number and shared-result navigation (1.404642ms)
+✔ read-only release transport denies A3, model, Auth mutation and credits before any live fetch (30.436559ms)
+✔ public metadata adapter uses the same trusted profile; Production and forged query activation stay denied (1.00138ms)
+✔ normal Legacy build remains the default and the new release branch cannot build in Production (354.317761ms)
+✔ a stray public profile variable cannot change the Legacy capability or SDK session (2.996045ms)
+✔ new exact branch inherits the complete accepted worker without widening any principal or operation (18.990678ms)
+✔ the new branch cannot build for Production or an unspecified environment (327.999323ms)
+✔ new Preview proxy keeps verified-admin denial, caller identity, cost boundaries and no paid retry (5.626187ms)
+✔ only explicit live non-page-only unexpired public channels enter Now; private metadata never enters DTO (1.770223ms)
+✔ real media-only updates remain represented, with public objects only and no fabricated link (0.434076ms)
+✔ gallery activity preserves stream chronology, exact native image source and visibility (0.416209ms)
+✔ source URLs retain exact public parameters/anchors and reject private/Legacy landings or credentials (0.735622ms)
+✔ Now and ticker retain one source identity and seen key; different numbers or wording cannot merge objects (1.024645ms)
+✔ all added reads are bounded GET-style select queries; one failure cannot turn into measured empty or erase independent sources (1.125498ms)
+✔ canceling discards every partial result (1.473544ms)
+ℹ tests 31
+ℹ suites 0
+ℹ pass 31
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 606.871339

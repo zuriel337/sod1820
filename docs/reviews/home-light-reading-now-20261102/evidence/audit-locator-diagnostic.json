@@ -1,0 +1,12 @@
+{
+  "sha": "7c8d3bed9ebfa21d0db86f3420134d9f7a8e79a2",
+  "realSW": true,
+  "modelCalls": 0,
+  "productWrites": 0,
+  "cases": [],
+  "ok": false,
+  "error": {
+    "name": "Error",
+    "message": "expect(locator).toBeVisible() failed\n\nLocator:  getByRole('dialog', { name: 'עכשיו', exact: true }).locator('.sod29-now-source-row').first().locator('.sod29-now-source-detail')\nExpected: visible\nReceived: hidden\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"to.be.visible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('dialog', { name: 'עכשיו', exact: true }).locator('.sod29-now-source-row').first().locator('.sod29-now-source-detail')\u001b[22m\n\u001b[2m    9 × locator resolved to <div class=\"sod29-now-source-detail\">…</div>\u001b[22m\n\u001b[2m      - unexpected value \"hidden\"\u001b[22m\n"
+  }
+}
