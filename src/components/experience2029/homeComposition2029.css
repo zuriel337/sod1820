@@ -28,6 +28,7 @@
 .h29-hero h1 { margin: 4px 0 8px; font: 600 26px/1.25 var(--s29-font-ui); text-wrap: balance; }
 
 .h29-updates { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.sod29-opening-updates > a { display: block; width: fit-content; max-width: 100%; margin-block-start: 8px; font-size: 14px; line-height: 1.5; }
 .h29-card { display: flex; flex-direction: column; overflow: hidden; border-radius: 14px; border: 1px solid var(--s29-line); background: var(--s29-panel); min-width: 0; }
 .h29-card:hover, .h29-card.is-selected { border-color: var(--s29-line-strong); }
 .h29-card.is-selected { box-shadow: 0 0 0 1px var(--s29-brand-gold); }
