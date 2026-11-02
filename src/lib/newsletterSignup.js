@@ -1,5 +1,11 @@
 // Transport adapter for the existing newsletter-signup Edge Function. No new
 // subscriber store, delivery service, identity creation or retry automation.
+export async function probeOpeningUpdatesSignup({ endpoint, request = globalThis.fetch, signal } = {}) {
+  const capability = await request(endpoint, { method: "OPTIONS", cache: "no-store", signal });
+  if (!capability.ok || capability.headers.get("x-newsletter-purpose-contract") !== "opening-parts-v1") throw new Error("newsletter-purpose-unavailable");
+  return true;
+}
+
 export async function submitNewsletterSignup({ email, consent, acquisition = null, purpose = "general" }, {
   endpoint, request = globalThis.fetch, signal,
 } = {}) {
@@ -10,8 +16,7 @@ export async function submitNewsletterSignup({ email, consent, acquisition = nul
   // Capability check precedes any write: an older server ignores purpose fields
   // and would otherwise subscribe this reader to the general list.
   if (purpose === "site-openings") {
-    const capability = await request(endpoint, { method: "OPTIONS", cache: "no-store", signal });
-    if (!capability.ok || capability.headers.get("x-newsletter-purpose-contract") !== "opening-parts-v1") throw new Error("newsletter-purpose-unavailable");
+    await probeOpeningUpdatesSignup({ endpoint, request, signal });
   }
   const response = await request(`${endpoint}?format=json`, {
     method: "POST", headers: { "Content-Type": "application/json", Accept: "application/json" }, signal,
