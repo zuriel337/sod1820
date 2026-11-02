@@ -1,14 +1,14 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import Sod2029Shell, { FrameState } from "../components/experience2029/Sod2029Shell.jsx";
-import { fetchPostsCatalog2029, postClassification2029, postsCatalogScope2029, postContentEntry2029 } from "../lib/research/postsCatalog2029Projection.js";
+import { fetchPostsCatalog2029, completeMixedSeriesPostsPage2029, postClassification2029, postsCatalogScope2029, postContentEntry2029 } from "../lib/research/postsCatalog2029Projection.js";
 import { track } from "../lib/tracking.js";
 import { applySeo } from "../lib/seo.js";
 import { stripHtml } from "../lib/format.js";
 import { bilingualDateLabel } from "../lib/relativeTime2029.js";
 import PostCategories2029 from "../components/experience2029/PostCategories2029.jsx";
 import { humanContentTitle } from "../lib/presentation/contentTitle.js";
-import { fetchContentSeriesCatalog2029 } from "../lib/research/contentSeries2029Projection.js";
+import { fetchContentSeriesCatalog2029, mergeContentSeriesItems, projectContentSeriesItems } from "../lib/research/contentSeries2029Projection.js";
 import { POST_BACKGROUND_ASSETS_2029 } from "../lib/research/postBackground2029.js";
 import NavigationIcon2029 from "../components/experience2029/NavigationIcon2029.jsx";
 import PostFollowBox from "../components/PostFollowBox.jsx";
@@ -16,19 +16,22 @@ import { AUTHORS } from "../lib/authors.js";
 import { publicPostHref } from "../lib/publicPostUrls.js";
 import "./posts2029.css";
 
-function SeriesEntrances2029({ activeKey, search = "" }) {
+function SeriesEntrances2029({ activeKey, search = "", onRead, refreshKey = 0 }) {
   const [attempt, setAttempt] = useState(0);
   const [state, setState] = useState({ loading: true, series: [], error: false });
   useEffect(() => {
     let live = true;
+    const controller = new AbortController();
     setState({ loading: true, series: [], error: false });
-    // Existing anonymous series reader: one metadata row per series, no bodies,
-    // Home-only exclusion, new membership list or media scan on library entry.
-    fetchContentSeriesCatalog2029({ limitPerSeries: 1, homeOnly: false })
-      .then(({ series }) => { if (live) setState({ loading: false, series, error: false }); })
-      .catch(() => { if (live) setState({ loading: false, series: [], error: true }); });
-    return () => { live = false; };
-  }, [attempt]);
+    onRead?.({ activeKey, loading: true, series: [], error: false });
+    // Reuse one anonymous catalog read for entrances and the selected mixed list:
+    // one Post preview per series plus exact approved public source metadata.
+    // No bodies, Home-only exclusion, broad media scan or second source request.
+    fetchContentSeriesCatalog2029({ limitPerSeries: 1, homeOnly: false, signal: controller.signal, sourceSeriesKey: activeKey })
+      .then(({ series }) => { if (live) { const result = { activeKey, loading: false, series, error: false }; setState(result); onRead?.(result); } })
+      .catch(() => { if (live) { const result = { activeKey, loading: false, series: [], error: true }; setState(result); onRead?.(result); } });
+    return () => { live = false; controller.abort(); };
+  }, [attempt, refreshKey, onRead, activeKey]);
 
   const matches = state.series.filter(series => !search || [series.label, series.publisherLabel, series.writerLabel].some(value => value?.toLocaleLowerCase().includes(search.toLocaleLowerCase())));
   return <section className="sod29-posts-series" aria-labelledby="posts-series-title" aria-busy={state.loading}>
@@ -60,18 +63,22 @@ function SeriesEntrances2029({ activeKey, search = "" }) {
   </section>;
 }
 
-function PostIndexCard({ post, index }) {
-  const title = humanContentTitle(post?.title, { max: 0 });
-  const excerpt = stripHtml(post?.excerpt || post?.content || "").slice(0, 180);
-  const image = post?.thumb_url || post?.image_url || null;
+function PostIndexCard({ post, index, seriesItem = null }) {
+  const title = humanContentTitle(seriesItem?.title || post?.title, { max: 0 });
+  const excerpt = stripHtml(seriesItem?.excerpt || post?.excerpt || post?.content || "").slice(0, 180);
+  const image = seriesItem?.imageUrl || post?.thumb_url || post?.image_url || null;
   const { credit } = postClassification2029(post);
+  const sourceItem = seriesItem?.kind === "channel_update";
+  const additionalSources = (seriesItem?.sourceOccurrences || []).filter(source => source.sourceRef !== seriesItem?.sourceRef);
 
   return <article
     className="sod29-library-post-card"
     data-experience-capability="post-index-card"
+    data-series-source={seriesItem?.sourceRef}
+    data-series-kind={seriesItem?.kind}
     style={{ "--post-order": index }}
   >
-    <Link className="sod29-library-post-card-link" to={publicPostHref(post)}>
+    <Link className="sod29-library-post-card-link" to={seriesItem?.href || publicPostHref(post)}>
       <div
         className={"sod29-library-post-visual" + (image ? " has-image" : "")}
         aria-hidden="true"
@@ -84,13 +91,16 @@ function PostIndexCard({ post, index }) {
         <h2>{title || "פוסט"}</h2>
         {excerpt ? <p>{excerpt}</p> : null}
         <div className="sod29-library-post-meta">
-          {credit ? <span>{credit.prefix}: {credit.name}</span> : null}
-          <span>{post?.modified ? "עודכן " : "פורסם "}{bilingualDateLabel(post?.modified || post?.date, "תאריך לא צוין")}</span>
-          <PostCategories2029 post={post} max={2} compact nested />
+          {sourceItem ? <><span>מקור: {seriesItem.credit || "המקור הציבורי"}</span>{seriesItem.author ? <span>דובר: {seriesItem.author}</span> : null}</> : credit ? <span>{credit.prefix}: {credit.name}</span> : null}
+          <span>{seriesItem ? "פורסם " : post?.modified ? "עודכן " : "פורסם "}{bilingualDateLabel(seriesItem?.publishedAt || post?.modified || post?.date, "תאריך לא צוין")}</span>
+          {!sourceItem ? <PostCategories2029 post={post} max={2} compact nested /> : null}
         </div>
-        <span className="sod29-library-post-open">פתח את הפוסט <b aria-hidden="true">←</b></span>
+        <span className="sod29-library-post-open">{sourceItem ? "לצפייה במקור" : "פתח את הפוסט"} <b aria-hidden="true">←</b></span>
       </div>
     </Link>
+    {additionalSources.length ? <div className="sod29-library-post-meta" aria-label="הופעות נוספות של אותו מקור">
+      {additionalSources.map(source => <Link key={source.sourceRef} to={source.href}>{source.credit || source.title || "המקור הציבורי"} · למקור</Link>)}
+    </div> : null}
   </article>;
 }
 
@@ -98,6 +108,7 @@ export default function Posts2029Page() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [attempt, setAttempt] = useState(0);
   const scope = postsCatalogScope2029(searchParams);
+  const mixedSeries = scope.kind === "series" && Boolean(scope.spec?.approvedSources?.length);
   const search = searchParams.get("q") || "";
   const [draftSearch, setDraftSearch] = useState(search);
   useEffect(() => { setDraftSearch(search); }, [search]);
@@ -106,6 +117,7 @@ export default function Posts2029Page() {
   const requestedPage = Number(searchParams.get("page") || 1);
   const page = Number.isSafeInteger(requestedPage) && requestedPage > 0 && requestedPage <= 10000 ? requestedPage : 1;
   const [state, setState] = useState({ page, scopeKey, loading: true, posts: [], total: null, error: null });
+  const [seriesReading, setSeriesReading] = useState({ activeKey: null, loading: true, series: [], error: false });
   const recordedContentEntry = useRef(null);
 
   useEffect(() => {
@@ -129,11 +141,13 @@ export default function Posts2029Page() {
     });
 
     let live = true;
+    const controller = new AbortController();
     setState({ page, scopeKey, loading: true, posts: [], total: null, error: null });
-    fetchPostsCatalog2029({ scope, page, search })
+    fetchPostsCatalog2029({ scope, page, search, signal: controller.signal, allowApprovedSourcePage: mixedSeries })
       .then(({ posts, total }) => {
         if (!live) return;
-        setState({ page, scopeKey, loading: false, posts, total, error: null });
+        setState({ page, scopeKey, loading: false, posts, total, postTotal: total, basePosts: posts,
+          sourceItems: [], sourceTotal: null, mixedComplete: !mixedSeries, mixedError: null, error: null });
       })
       .catch((error) => {
         if (!live) return;
@@ -141,14 +155,40 @@ export default function Posts2029Page() {
         setState({ page, scopeKey, loading: false, posts: [], total: null, error: message });
       });
 
-    return () => { live = false; };
+    return () => { live = false; controller.abort(); };
   }, [page, scopeKey, attempt]);
+
+  useEffect(() => {
+    if (!mixedSeries || state.loading || state.error || state.mixedComplete && state.mixedCatalog === seriesReading || state.scopeKey !== scopeKey || state.page !== page
+      || seriesReading.activeKey !== scope.key || seriesReading.loading) return;
+    const controller = new AbortController();
+    const selected = seriesReading.series.find(series => series.key === scope.key);
+    const sourceReadFailed = seriesReading.error || !selected || selected.sourceStates.some(source => source.state !== "measured");
+    completeMixedSeriesPostsPage2029({ scope, page, search,
+      postResult: { posts: state.basePosts, total: state.postTotal }, sourceItems: selected?.sourceItems || [], signal: controller.signal,
+    }).then(result => {
+      if (!controller.signal.aborted) setState(current => ({ ...current, ...result, sourceTotal: sourceReadFailed ? null : result.sourceTotal,
+        mixedComplete: true, mixedCatalog: seriesReading, mixedError: null }));
+    }).catch(() => {
+      if (!controller.signal.aborted) setState(current => ({ ...current, posts: current.basePosts, total: current.postTotal, sourceItems: [], sourceTotal: null,
+        mixedComplete: true, mixedCatalog: seriesReading, mixedError: "לא ניתן לאמת כרגע את סדר המקורות בסדרה." }));
+    });
+    return () => controller.abort();
+  }, [state, seriesReading, scopeKey, page]);
 
   const pages = Math.max(1, Math.ceil(state.total / 24));
   const sameScope = state.page === page && state.scopeKey === scopeKey;
   const posts = sameScope ? state.posts : [];
   const loading = state.loading || !sameScope;
   const error = sameScope ? state.error : null;
+  const sameSeries = seriesReading.activeKey === scope.key;
+  const selectedSeries = sameSeries ? seriesReading.series.find(series => series.key === scope.key) : null;
+  const sourceItems = mixedSeries && sameScope && state.mixedComplete && state.mixedCatalog === seriesReading ? state.sourceItems || [] : [];
+  const mixedItems = mixedSeries ? mergeContentSeriesItems(projectContentSeriesItems(posts, scope.spec).items, sourceItems) : [];
+  const sourcePending = mixedSeries && (!sameSeries || seriesReading.loading || !loading && !error && (!state.mixedComplete || state.mixedCatalog !== seriesReading));
+  const sourceFailed = mixedSeries && sameScope && sameSeries && !seriesReading.loading
+    && (seriesReading.error || state.mixedError || selectedSeries?.sourceStates.some(source => source.state !== "measured"));
+  const hasItems = mixedSeries ? mixedItems.length > 0 : posts.length > 0;
   const goToPage = (nextPage) => {
     const next = new URLSearchParams(searchParams);
     if (nextPage === 1) next.delete("page");
@@ -193,7 +233,7 @@ export default function Posts2029Page() {
         {search ? <button type="button" onClick={() => { const next = new URLSearchParams(searchParams); next.delete("q"); next.delete("page"); setSearchParams(next); }}>ניקוי החיפוש</button> : null}
       </form>
 
-      {scope.kind === "all" || scope.kind === "series" ? <SeriesEntrances2029 activeKey={scope.kind === "series" ? scope.key : null} search={search} /> : null}
+      {scope.kind === "all" || scope.kind === "series" ? <SeriesEntrances2029 activeKey={scope.kind === "series" ? scope.key : null} search={search} onRead={setSeriesReading} refreshKey={attempt} /> : null}
 
       {loading ? <FrameState kind="loading" title="פותח את הפוסטים">טוען את המקורות הציבוריים הקיימים.</FrameState> : null}
       {error ? <FrameState kind="error" title="לא הצלחתי לפתוח את הפוסטים">
@@ -201,23 +241,26 @@ export default function Posts2029Page() {
         <button type="button" onClick={() => setAttempt(value => value + 1)}>ניסיון טעינה נוסף</button>
         {page > 1 ? <button type="button" onClick={() => goToPage(1)}>חזרה לפוסטים האחרונים</button> : null}
       </FrameState> : null}
-      {!loading && !error && !posts.length
+      {sourcePending ? <p role="status">טוען את המקור הנוסף בסדרה…</p> : null}
+      {sourceFailed ? <div role="status"><p>המקור הנוסף בסדרה לא זמין כרגע. הפוסטים שנקראו נשארים זמינים.</p><button type="button" onClick={() => setAttempt(value => value + 1)}>ניסיון טעינה נוסף</button></div> : null}
+      {!loading && !error && !hasItems && !sourcePending && !sourceFailed
         ? <FrameState kind="empty" title="אין פוסטים בעמוד הזה">
           {page > 1 ? <button type="button" onClick={() => goToPage(1)}>חזרה לפוסטים האחרונים</button> : "אין כרגע מקורות זמינים להצגה."}
         </FrameState>
         : null}
 
-      {posts.length ? <section id="posts-catalog" className="sod29-posts-library-stage" aria-label="פוסטים" data-posts-page={page}>
+      {hasItems ? <section id="posts-catalog" className="sod29-posts-library-stage" aria-label={mixedSeries ? "פוסטים ומקורות בסדרה" : "פוסטים"} data-posts-page={page}>
         <div className="sod29-posts-library-stage-head">
-          <h2>{scope.kind === "all" ? "כל הפוסטים" : "הפוסטים בבחירה"}</h2>
-          <span><bdi className="sod29-posts-numeric">{state.total}</bdi> פוסטים · עמוד <bdi className="sod29-posts-numeric">{page}</bdi> מתוך <bdi className="sod29-posts-numeric">{pages}</bdi></span>
-          <small>הפוסטים האחרונים · לפי עדכון הפוסט</small>
+          <h2>{mixedSeries ? "הפוסטים והמקורות בסדרה" : scope.kind === "all" ? "כל הפוסטים" : "הפוסטים בבחירה"}</h2>
+          <span><bdi className="sod29-posts-numeric">{state.total}</bdi> {mixedSeries && state.sourceTotal != null ? "פריטים" : "פוסטים"} · עמוד <bdi className="sod29-posts-numeric">{page}</bdi> מתוך <bdi className="sod29-posts-numeric">{pages}</bdi></span>
+          <small>{scope.kind === "series" ? "לפי מועד הפרסום במקור" : "הפוסטים האחרונים · לפי עדכון הפוסט"}</small>
         </div>
         <div className="sod29-posts-library-grid">
-          {posts.map((post, index) => <PostIndexCard key={post.id || post.slug} post={post} index={index} />)}
+          {mixedSeries ? mixedItems.map((item, index) => <PostIndexCard key={item.sourceRef} post={posts.find(post => `posts:${post.id}` === item.sourceRef)} seriesItem={item} index={index} />)
+            : posts.map((post, index) => <PostIndexCard key={post.id || post.slug} post={post} index={index} />)}
         </div>
       </section> : null}
-      {!loading && !error && posts.length ? <nav className="sod29-posts-pagination" aria-label="עמודי הפוסטים">
+      {!loading && !error && hasItems ? <nav className="sod29-posts-pagination" aria-label="עמודי הפוסטים">
         <button type="button" disabled={page <= 1} onClick={() => goToPage(page - 1)}>פוסטים חדשים יותר</button>
         <span aria-live="polite">עמוד {page} מתוך {pages}</span>
         <button type="button" disabled={page >= pages} onClick={() => goToPage(page + 1)}>פוסטים קודמים</button>

@@ -57,7 +57,10 @@ test("series reads keep independent failures distinct from measured-empty; signa
   assert.ok(result.series.every(series => series.readState === "failed" && series.total === null));
   assert.equal(fake.calls.filter(call => call[1] === "abortSignal").length, CONTENT_SERIES_2029.length);
   const empty = await fetchContentSeriesCatalog2029({ client: queryClient().client });
-  assert.ok(empty.series.every(series => series.readState === "measured_empty"));
+  assert.ok(empty.series.filter(series => !series.hasApprovedSources).every(series => series.readState === "measured_empty"));
+  assert.equal(empty.byKey["messages-from-righteous"].readState, "not_loaded",
+    "an unrequested approved source is not evidence that the whole mixed series is empty");
+  assert.equal(empty.byKey["messages-from-righteous"].sourceTotal, null);
 });
 
 test("Home summary admission suppresses all seven reads, and admitted summary preserves existing reader", async () => {

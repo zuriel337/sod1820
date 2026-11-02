@@ -56,6 +56,17 @@ export const CONTENT_SERIES_2029 = Object.freeze([
       Object.freeze({ field: "categories", value: "מסרים מצדיקים" }),
       Object.freeze({ field: "categories", value: "רמזים מצדיקים" }),
     ]),
+    // ZURIEL approved this one existing public occurrence after reviewing the
+    // immutable 8f8876f7 proposal. Reading association only: no publication,
+    // channel-wide classification, inferred topical approval or Follow release.
+    approvedSources: Object.freeze([
+      Object.freeze({
+        sourceRef: "channel_updates:9d4e6b80-f52b-4461-9231-ca30f37f0db9",
+        channel: "or-geula",
+        publicAssetId: "25e378462b55298219e5f7562698bfa7",
+        decisionRef: "ZURIEL/20261102/8f8876f7",
+      }),
+    ]),
     exactAuthor: null,
     relationNote: "סדרה משותפת. אור הגאולה נשאר מקור; עדכונים ממנו מצטרפים רק לאחר אישור ושיוך לפריט, לא מכוח שם הערוץ.",
   }),

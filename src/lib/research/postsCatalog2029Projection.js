@@ -172,14 +172,14 @@ export async function fetchPostFollowTargets2029({ post = null, scope = null, cl
   }));
 }
 
-export async function fetchPostsCatalog2029({ scope = postsCatalogScope2029(), page = 1, search = "", client = getPublicResearchClient() } = {}) {
+const CATALOG_COLUMNS = "id,wp_id,source,link,slug,title,excerpt,author,categories,tags,image_url,thumb_url,date,modified";
+function publicCatalogQuery({ scope, search, client, head = false }) {
   if (!client || scope.kind === "invalid" || !["all", "category", "series"].includes(scope.kind)) throw new Error("בחירת התוכן אינה זמינה.");
   // Re-resolve a series by its owned key, never trust a caller-supplied spec/author/filter.
   const spec = scope.kind === "series" ? contentSeriesByKey(scope.key) : null;
   if (scope.kind === "series" && !spec) throw new Error("הסדרה אינה זמינה.");
-  if (!Number.isSafeInteger(page) || page < 1 || page > 10000) throw new Error("עמוד לא תקין.");
   let query = client.from("posts")
-    .select("id,wp_id,source,link,slug,title,excerpt,author,categories,tags,image_url,thumb_url,date,modified", { count: "exact" })
+    .select(head ? "id" : CATALOG_COLUMNS, { count: "exact", ...(head ? { head: true } : {}) })
     .or(publicPostOnlyFilter());
   if (scope.kind === "category") {
     const names = postCategoryFilterNames(scope.key);
@@ -193,12 +193,87 @@ export async function fetchPostsCatalog2029({ scope = postsCatalogScope2029(), p
   const term = postsSearch2029(search);
   // One escaped column filter on the existing public catalog, not a second search index.
   if (term) query = query.ilike("title", `%${term.replace(/[\\%_]/g, "\\$&")}%`);
-  const { data, error, count } = await query.order("modified", { ascending: false, nullsFirst: false })
-    .order("id", { ascending: true }).range((page - 1) * 24, page * 24 - 1);
-  if (error) throw error;
-  if (!Array.isArray(data) || !Number.isSafeInteger(count) || count < 0) throw new Error("לא ניתן לאמת את רשימת התוכן.");
-  if (data.some(row => hasSuppressedPublicPostTag(row) || spec && (!hasExactMembership(row, spec) || spec.exactAuthor && row.author !== spec.exactAuthor))) {
+  return { query, spec, term };
+}
+
+function validatePage(page) {
+  if (!Number.isSafeInteger(page) || page < 1 || page > 10000) throw new Error("עמוד לא תקין.");
+}
+function cancelCatalog(signal) {
+  if (signal?.aborted) throw new DOMException("Catalog reading canceled", "AbortError");
+}
+function validatePostRows(data, spec) {
+  if (!Array.isArray(data) || data.some(row => hasSuppressedPublicPostTag(row) || spec && (!hasExactMembership(row, spec) || spec.exactAuthor && row.author !== spec.exactAuthor))) {
     throw new Error("לא ניתן לאמת את שיוך התוכן.");
   }
+}
+
+export async function fetchPostsCatalog2029({ scope = postsCatalogScope2029(), page = 1, search = "", client = getPublicResearchClient(), signal, allowApprovedSourcePage = false } = {}) {
+  validatePage(page); cancelCatalog(signal);
+  const { query, spec } = publicCatalogQuery({ scope, search, client });
+  const ordered = query.order(spec ? "date" : "modified", { ascending: false, nullsFirst: false })
+    .order("id", { ascending: true }).range((page - 1) * 24, page * 24 - 1);
+  if (signal) ordered.abortSignal(signal);
+  const { data, error, count } = await ordered;
+  cancelCatalog(signal);
+  // One admitted source may create a last page after the final Post. Verify the
+  // Post count rather than treating a 416 response as an invented empty page.
+  if (error?.code === "PGRST103" && allowApprovedSourcePage && spec?.approvedSources?.length === 1) {
+    let countQuery = publicCatalogQuery({ scope, search, client, head: true }).query;
+    if (signal) countQuery = countQuery.abortSignal(signal);
+    const counted = await countQuery;
+    cancelCatalog(signal);
+    if (!counted.error && Number.isSafeInteger(counted.count) && counted.count === (page - 1) * 24) return { posts: [], total: counted.count };
+  }
+  if (error) throw error;
+  if (!Array.isArray(data) || !Number.isSafeInteger(count) || count < 0) throw new Error("לא ניתן לאמת את רשימת התוכן.");
+  validatePostRows(data, spec);
   return { posts: data, total: count };
+}
+
+// Complete the already-readable bounded Post page with the ONE admitted source.
+// The exact count and optional predecessor reuse the same public/membership/search
+// filters. No full-catalog scan, body, persistent cache or new RPC is involved.
+export async function completeMixedSeriesPostsPage2029({ scope, page = 1, search = "", postResult,
+  sourceItems = [], client = getPublicResearchClient(), signal } = {}) {
+  validatePage(page); cancelCatalog(signal);
+  const spec = scope?.kind === "series" ? contentSeriesByKey(scope.key) : null;
+  if (!spec || !Array.isArray(postResult?.posts) || !Number.isSafeInteger(postResult.total) || postResult.total < 0) throw new Error("לא ניתן לאמת את עמוד הסדרה.");
+  validatePostRows(postResult.posts, spec);
+  const term = postsSearch2029(search);
+  const sources = sourceItems.filter(item => item?.kind === "channel_update"
+    && spec.approvedSources?.some(approval => approval.sourceRef === item.sourceRef && approval.decisionRef === item.decisionRef
+      && item.href === `/video/${approval.publicAssetId}`)
+    && Number.isFinite(Date.parse(item.publishedAt || ""))
+    && (!term || String(item.title).toLocaleLowerCase().includes(term.toLocaleLowerCase())));
+  if (sources.length > 1) throw new Error("נדרש אימות של עימוד המקורות.");
+  const base = { posts: postResult.posts, postTotal: postResult.total, sourceItems: [], sourceTotal: sources.length,
+    total: postResult.total + sources.length };
+  if (!sources.length) return base;
+  const source = sources[0], offset = (page - 1) * 24;
+  let rankQuery = publicCatalogQuery({ scope, search, client, head: true }).query.gte("date", source.publishedAt);
+  if (signal) rankQuery = rankQuery.abortSignal(signal);
+  const ranked = await rankQuery;
+  cancelCatalog(signal);
+  if (ranked.error) throw ranked.error;
+  if (!Number.isSafeInteger(ranked.count) || ranked.count < 0 || ranked.count > postResult.total) throw new Error("לא ניתן לאמת את סדר הפריטים.");
+  // date DESC, then all Posts before the source at the same publication time.
+  const rank = ranked.count;
+  if (rank >= offset && rank < offset + 24) {
+    const localIndex = rank - offset;
+    if (localIndex > postResult.posts.length) throw new Error("עמוד הסדרה השתנה; יש לטעון מחדש.");
+    return { ...base, posts: postResult.posts.slice(0, 23), sourceItems: [source] };
+  }
+  if (rank < offset) {
+    let predecessorQuery = publicCatalogQuery({ scope, search, client }).query
+      .order("date", { ascending: false, nullsFirst: false }).order("id", { ascending: true }).range(offset - 1, offset - 1);
+    if (signal) predecessorQuery = predecessorQuery.abortSignal(signal);
+    const previous = await predecessorQuery;
+    cancelCatalog(signal);
+    if (previous.error) throw previous.error;
+    validatePostRows(previous.data, spec);
+    if (previous.data.length !== 1 || previous.count !== postResult.total) throw new Error("עמוד הסדרה השתנה; יש לטעון מחדש.");
+    return { ...base, posts: [...previous.data, ...postResult.posts].slice(0, 24) };
+  }
+  return base;
 }
