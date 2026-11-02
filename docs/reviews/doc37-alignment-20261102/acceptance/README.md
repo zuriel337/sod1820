@@ -96,3 +96,39 @@ The original full public journeys and old URL/calculator route receipts remain
 usable evidence for unaffected code. Root chooses focused repetitions based on
 the actual integrated diff. Real DB/media recovery and final hosted Production
 activation acceptance remain distinct gates and are not implied by this work.
+
+## Executed baseline diagnostic and Legacy access attempt
+
+Root granted an exclusive browser window after all builds/tests were paused.
+One native979c diagnostic completed with actual SW. It measured four font-load
+calls starting2.3245s and settling2.3266s: approximately2.1ms of actual await in
+this run. Home code requested2.433s→3.694s; shared shell2.436s→4.264s, shell DOM
+4.481s and useful Home4.791s. ScriptDuration0.556s and TaskDuration1.381s are CDP
+cumulative execution durations. This supports investigating the late shell code
+chain; it does not justify attributing five seconds to fonts or to all shell code.
+A denied `notification_prefs_guest_get_v1` call was retained. It was not forwarded
+by the independent guard. It must be accounted for as an attempted guest-follow
+read, not as a successful operation or hidden test pass.
+
+The first protected-preview preflight failed because its private access URL had
+a query-key typo. Root corrected the private input; a single justified retry
+verified the exactSHA and passed. No product startup trial existed in the failed
+preflight. The access URL/configuration is never committed.
+
+Legacy identity was independently reverified by root:
+`dpl_BFpwZGiYL3Qpdy9nCuGKGb9Xmko2`,
+`d1837efcf5a978d10a514010f3695680f231e116`. The benchmark uses separate meaningful
+Legacy milestones: enabled search control, first real update card, and loaded
+hero image; these are not claimed to be the same DOM semantics as new Home.
+However, the canonical hostname returned HTTP403 and plain `Access denied` before
+application code or SW. Three completed attempts and one interrupted attempt
+remain in `legacy-access-block.json`; **zero valid Legacy performance samples**.
+The remaining batch was stopped. No Legacy code, domain or protection changed.
+
+The harness now stops immediately on document HTTP failure instead of spending a
+content timeout on a known denied page. Both benchmark modes block analytics
+network destinations and retain denied write/model/telemetry attempts; a guarded
+Legacy benchmark therefore is not a claim about unrestricted production telemetry
+cost. Browser screenshots and raw reports remain at `/tmp/doc37-acceptance/` for
+the central integrator's safe archival. Private access inputs are separate and
+excluded. The exclusive window was released after the blocked Legacy batch.
