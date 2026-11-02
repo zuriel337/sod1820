@@ -1,0 +1,64 @@
+{
+  "schema": 1,
+  "checkedDateUtc": "2026-11-02",
+  "task": "PUBLIC_HOME_JS_CRITICAL_PATH_20261102",
+  "coordinationBefore": "fd88ee41-bce1-493d-8ba5-fbb3d579e8fe",
+  "sourceBase": "0d4ad83644a74abe5d990f7a628dd955fd0c638a",
+  "remoteProductSha": "0d4ad83644a74abe5d990f7a628dd955fd0c638a",
+  "remoteMainSha": "2195c9784c5c9f0b1ec3cd3c1137fbd76045845b",
+  "acceptedEvidenceSha": "6e9870a977f9ad28d869a6846b0b3558be8e2f6c",
+  "coordination": {
+    "connector": "sod1820_supabase_readonly_execute_sql",
+    "role": "supabase_read_only_user",
+    "transactionReadOnly": "on",
+    "checkedAt": "2026-11-02T18:41:33.4772+00:00",
+    "matchingActiveOverlaps": 1,
+    "overlap": "own delegated documentation scope only"
+  },
+  "canonicalProject": {
+    "id": "linswmnnkjxvweumprav",
+    "status": "ACTIVE_HEALTHY",
+    "region": "ap-northeast-1",
+    "postgres": "17.6.1.141",
+    "backupDatesReturned": false,
+    "pitrWindowReturned": false
+  },
+  "vercel": {
+    "projectId": "prj_43q7k7QFAcWnin1tcBjce5xOi7Cq",
+    "teamId": "team_vtfWHZfKvdbob8gvynQb5N89",
+    "ssoProtection": {
+      "enabled": true,
+      "deploymentType": "all_except_custom_domains"
+    },
+    "observedAcceptedDeployment": "dpl_GS12MCQnDxXFfVLiPgxNeaSRYeKa",
+    "observedAcceptedSha": "0d4ad83644a74abe5d990f7a628dd955fd0c638a",
+    "observedAcceptedTarget": "staging",
+    "canonicalAliasesReverifiedByThisLane": false,
+    "projectSettingsChanged": false
+  },
+  "backup": {
+    "inventoryReused": "docs/reviews/public-launch-closure-20261102/recovery/inventory.json",
+    "inventoryLiveStorageObservedAt": "2026-11-02T09:42:23.811191Z",
+    "currentToolCatalogHasDatedBackupOrPitrList": false,
+    "managementReadEndpoint": "GET /v1/projects/linswmnnkjxvweumprav/database/backups",
+    "managementReadIdentityBound": false,
+    "absenceOfBackupsProven": false,
+    "privateExport": false,
+    "restore": false,
+    "targetApproved": false,
+    "paidResourceCreated": false,
+    "inventoryRescan": false
+  },
+  "artifact": {
+    "sourceApplied": false,
+    "buildsRun": 0,
+    "testsRun": 0,
+    "browserRuns": 0,
+    "deployments": 0,
+    "patchSourceTargets": 9,
+    "staticPatchApplyCheck": "PASS",
+    "legacyLockEdited": false,
+    "sharedConfigurationChanged": false
+  },
+  "note": "Existing 0d4 A3/Isolation/G4 receipts remain accepted; no backup recovery claim. Proposal and test plan only."
+}

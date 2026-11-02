@@ -1,0 +1,51 @@
+{
+  "kind": "proposal-only-not-applied",
+  "base_sha": "0d4ad83644a74abe5d990f7a628dd955fd0c638a",
+  "files": [
+    {
+      "path": "public-reading-deploy/deployment-policy.js",
+      "before_sha256": null,
+      "proposed_sha256": "186df8ff9c7457cd4706f275f86162e99c6c5e1ccf8ad9a3f64eac39bd75e38f"
+    },
+    {
+      "path": "public-reading-deploy/review-admission.js",
+      "before_sha256": null,
+      "proposed_sha256": "b68c33f7da17f720b67adcc673b30f2cdad2f28423f1a37d7c2c6ee71331c62f"
+    },
+    {
+      "path": "public-reading-deploy/authorization.js",
+      "before_sha256": "affa3ff92edce22d3fe7e505bf57b1bf77d1d86a1d23129b15fbe9c90b3415f8",
+      "proposed_sha256": "8f36065f5a2c28773fa7662975fcdc94dcb88d9df13dca46fd0dd450133d8d93"
+    },
+    {
+      "path": "scripts/build-public-reading-production.mjs",
+      "before_sha256": "42b01341d4f704caaec03e02fdca15ea92f18589461d74576add12445f625e96",
+      "proposed_sha256": "530a60b9a991e6e43ad6fcf91317f3f8ab101ade48670505ca66405d5b87b58a"
+    },
+    {
+      "path": "public-reading-deploy/api/public-document.js",
+      "before_sha256": "22cace53968627818209eb7f6e85a40d71b665243fe00cc4c32bb9c7851ecdcc",
+      "proposed_sha256": "084c6f87e5e54e6c3e51f9d75abc5df8270b03751b32749df1ac16a055a70cde"
+    },
+    {
+      "path": "public-reading-deploy/api/public-sitemap.js",
+      "before_sha256": "4e48063ad7d4541fd205040df5e69ea03f1d1da6dc1b6285de111a1cac7bb498",
+      "proposed_sha256": "b47ef061c87250c37ccb11a17c784717ce5dc89ee4b545d763e95860c57d1fda"
+    },
+    {
+      "path": "public-reading-deploy/api/public-robots.js",
+      "before_sha256": "aa7d83d67330fa8bfc1b36a9760d812f21c3e2f571038a56faf5382ebb0fcd7e",
+      "proposed_sha256": "11cf9f105b9b53fb6a713f303495663a9ee749df17e75c526bd32b6003a3682a"
+    },
+    {
+      "path": "public-reading-deploy/api/card.js",
+      "before_sha256": "0579246cb38991f25d848b32270050a3c554e85d71495228cf13417d3b0d8883",
+      "proposed_sha256": "41ee7b4831f211821cb3d2b8525e1bd79aa56839947a404f469fe3dc518bfc5f"
+    },
+    {
+      "path": "public-reading-deploy/vercel.json",
+      "before_sha256": "305704257a12924ae1206c6d260a67b0978cfa314a48213b31ac2462a518f9d1",
+      "proposed_sha256": "bd4688e33c12649a12b5eacb561e87b9a99df49399512fdf7921fdb250726533"
+    }
+  ]
+}

@@ -1,0 +1,283 @@
+--- /dev/null
++++ b/public-reading-deploy/deployment-policy.js
+@@ -0,0 +1,12 @@
++// Production stays dormant. A protected-review receipt is separate and never
++// authorizes Production, canonical domains, aliases or public indexing.
++export const PUBLIC_READING_DEPLOYMENT_AUTHORIZATION = Object.freeze({
++  state: "dormant",
++  approvedSourceSha: null,
++  approvedDeploymentId: null,
++  approvedAt: null,
++});
++export const CANONICAL_ORIGIN = "https://sod1820.co.il";
++export const PUBLIC_READING_ORIGINS = Object.freeze([
++  CANONICAL_ORIGIN, "https://www.sod1820.co.il", "https://sod1820.vercel.app",
++]);
+--- /dev/null
++++ b/public-reading-deploy/review-admission.js
+@@ -0,0 +1,37 @@
++// Pure admission checks for this existing artifact's protected review only.
++// The operator pins a clean Git SHA in this deployment's build command; the
++// compiler records its own platform identity, which runtime must match exactly.
++// No user request/header/query or shared site flag selects this mode.
++export const REVIEW_PROJECT_ID = "prj_43q7k7QFAcWnin1tcBjce5xOi7Cq";
++export const REVIEW_BRANCH = "gpt/2029-doc37-unified-alignment-20261102";
++const sourceShaPattern = /^[0-9a-f]{40}$/;
++const deploymentPattern = /^dpl_[A-Za-z0-9]+$/;
++const hostPattern = /^sod1820-[a-z0-9]+-sod1820-s-projects\.vercel\.app$/;
++function previewPlatform(env) {
++  return env.VERCEL === "1" && env.VERCEL_ENV === "preview"
++    && env.VERCEL_TARGET_ENV === "preview"
++    && env.VERCEL_PROJECT_ID === REVIEW_PROJECT_ID
++    && env.VERCEL_GIT_COMMIT_REF === REVIEW_BRANCH
++    && sourceShaPattern.test(env.VERCEL_GIT_COMMIT_SHA || "")
++    && deploymentPattern.test(env.VERCEL_DEPLOYMENT_ID || "")
++    && hostPattern.test(env.VERCEL_URL || "");
++}
++export function protectedReviewBuildIdentity({ env, sourceSha, sourceDirty, requestedSourceSha }) {
++  if (!previewPlatform(env) || sourceDirty || !sourceShaPattern.test(sourceSha || "")
++    || requestedSourceSha !== sourceSha || env.VERCEL_GIT_COMMIT_SHA !== sourceSha)
++    throw new Error("public_reading_protected_review_identity_rejected");
++  return Object.freeze({ schema: 1, mode: "protected-preview-review", target: "preview",
++    sourceSha, branch: REVIEW_BRANCH, projectId: REVIEW_PROJECT_ID,
++    deploymentId: env.VERCEL_DEPLOYMENT_ID, host: env.VERCEL_URL,
++    productionAuthorized: false, indexingAuthorized: false });
++}
++export function protectedReviewRuntimeAuthorized(identity, env) {
++  return identity?.schema === 1 && identity.mode === "protected-preview-review"
++    && identity.target === "preview" && identity.productionAuthorized === false
++    && identity.indexingAuthorized === false && previewPlatform(env)
++    && identity.projectId === env.VERCEL_PROJECT_ID
++    && identity.branch === env.VERCEL_GIT_COMMIT_REF
++    && identity.sourceSha === env.VERCEL_GIT_COMMIT_SHA
++    && identity.deploymentId === env.VERCEL_DEPLOYMENT_ID
++    && identity.host === env.VERCEL_URL;
++}
+--- a/public-reading-deploy/authorization.js
++++ b/public-reading-deploy/authorization.js
+@@ -1,15 +1,19 @@
+-// Deliberately dormant. No environment variable, request/query/header, branch
+-// name or injected VERCEL_ENV can enable a hosted build or these entrypoints.
+-// Activation requires a separate reviewed authorization/guard change after
+-// ZURIEL names the exact 2029 Production cutover SHA and deployment ID.
+-export const PUBLIC_READING_DEPLOYMENT_AUTHORIZATION = Object.freeze({
+-  state: "dormant",
+-  approvedSourceSha: null,
+-  approvedDeploymentId: null,
+-  approvedAt: null,
+-});
+-export const CANONICAL_ORIGIN = "https://sod1820.co.il";
+-export const PUBLIC_READING_ORIGINS = Object.freeze([
+-  CANONICAL_ORIGIN, "https://www.sod1820.co.il", "https://sod1820.vercel.app",
+-]);
+-export function deploymentAuthorized() { return false; }
++import { PROTECTED_REVIEW_BUILD } from "./.generated/protected-review-build.js";
++import { protectedReviewRuntimeAuthorized } from "./review-admission.js";
++import { PUBLIC_READING_ORIGINS } from "./deployment-policy.js";
++export { PUBLIC_READING_DEPLOYMENT_AUTHORIZATION, CANONICAL_ORIGIN,
++  PUBLIC_READING_ORIGINS } from "./deployment-policy.js";
++
++// The generated receipt is null for the ordinary dormant local build. A hosted
++// review build is bound to this exact immutable deployment, source SHA and host.
++// Production is denied in every case; this is not cutover authorization.
++export function deploymentAuthorized() {
++  return protectedReviewRuntimeAuthorized(PROTECTED_REVIEW_BUILD, process.env);
++}
++export function protectedReviewOrigin() {
++  return deploymentAuthorized() ? `https://${PROTECTED_REVIEW_BUILD.host}` : null;
++}
++export function publicReadingOriginAllowed(origin) {
++  const review = protectedReviewOrigin();
++  return review ? origin === review : PUBLIC_READING_ORIGINS.includes(origin);
++}
+--- a/scripts/build-public-reading-production.mjs
++++ b/scripts/build-public-reading-production.mjs
+@@ -5,12 +5,21 @@
+ import { execFileSync } from "node:child_process";
+ import { buildPublicReadingWorker, publicReadingBootstrap, PUBLIC_READING_POLICY_ID } from "../public-reading-deploy/transport.js";
+ import { PUBLIC_READING_PROFILE_ID } from "../src/lib/publicReadingRelease2029.js";
+-import { PUBLIC_READING_DEPLOYMENT_AUTHORIZATION } from "../public-reading-deploy/authorization.js";
++import { PUBLIC_READING_DEPLOYMENT_AUTHORIZATION } from "../public-reading-deploy/deployment-policy.js";
++import { protectedReviewBuildIdentity } from "../public-reading-deploy/review-admission.js";
+
+-// This builds real 2029 source locally, never another branch's Preview output.
+-// Hosted builds are deliberately dormant pending separate exact-SHA/deployment
+-// authorization. Do not fake VERCEL_ENV or weaken the existing Legacy gate.
+-if (process.env.VERCEL || process.env.VERCEL_ENV) throw new Error("public_reading_hosted_activation_requires_separate_guard_approval");
++// Default artifact stays dormant. A separate explicit deployment-scoped review
++// command may admit only an exact clean Git source on the existing protected
++// Vercel Preview project. Never clear/fake platform environment variables.
++const args = process.argv.slice(2);
++const reviewMode = args.includes("--protected-review");
++const pins = args.filter(value => value.startsWith("--review-source="));
++if (args.some(value => value !== "--protected-review" && !value.startsWith("--review-source="))
++  || args.filter(value => value === "--protected-review").length > 1
++  || pins.length > 1 || Boolean(pins.length) !== reviewMode)
++  throw new Error("invalid_public_reading_build_arguments");
++if ((process.env.VERCEL || process.env.VERCEL_ENV) && !reviewMode)
++  throw new Error("public_reading_hosted_activation_requires_separate_guard_approval");
+ const root = fileURLToPath(new URL("../", import.meta.url));
+ const output = resolve(root, "public-reading-deploy/dist");
+ const templates = resolve(root, "public-reading-deploy/.generated");
+@@ -18,6 +27,15 @@
+   execFileSync(process.execPath, [resolve(root, "scripts", gate)], { cwd: root, stdio: "inherit" });
+ const sha = execFileSync("git", ["rev-parse", "HEAD"], { cwd: root, encoding: "utf8" }).trim();
+ const dirty = execFileSync("git", ["status", "--porcelain", "--untracked-files=no"], { cwd: root, encoding: "utf8" }).trim().length > 0;
++const protectedReview = reviewMode ? protectedReviewBuildIdentity({ env: process.env,
++  sourceSha: sha, sourceDirty: dirty, requestedSourceSha: pins[0].slice("--review-source=".length) }) : null;
++// Generate for both modes, replacing stale review authority with null locally.
++// Builder imports only the static policy; handlers import this generated module
++// after the build. It must be included in each traced Node/Edge handler bundle.
++await mkdir(templates, { recursive: true });
++await writeFile(resolve(templates, "protected-review-build.js"),
++  `export const PROTECTED_REVIEW_BUILD = Object.freeze(${JSON.stringify(protectedReview)});\n`);
++
+ process.env.SOD_BUILD_TARGET = "2029";
+ const { build } = await import("vite");
+ const previewFlags = ["VITE_PUBLIC_FRAME_PREVIEW", "VITE_PUBLIC_FOUNDATION_PREVIEW", "VITE_PUBLIC_LAUNCH_READ_ONLY_PREVIEW", "VITE_INTEGRATED_PREVIEW", "VITE_KINGDOM_PREVIEW", "VITE_BOOK_PUBLICATION_REVIEW_PREVIEW", "VITE_UNLOCKED_2029_PREVIEW", "VITE_FUNCTIONAL_UNIFIED_PREVIEW"];
+@@ -55,6 +73,7 @@
+ await writeFile(resolve(output, "public-reading-artifact.json"), JSON.stringify({
+   schema: 1, sourceSha: sha, sourceDirty: dirty, buildTarget: "2029", releaseProfile: PUBLIC_READING_PROFILE_ID,
+   policy: PUBLIC_READING_POLICY_ID, activation: PUBLIC_READING_DEPLOYMENT_AUTHORIZATION,
++  protectedReview,
+   deploymentConfigSha256: hash(await readFile(resolve(root, "public-reading-deploy/vercel.json"))),
+   documentTemplateSha256: hash(document), documentTemplatePublic: false,
+   deployed: false, productionReady: false, generalProductWrites: false,
+@@ -63,4 +82,4 @@
+   workerSha256: hash(worker), legacyRollbackWorkerSha256: hash(await readFile(resolve(root, "public/sw.js"))),
+   files: files.sort((a, b) => a.path.localeCompare(b.path)),
+ }, null, 2) + "\n");
+-console.log("Dormant public-reading artifact built from actual 2029 source. No deployment or cutover is authorized.");
++console.log(protectedReview ? "Protected Preview review artifact built. Production/cutover remain denied." : "Dormant public-reading artifact built from actual 2029 source. No deployment or cutover is authorized.");
+--- a/public-reading-deploy/api/public-document.js
++++ b/public-reading-deploy/api/public-document.js
+@@ -1,11 +1,11 @@
+ import { readFile } from "node:fs/promises";
+ import ogHandler from "../../api/og.js";
+ import { PUBLIC_READING_PROFILE_ID, publicReadingPath } from "../../src/lib/publicReadingRelease2029.js";
+-import { CANONICAL_ORIGIN, PUBLIC_READING_ORIGINS, deploymentAuthorized } from "../authorization.js";
++import { CANONICAL_ORIGIN, publicReadingOriginAllowed, protectedReviewOrigin, deploymentAuthorized } from "../authorization.js";
+
+ export function requestOrigin(req) {
+   const host = req.headers?.host;
+-  if (typeof host !== "string" || !PUBLIC_READING_ORIGINS.includes(`https://${host}`)) return null;
++  if (typeof host !== "string" || !publicReadingOriginAllowed(`https://${host}`)) return null;
+   if (req.headers?.["x-forwarded-proto"] && req.headers["x-forwarded-proto"] !== "https") return null;
+   return `https://${host}`;
+ }
+@@ -14,16 +14,16 @@
+   let head = metadata.match(/<head\b[^>]*>([\s\S]*?)<\/head>/i)?.[1];
+   if (!head) throw new Error("public_metadata_unavailable");
+   head = head.replace(/<meta\b[^>]*http-equiv=["']refresh["'][^>]*>/gi, "");
+-  if (noindex) head = head.replace(/<meta\b[^>]*name=["']robots["'][^>]*>/gi,
+-    '<meta name="robots" content="noindex, nofollow"/>');
++  if (noindex) head = head.replace(/<meta\b[^>]*name=["']robots["'][^>]*>/gi, "")
++    + '<meta name="robots" content="noindex, nofollow, noarchive"/>';
+   const clean = document.replace(/<title>[\s\S]*?<\/title>/gi, "")
+     .replace(/<meta\b[^>]*(?:name=["'](?:description|robots|twitter:[^"']+)["']|property=["'](?:og:[^"']+|article:[^"']+)["'])[^>]*>/gi, "")
+     .replace(/<link\b[^>]*rel=["']canonical["'][^>]*>/gi, "");
+   return clean.replace(/<\/head>/i, head + "</head>");
+ }
+
+-// Dependency injection is for the local synthetic acceptance server. The hosted
+-// default always uses the disabled authorization above; no request selects it.
++// Dependency injection remains a local synthetic test seam. Hosted admission
++// uses only the exact generated protected-review receipt; no request selects it.
+ export function publicReadingDocumentHandler({ authorized = deploymentAuthorized,
+   readDocument = () => readFile(new URL("../.generated/2029.html", import.meta.url), "utf8"),
+   metadataHandler = ogHandler } = {}) {
+@@ -47,7 +47,7 @@
+       const decoded = decodeURIComponent(path);
+       if (/[\\\u0000-\u001f\u007f]/.test(decoded) || decoded.startsWith("//")) return res.status(400).send("invalid path");
+     } catch { return res.status(400).send("invalid path"); }
+-    if (origin !== CANONICAL_ORIGIN && originalDocument) {
++    if (origin !== CANONICAL_ORIGIN && origin !== protectedReviewOrigin() && originalDocument) {
+       // URL.search preserves the original bytes, repeated parameters and the
+       // legitimate user key `path`. Never reconstruct it from rewrite query.
+       res.setHeader("Location", CANONICAL_ORIGIN + path + original.search);
+@@ -67,7 +67,7 @@
+         query: { ...req.query, path: metadataPath, crawler: "search" },
+       }, { setHeader() {}, status(code) { if (!closed) status = code; return this; }, send(value) { metadata = String(value); } });
+       if (status >= 500) throw new Error("public_source_unavailable");
+-      const noindex = closed || status !== 200;
++      const noindex = Boolean(protectedReviewOrigin()) || closed || status !== 200;
+       const html = mergeProductionDocumentMetadata(await readDocument(), metadata, { noindex });
+       const robots = html.match(/<meta\b[^>]*name=["']robots["'][^>]*content=["']([^"']+)/i)?.[1];
+       if (!robots) throw new Error("public_robots_unavailable");
+--- a/public-reading-deploy/api/public-sitemap.js
++++ b/public-reading-deploy/api/public-sitemap.js
+@@ -1,18 +1,22 @@
+ import sitemapHandler from "../../api/sitemap.js";
+ import { PUBLIC_READING_PROFILE_ID } from "../../src/lib/publicReadingRelease2029.js";
+-import { deploymentAuthorized } from "../authorization.js";
++import { deploymentAuthorized, protectedReviewOrigin } from "../authorization.js";
+ import { requestOrigin } from "./public-document.js";
+
+ export function publicReadingSitemapHandler({ authorized = deploymentAuthorized, handler = sitemapHandler } = {}) {
+   return async (req, res) => {
+     res.setHeader("Cache-Control", "no-store");
++    if (protectedReviewOrigin()) res.setHeader("X-Robots-Tag", "noindex, nofollow, noarchive");
+     if (!authorized()) return res.status(503).send("Public reading deployment is not activated.");
+     if (!requestOrigin(req)) return res.status(421).send("unavailable origin");
+     if (!["GET", "HEAD"].includes(req.method)) { res.setHeader("Allow", "GET, HEAD"); return res.status(405).send("method not allowed"); }
+     try {
+       return await handler({ ...req, publicFoundationPreview: true, publicReadingRelease: PUBLIC_READING_PROFILE_ID,
+         publicReadingProductionArtifact: true }, {
+-        setHeader(key, value) { res.setHeader(key, key.toLowerCase() === "cache-control" ? "no-store" : value); },
++        setHeader(key, value) {
++          if (protectedReviewOrigin() && key.toLowerCase() === "x-robots-tag") value = "noindex, nofollow, noarchive";
++          res.setHeader(key, key.toLowerCase() === "cache-control" ? "no-store" : value);
++        },
+         status(code) { res.status(code); return this; },
+         send(body) { return res.send(req.method === "HEAD" ? "" : body); },
+       });
+--- a/public-reading-deploy/api/public-robots.js
++++ b/public-reading-deploy/api/public-robots.js
+@@ -1,4 +1,4 @@
+-import { CANONICAL_ORIGIN, deploymentAuthorized } from "../authorization.js";
++import { CANONICAL_ORIGIN, deploymentAuthorized, protectedReviewOrigin } from "../authorization.js";
+ import { requestOrigin } from "./public-document.js";
+ export function publicReadingRobotsHandler({ authorized = deploymentAuthorized } = {}) {
+   return (req, res) => {
+@@ -7,6 +7,10 @@
+     if (!authorized()) return res.status(503).send("User-agent: *\nDisallow: /\n");
+     if (!requestOrigin(req)) return res.status(421).send("User-agent: *\nDisallow: /\n");
+     if (!["GET", "HEAD"].includes(req.method)) return res.status(405).send("");
++    if (protectedReviewOrigin()) {
++      res.setHeader("X-Robots-Tag", "noindex, nofollow, noarchive");
++      return res.status(200).send(req.method === "HEAD" ? "" : "User-agent: *\nDisallow: /\n");
++    }
+     // Indexability is decided by canonical page metadata/publication readers.
+     // Let crawlers fetch closed URLs to observe noindex; never hide it behind a
+     // robots disallow. API and signed service addresses are never crawl targets.
+--- a/public-reading-deploy/api/card.js
++++ b/public-reading-deploy/api/card.js
+@@ -1,10 +1,14 @@
+ import handler from "../../api/card.js";
+-import { deploymentAuthorized, PUBLIC_READING_ORIGINS } from "../authorization.js";
++import { deploymentAuthorized, publicReadingOriginAllowed } from "../authorization.js";
+ export const config = { runtime: "edge" };
+-export default function publicReadingCard(req) {
++export default async function publicReadingCard(req) {
+   const url = new URL(req.url);
+   if (!deploymentAuthorized()) return new Response("unavailable", { status: 503 });
+-  if (!PUBLIC_READING_ORIGINS.includes(url.origin)) return new Response("unavailable", { status: 421 });
++  if (!publicReadingOriginAllowed(url.origin)) return new Response("unavailable", { status: 421 });
+   if (!["GET", "HEAD"].includes(req.method)) return new Response("method not allowed", { status: 405 });
+-  return handler(req);
++  const result = await handler(req);
++  const headers = new Headers(result.headers);
++  headers.set("Cache-Control", "no-store");
++  headers.set("X-Robots-Tag", "noindex, nofollow, noarchive");
++  return new Response(req.method === "HEAD" ? null : result.body, { status: result.status, headers });
+ }
+--- a/public-reading-deploy/vercel.json
++++ b/public-reading-deploy/vercel.json
+@@ -1,7 +1,6 @@
+ {
+   "framework": null,
+   "installCommand": "npm ci --prefix .. --no-audit --no-fund",
+-  "buildCommand": "npm run build",
+   "outputDirectory": "dist",
+   "redirects": [
+     {
