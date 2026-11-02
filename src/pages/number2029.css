@@ -1372,3 +1372,6 @@
 
   }
 }
+
+/* Reserve the material section while canonical primary calculation is usable. */
+.sod29-number-material-pending { min-height: 28rem; }

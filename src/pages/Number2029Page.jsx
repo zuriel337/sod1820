@@ -27,6 +27,7 @@ import { applySeo } from "../lib/seo.js";
 import { getValuePhrasesPage, langLinksList, supabase } from "../lib/supabase.js";
 import { canonicalMethodPublicLabel, canonicalResearchPublicLabel } from "../lib/presentation/canonicalPresentation.js";
 import { numberExpressionFocusHref, numberReadingReturnHref, parseNumberExpressionFocus, resolveExpressionFocus } from "../lib/research/numberExpressionFocus.js";
+import { createNumberMethodProfileReuse } from "../lib/research/numberMethodProfileReuse.js";
 import { defaultNumberReadingExpression } from "../lib/research/numberReadingOrder.js";
 import { buildNumberCuration2029, fetchCurationCatalog2029 } from "../lib/research/curationProjection2029.js";
 import { DEFAULT_VERSE_GEMATRIA_LIMIT, fetchVersesByGematria } from "../lib/research/verseGematriaSources.js";
@@ -38,6 +39,8 @@ const GOLDEN_878_JOURNEY_OPEN = GOLDEN_WORLD_JOURNEY_878.locked !== true;
 const CONVERGENCE_LABEL = canonicalResearchPublicLabel("convergence");
 const CONVERGENCES_LABEL = canonicalResearchPublicLabel("convergence", { plural: true });
 const NUMBER_METHOD_RESULT_CACHE = new Map();
+// Only canonical method rows are reused; no personal data or pending promise.
+const NUMBER_METHOD_PROFILE_REUSE = createNumberMethodProfileReuse();
 const NUMBER_PAGE_PROJECTION_CACHE = new Map();
 const NUMBER_REGULAR_PHRASE_CACHE = new Map();
 const NUMBER_HIDDEN_CROSS_CACHE = new Map();
@@ -221,6 +224,9 @@ function NumberPageBody({ resolvedAddress = null }) {
   const root = resolvedAddress?.root ?? Number(value);
   const urlFocus = useMemo(() => resolvedAddress?.focus || parseNumberExpressionFocus(location.search), [location.search, resolvedAddress]);
 
+  const focusScope = `${readerIdentity}:${root}:${urlFocus.expression}:${urlFocus.method}:${urlFocus.crossingPartner}:${urlFocus.explicit}`;
+  const [appliedFocusScope, setAppliedFocusScope] = useState(null);
+  const [projectionAttempt, setProjectionAttempt] = useState(0);
   const [state, setState] = useState({ root, readerIdentity, loading: true, data: null, error: null });
   const [selectedMethodKey, setSelectedMethodKey] = useState("");
   const [activeExpression, setActiveExpression] = useState("");
@@ -272,6 +278,7 @@ function NumberPageBody({ resolvedAddress = null }) {
     const contextMethod = contextExplicit ? clean(research.context?.selection?.method) : "";
     const contextCrossing = contextExplicit ? clean(research.context?.selection?.crossingPartner) : "";
     const explicit = Boolean(urlFocus.explicit || contextExplicit);
+    setAppliedFocusScope(focusScope);
     setFocusExplicit(explicit);
     setSelectedMethodKey(clean(urlFocus.method) || contextMethod);
     setActiveExpression(clean(urlFocus.expression) || contextExpression);
@@ -316,7 +323,7 @@ function NumberPageBody({ resolvedAddress = null }) {
         if (alive) setState({ root, readerIdentity, loading: false, data: null, error });
       });
     return () => { alive = false; };
-  }, [root, urlFocus.expression, urlFocus.method, urlFocus.crossingPartner, urlFocus.explicit, resolvedAddress?.publicAddress, readerIdentity, authLoading]);
+  }, [root, urlFocus.expression, urlFocus.method, urlFocus.crossingPartner, urlFocus.explicit, resolvedAddress?.publicAddress, readerIdentity, authLoading, projectionAttempt]);
 
   const data = state.root === root && state.readerIdentity === readerIdentity ? state.data : null;
   const currentMethodRows = methodProfileState.expression === clean(activeExpression)
@@ -516,6 +523,7 @@ function NumberPageBody({ resolvedAddress = null }) {
   }, [families, root, selectedMethodKey, activeExpression, anchorPhrase, focusExplicit, urlFocus.explicit, authLoading, regularPhraseState, data?.surface?.phrases]);
 
   useEffect(() => {
+    const profileReuse = NUMBER_METHOD_PROFILE_REUSE.forReader(authLoading ? null : readerIdentity);
     if (authLoading) return undefined;
     const expr = clean(activeExpression);
     if (!expr || /^\d+$/.test(expr)) {
@@ -523,14 +531,16 @@ function NumberPageBody({ resolvedAddress = null }) {
       return undefined;
     }
     let alive = true;
+    const reusableProfile = profileReuse.get(expr);
     const admitted = resolvedAddress?.methodProfile;
     const profile = admitted?.readerIdentity === readerIdentity && admitted?.expression === expr && Array.isArray(admitted.rows)
-      ? Promise.resolve(admitted.rows) : methodProfileState.expression === expr && methodProfileState.rows.length
+      ? Promise.resolve(admitted.rows) : reusableProfile ? Promise.resolve(reusableProfile) : methodProfileState.expression === expr && methodProfileState.rows.length
         ? Promise.resolve(methodProfileState.rows) : fetchNumberMethodProfile(expr);
     if (methodProfileState.expression !== expr) setMethodProfileState({ readerIdentity, loading: true, rows: [], error: null });
     profile
       .then((rows) => {
         if (!alive) return;
+        if (!reusableProfile) profileReuse.remember(expr, rows);
         setMethodProfileState({ readerIdentity, loading: false, rows, expression: expr, error: null });
         const selected = rows.find((row) => row.methodKey === selectedMethodKey)
           || (!focusExplicit ? rows.find((row) => isRegularMethodIdentity(row.methodKey)) || rows[0] : null);
@@ -1221,13 +1231,12 @@ function NumberPageBody({ resolvedAddress = null }) {
   if (!Number.isInteger(root) || root < 0) {
     return <FrameState kind="error" title="המספר לא תקין">הדוגמה הזאת מקבלת כרגע מספר שלם בלבד.</FrameState>;
   }
-  if (authLoading || state.loading || state.root !== root || state.readerIdentity !== readerIdentity) {
+  if (authLoading || appliedFocusScope !== focusScope) {
     return <FrameState kind="loading" title={`פותח את ${root}`}>טוען את דף המספר.</FrameState>;
   }
-  if (state.error || !data) {
-    return <FrameState kind="unavailable" title="דף המספר לא זמין כרגע">נסה שוב בעוד רגע.</FrameState>;
-  }
-  return <div className="sod29-number-page" data-experience-surface="number" data-experience-question="מה זה?" data-number-root={root} data-truth-safe="true">
+  const materialStatus = state.root !== root || state.readerIdentity !== readerIdentity || state.loading
+    ? "loading" : state.error || !data ? "failed" : "ready";
+  return <div className="sod29-number-page" data-experience-surface="number" data-experience-question="מה זה?" data-number-root={root} data-material-state={materialStatus} data-truth-safe="true">
     {navigationError ? <p role="alert">{navigationError}</p> : null}
     {regularPhraseState.error ? <p role="alert">סדר הביטויים השמור לא נטען כרגע. <button type="button" className="sod29-action" onClick={() => regularPhraseState.rows.length ? loadMoreRegularPhrases() : setRegularReadAttempt(n => n + 1)}>נסה שוב את הסדר השמור</button></p> : null}
     {focusExplicit && focusExpression ? <section className="sod29-number-focus-ribbon" aria-label="מיקוד ביטוי פעיל" data-expression-focus="true">
@@ -1256,10 +1265,11 @@ function NumberPageBody({ resolvedAddress = null }) {
         traceSteps={traceSteps}
         traceDetail={trace}
         stageProjection={stageProjection}
-        stageLoading={methodResultState.loading}
+        materialStatus={materialStatus}
+        stageLoading={materialStatus === "loading" || methodResultState.loading}
         methodsLoading={methodProfileState.loading}
         methodsError={Boolean(methodProfileState.error)}
-        onRetryMethods={() => setMethodReadAttempt(n => n + 1)}
+        onRetryMethods={() => { NUMBER_METHOD_PROFILE_REUSE.forReader(readerIdentity).invalidate(clean(activeExpression)); setMethodReadAttempt(n => n + 1); }}
         languageBridges={languageBridgeState.rows}
         regularExpressions={regularExpressions}
         regularExpressionsLoading={regularPhraseState.loading}
@@ -1334,7 +1344,12 @@ function NumberPageBody({ resolvedAddress = null }) {
       error={pathError}
     />
 
-    <NumberLivingWorld2029
+    {materialStatus !== "ready" ? <section className="sod29-section sod29-number-material-pending" aria-busy={materialStatus === "loading"}>
+      <FrameState kind={materialStatus === "failed" ? "error" : "loading"} title={materialStatus === "failed" ? "המקורות והחיבורים לא נטענו" : "טוען מקורות וחיבורים"}>
+        החישוב זמין למעלה. המקורות, המדיה והקשרים יופיעו כאן כשקריאתם תושלם.
+        {materialStatus === "failed" ? <button type="button" className="sod29-action" onClick={() => { NUMBER_PAGE_PROJECTION_CACHE.delete(`${readerIdentity}:${root}`); setProjectionAttempt(n => n + 1); }}>ניסיון נוסף</button> : null}
+      </FrameState>
+    </section> : <NumberLivingWorld2029
       root={root}
       data={data}
       activeExpression={activeExpression}
@@ -1390,7 +1405,7 @@ function NumberPageBody({ resolvedAddress = null }) {
         expression: activeExpression || null,
         method: selectedMethodProfile?.methodKey || selectedMethodKey || null,
       })}
-    />
+    />}
 
     <div ref={deepSentinelRef} aria-hidden="true" style={{ height: 1 }} />
     {deepRequested && deepViewModel ? <NumberDeepView2029

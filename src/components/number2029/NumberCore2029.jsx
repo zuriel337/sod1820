@@ -173,6 +173,7 @@ export default function NumberCore2029({
   curationCatalog = null,
   stageProjection = null,
   stageLoading = false,
+  materialStatus = "ready",
   methodsLoading = false,
   methodsError = false,
   onRetryMethods,
@@ -318,7 +319,7 @@ export default function NumberCore2029({
   ];
   const liveChannelCount = lifeChannels.filter((item) => item.count > 0).length;
   const lifeCoverageValue = Math.max(0, Math.min(100, Number(rootCoverage.percent) || 0));
-  const lifeAria = `חיי המספר ${root}: ${Number(rootCoverage.present) || 0} שכבות פעילות, ${lifeChannels.map((item) => `${item.count} ${item.label}`).join(", ")}. זהו כיסוי חומר, לא ציון אמת.`;
+  const lifeAria = materialStatus !== "ready" ? (materialStatus === "failed" ? "קריאת החיבורים נכשלה" : "חיבורי המספר עדיין נטענים") : `חיי המספר ${root}: ${Number(rootCoverage.present) || 0} שכבות פעילות, ${lifeChannels.map((item) => `${item.count} ${item.label}`).join(", ")}. זהו כיסוי חומר, לא ציון אמת.`;
 
   return <section className={`sod29-number-core2029 sod29-number-v10 ${compact ? "is-drawer" : "is-page"}`} data-number-core-root={root} style={{ "--sod29-number-digits": Math.max(4, String(root).length) }}>
     <header className="sod29-number-v10-identity">
@@ -371,7 +372,7 @@ export default function NumberCore2029({
           </span>
         </span>
         <span>חיים</span>
-        <small>{Number(rootCoverage.present) || 0} שכבות</small>
+        <small>{materialStatus === "loading" ? "טוען שכבות…" : materialStatus === "failed" ? "לא זמין" : `${Number(rootCoverage.present) || 0} שכבות`}</small>
       </button>}
     </header>
 
@@ -490,7 +491,9 @@ export default function NumberCore2029({
       </> : <div className="sod29-number-v10-more-methods" aria-hidden="true" />}
     </section>
 
-    <section className="sod29-number-v10-stage" data-stage-root={stageRoot} aria-live="polite">
+    {materialStatus !== "ready" ? <section className="sod29-number-v10-stage sod29-number-material-pending" aria-busy={materialStatus === "loading"}>
+      <p role={materialStatus === "failed" ? "alert" : "status"}>{materialStatus === "failed" ? "לא הצלחנו לקרוא את החיבורים. החישוב והביטוי נשמרו; אפשר לנסות שוב בהמשך הדף." : "החישוב זמין. המקורות והחיבורים עדיין נטענים…"}</p>
+    </section> : <section className="sod29-number-v10-stage" data-stage-root={stageRoot} aria-live="polite">
       {needsMethodContext ? <div className="sod29-number-core2029-note" role="status">
         <strong>{publicMethodLabel(active)}</strong>
         <p>השיטה דורשת סימון מפורש של אות רבתי במקור. אין תוצאה לחישוב בביטוי בלבד.</p>
@@ -732,7 +735,7 @@ export default function NumberCore2029({
         </footer>
 
 
-    </section>
+    </section>}
 
     {compact ? <footer className="sod29-number-core2029-foot sod29-number-dashboard-actions">
       {onOpenJourney ? <button type="button" onClick={onOpenJourney}>🗺 {journeyLabel || "צא למסע"}</button>

@@ -19,7 +19,14 @@ import Locked from "./components/MaintenanceLock.jsx";
 import FeatureClosedNotice from "./components/FeatureClosedNotice.jsx";
 import { PUBLIC_READING_RELEASE, publicReadingPath } from "./lib/publicReadingRelease2029.js";
 
-const Home2029Page = lazy(() => import("./pages/Home2029Page.jsx"));
+// Keep the existing public-profile Post code admission, but overlap it with
+// Home instead of making Home wait for the address adapter and all Post code.
+// This starts no Post data read and retains the first-Post code preparation.
+const loadPublicPostAddress = () => import("./pages/PublicPostAddress2029Page.jsx");
+const Home2029Page = lazy(() => {
+  if (PUBLIC_READING_RELEASE) void loadPublicPostAddress().catch(() => {});
+  return import("./pages/Home2029Page.jsx");
+});
 const World2029Page = lazy(() => import("./pages/World2029Page.jsx"));
 const BeitMidrash2029Page = lazy(
   () => import("./pages/BeitMidrash2029Page.jsx")
@@ -48,7 +55,7 @@ const CommunityChatTransition2029Page = lazy(() => import("./pages/CommunityChat
 const AuthPage = lazy(() => import("./pages/Auth2029Page.jsx"));
 const OAuthCallback2029 = lazy(() => import("./pages/OAuthCallback2029.jsx"));
 const publicFoundationPreview = import.meta.env.VITE_PUBLIC_FOUNDATION_PREVIEW === "true" || PUBLIC_READING_RELEASE;
-const PublicPostAddress2029Page = lazy(() => import("./pages/PublicPostAddress2029Page.jsx"));
+const PublicPostAddress2029Page = lazy(loadPublicPostAddress);
 const NumberAddress2029Page = lazy(() => import("./pages/NumberAddress2029Page.jsx"));
 const PublicServices2029Page = lazy(() => import("./pages/PublicServices2029Page.jsx"));
 
@@ -68,14 +75,10 @@ function HomeEntry2029() {
     ? <Community2029Page />
     : <Home2029Page />;
 }
-// The public launch profile retains its original Home/Post code admission:
-// deferring this reader shifted about1s into the first mobile Post. Its now
-// smaller dependency graph keeps the original first-Post behavior without a
-// speculative data read, personal cache, or admission of an off-screen reader.
-// Other profiles keep the bounded ?p= compatibility path.
+// Only a real WordPress ?p= address needs its document identity adapter.
 function PublicHomeEntry2029() {
   const { search } = useLocation();
-  return PUBLIC_READING_RELEASE || new URLSearchParams(search).get("p")
+  return new URLSearchParams(search).get("p")
     ? <PublicPostAddress2029Page home={<HomeEntry2029 />} />
     : <HomeEntry2029 />;
 }

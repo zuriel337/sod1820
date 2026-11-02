@@ -668,7 +668,9 @@ export default function NumberLivingWorld2029({
         {sourceStatus === "error" ? <p role="alert">לא הצלחנו לבדוק את המקורות הציבוריים. <button type="button" onClick={() => readPublicSources()}>ניסיון נוסף</button></p> : null}
         {sourceStatus === "ready" && !sourceCards.length ? <div className="sod29-lw-empty">אין כרגע פרטי מקור ציבוריים מספיקים להצגה.</div> : null}
       </div>
-      {sourceStatus !== "idle" ? <NumberZviPublicResearch2029 value={root} /> : null}
+      {/* This entry is inert until its explicit button is pressed; keep it
+          available even before the separate approach-admitted source read. */}
+      <NumberZviPublicResearch2029 value={root} />
       <div className="sod29-lw-depth-gates">
         {onOpenHeichal ? <>
           <button type="button" onClick={() => onOpenHeichal({ kind: "els_saved_from_number", root })}><span>ELS / צפנים</span><strong>פתח ספריית צפנים שמורים</strong><small>פריטים מורשים בלבד</small></button>

@@ -15,6 +15,9 @@ for(const [mode,width]of[['delay',390],['delay',1440],['failed',390]])test('root
   if(route.request().postDataJSON()?.p_phrase!==expression)return route.fallback();arrive();await gate;
   if(failed)return route.fulfill({status:400,contentType:'application/json',body:JSON.stringify({message:'controlled profile failure'})});return route.fallback();
  });
+ // Expire the bounded canonical reuse window so the original delayed/failed
+ // response checks still exercise an actual read rather than a cached result.
+ await page.evaluate(()=>{const actualNow=Date.now;Date.now=()=>actualNow()+31_000;});
  await page.goBack();await seen;await expect(page.locator('.sod29-number-v10-expression-line>strong')).toHaveText(expression);await expect(root).toBeDisabled();await expect(root).toHaveAttribute('aria-busy','true');
  await root.evaluate(button=>button.click());await expect(page).toHaveURL(origin+address);await expect(page.getByRole('dialog')).toHaveCount(0);
  release();
