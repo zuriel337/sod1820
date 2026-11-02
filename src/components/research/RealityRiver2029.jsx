@@ -5,7 +5,6 @@ import RealityStreamFollow2029 from './RealityStreamFollow2029.jsx';
 import ShareActions from '../ShareActions.jsx';
 import { worldMediaPublicShare } from '../../lib/research/worldFindingShare.js';
 import { getRealityHints } from '../../lib/supabase.js';
-import { fetchGallerySourceContext } from '../../lib/research/entityHubProjection.js';
 import { realityStreamDatePresentation2029, loadPublicRealityStream2029 } from '../../lib/research/topicSourceContext.js';
 import { publicMediaCaption, publicMediaTitle } from '../../lib/presentation/contentTitle.js';
 import { numberExpressionFocusHref } from '../../lib/research/numberExpressionFocus.js';
@@ -188,7 +187,11 @@ export default function HomeRealityRiver2029() {
   useEffect(() => {
     let alive = true;
     setState({ status: 'loading', items: [] });
-    loadPublicRealityStream2029({ listHints: getRealityHints, fetchSourceContext: fetchGallerySourceContext })
+    // Home mounts this reader when the river approaches. Keep the existing
+    // public admission, without making the entire entity hub a Home code gate.
+    import('../../lib/research/entityHubProjection.js')
+      .then(({ fetchGallerySourceContext }) => alive
+        ? loadPublicRealityStream2029({ listHints: getRealityHints, fetchSourceContext: fetchGallerySourceContext }) : null)
       .then(result => { if (alive) setState({ ...result, status: 'ready' }); })
       .catch(() => { if (alive) setState({ status: 'failed', items: [] }); });
     return () => { alive = false; };

@@ -10,7 +10,6 @@ import { NewsletterSignup2029 } from "../StayUpdatedCTA.jsx";
 import { getHomeLaunchPostCards } from "../../lib/research/homeLaunchPosts2029.js";
 import { fetchContentSeriesCatalog2029 } from "../../lib/research/contentSeries2029Projection.js";
 import { stripHtml } from "../../lib/format.js";
-import { fetchExplorerFacetPage } from "../../lib/research/explorerFacets.js";
 import { levelNumbers } from "../../lib/ratings2029.js";
 import { relativeTimeLabel } from "../../lib/relativeTime2029.js";
 import ConvergenceRatings2029 from "./ConvergenceRatings2029.jsx";
@@ -72,7 +71,10 @@ function useHomeCompositionData({ includeWorld = true, primaryReader = null } = 
     if (!includeWorld) return undefined;
     let live = true;
     setState(current => ({ ...current, notableLoading: true, notableError: null }));
-    fetchExplorerFacetPage("topic", { limit: 4 })
+    // Start the existing secondary read after mount; downloading its other
+    // Explorer readers is not a prerequisite for painting ready primary Posts.
+    import("../../lib/research/explorerFacets.js")
+      .then(({ fetchExplorerFacetPage }) => live ? fetchExplorerFacetPage("topic", { limit: 4 }) : null)
       .then(result => { if (live) setState(current => ({ ...current, notable: result?.cards || [], notableLoading: false })); })
       .catch(() => { if (live) setState(current => ({ ...current, notableLoading: false, notableError: "לא ניתן לטעון כרגע את ההתכנסויות. אפשר להמשיך לעולם." })); });
     return () => { live = false; };

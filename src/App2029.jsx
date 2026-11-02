@@ -6,7 +6,6 @@ import ResearchProvider from "./lib/research/ResearchProvider.jsx";
 import RazielSessionMount2029 from "./components/experience2029/RazielSessionMount2029.jsx";
 import { initGA, trackPageview } from "./lib/analytics.js";
 import { initMarketing, trackMarketingPageview } from "./lib/marketing.js";
-import { trackVisit } from "./lib/visits.js";
 import { startPageEngagement } from "./lib/engagement.js";
 import { ensureIdentity } from "./lib/identity.js";
 import { startWebVitals2029 } from "./lib/webVitals2029.js";
@@ -161,7 +160,9 @@ function RouteEffects2029() {
       trackPageview(pathname);
       trackMarketingPageview();
     }, 350);
-    trackVisit(pathname);
+    // The reading release does not run visit telemetry. Keep its calendar/admin
+    // dependencies out of that entry graph as well as skipping the operation.
+    void import("./lib/visits.js").then(({ trackVisit }) => trackVisit(pathname)).catch(() => {});
     startPageEngagement(pathname);
     return () => clearTimeout(timer);
   }, [pathname]);

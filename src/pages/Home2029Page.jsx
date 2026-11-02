@@ -6,7 +6,6 @@ import { relativeTimeLabel } from "../lib/relativeTime2029.js";
 import Sod2029Shell, { use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import CurationMark2029 from "../components/experience2029/CurationMark2029.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
-import { fetchHome2029Projection, fetchHomeWorldPreview2029 } from "../lib/research/home2029Projection.js";
 import { buildCalculator2029FastPreview } from "../lib/research/calculator2029FastPreview.js";
 import { buildUnifiedResearchEntry } from "../lib/research/unifiedResearchEntry.js";
 import { applySeo, PUBLIC_HOME_SEO } from "../lib/seo.js";
@@ -335,7 +334,11 @@ function HomeBody({ primaryReader = null } = {}) {
     if (HOME_COMPOSED && !summaryRequested) return undefined;
     let live = true;
     const controller = new AbortController();
-    fetchHome2029Projection({ signal: controller.signal, includePulse: true, includeWorld: !CORE_PUBLIC_LAUNCH_2029 && !HOME_COMPOSED, includeTemporal: !CORE_PUBLIC_LAUNCH_2029 })
+    // These readers are already admitted by their own section. Their calendar
+    // and World dependencies must not gate the primary Home component either.
+    import("../lib/research/home2029Projection.js")
+      .then(({ fetchHome2029Projection }) => live && !controller.signal.aborted
+        ? fetchHome2029Projection({ signal: controller.signal, includePulse: true, includeWorld: !CORE_PUBLIC_LAUNCH_2029 && !HOME_COMPOSED, includeTemporal: !CORE_PUBLIC_LAUNCH_2029 }) : null)
       .then((projection) => { if (live) setHomeState({ loading: false, projection }); })
       .catch(() => { if (live) setHomeState({ loading: false, projection: null }); });
     return () => { live = false; controller.abort(); };
@@ -344,7 +347,8 @@ function HomeBody({ primaryReader = null } = {}) {
   useEffect(() => {
     if (!HOME_COMPOSED || CORE_PUBLIC_LAUNCH_2029 || !worldOpen || !worldRequested) return undefined;
     let live = true;
-    fetchHomeWorldPreview2029()
+    import("../lib/research/home2029Projection.js")
+      .then(({ fetchHomeWorldPreview2029 }) => live ? fetchHomeWorldPreview2029() : null)
       .then(projection => { if (live) setHomeWorldState({ loading: false, projection }); })
       .catch(() => { if (live) setHomeWorldState({ loading: false, projection: null }); });
     return () => { live = false; };
