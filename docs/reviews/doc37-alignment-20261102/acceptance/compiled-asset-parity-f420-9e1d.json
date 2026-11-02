@@ -1,0 +1,11 @@
+{
+  "from_sha": "f420180dc7918353baeaef0a74339c1574e9bd8d",
+  "to_sha": "9e1d876e0f04ed0cffe8d97a63b3ae564e43898e",
+  "same_asset_names_and_sha256": true,
+  "asset_files": 291,
+  "scope": "all compiled dormant Production assets; identity/SW envelope source SHA intentionally changes",
+  "changed_source_files": [
+    "tests/entry-learn-2029.spec.cjs",
+    "tests/world2029-release.spec.cjs"
+  ]
+}

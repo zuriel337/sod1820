@@ -52,7 +52,7 @@ Mobile cold hero remains about5seconds, slightly slower in this sample; desktop 
 
 Baseline cold font-warm await was1.7–2.0ms. Final calls settle in4.5–6.2ms and rendering no longer waits for them. This is a robustness improvement, not evidence that fonts caused five seconds. Final shellJS requests begin2.398–2.795s and finish4.277–4.686s; useful hero follows4.849–5.249s. Baseline shellJS started2.338–2.399 and finished4.162–4.233s. The late code dependency chain remains visible; it does not account exclusively for all elapsed time. Script/Task counters are cumulative and captured at card readiness, whose semantics changed, so they are not comparable exclusive CPU buckets. Request duration includes proxy/network and server time; database CPU has not been isolated. Hero media and secondary data complete after readable content.
 
-The old overall shell chunk is smaller, but earlier evidence showed the total initial graph broadly unchanged: fewer/moved requests alone are not a loading-time improvement. Further optimization should require a fresh bounded dependency finding, rather than repeating broad benchmark rounds. About5seconds on the deliberately constrained cold mobile profile is a remaining experience limitation. It is not an observed startup deadlock; warm access/readiness and exact return work. Product launch tolerance remains the central acceptance decision.
+The old overall shell chunk is smaller, but earlier evidence showed the total initial graph broadly unchanged: fewer/moved requests alone are not a loading-time improvement. Further optimization should require a fresh bounded dependency finding, rather than repeating broad benchmark rounds. About5seconds on the deliberately constrained cold mobile profile is a remaining experience limitation. It is not an observed startup deadlock; warm access/readiness and exact return work. The stated1.5second target remains unmet. From the browser lane, this is a bounded first-visit latency limitation rather than a new functional/privacy blocker; recommend no further broad optimization round without a new measured dependency finding. Central launch approval must still explicitly accept that limit and resolve its separate infrastructure gates.
 
 ## Failure history preserved
 
@@ -67,3 +67,13 @@ The old overall shell chunk is smaller, but earlier evidence showed the total in
 ## Durable evidence and scope release
 
 `native-f420-evidence.zip` contains all12 raw native samples and screenshots, final Home/form checks, no-injection delayedPost geometry, lower-scroll/image transport receipt and exact public journeys. `native-f420-manifest.json` records perfileSHA256, sample counts and privacy scan0 findings. No privateconfig, access token, cookie, browserprofile, requestheaders or responsebody is archived. Earlier4798/1195 artifacts remain intact. Browser processes closed after acceptance; evidence branch contains no product source edits.
+
+### Per-route timing limit
+
+The final full-journey harness records phase assertions, URLs, calculations and
+scroll restoration, but not durations for World→Number→milui→phrase and each
+reverse transition. Those routes passed functionally on both widths; this report
+does **not** invent before/after timing from request counts or assertion order.
+Previously accepted per-route performance receipts remain separate evidence
+where the code/contracts are unchanged. New matched timing in this lane covers
+Home milestones, Home→the samePost, and Post→Home only.

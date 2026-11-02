@@ -1,0 +1,2348 @@
+{
+  "conditions": {
+    "height": 900,
+    "mobile": {
+      "cpu": 4,
+      "latency": 150,
+      "download": 200000,
+      "upload": 100000
+    },
+    "desktop": "unthrottled",
+    "cold": "new context; first route loop",
+    "warm": "second route loop within same loaded document, not reload",
+    "readsSettled": "all currently observed admitted REST reads finished, no new completion for250ms; excludes deferred unrequested sections",
+    "observationWaitMs": 45000,
+    "warmEnterHomeExcluded": true,
+    "thresholds": {
+      "usefulTargetMs": 1500,
+      "materialAcceptanceMs": 30000,
+      "documentCls": 0.1
+    }
+  },
+  "metrics": {
+    "useful": "MutationObserver first matching actual content/number+expression state after action start",
+    "materialAndMethods": "Number public material ready AND existing milui method button enabled",
+    "initialNewReadEnd": "Completion of new admitted REST requests observed in stage; zero/no observed requests omitted, not complete-all-content claim"
+  },
+  "before": {
+    "sha": "979c25aa2a91fa96de3a50db8fc93425a183c694",
+    "trials": 12,
+    "functionalFailures": [],
+    "clsFailedDocuments": [
+      "1440:2"
+    ],
+    "maxCls": 0.30938780685115247,
+    "targetMisses": {
+      "usefulOver1point5": [
+        {
+          "width": 390,
+          "state": "first-loop",
+          "trial": 1,
+          "stage": "enter-home",
+          "ms": 4894.799999982119
+        },
+        {
+          "width": 390,
+          "state": "first-loop",
+          "trial": 2,
+          "stage": "enter-home",
+          "ms": 4970.200000017881
+        },
+        {
+          "width": 390,
+          "state": "first-loop",
+          "trial": 3,
+          "stage": "enter-home",
+          "ms": 5012.4000000059605
+        },
+        {
+          "width": 390,
+          "state": "first-loop",
+          "trial": 1,
+          "stage": "post-world",
+          "ms": 2129.9000000059605
+        },
+        {
+          "width": 390,
+          "state": "first-loop",
+          "trial": 2,
+          "stage": "post-world",
+          "ms": 2087.600000023842
+        },
+        {
+          "width": 390,
+          "state": "first-loop",
+          "trial": 3,
+          "stage": "post-world",
+          "ms": 2225.7999999821186
+        },
+        {
+          "width": 390,
+          "state": "first-loop",
+          "trial": 1,
+          "stage": "world-number-full",
+          "ms": 2729.300000011921
+        },
+        {
+          "width": 390,
+          "state": "first-loop",
+          "trial": 2,
+          "stage": "world-number-full",
+          "ms": 2759.699999988079
+        },
+        {
+          "width": 390,
+          "state": "first-loop",
+          "trial": 3,
+          "stage": "world-number-full",
+          "ms": 3126.9000000059605
+        },
+        {
+          "width": 390,
+          "state": "repeat-same-document",
+          "trial": 2,
+          "stage": "world-number-full",
+          "ms": 1514.7000000178814
+        },
+        {
+          "width": 1440,
+          "state": "first-loop",
+          "trial": 2,
+          "stage": "enter-home",
+          "ms": 2010.2000000178814
+        },
+        {
+          "width": 1440,
+          "state": "first-loop",
+          "trial": 1,
+          "stage": "world-number-full",
+          "ms": 1966
+        },
+        {
+          "width": 1440,
+          "state": "first-loop",
+          "trial": 2,
+          "stage": "world-number-full",
+          "ms": 1549.800000011921
+        },
+        {
+          "width": 1440,
+          "state": "first-loop",
+          "trial": 3,
+          "stage": "world-number-full",
+          "ms": 1674.300000011921
+        }
+      ],
+      "materialOver30": []
+    },
+    "groups": [
+      {
+        "width": 390,
+        "state": "first-loop",
+        "samples": 3,
+        "stages": [
+          {
+            "name": "enter-home",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 4.970200000017881,
+              "minSeconds": 4.894799999982118,
+              "maxSeconds": 5.01240000000596
+            },
+            "materialAndMethods": null,
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 6.278700000017881,
+              "minSeconds": 6.20709999999404,
+              "maxSeconds": 6.752299999982118
+            }
+          },
+          {
+            "name": "home-post",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 1.2542999999821185,
+              "minSeconds": 1.2079000000059605,
+              "maxSeconds": 1.2672999999821186
+            },
+            "materialAndMethods": null,
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 1.5398999999761582,
+              "minSeconds": 1.5345999999940396,
+              "maxSeconds": 1.6101999999880792
+            }
+          },
+          {
+            "name": "post-world",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 2.1299000000059602,
+              "minSeconds": 2.087600000023842,
+              "maxSeconds": 2.2257999999821187
+            },
+            "materialAndMethods": null,
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 2.4244000000059605,
+              "minSeconds": 2.403199999988079,
+              "maxSeconds": 2.6254000000059605
+            }
+          },
+          {
+            "name": "world-number-full",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 2.759699999988079,
+              "minSeconds": 2.729300000011921,
+              "maxSeconds": 3.1269000000059606
+            },
+            "materialAndMethods": {
+              "n": 3,
+              "medianSeconds": 7.607700000017881,
+              "minSeconds": 7.241,
+              "maxSeconds": 8.07690000000596
+            },
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 9.436900000005961,
+              "minSeconds": 8.790799999982118,
+              "maxSeconds": 9.463300000011921
+            }
+          },
+          {
+            "name": "number-milui",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 0.31630000001192093,
+              "minSeconds": 0.31040000000596046,
+              "maxSeconds": 0.4
+            },
+            "materialAndMethods": {
+              "n": 3,
+              "medianSeconds": 1.9220999999940396,
+              "minSeconds": 1.9019000000059605,
+              "maxSeconds": 1.9892000000178813
+            },
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 2.849,
+              "minSeconds": 2.8419000000059604,
+              "maxSeconds": 3.048300000011921
+            }
+          },
+          {
+            "name": "milui-number-back",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 0.09409999999403953,
+              "minSeconds": 0.08660000002384186,
+              "maxSeconds": 0.13879999998211862
+            },
+            "materialAndMethods": {
+              "n": 3,
+              "medianSeconds": 0.09409999999403953,
+              "minSeconds": 0.08660000002384186,
+              "maxSeconds": 0.13879999998211862
+            },
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 0.3914000000059605,
+              "minSeconds": 0.37730000001192093,
+              "maxSeconds": 0.48390000000596045
+            }
+          },
+          {
+            "name": "number-phrase",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 1.209300000011921,
+              "minSeconds": 1.0055999999940395,
+              "maxSeconds": 1.223100000023842
+            },
+            "materialAndMethods": {
+              "n": 3,
+              "medianSeconds": 3.974600000023842,
+              "minSeconds": 3.664799999982119,
+              "maxSeconds": 4.103700000017882
+            },
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 5.032800000011921,
+              "minSeconds": 4.471399999976158,
+              "maxSeconds": 5.089800000011921
+            }
+          },
+          {
+            "name": "phrase-number-back",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 0.10509999999403953,
+              "minSeconds": 0.08879999998211861,
+              "maxSeconds": 0.14390000000596045
+            },
+            "materialAndMethods": {
+              "n": 3,
+              "medianSeconds": 0.14680000001192092,
+              "minSeconds": 0.12709999999403954,
+              "maxSeconds": 0.18890000000596047
+            },
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 0.5344000000059604,
+              "minSeconds": 0.4312999999821186,
+              "maxSeconds": 0.5409000000059605
+            }
+          },
+          {
+            "name": "number-world-back",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 0.4775999999940395,
+              "minSeconds": 0.46230000001192095,
+              "maxSeconds": 0.48889999997615813
+            },
+            "materialAndMethods": null,
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 0.839199999988079,
+              "minSeconds": 0.7584000000059604,
+              "maxSeconds": 0.9007999999821186
+            }
+          },
+          {
+            "name": "world-post-back",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 0.6268999999761582,
+              "minSeconds": 0.6072000000178814,
+              "maxSeconds": 0.6557999999821186
+            },
+            "materialAndMethods": null,
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 0.899,
+              "minSeconds": 0.8444000000059605,
+              "maxSeconds": 0.9010999999940396
+            }
+          },
+          {
+            "name": "post-home-back",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 0.514,
+              "minSeconds": 0.4925,
+              "maxSeconds": 0.5342999999821186
+            },
+            "materialAndMethods": null,
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 1.148199999988079,
+              "minSeconds": 1.0982999999821186,
+              "maxSeconds": 1.1860999999940396
+            }
+          },
+          {
+            "name": "home-world-repeat",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 1.1389000000059604,
+              "minSeconds": 1.1365999999940395,
+              "maxSeconds": 1.204699999988079
+            },
+            "materialAndMethods": null,
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 1.5145999999940396,
+              "minSeconds": 1.428800000011921,
+              "maxSeconds": 1.5734000000059605
+            }
+          },
+          {
+            "name": "world-home-back",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 0.40890000000596044,
+              "minSeconds": 0.406,
+              "maxSeconds": 0.5032999999821186
+            },
+            "materialAndMethods": null,
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 1.0105999999940396,
+              "minSeconds": 1.0020999999940394,
+              "maxSeconds": 1.174399999976158
+            }
+          }
+        ]
+      },
+      {
+        "width": 390,
+        "state": "repeat-same-document",
+        "samples": 3,
+        "stages": [
+          {
+            "name": "enter-home",
+            "excluded": true,
+            "reason": "Same URL/hash does not create a new document; use actual-reload Home benchmark separately.",
+            "useful": null,
+            "materialAndMethods": null,
+            "initialNewReadEnd": null
+          },
+          {
+            "name": "home-post",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 0.7357000000178814,
+              "minSeconds": 0.6772999999821187,
+              "maxSeconds": 0.741300000011921
+            },
+            "materialAndMethods": null,
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 0.9736000000238418,
+              "minSeconds": 0.9241999999880791,
+              "maxSeconds": 0.9809000000059604
+            }
+          },
+          {
+            "name": "post-world",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 1.028,
+              "minSeconds": 0.9556999999880791,
+              "maxSeconds": 1.0760999999940395
+            },
+            "materialAndMethods": null,
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 1.345899999976158,
+              "minSeconds": 1.2609000000059605,
+              "maxSeconds": 1.4025
+            }
+          },
+          {
+            "name": "world-number-full",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 1.4152000000178815,
+              "minSeconds": 1.3437999999821186,
+              "maxSeconds": 1.5147000000178814
+            },
+            "materialAndMethods": {
+              "n": 3,
+              "medianSeconds": 1.6446000000238419,
+              "minSeconds": 1.5577999999821186,
+              "maxSeconds": 1.7870999999940396
+            },
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 6.585600000023842,
+              "minSeconds": 6.08859999999404,
+              "maxSeconds": 6.689199999988079
+            }
+          },
+          {
+            "name": "number-milui",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 0.3332000000178814,
+              "minSeconds": 0.31890000000596047,
+              "maxSeconds": 0.334
+            },
+            "materialAndMethods": {
+              "n": 3,
+              "medianSeconds": 0.3332000000178814,
+              "minSeconds": 0.31890000000596047,
+              "maxSeconds": 0.334
+            },
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 0.707,
+              "minSeconds": 0.6705,
+              "maxSeconds": 0.784800000011921
+            }
+          },
+          {
+            "name": "milui-number-back",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 0.08530000001192092,
+              "minSeconds": 0.08230000001192093,
+              "maxSeconds": 0.088
+            },
+            "materialAndMethods": {
+              "n": 3,
+              "medianSeconds": 0.08530000001192092,
+              "minSeconds": 0.08230000001192093,
+              "maxSeconds": 0.088
+            },
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 0.3895,
+              "minSeconds": 0.3633000000119209,
+              "maxSeconds": 0.3915
+            }
+          },
+          {
+            "name": "number-phrase",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 1.1135,
+              "minSeconds": 1.0624000000059604,
+              "maxSeconds": 1.1960999999940396
+            },
+            "materialAndMethods": {
+              "n": 3,
+              "medianSeconds": 1.1135,
+              "minSeconds": 1.0624000000059604,
+              "maxSeconds": 1.1960999999940396
+            },
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 1.5940999999940395,
+              "minSeconds": 1.472600000023842,
+              "maxSeconds": 1.6554000000059605
+            }
+          },
+          {
+            "name": "phrase-number-back",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 0.0745,
+              "minSeconds": 0.072,
+              "maxSeconds": 0.07630000001192093
+            },
+            "materialAndMethods": {
+              "n": 3,
+              "medianSeconds": 1.1165999999940395,
+              "minSeconds": 1.0861999999880791,
+              "maxSeconds": 1.1931999999880791
+            },
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 1.3625999999940395,
+              "minSeconds": 1.3422999999821186,
+              "maxSeconds": 1.4435
+            }
+          },
+          {
+            "name": "number-world-back",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 0.4083000000119209,
+              "minSeconds": 0.3849000000059605,
+              "maxSeconds": 0.47260000002384184
+            },
+            "materialAndMethods": null,
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 0.7075,
+              "minSeconds": 0.6875,
+              "maxSeconds": 0.7605999999940395
+            }
+          },
+          {
+            "name": "world-post-back",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 0.6529000000059605,
+              "minSeconds": 0.5583000000119209,
+              "maxSeconds": 0.7205
+            },
+            "materialAndMethods": null,
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 0.8845999999940395,
+              "minSeconds": 0.7819000000059605,
+              "maxSeconds": 0.9849000000059605
+            }
+          },
+          {
+            "name": "post-home-back",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 0.4745,
+              "minSeconds": 0.4683000000119209,
+              "maxSeconds": 0.4945
+            },
+            "materialAndMethods": null,
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 1.117699999988079,
+              "minSeconds": 1.053199999988079,
+              "maxSeconds": 1.149300000011921
+            }
+          },
+          {
+            "name": "home-world-repeat",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 1.0855999999940396,
+              "minSeconds": 1.0834000000059605,
+              "maxSeconds": 1.086300000011921
+            },
+            "materialAndMethods": null,
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 1.4082999999821186,
+              "minSeconds": 1.380800000011921,
+              "maxSeconds": 1.4124000000059604
+            }
+          },
+          {
+            "name": "world-home-back",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 0.4669000000059605,
+              "minSeconds": 0.4624000000059605,
+              "maxSeconds": 0.47819999998807905
+            },
+            "materialAndMethods": null,
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 1.081699999988079,
+              "minSeconds": 1.0205,
+              "maxSeconds": 1.117199999988079
+            }
+          }
+        ]
+      },
+      {
+        "width": 1440,
+        "state": "first-loop",
+        "samples": 3,
+        "stages": [
+          {
+            "name": "enter-home",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 1.4265,
+              "minSeconds": 1.4192000000178815,
+              "maxSeconds": 2.0102000000178815
+            },
+            "materialAndMethods": null,
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 2.6875999999940396,
+              "minSeconds": 2.6739000000059603,
+              "maxSeconds": 2.7499000000059604
+            }
+          },
+          {
+            "name": "home-post",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 0.4882000000178814,
+              "minSeconds": 0.471,
+              "maxSeconds": 0.5702999999821186
+            },
+            "materialAndMethods": null,
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 0.8022000000178814,
+              "minSeconds": 0.7494000000059604,
+              "maxSeconds": 0.8158999999761581
+            }
+          },
+          {
+            "name": "post-world",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 0.6120999999940395,
+              "minSeconds": 0.6048999999761582,
+              "maxSeconds": 1.0372000000178814
+            },
+            "materialAndMethods": null,
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 0.9975,
+              "minSeconds": 0.9705,
+              "maxSeconds": 1.17
+            }
+          },
+          {
+            "name": "world-number-full",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 1.674300000011921,
+              "minSeconds": 1.549800000011921,
+              "maxSeconds": 1.966
+            },
+            "materialAndMethods": {
+              "n": 3,
+              "medianSeconds": 5.620200000017881,
+              "minSeconds": 5.4227000000178815,
+              "maxSeconds": 6.214599999994039
+            },
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 7.541900000005961,
+              "minSeconds": 7.272299999982119,
+              "maxSeconds": 7.655300000011921
+            }
+          },
+          {
+            "name": "number-milui",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 0.08370000001788139,
+              "minSeconds": 0.08329999998211861,
+              "maxSeconds": 0.09
+            },
+            "materialAndMethods": {
+              "n": 3,
+              "medianSeconds": 1.5545999999940396,
+              "minSeconds": 1.5197999999821186,
+              "maxSeconds": 1.555199999988079
+            },
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 2.2930999999940394,
+              "minSeconds": 2.261799999982119,
+              "maxSeconds": 2.3677000000178814
+            }
+          },
+          {
+            "name": "milui-number-back",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 0.03280000001192093,
+              "minSeconds": 0.03189999997615814,
+              "maxSeconds": 0.038099999994039534
+            },
+            "materialAndMethods": {
+              "n": 3,
+              "medianSeconds": 0.03280000001192093,
+              "minSeconds": 0.03189999997615814,
+              "maxSeconds": 0.038099999994039534
+            },
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 0.3097999999821186,
+              "minSeconds": 0.2749000000059605,
+              "maxSeconds": 0.3460999999940395
+            }
+          },
+          {
+            "name": "number-phrase",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 0.6432000000178814,
+              "minSeconds": 0.6176999999880791,
+              "maxSeconds": 0.701
+            },
+            "materialAndMethods": {
+              "n": 3,
+              "medianSeconds": 3.026,
+              "minSeconds": 2.9345,
+              "maxSeconds": 3.0559000000059604
+            },
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 3.861800000011921,
+              "minSeconds": 3.6797999999821185,
+              "maxSeconds": 3.8889000000059606
+            }
+          },
+          {
+            "name": "phrase-number-back",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 0.0275,
+              "minSeconds": 0.021,
+              "maxSeconds": 0.0395
+            },
+            "materialAndMethods": {
+              "n": 3,
+              "medianSeconds": 0.03459999999403954,
+              "minSeconds": 0.02769999998807907,
+              "maxSeconds": 0.04959999999403954
+            },
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 0.31109999999403953,
+              "minSeconds": 0.2794000000059605,
+              "maxSeconds": 0.33080000001192095
+            }
+          },
+          {
+            "name": "number-world-back",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 0.2815,
+              "minSeconds": 0.26359999999403955,
+              "maxSeconds": 0.2905
+            },
+            "materialAndMethods": null,
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 0.6019000000059604,
+              "minSeconds": 0.5865999999940396,
+              "maxSeconds": 0.6975
+            }
+          },
+          {
+            "name": "world-post-back",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 0.40779999998211863,
+              "minSeconds": 0.40180000001192095,
+              "maxSeconds": 0.4080999999940395
+            },
+            "materialAndMethods": null,
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 0.6235,
+              "minSeconds": 0.6121999999880791,
+              "maxSeconds": 0.649699999988079
+            }
+          },
+          {
+            "name": "post-home-back",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 0.3456999999880791,
+              "minSeconds": 0.33759999999403956,
+              "maxSeconds": 0.37059999999403953
+            },
+            "materialAndMethods": null,
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 0.7142999999821186,
+              "minSeconds": 0.6412999999821186,
+              "maxSeconds": 0.7875
+            }
+          },
+          {
+            "name": "home-world-repeat",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 0.35269999998807905,
+              "minSeconds": 0.34590000000596044,
+              "maxSeconds": 0.35690000000596045
+            },
+            "materialAndMethods": null,
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 0.6792000000178814,
+              "minSeconds": 0.672,
+              "maxSeconds": 0.7215
+            }
+          },
+          {
+            "name": "world-home-back",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 0.3702999999821186,
+              "minSeconds": 0.3625999999940395,
+              "maxSeconds": 0.39209999999403955
+            },
+            "materialAndMethods": null,
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 0.6245,
+              "minSeconds": 0.59,
+              "maxSeconds": 0.6419000000059605
+            }
+          }
+        ]
+      },
+      {
+        "width": 1440,
+        "state": "repeat-same-document",
+        "samples": 3,
+        "stages": [
+          {
+            "name": "enter-home",
+            "excluded": true,
+            "reason": "Same URL/hash does not create a new document; use actual-reload Home benchmark separately.",
+            "useful": null,
+            "materialAndMethods": null,
+            "initialNewReadEnd": null
+          },
+          {
+            "name": "home-post",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 0.46959999999403956,
+              "minSeconds": 0.41,
+              "maxSeconds": 0.47040000000596044
+            },
+            "materialAndMethods": null,
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 0.687,
+              "minSeconds": 0.6182000000178814,
+              "maxSeconds": 0.6949000000059604
+            }
+          },
+          {
+            "name": "post-world",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 0.342,
+              "minSeconds": 0.3226999999880791,
+              "maxSeconds": 0.37259999999403953
+            },
+            "materialAndMethods": null,
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 0.6797999999821186,
+              "minSeconds": 0.6585,
+              "maxSeconds": 0.6850999999940396
+            }
+          },
+          {
+            "name": "world-number-full",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 1.2135999999940394,
+              "minSeconds": 1.202800000011921,
+              "maxSeconds": 1.267800000011921
+            },
+            "materialAndMethods": {
+              "n": 3,
+              "medianSeconds": 1.221800000011921,
+              "minSeconds": 1.216,
+              "maxSeconds": 1.2742000000178815
+            },
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 4.874200000017882,
+              "minSeconds": 4.7575999999940395,
+              "maxSeconds": 4.96440000000596
+            }
+          },
+          {
+            "name": "number-milui",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 0.084,
+              "minSeconds": 0.08339999997615814,
+              "maxSeconds": 0.095
+            },
+            "materialAndMethods": {
+              "n": 3,
+              "medianSeconds": 0.084,
+              "minSeconds": 0.08339999997615814,
+              "maxSeconds": 0.095
+            },
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 0.34479999998211863,
+              "minSeconds": 0.3354000000059605,
+              "maxSeconds": 0.3648000000119209
+            }
+          },
+          {
+            "name": "milui-number-back",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 0.025099999994039536,
+              "minSeconds": 0.022699999988079072,
+              "maxSeconds": 0.033
+            },
+            "materialAndMethods": {
+              "n": 3,
+              "medianSeconds": 0.025099999994039536,
+              "minSeconds": 0.022699999988079072,
+              "maxSeconds": 0.033
+            },
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 0.30490000000596046,
+              "minSeconds": 0.2885999999940395,
+              "maxSeconds": 0.3254000000059605
+            }
+          },
+          {
+            "name": "number-phrase",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 0.6289000000059605,
+              "minSeconds": 0.6162000000178814,
+              "maxSeconds": 0.7210999999940395
+            },
+            "materialAndMethods": {
+              "n": 3,
+              "medianSeconds": 0.6289000000059605,
+              "minSeconds": 0.6162000000178814,
+              "maxSeconds": 0.7210999999940395
+            },
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 1.008,
+              "minSeconds": 0.9456000000238418,
+              "maxSeconds": 1.104699999988079
+            }
+          },
+          {
+            "name": "phrase-number-back",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 0.0225,
+              "minSeconds": 0.020400000005960463,
+              "maxSeconds": 0.027400000005960466
+            },
+            "materialAndMethods": {
+              "n": 3,
+              "medianSeconds": 0.033,
+              "minSeconds": 0.027400000005960466,
+              "maxSeconds": 0.033300000011920926
+            },
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 0.30590000000596046,
+              "minSeconds": 0.3033000000119209,
+              "maxSeconds": 0.3105
+            }
+          },
+          {
+            "name": "number-world-back",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 0.264,
+              "minSeconds": 0.2505,
+              "maxSeconds": 0.2965
+            },
+            "materialAndMethods": null,
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 0.6563000000119209,
+              "minSeconds": 0.6167000000178814,
+              "maxSeconds": 0.6995
+            }
+          },
+          {
+            "name": "world-post-back",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 0.4085,
+              "minSeconds": 0.3687000000178814,
+              "maxSeconds": 0.4426999999880791
+            },
+            "materialAndMethods": null,
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 0.6705999999940395,
+              "minSeconds": 0.5804000000059605,
+              "maxSeconds": 0.6791999999880791
+            }
+          },
+          {
+            "name": "post-home-back",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 0.4022000000178814,
+              "minSeconds": 0.3949000000059605,
+              "maxSeconds": 0.4039000000059605
+            },
+            "materialAndMethods": null,
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 0.6784000000059605,
+              "minSeconds": 0.6290999999940395,
+              "maxSeconds": 0.6863000000119209
+            }
+          },
+          {
+            "name": "home-world-repeat",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 0.367,
+              "minSeconds": 0.3605,
+              "maxSeconds": 0.4446999999880791
+            },
+            "materialAndMethods": null,
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 0.7090999999940395,
+              "minSeconds": 0.6700999999940396,
+              "maxSeconds": 0.709199999988079
+            }
+          },
+          {
+            "name": "world-home-back",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 0.3837000000178814,
+              "minSeconds": 0.37709999999403954,
+              "maxSeconds": 0.46
+            },
+            "materialAndMethods": null,
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 0.5930999999940395,
+              "minSeconds": 0.582,
+              "maxSeconds": 0.6375999999940395
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "after": {
+    "sha": "9e1d876e0f04ed0cffe8d97a63b3ae564e43898e",
+    "trials": 12,
+    "functionalFailures": [],
+    "clsFailedDocuments": [],
+    "maxCls": 0.05044075242150719,
+    "targetMisses": {
+      "usefulOver1point5": [
+        {
+          "width": 390,
+          "state": "first-loop",
+          "trial": 1,
+          "stage": "enter-home",
+          "ms": 4893
+        },
+        {
+          "width": 390,
+          "state": "first-loop",
+          "trial": 2,
+          "stage": "enter-home",
+          "ms": 4846
+        },
+        {
+          "width": 390,
+          "state": "first-loop",
+          "trial": 3,
+          "stage": "enter-home",
+          "ms": 4884.299999982119
+        },
+        {
+          "width": 390,
+          "state": "first-loop",
+          "trial": 1,
+          "stage": "post-world",
+          "ms": 2095.5
+        },
+        {
+          "width": 390,
+          "state": "first-loop",
+          "trial": 2,
+          "stage": "post-world",
+          "ms": 2005.9000000059605
+        },
+        {
+          "width": 390,
+          "state": "first-loop",
+          "trial": 3,
+          "stage": "post-world",
+          "ms": 1998
+        },
+        {
+          "width": 390,
+          "state": "first-loop",
+          "trial": 1,
+          "stage": "world-number-full",
+          "ms": 2672.7000000178814
+        },
+        {
+          "width": 390,
+          "state": "first-loop",
+          "trial": 2,
+          "stage": "world-number-full",
+          "ms": 2751.5999999940395
+        },
+        {
+          "width": 390,
+          "state": "first-loop",
+          "trial": 3,
+          "stage": "world-number-full",
+          "ms": 2803.9000000059605
+        },
+        {
+          "width": 1440,
+          "state": "first-loop",
+          "trial": 1,
+          "stage": "enter-home",
+          "ms": 1833.199999988079
+        },
+        {
+          "width": 1440,
+          "state": "first-loop",
+          "trial": 2,
+          "stage": "enter-home",
+          "ms": 1609.9000000059605
+        },
+        {
+          "width": 1440,
+          "state": "first-loop",
+          "trial": 3,
+          "stage": "enter-home",
+          "ms": 1566.7000000178814
+        },
+        {
+          "width": 1440,
+          "state": "first-loop",
+          "trial": 1,
+          "stage": "world-number-full",
+          "ms": 1629.699999988079
+        },
+        {
+          "width": 1440,
+          "state": "first-loop",
+          "trial": 2,
+          "stage": "world-number-full",
+          "ms": 1778.5999999940395
+        },
+        {
+          "width": 1440,
+          "state": "first-loop",
+          "trial": 3,
+          "stage": "world-number-full",
+          "ms": 2313.800000011921
+        }
+      ],
+      "materialOver30": []
+    },
+    "groups": [
+      {
+        "width": 390,
+        "state": "first-loop",
+        "samples": 3,
+        "stages": [
+          {
+            "name": "enter-home",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 4.884299999982119,
+              "minSeconds": 4.846,
+              "maxSeconds": 4.893
+            },
+            "materialAndMethods": null,
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 6.155300000011921,
+              "minSeconds": 6.0555999999940395,
+              "maxSeconds": 6.161799999982119
+            }
+          },
+          {
+            "name": "home-post",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 0.8066999999880791,
+              "minSeconds": 0.8055,
+              "maxSeconds": 0.8158999999761581
+            },
+            "materialAndMethods": null,
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 1.0629000000059605,
+              "minSeconds": 1.005,
+              "maxSeconds": 1.0695
+            }
+          },
+          {
+            "name": "post-world",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 2.0059000000059606,
+              "minSeconds": 1.998,
+              "maxSeconds": 2.0955
+            },
+            "materialAndMethods": null,
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 2.3395,
+              "minSeconds": 2.3274000000059605,
+              "maxSeconds": 2.434199999988079
+            }
+          },
+          {
+            "name": "world-number-full",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 2.7515999999940397,
+              "minSeconds": 2.6727000000178815,
+              "maxSeconds": 2.8039000000059606
+            },
+            "materialAndMethods": {
+              "n": 3,
+              "medianSeconds": 7.35,
+              "minSeconds": 7.32290000000596,
+              "maxSeconds": 8.014699999988078
+            },
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 9.463,
+              "minSeconds": 9.448100000023842,
+              "maxSeconds": 9.70040000000596
+            }
+          },
+          {
+            "name": "number-milui",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 0.31219999998807907,
+              "minSeconds": 0.28819999998807905,
+              "maxSeconds": 0.34340000000596044
+            },
+            "materialAndMethods": {
+              "n": 3,
+              "medianSeconds": 1.8594000000059605,
+              "minSeconds": 1.8147999999821187,
+              "maxSeconds": 2.188
+            },
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 2.7085,
+              "minSeconds": 2.6595,
+              "maxSeconds": 3.061300000011921
+            }
+          },
+          {
+            "name": "milui-number-back",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 0.0895,
+              "minSeconds": 0.07369999998807907,
+              "maxSeconds": 0.0925
+            },
+            "materialAndMethods": {
+              "n": 3,
+              "medianSeconds": 0.0895,
+              "minSeconds": 0.07369999998807907,
+              "maxSeconds": 0.0925
+            },
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 0.36069999998807906,
+              "minSeconds": 0.35540000000596045,
+              "maxSeconds": 0.3955
+            }
+          },
+          {
+            "name": "number-phrase",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 1.019800000011921,
+              "minSeconds": 1.0036000000238419,
+              "maxSeconds": 1.0598999999761582
+            },
+            "materialAndMethods": {
+              "n": 3,
+              "medianSeconds": 3.6880999999940394,
+              "minSeconds": 3.5860999999940395,
+              "maxSeconds": 3.7307000000178814
+            },
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 4.510800000011921,
+              "minSeconds": 4.442399999976158,
+              "maxSeconds": 4.586100000023841
+            }
+          },
+          {
+            "name": "phrase-number-back",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 0.08059999999403954,
+              "minSeconds": 0.08059999999403954,
+              "maxSeconds": 0.0945
+            },
+            "materialAndMethods": {
+              "n": 3,
+              "medianSeconds": 0.11419999998807907,
+              "minSeconds": 0.11180000001192093,
+              "maxSeconds": 0.12809999999403954
+            },
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 0.4230999999940395,
+              "minSeconds": 0.401,
+              "maxSeconds": 0.4474000000059605
+            }
+          },
+          {
+            "name": "number-world-back",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 0.392,
+              "minSeconds": 0.3815,
+              "maxSeconds": 0.4120999999940395
+            },
+            "materialAndMethods": null,
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 0.7094000000059605,
+              "minSeconds": 0.706300000011921,
+              "maxSeconds": 0.7185999999940396
+            }
+          },
+          {
+            "name": "world-post-back",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 0.5752999999821186,
+              "minSeconds": 0.5461999999880791,
+              "maxSeconds": 0.6268000000119209
+            },
+            "materialAndMethods": null,
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 0.49419999998807906,
+              "minSeconds": 0.4925,
+              "maxSeconds": 0.49780000001192093
+            }
+          },
+          {
+            "name": "post-home-back",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 0.699,
+              "minSeconds": 0.6330999999940395,
+              "maxSeconds": 0.7477000000178814
+            },
+            "materialAndMethods": null,
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 0.6697000000178814,
+              "minSeconds": 0.6128000000119209,
+              "maxSeconds": 0.679
+            }
+          },
+          {
+            "name": "home-world-repeat",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 1.1960999999940396,
+              "minSeconds": 1.1545999999940395,
+              "maxSeconds": 1.2339000000059606
+            },
+            "materialAndMethods": null,
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 1.518,
+              "minSeconds": 1.4462000000178814,
+              "maxSeconds": 1.5341000000238418
+            }
+          },
+          {
+            "name": "world-home-back",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 0.664699999988079,
+              "minSeconds": 0.5805999999940396,
+              "maxSeconds": 0.7673000000119209
+            },
+            "materialAndMethods": null,
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 0.6435,
+              "minSeconds": 0.61,
+              "maxSeconds": 0.7747999999821186
+            }
+          }
+        ]
+      },
+      {
+        "width": 390,
+        "state": "repeat-same-document",
+        "samples": 3,
+        "stages": [
+          {
+            "name": "enter-home",
+            "excluded": true,
+            "reason": "Same URL/hash does not create a new document; use actual-reload Home benchmark separately.",
+            "useful": null,
+            "materialAndMethods": null,
+            "initialNewReadEnd": null
+          },
+          {
+            "name": "home-post",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 0.7278000000119209,
+              "minSeconds": 0.6871999999880791,
+              "maxSeconds": 0.8785999999940395
+            },
+            "materialAndMethods": null,
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 0.642,
+              "minSeconds": 0.5865999999940396,
+              "maxSeconds": 0.7476999999880791
+            }
+          },
+          {
+            "name": "post-world",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 1.0523999999761582,
+              "minSeconds": 1.005300000011921,
+              "maxSeconds": 1.136199999988079
+            },
+            "materialAndMethods": null,
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 1.3767999999821185,
+              "minSeconds": 1.3,
+              "maxSeconds": 1.4308999999761582
+            }
+          },
+          {
+            "name": "world-number-full",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 1.4229000000059604,
+              "minSeconds": 1.4074000000059605,
+              "maxSeconds": 1.4992000000178813
+            },
+            "materialAndMethods": {
+              "n": 3,
+              "medianSeconds": 1.6590999999940395,
+              "minSeconds": 1.6251000000238418,
+              "maxSeconds": 1.7364000000059605
+            },
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 6.289799999982119,
+              "minSeconds": 5.995,
+              "maxSeconds": 6.500100000023842
+            }
+          },
+          {
+            "name": "number-milui",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 0.33430000001192095,
+              "minSeconds": 0.32959999999403955,
+              "maxSeconds": 0.3385
+            },
+            "materialAndMethods": {
+              "n": 3,
+              "medianSeconds": 0.33430000001192095,
+              "minSeconds": 0.32959999999403955,
+              "maxSeconds": 0.3385
+            },
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 0.656800000011921,
+              "minSeconds": 0.6520999999940396,
+              "maxSeconds": 0.7244000000059605
+            }
+          },
+          {
+            "name": "milui-number-back",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 0.0825,
+              "minSeconds": 0.07580000001192093,
+              "maxSeconds": 0.08759999999403953
+            },
+            "materialAndMethods": {
+              "n": 3,
+              "medianSeconds": 0.0825,
+              "minSeconds": 0.07580000001192093,
+              "maxSeconds": 0.08759999999403953
+            },
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 0.3859000000059605,
+              "minSeconds": 0.38430000001192094,
+              "maxSeconds": 0.3935
+            }
+          },
+          {
+            "name": "number-phrase",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 1.1648999999761582,
+              "minSeconds": 0.8592999999821186,
+              "maxSeconds": 1.2075999999940394
+            },
+            "materialAndMethods": {
+              "n": 3,
+              "medianSeconds": 1.1648999999761582,
+              "minSeconds": 0.8592999999821186,
+              "maxSeconds": 1.2075999999940394
+            },
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 1.5657999999821186,
+              "minSeconds": 1.2930999999940396,
+              "maxSeconds": 1.678
+            }
+          },
+          {
+            "name": "phrase-number-back",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 0.0782000000178814,
+              "minSeconds": 0.062399999976158145,
+              "maxSeconds": 0.09630000001192093
+            },
+            "materialAndMethods": {
+              "n": 3,
+              "medianSeconds": 0.9835,
+              "minSeconds": 0.8355999999940396,
+              "maxSeconds": 1.0881000000238419
+            },
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 1.331800000011921,
+              "minSeconds": 1.1221999999880792,
+              "maxSeconds": 1.333699999988079
+            }
+          },
+          {
+            "name": "number-world-back",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 0.4365,
+              "minSeconds": 0.4252000000178814,
+              "maxSeconds": 0.9371999999880791
+            },
+            "materialAndMethods": null,
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 0.7167000000178814,
+              "minSeconds": 0.6806000000238419,
+              "maxSeconds": 0.7506999999880791
+            }
+          },
+          {
+            "name": "world-post-back",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 0.6202999999821186,
+              "minSeconds": 0.6189000000059605,
+              "maxSeconds": 0.6890999999940395
+            },
+            "materialAndMethods": null,
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 0.4775,
+              "minSeconds": 0.46870000001788137,
+              "maxSeconds": 0.48190000000596045
+            }
+          },
+          {
+            "name": "post-home-back",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 0.644,
+              "minSeconds": 0.5713000000119209,
+              "maxSeconds": 0.671
+            },
+            "materialAndMethods": null,
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 0.661699999988079,
+              "minSeconds": 0.6576000000238419,
+              "maxSeconds": 0.6822999999821187
+            }
+          },
+          {
+            "name": "home-world-repeat",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 1.1895,
+              "minSeconds": 1.1262000000178813,
+              "maxSeconds": 1.2087999999821186
+            },
+            "materialAndMethods": null,
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 1.567,
+              "minSeconds": 1.4690999999940395,
+              "maxSeconds": 1.5687999999821185
+            }
+          },
+          {
+            "name": "world-home-back",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 0.6612999999821186,
+              "minSeconds": 0.6465,
+              "maxSeconds": 0.6675
+            },
+            "materialAndMethods": null,
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 0.6133999999761581,
+              "minSeconds": 0.6105,
+              "maxSeconds": 0.6482999999821186
+            }
+          }
+        ]
+      },
+      {
+        "width": 1440,
+        "state": "first-loop",
+        "samples": 3,
+        "stages": [
+          {
+            "name": "enter-home",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 1.6099000000059605,
+              "minSeconds": 1.5667000000178815,
+              "maxSeconds": 1.833199999988079
+            },
+            "materialAndMethods": null,
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 2.632899999976158,
+              "minSeconds": 2.567300000011921,
+              "maxSeconds": 2.683300000011921
+            }
+          },
+          {
+            "name": "home-post",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 0.5001999999880791,
+              "minSeconds": 0.4952999999821186,
+              "maxSeconds": 0.5355
+            },
+            "materialAndMethods": null,
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 0.830199999988079,
+              "minSeconds": 0.7881999999880791,
+              "maxSeconds": 0.8700999999940395
+            }
+          },
+          {
+            "name": "post-world",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 0.6384000000059604,
+              "minSeconds": 0.5755,
+              "maxSeconds": 0.6603000000119209
+            },
+            "materialAndMethods": null,
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 1.0461000000238418,
+              "minSeconds": 0.9637999999821186,
+              "maxSeconds": 1.061800000011921
+            }
+          },
+          {
+            "name": "world-number-full",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 1.7785999999940396,
+              "minSeconds": 1.629699999988079,
+              "maxSeconds": 2.3138000000119208
+            },
+            "materialAndMethods": {
+              "n": 3,
+              "medianSeconds": 5.8994000000059605,
+              "minSeconds": 5.4421999999880795,
+              "maxSeconds": 6.0467999999821185
+            },
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 7.340299999982118,
+              "minSeconds": 7.15809999999404,
+              "maxSeconds": 8.012400000005961
+            }
+          },
+          {
+            "name": "number-milui",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 0.085,
+              "minSeconds": 0.0762000000178814,
+              "maxSeconds": 0.09039999997615814
+            },
+            "materialAndMethods": {
+              "n": 3,
+              "medianSeconds": 1.5487999999821187,
+              "minSeconds": 1.5125,
+              "maxSeconds": 1.618800000011921
+            },
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 2.2782999999821185,
+              "minSeconds": 2.259699999988079,
+              "maxSeconds": 2.3144000000059606
+            }
+          },
+          {
+            "name": "milui-number-back",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 0.032,
+              "minSeconds": 0.031299999982118604,
+              "maxSeconds": 0.036
+            },
+            "materialAndMethods": {
+              "n": 3,
+              "medianSeconds": 0.032,
+              "minSeconds": 0.031299999982118604,
+              "maxSeconds": 0.036
+            },
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 0.2883000000119209,
+              "minSeconds": 0.2715,
+              "maxSeconds": 0.29390000000596045
+            }
+          },
+          {
+            "name": "number-phrase",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 0.6204000000059605,
+              "minSeconds": 0.589199999988079,
+              "maxSeconds": 0.6211999999880791
+            },
+            "materialAndMethods": {
+              "n": 3,
+              "medianSeconds": 2.8892999999821187,
+              "minSeconds": 2.8025999999940394,
+              "maxSeconds": 2.894300000011921
+            },
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 3.6385,
+              "minSeconds": 3.558199999988079,
+              "maxSeconds": 3.7059000000059603
+            }
+          },
+          {
+            "name": "phrase-number-back",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 0.030900000005960465,
+              "minSeconds": 0.022599999994039534,
+              "maxSeconds": 0.0387999999821186
+            },
+            "materialAndMethods": {
+              "n": 3,
+              "medianSeconds": 0.041099999994039536,
+              "minSeconds": 0.03039999997615814,
+              "maxSeconds": 0.04529999998211861
+            },
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 0.3161999999880791,
+              "minSeconds": 0.27879999998211863,
+              "maxSeconds": 0.3257999999821186
+            }
+          },
+          {
+            "name": "number-world-back",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 0.2905,
+              "minSeconds": 0.2629000000059605,
+              "maxSeconds": 0.2995999999940395
+            },
+            "materialAndMethods": null,
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 0.594,
+              "minSeconds": 0.5854000000059605,
+              "maxSeconds": 0.6136999999880791
+            }
+          },
+          {
+            "name": "world-post-back",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 0.3786999999880791,
+              "minSeconds": 0.377,
+              "maxSeconds": 0.40879999998211863
+            },
+            "materialAndMethods": null,
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 0.43719999998807907,
+              "minSeconds": 0.41269999998807905,
+              "maxSeconds": 0.6735999999940395
+            }
+          },
+          {
+            "name": "post-home-back",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 0.5501000000238419,
+              "minSeconds": 0.466,
+              "maxSeconds": 0.6994000000059605
+            },
+            "materialAndMethods": null,
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 0.6051000000238419,
+              "minSeconds": 0.5828000000119209,
+              "maxSeconds": 0.6999000000059604
+            }
+          },
+          {
+            "name": "home-world-repeat",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 0.3346999999880791,
+              "minSeconds": 0.31580000001192093,
+              "maxSeconds": 0.3527999999821186
+            },
+            "materialAndMethods": null,
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 0.6727000000178814,
+              "minSeconds": 0.6628999999761581,
+              "maxSeconds": 0.691
+            }
+          },
+          {
+            "name": "world-home-back",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 0.4867000000178814,
+              "minSeconds": 0.455,
+              "maxSeconds": 0.4948000000119209
+            },
+            "materialAndMethods": null,
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 0.5401999999880791,
+              "minSeconds": 0.5267000000178814,
+              "maxSeconds": 0.8752000000178813
+            }
+          }
+        ]
+      },
+      {
+        "width": 1440,
+        "state": "repeat-same-document",
+        "samples": 3,
+        "stages": [
+          {
+            "name": "enter-home",
+            "excluded": true,
+            "reason": "Same URL/hash does not create a new document; use actual-reload Home benchmark separately.",
+            "useful": null,
+            "materialAndMethods": null,
+            "initialNewReadEnd": null
+          },
+          {
+            "name": "home-post",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 0.43259999999403953,
+              "minSeconds": 0.4282000000178814,
+              "maxSeconds": 0.44440000000596047
+            },
+            "materialAndMethods": null,
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 0.6595,
+              "minSeconds": 0.4595,
+              "maxSeconds": 0.7490999999940395
+            }
+          },
+          {
+            "name": "post-world",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 0.35490000000596045,
+              "minSeconds": 0.32809999999403955,
+              "maxSeconds": 0.39
+            },
+            "materialAndMethods": null,
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 0.7175,
+              "minSeconds": 0.6304000000059604,
+              "maxSeconds": 0.8005
+            }
+          },
+          {
+            "name": "world-number-full",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 1.182199999988079,
+              "minSeconds": 1.130199999988079,
+              "maxSeconds": 1.1900999999940396
+            },
+            "materialAndMethods": {
+              "n": 3,
+              "medianSeconds": 1.2024000000059605,
+              "minSeconds": 1.140300000011921,
+              "maxSeconds": 1.216
+            },
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 4.74459999999404,
+              "minSeconds": 4.683800000011921,
+              "maxSeconds": 5.038599999994039
+            }
+          },
+          {
+            "name": "number-milui",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 0.09840000000596047,
+              "minSeconds": 0.09240000000596046,
+              "maxSeconds": 0.0995
+            },
+            "materialAndMethods": {
+              "n": 3,
+              "medianSeconds": 0.09840000000596047,
+              "minSeconds": 0.09240000000596046,
+              "maxSeconds": 0.0995
+            },
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 0.3425,
+              "minSeconds": 0.341,
+              "maxSeconds": 0.35790000000596045
+            }
+          },
+          {
+            "name": "milui-number-back",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 0.022599999994039534,
+              "minSeconds": 0.02119999998807907,
+              "maxSeconds": 0.027099999994039534
+            },
+            "materialAndMethods": {
+              "n": 3,
+              "medianSeconds": 0.022599999994039534,
+              "minSeconds": 0.02119999998807907,
+              "maxSeconds": 0.027099999994039534
+            },
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 0.28240000000596044,
+              "minSeconds": 0.2796999999880791,
+              "maxSeconds": 0.29340000000596045
+            }
+          },
+          {
+            "name": "number-phrase",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 0.6295999999940395,
+              "minSeconds": 0.615300000011921,
+              "maxSeconds": 0.6607000000178814
+            },
+            "materialAndMethods": {
+              "n": 3,
+              "medianSeconds": 0.6295999999940395,
+              "minSeconds": 0.615300000011921,
+              "maxSeconds": 0.6607000000178814
+            },
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 0.9985999999940396,
+              "minSeconds": 0.976300000011921,
+              "maxSeconds": 1.0065
+            }
+          },
+          {
+            "name": "phrase-number-back",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 0.024299999982118608,
+              "minSeconds": 0.0205,
+              "maxSeconds": 0.030400000005960465
+            },
+            "materialAndMethods": {
+              "n": 3,
+              "medianSeconds": 0.0315,
+              "minSeconds": 0.02969999998807907,
+              "maxSeconds": 0.038599999994039534
+            },
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 0.2862999999821186,
+              "minSeconds": 0.27780000001192096,
+              "maxSeconds": 0.31490000000596047
+            }
+          },
+          {
+            "name": "number-world-back",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 0.29060000002384184,
+              "minSeconds": 0.28059999999403956,
+              "maxSeconds": 0.29440000000596045
+            },
+            "materialAndMethods": null,
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 0.6396000000238419,
+              "minSeconds": 0.6,
+              "maxSeconds": 0.641699999988079
+            }
+          },
+          {
+            "name": "world-post-back",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 0.38939999997615815,
+              "minSeconds": 0.34570000001788137,
+              "maxSeconds": 0.39689999997615816
+            },
+            "materialAndMethods": null,
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 0.5895,
+              "minSeconds": 0.4185999999940395,
+              "maxSeconds": 0.6175
+            }
+          },
+          {
+            "name": "post-home-back",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 0.5887999999821186,
+              "minSeconds": 0.4596999999880791,
+              "maxSeconds": 0.6885
+            },
+            "materialAndMethods": null,
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 0.5823999999761581,
+              "minSeconds": 0.530800000011921,
+              "maxSeconds": 0.64
+            }
+          },
+          {
+            "name": "home-world-repeat",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 0.35890000000596045,
+              "minSeconds": 0.34740000000596044,
+              "maxSeconds": 0.362
+            },
+            "materialAndMethods": null,
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 0.673,
+              "minSeconds": 0.651,
+              "maxSeconds": 0.6895
+            }
+          },
+          {
+            "name": "world-home-back",
+            "excluded": false,
+            "reason": null,
+            "useful": {
+              "n": 3,
+              "medianSeconds": 0.5041999999880791,
+              "minSeconds": 0.4905,
+              "maxSeconds": 0.5495999999940395
+            },
+            "materialAndMethods": null,
+            "initialNewReadEnd": {
+              "n": 3,
+              "medianSeconds": 0.6490999999940396,
+              "minSeconds": 0.5385999999940395,
+              "maxSeconds": 0.6682999999821186
+            }
+          }
+        ]
+      }
+    ]
+  }
+}
