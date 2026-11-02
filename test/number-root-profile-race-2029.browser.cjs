@@ -3,6 +3,8 @@ const fs=require('node:fs');
 const origin=process.env.SOD_ACCEPTANCE_ORIGIN||'http://127.0.0.1:4251';
 for(const [mode,width]of[['delay',390],['delay',1440],['failed',390]])test('root action preserves the restored operand while its profile is '+mode+' '+width,async({page},info)=>{
  test.setTimeout(150000);await page.setViewportSize({width,height:900});
+ // This historically named reader has a side-effecting log path: never forward it.
+ await page.route('**/rest/v1/rpc/lang_links_list',route=>route.abort());
  // Missing trace is controlled; every successful profile remains the actual
  // canonical public response. This isolates the profile/Back race.
  await page.route('**/rest/v1/rpc/gematria_method_trace',route=>route.fulfill({status:200,contentType:'application/json',body:'null'}));

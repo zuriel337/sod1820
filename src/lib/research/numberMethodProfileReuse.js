@@ -1,6 +1,6 @@
 // A bounded, in-memory reuse window for already read canonical calculations.
 // No identity is persisted. Changing readers invalidates old read handles too.
-export function createNumberMethodProfileReuse({ now = Date.now, ttlMs = 30_000, limit = 36 } = {}) {
+export function createNumberMethodProfileReuse({ now = () => Date.now(), ttlMs = 30_000, limit = 36 } = {}) {
   let reader = null, generation = 0;
   const rows = new Map();
   return {
