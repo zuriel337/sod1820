@@ -6,27 +6,41 @@ import { readSeen, markSeen } from "../../lib/homeMotion2029.js";
 import { tierLookupNumbers } from "../../lib/ratings2029.js";
 import { fetchNumberTierSignals } from "../../lib/research/numberTierSignals.js";
 
-export function useSystemFeed2029({ enabled = true } = {}) {
+export function useSystemFeed2029({ enabled = true, nowOpen = false } = {}) {
   const [state, setState] = useState({ loading: true, items: [], error: false, unavailableSources: [], groupArrivals: null });
   const [seen, setSeen] = useState(readSeen);
   const [strongIds, setStrongIds] = useState({});
   const asked = useRef(new Set());
-  const requestedNow = useRef(false), nowEpoch = useRef(0), nowController = useRef(null), nowPending = useRef(false), streamResults = useRef(0);
+  const nowActive = useRef(false);
+  nowActive.current = enabled && nowOpen;
+  const nowEpoch = useRef(0), nowController = useRef(null), nowPending = useRef(false), streamResults = useRef(0);
   const [nowSources, setNowSources] = useState({ requested: false, loading: false, items: [], sourceStates: [], error: false });
   const refreshNowDetails = useCallback(() => {
-    if (nowPending.current) return;
+    if (!nowActive.current || nowPending.current) return;
     nowPending.current = true;
     const epoch = ++nowEpoch.current;nowController.current?.abort();
     const controller = new AbortController();nowController.current = controller;
-    setNowSources({ requested: true, items: [], sourceStates: [], loading: true, error: false });
+    setNowSources(current => ({ ...current, requested: true, loading: true, error: false }));
     import("../../lib/research/systemFeedPublicSources2029.js")
-      .then(({ fetchSystemFeedPublicSources2029 }) => fetchSystemFeedPublicSources2029({ signal: controller.signal }))
+      .then(({ fetchSystemFeedPublicSources2029 }) => {
+        // Closing while the chunk is still loading must not start a detached read.
+        if (epoch !== nowEpoch.current || !nowActive.current || controller.signal.aborted) { controller.abort(); return null; }
+        return fetchSystemFeedPublicSources2029({ signal: controller.signal });
+      })
       .then(result => { if (epoch === nowEpoch.current && !controller.signal.aborted) setNowSources({ ...result, requested: true, loading: false, error: false }); })
       .catch(() => { if (epoch === nowEpoch.current && !controller.signal.aborted) setNowSources({ requested: true, items: [], sourceStates: [], loading: false, error: true }); })
       .finally(() => { if (epoch === nowEpoch.current) nowPending.current = false; });
   }, []);
-  const requestNowDetails = useCallback(() => { if (!requestedNow.current) { requestedNow.current = true;refreshNowDetails(); } }, [refreshNowDetails]);
-  useEffect(() => () => { nowEpoch.current += 1;nowController.current?.abort(); }, []);
+  const requestNowDetails = refreshNowDetails;
+  useEffect(() => {
+    if (enabled && nowOpen) refreshNowDetails();
+    else setNowSources(current => current.loading ? { ...current, loading: false } : current);
+    return () => {
+      nowEpoch.current += 1;
+      nowController.current?.abort();
+      nowPending.current = false;
+    };
+  }, [enabled, nowOpen, refreshNowDetails]);
 
 
   useEffect(() => {
@@ -40,7 +54,7 @@ export function useSystemFeed2029({ enabled = true } = {}) {
           if (!live) return;
           // Share the public stream's availability with BOTH the desktop left rail and
           // the mobile Now sheet. One subscription, no second reader or private payload.
-          if (streamResults.current++ > 0 && requestedNow.current) refreshNowDetails();
+          if (streamResults.current++ > 0 && nowActive.current) refreshNowDetails();
           setState({
             loading: false,
             items: Array.isArray(result?.items) ? result.items : [],

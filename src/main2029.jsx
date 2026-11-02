@@ -12,8 +12,10 @@ if (import.meta.env.VITE_INTEGRATED_PREVIEW === "true") {
 initRuntimeErrorCapture();
 
 const root = createRoot(document.getElementById("root"));
+const startupMark = name => { try { performance.mark(`sod2029:${name}`); } catch { /* optional local measurement */ } };
 async function warmLocalFonts() {
-  if (!document.fonts?.load) return;
+  startupMark("font-warm-start");
+  if (!document.fonts?.load) { startupMark("font-warm-settled"); return; }
   let timeout;
   try {
     await Promise.race([
@@ -27,11 +29,17 @@ async function warmLocalFonts() {
     ]);
   } finally {
     window.clearTimeout(timeout);
+    startupMark("font-warm-settled");
   }
 }
 
-warmLocalFonts().catch(() => {}).finally(() => root.render(
+// Local fonts are preloaded by 2029.html. Warming is progressive: a missing or
+// slow font cannot hold routing, data admission or the first usable application.
+// Existing font-display/fallbacks remain; combined browser acceptance checks CLS.
+void warmLocalFonts().catch(() => {});
+startupMark("render-requested");
+root.render(
   <StrictMode>
     <App2029 />
   </StrictMode>,
-));
+);

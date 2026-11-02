@@ -25,7 +25,7 @@ function readLegacyContext(session) {
   } catch { return null; }
 }
 export function createResearchSyncRuntime({ userId = null, storage, session, readCloud, writeCloud,
-  onContext = () => {}, idFactory = newResearchId, delay = 350, disabled = false } = {}) {
+  onContext = () => {}, idFactory = newResearchId, delay = 350, disabled = false, cloudEnabled = true } = {}) {
   const principal = principalToken(userId), key = principalStateKey(principal);
   const pointerKey = `${key}:journal`, journalKey = `${key}:pending:${idFactory()}`;
   const contextKey = principalContextKey(principal);
@@ -68,7 +68,7 @@ export function createResearchSyncRuntime({ userId = null, storage, session, rea
   let revision = journal.revision ?? (Number.isSafeInteger(cached.revision) ? cached.revision : null);
   let queue = clone(journal.queue), inflight = journal.inflight ? clone(journal.inflight) : null;
   let active = false, generation = 0, cloudReady = false, timer = null, operation = null, resolving = false;
-  let status = disabled ? 'auth_loading' : storageFault ? 'local_recovery_required' : userId ? 'loading' : 'local_only';
+  let status = disabled ? 'auth_loading' : storageFault ? 'local_recovery_required' : userId && cloudEnabled ? 'loading' : 'local_only';
   const listeners = new Set();
   let snapshot;
   let legacyRecoveryAvailable = false;
@@ -136,7 +136,7 @@ export function createResearchSyncRuntime({ userId = null, storage, session, rea
     notify();
   }
   async function hydrate() {
-    if (!active || disabled || !userId || storageFault) return;
+    if (!active || disabled || !cloudEnabled || !userId || storageFault) return;
     if (operation) return operation;
     const epoch = generation;
     status = 'loading'; notify();
@@ -163,7 +163,7 @@ export function createResearchSyncRuntime({ userId = null, storage, session, rea
     if (active && generation === epoch) schedule();
   }
   async function flush() {
-    if (!active || disabled || !userId || !cloudReady || !queue.length || operation || storageFault) return;
+    if (!active || disabled || !cloudEnabled || !userId || !cloudReady || !queue.length || operation || storageFault) return;
     if (status === 'conflict' || revision == null) return;
     clearTimeout(timer);
     const epoch = generation;
@@ -201,7 +201,7 @@ export function createResearchSyncRuntime({ userId = null, storage, session, rea
     const safe = clone(ops);
     if (!safe.length || safe.length > 100) throw new Error('RESEARCH_OPS_BATCH_TOO_LARGE');
     state = applyResearchOps(state, safe);
-    if (userId) {
+    if (userId && cloudEnabled) {
       queue = [...queue, { batch_id: idFactory(), ops: safe }];
       if (!['error', 'conflict', 'local_error'].includes(status)) status = 'pending';
     }
@@ -211,7 +211,7 @@ export function createResearchSyncRuntime({ userId = null, storage, session, rea
     return ok;
   }
   async function retry() {
-    if (!active || disabled || storageFault || resolving || status === 'conflict') return false;
+    if (!active || disabled || !cloudEnabled || storageFault || resolving || status === 'conflict') return false;
     if (operation) await operation;
     if (!active) return false;
     if (!persist()) { notify(); return false; }
@@ -220,7 +220,7 @@ export function createResearchSyncRuntime({ userId = null, storage, session, rea
     return status !== 'error' && status !== 'conflict' && status !== 'local_error';
   }
   async function resolveConflict({ confirm = false, action } = {}) {
-    if (!active || !userId || !confirm || resolving || operation || status !== 'conflict' || !['reapply', 'keep_remote'].includes(action)) return false;
+    if (!active || !cloudEnabled || !userId || !confirm || resolving || operation || status !== 'conflict' || !['reapply', 'keep_remote'].includes(action)) return false;
     const epoch = generation;
     resolving = true; status = 'resolving'; notify();
     try {
@@ -238,7 +238,7 @@ export function createResearchSyncRuntime({ userId = null, storage, session, rea
     finally { resolving = false; }
   }
   async function recoverJournal({ key: sourceKey, confirm = false } = {}) {
-    if (!active || disabled || !userId || !confirm || resolving || operation || queue.length || inflight || storageFault) return false;
+    if (!active || disabled || !cloudEnabled || !userId || !confirm || resolving || operation || queue.length || inflight || storageFault) return false;
     // A closed tab loses sessionStorage but its durable journal is still selectable, not orphaned.
     if (!listRecoveryJournals().some(row => row.key === sourceKey && !row.invalid)) return false;
     try {
@@ -265,7 +265,7 @@ export function createResearchSyncRuntime({ userId = null, storage, session, rea
       if (active || disabled) return;
       active = true; generation += 1;
       persist(); onContext(state.context);
-      if (userId && !storageFault) {
+      if (userId && cloudEnabled && !storageFault) {
         // React StrictMode replays effects while the prior read may still be pending.
         const epoch = generation;
         if (operation) void operation.finally(() => { if (active && generation === epoch) void hydrate(); });

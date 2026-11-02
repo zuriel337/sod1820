@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useLayoutEffect, useEffect, useMemo, useRef, useSyncExternalStore } from "react";
 import { useLocation } from "react-router-dom";
 import { useAuth } from "../AuthContext.jsx";
+import { PUBLIC_READING_RELEASE } from "../publicReadingRelease2029.js";
 import { applyCloudResearchOps, getCloudResearch } from "../auth.js";
 import { trackResearch } from "../tracking.js";
 import { signalAiBehavior, supabase } from "../supabase.js";
@@ -79,10 +80,10 @@ export default function ResearchProvider({ children }) {
 }
 
 function PrincipalResearchProvider({ children, userId, disabled }) {
-  const elsResearchOperation = useElsResearchOperation({ disabled, invoke: invokeElsResearch });
+  const elsResearchOperation = useElsResearchOperation({ disabled: disabled || PUBLIC_READING_RELEASE, invoke: invokeElsResearch });
   const { pathname, search, hash } = useLocation();
   const [runtime] = useState(() => createResearchSyncRuntime({
-    userId, disabled,
+    userId, disabled, cloudEnabled: !PUBLIC_READING_RELEASE,
     storage: browserStorage("localStorage"), session: browserStorage("sessionStorage"),
     readCloud: getCloudResearch, writeCloud: applyCloudResearchOps, onContext: publishContext,
   }));
@@ -99,6 +100,7 @@ function PrincipalResearchProvider({ children, userId, disabled }) {
     return () => { pathSession.current.active = false; runtime.stop(); };
   }, [runtime, disabled]);
   useEffect(() => {
+    if (PUBLIC_READING_RELEASE) return undefined;
     const reconnect = () => { void runtime.retry(); };
     window.addEventListener("online", reconnect);
     return () => window.removeEventListener("online", reconnect);
@@ -153,7 +155,7 @@ function PrincipalResearchProvider({ children, userId, disabled }) {
       addToResearch(entity) {
         if (!entity?.id || !entity?.type) return false;
         const ok = runtime.commit([op("item_upsert", { bucket: "cart", entity }), history(entity)]);
-        if (ok) { emit(EVENTS.RESEARCH_ADD, entity); trackResearch("add", { type: entity.type }); signalAiBehavior("research"); }
+        if (ok) { emit(EVENTS.RESEARCH_ADD, entity); if (!PUBLIC_READING_RELEASE) { trackResearch("add", { type: entity.type }); signalAiBehavior("research"); } }
         return ok;
       },
       removeFromResearch: (id) => remove("cart", "cart", id),
@@ -165,7 +167,7 @@ function PrincipalResearchProvider({ children, userId, disabled }) {
       saveItem(entity) {
         if (!entity?.id || !entity?.type) return false;
         const ok = runtime.commit([op("item_upsert", { bucket: "library", entity }), history(entity)]);
-        if (ok) { emit(EVENTS.ITEM_SAVE, entity); trackResearch("save", { type: entity.type }); }
+        if (ok) { emit(EVENTS.ITEM_SAVE, entity); if (!PUBLIC_READING_RELEASE) trackResearch("save", { type: entity.type }); }
         return ok;
       },
       removeSaved: (id) => remove("library", "saved", id),
@@ -197,7 +199,7 @@ function PrincipalResearchProvider({ children, userId, disabled }) {
         if (j?.root == null) return false;
         const journey = { id: `j${j.root}`, root: j.root, path: j.path || [], world: j.world || null, msg: j.msg || null, t: Date.now() };
         const ok = runtime.commit([op("journey_add", { journey })]);
-        if (ok) trackResearch("journey", { root: j.root });
+        if (ok && !PUBLIC_READING_RELEASE) trackResearch("journey", { root: j.root });
         return ok;
       },
       removeJourney: (id) => runtime.commit([op("journey_remove", { id })]),
@@ -207,7 +209,7 @@ function PrincipalResearchProvider({ children, userId, disabled }) {
         const result = continueResearchPathContext(selected, options);
         if (!result.ok) return result;
         if (!setContext(result.context)) return { ok: false, error: "session_unavailable" };
-        if (result.started || result.changed) emitJourney2029(result.started ? "start" : "step", {
+        if (!PUBLIC_READING_RELEASE && (result.started || result.changed)) emitJourney2029(result.started ? "start" : "step", {
           context: result.context, sourceSurface: options.surface, pathId: result.context.journey?.id,
         });
         return result;
@@ -232,7 +234,7 @@ function PrincipalResearchProvider({ children, userId, disabled }) {
   useEffect(() => {
     let alive = true;
     const version = pathSession.current.version;
-    if (!userId) {
+    if (!userId || PUBLIC_READING_RELEASE) {
       setPathResume({ loading: false, latest: null, error: null });
       return () => { alive = false; };
     }
@@ -249,6 +251,7 @@ function PrincipalResearchProvider({ children, userId, disabled }) {
 
   const saveCurrentResearchPath = useMemo(() => async ({ href = null, label = null, surface = null } = {}) => {
     if (!pathSession.current.active) return { ok: false, error: "session_unavailable" };
+    if (PUBLIC_READING_RELEASE) return { ok: false, error: "feature_locked" };
     if (!userId) return { ok: false, error: "authentication_required" };
     if (pathSession.current.busy) return { ok: false, error: "path_operation_pending" };
     const current = normalizeResearchContext(runtime.getSnapshot().context);
@@ -319,6 +322,7 @@ function PrincipalResearchProvider({ children, userId, disabled }) {
 
   const resumeResearchPath = useMemo(() => async (pathId = null) => {
     if (!pathSession.current.active) return { ok: false, error: "session_unavailable" };
+    if (PUBLIC_READING_RELEASE) return { ok: false, error: "feature_locked" };
     if (!userId) return { ok: false, error: "authentication_required" };
     if (pathSession.current.busy) return { ok: false, error: "path_operation_pending" };
     pathSession.current.busy = true;
@@ -361,6 +365,7 @@ function PrincipalResearchProvider({ children, userId, disabled }) {
     branchPointStepIndex = null,
   } = {}) => {
     if (!pathSession.current.active) return { ok: false, error: "session_unavailable" };
+    if (PUBLIC_READING_RELEASE) return { ok: false, error: "feature_locked" };
     if (!userId) return { ok: false, error: "authentication_required" };
     if (pathSession.current.busy) return { ok: false, error: "path_operation_pending" };
     const current = normalizeResearchContext(requestedContext || runtime.getSnapshot().context);
@@ -442,6 +447,7 @@ function PrincipalResearchProvider({ children, userId, disabled }) {
 
   const lastElsHistorySig = useRef(null);
   useEffect(() => {
+    if (PUBLIC_READING_RELEASE) return undefined;
     const onElsState = (event) => {
       if (event.origin !== window.location.origin) return;
       // Reject detached/old-principal frames, even when origin and claimed source text match.

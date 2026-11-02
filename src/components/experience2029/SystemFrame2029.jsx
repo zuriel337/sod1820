@@ -22,7 +22,7 @@ import { useAuth } from "../../lib/AuthContext.jsx";
 import { razielSavedSyncCopy, canRetryRazielSync, RAZIEL_LOCAL_SAVE_NOTICE } from "../../lib/research/razielSavedSync2029.js";
 import { useFeatureState } from "../MaintenanceLock.jsx";
 import { CORE_PUBLIC_LAUNCH_2029, PUBLIC_LAUNCH_READ_ONLY_PREVIEW } from "../../lib/publicLaunch2029.js";
-import AccountEntry2029 from "../auth2029/AccountEntry2029.jsx";
+const AccountEntry2029 = React.lazy(() => import("../auth2029/AccountEntry2029.jsx"));
 import { makeEntity } from "../../lib/research/entity.js";
 import { getNotificationPrefs } from "../../lib/supabase.js";
 import { getUnreadCount } from "../../lib/notifications.js";
@@ -42,13 +42,13 @@ import ContactGateway from "./ContactGatewayOnDemand2029.jsx";
 import SurfaceContextRail2029 from "./SurfaceContextRail2029.jsx";
 import GlobalLivingRibbon2029, { LivingRibbonDetail2029, NowSourceDetail2029 } from "./GlobalLivingRibbon2029.jsx";
 import RazielSessionMount2029, { useOptionalRazielSession2029 } from "./RazielSessionMount2029.jsx";
-import RazielCenter2029 from "./RazielCenter2029.jsx";
+const RazielCenter2029 = React.lazy(() => import("./RazielCenter2029.jsx"));
 import { workspaceResearchHref } from "../../lib/research/razielWorkspaceProjection2029.js";
 import { projectWorkspaceRazielPresence2029 } from "../../lib/research/workspaceRazielPresence2029.js";
-import RazielViewModeSelector2029 from "./RazielViewModeSelector2029.jsx";
-import RazielOneShotActions2029 from "./RazielOneShotActions2029.jsx";
-import ElsMatrixReadingActivity2029 from "./ElsMatrixReadingActivity2029.jsx";
-import ElsResearchActivity2029 from "./ElsResearchActivity2029.jsx";
+const RazielViewModeSelector2029 = React.lazy(() => import("./RazielViewModeSelector2029.jsx"));
+const RazielOneShotActions2029 = React.lazy(() => import("./RazielOneShotActions2029.jsx"));
+const ElsMatrixReadingActivity2029 = React.lazy(() => import("./ElsMatrixReadingActivity2029.jsx"));
+const ElsResearchActivity2029 = React.lazy(() => import("./ElsResearchActivity2029.jsx"));
 import { selectElsMatrixReadingActivity } from "../../lib/research/elsMatrixReadingActivity.js";
 import { publicContextLabel, contextDisplayTitle, contextNavigationItems2029, surfaceContextForRoute2029, entityTypeNounHe, razielContextParts, razielNavigationButton, razielStatusLabel } from "./razielSessionSeam2029.js";
 
@@ -448,7 +448,7 @@ function PanelShell({ panelRef, icon, kicker, title, children, onClose, panelKin
           </div>
           <button type="button" onClick={onClose} aria-label="סגור">×</button>
         </header>
-        <div className="sod29-frame-panel-body"><PreviewTransportDisclosure2029 />{children}</div>
+        <div className="sod29-frame-panel-body"><PreviewTransportDisclosure2029 /><React.Suspense fallback={<div role="status">טוען…</div>}>{children}</React.Suspense></div>
       </aside>
     </div>
   );
@@ -1114,7 +1114,7 @@ function AccountConnection2029() {
 }
 
 function WorkspaceProjection(props) {
-  if (PUBLIC_LAUNCH_READ_ONLY_PREVIEW) return <FrameState kind="empty" title="האזור האישי ייפתח בהמשך">בגרסה זו זמינה קריאה ציבורית. שמירה ופעולות חשבון אינן פעילות כרגע.</FrameState>;
+  if (PUBLIC_LAUNCH_READ_ONLY_PREVIEW) return <><AccountConnection2029 /><FrameState kind="empty" title="הפעולות האישיות ייפתחו בהמשך">כניסה לחשבון אינה מפעילה שמירה, מחקר או חיוב.</FrameState></>;
   return <WorkspaceProjectionOpen {...props} />;
 }
 
@@ -1490,8 +1490,8 @@ function SystemFrame2029Body({
   const booksLocked = booksFeature.loading || booksFeature.blocked;
   const numberLocked = numberFeature.loading || numberFeature.blocked;
   const worldLocked = worldFeature.loading || worldFeature.blocked;
-  const homeNav = (corePublicViewer ? CORE_HOME_NAV : HOME_NAV).map((item) => item.to === "/heichal" ? { ...item, locked: heichalLocked } : item.to === "/2029/journey" ? { ...item, locked: journeyLocked } : item.label === "העולם" ? { ...item, locked: worldLocked } : item);
-  const directNav = (corePublicViewer ? CORE_DIRECT_NAV : DIRECT_NAV).map((item) => item.to === "/els" ? { ...item, locked: elsFeature.loading || elsFeature.blocked } : item.to === "/books" ? { ...item, locked: booksLocked } : item.action === "number-search" || item.to?.startsWith("/2029/number/") ? { ...item, locked: numberLocked } : item);
+  const homeNav = (corePublicViewer ? CORE_HOME_NAV : HOME_NAV).map((item) => item.to === "/heichal" ? { ...item, locked: heichalLocked && !heichalFeature.adminViewAllowed } : item.to === "/2029/journey" ? { ...item, locked: journeyLocked && !journeyFeature.adminViewAllowed } : item.label === "העולם" ? { ...item, locked: worldLocked } : item);
+  const directNav = (corePublicViewer ? CORE_DIRECT_NAV : DIRECT_NAV).map((item) => item.to === "/els" ? { ...item, locked: elsFeature.loading || (elsFeature.blocked && !elsFeature.adminViewAllowed) } : item.to === "/books" ? { ...item, locked: booksLocked && !booksFeature.adminViewAllowed } : item.action === "number-search" || item.to?.startsWith("/2029/number/") ? { ...item, locked: numberLocked } : item);
   const [navOpen, setNavOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
     try { return localStorage.getItem("sod-global-rail") !== "expanded"; } catch { return true; }
@@ -1499,9 +1499,9 @@ function SystemFrame2029Body({
   // ZURIEL 1.11: Companion is temporarily unmounted on every 2029 surface.
   // Keep its component/preferences intact; no source-shortcut reader is imported.
   // This single feed still serves the living ribbon and the Now sheet.
-  const feed = useSystemFeed2029({ enabled: surface !== "control" });
-  // The logo opens and closes the navigation rail (click, Enter or Space). Hover only highlights; nothing moves.
   const [transient, setTransient] = useState(null);
+  const feed = useSystemFeed2029({ enabled: surface !== "control", nowOpen: transient?.kind === TRANSIENT.ATTENTION });
+  // The logo opens and closes the navigation rail (click, Enter or Space). Hover only highlights; nothing moves.
   const [toolDock, setToolDock] = useState(null);
   const [systemDockMode, setSystemDockMode] = useState(false);
   const registerToolDock = useCallback((projection) => {
