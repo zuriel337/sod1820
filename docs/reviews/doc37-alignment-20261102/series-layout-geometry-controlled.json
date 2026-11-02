@@ -1,0 +1,380 @@
+{
+  "controlledFixture": true,
+  "hostedAcceptance": false,
+  "timingMeasurement": false,
+  "networkRequests": 0,
+  "cases": [
+    {
+      "width": 320,
+      "fontSize": 16,
+      "outcome": "success",
+      "stable": true,
+      "catalogTop": 870.046875,
+      "links": [
+        {
+          "href": "/2029/posts?series=mah-kore-habora",
+          "height": 132
+        },
+        {
+          "href": "/2029/posts?series=dimension-five",
+          "height": 132
+        },
+        {
+          "href": "/2029/posts?series=sod-hashmal",
+          "height": 148.0625
+        },
+        {
+          "href": "/2029/posts?series=messages-from-righteous",
+          "height": 132
+        }
+      ],
+      "notices": [
+        44,
+        69.59375
+      ],
+      "scroll": 305,
+      "client": 305
+    },
+    {
+      "width": 320,
+      "fontSize": 16,
+      "outcome": "failure",
+      "stable": true,
+      "catalogTop": 870.046875,
+      "links": [
+        {
+          "href": "/2029/posts?series=mah-kore-habora",
+          "height": 132
+        },
+        {
+          "href": "/2029/posts?series=dimension-five",
+          "height": 132
+        },
+        {
+          "href": "/2029/posts?series=sod-hashmal",
+          "height": 148.0625
+        },
+        {
+          "href": "/2029/posts?series=messages-from-righteous",
+          "height": 132
+        }
+      ],
+      "notices": [
+        44,
+        69.59375
+      ],
+      "scroll": 305,
+      "client": 305
+    },
+    {
+      "width": 320,
+      "fontSize": 20,
+      "outcome": "success",
+      "stable": true,
+      "catalogTop": 1083.5625,
+      "links": [
+        {
+          "href": "/2029/posts?series=mah-kore-habora",
+          "height": 178.1875
+        },
+        {
+          "href": "/2029/posts?series=dimension-five",
+          "height": 173.09375
+        },
+        {
+          "href": "/2029/posts?series=sod-hashmal",
+          "height": 173.09375
+        },
+        {
+          "href": "/2029/posts?series=messages-from-righteous",
+          "height": 140.1875
+        }
+      ],
+      "notices": [
+        76,
+        76
+      ],
+      "scroll": 305,
+      "client": 305
+    },
+    {
+      "width": 320,
+      "fontSize": 20,
+      "outcome": "failure",
+      "stable": true,
+      "catalogTop": 1083.5625,
+      "links": [
+        {
+          "href": "/2029/posts?series=mah-kore-habora",
+          "height": 178.1875
+        },
+        {
+          "href": "/2029/posts?series=dimension-five",
+          "height": 173.09375
+        },
+        {
+          "href": "/2029/posts?series=sod-hashmal",
+          "height": 173.09375
+        },
+        {
+          "href": "/2029/posts?series=messages-from-righteous",
+          "height": 140.1875
+        }
+      ],
+      "notices": [
+        76,
+        76
+      ],
+      "scroll": 305,
+      "client": 305
+    },
+    {
+      "width": 390,
+      "fontSize": 16,
+      "outcome": "success",
+      "stable": true,
+      "catalogTop": 853.984375,
+      "links": [
+        {
+          "href": "/2029/posts?series=mah-kore-habora",
+          "height": 132
+        },
+        {
+          "href": "/2029/posts?series=dimension-five",
+          "height": 132
+        },
+        {
+          "href": "/2029/posts?series=sod-hashmal",
+          "height": 132
+        },
+        {
+          "href": "/2029/posts?series=messages-from-righteous",
+          "height": 132
+        }
+      ],
+      "notices": [
+        44,
+        69.59375
+      ],
+      "scroll": 375,
+      "client": 375
+    },
+    {
+      "width": 390,
+      "fontSize": 16,
+      "outcome": "failure",
+      "stable": true,
+      "catalogTop": 853.984375,
+      "links": [
+        {
+          "href": "/2029/posts?series=mah-kore-habora",
+          "height": 132
+        },
+        {
+          "href": "/2029/posts?series=dimension-five",
+          "height": 132
+        },
+        {
+          "href": "/2029/posts?series=sod-hashmal",
+          "height": 132
+        },
+        {
+          "href": "/2029/posts?series=messages-from-righteous",
+          "height": 132
+        }
+      ],
+      "notices": [
+        44,
+        69.59375
+      ],
+      "scroll": 375,
+      "client": 375
+    },
+    {
+      "width": 390,
+      "fontSize": 20,
+      "outcome": "success",
+      "stable": true,
+      "catalogTop": 902.78125,
+      "links": [
+        {
+          "href": "/2029/posts?series=mah-kore-habora",
+          "height": 143.09375
+        },
+        {
+          "href": "/2029/posts?series=dimension-five",
+          "height": 143.09375
+        },
+        {
+          "href": "/2029/posts?series=sod-hashmal",
+          "height": 143.09375
+        },
+        {
+          "href": "/2029/posts?series=messages-from-righteous",
+          "height": 132
+        }
+      ],
+      "notices": [
+        44,
+        76
+      ],
+      "scroll": 375,
+      "client": 375
+    },
+    {
+      "width": 390,
+      "fontSize": 20,
+      "outcome": "failure",
+      "stable": true,
+      "catalogTop": 902.78125,
+      "links": [
+        {
+          "href": "/2029/posts?series=mah-kore-habora",
+          "height": 143.09375
+        },
+        {
+          "href": "/2029/posts?series=dimension-five",
+          "height": 143.09375
+        },
+        {
+          "href": "/2029/posts?series=sod-hashmal",
+          "height": 143.09375
+        },
+        {
+          "href": "/2029/posts?series=messages-from-righteous",
+          "height": 132
+        }
+      ],
+      "notices": [
+        44,
+        76
+      ],
+      "scroll": 375,
+      "client": 375
+    },
+    {
+      "width": 1440,
+      "fontSize": 16,
+      "outcome": "success",
+      "stable": true,
+      "catalogTop": 576.390625,
+      "links": [
+        {
+          "href": "/2029/posts?series=mah-kore-habora",
+          "height": 144
+        },
+        {
+          "href": "/2029/posts?series=dimension-five",
+          "height": 144
+        },
+        {
+          "href": "/2029/posts?series=sod-hashmal",
+          "height": 144
+        },
+        {
+          "href": "/2029/posts?series=messages-from-righteous",
+          "height": 144
+        }
+      ],
+      "notices": [
+        44,
+        44
+      ],
+      "scroll": 1425,
+      "client": 1425
+    },
+    {
+      "width": 1440,
+      "fontSize": 16,
+      "outcome": "failure",
+      "stable": true,
+      "catalogTop": 576.390625,
+      "links": [
+        {
+          "href": "/2029/posts?series=mah-kore-habora",
+          "height": 144
+        },
+        {
+          "href": "/2029/posts?series=dimension-five",
+          "height": 144
+        },
+        {
+          "href": "/2029/posts?series=sod-hashmal",
+          "height": 144
+        },
+        {
+          "href": "/2029/posts?series=messages-from-righteous",
+          "height": 144
+        }
+      ],
+      "notices": [
+        44,
+        44
+      ],
+      "scroll": 1425,
+      "client": 1425
+    },
+    {
+      "width": 1440,
+      "fontSize": 20,
+      "outcome": "success",
+      "stable": true,
+      "catalogTop": 588.59375,
+      "links": [
+        {
+          "href": "/2029/posts?series=mah-kore-habora",
+          "height": 147.09375
+        },
+        {
+          "href": "/2029/posts?series=dimension-five",
+          "height": 147.09375
+        },
+        {
+          "href": "/2029/posts?series=sod-hashmal",
+          "height": 147.09375
+        },
+        {
+          "href": "/2029/posts?series=messages-from-righteous",
+          "height": 144
+        }
+      ],
+      "notices": [
+        44,
+        44
+      ],
+      "scroll": 1425,
+      "client": 1425
+    },
+    {
+      "width": 1440,
+      "fontSize": 20,
+      "outcome": "failure",
+      "stable": true,
+      "catalogTop": 588.59375,
+      "links": [
+        {
+          "href": "/2029/posts?series=mah-kore-habora",
+          "height": 147.09375
+        },
+        {
+          "href": "/2029/posts?series=dimension-five",
+          "height": 147.09375
+        },
+        {
+          "href": "/2029/posts?series=sod-hashmal",
+          "height": 147.09375
+        },
+        {
+          "href": "/2029/posts?series=messages-from-righteous",
+          "height": 144
+        }
+      ],
+      "notices": [
+        44,
+        44
+      ],
+      "scroll": 1425,
+      "client": 1425
+    }
+  ]
+}

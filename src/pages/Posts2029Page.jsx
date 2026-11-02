@@ -8,13 +8,26 @@ import { stripHtml } from "../lib/format.js";
 import { bilingualDateLabel } from "../lib/relativeTime2029.js";
 import PostCategories2029 from "../components/experience2029/PostCategories2029.jsx";
 import { humanContentTitle } from "../lib/presentation/contentTitle.js";
-import { fetchContentSeriesCatalog2029, mergeContentSeriesItems, projectContentSeriesItems } from "../lib/research/contentSeries2029Projection.js";
+import { CONTENT_SERIES_2029, fetchContentSeriesCatalog2029, mergeContentSeriesItems, projectContentSeriesItems } from "../lib/research/contentSeries2029Projection.js";
 import { POST_BACKGROUND_ASSETS_2029 } from "../lib/research/postBackground2029.js";
 import NavigationIcon2029 from "../components/experience2029/NavigationIcon2029.jsx";
 import PostFollowBox from "../components/PostFollowBox.jsx";
 import { AUTHORS } from "../lib/authors.js";
 import { publicPostHref } from "../lib/publicPostUrls.js";
 import "./posts2029.css";
+
+// The actual messages participate in intrinsic sizing. Only the active message
+// is exposed/focusable; no fixed height, clipped copy or withheld Post content.
+function SeriesReadingNotice2029({ pending, failed, pendingText, failureText, readyText, retryLabel, onRetry }) {
+  return <div className="sod29-series-reading-notice" role="status" aria-live="polite">
+    <p className={pending && !failed ? "is-current" : undefined} aria-hidden={!pending || failed}>{pendingText}</p>
+    <div className={failed ? "is-current" : undefined} aria-hidden={!failed}>
+      <p>{failureText}</p>
+      <button type="button" disabled={!failed} onClick={onRetry}>{retryLabel}</button>
+    </div>
+    <p className={!pending && !failed ? "is-current" : undefined} aria-hidden={pending || failed}>{readyText}</p>
+  </div>;
+}
 
 function SeriesEntrances2029({ activeKey, search = "", onRead, refreshKey = 0 }) {
   const [attempt, setAttempt] = useState(0);
@@ -33,15 +46,21 @@ function SeriesEntrances2029({ activeKey, search = "", onRead, refreshKey = 0 })
     return () => { live = false; controller.abort(); };
   }, [attempt, refreshKey, onRead, activeKey]);
 
-  const matches = state.series.filter(series => !search || [series.label, series.publisherLabel, series.writerLabel].some(value => value?.toLocaleLowerCase().includes(search.toLocaleLowerCase())));
+  // These identities/labels/links are already canonical and need no request.
+  // Metadata only fills absolutely positioned covers; it cannot insert an
+  // entire navigation grid above Posts that have already become readable.
+  const series = CONTENT_SERIES_2029.map(spec => ({ ...spec,
+    items: state.activeKey === activeKey ? state.series.find(item => item.key === spec.key)?.items || [] : [],
+  }));
+  const matches = series.filter(series => !search || [series.label, series.publisherLabel, series.writerLabel].some(value => value?.toLocaleLowerCase().includes(search.toLocaleLowerCase())));
   return <section className="sod29-posts-series" aria-labelledby="posts-series-title" aria-busy={state.loading}>
     <h2 id="posts-series-title"><NavigationIcon2029 name="layers" size={24} /> לגלות דרך הסדרות</h2>
-    {state.loading ? <p role="status">טוען את הסדרות…</p> : null}
-    {state.error ? <div className="sod29-posts-series-error" role="status">
-      <p>הסדרות לא נטענו. אפשר להמשיך לקרוא את הפוסטים.</p>
-      <button type="button" onClick={() => setAttempt(value => value + 1)}>לטעון שוב את הסדרות</button>
-    </div> : null}
-    {search && !state.loading && !state.error && !matches.length ? <p>לא נמצאה סדרה בשם הזה.</p> : null}
+    <SeriesReadingNotice2029 pending={state.loading} failed={state.error}
+      pendingText="טוען את תמונות המקורות בסדרות…"
+      failureText="פרטי המקורות לא נטענו."
+      readyText="קישורי הסדרות זמינים לעיון."
+      retryLabel="ניסיון נוסף" onRetry={() => setAttempt(value => value + 1)} />
+    {search && !matches.length ? <p>לא נמצאה סדרה בשם הזה.</p> : null}
     {matches.length ? <nav className="sod29-posts-series-grid" aria-label="סדרות הפוסטים">
       {matches.map(series => {
         const image = series.items[0]?.imageUrl;
@@ -241,8 +260,11 @@ export default function Posts2029Page() {
         <button type="button" onClick={() => setAttempt(value => value + 1)}>ניסיון טעינה נוסף</button>
         {page > 1 ? <button type="button" onClick={() => goToPage(1)}>חזרה לפוסטים האחרונים</button> : null}
       </FrameState> : null}
-      {sourcePending ? <p role="status">טוען את המקור הנוסף בסדרה…</p> : null}
-      {sourceFailed ? <div role="status"><p>המקור הנוסף בסדרה לא זמין כרגע. הפוסטים שנקראו נשארים זמינים.</p><button type="button" onClick={() => setAttempt(value => value + 1)}>ניסיון טעינה נוסף</button></div> : null}
+      {mixedSeries ? <SeriesReadingNotice2029 pending={sourcePending} failed={Boolean(sourceFailed)}
+        pendingText="טוען את המקור הנוסף בסדרה…"
+        failureText="המקור הנוסף בסדרה לא זמין כרגע."
+        readyText="הסדרה מסודרת לפי מועד הפרסום במקור."
+        retryLabel="ניסיון טעינה נוסף" onRetry={() => setAttempt(value => value + 1)} /> : null}
       {!loading && !error && !hasItems && !sourcePending && !sourceFailed
         ? <FrameState kind="empty" title="אין פוסטים בעמוד הזה">
           {page > 1 ? <button type="button" onClick={() => goToPage(1)}>חזרה לפוסטים האחרונים</button> : "אין כרגע מקורות זמינים להצגה."}
