@@ -1,5 +1,13 @@
 # Resume the final curated Preview acceptance
 
+> Historical continuation note: the work below has completed. The final affected
+> browser acceptance is on `0d4ad83644a74abe5d990f7a628dd955fd0c638a`, protected
+> Preview https://sod1820-mqamksdab-sod1820-s-projects.vercel.app. See
+> [candidate-0d4a-report.md](candidate-0d4a-report.md) and its archive manifest.
+> Earlier failures and measurements are retained under their actual SHAs; the
+> instructions below describe the prior handoff, not an outstanding request to
+> repeat the full benchmark. All browsers are closed and the window is released.
+
 Last measured product: `9e1d876e0f04ed0cffe8d97a63b3ae564e43898e`.
 Exact accepted Preview: https://sod1820-b4penw27t-sod1820-s-projects.vercel.app
 Deployment: `dpl_6eirH5H3oP57AEemk9GmQvpDKxwQ`.

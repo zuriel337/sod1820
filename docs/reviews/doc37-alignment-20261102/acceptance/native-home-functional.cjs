@@ -17,6 +17,11 @@ require('node:readline').createInterface({input:process.stdin}).once('line',asyn
     page=await context.newPage();page.setDefaultTimeout(30000);const errors=[];page.on('pageerror',e=>errors.push(String(e.message).slice(0,400)));
     const response=await page.goto(cfg.origin+'/?doc37-home=acceptance',{waitUntil:'domcontentloaded'});assert.equal(response.status(),200);
     await expect(page.locator('[data-home-primary="ready"]')).toBeVisible();await expect(page.locator('[data-home-public-series="true"]')).toHaveAttribute('aria-busy','false');
+    if(cfg.identityOnly){
+      item.snapshot=await page.evaluate(()=>({controller:navigator.serviceWorker.controller?.scriptURL?new URL(navigator.serviceWorker.controller.scriptURL).pathname:null,primary:document.querySelector('[data-home-primary]')?.dataset.homePrimary,denied:window.__safetyDenied}));
+      item.initialResources=await page.evaluate(()=>performance.getEntriesByType('resource').filter(r=>new URL(r.name).pathname.startsWith('/assets/')).map(r=>({path:new URL(r.name).pathname,type:r.initiatorType,start:r.startTime,duration:r.duration,encodedBodySize:r.encodedBodySize,transferSize:r.transferSize})));
+      assert.match(item.snapshot.controller||'',/preview-readonly-sw/);assert.equal(item.snapshot.primary,'ready');assert.deepEqual(errors,[]);item.errors=errors;item.checks.push('exact-deployment-identity/actual-SW/primary-and-series-ready');item.ok=true;await page.screenshot({path:`${out}/identity-${width}.png`});continue;
+    }
     const closed=page.locator('[data-home-top-updates="public-closed"]');await expect(closed).toBeVisible();await expect(closed).toContainText('אזור זה בבנייה מתקדמת');await expect(page.locator('.h29-admin-updates')).toHaveCount(0);item.checks.push('primary-ready/top-only-public-closed/admin-reader-absent');
     for(const key of['mah-kore-habora','dimension-five','sod-hashmal']){const card=page.locator(`[data-home-series="${key}"]`);await expect(card).toBeVisible();await expect(card.locator('.h29-card-open')).toHaveAttribute('href',/^\//);await expect(card.locator('time')).toHaveAttribute('datetime',/.+/);}
     item.checks.push('three-real-series-linked/publication-times');

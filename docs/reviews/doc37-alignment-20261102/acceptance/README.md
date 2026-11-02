@@ -301,3 +301,24 @@ show the full pre-reload native sequence below0.1, exact returns, sourcefailure
 readiness and two Home smoke passes. A reload at savedscroll still shifts when
 the source joins page1; a realwheel cancels the applicationrestorer but not the
 browser's running POP motion. Both conditions remain failed, with attribution.
+
+## 0d4 affected-route acceptance complete
+
+[Final focused report](candidate-0d4a-report.md) and
+[manifest](native-0d4a-manifest.json) preserve13 passing product scenarios,
+including real series/page2/video/back/forward/reload at390/1440, controlled
+privacy/failure/pending/duplicate/cancel cases and two final Homeidentity/SW
+smokes. Native full-sequence CLS is0.036704/0.022782, reload CLS0/0, and exact
+returns keep the2px tolerance. No new playback or broad benchmark was run.
+
+The first0d4 wheel assertion failure remains archived. Two product-free Chromium
+controls show why its first-delta assumption was invalid; the final Preview then
+proves first-gesture stopping, continued real-wheel scrolling to0 and no late
+925/2500 replay. No intended movement is simulated with JavaScript. This closes
+the demonstrated native-motion defect without changing the exact-return orCLS
+requirements. The28-artifact archive contains0 secret-scan findings.
+
+The latest full Home timing remains5bbd; per-route World/Number timing remains9e.
+Final CI, Production-configuration acceptance, authenticated accounts and real
+database/media recovery belong to separate integrator receipts. The evidence
+lane is complete and has released its exclusive browser window.
