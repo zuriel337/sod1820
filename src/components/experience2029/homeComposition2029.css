@@ -173,3 +173,10 @@
   .h29-updates .h29-card { min-height:calc(100cqw*.74/1.6 + 180px); }
 }
 @container h29 (max-width:340px) { .h29-hero { min-height:610px; } }
+
+/* User-selected decorative cosmos. Existing Post-like Night projection only;
+   local WebP, no JS/canvas/video, no pointer layer, no change to source identity. */
+.h29-home-cosmos{position:relative;isolation:isolate}
+html[data-theme-preset="dark"] .h29-home-cosmos::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:var(--home-atmosphere-desktop) center/cover no-repeat;opacity:.7}
+html[data-theme-preset="dark"] .h29-home-cosmos :is(.h29-hero,.h29-card,.h29-strip,.h29-notable-card){background:color-mix(in srgb,var(--s29-panel) 93%,transparent)}
+@media(max-width:760px){html[data-theme-preset="dark"] .h29-home-cosmos::before{background-image:var(--home-atmosphere-mobile)}}

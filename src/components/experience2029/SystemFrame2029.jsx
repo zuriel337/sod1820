@@ -40,7 +40,7 @@ import ShareActions from "../ShareActions.jsx";
 import CanonicalProgress from "../CanonicalProgress.jsx";
 import ContactGateway from "./ContactGatewayOnDemand2029.jsx";
 import SurfaceContextRail2029 from "./SurfaceContextRail2029.jsx";
-import GlobalLivingRibbon2029, { LivingRibbonDetail2029 } from "./GlobalLivingRibbon2029.jsx";
+import GlobalLivingRibbon2029, { LivingRibbonDetail2029, NowSourceDetail2029 } from "./GlobalLivingRibbon2029.jsx";
 import RazielSessionMount2029, { useOptionalRazielSession2029 } from "./RazielSessionMount2029.jsx";
 import RazielCenter2029 from "./RazielCenter2029.jsx";
 import { workspaceResearchHref } from "../../lib/research/razielWorkspaceProjection2029.js";
@@ -433,7 +433,7 @@ function PanelShell({ panelRef, icon, kicker, title, children, onClose, panelKin
         className="sod29-frame-panel"
         ref={panelRef}
         role="dialog"
-        aria-modal="true"
+        aria-modal="false"
         aria-label={title}
         data-experience-capability="contextual-sidecar"
         data-desktop-projection="left-context-sidecar"
@@ -675,7 +675,14 @@ function AttentionProjection({ context, onWorkspace, onOpen, feed, timeMode }) {
   // The mobile Now sheet and left Companion show the SAME authorized public rows.
   // SystemFrame owns one useSystemFeed2029 watcher; this sheet creates no polling,
   // independent ordering, research read or seen-state cache.
-  const rows = Array.isArray(feed?.rows) ? feed.rows : [];
+  const [sourceFilter, setSourceFilter] = useState("all"), [visibleCount, setVisibleCount] = useState(12);
+  useEffect(() => { feed?.requestNowDetails?.(); }, [feed?.requestNowDetails]);
+  const allRows = Array.isArray(feed?.expandedRows) ? feed.expandedRows : Array.isArray(feed?.rows) ? feed.rows : [];
+  const sourceOf = row => row.item?.channel || row.item?.sourceKind || row.kind;
+  const sourceChoices = [...new Map(allRows.map(row => [sourceOf(row), row.item?.sourceLabel || row.typeLabel])).entries()];
+  const rows = sourceFilter === "all" ? allRows : allRows.filter(row => sourceOf(row) === sourceFilter);
+  const additionalLoading = Boolean(feed?.nowSources && (!feed.nowSources.requested || feed.nowSources.loading));
+  const additionalUnavailable = Boolean(feed?.nowSources?.error || feed?.nowSources?.sourceStates?.some(source => ["failed", "access_filtered"].includes(source.status)));
   const partial = Array.isArray(feed?.unavailableSources) && feed.unavailableSources.length > 0;
 
   return (
@@ -688,12 +695,23 @@ function AttentionProjection({ context, onWorkspace, onOpen, feed, timeMode }) {
       <div className="sod29-attention-projection" aria-label="מה חדש בעולם">
         {feed?.loading ? <FrameState kind="loading" title="טוען חידושים">קורא עדכונים ציבוריים.</FrameState> : null}
         {feed?.error ? <FrameState kind="unavailable" title="העדכונים אינם זמינים">אפשר להמשיך ישירות אל העולם.</FrameState> : null}
-        {!feed?.loading && !feed?.error && !rows.length ? <FrameState kind="empty" title="אין כרגע חידושים להצגה">העולם עדיין זמין לקריאה.</FrameState> : null}
+        {!feed?.loading && !feed?.error && !additionalLoading && !additionalUnavailable && !rows.length ? <FrameState kind="empty" title="אין כרגע חידושים להצגה">העולם עדיין זמין לקריאה.</FrameState> : null}
         {feed?.groupArrivals ? <p role="status">{feed?.groupArrivals.message}</p> : null}
         {partial ? <small>חלק ממקורות העדכון אינם זמינים כרגע.</small> : null}
-        {rows.slice(0, 8).map((row) => {
+        <div className="sod29-now-source-filters" role="group" aria-label="מקורות העדכונים">
+          {[["all", "הכול"], ...sourceChoices].map(([key, label]) => <button key={key} type="button" className="sod29-action" aria-pressed={sourceFilter === key} onClick={() => { setSourceFilter(key);setVisibleCount(12); }}>{label}</button>)}
+        </div>
+        {additionalLoading ? <p role="status">קורא עדכונים ציבוריים נוספים…</p> : null}
+        {additionalUnavailable
+          ? <p role="status">חלק ממקורות העדכון לא נקראו. <button type="button" className="sod29-action" onClick={feed?.refreshNowDetails}>ניסיון נוסף</button></p> : null}
+        <small>{rows.length} עדכונים בחלון שנקרא</small>
+        {rows.slice(0, visibleCount).map((row) => {
           const item = row.item || {};
           const href = row.href;
+          if (item.fullText || item.mediaHref) return <details key={row.id} className="sod29-now-source-row">
+            <summary onClick={() => feed?.see?.(row)}><small>{row.typeLabel} · {item.creator} · {recordTimeLabel(row.at, timeMode, "זמן לא צוין")}</small><strong>{row.title}</strong></summary>
+            <NowSourceDetail2029 row={row} onOpen={onOpen} feed={feed} />
+          </details>;
           return <button
             type="button"
             key={row.id}
@@ -708,7 +726,8 @@ function AttentionProjection({ context, onWorkspace, onOpen, feed, timeMode }) {
             {item.kind === "source" && item.researchCount > 0 ? <small>מחקר קשור זמין בהעמקה</small> : null}
           </button>;
         })}
-        <button className="sod29-action primary" type="button" onClick={() => onOpen?.("/world")}>פתח את כל החידושים בעולם</button>
+        {visibleCount < rows.length ? <button className="sod29-action" type="button" onClick={() => setVisibleCount(n => n + 12)}>עוד עדכונים · {visibleCount} מתוך {rows.length}</button> : null}
+        <button className="sod29-action primary" type="button" onClick={() => onOpen?.("/world")}>פתח את החידושים בעולם</button>
         <details><summary>עוד התראות אישיות</summary>
           <FrameState kind="unavailable" title="אני עוקב">פריטים שבחרת לעקוב אחריהם יופיעו כאן כשהחיבור יושלם.</FrameState>
           <FrameState kind="unavailable" title="הודעות">הודעות אישיות יופיעו כאן דרך המערכת החדשה.</FrameState>
@@ -1789,20 +1808,24 @@ function SystemFrame2029Body({
   useEffect(() => {
     if (!transient || !panelRef.current) return undefined;
     const panel = panelRef.current;
-    const focusables = [...panel.querySelectorAll(FOCUSABLE)];
+    // A contextual sidecar and its canonical dock form one keyboard scope.
+    // Background page controls stay outside; global actions remain usable.
+    const dock = panel.closest(".sod29-root")?.querySelector(".sod29-command-island") || document.querySelector(".sod29-command-island");
+    const panelControls = () => [...panel.querySelectorAll(`${FOCUSABLE},summary`)].filter(node => node.getClientRects().length);
+    const focusables = panelControls();
     const initial = panel.querySelector("[data-autofocus]") || focusables[0] || panel;
     requestAnimationFrame(() => initial.focus?.());
     const trap = (event) => {
       if (event.key !== "Tab") return;
-      const current = [...panel.querySelectorAll(FOCUSABLE)];
+      const current = [...panelControls(), ...(dock ? [...dock.querySelectorAll(FOCUSABLE)].filter(node => node.getClientRects().length) : [])];
       if (!current.length) { event.preventDefault(); panel.focus(); return; }
-      const first = current[0];
-      const last = current[current.length - 1];
-      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
-      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+      event.preventDefault();
+      const index = current.indexOf(document.activeElement);
+      current[(index + (event.shiftKey ? -1 : 1) + current.length) % current.length].focus();
     };
     panel.addEventListener("keydown", trap);
-    return () => panel.removeEventListener("keydown", trap);
+    if (dock && !panel.contains(dock)) dock.addEventListener("keydown", trap);
+    return () => { panel.removeEventListener("keydown", trap);dock?.removeEventListener("keydown", trap); };
   }, [transient?.kind]);
 
   useEffect(() => {

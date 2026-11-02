@@ -412,3 +412,19 @@
   white-space: normal; overflow-wrap: anywhere;
 }
 .sod29-root.native-frame.has-tool-dock { --s29-island-clearance: 142px; }
+
+/* Now extends the same public feed; source filters stay inside its scroll area. */
+.sod29-now-source-filters{display:flex;gap:6px;flex-wrap:wrap;max-width:100%;margin-block:12px}
+.sod29-now-source-filters .sod29-action{min-height:44px;font-size:var(--s29-type-ui)}
+.sod29-now-source-filters [aria-pressed="true"]{border-color:var(--s29-accent-text);color:var(--s29-accent-text)}
+.sod29-now-source-row{padding:12px;border:1px solid var(--s29-line);border-radius:14px;margin-block:8px;min-width:0}
+.sod29-now-source-row summary{cursor:pointer;min-height:44px;display:flex;flex-direction:column;gap:6px;overflow-wrap:anywhere}
+.sod29-now-source-row summary strong{font-size:var(--s29-type-ui)}
+.sod29-now-source-row summary small,.sod29-now-source-detail small{font-size:var(--s29-type-small);color:var(--s29-muted)}
+.sod29-now-source-detail p{font-size:var(--s29-type-body);line-height:1.65}
+
+/* The one canonical dock remains interactive above its own transient sheets.
+   Clearance is owned by the Frame token, including mobile safe-area. */
+.sod29-root.native-frame:has(.sod29-frame-backdrop) .sod29-command-island.is-unified-bar{z-index:1901}
+.sod29-root.native-frame .sod29-frame-backdrop{padding-block-end:calc(var(--s29-island-clearance,90px) + env(safe-area-inset-bottom,0px))}
+.sod29-root.native-frame .sod29-frame-panel{max-block-size:calc(100dvh - var(--s29-island-clearance,90px) - env(safe-area-inset-bottom,0px) - 20px)}

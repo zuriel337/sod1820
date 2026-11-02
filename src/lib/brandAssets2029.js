@@ -22,3 +22,6 @@ export const BRAND_LOCKUP_NAV_2029 = Object.freeze({
   height: 128,
   sourceSha256: BRAND_LOCKUP_2029.sha256,
 });
+
+// User-selected decorative Home atmosphere, 2 Nov 2026; not a content source or Brand mark.
+export const HOME_ATMOSPHERE_2029 = Object.freeze({"desktop": "/backgrounds/2029/home-cosmos-desktop-5113c94ba6e5.webp", "mobile": "/backgrounds/2029/home-cosmos-mobile-8eaaeef46082.webp"});

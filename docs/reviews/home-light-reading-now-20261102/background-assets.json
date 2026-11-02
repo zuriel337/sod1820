@@ -1,0 +1,29 @@
+{
+  "userSelected": "dark space",
+  "rows": [
+    {
+      "variant": "desktop",
+      "src": "/backgrounds/2029/home-cosmos-desktop-5113c94ba6e5.webp",
+      "width": 1280,
+      "height": 720,
+      "bytes": 19918,
+      "sha256": "5113c94ba6e5a7d30882f42123e345a455cb4fd996b4c3d417e29edd81d7f085",
+      "sourceSha256": "cea945a520aa87c562130cc00e550141180b10aba85627199cfa015c95f4f558",
+      "format": "WebP",
+      "role": "decorative_preview_atmosphere_not_source_or_brand",
+      "quality": 66
+    },
+    {
+      "variant": "mobile",
+      "src": "/backgrounds/2029/home-cosmos-mobile-8eaaeef46082.webp",
+      "width": 720,
+      "height": 1280,
+      "bytes": 18168,
+      "sha256": "8eaaeef460828983133ddb8796966691d95e6aa5761627fc117a50edeb4a0dc9",
+      "sourceSha256": "cf4a994202216d15e513151f39b77390a2f0a7ef60ba62e380865eadb050b36e",
+      "format": "WebP",
+      "role": "decorative_preview_atmosphere_not_source_or_brand",
+      "quality": 66
+    }
+  ]
+}

@@ -11,22 +11,21 @@ import { startPageEngagement } from "./lib/engagement.js";
 import { ensureIdentity } from "./lib/identity.js";
 import { startWebVitals2029 } from "./lib/webVitals2029.js";
 const Calculator2029Page = lazy(() => import("./pages/Calculator2029Page.jsx"));
-import { use2029Palette } from "./lib/palette.js";
-import { TYPEFACE } from "./lib/designTokens.js";
+import Opening2029 from "./components/experience2029/Opening2029.jsx";
 const CalculatorPro2029Page = lazy(() => import("./pages/CalculatorPro2029Page.jsx"));
 import { parseCalculatorShareState } from "./lib/research/calculator2029Viral.js";
 import Locked from "./components/MaintenanceLock.jsx";
 import FeatureClosedNotice from "./components/FeatureClosedNotice.jsx";
 import { PUBLIC_READING_RELEASE, publicReadingPath } from "./lib/publicReadingRelease2029.js";
 
-// Keep the existing public-profile Post code admission, but overlap it with
-// Home instead of making Home wait for the address adapter and all Post code.
-// This starts no Post data read and retains the first-Post code preparation.
+// Admit Home's component code before preparing the first Post. The existing
+// Post preparation still starts before a click, without blocking Home's module
+// or starting any Post data read.
 const loadPublicPostAddress = () => import("./pages/PublicPostAddress2029Page.jsx");
-const Home2029Page = lazy(() => {
+const Home2029Page = lazy(() => import("./pages/Home2029Page.jsx").then(module => {
   if (PUBLIC_READING_RELEASE) void loadPublicPostAddress().catch(() => {});
-  return import("./pages/Home2029Page.jsx");
-});
+  return module;
+}));
 const World2029Page = lazy(() => import("./pages/World2029Page.jsx"));
 const BeitMidrash2029Page = lazy(
   () => import("./pages/BeitMidrash2029Page.jsx")
@@ -139,12 +138,7 @@ const AhavatTorahSystem2029Page = bookPublicationReviewPreviewEnabled
 const SeferYetzirahWorld2029Page = bookPublicationReviewPreviewEnabled
   ? lazy(() => import("./pages/SeferYetzirahWorld2029Page.jsx")) : null;
 
-function Loading2029() {
-  const palette = use2029Palette();
-  return <div role="status" dir="rtl" style={{ position: "fixed", inset: 0, display: "grid", placeItems: "center", background: palette.pageBg, color: palette.ink, fontFamily: TYPEFACE.ui, fontSize: 18 }}>
-    <span>טוען את התוכן…</span>
-  </div>;
-}
+function Loading2029() { return <Opening2029 />; }
 
 // Same telemetry owners as the legacy runtime; only the renderer/runtime boundary differs.
 function RouteEffects2029() {
