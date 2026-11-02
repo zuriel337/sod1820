@@ -1,0 +1,42 @@
+{
+  "sourceSha": "83d437ddc55d690a196362c85fe32699ad50d579",
+  "sourceDirty": false,
+  "activation": {
+    "state": "dormant",
+    "approvedSourceSha": null,
+    "approvedDeploymentId": null,
+    "approvedAt": null
+  },
+  "protectedReview": null,
+  "buildTarget": "2029",
+  "releaseProfile": "public-reading-20261101",
+  "policy": "public-reading-production-20261102",
+  "productionReady": false,
+  "deployed": false,
+  "workerSha256": "3c971ad08be62b137c9b70207bb1fd57be13056336e6f820c7feec6e5e97feb1",
+  "legacyRollbackWorkerSha256": "6f5a514678d95230332ba2d92c35e6581ee592123833f206142a003e45e5cbd0",
+  "deploymentConfigSha256": "bd4688e33c12649a12b5eacb561e87b9a99df49399512fdf7921fdb250726533",
+  "documentTemplateSha256": "456a2ee44a11bc86df6c16f8c1395ffeadac97d77f8b19dcc80e5a233e7a3b3b",
+  "artifactJsonSha256": "cdc0f3ac06c41dfc9b730f8aa2e16edf3f7a9449e3c5a63ba8793a68701e4dd1",
+  "unitTests": {
+    "pass": 57,
+    "fail": 0,
+    "skip": 0
+  },
+  "localBrowser": {
+    "pass": 1,
+    "fail": 0,
+    "skip": 0,
+    "fixtureOnly": true
+  },
+  "hostedVercelAccepted": false,
+  "sharedChanges": false,
+  "privateExportOrRestore": false,
+  "sourceScan": {
+    "scope": "added source lines since0d4",
+    "private_key": 0,
+    "provider_secret": 0,
+    "github_token": 0,
+    "service_role_claim": 0
+  }
+}
