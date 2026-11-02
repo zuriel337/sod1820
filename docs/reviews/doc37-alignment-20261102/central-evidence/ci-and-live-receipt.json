@@ -1,0 +1,49 @@
+{
+  "baseline": "979c25aa2a91fa96de3a50db8fc93425a183c694",
+  "isolation": {
+    "sha": "9e1d876e0f04ed0cffe8d97a63b3ae564e43898e",
+    "run": 41459241166,
+    "status": "success",
+    "entry_browser": 2,
+    "world_browser": 46,
+    "a3_checks": 12,
+    "artifact_id": 13147399592,
+    "artifact_zip_sha256": "48c72b55dff4a6f6dfe0bb908ed33c4f37647840c169c7f38c24b467b3062115"
+  },
+  "g4": {
+    "sha": "f420180dc7918353baeaef0a74339c1574e9bd8d",
+    "run": 41458110594,
+    "status": "success",
+    "browser": 14
+  },
+  "intermediate_failures": [
+    {
+      "run": 41455670551,
+      "reason": "old exact Book route literal lacks approved allowAdminView opt-in"
+    },
+    {
+      "run": 41455675459,
+      "reason": "Ubuntu26.04 unsupported by pinned Playwright1.55.0, before browser"
+    },
+    {
+      "run": 41456444920,
+      "reason": "13/14 browser passed; old /els selector instead of canonical /code map link"
+    },
+    {
+      "run": 41458105844,
+      "reason": "A3/source/build passed; overflow equality rejected scrollWidth375 smaller than clientWidth390 with reserved gutter"
+    }
+  ],
+  "website_live": {
+    "deployment": "dpl_BFpwZGiYL3Qpdy9nCuGKGb9Xmko2",
+    "sha": "d1837efcf5a978d10a514010f3695680f231e116",
+    "aliases": [
+      "sod1820.co.il",
+      "www.sod1820.co.il",
+      "sod1820.vercel.app"
+    ],
+    "verified_unchanged": true
+  },
+  "main": "2195c9784c5c9f0b1ec3cd3c1137fbd76045845b",
+  "limits": "These receipts identify their exact SHA. New single-item series association remains under implementation after explicit approval; no claim yet for that future SHA."
+}
