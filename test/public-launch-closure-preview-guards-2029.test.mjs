@@ -19,6 +19,21 @@ function worker(source,ref,env='preview'){
 }
 const response=()=>({headers:{},setHeader(k,v){this.headers[k]=v;},status(n){this.code=n;return this;},send(v){this.body=v;return this;},json(v){this.body=v;return this;}});
 
+test('Isolation browser guard rejects live writes, models, visitor drafts and unknown transports before I/O',async()=>{
+ const {default:guard}=await import('../tests/fixtures/public-readonly-egress.cjs');const {allowsPublicRead}=guard;
+ const api='https://linswmnnkjxvweumprav.supabase.co',local='http://127.0.0.1:4173';
+ for(const method of ['GET','POST','PATCH','DELETE'])for(const path of[
+  '/functions/v1/ai-analyze','/functions/v1/research-run','/functions/v1/newsletter-unsubscribe',
+  '/rest/v1/rpc/credit_reserve_v1','/rest/v1/rpc/lang_links_list','/auth/v1/token',
+ ])assert.equal(allowsPublicRead(api+path,method,local),false,method+path);
+ for(const url of [api+'/rest/v1/profiles',api+'/storage/v1/object/private/example',local+'/api/contributor-self','https://example.invalid/action'])
+  for(const method of ['POST','PATCH','DELETE'])assert.equal(allowsPublicRead(url,method,local),false,method+url);
+ assert.equal(allowsPublicRead(api+'/rest/v1/rpc/fn_method_profile','POST',local),true);
+ assert.equal(allowsPublicRead(api+'/rest/v1/posts','GET',local),true);
+ assert.equal(allowsPublicRead('https://api.openai.com/v1/responses','GET',local),false);
+ assert.throws(()=>allowsPublicRead(api+'/rest/v1/posts','GET','https://sod1820.co.il'),/loopback/);
+});
+
 test('integration branch inherits byte-identical accepted public reading worker; old/foreign branches are unchanged',()=>{
  const original=execFileSync('git',['show',baseSha+':scripts/build-integrated-preview.mjs'],{encoding:'utf8'});
  assert.equal(worker(builder,branch),worker(original,baseRef));
