@@ -57,7 +57,11 @@ test('2029 Preview Home keeps the adopted page without claiming a public opening
   await expect(page.locator('[data-experience-capability="home-composition"] a[href="/world"]').first()).toBeVisible();
   await expect(page.locator('[data-experience-capability="home-composition"] a[href="/community/chat"]')).toHaveCount(0);
   await expect(page.locator('[data-experience-capability="home-composition"] a[href="/archive"]').first()).toBeVisible();
-  await expect(page.locator('[data-experience-capability="home-composition"] a[href="/els"]').first()).toBeVisible();
+  // Doc37 availability map uses the canonical address, while /els stays an alias.
+  // This test's explicit OPEN_FLAGS fixture admits the existing screen link.
+  const cipherAvailability = page.locator('[data-home-availability-map="true"] li').filter({ has: page.locator('a[href="/code"]') });
+  await expect(cipherAvailability).toBeVisible();
+  await expect(cipherAvailability).toContainText('פתוח לציבור');
   await page.locator('[data-home-user-area="open"]').click();
   await expect(page.locator('[data-workspace-section="account"]')).toBeVisible();
   await expect(page.locator('[data-workspace-card="life-journey"]')).toHaveAttribute('aria-disabled', 'true');
