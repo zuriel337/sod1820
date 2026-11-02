@@ -244,3 +244,24 @@ Post response delayed800ms reproduced it; a separately labeled stable-gutter
 experiment reduced it below0.1. Original failures are retained. No production
 source was changed by this evidence lane. Root is integrating the narrow fix
 and image-error fallback; final acceptance is still pending.
+
+## Final f420 acceptance
+
+The reproduced late-Post CLS failure is fixed in deployed product
+`f420180dc7918353baeaef0a74339c1574e9bd8d`. See
+[final report](candidate-f420-report.md), [before/after summary](headed-summary-f420.json)
+and [manifest](native-f420-manifest.json). All12 native samples passed;
+maxCLS0.046223. The800ms late-data reproduction passes0.007847 with actual
+deployedCSS and no injection. Home/forms320/390/1440 and both full public
+journeys pass. About5seconds cold-mobile hero and desktopcold regression remain
+explicit. No real-account login/email/model/write/Production acceptance is implied.
+
+## Missing stage measurement completed
+
+[Matched per-route report](stage-report-979c-9e1d.md) and
+[summary](stage-summary-979c-9e1d.json) now cover every public journey step,
+first and repeated loop at390/1440,3contexts each. This supersedes the earlier
+statement that no new route durations existed. All24 loops complete; before has
+one desktopCLS failure, after max0.050441. PrimaryHome-return regressions and
+1.5s target misses are explicit. The second same-document Home entry is excluded;
+actual-reload Home evidence remains separately valid.

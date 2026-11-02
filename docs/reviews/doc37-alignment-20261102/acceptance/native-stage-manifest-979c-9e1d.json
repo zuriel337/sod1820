@@ -1,0 +1,51 @@
+{
+  "baselineSha": "979c25aa2a91fa96de3a50db8fc93425a183c694",
+  "candidateSha": "9e1d876e0f04ed0cffe8d97a63b3ae564e43898e",
+  "matchedLoops": 24,
+  "independentContextsPerVersion": 6,
+  "partialCalibrationRetainedNotPooled": true,
+  "noPrivateConfigOrProfile": true,
+  "jwtAndShareTokenScanFindings": 0,
+  "files": [
+    {
+      "path": "stages-baseline-979c/failure-390-1-cold.png",
+      "bytes": 182046,
+      "sha256": "41893110d37496f0b4283fd0fbaf90fa64c9330fabac7901e2153c68a0a72e25"
+    },
+    {
+      "path": "stages-baseline-979c/failure-390-2-cold.png",
+      "bytes": 182080,
+      "sha256": "988dc8ef5a35408a9990b6cd210021cb6ea8ddf366e84619e88837801f02b64f"
+    },
+    {
+      "path": "stages-baseline-979c/failure-390-3-cold.png",
+      "bytes": 182074,
+      "sha256": "7273144a5a14dbbb4660ed663a517c96ff81d5a8dfc7ef4011c199b3de5f9672"
+    },
+    {
+      "path": "stages-baseline-979c/stage-timings.json",
+      "bytes": 1247174,
+      "sha256": "01eea0d1cba059e2f636cb172388caabd43231f3b15486f7dd49418dab7ddb6b"
+    },
+    {
+      "path": "stages-baseline-979c-calibrated/stage-timings.json",
+      "bytes": 5738449,
+      "sha256": "b945b0161f35748dd515348a1f7d9561715a7cd1c13ce7b853d0a65d6d45ff1f"
+    },
+    {
+      "path": "stages-candidate-9e1d/stage-timings.json",
+      "bytes": 5608015,
+      "sha256": "4f3d8b5287852533622efe6d76ae282946bd8ddecd8f56828bb7bece3b5c73c2"
+    },
+    {
+      "path": "final-identity-smoke-9e1d/fresh-1-390.png",
+      "bytes": 147920,
+      "sha256": "5679fa2879567fe149839cedefffc7216b4b766cc6c6f071211d08aa1971d903"
+    },
+    {
+      "path": "final-identity-smoke-9e1d/results.json",
+      "bytes": 158013,
+      "sha256": "48b417b1704d2f9e349b1c96bc6f2520f260c1580adf7bce4d3ce23f2fb9a697"
+    }
+  ]
+}
