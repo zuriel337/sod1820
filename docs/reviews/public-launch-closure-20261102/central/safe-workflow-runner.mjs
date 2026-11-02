@@ -8,7 +8,7 @@ import { resolve } from 'node:path';
 const [stepsPath, outputPath] = process.argv.slice(2);
 if (!stepsPath || !outputPath) throw Error('steps JSON and evidence directory required');
 const steps = JSON.parse(readFileSync(stepsPath, 'utf8'));
-if (steps.some(s => /test-a3-client-correlation-live|playwright|curl|wget|deploy|gh |supabase (?:db|functions)/.test(s.command))) {
+if (steps.some(s => /test-a3-client-correlation-live|--with-isolated-a3|isolation-a3\/run|docker|npm (?:ci|install)|playwright|curl|wget|deploy|gh |supabase (?:db|functions)/.test(s.command))) {
   throw Error('unreviewed network/runtime command in source subset');
 }
 const output = resolve(outputPath);

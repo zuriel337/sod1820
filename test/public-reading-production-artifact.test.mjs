@@ -228,6 +228,21 @@ test("emitted worker retains public calculator/STABLE GET/community projection r
   assert.ok(harness.calls.every(([request, options]) => request instanceof Request ? request.cache === "no-store" && request.credentials === "omit" : options.cache === "no-store"));
 });
 
+test("language-link reader admits approved-only scope and denies visitor drafts before any network call", async () => {
+  const harness = workerHarness();
+  for (const body of ["{}", '{"p_visitor":null}', '{"p_visitor":""}']) {
+    assert.equal((await harness.request("/rest/v1/rpc/lang_links_list", { body })).status, 200);
+  }
+  const publicCalls = harness.calls.length;
+  for (const body of ['{"p_visitor":"someone-else"}', '{"p_visitor":0}', '{"p_visitor":null,"extra":true}']) {
+    assert.equal((await harness.request("/rest/v1/rpc/lang_links_list", { body })).status, 403);
+  }
+  for (const method of ["GET", "POST", "PATCH", "DELETE"]) {
+    assert.equal((await harness.request("/rest/v1/rpc/lang_links_list?p_visitor=someone-else", { method })).status, 403);
+  }
+  assert.equal(harness.calls.length, publicCalls);
+});
+
 test("signed Legacy unsubscribe alone can reach its unchanged HMAC server from exact controlled service document", async () => {
   const e = "c3ludGhldGljQGV4YW1wbGUuaW52YWxpZA", t = "S".repeat(43), path = `/functions/v1/newsletter-unsubscribe?e=${e}&t=${t}&format=json`;
   const clients = { good: { type: "window", url: `${SITE}/unsubscribe?e=${e}&t=${t}` },

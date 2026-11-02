@@ -175,8 +175,22 @@ jobs:
         run: node scripts/test-2029-number-preview.mjs
       - name: Native 2029 Control Plane trace drill-down acceptance
         run: node scripts/test-2029-control-plane.mjs
-      - name: A3 live client-to-trace correlation acceptance
-        run: node scripts/test-a3-client-correlation-live.mjs
+      - name: A3 real isolated client-to-trace correlation acceptance
+        run: |
+          # The original client assertions run against actual disposable Auth,
+          # Edge, PostgREST and PostgreSQL, never the canonical live project.
+          npm install --no-save --no-package-lock esbuild@0.28.2
+          node --input-type=module - <<'NODE'
+          import fs from 'node:fs';
+          import { execFileSync } from 'node:child_process';
+          const { images } = JSON.parse(fs.readFileSync('docs/reviews/public-launch-closure-20261102/a3/isolated-receipt.json', 'utf8'));
+          for (const image of Object.values(images)) {
+            if (!/^[a-z0-9./:_-]+@sha256:[a-f0-9]{64}$/.test(image)) throw Error('digest-pinned A3 image required');
+            execFileSync('docker', ['pull', image], { stdio: 'inherit' });
+          }
+          NODE
+          node --test tests/isolation-a3/client.test.mjs
+          node scripts/test-2029-isolation.mjs --with-isolated-a3 --receipt "$RUNNER_TEMP/isolated-a3-receipt.json"
       - name: Production build
         run: npm run build
       - name: Built dependency graph isolation
@@ -212,6 +226,14 @@ jobs:
         with:
           name: world-2029-visual-evidence
           path: test-results/release-visual
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Upload sanitized isolated A3 receipt
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: isolated-a3-correlation-evidence
+          path: ${{ runner.temp }}/isolated-a3-receipt.json
           if-no-files-found: warn
           retention-days: 14
       - name: Show isolated preview log on failure

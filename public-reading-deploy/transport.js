@@ -42,6 +42,21 @@ function installPublicReadingWorker(policy) {
   self.addEventListener("fetch", event => {
     const req = event.request, url = new URL(req.url);
     const rpc = /^\/rest\/v1\/rpc\/([a-z_][a-z0-9_]*)$/.exec(url.pathname)?.[1];
+    // Canonical schema-only review: this existing SECURITY DEFINER reader can
+    // include visitor drafts when p_visitor is supplied. Public launch admits
+    // approved links only, without changing the shared function or Preview.
+    if (url.origin === authOrigin && rpc === "lang_links_list") {
+      event.respondWith((async () => {
+        if (url.search) return denied();
+        if (safeMethods.has(req.method)) return readFetch(req);
+        if (req.method !== "POST") return denied();
+        const body = await jsonBody(req);
+        return Object.keys(body).length === 0
+          || Object.keys(body).join(",") === "p_visitor" && (body.p_visitor === null || body.p_visitor === "")
+          ? readFetch(req) : denied();
+      })().catch(() => denied()));
+      return;
+    }
     // Signed unsubscribe is the only preserved mutation. The server remains
     // the HMAC authority; the worker only narrows transport to its existing UI.
     if (url.origin === authOrigin && url.pathname === "/functions/v1/newsletter-unsubscribe") {
