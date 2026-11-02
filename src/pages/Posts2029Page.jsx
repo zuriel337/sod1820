@@ -220,7 +220,12 @@ export default function Posts2029Page() {
   const sourcePending = mixedSeries && (!sameSeries || seriesReading.loading || !loading && !error && (!state.mixedComplete || state.mixedCatalog !== seriesReading));
   const sourceFailed = mixedSeries && sameScope && sameSeries && !seriesReading.loading
     && (seriesReading.error || state.mixedError || selectedSeries?.sourceStates.some(source => source.state !== "measured"));
-  const hasItems = mixedSeries ? mixedItems.length > 0 : posts.length > 0;
+  // Beyond page1, a source on an earlier page requires the preceding Post to
+  // become this page's first item. The provisional24 are not its assigned page
+  // members yet. Keep page1's readable Posts; on source/rank failure retain the
+  // available Post-only page with the existing truthful partial-read notice.
+  const awaitingPageAssignment = mixedSeries && page > 1 && sourcePending && !sourceFailed && !error;
+  const hasItems = !awaitingPageAssignment && (mixedSeries ? mixedItems.length > 0 : posts.length > 0);
   useEffect(() => {
     // Failed reads also settle: retain available Posts and the real document
     // height rather than waiting indefinitely or inventing a restored item.
@@ -276,7 +281,9 @@ export default function Posts2029Page() {
 
       {scope.kind === "all" || scope.kind === "series" ? <SeriesEntrances2029 activeKey={scope.kind === "series" ? scope.key : null} search={search} onRead={setSeriesReading} refreshKey={attempt} /> : null}
 
-      {loading ? <FrameState kind="loading" title="פותח את הפוסטים">טוען את המקורות הציבוריים הקיימים.</FrameState> : null}
+      {loading || awaitingPageAssignment ? <FrameState kind="loading" title={awaitingPageAssignment && !loading ? `פותח את עמוד ${page} בסדרה` : "פותח את הפוסטים"}>
+        {awaitingPageAssignment && !loading ? "משלים את סדר הפוסטים והמקורות בעמוד הזה." : "טוען את המקורות הציבוריים הקיימים."}
+      </FrameState> : null}
       {error ? <FrameState kind="error" title="לא הצלחתי לפתוח את הפוסטים">
         <p>{error}</p>
         <button type="button" onClick={() => setAttempt(value => value + 1)}>ניסיון טעינה נוסף</button>
@@ -309,7 +316,7 @@ export default function Posts2029Page() {
         <span aria-live="polite">עמוד {page} מתוך {pages}</span>
         <button type="button" disabled={page >= pages} onClick={() => goToPage(page + 1)}>פוסטים קודמים</button>
       </nav> : null}
-      {!loading && !error && state.total > 0 && ["category", "series"].includes(scope.kind) ? <PostFollowBox variant="2029" scope={scope} source={search ? "posts_search_2029" : scope.kind === "series" ? "posts_series_footer_2029" : "posts_category_footer_2029"} /> : null}
+      {!loading && !awaitingPageAssignment && !error && state.total > 0 && ["category", "series"].includes(scope.kind) ? <PostFollowBox variant="2029" scope={scope} source={search ? "posts_search_2029" : scope.kind === "series" ? "posts_series_footer_2029" : "posts_category_footer_2029"} /> : null}
     </main>
   </Sod2029Shell>;
 }
