@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useLocation, useNavigationType, useSearchParams } from "react-router-dom";
 import Sod2029Shell, { FrameState } from "../components/experience2029/Sod2029Shell.jsx";
 import { fetchPostsCatalog2029, completeMixedSeriesPostsPage2029, postClassification2029, postsCatalogScope2029, postContentEntry2029 } from "../lib/research/postsCatalog2029Projection.js";
 import { track } from "../lib/tracking.js";
@@ -14,6 +14,7 @@ import NavigationIcon2029 from "../components/experience2029/NavigationIcon2029.
 import PostFollowBox from "../components/PostFollowBox.jsx";
 import { AUTHORS } from "../lib/authors.js";
 import { publicPostHref } from "../lib/publicPostUrls.js";
+import { capturePostsCatalogDeparture2029, rememberPostsCatalogViewport2029, startPostsCatalogViewportRestore2029, trackPostsCatalogViewport2029 } from "../lib/research/postsCatalogViewport2029.js";
 import "./posts2029.css";
 
 // The actual messages participate in intrinsic sizing. Only the active message
@@ -124,6 +125,11 @@ function PostIndexCard({ post, index, seriesItem = null, publicationOrder = fals
 }
 
 export default function Posts2029Page() {
+  const location = useLocation();
+  const navigationType = useNavigationType();
+  const currentHref = `${location.pathname}${location.search}${location.hash}`;
+  const catalogRootRef = useRef(null);
+  const viewportRestoreRef = useRef(null);
   const [searchParams, setSearchParams] = useSearchParams();
   const [attempt, setAttempt] = useState(0);
   const scope = postsCatalogScope2029(searchParams);
@@ -138,6 +144,13 @@ export default function Posts2029Page() {
   const [state, setState] = useState({ page, scopeKey, loading: true, posts: [], total: null, error: null });
   const [seriesReading, setSeriesReading] = useState({ activeKey: null, loading: true, series: [], error: false });
   const recordedContentEntry = useRef(null);
+
+  useEffect(() => {
+    const restore = startPostsCatalogViewportRestore2029({ entryKey: location.key, href: currentHref, navigationType });
+    const stopTracking = trackPostsCatalogViewport2029({ entryKey: location.key, href: currentHref, isRestoring: () => restore.isRestoring });
+    viewportRestoreRef.current = restore;
+    return () => { stopTracking(); restore.stop(); if (viewportRestoreRef.current === restore) viewportRestoreRef.current = null; };
+  }, [location.key, currentHref, navigationType]);
 
   useEffect(() => {
     // Wait for this exact public result. Stale responses, failures and an empty
@@ -208,7 +221,14 @@ export default function Posts2029Page() {
   const sourceFailed = mixedSeries && sameScope && sameSeries && !seriesReading.loading
     && (seriesReading.error || state.mixedError || selectedSeries?.sourceStates.some(source => source.state !== "measured"));
   const hasItems = mixedSeries ? mixedItems.length > 0 : posts.length > 0;
+  useEffect(() => {
+    // Failed reads also settle: retain available Posts and the real document
+    // height rather than waiting indefinitely or inventing a restored item.
+    viewportRestoreRef.current?.setReady(sameScope && !loading && (Boolean(error) || !sourcePending), catalogRootRef.current);
+  }, [location.key, currentHref, navigationType, sameScope, loading, error, sourcePending]);
+  const rememberViewport = () => rememberPostsCatalogViewport2029({ entryKey: location.key, href: currentHref });
   const goToPage = (nextPage) => {
+    rememberViewport();
     const next = new URLSearchParams(searchParams);
     if (nextPage === 1) next.delete("page");
     else next.set("page", String(nextPage));
@@ -218,6 +238,7 @@ export default function Posts2029Page() {
 
   const submitSearch = event => {
     event.preventDefault();
+    rememberViewport();
     const next = new URLSearchParams(searchParams);
     if (draftSearch.trim()) next.set("q", draftSearch.trim()); else next.delete("q");
     next.delete("page");
@@ -225,7 +246,8 @@ export default function Posts2029Page() {
   };
 
   return <Sod2029Shell surface="post" title={title} introVariant="none" symbol={<NavigationIcon2029 name="posts" />} status="פוסטים">
-    <main className="sod29-posts-library" data-experience-surface="posts-index">
+    <main ref={catalogRootRef} className="sod29-posts-library" data-experience-surface="posts-index"
+      onClickCapture={event => capturePostsCatalogDeparture2029(event, { entryKey: location.key, href: currentHref })}>
       <header className="sod29-posts-library-hero" data-experience-capability="posts-index-hero">
         {scope.kind !== "all" ? <Link className="sod29-posts-library-back" to="/2029/posts">לכל הפוסטים <span aria-hidden="true">←</span></Link> : null}
         <div className="sod29-posts-library-hero-grid">
@@ -249,7 +271,7 @@ export default function Posts2029Page() {
       <form className="sod29-posts-search" role="search" aria-label="חיפוש פוסטים וסדרות" onSubmit={submitSearch}>
         <label htmlFor="posts-search"><NavigationIcon2029 name="search" size={20} /> חיפוש לפי כותרת פוסט או שם סדרה</label>
         <div><input id="posts-search" type="search" value={draftSearch} maxLength={120} onChange={event => setDraftSearch(event.target.value)} placeholder="מה תרצו לקרוא?" dir="auto" /><button type="submit">חיפוש</button></div>
-        {search ? <button type="button" onClick={() => { const next = new URLSearchParams(searchParams); next.delete("q"); next.delete("page"); setSearchParams(next); }}>ניקוי החיפוש</button> : null}
+        {search ? <button type="button" onClick={() => { rememberViewport(); const next = new URLSearchParams(searchParams); next.delete("q"); next.delete("page"); setSearchParams(next); }}>ניקוי החיפוש</button> : null}
       </form>
 
       {scope.kind === "all" || scope.kind === "series" ? <SeriesEntrances2029 activeKey={scope.kind === "series" ? scope.key : null} search={search} onRead={setSeriesReading} refreshKey={attempt} /> : null}
