@@ -1,0 +1,89 @@
+{
+  "task": "PUBLIC_COLD_START_RELIABILITY_20261102",
+  "status": "REPRODUCIBLE_FONT_STARTUP_BLOCK_FIXED_AND_PREVIEW_TESTED",
+  "baseSha": "7c8d3bed9ebfa21d0db86f3420134d9f7a8e79a2",
+  "productSha": "6cd64a79598aaa38de4596f2506beb167447bf1c",
+  "productBranch": "gpt/2029-public-reading-release-configuration-20261101",
+  "productRemoteVerified": true,
+  "evidenceCheckpoint": "5b289ef3ac5740d10777f2fcfcf89bf350847868",
+  "preview": "https://sod1820-iotxrnao2-sod1820-s-projects.vercel.app",
+  "deployment": "dpl_Fyd6ngZYrU1NucKYr6K6AQJw7tRj",
+  "target": "staging",
+  "identityVerified": true,
+  "sourceChange": "2029.html numeric-font stylesheet admission only; family/weights/local fonts preserved",
+  "workerByteIdentical": true,
+  "workerSha256": "c3436d48371f517874c76d0396fe1c973a625c85845b7d33a6636001fb82c871",
+  "originalHistoricalFailureExactAttribution": "UNPROVEN_MISSING_ORIGINAL_BOOTSTRAP_TRACE",
+  "provenBlockingDependency": "Google numeric stylesheet blocks entry module before worker registration; held response reproduces static opening/no content reads",
+  "nativeAcceptance": {
+    "before": { "trials": 14, "failed": 0 },
+    "after": { "trials": 14, "failed": 0 },
+    "perSha": "6fresh+6warm+2persistent/reopened",
+    "realServiceWorker": true,
+    "mocks": false,
+    "interception": false,
+    "readsOnlyAfterWorkerControl": true,
+    "returningProfile": "anonymous public reader; actual persisted browser cache/worker, not a signed-in account",
+    "pageErrors": 0,
+    "httpErrors": 0,
+    "maxClsBefore": 0.046222499208610324,
+    "maxClsAfter": 0.04622417720204179,
+    "unchangedClsBudget": 0.1
+  },
+  "controlledFaults": {
+    "baseFontHold": "BLOCKING_DEPENDENCY_REPRODUCED_7SECONDS",
+    "afterFontHold": "2of2HomeAndWorkerReadyBeforeRelease_thenSameFontApplied",
+    "afterFontFailure": "2of2HomeRemainsUsable_ERR_FAILED_RETAINED",
+    "includedInNativeTiming": false
+  },
+  "preservedHarnessFailures": {
+    "initialWrongURLSearchAssertion": 14,
+    "initialWrongCalculatorMenuExpectation": 1,
+    "convertedToPassRetroactively": false
+  },
+  "nativeJourneys": "PASS390and1440_HomePostWorldNumberMiluiPhraseExactBack_HomeCalculatorNumberExactBack_LegacyCalculatorParamsRefresh_ShareURLNotSent",
+  "mobileHomeScroll": { "beforeNavigation": 634, "afterReturn": 634 },
+  "g4": {
+    "run": 41416747921,
+    "headSha": "6cd64a79598aaa38de4596f2506beb167447bf1c",
+    "conclusion": "success",
+    "includes": "Legacy+2029builds, isolated localHTTPfixtures, publicCoreBrowser"
+  },
+  "focusedNodeCases": 31,
+  "legacyGuard": "PASS",
+  "diffCheck": "PASS",
+  "secretsScanIncludingDecompressedRawEvidence": "PASS",
+  "privateBrowserProfilesArchived": false,
+  "doc37": {
+    "section": "12.21",
+    "operation": "append_only_optimistic_md5",
+    "oldMd5": "72b4cbbbfd5b9354ce92b0b4dccd0a6a",
+    "newMd5": "56acfddce52b21b79593b8902ab41eee",
+    "appendChars": 5218,
+    "appendMd5": "7d405c4e742bf696b2a087e863023510",
+    "updatedUTC": "2026-11-02T09:22:58.187419Z"
+  },
+  "coordination": {
+    "before": "e35daf72-f905-4e46-8752-eeac89ad2833",
+    "after": "54b4ebbc-24bb-405c-9402-c7eae2350965",
+    "ownScopeReleased": true,
+    "toActor": "ZURIEL",
+    "dispatch": null,
+    "personalPhaseLChanged": false
+  },
+  "designContentSeriesContractChanges": false,
+  "sharedDBServerRLSAuthFlagsChanges": false,
+  "legacyOrRootChanged": false,
+  "mainMergeOrPush": false,
+  "productionEdgeAliasCutover": false,
+  "modelCalls": 0,
+  "productTestWrites": 0,
+  "emailTests": 0,
+  "remainingLaunchPrerequisites": [
+    "preciseProductionArtifactOldURLsCanonicalXMLIndexingServiceAndSignedOptoutAcceptance",
+    "fullIsolationA3RealDisposableStack",
+    "realConsistentDatabaseBackupAndIsolatedRestore",
+    "actualMediaObjectBackupAndIsolatedRestore",
+    "unacceptedAccountWritingModelSystemsRemainClosed"
+  ]
+}
