@@ -39,7 +39,7 @@ function titleNumber(title, tags) {
 }
 
 function useHomeCompositionData({ includeWorld = true, primaryReader = null } = {}) {
-  const [state, setState] = useState({ loading: true, posts: [], ciphers: [], notable: [], notableLoading: includeWorld, notableError: null });
+  const [state, setState] = useState({ loading: true, posts: [], postsError: false, ciphers: [], notable: [], notableLoading: includeWorld, notableError: null });
   useEffect(() => {
     let live = true;
     const update = (patch) => { if (live) setState((current) => ({ ...current, ...patch })); };
@@ -48,13 +48,13 @@ function useHomeCompositionData({ includeWorld = true, primaryReader = null } = 
       const cards = Array.isArray(posts) ? posts : [];
       // One admitted public read supplies the cards and their exact source
       // metadata. The hero need not re-read the same leading post afterwards.
-      update({ loading: false, posts: cards.map((post) => ({
+      update({ loading: false, postsError: false, posts: cards.map((post) => ({
         ...post,
         number: titleNumber(post.title, post.sourcePost?.tags),
         update: realUpdate(post.sourcePost),
         categories: post.sourcePost?.categories || post.categories || [],
       })) });
-    }).catch(() => update({ loading: false, posts: [] }));
+    }).catch(() => update({ loading: false, posts: [], postsError: true }));
     getTzofonStories({ limit: 6 }).then((ciphers) => update({ ciphers: ciphers || [] })).catch(() => {});
     if (includeWorld) {
       fetchExplorerFacetPage("topic", { limit: 4 }).then((result) => update({ notable: result?.cards || [], notableLoading: false }))
@@ -138,7 +138,7 @@ export default function HomeComposition2029({
     const href = link?.getAttribute("href");
     if (link && !link.hasAttribute("download") && (!link.target || link.target === "_self") && href?.startsWith("/") && !href.startsWith("//") && event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) onNavigate?.(href);
   }}>
-    {nowHero || (lead ? <HomeHeroMotion2029 key={lead.slug} lead={lead} href={postHref(lead)} includeWorld={!corePublic} /> : <section className={`h29-hero${data.loading ? " is-loading" : ""}`} aria-busy={data.loading}><div className="h29-hero-copy"><div className="h29-kicker">עכשיו</div><h1>{data.loading && PUBLIC_READING_RELEASE ? "עדכונים אחרונים" : data.loading ? "טוען את מה שחי עכשיו…" : "SOD1820"}</h1>{!data.loading ? <p>העדכונים אינם זמינים כרגע. אפשר להמשיך לצפנים, למחשבון או לצ׳אט.</p> : null}</div></section>)}
+    {nowHero || (lead ? <HomeHeroMotion2029 key={lead.slug} lead={lead} href={postHref(lead)} includeWorld={!corePublic} /> : <section className={`h29-hero${data.loading ? " is-loading" : ""}`} aria-busy={data.loading}><div className="h29-hero-copy"><div className="h29-kicker">עכשיו</div><h1>{data.loading && PUBLIC_READING_RELEASE ? "עדכונים אחרונים" : data.loading ? "טוען את מה שחי עכשיו…" : "SOD1820"}</h1>{!data.loading ? <p>{data.postsError ? "העדכונים אינם זמינים כרגע. אפשר לנסות שוב או להמשיך לעולם ולמחשבון." : "אין כרגע עדכונים להצגה. אפשר להמשיך לעולם ולמחשבון."}</p> : null}</div></section>)}
 
     {corePublic ? <section className="h29-quiet" aria-label="מצב האתר" data-home-launch-notice="gradual-opening">
       <strong>המערכת בבנייה, והחלקים נפתחים בהדרגה.</strong>
@@ -162,7 +162,8 @@ export default function HomeComposition2029({
           </article>;
         })}
         {data.loading ? Array.from({ length: 4 }, (_, index) => <div key={index} className="h29-card h29-skel" aria-hidden="true" />) : null}
-        {!data.loading && !data.posts.length ? <p className="h29-empty">אין כרגע פוסטים להצגה.</p> : null}
+        {!data.loading && data.postsError ? <p className="h29-empty" role="alert">קריאת הפוסטים נכשלה. <button type="button" className="sod29-action" onClick={() => window.location.reload()}>רענן ונסה שוב</button></p>
+          : !data.loading && !data.posts.length ? <p className="h29-empty" role="status">אין כרגע פוסטים להצגה.</p> : null}
       </div>
     </Section>
 
