@@ -162,3 +162,74 @@ Prepared, syntax-checked only until exact-candidate runs:
 Use the same stdin private config convention and distinct `SOD_COLD_OUT` folders.
 Full-page screenshots, real-data results and synthetic admin proofs remain
 separate. Neither prepared scripts nor a syntax check establish browser acceptance.
+
+## Executed headed comparison on candidate4798
+
+Candidate `4798b4b85cabb8da8c000e512197fde9cab16cdd`, protected Preview
+`https://sod1820-qrbgbzznx-sod1820-s-projects.vercel.app`, deployment
+`dpl_2QLEqiP4pjkLguphZvrd9MKNL6gf`. Exact preview identity verified before each
+context. Root granted one exclusive window: Legacy6, baseline979c12, candidate12
+native runs sequentially, then focused Home and public journeys. No competing
+builds/tests. All30 native visits completed; the earlier denied headless visits
+and corrected preflight are preserved, not silently counted as native successes.
+
+All timings below are seconds, medians of3 per cell, same headed conditions.
+`heroContent` uses the same actual hero/title DOM criterion on both new-site
+versions. The new primary state hook is additionally recorded. Series/card
+readiness changed meaning with the approved Home hierarchy and is reported apart.
+
+| Metric | Mobile cold before | Mobile cold after | Mobile warm before | Mobile warm after |
+|---|---:|---:|---:|---:|
+| Hero/title content |4.8801|4.9614|1.4121|1.1293|
+| First post-card content (new after: series card) |4.8801|5.5589|1.4121|1.2343|
+| Hero image complete |5.4618|5.3992|1.6765|1.3119|
+| Initial admitted reads complete |6.4391|6.2579|2.4159|1.9100|
+| Home→same public Post |1.3295|0.8364|0.7007|0.7108|
+| Post→Home exact return |0.7607|0.4959|0.6711|0.4647|
+
+| Metric | Desktop cold before | Desktop cold after | Desktop warm before | Desktop warm after |
+|---|---:|---:|---:|---:|
+| Hero/title content |1.3715|1.6237|0.5692|0.5554|
+| First post-card content (new after: series card) |1.3715|1.9013|0.5692|0.9056|
+| Hero image complete |1.7834|1.8053|0.8121|0.7229|
+| Initial admitted reads complete |2.6532|2.5314|1.4661|1.4616|
+| Home→same public Post |0.4953|0.4730|0.4461|0.4795|
+| Post→Home exact return |0.3887|0.3251|0.3909|0.4000|
+
+Cold hero/card regressions and small warm-Post/desktop-return regressions remain
+visible. There is no claim that fewer requests proves an opening-time improvement.
+Candidate maxCLS0.0533478 stays below unchanged0.1. All compared Post clicks used
+`/post/mah-kore-elections-mutual-responsibility`, so that timing is same-content.
+Candidate guest notification-preferences attempt disappeared. Four canonical
+Follow-subject GET attempts still occur in each Home→Post→Home journey and were
+independently denied; root has identified their Post-only component for follow-up.
+
+Legacy headed access succeeded without UA/protection modification: all6 visits
+completed. Median first search-control DOM4.892s cold/1.089s warm; first real
+update8.942s cold/3.759s warm. These are separate Legacy semantics, not the new
+hero metric. Its current homepage did not register a controlling SW in the
+observed window. Cold hero-image completion was not observed; report unknown,
+not zero. The existing Legacy read-only boundary denied unreviewed readRPCs,
+WhatsApp/function and tracking calls; this is a guarded browsing comparison,
+not unrestricted full-site completion. Exact denied paths are retained.
+
+Focused actual-public-data acceptance on4798:
+
+- Home320/390 passed primary/public-series/top-only-closure/date/availability,
+  >1 content card visible in first viewport, no document overflow and Now reopen.
+- Desktop1440 passed after fixing the harness's reference width: headed Chromium
+  reserves15px for the scrollbar, and CSS centers in clientWidth1425, not
+  innerWidth1440. Dock330px was already centered exactly. The failed assertion
+  is retained; tolerance remains2px and overflow assertion became stricter.
+- Public journeys390/1440 passed: Home→Post→World→1820→milui3928 and back,
+  expression913 and back, exact repeated query/hash and scroll50→50/18→18,
+  calculator actual913, share URL inspected without sending, old calculator
+  parameters and refresh/back preserved.
+- No live signup/login/model/payment/product-write test. No claim of a new full
+  Isolation/A3 gate, real-account admin acceptance or data restore.
+
+`headed-summary-4798.json` includes ranges, counts and every distinct denied path.
+`native-4798-evidence.zip` includes rawJSON/screenshots and failed attempts;
+`native-4798-manifest.json` pins every included file. Private configs/profiles are
+excluded; rawJSON scan found no JWT or share-token value. All browser processes
+closed before root resumed work; isolated display remains for final candidate.
