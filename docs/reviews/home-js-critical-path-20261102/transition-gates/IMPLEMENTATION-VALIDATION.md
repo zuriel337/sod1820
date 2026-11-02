@@ -76,3 +76,8 @@ this lane's source is not mislabeled as acceptance of a future integrated SHA.
 Production remains dormant; canonical aliases and shared settings were not mutated.
 Exact hosted artifact acceptance, actual admin use and real DB/media recovery remain
 separate. A3 on0d4 was already accepted and was not repeated or called a backup restore.
+
+Subsequent hosted attempts on integrated257 failed before the application build;
+the diagnosed configuration replacement and narrow follow-up are documented in
+[PLATFORM-CONFIG-MATERIALIZATION.md](PLATFORM-CONFIG-MATERIALIZATION.md). The results
+above remain historical local results on83d, not hosted acceptance of the follow-up.

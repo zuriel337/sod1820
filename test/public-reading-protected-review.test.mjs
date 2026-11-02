@@ -7,7 +7,7 @@ import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
 import vm from "node:vm";
 import { build } from "esbuild";
-import { protectedReviewBuildIdentity, protectedReviewRuntimeAuthorized,
+import { protectedReviewBuildIdentity, protectedReviewRuntimeAuthorized, protectedReviewConfigMaterialization,
   REVIEW_BRANCH, REVIEW_PROJECT_ID } from "../public-reading-deploy/review-admission.js";
 
 // All platform identities and responses in this file are synthetic. Real Vercel
@@ -60,6 +60,48 @@ test("runtime receipt cannot be activated by environment alone, Production or co
     { ...fixtureEnv, VERCEL_DEPLOYMENT_ID: "dpl_Different" },
     { ...fixtureEnv, VERCEL_URL: "sod1820-other-sod1820-s-projects.vercel.app" }])
     assert.equal(protectedReviewRuntimeAuthorized(fixtureIdentity, env), false);
+});
+
+test("only Preview's sole unstaged root config may equal the complete committed nested config", () => {
+  const config = { framework: null, redirects: [{ source: "/old", destination: "/post/new", permanent: true },
+    { source: "/posts", destination: "/post", permanent: true }], headers: [{ source: "/(.*)",
+    headers: [{ key: "Cache-Control", value: "no-store" }] }] };
+  const input = { reviewMode: true, env: fixtureEnv, trackedStatus: " M vercel.json\0",
+    trackedDiff: `:100644 100644 ${"c".repeat(40)} ${"0".repeat(40)} M\0vercel.json\0`,
+    committedConfig: JSON.stringify(config, null, 2), workingConfig: JSON.stringify(config) };
+  assert.equal(protectedReviewConfigMaterialization(input), true);
+  const keyOrderOnly = { headers: config.headers, redirects: config.redirects, framework: null };
+  assert.equal(protectedReviewConfigMaterialization({ ...input, workingConfig: JSON.stringify(keyOrderOnly) }), true);
+  for (const configChange of [{ ...config, env: { unexpected: true } },
+    { ...config, redirects: [...config.redirects].reverse() },
+    { ...config, redirects: [{ ...config.redirects[0], destination: "/2029" }, config.redirects[1]] },
+    { ...config, headers: [] }, { ...config, headers: [{ source: "/(.*)",
+      headers: [{ key: "Cache-Control", value: "public" }] }] }])
+    assert.equal(protectedReviewConfigMaterialization({ ...input, workingConfig: JSON.stringify(configChange) }), false);
+  for (const trackedStatus of ["", "M  vercel.json\0", "MM vercel.json\0", " M vercel.json\0 M src/App2029.jsx\0",
+    " M public-reading-deploy/vercel.json\0", " M vercel.json\0 M public-reading-deploy/vercel.json\0",
+    " D vercel.json\0", " T vercel.json\0", "T  vercel.json\0", "R  vercel.json\0previous.json\0", " M vercel.json\n"])
+    assert.equal(protectedReviewConfigMaterialization({ ...input, trackedStatus }), false, JSON.stringify(trackedStatus));
+  for (const trackedDiff of [undefined, "", input.trackedDiff.replace("100644 100644", "100644 100755"),
+    input.trackedDiff.replace("100644 100644", "100644 120000"),
+    input.trackedDiff.replace("100644 100644", "100755 100644"),
+    input.trackedDiff + input.trackedDiff.replace("vercel.json", "public-reading-deploy/vercel.json")])
+    assert.equal(protectedReviewConfigMaterialization({ ...input, trackedDiff }), false);
+  for (const invalid of ["null", "[]", "{broken", "0"])
+    assert.equal(protectedReviewConfigMaterialization({ ...input, committedConfig: invalid, workingConfig: invalid }), false);
+  for (const extra of [{ reviewMode: false }, { env: undefined }, { env: {} },
+    { env: { ...fixtureEnv, VERCEL_ENV: "production" } },
+    { env: { ...fixtureEnv, VERCEL_TARGET_ENV: "production" } },
+    { env: { ...fixtureEnv, VERCEL_PROJECT_ID: "prj_other" } }])
+    assert.equal(protectedReviewConfigMaterialization({ ...input, ...extra }), false);
+  // Generic dirty input remains rejected; equality never skips source-pin or
+  // platform checks. Only the compiler derives the narrow materialization proof.
+  assert.throws(() => protectedReviewBuildIdentity({ env: fixtureEnv, sourceSha: sha,
+    sourceDirty: true, requestedSourceSha: sha }), /identity_rejected/);
+  for (const extra of [{ requestedSourceSha: "b".repeat(40) },
+    { env: { ...fixtureEnv, VERCEL_ENV: "production" } }])
+    assert.throws(() => protectedReviewBuildIdentity({ env: fixtureEnv, sourceSha: sha,
+      sourceDirty: false, requestedSourceSha: sha, ...extra }), /identity_rejected/);
 });
 
 test("compiler rejects an absent, duplicate or malformed review mode/pin before compiling", () => {
@@ -220,4 +262,13 @@ test("artifact root config cannot shadow the pinned review command; default pack
   const pkg = JSON.parse(await readFile(resolve(root, "public-reading-deploy/package.json"), "utf8"));
   assert.equal(config.buildCommand, undefined);
   assert.equal(pkg.scripts.build, "node ../scripts/build-public-reading-production.mjs");
+});
+
+test("default artifact records raw dirtiness without any platform materialization authority", async () => {
+  const artifact = JSON.parse(await readFile(resolve(root, "public-reading-deploy/dist/public-reading-artifact.json"), "utf8"));
+  assert.equal(typeof artifact.sourceDirty, "boolean");
+  assert.equal(artifact.applicationSourceDirty, artifact.sourceDirty);
+  assert.equal(artifact.platformConfigMaterialization, null);
+  assert.equal(artifact.protectedReview, null);
+  assert.equal(artifact.productionReady, false);
 });

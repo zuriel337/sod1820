@@ -1,0 +1,34 @@
+{
+  "schema": 1,
+  "sourceSha": "25709d70b9c9945078e88ae14fd1363ba2e211b3",
+  "deploymentId": "dpl_AZRzVJqwT8TRQFmy56W2rq3pQCXb",
+  "branch": "gpt/2029-doc37-unified-alignment-20261102",
+  "diagnosticOnly": true,
+  "exitCode": 1,
+  "expectedIntentionalFailure": true,
+  "compared": "JSON root vercel.json vs JSON git show HEAD:public-reading-deploy/vercel.json",
+  "comparison": "node:util.isDeepStrictEqual; complete JSON; array order preserved",
+  "output": [
+    {
+      "observedAt": "2026-11-02T19:20:19.026Z",
+      "text": "Cloning github.com/zuriel337/sod1820 (Branch: gpt/2029-doc37-unified-alignment-20261102, Commit: 25709d7)"
+    },
+    {
+      "observedAt": "2026-11-02T19:20:34.642Z",
+      "text": " M ../vercel.json"
+    },
+    {
+      "observedAt": "2026-11-02T19:20:34.674Z",
+      "text": "equal true"
+    },
+    {
+      "observedAt": "2026-11-02T19:20:34.682Z",
+      "text": "Error: [BUILD_UTILS_SPAWN_1] Command \"git status -s -uno;node -e 'let r=require,j=JSON.parse;console.log(\"equal\",r(\"util\").isDeepStrictEqual(j(r(\"fs\").readFileSync(\"../vercel.json\")),j(r(\"child_process\").execSync(\"git show HEAD:public-reading-deploy/vercel.json\"))));process.exit(1)'\" exited with 1"
+    }
+  ],
+  "conclusion": "Only tracked root config was unstaged; its whole parsed JSON equaled the committed selected nested config. This is a platform-selected config replacement, not formatting of the Legacy root config.",
+  "modeCheckedByThisDiagnostic": false,
+  "hostedAcceptance": false,
+  "secretsPrinted": false,
+  "sourceChanged": false
+}
