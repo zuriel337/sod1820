@@ -94,8 +94,10 @@ function useHomeDeferredData({ includeWorld, videosAdmitted }) {
 }
 
 function Media({ src, fallback, className = "" }) {
-  return src
-    ? <img className={`h29-media ${className}`} src={src} alt="" loading="lazy" />
+  const [failed, setFailed] = useState(false);
+  useEffect(() => { setFailed(false); }, [src]);
+  return src && !failed
+    ? <img className={`h29-media ${className}`} src={src} alt="" loading="lazy" onError={() => setFailed(true)} />
     : <div className={`h29-media is-empty ${className}`}><span>{fallback}</span></div>;
 }
 
