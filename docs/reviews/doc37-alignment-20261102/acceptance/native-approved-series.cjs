@@ -45,6 +45,10 @@ require('node:readline').createInterface({input:process.stdin}).once('line',asyn
     context=await browser.newContext({viewport:{width,height:900},locale:'he-IL'});if(cfg.accessUrl)await context.request.get(cfg.accessUrl);
     const identity=await context.request.get(cfg.origin+'/preview-identity.json');assert.equal(identity.status(),200);assert.equal((await identity.json()).sha,cfg.sha);
     await require('./native-home-read-only-guard.cjs')(context,cfg.origin);await fault(context,mode);
+    if(cfg.scrollDiagnostic)await context.addInitScript(()=>{
+     window.__seriesScroll=[];let last='';const mark=event=>{const row={event,time:performance.now(),path:location.pathname+location.search,y:scrollY,height:document.documentElement.scrollHeight,sourceTop:document.querySelector('[data-series-kind="channel_update"]')?.getBoundingClientRect().top};const key=JSON.stringify([row.path,row.y,row.height]);if(event!=='sample'||key!==last){window.__seriesScroll.push(row);last=key;}};
+     document.addEventListener('click',e=>{if(e.target.closest('a[href^="/video/"]'))mark('video-link-click-capture');},true);addEventListener('popstate',()=>mark('popstate'));setInterval(()=>mark('sample'),100);
+    });
     page=await context.newPage();page.setDefaultTimeout(30000);const errors=[];item.errors=errors;page.on('pageerror',e=>errors.push(safeText(e.message)));
     const card=page.locator(`[data-series-source="${REF}"]`),postCards=page.locator('[data-series-kind="post"]');
     if(!mode){
@@ -64,7 +68,7 @@ require('node:readline').createInterface({input:process.stdin}).once('line',asyn
      await expect(postCards.first()).toBeVisible();
      if(mode==='pending'){await expect(page.getByText('טוען את המקור הנוסף בסדרה…',{exact:true})).toBeVisible();item.checks.push('readable-Posts-do-not-wait-for-source');}
      if(['source-failed','private','expired'].includes(mode)){
-      await expect(page.getByText('המקור הנוסף בסדרה לא זמין כרגע. הפוסטים שנקראו נשארים זמינים.',{exact:true})).toBeVisible();
+      await expect(page.getByText('המקור הנוסף בסדרה לא זמין כרגע.',{exact:true})).toBeVisible();
       await expect(card).toHaveCount(0);await expect(page.getByText('אין פוסטים בעמוד הזה',{exact:true})).toHaveCount(0);
       await expect(page.getByText('CONTROLLED PRIVATE SOURCE MUST NOT RENDER',{exact:false})).toHaveCount(0);
       item.checks.push('source-denied-or-failed-is-not-empty/Posts-preserved');
@@ -87,7 +91,9 @@ require('node:readline').createInterface({input:process.stdin}).once('line',asyn
        if(await older.isEnabled()){
         const firstRefs=item.cards.map(row=>row.ref);await older.click();
         await expect(page.locator('#posts-catalog')).toHaveAttribute('data-posts-page','2');
-        await expect(page.getByText('טוען את המקור הנוסף בסדרה…',{exact:true})).toHaveCount(0);
+        // The current intrinsic-size notice retains inactive text aria-hidden;
+        // completion means it is not visible, rather than absent from the DOM.
+        await expect(page.getByText('טוען את המקור הנוסף בסדרה…',{exact:true})).toBeHidden();
         await expect(card).toHaveCount(0);
         const secondRefs=await page.locator('#posts-catalog [data-series-source]').evaluateAll(rows=>rows.map(row=>row.dataset.seriesSource));
         assert.ok(secondRefs.length>0&&secondRefs.length<=24,'second page bounded and nonempty');
@@ -116,7 +122,7 @@ require('node:readline').createInterface({input:process.stdin}).once('line',asyn
     if(['source-failed','private','expired'].includes(mode))assert.ok(!item.snapshot.reads.some(row=>row.path==='/rest/v1/video_media_assets_v1'&&row.query?.includes(ASSET)),'source denial stops before asset read');
     item.cls=cls(item.snapshot.shifts);assert.ok(item.cls<=.1,'CLS<=0.1');assert.ok(item.snapshot.geometry.scroll<=item.snapshot.geometry.client,'no horizontal overflow');assert.match(item.snapshot.controller||'',/preview-readonly-sw/);assert.deepEqual(errors,[]);item.errors=errors;item.ok=true;
     await page.screenshot({path:`${out}/${mode||'native'}-${width}.png`,fullPage:true});
-   }catch(error){item.ok=false;item.failure={name:error.name,message:safeText(error.message)};if(page){await page.screenshot({path:`${out}/failure-${mode||'native'}-${width}.png`,fullPage:true}).catch(()=>{});item.failureState=await page.evaluate(()=>({path:location.pathname+location.search,heads:[...document.querySelectorAll('h1')].map(x=>x.textContent),source:document.querySelector('[data-series-kind="channel_update"]')?.textContent,statuses:[...document.querySelectorAll('[role=status]')].map(x=>x.textContent),denied:window.__safetyDenied,reads:window.__safetyReads?.map(r=>({path:r.path,query:r.query,method:r.method,status:r.status,error:r.error})),faults:window.__seriesFaults||[]})).catch(()=>null);}}
+   }catch(error){item.ok=false;item.failure={name:error.name,message:safeText(error.message)};if(page){await page.screenshot({path:`${out}/failure-${mode||'native'}-${width}.png`,fullPage:true}).catch(()=>{});item.failureState=await page.evaluate(()=>({path:location.pathname+location.search,heads:[...document.querySelectorAll('h1')].map(x=>x.textContent),source:document.querySelector('[data-series-kind="channel_update"]')?.textContent,statuses:[...document.querySelectorAll('[role=status]')].map(x=>x.textContent),denied:window.__safetyDenied,reads:window.__safetyReads?.map(r=>({path:r.path,query:r.query,method:r.method,status:r.status,error:r.error})),faults:window.__seriesFaults||[],scrollDiagnostic:window.__seriesScroll||[]})).catch(()=>null);}}
    finally{await context?.close();flush();console.log(JSON.stringify({width,mode:item.mode,ok:item.ok,checks:item.checks,failure:item.failure}));}
   }
  }catch(error){report.fatal={name:error.name,message:safeText(error.message)};}

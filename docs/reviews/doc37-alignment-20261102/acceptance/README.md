@@ -276,3 +276,12 @@ The source identity, rank, credit and narrow reads worked; privacy/failure/cance
 fixtures remained safe. Root must fix the demonstrated route/stability issues
 and obtain focused exact-Preview acceptance. The old f420 card-return timing
 has an explicit semantic correction; primaryreturn is measured separately here.
+
+##51ad route fixes accepted, exact scroll return remains open
+
+[Focused report](candidate-51ad-report.md) and [manifest](native-51ad-manifest.json)
+retain the fixed video crash, six passing seriesprivacy/stability cases, real
+page2 boundaries, directvideo denial/retry and one brief authorized playback.
+Two Home smoke checks passed. Video→series scroll restoration still fails on
+mobile/desktop; one diagnostic identifies restoration while the list is too
+short. Overall affected-route acceptance is not yet complete.
