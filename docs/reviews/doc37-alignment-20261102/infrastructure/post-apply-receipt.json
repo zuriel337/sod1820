@@ -1,0 +1,347 @@
+{
+  "jobs": [
+    {
+      "jobid": 125,
+      "jobname": "g3-agent-dispatch-recovery",
+      "schedule": "* * * * *",
+      "active": false,
+      "command_md5": "7e9dc0599817c3ff850f38fc07326525"
+    },
+    {
+      "jobid": 126,
+      "jobname": "g3-agent-routine-response-reconcile",
+      "schedule": "* * * * *",
+      "active": false,
+      "command_md5": "3baabcf4d902c47a87abb21a452c0fde"
+    },
+    {
+      "jobid": 127,
+      "jobname": "g3-gpt-result-wake-recovery",
+      "schedule": "* * * * *",
+      "active": false,
+      "command_md5": "f013a462e5b72501690bf6f7b821971f"
+    }
+  ],
+  "views": [
+    {
+      "relname": "rules_active",
+      "reloptions": null,
+      "owner": "postgres",
+      "acl": "{postgres=arwdDxtm/postgres,anon=m/postgres,authenticated=m/postgres,service_role=arwdDxtm/postgres}",
+      "definition_md5": "e878ece9181e8597ff82d5bc20cefa1c"
+    },
+    {
+      "relname": "work_log_current",
+      "reloptions": null,
+      "owner": "postgres",
+      "acl": "{postgres=arwdDxtm/postgres,anon=m/postgres,authenticated=m/postgres,service_role=arwdDxtm/postgres}",
+      "definition_md5": "66514daab5f19942c26b9b5faf3786da"
+    }
+  ],
+  "active_rules": [
+    {
+      "rows": 87,
+      "inactive_selected": 0
+    }
+  ],
+  "release_visibility": [
+    {
+      "source_before_release_history": 122,
+      "current_before_released": 0
+    }
+  ],
+  "migration_schema": [
+    {
+      "column_name": "version",
+      "data_type": "text"
+    },
+    {
+      "column_name": "statements",
+      "data_type": "ARRAY"
+    },
+    {
+      "column_name": "name",
+      "data_type": "text"
+    },
+    {
+      "column_name": "created_by",
+      "data_type": "text"
+    },
+    {
+      "column_name": "idempotency_key",
+      "data_type": "text"
+    },
+    {
+      "column_name": "rollback",
+      "data_type": "ARRAY"
+    }
+  ],
+  "migration": [
+    {
+      "version": "20261102130753",
+      "name": "doc37_current_authority_views"
+    }
+  ],
+  "columns": [
+    {
+      "table_name": "rules_active",
+      "column_name": "מזהה_חוק",
+      "data_type": "text",
+      "ordinal_position": 1
+    },
+    {
+      "table_name": "rules_active",
+      "column_name": "גרסה",
+      "data_type": "integer",
+      "ordinal_position": 2
+    },
+    {
+      "table_name": "rules_active",
+      "column_name": "חוק",
+      "data_type": "text",
+      "ordinal_position": 3
+    },
+    {
+      "table_name": "rules_active",
+      "column_name": "תיאור",
+      "data_type": "text",
+      "ordinal_position": 4
+    },
+    {
+      "table_name": "rules_active",
+      "column_name": "תלוי_ב",
+      "data_type": "ARRAY",
+      "ordinal_position": 5
+    },
+    {
+      "table_name": "rules_active",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "ordinal_position": 6
+    },
+    {
+      "table_name": "work_log_current",
+      "column_name": "id",
+      "data_type": "uuid",
+      "ordinal_position": 1
+    },
+    {
+      "table_name": "work_log_current",
+      "column_name": "session_date",
+      "data_type": "date",
+      "ordinal_position": 2
+    },
+    {
+      "table_name": "work_log_current",
+      "column_name": "topic",
+      "data_type": "text",
+      "ordinal_position": 3
+    },
+    {
+      "table_name": "work_log_current",
+      "column_name": "numbers",
+      "data_type": "ARRAY",
+      "ordinal_position": 4
+    },
+    {
+      "table_name": "work_log_current",
+      "column_name": "what_we_did",
+      "data_type": "text",
+      "ordinal_position": 5
+    },
+    {
+      "table_name": "work_log_current",
+      "column_name": "status",
+      "data_type": "text",
+      "ordinal_position": 6
+    },
+    {
+      "table_name": "work_log_current",
+      "column_name": "open_threads",
+      "data_type": "text",
+      "ordinal_position": 7
+    },
+    {
+      "table_name": "work_log_current",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "ordinal_position": 8
+    },
+    {
+      "table_name": "work_log_current",
+      "column_name": "archived",
+      "data_type": "boolean",
+      "ordinal_position": 9
+    },
+    {
+      "table_name": "work_log_current",
+      "column_name": "superseded_by_id",
+      "data_type": "uuid",
+      "ordinal_position": 10
+    },
+    {
+      "table_name": "work_log_current",
+      "column_name": "task_key",
+      "data_type": "text",
+      "ordinal_position": 11
+    },
+    {
+      "table_name": "work_log_current",
+      "column_name": "from_actor",
+      "data_type": "text",
+      "ordinal_position": 12
+    },
+    {
+      "table_name": "work_log_current",
+      "column_name": "to_actor",
+      "data_type": "text",
+      "ordinal_position": 13
+    },
+    {
+      "table_name": "work_log_current",
+      "column_name": "assignment_mode",
+      "data_type": "text",
+      "ordinal_position": 14
+    },
+    {
+      "table_name": "work_log_current",
+      "column_name": "assignment_scope",
+      "data_type": "text",
+      "ordinal_position": 15
+    },
+    {
+      "table_name": "work_log_current",
+      "column_name": "primary_owner",
+      "data_type": "text",
+      "ordinal_position": 16
+    },
+    {
+      "table_name": "work_log_current",
+      "column_name": "release_authorization_state",
+      "data_type": "text",
+      "ordinal_position": 17
+    },
+    {
+      "table_name": "work_log_current",
+      "column_name": "parent_assignment_id",
+      "data_type": "uuid",
+      "ordinal_position": 18
+    },
+    {
+      "table_name": "work_log_current",
+      "column_name": "dispatch_kind",
+      "data_type": "text",
+      "ordinal_position": 19
+    },
+    {
+      "table_name": "work_log_current",
+      "column_name": "dispatch_state",
+      "data_type": "text",
+      "ordinal_position": 20
+    },
+    {
+      "table_name": "work_log_current",
+      "column_name": "dispatch_context",
+      "data_type": "jsonb",
+      "ordinal_position": 21
+    },
+    {
+      "table_name": "work_log_current",
+      "column_name": "dispatch_attempts",
+      "data_type": "integer",
+      "ordinal_position": 22
+    },
+    {
+      "table_name": "work_log_current",
+      "column_name": "dispatch_next_attempt_at",
+      "data_type": "timestamp with time zone",
+      "ordinal_position": 23
+    },
+    {
+      "table_name": "work_log_current",
+      "column_name": "dispatch_lease_owner",
+      "data_type": "text",
+      "ordinal_position": 24
+    },
+    {
+      "table_name": "work_log_current",
+      "column_name": "dispatch_lease_expires_at",
+      "data_type": "timestamp with time zone",
+      "ordinal_position": 25
+    },
+    {
+      "table_name": "work_log_current",
+      "column_name": "dispatch_last_error",
+      "data_type": "text",
+      "ordinal_position": 26
+    },
+    {
+      "table_name": "work_log_current",
+      "column_name": "dispatch_last_request_id",
+      "data_type": "bigint",
+      "ordinal_position": 27
+    },
+    {
+      "table_name": "work_log_current",
+      "column_name": "dispatch_last_emitted_at",
+      "data_type": "timestamp with time zone",
+      "ordinal_position": 28
+    },
+    {
+      "table_name": "work_log_current",
+      "column_name": "dispatch_completed_at",
+      "data_type": "timestamp with time zone",
+      "ordinal_position": 29
+    },
+    {
+      "table_name": "work_log_current",
+      "column_name": "dispatch_session_id",
+      "data_type": "text",
+      "ordinal_position": 30
+    },
+    {
+      "table_name": "work_log_current",
+      "column_name": "dispatch_session_url",
+      "data_type": "text",
+      "ordinal_position": 31
+    },
+    {
+      "table_name": "work_log_current",
+      "column_name": "dispatch_response_at",
+      "data_type": "timestamp with time zone",
+      "ordinal_position": 32
+    }
+  ],
+  "history_totals": [
+    {
+      "source": "work_log",
+      "count": 9370,
+      "oldest": "2026-06-06 16:13:14.832072+00",
+      "newest": "2026-11-02 13:07:47.74466+00"
+    },
+    {
+      "source": "rules",
+      "count": 467,
+      "oldest": "2026-06-06 10:39:31.971087+00",
+      "newest": "2026-10-31 08:55:23.990821+00"
+    }
+  ],
+  "checks": {
+    "jobs_identity_unchanged": true,
+    "jobs_paused": true,
+    "acl_owner_options_unchanged": true,
+    "no_inactive_rule_selected": true,
+    "no_explicitly_released_before_in_current": true
+  },
+  "migration_statement_scope": [
+    {
+      "version": "20261102130753",
+      "name": "doc37_current_authority_views",
+      "statements_md5": "9479581fd27a42aebe4ae6d5be18cf7a",
+      "has_delete_or_truncate": true,
+      "has_insert_or_update": false
+    }
+  ],
+  "captured_after_migration_version": "20261102130753",
+  "scope": "Read-only verification of root-applied user-approved cron and views changes; no mail verification; no child live writes. Source history exists; structural-only migration plus no DELETE/TRUNCATE, not a global snapshot diff."
+}

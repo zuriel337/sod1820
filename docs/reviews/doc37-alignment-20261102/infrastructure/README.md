@@ -5,6 +5,28 @@ Parent BEFORE: `5ce04c53-2a9e-46ce-a36d-e6be51e7de71`.
 Scope: documentation and exact proposed SQL only. Shared database, schedules,
 functions, flags, providers and product data were **not changed**.
 
+## Later authorized application — read-only verification
+
+The initial inventory and proposals below retain their original pre-apply state.
+After the user's explicit approval of the exact package, root applied the three
+cron pauses and view migration `20261102130753_doc37_current_authority_views`.
+This lane performed read-only post-verification, recorded in
+`post-apply-receipt.json`:
+
+- Jobs125/126/127 are inactive; names, command digests and schedules unchanged.
+- `rules_active` now selects87 rules and0 inactive versions.
+- Source history still contains122 BEFORE records with explicit parent-linked
+  releases; none are projected into `work_log_current`.
+- Both views retain their owners/options/ACL and their6/32 columns respectively.
+- Migration statements contain no DELETE/TRUNCATE/INSERT/UPDATE. The source
+  work-log still spans June2November and rule history remains present. This is
+  structural verification, not a before/after full-data backup comparison.
+- No newsletter or email deployment acceptance is claimed by this receipt.
+
+The cron/view findings are now **APPLIED BY ROOT / READ-ONLY VERIFIED**. Storage
+collector freshness, historic compatibility and separate recovery gates remain
+as described below. The child agent did not execute a shared mutation.
+
 ## Evidence and boundaries
 
 Canonical project: `linswmnnkjxvweumprav`. SQL used the dedicated read-only
