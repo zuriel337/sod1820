@@ -293,3 +293,11 @@ separate the corrected early harness measurement from actual successful return
 at the click position. Directvideo stability/privacy passes without anotherplay.
 The full sequence still fails0.1 because the delayed predecessor Post insertion
 shifts a visible page2 card; that precise source and all failed runs are retained.
+
+## 3da page2 stable; restored reload and native POP cancellation still fail
+
+[Focused report](candidate-3da9-report.md) and [manifest](native-3da9-manifest.json)
+show the full pre-reload native sequence below0.1, exact returns, sourcefailure
+readiness and two Home smoke passes. A reload at savedscroll still shifts when
+the source joins page1; a realwheel cancels the applicationrestorer but not the
+browser's running POP motion. Both conditions remain failed, with attribution.

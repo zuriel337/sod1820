@@ -11,7 +11,7 @@ require('node:readline').createInterface({input:process.stdin}).once('line',asyn
  const flush=()=>fs.writeFileSync(out+'/video-boundary.json',JSON.stringify(report,null,2)+'\n');
  try{
   browser=await chromium.launch({executablePath:'/usr/bin/chromium',headless:cfg.headed!==true,...(process.env.HTTPS_PROXY?{proxy:{server:process.env.HTTPS_PROXY,bypass:'127.0.0.1,localhost'}}:{}),args:['--no-sandbox','--disable-dev-shm-usage']});
-  for(const mode of ['native','failed','private','expired']){
+  for(const mode of cfg.videoModes||['native','failed','private','expired']){
    const item={mode,realPublicData:mode==='native',controlledFixture:mode!=='native',checks:[],errors:[]};report.cases.push(item);let context,page;
    try{
     context=await browser.newContext({viewport:{width:390,height:900},locale:'he-IL'});if(cfg.accessUrl)await context.request.get(cfg.accessUrl);

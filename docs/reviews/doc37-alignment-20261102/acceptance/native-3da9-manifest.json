@@ -1,0 +1,128 @@
+{
+  "sha": "3da93559352f605059dca231c2e152745701b061",
+  "privacyScanFindings": [],
+  "privateConfigIncluded": false,
+  "requestHeadersOrCookiesIncluded": false,
+  "files": [
+    {
+      "path": "final-approved-series-3da9/cancel-390.png",
+      "bytes": 2236978,
+      "sha256": "18fc4cac68754c38c7ae8ab684bcc448692930c8a3f86ba0989a889d422e34fd"
+    },
+    {
+      "path": "final-approved-series-3da9/duplicate-post-390.png",
+      "bytes": 1944353,
+      "sha256": "8702fe25a33e97c2d1f5f401a57af8a64e4b726a27d0e66abf579de8eaa420c2"
+    },
+    {
+      "path": "final-approved-series-3da9/expired-390.png",
+      "bytes": 1956057,
+      "sha256": "1bb80c6169bf15ffe22314bf2b9346fedb4b996648adfa8d29a0dc0dbdd72415"
+    },
+    {
+      "path": "final-approved-series-3da9/private-390.png",
+      "bytes": 1955975,
+      "sha256": "52649d0717401b8401ac290b7e33a0ca19cdd044ee922828492e84970ed34d0d"
+    },
+    {
+      "path": "final-approved-series-3da9/source-failed-390.png",
+      "bytes": 1956231,
+      "sha256": "2554118a4365b8f66b207e1ef1113da8eb2e8416e67c3b588e267a25108d8117"
+    },
+    {
+      "path": "final-approved-series-3da9/pending-390.png",
+      "bytes": 1944301,
+      "sha256": "6fb7cb98f65d61533ea3caa85db3fcf899a40cd88605ca3a96dfd2a564a07b6a"
+    },
+    {
+      "path": "final-approved-series-3da9/failure-native-1440.png",
+      "bytes": 2926019,
+      "sha256": "0af8894c73563151a2e549bd8204f02b489fe86ae4903eac8ae2d1d498f1868d"
+    },
+    {
+      "path": "final-approved-series-3da9/video-1440.png",
+      "bytes": 257049,
+      "sha256": "e454329e2c7e556824fcec436ce11bd45ddf0809a410d91bc2f9511e95e18977"
+    },
+    {
+      "path": "final-approved-series-3da9/source-1440.png",
+      "bytes": 612840,
+      "sha256": "9325c5d8d82289b59477a225b30523593c1714a5466c78fa2a062db128202ad3"
+    },
+    {
+      "path": "final-approved-series-3da9/series.json",
+      "bytes": 745075,
+      "sha256": "38fd5f83c93c403d3e8aca6e549debeda773dd990006a8fd69277c7aaafda2e9"
+    },
+    {
+      "path": "final-approved-series-3da9/failure-native-390.png",
+      "bytes": 2344431,
+      "sha256": "80354a8506761e17a607143509f255c9c990b71ed4754a82318a50ff7e09a452"
+    },
+    {
+      "path": "final-approved-series-3da9/video-390.png",
+      "bytes": 86978,
+      "sha256": "821402196a455aa8f1db99671e0c4d88f087433de5a063523a6812470c41515d"
+    },
+    {
+      "path": "final-approved-series-3da9/source-390.png",
+      "bytes": 133627,
+      "sha256": "c86ce2dedf9ba174c3d44b295fa30680ba632d98c51a33d71124f4868ca73dea"
+    },
+    {
+      "path": "final-return-faults-3da9/failure-user-cancel.png",
+      "bytes": 158859,
+      "sha256": "f983a860da41e7de962dd17f272afd96419645bfbf1ddaf5d95b455b74db0f8e"
+    },
+    {
+      "path": "final-return-faults-3da9/return-faults.json",
+      "bytes": 1159,
+      "sha256": "53ee85bb7a9f2ba7a3b6ed020ab659e0b0c520c59a8f0a73343aef61ace209d3"
+    },
+    {
+      "path": "final-return-faults-3da9/failed-readiness.png",
+      "bytes": 104604,
+      "sha256": "4344deb84bdec62850d232f184481e020879854f4a36b932ea258f2032a30006"
+    },
+    {
+      "path": "return-wheel-diagnostic-3da9/return-faults.json",
+      "bytes": 3714,
+      "sha256": "1c119cc6e288c74f1763313042f8016893cdc0c4b396bc04bb43aa9f3019a714"
+    },
+    {
+      "path": "return-wheel-diagnostic-3da9/failure-user-cancel.png",
+      "bytes": 180740,
+      "sha256": "b23346ff80367bb55d2de4785eed3a8c8bf87d79626332c0eed9806f5cc3074c"
+    },
+    {
+      "path": "home-smoke-3da9/home-first-viewport-1440.png",
+      "bytes": 509009,
+      "sha256": "667fc7ee889acdfc130a4426d131605a6f99296fe782986f9230417b6a67594d"
+    },
+    {
+      "path": "home-smoke-3da9/home-1440.png",
+      "bytes": 1111851,
+      "sha256": "0604c6dcf87c61f3c8f6cc6e407b331f95dbcfe56541b4fe228f71f10e3bac4f"
+    },
+    {
+      "path": "home-smoke-3da9/home-functional.json",
+      "bytes": 56145,
+      "sha256": "aa5f5a97ecce1d0afe1d588e6ca22c7c170bc40567bec3d7063ad2e1ca1ff082"
+    },
+    {
+      "path": "home-smoke-3da9/home-first-viewport-390.png",
+      "bytes": 153984,
+      "sha256": "bfe3a76842a0a836b5682f3b9bad6b67e1db15346eabadb02df8ba3ede1a2552"
+    },
+    {
+      "path": "home-smoke-3da9/home-390.png",
+      "bytes": 680741,
+      "sha256": "79e5546627ebbf1ca3edd56923a42cfc3ab4e46cfd98b069ef3640dd7dcdba20"
+    }
+  ],
+  "archive": {
+    "path": "native-3da9-evidence.zip",
+    "bytes": 20950621,
+    "sha256": "5b413c757e9018cf02b1b84462bcaf6b67083432eae581ba7905668da7301b7c"
+  }
+}

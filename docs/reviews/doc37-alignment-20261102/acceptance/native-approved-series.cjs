@@ -40,11 +40,18 @@ require('node:readline').createInterface({input:process.stdin}).once('line',asyn
   browser=await chromium.launch({executablePath:'/usr/bin/chromium',headless:cfg.headed!==true,...(process.env.HTTPS_PROXY?{proxy:{server:process.env.HTTPS_PROXY,bypass:'127.0.0.1,localhost'}}:{}),args:['--no-sandbox','--disable-dev-shm-usage']});
   const scenarios=cfg.seriesScenarios||[{width:390,mode:null},{width:1440,mode:null},...['pending','source-failed','private','expired','duplicate-post','cancel'].map(mode=>({width:390,mode}))];
   for(const {width,mode} of scenarios){
-   const item={width,mode:mode||'native',realPublicData:!mode,controlledFixture:Boolean(mode),checks:[]};report.cases.push(item);let context,page;
+   const item={width,mode:mode||(cfg.holdPage2Rank?'genuine-response-held-page2-rank':'native'),realPublicData:!mode,controlledFixture:Boolean(mode||cfg.holdPage2Rank),checks:[]};report.cases.push(item);let context,page;
    try{
     context=await browser.newContext({viewport:{width,height:900},locale:'he-IL'});if(cfg.accessUrl)await context.request.get(cfg.accessUrl);
     const identity=await context.request.get(cfg.origin+'/preview-identity.json');assert.equal(identity.status(),200);assert.equal((await identity.json()).sha,cfg.sha);
     await require('./native-home-read-only-guard.cjs')(context,cfg.origin);await fault(context,mode);
+    if(cfg.holdPage2Rank)await context.addInitScript(()=>{
+     const native=window.fetch.bind(window);window.__heldPage2Rank=[];
+     window.fetch=async(input,init)=>{const req=new Request(input instanceof Request?input:new URL(input,location.href),init),u=new URL(req.url);
+      if(req.method!=='HEAD'||u.pathname!=='/rest/v1/posts'||new URLSearchParams(location.search).get('page')!=='2'||!u.searchParams.get('date')?.startsWith('gte.'))return native(req);
+      window.__heldPage2Rank.push({start:performance.now()});const response=await native(req);await new Promise(r=>setTimeout(r,1800));return response;
+     };
+    });
     await context.addInitScript(()=>{
      window.__seriesDepartureClicks=[];document.addEventListener('click',event=>{
       const source=event.target.closest('a[href^="/video/"]'),older=event.target.closest('button');
@@ -96,6 +103,7 @@ require('node:readline').createInterface({input:process.stdin}).once('line',asyn
        const older=page.getByRole('button',{name:'פוסטים קודמים',exact:true});
        if(await older.isEnabled()){
         const firstRefs=item.cards.map(row=>row.ref);await older.click();
+        if(cfg.holdPage2Rank){await page.waitForFunction(()=>window.__heldPage2Rank.length>0);await expect(page.getByText('פותח את עמוד 2 בסדרה',{exact:true})).toBeVisible();await expect(page.locator('#posts-catalog')).toHaveCount(0);await expect(page.getByText('אין פוסטים בעמוד הזה',{exact:true})).toHaveCount(0);item.checks.push('held-real-rank/measured-loading/no-provisional-page-or-false-empty');}
         await expect(page.locator('#posts-catalog')).toHaveAttribute('data-posts-page','2');
         // The current intrinsic-size notice retains inactive text aria-hidden;
         // completion means it is not visible, rather than absent from the DOM.
