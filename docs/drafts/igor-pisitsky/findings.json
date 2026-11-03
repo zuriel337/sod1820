@@ -240,5 +240,27 @@
         }
       ]
     }
+  ],
+  "systemFindings": [
+    {
+      "term": "קולומביה",
+      "label": "קולומביה",
+      "skip": 4545,
+      "dir": 1,
+      "start": 248765,
+      "positions": [
+        248765,
+        253310,
+        257855,
+        262400,
+        266945,
+        271490,
+        276035,
+        280580
+      ],
+      "discovery_credit": "בדיקה מקומית של המערכת בעקבות הדילוג והביטוי שצוריאל ציין",
+      "serverVerified": false,
+      "localExactReplay": true
+    }
   ]
 }
