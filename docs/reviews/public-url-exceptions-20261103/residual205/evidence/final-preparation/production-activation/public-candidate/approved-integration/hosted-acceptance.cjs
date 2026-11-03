@@ -75,6 +75,7 @@ async function guard(context) {
         return r;
       }
       async function run(name, fn) {
+        if (config.caseNames && !config.caseNames.includes(name)) return;
         const row = { name, width }; report.cases.push(row); flush();
         try { await fn(row); row.passed = true; }
         catch (e) { row.passed = false; row.failure = safeError(e); await page.screenshot({ path: `${output}/failure-${width}-${report.cases.length}.png` }).catch(() => {}); }
@@ -101,7 +102,9 @@ async function guard(context) {
       await run('real old Post, full Number/Phrase and exact history return', async row => {
         await go(postPath); await expect(page.locator('[data-experience-surface="post-reading"]')).toBeVisible();
         const oldCanonical = await page.locator('link[rel="canonical"]').getAttribute('href');
-        assert.equal(new URL(oldCanonical).pathname.toLowerCase(), new URL(postPath, origin).pathname.toLowerCase());
+        assert.equal(config.canonicalBaselineSha, '01662ab57e92ea71332c05ca971a2280ddb988ea');
+        assert.equal(oldCanonical, config.expectedPostCanonical, 'retain the exact canonical observed on the accepted prior deployment');
+        row.canonicalBaselineSha = config.canonicalBaselineSha;
         const phrase = 'משיח';
         await go('/number/1820?returnTo=' + encodeURIComponent(postPath));
         await expect(page.locator('[data-number-core-root="1820"]')).toBeVisible();
@@ -116,8 +119,8 @@ async function guard(context) {
       await run('World/calculator, login copy and anonymous administrator denial', async row => {
         await go('/world'); await expect(page.locator('h1').first()).toContainText(/עולם/);
         await go('/gematria?q=' + encodeURIComponent('משיח'));
-        await expect(page.locator('[data-experience-surface="calculator-2029"]')).toBeVisible();
-        await expect(page.locator('[data-experience-surface="calculator-2029"]')).toContainText('358');
+        await expect(page.locator('[data-experience-surface="calculator-pro-2029"]')).toBeVisible();
+        await expect(page.locator('[data-experience-surface="calculator-pro-2029"]')).toContainText('358');
         const returnTo = '/world?keep=one&keep=two#source'; await go('/login?returnTo=' + encodeURIComponent(returnTo));
         await expect(page.locator('[data-experience-surface="auth-2029"]')).toBeVisible();
         await expect(page.locator('[data-signup-updates-policy="existing-site-default"]')).toContainText('כניסה לחשבון קיים אינה משנה');
@@ -133,7 +136,8 @@ async function guard(context) {
   finally {
     await browser?.close(); report.finishedAt = new Date().toISOString();
     report.passed = report.cases.filter(x => x.passed).length; report.failed = report.cases.filter(x => !x.passed).length;
-    report.ok = !report.fatal && report.cases.length === 6 && report.failed === 0 && report.errors.length === 0 && report.denied.length === 0 && report.cases.every(x => x.noOverflow);
+    report.expectedCases = config.caseNames ? config.caseNames.length * 2 : 6;
+    report.ok = !report.fatal && report.cases.length === report.expectedCases && report.failed === 0 && report.errors.length === 0 && report.denied.length === 0 && report.cases.every(x => x.noOverflow);
     flush(); console.log(JSON.stringify({ ok: report.ok, passed: report.passed, failed: report.failed, errors: report.errors, denied: report.denied, fatal: report.fatal }));
     process.exitCode = report.ok ? 0 : 1;
   }

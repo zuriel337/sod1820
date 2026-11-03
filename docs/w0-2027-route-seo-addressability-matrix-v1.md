@@ -452,3 +452,5 @@ ZURIEL accepts the unverified freshness/media coverage risk for continuing prepa
 ### 8.11 — Approved guard integration, branch only
 
 The exact nine-file proposal approved by ZURIEL at8882d7c5 is now applied and passed49 artifact/guard tests,33 account-authorization tests and a real local dormant build. The earlier8.10 proposal-only snapshot is superseded only for source integration. Protected Preview acceptance is prepared; real Production creation, canonical traffic and indexing activation remain unauthorized. All original inventory address strings and prior two-account acceptance are retained. F26/F27 now distinguish the existing insert-only signup trigger from unappliedA2, and pendingB/D from Auth continuity. No new launch plan or fullG4 claim.
+
+Hosted completion for8.11: protected Preview source`21f1a8d9e3e3fc6c7c35583ac79aee28f5e92b41`, deployment`dpl_8VcC1LwM4aBmPEeZNS9DwYUGDSCu`, six public browser cases and six GET/HEAD route checks accepted. No public Production mode was hosted; canonical crawling/indexing is still a future authorization/acceptance. Initial harness failures and exact01662 canonical comparison retained in the same evidence packet.

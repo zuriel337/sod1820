@@ -710,12 +710,12 @@
     "evidence": "DB href/src; api/sitemap; publicfiles; hosting",
     "meaning": "משאב אמיתי/SEO/API; גם probe אפשרי",
     "target_2029": "המשאב/הנכס המדויק אם זמין",
-    "verified_status": "193 נתיבי השמע נשמרו עם ראיות HTML במקום audio ומשימת שחזור; נדחו לאחר ההשקה באישור צוריאל. אין שחזור בתים או הפניה כללית. XML כולל את הכתובות הקנוניות של שלושת דפי WP ההיסטוריים; גבולות משאבים ו־404 נשמרו. המשך12.39: תצורתאינדוקסציבורימוכנהכהצעהבלבד,49בדיקותמבודדותובנייתdormantעברו;הפריוויונשארמוגן/noindex.איןקבלתProductionמתארחאו מעברלחי. direct documentAPI נשארnoindexגםבהצעה. המשך12.40: צוריאל אישר שילוב שער בענף בלבד; כל9טביעות תואמות,49+33בדיקות ובנייהמקומיתעברו. Previewחדשבהכנה; לאנוצרProductionולאשויכודומיינים.",
+    "verified_status": "193 נתיבי שמע נשמרו עם ראיות ומשימת שחזור, ונדחו לאחר ההשקה באישור צוריאל; אין שחזור בתים או הפניה כללית. XML שומר את הכתובות הקנוניות של שלושת דפי WP, ו־404 נשמר. התאמת שער הפרסום אושרה ושולבה לפי טביעות9קבצים;49 בדיקות שער/תוצר ו־33 בדיקות הרשאות ובנייה מקומית עברו. Preview מוגן21f1a8d9 התקבל בשישה תרחישי דפדפן390/1440 ושישה מסלולי GET/HEAD, עם noindex ב־API ובמקור הלא־קנוני. תוצר Production ציבורי לא נוצר; אין שיוך דומייני Production או קבלת מלאיHTTP כולו.",
     "permissions": "publicasset לעומתחתום/פרטי; API לפי owner",
     "parameters_anchors": "שם קובץ,טווח זמן,range,queryAPI מותרים",
     "acceptance": "HEAD/GET/MIME/CSP; אין HTML200 במקום תמונה/שמע;probe נשאר 404",
-    "open_task": "C4: retain193audio owner deferral; exact guard integration accepted; protected Preview source verification; proven no-domain Git-source Production creation route and separate authorization/hosted acceptance; final cutover separate",
-    "treatment": "PARTIAL_EXACT_RESOURCE_ACCEPTANCE_AUDIO_SOURCE_OPEN",
+    "open_task": "C4: retain193audio owner deferral; exact guard integrated and protected21f1a8d9 Preview accepted; proven no-domain Git-source Production creation route and separate authorization/hosted acceptance; final cutover separate",
+    "treatment": "PROTECTED_PREVIEW_ACCEPTED_PUBLIC_PRODUCTION_NOT_CREATED_AUDIO_DEFERRED",
     "exception_previous_checkpoint": {
       "verified_status": "193audio hrefs; לא כל בקשת WP היאתוכן אמיתי",
       "treatment": "PROPOSED_NOT_IMPLEMENTED"
@@ -736,7 +736,8 @@
     "public_candidate_proposal_evidence": "../public-url-exceptions-20261103/residual205/evidence/final-preparation/production-activation/public-candidate/README.md",
     "guard_integration_previous_checkpoint": {
       "verified_status": "193 נתיבי השמע נשמרו עם ראיות HTML במקום audio ומשימת שחזור; נדחו לאחר ההשקה באישור צוריאל. אין שחזור בתים או הפניה כללית. XML כולל את הכתובות הקנוניות של שלושת דפי WP ההיסטוריים; גבולות משאבים ו־404 נשמרו. המשך12.39: תצורתאינדוקסציבורימוכנהכהצעהבלבד,49בדיקותמבודדותובנייתdormantעברו;הפריוויונשארמוגן/noindex.איןקבלתProductionמתארחאו מעברלחי. direct documentAPI נשארnoindexגםבהצעה.",
-      "open_task": "C4: retain193audio user deferral; exact publication guard approval, proven no-domain Git-source creation and real hosted public-config acceptance; final cutover separate"
+      "open_task": "C4: retain193audio user deferral; exact publication guard approval, proven no-domain Git-source creation and real hosted public-config acceptance; final cutover separate",
+      "treatment": "PARTIAL_EXACT_RESOURCE_ACCEPTANCE_AUDIO_SOURCE_OPEN"
     }
   },
   {
