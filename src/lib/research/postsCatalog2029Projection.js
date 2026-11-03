@@ -167,13 +167,14 @@ export async function fetchPostFollowTargets2029({ post = null, scope = null, cl
 
 const CATALOG_COLUMNS = "id,wp_id,source,link,slug,title,excerpt,author,categories,tags,image_url,thumb_url,date,modified";
 function publicCatalogQuery({ scope, search, client, head = false, includeTotal = true }) {
-  if (!client || scope.kind === "invalid" || !["all", "category", "tag", "series"].includes(scope.kind)) throw new Error("בחירת התוכן אינה זמינה.");
+  if (!client || scope.kind === "invalid" || !["all", "category", "tag", "series", "verified"].includes(scope.kind)) throw new Error("בחירת התוכן אינה זמינה.");
   // Re-resolve a series by its owned key, never trust a caller-supplied spec/author/filter.
   const spec = scope.kind === "series" ? contentSeriesByKey(scope.key) : null;
   if (scope.kind === "series" && !spec) throw new Error("הסדרה אינה זמינה.");
   let query = client.from("posts")
     .select(head ? "id" : CATALOG_COLUMNS, { ...(includeTotal ? { count: "exact" } : {}), ...(head ? { head: true } : {}) })
     .or(publicPostOnlyFilter());
+  if (scope.kind === "verified") query = query.eq("verified", true);
   if (scope.kind === "category" || scope.kind === "tag") {
     const selection = postsTaxonomySelection2029(scope);
     if (!selection) throw new Error("בחירת התוכן אינה זמינה.");

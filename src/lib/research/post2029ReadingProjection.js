@@ -38,6 +38,14 @@ function postCssSelectors(selector) {
 export function postReadingHtml2029(html) {
   if (!globalThis.document?.createElement) return String(html || "");
   const template = document.createElement("template"); template.innerHTML = String(html || "");
+  for (const iframe of template.content.querySelectorAll("iframe[src]")) {
+    try { const u=new URL(iframe.getAttribute("src"),"https://sod1820.co.il");
+      if(["sod1820.co.il","www.sod1820.co.il","sod1820.vercel.app"].includes(u.hostname) && /^\/[^/]+\/embed\/?$/.test(u.pathname)) {
+        const link=document.createElement("a");link.href=u.pathname.replace(/\/embed\/?$/,"/")+u.search+u.hash;
+        link.textContent=iframe.getAttribute("title")||"לקריאת הפוסט המקושר במלואו ←";iframe.replaceWith(link);
+      }
+    } catch { /* malformed embeds do not supply identity */ }
+  }
   for (const dependency of template.content.querySelectorAll('script,link[rel~="stylesheet"],link[rel="preload"][as="style"]')) dependency.remove();
   for (const icon of template.content.querySelectorAll('img[src*="/wp-content/plugins/gallery-images/"]')) {
     // WordPress plugin arrows/spinners are UI assets, not the authored gallery

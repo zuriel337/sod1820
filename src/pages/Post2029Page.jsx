@@ -14,6 +14,7 @@ import { publicSurfaceFindingsFromConnections } from "../lib/research/post2029Ex
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { applySeo } from "../lib/seo.js";
 import { publicPostHref, exactPostReadingHref } from "../lib/publicPostUrls.js";
+import { publicPostLinkedMedia, legacySourcePath } from "../lib/research/publicPostSourceLinks2029.js";
 import { publicPostShareUrl } from "../lib/publicPostUrls.js";
 import ShareActions from "../components/ShareActions.jsx";
 import { logView, logActivity } from "../lib/supabase.js";
@@ -59,6 +60,8 @@ function revealReadingAnchor(node) {
   return node;
 }
 
+const SourceLightbox = React.lazy(() => import("../components/Lightbox.jsx"));
+
 function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
   const { slug: routeSlug } = useParams();
   const slug = resolvedSlug || routeSlug;
@@ -66,6 +69,8 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
   const shell = use2029Shell();
   const research = useResearch();
   const { user } = useAuth();
+  const [sourceMediaOpen, setSourceMediaOpen] = useState(null);
+  const [sourceMediaMissing, setSourceMediaMissing] = useState(false);
   const [reloadTick, setReloadTick] = useState(0);
   const [measureSource, setMeasureSource] = useState({ claims: [], placements: [] });
   const [calculationNotice, setCalculationNotice] = useState(null);
@@ -187,6 +192,27 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
       && !first.parentElement.textContent.trim() ? first.parentElement : first;
     wrap.setAttribute("data-duplicate-cover", "true");
   }, [state.projection]);
+
+  useEffect(() => {
+    const params=new URLSearchParams(location.search), requested=params.get("sourceAttachment");
+    setSourceMediaOpen(null);setSourceMediaMissing(false);
+    if(!params.has("sourceAttachment")||!state.projection||!sourceRef.current)return;
+    const binding=params.getAll("sourceAttachment").length===1?publicPostLinkedMedia(state.projection.post.content,requested):null;
+    if(!binding){setSourceMediaMissing(true);return;}
+    const anchor=[...sourceRef.current.querySelectorAll("a[href]")].find(a=>legacySourcePath(a.getAttribute("href"))===binding.sourcePath && a.querySelector("img")?.getAttribute("src")===binding.href);
+    if(!anchor){setSourceMediaMissing(true);return;}
+    const originalHref=anchor.getAttribute("href"), originalTabIndex=anchor.getAttribute("tabindex");
+    anchor.dataset.legacyAttachmentFocus="true";anchor.tabIndex=-1;
+    anchor.href=binding.href;anchor.dataset.sourceAttachment=binding.sourcePath;
+    const hidden=anchor.closest('[data-duplicate-cover="true"]');if(hidden)hidden.removeAttribute("data-duplicate-cover");
+    if(!location.hash){anchor.scrollIntoView({block:"center"});anchor.focus({preventScroll:true});}
+    return () => {
+      anchor.setAttribute("href",originalHref);
+      if(originalTabIndex==null)anchor.removeAttribute("tabindex");else anchor.setAttribute("tabindex",originalTabIndex);
+      delete anchor.dataset.legacyAttachmentFocus;delete anchor.dataset.sourceAttachment;
+      if(hidden)hidden.setAttribute("data-duplicate-cover","true");
+    };
+  },[state.projection,location.search,location.hash]);
 
   useEffect(() => {
     const reveal = targetId => {
@@ -848,6 +874,11 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
 
   const handleSourceContextualFocus = (event) => {
     if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    const sourceAnchor=event.target?.closest?.('[data-legacy-attachment-focus="true"]');
+    if(sourceAnchor&&sourceRef.current?.contains(sourceAnchor)){
+      const binding=publicPostLinkedMedia(state.projection?.post?.content,sourceAnchor.dataset.sourceAttachment);
+      if(binding){event.preventDefault();setSourceMediaOpen(binding);return;}
+    }
     const authored = event.target?.closest?.("[data-expression]");
     if (authored && sourceRef.current?.contains(authored)) {
       const rawValue = authored.getAttribute("data-result");
@@ -1043,6 +1074,8 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
     <SurfaceSectionNav2029 items={sectionItems} ariaLabel="בתוך הפוסט" />
 
     <PostEvidenceMedia2029 media={experience.media} />
+    {sourceMediaMissing ? <FrameState kind="unavailable" title="המדיה המקושרת אינה מזוהה במקור הזמין"><p>הפוסט הציבורי נשמר; לא נמצאה בו כרגע התאמה מדויקת למדיה שבקישור.</p></FrameState> : null}
+    {sourceMediaOpen ? <React.Suspense fallback={null}><SourceLightbox images={[{image_url:sourceMediaOpen.href,name:sourceMediaOpen.alt}]} onClose={()=>setSourceMediaOpen(null)} note="מדיה מתוך הפוסט המקורי" /></React.Suspense> : null}
 
     {/* The event sequence lives in the context rail (tree) and the bottom path: no third inline copy. */}
 
@@ -1051,6 +1084,7 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
         ref={sourceRef}
         className="sod29-reading-source"
         aria-label="טקסט המקור"
+        data-public-post-id={post.id}
         onPointerDownCapture={() => { sourcePointerActive.current = true; }}
         onPointerUpCapture={() => { sourcePointerActive.current = false; }}
         onPointerCancel={() => { sourcePointerActive.current = false; }}

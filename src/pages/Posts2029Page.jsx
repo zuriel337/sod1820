@@ -126,7 +126,7 @@ function PostIndexCard({ post, index, seriesItem = null, publicationOrder = fals
   </article>;
 }
 
-export default function Posts2029Page({ taxonomyScope = null, onSearchParams = null } = {}) {
+export default function Posts2029Page({ taxonomyScope = null, onSearchParams = null, verifiedOnly = false } = {}) {
   const location = useLocation();
   const navigationType = useNavigationType();
   const currentHref = `${location.pathname}${location.search}${location.hash}`;
@@ -137,7 +137,8 @@ export default function Posts2029Page({ taxonomyScope = null, onSearchParams = n
   const viewportRestoreRef = useRef(null);
   const [searchParams, setSearchParams] = useSearchParams();
   const [attempt, setAttempt] = useState(0);
-  const scope = postsCatalogScope2029(searchParams, taxonomyScope);
+  const baseScope = postsCatalogScope2029(searchParams, taxonomyScope);
+  const scope = verifiedOnly ? baseScope.kind === "all" ? {kind:"verified",key:"verified",label:"פוסטים עם סימון אימות"} : {kind:"invalid",key:"",label:"בחירה לא תקינה"} : baseScope;
   const isTaxonomy = Boolean(taxonomyScope) || searchParams.has("tag") || searchParams.has("category");
   const taxonomyLabel = scope.kind === "tag" || location.pathname.startsWith("/tag/") || searchParams.has("tag") ? "תגית" : "קטגוריה";
   const allPostsHref = import.meta.env.VITE_PUBLIC_FOUNDATION_PREVIEW === "true" ? "/post" : "/2029/posts";
@@ -178,7 +179,7 @@ export default function Posts2029Page({ taxonomyScope = null, onSearchParams = n
     applySeo({
       title: `${scope.label} · SOD1820 2029`,
       description: "אינדקס הפוסטים של SOD1820.",
-      path: taxonomyScope ? location.pathname : allPostsHref,
+      path: verifiedOnly || taxonomyScope ? location.pathname : allPostsHref,
       noindex: import.meta.env.VITE_PUBLIC_FOUNDATION_PREVIEW !== "true" || scope.kind !== "all" || Boolean(search) || page > 1,
     });
 

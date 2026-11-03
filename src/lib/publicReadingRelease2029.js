@@ -38,6 +38,9 @@ export function publicReadingContinuation(pathname, search = "", hash = "") {
   if (!path) return null;
   const query = new URLSearchParams(search);
   let target = ({
+    "/WORLD": "/world", "/home-classic": "/", "/home-new": "/", "/בית-חדש": "/",
+    "/category/סוד-האותיות/גלריות-גימטריה": "/category/גלריות-גימטריה",
+    "/2029/number": "/number",
     "/chat": "/community/chat", "/דף-צאט-ראשי": "/community/chat",
     "/posts": "/post", "/פוסטים-אחרונים": "/post", "/פוסטים-אחרונים-2": "/post",
     "/גימטריה": "/gematria", "/888": "/community/researcher/888",
@@ -69,6 +72,15 @@ export function publicReadingCapability(pathname) {
     || /^\/2029\/me\/(?:public-page|page-editor|profile|messages|notifications|progress)$/.test(path || '')) {
     return { title: 'האזור האישי', description: 'החשבון והמידע הקיימים נשמרים. הגישה המלאה באזור הזה עדיין בתהליך בדיקה; מידע אישי אינו מוצג בדף הציבורי.', links: [['/login', 'כניסה לחשבון']] };
   }
+  const externalSources={"/464378687028017/videos/vb.464378687028017/727568620709021":"https://www.facebook.com/464378687028017/videos/727568620709021/","/sod1820/videos/vb.617996338259568/1042960175763180":"https://www.facebook.com/sod1820/videos/1042960175763180/"};
+  if(externalSources[path])return {title:"סרטון המקור בפייסבוק",description:"הקישור הזה נשמר מתוך פרסום ישן. הסרטון נמצא באתר המקור; זמינותו שם תלויה בפרסום ובהרשאות של פייסבוק.",links:[[externalSources[path],"לסרטון באתר המקור"]]};
+  const historicalServices={"/צור-קשר/טופס-הזמנת-עלונים-ודיסקים/":"הזמנת עלונים ודיסקים","/צור-קשר/תרומות-donate":"תרומה לאתר"};
+  const service=historicalServices[path]||historicalServices[path+"/"];
+  if(service)return {title:service,description:"הפעולה ההיסטורית הזו עדיין אינה זמינה בגרסה החדשה. לא מופעלת הזמנה, תרומה או התחייבות כספית מתוך הדף הזה.",links:[["/contact","לפנייה לצוות"]]};
+  const privateViews={"/research-viewer":"מציג המחקר הפרטי","/2029/control":"מרכז הבקרה","/editor":"עריכת פוסטים","/traffic":"תעבורת האתר","/numbers-report":"דוח המספרים","/stream":"שער הזרם הפרטי"};
+  if(privateViews[path])return {title:privateViews[path],description:"זהו מסך פרטי. הגישה דורשת חשבון והרשאה מתאימים; מידע פרטי אינו מוצג כאן.",links:[["/login","כניסה לחשבון"]]};
+  const experiments={"/cheder/400":"חדר 400","/ניסיון":"תצוגת החוויה","/experience":"תצוגת החוויה","/חישוב":"מחשבון ההתגלות","/reveal":"מחשבון ההתגלות","/meaning-lab":"מעבדת המשמעות","/מעבדת-משמעות":"מעבדת המשמעות","/galaxy":"תצוגת הגלקסיה","/lab":"מעבדת הניסויים","/enter":"שער הכניסה","/community-shadow-preview-2029":"תצוגת הקהילה הניסיונית","/entity-hub-preview":"תצוגת הישויות הניסיונית","/entity-hub-preview/number/1237":"תצוגת הישויות הניסיונית","/explorer-preview":"תצוגת החוקר הניסיונית","/theme-preview":"תצוגת העיצוב הניסיונית","/2029/home-preview":"תצוגת הבית הניסיונית","/2029/kingdom":"תצוגת הממלכה הניסיונית","/2029/preview":"תצוגת המערכות הניסיונית","/2029/preview/follow-center":"תצוגת המעקב הניסיונית","/dev/torah-occurrence-scene":"תצוגת המקור הניסיונית"};
+  if(experiments[path]||/^\/sulamot(?:[2-9]|10|11)?$/.test(path||""))return {title:experiments[path]||"ניסוי הסולמות",description:"תצוגה ניסיונית שנשמרת להמשך ואינה פתוחה בגרסת האתר הזאת.",links:[["/map","למפת הזמינות"]]};
   const item = ({
     "/code": ["הצופן התנ״כי", "כלי המחקר החדש נמצא בבנייה. הצפנים שפורסמו נשארים זמינים בספרייה.", "/codes", "לספריית הצפנים"],
     "/els": ["הצופן התנ״כי", "כלי המחקר החדש נמצא בבנייה. הצפנים שפורסמו נשארים זמינים בספרייה.", "/codes", "לספריית הצפנים"],
@@ -105,7 +117,7 @@ export function publicReadingCapability(pathname) {
 export function publicReadingPath(pathname, { isAdmin = false, search = "" } = {}) {
   let path;
   path = addressPath(pathname);
-  if (!path) return "missing";
+  if (!path || ["/*", "/$1", "/SLUG"].includes(path)) return "missing";
   if (publicReadingContinuation(pathname, search)) return "continuation";
   if (path === "/login" || path === "/auth/callback") return "account";
   // Only existing application surfaces; arbitrary /api or unknown paths do not
@@ -115,7 +127,7 @@ export function publicReadingPath(pathname, { isAdmin = false, search = "" } = {
   if (/^\/(?:api|admin|auth|2029\/me|community\/researcher\/me)(?:\/|$)/.test(path)) return "closed";
   if (path === "/unsubscribe" && PUBLIC_READING_PRODUCTION_ARTIFACT) return "public";
   if (["/updates", "/unsubscribe"].includes(path)) return "service-closed";
-  if (["/", "/world", "/post", "/posts", "/number", "/gematria", "/gallery", "/map", "/privacy", "/2029", "/2029/posts", "/2029/gematria", "/2029/gematria/viral", "/2029/calculator", "/community", "/community/chat", "/community/calculator", "/community/comments", "/community/researchers", "/members", "/forum", "/or-geula", "/books", "/codes", "/codes/מחקר", "/contact", "/early-access", "/melech-hamisparim/718"].includes(path)) return "public";
+  if (["/", "/world", "/verified", "/post", "/posts", "/number", "/gematria", "/gallery", "/map", "/privacy", "/2029", "/2029/posts", "/2029/gematria", "/2029/gematria/viral", "/2029/calculator", "/community", "/community/chat", "/community/calculator", "/community/comments", "/community/researchers", "/members", "/forum", "/or-geula", "/books", "/codes", "/codes/מחקר", "/contact", "/early-access", "/melech-hamisparim/718"].includes(path)) return "public";
   if (/^\/(?:post|number|topic|researcher|video|tag|category|book|codes|forum)\/[^/]+\/?$/.test(pathname) || /^\/or-geula\/video\/[^/]+$/.test(path) || /^\/2029\/number\/[^/]+$/.test(path) || /^\/community\/researcher\/[^/]+$/.test(path)) return "public";
   // A historical single-segment Post remains subject to the canonical public
   // Post lookup/boundary. This does not declare an unknown/draft slug published.

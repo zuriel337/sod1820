@@ -293,6 +293,7 @@ export default function App2029() {
               {publicFoundationPreview && <>
                 <Route path="/" element={<PublicHomeEntry2029 />} />
                 <Route path="/post" element={<Posts2029Page />} />
+                <Route path="/verified" element={<Posts2029Page verifiedOnly />} />
                 <Route path="/number" element={<PublicServices2029Page kind="number-search" />} />
                 <Route path="/number/:value" element={<Locked flag="lock_number" requireFlag homeHref="/2029"><NumberAddress2029Page /></Locked>} />
                 <Route path="/gallery" element={<Locked flag="lock_world" homeHref="/2029"><Gallery2029Page /></Locked>} />

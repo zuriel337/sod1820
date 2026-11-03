@@ -15,7 +15,8 @@ test('one release scope opens only the approved readers; closed aliases cannot e
  for(const path of ['/books','/book/existing','/codes','/community/chat','/community/calculator'])assert.equal(publicReadingPath(path),'public',path);
  for(const p of ['/login','/auth/callback'])assert.equal(publicReadingPath(p),'account');
  assert.equal(publicReadingPath('/auth/callback/forged'),'closed');
- for(const path of ['/2029/control','/2029/kingdom','/entity-hub-preview/topic/example','/%ZZ'])assert.equal(publicReadingPath(path),'missing',path);
+ for(const path of ['/2029/control','/2029/kingdom'])assert.equal(publicReadingPath(path),'closed',path);
+ for(const path of ['/entity-hub-preview/topic/example','/%ZZ'])assert.equal(publicReadingPath(path),'missing',path);
  for(const flag of ['lock_world','lock_number','lock_gematria'])assert.equal(publicReadingFeatureLock(flag).enabled,false);
  for(const flag of ['lock_els','lock_life_journey','lock_raziel_site','lock_heichal','unknown'])assert.equal(publicReadingFeatureLock(flag).enabled,true);
 });

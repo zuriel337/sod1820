@@ -47,6 +47,12 @@ export function publicReadingDocumentHandler({ authorized = deploymentAuthorized
       const decoded = decodeURIComponent(path);
       if (/[\\\u0000-\u001f\u007f]/.test(decoded) || decoded.startsWith("//")) return res.status(400).send("invalid path");
     } catch { return res.status(400).send("invalid path"); }
+    if (/^\/(?:audio\/|data\/user\/|wp-content\/plugins\/gallery-images\/style\/)/.test(path)) {
+      res.setHeader("Content-Type", "text/plain; charset=utf-8");return res.status(404).send(req.method === "HEAD" ? "" : "Public asset not found.");
+    }
+    if (path === "/wp-json/wp/v2/posts") {
+      res.setHeader("Content-Type", "application/json");return res.status(404).send(req.method === "HEAD" ? "" : '{"error":"legacy_wordpress_api_unavailable"}');
+    }
     if (origin !== CANONICAL_ORIGIN && origin !== protectedReviewOrigin() && originalDocument) {
       // URL.search preserves the original bytes, repeated parameters and the
       // legitimate user key `path`. Never reconstruct it from rewrite query.

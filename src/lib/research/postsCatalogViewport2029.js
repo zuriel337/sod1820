@@ -11,7 +11,7 @@ function sameEntry(win, entryKey, href) {
   if (!win?.history || typeof href !== "string" || typeof entryKey !== "string"
     || currentHref(win) !== href || currentKey(win) !== entryKey) return false;
   const pathname = win.location.pathname.replace(/\/$/, "");
-  return ["/post", "/2029/posts", "/posts"].includes(pathname) || /^\/(?:tag|category)\/[^/?#]+$/.test(pathname);
+  return ["/post", "/2029/posts", "/posts", "/verified"].includes(pathname) || /^\/(?:tag|category)\/[^/?#]+$/.test(pathname);
 }
 
 // Read the existing entry without recording or changing its viewport. Callers

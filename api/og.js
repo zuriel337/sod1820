@@ -6,6 +6,7 @@ import { loadPublicOrGeulaOccurrence2029, loadPublicOrGeulaCollection2029,
 import { fetchPublicLibraryItem2029, publicLibraryMetadata2029 } from "../src/lib/research/publicLibraryContinuity2029.js";
 import { normalizeCommunityThreadFocus } from "../src/lib/community/communityThreadFocus.js";
 import { PUBLIC_HOME_SEO } from "../src/lib/seo.js";
+import { publicPostLinkedMedia } from "../src/lib/research/publicPostSourceLinks2029.js";
 import { publicPostUrl } from "../src/lib/publicPostUrls.js";
 import { hasSuppressedPublicPostTag } from "../src/lib/research/publicPostBoundary.js";
 import { fetchPublicVideo2029 } from "../src/lib/research/publicVideo2029Reading.js";
@@ -325,6 +326,13 @@ export default async function handler(req, res) {
         }
       } catch { postLookupFailed = true; /* try next variant */ }
     }
+    if (post && productionReading && continuityParams.has("sourceAttachment")) {
+      const selected=continuityParams.getAll("sourceAttachment");
+      const binding=selected.length===1?publicPostLinkedMedia(post.content,selected[0]):null;
+      robots='noindex, follow';
+      if(!binding){documentStatus=404;title='המדיה לא נמצאה · '+SITE_NAME;}
+      else image=binding.href;
+    }
     if (!post) {
       documentStatus = postLookupFailed ? 503 : 404;
       robots = 'noindex, follow';
@@ -356,6 +364,24 @@ export default async function handler(req, res) {
     desc = documentStatus === 404 ? 'המקור המבוקש אינו זמין.' : 'האזור אינו פתוח בגרסת הקריאה הציבורית.';
     const capability = publicReadingCapability(key);
     if (capability) { title = `${capability.title} · ${SITE_NAME}`; desc = capability.description; image = cardUrl({ w: capability.title, sub: 'בבנייה' }); }
+  } else if (productionReading && decodedKey === '/verified') {
+    title='פוסטים עם סימון אימות · '+SITE_NAME;desc='הפרסומים הציבוריים עם סימון האימות השמור במקור.';
+    canonical=SITE+'/verified';
+    const page=publicContinuityPage2029(continuityParams.has('page')?continuityParams.getAll('page'):undefined);
+    if(page===null||['category','tag','series'].some(key=>continuityParams.has(key))){documentStatus=404;robots='noindex, follow';}
+    else try{
+      const q=String(continuityParams.get('q')||'').trim();
+      if(q.length>120){documentStatus=400;robots='noindex, follow';}
+      else {
+      const params=new URLSearchParams({select:'id',verified:'eq.true',or:'(tags.is.null,tags.not.ov.{טיוטה,פורום})',order:'modified.desc.nullslast,id.asc',limit:'24',offset:String((page-1)*24)});
+      if(q)params.set('title','ilike.%'+q.replace(/[\\%_*]/g,'\\$&')+'%');
+      const response=await fetch(SUPABASE_URL+'/rest/v1/posts?'+params,{headers:ogHeaders});
+      if(!response.ok)throw Error('source_failed');const rows=await response.json();
+      if(!Array.isArray(rows))throw Error('invalid_source');
+      if(page>1&&!rows.length)documentStatus=404;
+      if(q||page>1)robots='noindex, follow';
+      }
+    }catch{documentStatus=503;robots='noindex, follow';}
   } else if (taxonomy) {
     const selection = postsTaxonomySelection2029(taxonomy);
     const page = postsTaxonomyPage2029(continuitySearch);
