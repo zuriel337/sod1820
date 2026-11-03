@@ -206,8 +206,25 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
     anchor.href=binding.href;anchor.dataset.sourceAttachment=binding.sourcePath;
     const hidden=[...new Set([anchor.closest('[data-duplicate-cover="true"]'),...anchor.querySelectorAll('[data-duplicate-cover="true"]')].filter(Boolean))];
     hidden.forEach(node=>node.removeAttribute("data-duplicate-cover"));
-    if(!location.hash){anchor.scrollIntoView({block:"center"});anchor.focus({preventScroll:true});}
+    let frame=null,released=Boolean(location.hash),observer=null,timer=null;
+    const release=()=>{released=true;observer?.disconnect();};
+    const land=()=>{
+      if(released||frame!=null)return;
+      frame=requestAnimationFrame(()=>{frame=null;if(!released)anchor.scrollIntoView({block:"center",behavior:"instant"});});
+    };
+    if(!released){
+      anchor.focus({preventScroll:true});land();
+      observer=typeof ResizeObserver!=="undefined"?new ResizeObserver(land):null;
+      observer?.observe(sourceRef.current);
+      sourceRef.current.addEventListener("load",land,true);
+      timer=setTimeout(release,5000);
+      for(const event of ["wheel","touchstart","pointerdown","keydown"])window.addEventListener(event,release,{passive:true,once:true});
+    }
+    const root=sourceRef.current;
     return () => {
+      release();if(frame!=null)cancelAnimationFrame(frame);clearTimeout(timer);
+      root.removeEventListener("load",land,true);
+      for(const event of ["wheel","touchstart","pointerdown","keydown"])window.removeEventListener(event,release);
       anchor.setAttribute("href",originalHref);
       if(originalTabIndex==null)anchor.removeAttribute("tabindex");else anchor.setAttribute("tabindex",originalTabIndex);
       delete anchor.dataset.legacyAttachmentFocus;delete anchor.dataset.sourceAttachment;
@@ -337,7 +354,11 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
       }
       mapped.push({ region, heading });
     }
-    const requested = resolvePostReadingRegion(state.projection, entryRef.current?.context, location.hash);
+    // An explicitly selected source image wins over the default story region.
+    // Native author hashes still keep their existing exact-return precedence.
+    const selectedSource = !location.hash && sourceRef.current.querySelector('[data-legacy-attachment-focus="true"]');
+    const requested = selectedSource ? null : resolvePostReadingRegion(state.projection, entryRef.current?.context, location.hash);
+    if(selectedSource)restoredRegionRef.current=null;
     const restored = mapped.find(({ region }) => region.id === requested);
     let frame = null;
     // Late source images/fonts can move an already-restored heading. Keep that
@@ -388,7 +409,7 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
       sourceResizeObserver?.disconnect();
       for (const event of ["wheel", "touchstart", "pointerdown", "keydown"]) window.removeEventListener(event, resumeReading);
     };
-  }, [state.projection, regions, location.hash]);
+  }, [state.projection, regions, location.search, location.hash]);
 
   useEffect(() => {
     // Golden Posts only (contextPack is ID-scoped to 5112/92): a legacy body without mapped regions
