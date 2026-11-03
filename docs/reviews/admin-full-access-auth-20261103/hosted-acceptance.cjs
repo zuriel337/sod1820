@@ -118,8 +118,21 @@ async function installGuard(context) {
         await expect(dock.locator('.sod29-raziel-orb')).toBeDisabled();
         await expect(dock.locator('.sod29-dock-here')).toContainText('בבנייה');
         await expect(dock.locator('.sod29-raziel-orb')).toContainText('בבנייה');
-        item.dock=await dock.evaluate(el=>{const r=el.getBoundingClientRect();return {left:r.left,width:r.width,viewport:innerWidth,purple:getComputedStyle(el.querySelector('.sod29-raziel-orb-core')).backgroundImage};});
-        assert.ok(Math.abs(item.dock.left+item.dock.width/2-width/2)<2);assert.ok(item.dock.width<500);
+        item.dock=await dock.evaluate(el=>{
+          const r=el.getBoundingClientRect(), root=document.documentElement.getBoundingClientRect(), frame=el.closest('.sod29-root').getBoundingClientRect();
+          return {left:r.left,width:r.width,viewport:innerWidth,contentLeft:root.left,contentWidth:root.width,
+            frameLeft:frame.left,frameWidth:frame.width,scrollbarGutter:getComputedStyle(document.documentElement).scrollbarGutter,
+            purple:getComputedStyle(el.querySelector('.sod29-raziel-orb-core')).backgroundImage};
+        });
+        // The real artifact reserves a stable scrollbar gutter. Its document
+        // rectangle is the usable containing block; innerWidth includes the
+        // reserved 15px even when Chromium reports clientWidth === innerWidth.
+        // Verify both document and actual Frame centers, retaining the 2px limit.
+        assert.ok(Math.abs(item.dock.left+item.dock.width/2-(item.dock.contentLeft+item.dock.contentWidth/2))<2);
+        assert.ok(Math.abs(item.dock.left+item.dock.width/2-(item.dock.frameLeft+item.dock.frameWidth/2))<2);
+        assert.ok(item.dock.contentWidth>=width-20 && item.dock.contentWidth<=width);
+        assert.ok(item.dock.left>=item.dock.contentLeft && item.dock.left+item.dock.width<=item.dock.contentLeft+item.dock.contentWidth);
+        assert.ok(item.dock.width<500);
         const now=dock.getByRole('button',{name:/^עכשיו/});await now.click();
         await expect(page.getByRole('dialog',{name:'עכשיו',exact:true})).toBeVisible();await page.keyboard.press('Escape');
         await expect(page.getByRole('dialog',{name:'עכשיו',exact:true})).toHaveCount(0);
@@ -182,7 +195,7 @@ async function installGuard(context) {
     }
   } catch (error) { report.fatal = safeError(error); }
   finally {
-    await browser?.close(); report.ok = !report.fatal && report.cases.length === 2 && report.cases.every(x => x.ok);
+    await browser?.close(); report.ok = !report.fatal && report.cases.length === 3 && report.cases.every(x => x.ok);
     flush(); console.log(JSON.stringify({ ok: report.ok, cases: report.cases.length, fatal: report.fatal }));
     process.exitCode = report.ok ? 0 : 1;
   }

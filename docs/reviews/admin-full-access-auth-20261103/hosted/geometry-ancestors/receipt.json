@@ -1,0 +1,314 @@
+{
+  "kind": "admin-home-dock-public-hosted-acceptance",
+  "productSha": "708d7077d40db1f93c3055a84549eb47c2c43280",
+  "origin": "https://sod1820-escgq583r-sod1820-s-projects.vercel.app",
+  "actualSW": true,
+  "performanceComparison": false,
+  "liveLogin": false,
+  "liveSignup": false,
+  "liveUnsubscribe": false,
+  "mailSent": false,
+  "sameIndependentRPCReadInventory": true,
+  "cases": [
+    {
+      "width": 390,
+      "startedAt": "2026-11-03T03:16:36.348Z",
+      "checks": [],
+      "documents": [
+        {
+          "label": "dock-geometry-diagnostic",
+          "path": "/",
+          "controller": "/sw.js",
+          "reads": [
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 206
+            },
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 206
+            },
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 206
+            },
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 206
+            },
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/rest/v1/rpc/convergence_meter",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/rest/v1/rpc/convergence_meter",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/rest/v1/rpc/convergence_meter",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/rest/v1/rpc/convergence_meter",
+              "method": "POST"
+            }
+          ],
+          "denied": [],
+          "viewport": 390,
+          "documentWidth": 375
+        }
+      ],
+      "errors": [],
+      "identity": {
+        "sourceSha": "708d7077d40db1f93c3055a84549eb47c2c43280",
+        "productionReady": false,
+        "workerSha256": "cae476466c08a2e1d55932c3fb97ce41ef71d226c492f83a81dc28be24605a5d"
+      },
+      "phase": "home-panel-dock-and-pending-mail",
+      "dock": {
+        "left": 22.5,
+        "width": 330,
+        "viewport": 390,
+        "clientWidth": 390,
+        "ancestors": [
+          {
+            "tag": "DIV",
+            "id": "",
+            "cls": "sod29-command-island is-unified-bar is-single-command-bar",
+            "x": 22.5,
+            "w": 330,
+            "clientWidth": 328,
+            "position": "fixed",
+            "contain": "none",
+            "transform": "matrix(1, 0, 0, 1, -165, 0)",
+            "filter": "none",
+            "overflow": "visible",
+            "scrollbarGutter": "auto",
+            "left": "187.5px",
+            "right": "-142.5px"
+          },
+          {
+            "tag": "DIV",
+            "id": "",
+            "cls": "sod29-root closed-shell native-frame surface-home sidebar-collapsed",
+            "x": 0,
+            "w": 375,
+            "clientWidth": 375,
+            "position": "relative",
+            "contain": "none",
+            "transform": "none",
+            "filter": "none",
+            "overflow": "clip visible",
+            "scrollbarGutter": "auto",
+            "left": "0px",
+            "right": "0px"
+          },
+          {
+            "tag": "DIV",
+            "id": "root",
+            "cls": "",
+            "x": 0,
+            "w": 375,
+            "clientWidth": 375,
+            "position": "relative",
+            "contain": "none",
+            "transform": "none",
+            "filter": "none",
+            "overflow": "clip visible",
+            "scrollbarGutter": "auto",
+            "left": "0px",
+            "right": "0px"
+          },
+          {
+            "tag": "BODY",
+            "id": "",
+            "cls": "",
+            "x": 0,
+            "w": 375,
+            "clientWidth": 375,
+            "position": "static",
+            "contain": "none",
+            "transform": "none",
+            "filter": "none",
+            "overflow": "clip visible",
+            "scrollbarGutter": "auto",
+            "left": "auto",
+            "right": "auto"
+          },
+          {
+            "tag": "HTML",
+            "id": "",
+            "cls": "",
+            "x": 0,
+            "w": 375,
+            "clientWidth": 390,
+            "position": "static",
+            "contain": "none",
+            "transform": "none",
+            "filter": "none",
+            "overflow": "clip visible",
+            "scrollbarGutter": "stable",
+            "left": "auto",
+            "right": "auto"
+          }
+        ],
+        "clientLeft": 0,
+        "rootLeft": 0,
+        "visualViewportWidth": 390,
+        "position": "fixed",
+        "inlineStart": "-142.5px",
+        "transform": "matrix(1, 0, 0, 1, -165, 0)",
+        "purple": "radial-gradient(circle at 32% 25%, rgb(196, 167, 245) 0%, rgb(150, 98, 215) 27%, rgb(112, 60, 179) 62%, rgb(69, 38, 111) 100%)"
+      },
+      "ok": false,
+      "failure": {
+        "name": "Error",
+        "message": "intentional_geometry_diagnostic_stop"
+      },
+      "failureState": {
+        "path": "/",
+        "body": "SOD1820 · העולם החדש\n⌕\n☾\n✦\nדופק העולם\nאחודה נא פעם אחת בתנ\"ך \"וַיֹּ֤אמֶר לָהֶם֙ שִׁמְשׁ֔וֹן אָחֽוּדָה־נָּ֥א לָכֶ֖ם חִידָ֑ה אִם־הַגֵּ֣ד תַּגִּ֩ידוּ֩ אוֹתָ֨הּ לִ֜י שִׁבְעַ֨ת יְמֵ֤י…\n−\nהשהה\nעדכונים אחרונים\nכל הפוסטים ←\nהאתר בבנייה\n\nאנחנו בונים את השלב הבא. האתר עדיין לא מוכן במלואו.\n\n14\n140\n16\nתצוגה מקדימה · להמחשה\n\nבקרוב: פרסומים מחוברים לאורך הזמן\n\nעדכוני האתר\n\nפרסומים חדשים וחלקים שנפתחים, במייל.\n\nהרשמה לעדכוני האתר\nפרטיות\nמהסדרות והכותבים\nלכל הסדרות ←\nמה קורה הבורא\n✦\nמה קורה הבורא — תוצאות הבחירות, ערבות הדדית והבחירה בבורא | אלון לוי\nאלון לוי\n2.11.2026 · אתמול\nמימד חמש\n✦\nאתה היוצר של כל המשחק — כשנזכרים מי אנחנו, הנסיבות מפסיקות להיות סופיות | מימד חמש\nבדרך לנצח\n2.11.2026 · לפני 7 שעות\nסוד החשמל\n✦\nשרש השפע בסוד עשב שדה בהמה והקשר לחג הסוכות\nסוד החשמל\n15.10.2026 · לפני 2 שבועות\nמסרים מצדיקים\n✦\nהרב המקובל חושף מי ינצח בבחירות — ״בנימין זאב יטרף״ | הרב יוסף ביטון\nפוסט\n27.10.2026 · לפני 6 ימים\nתיעוד האירועים · רמזי המערכת\nאוסף סרטונים: שדוני ברקים מעל צרפת — ואתם באים על היהודים, אתם מפסידים\nתיעוד אירועים\nוידאו\nלקריאה ←\nלעולם\nפרטים וחיבורים\nהתכנסויות בולטות\nכל ההתכנסויות ←\n\nמסודרות לפי מד ההתכנסות הקיים. המדדים נפרדים: איכות, חוזק וסימוני זהב ויהלום.\n\nעטרת תפארתכם = 1820 — הופעות שם הוי״ה בתורה\n1820\n786\nאיכות\n★★★★★\nחוזק\n95\n◆\n2\nיהלום\n●\n1\nזהב\n?\nחרבות ברזל = בראשית ברא אלהים = 1202 · התגלות המשיח\n1202\n776\n878\nאיכות\nלא דורג\nחוזק\n92\n●\n2\nזהב\n?\n644 — התכנסות מאגר (80 ביטויים)\n644\nאיכות\nלא דורג\nחוזק\n90\n?\n98 — עִכּוּב · ההשהיה שלפני הגאולה\n98\nאיכות\nלא דורג\nחוזק\n90\n?\n\nסיפור המטוס וכיווני הגילוי\n\nק\nי\nמ\nפ\nו\nו\nמ\nד\nח\nא\nו\nב\nב\nג\nנ\nס\nב\nצ\nב\nח\nט\nל\nכ\nת\nו\nר\nכ\nכ\nל\nק\nח\nא\nל\nי\nע\nה\nא\nו\nא\nב\nז\nע\nו\nפ\nה\nה\nש\nמ\nמ\nכ\nמ\nצ\nא\nד\nה\nג\nג\nש\nב\nי\nה\nפ\nל\nט\nק\nא\nפ\nא\nא\nמ\nי\nמ\nכ\nב\nח\nה\nב\nצ\nפ\nה\nב\nר\nו\nט\nא\nל\nי\nה\nז\nב\nל\nא\nנ\nש\nה\nו\nב\nס\nח\nא\nו\nי\nה\nה\nה\nא\nא\nג\nנ\nת\nפ\nו\nק\nנ\nצ\nג\nד\nב\nה\nכ\nד\nב\nמ\nי\nצ\nס\nת\nס\nע\nע\nמ\nל\nג\nצ\nת\nו\nר\nה\nה\nה\nא\nא\nר\nו\nר\nה",
+        "denied": [],
+        "reads": [
+          {
+            "origin": "https://linswmnnkjxvweumprav.supabase.co",
+            "path": "/rest/v1/posts",
+            "method": "GET",
+            "status": 200
+          },
+          {
+            "origin": "https://linswmnnkjxvweumprav.supabase.co",
+            "path": "/rest/v1/posts",
+            "method": "GET",
+            "status": 206
+          },
+          {
+            "origin": "https://linswmnnkjxvweumprav.supabase.co",
+            "path": "/rest/v1/posts",
+            "method": "GET",
+            "status": 206
+          },
+          {
+            "origin": "https://linswmnnkjxvweumprav.supabase.co",
+            "path": "/rest/v1/posts",
+            "method": "GET",
+            "status": 206
+          },
+          {
+            "origin": "https://linswmnnkjxvweumprav.supabase.co",
+            "path": "/rest/v1/posts",
+            "method": "GET",
+            "status": 206
+          },
+          {
+            "origin": "https://linswmnnkjxvweumprav.supabase.co",
+            "path": "/rest/v1/posts",
+            "method": "GET",
+            "status": 200
+          },
+          {
+            "origin": "https://linswmnnkjxvweumprav.supabase.co",
+            "path": "/rest/v1/topic_cards_public",
+            "method": "GET",
+            "status": 200
+          },
+          {
+            "origin": "https://linswmnnkjxvweumprav.supabase.co",
+            "path": "/rest/v1/topic_cards_public",
+            "method": "GET",
+            "status": 200
+          },
+          {
+            "origin": "https://linswmnnkjxvweumprav.supabase.co",
+            "path": "/rest/v1/posts",
+            "method": "GET",
+            "status": 200
+          },
+          {
+            "origin": "https://linswmnnkjxvweumprav.supabase.co",
+            "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+            "method": "POST",
+            "status": 200
+          },
+          {
+            "origin": "https://linswmnnkjxvweumprav.supabase.co",
+            "path": "/rest/v1/rpc/convergence_meter",
+            "method": "POST",
+            "status": 200
+          },
+          {
+            "origin": "https://linswmnnkjxvweumprav.supabase.co",
+            "path": "/rest/v1/rpc/convergence_meter",
+            "method": "POST",
+            "status": 200
+          },
+          {
+            "origin": "https://linswmnnkjxvweumprav.supabase.co",
+            "path": "/rest/v1/rpc/convergence_meter",
+            "method": "POST",
+            "status": 200
+          },
+          {
+            "origin": "https://linswmnnkjxvweumprav.supabase.co",
+            "path": "/rest/v1/rpc/convergence_meter",
+            "method": "POST"
+          }
+        ]
+      },
+      "finishedAt": "2026-11-03T03:16:39.442Z"
+    }
+  ],
+  "browser": "154.0.8037.57",
+  "ok": false
+}

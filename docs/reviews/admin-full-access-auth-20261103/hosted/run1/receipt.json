@@ -1,0 +1,341 @@
+{
+  "kind": "admin-home-dock-public-hosted-acceptance",
+  "productSha": "708d7077d40db1f93c3055a84549eb47c2c43280",
+  "origin": "https://sod1820-escgq583r-sod1820-s-projects.vercel.app",
+  "actualSW": true,
+  "performanceComparison": false,
+  "liveLogin": false,
+  "liveSignup": false,
+  "liveUnsubscribe": false,
+  "mailSent": false,
+  "sameIndependentRPCReadInventory": true,
+  "cases": [
+    {
+      "width": 320,
+      "startedAt": "2026-11-03T03:10:24.356Z",
+      "checks": [],
+      "documents": [],
+      "errors": [],
+      "identity": {
+        "sourceSha": "708d7077d40db1f93c3055a84549eb47c2c43280",
+        "productionReady": false,
+        "workerSha256": "cae476466c08a2e1d55932c3fb97ce41ef71d226c492f83a81dc28be24605a5d"
+      },
+      "phase": "home-panel-dock-and-pending-mail",
+      "dock": {
+        "left": 4.5,
+        "width": 296,
+        "viewport": 320,
+        "purple": "radial-gradient(circle at 32% 25%, rgb(196, 167, 245) 0%, rgb(150, 98, 215) 27%, rgb(112, 60, 179) 62%, rgb(69, 38, 111) 100%)"
+      },
+      "ok": false,
+      "failure": {
+        "name": "AssertionError",
+        "message": "The expression evaluated to a falsy value:\n\n  assert.ok(Math.abs(item.dock.left+item.dock.width/2-width/2)<2)\n"
+      },
+      "failureState": {
+        "path": "/",
+        "body": "SOD1820 · העולם החדש\n⌕\n☾\n✦\nטוען עדכונים…\nעדכונים אחרונים\nכל הפוסטים ←\nהאתר בבנייה\n\nאנחנו בונים את השלב הבא. האתר עדיין לא מוכן במלואו.\n\n14\n140\n16\nתצוגה מקדימה · להמחשה\n\nבקרוב: פרסומים מחוברים לאורך הזמן\n\nעדכוני האתר\n\nפרסומים חדשים וחלקים שנפתחים, במייל.\n\nהרשמה לעדכוני האתר\nפרטיות\nמהסדרות והכותבים\nלכל הסדרות ←\nמה קורה הבורא\n✦\nמה קורה הבורא — תוצאות הבחירות, ערבות הדדית והבחירה בבורא | אלון לוי\nאלון לוי\n2.11.2026 · אתמול\nמימד חמש\n✦\nאתה היוצר של כל המשחק — כשנזכרים מי אנחנו, הנסיבות מפסיקות להיות סופיות | מימד חמש\nבדרך לנצח\n2.11.2026 · לפני 7 שעות\nסוד החשמל\n✦\nשרש השפע בסוד עשב שדה בהמה והקשר לחג הסוכות\nסוד החשמל\n15.10.2026 · לפני 2 שבועות\nמסרים מצדיקים\n✦\nהרב המקובל חושף מי ינצח בבחירות — ״בנימין זאב יטרף״ | הרב יוסף ביטון\nפוסט\n27.10.2026 · לפני 6 ימים\nתיעוד האירועים · רמזי המערכת\nאוסף סרטונים: שדוני ברקים מעל צרפת — ואתם באים על היהודים, אתם מפסידים\nתיעוד אירועים\nוידאו\nלקריאה ←\nלעולם\nפרטים וחיבורים\nהתכנסויות בולטות\nכל ההתכנסויות ←\n\nמסודרות לפי מד ההתכנסות הקיים. המדדים נפרדים: איכות, חוזק וסימוני זהב ויהלום.\n\nעטרת תפארתכם = 1820 — הופעות שם הוי״ה בתורה\n1820\n786\nאיכות\n★★★★★\nחוזק\n95\n?\nחרבות ברזל = בראשית ברא אלהים = 1202 · התגלות המשיח\n1202\n776\n878\nאיכות\nלא דורג\nחוזק\n92\n?\n644 — התכנסות מאגר (80 ביטויים)\n644\nאיכות\nלא דורג\nחוזק\n90\n?\n98 — עִכּוּב · ההשהיה שלפני הגאולה\n98\nאיכות\nלא דורג\nחוזק\n90\n?\n\nסיפור המטוס וכיווני הגילוי\n\nק\nי\nמ\nפ\nו\nו\nמ\nד\nח\nא\nו\nב\nב\nג\nנ\nס\nב\nצ\nב\nח\nט\nל\nכ\nת\nו\nר\nכ\nכ\nל\nק\nח\nא\nל\nי\nע\nה\nא\nו\nא\nב\nז\nע\nו\nפ\nה\nה\nש\nמ\nמ\nכ\nמ\nצ\nא\nד\nה\nג\nג\nש\nב\nי\nה\nפ\nל\nט\nק\nא\nפ\nא\nא\nמ\nי\nמ\nכ\nב\nח\nה\nב\nצ\nפ\nה\nב\nר\nו\nט\nא\nל\nי\nה\nז\nב\nל\nא\nנ\nש\nה\nו\nב\nס\nח\nא\nו\nי\nה\nה\nה\nא\nא\nג\nנ\nת\nפ\nו\nק\nנ\nצ\nג\nד\nב\nה\nכ\nד\nב\nמ\nי\nצ\nס\nת\nס\nע\nע\nמ\nל\nג\nצ\nת\nו\nר\nה\nה\nה\nא\nא\nר\nו\nר\nה\nה\nש\nב\nג\nל\nג\nה\nי\nש\nה\nר\nה\nע\nב\nנ\nא\nו\nד\nג\nי\nא\nא\nה\nא\nט\nו\nפ\nפ\nפ\nא\nה\nה\nל\nד\nי\nא\nל\nו\nי\nל\nא\nי\nה\nו\nט\nפ\nט\nר\nמ\nא\nע\nב\nו\nג\nת\nל\nא\nל\nו\nה\nש\nג\nחיפוש בצופן התנ״כי\n\nAI · מנוע חיפוש עוצמתי\n\nהצו",
+        "denied": [],
+        "reads": [
+          {
+            "origin": "https://linswmnnkjxvweumprav.supabase.co",
+            "path": "/rest/v1/posts",
+            "method": "GET",
+            "status": 200
+          },
+          {
+            "origin": "https://linswmnnkjxvweumprav.supabase.co",
+            "path": "/rest/v1/posts",
+            "method": "GET",
+            "status": 206
+          },
+          {
+            "origin": "https://linswmnnkjxvweumprav.supabase.co",
+            "path": "/rest/v1/posts",
+            "method": "GET",
+            "status": 206
+          },
+          {
+            "origin": "https://linswmnnkjxvweumprav.supabase.co",
+            "path": "/rest/v1/posts",
+            "method": "GET",
+            "status": 206
+          },
+          {
+            "origin": "https://linswmnnkjxvweumprav.supabase.co",
+            "path": "/rest/v1/posts",
+            "method": "GET",
+            "status": 206
+          },
+          {
+            "origin": "https://linswmnnkjxvweumprav.supabase.co",
+            "path": "/rest/v1/posts",
+            "method": "GET",
+            "status": 200
+          },
+          {
+            "origin": "https://linswmnnkjxvweumprav.supabase.co",
+            "path": "/rest/v1/topic_cards_public",
+            "method": "GET",
+            "status": 200
+          },
+          {
+            "origin": "https://linswmnnkjxvweumprav.supabase.co",
+            "path": "/rest/v1/topic_cards_public",
+            "method": "GET"
+          },
+          {
+            "origin": "https://linswmnnkjxvweumprav.supabase.co",
+            "path": "/rest/v1/posts",
+            "method": "GET"
+          },
+          {
+            "origin": "https://linswmnnkjxvweumprav.supabase.co",
+            "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+            "method": "POST"
+          },
+          {
+            "origin": "https://linswmnnkjxvweumprav.supabase.co",
+            "path": "/rest/v1/rpc/convergence_meter",
+            "method": "POST"
+          },
+          {
+            "origin": "https://linswmnnkjxvweumprav.supabase.co",
+            "path": "/rest/v1/rpc/convergence_meter",
+            "method": "POST"
+          },
+          {
+            "origin": "https://linswmnnkjxvweumprav.supabase.co",
+            "path": "/rest/v1/rpc/convergence_meter",
+            "method": "POST"
+          }
+        ]
+      },
+      "finishedAt": "2026-11-03T03:10:28.403Z"
+    },
+    {
+      "width": 390,
+      "startedAt": "2026-11-03T03:10:28.404Z",
+      "checks": [],
+      "documents": [],
+      "errors": [],
+      "identity": {
+        "sourceSha": "708d7077d40db1f93c3055a84549eb47c2c43280",
+        "productionReady": false,
+        "workerSha256": "cae476466c08a2e1d55932c3fb97ce41ef71d226c492f83a81dc28be24605a5d"
+      },
+      "phase": "home-panel-dock-and-pending-mail",
+      "dock": {
+        "left": 22.5,
+        "width": 330,
+        "viewport": 390,
+        "purple": "radial-gradient(circle at 32% 25%, rgb(196, 167, 245) 0%, rgb(150, 98, 215) 27%, rgb(112, 60, 179) 62%, rgb(69, 38, 111) 100%)"
+      },
+      "ok": false,
+      "failure": {
+        "name": "AssertionError",
+        "message": "The expression evaluated to a falsy value:\n\n  assert.ok(Math.abs(item.dock.left+item.dock.width/2-width/2)<2)\n"
+      },
+      "failureState": {
+        "path": "/",
+        "body": "SOD1820 · העולם החדש\n⌕\n☾\n✦\nטוען עדכונים…\nעדכונים אחרונים\nכל הפוסטים ←\nהאתר בבנייה\n\nאנחנו בונים את השלב הבא. האתר עדיין לא מוכן במלואו.\n\n14\n140\n16\nתצוגה מקדימה · להמחשה\n\nבקרוב: פרסומים מחוברים לאורך הזמן\n\nעדכוני האתר\n\nפרסומים חדשים וחלקים שנפתחים, במייל.\n\nהרשמה לעדכוני האתר\nפרטיות\nמהסדרות והכותבים\nלכל הסדרות ←\nמה קורה הבורא\n✦\nמה קורה הבורא — תוצאות הבחירות, ערבות הדדית והבחירה בבורא | אלון לוי\nאלון לוי\n2.11.2026 · אתמול\nמימד חמש\n✦\nאתה היוצר של כל המשחק — כשנזכרים מי אנחנו, הנסיבות מפסיקות להיות סופיות | מימד חמש\nבדרך לנצח\n2.11.2026 · לפני 7 שעות\nסוד החשמל\n✦\nשרש השפע בסוד עשב שדה בהמה והקשר לחג הסוכות\nסוד החשמל\n15.10.2026 · לפני 2 שבועות\nמסרים מצדיקים\n✦\nהרב המקובל חושף מי ינצח בבחירות — ״בנימין זאב יטרף״ | הרב יוסף ביטון\nפוסט\n27.10.2026 · לפני 6 ימים\nתיעוד האירועים · רמזי המערכת\nאוסף סרטונים: שדוני ברקים מעל צרפת — ואתם באים על היהודים, אתם מפסידים\nתיעוד אירועים\nוידאו\nלקריאה ←\nלעולם\nפרטים וחיבורים\nהתכנסויות בולטות\nכל ההתכנסויות ←\n\nמסודרות לפי מד ההתכנסות הקיים. המדדים נפרדים: איכות, חוזק וסימוני זהב ויהלום.\n\nעטרת תפארתכם = 1820 — הופעות שם הוי״ה בתורה\n1820\n786\nאיכות\n★★★★★\nחוזק\n95\n?\nחרבות ברזל = בראשית ברא אלהים = 1202 · התגלות המשיח\n1202\n776\n878\nאיכות\nלא דורג\nחוזק\n92\n?\n644 — התכנסות מאגר (80 ביטויים)\n644\nאיכות\nלא דורג\nחוזק\n90\n?\n98 — עִכּוּב · ההשהיה שלפני הגאולה\n98\nאיכות\nלא דורג\nחוזק\n90\n?\n\nסיפור המטוס וכיווני הגילוי\n\nק\nי\nמ\nפ\nו\nו\nמ\nד\nח\nא\nו\nב\nב\nג\nנ\nס\nב\nצ\nב\nח\nט\nל\nכ\nת\nו\nר\nכ\nכ\nל\nק\nח\nא\nל\nי\nע\nה\nא\nו\nא\nב\nז\nע\nו\nפ\nה\nה\nש\nמ\nמ\nכ\nמ\nצ\nא\nד\nה\nג\nג\nש\nב\nי\nה\nפ\nל\nט\nק\nא\nפ\nא\nא\nמ\nי\nמ\nכ\nב\nח\nה\nב\nצ\nפ\nה\nב\nר\nו\nט\nא\nל\nי\nה\nז\nב\nל\nא\nנ\nש\nה\nו\nב\nס\nח\nא\nו\nי\nה\nה\nה\nא\nא\nג\nנ\nת\nפ\nו\nק\nנ\nצ\nג\nד\nב\nה\nכ\nד\nב\nמ\nי\nצ\nס\nת\nס\nע\nע\nמ\nל\nג\nצ\nת\nו\nר\nה\nה\nה\nא\nא\nר\nו\nר\nה\nה\nש\nב\nג\nל\nג\nה\nי\nש\nה\nר\nה\nע\nב\nנ\nא\nו\nד\nג\nי\nא\nא\nה\nא\nט\nו\nפ\nפ\nפ\nא\nה\nה\nל\nד\nי\nא\nל\nו\nי\nל\nא\nי\nה\nו\nט\nפ\nט\nר\nמ\nא\nע\nב\nו\nג\nת\nל\nא\nל\nו\nה\nש\nג\nחיפוש בצופן התנ״כי\n\nAI · מנוע חיפוש עוצמתי\n\nהצו",
+        "denied": [],
+        "reads": [
+          {
+            "origin": "https://linswmnnkjxvweumprav.supabase.co",
+            "path": "/rest/v1/posts",
+            "method": "GET",
+            "status": 200
+          },
+          {
+            "origin": "https://linswmnnkjxvweumprav.supabase.co",
+            "path": "/rest/v1/posts",
+            "method": "GET",
+            "status": 206
+          },
+          {
+            "origin": "https://linswmnnkjxvweumprav.supabase.co",
+            "path": "/rest/v1/posts",
+            "method": "GET",
+            "status": 206
+          },
+          {
+            "origin": "https://linswmnnkjxvweumprav.supabase.co",
+            "path": "/rest/v1/posts",
+            "method": "GET",
+            "status": 206
+          },
+          {
+            "origin": "https://linswmnnkjxvweumprav.supabase.co",
+            "path": "/rest/v1/posts",
+            "method": "GET",
+            "status": 206
+          },
+          {
+            "origin": "https://linswmnnkjxvweumprav.supabase.co",
+            "path": "/rest/v1/posts",
+            "method": "GET",
+            "status": 200
+          },
+          {
+            "origin": "https://linswmnnkjxvweumprav.supabase.co",
+            "path": "/rest/v1/topic_cards_public",
+            "method": "GET",
+            "status": 200
+          },
+          {
+            "origin": "https://linswmnnkjxvweumprav.supabase.co",
+            "path": "/rest/v1/topic_cards_public",
+            "method": "GET",
+            "status": 200
+          },
+          {
+            "origin": "https://linswmnnkjxvweumprav.supabase.co",
+            "path": "/rest/v1/posts",
+            "method": "GET",
+            "status": 200
+          },
+          {
+            "origin": "https://linswmnnkjxvweumprav.supabase.co",
+            "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+            "method": "POST"
+          },
+          {
+            "origin": "https://linswmnnkjxvweumprav.supabase.co",
+            "path": "/rest/v1/rpc/convergence_meter",
+            "method": "POST"
+          },
+          {
+            "origin": "https://linswmnnkjxvweumprav.supabase.co",
+            "path": "/rest/v1/rpc/convergence_meter",
+            "method": "POST"
+          },
+          {
+            "origin": "https://linswmnnkjxvweumprav.supabase.co",
+            "path": "/rest/v1/rpc/convergence_meter",
+            "method": "POST"
+          }
+        ]
+      },
+      "finishedAt": "2026-11-03T03:10:31.727Z"
+    },
+    {
+      "width": 1440,
+      "startedAt": "2026-11-03T03:10:31.727Z",
+      "checks": [],
+      "documents": [],
+      "errors": [],
+      "identity": {
+        "sourceSha": "708d7077d40db1f93c3055a84549eb47c2c43280",
+        "productionReady": false,
+        "workerSha256": "cae476466c08a2e1d55932c3fb97ce41ef71d226c492f83a81dc28be24605a5d"
+      },
+      "phase": "home-panel-dock-and-pending-mail",
+      "dock": {
+        "left": 547.5,
+        "width": 330,
+        "viewport": 1440,
+        "purple": "radial-gradient(circle at 32% 25%, rgb(196, 167, 245) 0%, rgb(150, 98, 215) 27%, rgb(112, 60, 179) 62%, rgb(69, 38, 111) 100%)"
+      },
+      "ok": false,
+      "failure": {
+        "name": "AssertionError",
+        "message": "The expression evaluated to a falsy value:\n\n  assert.ok(Math.abs(item.dock.left+item.dock.width/2-width/2)<2)\n"
+      },
+      "failureState": {
+        "path": "/",
+        "body": "סוד 1820\nכי לה׳ המלוכה\n123\n›\nSOD1820\n/\nSOD1820 · העולם החדש\n⌕\nחיפוש\n⌘K\n☀\nיום\n▤\nקלף\n☾\nלילה\nהתחברות\n✦\nדופק העולם\nאחודה נא פעם אחת בתנ\"ך \"וַיֹּ֤אמֶר לָהֶם֙ שִׁמְשׁ֔וֹן אָחֽוּדָה־נָּ֥א לָכֶ֖ם חִידָ֑ה אִם־הַגֵּ֣ד תַּגִּ֩ידוּ֩ אוֹתָ֨הּ לִ֜י שִׁבְעַ֨ת יְמֵ֤י…\nדופק העולם\nיחיד ורבים בלשון \"נא\" (1) \"הגידה נא לנו\" מופיע בתנ\"ך 2 פעמים.(ירמיהו וגם יונה). גימטריא של הפסוק:164. כאן הרבים פונים ליחיד. (2) \"אגידה נא …\nדופק העולם\nיפקדני - בגימטריא רחום  אִם־פָּקֹ֥ד יִפְקְדֵ֖נִי אָבִ֑יךָ וְאָֽמַרְתָּ֗ נִשְׁאֹל֩ נִשְׁאַ֨ל מִמֶּ֤נִּי דָוִד֙ לָרוּץ֙ בֵּֽית־לֶ֣חֶם עִיר֔וֹ…\nדופק העולם\nהגידה נא שמך \"וַיִּשְׁאַ֣ל יַֽעֲקֹ֗ב וַיֹּ֨אמֶר֙ הַגִּֽידָה־נָּ֣א שְׁמֶ֔ךָ וַיֹּ֕אמֶר לָ֥מָּה זֶּ֖ה תִּשְׁאַ֣ל לִשְׁמִ֑י וַיְבָ֥רֶךְ אֹת֖וֹ …\nדופק העולם\nמה קורה הבורא — תוצאות הבחירות, ערבות הדדית והבחירה בבורא | אלון לוי\nדופק העולם\nהמבחן האחרון לפני פריצת הדרך — למה העבר חוזר דווקא עכשיו? | מימד חמש\nדופק העולם\nציר הזמן הישן הושלם — אתה לא נכנס לפרק חדש, אלא לעצמי חדש | מימד חמש\nדופק העולם\nבחירות 26 לכנסת ה־26 — ״הֲיִפָּלֵא מֵה׳ דָּבָר?״ | 27.10.2026\nדופק העולם\nאחודה נא פעם אחת בתנ\"ך \"וַיֹּ֤אמֶר לָהֶם֙ שִׁמְשׁ֔וֹן אָחֽוּדָה־נָּ֥א לָכֶ֖ם חִידָ֑ה אִם־הַגֵּ֣ד תַּגִּ֩ידוּ֩ אוֹתָ֨הּ לִ֜י שִׁבְעַ֨ת יְמֵ֤י…\nדופק העולם\nיחיד ורבים בלשון \"נא\" (1) \"הגידה נא לנו\" מופיע בתנ\"ך 2 פעמים.(ירמיהו וגם יונה). גימטריא של הפסוק:164. כאן הרבים פונים ליחיד. (2) \"אגידה נא …\nדופק העולם\nיפקדני - בגימטריא רחום  אִם־פָּקֹ֥ד יִפְקְדֵ֖נִי אָבִ֑יךָ וְאָֽמַרְתָּ֗ נִשְׁאֹל֩ נִשְׁאַ֨ל מִמֶּ֤נִּי דָוִד֙ לָרוּץ֙ בֵּֽית־לֶ֣חֶם עִיר֔וֹ…\nדופק העולם\nהגידה נא שמך \"וַיִּשְׁאַ֣ל יַֽעֲקֹ֗ב וַיֹּ֨אמֶר֙ הַגִּֽידָה־נָּ֣א שְׁמֶ֔ךָ וַיֹּ֕אמֶר לָ֥מָּה זֶּ֖ה תִּשְׁאַ֣ל לִשְׁמִ֑י וַיְבָ֥רֶךְ אֹת֖וֹ …\nדופק העולם\nמה קורה הבורא — תוצאות הבחירות, ערבות הדדית והבחירה בבורא | אלון לוי\nדופק העולם\nהמבחן האחרון לפני פריצת הדרך — למה העבר חוזר דווקא עכשיו? | מימד חמש\nדופק הע",
+        "denied": [],
+        "reads": [
+          {
+            "origin": "https://linswmnnkjxvweumprav.supabase.co",
+            "path": "/rest/v1/posts",
+            "method": "GET",
+            "status": 200
+          },
+          {
+            "origin": "https://linswmnnkjxvweumprav.supabase.co",
+            "path": "/rest/v1/posts",
+            "method": "GET",
+            "status": 206
+          },
+          {
+            "origin": "https://linswmnnkjxvweumprav.supabase.co",
+            "path": "/rest/v1/posts",
+            "method": "GET",
+            "status": 206
+          },
+          {
+            "origin": "https://linswmnnkjxvweumprav.supabase.co",
+            "path": "/rest/v1/posts",
+            "method": "GET",
+            "status": 206
+          },
+          {
+            "origin": "https://linswmnnkjxvweumprav.supabase.co",
+            "path": "/rest/v1/posts",
+            "method": "GET",
+            "status": 206
+          },
+          {
+            "origin": "https://linswmnnkjxvweumprav.supabase.co",
+            "path": "/rest/v1/posts",
+            "method": "GET",
+            "status": 200
+          },
+          {
+            "origin": "https://linswmnnkjxvweumprav.supabase.co",
+            "path": "/rest/v1/topic_cards_public",
+            "method": "GET",
+            "status": 200
+          },
+          {
+            "origin": "https://linswmnnkjxvweumprav.supabase.co",
+            "path": "/rest/v1/topic_cards_public",
+            "method": "GET",
+            "status": 200
+          },
+          {
+            "origin": "https://linswmnnkjxvweumprav.supabase.co",
+            "path": "/rest/v1/posts",
+            "method": "GET",
+            "status": 200
+          },
+          {
+            "origin": "https://linswmnnkjxvweumprav.supabase.co",
+            "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+            "method": "POST",
+            "status": 200
+          },
+          {
+            "origin": "https://linswmnnkjxvweumprav.supabase.co",
+            "path": "/rest/v1/rpc/convergence_meter",
+            "method": "POST",
+            "status": 200
+          },
+          {
+            "origin": "https://linswmnnkjxvweumprav.supabase.co",
+            "path": "/rest/v1/rpc/convergence_meter",
+            "method": "POST",
+            "status": 200
+          },
+          {
+            "origin": "https://linswmnnkjxvweumprav.supabase.co",
+            "path": "/rest/v1/rpc/convergence_meter",
+            "method": "POST",
+            "status": 200
+          },
+          {
+            "origin": "https://linswmnnkjxvweumprav.supabase.co",
+            "path": "/rest/v1/rpc/convergence_meter",
+            "method": "POST"
+          }
+        ]
+      },
+      "finishedAt": "2026-11-03T03:10:36.399Z"
+    }
+  ],
+  "browser": "154.0.8037.57",
+  "ok": false
+}
