@@ -5,7 +5,7 @@ import { chromeColors } from "../lib/chromeTheme.js";
 import { usePalette } from "../lib/palette.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { subscribeEmail, SUPABASE_URL } from "../lib/supabase.js";
-import { submitNewsletterSignup, probeOpeningUpdatesSignup } from "../lib/newsletterSignup.js";
+import { submitNewsletterSignup, probeSiteUpdatesSignup } from "../lib/newsletterSignup.js";
 import { trackSubscribe, trackConversion } from "../lib/marketing.js";
 import { PUSH_CONFIGURED, pushSupported, enablePush } from "../lib/push.js";
 
@@ -28,7 +28,7 @@ export function NewsletterSignup2029() {
     const controller = new AbortController();
     pending.current = controller; setAvailability("checking"); setState("idle");
     try {
-      await probeOpeningUpdatesSignup({ endpoint: `${SUPABASE_URL}/functions/v1/newsletter-signup`, signal: controller.signal });
+      await probeSiteUpdatesSignup({ endpoint: `${SUPABASE_URL}/functions/v1/newsletter-signup`, signal: controller.signal });
       if (!controller.signal.aborted) setAvailability("ready");
     } catch {
       if (!controller.signal.aborted) { setAvailability("unavailable"); setState("unavailable"); }
@@ -41,7 +41,7 @@ export function NewsletterSignup2029() {
     const controller = new AbortController();
     pending.current = controller; setState("loading");
     try {
-      const result = await submitNewsletterSignup({ email, consent, purpose: "site-openings" }, {
+      const result = await submitNewsletterSignup({ email, consent, purpose: "site-updates" }, {
         endpoint: `${SUPABASE_URL}/functions/v1/newsletter-signup`, signal: controller.signal,
       });
       if (!controller.signal.aborted) { setState(result.status); setEmail(""); setConsent(false); }
@@ -54,16 +54,17 @@ export function NewsletterSignup2029() {
     }
     finally { if (pending.current === controller) pending.current = null; }
   }
-  return <section className="sod29-section sod29-opening-updates" aria-label="עדכוני פתיחת חלקים">
-    <h2>רוצים לדעת כשנפתחים חלקים חדשים?</h2>
-    <p>עדכוני פתיחה בלבד, ללא הצטרפות לדיוור כללי או לסדרות. אפשר להסיר בכל עת.</p>
-    {availability !== "ready" ? <button type="button" className="sod29-action" onClick={prepareForm} disabled={availability === "checking"} aria-busy={availability === "checking"}>{availability === "checking" ? "בודקים זמינות…" : availability === "unavailable" ? "בדיקת זמינות מחדש" : "עדכנו אותי כשנפתח"}</button> : state === "new" || state === "exists" ? <p role="status">ההרשמה לעדכוני פתיחת חלקים נשמרה. קישור להסרה יופיע בכל מייל.</p> : <form onSubmit={submit} className="sod29-actions" aria-busy={state === "loading"}>
+  const label = "הרשמה לעדכוני האתר";
+  return <section className="sod29-section sod29-site-updates" aria-label="עדכוני האתר">
+    <h2>עדכוני האתר</h2>
+    <p>פרסומים חדשים וחלקים שנפתחים, במייל. הסרה בכל עת.</p>
+    {availability !== "ready" ? <button type="button" className="sod29-action" onClick={prepareForm} disabled={availability === "checking"} aria-busy={availability === "checking"}>{availability === "checking" ? "בודקים זמינות…" : availability === "unavailable" ? "בדיקת זמינות מחדש" : label}</button> : state === "new" || state === "exists" ? <p role="status">ההרשמה לעדכוני האתר נשמרה. קישור להסרה יופיע בכל מייל.</p> : <form onSubmit={submit} className="sod29-actions" aria-busy={state === "loading"}>
       <label>כתובת דוא״ל <input type="email" autoComplete="email" dir="ltr" required maxLength={120} value={email} onChange={e => setEmail(e.target.value)} disabled={state === "loading"} /></label>
-      <label><input type="checkbox" checked={consent} onChange={e => setConsent(e.target.checked)} disabled={state === "loading"} style={{ width: "auto", minHeight: "auto", accentColor: "var(--s29-accent)" }} /> אני רוצה לקבל במייל עדכוני פתיחת חלקים בלבד.</label>
-      <button type="submit" className="sod29-action" disabled={!consent || state === "loading"}>{state === "loading" ? "רושמים…" : "עדכנו אותי כשנפתח"}</button>
+      <label><input type="checkbox" checked={consent} onChange={e => setConsent(e.target.checked)} disabled={state === "loading"} style={{ width: "auto", minHeight: "auto", accentColor: "var(--s29-accent)" }} /> אני רוצה לקבל במייל את עדכוני האתר.</label>
+      <button type="submit" className="sod29-action" disabled={!consent || state === "loading"}>{state === "loading" ? "רושמים…" : label}</button>
     </form>}
     {state === "verification-required" ? <p role="alert">הבקשה לא שינתה הרשמה קיימת או הסרה קודמת. נדרש אימות בעלות על הכתובת לפני שינוי העדפות.</p> : null}
-    {state === "unavailable" ? <p role="alert">הרשמה ייעודית לעדכוני פתיחה עדיין אינה זמינה. הכתובת לא נשלחה להרשמה כללית.</p> : null}
+    {state === "unavailable" ? <p role="alert">ההרשמה לעדכוני האתר עדיין אינה זמינה. הכתובת לא נשלחה להרשמה כללית.</p> : null}
     {state === "error" ? <p role="alert">ההרשמה לא הושלמה. אפשר לבדוק את הכתובת ולנסות שוב.</p> : null}
     <a href="/privacy">פרטיות והסרה מהדיוור</a>
   </section>;

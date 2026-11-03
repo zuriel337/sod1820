@@ -72,7 +72,7 @@ function wrap(html: string, unsub: string, openPixel: string, purpose = "general
     <div style="border-top:1px solid #ece7dc;margin:18px 0 14px;font-size:0;line-height:0;">&nbsp;</div>
     <div dir="rtl" style="font-family:Georgia,serif;font-size:12.5px;color:#8a8580;text-align:center;line-height:1.9;">
       <a href="https://sod1820.co.il" style="color:#9a7b1e;text-decoration:none;font-weight:bold;">sod1820.co.il</a> · כל הרמזים במקום אחד<br />
-      ${purpose === "site-openings" ? "קיבלת מייל זה כי ביקשת עדכונים על פתיחת חלקים באתר בלבד." : 'קיבלת מייל זה כי נרשמת לעדכוני <b style="color:#6b6660;">סוד 1820</b>.'}<br />
+      ${purpose === "site-updates" ? "קיבלת מייל זה כי נרשמת לעדכוני האתר." : purpose === "site-openings" ? "קיבלת מייל זה כי ביקשת עדכונים על פתיחת חלקים באתר בלבד." : 'קיבלת מייל זה כי נרשמת לעדכוני <b style="color:#6b6660;">סוד 1820</b>.'}<br />
       <a href="${unsub}" style="color:#a8a29a;">להסרה מרשימת התפוצה</a>
     </div>
   </td></tr>
@@ -86,8 +86,8 @@ ${openPixel ? `<img src="${openPixel}" width="1" height="1" alt="" style="displa
 async function sendOne(to: string, subject: string, html: string, token: string | null, campaign: string | null, purpose = "general") {
   const unsub = await unsubUrl(to);
   const unsubSite = await siteUnsubUrl(to);
-  const bodyHtml = purpose !== "site-openings" && token && campaign ? trackedBodyHtml(html, token, campaign) : html;
-  const openPixel = purpose === "site-openings" ? "" : token && campaign
+  const bodyHtml = purpose === "general" && token && campaign ? trackedBodyHtml(html, token, campaign) : html;
+  const openPixel = purpose !== "general" ? "" : token && campaign
     ? `${SUPABASE_URL}/functions/v1/nl-track?e=open&t=${encodeURIComponent(token)}&c=${encodeURIComponent(campaign)}`
     : `${SUPABASE_URL}/functions/v1/email-open?c=newsletter&e=${b64url(to)}`;
   const r = await fetch("https://api.resend.com/emails", {
@@ -124,7 +124,7 @@ Deno.serve(async (req) => {
     let purpose: string;
     try { purpose = newsletterPurpose(body.purpose); } catch { return json({ error: "invalid_purpose" }, 400); }
 
-    let q = admin.from("subscribers").select("email,active,unsubscribed_at,email_purposes,opening_updates_consented_at").eq("active", true).contains("email_purposes", [purpose]);
+    let q = admin.from("subscribers").select(purpose === "site-updates" ? "email,active,unsubscribed_at,email_purposes,site_updates_consented_at" : "email,active,unsubscribed_at,email_purposes,opening_updates_consented_at").eq("active", true).contains("email_purposes", [purpose]);
     if (source) q = q.eq("source", source);
     const { data: subs, error: subscriberError } = await q;
     if (subscriberError) return json({ error: "subscriber_read_failed" }, 503);
@@ -142,7 +142,7 @@ Deno.serve(async (req) => {
     const emails = allEmails.slice(0, MAX_PER_RUN);
     const remaining = Math.max(0, allEmails.length - emails.length);
     const { data: campaign, error: campaignErr } = await admin.from("newsletter_campaigns").insert({
-      subject, segment_source: purpose === "site-openings" ? "purpose:site-openings" : source, recipients: emails.length, sent: 0, failed: 0,
+      subject, segment_source: purpose !== "general" ? `purpose:${purpose}` : source, recipients: emails.length, sent: 0, failed: 0,
       status: "sending", sent_by: uid,
     }).select("id").single();
     if (campaignErr || !campaign?.id) return json({ error: "campaign_log_failed" }, 500);

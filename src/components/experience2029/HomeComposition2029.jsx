@@ -14,6 +14,7 @@ import { levelNumbers } from "../../lib/ratings2029.js";
 import { relativeTimeLabel } from "../../lib/relativeTime2029.js";
 import ConvergenceRatings2029 from "./ConvergenceRatings2029.jsx";
 import HomeHeroMotion2029 from "./HomeHeroMotion2029.jsx";
+import HomeUpdatesPreview2029 from "./HomeUpdatesPreview2029.jsx";
 import { useReveal } from "./useReveal2029.js";
 import { useApproach2029 } from "./useApproach2029.js";
 import { realUpdate } from "../../lib/heroUpdate2029.js";
@@ -223,10 +224,16 @@ export default function HomeComposition2029({
   }}>
     {(lead ? <HomeHeroMotion2029 key={lead.slug} lead={lead} href={postHref(lead)} includeWorld={!corePublic && worldOpen} /> : <section className={`h29-hero${data.loading ? " is-loading" : ""}`} data-home-primary={data.loading ? "loading" : data.postsError ? "failed" : "empty"} aria-busy={data.loading}><div className="h29-hero-copy"><div className="h29-kicker">עכשיו</div><h1>תיעוד אירועים ורמזי המערכת</h1>{!data.loading ? <p>{data.postsError ? "העדכונים אינם זמינים כרגע. אפשר לנסות שוב או להמשיך לעולם ולמחשבון." : "אין כרגע עדכונים להצגה. אפשר להמשיך לעולם ולמחשבון."}</p> : null}</div></section>)}
 
-    <section className="h29-launch-card" aria-label="עדכונים אחרונים" data-home-top-updates={adminViewer ? "admin" : "public-closed"}>
+    <section className="h29-launch-card h29-updates-royal" aria-label="עדכונים אחרונים" data-home-top-updates={adminViewer ? "admin" : "public-closed"}>
       <div className="h29-sec-h"><h2>עדכונים אחרונים</h2><Link to="/2029/posts">כל הפוסטים ←</Link></div>
-      {adminViewer ? <><p className="h29-note">🔒 תצוגת מנהל · סגור לציבור</p><AdminLatestUpdates key={user?.id || "no-user"} /></>
-        : <p className="h29-construction">אזור זה בבנייה מתקדמת</p>}
+      <div className="h29-updates-stage">
+        <HomeUpdatesPreview2029 />
+        <div className="h29-updates-copy">
+          <span className="h29-preview-badge">תצוגה מקדימה · להמחשה</span>
+          {adminViewer ? <p className="h29-note">🔒 תצוגת מנהל · סגור לציבור</p> : <p className="h29-construction">בקרוב: פרסומים מחוברים לאורך הזמן</p>}
+        </div>
+      </div>
+      {adminViewer ? <AdminLatestUpdates key={user?.id || "no-user"} /> : null}
       <NewsletterSignup2029 />
     </section>
     <HomeSeriesCards />

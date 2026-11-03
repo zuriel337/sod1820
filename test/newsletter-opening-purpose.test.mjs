@@ -5,7 +5,7 @@ import vm from 'node:vm';
 import { webcrypto } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import { submitNewsletterSignup } from '../src/lib/newsletterSignup.js';
-import { openingSubscriber, openingExistingStatus, canReceiveNewsletter } from '../supabase/functions/newsletter-signup/purpose.js';
+import { openingSubscriber, openingExistingStatus, canReceiveNewsletter, siteUpdatesSubscriber, siteUpdatesExistingStatus } from '../supabase/functions/newsletter-signup/purpose.js';
 const endpoint = 'https://mail.invalid/functions/v1/newsletter-signup';
 const contractHeaders = { 'x-newsletter-purpose-contract': 'opening-parts-v1' };
 const consented = { ...openingSubscriber('reader@example.invalid', true, '2026-11-02T00:00:00Z'), unsubscribed_at: null };
@@ -118,4 +118,68 @@ test('opening announcement content keeps signed unsubscribe and omits marketing 
   assert.equal(r.status,200,await r.text());assert.equal(sent.length,1);
   assert.match(sent[0].html,/פתיחת חלקים באתר בלבד/);assert.match(sent[0].html,/unsubscribe\?e=/);
   assert.doesNotMatch(sent[0].html,/nl-track|email-open|nlid=|src=nl/);
+});
+
+// ---- one public product: "עדכוני האתר" (purpose site-updates). Historical opening-only consent is never widened.
+const updatesConsented = { ...siteUpdatesSubscriber('reader@example.invalid', true, '2026-11-03T00:00:00Z'), unsubscribed_at: null };
+test('site-updates signup writes one existing subscriber row under its own purpose and consent timestamp', async () => {
+  const calls = [];
+  const h = await handler('newsletter-signup', async (url, options) => { calls.push({ url, options }); return new Response('', { status: 201 }); });
+  const r = await h(post({ email: 'Reader@example.invalid', purpose: 'site-updates', consent: true, ref: 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', visitor_id: 'v', acquisition: { c: 1 } }));
+  const result = await r.json();
+  assert.equal(r.status, 200); assert.equal(result.purpose, 'site-updates'); assert.equal(result.contract, 'site-updates-v1');
+  assert.equal(calls.length, 1);
+  const body = JSON.parse(calls[0].options.body);
+  assert.deepEqual(body.email_purposes, ['site-updates']); assert.equal(body.source, '2029-site-updates'); assert.ok(Date.parse(body.site_updates_consented_at));
+  for (const key of ['acquisition', 'visitor_id', 'ref', 'user_id', 'opening_updates_consented_at']) assert.equal(key in body, false);
+});
+test('site-updates requires consent, its own source pairing, and capability is advertised for both contracts', async () => {
+  let writes = 0; const h = await handler('newsletter-signup', async () => { writes++; throw Error('unreachable'); });
+  for (const body of [{ purpose: 'site-updates' }, { purpose: 'site-updates', consent: true, source: '2029-opening-parts' }, { purpose: 'site-openings', consent: true, source: '2029-site-updates' }, { source: '2029-site-updates' }]) assert.equal((await h(post({ email: 'reader@example.invalid', ...body }))).status, 400);
+  assert.equal(writes, 0);
+  const options = await h(new Request(endpoint, { method: 'OPTIONS' }));
+  assert.deepEqual(options.headers.get('x-newsletter-purpose-contract').split(','), ['opening-parts-v1', 'site-updates-v1']);
+});
+test('historical opening-only consent is not treated as site-updates consent, and the reverse', async () => {
+  assert.equal(siteUpdatesExistingStatus(consented), 'verification-required');
+  assert.equal(siteUpdatesExistingStatus(updatesConsented), 'exists');
+  assert.equal(openingExistingStatus(updatesConsented), 'verification-required');
+  assert.equal(canReceiveNewsletter(consented, 'site-updates'), false);
+  assert.equal(canReceiveNewsletter(updatesConsented, 'site-updates'), true);
+  assert.equal(canReceiveNewsletter(updatesConsented, 'site-openings'), false);
+  assert.equal(canReceiveNewsletter(updatesConsented), false);
+  assert.equal(canReceiveNewsletter({ ...updatesConsented, unsubscribed_at: '2026-11-03T01:00Z' }, 'site-updates'), false);
+  for (const [row, ok] of [[updatesConsented, true], [consented, false], [{ ...updatesConsented, active: false }, false]]) {
+    const calls = [];
+    const h = await handler('newsletter-signup', async (url, options = {}) => { calls.push({ url, method: options.method || 'GET' }); return calls.length === 1 ? new Response('duplicate', { status: 409 }) : Response.json([row]); });
+    const r = await h(post({ email: 'reader@example.invalid', purpose: 'site-updates', consent: true }));
+    assert.equal((await r.json()).ok, ok); assert.deepEqual(calls.map(c => c.method), ['POST', 'GET']); assert.match(calls[1].url, /site_updates_consented_at/);
+  }
+});
+test('client: site-updates probes its own contract, sends exact body, rejects wrong receipt', async () => {
+  const calls = [];
+  const request = (receipt) => async (_, options) => { calls.push(options); return options.method === 'OPTIONS' ? new Response(null, { headers: { 'x-newsletter-purpose-contract': 'opening-parts-v1,site-updates-v1' } }) : Response.json(receipt); };
+  assert.deepEqual(await submitNewsletterSignup({ email: 'Reader@example.invalid', consent: true, purpose: 'site-updates' }, { endpoint, request: request({ ok: true, status: 'new', purpose: 'site-updates', contract: 'site-updates-v1' }) }), { status: 'new' });
+  assert.deepEqual(JSON.parse(calls[1].body), { email: 'reader@example.invalid', purpose: 'site-updates', consent: true, source: '2029-site-updates' });
+  await assert.rejects(submitNewsletterSignup({ email: 'reader@example.invalid', consent: true, purpose: 'site-updates' }, { endpoint, request: request({ ok: true, status: 'new', purpose: 'site-openings', contract: 'opening-parts-v1' }) }), /purpose-unavailable/);
+  const methods = [];
+  await assert.rejects(submitNewsletterSignup({ email: 'reader@example.invalid', consent: true, purpose: 'site-updates' }, { endpoint, request: async (_, options) => { methods.push(options.method); return new Response(null, { headers: contractHeaders }); } }), /purpose-unavailable/);
+  assert.deepEqual(methods, ['OPTIONS']);
+});
+test('admin send selects site-updates cohort only; no tracking and an honest footer; other sends never read the new column', async () => {
+  const selects = []; const filters = [];
+  const q = { select(columns) { selects.push(columns); return this; }, eq() { return this; }, contains(key, value) { filters.push([key, Array.from(value)]); return this; }, then(resolve) { resolve({ data: [updatesConsented, consented, { email: 'g@example.invalid', active: true, email_purposes: ['general'] }] }); } };
+  const client = { auth: { getUser: async () => ({ data: { user: { id: 'admin-test' } } }) }, from: table => table === 'users' ? { select: () => ({ eq: () => ({ maybeSingle: async () => ({ data: { role: 'admin' } }) }) }) } : q };
+  const h = await handler('send-newsletter', async () => { throw Error('no delivery'); }, client);
+  const r = await h(post({ purpose: 'site-updates', dry_run: true }));
+  assert.equal((await r.json()).count, 1); assert.deepEqual(filters, [['email_purposes', ['site-updates']]]); assert.match(selects[0], /site_updates_consented_at/);
+  selects.length = 0; await h(post({ dry_run: true })); await h(post({ purpose: 'site-openings', dry_run: true }));
+  assert.ok(selects.every(columns => !columns.includes('site_updates_consented_at')));
+  const q2 = { select() { return this; }, eq() { return this; }, contains() { return this; }, then(resolve) { resolve({ data: [updatesConsented] }); } };
+  const client2 = { ...client, from: table => table === 'users' ? client.from(table) : q2 };
+  const sent = [];
+  const sender = await handler('send-newsletter', async (url, options) => { sent.push(JSON.parse(options.body)); return Response.json({ id: 'offline' }); }, client2, { RESEND_API_KEY: 'offline-provider' });
+  const res = await sender(post({ purpose: 'site-updates', subject: 'חדש באתר', html: '<a href="https://sod1820.co.il/2029/posts">לפוסטים</a>', test_email: 'fixture@example.invalid' }));
+  assert.equal(res.status, 200, await res.text());
+  assert.match(sent[0].html, /נרשמת לעדכוני האתר/); assert.match(sent[0].html, /unsubscribe\?e=/); assert.doesNotMatch(sent[0].html, /nl-track|email-open|nlid=|src=nl/);
 });
