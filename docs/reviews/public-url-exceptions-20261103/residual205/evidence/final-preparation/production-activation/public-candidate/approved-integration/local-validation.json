@@ -16,5 +16,7 @@
   "domainAssignment": false,
   "fullIsolationOrG4": "NOT_CLAIMED",
   "additionalAccountPermissionTestsPassed": 33,
-  "totalLocalTestsPassed": 82
+  "totalLocalTestsPassed": 82,
+  "buildLogWhitespaceNormalized": true,
+  "originalBuildLogSha256": "a0c2a0a63a8912b5d00f77fdaf63cdc190e48a43ddca16b9622e5968309cbaed"
 }
