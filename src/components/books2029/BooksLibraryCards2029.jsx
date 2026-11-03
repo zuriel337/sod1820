@@ -63,4 +63,3 @@ export function BookCard({ book, preparation, readingHref, returnTo, readable })
     <div className="books29-card-actions">{readable !== false && status.ready && slug ? <Link className="sod29-action" to={slug ? `/book/${slug}` : "/books"}>פתח את הספר</Link> : <button type="button" className="sod29-action" disabled>סגור — בהכנה</button>}</div>
   </article>;
 }
-

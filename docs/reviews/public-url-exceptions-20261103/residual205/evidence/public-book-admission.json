@@ -1,0 +1,30 @@
+{
+  "kind": "current-anonymous-public-book-identity-read",
+  "checkedAt": "2026-11-03",
+  "authRole": "anon",
+  "credentialsRecorded": false,
+  "rows": [
+    {
+      "book_slug": "daat-tevunot"
+    },
+    {
+      "book_slug": "sefer-habahir"
+    },
+    {
+      "book_slug": "sefer-raziel-hamalach"
+    },
+    {
+      "book_slug": "bentov-brief-tour-higher-consciousness"
+    },
+    {
+      "book_slug": "sefer-hapliah"
+    },
+    {
+      "book_slug": "sefer-yetzirah"
+    },
+    {
+      "book_slug": "ahavat-torah"
+    }
+  ],
+  "limitation": "8 static preparation records do not publish missing/private DB identities"
+}
