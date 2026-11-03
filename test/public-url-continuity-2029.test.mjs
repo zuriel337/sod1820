@@ -20,6 +20,19 @@ async function isolated(fetcher, run) {
 const forbidden = () => { throw new Error('Unexpected network operation in synthetic acceptance'); };
 const metadata = async path => { const res = response(); await handler(request(path), res); return res; };
 
+test('hosted document rewrite cannot inject its route into the visitor community path selector', async () => {
+  const config = JSON.parse(readFileSync(new URL('../public-reading-deploy/vercel.json', import.meta.url)));
+  assert.equal(config.rewrites.find(rule => rule.source === '/((?!api(?:/|$)).*)').destination, '/api/public-document');
+  const alias = await metadata('/chat?part=2&part=7');
+  assert.equal(alias.code, 308);
+  assert.equal(alias.headers.get('location'), '/community/chat?part=2&part=7');
+  await isolated(forbidden, async () => {
+    assert.equal((await metadata('/community/chat?part=2&part=7')).code, 200);
+    // An actual visitor-provided invalid focus still fails closed.
+    assert.equal((await metadata('/community/chat?path=%2Fchat')).code, 404);
+  });
+});
+
 test('exact aliases retain duplicate query bytes, encoded values and fragment with no chained fallback', () => {
   for (const [old, target] of [['/chat','/community/chat'], ['/דף-צאט-ראשי','/community/chat'], ['/tag/צאט','/community/chat'],
     ['/posts','/post'], ['/גימטריה','/gematria'], ['/book','/books'], ['/books/ahavat-torah','/book/ahavat-torah'],

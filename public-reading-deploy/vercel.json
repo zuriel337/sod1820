@@ -484,7 +484,7 @@
     },
     {
       "source": "/((?!api(?:/|$)).*)",
-      "destination": "/api/public-document?path=/$1"
+      "destination": "/api/public-document"
     }
   ],
   "headers": [
