@@ -1,9 +1,8 @@
-import React, { useEffect, useMemo, useState } from "react";
-import Marquee from "../Marquee.jsx";
+import React from "react";
 import "./globalLivingRibbon2029.css";
 
-// One preview-only editorial message, shown as four excerpts. It is not a
-// public source, verified research, or an attribution to a named speaker.
+// Source details remain available to the existing Now sheet. The header notice
+// is static and does not consume, rotate or replace the shared feed data.
 
 export function NowSourceDetail2029({ row, onOpen, feed }) {
   const item = row?.item || {};
@@ -51,42 +50,11 @@ export function LivingRibbonDetail2029({ detail, onOpen, feed }) {
   </section>;
 }
 
-export default function GlobalLivingRibbon2029({ feed, onOpen, preview = false }) {
-  const [previewMessage, setPreviewMessage] = useState(null);
-  useEffect(() => {
-    let live = true;
-    if (preview && import.meta.env.VITE_INTEGRATED_PREVIEW === "true") import("./livingRibbonPreview2029.js").then(module => { if (live) setPreviewMessage(module.PREVIEW_MESSAGE); });
-    return () => { live = false; };
-  }, [preview]);
-  const [quiet, setQuiet] = useState(false);
-  const [paused, setPaused] = useState(false);
-  const [focused, setFocused] = useState(false);
-  const [index, setIndex] = useState(0);
-  const items = useMemo(() => livingRibbonItems(feed?.rows, previewMessage), [feed?.rows, previewMessage]);
-  useEffect(() => { setIndex(i => items.length ? i % items.length : 0); }, [items.length]);
-  useEffect(() => {
-    if (paused || focused || quiet || items.length < 2 || typeof window === "undefined") return undefined;
-    const mobile = window.matchMedia("(max-width: 700px)");
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const timer = window.setInterval(() => { if (mobile.matches && !reduced.matches) setIndex(i => (i + 1) % items.length); }, 8000);
-    return () => window.clearInterval(timer);
-  }, [items.length, paused, focused, quiet]);
-  // Keep the header's geometry stable while the shared reader or Preview notice loads.
-  // Loading, failed and genuinely empty feeds remain distinct from a result.
-  const unavailable = Boolean(feed?.error || feed?.unavailableSources?.length);
-  if (!items.length) return <section className="sod29-living-ribbon is-pending" aria-label="פס הגילויים החיים" aria-busy={feed?.loading !== false} data-ribbon-state={unavailable ? "unavailable" : feed?.loading !== false ? "loading" : "empty"}>
-    <span className="sod29-living-mark" aria-hidden="true">✦</span>
-    <span role="status">{unavailable ? "העדכונים אינם זמינים כרגע" : feed?.loading !== false ? "טוען עדכונים…" : "אין עדכונים חדשים כרגע"}</span>
-  </section>;
-  const itemButton = item => <button type="button" className="sod29-living-item" onClick={() => onOpen(item.detail)}><span>{item.typeLabel}</span><bdi>{item.title}</bdi></button>;
-  if (quiet) return <section className="sod29-living-ribbon is-quiet" aria-label="פס הגילויים החיים"><button type="button" className="sod29-living-pause" onClick={() => setQuiet(false)} aria-label="הרחב את פס הגילויים">✦</button></section>;
-  return <section className="sod29-living-ribbon" aria-label="פס הגילויים החיים" dir="rtl" onFocusCapture={() => setFocused(true)} onBlurCapture={event => { if (!event.currentTarget.contains(event.relatedTarget)) setFocused(false); }}>
-    <span className="sod29-living-mark" aria-hidden="true">✦</span>
-    <div className="sod29-living-desktop"><Marquee speedPxPerSec={35} gap={36} paused={paused || focused} accessibleCopies ariaLabel="גילויים ועדכונים">
-      {items.map(item => <React.Fragment key={item.id}>{itemButton(item)}</React.Fragment>)}
-    </Marquee></div>
-    <div className="sod29-living-mobile" key={items[index % items.length].id}>{itemButton(items[index % items.length])}</div>
-    <button type="button" className="sod29-living-pause" onClick={() => setQuiet(true)} aria-label="צמצם את פס הגילויים">−</button>
-    <button type="button" className="sod29-living-pause" aria-label={paused ? "המשך תנועה" : "השהה תנועה"} aria-pressed={paused} onClick={() => setPaused(value => !value)}>{paused ? "המשך" : "השהה"}</button>
+export const RENEWAL_NOTICE_2029 = "האתר מתחדש ונבנה בהדרגה. נתקלתם בתקלה או שיש לכם רעיון לשיפור? עזרו לנו לבנות אותו יחד.";
+
+export default function GlobalLivingRibbon2029({ onContact }) {
+  return <section className="sod29-living-ribbon" aria-label="האתר מתחדש" data-ribbon-state="renewal" dir="rtl">
+    <p className="sod29-living-notice">{RENEWAL_NOTICE_2029}</p>
+    <button type="button" className="sod29-living-contact" onClick={onContact} aria-haspopup="dialog">דיווח או הצעה ←</button>
   </section>;
 }
