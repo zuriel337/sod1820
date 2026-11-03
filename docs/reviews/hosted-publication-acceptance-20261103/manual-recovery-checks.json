@@ -8,13 +8,13 @@
     },
     {
       "file": "REMAINING-ACCEPTANCE.md",
-      "bytes": 9906,
-      "sha256": "610407f9f295fc276b89ee2adb93b12fb21c0db35388018431e52858c9f236bf"
+      "bytes": 10385,
+      "sha256": "4854580af42aae2df087090fe4bf9f2936b11dd9458304f3d98c8b1e94750908"
     },
     {
       "file": "manual-checklist.md",
-      "bytes": 9574,
-      "sha256": "724624d194e5a16bd4ef9c7c35e3cc27377649e3737c55ae14a5b1f58ef4e58e"
+      "bytes": 10878,
+      "sha256": "775a6f72afbacfee2dd027000c1f794116651bd97b1dc51bb2e318eb926f3555"
     },
     {
       "file": "recovery-h1-receipt.json",
@@ -23,8 +23,8 @@
     },
     {
       "file": "recovery-h1-reconciliation.md",
-      "bytes": 11895,
-      "sha256": "6734fcacb5953734f451a8ac676eb3701cc7efd808b0e647d13c1033aee3eba7"
+      "bytes": 12138,
+      "sha256": "0213fe1466c3b85b31d9d90ce92177ed64b9ebe22c1658db4e685d629706bb40"
     },
     {
       "file": "unsubscribe-offline-proof.cjs",
@@ -44,5 +44,10 @@
   "diagnosticCases": 4,
   "liveNetworkCallsInDiagnostic": 0,
   "diffCheck": "PASS",
-  "finalCheckScope": "Staged exact task files, after removing trailing blank lines detected by staged diff --check"
+  "finalCheckScope": "Staged exact task files, after removing trailing blank lines detected by staged diff --check",
+  "laterProductAddendaPreserved": [
+    "NOW-CENTRAL-HANDOFF-20261103",
+    "HOME-UPDATES-VISUAL-20261103"
+  ],
+  "mailProductDecisionImplementation": "NOT_IMPLEMENTED_IN_FROZEN_C8; historical opening-only consent remains protected"
 }
