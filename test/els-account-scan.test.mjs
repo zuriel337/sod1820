@@ -48,16 +48,17 @@ test('strip credentials/unrelated source fields and refuse oversized archive', (
 function server(handler) {
   const calls = [];
   const client = createClient('https://example.supabase.co', 'test-key', {
-    accessToken: async () => 'test-user-token',
+    auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
     global: { fetch: async (url, init) => {
       calls.push({ url: String(url), init });
       const result = await handler(String(url), init, calls.length);
       return new Response(JSON.stringify(result.body), { status: result.status || 200, headers: { 'Content-Type': 'application/json' } });
     } },
   });
+  client.auth.getSession = async () => ({ data: { session: { user: { id: 'user-A' }, access_token: 'test-user-token' } } });
   return { client, calls };
 }
-const owned = positions => ({ id: 'row-1', owner_user_id: 'user-A', visibility: 'private', status: 'draft', self_published: false, positions });
+const owned = positions => ({ search_term: 'אמן הטיס', scope: 'torah', corpus_id: 'fixture-corpus', skip_distance: 16, direction: 'fwd', start_index: 1000, id: 'row-1', owner_user_id: 'user-A', visibility: 'private', status: 'draft', self_published: false, positions });
 
 test('cloud save uses no-store on every request, private ownership, CAS, and confirmed ack', async () => {
   const { entity } = fixture(); const original = { findings: [{ t: 'שלום' }], sentinel: 42 };
@@ -71,12 +72,26 @@ test('cloud save uses no-store on every request, private ownership, CAS, and con
   });
   assert.deepEqual(await saveElsAccountScan(client, 'user-A', entity), { recordId: 'row-1', scanId: 'fixture-scan' });
   assert.equal(calls.length, 2); assert(calls.every(c => c.init.cache === 'no-store'));
+  assert(calls.every(c => new Headers(c.init.headers).get('Authorization') === 'Bearer test-user-token'));
   const patch = new URL(calls[1].url); assert.equal(patch.searchParams.get('owner_user_id'), 'eq.user-A');
   assert.equal(patch.searchParams.get('visibility'), 'eq.private');
+  assert.equal(patch.searchParams.get('start_index'), 'eq.1000');
+  assert.equal(patch.searchParams.get('corpus_id'), 'eq.fixture-corpus');
   assert.equal(patch.searchParams.get('positions->findings'), 'eq.' + JSON.stringify(original.findings));
   assert.equal(patch.searchParams.get('positions->sentinel'), 'eq.42');
   assert.equal(patch.searchParams.get('positions->>lexiconScanIndex'), 'is.null');
   assert.equal(patch.searchParams.has('positions'), false);
+});
+test('SDK session switch is rejected even before React observes the new account', async () => {
+  const { entity } = fixture(); let sessionUser = 'user-A';
+  const s = server(() => { sessionUser = 'user-B'; return { body: owned({}) }; });
+  s.client.auth.getSession = async () => ({ data: { session: { user: { id: sessionUser }, access_token: `token-${sessionUser}` } } });
+  await assert.rejects(saveElsAccountScan(s.client, 'user-A', entity, () => true), /account_changed/);
+  assert.equal(s.calls.length, 1);
+  const noSession = server(() => { throw new Error('must-not-fetch'); });
+  noSession.client.auth.getSession = async () => ({ data: { session: null } });
+  await assert.rejects(listElsAccountScans(noSession.client, 'user-A'), /account_changed/);
+  assert.equal(noSession.calls.length, 0);
 });
 test('wrong owner, absent matrix, concurrent write and server failure never claim save', async () => {
   const { entity } = fixture();

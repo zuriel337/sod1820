@@ -4,7 +4,8 @@ import { readElsSavedScan } from './elsLexiconSavedScan.js';
 
 // Scope no-store to these SDK requests. Retain the SDK's existing authenticated fetch;
 // never replace global fetch or create another auth client. Fail closed if SDK changes.
-function noStore(query) {
+function noStore(query, token) {
+  query.setHeader("Authorization", `Bearer ${token}`);
   if (typeof query.fetch !== 'function') throw new Error('account_transport_unavailable');
   query.abortSignal(AbortSignal.timeout(15000));
   const authenticatedFetch = query.fetch;
@@ -13,6 +14,14 @@ function noStore(query) {
 }
 
 const requireCurrent = current => { if (!current()) throw new Error('account_changed'); };
+async function accountToken(client, userId, current) {
+  requireCurrent(current);
+  const { data, error } = await client.auth.getSession();
+  requireCurrent(current);
+  if (error || data?.session?.user?.id !== userId || !data.session.access_token) throw new Error('account_changed');
+  return data.session.access_token;
+}
+
 const privateRow = (row, userId) => row?.owner_user_id === userId && row.visibility === 'private'
   && !row.self_published && row.status !== 'published';
 const canonicalJson = value => JSON.stringify(value, (_key, v) => v && typeof v === 'object' && !Array.isArray(v)
@@ -20,11 +29,11 @@ const canonicalJson = value => JSON.stringify(value, (_key, v) => v && typeof v 
 
 export async function listElsAccountScans(client, userId, current = () => true) {
   if (!userId) return [];
-  requireCurrent(current);
+  const token = await accountToken(client, userId, current);
   const { data, error } = await noStore(client.from('els_records')
     .select('id,title,positions->lexiconScanIndex')
     .eq('owner_user_id', userId).eq('visibility', 'private')
-    .not('positions->lexiconScanIndex', 'is', null).order('created_at', { ascending: false }).limit(100));
+    .not('positions->lexiconScanIndex', 'is', null).order('created_at', { ascending: false }).limit(100), token);
   requireCurrent(current); if (error) throw error;
   return (data || []).flatMap(row => (Array.isArray(row.lexiconScanIndex) ? row.lexiconScanIndex : [])
     .filter(s => typeof s.id === 'string' && typeof s.savedAt === 'number')
@@ -33,9 +42,9 @@ export async function listElsAccountScans(client, userId, current = () => true) 
 
 export async function getElsAccountMatrix(client, userId, recordId, current = () => true) {
   if (!userId) throw new Error('auth_required');
-  requireCurrent(current);
+  const token = await accountToken(client, userId, current);
   const { data: row, error } = await noStore(client.from('els_records').select('*')
-    .eq('id', recordId).eq('owner_user_id', userId).maybeSingle());
+    .eq('id', recordId).eq('owner_user_id', userId).maybeSingle(), token);
   requireCurrent(current); if (error) throw error;
   if (!privateRow(row, userId)) throw new Error('scan_unavailable');
   return row;
@@ -53,13 +62,13 @@ export async function saveElsAccountScan(client, userId, entity, current = () =>
   const scan = readElsSavedScan(entity);
   if (!userId || !scan) throw new Error('scan_invalid');
   const o = scan.origin;
-  requireCurrent(current);
+  const token = await accountToken(client, userId, current);
   const { data: row, error } = await noStore(client.from('els_records')
-    .select('id,owner_user_id,visibility,status,self_published,positions')
+    .select('*')
     .eq('owner_user_id', userId).eq('visibility', 'private').eq('self_published', false).neq('status', 'published')
     .eq('search_term', scan.returnSnapshot.term).eq('scope', o.corpus).eq('corpus_id', o.corpusId)
     .eq('skip_distance', o.skip).eq('direction', o.dir === 1 ? 'fwd' : 'back').eq('start_index', o.start)
-    .order('created_at', { ascending: false }).limit(1).maybeSingle());
+    .order('created_at', { ascending: false }).limit(1).maybeSingle(), token);
   requireCurrent(current); if (error) throw error;
   if (!privateRow(row, userId)) throw new Error('save_matrix_first');
   const old = row.positions;
@@ -84,7 +93,7 @@ export async function saveElsAccountScan(client, userId, entity, current = () =>
 // Only the existing editable fields are accepted; public/foreign records are refused.
 export async function compareAndSetElsAccountMatrix(client, userId, row, changes, current = () => true) {
   if (!privateRow(row, userId) || !changes || Object.keys(changes).some(k => !['positions', 'image_url', 'description', 'engine_detail'].includes(k))) throw new Error('scan_unavailable');
-  requireCurrent(current);
+  const token = await accountToken(client, userId, current);
   const old = row.positions;
   if (!changes.positions || (old !== null && (typeof old !== 'object' || Array.isArray(old)))) throw new Error('matrix_format_unavailable');
   for (const scan of old?.lexiconScans || []) {
@@ -93,6 +102,14 @@ export async function compareAndSetElsAccountMatrix(client, userId, row, changes
   }
   let update = client.from('els_records').update(changes).eq('id', row.id)
     .eq('owner_user_id', userId).eq('visibility', 'private').eq('self_published', false).neq('status', 'published');
+  for (const field of ['search_term', 'scope', 'corpus_id', 'skip_distance', 'direction', 'start_index']) {
+    if (row[field] == null) throw new Error('matrix_identity_unavailable');
+    update = update.eq(field, row[field]);
+  }
+  for (const field of ['description', 'image_url', 'engine_detail']) if (Object.hasOwn(changes, field)) {
+    update = row[field] == null ? update.is(field, null) : update.eq(field,
+      field === 'engine_detail' ? JSON.stringify(row[field]) : row[field]);
+  }
   if (old === null) update = update.is('positions', null);
   else {
     // Snapshots are immutable and every append changes the index. Compare that
@@ -107,7 +124,7 @@ export async function compareAndSetElsAccountMatrix(client, userId, row, changes
     if (!update.url || update.url.href.length > 7000) throw new Error('matrix_guard_too_large');
   }
   requireCurrent(current);
-  const ack = await noStore(update.select('id,positions->lexiconScanIndex').maybeSingle());
+  const ack = await noStore(update.select('id,positions->lexiconScanIndex').maybeSingle(), token);
   requireCurrent(current); if (ack.error) throw ack.error;
   if (ack.data?.id !== row.id) throw new Error('scan_save_conflict');
   return ack.data;
