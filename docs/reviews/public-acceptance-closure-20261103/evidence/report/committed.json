@@ -1,0 +1,17 @@
+{
+  "sha": "629f9030a848cc81578aaade648fa3d60f62b030",
+  "origin": "https://sod1820-9zqqmp0e8-sod1820-s-projects.vercel.app",
+  "marker": "APPROVED-REPORT-ACCEPTANCE-20261103-7b160de1",
+  "modelCalls": 0,
+  "mailSent": false,
+  "identityCreated": false,
+  "livePosts": 2,
+  "contactHttp": 201,
+  "contactBrowserReceipt": true,
+  "resumedIssueOnly": true,
+  "browserBotGuard": true,
+  "issueBrowserReceipt": false,
+  "issueEvidence": "approved direct canonical API + mocked component/worker; bot guard preserved",
+  "issueHttp": 204,
+  "completed": true
+}
