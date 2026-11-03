@@ -208,9 +208,11 @@ function workerHarness({ clients = {}, fetcher = async () => json([]) } = {}) {
   vm.runInNewContext(buildPublicReadingWorker(sha), { self: { location: { origin: SITE }, skipWaiting() {},
     clients: { claim() {}, get: async id => clients[id] }, addEventListener: (name, handler) => { listeners[name] = handler; } },
     URL, Response, Request, Set, JSON, fetch: async (...args) => { calls.push(args); return fetcher(...args); } });
-  return { calls, listeners, async request(path, { method = "POST", body = "{}", clientId = "", origin = API } = {}) {
+  return { calls, listeners, async request(path, { method = "POST", body = "{}", clientId = "", origin = API, destination = "", mode } = {}) {
     let pending;
-    listeners.fetch({ request: new Request(origin + path, { method, ...(!["GET", "HEAD"].includes(method) ? { body } : {}) }), clientId,
+    const request = new Request(origin + path, { method, ...(mode ? {mode} : {}), ...(!["GET", "HEAD"].includes(method) ? { body } : {}) });
+    Object.defineProperty(request, "destination", {value: destination});
+    listeners.fetch({ request, clientId,
       respondWith(value) { pending = value; } });
     return pending ? await pending : null;
   } };
@@ -339,3 +341,13 @@ test("actual local artifact retains font fix, compiler isolation, no index shado
     { source: "/posts", destination: "/post", permanent: true }]);
   const gate = spawnSync(process.execPath, ["scripts/test-legacy-production-lock.mjs"], { cwd: root, encoding: "utf8" }); assert.equal(gate.status, 0, gate.stderr);
 });
+
+ test("native public image loading retains opaque response compatibility without bypassing private reads or writes", async () => {
+ const h=workerHarness();
+ for(const bucket of ["media","gallery","magar"]) assert.equal(await h.request(`/storage/v1/object/public/${bucket}/fixture.jpg`,{method:"GET",mode:"no-cors",destination:"image"}),null);
+ assert.equal(h.calls.length,0);
+ for(const path of ["/storage/v1/object/sign/gallery/a.jpg?token=synthetic", "/storage/v1/object/public/submission-inbox/a.jpg"])
+   assert.equal((await h.request(path,{method:"GET",mode:"no-cors",destination:"image"})).status,200);
+ assert.equal(h.calls.length,2); // existing API wrapper still owns these reads
+ assert.equal((await h.request("/storage/v1/object/public/gallery/a.jpg",{method:"POST"})).status,403);
+ });

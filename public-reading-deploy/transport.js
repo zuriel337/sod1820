@@ -112,6 +112,13 @@ function installPublicReadingWorker(policy) {
       })().catch(() => denied()));
       return;
     }
+    // Native no-cors image responses must retain redirect=follow. Fetching
+    // them through readFetch's redirect=error makes the opaque response
+    // incompatible with the browser image request. Only already-public image
+    // GETs bypass that API wrapper; private/signed objects and writes do not.
+    if (url.origin === authOrigin && req.method === "GET" && req.destination === "image"
+      && req.mode === "no-cors" && !url.search && !url.hash
+      && /^\/storage\/v1\/object\/public\/(?:media|gallery|magar)\//.test(url.pathname)) return;
     if (url.origin === authOrigin) {
       const ambiguous = url.pathname.includes("//") || url.pathname.includes("%") && !url.pathname.startsWith("/storage/v1/");
       if (ambiguous || url.pathname.startsWith("/realtime/v1")) {

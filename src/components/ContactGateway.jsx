@@ -146,6 +146,7 @@ function ContactForm({ kind, initialText, pathname, contactContext, user, onDone
       <h3>{idea ? "מה הייתם רוצים שיהיה כאן?" : "מה תרצו לספר לנו?"}</h3>
       <p>{idea ? "ספרו במילים שלכם. המיקום באתר מצורף אוטומטית כדי שנבין את ההקשר." : "אפשר לכתוב כאן פנייה כללית לצוות."}</p>
     </div>
+    {PUBLIC_READING_RELEASE ? <p role="status" className="sod29-contact-privacy">השליחה אינה זמינה בפריוויו הזה. אפשר למלא טיוטה ולהעתיק אותה; היא לא תישמר ולא תישלח לצוות.</p> : null}
     <label className="sod29-contact-field">
       <span>הודעה</span>
       <textarea data-autofocus rows={5} maxLength={MAX_INTAKE} value={message} onChange={(e) => { setMessage(e.target.value); setCopied(false); }} />
@@ -251,6 +252,7 @@ export default function ContactGateway({
       <p>תקלה, משהו לא ברור, רעיון או רמז — כתבו במילים שלכם, והמערכת תציע את המסלול המתאים.</p>
     </div>
 
+    {PUBLIC_READING_RELEASE ? <p role="status" className="sod29-contact-privacy">השליחה אינה זמינה בפריוויו הזה. אפשר למלא טיוטה ולהעתיק אותה; היא לא תישמר ולא תישלח לצוות.</p> : null}
     <label className="sod29-contact-field">
       <span>ספרו לנו מה קרה או מה חסר לכם…</span>
       <textarea data-autofocus rows={4} maxLength={MAX_INTAKE} value={text} onChange={(e) => setText(e.target.value)} />

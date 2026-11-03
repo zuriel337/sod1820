@@ -141,6 +141,7 @@ export default function IssueReport({
         <h3>ספר לנו מה קרה.</h3>
         <p>{context.source_href ? "כתובת המקור ומיקום הקריאה יצורפו לדיווח בלי פרטי התחברות או קישורי חשבון." : "אפשר לשלוח גם בלי לכתוב כלום. נצרף רק את המקום באתר, סוג המסך והשעה, בלי כתובת מלאה ובלי פרטים אישיים."}</p>
       </div>
+      {PUBLIC_READING_RELEASE ? <p role="status" className="sod29-contact-privacy">השליחה אינה זמינה בפריוויו הזה. אפשר למלא טיוטה ולהעתיק אותה; היא לא תישמר ולא תישלח לצוות.</p> : null}
       <label className="sod29-issue-report-field">
         <span>מה ראית? (לא חובה)</span>
         <textarea

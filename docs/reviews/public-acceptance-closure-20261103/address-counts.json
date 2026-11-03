@@ -1,0 +1,1027 @@
+{
+  "candidateBase": "3f23b26f1bf877484244eada5c1f7622eff967cb",
+  "records": 33667,
+  "unit": "collected URL strings/templates, not deduplicated existing public documents",
+  "automaticClassificationComplete": true,
+  "liveHttpAcceptanceComplete": false,
+  "networkRequests": 0,
+  "counts": {
+    "direct_route_candidate": 30574,
+    "template_or_unresolved": 23,
+    "redirected": 641,
+    "post_lookup_required": 2140,
+    "building_or_held": 75,
+    "unhandled_by_adapter": 211,
+    "account": 3
+  },
+  "families": {
+    "F00": {
+      "direct_route_candidate": 19
+    },
+    "UNRESOLVED": {
+      "template_or_unresolved": 3,
+      "redirected": 321,
+      "post_lookup_required": 38,
+      "unhandled_by_adapter": 7,
+      "building_or_held": 4,
+      "direct_route_candidate": 3
+    },
+    "F01": {
+      "post_lookup_required": 2095,
+      "redirected": 193,
+      "template_or_unresolved": 1,
+      "direct_route_candidate": 523
+    },
+    "F18": {
+      "redirected": 1,
+      "direct_route_candidate": 1,
+      "template_or_unresolved": 1
+    },
+    "F14": {
+      "redirected": 2,
+      "direct_route_candidate": 5
+    },
+    "F07": {
+      "redirected": 4,
+      "direct_route_candidate": 1
+    },
+    "F23": {
+      "building_or_held": 35,
+      "redirected": 2,
+      "template_or_unresolved": 1
+    },
+    "F33": {
+      "redirected": 6
+    },
+    "F31": {
+      "redirected": 2,
+      "building_or_held": 5
+    },
+    "F24": {
+      "redirected": 4,
+      "direct_route_candidate": 1
+    },
+    "F30": {
+      "unhandled_by_adapter": 7,
+      "building_or_held": 1,
+      "post_lookup_required": 2,
+      "template_or_unresolved": 1
+    },
+    "F25": {
+      "template_or_unresolved": 1,
+      "building_or_held": 1,
+      "redirected": 2
+    },
+    "F16": {
+      "template_or_unresolved": 4,
+      "direct_route_candidate": 22968,
+      "redirected": 80
+    },
+    "F02": {
+      "direct_route_candidate": 6,
+      "redirected": 2
+    },
+    "F13": {
+      "redirected": 1,
+      "template_or_unresolved": 2,
+      "direct_route_candidate": 29
+    },
+    "F32": {
+      "building_or_held": 1,
+      "unhandled_by_adapter": 197,
+      "direct_route_candidate": 13
+    },
+    "F17": {
+      "building_or_held": 5,
+      "direct_route_candidate": 107,
+      "redirected": 1
+    },
+    "F26": {
+      "account": 3,
+      "building_or_held": 4
+    },
+    "F22": {
+      "redirected": 2,
+      "template_or_unresolved": 2,
+      "direct_route_candidate": 9
+    },
+    "F34": {
+      "building_or_held": 9,
+      "post_lookup_required": 5,
+      "template_or_unresolved": 2,
+      "redirected": 1
+    },
+    "F29": {
+      "building_or_held": 2
+    },
+    "F03": {
+      "template_or_unresolved": 1,
+      "redirected": 6,
+      "direct_route_candidate": 3
+    },
+    "F05": {
+      "direct_route_candidate": 1
+    },
+    "F21": {
+      "building_or_held": 5,
+      "redirected": 1
+    },
+    "F20": {
+      "direct_route_candidate": 114,
+      "redirected": 1,
+      "template_or_unresolved": 1
+    },
+    "F06": {
+      "direct_route_candidate": 1
+    },
+    "F15": {
+      "direct_route_candidate": 2
+    },
+    "F10": {
+      "direct_route_candidate": 6632,
+      "template_or_unresolved": 1
+    },
+    "F12": {
+      "direct_route_candidate": 2
+    },
+    "F11": {
+      "building_or_held": 1
+    },
+    "F28": {
+      "direct_route_candidate": 3,
+      "redirected": 2
+    },
+    "F27": {
+      "direct_route_candidate": 1,
+      "building_or_held": 2
+    },
+    "F04": {
+      "template_or_unresolved": 1,
+      "redirected": 7,
+      "direct_route_candidate": 2
+    },
+    "F19": {
+      "template_or_unresolved": 1,
+      "direct_route_candidate": 128
+    }
+  },
+  "redirectTargetStates": {
+    "post-lookup": 247,
+    "missing": 258,
+    "public": 118,
+    "closed": 18
+  },
+  "notes": [
+    "Redirected includes literal hosting redirects and both existing regex redirects plus canonical application aliases.",
+    "Direct route candidates still need item/publication/source acceptance.",
+    "Post lookup is unverified identity, not accepted coverage.",
+    "Building includes deliberately private/closed/held routes; not all are public launch deferrals.",
+    "Unhandled may be a real asset, private/missing URL or a broken continuation; no blanket 404 waiver."
+  ],
+  "unhandled": [
+    {
+      "url": "/2029/control",
+      "family": "F30"
+    },
+    {
+      "url": "/2029/control?surface=ahavat-torah-system",
+      "family": "F30"
+    },
+    {
+      "url": "/2029/control?surface=bentov-findings-product",
+      "family": "F30"
+    },
+    {
+      "url": "/2029/control?surface=daat-tevunot-tree",
+      "family": "F30"
+    },
+    {
+      "url": "/2029/control?surface=sefer-yetzirah-world",
+      "family": "F30"
+    },
+    {
+      "url": "/2029/control?surface=sefer-yetzirah-world&experience=depths&page=53",
+      "family": "F30"
+    },
+    {
+      "url": "/2029/control?surface=sefer-yetzirah-world&structure=sy-structure%3Aten-depths&page=53",
+      "family": "F30"
+    },
+    {
+      "url": "/2029/home-preview",
+      "family": "UNRESOLVED"
+    },
+    {
+      "url": "/2029/kingdom",
+      "family": "UNRESOLVED"
+    },
+    {
+      "url": "/2029/preview",
+      "family": "UNRESOLVED"
+    },
+    {
+      "url": "/2029/preview/follow-center",
+      "family": "UNRESOLVED"
+    },
+    {
+      "url": "/audio/246.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/dynovisz/20160327_hebreugoel.mp3",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/dynovisz/20160519_hebreubehar.mp3",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/dynovisz/20160523_hebreuhod1.mp3",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/dynovisz/20160524_hebreu2.mp3",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/dynovisz/20160602_hebreudontorah3.mp3",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/dynovisz/20160621_hebreuerevrav2_.mp3",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/000.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/001.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/002.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/006.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/007.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/008.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/009.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/010.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/012.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/014.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/015.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/016.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/017.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/018.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/019.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/020.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/021.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/022.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/023.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/024.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/025.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/026.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/027.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/028.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/029.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/030.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/031.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/032.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/033.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/034.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/036.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/038.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/039.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/040.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/041.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/042.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/043.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/044.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/045.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/047.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/048.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/049.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/050.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/051.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/052.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/053.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/054.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/055.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/056.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/057.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/059.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/060.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/061.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/062.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/063.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/064.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/066.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/067.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/068.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/069.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/070.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/072.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/074.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/075.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/076.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/077.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/078.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/079.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/080.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/081.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/082.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/083.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/084.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/085.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/086.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/087.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/088.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/089.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/090.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/091.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/092.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/093.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/094.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/095.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/096.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/097.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/098.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/099.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/100.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/101.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/102.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/103.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/104.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/105.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/106.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/107.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/108.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/109.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/110.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/111.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/112.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/113.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/114.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/115.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/116.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/117.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/118.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/119.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/120.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/121.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/122.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/123.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/124.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/125.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/126.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/127.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/128.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/129.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/130.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/131.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/132.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/133.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/134.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/135.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/136.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/137.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/138.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/139.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/140.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/141.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/142.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/143.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/144.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/145.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/146.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/147.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/148.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/149.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/150.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/151.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/152.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/153.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/154.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/155.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/156.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/157.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/158.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/159.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/160.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/161.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/162.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/163.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/164.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/165.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/166.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/167.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/168.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/169.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/170.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/171.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/173.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/174.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/175.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/176.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/177.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/178.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/179.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/180.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/181.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/182.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/183.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/184.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/185.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/186.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/187.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/188.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/189.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/190.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/191.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/192.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/193.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/194.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/195.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/196.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/197.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/198.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/cheder/400",
+      "family": "UNRESOLVED"
+    },
+    {
+      "url": "/data/user/0/org.wordpress.android/cache/screenshot_2024-10-06-15-21-55-77_7352322957d4404136654ef4adb645045154140782925846382.jpg",
+      "family": "F32"
+    },
+    {
+      "url": "/dev/torah-occurrence-scene",
+      "family": "UNRESOLVED"
+    },
+    {
+      "url": "/entity-hub-preview/number/1237",
+      "family": "UNRESOLVED"
+    },
+    {
+      "url": "/wp-content/plugins/gallery-images/style/colorbox-3.css",
+      "family": "F32"
+    },
+    {
+      "url": "/wp-content/plugins/gallery-images/style/style2-os.css",
+      "family": "F32"
+    },
+    {
+      "url": "/wp-json/wp/v2/posts",
+      "family": "F32"
+    }
+  ]
+}
