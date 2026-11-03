@@ -1,6 +1,7 @@
 import React, { lazy, Suspense, useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../../lib/AuthContext.jsx";
+import { publicLaunchActionsLocked } from "../../lib/publicLaunch2029.js";
 import { appendCommunityAttachments, COMMUNITY_ATTACHMENT_ACCEPT, COMMUNITY_ATTACHMENT_MAX_FILES, uploadCommunityAttachment, validateCommunityAttachment } from "../../lib/community/communityAttachments.js";
 import { applySeo } from "../../lib/seo.js";
 import { bilingualDateLabel } from "../../lib/relativeTime2029.js";
@@ -13,7 +14,7 @@ import CommunitySignIn from "./CommunitySignIn.jsx";
 import LegacyAccountClaim, { LegacyAccountClaimEntry } from "./LegacyAccountClaim.jsx";
 import { isLegacyContributorId } from "../../lib/community/legacyClaim.js";
 import { communityWriterHref, resolveCommunityWriter } from "../../lib/community/communityWriterLink.js";
-import { communityAccountReturnHref, communityPersonReturnHref } from "../../lib/community/communityPersonNavigation.js";
+import { communityAccountReturnHref, communityChatHref, communityPersonReturnHref, communityReadingReturnHref } from "../../lib/community/communityPersonNavigation.js";
 import { personalMessagesReturnHref, writerPersonalHref } from "../../lib/userCenter/writerPersonal2029.js";
 import "../../pages/community2029.css";
 import ReactionBar from "../ReactionBar.jsx";
@@ -54,6 +55,7 @@ const PublicContributor2029Page = lazy(() => import("../../pages/PublicContribut
 
 function LiveAuthor({ row, accountProfiles, formatDate, linkAuthor = true, showAvatar = true }) {
   const [currentParams] = useSearchParams();
+  const location = useLocation();
   const accountId = row.authorUserId || row.linkedUserId || VERIFIED_ARCHIVE_PROFILES[row.authorKey]?.accountUserId;
   const account = accountId ? accountProfiles[accountId] : null;
   const name = account?.display_name || account?.username || row.authorName;
@@ -62,22 +64,24 @@ function LiveAuthor({ row, accountProfiles, formatDate, linkAuthor = true, showA
   </UserBadge>;
   if (!row.authorKey || !linkAuthor) return <span className="sod29-community-author-link">{badge}</span>;
   const target = new URLSearchParams(currentParams);
-  target.set("preview", "community"); target.set("data", "live"); target.set("memberCard", row.authorKey); target.delete("member");
-  return <Link className="sod29-community-author-link" to={`?${target}`} aria-label={`פתיחת כרטיס הכותב של ${name}`}>
+  target.set("memberCard", row.authorKey); target.delete("member");
+  return <Link className="sod29-community-author-link" to={communityChatHref(target, location.hash)} aria-label={`פתיחת כרטיס הכותב של ${name}`}>
     {badge}
   </Link>;
 }
 
 function LiveLike({ row }) {
+  const actionsLocked = publicLaunchActionsLocked(useAuth().isAdmin);
   const reactions = row.reactions || {};
   const dislikes = Number(reactions.dislikes) || 0;
   return <div className="sod29-community-reactions">
-    <ReactionBar key={JSON.stringify(reactions)} id={row.id} reactions={reactions} variant="row" allowBoost={false} requireAccount={import.meta.env.VITE_INTEGRATED_PREVIEW === "true"} />
+    {actionsLocked ? <span className="sod29-community-like" title="סימון אהבתי עדיין אינו זמין בגרסה זו" aria-label={`${legacyLikeCount(reactions)} אהבו · קריאה בלבד`}>👍 {legacyLikeCount(reactions) || ""}</span> : <ReactionBar key={JSON.stringify(reactions)} id={row.id} reactions={reactions} variant="row" allowBoost={false} requireAccount={import.meta.env.VITE_INTEGRATED_PREVIEW === "true"} />}
     {dislikes > 0 ? <span className="sod29-community-dislikes" aria-label={`${dislikes} לא אהבו`}><span aria-hidden="true">👎</span> {dislikes}</span> : null}
   </div>;
 }
 
 function LiveMessage({ row: sourceRow, onReply, accountProfiles, showSource = false, formatDate, linkAuthor = true, showAuthorAvatar = true, focused = false, messageActions, sharePath }) {
+  const actionsLocked = publicLaunchActionsLocked(useAuth().isAdmin);
   const row = { ...sourceRow, ...messageActions?.patches[sourceRow.id] };
   const permissions = messageActions?.items[row.id];
   const [selection, setSelection] = useState({ principalKey: null, mode: null });
@@ -88,7 +92,7 @@ function LiveMessage({ row: sourceRow, onReply, accountProfiles, showSource = fa
     ? selection.mode : null;
   const open = mode => setSelection({ principalKey: actor, mode });
   const close = () => { open(null); requestAnimationFrame(() => editButton.current?.focus()); };
-  const canReply = typeof onReply === "function" && (row.origin === "openweb" || row.origin === "community_2029");
+  const canReply = !actionsLocked && typeof onReply === "function" && (row.origin === "openweb" || row.origin === "community_2029");
   const shareUrl = communityMessageShareUrl(window.location.href, sharePath);
   const target = row.targetType === "number" && row.targetId ? `/number/${encodeURIComponent(row.targetId)}`
     : row.targetType === "els" && row.targetId ? `/codes/${encodeURIComponent(row.targetId)}`
@@ -127,6 +131,7 @@ function LiveThread({ row, onReply, accountProfiles, replyCounts, onRepliesLoade
   const [nextReplyOffset, setNextReplyOffset] = useState(0);
   const [loadingReplies, setLoadingReplies] = useState(false);
   const [replyError, setReplyError] = useState("");
+  const [focusAttempt, setFocusAttempt] = useState(0);
   const replyReadRef = useRef(false);
   const replyAnchorRef = useRef(null);
   const groupRef = useRef(null), previewRequested = useRef(false), previewInRange = useRef(false);
@@ -138,7 +143,7 @@ function LiveThread({ row, onReply, accountProfiles, replyCounts, onRepliesLoade
   useEffect(() => {
     if (!focusChildId) return undefined;
     let active = true;
-    setExpanded(true); setLoadingReplies(true); setReplyError("");
+    setExpanded(true); setLoadingReplies(true); setReplyError(""); setReplies([]); setReplyTotal(null);
     fetchCommunityReply(row.id, focusChildId).then((reply) => {
       if (!active) return;
       if (!reply) { setReplyError("התגובה המבוקשת אינה ציבורית או אינה זמינה."); return; }
@@ -146,7 +151,7 @@ function LiveThread({ row, onReply, accountProfiles, replyCounts, onRepliesLoade
     }).catch(() => { if (active) setReplyError("לא הצלחנו לטעון את התגובה המבוקשת."); })
       .finally(() => { if (active) setLoadingReplies(false); });
     return () => { active = false; };
-  }, [focusChildId, onRepliesLoaded, row.id]);
+  }, [focusChildId, focusAttempt, onRepliesLoaded, row.id]);
   useLayoutEffect(() => {
     if (!focused) return;
     const target = document.getElementById(`message-${row.id}`);
@@ -198,7 +203,7 @@ function LiveThread({ row, onReply, accountProfiles, replyCounts, onRepliesLoade
     <LiveMessage row={row} onReply={onReply} accountProfiles={accountProfiles} focused={focused} messageActions={messageActions} sharePath={[...ancestors, row.id]} />
     {canExpand && (!rootPreview || !expanded) ? <button type="button" className="sod29-community-replies-toggle" aria-expanded={expanded} aria-controls={childrenId} onClick={toggleReplies}>{expanded ? "הסתר תגובות" : "הצג תגובות"}{count != null ? ` (${count.toLocaleString("he-IL")})` : ""}</button> : null}
     <div id={childrenId} className="sod29-community-replies" hidden={!expanded || rootPreview && !replies.length && !replyError}>
-      {replyError ? <p role="alert">{replyError} <button type="button" onClick={() => loadReplies(nextReplyOffset)}>ניסיון נוסף</button></p> : null}
+      {replyError ? <p role="alert">{replyError} <button type="button" onClick={() => focusChildId ? setFocusAttempt(value => value + 1) : loadReplies(nextReplyOffset)}>ניסיון נוסף</button></p> : null}
       {loadingReplies && !replies.length ? <p role="status">טוען תגובות…</p> : null}
       {replies.map((reply) => <LiveThread key={reply.id} row={reply} onReply={onReply} accountProfiles={accountProfiles} replyCounts={replyCounts} onRepliesLoaded={onRepliesLoaded} refreshToken={refreshToken} ancestors={[...ancestors, row.id]} focusPath={focusPath} messageActions={messageActions} />)}
       {!rootPreview && !loadingReplies && !replyError && replyTotal === 0 ? <p>אין תגובות גלויות.</p> : null}
@@ -232,10 +237,18 @@ export function PublicCommunityActivity2029({ rows = [], count = null, loading =
   </div>;
 }
 
-export default function CommunityLive2029({ leadingContent = null, trailingContent = null, canonicalPath = "/2029?preview=community&data=live" }) {
+export default function CommunityLive2029({ leadingContent = null, trailingContent = null, canonicalPath = "/community/chat" }) {
   const palette = use2029Palette();
-  const { user, profile } = useAuth();
-  const [params, setParams] = useSearchParams();
+  const { user, profile, isAdmin } = useAuth();
+  const actionsLocked = publicLaunchActionsLocked(isAdmin);
+  const location = useLocation(), navigate = useNavigate();
+  const [params] = useSearchParams();
+  const readingLocation = useRef({ params, hash: location.hash });
+  readingLocation.current = { params, hash: location.hash };
+  const setParams = useCallback((next, options) => {
+    const current = readingLocation.current;
+    navigate(communityChatHref(typeof next === "function" ? next(current.params) : next, current.hash), options);
+  }, [navigate]);
   const claimId = params.get("claim") || "";
   const memberId = claimId ? "" : params.get("member") || "";
   const cardId = memberId || claimId ? "" : params.get("memberCard") || "";
@@ -244,16 +257,23 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
   const replyIdParam = params.get("reply") || "";
   const threadPathParam = params.get("path") || "";
   const threadFocus = useMemo(() => normalizeCommunityThreadFocus({ threadId: threadIdParam, replyId: replyIdParam, path: threadPathParam }), [threadIdParam, replyIdParam, threadPathParam]);
+  const hasThreadRequest = ["thread", "reply", "path"].some(key => params.has(key));
   const personalThreadReturn = personalMessagesReturnHref(params.get("returnTo"));
-  const threadReturnHref = personalThreadReturn || canonicalPath;
-  const fullThreadHref = `/2029?${new URLSearchParams({ preview: "community", data: "live", thread: threadFocus?.threadId || "", returnTo: threadReturnHref })}`;
+  const feedParams = new URLSearchParams(params);
+  for (const key of ["thread", "reply", "path", "member", "memberCard", "claim", "returnTo"]) feedParams.delete(key);
+  const threadReturnHref = personalThreadReturn || communityReadingReturnHref(params.get("returnTo")) || communityChatHref(feedParams, location.hash);
+  const fullThreadParams = new URLSearchParams(params);
+  for (const key of ["reply", "path", "member", "memberCard", "claim"]) fullThreadParams.delete(key);
+  fullThreadParams.set("returnTo", threadReturnHref);
+  const fullThreadHref = communityChatHref(fullThreadParams, threadFocus ? `#message-${threadFocus.threadId}` : "");
   const [rows, setRows] = useState([]);
   const [nextOffset, setNextOffset] = useState(0);
   const [total, setTotal] = useState(COMMUNITY_ARCHIVE_TOTAL);
   const [loading, setLoading] = useState(true);
   const [feedSettled, setFeedSettled] = useState(false);
   const [error, setError] = useState("");
-  const [query, setQuery] = useState("");
+  const query = params.get("q") || "";
+  const setQuery = value => setParams(current => { const next = new URLSearchParams(current); if (value) next.set("q", value); else next.delete("q"); return next; }, { replace: true });
   const sort = ["newest", "oldest", "liked"].includes(params.get("sort")) ? params.get("sort") : "newest";
   // Keep the loaded date window when switching to likes, including after a
   // reload. The public reader continues to receive only its supported sorts.
@@ -266,7 +286,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
   const [notice, setNotice] = useState("");
   const [composerExpanded, setComposerExpanded] = useState(false);
   const [publishedFeedRefresh, setPublishedFeedRefresh] = useState(0);
-  const composerPrincipal = user?.id || null;
+  const composerPrincipal = actionsLocked ? null : user?.id || null;
   const activeComposerPrincipal = useRef(composerPrincipal);
   activeComposerPrincipal.current = composerPrincipal;
   useLayoutEffect(() => {
@@ -291,7 +311,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
   const [focusedThreadState, setFocusedThreadState] = useState("idle");
   const requestedReplyCounts = useRef(new Set());
   const composerRef = useRef(null);
-  const compactComposer = Boolean(user);
+  const compactComposer = !actionsLocked && Boolean(user);
   const composerOpen = composerExpanded || draft.length > 0 || attachments.length > 0 || Boolean(replyTo);
   const composerProfile = profile?.id === user?.id ? profile : null;
   useLayoutEffect(() => {
@@ -337,7 +357,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
   }, [fetchSort]);
 
   useEffect(() => {
-    if (!feedSettled || window.location.hash !== "#legacy-chat") return undefined;
+    if (!feedSettled || !(window.location.hash === "#legacy-chat" || /spot_?im|openweb/i.test(window.location.search))) return undefined;
     // The source is mounted immediately; when the first feed completes, its
     // height can move the source below the initial hash position.
     const frame = requestAnimationFrame(() => document.getElementById("legacy-chat")?.scrollIntoView({ block: "start", behavior: "auto" }));
@@ -345,14 +365,14 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
   }, [feedSettled]);
 
   useEffect(() => {
-    if (memberId || claimId || threadFocus || loadedFeedSort.current === fetchSort && loadedPublishedFeedRefresh.current === publishedFeedRefresh) return;
+    if (memberId || claimId || hasThreadRequest || loadedFeedSort.current === fetchSort && loadedPublishedFeedRefresh.current === publishedFeedRefresh) return;
     loadedPublishedFeedRefresh.current = publishedFeedRefresh;
     loadPage(0, true);
     return () => { streamRequestRef.current++; };
-  }, [loadPage, memberId, claimId, fetchSort, threadFocus, publishedFeedRefresh]);
+  }, [loadPage, memberId, claimId, fetchSort, hasThreadRequest, publishedFeedRefresh]);
   useEffect(() => {
     setFocusedThread(null);
-    if (!threadFocus) { setFocusedThreadState("idle"); return undefined; }
+    if (!threadFocus) { setFocusedThreadState(hasThreadRequest ? "not_found" : "idle"); return undefined; }
     let active = true;
     setFocusedThreadState("loading");
     fetchCommunityThread(threadFocus.threadId).then((thread) => {
@@ -361,7 +381,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
       setFocusedThreadState(thread ? "ready" : "not_found");
     }).catch(() => { if (active) setFocusedThreadState("error"); });
     return () => { active = false; };
-  }, [threadFocus]);
+  }, [threadFocus, hasThreadRequest]);
   useLayoutEffect(() => { restoreCommunityScrollAnchor(feedAnchorRef.current); feedAnchorRef.current = null; }, [rows]);
   useLayoutEffect(() => {
     if (!memberId && profileReturnAnchor.current) {
@@ -370,7 +390,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
     }
   }, [memberId]);
   useEffect(() => {
-    if (memberId || claimId || cardId || threadFocus) return undefined;
+    if (memberId || claimId || cardId || hasThreadRequest) return undefined;
     let active = true;
     const stop = startCommunityRefresh({ refresh: async () => {
       const current = feedStateRef.current;
@@ -399,7 +419,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
       } finally { if (feedReadRef.current === read) feedReadRef.current = null; }
     }});
     return () => { active = false; stop(); };
-  }, [fetchSort, memberId, claimId, cardId, threadFocus]);
+  }, [fetchSort, memberId, claimId, cardId, hasThreadRequest]);
   useEffect(() => { applySeo({ title: "הקהילה — סוד 1820", description: "שיחות והודעות של קהילת סוד 1820.", path: canonicalPath, noindex: true }); }, [canonicalPath]);
   useEffect(() => { let active = true; fetchLinkedAccountProfiles().then((accounts) => { if (active) setAccountProfiles(accounts); }).catch(() => {}); return () => { active = false; }; }, []);
   useEffect(() => {
@@ -483,15 +503,16 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
   const writerHref = () => {
     const back = new URLSearchParams(params); back.delete("memberCard"); back.delete("member");
     const query = back.toString();
-    return communityWriterHref(writer, window.location.pathname + (query ? `?${query}` : ""), window.location.origin);
+    return communityWriterHref(writer, communityChatHref(query, location.hash), window.location.origin);
   };
   const openFullProfile = () => {
     profileReturnAnchor.current = captureCommunityScrollAnchor(document.getElementById("community-new-chat"));
     setProfileFilter("all"); setProfileSort("newest");
     setParams((current) => { const next = new URLSearchParams(current); next.set("member", selectedAuthorId); next.delete("memberCard"); return next; });
   };
-  const startReply = (row) => { setReplyTo(row); requestAnimationFrame(() => composerRef.current?.focus()); };
+  const startReply = (row) => { if (actionsLocked) return; setReplyTo(row); requestAnimationFrame(() => composerRef.current?.focus()); };
   const pickAttachments = (event) => {
+    if (actionsLocked) return;
     setComposerExpanded(true);
     setAttachmentError("");
     const selected = Array.from(event.target.files || []);
@@ -503,12 +524,14 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
     } catch (err) { setAttachmentError(err.message); }
   };
   const submit = async () => {
+    if (actionsLocked) return;
     const body = draft.trim();
     if ((!body && !attachments.length) || sending) return;
     if (import.meta.env.VITE_INTEGRATED_PREVIEW === "true" && !user) { setNotice("יש להתחבר כדי לפרסם הודעה."); return; }
     setSending(true); setNotice(""); setAttachmentError("");
     const principal = composerPrincipal;
     const isCurrent = () => activeComposerPrincipal.current === principal;
+    if (!isCurrent()) return;
     try {
       const uploaded = [];
       for (const item of attachments) {
@@ -530,8 +553,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
         // Show an accepted new root in the newest public window. A retained
         // search (including a different YouTube share token) or old/liked window
         // must not hide it. The feed effect reads after the URL/state commit.
-        setQuery("");
-        setParams(current => { const next = new URLSearchParams(current); next.delete("sort"); next.delete("sourceSort"); return next; }, { replace: true });
+        setParams(current => { const next = new URLSearchParams(current); next.delete("q"); next.delete("sort"); next.delete("sourceSort"); return next; }, { replace: true });
         setPublishedFeedRefresh(value => value + 1);
       } else await loadPage(0, true);
     } catch (error) { if (isCurrent()) setNotice(error?.code === "AUTH_REQUIRED" ? "יש להתחבר מחדש כדי לצרף קבצים. הטיוטה נשמרה." : attachments.length ? "השליחה או העלאת הקובץ נכשלה. הקבצים שנבחרו נשמרו בטיוטה לניסיון חוזר." : "לא הצלחנו לפרסם את ההודעה. הטיוטה נשמרה לניסיון חוזר."); }
@@ -541,17 +563,17 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
   return <Sod2029Shell surface="community" title="הקהילה" introVariant="none" status="קהילה" symbol="◎">
     {!memberId ? leadingContent : null}
     <main id="community-new-chat" className={`sod29-community sod29-community--artwork${!memberId && !claimId ? " sod29-community--full" : ""}`} data-community-mode="connected-preview" dir="rtl" style={{ "--community-input": palette.mode === "dark" ? `color-mix(in srgb, ${palette.cardRaised} 82%, ${palette.ink})` : palette.cardRaised }}>
-      {claimId ? <LegacyAccountClaim key={claimId} contributorId={claimId} palette={palette} /> : null}
-      {!memberId && !claimId ? <header className="sod29-community-intro"><h1>שיחה {!threadFocus ? <ConversationCount /> : null}</h1><p className="sod29-community-registration-note">כבר הייתם חלק מהשיחה? הירשמו עם המייל שלכם, ונעזור לכם לחבר את הפרופיל מהצ׳אט הישן לחשבון החדש.</p></header> : null}
+      {claimId ? actionsLocked ? <FrameState kind="empty" title="קישור החשבון הישן עדיין אינו זמין"><p>ההודעות הציבוריות נשמרו לקריאה. קישור חשבונות דורש את פעולות החשבון הקיימות ואינו פעיל בגרסה זו.</p><Link to={threadReturnHref}>חזרה לשיחות</Link></FrameState> : <LegacyAccountClaim key={claimId} contributorId={claimId} palette={palette} /> : null}
+      {!memberId && !claimId ? <header className="sod29-community-intro"><h1>שיחה {!hasThreadRequest ? <ConversationCount /> : null}</h1>{!actionsLocked ? <p className="sod29-community-registration-note">כבר הייתם חלק מהשיחה? הירשמו עם המייל שלכם, ונעזור לכם לחבר את הפרופיל מהצ׳אט הישן לחשבון החדש.</p> : null}</header> : null}
       {claimId ? null : memberId ? <Suspense fallback={null}>
         <PublicContributor2029Page communityAuthorKey={memberId}
           entryReturnHref={communityPersonReturnHref(window.location.pathname, params.toString(), window.location.hash)}
-          communityOwnProfileHref={isOwner ? writerPersonalHref("profile", { returnTo: window.location.pathname + window.location.search }) : null}
-          onCommunityReply={(item) => { closeProfile(); startReply(item); }} />
+          communityOwnProfileHref={!actionsLocked && isOwner ? writerPersonalHref("profile", { returnTo: window.location.pathname + window.location.search }) : null}
+          onCommunityReply={actionsLocked ? undefined : (item) => { closeProfile(); startReply(item); }} />
       </Suspense> : <div className="sod29-community-layout"><section className="sod29-community-main" aria-label="מרחב הקהילה">
-        <div className="sod29-community-entry-tools"><CommunitySignIn compact accountActions={<LegacyAccountClaimEntry rows={rows} onClaimed={messageActions.retry} />} />{!user ? <LegacyAccountClaimEntry rows={rows} onClaimed={messageActions.retry} /> : null}</div>
+        {actionsLocked ? <p className="sod29-community-registration-note" role="note">השיחות וההיסטוריה הציבורית פתוחות לקריאה. פרסום, תגובות, סימון אהבתי ופעולות חשבון עדיין אינם זמינים בגרסה זו.</p> : <div className="sod29-community-entry-tools"><CommunitySignIn compact accountActions={<LegacyAccountClaimEntry rows={rows} onClaimed={messageActions.retry} />} />{!user ? <LegacyAccountClaimEntry rows={rows} onClaimed={messageActions.retry} /> : null}</div>}
         {messageActions.principalKey && messageActions.state === "unavailable" ? <p role="status">אפשרויות העריכה אינן זמינות כרגע. <button type="button" className="sod29-community-secondary" onClick={messageActions.retry}>ניסיון נוסף</button></p> : null}
-        <section className="sod29-community-composer" data-compact={compactComposer} data-expanded={composerOpen} aria-label="כתיבת הודעה">
+        {!actionsLocked ? <section className="sod29-community-composer" data-compact={compactComposer} data-expanded={composerOpen} aria-label="כתיבת הודעה">
           <label className={compactComposer ? "sod29-community-sr-only" : undefined} htmlFor="community-live-draft">מה תרצו לשתף?</label>
           {replyTo ? <div className="sod29-community-reply-target"><span>תשובה ל{replyTo.authorName}</span><button type="button" onClick={() => setReplyTo(null)}>ביטול תשובה</button></div> : null}
           <div className={compactComposer ? "sod29-community-compose-row" : undefined}>
@@ -570,16 +592,16 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
           {!compactComposer || composerOpen ? <div className="sod29-community-composer-bottom"><small>{draft.length}/1500</small><button type="button" className="sod29-community-primary" disabled={(!draft.trim() && !attachments.length) || sending || import.meta.env.VITE_INTEGRATED_PREVIEW === "true" && !user} title={import.meta.env.VITE_INTEGRATED_PREVIEW === "true" && !user ? "יש להתחבר כדי לפרסם" : undefined} onClick={submit}>{sending ? "שולח…" : "פרסום"}</button></div> : null}
           {import.meta.env.VITE_INTEGRATED_PREVIEW === "true" && !user ? <p className="sod29-community-feed-controls-note">התחברו כדי לפרסם הודעות, לצרף קבצים ולסמן אהבתי.</p> : null}
           {notice ? <p className="sod29-community-status" role="status">{notice}</p> : null}
-        </section>
-        {threadFocus ? <section className="sod29-community-focus" aria-labelledby="community-focus-title">
+        </section> : null}
+        {hasThreadRequest ? <section className="sod29-community-focus" aria-labelledby="community-focus-title">
           <header className="sod29-community-focus-head"><div><p>{personalThreadReturn ? "מתוך התגובות אליי" : "הקהילה"}</p><h2 id="community-focus-title">{personalThreadReturn ? "השיחה שבה התקבלה התגובה" : "השיחה המלאה"}</h2></div><div>
             <Link className="sod29-community-secondary" to={threadReturnHref}>{personalThreadReturn ? "חזרה להודעות שלי" : "חזרה לקהילה"}</Link>
-            {threadFocus.replyId ? <Link className="sod29-community-secondary" to={fullThreadHref}>לשרשור המלא</Link> : null}
+            {threadFocus?.replyId ? <Link className="sod29-community-secondary" to={fullThreadHref}>לשרשור המלא</Link> : null}
           </div></header>
           {focusedThreadState === "loading" ? <p role="status">טוען את השיחה…</p> : null}
           {focusedThreadState === "error" ? <FrameState kind="error" title="טעינת השיחה נכשלה"><p>לא הצלחנו לפתוח את השיחה כרגע.</p></FrameState> : null}
           {focusedThreadState === "not_found" ? <FrameState kind="empty" title="השיחה אינה זמינה"><p>ייתכן שהשיחה אינה ציבורית או שהוסרה.</p></FrameState> : null}
-          {focusedThread ? <LiveThread key={focusedThread.id} row={focusedThread} accountProfiles={accountProfiles} onReply={startReply} replyCounts={replyCounts} onRepliesLoaded={onRepliesLoaded} refreshToken={threadRefresh} focusPath={threadFocus.path} messageActions={messageActions} /> : null}
+          {focusedThread && threadFocus && focusedThread.id === threadFocus.threadId ? <LiveThread key={`${focusedThread.id}:${threadFocus.path.join(",")}`} row={focusedThread} accountProfiles={accountProfiles} onReply={actionsLocked ? undefined : startReply} replyCounts={replyCounts} onRepliesLoaded={onRepliesLoaded} refreshToken={threadRefresh} focusPath={threadFocus.path} messageActions={messageActions} /> : null}
         </section> : <>
           <div className="sod29-community-stream-tools"><label className="sod29-community-search"><span className="sod29-community-sr-only">חיפוש בשיחות שבדף</span><input type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="חיפוש בשיחות שבדף" /></label>
           <section className="sod29-community-feed-controls" aria-label="סידור וסינון השיחות" aria-describedby="community-search-scope">
@@ -603,18 +625,18 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
           </section></div>
           {error ? <FrameState kind="error" title="טעינת השיחות נכשלה"><p>{error}</p><button type="button" className="sod29-community-secondary" onClick={() => loadPage(0, true)}>ניסיון נוסף</button></FrameState> : null}
           {!error && !loading && !filtered.length ? <FrameState kind="empty" title={query.trim() ? "לא נמצאו התאמות לחיפוש" : "אין הודעות להצגה כרגע"}>{query.trim() ? <><p>החיפוש חל רק על ההודעות שכבר נטענו.</p><button type="button" className="sod29-community-secondary" onClick={() => setQuery("")}>ניקוי החיפוש</button></> : <p>אפשר לנסות לרענן את השיחות.</p>}</FrameState> : null}
-          <div className="sod29-community-feed">{filtered.map((row) => <LiveThread key={row.id} row={row} accountProfiles={accountProfiles} onReply={startReply} replyCounts={replyCounts} onRepliesLoaded={onRepliesLoaded} refreshToken={threadRefresh} messageActions={messageActions} />)}</div>
+          <div className="sod29-community-feed">{filtered.map((row) => <LiveThread key={row.id} row={row} accountProfiles={accountProfiles} onReply={actionsLocked ? undefined : startReply} replyCounts={replyCounts} onRepliesLoaded={onRepliesLoaded} refreshToken={threadRefresh} messageActions={messageActions} />)}</div>
           {nextOffset < total ? <button className="sod29-community-load" type="button" disabled={loading} onClick={() => loadPage(nextOffset, false)}>{loading ? "טוען…" : "עוד הודעות"} <span aria-hidden="true">↓</span></button> : <p className="sod29-community-end">הגעתם לסוף השיחות.</p>}
         </>}
       </section></div>}
       {!memberId && !claimId ? <footer className="sod29-community-public-footer" aria-label="השתתפות בקהילה">
-        {trailingContent && !threadFocus ? <a href="#legacy-chat">ממשיכים לשוחח ↓</a> : null}
+        {trailingContent && !hasThreadRequest ? <a href="#legacy-chat">{actionsLocked ? "היסטוריית הצ׳אט הוותיק ↓" : "ממשיכים לשוחח ↓"}</a> : null}
         <p>משתפים בכבוד, מצרפים מקורות כשאפשר ושומרים על הפרטיות.</p>
       </footer> : null}
       {cardId ? <div className="sod29-community-card-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget) closeCard(); }}>
         <section className="sod29-community-card" role="dialog" aria-modal="true" aria-label={`הודעות של ${memberName}`}>
           <button ref={cardCloseRef} type="button" className="sod29-community-card-close" onClick={closeCard} aria-label="סגירת כרטיס הכותב">×</button>
-          <header className="sod29-community-card-header"><span className="sod29-community-card-avatar-edit"><UserBadge avatarOnly name={memberName} avatarUrl={linkedAccount?.avatar_url || profileRows[0]?.avatarUrl} avatarClassName="sod29-community-avatar" /><QuickProfileAvatar2029 view={{ communityAuthorKey: cardId, canonicalHref: canonicalPath }} onSaved={() => { const principal = user?.id; if (principal) fetchLinkedAccountProfiles([principal]).then(accounts => { if (activeComposerPrincipal.current === principal) setAccountProfiles(current => ({ ...current, ...accounts })); }).catch(() => {}); }} /></span><h2>{memberName}</h2>{writer?.isWriter ? <span className="sod29-community-writer-chip">כותב</span> : null}{baseline?.handle ? <p dir="ltr">@{baseline.handle}</p> : null}{profileSummary.firstAt ? <p>פעילות ציבורית מאז {sinceFormat.format(new Date(profileSummary.firstAt))}</p> : null}{profileSummary.archiveLikes != null ? <strong>👍 {profileSummary.archiveLikes.toLocaleString("he-IL")} לייקים בהודעות</strong> : baseline?.likesLabel ? <strong>👍 התקבלו {baseline.likesLabel} לייקים</strong> : null}</header>
+          <header className="sod29-community-card-header"><span className="sod29-community-card-avatar-edit"><UserBadge avatarOnly name={memberName} avatarUrl={linkedAccount?.avatar_url || profileRows[0]?.avatarUrl} avatarClassName="sod29-community-avatar" />{!actionsLocked ? <QuickProfileAvatar2029 view={{ communityAuthorKey: cardId, canonicalHref: canonicalPath }} onSaved={() => { const principal = user?.id; if (principal) fetchLinkedAccountProfiles([principal]).then(accounts => { if (activeComposerPrincipal.current === principal) setAccountProfiles(current => ({ ...current, ...accounts })); }).catch(() => {}); }} /> : null}</span><h2>{memberName}</h2>{writer?.isWriter ? <span className="sod29-community-writer-chip">כותב</span> : null}{baseline?.handle ? <p dir="ltr">@{baseline.handle}</p> : null}{profileSummary.firstAt ? <p>פעילות ציבורית מאז {sinceFormat.format(new Date(profileSummary.firstAt))}</p> : null}{profileSummary.archiveLikes != null ? <strong>👍 {profileSummary.archiveLikes.toLocaleString("he-IL")} לייקים בהודעות</strong> : baseline?.likesLabel ? <strong>👍 התקבלו {baseline.likesLabel} לייקים</strong> : null}</header>
           {baseline?.isPrivate ? <p className="sod29-community-card-note">פרטי הפרופיל פרטיים; ההודעות שכבר פורסמו ציבוריות.</p> : null}
           <div className="sod29-community-card-section"><h3>ההודעות של {memberName}</h3>{!profileLoading && !profileError && Number.isSafeInteger(profileCount) ? <span>{profileCount.toLocaleString("he-IL")} הודעות</span> : null}</div>
           {profileLoading ? <p className="sod29-community-card-note" role="status">טוען הודעות…</p> : null}
@@ -626,6 +648,6 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
         </section>
       </div> : null}
     </main>
-    {!memberId && !claimId && !threadFocus ? trailingContent : null}
+    {!memberId && !claimId && !hasThreadRequest ? trailingContent : null}
   </Sod2029Shell>;
 }

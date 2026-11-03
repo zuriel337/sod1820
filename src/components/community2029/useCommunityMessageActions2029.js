@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useAuth } from "../../lib/AuthContext.jsx";
+import { publicLaunchActionsLocked } from "../../lib/publicLaunch2029.js";
 import { deleteCommunityMessage, editCommunityMessage, fetchCommunityMessageActions } from "../../lib/community/communityMessageActions.js";
 
 const empty = principalKey => ({ principalKey, items: {}, patches: {}, state: "loading" });
@@ -8,8 +9,9 @@ const validId = value => typeof value === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-
 // Local view/request state only. Server RPCs remain the ownership and write
 // authority; this hook is shared by the feed and the existing author activity.
 export function useCommunityMessageActions2029(rows, onChanged) {
-  const { user } = useAuth();
-  const principalKey = user?.id || null;
+  const { user, isAdmin } = useAuth();
+  const actionsLocked = publicLaunchActionsLocked(isAdmin);
+  const principalKey = actionsLocked ? null : user?.id || null;
   const current = useRef(principalKey); current.current = principalKey;
   const mounted = useRef(true);
   const changed = useRef(onChanged); changed.current = onChanged;
@@ -55,6 +57,7 @@ export function useCommunityMessageActions2029(rows, onChanged) {
 
   const mutate = useCallback(async (kind, row, body) => {
     const key = `${principalKey}:${row.id}`;
+    if (actionsLocked || !principalKey) return { state: "unavailable" };
     if (current.current !== principalKey || !mounted.current) return { state: "stale" };
     if (pending.current.has(key)) return { state: "busy" };
     pending.current.add(key);
@@ -73,7 +76,7 @@ export function useCommunityMessageActions2029(rows, onChanged) {
       }
       return result;
     } finally { pending.current.delete(key); }
-  }, [principalKey]);
+  }, [principalKey, actionsLocked]);
   const retry = () => { setSnapshot(value => ({ ...value, items: {} })); setAttempt(value => value + 1); };
   return { ...active, register, mutate, retry };
 }

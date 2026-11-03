@@ -248,3 +248,30 @@ test("empty public history is measured zero; invalid or truncated activity never
     if (kind === "truncated") { assert.equal(result.archiveLikes, null); assert.equal(result.publicActivity, undefined); assert.equal(pages, 10); }
   }
 });
+
+test("malformed or cyclic exact focus never degrades to a different public conversation", () => {
+  const root = "11111111-1111-4111-8111-111111111111", child = "22222222-2222-4222-8222-222222222222";
+  for (const focus of [
+    { threadId: root, replyId: "missing" },
+    { threadId: root, replyId: child, path: `${root},private,${child}` },
+    { threadId: root, replyId: child, path: `${child},${root}` },
+    { threadId: root, replyId: child, path: `${root},${root},${child}` },
+    { threadId: root, path: `${root},` },
+    { replyId: child },
+  ]) assert.equal(normalizeCommunityThreadFocus(focus), null);
+  assert.deepEqual(normalizeCommunityThreadFocus({ threadId: root, path: `${root},${child}` }), { threadId: root, replyId: child, path: [root, child] });
+});
+test("an injected public reader remains the reader for paginated replies and counts", async () => {
+  const ids = Array.from({ length: 201 }, (_, n) => `00000000-0000-4000-8000-${String(n).padStart(12, "0")}`);
+  const calls = [];
+  const client = { rpc(name, args) {
+    calls.push({ name, args });
+    const result = { data: name === "community_reply_counts" ? args.p_ids.map(parent_id => ({ parent_id, reply_count: 0 })) : [], error: null };
+    return { select: async () => result, then: (resolve, reject) => Promise.resolve(result).then(resolve, reject) };
+  }, from() { throw new Error("an authoritative empty public RPC must not fall back"); } };
+  assert.deepEqual((await fetchCommunityArchivePage({ client })).rows, []);
+  assert.deepEqual((await fetchCommunityReplies(ids[0], { client, limit: 2 })).rows, []);
+  const counts = await fetchCommunityReplyCounts(ids, { client });
+  assert.equal(Object.keys(counts).length, 201);
+  assert.deepEqual(calls.filter(call => call.name === "community_reply_counts").map(call => call.args.p_ids.length), [200, 1]);
+});

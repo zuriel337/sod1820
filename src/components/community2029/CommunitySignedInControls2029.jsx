@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../../lib/AuthContext.jsx";
+import { publicLaunchActionsLocked } from "../../lib/publicLaunch2029.js";
 import { supabase } from "../../lib/supabase.js";
 import { getUnreadCount } from "../../lib/notifications.js";
 import { writerPersonalHref } from "../../lib/userCenter/writerPersonal2029.js";
@@ -9,9 +10,10 @@ import NavigationIcon2029 from "../experience2029/NavigationIcon2029.jsx";
 
 // A presentation of the existing account and notification reader, not another inbox.
 export default function CommunitySignedInControls2029({ children }) {
-  const { user, profile, loading } = useAuth();
+  const { user, profile, loading, isAdmin } = useAuth();
+  const actionsLocked = publicLaunchActionsLocked(isAdmin);
   const location = useLocation(), menu = useRef(null);
-  const principal = user?.id || null, active = useRef(principal); active.current = principal;
+  const principal = actionsLocked ? null : user?.id || null, active = useRef(principal); active.current = principal;
   const [snapshot, setSnapshot] = useState({ owner: null, state: "loading", count: null });
   const ownProfile = profile?.id === principal ? profile : null;
   const returnTo = communityAccountReturnHref(location);
@@ -19,7 +21,7 @@ export default function CommunitySignedInControls2029({ children }) {
     if (!principal || loading) return;
     let alive = true, pending = false;
     const refresh = async () => {
-      if (pending || document.hidden) return;
+      if (pending || document.hidden || !alive || active.current !== principal) return;
       pending = true;
       try {
         const identity = await supabase.auth.getUser();
@@ -42,7 +44,7 @@ export default function CommunitySignedInControls2029({ children }) {
     document.addEventListener("pointerdown", closeOutside);
     return () => document.removeEventListener("pointerdown", closeOutside);
   }, []);
-  if (!user) return null;
+  if (actionsLocked || !user) return null;
   const count = snapshot.owner === principal && snapshot.state === "ready" ? snapshot.count : null;
   return <div className="sod29-community-account-row" data-notification-state={snapshot.owner === principal ? snapshot.state : "loading"}>
     <Link className="sod29-community-account-name" to={writerPersonalHref("profile", { returnTo })}>{ownProfile?.display_name || ownProfile?.username || "החשבון שלי"}</Link>

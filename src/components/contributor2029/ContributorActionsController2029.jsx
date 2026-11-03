@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useAuth } from "../../lib/AuthContext.jsx";
+import { publicLaunchActionsLocked } from "../../lib/publicLaunch2029.js";
 import { use2029Shell } from "../experience2029/Sod2029Shell.jsx";
 import WatchButton from "../WatchButton.jsx";
 import ShareActions from "../ShareActions.jsx";
@@ -12,12 +13,13 @@ import { ContributorOverview2029, ContributorStudio2029, ContributorActionRow202
 // This controller only wires the existing public reader, subscription, inbox and private workspace.
 // Presentation belongs to the controlled Claude components above; no new account/content store.
 export default function ContributorActionsController2029({ view, onPublicData, excludedStudioIds }) {
-  const { user, loading } = useAuth();
+  const { user, loading, isAdmin } = useAuth();
+  const actionsLocked = publicLaunchActionsLocked(isAdmin);
   const shell = use2029Shell();
   const key = decodeURIComponent(view.canonicalHref?.split("/").filter(Boolean).pop() || "");
-  const actor = user?.id || null;
+  const actor = actionsLocked ? null : user?.id || null;
   const visitorPreview = new URLSearchParams(useLocation().search).get("view") === "public";
-  const scope = `${key}:${actor || "guest"}:${visitorPreview ? "visitor" : "viewer"}`;
+  const scope = `${key}:${actor || "guest"}:${visitorPreview ? "visitor" : "viewer"}:${actionsLocked}`;
   const [overview, setOverview] = useState({ key: null, value: { state: "loading" } });
   const [capabilities, setCapabilities] = useState({ scope: null });
   const [dialog, setDialog] = useState({ scope: null, open: false, state: "idle" });
@@ -37,6 +39,7 @@ export default function ContributorActionsController2029({ view, onPublicData, e
     return () => { abort.signal.removeEventListener("abort", timeout); abort.abort(); clearTimeout(timer); };
   }, [key]);
   useEffect(() => {
+    if (actionsLocked) { setCapabilities({ scope, state: "locked" }); setDialog({ scope, open: false, state: "idle" }); return; }
     if (loading) return;
     const abort = new AbortController();
     const timer = setTimeout(() => abort.abort(), 8000);
@@ -47,17 +50,17 @@ export default function ContributorActionsController2029({ view, onPublicData, e
     const timeout = () => setCapabilities({ scope, state: "unavailable" });
     abort.signal.addEventListener("abort", timeout, { once: true });
     return () => { abort.signal.removeEventListener("abort", timeout); abort.abort(); clearTimeout(timer); };
-  }, [key, scope, loading, actor, visitorPreview]);
+  }, [key, scope, loading, actor, visitorPreview, actionsLocked]);
   const data = overview.key === key ? overview.value : { state: "loading" };
-  const caps = capabilities.scope === scope ? { ...capabilities, ...(visitorPreview ? { owner: false, message: "login_required" } : {}) } : {};
-  const modal = dialog.scope === scope ? dialog : { open: false, state: "idle" };
+  const caps = actionsLocked ? { state: "locked" } : capabilities.scope === scope ? { ...capabilities, ...(visitorPreview ? { owner: false, message: "login_required" } : {}) } : {};
+  const modal = !actionsLocked && dialog.scope === scope ? dialog : { open: false, state: "idle" };
   useEffect(() => {
     onPublicData?.({ overview: overview.key === key ? overview.value : { state: "loading" },
-      owner: !visitorPreview && capabilities.scope === scope && capabilities.owner === true });
-  }, [onPublicData, overview, capabilities, key, scope, visitorPreview]);
+      owner: !actionsLocked && !visitorPreview && capabilities.scope === scope && capabilities.owner === true });
+  }, [onPublicData, overview, capabilities, key, scope, visitorPreview, actionsLocked]);
   const personalHref = (module) => writerPersonalHref(module, { returnTo: view.canonicalHref });
   async function send(body) {
-    if (pendingSend.current || caps.message !== "ready" || !actor) return;
+    if (actionsLocked || activeScope.current !== scope || pendingSend.current || caps.message !== "ready" || !actor) return;
     pendingSend.current = true;
     setDialog({ scope, open: true, state: "sending" });
     try {
@@ -90,6 +93,7 @@ export default function ContributorActionsController2029({ view, onPublicData, e
       <ShareActions type="researcher" url={`${typeof window === "undefined" ? "https://sod1820.co.il" : window.location.origin}${view.canonicalHref}`}
         title={view.profile.name} image={view.profile.avatar} sourceSurface="public-contributor-2029" />
     </ContributorActionRow2029>
+    {actionsLocked ? <p className="pc-reason" role="note">הפרסומים הציבוריים פתוחים לקריאה. מעקב, הודעות ועריכת החשבון עדיין אינם זמינים בגרסה זו.</p> : null}
     {caps.state === "unavailable" ? <p className="pc-reason" role="status">פעולות הכותב אינן זמינות כרגע.</p> : null}
     {modal.state === "sent" ? <a className="pc-open" href={writerPersonalHref("messages", { writer: key, returnTo: view.canonicalHref })}>להמשך השיחה בתיבה שלי</a> : null}
     {data.state === "ready" ? <>

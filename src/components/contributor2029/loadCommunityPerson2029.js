@@ -56,7 +56,7 @@ export async function loadCommunityPerson2029(authorKey, { client = getPublicRes
     activitySections: { community: "chat", all: "all", sources: "contributions" },
     contextLabel: "הודעות ופעילות", publicActions: false,
     publicLinks: authorKey.startsWith("user:") ? [] : [{
-      href: `/2029?${new URLSearchParams({ preview: "community", data: "live", claim: authorKey })}`,
+      href: `/community/chat?${new URLSearchParams({ claim: authorKey })}`,
       label: "זה החשבון הישן שלי",
     }],
   };

@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../lib/AuthContext.jsx";
+import { publicLaunchActionsLocked } from "../../lib/publicLaunch2029.js";
 import { useResearch } from "../../lib/research/ResearchProvider.jsx";
 import { use2029Shell } from "../experience2029/Sod2029Shell.jsx";
 import { fetchContributorOverview } from "./contributorOverview2029Model.js";
@@ -10,10 +11,11 @@ import { WriterReadingActions2029, WriterReadingSummary2029, WriterFeatured2029,
 
 export function useContributorReading2029(view, onRefresh) {
   const research = useResearch();
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
+  const actionsLocked = publicLaunchActionsLocked(isAdmin);
   const shell = use2029Shell();
   const location = useLocation();
-  const visitorPreview = new URLSearchParams(location.search).get("view") === "public";
+  const visitorPreview = actionsLocked || new URLSearchParams(location.search).get("view") === "public";
   const navigate = useNavigate();
   const key = view?.canonicalHref || "";
   const scope = `${key}:${user?.id || "guest"}:${visitorPreview ? "visitor" : "viewer"}`;
@@ -32,7 +34,7 @@ export function useContributorReading2029(view, onRefresh) {
   const selected = new Set(featured.map((item) => item.id));
   const canonicalKey = decodeURIComponent(key.split("/").pop() || "");
   async function mutate(action, payload, id = null) {
-    if (!current.owner || !user?.id || busy.current) return;
+    if (actionsLocked || active.current !== scope || !current.owner || !user?.id || busy.current) return;
     busy.current = true; setMutation({ scope, state: "saving", id });
     try {
       const result = await updateWriterCuration(canonicalKey, action, payload, { userId: user.id });
@@ -48,6 +50,7 @@ export function useContributorReading2029(view, onRefresh) {
     } finally { busy.current = false; }
   }
   function recordOpen(item) {
+    if (actionsLocked) return;
     const entity = writerReadingEntity(item, key);
     if (!entity) return;
     research.logHistory?.(entity);
@@ -60,7 +63,7 @@ export function useContributorReading2029(view, onRefresh) {
     const entity = writerReadingEntity(item, key);
     if (!entity) return null;
     const saved = !visitorPreview && (research.saved || []).some((saved) => saved.type === entity.type && String(saved.ref) === String(entity.ref));
-    return <WriterReadingActions2029 saved={saved} onSave={research.saveItem ? () => {
+    return <WriterReadingActions2029 saved={saved} onSave={!actionsLocked && research.saveItem ? () => {
       if (visitorPreview) { setStatus({ scope, id: item.id, text: "זו תצוגה ציבורית. אפשר לחזור לאזור האישי כדי לשמור." }); return; }
       const ok = research.saveItem(entity);
       setStatus({ scope, id: item.id, text: ok ? "נשמר בספרייה האישית" : "השמירה אינה זמינה כרגע" });
