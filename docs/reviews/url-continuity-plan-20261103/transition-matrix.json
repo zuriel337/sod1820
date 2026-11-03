@@ -30,182 +30,266 @@
     "old_address": "/post; /posts; /פוסטים-אחרונים[-2]",
     "evidence": "App.jsx; redirect config; Posts2029",
     "meaning": "קטלוג פוסטים",
-    "target_2029": "/post או /2029/posts הקיימים",
-    "verified_status": "קיים; הכינויים טעונים קבלת HTTP",
+    "target_2029": "/post; aliases → canonical existing catalog",
+    "verified_status": "מומש; כינויים ופרמטרים בבדיקות מתאם ו־HTTP; לא קבלה ממצה של כל פריט",
     "permissions": "ציבור מסונן",
     "parameters_anchors": "page,q,category,series,sort,hash",
     "acceptance": "זהות תוצאות/עמוד ושמירת חזרה",
     "open_task": "C0",
-    "treatment": "PRESERVE_EXISTING"
+    "treatment": "IMPLEMENTED_BOUNDED_TESTED",
+    "planning_snapshot": {
+      "target_2029": "/post או /2029/posts הקיימים",
+      "verified_status": "קיים; הכינויים טעונים קבלת HTTP",
+      "treatment": "PRESERVE_EXISTING"
+    },
+    "implementation_evidence": "../public-url-continuity-20261103/README.md"
   },
   {
     "id": "F03",
     "old_address": "/category/:slug",
     "evidence": "TaxonomyPage:56–116;37labels DB",
     "meaning": "סיווג תוכן מסוים",
-    "target_2029": "מוצע: /2029/posts?category=<שם קנוני>",
-    "verified_status": "קורא קיים; החיבור הישן חסר",
+    "target_2029": "/category/:slug — אותו קטלוג Posts, סינון מדויק",
+    "verified_status": "מומש בעיצוב Posts; קבלה מתארחת לקטגוריה רגילה ולסלאש מקודד; כשל/ריק/פרטיות נבדקו",
     "permissions": "תוכן שפורסם בלבד",
     "parameters_anchors": "slug עברי/קידוד, עמוד ומיון",
     "acceptance": "השוואת מזהי תוצאות לקטגוריה; בלי התאמת substring עיוורת",
     "open_task": "C2",
-    "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    "treatment": "IMPLEMENTED_BOUNDED_TESTED",
+    "planning_snapshot": {
+      "target_2029": "מוצע: /2029/posts?category=<שם קנוני>",
+      "verified_status": "קורא קיים; החיבור הישן חסר",
+      "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    },
+    "implementation_evidence": "../public-url-continuity-20261103/README.md"
   },
   {
     "id": "F04",
     "old_address": "/tag/:slug כולל כינויי צאט",
     "evidence": "TaxonomyPage:63–93;1945labels DB",
     "meaning": "תגית מדויקת; כינויי צאט חריג מפורש",
-    "target_2029": "מוצע: מסנן תגית בקטלוג הקיים; כינויי צאט→/community/chat",
-    "verified_status": "מסנן tag חסר; כינוי לא מחובר",
+    "target_2029": "/tag/:slug; כינויי צאט מדויקים → /community/chat",
+    "verified_status": "מומש; תגית ציבורית, ישיר/רענון/חזרה, מובייל/מחשב; תגית לא קיימת 404",
     "permissions": "תוכן ציבורי; לא tag=טיוטה כעקיפה",
     "parameters_anchors": "שם תגית מדויק,קידוד,page,hash",
     "acceptance": "תגית≠קטגוריה≠q; ריק/כשל; חריגי צאט מוכרים בלבד",
     "open_task": "C2",
-    "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    "treatment": "IMPLEMENTED_BOUNDED_TESTED",
+    "planning_snapshot": {
+      "target_2029": "מוצע: מסנן תגית בקטלוג הקיים; כינויי צאט→/community/chat",
+      "verified_status": "מסנן tag חסר; כינוי לא מחובר",
+      "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    },
+    "implementation_evidence": "../public-url-continuity-20261103/README.md"
   },
   {
     "id": "F05",
     "old_address": "/category/וידאו",
     "evidence": "TaxonomyPage:65–67; public video readers",
     "meaning": "פוסטי וידאו וגם שכבת אור הגאולה",
-    "target_2029": "מוצע: תצוגת וידאו קיימת עם אותו אוסף",
-    "verified_status": "אין יעד יחיד מאומת; לא מפנים לעולם הכללי",
+    "target_2029": "/category/וידאו — סיווג הפוסטים הקיים + קישור נפרד ל־/or-geula",
+    "verified_status": "מומש; אין איחוד מדומה בין סיווג הפוסט לבין כל סרטוני המקור",
     "permissions": "פרסום/מקור/תוקף מדיה",
     "parameters_anchors": "סינון,פריט,מיקום,מקור",
     "acceptance": "אותה חברות באוסף; dedup לפי זהות; סרטון וצפייה",
     "open_task": "C2",
-    "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    "treatment": "IMPLEMENTED_BOUNDED_TESTED",
+    "planning_snapshot": {
+      "target_2029": "מוצע: תצוגת וידאו קיימת עם אותו אוסף",
+      "verified_status": "אין יעד יחיד מאומת; לא מפנים לעולם הכללי",
+      "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    },
+    "implementation_evidence": "../public-url-continuity-20261103/README.md"
   },
   {
     "id": "F06",
     "old_address": "/community",
     "evidence": "App.jsx:390; placeholders:85–144",
     "meaning": "מרכז שירותי הקהילה",
-    "target_2029": "מוצע: מעטפת הקהילה הקיימת עם קישורי השירות",
-    "verified_status": "לא מחובר;404 במועמד",
+    "target_2029": "/community",
+    "verified_status": "עמוד ההמשך קיים בפריוויו; אינו אישור לכתיבה או לחשבון אמיתי",
     "permissions": "קריאה ציבורית; פעולות בעל חשבון",
     "parameters_anchors": "tab,member,returnTo,hash",
     "acceptance": "מרכז שימושי ולא דף בית חלופי",
     "open_task": "C1",
-    "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    "treatment": "IMPLEMENTED_READ_ONLY_ACTIONS_OPEN",
+    "planning_snapshot": {
+      "target_2029": "מוצע: מעטפת הקהילה הקיימת עם קישורי השירות",
+      "verified_status": "לא מחובר;404 במועמד",
+      "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    },
+    "implementation_evidence": "../public-url-continuity-20261103/README.md"
   },
   {
     "id": "F07",
     "old_address": "/community/chat; /chat; /דף-צאט-ראשי",
     "evidence": "App.jsx:391,457–458; CommunityChatTransition",
     "meaning": "השיחה הקיימת",
-    "target_2029": "/community/chat קיים",
-    "verified_status": "הרכיבים קיימים; נעילה ותעבורה חוסמות",
+    "target_2029": "/community/chat",
+    "verified_status": "מומש ונבדק עם נתונים ציבוריים אמיתיים; כינויים ישנים, שיתוף יעד, שרשור ורענון; כתיבה נשארה סגורה",
     "permissions": "קריאה ציבורית; כתיבה לפי JWT/RLS קיימים",
     "parameters_anchors": "שרשור,תגובה,Spot.IM/OpenWeb,hash",
     "acceptance": "אורח/חבר/מנהל; קריאה,כניסה,תגובה,תמונה,התראה,החלפת חשבון",
     "open_task": "C1",
-    "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    "treatment": "IMPLEMENTED_READ_ONLY_ACTIONS_OPEN",
+    "planning_snapshot": {
+      "target_2029": "/community/chat קיים",
+      "verified_status": "הרכיבים קיימים; נעילה ותעבורה חוסמות",
+      "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    },
+    "implementation_evidence": "../public-url-continuity-20261103/README.md"
   },
   {
     "id": "F08",
     "old_address": "/community/chat#legacy-chat +כינויי OpenWeb",
     "evidence": "legacy.jsx:4488; LegacyOpenWebChat2029:10",
     "meaning": "היסטוריה חיה של הצאט הוותיק",
-    "target_2029": "אותו גשר OpenWeb הקיים",
-    "verified_status": "זהות השיחה נשמרה במקור; הכיסוי החי טרם התקבל",
+    "target_2029": "/community/chat#legacy-chat",
+    "verified_status": "תוכן הארכיון הציבורי מהקורא הקיים; אין פתיחת iframe/SSO או עקיפת אימות בעלות",
     "permissions": "הרשאות OpenWeb/החשבון הקיימות",
     "parameters_anchors": "POST_ID_GOES_HERE,SPOT_ID,deep-link params,hash",
     "acceptance": "אותה שיחה והודעה; אימות היסטוריה; בלי להפנות באותו דומיין בלולאה",
     "open_task": "C1",
-    "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    "treatment": "IMPLEMENTED_READ_ONLY_ACTIONS_OPEN",
+    "planning_snapshot": {
+      "target_2029": "אותו גשר OpenWeb הקיים",
+      "verified_status": "זהות השיחה נשמרה במקור; הכיסוי החי טרם התקבל",
+      "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    },
+    "implementation_evidence": "../public-url-continuity-20261103/README.md"
   },
   {
     "id": "F09",
     "old_address": "/2029?preview=community&data=live…",
     "evidence": "CommunityLive2029:249; App2029:81–86",
     "meaning": "קישור שיתוף לשרשור/תגובה",
-    "target_2029": "מוצע: /community/chat עם אותו מצב",
-    "verified_status": "כיום הבית מוצג; אובדן הקשר אומת גם בשאילתה מבוקרת",
+    "target_2029": "/community/chat + query/hash המקוריים",
+    "verified_status": "מומש; מעבר לפני טעינת הבית; יעד thread/reply/path נשמר ומאומת",
     "permissions": "אין חשיפת הודעה פרטית דרך שיתוף",
     "parameters_anchors": "thread,reply,path,sort,sourceSort,member,memberCard,claim,returnTo,#message",
     "acceptance": "בחירת ההודעה ותגובה המדויקת,רענון/אחורה/קדימה",
     "open_task": "C1",
-    "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    "treatment": "IMPLEMENTED_BOUNDED_TESTED",
+    "planning_snapshot": {
+      "target_2029": "מוצע: /community/chat עם אותו מצב",
+      "verified_status": "כיום הבית מוצג; אובדן הקשר אומת גם בשאילתה מבוקרת",
+      "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    },
+    "implementation_evidence": "../public-url-continuity-20261103/README.md"
   },
   {
     "id": "F10",
     "old_address": "/forum; /forum/:id; /community/comments",
     "evidence": "App.jsx:393,424,429; sitemap forum rows",
     "meaning": "פורום/שרשור/תגובת פוסט; לא כולם אותו מאגר",
-    "target_2029": "מוצע: אותו שרשור/פוסט בקורא הציבורי הקיים",
-    "verified_status": "אין יעד 2029 שלם; תגובות WP אינן ציבוריות אוטומטית",
+    "target_2029": "/forum[/id] מצב ייעודי; /community/comments?p=wp_id → קישור לפוסט המדויק",
+    "verified_status": "הפורום אינו פורסם מחדש: רק קיום פריט מאושר; פרטי/לא קיים404. תגובות מפנות לפוסט ציבורי. פעולות הפורום עדיין פתוחות לקבלה",
     "permissions": "הרשאת שרת; סיסמת JS אינה הרשאה",
     "parameters_anchors": "id,parent,reply,comment anchor,page",
     "acceptance": "תוכן וזהות שרשור; תגובה על פוסט חוזרת לפוסט; פרטיות",
     "open_task": "C1",
-    "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    "treatment": "IMPLEMENTED_NAMED_STATE_ACTIONS_OPEN",
+    "planning_snapshot": {
+      "target_2029": "מוצע: אותו שרשור/פוסט בקורא הציבורי הקיים",
+      "verified_status": "אין יעד 2029 שלם; תגובות WP אינן ציבוריות אוטומטית",
+      "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    },
+    "implementation_evidence": "../public-url-continuity-20261103/README.md"
   },
   {
     "id": "F11",
     "old_address": "/community/whatsapp",
     "evidence": "App.jsx:396",
     "meaning": "תיבת מקור/אינטגרציה, לא הצטרפות לקבוצה",
-    "target_2029": "מוצע: מצב ייעודי לפי יכולת קיימת",
-    "verified_status": "לא התקבל יעד; לא לפתוח תיבה",
+    "target_2029": "/community/whatsapp — מצב ייעודי קיים",
+    "verified_status": "אין הצטרפות/שליחה אוטומטית; שירות פעיל מלא טרם התקבל",
     "permissions": "הרשאות המקור; תוכן פרטי נשאר פרטי",
     "parameters_anchors": "מזהי מקור מותרים בלבד",
     "acceptance": "אין חשיפת תיבה; קישור קבוצת WhatsApp אינו תחליף",
     "open_task": "C6",
-    "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    "treatment": "IMPLEMENTED_NAMED_STATE_ACTIONS_OPEN",
+    "planning_snapshot": {
+      "target_2029": "מוצע: מצב ייעודי לפי יכולת קיימת",
+      "verified_status": "לא התקבל יעד; לא לפתוח תיבה",
+      "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    },
+    "implementation_evidence": "../public-url-continuity-20261103/README.md"
   },
   {
     "id": "F12",
     "old_address": "/community/researchers; /members",
     "evidence": "App.jsx:395,399; publicPeopleIndex",
     "meaning": "אינדקס אנשים ציבוריים",
-    "target_2029": "מוצע: תצוגת אנשים קיימת בעולם/קהילה לאחר שקילות",
-    "verified_status": "הקורא קיים; כניסות ישנות חסרות",
+    "target_2029": "/community/researchers; /members — אינדקס אנשים ציבורי קנוני",
+    "verified_status": "מומש; לא רשימת כל המשתמשים; קבלת חשבון/מנוי אינה נובעת מהרשימה",
     "permissions": "active/unlocked/public; לא כל חשבונות האתר",
     "parameters_anchors": "סינון,אדם,מיון,return",
     "acceptance": "אותה קבוצת אנשים; ללא טלפונים/מיילים/פרטיים",
     "open_task": "C2",
-    "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    "treatment": "IMPLEMENTED_BOUNDED_TESTED",
+    "planning_snapshot": {
+      "target_2029": "מוצע: תצוגת אנשים קיימת בעולם/קהילה לאחר שקילות",
+      "verified_status": "הקורא קיים; כניסות ישנות חסרות",
+      "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    },
+    "implementation_evidence": "../public-url-continuity-20261103/README.md"
   },
   {
     "id": "F13",
     "old_address": "/community/researcher/:slug; /researcher/:slug; /888",
     "evidence": "App2029:322–325; DB27eligible slugs",
     "meaning": "אדם, כותב או עמוד מחקר נבדלים",
-    "target_2029": "קיימים שני סוגי יעד; /888→/community/researcher/888",
-    "verified_status": "דפים קיימים; כינוי 888 חסר",
+    "target_2029": "/community/researcher/:slug; /888 → /community/researcher/888",
+    "verified_status": "היעד הציבורי הקיים; שיתוף קנוני ושלילת קישור אישי; כל הפרופילים לא נבדקו פרטנית",
     "permissions": "publicEligibility; me בנפרד",
     "parameters_anchors": "slug/code,tabs,hash,query",
     "acceptance": "אין המרת אדם לאוסף אוטומטית; לא זליגת /me",
     "open_task": "C2",
-    "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    "treatment": "IMPLEMENTED_BOUNDED_TESTED",
+    "planning_snapshot": {
+      "target_2029": "קיימים שני סוגי יעד; /888→/community/researcher/888",
+      "verified_status": "דפים קיימים; כינוי 888 חסר",
+      "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    },
+    "implementation_evidence": "../public-url-continuity-20261103/README.md"
   },
   {
     "id": "F14",
     "old_address": "/gematria; /גימטריה; /research?tool=gematria",
     "evidence": "App.jsx:339,431–432; Calculator2029Viral:44",
     "meaning": "מחשבון רגיל והפרמטרים הישנים",
-    "target_2029": "/gematria והכלים הקיימים",
-    "verified_status": "חישוב רגיל התקבל; כינויים דורשים חיבור",
+    "target_2029": "/gematria דרך המתאם הקיים",
+    "verified_status": "כינויים מדויקים מומשו; קבלה קודמת נשמרת; אין החלפה של המנוע",
     "permissions": "חישוב מקומי ציבורי;AI בנפרד",
     "parameters_anchors": "w,calc,q,method,result,share,hash",
     "acceptance": "חישוב ושיתוף,מספר וחזרה; אין ברירת מחדל שמוחקת שיטה",
     "open_task": "C3",
-    "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    "treatment": "IMPLEMENTED_BOUNDED_TESTED",
+    "planning_snapshot": {
+      "target_2029": "/gematria והכלים הקיימים",
+      "verified_status": "חישוב רגיל התקבל; כינויים דורשים חיבור",
+      "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    },
+    "implementation_evidence": "../public-url-continuity-20261103/README.md"
   },
   {
     "id": "F15",
     "old_address": "/community/calculator?w=…",
     "evidence": "CommunityCalculatorPage; traffic1155visits",
     "meaning": "מחשבון קהילתי עם מצבים ייעודיים",
-    "target_2029": "מוצע: אחד הכלים הקיימים רק לאחר parity; אחרת התאמת הקיים",
-    "verified_status": "כיום 404; כלי חדש כולל השוואה אך אין שקילות מלאה",
+    "target_2029": "/community/calculator עם w/method/result ומצבי הכלי המקוריים",
+    "verified_status": "מומש דרך המחשבון הקיים; חישוב ומעבר/חזרה. תוקן null בהקשר מבקר ראשון; קבלת המקור המתוקן בנספח",
     "permissions": "חישוב ציבורי; שמירה/קיר/AI בהיתרים נפרדים",
     "parameters_anchors": "w,שיטות, שמות,תאריך,afterSunset,שיתוף",
     "acceptance": "13 שיטות/השוואה/שם תינוק/משפחה/תאריך וחזרה; אין כלי מקביל",
     "open_task": "C3",
-    "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    "treatment": "IMPLEMENTED_BOUNDED_TESTED",
+    "planning_snapshot": {
+      "target_2029": "מוצע: אחד הכלים הקיימים רק לאחר parity; אחרת התאמת הקיים",
+      "verified_status": "כיום 404; כלי חדש כולל השוואה אך אין שקילות מלאה",
+      "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    },
+    "implementation_evidence": "../public-url-continuity-20261103/README.md"
   },
   {
     "id": "F16",
@@ -225,26 +309,38 @@
     "old_address": "/gallery?gallery=…; /archive; /gallery-updates",
     "evidence": "Gallery2029:236–268; DB106identities",
     "meaning": "גלריה/תמונה ומיקום קריאה",
-    "target_2029": "/gallery הקיים; כינויים לפי משמעות",
-    "verified_status": "קורא קיים; זהות DB אינה בדיקתנגישות",
+    "target_2029": "/gallery הזהה; /archive מצב ייעודי; /gallery-updates → /archive",
+    "verified_status": "זהות הגלריה נשמרה; אין הוכחת כל קובצי המדיה או קבלת זרם ארכיון מלא",
     "permissions": "מדיה ציבורית/לא מוסתרת;87 גלריות עם מועמדזמין",
     "parameters_anchors": "gallery,image,offset,flow,take,source,hash",
     "acceptance": "תמונה נכונה ומיקום; חתום/פרטי/מחוק לא ציבורי",
     "open_task": "C4",
-    "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    "treatment": "PARTIAL_EXISTING_MEDIA_ACCEPTANCE_OPEN",
+    "planning_snapshot": {
+      "target_2029": "/gallery הקיים; כינויים לפי משמעות",
+      "verified_status": "קורא קיים; זהות DB אינה בדיקתנגישות",
+      "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    },
+    "implementation_evidence": "../public-url-continuity-20261103/README.md"
   },
   {
     "id": "F18",
     "old_address": "/or-geula; /אור-הגאולה; /or-geula/video/:id",
     "evidence": "App.jsx:425–428; source locator; channel_updates",
     "meaning": "ספריית מקור או מופע סרטון מסוים",
-    "target_2029": "מוצע: המקור המדויק בעולם או /video/:assetId לאחר קשר מאומת",
-    "verified_status": "קוראים קיימים; הפניות הישנות אינן מחוברות",
+    "target_2029": "/or-geula?v=id; /or-geula/video/:id; כינוי עברי",
+    "verified_status": "מומש; מקור ציבורי אמיתי, זמן/קרדיט/מדיה, exact item; אין שיוך תוכן מומצא",
     "permissions": "מקור ציבורי/בתוקף וקרדיט",
     "parameters_anchors": "sourceRef,section,occurrence,asset,time,return",
     "acceptance": "המופע המבוקש; מקור מלא מול ניתוח; אין המצאת anchor",
     "open_task": "C4",
-    "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    "treatment": "IMPLEMENTED_BOUNDED_TESTED",
+    "planning_snapshot": {
+      "target_2029": "מוצע: המקור המדויק בעולם או /video/:assetId לאחר קשר מאומת",
+      "verified_status": "קוראים קיימים; הפניות הישנות אינן מחוברות",
+      "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    },
+    "implementation_evidence": "../public-url-continuity-20261103/README.md"
   },
   {
     "id": "F19",
@@ -264,78 +360,114 @@
     "old_address": "/codes; /codes/מחקר; /codes/:slug",
     "evidence": "CiphersLibrary:16–18; els_records; sitemap",
     "meaning": "ספריית צפנים ופריטים שפורסמו",
-    "target_2029": "מוצע: שמירת כתובות וקוראי הפרסום הקיימים במעטפת",
-    "verified_status": "חסר חיבור; מובחן ממנוע /code",
+    "target_2029": "/codes; /codes/מחקר; /codes/:slug",
+    "verified_status": "ספרייה ציבורית מקורית; published+public בלבד; מנוע חיפוש חדש נשאר סגור; קבלת פריט בנספח",
     "permissions": "רק רשומות מפורסמות; לא טיוטה/מחקר פרטי",
     "parameters_anchors": "slug,record,anchor,חזרה",
     "acceptance": "ספרייה ופריט אמיתי; מנוע חיפוש חדש נשאר נעול",
     "open_task": "C2",
-    "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    "treatment": "IMPLEMENTED_READ_ONLY_ACTIONS_OPEN",
+    "planning_snapshot": {
+      "target_2029": "מוצע: שמירת כתובות וקוראי הפרסום הקיימים במעטפת",
+      "verified_status": "חסר חיבור; מובחן ממנוע /code",
+      "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    },
+    "implementation_evidence": "../public-url-continuity-20261103/README.md"
   },
   {
     "id": "F21",
     "old_address": "/code; /els; /lab/els; /tzofen.html",
     "evidence": "App.jsx; App2029:318–319; publicHTML",
     "meaning": "מנוע הצופן החדש/כניסה ישנה לכלי",
-    "target_2029": "שער היכולת הקיים; התאמת aliases אם משמעותזהה",
-    "verified_status": "יכולת חדשה נעולה לציבור",
+    "target_2029": "/code; /els; הכינויים המדויקים",
+    "verified_status": "דף מצב ייעודי לציבור; הרשאת מנהל נשמרת בנפרד. אין הפעלת מנוע או מודל",
     "permissions": "מנהל מאומת; אין הפעלתמודל/חיוב בכניסה",
     "parameters_anchors": "חיפוש/מטריצה/בחירה מותרים ללא חשיפה",
     "acceptance": "עמוד מצב בשםהיכולת וחלופות; אין iframe bypass",
     "open_task": "C6",
-    "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    "treatment": "IMPLEMENTED_NAMED_STATE_ACTIONS_OPEN",
+    "planning_snapshot": {
+      "target_2029": "שער היכולת הקיים; התאמת aliases אם משמעותזהה",
+      "verified_status": "יכולת חדשה נעולה לציבור",
+      "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    },
+    "implementation_evidence": "../public-url-continuity-20261103/README.md"
   },
   {
     "id": "F22",
     "old_address": "/books; /book/:slug; /books/:slug; /book.html",
     "evidence": "App2029:315–317; existingBooks; XML",
     "meaning": "קריאת ספר ציבורי לעומת מערכת מחקר",
-    "target_2029": "קורא הספרים הקיים; חיבור פרסומים מוכנים",
-    "verified_status": "קיים אך נעול; aliasReact מאבד query/hash",
+    "target_2029": "/books; /book/:slug; /books/:slug → /book/:slug",
+    "verified_status": "קריאת מקור מאומתת; שבע זהויות ספר ציבוריות, שישה קבצים זמינים. מקור חיצוני ללאCORS מופנה אליו ביושר; פריט לא פורסם404",
     "permissions": "ספר מפורסם בנפרד מכלים החדשים",
     "parameters_anchors": "slug,chapter,page,q,hash",
     "acceptance": "אותו ספר/פרק; לא הפניה לספרייה נעולה; תוקףקובץ",
     "open_task": "C2",
-    "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    "treatment": "IMPLEMENTED_READ_ONLY_ACTIONS_OPEN",
+    "planning_snapshot": {
+      "target_2029": "קורא הספרים הקיים; חיבור פרסומים מוכנים",
+      "verified_status": "קיים אך נעול; aliasReact מאבד query/hash",
+      "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    },
+    "implementation_evidence": "../public-url-continuity-20261103/README.md"
   },
   {
     "id": "F23",
     "old_address": "/heichal; /היכל; /journey; /raziel; /research; /beit-midrash",
     "evidence": "App2029; FramedGate; publicpath",
     "meaning": "יכולות חדשות ומסלולים קיימים שונים",
-    "target_2029": "שערים קיימים/דףמצב ייעודי רק ליכולת לא מוכנה",
-    "verified_status": "חלק מהשערים קיימים; לפצל כלי קיים כגון מחשבון",
+    "target_2029": "היכולות הקיימות ומצבי הבנייה הייעודיים",
+    "verified_status": "שם היכולת/חלופות/כניסה מדויקת; בלי פתיחת מערכות שנדחו",
     "permissions": "ציבורסגור לחדש; מנהל לפי זהות;פעולות נפרדות",
     "parameters_anchors": "הקשר פרטי אינו מופיע ב metadata",
     "acceptance": "שם/מצב אמיתי/חלופות; אין דףבנייה לכלכתובתלאידועה",
     "open_task": "C6",
-    "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    "treatment": "IMPLEMENTED_NAMED_STATE_ACTIONS_OPEN",
+    "planning_snapshot": {
+      "target_2029": "שערים קיימים/דףמצב ייעודי רק ליכולת לא מוכנה",
+      "verified_status": "חלק מהשערים קיימים; לפצל כלי קיים כגון מחשבון",
+      "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    },
+    "implementation_evidence": "../public-url-continuity-20261103/README.md"
   },
   {
     "id": "F24",
     "old_address": "/contact; /צור-קשר; /about",
     "evidence": "legacy.jsx:3994–4025; App.jsx",
     "meaning": "שירות קשר ומידע",
-    "target_2029": "מוצע: רכיב Contact קיים במעטפת 2029",
-    "verified_status": "כיום 404; /privacy אינו תחליף לטופס",
+    "target_2029": "/contact; /צור-קשר; /about → /contact",
+    "verified_status": "הטופס הקיים נפתח עם כתובת מקור מסוננת; שליחה חסומה בפריוויו, מצב כן והעתקת טיוטה. אין הצלחה מדומה",
     "permissions": "היתר שירות מצומצם/מניעת spam; ללאשליחתבדיקה",
     "parameters_anchors": "נושא,חזרה; לאפרסום תוכן ההודעה",
     "acceptance": "פתיחה/שליחהבאישורבעלים/כשל; טופס לאמדווחהצלחהמדומה",
     "open_task": "C5",
-    "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    "treatment": "IMPLEMENTED_FORM_DELIVERY_HELD",
+    "planning_snapshot": {
+      "target_2029": "מוצע: רכיב Contact קיים במעטפת 2029",
+      "verified_status": "כיום 404; /privacy אינו תחליף לטופס",
+      "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    },
+    "implementation_evidence": "../public-url-continuity-20261103/README.md"
   },
   {
     "id": "F25",
     "old_address": "/profile; /community/researcher/me; /2029/me/:module",
     "evidence": "writerPersonal2029; App2029",
     "meaning": "חשבון אישי קיים",
-    "target_2029": "/2029/me/profile ומודולים קיימים",
-    "verified_status": "קיים אך חסימת publicprofile כוללת גם חבר רגיל",
+    "target_2029": "/profile → /2029/me/profile; מודולים ידועים במצב ייעודי",
+    "verified_status": "יעד חשבון ברור; עדיין לא קבלת חבר רגיל/חשבון אמיתי; אין חשיפת מידע אישי",
     "permissions": "JWT/RLS שלבעל החשבון; לא admin-only לכלקהילה",
     "parameters_anchors": "module,returnTo,hash",
     "acceptance": "כניסה/יציאה/החלפה/בידוד; פרופילציבורי נפרד",
     "open_task": "C5",
-    "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    "treatment": "PARTIAL_ACCOUNT_ACCEPTANCE_OPEN",
+    "planning_snapshot": {
+      "target_2029": "/2029/me/profile ומודולים קיימים",
+      "verified_status": "קיים אך חסימת publicprofile כוללת גם חבר רגיל",
+      "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    },
+    "implementation_evidence": "../public-url-continuity-20261103/README.md"
   },
   {
     "id": "F26",
@@ -355,39 +487,57 @@
     "old_address": "/privacy; /updates; /unsubscribe?e=…&t=…",
     "evidence": "PublicServices; signedunsubscribe; proposalHELD",
     "meaning": "פרטיות/הסכמה/ביטול הסכמה",
-    "target_2029": "המסלולים הקיימים",
-    "verified_status": "פרטיותקיים; דיוור/הסרהטעוניםתיקון וקבלה;שרת HELD",
+    "target_2029": "/privacy; /updates; /unsubscribe",
+    "verified_status": "פרטיות: המייל עודכן במועמד ל־zyz997@gmail.com. שירותי דיוור/הסרה נשמרו; שינויי שרת HELD, ללא משלוח/ביטול אמיתי",
     "permissions": "בעלותכתובת/חתימה; no-referrer/noindex",
     "parameters_anchors": "e,t בתיםמדויקים; לא analytics או querylogs",
     "acceptance": "חתימהשגויה/אפסהתאמות/כשל; הסרה אמיתית אינה תרגיל; email עודכןבמקור",
     "open_task": "C5",
-    "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    "treatment": "PARTIAL_MAIL_HELD",
+    "planning_snapshot": {
+      "target_2029": "המסלולים הקיימים",
+      "verified_status": "פרטיותקיים; דיוור/הסרהטעוניםתיקון וקבלה;שרת HELD",
+      "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    },
+    "implementation_evidence": "../public-url-continuity-20261103/README.md"
   },
   {
     "id": "F28",
     "old_address": "/early-access; /melech-hamisparim/718; /tiktok/melech; /whatsapp/kod-hametsiut",
     "evidence": "App2029:290–291; publicationredirects",
     "meaning": "דפי קמפיין קיימים",
-    "target_2029": "היעדים הקיימים לפי הקמפיין",
-    "verified_status": "React קיים; resolverHTTP חוסם; אומת 404 בפריוויו",
+    "target_2029": "דפי הקמפיין הקיימים, לפי ההפניות המקוריות",
+    "verified_status": "תוכן היעד ו־HTTP נבדקו; טופסי הצטרפות/אירועי רכישה לא מופעלים בפרופיל הקריאה",
     "permissions": "אין הצטרפות/מסר אוטומטיים",
     "parameters_anchors": "utm,src,ref,back,hash",
     "acceptance": "הפניהמגיעהלתוכןהנכון וגם HTTP תקין; קמפייןשפגמצוין",
     "open_task": "C5",
-    "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    "treatment": "IMPLEMENTED_CONTENT_SIGNUP_HELD",
+    "planning_snapshot": {
+      "target_2029": "היעדים הקיימים לפי הקמפיין",
+      "verified_status": "React קיים; resolverHTTP חוסם; אומת 404 בפריוויו",
+      "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    },
+    "implementation_evidence": "../public-url-continuity-20261103/README.md"
   },
   {
     "id": "F29",
     "old_address": "/credits; /buy; payment=success/failed&ref=…",
     "evidence": "CreditsBuyPage:48–73",
     "meaning": "גם חזרה מתשלום קיים",
-    "target_2029": "מוצע: מסלולשירותקיים ומאומת, ללאחיובחדש",
-    "verified_status": "חסר continuation; מחוץלהפעלתמנוע חדש",
+    "target_2029": "/credits; /buy — מצב שירות ייעודי",
+    "verified_status": "אין תשלום חדש או פרשנות payment=success כהוכחת תשלום; חזרה לעסקה אמיתית טרם התקבלה",
     "permissions": "זהותובדיקתשרת; query אינוהוכחתתשלום",
     "parameters_anchors": "operation/payment ref,return,status",
     "acceptance": "חזרהלעסקהקיימת; replay/spoof; אין Cardcom/מנוי חדש",
     "open_task": "C5",
-    "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    "treatment": "IMPLEMENTED_NAMED_STATE_ACTIONS_OPEN",
+    "planning_snapshot": {
+      "target_2029": "מוצע: מסלולשירותקיים ומאומת, ללאחיובחדש",
+      "verified_status": "חסר continuation; מחוץלהפעלתמנוע חדש",
+      "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    },
+    "implementation_evidence": "../public-url-continuity-20261103/README.md"
   },
   {
     "id": "F30",
@@ -407,13 +557,19 @@
     "old_address": "/name; /שם; /name-lab; spatial/verse/language/cross aliases",
     "evidence": "App.jsx; internalcontent DB",
     "meaning": "כלי שם/מרחב/פסוקים/שפה שונים",
-    "target_2029": "מוצע: התאמת יכולת קיימת או מצב ייעודי לא מוכנה",
-    "verified_status": "אין שקילות 2029 מאומתת; לאלהחליףבמחשבוןכללי",
+    "target_2029": "הכלים והכינויים הידועים — דפי מצב מדויקים",
+    "verified_status": "נשמרת משמעות הכלי ופרמטריו; אין החלפה גורפת במחשבון הרגיל או פתיחת מודל",
     "permissions": "קריאה/חישוב נפרדיםמפעולות AI פרטיות",
     "parameters_anchors": "שם,שיטה,תאריך,פסוק,טקסט",
     "acceptance": "לבדוק יכולות קיימות לפני סיווג כבנייה; לא להרחיב מנוע",
     "open_task": "C3",
-    "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    "treatment": "IMPLEMENTED_NAMED_STATE_ACTIONS_OPEN",
+    "planning_snapshot": {
+      "target_2029": "מוצע: התאמת יכולת קיימת או מצב ייעודי לא מוכנה",
+      "verified_status": "אין שקילות 2029 מאומתת; לאלהחליףבמחשבוןכללי",
+      "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    },
+    "implementation_evidence": "../public-url-continuity-20261103/README.md"
   },
   {
     "id": "F32",

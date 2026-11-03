@@ -1,0 +1,26 @@
+{
+  "kind": "documentation-role-and-readback",
+  "runtimeCheckpoint": "78275d17885a0358214fa35005231296c4964990",
+  "checkedDocuments": [
+    "SOD1820_MASTER_STATE.md",
+    "SOD1820_MASTER_ROADMAP.md",
+    "docs/w0-2027-route-seo-addressability-matrix-v1.md",
+    "docs/reviews/url-continuity-plan-20261103/README.md",
+    "docs/reviews/url-continuity-plan-20261103/coverage.md",
+    "docs/reviews/url-continuity-plan-20261103/transition-matrix.md",
+    "docs/reviews/public-url-continuity-20261103/README.md"
+  ],
+  "relativeLinksChecked": 62,
+  "missingLinks": [],
+  "matrixRows": 36,
+  "csvJsonAgree": true,
+  "contractBodiesUnchanged": {
+    "docs/w0-2027-post-url-immutability-gate-v1.md": true,
+    "docs/g3-2029-cutover-acceptance-checklist.md": true
+  },
+  "g3H1HistoricalAcceptancePreserved": true,
+  "g4NotClosed": true,
+  "previewNotProduction": true,
+  "sharedProposalHeld": true,
+  "doc37": "append/readback recorded separately in canonical work_log; no independent owner"
+}

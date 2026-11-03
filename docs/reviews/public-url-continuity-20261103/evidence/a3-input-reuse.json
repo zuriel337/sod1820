@@ -1,0 +1,125 @@
+{
+  "acceptedSourceHead": "6cd64a79598aaa38de4596f2506beb167447bf1c",
+  "currentRuntimeHead": "78275d17885a0358214fa35005231296c4964990",
+  "unchanged": 29,
+  "checks": [
+    {
+      "file": "src/lib/gematria.js",
+      "unchanged": true
+    },
+    {
+      "file": "src/lib/research/fibonacciSequence.js",
+      "unchanged": true
+    },
+    {
+      "file": "src/lib/research/gematriaCorpusCrossingW2Executor.js",
+      "unchanged": true
+    },
+    {
+      "file": "src/lib/research/gematriaMethodProfileW2Executor.js",
+      "unchanged": true
+    },
+    {
+      "file": "src/lib/research/gematriaRelationW2Executor.js",
+      "unchanged": true
+    },
+    {
+      "file": "src/lib/research/methodIdentity.js",
+      "unchanged": true
+    },
+    {
+      "file": "src/lib/research/numberPhrasePresentationOrder.js",
+      "unchanged": true
+    },
+    {
+      "file": "src/lib/research/numericResearch.js",
+      "unchanged": true
+    },
+    {
+      "file": "src/lib/research/numericResearchBase.js",
+      "unchanged": true
+    },
+    {
+      "file": "src/lib/research/piSequence.js",
+      "unchanged": true
+    },
+    {
+      "file": "src/lib/research/razielActionContract.js",
+      "unchanged": true
+    },
+    {
+      "file": "src/lib/research/razielRouteAction.js",
+      "unchanged": true
+    },
+    {
+      "file": "src/lib/research/razielRouteGrammar.js",
+      "unchanged": true
+    },
+    {
+      "file": "src/lib/research/razielSemanticIntentGate.js",
+      "unchanged": true
+    },
+    {
+      "file": "src/lib/research/researchComposerW2.js",
+      "unchanged": true
+    },
+    {
+      "file": "src/lib/research/researchIdentityResolver.js",
+      "unchanged": true
+    },
+    {
+      "file": "src/lib/research/researchIntakeTransport.js",
+      "unchanged": true
+    },
+    {
+      "file": "src/lib/research/researchObjectFinding.js",
+      "unchanged": true
+    },
+    {
+      "file": "src/lib/research/researchObjectPresentation.js",
+      "unchanged": true
+    },
+    {
+      "file": "src/lib/research/researchPlanV2.js",
+      "unchanged": true
+    },
+    {
+      "file": "src/lib/research/researchRepresentations.js",
+      "unchanged": true
+    },
+    {
+      "file": "src/lib/research/researchResultBundle.js",
+      "unchanged": true
+    },
+    {
+      "file": "src/lib/research/researchRunRequest.js",
+      "unchanged": true
+    },
+    {
+      "file": "src/lib/research/researchSynthesis.js",
+      "unchanged": true
+    },
+    {
+      "file": "src/lib/research/researchW2ExecutorsBase.js",
+      "unchanged": true
+    },
+    {
+      "file": "src/lib/research/sequenceLens.js",
+      "unchanged": true
+    },
+    {
+      "file": "src/lib/research/universalFinding.js",
+      "unchanged": true
+    },
+    {
+      "file": "src/theme.js",
+      "unchanged": true
+    },
+    {
+      "file": "supabase/functions/research-run/index.ts",
+      "unchanged": true
+    }
+  ],
+  "rerun": false,
+  "wholeIsolationClaim": false
+}

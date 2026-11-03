@@ -7,7 +7,32 @@
 
 ## 1. Authority
 
-**Current verified checkpoint · 2026-11-03 · PUBLIC CUTOVER NOT ACCEPTED:**
+**Current implementation checkpoint · 2026-11-03 · BRANCH / PROTECTED PREVIEW ONLY:**
+
+- Unified product branch: `gpt/2029-public-url-continuity-20261103`, continued
+  from verified product `9d3a09689a05bd0b72ca484335c1fbce8b538170`, not the
+  documentation branch. Runtime checkpoint `78275d17885a0358214fa35005231296c4964990`.
+- Priority 1 address adapters, styled tag/category pages, public community and
+  library/source readers, community calculator and named service continuations
+  are implemented. Existing private/action gates remain. See the
+  [implementation and exact hosted receipts](docs/reviews/public-url-continuity-20261103/README.md)
+  and the updated [single transition table](docs/reviews/url-continuity-plan-20261103/transition-matrix.md).
+- The requested static renewal notice, existing contact form with safe source
+  URL, and direct global ShareActions button replace the rotating notice and
+  global Tools entry. Now/feed ownership is retained. Preview form delivery is
+  explicitly unavailable; opening a form is not proof of delivery.
+- Public URL/read acceptance is bounded. Ordinary-member/admin real account,
+  social auth, contact delivery, held mail changes, residual attachment/media/
+  historical-entry evidence, S2/CP1, current backup/media coverage, full cutover
+  parity and activation/rollback remain open. No blanket all-URL acceptance.
+- The existing A3 receipt's 29 input hashes still match; no repeat of G3/H1/A3
+  and no new claim that the complete Isolation or formal G4 gate passed.
+- Main, Legacy Production and shared infrastructure were not changed by this
+  implementation. Shared proposal `b21ed1ff` remains **HELD_BY_USER**. Formal G4
+  and Public Cutover remain OPEN. Doc37 §12.30 records implemented/tested/held
+  separately; coordination BEFORE `5fbf9e75-b445-4da4-bf24-dfc485387b8f`.
+
+**Historical planning checkpoint · superseded only by the bounded implementation above · 2026-11-03:**
 
 - Product candidate: `gpt/2029-site-search-gematria-20261103`,
   `9d3a09689a05bd0b72ca484335c1fbce8b538170`; protected Preview only:

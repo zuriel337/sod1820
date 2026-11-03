@@ -363,3 +363,27 @@ AFTER `e18c1cb9-0ea0-4e6c-9617-232bb296d31b`; documentation BEFORE
 `2b9004b6-5285-4aee-93e2-4b1174ec06cf`. No routing, product-data, deployment or
 permission change was made by this synchronization. Historical W0 closure
 above remains a specification receipt, not an exemption from current acceptance.
+
+
+### 8.1 Priority 1 implementation delta · 3 November 2026
+
+The planning statuses in §8 are historical at product `9d3a0968`. The same
+[family table](reviews/url-continuity-plan-20261103/transition-matrix.md) now
+records the bounded implementation on `gpt/2029-public-url-continuity-20261103`,
+runtime checkpoint `78275d17`, preserving its original planning values in JSON
+and Git history. [Receipt and limits](reviews/public-url-continuity-20261103/README.md).
+
+Tag/category paths retain exact membership and approved Posts presentation;
+chat aliases preserve thread/reply/path; the existing community calculator,
+public source libraries and service/status continuations are mounted. The
+hosting rewrite no longer adds an internal `path` parameter to visitor queries.
+Old post identities and canonical URL policy are unchanged; draft/missing
+content still returns 404. Updated XML selects only publicly admitted items.
+The notice and direct-share UI are not new URL/source owners.
+
+The collected 33,667 records were reconciled against adapters without another
+crawl. This proves neither 33,667 live pages nor complete HTTP cutover parity.
+Residual media/attachment/entry ambiguities, real-account and action/service
+acceptance remain explicit. No redirects or settings were changed on Legacy
+Production. Contract history, G3/H1 acceptance and formal G4 distinction remain.
+Coordination BEFORE: `5fbf9e75-b445-4da4-bf24-dfc485387b8f`; Doc37 §12.30.

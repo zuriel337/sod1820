@@ -1,0 +1,96 @@
+✔ public read mounts the feed while its composer/account widgets stay unmounted; admin keeps compact composer (58.347452ms)
+✔ a malformed exact thread request does not read or display the general feed (9.746399ms)
+✔ retrying an unavailable deep reply repeats the exact parent/child lookup (8.965332ms)
+✔ public message actions never request ownership or mutate even for a signed-in account (4.153347ms)
+✔ public old-chat anchor has neither OpenWeb launcher/SSO nor a same-domain escape link (3.550345ms)
+✔ public profile avatar and notifications do not probe private account capability (5.801129ms)
+✔ public contributor capability/subscription/inbox controls stay unmounted while overview reads continue (4.077631ms)
+✔ public contributor reading does not save, mark history or expose personal summaries; admin keeps existing actions (5.182489ms)
+✔ all default community reads use the anonymous client in the read profile and retain ordinary-build behavior (10.092524ms)
+✔ contact source retains exact public reading identity and excludes credentials, arbitrary text, returns and fragments (1.567939ms)
+✔ auth, mail, payment and personal entry URLs retain pathname only (0.38693ms)
+✔ only bounded typed reading values survive and repeated or malformed identities are discarded (1.448777ms)
+✔ source context rejects foreign origins, protocol tricks and malformed locations (0.273708ms)
+✔ renewal ribbon renders one exact notice and one explicit contact action without timers or feed consumption (10.661137ms)
+✔ blocked contact/idea and issue submit handlers never send or display success, while source metadata stays separate from text (21.644127ms)
+✔ ordinary contact and issue forms retain their existing emitters and optional source metadata (12.13053ms)
+✔ locked public gateway does not mount private hint status or hint submission (3.541314ms)
+✔ global share follows the current public destination and suppresses personal/auth/mail routes (3.6535ms)
+✔ global dock opens ShareActions directly with all approved choices and keeps More/tools and Now separate (3.629439ms)
+✔ Or Geula continuation uses the exact public channel occurrence and preserves credit (2.208566ms)
+✔ wrong channel, wrong occurrence, private, expired and page-only rows remain missing (0.597355ms)
+✔ only canonical public object media and redacted attribution reach the source DTO (0.812765ms)
+✔ collection reads a bounded stable page without changing occurrence identity (0.844037ms)
+✔ invalid, duplicate and out-of-range collection pages never become page one (0.328466ms)
+✔ forum preserves its existing gate and reads no thread body or private account fields (0.909545ms)
+✔ comment continuation re-admits its exact parent post and links to the canonical comments (0.62945ms)
+✔ all public loaders keep failure distinct from missing or empty (0.977841ms)
+✔ cancellation before and after each read discards results (0.799203ms)
+✔ people use the existing public people projection and propagate cancellation (0.421847ms)
+✔ exact media links retain repeated context, return and hash without granting exposure (1.037592ms)
+✔ continuation module is server-importable and UI mounts no legacy activity machinery (0.833384ms)
+✔ public cipher query always requires canonical published/public and omits private/review payloads (1.849858ms)
+✔ drafts, owner-only and self-published candidates never become public continuations (0.622022ms)
+✔ one canonical record stays one source; annotations do not invent source counts or verification (0.597703ms)
+✔ signed, private, expired-token and external media URLs are never used as saved source images (0.269012ms)
+✔ public list deduplicates exact identities and does not mix hidden research collection (0.528693ms)
+✔ missing, ambiguous and mismatched exact identities are not replaced with unrelated records (0.257319ms)
+✔ network/permission/malformed response failures remain failures; cancellation aborts stale results (0.858454ms)
+✔ book manifest alone cannot publish a source; only current anonymous public identity can be projected (0.46193ms)
+✔ current public digital object must exactly match the existing reader and one source identity (0.830919ms)
+✔ public book opening checks current PDF availability after node admission and keeps failure distinct (0.525026ms)
+✔ source-file check omits credentials, rejects redirect/HTML/error and never treats reachability as publication (19.671234ms)
+✔ external book without CORS keeps its admitted source link and a named in-page reader state (0.414175ms)
+✔ metadata stays generic/noindex until public admission and never promotes unlisted research (0.209161ms)
+✔ book page/chapter/hash locators are exact, with no page-1 fallback on invalid requests (0.746256ms)
+✔ public runtime never imports legacy engine UI or session readers; existing reader opts in without private research (7.207092ms)
+✔ Legacy w and ordinary-calculator input aliases retain expression and explicit method/result (3.798031ms)
+✔ comparison round trip keeps both names, selected method, share/source parameters and fragment (3.718917ms)
+✔ baby names, empty comparison slots, family and date/sunset remain distinct on reload (4.045998ms)
+✔ date mode and afterSunset use the existing next-Hebrew-day semantics (2.962127ms)
+✔ switching tools retains hidden input without silently reopening comparison/date on refresh (0.419847ms)
+✔ invalid dates are not silently converted to another calendar day (0.391234ms)
+✔ every existing calculation row remains selectable; no fixed thirteen-method replacement (0.841197ms)
+✔ unknown method and conflicting result never become a Regular result (0.534797ms)
+✔ number and phrase navigation preserve focus, method and complete calculator return (2.028306ms)
+✔ sharing retains harmless parameters but excludes credentials through the existing sanitizer (0.633359ms)
+✔ presentation is opt-in; public mount guards existing wall, telemetry and AI entry points (1.174236ms)
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+✔ public calculator mount and typing calculate immediately without wall, AI, telemetry or deep search (64.037085ms)
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+✔ baby inputs retain family, three names and sunset conversion while editing (38.097691ms)
+✔ date tool applies sunset exactly once and continues to all methods with date state retained (20.578393ms)
+✔ encoded taxonomy addresses select one exact namespace and only the admitted category alias (2.882794ms)
+✔ exact stored membership preserves public Post provenance without admitting research or Follow (1.150133ms)
+✔ catalog queries combine exact tag membership, public exclusion, bounded stable pagination and escaped title refinement (1.457559ms)
+✔ PostgREST serialization preserves labels containing quotes, commas, braces, backslashes or NULL (21.202678ms)
+✔ unknown and draft-only taxonomies are missing; a known taxonomy with zero title matches has a public witness (1.542259ms)
+✔ a page beyond the exact public count is 404, including the PostgREST range response (0.866703ms)
+✔ unverified responses fail closed rather than claim an empty or public collection (1.273419ms)
+✔ taxonomy query changes preserve exact address, unrelated parameters and hash without crossing namespaces (0.455424ms)
+✔ exact tag/category history entries restore their saved viewport using the existing lifecycle (2.646866ms)
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+✔ tag entry reuses Posts cards, source credit and media; a pathname does not invent Follow (25.762275ms)
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+✔ search, pagination and clearing retain taxonomy identity and the exact route anchor (27.051275ms)
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+✔ canonical category identity retains the old address and does not acquire series or channel rows (8.738868ms)
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+✔ unknown, empty-search and unavailable reads remain different useful states (16.940201ms)
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+✔ suppressed taxonomy and conflicting selectors never request or render public Posts (8.355323ms)
+✔ malformed taxonomy pagination stays missing until an explicit return to the first page (5.450428ms)
+ℹ tests 75
+ℹ suites 0
+ℹ pass 75
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 826.038486

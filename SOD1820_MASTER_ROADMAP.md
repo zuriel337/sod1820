@@ -6,7 +6,7 @@
 This Roadmap is not a rulebook, archive, change log, research store or owner body.
 
 **Current navigation checkpoint · 2026-11-03:** continue the existing
-G3→G4 / Public Cutover lane; no new launch stage. Product `9d3a0968` is a protected
+G3→G4 / Public Cutover lane; no new launch stage. Product branch `gpt/2029-public-url-continuity-20261103` (runtime checkpoint `78275d17`, continuing `9d3a0968`) is a protected
 Preview candidate, not Production. The working-site scope now explicitly
 includes preservation of existing community, chat, accounts, public libraries
 and services; only unfinished/new capabilities may use their approved closed
@@ -23,8 +23,9 @@ owns route-inventory navigation. Provenance: AFTER
 `e18c1cb9-0ea0-4e6c-9617-232bb296d31b`; documentation BEFORE
 `2b9004b6-5285-4aee-93e2-4b1174ec06cf`.
 
-**Next work under the existing gates, in dependency order:** preserve real
-public URLs/services and their source boundaries; finish the affected
+**Next work under the existing gates, in dependency order:** accept remaining
+public URL/service exceptions after the implemented priority 1 adapters and
+readers ([bounded evidence](docs/reviews/public-url-continuity-20261103/README.md)); retain source boundaries and finish the affected
 Posts/Skeleton, identity and exact-return acceptance; close the existing S2
 security/CP1 operational requirements; then accept the exact publication and
 recovery/rollback evidence. Shared identity/mail changes remain HELD_BY_USER.
@@ -33,7 +34,7 @@ formal G4 closure. World/Home high-fidelity Goldens and other explicitly deferre
 systems stay at their existing later positions; active public content/API paths
 do not receive an exemption because a larger UI is closed.
 
-**Tag/content-page acceptance clarification, 3.11:** restoring a real tag page
+**Tag/content-page acceptance clarification, 3.11 (implemented in the priority 1 candidate; representative browser acceptance, not all-item cutover parity):** restoring a real tag page
 includes its specific content and a finished, polished 2029 presentation using
 the approved Posts language and Design V2. A bare technical list, right-pinned
 controls or a generic World redirect does not close the family. Reuse existing
