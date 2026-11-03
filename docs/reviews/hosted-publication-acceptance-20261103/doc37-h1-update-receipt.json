@@ -1,0 +1,22 @@
+{
+  "task": "PUBLIC_MANUAL_ACCEPTANCE_CHECKLIST_20261103",
+  "scopeAddendum": "H1 restore acceptance reconciliation",
+  "method": "compare-and-swap append only; no prior content replaced",
+  "previousLength": 476004,
+  "previousMd5": "9a7a97cd50c71d49c1664cf0713b5dc5",
+  "preservedLaterDecisions": [
+    "NOW-CENTRAL-HANDOFF-20261103",
+    "HOME-UPDATES-VISUAL-20261103"
+  ],
+  "updated": {
+    "id": 37,
+    "slug": "sod1820_reality_stream_os_master_v3_20261016_draft",
+    "updated_at": "2026-11-03 02:05:39.921957+00",
+    "body_length": 480614,
+    "body_md5": "dc732dcb6520737df250454086509ea8",
+    "preserved_prefix_md5": "9a7a97cd50c71d49c1664cf0713b5dc5",
+    "appended_chars": 4610
+  },
+  "productSha": "c8e05790fe68c8f548e22a7c02e5094ddc5b8755",
+  "evidenceSha": "4bea2c9c2169ae30d50d0b3a7f00ab94a9de4bcc"
+}

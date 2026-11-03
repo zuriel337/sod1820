@@ -1,5 +1,5 @@
 {
-  "scope": "Only the 7 task documentation/diagnostic files listed; bounded patterns, not a repository-wide security audit",
+  "scope": "Only the 9 task documentation/diagnostic files listed; bounded patterns, not a repository-wide security audit",
   "files": [
     {
       "file": "README.md",
@@ -35,6 +35,16 @@
       "file": "unsubscribe-offline-proof.json",
       "bytes": 1080,
       "sha256": "26122fe1b0c205b687a3c6eec57cb6bb4501404f46257d870abf05226028cbee"
+    },
+    {
+      "file": "doc37-h1-addendum.md",
+      "bytes": 7114,
+      "sha256": "bca80370fb59effea451a5f07921d61ce3580f0dafb68f27d5b2b16692cae6d8"
+    },
+    {
+      "file": "doc37-h1-update-receipt.json",
+      "bytes": 820,
+      "sha256": "e0cebbe1fceaee9f9391c868d26977abd125463ddf702de8543078475efe7e9c"
     }
   ],
   "findings": [],
@@ -49,5 +59,6 @@
     "NOW-CENTRAL-HANDOFF-20261103",
     "HOME-UPDATES-VISUAL-20261103"
   ],
-  "mailProductDecisionImplementation": "NOT_IMPLEMENTED_IN_FROZEN_C8; historical opening-only consent remains protected"
+  "mailProductDecisionImplementation": "NOT_IMPLEMENTED_IN_FROZEN_C8; historical opening-only consent remains protected",
+  "doc37Append": "PASS: preserved all 476004 previous characters including both late product decisions"
 }
