@@ -196,7 +196,7 @@
     }
   ],
   "passed": 18,
-  "finishedAt": "2026-11-03T13:17:54.431Z",
+  "finishedAt": "2026-11-03T13:22:02.072Z",
   "accountRows": 2,
   "fixtureCallCounts": {
     "/auth/v1/settings": 4,
@@ -218,11 +218,9 @@
     "/auth/v1/logout": 2
   },
   "sourceBuild": {
-    "sourceSha": "c93dd8fb5255c38bb46fe0f4056f4493628fdb12",
-    "sourceDirty": true,
-    "applicationSourceDirty": true,
-    "policy": "public-reading-owned-account-continuity-20261103",
-    "documentTemplateSha256": "9d6c54dea699d7d81a313d1b36d3946d7d622a5e2772c6698b13f8931a667ffd"
+    "sourceSha": "7937f084a5a3d0f1ca65a95d12d16fe185dcace4",
+    "applicationSourceDirty": false,
+    "policy": "public-reading-owned-account-continuity-20261103"
   },
-  "note": "Actual compiled UI and admission code; only worker outbound fetch replaced with isolated fixtures. No real account or live write acceptance."
+  "note": "Actual clean-source compiled UI and admission code; only worker outbound fetch replaced with isolated fixtures. No real account acceptance."
 }

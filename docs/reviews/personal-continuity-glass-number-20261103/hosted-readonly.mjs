@@ -28,9 +28,10 @@ for(const width of [320,390,1440])for(const preset of ['dark','light','parchment
  await page.setViewportSize({width,height:900});await page.evaluate(p=>localStorage.setItem('sod-theme',p),preset);await page.goto(origin+'/');
  await page.locator('.sod29-header.closed-orientation').waitFor();await expect(page.locator('.sod29-root')).toHaveAttribute('data-frame-theme-preset',preset);
  const metrics=await page.evaluate(()=>{const get=selector=>{const e=document.querySelector(selector),s=getComputedStyle(e),r=e.getBoundingClientRect();return{background:s.backgroundColor,backdrop:s.backdropFilter,width:r.width,left:r.left,right:r.right};};return{width:innerWidth,documentWidth:document.documentElement.scrollWidth,header:get('.sod29-header.closed-orientation'),dock:get('.sod29-command-island.is-unified-bar'),sw:!!navigator.serviceWorker.controller};});
+ const glassCase={name:'glass and contained layout',width,preset,passed:false,metrics};report.cases.push(glassCase);
  assert.ok(metrics.documentWidth<=width+1);assert.ok(metrics.dock.width<=(width===1440?600:width));
  for(const item of [metrics.header,metrics.dock]){assert.ok(item.backdrop.includes('blur(22px)'));assert.ok(item.background.includes('/ 0.06')||item.background.includes(', 0.06)'));}
- assert.ok(metrics.sw);await page.screenshot({path:out+'/glass-'+width+'-'+preset+'.png'});report.cases.push({name:'glass and contained layout',width,preset,passed:true,metrics});
+ assert.ok(metrics.sw);await page.screenshot({path:out+'/glass-'+width+'-'+preset+'.png'});glassCase.passed=true;
 }
 await page.setViewportSize({width:390,height:900});await page.goto(origin+'/2029/me/notes');
 await expect(page.getByRole('heading',{name:'צריך להתחבר כדי לראות את האזור האישי'})).toBeVisible();assert.equal(await page.getByLabel('ההערות שלי').count(),0);

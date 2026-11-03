@@ -15,7 +15,7 @@
   display: grid !important; grid-template-columns: repeat(5,minmax(44px,1fr)) !important;
   grid-template-rows: auto !important; gap: 2px !important; border-radius: 999px !important;
   border: 1px solid var(--s29-line-strong) !important; box-sizing: border-box;
-  background: var(--s29-panel) !important;
+  background: var(--s29-panel);
   padding: 4px 6px !important;
 }
 .sod29-root.native-frame .is-single-command-bar > button:not(.sod29-raziel-orb) {

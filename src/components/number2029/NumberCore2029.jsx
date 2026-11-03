@@ -572,7 +572,7 @@ export default function NumberCore2029({
               <div className="sod29-number-v10-panel-head">
                 <div>
                   <span>הצלבה נסתרת</span>
-                  <div className="sod29-number-v10-title-count"><strong>{stageCrossing ? `${projection.expression || root} ↔ ${stageCrossing.partner}` : "אין כרגע הצלבה עצמאית"}</strong><small>{stageCrossings.length || 0}</small></div>
+                  <div className="sod29-number-v10-title-count"><strong>{stageCrossing ? `${projection.expression || root} ↔ ${stageCrossing.partner}` : hiddenCrossingsError ? "ההצלבות אינן זמינות כרגע" : hiddenCrossingsLoading || stageLoading ? "בודק הצלבות במאגר…" : "אין כרגע הצלבה עצמאית"}</strong><small>{hiddenCrossingsLoading && !stageCrossings.length ? "…" : stageCrossings.length || 0}</small></div>
                 </div>
               </div>
               {stageCrossing ? <>

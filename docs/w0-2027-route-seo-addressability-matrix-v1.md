@@ -403,3 +403,14 @@ and nested-category identity are separate from public admission and hosted brows
 matching, blanket category redirect, draft publication, route-history rewrite or full-HTTP claim.
 193 audio sources,8 unmatched Post identities,3 external video references and one lecture remain individually
 listed with launch impact. No cutover or formal G4 closure follows from this bounded repair.
+
+### 8.4 Owned-account continuity · 3 November 2026
+
+F25 in the existing transition table is implemented/controlled-tested on7937f084,
+continuing product73dc. Known private modules admit an existing verified account
+independently of admin role. Public HTML remains generic/noindex; each private
+reader/write uses the caller JWT and owned identity. Public contributor creation
+is explicit and separate. [Evidence and real-account limits](reviews/personal-continuity-glass-number-20261103/README.md).
+The two requested real accounts still require user login acceptance; no private
+content was copied into public evidence. Social/signup and held shared proposal
+b21ed1ff remain open/held. No new inventory, public identity, route schema or cutover.

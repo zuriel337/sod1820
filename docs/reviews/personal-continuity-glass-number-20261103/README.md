@@ -2,7 +2,7 @@
 
 בסיס מוצר73dc7403670702a4296fbc68d64aaadf00d18c2c; ענף
 `gpt/2029-personal-continuity-glass-number-20261103`.
-BEFORE1498dc11-aa72-4b63-a1d5-4888ae27da27 ותוספת8e9d4b7c-20a1-4956-9afb-232a999fadb7.
+BEFORE1498dc11-aa72-4b63-a1d5-4888ae27da27 ותוספת8e9d4b7c-20a1-4956-9afb-232a999fadb7; הרחבת אתחולab748032-bf35-4677-95da-63c4728dc060.
 Root sole writer. אין מיזוג, שינוי Legacy/Root, DB/RLS/Auth/Edge/shared flags/דיוור,
 מודל, חיוב או מעבר לחי. שינויי b21ed1ff נשארים HELD_BY_USER.
 
@@ -38,7 +38,7 @@ Root sole writer. אין מיזוג, שינוי Legacy/Root, DB/RLS/Auth/Edge/sh
 ## זכוכית, הצלבה ולוגו האפליקציה
 
 הזכוכית המאומצת הוגדרה קודם רק מעל981px ובמצב לילה; בנייד נשארו94–97%
-אטימות. אותו טיפול tokens הוחל על header/dock בכל הרוחבים והמצבים, עם
+אטימות. בקבלה מתארחת נמצא גם background!important בסרגל האחיד שגבר על הזכוכית: header היה alpha0.06 אך dock נשאר אטום rgb(23,18,14). הוסר רק ה־important של הרקע, בלי שינוי פריסה. אותו טיפול tokens הוחל על header/dock בכל הרוחבים והמצבים, עם
 fallback כשאין blur או כשנתבקשה שקיפות מופחתת. אימות computed styles מתארח
 ממתין בנקודת שמירה זו; אין סבב עיצוב חדש.
 
@@ -83,3 +83,15 @@ Legacy manifest/logo/index/worker לא שונו. הלוגו באפליקציה �
 כניסה אמיתית, שמירות/תמונות/DM/Follow בפועל, Google/Facebook/signup/recovery,
 מעבר session מלגאסי והשלמת S2/CP1/גיבוי מדיה/הפעלה וחזרה נשארים פתוחים.
 אין אישור מעבר לחי. H1/G3 וקבלת A3 הקודמת אינם נמחקים או מוצגים כחסרים.
+
+## ממצא אתחול נוסף בעת קבלת החשבון
+
+ב־7937 נרשמו שלושה כשלי מעבר מהיר נקי מקישור הגנת Vercel ל־login, אחרי
+ניסיון אתחול מוצלח. [כל הריצות שנשמרו](evidence/bootstrap-before.json). worker
+היה active/activated אך controller נעדר; עדכון script זהה אינו מפעיל שוב
+activate/claim. ב־ffdaf3e4 נוספה בקשת claim מ־WindowClient באותו origin,
+לאותה policy ולאותו SHA; בדיקת identity הרגילה וה־timeout נשמרים. אין
+unregister, מחיקת cache/מחקר, הרחבת הרשאה או הסתמכות על worker ישן.
+[50 בדיקות](evidence/worker-claim-tests.txt), כולל שלילת מקור/מדיניות/SHA
+שגויים וקבלת rollback המבודדת, עברו. קבלת כניסות קרות מתארחות נרשמת בנפרד.
+אין להסיק מכך שהוכחה סיבת התקיעה ההיסטורית המקורית.

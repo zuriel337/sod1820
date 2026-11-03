@@ -28,6 +28,21 @@ H1/G3 נשמרים; אין מעבר לחי. BEFORE a8d1af3f-c987-40c8-a582-c59dc
 
 ## 1. Authority
 
+**Owned personal continuity · 3 November 2026 · BRANCH/PREVIEW only:**
+Product73dc continues on `gpt/2029-personal-continuity-glass-number-20261103`,
+runtime7937f084. The existing personal area now admits verified ordinary accounts
+and admins to owned saves/edits/notebook/profile APIs, independently of model,
+credit or marketing activation. Controlled two-account browser acceptance passed;
+ZURIEL deferred genuine login to the two existing accounts. That release gate
+remains OPEN, as do social/signup, Legacy-session migration and existing S2/CP1/
+backup-media/activation gates. Shared proposal b21ed1ff remains HELD_BY_USER.
+[Exact evidence/status](docs/reviews/personal-continuity-glass-number-20261103/README.md);
+coordination BEFORE1498dc11/addendum8e9d4b7c. Mobile glass/hidden-cross/PWA brand
+changes are candidate-only. G3/H1 receipts remain valid; formal G4/cutover OPEN.
+Earlier account-blocked snapshots below are historical for the personal APIs
+covered here; they remain valid for systems/actions not admitted by this change.
+
+
 **Prior priority 1 implementation checkpoint · historical, continued by the exception acceptance above:**
 
 - Unified product branch: `gpt/2029-public-url-continuity-20261103`, continued

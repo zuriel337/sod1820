@@ -1,0 +1,76 @@
+{
+  "kind": "hosted-public-readonly",
+  "origin": "https://sod1820-rihnl68bh-sod1820-s-projects.vercel.app",
+  "sourceSha": "ffdaf3e4417af2c333ab3a259940bd79956be9c6",
+  "cases": [
+    {
+      "name": "existing-account entry, exact personal return, actual worker",
+      "passed": true
+    },
+    {
+      "name": "candidate app manifest and complete existing brand asset hash",
+      "passed": true
+    },
+    {
+      "name": "glass and contained layout",
+      "width": 320,
+      "preset": "dark",
+      "passed": false,
+      "metrics": {
+        "width": 320,
+        "documentWidth": 305,
+        "header": {
+          "background": "color(srgb 0.960784 0.960784 0.941176 / 0.06)",
+          "backdrop": "blur(22px) saturate(1.5)",
+          "width": 305,
+          "left": 0,
+          "right": 305
+        },
+        "dock": {
+          "background": "rgb(23, 18, 14)",
+          "backdrop": "blur(22px) saturate(1.5)",
+          "width": 296,
+          "left": 4.5,
+          "right": 300.5
+        },
+        "sw": true
+      }
+    }
+  ],
+  "errors": [],
+  "network": [
+    {
+      "path": "/assets/2029-Cg_hCxRK.js",
+      "host": "sod1820-rihnl68bh-sod1820-s-projects.vercel.app",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/assets/numberExpressionFocus-iVNnxcWX.js",
+      "host": "sod1820-rihnl68bh-sod1820-s-projects.vercel.app",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/css2",
+      "host": "fonts.googleapis.com",
+      "error": "net::ERR_ABORTED"
+    }
+  ],
+  "liveWrites": 0,
+  "realAccountAcceptance": "OPEN_USER_DEFERRED",
+  "artifact": {
+    "sourceSha": "ffdaf3e4417af2c333ab3a259940bd79956be9c6",
+    "policy": "public-reading-owned-account-continuity-20261103"
+  },
+  "failure": "The expression evaluated to a falsy value:\n\n  assert.ok(item.background.includes('/ 0.06')||item.background.includes(', 0.06)'))\n",
+  "body": "SOD1820 · העולם החדש\n⌕\n☾\n\nהאתר מתחדש ונבנה בהדרגה. נתקלתם בתקלה או שיש לכם רעיון לשיפור? עזרו לנו לבנות אותו יחד.\n\nדיווח או הצעה ←\nעדכונים אחרונים\nכל הפוסטים ←\nהאתר בבנייה\n\nאנחנו בונים את השלב הבא. האתר עדיין לא מוכן במלואו.\n\n14\n140\n16\nתצוגה מקדימה · להמחשה\n\nבקרוב: פרסומים מחוברים לאורך הזמן\n\nעדכוני האתר\n\nפרסומים חדשים וחלקים שנפתחים, במייל.\n\nהרשמה לעדכוני האתר\nפרטיות\nמהסדרות והכותבים\nלכל הסדרות ←\nתיעוד האירועים · רמזי המערכת\nאוסף סרטונים: שדוני ברקים מעל צרפת — ואתם באים על היהודים, אתם מפסידים\nתיעוד אירועים\nוידאו\nלקריאה ←\nלעולם\nפרטים וחיבורים\nהתכנסויות בולטות\nכל ההתכנסויות ←\n\nמסודרות לפי מד ההתכנסות הקיים. המדדים נפרדים: איכות, חוזק וסימוני זהב ויהלום.\n\nטוען את ההתכנסויות הבולטות…\n\nסיפור המטוס וכיווני הגילוי\n\nק\nי\nמ\nפ\nו\nו\nמ\nד\nח\nא\nו\nב\nב\nג\nנ\nס\nב\nצ\nב\nח\nט\nל\nכ\nת\nו\nר\nכ\nכ\nל\nק\nח\nא\nל\nי\nע\nה\nא\nו\nא\nב\nז\nע\nו\nפ\nה\nה\nש\nמ\nמ\nכ\nמ\nצ\nא\nד\nה\nג\nג\nש\nב\nי\nה\nפ\nל\nט\nק\nא\nפ\nא\nא\nמ\nי\nמ\nכ\nב\nח\nה\nב\nצ\nפ\nה\nב\nר\nו\nט\nא\nל\nי\nה\nז\nב\nל\nא\nנ\nש\nה\nו\nב\nס\nח\nא\nו\nי\nה\nה\nה\nא\nא\nג\nנ\nת\nפ\nו\nק\nנ\nצ\nג\nד\nב\nה\nכ\nד\nב\nמ\nי\nצ\nס\nת\nס\nע\nע\nמ\nל\nג\nצ\nת\nו\nר\nה\nה\nה\nא\nא\nר\nו\nר\nה\nה\nש\nב\nג\nל\nג\nה\nי\nש\nה\nר\nה\nע\nב\nנ\nא\nו\nד\nג\nי\nא\nא\nה\nא\nט\nו\nפ\nפ\nפ\nא\nה\nה\nל\nד\nי\nא\nל\nו\nי\nל\nא\nי\nה\nו\nט\nפ\nט\nר\nמ\nא\nע\nב\nו\nג\nת\nל\nא\nל\nו\nה\nש\nג\nחיפוש בצופן התנ״כי\n\nAI · מנוע חיפוש עוצמתי\n\nהצופן ייפתח בקרוב\nמטריצה להמחשה\nהצפנים האחרונים בתורה\nכל פרסומי הצופן ←\n\nאין צפנים להצגה כרגע.\n\nהסרטים האחרונים\nכל הסרטים ←\n\nתמונה פותחת סיפור\n\nזרם המציאות\n\nרגעים, מספרים וסיפורים. גוללים בתמונות, ופותחים את המקור כדי להעמיק.\n\nלכל הגלריות ←\n\nפותחים את התמונות בזרם…\n\nמעקב ייפתח בהמשך\nמה מגיע עכשיו\n◌\nהמערכת עובדת עכשיו\nפותח את המקורות האחרונים\n0 שנ׳\nאין אחוז אמיתי לדווח — מציגים שלב חי במקום לנחש.\nכניסה לזרם המלא בעולם ←\nהכותבים\nהכותבים שמקורותיהם בעולם\nמסרים מצדיקים\nהסדרה המשותפת · המקור נשמר בכל פריט\nגימטריה · חישוב מיידי\nכתוב משהו. תשע שיטות נדלקות מיד.\n\nהתוצאות מופיעות מיד מיד תוך כדי הקלדה. האימות הסופי נעשה בדף המספר.\n\nפתח במחשבון ←\nהקלד כדי לראות ערכים מיידיים\nרגיל\n0\nמילוי\n0\nמסתתר\n0\nמשולש\n0\nריבוע\n0\nגדול\n0\nסידורי\n0\nאתבש\n0\nאלבם\n0\nארכיון\nשנים של פוסטים, לפי שנה ונושא\nמסע החיים · נעול\nייפתח לאחר השלמת ההגדר",
+  "worker": {
+    "controller": "https://sod1820-rihnl68bh-sod1820-s-projects.vercel.app/sw.js",
+    "registrations": [
+      {
+        "scope": "https://sod1820-rihnl68bh-sod1820-s-projects.vercel.app/",
+        "active": "activated"
+      }
+    ]
+  },
+  "finishedAt": "2026-11-03T13:29:05.780Z"
+}
