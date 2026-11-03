@@ -17,5 +17,6 @@
     "20261103175116",
     "20261103175126"
   ],
-  "newCanonicalRuleVersion": "subscription_funnel_law v22 (decision documentation only)"
+  "newCanonicalRuleVersion": "subscription_funnel_law v22 (decision documentation only)",
+  "logNormalization": "Removed trailing whitespace emitted by Vite logger from retained build output; no application or test expectation change."
 }
