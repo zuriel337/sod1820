@@ -119,9 +119,13 @@ function installPublicReadingWorker(policy) {
     if (url.origin === authOrigin && req.method === "GET" && req.destination === "image"
       && req.mode === "no-cors" && !url.search && !url.hash
       && /^\/storage\/v1\/object\/public\/(?:media|gallery|magar)\//.test(url.pathname)) return;
-    if (url.origin === authOrigin && req.method === "POST" && !url.search
+    if (url.origin === authOrigin && req.method === "POST"
       && ["/rest/v1/rpc/ingest_event", "/rest/v1/contact_messages"].includes(url.pathname)) {
       event.respondWith((async () => {
+        const columns = url.searchParams.get("columns");
+        const contactColumns = url.pathname.endsWith("/contact_messages") && url.searchParams.size === 1
+          && columns?.split(",").sort().join(",") === '\"email\",\"message\",\"name\",\"subject\"';
+        if (url.search && !contactColumns) return denied();
         const raw = await req.clone().text();
         if (raw.length > 8192) return denied();
         const parsed = JSON.parse(raw);

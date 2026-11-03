@@ -359,3 +359,15 @@ test('approved explicit report receipt path permits no identity-bearing, generic
  for(const invalid of [{...body,p_sod_id:'spoofed'},{...body,p_event_type:'view'},{...body,p_is_bot:true},{...body,p_props:{email:'private@example.invalid'}},{...body,p_props:{message:'x'.repeat(501)}}])assert.equal((await h.request('/rest/v1/rpc/ingest_event',{body:JSON.stringify(invalid)})).status,403);
  assert.equal(h.calls.length,2);
 });
+
+test('actual Supabase insert array columns are admitted exactly; extra columns and selectors remain denied',async()=>{
+ const {createClient}=await import('@supabase/supabase-js');const h=workerHarness();let observed;
+ const client=createClient(API,'synthetic-public-key',{auth:{persistSession:false,autoRefreshToken:false},global:{fetch:async(url,options)=>{
+  const u=new URL(url);observed=u.search;
+  return h.request(u.pathname+u.search,{body:options.body});
+ }}});
+ const response=await client.from('contact_messages').insert([{name:'synthetic',email:'owner@example.invalid',subject:'test',message:'synthetic'}]);
+ assert.equal(response.error,null);assert.match(observed,/columns=/);assert.equal(h.calls.length,1);
+ for(const search of ['?columns=id','?columns=%22email%22,%22message%22,%22name%22,%22subject%22&select=*'])assert.equal((await h.request('/rest/v1/contact_messages'+search,{body:JSON.stringify({name:'synthetic',email:'x@y',subject:'test',message:'synthetic'})})).status,403);
+ assert.equal(h.calls.length,1);
+});

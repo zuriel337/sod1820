@@ -1,0 +1,33 @@
+✔ renewal ribbon renders one exact notice and one explicit contact action without timers or feed consumption (9.094882ms)
+✔ approved explicit forms wait for persistence and never claim success after failure (27.026802ms)
+✔ ordinary contact and issue forms retain their existing emitters and optional source metadata (10.680049ms)
+✔ locked public gateway does not mount private hint status or hint submission (3.369435ms)
+✔ global share follows the current public destination and suppresses personal/auth/mail routes (2.681361ms)
+✔ global dock opens ShareActions directly with all approved choices and keeps More/tools and Now separate (3.116538ms)
+✔ dormant default cannot be activated by environment, forged request or production branch name (324.48594ms)
+✔ only dedicated 2029 compiler target can enable the signed service; default, Preview and stray Legacy flags cannot (3.582967ms)
+✔ Production document uses canonical owner, preserves old/native/encoded/wp addresses and genuine missing/failure status (31.814301ms)
+✔ closed, private and unknown routes remain noindex without product lookups; service metadata preserves signed unsubscribe (1.537624ms)
+✔ public aliases and named existing capabilities retain truthful continuations without publicizing unknown slugs (3.089211ms)
+✔ HTTP origin, path and method boundaries cannot select metadata profile or enter private readers (1.359343ms)
+✔ Numbers/phrases use the same canonical indexability readers; source failure is 503, false is noindex (4.182436ms)
+✔ public topic/writer/video missing and failed source responses keep 404 and 503 distinct (3.412925ms)
+✔ sitemap reuses eligible publication owner for both Post families, Numbers, phrases, topic, public writer and verified video (5.190922ms)
+✔ robots follows Production canonical sitemap while dormant mode fails closed; public GET APIs strip Legacy authority and reject POST (0.54136ms)
+✔ exact emitted worker denies A3/models/Auth/credits/writes through GET/POST/PATCH/DELETE and proxy paths before network (9.409822ms)
+✔ emitted worker retains public calculator/STABLE GET/community projection reads and context checks, never raw replies (4.438021ms)
+✔ language-link reader admits approved-only scope and denies visitor drafts before any network call (2.828125ms)
+✔ signed Legacy unsubscribe alone can reach its unchanged HMAC server from exact controlled service document (2.902919ms)
+✔ bootstrap bounds every worker phase, rejects redundant/wrong policy and never imports after a late timeout (52.257083ms)
+✔ actual local artifact retains font fix, compiler isolation, no index shadow, no-store worker and byte-exact Legacy rollback worker (36.42272ms)
+✔ native public image loading retains opaque response compatibility without bypassing private reads or writes (1.397747ms)
+✔ approved explicit report receipt path permits no identity-bearing, generic telemetry or unrelated writes (2.863ms)
+✔ actual Supabase insert array columns are admitted exactly; extra columns and selectors remain denied (34.602147ms)
+ℹ tests 25
+ℹ suites 0
+ℹ pass 25
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 673.751493
