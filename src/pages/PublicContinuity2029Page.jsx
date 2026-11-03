@@ -253,9 +253,10 @@ function StatusContent({ kind, title, description, links = [] }) {
 }
 
 function HistoricalLecturesContent() {
-  const location = useLocation(), page = publicHistoricalLecturePage2029(location.pathname);
+  const location = useLocation();
+  const page = React.useMemo(() => publicHistoricalLecturePage2029(location.pathname), [location.pathname]);
   const html = React.useMemo(() => historicalLectureHtml2029(page), [page]);
-  useEffect(() => { if (page) applySeo({title:page.title,description:"הרצאות המקור ההיסטוריות, בסדרן ובכתובתן המקורית.",path:page.path,type:"article"}); }, [page]);
+  useEffect(() => { if (page) applySeo({title:page.title,description:"הרצאות המקור ההיסטוריות, בסדרן ובכתובתן המקורית.",path:page.canonicalPath,type:"article"}); }, [page]);
   if (!page) return <StatePanel title="המקור לא נמצא" />;
   return <article className="sod29-reading-post" data-post-character="quiet" data-historical-source={`wp:page:${page.wpPageId}`}>
     <header className="sod29-reading-hero"><span className="sod29-reading-source-badge">הרצאות המקור · תיעוד היסטורי</span>

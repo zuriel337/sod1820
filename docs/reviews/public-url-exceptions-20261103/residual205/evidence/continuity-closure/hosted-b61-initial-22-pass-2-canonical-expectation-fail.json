@@ -1,0 +1,265 @@
+{
+  "kind": "residual205-books-hosted-anonymous-acceptance",
+  "sourceSha": "b61a24da1ffbbfdcf1e33b51bd4bd9e1c5d4e071",
+  "origin": "https://sod1820-d1ibjs342-sod1820-s-projects.vercel.app",
+  "realSW": true,
+  "syntheticData": false,
+  "liveWrites": 0,
+  "realAccount": "user reported all listed existing-account operations passed in both owned accounts on7360f1d8; not inspected by this anonymous runner",
+  "cases": [
+    {
+      "name": "exact artifact and existing account entry (anonymous only)",
+      "width": 390,
+      "passed": true,
+      "artifact": {
+        "sourceSha": "b61a24da1ffbbfdcf1e33b51bd4bd9e1c5d4e071",
+        "productionReady": false
+      }
+    },
+    {
+      "name": "exact external continuation /86AND26/videos/vb.103870716369907/801439149946390/",
+      "width": 390,
+      "passed": true,
+      "href": "https://www.facebook.com/86AND26/videos/801439149946390/",
+      "providerPlayback": "not verified"
+    },
+    {
+      "name": "exact external continuation /k1820/videos/839307259461807/",
+      "width": 390,
+      "passed": true,
+      "href": "https://www.facebook.com/k1820/videos/839307259461807/",
+      "providerPlayback": "not verified"
+    },
+    {
+      "name": "exact external continuation /k1820/videos/vb.617996338259568/839307259461807/",
+      "width": 390,
+      "passed": true,
+      "href": "https://www.facebook.com/k1820/videos/839307259461807/",
+      "providerPlayback": "not verified"
+    },
+    {
+      "name": "historical source 2481 exact document and visible provider fallback",
+      "width": 390,
+      "passed": true,
+      "sourceVideos": [
+        "https://www.youtube.com/watch?v=KUP8khZPtiM",
+        "https://www.youtube.com/watch?v=xncp6I-rms8",
+        "https://www.youtube.com/watch?v=pnvH6y-FDVg",
+        "https://www.youtube.com/watch?v=xRtPZk9XgK8",
+        "http://youtu.be/fM3j8D8I81Q",
+        "http://youtu.be/tJqFU6lZIKs",
+        "https://www.youtube.com/watch?v=Orrl9sJfi1o",
+        "https://www.youtube.com/watch?v=Kq0jjIPCmik",
+        "https://www.youtube.com/watch?v=FReb_Tz6F30",
+        "http://youtu.be/YWmniGq50aw",
+        "http://youtu.be/vYsgnGBwStE",
+        "https://www.youtube.com/watch?v=qCYHzCzZ-A0&list=UUQ135Sk3fwPllBKpRm-8Ogw",
+        "https://www.youtube.com/watch?v=oPXOLzliU2c&feature=oembed",
+        "https://www.youtube.com/watch?v=3O4CrVYpUT4&feature=oembed",
+        "https://www.youtube.com/watch?v=_ZtU6K3tRKU&feature=oembed",
+        "https://www.youtube.com/watch?v=VmQbvKxoqLc&feature=oembed",
+        "https://www.youtube.com/watch?v=J0K9ocO0hhI&list=PLouU_LbV9yCwFPjW9A757e5-psyZ19QVC"
+      ],
+      "providerPlayback": "not accepted; third-party requests blocked, exact source links visible"
+    },
+    {
+      "name": "historical source 3798 exact document and visible provider fallback",
+      "width": 390,
+      "passed": true,
+      "sourceVideos": [
+        "https://www.youtube.com/watch?v=l3dbA9113s4&feature=oembed",
+        "https://www.youtube.com/watch?v=H-5H0MpeYLg&feature=oembed",
+        "https://www.youtube.com/watch?v=tPTWRvE4pMQ&feature=oembed",
+        "https://www.youtube.com/watch?v=3O4CrVYpUT4",
+        "https://www.youtube.com/watch?v=_ZtU6K3tRKU&feature=oembed",
+        "https://www.youtube.com/watch?v=VmQbvKxoqLc&feature=oembed"
+      ],
+      "providerPlayback": "not accepted; third-party requests blocked, exact source links visible"
+    },
+    {
+      "name": "historical source 3288 exact document and visible provider fallback",
+      "width": 390,
+      "passed": true,
+      "sourceVideos": [
+        "http://youtu.be/BwB-DyKJDXA",
+        "https://www.youtube.com/watch?v=Q2-c5Yj02o0&list=UUQ135Sk3fwPllBKpRm-8Ogw",
+        "https://www.youtube.com/watch?v=j6aoHB26TUI&list=UUQ135Sk3fwPllBKpRm-8Ogw&index=5",
+        "https://www.youtube.com/watch?v=_nkM24pPi9M&list=UUQ135Sk3fwPllBKpRm-8Ogw",
+        "https://www.youtube.com/watch?v=cHi5ohva-7c&feature=youtu.be",
+        "https://www.youtube.com/watch?v=rTlr-fucsWE&list=UUQ135Sk3fwPllBKpRm-8Ogw&index=3",
+        "https://www.youtube.com/watch?v=gGVH402EccU"
+      ],
+      "providerPlayback": "not accepted; third-party requests blocked, exact source links visible"
+    },
+    {
+      "name": "historical child parent exact dependency links and browser return",
+      "width": 390,
+      "passed": false,
+      "error": "Expected values to be strictly equal:\n+ actual - expected\n\n+ '/משיח-בשנת-התשעו/מתי-שנת-הגאולה?part=2&part=7#historical-source'\n- '/משיח-בשנת-התשעו/מתי-שנת-הגאולה/?part=2&part=7#historical-source'\n",
+      "path": "/%D7%9E%D7%A9%D7%99%D7%97-%D7%91%D7%A9%D7%A0%D7%AA-%D7%94%D7%AA%D7%A9%D7%A2%D7%95/%D7%9E%D7%AA%D7%99-%D7%A9%D7%A0%D7%AA-%D7%94%D7%92%D7%90%D7%95%D7%9C%D7%94",
+      "body": "הרצאות המקור\n⌕\n☾\n\nהאתר מתחדש ונבנה בהדרגה. נתקלתם בתקלה או שיש לכם רעיון לשיפור? עזרו לנו לבנות אותו יחד.\n\nדיווח או הצעה ←\nהרצאות המקור · תיעוד היסטורי\nמתי שנת הגאולה\n\nפורסם י״ח באדר · 09.03.2015 · עודכן י״ח באדר · 09.03.2015\n\nתוכן המקור משנת 2015 נשמר כאן כפי שפורסם. המועדים והטענות שבו שייכים למקור ההיסטורי. לכל הרצאה יש גם קישור ישיר לאתר המקור.\n\nמקור וגרסת הקריאה\nשלושה הרצאות חדשות עלו לדף\n\nשנת הגאולה בפסוק הראשון בתורה מדהים ביותר – פלא פלאים – עודכן ב יח אדר תשע\"ה – 9.3.2015 – שלושה חלקים\n\n***\n\nדף הרצאות זה הוא המשך לדף ההרצאות סוד הגאולה – משיח בתשע\"ו כל המידע אודות שנת העת רצון לגאולה התשע\"ו עשרות רמזים וגימטריות המראים שנת התשע\"ו זו שנת הגאולה הסופית (גאולת בעיתה)\nאמר להם רבי שמעון אין רצונו של הקב\"ה בזה שיתגלה לעולם כל כך, וכשיהיה קרוב לימות המשיח אפילו נערים שבעולם עתידים למצוא "
+    },
+    {
+      "name": "Forum approved continuation /forum",
+      "width": 390,
+      "passed": true,
+      "destination": "/community/chat?part=2&part=7#original-forum",
+      "originalForumThreadRestored": false
+    },
+    {
+      "name": "Forum approved continuation /yuval-kogan-echad-hasichim-hamashiach",
+      "width": 390,
+      "passed": true,
+      "destination": "/community/chat?part=2&part=7#original-forum",
+      "originalForumThreadRestored": false
+    },
+    {
+      "name": "Forum approved continuation /post/yuval-kogan-echad-hasichim-hamashiach",
+      "width": 390,
+      "passed": true,
+      "destination": "/community/chat?part=2&part=7#original-forum",
+      "originalForumThreadRestored": false
+    },
+    {
+      "name": "Forum approved continuation /?p=36971",
+      "width": 390,
+      "passed": true,
+      "destination": "/community/chat?p=36971&part=2&part=7#original-forum",
+      "originalForumThreadRestored": false
+    },
+    {
+      "name": "exact artifact and existing account entry (anonymous only)",
+      "width": 1440,
+      "passed": true,
+      "artifact": {
+        "sourceSha": "b61a24da1ffbbfdcf1e33b51bd4bd9e1c5d4e071",
+        "productionReady": false
+      }
+    },
+    {
+      "name": "exact external continuation /86AND26/videos/vb.103870716369907/801439149946390/",
+      "width": 1440,
+      "passed": true,
+      "href": "https://www.facebook.com/86AND26/videos/801439149946390/",
+      "providerPlayback": "not verified"
+    },
+    {
+      "name": "exact external continuation /k1820/videos/839307259461807/",
+      "width": 1440,
+      "passed": true,
+      "href": "https://www.facebook.com/k1820/videos/839307259461807/",
+      "providerPlayback": "not verified"
+    },
+    {
+      "name": "exact external continuation /k1820/videos/vb.617996338259568/839307259461807/",
+      "width": 1440,
+      "passed": true,
+      "href": "https://www.facebook.com/k1820/videos/839307259461807/",
+      "providerPlayback": "not verified"
+    },
+    {
+      "name": "historical source 2481 exact document and visible provider fallback",
+      "width": 1440,
+      "passed": true,
+      "sourceVideos": [
+        "https://www.youtube.com/watch?v=KUP8khZPtiM",
+        "https://www.youtube.com/watch?v=xncp6I-rms8",
+        "https://www.youtube.com/watch?v=pnvH6y-FDVg",
+        "https://www.youtube.com/watch?v=xRtPZk9XgK8",
+        "http://youtu.be/fM3j8D8I81Q",
+        "http://youtu.be/tJqFU6lZIKs",
+        "https://www.youtube.com/watch?v=Orrl9sJfi1o",
+        "https://www.youtube.com/watch?v=Kq0jjIPCmik",
+        "https://www.youtube.com/watch?v=FReb_Tz6F30",
+        "http://youtu.be/YWmniGq50aw",
+        "http://youtu.be/vYsgnGBwStE",
+        "https://www.youtube.com/watch?v=qCYHzCzZ-A0&list=UUQ135Sk3fwPllBKpRm-8Ogw",
+        "https://www.youtube.com/watch?v=oPXOLzliU2c&feature=oembed",
+        "https://www.youtube.com/watch?v=3O4CrVYpUT4&feature=oembed",
+        "https://www.youtube.com/watch?v=_ZtU6K3tRKU&feature=oembed",
+        "https://www.youtube.com/watch?v=VmQbvKxoqLc&feature=oembed",
+        "https://www.youtube.com/watch?v=J0K9ocO0hhI&list=PLouU_LbV9yCwFPjW9A757e5-psyZ19QVC"
+      ],
+      "providerPlayback": "not accepted; third-party requests blocked, exact source links visible"
+    },
+    {
+      "name": "historical source 3798 exact document and visible provider fallback",
+      "width": 1440,
+      "passed": true,
+      "sourceVideos": [
+        "https://www.youtube.com/watch?v=l3dbA9113s4&feature=oembed",
+        "https://www.youtube.com/watch?v=H-5H0MpeYLg&feature=oembed",
+        "https://www.youtube.com/watch?v=tPTWRvE4pMQ&feature=oembed",
+        "https://www.youtube.com/watch?v=3O4CrVYpUT4",
+        "https://www.youtube.com/watch?v=_ZtU6K3tRKU&feature=oembed",
+        "https://www.youtube.com/watch?v=VmQbvKxoqLc&feature=oembed"
+      ],
+      "providerPlayback": "not accepted; third-party requests blocked, exact source links visible"
+    },
+    {
+      "name": "historical source 3288 exact document and visible provider fallback",
+      "width": 1440,
+      "passed": true,
+      "sourceVideos": [
+        "http://youtu.be/BwB-DyKJDXA",
+        "https://www.youtube.com/watch?v=Q2-c5Yj02o0&list=UUQ135Sk3fwPllBKpRm-8Ogw",
+        "https://www.youtube.com/watch?v=j6aoHB26TUI&list=UUQ135Sk3fwPllBKpRm-8Ogw&index=5",
+        "https://www.youtube.com/watch?v=_nkM24pPi9M&list=UUQ135Sk3fwPllBKpRm-8Ogw",
+        "https://www.youtube.com/watch?v=cHi5ohva-7c&feature=youtu.be",
+        "https://www.youtube.com/watch?v=rTlr-fucsWE&list=UUQ135Sk3fwPllBKpRm-8Ogw&index=3",
+        "https://www.youtube.com/watch?v=gGVH402EccU"
+      ],
+      "providerPlayback": "not accepted; third-party requests blocked, exact source links visible"
+    },
+    {
+      "name": "historical child parent exact dependency links and browser return",
+      "width": 1440,
+      "passed": false,
+      "error": "Expected values to be strictly equal:\n+ actual - expected\n\n+ '/משיח-בשנת-התשעו/מתי-שנת-הגאולה?part=2&part=7#historical-source'\n- '/משיח-בשנת-התשעו/מתי-שנת-הגאולה/?part=2&part=7#historical-source'\n",
+      "path": "/%D7%9E%D7%A9%D7%99%D7%97-%D7%91%D7%A9%D7%A0%D7%AA-%D7%94%D7%AA%D7%A9%D7%A2%D7%95/%D7%9E%D7%AA%D7%99-%D7%A9%D7%A0%D7%AA-%D7%94%D7%92%D7%90%D7%95%D7%9C%D7%94",
+      "body": "סוד 1820\nכי לה׳ המלוכה\n123\n›\nSOD1820\n/\nהרצאות המקור\n⌕\nחיפוש\n⌘K\n☀\nיום\n▤\nקלף\n☾\nלילה\nהתחברות\n\nהאתר מתחדש ונבנה בהדרגה. נתקלתם בתקלה או שיש לכם רעיון לשיפור? עזרו לנו לבנות אותו יחד.\n\nדיווח או הצעה ←\nהרצאות המקור · תיעוד היסטורי\nמתי שנת הגאולה\n\nפורסם י״ח באדר · 09.03.2015 · עודכן י״ח באדר · 09.03.2015\n\nתוכן המקור משנת 2015 נשמר כאן כפי שפורסם. המועדים והטענות שבו שייכים למקור ההיסטורי. לכל הרצאה יש גם קישור ישיר לאתר המקור.\n\nמקור וגרסת הקריאה\nשלושה הרצאות חדשות עלו לדף\n\nשנת הגאולה בפסוק הראשון בתורה מדהים ביותר – פלא פלאים – עודכן ב יח אדר תשע\"ה – 9.3.2015 – שלושה חלקים\n\n***\n\nדף הרצאות זה הוא המשך לדף ההרצאות סוד הגאולה – משיח בתשע\"ו כל המידע אודות שנת העת רצון לגאולה התשע\"ו עשרות רמזים וגימטריות המראים שנת התשע\"ו זו שנת הגאולה הסופית (גאולת בעיתה)\nאמר להם רבי שמעון אין רצונו של הקב\"ה בזה שיתג"
+    },
+    {
+      "name": "Forum approved continuation /forum",
+      "width": 1440,
+      "passed": true,
+      "destination": "/community/chat?part=2&part=7#original-forum",
+      "originalForumThreadRestored": false
+    },
+    {
+      "name": "Forum approved continuation /yuval-kogan-echad-hasichim-hamashiach",
+      "width": 1440,
+      "passed": true,
+      "destination": "/community/chat?part=2&part=7#original-forum",
+      "originalForumThreadRestored": false
+    },
+    {
+      "name": "Forum approved continuation /post/yuval-kogan-echad-hasichim-hamashiach",
+      "width": 1440,
+      "passed": true,
+      "destination": "/community/chat?part=2&part=7#original-forum",
+      "originalForumThreadRestored": false
+    },
+    {
+      "name": "Forum approved continuation /?p=36971",
+      "width": 1440,
+      "passed": true,
+      "destination": "/community/chat?p=36971&part=2&part=7#original-forum",
+      "originalForumThreadRestored": false
+    }
+  ],
+  "errors": [],
+  "denied": [
+    {
+      "width": 390,
+      "requests": []
+    },
+    {
+      "width": 1440,
+      "requests": []
+    }
+  ],
+  "finishedAt": "2026-11-03T16:04:58.058Z",
+  "passed": 22,
+  "failed": 2
+}

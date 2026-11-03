@@ -48128,12 +48128,12 @@
           "to": "/%d7%9e%d7%a9%d7%99%d7%97-%d7%91%d7%a9%d7%a0%d7%aa-%d7%94%d7%aa%d7%a9%d7%a2%d7%95/%d7%9e%d7%aa%d7%99-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94"
         }
       ],
-      "finalUrl": "/משיח-בשנת-התשעו/מתי-שנת-הגאולה/",
+      "finalUrl": "/משיח-בשנת-התשעו/מתי-שנת-הגאולה",
       "status": "resolved",
       "reason": "exact_archived_published_wordpress_page_body",
       "launchImpact": "original page body restored from two corroborating public captures; provider playback unverified",
       "httpEvidence": "not independently requested for every URL",
-      "canonical": "/משיח-בשנת-התשעו/מתי-שנת-הגאולה/",
+      "canonical": "/משיח-בשנת-התשעו/מתי-שנת-הגאולה",
       "legacyReview": {
         "source": "residual205/evidence/live-http.json",
         "baselineSha": "b80ad895a23b51107fd58d533d4dd93f6d4c431f",

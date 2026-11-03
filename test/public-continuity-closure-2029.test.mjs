@@ -17,7 +17,7 @@ async function document(path){const res=response();await handler({method:'GET',u
 const json=rows=>new Response(JSON.stringify(rows),{headers:{'Content-Type':'application/json'}});
 
 test('three exact public historical pages retain original body bytes, dates, parent dependencies and source video order',()=>{
- assert.equal(pages.length,3);assert.deepEqual(pages.map(p=>p.path),PUBLIC_HISTORICAL_LECTURE_PATHS);
+ assert.equal(pages.length,3);assert.deepEqual(pages.map(p=>p.path.replace(/\/$/,'')),PUBLIC_HISTORICAL_LECTURE_PATHS);
  const bodies=['parent-original-entry.json','lecture-original-entry.json','proofs-original-entry.json'];
  const counts=[17,6,7];
  pages.forEach((page,index)=>{
@@ -26,7 +26,7 @@ test('three exact public historical pages retain original body bytes, dates, par
   const bytes=Buffer.from(preserved.data,'base64');assert.equal(bytes.length,preserved.byteLength);assert.equal(createHash('sha256').update(bytes).digest('hex'),preserved.sha256);assert.equal(page.html,bytes.toString());
   assert.equal(publicHistoricalLecturePage2029(encodeURI(page.path)).wpPageId,page.wpPageId);
   assert.equal(publicReadingPath(encodeURI(page.path)),'public');
-  assert.equal(publicReadingContinuation('/','?page_id='+page.wpPageId+'&part=2&part=7','#original'),page.path+'?page_id='+page.wpPageId+'&part=2&part=7#original');
+  assert.equal(publicReadingContinuation('/','?page_id='+page.wpPageId+'&part=2&part=7','#original'),page.path.replace(/\/$/,'')+'?page_id='+page.wpPageId+'&part=2&part=7#original');
   assert.equal((page.html.match(/https?:\/\/(?:www\.youtube\.com|youtu\.be)\//g)||[]).length,counts[index]);
   assert.ok(page.publishedAt.startsWith(index===0?'2014-':'2015-'));
  });
@@ -40,7 +40,7 @@ test('three exact public historical pages retain original body bytes, dates, par
 
 test('original historical documents have exact self canonicals without querying a guessed Post identity',async()=>{
  const original=globalThis.fetch;globalThis.fetch=()=>assert.fail('historical source must not depend on a guessed live Post');
- try {for(const page of pages){const r=await document(encodeURI(page.path));assert.equal(r.code,200);assert.ok(decodeURI(r.body).includes('https://sod1820.co.il'+page.path.replace(/\/$/,'')));}}
+ try {for(const page of pages){const r=await document(encodeURI(page.path));assert.equal(r.code,200);const canonical=decodeURI(r.body.match(/<link rel="canonical" href="([^"]+)/)?.[1]||'');assert.equal(canonical,'https://sod1820.co.il'+page.path.replace(/\/$/,''));}}
  finally{globalThis.fetch=original;}
 });
 

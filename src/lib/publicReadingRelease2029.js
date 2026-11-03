@@ -13,7 +13,7 @@ export const PUBLIC_READING_PRODUCTION_ARTIFACT = PUBLIC_READING_RELEASE
 // Existing published WordPress pages recovered byte-for-byte from dated source
 // captures. These remain their original documents, not cipher/research routes.
 export const PUBLIC_HISTORICAL_LECTURE_PATHS = Object.freeze([
-  "/משיח-בשנת-התשעו/", "/משיח-בשנת-התשעו/מתי-שנת-הגאולה/", "/הוכחות-לאמיתות-התורה-משמים/",
+  "/משיח-בשנת-התשעו", "/משיח-בשנת-התשעו/מתי-שנת-הגאולה", "/הוכחות-לאמיתות-התורה-משמים",
 ]);
 
 // The launch ceiling applies to the public, not to the server-verified admin.

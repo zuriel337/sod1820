@@ -17,7 +17,8 @@ export function publicHistoricalLecturePage2029(pathname) {
   if (typeof pathname !== "string" || !pathname.startsWith("/") || pathname.startsWith("//")) return null;
   try {
     const path = decodeURIComponent(pathname).replace(/\/+$/, "");
-    return historicalLecturePages.find(page => page.path.replace(/\/+$/, "") === path) || null;
+    const page = historicalLecturePages.find(page => page.path.replace(/\/+$/, "") === path);
+    return page ? { ...page, canonicalPath: page.path.replace(/\/+$/, "") } : null;
   } catch { return null; }
 }
 

@@ -49,7 +49,7 @@ export function reviewResidual205(row) {
     Object.assign(detail,{legacyState:"existing_anon_readable_forum_identity_live_ui_unverified",cutover:"user_approved_existing_chat_continuation",next:"Preserve exact source aliases and query/anchor; do not republish as ordinary Post"});
   } else if (path === "/משיח-בשנת-התשעו/מתי-שנת-הגאולה") {
     row.status="resolved"; row.reason="exact_archived_published_wordpress_page_body";
-    row.finalUrl="/משיח-בשנת-התשעו/מתי-שנת-הגאולה/";
+    row.finalUrl="/משיח-בשנת-התשעו/מתי-שנת-הגאולה";
     row.launchImpact="original page body restored from two corroborating public captures; provider playback unverified";
     Object.assign(detail,{legacyState:"recovered_historical_public_wordpress_page",cutover:"dated_exact_original_body_restored",contentRestored:true,
       wpPageId:3798, bodySha256:"c477d39034c4047643448043125c3e059f9c57e3873478eee00a2ad161745dcf", captureUtc:"2025-08-06T14:21:48Z",

@@ -10,7 +10,7 @@ assert.match(origin,/^https:\/\/sod1820-[a-z0-9]+-sod1820-s-projects\.vercel\.ap
 assert.match(config.sha,/^[a-f0-9]{40}$/);await mkdir(out,{recursive:true});
 const reads=JSON.parse(await readFile(new URL('../../public-foundation-20261101/evidence/rpc-read-inventory.json',import.meta.url),'utf8')).functions.map(x=>x.proname).filter(x=>x!=='lang_links_list');
 reads.push('convergence_meter','is_number_indexable','is_phrase_indexable','writer_public_contributions_page_v1','community_feed_page','community_message_context','community_replies_page','community_reply_counts');
-const report={kind:'residual205-books-hosted-anonymous-acceptance',sourceSha:config.sha,origin,realSW:true,syntheticData:false,liveWrites:0,realAccount:'separate user observation on b80; not tested by this runner',cases:[],errors:[],denied:[]};
+const report={kind:'residual205-books-hosted-anonymous-acceptance',sourceSha:config.sha,origin,realSW:true,syntheticData:false,liveWrites:0,realAccount:'user reported all listed existing-account operations passed in both owned accounts on7360f1d8; not inspected by this anonymous runner',cases:[],errors:[],denied:[]};
 const flush=()=>writeFile(out+'/receipt.json',JSON.stringify(report,null,2)+'\n');
 const safeError=e=>String(e.message||e).replaceAll(config.shareUrl||'PRIVATE_NON_MATCH','[private grant]').replace(/_vercel_share=[^\s"'&]+/g,'_vercel_share=[redacted]').slice(0,1400);
 let page;
@@ -27,7 +27,7 @@ try{for(const width of [390,1440]){
   navigator.sendBeacon=()=>false;window.WebSocket=class{constructor(){throw Error('independent_read_only_acceptance_guard');}};
  },{origin,db,reads});
  page=await context.newPage();page.setDefaultTimeout(30000);page.on('pageerror',e=>report.errors.push({width,error:safeError(e)}));
- const cdp=await context.newCDPSession(page);await cdp.send('Network.enable');await cdp.send('Network.setBlockedURLs',{urls:['https://vercel.live/_next-live/feedback/feedback.js','*://*.google-analytics.com/*','*://*.googletagmanager.com/*','*://connect.facebook.net/*','*://*.clarity.ms/*']});
+ const cdp=await context.newCDPSession(page);await cdp.send('Network.enable');await cdp.send('Network.setBlockedURLs',{urls:['https://vercel.live/_next-live/feedback/feedback.js','*://*.google-analytics.com/*','*://*.googletagmanager.com/*','*://connect.facebook.net/*','*://*.clarity.ms/*','*://*.youtube.com/*','*://youtu.be/*']});
  if(config.shareUrl)await page.goto(config.shareUrl,{waitUntil:'domcontentloaded',timeout:60000});
  await run('exact artifact and existing account entry (anonymous only)',width,async row=>{
   await page.goto(origin+'/login?returnTo=%2F2029%2Fme%2Fresearch',{waitUntil:'domcontentloaded',timeout:60000});
@@ -77,6 +77,28 @@ try{for(const width of [390,1440]){
   ['/k1820/videos/839307259461807/','https://www.facebook.com/k1820/videos/839307259461807/'],
   ['/k1820/videos/vb.617996338259568/839307259461807/','https://www.facebook.com/k1820/videos/839307259461807/'],
  ])await run('exact external continuation '+path,width,async row=>{const r=await page.goto(origin+path,{waitUntil:'domcontentloaded',timeout:60000});assert.equal(r.status(),200);await expect(page.locator('h1')).toContainText('סרטון המקור');await expect(page.getByRole('link',{name:'לסרטון באתר המקור',exact:true})).toHaveAttribute('href',dest);row.href=dest;row.providerPlayback='not verified';});
+ const historical=[
+  ['/משיח-בשנת-התשעו/',2481,'משיח בשנת התשע״ו — כל ההרצאות',17],
+  ['/משיח-בשנת-התשעו/מתי-שנת-הגאולה/',3798,'מתי שנת הגאולה',6],
+  ['/הוכחות-לאמיתות-התורה-משמים/',3288,'הוכחות לאמיתות התורה משמים',7],
+ ];
+ for(const [path,id,title,count]of historical)await run('historical source '+id+' exact document and visible provider fallback',width,async row=>{
+  const response=await page.goto(origin+encodeURI(path)+'?part=2&part=7#historical-source',{waitUntil:'domcontentloaded',timeout:60000});assert.equal(response.status(),200);await expect(page.locator(`[data-historical-source="wp:page:${id}"]`)).toBeVisible();await expect(page.getByRole('heading',{name:title,exact:true})).toBeVisible();
+  const links=page.locator('.sod29-reading-source [data-historical-video-source]');await expect(links).toHaveCount(count);assert.equal(await page.locator('.sod29-reading-source iframe[src]').count(),0,'provider does not load before an explicit choice');
+  row.sourceVideos=await links.evaluateAll(nodes=>nodes.map(n=>n.href));row.providerPlayback='not accepted; third-party requests blocked, exact source links visible';
+  if(id===3798){const summary=page.locator('.sod29-reading-source details summary').first();await summary.click();await expect(page.locator('.sod29-reading-source iframe[src]')).toHaveCount(1);}
+  const sizes=width===390?[320,390]:[1440];for(const w of sizes){await page.setViewportSize({width:w,height:900});assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'historical content must fit width '+w);await page.screenshot({path:out+'/historical-'+id+'-'+w+'.png'});}await page.setViewportSize({width,height:900});
+  await page.reload({waitUntil:'domcontentloaded',timeout:60000});await expect(page.locator(`[data-historical-source="wp:page:${id}"]`)).toBeVisible();
+ });
+ await run('historical child parent exact dependency links and browser return',width,async row=>{
+  const start='/משיח-בשנת-התשעו/מתי-שנת-הגאולה?part=2&part=7#historical-source';await page.goto(origin+encodeURI(start),{waitUntil:'domcontentloaded',timeout:60000});await expect(page.locator('[data-historical-source="wp:page:3798"]')).toBeVisible();
+  await page.locator('.sod29-reading-source a[title]').first().click();await expect(page.locator('[data-historical-source="wp:page:2481"]')).toBeVisible();assert.equal(new URL(page.url()).origin,origin);
+  await page.locator('.sod29-reading-source a[title="הוכחות לאמיתות התורה משמים"]').click();await expect(page.locator('[data-historical-source="wp:page:3288"]')).toBeVisible();assert.equal(new URL(page.url()).origin,origin);
+  await page.goBack();await expect(page.locator('[data-historical-source="wp:page:2481"]')).toBeVisible();await page.goBack();await expect(page.locator('[data-historical-source="wp:page:3798"]')).toBeVisible();assert.equal(decodeURI(new URL(page.url()).pathname)+new URL(page.url()).search+new URL(page.url()).hash,start);row.returnTo=start;
+ });
+ for(const path of ['/forum','/yuval-kogan-echad-hasichim-hamashiach','/post/yuval-kogan-echad-hasichim-hamashiach','/?p=36971','/forum/e47900d9-5591-4f1b-bc7c-d36986e8535b'])await run('Forum approved continuation '+path,width,async row=>{
+  const suffix=path.includes('?')?'&part=2&part=7#original-forum':'?part=2&part=7#original-forum';await page.goto(origin+path+suffix,{waitUntil:'domcontentloaded',timeout:60000});await page.waitForURL(u=>u.pathname==='/community/chat');assert.equal(new URL(page.url()).origin,origin);assert.deepEqual(new URL(page.url()).searchParams.getAll('part'),['2','7']);assert.equal(new URL(page.url()).hash,'#original-forum');row.destination=new URL(page.url()).pathname+new URL(page.url()).search+new URL(page.url()).hash;row.originalForumThreadRestored=false;
+ });
  await run('anonymous personal page remains private',width,async()=>{await page.goto(origin+'/2029/me/notes');await expect(page.getByRole('heading',{name:'צריך להתחבר כדי לראות את האזור האישי'})).toBeVisible();assert.equal(await page.getByLabel('ההערות שלי').count(),0);});
  report.denied.push({width,requests:await page.evaluate(()=>window.__denied||[])});await context.close();page=null;
 }}finally{await browser.close();report.finishedAt=new Date().toISOString();report.passed=report.cases.filter(x=>x.passed).length;report.failed=report.cases.filter(x=>!x.passed).length;await flush();}

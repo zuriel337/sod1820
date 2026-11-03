@@ -46,7 +46,7 @@ export async function readOwnWhatsAppBinding2029(userId, { client = supabase, si
   try {
     await account();
     let query = client.from("wa_account_links").select("verified_at").eq("user_id", userId)
-      .not("verified_at", "is", null).limit(1);
+      .not("verified_at", "is", null).limit(1).retry(false);
     if (signal) query = query.abortSignal(signal);
     const { data, error } = await query;
     await account();

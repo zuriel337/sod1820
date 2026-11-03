@@ -430,7 +430,7 @@ export default async function handler(req, res) {
     const page = publicHistoricalLecturePage2029(decodedKey);
     title = page.title + ' · ' + SITE_NAME;
     desc = 'הרצאות המקור ההיסטוריות, בסדרן ובכתובתן המקורית. תאריכי המקור והגרסה המתועדת מוצגים בנפרד.';
-    canonical = SITE + page.path; type = 'article'; documentStatus = 200;
+    canonical = SITE + page.canonicalPath; type = 'article'; documentStatus = 200;
     image = cardUrl({w:page.title,sub:'הרצאות המקור · תיעוד היסטורי'});
   } else if (productionReading && decodedKey === '/community/calculator') {
     title = 'מחשבון הקהילה — גימטריה, שמות ותאריך עברי · ' + SITE_NAME;

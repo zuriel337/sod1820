@@ -1,0 +1,120 @@
+{
+  "oldWorktree": "/tmp/sod1820-residual205-books",
+  "newWorktree": "/tmp/sod1820-continuity-closure",
+  "unchangedOldWorktree": true,
+  "originalBase": "b61a24da1ffbbfdcf1e33b51bd4bd9e1c5d4e071",
+  "files": [
+    {
+      "path": "api/og.js",
+      "sha256": "bc34da65ca19f6be1d6499fcf1a59bb4fc42804301164394389911a04b38e6a4"
+    },
+    {
+      "path": "docs/reviews/personal-continuity-glass-number-20261103/controlled-browser.mjs",
+      "sha256": "f6ce9820f71ef2bcff63c82e2b5bcb401cae44f0d13284f56735c812aa90a525"
+    },
+    {
+      "path": "docs/reviews/public-url-exceptions-20261103/reconciliation.json",
+      "sha256": "1a5aa6e2862086e265e84ee8f058951c1d7d0c386782f9a7728f1d38b7cd56fc"
+    },
+    {
+      "path": "docs/reviews/public-url-exceptions-20261103/residual205/acceptance.mjs",
+      "sha256": "d0ca299dad4cac49e691184bb509a834e9890e97f345e1be26d8dfbb98ad2579"
+    },
+    {
+      "path": "docs/reviews/public-url-exceptions-20261103/residual205/evidence/continuity-closure/a3-valid-evidence-reuse.json",
+      "sha256": "e26f3586c96deddccd6b67e62a4151366bf555f95eaf9769ef9e199f5cc5e96b"
+    },
+    {
+      "path": "docs/reviews/public-url-exceptions-20261103/residual205/evidence/continuity-closure/hosted-b61-initial-22-pass-2-canonical-expectation-fail.json",
+      "sha256": "66e11b790a97ace3958ea684305876f22d717aa6c2780a14f3cfa074eb0f727a"
+    },
+    {
+      "path": "docs/reviews/public-url-exceptions-20261103/residual205/evidence/continuity-closure/isolated-canonical-session-and-sources.json",
+      "sha256": "348332ad408cb13331ea6e7ae62da46d0cc3bd27a9118b3e4147bcb311abef93"
+    },
+    {
+      "path": "docs/reviews/public-url-exceptions-20261103/residual205/evidence/continuity-closure/isolated-s2-proposal.json",
+      "sha256": "8ccaf32baef7a7af95430c96e16f032e8285761313460127d7291ace154d4d5e"
+    },
+    {
+      "path": "docs/reviews/public-url-exceptions-20261103/residual205/evidence/continuity-closure/whatsapp-compiled-ui-final.json",
+      "sha256": "96906babf6abe55839c36ac210d5e0e21ed8dff9bb27d9b5dfb035a2b54c8d3d"
+    },
+    {
+      "path": "docs/reviews/public-url-exceptions-20261103/residual205/evidence/continuity-closure/whatsapp-initial-503-retry-wait-failure.json",
+      "sha256": "79ba8632202ef193fe163b01c2639e4655573adcdcbb6fb170d6cc8754b5b977"
+    },
+    {
+      "path": "docs/reviews/public-url-exceptions-20261103/residual205/review.mjs",
+      "sha256": "e0813bbd265698395eae60f499b1662fed17497fc710b94f7e4191eca3d200db"
+    },
+    {
+      "path": "docs/reviews/public-url-exceptions-20261103/residual205/shared-security-proposal/README.md",
+      "sha256": "e8be9fa40ac37005450a7342f303a53cd81d292e8d5af92e16e7654f96581719"
+    },
+    {
+      "path": "docs/reviews/public-url-exceptions-20261103/residual205/shared-security-proposal/apply.proposal.sql",
+      "sha256": "81368707351cc53d2ec7b52b28903c16aac10c528e481829026e26722e88aba6"
+    },
+    {
+      "path": "docs/reviews/public-url-exceptions-20261103/residual205/shared-security-proposal/fixture-assertions.sql",
+      "sha256": "f7fce5b0be26d864fe99a6c14e3f9176640b3b65f404a544a5d56f34a9fe376b"
+    },
+    {
+      "path": "docs/reviews/public-url-exceptions-20261103/residual205/shared-security-proposal/fixture-setup.sql",
+      "sha256": "3f2ec02c452290a2c354d3d82765aecd4f5af23d3b1d9c7304dd73ebd0d18550"
+    },
+    {
+      "path": "docs/reviews/public-url-exceptions-20261103/residual205/shared-security-proposal/legacy-language-copy.proposal.patch",
+      "sha256": "eb9dc3edcc39853c00a9d0ebced8ec89ede371c996fdeb37ddb01ca7a58d1530"
+    },
+    {
+      "path": "docs/reviews/public-url-exceptions-20261103/residual205/shared-security-proposal/observed-metadata.json",
+      "sha256": "83d4a67af3a065a2e04fd88f440b16162b46731535d4a6af8c3cdcf5843a5d70"
+    },
+    {
+      "path": "docs/reviews/public-url-exceptions-20261103/residual205/shared-security-proposal/read-only-recommendation.md",
+      "sha256": "f1dba892951497b03ee4d62d5ac4ee75ddb8959be5cf6dce4ec7587de959ff67"
+    },
+    {
+      "path": "docs/reviews/public-url-exceptions-20261103/residual205/shared-security-proposal/rollback.proposal.sql",
+      "sha256": "415c71a4fd9b49d1ade4f96a4b30a455c40a0ba3c46ae7067033f6ae8f5d34f3"
+    },
+    {
+      "path": "docs/reviews/public-url-exceptions-20261103/residual205/shared-security-proposal/run-isolated-fixture.mjs",
+      "sha256": "9102bb9e29140bff528078c0b56768214c33acb19ce3a982e1b316f007faa892"
+    },
+    {
+      "path": "docs/reviews/public-url-exceptions-20261103/residual205/shared-security-proposal/target-functions.json",
+      "sha256": "1a6f242bcf3af51f8c4c48ad52681bd6c6a9b929772da976fa1c4792799219f1"
+    },
+    {
+      "path": "src/lib/publicContinuityReaders2029.js",
+      "sha256": "65f65c384c488bea6363439533fdc96538dee833b5eeede8e6889e2c02ed98f0"
+    },
+    {
+      "path": "src/lib/publicReadingRelease2029.js",
+      "sha256": "e42b4f2d7eb4a40c95ddbeb23dc45af88177cecb66cfa6f76f32199bb5e96746"
+    },
+    {
+      "path": "src/lib/userCenter/followCenter2029.js",
+      "sha256": "149a412ffcc577f88ca0991f890e3511f777e85c45fee3d5e9bcd1aaf11039eb"
+    },
+    {
+      "path": "src/pages/PublicContinuity2029Page.jsx",
+      "sha256": "8f3ee420f78ffd4ed813884a405f0b952c989e4bb6ec97f78dc7876e9cff748b"
+    },
+    {
+      "path": "test/follow-center-data-2029.test.mjs",
+      "sha256": "3aac38306741846c6df8684baaa8d24db44f52048229a869eb9bd8ad32bb20dd"
+    },
+    {
+      "path": "test/public-continuity-closure-2029.browser.mjs",
+      "sha256": "e0d56434a432eec6e4e07e47da37e5407c3833b653fa448f5439cf70a86d49fd"
+    },
+    {
+      "path": "test/public-continuity-closure-2029.test.mjs",
+      "sha256": "e2a89dd400a41edcc86cb7ce60908cf8cc79ed03ad1d2804eb555c6c0d7ed2d4"
+    }
+  ]
+}

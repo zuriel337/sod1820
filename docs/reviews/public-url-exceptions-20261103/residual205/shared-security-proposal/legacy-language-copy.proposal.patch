@@ -1,0 +1,11 @@
+--- a/src/pages/LanguagesPage.jsx
++++ b/src/pages/LanguagesPage.jsx
+@@ -100,7 +100,7 @@
+       const r = await langLinkAdd({ hebrew, foreign, lang, rel, note, name: nm || null, visitor: getVisitorId() });
+       if (r?.error) { setErr(r.error === "too_long" ? "אחת המילים/ההערה ארוכה מדי" : "לא ניתן לשמור כרגע"); }
+       else {
+-        setMsg("נשמר! הקשר ממתין לאישור ויופיע לכולם אחרי אישור. אתה כבר רואה אותו למטה 👇");
++        setMsg("נשמר וממתין לאישור. הקשר יופיע לציבור אחרי אישור; רשומות ממתינות אינן מוצגות ברשימה הציבורית.");
+         setForeign(""); setNote("");   // משאירים עברית+סוג לנוחות הזנה רצופה
+         load();
+       }
