@@ -1,0 +1,17 @@
+{
+  "task": "PUBLIC_HOSTED_PUBLICATION_ACCEPTANCE_20261103",
+  "method": "compare-and-swap append only",
+  "previousLength": 467208,
+  "previousMd5": "0376c0484b3dbd037d6ce7e962a2925c",
+  "updated": {
+    "id": 37,
+    "slug": "sod1820_reality_stream_os_master_v3_20261016_draft",
+    "updated_at": "2026-11-03 01:14:39.824908+00",
+    "body_length": 470840,
+    "body_md5": "e8c0d9e4e0056a16273ab8f35a4f3b3a",
+    "preserved_prefix_md5": "0376c0484b3dbd037d6ce7e962a2925c",
+    "appended_chars": 3632
+  },
+  "productSha": "c8e05790fe68c8f548e22a7c02e5094ddc5b8755",
+  "evidenceSha": "52211d78fadd8da4227aa47cf74169cc0c9d6c43"
+}
