@@ -1,0 +1,25 @@
+{
+  "sourceSha": "9d3a09689a05bd0b72ca484335c1fbce8b538170",
+  "scope": "planning evidence only; diagnostic failures retained, no full cutover acceptance",
+  "inventoryRows": 33667,
+  "unresolvedPlanningRows": 376,
+  "matrixRows": 36,
+  "allCollectedRowsAccountedFor": true,
+  "hostedDiagnosticCases": 36,
+  "viewports": [
+    390,
+    1440
+  ],
+  "actualSW": true,
+  "diagnosticIsAcceptance": false,
+  "noProductWrites": true,
+  "privacyContactReplacements": 2,
+  "privacyJsxTransform": "PASS",
+  "a3SourceHashesEquivalent": 29,
+  "newA3Run": false,
+  "newIsolationOrG4Run": false,
+  "newDeployment": false,
+  "diffCheck": "PASS",
+  "newTextSensitivePatterns": "no known credential patterns found",
+  "limitations": "See README/coverage and original receipts; same data may appear in multiple evidence sources."
+}

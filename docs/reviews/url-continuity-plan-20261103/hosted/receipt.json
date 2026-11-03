@@ -1,0 +1,875 @@
+{
+  "kind": "url-plan-existing-candidate-diagnostic",
+  "acceptance": false,
+  "productSha": "9d3a09689a05bd0b72ca484335c1fbce8b538170",
+  "origin": "https://sod1820-issbcgxlc-sod1820-s-projects.vercel.app",
+  "actualSW": true,
+  "performanceComparison": false,
+  "liveLogin": false,
+  "liveSignup": false,
+  "liveUnsubscribe": false,
+  "mailSent": false,
+  "sameIndependentRPCReadInventory": true,
+  "cases": [
+    {
+      "width": 390,
+      "input": "/community/chat",
+      "syntheticThreadQuery": false,
+      "errors": [],
+      "http": 200,
+      "robots": "noindex, nofollow, noarchive",
+      "finalPath": "/community/chat",
+      "title": "האזור ייפתח בהמשך · SOD1820",
+      "canonical": "https://sod1820.co.il/launch-closed",
+      "headings": [
+        "האזור ייפתח בהמשך"
+      ],
+      "closedCopy": [
+        "גרסת הקריאה הציבורית כוללת בית, עולם, פוסטים, מספרים, ביטויים, מחשבון וגלריות. פעולות חשבון, כתיבה ומודלים עדיין אינן פעילות.",
+        "בבנייה",
+        "בבנייה"
+      ],
+      "sw": "/sw.js",
+      "denied": [],
+      "documentWidth": 375,
+      "viewport": 390
+    },
+    {
+      "width": 390,
+      "input": "/chat",
+      "syntheticThreadQuery": false,
+      "errors": [],
+      "http": 404,
+      "robots": "noindex, nofollow, noarchive",
+      "contentWaitExpired": true,
+      "finalPath": "/chat",
+      "title": "הפוסט לא נמצא · SOD1820",
+      "canonical": "https://sod1820.co.il/chat",
+      "headings": [],
+      "closedCopy": [
+        "הפוסט לא נמצאניסיון קריאה נוסף",
+        "בבנייה",
+        "בבנייה"
+      ],
+      "sw": "/sw.js",
+      "denied": [],
+      "documentWidth": 375,
+      "viewport": 390
+    },
+    {
+      "width": 390,
+      "input": "/community",
+      "syntheticThreadQuery": false,
+      "errors": [],
+      "http": 404,
+      "robots": "noindex, nofollow, noarchive",
+      "contentWaitExpired": true,
+      "finalPath": "/community",
+      "title": "הפוסט לא נמצא · SOD1820",
+      "canonical": "https://sod1820.co.il/community",
+      "headings": [],
+      "closedCopy": [
+        "הפוסט לא נמצאניסיון קריאה נוסף",
+        "בבנייה",
+        "בבנייה"
+      ],
+      "sw": "/sw.js",
+      "denied": [],
+      "documentWidth": 375,
+      "viewport": 390
+    },
+    {
+      "width": 390,
+      "input": "/tag/צאט",
+      "syntheticThreadQuery": false,
+      "errors": [],
+      "http": 404,
+      "robots": "noindex, nofollow, noarchive",
+      "finalPath": "/tag/%D7%A6%D7%90%D7%98",
+      "title": "העמוד לא נמצא · SOD1820",
+      "canonical": "https://sod1820.co.il/tag/%D7%A6%D7%90%D7%98",
+      "headings": [
+        "העמוד לא נמצא"
+      ],
+      "closedCopy": [
+        "העמוד לא נמצא",
+        "העמוד לא נמצא",
+        "בבנייה",
+        "בבנייה"
+      ],
+      "sw": "/sw.js",
+      "denied": [],
+      "documentWidth": 375,
+      "viewport": 390
+    },
+    {
+      "width": 390,
+      "input": "/category/וידאו",
+      "syntheticThreadQuery": false,
+      "errors": [],
+      "http": 404,
+      "robots": "noindex, nofollow, noarchive",
+      "finalPath": "/category/%D7%95%D7%99%D7%93%D7%90%D7%95",
+      "title": "העמוד לא נמצא · SOD1820",
+      "canonical": "https://sod1820.co.il/category/%D7%95%D7%99%D7%93%D7%90%D7%95",
+      "headings": [
+        "העמוד לא נמצא"
+      ],
+      "closedCopy": [
+        "העמוד לא נמצא",
+        "העמוד לא נמצא",
+        "בבנייה",
+        "בבנייה"
+      ],
+      "sw": "/sw.js",
+      "denied": [],
+      "documentWidth": 375,
+      "viewport": 390
+    },
+    {
+      "width": 390,
+      "input": "/community/calculator",
+      "syntheticThreadQuery": false,
+      "errors": [],
+      "http": 404,
+      "robots": "noindex, nofollow, noarchive",
+      "finalPath": "/community/calculator",
+      "title": "העמוד לא נמצא · SOD1820",
+      "canonical": "https://sod1820.co.il/community/calculator",
+      "headings": [
+        "העמוד לא נמצא"
+      ],
+      "closedCopy": [
+        "העמוד לא נמצא",
+        "העמוד לא נמצא",
+        "בבנייה",
+        "בבנייה"
+      ],
+      "sw": "/sw.js",
+      "denied": [],
+      "documentWidth": 375,
+      "viewport": 390
+    },
+    {
+      "width": 390,
+      "input": "/codes",
+      "syntheticThreadQuery": false,
+      "errors": [],
+      "http": 404,
+      "robots": "noindex, nofollow, noarchive",
+      "contentWaitExpired": true,
+      "finalPath": "/codes",
+      "title": "הפוסט לא נמצא · SOD1820",
+      "canonical": "https://sod1820.co.il/codes",
+      "headings": [],
+      "closedCopy": [
+        "הפוסט לא נמצאניסיון קריאה נוסף",
+        "בבנייה",
+        "בבנייה"
+      ],
+      "sw": "/sw.js",
+      "denied": [],
+      "documentWidth": 375,
+      "viewport": 390
+    },
+    {
+      "width": 390,
+      "input": "/name",
+      "syntheticThreadQuery": false,
+      "errors": [],
+      "http": 404,
+      "robots": "noindex, nofollow, noarchive",
+      "contentWaitExpired": true,
+      "finalPath": "/name",
+      "title": "הפוסט לא נמצא · SOD1820",
+      "canonical": "https://sod1820.co.il/name",
+      "headings": [],
+      "closedCopy": [
+        "הפוסט לא נמצאניסיון קריאה נוסף",
+        "בבנייה",
+        "בבנייה"
+      ],
+      "sw": "/sw.js",
+      "denied": [],
+      "documentWidth": 375,
+      "viewport": 390
+    },
+    {
+      "width": 390,
+      "input": "/or-geula",
+      "syntheticThreadQuery": false,
+      "errors": [],
+      "http": 404,
+      "robots": "noindex, nofollow, noarchive",
+      "contentWaitExpired": true,
+      "finalPath": "/or-geula",
+      "title": "הפוסט לא נמצא · SOD1820",
+      "canonical": "https://sod1820.co.il/or-geula",
+      "headings": [],
+      "closedCopy": [
+        "הפוסט לא נמצאניסיון קריאה נוסף",
+        "בבנייה",
+        "בבנייה"
+      ],
+      "sw": "/sw.js",
+      "denied": [],
+      "documentWidth": 375,
+      "viewport": 390
+    },
+    {
+      "width": 390,
+      "input": "/contact",
+      "syntheticThreadQuery": false,
+      "errors": [],
+      "http": 404,
+      "robots": "noindex, nofollow, noarchive",
+      "contentWaitExpired": true,
+      "finalPath": "/contact",
+      "title": "הפוסט לא נמצא · SOD1820",
+      "canonical": "https://sod1820.co.il/contact",
+      "headings": [],
+      "closedCopy": [
+        "הפוסט לא נמצאניסיון קריאה נוסף",
+        "בבנייה",
+        "בבנייה"
+      ],
+      "sw": "/sw.js",
+      "denied": [],
+      "documentWidth": 375,
+      "viewport": 390
+    },
+    {
+      "width": 390,
+      "input": "/updates",
+      "syntheticThreadQuery": false,
+      "errors": [],
+      "http": 200,
+      "robots": "noindex, nofollow, noarchive",
+      "finalPath": "/updates",
+      "title": "עדכונים במייל · SOD1820",
+      "canonical": "https://sod1820.co.il/updates",
+      "headings": [
+        "עדכונים במייל"
+      ],
+      "closedCopy": [
+        "פעולות הדיוור אינן פעילות בגרסה זו. קישורי ההסרה הקיימים באתר הוותיק נשארים ללא שינוי.",
+        "בבנייה",
+        "בבנייה"
+      ],
+      "sw": "/sw.js",
+      "denied": [],
+      "documentWidth": 375,
+      "viewport": 390
+    },
+    {
+      "width": 390,
+      "input": "/unsubscribe",
+      "syntheticThreadQuery": false,
+      "errors": [],
+      "http": 200,
+      "robots": "noindex, nofollow, noarchive",
+      "finalPath": "/unsubscribe",
+      "title": "הסרה מרשימת התפוצה · סוד 1820 · SOD1820",
+      "canonical": "https://sod1820.co.il/unsubscribe",
+      "headings": [
+        "קישור לא תקין"
+      ],
+      "closedCopy": [
+        "בבנייה",
+        "בבנייה"
+      ],
+      "sw": "/sw.js",
+      "denied": [],
+      "documentWidth": 375,
+      "viewport": 390
+    },
+    {
+      "width": 390,
+      "input": "/privacy#data-deletion",
+      "syntheticThreadQuery": false,
+      "errors": [],
+      "http": 200,
+      "robots": "noindex, nofollow, noarchive",
+      "finalPath": "/privacy#data-deletion",
+      "title": "מדיניות פרטיות · SOD1820",
+      "canonical": "https://sod1820.co.il/privacy",
+      "headings": [
+        "מדיניות פרטיות",
+        "1. איזה מידע נאסף",
+        "2. כיצד נעשה שימוש במידע",
+        "3. שירותי צד-שלישי",
+        "4. זכויותיכם",
+        "5. מחיקת נתונים",
+        "6. אבטחה"
+      ],
+      "closedCopy": [
+        "בבנייה",
+        "בבנייה"
+      ],
+      "sw": "/sw.js",
+      "denied": [],
+      "documentWidth": 375,
+      "viewport": 390
+    },
+    {
+      "width": 390,
+      "input": "/login?returnTo=%2Fcommunity%2Fchat",
+      "syntheticThreadQuery": false,
+      "errors": [],
+      "http": 200,
+      "robots": "noindex, nofollow, noarchive",
+      "finalPath": "/login?returnTo=%2Fcommunity%2Fchat",
+      "title": "כניסה לחשבון · SOD1820",
+      "canonical": "https://sod1820.co.il/login",
+      "headings": [
+        "טוב לראות אתכם כאן",
+        "כניסה לחשבון קיים"
+      ],
+      "closedCopy": [
+        "אפשר להיכנס לחשבון קיים. חלקים בבנייה פתוחים כרגע למנהל בלבד.",
+        "אפשר להיכנס לחשבון קיים עם קוד למייל או סיסמה. הרשמה לחשבון חדש תיפתח בהמשך.",
+        "כניסה עם Google ו־Facebook תיפתח בהמשך. כרגע אפשר להיכנס לחשבון קיים באמצעות מייל.",
+        "בבנייה",
+        "בבנייה"
+      ],
+      "sw": "/sw.js",
+      "denied": [],
+      "documentWidth": 375,
+      "viewport": 390
+    },
+    {
+      "width": 390,
+      "input": "/2029?preview=community&data=live&thread=00000000-0000-4000-8000-000000000000&reply=00000000-0000-4000-8000-000000000001",
+      "syntheticThreadQuery": true,
+      "errors": [],
+      "http": 200,
+      "robots": "noindex, nofollow, noarchive",
+      "finalPath": "/2029?preview=community&data=live&thread=00000000-0000-4000-8000-000000000000&reply=00000000-0000-4000-8000-000000000001",
+      "title": "כי לה' המלוכה — סוד 1820 · לגלות את המציאות בשפת המספרים",
+      "canonical": "https://sod1820.co.il/",
+      "headings": [
+        "עדכונים אחרונים",
+        "עדכוני האתר",
+        "מהסדרות והכותבים",
+        "אוסף סרטונים: שדוני ברקים מעל צרפת — ואתם באים על היהודים, אתם מפסידים",
+        "התכנסויות בולטות",
+        "חיפוש בצופן התנ״כי",
+        "הצפנים האחרונים בתורה"
+      ],
+      "closedCopy": [
+        "האתר בבנייה",
+        "סגור לציבור · בבנייה",
+        "סגור לציבור · בבנייה",
+        "סגור לציבור · בבנייה",
+        "סגור לציבור · בבנייה",
+        "בבנייה"
+      ],
+      "sw": "/sw.js",
+      "denied": [],
+      "documentWidth": 375,
+      "viewport": 390
+    },
+    {
+      "width": 390,
+      "input": "/tiktok/melech",
+      "syntheticThreadQuery": false,
+      "errors": [],
+      "http": 404,
+      "robots": "noindex, nofollow, noarchive",
+      "finalPath": "/melech-hamisparim/718?src=tiktok&utm_source=tiktok&utm_medium=bio&utm_campaign=melech-hamisparim-718",
+      "title": "העמוד לא נמצא · SOD1820",
+      "canonical": "https://sod1820.co.il/melech-hamisparim/718",
+      "headings": [
+        "העמוד לא נמצא"
+      ],
+      "closedCopy": [
+        "העמוד לא נמצא",
+        "העמוד לא נמצא",
+        "בבנייה",
+        "בבנייה"
+      ],
+      "sw": "/sw.js",
+      "denied": [],
+      "documentWidth": 375,
+      "viewport": 390
+    },
+    {
+      "width": 390,
+      "input": "/whatsapp/kod-hametsiut",
+      "syntheticThreadQuery": false,
+      "errors": [],
+      "http": 404,
+      "robots": "noindex, nofollow, noarchive",
+      "finalPath": "/early-access",
+      "title": "SOD1820 — המערכת החדשה נבנית",
+      "canonical": "https://sod1820.co.il/early-access",
+      "headings": [
+        "אנחנו בונים דרך חדשה לחקור את המציאות.",
+        "הסרטון שמתפוצץ ברשת",
+        "לא עוד אתר לקריאה בלבד.",
+        "קבלו עדכון כשהשלב הבא של המערכת נפתח.",
+        "הצטרפו לקבוצת SOD1820 ב־WhatsApp."
+      ],
+      "closedCopy": [
+        "האתר בבנייה · אתם נכנסים לפני כולם"
+      ],
+      "sw": "/sw.js",
+      "denied": [],
+      "documentWidth": 375,
+      "viewport": 390
+    },
+    {
+      "width": 390,
+      "input": "/real-url-audit-nonexistent-20261103",
+      "syntheticThreadQuery": false,
+      "errors": [],
+      "http": 404,
+      "robots": "noindex, nofollow, noarchive",
+      "contentWaitExpired": true,
+      "finalPath": "/real-url-audit-nonexistent-20261103",
+      "title": "הפוסט לא נמצא · SOD1820",
+      "canonical": "https://sod1820.co.il/real-url-audit-nonexistent-20261103",
+      "headings": [],
+      "closedCopy": [
+        "הפוסט לא נמצאניסיון קריאה נוסף",
+        "בבנייה",
+        "בבנייה"
+      ],
+      "sw": "/sw.js",
+      "denied": [],
+      "documentWidth": 375,
+      "viewport": 390
+    },
+    {
+      "width": 1440,
+      "input": "/community/chat",
+      "syntheticThreadQuery": false,
+      "errors": [],
+      "http": 200,
+      "robots": "noindex, nofollow, noarchive",
+      "finalPath": "/community/chat",
+      "title": "האזור ייפתח בהמשך · SOD1820",
+      "canonical": "https://sod1820.co.il/launch-closed",
+      "headings": [
+        "האזור ייפתח בהמשך"
+      ],
+      "closedCopy": [
+        "גרסת הקריאה הציבורית כוללת בית, עולם, פוסטים, מספרים, ביטויים, מחשבון וגלריות. פעולות חשבון, כתיבה ומודלים עדיין אינן פעילות.",
+        "בבנייה",
+        "בבנייה"
+      ],
+      "sw": "/sw.js",
+      "denied": [],
+      "documentWidth": 1425,
+      "viewport": 1440
+    },
+    {
+      "width": 1440,
+      "input": "/chat",
+      "syntheticThreadQuery": false,
+      "errors": [],
+      "http": 404,
+      "robots": "noindex, nofollow, noarchive",
+      "contentWaitExpired": true,
+      "finalPath": "/chat",
+      "title": "הפוסט לא נמצא · SOD1820",
+      "canonical": "https://sod1820.co.il/chat",
+      "headings": [],
+      "closedCopy": [
+        "הפוסט לא נמצאניסיון קריאה נוסף",
+        "בבנייה",
+        "בבנייה"
+      ],
+      "sw": "/sw.js",
+      "denied": [],
+      "documentWidth": 1425,
+      "viewport": 1440
+    },
+    {
+      "width": 1440,
+      "input": "/community",
+      "syntheticThreadQuery": false,
+      "errors": [],
+      "http": 404,
+      "robots": "noindex, nofollow, noarchive",
+      "contentWaitExpired": true,
+      "finalPath": "/community",
+      "title": "הפוסט לא נמצא · SOD1820",
+      "canonical": "https://sod1820.co.il/community",
+      "headings": [],
+      "closedCopy": [
+        "הפוסט לא נמצאניסיון קריאה נוסף",
+        "בבנייה",
+        "בבנייה"
+      ],
+      "sw": "/sw.js",
+      "denied": [],
+      "documentWidth": 1425,
+      "viewport": 1440
+    },
+    {
+      "width": 1440,
+      "input": "/tag/צאט",
+      "syntheticThreadQuery": false,
+      "errors": [],
+      "http": 404,
+      "robots": "noindex, nofollow, noarchive",
+      "finalPath": "/tag/%D7%A6%D7%90%D7%98",
+      "title": "העמוד לא נמצא · SOD1820",
+      "canonical": "https://sod1820.co.il/tag/%D7%A6%D7%90%D7%98",
+      "headings": [
+        "העמוד לא נמצא"
+      ],
+      "closedCopy": [
+        "העמוד לא נמצא",
+        "העמוד לא נמצא",
+        "בבנייה",
+        "בבנייה"
+      ],
+      "sw": "/sw.js",
+      "denied": [],
+      "documentWidth": 1425,
+      "viewport": 1440
+    },
+    {
+      "width": 1440,
+      "input": "/category/וידאו",
+      "syntheticThreadQuery": false,
+      "errors": [],
+      "http": 404,
+      "robots": "noindex, nofollow, noarchive",
+      "finalPath": "/category/%D7%95%D7%99%D7%93%D7%90%D7%95",
+      "title": "העמוד לא נמצא · SOD1820",
+      "canonical": "https://sod1820.co.il/category/%D7%95%D7%99%D7%93%D7%90%D7%95",
+      "headings": [
+        "העמוד לא נמצא"
+      ],
+      "closedCopy": [
+        "העמוד לא נמצא",
+        "העמוד לא נמצא",
+        "בבנייה",
+        "בבנייה"
+      ],
+      "sw": "/sw.js",
+      "denied": [],
+      "documentWidth": 1425,
+      "viewport": 1440
+    },
+    {
+      "width": 1440,
+      "input": "/community/calculator",
+      "syntheticThreadQuery": false,
+      "errors": [],
+      "http": 404,
+      "robots": "noindex, nofollow, noarchive",
+      "finalPath": "/community/calculator",
+      "title": "העמוד לא נמצא · SOD1820",
+      "canonical": "https://sod1820.co.il/community/calculator",
+      "headings": [
+        "העמוד לא נמצא"
+      ],
+      "closedCopy": [
+        "העמוד לא נמצא",
+        "העמוד לא נמצא",
+        "בבנייה",
+        "בבנייה"
+      ],
+      "sw": "/sw.js",
+      "denied": [],
+      "documentWidth": 1425,
+      "viewport": 1440
+    },
+    {
+      "width": 1440,
+      "input": "/codes",
+      "syntheticThreadQuery": false,
+      "errors": [],
+      "http": 404,
+      "robots": "noindex, nofollow, noarchive",
+      "contentWaitExpired": true,
+      "finalPath": "/codes",
+      "title": "הפוסט לא נמצא · SOD1820",
+      "canonical": "https://sod1820.co.il/codes",
+      "headings": [],
+      "closedCopy": [
+        "הפוסט לא נמצאניסיון קריאה נוסף",
+        "בבנייה",
+        "בבנייה"
+      ],
+      "sw": "/sw.js",
+      "denied": [],
+      "documentWidth": 1425,
+      "viewport": 1440
+    },
+    {
+      "width": 1440,
+      "input": "/name",
+      "syntheticThreadQuery": false,
+      "errors": [],
+      "http": 404,
+      "robots": "noindex, nofollow, noarchive",
+      "contentWaitExpired": true,
+      "finalPath": "/name",
+      "title": "הפוסט לא נמצא · SOD1820",
+      "canonical": "https://sod1820.co.il/name",
+      "headings": [],
+      "closedCopy": [
+        "הפוסט לא נמצאניסיון קריאה נוסף",
+        "בבנייה",
+        "בבנייה"
+      ],
+      "sw": "/sw.js",
+      "denied": [],
+      "documentWidth": 1425,
+      "viewport": 1440
+    },
+    {
+      "width": 1440,
+      "input": "/or-geula",
+      "syntheticThreadQuery": false,
+      "errors": [],
+      "http": 404,
+      "robots": "noindex, nofollow, noarchive",
+      "contentWaitExpired": true,
+      "finalPath": "/or-geula",
+      "title": "הפוסט לא נמצא · SOD1820",
+      "canonical": "https://sod1820.co.il/or-geula",
+      "headings": [],
+      "closedCopy": [
+        "הפוסט לא נמצאניסיון קריאה נוסף",
+        "בבנייה",
+        "בבנייה"
+      ],
+      "sw": "/sw.js",
+      "denied": [],
+      "documentWidth": 1425,
+      "viewport": 1440
+    },
+    {
+      "width": 1440,
+      "input": "/contact",
+      "syntheticThreadQuery": false,
+      "errors": [],
+      "http": 404,
+      "robots": "noindex, nofollow, noarchive",
+      "contentWaitExpired": true,
+      "finalPath": "/contact",
+      "title": "הפוסט לא נמצא · SOD1820",
+      "canonical": "https://sod1820.co.il/contact",
+      "headings": [],
+      "closedCopy": [
+        "הפוסט לא נמצאניסיון קריאה נוסף",
+        "בבנייה",
+        "בבנייה"
+      ],
+      "sw": "/sw.js",
+      "denied": [],
+      "documentWidth": 1425,
+      "viewport": 1440
+    },
+    {
+      "width": 1440,
+      "input": "/updates",
+      "syntheticThreadQuery": false,
+      "errors": [],
+      "http": 200,
+      "robots": "noindex, nofollow, noarchive",
+      "finalPath": "/updates",
+      "title": "עדכונים במייל · SOD1820",
+      "canonical": "https://sod1820.co.il/updates",
+      "headings": [
+        "עדכונים במייל"
+      ],
+      "closedCopy": [
+        "פעולות הדיוור אינן פעילות בגרסה זו. קישורי ההסרה הקיימים באתר הוותיק נשארים ללא שינוי.",
+        "בבנייה",
+        "בבנייה"
+      ],
+      "sw": "/sw.js",
+      "denied": [],
+      "documentWidth": 1425,
+      "viewport": 1440
+    },
+    {
+      "width": 1440,
+      "input": "/unsubscribe",
+      "syntheticThreadQuery": false,
+      "errors": [],
+      "http": 200,
+      "robots": "noindex, nofollow, noarchive",
+      "finalPath": "/unsubscribe",
+      "title": "הסרה מרשימת התפוצה · סוד 1820 · SOD1820",
+      "canonical": "https://sod1820.co.il/unsubscribe",
+      "headings": [
+        "קישור לא תקין"
+      ],
+      "closedCopy": [
+        "בבנייה",
+        "בבנייה"
+      ],
+      "sw": "/sw.js",
+      "denied": [],
+      "documentWidth": 1425,
+      "viewport": 1440
+    },
+    {
+      "width": 1440,
+      "input": "/privacy#data-deletion",
+      "syntheticThreadQuery": false,
+      "errors": [],
+      "http": 200,
+      "robots": "noindex, nofollow, noarchive",
+      "finalPath": "/privacy#data-deletion",
+      "title": "מדיניות פרטיות · SOD1820",
+      "canonical": "https://sod1820.co.il/privacy",
+      "headings": [
+        "מדיניות פרטיות",
+        "1. איזה מידע נאסף",
+        "2. כיצד נעשה שימוש במידע",
+        "3. שירותי צד-שלישי",
+        "4. זכויותיכם",
+        "5. מחיקת נתונים",
+        "6. אבטחה"
+      ],
+      "closedCopy": [
+        "בבנייה",
+        "בבנייה"
+      ],
+      "sw": "/sw.js",
+      "denied": [],
+      "documentWidth": 1425,
+      "viewport": 1440
+    },
+    {
+      "width": 1440,
+      "input": "/login?returnTo=%2Fcommunity%2Fchat",
+      "syntheticThreadQuery": false,
+      "errors": [],
+      "http": 200,
+      "robots": "noindex, nofollow, noarchive",
+      "finalPath": "/login?returnTo=%2Fcommunity%2Fchat",
+      "title": "כניסה לחשבון · SOD1820",
+      "canonical": "https://sod1820.co.il/login",
+      "headings": [
+        "טוב לראות אתכם כאן",
+        "כניסה לחשבון קיים"
+      ],
+      "closedCopy": [
+        "אפשר להיכנס לחשבון קיים. חלקים בבנייה פתוחים כרגע למנהל בלבד.",
+        "אפשר להיכנס לחשבון קיים עם קוד למייל או סיסמה. הרשמה לחשבון חדש תיפתח בהמשך.",
+        "כניסה עם Google ו־Facebook תיפתח בהמשך. כרגע אפשר להיכנס לחשבון קיים באמצעות מייל.",
+        "בבנייה",
+        "בבנייה"
+      ],
+      "sw": "/sw.js",
+      "denied": [],
+      "documentWidth": 1425,
+      "viewport": 1440
+    },
+    {
+      "width": 1440,
+      "input": "/2029?preview=community&data=live&thread=00000000-0000-4000-8000-000000000000&reply=00000000-0000-4000-8000-000000000001",
+      "syntheticThreadQuery": true,
+      "errors": [],
+      "http": 200,
+      "robots": "noindex, nofollow, noarchive",
+      "finalPath": "/2029?preview=community&data=live&thread=00000000-0000-4000-8000-000000000000&reply=00000000-0000-4000-8000-000000000001",
+      "title": "כי לה' המלוכה — סוד 1820 · לגלות את המציאות בשפת המספרים",
+      "canonical": "https://sod1820.co.il/",
+      "headings": [
+        "עדכונים אחרונים",
+        "עדכוני האתר",
+        "מהסדרות והכותבים",
+        "אוסף סרטונים: שדוני ברקים מעל צרפת — ואתם באים על היהודים, אתם מפסידים",
+        "התכנסויות בולטות",
+        "חיפוש בצופן התנ״כי",
+        "הצפנים האחרונים בתורה"
+      ],
+      "closedCopy": [
+        "האתר בבנייה",
+        "סגור לציבור · בבנייה",
+        "סגור לציבור · בבנייה",
+        "סגור לציבור · בבנייה",
+        "סגור לציבור · בבנייה",
+        "בבנייה"
+      ],
+      "sw": "/sw.js",
+      "denied": [],
+      "documentWidth": 1425,
+      "viewport": 1440
+    },
+    {
+      "width": 1440,
+      "input": "/tiktok/melech",
+      "syntheticThreadQuery": false,
+      "errors": [],
+      "http": 404,
+      "robots": "noindex, nofollow, noarchive",
+      "finalPath": "/melech-hamisparim/718?src=tiktok&utm_source=tiktok&utm_medium=bio&utm_campaign=melech-hamisparim-718",
+      "title": "העמוד לא נמצא · SOD1820",
+      "canonical": "https://sod1820.co.il/melech-hamisparim/718",
+      "headings": [
+        "העמוד לא נמצא"
+      ],
+      "closedCopy": [
+        "העמוד לא נמצא",
+        "העמוד לא נמצא",
+        "בבנייה",
+        "בבנייה"
+      ],
+      "sw": "/sw.js",
+      "denied": [],
+      "documentWidth": 1425,
+      "viewport": 1440
+    },
+    {
+      "width": 1440,
+      "input": "/whatsapp/kod-hametsiut",
+      "syntheticThreadQuery": false,
+      "errors": [],
+      "http": 404,
+      "robots": "noindex, nofollow, noarchive",
+      "finalPath": "/early-access",
+      "title": "SOD1820 — המערכת החדשה נבנית",
+      "canonical": "https://sod1820.co.il/early-access",
+      "headings": [
+        "אנחנו בונים דרך חדשה לחקור את המציאות.",
+        "הסרטון שמתפוצץ ברשת",
+        "לא עוד אתר לקריאה בלבד.",
+        "קבלו עדכון כשהשלב הבא של המערכת נפתח.",
+        "הצטרפו לקבוצת SOD1820 ב־WhatsApp."
+      ],
+      "closedCopy": [
+        "האתר בבנייה · אתם נכנסים לפני כולם"
+      ],
+      "sw": "/sw.js",
+      "denied": [],
+      "documentWidth": 1425,
+      "viewport": 1440
+    },
+    {
+      "width": 1440,
+      "input": "/real-url-audit-nonexistent-20261103",
+      "syntheticThreadQuery": false,
+      "errors": [],
+      "http": 404,
+      "robots": "noindex, nofollow, noarchive",
+      "contentWaitExpired": true,
+      "finalPath": "/real-url-audit-nonexistent-20261103",
+      "title": "הפוסט לא נמצא · SOD1820",
+      "canonical": "https://sod1820.co.il/real-url-audit-nonexistent-20261103",
+      "headings": [],
+      "closedCopy": [
+        "הפוסט לא נמצאניסיון קריאה נוסף",
+        "בבנייה",
+        "בבנייה"
+      ],
+      "sw": "/sw.js",
+      "denied": [],
+      "documentWidth": 1425,
+      "viewport": 1440
+    }
+  ],
+  "completed": true,
+  "notFullTransitionAcceptance": true
+}

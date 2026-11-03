@@ -1,0 +1,23 @@
+{
+  "diagnosticOnly": true,
+  "method": "HEAD",
+  "origin": "https://sod1820.co.il",
+  "rows": [
+    {
+      "path": "/audio/246.wav",
+      "status": 200,
+      "mime": "text/html; charset=utf-8"
+    },
+    {
+      "path": "/audio/dynovisz/20160327_hebreugoel.mp3",
+      "status": 200,
+      "mime": "text/html; charset=utf-8"
+    },
+    {
+      "path": "/wp-content/plugins/gallery-images/Front_end/../style/colorbox-3.css",
+      "status": 403,
+      "mime": null
+    }
+  ],
+  "limits": "No media bytes downloaded; HEAD status alone does not prove original media present or absent."
+}

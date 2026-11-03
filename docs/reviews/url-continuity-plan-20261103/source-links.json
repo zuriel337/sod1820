@@ -1,0 +1,3791 @@
+{
+  "scope": "src JS/JSX/TS/TSX literal href/to only; dynamic builders and content HTML separate; no tests/docs/node_modules",
+  "links": [
+    {
+      "url": "/2029",
+      "source": "src/App.jsx",
+      "line": 238,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/entity-hub-preview/number/1237",
+      "source": "src/App.jsx",
+      "line": 345,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/archive",
+      "source": "src/App.jsx",
+      "line": 388,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/community/researcher/888",
+      "source": "src/App.jsx",
+      "line": 398,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/contact",
+      "source": "src/App.jsx",
+      "line": 400,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/els",
+      "source": "src/App.jsx",
+      "line": 447,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/post",
+      "source": "src/App.jsx",
+      "line": 454,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/post",
+      "source": "src/App.jsx",
+      "line": 455,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/contact",
+      "source": "src/App.jsx",
+      "line": 456,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/community/chat",
+      "source": "src/App.jsx",
+      "line": 457,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/community/chat",
+      "source": "src/App.jsx",
+      "line": 458,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "https://sod1820.co.il",
+      "source": "src/App2029.jsx",
+      "line": 195,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/2029",
+      "source": "src/App2029.jsx",
+      "line": 195,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world",
+      "source": "src/App2029.jsx",
+      "line": 246,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/number/${n.trim()}",
+      "source": "src/components/AdvancedPostEditor.jsx",
+      "line": 66,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/research",
+      "source": "src/components/BeitMidrashOverview.jsx",
+      "line": 87,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/gematria",
+      "source": "src/components/BeitMidrashOverview.jsx",
+      "line": 122,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/broadcasts",
+      "source": "src/components/BrandTicker.jsx",
+      "line": 245,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/broadcasts",
+      "source": "src/components/BrandTicker.jsx",
+      "line": 395,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/login",
+      "source": "src/components/CollectiveBadge.jsx",
+      "line": 49,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/forum",
+      "source": "src/components/CommunityActivityFeed.jsx",
+      "line": 34,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world",
+      "source": "src/components/CommunityForming.jsx",
+      "line": 10,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/community/whatsapp",
+      "source": "src/components/ContributorsUpdatesRail.jsx",
+      "line": 29,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/gematria",
+      "source": "src/components/CrossFinder.jsx",
+      "line": 185,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/gematria",
+      "source": "src/components/CrossFinder.jsx",
+      "line": 199,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world",
+      "source": "src/components/CrossInsightsBox.jsx",
+      "line": 40,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world",
+      "source": "src/components/CrossInsightsBox.jsx",
+      "line": 46,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/research?tool=midrash&tab=methods&m=ריבוע",
+      "source": "src/components/CrossOnboarding.jsx",
+      "line": 197,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/research?tool=midrash&tab=methods&m=מסתתר",
+      "source": "src/components/CrossOnboarding.jsx",
+      "line": 202,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/forum",
+      "source": "src/components/Discourse.jsx",
+      "line": 11,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/login",
+      "source": "src/components/DiscourseCore.jsx",
+      "line": 444,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/auth",
+      "source": "src/components/EnglishDiscovery.jsx",
+      "line": 147,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/",
+      "source": "src/components/ErrorBoundary.jsx",
+      "line": 38,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/forum",
+      "source": "src/components/ForumUpdatesBox.jsx",
+      "line": 68,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/gallery-updates",
+      "source": "src/components/HomeFeed.jsx",
+      "line": 59,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/gallery-updates",
+      "source": "src/components/HomeFeed.jsx",
+      "line": 73,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/archive",
+      "source": "src/components/HomeFeed.jsx",
+      "line": 83,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/forum",
+      "source": "src/components/HomeForumTile.jsx",
+      "line": 29,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/forum",
+      "source": "src/components/HomeForumTile.jsx",
+      "line": 38,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/forum?write=1",
+      "source": "src/components/HomeForumTile.jsx",
+      "line": 39,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/or-geula",
+      "source": "src/components/HomeOrGeulaRail.jsx",
+      "line": 58,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/",
+      "source": "src/components/HomeTeasers.jsx",
+      "line": 12,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/matrix-506",
+      "source": "src/components/HomeTeasers.jsx",
+      "line": 13,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/squid-game-456",
+      "source": "src/components/HomeTeasers.jsx",
+      "line": 14,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/chibur-bein-hasafot-mafteach-lagan",
+      "source": "src/components/HomeTeasers.jsx",
+      "line": 15,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/codes/",
+      "source": "src/components/HomeTeasers.jsx",
+      "line": 16,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/code",
+      "source": "src/components/HomeTeasers.jsx",
+      "line": 17,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/post",
+      "source": "src/components/HomeTeasers.jsx",
+      "line": 53,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/community/researchers",
+      "source": "src/components/HomeWritersRail.jsx",
+      "line": 61,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/broadcasts",
+      "source": "src/components/LatestUpdatesFeed.jsx",
+      "line": 172,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/post",
+      "source": "src/components/LatestUpdatesFeed.jsx",
+      "line": 269,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/broadcasts",
+      "source": "src/components/LatestUpdatesFeed.jsx",
+      "line": 270,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/post",
+      "source": "src/components/LatestUpdatesRail.jsx",
+      "line": 251,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/broadcasts",
+      "source": "src/components/LatestUpdatesRail.jsx",
+      "line": 252,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/yam-hamelach-tiferet-geula",
+      "source": "src/components/LegacyNowSystemPreview.jsx",
+      "line": 23,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/yam-hamelach-tiferet-geula",
+      "source": "src/components/LegacyNowSystemPreview.jsx",
+      "line": 35,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/broadcasts",
+      "source": "src/components/LiveChannelFeed.jsx",
+      "line": 26,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/broadcasts?tab=forum",
+      "source": "src/components/LiveChannelFeed.jsx",
+      "line": 28,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/broadcasts?tab=activity",
+      "source": "src/components/LiveChannelFeed.jsx",
+      "line": 29,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/broadcasts",
+      "source": "src/components/LiveChannelFeed.jsx",
+      "line": 354,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/research?tool=gematria",
+      "source": "src/components/MaftechShowcase.jsx",
+      "line": 339,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/login",
+      "source": "src/components/MaintenanceLock.jsx",
+      "line": 59,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/gematria",
+      "source": "src/components/MaintenanceLock.jsx",
+      "line": 66,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/code",
+      "source": "src/components/MaintenanceLock.jsx",
+      "line": 67,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/login",
+      "source": "src/components/MaintenanceLock.jsx",
+      "line": 90,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/number",
+      "source": "src/components/NumberDrawer.jsx",
+      "line": 277,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/number",
+      "source": "src/components/NumberEngineLogo.jsx",
+      "line": 8,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/research?tool=gematria",
+      "source": "src/components/NumberFamilies.jsx",
+      "line": 238,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/gematria",
+      "source": "src/components/NumberFamilies.jsx",
+      "line": 239,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world",
+      "source": "src/components/OneTreeAtlas.jsx",
+      "line": 98,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world",
+      "source": "src/components/OneTreeAtlas.jsx",
+      "line": 99,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world",
+      "source": "src/components/OneTreeAtlas.jsx",
+      "line": 100,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world",
+      "source": "src/components/OneTreeAtlas.jsx",
+      "line": 101,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world",
+      "source": "src/components/OneTreeAtlas.jsx",
+      "line": 108,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/or-geula",
+      "source": "src/components/OrGeulaStoryColumnCore.jsx",
+      "line": 31,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/category/צפונות בתורה",
+      "source": "src/components/OrGeulaStoryColumnCore.jsx",
+      "line": 41,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/",
+      "source": "src/components/OrGeulaStoryColumnCore.jsx",
+      "line": 306,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/research?tool=journey",
+      "source": "src/components/PersonJourney.jsx",
+      "line": 487,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/2029/journey",
+      "source": "src/components/PersonJourney.jsx",
+      "line": 833,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world",
+      "source": "src/components/PlaneHintSpotlight.jsx",
+      "line": 149,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "https://sod1820.co.il",
+      "source": "src/components/QuickActions.jsx",
+      "line": 34,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/journey",
+      "source": "src/components/RealityHint.jsx",
+      "line": 14,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/community/calculator",
+      "source": "src/components/RealityHint.jsx",
+      "line": 18,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/archive",
+      "source": "src/components/RealityStream.jsx",
+      "line": 103,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/numbers",
+      "source": "src/components/RecentNumbersBase.jsx",
+      "line": 33,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/login",
+      "source": "src/components/RecentSearches.jsx",
+      "line": 66,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/research?tool=verse",
+      "source": "src/components/ResearchHome.jsx",
+      "line": 38,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/research?tool=verse",
+      "source": "src/components/ResearchHome.jsx",
+      "line": 39,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/archive",
+      "source": "src/components/ResearchHome.jsx",
+      "line": 40,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/post",
+      "source": "src/components/ResearchHome.jsx",
+      "line": 41,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/numbers",
+      "source": "src/components/ResearchHome.jsx",
+      "line": 42,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/languages",
+      "source": "src/components/ResearchHome.jsx",
+      "line": 43,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/forum",
+      "source": "src/components/ResearchHome.jsx",
+      "line": 204,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/community/researchers",
+      "source": "src/components/ResearcherProfile.jsx",
+      "line": 60,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/community/researchers",
+      "source": "src/components/ResearcherProfile.jsx",
+      "line": 111,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/archive?tab=pool",
+      "source": "src/components/RiverStream.jsx",
+      "line": 367,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "https://sod1820.co.il",
+      "source": "src/components/RoyalShareWidget.jsx",
+      "line": 53,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/number",
+      "source": "src/components/SearchTabs.jsx",
+      "line": 9,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/name",
+      "source": "src/components/SearchTabs.jsx",
+      "line": 10,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/gematria",
+      "source": "src/components/SearchTabs.jsx",
+      "line": 11,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/image",
+      "source": "src/components/SearchTabs.jsx",
+      "line": 12,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/post",
+      "source": "src/components/SiteCountsStrip.jsx",
+      "line": 9,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/numbers",
+      "source": "src/components/SiteCountsStrip.jsx",
+      "line": 10,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/research?tool=midrash",
+      "source": "src/components/SiteCountsStrip.jsx",
+      "line": 11,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/numbers",
+      "source": "src/components/SiteCountsStrip.jsx",
+      "line": 12,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/code",
+      "source": "src/components/SiteCountsStrip.jsx",
+      "line": 13,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/סוד-1820",
+      "source": "src/components/StartConcierge.jsx",
+      "line": 13,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/number",
+      "source": "src/components/StartConcierge.jsx",
+      "line": 14,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/research",
+      "source": "src/components/StartConcierge.jsx",
+      "line": 15,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world",
+      "source": "src/components/StartHereCard.jsx",
+      "line": 55,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/privacy",
+      "source": "src/components/StayUpdatedCTA.jsx",
+      "line": 69,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/login",
+      "source": "src/components/SubmitChidush.jsx",
+      "line": 55,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/archive?tab=cascade",
+      "source": "src/components/TreasuresHome.jsx",
+      "line": 48,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/codes",
+      "source": "src/components/VideoGallery.jsx",
+      "line": 182,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/category/וידאו",
+      "source": "src/components/VideoGallery.jsx",
+      "line": 191,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/whats-new",
+      "source": "src/components/WhatsNewBadge.jsx",
+      "line": 93,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/forum",
+      "source": "src/components/WhatsNewCard.jsx",
+      "line": 75,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/forum",
+      "source": "src/components/WhatsNewCard.jsx",
+      "line": 83,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/community/researchers",
+      "source": "src/components/WritersRail.jsx",
+      "line": 51,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/2029/control?surface=sefer-yetzirah-world&structure=sy-structure%3Aten-depths&page=53",
+      "source": "src/components/books2029/DepthsLearningWorkspace2029.jsx",
+      "line": 62,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/2029/control?surface=sefer-yetzirah-world&experience=depths&page=53",
+      "source": "src/components/books2029/DepthsLearningWorkspace2029.jsx",
+      "line": 66,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/research",
+      "source": "src/components/entity/EntityHubGoldenControls.jsx",
+      "line": 113,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/cross",
+      "source": "src/components/entity/EntityHubGoldenControls.jsx",
+      "line": 150,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/research",
+      "source": "src/components/entity/EntityHubGoldenControls.jsx",
+      "line": 244,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world",
+      "source": "src/components/experience2029/CompanionPanel2029.jsx",
+      "line": 65,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/login",
+      "source": "src/components/experience2029/ElsNativeClassic2029.jsx",
+      "line": 1562,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/els?library=mine",
+      "source": "src/components/experience2029/ElsSavePanel2029.jsx",
+      "line": 39,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/els?library=public",
+      "source": "src/components/experience2029/ElsSavePanel2029.jsx",
+      "line": 40,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/login",
+      "source": "src/components/experience2029/ElsSavedLibrary2029.jsx",
+      "line": 76,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/2029/posts",
+      "source": "src/components/experience2029/HomeComposition2029.jsx",
+      "line": 151,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/2029/posts",
+      "source": "src/components/experience2029/HomeComposition2029.jsx",
+      "line": 163,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/2029/posts",
+      "source": "src/components/experience2029/HomeComposition2029.jsx",
+      "line": 177,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/gematria",
+      "source": "src/components/experience2029/HomeComposition2029.jsx",
+      "line": 178,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world",
+      "source": "src/components/experience2029/HomeComposition2029.jsx",
+      "line": 179,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/2029/number/1820",
+      "source": "src/components/experience2029/HomeComposition2029.jsx",
+      "line": 180,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/code",
+      "source": "src/components/experience2029/HomeComposition2029.jsx",
+      "line": 181,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/2029/journey",
+      "source": "src/components/experience2029/HomeComposition2029.jsx",
+      "line": 182,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/2029/raziel",
+      "source": "src/components/experience2029/HomeComposition2029.jsx",
+      "line": 183,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/heichal",
+      "source": "src/components/experience2029/HomeComposition2029.jsx",
+      "line": 184,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/map",
+      "source": "src/components/experience2029/HomeComposition2029.jsx",
+      "line": 185,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/2029/posts",
+      "source": "src/components/experience2029/HomeComposition2029.jsx",
+      "line": 226,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world#world-all-convergences",
+      "source": "src/components/experience2029/HomeComposition2029.jsx",
+      "line": 245,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/2029/posts?category=צפונות%20בתורה",
+      "source": "src/components/experience2029/HomeComposition2029.jsx",
+      "line": 274,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/2029/posts?category=וידאו",
+      "source": "src/components/experience2029/HomeComposition2029.jsx",
+      "line": 283,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world",
+      "source": "src/components/experience2029/HomeComposition2029.jsx",
+      "line": 299,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/2029/posts?series=messages-from-righteous",
+      "source": "src/components/experience2029/HomeComposition2029.jsx",
+      "line": 301,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world",
+      "source": "src/components/experience2029/HomeComposition2029.jsx",
+      "line": 309,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/community/chat",
+      "source": "src/components/experience2029/HomeComposition2029.jsx",
+      "line": 312,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/archive",
+      "source": "src/components/experience2029/HomeComposition2029.jsx",
+      "line": 313,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/2029/journey",
+      "source": "src/components/experience2029/HomeComposition2029.jsx",
+      "line": 316,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/map",
+      "source": "src/components/experience2029/HomeComposition2029.jsx",
+      "line": 328,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world",
+      "source": "src/components/experience2029/HomeHeroMotion2029.jsx",
+      "line": 115,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/2029",
+      "source": "src/components/experience2029/Opening2029.jsx",
+      "line": 10,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/2029",
+      "source": "src/components/experience2029/Opening2029.jsx",
+      "line": 11,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world",
+      "source": "src/components/experience2029/Opening2029.jsx",
+      "line": 11,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/2029/posts",
+      "source": "src/components/experience2029/Opening2029.jsx",
+      "line": 11,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world",
+      "source": "src/components/experience2029/SystemFrame2029.jsx",
+      "line": 132,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/heichal",
+      "source": "src/components/experience2029/SystemFrame2029.jsx",
+      "line": 133,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/2029/journey",
+      "source": "src/components/experience2029/SystemFrame2029.jsx",
+      "line": 135,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/community/chat",
+      "source": "src/components/experience2029/SystemFrame2029.jsx",
+      "line": 136,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/books",
+      "source": "src/components/experience2029/SystemFrame2029.jsx",
+      "line": 141,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/els",
+      "source": "src/components/experience2029/SystemFrame2029.jsx",
+      "line": 142,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/map",
+      "source": "src/components/experience2029/SystemFrame2029.jsx",
+      "line": 144,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/updates",
+      "source": "src/components/experience2029/SystemFrame2029.jsx",
+      "line": 145,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/privacy",
+      "source": "src/components/experience2029/SystemFrame2029.jsx",
+      "line": 146,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/community/chat",
+      "source": "src/components/experience2029/SystemFrame2029.jsx",
+      "line": 153,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/heichal",
+      "source": "src/components/experience2029/SystemFrame2029.jsx",
+      "line": 155,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/2029/journey",
+      "source": "src/components/experience2029/SystemFrame2029.jsx",
+      "line": 156,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/code",
+      "source": "src/components/experience2029/SystemFrame2029.jsx",
+      "line": 160,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/2029/gematria",
+      "source": "src/components/experience2029/SystemFrame2029.jsx",
+      "line": 161,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/books",
+      "source": "src/components/experience2029/SystemFrame2029.jsx",
+      "line": 163,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world",
+      "source": "src/components/experience2029/SystemFrame2029.jsx",
+      "line": 2091,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/2029",
+      "source": "src/components/experience2029/SystemFrame2029.jsx",
+      "line": 2162,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/2029/posts",
+      "source": "src/components/experience2029/previewVisualReview2029.jsx",
+      "line": 19,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/els",
+      "source": "src/components/experience2029/previewVisualReview2029.jsx",
+      "line": 20,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/2029/gematria",
+      "source": "src/components/experience2029/previewVisualReview2029.jsx",
+      "line": 21,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/post/mah-kore-nza-hasoara",
+      "source": "src/components/experience2029/previewVisualReview2029.jsx",
+      "line": 22,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/research?tool=gematria",
+      "source": "src/components/hub/LabDock.jsx",
+      "line": 10,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/research?tool=els",
+      "source": "src/components/hub/LabDock.jsx",
+      "line": 11,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/number",
+      "source": "src/components/hub/LabDock.jsx",
+      "line": 12,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/research?tool=midrash",
+      "source": "src/components/hub/LabDock.jsx",
+      "line": 13,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/research",
+      "source": "src/components/hub/LabDock.jsx",
+      "line": 14,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/post",
+      "source": "src/components/layout/Footer.jsx",
+      "line": 12,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/category/מימד חמש",
+      "source": "src/components/layout/Footer.jsx",
+      "line": 13,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/community/chat",
+      "source": "src/components/layout/Footer.jsx",
+      "line": 14,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/category/סוד החשמל",
+      "source": "src/components/layout/Footer.jsx",
+      "line": 15,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/archive",
+      "source": "src/components/layout/Footer.jsx",
+      "line": 16,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/research",
+      "source": "src/components/layout/Footer.jsx",
+      "line": 20,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world",
+      "source": "src/components/layout/Footer.jsx",
+      "line": 21,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/number",
+      "source": "src/components/layout/Footer.jsx",
+      "line": 22,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/code",
+      "source": "src/components/layout/Footer.jsx",
+      "line": 23,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/profile",
+      "source": "src/components/layout/Footer.jsx",
+      "line": 27,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/research",
+      "source": "src/components/layout/Footer.jsx",
+      "line": 28,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/profile#notifications",
+      "source": "src/components/layout/Footer.jsx",
+      "line": 29,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/map",
+      "source": "src/components/layout/Footer.jsx",
+      "line": 199,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/start",
+      "source": "src/components/layout/Footer.jsx",
+      "line": 212,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/community",
+      "source": "src/components/layout/Footer.jsx",
+      "line": 213,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/contact",
+      "source": "src/components/layout/Footer.jsx",
+      "line": 214,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/privacy",
+      "source": "src/components/layout/Footer.jsx",
+      "line": 215,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/research?tool=gematria",
+      "source": "src/components/layout/HeichalToolsStrip.jsx",
+      "line": 10,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/research?tool=midrash",
+      "source": "src/components/layout/HeichalToolsStrip.jsx",
+      "line": 11,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/code",
+      "source": "src/components/layout/HeichalToolsStrip.jsx",
+      "line": 12,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/research",
+      "source": "src/components/layout/HeichalToolsStrip.jsx",
+      "line": 35,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/number",
+      "source": "src/components/layout/Navbar.jsx",
+      "line": 65,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/research?tool=gematria",
+      "source": "src/components/layout/Navbar.jsx",
+      "line": 66,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/code",
+      "source": "src/components/layout/Navbar.jsx",
+      "line": 67,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/number",
+      "source": "src/components/layout/Navbar.jsx",
+      "line": 147,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/code",
+      "source": "src/components/layout/Navbar.jsx",
+      "line": 148,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/research",
+      "source": "src/components/layout/Navbar.jsx",
+      "line": 149,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/post",
+      "source": "src/components/layout/Navbar.jsx",
+      "line": 150,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/archive?tab=galleries",
+      "source": "src/components/layout/Navbar.jsx",
+      "line": 151,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/map",
+      "source": "src/components/layout/Navbar.jsx",
+      "line": 336,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/admin",
+      "source": "src/components/layout/Navbar.jsx",
+      "line": 405,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/research?tool=gematria",
+      "source": "src/components/layout/Navbar.jsx",
+      "line": 418,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/research?tool=verse",
+      "source": "src/components/layout/Navbar.jsx",
+      "line": 419,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/research?tool=compare",
+      "source": "src/components/layout/Navbar.jsx",
+      "line": 420,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/research?tool=notarikon",
+      "source": "src/components/layout/Navbar.jsx",
+      "line": 421,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/research?tool=import",
+      "source": "src/components/layout/Navbar.jsx",
+      "line": 422,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/research",
+      "source": "src/components/layout/Navbar.jsx",
+      "line": 438,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/research",
+      "source": "src/components/layout/Navbar.jsx",
+      "line": 449,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/",
+      "source": "src/components/layout/Navbar.jsx",
+      "line": 496,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/map",
+      "source": "src/components/layout/Navbar.jsx",
+      "line": 569,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/login",
+      "source": "src/components/layout/Navbar.jsx",
+      "line": 651,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/login",
+      "source": "src/components/layout/Navbar.jsx",
+      "line": 703,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/admin",
+      "source": "src/components/layout/Navbar.jsx",
+      "line": 713,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/research",
+      "source": "src/components/layout/Navbar.jsx",
+      "line": 723,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/contact",
+      "source": "src/components/layout/Navbar.jsx",
+      "line": 766,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/beit-midrash?section=numbers",
+      "source": "src/components/number2029/NumberLivingWorld2029.jsx",
+      "line": 530,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/beit-midrash?section=numbers&concept=fibonacci#number-concept-fibonacci",
+      "source": "src/components/number2029/NumberLivingWorld2029.jsx",
+      "line": 575,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world?view=gallery&flow=1",
+      "source": "src/components/research/RealityRiver2029.jsx",
+      "line": 131,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world?view=gallery&flow=1",
+      "source": "src/components/research/RealityRiver2029.jsx",
+      "line": 160,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/topic/trump",
+      "source": "src/components/research/Revelation1237Gate2029.jsx",
+      "line": 426,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world#world-elections-content",
+      "source": "src/components/research/Revelation1237Gate2029.jsx",
+      "line": 434,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world#world-plane-india",
+      "source": "src/components/research/WorldFlightStory2029.jsx",
+      "line": 15,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world#world-direction-october",
+      "source": "src/components/research/WorldFlightStory2029.jsx",
+      "line": 17,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world#world-direction-wisdom",
+      "source": "src/components/research/WorldFlightStory2029.jsx",
+      "line": 19,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/codes",
+      "source": "src/components/research/WorldKnowledgeTypes2029.jsx",
+      "line": 229,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/code",
+      "source": "src/components/research/WorldKnowledgeTypes2029.jsx",
+      "line": 229,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world?view=gallery",
+      "source": "src/components/research/WorldKnowledgeTypes2029.jsx",
+      "line": 254,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/timeline",
+      "source": "src/components/research/WorldKnowledgeTypes2029.jsx",
+      "line": 264,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world?view=sources#world-source-selection",
+      "source": "src/components/research/WorldKnowledgeTypes2029.jsx",
+      "line": 264,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/books",
+      "source": "src/components/research/WorldKnowledgeTypes2029.jsx",
+      "line": 305,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world?source=tzvi-opoc#world-contributor-material",
+      "source": "src/components/research/WorldPublicSourceSubjects2029.jsx",
+      "line": 233,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world?source=sod-hashmal#world-corpus-sod-hashmal",
+      "source": "src/components/research/WorldPublicSourceSubjects2029.jsx",
+      "line": 234,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/2029/control?surface=ahavat-torah-system",
+      "source": "src/data/bookReader2029.js",
+      "line": 43,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/2029/control?surface=daat-tevunot-tree",
+      "source": "src/data/bookReader2029.js",
+      "line": 68,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/2029/control?surface=sefer-yetzirah-world",
+      "source": "src/data/bookReader2029.js",
+      "line": 90,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/2029/control?surface=bentov-findings-product",
+      "source": "src/data/bookReader2029.js",
+      "line": 205,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/codes",
+      "source": "src/legacy/legacy.jsx",
+      "line": 1958,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/2029/control",
+      "source": "src/legacy/legacy.jsx",
+      "line": 3501,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/login",
+      "source": "src/legacy/legacy.jsx",
+      "line": 3506,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/",
+      "source": "src/legacy/legacy.jsx",
+      "line": 4156,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/forum",
+      "source": "src/lib/contributions.js",
+      "line": 34,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/post",
+      "source": "src/lib/knowledgeMap.js",
+      "line": 119,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/gallery",
+      "source": "src/lib/knowledgeMap.js",
+      "line": 120,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/timeline",
+      "source": "src/lib/knowledgeMap.js",
+      "line": 121,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/number",
+      "source": "src/lib/knowledgeMap.js",
+      "line": 131,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/research?tool=gematria",
+      "source": "src/lib/knowledgeMap.js",
+      "line": 132,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/numbers",
+      "source": "src/lib/knowledgeMap.js",
+      "line": 133,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/code",
+      "source": "src/lib/knowledgeMap.js",
+      "line": 143,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/codes",
+      "source": "src/lib/knowledgeMap.js",
+      "line": 144,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/codes",
+      "source": "src/lib/knowledgeMap.js",
+      "line": 145,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world",
+      "source": "src/lib/knowledgeMap.js",
+      "line": 155,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/verse-gematria",
+      "source": "src/lib/knowledgeMap.js",
+      "line": 156,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/numbers",
+      "source": "src/lib/knowledgeMap.js",
+      "line": 168,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/languages",
+      "source": "src/lib/knowledgeMap.js",
+      "line": 178,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/languages",
+      "source": "src/lib/knowledgeMap.js",
+      "line": 179,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/post",
+      "source": "src/lib/knowledgeMap.js",
+      "line": 188,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/number",
+      "source": "src/lib/knowledgeMap.js",
+      "line": 192,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/verse-gematria",
+      "source": "src/lib/knowledgeMap.js",
+      "line": 193,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/codes",
+      "source": "src/lib/knowledgeMap.js",
+      "line": 194,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/community/chat",
+      "source": "src/lib/knowledgeMap.js",
+      "line": 201,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/community/researchers",
+      "source": "src/lib/knowledgeMap.js",
+      "line": 202,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/number",
+      "source": "src/lib/knowledgeMap.js",
+      "line": 224,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/numbers",
+      "source": "src/lib/knowledgeMap.js",
+      "line": 225,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/code",
+      "source": "src/lib/knowledgeMap.js",
+      "line": 226,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/codes",
+      "source": "src/lib/knowledgeMap.js",
+      "line": 227,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/research?tool=gematria",
+      "source": "src/lib/knowledgeMap.js",
+      "line": 228,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/post",
+      "source": "src/lib/knowledgeMap.js",
+      "line": 231,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/timeline",
+      "source": "src/lib/knowledgeMap.js",
+      "line": 232,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/gallery",
+      "source": "src/lib/knowledgeMap.js",
+      "line": 233,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/map",
+      "source": "src/lib/knowledgeMap.js",
+      "line": 234,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/community/chat",
+      "source": "src/lib/knowledgeMap.js",
+      "line": 237,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/community/researchers",
+      "source": "src/lib/knowledgeMap.js",
+      "line": 238,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/sulamot",
+      "source": "src/lib/labItems.js",
+      "line": 4,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/sulamot2",
+      "source": "src/lib/labItems.js",
+      "line": 5,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/sulamot3",
+      "source": "src/lib/labItems.js",
+      "line": 6,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/sulamot4",
+      "source": "src/lib/labItems.js",
+      "line": 7,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/sulamot5",
+      "source": "src/lib/labItems.js",
+      "line": 8,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/sulamot6",
+      "source": "src/lib/labItems.js",
+      "line": 9,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/sulamot7",
+      "source": "src/lib/labItems.js",
+      "line": 10,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/sulamot8",
+      "source": "src/lib/labItems.js",
+      "line": 11,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/sulamot9",
+      "source": "src/lib/labItems.js",
+      "line": 12,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/sulamot10",
+      "source": "src/lib/labItems.js",
+      "line": 13,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/sulamot11",
+      "source": "src/lib/labItems.js",
+      "line": 14,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/cheder/400",
+      "source": "src/lib/labItems.js",
+      "line": 15,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/beit-midrash?section=sources#source-reading-lesson",
+      "source": "src/lib/research/beitMidrashLearningProjection.js",
+      "line": 147,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/beit-midrash?section=guided",
+      "source": "src/lib/research/beitMidrashLearningProjection.js",
+      "line": 167,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/beit-midrash?section=paths&path=first-steps#path-first-steps",
+      "source": "src/lib/research/beitMidrashLearningProjection.js",
+      "line": 282,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/beit-midrash",
+      "source": "src/lib/research/beitMidrashLearningProjection.js",
+      "line": 284,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/beit-midrash?section=methods",
+      "source": "src/lib/research/beitMidrashLearningProjection.js",
+      "line": 285,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/beit-midrash?section=guided",
+      "source": "src/lib/research/beitMidrashLearningProjection.js",
+      "line": 286,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/beit-midrash?section=paths&path=gematria#path-gematria",
+      "source": "src/lib/research/beitMidrashLearningProjection.js",
+      "line": 293,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/beit-midrash?section=methods",
+      "source": "src/lib/research/beitMidrashLearningProjection.js",
+      "line": 295,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/beit-midrash?section=methods",
+      "source": "src/lib/research/beitMidrashLearningProjection.js",
+      "line": 296,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/2029/gematria",
+      "source": "src/lib/research/beitMidrashLearningProjection.js",
+      "line": 297,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/beit-midrash?section=paths&path=number-page#path-number-page",
+      "source": "src/lib/research/beitMidrashLearningProjection.js",
+      "line": 304,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/beit-midrash?section=numbers",
+      "source": "src/lib/research/beitMidrashLearningProjection.js",
+      "line": 306,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/beit-midrash?section=numbers&concept=fibonacci#number-concept-fibonacci",
+      "source": "src/lib/research/beitMidrashLearningProjection.js",
+      "line": 307,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/2029/gematria",
+      "source": "src/lib/research/beitMidrashLearningProjection.js",
+      "line": 308,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/beit-midrash?section=paths&path=sources#path-sources",
+      "source": "src/lib/research/beitMidrashLearningProjection.js",
+      "line": 315,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/books",
+      "source": "src/lib/research/beitMidrashLearningProjection.js",
+      "line": 318,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/beit-midrash?section=guided",
+      "source": "src/lib/research/beitMidrashLearningProjection.js",
+      "line": 319,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/beit-midrash?section=paths&path=meetings#path-meetings",
+      "source": "src/lib/research/beitMidrashLearningProjection.js",
+      "line": 326,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/beit-midrash?section=guided&kind=crossing",
+      "source": "src/lib/research/beitMidrashLearningProjection.js",
+      "line": 328,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/beit-midrash?section=guided&kind=convergence",
+      "source": "src/lib/research/beitMidrashLearningProjection.js",
+      "line": 329,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world#world-connections",
+      "source": "src/lib/research/beitMidrashLearningProjection.js",
+      "line": 330,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/beit-midrash?section=paths&path=sod1820#path-sod1820",
+      "source": "src/lib/research/beitMidrashLearningProjection.js",
+      "line": 337,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/beit-midrash?section=numbers",
+      "source": "src/lib/research/beitMidrashLearningProjection.js",
+      "line": 339,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/beit-midrash?section=numbers&concept=math-profile#number-concept-math-profile",
+      "source": "src/lib/research/beitMidrashLearningProjection.js",
+      "line": 340,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/beit-midrash?section=methods",
+      "source": "src/lib/research/beitMidrashLearningProjection.js",
+      "line": 341,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/beit-midrash?section=guided",
+      "source": "src/lib/research/beitMidrashLearningProjection.js",
+      "line": 342,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world#world-connections",
+      "source": "src/lib/research/beitMidrashLearningProjection.js",
+      "line": 343,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/heichal",
+      "source": "src/lib/research/beitMidrashLearningProjection.js",
+      "line": 344,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/2029/gematria",
+      "source": "src/lib/research/beitMidrashLearningProjection.js",
+      "line": 411,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/code",
+      "source": "src/lib/research/beitMidrashLearningProjection.js",
+      "line": 418,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world#world-connections",
+      "source": "src/lib/research/beitMidrashLearningProjection.js",
+      "line": 425,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/heichal",
+      "source": "src/lib/research/beitMidrashLearningProjection.js",
+      "line": 432,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/community/chat",
+      "source": "src/lib/research/beitMidrashLearningProjection.js",
+      "line": 439,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/2029/kingdom",
+      "source": "src/lib/research/beitMidrashLearningProjection.js",
+      "line": 454,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/",
+      "source": "src/lib/research/post2029ReadingProjection.js",
+      "line": 281,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/topic/india-axis#topic-source-media-post-5112-source-region-smit-machchhar",
+      "source": "src/lib/research/post2029ReadingProjection.js",
+      "line": 291,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/topic/",
+      "source": "src/lib/research/post2029ReadingProjection.js",
+      "line": 300,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/2029/number/363",
+      "source": "src/lib/research/post2029ReadingProjection.js",
+      "line": 308,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/2029/number/1073",
+      "source": "src/lib/research/post2029ReadingProjection.js",
+      "line": 311,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/topic/gapfill-718",
+      "source": "src/lib/research/post2029ReadingProjection.js",
+      "line": 312,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/topic/386-david-ben-yishai-tzipor",
+      "source": "src/lib/research/post2029ReadingProjection.js",
+      "line": 313,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/post/",
+      "source": "src/lib/research/post2029ReadingProjection.js",
+      "line": 542,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/post/sharshar-elections-redemption-hints-draft",
+      "source": "src/lib/research/post2029ReadingProjection.js",
+      "line": 560,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/2029/number/78",
+      "source": "src/lib/research/post2029ReadingProjection.js",
+      "line": 561,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/post/yam-hamelach-tiferet-geula",
+      "source": "src/lib/research/post2029ReadingProjection.js",
+      "line": 562,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/2029/number/690",
+      "source": "src/lib/research/post2029ReadingProjection.js",
+      "line": 563,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/2029/number/836",
+      "source": "src/lib/research/post2029ReadingProjection.js",
+      "line": 564,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/post/yam-hamelach-tiferet-geula",
+      "source": "src/lib/research/post2029ReadingProjection.js",
+      "line": 567,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/post/sharshar-elections-redemption-hints-draft",
+      "source": "src/lib/research/post2029ReadingProjection.js",
+      "line": 573,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/2029/number/631",
+      "source": "src/lib/research/post2029ReadingProjection.js",
+      "line": 574,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/post/${BENNETT_SALT_SLUG}",
+      "source": "src/lib/research/post2029ReadingProjection.js",
+      "line": 640,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/post/",
+      "source": "src/lib/research/post2029ReadingProjection.js",
+      "line": 650,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/2029/number/631",
+      "source": "src/lib/research/post2029ReadingProjection.js",
+      "line": 655,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/2029/number/271",
+      "source": "src/lib/research/post2029ReadingProjection.js",
+      "line": 656,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/2029/number/1820",
+      "source": "src/lib/research/post2029ReadingProjection.js",
+      "line": 657,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/2029/number/26",
+      "source": "src/lib/research/post2029ReadingProjection.js",
+      "line": 658,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/2029/number/66",
+      "source": "src/lib/research/post2029ReadingProjection.js",
+      "line": 659,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/2029/number/631",
+      "source": "src/lib/research/post2029ReadingProjection.js",
+      "line": 675,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/2029/number/631",
+      "source": "src/lib/research/postLineage2029.js",
+      "line": 37,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world?view=sources&source=tzvi-opoc#world-contributor-material",
+      "source": "src/lib/research/publicContributorIdentity.js",
+      "line": 6,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/2029/journey?focus=hints",
+      "source": "src/lib/research/razielSessionRequest2029.js",
+      "line": 928,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/post/fixture-b",
+      "source": "src/lib/research/worldMapFixture2029.js",
+      "line": 25,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/login",
+      "source": "src/pages/AdminPage.jsx",
+      "line": 234,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/editor",
+      "source": "src/pages/AdminPage.jsx",
+      "line": 243,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/research-viewer",
+      "source": "src/pages/AdminPage.jsx",
+      "line": 247,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/beit-midrash?tab=crosses",
+      "source": "src/pages/AdminPage.jsx",
+      "line": 1469,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "https://sod1820.co.il",
+      "source": "src/pages/AdminPage.jsx",
+      "line": 6016,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "https://sod1820.co.il/number/1820",
+      "source": "src/pages/AdminPage.jsx",
+      "line": 6029,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "https://sod1820.co.il/forum",
+      "source": "src/pages/AdminPage.jsx",
+      "line": 6030,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/archive?tab=pool",
+      "source": "src/pages/AdminPage.jsx",
+      "line": 6179,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/timeline",
+      "source": "src/pages/ArchivePage.jsx",
+      "line": 1230,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/archive?tab=pool",
+      "source": "src/pages/ArchivePage.jsx",
+      "line": 1916,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/profile",
+      "source": "src/pages/AuthPage.jsx",
+      "line": 60,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/research?tool=midrash&tab=submit",
+      "source": "src/pages/BeitMidrashPage.jsx",
+      "line": 465,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/forum",
+      "source": "src/pages/BeitMidrashPage.jsx",
+      "line": 467,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/number/1820",
+      "source": "src/pages/BeitMidrashPage.jsx",
+      "line": 700,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/topic/1820",
+      "source": "src/pages/BeitMidrashPage.jsx",
+      "line": 701,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/שם-ה-בתורה-1820-פעם",
+      "source": "src/pages/BeitMidrashPage.jsx",
+      "line": 702,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/book",
+      "source": "src/pages/BookHubPage.jsx",
+      "line": 396,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/book",
+      "source": "src/pages/BookHubPage.jsx",
+      "line": 404,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/books",
+      "source": "src/pages/Books2029Page.jsx",
+      "line": 281,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/2029/calculator?q=",
+      "source": "src/pages/Calculator2029Page.jsx",
+      "line": 554,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/beit-midrash/",
+      "source": "src/pages/Calculator2029Page.jsx",
+      "line": 565,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world",
+      "source": "src/pages/CalculatorPage.jsx",
+      "line": 220,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/beit-midrash/",
+      "source": "src/pages/CalculatorPro2029Page.jsx",
+      "line": 543,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/code",
+      "source": "src/pages/CipherPage.jsx",
+      "line": 113,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/code",
+      "source": "src/pages/CipherPage.jsx",
+      "line": 141,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/code",
+      "source": "src/pages/CiphersLibraryPage.jsx",
+      "line": 303,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/codes/מחקר",
+      "source": "src/pages/CiphersLibraryPage.jsx",
+      "line": 317,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/",
+      "source": "src/pages/CodePage.jsx",
+      "line": 144,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/community/researchers",
+      "source": "src/pages/ContributorPage.jsx",
+      "line": 832,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/community/researchers",
+      "source": "src/pages/ContributorPage.jsx",
+      "line": 867,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/community/researchers",
+      "source": "src/pages/ContributorPage.jsx",
+      "line": 953,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/timeline",
+      "source": "src/pages/ContributorPage.jsx",
+      "line": 1374,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/2029",
+      "source": "src/pages/ControlPlane2029Page.jsx",
+      "line": 111,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/join?src=credits",
+      "source": "src/pages/CreditsBuyPage.jsx",
+      "line": 141,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/profile",
+      "source": "src/pages/CreditsBuyPage.jsx",
+      "line": 175,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/number/13",
+      "source": "src/pages/CrossMethodPage.jsx",
+      "line": 55,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/cross?n=358",
+      "source": "src/pages/CrossMethodPage.jsx",
+      "line": 60,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/cross?n=1820",
+      "source": "src/pages/CrossMethodPage.jsx",
+      "line": 65,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/number/1820",
+      "source": "src/pages/CrossMethodPage.jsx",
+      "line": 255,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world",
+      "source": "src/pages/CrossMethodPage.jsx",
+      "line": 256,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/journey",
+      "source": "src/pages/CrossMethodPage.jsx",
+      "line": 547,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world",
+      "source": "src/pages/CrossMethodPage.jsx",
+      "line": 548,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world",
+      "source": "src/pages/Els2029Page.jsx",
+      "line": 168,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world",
+      "source": "src/pages/Els2029Page.jsx",
+      "line": 392,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/code",
+      "source": "src/pages/ElsWorkAreaPage.jsx",
+      "line": 325,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/cross",
+      "source": "src/pages/EntityHubPreviewPage.jsx",
+      "line": 225,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world",
+      "source": "src/pages/EntityHubPreviewPageFunctional.jsx",
+      "line": 339,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/gallery",
+      "source": "src/pages/EntityHubPreviewPageFunctional.jsx",
+      "line": 422,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/timeline",
+      "source": "src/pages/EntityPageBase.jsx",
+      "line": 2118,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/post",
+      "source": "src/pages/EntityPageBase.jsx",
+      "line": 2208,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/",
+      "source": "src/pages/ExperiencePage.jsx",
+      "line": 7,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/login",
+      "source": "src/pages/ForumPage.jsx",
+      "line": 76,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/forum",
+      "source": "src/pages/ForumThreadPage.jsx",
+      "line": 50,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/forum",
+      "source": "src/pages/ForumThreadPage.jsx",
+      "line": 62,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/research",
+      "source": "src/pages/GalaxyPage.jsx",
+      "line": 7,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/research",
+      "source": "src/pages/GalaxyRoom.jsx",
+      "line": 7,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world",
+      "source": "src/pages/Gallery2029Page.jsx",
+      "line": 129,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world",
+      "source": "src/pages/Gallery2029Page.jsx",
+      "line": 375,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world",
+      "source": "src/pages/Gallery2029Page.jsx",
+      "line": 390,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world?view=gallery",
+      "source": "src/pages/Gallery2029Page.jsx",
+      "line": 390,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/research",
+      "source": "src/pages/Gematria3DPage.jsx",
+      "line": 7,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/research",
+      "source": "src/pages/GematriaRevealPage.jsx",
+      "line": 7,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/2029/gematria",
+      "source": "src/pages/Heichal2029Page.jsx",
+      "line": 18,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/books",
+      "source": "src/pages/Heichal2029Page.jsx",
+      "line": 19,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/els",
+      "source": "src/pages/Heichal2029Page.jsx",
+      "line": 20,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world",
+      "source": "src/pages/Heichal2029Page.jsx",
+      "line": 21,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/verse-gematria",
+      "source": "src/pages/Heichal2029Page.jsx",
+      "line": 107,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/heichal",
+      "source": "src/pages/Heichal2029Page.jsx",
+      "line": 161,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/2029/gematria",
+      "source": "src/pages/Heichal2029Page.jsx",
+      "line": 387,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/books",
+      "source": "src/pages/Heichal2029Page.jsx",
+      "line": 388,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/verse-gematria",
+      "source": "src/pages/Heichal2029Page.jsx",
+      "line": 394,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/els",
+      "source": "src/pages/Heichal2029Page.jsx",
+      "line": 395,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world",
+      "source": "src/pages/Heichal2029Page.jsx",
+      "line": 396,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/בית-חדש",
+      "source": "src/pages/HeichalPage.jsx",
+      "line": 27,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/",
+      "source": "src/pages/HintRoomPage.jsx",
+      "line": 7,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/2029",
+      "source": "src/pages/Home2029Page.jsx",
+      "line": 398,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/2029",
+      "source": "src/pages/Home2029Page.jsx",
+      "line": 438,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world#world-sources",
+      "source": "src/pages/Home2029Page.jsx",
+      "line": 516,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/chibur-bein-hasafot-mafteach-lagan",
+      "source": "src/pages/HomeNewPage.jsx",
+      "line": 69,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/start",
+      "source": "src/pages/HomeNewPage.jsx",
+      "line": 70,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/gematria",
+      "source": "src/pages/HomeNewPage.jsx",
+      "line": 77,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world",
+      "source": "src/pages/HomeNewPage.jsx",
+      "line": 78,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/code",
+      "source": "src/pages/HomeNewPage.jsx",
+      "line": 79,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/archive",
+      "source": "src/pages/HomeNewPage.jsx",
+      "line": 80,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/timeline",
+      "source": "src/pages/HomeNewPage.jsx",
+      "line": 81,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/post",
+      "source": "src/pages/HomeNewPage.jsx",
+      "line": 82,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/map",
+      "source": "src/pages/HomeNewPage.jsx",
+      "line": 584,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/archive",
+      "source": "src/pages/HomeNewPage.jsx",
+      "line": 646,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/archive",
+      "source": "src/pages/HomeNewPage.jsx",
+      "line": 655,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/gematria",
+      "source": "src/pages/HomeNewPage.jsx",
+      "line": 684,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/numbers",
+      "source": "src/pages/HomeNewPage.jsx",
+      "line": 722,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/codes",
+      "source": "src/pages/HomeNewPage.jsx",
+      "line": 766,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/timeline",
+      "source": "src/pages/HomePage.jsx",
+      "line": 30,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/number",
+      "source": "src/pages/HomePage.jsx",
+      "line": 31,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world",
+      "source": "src/pages/HomePage.jsx",
+      "line": 32,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/שיעורי-שמע-סוד-החשמל",
+      "source": "src/pages/HomePage.jsx",
+      "line": 68,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/number",
+      "source": "src/pages/HomePage.jsx",
+      "line": 117,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/cross",
+      "source": "src/pages/HomePage.jsx",
+      "line": 143,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/post",
+      "source": "src/pages/HomePage.jsx",
+      "line": 289,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world",
+      "source": "src/pages/HomePage.jsx",
+      "line": 426,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/archive",
+      "source": "src/pages/HomePage.jsx",
+      "line": 590,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/2029/home-preview",
+      "source": "src/pages/HomePreview2029Page.jsx",
+      "line": 19,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world",
+      "source": "src/pages/HomePreview2029Page.jsx",
+      "line": 20,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/2029/posts",
+      "source": "src/pages/HomePreview2029Page.jsx",
+      "line": 21,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/heichal",
+      "source": "src/pages/HomePreview2029Page.jsx",
+      "line": 22,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/els",
+      "source": "src/pages/HomePreview2029Page.jsx",
+      "line": 23,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/books",
+      "source": "src/pages/HomePreview2029Page.jsx",
+      "line": 24,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/2029/journey",
+      "source": "src/pages/HomePreview2029Page.jsx",
+      "line": 25,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/2029/gematria",
+      "source": "src/pages/HomePreview2029Page.jsx",
+      "line": 26,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world",
+      "source": "src/pages/HomePreview2029Page.jsx",
+      "line": 123,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world",
+      "source": "src/pages/HomePreview2029Page.jsx",
+      "line": 137,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world",
+      "source": "src/pages/HomePreview2029Page.jsx",
+      "line": 200,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/heichal",
+      "source": "src/pages/HomePreview2029Page.jsx",
+      "line": 207,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world",
+      "source": "src/pages/HomePreview2029Page.jsx",
+      "line": 256,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/2029/posts",
+      "source": "src/pages/HomePreview2029Page.jsx",
+      "line": 275,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/els",
+      "source": "src/pages/HomePreview2029Page.jsx",
+      "line": 288,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/archive",
+      "source": "src/pages/HomePreview2029Page.jsx",
+      "line": 297,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world",
+      "source": "src/pages/HomePreview2029Page.jsx",
+      "line": 309,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world",
+      "source": "src/pages/HomePreview2029Page.jsx",
+      "line": 328,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world",
+      "source": "src/pages/HomePreview2029Page.jsx",
+      "line": 335,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/or-geula",
+      "source": "src/pages/HomePreview2029Page.jsx",
+      "line": 339,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/archive",
+      "source": "src/pages/HomePreview2029Page.jsx",
+      "line": 351,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/2029/journey",
+      "source": "src/pages/HomePreview2029Page.jsx",
+      "line": 352,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/community",
+      "source": "src/pages/HomePreview2029Page.jsx",
+      "line": 353,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/map",
+      "source": "src/pages/HomePreview2029Page.jsx",
+      "line": 359,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/2029",
+      "source": "src/pages/IntegratedPreview2029Page.jsx",
+      "line": 24,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world",
+      "source": "src/pages/IntegratedPreview2029Page.jsx",
+      "line": 25,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/2029",
+      "source": "src/pages/IntegratedPreview2029Page.jsx",
+      "line": 39,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/els",
+      "source": "src/pages/IntegratedPreview2029Page.jsx",
+      "line": 44,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/2029/kingdom",
+      "source": "src/pages/IntegratedPreview2029Page.jsx",
+      "line": 45,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/login",
+      "source": "src/pages/JoinPage.jsx",
+      "line": 145,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/start",
+      "source": "src/pages/JoinPage.jsx",
+      "line": 153,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/profile",
+      "source": "src/pages/JourneyPage.jsx",
+      "line": 477,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/profile",
+      "source": "src/pages/JourneyPageV2.jsx",
+      "line": 759,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/research",
+      "source": "src/pages/LaddersDemo.jsx",
+      "line": 6,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/chibur-bein-hasafot-mafteach-lagan",
+      "source": "src/pages/LanguagesPage.jsx",
+      "line": 134,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/shimon-haimov-english-gold",
+      "source": "src/pages/LanguagesPage.jsx",
+      "line": 135,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/archive",
+      "source": "src/pages/NameLabPage.jsx",
+      "line": 573,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/code",
+      "source": "src/pages/NavigationCenterPage.jsx",
+      "line": 221,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/",
+      "source": "src/pages/NotFoundPage.jsx",
+      "line": 25,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/number",
+      "source": "src/pages/NumbersPage.jsx",
+      "line": 7,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/login?returnTo=",
+      "source": "src/pages/OAuthCallback2029.jsx",
+      "line": 25,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/2029/number/",
+      "source": "src/pages/Post2029Page.jsx",
+      "line": 940,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/2029/posts",
+      "source": "src/pages/Post2029Page.jsx",
+      "line": 1169,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world",
+      "source": "src/pages/Post2029Page.jsx",
+      "line": 1170,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/SLUG",
+      "source": "src/pages/PostEditorPage.jsx",
+      "line": 23,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/number/${encodeURIComponent(inner)}",
+      "source": "src/pages/PostEditorPage.jsx",
+      "line": 267,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/number/${num}",
+      "source": "src/pages/PostEditorPage.jsx",
+      "line": 307,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/login",
+      "source": "src/pages/PostEditorPage.jsx",
+      "line": 517,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/login",
+      "source": "src/pages/PostEditorPage.jsx",
+      "line": 527,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/",
+      "source": "src/pages/PostEditorPage.jsx",
+      "line": 530,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/post",
+      "source": "src/pages/PostEditorPage.jsx",
+      "line": 641,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/2029/posts",
+      "source": "src/pages/Posts2029Page.jsx",
+      "line": 261,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/",
+      "source": "src/pages/PrivacyPage.jsx",
+      "line": 100,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/login",
+      "source": "src/pages/ProfilePage.jsx",
+      "line": 48,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/privacy",
+      "source": "src/pages/PublicServices2029Page.jsx",
+      "line": 28,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/",
+      "source": "src/pages/PublicServices2029Page.jsx",
+      "line": 29,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/unsubscribe",
+      "source": "src/pages/PublicServices2029Page.jsx",
+      "line": 31,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/privacy",
+      "source": "src/pages/PublicServices2029Page.jsx",
+      "line": 31,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/codes",
+      "source": "src/pages/ResearchCodesPage.jsx",
+      "line": 40,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/code",
+      "source": "src/pages/ResearchPage.jsx",
+      "line": 314,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world",
+      "source": "src/pages/Researcher2029Page.jsx",
+      "line": 100,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/",
+      "source": "src/pages/RoomEnter.jsx",
+      "line": 7,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/",
+      "source": "src/pages/RoomsExperience.jsx",
+      "line": 7,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/broadcasts",
+      "source": "src/pages/SiteUpdatesPage.jsx",
+      "line": 37,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/סוד-1820",
+      "source": "src/pages/StartHerePage.jsx",
+      "line": 18,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/research",
+      "source": "src/pages/StartHerePage.jsx",
+      "line": 22,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world",
+      "source": "src/pages/StartHerePage.jsx",
+      "line": 24,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/research?tool=gematria",
+      "source": "src/pages/StartHerePage.jsx",
+      "line": 25,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/research?tool=number",
+      "source": "src/pages/StartHerePage.jsx",
+      "line": 26,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/research?tool=verse",
+      "source": "src/pages/StartHerePage.jsx",
+      "line": 27,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/journey",
+      "source": "src/pages/StartHerePage.jsx",
+      "line": 28,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/archive?tab=reality",
+      "source": "src/pages/StartHerePage.jsx",
+      "line": 33,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/archive?tab=cascade",
+      "source": "src/pages/StartHerePage.jsx",
+      "line": 37,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/number/1820",
+      "source": "src/pages/StartHerePage.jsx",
+      "line": 41,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/cross",
+      "source": "src/pages/StartHerePage.jsx",
+      "line": 45,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/broadcasts",
+      "source": "src/pages/StartHerePage.jsx",
+      "line": 49,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/code",
+      "source": "src/pages/StartHerePage.jsx",
+      "line": 53,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/code",
+      "source": "src/pages/StartHerePage.jsx",
+      "line": 55,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/research?tool=els",
+      "source": "src/pages/StartHerePage.jsx",
+      "line": 56,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/post",
+      "source": "src/pages/StartHerePage.jsx",
+      "line": 61,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/post",
+      "source": "src/pages/StartHerePage.jsx",
+      "line": 63,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/research?tool=verse",
+      "source": "src/pages/StartHerePage.jsx",
+      "line": 64,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/members",
+      "source": "src/pages/StartHerePage.jsx",
+      "line": 69,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/number",
+      "source": "src/pages/StartHerePage.jsx",
+      "line": 159,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/map",
+      "source": "src/pages/StartHerePage.jsx",
+      "line": 183,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/numbers",
+      "source": "src/pages/StartHerePage.jsx",
+      "line": 196,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/",
+      "source": "src/pages/StartHerePage.jsx",
+      "line": 201,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/gematria",
+      "source": "src/pages/StartHerePage.jsx",
+      "line": 206,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/number/1820",
+      "source": "src/pages/StartHerePage.jsx",
+      "line": 207,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/",
+      "source": "src/pages/StreamGate.jsx",
+      "line": 41,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/post",
+      "source": "src/pages/TaxonomyPage.jsx",
+      "line": 193,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/2029/number/",
+      "source": "src/pages/Topic2029Page.jsx",
+      "line": 120,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/2029/number/",
+      "source": "src/pages/Topic2029Page.jsx",
+      "line": 154,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/2029/number/",
+      "source": "src/pages/Topic2029Page.jsx",
+      "line": 769,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/2029/number/",
+      "source": "src/pages/Topic2029Page.jsx",
+      "line": 785,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world",
+      "source": "src/pages/Topic2029Page.jsx",
+      "line": 824,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/2029/number/",
+      "source": "src/pages/Topic2029Page.jsx",
+      "line": 825,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/",
+      "source": "src/pages/TopicPage.jsx",
+      "line": 108,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/",
+      "source": "src/pages/UnsubscribePage.jsx",
+      "line": 71,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/research?tool=els",
+      "source": "src/pages/VerseGematriaPage.jsx",
+      "line": 151,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world",
+      "source": "src/pages/Video2029Page.jsx",
+      "line": 47,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world",
+      "source": "src/pages/VideoAssetPage.jsx",
+      "line": 140,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/post?src=welcome",
+      "source": "src/pages/WelcomePage.jsx",
+      "line": 102,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/numbers?src=welcome",
+      "source": "src/pages/WelcomePage.jsx",
+      "line": 103,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/?src=welcome",
+      "source": "src/pages/WelcomePage.jsx",
+      "line": 104,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/community/calculator?src=welcome",
+      "source": "src/pages/WelcomePage.jsx",
+      "line": 123,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/code?src=welcome",
+      "source": "src/pages/WelcomePage.jsx",
+      "line": 124,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/research?src=welcome",
+      "source": "src/pages/WelcomePage.jsx",
+      "line": 134,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/forum?src=welcome",
+      "source": "src/pages/WelcomePage.jsx",
+      "line": 135,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/join?src=welcome",
+      "source": "src/pages/WelcomePage.jsx",
+      "line": 136,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/join?src=welcome",
+      "source": "src/pages/WelcomePage.jsx",
+      "line": 152,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world",
+      "source": "src/pages/World2029Page.jsx",
+      "line": 927,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world",
+      "source": "src/pages/World2029Page.jsx",
+      "line": 946,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world",
+      "source": "src/pages/World2029Page.jsx",
+      "line": 957,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world",
+      "source": "src/pages/World2029Page.jsx",
+      "line": 971,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world",
+      "source": "src/pages/World2029Page.jsx",
+      "line": 986,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world",
+      "source": "src/pages/World2029Page.jsx",
+      "line": 998,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world",
+      "source": "src/pages/World2029Page.jsx",
+      "line": 1001,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world",
+      "source": "src/pages/World2029Page.jsx",
+      "line": 1060,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world",
+      "source": "src/pages/World2029Page.jsx",
+      "line": 1073,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world?view=gallery",
+      "source": "src/pages/World2029Page.jsx",
+      "line": 1170,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world",
+      "source": "src/pages/World2029Page.jsx",
+      "line": 1547,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world",
+      "source": "src/pages/World2029Page.jsx",
+      "line": 1560,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world",
+      "source": "src/pages/World2029Page.jsx",
+      "line": 1567,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world",
+      "source": "src/pages/World2029Page.jsx",
+      "line": 1590,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world",
+      "source": "src/pages/World2029Page.jsx",
+      "line": 1607,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world",
+      "source": "src/pages/World2029Page.jsx",
+      "line": 1624,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world",
+      "source": "src/pages/World2029Page.jsx",
+      "line": 1633,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world",
+      "source": "src/pages/World2029Page.jsx",
+      "line": 1642,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world",
+      "source": "src/pages/World2029Page.jsx",
+      "line": 1651,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world?focus=context",
+      "source": "src/pages/World2029Page.jsx",
+      "line": 1671,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world",
+      "source": "src/pages/World2029Page.jsx",
+      "line": 2137,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world",
+      "source": "src/pages/World2029Page.jsx",
+      "line": 2137,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world",
+      "source": "src/pages/World2029Page.jsx",
+      "line": 2154,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world",
+      "source": "src/pages/World2029Page.jsx",
+      "line": 2154,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/research",
+      "source": "src/pages/dev/TorahOccurrenceScenePage.jsx",
+      "line": 6,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/numbers",
+      "source": "src/pages/placeholders.jsx",
+      "line": 23,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/code",
+      "source": "src/pages/placeholders.jsx",
+      "line": 23,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world",
+      "source": "src/pages/placeholders.jsx",
+      "line": 69,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/community/researchers",
+      "source": "src/pages/placeholders.jsx",
+      "line": 76,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/forum",
+      "source": "src/pages/placeholders.jsx",
+      "line": 77,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/community/whatsapp",
+      "source": "src/pages/placeholders.jsx",
+      "line": 78,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/community/chat",
+      "source": "src/pages/placeholders.jsx",
+      "line": 79,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/community/calculator",
+      "source": "src/pages/placeholders.jsx",
+      "line": 80,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/community/comments",
+      "source": "src/pages/placeholders.jsx",
+      "line": 81,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/contact",
+      "source": "src/pages/placeholders.jsx",
+      "line": 82,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/community",
+      "source": "src/pages/placeholders.jsx",
+      "line": 410,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/",
+      "source": "src/pages/placeholders.jsx",
+      "line": 462,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/beit-midrash",
+      "source": "src/pages/placeholders.jsx",
+      "line": 488,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/numbers",
+      "source": "src/pages/placeholders.jsx",
+      "line": 488,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/",
+      "source": "src/routes.jsx",
+      "line": 5,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/start",
+      "source": "src/routes.jsx",
+      "line": 6,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/map",
+      "source": "src/routes.jsx",
+      "line": 7,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/timeline",
+      "source": "src/routes.jsx",
+      "line": 8,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/numbers",
+      "source": "src/routes.jsx",
+      "line": 9,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/world",
+      "source": "src/routes.jsx",
+      "line": 10,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/post",
+      "source": "src/routes.jsx",
+      "line": 11,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/archive?tab=reality",
+      "source": "src/routes.jsx",
+      "line": 12,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/broadcasts",
+      "source": "src/routes.jsx",
+      "line": 13,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/archive?tab=galleries",
+      "source": "src/routes.jsx",
+      "line": 14,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/code",
+      "source": "src/routes.jsx",
+      "line": 15,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/forum",
+      "source": "src/routes.jsx",
+      "line": 16,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/community",
+      "source": "src/routes.jsx",
+      "line": 18,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/forum",
+      "source": "src/routes.jsx",
+      "line": 19,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/community/chat",
+      "source": "src/routes.jsx",
+      "line": 20,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/community/calculator",
+      "source": "src/routes.jsx",
+      "line": 21,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/research?tool=gematria",
+      "source": "src/routes.jsx",
+      "line": 22,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/community/comments",
+      "source": "src/routes.jsx",
+      "line": 23,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/contact",
+      "source": "src/routes.jsx",
+      "line": 24,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/members",
+      "source": "src/routes.jsx",
+      "line": 27,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/lab",
+      "source": "src/routes.jsx",
+      "line": 28,
+      "kind": "source-literal-not-proof-of-public-content"
+    },
+    {
+      "url": "/codes",
+      "source": "src/theme.js",
+      "line": 190,
+      "kind": "source-literal-not-proof-of-public-content"
+    }
+  ]
+}
