@@ -45,19 +45,19 @@ test('Google and Facebook share verified exact callback and reject unapproved Pr
   assert.throws(()=>providerOAuthRequest({provider,origin:'https://other.vercel.app',functionalPreview:true,verifiedPreviewOrigins:['https://approved.vercel.app']}),/OAUTH_PREVIEW_UNVERIFIED/);
  }
 });
-test('emitted existing-account transport admits OTP without account creation and verification',async()=>{
+test('emitted account transport admits existing login, new signup, verification and exact PKCE exchange',async()=>{
  const w=worker();
  for(const [path,body] of [
   ['/auth/v1/otp',{email:'owner@example.invalid',data:{},create_user:false,gotrue_meta_security:{},code_challenge:'a'.repeat(43),code_challenge_method:'s256'}],
   ['/auth/v1/verify',{email:'owner@example.invalid',token:'12345678',type:'email',gotrue_meta_security:{}}],
+  ['/auth/v1/otp',{email:'owner@example.invalid',data:{},create_user:true,gotrue_meta_security:{},code_challenge:'a'.repeat(43),code_challenge_method:'s256'}],
+  ['/auth/v1/token?grant_type=pkce',{auth_code:'auth-code-synthetic',code_verifier:'a'.repeat(56)}],
  ]){const response=await w.request(path,{body});assert.equal(response.status,200,path);}
- assert.equal(w.calls.length,2);
+ assert.equal(w.calls.length,4);
 });
 test('new Auth transport denies role/data injection, phone, arbitrary callback, recovery and non-PKCE grants',async()=>{
  for(const [path,body] of [
   ['/auth/v1/otp',{email:'owner@example.invalid',data:{role:'admin'},create_user:true,code_challenge:'a'.repeat(43),code_challenge_method:'s256'}],
-  ['/auth/v1/otp',{email:'owner@example.invalid',data:{},create_user:true,gotrue_meta_security:{},code_challenge:'a'.repeat(43),code_challenge_method:'s256'}],
-  ['/auth/v1/token?grant_type=pkce',{auth_code:'auth-code-synthetic',code_verifier:'a'.repeat(56)}],
   ['/auth/v1/otp?redirect_to=https://evil.invalid',{email:'owner@example.invalid',data:{},create_user:true}],
   ['/auth/v1/otp',{phone:'+15555555555',create_user:true}],
   ['/auth/v1/verify',{email:'owner@example.invalid',token:'123456',type:'recovery'}],
@@ -157,19 +157,28 @@ test('existing publishable fallback is used only for verification; original targ
  assert.equal(w.calls[2].headers.get('apikey'),null);assert.equal(w.calls[2].headers.get('authorization'),'Bearer '+token());
 });
 
-test('public-reading client refuses OAuth before SDK and forces existing-account OTP even when caller asks to create',async()=>{
+test('public-reading reuses existing Auth without acquisition, while untrusted callback and metadata still fail closed',async()=>{
  const load=(path)=>readFileSync(new URL('../'+path,import.meta.url),'utf8').replace(/^import .*;\n/gm,'').replace(/import\.meta\.env/g,'ENV').replaceAll('export ','');
  for(const reading of [true,false]){
-  const calls=[],ctx={PUBLIC_READING_RELEASE:reading,ENV:{},URL,Date,window:{location:{origin:'https://sod1820.co.il'}},
+  const origin=reading?'https://approved-preview.vercel.app':'https://sod1820.co.il';
+  const calls=[],ctx={PUBLIC_READING_RELEASE:reading,ENV:{VITE_AUTH_VERIFIED_PREVIEW_ORIGINS:JSON.stringify([origin])},URL,Date,window:{location:{origin}},
    supabase:{auth:{signInWithOtp:async input=>{calls.push(['otp',input]);return {};},signInWithOAuth:async input=>{calls.push(['oauth',input]);return {};}}},
    signupAttribution:()=>{calls.push(['attribution']);return {source:'legacy'};},visitorId:()=>{calls.push(['visitor']);return 'legacy-fixture';}};
   vm.createContext(ctx);vm.runInContext(load('src/lib/oauthReturn.js')+';globalThis.oauth=providerOAuthRequest;',ctx);
   vm.runInContext(load('src/lib/auth.js')+';globalThis.otp=requestEmailOtp;globalThis.provider=signInWithConfiguredProvider;',ctx);
   if(reading){
-   for(const provider of ['google','facebook'])assert.throws(()=>ctx.provider(provider,{returnTo:'/world#map'}),{code:'AUTH_SIGNUP_CONSENT_PENDING'});
-   assert.deepEqual(calls,[]);
+   for(const provider of ['google','facebook']){
+    await ctx.provider(provider,{returnTo:'/world#map'});const [kind,request]=calls.at(-1);
+    assert.equal(kind,'oauth');assert.equal(request.provider,provider);assert.equal(request.options.redirectTo,origin+'/auth/callback');
+    assert.equal(request.options.scopes,provider==='facebook'?'email public_profile':undefined);
+   }
+   calls.length=0;
    for(const options of [undefined,{shouldCreateUser:true},{shouldCreateUser:false}])await ctx.otp('fixture@example.invalid',options);
-   assert.equal(calls.length,3);for(const [kind,input]of calls){assert.equal(kind,'otp');assert.equal(input.options.shouldCreateUser,false);assert.equal(JSON.stringify(input.options.data),'{}');}
+   assert.equal(calls.length,3);assert.deepEqual(calls.map(([,input])=>input.options.shouldCreateUser),[true,true,false]);
+   for(const [kind,input]of calls){assert.equal(kind,'otp');assert.equal(JSON.stringify(input.options.data),'{}');}
+   ctx.ENV.VITE_AUTH_VERIFIED_PREVIEW_ORIGINS='[]';
+   for(const provider of ['google','facebook'])assert.throws(()=>ctx.provider(provider),{code:'OAUTH_PREVIEW_UNVERIFIED'});
+   assert.equal(calls.length,3);
   }else{
    await ctx.otp('fixture@example.invalid');assert.equal(calls.find(c=>c[0]==='otp')[1].options.shouldCreateUser,true);
    assert.equal(calls.filter(c=>c[0]==='attribution').length,1);assert.equal(calls.filter(c=>c[0]==='visitor').length,1);
@@ -177,13 +186,19 @@ test('public-reading client refuses OAuth before SDK and forces existing-account
   }
  }
 });
-test('emitted existing-account worker denies OAuth navigation even with a valid exact callback',async()=>{
- const url=API+'/auth/v1/authorize?'+new URLSearchParams({provider:'google',redirect_to:SITE+'/auth/callback',code_challenge:'a'.repeat(43),code_challenge_method:'s256'});
+test('emitted OAuth navigation requires exact callback, genuine PKCE shape and bounded provider scopes before browser navigation',async()=>{
  let reply,listener,calls=0;
- const ctx={Request,Response,URL,Set,Map,JSON,atob,fetch:async()=>{calls++;throw Error('OAuth must not reach network');},self:{location:{origin:SITE},addEventListener:(type,fn)=>{if(type==='fetch')listener=fn;}}};
+ const ctx={Request,Response,URL,Set,Map,JSON,atob,fetch:async()=>{calls++;throw Error('OAuth must not reach test network');},self:{location:{origin:SITE},addEventListener:(type,fn)=>{if(type==='fetch')listener=fn;}}};
  vm.runInNewContext(buildPublicReadingWorker('a'.repeat(40)),ctx);
- listener({request:{url,method:'GET',mode:'navigate',headers:new Headers(),clone(){return this;},text:async()=>''},respondWith(p){reply=p;}});
- assert.equal((await reply).status,403);assert.equal(calls,0);
+ const base={provider:'google',redirect_to:SITE+'/auth/callback',code_challenge:'a'.repeat(43),code_challenge_method:'s256'};
+ async function send(values,{mode='navigate',suffix=''}={}){
+  reply=undefined;const url=API+'/auth/v1/authorize?'+new URLSearchParams(values)+suffix;
+  listener({request:{url,method:'GET',mode,headers:new Headers(),clone(){return this;},text:async()=>''},respondWith(p){reply=p;}});
+  return reply?await reply:null;
+ }
+ for(const provider of ['google','facebook'])assert.equal(await send({...base,provider,...(provider==='facebook'?{scopes:'email public_profile'}:{})}),null);
+ for(const values of [{...base,redirect_to:'https://evil.invalid/auth/callback'},{...base,redirect_to:SITE+'/auth/callback?next=evil'},{...base,redirect_to:SITE+'/auth/callback#token'},{...base,code_challenge:'short'},{...base,code_challenge_method:'plain'},{...base,scopes:'email public_profile'},{...base,provider:'facebook',scopes:'email public_profile pages_manage_posts'}])assert.equal((await send(values)).status,403);
+ assert.equal((await send(base,{mode:'cors'})).status,403);assert.equal((await send(base,{suffix:'&provider=facebook'})).status,403);assert.equal(calls,0);
 });
 
 test('actual emitted worker admits only read-only verified WhatsApp association with server-verified matching JWT',async()=>{

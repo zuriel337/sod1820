@@ -546,7 +546,7 @@
     "evidence": "AccountEntry; oauthReturn; JoinPage",
     "meaning": "כניסה/הרשמה/הכוונה/קמפיין אינם אותה פעולה",
     "target_2029": "מסכי Auth קיימים; adapters למשמעותשנשמרת",
-    "verified_status": "כניסה קיימת וכל פעולות שני החשבונות התקבלו בדיווח המשתמש על7360. החלטת צוריאל החדשה: חשבון חדש ומאומת כולל עדכוני אתר כברירת מחדל עם הסרה; A הישן הוחלף ואינו מיועד להחלה. A2/B/D נבדקו בהצעה בלבד; Google/Facebook והרשמה חדשה עדיין ממתינים לשרת, לנוסח נכון גם בלגאסי, ל־callback מדויק ולקבלה אמיתית. כניסה רגילה אינה משנה דיוור; הסרות קודמות נשמרות. OTP לחשבון קיים נשמר; אין מערכת שחזור חדשה.",
+    "verified_status": "המשכיות החשבון הקיים התקבלה בשני החשבונות. חוברו שוב Google/Facebook/OTP למימושAuth הקיים, ללאשינוי טריגר/העדפות. callback ענףPreviewקבוע נקשרל־Vercel; בדיקתפתיחהוביטולעדכניתשניהםחזרהProduction,ונדרשתבדיקתרשומתRedirectURLsואזשניספקיםאנושיים. A2מוצעבלבדולאנדרשלהמשכיות. איןמודל/חיוב/דיוורגורףבכניסה.",
     "permissions": "זהותשרת; אין שיווק/חיובבכניסה",
     "parameters_anchors": "returnTo,OAuthstate/PKCE/hash; לא לתעד טוקנים",
     "acceptance": "Google/Facebook/password/יציאה; החזרה המדויקת;חדשלעומתקיים",
@@ -565,7 +565,11 @@
       "verified_status": "כניסה,יציאה,כניסה מחדש,שמירות ועריכה והחלפת חשבון התקבלו בדיווח המשתמש בשני החשבונות על7360. Google/Facebook והרשמה חדשה טרם התקבלו; תלותA היא הפסקת צירוף אוטומטי לדיוור בטריגר, לא כל חבילתb21. שחזור סיסמה חדש אינו קיים גם בLegacy ואינו חלקb21; OTPקיים לחשבון קיים נשמר.",
       "open_task": "C5"
     },
-    "s2_signup_default_evidence": "../public-url-exceptions-20261103/residual205/final-preparation.md"
+    "s2_signup_default_evidence": "../public-url-exceptions-20261103/residual205/final-preparation.md",
+    "four_completions_previous_checkpoint": {
+      "verified_status": "כניסה קיימת וכל פעולות שני החשבונות התקבלו בדיווח המשתמש על7360. החלטת צוריאל החדשה: חשבון חדש ומאומת כולל עדכוני אתר כברירת מחדל עם הסרה; A הישן הוחלף ואינו מיועד להחלה. A2/B/D נבדקו בהצעה בלבד; Google/Facebook והרשמה חדשה עדיין ממתינים לשרת, לנוסח נכון גם בלגאסי, ל־callback מדויק ולקבלה אמיתית. כניסה רגילה אינה משנה דיוור; הסרות קודמות נשמרות. OTP לחשבון קיים נשמר; אין מערכת שחזור חדשה."
+    },
+    "four_completions_evidence": "../public-url-exceptions-20261103/residual205/four-completions.md"
   },
   {
     "id": "F27",
@@ -577,7 +581,7 @@
     "permissions": "בעלותכתובת/חתימה; no-referrer/noindex",
     "parameters_anchors": "e,t בתיםמדויקים; לא analytics או querylogs",
     "acceptance": "חתימהשגויה/אפסהתאמות/כשל; הסרה אמיתית אינה תרגיל; email עודכןבמקור",
-    "open_task": "C5: revised exact shared A2/B/D approval and real owner signup/unsubscribe acceptance",
+    "open_task": "C5: exact B/D shared approval only; A2 future proposal not current Auth prerequisite; C before first site-updates campaign; actual owner signup/unsubscribe acceptance",
     "treatment": "UI_IMPLEMENTED_TESTED_SERVER_APPROVAL_AND_REAL_MAIL_ACCEPTANCE_OPEN",
     "planning_snapshot": {
       "target_2029": "המסלולים הקיימים",
@@ -595,7 +599,11 @@
       "verified_status": "פרטיות עםzyz997@gmail.com נשמרת. חלוניתLegacy חוברה לטופס2029 ולמטרהsite-updates,22שניות/גלילה,תמונה מקומית ופונטים2029,ללא קוד המציאות.11בדיקות דפדפן מבוקרות עברו; אין קריאה בפתיחה ואין הרשמה כללית כחלופה. B(מטרה+signup) ו־D(הסרה עםאישור אמיתי) מוכנים/מבודדים אך לא הוחלו. כתובות קיימות במטרה אחרת או שהוסרו אינן מופעלות מחדש; אימות בעלות לא הושלם.",
       "open_task": "C5"
     },
-    "s2_signup_default_evidence": "../public-url-exceptions-20261103/residual205/final-preparation.md"
+    "s2_signup_default_evidence": "../public-url-exceptions-20261103/residual205/final-preparation.md",
+    "four_completions_previous_checkpoint": {
+      "open_task": "C5: revised exact shared A2/B/D approval and real owner signup/unsubscribe acceptance"
+    },
+    "four_completions_evidence": "../public-url-exceptions-20261103/residual205/four-completions.md"
   },
   {
     "id": "F28",
@@ -645,7 +653,7 @@
     "permissions": "מנהל/בעלים בשרת, failclosed",
     "parameters_anchors": "returnTo בטוח; בלי דליפת metadata",
     "acceptance": "אנונימי/חבר/admin;401/403/404 לפי חוזה",
-    "open_task": "CP1 genuine operator acceptance; remaining pre-cutover security classification/negative scope; not a full G4 seal",
+    "open_task": "CP1: short genuine admin read/refresh/existing-trace acceptance; valid S2 and health fix evidence retained; no fullG4 claim",
     "treatment": "IMPLEMENTED_CONTROLLED_TESTED_ADMIN_ACCEPTANCE_OPEN",
     "exception_previous_checkpoint": {
       "verified_status": "אין להפוךכתובתאמיתיתלציבורית",
@@ -665,7 +673,11 @@
       "verified_status": "תצוגתCP1 מבודדת קריאות בריאות/וידאו/trace; כשל,ריק,מידע ישן ואפס נפרדים. החלפת זהות ובקשות מאוחרות נבדקו בבקר האמיתי. הצעתadmin_system_health משנה2זרועותכשל בלבד ונבדקה ב9קבוצותPostgreSQL עםACL/owner/drift. לא הוחלה. S2 המפורט עדיין ממתין לאישור; קבלת מנהל אמיתית לCP1 נותרה פתוחה.",
       "open_task": "C6"
     },
-    "s2_signup_default_evidence": "../public-url-exceptions-20261103/residual205/final-preparation.md"
+    "s2_signup_default_evidence": "../public-url-exceptions-20261103/residual205/final-preparation.md",
+    "four_completions_previous_checkpoint": {
+      "open_task": "CP1 genuine operator acceptance; remaining pre-cutover security classification/negative scope; not a full G4 seal"
+    },
+    "four_completions_evidence": "../public-url-exceptions-20261103/residual205/four-completions.md"
   },
   {
     "id": "F31",

@@ -1,6 +1,6 @@
 --- a/public-reading-deploy/review-admission.js
 +++ b/public-reading-deploy/review-admission.js
-@@ -1,18 +1,23 @@
+@@ -1,21 +1,26 @@
 -// Pure admission checks for this existing artifact's protected review only.
 +// Pure admission checks for the existing protected review artifact.
 +// A staged Production-target review does not authorize canonical serving,
@@ -11,6 +11,9 @@
  export const REVIEW_PROJECT_ID = "prj_43q7k7QFAcWnin1tcBjce5xOi7Cq";
  export const REVIEW_BRANCH = "gpt/2029-public-cutover-final-preparation-20261103";
 +export const PRODUCTION_REVIEW_BRANCH = "gpt/2029-public-cutover-final-preparation-20261103";
+ // Existing Git-branch alias in the same project, verified through Vercel.
+ // A stable callback avoids a different Auth allowlist entry for every commit.
+ export const REVIEW_AUTH_HOST = "sod1820-git-gpt-2029-public-cutover-f-7ce8ee-sod1820-s-projects.vercel.app";
  const sourceShaPattern = /^[0-9a-f]{40}$/;
  const deploymentPattern = /^dpl_[A-Za-z0-9]+$/;
  const hostPattern = /^sod1820-[a-z0-9]+-sod1820-s-projects\.vercel\.app$/;
@@ -30,7 +33,7 @@
      && sourceShaPattern.test(env.VERCEL_GIT_COMMIT_SHA || "")
      && deploymentPattern.test(env.VERCEL_DEPLOYMENT_ID || "")
      && hostPattern.test(env.VERCEL_URL || "");
-@@ -23,9 +28,9 @@
+@@ -26,9 +31,9 @@
  // matches the nested config read from the pinned Git commit. Array order counts;
  // the ordinary file mode must also remain 100644 in Git's raw worktree diff.
  // This does not ignore dirty files or authorize any platform/runtime identity.
@@ -42,7 +45,7 @@
      || !/^:100644 100644 [0-9a-f]{40} 0{40} M\0vercel\.json\0$/.test(trackedDiff || "")
      || typeof committedConfig !== "string" || typeof workingConfig !== "string") return false;
    function equal(left, right) {
-@@ -43,19 +48,24 @@
+@@ -46,24 +51,29 @@
    } catch { return false; }
  }
 
@@ -57,7 +60,9 @@
 +  return Object.freeze({ schema: 1, mode: reviewTarget === "production" ? "staged-production-review" : "protected-preview-review", target: reviewTarget,
 +    sourceSha, branch: reviewTarget === "production" ? PRODUCTION_REVIEW_BRANCH : REVIEW_BRANCH, projectId: REVIEW_PROJECT_ID,
      deploymentId: env.VERCEL_DEPLOYMENT_ID, host: env.VERCEL_URL,
+-    ...(env.VERCEL_BRANCH_URL === REVIEW_AUTH_HOST ? { authHost: REVIEW_AUTH_HOST } : {}),
 -    productionAuthorized: false, indexingAuthorized: false });
++    ...(reviewTarget === "preview" && env.VERCEL_BRANCH_URL === REVIEW_AUTH_HOST ? { authHost: REVIEW_AUTH_HOST } : {}),
 +    productionAuthorized: false, indexingAuthorized: false,
 +    ...(reviewTarget === "production" ? { cutoverAuthorized: false, domainAssignmentAuthorized: false } : {}) });
  }
@@ -75,6 +80,11 @@
      && identity.projectId === env.VERCEL_PROJECT_ID
      && identity.branch === env.VERCEL_GIT_COMMIT_REF
      && identity.sourceSha === env.VERCEL_GIT_COMMIT_SHA
+     && identity.deploymentId === env.VERCEL_DEPLOYMENT_ID
+     && identity.host === env.VERCEL_URL
+-    && (identity.authHost === undefined || identity.authHost === REVIEW_AUTH_HOST && env.VERCEL_BRANCH_URL === REVIEW_AUTH_HOST);
++    && (identity.authHost === undefined || target === "preview" && identity.authHost === REVIEW_AUTH_HOST && env.VERCEL_BRANCH_URL === REVIEW_AUTH_HOST);
+ }
 --- a/public-reading-deploy/authorization.js
 +++ b/public-reading-deploy/authorization.js
 @@ -6,7 +6,9 @@
@@ -126,8 +136,8 @@
 +const protectedReview = reviewMode ? protectedReviewBuildIdentity({ env: process.env, reviewTarget,
    sourceSha: sha, sourceDirty: dirty && !platformConfigMaterialization,
    requestedSourceSha: pins[0].slice("--review-source=".length) }) : null;
- // Generate for both modes, replacing stale review authority with null locally.
-@@ -98,7 +104,8 @@
+ // Reuse the existing verified-origin configuration. A Vercel-owned alias alone
+@@ -108,7 +114,8 @@
    schema: 1, sourceSha: sha, sourceDirty: dirty, buildTarget: "2029", releaseProfile: PUBLIC_READING_PROFILE_ID,
    applicationSourceDirty: dirty && !platformConfigMaterialization,
    policy: PUBLIC_READING_POLICY_ID, activation: PUBLIC_READING_DEPLOYMENT_AUTHORIZATION,
@@ -137,7 +147,7 @@
    // sourceDirty above is the raw Git observation and stays true on Vercel.
    // This separate receipt proves only the known nested-config materialization.
    platformConfigMaterialization: platformConfigMaterialization ? {
-@@ -122,4 +129,5 @@
+@@ -133,4 +140,5 @@
    workerSha256: hash(worker), legacyRollbackWorkerSha256: hash(await readFile(resolve(root, "public/sw.js"))),
    files: files.sort((a, b) => a.path.localeCompare(b.path)),
  }, null, 2) + "\n");

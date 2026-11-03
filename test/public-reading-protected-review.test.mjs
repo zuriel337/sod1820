@@ -8,7 +8,7 @@ import { spawnSync } from "node:child_process";
 import vm from "node:vm";
 import { build } from "esbuild";
 import { protectedReviewBuildIdentity, protectedReviewRuntimeAuthorized, protectedReviewConfigMaterialization,
-  REVIEW_BRANCH, REVIEW_PROJECT_ID } from "../public-reading-deploy/review-admission.js";
+  REVIEW_BRANCH, REVIEW_PROJECT_ID, REVIEW_AUTH_HOST } from "../public-reading-deploy/review-admission.js";
 
 // All platform identities and responses in this file are synthetic. Real Vercel
 // identity is never forged for a build or deployment. No fetch may reach network.
@@ -114,11 +114,11 @@ test("compiler rejects an absent, duplicate or malformed review mode/pin before 
   }
 });
 
-function fixturePlugin() {
+function fixturePlugin(identity = fixtureIdentity) {
   return { name: "isolated-review-identity", setup(builder) {
     builder.onLoad({ filter: /protected-review-build\.js$/ }, args => {
       assert.equal(args.path, generatedIdentityPath);
-      return { contents: `export const PROTECTED_REVIEW_BUILD = Object.freeze(${JSON.stringify(fixtureIdentity)});`, loader: "js" };
+      return { contents: `export const PROTECTED_REVIEW_BUILD = Object.freeze(${JSON.stringify(identity)});`, loader: "js" };
     });
     // Test the unchanged Edge adapter contract without fetching fonts or rendering
     // an image. The real renderer is covered by its own existing implementation.
@@ -271,4 +271,18 @@ test("default artifact records raw dirtiness without any platform materializatio
   assert.equal(artifact.platformConfigMaterialization, null);
   assert.equal(artifact.protectedReview, null);
   assert.equal(artifact.productionReady, false);
+});
+
+test('stable Auth alias needs the exact generated Preview platform proof; canonical and unrelated aliases remain denied',async()=>{
+ const env={...fixtureEnv,VERCEL_BRANCH_URL:REVIEW_AUTH_HOST};
+ const identity=protectedReviewBuildIdentity({env,sourceSha:sha,sourceDirty:false,requestedSourceSha:sha});
+ assert.equal(identity.authHost,REVIEW_AUTH_HOST);assert.equal(protectedReviewRuntimeAuthorized(identity,env),true);
+ for(const badEnv of [{...env,VERCEL_BRANCH_URL:'evil.vercel.app'},{...env,VERCEL_BRANCH_URL:undefined},{...env,VERCEL_ENV:'production'},{...env,VERCEL_TARGET_ENV:'production'}])assert.equal(protectedReviewRuntimeAuthorized(identity,badEnv),false);
+ assert.equal(protectedReviewRuntimeAuthorized({...identity,authHost:'evil.vercel.app'},env),false);
+ const bundle=await build({entryPoints:[resolve(root,'public-reading-deploy/authorization.js')],platform:'browser',format:'iife',globalName:'admission',bundle:true,write:false,plugins:[fixturePlugin(identity)]});
+ const ctx={process:{env}};vm.runInNewContext(bundle.outputFiles[0].text,ctx);
+ assert.equal(ctx.admission.publicReadingOriginAllowed('https://'+REVIEW_AUTH_HOST),true);
+ assert.equal(ctx.admission.publicReadingOriginAllowed('https://'+fixtureEnv.VERCEL_URL),true);
+ for(const origin of ['https://sod1820.co.il','https://www.sod1820.co.il','https://sod1820.vercel.app','https://other.vercel.app','https://'+REVIEW_AUTH_HOST+'.evil.invalid'])assert.equal(ctx.admission.publicReadingOriginAllowed(origin),false,origin);
+ ctx.process.env={...env,VERCEL_ENV:'production'};assert.equal(ctx.admission.deploymentAuthorized(),false);
 });

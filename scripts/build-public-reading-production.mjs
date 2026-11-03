@@ -44,6 +44,15 @@ if (reviewMode && trackedStatus === " M vercel.json\0") {
 const protectedReview = reviewMode ? protectedReviewBuildIdentity({ env: process.env,
   sourceSha: sha, sourceDirty: dirty && !platformConfigMaterialization,
   requestedSourceSha: pins[0].slice("--review-source=".length) }) : null;
+// Reuse the existing verified-origin configuration. A Vercel-owned alias alone
+// does not prove its callback was accepted in Supabase. The owner deferred that
+// dashboard step, so an unconfirmed origin must remain disabled before the SDK.
+let configuredOAuthOrigins;
+try { configuredOAuthOrigins = JSON.parse(process.env.VITE_AUTH_VERIFIED_PREVIEW_ORIGINS || "[]"); }
+catch { configuredOAuthOrigins = []; }
+const oauthOrigins = protectedReview?.authHost && Array.isArray(configuredOAuthOrigins)
+  && configuredOAuthOrigins.includes("https://" + protectedReview.authHost)
+  ? ["https://" + protectedReview.authHost] : [];
 // Generate for both modes, replacing stale review authority with null locally.
 // Builder imports only the static policy; handlers import this generated module
 // after the build. It must be included in each traced Node/Edge handler bundle.
@@ -57,6 +66,7 @@ const previewFlags = ["VITE_PUBLIC_FRAME_PREVIEW", "VITE_PUBLIC_FOUNDATION_PREVI
 await build({ root, define: {
   ...Object.fromEntries(previewFlags.map(key => ["import.meta.env." + key, JSON.stringify("false")])),
   "import.meta.env.VITE_PUBLIC_READING_RELEASE": JSON.stringify(PUBLIC_READING_PROFILE_ID),
+  "import.meta.env.VITE_AUTH_VERIFIED_PREVIEW_ORIGINS": JSON.stringify(JSON.stringify(oauthOrigins)),
   __SOD_PUBLIC_READING_PRODUCTION_ARTIFACT__: "true",
 }, build: { outDir: output, emptyOutDir: true, manifest: true } });
 let document = await readFile(resolve(output, "2029.html"), "utf8");
@@ -115,8 +125,9 @@ await writeFile(resolve(output, "public-reading-artifact.json"), JSON.stringify(
   deployed: false, productionReady: false, generalProductWrites: false,
   signedLegacyUnsubscribe: "existing-token-bound-mutation-only",
   adminActions: "explicit-server-verified-admin-only",
-  accountEntry: "existing-password-or-otp-only", newSignup: false,
-  socialLogin: "pending-shared-signup-consent-and-exact-callback",
+  accountEntry: "existing-site-auth-default", newSignup: true,
+  socialLogin: oauthOrigins.length ? "exact-verified-branch-preview-callback" : "pending-exact-callback-confirmation",
+  oauthCallback: protectedReview?.authHost ? "https://" + protectedReview.authHost + "/auth/callback" : null,
   siteUpdatesSignup: "pending-shared-purpose-contract",
   modelCalls: "explicit-admin-action-under-existing-server-policy", automaticModelCalls: false, siteFlagsChanged: false, previewBypassFlags: false,
   workerSha256: hash(worker), legacyRollbackWorkerSha256: hash(await readFile(resolve(root, "public/sw.js"))),

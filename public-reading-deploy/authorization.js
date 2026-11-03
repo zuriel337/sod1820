@@ -14,7 +14,11 @@ export function deploymentAuthorized() {
 export function protectedReviewOrigin() {
   return deploymentAuthorized() ? `https://${PROTECTED_REVIEW_BUILD.host}` : null;
 }
+export function protectedReviewAuthOrigin() {
+  return deploymentAuthorized() && PROTECTED_REVIEW_BUILD.authHost
+    ? `https://${PROTECTED_REVIEW_BUILD.authHost}` : null;
+}
 export function publicReadingOriginAllowed(origin) {
   const review = protectedReviewOrigin();
-  return review ? origin === review : PUBLIC_READING_ORIGINS.includes(origin);
+  return review ? origin === review || origin === protectedReviewAuthOrigin() : PUBLIC_READING_ORIGINS.includes(origin);
 }

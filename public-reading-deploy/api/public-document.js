@@ -2,7 +2,7 @@ import { readFile } from "node:fs/promises";
 import deploymentConfig from "../vercel.json" with { type: "json" };
 import ogHandler from "../../api/og.js";
 import { PUBLIC_READING_PROFILE_ID, publicReadingPath, publicReadingContinuation } from "../../src/lib/publicReadingRelease2029.js";
-import { CANONICAL_ORIGIN, publicReadingOriginAllowed, protectedReviewOrigin, deploymentAuthorized } from "../authorization.js";
+import { CANONICAL_ORIGIN, publicReadingOriginAllowed, protectedReviewOrigin, protectedReviewAuthOrigin, deploymentAuthorized } from "../authorization.js";
 
 export function requestOrigin(req) {
   const host = req.headers?.host;
@@ -66,7 +66,7 @@ export function publicReadingDocumentHandler({ authorized = deploymentAuthorized
     if (path === "/wp-json/wp/v2/posts") {
       res.setHeader("Content-Type", "application/json");return res.status(404).send(req.method === "HEAD" ? "" : '{"error":"legacy_wordpress_api_unavailable"}');
     }
-    if (origin !== CANONICAL_ORIGIN && origin !== protectedReviewOrigin() && originalDocument) {
+    if (origin !== CANONICAL_ORIGIN && origin !== protectedReviewOrigin() && origin !== protectedReviewAuthOrigin() && originalDocument) {
       // URL.search preserves the original bytes, repeated parameters and the
       // legitimate user key `path`. Never reconstruct it from rewrite query.
       res.setHeader("Location", CANONICAL_ORIGIN + path + original.search);

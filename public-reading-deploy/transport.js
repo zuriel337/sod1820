@@ -83,7 +83,7 @@ function installPublicReadingWorker(policy) {
   self.addEventListener("fetch", event => {
     const req = event.request, url = new URL(req.url);
     const rpc = /^\/rest\/v1\/rpc\/([a-z_][a-z0-9_]*)$/.exec(url.pathname)?.[1];
-    if (interceptPublicReadingAdminAuth(event, authOrigin, { accountAccess: "existing", clientOrigin: self.location.origin }) || interceptOpeningMail(event, authOrigin)) return;
+    if (interceptPublicReadingAdminAuth(event, authOrigin, { accountAccess: true, clientOrigin: self.location.origin }) || interceptOpeningMail(event, authOrigin)) return;
     if (url.origin === "https://linswmnnkjxvweumprav.storage.supabase.co" && url.pathname.startsWith("/storage/v1/upload/")) {
       event.respondWith(adminFetch(req).catch(() => denied())); return;
     }

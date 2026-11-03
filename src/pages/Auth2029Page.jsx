@@ -11,10 +11,10 @@ export default function Auth2029Page() {
   const location = useLocation();
   const target = safePreviewOAuthReturnPath(new URLSearchParams(location.search).get("returnTo") || "/2029");
   const returnTo = target;
-  useEffect(() => { applySeo({ title: "כניסה לחשבון", description: PUBLIC_READING_RELEASE ? "כניסה לחשבון קיים באתר." : "כניסה והרשמה לחשבון באתר.", path: "/login", noindex: true }); }, []);
+  useEffect(() => { applySeo({ title: "כניסה לחשבון", description: "כניסה והרשמה לחשבון באתר.", path: "/login", noindex: true }); }, []);
   return <Sod2029Shell surface="community" title="כניסה לחשבון" introVariant="none" status="חשבון" symbol="◎">
     <main className="sod29-auth" data-experience-surface="auth-2029" dir="rtl">
-      <header className="sod29-auth-intro"><span className="sod29-auth-eyebrow">{"החשבון שלכם באתר"}</span><h1>טוב לראות אתכם כאן</h1><p>{PUBLIC_READING_RELEASE ? "אפשר להיכנס לחשבון קיים. חלקים בבנייה פתוחים כרגע למנהל בלבד." : "השיחות, ההודעות והאזור האישי שלכם — באותו חשבון."}</p><Link className="sod29-auth-return" to={returnTo}>חזרה לגלישה ←</Link></header>
+      <header className="sod29-auth-intro"><span className="sod29-auth-eyebrow">{"החשבון שלכם באתר"}</span><h1>טוב לראות אתכם כאן</h1><p>{"השיחות, ההודעות והאזור האישי שלכם — באותו חשבון. חלקים בבנייה פתוחים למנהל בלבד."}</p><Link className="sod29-auth-return" to={returnTo}>חזרה לגלישה ←</Link></header>
       <AccountEntry2029 returnHref={returnTo} />
       <footer className="sod29-auth-footer">החשבון שלכם נשאר פרטי. פרופיל ציבורי מוצג רק בהתאם לבחירות שלכם.</footer>
     </main>

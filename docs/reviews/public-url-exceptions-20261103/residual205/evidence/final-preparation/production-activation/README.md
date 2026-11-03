@@ -1,5 +1,7 @@
 # Proposed staged Production-target review — no application or deployment
 
+**Current continuation:** the proposal patch is rebased over the same candidate's stable-preview Auth seam and existing-origin allowlist. The five affected isolated stage tests passed again; no stage guard was applied. The immutable exact deployment remains the stage boundary; its Preview-only Auth alias does not become an approved Production origin. Files in this folder are permanent; older /tmp references below describe the historical review. See `proposed-files.json` and `../../../four-completions.md`.
+
 Status: **PROPOSAL_ONLY / NOT_APPLIED / NO_DEPLOYMENT_AUTHORIZATION**.
 Base read: `957e4a6a7148f20cadd921303d8c9a86a8b6a7b5`, branch `gpt/2029-public-cutover-final-preparation-20261103`.
 

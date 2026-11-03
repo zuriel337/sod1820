@@ -1,0 +1,40 @@
+✔ functional OAuth has one exact verified callback for both providers and preserves local research context separately (3.632646ms)
+✔ returns to the initiating local route including its query, without an auth fragment (2.394061ms)
+✔ external, encoded, malformed and control-character targets cannot change origin (0.478055ms)
+✔ unverified previews fail before an OAuth request can be built (1.826705ms)
+✔ worker policy changed and exact callback alone consumes tab-bound PKCE (1.018968ms)
+✔ Google and Facebook share verified exact callback and reject unapproved Preview origins (0.563573ms)
+✔ emitted account transport admits existing login, new signup, verification and exact PKCE exchange (31.665343ms)
+✔ new Auth transport denies role/data injection, phone, arbitrary callback, recovery and non-PKCE grants (9.279446ms)
+✔ historical Preview Auth remains password-only unless explicitly opted in by this worker (0.786418ms)
+✔ explicit admin actions verify canonical JWT and exact own role before forwarding original request (8.001762ms)
+✔ anonymous/member/spoofed identity, stale role, JWT failure and transport failure cannot invoke action (9.916687ms)
+✔ no private role cache survives revocation or replacement; denied action never reaches endpoint (0.909897ms)
+✔ financial, shared flag, mail delivery and foreign writes remain unavailable even to admin (9.495808ms)
+✔ signed private media TUS requires verified admin JWT on every chunk; signature alone grants nothing (6.832586ms)
+✔ same-origin private adapter preserves only same-origin protection cookies; it independently verifies the current server principal (3.814006ms)
+✔ server private wrapper checks deployment, host, method and verified admin independently of worker (1.418731ms)
+✔ prepared full-account helper retains actual SDK PKCE shapes and exact callbacks, separately from current emitted restriction (15.678699ms)
+✔ existing publishable fallback is used only for verification; original target bearer is never replaced (3.545675ms)
+✔ public-reading reuses existing Auth without acquisition, while untrusted callback and metadata still fail closed (4.739552ms)
+✔ emitted OAuth navigation requires exact callback, genuine PKCE shape and bounded provider scopes before browser navigation (2.619518ms)
+✔ actual emitted worker admits only read-only verified WhatsApp association with server-verified matching JWT (19.879759ms)
+✔ exact clean source emits a frozen Preview-only receipt and admits only that runtime (1.049748ms)
+✔ build identity rejects missing or wrong platform fields, targets, source pins and dirty source (0.690228ms)
+✔ runtime receipt cannot be activated by environment alone, Production or copied deployment identity (0.183127ms)
+✔ only Preview's sole unstaged root config may equal the complete committed nested config (0.71104ms)
+✔ compiler rejects an absent, duplicate or malformed review mode/pin before compiling (493.138242ms)
+✔ generated receipt is statically traced into Node and Edge-compatible authorization; missing process fails closed (23.890089ms)
+✔ actual hosted adapters preserve old URLs/canonical metadata while review stays noindex and rejects spoofing (180.21473ms)
+✔ artifact root config cannot shadow the pinned review command; default package build stays dormant (2.201499ms)
+✔ default artifact records raw dirtiness without any platform materialization authority (0.923164ms)
+✔ stable Auth alias needs the exact generated Preview platform proof; canonical and unrelated aliases remain denied (5.157108ms)
+✔ 2029 page, Community and account panel delegate authentication to the canonical entry (2.73283ms)
+ℹ tests 32
+ℹ suites 0
+ℹ pass 32
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 859.488849

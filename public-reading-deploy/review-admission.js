@@ -4,6 +4,9 @@
 // No user request/header/query or shared site flag selects this mode.
 export const REVIEW_PROJECT_ID = "prj_43q7k7QFAcWnin1tcBjce5xOi7Cq";
 export const REVIEW_BRANCH = "gpt/2029-public-cutover-final-preparation-20261103";
+// Existing Git-branch alias in the same project, verified through Vercel.
+// A stable callback avoids a different Auth allowlist entry for every commit.
+export const REVIEW_AUTH_HOST = "sod1820-git-gpt-2029-public-cutover-f-7ce8ee-sod1820-s-projects.vercel.app";
 const sourceShaPattern = /^[0-9a-f]{40}$/;
 const deploymentPattern = /^dpl_[A-Za-z0-9]+$/;
 const hostPattern = /^sod1820-[a-z0-9]+-sod1820-s-projects\.vercel\.app$/;
@@ -50,6 +53,7 @@ export function protectedReviewBuildIdentity({ env, sourceSha, sourceDirty, requ
   return Object.freeze({ schema: 1, mode: "protected-preview-review", target: "preview",
     sourceSha, branch: REVIEW_BRANCH, projectId: REVIEW_PROJECT_ID,
     deploymentId: env.VERCEL_DEPLOYMENT_ID, host: env.VERCEL_URL,
+    ...(env.VERCEL_BRANCH_URL === REVIEW_AUTH_HOST ? { authHost: REVIEW_AUTH_HOST } : {}),
     productionAuthorized: false, indexingAuthorized: false });
 }
 export function protectedReviewRuntimeAuthorized(identity, env) {
@@ -60,5 +64,6 @@ export function protectedReviewRuntimeAuthorized(identity, env) {
     && identity.branch === env.VERCEL_GIT_COMMIT_REF
     && identity.sourceSha === env.VERCEL_GIT_COMMIT_SHA
     && identity.deploymentId === env.VERCEL_DEPLOYMENT_ID
-    && identity.host === env.VERCEL_URL;
+    && identity.host === env.VERCEL_URL
+    && (identity.authHost === undefined || identity.authHost === REVIEW_AUTH_HOST && env.VERCEL_BRANCH_URL === REVIEW_AUTH_HOST);
 }

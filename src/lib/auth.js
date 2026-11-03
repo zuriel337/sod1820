@@ -60,10 +60,10 @@ export async function requestEmailOtp(email, { shouldCreateUser = true } = {}) {
   // יוכל לשמור אותו ב-subscribers.acquisition — זה המסלול הדומיננטי (שער-האימות), שאין לו
   // גישה ל-localStorage בצד-השרת. אם הלכידה נכשלת — ההרשמה ממשיכה כרגיל (data ריק).
   let data = {};
-  // The shared new-account trigger still enrolls newsletter recipients. An
-  // existing account may log in; no caller can opt this deployment into signup.
-  const createUser = !PUBLIC_READING_RELEASE && shouldCreateUser;
-  if (createUser) {
+  // Reuse canonical Auth and its existing default signup policy. Public2029
+  // never supplies visitor/acquisition metadata, even for a newly created account.
+  const createUser = shouldCreateUser;
+  if (createUser && !PUBLIC_READING_RELEASE) {
     try { data = { acquisition: signupAttribution(), visitor_id: visitorId() }; } catch { data = {}; }
   }
   const { error } = await supabase.auth.signInWithOtp({

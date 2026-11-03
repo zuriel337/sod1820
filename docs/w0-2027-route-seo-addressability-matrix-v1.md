@@ -437,3 +437,8 @@ ZURIEL accepts the unverified freshness/media coverage risk for continuing prepa
 ### 8.8 — S2/health applied; new-account mail decision supersedes old A (3 November 2026)
 
 [Same transition table](reviews/url-continuity-plan-20261103/transition-matrix.md), F25/F26/F27/F30 only: approved shared migrations20261103175116/175126 are applied and their source/ACL/count/anonymous boundaries and four affected hosted routes verified. This is not a full S2/CP1/G4 seal. The user superseded identity-only A: a future verified new account receives site-updates by default with effective opt-out. The exact A2/B/D proposal passed22 isolated PostgreSQL groups, not live signup. Shared apply, truthful active signup notices (also Legacy), OAuth callback/owner acceptance remain pending. Existing account acceptance, original URLs/195 deferrals and backup-risk decision are retained; no site Production deployment. Canonical subscription ownerv22 records the decision only.
+
+
+### 8.9 — Auth continuity on the same candidate, not a new URL inventory
+
+אותהטבלהומלאיהכתובותנשמרים. חיבורGoogle/Facebook/OTPמחדשמשתמשבשרתAuthהקייםבלי עדכוןהעדפות. callbackPreviewקבועזקוקלאימותדשבורדוקבלהאמיתית. A2עתידיאינופררקוויזיטלכניסה; B/Dממתיניםבנפרד. [צעדי קבלה](reviews/public-url-exceptions-20261103/residual205/four-completions.md) ותוכניתהמעבר/חזרהבאותותיקהראיות, ללאProduction/G4או בקשותחשבוןחוזרות.

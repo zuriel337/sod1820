@@ -43,14 +43,8 @@ export function consumePreviewOAuthReturn(storage = globalThis.sessionStorage, n
 
 export function providerOAuthRequest({ provider = 'google', origin, returnTo = '/', integratedPreview = false, verifiedPreviewOrigins, functionalPreview = import.meta.env?.VITE_FUNCTIONAL_UNIFIED_PREVIEW === 'true' || PUBLIC_READING_RELEASE } = {}) {
   if (typeof provider !== 'string' || !/^[a-z][a-z0-9_]*$/.test(provider) || ['email', 'phone', 'anonymous'].includes(provider)) throw new Error('invalid_oauth_provider');
-  // Shared signup consent repair is still pending approval/application. OAuth
-  // cannot guarantee an existing account, even for a known provider. Preserve
-  // the prepared PKCE implementation but fail before the SDK starts a flow.
-  if (PUBLIC_READING_RELEASE) {
-    const error = new Error('AUTH_SIGNUP_CONSENT_PENDING');
-    error.code = 'AUTH_SIGNUP_CONSENT_PENDING';
-    throw error;
-  }
+  // Existing site signup policy remains server-owned. Exact trusted callback
+  // origins still gate OAuth; no caller can select a foreign return origin.
   const site = new URL(origin);
   if (!['https:', 'http:'].includes(site.protocol) || site.origin !== origin) {
     throw new Error('OAUTH_ORIGIN_INVALID');
