@@ -52,6 +52,10 @@ test('public reading routes preserve engine/action gates and exact source identi
     '/number/1820','/number/אחת%20ארבע','/books','/book/ahavat-torah','/codes','/codes/מחקר','/or-geula','/contact']) assert.equal(publicReadingPath(path),'public',path);
   for (const path of ['/code','/journey','/raziel','/heichal','/2029/me/unknown']) assert.equal(publicReadingPath(path),'closed',path);
   assert.equal(publicReadingPath('/2029/me/profile'),'account');
+  assert.equal(publicReadingPath('/community/researcher/me'),'account');
+  assert.equal(publicReadingContinuation('/me','?tab=messages&dm=owned&returnTo=%2Fworld','#thread'),'/2029/me/messages?tab=messages&dm=owned&returnTo=%2Fworld#thread');
+  assert.equal(publicReadingContinuation('/2029/me','','#saved'),'/2029/me/research#saved');
+  assert.equal(publicReadingContinuation('/me','?tab=unknown'),null);
   for (const path of ['/not/a/real/page','/category/x/y','/code/invented','/%ZZ']) assert.equal(publicReadingPath(path),'missing',path);
   assert.equal(publicReadingPath('/unknown-post'),'post-lookup');
   for (const key of ['lock_els','lock_life_journey','lock_raziel_site','lock_heichal','unknown']) assert.equal(publicReadingFeatureLock(key).enabled,true);

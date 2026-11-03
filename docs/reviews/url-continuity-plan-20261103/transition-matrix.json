@@ -469,11 +469,11 @@
   },
   {
     "id": "F25",
-    "old_address": "/profile; /community/researcher/me; /2029/me/:module",
+    "old_address": "/profile; /me[?tab=<known>]; /2029/me; /community/researcher/me; /2029/me/:module",
     "evidence": "writerPersonal2029; App2029",
     "meaning": "חשבון אישי קיים",
     "target_2029": "/profile → /2029/me/profile; /me/<מודול ידוע> → /2029/me/<מודול>; שמורים,פנקס,פרופיל ותיבות קיימות",
-    "verified_status": "7937f084: תוקנה חסימת חבר רגיל ושמירה/עריכה בבעלות; 18 מקרי דפדפן מלאכותיים עברו ב־390/1440. קבלת שני החשבונות האמיתיים נדחתה בידי המשתמש ופתוחה; אין קבלת Auth/RLS חי בכתיבה",
+    "verified_status": "7937f084: תוקנה חסימת חבר רגיל ושמירה/עריכה בבעלות; 18 מקרי דפדפן מלאכותיים עברו ב־390/1440. קבלת שני החשבונות האמיתיים נדחתה בידי המשתמש ופתוחה; אין קבלת Auth/RLS חי בכתיבה; קבלת ציבור/SW/זכוכיתc023:14 מקרים; הכניסה האמיתית עדיין פתוחה",
     "permissions": "JWT/RLS שלבעל החשבון; לא admin-only לכלקהילה",
     "parameters_anchors": "module,returnTo,hash",
     "acceptance": "כניסה/יציאה/החלפה/בידוד; פרופילציבורי נפרד",
@@ -488,7 +488,8 @@
     "personal_previous_checkpoint": {
       "verified_status": "יעד חשבון ברור; עדיין לא קבלת חבר רגיל/חשבון אמיתי; אין חשיפת מידע אישי",
       "target_2029": "/profile → /2029/me/profile; מודולים ידועים במצב ייעודי",
-      "treatment": "PARTIAL_ACCOUNT_ACCEPTANCE_OPEN"
+      "treatment": "PARTIAL_ACCOUNT_ACCEPTANCE_OPEN",
+      "old_address": "/profile; /community/researcher/me; /2029/me/:module"
     },
     "personal_evidence": "../personal-continuity-glass-number-20261103/README.md"
   },

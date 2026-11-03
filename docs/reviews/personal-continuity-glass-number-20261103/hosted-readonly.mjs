@@ -33,7 +33,8 @@ for(const width of [320,390,1440])for(const preset of ['dark','light','parchment
  for(const item of [metrics.header,metrics.dock]){assert.ok(item.backdrop.includes('blur(22px)'));assert.ok(item.background.includes('/ 0.06')||item.background.includes(', 0.06)'));}
  assert.ok(metrics.sw);await page.screenshot({path:out+'/glass-'+width+'-'+preset+'.png'});glassCase.passed=true;
 }
-await page.setViewportSize({width:390,height:900});await page.goto(origin+'/2029/me/notes');
+await page.setViewportSize({width:390,height:900});await page.goto(origin+'/me?tab=notes&returnTo=%2Fworld#private-return');
+await page.waitForURL(origin+'/2029/me/notes?tab=notes&returnTo=%2Fworld#private-return');
 await expect(page.getByRole('heading',{name:'צריך להתחבר כדי לראות את האזור האישי'})).toBeVisible();assert.equal(await page.getByLabel('ההערות שלי').count(),0);
 report.cases.push({name:'anonymous direct private route never exposes notebook',passed:true});
 for(const path of ['/number/1820','/number/'+encodeURIComponent('אחת ארבע שבע ושתיים')]){
