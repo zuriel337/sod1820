@@ -391,3 +391,15 @@ Coordination BEFORE: `5fbf9e75-b445-4da4-bf24-dfc485387b8f`; Doc37 §12.30.
 ### 8.2 Acceptance count correction · 3 November 2026
 
 [Complete inventory classification and its limits](reviews/public-acceptance-closure-20261103/README.md) supersedes the 33 application-alias count for total redirect coverage: 641 hosting/application redirects, including 258 unmatched target routes; 211 additional direct unmatched routes. No full HTTP acceptance or blanket missing-content waiver. Original inventory and post address contract unchanged.
+
+
+### 8.3 Exact source exceptions · 3 November 2026
+
+The existing transition table now references [per-original exception acceptance](reviews/public-url-exceptions-20261103/README.md).
+All469 unmatched candidates and2140 direct Post lookups are preserved:2352 exact-identity/route resolutions,
+48 intentionally closed,4 invalid,205 source-evidence gaps. This supersedes the current *unclassified* status
+of those rows, not the frozen33667 inventory or its earlier acceptance receipt. Exact source media, Post/embed
+and nested-category identity are separate from public admission and hosted browser acceptance. No fuzzy-title
+matching, blanket category redirect, draft publication, route-history rewrite or full-HTTP claim.
+193 audio sources,8 unmatched Post identities,3 external video references and one lecture remain individually
+listed with launch impact. No cutover or formal G4 closure follows from this bounded repair.

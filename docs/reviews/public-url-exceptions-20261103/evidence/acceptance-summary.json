@@ -1,0 +1,660 @@
+{
+  "runtimeSha": "7aabe127092e323d083df401227516e47909744b",
+  "browserCases": 50,
+  "passed": 50,
+  "widths": [
+    390,
+    1440
+  ],
+  "notAllInventoryBrowserAcceptance": true,
+  "realPublicContent": true,
+  "writes": 0,
+  "modelCalls": 0,
+  "httpAttachmentChains": {
+    "count": 242,
+    "passed": 242,
+    "testedSha": "e12f186866c8c568883771c30a92b75b7c9f1bf6",
+    "receipt": "e12f18-http-chains-and-partial.json",
+    "unchangedSourceReuse": [
+      {
+        "path": "public-reading-deploy/api/public-document.js",
+        "sha256": "0e7d36fe3dccf4b4e7a9dbe8f19d960693999eb98cb9e77fffaf461d2ea26f33",
+        "unchangedBetween": [
+          "e12f1868",
+          "7aabe127"
+        ]
+      },
+      {
+        "path": "public-reading-deploy/vercel.json",
+        "sha256": "01912d352dd77301a4963b5dbf2246f155972aa1b56bcc34c8f35c3b06a2e7ce",
+        "unchangedBetween": [
+          "e12f1868",
+          "7aabe127"
+        ]
+      },
+      {
+        "path": "api/og.js",
+        "sha256": "69248e90d8dc4acac0646bba910f992420e57be523ee5594a6a4b91d7f588906",
+        "unchangedBetween": [
+          "e12f1868",
+          "7aabe127"
+        ]
+      },
+      {
+        "path": "src/lib/publicReadingRelease2029.js",
+        "sha256": "21dcf57c65f9fecb9b4db07ca39a1dd1c779e9b4a6a9432b7cf6e574fbe95d64",
+        "unchangedBetween": [
+          "e12f1868",
+          "7aabe127"
+        ]
+      },
+      {
+        "path": "src/lib/research/publicPostSourceLinks2029.js",
+        "sha256": "a0ef372bb9079774c29ace2d29e3619761c6f0091a65c98ddaba6a2a68bc6e74",
+        "unchangedBetween": [
+          "e12f1868",
+          "7aabe127"
+        ]
+      },
+      {
+        "path": "src/lib/publicPostUrls.js",
+        "sha256": "4db3830e2e5f065302fdc06fb23f87297f31ceedad148f490b60e79800b5685e",
+        "unchangedBetween": [
+          "e12f1868",
+          "7aabe127"
+        ]
+      },
+      {
+        "path": "src/lib/research/publicPostBoundary.js",
+        "sha256": "8ea42da4d67ff72cc2d0041ba488764853507c01d5010c01090ce046d313e104",
+        "unchangedBetween": [
+          "e12f1868",
+          "7aabe127"
+        ]
+      }
+    ]
+  },
+  "history": [
+    "adcda8 initial:28pass/19fail; encoded literal routes/header failures identified",
+    "e12f18:242chain HTTP pass; browser source image overlap/hidden cover identified; stopped after bounded diagnostics, not a complete run",
+    "f6326:44pass/4fail; source-title/FrameState selectors were wrong, not a new source lookup failure",
+    "selector diagnostic:exact iframe identities passed; heading selector still incorrect; replaced with actual alert contract",
+    "7aabe:18/18 source arrival, refresh, Back/Forward/hash and corrected negative/source selectors; 32 unaffected family cases reused from f6326"
+  ],
+  "cases": [
+    {
+      "name": "image identity/lightbox/refresh 1259 sample 0",
+      "width": 390,
+      "passed": true,
+      "postId": 1259,
+      "mediaHref": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2015/11/4c674026c58d333f.jpg",
+      "finalUrl": "/%d7%90%d7%95%d7%91%d7%9e%d7%94-%d7%9e%d7%a9%d7%97%d7%a7-%d7%91%d7%a4%d7%94-%d7%a8%d7%9a-%d7%a2%d7%9d-%d7%99%d7%a9%d7%a8%d7%90%d7%9c-%d7%a9%d7%a0%d7%97%d7%a9%d7%95%d7%91-%d7%a9%d7%94%d7%95%d7%90-%d7%a0?sourceAttachment=%2F%D7%90%D7%95%D7%91%D7%9E%D7%94-%D7%9E%D7%A9%D7%97%D7%A7-%D7%91%D7%A4%D7%94-%D7%A8%D7%9A-%D7%A2%D7%9D-%D7%99%D7%A9%D7%A8%D7%90%D7%9C-%D7%A9%D7%A0%D7%97%D7%A9%D7%95%D7%91-%D7%A9%D7%94%D7%95%D7%90-%D7%A0%2F%D7%91%D7%A0%D7%99%D7%9E%D7%99%D7%9F-%D7%A0%D7%AA%D7%A0%D7%99%D7%94%D7%95-%D7%A4%D7%99%D7%A1%D7%91%D7%95%D7%A7&ref=a&ref=b",
+      "geometry": {
+        "viewport": 390,
+        "width": 375,
+        "sw": "/sw.js"
+      },
+      "testedSha": "7aabe127092e323d083df401227516e47909744b"
+    },
+    {
+      "name": "image identity/lightbox/refresh 1370 sample 1",
+      "width": 390,
+      "passed": true,
+      "postId": 1370,
+      "mediaHref": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2015/03/61a099b0e75f9e47.jpg",
+      "finalUrl": "/%d7%91%d7%92%d7%99%d7%9c-%d7%a9%d7%9c-%d7%97%d7%9e%d7%99%d7%a0%d7%90%d7%99-%d7%95%d7%91%d7%9e%d7%97%d7%9c%d7%aa%d7%95-%d7%99%d7%a9-%d7%a8%d7%9e%d7%96-%d7%91%d7%a8%d7%95%d7%a8-%d7%9c%d7%92%d7%90%d7%95?sourceAttachment=%2F%D7%91%D7%92%D7%99%D7%9C-%D7%A9%D7%9C-%D7%97%D7%9E%D7%99%D7%A0%D7%90%D7%99-%D7%95%D7%91%D7%9E%D7%97%D7%9C%D7%AA%D7%95-%D7%99%D7%A9-%D7%A8%D7%9E%D7%96-%D7%91%D7%A8%D7%95%D7%A8-%D7%9C%D7%92%D7%90%D7%95%2Fattachment%2F76&ref=a&ref=b",
+      "geometry": {
+        "viewport": 390,
+        "width": 375,
+        "sw": "/sw.js"
+      },
+      "testedSha": "7aabe127092e323d083df401227516e47909744b"
+    },
+    {
+      "name": "image identity/lightbox/refresh 1259 sample 2",
+      "width": 390,
+      "passed": true,
+      "postId": 1259,
+      "mediaHref": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2015/11/7c981cc821a2b6fd.jpg",
+      "finalUrl": "/%d7%90%d7%95%d7%91%d7%9e%d7%94-%d7%9e%d7%a9%d7%97%d7%a7-%d7%91%d7%a4%d7%94-%d7%a8%d7%9a-%d7%a2%d7%9d-%d7%99%d7%a9%d7%a8%d7%90%d7%9c-%d7%a9%d7%a0%d7%97%d7%a9%d7%95%d7%91-%d7%a9%d7%94%d7%95%d7%90-%d7%a0?sourceAttachment=%2F%D7%90%D7%95%D7%91%D7%9E%D7%94-%D7%9E%D7%A9%D7%97%D7%A7-%D7%91%D7%A4%D7%94-%D7%A8%D7%9A-%D7%A2%D7%9D-%D7%99%D7%A9%D7%A8%D7%90%D7%9C-%D7%A9%D7%A0%D7%97%D7%A9%D7%95%D7%91-%D7%A9%D7%94%D7%95%D7%90-%D7%A0%2Fshowimage&ref=a&ref=b",
+      "geometry": {
+        "viewport": 390,
+        "width": 375,
+        "sw": "/sw.js"
+      },
+      "testedSha": "7aabe127092e323d083df401227516e47909744b"
+    },
+    {
+      "name": "image identity/lightbox/refresh 1371 sample 3",
+      "width": 390,
+      "passed": true,
+      "postId": 1371,
+      "mediaHref": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2015/02/8df1e3d935bf5c07.jpg",
+      "finalUrl": "/%d7%9e%d7%a6%d7%99%d7%9c%d7%99%d7%9d-%d7%91%d7%99%d7%97%d7%93-%d7%90%d7%aa-%d7%a2%d7%9d-%d7%99%d7%a9%d7%a8%d7%90%d7%9c-%d7%9e%d7%92%d7%96%d7%a8%d7%95%d7%aa-%d7%a7%d7%a9%d7%95%d7%aa-%d7%95%d7%a8%d7%a2?sourceAttachment=%2F%D7%93%D7%A3-%D7%94%D7%91%D7%99%D7%AA%2F%D7%94%D7%92%D7%99%D7%A2-%D7%94%D7%96%D7%9E%D7%9F-%D7%9C%D7%A2%D7%A9%D7%95%D7%AA-%D7%AA%D7%A9%D7%95%D7%91%D7%94&ref=a&ref=b",
+      "geometry": {
+        "viewport": 390,
+        "width": 375,
+        "sw": "/sw.js"
+      },
+      "testedSha": "7aabe127092e323d083df401227516e47909744b"
+    },
+    {
+      "name": "image identity/lightbox/refresh 1395 sample 4",
+      "width": 390,
+      "passed": true,
+      "postId": 1395,
+      "mediaHref": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2014/10/6e9886fbb143fc08.jpg",
+      "finalUrl": "/%d7%90%d7%95%d7%91%d7%9e%d7%94-%d7%a0%d7%97%d7%a9?sourceAttachment=%2F%D7%90%D7%95%D7%91%D7%9E%D7%94-%D7%A0%D7%97%D7%A9%2F%D7%9C%D7%9B%D7%99%D7%93%D7%94-15&ref=a&ref=b",
+      "geometry": {
+        "viewport": 390,
+        "width": 375,
+        "sw": "/sw.js"
+      },
+      "testedSha": "7aabe127092e323d083df401227516e47909744b"
+    },
+    {
+      "name": "image identity/lightbox/refresh 138 sample 5",
+      "width": 390,
+      "passed": true,
+      "postId": 138,
+      "mediaHref": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2024/01/ba77fffbdfd9c64b.jpg",
+      "finalUrl": "/%d7%91%d7%99%d7%90%d7%aa-%d7%9e%d7%a9%d7%99%d7%97-%d7%a8%d7%9e%d7%96%d7%99-%d7%a4%d7%95%d7%a8%d7%99%d7%9d-%d7%aa%d7%a9%d7%a4%d7%93-%d7%a6%d7%a4%d7%a0%d7%99%d7%9d-%d7%95%d7%92%d7%99%d7%9e%d7%98?sourceAttachment=%2F%D7%91%D7%99%D7%90%D7%AA-%D7%9E%D7%A9%D7%99%D7%97-%D7%A8%D7%9E%D7%96%D7%99-%D7%A4%D7%95%D7%A8%D7%99%D7%9D-%D7%AA%D7%A9%D7%A4%D7%93-%D7%A6%D7%A4%D7%A0%D7%99%D7%9D-%D7%95%D7%92%D7%99%D7%9E%D7%98%2F%D7%A9%D7%A7%D7%95%D7%A4%D7%99%D7%AA1-4&ref=a&ref=b",
+      "geometry": {
+        "viewport": 390,
+        "width": 375,
+        "sw": "/sw.js"
+      },
+      "testedSha": "7aabe127092e323d083df401227516e47909744b"
+    },
+    {
+      "name": "same Post embed and no recursive source iframe",
+      "width": 390,
+      "passed": true,
+      "selfEmbedCount": 0,
+      "postId": 1323,
+      "testedSha": "f6326a656d0c6adaaa569578573694c7f673d414"
+    },
+    {
+      "name": "real source self-embed becomes its exact linked Post",
+      "width": 390,
+      "passed": true,
+      "postId": 1133,
+      "sourceLinks": [
+        "/%d7%9e%d7%94%d7%95%d7%aa-%d7%95%d7%90%d7%95%d7%a4%d7%99%d7%95-%d7%a9%d7%9c-%d7%94%d7%9e%d7%a9%d7%99%d7%97-%d7%a1%d7%93%d7%a8%d7%aa-%d7%94%d7%a8%d7%a6%d7%90%d7%95%d7%aa-%d7%97%d7%93%d7%a9%d7%94/",
+        "/%d7%a1%d7%95%d7%93-%d7%9e%d7%a9%d7%99%d7%97-%d7%91%d7%9f-%d7%99%d7%95%d7%a1%d7%a3-%d7%91%d7%99%d7%9e%d7%99%d7%a0%d7%95-%d7%a1%d7%95%d7%93-%d7%94%d7%97%d7%a9%d7%9e%d7%9c-%d7%90%d7%95%d7%93%d7%99/"
+      ],
+      "testedSha": "7aabe127092e323d083df401227516e47909744b"
+    },
+    {
+      "name": "exact nested category membership",
+      "width": 390,
+      "passed": true,
+      "headings": [
+        "גלריות גימטריה"
+      ],
+      "finalUrl": "/category/%D7%92%D7%9C%D7%A8%D7%99%D7%95%D7%AA-%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94?page=1#list",
+      "testedSha": "f6326a656d0c6adaaa569578573694c7f673d414"
+    },
+    {
+      "name": "verified existing Posts filter and exact return",
+      "width": 390,
+      "passed": true,
+      "href": "/post/matrix-506",
+      "postId": "5003",
+      "reads": [
+        {
+          "origin": "https://linswmnnkjxvweumprav.supabase.co",
+          "path": "/rest/v1/posts",
+          "method": "GET",
+          "suggestionFilter": null,
+          "status": 200
+        },
+        {
+          "origin": "https://linswmnnkjxvweumprav.supabase.co",
+          "path": "/rest/v1/posts",
+          "method": "GET",
+          "suggestionFilter": null,
+          "status": 200
+        },
+        {
+          "origin": "https://linswmnnkjxvweumprav.supabase.co",
+          "path": "/rest/v1/posts",
+          "method": "GET",
+          "suggestionFilter": null,
+          "status": 200
+        },
+        {
+          "origin": "https://linswmnnkjxvweumprav.supabase.co",
+          "path": "/rest/v1/posts",
+          "method": "GET",
+          "suggestionFilter": null
+        },
+        {
+          "origin": "https://linswmnnkjxvweumprav.supabase.co",
+          "path": "/rest/v1/posts",
+          "method": "GET",
+          "suggestionFilter": null
+        },
+        {
+          "origin": "https://linswmnnkjxvweumprav.supabase.co",
+          "path": "/rest/v1/posts",
+          "method": "GET",
+          "suggestionFilter": null
+        }
+      ],
+      "testedSha": "f6326a656d0c6adaaa569578573694c7f673d414"
+    },
+    {
+      "name": "named continuation /editor",
+      "width": 390,
+      "passed": true,
+      "headings": [
+        "עריכת פוסטים"
+      ],
+      "testedSha": "f6326a656d0c6adaaa569578573694c7f673d414"
+    },
+    {
+      "name": "named continuation /research-viewer",
+      "width": 390,
+      "passed": true,
+      "headings": [
+        "מציג המחקר הפרטי"
+      ],
+      "testedSha": "f6326a656d0c6adaaa569578573694c7f673d414"
+    },
+    {
+      "name": "named continuation /sulamot11",
+      "width": 390,
+      "passed": true,
+      "headings": [
+        "ניסוי הסולמות"
+      ],
+      "testedSha": "f6326a656d0c6adaaa569578573694c7f673d414"
+    },
+    {
+      "name": "named continuation /צור-קשר/טופס-הזמנת-עלונים-ודיסקים/",
+      "width": 390,
+      "passed": true,
+      "headings": [
+        "הזמנת עלונים ודיסקים"
+      ],
+      "testedSha": "f6326a656d0c6adaaa569578573694c7f673d414"
+    },
+    {
+      "name": "named continuation /464378687028017/videos/vb.464378687028017/727568620709021/",
+      "width": 390,
+      "passed": true,
+      "headings": [
+        "סרטון המקור בפייסבוק"
+      ],
+      "testedSha": "f6326a656d0c6adaaa569578573694c7f673d414"
+    },
+    {
+      "name": "existing route alias /WORLD?ref=a&ref=b#x",
+      "width": 390,
+      "passed": true,
+      "finalPath": "/world",
+      "testedSha": "f6326a656d0c6adaaa569578573694c7f673d414"
+    },
+    {
+      "name": "existing route alias /home-classic?ref=old",
+      "width": 390,
+      "passed": true,
+      "finalPath": "/",
+      "testedSha": "f6326a656d0c6adaaa569578573694c7f673d414"
+    },
+    {
+      "name": "real HTTP missing /old/attachment/999999",
+      "width": 390,
+      "passed": true,
+      "heading": [
+        "העמוד לא נמצא"
+      ],
+      "testedSha": "f6326a656d0c6adaaa569578573694c7f673d414"
+    },
+    {
+      "name": "real HTTP missing /*",
+      "width": 390,
+      "passed": true,
+      "heading": [
+        "העמוד לא נמצא"
+      ],
+      "testedSha": "f6326a656d0c6adaaa569578573694c7f673d414"
+    },
+    {
+      "name": "real HTTP missing /SLUG",
+      "width": 390,
+      "passed": true,
+      "heading": [
+        "העמוד לא נמצא"
+      ],
+      "testedSha": "f6326a656d0c6adaaa569578573694c7f673d414"
+    },
+    {
+      "name": "real HTTP missing /category/סוד-האותיות/unknown",
+      "width": 390,
+      "passed": true,
+      "heading": [
+        "העמוד לא נמצא"
+      ],
+      "testedSha": "f6326a656d0c6adaaa569578573694c7f673d414"
+    },
+    {
+      "name": "real HTTP missing /lemi-ata-neeman-ot-umofet",
+      "width": 390,
+      "passed": true,
+      "heading": [],
+      "testedSha": "7aabe127092e323d083df401227516e47909744b"
+    },
+    {
+      "name": "missing audio is 404 non-HTML bytes",
+      "width": 390,
+      "passed": true,
+      "status": 404,
+      "type": "text/plain; charset=utf-8",
+      "testedSha": "f6326a656d0c6adaaa569578573694c7f673d414"
+    },
+    {
+      "name": "forged source selector remains missing",
+      "width": 390,
+      "passed": true,
+      "retainedPublicPostId": 1259,
+      "testedSha": "f6326a656d0c6adaaa569578573694c7f673d414"
+    },
+    {
+      "name": "image identity/lightbox/refresh 1259 sample 0",
+      "width": 1440,
+      "passed": true,
+      "postId": 1259,
+      "mediaHref": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2015/11/4c674026c58d333f.jpg",
+      "finalUrl": "/%d7%90%d7%95%d7%91%d7%9e%d7%94-%d7%9e%d7%a9%d7%97%d7%a7-%d7%91%d7%a4%d7%94-%d7%a8%d7%9a-%d7%a2%d7%9d-%d7%99%d7%a9%d7%a8%d7%90%d7%9c-%d7%a9%d7%a0%d7%97%d7%a9%d7%95%d7%91-%d7%a9%d7%94%d7%95%d7%90-%d7%a0?sourceAttachment=%2F%D7%90%D7%95%D7%91%D7%9E%D7%94-%D7%9E%D7%A9%D7%97%D7%A7-%D7%91%D7%A4%D7%94-%D7%A8%D7%9A-%D7%A2%D7%9D-%D7%99%D7%A9%D7%A8%D7%90%D7%9C-%D7%A9%D7%A0%D7%97%D7%A9%D7%95%D7%91-%D7%A9%D7%94%D7%95%D7%90-%D7%A0%2F%D7%91%D7%A0%D7%99%D7%9E%D7%99%D7%9F-%D7%A0%D7%AA%D7%A0%D7%99%D7%94%D7%95-%D7%A4%D7%99%D7%A1%D7%91%D7%95%D7%A7&ref=a&ref=b",
+      "geometry": {
+        "viewport": 1440,
+        "width": 1425,
+        "sw": "/sw.js"
+      },
+      "testedSha": "7aabe127092e323d083df401227516e47909744b"
+    },
+    {
+      "name": "image identity/lightbox/refresh 1370 sample 1",
+      "width": 1440,
+      "passed": true,
+      "postId": 1370,
+      "mediaHref": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2015/03/61a099b0e75f9e47.jpg",
+      "finalUrl": "/%d7%91%d7%92%d7%99%d7%9c-%d7%a9%d7%9c-%d7%97%d7%9e%d7%99%d7%a0%d7%90%d7%99-%d7%95%d7%91%d7%9e%d7%97%d7%9c%d7%aa%d7%95-%d7%99%d7%a9-%d7%a8%d7%9e%d7%96-%d7%91%d7%a8%d7%95%d7%a8-%d7%9c%d7%92%d7%90%d7%95?sourceAttachment=%2F%D7%91%D7%92%D7%99%D7%9C-%D7%A9%D7%9C-%D7%97%D7%9E%D7%99%D7%A0%D7%90%D7%99-%D7%95%D7%91%D7%9E%D7%97%D7%9C%D7%AA%D7%95-%D7%99%D7%A9-%D7%A8%D7%9E%D7%96-%D7%91%D7%A8%D7%95%D7%A8-%D7%9C%D7%92%D7%90%D7%95%2Fattachment%2F76&ref=a&ref=b",
+      "geometry": {
+        "viewport": 1440,
+        "width": 1425,
+        "sw": "/sw.js"
+      },
+      "testedSha": "7aabe127092e323d083df401227516e47909744b"
+    },
+    {
+      "name": "image identity/lightbox/refresh 1259 sample 2",
+      "width": 1440,
+      "passed": true,
+      "postId": 1259,
+      "mediaHref": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2015/11/7c981cc821a2b6fd.jpg",
+      "finalUrl": "/%d7%90%d7%95%d7%91%d7%9e%d7%94-%d7%9e%d7%a9%d7%97%d7%a7-%d7%91%d7%a4%d7%94-%d7%a8%d7%9a-%d7%a2%d7%9d-%d7%99%d7%a9%d7%a8%d7%90%d7%9c-%d7%a9%d7%a0%d7%97%d7%a9%d7%95%d7%91-%d7%a9%d7%94%d7%95%d7%90-%d7%a0?sourceAttachment=%2F%D7%90%D7%95%D7%91%D7%9E%D7%94-%D7%9E%D7%A9%D7%97%D7%A7-%D7%91%D7%A4%D7%94-%D7%A8%D7%9A-%D7%A2%D7%9D-%D7%99%D7%A9%D7%A8%D7%90%D7%9C-%D7%A9%D7%A0%D7%97%D7%A9%D7%95%D7%91-%D7%A9%D7%94%D7%95%D7%90-%D7%A0%2Fshowimage&ref=a&ref=b",
+      "geometry": {
+        "viewport": 1440,
+        "width": 1425,
+        "sw": "/sw.js"
+      },
+      "testedSha": "7aabe127092e323d083df401227516e47909744b"
+    },
+    {
+      "name": "image identity/lightbox/refresh 1371 sample 3",
+      "width": 1440,
+      "passed": true,
+      "postId": 1371,
+      "mediaHref": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2015/02/8df1e3d935bf5c07.jpg",
+      "finalUrl": "/%d7%9e%d7%a6%d7%99%d7%9c%d7%99%d7%9d-%d7%91%d7%99%d7%97%d7%93-%d7%90%d7%aa-%d7%a2%d7%9d-%d7%99%d7%a9%d7%a8%d7%90%d7%9c-%d7%9e%d7%92%d7%96%d7%a8%d7%95%d7%aa-%d7%a7%d7%a9%d7%95%d7%aa-%d7%95%d7%a8%d7%a2?sourceAttachment=%2F%D7%93%D7%A3-%D7%94%D7%91%D7%99%D7%AA%2F%D7%94%D7%92%D7%99%D7%A2-%D7%94%D7%96%D7%9E%D7%9F-%D7%9C%D7%A2%D7%A9%D7%95%D7%AA-%D7%AA%D7%A9%D7%95%D7%91%D7%94&ref=a&ref=b",
+      "geometry": {
+        "viewport": 1440,
+        "width": 1425,
+        "sw": "/sw.js"
+      },
+      "testedSha": "7aabe127092e323d083df401227516e47909744b"
+    },
+    {
+      "name": "image identity/lightbox/refresh 1395 sample 4",
+      "width": 1440,
+      "passed": true,
+      "postId": 1395,
+      "mediaHref": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2014/10/6e9886fbb143fc08.jpg",
+      "finalUrl": "/%d7%90%d7%95%d7%91%d7%9e%d7%94-%d7%a0%d7%97%d7%a9?sourceAttachment=%2F%D7%90%D7%95%D7%91%D7%9E%D7%94-%D7%A0%D7%97%D7%A9%2F%D7%9C%D7%9B%D7%99%D7%93%D7%94-15&ref=a&ref=b",
+      "geometry": {
+        "viewport": 1440,
+        "width": 1425,
+        "sw": "/sw.js"
+      },
+      "testedSha": "7aabe127092e323d083df401227516e47909744b"
+    },
+    {
+      "name": "image identity/lightbox/refresh 138 sample 5",
+      "width": 1440,
+      "passed": true,
+      "postId": 138,
+      "mediaHref": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2024/01/ba77fffbdfd9c64b.jpg",
+      "finalUrl": "/%d7%91%d7%99%d7%90%d7%aa-%d7%9e%d7%a9%d7%99%d7%97-%d7%a8%d7%9e%d7%96%d7%99-%d7%a4%d7%95%d7%a8%d7%99%d7%9d-%d7%aa%d7%a9%d7%a4%d7%93-%d7%a6%d7%a4%d7%a0%d7%99%d7%9d-%d7%95%d7%92%d7%99%d7%9e%d7%98?sourceAttachment=%2F%D7%91%D7%99%D7%90%D7%AA-%D7%9E%D7%A9%D7%99%D7%97-%D7%A8%D7%9E%D7%96%D7%99-%D7%A4%D7%95%D7%A8%D7%99%D7%9D-%D7%AA%D7%A9%D7%A4%D7%93-%D7%A6%D7%A4%D7%A0%D7%99%D7%9D-%D7%95%D7%92%D7%99%D7%9E%D7%98%2F%D7%A9%D7%A7%D7%95%D7%A4%D7%99%D7%AA1-4&ref=a&ref=b",
+      "geometry": {
+        "viewport": 1440,
+        "width": 1425,
+        "sw": "/sw.js"
+      },
+      "testedSha": "7aabe127092e323d083df401227516e47909744b"
+    },
+    {
+      "name": "same Post embed and no recursive source iframe",
+      "width": 1440,
+      "passed": true,
+      "selfEmbedCount": 0,
+      "postId": 1323,
+      "testedSha": "f6326a656d0c6adaaa569578573694c7f673d414"
+    },
+    {
+      "name": "real source self-embed becomes its exact linked Post",
+      "width": 1440,
+      "passed": true,
+      "postId": 1133,
+      "sourceLinks": [
+        "/%d7%9e%d7%94%d7%95%d7%aa-%d7%95%d7%90%d7%95%d7%a4%d7%99%d7%95-%d7%a9%d7%9c-%d7%94%d7%9e%d7%a9%d7%99%d7%97-%d7%a1%d7%93%d7%a8%d7%aa-%d7%94%d7%a8%d7%a6%d7%90%d7%95%d7%aa-%d7%97%d7%93%d7%a9%d7%94/",
+        "/%d7%a1%d7%95%d7%93-%d7%9e%d7%a9%d7%99%d7%97-%d7%91%d7%9f-%d7%99%d7%95%d7%a1%d7%a3-%d7%91%d7%99%d7%9e%d7%99%d7%a0%d7%95-%d7%a1%d7%95%d7%93-%d7%94%d7%97%d7%a9%d7%9e%d7%9c-%d7%90%d7%95%d7%93%d7%99/"
+      ],
+      "testedSha": "7aabe127092e323d083df401227516e47909744b"
+    },
+    {
+      "name": "exact nested category membership",
+      "width": 1440,
+      "passed": true,
+      "headings": [
+        "גלריות גימטריה"
+      ],
+      "finalUrl": "/category/%D7%92%D7%9C%D7%A8%D7%99%D7%95%D7%AA-%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94?page=1#list",
+      "testedSha": "f6326a656d0c6adaaa569578573694c7f673d414"
+    },
+    {
+      "name": "verified existing Posts filter and exact return",
+      "width": 1440,
+      "passed": true,
+      "href": "/post/matrix-506",
+      "postId": "5003",
+      "reads": [
+        {
+          "origin": "https://linswmnnkjxvweumprav.supabase.co",
+          "path": "/rest/v1/posts",
+          "method": "GET",
+          "suggestionFilter": null,
+          "status": 200
+        },
+        {
+          "origin": "https://linswmnnkjxvweumprav.supabase.co",
+          "path": "/rest/v1/posts",
+          "method": "GET",
+          "suggestionFilter": null,
+          "status": 200
+        },
+        {
+          "origin": "https://linswmnnkjxvweumprav.supabase.co",
+          "path": "/rest/v1/posts",
+          "method": "GET",
+          "suggestionFilter": null,
+          "status": 200
+        },
+        {
+          "origin": "https://linswmnnkjxvweumprav.supabase.co",
+          "path": "/rest/v1/posts",
+          "method": "GET",
+          "suggestionFilter": null
+        },
+        {
+          "origin": "https://linswmnnkjxvweumprav.supabase.co",
+          "path": "/rest/v1/posts",
+          "method": "GET",
+          "suggestionFilter": null
+        },
+        {
+          "origin": "https://linswmnnkjxvweumprav.supabase.co",
+          "path": "/rest/v1/posts",
+          "method": "GET",
+          "suggestionFilter": null
+        }
+      ],
+      "testedSha": "f6326a656d0c6adaaa569578573694c7f673d414"
+    },
+    {
+      "name": "named continuation /editor",
+      "width": 1440,
+      "passed": true,
+      "headings": [
+        "עריכת פוסטים"
+      ],
+      "testedSha": "f6326a656d0c6adaaa569578573694c7f673d414"
+    },
+    {
+      "name": "named continuation /research-viewer",
+      "width": 1440,
+      "passed": true,
+      "headings": [
+        "מציג המחקר הפרטי"
+      ],
+      "testedSha": "f6326a656d0c6adaaa569578573694c7f673d414"
+    },
+    {
+      "name": "named continuation /sulamot11",
+      "width": 1440,
+      "passed": true,
+      "headings": [
+        "ניסוי הסולמות"
+      ],
+      "testedSha": "f6326a656d0c6adaaa569578573694c7f673d414"
+    },
+    {
+      "name": "named continuation /צור-קשר/טופס-הזמנת-עלונים-ודיסקים/",
+      "width": 1440,
+      "passed": true,
+      "headings": [
+        "הזמנת עלונים ודיסקים"
+      ],
+      "testedSha": "f6326a656d0c6adaaa569578573694c7f673d414"
+    },
+    {
+      "name": "named continuation /464378687028017/videos/vb.464378687028017/727568620709021/",
+      "width": 1440,
+      "passed": true,
+      "headings": [
+        "סרטון המקור בפייסבוק"
+      ],
+      "testedSha": "f6326a656d0c6adaaa569578573694c7f673d414"
+    },
+    {
+      "name": "existing route alias /WORLD?ref=a&ref=b#x",
+      "width": 1440,
+      "passed": true,
+      "finalPath": "/world",
+      "testedSha": "f6326a656d0c6adaaa569578573694c7f673d414"
+    },
+    {
+      "name": "existing route alias /home-classic?ref=old",
+      "width": 1440,
+      "passed": true,
+      "finalPath": "/",
+      "testedSha": "f6326a656d0c6adaaa569578573694c7f673d414"
+    },
+    {
+      "name": "real HTTP missing /old/attachment/999999",
+      "width": 1440,
+      "passed": true,
+      "heading": [
+        "העמוד לא נמצא"
+      ],
+      "testedSha": "f6326a656d0c6adaaa569578573694c7f673d414"
+    },
+    {
+      "name": "real HTTP missing /*",
+      "width": 1440,
+      "passed": true,
+      "heading": [
+        "העמוד לא נמצא"
+      ],
+      "testedSha": "f6326a656d0c6adaaa569578573694c7f673d414"
+    },
+    {
+      "name": "real HTTP missing /SLUG",
+      "width": 1440,
+      "passed": true,
+      "heading": [
+        "העמוד לא נמצא"
+      ],
+      "testedSha": "f6326a656d0c6adaaa569578573694c7f673d414"
+    },
+    {
+      "name": "real HTTP missing /category/סוד-האותיות/unknown",
+      "width": 1440,
+      "passed": true,
+      "heading": [
+        "העמוד לא נמצא"
+      ],
+      "testedSha": "f6326a656d0c6adaaa569578573694c7f673d414"
+    },
+    {
+      "name": "real HTTP missing /lemi-ata-neeman-ot-umofet",
+      "width": 1440,
+      "passed": true,
+      "heading": [],
+      "testedSha": "7aabe127092e323d083df401227516e47909744b"
+    },
+    {
+      "name": "missing audio is 404 non-HTML bytes",
+      "width": 1440,
+      "passed": true,
+      "status": 404,
+      "type": "text/plain; charset=utf-8",
+      "testedSha": "f6326a656d0c6adaaa569578573694c7f673d414"
+    },
+    {
+      "name": "forged source selector remains missing",
+      "width": 1440,
+      "passed": true,
+      "retainedPublicPostId": 1259,
+      "testedSha": "f6326a656d0c6adaaa569578573694c7f673d414"
+    },
+    {
+      "name": "selected image Back Forward and native hash precedence",
+      "width": 390,
+      "passed": true,
+      "hash": "#post-story",
+      "sourceTop": 0.03125,
+      "testedSha": "7aabe127092e323d083df401227516e47909744b"
+    },
+    {
+      "name": "selected image Back Forward and native hash precedence",
+      "width": 1440,
+      "passed": true,
+      "hash": "#post-story",
+      "sourceTop": 0.1875,
+      "testedSha": "7aabe127092e323d083df401227516e47909744b"
+    }
+  ]
+}

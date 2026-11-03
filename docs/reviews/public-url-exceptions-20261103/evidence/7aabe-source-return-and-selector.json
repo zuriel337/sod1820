@@ -1,0 +1,2128 @@
+{
+  "kind": "public-url-exceptions-hosted-acceptance",
+  "acceptance": true,
+  "productSha": "7aabe127092e323d083df401227516e47909744b",
+  "origin": "https://sod1820-egsv19dt4-sod1820-s-projects.vercel.app",
+  "actualSW": true,
+  "performanceComparison": false,
+  "liveLogin": false,
+  "liveSignup": false,
+  "liveUnsubscribe": false,
+  "mailSent": false,
+  "sameIndependentRPCReadInventory": "plus existing stable read-only community RPCs; no writes",
+  "syntheticData": false,
+  "cases": [
+    {
+      "name": "image identity/lightbox/refresh 1259 sample 0",
+      "width": 390,
+      "passed": true,
+      "postId": 1259,
+      "mediaHref": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2015/11/4c674026c58d333f.jpg",
+      "finalUrl": "/%d7%90%d7%95%d7%91%d7%9e%d7%94-%d7%9e%d7%a9%d7%97%d7%a7-%d7%91%d7%a4%d7%94-%d7%a8%d7%9a-%d7%a2%d7%9d-%d7%99%d7%a9%d7%a8%d7%90%d7%9c-%d7%a9%d7%a0%d7%97%d7%a9%d7%95%d7%91-%d7%a9%d7%94%d7%95%d7%90-%d7%a0?sourceAttachment=%2F%D7%90%D7%95%D7%91%D7%9E%D7%94-%D7%9E%D7%A9%D7%97%D7%A7-%D7%91%D7%A4%D7%94-%D7%A8%D7%9A-%D7%A2%D7%9D-%D7%99%D7%A9%D7%A8%D7%90%D7%9C-%D7%A9%D7%A0%D7%97%D7%A9%D7%95%D7%91-%D7%A9%D7%94%D7%95%D7%90-%D7%A0%2F%D7%91%D7%A0%D7%99%D7%9E%D7%99%D7%9F-%D7%A0%D7%AA%D7%A0%D7%99%D7%94%D7%95-%D7%A4%D7%99%D7%A1%D7%91%D7%95%D7%A7&ref=a&ref=b",
+      "geometry": {
+        "viewport": 390,
+        "width": 375,
+        "sw": "/sw.js"
+      }
+    },
+    {
+      "name": "image identity/lightbox/refresh 1370 sample 1",
+      "width": 390,
+      "passed": true,
+      "postId": 1370,
+      "mediaHref": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2015/03/61a099b0e75f9e47.jpg",
+      "finalUrl": "/%d7%91%d7%92%d7%99%d7%9c-%d7%a9%d7%9c-%d7%97%d7%9e%d7%99%d7%a0%d7%90%d7%99-%d7%95%d7%91%d7%9e%d7%97%d7%9c%d7%aa%d7%95-%d7%99%d7%a9-%d7%a8%d7%9e%d7%96-%d7%91%d7%a8%d7%95%d7%a8-%d7%9c%d7%92%d7%90%d7%95?sourceAttachment=%2F%D7%91%D7%92%D7%99%D7%9C-%D7%A9%D7%9C-%D7%97%D7%9E%D7%99%D7%A0%D7%90%D7%99-%D7%95%D7%91%D7%9E%D7%97%D7%9C%D7%AA%D7%95-%D7%99%D7%A9-%D7%A8%D7%9E%D7%96-%D7%91%D7%A8%D7%95%D7%A8-%D7%9C%D7%92%D7%90%D7%95%2Fattachment%2F76&ref=a&ref=b",
+      "geometry": {
+        "viewport": 390,
+        "width": 375,
+        "sw": "/sw.js"
+      }
+    },
+    {
+      "name": "image identity/lightbox/refresh 1259 sample 2",
+      "width": 390,
+      "passed": true,
+      "postId": 1259,
+      "mediaHref": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2015/11/7c981cc821a2b6fd.jpg",
+      "finalUrl": "/%d7%90%d7%95%d7%91%d7%9e%d7%94-%d7%9e%d7%a9%d7%97%d7%a7-%d7%91%d7%a4%d7%94-%d7%a8%d7%9a-%d7%a2%d7%9d-%d7%99%d7%a9%d7%a8%d7%90%d7%9c-%d7%a9%d7%a0%d7%97%d7%a9%d7%95%d7%91-%d7%a9%d7%94%d7%95%d7%90-%d7%a0?sourceAttachment=%2F%D7%90%D7%95%D7%91%D7%9E%D7%94-%D7%9E%D7%A9%D7%97%D7%A7-%D7%91%D7%A4%D7%94-%D7%A8%D7%9A-%D7%A2%D7%9D-%D7%99%D7%A9%D7%A8%D7%90%D7%9C-%D7%A9%D7%A0%D7%97%D7%A9%D7%95%D7%91-%D7%A9%D7%94%D7%95%D7%90-%D7%A0%2Fshowimage&ref=a&ref=b",
+      "geometry": {
+        "viewport": 390,
+        "width": 375,
+        "sw": "/sw.js"
+      }
+    },
+    {
+      "name": "image identity/lightbox/refresh 1371 sample 3",
+      "width": 390,
+      "passed": true,
+      "postId": 1371,
+      "mediaHref": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2015/02/8df1e3d935bf5c07.jpg",
+      "finalUrl": "/%d7%9e%d7%a6%d7%99%d7%9c%d7%99%d7%9d-%d7%91%d7%99%d7%97%d7%93-%d7%90%d7%aa-%d7%a2%d7%9d-%d7%99%d7%a9%d7%a8%d7%90%d7%9c-%d7%9e%d7%92%d7%96%d7%a8%d7%95%d7%aa-%d7%a7%d7%a9%d7%95%d7%aa-%d7%95%d7%a8%d7%a2?sourceAttachment=%2F%D7%93%D7%A3-%D7%94%D7%91%D7%99%D7%AA%2F%D7%94%D7%92%D7%99%D7%A2-%D7%94%D7%96%D7%9E%D7%9F-%D7%9C%D7%A2%D7%A9%D7%95%D7%AA-%D7%AA%D7%A9%D7%95%D7%91%D7%94&ref=a&ref=b",
+      "geometry": {
+        "viewport": 390,
+        "width": 375,
+        "sw": "/sw.js"
+      }
+    },
+    {
+      "name": "image identity/lightbox/refresh 1395 sample 4",
+      "width": 390,
+      "passed": true,
+      "postId": 1395,
+      "mediaHref": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2014/10/6e9886fbb143fc08.jpg",
+      "finalUrl": "/%d7%90%d7%95%d7%91%d7%9e%d7%94-%d7%a0%d7%97%d7%a9?sourceAttachment=%2F%D7%90%D7%95%D7%91%D7%9E%D7%94-%D7%A0%D7%97%D7%A9%2F%D7%9C%D7%9B%D7%99%D7%93%D7%94-15&ref=a&ref=b",
+      "geometry": {
+        "viewport": 390,
+        "width": 375,
+        "sw": "/sw.js"
+      }
+    },
+    {
+      "name": "image identity/lightbox/refresh 138 sample 5",
+      "width": 390,
+      "passed": true,
+      "postId": 138,
+      "mediaHref": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2024/01/ba77fffbdfd9c64b.jpg",
+      "finalUrl": "/%d7%91%d7%99%d7%90%d7%aa-%d7%9e%d7%a9%d7%99%d7%97-%d7%a8%d7%9e%d7%96%d7%99-%d7%a4%d7%95%d7%a8%d7%99%d7%9d-%d7%aa%d7%a9%d7%a4%d7%93-%d7%a6%d7%a4%d7%a0%d7%99%d7%9d-%d7%95%d7%92%d7%99%d7%9e%d7%98?sourceAttachment=%2F%D7%91%D7%99%D7%90%D7%AA-%D7%9E%D7%A9%D7%99%D7%97-%D7%A8%D7%9E%D7%96%D7%99-%D7%A4%D7%95%D7%A8%D7%99%D7%9D-%D7%AA%D7%A9%D7%A4%D7%93-%D7%A6%D7%A4%D7%A0%D7%99%D7%9D-%D7%95%D7%92%D7%99%D7%9E%D7%98%2F%D7%A9%D7%A7%D7%95%D7%A4%D7%99%D7%AA1-4&ref=a&ref=b",
+      "geometry": {
+        "viewport": 390,
+        "width": 375,
+        "sw": "/sw.js"
+      }
+    },
+    {
+      "name": "selected image Back Forward and native hash precedence",
+      "width": 390,
+      "passed": true,
+      "hash": "#post-story",
+      "sourceTop": 0.03125
+    },
+    {
+      "name": "real source self-embed becomes its exact linked Post",
+      "width": 390,
+      "passed": true,
+      "postId": 1133,
+      "sourceLinks": [
+        "/%d7%9e%d7%94%d7%95%d7%aa-%d7%95%d7%90%d7%95%d7%a4%d7%99%d7%95-%d7%a9%d7%9c-%d7%94%d7%9e%d7%a9%d7%99%d7%97-%d7%a1%d7%93%d7%a8%d7%aa-%d7%94%d7%a8%d7%a6%d7%90%d7%95%d7%aa-%d7%97%d7%93%d7%a9%d7%94/",
+        "/%d7%a1%d7%95%d7%93-%d7%9e%d7%a9%d7%99%d7%97-%d7%91%d7%9f-%d7%99%d7%95%d7%a1%d7%a3-%d7%91%d7%99%d7%9e%d7%99%d7%a0%d7%95-%d7%a1%d7%95%d7%93-%d7%94%d7%97%d7%a9%d7%9e%d7%9c-%d7%90%d7%95%d7%93%d7%99/"
+      ]
+    },
+    {
+      "name": "real HTTP missing /lemi-ata-neeman-ot-umofet",
+      "width": 390,
+      "passed": true,
+      "heading": []
+    },
+    {
+      "name": "image identity/lightbox/refresh 1259 sample 0",
+      "width": 1440,
+      "passed": true,
+      "postId": 1259,
+      "mediaHref": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2015/11/4c674026c58d333f.jpg",
+      "finalUrl": "/%d7%90%d7%95%d7%91%d7%9e%d7%94-%d7%9e%d7%a9%d7%97%d7%a7-%d7%91%d7%a4%d7%94-%d7%a8%d7%9a-%d7%a2%d7%9d-%d7%99%d7%a9%d7%a8%d7%90%d7%9c-%d7%a9%d7%a0%d7%97%d7%a9%d7%95%d7%91-%d7%a9%d7%94%d7%95%d7%90-%d7%a0?sourceAttachment=%2F%D7%90%D7%95%D7%91%D7%9E%D7%94-%D7%9E%D7%A9%D7%97%D7%A7-%D7%91%D7%A4%D7%94-%D7%A8%D7%9A-%D7%A2%D7%9D-%D7%99%D7%A9%D7%A8%D7%90%D7%9C-%D7%A9%D7%A0%D7%97%D7%A9%D7%95%D7%91-%D7%A9%D7%94%D7%95%D7%90-%D7%A0%2F%D7%91%D7%A0%D7%99%D7%9E%D7%99%D7%9F-%D7%A0%D7%AA%D7%A0%D7%99%D7%94%D7%95-%D7%A4%D7%99%D7%A1%D7%91%D7%95%D7%A7&ref=a&ref=b",
+      "geometry": {
+        "viewport": 1440,
+        "width": 1425,
+        "sw": "/sw.js"
+      }
+    },
+    {
+      "name": "image identity/lightbox/refresh 1370 sample 1",
+      "width": 1440,
+      "passed": true,
+      "postId": 1370,
+      "mediaHref": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2015/03/61a099b0e75f9e47.jpg",
+      "finalUrl": "/%d7%91%d7%92%d7%99%d7%9c-%d7%a9%d7%9c-%d7%97%d7%9e%d7%99%d7%a0%d7%90%d7%99-%d7%95%d7%91%d7%9e%d7%97%d7%9c%d7%aa%d7%95-%d7%99%d7%a9-%d7%a8%d7%9e%d7%96-%d7%91%d7%a8%d7%95%d7%a8-%d7%9c%d7%92%d7%90%d7%95?sourceAttachment=%2F%D7%91%D7%92%D7%99%D7%9C-%D7%A9%D7%9C-%D7%97%D7%9E%D7%99%D7%A0%D7%90%D7%99-%D7%95%D7%91%D7%9E%D7%97%D7%9C%D7%AA%D7%95-%D7%99%D7%A9-%D7%A8%D7%9E%D7%96-%D7%91%D7%A8%D7%95%D7%A8-%D7%9C%D7%92%D7%90%D7%95%2Fattachment%2F76&ref=a&ref=b",
+      "geometry": {
+        "viewport": 1440,
+        "width": 1425,
+        "sw": "/sw.js"
+      }
+    },
+    {
+      "name": "image identity/lightbox/refresh 1259 sample 2",
+      "width": 1440,
+      "passed": true,
+      "postId": 1259,
+      "mediaHref": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2015/11/7c981cc821a2b6fd.jpg",
+      "finalUrl": "/%d7%90%d7%95%d7%91%d7%9e%d7%94-%d7%9e%d7%a9%d7%97%d7%a7-%d7%91%d7%a4%d7%94-%d7%a8%d7%9a-%d7%a2%d7%9d-%d7%99%d7%a9%d7%a8%d7%90%d7%9c-%d7%a9%d7%a0%d7%97%d7%a9%d7%95%d7%91-%d7%a9%d7%94%d7%95%d7%90-%d7%a0?sourceAttachment=%2F%D7%90%D7%95%D7%91%D7%9E%D7%94-%D7%9E%D7%A9%D7%97%D7%A7-%D7%91%D7%A4%D7%94-%D7%A8%D7%9A-%D7%A2%D7%9D-%D7%99%D7%A9%D7%A8%D7%90%D7%9C-%D7%A9%D7%A0%D7%97%D7%A9%D7%95%D7%91-%D7%A9%D7%94%D7%95%D7%90-%D7%A0%2Fshowimage&ref=a&ref=b",
+      "geometry": {
+        "viewport": 1440,
+        "width": 1425,
+        "sw": "/sw.js"
+      }
+    },
+    {
+      "name": "image identity/lightbox/refresh 1371 sample 3",
+      "width": 1440,
+      "passed": true,
+      "postId": 1371,
+      "mediaHref": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2015/02/8df1e3d935bf5c07.jpg",
+      "finalUrl": "/%d7%9e%d7%a6%d7%99%d7%9c%d7%99%d7%9d-%d7%91%d7%99%d7%97%d7%93-%d7%90%d7%aa-%d7%a2%d7%9d-%d7%99%d7%a9%d7%a8%d7%90%d7%9c-%d7%9e%d7%92%d7%96%d7%a8%d7%95%d7%aa-%d7%a7%d7%a9%d7%95%d7%aa-%d7%95%d7%a8%d7%a2?sourceAttachment=%2F%D7%93%D7%A3-%D7%94%D7%91%D7%99%D7%AA%2F%D7%94%D7%92%D7%99%D7%A2-%D7%94%D7%96%D7%9E%D7%9F-%D7%9C%D7%A2%D7%A9%D7%95%D7%AA-%D7%AA%D7%A9%D7%95%D7%91%D7%94&ref=a&ref=b",
+      "geometry": {
+        "viewport": 1440,
+        "width": 1425,
+        "sw": "/sw.js"
+      }
+    },
+    {
+      "name": "image identity/lightbox/refresh 1395 sample 4",
+      "width": 1440,
+      "passed": true,
+      "postId": 1395,
+      "mediaHref": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2014/10/6e9886fbb143fc08.jpg",
+      "finalUrl": "/%d7%90%d7%95%d7%91%d7%9e%d7%94-%d7%a0%d7%97%d7%a9?sourceAttachment=%2F%D7%90%D7%95%D7%91%D7%9E%D7%94-%D7%A0%D7%97%D7%A9%2F%D7%9C%D7%9B%D7%99%D7%93%D7%94-15&ref=a&ref=b",
+      "geometry": {
+        "viewport": 1440,
+        "width": 1425,
+        "sw": "/sw.js"
+      }
+    },
+    {
+      "name": "image identity/lightbox/refresh 138 sample 5",
+      "width": 1440,
+      "passed": true,
+      "postId": 138,
+      "mediaHref": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2024/01/ba77fffbdfd9c64b.jpg",
+      "finalUrl": "/%d7%91%d7%99%d7%90%d7%aa-%d7%9e%d7%a9%d7%99%d7%97-%d7%a8%d7%9e%d7%96%d7%99-%d7%a4%d7%95%d7%a8%d7%99%d7%9d-%d7%aa%d7%a9%d7%a4%d7%93-%d7%a6%d7%a4%d7%a0%d7%99%d7%9d-%d7%95%d7%92%d7%99%d7%9e%d7%98?sourceAttachment=%2F%D7%91%D7%99%D7%90%D7%AA-%D7%9E%D7%A9%D7%99%D7%97-%D7%A8%D7%9E%D7%96%D7%99-%D7%A4%D7%95%D7%A8%D7%99%D7%9D-%D7%AA%D7%A9%D7%A4%D7%93-%D7%A6%D7%A4%D7%A0%D7%99%D7%9D-%D7%95%D7%92%D7%99%D7%9E%D7%98%2F%D7%A9%D7%A7%D7%95%D7%A4%D7%99%D7%AA1-4&ref=a&ref=b",
+      "geometry": {
+        "viewport": 1440,
+        "width": 1425,
+        "sw": "/sw.js"
+      }
+    },
+    {
+      "name": "selected image Back Forward and native hash precedence",
+      "width": 1440,
+      "passed": true,
+      "hash": "#post-story",
+      "sourceTop": 0.1875
+    },
+    {
+      "name": "real source self-embed becomes its exact linked Post",
+      "width": 1440,
+      "passed": true,
+      "postId": 1133,
+      "sourceLinks": [
+        "/%d7%9e%d7%94%d7%95%d7%aa-%d7%95%d7%90%d7%95%d7%a4%d7%99%d7%95-%d7%a9%d7%9c-%d7%94%d7%9e%d7%a9%d7%99%d7%97-%d7%a1%d7%93%d7%a8%d7%aa-%d7%94%d7%a8%d7%a6%d7%90%d7%95%d7%aa-%d7%97%d7%93%d7%a9%d7%94/",
+        "/%d7%a1%d7%95%d7%93-%d7%9e%d7%a9%d7%99%d7%97-%d7%91%d7%9f-%d7%99%d7%95%d7%a1%d7%a3-%d7%91%d7%99%d7%9e%d7%99%d7%a0%d7%95-%d7%a1%d7%95%d7%93-%d7%94%d7%97%d7%a9%d7%9e%d7%9c-%d7%90%d7%95%d7%93%d7%99/"
+      ]
+    },
+    {
+      "name": "real HTTP missing /lemi-ata-neeman-ot-umofet",
+      "width": 1440,
+      "passed": true,
+      "heading": []
+    }
+  ],
+  "artifact": {
+    "schema": 1,
+    "sourceSha": "7aabe127092e323d083df401227516e47909744b",
+    "sourceDirty": true,
+    "buildTarget": "2029",
+    "releaseProfile": "public-reading-20261101",
+    "applicationSourceDirty": false,
+    "policy": "public-reading-admin-existing-auth-20261103",
+    "activation": {
+      "state": "dormant",
+      "approvedSourceSha": null,
+      "approvedDeploymentId": null,
+      "approvedAt": null
+    },
+    "protectedReview": {
+      "schema": 1,
+      "mode": "protected-preview-review",
+      "target": "preview",
+      "sourceSha": "7aabe127092e323d083df401227516e47909744b",
+      "branch": "gpt/2029-public-url-continuity-20261103",
+      "projectId": "prj_43q7k7QFAcWnin1tcBjce5xOi7Cq",
+      "deploymentId": "dpl_62JoHfAuELcVwA5fCacqtuu8CZKe",
+      "host": "sod1820-egsv19dt4-sod1820-s-projects.vercel.app",
+      "productionAuthorized": false,
+      "indexingAuthorized": false
+    },
+    "platformConfigMaterialization": {
+      "kind": "vercel-selected-nested-config-at-root",
+      "sourceSha": "7aabe127092e323d083df401227516e47909744b",
+      "committedPath": "public-reading-deploy/vercel.json",
+      "materializedPath": "vercel.json",
+      "trackedStatus": " M vercel.json",
+      "completeJsonEquivalent": true,
+      "arrayOrderPreserved": true,
+      "committedMode": "100644",
+      "materializedMode": "100644",
+      "gitRawDiff": ":100644 100644 9cfd3bf5b1f7449dc43a5d6bf51d72a1a1ffe614 0000000000000000000000000000000000000000 M\u0000vercel.json\u0000",
+      "committedConfigSha256": "01912d352dd77301a4963b5dbf2246f155972aa1b56bcc34c8f35c3b06a2e7ce",
+      "materializedConfigSha256": "06ecea166c9a3b3f066165bb196459acde61cd5ef31819a3dcc8e15baa6a2d4b"
+    },
+    "deploymentConfigSha256": "01912d352dd77301a4963b5dbf2246f155972aa1b56bcc34c8f35c3b06a2e7ce",
+    "documentTemplateSha256": "7a00d5f6f777560262e6282f4ed3f9c351d936d394d6ac325670e9b086c495fe",
+    "documentTemplatePublic": false,
+    "deployed": false,
+    "productionReady": false,
+    "generalProductWrites": false,
+    "signedLegacyUnsubscribe": "existing-token-bound-mutation-only",
+    "adminActions": "explicit-server-verified-admin-only",
+    "accountEntry": "existing-password-or-otp-only",
+    "newSignup": false,
+    "socialLogin": "pending-shared-signup-consent-and-exact-callback",
+    "siteUpdatesSignup": "pending-shared-purpose-contract",
+    "modelCalls": "explicit-admin-action-under-existing-server-policy",
+    "automaticModelCalls": false,
+    "siteFlagsChanged": false,
+    "previewBypassFlags": false,
+    "workerSha256": "94e18a2afe48d6b00d2cb1c21d3a2156e17b07a479aaa583deeefcead822af24",
+    "legacyRollbackWorkerSha256": "6f5a514678d95230332ba2d92c35e6581ee592123833f206142a003e45e5cbd0",
+    "files": [
+      {
+        "path": ".vite/manifest.json",
+        "sha256": "60b76ce86e083eee1a7007219813cfc12ac895a922e69dbe15efba016db36ae5"
+      },
+      {
+        "path": "2029/books/bentov/bentov-consciousness-map.webp",
+        "sha256": "d014c38c1c2eedcf056f65f91a04393c4a44808e7e520e55d6f01152b068370b"
+      },
+      {
+        "path": "ads.txt",
+        "sha256": "59e9fd9121025324e2a44f735fc323dbaf011b609770561d67c683a6a5e3a037"
+      },
+      {
+        "path": "assets/2029-Bh9DDWFT.css",
+        "sha256": "449b717bf72daf200572d446cfb7dd851ac6529c1dceed1a727424edd3857171"
+      },
+      {
+        "path": "assets/2029-DRNJItkR.js",
+        "sha256": "df97d93e79ba1d1d5fbe401dd74783494a1d0c50fd924347d65458b538def8ae"
+      },
+      {
+        "path": "assets/AccountEntry2029-DliLECxq.js",
+        "sha256": "2c0e6897e0b166b893a2408ff9317fa231e902375615215ea724218d25211a94"
+      },
+      {
+        "path": "assets/astrology-tySM8GSj.js",
+        "sha256": "a6f9b9c439cabbde129102b33e64f74b63c79ab5cc7813f3d7bbc0adeb89e2f0"
+      },
+      {
+        "path": "assets/astronomy-DTJDghmj.js",
+        "sha256": "3fbb222e52268e78f73ac20d28cc83109262fb95e76050bef05f3112c01fbce9"
+      },
+      {
+        "path": "assets/auth-C0mxAlbN.js",
+        "sha256": "52ee1b60d34ffa0c981fef2b5bcba16709a7c450701d7c0da2e3dea1348310ad"
+      },
+      {
+        "path": "assets/auth2029-DlAQxfuA.css",
+        "sha256": "4a8eb23e38c536d4f3ab5ca7ea8b23c81092badf3d99d9c09e088e9cf3a78ffa"
+      },
+      {
+        "path": "assets/Auth2029Page-DeUweTz5.js",
+        "sha256": "81efc4426c85b1a583ee1de102e255cdb749c12bff659716441a72cfc69d292e"
+      },
+      {
+        "path": "assets/AuthContext-Dk_86SHa.js",
+        "sha256": "6b256d6e0bc9f141d43f733480f3ff854c25630adb19ddedbd65524657e93b11"
+      },
+      {
+        "path": "assets/BeitMidrash2029Page-Cuot8mpR.css",
+        "sha256": "4fc24dfd63089c915882030cda6d06abd69b077602e80bfa1e0163e52be1bfd0"
+      },
+      {
+        "path": "assets/BeitMidrash2029Page-DGSp2eF3.js",
+        "sha256": "50fabcb99038f575f3f9996003a7289411b3042679601a2db11b534ce82f0574"
+      },
+      {
+        "path": "assets/BirthMapScene3D2029-DTbrIDd_.js",
+        "sha256": "f9bfc830587a49ceef29b5460554c3c3a208ac9ece6fe878d5d049c25a55c1c6"
+      },
+      {
+        "path": "assets/BirthMapStudio2029-CSCyem6T.css",
+        "sha256": "a9c0c32b909e633e30677902255c7c5886183d41f0cd71d4af9fe0aff72fdb43"
+      },
+      {
+        "path": "assets/BirthMapStudio2029-DvBvZx0w.js",
+        "sha256": "7f4280472e2541e253048bc33e690f89f9252511e6bbadc04afa3a0a7ecc5e4c"
+      },
+      {
+        "path": "assets/BookPdfPage2029-BuqFZgpH.css",
+        "sha256": "f98a6382aa0cda31b6676ed5f90104080b3311b2b9796d383ad594255981df04"
+      },
+      {
+        "path": "assets/BookPdfPage2029-C6dv-yjO.js",
+        "sha256": "ebd193c4f1683e1f86f62001fb7466ff26838a32cd973eb6624b865b9090c2b5"
+      },
+      {
+        "path": "assets/bookResearchProjection-BTkjiDDY.js",
+        "sha256": "e1872c8aaef6be4a851f3c2d5eddadfddec1d62f69a80f46d6dac7177febf68b"
+      },
+      {
+        "path": "assets/Books2029Page-BUZEOyvi.css",
+        "sha256": "67f5201b18bef4cac0cc9d8084c5444d0f231dbdf90319bba7afdb0f7b0c2efc"
+      },
+      {
+        "path": "assets/Books2029Page-C11g-h1X.js",
+        "sha256": "fcb7d46f4438c04e1470082f1bad26a13d0c69c8935fe2a0b532cfb70a4e5263"
+      },
+      {
+        "path": "assets/BookSourceReader2029-D4n1_ag1.js",
+        "sha256": "1d5f5fea2eca81aa11be7a819110430f211e378840b94276b3af1a5cb80c13c8"
+      },
+      {
+        "path": "assets/BookSourceReader2029-NFGdCpPf.css",
+        "sha256": "62133a60c5e62df6deddd7002651866fa388c199b81b38ec06055db47935d7bb"
+      },
+      {
+        "path": "assets/brandAssets2029-BhHDt-cI.js",
+        "sha256": "34e26e071ea17dea62d30d2089d06f3639134eb230830db2778abc2e0039d991"
+      },
+      {
+        "path": "assets/calculator2029English-C1SbiBbC.js",
+        "sha256": "32c609da210922133bf0a356fcf5fe51fed5a99bbef5277ce850bdbeed6c0fbf"
+      },
+      {
+        "path": "assets/calculator2029FastPreview-CO9zA9PP.js",
+        "sha256": "612f37415e569667842ee1f60f3d78758550b829493fc7802f04b755d637cdf2"
+      },
+      {
+        "path": "assets/calculator2029Input-BbfftHdT.js",
+        "sha256": "d1037805e95450f60c9b0396df6794065a73f02b449a3e74ca1d957030b150ef"
+      },
+      {
+        "path": "assets/calculator2029Model-B6PX3HVC.js",
+        "sha256": "6d4015c590acf256b15ebf11860694bc1d6166d11bbdd332eba349df86fb987e"
+      },
+      {
+        "path": "assets/Calculator2029Page-DUvc3lbi.js",
+        "sha256": "820c9034f3911b5de8d5cfec7118726332648c327d73012b35301de82a0e651c"
+      },
+      {
+        "path": "assets/Calculator2029Page-qdgooS0u.css",
+        "sha256": "e28ab6bfe7ba734957a8643ad9a0f9e1361d98f1c48783b72ecfbe6af977e9ad"
+      },
+      {
+        "path": "assets/CalculatorOpening2029-CxpWT_0q.css",
+        "sha256": "2eb8acfe8fce166c57a1824044596337990e185a9520dbf6ed33345f5bcda849"
+      },
+      {
+        "path": "assets/CalculatorOpening2029-vzqCY0Pe.js",
+        "sha256": "4260eb1b4e6fe3e06e697f8240ad526ccd4713e933ceb82bcc5c8e9ff12f46f7"
+      },
+      {
+        "path": "assets/CalculatorPro2029Page-Be6jPeD7.css",
+        "sha256": "f078f46750183d6dc5e7f03339bc8ce9fccb43343d873d629a6aa031bbe17785"
+      },
+      {
+        "path": "assets/CalculatorPro2029Page-BZIbwkTw.js",
+        "sha256": "6d233db4c447e2f14479a10eba900974b1cc2e7d075860f424dba34c05603eec"
+      },
+      {
+        "path": "assets/Campaign718Page2029-BMzWO2mW.css",
+        "sha256": "caa1bb750dc20a765d75fd7a57111d4276605871be8e2184fb32a5b8433a51ee"
+      },
+      {
+        "path": "assets/Campaign718Page2029-Cokxbkm3.js",
+        "sha256": "e7257752655ddef8686798b7fe0f43ae4d754a0c566ec83a340c7e6be1555d6a"
+      },
+      {
+        "path": "assets/canonicalGematria-BMVQTEzu.js",
+        "sha256": "6613a65d35f861478a9ded81669ab279848cd89ff72087d83f2b1c68c7444abf"
+      },
+      {
+        "path": "assets/canonicalGematriaProjection-CjIs-ZY5.js",
+        "sha256": "5cf83907ffe3495041aabd14744d3b21b00f73f059054f0e762ea282ebd47d50"
+      },
+      {
+        "path": "assets/CanonicalMediaFigure2029-pfCoZk2Z.js",
+        "sha256": "66e3be716fc366474a602aff850da714cbe31dd4c6685e1e694c73b4ba8ad949"
+      },
+      {
+        "path": "assets/canonicalPresentation-bCKbg7Xe.js",
+        "sha256": "f96a383040e9ca600c7f145c4ad9d566bc99eff23809b6fde93d88f4632957ea"
+      },
+      {
+        "path": "assets/CanonicalVerseCards2029-CPRZOX-b.css",
+        "sha256": "3cb81c0535415b2cd9c01c8abb6b666c68f6b1604f31bb1dc94c05bcfccefd04"
+      },
+      {
+        "path": "assets/CanonicalVerseCards2029-fMwO_HVN.js",
+        "sha256": "520d4a89c9a555ea7d4b2e24a40f07d8d635105d181f01a1a8128a3f4f97f1bc"
+      },
+      {
+        "path": "assets/chunk-OB3PAWPO-CzoZTws3.js",
+        "sha256": "91c2e95128e689d6b3e2b89877ac74578bddf2fcd2bdff836d677c5961baaec0"
+      },
+      {
+        "path": "assets/Community2029Page-CIFMrWn6.js",
+        "sha256": "b52cc8935daef97f7e96865dbf525549d2bedca417f1ba1cf8f4e95ea88f1462"
+      },
+      {
+        "path": "assets/CommunityCalculator2029Page-CvTerHF1.js",
+        "sha256": "bd872042c18df862763f5638dfdcc221081915463e73e7bea378c8bb1c850ca0"
+      },
+      {
+        "path": "assets/CommunityCalculator2029Page-DTBVXV5W.css",
+        "sha256": "4cb625cbbffc6f984f6dde987c9b5fdeee2fc0781e188a8148c1b89472ef91e0"
+      },
+      {
+        "path": "assets/CommunityChatTransition2029Page-CUUjNzLA.js",
+        "sha256": "eb2ab25b574f18f972c6875e25a7fb626830e80e88577bb1149a61f70682cd12"
+      },
+      {
+        "path": "assets/CommunityChatTransition2029Page-DmiGmPl3.css",
+        "sha256": "8121c1d8e7d4732fa404989734ff50d488d774f028205edd054fdc797caf98a6"
+      },
+      {
+        "path": "assets/CommunityLive2029-DFql328s.js",
+        "sha256": "279f8d4e9453040ab3444dc386eb418dd8b3a04e7e0ee18c018927e76b57eb03"
+      },
+      {
+        "path": "assets/CommunityLive2029-mqPzt_Lz.css",
+        "sha256": "5e932c2131aa058aa28ba1eb96b063af285d5b0367e0b7dd6b3710f2216a9a82"
+      },
+      {
+        "path": "assets/ContactGateway-BQluaid2.js",
+        "sha256": "1dd20189b0131e3db63eadf8c57e3e6b4d535879f364688a55551b72d7426978"
+      },
+      {
+        "path": "assets/contentSeries2029Identity-B6wZV7ZH.js",
+        "sha256": "34705aac015a0742f33e921eaa51bbfe9f8d0ff53cabaef68b379b6407e30bc3"
+      },
+      {
+        "path": "assets/contentSeries2029Projection-D9bagBHa.js",
+        "sha256": "2e9f84c2fac9677c989253c2d4d84d9c74c4c9f3ee99302183817f147bc56ce7"
+      },
+      {
+        "path": "assets/contributions-B0FIjJ1F.js",
+        "sha256": "0859005ffc8f2fb43b04ff7aa6f60ec302c2d0e13ff692b93b84e8f1cccea652"
+      },
+      {
+        "path": "assets/contributorSourceCatalogProjection-d1PhrAw7.js",
+        "sha256": "3ce3f119e25791128af49a9ef6e6080326ccf0b3545f83b3b348e02b8751cc01"
+      },
+      {
+        "path": "assets/ControlPlane2029Page-DacFuRut.js",
+        "sha256": "a433d59c4412606d72d4f6cf5950f8e30998efeccb327f9f835076c011ff9ade"
+      },
+      {
+        "path": "assets/ConvergenceRatings2029-Bf7X875Q.css",
+        "sha256": "0018183386233da0ae097bb018c95fbf8378b861c90a917280ec1b29f624fcb1"
+      },
+      {
+        "path": "assets/ConvergenceRatings2029-nR66rIxJ.js",
+        "sha256": "8210dba0f4d88eaa4cdd7872f715622ffd2e20ddcd3440e075910ff4e3048efc"
+      },
+      {
+        "path": "assets/CurationMark2029-CqI6kfN0.css",
+        "sha256": "c0582d82b7e5b769363cf42701257201989d759280b73f5487c3aebed7f76649"
+      },
+      {
+        "path": "assets/CurationMark2029-xhZpQsmB.js",
+        "sha256": "0152a4628880de7fc7901028cf5dbf68b32acebb011614c6ad271d47d465a0ed"
+      },
+      {
+        "path": "assets/curationProjection2029-DLjV5AsZ.js",
+        "sha256": "5adf9f16125da8e00fb78787b71bc0455619b1c660a15a751eb2611cdeabdbde"
+      },
+      {
+        "path": "assets/dayContext-DA_c4rix.js",
+        "sha256": "858ef263b746c57d62ad9ed47791b5e3f248670fe1d668aeece40131984f8c36"
+      },
+      {
+        "path": "assets/designTokens-CDR-JqlQ.css",
+        "sha256": "236636e2f3c0f687efb2c167a34330b380811a0d7100cb884cc1bd9a54fb841e"
+      },
+      {
+        "path": "assets/designTokens-DHoiDqYP.js",
+        "sha256": "386cd171128114cbd1b71ae8ae22d4079c0cd408059d981ed82a63a105d1f992"
+      },
+      {
+        "path": "assets/EarlyAccess2029Page-B1f7VYP2.js",
+        "sha256": "f1353a5f13e1face60a2929789a532629dc51eb03de1230d772774c75d65e24b"
+      },
+      {
+        "path": "assets/EarlyAccess2029Page-C98Kr9ay.css",
+        "sha256": "b9a048f4d25714c08b9e2e1cd4eebcb2302601920aac80e533d27a48cc937bd6"
+      },
+      {
+        "path": "assets/electionsIsrael21_26Seed2029-BimK7WSz.js",
+        "sha256": "490396bfb2165dcd8ea14da8a2af5619bec673f770943aecdb62f35b0dd3fd32"
+      },
+      {
+        "path": "assets/Els2029Page-Camo90rX.js",
+        "sha256": "3e6c30054f2a143db60312ed3c847c3221aa57929e7485e7cd572c5128c88ef4"
+      },
+      {
+        "path": "assets/Els2029Page-Z0ZqtOUq.css",
+        "sha256": "7579f1c369b46b9599ff4f30ea23da7d029bdf3536c7a99462f84e26e4322f4f"
+      },
+      {
+        "path": "assets/els2029ReplayClient-DPA8f4nQ.js",
+        "sha256": "5a37715e5f926604a524abafa5b4863175ced28ac89125e0685774dcb67f03f7"
+      },
+      {
+        "path": "assets/elsBackgroundResearch-4VaFcT7v.js",
+        "sha256": "b40e46f4ecfc7996e7a50c27277fede3721559b087458855853cf3a392af9b8d"
+      },
+      {
+        "path": "assets/ElsGuidedMatrixSnapshot2029-BnCaeKU4.css",
+        "sha256": "15f9e645c449a43fc68c870084970b3a9a1cbced177aa3e13da31797aa8d926b"
+      },
+      {
+        "path": "assets/ElsGuidedMatrixSnapshot2029-zPWqpr2W.js",
+        "sha256": "9b700fd11087ed5b8f59d973e55953ade437cfee1644b7843a3a3895669ab2e6"
+      },
+      {
+        "path": "assets/ElsLexiconResearch2029-2P50nnR5.js",
+        "sha256": "8aacb970d66c666bff1873376ac5702e1adf6201164dee0aaefbaa120e94f6bf"
+      },
+      {
+        "path": "assets/ElsLexiconResearch2029-DqSBsmK1.css",
+        "sha256": "3ade6855bfa4df3fd58b294135f3e24437cb0ea48bf4d5ee65ff2624bd5c079b"
+      },
+      {
+        "path": "assets/elsMatrices-B-kmbAFi.js",
+        "sha256": "4f927f5fbb033e97a75006084a41c136c0387981abdbf894184682638a4daad5"
+      },
+      {
+        "path": "assets/ElsMatrixReadingActivity2029-E2zKVKu7.js",
+        "sha256": "4acbfc027c94677e81f35e041c19c0129a80e89bca62e99a46ade2bdb900b347"
+      },
+      {
+        "path": "assets/elsMatrixReadingTransport-C99M7h5Z.js",
+        "sha256": "4fa547c32463c5ebb9050e9598aa066881db8bb98c140b015208d14d41d0d71f"
+      },
+      {
+        "path": "assets/ElsOccurrencePlanner2029-CY_8q0yy.js",
+        "sha256": "8e2b8f3da8f029dd890f81313d8bf62319fd9902f39dbc84d1f3364ebccbaf9b"
+      },
+      {
+        "path": "assets/ElsPairPlanner2029-BS-O-xPw.js",
+        "sha256": "1b83dfaa137decbd40d87051465f0c5384af0214d1a3afabd23dcf34d9d81cec"
+      },
+      {
+        "path": "assets/elsRazielPlanning-CIfQ3lmJ.js",
+        "sha256": "b7c858b922d0ab0ffaf6f2896df575382ae6fb64adf182a1b854155be60ce2bb"
+      },
+      {
+        "path": "assets/ElsResearchActivity2029-CpjRVHk-.js",
+        "sha256": "2fb4d2803a7c5bf161393a712596be5fd3df395683d983acb71a74d74f52b95c"
+      },
+      {
+        "path": "assets/elsResearchReturnSnapshot-B03Lyzta.js",
+        "sha256": "f179479912d6d831a76d1edb63de7bf4582668bf9f5f5dc99fa5d2d64eb43f0b"
+      },
+      {
+        "path": "assets/elsSavedMatrix-BHM7AD0v.js",
+        "sha256": "8bf98f4b0a45c1831c4920075303e0075c7bdd14a38158626b70f31dfe1f75e3"
+      },
+      {
+        "path": "assets/emailOtp-5JZExih-.js",
+        "sha256": "4bc6fd5b858c4d54f8077ac68976a45cba1a2a7556a06c1545ffccda3635c15d"
+      },
+      {
+        "path": "assets/EmailVerify-_dE5GC0S.js",
+        "sha256": "5f66898225967ab9fed06099e391818e55cf630b20c7759d6d3ce30e7f7053ba"
+      },
+      {
+        "path": "assets/EmailVerify-DM0qVGWZ.css",
+        "sha256": "3731467e1c1473e0f18c2a1b36fa4964ade671f9692e0c4ded15bfa92a22e988"
+      },
+      {
+        "path": "assets/EnglishGematriaLane2029-C2KO2L4_.js",
+        "sha256": "41293419324aab5eec95d3057f918a474512ad62d7059f27e6000bda4b344c33"
+      },
+      {
+        "path": "assets/EnglishGematriaLane2029-D4qBr4JY.css",
+        "sha256": "1283ab31c504c38fc01e9d97cfec091ded04812d4a8748d4aed6e2c98f155b9b"
+      },
+      {
+        "path": "assets/EntityHubPreviewPage-aftmpRJp.js",
+        "sha256": "b40cbd2e3382e163c49b743670ccb0ee24e12a0e08352f111cf2e6671c02e6ea"
+      },
+      {
+        "path": "assets/EntityHubPreviewPage-B9LxMaLD.css",
+        "sha256": "39605f14b76f1c6155bb95b7afd5fe9517035d1b2c46829863f16d6c10c2354b"
+      },
+      {
+        "path": "assets/entityHubProjection-DXk3etae.js",
+        "sha256": "634ef8bff54c87364448771d13a14931857b9152623273f21d85457e9d63e539"
+      },
+      {
+        "path": "assets/esm-CysUkDBN.js",
+        "sha256": "a933ac0774341d16a3034266caff7b6da393ccffa84c4e213b25c8d9f59d5ff4"
+      },
+      {
+        "path": "assets/events-B2m6-2ll.js",
+        "sha256": "38a837b457622ac88a6943a8f486e7d7d7d273f94211f26b0412ee0fb6bc9729"
+      },
+      {
+        "path": "assets/explorerFacets-B4yCQ5dg.js",
+        "sha256": "8bacd85c38f42535d06cf81292445dd3dc44d66fd05612fda20efeed1dbb79e0"
+      },
+      {
+        "path": "assets/format-DZ_iukPG.js",
+        "sha256": "d2d27902a102e6bdaae88943308a7b7077cd26a0566eb261707aa3e2af353d93"
+      },
+      {
+        "path": "assets/FoxitDingbats-BaQLufoW.pfb",
+        "sha256": "845c752392b6c914fb989c75a08b7792b88f542d2499042ef2889f8c814a16ed"
+      },
+      {
+        "path": "assets/FoxitFixed-Dyd5Nipw.pfb",
+        "sha256": "b6c8fe53f134b8b6d4578cd2d544df4cee9624c4efa8d51a560fb40ea296101b"
+      },
+      {
+        "path": "assets/FoxitFixedBold-D5TuYRwj.pfb",
+        "sha256": "f1b7159702973f54fc86254ea38bcf3712b2a736eb3a0995751e9f4bb45ad603"
+      },
+      {
+        "path": "assets/FoxitFixedBoldItalic-BqlXQ_Yv.pfb",
+        "sha256": "8a000945843bd31add06aee63bf9fd41b7578b4f3242a4b7cd46349ad9d24d4d"
+      },
+      {
+        "path": "assets/FoxitFixedItalic-DqjQkmbS.pfb",
+        "sha256": "5007faf8320fa1fcc08b8894b356ad976f60b992ba29ee5272578bbdebaf3876"
+      },
+      {
+        "path": "assets/FoxitSerif-qbgiDIe-.pfb",
+        "sha256": "4f57d2b9d884af8f907bf22df6019b52d86cbf6214fdbd02b1ae05472a543f35"
+      },
+      {
+        "path": "assets/FoxitSerifBold-DZZ4CclT.pfb",
+        "sha256": "0bdf4b04e964139818d51eda03d566ba999fc3ba2421b1c6c51f9dc969022e80"
+      },
+      {
+        "path": "assets/FoxitSerifBoldItalic-DSQtwd_X.pfb",
+        "sha256": "a406cac82583bf98175cb62c87ed5e95c45fbb34eece63a10b0a13e793cb2e10"
+      },
+      {
+        "path": "assets/FoxitSerifItalic-CQs5lx9Y.pfb",
+        "sha256": "610ae0687198045c4db5d1a6650fd5e92536631706382eb8b72e38df578d0ae9"
+      },
+      {
+        "path": "assets/FoxitSymbol-BVtbc20u.pfb",
+        "sha256": "47967d055530e7357088a08403115425643ec2cdfd6201ba8af0fbd7116c1539"
+      },
+      {
+        "path": "assets/Gallery2029Page-ClVaOmmZ.js",
+        "sha256": "cc068ad63075200287fa7563630fffa61ee9f98ba4ea7044563e092d393e6052"
+      },
+      {
+        "path": "assets/Gallery2029Page-DZF05mHq.css",
+        "sha256": "80c281d12822a03bc25b473afcfd234066045e06acf7db36e6226cce9550a663"
+      },
+      {
+        "path": "assets/gematria-CHhQFBv3.js",
+        "sha256": "67d05697bf1f61f54c927cca14ddeb9801a7c698ab8ab37f36fac675965f665c"
+      },
+      {
+        "path": "assets/gematriaMethodRegistry-DqPgYVJA.js",
+        "sha256": "844144d84b7a8a599f85506b42b36add78b2d1aaa5fc77aae5c02402b42ba806"
+      },
+      {
+        "path": "assets/gematriaRelationW2Executor-OFRFdVOd.js",
+        "sha256": "0b7bbbe372bb09367fd9b80c9be3eedf03a61bb0e43cca08060ea5a08cf386da"
+      },
+      {
+        "path": "assets/gematriaTrace-8Bj2GxSP.js",
+        "sha256": "3fb053623da117645004309f6bba0cf1cdb53a45037e7c6c5a3bd2a6df6bbb93"
+      },
+      {
+        "path": "assets/gematriaTracePresentation-DFKYeQPm.js",
+        "sha256": "149d66b0aca6f7699ce2b527c87c0a535e35a54b8b3053eb5262bf29758ecf73"
+      },
+      {
+        "path": "assets/GoldenProjectorModeLayer2029-BhvoWZBu.js",
+        "sha256": "1f85f4827089a2e2502a19f2c854cf25946699f7a5f11d0f84fbcaf6932ae76d"
+      },
+      {
+        "path": "assets/goldenProjectorModes-9JJEpKM7.js",
+        "sha256": "17919914134f815ae4cd9d533e834f11b3f583abc4a931f0dd597e320adb49c8"
+      },
+      {
+        "path": "assets/gpuCapability-CgzeQuuF.js",
+        "sha256": "cfff798ed1abadb9953bfffde2061222acf5666139d34b2d7f55183b184da428"
+      },
+      {
+        "path": "assets/hebrewLetterAnatomy-i5RCT4xg.js",
+        "sha256": "4c0fde9552fe907fb6ac5e972f97b871228207b234643da630776bc7c141372d"
+      },
+      {
+        "path": "assets/heglyph-05D0-CKGBtLR5.js",
+        "sha256": "95e02f3635af32e1c00456463fe0bc60b80ad18c66c9c57ebfa6b8c30a579321"
+      },
+      {
+        "path": "assets/heglyph-05D1-B1gFy3cg.js",
+        "sha256": "6ae45887cd95927412d0338cdf9b54b0d19deac6ca712b146c124b6a64629220"
+      },
+      {
+        "path": "assets/heglyph-05D2-DrL4oJOW.js",
+        "sha256": "e486870a94928d657234cd8eeaa3b89aeed1b5aa2247f15729c1c3d096443b8d"
+      },
+      {
+        "path": "assets/heglyph-05D3-6YFcwobd.js",
+        "sha256": "bc06d7b287e3b7a376242f0f409725cebc0d989969fef3e9ae3b5d51bbf773b5"
+      },
+      {
+        "path": "assets/heglyph-05D4-GYf9FmI6.js",
+        "sha256": "7a1b7dcae8523805d47f7d2e7ae22cc1115957e680c9719843fb0fde4ea94f9d"
+      },
+      {
+        "path": "assets/heglyph-05D5-LOb6HEKZ.js",
+        "sha256": "056b44b37ee49896da73b029fc2872e0b2c1dfd5ec44dca5ebca2a21fc48842d"
+      },
+      {
+        "path": "assets/heglyph-05D6-DaXxehxk.js",
+        "sha256": "33ebbbc612b0243d59a2f9fecb44e2e6b9a40f7c49d9cf25b628acbf0ed42631"
+      },
+      {
+        "path": "assets/heglyph-05D7-CX8SPsAQ.js",
+        "sha256": "aed778b0ed2061ec4bee643c7dd0a7ad0377bb7588a11e5961781eb7ce55d87d"
+      },
+      {
+        "path": "assets/heglyph-05D8-DSJuZ8zj.js",
+        "sha256": "50fa9d495935b30b6c9c22dcaaad4a14c3dbc0e56dc38f6d06cb4bd7a099e54f"
+      },
+      {
+        "path": "assets/heglyph-05D9-B_YrX9HN.js",
+        "sha256": "3f5fb7a76665b270339ff86dd5308cc9d6365b020ee2e515a8ae67d533bd8486"
+      },
+      {
+        "path": "assets/heglyph-05DA-BXs11XmZ.js",
+        "sha256": "867f7d57cff50debb920eaf9133d8c58e349a60c77fb531eed554b465b06774f"
+      },
+      {
+        "path": "assets/heglyph-05DB-ivUO1o9Z.js",
+        "sha256": "a5920a02d25b4906f94a6c6835440a03094c9e4999dbf48ad58eca67a71f4912"
+      },
+      {
+        "path": "assets/heglyph-05DC-C69lWI1o.js",
+        "sha256": "1231b82cba67209992e01c9d654b64e1bb713b49894c425b5cf43122f9ff3551"
+      },
+      {
+        "path": "assets/heglyph-05DD-L8I6N5TY.js",
+        "sha256": "820310f133f82a4e424339b7c6c85b3954047eede52ea0bb5a4f343395572259"
+      },
+      {
+        "path": "assets/heglyph-05DE-DJmFlPBJ.js",
+        "sha256": "537c8e445995b4f091a6f01e1693599c93e93b6f0acc9b3881044f586ec5eaeb"
+      },
+      {
+        "path": "assets/heglyph-05DF-DQP8LRFM.js",
+        "sha256": "3d995167db0526df7a8eb00bbe0842271a18d858dd1173d08e1277037410e6a4"
+      },
+      {
+        "path": "assets/heglyph-05E0-Bx-H3dv1.js",
+        "sha256": "0d3abcfaee53ff11f456482620076730163c1702d0c2d83c4ce2235870deb25c"
+      },
+      {
+        "path": "assets/heglyph-05E1-C5Ty0rrC.js",
+        "sha256": "a508b8e53c4fee6b1f09adc4f14bc680dd2eaf9362ec4b70684765cb1363f8d2"
+      },
+      {
+        "path": "assets/heglyph-05E2-BS0mo4Hy.js",
+        "sha256": "dbfdbf2c4ea838849e2f1e1ac5eaaa00f2160f15788e5ab7d0b1388e230d5f31"
+      },
+      {
+        "path": "assets/heglyph-05E3-BKTOkPHl.js",
+        "sha256": "eb1b1783a22a462bf9859f0fc6965f00101f8216f77244c9cf5e5c592300e720"
+      },
+      {
+        "path": "assets/heglyph-05E4-IjZvukfw.js",
+        "sha256": "139fc8a7546c7c6aa3a0c5f8aa323db8367fed7f9631a6d5342a41dca1537730"
+      },
+      {
+        "path": "assets/heglyph-05E5-C21GLSbc.js",
+        "sha256": "b4d939a73e094413367a5f70e0e8d4820983c3643e4cc6835bb5e57c3fa4d44d"
+      },
+      {
+        "path": "assets/heglyph-05E6-FlRx0Rvh.js",
+        "sha256": "782052c2beb8674ab8b50b0f1d2d2b770819102343da99edf17ed216c349e117"
+      },
+      {
+        "path": "assets/heglyph-05E7-BXwM3J1C.js",
+        "sha256": "aebe46d96b89178d16e1a78709f8a210085c3ae95b90a851324454ceb6116273"
+      },
+      {
+        "path": "assets/heglyph-05E8-edNTbbZu.js",
+        "sha256": "87e4759974675bbd704317fd8fbbf23de987d17ada8572252c3839e160c223ce"
+      },
+      {
+        "path": "assets/heglyph-05E9-YEIeGL5m.js",
+        "sha256": "4a239f093c50c715b9ee9b3929ab6850a6539076205e302a7a3e5f4018c9472a"
+      },
+      {
+        "path": "assets/heglyph-05EA-B9bd-MsZ.js",
+        "sha256": "fde60974297e022b0c62acfcc612674865e17c421a01dca64880ba1a32862811"
+      },
+      {
+        "path": "assets/Heichal2029Page-D0TmUesQ.css",
+        "sha256": "eeb4916129c96bec92a0b451df69765f23a66333fbd4b19e1621b2828edd7925"
+      },
+      {
+        "path": "assets/Heichal2029Page-De2pVxHT.js",
+        "sha256": "3df39f96c38df2305238f19d529a593b56231e583bca3a8b9cc021d2001f4bd1"
+      },
+      {
+        "path": "assets/hints-Dt1ifRFT.js",
+        "sha256": "f3dc2b7321a6b9a642240eee8b911000a43a55a73482e9ba7e2f10c181814022"
+      },
+      {
+        "path": "assets/Home2029Page-Dn1iNhOh.css",
+        "sha256": "c7669bef1a928da14a6d9f2e4625320c776460d30422fedf2c3dc934f3709991"
+      },
+      {
+        "path": "assets/Home2029Page-Du3lulel.js",
+        "sha256": "e5d6b26c904564701b9263491dbf70bd138e884868a1d8befb6be5d2213ee7f8"
+      },
+      {
+        "path": "assets/home2029Projection-BSWzO52x.js",
+        "sha256": "e01273cadf16de412c3ddfb3c8270bfa382aee293389a8841911ecb4476ef893"
+      },
+      {
+        "path": "assets/homeLaunchPosts2029-CaUFM0s9.js",
+        "sha256": "2d00c0f55c075390934158177ef16e77ef6a5fd10370d8934047d3f03f5335c8"
+      },
+      {
+        "path": "assets/HomePreview2029Page-D7oZ6f9c.js",
+        "sha256": "979985c087f58c67eb60cd6527d79823e365dca9d7b04f5b0307c4b32364ceb3"
+      },
+      {
+        "path": "assets/HomePreview2029Page-DTom73Gj.css",
+        "sha256": "f1bbef9dc409db78ce5445aaa977c58c37d0c651f7b752778ce580e77679394d"
+      },
+      {
+        "path": "assets/HumanDateInput-DOR6UKog.js",
+        "sha256": "b3d72c1ec0a0b8ba50f33bc5cdc0c1957e52d77750a69a8e9087a893681833bc"
+      },
+      {
+        "path": "assets/humandesign-DuBgKimA.js",
+        "sha256": "478ddc7f7bd1d8e7efabc72dc91c70c9cd35658b635646f3bbc7c4208c8f4b5d"
+      },
+      {
+        "path": "assets/IconTile2029-aEF3_lAA.js",
+        "sha256": "cfa31c507d1011fe15cc7f25167c32a8873cb75a80fbfa8d7fe7df59fc1d481a"
+      },
+      {
+        "path": "assets/IconTile2029-x-yAGhlc.css",
+        "sha256": "6a10fa354baabf32fa23d9dc87944090ba4ee061c3db60bbcd7a04b6468156ae"
+      },
+      {
+        "path": "assets/img--mXbSule.js",
+        "sha256": "4ac768b8f3495ccf4094ea03b054fdd3edbc54c40b76c7208b39c5fa786a9403"
+      },
+      {
+        "path": "assets/interactionCorrelation-FQ0p8I44.js",
+        "sha256": "056b05843d874a639c94b1d80676629cf40ee7c403cc5103adbaf75bdfef2825"
+      },
+      {
+        "path": "assets/jbig2_nowasm_fallback-DHGs-rAY.js",
+        "sha256": "68686ced624a48c42f84cdaa482ec44b72b0de4dc84a0df903af1fb7b45b5d9a"
+      },
+      {
+        "path": "assets/jbig2-BUnLb-NU.wasm",
+        "sha256": "466f45c2a61a698152fb5400c27e56ff2ceb73dcb71fde3fc366a502308eaab0"
+      },
+      {
+        "path": "assets/jsx-runtime-D3jfb0Ew.js",
+        "sha256": "a2c68294426b0ded53fa2d6c97bb39c4a51f99e5e4b23e7953a2c69298e361f8"
+      },
+      {
+        "path": "assets/LiberationSans-Bold-BPt4bU5Z.ttf",
+        "sha256": "361c61b82d575c5c35fd9157fda8b0194bcfcd0d88ea8521a4fb5dd53d33dddc"
+      },
+      {
+        "path": "assets/LiberationSans-BoldItalic-Bj53-jFw.ttf",
+        "sha256": "a224075ac17495ad0a3af3bc0a419ac0704a8b3fd1095456201fb9b095fc281d"
+      },
+      {
+        "path": "assets/LiberationSans-Italic-5QhGB3P9.ttf",
+        "sha256": "832b4406dbef23628800d3aaad21048534ac84d7e3ad955be83b8172ed8ef512"
+      },
+      {
+        "path": "assets/LiberationSans-Regular-cbskN6YR.ttf",
+        "sha256": "f8ace1f892b2bd9dc1792ba7f097fa7588f84fed48321480e04de5390828221f"
+      },
+      {
+        "path": "assets/LifeJourney2029Page-12yJ-sXF.css",
+        "sha256": "674cb75b39cd6d77b997a61af195937eb53484eaf1fefd4f16235d70875d7d33"
+      },
+      {
+        "path": "assets/LifeJourney2029Page-CHfZsNeJ.js",
+        "sha256": "50d66cd880e5182f3643804d24716474dd5d4feaf0e6c4f2adc2185504c38f3f"
+      },
+      {
+        "path": "assets/lifeJourneyFamilyAnalysis-CAVYnYvv.js",
+        "sha256": "f24c55a3ce36b53233ba87d0acb323587814e431521d1b2a8097d17c1ee440ed"
+      },
+      {
+        "path": "assets/LifeJourneyMaps2029-B8wdgier.css",
+        "sha256": "419e741b6a583867279959cfeb98ca6c1b556a46ee2c395ddaed550020136d4a"
+      },
+      {
+        "path": "assets/LifeJourneyMaps2029-C4rMiJ1o.js",
+        "sha256": "3c92329df37d0a95e9f786762810f8e96759f6fb84e646c53052ee0d18078a13"
+      },
+      {
+        "path": "assets/LifeJourneyPicture2029-C2w5_9Wu.css",
+        "sha256": "41cc9510067daecc3e09bf7477edac0aa5f3e5c9fd20cc2e7762763976ba72a9"
+      },
+      {
+        "path": "assets/LifeJourneyPicture2029-DPn8EFow.js",
+        "sha256": "0fa355bf8c4485be92e2aea5f22eb1a980d3b46ca829f0be6a3989d4414c9b20"
+      },
+      {
+        "path": "assets/lifeJourneySynthesisPack-DeIqPlED.js",
+        "sha256": "fa1982f79ed091fe1851555e16eec60a1e32dd51cc0cf50baee17cf594f05835"
+      },
+      {
+        "path": "assets/LifeJourneyTimeMap2029-B0GStlK2.css",
+        "sha256": "cd73e79a0752ea3a6e43783fa1935e59b44fa68b473a51e9373a8dcecb54b75b"
+      },
+      {
+        "path": "assets/LifeJourneyTimeMap2029-Ca3uK1E8.js",
+        "sha256": "585b8981ef11f61e0e324537cd7e69dad21860dde5343fc887c4947df82360be"
+      },
+      {
+        "path": "assets/MaamarEstherInternalMap2029-BBkoOGws.js",
+        "sha256": "7c1a196b45c34b41c9887d74c4cf23c798f2cb7aefb152ce5bf6b69c33a994ca"
+      },
+      {
+        "path": "assets/MaamarEstherInternalMap2029-DFtvBgPv.css",
+        "sha256": "ac3019975575d74a6bc7946b5b767a3b50792c049ab8ea80e2bc57a05aa08799"
+      },
+      {
+        "path": "assets/methodIdentity-DM2yAcOz.js",
+        "sha256": "8fc0cec625cec59d7181fb5e584927deeb0c69c8ee559f458ce23285f81ffda3"
+      },
+      {
+        "path": "assets/MethodLens2029-B95i5l7E.css",
+        "sha256": "55fa07057bb432f2d37b11f4e0aee54f7696a7de9ca9f3cc297c487616f1f030"
+      },
+      {
+        "path": "assets/MethodLens2029-BtexO7AT.js",
+        "sha256": "89dc721bcf4549a0a904057ece412a01c803215303855c7df3c849ba443f4571"
+      },
+      {
+        "path": "assets/MistaterScene3D2029-UPRJK0DY.js",
+        "sha256": "128aaeb82b0f575f05415dcb92e26734f2d31dd5234b912af70b221e9c9eb49b"
+      },
+      {
+        "path": "assets/module-Dut4nRCB.js",
+        "sha256": "c72f886f135aaa3fb5ac2d5243869c29e9df313158d1ae7253ad24d9f7f81773"
+      },
+      {
+        "path": "assets/nameNormalize-C3FCqzMC.js",
+        "sha256": "4ff416ce513caefe0d03f6ab06c00eb97b6fd3cbefee93fa89260392faeebabf"
+      },
+      {
+        "path": "assets/NotFoundPage-DAqBMVGN.js",
+        "sha256": "dc6bc33823318da7fed6b44571ba72d6a6dde313845d4ebe5ea60c65092dbdad"
+      },
+      {
+        "path": "assets/Number2029Page-B6p1OQeO.css",
+        "sha256": "576f2a4c4d732b2a1466a48c19bc4497523ed58d6d1ab991985cea05ff947bd1"
+      },
+      {
+        "path": "assets/Number2029Page-o5p2UtB8.js",
+        "sha256": "d38a641162e9776a46aeb95e6074fd9c3bf1f870c4b6a1c5965cd88ad0578427"
+      },
+      {
+        "path": "assets/NumberAddress2029Page-G_kzsKfn.js",
+        "sha256": "9c27c9224382678a6c010daa175450cb89684ebdd014078f895c9ca869aee73a"
+      },
+      {
+        "path": "assets/NumberCore2029-C9LhCFOL.js",
+        "sha256": "efd6b4a576070b85c23634481f57595ca3ef22f3784a9499805ad3cabd1aac84"
+      },
+      {
+        "path": "assets/NumberCore2029-DoOroEE7.css",
+        "sha256": "67cb48e54db823954f88a0a5d6d0a97cb05358c9232b51fbfe147e201f9e121f"
+      },
+      {
+        "path": "assets/numberCoreProjection-BweVpTeu.js",
+        "sha256": "0ad01c1fbee3f2b410a1b930dec07deecdd0417ca65df4cdc5e239ad97c18c94"
+      },
+      {
+        "path": "assets/NumberDrawer2029-3cg9HINI.css",
+        "sha256": "00579c4781a01bf614a3f2f828fec03f08485a5dc366b2d133931fa43486a86f"
+      },
+      {
+        "path": "assets/NumberDrawer2029-D3_l-ZFF.js",
+        "sha256": "caa8f77022e592d97fd42b51b719751241813cd140eeaaab5e16fd9e3737f654"
+      },
+      {
+        "path": "assets/numberExpressionFocus-BqBzbfDs.js",
+        "sha256": "b5bd3a687853a18f062ddb313a1c8107bfcfe3e970eaa9d85c13080676afd2c0"
+      },
+      {
+        "path": "assets/numberSystemMethods-DAwiVTXJ.js",
+        "sha256": "6c60f65de695558b41ce8ad89a0abe5fe5a4533db647a008f17ae8e6ddfd6328"
+      },
+      {
+        "path": "assets/NumberZviPublicResearch2029-CRt8u5AT.js",
+        "sha256": "4c885132259538ebbf619157d7d32a5be1b4781900ef21066b765a815845104f"
+      },
+      {
+        "path": "assets/numericResearch-DaC8HJhW.js",
+        "sha256": "9fb489c1f8e6b53bceb3f5f9e8d729e4a8f30476e957dcf9c15549b80a556d57"
+      },
+      {
+        "path": "assets/OAuthCallback2029-CmC0ew_e.js",
+        "sha256": "1f547a852f5aba6e35abd9d980f4a362ae1d3a273e5f1068969ee0b0fc6c949b"
+      },
+      {
+        "path": "assets/OrbitControls-Bbd18qaK.js",
+        "sha256": "3ebc90783ddd86e8860a110f5cdfca7d7d4d841b8ea7ecb0d938c88c979389ea"
+      },
+      {
+        "path": "assets/palette-15cyW91i.js",
+        "sha256": "9126ad89be917b19b026d26639e1e21a5bfdb7425477dab37000e3d323d08f10"
+      },
+      {
+        "path": "assets/pdf.worker.min-CjEcRF4W.mjs",
+        "sha256": "9536359f1b8367850d485731ca1d5e45c159a7b7a0912325e539937aa21ceb18"
+      },
+      {
+        "path": "assets/post2029ExperienceProjection-B_jd7mu2.js",
+        "sha256": "1c6e4447997d14bafa5fde316081572ffa35b4aa1c8ee8bbcb590fd2eacfbb40"
+      },
+      {
+        "path": "assets/Post2029Page-BBapGL79.js",
+        "sha256": "7d2c3ce30ac71a4ee4bbcb1f088f30b9a3adcd1c63941227ede44fb8f2e5edb0"
+      },
+      {
+        "path": "assets/Post2029Page-CDeJf-PJ.css",
+        "sha256": "82c9a58045e104747d4edc2aadbe9295276eac63d817a02e275177ebbb62e54d"
+      },
+      {
+        "path": "assets/post2029PreviewSnapshot-D61-KMV8.js",
+        "sha256": "88ebea0610b574be390b8390e0c6e3ac352e442a8c72d7c2e2f28bdb87d88168"
+      },
+      {
+        "path": "assets/post2029ReadingProjection-BlXIFDsl.js",
+        "sha256": "b1b29308081926c6b174d92a47072b9c9bb905df00c471fc1c2de15cd0524d51"
+      },
+      {
+        "path": "assets/postBackground2029-BdHzcWMl.css",
+        "sha256": "c734c10966409535842134916e5998a3510c5325fc98a64e0d6ad2e0c17f6569"
+      },
+      {
+        "path": "assets/postBackground2029-BMCKN_r2.js",
+        "sha256": "a084d30c52f1f89df73b7ba07d7df16ad2bd4c7c7402a7605d3dc95decf6dc6a"
+      },
+      {
+        "path": "assets/PostCategories2029-BP4zfoFx.js",
+        "sha256": "cd9b24257fb3887a2dd38993d721b88d6d6f1c07a17cc9f4a6dc780e93b547a2"
+      },
+      {
+        "path": "assets/PostCategories2029-DP5c8Fzv.css",
+        "sha256": "195c4067a3a6568b0162e75a6dd88853632c894a8708553f8e003c4fc03c7a16"
+      },
+      {
+        "path": "assets/Posts2029Page-COqkL0Qw.js",
+        "sha256": "82ce067a2ae0264a538b77d1a1cde4960707ec82940b9f3477d3f8b03e148eaa"
+      },
+      {
+        "path": "assets/Posts2029Page-VonQrsM4.css",
+        "sha256": "7d19e166aceb84005f6bfd3b4dcbd1b8a21ef620be5567ba6497c2ab338b9caa"
+      },
+      {
+        "path": "assets/postsCatalog2029Projection-Bi_mYE6u.js",
+        "sha256": "044066976a4c1cdfe76de9a28bbf2f9f721cc5d9bd72b3dd6261105003b3e612"
+      },
+      {
+        "path": "assets/PostsTaxonomy2029Page-CcLkxcAa.js",
+        "sha256": "01b4b630cc5edf5e5c0ce7c98abb76daa97637113f127a9156414c694c0a492d"
+      },
+      {
+        "path": "assets/PostTimeline2029-lb0IleU8.js",
+        "sha256": "b124a27086c3658afe167c82bda851b4ae5337a33e3ff4cdb2f92133dc322671"
+      },
+      {
+        "path": "assets/preload-helper-BZ1Pz5am.js",
+        "sha256": "8820987e6a8afb54d776f21e305917e1ecf83cef678b4db38c2e5a405d04a8bf"
+      },
+      {
+        "path": "assets/ProfileSettings-Dd6JYCAj.js",
+        "sha256": "1d981bf5d341bc354cf7aa11916b08cb7b2f39e98cf62fa71952522655bd84a6"
+      },
+      {
+        "path": "assets/PublicContinuity2029Page-BTFYX71R.css",
+        "sha256": "c828976ed0425b063edb1b103423893b614360145ed6fb6dd12a36ded70d59a1"
+      },
+      {
+        "path": "assets/PublicContinuity2029Page-FeK-trGs.js",
+        "sha256": "3b8af79a968ed910f3e386674543d6b3bb3a3c9f2dc47a63533602852330e338"
+      },
+      {
+        "path": "assets/PublicContributor2029Page-6R6h1bDx.js",
+        "sha256": "2d85ecda1b095f201607b301c1c06d3c2ee9ae571315d1ece6238095f099c87b"
+      },
+      {
+        "path": "assets/PublicContributor2029Page-sLg5GFFE.css",
+        "sha256": "34b513b51505c131ca02aded6671a6f1ee98f6390b93081a7d95080aaff298e6"
+      },
+      {
+        "path": "assets/publicIdentity-M9EqShqP.js",
+        "sha256": "8f5342be33620d07023a141dbfa81e4961146c7ab4d4846ab6672ddf692454e2"
+      },
+      {
+        "path": "assets/PublicLibraryContinuity2029Page-B_caaVUm.css",
+        "sha256": "bb2519d9934c1da5bb91917e437d739a1d65e9af65ab804a8dfe14385f8d31c4"
+      },
+      {
+        "path": "assets/PublicLibraryContinuity2029Page-CZoF5J1x.js",
+        "sha256": "37b2a5cd4f6b55b3dbd1338d168040c0c1872dcb61dde428b764d2b7cb40a04d"
+      },
+      {
+        "path": "assets/PublicPostAddress2029Page-Du7tdh1d.js",
+        "sha256": "891ed79289cfd5f978fe9bb77523bc46f1815a25ba484e15c1c6037d55724de9"
+      },
+      {
+        "path": "assets/publicPostBoundary-CrNJcX9v.js",
+        "sha256": "8bf2a776c478a6f6a1ec4c836ab9b6e34d38e205373e6f9ad0e7d8bee892c5e7"
+      },
+      {
+        "path": "assets/publicPostUrls-YFBPKNgf.js",
+        "sha256": "6b2b573c8a5c7b33d7307b74861689ae006737f64e409c14aa5c742fc5b8a87c"
+      },
+      {
+        "path": "assets/PublicServices2029Page-Bm1Bxc8f.js",
+        "sha256": "4d5b2699f6b64fe0532825f09fa8209f578667707e64f70492d80f1c09388c43"
+      },
+      {
+        "path": "assets/publicVideo2029Reading-Dwhdn2-v.js",
+        "sha256": "12ca1110c7b3d873ff5531694676f8962658e4a0dc608356aab247151d122b37"
+      },
+      {
+        "path": "assets/publicWorldContentProjectionV1-DVgRVLRF.js",
+        "sha256": "c793faaa5f8088d043602467949fb970d15dd5615356d021c581e6387e2b7d7e"
+      },
+      {
+        "path": "assets/push-B0nFgdd8.js",
+        "sha256": "c1f2a4685d8ba1f4b944ad346eecf738427f7932250e2560378124dd82b70c70"
+      },
+      {
+        "path": "assets/RazielCenter2029-COeZJHzN.css",
+        "sha256": "039664e1f16de709962ad34a02f026aaca8bbe94aa4700db63096109512d9463"
+      },
+      {
+        "path": "assets/RazielCenter2029-D_q6DpDC.js",
+        "sha256": "8560df0bd250af36437d1b79fc1a5f48125cf04f9f2b0dd2b5156b24c9fd0b50"
+      },
+      {
+        "path": "assets/RazielOneShotActions2029-DX-OkX0S.js",
+        "sha256": "ceb15c16b6b699ec74510b5af891aba67429025f72bee940e347ff09c17801c9"
+      },
+      {
+        "path": "assets/razielOneShotGate2029-DyayxCPB.js",
+        "sha256": "a24ab5dfe85bb313504dbe1cb8308631b1e2d0e400e00fb2e925b7b1547c9482"
+      },
+      {
+        "path": "assets/RazielOneShotOffer2029-CepKHtct.js",
+        "sha256": "1a71b8ad836d188404e4b8e148a042fc28cd9f8f01b97c19156c2bd51347e784"
+      },
+      {
+        "path": "assets/razielRouteAction-DwHA1EU7.js",
+        "sha256": "5c63451a3823c6fcaae06cc839c7ba6b1de61fbf86a71f448228c26569c9b607"
+      },
+      {
+        "path": "assets/razielSavedSession2029-Bih2Do40.js",
+        "sha256": "e6d3f0509747ac4438ef79dfaa9a07e38032e8991f1bc7dc66f32980db17e62b"
+      },
+      {
+        "path": "assets/razielSessionRequest2029-BtHfAPoq.js",
+        "sha256": "c4dd7453755a06f73e65d0ed6353270ce01632888eb5aa48def71854f50fbf55"
+      },
+      {
+        "path": "assets/razielViewMode2029-EPrCdoW9.js",
+        "sha256": "91aa9e7673f6217cbab3fade61f51db408d4984cc306ab922b6199ca4fafb6c8"
+      },
+      {
+        "path": "assets/RazielViewModeSelector2029-BMLr_0vi.css",
+        "sha256": "8c21ec2395fd7b8e3017b83df3c2cbe8b4eb21d11b02ee9aaecec117a35e4d14"
+      },
+      {
+        "path": "assets/RazielViewModeSelector2029-CdVRrVx8.js",
+        "sha256": "aebb41a857b3d1cad0f5d56949fe01c8a33deba4d6d013bdee63ada217e399c7"
+      },
+      {
+        "path": "assets/RealityRiver2029-BzMsP3iY.css",
+        "sha256": "358508f6ed45ebc6716d85bac0aeed7f92184f8144d7588ed2233a892cb7e8d3"
+      },
+      {
+        "path": "assets/RealityRiver2029-DcSM2X5w.js",
+        "sha256": "58d9a381d732e60676316ed1839300c1cfded32e2d2c43e4f94b7d47e055e849"
+      },
+      {
+        "path": "assets/ReportHint-BJH8p_iX.js",
+        "sha256": "9c9b045d8f83743a1ad9a89e6c9e0729097354178c800547e8d03b65b4ab44a9"
+      },
+      {
+        "path": "assets/Researcher2029Page-CEIzlWT-.js",
+        "sha256": "0d04a98f674c317562177862df128ec7c5c517ef07818fba689600f751308a33"
+      },
+      {
+        "path": "assets/Researcher2029Page-D4T_P01o.css",
+        "sha256": "7017610fdec2163d57ac05f053abc5327e534c732b492d4b4c7a6d42f3906048"
+      },
+      {
+        "path": "assets/researchFacetProjection-BCbFFMAV.js",
+        "sha256": "5b118c0f12d6364e892c5a46687054d1db166e2090ee00ada7c7bfc1723f8d72"
+      },
+      {
+        "path": "assets/researchPlanV2-Bz_gI_Ah.js",
+        "sha256": "8837895afb9e168a130200470e73ea2654ba546474d4a2312f995d9ad388a52c"
+      },
+      {
+        "path": "assets/ResearchProvider-Dvi7kVvj.js",
+        "sha256": "bc669516854dff0916059b65a3a5d665ad53d5f74d8e9333fa817efea093be73"
+      },
+      {
+        "path": "assets/researchResultBundle-BNkcu3YY.js",
+        "sha256": "a641c218526085981cb1b8a19cdc0d94e2a9a87b6133e720d8903f805ba2d962"
+      },
+      {
+        "path": "assets/researchW2Executors-8bBw4qs3.js",
+        "sha256": "2820ada4f04e949011a530f4f924246b7c101bd5df71f461508e328fda091c73"
+      },
+      {
+        "path": "assets/researchW2ExecutorsBase-Bt7Y9JqF.js",
+        "sha256": "49344079e22f363949c6b6128bacc62f644b801b59ca1216c229309b6c127fd1"
+      },
+      {
+        "path": "assets/Revelation1237Gate2029-CyyXTMQp.css",
+        "sha256": "b279621b5efa1f766edc256dde12651c9c62251ca3bf6f89b8d42710531fc052"
+      },
+      {
+        "path": "assets/Revelation1237Gate2029-Dac9V865.js",
+        "sha256": "6a693bb3e7f6ace9254baee8d8212a5e87caecea4c64a999b7767a0d5b796f71"
+      },
+      {
+        "path": "assets/semanticSceneCompiler-51BHTuhx.js",
+        "sha256": "41255706f13f129243ebac8b5bdc7ac810a592937a99adc951247d2df05e57f8"
+      },
+      {
+        "path": "assets/seo-bLhmH7Cl.js",
+        "sha256": "993bd16c5544954bc969c0c0f9247933bbc6c1f8bd7110526838b6eefd650f2f"
+      },
+      {
+        "path": "assets/SignatureResearchIcon-0Kt_fWDg.js",
+        "sha256": "3c82d03e9cd4eb632b505622083395414e11cdaf709c4b55831b25c22dd1c656"
+      },
+      {
+        "path": "assets/SignatureResearchIcon-COpmmd5o.css",
+        "sha256": "fde681125485634cc05ee1dcadb8bd6192f546a8304121c45929f770d32a1c47"
+      },
+      {
+        "path": "assets/SiteSearch2029-BHCEGHHq.js",
+        "sha256": "5fc66205439c691a46f5f1b28a7db058a46b365589fe9bcd5c6302573bb4850c"
+      },
+      {
+        "path": "assets/SiteSearch2029-DIfgF-hO.css",
+        "sha256": "afa7ff04c71e3331821c5e5f89ea89be69d1283641cec913d8c6f384130c516f"
+      },
+      {
+        "path": "assets/Sod2029Shell-8Ee6FJFz.js",
+        "sha256": "b7f72fc849020697b4f4e7fb06adb4a43a293cc61547c5f41de26a4187ceb3dd"
+      },
+      {
+        "path": "assets/Sod2029Shell-BHRj7-RZ.css",
+        "sha256": "b44807773a0a9bc0e780c39b315ab778b4d5bdb19f9683d3128b391f26b1d74b"
+      },
+      {
+        "path": "assets/sourceBundleProjection-CzYTHQIe.js",
+        "sha256": "74f2ffd78065238dea449a8a664960e5e02daf7cb8df2754301d78216bf5c3d9"
+      },
+      {
+        "path": "assets/SourceRepeatInfo2029-B6SbxTM3.js",
+        "sha256": "0bd4165ae01a930a5575169464cb5b7772b730677922b158f054749ede384437"
+      },
+      {
+        "path": "assets/SourceRepeatInfo2029-D7B-VXbb.css",
+        "sha256": "592d7cea19e2508abed4b22ecad54f01c6e074423d43b02281bf387b252da4ba"
+      },
+      {
+        "path": "assets/SpatialMethodStage2029-C72jccAu.css",
+        "sha256": "1ba26cfb13fb1740fea563f95881317f20819e4ed144adc46db6cd2ddf7bfc74"
+      },
+      {
+        "path": "assets/SpatialMethodStage2029-DuvPzBmi.js",
+        "sha256": "04c6c057255521ebd2e2e34d57bdeee4cfd71f05e5b7f3c696500822d26fcb07"
+      },
+      {
+        "path": "assets/StayUpdatedCTA-Blc7j9H9.js",
+        "sha256": "a28b32437e006139a400332cb5a3c5fb6df889c846ad754ac77ffe87fe6c8dff"
+      },
+      {
+        "path": "assets/StoryTreeSequence2029-DbMcZyUp.js",
+        "sha256": "ef9f4b1f65b3a419c39e8afb63e31af6e6b5d4bd8b4011493aa20b055e489612"
+      },
+      {
+        "path": "assets/supabase-h1xKeEkX.js",
+        "sha256": "ed39300bc393829898f422f0792d045715e7c834ce2503327c566c3ee848235d"
+      },
+      {
+        "path": "assets/SurfaceSectionNav2029-Dcy7JKj5.js",
+        "sha256": "5e4bdaaf5b19916855c63645c936257e30e3049fef27e2e6c3d3bae7cce83382"
+      },
+      {
+        "path": "assets/systemFeedPublicSources2029-BcFRI_YB.js",
+        "sha256": "9780333352dcf6be0f68306ab40d583364701121e808a7d650763f83c936a9d4"
+      },
+      {
+        "path": "assets/tanakhVerseResultAdapter-C8LxS_sw.js",
+        "sha256": "ef7a7dc386c2a0a685bdf2b530cb44df0b80cfc3bc66f7b0032e13292ab9a3c8"
+      },
+      {
+        "path": "assets/theme-B2UPacu4.js",
+        "sha256": "99b8929a6088394f50b30ea8114ff4dfeb0b5d321208dfb9354bae3dd82abba0"
+      },
+      {
+        "path": "assets/timeFlow-B3cocsBH.js",
+        "sha256": "8668b4b6f3fdb1b1f2def5782b20d75d6e85742649f09e98078e571898499e37"
+      },
+      {
+        "path": "assets/Timeline2029-a6_QYh8e.css",
+        "sha256": "3267ca7164ff87b5a06e56b6de4a610932e1f2af091917adad5c578ff050bd8e"
+      },
+      {
+        "path": "assets/Timeline2029-lE5wfbTE.js",
+        "sha256": "efdd0a1869298811da37d61de769a749a34a8c5f26b810cb8eb8dd8ff9024492"
+      },
+      {
+        "path": "assets/Topic2029Page-C67EuQhZ.js",
+        "sha256": "2bcb8e38e578a36463bee3ce035e0914cc472ad5df5d6f169432b1f44fb83fe6"
+      },
+      {
+        "path": "assets/topicConvergence-Dyw1qGk2.js",
+        "sha256": "f56f1867bda12b2c5cbad6eb8dc94a00dd7c5ccb92236b45aefab8da801a2bfa"
+      },
+      {
+        "path": "assets/topicExpressionFocus2029-DFZWRRLi.js",
+        "sha256": "b2ef051abd6ef25b5c2cc33608cd287f671ebcf6ed750b9fca85c747a942c3d6"
+      },
+      {
+        "path": "assets/topicSourceContext-DqSozpKF.js",
+        "sha256": "289898dccef788fec6f9e6926eb36c87e946eae18c81d1110fffab391a968b77"
+      },
+      {
+        "path": "assets/tracking-DlrbOHAp.js",
+        "sha256": "3702af17deef1f6b4cb66996330cb0ce86e92f4521d076cad7d8732f17b9d3b7"
+      },
+      {
+        "path": "assets/useGematriaOpeningOperation-C4LRTgoJ.js",
+        "sha256": "e39323cd5febb09b3ac617ade4dccf51eb923c2ceecbff2bb571b851f1f5f628"
+      },
+      {
+        "path": "assets/Video2029Page-DyAJzIBt.js",
+        "sha256": "3d72c89cc846401d3a2b00f98988fd140d2a49e78513113a632a17899472cf00"
+      },
+      {
+        "path": "assets/visits-CeKIRTiK.js",
+        "sha256": "a0838943bdc88c420df18935a42d41a46807d8239921de76775644b0fb7782cb"
+      },
+      {
+        "path": "assets/WatchButton-DFPG23U2.css",
+        "sha256": "49336fb48d149d20da28bc027a944e94024567852a6004a5bd0c9575b5f42772"
+      },
+      {
+        "path": "assets/WatchButton-DUyPQ4gg.js",
+        "sha256": "3853a81f6fdc0ce9ae7b07685c0a3bec1e4baf3c24db5695110b8c4f3e401fb8"
+      },
+      {
+        "path": "assets/World2029Page-Bbqmydca.js",
+        "sha256": "3aacc8363fd35dec71ac803e550838e555fd8b8ccd38de754ff7dd168eb2dbbe"
+      },
+      {
+        "path": "assets/World2029Page-CLP4Gbry.css",
+        "sha256": "4e08cda69adec72cb22b5e0876279160a8268d9911e6148ded5b66fde7a00d4a"
+      },
+      {
+        "path": "assets/WorldAllResearchTable-B7IZiTAn.js",
+        "sha256": "43a3eb0730505acf19bf296e3ec8bce1a94c321adcb3f5860b4447d6b164ba0e"
+      },
+      {
+        "path": "assets/worldContributorLens-BnDWBaD6.js",
+        "sha256": "f6394b7951b7195dbccaa9aec1d101614144fc96f234b9a181e2239deb516bad"
+      },
+      {
+        "path": "assets/worldContributorSourceLocator-Cyr0YS9t.js",
+        "sha256": "36d9a1da1c084b670946b169ab0e8fe6ad11acd3f54ae9403c9605dba3b76c7d"
+      },
+      {
+        "path": "assets/worldDiscoveryStream-xWogjfgK.js",
+        "sha256": "16dec1873f8b2ff3947f8e8b72b751f7f1a68ac1a9d48538b0b0e36de1c21339"
+      },
+      {
+        "path": "assets/worldElsTriageProjection-DbuPN0zk.js",
+        "sha256": "f94c343079b666eee26d8396376aab89978f94c5745143bccb2ac522581c6a2e"
+      },
+      {
+        "path": "assets/worldFindingShare-D43PdKFk.js",
+        "sha256": "b8ed15777626c5e80b3d7fb28fc8e6babb29b39c528fedfa72c591ee599a3151"
+      },
+      {
+        "path": "assets/worldFindingShare-qD-Is7g7.css",
+        "sha256": "0e2858835565090b2c5426f588e3eb2d1ac76a9ac0212eacced61861f7dcb26d"
+      },
+      {
+        "path": "assets/WorldFlightStory2029-BLB1SHPy.js",
+        "sha256": "eaceeb1a051e3cccd08dbcccd867fe51704c5b2f6b50dedd74f362acd11b832a"
+      },
+      {
+        "path": "assets/worldGalleryTriageProjection-qL4R99Op.js",
+        "sha256": "90a280580f81297938ba394e6007f04c0ac587391f2f3296f2e8664fc687b080"
+      },
+      {
+        "path": "assets/worldGraphRelationOpener2029-CeUCHnet.js",
+        "sha256": "8b4a579cd793d045b6e3f3cacb1f0ad856112de94396a1b27bd748b9f40fca46"
+      },
+      {
+        "path": "assets/worldGroupSource-BT-HU0EV.js",
+        "sha256": "62b2a1221ab73bd45ae049100a909950a102f1cfc4577d0698e9c9c304de56fc"
+      },
+      {
+        "path": "assets/worldJourneyProjection-BmBHTzUN.js",
+        "sha256": "5719d33d5ab589d552bf95cb6f159f8c3b57c5f483d063e6a5d5e46c178eed57"
+      },
+      {
+        "path": "assets/WorldKnowledgeTypes2029-CvabOvmA.js",
+        "sha256": "09812599794ad711fb3b7c22710f579ec1e4eb9515282c2f68048b6d31f248cf"
+      },
+      {
+        "path": "assets/worldLanguageTriageProjection-DZBWQqy4.js",
+        "sha256": "ee2d88eb2f9615bc94e24cee65e4565150a5d45f148a13ed7e2a3facbb20d159"
+      },
+      {
+        "path": "assets/worldMapViewModel2029-DJMI18u1.js",
+        "sha256": "cdf2672c6936196f1cc589ea9e84b471ca503c6b3237960d5e490de6851942aa"
+      },
+      {
+        "path": "assets/WorldPeopleSources2029-BRoxXZre.css",
+        "sha256": "30e3da873a1ddd530267c21c80402537eba4047045e7b8dd3506030005bced83"
+      },
+      {
+        "path": "assets/WorldPeopleSources2029-dpI8GkTY.js",
+        "sha256": "c6a3218ba3f29e7c23750d82ef314c21f98c2f0224c6d91efff8285f401e0753"
+      },
+      {
+        "path": "assets/worldProminenceInputs-C_MmZ1kr.js",
+        "sha256": "c1eba2bec3232c43c1a555ddc34850f3277be71d75c1cff0c8fc12ba6690ed97"
+      },
+      {
+        "path": "assets/worldPublicFindingReader-CQ8859A1.js",
+        "sha256": "f421f30bf417230efad00516d33d4f3573657b525bbc57d180f0c86b10a6aad9"
+      },
+      {
+        "path": "assets/worldPublicPeopleIndex-DtkhFeRq.js",
+        "sha256": "c376321343b86376b7fcd0b195b2a1411b8cae4c42266f8d6f0e58d084e32e5b"
+      },
+      {
+        "path": "assets/WorldSourceConnections-sF-W9r2W.js",
+        "sha256": "cb709b4e6aa184bdc5d5651e3cc7f71c2a462e029953ef1d55f1176447978d1f"
+      },
+      {
+        "path": "assets/WorldSourceStory-CmeGTnuu.css",
+        "sha256": "5b1ae5baa5e9199b5210dc9a771ba93c9dd91b7ddf8001557db844786a4225bd"
+      },
+      {
+        "path": "assets/WorldSourceStory-CWqjxFmU.js",
+        "sha256": "5cf3e0149e49c0e2608664a194b99b76ea816a4160e4ed323503a325495535e3"
+      },
+      {
+        "path": "assets/WorldZviApprovedFindings2029-BkDs0NuM.js",
+        "sha256": "7874f6d4a3a3aefdf0e7bf625adc20d4405541cd5a7fb580f75c88e1608dc668"
+      },
+      {
+        "path": "assets/worldZviApprovedFindings2029-DbM7zP2H.js",
+        "sha256": "980e42da57aa33e75e5b09eb9945f837edfae3f9d1cc1c666fee2617a776fd7d"
+      },
+      {
+        "path": "assets/WorldZviSourceFindings2029-BbOggaTH.js",
+        "sha256": "f8f642f12fa957007d72a2d31ffc1970c1d25d1f13715013b39bf03cd76c2442"
+      },
+      {
+        "path": "assets/WriterPersonal2029Page-BhuxyeQZ.js",
+        "sha256": "35a4375cdb48d777ffbf3f8697673e3f8b10e18bcd144119f1d21584da108e25"
+      },
+      {
+        "path": "assets/WriterPersonal2029Page-BNlMy8uG.css",
+        "sha256": "5e7cecdea0443d8d1fd125895749f5d6c27fc27692e7eb7ce25ebc4a984efd87"
+      },
+      {
+        "path": "assets/ZviFindingCards2029-5A-AK-p-.css",
+        "sha256": "1c679469300f1bc5d71549d178fa00f98274317c1502ef731442786dff80df24"
+      },
+      {
+        "path": "assets/ZviFindingCards2029-K51Jfsmt.js",
+        "sha256": "3b18569d8c6b7beb11313f0e4d72a4540f37d0c480e3e3ac6d8985120c97b0f9"
+      },
+      {
+        "path": "assets/zviMultiValueWorldProjection-DQ9O6YVO.js",
+        "sha256": "b0b05a599203e6ecaccf2319dbfdfd2eb20103e8c533dbff7d50d87e6d2742f7"
+      },
+      {
+        "path": "assets/zviSpatialWorldProjection-BbgumYau.js",
+        "sha256": "5233f64a61bfe05be9224c110b904d1724106382da1e747c1816de3d20429e09"
+      },
+      {
+        "path": "authors/sod-hachashmal.svg",
+        "sha256": "74ebb230f0448121f2fce6f319793eb1d4e4067d74c4252327244cba423846a9"
+      },
+      {
+        "path": "backgrounds/2029/home-cosmos-desktop-5113c94ba6e5.webp",
+        "sha256": "5113c94ba6e5a7d30882f42123e345a455cb4fd996b4c3d417e29edd81d7f085"
+      },
+      {
+        "path": "backgrounds/2029/home-cosmos-mobile-8eaaeef46082.webp",
+        "sha256": "8eaaeef460828983133ddb8796966691d95e6aa5761627fc117a50edeb4a0dc9"
+      },
+      {
+        "path": "book-data/ahavat-torah.commentary.json",
+        "sha256": "8de1457e77938ba77d3a600ed40e5fc5fc4d43b0001eb9f0d0e05f4a6167c84c"
+      },
+      {
+        "path": "book-data/ahavat-torah.letter-sections.json",
+        "sha256": "de4bccef9fb52c9b0e7eee4663f2be9bfa9660c2601f568a76dc583f02dfff3a"
+      },
+      {
+        "path": "book-data/ahavat-torah.page-text.json",
+        "sha256": "5dfa0a866c71fd983e8f2f6fe45c8713e65155bacfbb6344ac7dbbcd6ae236d0"
+      },
+      {
+        "path": "book-data/ahavat-torah.roots.json",
+        "sha256": "c4dc52ea138c99ed33bee9de274e78b0c041fc69fa60b25e95f0224be28108f8"
+      },
+      {
+        "path": "book-data/ahavat-torah.source-page-001.webp",
+        "sha256": "bbc091404ffd5e8f62a3e0cec5681434e4bd53291abe2b175a663515470ffb97"
+      },
+      {
+        "path": "book-data/ahavat-torah.tables.json",
+        "sha256": "70b487b51ec7a61a0864563da03d063107441853c8716e4f4eb1247a546c0e53"
+      },
+      {
+        "path": "book-data/bentov-brief-tour-higher-consciousness.commentary.json",
+        "sha256": "aa586020508451877a791be30bdf3a35463d4bbd7e401171cbe6e028c735ec0e"
+      },
+      {
+        "path": "book-data/bentov-brief-tour-higher-consciousness.page-text.json",
+        "sha256": "84a95255853dfa83891d413b2b863423fc16f3b4a7b3f9db1c270e7e5cb1b23a"
+      },
+      {
+        "path": "book-data/books.preparation.json",
+        "sha256": "2e2b75ba6c18eaf4481cff1bcb46b3a694adcdf142f75d3f037fe763c060ac9d"
+      },
+      {
+        "path": "book-data/daat-tevunot.commentary.json",
+        "sha256": "70a37aff07414b7942fcbd389c19c63b0ee6b855b5ea1625255e8fab32f197b2"
+      },
+      {
+        "path": "book-data/daat-tevunot.internal-map.json",
+        "sha256": "ac892d6486906af4cb8d548ad4e22edc646e85bbf5f5e357529ed52503f0d834"
+      },
+      {
+        "path": "book-data/daat-tevunot.page-text.json",
+        "sha256": "8478d3a5e0ced6fc9e4ae64021ecfba6d020f740a8aa023e7c2711b1fe9c5ff2"
+      },
+      {
+        "path": "book-data/daat-tevunot.tables.json",
+        "sha256": "ed4f04ede74f8658ee30a5589e99c251844d8553a56d5766c4b1e899e64eca4b"
+      },
+      {
+        "path": "book-data/maamar-esther.commentary.json",
+        "sha256": "86c860d3ad6d07fb5bcc31a98ad879f7436afcb85796fff7d02d3c0966f04753"
+      },
+      {
+        "path": "book-data/maamar-esther.internal-map.json",
+        "sha256": "50ba5c780ee11f9797bb2ef1fa2cbc81461ad70b84d9d895579ab0bdc19c6f72"
+      },
+      {
+        "path": "book-data/maamar-esther.page-text.json",
+        "sha256": "1d727187c9a7b81d0f29259be063498d1fd6d7ce45c02251c4c3583bf6b8a927"
+      },
+      {
+        "path": "book-data/sefer-habahir.commentary.json",
+        "sha256": "7ed99553147630e20a9910784d3b3c234633dc0c2b9b0ab27b0fb145c76387f5"
+      },
+      {
+        "path": "book-data/sefer-habahir.internal-map.json",
+        "sha256": "727dcf12e697dcce421c64b11b0b81dc6e0128939d1787b74e122653bd2af6fe"
+      },
+      {
+        "path": "book-data/sefer-habahir.page-text.json",
+        "sha256": "cc6bce08d5d45ec4bc49ea4ad5928b991b9fb294093dbe37095b5b0d2de58c49"
+      },
+      {
+        "path": "book-data/sefer-habahir.tables.json",
+        "sha256": "37cd2bfbd80f198865e34ed3be27cea82e9488d601bdf25b976d01dff3bccbf4"
+      },
+      {
+        "path": "book-data/sefer-hapliah.commentary.json",
+        "sha256": "c6319e4d9b12c3386816cb22f9b080a7a93275b54f34e91f89d8bf867faab548"
+      },
+      {
+        "path": "book-data/sefer-hapliah.internal-map.json",
+        "sha256": "89fb37cabad0ca2c47fcde8438e0f97e95e3c45ebd44a381d2d836efc65ee6cb"
+      },
+      {
+        "path": "book-data/sefer-hapliah.page-text.json",
+        "sha256": "b0118fa8ae9fe66796124d3725b73448d0285c271e6737fcd00ca1b8b397c182"
+      },
+      {
+        "path": "book-data/sefer-hapliah.tables.json",
+        "sha256": "2730118b006ea44d871e559d4ec3177a4fd1b020580bd40e9ec5e042df22facc"
+      },
+      {
+        "path": "book-data/sefer-raziel-hamalach.commentary.json",
+        "sha256": "fbecc03f7d092a219556351b34d2bd20224133a3764cce618663db4ca3d41689"
+      },
+      {
+        "path": "book-data/sefer-raziel-hamalach.page-text.json",
+        "sha256": "d88573c30c547870b42c66601c5e5885206924aa0c3748185f4bc6c997b2a57b"
+      },
+      {
+        "path": "book-data/sefer-raziel-hamalach.tables.json",
+        "sha256": "408ce421c901e9aa80f19f5c5454d17d4cfde6c53476ada42bc119191095fd0b"
+      },
+      {
+        "path": "book-data/sefer-yetzirah-page53-preview.webp",
+        "sha256": "39562d3ee1025dad73f72fcf4d2c83b6743ce7fabf9b451164336b9ed78dfae8"
+      },
+      {
+        "path": "book-data/sefer-yetzirah-page53-reading.webp",
+        "sha256": "2b7d6ab4c0f7d62878d4d9e4885347e59a639e70cde653cddd539256c3ff674c"
+      },
+      {
+        "path": "book-data/sefer-yetzirah.commentary.json",
+        "sha256": "8f06385e049425fea5286560f5ac5cda0a7f71ae7feb69e4d01b836e461de557"
+      },
+      {
+        "path": "book-data/sefer-yetzirah.page-text.json",
+        "sha256": "df95f3e61fac09864576ea50bf6e5a3f0dfe324c9ff8e0c81aea91a82bc8f6f7"
+      },
+      {
+        "path": "book-data/sefer-yetzirah.source-readings.json",
+        "sha256": "a3bd40326119d9484d6c75f1d170bcf432efcaa5f6146db1c313f626d3e00373"
+      },
+      {
+        "path": "book-data/sefer-yetzirah.structures.json",
+        "sha256": "852e9d6a7d4d0810cb999563083fddfcabfb4259bb87cd03a5e0e08a0b7415f1"
+      },
+      {
+        "path": "book-data/sefer-yetzirah.tables.json",
+        "sha256": "4c3ec6259db07065a80b85a88e73f8fcfc455a85eec5592cd0894542ed0cb2be"
+      },
+      {
+        "path": "book-data/sefer-yetzirah.ten-depths-reading-depth.json",
+        "sha256": "3bdfa3f9d6bf0b692c99a2166f9a94d7084e5c90ee8c108ff814a310836424dc"
+      },
+      {
+        "path": "book-data/sefer-yetzirah.units.json",
+        "sha256": "8dbe743cebd22e2a25e8c0b05d8b460f7c041e63537b42dc8bc11cb9f422c312"
+      },
+      {
+        "path": "book.html",
+        "sha256": "bf7dc222533444589ed9990eb6f2a77a72a90ff782d6cd7fde0a1ac3a6a105f4"
+      },
+      {
+        "path": "brand/2029/canonical-lockup-128.webp",
+        "sha256": "ed39371442eabf76da44f7b2642e4c740b75f856453faade5abdee33dc06e07d"
+      },
+      {
+        "path": "cards/iran-1820-3006.png",
+        "sha256": "4e28cd500bb6afc962abbe1b3474654897cd0a47edc3b4e6591b9bea95621b8c"
+      },
+      {
+        "path": "cipher-cards/40432eb4-04fe-45cc-b802-8c09ca4f8273.png",
+        "sha256": "c0c25a2c5be179e87474196e4e27318cb540bebb847b05fc8d2a1ef9aa230126"
+      },
+      {
+        "path": "cipher-cards/a2db2bfe-cfd5-4b0c-b16b-082ae55b2436.png",
+        "sha256": "38419e509b8d21642326689f36a924224cc8af9fa5ffcf50686d4355ee66fcaa"
+      },
+      {
+        "path": "cipher-cards/bf763918-1dab-40c5-8a0a-713fac84f6e0.png",
+        "sha256": "3bd7fc17c3257e24ecd99101654a4c8703f342fec1b1b132002f21543a07e714"
+      },
+      {
+        "path": "cipher-cards/efe4a200-8794-43df-81f7-36fb4df3dd24.png",
+        "sha256": "5420e3861949aed2625943907e9a1122cba36b0446707ecc152cbc17734e8088"
+      },
+      {
+        "path": "city-bg.jpg",
+        "sha256": "e7f6f5847ebbf0481c8b288784c7a598da3186aaa21a8ab86f9dd14c83000e35"
+      },
+      {
+        "path": "cosmos-bg.svg",
+        "sha256": "baace5c24131fb3e450cd9a9de4b38f1028292b3fb888489743e008cbfe49dda"
+      },
+      {
+        "path": "crown-favicon.png",
+        "sha256": "a67d7ae778a15dee1320eaa8e33b425e4b47e9145a498d35944bae4ffe1ac3ba"
+      },
+      {
+        "path": "crown-icon.png",
+        "sha256": "22ef2ef489d37ce772457af04d36a7692c7c613dbae420a90b82396e54187a8b"
+      },
+      {
+        "path": "crown.png",
+        "sha256": "d0667a3c85c1899f1a61299e7f558d7a835db7de10b193afb763126600835fb1"
+      },
+      {
+        "path": "dimension-five-night-1280-fed0a0b53207.webp",
+        "sha256": "fed0a0b5320750afae2e611568bf3e98c25b3de3385763c62177ef8ef54c1506"
+      },
+      {
+        "path": "dimension-five-night-720-a608fa1bd777.webp",
+        "sha256": "a608fa1bd777a3a2448b22f6e8ae80c3073269b199b4c1a09db9a6a09def3954"
+      },
+      {
+        "path": "dimension-five-night-mobile-v2-720x1280-b062e53195ec.webp",
+        "sha256": "b062e53195ece61eef9d7725416692e9aa061705223758e06e66051e941f5098"
+      },
+      {
+        "path": "els-dynamic-lexicon-v1.gz64.txt",
+        "sha256": "787f039e2977952356764b07d94ce2ed257902ac535a6833a06cb6a258fc0925"
+      },
+      {
+        "path": "els-icon.png",
+        "sha256": "44ef7167cceba2e13da5475fbae8217effdd2ca89a13e87d4a50739945107f48"
+      },
+      {
+        "path": "els-logo.png",
+        "sha256": "44ef7167cceba2e13da5475fbae8217effdd2ca89a13e87d4a50739945107f48"
+      },
+      {
+        "path": "els-rebuild-crown-preview.webp",
+        "sha256": "3ba97a0758151de1bfdfa3ad2c0abcb33c084fccedf8d4b6a768537aef181459"
+      },
+      {
+        "path": "els-rebuild-system-preview.webp",
+        "sha256": "8382da2d989afb0cf2bfdd030b6d516dcd420c60489f2c66c5678cc6bb62b71d"
+      },
+      {
+        "path": "entity-hub-observatory-1237.html",
+        "sha256": "1cfef9888a1c91070d5168e7856ae24022411758b3ac385fc8451f21e093306f"
+      },
+      {
+        "path": "favicon-options/01-crown.svg",
+        "sha256": "1365a6d196705389f709ea3618d692608205916b5624614bfb3743773abb51cd"
+      },
+      {
+        "path": "favicon-options/01b-crown-clean.svg",
+        "sha256": "a2208883515f3acdb925963ff7d1bb93ff1d2e7b789a77cac35d831c87f051ef"
+      },
+      {
+        "path": "favicon-options/02-aleph.svg",
+        "sha256": "5c7e041c9c4da65af7057b59dffebc0f7638b694093b56b6de542c0639beab5b"
+      },
+      {
+        "path": "favicon-options/03-star-crown.svg",
+        "sha256": "6aa2ea35009ac2a2a150b6728b8a5340ebcbe055a7f74e8657d20dacf9269c41"
+      },
+      {
+        "path": "favicon-options/04-monogram.svg",
+        "sha256": "19c116c04f04b0cd5960c4c9115910e843810b464c415157ae010d8eb7fb48d5"
+      },
+      {
+        "path": "favicon-options/compare.html",
+        "sha256": "ed297ae9804a900717de1cf13e0fa82a7dca1da2f00fd5f32ef8c0cdc6a08137"
+      },
+      {
+        "path": "favicon-options/preview.html",
+        "sha256": "cba8672cac590fc6cdb66afa5acbbb7de88316f557df82f5e6b7339a435441fd"
+      },
+      {
+        "path": "favicon.svg",
+        "sha256": "8a906497b0e02236ce646dfbe9e366b8d6e64364895c932b4d5349d39d0b87c9"
+      },
+      {
+        "path": "fb-cover-1820.jpg",
+        "sha256": "ca3fec175a8d4d54058e9fdb02476f28f5cc68c2a036c1dd83177a390af518b5"
+      },
+      {
+        "path": "first-gate-bridge.js",
+        "sha256": "a1aa196aa6396923a6935d08bceb79ecde29eeaa4dd3d746f043c52a106828c9"
+      },
+      {
+        "path": "fonts/NotoSansHebrew-Bold.ttf",
+        "sha256": "d3b01343f71e8a93fffb84c345a1aecbaf4694b98d0eaace916cb9eac9e6dcd3"
+      },
+      {
+        "path": "fonts/NotoSansHebrew-LICENSE.txt",
+        "sha256": "075f91382875da1c4b491f1facf2586f55448705133264d98ce15cab6211b125"
+      },
+      {
+        "path": "fonts/NotoSansHebrew-Regular.ttf",
+        "sha256": "436900d5ad77d33e4234247f3076eaecd25b92b9bea0519514f684140e3566a7"
+      },
+      {
+        "path": "fonts/Rubik-Hebrew.woff2",
+        "sha256": "197b6dbe5c6bec7276c59b02d70a16ee6acd44322fc2f8d0226c07f8d57976c2"
+      },
+      {
+        "path": "fonts/Rubik-Latin.woff2",
+        "sha256": "691cd1d9b4c0cdf31a1dcf04259c86f92c85e69f6622abab7964d81e36890691"
+      },
+      {
+        "path": "fonts/Rubik-OFL.txt",
+        "sha256": "3cb6a6084f5d942a8f3b5fda0f6a90dde18d7f7f1798886f4043d18f8c1a811e"
+      },
+      {
+        "path": "gallery-updates/saker-358-mashiach.jpg",
+        "sha256": "33a15f783d16dfb4805f6fe5733a3902cb93dbe3cfd9ce52f7815476d6a35e20"
+      },
+      {
+        "path": "gate-bg.jpg",
+        "sha256": "7f6a0ad807bc11a4cf2691476aa7fad7e6b4400cef3103ba60fd5d8662ae0094"
+      },
+      {
+        "path": "generated/5d/emotions-messengers-2026.svg",
+        "sha256": "1953989ea27144a9e301f199dfe3387ef40a3fd1df27ea784de6571804b7fbe1"
+      },
+      {
+        "path": "generated/5d/hidden-body-secrets-2026.svg",
+        "sha256": "f89cc4328c6a9d9de3199f8289cbf282d962ec6ba4afe1f11df466cba4679d31"
+      },
+      {
+        "path": "generated/5d/hidden-frequencies-2026.svg",
+        "sha256": "9482e4c8a72b55d6ad27ad0ef5e91b63dc136ee65039b0df72d57cad87dda0ea"
+      },
+      {
+        "path": "generated/5d/self-mastery-secrets-2026.svg",
+        "sha256": "1661796479c4bd5614d32c17c03eb338215a0e169fdf46786e65f47945290dd8"
+      },
+      {
+        "path": "hashgacha-pratit-1020-cube.jpg",
+        "sha256": "848a1df2749d0a04de0e2603724f403f627082c279f66a266ba9ab0baaa8b9cd"
+      },
+      {
+        "path": "heichal-theme.mp3",
+        "sha256": "7b97a9253a244cb1d279c3294269bde3cc4e5971d389df0af0ec969b03fbd52c"
+      },
+      {
+        "path": "heichal.html",
+        "sha256": "5c605c5b2f301810cfd8e3ff9fb577208d3e4ebaf734447f03232728d693e315"
+      },
+      {
+        "path": "home-hero-gate-888.png",
+        "sha256": "0289d00c78b42051480a93bfae095142e8e0de1f254c86972339c4be0f6c4911"
+      },
+      {
+        "path": "home-rosh-hashana-5787.jpg",
+        "sha256": "519523dc8ea4a2c5e7b2f17b326bc1827527eba01a1acacc581ea36f518f79f0"
+      },
+      {
+        "path": "icon-royal.png",
+        "sha256": "ace1e34d2cd9689d73050cd481e2994c1f41505fb7a3df023ecd3eb1446da5c2"
+      },
+      {
+        "path": "images/sod1820-research-os-teaser.svg",
+        "sha256": "407f363fc3b8a29120a4f0ed1015187b45f3e78b0acb77dd10cf4109da0c5fb7"
+      },
+      {
+        "path": "journey-preview-1237.html",
+        "sha256": "d9911e0cc02b4e2d84d5fadb4f40210f3e82d721c61176773bacb5c2758eadab"
+      },
+      {
+        "path": "kolombia.html",
+        "sha256": "fd76fd7f60827bb9a7490cf9cfab3ffc7e3759696b562c32d34b138ff99f6ca0"
+      },
+      {
+        "path": "legacy-dark-bg-2026-09-30.png",
+        "sha256": "0289d00c78b42051480a93bfae095142e8e0de1f254c86972339c4be0f6c4911"
+      },
+      {
+        "path": "legacy-dark-bg-post-1280-6ca0167e2dda.webp",
+        "sha256": "6ca0167e2ddab3e6b3640b43936bbbf90d283164e0d7e17bd5e8965ee2647db7"
+      },
+      {
+        "path": "legacy-dark-bg-post-720-8f3a91ae32df.webp",
+        "sha256": "8f3a91ae32df23294b891549aaba89e678efbf2dd258c7d907956d4ccd761546"
+      },
+      {
+        "path": "legacy-dark-bg-post-mobile-v2-720x1280-81d7bbed9769.webp",
+        "sha256": "81d7bbed976958f55fc1b2093e457ec359f37155375814864bc591d54f8f20fb"
+      },
+      {
+        "path": "legal/rubik-outline-OFL.txt",
+        "sha256": "472cbe7c25441df63e9c7864b43eb3c0f4b3df950c66a76224e6cfe1eae843fb"
+      },
+      {
+        "path": "logo.png",
+        "sha256": "754fcae4d0f00607b92a9e90e6d2731ff186581d9df6a23be095d195f9a56732"
+      },
+      {
+        "path": "mah-kore-habora-night-1280-8bce64abed3a.webp",
+        "sha256": "8bce64abed3a789e6ea1ab39cb8e6d3663645885efd634f357b403cb9636350f"
+      },
+      {
+        "path": "mah-kore-habora-night-720-883ada3afb2f.webp",
+        "sha256": "883ada3afb2fed85a0cf2fdeab885b4dc17eec4e87e82c688508ec50ef10204b"
+      },
+      {
+        "path": "mah-kore-habora-night-mobile-v2-720x1280-ee55ed6ecb14.webp",
+        "sha256": "ee55ed6ecb14640c167f4990cbd30cf8de76d735daef28cf04643aaaac475be8"
+      },
+      {
+        "path": "media/posts/2026-10-sprites-france/sprites-france-poster.jpg",
+        "sha256": "6bbe060b23b589b0ed04a92e8293f5dd5b9f5b4619edcbfbd645237d2fa0637f"
+      },
+      {
+        "path": "media/posts/2026-10-sprites-france/sprites-france.mp4",
+        "sha256": "f91dd929340fc825d8655725f83ea3f2503ffa76cedcd5028d170c280c8eb03c"
+      },
+      {
+        "path": "media/posts/2026-10-sprites-france/trend-is-your-friend-poster.jpg",
+        "sha256": "860669ba3c3cc13ccb3aa7b03ac3fc6c937c1d7c3954ca252cfe9083f64965de"
+      },
+      {
+        "path": "media/posts/2026-10-sprites-france/trend-is-your-friend.mp4",
+        "sha256": "b8ad45fcc2d0b92aff6ecda0ce64b51d16ca56ac0ca2dde81af6265fc3b88513"
+      },
+      {
+        "path": "news/iran-trump-ynet-3006.jpg",
+        "sha256": "8a2f561685013c1441156861bbe00b74196411acd4e81021e8c630898bc5e012"
+      },
+      {
+        "path": "preview-readonly-sw.js",
+        "sha256": "94e18a2afe48d6b00d2cb1c21d3a2156e17b07a479aaa583deeefcead822af24"
+      },
+      {
+        "path": "preview.html",
+        "sha256": "13de6e19c3ad10ed1c38e55c475d0ac1e92028311a360d695a08dda4d687a11e"
+      },
+      {
+        "path": "public-reading-sw.js",
+        "sha256": "94e18a2afe48d6b00d2cb1c21d3a2156e17b07a479aaa583deeefcead822af24"
+      },
+      {
+        "path": "raza-deshabbat-910-cube.jpg",
+        "sha256": "1a8392d92065962b9b284a9af3794798d342ebfcdd9384c5bc3b221314abda89"
+      },
+      {
+        "path": "rollback/legacy-sw.js",
+        "sha256": "6f5a514678d95230332ba2d92c35e6581ee592123833f206142a003e45e5cbd0"
+      },
+      {
+        "path": "royal-bg.jpg",
+        "sha256": "7a1457adbab91ac55b7be8e2135f4d10ffe7d326445d7161264b37eaaf5b6b14"
+      },
+      {
+        "path": "seals/1820-birkat-kohanim.jpg",
+        "sha256": "107986d52160932073563cc49ed756f4f598d2910f70a322d2b770faf6391f27"
+      },
+      {
+        "path": "seals/1820-five-seals.jpg",
+        "sha256": "849ff2dc074fb86de6f914383fe58c9536f26407633cb493965e1c2568c56139"
+      },
+      {
+        "path": "seals/1820-poster.jpg",
+        "sha256": "a0640a07814e238588048fbf768cf374d0e53973a578006c8db7c9e8e060e9bc"
+      },
+      {
+        "path": "shofar.mp3",
+        "sha256": "0014889c86bc1ad114a7ec90a848cb7fc19a50e75ded4950ed687c937da018e4"
+      },
+      {
+        "path": "site.webmanifest",
+        "sha256": "9927f920035f6a77b9b14bdf685866c8650203e9910e60260bee13f612a486ee"
+      },
+      {
+        "path": "social/matrix-506/s1.jpg",
+        "sha256": "90f1c0de8b12c35020420bc698b32a75c31591eb473ba91eb84bda199bb55a71"
+      },
+      {
+        "path": "social/matrix-506/s2.jpg",
+        "sha256": "5bd687bcc48bfc8959f07984c28b7f801078c5790560f158f2f6be1859f6eea5"
+      },
+      {
+        "path": "social/matrix-506/s3.jpg",
+        "sha256": "71155ee26ce204eb2bfd7024f6d4010e38ecbde380a789cd76d9c733ddbac613"
+      },
+      {
+        "path": "social/matrix-506/s4.jpg",
+        "sha256": "4cf2e02b7e90f58c1d8090fa9e675ee671f6ac6974c2e48420883c6b531b494b"
+      },
+      {
+        "path": "social/matrix-506/s5.jpg",
+        "sha256": "6a9ab31c68ae4435abcecd169fcb8dfa3e92e5cb8135ace2350cd5400092b690"
+      },
+      {
+        "path": "sod-hashmal-night-1280-42ded30738bd.webp",
+        "sha256": "42ded30738bd35c966c66e71459119d9808bf223737aa8cab975aa6a66bfc036"
+      },
+      {
+        "path": "sod-hashmal-night-720-90d9a95561e9.webp",
+        "sha256": "90d9a95561e990788a51a12027befb8e624afd3bdf256514bb22ebca5807e9bf"
+      },
+      {
+        "path": "sod-hashmal-night-mobile-v2-720x1280-83478f421a58.webp",
+        "sha256": "83478f421a5853d8198531535d3503a0ae9e789a4981b9bb23a7f6846de8dac2"
+      },
+      {
+        "path": "sod1820/5d/emotions-are-messengers.svg",
+        "sha256": "b10e2ebf4d00d560ac9c82a5ea8571147b7116709300bcf9dc5855958c5c3831"
+      },
+      {
+        "path": "sod1820/5d/hidden-body-secrets.svg",
+        "sha256": "599bdf20e394e746718e2fb8d56533dd17e454092969fbc37199b393ad35ed7c"
+      },
+      {
+        "path": "sod1820/5d/hidden-frequencies.svg",
+        "sha256": "fcf4908e6a10e5f7a08c9085bbfc7d4654f74efe655974a92ac52dee81601ec4"
+      },
+      {
+        "path": "sw.js",
+        "sha256": "94e18a2afe48d6b00d2cb1c21d3a2156e17b07a479aaa583deeefcead822af24"
+      },
+      {
+        "path": "tanakh-verses.json",
+        "sha256": "e95e5cffef9bf4acbab069eb88dd19cd7905e7153059fdafaea1d288a3f4a16d"
+      },
+      {
+        "path": "torah-verses.json",
+        "sha256": "705a6a1ec8abf6a0ca101b5d7db4127cb4c1da72bc5b142d6325eca3dba02c16"
+      },
+      {
+        "path": "tzofen.html",
+        "sha256": "539403991e72108e2e1b8d1af9f58c0415425528f3030858c15daef57dfb87f7"
+      },
+      {
+        "path": "vendor-notices/pdfjs/LICENSE_FOXIT",
+        "sha256": "b578cdd2345840ada550bd12519533812320d5f1d21cf4c1c7e1b1b0a31c98b7"
+      },
+      {
+        "path": "vendor-notices/pdfjs/LICENSE_JBIG2",
+        "sha256": "9e66b7f1b934a28b37f3bc4dac97915de1674271e79a0a88182a18ed9731b4d1"
+      },
+      {
+        "path": "vendor-notices/pdfjs/LICENSE_LIBERATION",
+        "sha256": "d2c4d5b3e115a519cb58eb691aa64538397e2611f9ebe801392cf9667997e7dc"
+      },
+      {
+        "path": "vendor-notices/pdfjs/LICENSE_PDFJS",
+        "sha256": "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594"
+      },
+      {
+        "path": "vendor-notices/pdfjs/LICENSE_PDFJS_JBIG2",
+        "sha256": "aad3cce09842e00e9e11ad5e8fef8cc02fbc3a3768fe2f007443b9cee37aaee5"
+      }
+    ]
+  },
+  "pageErrors": [
+    {
+      "width": 390,
+      "errors": []
+    },
+    {
+      "width": 1440,
+      "errors": []
+    }
+  ],
+  "finishedAt": "2026-11-03T08:07:33.472Z",
+  "passed": 18,
+  "failed": 0
+}

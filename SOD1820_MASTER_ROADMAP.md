@@ -1,5 +1,17 @@
 # SOD1820 — MASTER ROADMAP v6.12 COMPACT
 
+**עדכון חריגי כתובות · 3.11 — המשך6c140d82 (Preview בלבד):**
+[קבלה לפי כתובת מקור וסיבת חריגה](docs/reviews/public-url-exceptions-20261103/README.md).
+מכנה469+2140 נשמר במלואו: **2352 נפתרו לפי ראיה מדויקת;48 סגורים במכוון;
+4 לא תקינים;205 חסרי ראיית מקור** (193 שמע,8 זהויות פוסט,3 סרטונים חיצוניים
+והרצאה אחת). נפתרו הפניות תמונה/embed, כינויים וקטגוריה מדויקת; אין מכך קבלת
+כל33,667 הכתובות ב־HTTP או סגירת G4/מעבר. כיסוי מלא של תוכן העבר נשאר פתוח.
+הרשאות, כתובות הפוסטים וגבולות P0 נשמרים. דיווח קודם התקבל בהיקף המאושר;
+בדיקות הדיווח החיות לא חזרו בסבב זה. חשבונות אמיתיים/שמירות/התחברות, מעבר
+מבקר חוזר, S2/CP1, עדכניות גיבוי וכיסוי מדיה ותצורת הפעלה/חזרה עדיין פתוחים.
+H1/G3 נשמרים; b21ed1ff עדיין בהמתנה. BEFORE8c147469-65f8-4ffe-8e03-91baf66ab4ca.
+
+**צילום קבלה קודם (המספרים469/2140 הוכרעו כעת כמפורט לעיל):**
 **עדכון קבלה ממוקד 3.11 — ממשיך את 3f23b26f:**
 [ספירת הכתובות, תיקוני התמונות/הטיקר, הדיווח וחסמי המעבר](docs/reviews/public-acceptance-closure-20261103/README.md).
 33,667 רשומות סווגו אוטומטית: אין זו קבלת HTTP מלאה. 641 הפניות כוללות
@@ -14,7 +26,7 @@ H1/G3 נשמרים; אין מעבר לחי. BEFORE a8d1af3f-c987-40c8-a582-c59dc
 
 This Roadmap is not a rulebook, archive, change log, research store or owner body.
 
-**Current navigation checkpoint · 2026-11-03:** continue the existing
+**Prior navigation checkpoint · 2026-11-03 (gate sequence retained; exception status continued above):** continue the existing
 G3→G4 / Public Cutover lane; no new launch stage. Product branch `gpt/2029-public-url-continuity-20261103` (runtime checkpoint `78275d17`, continuing `9d3a0968`) is a protected
 Preview candidate, not Production. The working-site scope now explicitly
 includes preservation of existing community, chat, accounts, public libraries

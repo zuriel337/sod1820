@@ -38,6 +38,6 @@ for(const [cohort,inputs]of[['post_lookup',lookup],['unhandled',unhandled]])for(
  rows.push(row);
 }
 assert.equal(rows.length,2609);assert.equal(new Set(rows.map(x=>x.sourceUrl)).size,2609);
-const counts={},groups={};for(const r of rows){counts[r.status]=(counts[r.status]||0)+1;const key=r.cohort+':'+r.reason;groups[key]??={status:r.status,reason:r.reason,count:0,sourceUrls:[]};groups[key].count++;groups[key].sourceUrls.push(r.sourceUrl);}
+const counts={},groups={};for(const r of rows){counts[r.status]=(counts[r.status]||0)+1;const key=r.cohort+':'+r.family+':'+r.reason;groups[key]??={family:r.family,status:r.status,reason:r.reason,count:0,sourceUrls:[]};groups[key].count++;groups[key].sourceUrls.push(r.sourceUrl);}
 const out={baseSha:'6c140d825eb617ef8126f87f3b97a739c846bdba',units:'original URL strings preserved, never dropped during deduplication',coverage:'complete reconciliation of frozen469+2140; exact identity/adapter evidence is not full per-URL hosted acceptance',counts,groups:Object.values(groups),rows};
 writeFileSync(new URL('./reconciliation.json',import.meta.url),JSON.stringify(out,null,2)+'\n');console.log(JSON.stringify({counts,groups:Object.values(groups).map(({sourceUrls,...x})=>x)},null,2));

@@ -10,6 +10,7 @@
   },
   "groups": [
     {
+      "family": "UNRESOLVED",
       "status": "invalid",
       "reason": "template_artifact_not_a_document",
       "count": 3,
@@ -20,6 +21,7 @@
       ]
     },
     {
+      "family": "F01",
       "status": "resolved",
       "reason": "exact_legacy_post_identity",
       "count": 1966,
@@ -1993,6 +1995,7 @@
       ]
     },
     {
+      "family": "F01",
       "status": "resolved",
       "reason": "exact_modern_post_root_alias",
       "count": 129,
@@ -2129,6 +2132,7 @@
       ]
     },
     {
+      "family": "UNRESOLVED",
       "status": "resolved",
       "reason": "exact_existing_route_alias",
       "count": 4,
@@ -2140,23 +2144,20 @@
       ]
     },
     {
+      "family": "UNRESOLVED",
       "status": "intentionally_closed",
       "reason": "known_deferred_capability",
-      "count": 24,
+      "count": 20,
       "sourceUrls": [
         "/%D7%97%D7%99%D7%A9%D7%95%D7%91",
         "/%D7%9E%D7%A2%D7%91%D7%93%D7%AA-%D7%9E%D7%A9%D7%9E%D7%A2%D7%95%D7%AA",
         "/%D7%A0%D7%99%D7%A1%D7%99%D7%95%D7%9F",
         "/community-shadow-preview-2029",
-        "/enter",
         "/entity-hub-preview",
-        "/experience",
         "/explorer-preview",
-        "/galaxy",
         "/lab",
         "/meaning-lab",
         "/reveal",
-        "/sulamot",
         "/sulamot10",
         "/sulamot11",
         "/sulamot2",
@@ -2171,6 +2172,7 @@
       ]
     },
     {
+      "family": "UNRESOLVED",
       "status": "pending_decision",
       "reason": "no_exact_admitted_post_identity",
       "count": 8,
@@ -2186,18 +2188,48 @@
       ]
     },
     {
+      "family": "F30",
       "status": "intentionally_closed",
       "reason": "private_role_gated_surface",
-      "count": 5,
+      "count": 2,
       "sourceUrls": [
         "/editor",
-        "/numbers-report",
-        "/research-viewer",
-        "/stream",
         "/traffic"
       ]
     },
     {
+      "family": "F34",
+      "status": "intentionally_closed",
+      "reason": "known_deferred_capability",
+      "count": 4,
+      "sourceUrls": [
+        "/enter",
+        "/experience",
+        "/galaxy",
+        "/sulamot"
+      ]
+    },
+    {
+      "family": "UNRESOLVED",
+      "status": "intentionally_closed",
+      "reason": "private_role_gated_surface",
+      "count": 2,
+      "sourceUrls": [
+        "/numbers-report",
+        "/research-viewer"
+      ]
+    },
+    {
+      "family": "F34",
+      "status": "intentionally_closed",
+      "reason": "private_role_gated_surface",
+      "count": 1,
+      "sourceUrls": [
+        "/stream"
+      ]
+    },
+    {
+      "family": "UNRESOLVED",
       "status": "resolved",
       "reason": "existing_verified_flag_collection",
       "count": 1,
@@ -2206,6 +2238,7 @@
       ]
     },
     {
+      "family": "UNRESOLVED",
       "status": "resolved",
       "reason": "exact_public_post_anchor_and_media",
       "count": 242,
@@ -2455,6 +2488,7 @@
       ]
     },
     {
+      "family": "F33",
       "status": "resolved",
       "reason": "same_post_embed_representation",
       "count": 6,
@@ -2468,6 +2502,7 @@
       ]
     },
     {
+      "family": "UNRESOLVED",
       "status": "pending_decision",
       "reason": "unproven_source_identity",
       "count": 1,
@@ -2476,6 +2511,7 @@
       ]
     },
     {
+      "family": "UNRESOLVED",
       "status": "intentionally_closed",
       "reason": "known_deferred_capability",
       "count": 9,
@@ -2492,6 +2528,7 @@
       ]
     },
     {
+      "family": "F30",
       "status": "intentionally_closed",
       "reason": "private_role_gated_surface",
       "count": 7,
@@ -2506,6 +2543,7 @@
       ]
     },
     {
+      "family": "UNRESOLVED",
       "status": "resolved",
       "reason": "exact_existing_route_alias",
       "count": 1,
@@ -2514,6 +2552,7 @@
       ]
     },
     {
+      "family": "UNRESOLVED",
       "status": "resolved",
       "reason": "exact_external_source_link_state",
       "count": 2,
@@ -2523,6 +2562,7 @@
       ]
     },
     {
+      "family": "UNRESOLVED",
       "status": "pending_decision",
       "reason": "external_embed_or_link_without_exact_absolute_source",
       "count": 3,
@@ -2533,6 +2573,7 @@
       ]
     },
     {
+      "family": "F32",
       "status": "pending_decision",
       "reason": "historical_audio_bytes_location_missing",
       "count": 193,
@@ -2733,6 +2774,7 @@
       ]
     },
     {
+      "family": "F03",
       "status": "resolved",
       "reason": "exact_saved_nested_category",
       "count": 1,
@@ -2741,6 +2783,7 @@
       ]
     },
     {
+      "family": "F32",
       "status": "invalid",
       "reason": "device_private_cache_path",
       "count": 1,
@@ -2749,6 +2792,7 @@
       ]
     },
     {
+      "family": "F32",
       "status": "intentionally_closed",
       "reason": "retired_gallery_plugin_dependency",
       "count": 2,
@@ -2758,6 +2802,7 @@
       ]
     },
     {
+      "family": "F32",
       "status": "intentionally_closed",
       "reason": "unsupported_wordpress_api",
       "count": 1,

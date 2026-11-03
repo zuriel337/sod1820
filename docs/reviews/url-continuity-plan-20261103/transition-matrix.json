@@ -5,12 +5,16 @@
     "evidence": "App2029; prior public-foundation +9d hosted acceptance",
     "meaning": "כניסה, עולם ומפת שירותים",
     "target_2029": "היעדים הקיימים",
-    "verified_status": "קיים; קבלה קודמת נשמרת",
+    "verified_status": "הקבלה הקודמת נשמרת; כינויי הבית הישנים ו־WORLD מדויקים נוספו, ללא fallback גורף",
     "permissions": "ציבור; מצבי מנהל לפי הרשאה",
     "parameters_anchors": "query, hash, returnTo, scroll",
     "acceptance": "פתיחה/רענון/חזרה; המפה משקפת זמינות אמיתית",
     "open_task": "C0",
-    "treatment": "PRESERVE_EXISTING"
+    "treatment": "PRESERVE_EXISTING",
+    "exception_previous_checkpoint": {
+      "verified_status": "קיים; קבלה קודמת נשמרת"
+    },
+    "exception_evidence": "../public-url-exceptions-20261103/README.md"
   },
   {
     "id": "F01",
@@ -18,20 +22,24 @@
     "evidence": "publicPostUrls.js:5–49; db-census posts1307",
     "meaning": "פוסט מסוים",
     "target_2029": "אותה כתובת לפי publicPostHref",
-    "verified_status": "מנגנון התקבל; 1177 Legacy/130 חדשים לפי נתוני המקור",
+    "verified_status": "במכנה בירור2140: 2095 כתובות מזהות1306 פוסטים לפי slug/ID/כתובת מקור; 8 כתובות ללא התאמה ציבורית נשארות פתוחות. 37 האחרות הן נתיבים/תבניות, לא פוסטים. אין טענת HTTP לכל פוסט",
     "permissions": "ציבור רק לאחר publicPostBoundary",
     "parameters_anchors": "מזהה WP, קידוד, כל query חוזר, hash, scroll",
     "acceptance": "כל 1307 זהויות דרך המתאם; דוגמת ישן/חדש/WP/טיוטה; לא שינוי גורף",
     "open_task": "C0",
-    "treatment": "PRESERVE_EXISTING"
+    "treatment": "PRESERVE_EXISTING",
+    "exception_previous_checkpoint": {
+      "verified_status": "מנגנון התקבל; 1177 Legacy/130 חדשים לפי נתוני המקור"
+    },
+    "exception_evidence": "../public-url-exceptions-20261103/README.md"
   },
   {
     "id": "F02",
-    "old_address": "/post; /posts; /פוסטים-אחרונים[-2]",
+    "old_address": "/post; /posts; /פוסטים-אחרונים[-2]; /verified",
     "evidence": "App.jsx; redirect config; Posts2029",
     "meaning": "קטלוג פוסטים",
     "target_2029": "/post; aliases → canonical existing catalog",
-    "verified_status": "מומש; כינויים ופרמטרים בבדיקות מתאם ו־HTTP; לא קבלה ממצה של כל פריט",
+    "verified_status": "מומש; verified משתמש בשדה האימות השמור ובאותו קטלוג ציבורי, לא בציון אמת חדש. קבלה משפחתית מוגבלת",
     "permissions": "ציבור מסונן",
     "parameters_anchors": "page,q,category,series,sort,hash",
     "acceptance": "זהות תוצאות/עמוד ושמירת חזרה",
@@ -42,7 +50,12 @@
       "verified_status": "קיים; הכינויים טעונים קבלת HTTP",
       "treatment": "PRESERVE_EXISTING"
     },
-    "implementation_evidence": "../public-url-continuity-20261103/README.md"
+    "implementation_evidence": "../public-url-continuity-20261103/README.md",
+    "exception_previous_checkpoint": {
+      "old_address": "/post; /posts; /פוסטים-אחרונים[-2]",
+      "verified_status": "מומש; כינויים ופרמטרים בבדיקות מתאם ו־HTTP; לא קבלה ממצה של כל פריט"
+    },
+    "exception_evidence": "../public-url-exceptions-20261103/README.md"
   },
   {
     "id": "F03",
@@ -50,7 +63,7 @@
     "evidence": "TaxonomyPage:56–116;37labels DB",
     "meaning": "סיווג תוכן מסוים",
     "target_2029": "/category/:slug — אותו קטלוג Posts, סינון מדויק",
-    "verified_status": "מומש בעיצוב Posts; קבלה מתארחת לקטגוריה רגילה ולסלאש מקודד; כשל/ריק/פרטיות נבדקו",
+    "verified_status": "מומש בעיצוב Posts ובסינון חברות מדויק; גם הקטגוריה ההיסטורית המקוננת גלריות-גימטריה מגיעה לאוסף המדויק, בלי הפניית עולם כללית",
     "permissions": "תוכן שפורסם בלבד",
     "parameters_anchors": "slug עברי/קידוד, עמוד ומיון",
     "acceptance": "השוואת מזהי תוצאות לקטגוריה; בלי התאמת substring עיוורת",
@@ -61,7 +74,11 @@
       "verified_status": "קורא קיים; החיבור הישן חסר",
       "treatment": "PROPOSED_NOT_IMPLEMENTED"
     },
-    "implementation_evidence": "../public-url-continuity-20261103/README.md"
+    "implementation_evidence": "../public-url-continuity-20261103/README.md",
+    "exception_previous_checkpoint": {
+      "verified_status": "מומש בעיצוב Posts; קבלה מתארחת לקטגוריה רגילה ולסלאש מקודד; כשל/ריק/פרטיות נבדקו"
+    },
+    "exception_evidence": "../public-url-exceptions-20261103/README.md"
   },
   {
     "id": "F04",
@@ -545,12 +562,17 @@
     "evidence": "App.jsx; Admin admission",
     "meaning": "מסכים פרטיים/מנהל",
     "target_2029": "כניסה ויעדמקביל רק לפי הרשאה",
-    "verified_status": "אין להפוךכתובתאמיתיתלציבורית",
+    "verified_status": "המסכים הפרטיים הידועים שנמצאו בחריגים מקבלים דף מצב פרטי/כניסה ללא חשיפת מידע; אין בכך קבלת חשבון מנהל או חבר אמיתי",
     "permissions": "מנהל/בעלים בשרת, failclosed",
     "parameters_anchors": "returnTo בטוח; בלי דליפת metadata",
     "acceptance": "אנונימי/חבר/admin;401/403/404 לפי חוזה",
     "open_task": "C6",
-    "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    "treatment": "IMPLEMENTED_NAMED_PRIVATE_STATE_REAL_ACCOUNT_OPEN",
+    "exception_previous_checkpoint": {
+      "verified_status": "אין להפוךכתובתאמיתיתלציבורית",
+      "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    },
+    "exception_evidence": "../public-url-exceptions-20261103/README.md"
   },
   {
     "id": "F31",
@@ -577,25 +599,36 @@
     "evidence": "DB href/src; api/sitemap; publicfiles; hosting",
     "meaning": "משאב אמיתי/SEO/API; גם probe אפשרי",
     "target_2029": "המשאב/הנכס המדויק אם זמין",
-    "verified_status": "193audio hrefs; לא כל בקשת WP היאתוכן אמיתי",
+    "verified_status": "193 קישורי שמע היסטוריים עדיין ללא מיפוי מוכח לקובצי מקור. משאב חסר/מטמון מכשיר/API WordPress ותוסף ישן מחזירים404 עם MIME תקין, לא HTML200 מתחזה",
     "permissions": "publicasset לעומתחתום/פרטי; API לפי owner",
     "parameters_anchors": "שם קובץ,טווח זמן,range,queryAPI מותרים",
     "acceptance": "HEAD/GET/MIME/CSP; אין HTML200 במקום תמונה/שמע;probe נשאר 404",
     "open_task": "C4",
-    "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    "treatment": "PARTIAL_EXACT_RESOURCE_ACCEPTANCE_AUDIO_SOURCE_OPEN",
+    "exception_previous_checkpoint": {
+      "verified_status": "193audio hrefs; לא כל בקשת WP היאתוכן אמיתי",
+      "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    },
+    "exception_evidence": "../public-url-exceptions-20261103/README.md"
   },
   {
     "id": "F33",
     "old_address": "/<post>/embed/; /<post>/<attachment>; *.html; iframe",
     "evidence": "DB contenthref/src; public standaloneHTML",
     "meaning": "הטמעת פוסט/קובץ מצורף/כניסה עצמאית",
-    "target_2029": "מוצע: אותו פריט/נכס או מצב יכולת מאומת",
-    "verified_status": "קשר attachment-parent נדרש; לא לשטח לפוסט בלי בדיקה",
+    "target_2029": "242 קישורי תמונה → אותו Post ציבורי ומדיה מדויקת; 6 embeds → אותו Post",
+    "verified_status": "מומש מתוך href ותמונת מקור ממשיים, עם selector מאומת ו־Lightbox קיים; canonical הפוסט נשמר; שאר החריגים מפורטים בקבלת החריגים",
     "permissions": "פרסוםהמקור/מדיה; אין עקיפת נעילה",
     "parameters_anchors": "parent,attachment,embed,hash,playbacktime",
     "acceptance": "זהות מדיה/פוסט; CSP; אין לנחש כותרת מה-slug",
     "open_task": "C4",
-    "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    "treatment": "IMPLEMENTED_EXACT_ATTACHMENT_AND_EMBED_REMAINDER_OPEN",
+    "exception_previous_checkpoint": {
+      "target_2029": "מוצע: אותו פריט/נכס או מצב יכולת מאומת",
+      "verified_status": "קשר attachment-parent נדרש; לא לשטח לפוסט בלי בדיקה",
+      "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    },
+    "exception_evidence": "../public-url-exceptions-20261103/README.md"
   },
   {
     "id": "F34",
@@ -603,12 +636,17 @@
     "evidence": "App.jsx; DB/reality36links28posts",
     "meaning": "כניסות אינדקס/זרם/הקשר/חדרים היסטוריות",
     "target_2029": "מוצע: רכיב קיים מדויק, רק לאחר בדיקת משמעות",
-    "verified_status": "חלקאולי Now/World; לא הוכח יעד גורף",
+    "verified_status": "כינויי בית/WORLD מוכחים מגיעים ליעדם; מסכי ניסוי וזרם פרטי מוכרים נשמרים בדף מצב מדויק; אין איחוד גורף של אוספים",
     "permissions": "פרסום קיים; מצב מחקר פרטי נשמר",
     "parameters_anchors": "מיון,תאריך,room,theme,מספר,חזרה",
     "acceptance": "אותו אוסף/זמן; לא הפניה גורפת לבית/עולם",
     "open_task": "C6",
-    "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    "treatment": "PARTIAL_EXACT_ALIAS_AND_NAMED_STATE",
+    "exception_previous_checkpoint": {
+      "verified_status": "חלקאולי Now/World; לא הוכח יעד גורף",
+      "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    },
+    "exception_evidence": "../public-url-exceptions-20261103/README.md"
   },
   {
     "id": "UNRESOLVED",
@@ -616,11 +654,16 @@
     "evidence": "url-inventory evidence לכלשורה",
     "meaning": "קישורמתוכן/מפה אינו הוכחהשעדייןקיים",
     "target_2029": "ללא יעד מומצא; תור בירור פרטני",
-    "verified_status": "אין קבלת כיסוי מלא",
+    "verified_status": "מכל469+2140 נשמרו2609 מקורות:2352 נפתרו לפי זהות,48 סגורים במכוון,4 לא תקינים,205 חסרי ראיית מקור. קבלת זהות אוטומטית אינה HTTP מלא לכל המלאי",
     "permissions": "unknown/private/draft אינם public",
     "parameters_anchors": "שומריםמקורראיה וקידוד; לא מעתיקים סודות",
     "acceptance": "DB+מקור+HTTP: תוכן מאומת/הוסר/שגוי/לא ברור;404 אמיתי נשמר",
     "open_task": "C7",
-    "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    "treatment": "BOUNDED_RECONCILED_205_SOURCE_EVIDENCE_OPEN",
+    "exception_previous_checkpoint": {
+      "verified_status": "אין קבלת כיסוי מלא",
+      "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    },
+    "exception_evidence": "../public-url-exceptions-20261103/README.md"
   }
 ]
