@@ -57,3 +57,9 @@ npm run build
 ## Passive BEFORE / AFTER
 
 Actor GPT; report recipient ZURIEL; no agent dispatch. BEFORE: isolated scope and live read-only coordination check; active shared account ownership preserved. AFTER: ELS account adapter/snapshot serialization, existing Research controls and save bridge wiring, separate Post system addition, focused tests and this receipt. Status `IMPLEMENTED / TESTED / DRAFT_PR_READY`; exact commit/PR delivered in the session receipt. Live work_log is not writable through the selected reader; this file is not a claim that a ledger row was inserted.
+
+## GitHub CI findings and release hold
+
+The first remote run found gzip byte differences across build runtimes. `build.py` now retains a checked-in compressed representation **only when decompression exactly equals the canonical source bytes**; changed/corrupt data is regenerated and the entire template/code is still regenerated. Two focused Python tests and successive Python 3.12 / 3.13 builds pass with zero generated-file diff. No ELS engine behavior, corpus identity or compatibility gate was weakened.
+
+Two other remote failures are inherited from the exact product base: `test-my-workspace-2029.mjs` expects `/shouldCreateUser: !preview/` in AccountEntry; `test-2029-system-frame.mjs` expects `/מספר · פתח חלונית מספר/` in SystemFrame. Both tests and both corresponding source files are byte-identical to `73dc740`; hashes are recorded in `ci-baseline-proof.json`. These are within the concurrent shared account/frame lane and were not changed here. The PR stays DRAFT and **is not merge-ready while those gates fail**, irrespective of the local feature checks.
