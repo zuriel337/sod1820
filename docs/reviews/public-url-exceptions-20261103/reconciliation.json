@@ -2142,7 +2142,7 @@
     {
       "status": "intentionally_closed",
       "reason": "known_deferred_capability",
-      "count": 25,
+      "count": 24,
       "sourceUrls": [
         "/%D7%97%D7%99%D7%A9%D7%95%D7%91",
         "/%D7%9E%D7%A2%D7%91%D7%93%D7%AA-%D7%9E%D7%A9%D7%9E%D7%A2%D7%95%D7%AA",
@@ -2155,7 +2155,6 @@
         "/galaxy",
         "/lab",
         "/meaning-lab",
-        "/research-viewer",
         "/reveal",
         "/sulamot",
         "/sulamot10",
@@ -2189,10 +2188,11 @@
     {
       "status": "intentionally_closed",
       "reason": "private_role_gated_surface",
-      "count": 4,
+      "count": 5,
       "sourceUrls": [
         "/editor",
         "/numbers-report",
+        "/research-viewer",
         "/stream",
         "/traffic"
       ]
@@ -43372,7 +43372,7 @@
       "chain": [],
       "finalUrl": "/research-viewer",
       "status": "intentionally_closed",
-      "reason": "known_deferred_capability",
+      "reason": "private_role_gated_surface",
       "launchImpact": "existing launch boundary; does not retire a ready public feature",
       "httpEvidence": "not independently requested for every URL"
     },

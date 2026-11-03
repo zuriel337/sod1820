@@ -204,13 +204,14 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
     const originalHref=anchor.getAttribute("href"), originalTabIndex=anchor.getAttribute("tabindex");
     anchor.dataset.legacyAttachmentFocus="true";anchor.tabIndex=-1;
     anchor.href=binding.href;anchor.dataset.sourceAttachment=binding.sourcePath;
-    const hidden=anchor.closest('[data-duplicate-cover="true"]');if(hidden)hidden.removeAttribute("data-duplicate-cover");
+    const hidden=[...new Set([anchor.closest('[data-duplicate-cover="true"]'),...anchor.querySelectorAll('[data-duplicate-cover="true"]')].filter(Boolean))];
+    hidden.forEach(node=>node.removeAttribute("data-duplicate-cover"));
     if(!location.hash){anchor.scrollIntoView({block:"center"});anchor.focus({preventScroll:true});}
     return () => {
       anchor.setAttribute("href",originalHref);
       if(originalTabIndex==null)anchor.removeAttribute("tabindex");else anchor.setAttribute("tabindex",originalTabIndex);
       delete anchor.dataset.legacyAttachmentFocus;delete anchor.dataset.sourceAttachment;
-      if(hidden)hidden.setAttribute("data-duplicate-cover","true");
+      hidden.forEach(node=>node.setAttribute("data-duplicate-cover","true"));
     };
   },[state.projection,location.search,location.hash]);
 

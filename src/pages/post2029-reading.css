@@ -1479,6 +1479,14 @@ html[data-theme-preset="dark"] .sod29-reading-post{--post-link-a:#FFE23A;--post-
 .sod29-reading-source :is(button.sod29-gematria-expression,button.sod29-gematria-value:not(.sod29-gematria-hero),button[data-gem]:not(.sod29-gematria-hero),span[data-gem][role="button"]):focus-visible{outline:2px solid var(--s29-focus-ring,var(--s29-accent));outline-offset:3px}
 /* Equality lines read as one sentence-weight line, not as rows of controls. */
 .sod29-reading-source .sod29-post-equality{font-weight:800}
+
+/* Authored Jetpack tiles keep their media/order; obsolete fixed row heights
+   cannot let them overlap the rest of the Post or cover its controls. */
+.sod29-reading-source .tiled-gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,16rem),1fr));gap:12px;max-inline-size:100%;clear:both}
+.sod29-reading-source .tiled-gallery :is(.gallery-row,.gallery-group){display:contents!important}
+.sod29-reading-source .tiled-gallery .tiled-gallery-item{display:block!important;float:none!important;position:relative!important;inline-size:auto!important;block-size:auto!important;min-inline-size:0}
+.sod29-reading-source .tiled-gallery .tiled-gallery-item>a{display:block;inline-size:100%;block-size:auto}
+.sod29-reading-source .tiled-gallery img{display:block;inline-size:100%!important;block-size:auto!important;max-inline-size:100%!important;height:auto!important;width:100%!important}
 /* Elections numerals share Bennett's compact numeric typography. */
 .sod29-reading-source p[style*="--gold"]{font-size:clamp(2.6rem,5vw,3.8rem)!important;line-height:1.05!important;margin-block:.4em .15em!important}
 
