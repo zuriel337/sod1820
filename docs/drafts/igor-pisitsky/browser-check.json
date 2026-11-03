@@ -58,5 +58,11 @@
   "quotesPreserved": 7,
   "cases": 3,
   "pageErrors": [],
+  "systemInterpretation": {
+    "author": "המערכת",
+    "ideaCredit": "צוריאל",
+    "paragraphsPreserved": 5,
+    "verifiedAdditionalSkip": 4545
+  },
   "publication": "draft-only"
 }
