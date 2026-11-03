@@ -1,0 +1,68 @@
+{
+  "viewports": [
+    {
+      "width": 1440,
+      "scroll": 1440,
+      "images": [
+        {
+          "loaded": true,
+          "src": "matrices/elections.svg"
+        },
+        {
+          "loaded": true,
+          "src": "matrices/columbia.svg"
+        },
+        {
+          "loaded": true,
+          "src": "matrices/ramon-rips.svg"
+        }
+      ]
+    },
+    {
+      "width": 390,
+      "scroll": 390,
+      "images": [
+        {
+          "loaded": true,
+          "src": "matrices/elections.svg"
+        },
+        {
+          "loaded": true,
+          "src": "matrices/columbia.svg"
+        },
+        {
+          "loaded": true,
+          "src": "matrices/ramon-rips.svg"
+        }
+      ]
+    },
+    {
+      "width": 320,
+      "scroll": 320,
+      "images": [
+        {
+          "loaded": true,
+          "src": "matrices/elections.svg"
+        },
+        {
+          "loaded": true,
+          "src": "matrices/columbia.svg"
+        },
+        {
+          "loaded": true,
+          "src": "matrices/ramon-rips.svg"
+        }
+      ]
+    }
+  ],
+  "quotesPreserved": 7,
+  "cases": 3,
+  "pageErrors": [],
+  "systemInterpretation": {
+    "author": "המערכת",
+    "ideaCredit": "צוריאל",
+    "paragraphsPreserved": 5,
+    "verifiedAdditionalSkip": 4545
+  },
+  "publication": "draft-only"
+}

@@ -1,0 +1,25 @@
+{
+  "kind": "controlled component tests; no live account or database writes",
+  "accountSave": true,
+  "serverRestore": true,
+  "freshReloadRestore": true,
+  "noBrowserStorage": true,
+  "noStoreRequests": true,
+  "failedSaveReported": true,
+  "passiveSystemAddition": true,
+  "widths": [
+    {
+      "width": 1440,
+      "scroll": 1440
+    },
+    {
+      "width": 390,
+      "scroll": 390
+    },
+    {
+      "width": 320,
+      "scroll": 320
+    }
+  ],
+  "pageErrors": []
+}

@@ -29,6 +29,7 @@ import { postClassification2029, postHierarchyContext2029, postContentEntry2029 
 import PostConvergenceMeasures2029 from "../components/experience2029/PostConvergenceMeasures2029.jsx";
 import PostComments2029 from "../components/experience2029/PostComments2029.jsx";
 import { publicPostCommentArchiveId } from "../components/experience2029/postComments2029.js";
+import PostSystemAddition2029 from "../components/experience2029/PostSystemAddition2029.jsx";
 import MatrixRain from "../components/MatrixRain.jsx";
 import { postCharacterFor, matrixOpeningFor } from "../lib/postCharacters2029.js";
 import { postBackground2029 } from "../lib/research/postBackground2029.js";
@@ -1138,6 +1139,8 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
 
 
     </div>
+
+    <PostSystemAddition2029 html={post.ai_addition} />
 
     {calculationNotice ? (calculationFeedbackHost
       ? createPortal(<><p role="status">{calculationNotice}</p>{explorationOccurrence ? <div className="sod29-post-engine-exploration">
