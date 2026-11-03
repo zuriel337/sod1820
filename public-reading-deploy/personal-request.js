@@ -2,7 +2,7 @@
 // The canonical Auth server and each endpoint's ownership checks remain authoritative.
 export async function readingPersonalResponse(req, { apiKey, clientOrigin, fetchImpl = fetch, verify } = {}) {
   const u = new URL(req.url), db = "https://linswmnnkjxvweumprav.supabase.co";
-  const table = u.origin === db ? /^\/rest\/v1\/(users|profiles|user_notes|research_items|user_research|notification_prefs|user_notifications)$/.exec(u.pathname)?.[1] : null;
+  const table = u.origin === db ? /^\/rest\/v1\/(users|profiles|user_notes|research_items|user_research|notification_prefs|user_notifications|wa_account_links)$/.exec(u.pathname)?.[1] : null;
   const rpc = u.origin === db ? /^\/rest\/v1\/rpc\/(research_state_snapshot_v1|research_state_apply_ops_v1|update_my_page_config|dm_inbox|dm_thread|dm_send|watch_toggle)$/.exec(u.pathname)?.[1] : null;
   const selfApi = u.origin === clientOrigin && u.pathname === "/api/contributor-self";
   const avatar = u.origin === db && /^\/storage\/v1\/object\/gallery\/avatars\//.test(u.pathname);
@@ -30,6 +30,12 @@ export async function readingPersonalResponse(req, { apiKey, clientOrigin, fetch
     if (["GET","HEAD"].includes(req.method)) {
       if (selfApi) return forward(); // Existing handler independently validates caller and inbox ownership.
       if (rpc) return denied(); // Owned RPCs use their exact JSON contracts below.
+      if (table === "wa_account_links") {
+        if (!owned() || !query(["user_id","select","verified_at","limit"])
+          || u.searchParams.get("select") !== "verified_at" || u.searchParams.get("verified_at") !== "not.is.null"
+          || u.searchParams.get("limit") !== "1") return denied();
+        return forward();
+      }
       if (!owned() || !query([owner,"select","limit","offset","order","read_at","id"])) return denied();
       return forward();
     }

@@ -5,12 +5,12 @@ import Sod2029Shell, { FrameState } from "../components/experience2029/Sod2029Sh
 import { useAuth } from "../lib/AuthContext.jsx";
 import { getOperationalTrace, getOperationalTraceList, getSystemHealth, getVideoMapHealth } from "../lib/visits.js";
 
-const n = v => Number.isFinite(Number(v)) ? Number(v) : 0;
-const num = v => n(v).toLocaleString("he-IL");
-const cost = v => v == null ? "—" : `₪${n(v).toFixed(4)}`;
-const mib = v => v == null ? "—" : `${(n(v) / 1048576).toLocaleString("he-IL", { maximumFractionDigits: 1 })} MiB`;
-const gib = v => v == null ? "—" : `${(n(v) / 1073741824).toLocaleString("he-IL", { maximumFractionDigits: 2 })} GiB`;
-const pct = v => v == null ? "—" : `${(n(v) * 100).toLocaleString("he-IL", { maximumFractionDigits: 1 })}%`;
+const n = v => v == null || typeof v === "boolean" || typeof v === "string" && !v.trim() ? NaN : Number(v);
+const num = v => Number.isFinite(n(v)) ? n(v).toLocaleString("he-IL") : "—";
+const cost = v => !Number.isFinite(n(v)) ? "—" : `₪${n(v).toFixed(4)}`;
+const mib = v => !Number.isFinite(n(v)) ? "—" : `${(n(v) / 1048576).toLocaleString("he-IL", { maximumFractionDigits: 1 })} MiB`;
+const gib = v => !Number.isFinite(n(v)) ? "—" : `${(n(v) / 1073741824).toLocaleString("he-IL", { maximumFractionDigits: 2 })} GiB`;
+const pct = v => !Number.isFinite(n(v)) ? "—" : `${(n(v) * 100).toLocaleString("he-IL", { maximumFractionDigits: 1 })}%`;
 const when = v => v ? new Date(v).toLocaleString("he-IL") : "—";
 const certainty = v => v === "exact" ? "מדויק" : v === "estimated" ? "הערכה" : v === "not_billable" ? "לא לחיוב" : "לא ידוע";
 
@@ -235,6 +235,7 @@ export default function ControlPlane2029Page() {
       <div className="sod29-section-head"><div><div className="sod29-kicker">NO BLACK BOX</div><h2>Root traces</h2>
         <div className="sod29-muted">עלות לא ידועה נשארת לא ידועה; אין חיבור מומצא בין אגרגציות.</div></div></div>
       {state.loading ? <FrameState kind="loading" title="טוען traces" /> :
+        state.error ? <FrameState kind="error" title="לא ניתן לקרוא traces כרגע">מצב הנתונים לא ידוע; אין בכך הוכחה שאין traces.</FrameState> :
         state.traces.length ? <div className="sod29-list">{state.traces.map(row =>
           <TraceRow key={row.trace_id} row={row} active={row.trace_id === selectedId} open={setSelectedId} />
         )}</div> : <FrameState kind="empty" title="אין traces בטווח הזה">אין root traces להצגה בשבעת הימים האחרונים.</FrameState>}

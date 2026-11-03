@@ -1,3 +1,5 @@
+import { SITE_URL } from "./seo.js";
+
 // Admission for the existing Auth session in a public-reading deployment.
 // The server validates the JWT; browser session metadata never grants a role.
 export async function verifyReadingSession(session, auth) {
@@ -9,13 +11,19 @@ export async function verifyReadingSession(session, auth) {
   } catch { return null; }
 }
 
-export function readingSessionOptions(storage, location = globalThis.location) {
-  // Separate from Legacy and limited to this tab. PKCE binds the callback to
-  // the initiating tab; ordinary content URLs never consume auth parameters.
-  return { persistSession: Boolean(storage), autoRefreshToken: true,
+export function readingSessionOptions(storage, location = globalThis.location, { productionArtifact = false, canonicalStorage } = {}) {
+  // Only the dormant final artifact at the exact canonical HTTPS origin may
+  // reuse Legacy's SDK-owned storage. Nothing is copied, merged or removed.
+  const canonical = productionArtifact === true && location?.origin === SITE_URL;
+  let selected = storage;
+  if (canonical) {
+    try { selected = canonicalStorage || globalThis.localStorage; }
+    catch { selected = undefined; } // Storage denied: memory-only, no tab fallback.
+  }
+  return { persistSession: Boolean(selected), autoRefreshToken: true,
     flowType: "pkce", detectSessionInUrl: location?.pathname === "/auth/callback",
-    // The dashboard allowlist uses one exact callback. Extra flow query params
-    // would stop matching and can send the user to the Production Site URL.
     experimental: { appendPkceFlowIdToRedirects: false },
-    storageKey: "sod-public-reading-account", ...(storage ? { storage } : {}) };
+    // Omitting storageKey deliberately keeps the SDK's existing project key.
+    ...(canonical ? {} : { storageKey: "sod-public-reading-account" }),
+    ...(selected ? { storage: selected } : {}) };
 }

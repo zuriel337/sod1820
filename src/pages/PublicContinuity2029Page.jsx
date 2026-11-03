@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { Link, useLocation, useParams, useSearchParams } from "react-router-dom";
+import { Link, Navigate, useLocation, useParams, useSearchParams } from "react-router-dom";
 import Sod2029Shell, { use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import NavigationIcon2029 from "../components/experience2029/NavigationIcon2029.jsx";
 import { applySeo } from "../lib/seo.js";
@@ -10,8 +10,12 @@ import {
   loadPublicPeopleContinuation2029, loadPublicForumContinuation2029,
   loadPublicCommentPostContinuation2029, publicContinuityPage2029,
   publicOrGeulaOccurrenceHref2029, publicContinuityPlaybackTime2029,
+  publicForumChatHref2029,
+  publicHistoricalLecturePage2029, historicalLectureHtml2029,
 } from "../lib/publicContinuityReaders2029.js";
 import "./publicContinuity2029.css";
+import "./post2029-reading.css";
+import "./post2029-legacy-grade.css";
 
 const TITLES = { "or-geula": "אור הגאולה", people: "הכתבים והחוקרים", forum: "פורום המחקר", comments: "תגובות לפוסטים", contact: "יצירת קשר", about: "אודות סוד 1820" };
 
@@ -186,8 +190,12 @@ function PeopleContent() {
 
 function ForumContent() {
   const { id } = useParams();
+  const location = useLocation();
   const reader = useCallback(signal => loadPublicForumContinuation2029(id ?? null, { signal }), [id]);
   const [state, retry] = usePublicRead(reader);
+  // Only an actual anonymous-approved identity can continue. Unknown/private
+  // IDs retain their404 instead of becoming successful generic destinations.
+  if (state.exists === true && state.status === "gated") return <Navigate replace to={publicForumChatHref2029(location.search,location.hash)} />;
   return <ContentPlane kind="forum" title="פורום המחקר" state={state.status} description="מקום לדיונים, שאלות ותרומות מחקר של הקהילה.">
     <ReadBoundary state={state} retry={retry} missing="לא נמצא דיון ציבורי זמין בכתובת הזאת.">
       <StatePanel title="הפורום פתוח כעת למשתמשים רשומים" icon="conversation">
@@ -244,12 +252,32 @@ function StatusContent({ kind, title, description, links = [] }) {
   </ContentPlane>;
 }
 
+function HistoricalLecturesContent() {
+  const location = useLocation(), page = publicHistoricalLecturePage2029(location.pathname);
+  const html = React.useMemo(() => historicalLectureHtml2029(page), [page]);
+  useEffect(() => { if (page) applySeo({title:page.title,description:"הרצאות המקור ההיסטוריות, בסדרן ובכתובתן המקורית.",path:page.path,type:"article"}); }, [page]);
+  if (!page) return <StatePanel title="המקור לא נמצא" />;
+  return <article className="sod29-reading-post" data-post-character="quiet" data-historical-source={`wp:page:${page.wpPageId}`}>
+    <header className="sod29-reading-hero"><span className="sod29-reading-source-badge">הרצאות המקור · תיעוד היסטורי</span>
+      <h1>{page.title}</h1><p className="sod29-reading-source-line">פורסם {bilingualDateLabel(page.publishedAt)} · עודכן {bilingualDateLabel(page.modifiedAt)}</p>
+      <p className="sod29-reading-deck">תוכן המקור משנת {new Date(page.publishedAt).getUTCFullYear()} נשמר כאן כפי שפורסם. המועדים והטענות שבו שייכים למקור ההיסטורי. לכל הרצאה יש גם קישור ישיר לאתר המקור.</p>
+      <details className="sod29-post-details"><summary>מקור וגרסת הקריאה</summary><p>הטקסט שוחזר מעותק ציבורי מתוארך מ־{bilingualDateLabel(page.capturedAt)}, ונמצא זהה בעותק נוסף.</p><a href={page.archiveUrl} target="_blank" rel="noopener noreferrer">לעותק המקור המתוארך ↗</a></details>
+    </header>
+    <div className="sod29-reading-layout"><section className="sod29-reading-source" aria-label="תוכן ההרצאות המקורי" onToggleCapture={event => {
+      const details = event.target;
+      if (details.tagName !== "DETAILS" || !details.open) return;
+      const frame = details.querySelector("iframe[data-video-src]");
+      if (frame && !frame.hasAttribute("src")) frame.src = frame.dataset.videoSrc;
+    }} dangerouslySetInnerHTML={{__html:html}} /></div>
+  </article>;
+}
+
 // Route ownership stays in App2029. This component only presents the requested
 // known capability; unknown routes must never be sent here as a catch-all.
 export default function PublicContinuity2029Page({ kind = "status", title, description, links }) {
   const pageTitle = title || TITLES[kind] || "השירות";
   return <Sod2029Shell surface={kind === "or-geula" ? "world" : "community"} title={pageTitle} introVariant="none">
-    {kind === "or-geula" ? <OrGeulaContent /> : kind === "people" ? <PeopleContent /> : kind === "forum" ? <ForumContent />
+    {kind === "historical-lectures" ? <HistoricalLecturesContent /> : kind === "or-geula" ? <OrGeulaContent /> : kind === "people" ? <PeopleContent /> : kind === "forum" ? <ForumContent />
       : kind === "comments" ? <CommentsContent /> : kind === "contact" ? <ContactContent /> : kind === "about" ? <ContentPlane kind="about" title={pageTitle} path="/about"
         description="פוסטים, מקורות, מספרים ואנשים — מרחב הקריאה והקהילה של סוד 1820.">
         <div className="continuity-related"><h2>מכאן אפשר להמשיך</h2><p>לקרוא את הפרסומים, לפגוש את הכותבים ולגלות את המקורות באתר.</p>

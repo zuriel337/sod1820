@@ -82,7 +82,7 @@ export function publicReadingDocumentHandler({ authorized = deploymentAuthorized
       }
       const state = publicReadingPath(path, { search });
       const closed = ["closed", "missing", "service-closed"].includes(state);
-      let metadata = "", status = state === "missing" ? 404 : 200;
+      let metadata = "", metadataLocation = null, status = state === "missing" ? 404 : 200;
       // Closed and unknown addresses never invoke unrelated/private readers.
       const metadataPath = state === "account" ? "/login" : ({ "/2029": "/", "/2029/posts": "/post",
         "/2029/gematria/viral": "/2029/gematria", "/2029/calculator": "/2029/gematria" })[path] || path;
@@ -92,7 +92,16 @@ export function publicReadingDocumentHandler({ authorized = deploymentAuthorized
         publicReadingProductionArtifact: true,
         publicReadingSearch: search,
         query: { ...req.query, path: metadataPath, crawler: "search" },
-      }, { setHeader() {}, status(code) { if (!closed) status = code; return this; }, send(value) { metadata = String(value); } });
+      }, { setHeader(name,value) { if (name.toLowerCase() === "location") metadataLocation = value; }, status(code) { if (!closed) status = code; return this; }, send(value) { metadata = String(value); } });
+      if (status === 308 && metadataLocation) {
+        const target = new URL(metadataLocation, origin);
+        // Only the approved Forum identity reader may emit this continuation.
+        // Request headers/query never provide a redirect target or authority.
+        if (!/^\/forum\/[0-9a-f-]{36}\/?$/i.test(decodeURIComponent(path))
+          || target.origin !== origin || target.pathname !== "/community/chat") throw new Error("invalid_public_source_continuation");
+        res.setHeader("Location", target.pathname + target.search + target.hash);
+        return res.status(308).send("");
+      }
       if (status >= 500) throw new Error("public_source_unavailable");
       const noindex = Boolean(protectedReviewOrigin()) || closed || state === "account" || status !== 200;
       const html = mergeProductionDocumentMetadata(await readDocument(), metadata, { noindex });

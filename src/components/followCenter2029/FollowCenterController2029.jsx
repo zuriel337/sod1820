@@ -24,6 +24,8 @@ export default function FollowCenterController2029({ returnHref, onSignIn, io = 
 function AccountCenter({ userId, authLoading, io, returnHref, onSignIn }) {
   const [updates, setUpdates] = useState({ state: "loading", items: [] });
   const [follows, setFollows] = useState({ state: "loading", topics: [], links: {}, pending: {} });
+  const [whatsApp, setWhatsApp] = useState({ state: "loading" });
+  const [bindingAttempt, setBindingAttempt] = useState(0);
   const [readChange, setReadChange] = useState("idle");
   const alive = useRef(false), versions = useRef({ updates: 0, following: 0 });
   const readLock = useRef(false), followLock = useRef(false);
@@ -68,6 +70,19 @@ function AccountCenter({ userId, authLoading, io, returnHref, onSignIn }) {
     return () => { alive.current = false; versions.current.updates++; versions.current.following++; };
   }, [load]);
 
+  useEffect(() => {
+    const abort = new AbortController();
+    let current = true;
+    setWhatsApp({ state: userId ? "loading" : "access_filtered" });
+    if (!userId) return () => abort.abort();
+    const timer = setTimeout(() => { abort.abort(); if (current) setWhatsApp({ state: "failed" }); }, 12000);
+    Promise.resolve().then(() => io.readWhatsApp(userId, { signal: abort.signal }))
+      .then(value => { if (current && active() && !abort.signal.aborted) setWhatsApp(value); })
+      .catch(() => { if (current && active() && !abort.signal.aborted) setWhatsApp({ state: "failed" }); })
+      .finally(() => clearTimeout(timer));
+    return () => { current = false; clearTimeout(timer); abort.abort(); };
+  }, [userId, io, bindingAttempt]);
+
   async function unfollow(topic) {
     if (!active() || !userId || followLock.current || follows.state !== "ready" || !includesFollowSubject(follows.topics, topic)) return;
     const entry = model.following.groups.flatMap(group => group.items).find(item => item.topic === topic);
@@ -110,9 +125,10 @@ function AccountCenter({ userId, authLoading, io, returnHref, onSignIn }) {
     // Recovery reads only. It never repeats a write or races an in-flight mutation.
     if (section === "updates" && !readLock.current) { setReadChange("idle"); load(section); }
     if (section === "following" && !followLock.current) load(section);
+    if (section === "whatsapp") setBindingAttempt(value => value + 1);
   };
   const model = buildFollowCenterModel({ principal: authLoading ? "loading" : userId ? "registered" : "guest",
-    notifications: updates, follows,
+    notifications: updates, follows, whatsApp,
     channelReadState: follows.state === "ready" && follows.channelState === "ready" ? "ready" : "unavailable",
     deliveryReadState: "unavailable" });
   return <FollowCenter2029 model={model} returnHref={returnHref} readChange={readChange} loadedPage

@@ -110,7 +110,9 @@ export default function FollowCenter2029({ model, returnHref = null, readChange 
           <ul className="fc-list">
             {channels.map((channel) => <li key={channel.key} className="fc-channel" data-available={channel.available} style={tv(channel.chosen ? "action" : "ordinary", channel.available ? "active" : "unavailable")}>
               <IconTile2029 name={channel.icon} purpose={channel.chosen ? "action" : "ordinary"} state={channel.available ? "active" : "unavailable"} />
-              <div><strong>{channel.label}</strong><small>{channel.note}</small></div>
+              <div><strong>{channel.label}</strong><small>{channel.note}</small>
+                {channel.key === "whatsapp" && ["failed","access_filtered"].includes(channel.bindingState) ? <button type="button" className="fc-link" onClick={() => onRetry?.("whatsapp")}>בדיקה חוזרת של חיבור המספר</button> : null}
+              </div>
               <span className="fc-chip" data-on={channel.chosen}>{channel.known === false ? "לא נבדק" : channel.consentKnown ? channel.chosen ? "בחירה שמורה" : "לא נבחר" : channel.chosen ? "פעיל" : channel.available ? "אפשר להפעיל" : "לא זמין עדיין"}</span>
             </li>)}
           </ul>

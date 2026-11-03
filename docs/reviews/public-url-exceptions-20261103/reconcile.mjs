@@ -1,5 +1,5 @@
 import{readFileSync,writeFileSync,existsSync}from'node:fs';import{execFileSync}from'node:child_process';import{resolve}from'node:path';import assert from'node:assert/strict';
-import{publicReadingPath,publicReadingContinuation}from'../../../src/lib/publicReadingRelease2029.js';
+import{publicReadingPath,publicReadingContinuation,PUBLIC_HISTORICAL_LECTURE_PATHS}from'../../../src/lib/publicReadingRelease2029.js';
 import{publicPostHref,decodePostSlug,postAddressSlug}from'../../../src/lib/publicPostUrls.js';
 import{publicReadingCapability}from'../../../src/lib/publicReadingRelease2029.js';
 import{reviewResidual205}from'./residual205/review.mjs';
@@ -25,7 +25,8 @@ for(const [cohort,inputs]of[['post_lookup',lookup],['unhandled',unhandled]])for(
  const original=sourceMap.get(x.url)||x;const t=trace(x.url,config.redirects,publicReadingContinuation),path=norm(new URL(x.url,'https://sod1820.co.il').pathname),finalPath=norm(t.url.pathname);
  const row={sourceUrl:x.url,cohort,family:x.family,evidence:original.evidence||[],sourceKinds:original.kinds||[],chain:t.chain,finalUrl:t.url.pathname+t.url.search+t.url.hash,status:'pending_decision',reason:'unproven_source_identity',launchImpact:'source-specific acceptance pending',httpEvidence:'not independently requested for every URL'};
  const p=bySlug.get(postAddressSlug(t.url.pathname));const binding=proofBy.get(path);
- if(binding){row.status='resolved';row.reason='exact_public_post_anchor_and_media';row.postId=binding.postId;row.mediaHref=binding.mediaHref;row.sourceWitnessPostIds=binding.witnessPostIds;row.launchImpact='none for mapped identity; representative hosted acceptance';assert.equal(p?.id,binding.postId);assert.equal(t.url.searchParams.get('sourceAttachment'),path);}
+ if(PUBLIC_HISTORICAL_LECTURE_PATHS.some(href=>norm(href)===finalPath)){row.status='resolved';row.reason='exact_archived_published_wordpress_page_body';row.canonical=PUBLIC_HISTORICAL_LECTURE_PATHS.find(href=>norm(href)===finalPath);row.launchImpact='original archived body restored with provenance; provider playback unverified';}
+ else if(binding){row.status='resolved';row.reason='exact_public_post_anchor_and_media';row.postId=binding.postId;row.mediaHref=binding.mediaHref;row.sourceWitnessPostIds=binding.witnessPostIds;row.launchImpact='none for mapped identity; representative hosted acceptance';assert.equal(p?.id,binding.postId);assert.equal(t.url.searchParams.get('sourceAttachment'),path);}
  else if(cohort==='post_lookup'&&p){row.status='resolved';row.reason=publicPostHref(p).startsWith('/post/')?'exact_modern_post_root_alias':'exact_legacy_post_identity';row.postId=p.id;row.canonical=publicPostHref(p);row.launchImpact='none for admitted snapshot identity; per-URL HTTP not claimed';}
  else if(/\/embed$/.test(path)&&p){row.status='resolved';row.reason='same_post_embed_representation';row.postId=p.id;row.canonical=publicPostHref(p);row.launchImpact='external iframe embedding remains governed by CSP';}
  else if(path==='/category/סוד-האותיות/גלריות-גימטריה'){row.status='resolved';row.reason='exact_saved_nested_category';row.launchImpact='none; existing exact public category reader';}

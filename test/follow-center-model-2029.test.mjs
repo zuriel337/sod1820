@@ -99,3 +99,12 @@ assert.match(wa.note,/בחירה שמורה אינה חיבור מספר מאו�
 assert.match(wa.note,/אינם זמינים כרגע באזור הזה/);
 assert.equal(waChoice.lifecycle[3].state,"unavailable");
 assert.match(unreadChannels.channels.find(channel=>channel.key==="whatsapp").note,/מצב הערוץ לא נבדק/);
+
+// A measured verified association, channel consent and delivery remain independent.
+for(const [state,expected] of [["loading",/בודק/],["linked",/קיים חיבור מספר מאומת/],["measured_empty",/לא נמצא חיבור/],["access_filtered",/בהרשאה הנוכחית/],["failed",/לא הושלמה/]]) {
+ const input={principal:"registered",follows:{state:"ready",topics:["number:1820"],channelState:"ready",channels:["whatsapp"]},whatsApp:{state},deliveryReadState:"unavailable"};
+ const m=buildFollowCenterModel(input),channel=m.channels.find(c=>c.key==="whatsapp");
+ assert.equal(channel.bindingState,state);assert.equal(channel.chosen,true);assert.equal(channel.available,false);assert.match(channel.note,expected);
+ assert.equal(m.following.count,1);assert.equal(m.lifecycle[3].state,"unknown");
+ assert.equal(input.follows.topics.length,1);
+}

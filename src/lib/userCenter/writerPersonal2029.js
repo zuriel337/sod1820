@@ -1,4 +1,5 @@
 import { supabase, contributorHref } from "../supabase.js";
+import { PUBLIC_READING_RELEASE, publicReadingPath, publicReadingCapability } from "../publicReadingRelease2029.js";
 import { getPublicResearchClient } from "../research/researchViewMode.js";
 import { safePublicUrl } from "../../components/contributor2029/publicContributor2029Model.js";
 
@@ -7,17 +8,21 @@ export const WRITER_PERSONAL_MODULES = Object.freeze([
   ["public-page", "הדף שלי"], ["page-editor", "עורך הדף"], ["profile", "פרופיל ותמונה"],
   ["messages", "הודעות"], ["notifications", "מעקב ועדכונים"], ["progress", "ההתקדמות שלי"],
 ]);
-export function personalReturnHref(value, { native2029 = false } = {}) {
+export function personalReturnHref(value, { native2029 = false, publicReading = PUBLIC_READING_RELEASE } = {}) {
   if (typeof value !== "string" || value.length > 2500 || !value.startsWith("/") || /[\\\u0000-\u0020]/.test(value) || value.startsWith("//")) return null;
   try {
     const url = new URL(value, "https://local.invalid");
     const path = decodeURIComponent(url.pathname);
-    const allowedPath = native2029
+    const publicDestination = publicReading && !/^\/(?:api|auth|admin|login)(?:\/|$)/.test(path)
+      && (["public", "post-lookup", "continuation"].includes(publicReadingPath(url.pathname, { search: url.search }))
+        || /^\/2029\/me\/(?:public-page|page-editor|profile|messages|notifications|progress|research|notes)$/.test(path)
+        || publicReadingCapability(path));
+    const allowedPath = publicReading ? publicDestination : native2029
       // App2029 owns these canonical paths even when they have no /2029 prefix.
       // Keep the compatibility callers' existing return policy unchanged.
       ? /^\/(?:2029(?:\/|$)|(?:world|code|els|heichal|היכל|early-access)\/?$|(?:post|topic|book|researcher|video)\/[^/]+\/?$|(?:books|beit-midrash)(?:\/[^/]+)?\/?$|community\/(?:chat|researcher\/[^/]+)\/?$|melech-hamisparim\/718\/?$|entity-hub-preview\/[^/]+\/[^/]+\/?$)/.test(path)
       : /^\/(?:2029|community|world|number|post|topic|book|els|heichal|profile)(?:\/|$)/.test(path);
-    if (url.origin !== "https://local.invalid" || /[\\%\u0000-\u0020]/.test(path) || path.includes("//") || !allowedPath) return null;
+    if (url.origin !== "https://local.invalid" || (publicReading ? /[\\%\u0000-\u001f\u007f]/ : /[\\%\u0000-\u0020]/).test(path) || path.includes("//") || !allowedPath) return null;
     return url.pathname + url.search + url.hash;
   } catch { return null; }
 }
@@ -35,20 +40,20 @@ export function personalMessagesState(search = "") {
 }
 // Only the existing private messages route can be a community-thread return.
 // No person identity, reply text, timestamp cursor or private payload in the URL.
-export function personalMessagesReturnHref(value) {
-  const safe = personalReturnHref(value);
+export function personalMessagesReturnHref(value, { publicReading = PUBLIC_READING_RELEASE } = {}) {
+  const safe = personalReturnHref(value, { publicReading });
   if (!safe) return null;
   const url = new URL(safe, "https://local.invalid");
   const allowed = new Set(["returnTo", "tab", "replyPages", "replyAnchor", "replyOffset"]);
   if (url.pathname !== "/2029/me/messages" || url.hash
       || [...url.searchParams.keys()].some(key => !allowed.has(key) || url.searchParams.getAll(key).length !== 1)
-      || url.searchParams.has("returnTo") && !personalReturnHref(url.searchParams.get("returnTo"))) return null;
-  return writerPersonalHref("messages", { returnTo: url.searchParams.get("returnTo"), ...personalMessagesState(url.search) });
+      || url.searchParams.has("returnTo") && !personalReturnHref(url.searchParams.get("returnTo"), { publicReading })) return null;
+  return writerPersonalHref("messages", { publicReading, returnTo: url.searchParams.get("returnTo"), ...personalMessagesState(url.search) });
 }
-export function writerPersonalHref(module, { returnTo, writer, dm, tab, replyPages, replyAnchor, replyOffset } = {}) {
+export function writerPersonalHref(module, { returnTo, writer, dm, tab, replyPages, replyAnchor, replyOffset, publicReading = PUBLIC_READING_RELEASE } = {}) {
   const allowed = WRITER_PERSONAL_MODULES.some(([id]) => id === module);
   const params = new URLSearchParams();
-  if (personalReturnHref(returnTo)) params.set("returnTo", returnTo);
+  if (personalReturnHref(returnTo, { publicReading })) params.set("returnTo", returnTo);
   if (module === "messages" && typeof writer === "string" && /^[\p{L}\p{N}_-]{1,160}$/u.test(writer)) params.set("writer", writer);
   if (module === "messages" && typeof dm === "string" && /^[0-9a-f-]{36}$/i.test(dm)) params.set("dm", dm);
   if (module === "messages" && tab === "replies" && !params.has("writer") && !params.has("dm")) {

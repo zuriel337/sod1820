@@ -61,6 +61,6 @@ test('a stray public profile variable cannot change the Legacy capability or SDK
  const source=read('src/lib/publicReadingRelease2029.js').replaceAll('export ', '').replace('import.meta.env?.VITE_PUBLIC_READING_RELEASE',JSON.stringify(PUBLIC_READING_PROFILE_ID));
  assert.equal(vm.runInNewContext(source+';PUBLIC_READING_RELEASE;', {__SOD_2029_BUILD__:false}),false);
  assert.equal(vm.runInNewContext(source+';PUBLIC_READING_RELEASE;', {__SOD_2029_BUILD__:true}),true);
- assert.match(read('src/lib/supabase.js'),/PUBLIC_READING_RELEASE[\s\S]*?readingSessionOptions\(readingStorage\)[\s\S]*?: undefined/);
+ assert.match(read('src/lib/supabase.js'),/PUBLIC_READING_RELEASE[\s\S]*?readingSessionOptions\(readingStorage, globalThis.location, \{ productionArtifact: PUBLIC_READING_PRODUCTION_ARTIFACT \}\)[\s\S]*?: undefined/);
  assert.match(read('src/lib/publicReadingAuthSession.js'),/storageKey: "sod-public-reading-account"/);
 });

@@ -2,7 +2,8 @@ import { PUBLIC_READING_PROFILE_ID, publicReadingFeatureLock, publicReadingPath,
 import { postsTaxonomyRoute2029, postsTaxonomyScope2029, postsTaxonomyPage2029, postsTaxonomySelection2029, postsTaxonomyEvidence2029 } from "../src/lib/research/postsTaxonomy2029Route.js";
 import { loadPublicOrGeulaOccurrence2029, loadPublicOrGeulaCollection2029,
   loadPublicForumContinuation2029, loadPublicCommentPostContinuation2029,
-  loadPublicPeopleContinuation2029, publicContinuityPage2029, publicContinuityHttpStatus2029 } from "../src/lib/publicContinuityReaders2029.js";
+  loadPublicPeopleContinuation2029, publicContinuityPage2029, publicContinuityHttpStatus2029,
+  publicForumChatHref2029, publicHistoricalLecturePage2029 } from "../src/lib/publicContinuityReaders2029.js";
 import { fetchPublicLibraryItem2029, publicLibraryMetadata2029 } from "../src/lib/research/publicLibraryContinuity2029.js";
 import { normalizeCommunityThreadFocus } from "../src/lib/community/communityThreadFocus.js";
 import { PUBLIC_HOME_SEO } from "../src/lib/seo.js";
@@ -425,6 +426,12 @@ export default async function handler(req, res) {
       }
     } catch { documentStatus = 503; robots = 'noindex, follow'; }
     if (documentStatus === 404) { title = 'האוסף לא נמצא · ' + SITE_NAME; desc = 'אין אוסף ציבורי זמין בכתובת הזו.'; }
+  } else if (productionReading && publicHistoricalLecturePage2029(decodedKey)) {
+    const page = publicHistoricalLecturePage2029(decodedKey);
+    title = page.title + ' · ' + SITE_NAME;
+    desc = 'הרצאות המקור ההיסטוריות, בסדרן ובכתובתן המקורית. תאריכי המקור והגרסה המתועדת מוצגים בנפרד.';
+    canonical = SITE + page.path; type = 'article'; documentStatus = 200;
+    image = cardUrl({w:page.title,sub:'הרצאות המקור · תיעוד היסטורי'});
   } else if (productionReading && decodedKey === '/community/calculator') {
     title = 'מחשבון הקהילה — גימטריה, שמות ותאריך עברי · ' + SITE_NAME;
     desc = 'המחשבון הקיים: שיטות גימטריה, השוואת ביטויים, שמות ותאריך עברי.';
@@ -450,7 +457,12 @@ export default async function handler(req, res) {
     title = 'פורום המחקר · ' + SITE_NAME; desc = 'הפורום הקיים בתהליך התאמה. הקריאה והשיחה הציבורית בקהילה זמינות בנפרד.';
     robots = 'noindex, follow';
     try {
-      documentStatus = publicContinuityHttpStatus2029(await loadPublicForumContinuation2029(decodedKey === '/forum' ? null : decodedKey.slice(7), { readRows: readContinuityRows }));
+      const forum = await loadPublicForumContinuation2029(decodedKey === '/forum' ? null : decodedKey.slice(7), { readRows: readContinuityRows });
+      documentStatus = publicContinuityHttpStatus2029(forum);
+      if (forum.exists === true) {
+        res.setHeader('Location', publicForumChatHref2029(continuitySearch));
+        return res.status(308).send('');
+      }
       if (documentStatus === 404) { title = 'הדיון לא נמצא · ' + SITE_NAME; desc = 'הדיון אינו זמין לציבור.'; }
     } catch { documentStatus = 503; }
   } else if (productionReading && decodedKey === '/community/comments') {

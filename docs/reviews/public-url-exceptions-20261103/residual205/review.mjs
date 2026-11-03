@@ -20,11 +20,14 @@ export function reviewResidual205(row) {
   };
   if (path.startsWith("/audio/")) {
     if (!observed.htmlDocument || observed.audioMagic) throw Error("audio review evidence changed");
+    row.status = "deferred_post_launch";
     Object.assign(detail, {
-      legacyState:"already_broken_audio_returns_html", cutover:"existing_failure_recommended_deferral_not_accepted",
+      legacyState:"already_broken_audio_returns_html", cutover:"existing_failure_deferral_approved_by_zuriel_after_launch",
+      deferralAuthority:"ZURIEL explicit instruction 2026-11-03; BEFORE07df5ea9-59f0-48be-abf6-b2b783896629",
+      recoveryTaskKey:"PUBLIC_LEGACY_BROKEN_AUDIO_POST_RECOVERY_AFTER_LAUNCH",
       next:"Recover original-path-to-bytes bindings from a dated media backup or the source export/provider; no filename matching",
     });
-    row.launchImpact = "193 existing Legacy audio failures; restoration/explicit deferral pending, not a newly proven cutover loss";
+    row.launchImpact = "known existing Legacy audio failure; recovery deferred after launch by ZURIEL, never marked recovered or healthy";
   } else if (identity?.restricted_draft) {
     if (Number(identity.exact_redirect_identities) !== 1 || Number(identity.matched_post_identities) !== 1) throw Error("ambiguous restricted identity");
     row.status="intentionally_closed"; row.reason="exact_existing_restricted_draft_identity";
@@ -40,12 +43,24 @@ export function reviewResidual205(row) {
     row.launchImpact="exact provider identity/link restored; Facebook playback/access unverified, no video-content recovery claim";
     Object.assign(detail,{legacyState:"malformed_relative_external_embed",cutover:"exact_source_continuation_resolved_playback_unverified",next:"Open the exact provider video; deleted/login/region/provider restrictions remain external and unverified"});
   } else if (identity?.forum_boundary) {
-    row.reason="exact_existing_forum_identity_excluded_by_public_post_boundary";
-    row.launchImpact="potential cutover content loss: exact identity and anonymous visibility established; live Legacy rendering could not be accepted";
-    Object.assign(detail,{legacyState:"existing_anon_readable_forum_identity_live_ui_unverified",cutover:"blocker_until_exact_forum_continuation_or_explicit_decision",next:"Provide the existing Forum Post identity a bounded public read continuation without relaxing regular Post P0-A or inventing a research-contribution UUID"});
+    row.status="resolved"; row.finalUrl="/community/chat";
+    row.reason="existing_forum_identity_user_approved_chat_continuation";
+    row.launchImpact="known Forum arrival continues to existing chat by ZURIEL decision; no claim it restores the original Forum thread";
+    Object.assign(detail,{legacyState:"existing_anon_readable_forum_identity_live_ui_unverified",cutover:"user_approved_existing_chat_continuation",next:"Preserve exact source aliases and query/anchor; do not republish as ordinary Post"});
+  } else if (path === "/משיח-בשנת-התשעו/מתי-שנת-הגאולה") {
+    row.status="resolved"; row.reason="exact_archived_published_wordpress_page_body";
+    row.finalUrl="/משיח-בשנת-התשעו/מתי-שנת-הגאולה/";
+    row.launchImpact="original page body restored from two corroborating public captures; provider playback unverified";
+    Object.assign(detail,{legacyState:"recovered_historical_public_wordpress_page",cutover:"dated_exact_original_body_restored",contentRestored:true,
+      wpPageId:3798, bodySha256:"c477d39034c4047643448043125c3e059f9c57e3873478eee00a2ad161745dcf", captureUtc:"2025-08-06T14:21:48Z",
+      evidence:"residual205/evidence/lecture-recovery/entry-content-proof.json",next:"Keep original dates/text/video identities; explicit provider links when embedding unavailable"});
   } else if (observed.status === 404) {
-    Object.assign(detail,{legacyState:"already_broken_404_no_exact_identity",cutover:"existing_failure_recommended_deferral_not_accepted",next:"Recover exact original Post identity from source/backup; retain404 instead of guessing a similar title"});
-    row.launchImpact="existing Legacy404, not a proven working link lost by cutover; source recovery/explicit deferral pending";
+    row.status = "deferred_post_launch";
+    Object.assign(detail,{legacyState:"already_broken_404_no_exact_identity",cutover:"existing_failure_deferral_approved_by_zuriel_after_launch",
+      deferralAuthority:"ZURIEL explicit instruction 2026-11-03; BEFORE07df5ea9-59f0-48be-abf6-b2b783896629",
+      recoveryTaskKey:"PUBLIC_LEGACY_BROKEN_AUDIO_POST_RECOVERY_AFTER_LAUNCH",
+      next:"Recover exact original Post identity from source/backup; retain404 instead of guessing a similar title"});
+    row.launchImpact="known existing Legacy404; recovery deferred after launch by ZURIEL, never marked recovered or healthy";
   } else {
     Object.assign(detail,{legacyState:"undetermined_historical_wordpress_page",cutover:"possible_blocker_requires_original_page_or_live_reader_evidence",next:"Recover the original lecture-index WP page/export and exact mapping; menu-item-3809 is a navigation ID, not a proven page ID"});
     row.reason="historical_wordpress_lecture_index_identity_unresolved";

@@ -1,0 +1,46 @@
+{
+  "scope": "Only two exact original parent-body internal targets; no recursive traversal",
+  "firstAnchor": {
+    "original": "https://sod1820.co.il/%d7%94%d7%95%d7%9b%d7%97%d7%95%d7%aa-%d7%9c%d7%90%d7%9e%d7%99%d7%aa%d7%95%d7%aa-%d7%94%d7%aa%d7%95%d7%a8%d7%94-%d7%9e%d7%a9%d7%9e%d7%99%d7%9d/",
+    "wpPageId": 3288,
+    "candidateExistingMapping": "post-lookup, no exact current Posts/redirect_map identity",
+    "publicArchiveRecovered": true,
+    "bodyPath": "/tmp/lecture-source-closure/dependency-proofs-20250624073251.entry-content.html",
+    "bodySha256": "e6875e3fa535b3f53b1f5f550d4c01ff6e022af597bbc1defb950e46dc95e654",
+    "contentBytes": 1744,
+    "captureUtc": "2025-06-24T07:32:51Z",
+    "corroboratingCapture": "2025-01-20T19:06:04Z",
+    "bothCdxSha1DigestsMatch": true,
+    "identicalBodies": true,
+    "sourcePublished": "2015-02-05T17:18:45Z",
+    "sourceModified": "2015-02-24T10:51:09Z",
+    "originalPartOrder": [
+      "7",
+      "1",
+      "3",
+      "5",
+      "2",
+      "4",
+      "6"
+    ],
+    "videos7": true,
+    "noFurtherInternalAnchors": true,
+    "exactPageContentIdentityRows": 0
+  },
+  "secondAnchor": {
+    "original": "https://sod1820.co.il/?p=2991",
+    "existingExactWpId": 2991,
+    "publicPostId": 1381,
+    "source": "wordpress",
+    "anonymousRestStatus": 200,
+    "anonymousIdentityRows": 1,
+    "canonicalPath": "/%d7%94%d7%a8%d7%a6%d7%90%d7%94-%d7%97%d7%93%d7%a9%d7%94-%d7%94%d7%9e%d7%9c%d7%97%d7%9e%d7%94-%d7%94%d7%90%d7%97%d7%a8%d7%95%d7%a0%d7%94-%d7%91%d7%a9%d7%a0%d7%aa-2015-%d7%aa%d7%a9%d7%a2%d7%94",
+    "candidateAdapter": "PublicHomeEntry2029→PublicPostAddress2029Page and api/og WPID selector",
+    "newRouteOrArchiveRequired": false,
+    "noCurrentDraftOrForum": true
+  },
+  "sourceBodiesAltered": false,
+  "repoEdits": false,
+  "liveWrites": false,
+  "playback": "not accepted; only source identities and URLs proven"
+}

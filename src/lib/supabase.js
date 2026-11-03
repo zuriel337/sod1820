@@ -1,4 +1,4 @@
-import { PUBLIC_READING_RELEASE } from "./publicReadingRelease2029.js";
+import { PUBLIC_READING_RELEASE, PUBLIC_READING_PRODUCTION_ARTIFACT } from "./publicReadingRelease2029.js";
 import { readingSessionOptions } from "./publicReadingAuthSession.js";
 import { createClient } from '@supabase/supabase-js';
 import { sideEffectAllowed } from "./botVerdict.js"; // 🤖 BOT_READ_NO_SIDE_EFFECT_V1 — קריאה של בוט לא מייצרת תופעת-לוואי
@@ -21,7 +21,7 @@ let readingStorage;
 if (PUBLIC_READING_RELEASE) { try { readingStorage = globalThis.sessionStorage; } catch { /* Private mode: memory-only session. */ } }
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON,
   PUBLIC_READING_RELEASE
-    ? { auth: readingSessionOptions(readingStorage) }
+    ? { auth: readingSessionOptions(readingStorage, globalThis.location, { productionArtifact: PUBLIC_READING_PRODUCTION_ARTIFACT }) }
     : undefined);
 
 export default supabase;

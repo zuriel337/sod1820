@@ -185,3 +185,21 @@ test('emitted existing-account worker denies OAuth navigation even with a valid 
  listener({request:{url,method:'GET',mode:'navigate',headers:new Headers(),clone(){return this;},text:async()=>''},respondWith(p){reply=p;}});
  assert.equal((await reply).status,403);assert.equal(calls,0);
 });
+
+test('actual emitted worker admits only read-only verified WhatsApp association with server-verified matching JWT',async()=>{
+ const path='/rest/v1/wa_account_links?select=verified_at&user_id=eq.'+a+'&verified_at=not.is.null&limit=1';
+ for(const method of ['GET','HEAD']){const w=worker({role:'user'});assert.equal((await w.request(path,{method})).status,200);assert.equal(w.calls.length,2);assert.equal(w.calls[1].url,API+path);assert.equal(w.calls[1].headers.get('authorization'),'Bearer '+token());assert.equal(w.calls[1].cache,'no-store');}
+ for(const path of [
+  '/rest/v1/wa_account_links?select=phone&user_id=eq.'+a+'&verified_at=not.is.null&limit=1',
+  '/rest/v1/wa_account_links?select=verified_at,phone&user_id=eq.'+a+'&verified_at=not.is.null&limit=1',
+  '/rest/v1/wa_account_links?select=verified_at&user_id=eq.'+b+'&verified_at=not.is.null&limit=1',
+  '/rest/v1/wa_account_links?select=verified_at&user_id=eq.'+a+'&user_id=eq.'+a+'&verified_at=not.is.null&limit=1',
+  '/rest/v1/wa_account_links?select=verified_at&user_id=eq.'+a+'&verified_at=not.is.null&limit=1&or=(user_id.eq.'+b+')',
+  '/rest/v1/wa_account_links?select=verified_at&user_id=eq.'+a+'&limit=1',
+  '/rest/v1/wa_account_links?select=verified_at&user_id=eq.'+a+'&verified_at=not.is.null&limit=2',
+ ]){const w=worker({role:'user'});assert.equal((await w.request(path,{method:'GET'})).status,403);assert.equal(w.calls.length,1);}
+ for(const method of ['POST','PATCH','DELETE']){const w=worker({role:'user'});assert.equal((await w.request(path,{method})).status,403);assert.equal(w.calls.length,0);}
+ for(const opts of [{uid:b},{authError:true},{throwFetch:true}]){const w=worker(opts);assert.equal((await w.request(path,{method:'GET'})).status,403);assert.ok(w.calls.length<=1);}
+ const w=worker();assert.equal((await w.request(path,{method:'GET',jwt:''})).status,403);assert.equal(w.calls.length,0);
+ for(const rpc of ['request_wa_link_code','verify_wa_link_code','unlink_my_wa']){const w=worker({role:'user'});assert.equal((await w.request('/rest/v1/rpc/'+rpc,{body:{p_phone:'synthetic'}})).status,403);assert.equal(w.calls.some(req=>new URL(req.url).pathname.endsWith('/'+rpc)),false);}
+});

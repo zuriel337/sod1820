@@ -15,7 +15,7 @@ const CalculatorPro2029Page = lazy(() => import("./pages/CalculatorPro2029Page.j
 import { parseCalculatorShareState } from "./lib/research/calculator2029Viral.js";
 import Locked from "./components/MaintenanceLock.jsx";
 import FeatureClosedNotice from "./components/FeatureClosedNotice.jsx";
-import { PUBLIC_READING_RELEASE, publicReadingPath, publicReadingContinuation, publicReadingCapability } from "./lib/publicReadingRelease2029.js";
+import { PUBLIC_READING_RELEASE, publicReadingPath, publicReadingContinuation, publicReadingCapability, PUBLIC_HISTORICAL_LECTURE_PATHS } from "./lib/publicReadingRelease2029.js";
 
 // Admit Home's component code before preparing the first Post. The existing
 // Post preparation still starts before a click, without blocking Home's module
@@ -308,6 +308,7 @@ export default function App2029() {
                 <Route path="/community/comments" element={<PublicContinuity2029Page kind="comments" />} />
                 <Route path="/forum" element={<PublicContinuity2029Page kind="forum" />} />
                 <Route path="/forum/:id" element={<PublicContinuity2029Page kind="forum" />} />
+                {PUBLIC_HISTORICAL_LECTURE_PATHS.map(path => <Route key={path} path={path} element={<PublicContinuity2029Page kind="historical-lectures" title="הרצאות המקור" />} />)}
                 <Route path="/or-geula" element={<PublicContinuity2029Page kind="or-geula" />} />
                 <Route path="/or-geula/video/:id" element={<PublicContinuity2029Page kind="or-geula" />} />
                 <Route path="/contact" element={<PublicContinuity2029Page kind="contact" />} />

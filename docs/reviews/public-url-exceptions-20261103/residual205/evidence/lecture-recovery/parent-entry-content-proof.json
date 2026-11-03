@@ -1,0 +1,412 @@
+[
+  {
+    "wpPageId": 2481,
+    "title": "משיח בשנת התשע\"ו - כל ההרצאות | כי לה' המלוכה",
+    "canonical": "https://sod1820.co.il/משיח-בשנת-התשעו/",
+    "publicArticle": true,
+    "captureUtc": "20250624031827",
+    "entryContentPath": "/tmp/lecture-source-closure/parent-20250624031827.entry-content.html",
+    "entryContentSha256": "85516b0ef52ffd568abbd16ae73e10a09fbed50a65a074713ef6cd66dfeb26ca",
+    "entryContentBytes": 5945,
+    "originalHtmlPath": "/tmp/lecture-source-closure/parent-20250624031827.html",
+    "originalHtmlSha256": "27860e33ba65c5312d85eca5459bd76b3a7e87d337f42f5dde742ce80c57003f",
+    "iframes": [
+      "https://www.youtube.com/embed/qCYHzCzZ-A0?list=UUQ135Sk3fwPllBKpRm-8Ogw",
+      "https://www.youtube.com/embed/oPXOLzliU2c?feature=oembed",
+      "https://www.youtube.com/embed/3O4CrVYpUT4?feature=oembed",
+      "https://www.youtube.com/embed/_ZtU6K3tRKU?feature=oembed",
+      "https://www.youtube.com/embed/VmQbvKxoqLc?feature=oembed",
+      "https://www.youtube.com/embed/J0K9ocO0hhI?list=PLouU_LbV9yCwFPjW9A757e5-psyZ19QVC"
+    ],
+    "anchors": [
+      "https://sod1820.co.il/%d7%94%d7%95%d7%9b%d7%97%d7%95%d7%aa-%d7%9c%d7%90%d7%9e%d7%99%d7%aa%d7%95%d7%aa-%d7%94%d7%aa%d7%95%d7%a8%d7%94-%d7%9e%d7%a9%d7%9e%d7%99%d7%9d/",
+      "https://sod1820.co.il/?p=2991"
+    ],
+    "images": [],
+    "plainYouTubeIds": [
+      "KUP8khZPtiM",
+      "xncp6I-rms8",
+      "pnvH6y-FDVg",
+      "xRtPZk9XgK8",
+      "fM3j8D8I81Q",
+      "tJqFU6lZIKs",
+      "Orrl9sJfi1o",
+      "Kq0jjIPCmik",
+      "FReb_Tz6F30",
+      "YWmniGq50aw",
+      "vYsgnGBwStE"
+    ],
+    "scripts": [],
+    "datePublished": [
+      "2014-11-06T16:19:08+00:00"
+    ],
+    "dateModified": [
+      "2015-02-26T16:11:02+00:00"
+    ],
+    "bodyBytesAreExactOriginalSubstring": true,
+    "allVideoSourcesInOriginalOrder": [
+      {
+        "offset": 1069,
+        "rawOriginalUrl": "https://www.youtube.com/watch?v=KUP8khZPtiM",
+        "href": "https://www.youtube.com/watch?v=KUP8khZPtiM",
+        "videoId": "KUP8khZPtiM",
+        "kind": "plain-original-url",
+        "originalScheme": "https",
+        "originalQuery": "v=KUP8khZPtiM"
+      },
+      {
+        "offset": 1113,
+        "rawOriginalUrl": "https://www.youtube.com/watch?v=xncp6I-rms8",
+        "href": "https://www.youtube.com/watch?v=xncp6I-rms8",
+        "videoId": "xncp6I-rms8",
+        "kind": "plain-original-url",
+        "originalScheme": "https",
+        "originalQuery": "v=xncp6I-rms8"
+      },
+      {
+        "offset": 1259,
+        "rawOriginalUrl": "https://www.youtube.com/watch?v=pnvH6y-FDVg",
+        "href": "https://www.youtube.com/watch?v=pnvH6y-FDVg",
+        "videoId": "pnvH6y-FDVg",
+        "kind": "plain-original-url",
+        "originalScheme": "https",
+        "originalQuery": "v=pnvH6y-FDVg"
+      },
+      {
+        "offset": 1303,
+        "rawOriginalUrl": "https://www.youtube.com/watch?v=xRtPZk9XgK8",
+        "href": "https://www.youtube.com/watch?v=xRtPZk9XgK8",
+        "videoId": "xRtPZk9XgK8",
+        "kind": "plain-original-url",
+        "originalScheme": "https",
+        "originalQuery": "v=xRtPZk9XgK8"
+      },
+      {
+        "offset": 1347,
+        "rawOriginalUrl": "http://youtu.be/fM3j8D8I81Q",
+        "href": "http://youtu.be/fM3j8D8I81Q",
+        "videoId": "fM3j8D8I81Q",
+        "kind": "plain-original-url",
+        "originalScheme": "http",
+        "originalQuery": ""
+      },
+      {
+        "offset": 1375,
+        "rawOriginalUrl": "http://youtu.be/tJqFU6lZIKs",
+        "href": "http://youtu.be/tJqFU6lZIKs",
+        "videoId": "tJqFU6lZIKs",
+        "kind": "plain-original-url",
+        "originalScheme": "http",
+        "originalQuery": ""
+      },
+      {
+        "offset": 1919,
+        "rawOriginalUrl": "https://www.youtube.com/watch?v=Orrl9sJfi1o",
+        "href": "https://www.youtube.com/watch?v=Orrl9sJfi1o",
+        "videoId": "Orrl9sJfi1o",
+        "kind": "plain-original-url",
+        "originalScheme": "https",
+        "originalQuery": "v=Orrl9sJfi1o"
+      },
+      {
+        "offset": 1963,
+        "rawOriginalUrl": "https://www.youtube.com/watch?v=Kq0jjIPCmik",
+        "href": "https://www.youtube.com/watch?v=Kq0jjIPCmik",
+        "videoId": "Kq0jjIPCmik",
+        "kind": "plain-original-url",
+        "originalScheme": "https",
+        "originalQuery": "v=Kq0jjIPCmik"
+      },
+      {
+        "offset": 2007,
+        "rawOriginalUrl": "https://www.youtube.com/watch?v=FReb_Tz6F30",
+        "href": "https://www.youtube.com/watch?v=FReb_Tz6F30",
+        "videoId": "FReb_Tz6F30",
+        "kind": "plain-original-url",
+        "originalScheme": "https",
+        "originalQuery": "v=FReb_Tz6F30"
+      },
+      {
+        "offset": 2051,
+        "rawOriginalUrl": "http://youtu.be/YWmniGq50aw",
+        "href": "http://youtu.be/YWmniGq50aw",
+        "videoId": "YWmniGq50aw",
+        "kind": "plain-original-url",
+        "originalScheme": "http",
+        "originalQuery": ""
+      },
+      {
+        "offset": 2079,
+        "rawOriginalUrl": "http://youtu.be/vYsgnGBwStE",
+        "href": "http://youtu.be/vYsgnGBwStE",
+        "videoId": "vYsgnGBwStE",
+        "kind": "plain-original-url",
+        "originalScheme": "http",
+        "originalQuery": ""
+      },
+      {
+        "offset": 2300,
+        "rawOriginalUrl": "https://www.youtube.com/embed/qCYHzCzZ-A0?list=UUQ135Sk3fwPllBKpRm-8Ogw",
+        "href": "https://www.youtube.com/embed/qCYHzCzZ-A0?list=UUQ135Sk3fwPllBKpRm-8Ogw",
+        "videoId": "qCYHzCzZ-A0",
+        "kind": "embed",
+        "originalScheme": "https",
+        "originalQuery": "list=UUQ135Sk3fwPllBKpRm-8Ogw"
+      },
+      {
+        "offset": 2710,
+        "rawOriginalUrl": "https://www.youtube.com/embed/oPXOLzliU2c?feature=oembed",
+        "href": "https://www.youtube.com/embed/oPXOLzliU2c?feature=oembed",
+        "videoId": "oPXOLzliU2c",
+        "kind": "embed",
+        "originalScheme": "https",
+        "originalQuery": "feature=oembed"
+      },
+      {
+        "offset": 3123,
+        "rawOriginalUrl": "https://www.youtube.com/embed/3O4CrVYpUT4?feature=oembed",
+        "href": "https://www.youtube.com/embed/3O4CrVYpUT4?feature=oembed",
+        "videoId": "3O4CrVYpUT4",
+        "kind": "embed",
+        "originalScheme": "https",
+        "originalQuery": "feature=oembed"
+      },
+      {
+        "offset": 3535,
+        "rawOriginalUrl": "https://www.youtube.com/embed/_ZtU6K3tRKU?feature=oembed",
+        "href": "https://www.youtube.com/embed/_ZtU6K3tRKU?feature=oembed",
+        "videoId": "_ZtU6K3tRKU",
+        "kind": "embed",
+        "originalScheme": "https",
+        "originalQuery": "feature=oembed"
+      },
+      {
+        "offset": 3949,
+        "rawOriginalUrl": "https://www.youtube.com/embed/VmQbvKxoqLc?feature=oembed",
+        "href": "https://www.youtube.com/embed/VmQbvKxoqLc?feature=oembed",
+        "videoId": "VmQbvKxoqLc",
+        "kind": "embed",
+        "originalScheme": "https",
+        "originalQuery": "feature=oembed"
+      },
+      {
+        "offset": 4509,
+        "rawOriginalUrl": "https://www.youtube.com/embed/J0K9ocO0hhI?list=PLouU_LbV9yCwFPjW9A757e5-psyZ19QVC",
+        "href": "https://www.youtube.com/embed/J0K9ocO0hhI?list=PLouU_LbV9yCwFPjW9A757e5-psyZ19QVC",
+        "videoId": "J0K9ocO0hhI",
+        "kind": "embed",
+        "originalScheme": "https",
+        "originalQuery": "list=PLouU_LbV9yCwFPjW9A757e5-psyZ19QVC"
+      }
+    ],
+    "totalVideoOccurrences": 17,
+    "plainVideoUrlCount": 11,
+    "embedCount": 6,
+    "extractionCorrection": "Prior plainYouTubeIds listed only youtube.com watch URLs and omitted4original http://youtu.be URLs. allVideoSourcesInOriginalOrder is the complete23-total-occurrence source; original body unchanged."
+  },
+  {
+    "wpPageId": 2481,
+    "title": "משיח בשנת התשע\"ו - כל ההרצאות | כי לה' המלוכה",
+    "canonical": "https://sod1820.co.il/משיח-בשנת-התשעו/",
+    "publicArticle": true,
+    "captureUtc": "20250123192048",
+    "entryContentPath": "/tmp/lecture-source-closure/parent-20250123192048.entry-content.html",
+    "entryContentSha256": "85516b0ef52ffd568abbd16ae73e10a09fbed50a65a074713ef6cd66dfeb26ca",
+    "entryContentBytes": 5945,
+    "originalHtmlPath": "/tmp/lecture-source-closure/parent-20250123192048.html",
+    "originalHtmlSha256": "0b35a943a595f606fb8f319f90b8afab09d2401ab1f80d04b57d4ffbfe3de934",
+    "iframes": [
+      "https://www.youtube.com/embed/qCYHzCzZ-A0?list=UUQ135Sk3fwPllBKpRm-8Ogw",
+      "https://www.youtube.com/embed/oPXOLzliU2c?feature=oembed",
+      "https://www.youtube.com/embed/3O4CrVYpUT4?feature=oembed",
+      "https://www.youtube.com/embed/_ZtU6K3tRKU?feature=oembed",
+      "https://www.youtube.com/embed/VmQbvKxoqLc?feature=oembed",
+      "https://www.youtube.com/embed/J0K9ocO0hhI?list=PLouU_LbV9yCwFPjW9A757e5-psyZ19QVC"
+    ],
+    "anchors": [
+      "https://sod1820.co.il/%d7%94%d7%95%d7%9b%d7%97%d7%95%d7%aa-%d7%9c%d7%90%d7%9e%d7%99%d7%aa%d7%95%d7%aa-%d7%94%d7%aa%d7%95%d7%a8%d7%94-%d7%9e%d7%a9%d7%9e%d7%99%d7%9d/",
+      "https://sod1820.co.il/?p=2991"
+    ],
+    "images": [],
+    "plainYouTubeIds": [
+      "KUP8khZPtiM",
+      "xncp6I-rms8",
+      "pnvH6y-FDVg",
+      "xRtPZk9XgK8",
+      "fM3j8D8I81Q",
+      "tJqFU6lZIKs",
+      "Orrl9sJfi1o",
+      "Kq0jjIPCmik",
+      "FReb_Tz6F30",
+      "YWmniGq50aw",
+      "vYsgnGBwStE"
+    ],
+    "scripts": [],
+    "datePublished": [
+      "2014-11-06T16:19:08+00:00"
+    ],
+    "dateModified": [
+      "2015-02-26T16:11:02+00:00"
+    ],
+    "bodyBytesAreExactOriginalSubstring": true,
+    "allVideoSourcesInOriginalOrder": [
+      {
+        "offset": 1069,
+        "rawOriginalUrl": "https://www.youtube.com/watch?v=KUP8khZPtiM",
+        "href": "https://www.youtube.com/watch?v=KUP8khZPtiM",
+        "videoId": "KUP8khZPtiM",
+        "kind": "plain-original-url",
+        "originalScheme": "https",
+        "originalQuery": "v=KUP8khZPtiM"
+      },
+      {
+        "offset": 1113,
+        "rawOriginalUrl": "https://www.youtube.com/watch?v=xncp6I-rms8",
+        "href": "https://www.youtube.com/watch?v=xncp6I-rms8",
+        "videoId": "xncp6I-rms8",
+        "kind": "plain-original-url",
+        "originalScheme": "https",
+        "originalQuery": "v=xncp6I-rms8"
+      },
+      {
+        "offset": 1259,
+        "rawOriginalUrl": "https://www.youtube.com/watch?v=pnvH6y-FDVg",
+        "href": "https://www.youtube.com/watch?v=pnvH6y-FDVg",
+        "videoId": "pnvH6y-FDVg",
+        "kind": "plain-original-url",
+        "originalScheme": "https",
+        "originalQuery": "v=pnvH6y-FDVg"
+      },
+      {
+        "offset": 1303,
+        "rawOriginalUrl": "https://www.youtube.com/watch?v=xRtPZk9XgK8",
+        "href": "https://www.youtube.com/watch?v=xRtPZk9XgK8",
+        "videoId": "xRtPZk9XgK8",
+        "kind": "plain-original-url",
+        "originalScheme": "https",
+        "originalQuery": "v=xRtPZk9XgK8"
+      },
+      {
+        "offset": 1347,
+        "rawOriginalUrl": "http://youtu.be/fM3j8D8I81Q",
+        "href": "http://youtu.be/fM3j8D8I81Q",
+        "videoId": "fM3j8D8I81Q",
+        "kind": "plain-original-url",
+        "originalScheme": "http",
+        "originalQuery": ""
+      },
+      {
+        "offset": 1375,
+        "rawOriginalUrl": "http://youtu.be/tJqFU6lZIKs",
+        "href": "http://youtu.be/tJqFU6lZIKs",
+        "videoId": "tJqFU6lZIKs",
+        "kind": "plain-original-url",
+        "originalScheme": "http",
+        "originalQuery": ""
+      },
+      {
+        "offset": 1919,
+        "rawOriginalUrl": "https://www.youtube.com/watch?v=Orrl9sJfi1o",
+        "href": "https://www.youtube.com/watch?v=Orrl9sJfi1o",
+        "videoId": "Orrl9sJfi1o",
+        "kind": "plain-original-url",
+        "originalScheme": "https",
+        "originalQuery": "v=Orrl9sJfi1o"
+      },
+      {
+        "offset": 1963,
+        "rawOriginalUrl": "https://www.youtube.com/watch?v=Kq0jjIPCmik",
+        "href": "https://www.youtube.com/watch?v=Kq0jjIPCmik",
+        "videoId": "Kq0jjIPCmik",
+        "kind": "plain-original-url",
+        "originalScheme": "https",
+        "originalQuery": "v=Kq0jjIPCmik"
+      },
+      {
+        "offset": 2007,
+        "rawOriginalUrl": "https://www.youtube.com/watch?v=FReb_Tz6F30",
+        "href": "https://www.youtube.com/watch?v=FReb_Tz6F30",
+        "videoId": "FReb_Tz6F30",
+        "kind": "plain-original-url",
+        "originalScheme": "https",
+        "originalQuery": "v=FReb_Tz6F30"
+      },
+      {
+        "offset": 2051,
+        "rawOriginalUrl": "http://youtu.be/YWmniGq50aw",
+        "href": "http://youtu.be/YWmniGq50aw",
+        "videoId": "YWmniGq50aw",
+        "kind": "plain-original-url",
+        "originalScheme": "http",
+        "originalQuery": ""
+      },
+      {
+        "offset": 2079,
+        "rawOriginalUrl": "http://youtu.be/vYsgnGBwStE",
+        "href": "http://youtu.be/vYsgnGBwStE",
+        "videoId": "vYsgnGBwStE",
+        "kind": "plain-original-url",
+        "originalScheme": "http",
+        "originalQuery": ""
+      },
+      {
+        "offset": 2300,
+        "rawOriginalUrl": "https://www.youtube.com/embed/qCYHzCzZ-A0?list=UUQ135Sk3fwPllBKpRm-8Ogw",
+        "href": "https://www.youtube.com/embed/qCYHzCzZ-A0?list=UUQ135Sk3fwPllBKpRm-8Ogw",
+        "videoId": "qCYHzCzZ-A0",
+        "kind": "embed",
+        "originalScheme": "https",
+        "originalQuery": "list=UUQ135Sk3fwPllBKpRm-8Ogw"
+      },
+      {
+        "offset": 2710,
+        "rawOriginalUrl": "https://www.youtube.com/embed/oPXOLzliU2c?feature=oembed",
+        "href": "https://www.youtube.com/embed/oPXOLzliU2c?feature=oembed",
+        "videoId": "oPXOLzliU2c",
+        "kind": "embed",
+        "originalScheme": "https",
+        "originalQuery": "feature=oembed"
+      },
+      {
+        "offset": 3123,
+        "rawOriginalUrl": "https://www.youtube.com/embed/3O4CrVYpUT4?feature=oembed",
+        "href": "https://www.youtube.com/embed/3O4CrVYpUT4?feature=oembed",
+        "videoId": "3O4CrVYpUT4",
+        "kind": "embed",
+        "originalScheme": "https",
+        "originalQuery": "feature=oembed"
+      },
+      {
+        "offset": 3535,
+        "rawOriginalUrl": "https://www.youtube.com/embed/_ZtU6K3tRKU?feature=oembed",
+        "href": "https://www.youtube.com/embed/_ZtU6K3tRKU?feature=oembed",
+        "videoId": "_ZtU6K3tRKU",
+        "kind": "embed",
+        "originalScheme": "https",
+        "originalQuery": "feature=oembed"
+      },
+      {
+        "offset": 3949,
+        "rawOriginalUrl": "https://www.youtube.com/embed/VmQbvKxoqLc?feature=oembed",
+        "href": "https://www.youtube.com/embed/VmQbvKxoqLc?feature=oembed",
+        "videoId": "VmQbvKxoqLc",
+        "kind": "embed",
+        "originalScheme": "https",
+        "originalQuery": "feature=oembed"
+      },
+      {
+        "offset": 4509,
+        "rawOriginalUrl": "https://www.youtube.com/embed/J0K9ocO0hhI?list=PLouU_LbV9yCwFPjW9A757e5-psyZ19QVC",
+        "href": "https://www.youtube.com/embed/J0K9ocO0hhI?list=PLouU_LbV9yCwFPjW9A757e5-psyZ19QVC",
+        "videoId": "J0K9ocO0hhI",
+        "kind": "embed",
+        "originalScheme": "https",
+        "originalQuery": "list=PLouU_LbV9yCwFPjW9A757e5-psyZ19QVC"
+      }
+    ],
+    "totalVideoOccurrences": 17,
+    "plainVideoUrlCount": 11,
+    "embedCount": 6,
+    "extractionCorrection": "Prior plainYouTubeIds listed only youtube.com watch URLs and omitted4original http://youtu.be URLs. allVideoSourcesInOriginalOrder is the complete23-total-occurrence source; original body unchanged."
+  }
+]

@@ -159,7 +159,7 @@ function installPublicReadingWorker(policy) {
       })().catch(() => denied())); return;
     }
     if (url.origin === authOrigin) {
-      if (["GET","HEAD"].includes(req.method) && /^\/rest\/v1\/(?:profiles|user_notes|research_items|user_research|notification_prefs|user_notifications)$/.test(url.pathname)) {
+      if (["GET","HEAD"].includes(req.method) && /^\/rest\/v1\/(?:profiles|user_notes|research_items|user_research|notification_prefs|user_notifications|wa_account_links)$/.test(url.pathname)) {
         event.respondWith(readingPersonalResponse(req, {apiKey:req.headers.get("apikey")||policy.anonKey,clientOrigin:self.location.origin,verify:verifyReadingPrincipal}).then(result=>result||denied()).catch(()=>denied()));return;
       }
       const ambiguous = url.pathname.includes("//") || url.pathname.includes("%") && !url.pathname.startsWith("/storage/v1/");

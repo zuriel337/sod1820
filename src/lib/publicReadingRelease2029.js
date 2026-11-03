@@ -10,6 +10,12 @@ export const PUBLIC_READING_PRODUCTION_ARTIFACT = PUBLIC_READING_RELEASE
   && typeof __SOD_PUBLIC_READING_PRODUCTION_ARTIFACT__ !== "undefined"
   && __SOD_PUBLIC_READING_PRODUCTION_ARTIFACT__ === true;
 
+// Existing published WordPress pages recovered byte-for-byte from dated source
+// captures. These remain their original documents, not cipher/research routes.
+export const PUBLIC_HISTORICAL_LECTURE_PATHS = Object.freeze([
+  "/משיח-בשנת-התשעו/", "/משיח-בשנת-התשעו/מתי-שנת-הגאולה/", "/הוכחות-לאמיתות-התורה-משמים/",
+]);
+
 // The launch ceiling applies to the public, not to the server-verified admin.
 // This projection never grants a server role or bypasses an operation's RLS.
 export function publicReadingActionsLocked(isAdmin) {
@@ -42,6 +48,11 @@ export function publicReadingContinuation(pathname, search = "", hash = "") {
     "/category/סוד-האותיות/גלריות-גימטריה": "/category/גלריות-גימטריה",
     "/2029/number": "/number",
     "/chat": "/community/chat", "/דף-צאט-ראשי": "/community/chat",
+    "/forum": "/community/chat",
+    // ZURIEL: old Forum arrivals continue to the existing community chat.
+    // This exact source identity is not republished as an ordinary Post.
+    "/yuval-kogan-echad-hasichim-hamashiach": "/community/chat",
+    "/post/yuval-kogan-echad-hasichim-hamashiach": "/community/chat",
     "/posts": "/post", "/פוסטים-אחרונים": "/post", "/פוסטים-אחרונים-2": "/post",
     "/גימטריה": "/gematria", "/888": "/community/researcher/888",
     "/book": "/books", "/book.html": "/books",
@@ -52,6 +63,14 @@ export function publicReadingContinuation(pathname, search = "", hash = "") {
     "/gematria-3d": "/spatial-gematria", "/גימטריה-תלת-ממדית": "/spatial-gematria", "/גימטריה-מרחבית": "/spatial-gematria",
     "/gallery-updates": "/archive", "/מסע": "/journey", "/journey-beta": "/journey",
   })[path];
+  if (path === "/" && query.getAll("p").length === 1 && query.get("p") === "36971") target = "/community/chat";
+  if (path === "/") {
+    const sourceId = query.getAll("p").length === 1 && !query.has("page_id") ? query.get("p")
+      : query.getAll("page_id").length === 1 && !query.has("p") ? query.get("page_id") : null;
+    if (sourceId === "2481") target = PUBLIC_HISTORICAL_LECTURE_PATHS[0];
+    if (sourceId === "3798") target = PUBLIC_HISTORICAL_LECTURE_PATHS[1];
+    if (sourceId === "3288") target = PUBLIC_HISTORICAL_LECTURE_PATHS[2];
+  }
   if (/^\/me\/(?:public-page|page-editor|profile|messages|notifications|progress|research|notes)$/.test(path)) target = "/2029" + path;
   if (path === "/2029/me" || path === "/me" && !query.has("tab")) target = "/2029/me/research";
   if (path === "/me" && /^(?:public-page|page-editor|profile|messages|notifications|progress|research|notes)$/.test(query.get("tab") || "")) target = "/2029/me/" + query.get("tab");
@@ -144,6 +163,7 @@ export function publicReadingPath(pathname, { isAdmin = false, search = "" } = {
   if (/^\/(?:api|admin|auth|2029\/me|community\/researcher\/me)(?:\/|$)/.test(path)) return "closed";
   if (path === "/unsubscribe" && PUBLIC_READING_PRODUCTION_ARTIFACT) return "public";
   if (["/updates", "/unsubscribe"].includes(path)) return "service-closed";
+  if (PUBLIC_HISTORICAL_LECTURE_PATHS.some(href => href.replace(/\/+$/, "") === path)) return "public";
   if (["/", "/world", "/verified", "/post", "/posts", "/number", "/gematria", "/gallery", "/map", "/privacy", "/2029", "/2029/posts", "/2029/gematria", "/2029/gematria/viral", "/2029/calculator", "/community", "/community/chat", "/community/calculator", "/community/comments", "/community/researchers", "/members", "/forum", "/or-geula", "/books", "/codes", "/codes/מחקר", "/contact", "/early-access", "/melech-hamisparim/718"].includes(path)) return "public";
   if (/^\/(?:post|number|topic|researcher|video|tag|category|book|codes|forum)\/[^/]+\/?$/.test(pathname) || /^\/or-geula\/video\/[^/]+$/.test(path) || /^\/2029\/number\/[^/]+$/.test(path) || /^\/community\/researcher\/[^/]+$/.test(path)) return "public";
   // A historical single-segment Post remains subject to the canonical public

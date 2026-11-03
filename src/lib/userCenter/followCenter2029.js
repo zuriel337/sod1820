@@ -31,7 +31,38 @@ export function notificationHref(link) {
   return link;
 }
 
+// The existing verified association is read separately from channel preference.
+// No phone, credit field, OTP endpoint or provider operation is consumed here.
+export async function readOwnWhatsAppBinding2029(userId, { client = supabase, signal } = {}) {
+  const canceled = () => { if (signal?.aborted) throw new DOMException("Binding read canceled", "AbortError"); };
+  const account = async () => {
+    canceled();
+    const { data, error } = await client.auth.getSession();
+    canceled();
+    if (error || !userId || data?.session?.user?.id !== userId || !data.session.access_token) {
+      const failure = new Error("Account changed"); failure.code = "42501"; throw failure;
+    }
+  };
+  try {
+    await account();
+    let query = client.from("wa_account_links").select("verified_at").eq("user_id", userId)
+      .not("verified_at", "is", null).limit(1);
+    if (signal) query = query.abortSignal(signal);
+    const { data, error } = await query;
+    await account();
+    if (error) throw error;
+    if (!Array.isArray(data) || data.length > 1 || data.some(row => typeof row?.verified_at !== "string" || !Number.isFinite(Date.parse(row.verified_at)))) {
+      throw new Error("Invalid binding response");
+    }
+    return data.length ? { state: "linked", verifiedAt: data[0].verified_at } : { state: "measured_empty" };
+  } catch (error) {
+    canceled();
+    return { state: ["401", "403", "42501"].includes(String(error?.status || error?.code)) ? "access_filtered" : "failed" };
+  }
+}
+
 export const followCenterIO = Object.freeze({
+  readWhatsApp: readOwnWhatsAppBinding2029,
   async readUpdates(userId) {
     await requireAccount(userId);
     const items = await getMyNotifications(30, { strict: true, userId });

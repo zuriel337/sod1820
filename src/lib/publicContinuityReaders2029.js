@@ -6,11 +6,79 @@ import { hasSuppressedPublicPostTag, publicPostOnlyFilter } from "./research/pub
 import { publicVideoSourceQuery2029 } from "./research/publicVideo2029Reading.js";
 import { publicChannelToSystemItem, publicNowMediaHref } from "./research/systemFeedPublicSources2029.js";
 import { redactGroupText } from "./research/worldGroupSource.js";
+import historicalLecturePages from "../data/publicLegacyLecturePages2029.json" with { type: "json" };
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const clean = value => String(value ?? "").trim();
 const publicText = value => redactGroupText(stripHtml(clean(value)));
 const canceled = signal => { if (signal?.aborted) throw new DOMException("Public continuation reading canceled", "AbortError"); };
+
+export function publicHistoricalLecturePage2029(pathname) {
+  if (typeof pathname !== "string" || !pathname.startsWith("/") || pathname.startsWith("//")) return null;
+  try {
+    const path = decodeURIComponent(pathname).replace(/\/+$/, "");
+    return historicalLecturePages.find(page => page.path.replace(/\/+$/, "") === path) || null;
+  } catch { return null; }
+}
+
+// Presentation adapter over the preserved historical bytes. All text and video
+// identities survive; a playable provider is never inferred from its URL.
+export function historicalLectureHtml2029(page, sourceDocument = globalThis.document) {
+  if (!page || !sourceDocument?.createElement) return "";
+  const template = sourceDocument.createElement("template"); template.innerHTML = page.html;
+  for (const unsafe of template.content.querySelectorAll("script,style,object,embed,form,base,link,meta")) unsafe.remove();
+  for (const node of template.content.querySelectorAll("*")) for (const attr of [...node.attributes]) {
+    if (/^on/i.test(attr.name) || attr.name === "srcdoc") node.removeAttribute(attr.name);
+  }
+  const sourceLink = (href, label) => {
+    const link = sourceDocument.createElement("a"); link.href = href; link.textContent = label;
+    link.target = "_blank"; link.rel = "noopener noreferrer"; link.style.overflowWrap = "anywhere";
+    link.dataset.historicalVideoSource = "true"; return link;
+  };
+  const video = value => {
+    try { const u = new URL(value); if (!/^https?:$/.test(u.protocol) || u.username || u.password) return null;
+      const id = u.hostname === "youtu.be" ? u.pathname.slice(1) : ["www.youtube.com","youtube.com"].includes(u.hostname)
+        ? u.pathname.startsWith("/embed/") ? u.pathname.slice(7) : u.pathname === "/watch" ? u.searchParams.get("v") : null : null;
+      return /^[A-Za-z0-9_-]{11}$/.test(id || "") ? {u,id} : null;
+    } catch { return null; }
+  };
+  for (const frame of template.content.querySelectorAll("iframe")) {
+    const item = video(frame.getAttribute("src")); if (!item) { frame.remove(); continue; }
+    const width = Number(frame.getAttribute("width")), height = Number(frame.getAttribute("height"));
+    const figure = sourceDocument.createElement("figure"); frame.replaceWith(figure);
+    const watch = new URL("https://www.youtube.com/watch"); watch.searchParams.set("v",item.id);
+    for (const [key,value] of item.u.searchParams) if (key !== "autoplay") watch.searchParams.append(key,value);
+    const title = frame.getAttribute("title") || "הרצאת המקור";
+    const details = sourceDocument.createElement("details"),summary = sourceDocument.createElement("summary");
+    summary.textContent = `נגן: ${title}`;details.append(summary);
+    frame.setAttribute("loading","lazy");frame.setAttribute("referrerpolicy","no-referrer");
+    frame.setAttribute("allow","encrypted-media; picture-in-picture");
+    frame.setAttribute("sandbox","allow-scripts allow-same-origin allow-presentation");
+    frame.removeAttribute("width");frame.removeAttribute("height");frame.style.width="100%";
+    frame.style.aspectRatio=width>0&&height>0?`${width} / ${height}`:"16 / 9";
+    const embed = new URL(item.u);embed.searchParams.delete("autoplay");frame.removeAttribute("src"); frame.dataset.videoSrc=embed.href;
+    details.append(frame);figure.append(details,sourceLink(watch.href,`לצפייה במקור: ${title} ↗`));
+    frame.dataset.originalVideoUrl=item.u.href;details.dataset.videoSource=item.id;
+  }
+  for (const link of template.content.querySelectorAll("a[href]")) {
+    try {
+      const url = new URL(link.getAttribute("href"), "https://sod1820.co.il");
+      if (url.origin === "https://sod1820.co.il") link.setAttribute("href", url.pathname + url.search + url.hash);
+      else if (!/^https?:$/.test(url.protocol) || url.username || url.password) link.removeAttribute("href");
+      if (link.target === "_blank") link.rel = "noopener noreferrer";
+    } catch { link.removeAttribute("href"); }
+  }
+  // Convert plain source URLs, including HTTP youtu.be, without altering text,
+  // ordering, playlist parameters or unrelated source links.
+  const walker = sourceDocument.createTreeWalker(template.content,4),texts=[];
+  while(walker.nextNode()) if(!walker.currentNode.parentElement?.closest("a,iframe,summary")) texts.push(walker.currentNode);
+  for(const text of texts){const matches=[...text.textContent.matchAll(/https?:\/\/[^\s<>]+/g)].filter(match=>video(match[0]));if(!matches.length)continue;
+    const fragment=sourceDocument.createDocumentFragment();let offset=0;
+    for(const match of matches){fragment.append(text.textContent.slice(offset,match.index),sourceLink(match[0],match[0]));offset=match.index+match[0].length;}
+    fragment.append(text.textContent.slice(offset));text.replaceWith(fragment);
+  }
+  return template.innerHTML;
+}
 export const OR_GEULA_CONTINUITY_PAGE_SIZE = 18;
 
 export function publicContinuityPage2029(value) {
@@ -129,6 +197,14 @@ export async function loadPublicForumContinuation2029(id = null, { readRows = re
   const rows = await read("research_contributions", { select: "id,status", id: `eq.${occurrenceId}`, status: "eq.approved", limit: "1" }, { readRows, signal });
   const exists = rows.some(row => clean(row?.id).toLowerCase() === occurrenceId && row.status === "approved");
   return { status: exists ? "gated" : "not-found", exists };
+}
+
+// User-approved continuation to the existing chat, not a claim that a Forum
+// source is the same chat thread. Only the caller's already-admitted identity
+// can select this destination; raw query bytes and browser anchors survive.
+export function publicForumChatHref2029(search = "", hash = "") {
+  return "/community/chat" + (search ? search.startsWith("?") ? search : `?${search}` : "")
+    + (hash ? hash.startsWith("#") ? hash : `#${hash}` : "");
 }
 
 // The comments catalogue was closed; the public comments already live under

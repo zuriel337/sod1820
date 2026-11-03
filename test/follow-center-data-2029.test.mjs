@@ -8,7 +8,7 @@ registerHooks({ load(url, context, nextLoad) {
   const result = nextLoad(url, context);
   return url.endsWith("/lib/marketing.js") ? { ...result, source: result.source.toString().replaceAll("import.meta.env", "({})") } : result;
 } });
-const { followCenterIO, followTopics, notificationHref } = await import("../src/lib/userCenter/followCenter2029.js");
+const { followCenterIO, followTopics, notificationHref, readOwnWhatsAppBinding2029 } = await import("../src/lib/userCenter/followCenter2029.js");
 
 const ACCOUNT = "22222222-2222-4222-8222-222222222222";
 const OTHER = "33333333-3333-4333-8333-333333333333";
@@ -112,4 +112,25 @@ await test("mark-read adapter requires and returns only existing strict acknowle
     assert.equal(calls[0].params.get("read_at"), "is.null"); assert.deepEqual(Object.keys(calls[0].body), ["read_at"]);
     assert.equal(calls[0].params.get("user_id"), "eq." + ACCOUNT);
   });
+});
+
+await test("WhatsApp reads only own verified_at; binding/empty/denied/failure are distinct and stale principal cancels partial state", async () => {
+  async function binding({rows=[],error=null,ids=[ACCOUNT,ACCOUNT],token=true,signal}={}) {
+    const calls=[];let checks=0;
+    const query={then:yes=>Promise.resolve({data:rows,error}).then(yes)};
+    for(const name of ["select","eq","not","limit","abortSignal"]) query[name]=(...args)=>{calls.push([name,...args]);return query;};
+    const client={auth:{getSession:async()=>({data:{session:{user:{id:ids[Math.min(checks++,ids.length-1)]},access_token:token?"synthetic-account-token":null}}})},from:table=>{calls.push(["from",table]);return query;}};
+    const result=await readOwnWhatsAppBinding2029(ACCOUNT,{client,signal});return {result,calls};
+  }
+  const verifiedAt="2026-10-01T12:00:00Z";
+  const {result,calls}=await binding({rows:[{verified_at:verifiedAt,phone:"must-not-escape",user_id:OTHER,credited_msgs:100}]});
+  assert.deepEqual(result,{state:"linked",verifiedAt});assert.doesNotMatch(JSON.stringify(result),/phone|user_id|credited/);
+  assert.deepEqual(calls,[["from","wa_account_links"],["select","verified_at"],["eq","user_id",ACCOUNT],["not","verified_at","is",null],["limit",1]]);
+  assert.deepEqual((await binding()).result,{state:"measured_empty"});
+  for(const error of [{code:"42501"},{status:401},{status:403}])assert.equal((await binding({error})).result.state,"access_filtered");
+  for(const error of [{message:"network"},{code:"bad"}])assert.equal((await binding({error})).result.state,"failed");
+  for(const rows of [null,{},[{}],[{verified_at:"broken"}],[{verified_at:verifiedAt},{verified_at:verifiedAt}]])assert.equal((await binding({rows})).result.state,"failed");
+  for(const ids of [[OTHER],[ACCOUNT,OTHER]])assert.deepEqual((await binding({rows:[{verified_at:verifiedAt}],ids})).result,{state:"access_filtered"});
+  assert.equal((await binding({token:false})).calls.length,0);
+  const abort=new AbortController();abort.abort();await assert.rejects(binding({signal:abort.signal}),{name:"AbortError"});
 });

@@ -1,4 +1,4 @@
-import { PUBLIC_READING_PROFILE_ID, publicReadingContinuation } from "../src/lib/publicReadingRelease2029.js";
+import { PUBLIC_READING_PROFILE_ID, publicReadingContinuation, PUBLIC_HISTORICAL_LECTURE_PATHS } from "../src/lib/publicReadingRelease2029.js";
 import { projectPublicBook2029, publicBookSourceAvailable2029 } from "../src/lib/research/publicLibraryContinuity2029.js";
 import { postsTaxonomyRoute2029, postMatchesTaxonomy2029 } from "../src/lib/research/postsTaxonomy2029Route.js";
 import { publicPostHref, publicPostUrl, postAddressSlug } from "../src/lib/publicPostUrls.js";
@@ -200,6 +200,7 @@ export default async function handler(req, res) {
   if (foundation && !urls.some(row => row.loc === "/number")) urls.push({ loc: "/number", priority: "0.6", changefreq: "monthly" });
   if (req.publicReadingRelease === PUBLIC_READING_PROFILE_ID && !urls.some(row => row.loc === "/gallery")) urls.push({ loc: "/gallery", priority: "0.6", changefreq: "weekly" });
   if (productionReading) urls.push({ loc: '/community/researchers', priority: '0.5', changefreq: 'weekly' });
+  if (productionReading) for (const loc of PUBLIC_HISTORICAL_LECTURE_PATHS) urls.push({loc,priority:'0.4',changefreq:'yearly'});
   let foundationSourceFailed = false;
   let posts;
   try { posts = await fetchAll(`posts?select=id,slug,source,link,wp_id,modified,date${productionReading ? ',tags,categories' : ''}${POST_PUBLISHED_FILTER}&order=date.desc`); }

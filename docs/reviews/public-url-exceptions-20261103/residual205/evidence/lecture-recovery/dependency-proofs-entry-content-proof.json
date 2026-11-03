@@ -1,0 +1,64 @@
+[
+  {
+    "captureUtc": "20250624073251",
+    "originalUrl": "https://sod1820.co.il/%D7%94%D7%95%D7%9B%D7%97%D7%95%D7%AA-%D7%9C%D7%90%D7%9E%D7%99%D7%AA%D7%95%D7%AA-%D7%94%D7%AA%D7%95%D7%A8%D7%94-%D7%9E%D7%A9%D7%9E%D7%99%D7%9D/",
+    "archiveUrl": "https://web.archive.org/web/20250624073251id_/https://sod1820.co.il/%D7%94%D7%95%D7%9B%D7%97%D7%95%D7%AA-%D7%9C%D7%90%D7%9E%D7%99%D7%AA%D7%95%D7%AA-%D7%94%D7%AA%D7%95%D7%A8%D7%94-%D7%9E%D7%A9%D7%9E%D7%99%D7%9D/",
+    "cdxDigest": "S3SOTMWWDWT4WLMOC5AIPIZ4OGIW7DR7",
+    "status": 200,
+    "finalUrl": "https://web.archive.org/web/20250624073251id_/https://sod1820.co.il/%D7%94%D7%95%D7%9B%D7%97%D7%95%D7%AA-%D7%9C%D7%90%D7%9E%D7%99%D7%AA%D7%95%D7%AA-%D7%94%D7%AA%D7%95%D7%A8%D7%94-%D7%9E%D7%A9%D7%9E%D7%99%D7%9D/",
+    "bytes": 266298,
+    "mime": "text/html; charset=UTF-8",
+    "originalHtmlSha256": "2171051397c38cc37b2a63b7a93a5346d327b299c9fef6eed6802a88b49d3b72",
+    "sha1Base32": "S3SOTMWWDWT4WLMOC5AIPIZ4OGIW7DR7",
+    "originalHtmlPath": "/tmp/lecture-source-closure/dependency-proofs-20250624073251.html",
+    "title": "הוכחות לאמיתות התורה משמים | כי לה' המלוכה",
+    "canonical": "https://sod1820.co.il/הוכחות-לאמיתות-התורה-משמים/",
+    "wpPageId": 3288,
+    "published": true,
+    "entryContentPath": "/tmp/lecture-source-closure/dependency-proofs-20250624073251.entry-content.html",
+    "entryContentSha256": "e6875e3fa535b3f53b1f5f550d4c01ff6e022af597bbc1defb950e46dc95e654",
+    "entryContentBytes": 1744,
+    "bodyExactOriginalSubstring": true,
+    "iframeUrls": [],
+    "anchorHrefs": [],
+    "imageSrcs": [],
+    "scriptTags": [],
+    "sourceDatePublished": [
+      "2015-02-05T17:18:45+00:00"
+    ],
+    "sourceDateModified": [
+      "2015-02-24T10:51:09+00:00"
+    ]
+  },
+  {
+    "captureUtc": "20250120190604",
+    "originalUrl": "https://sod1820.co.il/%D7%94%D7%95%D7%9B%D7%97%D7%95%D7%AA-%D7%9C%D7%90%D7%9E%D7%99%D7%AA%D7%95%D7%AA-%D7%94%D7%AA%D7%95%D7%A8%D7%94-%D7%9E%D7%A9%D7%9E%D7%99%D7%9D/",
+    "archiveUrl": "https://web.archive.org/web/20250120190604id_/https://sod1820.co.il/%D7%94%D7%95%D7%9B%D7%97%D7%95%D7%AA-%D7%9C%D7%90%D7%9E%D7%99%D7%AA%D7%95%D7%AA-%D7%94%D7%AA%D7%95%D7%A8%D7%94-%D7%9E%D7%A9%D7%9E%D7%99%D7%9D/",
+    "cdxDigest": "7L4D2IVK6VKJQPSXA3KEW2M3J5CSZDPJ",
+    "status": 200,
+    "finalUrl": "https://web.archive.org/web/20250120190604id_/https://sod1820.co.il/%D7%94%D7%95%D7%9B%D7%97%D7%95%D7%AA-%D7%9C%D7%90%D7%9E%D7%99%D7%AA%D7%95%D7%AA-%D7%94%D7%AA%D7%95%D7%A8%D7%94-%D7%9E%D7%A9%D7%9E%D7%99%D7%9D/",
+    "bytes": 264724,
+    "mime": "text/html; charset=UTF-8",
+    "originalHtmlSha256": "35f7e0e6c739721201b16891dee316a85f9fcbf608367f315a749e069a33ee04",
+    "sha1Base32": "7L4D2IVK6VKJQPSXA3KEW2M3J5CSZDPJ",
+    "originalHtmlPath": "/tmp/lecture-source-closure/dependency-proofs-20250120190604.html",
+    "title": "הוכחות לאמיתות התורה משמים | כי לה' המלוכה",
+    "canonical": "https://sod1820.co.il/הוכחות-לאמיתות-התורה-משמים/",
+    "wpPageId": 3288,
+    "published": true,
+    "entryContentPath": "/tmp/lecture-source-closure/dependency-proofs-20250120190604.entry-content.html",
+    "entryContentSha256": "e6875e3fa535b3f53b1f5f550d4c01ff6e022af597bbc1defb950e46dc95e654",
+    "entryContentBytes": 1744,
+    "bodyExactOriginalSubstring": true,
+    "iframeUrls": [],
+    "anchorHrefs": [],
+    "imageSrcs": [],
+    "scriptTags": [],
+    "sourceDatePublished": [
+      "2015-02-05T17:18:45+00:00"
+    ],
+    "sourceDateModified": [
+      "2015-02-24T10:51:09+00:00"
+    ]
+  }
+]

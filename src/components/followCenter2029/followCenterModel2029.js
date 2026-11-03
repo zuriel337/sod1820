@@ -48,7 +48,7 @@ export function followLifecycle({ principal, followCount, channels, followReadSt
   ];
 }
 
-export function buildFollowCenterModel({ principal = "loading", notifications = {}, follows = {}, device = {}, channelReadState = "ready", deliveryReadState = channelReadState } = {}) {
+export function buildFollowCenterModel({ principal = "loading", notifications = {}, follows = {}, whatsApp = {}, device = {}, channelReadState = "ready", deliveryReadState = channelReadState } = {}) {
   const kind = principal === "registered" || principal === "guest" ? principal : "loading";
   const nState = readState(notifications.state), fState = readState(follows.state);
   const items = nState === "ready" && Array.isArray(notifications.items) ? notifications.items : [];
@@ -86,6 +86,8 @@ export function buildFollowCenterModel({ principal = "loading", notifications = 
   }
   const followGroups = KIND_ORDER.filter((key) => groups.has(key)).map((key) => ({ key, heading: KIND_HEADINGS[key], items: groups.get(key) }));
   const followCount = fState === "ready" ? followGroups.reduce((sum, group) => sum + group.items.length, 0) : null;
+  const bindingState = ["loading", "linked", "measured_empty", "access_filtered", "failed"].includes(whatsApp.state) ? whatsApp.state : "failed";
+  const bindingNote = ({ loading: "בודק אם קיים מספר מאומת בחשבון…", linked: "קיים חיבור מספר מאומת בחשבון. מצב המשלוח לא נבדק.", measured_empty: "לא נמצא חיבור מספר מאומת בחשבון.", access_filtered: "לא ניתן לקרוא את חיבור המספר בהרשאה הנוכחית; אין בכך הוכחה שאינו קיים.", failed: "בדיקת חיבור המספר לא הושלמה; המצב אינו ידוע." })[bindingState];
   // Capability metadata comes from the existing channel list; only device Push has its own readiness.
   const channels = NOTIFICATION_CHANNELS.map((channel) => {
     const known = channelReadState === "ready";
@@ -95,7 +97,8 @@ export function buildFollowCenterModel({ principal = "loading", notifications = 
     const note = consentKnown ? chosen ? "נבחר בהעדפות החשבון. מצב המשלוח לא נבדק." : "לא נבחר בהעדפות החשבון."
       : !known ? "מצב הערוץ לא נבדק. ההעדפות הקיימות נשמרות." : ready ? (device.pushSubscribed ? "פעיל במכשיר הזה" : "אפשר להפעיל במכשיר הזה") : channel.note;
     return { key: channel.key, icon: CHANNEL_ICON[channel.key] || "help", label: channel.label, known, consentKnown, available: ready, chosen,
-      note: channel.key === "whatsapp" ? `${note} בחירה שמורה אינה חיבור מספר מאומת. חיבור מספר ועריכת העדפת WhatsApp אינם זמינים כרגע באזור הזה; החיבור הקיים לחשבון אינו משתנה.` : note };
+      ...(channel.key === "whatsapp" ? { bindingState } : {}),
+      note: channel.key === "whatsapp" ? `${note} בחירה שמורה אינה חיבור מספר מאומת. ${bindingNote} חיבור מספר ועריכת העדפת WhatsApp אינם זמינים כרגע באזור הזה; החיבור הקיים לחשבון אינו משתנה.` : note };
   });
   return {
     principal: kind,
