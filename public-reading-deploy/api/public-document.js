@@ -84,7 +84,7 @@ export function publicReadingDocumentHandler({ authorized = deploymentAuthorized
       const closed = ["closed", "missing", "service-closed"].includes(state);
       let metadata = "", status = state === "missing" ? 404 : 200;
       // Closed and unknown addresses never invoke unrelated/private readers.
-      const metadataPath = ({ "/2029": "/", "/2029/posts": "/post",
+      const metadataPath = state === "account" && /^\/2029\/me\//.test(path) ? "/login" : ({ "/2029": "/", "/2029/posts": "/post",
         "/2029/gematria/viral": "/2029/gematria", "/2029/calculator": "/2029/gematria" })[path] || path;
       await metadataHandler({ ...req,
         publicFoundationPreview: true,

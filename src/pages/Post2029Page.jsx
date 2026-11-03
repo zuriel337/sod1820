@@ -17,6 +17,8 @@ import { publicPostHref, exactPostReadingHref } from "../lib/publicPostUrls.js";
 import { publicPostLinkedMedia, legacySourcePath } from "../lib/research/publicPostSourceLinks2029.js";
 import { publicPostShareUrl } from "../lib/publicPostUrls.js";
 import ShareActions from "../components/ShareActions.jsx";
+import PersonalSaveButton2029 from "../components/userCenter/PersonalSaveButton2029.jsx";
+import { entityFromPost } from "../lib/research/entity.js";
 import { logView, logActivity } from "../lib/supabase.js";
 import { track } from "../lib/tracking.js";
 import { hardenPassiveMediaHtml } from "../lib/mediaEgressGuard.js";
@@ -1043,6 +1045,7 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
                 type="post" url={publicPostShareUrl(post, location)}
                 title={post.title} channels={["native", "copy"]} compact force sourceSurface="post_2029"
               /> : null}
+              {!projection.draft && !projection.privateStage && !projection.previewSnapshot ? <PersonalSaveButton2029 entity={{...entityFromPost(post),link:location.pathname+location.search+location.hash}}/> : null}
               {classification.legacyMediaLabels.length ? <p>„וידאו” נשמר כסיווג ישן. סוג המדיה נקבע מהמדיה עצמה, ולא מהתווית.</p> : null}
 
               {projection.excerpt ? <p>{projection.excerpt}</p> : null}

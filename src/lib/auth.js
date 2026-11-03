@@ -50,6 +50,7 @@ export async function updateProfile(userId, fields) {
   const { data, error } = await supabase
     .from('users').update(allowed).eq('id', userId).select(PROFILE_COLS).maybeSingle();
   if (error) throw error;
+  if (data?.id !== userId) throw new Error('PROFILE_UPDATE_NOT_CONFIRMED');
   return data;
 }
 
@@ -97,17 +98,29 @@ export async function claimResearchLead(visitorId) {
 }
 
 // ── פנקס-מחקר בענן (user_notes) — סנכרון בין מכשירים למשתמש מחובר ──
-export async function getCloudNotes(userId) {
+export async function getCloudNotes(userId, { strict = false, signal } = {}) {
   if (!userId) return null;
-  const { data } = await supabase.from('user_notes').select('content').eq('user_id', userId).maybeSingle();
+  if (strict) await assertResearchPrincipal(userId);
+  const query = supabase.from('user_notes').select('content').eq('user_id', userId);
+  if (signal) query.abortSignal(signal);
+  const { data, error } = await query.maybeSingle();
+  if (strict) { if (error) throw error; if (signal?.aborted) throw new Error('NOTES_CANCELLED'); await assertResearchPrincipal(userId); }
   return data?.content ?? null;
 }
-export async function saveCloudNotes(userId, content) {
+export async function saveCloudNotes(userId, content, { strict = false, signal } = {}) {
   if (!userId) return;
-  await supabase.from('user_notes').upsert(
+  if (strict) await assertResearchPrincipal(userId);
+  const query = supabase.from('user_notes').upsert(
     { user_id: userId, content: content || '', updated_at: new Date().toISOString() },
     { onConflict: 'user_id' }
   );
+  if (signal) query.abortSignal(signal);
+  if (!strict) { await query; return; }
+  const { data, error } = await query.select('user_id,content,updated_at').single();
+  if (error) throw error;
+  await assertResearchPrincipal(userId);
+  if (signal?.aborted || data?.user_id !== userId || data.content !== content) throw new Error('NOTES_SAVE_NOT_CONFIRMED');
+  return data;
 }
 
 // ── עולם-המשתמש בענן (עץ אחד) ──

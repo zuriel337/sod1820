@@ -13,3 +13,11 @@ export const PUBLIC_LAUNCH_READ_ONLY_PREVIEW = import.meta.env?.VITE_PUBLIC_LAUN
 export function publicLaunchActionsLocked(isAdmin) {
   return PUBLIC_LAUNCH_READ_ONLY_PREVIEW && !(PUBLIC_READING_RELEASE && isAdmin === true);
 }
+
+// Existing owned account/storage actions are independent of model/research gates.
+// Verified is supplied by AuthContext after Auth.getUser, never user metadata.
+export function personalActionsLocked(auth = {}) {
+  return PUBLIC_READING_RELEASE
+    ? auth.loading === true || auth.verified !== true || !auth.user?.id
+    : publicLaunchActionsLocked(auth.isAdmin);
+}

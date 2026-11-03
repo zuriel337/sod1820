@@ -130,13 +130,15 @@ export const FOLLOW_STATES = [
   { key: "raziel",  icon: "✨", label: "רזיאל מציע",   note: "המלצה אישית",            live: false },
 ];
 
-export async function getUnreadCount({ strict = false } = {}) {
+export async function getUnreadCount({ strict = false, userId = null } = {}) {
   if (!supabase) { if (strict) throw new Error("Notification reader unavailable"); return 0; }
   try {
-    const { count, error } = await supabase
+    let query = supabase
       .from("user_notifications")
       .select("id", { count: "exact", head: true })
       .is("read_at", null);
+    if (userId) query=query.eq("user_id",userId);
+    const { count, error } = await query;
     if (strict) {
       if (error) throw error;
       if (!Number.isSafeInteger(count) || count < 0) throw new Error("Unread count unavailable");

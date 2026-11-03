@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useLayoutEffect, useEffect,
 import { useLocation } from "react-router-dom";
 import { useAuth } from "../AuthContext.jsx";
 import { PUBLIC_READING_RELEASE, publicReadingActionsLocked } from "../publicReadingRelease2029.js";
+import { personalActionsLocked } from "../publicLaunch2029.js";
 import { applyCloudResearchOps, getCloudResearch } from "../auth.js";
 import { trackResearch } from "../tracking.js";
 import { signalAiBehavior, supabase } from "../supabase.js";
@@ -68,19 +69,22 @@ function numberRouteSelection(pathname, search = "") {
 }
 
 export default function ResearchProvider({ children }) {
-  const { user, loading, isAdmin } = useAuth();
+  const auth = useAuth();
+  const { user, loading, isAdmin } = auth;
   // A new account gets a new component BEFORE children render. No A-state/B-identity frame.
   // Same-account token refresh is not a new principal and keeps the research session intact.
   const principal = loading ? "auth:pending" : principalToken(user?.id);
   return (
-    <PrincipalResearchProvider key={principal} userId={loading ? null : user?.id || null} disabled={!!loading} isAdmin={!loading && isAdmin === true}>
+    <PrincipalResearchProvider key={principal} userId={loading ? null : user?.id || null} disabled={!!loading} personalLocked={personalActionsLocked(auth)} isAdmin={!loading && isAdmin === true}>
       {children}
     </PrincipalResearchProvider>
   );
 }
 
-function PrincipalResearchProvider({ children, userId, disabled, isAdmin }) {
-  const actionsLocked = disabled || publicReadingActionsLocked(isAdmin && Boolean(userId));
+function PrincipalResearchProvider({ children, userId, disabled, personalLocked, isAdmin }) {
+  const actionsLocked = disabled || personalLocked;
+  const featureAccess = useRef(false);
+  featureAccess.current = !disabled && !publicReadingActionsLocked(isAdmin && Boolean(userId));
   const access = useRef({ allowed: !actionsLocked, epoch: 0 });
   // Same-principal revalidation must revoke stale callbacks immediately without
   // remounting the workspace or throwing away exact-return context.
@@ -88,10 +92,10 @@ function PrincipalResearchProvider({ children, userId, disabled, isAdmin }) {
     access.current = { allowed: !actionsLocked, epoch: access.current.epoch + 1 };
   }
   const guardedElsInvoke = useMemo(() => async (body, signal) => {
-    if (!access.current.allowed) return { data: null, error: new Error("feature_locked") };
+    if (!access.current.allowed || !featureAccess.current) return { data: null, error: new Error("feature_locked") };
     return invokeElsResearch(body, signal);
   }, []);
-  const elsResearchOperation = useElsResearchOperation({ disabled: actionsLocked, invoke: guardedElsInvoke });
+  const elsResearchOperation = useElsResearchOperation({ disabled: actionsLocked || !featureAccess.current, invoke: guardedElsInvoke });
   const { pathname, search, hash } = useLocation();
   const [runtime] = useState(() => createResearchSyncRuntime({
     userId, disabled, cloudEnabled: !actionsLocked, resumePendingOnStart: !PUBLIC_READING_RELEASE,

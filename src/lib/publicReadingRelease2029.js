@@ -52,6 +52,7 @@ export function publicReadingContinuation(pathname, search = "", hash = "") {
     "/gematria-3d": "/spatial-gematria", "/גימטריה-תלת-ממדית": "/spatial-gematria", "/גימטריה-מרחבית": "/spatial-gematria",
     "/gallery-updates": "/archive", "/מסע": "/journey", "/journey-beta": "/journey",
   })[path];
+  if (/^\/me\/(?:public-page|page-editor|profile|messages|notifications|progress|research|notes)$/.test(path)) target = "/2029" + path;
   // Only the documented chat aliases, never a tag merely containing "chat".
   if (["/tag/chat", "/tag/צאט", "/tag/צ'אט", "/tag/צ׳אט", "/tag/צ-אט"].includes(path)) target = "/community/chat";
   if (["/", "/2029"].includes(path) && query.get("preview") === "community") target = "/community/chat";
@@ -120,6 +121,7 @@ export function publicReadingPath(pathname, { isAdmin = false, search = "" } = {
   if (!path || ["/*", "/$1", "/SLUG"].includes(path)) return "missing";
   if (publicReadingContinuation(pathname, search)) return "continuation";
   if (path === "/login" || path === "/auth/callback") return "account";
+  if (/^\/2029\/me\/(?:public-page|page-editor|profile|messages|notifications|progress|research|notes)$/.test(path)) return "account";
   // Only existing application surfaces; arbitrary /api or unknown paths do not
   // become public or executable merely because the viewer is an admin.
   if (isAdmin === true && /^\/(?:code|els|heichal|היכל|books?|beit-midrash|research|admin|journey|raziel|2029\/(?:me|journey|raziel|control)|community\/(?:chat|researcher\/me))(?:\/|$)/.test(path)) return "admin-view";

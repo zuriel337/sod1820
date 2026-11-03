@@ -1,4 +1,5 @@
-import { verifyReadingAdmin } from "./admin-request.js";
+import { verifyReadingAdmin, verifyReadingPrincipal } from "./admin-request.js";
+import { readingPersonalResponse } from "./personal-request.js";
 import { interceptOpeningMail } from "../preview-deploy/opening-mail-transport.js";
 import { interceptPublicReadingAdminAuth } from "../preview-deploy/admin-readonly-auth.js";
 // Deployment transport for the existing public-reading profile. This is not
@@ -15,7 +16,7 @@ export const PUBLIC_READING_READ_RPCS = Object.freeze([
 export const PUBLIC_READING_GET_RPCS = Object.freeze([
   ...PUBLIC_READING_READ_RPCS, "writer_public_contributions_page_v1", "canonical_follow_subject",
 ]);
-export const PUBLIC_READING_POLICY_ID = "public-reading-admin-existing-auth-20261103";
+export const PUBLIC_READING_POLICY_ID = "public-reading-owned-account-continuity-20261103";
 export const COMMUNITY_PUBLIC_FIELDS = "id,parent_id,author_name,author_user_id,author_contributor_id,title,body,reactions,origin,created_at,edited_at,is_deleted,total_count";
 
 // Kept as a function so Node VM tests execute precisely the emitted worker.
@@ -41,6 +42,8 @@ function installPublicReadingWorker(policy) {
   const blockedRpc = /^(?:credit_|membership_|claim_daily_credit$|claim_research_lead$|cardcom_|checkout_|billing_|newsletter_|subscribe_email|send_|wa_system_|meta_capi)/;
   const blockedTables = new Set(["site_flags", "profiles", "credit_ledger", "credit_action_prices", "membership_credit_cycles", "credit_reservations", "credit_reservation_allocations", "subscribers", "events", "visitor_events"]);
   const adminFetch = async req => {
+    const personal = await readingPersonalResponse(req, { apiKey:req.headers.get("apikey")||policy.anonKey, clientOrigin:self.location.origin, verify:verifyReadingPrincipal });
+    if (personal) return personal;
     const target = new URL(req.url);
     if (req.signal.aborted) return denied();
     const rpcName = /^\/rest\/v1\/rpc\/([a-z_][a-z0-9_]*)$/.exec(target.pathname)?.[1];
@@ -148,6 +151,9 @@ function installPublicReadingWorker(policy) {
       })().catch(() => denied())); return;
     }
     if (url.origin === authOrigin) {
+      if (["GET","HEAD"].includes(req.method) && /^\/rest\/v1\/(?:profiles|user_notes|research_items|user_research|notification_prefs|user_notifications)$/.test(url.pathname)) {
+        event.respondWith(readingPersonalResponse(req, {apiKey:req.headers.get("apikey")||policy.anonKey,clientOrigin:self.location.origin,verify:verifyReadingPrincipal}).then(result=>result||denied()).catch(()=>denied()));return;
+      }
       const ambiguous = url.pathname.includes("//") || url.pathname.includes("%") && !url.pathname.startsWith("/storage/v1/");
       if (ambiguous || url.pathname.startsWith("/realtime/v1")) {
         event.respondWith(Promise.resolve(denied())); return;
@@ -207,7 +213,7 @@ function installPublicReadingWorker(policy) {
 
 export function buildPublicReadingWorker(sourceSha, { anonKey = "" } = {}) {
   if (!/^[a-f0-9]{40}$/.test(sourceSha)) throw new Error("exact_source_sha_required");
-  return `${verifyReadingAdmin.toString()}\n${interceptPublicReadingAdminAuth.toString()}\n${interceptOpeningMail.toString()}\n(${installPublicReadingWorker.toString()})(${JSON.stringify({ id: PUBLIC_READING_POLICY_ID,
+  return `${verifyReadingPrincipal.toString()}\n${verifyReadingAdmin.toString()}\n${readingPersonalResponse.toString()}\n${interceptPublicReadingAdminAuth.toString()}\n${interceptOpeningMail.toString()}\n(${installPublicReadingWorker.toString()})(${JSON.stringify({ id: PUBLIC_READING_POLICY_ID,
     sourceSha, anonKey, reads: PUBLIC_READING_READ_RPCS, getReads: PUBLIC_READING_GET_RPCS, communityFields: COMMUNITY_PUBLIC_FIELDS })});\n`;
 }
 

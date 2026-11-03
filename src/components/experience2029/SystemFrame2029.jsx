@@ -21,7 +21,7 @@ import { buildExactReturnPatch, researchContextNumber } from "../../lib/research
 import { useAuth } from "../../lib/AuthContext.jsx";
 import { razielSavedSyncCopy, canRetryRazielSync, RAZIEL_LOCAL_SAVE_NOTICE } from "../../lib/research/razielSavedSync2029.js";
 import { useFeatureState } from "../MaintenanceLock.jsx";
-import { CORE_PUBLIC_LAUNCH_2029, publicLaunchActionsLocked } from "../../lib/publicLaunch2029.js";
+import { CORE_PUBLIC_LAUNCH_2029, publicLaunchActionsLocked, personalActionsLocked } from "../../lib/publicLaunch2029.js";
 const AccountEntry2029 = React.lazy(() => import("../auth2029/AccountEntry2029.jsx"));
 import { makeEntity } from "../../lib/research/entity.js";
 import { getNotificationPrefs } from "../../lib/supabase.js";
@@ -1076,7 +1076,7 @@ const RESEARCH_SECTIONS = [
   { key: "history", title: "אחרונים", limit: 8 },
 ];
 
-function ResearchStateSections({ research, go, onInspect, onOpenNumber, onOpenSavedConversation }) {
+export function ResearchStateSections({ research, go, onInspect, onOpenNumber, onOpenSavedConversation }) {
   const syncStatus = research?.syncStatus || "local_only";
   const syncLabel = research?.syncAwaitingAction ? "שינויים מקומיים ממתינים לשמירה" : syncStatus === "synced" ? "מסונכרן לחשבון" : syncStatus === "local_only" ? "מקומי בדפדפן הזה — לא מסונכרן" : syncStatus === "auth_loading" ? "בודק חשבון" : "בסנכרון עם החשבון";
   const rowTarget = (e) => ({ id: e.id, type: e.type, label: e.title, href: e.link || null, number: e.type === "number" ? e.ref : null });
@@ -1089,6 +1089,8 @@ function ResearchStateSections({ research, go, onInspect, onOpenNumber, onOpenSa
   };
   const collections = Array.isArray(research?.collections) ? research.collections : [];
   const saved = Array.isArray(research?.saved) ? research.saved : [];
+  if (["auth_loading","loading"].includes(syncStatus)) return <FrameState kind="loading" title="קורא את השמורים מהחשבון">תוכן שטרם נקרא אינו רשימה ריקה.</FrameState>;
+  if (["error","conflict","local_error","local_recovery_required"].includes(syncStatus)) return <FrameState kind="error" title="השמורים עדיין לא סונכרנו" action={<button type="button" className="sod29-action" onClick={()=>research.retryResearchSync?.()}>ניסיון סנכרון נוסף</button>}>המידע המקומי נשמר. לא התקבל אישור מהשרת; לא הוחלף מידע בחשבון.</FrameState>;
   return (
     <div className="sod29-workspace-research-state" data-research-state-source="ResearchProvider" data-research-sync={syncStatus}>
       <ElsResearchActivity2029 />
@@ -1138,9 +1140,10 @@ function AccountConnection2029() {
 }
 
 function WorkspaceProjection(props) {
-  const actionsLocked = publicLaunchActionsLocked(useAuth().isAdmin);
-  if (actionsLocked) return <><AccountConnection2029 /><FrameState kind="empty" title="הפעולות האישיות ייפתחו בהמשך">כניסה לחשבון אינה מפעילה שמירה, מחקר או חיוב.</FrameState></>;
-  return <WorkspaceProjectionOpen {...props} />;
+  const auth = useAuth();
+  const actionsLocked = personalActionsLocked(auth);
+  if (actionsLocked) return <><AccountConnection2029 /><FrameState kind="empty" title="האזור האישי שלך">התחברות לחשבון קיים תציג את הפרטים והשמורים שלך. שמירה ועריכה נעשות בפעולה מפורשת; התחברות אינה מפעילה רזיאל, חיוב או דיוור.</FrameState></>;
+  return <WorkspaceProjectionOpen key={auth.user?.id || "guest"} {...props} />;
 }
 
 function WorkspaceProjectionOpen({ context, go, onRaziel, onOpenPrivateHints, journeyLocked, razielLocked, elsLocked, research, onInspect, onOpenNumber, pathResume, onSavePath, onResumePath }) {
@@ -1176,7 +1179,7 @@ function WorkspaceProjectionOpen({ context, go, onRaziel, onOpenPrivateHints, jo
     setStats(null);
     if (authLoading || !userId) return () => { alive = false; };
     setInbox({ status: "loading", unread: null });
-    getUnreadCount({ strict: true })
+    getUnreadCount({ strict: true, userId })
       .then(unread => { if (alive) setInbox({ status: "ready", unread }); })
       .catch(() => { if (alive) setInbox({ status: "error", unread: null }); });
     getMyProfile({ strict: true, userId })
@@ -1267,6 +1270,7 @@ function WorkspaceProjectionOpen({ context, go, onRaziel, onOpenPrivateHints, jo
     { id: "profile", icon: "⚙", title: "הפרופיל וההגדרות", sub: "שם, תמונה ופרטים אישיים", state: "live", onClick: () => openExistingModule("profile") },
     { id: "public-page", icon: "👑", title: "הדף שלי", sub: "הדף הפומבי שלי — צפייה ועריכה", state: "live", onClick: () => openExistingModule("public-page") },
     { id: "research", icon: "🧠", title: "המחקר שלי", sub: "המסלולים, השמורים וההמשך שלי", state: "live", onClick: openResearch },
+    { id: "notes", icon: "▤", title: "הפנקס שלי", sub: "ההערות הפרטיות מהחשבון הקיים", state: "live", onClick: () => openExistingModule("notes") },
     { id: "progress", icon: "📈", title: "ההתקדמות שלי", sub: stats ? [stats.level != null && `שלב פעילות ${stats.level}`, stats.xp != null && `${stats.xp} XP`, stats.streak ? `רצף ${stats.streak}` : null].filter(Boolean).join(" · ") || "הנתונים עדיין אינם זמינים" : "שלב פעילות ו־XP אישיים", state: "live", onClick: () => openExistingModule("progress") },
   ];
 

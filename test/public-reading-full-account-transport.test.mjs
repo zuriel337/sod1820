@@ -30,7 +30,7 @@ function worker({role='admin',uid=a,rows,authError=false,throwFetch=false,fetchA
  }};
 }
 test('worker policy changed and exact callback alone consumes tab-bound PKCE',()=>{
- assert.equal(PUBLIC_READING_POLICY_ID,'public-reading-admin-existing-auth-20261103');
+ assert.equal(PUBLIC_READING_POLICY_ID,'public-reading-owned-account-continuity-20261103');
  const storage={getItem(){},setItem(){},removeItem(){}};
  for(const pathname of ['/','/world','/auth/callback/','/post/auth/callback'])assert.equal(readingSessionOptions(storage,{pathname}).detectSessionInUrl,false);
  const configured=readingSessionOptions(storage,{pathname:'/auth/callback'});
@@ -71,7 +71,7 @@ test('historical Preview Auth remains password-only unless explicitly opted in b
  assert.equal(interceptPublicReadingAdminAuth(ev,API),true);assert.equal((await reply).status,403);
 });
 test('explicit admin actions verify canonical JWT and exact own role before forwarding original request',async()=>{
- for(const path of ['/functions/v1/ai-analyze','/functions/v1/els-search-bridge','/functions/v1/research-run','/rest/v1/rpc/research_state_apply_ops_v1','/rest/v1/rpc/fn_get_or_create_my_person','/rest/v1/users?id=eq.'+a]) {
+ for(const path of ['/functions/v1/ai-analyze','/functions/v1/els-search-bridge','/functions/v1/research-run','/rest/v1/rpc/fn_get_or_create_my_person']) {
   const w=worker();const response=await w.request(path,{body:{user_id:a,operation:'explicit'},method:path.includes('/users?')?'PATCH':'POST'});
   assert.equal(response.status,200,path);assert.equal(w.calls.length,3,path);
   assert.equal(w.calls[0].url,API+'/auth/v1/user');assert.match(w.calls[1].url,new RegExp('id=eq.'+a));
@@ -105,9 +105,9 @@ test('signed private media TUS requires verified admin JWT on every chunk; signa
   const denied=worker();assert.equal((await denied.request('/storage/v1/upload/resumable/object',{origin,method,jwt:'',headers:{'Tus-Resumable':'1.0.0','x-signature':'signed-object'}})).status,403);assert.equal(denied.calls.length,0);
  }
 });
-test('same-origin private adapter preserves only same-origin protection cookies; it must verify server admin itself',async()=>{
- const w=worker();assert.equal((await w.request('/api/contributor-self',{origin:SITE,method:'GET',omitApiKey:true})).status,200);
- assert.equal(w.calls.length,1);assert.equal(w.calls[0].credentials,'same-origin');assert.equal(w.calls[0].headers.get('authorization'),'Bearer '+token());
+test('same-origin private adapter preserves only same-origin protection cookies; it independently verifies the current server principal',async()=>{
+ const w=worker({anonKey:'publishable-policy'});assert.equal((await w.request('/api/contributor-self',{origin:SITE,method:'GET',omitApiKey:true})).status,200);
+ assert.equal(w.calls.length,2);assert.equal(w.calls[0].url,API+'/auth/v1/user');assert.equal(w.calls[1].credentials,'same-origin');assert.equal(w.calls[1].headers.get('authorization'),'Bearer '+token());
  const none=worker();assert.equal((await none.request('/api/contributor-self',{origin:SITE,jwt:'',omitApiKey:true})).status,403);assert.equal(none.calls.length,0);
 });
 test('server private wrapper checks deployment, host, method and verified admin independently of worker',async()=>{

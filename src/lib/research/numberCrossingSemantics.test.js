@@ -67,5 +67,5 @@ test('drawer/page parity: hidden slot is fed only by hiddenCrossings, cross-meth
   assert.match(core, /number-cross-method-intersection/);
   assert.match(core, /מפגש בין שיטות/);
   assert.match(drawer, /hiddenCrossings=\{hiddenCrossState\.rows\}/);
-  assert.match(page, /hiddenCrossings=\{hiddenCrossState\.rows\}/);
+  assert.match(page, /hiddenCrossings=\{hiddenCrossState\.key === hiddenCrossSourceKey \? hiddenCrossState\.rows : EMPTY_METHOD_PROFILE_ROWS\}/);
 });

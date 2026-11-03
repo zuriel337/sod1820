@@ -3,6 +3,7 @@ import { getPublicResearchClient } from "../research/researchViewMode.js";
 import { safePublicUrl } from "../../components/contributor2029/publicContributor2029Model.js";
 
 export const WRITER_PERSONAL_MODULES = Object.freeze([
+  ["research", "השמורים והמחקר שלי"], ["notes", "הפנקס שלי"],
   ["public-page", "הדף שלי"], ["page-editor", "עורך הדף"], ["profile", "פרופיל ותמונה"],
   ["messages", "הודעות"], ["notifications", "מעקב ועדכונים"], ["progress", "ההתקדמות שלי"],
 ]);

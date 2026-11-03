@@ -50,7 +50,8 @@ test('exact aliases retain duplicate query bytes, encoded values and fragment wi
 test('public reading routes preserve engine/action gates and exact source identities', () => {
   for (const path of ['/community','/community/chat','/community/calculator','/tag/סוד-החשמל','/category/אסונות%2Fתופעות-טבע',
     '/number/1820','/number/אחת%20ארבע','/books','/book/ahavat-torah','/codes','/codes/מחקר','/or-geula','/contact']) assert.equal(publicReadingPath(path),'public',path);
-  for (const path of ['/code','/journey','/raziel','/heichal','/2029/me/profile']) assert.equal(publicReadingPath(path),'closed',path);
+  for (const path of ['/code','/journey','/raziel','/heichal','/2029/me/unknown']) assert.equal(publicReadingPath(path),'closed',path);
+  assert.equal(publicReadingPath('/2029/me/profile'),'account');
   for (const path of ['/not/a/real/page','/category/x/y','/code/invented','/%ZZ']) assert.equal(publicReadingPath(path),'missing',path);
   assert.equal(publicReadingPath('/unknown-post'),'post-lookup');
   for (const key of ['lock_els','lock_life_journey','lock_raziel_site','lock_heichal','unknown']) assert.equal(publicReadingFeatureLock(key).enabled,true);

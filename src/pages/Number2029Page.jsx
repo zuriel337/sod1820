@@ -5,6 +5,8 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { useAuth } from "../lib/AuthContext.jsx";
+import PersonalSaveButton2029 from "../components/userCenter/PersonalSaveButton2029.jsx";
+import { entityFromNumber, entityFromPhrase } from "../lib/research/entity.js";
 import { fetchEntityHubProjection, fetchTopicSourceContext } from "../lib/research/entityHubProjection.js";
 import { fetchWorldProminenceInputs } from "../lib/research/worldProminenceInputs.js";
 import { buildWorldContextualProminence } from "../lib/research/worldContextualProminence.js";
@@ -329,6 +331,7 @@ function NumberPageBody({ resolvedAddress = null }) {
   const currentMethodRows = methodProfileState.expression === clean(activeExpression)
     && (!urlFocus.expression || clean(urlFocus.expression) === clean(activeExpression))
       ? methodProfileState.rows : EMPTY_METHOD_PROFILE_ROWS;
+  const hiddenCrossSourceKey = `${readerIdentity}:${clean(activeExpression)}::${currentMethodRows.map(row=>`${row.methodKey}:${row.computedValue}:${row.dbColumn}:${row.dependencyVersion ?? ""}`).join("|")}`;
 
   useEffect(() => {
     if (!data || !Number.isSafeInteger(root)) return undefined;
@@ -561,41 +564,38 @@ function NumberPageBody({ resolvedAddress = null }) {
   useEffect(() => {
     const expr = clean(activeExpression);
     if (!data || !expr || /^\d+$/.test(expr) || !currentMethodRows.length) {
-      setHiddenCrossState({ loading: false, rows: [], error: null });
+      setHiddenCrossState({ key:hiddenCrossSourceKey, loading: false, rows: [], error: null });
       return undefined;
     }
 
-    const profileKey = currentMethodRows
-      .map((row) => `${row?.methodKey || ""}:${row?.computedValue ?? ""}`)
-      .join("|");
-    const cacheKey = `${readerIdentity}:${expr}::${profileKey}`;
+    const cacheKey = hiddenCrossSourceKey;
     const cached = NUMBER_HIDDEN_CROSS_CACHE.get(cacheKey);
     if (cached) {
-      setHiddenCrossState({ loading: false, rows: cached, error: null });
+      setHiddenCrossState({ key:cacheKey, loading: false, rows: cached, error: null });
       return undefined;
     }
 
     let alive = true;
+    const abort = new AbortController();
     let cancelDeferred = null;
-    setHiddenCrossState({ loading: false, rows: [], error: null });
+    setHiddenCrossState({ key:cacheKey, loading: true, rows: [], error: null });
     cancelDeferred = deferClientWork(() => {
       if (!alive) return;
-      setHiddenCrossState({ loading: true, rows: [], error: null });
-      fetchNumberHiddenCrossings(expr, currentMethodRows, { limit: 13 })
+      fetchNumberHiddenCrossings(expr, currentMethodRows, { limit: 13, signal:abort.signal })
         .then((rows) => {
           const next = Array.isArray(rows) ? rows : [];
-          rememberBounded(NUMBER_HIDDEN_CROSS_CACHE, cacheKey, next, 48);
-          if (alive) setHiddenCrossState({ loading: false, rows: next, error: null });
+          if (alive) { rememberBounded(NUMBER_HIDDEN_CROSS_CACHE, cacheKey, next, 48);setHiddenCrossState({ key:cacheKey, loading: false, rows: next, error: null }); }
         })
         .catch((error) => {
-          if (alive) setHiddenCrossState({ loading: false, rows: [], error });
+          if (alive) setHiddenCrossState({ key:cacheKey, loading: false, rows: [], error });
         });
     }, { delay: 220, timeout: 900 });
     return () => {
       alive = false;
+      abort.abort();
       cancelDeferred?.();
     };
-  }, [activeExpression, currentMethodRows, readerIdentity, data]);
+  }, [activeExpression, currentMethodRows, readerIdentity, data, hiddenCrossSourceKey]);
 
 
   const regularMethodProfile = useMemo(
@@ -1255,6 +1255,7 @@ function NumberPageBody({ resolvedAddress = null }) {
       </div>
     </section> : null}
     <section className="sod29-number-hero" id="number-now">
+      <div className="sod29-actions"><PersonalSaveButton2029 entity={{...(activeExpression&&!/^\d+$/.test(activeExpression)?entityFromPhrase(activeExpression,traceNumber(selectedMethodProfile?.computedValue)??root):entityFromNumber(root)),link:location.pathname+location.search+location.hash,metadata:{method:selectedMethodKey||"רגיל",value:traceNumber(selectedMethodProfile?.computedValue)??root}}}/></div>
       <NumberCore2029
         projection={coreProjection}
         mode="page"
@@ -1277,8 +1278,9 @@ function NumberPageBody({ resolvedAddress = null }) {
         onResolveQuery={resolveNumberQuery}
         onMethodSelect={activateMethodFocus}
         onToggleTrace={() => setTraceOpen((value) => !value)}
-        hiddenCrossings={hiddenCrossState.rows}
-        hiddenCrossingsLoading={hiddenCrossState.loading}
+        hiddenCrossings={hiddenCrossState.key === hiddenCrossSourceKey ? hiddenCrossState.rows : EMPTY_METHOD_PROFILE_ROWS}
+        hiddenCrossingsLoading={hiddenCrossState.key !== hiddenCrossSourceKey || hiddenCrossState.loading}
+        hiddenCrossingsError={hiddenCrossState.key === hiddenCrossSourceKey ? hiddenCrossState.error : null}
         systemMethods={systemMethodsState.key === stageRoot ? systemMethodsState.cards : []}
         systemMethodsLoading={systemMethodsState.key === stageRoot && systemMethodsState.loading}
         onOpenCrossing={(crossing) => {

@@ -102,7 +102,7 @@ function hiddenCrossAnagramKey(value) {
  * - a crossing is discovered live from the current expression, never from saved Topic/Research relations.
  * This is discovery/presentation only; it writes nothing and does not canonicalize a relation.
  */
-export async function fetchNumberHiddenCrossings(expression, methodProfile = [], { limit = 13 } = {}) {
+export async function fetchNumberHiddenCrossings(expression, methodProfile = [], { limit = 13, signal, client = null } = {}) {
   const phrase = clean(expression);
   if (!phrase || /^\d+$/.test(phrase)) return [];
   const profile = (Array.isArray(methodProfile) ? methodProfile : [])
@@ -110,15 +110,20 @@ export async function fetchNumberHiddenCrossings(expression, methodProfile = [],
   const regular = profile.find((row) => row.methodKey === "רגיל" || row.displayLabel === "רגיל");
   if (!regular?.dbColumn || traceNumber(regular.computedValue) == null) return [];
 
-  const { supabase } = await import("../supabase.js");
+  const supabase = client || (await import("../supabase.js")).supabase;
+  if(signal?.aborted)throw new DOMException("Cancelled","AbortError");
   const columns = [...new Set(["phrase", "lead_rank", "is_verified", ...profile.map((row) => row.dbColumn)])];
-  const { data, error } = await supabase
+  const query = supabase
     .from("gematria_words")
     .select(columns.join(","))
     .eq(regular.dbColumn, Number(regular.computedValue))
     .eq("is_verified", true)
+    .order("phrase", { ascending: true })
     .limit(250);
+  if(signal)query.abortSignal(signal);
+  const {data,error}=await query;
   if (error) throw error;
+  if(signal?.aborted)throw new DOMException("Cancelled","AbortError");
 
   return deriveHiddenCrossings({ expression: phrase, methodProfile: profile, candidates: data, limit });
 }
@@ -184,8 +189,8 @@ export function deriveHiddenCrossings({ expression = "", methodProfile = [], can
 
   rows.sort((a, b) => (
     b.methodCount - a.methodCount
-    || (a.leadRank ?? 999999) - (b.leadRank ?? 999999)
     || a.partner.length - b.partner.length
+    || (a.leadRank ?? 999999) - (b.leadRank ?? 999999)
     || a.partner.localeCompare(b.partner, "he")
   ));
   return rows.slice(0, Math.max(1, Math.min(Number(limit) || 13, 40)));

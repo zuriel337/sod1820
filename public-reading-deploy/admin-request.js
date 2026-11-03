@@ -2,7 +2,7 @@
 // Auth server and its own RLS-bound identity row. It never grants a DB role,
 // substitutes credentials, caches a private identity or overrides endpoint policy.
 // Kept self-contained so the exact same verifier is emitted into the worker.
-export async function verifyReadingAdmin({ token, apiKey, signal, fetchImpl = fetch }) {
+export async function verifyReadingPrincipal({ token, apiKey, signal, fetchImpl = fetch }) {
   try {
     if (signal?.aborted || typeof token !== "string" || token.length > 8192 || !apiKey
       || !/^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(token)) return null;
@@ -17,9 +17,19 @@ export async function verifyReadingAdmin({ token, apiKey, signal, fetchImpl = fe
     if (!auth.ok || signal?.aborted) return null;
     const user = await auth.json();
     if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(user?.id || "") || user.id !== claims.sub) return null;
-    const role = await fetchImpl(origin + "/rest/v1/users?select=id%2Crole&id=eq." + encodeURIComponent(user.id) + "&limit=2", options);
+    return user.id;
+  } catch { return null; }
+}
+
+export async function verifyReadingAdmin({ token, apiKey, signal, fetchImpl = fetch }) {
+  try {
+    const uid = await verifyReadingPrincipal({ token, apiKey, signal, fetchImpl });
+    if (!uid || signal?.aborted) return null;
+    const origin = "https://linswmnnkjxvweumprav.supabase.co";
+    const options = { headers: { apikey: apiKey, Authorization: `Bearer ${token}` }, credentials: "omit", cache: "no-store", redirect: "error", signal };
+    const role = await fetchImpl(origin + "/rest/v1/users?select=id%2Crole&id=eq." + encodeURIComponent(uid) + "&limit=2", options);
     if (!role.ok || signal?.aborted) return null;
     const rows = await role.json();
-    return Array.isArray(rows) && rows.length === 1 && rows[0]?.id === user.id && rows[0].role === "admin" ? user.id : null;
+    return Array.isArray(rows) && rows.length === 1 && rows[0]?.id === uid && rows[0].role === "admin" ? uid : null;
   } catch { return null; }
 }

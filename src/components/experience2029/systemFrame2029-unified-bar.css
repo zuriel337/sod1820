@@ -426,5 +426,28 @@
 /* The one canonical dock remains interactive above its own transient sheets.
    Clearance is owned by the Frame token, including mobile safe-area. */
 .sod29-root.native-frame:has(.sod29-frame-backdrop) .sod29-command-island.is-unified-bar{z-index:1901}
+
+/* Reuse the adopted desktop glass on phone/tablet and the same palette tokens
+   in every preset. A contextual trail does not turn the dock opaque. */
+.sod29-root.closed-shell.native-frame{
+  --s29-glass-bg:color-mix(in srgb,var(--s29-ink) 6%,transparent);
+  --s29-glass-edge:color-mix(in srgb,var(--s29-ink) 14%,transparent);
+  --s29-glass-shine:color-mix(in srgb,var(--s29-ink) 12%,transparent);
+}
+.sod29-root.closed-shell.native-frame .sod29-header.closed-orientation,
+.sod29-root.closed-shell.native-frame .sod29-command-island.is-unified-bar{
+  background:var(--s29-glass-bg);
+  -webkit-backdrop-filter:blur(22px) saturate(1.5);backdrop-filter:blur(22px) saturate(1.5);
+  border-color:var(--s29-glass-edge);
+  box-shadow:inset 0 1px 0 var(--s29-glass-shine),0 18px 48px color-mix(in srgb,var(--s29-page) 55%,transparent);
+}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+  .sod29-root.closed-shell.native-frame .sod29-header.closed-orientation,
+  .sod29-root.closed-shell.native-frame .sod29-command-island.is-unified-bar{background:var(--s29-panel)}
+}
+@media(prefers-reduced-transparency:reduce){
+  .sod29-root.closed-shell.native-frame .sod29-header.closed-orientation,
+  .sod29-root.closed-shell.native-frame .sod29-command-island.is-unified-bar{background:var(--s29-panel);-webkit-backdrop-filter:none;backdrop-filter:none}
+}
 .sod29-root.native-frame .sod29-frame-backdrop{padding-block-end:calc(var(--s29-island-clearance,90px) + env(safe-area-inset-bottom,0px))}
 .sod29-root.native-frame .sod29-frame-panel{max-block-size:calc(100dvh - var(--s29-island-clearance,90px) - env(safe-area-inset-bottom,0px) - 20px)}

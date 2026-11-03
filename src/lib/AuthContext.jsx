@@ -20,6 +20,7 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [verified, setVerified] = useState(false);
   const profileRequest = useRef(0);
   const currentUser = useRef(null);
 
@@ -53,6 +54,7 @@ export function AuthProvider({ children }) {
       // Revoke roles while revalidating. A refresh of the already verified
       // principal keeps local navigation/context; an account switch does not.
       if (PUBLIC_READING_RELEASE) {
+        setVerified(false);
         profileRequest.current++;
         const sameVerifiedPrincipal = !!session?.user?.id && currentUser.current?.id === session.user.id;
         setProfile(null);
@@ -64,6 +66,7 @@ export function AuthProvider({ children }) {
       const u = PUBLIC_READING_RELEASE ? await verifyReadingSession(session, supabase.auth) : session?.user ?? null;
       if (!alive || request !== sessionRequest) return;
       currentUser.current = u;
+      setVerified(Boolean(u));
       setUser(u);
       loadProfile(u).finally(() => { if (alive && request === sessionRequest) setLoading(false); });
     };
@@ -124,7 +127,7 @@ export function AuthProvider({ children }) {
   const currentProfile = user?.id && profile?.id === user.id ? profile : null;
   const value = {
     user, profile: currentProfile, loading,
-    verified: !!user,
+    verified: !!user && (!PUBLIC_READING_RELEASE || verified),
     isAdmin: currentProfile?.role === 'admin',
     isMember: currentProfile?.tier === 'member',
     signOut: async (options) => {

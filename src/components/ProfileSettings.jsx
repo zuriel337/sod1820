@@ -23,10 +23,17 @@ export default function ProfileSettings({ t, showSignOut = false, onDone, onSign
   const [avatarConsent, setAvatarConsent] = useState(false), [avatarDirty, setAvatarDirty] = useState(false);
   const actor = useRef(user?.id); actor.current = user?.id;
   const pending = useRef(false), fieldId = useId();
+  const profileSignature = useRef(null);
   const avatarInput = useRef(null);
   useEffect(() => () => { actor.current = null; }, []);
 
   useEffect(() => {
+    // Same-account token revalidation clears the server profile briefly; it
+    // must not clear the editor's draft. Account switches still clear it.
+    if (!profile && user?.id && draftActor === user.id) return;
+    const signature=JSON.stringify([user?.id,profile?.id,profile?.display_name,profile?.username,profile?.avatar_url]);
+    if(profileSignature.current===signature)return;
+    profileSignature.current=signature;
     setMsg(""); setErr(""); setBusy(false); setUploading(false); pending.current = false; setAvatarConsent(false); setAvatarDirty(false);
     if (profile?.id === user?.id && user?.id) {
       setDraftActor(user.id);

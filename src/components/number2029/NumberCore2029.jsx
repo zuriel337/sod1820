@@ -182,6 +182,7 @@ export default function NumberCore2029({
   regularExpressionsLoading = false,
   hiddenCrossings = [],
   hiddenCrossingsLoading = false,
+  hiddenCrossingsError = null,
   systemMethods = [],
   systemMethodsLoading = false,
   mode = "page",
@@ -582,7 +583,7 @@ export default function NumberCore2029({
                   aria-pressed={crossingFocusActive}
                   onClick={() => compact ? setFocusedCrossingPartner(stageCrossing.partner) : onExpressionSelect?.(stageCrossing.partner, stageCrossing.methods.find(method => method.methodKey === active?.methodKey)?.methodKey || stageCrossing.methods[0]?.methodKey)}
                 >
-                  <span>ההצלבה המובילה</span>
+                  <span>ההצלבה הנסתרת</span>
                   <strong>{activeExpressionText || root} <b>=</b> {stageCrossing.partner}</strong>
                   <div className="sod29-number-v10-crossing-methods">
                     {stageCrossing.methods.slice(0, 6).map((method) => <span key={method.methodKey}>
@@ -609,7 +610,7 @@ export default function NumberCore2029({
                   {crossingFocusActive ? <button type="button" onClick={() => setFocusedCrossingPartner(null)}>חזור למספר</button> : null}
                   <button type="button" onClick={() => onRazielAction?.("explain_crossing", { kind: "crossing", partner: stageCrossing.partner, methods: stageCrossing.methods, resultValue: stageRoot })}>✦ רזיאל</button>
                 </div>
-              </> : <p>{hiddenCrossingsLoading || stageLoading ? "סורק עכשיו את הביטוי מול המאגר המאומת…" : "לא נמצאה כרגע הצלבה נסתרת אמיתית לביטוי הזה."}</p>}
+              </> : <p role={hiddenCrossingsError ? "alert" : "status"}>{hiddenCrossingsError ? "לא ניתן לקרוא כעת את ההצלבות מהמאגר. זו אינה תוצאה ריקה." : hiddenCrossingsLoading || stageLoading ? "סורק עכשיו את הביטוי מול המאגר המאומת…" : "לא נמצאה כרגע הצלבה נסתרת אמיתית לביטוי הזה."}</p>}
             </section> : null}
 
           {crossMethodMeetings.length ? <section className="sod29-number-v10-crossing sod29-number-v10-method-meeting" data-experience-capability="number-cross-method-intersection">
