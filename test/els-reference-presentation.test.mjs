@@ -13,7 +13,7 @@ test("offline ELS embeds the exact shared reference presentation", () => {
 });
 
 test("ELS source references match app presentation, including special numerals", () => {
-  const numerals = generated.slice(generated.indexOf("  const HEBNUM="), generated.indexOf("  let VTEXT=null;"));
+  const numerals = generated.slice(generated.indexOf('const ELS_NUMERIC_SELECTION ='), generated.indexOf("  let VTEXT=null;"));
   const reference = generated.match(/  const refStr=vi=>[^\n]+/)[0];
   const rows = [[0, 35, 2], [0, 35, 3], [0, 15, 16], [0, 119, 176]];
   const context = vm.createContext({ BOOKNM: ["בראשית"], VREF: rows });

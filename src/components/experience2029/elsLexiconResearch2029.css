@@ -22,3 +22,5 @@
 .els29-lexicon-research .els29-discovery-source-filter{flex-wrap:nowrap;min-height:44px;padding:8px;border:1px solid var(--s29-line);border-radius:12px;font-size:16px;cursor:pointer}
 .els29-discovery-source-filter input{width:24px;height:24px;flex:none;accent-color:var(--s29-accent)}
 .els29-discovery-source-filter:focus-within{outline:2px solid var(--s29-focus-ring);outline-offset:2px}
+.els29-discovery-plan input[type=number]{font:inherit;font-size:16px;min-height:44px;width:min(100%,10rem);min-width:0;padding:10px 14px;color:var(--s29-ink);background:var(--s29-panel-soft);border:1px solid var(--s29-line);border-radius:12px}
+.els29-discovery-plan input[type=number]:focus-visible{outline:2px solid var(--s29-focus-ring);outline-offset:2px}

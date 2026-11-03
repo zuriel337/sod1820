@@ -521,6 +521,60 @@ test('research structures are explicit, preserve Classic and compare exact snaps
   },{realHost:true});
  });
 
+test('numeric lexicon: explicit scan, real-corpus axis readings, exact admission and responsive controls',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
+  await withNative({width:390,height:900},async page=>{
+    const heavy=[];page.on('request',request=>{if(/ai-analyze/.test(request.url()))heavy.push(request.url());});
+    await page.getByText('גילוי וקשרים במטריצה · ללא AI',{exact:true}).click();
+    const panel=page.getByRole('region',{name:'גילוי וקשרים במטריצה',exact:true});
+    const before=await identity(page);
+    await panel.getByLabel('מסלול הגילוי').selectOption('numbers');
+    await panel.getByText('גבולות בדיקת המספרים והשנים',{exact:true}).click();
+    assert.equal(page.__elsDynamicLexiconRequests.length,0,'selecting numeric mode and opening settings do no work');
+    await panel.getByLabel('מספר מזערי',{exact:true}).fill('1000');
+    await panel.getByRole('button',{name:'גלה מספרים ושנים',exact:true}).click();
+    await panel.getByText('בדקו את הטווחים: מספרים 1–999 ושנים 5001–5999, מהערך הקטן לגדול.',{exact:true}).waitFor();
+    assert.equal(page.__elsDynamicLexiconRequests.length,0,'invalid plan cannot start loading or scanning');
+    await panel.getByLabel('מספר מזערי',{exact:true}).fill('1');
+    for(const width of [320,390,1440])for(const theme of ['light','parchment','dark']){
+      await page.setViewportSize({width,height:900});await page.evaluate(t=>window.__setThemePreset(t),theme);
+      assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,`${width}/${theme}`);
+      const inputs=await panel.locator('input[type=number]').evaluateAll(nodes=>nodes.map(node=>({height:node.getBoundingClientRect().height,font:parseFloat(getComputedStyle(node).fontSize)})));
+      assert.ok(inputs.every(input=>input.height>=44&&input.font>=16));
+    }
+    await panel.getByRole('button',{name:'גלה מספרים ושנים',exact:true}).click();
+    await page.waitForFunction(()=>window.__lens?.ok&&!window.__lens.pending&&window.__lens.plan?.mode==='numbers',{},{timeout:45000});
+    const result=await page.evaluate(()=>window.__lens);
+    assert.ok(result.items.some(item=>item.kind==='els'),'real lexical-number candidates in the declared window');
+    assert.deepEqual(await identity(page),before,'discovery never changes matrix/findings');
+    const candidate=result.items.find(item=>item.kind==='els'&&item.numericReadings?.length);
+    await panel.getByLabel('סוג התוצאות',{exact:true}).selectOption('els');
+    const rows=result.items.filter(item=>item.kind==='els');
+    const candidatePage=Math.floor(rows.findIndex(item=>item.term===candidate.term&&item.hitId===candidate.hitId)/20);
+    for(let p=0;p<candidatePage;p++)await panel.getByRole('button',{name:'הבא',exact:true}).click();
+    const row=panel.locator(`[data-lexicon-hit="${candidate.hitId}"]`).filter({has:page.getByRole('button',{name:`בדוק והוסף ${candidate.label}`,exact:true})}).first();
+    await row.getByText('האותיות והקריאות המספריות המוצעות',{exact:true}).click();
+    assert.match(await row.innerText(),/ערך החלק המספרי|שנה עברית מוצעת/);
+    await row.getByRole('button',{name:`בדוק והוסף ${candidate.label}`,exact:true}).click();
+    await page.waitForFunction(({term,hitId})=>window.__state?.findings?.some(f=>f.t===term&&[...(f.hits||[]),...(f.sourceHits||[])].some(h=>h.hitId===hitId&&h.selected&&h.verified)),candidate,{timeout:60000});
+    assert.deepEqual((await identity(page)).axis,before.axis);
+    const load=async item=>{
+      await page.locator('iframe').evaluate((frame,item)=>frame.contentWindow.postMessage({source:'sod-host',type:'load-matrix',item},location.origin),item);
+      await page.waitForFunction(hitId=>window.__state?.status==='ok'&&window.__state?.axis?.hitId===hitId,item.hitId,{timeout:60000});
+    };
+    for(const item of [{term:'ימין נג',skip:16965,dir:-1,start:109170,value:53},{term:'התשפז',skip:16965,dir:1,start:83718,value:5787},{term:'מא שמאל',skip:5,dir:-1,start:117646,value:41}]){
+      await load({...item,scope:'torah',hitId:`${item.skip}_${item.dir}_${item.start}`,words:[]});
+      await panel.getByRole('button',{name:'גלה מספרים ושנים',exact:true}).click();
+      await page.waitForFunction(value=>window.__lens?.ok&&!window.__lens.pending&&window.__lens.axisNumericReadings?.some(r=>r.value===value),item.value,{timeout:45000});
+      await panel.getByLabel('קריאות מספריות בציר הנבחר').getByText(new RegExp(String(item.value))).waitFor();
+      assert.equal(await page.evaluate(()=>window.__state.findings.length),0,'annotating the selected axis does not duplicate it');
+    }
+    if(process.env.ELS_SCREENSHOT_DIR){mkdirSync(process.env.ELS_SCREENSHOT_DIR,{recursive:true});await panel.scrollIntoViewIfNeeded();await page.screenshot({path:join(process.env.ELS_SCREENSHOT_DIR,'numeric-lexicon-desktop.png')});await page.setViewportSize({width:390,height:900});await panel.scrollIntoViewIfNeeded();await page.screenshot({path:join(process.env.ELS_SCREENSHOT_DIR,'numeric-lexicon-mobile.png')});}
+    assert.equal(page.__elsDynamicLexiconRequests.length,1,'all scans share the existing lazy dictionary');
+    assert.equal(await page.evaluate(()=>(window.__matrixSubmits||[]).length),0);assert.deepEqual(heavy,[]);
+  },{realHost:true});
+ });
+
 test('discovery plans and source-direction filtering stay explicit on the actual canonical scan',
  {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
   await withNative({width:390,height:900},async page=>{
