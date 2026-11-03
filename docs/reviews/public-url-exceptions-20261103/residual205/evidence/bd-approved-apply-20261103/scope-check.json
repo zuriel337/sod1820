@@ -1,0 +1,19 @@
+{
+  "changedExistingSourceFiles": [
+    "src/pages/PublicServices2029Page.jsx",
+    "supabase/functions/newsletter-unsubscribe/index.ts"
+  ],
+  "newMigration": "20261103223217_public_site_updates_purpose_bd",
+  "newRouteProfileTests": 6,
+  "mailTests": 33,
+  "legacyRootAndWorkerChanged": false,
+  "publicationGuardChanged": false,
+  "sharedFlagsChanged": false,
+  "authTriggerChanged": false,
+  "genuineAccountsRetained": true,
+  "supabaseFunctionsOnly": [
+    "newsletter-signup",
+    "newsletter-unsubscribe"
+  ],
+  "A2OrCampaignCApplied": false
+}

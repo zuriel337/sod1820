@@ -1,0 +1,58 @@
+{
+  "productSha": "21f1a8d9e3e3fc6c7c35583ac79aee28f5e92b41",
+  "deployment": "dpl_8VcC1LwM4aBmPEeZNS9DwYUGDSCu",
+  "liveSharedEndpoint": true,
+  "actualSW": true,
+  "signupSubmitted": false,
+  "unsubscribeSubmitted": false,
+  "testMail": false,
+  "existingAccountAcceptance": "RETAINED_NOT_REPEATED",
+  "cases": [
+    {
+      "width": 390,
+      "path": "/updates",
+      "passed": false,
+      "failure": "expect(locator).toBeVisible() failed\n\nLocator: getByRole('region', { name: 'עדכוני האתר', exact: true })\nExpected: visible\nTimeout: 45000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"to.be.visible\" with timeout 45000ms\n  - waiting for getByRole('region', { name: 'עדכוני האתר', exact: true })\n"
+    },
+    {
+      "width": 390,
+      "path": "/",
+      "newsletterRequests": [
+        {
+          "path": "/functions/v1/newsletter-signup",
+          "method": "OPTIONS",
+          "status": 200,
+          "contract": "opening-parts-v1,site-updates-v1"
+        }
+      ],
+      "passed": true,
+      "consentChecked": false,
+      "emailEntered": false
+    },
+    {
+      "width": 1440,
+      "path": "/updates",
+      "passed": false,
+      "failure": "expect(locator).toBeVisible() failed\n\nLocator: getByRole('region', { name: 'עדכוני האתר', exact: true })\nExpected: visible\nTimeout: 45000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"to.be.visible\" with timeout 45000ms\n  - waiting for getByRole('region', { name: 'עדכוני האתר', exact: true })\n"
+    },
+    {
+      "width": 1440,
+      "path": "/",
+      "newsletterRequests": [
+        {
+          "path": "/functions/v1/newsletter-signup",
+          "method": "OPTIONS",
+          "status": 200,
+          "contract": "opening-parts-v1,site-updates-v1"
+        }
+      ],
+      "passed": true,
+      "consentChecked": false,
+      "emailEntered": false
+    }
+  ],
+  "errors": [],
+  "passed": 2,
+  "failed": 2,
+  "ok": false
+}

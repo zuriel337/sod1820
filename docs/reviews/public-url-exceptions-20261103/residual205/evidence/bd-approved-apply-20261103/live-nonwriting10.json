@@ -1,0 +1,92 @@
+{
+  "kind": "real-shared-endpoints-nonwriting-only",
+  "validEmailSubmitted": false,
+  "validSignedRemovalSubmitted": false,
+  "mailSentByTests": false,
+  "cases": [
+    {
+      "name": "signup OPTIONS advertises both exact purposes",
+      "function": "newsletter-signup",
+      "method": "OPTIONS",
+      "status": 200,
+      "contracts": [
+        "opening-parts-v1",
+        "site-updates-v1"
+      ],
+      "passed": true
+    },
+    {
+      "name": "site-updates without consent denied before storage",
+      "function": "newsletter-signup",
+      "method": "POST",
+      "status": 400,
+      "reason": "consent-required",
+      "passed": true
+    },
+    {
+      "name": "site-updates invalid email denied before storage",
+      "function": "newsletter-signup",
+      "method": "POST",
+      "status": 400,
+      "reason": "invalid",
+      "passed": true
+    },
+    {
+      "name": "purpose/source mismatch cannot fall back to general",
+      "function": "newsletter-signup",
+      "method": "POST",
+      "status": 400,
+      "reason": "invalid-purpose",
+      "passed": true
+    },
+    {
+      "name": "Legacy general invalid email behavior retained",
+      "function": "newsletter-signup",
+      "method": "POST",
+      "status": 400,
+      "reason": "invalid",
+      "passed": true
+    },
+    {
+      "name": "unsigned GET removal cannot succeed",
+      "function": "newsletter-unsubscribe",
+      "method": "GET",
+      "status": 400,
+      "reason": "bad_link",
+      "passed": true
+    },
+    {
+      "name": "unsigned POST removal cannot succeed",
+      "function": "newsletter-unsubscribe",
+      "method": "POST",
+      "status": 400,
+      "reason": "bad_link",
+      "passed": true
+    },
+    {
+      "name": "duplicate removal parameters rejected before processing",
+      "function": "newsletter-unsubscribe",
+      "method": "GET",
+      "status": 400,
+      "reason": "bad_link",
+      "passed": true
+    },
+    {
+      "name": "unsupported removal method rejected",
+      "function": "newsletter-unsubscribe",
+      "method": "DELETE",
+      "status": 405,
+      "reason": "method_not_allowed",
+      "passed": true
+    },
+    {
+      "name": "removal OPTIONS retains existing access contract",
+      "function": "newsletter-unsubscribe",
+      "method": "OPTIONS",
+      "status": 200,
+      "passed": true
+    }
+  ],
+  "passed": 10,
+  "failed": 0
+}

@@ -550,7 +550,7 @@
     "permissions": "זהותשרת; אין שיווק/חיובבכניסה",
     "parameters_anchors": "returnTo,OAuthstate/PKCE/hash; לא לתעד טוקנים",
     "acceptance": "Google/Facebook/password/יציאה; החזרה המדויקת;חדשלעומתקיים",
-    "open_task": "C5: exact Preview callback allowlist verification and genuine Google/Facebook owner acceptance; no A2 prerequisite. B/D remain separate mail approval.",
+    "open_task": "C5: exact Preview callback allowlist verification and genuine Google/Facebook owner acceptance; no A2 prerequisite. B/D applied independently without changing account trigger or existing subscribers.",
     "treatment": "EXISTING_ACCOUNTS_ACCEPTED_SOCIAL_SIGNUP_PENDING",
     "continuity_closure_previous_checkpoint": {
       "verified_status": "חשבוןקייםעובדבתנאיםמבוקרים;Social/signup ממתינים"
@@ -572,7 +572,13 @@
     "four_completions_evidence": "../public-url-exceptions-20261103/residual205/four-completions.md",
     "guard_integration_previous_checkpoint": {
       "open_task": "C5: exact revised A2/B/D shared approval + truthful enabled signup notices + OAuth/new-signup owner acceptance"
-    }
+    },
+    "bd_applied_previous_checkpoint": {
+      "verified_status": "המשכיות החשבון הקיים התקבלה בשני החשבונות. חוברו שוב Google/Facebook/OTP למימושAuth הקיים, ללאשינוי טריגר/העדפות. callback ענףPreviewקבוע נקשרל־Vercel; בדיקתפתיחהוביטולעדכניתשניהםחזרהProduction,ונדרשתבדיקתרשומתRedirectURLsואזשניספקיםאנושיים. A2מוצעבלבדולאנדרשלהמשכיות. איןמודל/חיוב/דיוורגורףבכניסה.",
+      "open_task": "C5: exact Preview callback allowlist verification and genuine Google/Facebook owner acceptance; no A2 prerequisite. B/D remain separate mail approval.",
+      "treatment": "EXISTING_ACCOUNTS_ACCEPTED_SOCIAL_SIGNUP_PENDING"
+    },
+    "bd_applied_evidence": "../public-url-exceptions-20261103/residual205/evidence/bd-approved-apply-20261103/README.md"
   },
   {
     "id": "F27",
@@ -580,12 +586,12 @@
     "evidence": "PublicServices; signedunsubscribe; proposalHELD",
     "meaning": "פרטיות/הסכמה/ביטול הסכמה",
     "target_2029": "/privacy; /updates; /unsubscribe; חלונית אורח במעטפת הקיימת — אותו מוצר עדכוני האתר",
-    "verified_status": "פרטיות וכתובת המייל נשמרות. טופס עדכוני האתר הוא opt-in למטרה site-updates וממתין ל־B; אישור הסרה שגוי ממתין ל־D. הטריגר הפעיל כבר מצרף חשבון חדש כברירת מחדל ואינו משנה מנוי קיים או פועל בכניסה רגילה. A2 לא הוחל ואין לייחס לשרת את ההמתנה לאימות המוצעת בו. הרשמות opening-only והסרות ישנות נשמרות; קמפיין C נפרד. אין קבלת הרשמה/הסרה חיה.",
+    "verified_status": "B/D אושרו והוחלו: מיגרציה20261103223217, signup20 ו־unsubscribe10 עם המקורות המדויקים ו־verify_jwt=false כפי שהיה. כל1,024 הרשומות הקיימות והטריגר נשמרו.33 בדיקות דיוור ו־10 בדיקות חיות ללא כתיבה עברו. טופס הבית מוכן מול site-updates-v1; חסימת /updates הישנה תוקנה בפרופיל הפרסום ונבחנת בפריוויו חדש.6 בדיקות פרופיל השירות עברו. אין הרשמה/הסרה חיה אמיתית או משלוח שנבדקו אוטומטית; A2/C לא הוחלו.",
     "permissions": "בעלותכתובת/חתימה; no-referrer/noindex",
     "parameters_anchors": "e,t בתיםמדויקים; לא analytics או querylogs",
     "acceptance": "חתימהשגויה/אפסהתאמות/כשל; הסרה אמיתית אינה תרגיל; email עודכןבמקור",
-    "open_task": "C5: exact B/D shared approval only; A2 future proposal not current Auth prerequisite; C before first site-updates campaign; actual owner signup/unsubscribe acceptance",
-    "treatment": "UI_IMPLEMENTED_TESTED_SERVER_APPROVAL_AND_REAL_MAIL_ACCEPTANCE_OPEN",
+    "open_task": "C5: exact hosted /updates acceptance; owner-positive signup and signed removal if needed, without test mailing. B/D approval and deployment complete; A2 not an Auth prerequisite; C before first site-updates campaign.",
+    "treatment": "BD_BACKEND_APPLIED_NONWRITING_ACCEPTED_ROUTE_PARITY_IN_ACCEPTANCE_REAL_EMAIL_OWNER_PENDING",
     "planning_snapshot": {
       "target_2029": "המסלולים הקיימים",
       "verified_status": "פרטיותקיים; דיוור/הסרהטעוניםתיקון וקבלה;שרת HELD",
@@ -609,7 +615,13 @@
     "four_completions_evidence": "../public-url-exceptions-20261103/residual205/four-completions.md",
     "guard_integration_previous_checkpoint": {
       "verified_status": "פרטיותzyz997@gmail.com וחלונית ההרשמה2029 נשמרות. הרשמה ידנית היא opt-inל־site-updates; חשבון חדש כולל אותה כברירת מחדל רק אחרי אימות לפי החלטת צוריאל החדשה. A2/B/Dטרם הוחלו; השרת עדיין מפרסםopening-parts-v1 והטופס מבהיר אי־זמינות לפני מילוי.22קבוצותDBמבודדות ל־A2ו־16בדיקות handlerל־Dעברו. אין חידוש הסרה קודמת, ואין הצגת הרשמה/הסרה חיה כמתקבלת. קמפייןCנפרד."
-    }
+    },
+    "bd_applied_previous_checkpoint": {
+      "verified_status": "פרטיות וכתובת המייל נשמרות. טופס עדכוני האתר הוא opt-in למטרה site-updates וממתין ל־B; אישור הסרה שגוי ממתין ל־D. הטריגר הפעיל כבר מצרף חשבון חדש כברירת מחדל ואינו משנה מנוי קיים או פועל בכניסה רגילה. A2 לא הוחל ואין לייחס לשרת את ההמתנה לאימות המוצעת בו. הרשמות opening-only והסרות ישנות נשמרות; קמפיין C נפרד. אין קבלת הרשמה/הסרה חיה.",
+      "open_task": "C5: exact B/D shared approval only; A2 future proposal not current Auth prerequisite; C before first site-updates campaign; actual owner signup/unsubscribe acceptance",
+      "treatment": "UI_IMPLEMENTED_TESTED_SERVER_APPROVAL_AND_REAL_MAIL_ACCEPTANCE_OPEN"
+    },
+    "bd_applied_evidence": "../public-url-exceptions-20261103/residual205/evidence/bd-approved-apply-20261103/README.md"
   },
   {
     "id": "F28",

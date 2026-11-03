@@ -1,0 +1,30 @@
+{
+  "newsletter-signup": {
+    "version": 19,
+    "verify_jwt": false,
+    "entrypoint": "index.ts",
+    "files": [
+      {
+        "name": "index.ts",
+        "sha256": "153ddbd1deaa71bb19b0d72f0992f1b6173b04732bd4fe669c10eaf8759e0a42"
+      },
+      {
+        "name": "purpose.js",
+        "sha256": "eac6f4d7c14fb4c0c584497c0656e6d55eb6745f37711c6bbdaed7b173c4269c"
+      }
+    ],
+    "bundleHash": "83a39cd603ee18efed3191450c1a1e19ca535762726f167a670f9ae55dd89f31"
+  },
+  "newsletter-unsubscribe": {
+    "version": 9,
+    "verify_jwt": false,
+    "entrypoint": "index.ts",
+    "files": [
+      {
+        "name": "index.ts",
+        "sha256": "13101bb6374057625d05414d216af2eab173c7fb4ad45d39f6f075578bc1d2c4"
+      }
+    ],
+    "bundleHash": "c32fc315e6891cd9fd5b9a1e00fdb0685c515f2b9b87b5d41a6e73c902425975"
+  }
+}
