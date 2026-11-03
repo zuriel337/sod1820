@@ -390,7 +390,7 @@ dist/assets/AdminPage-CE6BCPQO.js                         825.65 kB │ gzip: 20
 dist/assets/OrbitControls-CQroldLv.js                     927.32 kB │ gzip: 244.42 kB
 dist/assets/index-DsW28D0F.js                           1,706.96 kB │ gzip: 469.63 kB
 
-[plugin builtin:vite-reporter] 
+[plugin builtin:vite-reporter]
 (!) Some chunks are larger than 500 kB after minification. Consider:
 - Using dynamic import() to code-split the application
 - Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
@@ -710,7 +710,7 @@ dist/assets/Els2029Page-DFsgssgG.js                           278.54 kB │ gzip
 dist/assets/BookPdfPage2029-D8JzIJ3g.js                       436.55 kB │ gzip: 131.60 kB
 dist/assets/OrbitControls-CAsKRpob.js                         927.27 kB │ gzip: 244.40 kB
 
-[plugin builtin:vite-reporter] 
+[plugin builtin:vite-reporter]
 (!) Some chunks are larger than 500 kB after minification. Consider:
 - Using dynamic import() to code-split the application
 - Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting

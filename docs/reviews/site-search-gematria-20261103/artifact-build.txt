@@ -396,7 +396,7 @@ public-reading-deploy/dist/assets/Els2029Page-aHpqA2-k.js                       
 public-reading-deploy/dist/assets/BookPdfPage2029-Dd6VdvIm.js                       436.55 kB │ gzip: 131.60 kB
 public-reading-deploy/dist/assets/OrbitControls-2tHFqNan.js                         927.27 kB │ gzip: 244.40 kB
 
-[plugin builtin:vite-reporter] 
+[plugin builtin:vite-reporter]
 (!) Some chunks are larger than 500 kB after minification. Consider:
 - Using dynamic import() to code-split the application
 - Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
