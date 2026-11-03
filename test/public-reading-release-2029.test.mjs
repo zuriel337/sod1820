@@ -11,8 +11,9 @@ const branch='gpt/2029-public-reading-release-configuration-20261101';
 const read=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
 test('one release scope opens only the approved readers; closed aliases cannot enter product routes',()=>{
  for(const path of ['/','/world','/post','/post/existing','/old-post','/number/1820','/number/בראשית','/gematria','/gallery','/map','/topic/existing','/community/researcher/zvi'])assert.ok(['public','post-lookup'].includes(publicReadingPath(path)),path);
- for(const path of ['/code','/els','/journey','/2029/journey','/raziel','/2029/raziel','/2029/me','/auth/callback','/admin','/books','/heichal','/היכל','/community/chat'])assert.equal(publicReadingPath(path),'closed',path);
- assert.equal(publicReadingPath('/login'),'account');
+ for(const path of ['/code','/els','/journey','/2029/journey','/raziel','/2029/raziel','/2029/me','/admin','/books','/heichal','/היכל','/community/chat'])assert.equal(publicReadingPath(path),'closed',path);
+ for(const p of ['/login','/auth/callback'])assert.equal(publicReadingPath(p),'account');
+ assert.equal(publicReadingPath('/auth/callback/forged'),'closed');
  for(const path of ['/2029/control','/2029/kingdom','/entity-hub-preview/topic/example','/%ZZ'])assert.equal(publicReadingPath(path),'missing',path);
  for(const flag of ['lock_world','lock_number','lock_gematria'])assert.equal(publicReadingFeatureLock(flag).enabled,false);
  for(const flag of ['lock_els','lock_life_journey','lock_raziel_site','lock_heichal','unknown'])assert.equal(publicReadingFeatureLock(flag).enabled,true);

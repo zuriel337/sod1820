@@ -118,3 +118,28 @@
 }
 .sod29-root.native-frame[data-frame-reduced-motion="true"] button:has(.sod29-user-avatar),
 .sod29-root.native-frame[data-frame-reduced-motion="true"] .sod29-raziel-orb{opacity:1!important;transition:none!important}
+
+/* 3.11: construction status belongs to the feature, including the admin preview.
+   Public closure never replaces the purple Raziel presence with a large emoji. */
+.sod29-root.native-frame .sod29-command-island .sod29-raziel-orb.compact .sod29-raziel-orb-core {
+  background: radial-gradient(circle at 32% 25%, #c4a7f5 0%, #9662d7 27%, #703cb3 62%, #45266f 100%);
+  box-shadow: inset 0 0 12px rgba(255,255,255,.18), 0 0 16px rgba(147,92,213,.27);
+  opacity: 1;
+}
+.sod29-root.native-frame .sod29-command-island .sod29-raziel-orb.compact,
+.sod29-root.native-frame .sod29-command-island .sod29-dock-here { position: relative; overflow: visible; }
+.sod29-root.native-frame .sod29-command-island .sod29-raziel-orb > .sod29-construction-badge,
+.sod29-root.native-frame .sod29-command-island .sod29-dock-here > .sod29-construction-badge {
+  position: absolute; inset-block-end: -1px; inset-inline: 50% auto; transform: translateX(50%);
+  width: max-content; max-width: 52px; padding: 2px 5px; border-radius: 4px;
+  background: var(--s29-panel); color: var(--s29-accent-text); border: 1px solid var(--s29-line-strong);
+  font: 600 10px/1.15 var(--s29-font-ui); white-space: nowrap; pointer-events: none;
+}
+.sod29-root.native-frame .sod29-command-island .sod29-dock-here { padding-block-end: 10px; }
+.sod29-root.native-frame .sod29-command-island .sod29-dock-here:disabled { opacity: .85; cursor: not-allowed; }
+
+/* Here keeps its text fully visible; the status sits above the icon. */
+.sod29-root.native-frame .sod29-command-island .sod29-dock-here > .sod29-construction-badge {
+  inset-block-start: -6px; inset-block-end: auto; inset-inline-start: -4px; inset-inline-end: auto; transform: none;
+}
+.sod29-root.native-frame .sod29-command-island .sod29-dock-here { padding-block-start: 7px; padding-block-end: 2px; }

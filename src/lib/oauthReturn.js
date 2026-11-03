@@ -1,3 +1,4 @@
+import { PUBLIC_READING_RELEASE } from "./publicReadingRelease2029.js";
 // OAuth return destinations are local paths, never caller-supplied origins.
 export function safeOAuthReturnPath(returnTo) {
   if (typeof returnTo !== 'string' || !returnTo.startsWith('/') ||
@@ -35,13 +36,21 @@ export function consumePreviewOAuthReturn(storage = globalThis.sessionStorage, n
     const value=JSON.parse(raw||'null');
     if(!value||!Number.isFinite(value.createdAt)||now-value.createdAt<0||now-value.createdAt>10*60*1000)return '/2029';
     const path=safePreviewOAuthReturnPath(value.path);
-    const home=import.meta.env?.VITE_PUBLIC_FOUNDATION_PREVIEW === 'true' ? '/' : '/2029';
+    const home=import.meta.env?.VITE_PUBLIC_FOUNDATION_PREVIEW === 'true' || PUBLIC_READING_RELEASE ? '/' : '/2029';
     return path==='/'||path.startsWith('/auth/callback')?home:path;
   } catch{return '/2029';}
 }
 
-export function providerOAuthRequest({ provider = 'google', origin, returnTo = '/', integratedPreview = false, verifiedPreviewOrigins, functionalPreview = import.meta.env?.VITE_FUNCTIONAL_UNIFIED_PREVIEW === 'true' } = {}) {
+export function providerOAuthRequest({ provider = 'google', origin, returnTo = '/', integratedPreview = false, verifiedPreviewOrigins, functionalPreview = import.meta.env?.VITE_FUNCTIONAL_UNIFIED_PREVIEW === 'true' || PUBLIC_READING_RELEASE } = {}) {
   if (typeof provider !== 'string' || !/^[a-z][a-z0-9_]*$/.test(provider) || ['email', 'phone', 'anonymous'].includes(provider)) throw new Error('invalid_oauth_provider');
+  // Shared signup consent repair is still pending approval/application. OAuth
+  // cannot guarantee an existing account, even for a known provider. Preserve
+  // the prepared PKCE implementation but fail before the SDK starts a flow.
+  if (PUBLIC_READING_RELEASE) {
+    const error = new Error('AUTH_SIGNUP_CONSENT_PENDING');
+    error.code = 'AUTH_SIGNUP_CONSENT_PENDING';
+    throw error;
+  }
   const site = new URL(origin);
   if (!['https:', 'http:'].includes(site.protocol) || site.origin !== origin) {
     throw new Error('OAUTH_ORIGIN_INVALID');

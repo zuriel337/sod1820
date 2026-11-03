@@ -12,6 +12,7 @@ async function compile(reading) {
   const outfile = resolve(`.test-post-follow-admission-${reading}-${process.pid}.mjs`); outputs.push(outfile);
   const stub = {
     'theme.js': 'export const F={};',
+    'AuthContext.jsx': 'export const useAuth=()=>({isAdmin:globalThis.__postFollowAdmin===true});',
     'palette.js': 'export const PALETTES={};export const usePalette=()=>({});',
     'WatchButton.jsx': 'export default function WatchButton(){return null;}',
     'NavigationIcon2029.jsx': 'export default function Icon(){return null;}',
@@ -23,7 +24,7 @@ async function compile(reading) {
       'import.meta.env.VITE_PUBLIC_READING_RELEASE': '"public-reading-20261101"',
       'import.meta.env.VITE_INTEGRATED_PREVIEW': '"false"', 'import.meta.env.VITE_FUNCTIONAL_UNIFIED_PREVIEW': '"false"' },
     plugins: [{ name: 'external-read-boundaries', setup(b) {
-      b.onResolve({ filter: /\/(theme\.js|palette\.js|WatchButton\.jsx|NavigationIcon2029\.jsx|researchViewMode\.js|writerPersonal2029\.js)$/ }, args => ({ path: args.path.split('/').at(-1), namespace: 'fixture' }));
+      b.onResolve({ filter: /\/(theme\.js|palette\.js|AuthContext\.jsx|WatchButton\.jsx|NavigationIcon2029\.jsx|researchViewMode\.js|writerPersonal2029\.js)$/ }, args => ({ path: args.path.split('/').at(-1), namespace: 'fixture' }));
       b.onResolve({ filter: /\.css$/ }, args => ({ path: args.path, namespace: 'fixture-css' }));
       b.onLoad({ filter: /.*/, namespace: 'fixture' }, args => ({ contents: stub[args.path], loader: 'js' }));
       b.onLoad({ filter: /.*/, namespace: 'fixture-css' }, () => ({ contents: '', loader: 'js' }));
@@ -31,7 +32,7 @@ async function compile(reading) {
   return (await import(pathToFileURL(outfile))).default;
 }
 const Reading = await compile(true), Existing = await compile(false);
-after(async () => { await Promise.all(outputs.map(file => rm(file, { force: true }))); delete globalThis.__postFollowReads; });
+after(async () => { await Promise.all(outputs.map(file => rm(file, { force: true }))); delete globalThis.__postFollowReads; delete globalThis.__postFollowAdmin; });
 const post = { id: 55, slug: 'fixture', author: 'בדרך לנצח', categories: ['מימד חמש', 'תיעוד אירועים'], tags: [] };
 test('closed post Follow preserves existing classification labels without resolver reads', async () => {
   globalThis.__postFollowReads = []; let root;
@@ -48,4 +49,15 @@ test('existing non-reading Follow still validates its targets through the canoni
   assert.equal(globalThis.__postFollowReads.length, 2);
   assert.ok(globalThis.__postFollowReads.every(([name]) => name === 'canonical_follow_subject'));
   await act(async () => { root.unmount(); });
+});
+
+test('verified admin Follow uses canonical targets; role loss unmounts the active controls', async () => {
+  globalThis.__postFollowReads=[];globalThis.__postFollowAdmin=true;let root;
+  await act(async()=>{root=Renderer.create(React.createElement(Reading,{variant:'2029',post}));});
+  assert.equal(globalThis.__postFollowReads.length,2);
+  assert.ok(globalThis.__postFollowReads.every(([name])=>name==='canonical_follow_subject'));
+  globalThis.__postFollowAdmin=false;
+  await act(async()=>{root.update(React.createElement(Reading,{variant:'2029',post}));});
+  assert.match(JSON.stringify(root.toJSON()),/המעקבים ייפתחו בהמשך/);
+  assert.equal(globalThis.__postFollowReads.length,2);await act(async()=>root.unmount());
 });

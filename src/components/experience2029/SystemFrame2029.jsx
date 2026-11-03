@@ -21,7 +21,7 @@ import { buildExactReturnPatch, researchContextNumber } from "../../lib/research
 import { useAuth } from "../../lib/AuthContext.jsx";
 import { razielSavedSyncCopy, canRetryRazielSync, RAZIEL_LOCAL_SAVE_NOTICE } from "../../lib/research/razielSavedSync2029.js";
 import { useFeatureState } from "../MaintenanceLock.jsx";
-import { CORE_PUBLIC_LAUNCH_2029, PUBLIC_LAUNCH_READ_ONLY_PREVIEW } from "../../lib/publicLaunch2029.js";
+import { CORE_PUBLIC_LAUNCH_2029, publicLaunchActionsLocked } from "../../lib/publicLaunch2029.js";
 const AccountEntry2029 = React.lazy(() => import("../auth2029/AccountEntry2029.jsx"));
 import { makeEntity } from "../../lib/research/entity.js";
 import { getNotificationPrefs } from "../../lib/supabase.js";
@@ -406,13 +406,14 @@ function RazielOrb({ compact = false, active = false, onClick, title = "פתח �
       type="button"
       className={`sod29-raziel-orb${compact ? " compact" : ""}${active ? " active" : ""}${locked ? " is-locked" : ""}`}
       onClick={onClick}
-      aria-label={locked ? "רזיאל · בבנייה" : readingTitle}
-      title={locked ? "רזיאל בבנייה" : readingTitle}
+      aria-label={locked ? "רזיאל · בבנייה · למנהל בלבד" : readingTitle}
+      title={locked ? "רזיאל בבנייה · למנהל בלבד" : `${readingTitle} · גישת מנהל`}
       data-matrix-reading-status={reading?.phase}
       aria-pressed={active}
       disabled={locked}
     >
-      <span className="sod29-raziel-orb-core" aria-hidden="true">{locked && compact ? "🚧" : null}</span>
+      <span className="sod29-raziel-orb-core" aria-hidden="true" />
+      {compact ? <span className="sod29-construction-badge" aria-hidden="true">בבנייה</span> : null}
       {reading ? <span className="sod29-raziel-reading-badge" aria-hidden="true">{reading.active ? "סורק" : "סריקה"}</span> : null}
       {!compact ? <span className="sod29-raziel-orb-label">רזיאל</span> : null}
     </button>
@@ -1055,7 +1056,7 @@ const RESEARCH_SECTIONS = [
 
 function ResearchStateSections({ research, go, onInspect, onOpenNumber, onOpenSavedConversation }) {
   const syncStatus = research?.syncStatus || "local_only";
-  const syncLabel = syncStatus === "synced" ? "מסונכרן לחשבון" : syncStatus === "local_only" ? "מקומי בדפדפן הזה — לא מסונכרן" : syncStatus === "auth_loading" ? "בודק חשבון" : "בסנכרון עם החשבון";
+  const syncLabel = research?.syncAwaitingAction ? "שינויים מקומיים ממתינים לשמירה" : syncStatus === "synced" ? "מסונכרן לחשבון" : syncStatus === "local_only" ? "מקומי בדפדפן הזה — לא מסונכרן" : syncStatus === "auth_loading" ? "בודק חשבון" : "בסנכרון עם החשבון";
   const rowTarget = (e) => ({ id: e.id, type: e.type, label: e.title, href: e.link || null, number: e.type === "number" ? e.ref : null });
   const openRow = (e) => {
     if (e.type === "raziel_session") return onOpenSavedConversation?.(e.id);
@@ -1074,6 +1075,7 @@ function ResearchStateSections({ research, go, onInspect, onOpenNumber, onOpenSa
         <span data-count-for="collections"><b>{collections.length}</b><small>אוספים</small></span>
       </div>
       <small className="sod29-workspace-sync-note">{syncLabel}</small>
+      {research?.syncAwaitingAction ? <button type="button" className="sod29-action" onClick={() => research.retryResearchSync?.()}>סנכרן את השינויים</button> : null}
       {RESEARCH_SECTIONS.map((sec) => {
         const all = Array.isArray(research?.[sec.key]) ? research[sec.key] : [];
         const rows = sec.limit ? all.slice(0, sec.limit) : all;
@@ -1114,7 +1116,8 @@ function AccountConnection2029() {
 }
 
 function WorkspaceProjection(props) {
-  if (PUBLIC_LAUNCH_READ_ONLY_PREVIEW) return <><AccountConnection2029 /><FrameState kind="empty" title="הפעולות האישיות ייפתחו בהמשך">כניסה לחשבון אינה מפעילה שמירה, מחקר או חיוב.</FrameState></>;
+  const actionsLocked = publicLaunchActionsLocked(useAuth().isAdmin);
+  if (actionsLocked) return <><AccountConnection2029 /><FrameState kind="empty" title="הפעולות האישיות ייפתחו בהמשך">כניסה לחשבון אינה מפעילה שמירה, מחקר או חיוב.</FrameState></>;
   return <WorkspaceProjectionOpen {...props} />;
 }
 
@@ -1485,7 +1488,8 @@ function SystemFrame2029Body({
   const numberFeature = useFeatureState("lock_number", { requireFlag: true });
   const elsFeature = useFeatureState("lock_els");
   const heichalLocked = heichalFeature.loading || heichalFeature.blocked;
-  const razielLocked = razielFeature.loading || razielFeature.blocked;
+  const contextLocked = authLoading || isAdmin !== true;
+  const razielLocked = contextLocked || razielFeature.loading || razielFeature.blocked;
   const journeyLocked = journeyFeature.loading || journeyFeature.blocked;
   const booksLocked = booksFeature.loading || booksFeature.blocked;
   const numberLocked = numberFeature.loading || numberFeature.blocked;
@@ -1702,6 +1706,7 @@ function SystemFrame2029Body({
   }, []);
 
   const openTransient = useCallback((kind, payload = null) => {
+    if (kind === TRANSIENT.CONTEXT && contextLocked) return;
     // Switching an existing sheet must keep its persistent entry as the return
     // target; an inner tab/search button disappears when that sheet changes.
     if (!document.activeElement?.closest?.(".sod29-frame-panel")) {
@@ -1712,7 +1717,7 @@ function SystemFrame2029Body({
     }
     setTransient({ kind, payload });
     setNavOpen(false);
-  }, [navOpen, completeSurfaceEntry]);
+  }, [navOpen, completeSurfaceEntry, contextLocked]);
 
   const openCommand = useCallback(() => openTransient(TRANSIENT.COMMAND), [openTransient]);
   const handleGlobalNavAction = useCallback((action) => {
@@ -1998,8 +2003,8 @@ function SystemFrame2029Body({
 
   const transientKind = transient?.kind || null;
   useEffect(() => {
-    if (razielLocked && transientKind === TRANSIENT.RAZIEL) setTransient(null);
-  }, [razielLocked, transientKind]);
+    if ((razielLocked && transientKind === TRANSIENT.RAZIEL) || (contextLocked && transientKind === TRANSIENT.CONTEXT)) setTransient(null);
+  }, [razielLocked, contextLocked, transientKind]);
   const numberPageRoute = surface === "number" && /^\/2029\/number\/[^/]+\/?$/.test(location.pathname);
   const subjectHref = pageContext?.subject?.href || "";
   const postTrail = surface === "post"
@@ -2062,7 +2067,7 @@ function SystemFrame2029Body({
       return <PanelShell {...common} icon="◇" kicker="כלי" title={capability || "יכולת"}><FrameState kind="unavailable" title="הכלי עדיין לא מחובר כאן">כשהחיבור יהיה מוכן הוא ייפתח באותה חלונית, בלי להעביר אותך למערכת אחרת.</FrameState></PanelShell>;
     }
     if (transientKind === TRANSIENT.INSPECT) return <PanelShell {...common} icon={inspectTarget?.type === "number" ? "123" : "◎"} kicker="בדיקה" title={contextDisplayTitle(pageContext, inspectTarget) || "בדיקה מהירה"}><InspectProjection target={inspectTarget} context={pageContext} surface={surface} onSetFocus={setResearchFocus} onSave={saveToLibrary} onAddResearch={addToResearch} isSaved={Boolean(inspectTarget && (research.saved || []).some((e) => e.id === inspectTarget.id || e.id === `${inspectTarget.type}:${inspectTarget.id}`))} inResearch={Boolean(inspectTarget && (research.cart || []).some((e) => e.id === inspectTarget.id || e.id === `${inspectTarget.type}:${inspectTarget.id}`))} onOpenNumber={openNumber} onNeedHelp={openIssueReport} /></PanelShell>;
-    if (transientKind === TRANSIENT.CONTEXT) return <PanelShell {...common} icon="✦" kicker="הקשר" title="כאן · מפת העמוד וההקשר">{bottomTrail.length ? <nav className="sod29-sheet-trail" aria-label="מסלול המחקר הנוכחי">{bottomTrail.filter(item => publicContextLabel(item.label)).map((item, i) => <span key={item.id || i}>{i ? " ‹ " : ""}{publicContextLabel(item.label)}</span>)}</nav> : null}<SurfaceContextRail2029
+    if (transientKind === TRANSIENT.CONTEXT) return contextLocked ? null : <PanelShell {...common} icon="✦" kicker="הקשר" title="כאן · מפת העמוד וההקשר">{bottomTrail.length ? <nav className="sod29-sheet-trail" aria-label="מסלול המחקר הנוכחי">{bottomTrail.filter(item => publicContextLabel(item.label)).map((item, i) => <span key={item.id || i}>{i ? " ‹ " : ""}{publicContextLabel(item.label)}</span>)}</nav> : null}<SurfaceContextRail2029
       sheet
       surface={surface}
       context={pageContext}
@@ -2277,9 +2282,9 @@ function SystemFrame2029Body({
 
 
         {unifiedGlobalDock ? <div className="sod29-command-island is-unified-bar is-single-command-bar" role="toolbar" aria-label="מסלול המחקר והפעולות הזמינות עכשיו" data-raziel-anchor="center" data-command-mode="global">
-          <button type="button" className="sod29-dock-here" onClick={() => openTransient(TRANSIENT.CONTEXT)} aria-label={readingProgress ? `כאן · מפת העמוד: חלק ${readingProgress.index} מתוך ${readingProgress.total}` : "כאן · מפת העמוד וההקשר"} aria-haspopup="dialog" aria-expanded={transientKind === TRANSIENT.CONTEXT} data-reading-progress={readingProgress ? `${readingProgress.index}/${readingProgress.total}` : undefined}>
-            <NavigationIcon2029 name="layers" /><small>כאן</small>
-            {readingProgress ? <span className="sod29-dock-progress" aria-hidden="true">{readingProgress.ids.map((id,i) => <i key={id} className={i < readingProgress.index ? "is-read" : ""} />)}</span> : null}
+          <button type="button" className="sod29-dock-here" disabled={contextLocked} title={contextLocked ? "כאן בבנייה · למנהל בלבד" : "כאן בבנייה · גישת מנהל"} onClick={() => openTransient(TRANSIENT.CONTEXT)} aria-label={contextLocked ? "כאן · בבנייה · למנהל בלבד" : readingProgress ? `כאן · מפת העמוד: חלק ${readingProgress.index} מתוך ${readingProgress.total}` : "כאן · מפת העמוד וההקשר"} aria-haspopup="dialog" aria-expanded={transientKind === TRANSIENT.CONTEXT} data-reading-progress={readingProgress ? `${readingProgress.index}/${readingProgress.total}` : undefined}>
+            <NavigationIcon2029 name="layers" /><small>כאן</small><span className="sod29-construction-badge" aria-hidden="true">בבנייה</span>
+            {!contextLocked && readingProgress ? <span className="sod29-dock-progress" aria-hidden="true">{readingProgress.ids.map((id,i) => <i key={id} className={i < readingProgress.index ? "is-read" : ""} />)}</span> : null}
           </button>
           <button type="button" onClick={() => {
             if (activeTarget?.expression && activeTarget?.method && Number.isSafeInteger(activeTarget?.resultValue)) {

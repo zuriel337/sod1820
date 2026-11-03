@@ -9,3 +9,7 @@ export const CORE_PUBLIC_LAUNCH_2029 = false;
 // environment. This scoped build restriction never opens shared capabilities.
 export const PUBLIC_LAUNCH_READ_ONLY_PREVIEW = import.meta.env?.VITE_PUBLIC_LAUNCH_READ_ONLY_PREVIEW === "true"
   || PUBLIC_READING_RELEASE;
+
+export function publicLaunchActionsLocked(isAdmin) {
+  return PUBLIC_LAUNCH_READ_ONLY_PREVIEW && !(PUBLIC_READING_RELEASE && isAdmin === true);
+}

@@ -9,8 +9,13 @@ export async function verifyReadingSession(session, auth) {
   } catch { return null; }
 }
 
-export function readingSessionOptions(storage) {
-  // Separate from Legacy and limited to this tab. No marketing/device identity.
+export function readingSessionOptions(storage, location = globalThis.location) {
+  // Separate from Legacy and limited to this tab. PKCE binds the callback to
+  // the initiating tab; ordinary content URLs never consume auth parameters.
   return { persistSession: Boolean(storage), autoRefreshToken: true,
-    detectSessionInUrl: false, storageKey: "sod-public-reading-account", ...(storage ? { storage } : {}) };
+    flowType: "pkce", detectSessionInUrl: location?.pathname === "/auth/callback",
+    // The dashboard allowlist uses one exact callback. Extra flow query params
+    // would stop matching and can send the user to the Production Site URL.
+    experimental: { appendPkceFlowIdToRedirects: false },
+    storageKey: "sod-public-reading-account", ...(storage ? { storage } : {}) };
 }

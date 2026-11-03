@@ -1,3 +1,4 @@
+import { useAuth } from "../lib/AuthContext.jsx";
 import NavigationIcon2029 from "../components/experience2029/NavigationIcon2029.jsx";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -33,7 +34,7 @@ import {
   pickVerifiedShareDiscovery,
 } from "../lib/research/calculator2029Viral.js";
 import { PUBLIC_READING_RELEASE } from "../lib/publicReadingRelease2029.js";
-import { PUBLIC_LAUNCH_READ_ONLY_PREVIEW } from "../lib/publicLaunch2029.js";
+import { publicLaunchActionsLocked } from "../lib/publicLaunch2029.js";
 import { applySeo } from "../lib/seo.js";
 import "./calculator2029.css";
 
@@ -245,6 +246,7 @@ const CalculatorFastCore2029 = React.memo(function CalculatorFastCore2029({
 });
 
 function CalculatorExperience() {
+  const actionsLocked = publicLaunchActionsLocked(useAuth().isAdmin);
   const location = useLocation();
   const navigate = useNavigate();
   const research = useResearch();
@@ -544,7 +546,7 @@ function CalculatorExperience() {
               {trace.finding ? "סגור חישוב" : trace.loading ? "טוען…" : "איך מחשבים?"}
             </button>
             <button type="button" onClick={() => openNumber()} disabled={selection.resultValue == null}>פתח דף מספר</button>
-            <button type="button" className="is-raziel" disabled={PUBLIC_LAUNCH_READ_ONLY_PREVIEW} onClick={openRaziel} disabled={selection.resultValue == null}>
+            <button type="button" className="is-raziel" disabled={actionsLocked || selection.resultValue == null} onClick={openRaziel}>
               ✦ רזיאל · תסביר לי
             </button>
             <Link
@@ -561,7 +563,7 @@ function CalculatorExperience() {
           {showMore ? (
             <div className="sod29-calc2029-actions is-more">
               <Link to={"/beit-midrash/" + encodeURIComponent(selection.methodKey)}>למד את השיטה</Link>
-              <button type="button" disabled={PUBLIC_LAUNCH_READ_ONLY_PREVIEW} onClick={openHeichal}>חקור בהיכל</button>
+              <button type="button" disabled={actionsLocked} onClick={openHeichal}>חקור בהיכל</button>
               <button type="button" onClick={() => setShowCompare((value) => !value)} aria-expanded={showCompare}>
                 {showCompare ? "סגור השוואה" : "השווה"}
               </button>

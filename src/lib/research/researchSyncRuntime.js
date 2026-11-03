@@ -25,7 +25,8 @@ function readLegacyContext(session) {
   } catch { return null; }
 }
 export function createResearchSyncRuntime({ userId = null, storage, session, readCloud, writeCloud,
-  onContext = () => {}, idFactory = newResearchId, delay = 350, disabled = false, cloudEnabled = true } = {}) {
+  onContext = () => {}, idFactory = newResearchId, delay = 350, disabled = false, cloudEnabled = true,
+  resumePendingOnStart = true } = {}) {
   const principal = principalToken(userId), key = principalStateKey(principal);
   const pointerKey = `${key}:journal`, journalKey = `${key}:pending:${idFactory()}`;
   const contextKey = principalContextKey(principal);
@@ -68,6 +69,9 @@ export function createResearchSyncRuntime({ userId = null, storage, session, rea
   let revision = journal.revision ?? (Number.isSafeInteger(cached.revision) ? cached.revision : null);
   let queue = clone(journal.queue), inflight = journal.inflight ? clone(journal.inflight) : null;
   let active = false, generation = 0, cloudReady = false, timer = null, operation = null, resolving = false;
+  // A reading deployment may admit private reads without replaying a journal on login.
+  // Only an explicit edit/retry authorizes its existing queue; route context/history do not.
+  let writeIntent = resumePendingOnStart;
   let status = disabled ? 'auth_loading' : storageFault ? 'local_recovery_required' : userId && cloudEnabled ? 'loading' : 'local_only';
   const listeners = new Set();
   let snapshot;
@@ -75,7 +79,8 @@ export function createResearchSyncRuntime({ userId = null, storage, session, rea
   try { legacyRecoveryAvailable = !disabled && !!storage?.getItem(LEGACY_UNSCOPED_KEY); } catch { /* unavailable */ }
   const notify = () => {
     snapshot = Object.freeze({ ...state, mode, syncStatus: status, syncPending: queue.length,
-      syncRevision: revision, legacyRecoveryAvailable, recoveryJournals: listRecoveryJournals() });
+      syncRevision: revision, syncAwaitingAction: Boolean(userId && cloudEnabled && queue.length && !writeIntent),
+      legacyRecoveryAvailable, recoveryJournals: listRecoveryJournals() });
     for (const fn of listeners) fn();
   };
   function listRecoveryJournals() {
@@ -127,7 +132,7 @@ export function createResearchSyncRuntime({ userId = null, storage, session, rea
   }
   function schedule() {
     clearTimeout(timer);
-    if (active && cloudReady && queue.length && !operation && !['conflict', 'local_error', 'local_recovery_required', 'error'].includes(status)) {
+    if (active && cloudEnabled && writeIntent && cloudReady && queue.length && !operation && !['conflict', 'local_error', 'local_recovery_required', 'error'].includes(status)) {
       timer = setTimeout(() => { void flush(); }, delay);
     }
   }
@@ -163,7 +168,7 @@ export function createResearchSyncRuntime({ userId = null, storage, session, rea
     if (active && generation === epoch) schedule();
   }
   async function flush() {
-    if (!active || disabled || !cloudEnabled || !userId || !cloudReady || !queue.length || operation || storageFault) return;
+    if (!active || disabled || !cloudEnabled || !writeIntent || !userId || !cloudReady || !queue.length || operation || storageFault) return;
     if (status === 'conflict' || revision == null) return;
     clearTimeout(timer);
     const epoch = generation;
@@ -203,6 +208,7 @@ export function createResearchSyncRuntime({ userId = null, storage, session, rea
     state = applyResearchOps(state, safe);
     if (userId && cloudEnabled) {
       queue = [...queue, { batch_id: idFactory(), ops: safe }];
+      if (safe.some(op => !['context_set', 'history_add'].includes(op.kind))) writeIntent = true;
       if (!['error', 'conflict', 'local_error'].includes(status)) status = 'pending';
     }
     const ok = persist(); notify();
@@ -212,8 +218,10 @@ export function createResearchSyncRuntime({ userId = null, storage, session, rea
   }
   async function retry() {
     if (!active || disabled || !cloudEnabled || storageFault || resolving || status === 'conflict') return false;
+    const epoch = generation;
     if (operation) await operation;
-    if (!active) return false;
+    if (!active || !cloudEnabled || generation !== epoch) return false;
+    writeIntent = true;
     if (!persist()) { notify(); return false; }
     if (!cloudReady) await hydrate();
     else { status = 'pending'; await flush(); }
@@ -222,6 +230,7 @@ export function createResearchSyncRuntime({ userId = null, storage, session, rea
   async function resolveConflict({ confirm = false, action } = {}) {
     if (!active || !cloudEnabled || !userId || !confirm || resolving || operation || status !== 'conflict' || !['reapply', 'keep_remote'].includes(action)) return false;
     const epoch = generation;
+    writeIntent = true;
     resolving = true; status = 'resolving'; notify();
     try {
       const cloud = assertCloudSnapshot(await readCloud(userId));
@@ -250,6 +259,7 @@ export function createResearchSyncRuntime({ userId = null, storage, session, rea
         JSON.stringify(record.inflight.ops) !== JSON.stringify(record.queue[0].ops) ||
         !Number.isSafeInteger(record.inflight.expected_revision) || record.inflight.expected_revision < 0)) return false;
       restoredFrom = sourceKey; restoredRaw = raw;
+      writeIntent = true;
       queue = clone(record.queue); inflight = record.inflight ? clone(record.inflight) : null;
       revision = record.revision; cloudReady = false;
       if (!persist()) { notify(); return false; }
@@ -277,6 +287,23 @@ export function createResearchSyncRuntime({ userId = null, storage, session, rea
       // Logout/account-key unmount ends the active session, never the saved workspace.
       try { session?.removeItem(contextKey); } catch { /* preserve other principal */ }
       onContext(null);
+    },
+    setCloudAccess(enabled) {
+      const next = enabled === true;
+      if (cloudEnabled === next) return;
+      cloudEnabled = next;
+      generation += 1;
+      clearTimeout(timer);
+      cloudReady = false;
+      writeIntent = resumePendingOnStart;
+      // Revoking access invalidates late reads/acks, while retaining the same principal's
+      // context, immutable request and durable journal for explicit recovery/retry.
+      status = disabled ? 'auth_loading' : storageFault ? 'local_recovery_required' : userId && next ? 'loading' : 'local_only';
+      notify();
+      if (!active || disabled || !next || !userId || storageFault) return;
+      const epoch = generation;
+      if (operation) void operation.finally(() => { if (active && generation === epoch) void hydrate(); });
+      else void hydrate();
     },
     commit, flush, retry, resolveConflict, recoverJournal,
     listRecoveryJournals,

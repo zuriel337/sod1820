@@ -1,3 +1,4 @@
+import { useAuth } from "../lib/AuthContext.jsx";
 import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
@@ -8,7 +9,7 @@ import { isRazielNextAction } from "../lib/research/razielActionContract.js";
 import { supabase } from "../lib/supabase.js";
 import { getVisitorId } from "../lib/visitorId.js";
 import { newInteractionId } from "../lib/research/interactionCorrelation.js";
-import { PUBLIC_READING_RELEASE } from "../lib/publicReadingRelease2029.js";
+import { publicReadingActionsLocked } from "../lib/publicReadingRelease2029.js";
 import { applySeo } from "../lib/seo.js";
 import GematriaOpeningProjection from "../components/heichal/GematriaOpeningProjection.jsx";
 import { fetchTanachVerseByOrdinal, TANACH_ORDINAL_SCOPE } from "../lib/research/tanachOrdinalSources.js";
@@ -113,13 +114,14 @@ function ScriptureDiscoveryPanel({ researchProjection, ordinalProjection, subjec
 }
 
 function NoContextEntry() {
+  const actionsLocked = publicReadingActionsLocked(useAuth().isAdmin);
   const research = useResearch();
   const shell = use2029Shell();
   const [query, setQuery] = useState("");
 
   const start = async (e) => {
     e?.preventDefault?.();
-    if (PUBLIC_READING_RELEASE) return;
+    if (actionsLocked) return;
     const raw = query.trim();
     if (!raw) return;
     const numeric = /^\d+$/.test(raw);
@@ -171,8 +173,8 @@ function NoContextEntry() {
           <h2>היכל מתחיל משאלה,<br />לא מקיר של כלים.</h2>
           <div className="sod29-muted">קבע עוגן או כוונת מחקר. ה־Context Compiler ירכיב סביבם את היכולות המחוברות בלי לפתוח מערכת נפרדת לכל פעולה.</div>
           <form className="sod29-command-bar" onSubmit={start}>
-            <input className="sod29-input" disabled={PUBLIC_READING_RELEASE} value={query} onChange={e => setQuery(e.target.value)} placeholder="מספר, ביטוי או שאלה שממנה נתחיל" aria-label="נושא למחקר בהיכל" />
-            <button className="sod29-action primary" type="submit" disabled={PUBLIC_READING_RELEASE}>{PUBLIC_READING_RELEASE ? "פתיחת מחקר אינה זמינה בגרסה זו" : "קבע עוגן מחקר"}</button>
+            <input className="sod29-input" disabled={actionsLocked} value={query} onChange={e => setQuery(e.target.value)} placeholder="מספר, ביטוי או שאלה שממנה נתחיל" aria-label="נושא למחקר בהיכל" />
+            <button className="sod29-action primary" type="submit" disabled={actionsLocked}>{actionsLocked ? "פתיחת מחקר אינה זמינה בגרסה זו" : "קבע עוגן מחקר"}</button>
           </form>
         </div>
         <div className="sod29-orbit-map" aria-hidden="true">
@@ -191,13 +193,14 @@ function NoContextEntry() {
         {ACTIONS.map(a => a.live
           ? <Link className="sod29-card sod29-action-card" to={a.to} key={a.id}><h3>{a.label}</h3><p>{a.detail}</p><div className="sod29-actions"><span className="sod29-chip">מחובר</span></div></Link>
           : <div className="sod29-card sod29-action-card sod29-placeholder" key={a.id}><h3>{a.label}</h3><p>{a.detail}</p><div className="sod29-muted">ה־Foundation קיים; adapter/runtime של המצב הזה עדיין לא מחובר להיכל.</div></div>)}
-        <button className="sod29-card sod29-action-card sod29-card-button" disabled={PUBLIC_READING_RELEASE || shell.razielLocked} onClick={() => { if (!PUBLIC_READING_RELEASE) shell.openRaziel(); }}><h3>✦ שאל את רזיאל</h3><p>אותו רזיאל ואותו Research Context — לא צ׳אט מקביל של ההיכל.</p></button>
+        <button className="sod29-card sod29-action-card sod29-card-button" disabled={actionsLocked || shell.razielLocked} onClick={() => { if (!actionsLocked) shell.openRaziel(); }}><h3>✦ שאל את רזיאל</h3><p>אותו רזיאל ואותו Research Context — לא צ׳אט מקביל של ההיכל.</p></button>
       </div>
     </section>
   </>;
 }
 
 function ActiveResearchEnvironment() {
+  const actionsLocked = publicReadingActionsLocked(useAuth().isAdmin);
   const research = useResearch();
   const shell = use2029Shell();
   const context = research.context || null;
@@ -229,7 +232,7 @@ function ActiveResearchEnvironment() {
   const canProbeTorahOrdinal = Number.isSafeInteger(ordinalValue) && ordinalValue >= 1 && ordinalValue <= 5846;
 
   const runOrdinalDiscovery = async () => {
-    if (PUBLIC_READING_RELEASE || !canProbeTorahOrdinal || ordinalState.loading) return;
+    if (actionsLocked || !canProbeTorahOrdinal || ordinalState.loading) return;
     setOrdinalState({ loading: true, data: null, error: null });
     try {
       const data = await fetchTanachVerseByOrdinal(ordinalValue, { scope: TANACH_ORDINAL_SCOPE.TORAH });
@@ -251,7 +254,7 @@ function ActiveResearchEnvironment() {
   }), [data]);
 
   const addSubject = () => {
-    if (PUBLIC_READING_RELEASE || !subject) return;
+    if (actionsLocked || !subject) return;
     research.addToResearch?.({
       id: data?.identity?.nodeId ? `node:${data.identity.nodeId}` : `${subject.type}:${subject.id}`,
       type: subject.type,
@@ -263,7 +266,7 @@ function ActiveResearchEnvironment() {
   };
 
   const openRazielFromServerGatedResult = async () => {
-    if (PUBLIC_READING_RELEASE) return;
+    if (actionsLocked) return;
     // The first real Result Bundle consumer is deliberately bounded to the public Number
     // runtime that owns gate + trace + caller-RLS on PR #701. Other subjects keep the
     // existing generic Raziel entry until their own canonical server runtime exists.
@@ -319,7 +322,7 @@ function ActiveResearchEnvironment() {
     <section className="sod29-section sod29-resume-panel">
       <div className="sod29-section-head">
         <div><div className="sod29-kicker">RESEARCH CONTEXT COMPILED</div><h2>{subject.label || subject.id}</h2><div className="sod29-muted">העוגן נשאר יציב; ה־Canvas והפעולות מתחלפים סביבו. בחירה בכלי אינה פתיחת אפליקציה חדשה.</div></div>
-        <div className="sod29-actions"><button className="sod29-action" disabled={PUBLIC_READING_RELEASE} onClick={addSubject}>＋ הוסף למחקר</button><button className="sod29-action" disabled={PUBLIC_READING_RELEASE || shell.razielLocked} onClick={openRazielFromServerGatedResult}>✦ רזיאל</button><button className="sod29-action primary" onClick={() => shell.returnExact()}>↩ חזרה מדויקת</button></div>
+        <div className="sod29-actions"><button className="sod29-action" disabled={actionsLocked} onClick={addSubject}>＋ הוסף למחקר</button><button className="sod29-action" disabled={actionsLocked || shell.razielLocked} onClick={openRazielFromServerGatedResult}>✦ רזיאל</button><button className="sod29-action primary" onClick={() => shell.returnExact()}>↩ חזרה מדויקת</button></div>
       </div>
       <div className="sod29-spine" aria-label="Research Spine">
         <span>שורש · {subject.label || subject.id}</span>
@@ -384,14 +387,14 @@ function ActiveResearchEnvironment() {
         <Link className="sod29-action primary" to="/2029/gematria">חשב / בדוק שיטה</Link>
         {data?.sources?.length ? <Link className="sod29-action" to="/books">פתח מקורות</Link> : null}
         {canProbeTorahOrdinal ? (
-          <button className="sod29-action" onClick={runOrdinalDiscovery} disabled={PUBLIC_READING_RELEASE || ordinalState.loading}>
+          <button className="sod29-action" onClick={runOrdinalDiscovery} disabled={actionsLocked || ordinalState.loading}>
             {ordinalState.loading ? "בודק מיקום פסוק…" : `בדוק כפסוק #${ordinalValue} בתורה`}
           </button>
         ) : null}
         <Link className="sod29-action" to="/verse-gematria">חיפוש גימטריית פסוקים</Link>
         <Link className="sod29-action" to="/els">ELS</Link>
         <Link className="sod29-action" to="/world">פתח בעולם</Link>
-        <button className="sod29-action" disabled={PUBLIC_READING_RELEASE || shell.razielLocked} onClick={openRazielFromServerGatedResult}>✦ שאל את רזיאל</button>
+        <button className="sod29-action" disabled={actionsLocked || shell.razielLocked} onClick={openRazielFromServerGatedResult}>✦ שאל את רזיאל</button>
       </div>
     </section>
 

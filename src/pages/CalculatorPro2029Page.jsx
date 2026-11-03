@@ -1,3 +1,4 @@
+import { useAuth } from "../lib/AuthContext.jsx";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useSearchParams, useLocation } from "react-router-dom";
 import Sod2029Shell, { use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
@@ -20,7 +21,7 @@ import {
   calculationAvailabilityLabel,
 } from "../lib/research/calculator2029Model.js";
 import { buildCalculatorShareUrl, makeCalculatorShareId, calculatorEntryParams } from "../lib/research/calculator2029Viral.js";
-import { PUBLIC_LAUNCH_READ_ONLY_PREVIEW } from "../lib/publicLaunch2029.js";
+import { publicLaunchActionsLocked } from "../lib/publicLaunch2029.js";
 import { applySeo } from "../lib/seo.js";
 import "./calculatorPro2029.css";
 
@@ -165,6 +166,7 @@ function useIsDesktop(minWidth = 1100) {
 }
 
 function ProExperience() {
+  const actionsLocked = publicLaunchActionsLocked(useAuth().isAdmin);
   const navigate = useNavigate();
   const research = useResearch();
   const shell = use2029Shell();
@@ -539,14 +541,14 @@ function ProExperience() {
                   {showOpening ? "סגור פתיחה" : "ראה פתיחה"}
                 </button>
                 <Link to={"/beit-midrash/" + encodeURIComponent(canonicalSelection.methodKey)}>למד את השיטה</Link>
-                <button type="button" onClick={openHeichal} disabled={PUBLIC_LAUNCH_READ_ONLY_PREVIEW}>חקור בהיכל</button>
-                <button type="button" className="is-raziel" onClick={openRaziel} disabled={PUBLIC_LAUNCH_READ_ONLY_PREVIEW}>✦ שאל את רזיאל</button>
+                <button type="button" onClick={openHeichal} disabled={actionsLocked}>חקור בהיכל</button>
+                <button type="button" className="is-raziel" onClick={openRaziel} disabled={actionsLocked}>✦ שאל את רזיאל</button>
               </div>
               <CalculatorOpening2029 selection={canonicalSelection} open={showOpening} onClose={() => setShowOpening(false)} />
             </section>
           ) : null}
 
-          {canonicalSelection && !PUBLIC_LAUNCH_READ_ONLY_PREVIEW ? (
+          {canonicalSelection && !actionsLocked ? (
             <CalculatorAiAnalysis2029
               selection={canonicalSelection}
               ledger={ledgerState?.ledger || null}

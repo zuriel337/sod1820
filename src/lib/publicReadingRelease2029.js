@@ -10,6 +10,12 @@ export const PUBLIC_READING_PRODUCTION_ARTIFACT = PUBLIC_READING_RELEASE
   && typeof __SOD_PUBLIC_READING_PRODUCTION_ARTIFACT__ !== "undefined"
   && __SOD_PUBLIC_READING_PRODUCTION_ARTIFACT__ === true;
 
+// The launch ceiling applies to the public, not to the server-verified admin.
+// This projection never grants a server role or bypasses an operation's RLS.
+export function publicReadingActionsLocked(isAdmin) {
+  return PUBLIC_READING_RELEASE && isAdmin !== true;
+}
+
 const openFlags = new Set(["lock_world", "lock_number", "lock_gematria"]);
 export function publicReadingFeatureLock(flag) {
   return Object.freeze({ enabled: !openFlags.has(flag), mode: "all", message: openFlags.has(flag) ? "" : "האזור אינו פתוח בגרסת הקריאה הציבורית." });
@@ -18,10 +24,10 @@ export function publicReadingFeatureLock(flag) {
 export function publicReadingPath(pathname, { isAdmin = false } = {}) {
   let path;
   try { path = decodeURIComponent(pathname).replace(/\/+$/, "") || "/"; } catch { return "missing"; }
-  if (path === "/login") return "account";
-  // Screen admission is distinct from operation admission. These existing
-  // read surfaces retain their feature/action locks and server authorization.
-  if (isAdmin && /^\/(?:code|els|heichal|היכל|books?)(?:\/|$)/.test(path)) return "admin-view";
+  if (path === "/login" || path === "/auth/callback") return "account";
+  // Only existing application surfaces; arbitrary /api or unknown paths do not
+  // become public or executable merely because the viewer is an admin.
+  if (isAdmin === true && /^\/(?:code|els|heichal|היכל|books?|beit-midrash|research|admin|journey|raziel|2029\/(?:me|journey|raziel|control)|community\/(?:chat|researcher\/me))(?:\/|$)/.test(path)) return "admin-view";
   if (/^\/(?:api|admin|auth|community\/chat|2029\/me|community\/researcher\/me|code|els|heichal|היכל|journey|2029\/journey|raziel|2029\/raziel|books?|beit-midrash|research)(?:\/|$)/.test(path)) return "closed";
   if (path === "/unsubscribe" && PUBLIC_READING_PRODUCTION_ARTIFACT) return "public";
   if (["/updates", "/unsubscribe"].includes(path)) return "service-closed";

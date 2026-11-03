@@ -20,23 +20,28 @@ test('server verifies JWT and same principal; local metadata never admits a mism
  assert.equal(await verifyReadingSession({user:session.user},{getUser:async()=>assert.fail('no token')}),null);
 });
 
-test('reading account storage is separate, tab scoped, and does not consume OAuth URL sessions', () => {
+test('reading account storage stays separate and tab scoped; only the exact callback can complete PKCE', () => {
  const storage = {getItem(){},setItem(){},removeItem(){}};
  assert.equal(readingSessionOptions(storage).storage,storage);
  assert.equal(readingSessionOptions(storage).persistSession,true);
  assert.equal(readingSessionOptions(undefined).persistSession,false);
- assert.equal(readingSessionOptions(storage).detectSessionInUrl,false);
+ assert.equal(readingSessionOptions(storage, {pathname:'/'}).detectSessionInUrl,false);
+ assert.equal(readingSessionOptions(storage).flowType,'pkce');
  assert.equal(readingSessionOptions(storage).storageKey,'sod-public-reading-account');
 });
 
-test('admin screen projection never opens public paths, missing services, or operation gates', () => {
+test('verified admin can enter existing private surfaces while public and unknown services remain closed', () => {
  for(const path of ['/code','/els','/books','/book/existing','/heichal','/היכל']) {
   assert.equal(publicReadingPath(path),'closed');
   assert.equal(publicReadingPath(path,{isAdmin:true}),'admin-view');
  }
- for(const path of ['/2029/journey','/2029/me/overview','/admin','/auth/callback','/raziel','/community/chat']) {
-  assert.equal(publicReadingPath(path,{isAdmin:true}),'closed');
+ for(const path of ['/2029/journey','/2029/me/overview','/community/chat','/beit-midrash/milui','/research']) {
+  assert.equal(publicReadingPath(path,{isAdmin:true}),'admin-view');
+  assert.equal(publicReadingPath(path),'closed');
  }
+ for(const path of ['/api/unknown','/auth/unknown'])assert.equal(publicReadingPath(path,{isAdmin:true}),'closed');
+ assert.equal(publicReadingPath('/auth/callback'),'account');
+ assert.equal(publicReadingPath('/unknown/surface',{isAdmin:true}),'missing');
  assert.equal(publicReadingPath('/login'),'account');
  for(const key of ['lock_els','lock_heichal','lock_books','lock_raziel_site','lock_life_journey','unknown'])assert.equal(publicReadingFeatureLock(key).enabled,true);
 });
@@ -95,14 +100,14 @@ async function featureState({admin=false,lock=null,authLoading=false,policyLoadi
  let source=read('src/components/MaintenanceLock.jsx').replace(/^import .*;\n/gm,'').replace(/import\.meta\.env(?:\?\.|\.)[A-Z0-9_]+/g,'"false"').replaceAll('export default ','').replaceAll('export ','');
  const compiled=(await transform(source,{loader:'jsx',format:'cjs'})).code;
  const context={React:{},PUBLIC_READING_RELEASE:profile,publicReadingFeatureLock,useAuth:()=>({user:admin?{id:'admin'}:null,isAdmin:admin,loading:authLoading}),
-  useState:()=>[{loading:policyLoading,lock,readKey:null},()=>{}],useEffect:()=>{},useMemo:fn=>fn(),Set,JSON};
+  useState:()=>[{loading:policyLoading,lock,readKey:null,enabled:!profile||admin},()=>{}],useEffect:()=>{},useMemo:fn=>fn(),Set,JSON};
  vm.createContext(context);vm.runInContext(compiled+';globalThis.feature=useFeatureState;',context);
  return context.feature('lock_els',{requireFlag:true});
 }
 
-test('canonical feature state keeps operations closed while projecting verified admin screen availability',async()=>{
+test('canonical feature state opens verified admin, denies public, missing flags and pending verification',async()=>{
  const state=await featureState({admin:true,lock:{enabled:false,mode:'all'}});
- assert.equal(state.adminViewAllowed,true);assert.equal(state.blocked,true);assert.equal(state.allowed,false);assert.equal(state.adminBypass,false);
+ assert.equal(state.adminViewAllowed,false);assert.equal(state.blocked,false);assert.equal(state.allowed,true);assert.equal(state.adminBypass,true);
  for(const options of [{admin:true,lock:null},{admin:false,lock:{enabled:false}},{admin:true,lock:{enabled:false},authLoading:true},{admin:true,lock:{enabled:false},policyLoading:true}]) {
   const denied=await featureState(options);assert.equal(denied.adminViewAllowed,false);assert.equal(denied.blocked,true);
  }
@@ -113,7 +118,9 @@ const treeElements = node => !node ? [] : Array.isArray(node) ? node.flatMap(tre
 async function screenHarness(path, expose, overrides={}) {
  const calls=[];
  const React={createElement:(type,props,...children)=>({type,props:{...props,children}}),Fragment:'fragment'};
- const context={React,PUBLIC_READING_RELEASE:true,useEffect:()=>{},useMemo:fn=>fn(),useState:initial=>[initial,()=>{}],use2029Palette:()=>({}),
+ const policy=read('src/lib/publicReadingRelease2029.js').replaceAll('export ','').replace('import.meta.env?.VITE_PUBLIC_READING_RELEASE','\"public-reading-20261101\"');
+ const actionsLocked=vm.runInNewContext(policy+';publicReadingActionsLocked;', {__SOD_2029_BUILD__:true});
+ const context={React,PUBLIC_READING_RELEASE:true,publicReadingActionsLocked:actionsLocked,useAuth:()=>({isAdmin:false,user:null}),useEffect:()=>{},useMemo:fn=>fn(),useState:initial=>[initial,()=>{}],use2029Palette:()=>({}),
   useResearch:()=>({context:{subject:{id:'1820',type:'number',label:'1820'}},addToResearch:()=>calls.push('write'),saveItem:()=>calls.push('write')}),
   use2029Shell:()=>({openRaziel:()=>calls.push('model'),returnExact:()=>{},razielLocked:true}),
   useFeatureState:()=>({blocked:true}),supabase:{functions:{invoke:()=>calls.push('invoke')}},getVisitorId:()=>calls.push('visitor'),
@@ -124,7 +131,7 @@ async function screenHarness(path, expose, overrides={}) {
  return {render:context.renderTest,calls,context};
 }
 
-test('Heichal admin view disables controls and rejects direct handler invocation before model, telemetry or write',async()=>{
+test('Heichal public view rejects direct action handlers before model, telemetry or write',async()=>{
  const h=await screenHarness('src/pages/Heichal2029Page.jsx','ActiveResearchEnvironment');
  const controls=treeElements(h.render()).filter(n=>n.type==='button'&&n.props.onClick);
  const closed=controls.filter(n=>n.props.disabled===true);
@@ -136,14 +143,41 @@ test('Heichal admin view disables controls and rejects direct handler invocation
  await elements.find(n=>n.type==='form').props.onSubmit({preventDefault(){}});assert.deepEqual(empty.calls,[]);
 });
 
-test('Book save remains disabled and handler does not save in public-reading admin view',async()=>{
+test('Book save stays disabled for public/member, including direct handler invocation',async()=>{
  const h=await screenHarness('src/pages/Books2029Page.jsx','SaveBookItemAction');
  let saved=0;const nodes=treeElements(h.render({item:{id:'book'},research:{saveItem:()=>saved++}}));
  const button=nodes.find(n=>n.type==='button');assert.equal(button.props.disabled,true);button.props.onClick();assert.equal(saved,0);
 });
 
-test('ELS read-only admin inspection never mounts operational readers, replay or engine',async()=>{
+test('ELS public view never mounts operational readers, replay or engine',async()=>{
  const h=await screenHarness('src/pages/Els2029Page.jsx','Els2029Page',{useResearch:()=>assert.fail('operational hooks mounted')});
  const node=h.render({});assert.equal(node.type.name,'ElsReadingAvailability');
  const content=node.type();assert.equal(treeElements(content).some(n=>n.props?.['data-els-view']==='read-only-availability'),true);assert.deepEqual(h.calls,[]);
+});
+
+
+test('admin Book save uses the existing explicit operation and ELS operational surface',async()=>{
+ const auth={useAuth:()=>({isAdmin:true,user:{id:'verified-admin'}})};
+ const h=await screenHarness('src/pages/Books2029Page.jsx','SaveBookItemAction',auth);
+ let saved=0;const button=treeElements(h.render({item:{id:'book'},research:{saveItem:()=>++saved}})).find(n=>n.type==='button');
+ assert.equal(button.props.disabled,false);assert.equal(saved,0);button.props.onClick();assert.equal(saved,1);
+ const els=await screenHarness('src/pages/Els2029Page.jsx','Els2029Page',auth);
+ assert.equal(els.render({}).type.name,'OperationalEls2029Page');assert.deepEqual(els.calls,[]);
+});
+
+test('role revoke/regrant cannot reuse cached flags before the fresh policy read',async()=>{
+ let state, effect, cleanup, reads=[];
+ const context={React:{},useState:initial=>{state??=initial;return[state,value=>{state=value;}];},
+  useEffect:fn=>{effect=fn;},useMemo:fn=>fn(),useAuth:()=>({}),PUBLIC_READING_RELEASE:true,publicReadingFeatureLock,
+  getSiteFlags:()=>new Promise(resolve=>reads.push(resolve)),Set,JSON};
+ let source=read('src/components/MaintenanceLock.jsx').replace(/^import .*;\n/gm,'').replace(/import\.meta\.env(?:\?\.|\.)[A-Z0-9_]+/g,'"false"').replaceAll('export default ','').replaceAll('export ','');
+ vm.createContext(context);vm.runInContext((await transform(source,{loader:'jsx',format:'cjs'})).code+';globalThis.reader=useSiteFlag;',context);
+ const render=enabled=>context.reader('lock_els',{pendingScope:'same-principal-and-page',enabled});
+ const commit=()=>{cleanup?.();cleanup=effect();};
+ assert.equal(render(true).loading,true);commit();reads.shift()({lock_els:{enabled:true,mode:'all'}});await flush();
+ assert.equal(render(true).loading,false);
+ assert.equal(render(false).loading,true);commit();
+ assert.equal(render(true).loading,true);assert.equal(render(true).lock,null);commit();
+ reads.shift()({});await flush();assert.equal(render(true).lock,null,'required flag removed on server must not reuse the old flag');
+ cleanup?.();
 });

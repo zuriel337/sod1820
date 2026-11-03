@@ -35,9 +35,9 @@ class Server {
     return {ok:true,batch_id:batchId,applied_revision:next.revision,snapshot:this.snapshot(uid)};
   };
 }
-function setup({uid='A',server=new Server(),storage=new Storage(),session=new Storage(),readCloud=server.read,disabled=false}={}) {
+function setup({uid='A',server=new Server(),storage=new Storage(),session=new Storage(),readCloud=server.read,disabled=false,...options}={}) {
   const contexts=[];
-  const runtime=createResearchSyncRuntime({userId:uid,storage,session,readCloud,writeCloud:server.write,delay:60000,disabled,onContext:x=>contexts.push(copy(x))});
+  const runtime=createResearchSyncRuntime({userId:uid,storage,session,readCloud,writeCloud:server.write,delay:60000,disabled,onContext:x=>contexts.push(copy(x)),...options});
   runtime.start();
   return {runtime,server,storage,session,contexts};
 }
@@ -243,4 +243,66 @@ test('an existing guest principal context key always wins over the legacy key',(
   assert.deepEqual(f.runtime.getSnapshot().context,current);
   assert.equal(session.getItem(LEGACY_CONTEXT_SESSION_KEY),JSON.stringify(legacy));
   f.runtime.stop();
+});
+
+
+test('reading admin login retains pending intent without automatically replaying it', async () => {
+  const before = await ready(setup()); add(before.runtime, 'prior-explicit-save');
+  const pending = before.runtime.exportPending(); before.runtime.stop();
+  const f = await ready(setup({ storage: before.storage, session: before.session, server: before.server, resumePendingOnStart: false }));
+  assert.deepEqual(f.runtime.exportPending().queue, pending.queue);
+  assert.equal(f.runtime.getSnapshot().syncAwaitingAction, true);
+  await f.runtime.flush(); assert.equal(f.server.calls.length, 0);
+  f.runtime.commit([op('context_set', { context: { subject: { id: '1820', type: 'number' }, returnTo: { href: '/old-post?p=1#part' } } })]);
+  f.runtime.commit([op('history_add', { entity: item('visited') })]);
+  await f.runtime.flush(); assert.equal(f.server.calls.length, 0, 'navigation/history does not authorize a write');
+  add(f.runtime, 'new-explicit-save');
+  assert.equal(f.runtime.getSnapshot().syncAwaitingAction, false);
+  while (f.runtime.getSnapshot().syncPending) await f.runtime.flush();
+  assert.deepEqual(f.server.snapshot('A').saved.map(x => x.id), ['new-explicit-save', 'prior-explicit-save']);
+  assert.equal(f.runtime.getSnapshot().context.returnTo.href, '/old-post?p=1#part');
+  f.runtime.stop();
+});
+
+test('explicit retry admits an existing journal without changing its request identity', async () => {
+  const f = await ready(setup()); f.server.loseAck = true; add(f.runtime, 'uncertain'); await f.runtime.flush();
+  const first = f.server.calls[0]; f.runtime.stop();
+  const next = await ready(setup({ storage: f.storage, session: f.session, server: f.server, resumePendingOnStart: false }));
+  await next.runtime.flush(); assert.equal(f.server.calls.length, 1);
+  await next.runtime.retry(); assert.deepEqual(f.server.calls[1], first);
+  assert.equal(f.server.snapshot('A').revision, 1); next.runtime.stop();
+});
+
+test('cloud permission is revocable without remounting or losing exact return', async () => {
+  const f = setup({ cloudEnabled: false, resumePendingOnStart: false });
+  f.runtime.commit([op('context_set', { context: { subject: { id: '314', type: 'number' }, returnTo: { href: '/world?author=zvi#source' } } })]);
+  await tick(); assert.equal(f.server.reads.length, 0); assert.equal(await f.runtime.retry(), false);
+  f.runtime.setCloudAccess(true); await tick(); assert.equal(f.server.reads.length, 1);
+  add(f.runtime, 'saved'); f.runtime.setCloudAccess(false); await f.runtime.flush();
+  assert.equal(f.server.calls.length, 0); assert.equal(f.runtime.getSnapshot().syncPending, 1);
+  f.runtime.setCloudAccess(true); await tick(); await f.runtime.flush();
+  assert.equal(f.server.calls.length, 0, 'reverification never starts replay');
+  assert.equal(f.runtime.getSnapshot().context.returnTo.href, '/world?author=zvi#source');
+  await f.runtime.retry(); assert.equal(f.server.snapshot('A').saved[0].id, 'saved'); f.runtime.stop();
+});
+
+test('permission loss ignores a late read and requires a fresh read on regain', async () => {
+  const d = deferred(); let reads = 0;
+  const f = setup({ resumePendingOnStart: false, readCloud: async () => ++reads === 1 ? d.promise : { ...emptyResearchState(), revision: 2, saved: [item('current')] } });
+  f.runtime.setCloudAccess(false);
+  d.resolve({ ...emptyResearchState(), revision: 1, saved: [item('stale')] }); await tick();
+  assert.equal(f.runtime.getSnapshot().saved.length, 0);
+  f.runtime.setCloudAccess(true); await tick();
+  assert.deepEqual(f.runtime.getSnapshot().saved.map(x => x.id), ['current']); f.runtime.stop();
+});
+
+test('late write acknowledgement after permission loss remains recoverable and is not replayed on regain', async () => {
+  const f = await ready(setup({ resumePendingOnStart: false }));
+  f.server.gate = deferred(); add(f.runtime, 'explicit'); const request = f.runtime.flush();
+  await tick(); const first = f.server.calls[0]; f.runtime.setCloudAccess(false);
+  f.server.gate.resolve(); await request;
+  assert.equal(f.runtime.getSnapshot().syncPending, 1); assert.deepEqual(f.runtime.exportPending().inflight.ops, first.ops);
+  f.server.gate = null; f.runtime.setCloudAccess(true); await tick(); await f.runtime.flush();
+  assert.equal(f.server.calls.length, 1);
+  await f.runtime.retry(); assert.deepEqual(f.server.calls[1], first); assert.equal(f.server.snapshot('A').revision, 1); f.runtime.stop();
 });

@@ -14,6 +14,7 @@ import { levelNumbers } from "../../lib/ratings2029.js";
 import { relativeTimeLabel } from "../../lib/relativeTime2029.js";
 import ConvergenceRatings2029 from "./ConvergenceRatings2029.jsx";
 import HomeHeroMotion2029 from "./HomeHeroMotion2029.jsx";
+import HomeUpdatesPreview2029 from "./HomeUpdatesPreview2029.jsx";
 import { useReveal } from "./useReveal2029.js";
 import { useApproach2029 } from "./useApproach2029.js";
 import { realUpdate } from "../../lib/heroUpdate2029.js";
@@ -221,15 +222,25 @@ export default function HomeComposition2029({
     const href = link?.getAttribute("href");
     if (link && !link.hasAttribute("download") && (!link.target || link.target === "_self") && href?.startsWith("/") && !href.startsWith("//") && event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) onNavigate?.(href);
   }}>
-    {(lead ? <HomeHeroMotion2029 key={lead.slug} lead={lead} href={postHref(lead)} includeWorld={!corePublic && worldOpen} /> : <section className={`h29-hero${data.loading ? " is-loading" : ""}`} data-home-primary={data.loading ? "loading" : data.postsError ? "failed" : "empty"} aria-busy={data.loading}><div className="h29-hero-copy"><div className="h29-kicker">עכשיו</div><h1>תיעוד אירועים ורמזי המערכת</h1>{!data.loading ? <p>{data.postsError ? "העדכונים אינם זמינים כרגע. אפשר לנסות שוב או להמשיך לעולם ולמחשבון." : "אין כרגע עדכונים להצגה. אפשר להמשיך לעולם ולמחשבון."}</p> : null}</div></section>)}
-
-    <section className="h29-launch-card" aria-label="עדכונים אחרונים" data-home-top-updates={adminViewer ? "admin" : "public-closed"}>
+    <section className="h29-launch-card h29-updates-royal" aria-label="עדכונים אחרונים" data-home-top-updates={adminViewer ? "admin" : "public-closed"}>
       <div className="h29-sec-h"><h2>עדכונים אחרונים</h2><Link to="/2029/posts">כל הפוסטים ←</Link></div>
-      {adminViewer ? <><p className="h29-note">🔒 תצוגת מנהל · סגור לציבור</p><AdminLatestUpdates key={user?.id || "no-user"} /></>
-        : <p className="h29-construction">אזור זה בבנייה מתקדמת</p>}
+      <div className="h29-construction-notice" role="note">
+        <span className="h29-construction-mark" aria-hidden="true"><svg viewBox="0 0 40 40" fill="none"><path d="M10 29v5m20-5v5M7 17h26v12H7z" /><path d="m8 25 8-8m1 12 12-12m-1 12 5-5" /><path d="M20 6v4m-9-1 3 3m15-3-3 3" /></svg></span>
+        <div><strong>האתר בבנייה</strong><p>אנחנו בונים את השלב הבא. האתר עדיין לא מוכן במלואו.</p></div>
+      </div>
+      <div className="h29-updates-stage">
+        <HomeUpdatesPreview2029 />
+        <div className="h29-updates-copy">
+          <span className="h29-preview-badge">תצוגה מקדימה · להמחשה</span>
+          {adminViewer ? <p className="h29-note">🔒 תצוגת מנהל · סגור לציבור</p> : <p className="h29-construction">בקרוב: פרסומים מחוברים לאורך הזמן</p>}
+        </div>
+      </div>
+      {adminViewer ? <AdminLatestUpdates key={user?.id || "no-user"} /> : null}
       <NewsletterSignup2029 />
     </section>
     <HomeSeriesCards />
+
+    {(lead ? <HomeHeroMotion2029 key={lead.slug} lead={lead} href={postHref(lead)} includeWorld={!corePublic && worldOpen} /> : <section className={`h29-hero${data.loading ? " is-loading" : ""}`} data-home-primary={data.loading ? "loading" : data.postsError ? "failed" : "empty"} aria-busy={data.loading}><div className="h29-hero-copy"><div className="h29-kicker">עכשיו</div><h1>תיעוד אירועים ורמזי המערכת</h1>{!data.loading ? <p>{data.postsError ? "העדכונים אינם זמינים כרגע. אפשר לנסות שוב או להמשיך לעולם ולמחשבון." : "אין כרגע עדכונים להצגה. אפשר להמשיך לעולם ולמחשבון."}</p> : null}</div></section>)}
 
     {!corePublic && worldOpen ? <Section className="h29-notable-section" title="התכנסויות בולטות" link={<Link to="/world#world-all-convergences">כל ההתכנסויות ←</Link>}>
       <p className="h29-note">מסודרות לפי מד ההתכנסות הקיים. המדדים נפרדים: איכות, חוזק וסימוני זהב ויהלום.</p>

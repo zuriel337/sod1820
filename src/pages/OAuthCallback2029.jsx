@@ -8,16 +8,20 @@ import {consumePreviewOAuthReturn} from '../lib/oauthReturn.js';
 // restores only a local destination and removes callback tokens from history.
 export default function OAuthCallback2029(){
   const [returnTarget,setReturnTarget]=useState('/2029');
+  const [callbackFailed]=useState(()=>{
+    const query=new URLSearchParams(window.location.search),fragment=new URLSearchParams(window.location.hash.slice(1));
+    return ['error','error_code','error_description'].some(key=>query.has(key)||fragment.has(key));
+  });
   useEffect(()=>{applySeo({title:'משלימים כניסה',path:'/auth/callback',noindex:true});},[]);
   const {user,loading}=useAuth(),navigate=useNavigate(),completed=useRef(false);
   useEffect(()=>{
     if(loading||completed.current)return;
     completed.current=true;
     const target=consumePreviewOAuthReturn();setReturnTarget(target);
-    if(user)navigate(target,{replace:true});
+    if(user&&!callbackFailed)navigate(target,{replace:true});
     else window.history.replaceState(null,'','/auth/callback');
-  },[user,loading,navigate]);
+  },[user,loading,navigate,callbackFailed]);
   return <main dir="rtl" role="status" style={{padding:32}}>
-    {loading||user?<p>משלימים את הכניסה לחשבון…</p>:<><p>הכניסה לא הושלמה. אפשר לנסות שוב.</p><Link to={"/login?returnTo="+encodeURIComponent(returnTarget)}>חזרה לכניסה</Link></>}
+    {loading||user&&!callbackFailed?<p>משלימים את הכניסה לחשבון…</p>:<><p>הכניסה לא הושלמה. אפשר לנסות שוב.</p><Link to={"/login?returnTo="+encodeURIComponent(returnTarget)}>חזרה לכניסה</Link></>}
   </main>;
 }

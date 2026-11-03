@@ -25,43 +25,43 @@ try {
       window.requests.push({url,method:options.method,body:options.body});
       if(options.method==='OPTIONS') {
         if(window.holdProbe) await new Promise(resolve=>window.releaseProbe=resolve);
-        return new Response(null,{headers:window.contractReady?{'x-newsletter-purpose-contract':'opening-parts-v1'}:{}});
+        return new Response(null,{headers:window.contractReady?{'x-newsletter-purpose-contract':'site-updates-v1'}:{}});
       }
       if(options.method!=='POST')throw Error('unexpected request');
       const denied=window.responseStatus==='verification-required';
-      return Response.json({ok:!denied,status:window.responseStatus,purpose:'site-openings',contract:'opening-parts-v1'},{status:denied?409:200});
+      return Response.json({ok:!denied,status:window.responseStatus,purpose:'site-updates',contract:'site-updates-v1'},{status:denied?409:200});
     };
   });
   await page.addScriptTag({content:outputFiles[0].text});
-  await page.getByRole('button',{name:'עדכנו אותי כשנפתח',exact:true}).waitFor();
+  await page.getByRole('button',{name:'הרשמה לעדכוני האתר',exact:true}).waitFor();
   assert.equal(await page.locator('input').count(),0);assert.equal(await page.evaluate(()=>requests.length),0);
-  await page.getByRole('button',{name:'עדכנו אותי כשנפתח',exact:true}).click();
+  await page.getByRole('button',{name:'הרשמה לעדכוני האתר',exact:true}).click();
   await page.locator('input[type=email]').waitFor();assert.equal(await page.evaluate(()=>requests.length),1);
   assert.equal(await page.locator('input[type=checkbox]').isChecked(),false);
   await page.locator('input[type=email]').fill('fixture@example.invalid');await page.locator('input[type=checkbox]').check();
-  await page.getByRole('button',{name:'עדכנו אותי כשנפתח',exact:true}).click();
+  await page.getByRole('button',{name:'הרשמה לעדכוני האתר',exact:true}).click();
   await page.getByRole('status').filter({hasText:'נשמרה'}).waitFor();
   assert.deepEqual(await page.evaluate(()=>requests.map(x=>x.method)),['OPTIONS','OPTIONS','POST']);
-  assert.deepEqual(await page.evaluate(()=>JSON.parse(requests[2].body)),{email:'fixture@example.invalid',purpose:'site-openings',consent:true,source:'2029-opening-parts'});
+  assert.deepEqual(await page.evaluate(()=>JSON.parse(requests[2].body)),{email:'fixture@example.invalid',purpose:'site-updates',consent:true,source:'2029-site-updates'});
   await page.evaluate(()=>{window.changeAccount('other');window.contractReady=false;});
-  await page.getByRole('button',{name:'עדכנו אותי כשנפתח',exact:true}).click();
+  await page.getByRole('button',{name:'הרשמה לעדכוני האתר',exact:true}).click();
   await page.getByRole('alert').waitFor();assert.equal(await page.locator('input').count(),0);
   assert.equal(await page.evaluate(()=>requests.filter(x=>x.method==='POST').length),1);
   await page.evaluate(()=>{window.contractReady=true;window.responseStatus='verification-required';});
   await page.getByRole('button',{name:'בדיקת זמינות מחדש'}).click();
   await page.locator('input[type=email]').fill('existing@example.invalid');await page.locator('input[type=checkbox]').check();
-  await page.getByRole('button',{name:'עדכנו אותי כשנפתח',exact:true}).click();
+  await page.getByRole('button',{name:'הרשמה לעדכוני האתר',exact:true}).click();
   await page.getByRole('alert').filter({hasText:'אימות בעלות'}).waitFor();
   assert.equal(await page.getByRole('status').count(),0);
   await page.evaluate(()=>{window.changeAccount('third');window.holdProbe=true;});
-  await page.getByRole('button',{name:'עדכנו אותי כשנפתח',exact:true}).click();
+  await page.getByRole('button',{name:'הרשמה לעדכוני האתר',exact:true}).click();
   await page.getByRole('button',{name:'בודקים זמינות…'}).waitFor();
   await page.evaluate(()=>{window.changeAccount(null);});
-  await page.getByRole('button',{name:'עדכנו אותי כשנפתח',exact:true}).waitFor();
+  await page.getByRole('button',{name:'הרשמה לעדכוני האתר',exact:true}).waitFor();
   await page.evaluate(()=>{window.holdProbe=false;window.releaseProbe();});
   // A stale capability reply after account change must not reopen the old form.
   await page.waitForTimeout(50);
   assert.equal(await page.locator('input').count(),0);
   assert.deepEqual(errors,[]);
-  console.log(JSON.stringify({passed:6,mode:'actual React component, controlled browser, offline fetch; no live network',checks:['zero startup request/form','intent capability before form','purpose-only receipt and double check before POST','old contract rejected without POST','verification-required not success','account switch clears input and aborts stale capability'],liveWrites:0}));
+  console.log(JSON.stringify({passed:6,mode:'actual React component, controlled browser, offline fetch; no live network',checks:['zero startup request/form','intent capability before form','one product receipt (site-updates) and double check before POST','old contract rejected without POST','verification-required not success','account switch clears input and aborts stale capability'],liveWrites:0}));
 } finally {await browser.close();}

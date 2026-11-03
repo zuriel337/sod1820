@@ -1,3 +1,4 @@
+import { PUBLIC_READING_RELEASE } from "../publicReadingRelease2029.js";
 import { uploadResumableMedia } from "../mediaResumableUpload.js";
 import { SUPABASE_ANON, SUPABASE_URL, supabase } from "../supabase.js";
 
@@ -108,7 +109,20 @@ export async function attachLifeJourneyHintImage({
 
   await sessionForPrincipal(client, expectedUserId, signal);
   onPhase?.("uploading");
-  await uploadResumableMedia(file, intent, { onProgress, signal, fetchImpl });
+  await uploadResumableMedia(file, intent, { onProgress, signal, fetchImpl,
+    // Signed upload intent proves object scope, not the launch viewer's role.
+    // The existing worker additionally verifies the caller's admin role.
+    getRequestHeaders: PUBLIC_READING_RELEASE ? async uploadUrl => {
+      const target = new URL(uploadUrl);
+      const canonical = new URL(SUPABASE_URL);
+      const storageHost = canonical.hostname.replace(/\.supabase\.co$/, ".storage.supabase.co");
+      if (target.protocol !== "https:" || target.username || target.password || target.port || target.search || target.hash
+        || ![canonical.hostname, storageHost].includes(target.hostname)
+        || !/^\/storage\/v1\/upload\/resumable(?:\/|$)/.test(target.pathname)) throw new Error("untrusted_upload_target");
+      const current = await sessionForPrincipal(client, expectedUserId, signal);
+      return { Authorization: `Bearer ${current.access_token}`, apikey: anonKey };
+    } : null,
+  });
   await sessionForPrincipal(client, expectedUserId, signal);
 
   onPhase?.("verifying");

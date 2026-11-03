@@ -250,14 +250,14 @@ function FramedGate2029({ flag, surface, title, children }) {
 function PublicReadingBoundary({ children }) {
   const location = useLocation();
   const { isAdmin, loading } = useAuth();
-  const state = PUBLIC_READING_RELEASE ? publicReadingPath(location.pathname, { isAdmin }) : null;
+  const state = PUBLIC_READING_RELEASE ? publicReadingPath(location.pathname, { isAdmin: !loading && isAdmin }) : null;
   if (state === "closed") return <>
     {isAdmin && <aside role="status" className="sod29-card" data-admin-view="service-unavailable" dir="rtl">🔒 תצוגת מנהל · סגור לציבור. השירות באזור זה עדיין אינו זמין בגרסת הקריאה.</aside>}
     <PublicServices2029Page kind="launch-closed" />
   </>;
   if (state === "missing") return <PublicServices2029Page kind="not-found" />;
   if (state === "admin-view") return <div key={loading ? "loading" : "admin"}>
-    <aside role="status" className="sod29-card" data-admin-view="read-only" dir="rtl">🔒 תצוגת מנהל · סגור לציבור. צפייה בלבד; פעולות מחקר, שמירה וחיוב אינן מופעלות בגרסה זו.</aside>
+    <aside role="status" className="sod29-card" data-admin-view="full-access" dir="rtl">תצוגת מנהל · הכלים פתוחים עבורך. האזור סגור לציבור.</aside>
     {children}
   </div>;
   return children;
@@ -305,7 +305,7 @@ export default function App2029() {
               <Route path="/topic/:slug" element={<Locked flag="lock_world" homeHref="/2029"><Topic2029Page /></Locked>} />
               <Route path="/2029/posts" element={<Posts2029Page />} />
               {import.meta.env.VITE_FUNCTIONAL_UNIFIED_PREVIEW === "true" && <Route path="/posts" element={<Posts2029Page />} />}
-              {import.meta.env.VITE_FUNCTIONAL_UNIFIED_PREVIEW === "true" && <Route path="/research" element={<GematriaEntry2029 />} />}
+              {(import.meta.env.VITE_FUNCTIONAL_UNIFIED_PREVIEW === "true" || PUBLIC_READING_RELEASE) && <Route path="/research" element={<GematriaEntry2029 />} />}
               <Route path="/login" element={<AuthPage />} />
               <Route path="/auth/callback" element={<OAuthCallback2029 />} />
               <Route path="/community/chat" element={<CommunityChatTransition2029Page />} />

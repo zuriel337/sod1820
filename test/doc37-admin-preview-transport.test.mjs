@@ -48,11 +48,12 @@ test('alignment branch rejects Production and unspecified environment before bui
 });
 test('Preview and dormant Production workers admit only explicitly consented opening mail, never general mailing or delivery',async()=>{
  const valid={email:'synthetic@example.invalid',purpose:'site-openings',consent:true,source:'2029-opening-parts'};
+ const updates={email:'synthetic@example.invalid',purpose:'site-updates',consent:true,source:'2029-site-updates'};
  for(const workerSource of [worker,buildPublicReadingWorker('a'.repeat(40))]){
-  for(const [path,options] of [['/functions/v1/newsletter-signup',{method:'OPTIONS'}],['/functions/v1/newsletter-signup?format=json',{body:valid}]]){
+  for(const [path,options] of [['/functions/v1/newsletter-signup',{method:'OPTIONS'}],['/functions/v1/newsletter-signup?format=json',{body:valid}],['/functions/v1/newsletter-signup?format=json',{body:updates}]]){
    const r=await request(path,{...options,workerSource});assert.equal(r.response.status,200);assert.equal(r.calls,1);
   }
-  for(const patch of [{purpose:'general'},{consent:false},{ref:'other'},{acquisition:{}},{user_id:'spoof'},{source:'home-stay'}]){
+  for(const patch of [{purpose:'site-updates'},{source:'2029-site-updates'},{purpose:'general'},{consent:false},{ref:'other'},{acquisition:{}},{user_id:'spoof'},{source:'home-stay'}]){
    const r=await request('/functions/v1/newsletter-signup?format=json',{body:{...valid,...patch},workerSource});assert.equal(r.response.status,403);assert.equal(r.calls,0);
   }
   for(const path of ['/functions/v1/send-newsletter','/functions/v1/welcome-backfill','/functions/v1/send-reengage','/functions/v1/newsletter-signup?format=json&format=html']){

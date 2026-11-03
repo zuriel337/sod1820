@@ -1,4 +1,5 @@
 import { supabase } from './supabase.js';
+import { PUBLIC_READING_RELEASE } from './publicReadingRelease2029.js';
 import { signupAttribution, visitorId } from './acquisition.js';
 import { providerOAuthRequest, rememberPreviewOAuthReturn } from './oauthReturn.js';
 
@@ -20,7 +21,7 @@ export function signInWithFacebook({returnTo='/'}={}) {
 // All federated methods consume the same trusted-origin and exact-return policy.
 export function signInWithConfiguredProvider(provider, { returnTo = '/' } = {}) {
   const request=providerOAuthRequest({ provider, origin: SITE_URL, returnTo, integratedPreview: import.meta.env.VITE_INTEGRATED_PREVIEW === 'true' });
-  if(import.meta.env.VITE_FUNCTIONAL_UNIFIED_PREVIEW === 'true')rememberPreviewOAuthReturn(returnTo);
+  if(PUBLIC_READING_RELEASE || import.meta.env.VITE_FUNCTIONAL_UNIFIED_PREVIEW === 'true')rememberPreviewOAuthReturn(returnTo);
   return supabase.auth.signInWithOAuth(request);
 }
 
@@ -58,12 +59,15 @@ export async function requestEmailOtp(email, { shouldCreateUser = true } = {}) {
   // יוכל לשמור אותו ב-subscribers.acquisition — זה המסלול הדומיננטי (שער-האימות), שאין לו
   // גישה ל-localStorage בצד-השרת. אם הלכידה נכשלת — ההרשמה ממשיכה כרגיל (data ריק).
   let data = {};
-  if (shouldCreateUser) {
+  // The shared new-account trigger still enrolls newsletter recipients. An
+  // existing account may log in; no caller can opt this deployment into signup.
+  const createUser = !PUBLIC_READING_RELEASE && shouldCreateUser;
+  if (createUser) {
     try { data = { acquisition: signupAttribution(), visitor_id: visitorId() }; } catch { data = {}; }
   }
   const { error } = await supabase.auth.signInWithOtp({
     email: email.trim(),
-    options: { shouldCreateUser, data },
+    options: { shouldCreateUser: createUser, data },
   });
   if (error) throw error;
   return { ok: true };

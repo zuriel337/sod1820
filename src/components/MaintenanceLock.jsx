@@ -100,16 +100,17 @@ export function LockTeaser({ message, showLogin = false }) {
 // hook בסיסי לשליפת דגל בודד. זהו reader בלבד; סמנטיקת-הגישה נפתרת ב-useFeatureState.
 export function useSiteFlag(flag, { pendingScope = null, enabled = true } = {}) {
   const readKey = pendingScope === null ? null : `${pendingScope}\u0000${flag}`;
-  const [st, setSt] = useState({ loading: true, lock: null, readKey });
+  const [st, setSt] = useState({ loading: true, lock: null, readKey, enabled });
   useEffect(() => {
-    if (!enabled) return;
+    if (!enabled) { setSt({ loading: true, lock: null, readKey, enabled: false }); return; }
     let alive = true;
+    setSt({ loading: true, lock: null, readKey, enabled: true });
     getSiteFlags({ pendingScope })
-      .then(f => { if (alive) setSt({ loading: false, lock: f[flag] || null, readKey }); })
-      .catch(() => { if (alive) setSt({ loading: false, lock: null, readKey }); });
+      .then(f => { if (alive) setSt({ loading: false, lock: f[flag] || null, readKey, enabled: true }); })
+      .catch(() => { if (alive) setSt({ loading: false, lock: null, readKey, enabled: true }); });
     return () => { alive = false; };
   }, [flag, pendingScope, enabled]);
-  return readKey !== null && st.readKey !== readKey ? { loading: true, lock: null } : st;
+  return st.enabled !== enabled || (readKey !== null && st.readKey !== readKey) ? { loading: true, lock: null } : st;
 }
 
 // pure resolver — מקור יחיד לכל נוסחת availability/access.
@@ -190,21 +191,23 @@ export function useFeatureState(flag, { requireFlag = false } = {}) {
     : null;
   const { loading, lock } = useSiteFlag(flag, { pendingScope, enabled: !PUBLIC_READING_RELEASE || isAdmin });
   return useMemo(() => {
-    const resolved = resolveFeatureState(PUBLIC_READING_RELEASE ? publicReadingFeatureLock(flag) : lock, {
-      user: PUBLIC_READING_RELEASE ? null : user,
-      isAdmin: PUBLIC_READING_RELEASE ? false : isAdmin,
-      requireFlag,
+    const publicCeiling = PUBLIC_READING_RELEASE && !isAdmin;
+    const pendingAdmission = PUBLIC_READING_RELEASE && (authLoading || (!publicCeiling && loading));
+    const resolved = resolveFeatureState(pendingAdmission ? null : publicCeiling ? publicReadingFeatureLock(flag) : lock, {
+      user: publicCeiling ? null : user,
+      isAdmin: !pendingAdmission && !authLoading && isAdmin,
+      requireFlag: pendingAdmission || requireFlag,
       previewBypass: !PUBLIC_READING_RELEASE && unlockedPreview && !(publicFramePreview && previewAdminOnly.has(flag)),
       adminOnly: !PUBLIC_READING_RELEASE && publicFramePreview && previewAdminOnly.has(flag),
     });
     return {
       flag,
-      loading: PUBLIC_READING_RELEASE ? false : loading || authLoading,
+      loading: publicCeiling ? authLoading : loading || authLoading,
       lock,
       ...applyPreviewFeatureState(flag, resolved),
-      // Read-only screen inspection never opens the operation/AI gates above.
-      // A missing live capability record remains unavailable even to admin.
-      adminViewAllowed: PUBLIC_READING_RELEASE && !authLoading && !loading && isAdmin && !!lock,
+      // Admin uses the same canonical resolver and existing server checks.
+      // Unknown required capabilities stay closed; no screen-only bypass.
+      adminViewAllowed: false,
     };
   }, [flag, loading, authLoading, lock, user, isAdmin, requireFlag]);
 }

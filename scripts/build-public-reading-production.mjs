@@ -4,6 +4,7 @@ import { readFile, writeFile, copyFile, mkdir, readdir, rm } from "node:fs/promi
 import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
 import { buildPublicReadingWorker, publicReadingBootstrap, PUBLIC_READING_POLICY_ID } from "../public-reading-deploy/transport.js";
+import { SUPABASE_ANON } from "../src/lib/supabase.js";
 import { PUBLIC_READING_PROFILE_ID } from "../src/lib/publicReadingRelease2029.js";
 import { PUBLIC_READING_DEPLOYMENT_AUTHORIZATION } from "../public-reading-deploy/deployment-policy.js";
 import { protectedReviewBuildIdentity, protectedReviewConfigMaterialization } from "../public-reading-deploy/review-admission.js";
@@ -69,7 +70,7 @@ await rm(resolve(output, "2029.html"));
 await rm(resolve(output, "index.html"), { force: true });
 await rm(resolve(output, "robots.txt"), { force: true });
 await rm(resolve(output, "sitemap.xml"), { force: true });
-const worker = buildPublicReadingWorker(sha);
+const worker = buildPublicReadingWorker(sha, { anonKey: SUPABASE_ANON });
 for (const name of ["sw.js", "public-reading-sw.js", "preview-readonly-sw.js"]) await writeFile(resolve(output, name), worker);
 await mkdir(resolve(output, "rollback"), { recursive: true });
 await copyFile(resolve(root, "public/sw.js"), resolve(output, "rollback/legacy-sw.js"));
@@ -103,7 +104,11 @@ await writeFile(resolve(output, "public-reading-artifact.json"), JSON.stringify(
   documentTemplateSha256: hash(document), documentTemplatePublic: false,
   deployed: false, productionReady: false, generalProductWrites: false,
   signedLegacyUnsubscribe: "existing-token-bound-mutation-only",
-  modelCalls: false, siteFlagsChanged: false, previewBypassFlags: false,
+  adminActions: "explicit-server-verified-admin-only",
+  accountEntry: "existing-password-or-otp-only", newSignup: false,
+  socialLogin: "pending-shared-signup-consent-and-exact-callback",
+  siteUpdatesSignup: "pending-shared-purpose-contract",
+  modelCalls: "explicit-admin-action-under-existing-server-policy", automaticModelCalls: false, siteFlagsChanged: false, previewBypassFlags: false,
   workerSha256: hash(worker), legacyRollbackWorkerSha256: hash(await readFile(resolve(root, "public/sw.js"))),
   files: files.sort((a, b) => a.path.localeCompare(b.path)),
 }, null, 2) + "\n");

@@ -3,7 +3,7 @@
 // compiler records its own platform identity, which runtime must match exactly.
 // No user request/header/query or shared site flag selects this mode.
 export const REVIEW_PROJECT_ID = "prj_43q7k7QFAcWnin1tcBjce5xOi7Cq";
-export const REVIEW_BRANCH = "gpt/2029-doc37-unified-alignment-20261102";
+export const REVIEW_BRANCH = "gpt/2029-admin-full-access-auth-20261103";
 const sourceShaPattern = /^[0-9a-f]{40}$/;
 const deploymentPattern = /^dpl_[A-Za-z0-9]+$/;
 const hostPattern = /^sod1820-[a-z0-9]+-sod1820-s-projects\.vercel\.app$/;

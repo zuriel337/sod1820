@@ -1,8 +1,10 @@
+import { verifyReadingAdmin } from "./admin-request.js";
 import { interceptOpeningMail } from "../preview-deploy/opening-mail-transport.js";
 import { interceptPublicReadingAdminAuth } from "../preview-deploy/admin-readonly-auth.js";
 // Deployment transport for the existing public-reading profile. This is not
 // an Auth/RLS policy: canonical public readers and server permissions still own
-// which records are public. No models, Auth mutation, A3, credits or signup.
+// which records are public. Explicit verified-admin actions retain the existing
+// server policies; authentication itself starts no model, write or credit action.
 export const PUBLIC_READING_READ_RPCS = Object.freeze([
   "gematria_api", "fn_method_value", "fn_method_profile", "gematria_method_trace", "fn_zero_scale",
   "posts_by_number_strict", "fn_number_lookup", "fn_number_dossier", "fn_number_journey",
@@ -13,7 +15,7 @@ export const PUBLIC_READING_READ_RPCS = Object.freeze([
 export const PUBLIC_READING_GET_RPCS = Object.freeze([
   ...PUBLIC_READING_READ_RPCS, "writer_public_contributions_page_v1", "canonical_follow_subject",
 ]);
-export const PUBLIC_READING_POLICY_ID = "public-reading-production-20261102";
+export const PUBLIC_READING_POLICY_ID = "public-reading-admin-existing-auth-20261103";
 export const COMMUNITY_PUBLIC_FIELDS = "id,parent_id,author_name,author_user_id,author_contributor_id,title,body,reactions,origin,created_at,edited_at,is_deleted,total_count";
 
 // Kept as a function so Node VM tests execute precisely the emitted worker.
@@ -34,7 +36,33 @@ function installPublicReadingWorker(policy) {
     return body;
   }
   const uuid = value => typeof value === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
-  const readFetch = req => fetch(new Request(req, { cache: "no-store", credentials: "omit" }));
+  const readFetch = req => fetch(new Request(req, { cache: "no-store", credentials: "omit", redirect: "error" }));
+  const adminFunctions = new Set(["ai-analyze", "research-run", "els-search-bridge", "media-upload-intent", "journey-message", "number-researcher", "raziel-attention", "lab-teacher", "gallery-ocr", "post-save", "post-ai-edit"]);
+  const blockedRpc = /^(?:credit_|membership_|claim_daily_credit$|claim_research_lead$|cardcom_|checkout_|billing_|newsletter_|subscribe_email|send_|wa_system_|meta_capi)/;
+  const blockedTables = new Set(["site_flags", "profiles", "credit_ledger", "credit_action_prices", "membership_credit_cycles", "credit_reservations", "credit_reservation_allocations", "subscribers", "events", "visitor_events"]);
+  const adminFetch = async req => {
+    const target = new URL(req.url);
+    if (req.signal.aborted) return denied();
+    const rpcName = /^\/rest\/v1\/rpc\/([a-z_][a-z0-9_]*)$/.exec(target.pathname)?.[1];
+    const table = /^\/rest\/v1\/([a-z_][a-z0-9_]*)$/.exec(target.pathname)?.[1];
+    const functionName = /^\/functions\/v1\/([a-z][a-z0-9-]*)$/.exec(target.pathname)?.[1];
+    const selfApi = target.origin === self.location.origin && target.pathname === "/api/contributor-self";
+    const tus = target.origin === "https://linswmnnkjxvweumprav.storage.supabase.co"
+      && /^\/storage\/v1\/upload\/resumable(?:\/[^/?#]+)?$/.test(target.pathname) && !target.search
+      && ["POST", "PATCH", "HEAD"].includes(req.method) && req.headers.get("Tus-Resumable") === "1.0.0";
+    const canonical = tus || target.origin === authOrigin && (rpcName && !blockedRpc.test(rpcName)
+      || table && (!blockedTables.has(table) || safeMethods.has(req.method))
+      || functionName && adminFunctions.has(functionName)
+      || /^\/storage\/v1\/(?:object|upload)\//.test(target.pathname));
+    if (!selfApi && !canonical) return denied();
+    const token = /^Bearer ([A-Za-z0-9_.-]+)$/i.exec(req.headers.get("Authorization") || "")?.[1];
+    // The same-origin adapter independently verifies JWT + admin on the server.
+    // Its fetch caller has no apikey; never substitute a privileged credential.
+    if (selfApi) return token ? fetch(new Request(req, { cache: "no-store", credentials: "same-origin", redirect: "error" })) : denied();
+    if (!await verifyReadingAdmin({ token, apiKey: req.headers.get("apikey") || policy.anonKey, signal: req.signal })) return denied();
+    if (req.signal.aborted) return denied();
+    return readFetch(req);
+  };
   self.addEventListener("install", () => self.skipWaiting());
   self.addEventListener("activate", event => event.waitUntil(self.clients.claim()));
   self.addEventListener("message", event => {
@@ -44,7 +72,10 @@ function installPublicReadingWorker(policy) {
   self.addEventListener("fetch", event => {
     const req = event.request, url = new URL(req.url);
     const rpc = /^\/rest\/v1\/rpc\/([a-z_][a-z0-9_]*)$/.exec(url.pathname)?.[1];
-    if (interceptPublicReadingAdminAuth(event, authOrigin) || interceptOpeningMail(event, authOrigin)) return;
+    if (interceptPublicReadingAdminAuth(event, authOrigin, { accountAccess: "existing", clientOrigin: self.location.origin }) || interceptOpeningMail(event, authOrigin)) return;
+    if (url.origin === "https://linswmnnkjxvweumprav.storage.supabase.co" && url.pathname.startsWith("/storage/v1/upload/")) {
+      event.respondWith(adminFetch(req).catch(() => denied())); return;
+    }
     // Canonical schema-only review: this existing SECURITY DEFINER reader can
     // include visitor drafts when p_visitor is supplied. Public launch admits
     // approved links only, without changing the shared function or Preview.
@@ -56,11 +87,11 @@ function installPublicReadingWorker(policy) {
         const body = await jsonBody(req);
         return Object.keys(body).length === 0
           || Object.keys(body).join(",") === "p_visitor" && (body.p_visitor === null || body.p_visitor === "")
-          ? readFetch(req) : denied();
+          ? readFetch(req) : adminFetch(req);
       })().catch(() => denied()));
       return;
     }
-    // Signed unsubscribe is the only preserved mutation. The server remains
+    // Signed unsubscribe retains its separate link-bound public admission. The server remains
     // the HMAC authority; the worker only narrows transport to its existing UI.
     if (url.origin === authOrigin && url.pathname === "/functions/v1/newsletter-unsubscribe") {
       event.respondWith((async () => {
@@ -83,17 +114,16 @@ function installPublicReadingWorker(policy) {
     }
     if (url.origin === authOrigin) {
       const ambiguous = url.pathname.includes("//") || url.pathname.includes("%") && !url.pathname.startsWith("/storage/v1/");
-      if (ambiguous || url.pathname.startsWith("/functions/v1")
-        || url.pathname.startsWith("/realtime/v1")
-        || url.pathname.startsWith("/auth/v1/") && !["GET", "HEAD", "OPTIONS"].includes(req.method)) {
+      if (ambiguous || url.pathname.startsWith("/realtime/v1")) {
         event.respondWith(Promise.resolve(denied())); return;
       }
+      if (url.pathname.startsWith("/functions/v1")) { event.respondWith(adminFetch(req).catch(() => denied())); return; }
       if (url.pathname.startsWith("/auth/v1/") && !["/auth/v1/user", "/auth/v1/settings"].includes(url.pathname)
         || url.pathname.startsWith("/rest/v1/rpc/") && safeMethods.has(req.method) && !getReads.has(rpc)) {
-        event.respondWith(Promise.resolve(denied())); return;
+        event.respondWith(adminFetch(req).catch(() => denied())); return;
       }
       if (safeMethods.has(req.method)) { event.respondWith(readFetch(req)); return; }
-      if (req.method !== "POST" || !rpc) { event.respondWith(Promise.resolve(denied())); return; }
+      if (req.method !== "POST" || !rpc) { event.respondWith(adminFetch(req).catch(() => denied())); return; }
       event.respondWith((async () => {
         if (reads.has(rpc) && !url.search) { await jsonBody(req); return readFetch(req); }
         if (rpc === "convergence_meter" && !url.search) {
@@ -117,9 +147,12 @@ function installPublicReadingWorker(policy) {
           if (!Array.isArray(chain)) return denied();
           return chain.some(row => row.id === body.p_parent) ? readFetch(req) : new Response("[]", { headers: { "Content-Type": "application/json", "Cache-Control": "no-store" } });
         }
-        return denied();
+        return adminFetch(req);
       })().catch(() => denied()));
       return;
+    }
+    if (url.origin === self.location.origin && url.pathname === "/api/contributor-self") {
+      event.respondWith(adminFetch(req).catch(() => denied())); return;
     }
     if (!safeMethods.has(req.method)) { event.respondWith(Promise.resolve(denied())); return; }
     if (url.origin === self.location.origin) {
@@ -137,10 +170,10 @@ function installPublicReadingWorker(policy) {
   });
 }
 
-export function buildPublicReadingWorker(sourceSha) {
+export function buildPublicReadingWorker(sourceSha, { anonKey = "" } = {}) {
   if (!/^[a-f0-9]{40}$/.test(sourceSha)) throw new Error("exact_source_sha_required");
-  return `${interceptPublicReadingAdminAuth.toString()}\n${interceptOpeningMail.toString()}\n(${installPublicReadingWorker.toString()})(${JSON.stringify({ id: PUBLIC_READING_POLICY_ID,
-    sourceSha, reads: PUBLIC_READING_READ_RPCS, getReads: PUBLIC_READING_GET_RPCS, communityFields: COMMUNITY_PUBLIC_FIELDS })});\n`;
+  return `${verifyReadingAdmin.toString()}\n${interceptPublicReadingAdminAuth.toString()}\n${interceptOpeningMail.toString()}\n(${installPublicReadingWorker.toString()})(${JSON.stringify({ id: PUBLIC_READING_POLICY_ID,
+    sourceSha, anonKey, reads: PUBLIC_READING_READ_RPCS, getReads: PUBLIC_READING_GET_RPCS, communityFields: COMMUNITY_PUBLIC_FIELDS })});\n`;
 }
 
 // One deadline covers register, install, ready, controller and policy handshake.

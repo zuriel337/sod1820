@@ -1,5 +1,6 @@
+import { useAuth } from "../lib/AuthContext.jsx";
 import React, { useEffect, useState } from "react";
-import { PUBLIC_READING_RELEASE } from "../lib/publicReadingRelease2029.js";
+import { publicReadingActionsLocked } from "../lib/publicReadingRelease2029.js";
 import WatchButton from "./WatchButton.jsx";
 import { F } from "../theme.js";
 import { usePalette, PALETTES } from "../lib/palette.js";
@@ -11,7 +12,8 @@ import "./postFollow2029.css";
 // An opt-in composition of the same WatchButton, without its own preferences,
 // toggle, identity or channel logic. Legacy defaults below are preserved.
 function PostFollow2029(props) {
-  if (PUBLIC_READING_RELEASE) {
+  const actionsLocked = publicReadingActionsLocked(useAuth().isAdmin);
+  if (actionsLocked) {
     const candidates = postFollowCandidates2029(props);
     if (!candidates.length) return null;
     return <section className="sod29-post-follow" aria-label="מעקב אחרי סדרה ותחום" data-follow-source={props.source} data-follow-state="unavailable">

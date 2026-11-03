@@ -21,7 +21,7 @@ export default function AccountEntry2029({ returnHref = "/2029", inline = false,
   const preview = import.meta.env.VITE_INTEGRATED_PREVIEW === "true";
   const methods = useAuthMethods((!PUBLIC_LAUNCH_READ_ONLY_PREVIEW || PUBLIC_READING_RELEASE) && !loading && !user);
   const fieldId = useId();
-  const [step, setStep] = useState(PUBLIC_READING_RELEASE ? "password" : "email"), [email, setEmail] = useState("");
+  const [step, setStep] = useState("email"), [email, setEmail] = useState("");
   const [password, setPassword] = useState(""), [code, setCode] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [busy, setBusy] = useState(false), [error, setError] = useState("");
@@ -33,7 +33,7 @@ export default function AccountEntry2029({ returnHref = "/2029", inline = false,
   function changeStep(next) { if (busy) return; attempt.current++; setStep(next); setPassword(""); setShowPassword(false); setCode(""); setError(""); }
   async function submit(event) {
     event.preventDefault();
-    if (busy || (PUBLIC_READING_RELEASE && step !== "password")) return;
+    if (busy) return;
     const address = email.trim(), action = step;
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(address)) { setError("הזינו כתובת מייל תקינה."); return; }
     if (action === "code" && !isValidEmailOtp(code)) { setError("הזינו את הקוד המלא מהמייל, 6–10 ספרות."); return; }
@@ -43,7 +43,7 @@ export default function AccountEntry2029({ returnHref = "/2029", inline = false,
     setBusy(true); setError("");
     try {
       if (action === "email") {
-        await requestEmailOtp(address, { shouldCreateUser: !preview || import.meta.env.VITE_FUNCTIONAL_UNIFIED_PREVIEW === "true" });
+        await requestEmailOtp(address, { shouldCreateUser: !PUBLIC_READING_RELEASE && (!preview || import.meta.env.VITE_FUNCTIONAL_UNIFIED_PREVIEW === "true") });
         if (current() && !principal.current) { setEmail(address); setStep("code"); }
       } else {
         const result = action === "password" ? await signInWithPassword(address, password) : await verifyEmailOtp(address, code);
@@ -52,7 +52,7 @@ export default function AccountEntry2029({ returnHref = "/2029", inline = false,
         }
       }
     } catch {
-      if (current() && !principal.current) setError(action === "email" ? "לא הצלחנו לשלוח קוד. בדקו את כתובת המייל ונסו שוב." : action === "code" ? "הקוד שגוי או שפג תוקפו. אפשר לבקש קוד חדש." : PUBLIC_READING_RELEASE ? "לא הצלחנו להיכנס לחשבון הקיים. בדקו את הפרטים ונסו שוב." : "המייל או הסיסמה אינם נכונים. אפשר להיכנס גם עם קוד למייל.");
+      if (current() && !principal.current) setError(action === "email" ? "לא הצלחנו לשלוח קוד. בדקו את כתובת המייל ונסו שוב." : action === "code" ? "הקוד שגוי או שפג תוקפו. אפשר לבקש קוד חדש." : "המייל או הסיסמה אינם נכונים. אפשר להיכנס גם עם קוד למייל.");
     } finally { if (current()) setBusy(false); }
   }
   async function federated(provider) {
@@ -65,7 +65,7 @@ export default function AccountEntry2029({ returnHref = "/2029", inline = false,
     attempt.current++; setBusy(true); setError("");
     try {
       await signOut({ scope: "local" });
-      if (mounted.current) { setEmail(""); setPassword(""); setCode(""); setStep(PUBLIC_READING_RELEASE ? "password" : "email"); }
+      if (mounted.current) { setEmail(""); setPassword(""); setCode(""); setStep("email"); }
     } catch { if (mounted.current) setError("לא הצלחנו לצאת מהחשבון. נסו שוב."); }
     finally { if (mounted.current) setBusy(false); }
   }
@@ -75,13 +75,13 @@ export default function AccountEntry2029({ returnHref = "/2029", inline = false,
           {!inline ? <span className="sod29-auth-eyebrow">החשבון מחובר</span> : null}
           <h2 id={`${fieldId}-title`}>שלום, {profile?.display_name || profile?.username || "חבר הקהילה"}</h2>
           {variant === "account" ? <small dir="ltr">{user.email || ""}</small> : null}
-          {PUBLIC_READING_RELEASE ? <p>{isAdmin ? "תצוגת מנהל · אזורים מסומנים סגורים לציבור. הכניסה אינה מפעילה פעולות מחקר או חיוב." : "החשבון מחובר. בגרסה זו זמינה הקריאה הציבורית; תצוגת האזורים הסגורים דורשת הרשאת מנהל."}</p> : !inline ? <p>אפשר להמשיך מהמקום שבו עצרתם.</p> : null}
+          {PUBLIC_READING_RELEASE ? <p>{isAdmin ? "גישת מנהל · כלי האתר פתוחים עבורך. אזורים בבנייה נשארים סגורים לציבור." : "החשבון מחובר. בגרסה זו זמינה הקריאה הציבורית; האזורים הסגורים זמינים למנהל בלבד."}</p> : !inline ? <p>אפשר להמשיך מהמקום שבו עצרתם.</p> : null}
           {!inline ? <Link className="sod29-auth-primary" to={returnTo}>{nextLabel} ←</Link> : null}
-          {!inline && !PUBLIC_READING_RELEASE ? <Link className="sod29-auth-secondary" to={writerPersonalHref("public-page")}>האזור האישי שלי</Link> : null}
+          {!inline && (!PUBLIC_READING_RELEASE || isAdmin) ? <Link className="sod29-auth-secondary" to={writerPersonalHref("public-page")}>האזור האישי שלי</Link> : null}
           <button className="sod29-auth-link" type="button" disabled={busy} onClick={switchAccount}>{variant === "account" ? "התנתקות" : "כניסה עם חשבון אחר"}</button>
         </> : <>
-          <h2 id={`${fieldId}-title`}>{PUBLIC_READING_RELEASE ? "כניסת מנהל לחשבון קיים" : step === "code" ? "הקוד בדרך אליכם" : step === "password" ? "כניסה עם סיסמה" : "כניסה לחשבון"}</h2>
-          <p>{PUBLIC_READING_RELEASE ? "הכניסה מאפשרת תצוגת מנהל לפי הרשאות החשבון. הרשמה לחשבון חדש וכניסה חברתית אינן פתוחות בגרסה זו." : step === "code" ? <>הזינו את הקוד שנשלח אל <b dir="ltr">{email}</b>.</> : step === "password" ? "השתמשו במייל ובסיסמה של החשבון שלכם." : "בחרו כיצד להיכנס לחשבון שלכם."}</p>
+          <h2 id={`${fieldId}-title`}>{step === "code" ? "הקוד בדרך אליכם" : step === "password" ? "כניסה עם סיסמה" : PUBLIC_READING_RELEASE ? "כניסה לחשבון קיים" : "כניסה והרשמה"}</h2>
+          <p>{step === "code" ? <>הזינו את הקוד שנשלח אל <b dir="ltr">{email}</b>.</> : step === "password" ? "השתמשו במייל ובסיסמה של החשבון שלכם." : PUBLIC_READING_RELEASE ? "אפשר להיכנס לחשבון קיים עם קוד למייל או סיסמה. הרשמה לחשבון חדש תיפתח בהמשך." : "בחרו כיצד להיכנס לחשבון שלכם."}</p>
           {methods.state === "loading" ? <p role="status">טוענים אפשרויות כניסה…</p> : methods.state === "unavailable" ? <div role="alert"><p>לא הצלחנו לטעון את אפשרויות הכניסה.</p><button type="button" className="sod29-auth-secondary" onClick={methods.retry}>נסו שוב</button></div> : null}
           {methods.state === "ready" && methods.email ? <form onSubmit={submit} aria-busy={busy}>
             {step !== "code" ? <><label htmlFor={`${fieldId}-email`}>כתובת מייל</label><input id={`${fieldId}-email`} name="email" type="email" autoComplete="username" dir="ltr" placeholder="you@example.com" value={email} disabled={busy} required onChange={e => { setEmail(e.target.value); setError(""); }} /></> : null}
@@ -91,9 +91,9 @@ export default function AccountEntry2029({ returnHref = "/2029", inline = false,
             <button className="sod29-auth-primary" type="submit" disabled={busy}>{busy ? "רגע, מתחברים…" : step === "email" ? "שלחו לי קוד כניסה" : "כניסה לחשבון ←"}</button>
           </form> : null}
           <div className="sod29-auth-alternatives">
-            {!PUBLIC_READING_RELEASE && methods.state === "ready" && methods.email ? <button className="sod29-auth-link" type="button" disabled={busy} onClick={() => changeStep(step === "email" ? "password" : "email")}>{step === "email" ? "כניסה עם סיסמה" : step === "code" ? "שינוי כתובת או בקשת קוד חדש" : "כניסה עם קוד למייל"}</button> : null}
-            {!PUBLIC_READING_RELEASE && methods.oauth.map(method => <button key={method.id} className="sod29-auth-secondary" type="button" disabled={busy || !method.available} aria-describedby={!method.available ? `${fieldId}-oauth-state` : undefined} onClick={() => federated(method.id)}>המשך עם {method.label}</button>)}
-            {!PUBLIC_READING_RELEASE && methods.oauth.some(method => !method.available) ? <p id={`${fieldId}-oauth-state`} className="sod29-auth-method-note">כניסה חברתית אינה זמינה בכתובת הזו כרגע. אפשר להיכנס עם מייל וסיסמה או קוד למייל.</p> : null}
+            {methods.state === "ready" && methods.email ? <button className="sod29-auth-link" type="button" disabled={busy} onClick={() => changeStep(step === "email" ? "password" : "email")}>{step === "email" ? "כניסה עם סיסמה" : step === "code" ? "שינוי כתובת או בקשת קוד חדש" : "כניסה עם קוד למייל"}</button> : null}
+            {methods.oauth.map(method => <button key={method.id} className="sod29-auth-secondary" type="button" disabled={busy || PUBLIC_READING_RELEASE || !method.available} aria-describedby={PUBLIC_READING_RELEASE || !method.available ? `${fieldId}-oauth-state` : undefined} onClick={() => federated(method.id)}>המשך עם {method.label}</button>)}
+            {methods.oauth.some(method => PUBLIC_READING_RELEASE || !method.available) ? <p id={`${fieldId}-oauth-state`} className="sod29-auth-method-note">{PUBLIC_READING_RELEASE ? "כניסה עם Google ו־Facebook תיפתח בהמשך. כרגע אפשר להיכנס לחשבון קיים באמצעות מייל." : "כניסה חברתית אינה זמינה בכתובת הזו כרגע. אפשר להיכנס עם מייל וסיסמה או קוד למייל."}</p> : null}
           </div>
         </>}
         {user && error ? <p className="sod29-auth-error" role="alert">{error}</p> : null}
