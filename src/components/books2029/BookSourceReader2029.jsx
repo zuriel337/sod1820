@@ -1,6 +1,7 @@
 import React, { lazy, Suspense, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import BookFullscreenButton2029 from "./BookFullscreenButton2029.jsx";
 import CanonicalProgress from "../CanonicalProgress.jsx";
+import { publicBookReadingLocation2029, publicBookReadingHref2029 } from "../../lib/research/bookPublicReadingLocation2029.js";
 import {
   chapterForBookPage,
   clampBookPage,
@@ -45,17 +46,22 @@ function normalizeSearch(value) {
     .toLocaleLowerCase("he");
 }
 
-async function fetchJsonAsset(url) {
+async function fetchJsonAsset(url, signal, sourceIdentity) {
   if (!url) return null;
-  const response = await fetch(url, { credentials: "same-origin" });
+  const response = await fetch(url, { credentials: "same-origin", signal });
   if (!response.ok) throw new Error(`Book asset unavailable (${response.status})`);
-  return response.json();
+  const data = await response.json();
+  if (sourceIdentity && data?.source_identity !== sourceIdentity) throw new Error("book_text_source_mismatch");
+  return data;
 }
 
-export default function BookSourceReader2029({ manifest, researchRows = [] }) {
-  const [page, setPage] = useState(() => pageFromUrl(manifest));
+export default function BookSourceReader2029({ manifest, researchRows = [], publicReadOnly = false }) {
+  const publicLocation = () => publicBookReadingLocation2029(manifest, typeof window === "undefined" ? {} : window.location);
+  const [page, setPage] = useState(() => publicReadOnly ? publicLocation().page : pageFromUrl(manifest));
   const [draftPage, setDraftPage] = useState(String(page));
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(() => publicReadOnly ? publicLocation().q : "");
+  const [locationIssue, setLocationIssue] = useState(() => publicReadOnly ? publicLocation().issue : null);
+  const [textRetry, setTextRetry] = useState(0);
   const [deepReading, setDeepReading] = useState({ loading: false, pageText: null, commentary: null });
   const [showInternalMap, setShowInternalMap] = useState(false);
   const fullscreenRef = useRef(null);
@@ -63,33 +69,45 @@ export default function BookSourceReader2029({ manifest, researchRows = [] }) {
   const deferredQuery = useDeferredValue(searchQuery);
 
   useEffect(() => {
-    const requested = pageFromUrl(manifest);
-    setPage(requested);
-    setDraftPage(String(requested));
-    setSearchQuery("");
+    const syncLocation = () => {
+      const location = publicReadOnly ? publicLocation() : { page: pageFromUrl(manifest), q: "", issue: null };
+      setPage(location.page);
+      setDraftPage(String(location.page));
+      setSearchQuery(location.q);
+      setLocationIssue(location.issue);
+    };
+    syncLocation();
     setShowInternalMap(false);
-  }, [manifest]);
+    if (!publicReadOnly) return;
+    window.addEventListener("popstate", syncLocation);
+    window.addEventListener("hashchange", syncLocation);
+    return () => { window.removeEventListener("popstate", syncLocation); window.removeEventListener("hashchange", syncLocation); };
+  }, [manifest, publicReadOnly]);
 
   useEffect(() => {
     let alive = true;
-    if (!manifest.pageTextUrl && !manifest.commentaryUrl) {
+    const abort = new AbortController();
+    const commentaryUrl = publicReadOnly ? null : manifest.commentaryUrl;
+    if (!manifest.pageTextUrl && !commentaryUrl) {
       setDeepReading({ loading: false, pageText: null, commentary: null });
-      return () => { alive = false; };
+      return () => { alive = false; abort.abort(); };
     }
     setDeepReading({ loading: true, pageText: null, commentary: null });
     Promise.allSettled([
-      fetchJsonAsset(manifest.pageTextUrl),
-      fetchJsonAsset(manifest.commentaryUrl),
+      fetchJsonAsset(manifest.pageTextUrl, abort.signal, publicReadOnly ? manifest.sourceIdentity : null),
+      fetchJsonAsset(commentaryUrl, abort.signal),
     ]).then(([pageTextResult, commentaryResult]) => {
       if (!alive) return;
       setDeepReading({
         loading: false,
+        failed: pageTextResult.status === "rejected",
+        sourceMismatch: pageTextResult.status === "rejected" && pageTextResult.reason?.message === "book_text_source_mismatch",
         pageText: pageTextResult.status === "fulfilled" ? pageTextResult.value : null,
         commentary: commentaryResult.status === "fulfilled" ? commentaryResult.value : null,
       });
     });
-    return () => { alive = false; };
-  }, [manifest.pageTextUrl, manifest.commentaryUrl]);
+    return () => { alive = false; abort.abort(); };
+  }, [manifest.pageTextUrl, manifest.commentaryUrl, manifest.sourceIdentity, publicReadOnly, textRetry]);
 
   const commentaryByPage = useMemo(() => new Map(
     (deepReading.commentary?.pages || []).map(item => [Number(item.pdf_page), item]),
@@ -120,7 +138,11 @@ export default function BookSourceReader2029({ manifest, researchRows = [] }) {
     const safePage = clampBookPage(manifest, nextPage);
     setPage(safePage);
     setDraftPage(String(safePage));
-    replacePageInUrl(safePage);
+    setLocationIssue(null);
+    if (publicReadOnly) {
+      const href = publicBookReadingHref2029(window.location.href, manifest, { page: safePage });
+      if (href) window.history.pushState(window.history.state, "", href);
+    } else replacePageInUrl(safePage);
   };
 
   const pdfPageUrl = `${manifest.pdfUrl}#page=${page}&view=FitH`;
@@ -131,11 +153,11 @@ export default function BookSourceReader2029({ manifest, researchRows = [] }) {
     openPage(draftPage);
   };
 
-  return <section className="book-reader29" aria-labelledby="book-reader29-title">
+  return <section className={`book-reader29${publicReadOnly ? " is-public-reading" : ""}`} aria-labelledby="book-reader29-title" data-public-source-reader={publicReadOnly || undefined}>
     <header className="book-reader29-heading">
       <div>
-        <span>דברי הספר · המקור פתוח תמיד</span>
-        <h2 id="book-reader29-title">קוראים ומבינים באותו מסך</h2>
+        <span>{publicReadOnly ? "דברי הספר · קריאת מקור" : "דברי הספר · המקור פתוח תמיד"}</span>
+        <h2 id="book-reader29-title">{publicReadOnly ? "קוראים בעמוד המקור" : "קוראים ומבינים באותו מסך"}</h2>
         <p>{manifest.introduction}</p>
       </div>
       <details className="book-reader29-source-details">
@@ -158,12 +180,12 @@ export default function BookSourceReader2029({ manifest, researchRows = [] }) {
     <div className="book-reader29-layout">
       <aside ref={fullscreenRef} id="book-reader29-source" className="book-reader29-source book-fullscreen29-target" aria-label={`המקור המלא של ${manifest.title}`}>
         <header>
-          <div><span>דברי הספר · PDF · עמוד {page} מתוך {manifest.pdfPages}</span><h3>{manifest.title}</h3></div>
-          <BookFullscreenButton2029 targetRef={fullscreenRef} fallbackHref={pdfPageUrl} controls="book-reader29-source" />
+          <div><span>{locationIssue ? "דברי הספר · מראה־המקום אינו זמין" : `דברי הספר · PDF · עמוד ${page} מתוך ${manifest.pdfPages}`}</span><h3>{manifest.title}</h3></div>
+          {!locationIssue ? <BookFullscreenButton2029 targetRef={fullscreenRef} fallbackHref={pdfPageUrl} controls="book-reader29-source" /> : null}
         </header>
 
         <div className="book-reader29-pdf" data-book-pdf-frame>
-          {manifest.pdfRenderer === "controlled_page" ? <Suspense fallback={<CanonicalProgress compact title="טעינת עמוד המקור" />}><BookPdfPage2029 manifest={manifest} page={page} /></Suspense> : <iframe key={pdfPageUrl} src={pdfPageUrl} title={`${manifest.title}, עמוד ${page}`} loading="eager" />}
+          {locationIssue ? <div className="sod29-state" role="status">{locationIssue === "chapter_unavailable" ? "הפרק שבקישור אינו מזוהה במפת הספר." : "העמוד שבקישור אינו קיים במקור הזה."} אפשר לבחור עמוד או פרק מן הספר.</div> : manifest.pdfRenderer === "controlled_page" ? <Suspense fallback={<CanonicalProgress compact title="טעינת עמוד המקור" />}><BookPdfPage2029 manifest={manifest} page={page} /></Suspense> : <iframe key={pdfPageUrl} src={pdfPageUrl} title={`${manifest.title}, עמוד ${page}`} loading="eager" />}
         </div>
 
         <form className="book-reader29-page-nav" onSubmit={submitPage} aria-label={`מעבר בין עמודי ${manifest.title}`} data-book-reader-secondary>
@@ -173,11 +195,11 @@ export default function BookSourceReader2029({ manifest, researchRows = [] }) {
           <button type="button" disabled={page >= manifest.pdfPages} onClick={() => openPage(page + 1)}>הבא ←</button>
         </form>
 
-        <a className="book-reader29-external" href={pdfPageUrl} target="_blank" rel="noreferrer" data-book-reader-secondary>פתח את עמוד {page} בחלון נפרד ↗</a>
+        {!locationIssue ? <a className="book-reader29-external" href={pdfPageUrl} target="_blank" rel="noreferrer" data-book-reader-secondary>פתח את עמוד {page} בחלון נפרד ↗</a> : null}
       </aside>
 
       <div className="book-reader29-guide">
-        {manifest.internalMapUrl ? <article className="book-reader29-internal-map-entry">
+        {!publicReadOnly && manifest.internalMapUrl ? <article className="book-reader29-internal-map-entry">
           <span>מפה פנימית · נטענת לפי בקשה</span>
           <h3>לקרוא את הספר מהלך אחר מהלך</h3>
           <p>פסוק או מאמר חז״ל, קושיה, מקורות, שלבי המהלך ומסקנה — כולם נשארים מחוברים לעמוד ה־PDF המדויק.</p>
@@ -185,21 +207,21 @@ export default function BookSourceReader2029({ manifest, researchRows = [] }) {
             {showInternalMap ? "סגור את המפה הפנימית" : "פתח את המפה הפנימית"}
           </button>
         </article> : null}
-        {manifest.internalMapUrl && showInternalMap ? <Suspense fallback={<article className="book-reader29-internal-map-loading" role="status">מכין את המפה הפנימית…</article>}>
+        {!publicReadOnly && manifest.internalMapUrl && showInternalMap ? <Suspense fallback={<article className="book-reader29-internal-map-loading" role="status">מכין את המפה הפנימית…</article>}>
           <BookInternalMap2029 mapUrl={manifest.internalMapUrl} currentPage={page} onOpenPage={openPage} />
         </Suspense> : null}
-        {pageCommentary?.hebrew_translation ? <article className="book-reader29-current book-reader29-translation">
+        {!publicReadOnly && pageCommentary?.hebrew_translation ? <article className="book-reader29-current book-reader29-translation">
           <span>תרגום עברי · PDF {page}</span>
           <h3>{pageCommentary.title || manifest.title}</h3>
           <p lang="he" dir="rtl">{pageCommentary.hebrew_translation}</p>
         </article> : null}
-        <article className="book-reader29-current" aria-live="polite">
+        {!publicReadOnly ? <article className="book-reader29-current" aria-live="polite">
           <span>הסבר נלווה · PDF {pageCommentary ? page : `${chapter?.from}–${chapter?.to}`}</span>
           <h3>{pageCommentary?.title || chapter?.title || manifest.title}</h3>
           <p>{pageCommentary?.companion_explanation || chapter?.guide || manifest.introduction}</p>
           {(pageCommentary?.reading_points || chapter?.points)?.length ? <ul>{(pageCommentary?.reading_points || chapter.points).map(point => <li key={point}>{point}</li>)}</ul> : null}
           <button type="button" onClick={() => openPage(pageCommentary?.pdf_page || chapter?.from || 1)}>{pageCommentary ? `פתח את עמוד ${page} בדברי הספר` : "פתח את תחילת החטיבה במקור"}</button>
-        </article>
+        </article> : <article className="book-reader29-current"><span>מפת הקריאה</span><h3>{locationIssue ? "בחירת מקום לקריאה" : chapter?.title || manifest.title}</h3><p>הספר המלא מוצג מן הקובץ המקורי. שמות החטיבות מסייעים להתמצאות; חומר מחקר והסברים של המערכת מוצגים בנפרד מדברי הספר.</p></article>}
 
         {manifest.pageTextUrl ? <article className="book-reader29-search">
           <span>חיפוש בדברי הספר</span>
@@ -209,18 +231,27 @@ export default function BookSourceReader2029({ manifest, researchRows = [] }) {
               id={`book-reader29-search-${manifest.slug}`}
               type="search"
               value={searchQuery}
-              onChange={event => setSearchQuery(event.target.value)}
+              onChange={event => {
+                setSearchQuery(event.target.value);
+                if (publicReadOnly) window.history.replaceState(window.history.state, "", publicBookReadingHref2029(window.location.href, manifest, { q: event.target.value }));
+              }}
+              maxLength={120}
               placeholder="למשל: קולות, רוח, אברהם"
             />
           </label>
           {deepReading.loading ? <small role="status">מכין חיפוש בתוך הספר…</small> : null}
-          {!deepReading.loading && normalizedQuery.length >= 2 ? <div className="book-reader29-search-results" aria-live="polite">
+          {deepReading.failed ? deepReading.sourceMismatch
+            ? <p role="status">שכבת החיפוש אינה תואמת לזהות המקור הנוכחית. אפשר להמשיך לקרוא את עמודי המקור.</p>
+            : <p role="alert">שכבת החיפוש לא נטענה. אפשר לקרוא את עמודי המקור או <button type="button" onClick={() => setTextRetry(value => value + 1)}>לנסות שוב</button>.</p> : null}
+          {!deepReading.loading && !deepReading.failed && normalizedQuery.length >= 2 ? <div className="book-reader29-search-results" aria-live="polite">
             <small>{searchResults.length ? `${searchResults.length} עמודים ראשונים נמצאו` : "לא נמצאה התאמה בשכבת האיתור"}</small>
             {searchResults.map(result => <button type="button" key={result.page} onClick={() => openPage(result.page)}>
               <strong>PDF {result.page}</strong><span>{result.title}</span>
             </button>)}
           </div> : null}
         </article> : null}
+
+        {publicReadOnly && !manifest.pageTextUrl && searchQuery ? <p role="status">החיפוש שבקישור נשמר. חיפוש טקסט בתוך המקור הזה אינו זמין כרגע; אפשר להמשיך לעמוד או לחטיבת הקריאה.</p> : null}
 
         <nav className="book-reader29-chapters" aria-label={`מפת הקריאה של ${manifest.title}`}>
           {manifest.chapters.map((item, index) => <button
@@ -236,17 +267,17 @@ export default function BookSourceReader2029({ manifest, researchRows = [] }) {
           </button>)}
         </nav>
 
-        <article className="book-reader29-keys">
+        {!publicReadOnly ? <article className="book-reader29-keys">
           <span>שלושה מפתחות לפני שמעמיקים</span>
           <ol>{manifest.readingKeys.map(key => <li key={key}>{key}</li>)}</ol>
-        </article>
+        </article> : null}
 
-        {relatedRows.length ? <article className="book-reader29-related">
+        {!publicReadOnly && relatedRows.length ? <article className="book-reader29-related">
           <span>מחקר שמצביע לעמוד הזה</span>
           <div>{relatedRows.map(row => <div key={row.id}><strong>{row.statement || row.kind || "ממצא מחקר"}</strong><small>{row.source_ref}</small></div>)}</div>
         </article> : null}
 
-        {manifest.experience ? <a className="book-reader29-experience" href={manifest.experience.href}>
+        {!publicReadOnly && manifest.experience ? <a className="book-reader29-experience" href={manifest.experience.href}>
           <span>ייצוג של מבנה הספר</span>
           <strong>{manifest.experience.label}</strong>
           <small>המפה, המחקר או המרחב המיוחד של הספר ←</small>

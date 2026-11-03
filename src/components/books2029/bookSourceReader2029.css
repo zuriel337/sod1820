@@ -63,3 +63,15 @@
 .book-reader29 :is(button,a):focus-visible{outline:3px solid var(--s29-focus-ring);outline-offset:3px}
 @media(max-width:980px){.book-reader29-heading{display:block}.book-reader29-source-details{margin-top:14px}.book-reader29-layout{grid-template-columns:1fr}.book-reader29-source{position:relative;top:auto}.book-reader29-guide{grid-template-columns:repeat(2,minmax(0,1fr))}.book-reader29-current,.book-reader29-search,.book-reader29-chapters{grid-column:1/-1}}
 @media(max-width:650px){.book-reader29{padding:13px;border-radius:22px}.book-reader29-heading h2{font-size:30px}.book-reader29-heading p{font-size:16px;line-height:1.65}.book-reader29-layout{gap:13px}.book-reader29-source{padding:8px;border-radius:18px}.book-reader29-source>header{align-items:flex-start}.book-reader29-source>header h3{font-size:17px}.book-reader29-pdf{height:68vh;min-height:470px;border-radius:12px}.book-reader29-page-nav{grid-template-columns:1fr 1fr}.book-reader29-page-nav label{grid-column:1/2}.book-reader29-guide{grid-template-columns:1fr}.book-reader29-current,.book-reader29-search,.book-reader29-chapters{grid-column:auto}.book-reader29-chapters{max-height:none}.book-reader29-chapters button{grid-template-columns:32px minmax(0,1fr)}.book-reader29-chapters small{grid-column:2}.book-reader29-source-details{width:auto}.book-reader29-source-details dl>div{grid-template-columns:1fr}.book-reader29-source-details dt{margin-bottom:-5px}}
+
+/* Opt-in public continuation: shared Design V2 type scale, source reading only. */
+.book-reader29.is-public-reading :is(p,.book-reader29-current p){font-size:var(--s29-type-body);line-height:1.8}
+.book-reader29.is-public-reading :is(button,input,label,summary,.book-reader29-external){font-size:var(--s29-type-ui);line-height:1.5;min-height:44px}
+.book-reader29.is-public-reading :is(dt,dd,small,.book-reader29-source>header span,.book-reader29-chapters strong,.book-reader29-chapters button>span,.book-reader29-search-results strong){font-size:var(--s29-type-small);line-height:1.5}
+.book-reader29.is-public-reading .book-reader29-source-details{width:min(100%,440px)}
+.book-reader29.is-public-reading .book-reader29-chapters button{grid-template-columns:36px minmax(0,1fr);min-height:72px}
+.book-reader29.is-public-reading .book-reader29-chapters small{grid-column:2;white-space:normal}
+.book-reader29.is-public-reading .book-reader29-source>header{flex-wrap:wrap}
+.book-reader29.is-public-reading .book-reader29-page-nav{grid-template-columns:repeat(2,minmax(0,1fr))}
+.book-reader29.is-public-reading .book-reader29-page-nav input{min-width:0}
+.book-reader29.is-public-reading .book-reader29-page-nav :is(button,label){min-width:0;padding:8px}
