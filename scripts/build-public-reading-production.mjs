@@ -8,6 +8,7 @@ import { SUPABASE_ANON } from "../src/lib/supabase.js";
 import { PUBLIC_READING_PROFILE_ID } from "../src/lib/publicReadingRelease2029.js";
 import { PUBLIC_READING_DEPLOYMENT_AUTHORIZATION } from "../public-reading-deploy/deployment-policy.js";
 import { protectedReviewBuildIdentity, protectedReviewConfigMaterialization } from "../public-reading-deploy/review-admission.js";
+import { BRAND_LOCKUP_2029, BRAND_LOCKUP_NAV_2029 } from "../src/lib/brandAssets2029.js";
 
 // Default artifact stays dormant. A separate explicit deployment-scoped review
 // command may admit only an exact Git source with no application edits on the
@@ -62,6 +63,15 @@ let document = await readFile(resolve(output, "2029.html"), "utf8");
 const entry = document.match(/<script\b[^>]*type="module"[^>]*src="([^"]+)"[^>]*><\/script>/);
 if (!entry) throw new Error("missing_2029_entry");
 document = document.replace(entry[0], publicReadingBootstrap(entry[1], sha));
+// Candidate PWA only: retain the existing installed-app identity/name/start URL.
+// Refer to the exact complete 2029 brand asset; do not redraw/crop the mark or
+// replace Legacy public/site.webmanifest, logo.png, root HTML or worker.
+const previousManifest = JSON.parse(await readFile(resolve(root,"public/site.webmanifest"),"utf8"));
+const appManifest = {...previousManifest,id:previousManifest.id||previousManifest.start_url,
+  icons:[{src:BRAND_LOCKUP_2029.src,sizes:`${BRAND_LOCKUP_2029.width}x${BRAND_LOCKUP_2029.height}`,type:"image/png",purpose:"any"}]};
+await writeFile(resolve(output,"site.webmanifest"),JSON.stringify(appManifest,null,2)+"\n");
+document=document.replace('<link rel="icon" href="data:," />',`<link rel="icon" href="${BRAND_LOCKUP_NAV_2029.src}" type="image/webp" />`)
+  .replace("</head>",`<link rel="manifest" href="/site.webmanifest" /><link rel="apple-touch-icon" href="${BRAND_LOCKUP_2029.src}" /></head>`);
 // The raw build document must only be reachable through the status/metadata
 // adapter; / and /?p=... cannot be shadowed by an index.html filesystem match.
 await mkdir(templates, { recursive: true });

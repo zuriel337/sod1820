@@ -1076,6 +1076,21 @@ const RESEARCH_SECTIONS = [
   { key: "history", title: "אחרונים", limit: 8 },
 ];
 
+function SavedItemEditor2029({ item, research }) {
+  const [open,setOpen]=useState(false),[title,setTitle]=useState(item.title||""),[note,setNote]=useState(item.note||""),[status,setStatus]=useState("");
+  const id=useId(),pending=useRef(false);
+  useEffect(()=>{
+    if(!pending.current)return;
+    if(research.syncStatus==="synced"&&research.syncPending===0){pending.current=false;setStatus("העריכה נשמרה בחשבון ✓");}
+    else if(["error","conflict","local_error"].includes(research.syncStatus)){pending.current=false;setStatus("לא התקבל אישור שמירה מהשרת. העריכה המקומית נשמרה לסנכרון חוזר.");}
+  },[research.syncStatus,research.syncPending]);
+  return <div><button className="sod29-workspace-unfollow" type="button" aria-expanded={open} onClick={()=>setOpen(x=>!x)}>עריכת פריט שמור</button>{open?<form className="sod29-workspace-list sod29-workspace-auth-form" onSubmit={event=>{event.preventDefault();if(pending.current)return;pending.current=true;const ok=research.saveItem?.({...item,title:title.trim()||item.title,note});setStatus(ok?"ממתין לאישור שמירה מהשרת…":"לא ניתן לשמור כרגע.");if(!ok)pending.current=false;}}>
+    <label htmlFor={id+"-title"}>כותרת אישית</label><input id={id+"-title"} value={title} maxLength={200} disabled={pending.current} onChange={e=>setTitle(e.target.value)}/>
+    <label htmlFor={id+"-note"}>הערה פרטית</label><textarea id={id+"-note"} value={note} maxLength={4000} rows={3} disabled={pending.current} onChange={e=>setNote(e.target.value)}/>
+    <button type="submit" className="sod29-action" disabled={pending.current}>שמירת העריכה</button><small role="status">{status}</small>
+  </form>:null}</div>;
+}
+
 export function ResearchStateSections({ research, go, onInspect, onOpenNumber, onOpenSavedConversation }) {
   const syncStatus = research?.syncStatus || "local_only";
   const syncLabel = research?.syncAwaitingAction ? "שינויים מקומיים ממתינים לשמירה" : syncStatus === "synced" ? "מסונכרן לחשבון" : syncStatus === "local_only" ? "מקומי בדפדפן הזה — לא מסונכרן" : syncStatus === "auth_loading" ? "בודק חשבון" : "בסנכרון עם החשבון";
@@ -1113,6 +1128,7 @@ export function ResearchStateSections({ research, go, onInspect, onOpenNumber, o
                 <li key={`${sec.key}:${e.id}`} className="sod29-workspace-follow-row">
                   <button type="button" className="sod29-workspace-follow-open" onClick={() => openRow(e)}><strong>{e.title || e.id}</strong><small>{e.type === "raziel_session" ? "שיחה שמורה" : e.type}</small></button>
                   {sec.remove ? <button type="button" className="sod29-workspace-unfollow" aria-label={`הסר: ${e.title || e.id}`} onClick={() => research?.[sec.remove]?.(sec.removeWithEntity ? e : e.id)}>הסר</button> : null}
+                  {sec.key === "saved" && e.type !== "raziel_session" ? <SavedItemEditor2029 key={e.id} item={e} research={research}/> : null}
                 </li>
               ))}
             </ul> : <FrameState kind="empty" title="ריק">{sec.key === "saved" ? "לחץ ＋ שמור בבדיקה מהירה כדי לשמור פריט לספרייה." : "אין כאן עדיין פריטים."}</FrameState>}

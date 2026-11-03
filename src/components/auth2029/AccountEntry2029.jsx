@@ -75,9 +75,9 @@ export default function AccountEntry2029({ returnHref = "/2029", inline = false,
           {!inline ? <span className="sod29-auth-eyebrow">החשבון מחובר</span> : null}
           <h2 id={`${fieldId}-title`}>שלום, {profile?.display_name || profile?.username || "חבר הקהילה"}</h2>
           {variant === "account" ? <small dir="ltr">{user.email || ""}</small> : null}
-          {PUBLIC_READING_RELEASE ? <p>{isAdmin ? "גישת מנהל · כלי האתר פתוחים עבורך. אזורים בבנייה נשארים סגורים לציבור." : "החשבון מחובר. בגרסה זו זמינה הקריאה הציבורית; האזורים הסגורים זמינים למנהל בלבד."}</p> : !inline ? <p>אפשר להמשיך מהמקום שבו עצרתם.</p> : null}
+          {PUBLIC_READING_RELEASE ? <p>החשבון מחובר. השמורים, הפנקס והפרופיל שלכם נמצאים באזור האישי. כניסה אינה מפעילה מודל, חיוב או הרשמה לדיוור.</p> : !inline ? <p>אפשר להמשיך מהמקום שבו עצרתם.</p> : null}
           {!inline ? <Link className="sod29-auth-primary" to={returnTo}>{nextLabel} ←</Link> : null}
-          {!inline && (!PUBLIC_READING_RELEASE || isAdmin) ? <Link className="sod29-auth-secondary" to={writerPersonalHref("public-page")}>האזור האישי שלי</Link> : null}
+          {!inline ? <Link className="sod29-auth-secondary" to={writerPersonalHref("research")}>האזור האישי שלי</Link> : null}
           <button className="sod29-auth-link" type="button" disabled={busy} onClick={switchAccount}>{variant === "account" ? "התנתקות" : "כניסה עם חשבון אחר"}</button>
         </> : <>
           <h2 id={`${fieldId}-title`}>{step === "code" ? "הקוד בדרך אליכם" : step === "password" ? "כניסה עם סיסמה" : PUBLIC_READING_RELEASE ? "כניסה לחשבון קיים" : "כניסה והרשמה"}</h2>

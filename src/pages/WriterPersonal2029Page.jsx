@@ -122,7 +122,7 @@ function WriterPersonalController2029({ module, user, authLoading }) {
         {writer.publicVisible ? <a className="pc-open" href={writer.href}>בחירת כתבים והקדמה בדף שלי</a> : null}
       </> : null}
       {selected === "profile" ? <>
-        <ProfileSettings key={user.id} t={{ fieldBg: P.cardSoft, ink: P.ink, line: P.border, sub: P.inkSoft, acc: P.accentText, danger: P.dangerText, btnBg: P.accentBtn, btnText: P.onAccent }} onDone={reload} showSignOut onSignOut={()=>navigate(returnHref||"/")} />
+        <ProfileSettings key={user.id} t={{ fieldBg: P.cardSoft, ink: P.ink, line: P.border, sub: P.inkSoft, acc: P.accentText, danger: P.dangerText, btnBg: P.accentBtn, btnText: P.onAccent }} onDone={()=>reload(true)} showSignOut onSignOut={()=>navigate(returnHref||"/")} />
         {writer.state === "ready" ? <WriterPublicPortrait2029 principalKey={user.id} accountAvatar={data.accountAvatar} publicAvatar={writer.avatar} state={mutation} onRetry={reload}
           onApply={() => mutate("portrait", { enabled: true })} onHide={() => mutate("portrait", { enabled: false })} />
           : <a className="pc-open" href={writerPersonalHref("public-page", { returnTo: returnHref })}>פתיחת הדף הציבורי שלי</a>}

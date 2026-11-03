@@ -34,7 +34,10 @@ export default function ProfileSettings({ t, showSignOut = false, onDone, onSign
     const signature=JSON.stringify([user?.id,profile?.id,profile?.display_name,profile?.username,profile?.avatar_url]);
     if(profileSignature.current===signature)return;
     profileSignature.current=signature;
-    setMsg(""); setErr(""); setBusy(false); setUploading(false); pending.current = false; setAvatarConsent(false); setAvatarDirty(false);
+    // An acknowledged same-account save refreshes these fields. Keep its
+    // receipt visible; only a principal change revokes the editor state.
+    if (draftActor !== user?.id) { setMsg(""); setErr(""); setBusy(false); setUploading(false); pending.current = false; }
+    setAvatarConsent(false); setAvatarDirty(false);
     if (profile?.id === user?.id && user?.id) {
       setDraftActor(user.id);
       setDisplayName(profile.display_name || "");

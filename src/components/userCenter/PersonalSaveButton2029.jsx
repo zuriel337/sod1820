@@ -24,5 +24,5 @@ export default function PersonalSaveButton2029({ entity }) {
     if(ok===false){pending.current=false;setNotice('לא ניתן להתחיל את השמירה כרגע.');}
     else setNotice('ממתין לאישור שמירה מהשרת…');
   };
-  return <span className="sod29-actions" data-personal-save="true"><button type="button" className="sod29-action" disabled={pending.current} aria-pressed={saved} onClick={save}>{saved&&research.syncStatus==='synced'?'✓ שמור באזור האישי':'שמירה לאזור האישי'}</button>{notice?<small role="status">{notice}</small>:null}</span>;
+  return <span className="sod29-actions" data-personal-save="true"><button type="button" className="sod29-action" disabled={pending.current} aria-pressed={saved} onClick={save}>{saved?'✓ ברשימת השמורים':'שמירה לאזור האישי'}</button>{notice?<small role="status">{notice}</small>:null}</span>;
 }

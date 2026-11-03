@@ -265,7 +265,7 @@ function PrincipalResearchProvider({ children, userId, disabled, personalLocked,
     let alive = true;
     const version = pathSession.current.version;
     const epoch = access.current.epoch;
-    if (!userId || actionsLocked) {
+    if (!userId || actionsLocked || !featureAccess.current) {
       setPathResume({ loading: false, latest: null, error: null });
       return () => { alive = false; };
     }
@@ -278,11 +278,12 @@ function PrincipalResearchProvider({ children, userId, disabled, personalLocked,
       if (alive && access.current.allowed && epoch === access.current.epoch && version === pathSession.current.version) setPathResume({ loading: false, latest: null, error: error?.message || "research_path_unavailable" });
     });
     return () => { alive = false; };
-  }, [userId, actionsLocked]);
+  }, [userId, actionsLocked, isAdmin]);
 
   const saveCurrentResearchPath = useMemo(() => async ({ href = null, label = null, surface = null } = {}) => {
     if (!pathSession.current.active) return { ok: false, error: "session_unavailable" };
     if (!access.current.allowed) return { ok: false, error: "feature_locked" };
+    if (!featureAccess.current) return { ok: false, error: "feature_locked" };
     const accessEpoch = access.current.epoch;
     const sessionCurrent = () => pathSession.current.active && access.current.allowed && access.current.epoch === accessEpoch;
     if (!userId) return { ok: false, error: "authentication_required" };
@@ -358,6 +359,7 @@ function PrincipalResearchProvider({ children, userId, disabled, personalLocked,
   const resumeResearchPath = useMemo(() => async (pathId = null) => {
     if (!pathSession.current.active) return { ok: false, error: "session_unavailable" };
     if (!access.current.allowed) return { ok: false, error: "feature_locked" };
+    if (!featureAccess.current) return { ok: false, error: "feature_locked" };
     const accessEpoch = access.current.epoch;
     const sessionCurrent = () => pathSession.current.active && access.current.allowed && access.current.epoch === accessEpoch;
     if (!userId) return { ok: false, error: "authentication_required" };
@@ -405,6 +407,7 @@ function PrincipalResearchProvider({ children, userId, disabled, personalLocked,
   } = {}) => {
     if (!pathSession.current.active) return { ok: false, error: "session_unavailable" };
     if (!access.current.allowed) return { ok: false, error: "feature_locked" };
+    if (!featureAccess.current) return { ok: false, error: "feature_locked" };
     const accessEpoch = access.current.epoch;
     const sessionCurrent = () => pathSession.current.active && access.current.allowed && access.current.epoch === accessEpoch;
     if (!userId) return { ok: false, error: "authentication_required" };

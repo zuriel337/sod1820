@@ -87,14 +87,16 @@ export function gatesToTopics(gateKeys = []) {
 // הערה: תגית-המנוע נשארת 'חידושי גולשים' כמפתח-סינון פנימי יציב (לא מוצג למשתמש).
 export const COMMUNITY_LABEL = "חידושי הקהילה";
 
-export async function getMyNotifications(limit = 30, { strict = false } = {}) {
+export async function getMyNotifications(limit = 30, { strict = false, userId = null } = {}) {
   if (!supabase) { if (strict) throw new Error("Notification reader unavailable"); return []; }
   try {
-    const { data, error } = await supabase
+    let query = supabase
       .from("user_notifications")
       .select("id,kind,title,body,link,read_at,created_at,source_topic")
       .order("created_at", { ascending: false })
       .limit(limit);
+    if (userId) query=query.eq("user_id",userId);
+    const { data, error } = await query;
     if (error) throw error;
     if (strict && !Array.isArray(data)) throw new Error("Notification list unavailable");
     return data || [];
@@ -166,13 +168,14 @@ function notificationReadAck(data, expectedId = null) {
   return { ok: true, markedIds };
 }
 
-export async function markNotificationRead(id, { strict = false } = {}) {
+export async function markNotificationRead(id, { strict = false, userId = null } = {}) {
   if (!supabase || !id || strict && typeof id !== "string") {
     if (strict) throw new Error("Notification update unavailable");
     return;
   }
   try {
     const query = supabase.from("user_notifications").update({ read_at: new Date().toISOString() }).eq("id", id).is("read_at", null);
+    if (userId) query.eq("user_id",userId);
     const { data, error } = await (strict ? query.select("id,read_at") : query);
     if (strict) {
       if (error) throw error;
@@ -181,10 +184,11 @@ export async function markNotificationRead(id, { strict = false } = {}) {
   } catch (error) { if (strict) throw error; }
 }
 
-export async function markAllRead({ strict = false } = {}) {
+export async function markAllRead({ strict = false, userId = null } = {}) {
   if (!supabase) { if (strict) throw new Error("Notification update unavailable"); return; }
   try {
     const query = supabase.from("user_notifications").update({ read_at: new Date().toISOString() }).is("read_at", null);
+    if (userId) query.eq("user_id",userId);
     const { data, error } = await (strict ? query.select("id,read_at") : query);
     if (strict) {
       if (error) throw error;

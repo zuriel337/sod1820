@@ -4,6 +4,8 @@ import { readingPersonalResponse } from '../public-reading-deploy/personal-reque
 import { verifyReadingPrincipal } from '../public-reading-deploy/admin-request.js';
 import { deriveHiddenCrossings, fetchNumberHiddenCrossings } from '../src/lib/research/numberCoreProjection.js';
 import { readFileSync } from 'node:fs';
+import { createClient } from '@supabase/supabase-js';
+import { BRAND_LOCKUP_2029, BRAND_LOCKUP_NAV_2029 } from '../src/lib/brandAssets2029.js';
 const API='https://linswmnnkjxvweumprav.supabase.co', SITE='https://review.example';
 const a='00000000-0000-4000-8000-000000000001',b='00000000-0000-4000-8000-000000000002';
 const jwt=uid=>'e30.'+Buffer.from(JSON.stringify({sub:uid,role:'authenticated'})).toString('base64url')+'.signature';
@@ -55,4 +57,40 @@ test('canonical hidden crossings are deterministic under candidate order; count 
 test('mobile glass reuses the adopted token treatment; private drafts never import the unscoped Legacy notebook',()=>{
  const css=readFileSync(new URL('../src/components/experience2029/systemFrame2029-unified-bar.css',import.meta.url),'utf8');assert.ok(css.includes('@media(prefers-reduced-transparency:reduce)'));
  const component=readFileSync(new URL('../src/components/userCenter/PersonalNotes2029.jsx',import.meta.url),'utf8');assert.ok(!component.includes('localStorage'));assert.ok(!component.includes('sod_notes_v1'));assert.ok(component.includes('strict:true'));
+});
+test('existing DM contracts derive the sender from JWT and cannot accept a spoofed sender or self-message',async()=>{
+ for(const [rpc,body]of [['dm_inbox',{}],['dm_thread',{p_with:b,p_limit:100}],['dm_send',{p_to:b,p_body:'controlled fixture only'}]]){
+  const h=harness();assert.equal((await h.request('/rest/v1/rpc/'+rpc,{body})).status,200);assert.equal(h.calls.length,2);
+ }
+ for(const [rpc,body]of [['dm_inbox',{user_id:b}],['dm_thread',{p_with:b,p_limit:201}],['dm_send',{p_to:a,p_body:'self'}],['dm_send',{p_to:b,p_body:'test',p_from:b}]])assert.equal((await harness().request('/rest/v1/rpc/'+rpc,{body})).status,403);
+});
+test('owned inbox read acknowledgements and explicit Unfollow cannot change another user or enable delivery',async()=>{
+ const body={read_at:'2026-11-03T12:00:00.000Z'};
+ assert.equal((await harness().request('/rest/v1/user_notifications?user_id=eq.'+a+'&read_at=is.null&select=id,read_at',{method:'PATCH',body})).status,200);
+ for(const [query,payload]of [['user_id=eq.'+b+'&read_at=is.null',body],['read_at=is.null',body],['user_id=eq.'+a+'&read_at=is.null',{...body,user_id:b}],['user_id=eq.'+a+'&read_at=is.null',{...body,title:'overwrite'}]])assert.equal((await harness().request('/rest/v1/user_notifications?'+query,{method:'PATCH',body:payload})).status,403);
+ const remove={p_topic:'number:1820',p_source:'center',p_on:false,p_visitor:null};
+ assert.equal((await harness().request('/rest/v1/rpc/watch_toggle',{body:remove})).status,200);
+ for(const extra of [{p_on:true},{p_visitor:'other'},{user_id:b},{channels:['email']}])assert.equal((await harness().request('/rest/v1/rpc/watch_toggle',{body:{...remove,...extra}})).status,403);
+});
+test('actual Storage SDK avatar request fits only the owned existing avatar path; no live network',async()=>{
+ const h=harness();let admitted;
+ const client=createClient(API,'synthetic-public',{auth:{persistSession:false,autoRefreshToken:false},global:{fetch:async(input,init)=>{
+  const req=new Request(input,init);req.headers.set('Authorization','Bearer '+jwt(a));
+  admitted=await readingPersonalResponse(req,{apiKey:'public',clientOrigin:SITE,verify:verifyReadingPrincipal,fetchImpl:async(input,init)=>new Request(input,init).url===API+'/auth/v1/user'?json({id:a}):json({Key:'fixture'})});
+  return admitted;
+ }}});
+ const {error}=await client.storage.from('gallery').upload('avatars/'+a+'-1793700000000.png',new Blob(['synthetic image bytes'],{type:'image/png'}),{upsert:false});
+ assert.equal(error,null);assert.equal(admitted.status,200);
+ const bad=new Request(API+'/storage/v1/object/gallery/avatars/'+b+'-1793700000000.png',{method:'POST',headers:{Authorization:'Bearer '+jwt(a)}});
+ assert.equal((await readingPersonalResponse(bad,{apiKey:'public',clientOrigin:SITE,verify:verifyReadingPrincipal,fetchImpl:async()=>json({id:a})})).status,403);
+});
+test('candidate installed-app metadata preserves Legacy identity and uses the complete existing 2029 mark',()=>{
+ const read=path=>readFileSync(new URL('../'+path,import.meta.url),'utf8');
+ const legacy=JSON.parse(read('public/site.webmanifest')),candidate=JSON.parse(read('public-reading-deploy/dist/site.webmanifest'));
+ for(const key of ['name','short_name','start_url','display','lang','dir'])assert.equal(candidate[key],legacy[key]);
+ assert.equal(candidate.id,legacy.id||legacy.start_url);
+ assert.deepEqual(candidate.icons,[{src:BRAND_LOCKUP_2029.src,sizes:'1254x1254',type:'image/png',purpose:'any'}]);
+ assert.ok(legacy.icons.every(x=>x.src==='/logo.png'));
+ const html=read('public-reading-deploy/.generated/2029.html');
+ assert.ok(html.includes('rel="manifest" href="/site.webmanifest"'));assert.ok(html.includes('rel="icon" href="'+BRAND_LOCKUP_NAV_2029.src+'"'));assert.ok(html.includes('rel="apple-touch-icon" href="'+BRAND_LOCKUP_2029.src+'"'));
 });

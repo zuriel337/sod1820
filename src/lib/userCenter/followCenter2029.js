@@ -34,7 +34,7 @@ export function notificationHref(link) {
 export const followCenterIO = Object.freeze({
   async readUpdates(userId) {
     await requireAccount(userId);
-    const items = await getMyNotifications(30, { strict: true });
+    const items = await getMyNotifications(30, { strict: true, userId });
     await requireAccount(userId);
     return items.map(item => ({ ...item, link: notificationHref(item.link) }));
   },
@@ -57,13 +57,13 @@ export const followCenterIO = Object.freeze({
   },
   async markAll(userId) {
     await requireAccount(userId);
-    const ack = await markAllRead({ strict: true });
+    const ack = await markAllRead({ strict: true, userId });
     await requireAccount(userId);
     return ack;
   },
   async markOne(userId, id) {
     await requireAccount(userId);
-    const ack = await markNotificationRead(id, { strict: true });
+    const ack = await markNotificationRead(id, { strict: true, userId });
     await requireAccount(userId);
     return ack;
   },

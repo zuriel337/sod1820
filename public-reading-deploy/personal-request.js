@@ -3,12 +3,12 @@
 export async function readingPersonalResponse(req, { apiKey, clientOrigin, fetchImpl = fetch, verify } = {}) {
   const u = new URL(req.url), db = "https://linswmnnkjxvweumprav.supabase.co";
   const table = u.origin === db ? /^\/rest\/v1\/(users|profiles|user_notes|research_items|user_research|notification_prefs|user_notifications)$/.exec(u.pathname)?.[1] : null;
-  const rpc = u.origin === db ? /^\/rest\/v1\/rpc\/(research_state_snapshot_v1|research_state_apply_ops_v1|update_my_page_config|dm_inbox|dm_thread|dm_send)$/.exec(u.pathname)?.[1] : null;
+  const rpc = u.origin === db ? /^\/rest\/v1\/rpc\/(research_state_snapshot_v1|research_state_apply_ops_v1|update_my_page_config|dm_inbox|dm_thread|dm_send|watch_toggle)$/.exec(u.pathname)?.[1] : null;
   const selfApi = u.origin === clientOrigin && u.pathname === "/api/contributor-self";
   const avatar = u.origin === db && /^\/storage\/v1\/object\/gallery\/avatars\//.test(u.pathname);
   if (!table && !rpc && !selfApi && !avatar || table === "users" && ["GET","HEAD"].includes(req.method)) return null;
   const denied = () => new Response(JSON.stringify({ error: "personal_operation_denied" }), { status: 403, headers: { "Content-Type":"application/json", "Cache-Control":"no-store" } });
-  if (table && !["GET","HEAD"].includes(req.method) && !["users","user_notes"].includes(table)) return denied();
+  if (table && !["GET","HEAD"].includes(req.method) && !["users","user_notes","user_notifications"].includes(table)) return denied();
   try {
     if (req.signal.aborted || !apiKey || typeof verify !== "function") return denied();
     const token = /^Bearer ([A-Za-z0-9_.-]+)$/i.exec(req.headers.get("Authorization") || "")?.[1];
@@ -51,7 +51,15 @@ export async function readingPersonalResponse(req, { apiKey, clientOrigin, fetch
       if (u.searchParams.has("columns") && u.searchParams.get("columns").replaceAll('"', '').split(',').sort().join(',') !== 'content,updated_at,user_id') return denied();
       return forward();
     }
+    if (table === "user_notifications") return req.method === "PATCH" && owned()
+      && query(["user_id","id","read_at","select"]) && u.searchParams.get("read_at") === "is.null"
+      && keys(body,["read_at"]) && typeof body.read_at === "string" && Number.isFinite(Date.parse(body.read_at)) ? forward() : denied();
     if (req.method !== "POST" || !rpc || u.search) return denied();
+    // Existing Follow removal only, with Auth-derived identity; never enable
+    // a channel, assign a visitor or add a Follow while entering the account.
+    if (rpc === "watch_toggle") return keys(body,["p_topic","p_source","p_on","p_visitor"])
+      && typeof body.p_topic === "string" && body.p_topic.trim().length > 0 && body.p_topic.length <= 500
+      && body.p_source === "center" && body.p_on === false && body.p_visitor === null ? forward() : denied();
     const uuid = value => typeof value === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
     if (rpc === "dm_inbox") return keys(body,[]) ? forward() : denied();
     if (rpc === "dm_thread") return keys(body,["p_with","p_limit"]) && uuid(body.p_with) && (body.p_limit == null || Number.isInteger(body.p_limit) && body.p_limit >= 1 && body.p_limit <= 200) ? forward() : denied();
